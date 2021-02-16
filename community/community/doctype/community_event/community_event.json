@@ -7,6 +7,7 @@
  "engine": "InnoDB",
  "field_order": [
   "year",
+  "is_hackathon",
   "volunteers"
  ],
  "fields": [
@@ -21,11 +22,17 @@
    "fieldtype": "Table",
    "label": "Volunteers",
    "options": "Community Event Volunteer"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_hackathon",
+   "fieldtype": "Check",
+   "label": "Is Hackathon"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-02-12 18:29:21.213257",
+ "modified": "2021-02-15 18:29:26.828720",
  "modified_by": "Administrator",
  "module": "Community",
  "name": "Community Event",

@@ -1,0 +1,63 @@
+{% extends "templates/base.html" %}
+{% block title %}{{ 'Hackathons' }}{% endblock %}
+{% from "www/hackathons/macros/card.html" import hackathon_card %}
+{% from "www/hackathons/macros/card.html" import null_card %}
+{% block head_include %}
+	<meta name="description" content="{{ 'Hackathon' }}" />
+	<meta name="keywords" content="An app that supports Communities" />
+	<style>
+		div.card-hero-img {
+			height: 220px;
+			background-size: cover;
+			background-repeat: no-repeat;
+			background-position: center;
+			background-color: rgb(250, 251, 252);
+		}
+
+		.card-image-wrapper {
+			display: flex;
+			overflow: hidden;
+			height: 220px;
+			background-color: rgb(250, 251, 252);
+			justify-content: center;
+		}
+
+		.image-body {
+			align-self: center;
+			color: #d1d8dd;
+			font-size: 24px;
+			font-weight: 600;
+			line-height: 1;
+			padding: 20px;
+		}
+
+		section {
+			padding: 5rem 0 5rem 0;
+		}
+	</style>
+{% endblock %}
+
+{% block content %}
+<section class="top-section" style="padding: 6rem 0rem;">
+	<div class='container pb-5'>
+		<h1>{{ 'Hackathon' }}</h1>
+		<p class="mt-4">
+			{% if frappe.session.user == 'Guest' %}
+				<a class="btn btn-primary btn-lg" href="/login#signup">{{_('Sign Up')}}</a>
+			{% endif %}
+		</p>
+	</div>
+	<div class='container'>
+		<div class="row mt-5">
+			{% for hackathon in hackathons %}
+                {{ hackathon_card(hackathon) }}
+            {% endfor %}
+			{% if hackathons %}
+				{% for n in range( (3 - (hackathons|length)) %3) %}
+					{{ null_card() }}
+				{% endfor %}
+			{% endif %}
+		</div>
+	</div>
+</section>
+{% endblock %}

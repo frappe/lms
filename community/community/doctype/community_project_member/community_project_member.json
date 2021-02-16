@@ -27,10 +27,11 @@
    "reqd": 1
   },
   {
+   "default": "Pending",
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
-   "options": "\nPending\nAccepted\nRejected"
+   "options": "Pending\nAccepted\nRejected"
   },
   {
    "fieldname": "project_owner",
@@ -41,7 +42,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-02-12 18:36:33.600885",
+ "modified": "2021-02-16 19:27:30.842282",
  "modified_by": "Administrator",
  "module": "Community",
  "name": "Community Project Member",

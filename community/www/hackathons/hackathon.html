@@ -1,0 +1,69 @@
+{% extends "templates/base.html" %}
+{% block title %}{{ hackathon }}{% endblock %}
+{% from "www/hackathons/macros/hero.html" import hero %}
+{% from "www/hackathons/macros/card.html" import null_card %}
+
+{% block head_include %}
+	<style>
+		div.card-hero-img {
+			height: 220px;
+			background-size: cover;
+			background-repeat: no-repeat;
+			background-position: center;
+			background-color: rgb(250, 251, 252);
+		}
+
+		.card-image-wrapper {
+			display: flex;
+			overflow: hidden;
+			height: 220px;
+			background-color: rgb(250, 251, 252);
+			justify-content: center;
+		}
+
+		.image-body {
+			align-self: center;
+			color: #d1d8dd;
+			font-size: 24px;
+			font-weight: 600;
+			line-height: 1;
+			padding: 20px;
+		}
+
+		section {
+			padding: 5rem 0 5rem 0;
+		}
+	</style>
+{% endblock %}
+
+
+{% macro card(project) %}
+<div class="col-sm-4 mb-4 text-left">
+	<a href="/hackathons/project?project={{ project.name }}&hackathon={{ hackathon }}" class="no-decoration no-underline">
+	<div class="card h-100">
+		<div class='card-body'>
+			<h5 class='card-title'>{{ project.name }}</h5>
+			<div class="text-muted">{{ project.project_short_intro }}</div>
+		</div>
+	</div>
+	</a>
+</div>
+{% endmacro %}
+
+{% block content %}
+<section class="section">
+	{{ hero(hackathon, {'name': 'Home', 'url': '/hackathons'}) }}
+	<div class='container'>
+		<div class="row mt-5">
+			{% for project in projects %}
+				{{ card(project) }}
+			{% endfor %}
+			{% if projects %}
+				{% for n in range( (3 - (projects|length)) %3) %}
+					{{ null_card() }}
+				{% endfor %}
+			{% endif %}
+		</div>
+	</div>
+</section>
+{% endblock %}

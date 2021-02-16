@@ -15,7 +15,7 @@
  ],
  "fields": [
   {
-   "default": "0",
+   "default": "1",
    "fieldname": "enabled",
    "fieldtype": "Check",
    "label": "Enabled"
@@ -29,12 +29,14 @@
    "unique": 1
   },
   {
+   "allow_in_quick_entry": 1,
    "fieldname": "role",
    "fieldtype": "Select",
    "label": "Role",
    "options": "\nBoard\nDirector\nVolunteer\nSpeaker"
   },
   {
+   "allow_in_quick_entry": 1,
    "fieldname": "photo",
    "fieldtype": "Attach Image",
    "label": "Photo"
@@ -45,6 +47,7 @@
    "label": "Short Intro"
   },
   {
+   "allow_in_quick_entry": 1,
    "fieldname": "bio",
    "fieldtype": "HTML Editor",
    "label": "Bio"
@@ -52,7 +55,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-02-12 15:50:13.439527",
+ "modified": "2021-02-15 12:16:32.428546",
  "modified_by": "Administrator",
  "module": "Community",
  "name": "Community Member",

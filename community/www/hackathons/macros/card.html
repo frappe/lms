@@ -1,0 +1,18 @@
+{% macro hackathon_card(hackathon) %}
+<div class="col-sm-4 mb-4 text-left">
+	<a href="/hackathons/hackathon?hackathon={{ hackathon.name }}" class="no-decoration no-underline">
+	<div class="card h-100">
+		<div class='card-body'>
+			<h5 class='card-title'>{{ hackathon.name }}</h5>
+		</div>
+	</div>
+	</a>
+</div>
+{% endmacro %}
+
+{% macro null_card() %}
+<div class="col-sm-4 mb-4 text-left">
+	<div class="h-100 d-none d-sm-block" style="border: 1px solid rgba(209,216,221,0.5);border-radius: 0.25rem;background-color: rgb(250, 251, 252);">
+	</div>
+</div>
+{% endmacro %}
