@@ -1,0 +1,3 @@
+{% macro show_user(user) %}
+    {{ frappe.db.get_value("User", user, "full_name") }}
+{% endmacro %}

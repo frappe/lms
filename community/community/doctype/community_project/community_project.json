@@ -13,7 +13,7 @@
   "video_link",
   "telegram_id",
   "project_description",
-  "event",
+  "hackathon",
   "accepting_members",
   "likes",
   "project_search"
@@ -59,12 +59,6 @@
    "label": "Project Description"
   },
   {
-   "fieldname": "event",
-   "fieldtype": "Link",
-   "label": "Event",
-   "options": "Community Event"
-  },
-  {
    "default": "0",
    "fieldname": "accepting_members",
    "fieldtype": "Check",
@@ -79,11 +73,17 @@
    "fieldname": "project_search",
    "fieldtype": "Small Text",
    "label": "Project Search"
+  },
+  {
+   "fieldname": "hackathon",
+   "fieldtype": "Link",
+   "label": "Hackathon",
+   "options": "Community Hackathon"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-02-12 18:28:33.440328",
+ "modified": "2021-02-17 12:41:32.562346",
  "modified_by": "Administrator",
  "module": "Community",
  "name": "Community Project",

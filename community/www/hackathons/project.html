@@ -2,6 +2,7 @@
 {% block title %}{{ hackathon }}{% endblock %}
 {% from "www/hackathons/macros/hero.html" import hero %}
 {% from "www/hackathons/macros/card.html" import null_card %}
+{% from "www/hackathons/macros/user.html" import show_user %}
 {% block head_include %}
 <meta name="description" content="{{ 'Hackathon' }}" />
 <meta name="keywords" content="An app that supports Communities" />
@@ -37,9 +38,6 @@
 </style>
 {% endblock %}
 
-{% macro show_user(user) %}
-    {{ frappe.db.get_value("User", user, "full_name") }}
-{% endmacro %}
 
 {% block content %}
 <section class="section">
@@ -68,7 +66,7 @@
             {% if project.video_link %}
                 <a href="{{ project.video_link }}" class="btn btn-default btn-sm" target="_blank">Video ▶️</a>
             {% endif %}
-            <button class="btn btn-default btn-sm btn-like">👍</button>
+            <button class="btn btn-default btn-sm btn-like" data-project={{project.name}}>👍</button>
 
             <ul class="nav nav-tabs mt-4" id="myTab" role="tablist">
                 <li class="nav-item">
@@ -108,7 +106,7 @@
                                 <div class="list-group-item">
                                     {{ show_user(member.owner) }}
                                     {% if is_user %}
-                                        <button data-request-id="{{ m.name }}"
+                                        <button data-request-id="{{ member.name }}"
                                             class="btn btn-sm btn-default btn-leave ml-4">Leave</button>
                                     {% endif %}
                                 </div>
@@ -144,13 +142,13 @@
                     {% macro add_update(update, date) %}
                     <div class='list-group-item'>
                         {{ frappe.utils.md_to_html(update or '') }}
-                        <div class="small text-muted text-right">{{ frappe.format_date(date) }}</div>
+                        <div class="small text-muted text-right">{{ frappe.utils.format_datetime(date, "medium") }}</div>
                     </div>
                     {% endmacro %}
 
                     {% if frappe.session.user != 'Guest' and (is_owner or is_member) %}
                     <p>
-                        <a href="/add-update?new=1&project={{ project.name }}" class="btn btn-secondary btn-sm">Add
+                        <a href="/project-update?new=1&project={{ project.name }}&hackathon={{ hackathon }}" class="btn btn-secondary btn-sm">Add
                             Update</a>
                     </p>
                     {% endif %}

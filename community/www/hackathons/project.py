@@ -39,7 +39,7 @@ def get_project_likes(project_name):
     return frappe.get_all("Community Project Like", {"project": project_name})
 
 def get_updates(project_name):
-    return frappe.get_all('Community Project Update', {"project": project_name}, ['owner', 'creation', 'update'])
+    return frappe.get_all('Community Project Update', {"project": project_name}, ['owner', 'creation', '`update` as project_update'])
 
 def get_accepted_members(project_name):
     return frappe.get_all("Community Project Member", {"project": project_name, "status": "Accepted" })
@@ -51,7 +51,18 @@ def get_my_projects():
     return my_project
 
 def check_is_member(project_name):
-    frappe.get_all("Community Project Member", {"project": project_name, "status": "Accepted", "owner": frappe.session.user })
+    return frappe.get_all("Community Project Member", {"project": project_name, "status": "Accepted", "owner": frappe.session.user })
 
 def get_liked_project(project_name):
     return frappe.db.get_value("Community Project Like", {"owner": frappe.session.user, "project": project_name})
+
+@frappe.whitelist()
+def join_request(id, action):
+    if action == 'Accept':
+        project_member = frappe.get_doc('Community Project Member', id)
+        if len(frappe.db.get_all('Community Project Member', 
+            dict(project = project_member.project, status = 'Accepted'))) > 2:
+            frappe.throw('A project cannot have more than 4 members')
+        frappe.db.set_value('Community Project Member', id, 'status', 'Accepted')
+    else:
+        frappe.db.set_value('Community Project Member', id, 'status', 'Rejected')

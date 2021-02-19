@@ -2,6 +2,8 @@
 {% block title %}{{ hackathon }}{% endblock %}
 {% from "www/hackathons/macros/hero.html" import hero %}
 {% from "www/hackathons/macros/card.html" import null_card %}
+{% from "www/hackathons/macros/navbar.html" import navbar %}
+{% from "www/hackathons/macros/user.html" import show_user %}
 
 {% block head_include %}
 	<style>
@@ -50,19 +52,77 @@
 </div>
 {% endmacro %}
 
+{% macro card_talk(talk) %}
+<div class="col-sm-4 mb-4 text-left">
+	<a href="{{talk.video_link}}" class="no-decoration no-underline">
+		<div class="card h-100">
+			<div class='card-body'>
+				<h5 class='card-title'>{{ talk.topic }}</h5>
+				<div class="text-muted">{{ talk.speaker }}</div>
+				<div class="text-muted">{{ frappe.utils.format_datetime(talk.date_and_time, "medium") }}</div>
+			</div>
+		</div>
+	</a>
+</div>
+{% endmacro %}
+
+{% macro card_update(update) %}
+<div class="col-sm-4 mb-4 text-left">
+	<div class="card h-100">
+		<div class='card-body'>
+			<p>{{ frappe.utils.md_to_html(update.project_update) }}</p>
+			<div>
+				<a href="/hackathons/project?project={{update.project}}&hackathon={{hackathon}}">{{ update.project}}</a>
+				by {{ show_user(update.owner) }}
+				<div class="text-muted">{{ frappe.utils.format_datetime(update.creation, "medium") }}</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endmacro %}
+
 {% block content %}
 <section class="section">
 	{{ hero(hackathon, {'name': 'Home', 'url': '/hackathons'}) }}
 	<div class='container'>
-		<div class="row mt-5">
-			{% for project in projects %}
-				{{ card(project) }}
-			{% endfor %}
-			{% if projects %}
-				{% for n in range( (3 - (projects|length)) %3) %}
-					{{ null_card() }}
-				{% endfor %}
-			{% endif %}
+		{{ navbar(hackathon) }}
+		<div class="tab-content">
+			<div class="tab-pane fade py-4 show active" role="tabpanel" id="home">
+				<div class="row mt-5">
+					{% for project in projects %}
+						{{ card(project) }}
+					{% endfor %}
+					{% if projects %}
+						{% for n in range( (3 - (projects|length)) %3) %}
+							{{ null_card() }}
+						{% endfor %}
+					{% endif %}
+				</div>
+			</div>
+			<div class="tab-pane fade py-4" role="tabpanel" id="talks">
+				<div class="row mt-5">
+					{% for talk in talks %}
+						{{ card_talk(talk) }}
+					{% endfor %}
+					{% if talks %}
+						{% for n in range( (3 - (talks|length)) %3) %}
+							{{ null_card() }}
+						{% endfor %}
+					{% endif %}
+				</div>
+			</div>
+			<div class="tab-pane fade py-4" role="tabpanel" id="updates">
+				<div class="row mt-5">
+					{% for update in updates %}
+						{{ card_update(update) }}
+					{% endfor %}
+					{% if updates %}
+						{% for n in range( (3 - (updates|length)) %3) %}
+							{{ null_card() }}
+						{% endfor %}
+					{% endif %}
+				</div>
+			</div>
 		</div>
 	</div>
 </section>

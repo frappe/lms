@@ -15,27 +15,27 @@ var set_likes = function(liked, likes) {
 //set_likes(liked, likes);
 
 // like - unlike
-$('.btn-like').on('click', () => {
-    frappe.call('like', {project: project}, (data) => { 
+$('.btn-like').on('click', (e) => {
+    frappe.call('like', {project: $(e.target).attr("data-project")}, (data) => { 
         set_likes(data.message.action =="Liked", data.message.likes);
     });
 });
 
 // accept / reject
-$('.btn-accept').on('click', (ev) => {
-    frappe.call('join_request', {id: $(ev.target).attr('data-request-id'), action: 'Accept'}, (data) => { 
+$('.btn-accept').on('click', (e) => {
+    frappe.call('community.www.hackathons.project.join_request', {id: $(e.target).attr('data-request-id'), action: 'Accept'}, (data) => { 
         window.location.reload();
     });
 });
 
 $('.btn-reject').on('click', (ev) => {
-    frappe.call('join_request', {id: $(ev.target).attr('data-request-id'), action: 'Reject'}, (data) => { 
+    frappe.call('community.www.hackathons.project.join_request', {id: $(ev.target).attr('data-request-id'), action: 'Reject'}, (data) => { 
         window.location.reload();
     });
 });
 
 $('.btn-leave').on('click', (ev) => {
-    frappe.call('join_request', {id: $(ev.target).attr('data-request-id'), action: 'Reject'}, (data) => { 
+    frappe.call('community.www.hackathons.project.join_request', {id: $(ev.target).attr('data-request-id'), action: 'Reject'}, (data) => { 
         window.location.reload();
     });
 });

@@ -3,8 +3,15 @@
 # For license information, please see license.txt
 
 from __future__ import unicode_literals
-# import frappe
+import frappe
+from frappe import _
 from frappe.model.document import Document
 
 class CommunityProjectMember(Document):
-	pass
+    
+    def validate(self):
+        self.validate_if_already_member()
+    
+    def validate_if_already_member(self):
+        if frappe.get_all("Community Project Member", {"owner": self.owner}):
+            frappe.throw(_("You have already applied for the membership of this project."))

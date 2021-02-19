@@ -5,4 +5,4 @@ def get_context(context):
     context.hackathons = get_hackathons()
 
 def get_hackathons():
-	return frappe.get_all("Community Event", filters={"is_hackathon": True})
+	return frappe.get_all("Community Hackathon")
