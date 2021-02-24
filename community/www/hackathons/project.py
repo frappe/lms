@@ -14,7 +14,6 @@ def get_context(context):
     context.hackathon = hackathon
     context.members = get_members(project)
     context.confirmed_members = get_comfirmed_members(project)
-    context.likes = get_project_likes(project)
     context.updates = get_updates(project)
     if frappe.session.user != "Guest":
         context.my_project = get_my_projects()
@@ -34,9 +33,6 @@ def get_members(project_name):
 
 def get_comfirmed_members(project_name):
     return frappe.get_all("Community Project Member", {"project": project_name, "status": ("=", "Accepted") }, ['name'])
-
-def get_project_likes(project_name):
-    return frappe.get_all("Community Project Like", {"project": project_name})
 
 def get_updates(project_name):
     return frappe.get_all('Community Project Update', {"project": project_name}, ['owner', 'creation', '`update` as project_update'])
@@ -68,25 +64,27 @@ def join_request(id, action):
         frappe.db.set_value('Community Project Member', id, 'status', 'Rejected')
 
 def has_already_liked(project):
-    try:
-        likes = frappe.get_doc("Community Project Like", {"project": project, "owner": frappe.session.user})
-        return likes
-    except frappe.DoesNotExistError:
-        return None
+    likes = frappe.db.get_value('Community Project Like', {"owner": frappe.session.user, "project": project})
+    return likes
 
 @frappe.whitelist()
-def like(project):
-    liked_project = has_already_liked(project)
-    if liked_project:
-        action= "Unliked"
-        liked_project.delete()
-    else:
-        action= "Liked"
-        frappe.get_doc({"doctype": "Community Project Like","project": project}).save()
+def get_project_likes(project):
+    return len(frappe.get_all("Community Project Like", {"project": project}))
 
-    likes = frappe.db.get_all("Community Project Like", {"project": project})
-    frappe.db.set_value("Community Project", project, "likes", len(likes))
+@frappe.whitelist()
+def like(project, initial=False):
+    liked_project = has_already_liked(project)
+    action = "Liked" if (liked_project and initial) else "Unliked"
+    if not initial:
+        if liked_project:
+            action = "Unliked"
+            frappe.get_doc("Community Project Like", liked_project).delete()
+        else:
+            action = "Liked"
+            frappe.get_doc({"doctype": "Community Project Like","project": project}).save()
+
+    frappe.db.set_value("Community Project", project, "likes", get_project_likes(project))
     return {
         "action": action,
-        "likes": len(likes)
+        "likes": get_project_likes(project)
     }
