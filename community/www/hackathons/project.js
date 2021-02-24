@@ -12,11 +12,13 @@ var set_likes = function(liked, likes) {
 };
 
 // set initial
-//set_likes(liked, likes);
+/* frappe.call('community.www.hackathons.project.like', {project: frappe.form_dict.project}, (data) => {
+    set_likes(data.message.action =="Liked", data.message.likes)
+}) */
 
 // like - unlike
 $('.btn-like').on('click', (e) => {
-    frappe.call('like', {project: $(e.target).attr("data-project")}, (data) => { 
+    frappe.call('community.www.hackathons.project.like', {project: $(e.target).attr("data-project")}, (data) => { 
         set_likes(data.message.action =="Liked", data.message.likes);
     });
 });

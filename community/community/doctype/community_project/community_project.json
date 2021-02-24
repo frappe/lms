@@ -67,11 +67,13 @@
   {
    "fieldname": "likes",
    "fieldtype": "Int",
-   "label": "Likes"
+   "label": "Likes",
+   "read_only": 1
   },
   {
    "fieldname": "project_search",
    "fieldtype": "Small Text",
+   "hidden": 1,
    "label": "Project Search"
   },
   {
@@ -83,7 +85,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-02-17 12:41:32.562346",
+ "modified": "2021-02-23 11:21:47.948253",
  "modified_by": "Administrator",
  "module": "Community",
  "name": "Community Project",

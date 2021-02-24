@@ -66,3 +66,27 @@ def join_request(id, action):
         frappe.db.set_value('Community Project Member', id, 'status', 'Accepted')
     else:
         frappe.db.set_value('Community Project Member', id, 'status', 'Rejected')
+
+def has_already_liked(project):
+    try:
+        likes = frappe.get_doc("Community Project Like", {"project": project, "owner": frappe.session.user})
+        return likes
+    except frappe.DoesNotExistError:
+        return None
+
+@frappe.whitelist()
+def like(project):
+    liked_project = has_already_liked(project)
+    if liked_project:
+        action= "Unliked"
+        liked_project.delete()
+    else:
+        action= "Liked"
+        frappe.get_doc({"doctype": "Community Project Like","project": project}).save()
+
+    likes = frappe.db.get_all("Community Project Like", {"project": project})
+    frappe.db.set_value("Community Project", project, "likes", len(likes))
+    return {
+        "action": action,
+        "likes": len(likes)
+    }
