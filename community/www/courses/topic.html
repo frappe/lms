@@ -1,0 +1,25 @@
+{% extends "templates/base.html" %}
+{% block title %}{{topic.title}} ({{course.title}}){% endblock %}
+{% block head_include %}
+	<meta name="description" content="Topic {{topic.title}} of the course {{course.title}}" />
+	<meta name="keywords" content="course {{course.title}} {{topic.title}}" />
+	<style>
+	</style>
+{% endblock %}
+
+{% block content %}
+<section class="top-section" style="padding: 1rem 0rem;">
+	<div class='container pb-5'>
+		<nav aria-label="breadcrumb">
+			<ol class="breadcrumb">
+				<li class="breadcrumb-item" aria-current="page"><a href="/courses">Courses</a></li>
+				<li class="breadcrumb-item" aria-current="page"><a href="/courses/course?course={{course.name}}">{{course.title}}</a></li>
+			</ol>
+		</nav>
+
+		<h1>{{ topic.title }}</h1>
+
+		<div>{{ topic.description }}</div>
+	</div>
+</section>
+{% endblock %}

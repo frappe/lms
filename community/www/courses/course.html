@@ -1,0 +1,35 @@
+{% extends "templates/base.html" %}
+{% block title %}{{ 'Courses' }}{% endblock %}
+{% from "www/courses/macros/card.html" import course_card, topic_card %}
+{% block head_include %}
+	<meta name="description" content="Courses" />
+	<meta name="keywords" content="Courses {{course.title}}" />
+	<style>
+	</style>
+{% endblock %}
+
+{% block content %}
+<section class="top-section" style="padding: 1rem 0rem;">
+	<div class='container pb-5'>
+		<nav aria-label="breadcrumb">
+			<ol class="breadcrumb">
+			  <li class="breadcrumb-item" aria-current="page"><a href="/courses">Courses</a></li>
+			</ol>
+		</nav>
+		<h1>{{ course.title }}</h1>
+
+		<div>{{ course.description }}</div>
+	</div>
+
+	<div class='container'>
+		<div class="list-group">
+		{% for topic in course.topics %}
+			<div class="list-group-item">
+				<h5><a href="/courses/topic?course={{course.name}}&topic={{topic.name}}">{{topic.title}}</a></h5>
+				<div>{{topic.description}}</div>
+			</div>
+		{% endfor %}
+		</div>
+	</div>
+</section>
+{% endblock %}

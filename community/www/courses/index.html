@@ -1,0 +1,24 @@
+{% extends "templates/base.html" %}
+{% block title %}{{ 'Courses' }}{% endblock %}
+{% from "www/courses/macros/card.html" import course_card %}
+{% block head_include %}
+	<meta name="description" content="{{ 'Courses' }}" />
+	<meta name="keywords" content="Courses" />
+	<style>
+	</style>
+{% endblock %}
+
+{% block content %}
+<section class="top-section" style="padding: 1rem 0rem;">
+	<div class='container pb-5'>
+		<h1>{{ 'Courses' }}</h1>
+	</div>
+	<div class='container'>
+		<div class="row mt-5">
+			{% for course in courses %}
+                {{ course_card(course) }}
+            {% endfor %}
+		</div>
+	</div>
+</section>
+{% endblock %}
