@@ -1,0 +1,21 @@
+{% extends "templates/web.html" %}
+
+{% block page_content %}
+
+<ol class="breadcrumb" itemscope="" itemtype="http://schema.org/BreadcrumbList">
+  <li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem" class="breadcrumb-item">
+    <a itemprop="item" href="/courses">
+      <span itemprop="name">&larr; Courses</span>
+      <meta itemprop="position" content="1">
+    </a>
+    <span itemprop="item">
+  </li>
+</ol>
+
+<h1>{{ title }}</h1>
+
+{{description}}
+
+{% endblock %}
+
+<!-- this is a sample default web page template -->
