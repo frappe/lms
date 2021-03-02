@@ -10,7 +10,6 @@
  "field_order": [
   "title",
   "description",
-  "route",
   "is_published"
  ],
  "fields": [
@@ -28,22 +27,16 @@
    "label": "Description"
   },
   {
-   "fieldname": "route",
-   "fieldtype": "Data",
-   "label": "Route"
-  },
-  {
    "default": "0",
    "fieldname": "is_published",
    "fieldtype": "Check",
    "label": "Published"
   }
  ],
- "has_web_view": 1,
  "index_web_pages_for_search": 1,
  "is_published_field": "is_published",
  "links": [],
- "modified": "2021-03-02 06:40:37.282673",
+ "modified": "2021-03-02 12:25:25.235975",
  "modified_by": "Administrator",
  "module": "Community",
  "name": "Community Course",
@@ -62,7 +55,6 @@
    "write": 1
   }
  ],
- "route": "courses",
  "search_fields": "title",
  "sort_field": "creation",
  "sort_order": "DESC",
