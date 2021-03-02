@@ -1,0 +1,147 @@
+{
+ "actions": [],
+ "autoname": "CON-.YYYY.-.###",
+ "creation": "2021-02-25 17:51:23.959033",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "participant_details",
+  "participant_name",
+  "participant_designation",
+  "column_break_4",
+  "email",
+  "conference_details",
+  "year",
+  "full_conference_tickets",
+  "user_conference_tickets",
+  "paid",
+  "column_break_11",
+  "tshirt_table",
+  "tshirt_size",
+  "currency",
+  "amount",
+  "thank_you_email_sent"
+ ],
+ "fields": [
+  {
+   "fieldname": "participant_details",
+   "fieldtype": "Section Break",
+   "label": "Participant Details"
+  },
+  {
+   "fieldname": "participant_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Participant Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "participant_designation",
+   "fieldtype": "Select",
+   "label": "Participant Designation",
+   "options": "\nCxO\nAnalyst\nConsultant\nDeveloper\nSystem Administrator\nOther"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Email",
+   "options": "Email",
+   "reqd": 1
+  },
+  {
+   "fieldname": "conference_details",
+   "fieldtype": "Section Break",
+   "label": "Conference Details"
+  },
+  {
+   "fieldname": "year",
+   "fieldtype": "Select",
+   "label": "Year",
+   "options": "\n2017\n2018\n2019\n2020\n2021\n2022\n2023\n2024\n2025"
+  },
+  {
+   "fieldname": "full_conference_tickets",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Full Conference Tickets",
+   "reqd": 1
+  },
+  {
+   "fieldname": "user_conference_tickets",
+   "fieldtype": "Int",
+   "label": "User Conference Tickets"
+  },
+  {
+   "default": "0",
+   "fieldname": "paid",
+   "fieldtype": "Check",
+   "label": "Paid"
+  },
+  {
+   "fieldname": "column_break_11",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "tshirt_table",
+   "fieldtype": "Data",
+   "label": "T-Shirt Sizes"
+  },
+  {
+   "fieldname": "tshirt_size",
+   "fieldtype": "Select",
+   "label": "T-Shirt Size",
+   "options": "S\nM\nL\nXL\nXXL\nXXXL"
+  },
+  {
+   "fieldname": "currency",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Currency",
+   "options": "USD\nINR",
+   "reqd": 1
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "label": "Amount",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "thank_you_email_sent",
+   "fieldtype": "Check",
+   "label": "Thank You Email Sent"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2021-02-25 17:51:23.959033",
+ "modified_by": "Administrator",
+ "module": "Community",
+ "name": "Community Conference Participant",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

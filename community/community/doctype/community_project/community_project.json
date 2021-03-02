@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_import": 1,
  "autoname": "field:project_name",
  "creation": "2021-02-12 18:28:33.440328",
  "doctype": "DocType",
@@ -85,7 +86,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-02-23 11:21:47.948253",
+ "modified": "2021-02-24 15:52:56.588565",
  "modified_by": "Administrator",
  "module": "Community",
  "name": "Community Project",

@@ -1,0 +1,16 @@
+{% extends "templates/web.html" %}
+
+{% block page_content %}
+<div class="py-20 row">
+    <div class="col-sm-2 border border-dark">
+        <img src="{{ photo }}" alt="{{ full_name }}">
+    </div>
+    <div class="col">
+        <h1>{{ full_name }}</h1>
+        <p class="lead"> {{ short_intro }} </p>
+        <p class="markdown-style"> {{ frappe.utils.md_to_html(bio) }} </p>
+    </div>
+</div>
+{% endblock %}
+
+<!-- this is a sample default web page template -->
