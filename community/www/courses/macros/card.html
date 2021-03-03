@@ -2,8 +2,8 @@
 <div class="card mb-5 w-100">
   <div class="card-body">
     <h5 class="card-title"><a href="/courses/course?course={{course.name}}">{{course.title}}</a></h5>
-    <p class="card-text">{{course.description}}</p>
-    <a href="/courses/course?id={{course.name}}" class="card-link">See more &rarr;</a>
+    <p class="card-text">{{ frappe.utils.md_to_html(course.description[:250]) }}</p>
+    <a href="/courses/course?course={{course.name}}" class="card-link">See more &rarr;</a>
   </div>
 </div>
 {% endmacro %}

@@ -1,0 +1,67 @@
+{% extends "templates/base.html" %}
+{% from "www/hackathons/macros/card.html" import null_card %}
+
+{% block title %}{{ 'My Courses' }}{% endblock %}
+{% block head_include %}
+<meta name="description" content="My Courses" />
+<meta name="keywords" content="" />
+<style>
+	div.card-hero-img {
+		height: 220px;
+		background-size: cover;
+		background-repeat: no-repeat;
+		background-position: center;
+		background-color: rgb(250, 251, 252);
+	}
+
+	.card-image-wrapper {
+		display: flex;
+		overflow: hidden;
+		height: 220px;
+		background-color: rgb(250, 251, 252);
+		justify-content: center;
+	}
+
+	.image-body {
+		align-self: center;
+		color: #d1d8dd;
+		font-size: 24px;
+		font-weight: 600;
+		line-height: 1;
+		padding: 20px;
+	}
+
+	section {
+		padding: 5rem 0 5rem 0;
+	}
+</style>
+{% endblock %}
+
+{% macro card(course) %}
+<div class="col-sm-4 mb-4 text-left">
+	<a href="//courses/course?course={{course.name}}" class="no-decoration no-underline">
+	<div class="card h-100">
+		<div class='card-body'>
+			<h5 class='card-title'>{{ course.title }}</h5>
+		</div>
+	</div>
+	</a>
+</div>
+{% endmacro %}
+
+{% block content %}
+<section class="section">
+	<div class='container'>
+		<div class="row mt-5">
+			{% for course in my_courses %}
+			{{ card(course) }}
+			{% endfor %}
+			{% if my_courses %}
+			{% for n in range( (3 - (my_courses|length)) %3) %}
+			{{ null_card() }}
+			{% endfor %}
+			{% endif %}
+		</div>
+	</div>
+</section>
+{% endblock %}

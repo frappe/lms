@@ -41,7 +41,8 @@
    "fieldname": "email",
    "fieldtype": "Data",
    "label": "Email",
-   "options": "Email"
+   "options": "Email",
+   "reqd": 1
   },
   {
    "fieldname": "short_intro",
@@ -68,7 +69,7 @@
  "index_web_pages_for_search": 1,
  "is_published_field": "enabled",
  "links": [],
- "modified": "2021-03-02 17:53:40.252130",
+ "modified": "2021-03-03 15:00:46.298535",
  "modified_by": "Administrator",
  "module": "Community",
  "name": "Community Course Member",
@@ -88,7 +89,7 @@
   }
  ],
  "quick_entry": 1,
- "route": "username",
+ "route": "me",
  "sort_field": "modified",
  "sort_order": "DESC",
  "track_changes": 1

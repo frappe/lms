@@ -2,10 +2,10 @@
 {% block title %}{{ 'Courses' }}{% endblock %}
 {% from "www/courses/macros/card.html" import course_card, topic_card %}
 {% block head_include %}
-	<meta name="description" content="Courses" />
-	<meta name="keywords" content="Courses {{course.title}}" />
-	<style>
-	</style>
+<meta name="description" content="Courses" />
+<meta name="keywords" content="Courses {{course.title}}" />
+<style>
+</style>
 {% endblock %}
 
 {% block content %}
@@ -13,22 +13,32 @@
 	<div class='container pb-5'>
 		<nav aria-label="breadcrumb">
 			<ol class="breadcrumb">
-			  <li class="breadcrumb-item" aria-current="page"><a href="/courses">Courses</a></li>
+				<li class="breadcrumb-item" aria-current="page"><a href="/courses">Courses</a></li>
 			</ol>
 		</nav>
-		<h1>{{ course.title }}</h1>
-
-		<div>{{ course.description }}</div>
+		{% if course_enrolled %}
+		<p>
+			<div class="badge badge-info">Enrolled</div>
+		</p>
+		{% endif %}
+		<div>
+			{% if not course_enrolled %}
+				<button class="btn btn-dark btn-enroll float-right" data-course={{course.name}}>Enroll</button>
+			{% endif %}
+			<h1>{{ course.title }}</h1>
+		</div>
+		<div>{{ frappe.utils.md_to_html(course.description) }}</div>
+		
 	</div>
 
 	<div class='container'>
 		<div class="list-group">
-		{% for topic in course.topics %}
+			{% for topic in course.topics %}
 			<div class="list-group-item">
 				<h5><a href="/courses/topic?course={{course.name}}&topic={{topic.name}}">{{topic.title}}</a></h5>
 				<div>{{topic.description}}</div>
 			</div>
-		{% endfor %}
+			{% endfor %}
 		</div>
 	</div>
 </section>

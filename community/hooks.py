@@ -4,19 +4,18 @@ from . import __version__ as app_version
 
 app_name = "community"
 app_title = "Community"
-app_publisher = "Frappe"
+app_publisher = "FOSS United"
 app_description = "Community App"
 app_icon = "octicon octicon-file-directory"
 app_color = "grey"
 app_email = "jannat@erpnext.com"
-app_license = "MIT"
-
+app_license = "AGPL"
 # Includes in <head>
 # ------------------
 
 # include js, css files in header of desk.html
-# app_include_css = "/assets/community/css/community.css"
-# app_include_js = "/assets/community/js/community.js"
+app_include_css = "/assets/community/css/community.css"
+app_include_js = "/assets/community/js/community.js"
 
 # include js, css files in header of web template
 # web_include_css = "/assets/community/css/community.css"
