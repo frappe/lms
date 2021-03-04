@@ -9,5 +9,4 @@ def get_courses():
         "Community Course",
         fields=['name', 'title', 'description']
     )
-    print(courses)
     return courses

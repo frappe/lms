@@ -8,8 +8,6 @@ def get_context(context):
     topic_name = get_queryparam("topic", '/courses?course=' + course_name)
     context.topic = get_topic(course_name, topic_name)
 
-    print("topic", context.topic)
-
 def get_queryparam(name, redirect_when_not_found):
     try:
         return frappe.form_dict[name]

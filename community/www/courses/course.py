@@ -22,6 +22,7 @@ def get_course(name):
 	)
 	return course
 
+@frappe.whitelist()
 def has_enrolled(course):
 	return frappe.db.get_value("Community Course Enrollment", {"course": course, "owner": frappe.session.user})
 
@@ -29,7 +30,8 @@ def has_enrolled(course):
 def enroll(course):
 	return frappe.get_doc({
 				"doctype": "Community Course Enrollment",
-				"course": course
+				"course": course,
+				"user": frappe.session.user
 			}).save()
 
 	

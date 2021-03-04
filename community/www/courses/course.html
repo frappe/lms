@@ -16,13 +16,9 @@
 				<li class="breadcrumb-item" aria-current="page"><a href="/courses">Courses</a></li>
 			</ol>
 		</nav>
-		{% if course_enrolled %}
-		<p>
-			<div class="badge badge-info">Enrolled</div>
-		</p>
-		{% endif %}
+		<div class="badge badge-info enrollment-badge hide">Enrolled</div>
 		<div>
-			{% if not course_enrolled %}
+			{% if not course_enrolled and frappe.session.user != "Guest" %}
 				<button class="btn btn-dark btn-enroll float-right" data-course={{course.name}}>Enroll</button>
 			{% endif %}
 			<h1>{{ course.title }}</h1>

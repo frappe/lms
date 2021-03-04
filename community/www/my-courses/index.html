@@ -31,6 +31,13 @@
 		padding: 20px;
 	}
 
+	.no-courses {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		flex-direction: column;
+	}
+
 	section {
 		padding: 5rem 0 5rem 0;
 	}
@@ -40,11 +47,11 @@
 {% macro card(course) %}
 <div class="col-sm-4 mb-4 text-left">
 	<a href="//courses/course?course={{course.name}}" class="no-decoration no-underline">
-	<div class="card h-100">
-		<div class='card-body'>
-			<h5 class='card-title'>{{ course.title }}</h5>
+		<div class="card h-100">
+			<div class='card-body'>
+				<h5 class='card-title'>{{ course.title }}</h5>
+			</div>
 		</div>
-	</div>
 	</a>
 </div>
 {% endmacro %}
@@ -52,16 +59,24 @@
 {% block content %}
 <section class="section">
 	<div class='container'>
-		<div class="row mt-5">
-			{% for course in my_courses %}
-			{{ card(course) }}
-			{% endfor %}
-			{% if my_courses %}
-			{% for n in range( (3 - (my_courses|length)) %3) %}
-			{{ null_card() }}
-			{% endfor %}
-			{% endif %}
+		{% if frappe.session.user != "Guest" %}
+		{% for course in my_courses %}
+		{{ card(course) }}
+		{% endfor %}
+		{% if my_courses %}
+		{% for n in range( (3 - (my_courses|length)) %3) %}
+		{{ null_card() }}
+		{% endfor %}
+		{% else %}
+		<div class="no-courses">You haven't enrolled in any Course yet. <a href="/courses">Check out the availabe
+				courses.</a></div>
+		{% endif %}
+		{% else %}
+		<div class="no-courses">
+			<p>Please sign up to access this page.</p>
+			<a id="signup" class="btn btn-primary btn-lg" href="/login#signup">{{_('Sign Up')}}</a>
 		</div>
+		{% endif %}
 	</div>
 </section>
 {% endblock %}
