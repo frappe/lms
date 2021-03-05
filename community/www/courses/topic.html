@@ -19,7 +19,30 @@
 
 		<h1>{{ topic.title }}</h1>
 
-		<div>{{ topic.description }}</div>
+    {% for s in topic.sections %}
+    <div class="section section-{{ s.type }}">
+      {{ render_section(s) }}
+    </div>
+    {% endfor %}
+
 	</div>
 </section>
 {% endblock %}
+
+{% macro render_section(s) %}
+  {% if s.type == "text" %}
+    {{ render_section_text(s) }}
+  {% elif s.type == "code" %}
+    {{ render_section_code(s) }}
+  {% else %}
+    <div>Unknown section type: {{s.type}}</div>
+  {% endif %}
+{% endmacro %}
+
+{% macro render_section_text(s) %}
+  {{ s.contents | markdown  }}
+{% endmacro %}
+
+{% macro render_section_code(s) %}
+<pre>{{s.code}}</pre>
+{% endmacro %}

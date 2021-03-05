@@ -17,7 +17,7 @@ def get_course(name):
 		filters={
 			'course': name
 		},
-		fields=['name', 'title', 'description'],
+		fields=['name', 'title', 'preview'],
 		order_by='creation'
 	)
 	return course

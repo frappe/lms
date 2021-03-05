@@ -7,10 +7,12 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "course",
+  "preview",
   "title",
   "description",
-  "course",
-  "order"
+  "order",
+  "sections"
  ],
  "fields": [
   {
@@ -37,11 +39,22 @@
    "fieldname": "order",
    "fieldtype": "Int",
    "label": "Order"
+  },
+  {
+   "fieldname": "preview",
+   "fieldtype": "Markdown Editor",
+   "label": "Preview"
+  },
+  {
+   "fieldname": "sections",
+   "fieldtype": "Table",
+   "label": "Sections",
+   "options": "LMS Section"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-03-05 12:59:22.817471",
+ "modified": "2021-03-05 17:08:55.580189",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Topic",
