@@ -7,7 +7,7 @@ from __future__ import unicode_literals
 from frappe.model.document import Document
 
 class CommunityProjectMember(Document):
-	def validate(self):
+    def validate(self):
         self.validate_if_already_member()
     
     def validate_if_already_member(self):
