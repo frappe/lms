@@ -11,9 +11,9 @@ def get_context(context):
 	context.course_enrolled = has_enrolled(course_id)
 
 def get_course(name):
-	course = frappe.db.get_value('Community Course', name,
+	course = frappe.db.get_value('LMS Course', name,
 		['name', 'title', 'description'], as_dict=1)
-	course['topics'] = frappe.db.get_all('Community Course Topic',
+	course['topics'] = frappe.db.get_all('LMS Topic',
 		filters={
 			'course': name
 		},
@@ -24,14 +24,13 @@ def get_course(name):
 
 @frappe.whitelist()
 def has_enrolled(course):
-	return frappe.db.get_value("Community Course Enrollment", {"course": course, "owner": frappe.session.user})
+	return frappe.db.get_value("LMS Course Enrollment", {"course": course, "owner": frappe.session.user})
 
 @frappe.whitelist()
 def enroll(course):
 	return frappe.get_doc({
-				"doctype": "Community Course Enrollment",
+				"doctype": "LMS Course Enrollment",
 				"course": course,
 				"user": frappe.session.user
 			}).save()
 
-	

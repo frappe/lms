@@ -17,14 +17,14 @@ def get_queryparam(name, redirect_when_not_found):
 
 def get_course(name):
     try:
-        course = frappe.get_doc('Community Course', name)
+        course = frappe.get_doc('LMS Course', name)
     except frappe.exceptions.DoesNotExistError:
         raise frappe.NotFound
     return course
 
 def get_topic(course_name, topic_name):
     try:
-        topic = frappe.get_doc('Community Course Topic', topic_name)
+        topic = frappe.get_doc('LMS Topic', topic_name)
     except frappe.exceptions.DoesNotExistError:
         raise frappe.NotFound
     if topic.course != course_name:
