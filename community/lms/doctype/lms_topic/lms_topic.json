@@ -30,7 +30,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Course",
-   "options": "Community Course",
+   "options": "LMS Course",
    "reqd": 1
   },
   {
@@ -41,10 +41,10 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-03-05 11:01:28.215352",
+ "modified": "2021-03-05 12:59:22.817471",
  "modified_by": "Administrator",
  "module": "LMS",
- "name": "Community Course Topic",
+ "name": "LMS Topic",
  "owner": "Administrator",
  "permissions": [
   {
