@@ -1,16 +1,16 @@
 {
  "actions": [],
  "allow_guest_to_view": 1,
- "allow_rename": 1,
- "autoname": "field:title",
- "creation": "2021-03-01 16:49:33.622422",
+ "autoname": "format:{title}",
+ "creation": "2021-03-02 07:20:41.686573",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
   "title",
   "description",
-  "is_published"
+  "course",
+  "order"
  ],
  "fields": [
   {
@@ -18,8 +18,7 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Title",
-   "reqd": 1,
-   "unique": 1
+   "reqd": 1
   },
   {
    "fieldname": "description",
@@ -27,19 +26,25 @@
    "label": "Description"
   },
   {
-   "default": "0",
-   "fieldname": "is_published",
-   "fieldtype": "Check",
-   "label": "Published"
+   "fieldname": "course",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Course",
+   "options": "Community Course",
+   "reqd": 1
+  },
+  {
+   "fieldname": "order",
+   "fieldtype": "Int",
+   "label": "Order"
   }
  ],
  "index_web_pages_for_search": 1,
- "is_published_field": "is_published",
  "links": [],
- "modified": "2021-03-02 12:25:25.235975",
+ "modified": "2021-03-05 11:01:28.215352",
  "modified_by": "Administrator",
- "module": "Community",
- "name": "Community Course",
+ "module": "LMS",
+ "name": "Community Course Topic",
  "owner": "Administrator",
  "permissions": [
   {
@@ -57,8 +62,9 @@
  ],
  "search_fields": "title",
  "sort_field": "creation",
- "sort_order": "DESC",
+ "sort_order": "ASC",
  "title_field": "title",
  "track_changes": 1,
+ "track_seen": 1,
  "track_views": 1
 }

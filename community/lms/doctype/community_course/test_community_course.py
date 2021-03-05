@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2021, Frappe and Contributors
+# Copyright (c) 2021, FOSS United and Contributors
 # See license.txt
 from __future__ import unicode_literals
 
 # import frappe
 import unittest
 
-class TestCommunityCourseEnrollment(unittest.TestCase):
+class TestCommunityCourse(unittest.TestCase):
 	pass
