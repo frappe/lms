@@ -44,5 +44,108 @@
 {% endmacro %}
 
 {% macro render_section_code(s) %}
-<pre>{{s.code}}</pre>
+<div class="canvas-editor row no-gutters" id="editor-{{s.name}}">
+  <div class="col-sm">
+    <div class="heading">
+      <button class="run">Run</button>
+      <h2>Editor</h2>
+    </div>
+    <textarea class="code">{{s.code}}</textarea>
+  </div>
+  <div class="col-sm">
+    <div class="heading">
+      <h2>Output</h2>
+    </div>
+    <div class="canvas-wrapper">
+      <canvas class="canvas" width="300" height="300">Dashed box</canvas>
+      <pre class="output"></pre>
+    </div>
+    </pre>
+  </div>
+</div>
 {% endmacro %}
+
+{%- block script %}
+  {{ super() }}
+  <script type="text/javascript" src="http://livecode.dev.fossunited.org/static/livecode.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      $(".canvas-editor").each((i, e) => {
+        var editor = new LiveCodeEditor(e, {
+          runtime: "python-canvas",
+          base_url: "http://livecode.dev.fossunited.org"
+        })
+      })
+    })
+  </script>
+{%- endblock %}
+
+{%- block style %}
+  {{ super() }}
+
+<style type="text/css">
+
+.canvas-wrapper {
+  position: relative;
+  padding: 10px;
+}
+
+.canvas-editor canvas {
+  position: relative;
+  z-index: 0;
+  border: 1px solid #ddd;
+  height: 300px;
+  width: 300px;
+}
+.canvas-wrapper .output {
+  position: absolute;
+  z-index: 1;
+  width: 100%;
+  left: 0px;
+  top: 0px;
+  background-color: rgba(255, 255, 255, 0);
+  margin: 15px;
+}
+
+.canvas-editor .code {
+  width: 100%;
+  padding: 5px;
+  min-height: 330px;
+  resize: none;
+}
+.canvas-editor .output {
+  padding: 5px;
+}
+
+.heading {
+  background: #eee;
+  padding: 10px;
+  clear: both;
+  color: #212529;
+  border: 1px solid #ddd;
+}
+
+.canvas-editor h2 {
+  font-size: 1.2em;
+  text-transform: uppercase;
+  margin: 0px;
+  font-weight: normal;
+}
+
+.canvas-editor .run {
+  float: right;
+}
+
+.canvas-editor .col-sm {
+  border: 1px solid #ddd;
+}
+
+/* .canvas-editor canvas {
+  float: left;
+  border: 1px solid #ddd;
+  padding: 5px;
+  margin: 10px;
+} */
+
+</style>
+{%- endblock %}
