@@ -1,0 +1,54 @@
+{
+ "actions": [],
+ "creation": "2021-03-05 15:10:53.906006",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "label",
+  "type",
+  "contents",
+  "code",
+  "attrs"
+ ],
+ "fields": [
+  {
+   "fieldname": "label",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Label"
+  },
+  {
+   "fieldname": "type",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Type"
+  },
+  {
+   "fieldname": "contents",
+   "fieldtype": "Markdown Editor",
+   "label": "Contents"
+  },
+  {
+   "fieldname": "code",
+   "fieldtype": "Code",
+   "label": "Code"
+  },
+  {
+   "fieldname": "attrs",
+   "fieldtype": "Long Text",
+   "label": "attrs"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2021-03-05 17:12:57.997046",
+ "modified_by": "Administrator",
+ "module": "LMS",
+ "name": "LMS Section",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
