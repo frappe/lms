@@ -18,6 +18,13 @@ def get_queryparam(name, redirect_when_not_found):
         raise frappe.Redirect
 
 def get_sketch(name):
+    if name == 'new':
+        sketch = frappe.new_doc('LMS Sketch')
+        sketch.title = "New Sketch"
+        sketch.code = "circle(100, 100, 50)"
+        sketch.owner = frappe.session.user.split("@")[0]
+        return sketch
+
     try:
         sketch = frappe.get_doc('LMS Sketch', name)
     except frappe.exceptions.DoesNotExistError:

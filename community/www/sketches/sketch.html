@@ -33,6 +33,12 @@
       <div class="sketch-owner-wrapper">By <span class="sketch-owner">{{sketch.owner}}</span></div>
     </div>
 
+    {% if not sketch.name %}
+      <div class="alert alert-warning">
+        Saving sketches is not yet implemented. Coming soon!
+      </div>
+    {% endif %}
+
     {{LiveCodeEditor(sketch.name, sketch.code) }}
 </section>
 {% endblock %}
