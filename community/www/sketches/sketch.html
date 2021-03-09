@@ -1,0 +1,44 @@
+{% extends "templates/base.html" %}
+{% from "www/macros/livecode.html" import LiveCodeEditor, LiveCodeEditorJS with context %}
+
+{% block title %}{{sketch.title}}{% endblock %}
+{% block head_include %}
+	<meta name="description" content="Sketch {{sketch.title}}" />
+	<meta name="keywords" content="sketch {{sketch.title}}" />
+	<style>
+	</style>
+
+<link rel="stylesheet" href="{{ livecode_url }}/static/codemirror/lib/codemirror.css">
+<link rel="stylesheet" href="/assets/css/lms.css">
+
+<script src="{{ livecode_url }}/static/codemirror/lib/codemirror.js"></script>
+<script src="{{ livecode_url }}/static/codemirror/mode/python/python.js"></script>
+<script src="{{ livecode_url }}/static/codemirror/keymap/sublime.js"></script>
+
+<script src="{{ livecode_url }}/static/codemirror/addon/edit/matchbrackets.js"></script>
+<script src="{{ livecode_url }}/static/codemirror/addon/comment/comment.js"></script>
+{% endblock %}
+
+{% block content %}
+<section class="top-section" style="padding: 1rem 0rem;">
+	<div class='container pb-5'>
+		<nav aria-label="breadcrumb">
+			<ol class="breadcrumb">
+				<li class="breadcrumb-item" aria-current="page"><a href="/sketches">Sketches</a></li>
+			</ol>
+		</nav>
+
+    <div class="sketch-header">
+		  <h1 class="sketch-title">{{ sketch.title }}</h1>
+      <div class="sketch-owner-wrapper">By <span class="sketch-owner">{{sketch.owner}}</span></div>
+    </div>
+
+    {{LiveCodeEditor(sketch.name, sketch.code) }}
+</section>
+{% endblock %}
+
+{%- block script %}
+  {{ super() }}
+  {{ LiveCodeEditorJS() }}
+{%- endblock %}
+

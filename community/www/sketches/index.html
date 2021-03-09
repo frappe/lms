@@ -1,0 +1,26 @@
+{% extends "templates/base.html" %}
+{% from "www/macros/livecode.html" import LiveCodeEditor, LiveCodeEditorJS %}
+
+{% block title %}Sketches{% endblock %}
+{% block head_include %}
+	<meta name="description" content="Sketches" />
+	<meta name="keywords" content="sketches" />
+  <link rel="stylesheet" href="/assets/css/lms.css">
+{% endblock %}
+
+{% block content %}
+<section class="top-section" style="padding: 1rem 0rem;">
+	<div class='container pb-5'>
+		<h1>Recent Sketches</h1>
+	</div>
+	<div class='container'>
+    {% for sketch in sketches %}
+      <div class="sketch-preview mb-5">
+        <span class="sketch-ts">{{ sketch.modified }}</span>
+        <a href="/sketches/sketch?sketch={{sketch.name}}">{{sketch.title}}</a>
+        By {{sketch.owner}}
+      </div>
+    {% endfor %}
+	</div>
+</section>
+{% endblock %}

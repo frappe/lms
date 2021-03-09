@@ -54,4 +54,11 @@
   border: 1px solid #ddd;
 }
 
+.sketch-header h1 {
+  font-size: 1.5em;
+  margin-bottom: 0px;
+}
 
+.sketch-header {
+  margin-bottom: 1em;
+}
