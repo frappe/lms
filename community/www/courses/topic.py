@@ -7,6 +7,11 @@ def get_context(context):
 
     topic_name = get_queryparam("topic", '/courses?course=' + course_name)
     context.topic = get_topic(course_name, topic_name)
+    context.livecode_url = get_livecode_url()
+
+def get_livecode_url():
+    doc = frappe.get_doc("LMS Settings")
+    return doc.livecode_url
 
 def get_queryparam(name, redirect_when_not_found):
     try:
