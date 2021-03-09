@@ -1,5 +1,5 @@
 {% extends "templates/base.html" %}
-{% from "www/macros/livecode.html" import LiveCodeEditor %}
+{% from "www/macros/livecode.html" import LiveCodeEditor with context %}
 {% block title %}{{topic.title}} ({{course.title}}){% endblock %}
 {% block head_include %}
 	<meta name="description" content="Topic {{topic.title}} of the course {{course.title}}" />
