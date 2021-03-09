@@ -7,6 +7,7 @@
 	</style>
 
 <link rel="stylesheet" href="{{ livecode_url }}/static/codemirror/lib/codemirror.css">
+<link rel="stylesheet" href="/assets/css/lms.css">
 
 <script src="{{ livecode_url }}/static/codemirror/lib/codemirror.js"></script>
 <script src="{{ livecode_url }}/static/codemirror/mode/python/python.js"></script>
@@ -88,74 +89,4 @@
       })
     })
   </script>
-{%- endblock %}
-
-{%- block style %}
-  {{ super() }}
-
-<style type="text/css">
-
-.canvas-wrapper {
-  position: relative;
-  padding: 10px;
-}
-
-.canvas-editor canvas {
-  position: relative;
-  z-index: 0;
-  border: 1px solid #ddd;
-  height: 300px;
-  width: 300px;
-}
-.canvas-wrapper .output {
-  position: absolute;
-  z-index: 1;
-  width: 100%;
-  left: 0px;
-  top: 0px;
-  background-color: rgba(255, 255, 255, 0);
-  margin: 15px;
-}
-
-.canvas-editor .code {
-  width: 100%;
-  padding: 5px;
-  min-height: 330px;
-  resize: none;
-}
-.canvas-editor .output {
-  padding: 5px;
-}
-
-.heading {
-  background: #eee;
-  padding: 10px;
-  clear: both;
-  color: #212529;
-  border: 1px solid #ddd;
-}
-
-.canvas-editor h2 {
-  font-size: 1.2em;
-  text-transform: uppercase;
-  margin: 0px;
-  font-weight: normal;
-}
-
-.canvas-editor .run {
-  float: right;
-}
-
-.canvas-editor .col-sm {
-  border: 1px solid #ddd;
-}
-
-/* .canvas-editor canvas {
-  float: left;
-  border: 1px solid #ddd;
-  padding: 5px;
-  margin: 10px;
-} */
-
-</style>
 {%- endblock %}
