@@ -1,4 +1,5 @@
 {% extends "templates/base.html" %}
+{% from "www/macros/livecode.html" import LiveCodeEditor %}
 {% block title %}{{topic.title}} ({{course.title}}){% endblock %}
 {% block head_include %}
 	<meta name="description" content="Topic {{topic.title}} of the course {{course.title}}" />
@@ -43,7 +44,7 @@
   {% if s.type == "text" %}
     {{ render_section_text(s) }}
   {% elif s.type == "code" %}
-    {{ render_section_code(s) }}
+    {{ LiveCodeEditor(s.name, s.code) }}
   {% else %}
     <div>Unknown section type: {{s.type}}</div>
   {% endif %}
@@ -51,28 +52,6 @@
 
 {% macro render_section_text(s) %}
   {{ s.contents | markdown  }}
-{% endmacro %}
-
-{% macro render_section_code(s) %}
-<div class="canvas-editor row no-gutters" id="editor-{{s.name}}">
-  <div class="col-sm">
-    <div class="heading">
-      <button class="run">Run</button>
-      <h2>Editor</h2>
-    </div>
-    <textarea class="code">{{s.code}}</textarea>
-  </div>
-  <div class="col-sm">
-    <div class="heading">
-      <h2>Output</h2>
-    </div>
-    <div class="canvas-wrapper">
-      <canvas class="canvas" width="300" height="300">Dashed box</canvas>
-      <pre class="output"></pre>
-    </div>
-    </pre>
-  </div>
-</div>
 {% endmacro %}
 
 {%- block script %}
