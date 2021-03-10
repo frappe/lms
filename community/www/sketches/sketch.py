@@ -5,10 +5,10 @@ def get_context(context):
     course_name = get_queryparam("sketch", '/sketches')
     context.sketch = get_sketch(course_name)
     context.livecode_url = get_livecode_url()
-    context.editable = is_editable(context.sketch, frappe.sesson.user)
+    context.editable = is_editable(context.sketch, frappe.session.user)
 
 def is_editable(sketch, user):
-    if sketch.name == "new":
+    if sketch.is_new():
         # new sketches can be editable by any logged in user
         return user != "Guest"
     else:
