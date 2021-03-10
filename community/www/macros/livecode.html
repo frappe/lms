@@ -25,6 +25,8 @@
 {% macro LiveCodeEditorJS(name, code) %}
 <script type="text/javascript" src="{{ livecode_url }}/static/livecode.js"></script>
 <script type="text/javascript">
+  var livecodeEditors = [];
+
   $(function() {
     $(".canvas-editor").each((i, e) => {
       var editor = new LiveCodeEditor(e, {
@@ -32,6 +34,7 @@
         base_url: "{{ livecode_url }}",
         codemirror: true
       })
+      livecodeEditors.push(editor);
     })
   })
 </script>

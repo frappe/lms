@@ -29,22 +29,81 @@
 		</nav>
 
     <div class="sketch-header">
-		  <h1 class="sketch-title">{{ sketch.title }}</h1>
-      <div class="sketch-owner-wrapper">By <span class="sketch-owner">{{sketch.owner}}</span></div>
+      {% if editable %}
+        <input type="button" class="pull-right" id="sketch-save" value="Save"/>
+        <h1 class="sketch-title">
+            <input type="text" name="title" id="sketch-title" value="{{ sketch.title }}" />
+        </h1>
+      {% else %}
+        <h1 class="sketch-title">{{sketch.title}}</h1>
+      {% endif %}
+  <div class="sketch-owner-wrapper">By <span class="sketch-owner">{{sketch.get_owner_name()}}</span></div>
     </div>
 
-    {% if not sketch.name %}
-      <div class="alert alert-warning">
-        Saving sketches is not yet implemented. Coming soon!
-      </div>
-    {% endif %}
+  {% if sketch.is_new() and not editable %}
+    <div class="alert alert-warning">
+      Please login to save this sketch.
+    </div>
+  {% endif %}
 
-    {{LiveCodeEditor(sketch.name, sketch.code) }}
+    <div class="sketch-editor">
+      {{LiveCodeEditor(sketch.name, sketch.code) }}
+    </div>
 </section>
 {% endblock %}
 
 {%- block script %}
   {{ super() }}
   {{ LiveCodeEditorJS() }}
+
+  <script type="text/javascript">
+    var sketch_name = {{ sketch.name | tojson }};
+
+    function saveSketch() {
+      var title = $("#sketch-title").val()
+      var code = livecodeEditors[0].codemirror.doc.getValue()
+      frappe.call('community.lms.doctype.lms_sketch.lms_sketch.save_sketch', {
+        name: sketch_name,
+        title: title,
+        code: code
+      })
+      .then(r => {
+        var msg = r.message;
+        if (!msg.ok) {
+          var error = msg.error || "Save failed."
+          frappe.msgprint({
+            "title": "Error",
+            "indicator": "red",
+            "message": error
+          });
+        }
+        else if (msg.status == "created") {
+          var path = "/sketches/sketch?sketch=" + msg.name;
+          var url = window.location.protocol + "//" + window.location.host + path
+          window.history.pushState({path: url}, '', url);
+          sketch_name = name;
+
+          frappe.msgprint({
+            "title": "Notification",
+            "indicator": "green",
+            "message": "New sketch has been saved!"
+          });
+        }
+        else if (msg.status == "updated") {
+          frappe.msgprint({
+            "title": "Notification",
+            "indicator": "green",
+            "message": "The sketch has been saved!"
+          });
+        }
+      })
+    }
+
+    $(function() {
+      $("#sketch-save").click(function() {
+        saveSketch();
+      });
+    })
+  </script>
 {%- endblock %}
 
