@@ -1,0 +1,64 @@
+
+.canvas-wrapper {
+  position: relative;
+  padding: 10px;
+}
+
+.canvas-editor canvas {
+  position: relative;
+  z-index: 0;
+  border: 1px solid #ddd;
+  height: 300px;
+  width: 300px;
+}
+.canvas-wrapper .output {
+  position: absolute;
+  z-index: 1;
+  width: 100%;
+  left: 0px;
+  top: 0px;
+  background-color: rgba(255, 255, 255, 0);
+  margin: 15px;
+}
+
+.canvas-editor .code {
+  width: 100%;
+  padding: 5px;
+  min-height: 330px;
+  resize: none;
+}
+.canvas-editor .output {
+  padding: 5px;
+}
+
+.heading {
+  background: #eee;
+  padding: 10px;
+  clear: both;
+  color: #212529;
+  border: 1px solid #ddd;
+}
+
+.canvas-editor h2 {
+  font-size: 1.2em;
+  text-transform: uppercase;
+  margin: 0px;
+  font-weight: normal;
+}
+
+.canvas-editor .run {
+  float: right;
+}
+
+.canvas-editor .col-sm {
+  border: 1px solid #ddd;
+}
+
+.sketch-header h1 {
+  font-size: 1.5em;
+  margin-bottom: 0px;
+}
+
+.sketch-header {
+  margin-bottom: 1em;
+}
