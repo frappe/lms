@@ -90,13 +90,11 @@ app_include_js = "/assets/community/js/community.js"
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-#	}
-# }
+doc_events = {
+	"User": {	
+		"after_insert": "community.community.doctype.community_member.community_member.create_member_from_user"
+	}
+ }
 
 # Scheduled Tasks
 # ---------------

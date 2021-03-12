@@ -1,6 +1,6 @@
 {
  "actions": [],
- "autoname": "field:user_name",
+ "allow_guest_to_view": 1,
  "creation": "2021-02-12 15:47:23.591567",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -8,6 +8,7 @@
  "field_order": [
   "enabled",
   "full_name",
+  "email",
   "role",
   "photo",
   "short_intro",
@@ -64,11 +65,20 @@
    "fieldname": "route",
    "fieldtype": "Data",
    "label": "Route"
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "label": "Email",
+   "options": "Email",
+   "reqd": 1,
+   "unique": 1
   }
  ],
+ "has_web_view": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-03-02 11:24:28.763348",
+ "modified": "2021-03-12 10:23:09.709669",
  "modified_by": "Administrator",
  "module": "Community",
  "name": "Community Member",

@@ -19,7 +19,7 @@
 		<div class="badge badge-info enrollment-badge hide">Enrolled</div>
 		<div>
 			{% if not course_enrolled and frappe.session.user != "Guest" %}
-				<button class="btn btn-dark btn-enroll float-right" data-course={{course.name}}>Enroll</button>
+				<button class="btn btn-dark btn-enroll float-right" data-course="{{ course.name }}">Enroll</button>
 			{% endif %}
 			<h1>{{ course.title }}</h1>
 		</div>

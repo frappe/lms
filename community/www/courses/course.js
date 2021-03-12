@@ -1,7 +1,6 @@
 frappe.ready(() => {
 	if(frappe.session.user != "Guest"){
-		var url_params = new URLSearchParams(window.location.search);
-		frappe.call('community.www.courses.course.has_enrolled', { course: url_params.get("course") }, (data) => {
+		frappe.call('community.www.courses.course.has_enrolled', { course: get_search_params().get("course") }, (data) => {
 			if (data.message) {
 				show_enrollment_badge()
 			}
@@ -14,8 +13,12 @@ var show_enrollment_badge = () => {
 	$(".enrollment-badge").removeClass("hide");
 }
 
+var get_search_params = () => {
+	return new URLSearchParams(window.location.search)
+}
+
 $('.btn-enroll').on('click', (e) => {
-	frappe.call('community.www.courses.course.enroll', { course: $(e.target).attr("data-course") }, (data) => {
+	frappe.call('community.www.courses.course.enroll', { course: get_search_params().get("course") }, (data) => {
 		show_enrollment_badge()
 	});
 });

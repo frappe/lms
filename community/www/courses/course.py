@@ -24,6 +24,7 @@ def get_course(name):
 
 @frappe.whitelist()
 def has_enrolled(course):
+	print(frappe.db)
 	return frappe.db.get_value("LMS Course Enrollment", {"course": course, "owner": frappe.session.user})
 
 @frappe.whitelist()

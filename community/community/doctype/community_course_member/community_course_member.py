@@ -17,7 +17,7 @@ class CommunityCourseMember(WebsiteGenerator):
 	def validate(self):
 		self.validate_user_name()
 		if not self.route:
-			self.route = "me/" + self.user_name	
+			self.route = self.user_name	
 	
 	def validate_user_name(self):
 		if len(self.user_name) < 4:
@@ -60,7 +60,7 @@ class CommunityCourseMember(WebsiteGenerator):
 					"username": self.user_name,
 					"send_welcome_email": 0,
 					"user_type": 'Website User',
-					"redirect_url": "me/" + self.name
+					"redirect_url": self.name
 				})
 		user.save(ignore_permissions=True)
 		update_password_link = user.reset_password()
