@@ -16,13 +16,32 @@
     <a href="/sketches/sketch?sketch=new">Create a New Sketch</a>
 	</div>
 	<div class='container'>
+    <div class="row row-cols-1 row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 ">
     {% for sketch in sketches %}
-      <div class="sketch-preview mb-5">
-        <span class="sketch-ts">{{ sketch.modified }}</span>
-        <a href="/sketches/sketch?sketch={{sketch.name}}">{{sketch.title}}</a>
-        By {{sketch.owner_name}}
+    <div class="col mb-4">
+      <div class="card" style="width: 200px;">
+      <div class="card-img-top">
+        <a href="/sketches/sketch?sketch={{sketch.name}}">
+        {{ sketch.to_svg() }}
+        </a>
       </div>
+      <div class="card-footer">
+        By {{sketch.get_owner_name()}}
+      </div>
+      </div>
+    </div>
     {% endfor %}
+    </div>
 	</div>
 </section>
+{% endblock %}
+
+{% block style %}
+  {{super()}}
+  <style type="text/css">
+    svg {
+      width: 200px;
+      height: 200px;
+    }
+  </style>
 {% endblock %}
