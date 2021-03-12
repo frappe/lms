@@ -8,7 +8,8 @@
  "field_order": [
   "title",
   "runtime",
-  "code"
+  "code",
+  "svg"
  ],
  "fields": [
   {
@@ -25,11 +26,17 @@
    "fieldname": "code",
    "fieldtype": "Code",
    "label": "Code"
+  },
+  {
+   "fieldname": "svg",
+   "fieldtype": "Code",
+   "label": "SVG",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-03-09 16:34:12.200724",
+ "modified": "2021-03-12 08:42:56.671658",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Sketch",
