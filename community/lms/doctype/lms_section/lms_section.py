@@ -7,4 +7,5 @@ from __future__ import unicode_literals
 from frappe.model.document import Document
 
 class LMSSection(Document):
-    pass
+    def __repr__(self):
+        return f"<LMSSection {self.label!r}>"

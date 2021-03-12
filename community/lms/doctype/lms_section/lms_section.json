@@ -8,7 +8,8 @@
   "type",
   "contents",
   "code",
-  "attrs"
+  "attrs",
+  "index"
  ],
  "fields": [
   {
@@ -37,12 +38,17 @@
    "fieldname": "attrs",
    "fieldtype": "Long Text",
    "label": "attrs"
+  },
+  {
+   "fieldname": "index",
+   "fieldtype": "Int",
+   "label": "Index"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2021-03-05 17:12:57.997046",
+ "modified": "2021-03-12 17:56:23.118854",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Section",
