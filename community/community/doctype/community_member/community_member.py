@@ -25,9 +25,7 @@ class CommunityMember(WebsiteGenerator):
 			if not re.match("^[A-Za-z0-9_]*$", self.user_name):
 				frappe.throw(_("Username can only contain alphabets, numbers and underscore."))
 			self.user_name = self.user_name.lower()
-	
-	def autoname(self):
-		self.name = self.user_name
+
 
 def create_member_from_user(doc, method):
 	member = frappe.get_doc({
