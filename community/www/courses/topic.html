@@ -30,7 +30,7 @@
 
 		<h1>{{ topic.title }}</h1>
 
-    {% for s in topic.sections %}
+    {% for s in topic.get_sections() %}
     <div class="section section-{{ s.type }}">
       {{ render_section(s) }}
     </div>
@@ -43,8 +43,8 @@
 {% macro render_section(s) %}
   {% if s.type == "text" %}
     {{ render_section_text(s) }}
-  {% elif s.type == "code" %}
-    {{ LiveCodeEditor(s.name, s.code) }}
+  {% elif s.type == "example" or s.type == "code" %}
+    {{ LiveCodeEditor(s.name, s.contents) }}
   {% else %}
     <div>Unknown section type: {{s.type}}</div>
   {% endif %}
