@@ -19,7 +19,7 @@
  "is_standard": 1,
  "login_required": 1,
  "max_attachment_size": 0,
- "modified": "2021-03-12 10:23:37.625177",
+ "modified": "2021-03-12 18:14:19.363139",
  "modified_by": "Administrator",
  "module": "Community",
  "name": "update-profile",
@@ -56,19 +56,6 @@
    "label": "User Name",
    "max_length": 0,
    "max_value": 0,
-   "read_only": 0,
-   "reqd": 0,
-   "show_in_filter": 0
-  },
-  {
-   "allow_read_on_all_link_options": 0,
-   "fieldname": "email",
-   "fieldtype": "Data",
-   "hidden": 0,
-   "label": "Email",
-   "max_length": 0,
-   "max_value": 0,
-   "options": "Email",
    "read_only": 0,
    "reqd": 0,
    "show_in_filter": 0

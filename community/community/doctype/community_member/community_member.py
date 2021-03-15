@@ -22,8 +22,8 @@ class CommunityMember(WebsiteGenerator):
 		if self.user_name:
 			if len(self.user_name) < 4:
 				frappe.throw(_("Username must be atleast 4 characters long."))
-			if not re.match("^[A-Za-z0-9]*$", self.user_name):
-				frappe.throw(_("Username can only contain alphabets, and numbers."))
+			if not re.match("^[A-Za-z0-9_]*$", self.user_name):
+				frappe.throw(_("Username can only contain alphabets, numbers and underscore."))
 			self.user_name = self.user_name.lower()
 	
 	def autoname(self):

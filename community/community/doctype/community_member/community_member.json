@@ -1,6 +1,7 @@
 {
  "actions": [],
  "allow_guest_to_view": 1,
+ "autoname": "field:email",
  "creation": "2021-02-12 15:47:23.591567",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -78,7 +79,7 @@
  "has_web_view": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-03-12 10:23:09.709669",
+ "modified": "2021-03-12 17:41:32.786762",
  "modified_by": "Administrator",
  "module": "Community",
  "name": "Community Member",
