@@ -37,12 +37,12 @@ def _read_messages(ws):
     return messages
 
 def draw_image(commands):
-    img = SVG(width=300, height=300, fill='none', stroke='black')
+    img = SVG(width=300, height=300, viewBox="0 0 300 300", fill='none', stroke='black')
     for c in commands:
         if c['function'] == 'circle':
             img.circle(cx=c['x'], cy=c['y'], r=c['d']/2)
         elif c['function'] == 'line':
-            img.line(sx=c['x1'], sy=c['y1'], ex=c['x2'], ey=c['y2'])
+            img.line(x1=c['x1'], y1=c['y1'], x2=c['x2'], y2=c['y2'])
         elif c['function'] == 'rect':
             img.rect(x=c['x'], y=c['y'], width=c['w'], height=c['h'])
     return img
