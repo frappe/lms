@@ -51,7 +51,9 @@
 {% endmacro %}
 
 {% macro render_section_text(s) %}
-  {{ s.contents | markdown  }}
+  <p>BEGIN SECTION</p>
+  {{ frappe.utils.md_to_html(s.contents) }}
+  <p>END SECTION</p>
 {% endmacro %}
 
 {%- block script %}
