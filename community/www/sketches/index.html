@@ -19,14 +19,19 @@
     <div class="row row-cols-1 row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 ">
     {% for sketch in sketches %}
     <div class="col mb-4">
-      <div class="card" style="width: 200px;">
+      <div class="card sketch-card" style="width: 200px;">
       <div class="card-img-top">
         <a href="/sketches/sketch?sketch={{sketch.name}}">
         {{ sketch.to_svg() }}
         </a>
       </div>
       <div class="card-footer">
-        By {{sketch.get_owner_name()}}
+        <div class="sketch-title">
+          <a href="sketches/sketch?sketch={{sketch.name}}">{{sketch.title}}</a>
+        </div>
+        <div class="sketch-author">
+          by {{sketch.get_owner_name()}}
+        </div>
       </div>
       </div>
     </div>

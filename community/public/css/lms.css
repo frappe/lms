@@ -62,3 +62,8 @@
 .sketch-header {
   margin-bottom: 1em;
 }
+
+.sketch-card .sketch-title a {
+  font-weight: bold;
+  color: inherit;
+}
