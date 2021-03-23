@@ -42,7 +42,7 @@ def draw_image(commands):
         if c['function'] == 'circle':
             img.append(draw.Circle(cx=c['x'], cy=c['y'], r=c['d']/2))
         elif c['function'] == 'line':
-            img.append(draw.Line(x1=c['x1'], y1=c['y1'], x2=c['x2'], y2=c['y2']))
+            img.append(draw.Line(sx=c['x1'], sy=c['y1'], ex=c['x2'], ey=c['y2']))
         elif c['function'] == 'rect':
             img.append(draw.Rectangle(x=c['x'], y=c['y'], width=c['w'], height=c['h']))
     return img
