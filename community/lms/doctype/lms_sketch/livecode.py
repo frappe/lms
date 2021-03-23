@@ -2,7 +2,7 @@
 """
 import websocket
 import json
-import drawSvg as draw
+from .svg import SVG
 
 def livecode_to_svg(livecode_ws_url, code, *, timeout=1):
     """Renders the code as svg.
@@ -22,7 +22,7 @@ def livecode_to_svg(livecode_ws_url, code, *, timeout=1):
     messages = _read_messages(ws)
     commands = [m['cmd'] for m in messages if m['msgtype'] == 'draw']
     img = draw_image(commands)
-    return img.asSvg()
+    return img.tostring()
 
 def _read_messages(ws):
     messages = []
@@ -37,12 +37,12 @@ def _read_messages(ws):
     return messages
 
 def draw_image(commands):
-    img = draw.Drawing(300, 300, origin=(0, -300), fill='none', stroke='black')
+    img = SVG(width=300, height=300, fill='none', stroke='black')
     for c in commands:
         if c['function'] == 'circle':
-            img.append(draw.Circle(cx=c['x'], cy=c['y'], r=c['d']/2))
+            img.circle(cx=c['x'], cy=c['y'], r=c['d']/2)
         elif c['function'] == 'line':
-            img.append(draw.Line(sx=c['x1'], sy=c['y1'], ex=c['x2'], ey=c['y2']))
+            img.line(sx=c['x1'], sy=c['y1'], ex=c['x2'], ey=c['y2'])
         elif c['function'] == 'rect':
-            img.append(draw.Rectangle(x=c['x'], y=c['y'], width=c['w'], height=c['h']))
+            img.rect(x=c['x'], y=c['y'], width=c['w'], height=c['h'])
     return img
