@@ -35,7 +35,7 @@ def create_member_from_user(doc, method):
 	member = frappe.get_doc({
 		"doctype": "Community Member",
 		"full_name": doc.full_name,
-		"username": doc.username if len(doc.username) > 3 else doc.username + "_community",
+		"username": doc.username if len(doc.username) > 3 else ("").join([ s for s in doc.full_name.split() ]),
 		"email": doc.email,
 		"route": doc.username,
 		"owner": doc.email

@@ -1,24 +1,47 @@
 frappe.ready(() => {
-	var dropdown = document.getElementById("batches-dropdown")
+	var dropdown = document.getElementById("batches-dropdown");
 	if (dropdown) {
 		dropdown.onchange = () => {
-			frappe.call("community.www.courses.course.get_messages", {batch: dropdown.value}, (data) => {
-				var href_params = new URLSearchParams($(".add-message").children("a")[0].href)
-				$(".add-message").children("a")[0].href = `/add-messages?new=1&batch=${dropdown.value}&author=${href_params.get("author")}&course=${href_params.get("course")}`
-				if(data.message){
-					$(".discussions").children().remove()
+			$(".send-message").attr("data-batch", dropdown.value)
+			frappe.call("community.www.courses.course.get_messages", { batch: dropdown.value }, (data) => {
+				if (data.message) {
+					$(".discussions").children().remove();
 					for (var i = 0; i < data.message.length; i++) {
-						var message = data.message[i]
-						var element = `<div class="list-group-item">
-											<h6> ${message.author} </h6>
-											${ message.message }
-											<div class="small text-muted text-right"> ${ message.creation } </div>
-										</div>`
-						$(".discussions").append(element)
+						var element = add_message(data.message[i])
+						$(".discussions").append(element);
 					}
 				}
 			})
 		}
+	}
+	$(".send-message").click((e) => {
+		var message = $(".message-text").val().trim();
+		if (message) {
+			frappe.call({
+				"method": "community.www.courses.course.save_message",
+				"args": {
+					"batch": decodeURIComponent($(e.target).attr("data-batch")),
+					"author": decodeURIComponent($(e.target).attr("data-author")),
+					"message": message
+				},
+				"callback": (data) => {
+					$(".message-text").val("");
+					var element = add_message(data.message, true)
+					$(".discussions").prepend(element);
+				}
+			})
+		}
+		else {
+			$(".message-text").val("");
+		}
+	})
+	var add_message = (message, session_user=false) => {
+		var author = session_user ? "You" : message.author
+		return `<div class="list-group-item">
+							<h6> ${author} </h6>
+							${message.message}
+							<div class="small text-muted text-right"> ${message.creation} </div>
+						</div>`;
 	}
 	/* if(frappe.session.user != "Guest"){
 		frappe.call('community.www.courses.course.has_enrolled', { course: get_search_params().get("course") }, (data) => {
@@ -28,7 +51,7 @@ frappe.ready(() => {
 		})
 	} */
 })
-/* 
+/*
 var show_enrollment_badge = () => {
 	$(".btn-enroll").addClass("hide");
 	$(".enrollment-badge").removeClass("hide");

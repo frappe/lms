@@ -14,18 +14,21 @@
   {
    "fieldname": "batch",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Batch",
    "options": "LMS Batch"
   },
   {
    "fieldname": "author",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Author",
    "options": "Community Member"
   },
   {
    "fieldname": "message",
    "fieldtype": "Markdown Editor",
+   "in_list_view": 1,
    "label": "Message"
   },
   {
@@ -37,7 +40,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-03-22 13:57:50.500746",
+ "modified": "2021-03-23 18:06:25.086377",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Message",

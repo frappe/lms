@@ -39,11 +39,21 @@
 	<div class="tab-content">
 		<div class="tab-pane fade py-4 show active" role="tabpanel" id="home">
 			<div>{{ frappe.utils.md_to_html(course.description) }}</div>
+			<div class='container'>
+				<div class="list-group">
+					{% for topic in course.topics %}
+					<div class="list-group-item">
+						<h5><a href="/courses/topic?course={{course.name}}&topic={{topic.name}}">{{topic.title}}</a></h5>
+						<div>{{topic.preview | markdown }}</div>
+					</div>
+					{% endfor %}
+				</div>
+			</div>
 		</div>
 		<div class="tab-pane fade py-4" role="tabpanel" id="discussions">
 			<div>
 				{% if batches %}
-				<div class="d-inline-block">
+				<div class="">
 					<select id="batches-dropdown" class="m-5">
 						{% for batch in batches %}
 						<option value="{{batch}}">{{ batch }}</option>
@@ -51,10 +61,11 @@
 					</select>
 				</div>
 				{% endif %}
+				<div class="form-group">
+					<textarea class="form-control message-text" rows="3" placeholder="Enter your message here."></textarea>
+					<button class="btn btn-primary mt-5 send-message" data-author="{{ author | urlencode}}" data-batch="{{ current_batch | urlencode }}">Send</button>
+				</div>
 				{% if discussions %}
-				<p class="d-inline-block float-right add-message">
-					<a href="/add-messages?new=1&batch={{ current_batch }}&author={{ author }}&course={{ course.title }}" class="btn btn-secondary btn-sm">Add Message</a>
-				</p>
 				<div class="discussions">
 					{% for message in discussions %}
 					<div class="list-group-item">
@@ -66,16 +77,6 @@
 				</div>
 				{% endif %}
 			</div>
-		</div>
-	</div>
-	<div class='container'>
-		<div class="list-group">
-			{% for topic in course.topics %}
-			<div class="list-group-item">
-				<h5><a href="/courses/topic?course={{course.name}}&topic={{topic.name}}">{{topic.title}}</a></h5>
-				<div>{{topic.preview | markdown }}</div>
-			</div>
-			{% endfor %}
 		</div>
 	</div>
 </section>

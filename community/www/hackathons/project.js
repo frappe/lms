@@ -13,15 +13,17 @@ var set_likes = function (liked, likes) {
 
 // set initial likes
 frappe.ready(() => {
-    var url_params = new URLSearchParams(window.location.search);
-    frappe.call('community.www.hackathons.project.like', { project: url_params.get("project"), initial: true }, (data) => {
+    frappe.call('community.www.hackathons.project.like', { project: get_url_arg().get("project"), initial: true }, (data) => {
         set_likes(data.message.action == "Liked", data.message.likes)
     })
 })
 
+var get_url_arg = () => {
+    return new URLSearchParams(window.location.search);
+}
 // like - unlike
 $('.btn-like').on('click', (e) => {
-    frappe.call('community.www.hackathons.project.like', { project: $(e.target).attr("data-project") }, (data) => {
+    frappe.call('community.www.hackathons.project.like', { project: get_url_arg().get("project") }, (data) => {
         set_likes(data.message.action == "Liked", data.message.likes);
     });
 });

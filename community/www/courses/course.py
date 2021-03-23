@@ -66,3 +66,14 @@ def enroll(course):
 				"user": frappe.session.user
 			}).save()
 
+@frappe.whitelist()
+def save_message(message, author, batch):
+	doc = frappe.get_doc({
+		"doctype": "LMS Message",
+		"author": author,
+		"batch": batch,
+		"message": message
+	})
+	doc.save(ignore_permissions=True)
+	return doc
+
