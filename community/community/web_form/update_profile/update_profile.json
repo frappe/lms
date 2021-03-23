@@ -19,7 +19,7 @@
  "is_standard": 1,
  "login_required": 1,
  "max_attachment_size": 0,
- "modified": "2021-03-12 18:14:19.363139",
+ "modified": "2021-03-22 12:04:22.571655",
  "modified_by": "Administrator",
  "module": "Community",
  "name": "update-profile",
@@ -50,14 +50,14 @@
   },
   {
    "allow_read_on_all_link_options": 0,
-   "fieldname": "user_name",
+   "fieldname": "username",
    "fieldtype": "Data",
    "hidden": 0,
    "label": "User Name",
    "max_length": 0,
    "max_value": 0,
    "read_only": 0,
-   "reqd": 0,
+   "reqd": 1,
    "show_in_filter": 0
   },
   {

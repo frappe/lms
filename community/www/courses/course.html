@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block content %}
-<section class="top-section" style="padding: 1rem 0rem;">
+<section class="top-section container" style="padding: 1rem 0rem;">
 	<div class='container pb-5'>
 		<nav aria-label="breadcrumb">
 			<ol class="breadcrumb">
@@ -18,15 +18,56 @@
 		</nav>
 		<div class="badge badge-info enrollment-badge hide">Enrolled</div>
 		<div>
-			{% if not course_enrolled and frappe.session.user != "Guest" %}
+			<!-- {% if not course_enrolled and frappe.session.user != "Guest" %}
 				<button class="btn btn-dark btn-enroll float-right" data-course="{{ course.name }}">Enroll</button>
-			{% endif %}
+			{% endif %} -->
 			<h1>{{ course.title }}</h1>
 		</div>
-		<div>{{ frappe.utils.md_to_html(course.description) }}</div>
-		
+		<ul class="nav nav-tabs mt-4" id="myTab" role="tablist">
+			<li class="nav-item">
+				<a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home"
+					aria-selected="true">Course Details</a>
+			</li>
+			{% if discussions %}
+			<li class="nav-item">
+				<a class="nav-link" id="discussions-tab" data-toggle="tab" href="#discussions" role="tab" aria-controls="discussions"
+					aria-selected="false">Discussions</a>
+			</li>
+			{% endif %}
+		</ul>	
 	</div>
-
+	<div class="tab-content">
+		<div class="tab-pane fade py-4 show active" role="tabpanel" id="home">
+			<div>{{ frappe.utils.md_to_html(course.description) }}</div>
+		</div>
+		<div class="tab-pane fade py-4" role="tabpanel" id="discussions">
+			<div>
+				{% if batches %}
+				<div class="d-inline-block">
+					<select id="batches-dropdown" class="m-5">
+						{% for batch in batches %}
+						<option value="{{batch}}">{{ batch }}</option>
+						{% endfor %}
+					</select>
+				</div>
+				{% endif %}
+				{% if discussions %}
+				<p class="d-inline-block float-right add-message">
+					<a href="/add-messages?new=1&batch={{ current_batch }}&author={{ author }}&course={{ course.title }}" class="btn btn-secondary btn-sm">Add Message</a>
+				</p>
+				<div class="discussions">
+					{% for message in discussions %}
+					<div class="list-group-item">
+						<h6>{{ message.author }}</h6>
+						{{ message.message }}
+						<div class="small text-muted text-right">{{ message.creation }}</div>
+					</div>
+				{% endfor %}
+				</div>
+				{% endif %}
+			</div>
+		</div>
+	</div>
 	<div class='container'>
 		<div class="list-group">
 			{% for topic in course.topics %}

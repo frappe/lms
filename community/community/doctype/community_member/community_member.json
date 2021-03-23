@@ -1,7 +1,8 @@
 {
  "actions": [],
  "allow_guest_to_view": 1,
- "autoname": "field:email",
+ "allow_rename": 1,
+ "autoname": "field:username",
  "creation": "2021-02-12 15:47:23.591567",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -14,7 +15,7 @@
   "photo",
   "short_intro",
   "bio",
-  "user_name",
+  "username",
   "route"
  ],
  "fields": [
@@ -29,8 +30,7 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Full Name",
-   "reqd": 1,
-   "unique": 1
+   "reqd": 1
   },
   {
    "allow_in_quick_entry": 1,
@@ -57,12 +57,6 @@
    "label": "Bio"
   },
   {
-   "fieldname": "user_name",
-   "fieldtype": "Data",
-   "label": "User Name",
-   "unique": 1
-  },
-  {
    "fieldname": "route",
    "fieldtype": "Data",
    "label": "Route"
@@ -74,12 +68,18 @@
    "options": "Email",
    "reqd": 1,
    "unique": 1
+  },
+  {
+   "fieldname": "username",
+   "fieldtype": "Data",
+   "label": "User Name",
+   "unique": 1
   }
  ],
  "has_web_view": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-03-12 17:41:32.786762",
+ "modified": "2021-03-22 12:16:18.823037",
  "modified_by": "Administrator",
  "module": "Community",
  "name": "Community Member",

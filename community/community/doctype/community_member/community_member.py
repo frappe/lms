@@ -7,6 +7,7 @@ import frappe
 from frappe.website.website_generator import WebsiteGenerator
 import re
 from frappe import _
+from frappe.model.rename_doc import rename_doc
 
 class CommunityMember(WebsiteGenerator):
 	def get_context(self, context):
@@ -14,24 +15,27 @@ class CommunityMember(WebsiteGenerator):
 		return context
 
 	def validate(self):
-		self.validate_user_name()
-		if self.route != self.user_name:
-			self.route = self.user_name	
+		self.validate_username()
+		if self.route != self.username:
+			self.route = self.username	
 	
-	def validate_user_name(self):
-		if self.user_name:
-			if len(self.user_name) < 4:
+	def validate_username(self):
+		if self.username:
+			if len(self.username) < 4:
 				frappe.throw(_("Username must be atleast 4 characters long."))
-			if not re.match("^[A-Za-z0-9_]*$", self.user_name):
+			if not re.match("^[A-Za-z0-9_]*$", self.username):
 				frappe.throw(_("Username can only contain alphabets, numbers and underscore."))
-			self.user_name = self.user_name.lower()
+			self.username = self.username.lower()
 
+	def on_update(self):
+		if self.username != self.name:
+			rename_doc(self.doctype, self.name, self.username, force=False, merge=False, ignore_permissions=True, ignore_if_exists=False)
 
 def create_member_from_user(doc, method):
 	member = frappe.get_doc({
 		"doctype": "Community Member",
 		"full_name": doc.full_name,
-		"user_name": doc.username,
+		"username": doc.username if len(doc.username) > 3 else doc.username + "_community",
 		"email": doc.email,
 		"route": doc.username,
 		"owner": doc.email

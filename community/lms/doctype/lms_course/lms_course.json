@@ -10,7 +10,10 @@
  "field_order": [
   "title",
   "description",
-  "is_published"
+  "section_break_3",
+  "is_published",
+  "column_break_5",
+  "short_code"
  ],
  "fields": [
   {
@@ -31,12 +34,25 @@
    "fieldname": "is_published",
    "fieldtype": "Check",
    "label": "Published"
+  },
+  {
+   "fieldname": "short_code",
+   "fieldtype": "Data",
+   "label": "Short Code"
+  },
+  {
+   "fieldname": "section_break_3",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_published_field": "is_published",
  "links": [],
- "modified": "2021-03-05 11:01:09.327111",
+ "modified": "2021-03-19 15:44:47.411705",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",
