@@ -37,7 +37,7 @@ def _read_messages(ws):
     return messages
 
 def draw_image(commands):
-    img = draw.Drawing(300, 300, fill='none', stroke='black')
+    img = draw.Drawing(300, 300, origin=(0, -300), fill='none', stroke='black')
     for c in commands:
         if c['function'] == 'circle':
             img.append(draw.Circle(cx=c['x'], cy=c['y'], r=c['d']/2))
