@@ -1,6 +1,6 @@
 
-{% macro LiveCodeEditor(name, code) %}
-<div class="canvas-editor row no-gutters" id="editor-{{name}}">
+{% macro LiveCodeEditorLarge(name, code) %}
+<div class="livecode-editor livecode-editor-large row no-gutters" id="editor-{{name}}">
   <div class="col-sm">
     <div class="heading">
       <button class="run">Run</button>
@@ -20,6 +20,31 @@
 </div>
 {% endmacro %}
 
+{% macro LiveCodeEditor(name, code) %}
+<div class="livecode-editor canvas-editor" id="editor-{{name}}">
+  <div class="row">
+    <div class="col-md-9">
+    <div>
+      <textarea class="code">{{code}}</textarea>
+      <div class="livecode-controls">
+        <button type="button" class="run">Run</button>
+        <a href="javascript:;" class="reset">Reset</a>
+        <a href="javascript:;" class="clear">Clear</a>
+      </div>
+    </div>
+    </div>
+    <div class="col-md-3">
+      <div class="canvas-wrapper">
+        <canvas class="canvas" width="150" height="150"></canvas>
+        <pre class="output"></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endmacro %}
+
+
 
 {% macro LiveCodeEditorJS(name, code) %}
 <script type="text/javascript" src="{{ livecode_url }}/static/livecode.js"></script>
@@ -27,7 +52,7 @@
   var livecodeEditors = [];
 
   $(function() {
-    $(".canvas-editor").each((i, e) => {
+    $(".livecode-editor").each((i, e) => {
       var editor = new LiveCodeEditor(e, {
         runtime: "python-canvas",
         base_url: "{{ livecode_url }}",

@@ -1,5 +1,5 @@
 {% extends "templates/base.html" %}
-{% from "www/macros/livecode.html" import LiveCodeEditor, LiveCodeEditorJS with context %}
+{% from "www/macros/livecode.html" import LiveCodeEditorLarge, LiveCodeEditorJS with context %}
 
 {% block title %}{{sketch.title}}{% endblock %}
 {% block head_include %}
@@ -47,7 +47,7 @@
   {% endif %}
 
     <div class="sketch-editor">
-      {{LiveCodeEditor(sketch.name, sketch.code) }}
+      {{LiveCodeEditorLarge(sketch.name, sketch.code) }}
     </div>
 </section>
 {% endblock %}

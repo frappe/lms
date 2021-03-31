@@ -51,7 +51,11 @@
 {% endmacro %}
 
 {% macro render_section_text(s) %}
-  {{ frappe.utils.md_to_html(s.contents) }}
+  <div class="row">
+    <div class="col-md-9">
+      {{ frappe.utils.md_to_html(s.contents) }}
+    </div>
+  </div>
 {% endmacro %}
 
 {%- block script %}
