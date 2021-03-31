@@ -43,7 +43,7 @@
 				<div class="list-group">
 					{% for topic in course.topics %}
 					<div class="list-group-item">
-						<h5><a href="/courses/topic?course={{course.name}}&topic={{topic.name}}">{{topic.title}}</a></h5>
+						<h5><a href="/courses/{{course.name}}/{{topic.name}}">{{topic.title}}</a></h5>
 						<div>{{topic.preview | markdown }}</div>
 					</div>
 					{% endfor %}
