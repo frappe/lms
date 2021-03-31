@@ -8,14 +8,19 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "enabled",
   "full_name",
   "email",
+  "enabled",
+  "column_break_4",
   "role",
-  "photo",
   "short_intro",
+  "section_break_7",
   "bio",
+  "section_break_9",
   "username",
+  "photo",
+  "column_break_12",
+  "email_preference",
   "route"
  ],
  "fields": [
@@ -29,6 +34,7 @@
    "fieldname": "full_name",
    "fieldtype": "Data",
    "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Full Name",
    "reqd": 1
   },
@@ -64,6 +70,7 @@
   {
    "fieldname": "email",
    "fieldtype": "Data",
+   "in_standard_filter": 1,
    "label": "Email",
    "options": "Email",
    "reqd": 1,
@@ -74,12 +81,34 @@
    "fieldtype": "Data",
    "label": "User Name",
    "unique": 1
+  },
+  {
+   "fieldname": "email_preference",
+   "fieldtype": "Select",
+   "label": "Email preference",
+   "options": "Email on every Message\nOne Digest Mail per day\nNever"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_7",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "section_break_9",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_12",
+   "fieldtype": "Column Break"
   }
  ],
  "has_web_view": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-03-22 12:16:18.823037",
+ "modified": "2021-03-30 17:25:57.075151",
  "modified_by": "Administrator",
  "module": "Community",
  "name": "Community Member",

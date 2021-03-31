@@ -1,0 +1,12 @@
+{% for batch in batches %}
+<h3> {{ batch }}</h3>
+<div>
+	{% for message in batches[batch] %}
+	<div style="border: 1px solid #DBDBDB;padding: 10px; margin: 10px;">
+		<p> {{ frappe.utils.md_to_html(message.message) }} </p>
+		<p class="text-right">By {{message.author}}</p>
+		<div class="small text-muted text-right">{{ frappe.utils.format_datetime(message.creation, "medium") }}</div>
+	</div>
+	{% endfor %}
+</div>
+{% endfor %}

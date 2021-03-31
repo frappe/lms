@@ -98,24 +98,11 @@ doc_events = {
 
 # Scheduled Tasks
 # ---------------
-
-# scheduler_events = {
-# 	"all": [
-# 		"community.tasks.all"
-# 	],
-# 	"daily": [
-# 		"community.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"community.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"community.tasks.weekly"
-# 	]
-# 	"monthly": [
-# 		"community.tasks.monthly"
-# 	]
-# }
+scheduler_events = {
+	"daily": [
+		"erpnext.stock.reorder_item.reorder_item"
+	]
+}
 
 # Testing
 # -------

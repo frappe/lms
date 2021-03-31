@@ -61,9 +61,11 @@
 					</select>
 				</div>
 				{% endif %}
-				<div class="form-group">
-					<textarea class="form-control message-text" rows="3" placeholder="Enter your message here."></textarea>
-					<button class="btn btn-primary mt-5 send-message" data-author="{{ author | urlencode}}" data-batch="{{ current_batch | urlencode }}">Send</button>
+				<div class="border p-5">
+					<div class="form-group">
+						<textarea class="form-control message-text" rows="3" placeholder="Enter your message here."></textarea>
+						<button class="btn btn-primary mt-5 send-message" data-author="{{ author | urlencode}}" data-batch="{{ current_batch | urlencode }}">Send</button>
+					</div>
 				</div>
 				{% if discussions %}
 				<div class="discussions">
