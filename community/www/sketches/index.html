@@ -13,7 +13,7 @@
 	<div class='container pb-5'>
 		<h1>Recent Sketches</h1>
 
-    <a href="/sketches/sketch?sketch=new">Create a New Sketch</a>
+    <a href="/sketches/new">Create a New Sketch</a>
 	</div>
 	<div class='container'>
     <div class="row row-cols-1 row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 ">
@@ -21,13 +21,13 @@
     <div class="col mb-4">
       <div class="card sketch-card" style="width: 200px;">
       <div class="card-img-top">
-        <a href="/sketches/sketch?sketch={{sketch.name}}">
+        <a href="/sketches/{{sketch.name}}">
         {{ sketch.to_svg() }}
         </a>
       </div>
       <div class="card-footer">
         <div class="sketch-title">
-          <a href="sketches/sketch?sketch={{sketch.name}}">{{sketch.title}}</a>
+          <a href="sketches/{{sketch.name}}">{{sketch.title}}</a>
         </div>
         <div class="sketch-author">
           by {{sketch.get_owner_name()}}

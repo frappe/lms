@@ -128,6 +128,7 @@ scheduler_events = {
 # auto_cancel_exempted_doctypes = ["Auto Repeat"]
 
 website_route_rules = [
+    {"from_route": "/sketches/<sketch>", "to_route": "sketches/sketch"},
     {"from_route": "/courses/<course>", "to_route": "courses/course"},
     {"from_route": "/courses/<course>/<topic>", "to_route": "courses/topic"},
 ]
