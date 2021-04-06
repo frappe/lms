@@ -91,7 +91,7 @@ app_include_js = "/assets/community/js/community.js"
 # Hook on document methods and events
 
 doc_events = {
-	"User": {	
+	"User": {
 		"after_insert": "community.community.doctype.community_member.community_member.create_member_from_user"
 	}
  }
@@ -127,8 +127,29 @@ scheduler_events = {
 #
 # auto_cancel_exempted_doctypes = ["Auto Repeat"]
 
-website_route_rules = [
+from .routing import install_regex_converter
+install_regex_converter()
+
+# Add all simple route rules here
+primary_rules = [
     {"from_route": "/sketches/<sketch>", "to_route": "sketches/sketch"},
     {"from_route": "/courses/<course>", "to_route": "courses/course"},
     {"from_route": "/courses/<course>/<topic>", "to_route": "courses/topic"},
+    {"from_route": "/courses/<course>/<topic>", "to_route": "courses/topic"}
 ]
+
+# Any frappe default URL is blocked by profile-rules, add it here to unblock it
+whitelist = [
+    "/login",
+    "/update-password",
+    "/update-profile",
+    "/third-party-apps"
+]
+whitelist_rules = [{"from_route": p, "to_route": p[1:]} for p in whitelist]
+
+# regex rule to match all profiles
+profile_rules = [
+    {"from_route": "/<regex('[a-z0-9-]{5,}'):username>", "to_route": "profiles/profile"},
+]
+
+website_route_rules = primary_rules + whitelist_rules + profile_rules
