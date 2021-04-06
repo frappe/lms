@@ -5,3 +5,6 @@ __version__ = '0.0.1'
 
 from .routing import install_regex_converter
 install_regex_converter()
+
+# load the methods from the lms api
+from .lms import api # noqa

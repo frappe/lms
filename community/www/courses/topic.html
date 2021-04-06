@@ -44,7 +44,7 @@
   {% if s.type == "text" %}
     {{ render_section_text(s) }}
   {% elif s.type == "example" or s.type == "code" %}
-    {{ LiveCodeEditor(s.name, s.contents) }}
+    {{ LiveCodeEditor(s.name, s.get_latest_code_for_user()) }}
   {% else %}
     <div>Unknown section type: {{s.type}}</div>
   {% endif %}
@@ -63,11 +63,40 @@
   <script type="text/javascript" src="{{ livecode_url }}/static/livecode.js"></script>
   <script type="text/javascript">
     $(function() {
+      var editorLookup = {};
+
       $(".canvas-editor").each((i, e) => {
+        var data = $(e).data();
         var editor = new LiveCodeEditor(e, {
           runtime: "python-canvas",
           base_url: "{{ livecode_url }}",
-          codemirror: true
+          codemirror: true,
+          userdata: data,
+          autosave: function(editor, code) {
+            var data = editor.options.userdata;
+            var code = editor.codemirror.doc.getValue();
+            // console.log("autosaving...")
+            frappe.call("community.lms.api.autosave_section", {
+              section: data.section,
+              code: code
+            }).then((r) => {
+              // TODO: verify
+            })
+          }
+        })
+        editorLookup[data.section] = editor;
+      })
+
+      $(".canvas-editor .reset").each((i, e) => {
+        $(e).on("click", function(event) {
+          var data = $(this).parents(".canvas-editor").data();
+          var section = data.section;
+          frappe.call("community.lms.api.get_section", {
+            name: section
+          }).then(r => {
+            var editor = editorLookup[data.section];
+            editor.codemirror.doc.setValue(r.message.contents);
+          })
         })
       })
     })

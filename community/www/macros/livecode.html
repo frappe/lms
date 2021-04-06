@@ -21,7 +21,8 @@
 {% endmacro %}
 
 {% macro LiveCodeEditor(name, code) %}
-<div class="livecode-editor canvas-editor" id="editor-{{name}}">
+<div class="livecode-editor canvas-editor" id="editor-{{name}}"
+    data-section="{{name}}">
   <div class="row">
     <div class="col-md-9">
     <div>
