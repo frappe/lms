@@ -1,28 +1,36 @@
 {
  "actions": [],
+ "autoname": "field:conference_name",
  "creation": "2021-02-25 17:12:51.981534",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
   "conference_name",
-  "live_stream_url"
+  "live_stream_url",
+  "conference_details"
  ],
  "fields": [
   {
    "fieldname": "conference_name",
    "fieldtype": "Data",
-   "label": "Conference Name"
+   "label": "Conference Name",
+   "unique": 1
   },
   {
    "fieldname": "live_stream_url",
    "fieldtype": "Data",
    "label": "Live Stream URL"
+  },
+  {
+   "fieldname": "conference_details",
+   "fieldtype": "Markdown Editor",
+   "label": "Conference Details"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-03-04 20:13:09.893749",
+ "modified": "2021-04-06 18:30:18.228083",
  "modified_by": "Administrator",
  "module": "Conference",
  "name": "Community Conference",

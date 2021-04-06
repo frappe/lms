@@ -3,38 +3,38 @@
 {% from "www/hackathons/macros/card.html" import hackathon_card %}
 {% from "www/hackathons/macros/card.html" import null_card %}
 {% block head_include %}
-	<meta name="description" content="{{ 'Hackathon' }}" />
-	<meta name="keywords" content="An app that supports Communities." />
-	<style>
-		div.card-hero-img {
-			height: 220px;
-			background-size: cover;
-			background-repeat: no-repeat;
-			background-position: center;
-			background-color: rgb(250, 251, 252);
-		}
+<meta name="description" content="{{ 'Hackathon' }}" />
+<meta name="keywords" content="An app that supports Communities." />
+<style>
+	div.card-hero-img {
+		height: 220px;
+		background-size: cover;
+		background-repeat: no-repeat;
+		background-position: center;
+		background-color: rgb(250, 251, 252);
+	}
 
-		.card-image-wrapper {
-			display: flex;
-			overflow: hidden;
-			height: 220px;
-			background-color: rgb(250, 251, 252);
-			justify-content: center;
-		}
+	.card-image-wrapper {
+		display: flex;
+		overflow: hidden;
+		height: 220px;
+		background-color: rgb(250, 251, 252);
+		justify-content: center;
+	}
 
-		.image-body {
-			align-self: center;
-			color: #d1d8dd;
-			font-size: 24px;
-			font-weight: 600;
-			line-height: 1;
-			padding: 20px;
-		}
+	.image-body {
+		align-self: center;
+		color: #d1d8dd;
+		font-size: 24px;
+		font-weight: 600;
+		line-height: 1;
+		padding: 20px;
+	}
 
-		section {
-			padding: 5rem 0 5rem 0;
-		}
-	</style>
+	section {
+		padding: 5rem 0 5rem 0;
+	}
+</style>
 {% endblock %}
 
 {% block content %}
@@ -50,12 +50,12 @@
 	<div class='container'>
 		<div class="row mt-5">
 			{% for hackathon in hackathons %}
-                {{ hackathon_card(hackathon) }}
-            {% endfor %}
+			{{ hackathon_card(hackathon) }}
+			{% endfor %}
 			{% if hackathons %}
-				{% for n in range( (3 - (hackathons|length)) %3) %}
-					{{ null_card() }}
-				{% endfor %}
+			{% for n in range( (3 - (hackathons|length)) %3) %}
+			{{ null_card() }}
+			{% endfor %}
 			{% endif %}
 		</div>
 	</div>

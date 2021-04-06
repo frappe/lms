@@ -1,19 +1,18 @@
 frappe.ready(() => {
-	var dropdown = document.getElementById("batches-dropdown");
-	if (dropdown) {
-		dropdown.onchange = () => {
-			$(".send-message").attr("data-batch", dropdown.value)
-			frappe.call("community.www.courses.course.get_messages", { batch: dropdown.value }, (data) => {
-				if (data.message) {
-					$(".discussions").children().remove();
-					for (var i = 0; i < data.message.length; i++) {
-						var element = add_message(data.message[i])
-						$(".discussions").append(element);
-					}
+	$(".list-batch").click((e) => {
+		var batch = decodeURIComponent($(e.currentTarget).attr("data-label"))
+		$(".current-batch").text(batch)
+		$(".send-message").attr("data-batch", batch)
+		frappe.call("community.www.courses.course.get_messages", { batch: batch }, (data) => {
+			if (data.message) {
+				$(".discussions").children().remove();
+				for (var i = 0; i < data.message.length; i++) {
+					var element = add_message(data.message[i])
+					$(".discussions").append(element);
 				}
-			})
-		}
-	}
+			}
+		})
+	})
 	$(".send-message").click((e) => {
 		var message = $(".message-text").val().trim();
 		if (message) {
@@ -35,7 +34,7 @@ frappe.ready(() => {
 			$(".message-text").val("");
 		}
 	})
-	var add_message = (message, session_user=false) => {
+	var add_message = (message, session_user = false) => {
 		var author = session_user ? "You" : message.author
 		return `<div class="list-group-item">
 							<h6> ${author} </h6>

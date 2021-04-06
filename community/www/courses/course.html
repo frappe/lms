@@ -30,11 +30,11 @@
 			</li>
 			{% if discussions %}
 			<li class="nav-item">
-				<a class="nav-link" id="discussions-tab" data-toggle="tab" href="#discussions" role="tab" aria-controls="discussions"
-					aria-selected="false">Discussions</a>
+				<a class="nav-link" id="discussions-tab" data-toggle="tab" href="#discussions" role="tab"
+					aria-controls="discussions" aria-selected="false">Discussions</a>
 			</li>
 			{% endif %}
-		</ul>	
+		</ul>
 	</div>
 	<div class="tab-content">
 		<div class="tab-pane fade py-4 show active" role="tabpanel" id="home">
@@ -43,7 +43,8 @@
 				<div class="list-group">
 					{% for topic in course.topics %}
 					<div class="list-group-item">
-						<h5><a href="/courses/topic?course={{course.name}}&topic={{topic.name}}">{{topic.title}}</a></h5>
+						<h5><a href="/courses/topic?course={{course.name}}&topic={{topic.name}}">{{topic.title}}</a>
+						</h5>
 						<div>{{topic.preview | markdown }}</div>
 					</div>
 					{% endfor %}
@@ -53,18 +54,28 @@
 		<div class="tab-pane fade py-4" role="tabpanel" id="discussions">
 			<div>
 				{% if batches %}
-				<div class="">
-					<select id="batches-dropdown" class="m-5">
-						{% for batch in batches %}
-						<option value="{{batch}}">{{ batch }}</option>
-						{% endfor %}
-					</select>
+				<div class="dropdown">
+					<button class="btn btn-default dropdown-toggle mb-5" data-toggle="dropdown" aria-expanded="false">
+						<span class="current-batch">{{ batches[0] }}</span>
+						<b class="caret"></b>
+					</button>
+					<ul class="dropdown-menu dropdown-menu-right" role="menu">
+					{% for batch in batches %}
+					<li>
+						<a class="grey-link dropdown-item list-batch" href="#" onclick="return false;" data-label="{{ batch | urlencode}}">
+							<span class="alt-underline"> {{ batch }} </span>
+						</a>
+					</li>
+					{% endfor %}
+					</ul>
 				</div>
 				{% endif %}
 				<div class="border p-5">
 					<div class="form-group">
-						<textarea class="form-control message-text" rows="3" placeholder="Enter your message here."></textarea>
-						<button class="btn btn-primary mt-5 send-message" data-author="{{ author | urlencode}}" data-batch="{{ current_batch | urlencode }}">Send</button>
+						<textarea class="form-control message-text" rows="3"
+							placeholder="Enter your message here."></textarea>
+						<button class="btn btn-primary mt-5 send-message" data-author="{{ author | urlencode}}"
+							data-batch="{{ current_batch | urlencode }}">Send</button>
 					</div>
 				</div>
 				{% if discussions %}
@@ -75,7 +86,7 @@
 						{{ message.message }}
 						<div class="small text-muted text-right">{{ message.creation }}</div>
 					</div>
-				{% endfor %}
+					{% endfor %}
 				</div>
 				{% endif %}
 			</div>

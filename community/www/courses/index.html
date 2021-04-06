@@ -2,10 +2,10 @@
 {% block title %}{{ 'Courses' }}{% endblock %}
 {% from "www/courses/macros/card.html" import course_card %}
 {% block head_include %}
-	<meta name="description" content="{{ 'Courses' }}" />
-	<meta name="keywords" content="Courses" />
-	<style>
-	</style>
+<meta name="description" content="{{ 'Courses' }}" />
+<meta name="keywords" content="Courses" />
+<style>
+</style>
 {% endblock %}
 
 {% block content %}
@@ -16,8 +16,8 @@
 	<div class='container'>
 		<div class="row mt-5">
 			{% for course in courses %}
-                {{ course_card(course) }}
-            {% endfor %}
+			{{ course_card(course) }}
+			{% endfor %}
 		</div>
 	</div>
 </section>
