@@ -16,14 +16,15 @@ def get_context(context):
 	context.current_batch = context.memberships[0].batch
 	context.author = context.memberships[0].member
 
-def get_course(name):
-	course = frappe.db.get_value('LMS Course', name,
-		['name', 'title', 'description'], as_dict=1)
+def get_course(slug):
+	course = frappe.db.get_value('LMS Course', {"slug": slug},
+		['name', 'slug', 'title', 'description'], as_dict=1)
+
 	course['topics'] = frappe.db.get_all('LMS Topic',
 		filters={
-			'course': name
+			'course': course['name']
 		},
-		fields=['name', 'title', 'preview'],
+		fields=['name', 'slug', 'title', 'preview'],
 		order_by='creation'
 	)
 	return course
