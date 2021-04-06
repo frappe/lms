@@ -127,9 +127,6 @@ scheduler_events = {
 #
 # auto_cancel_exempted_doctypes = ["Auto Repeat"]
 
-from .routing import install_regex_converter
-install_regex_converter()
-
 # Add all simple route rules here
 primary_rules = [
     {"from_route": "/sketches", "to_route": "sketches"},
