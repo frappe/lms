@@ -4,38 +4,30 @@ def get_context(context):
     context.no_cache = 1
 
     try:
-        course_name = get_queryparam("course", '/courses')
-        context.course = get_course(course_name)
-
-        topic_name = get_queryparam("topic", '/courses/' + course_name)
-        context.topic = get_topic(course_name, topic_name)
-        context.livecode_url = get_livecode_url()
-    except frappe.DoesNotExistError:
+        course_slug = frappe.form_dict['course']
+        topic_slug = frappe.form_dict['topic']
+    except KeyError:
         context.template = 'www/404.html'
+        return
+
+    course = get_course(course_slug)
+    topic = course and course.get_topic(topic_slug)
+
+    if not topic:
+        context.template = 'www/404.html'
+        return
+
+    context.course = course
+    context.topic = topic
+    context.livecode_url = get_livecode_url()
+
+def notfound(context):
+    context.template = 'www/404.html'
 
 def get_livecode_url():
     doc = frappe.get_doc("LMS Settings")
     return doc.livecode_url
 
-def get_queryparam(name, redirect_when_not_found):
-    try:
-        return frappe.form_dict[name]
-    except KeyError:
-        frappe.local.flags.redirect_location = redirect_when_not_found
-        raise frappe.Redirect
-
-def get_course(name):
-    try:
-        course = frappe.get_doc('LMS Course', name)
-    except frappe.DoesNotExistError:
-        raise
-    return course
-
-def get_topic(course_name, topic_name):
-    try:
-        topic = frappe.get_doc('LMS Topic', topic_name)
-    except frappe.DoesNotExistError:
-        raise
-    if topic.course != course_name:
-        raise frappe.DoesNotExistError()
-    return topic
+def get_course(slug):
+    course = frappe.db.get_value('LMS Course', {"slug": slug}, ["name"], as_dict=1)
+    return course and frappe.get_doc('LMS Course', course['name'])
