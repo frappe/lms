@@ -21,13 +21,13 @@
     <div class="col mb-4">
       <div class="card sketch-card" style="width: 200px;">
       <div class="card-img-top">
-        <a href="/sketches/{{sketch.name}}">
+        <a href="/sketches/{{sketch.sketch_id}}">
         {{ sketch.to_svg() }}
         </a>
       </div>
       <div class="card-footer">
         <div class="sketch-title">
-          <a href="sketches/{{sketch.name}}">{{sketch.title}}</a>
+          <a href="sketches/{{sketch.sketch_id}}">{{sketch.title}}</a>
         </div>
         <div class="sketch-author">
           by {{sketch.get_owner_name()}}

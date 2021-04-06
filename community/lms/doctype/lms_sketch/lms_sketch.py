@@ -13,6 +13,14 @@ class LMSSketch(Document):
     def get_owner_name(self):
         return get_userinfo(self.owner)['full_name']
 
+    @property
+    def sketch_id(self):
+        """Returns the numeric part of the name.
+
+        For example, the skech_id will be "123" for sketch with name "SKETCH-123".
+        """
+        return self.name.replace("SKETCH-", "")
+
     def get_livecode_url(self):
         doc = frappe.get_cached_doc("LMS Settings")
         return doc.livecode_url

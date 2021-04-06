@@ -132,7 +132,9 @@ install_regex_converter()
 
 # Add all simple route rules here
 primary_rules = [
+    {"from_route": "/sketches", "to_route": "sketches"},
     {"from_route": "/sketches/<sketch>", "to_route": "sketches/sketch"},
+    {"from_route": "/courses", "to_route": "courses"},
     {"from_route": "/courses/<course>", "to_route": "courses/course"},
     {"from_route": "/courses/<course>/<topic>", "to_route": "courses/topic"},
     {"from_route": "/courses/<course>/<topic>", "to_route": "courses/topic"}
