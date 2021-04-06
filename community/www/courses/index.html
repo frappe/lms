@@ -1,24 +1,34 @@
 {% extends "templates/base.html" %}
 {% block title %}{{ 'Courses' }}{% endblock %}
-{% from "www/courses/macros/card.html" import course_card %}
 {% block head_include %}
-	<meta name="description" content="{{ 'Courses' }}" />
-	<meta name="keywords" content="Courses" />
-	<style>
-	</style>
+  <meta name="description" content="{{ 'Courses' }}" />
+  <meta name="keywords" content="Courses" />
+  <style>
+  </style>
 {% endblock %}
 
 {% block content %}
 <section class="top-section" style="padding: 1rem 0rem;">
-	<div class='container pb-5'>
-		<h1>{{ 'Courses' }}</h1>
-	</div>
-	<div class='container'>
-		<div class="row mt-5">
-			{% for course in courses %}
-                {{ course_card(course) }}
-            {% endfor %}
-		</div>
-	</div>
+  <div class='container pb-5'>
+    <h1>{{ 'Courses' }}</h1>
+  </div>
+  <div class='container'>
+    <div class="row mt-5">
+      {% for course in courses %}
+        {{ course_card(course) }}
+      {% endfor %}
+    </div>
+  </div>
 </section>
 {% endblock %}
+
+
+{% macro course_card(course) %}
+<div class="card mb-5 w-100">
+  <div class="card-body">
+    <h5 class="card-title"><a href="/courses/{{course.slug}}">{{course.title}}</a></h5>
+    <p class="card-text">{{ frappe.utils.md_to_html(course.description[:250]) }}</p>
+    <a href="/courses/{{course.slug}}" class="card-link">See more &rarr;</a>
+  </div>
+</div>
+{% endmacro %}

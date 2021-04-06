@@ -2,8 +2,19 @@ import frappe
 
 def get_context(context):
     context.no_cache = 1
-    course_name = get_queryparam("sketch", '/sketches')
-    context.sketch = get_sketch(course_name)
+
+    try:
+        sketch_id = frappe.form_dict["sketch"]
+    except KeyError:
+        context.template = "www/404.html"
+        return
+
+    sketch = get_sketch(sketch_id)
+    if not sketch:
+        context.template = "www/404.html"
+        return
+
+    context.sketch = sketch
     context.livecode_url = get_livecode_url()
     context.editable = is_editable(context.sketch, frappe.session.user)
 
@@ -19,15 +30,8 @@ def get_livecode_url():
     doc = frappe.get_doc("LMS Settings")
     return doc.livecode_url
 
-def get_queryparam(name, redirect_when_not_found):
-    try:
-        return frappe.form_dict[name]
-    except KeyError:
-        frappe.local.flags.redirect_location = redirect_when_not_found
-        raise frappe.Redirect
-
-def get_sketch(name):
-    if name == 'new':
+def get_sketch(sketch_id):
+    if sketch_id == 'new':
         sketch = frappe.new_doc('LMS Sketch')
         sketch.name = "new"
         sketch.title = "New Sketch"
@@ -35,7 +39,8 @@ def get_sketch(name):
         return sketch
 
     try:
+        name = "SKETCH-" + sketch_id
         return frappe.get_doc('LMS Sketch', name)
     except frappe.exceptions.DoesNotExistError:
-        raise frappe.NotFound
+        return
 

@@ -1,6 +1,5 @@
 {% extends "templates/base.html" %}
 {% block title %}{{ 'Courses' }}{% endblock %}
-{% from "www/courses/macros/card.html" import course_card, topic_card %}
 {% block head_include %}
 <meta name="description" content="Courses" />
 <meta name="keywords" content="Courses {{course.title}}" />
@@ -34,16 +33,16 @@
 					aria-selected="false">Discussions</a>
 			</li>
 			{% endif %}
-		</ul>	
+		</ul>
 	</div>
 	<div class="tab-content">
 		<div class="tab-pane fade py-4 show active" role="tabpanel" id="home">
-			<div>{{ frappe.utils.md_to_html(course.description) }}</div>
 			<div class='container'>
+        <div>{{ frappe.utils.md_to_html(course.description) }}</div>
 				<div class="list-group">
 					{% for topic in course.topics %}
 					<div class="list-group-item">
-						<h5><a href="/courses/topic?course={{course.name}}&topic={{topic.name}}">{{topic.title}}</a></h5>
+						<h5><a href="/courses/{{course.slug}}/{{topic.slug}}">{{topic.title}}</a></h5>
 						<div>{{topic.preview | markdown }}</div>
 					</div>
 					{% endfor %}
