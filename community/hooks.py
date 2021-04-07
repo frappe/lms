@@ -129,9 +129,7 @@ scheduler_events = {
 
 # Add all simple route rules here
 primary_rules = [
-    {"from_route": "/sketches", "to_route": "sketches"},
     {"from_route": "/sketches/<sketch>", "to_route": "sketches/sketch"},
-    {"from_route": "/courses", "to_route": "courses"},
     {"from_route": "/courses/<course>", "to_route": "courses/course"},
     {"from_route": "/courses/<course>/<topic>", "to_route": "courses/topic"},
     {"from_route": "/courses/<course>/<topic>", "to_route": "courses/topic"}
@@ -142,13 +140,18 @@ whitelist = [
     "/login",
     "/update-password",
     "/update-profile",
-    "/third-party-apps"
+    "/third-party-apps",
+    "/website_script.js",
+    "/courses",
+    "/sketches",
+    "/admin",
+    "/socket.io",
 ]
 whitelist_rules = [{"from_route": p, "to_route": p[1:]} for p in whitelist]
 
 # regex rule to match all profiles
 profile_rules = [
-    {"from_route": "/<regex('[a-z0-9-]{5,}'):username>", "to_route": "profiles/profile"},
+    {"from_route": "/<string(minlength=5):username>", "to_route": "profiles/profile"},
 ]
 
 website_route_rules = primary_rules + whitelist_rules + profile_rules
