@@ -29,13 +29,14 @@ def get_course(slug):
 	)
 	return course
 
-def get_discussions(course):
-	memberships = get_membership(course)
+def get_discussions(slug):
+	memberships = get_membership(slug)
 	messages = get_messages(memberships[0].batch)
 	return messages, memberships
 
-def get_membership(course):
+def get_membership(slug):
 	memberships = []
+	course = frappe.db.get_value("LMS Course", {"slug": slug}, "name")
 	member = frappe.db.get_value("Community Member", {"email": frappe.session.user}, "name")
 	batches = frappe.get_all("LMS Batch", {"course": course}, ["name"])
 	for batch in batches:

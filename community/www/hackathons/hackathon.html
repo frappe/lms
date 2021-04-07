@@ -41,7 +41,7 @@
 
 {% macro card(project) %}
 <div class="col-sm-4 mb-4 text-left">
-	<a href="/hackathons/project?project={{ project.name }}&hackathon={{ hackathon }}" class="no-decoration no-underline">
+	<a href="/hackathons/{{ hackathon }}/{{ project.name }}" class="no-decoration no-underline">
 	<div class="card h-100">
 		<div class='card-body'>
 			<h5 class='card-title'>{{ project.name }}</h5>
@@ -72,7 +72,7 @@
 		<div class='card-body'>
 			<p>{{ frappe.utils.md_to_html(update.project_update) }}</p>
 			<div>
-				<a href="/hackathons/project?project={{update.project}}&hackathon={{hackathon}}">{{ update.project}}</a>
+				<a href="/hackathons/{{hackathon}}/{{update.project}}">{{ update.project}}</a>
 				by {{ show_user(update.owner) }}
 				<div class="text-muted">{{ frappe.utils.format_datetime(update.creation, "medium") }}</div>
 			</div>

@@ -9,6 +9,12 @@ from frappe import _
 from frappe.utils import add_days, nowdate
 class LMSMessage(Document):
 	def after_insert(self):
+		message = self.as_dict()
+		message['broadcast'] = True
+		frappe.publish_realtime('new_lms_message', message, after_commit=True)
+		self.send_email()
+		
+	def send_email(self):
 		membership = frappe.get_all("LMS Batch Membership", {"batch": self.batch}, ["member"])
 		for entry in membership:
 			member = frappe.get_doc("Community Member", entry.member)

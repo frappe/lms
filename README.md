@@ -4,4 +4,4 @@ Community App
 
 #### License
 
-MIT
+AGPL

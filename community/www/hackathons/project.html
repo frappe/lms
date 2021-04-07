@@ -41,7 +41,7 @@
 
 {% block content %}
 <section class="section">
-    {{ hero(project, {'name': hackathon, 'url': '/hackathons/hackathon?hackathon=' + hackathon}) }}
+    {{ hero(project, {'name': hackathon, 'url': '/hackathons/' + hackathon}) }}
     <div class='container'>
         {% if project %}
             <h1 class="mb-2">{{project.project_name}}</h1>
