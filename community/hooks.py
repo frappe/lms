@@ -134,7 +134,8 @@ primary_rules = [
     {"from_route": "/courses/<course>/<topic>", "to_route": "courses/topic"},
     {"from_route": "/hackathons", "to_route": "hackathons"},
     {"from_route": "/hackathons/<hackathon>", "to_route": "hackathons/hackathon"},
-    {"from_route": "/hackathons/<hackathon>/<project>", "to_route": "hackathons/project"}
+    {"from_route": "/hackathons/<hackathon>/<project>", "to_route": "hackathons/project"},
+    {"from_route": "/dashboard", "to_route": ""}
 ]
 
 # Any frappe default URL is blocked by profile-rules, add it here to unblock it

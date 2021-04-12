@@ -1,0 +1,221 @@
+{% extends "templates/base.html" %}
+{% block title %}{{ _("Community") }}{% endblock %}
+{% block head_include %}
+<meta name="description" content="{{ 'Community' }}" />
+<meta name="keywords" content="An app that supports Communities." />
+<style>
+	section {
+		padding: 2rem;
+		color: #000000;
+	}
+
+	svg {
+		width: 200px;
+		height: 200px;
+	}
+
+	.dashboard__profile {
+		width: 150px;
+		height: 155px;
+		border-radius: 50%;
+		object-fit: contain;
+	}
+
+	.dashboard__profileSmall {
+		width: 59px;
+		height: 57px;
+		border-radius: 50%;
+		object-fit: contain;
+	}
+
+	.dashboard__abbr {
+		font-size: 50px;
+		width: 155px;
+		height: 155px;
+		border-radius: 50%;
+	}
+
+	.dashboard__abbrSmall {
+		font-size: 20px;
+		width: 59px;
+		height: 57px;
+		border-radius: 50%;
+	}
+
+	.dashboard__parent {
+		display: flex;
+	}
+
+	.dashboard__name {
+		font-weight: normal;
+		font-style: normal;
+		font-size: 36px;
+		line-height: 42px;
+	}
+
+	.dashboard__details {
+		padding-top: 2rem;
+		width: 80%;
+	}
+
+	.dashboard__course {
+		border: 1px solid black;
+		padding: 1rem;
+		margin: 0.5rem;
+		width: 48%;
+	}
+
+	.dashboard__courseHeader {
+		display: flex;
+		justify-content: space-between;
+		height: 50px;
+		margin-bottom: 3px;
+	}
+
+	.dashboard__badge {
+		background: #D6D6FF;
+		border-radius: 20px;
+		color: #1712FE;
+		padding: 0.5rem;
+		height: fit-content;
+	}
+
+	.dashboard__description {
+		height: 100px;
+	}
+</style>
+{% endblock %}
+
+{% macro profile(photo, full_name, abbr, icon) %}
+{% if photo %}
+<img class="avatar rounded-circle img-fluid mr-5{% if icon == 'large' %} avatar-xl {% else %} avatar-large {% endif %}"
+	src="{{ photo }}" alt="{{ full_name }}">
+{% else %}
+<div class="col-sm-2">
+	<div class="standard-image {% if icon == 'large' %} dashboard__abbr {% else %} dashboard__abbrSmall {% endif %}">
+		{{ abbr }}
+	</div>
+</div>
+{% endif %}
+{% endmacro %}
+
+{% block content %}
+<section>
+	<div class="dashboard__parent">
+		<div>
+			{{ profile(member.photo, member.full_name, abbr, "large")}}
+		</div>
+		<div class="dashboard__details">
+			<div class="dashboard__name">
+				{{member.full_name}}
+			</div>
+			<div>
+				<ul class="nav nav-tabs mt-4" id="myTab" role="tablist">
+					<li class="nav-item">
+						<a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab"
+							aria-controls="home" aria-selected="true">Activity</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" id="sketches-tab" data-toggle="tab" href="#sketches" role="tab"
+							aria-controls="sketches" aria-selected="false">Sketches</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" id="courses-tab" data-toggle="tab" href="#courses" role="tab"
+							aria-controls="courses" aria-selected="false">Courses</a>
+					</li>
+				</ul>
+			</div>
+			<div>
+				<div class="tab-content">
+					<div class="tab-pane fade py-4 show active" role="tabpanel" id="home">
+						<div class='container'>
+							{% if activity %}
+							{% for message in activity %}
+							<div class="dashboard__message border m-5 p-3">
+								<div class="text-muted float-right">
+									{{ message.course }} ({{message.batch}})
+								</div>
+								<div class="d-flex align-items-center w-100">
+									<div>
+										{{ profile(message.profile, message.full_name, message.abbr, "small")}}
+									</div>
+									<div class="ml-5 mt-5">{{ frappe.utils.md_to_html(message.message) }}</div>
+								</div>
+								<div class="d-flex  justify-content-between">
+									<div class="">
+										{{message.full_name}}
+									</div>
+									<div class="text-muted">
+										{{ frappe.utils.pretty_date(message.creation) }}
+									</div>
+								</div>
+							</div>
+							{% endfor %}
+							{% else %}
+							<p class="text-center">You have not received any messages yet.</p>
+							{% endif %}
+						</div>
+					</div>
+					<div class="tab-pane fade py-4" role="tabpanel" id="sketches">
+						<div class='container'>
+							<a href="/sketches/new">Create a New Sketch</a>
+							<div class="">
+								{% if sketches %}
+								{% for sketch in sketches %}
+								<div class="col mb-4">
+									<div class="card sketch-card" style="width: 200px;">
+										<div class="card-img-top">
+											<a href="/sketches/{{sketch.sketch_id}}">
+												{{ sketch.to_svg() }}
+											</a>
+										</div>
+										<div class="card-footer">
+											<div class="sketch-title">
+												<a href="sketches/{{sketch.sketch_id}}">{{sketch.title}}</a>
+											</div>
+											<div class="sketch-author">
+												by {{sketch.get_owner_name()}}
+											</div>
+										</div>
+									</div>
+								</div>
+								{% endfor %}
+								{% else %}
+								<p class="text-center">You have not created any sketches.</p>
+								{% endif %}
+							</div>
+						</div>
+					</div>
+					<div class="tab-pane fade py-4" role="tabpanel" id="courses">
+						{% if courses %}
+						<p class="ml-3">Your Courses</p>
+						<div class="d-flex flex-wrap">
+							{% for course in courses %}
+							<div class="dashboard__course">
+								<div class="dashboard__courseHeader">
+									<h5 class="w-75">{{ course.name }}</h5>
+									{% if course.member_type %}
+									<div class="dashboard__badge">
+										{{ course.member_type }}
+									</div>
+									{% endif %}
+								</div>
+								<div class="dashboard__description">
+									{{ frappe.utils.md_to_html(course.description) }}
+								</div>
+								<div class="text-muted"> Joined {{ frappe.utils.pretty_date(course.joining) }} </div>
+							</div>
+							{% endfor %}
+							{% else %}
+							<p class="text-center">You are not a member of any course yet. Checkout our <a
+									href="/courses" target="_blank">Courses</a>.</p>
+							{% endif %}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</section>
+{% endblock %}
