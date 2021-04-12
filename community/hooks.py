@@ -149,6 +149,8 @@ whitelist = [
     "/sketches",
     "/admin",
     "/socket.io",
+    "/hackathons",
+    "/dashboard"
 ]
 whitelist_rules = [{"from_route": p, "to_route": p[1:]} for p in whitelist]
 

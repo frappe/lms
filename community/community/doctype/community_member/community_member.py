@@ -27,10 +27,6 @@ class CommunityMember(WebsiteGenerator):
 				frappe.throw(_("Username can only contain alphabets, numbers and underscore."))
 			self.username = self.username.lower()
 
-	def on_update(self):
-		if self.username != self.name:
-			rename_doc(self.doctype, self.name, self.username, force=False, merge=False, ignore_permissions=True, ignore_if_exists=False)
-
 def create_member_from_user(doc, method):
 	member = frappe.get_doc({
 		"doctype": "Community Member",

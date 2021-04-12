@@ -1,1 +1,2 @@
 community.patches.set_email_preferences
+community.patches.change_name_for_community_members
