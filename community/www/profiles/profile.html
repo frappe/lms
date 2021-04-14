@@ -107,7 +107,6 @@
                 <div class="tab-content">
                     <div class="tab-pane fade py-4 show active" role="tabpanel" id="home">
                         <div class='container'>
-                            <a href="/sketches/new">Create a New Sketch</a>
                             <div class="row row-cols-1 row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2">
                                 {% if sketches %}
                                 {% for sketch in sketches %}
@@ -129,10 +128,11 @@
                                     </div>
                                 </div>
                                 {% endfor %}
-                                {% else %}
-                                <p class="text-center">You have not created any sketches.</p>
                                 {% endif %}
                             </div>
+                            {% if not sketches %}
+                                <p class="text-center">{{member.full_name}} has not created any skecth yet.</p>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
