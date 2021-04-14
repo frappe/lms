@@ -38,7 +38,7 @@
 	<div class="tab-content">
 		<div class="tab-pane fade py-4 show active" role="tabpanel" id="home">
 			<div class='container'>
-        <div>{{ frappe.utils.md_to_html(course.description) }}</div>
+       			<div>{{ frappe.utils.md_to_html(course.description) }}</div>
 				<div class="list-group">
 					{% for topic in course.topics %}
 					<div class="list-group-item">
@@ -80,7 +80,7 @@
 				<div class="discussions">
 					{% for message in discussions %}
 					<div class="list-group-item">
-						<h6>{{ message.author }}</h6>
+						<h6>{{ message.author_name }}</h6>
 						{{ message.message }}
 						<div class="small text-muted text-right">{{ message.creation }}</div>
 					</div>

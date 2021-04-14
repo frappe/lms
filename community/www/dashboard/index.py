@@ -9,7 +9,7 @@ def get_context(context):
 	context.courses = get_courses(context.memberships)
 	context.activity = get_activity(context.memberships)
 	context.sketches = list(filter(lambda x: x.owner == frappe.session.user, get_recent_sketches()))
-	print(context)
+
 def get_memberships(member):
 	return frappe.get_all("LMS Batch Membership", {"member": member}, ["batch", "member_type", "creation"])
 

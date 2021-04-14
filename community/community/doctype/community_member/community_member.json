@@ -107,7 +107,7 @@
  "has_web_view": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-04-12 17:32:36.211603",
+ "modified": "2021-04-14 09:36:27.813085",
  "modified_by": "Administrator",
  "module": "Community",
  "name": "Community Member",
@@ -139,7 +139,9 @@
   }
  ],
  "quick_entry": 1,
+ "search_fields": "full_name",
  "sort_field": "modified",
  "sort_order": "DESC",
+ "title_field": "full_name",
  "track_changes": 1
 }

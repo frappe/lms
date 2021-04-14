@@ -57,9 +57,9 @@ def get_messages(batch):
     for message in messages:
         message.message = frappe.utils.md_to_html(message.message)
         message.creation = frappe.utils.format_datetime(message.creation, "medium")
-        member_email = frappe.db.get_value("Community Member", message.author, "email")
+        message.author_name, member_email = frappe.db.get_value("Community Member", message.author, ["full_name","email"])
         if member_email == frappe.session.user:
-            message.author = "You"
+            message.author_name = "You"
     return messages
 
 @frappe.whitelist()

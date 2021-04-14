@@ -145,7 +145,7 @@
 						</div>
 					</div>
 					<div class="tab-pane fade py-4" role="tabpanel" id="sketches">
-						<div class='container'>
+						<div class="container">
 							<a href="/sketches/new">Create a New Sketch</a>
 							<div class="row row-cols-1 row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2">
 								{% if sketches %}
@@ -181,7 +181,9 @@
 							{% for course in courses %}
 							<div class="dashboard__course">
 								<div class="dashboard__courseHeader">
-									<h5 class="w-75">{{ course.name }}</h5>
+									<a class="text-decoration-none" target="_blank" href="/courses/{{course.slug}}">
+										<h5 class="w-75">{{ course.name }}</h5>
+									</a>
 									{% if course.member_type %}
 									<div class="dashboard__badge">
 										{{ course.member_type }}

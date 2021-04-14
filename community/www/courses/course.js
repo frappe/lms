@@ -35,9 +35,9 @@ frappe.ready(() => {
 		}
 	})
 	var add_message = (message, session_user = false) => {
-		var author = session_user ? "You" : message.author
+		var author_name = session_user ? "You" : message.author_name
 		return `<div class="list-group-item">
-							<h6> ${author} </h6>
+							<h6> ${author_name} </h6>
 							${message.message}
 							<div class="small text-muted text-right"> ${message.creation} </div>
 						</div>`;
