@@ -21,9 +21,9 @@
   },
   {
    "fieldname": "organizer",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "label": "Organizer",
-   "options": "Email"
+   "options": "Community Member"
   },
   {
    "fieldname": "year",
@@ -34,7 +34,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-03-04 19:57:22.618153",
+ "modified": "2021-04-14 11:43:23.515972",
  "modified_by": "Administrator",
  "module": "Hackathon",
  "name": "Community Hackathon",
