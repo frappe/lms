@@ -73,6 +73,10 @@
           codemirror: true,
           userdata: data,
           autosave: function(editor, code) {
+            // can't autosave when user is Guest
+            if (frappe.session.user == "Guest") {
+              return;
+            }
             var data = editor.options.userdata;
             var code = editor.codemirror.doc.getValue();
             // console.log("autosaving...")
