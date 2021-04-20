@@ -45,7 +45,7 @@
   },
   {
    "fieldname": "repository_link",
-   "fieldtype": "Data",
+   "fieldtype": "Small Text",
    "label": "Repository Link"
   },
   {
@@ -106,7 +106,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-04-14 13:28:03.817061",
+ "modified": "2021-04-20 13:22:17.248521",
  "modified_by": "Administrator",
  "module": "Hackathon",
  "name": "Community Project",
