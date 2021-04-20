@@ -5,7 +5,10 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "livecode_url"
+  "livecode_url",
+  "mentor_request_creation",
+  "mentor_request_status_update",
+  "email_sender"
  ],
  "fields": [
   {
@@ -13,12 +16,30 @@
    "fieldname": "livecode_url",
    "fieldtype": "Data",
    "label": "LiveCode URL"
+  },
+  {
+   "fieldname": "mentor_request_creation",
+   "fieldtype": "Link",
+   "label": "Mentor Request Creation",
+   "options": "Email Template"
+  },
+  {
+   "fieldname": "mentor_request_status_update",
+   "fieldtype": "Link",
+   "label": "Mentor Request Status update",
+   "options": "Email Template"
+  },
+  {
+   "fieldname": "email_sender",
+   "fieldtype": "Data",
+   "label": "Email Sender",
+   "options": "Email"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2021-03-09 14:30:15.807410",
+ "modified": "2021-04-19 13:18:40.497636",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",

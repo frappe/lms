@@ -135,7 +135,8 @@ primary_rules = [
     {"from_route": "/hackathons", "to_route": "hackathons"},
     {"from_route": "/hackathons/<hackathon>", "to_route": "hackathons/hackathon"},
     {"from_route": "/hackathons/<hackathon>/<project>", "to_route": "hackathons/project"},
-    {"from_route": "/dashboard", "to_route": ""}
+    {"from_route": "/dashboard", "to_route": ""},
+    {"from_route": "/add-a-new-batch", "to_route": "add-a-new-batch"}
 ]
 
 # Any frappe default URL is blocked by profile-rules, add it here to unblock it
@@ -152,6 +153,7 @@ whitelist = [
     "/hackathons",
     "/dashboard",
     "/join-request"
+    "/add-a-new-batch"
 ]
 whitelist_rules = [{"from_route": p, "to_route": p[1:]} for p in whitelist]
 

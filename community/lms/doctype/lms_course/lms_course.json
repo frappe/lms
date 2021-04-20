@@ -58,7 +58,7 @@
   {
    "fieldname": "video_link",
    "fieldtype": "Data",
-   "label": "Video Link"
+   "label": "Video Embed Link"
   },
   {
    "fieldname": "section_break_5",
@@ -73,7 +73,7 @@
  "index_web_pages_for_search": 1,
  "is_published_field": "is_published",
  "links": [],
- "modified": "2021-04-14 15:23:39.592341",
+ "modified": "2021-04-15 10:09:25.608422",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",

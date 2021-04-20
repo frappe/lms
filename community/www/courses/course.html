@@ -1,28 +1,257 @@
 {% extends "templates/base.html" %}
-{% block title %}{{ 'Courses' }}{% endblock %}
+{% from "www/macros/profile.html" import profile %}
+{% block title %}{{ "Courses" }}{% endblock %}
 {% block head_include %}
 <meta name="description" content="Courses" />
 <meta name="keywords" content="Courses {{course.title}}" />
 <style>
+	section {
+		padding: 2rem;
+		color: #000000;
+	}
+
+	svg {
+		width: 200px;
+		height: 200px;
+	}
+
+	.dashboard__profile {
+		width: 150px;
+		height: 155px;
+		border-radius: 50%;
+		object-fit: contain;
+	}
+
+	.dashboard__profileSmall {
+		width: 59px;
+		height: 57px;
+		border-radius: 50%;
+		object-fit: contain;
+	}
+
+	.dashboard__abbr {
+		font-size: 50px;
+		width: 155px;
+		height: 155px;
+		border-radius: 50%;
+	}
+
+	.dashboard__abbrSmall {
+		font-size: 20px;
+		width: 59px;
+		height: 57px;
+		border-radius: 50%;
+	}
+
+	.margin-bottom {
+		margin-bottom: 30px;
+	}
+
+	.dimensions {
+		max-width: 25%;
+		min-width: 25%;
+	}
+
+	.mentor_message {
+		background: #FFFFDD;
+		border: 1px solid #DDDDAA;
+		box-sizing: border-box;
+		width: 75%;
+		padding: 20px;
+	}
+
+	.batch_style {
+		padding: 3px;
+		width: fit-content;
+		box-sizing: border-box;
+		border-radius: 5px;
+	}
+
+	.green_badge {
+		background: #DDFFDD;
+		border: 1px solid #CCDDCC;
+		color: #448844;
+	}
+
+	.yellow_badge {
+		background: #FFFFDD;
+		border: 1px solid #DDDDAA;
+		color: #888844;
+	}
 </style>
 {% endblock %}
 
 {% block content %}
 <section class="top-section container" style="padding: 1rem 0rem;">
-	<div class='container pb-5'>
+	<div class="container pb-5">
 		<nav aria-label="breadcrumb">
 			<ol class="breadcrumb">
 				<li class="breadcrumb-item" aria-current="page"><a href="/courses">Courses</a></li>
 			</ol>
 		</nav>
 		<div class="badge badge-info enrollment-badge hide">Enrolled</div>
-		<div>
-			<!-- {% if not course_enrolled and frappe.session.user != "Guest" %}
-				<button class="btn btn-dark btn-enroll float-right" data-course="{{ course.name }}">Enroll</button>
-			{% endif %} -->
-			<h1>{{ course.title }}</h1>
+		<div class="d-flex justify-content-between">
+			<div class="mr-3">
+				<!-- {% if not course_enrolled and frappe.session.user != "Guest" %}
+					<button class="btn btn-dark btn-enroll float-right" data-course="{{ course.name }}">Enroll</button>
+				{% endif %} -->
+				<h2 class="course-title" data-course={{ course.name | urlencode }}>{{ course.title }}</h2>
+				{{course.short_introduction}}
+			</div>
+			<div>
+				<iframe width="417" height="274" src="{{course.video_link}}" title="YouTube video player"
+					frameborder="0"
+					allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+					allowfullscreen></iframe>
+			</div>
 		</div>
-		<ul class="nav nav-tabs mt-4" id="myTab" role="tablist">
+		{% if is_mentor %}
+		<h4 class="margin-bottom">Your Batches</h4>
+		{% if mentor_batches %}
+		<div>
+			<div class="mentor_message">
+				You are a mentor for this course. Manage your batches or create a new batch from here.
+			</div>
+			<div class="d-flex flex-wrap">
+				{% for batch in mentor_batches %}
+				<div class="border m-3 dimensions w-50">
+					<div class="p-5">
+						<small class="batch_style {{batch.badge_class}} float-right">{{batch.status}}</small>
+						<div class="mb-3">Starting {{frappe.utils.format_date(batch.start_date, "medium")}}</div>
+						<div>Sessions every {{batch.sessions_on}}</div>
+						<div>{{frappe.utils.format_time(batch.start_time, "short")}} -
+							{{frappe.utils.format_time(batch.end_time, "short")}}
+						</div>
+					</div>
+					{% if batch.mentors %}
+					<div class="mb-3 p-5">
+						<h6>Mentors</h6>
+						{% for mentor in batch.mentors %}
+						<div class="d-flex align-items-center border p-2">
+							<div>
+								{{ profile(mentor.photo, mentor.full_name, mentor.abbr, "small")}}
+							</div>
+							<div class="ml-5">{{mentor.full_name}}</div>
+						</div>
+						{% endfor %}
+					</div>
+					{% endif %}
+					<hr>
+					<div class="text-right mb-5" style="max-height: 10%;">
+						<button class="btn btn-primary mb-2 mr-2 manage-batch" data-batch="{{ batch.name | urlencode }}">Manage</button>
+					</div>
+				</div>
+				{% endfor %}
+			</div>
+			<a class="btn btn-primary add-batch" href="/add-a-new-batch?course={{course.name}}"  data-course="{{course.name | urlencode}}">Add a new batch</a>
+		</div>
+		{% else %}
+		<div>
+			<div class="mentor_message">
+				<p> You are a mentor for this course. </p>
+				<button class="btn btn-primary"> Create your first batch </button>
+			</div>
+		</div>
+		{% endif %}
+		{% endif %}
+		{% if not is_mentor and upcoming_batches %}
+		<div class="upcoming-batches">
+			<h4>Upcoming Batches</h4>
+			<div class="d-flex flex-wrap">
+				{% for batch in upcoming_batches %}
+				<div class="border m-3 dimensions">
+					<div class="p-5">
+						<div class="mb-3">Starting {{frappe.utils.format_date(batch.start_date, "medium")}}</div>
+						<div>Sessions every {{batch.sessions_on}}</div>
+						<div>{{frappe.utils.format_time(batch.start_time, "short")}} -
+							{{frappe.utils.format_time(batch.end_time, "short")}}
+						</div>
+					</div>
+					{% if batch.mentors %}
+					<div class="mb-3 p-5" style="">
+						<h6>Mentors</h6>
+						{% for mentor in batch.mentors %}
+						<div class="d-flex align-items-center border p-2">
+							<div>
+								{{ profile(mentor.photo, mentor.full_name, mentor.abbr, "small")}}
+							</div>
+							<div class="ml-5">{{mentor.full_name}}</div>
+						</div>
+						{% endfor %}
+					</div>
+					{% endif %}
+					<hr>
+					<div class="text-right mb-5" style="max-height: 10%;">
+						<button class="btn btn-primary mb-2 mr-2 join-batch" data-batch="{{ batch.name | urlencode }}">Join
+							now</button>
+					</div>
+				</div>
+				{% endfor %}
+			</div>
+		</div>
+		{% endif %}
+		<div>
+			<h4 class="margin-bottom mt-5">About the Course</h4>
+			<div class="p-5"> {{frappe.utils.md_to_html(course.description)}} </div>
+		</div>
+		<div class="margin-bottom">
+			<h4 class="margin-bottom">Instructor</h4>
+			<div class="d-flex align-items-center">
+				<div>
+					{{ profile(instructor.photo, instructor.full_name, instructor.abbr, "small")}}
+				</div>
+				<div>
+					<div>{{instructor.full_name}}</div>
+					<div class="text-muted">{{instructor.course_count}} Courses</div>
+				</div>
+			</div>
+		</div>
+		<div class="margin-bottom">
+			<h4 class="margin-bottom">Mentors</h4>
+			<div class="d-flex">
+				{% for mentor in mentors %}
+				<div class="d-flex align-items-center mr-5">
+					<div>
+						{{ profile(mentor.photo, mentor.full_name, mentor.abbr, "small")}}
+					</div>
+					<div>
+						<div>{{mentor.full_name}}</div>
+						{% if mentor.batch_count %}
+						<div class="text-muted">Mentored {{mentor.batch_count}} {% if mentor.batch_count == 1 %} Batch
+							{% else %} Batches {% endif %}</div>
+						{% else %}
+						<div class="text-muted">New Mentor</div>
+						{% endif %}
+					</div>
+				</div>
+				{% endfor %}
+			</div>
+		</div>
+		<div class="pt-5 mentor-request">
+			Interested to mentor this course? <span class="apply-now" data-course={{course.name | urlencode}}
+				style="color: #2490EF; cursor: pointer;">Apply now!</span>
+		</div>
+		<div class="pt-5 already-applied hide">
+			You've applied to become a mentor for this course. Your request is currently under review. If you are not
+			any more interested to mentor this course, you can <span class="cancel-request" data-course={{course.name |
+				urlencode}} style="color: #2490EF; cursor: pointer;">Cancel your Application</span>.
+		</div>
+		{% if course.topics %}
+		<div class="mt-5">
+			<h4 class="margin-bottom">Topics</h4>
+			<div class="">
+				{% for topic in course.topics %}
+				<div class="">
+					<a class="text-decoration-none" href="/courses/{{course.slug}}/{{topic.slug}}">
+						<h5>{{topic.title}}</h5>
+					</a>
+					<div>{{topic.preview | markdown }}</div>
+				</div>
+				{% endfor %}
+			</div>
+		</div>
+		{% endif %}
+		<!-- <ul class="nav nav-tabs mt-4" id="myTab" role="tablist">
 			<li class="nav-item">
 				<a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home"
 					aria-selected="true">Course Details</a>
@@ -37,8 +266,8 @@
 	</div>
 	<div class="tab-content">
 		<div class="tab-pane fade py-4 show active" role="tabpanel" id="home">
-			<div class='container'>
-       			<div>{{ frappe.utils.md_to_html(course.description) }}</div>
+			<div class="container">
+				<div>{{ frappe.utils.md_to_html(course.description) }}</div>
 				<div class="list-group">
 					{% for topic in course.topics %}
 					<div class="list-group-item">
@@ -53,18 +282,19 @@
 			<div>
 				{% if batches %}
 				<div class="dropdown">
-					<button class="btn btn-default dropdown-toggle mb-5" data-toggle="dropdown" aria-expanded="false">
+					<button class="btn btn-default dropdown-toggle margin-botton" data-toggle="dropdown" aria-expanded="false">
 						<span class="current-batch">{{ batches[0] }}</span>
 						<b class="caret"></b>
 					</button>
 					<ul class="dropdown-menu dropdown-menu-right" role="menu">
-					{% for batch in batches %}
-					<li>
-						<a class="grey-link dropdown-item list-batch" href="#" onclick="return false;" data-label="{{ batch | urlencode}}">
-							<span class="alt-underline"> {{ batch }} </span>
-						</a>
-					</li>
-					{% endfor %}
+						{% for batch in batches %}
+						<li>
+							<a class="grey-link dropdown-item list-batch" href="#" onclick="return false;"
+								data-label="{{ batch | urlencode}}">
+								<span class="alt-underline"> {{ batch }} </span>
+							</a>
+						</li>
+						{% endfor %}
 					</ul>
 				</div>
 				{% endif %}
@@ -89,6 +319,6 @@
 				{% endif %}
 			</div>
 		</div>
-	</div>
+	</div> -->
 </section>
 {% endblock %}

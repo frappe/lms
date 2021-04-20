@@ -8,8 +8,12 @@
  "field_order": [
   "course",
   "title",
+  "start_date",
+  "start_time",
   "column_break_3",
   "code",
+  "sessions_on",
+  "end_time",
   "section_break_5",
   "description",
   "section_break_7",
@@ -83,11 +87,32 @@
   {
    "fieldname": "section_break_7",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "start_date",
+   "fieldtype": "Date",
+   "label": "Start Date"
+  },
+  {
+   "fieldname": "start_time",
+   "fieldtype": "Time",
+   "label": "Start Time"
+  },
+  {
+   "description": "Enter Days of the week comma separated.",
+   "fieldname": "sessions_on",
+   "fieldtype": "Data",
+   "label": "Sessions On"
+  },
+  {
+   "fieldname": "end_time",
+   "fieldtype": "Time",
+   "label": "End Time"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-03-19 12:56:33.054884",
+ "modified": "2021-04-15 10:52:24.358628",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch",

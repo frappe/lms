@@ -10,12 +10,10 @@ from frappe import _
 from frappe.model.rename_doc import rename_doc
 
 class CommunityMember(WebsiteGenerator):
-	def get_context(self, context):
-		context.abbr = ("").join([ s[0] for s in self.full_name.split() ])
-		return context
 
 	def validate(self):
 		self.validate_username()
+		self.abbr = ("").join([ s[0] for s in self.full_name.split() ])
 		if self.route != self.username:
 			self.route = self.username	
 	

@@ -6,9 +6,11 @@
  "engine": "InnoDB",
  "field_order": [
   "batch",
+  "role",
+  "column_break_3",
   "member",
-  "member_type",
-  "role"
+  "member_name",
+  "member_type"
  ],
  "fields": [
   {
@@ -38,11 +40,23 @@
    "in_list_view": 1,
    "label": "Role",
    "options": "\nMember\nAdmin"
+  },
+  {
+   "fetch_from": "member.full_name",
+   "fieldname": "member_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Member Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-03-19 15:06:21.374601",
+ "modified": "2021-04-16 09:57:52.926943",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch Membership",

@@ -20,7 +20,8 @@
   "photo",
   "column_break_12",
   "email_preference",
-  "route"
+  "route",
+  "abbr"
  ],
  "fields": [
   {
@@ -102,12 +103,18 @@
   {
    "fieldname": "column_break_12",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "abbr",
+   "fieldtype": "Data",
+   "label": "Abbr",
+   "read_only": 1
   }
  ],
  "has_web_view": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-04-14 09:36:27.813085",
+ "modified": "2021-04-16 10:22:46.837311",
  "modified_by": "Administrator",
  "module": "Community",
  "name": "Community Member",

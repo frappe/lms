@@ -3,8 +3,7 @@ from ...lms.doctype.lms_sketch.lms_sketch import get_recent_sketches
 
 def get_context(context):
 	context.no_cache = 1
-	context.member = frappe.get_all("Community Member", {"email": frappe.session.user}, ["name", "email", "photo", "full_name"])[0]
-	context.abbr = "".join([s[0] for s in context.member.full_name.split()])
+	context.member = frappe.get_all("Community Member", {"email": frappe.session.user}, ["name", "email", "photo", "full_name", "abbr"])[0]
 	context.memberships = get_memberships(context.member.name)
 	context.courses = get_courses(context.memberships)
 	context.activity = get_activity(context.memberships)
@@ -35,7 +34,5 @@ def get_activity(memberships):
 	messages = frappe.get_all("LMS Message", {"batch": ["in", ",".join(batches)]}, ["message", "author", "creation", "batch"], order_by='creation desc')
 	for message in messages:
 		message.course = courses[message.batch]
-		message.profile, message.full_name = frappe.db.get_value("Community Member", message.author, ["photo", "full_name"])
-		if not message.profile:
-			message.abbr = "".join([s[0] for s in message.full_name.split()])
+		message.profile, message.full_name, message.abbr = frappe.db.get_value("Community Member", message.author, ["photo", "full_name", "abbr"])
 	return messages

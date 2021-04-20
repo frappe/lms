@@ -8,7 +8,6 @@ def get_context(context):
     if not context.member:
         context.template = "www/404.html"
     else:
-        context.abbr = "".join([s[0] for s in context.member.full_name.split()])
         context.sketches = list(filter(lambda x: x.owner == context.member.email, get_recent_sketches()))
 
 def get_member(username):

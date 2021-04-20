@@ -1,4 +1,19 @@
 frappe.ready(() => {
+	if (frappe.session.user != "Guest") {
+		frappe.call({
+			'method': 'community.lms.doctype.lms_mentor_request.lms_mentor_request.has_requested',
+			'args': {
+				course: $(".course-title").attr("data-course"),
+			},
+			'callback': (data) => {
+				if (data.message) {
+					$(".mentor-request").addClass("hide");
+					$(".already-applied").removeClass("hide")
+				}
+			}
+		})
+	}
+
 	$(".list-batch").click((e) => {
 		var batch = decodeURIComponent($(e.currentTarget).attr("data-label"))
 		$(".current-batch").text(batch)
@@ -13,6 +28,7 @@ frappe.ready(() => {
 			}
 		})
 	})
+
 	$(".send-message").click((e) => {
 		var message = $(".message-text").val().trim();
 		if (message) {
@@ -34,6 +50,61 @@ frappe.ready(() => {
 			$(".message-text").val("");
 		}
 	})
+
+	$(".apply-now").click((e) => {
+		if (frappe.session.user == "Guest") {
+			window.location.href = "/login";
+			return;
+		}
+		frappe.call({
+			"method": "community.lms.doctype.lms_mentor_request.lms_mentor_request.create_request",
+			"args": {
+				"course": decodeURIComponent($(e.currentTarget).attr("data-course"))
+			},
+			"callback": (data) => {
+				if (data.message == "OK") {
+					$(".mentor-request").addClass("hide");
+					$(".already-applied").removeClass("hide")
+				}
+			}
+		})
+	})
+
+	$(".cancel-request").click((e) => {
+		frappe.call({
+			"method": "community.lms.doctype.lms_mentor_request.lms_mentor_request.cancel_request",
+			"args": {
+				"course": decodeURIComponent($(e.currentTarget).attr("data-course"))
+			},
+			"callback": (data) => {
+				if (data.message == "OK") {
+					$(".mentor-request").removeClass("hide");
+					$(".already-applied").addClass("hide")
+				}
+			}
+		})
+	})
+
+	$(".join-batch").click((e) => {
+		if (frappe.session.user == "Guest") {
+			window.location.href = "/login";
+			return;
+		}
+		batch = decodeURIComponent($(e.currentTarget).attr("data-batch"))
+		frappe.call({
+			"method": "community.lms.doctype.lms_batch_membership.lms_batch_membership.create_member",
+			"args": {
+				"batch": batch
+			},
+			"callback": (data) => {
+				if (data.message == "OK") {
+					frappe.msgprint(__("You are now a student of this course."))
+					$(".upcoming-batches").addClass("hide")
+				}
+			}
+		})
+	})
+
 	var add_message = (message, session_user = false) => {
 		var author_name = session_user ? "You" : message.author_name
 		return `<div class="list-group-item">
@@ -42,13 +113,6 @@ frappe.ready(() => {
 							<div class="small text-muted text-right"> ${message.creation} </div>
 						</div>`;
 	}
-	/* if(frappe.session.user != "Guest"){
-		frappe.call('community.www.courses.course.has_enrolled', { course: get_search_params().get("course") }, (data) => {
-			if (data.message) {
-				show_enrollment_badge()
-			}
-		})
-	} */
 })
 /*
 var show_enrollment_badge = () => {

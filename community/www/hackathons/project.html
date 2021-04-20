@@ -159,7 +159,7 @@
                         <!-- updates -->
                         {% for update in updates %}
                         {{ add_update(update.project_update, update.creation) }}
-                        {% endfor %}
+                        {%    
 
                         <!-- creation -->
                         {{ add_update("Project created by " + frappe.db.get_value('User', project.owner, 'full_name'),
