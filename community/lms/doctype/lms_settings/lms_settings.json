@@ -21,19 +21,19 @@
   {
    "fieldname": "mentor_request_creation",
    "fieldtype": "Link",
-   "label": "Mentor Request Creation",
+   "label": "Mentor Request Creation Template",
    "options": "Email Template"
   },
   {
    "fieldname": "mentor_request_status_update",
    "fieldtype": "Link",
-   "label": "Mentor Request Status update",
+   "label": "Mentor Request Status Update Template",
    "options": "Email Template"
   },
   {
    "fieldname": "email_sender",
    "fieldtype": "Data",
-   "label": "Email Sender",
+   "label": "Senders Email Id",
    "options": "Email"
   },
   {
@@ -45,7 +45,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2021-04-21 13:05:38.691336",
+ "modified": "2021-04-21 13:28:35.783395",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",
