@@ -110,8 +110,14 @@
   }
  ],
  "index_web_pages_for_search": 1,
- "links": [],
- "modified": "2021-04-21 10:21:23.183399",
+ "links": [
+  {
+   "group": "Members",
+   "link_doctype": "LMS Batch Membership",
+   "link_fieldname": "batch"
+  }
+ ],
+ "modified": "2021-04-21 12:45:21.144972",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch",

@@ -72,8 +72,24 @@
  ],
  "index_web_pages_for_search": 1,
  "is_published_field": "is_published",
- "links": [],
- "modified": "2021-04-15 10:09:25.608422",
+ "links": [
+  {
+   "group": "Topics",
+   "link_doctype": "LMS Topic",
+   "link_fieldname": "course"
+  },
+  {
+   "group": "Batches",
+   "link_doctype": "LMS Batch",
+   "link_fieldname": "course"
+  },
+  {
+   "group": "Mentors",
+   "link_doctype": "LMS Course Mentor Mapping",
+   "link_fieldname": "course"
+  }
+ ],
+ "modified": "2021-04-21 14:45:41.658056",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",
