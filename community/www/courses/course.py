@@ -65,7 +65,12 @@ def get_membership(batches):
     return memberships
 
 def get_instructor(owner):
-    instructor = frappe.get_doc("Community Member", {"email": owner})
+    instructor = frappe._dict()
+    try:
+        instructor = frappe.get_doc("Community Member", {"email": owner})
+    except frappe.DoesNotExistError:
+        instructor.full_name = owner
+        instructor.abbr = ("").join([ s[0] for s in owner.split() ])
     instructor.course_count = len(frappe.get_all("LMS Course", {"owner": owner}))
     return instructor
 

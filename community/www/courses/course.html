@@ -96,7 +96,7 @@
 					<button class="btn btn-dark btn-enroll float-right" data-course="{{ course.name }}">Enroll</button>
 				{% endif %} -->
 				<h2 class="course-title" data-course={{ course.name | urlencode }}>{{ course.title }}</h2>
-				{{course.short_introduction}}
+				{% if course.short_introduction %} {{course.short_introduction}} {% endif %}
 			</div>
 			{% if course.video_link %}
 			<div>
@@ -192,10 +192,12 @@
 			</div>
 		</div>
 		{% endif %}
+		{% if course.description %}
 		<div>
 			<h4 class="margin-bottom mt-5">About the Course</h4>
 			<div class="p-5"> {{frappe.utils.md_to_html(course.description)}} </div>
 		</div>
+		{% endif %}
 		<div class="margin-bottom">
 			<h4 class="margin-bottom">Instructor</h4>
 			<div class="d-flex align-items-center">
@@ -208,6 +210,7 @@
 				</div>
 			</div>
 		</div>
+		{% if mentors %}
 		<div class="margin-bottom">
 			<h4 class="margin-bottom">Mentors</h4>
 			<div class="d-flex">
@@ -229,6 +232,7 @@
 				{% endfor %}
 			</div>
 		</div>
+		{% endif %}
 		{% if not is_mentor %}
 		<div class="pt-5 mentor-request">
 			Interested to mentor this course? <span class="apply-now" data-course={{course.name | urlencode}}
