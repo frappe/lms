@@ -11,13 +11,18 @@ class LMSMentorRequest(Document):
 	def on_update(self):
 		if self.has_value_changed('status'):
 			template = frappe.db.get_single_value('LMS Settings', 'mentor_request_status_update')
-			email_template = frappe.get_doc('Email Template', template)
+			if not template:
+				return
+
+			email_template = frappe.get_doc('Email Template', template)	
 			message = frappe.render_template(email_template.response, {'member_name': self.member_name, 'status': self.status})
 			subject = _('The status of your application has changed.')
 			member_email = frappe.db.get_value("Community Member", self.member, "email")
+			
 			if self.status == 'Approved' or self.status == 'Rejected':
 				reviewed_by = frappe.db.get_value('Community Member', self.reviewed_by, 'email')
 				send_email(member_email, [get_course_author(self.course), reviewed_by], subject, message)
+			
 			elif self.status == 'Withdrawn':
 				send_email([member_email, get_course_author(self.course)], None, subject, message)
 
@@ -65,6 +70,9 @@ def get_course_author(course):
 
 def send_creation_email(course, member):
 	template = frappe.db.get_single_value('LMS Settings', 'mentor_request_creation')
+	if not template:
+		return
+
 	email_template = frappe.get_doc('Email Template', template)
 	member_name = member.full_name
 	message = frappe.render_template(email_template.response, {'member_name': member_name})

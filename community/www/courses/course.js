@@ -3,7 +3,7 @@ frappe.ready(() => {
 		frappe.call({
 			'method': 'community.lms.doctype.lms_mentor_request.lms_mentor_request.has_requested',
 			'args': {
-				course: $(".course-title").attr("data-course"),
+				course: decodeURIComponent($(".course-title").attr("data-course")),
 			},
 			'callback': (data) => {
 				if (data.message) {
