@@ -210,10 +210,13 @@
 				</div>
 			</div>
 		</div>
-		{% if mentors %}
 		<div class="margin-bottom">
 			<h4 class="margin-bottom">Mentors</h4>
 			<div class="d-flex">
+        {% if not mentors %}
+          <em>There are no active mentors for this course.</em>
+        {% endif %}
+
 				{% for mentor in mentors %}
 				<div class="d-flex align-items-center mr-5">
 					<div>
@@ -232,7 +235,6 @@
 				{% endfor %}
 			</div>
 		</div>
-		{% endif %}
 		{% if not is_mentor %}
 		<div class="pt-5 mentor-request">
 			Interested to mentor this course? <span class="apply-now" data-course={{course.name | urlencode}}
