@@ -92,7 +92,7 @@ frappe.ready(() => {
 		}
 		batch = decodeURIComponent($(e.currentTarget).attr("data-batch"))
 		frappe.call({
-			"method": "community.lms.doctype.lms_batch_membership.lms_batch_membership.create_member",
+			"method": "community.lms.doctype.lms_batch_membership.lms_batch_membership.create_membership",
 			"args": {
 				"batch": batch
 			},

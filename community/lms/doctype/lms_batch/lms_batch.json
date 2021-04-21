@@ -99,10 +99,9 @@
    "label": "Start Time"
   },
   {
-   "description": "Enter Days of the week comma separated.",
    "fieldname": "sessions_on",
    "fieldtype": "Data",
-   "label": "Sessions On"
+   "label": "Sessions On Days"
   },
   {
    "fieldname": "end_time",
@@ -112,7 +111,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-04-15 10:52:24.358628",
+ "modified": "2021-04-21 10:21:23.183399",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch",

@@ -98,12 +98,14 @@
 				<h2 class="course-title" data-course={{ course.name | urlencode }}>{{ course.title }}</h2>
 				{{course.short_introduction}}
 			</div>
+			{% if course.video_link %}
 			<div>
 				<iframe width="417" height="274" src="{{course.video_link}}" title="YouTube video player"
 					frameborder="0"
 					allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
 					allowfullscreen></iframe>
 			</div>
+			{% endif %}
 		</div>
 		{% if is_mentor %}
 		<h4 class="margin-bottom">Your Batches</h4>
@@ -138,18 +140,18 @@
 					{% endif %}
 					<hr>
 					<div class="text-right mb-5" style="max-height: 10%;">
-						<button class="btn btn-primary mb-2 mr-2 manage-batch" data-batch="{{ batch.name | urlencode }}">Manage</button>
+						<button class="btn btn-primary btn-sm mb-2 mr-2 manage-batch" data-batch="{{ batch.name | urlencode }}">Manage</button>
 					</div>
 				</div>
 				{% endfor %}
 			</div>
-			<a class="btn btn-primary add-batch" href="/add-a-new-batch?course={{course.name}}"  data-course="{{course.name | urlencode}}">Add a new batch</a>
+			<a class="btn btn-primary add-batch margin-bottom" href="/add-a-new-batch?new=1&course={{course.name}}"  data-course="{{course.name | urlencode}}">Add a new batch</a>
 		</div>
 		{% else %}
-		<div>
+		<div class="margin-bottom">
 			<div class="mentor_message">
 				<p> You are a mentor for this course. </p>
-				<button class="btn btn-primary"> Create your first batch </button>
+				<a class="btn btn-primary" href="/add-a-new-batch?new=1&course={{course.name}}" > Create your first batch </a>
 			</div>
 		</div>
 		{% endif %}
@@ -182,7 +184,7 @@
 					{% endif %}
 					<hr>
 					<div class="text-right mb-5" style="max-height: 10%;">
-						<button class="btn btn-primary mb-2 mr-2 join-batch" data-batch="{{ batch.name | urlencode }}">Join
+						<button class="btn btn-primary btn-sm mb-2 mr-2 join-batch" data-batch="{{ batch.name | urlencode }}">Join
 							now</button>
 					</div>
 				</div>
@@ -227,6 +229,7 @@
 				{% endfor %}
 			</div>
 		</div>
+		{% if not is_mentor %}
 		<div class="pt-5 mentor-request">
 			Interested to mentor this course? <span class="apply-now" data-course={{course.name | urlencode}}
 				style="color: #2490EF; cursor: pointer;">Apply now!</span>
@@ -236,6 +239,7 @@
 			any more interested to mentor this course, you can <span class="cancel-request" data-course={{course.name |
 				urlencode}} style="color: #2490EF; cursor: pointer;">Cancel your Application</span>.
 		</div>
+		{% endif %}
 		{% if course.topics %}
 		<div class="mt-5">
 			<h4 class="margin-bottom">Topics</h4>
