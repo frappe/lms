@@ -84,17 +84,15 @@
 {% block content %}
 <section class="top-section container" style="padding: 1rem 0rem;">
 	<div class="container pb-5">
+
 		<nav aria-label="breadcrumb">
 			<ol class="breadcrumb">
 				<li class="breadcrumb-item" aria-current="page"><a href="/courses">Courses</a></li>
 			</ol>
 		</nav>
-		<div class="badge badge-info enrollment-badge hide">Enrolled</div>
+
 		<div class="d-flex justify-content-between">
 			<div class="mr-3">
-				<!-- {% if not course_enrolled and frappe.session.user != "Guest" %}
-					<button class="btn btn-dark btn-enroll float-right" data-course="{{ course.name }}">Enroll</button>
-				{% endif %} -->
 				<h2 class="course-title" data-course={{ course.name | urlencode }}>{{ course.title }}</h2>
 				{% if course.short_introduction %} {{course.short_introduction}} {% endif %}
 			</div>
@@ -107,6 +105,7 @@
 			</div>
 			{% endif %}
 		</div>
+
 		{% if is_mentor %}
 		<h4 class="margin-bottom">Your Batches</h4>
 		{% if mentor_batches %}
@@ -156,6 +155,7 @@
 		</div>
 		{% endif %}
 		{% endif %}
+
 		{% if not is_mentor and upcoming_batches %}
 		<div class="upcoming-batches">
 			<h4>Upcoming Batches</h4>
@@ -192,12 +192,14 @@
 			</div>
 		</div>
 		{% endif %}
+
 		{% if course.description %}
 		<div>
 			<h4 class="margin-bottom mt-5">About the Course</h4>
 			<div class="p-5"> {{frappe.utils.md_to_html(course.description)}} </div>
 		</div>
 		{% endif %}
+
 		<div class="margin-bottom">
 			<h4 class="margin-bottom">Instructor</h4>
 			<div class="d-flex align-items-center">
@@ -210,6 +212,7 @@
 				</div>
 			</div>
 		</div>
+
 		{% if mentors %}
 		<div class="margin-bottom">
 			<h4 class="margin-bottom">Mentors</h4>
@@ -233,6 +236,7 @@
 			</div>
 		</div>
 		{% endif %}
+
 		{% if not is_mentor %}
 		<div class="pt-5 mentor-request">
 			Interested to mentor this course? <span class="apply-now" data-course={{course.name | urlencode}}
@@ -244,6 +248,7 @@
 				urlencode}} style="color: #2490EF; cursor: pointer;">Cancel your Application</span>.
 		</div>
 		{% endif %}
+
 		{% if course.topics %}
 		<div class="mt-5">
 			<h4 class="margin-bottom">Topics</h4>
@@ -259,74 +264,5 @@
 			</div>
 		</div>
 		{% endif %}
-		<!-- <ul class="nav nav-tabs mt-4" id="myTab" role="tablist">
-			<li class="nav-item">
-				<a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home"
-					aria-selected="true">Course Details</a>
-			</li>
-			{% if current_batch %}
-			<li class="nav-item">
-				<a class="nav-link" id="discussions-tab" data-toggle="tab" href="#discussions" role="tab"
-					aria-controls="discussions" aria-selected="false">Discussions</a>
-			</li>
-			{% endif %}
-		</ul>
-	</div>
-	<div class="tab-content">
-		<div class="tab-pane fade py-4 show active" role="tabpanel" id="home">
-			<div class="container">
-				<div>{{ frappe.utils.md_to_html(course.description) }}</div>
-				<div class="list-group">
-					{% for topic in course.topics %}
-					<div class="list-group-item">
-						<h5><a href="/courses/{{course.slug}}/{{topic.slug}}">{{topic.title}}</a></h5>
-						<div>{{topic.preview | markdown }}</div>
-					</div>
-					{% endfor %}
-				</div>
-			</div>
-		</div>
-		<div class="tab-pane fade py-4" role="tabpanel" id="discussions">
-			<div>
-				{% if batches %}
-				<div class="dropdown">
-					<button class="btn btn-default dropdown-toggle margin-botton" data-toggle="dropdown" aria-expanded="false">
-						<span class="current-batch">{{ batches[0] }}</span>
-						<b class="caret"></b>
-					</button>
-					<ul class="dropdown-menu dropdown-menu-right" role="menu">
-						{% for batch in batches %}
-						<li>
-							<a class="grey-link dropdown-item list-batch" href="#" onclick="return false;"
-								data-label="{{ batch | urlencode}}">
-								<span class="alt-underline"> {{ batch }} </span>
-							</a>
-						</li>
-						{% endfor %}
-					</ul>
-				</div>
-				{% endif %}
-				<div class="border p-5">
-					<div class="form-group">
-						<textarea class="form-control message-text" rows="3"
-							placeholder="Enter your message here."></textarea>
-						<button class="btn btn-primary mt-5 send-message" data-author="{{ author | urlencode}}"
-							data-batch="{{ current_batch | urlencode }}">Send</button>
-					</div>
-				</div>
-				{% if discussions %}
-				<div class="discussions">
-					{% for message in discussions %}
-					<div class="list-group-item">
-						<h6>{{ message.author_name }}</h6>
-						{{ message.message }}
-						<div class="small text-muted text-right">{{ message.creation }}</div>
-					</div>
-					{% endfor %}
-				</div>
-				{% endif %}
-			</div>
-		</div>
-	</div> -->
 </section>
 {% endblock %}

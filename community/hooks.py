@@ -98,11 +98,11 @@ doc_events = {
 
 # Scheduled Tasks
 # ---------------
-scheduler_events = {
-	"daily": [
-		"erpnext.stock.reorder_item.reorder_item"
-	]
-}
+#scheduler_events = {
+#	"daily": [
+#		"erpnext.stock.reorder_item.reorder_item"
+#	]
+#}
 
 # Testing
 # -------
