@@ -1,5 +1,5 @@
 {% extends "templates/base.html" %}
-{% from "www/macros/profile.html" import profile %}
+{% from "www/macros/profile.html" import Profile %}
 {% block title %}{{ _("Community") }}{% endblock %}
 {% block head_include %}
 <meta name="description" content="{{ 'Community' }}" />
@@ -91,7 +91,7 @@
 <section>
 	<div class="dashboard__parent">
 		<div>
-			{{ profile(member.photo, member.full_name, member.abbr, "large")}}
+			{{ Profile(member.photo, member.full_name, member.abbr, "large")}}
 		</div>
 		<div class="dashboard__details">
 			<div class="dashboard__name">
@@ -125,7 +125,7 @@
 								</div>
 								<div class="d-flex align-items-center w-100">
 									<div>
-										{{ profile(message.profile, message.full_name, message.abbr, "small")}}
+										{{ Profile(message.profile, message.full_name, message.abbr, "small")}}
 									</div>
 									<div class="ml-5 mt-5">{{ frappe.utils.md_to_html(message.message) }}</div>
 								</div>

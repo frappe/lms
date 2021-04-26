@@ -1,12 +1,10 @@
-{% macro profile(photo, full_name, abbr, icon) %}
+{% macro Profile(photo, full_name, abbr, icon) %}
 {% if photo %}
-<img class="avatar rounded-circle img-fluid mr-5{% if icon == 'large' %} avatar-xl {% else %} avatar-large {% endif %}"
+<img class="avatar rounded-circle img-fluid mr-5{% if icon == 'large' %} dashboard__profile {% else %} dashboard__profileSmall {% endif %}"
 	src="{{ photo }}" alt="{{ full_name }}">
 {% else %}
-<div class="col-sm-2">
-	<div class="standard-image {% if icon == 'large' %} dashboard__abbr {% else %} dashboard__abbrSmall {% endif %}">
-		{{ abbr }}
-	</div>
+<div class="standard-image mr-5 {% if icon == 'large' %} dashboard__abbr {% else %} dashboard__abbrSmall {% endif %}">
+	{{ abbr }}
 </div>
 {% endif %}
 {% endmacro %}

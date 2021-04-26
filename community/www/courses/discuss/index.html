@@ -1,0 +1,13 @@
+{% extends "templates/base.html" %}
+{% from "www/macros/sidebar.html" import Sidebar %}
+{% block title %}Discuss{% endblock %}
+{% block head_include %}
+<meta name="description" content="Courses" />
+<meta name="keywords" content="" />
+{% endblock %}
+
+{% block content %}
+{{ Sidebar(course, batch_code) }}
+<div class="container">
+</div>
+{% endblock %}

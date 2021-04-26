@@ -12,11 +12,14 @@ def get_context(context):
     
     context.course = get_course(course_id)
     context.batches = get_course_batches(context.course.name)
+    context.is_mentor = is_mentor(context.course.name)
     context.memberships = get_membership(context.batches)
-    context.upcoming_batches = [] if len(context.memberships) else get_upcoming_batches(context.course.name)
+    if len(context.memberships) and not context.is_mentor:
+        frappe.local.flags.redirect_location = "/courses/" + course_id + "/" + context.memberships[0].code + "/learn"
+        raise frappe.Redirect
+    context.upcoming_batches = get_upcoming_batches(context.course.name)
     context.instructor = get_instructor(context.course.owner)
     context.mentors = get_mentors(context.course.name)
-    context.is_mentor = is_mentor(context.course.name)
     
     if context.is_mentor:
         context.mentor_batches = get_mentor_batches(context.memberships)        # Your Bacthes for mentor
@@ -48,19 +51,13 @@ def get_batch_mentors(batches):
             batch.mentors.append(member)
     return batches
 
-def get_discussions(batches):
-    messages = []
-    memberships = get_membership(batches)
-    if len(memberships):
-        messages = get_messages(memberships[0].batch)
-    return messages, memberships
-
 def get_membership(batches):
     memberships = []
     member = frappe.db.get_value("Community Member", {"email": frappe.session.user}, "name")
     for batch in batches:
         membership = frappe.db.get_value("LMS Batch Membership", {"member": member, "batch": batch.name}, ["batch", "member", "member_type"], as_dict=1)
         if membership:
+            membership.code = batch.code
             memberships.append(membership)
     return memberships
 
@@ -84,7 +81,7 @@ def get_mentors(course):
     return course_mentors
 
 def get_course_batches(course):
-    return frappe.get_all("LMS Batch", {"course": course}, ["name"])
+    return frappe.get_all("LMS Batch", {"course": course}, ["name", "code"])
 
 def get_mentor_batches(memberships):
     mentor_batches = []

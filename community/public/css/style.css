@@ -1,4 +1,5 @@
 @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css");
+@import url("https://use.fontawesome.com/releases/v5.13.0/css/all.css");
 
 :root {
   --c1: #fefae0;
@@ -59,6 +60,19 @@ body {
 .sidebar h3 {
   margin-top: 20px;
   color: var(--c2);
+}
+
+.sidebar-batch {
+  background: var(--sidebar-bg);
+  color: var(--text-color);
+  position: fixed;
+  left: 0;
+  height: 100%;
+}
+
+.sidebar-batch a {
+  padding: 16px 8px 8px 16px;
+  display: block;
 }
 
 .instructor {
@@ -192,4 +206,30 @@ nav.navbar {
   border: 1px dashed var(--text-color);
   padding: 20px;
   border-radius: 10px;
+}
+
+.dashboard__profile {
+  width: 150px;
+  height: 155px;
+  border-radius: 50%;
+}
+
+.dashboard__profileSmall {
+  width: 59px;
+  height: 57px;
+  border-radius: 50%;
+}
+
+.dashboard__abbr {
+  font-size: 50px;
+  width: 155px;
+  height: 155px;
+  border-radius: 50%;
+}
+
+.dashboard__abbrSmall {
+  font-size: 20px;
+  width: 59px;
+  height: 57px;
+  border-radius: 50%;
 }

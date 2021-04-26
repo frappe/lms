@@ -1,5 +1,5 @@
 {% extends "templates/web.html" %}
-{% from "www/macros/profile.html" import profile %}
+{% from "www/macros/profile.html" import Profile %}
 {% block head_include %}
 <meta name="description" content="{{ 'Community' }}" />
 <meta name="keywords" content="An app that supports Communities." />
@@ -89,7 +89,7 @@
 <section>
     <div class="dashboard__parent">
         <div>
-            {{ profile(member.photo, member.full_name, member.abbr, "large")}}
+            {{ Profile(member.photo, member.full_name, member.abbr, "large")}}
         </div>
         <div class="dashboard__details">
             <div class="dashboard__name">

@@ -1,0 +1,3 @@
+frappe.ready(() => {
+	
+})
