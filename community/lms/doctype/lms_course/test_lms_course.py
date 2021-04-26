@@ -3,8 +3,48 @@
 # See license.txt
 from __future__ import unicode_literals
 
-# import frappe
+import frappe
 import unittest
 
 class TestLMSCourse(unittest.TestCase):
-	pass
+    def setUp(self):
+        frappe.db.sql('delete from `tabLMS Course Mentor Mapping`')
+        frappe.db.sql('delete from `tabLMS Course`')
+        frappe.db.sql('delete from `tabCommunity Member`')
+        frappe.db.sql('delete from `tabUser` where email like "%@example.com"')
+
+    def new_course(self, title):
+        doc = frappe.get_doc({
+            "doctype": "LMS Course",
+            "title": title
+        })
+        doc.insert()
+        return doc
+
+    def new_user(self, name, email):
+        doc = frappe.get_doc(dict(
+                doctype='User',
+                email=email,
+                first_name=name))
+        doc.insert()
+        return doc
+
+    def test_new_course(self):
+        course = self.new_course("Test Course")
+        assert course.title == "Test Course"
+        assert course.slug == "test-course"
+        assert course.get_mentors() == []
+
+    def test_add_mentors(self):
+        course = self.new_course("Test Course")
+        assert course.get_mentors() == []
+
+        user = self.new_user("Tester", "tester@example.com")
+        course.add_mentor("tester@example.com")
+
+        mentors = course.get_mentors()
+        mentors_data = [dict(email=mentor.email, batch_count=mentor.batch_count) for mentor in mentors]
+        assert mentors_data == [{"email": "tester@example.com", "batch_count": 0}]
+
+        print(course)
+        doom
