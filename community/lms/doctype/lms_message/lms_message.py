@@ -9,9 +9,7 @@ from frappe import _
 from frappe.utils import add_days, nowdate
 class LMSMessage(Document):
 	def after_insert(self):
-		message = self.as_dict()
-		message['broadcast'] = True
-		frappe.publish_realtime('new_lms_message', message, after_commit=True)
+		frappe.publish_realtime("new_lms_message", {"message":"JJannat"}, user="Administrator")
 		self.send_email()
 		
 	def send_email(self):

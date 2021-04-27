@@ -5,6 +5,7 @@
 from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
+from community.www.courses.utils import get_member_with_email
 
 class LMSBatch(Document):
 	def validate(self):
@@ -15,3 +16,25 @@ class LMSBatch(Document):
 		short_code = frappe.db.get_value("LMS Course", self.course, "short_code")
 		course_batches = frappe.get_all("LMS Batch",{"course":self.course})
 		self.code = short_code + str(len(course_batches) + 1)
+
+@frappe.whitelist()
+def get_messages(batch):
+    messages =  frappe.get_all("LMS Message", {"batch": batch}, ["*"], order_by="creation")
+    for message in messages:
+        message.message = frappe.utils.md_to_html(message.message)
+        member_email = frappe.db.get_value("Community Member", message.author, ["email"])
+        if member_email == frappe.session.user:
+            message.author_name = "You"
+            message.is_author = True
+    return messages
+
+@frappe.whitelist()
+def save_message(message, batch):
+    doc = frappe.get_doc({
+        "doctype": "LMS Message",
+        "batch": batch,
+        "author": get_member_with_email(),
+        "message": message
+    })
+    doc.save(ignore_permissions=True)
+    return doc

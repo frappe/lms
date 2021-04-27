@@ -39,7 +39,6 @@
   {
    "fieldname": "role",
    "fieldtype": "Select",
-   "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Role",
    "options": "\nMember\nAdmin"
@@ -59,7 +58,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-04-22 15:30:00.069946",
+ "modified": "2021-04-26 12:52:59.826509",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch Membership",

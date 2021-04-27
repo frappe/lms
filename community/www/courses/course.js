@@ -1,4 +1,15 @@
 frappe.ready(() => {
+	frappe.require("/assets/frappe/js/lib/socket.io.min.js");
+	frappe.require("/assets/frappe/js/frappe/socketio_client.js");
+	if (window.dev_server) {
+		frappe.boot.socketio_port = "9000" //use socketio port shown when bench starts
+	}
+	frappe.socketio.init();
+	console.log(frappe.socketio)
+	//frappe.socketio.emittedDemo("mydata");
+	frappe.realtime.on("new_lms_message", (data) => {
+		console.log(data)
+	})
 	if (frappe.session.user != "Guest") {
 		frappe.call({
 			'method': 'community.lms.doctype.lms_mentor_request.lms_mentor_request.has_requested',
@@ -27,28 +38,6 @@ frappe.ready(() => {
 				}
 			}
 		})
-	})
-
-	$(".send-message").click((e) => {
-		var message = $(".message-text").val().trim();
-		if (message) {
-			frappe.call({
-				"method": "community.www.courses.course.save_message",
-				"args": {
-					"batch": decodeURIComponent($(e.target).attr("data-batch")),
-					"author": decodeURIComponent($(e.target).attr("data-author")),
-					"message": message
-				},
-				"callback": (data) => {
-					$(".message-text").val("");
-					var element = add_message(data.message, true)
-					$(".discussions").prepend(element);
-				}
-			})
-		}
-		else {
-			$(".message-text").val("");
-		}
 	})
 
 	$(".apply-now").click((e) => {
@@ -104,15 +93,6 @@ frappe.ready(() => {
 			}
 		})
 	})
-
-	var add_message = (message, session_user = false) => {
-		var author_name = session_user ? "You" : message.author_name
-		return `<div class="list-group-item">
-							<h6> ${author_name} </h6>
-							${message.message}
-							<div class="small text-muted text-right"> ${message.creation} </div>
-						</div>`;
-	}
 })
 /*
 var show_enrollment_badge = () => {

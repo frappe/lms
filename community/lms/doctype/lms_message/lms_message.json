@@ -5,10 +5,13 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "batch",
   "author",
-  "message",
-  "pin"
+  "batch",
+  "column_break_3",
+  "author_name",
+  "pin",
+  "section_break_6",
+  "message"
  ],
  "fields": [
   {
@@ -36,11 +39,26 @@
    "fieldname": "pin",
    "fieldtype": "Check",
    "label": "Pin"
+  },
+  {
+   "fetch_from": "author.full_name",
+   "fieldname": "author_name",
+   "fieldtype": "Data",
+   "label": "Author Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_6",
+   "fieldtype": "Section Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-03-23 18:06:25.086377",
+ "modified": "2021-04-26 16:11:20.142164",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Message",

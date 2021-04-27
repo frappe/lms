@@ -1,6 +1,8 @@
 {% extends "templates/base.html" %}
 {% from "www/macros/sidebar.html" import Sidebar %}
 {% from "www/macros/profile.html" import Profile %}
+{% from "www/macros/common_macro.html" import BatchHearder %}
+
 {% block title %}Members{% endblock %}
 {% block head_include %}
 <meta name="description" content="Courses" />
@@ -8,28 +10,29 @@
 {% endblock %}
 
 {% block content %}
-{{ Sidebar(course, batch_code) }}
+{{ Sidebar(course_slug, batch_code) }}
 <div class="container">
-	<div class="border p-3">
-		<h3>{{course.name}}</h3>
-		<div class="text-muted">{{member_count}} members</div>
-	</div>
-
-	<div class="mt-5">
-		{% for member in members %}
-		<div class="d-flex align-items-center">
-			<div>
-				{{ Profile(member.photo, member.full_name, member.abbr, "small") }}
-			</div>
-			<div class="mr-5">
-				{{member.full_name}}
-			</div>
-			{% if member.is_mentor %}
-			<div class="badge badge-success">Mentor</div>
-			{% endif %}
-		</div>
-		<hr>
-		{% endfor %}
-	</div>
+	{{ BatchHearder(course.name, member_count)}}
+	{{ MembersList(members)}}
 </div>
 {% endblock %}
+
+
+{% macro MembersList(members) %}
+<div class="mt-5">
+	{% for member in members %}
+	<div class="d-flex align-items-center">
+		<div>
+			{{ Profile(member.photo, member.full_name, member.abbr, "small") }}
+		</div>
+		<div class="mr-5">
+			{{member.full_name}}
+		</div>
+		{% if member.is_mentor %}
+		<div class="badge badge-success">Mentor</div>
+		{% endif %}
+	</div>
+	<hr>
+	{% endfor %}
+</div>
+{% endmacro %}

@@ -1,5 +1,7 @@
 {% extends "templates/base.html" %}
 {% from "www/macros/sidebar.html" import Sidebar %}
+{% from "www/macros/common_macro.html" import BatchHearder %}
+
 {% block title %}Discuss{% endblock %}
 {% block head_include %}
 <meta name="description" content="Courses" />
@@ -7,7 +9,40 @@
 {% endblock %}
 
 {% block content %}
-{{ Sidebar(course, batch_code) }}
-<div class="container">
+{{ Sidebar(course_slug, batch_code) }}
+<div class="">
+  <div class="batch-header">
+    {{ BatchHearder(course.name, member_count) }}
+  </div>
+  <div class="message-section">
+    {{ Messages(messages) }}
+  </div>
+  {{ TextArea() }}
 </div>
 {% endblock %}
+
+{% macro Messages(messages) %}
+{% for message in messages %}
+<div class="discussion {% if message.is_author %} is-author {% endif %}">
+  <div class="d-flex justify-content-between">
+    <div class="font-weight-bold">
+      {{ message.author_name }}
+    </div>
+    <div class="text-muted">
+      {{ frappe.utils.pretty_date(message.creation) }}
+    </div>
+  </div>
+  <div class="mt-5">
+    {{ message.message }}
+  </div>
+
+</div>
+{% endfor %}
+{% endmacro %}
+
+{% macro TextArea() %}
+<form class="msger-inputarea">
+  <input type="text" class="msger-input" placeholder="Write your message...">
+  <button type="submit" class="msger-send-btn" data-batch="{{batch.name | urlencode }}">Send</button>
+</form>
+{% endmacro %}

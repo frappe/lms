@@ -1,4 +1,5 @@
 import frappe
+from community.www.courses.utils import get_instructor
 from frappe.utils import nowdate, getdate
 
 def get_context(context):
@@ -61,16 +62,6 @@ def get_membership(batches):
             memberships.append(membership)
     return memberships
 
-def get_instructor(owner):
-    instructor = frappe._dict()
-    try:
-        instructor = frappe.get_doc("Community Member", {"email": owner})
-    except frappe.DoesNotExistError:
-        instructor.full_name = owner
-        instructor.abbr = ("").join([ s[0] for s in owner.split() ])
-    instructor.course_count = len(frappe.get_all("LMS Course", {"owner": owner}))
-    return instructor
-
 def get_mentors(course):
     course_mentors = []
     mentors = frappe.get_all("LMS Course Mentor Mapping", {"course": course}, ["mentor"])
@@ -107,26 +98,4 @@ def is_mentor(course):
     mapping = frappe.get_all("LMS Course Mentor Mapping", {"course": course, "mentor": member})
     if len(mapping):
         return True
-
-@frappe.whitelist()
-def get_messages(batch):
-    messages =  frappe.get_all("LMS Message", {"batch": batch}, ["*"], order_by="creation desc")
-    for message in messages:
-        message.message = frappe.utils.md_to_html(message.message)
-        message.creation = frappe.utils.format_datetime(message.creation, "medium")
-        message.author_name, member_email = frappe.db.get_value("Community Member", message.author, ["full_name","email"])
-        if member_email == frappe.session.user:
-            message.author_name = "You"
-    return messages
-
-@frappe.whitelist()
-def save_message(message, author, batch):
-    doc = frappe.get_doc({
-        "doctype": "LMS Message",
-        "author": author,
-        "batch": batch,
-        "message": message
-    })
-    doc.save(ignore_permissions=True)
-    return doc
 

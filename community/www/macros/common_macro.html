@@ -1,0 +1,32 @@
+{% macro InstructorsSection(instructor) %}
+<h3>Instructor</h3>
+<div class="instructor">
+    <div class="instructor-title">{{instructor.full_name}}</div>
+    <div class="instructor-subtitle">Created {{instructor.course_count}} courses</div>
+</div>
+{% endmacro %}
+
+{% macro MentorsSection(mentors, is_mentor) %}
+<h3>Mentors</h3>
+{% for m in mentors %}
+<div class="instructor">
+    <div class="instructor-title">{{m.full_name}}</div>
+    <div class="instructor-subtitle">Mentored {{m.batch_count}} batches</div>
+</div>
+{% endfor %}
+{% if not is_mentor %}
+<div class="notice">
+    Interested to become a mentor?
+
+    <div><a href="#">Apply Now!</a></div>
+</div>
+{% endif %}
+{% endmacro %}
+
+
+{% macro BatchHearder(course_name, member_count) %}
+<div class="border p-3">
+	<h3>{{course_name}}</h3>
+	<div class="text-muted">{{member_count}} members</div>
+</div>
+{% endmacro %}

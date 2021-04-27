@@ -1,4 +1,5 @@
 {% extends "templates/base.html" %}
+{% from "www/macros/common_macro.html" import InstructorsSection, MentorsSection %}
 {% block title %}{{ course.title }}{% endblock %}
 {% block head_include %}
 <meta name="description" content="Courses" />
@@ -27,7 +28,7 @@
       </div>
 
       <div class="sidebar">
-        {{ MentorsSection(mentors) }}
+        {{ MentorsSection(mentors, is_mentor) }}
       </div>
     </div>
   </div>
@@ -59,7 +60,7 @@
 {% macro BatchSection(course, is_mentor, upcoming_batches, mentor_batches) %}
   {% if is_mentor %}
     {{ BatchSectionForMentors(course, mentor_batches) }}
-	{% else %}
+  {% else %}
     {{ BatchSectionForStudents(course, upcoming_batches) }}
   {% endif %}
 {% endmacro %}
@@ -151,28 +152,4 @@
     #}
   </div>
 {% endfor %}
-{% endmacro %}
-
-{% macro InstructorsSection(instructor) %}
-<h3>Instructor</h3>
-<div class="instructor">
-  <div class="instructor-title">{{instructor.full_name}}</div>
-  <div class="instructor-subtitle">Created {{instructor.course_count}} courses</div>
-</div>
-{% endmacro %}
-
-{% macro MentorsSection(instructor) %}
-  <h3>Mentors</h3>
-  {% for m in mentors %}
-    <div class="instructor">
-      <div class="instructor-title">{{m.full_name}}</div>
-      <div class="instructor-subtitle">Mentored {{m.batch_count}} batches</div>
-    </div>
-  {% endfor %}
-
-  <div class="notice">
-    Interested to become a mentor?
-
-    <div><a href="#">Apply Now!</a></div>
-  </div>
 {% endmacro %}

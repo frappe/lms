@@ -8,8 +8,8 @@
   --c4: #2a9d8f;
   --c5: #f4a261;
   --c6: #e76f51;
-
   --c7: #ccd5ae;
+  --c8: #EEEEEE;
 
   --bg: var(--c1);
   --header-bg: var(--c2);
@@ -23,6 +23,8 @@
   --text-color-light: #ccc;
 
   --cta-color: var(--c4);
+  --send-message: var(--c7);
+  --received-message: var(--c8);
 }
 
 body {
@@ -232,4 +234,60 @@ nav.navbar {
   width: 59px;
   height: 57px;
   border-radius: 50%;
+}
+
+.msger-inputarea {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+  padding: 10px;
+  border-top: 2px solid #ddd;
+  background: #eee;
+  z-index: 1;
+}
+.msger-inputarea * {
+  padding: 10px;
+  border: none;
+  border-radius: 3px;
+  font-size: 1em;
+}
+.msger-input {
+  flex: 1;
+  background: #ddd;
+}
+.msger-send-btn {
+  margin-left: 10px;
+  background: var(--cta-color);
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.23s;
+}
+
+.discussion {
+  border: 1px solid var(--text-color);
+  padding: 10px;
+  margin: 10px;
+  border-radius: 10px;
+  background: var(--received-message);
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+}
+
+.is-author {
+  float: right;
+  background: var(--send-message);
+}
+
+.batch-header {
+  position: fixed;
+  top: 0;
+  background: var(--bg);
+  width: 100%;
+}
+
+.message-section {
+  margin-left: 5%;
 }
