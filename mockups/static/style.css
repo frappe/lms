@@ -30,6 +30,10 @@ body {
   background: var(--bg);
 }
 
+.navbar-light {
+  border-bottom: 1px solid #E2E6E9;
+}
+
 .page-header {
   margin-top: 20px;
   padding: 20px;
