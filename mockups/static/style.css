@@ -1,0 +1,196 @@
+@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css");
+
+:root {
+  --c1: #fefae0;
+  --c2: #264653;
+  --c3: #e9c46a;
+  --c4: #2a9d8f;
+  --c5: #f4a261;
+  --c6: #e76f51;
+
+  --c7: #ccd5ae;
+
+  --bg: var(--c1);
+  --header-bg: var(--c2);
+  --header-color: var(--c3);
+  --tag-color: var(--c7);
+  --sidebar-bg: var(--c7);
+
+  --h-color: var(--c2);
+
+  --text-color: #333;
+  --text-color-light: #ccc;
+
+  --cta-color: var(--c4);
+}
+
+body {
+  padding: 0px;
+  margin: 0px;
+  background: var(--bg);
+}
+
+.page-header {
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.page-header .page-header{
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.course-header {
+  margin-top: 20px;
+  padding: 20px;
+  background: var(--header-bg);
+  color: var(--header-color);
+  border-radius: 10px;
+}
+
+.course-header h1 {
+  color: inherit;
+}
+
+.course-type {
+  text-transform: uppercase;
+  font-size: 1.0em;
+  color: var(--tag-color);
+}
+
+.sidebar {
+  background: var(--sidebar-bg);
+  margin: 20px 0px;
+  border-radius: 10px;
+  padding: 1px 20px 20px 20px;
+  color: var(--text-color);
+}
+
+.sidebar h3 {
+  margin-top: 20px;
+  color: var(--c2);
+}
+
+.instructor {
+  padding: 10px;
+}
+
+.instructor-title {
+  font-weight: bold;
+}
+
+.instructor-subtitle {
+  font-size: 0.8em;
+  color: var(--text-color);
+}
+
+.sidebar .notice {
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px dashed var(--text-color);
+}
+
+.sidebar .notice a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.course-details {
+  margin: 20px 0px;
+}
+
+.course-details h2 {
+  color: var(--h-color);
+  font-size: 1.4em;
+  font-weight: bold;
+  margin: 20px 0px 10px 0px;
+}
+
+.chapter-plan {
+  border-radius: 10px;
+  margin: 20px 0px;
+  padding: 20px;
+  border: 1px solid #ddc;
+  background: white;
+}
+
+.chapter-plan h3 {
+  font-size: 1.1em;
+  font-weight: bold;
+}
+
+.chapter-number {
+  background: var(--text-color);
+  color: white;
+  border-radius: 50%;
+  height: 24px;
+  min-width: 24px;
+  align-items: center;
+  padding: 2px 8px 2px 8px;
+  margin-right: 5px;
+}
+
+.chapter-description {
+  margin: 20px 0px;
+}
+
+.lessons {
+  padding-left: 20px;
+}
+.lesson {
+  margin: 5px 0px;
+  font-weight: bold;
+}
+
+.batch {
+  border-radius: 10px;
+  margin: 10px 0px;
+  background: white;
+  border: 1px solid #ddc;
+}
+
+.batch-details {
+  padding: 20px;
+}
+
+.batch .cta {
+  margin-top: 10px;
+  padding: 10px;
+  min-height: 28px;
+  text-align: right;
+  border-top: 1px solid #ddc;
+}
+
+.batch .cta button {
+  background: var(--cta-color);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+}
+
+.batch .right {
+  float: right;
+}
+
+img.profile-photo {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+}
+
+.lesson-type {
+  padding-right: 5px;
+}
+
+.preview-video {
+  text-align: center;
+  margin: 20px 0px;
+}
+
+.preview-video iframe {
+  max-width: 100%
+}
+
