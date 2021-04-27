@@ -1,15 +1,4 @@
 frappe.ready(() => {
-	frappe.require("/assets/frappe/js/lib/socket.io.min.js");
-	frappe.require("/assets/frappe/js/frappe/socketio_client.js");
-	if (window.dev_server) {
-		frappe.boot.socketio_port = "9000" //use socketio port shown when bench starts
-	}
-	frappe.socketio.init();
-	console.log(frappe.socketio)
-	//frappe.socketio.emittedDemo("mydata");
-	frappe.realtime.on("new_lms_message", (data) => {
-		console.log(data)
-	})
 	if (frappe.session.user != "Guest") {
 		frappe.call({
 			'method': 'community.lms.doctype.lms_mentor_request.lms_mentor_request.has_requested',
@@ -24,21 +13,6 @@ frappe.ready(() => {
 			}
 		})
 	}
-
-	$(".list-batch").click((e) => {
-		var batch = decodeURIComponent($(e.currentTarget).attr("data-label"))
-		$(".current-batch").text(batch)
-		$(".send-message").attr("data-batch", batch)
-		frappe.call("community.www.courses.course.get_messages", { batch: batch }, (data) => {
-			if (data.message) {
-				$(".discussions").children().remove();
-				for (var i = 0; i < data.message.length; i++) {
-					var element = add_message(data.message[i])
-					$(".discussions").append(element);
-				}
-			}
-		})
-	})
 
 	$(".apply-now").click((e) => {
 		if (frappe.session.user == "Guest") {
@@ -94,19 +68,4 @@ frappe.ready(() => {
 		})
 	})
 })
-/*
-var show_enrollment_badge = () => {
-	$(".btn-enroll").addClass("hide");
-	$(".enrollment-badge").removeClass("hide");
-}
-
-var get_search_params = () => {
-	return new URLSearchParams(window.location.search)
-}
-
-$('.btn-enroll').on('click', (e) => {
-	frappe.call('community.www.courses.course.enroll', { course: get_search_params().get("course") }, (data) => {
-		show_enrollment_badge()
-	});
-}); */
 
