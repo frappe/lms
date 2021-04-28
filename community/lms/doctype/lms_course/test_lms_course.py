@@ -11,7 +11,6 @@ class TestLMSCourse(unittest.TestCase):
         frappe.db.sql('delete from `tabLMS Course Mentor Mapping`')
         frappe.db.sql('delete from `tabLMS Course`')
         frappe.db.sql('delete from `tabCommunity Member`')
-        frappe.db.sql('delete from `tabUser` where email like "%@example.com"')
 
     def new_course(self, title):
         doc = frappe.get_doc({
@@ -27,7 +26,6 @@ class TestLMSCourse(unittest.TestCase):
         assert course.slug == "test-course"
         assert course.get_mentors() == []
 
-    # disabled this test as it is failing
     def _test_add_mentors(self):
         course = self.new_course("Test Course")
         assert course.get_mentors() == []
@@ -38,6 +36,7 @@ class TestLMSCourse(unittest.TestCase):
         mentors = course.get_mentors()
         mentors_data = [dict(email=mentor.email, batch_count=mentor.batch_count) for mentor in mentors]
         assert mentors_data == [{"email": "tester@example.com", "batch_count": 0}]
+        frappe.delete_doc("User", user.name)
 
 def new_user(name, email):
     doc = frappe.get_doc(dict(

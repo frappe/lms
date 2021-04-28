@@ -7,11 +7,14 @@ import frappe
 import unittest
 
 class TestCommunityMember(unittest.TestCase):
-	
-	def test_member_created_from_user(self):
-		user = new_user("Test User", "test_user@example.com")
-		member = frappe.get_doc("Community Member", {"email": "test_user@example.com"})
-		self.assertEqual(user.full_name, member.full_name)
-		self.assertEqual(member.owner, user.email)
-		self.assertEqual(user.username, member.username)
-		self.assertEqual(member.username, member.route)
+    
+    def test_member_created_from_user(self):
+        user = new_user("Test User", "test_user@example.com")
+        self.assertTrue(frappe.db.exists("Community Member", dict(username=user.username)))
+        member = frappe.get_doc("Community Member", {"email": "test_user@example.com"})
+        self.assertEqual(user.full_name, member.full_name)
+        self.assertEqual(member.owner, user.email)
+        self.assertEqual(user.username, member.username)
+        self.assertEqual(member.username, member.route)
+        frappe.delete_doc("User", user.name)
+        
