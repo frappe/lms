@@ -7,4 +7,6 @@ from __future__ import unicode_literals
 import unittest
 
 class TestCommunityMember(unittest.TestCase):
-	pass
+	
+	def test_member_created_from_user():
+		pass

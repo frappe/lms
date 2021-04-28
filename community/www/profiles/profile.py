@@ -12,6 +12,6 @@ def get_context(context):
 
 def get_member(username):
     try:
-        frappe.get_doc("Community Member", {"username":username})
+        return frappe.get_doc("Community Member", {"username":username})
     except frappe.DoesNotExistError:
         return

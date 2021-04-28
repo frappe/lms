@@ -58,7 +58,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-04-26 16:11:20.142164",
+ "modified": "2021-04-28 10:17:57.618127",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Message",
@@ -80,5 +80,6 @@
  "quick_entry": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
+ "title_field": "author",
  "track_changes": 1
 }

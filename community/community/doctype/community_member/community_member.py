@@ -4,12 +4,12 @@
 
 from __future__ import unicode_literals
 import frappe
-from frappe.website.website_generator import WebsiteGenerator
 import re
 from frappe import _
-from frappe.model.rename_doc import rename_doc
+from frappe.model.document import Document
+import random
 
-class CommunityMember(WebsiteGenerator):
+class CommunityMember(Document):
 
 	def validate(self):
 		self.validate_username()
@@ -18,6 +18,9 @@ class CommunityMember(WebsiteGenerator):
 			self.route = self.username	
 	
 	def validate_username(self):
+		if not self.username:
+			self.username = create_username_from_email(self.email)
+
 		if self.username:
 			if len(self.username) < 4:
 				frappe.throw(_("Username must be atleast 4 characters long."))
@@ -26,12 +29,29 @@ class CommunityMember(WebsiteGenerator):
 			self.username = self.username.lower()
 
 def create_member_from_user(doc, method):
+	if ( doc.username and  username_exists(doc.username)) or not doc.username:
+		username = create_username_from_email(doc.email)
+	if len(doc.username) < 4:
+		username = adjust_username(doc.username)
+		if username_exists(username):
+			username = username + str(random.randint(0,9))
+
 	member = frappe.get_doc({
 		"doctype": "Community Member",
 		"full_name": doc.full_name,
-		"username": doc.username if len(doc.username) > 3 else ("").join([ s for s in doc.full_name.split() ]),
+		"username": username,
 		"email": doc.email,
 		"route": doc.username,
 		"owner": doc.email
 	})
 	member.save(ignore_permissions=True)
+
+def username_exists(username):
+	return frappe.db.exists("Community Member", dict(username=username))
+
+def create_username_from_email(email):
+	string = email.split("@")[0]
+	return ''.join(e for e in string if e.isalnum())
+
+def adjust_username(username):
+	return username.ljust(4, str(random.randint(0,9)))
