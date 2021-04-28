@@ -28,6 +28,9 @@ class CommunityMember(Document):
 				frappe.throw(_("Username can only contain alphabets, numbers and underscore."))
 			self.username = self.username.lower()
 
+	def __repr__(self):
+		return f"<CommunityMember: {self.email}>"
+
 def create_member_from_user(doc, method):
 	if ( doc.username and  username_exists(doc.username)) or not doc.username:
 		username = create_username_from_email(doc.email)

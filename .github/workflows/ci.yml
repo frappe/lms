@@ -1,0 +1,60 @@
+name: Run tests
+on:
+  push:
+    branches:
+      - main
+  pull_request: {}
+jobs:
+  tests:
+    runs-on: ubuntu-20.04
+    services:
+      redis-cache:
+        image: redis:alpine
+        ports:
+          - 13000:6379
+      redis-queue:
+        image: redis:alpine
+        ports:
+          - 11000:6379
+      redis-socketio:
+        image: redis:alpine
+        ports:
+          - 12000:6379
+      mariadb:
+        image: anandology/mariadb-utf8mb4:10.3
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
+    steps:
+    - uses: actions/checkout@v2
+    - name: setup python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+    - name: setup node
+      uses: actions/setup-node@v2
+      with:
+        node-version: '12'
+        check-latest: true
+    - name: install bench
+      run: pip3 install frappe-bench
+    - name: bench init
+      run: bench init ~/frappe-bench --skip-redis-config-generation
+    - name: add community app to bench
+      working-directory: /home/runner/frappe-bench
+      run: bench get-app community $GITHUB_WORKSPACE
+    - name: create bench site
+      working-directory: /home/runner/frappe-bench
+      run: bench new-site --mariadb-root-password root --admin-password admin frappe.local
+    - name: install community app
+      working-directory: /home/runner/frappe-bench
+      run: bench --site frappe.local install-app community
+    - name: allow tests
+      working-directory: /home/runner/frappe-bench
+      run: bench --site frappe.local set-config allow_tests true
+    - name: run tests
+      working-directory: /home/runner/frappe-bench
+      run: bench --site frappe.local run-tests --app community
+
