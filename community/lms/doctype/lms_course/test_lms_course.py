@@ -36,7 +36,10 @@ class TestLMSCourse(unittest.TestCase):
         mentors = course.get_mentors()
         mentors_data = [dict(email=mentor.email, batch_count=mentor.batch_count) for mentor in mentors]
         assert mentors_data == [{"email": "tester@example.com", "batch_count": 0}]
-        frappe.delete_doc("User", user.name)
+
+    def tearDown(self):
+        if frappe.db.exists("User", "tester@example.com"):
+            frappe.delete_doc("User", "tester@example.com")
 
 def new_user(name, email):
     doc = frappe.get_doc(dict(

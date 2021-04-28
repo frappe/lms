@@ -33,10 +33,13 @@ class CommunityMember(Document):
 
 def create_member_from_user(doc, method):
 	username = doc.username
+
 	if ( doc.username and  username_exists(doc.username)) or not doc.username:
 		username = create_username_from_email(doc.email)
+
 	elif len(doc.username) < 4:
 		username = adjust_username(doc.username)
+
 	if username_exists(username):
 		username = username + str(random.randint(0,9))
 
