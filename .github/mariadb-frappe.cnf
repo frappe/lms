@@ -1,0 +1,11 @@
+# configuration to force mariadb to use utf8mb4 charecter set, as required by frappe
+# This file need to be placed at /etc/mysql/conf.d/ in the mariadb container as a volume
+# See .github/wotkflows/ci.yml to see how it is used
+
+[mysqld]
+character-set-client-handshake = FALSE
+character-set-server = utf8mb4
+collation-server = utf8mb4_unicode_ci
+
+[mysql]
+default-character-set = utf8mb4
