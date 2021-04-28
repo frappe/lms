@@ -198,3 +198,24 @@ img.profile-photo {
   max-width: 100%
 }
 
+.sketches-gallery svg {
+  width: 200px;
+  height: 200px;
+}
+
+.sketch-card {
+  background: white;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+
+  margin: 10px;
+}
+
+.sketch-card .sketch-image {
+  padding: 10px;
+}
+
+.sketch-footer {
+  padding: 10px;
+  background: #eee;
+}
