@@ -1,0 +1,68 @@
+@primary-color: #08B74F;
+
+.teaser {
+  background: white;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
+
+.sketch-teaser {
+  .teaser();
+  width: 220px;
+
+  svg {
+    width: 200px;
+    height: 200px;
+  }
+  .sketch-image {
+    padding: 10px;
+  }
+  .sketch-footer {
+    padding: 10px;
+    background: #eee;
+    border-radius: 0px 0px 10px 10px;
+  }
+}
+
+.course-teaser {
+  .teaser();
+  color: #444;
+
+  h3, h4 {
+    color: black;
+    font-weight: bold;
+  }
+
+  .course-body, .course-footer {
+    padding: 20px;
+  }
+
+  .course-body {
+    min-height: 8em;
+  }
+
+  .course-footer {
+    border-top: 1px solid #ddd;
+  }
+
+  a, a:hover {
+    color: inherit;
+    text-decoration: none;
+  }
+}
+
+section {
+  padding: 60px 0px;
+}
+
+section h2 {
+  margin-bottom: 40px;
+}
+
+section.lightgray {
+  background: #f8f8f8;
+}
+
+#hero .jumbotron {
+  background: inherit;
+}
