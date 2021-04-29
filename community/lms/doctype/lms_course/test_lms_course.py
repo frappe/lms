@@ -4,6 +4,7 @@
 from __future__ import unicode_literals
 
 import frappe
+from .lms_course import LMSCourse
 import unittest
 
 class TestLMSCourse(unittest.TestCase):
@@ -26,6 +27,23 @@ class TestLMSCourse(unittest.TestCase):
         assert course.slug == "test-course"
         assert course.get_mentors() == []
 
+    def test_find_all(self):
+        courses = LMSCourse.find_all()
+        assert courses == []
+
+        # new couse, but not published
+        course = self.new_course("Test Course")
+        assert courses == []
+
+        # publish the course
+        course.is_published = True
+        course.save()
+
+        # now we should find one course
+        courses = LMSCourse.find_all()
+        assert [c.slug for c in courses] == [course.slug]
+
+    # disabled this test as it is failing
     def _test_add_mentors(self):
         course = self.new_course("Test Course")
         assert course.get_mentors() == []

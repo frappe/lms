@@ -150,6 +150,7 @@ primary_rules = [
 
 # Any frappe default URL is blocked by profile-rules, add it here to unblock it
 whitelist = [
+    "/home",
     "/login",
     "/update-password",
     "/update-profile",

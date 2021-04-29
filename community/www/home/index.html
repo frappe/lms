@@ -1,0 +1,51 @@
+{% extends "templates/base.html" %}
+
+{% block content %}
+  {{ HeroSection() }}
+  {{ ExploreCourses(courses) }}
+  {{ RecentSketches(recent_sketches) }}
+{% endblock %}
+
+{% macro HeroSection() %}
+<section id="hero">
+  <div class="container">
+    <div class="jumbotron">
+      <h1 class="display-4">Guided online courses, with a mentor at your back.</h1>
+      <p class="lead">Hands-on online courses designed by experts, delivered by passionate mentors.</p>
+      <p class="lead">
+        <a class="btn btn-primary btn-lg" href="#" role="button">Request Invite</a>
+      </p>
+    </div>
+  </div>
+</section>
+{% endmacro %}
+
+{% macro ExploreCourses(courses) %}
+<section id="explore-courses" class="lightgray">
+  <div class="container lightgray">
+    <h2>Explore Courses</h2>
+    <div class="row">
+      {% for course in courses %}
+        <div class="col-md-6">
+          {{ widgets.CourseTeaser(course=course) }}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endmacro %}
+
+{% macro RecentSketches(sketches) %}
+<section id="recet-sketches">
+  <div class="container">
+    <h2>Recent Sketches</h2>
+    <div class="row">
+      {% for sketch in sketches %}
+      <div class="col-md-3">
+        {{ widgets.SketchTeaser(sketch=sketch) }}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endmacro %}
