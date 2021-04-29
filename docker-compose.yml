@@ -1,0 +1,34 @@
+version: "3"
+
+services:
+  redis-cache:
+    image: redis:alpine
+  redis-queue:
+    image: redis:alpine
+  redis-socketio:
+    image: redis:alpine
+  mariadb:
+    image: mariadb
+    volumes:
+      - mariadb-storage:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+  bench:
+    image: anandology/frappe-bench
+    volumes:
+      - .:/home/bench/frappe-bench/apps/community
+    environment:
+      - FRAPPE_APPS=community
+      - FRAPPE_ALLOW_TESTS=true
+      - FRAPPE_SITE_NAME=frappe.localhost
+    depends_on:
+      - mariadb
+      - redis-cache
+      - redis-queue
+      - redis-socketio
+    ports:
+      - 8000:8000
+      - 9000:9000
+volumes:
+  mariadb-storage: {}
