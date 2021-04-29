@@ -25,12 +25,14 @@
   --cta-color: var(--c4);
   --send-message: var(--c7);
   --received-message: var(--c8);
+
+  --primary-color: #08B74F;
 }
 
 body {
   padding: 0px;
   margin: 0px;
-  background: var(--bg);
+  background: white;
 }
 
 .course-header {
@@ -200,10 +202,6 @@ img.profile-photo {
 
 /* override style of base */
 
-nav.navbar {
-  background: var(--c1) !important;
-}
-
 .message {
   border: 1px dashed var(--text-color);
   padding: 20px;
@@ -293,24 +291,69 @@ nav.navbar {
   display: inline-block;
 }
 
-.sketch-preview {
+.sketch-teaser {
   background: white;
   border-radius: 10px;
   border: 1px solid #ddd;
   width: 220px;
 }
 
-.sketch-preview svg {
+.sketch-teaser svg {
   width: 200px;
   height: 200px;
 }
 
 .sketch-image {
-  background: white;
   padding: 10px;
 }
 
 .sketch-footer {
   padding: 10px;
   background: #eee;
+  border-radius: 0px 0px 10px 10px;
+}
+
+.course-teaser {
+  background: white;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  color: #444;
+}
+
+.course-teaser h3, .course-teaser h4 {
+  color: black;
+  font-weight: bold;;
+}
+
+.course-teaser .course-body, .course-teaser .course-footer {
+  padding: 20px;
+}
+
+.course-body {
+  min-height: 8em;
+}
+
+.course-footer {
+  border-top: 1px solid #ddd;
+}
+
+.course-teaser a, .course-teaser a:hover {
+  color: inherit;
+  text-decoration: none;
+}
+
+section {
+  padding: 60px 0px;
+}
+
+section h2 {
+  margin-bottom: 40px;
+}
+
+section.lightgray {
+  background: #f8f8f8;
+}
+
+#hero .jumbotron {
+  background: inherit;
 }

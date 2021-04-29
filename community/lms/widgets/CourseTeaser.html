@@ -1,7 +1,9 @@
-<div class="course-preview">
-  <h3 class="course-title"><a href="/courses/{{ course.slug }}">{{ course.title }}</a></h3>
-  <div class="course-intro">
-    {{ course.short_introduction or "" }}
+<div class="course-teaser">
+  <div class="course-body">
+    <h3 class="course-title"><a href="/courses/{{ course.slug }}">{{ course.title }}</a></h3>
+    <div class="course-intro">
+      {{ course.short_introduction or "" }}
+    </div>
   </div>
   <div class="course-footer">
     <div class="course-author">
