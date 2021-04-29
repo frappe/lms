@@ -88,3 +88,15 @@ class LMSCourse(Document):
             member.batch_count = len(frappe.get_all("LMS Batch Membership", {"member": member.name, "member_type": "Mentor"}))
             course_mentors.append(member)
         return course_mentors
+
+    def get_instructor(self):
+        return frappe.get_doc("User", self.owner)
+
+    @staticmethod
+    def find_all():
+        """Returns all published courses.
+        """
+        rows = frappe.db.get_all("LMS Course",
+            filters={"is_published": True},
+            fields='*')
+        return [frappe.get_doc(dict(row, doctype='LMS Course')) for row in rows]

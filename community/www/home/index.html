@@ -1,0 +1,39 @@
+{% extends "templates/base.html" %}
+
+{% block content %}
+<div class="container">
+  {{ HeroSection() }}
+  {{ ExploreCourses(courses) }}
+  {{ RecentSketches(recent_sketches) }}
+</div>
+{% endblock %}
+
+{% macro HeroSection() %}
+<div>TODO: Hero
+</div>
+{% endmacro %}
+
+{% macro ExploreCourses(courses) %}
+<div id="explore-courses">
+  <h2>Explore Courses</h2>
+  <div class="row">
+    {% for course in courses %}
+      <div class="col-md-6">
+        {{ widgets.CoursePreview(course=course) }}
+      </div>
+    {% endfor %}
+</div>
+{% endmacro %}
+
+{% macro RecentSketches(sketches) %}
+<div id="recet-sketches">
+  <h2>Recent Sketches</h2>
+  <div class="row">
+    {% for sketch in sketches %}
+    <div class="col-md-3">
+      {{ widgets.SketchPreview(sketch=sketch) }}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endmacro %}
