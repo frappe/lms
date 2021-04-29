@@ -169,3 +169,5 @@ profile_rules = [
 ]
 
 website_route_rules = primary_rules + whitelist_rules + profile_rules
+
+update_website_context = 'community.widgets.update_website_context'
