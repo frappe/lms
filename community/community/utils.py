@@ -7,7 +7,6 @@ def create_members_from_users():
 			doc = frappe.get_doc("User", {"email": user.email})
 			username = doc.username if doc.username and len(doc.username) > 3 else ("").join([ s for s in doc.full_name.split() ])
 			if not frappe.db.exists("Community Member", username):
-				print(doc.email, username)
 				member = frappe.new_doc("Community Member")
 				member.full_name = doc.full_name
 				member.username = username

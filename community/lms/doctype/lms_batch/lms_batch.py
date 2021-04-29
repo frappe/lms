@@ -37,4 +37,3 @@ def save_message(message, batch):
         "message": message
     })
     doc.save(ignore_permissions=True)
-    return doc

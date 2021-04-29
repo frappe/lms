@@ -7,11 +7,12 @@ import frappe
 from frappe.model.document import Document
 from frappe import _
 from frappe.utils import add_days, nowdate
+from community.www.courses.utils import get_batch_members
+
 class LMSMessage(Document):
-	def after_insert(self):
-		frappe.publish_realtime("new_lms_message", {"message":"JJannat"}, user="Administrator")
-		self.send_email()
-		
+	""" def after_insert(self):
+		self.send_email() """
+
 	def send_email(self):
 		membership = frappe.get_all("LMS Batch Membership", {"batch": self.batch}, ["member"])
 		for entry in membership:
@@ -61,3 +62,43 @@ def send_daily_digest():
 			},
 			delayed = False
 		)
+
+def publish_message(doc, method):
+	email = frappe.db.get_value("Community Member", doc.author, "email")
+	template = get_message_template()
+	message = frappe._dict()
+	message.author_name = doc.author_name
+	message.message_time = frappe.utils.pretty_date(doc.creation)
+	message.message = frappe.utils.md_to_html(doc.message)
+
+	js = """
+			$(".msger-input").val("");
+			var template = `{0}`;
+			var message = {1};
+			var session_user = ("{2}" == frappe.session.user) ? true : false;
+			message.author_name = session_user ? "You" : message.author_name
+			message.is_author = session_user;
+			template = frappe.render_template(template, {{
+				"message": message
+			}})
+			$(".message-section").append(template);
+		""".format(template, message, email)
+
+	frappe.publish_realtime(event="eval_js", message=js, after_commit=True)
+
+def get_message_template():
+	return """  
+			<div class="discussion {% if message.is_author %} is-author {% endif %}">
+				<div class="d-flex justify-content-between">
+				<div class="font-weight-bold">
+						{{ message.author_name }}
+				</div>
+				<div class="text-muted">
+					{{ message.message_time }}
+				</div>
+				</div>
+				<div class="mt-5">
+					{{ message.message }}
+				</div>
+			</div>
+		"""
