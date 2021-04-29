@@ -1,0 +1,15 @@
+<div class="sketch-preview">
+  <div class="sketch-image">
+    <a href="/sketches/{{sketch.sketch_id}}">
+      {{ sketch.to_svg() }}
+    </a>
+  </div>
+  <div class="sketch-footer">
+    <div class="sketch-title">
+      <a href="sketches/{{sketch.sketch_id}}">{{sketch.title}}</a>
+    </div>
+    <div class="sketch-author">
+      by {{sketch.get_owner().full_name}}
+    </div>
+  </div>
+</div>

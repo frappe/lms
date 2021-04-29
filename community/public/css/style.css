@@ -292,3 +292,25 @@ nav.navbar {
   margin-left: 5%;
   display: inline-block;
 }
+
+.sketch-preview {
+  background: white;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  width: 220px;
+}
+
+.sketch-preview svg {
+  width: 200px;
+  height: 200px;
+}
+
+.sketch-image {
+  background: white;
+  padding: 10px;
+}
+
+.sketch-footer {
+  padding: 10px;
+  background: #eee;
+}

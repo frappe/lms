@@ -10,9 +10,6 @@ from frappe.model.document import Document
 from . import livecode
 
 class LMSSketch(Document):
-    def get_owner_name(self):
-        return get_userinfo(self.owner)['full_name']
-
     @property
     def sketch_id(self):
         """Returns the numeric part of the name.
@@ -20,6 +17,14 @@ class LMSSketch(Document):
         For example, the skech_id will be "123" for sketch with name "SKETCH-123".
         """
         return self.name.replace("SKETCH-", "")
+
+    def get_owner(self):
+        """Returns the owner of this sketch as a document.
+        """
+        return frappe.get_doc("User", self.owner)
+
+    def get_owner_name(self):
+        return self.get_owner().full_name
 
     def get_livecode_url(self):
         doc = frappe.get_cached_doc("LMS Settings")
@@ -45,6 +50,18 @@ class LMSSketch(Document):
             value = livecode.livecode_to_svg(ws_url, self.code)
             cache.set(key, value)
         return value
+
+    @staticmethod
+    def get_recent_sketches(limit=100):
+        """Returns the recent sketches.
+        """
+        sketches = frappe.get_all(
+            "LMS Sketch",
+            fields='*',
+            order_by='modified desc',
+            page_length=limit
+        )
+        return [frappe.get_doc(doctype='LMS Sketch', **doc) for doc in sketches]
 
     def __repr__(self):
         return f"<LMSSketch {self.name}>"
@@ -75,37 +92,4 @@ def save_sketch(name, title, code):
         "ok": True,
         "status": status,
         "name": doc.name,
-    }
-
-def get_recent_sketches():
-    """Returns the recent sketches.
-
-    The return value will be a list of dicts with each entry containing
-    the following fields:
-        - name
-        - title
-        - owner
-        - owner_name
-        - modified
-    """
-    sketches = frappe.get_all(
-        "LMS Sketch",
-        fields='*',
-        order_by='modified desc',
-        page_length=100
-    )
-    for s in sketches:
-        s['owner_name'] = get_userinfo(s['owner'])['full_name']
-    return [frappe.get_doc(doctype='LMS Sketch', **doc) for doc in sketches]
-
-def get_userinfo(email):
-    """Returns the username and fullname of a user.
-
-    Please note that the email could be "Administrator" or "Guest"
-    as a special case to denote the system admin and guest user respectively.
-    """
-    user = frappe.get_doc("User", email)
-    return {
-        "full_name": user.full_name,
-        "username": user.username
     }
