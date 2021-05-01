@@ -1,14 +1,21 @@
 @primary-color: #08B74F;
+@import url('https://rsms.me/inter/inter.css');
+
+body {
+  font-family: "Inter", sans-serif;
+}
 
 .teaser {
   background: white;
-  border-radius: 10px;
-  border: 1px solid #ddd;
+  border-radius: 9px;
+  border: 1px solid #C4C4C4;
 }
 
 .sketch-teaser {
   .teaser();
   width: 220px;
+  margin-bottom: 30px;
+  margin-top: 30px;
 
   svg {
     width: 200px;
@@ -18,8 +25,9 @@
     padding: 10px;
   }
   .sketch-footer {
+    border-top: 1px solid#C4C4C4;
     padding: 10px;
-    background: #eee;
+    background: #F6F6F6;
     border-radius: 0px 0px 10px 10px;
   }
 }
@@ -27,6 +35,8 @@
 .course-teaser {
   .teaser();
   color: #444;
+  margin-bottom: 20px;
+  margin-top: 20px;
 
   h3, h4 {
     color: black;
@@ -57,10 +67,13 @@ section {
 
 section h2 {
   margin-bottom: 40px;
+  font-size: 48px;
+  line-height: 58px;
+  font-weight: bold;
 }
 
 section.lightgray {
-  background: #f8f8f8;
+  background: #F6F6F6;
 }
 
 #hero .jumbotron {
