@@ -79,7 +79,7 @@ def send_creation_email(course, member):
 	subject = _('Request for Mentorship')
 	send_email([frappe.session.user, get_course_author(course)], None, subject, message)
 
-def send_email(recipients, cc, subject, message):
+def send_email(recipients, cc=None, subject=None, message=None, template=None, args=None):
 	frappe.sendmail(
 		recipients = recipients,
 		cc = cc,
@@ -87,5 +87,7 @@ def send_email(recipients, cc, subject, message):
 		subject = subject, 
 		send_priority = 0, 
 		queue_separately = True,
-		message = message
+		message = message,
+		template=template,
+		args=args
 	)
