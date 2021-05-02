@@ -3,6 +3,8 @@
     "public/css/lms.css"
   ],
   "css/community.css": [
-    "public/css/style.css"
+    "public/css/vars.css",
+    "public/css/style.css",
+    "public/css/style.less"
   ]
 }
