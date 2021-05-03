@@ -55,7 +55,7 @@ class LMSSketch(Document):
     def get_recent_sketches(limit=100, owner=None):
         """Returns the recent sketches.
         """
-        filters = {} 
+        filters = {}
         if owner:
             filters = {"owner": owner}
         sketches = frappe.get_all(
