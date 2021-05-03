@@ -1,0 +1,59 @@
+{
+ "actions": [],
+ "creation": "2021-05-03 06:21:12.995987",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "chapter",
+  "lesson_type",
+  "title"
+ ],
+ "fields": [
+  {
+   "fieldname": "chapter",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Chapter",
+   "options": "Chapter"
+  },
+  {
+   "default": "Video",
+   "fieldname": "lesson_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Lesson Type",
+   "options": "Video\nText\nQuiz"
+  },
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Title"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2021-05-03 06:22:07.329131",
+ "modified_by": "Administrator",
+ "module": "LMS",
+ "name": "Lesson",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

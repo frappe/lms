@@ -37,8 +37,14 @@
   }
  ],
  "index_web_pages_for_search": 1,
- "links": [],
- "modified": "2021-05-03 05:57:39.715802",
+ "links": [
+  {
+   "group": "Lessons",
+   "link_doctype": "Lesson",
+   "link_fieldname": "chapter"
+  }
+ ],
+ "modified": "2021-05-03 06:48:06.030438",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Chapter",
