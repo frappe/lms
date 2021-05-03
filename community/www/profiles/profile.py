@@ -1,5 +1,5 @@
 import frappe
-from community.lms.models import Sketch
+from ...lms.doctype.lms_sketch.lms_sketch import get_recent_sketches
 
 def get_context(context):
     context.no_cache = 1
@@ -8,7 +8,7 @@ def get_context(context):
     if not context.member:
         context.template = "www/404.html"
     else:
-        context.sketches = Sketch.get_recent_sketches(context.member.email)
+        context.sketches = list(filter(lambda x: x.owner == context.member.email, get_recent_sketches()))
 
 def get_member(username):
     try:
