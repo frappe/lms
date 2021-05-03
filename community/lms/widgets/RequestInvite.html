@@ -1,4 +1,25 @@
 <form id="invite-request-form">
-	<input class="form-control field-width mr-5" id="invite_email" type="email" placeholder="Email Address">
-	<a type="submit" id="submit" class="btn btn-primary btn-lg" href="#" role="button">Request Invite</a>
+  <input class="form-control field-width mr-5" id="invite_email" type="email" placeholder="Email Address">
+  <a type="submit" id="submit-invite-request" class="btn btn-primary btn-lg" href="#" role="button">Request Invite</a>
 </form>
+<script>
+  frappe.ready(() => {
+  $("#submit-invite-request").click(function () {
+    frappe.call({
+      method: "community.lms.doctype.invite_request.invite_request.create_invite_request",
+      args: {
+        invite_email: $("#invite_email").val()
+      },
+      callback: (data) => {
+        if (data.message == "OK") {
+          $("#invite-request-form").hide();
+          var message = `<div>
+          <p class="lead">Thanks for your interest in Mon School. We have recorded your interest and we will get back to you shortly.</p>
+          </div>`;
+          $(".jumbotron").append(message);
+        }
+      }
+    })
+  })
+})
+</script>
