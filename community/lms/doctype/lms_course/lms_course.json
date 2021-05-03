@@ -74,8 +74,8 @@
  "is_published_field": "is_published",
  "links": [
   {
-   "group": "Topics",
-   "link_doctype": "LMS Topic",
+   "group": "Chapters",
+   "link_doctype": "Chapter",
    "link_fieldname": "course"
   },
   {
@@ -89,7 +89,7 @@
    "link_fieldname": "course"
   }
  ],
- "modified": "2021-04-21 14:45:41.658056",
+ "modified": "2021-05-03 05:52:30.396824",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",

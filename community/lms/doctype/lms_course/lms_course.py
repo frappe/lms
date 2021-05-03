@@ -8,6 +8,18 @@ from frappe.model.document import Document
 from ...utils import slugify
 
 class LMSCourse(Document):
+    @staticmethod
+    def find(slug):
+        """Returns the course with specified slug.
+        """
+        return find("LMS Course", is_published=True, slug=slug)
+
+    @staticmethod
+    def find_all():
+        """Returns all published courses.
+        """
+        return find_all("LMS Course", is_published=True)
+
     def before_save(self):
         if not self.slug:
             self.slug = self.generate_slug(title=self.title)
@@ -50,7 +62,7 @@ class LMSCourse(Document):
         """Returns the name of Community Member document for a give user.
         """
         try:
-            return frappe.db.get_value("Community Member", {"email": email}, ["name"])
+            return frappe.db.get_value("Community Member", {"email": email}, "name")
         except frappe.DoesNotExistError:
             return None
 
@@ -85,18 +97,65 @@ class LMSCourse(Document):
         for mentor in mentors:
             member = frappe.get_doc("Community Member", mentor.mentor)
             # TODO: change this to count query
-            member.batch_count = len(frappe.get_all("LMS Batch Membership", {"member": member.name, "member_type": "Mentor"}))
+            member.batch_count = len(frappe.get_all("LMS Batch Membership", {"member": member, "member_type": "Mentor"}))
             course_mentors.append(member)
         return course_mentors
 
-    def get_instructor(self):
-        return frappe.get_doc("User", self.owner)
-
-    @staticmethod
-    def find_all():
-        """Returns all published courses.
+    def is_mentor(self, email):
+        """Checks if given user is a mentor for this course.
         """
-        rows = frappe.db.get_all("LMS Course",
-            filters={"is_published": True},
-            fields='*')
-        return [frappe.get_doc(dict(row, doctype='LMS Course')) for row in rows]
+        if not email:
+            return False
+        member = self.get_community_member(email)
+        return frappe.db.exists({
+            'doctype': 'LMS Course Mentor Mapping',
+            "course": self.name,
+            "member": member
+        })
+
+    def get_instructor(self):
+        member_name = self.get_community_member(self.owner)
+        return frappe.get_doc("Community Member", member_name)
+
+    def get_chapters(self):
+        """Returns all chapters of this course.
+        """
+        # TODO: chapters should have a way to specify the order
+        return find_all("Chapter", course=self.name, order_by="creation")
+
+    def get_batches(self, mentor=None):
+        batches = find_all("LMS Batch", course=self.name)
+        if mentor:
+            # TODO: optimize this
+            member = self.get_community_member(email=mentor)
+            memberships = frappe.db.get_all(
+                "LMS Batch Membership",
+                {"member": member},
+                ["name"], as_dict=1)
+            batch_names = {m.batch for m in memberships}
+            return [b for b in batches if b.name in batch_names]
+
+    def get_upcoming_batches(self):
+        now = frappe.utils.nowdate()
+        return find_all("LMS Batch",
+            course=self.name,
+            start_date=[">", now])
+
+def find_all(doctype, order_by=None, **filters):
+    """Queries the database for documents of a doctype matching given filters.
+    """
+    rows = frappe.db.get_all(doctype,
+        filters=filters,
+        fields='*',
+        order_by=order_by)
+    return [frappe.get_doc(dict(row, doctype=doctype)) for row in rows]
+
+def find(doctype, **filters):
+    """Queries the database for a document of given doctype matching given filters.
+    """
+    rows = frappe.db.get_all(doctype,
+        filters=filters,
+        fields='*')
+    if rows:
+        row = rows[0]
+    return frappe.get_doc(dict(row, doctype=doctype))
