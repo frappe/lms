@@ -8,14 +8,14 @@ from frappe.model.document import Document
 from community.www.courses.utils import get_member_with_email
 
 class LMSBatch(Document):
-	def validate(self):
-		if not self.code:
-			self.generate_code()
+    def validate(self):
+        if not self.code:
+            self.generate_code()
 
-	def generate_code(self):
-		short_code = frappe.db.get_value("LMS Course", self.course, "short_code")
-		course_batches = frappe.get_all("LMS Batch",{"course":self.course})
-		self.code = short_code + str(len(course_batches) + 1)
+    def generate_code(self):
+        short_code = frappe.db.get_value("LMS Course", self.course, "short_code")
+        course_batches = frappe.get_all("LMS Batch",{"course":self.course})
+        self.code = short_code + str(len(course_batches) + 1)
 
 @frappe.whitelist()
 def get_messages(batch):
