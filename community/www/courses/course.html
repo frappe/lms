@@ -131,25 +131,9 @@
 {% endmacro %}
 
 {% macro CourseOutline(course) %}
-<h2>Course Outline</h2>
+  <h2>Course Outline</h2>
 
-{% for chapter in course.topics %}
-  <div class="chapter-plan">
-    <h3><span class="chapter-number">{{loop.index}}</span> {{chapter.title}}</h3>
-    <div class="chapter-description">
-      {{chapter.preview | markdown}}
-    </div>
-
-    {#
-    <div class="lessons">
-      {% for lesson in chapter.lessons %}
-        <div class="lesson">
-          <span class="lesson-type"><i class="{{lesson.icon}}"></i></span>
-          <span class="lesson-title">{{lesson.title}}</span>
-        </div>
-      {% endfor %}
-    </div>
-    #}
-  </div>
-{% endfor %}
+  {% for chapter in course.chapters %}
+    {{ widgets.ChapterTeaser(chapter=chapter)}}
+  {% endfor %}
 {% endmacro %}

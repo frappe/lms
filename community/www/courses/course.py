@@ -29,11 +29,11 @@ def get_course(slug):
     course = frappe.db.get_value("LMS Course", {"slug": slug},
         ["name", "slug", "title", "description", "short_introduction", "video_link", "owner"], as_dict=1)
 
-    course["topics"] = frappe.db.get_all("LMS Topic",
+    course["chapters"] = frappe.db.get_all("Chapter",
         filters={
             "course": course["name"]
         },
-        fields=["name", "slug", "title", "preview"],
+        fields=["name", "title", "description"],
         order_by="creation"
     )
     return course
