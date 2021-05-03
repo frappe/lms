@@ -17,18 +17,18 @@
     <div class="col-lg-9 col-md-12">
       <div  class="course-details">
         {{ CourseDescription(course) }}
-        {{ BatchSection(course, is_mentor, upcoming_batches, mentor_batches) }}
+        {{ BatchSection(course) }}
         {{ CourseOutline(course) }}
       </div>
     </div>
 
     <div class="col-lg-3 col-md-12">
       <div class="sidebar">
-        {{ InstructorsSection(instructor) }}
+        {{ InstructorsSection(course.get_instructor()) }}
       </div>
 
       <div class="sidebar">
-        {{ MentorsSection(mentors, is_mentor) }}
+        {{ MentorsSection(course.get_mentors(), course.is_mentor(frappe.session.user)) }}
       </div>
     </div>
   </div>
@@ -57,11 +57,11 @@
   {% endif %}
 {% endmacro %}
 
-{% macro BatchSection(course, is_mentor, upcoming_batches, mentor_batches) %}
-  {% if is_mentor %}
-    {{ BatchSectionForMentors(course, mentor_batches) }}
+{% macro BatchSection(course) %}
+  {% if course.is_mentor(frappe.session.user) %}
+    {{ BatchSectionForMentors(course, course.get_batches(mentor=frappe.session.user)) }}
   {% else %}
-    {{ BatchSectionForStudents(course, upcoming_batches) }}
+    {{ BatchSectionForStudents(course, course.get_upcoming_batches()) }}
   {% endif %}
 {% endmacro %}
 
@@ -133,7 +133,7 @@
 {% macro CourseOutline(course) %}
   <h2>Course Outline</h2>
 
-  {% for chapter in course.chapters %}
+  {% for chapter in course.get_chapters() %}
     {{ widgets.ChapterTeaser(chapter=chapter)}}
   {% endfor %}
 {% endmacro %}
