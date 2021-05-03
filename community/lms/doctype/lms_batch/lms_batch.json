@@ -27,6 +27,8 @@
   {
    "fieldname": "course",
    "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Course",
    "options": "LMS Course"
   },
@@ -91,11 +93,13 @@
   {
    "fieldname": "start_date",
    "fieldtype": "Date",
+   "in_list_view": 1,
    "label": "Start Date"
   },
   {
    "fieldname": "start_time",
    "fieldtype": "Time",
+   "in_list_view": 1,
    "label": "Start Time"
   },
   {
@@ -106,6 +110,7 @@
   {
    "fieldname": "end_time",
    "fieldtype": "Time",
+   "in_list_view": 1,
    "label": "End Time"
   }
  ],
@@ -117,7 +122,7 @@
    "link_fieldname": "batch"
   }
  ],
- "modified": "2021-04-21 12:45:21.144972",
+ "modified": "2021-04-30 09:52:18.941276",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch",

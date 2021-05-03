@@ -50,18 +50,3 @@ class CommunityCourseMember(WebsiteGenerator):
 			send_priority=0, 
 			queue_separately=True, 
 			args=args)
-
-	def create_user(self):
-		user = 	frappe.get_doc({
-					"doctype": "User",
-					"email": self.email,
-					"first_name": self.full_name.split(" ")[0],
-					"full_name": self.full_name,
-					"username": self.user_name,
-					"send_welcome_email": 0,
-					"user_type": 'Website User',
-					"redirect_url": self.name
-				})
-		user.save(ignore_permissions=True)
-		update_password_link = user.reset_password()
-		return user, update_password_link
