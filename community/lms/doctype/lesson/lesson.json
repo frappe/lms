@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "autoname": "format:{####} {title}",
  "creation": "2021-05-03 06:21:12.995987",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -34,7 +35,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-05-03 06:22:07.329131",
+ "modified": "2021-05-03 06:51:43.588969",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Lesson",

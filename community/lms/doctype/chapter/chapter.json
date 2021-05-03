@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "autoname": "format:{####} {title}",
  "creation": "2021-05-03 05:49:08.383057",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -44,7 +45,7 @@
    "link_fieldname": "chapter"
   }
  ],
- "modified": "2021-05-03 06:48:06.030438",
+ "modified": "2021-05-03 06:52:10.894328",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Chapter",
