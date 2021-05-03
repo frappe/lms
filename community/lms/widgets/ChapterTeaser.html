@@ -1,0 +1,15 @@
+<div class="chapter-teaser">
+  <div class="teaser-body">
+    <h3 class="chapter-title">{{ chapter.title }}</h3>
+    <div class="chapter-description">
+      {{ chapter.description or "" }}
+    </div>
+    <div class="chapter-lessons">
+      {% for lesson in chapter.get_lessons() %}
+        <div class="lesson-teaser">
+          {{lesson.title}}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>

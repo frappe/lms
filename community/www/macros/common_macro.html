@@ -2,7 +2,7 @@
 <h3>Instructor</h3>
 <div class="instructor">
     <div class="instructor-title">{{instructor.full_name}}</div>
-    <div class="instructor-subtitle">Created {{instructor.course_count}} courses</div>
+    <div class="instructor-subtitle">Created {{instructor.get_course_count()}} courses</div>
 </div>
 {% endmacro %}
 
@@ -11,7 +11,7 @@
 {% for m in mentors %}
 <div class="instructor">
     <div class="instructor-title">{{m.full_name}}</div>
-    <div class="instructor-subtitle">Mentored {{m.batch_count}} batches</div>
+    <div class="instructor-subtitle">Mentored {{m.get_batch_count()}} batches</div>
 </div>
 {% endfor %}
 {% if not is_mentor %}
