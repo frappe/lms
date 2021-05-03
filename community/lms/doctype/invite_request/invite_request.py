@@ -15,14 +15,15 @@ class InviteRequest(Document):
 			self.send_email()
 
 	def create_user(self, password):
+		full_name_split = self.full_name.split(" ")
 		user = 	frappe.get_doc({
 					"doctype": "User",
 					"email": self.signup_email,
-					"first_name": self.full_name.split(" ")[0],
-					"full_name": self.full_name,
+					"first_name": full_name_split[0],
+					"last_name": full_name_split[1] if len(full_name_split) > 1 else "",
 					"username": self.username,
 					"send_welcome_email": 0,
-					"user_type": 'Website User',
+					"user_type": "Website User",
 					"new_password": password
 				})
 		user.save(ignore_permissions=True)
@@ -44,15 +45,19 @@ class InviteRequest(Document):
 			args=args)
 
 @frappe.whitelist(allow_guest=True)
-def create_invite_request(email):
-	frappe.get_doc({
-		"doctype": "Invite Request",
-		"invite_email": email
-	}).save(ignore_permissions=True)
+def create_invite_request(invite_email):
+	try:
+		frappe.get_doc({
+			"doctype": "Invite Request",
+			"invite_email": invite_email
+		}).save(ignore_permissions=True)
+		return "OK"
+	except frappe.UniqueValidationError:
+		frappe.throw(_("Email {0} has already been used to request an invite").format(invite_email))
 
 @frappe.whitelist(allow_guest=True)
 def update_invite(data):
-	data = frappe._dict(json.loads(data))
+	data = frappe._dict(json.loads(data)) if type(data) == str else frappe._dict(data)
 
 	try:
 		doc = frappe.get_doc("Invite Request", data.invite_code)

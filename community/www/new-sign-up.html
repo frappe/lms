@@ -4,24 +4,29 @@
 
 {% block page_content %}
 
-<form id="reset-password">
+<form id="new-sign-up">
 	<div class="form-group">
-		<input id="full_name" type="text" class="form-control" placeholder="{{ _('Full Name') }}" required>
+		<label for="full_name">Full Name:</label>
+		<input id="full_name" type="text" class="form-control" required>
 	</div>
 	<div class="form-group">
-		<input id="signup_email" type="email" class="form-control" placeholder="{{ _('Email') }}" required>
+		<label for="signup_email">Email:</label>
+		<input id="signup_email" type="email" class="form-control" required>
 	</div>
 	<div class="form-group">
-		<input id="username" type="text" class="form-control" placeholder="{{ _('Username') }}" required>
+		<label for="username">Username:</label>
+		<input id="username" type="text" class="form-control" required>
 	</div>
 	<div class="form-group">
-		<input id="password" type="password" class="form-control" placeholder="{{ _('Password') }}" required>
+		<label for="password">Password:</label>
+		<input id="password" type="password" class="form-control" required>
 		<span class="password-strength-indicator indicator"></span>
 
 	</div>
 	<p class='password-strength-message text-muted small hidden'></p>
 	<div class="form-group">
-		<input id="invite_code" type="text" class="form-control" placeholder="{{ _('Invite Code') }}" readonly required
+		<label for="invite_code">Invite Code:</label>
+		<input id="invite_code" type="text" class="form-control" readonly required
 			value="{{ frappe.form_dict['invite_code'] }}">
 	</div>
 	<button type="submit" id="submit" class="btn btn-primary">{{_("Submit")}}</button>

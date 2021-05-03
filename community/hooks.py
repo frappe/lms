@@ -136,6 +136,7 @@ primary_rules = [
     {"from_route": "/sketches/<sketch>", "to_route": "sketches/sketch"},
     {"from_route": "/courses/<course>", "to_route": "courses/course"},
     {"from_route": "/courses/<course>/<topic>", "to_route": "courses/topic"},
+    {"from_route": "/hackathons", "to_route": "hackathons"},
     {"from_route": "/hackathons/<hackathon>", "to_route": "hackathons/hackathon"},
     {"from_route": "/hackathons/<hackathon>/<project>", "to_route": "hackathons/project"},
     {"from_route": "/dashboard", "to_route": ""},

@@ -60,7 +60,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-05-01 13:59:27.624814",
+ "modified": "2021-05-03 09:22:20.954921",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Invite Request",
@@ -75,18 +75,6 @@
    "read": 1,
    "report": 1,
    "role": "System Manager",
-   "share": 1,
-   "write": 1
-  },
-  {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "Guest",
    "share": 1,
    "write": 1
   }

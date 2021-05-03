@@ -52,11 +52,15 @@ class LMSSketch(Document):
         return value
 
     @staticmethod
-    def get_recent_sketches(limit=100):
+    def get_recent_sketches(limit=100, owner=None):
         """Returns the recent sketches.
         """
+        filters = {} 
+        if owner:
+            filters = {"owner": owner}
         sketches = frappe.get_all(
             "LMS Sketch",
+            filters=filters,
             fields='*',
             order_by='modified desc',
             page_length=limit
