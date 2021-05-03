@@ -14,7 +14,7 @@ class LMSBatchMembership(Document):
 		self.validate_membership_in_different_batch_same_course()
 	
 	def validate_membership_in_same_batch(self):
-		previous_membership = frappe.db.get_value("LMS Batch Membership", {"member": self.member, "batch": self.batch}, ["member_type","member"], as_dict=1)
+		previous_membership = frappe.db.get_value("LMS Batch Membership", {"member": self.member, "batch": self.batch, "name": ["!=", self.name]}, ["member_type","member"], as_dict=1)
 		if previous_membership:
 			member_name = frappe.db.get_value("Community Member", self.member, "full_name")
 			frappe.throw(_("{0} is already a {1} of {2}").format(member_name, previous_membership.member_type, self.batch))
@@ -29,7 +29,7 @@ class LMSBatchMembership(Document):
 				frappe.throw(_("{0} is already a {1} of {2} course through {3} batch").format(member_name, membership.member_type, course, membership.batch))
 
 @frappe.whitelist()
-def create_membership(batch, member=None, member_type="Student", role="Member"):
+def create_membership(batch, course, member=None, member_type="Student", role="Member"):
 	if not member:
 		member = frappe.db.get_value("Community Member", {"email": frappe.session.user}, "name")
 	frappe.get_doc({
@@ -39,4 +39,5 @@ def create_membership(batch, member=None, member_type="Student", role="Member"):
 		"member_type": member_type,
 		"member": member
 	}).save(ignore_permissions=True)
-	return "OK"
+	course_slug = frappe.db.get_value("LMS Course", {"title": course}, ["slug"])
+	return course_slug

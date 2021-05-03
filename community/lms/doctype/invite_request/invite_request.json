@@ -1,0 +1,88 @@
+{
+ "actions": [],
+ "creation": "2021-04-29 16:29:56.857914",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "invite_email",
+  "signup_email",
+  "column_break_4",
+  "status",
+  "full_name",
+  "username",
+  "invite_code"
+ ],
+ "fields": [
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "invite_email",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Invite Email",
+   "options": "Email",
+   "unique": 1
+  },
+  {
+   "fieldname": "full_name",
+   "fieldtype": "Data",
+   "label": "Full Name"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "signup_email",
+   "fieldtype": "Data",
+   "label": "Signup Email",
+   "options": "Email"
+  },
+  {
+   "fieldname": "username",
+   "fieldtype": "Data",
+   "label": "Username"
+  },
+  {
+   "fieldname": "invite_code",
+   "fieldtype": "Data",
+   "label": "Invite Code"
+  },
+  {
+   "default": "Pending",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Pending\nApproved\nRejected\nRegistered"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2021-05-03 09:22:20.954921",
+ "modified_by": "Administrator",
+ "module": "LMS",
+ "name": "Invite Request",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "search_fields": "invite_email, signup_email",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "title_field": "invite_email",
+ "track_changes": 1
+}
