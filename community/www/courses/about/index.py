@@ -11,13 +11,11 @@ def get_context(context):
     context.instructor = get_instructor(context.course.owner)
     context.batch = get_batch(context.batch_code)
     context.mentors = get_mentors(context.batch.name)
-    print(context.mentors)
 
 def get_mentors(batch):
     mentors = []
     memberships = frappe.get_all("LMS Batch Membership", {"batch": batch, "member_type": "Mentor"}, ["member"])
     for membership in memberships:
-        member = frappe.db.get_value("Community Member", membership.member, ["name","full_name"], as_dict=True)
-        member.batch_count = len(frappe.get_all("LMS Batch Membership", {"member": member.name, "member_type": "Mentor"}))
+        member = frappe.get_doc("Community Member", membership.member)
         mentors.append(member)
     return mentors

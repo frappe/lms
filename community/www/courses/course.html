@@ -10,7 +10,7 @@
 <div class="container">
   <div class="course-header">
     <div class="course-type">course</div>
-    <h1>{{course.title}}</h1>
+    <h1 id="course-title" data-course="{{course.name}}">{{course.title}}</h1>
   </div>
 
   <div class="row">
@@ -28,7 +28,7 @@
       </div>
 
       <div class="sidebar">
-        {{ MentorsSection(course.get_mentors(), course.is_mentor(frappe.session.user)) }}
+        {{ MentorsSection(course.get_mentors(), course.is_mentor(frappe.session.user), course.name) }}
       </div>
     </div>
   </div>
@@ -86,9 +86,9 @@
   <div class="cta">
     <div class="">
       {% if can_manage %}
-        <button type="button">Manage</button>
+        <button >Manage</button>
       {% else %}
-        <button type="button">Join this Batch</button>
+        <button class="join-batch" data-batch="{{ batch.name | urlencode }}">Join this Batch</button>
       {% endif %}
     </div>
   </div>
@@ -123,11 +123,13 @@
 {% macro BatchSectionForStudents(course, upcoming_batches) %}
   <h2>Upcoming Batches</h2>
 
-  {% for batch in upcoming_batches %}
-  <div class="col-lg-4 col-md-6">
-    {{ RenderBatch(batch, can_manage=False) }}
+  <div class="row">
+    {% for batch in upcoming_batches %}
+    <div class="col-lg-4 col-md-6">
+      {{ RenderBatch(batch, can_manage=False) }}
+    </div>
+    {% endfor %}
   </div>
-  {% endfor %}
 {% endmacro %}
 
 {% macro CourseOutline(course) %}

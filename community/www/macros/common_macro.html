@@ -6,7 +6,7 @@
 </div>
 {% endmacro %}
 
-{% macro MentorsSection(mentors, is_mentor) %}
+{% macro MentorsSection(mentors, is_mentor, course_name) %}
 <h3>Mentors</h3>
 {% for m in mentors %}
 <div class="instructor">
@@ -15,10 +15,15 @@
 </div>
 {% endfor %}
 {% if not is_mentor %}
-<div class="notice">
+<div id="mentor-request" class="notice">
     Interested to become a mentor?
 
-    <div><a href="#">Apply Now!</a></div>
+    <div><a id="apply-now" data-course="{{course_name | urlencode}}" href="">Apply Now!</a></div>
+</div>
+<div id="already-applied" class="notice hide">
+  You've applied to become a mentor for this course. Your request is currently under review.
+
+  If you are not any more interested to mentor this course, you can <a id="cancel-request" data-course="{{course_name | urlencode}}" href="">cancel your application</a>.
 </div>
 {% endif %}
 {% endmacro %}
@@ -26,7 +31,7 @@
 
 {% macro BatchHearder(course_name, member_count) %}
 <div class="border p-3">
-	<h3>{{course_name}}</h3>
-	<div class="text-muted">{{member_count}} members</div>
+  <h3>{{course_name}}</h3>
+  <div class="text-muted">{{member_count}} members</div>
 </div>
 {% endmacro %}

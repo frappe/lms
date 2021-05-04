@@ -8,7 +8,7 @@ def get_context(context):
     if not context.member:
         context.template = "www/404.html"
     else:
-        context.sketches = Sketch.get_recent_sketches(context.member.email)
+        context.sketches = Sketch.get_recent_sketches(owner=context.member.email)
 
 def get_member(username):
     try:

@@ -11,7 +11,7 @@ from frappe.utils.password import get_decrypted_password
 
 class InviteRequest(Document):
     def on_update(self):
-        if self.has_value_changed('status') and self.status == "Approved":
+        if self.has_value_changed("status") and self.status == "Approved":
             self.send_email()
 
     def create_user(self, password):
@@ -53,7 +53,7 @@ def create_invite_request(invite_email):
         }).save(ignore_permissions=True)
         return "OK"
     except frappe.UniqueValidationError:
-        frappe.throw(_("Email {0} has already been used to request an invite").format(invite_email))
+        frappe.throw(_("Email {0} has already been used to request an invitation").format(invite_email))
 
 @frappe.whitelist(allow_guest=True)
 def update_invite(data):
