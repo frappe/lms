@@ -32,7 +32,6 @@
 body {
   padding: 0px;
   margin: 0px;
-  background: white;
 }
 
 .course-header {
@@ -40,7 +39,14 @@ body {
   padding: 20px;
   background: var(--header-bg);
   color: var(--header-color);
-  border-radius: 10px;
+  border-radius: 9px;
+}
+
+.course-author-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  margin-right: 20px;
 }
 
 .course-header h1 {
@@ -290,4 +296,10 @@ img.profile-photo {
   margin-left: 3%;
   display: inline-block;
   width: 95%;
+}
+
+.display-4 {
+  color: #2D005A;
+  font-weight: 600;
+  line-height: 51px;
 }

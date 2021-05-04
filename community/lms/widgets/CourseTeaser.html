@@ -7,7 +7,7 @@
   </div>
   <div class="course-footer">
     <div class="course-author">
-      {{ course.get_instructor().full_name }}
+      <img class="course-author-avatar" src="{{ course.get_instructor().avatar }}" />{{ course.get_instructor().full_name }}
     </div>
   </div>
 </div>
