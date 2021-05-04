@@ -46,14 +46,18 @@ class InviteRequest(Document):
 
 @frappe.whitelist(allow_guest=True)
 def create_invite_request(invite_email):
-    try:
-        frappe.get_doc({
+
+    if frappe.db.exists("User", invite_email):
+        return "user"
+
+    if frappe.db.exists("Invite Request", {"invite_email": invite_email}):
+        return "invite"
+
+    frappe.get_doc({
             "doctype": "Invite Request",
             "invite_email": invite_email
         }).save(ignore_permissions=True)
-        return "OK"
-    except frappe.UniqueValidationError:
-        frappe.throw(_("Email {0} has already been used to request an invite").format(invite_email))
+    return "OK"
 
 @frappe.whitelist(allow_guest=True)
 def update_invite(data):
