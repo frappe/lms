@@ -133,27 +133,13 @@ class LMSCourse(Document):
                 {"member": member},
                 ["batch"])
             batch_names = {m.batch for m in memberships}
-            mentor_batches =  [b for b in batches if b.name in batch_names]
-            return self.get_batch_mentors(mentor_batches)
+            return [b for b in batches if b.name in batch_names]
 
     def get_upcoming_batches(self):
         now = frappe.utils.nowdate()
         batches =  find_all("LMS Batch",
             course=self.name,
             start_date=[">", now])
-        batches = self.get_batch_mentors(batches)
-        return batches
-
-    def get_batch_mentors(self, batches):
-        for batch in batches:
-            batch.mentors = []
-            mentors = frappe.get_all(
-                        "LMS Batch Membership",
-                        {"batch": batch.name, "member_type": "Mentor"},
-                        ["member"])
-            for mentor in mentors:
-                member = frappe.db.get_value("Community Member", mentor.member, ["full_name", "photo", "abbr"], as_dict=1)
-                batch.mentors.append(member)
         return batches
 
 def find_all(doctype, order_by=None, **filters):

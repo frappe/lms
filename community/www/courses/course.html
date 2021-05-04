@@ -74,7 +74,7 @@
   <div>Starting {{frappe.utils.format_date(batch.start_date, "medium")}}</div>
   <div class="course-type" style="color: #888; padding: 10px 0px;">mentors</div>
 
-  {% for m in batch.mentors %}
+  {% for m in batch.get_mentors() %}
     <div>
       {% if m.photo_url %}
       <img class="profile-photo" src="{{m.photo_url}}">

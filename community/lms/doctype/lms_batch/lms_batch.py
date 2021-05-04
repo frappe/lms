@@ -17,6 +17,17 @@ class LMSBatch(Document):
         course_batches = frappe.get_all("LMS Batch",{"course":self.course})
         self.code = short_code + str(len(course_batches) + 1)
 
+    def get_mentors(self):
+        mentors = []
+        memberships = frappe.get_all(
+                    "LMS Batch Membership",
+                    {"batch": self.name, "member_type": "Mentor"},
+                    ["member"])
+        for membership in memberships:
+            member = frappe.db.get_value("Community Member", membership.member, ["full_name", "photo", "abbr"], as_dict=1)
+            mentors.append(member)
+        return mentors
+
 @frappe.whitelist()
 def get_messages(batch):
     messages =  frappe.get_all("LMS Message", {"batch": batch}, ["*"], order_by="creation")

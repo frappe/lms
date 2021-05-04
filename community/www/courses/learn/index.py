@@ -6,5 +6,3 @@ def get_context(context):
     context.course = frappe.form_dict["course"]
     context.batch_code = frappe.form_dict["batch"]
     redirect_if_not_a_member(context.course, context.batch_code)
-    
-    print(context)
