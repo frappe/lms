@@ -42,7 +42,7 @@ class CommunityMember(Document):
         return frappe.db.count(
             'LMS Batch Membership', {
                 'member': self.name,
-                'member_role': 'Mentor'
+                'member_type': 'Mentor'
             })
 
     def __repr__(self):

@@ -3,18 +3,19 @@ frappe.ready(() => {
 		frappe.call({
 			'method': 'community.lms.doctype.lms_mentor_request.lms_mentor_request.has_requested',
 			'args': {
-				course: decodeURIComponent($(".course-title").attr("data-course")),
+				course: decodeURIComponent($("#course-title").attr("data-course")),
 			},
 			'callback': (data) => {
 				if (data.message) {
-					$(".mentor-request").addClass("hide");
-					$(".already-applied").removeClass("hide")
+					$("#mentor-request").addClass("hide");
+					$("#already-applied").removeClass("hide")
 				}
 			}
 		})
 	}
 
-	$(".apply-now").click((e) => {
+	$("#apply-now").click((e) => {
+    e.preventDefault();
 		if (frappe.session.user == "Guest") {
 			window.location.href = "/login";
 			return;
@@ -26,14 +27,15 @@ frappe.ready(() => {
 			},
 			"callback": (data) => {
 				if (data.message == "OK") {
-					$(".mentor-request").addClass("hide");
-					$(".already-applied").removeClass("hide")
+					$("#mentor-request").addClass("hide");
+					$("#already-applied").removeClass("hide")
 				}
 			}
 		})
 	})
 
-	$(".cancel-request").click((e) => {
+	$("#cancel-request").click((e) => {
+    e.preventDefault()
 		frappe.call({
 			"method": "community.lms.doctype.lms_mentor_request.lms_mentor_request.cancel_request",
 			"args": {
@@ -41,14 +43,15 @@ frappe.ready(() => {
 			},
 			"callback": (data) => {
 				if (data.message == "OK") {
-					$(".mentor-request").removeClass("hide");
-					$(".already-applied").addClass("hide")
+					$("#mentor-request").removeClass("hide");
+					$("#already-applied").addClass("hide")
 				}
 			}
 		})
 	})
 
 	$(".join-batch").click((e) => {
+    e.preventDefault()
 		if (frappe.session.user == "Guest") {
 			window.location.href = "/login";
 			return;
@@ -62,7 +65,6 @@ frappe.ready(() => {
 			"callback": (data) => {
 				if (data.message == "OK") {
 					frappe.msgprint(__("You are now a student of this course."))
-					$(".upcoming-batches").addClass("hide")
 				}
 			}
 		})

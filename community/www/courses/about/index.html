@@ -16,7 +16,7 @@
 	{% if batch.description %}
 		{{ BatchDetails(batch.description) }}
 	{% endif %}
-	{{ MentorsSection(mentors, True) }}
+	{{ MentorsSection(mentors, True, course.name) }}
 </div>
 {% endblock %}
 

@@ -10,7 +10,7 @@
 <div class="container">
   <div class="course-header">
     <div class="course-type">course</div>
-    <h1>{{course.title}}</h1>
+    <h1 id="course-title" data-course="{{course.name}}">{{course.title}}</h1>
   </div>
 
   <div class="row">
@@ -28,7 +28,7 @@
       </div>
 
       <div class="sidebar">
-        {{ MentorsSection(course.get_mentors(), course.is_mentor(frappe.session.user)) }}
+        {{ MentorsSection(course.get_mentors(), course.is_mentor(frappe.session.user), course.name) }}
       </div>
     </div>
   </div>
@@ -74,7 +74,7 @@
   <div>Starting {{frappe.utils.format_date(batch.start_date, "medium")}}</div>
   <div class="course-type" style="color: #888; padding: 10px 0px;">mentors</div>
 
-  {% for m in batch.mentors %}
+  {% for m in batch.get_mentors() %}
     <div>
       {% if m.photo_url %}
       <img class="profile-photo" src="{{m.photo_url}}">
@@ -86,9 +86,9 @@
   <div class="cta">
     <div class="">
       {% if can_manage %}
-        <button type="button">Manage</button>
+        <button >Manage</button>
       {% else %}
-        <button type="button">Join this Batch</button>
+        <button class="join-batch" data-batch="{{ batch.name | urlencode }}">Join this Batch</button>
       {% endif %}
     </div>
   </div>
@@ -111,11 +111,11 @@
       {% endfor %}
     </div>
 
-    <a class="btn btn-primary add-batch margin-bottom" href="/add-a-new-batch?new=1&course={{course.name}}">Add a new batch</a>
+    <a class="btn btn-primary add-batch margin-bottom" href="/add-a-new-batch?new=1&course={{course.title}}">Add a new batch</a>
   {% else %}
     <div class="mentor_message">
       <p> You are a mentor for this course. </p>
-      <a class="btn btn-primary" href="/add-a-new-batch?new=1&course={{course.name}}" >Create your first batch</a>
+      <a class="btn btn-primary" href="/add-a-new-batch?new=1&course={{course.title}}" >Create your first batch</a>
     </div>
   {% endif %}
 {% endmacro %}
@@ -123,11 +123,13 @@
 {% macro BatchSectionForStudents(course, upcoming_batches) %}
   <h2>Upcoming Batches</h2>
 
-  {% for batch in upcoming_batches %}
-  <div class="col-lg-4 col-md-6">
-    {{ RenderBatch(batch, can_manage=False) }}
+  <div class="row">
+    {% for batch in upcoming_batches %}
+    <div class="col-lg-4 col-md-6">
+      {{ RenderBatch(batch, can_manage=False) }}
+    </div>
+    {% endfor %}
   </div>
-  {% endfor %}
 {% endmacro %}
 
 {% macro CourseOutline(course) %}

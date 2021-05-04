@@ -97,7 +97,7 @@ class LMSCourse(Document):
         for mentor in mentors:
             member = frappe.get_doc("Community Member", mentor.mentor)
             # TODO: change this to count query
-            member.batch_count = len(frappe.get_all("LMS Batch Membership", {"member": member, "member_type": "Mentor"}))
+            member.batch_count = len(frappe.get_all("LMS Batch Membership", {"member": member.name, "member_type": "Mentor"}))
             course_mentors.append(member)
         return course_mentors
 
@@ -108,9 +108,9 @@ class LMSCourse(Document):
             return False
         member = self.get_community_member(email)
         return frappe.db.exists({
-            'doctype': 'LMS Course Mentor Mapping',
+            "doctype": "LMS Course Mentor Mapping",
             "course": self.name,
-            "member": member
+            "mentor": member
         })
 
     def get_instructor(self):
@@ -131,15 +131,16 @@ class LMSCourse(Document):
             memberships = frappe.db.get_all(
                 "LMS Batch Membership",
                 {"member": member},
-                ["name"], as_dict=1)
+                ["batch"])
             batch_names = {m.batch for m in memberships}
             return [b for b in batches if b.name in batch_names]
 
     def get_upcoming_batches(self):
         now = frappe.utils.nowdate()
-        return find_all("LMS Batch",
+        batches =  find_all("LMS Batch",
             course=self.name,
             start_date=[">", now])
+        return batches
 
 def find_all(doctype, order_by=None, **filters):
     """Queries the database for documents of a doctype matching given filters.
