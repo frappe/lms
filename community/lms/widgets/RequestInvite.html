@@ -4,22 +4,37 @@
 </form>
 <script>
   frappe.ready(() => {
-  $("#submit-invite-request").click(function () {
-    frappe.call({
-      method: "community.lms.doctype.invite_request.invite_request.create_invite_request",
-      args: {
-        invite_email: $("#invite_email").val()
-      },
-      callback: (data) => {
-        if (data.message == "OK") {
+    $("#submit-invite-request").click(function () {
+      var invite_email = $("#invite_email").val()
+      frappe.call({
+        method: "community.lms.doctype.invite_request.invite_request.create_invite_request",
+        args: {
+          invite_email: invite_email
+        },
+        callback: (data) => {
           $("#invite-request-form").hide();
-          var message = `<div>
-          <p class="lead">Thanks for your interest in Mon School. We have recorded your interest and we will get back to you shortly.</p>
-          </div>`;
+
+          if (data.message == "OK") {
+            var message = `<div>
+              <p class="lead">Thanks for your interest in Mon School. We have recorded your interest and we will get back to you shortly.</p>
+            </div>`;
+          }
+
+          else if (data.message == "invite") {
+            var message = `<div>
+              <p class="lead">Email ${invite_email} has already been used to request an invitation.</p>
+            </div>`;
+          }
+
+          else if (data.message == "user") {
+            var message = `<div>
+              <p class="lead">Looks like there is already an account with email ${invite_email}. Would you like to <a href="/login">login</a>.</p>
+            </div>`;
+          }
+
           $(".jumbotron").append(message);
         }
-      }
+      })
     })
   })
-})
 </script>
