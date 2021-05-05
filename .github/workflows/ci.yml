@@ -44,6 +44,7 @@ jobs:
         path: ~/bench-cache
     - name: install bench
       run: pip3 install frappe-bench
+      key: ${{ runner.os }}
     - name: bench init
       run: |
         if [ -d ~/bench-cache/bench.tgz ]
