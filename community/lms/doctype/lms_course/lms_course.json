@@ -87,9 +87,14 @@
    "group": "Mentors",
    "link_doctype": "LMS Course Mentor Mapping",
    "link_fieldname": "course"
+  },
+  {
+   "group": "Mentors",
+   "link_doctype": "LMS Mentor Request",
+   "link_fieldname": "course"
   }
  ],
- "modified": "2021-05-03 05:52:30.396824",
+ "modified": "2021-05-05 14:17:26.297602",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",
