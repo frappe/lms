@@ -52,6 +52,7 @@ jobs:
            (cd && tar xvzf ~/bench-cache/bench.tgz)
         else
           bench init ~/frappe-bench --skip-redis-config-generation
+          mkdir -p ~/bench-cache
           (cd && tar cvzf ~/bench-cache/bench.tgz frappe-bench)
         fi
     - name: add community app to bench
