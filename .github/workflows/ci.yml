@@ -61,7 +61,7 @@ jobs:
       run: bench new-site --mariadb-root-password root --admin-password admin frappe.local
     - name: install community app
       working-directory: /home/runner/frappe-bench
-      run: bench --site frappe.local install-app community
+      run: bench --verbose --site frappe.local install-app community
     - name: allow tests
       working-directory: /home/runner/frappe-bench
       run: bench --site frappe.local set-config allow_tests true
