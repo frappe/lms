@@ -38,10 +38,21 @@ jobs:
       with:
         node-version: '12'
         check-latest: true
+    - name: setup cache for bench
+      uses: actions/cache@v2
+      with:
+        path: ~/bench-cache
     - name: install bench
       run: pip3 install frappe-bench
     - name: bench init
-      run: bench init ~/frappe-bench --skip-redis-config-generation
+      run: |
+        if [ -d ~/bench-cache/bench.tgz ]
+        then
+           (cd && tar xvzf ~/bench-cache/bench.tgz
+        else
+          bench init ~/frappe-bench --skip-redis-config-generation
+          tar cvzf ~/bench-cache/bench.tgz
+        fi
     - name: add community app to bench
       working-directory: /home/runner/frappe-bench
       run: bench get-app community $GITHUB_WORKSPACE
