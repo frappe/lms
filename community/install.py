@@ -3,6 +3,8 @@
 import os
 import frappe
 
+APP_LOGO_URL = os.getenv("APP_LOGO_URL") or "/files/logo.png"
+
 def after_install():
     set_app_name()
     disable_signup()
