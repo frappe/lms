@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from . import __version__ as app_version
-import os
+from .install import APP_LOGO_URL
 
 app_name = "community"
 app_title = "Community"
@@ -12,7 +12,7 @@ app_color = "grey"
 app_email = "jannat@erpnext.com"
 app_license = "AGPL"
 
-app_logo_url = os.getenv("APP_LOGO_URL") or "/files/logo.png"
+app_logo_url = APP_LOGO_URL
 
 # Includes in <head>
 # ------------------
