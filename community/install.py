@@ -6,6 +6,7 @@ import frappe
 def after_install():
     set_app_name()
     disable_signup()
+    add_header_items()
     add_footer_items()
 
 def set_app_name():
@@ -15,6 +16,16 @@ def set_app_name():
 
 def disable_signup():
     frappe.db.set_value("Website Settings", None, "disable_signup", 1)
+
+def add_header_items():
+    items = [
+        {"label": "Sketches", "url": "/sketches"},
+    ]
+    doc = frappe.get_doc("Website Settings", None)
+    doc.update({
+        "top_bar_items": items
+    })
+    doc.save()
 
 def add_footer_items():
     items = [
