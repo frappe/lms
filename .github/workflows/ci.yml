@@ -38,10 +38,25 @@ jobs:
       with:
         node-version: '12'
         check-latest: true
+    - name: setup cache for bench
+      uses: actions/cache@v2
+      with:
+        path: ~/bench-cache
+        key: ${{ runner.os }}
     - name: install bench
-      run: pip3 install frappe-bench
+      run: |
+        pip3 install frappe-bench
+        which bench
     - name: bench init
-      run: bench init ~/frappe-bench --skip-redis-config-generation
+      run: |
+        if [ -d ~/bench-cache/bench.tgz ]
+        then
+           (cd && tar xzf ~/bench-cache/bench.tgz)
+        else
+          bench init ~/frappe-bench --skip-redis-config-generation
+          mkdir -p ~/bench-cache
+          (cd && tar czf ~/bench-cache/bench.tgz frappe-bench)
+        fi
     - name: add community app to bench
       working-directory: /home/runner/frappe-bench
       run: bench get-app community $GITHUB_WORKSPACE
@@ -50,7 +65,7 @@ jobs:
       run: bench new-site --mariadb-root-password root --admin-password admin frappe.local
     - name: install community app
       working-directory: /home/runner/frappe-bench
-      run: bench --site frappe.local install-app community
+      run: bench --verbose --site frappe.local install-app community
     - name: allow tests
       working-directory: /home/runner/frappe-bench
       run: bench --site frappe.local set-config allow_tests true
