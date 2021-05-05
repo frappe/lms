@@ -49,10 +49,10 @@ jobs:
       run: |
         if [ -d ~/bench-cache/bench.tgz ]
         then
-           (cd && tar xvzf ~/bench-cache/bench.tgz
+           (cd && tar xvzf ~/bench-cache/bench.tgz)
         else
           bench init ~/frappe-bench --skip-redis-config-generation
-          tar cvzf ~/bench-cache/bench.tgz
+          (cd && tar cvzf ~/bench-cache/bench.tgz frappe-bench)
         fi
     - name: add community app to bench
       working-directory: /home/runner/frappe-bench
