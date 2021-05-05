@@ -42,9 +42,9 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ~/bench-cache
+        key: ${{ runner.os }}
     - name: install bench
       run: pip3 install frappe-bench
-      key: ${{ runner.os }}
     - name: bench init
       run: |
         if [ -d ~/bench-cache/bench.tgz ]
