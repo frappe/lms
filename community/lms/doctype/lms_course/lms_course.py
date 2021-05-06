@@ -10,20 +10,20 @@ from community.query import find, find_all
 
 class LMSCourse(Document):
     @staticmethod
-    def find(slug):
-        """Returns the course with specified slug.
+    def find(name):
+        """Returns the course with specified name.
         """
-        return find("LMS Course", is_published=True, slug=slug)
+        return find("LMS Course", is_published=True, name=name)
+
+    def autoname(self):
+        if not self.name:
+            self.name = self.generate_slug(title=self.title)
 
     @staticmethod
     def find_all():
         """Returns all published courses.
         """
         return find_all("LMS Course", is_published=True)
-
-    def before_save(self):
-        if not self.slug:
-            self.slug = self.generate_slug(title=self.title)
 
     def generate_slug(self, title):
         result = frappe.get_all(
@@ -33,7 +33,7 @@ class LMSCourse(Document):
         return slugify(title, used_slugs=slugs)
 
     def __repr__(self):
-        return f"<Course#{self.name} {self.slug}>"
+        return f"<Course#{self.name}>"
 
     def get_topic(self, slug):
         """Returns the topic with given slug in this course as a Document.

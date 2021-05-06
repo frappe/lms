@@ -182,8 +182,8 @@
 							{% for course in courses %}
 							<div class="dashboard__course">
 								<div class="dashboard__courseHeader">
-									<a class="text-decoration-none" target="_blank" href="/courses/{{course.slug}}">
-										<h5 class="w-75">{{ course.name }}</h5>
+									<a class="text-decoration-none" target="_blank" href="/courses/{{course.name}}">
+										<h5 class="w-75">{{ course.title }}</h5>
 									</a>
 									{% if course.member_type %}
 									<div class="dashboard__badge">

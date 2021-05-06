@@ -31,9 +31,9 @@ def redirect_if_not_a_member(course,batch_code):
         frappe.local.flags.redirect_location = "/courses/" + course
         raise frappe.Redirect
 
-def get_course(slug):
+def get_course(name):
     try:
-        return frappe.get_doc("LMS Course", {"slug": slug})
+        return frappe.get_doc("LMS Course", {"name": name})
     except frappe.DoesNotExistError:
         return
 
