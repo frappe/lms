@@ -40,6 +40,6 @@ def create_membership(batch, course=None, member=None, member_type="Student", ro
         "member": member
     }).save(ignore_permissions=True)
     if course:
-        course_slug = frappe.db.get_value("LMS Course", {"title": course}, ["slug"])
+        course_slug = frappe.db.get_value("LMS Course", {"title": course}, ["name"])
         return course_slug
     return "OK"
