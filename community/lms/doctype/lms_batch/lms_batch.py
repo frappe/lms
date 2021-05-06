@@ -24,7 +24,7 @@ class LMSBatch(Document):
                     {"batch": self.name, "member_type": "Mentor"},
                     ["member"])
         for membership in memberships:
-            member = frappe.db.get_value("Community Member", membership.member, ["full_name", "photo", "abbr"], as_dict=1)
+            member = frappe.get_doc("Community Member", membership.member)
             mentors.append(member)
         return mentors
 
