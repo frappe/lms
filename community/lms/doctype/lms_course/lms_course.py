@@ -28,8 +28,8 @@ class LMSCourse(Document):
     def generate_slug(self, title):
         result = frappe.get_all(
             'LMS Course',
-            fields=['slug'])
-        slugs = set([row['slug'] for row in result])
+            fields=['name'])
+        slugs = set([row['name'] for row in result])
         return slugify(title, used_slugs=slugs)
 
     def __repr__(self):
