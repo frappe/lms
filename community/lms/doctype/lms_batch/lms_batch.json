@@ -1,6 +1,5 @@
 {
  "actions": [],
- "autoname": "field:title",
  "creation": "2021-03-18 19:37:34.614796",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -51,10 +50,12 @@
    "label": "Description"
   },
   {
+   "default": "Public",
    "fieldname": "visibility",
    "fieldtype": "Select",
+   "in_list_view": 1,
    "label": "Visibility",
-   "options": "\nPublic\nUnlisted\nPrivate"
+   "options": "Public\nUnlisted\nPrivate"
   },
   {
    "fieldname": "membership",
@@ -63,16 +64,19 @@
    "options": "\nOpen\nRestricted\nInvite Only\nClosed"
   },
   {
+   "default": "Active",
    "fieldname": "status",
    "fieldtype": "Select",
+   "in_list_view": 1,
    "label": "Status",
-   "options": "\nActive\nInactive"
+   "options": "Active\nInactive"
   },
   {
+   "default": "Ready",
    "fieldname": "stage",
    "fieldtype": "Select",
    "label": "Stage",
-   "options": "\nReady\nIn Progress\nCompleted\nCancelled"
+   "options": "Ready\nIn Progress\nCompleted\nCancelled"
   },
   {
    "fieldname": "column_break_3",
@@ -122,7 +126,7 @@
    "link_fieldname": "batch"
   }
  ],
- "modified": "2021-04-30 09:52:18.941276",
+ "modified": "2021-05-06 05:46:38.469120",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch",

@@ -124,6 +124,9 @@ class LMSCourse(Document):
         # TODO: chapters should have a way to specify the order
         return find_all("Chapter", course=self.name, order_by="creation")
 
+    def get_batch(self, batch_name):
+        return find("LMS Batch", name=batch_name, course=self.name)
+
     def get_batches(self, mentor=None):
         batches = find_all("LMS Batch", course=self.name)
         if mentor:
