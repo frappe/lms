@@ -1,4 +1,5 @@
 {% set color = member.get_palette() %}
+<a href="/{{member.username}}">
 <span class="avatar {{ avatar_class }}" title="{{ member.full_name }}">
   {% if member.photo %}
   <img class="avatar-frame standard-image" src="{{ member.photo }}" title="{{ member.full_name }}">
@@ -9,4 +10,5 @@
     {{ member.abbr }}
   </span>
   {% endif %}
+  </a>
 </span>

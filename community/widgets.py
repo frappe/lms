@@ -36,8 +36,9 @@ class Widgets:
         '<div>Hello, World!</div>'
     """
     def __getattr__(self, name):
+        widget_globals = {"widgets": self}
         if not name.startswith("__"):
-            return Widget(name)
+            return Widget(name, widget_globals)
         else:
             raise AttributeError(name)
 
@@ -51,11 +52,13 @@ class Widget:
         >>> w(name="World!")
         '<div>Hello, World!</div>'
     """
-    def __init__(self, name):
+    def __init__(self, name, widget_globals={}):
+        self.widget_globals = widget_globals
         self.name = name
 
     def __call__(self, **kwargs):
         # the widget could be in any of the modules
         paths = [f"{module}/widgets/{self.name}.html" for module in MODULES]
         env = get_jenv()
+        kwargs.update(self.widget_globals)
         return env.get_or_select_template(paths).render(kwargs)
