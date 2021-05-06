@@ -30,11 +30,12 @@ class LMSMentorRequest(Document):
         if not email_template:
             return
 
-        course_details = frappe.db.get_value("LMS Course", self.course, ["owner", "slug"], as_dict=True)
+        course_details = frappe.db.get_value("LMS Course", self.course, ["owner", "slug", "title"], as_dict=True)
         message = frappe.render_template(email_template.response,
                 {
                     'member_name': member.full_name,
-                    'course_url': '/courses/' + course_details.slug
+                    'course_url': '/courses/' + course_details.slug,
+                    'course': course_details.title
                 })
 
         email_args = {
@@ -50,15 +51,15 @@ class LMSMentorRequest(Document):
         if not email_template:
             return
 
+        course_details = frappe.db.get_value("LMS Course", self.course, ["owner", "title"], as_dict=True)
         message = frappe.render_template(email_template.response,
                 {
                     'member_name': self.member_name,
-                    'status': self.status
+                    'status': self.status,
+                    'course': course_details.title
                 })
 
         member_email = frappe.db.get_value("Community Member", self.member, "email")
-        course_details = frappe.db.get_value("LMS Course", self.course, ["owner"], as_dict=True)
-
         if self.status == 'Approved' or self.status == 'Rejected':
             reviewed_by = frappe.db.get_value('Community Member', self.reviewed_by, 'email')
             email_args = {
