@@ -86,6 +86,11 @@
    "group": "Mentors",
    "link_doctype": "LMS Course Mentor Mapping",
    "link_fieldname": "course"
+  },
+  {
+   "group": "Mentors",
+   "link_doctype": "LMS Mentor Request",
+   "link_fieldname": "course"
   }
  ],
  "modified": "2021-05-06 11:15:45.728976",
