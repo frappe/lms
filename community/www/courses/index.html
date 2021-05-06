@@ -26,11 +26,11 @@
 {% macro course_card(course) %}
 <div class="card mb-5 w-100">
   <div class="card-body">
-    <h5 class="card-title"><a href="/courses/{{course.slug}}">{{course.title}}</a></h5>
+    <h5 class="card-title"><a href="/courses/{{course.name}}">{{course.title}}</a></h5>
     {% if course.description %}
     <p class="card-text">{{ frappe.utils.md_to_html(course.description[:250]) }}</p>
     {% endif %}
-    <a href="/courses/{{course.slug}}" class="card-link">See more &rarr;</a>
+    <a href="/courses/{{course.name}}" class="card-link">See more &rarr;</a>
   </div>
 </div>
 {% endmacro %}

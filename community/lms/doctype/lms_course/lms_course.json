@@ -2,7 +2,6 @@
  "actions": [],
  "allow_guest_to_view": 1,
  "allow_rename": 1,
- "autoname": "field:title",
  "creation": "2021-03-01 16:49:33.622422",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -94,7 +93,7 @@
    "link_fieldname": "course"
   }
  ],
- "modified": "2021-05-05 14:17:26.297602",
+ "modified": "2021-05-06 11:15:45.728976",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",

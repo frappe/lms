@@ -9,19 +9,16 @@
 {% endblock %}
 
 {% block content %}
-{{ Sidebar(course_slug, batch_code) }}
+{{ Sidebar(course.name, batch.name) }}
 <div class="container">
 	{{ CourseBasicDetail(course)}}
-	{{ InstructorsSection(instructor) }}
-	{% if batch.description %}
-		{{ BatchDetails(batch.description) }}
-	{% endif %}
-	{{ MentorsSection(mentors, True, course.name) }}
+	{{ InstructorsSection(course.get_instructor()) }}
+	{{ BatchDetails(batch)}}
 </div>
 {% endblock %}
 
 {% macro CourseBasicDetail(course) %}
-<h2>{{course.name}}</h2>
+<h2>{{course.title}}</h2>
 <div class="course-description">
 	{{course.short_introduction}}
 </div>
@@ -36,11 +33,25 @@
 <div>{{frappe.utils.md_to_html(course.description)}}</div>
 {% endmacro %}
 
-{% macro BatchDetails(description) %}
-<div class="mt-5">
-	<h3>About the Batch</h3>
-	<div>
-		{{ frappe.utils.md_to_html(description) }}
-	</div>
+{% macro BatchDetails(batch) %}
+<h2>About the Batch</h2>
+
+<div class="batch">
+  <div class="batch-details">
+  <div>Session every {{batch.sessions_on}}</div>
+  <div>{{frappe.utils.format_time(batch.start_time, "short")}} -
+    {{frappe.utils.format_time(batch.end_time, "short")}}</div>
+  <div>Starting {{frappe.utils.format_date(batch.start_date, "medium")}}</div>
+  <div class="course-type" style="color: #888; padding: 10px 0px;">mentors</div>
+
+  {% for m in batch.get_mentors() %}
+    <div>
+      {% if m.photo_url %}
+      <img class="profile-photo" src="{{m.photo_url}}">
+      {% endif %}
+      <span class="instructor-title">{{m.full_name}}</span>
+    </div>
+  {% endfor %}
+  </div>
 </div>
 {% endmacro %}

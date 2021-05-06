@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
 from community.www.courses.utils import get_member_with_email
+from community.query import find, find_all
 
 class LMSBatch(Document):
     def validate(self):
@@ -23,10 +24,16 @@ class LMSBatch(Document):
                     "LMS Batch Membership",
                     {"batch": self.name, "member_type": "Mentor"},
                     ["member"])
-        for membership in memberships:
-            member = frappe.db.get_value("Community Member", membership.member, ["full_name", "photo", "abbr"], as_dict=1)
-            mentors.append(member)
-        return mentors
+        member_names = [m['member'] for m in memberships]
+        return find_all("Community Member", name=["IN", member_names])
+
+    def is_member(self, email):
+        """Checks if a person is part of a batch.
+        """
+        member = find("Community Member", email=email)
+        return member and frappe.db.exists(
+                    "LMS Batch Membership",
+                    {"batch": self.name, "member": member.name})
 
 @frappe.whitelist()
 def get_messages(batch):
