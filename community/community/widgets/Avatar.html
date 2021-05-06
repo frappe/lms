@@ -1,0 +1,12 @@
+{% set color = member.get_palette() %}
+<span class="avatar {{ avatar_class }}" title="{{ member.full_name }}">
+  {% if member.photo %}
+  <img class="avatar-frame standard-image" src="{{ member.photo }}" title="{{ member.full_name }}">
+  </img>
+  {% else %}
+  <span class="avatar-frame standard-image" title="{{ member.full_name }}"
+    style="background-color: var({{color[0]}}); color: var({{color[1]}});">
+    {{ member.abbr }}
+  </span>
+  {% endif %}
+</span>
