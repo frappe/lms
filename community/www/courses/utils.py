@@ -14,12 +14,14 @@ def get_member_with_name(name):
 
 def get_batch(code):
     try:
-        return frappe.db.get_value("LMS Batch", {"code": code}, ["name", "description"], as_dict=True)
+        print("get_batch", code)
+        return frappe.db.get_value("LMS Batch", {"name": code}, ["name", "description"], as_dict=True)
     except frappe.DoesNotExistError:
+        print("Error: notfound")
         return
 
 def is_member_of_batch(batch_code):
-    membership = frappe.get_all("LMS Batch Membership", {"batch": get_batch(batch_code).name, "member": get_member_with_email()})
+    membership = frappe.get_all("LMS Batch Membership", {"batch": batch_code, "member": get_member_with_email()})
     if len(membership):
         return True
     return False

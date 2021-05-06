@@ -34,82 +34,8 @@ body {
   margin: 0px;
 }
 
-.course-header {
-  margin-top: 20px;
-  padding: 20px;
-  background: var(--header-bg);
-  color: var(--header-color);
-  border-radius: 9px;
-}
 
-.course-author-avatar {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  margin-right: 20px;
-}
-
-.course-header h1 {
-  color: inherit;
-}
-
-.course-type {
-  text-transform: uppercase;
-  font-size: 1.0em;
-  color: var(--tag-color);
-}
-
-.sidebar {
-  background: var(--sidebar-bg);
-  margin: 20px 0px;
-  border-radius: 10px;
-  padding: 1px 20px 20px 20px;
-  color: var(--text-color);
-}
-
-.sidebar h3 {
-  margin-top: 20px;
-  color: var(--c2);
-}
-
-.sidebar-batch {
-  background: var(--sidebar-bg);
-  color: var(--text-color);
-  position: fixed;
-  left: 0;
-  height: 100%;
-}
-
-.sidebar-batch a {
-  padding: 16px 8px 8px 16px;
-  display: block;
-}
-
-.instructor {
-  padding: 10px;
-}
-
-.instructor-title {
-  font-weight: bold;
-}
-
-.instructor-subtitle {
-  font-size: 0.8em;
-  color: var(--text-color);
-}
-
-.sidebar .notice {
-  padding: 10px;
-  border-radius: 10px;
-  border: 1px dashed var(--text-color);
-}
-
-.sidebar .notice a {
-  color: inherit;
-  text-decoration: underline;
-}
-
-.course-details {
+/* .course-details {
   margin: 20px 0px;
 }
 
@@ -118,7 +44,7 @@ body {
   font-size: 1.4em;
   font-weight: bold;
   margin: 20px 0px 10px 0px;
-}
+} */
 
 .chapter-plan {
   border-radius: 10px;
@@ -133,7 +59,7 @@ body {
   font-weight: bold;
 }
 
-.chapter-number {
+/* .chapter-number {
   background: var(--text-color);
   color: white;
   border-radius: 50%;
@@ -146,7 +72,7 @@ body {
 
 .chapter-description {
   margin: 20px 0px;
-}
+} */
 
 .lessons {
   padding-left: 20px;

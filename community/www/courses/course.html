@@ -11,22 +11,23 @@
   <div class="course-header">
     <div class="course-type">course</div>
     <h1 id="course-title" data-course="{{course.name}}">{{course.title}}</h1>
+    <div class="course-short-intro">{{ course.short_introduction }}</div>
   </div>
 
   <div class="row">
-    <div class="col-lg-9 col-md-12">
+    <div class="col-lg-8 col-md-12">
       <div  class="course-details">
+        {{ CourseVideo(course) }}
+
         {{ CourseDescription(course) }}
         {{ BatchSection(course) }}
         {{ CourseOutline(course) }}
       </div>
     </div>
-
-    <div class="col-lg-3 col-md-12">
+    <div class="col-lg-4 col-md-12">
       <div class="sidebar">
         {{ InstructorsSection(course.get_instructor()) }}
       </div>
-
       <div class="sidebar">
         {{ MentorsSection(course.get_mentors(), course.is_mentor(frappe.session.user), course.name) }}
       </div>
@@ -35,14 +36,7 @@
 </div>
 {% endblock %}
 
-
-{% macro CourseDescription(course) %}
-  <h2>Course Description</h2>
-
-  <div class="course-description">
-    {{ course.short_introduction }}
-  </div>
-
+{% macro CourseVideo(course) %}
   {% if course.video_link %}
   <div class="preview-video">
     <iframe
@@ -55,6 +49,14 @@
       allowfullscreen></iframe>
   </div>
   {% endif %}
+{% endmacro %}
+
+{% macro CourseDescription(course) %}
+  <h2>Course Description</h2>
+
+  <div class="course-description">
+    {{ course.short_introduction }}
+  </div>
 {% endmacro %}
 
 {% macro BatchSection(course) %}
@@ -86,7 +88,7 @@
   <div class="cta">
     <div class="">
       {% if can_manage %}
-        <button >Manage</button>
+        <a href="/courses/{{course.name}}/{{batch.name}}/about" class="btn btn-secondary">Manage</a>
       {% else %}
         <button class="join-batch" data-batch="{{ batch.name | urlencode }}">Join this Batch</button>
       {% endif %}
@@ -136,6 +138,6 @@
   <h2>Course Outline</h2>
 
   {% for chapter in course.get_chapters() %}
-    {{ widgets.ChapterTeaser(chapter=chapter)}}
+    {{ widgets.ChapterTeaser(index=loop.index, chapter=chapter)}}
   {% endfor %}
 {% endmacro %}
