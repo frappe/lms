@@ -77,7 +77,7 @@ def save_sketch(name, title, code):
         doc.title = title
         doc.code = code
         doc.runtime = 'python-canvas'
-        doc.insert()
+        doc.insert(ignore_permissions=True)
         status = "created"
     else:
         doc = frappe.get_doc("LMS Sketch", name)
