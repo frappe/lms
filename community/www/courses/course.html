@@ -111,11 +111,11 @@
       {% endfor %}
     </div>
 
-    <a class="btn btn-primary add-batch margin-bottom" href="/add-a-new-batch?new=1&course={{course.title}}&slug={{course.slug}}">Add a new batch</a>
+    <a class="btn btn-primary add-batch margin-bottom" href="/add-a-new-batch?new=1&course={{course.title}}&slug={{course.name}}">Add a new batch</a>
   {% else %}
     <div class="mentor_message">
       <p> You are a mentor for this course. </p>
-      <a class="btn btn-primary" href="/add-a-new-batch?new=1&course={{course.title}}&slug={{course.slug}}" >Create your first batch</a>
+      <a class="btn btn-primary" href="/add-a-new-batch?new=1&course={{course.title}}&slug={{course.name}}" >Create your first batch</a>
     </div>
   {% endif %}
 {% endmacro %}
