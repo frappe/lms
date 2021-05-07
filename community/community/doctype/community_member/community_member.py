@@ -47,6 +47,9 @@ class CommunityMember(Document):
                 'member_type': 'Mentor'
             })
 
+    def get_photo_url(self):
+        return frappe.db.get_value("User", self.email, ["user_image"])
+
     def get_palette(self):
         palette = [
             ['--orange-avatar-bg', '--orange-avatar-color'],

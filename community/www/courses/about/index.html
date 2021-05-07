@@ -46,9 +46,7 @@
 
   {% for m in batch.get_mentors() %}
     <div>
-      {% if m.photo_url %}
-      <img class="profile-photo" src="{{m.photo_url}}">
-      {% endif %}
+      {{ widgets.Avatar(member=m, avatar_class="avatar-medium" ) }}
       <span class="instructor-title">{{m.full_name}}</span>
     </div>
   {% endfor %}
