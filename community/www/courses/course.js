@@ -17,7 +17,7 @@ frappe.ready(() => {
 	$("#apply-now").click((e) => {
     e.preventDefault();
 		if (frappe.session.user == "Guest") {
-			window.location.href = "/login";
+			window.location.href = `/login?redirect-to=/courses/${$(e.currentTarget).attr("data-course")}`;
 			return;
 		}
 		frappe.call({
@@ -53,7 +53,7 @@ frappe.ready(() => {
 	$(".join-batch").click((e) => {
     e.preventDefault()
 		if (frappe.session.user == "Guest") {
-			window.location.href = "/login";
+			window.location.href = `/login?redirect-to=/courses/${$(e.currentTarget).attr("data-course")}`;
 			return;
 		}
 		batch = decodeURIComponent($(e.currentTarget).attr("data-batch"))
@@ -70,4 +70,3 @@ frappe.ready(() => {
 		})
 	})
 })
-
