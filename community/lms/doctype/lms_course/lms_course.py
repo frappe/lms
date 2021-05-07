@@ -6,13 +6,18 @@ from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
 from ...utils import slugify
+from community.query import find, find_all
 
 class LMSCourse(Document):
     @staticmethod
-    def find(slug):
-        """Returns the course with specified slug.
+    def find(name):
+        """Returns the course with specified name.
         """
-        return find("LMS Course", is_published=True, slug=slug)
+        return find("LMS Course", is_published=True, name=name)
+
+    def autoname(self):
+        if not self.name:
+            self.name = self.generate_slug(title=self.title)
 
     @staticmethod
     def find_all():
@@ -20,19 +25,15 @@ class LMSCourse(Document):
         """
         return find_all("LMS Course", is_published=True)
 
-    def before_save(self):
-        if not self.slug:
-            self.slug = self.generate_slug(title=self.title)
-
     def generate_slug(self, title):
         result = frappe.get_all(
             'LMS Course',
-            fields=['slug'])
-        slugs = set([row['slug'] for row in result])
+            fields=['name'])
+        slugs = set([row['name'] for row in result])
         return slugify(title, used_slugs=slugs)
 
     def __repr__(self):
-        return f"<Course#{self.name} {self.slug}>"
+        return f"<Course#{self.name}>"
 
     def get_topic(self, slug):
         """Returns the topic with given slug in this course as a Document.
@@ -123,6 +124,9 @@ class LMSCourse(Document):
         # TODO: chapters should have a way to specify the order
         return find_all("Chapter", course=self.name, order_by="creation")
 
+    def get_batch(self, batch_name):
+        return find("LMS Batch", name=batch_name, course=self.name)
+
     def get_batches(self, mentor=None):
         batches = find_all("LMS Batch", course=self.name)
         if mentor:
@@ -139,24 +143,8 @@ class LMSCourse(Document):
         now = frappe.utils.nowdate()
         batches =  find_all("LMS Batch",
             course=self.name,
-            start_date=[">", now])
+            start_date=[">", now],
+            status="Active",
+            visibility="Public")
         return batches
 
-def find_all(doctype, order_by=None, **filters):
-    """Queries the database for documents of a doctype matching given filters.
-    """
-    rows = frappe.db.get_all(doctype,
-        filters=filters,
-        fields='*',
-        order_by=order_by)
-    return [frappe.get_doc(dict(row, doctype=doctype)) for row in rows]
-
-def find(doctype, **filters):
-    """Queries the database for a document of given doctype matching given filters.
-    """
-    rows = frappe.db.get_all(doctype,
-        filters=filters,
-        fields='*')
-    if rows:
-        row = rows[0]
-    return frappe.get_doc(dict(row, doctype=doctype))

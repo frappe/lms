@@ -6,7 +6,7 @@ frappe.ready(() => {
 				course: decodeURIComponent($("#course-title").attr("data-course")),
 			},
 			'callback': (data) => {
-				if (data.message) {
+				if (data.message > 0) {
 					$("#mentor-request").addClass("hide");
 					$("#already-applied").removeClass("hide")
 				}

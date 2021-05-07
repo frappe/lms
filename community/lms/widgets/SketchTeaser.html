@@ -9,7 +9,8 @@
       <a href="sketches/{{sketch.sketch_id}}">{{sketch.title}}</a>
     </div>
     <div class="sketch-author">
-      by {{sketch.get_owner().full_name}}
+      {% set owner = sketch.get_owner() %}
+      by <a href="/{{owner.username}}">{{owner.full_name}}</a>
     </div>
   </div>
 </div>

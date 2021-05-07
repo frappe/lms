@@ -24,7 +24,7 @@ class TestLMSCourse(unittest.TestCase):
     def test_new_course(self):
         course = self.new_course("Test Course")
         assert course.title == "Test Course"
-        assert course.slug == "test-course"
+        assert course.name == "test-course"
         assert course.get_mentors() == []
 
     def test_find_all(self):
@@ -41,7 +41,7 @@ class TestLMSCourse(unittest.TestCase):
 
         # now we should find one course
         courses = LMSCourse.find_all()
-        assert [c.slug for c in courses] == [course.slug]
+        assert [c.name for c in courses] == [course.name]
 
     # disabled this test as it is failing
     def _test_add_mentors(self):
