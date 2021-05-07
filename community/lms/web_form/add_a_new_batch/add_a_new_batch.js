@@ -1,19 +1,14 @@
 frappe.ready(function () {
   frappe.web_form.after_save = () => {
     let data = frappe.web_form.get_values();
-    frappe.call({
-      "method": "community.lms.doctype.lms_batch_membership.lms_batch_membership.create_membership",
-      "args": {
-        "batch": data.title,
-        "member_type": "Mentor",
-        "course": data.course
-      },
-      "callback": (data) => {
-        if (data.message) {
-          window.location.href = `courses/${data.message}`
-        }
-      }
-    })
+    let slug = new URLSearchParams(window.location.search).get("slug")
+    frappe.msgprint({
+      message: __("Batch {0} has been successfully created!", [data.title]),
+      clear: true
+    });
+    setTimeout(function () {
+      window.location.href = `courses/${slug}`;
+    }, 2000);
   }
 
   frappe.web_form.validate = () => {
@@ -21,8 +16,13 @@ frappe.ready(function () {
     let time_format = sysdefaults && sysdefaults.time_format ? sysdefaults.time_format : 'HH:mm:ss';
     let data = frappe.web_form.get_values();
 
-    data.start_time = moment(data.start_time,time_format).format(time_format)
-    data.end_time = moment(data.end_time,time_format).format(time_format)
+    data.start_time = moment(data.start_time, time_format).format(time_format)
+    data.end_time = moment(data.end_time, time_format).format(time_format)
+
+    if (data.start_date < frappe.datetime.nowdate()) {
+      frappe.msgprint(__('Start date cannot be a past date.'))
+      return false;
+    }
 
     if (!frappe.datetime.validate(data.start_time) || !frappe.datetime.validate(data.end_time)) {
       frappe.msgprint(__('Invalid Start or End Time.'));
@@ -34,10 +34,6 @@ frappe.ready(function () {
       return false;
     }
 
-    if (data.start_date < date.nowdate()) {
-      frappe.msgprint(__('Start date cannot be a past date.'))
-      return false;
-    }
     return true;
   };
 })
