@@ -30,14 +30,18 @@
 
     <div class="sketch-header">
       {% if editable %}
-        <input type="button" class="pull-right" id="sketch-save" value="Save"/>
-        <h1 class="sketch-title">
-            <input type="text" name="title" id="sketch-title" value="{{ sketch.title }}" />
-        </h1>
+      <div class="form-row">
+        <div class="col-lg-8 col-md-6">
+          <input type="text" id="sketch-title" name="title" class="form-control" value="{{ sketch.title }}">
+        </div>
+        <div class="col-lg-4 col-md-6">
+          <button type="submit" id="sketch-save" class="btn-save btn btn-primary">Save</button>
+        </div>
+      </div>
       {% else %}
         <h1 class="sketch-title">{{sketch.title}}</h1>
+        <div class="sketch-owner-wrapper">By <span class="sketch-owner">{{sketch.get_owner_name()}}</span></div>
       {% endif %}
-  <div class="sketch-owner-wrapper">By <span class="sketch-owner">{{sketch.get_owner_name()}}</span></div>
     </div>
 
   {% if sketch.is_new() and not editable %}
@@ -49,7 +53,6 @@
     <div class="sketch-editor">
       {{LiveCodeEditorLarge(sketch.name, sketch.code) }}
     </div>
-</section>
 {% endblock %}
 
 {%- block script %}

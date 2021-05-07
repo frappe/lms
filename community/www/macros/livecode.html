@@ -1,20 +1,24 @@
 
 {% macro LiveCodeEditorLarge(name, code) %}
-<div class="livecode-editor livecode-editor-large row no-gutters" id="editor-{{name}}">
-  <div class="col-sm">
-    <div class="heading">
-      <button class="run">Run</button>
-      <h2>Editor</h2>
+<div class="livecode-editor livecode-editor-large" id="editor-{{name}}">
+  <div class="row">
+    <div class="col-lg-8 col-md-6">
+      <div class="controls">
+        <button class="run">Run</button>
+      </div>
     </div>
-    <textarea class="code">{{code}}</textarea>
   </div>
-  <div class="col-sm">
-    <div class="heading">
-      <h2>Output</h2>
-    </div>
-    <div class="canvas-wrapper">
-      <canvas class="canvas" width="300" height="300"></canvas>
-      <pre class="output"></pre>
+  <div class="code-editor">
+    <div class="row">
+      <div class="col-lg-8 col-md-6">
+        <div class="code-wrapper">
+          <textarea class="code">{{code}}</textarea>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6 canvas-wrapper">
+          <canvas width="300" height="300"></canvas>
+          <pre class="output"></pre>
+      </div>
     </div>
   </div>
 </div>

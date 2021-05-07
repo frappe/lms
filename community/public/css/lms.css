@@ -1,77 +1,9 @@
 
-.livecode-editor-large .canvas-wrapper {
-  position: relative;
-  padding: 10px;
-}
-
-.livecode-editor-large canvas {
-  position: relative;
-  z-index: 0;
-  border: 1px solid #ddd;
-  height: 300px;
-  width: 300px;
-}
-
-.livecode-editor-large .code {
-  width: 100%;
-  padding: 5px;
-  min-height: 330px;
-  resize: none;
-}
-.livecode-editor-large .output {
-  padding: 5px;
-}
-
-.livecode-editor-large .CodeMirror {
-  height: 320px;
-}
-
-.canvas-editor canvas {
-  position: relative;
-  z-index: 0;
-  border: 1px solid #ddd;
-}
-.canvas-wrapper .output {
-  position: absolute;
-  z-index: 1;
-  width: 100%;
-  left: 0px;
-  top: 0px;
-  background-color: rgba(255, 255, 255, 0);
-  margin: 15px;
-  max-height: 200px;
-}
-
-.canvas-editor .code {
-  width: 100%;
-  padding: 5px;
-  /* min-height: 330px; */
-  resize: none;
-}
-/* .canvas-editor .output {
-  padding: 5px;
-} */
-
 .heading {
   background: #eee;
   padding: 10px;
   clear: both;
   color: #212529;
-  border: 1px solid #ddd;
-}
-
-.livecode-editor-large h2 {
-  font-size: 1.2em;
-  text-transform: uppercase;
-  margin: 0px;
-  font-weight: normal;
-}
-
-.livecode-editor-large .run {
-  float: right;
-}
-
-.livecode-editor-large .col-sm {
   border: 1px solid #ddd;
 }
 
@@ -89,48 +21,6 @@
   color: inherit;
 }
 
-
-.canvas-editor .CodeMirror {
-  background: #ffe;
-  border: 1px solid #eed;
-  margin-bottom: 10px;
-  border-radius: 10px;
-  height: 100%;
-}
-
-canvas {
-  border: 2px solid #eee;
-}
-
-@media (min-width: 768px) {
-  .canvas-wrapper {
-    margin-bottom: -200px;
-  }
-}
-
-@media (max-width: 768px) {
-  .canvas-wrapper {
-    padding-top: 20px;
-    margin-left: 2em;
-  }
-  .canvas-wrapper .output {
-    left: 2em;
-  }
-}
-
 .hidden {
   display: none;
-}
-
-.livecode-controls {
-  margin-left: 2em;
-}
-
-.livecode-controls a {
-   margin-left: 10px;
-   color: #666;
-}
-
-.canvas-editor {
-  margin: 10px 0px;
 }

@@ -232,3 +232,54 @@ section.lightgray {
   color: inherit;
   text-decoration: underline;
 }
+
+// LiveCode editor
+
+.livecode-editor-large {
+
+  .CodeMirror {
+    border: 1px solid #ddd;
+    background: #ffe;
+    height: auto;
+  }
+  .CodeMirror-scroll {
+    max-height: 310px;
+    min-height: 310px;
+  }
+  .controls {
+    padding: 10px 0px;
+  }
+  canvas {
+    border: 5px solid #ddd;
+    position: relative;
+    z-index: 0;
+  }
+
+  .output {
+    position: absolute;
+    z-index: 1;
+    width: 300px;
+    left: 0px;
+    top: 0px;
+    background-color: rgba(255, 255, 255, 0);
+    max-height: 300px;
+    white-space: pre-wrap;
+    margin: 0px;
+    margin-left: 20px;
+    padding: 4px;
+    color: #888;
+  }
+
+  @media (max-width: 768px) {
+  .canvas-wrapper {
+    padding-top: 10px;
+  }
+  .code-wrapper {
+    min-height: 50px;
+  }
+  .CodeMirror {
+    min-height: 50px;
+  }
+  }
+
+}
