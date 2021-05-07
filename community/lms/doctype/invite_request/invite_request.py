@@ -47,6 +47,9 @@ class InviteRequest(Document):
 @frappe.whitelist(allow_guest=True)
 def create_invite_request(invite_email):
 
+    if not frappe.utils.validate_email_address(invite_email):
+        return "invalid email"
+
     if frappe.db.exists("User", invite_email):
         return "user"
 

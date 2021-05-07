@@ -88,7 +88,8 @@
       {% if can_manage %}
         <a href="/courses/{{course.name}}/{{batch.name}}/about" class="btn btn-secondary">Manage</a>
       {% else %}
-        <button class="join-batch" data-batch="{{ batch.name | urlencode }}">Join this Batch</button>
+        <button class="join-batch" data-batch="{{ batch.name | urlencode }}"
+        data-course="{{ course.name | urlencode }}">Join this Batch</button>
       {% endif %}
     </div>
   </div>

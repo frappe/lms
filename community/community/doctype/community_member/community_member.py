@@ -47,6 +47,9 @@ class CommunityMember(Document):
                 'member_type': 'Mentor'
             })
 
+    def get_photo_url(self):
+        return frappe.db.get_value("User", self.email, ["user_image"])
+
     def get_palette(self):
         palette = [
             ['--orange-avatar-bg', '--orange-avatar-color'],
@@ -74,7 +77,7 @@ def create_member_from_user(doc, method):
     if ( doc.username and  username_exists(doc.username)) or not doc.username:
         username = create_username_from_email(doc.email)
 
-    elif len(doc.username) < 4:
+    elif len(doc.username) < 4 and doc.send_welcome_email == 1:
         username = adjust_username(doc.username)
 
     if username_exists(username):
