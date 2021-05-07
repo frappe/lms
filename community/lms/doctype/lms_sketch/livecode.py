@@ -3,6 +3,7 @@
 import websocket
 import json
 from .svg import SVG
+import frappe
 
 # Files to pass to livecode server
 # The same code is part of livecode-canvas.js
@@ -62,26 +63,29 @@ clear()
 def livecode_to_svg(livecode_ws_url, code, *, timeout=3):
     """Renders the code as svg.
     """
-    ws = websocket.WebSocket()
-    ws.settimeout(timeout)
-    ws.connect(livecode_ws_url)
+    try:
+        ws = websocket.WebSocket()
+        ws.settimeout(timeout)
+        ws.connect(livecode_ws_url)
 
-    msg = {
-        "msgtype": "exec",
-        "runtime": "python",
-        "code": code,
-        "files": [
-            {"filename": "start.py", "contents": START},
-            {"filename": "sketch.py", "contents": SKETCH},
-        ],
-        "command": ["python", "start.py"]
-    }
-    ws.send(json.dumps(msg))
+        msg = {
+            "msgtype": "exec",
+            "runtime": "python",
+            "code": code,
+            "files": [
+                {"filename": "start.py", "contents": START},
+                {"filename": "sketch.py", "contents": SKETCH},
+            ],
+            "command": ["python", "start.py"]
+        }
+        ws.send(json.dumps(msg))
 
-    messages = _read_messages(ws)
-    commands = [m for m in messages if m['msgtype'] == 'draw']
-    img = draw_image(commands)
-    return img.tostring()
+        messages = _read_messages(ws)
+        commands = [m for m in messages if m['msgtype'] == 'draw']
+        img = draw_image(commands)
+        return img.tostring()
+    except websocket.WebSocketException as e:
+        frappe.log_error(frappe.get_traceback(), 'livecode_to_svg failed')
 
 def _read_messages(ws):
     messages = []

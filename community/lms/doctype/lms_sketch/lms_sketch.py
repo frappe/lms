@@ -9,6 +9,11 @@ import frappe
 from frappe.model.document import Document
 from . import livecode
 
+DEFAULT_IMAGE = """
+<svg viewBox="0 0 300 300" width="300" xmlns="http://www.w3.org/2000/svg">
+</svg>
+"""
+
 class LMSSketch(Document):
     @property
     def sketch_id(self):
@@ -48,8 +53,9 @@ class LMSSketch(Document):
         else:
             ws_url = self.get_livecode_ws_url()
             value = livecode.livecode_to_svg(ws_url, self.code)
-            cache.set(key, value)
-        return value
+            if value:
+                cache.set(key, value)
+        return value or DEFAULT_IMAGE
 
     @staticmethod
     def get_recent_sketches(limit=100, owner=None):
