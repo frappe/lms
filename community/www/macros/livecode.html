@@ -49,15 +49,16 @@
 
 {% macro LiveCodeEditorJS(name, code) %}
 <script type="text/javascript" src="{{ livecode_url }}/static/livecode.js"></script>
+<script type="text/javascript" src="/assets/community/js/livecode-canvas.js"></script>
+
 <script type="text/javascript">
   var livecodeEditors = [];
 
   $(function() {
     $(".livecode-editor").each((i, e) => {
       var editor = new LiveCodeEditor(e, {
-        runtime: "python-canvas",
         base_url: "{{ livecode_url }}",
-        codemirror: true
+        ...getLiveCodeOptions()
       })
       livecodeEditors.push(editor);
     })

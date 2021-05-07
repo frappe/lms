@@ -6,5 +6,9 @@
     "public/css/style.css",
     "public/css/vars.css",
     "public/css/style.less"
+  ],
+  "js/livecode-canvas.js": [
+    "public/js/livecode-canvas.js"
   ]
+
 }
