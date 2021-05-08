@@ -8,7 +8,8 @@
  "field_order": [
   "chapter",
   "lesson_type",
-  "title"
+  "title",
+  "index_"
  ],
  "fields": [
   {
@@ -31,11 +32,17 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Title"
+  },
+  {
+   "default": "1",
+   "fieldname": "index_",
+   "fieldtype": "Int",
+   "label": "Index"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-05-03 06:51:43.588969",
+ "modified": "2021-05-08 13:25:13.965162",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Lesson",

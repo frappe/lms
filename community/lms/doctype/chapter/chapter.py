@@ -10,5 +10,6 @@ class Chapter(Document):
     def get_lessons(self):
         rows = frappe.db.get_all("Lesson",
             filters={"chapter": self.name},
-            fields='*')
+            fields='*',
+            order_by="index_")
         return [frappe.get_doc(dict(row, doctype='Lesson')) for row in rows]
