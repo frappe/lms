@@ -55,7 +55,7 @@
   <h2>Course Description</h2>
 
   <div class="course-description">
-    {{ course.short_introduction }}
+    {{ frappe.utils.md_to_html(course.description) }}
   </div>
 {% endmacro %}
 
