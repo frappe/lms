@@ -22,3 +22,18 @@ class Lesson(Document):
             s.contents = section.contents
             s.index = index
             return s
+
+    def get_next(self):
+        """Returns the number for the next lesson.
+
+        The return value would be like 1.2, 2.1 etc.
+        It will be None if there is no next lesson.
+        """
+
+
+    def get_prev(self):
+        """Returns the number for the prev lesson.
+
+        The return value would be like 1.2, 2.1 etc.
+        It will be None if there is no next lesson.
+        """

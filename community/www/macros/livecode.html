@@ -34,7 +34,7 @@
         {% if is_exercise %}
           <button class="submit pull-right btn-primary">Submit</button>
           {% if last_submitted %}
-          <span class="pull-right" style="padding-right: 10px;">Last submitted {{last_submitted}}</span>
+          <span class="pull-right" style="padding-right: 10px;">Submitted <span class="human-time" data-timestamp="{{last_submitted}}">on {{last_submitted}}</span></span>
           {% endif %}
         {% endif %}
       </div>

@@ -23,15 +23,31 @@
 
 {% block content %}
 {{ Sidebar(course.name, batch.name) }}
-<div class="container lesson">
 
-  <h1>{{ lesson.title }} - {{ lesson.name }}</h1>
+<div class="container">
+  <div class="lesson-page">
+    <div class="lesson-pagination">
+      {% if prev_url %}
+        <a href="{{prev_url}}" class="btn">&larr; Prev</a>
+      {% endif %}
+      {% if next_url %}
+        <a href="{{next_url}}" class="btn pull-right">Next &rarr;</a>
+      {% endif %}
+    </div>
 
-  {% for s in lesson.get_sections() %}
-  <div class="section section-{{ s.type }}">
-    {{ render_section(s) }}
+    <h2>{{ lesson.title }}</h2>
+
+    {% for s in lesson.get_sections() %}
+    <div class="section section-{{ s.type }}">
+      {{ render_section(s) }}
+    </div>
+    {% endfor %}
+
+    <div class="lesson-pagination">
+      <a href="#" class="btn">&larr; Prev</a>
+      <a href="#" class="btn pull-right">Next &rarr;</a>
+    </div>
   </div>
-  {% endfor %}
 </div>
 {% endblock %}
 
