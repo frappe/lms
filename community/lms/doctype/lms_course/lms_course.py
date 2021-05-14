@@ -114,6 +114,35 @@ class LMSCourse(Document):
             "mentor": member
         })
 
+    def get_student_batch(self, email):
+        """Returns the batch the given student is part of.
+
+        Returns None if the student is not part of any batch.
+        """
+        if not email:
+            return False
+        member = self.get_community_member(email)
+        result = frappe.db.get_all(
+            "LMS Batch Membership",
+            filters={
+                "member": member,
+                "member_type": "Student",
+            },
+            fields=['batch']
+        )
+        batches = [row['batch'] for row in result]
+
+        # filter the batches that are for this course
+        result = frappe.db.get_all(
+            "LMS Batch",
+            filters={
+                "course": self.name,
+                "name": ["IN", batches]
+            })
+        batches = [row['name'] for row in result]
+        if batches:
+            return frappe.get_doc("LMS Batch", batches[0])
+
     def get_instructor(self):
         member_name = self.get_community_member(self.owner)
         return frappe.get_doc("Community Member", member_name)
@@ -148,3 +177,59 @@ class LMSCourse(Document):
             visibility="Public")
         return batches
 
+    def get_chapter(self, index):
+        return find("Chapter", course=self.name, index_=index)
+
+    def get_lesson(self, chapter_index, lesson_index):
+        chapter_name = frappe.get_value(
+            "Chapter",
+            {"course": self.name, "index_": chapter_index},
+            "name")
+        lesson_name = chapter_name and frappe.get_value(
+            "Lesson",
+            {"chapter": chapter_name, "index_": lesson_index},
+            "name")
+        return lesson_name and frappe.get_doc("Lesson", lesson_name)
+
+    def get_outline(self):
+        return CourseOutline(self)
+
+class CourseOutline:
+    def __init__(self, course):
+        self.course = course
+        self.chapters = self.get_chapters()
+        self.lessons = self.get_lessons()
+
+    def get_next(self, current):
+        numbers = sorted(lesson['number'] for lesson in self.lessons)
+        try:
+            index = numbers.index(current)
+            return numbers[index+1]
+        except IndexError:
+            return None
+
+    def get_prev(self, current):
+        numbers = sorted(lesson['number'] for lesson in self.lessons)
+        try:
+            index = numbers.index(current)
+            if index == 0:
+                return None
+            return numbers[index-1]
+        except IndexError:
+            return None
+
+    def get_chapters(self):
+        return frappe.db.get_all("Chapter",
+            filters={"course": self.course.name},
+            fields=["name", "title", "index_"])
+
+    def get_lessons(self):
+        chapters = [c['name'] for c in self.chapters]
+        lessons = frappe.db.get_all("Lesson",
+            filters={"chapter": ["IN", chapters]},
+            fields=["name", "title", "chapter", "index_"])
+
+        chapter_numbers = {c['name']: c['index_'] for c in self.chapters}
+        for lesson in lessons:
+            lesson['number'] = "{}.{}".format(chapter_numbers[lesson['chapter']], lesson['index_'])
+        return lessons

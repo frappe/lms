@@ -1,4 +1,9 @@
 """Utility to split the text in the topic into multiple sections.
+
+{{ section(type="example", id="foo") }}
+circle(100, 100, 50)
+{{ end }}
+
 """
 from __future__ import annotations
 from dataclasses import dataclass

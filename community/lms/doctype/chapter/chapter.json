@@ -9,7 +9,8 @@
   "course",
   "title",
   "description",
-  "locked"
+  "locked",
+  "index_"
  ],
  "fields": [
   {
@@ -35,6 +36,12 @@
    "in_list_view": 1,
    "label": "Course",
    "options": "LMS Course"
+  },
+  {
+   "default": "1",
+   "fieldname": "index_",
+   "fieldtype": "Int",
+   "label": "Index"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -45,7 +52,7 @@
    "link_fieldname": "chapter"
   }
  ],
- "modified": "2021-05-03 06:52:10.894328",
+ "modified": "2021-05-13 21:05:20.531890",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Chapter",

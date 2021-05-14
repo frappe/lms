@@ -14,10 +14,12 @@
   <div class="batch-header">
     {{ BatchHearder(course.name, member_count) }}
   </div>
-  <div class="message-section">
-    {{ Messages(messages) }}
+  <div class="messages">
+    <div class="message-section">
+      {{ Messages(messages) }}
+    </div>
+    {{ TextArea() }}
   </div>
-  {{ TextArea() }}
 </div>
 {% endblock %}
 
