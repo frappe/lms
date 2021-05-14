@@ -145,6 +145,7 @@ primary_rules = [
     {"from_route": "/dashboard", "to_route": ""},
     {"from_route": "/add-a-new-batch", "to_route": "add-a-new-batch"},
     {"from_route": "/courses/<course>/<batch>/learn", "to_route": "courses/learn"},
+    {"from_route": "/courses/<course>/<batch>/learn/<int:chapter>.<int:lesson>", "to_route": "courses/learn"},
     {"from_route": "/courses/<course>/<batch>/schedule", "to_route": "courses/schedule"},
     {"from_route": "/courses/<course>/<batch>/members", "to_route": "courses/members"},
     {"from_route": "/courses/<course>/<batch>/discuss", "to_route": "courses/discuss"},

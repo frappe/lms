@@ -77,7 +77,7 @@ body {
 .lessons {
   padding-left: 20px;
 }
-.lesson {
+.lessons .lesson {
   margin: 5px 0px;
   font-weight: bold;
 }
@@ -167,7 +167,7 @@ img.profile-photo {
 }
 
 .msger-inputarea {
-  position: fixed;
+  position: absolute;
   bottom: 0;
   width: 100%;
   display: flex;

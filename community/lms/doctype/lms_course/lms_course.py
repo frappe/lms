@@ -177,3 +177,16 @@ class LMSCourse(Document):
             visibility="Public")
         return batches
 
+    def get_chapter(self, index):
+        return find("Chapter", course=self.name, index_=index)
+
+    def get_lesson(self, chapter_index, lesson_index):
+        chapter_name = frappe.get_value(
+            "Chapter",
+            {"course": self.name, "index_": chapter_index},
+            "name")
+        lesson_name = chapter_name and frappe.get_value(
+            "Lesson",
+            {"chapter": chapter_name, "index_": lesson_index},
+            "name")
+        return lesson_name and frappe.get_doc("Lesson", lesson_name)

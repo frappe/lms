@@ -9,7 +9,9 @@
   "chapter",
   "lesson_type",
   "title",
-  "index_"
+  "index_",
+  "body",
+  "sections"
  ],
  "fields": [
   {
@@ -38,11 +40,22 @@
    "fieldname": "index_",
    "fieldtype": "Int",
    "label": "Index"
+  },
+  {
+   "fieldname": "body",
+   "fieldtype": "Markdown Editor",
+   "label": "Body"
+  },
+  {
+   "fieldname": "sections",
+   "fieldtype": "Table",
+   "label": "Sections",
+   "options": "LMS Section"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-05-08 13:25:13.965162",
+ "modified": "2021-05-13 20:03:51.510605",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Lesson",

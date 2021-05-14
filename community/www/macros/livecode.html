@@ -24,29 +24,36 @@
 </div>
 {% endmacro %}
 
-{% macro LiveCodeEditor(name, code) %}
-<div class="livecode-editor canvas-editor" id="editor-{{name}}"
-    data-section="{{name}}">
+{% macro LiveCodeEditor(name, code, is_exercise, last_submitted) %}
+<div class="livecode-editor livecode-editor-inline" id="editor-{{name}}">
   <div class="row">
-    <div class="col-md-9">
-    <div>
-      <textarea class="code">{{code}}</textarea>
-      <div class="livecode-controls">
-        <button type="button" class="run">Run</button>
-        <a href="javascript:;" class="reset">Reset</a>
-        <a href="javascript:;" class="clear">Clear</a>
+    <div class="col-lg-8 col-md-6">
+      <div class="controls">
+        <button class="run">Run</button>
+        <button class="reset">Reset</button>
+        {% if is_exercise %}
+          <button class="submit pull-right btn-primary">Submit</button>
+          {% if last_submitted %}
+          <span class="pull-right" style="padding-right: 10px;">Last submitted {{last_submitted}}</span>
+          {% endif %}
+        {% endif %}
       </div>
     </div>
-    </div>
-    <div class="col-md-3">
-      <div class="canvas-wrapper">
-        <canvas class="canvas" width="150" height="150"></canvas>
-        <pre class="output"></pre>
+  </div>
+  <div class="code-editor">
+    <div class="row">
+      <div class="col-lg-8 col-md-6">
+        <div class="code-wrapper">
+          <textarea class="code">{{code}}</textarea>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6 canvas-wrapper">
+          <canvas width="300" height="300"></canvas>
+          <pre class="output"></pre>
       </div>
     </div>
   </div>
 </div>
-
 {% endmacro %}
 
 
