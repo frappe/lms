@@ -114,6 +114,35 @@ class LMSCourse(Document):
             "mentor": member
         })
 
+    def get_student_batch(self, email):
+        """Returns the batch the given student is part of.
+
+        Returns None if the student is not part of any batch.
+        """
+        if not email:
+            return False
+        member = self.get_community_member(email)
+        result = frappe.db.get_all(
+            "LMS Batch Membership",
+            filters={
+                "member": member,
+                "member_type": "Student",
+            },
+            fields=['batch']
+        )
+        batches = [row['batch'] for row in result]
+
+        # filter the batches that are for this course
+        result = frappe.db.get_all(
+            "LMS Batch",
+            filters={
+                "course": self.name,
+                "name": ["IN", batches]
+            })
+        batches = [row['name'] for row in result]
+        if batches:
+            return frappe.get_doc("LMS Batch", batches[0])
+
     def get_instructor(self):
         member_name = self.get_community_member(self.owner)
         return frappe.get_doc("Community Member", member_name)
