@@ -7,6 +7,6 @@ def get_context(context):
 def get_courses():
     courses = frappe.get_all(
         "LMS Course",
-        fields=['name', 'slug', 'title', 'description']
+        fields=['name', 'title', 'description']
     )
     return courses
