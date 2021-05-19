@@ -26,14 +26,7 @@
 
 <div class="container">
   <div class="lesson-page">
-    <div class="lesson-pagination">
-      {% if prev_url %}
-        <a href="{{prev_url}}" class="btn">&larr; Prev</a>
-      {% endif %}
-      {% if next_url %}
-        <a href="{{next_url}}" class="btn pull-right">Next &rarr;</a>
-      {% endif %}
-    </div>
+    {{ pagination(prev_url, next_url) }}
 
     <h2>{{ lesson.title }}</h2>
 
@@ -43,10 +36,8 @@
     </div>
     {% endfor %}
 
-    <div class="lesson-pagination">
-      <a href="#" class="btn">&larr; Prev</a>
-      <a href="#" class="btn pull-right">Next &rarr;</a>
-    </div>
+    {{ pagination(prev_url, next_url) }}
+
   </div>
 </div>
 {% endblock %}
@@ -73,6 +64,18 @@
     <div class="col-md-9">
       {{ frappe.utils.md_to_html(s.contents) }}
     </div>
+  </div>
+{% endmacro %}
+
+{% macro pagination(prev_url, next_url) %}
+  <div class="lesson-pagination">
+    {% if prev_url %}
+      <a href="{{prev_url}}" class="btn">&larr; Prev</a>
+    {% endif %}
+    {% if next_url %}
+      <a href="{{next_url}}" class="btn pull-right">Next &rarr;</a>
+    {% endif %}
+    <div style="clear: both;"></div>
   </div>
 {% endmacro %}
 
