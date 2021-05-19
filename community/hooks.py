@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from . import __version__ as app_version
-from .install import APP_LOGO_URL
 
 app_name = "community"
 app_title = "Community"
@@ -11,8 +10,6 @@ app_icon = "octicon octicon-file-directory"
 app_color = "grey"
 app_email = "jannat@erpnext.com"
 app_license = "AGPL"
-
-app_logo_url = APP_LOGO_URL
 
 # Includes in <head>
 # ------------------
@@ -63,7 +60,7 @@ web_include_css = "/assets/css/community.css"
 # ------------
 
 # before_install = "community.install.before_install"
-after_install = "community.install.after_install"
+# after_install = "community.install.after_install"
 
 # Desk Notifications
 # ------------------
