@@ -9,7 +9,8 @@
   "contents",
   "code",
   "attrs",
-  "index"
+  "index",
+  "id"
  ],
  "fields": [
   {
@@ -43,12 +44,17 @@
    "fieldname": "index",
    "fieldtype": "Int",
    "label": "Index"
+  },
+  {
+   "fieldname": "id",
+   "fieldtype": "Data",
+   "label": "id"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2021-03-12 17:56:23.118854",
+ "modified": "2021-05-19 18:55:26.019625",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Section",

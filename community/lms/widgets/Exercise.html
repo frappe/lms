@@ -1,0 +1,14 @@
+{% from "www/macros/livecode.html" import LiveCodeEditorJS, LiveCodeEditor with context %}
+
+<div class="exercise">
+  <h2>{{ exercise.title }}</h2>
+  <div class="exercise-description">{{frappe.utils.md_to_html(exercise.description)}}</div>
+
+  {% set submission = exercise.get_user_submission() %}
+
+  {{ LiveCodeEditor(exercise.name,
+        code=exercise.code,
+        reset_code=exercise.code,
+        is_exercise=True,
+        last_submitted=submission and submission.creation) }}
+</div>

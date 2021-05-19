@@ -18,6 +18,7 @@ class Lesson(Document):
     def make_lms_section(self, index, section):
             s = frappe.new_doc('LMS Section', parent_doc=self, parentfield='sections')
             s.type = section.type
+            s.id = section.id
             s.label = section.label
             s.contents = section.contents
             s.index = index
