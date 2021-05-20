@@ -11,6 +11,11 @@ class Lesson(Document):
     def before_save(self):
         sections = SectionParser().parse(self.body or "")
         self.sections = [self.make_lms_section(i, s) for i, s in enumerate(sections)]
+        for s in self.sections:
+            if s.type == "exercise":
+                e = s.get_exercise()
+                e.lesson = self.name
+                e.save()
 
     def get_sections(self):
         return sorted(self.get('sections'), key=lambda s: s.index)

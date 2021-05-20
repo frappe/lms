@@ -14,7 +14,8 @@
   "course",
   "hints",
   "tests",
-  "image"
+  "image",
+  "lesson"
  ],
  "fields": [
   {
@@ -32,7 +33,7 @@
   {
    "columns": 4,
    "fieldname": "description",
-   "fieldtype": "Markdown Editor",
+   "fieldtype": "Small Text",
    "in_list_view": 1,
    "label": "Description"
   },
@@ -54,7 +55,7 @@
   {
    "columns": 4,
    "fieldname": "hints",
-   "fieldtype": "Markdown Editor",
+   "fieldtype": "Small Text",
    "label": "Hints"
   },
   {
@@ -68,11 +69,17 @@
    "fieldtype": "Code",
    "label": "Image",
    "read_only": 1
+  },
+  {
+   "fieldname": "lesson",
+   "fieldtype": "Link",
+   "label": "Lesson",
+   "options": "Lesson"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-05-19 18:27:40.475515",
+ "modified": "2021-05-20 13:23:12.340928",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Exercise",
