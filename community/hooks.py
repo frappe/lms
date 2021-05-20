@@ -15,11 +15,11 @@ app_license = "AGPL"
 # ------------------
 
 # include js, css files in header of desk.html
-app_include_css = "/assets/community/css/community.css"
-app_include_js = "/assets/community/js/community.js"
+# app_include_css = "/assets/community/css/community.css"
+# app_include_js = "/assets/community/js/community.js"
 
 # include js, css files in header of web template
-web_include_css = "/assets/css/community.css"
+web_include_css = "community.bundle.css"
 # web_include_css = "/assets/community/css/community.css"
 # web_include_js = "/assets/community/js/community.js"
 

@@ -21,3 +21,16 @@ def get_section(name):
     """
     doc = frappe.get_doc("LMS Section", name)
     return doc and doc.as_dict()
+
+@frappe.whitelist()
+def submit_solution(exercise, code):
+    """Submits a solution.
+
+    @exerecise: name of the exercise to submit
+    @code: solution to the exercise
+    """
+    ex = frappe.get_doc("Exercise", exercise)
+    if not ex:
+        return
+    doc = ex.submit(code)
+    return {"name": doc.name, "creation": doc.creation}

@@ -1,0 +1,83 @@
+{
+ "actions": [],
+ "creation": "2021-05-19 11:41:18.108316",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "exercise",
+  "solution",
+  "exercise_title",
+  "course",
+  "batch",
+  "lesson"
+ ],
+ "fields": [
+  {
+   "fieldname": "exercise",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Exercise",
+   "options": "Exercise"
+  },
+  {
+   "fieldname": "solution",
+   "fieldtype": "Code",
+   "in_list_view": 1,
+   "label": "Solution"
+  },
+  {
+   "fetch_from": "exercise.title",
+   "fieldname": "exercise_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Exercise Title",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "exercise.course",
+   "fieldname": "course",
+   "fieldtype": "Link",
+   "label": "Course",
+   "options": "LMS Course",
+   "read_only": 1
+  },
+  {
+   "fieldname": "batch",
+   "fieldtype": "Link",
+   "label": "Batch",
+   "options": "LMS Batch"
+  },
+  {
+   "fetch_from": "exercise.lesson",
+   "fieldname": "lesson",
+   "fieldtype": "Link",
+   "label": "Lesson",
+   "options": "Lesson"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2021-05-20 13:30:16.349278",
+ "modified_by": "Administrator",
+ "module": "LMS",
+ "name": "Exercise Submission",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

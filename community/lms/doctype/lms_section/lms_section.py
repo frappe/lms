@@ -10,6 +10,10 @@ class LMSSection(Document):
     def __repr__(self):
         return f"<LMSSection {self.label!r}>"
 
+    def get_exercise(self):
+        if self.type == "exercise":
+            return frappe.get_doc("Exercise", self.id)
+
     def get_latest_code_for_user(self):
         """Returns the latest code for the logged in user.
         """

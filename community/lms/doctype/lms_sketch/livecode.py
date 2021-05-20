@@ -4,6 +4,7 @@ import websocket
 import json
 from .svg import SVG
 import frappe
+from urllib.parse import urlparse
 
 # Files to pass to livecode server
 # The same code is part of livecode-canvas.js
@@ -60,9 +61,21 @@ def clear():
 clear()
 '''
 
+def get_livecode_url():
+    doc = frappe.get_cached_doc("LMS Settings")
+    return doc.livecode_url
+
+def get_livecode_ws_url():
+    url = urlparse(get_livecode_url())
+    protocol = "wss" if url.scheme == "https" else "ws"
+    return protocol + "://" + url.netloc + "/livecode"
+
 def livecode_to_svg(livecode_ws_url, code, *, timeout=3):
     """Renders the code as svg.
     """
+    if livecode_ws_url is None:
+        livecode_ws_url = get_livecode_ws_url()
+
     try:
         ws = websocket.WebSocket()
         ws.settimeout(timeout)
