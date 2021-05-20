@@ -5,7 +5,7 @@
 from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
-from ..lms_topic.section_parser import SectionParser
+from ...section_parser import SectionParser
 
 class Lesson(Document):
     def before_save(self):
