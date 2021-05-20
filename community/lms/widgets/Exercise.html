@@ -4,6 +4,10 @@
   <h2>{{ exercise.title }}</h2>
   <div class="exercise-description">{{frappe.utils.md_to_html(exercise.description)}}</div>
 
+  {% if exercise.image %}
+  <div class="exercise-image">{{exercise.image}}</div>
+  {% endif %}
+
   {% set submission = exercise.get_user_submission() %}
 
   {{ LiveCodeEditor(exercise.name,
@@ -12,3 +16,12 @@
         is_exercise=True,
         last_submitted=submission and submission.creation) }}
 </div>
+
+<style type="text/css">
+.exercise-image svg {
+  width: 150px;
+  height: 150px;
+  border: 1px solid #ddd;
+  margin-bottom: 20px;
+}
+</style>

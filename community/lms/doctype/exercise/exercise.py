@@ -3,8 +3,12 @@
 
 import frappe
 from frappe.model.document import Document
+from ..lms_sketch.livecode import livecode_to_svg
 
 class Exercise(Document):
+    def before_save(self):
+        self.image = livecode_to_svg(None, self.answer)
+
     def get_user_submission(self):
         """Returns the latest submission for this user.
         """
