@@ -25,6 +25,9 @@ def get_section(name):
 @frappe.whitelist()
 def submit_solution(exercise, code):
     """Submits a solution.
+
+    @exerecise: name of the exercise to submit
+    @code: solution to the exercise
     """
     ex = frappe.get_doc("Exercise", exercise)
     if not ex:

@@ -7,7 +7,10 @@
  "field_order": [
   "exercise",
   "solution",
-  "exercise_title"
+  "exercise_title",
+  "course",
+  "batch",
+  "lesson"
  ],
  "fields": [
   {
@@ -30,11 +33,32 @@
    "in_list_view": 1,
    "label": "Exercise Title",
    "read_only": 1
+  },
+  {
+   "fetch_from": "exercise.course",
+   "fieldname": "course",
+   "fieldtype": "Link",
+   "label": "Course",
+   "options": "LMS Course",
+   "read_only": 1
+  },
+  {
+   "fieldname": "batch",
+   "fieldtype": "Link",
+   "label": "Batch",
+   "options": "LMS Batch"
+  },
+  {
+   "fetch_from": "exercise.lesson",
+   "fieldname": "lesson",
+   "fieldtype": "Link",
+   "label": "Lesson",
+   "options": "Lesson"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-05-19 19:41:55.852069",
+ "modified": "2021-05-20 13:30:16.349278",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Exercise Submission",

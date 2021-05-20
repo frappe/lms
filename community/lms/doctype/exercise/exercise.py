@@ -38,10 +38,16 @@ class Exercise(Document):
         if old_submission and old_submission.solution == code:
             return old_submission
 
+        course = frappe.get_doc("LMS Course", self.course)
+        batch = course.get_student_batch(user)
+
         doc = frappe.get_doc(
             doctype="Exercise Submission",
             exercise=self.name,
             exercise_title=self.title,
+            course=self.course,
+            lesson=self.lesson,
+            batch=batch and batch.name,
             solution=code)
         doc.insert()
         return doc
