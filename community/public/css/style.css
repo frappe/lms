@@ -23,8 +23,6 @@
   --cta-color: var(--c4);
   --send-message: var(--c7);
   --received-message: var(--c8);
-
-  --primary-color: #08B74F !important;
 }
 
 body {

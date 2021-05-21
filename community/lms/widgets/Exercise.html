@@ -11,7 +11,7 @@
   {% set submission = exercise.get_user_submission() %}
 
   {{ LiveCodeEditor(exercise.name,
-        code=exercise.code,
+        code=submission.solution if submission else exercise.code,
         reset_code=exercise.code,
         is_exercise=True,
         last_submitted=submission and submission.creation) }}

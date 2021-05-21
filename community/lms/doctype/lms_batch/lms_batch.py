@@ -37,13 +37,37 @@ class LMSBatch(Document):
         member_names = [m['member'] for m in memberships]
         return find_all("User", name=["IN", member_names])
 
-    def is_member(self, email):
+    def is_member(self, email, member_type=None):
         """Checks if a person is part of a batch.
+
+        If member_type is specified, checks if the person is a Student/Mentor.
         """
         member = find("Community Member", email=email)
-        return member and frappe.db.exists(
+        if not member:
+            return
+
+        filters = {
+            "batch": self.name,
+            "member": member.name
+        }
+        if member_type:
+            filters['member_type'] = member_type
+        return frappe.db.exists("LMS Batch Membership", filters)
+
+    def get_students(self):
+        """Returns (email, full_name, username) of all the students of this batch as a list of dict.
+        """
+        memberships = frappe.get_all(
                     "LMS Batch Membership",
-                    {"batch": self.name, "member": member.name})
+                    {"batch": self.name, "member_type": "Student"},
+                    ["member"])
+        member_names = [m['member'] for m in memberships]
+        members = frappe.get_all(
+                    "Community Member",
+                    {"name": ["IN", member_names]},
+                    ["email", "full_name", "username"])
+        return members
+
 
 @frappe.whitelist()
 def get_messages(batch):

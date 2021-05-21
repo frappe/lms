@@ -24,6 +24,8 @@ class Exercise(Document):
             },
             order_by="creation desc",
             page_length=1)
+
+        print("get_user_submission", result)
         if result:
             return result[0]
 
@@ -41,6 +43,8 @@ class Exercise(Document):
         course = frappe.get_doc("LMS Course", self.course)
         batch = course.get_student_batch(user)
 
+        image = livecode_to_svg(None, code)
+
         doc = frappe.get_doc(
             doctype="Exercise Submission",
             exercise=self.name,
@@ -48,7 +52,8 @@ class Exercise(Document):
             course=self.course,
             lesson=self.lesson,
             batch=batch and batch.name,
+            image=image,
             solution=code)
-        doc.insert()
+        doc.insert(ignore_permissions=True)
         return doc
 
