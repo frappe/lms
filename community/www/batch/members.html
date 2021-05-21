@@ -25,7 +25,7 @@
 	{% for member in members %}
 	<div class="d-flex align-items-center">
 		<div>
-			{{ Profile(member.photo, member.full_name, member.abbr, "small") }}
+      {{ widgets.Avatar(member=member, avatar_class="avatar-medium") }} <a href="/{{member.username}}">{{ member.full_name }}</a>
 		</div>
 		<div class="mr-5">
 			{{member.full_name}}

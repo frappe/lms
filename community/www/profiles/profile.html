@@ -94,7 +94,7 @@
 {% block page_content %}
     <div class="dashboard__parent">
         <div class="dashboard__photo">
-            {{ Profile(member.photo, member.full_name, member.abbr, "large")}}
+          {{ widgets.Avatar(member=member, avatar_class="avatar-medium") }} <a href="/{{member.username}}">{{ member.full_name }}</a>
         </div>
         <div class="dashboard__details">
             <div class="dashboard__name">

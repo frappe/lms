@@ -7,7 +7,7 @@
   {% else %}
   <span class="avatar-frame standard-image" title="{{ member.full_name }}"
     style="background-color: var({{color[0]}}); color: var({{color[1]}});">
-    {{ member.abbr }}
+    {{ frappe.utils.get_abbr(member.full_name) }}
   </span>
   {% endif %}
   </a>

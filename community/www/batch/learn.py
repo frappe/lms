@@ -18,7 +18,7 @@ def get_context(context):
     context.lesson = context.course.get_lesson(chapter_index, lesson_index)
     context.lesson_index = lesson_index
     context.chapter_index = chapter_index
-
+    print(context.lesson)
     outline = context.course.get_outline()
     next_ = outline.get_next(lesson_number)
     prev_ = outline.get_prev(lesson_number)

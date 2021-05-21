@@ -29,13 +29,11 @@ class LMSBatchMembership(Document):
                 frappe.throw(_("{0} is already a {1} of {2} course through {3} batch").format(member_name, membership.member_type, course, membership.batch))
 
 def create_membership(batch, member=None, member_type="Student", role="Member"):
-    if not member:
-        member = frappe.db.get_value("Community Member", {"email": frappe.session.user}, "name")
     frappe.get_doc({
         "doctype": "LMS Batch Membership",
         "batch": batch,
         "role": role,
         "member_type": member_type,
-        "member": member
+        "member": member or frappe.session.user
     }).save(ignore_permissions=True)
     return "OK"

@@ -31,3 +31,12 @@ class CustomUser(User):
         idx = cint((int(hash_name[4:6], 16) + 1) / 5.33)
         return palette[idx % 8]
 
+    def get_batch_count(self) -> int:
+        """Returns the number of batches authored by this user.
+        """
+        return frappe.db.count(
+            'LMS Batch Membership', {
+                'member': self.name,
+                'member_type': 'Mentor'
+            })
+

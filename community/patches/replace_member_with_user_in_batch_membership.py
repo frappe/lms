@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 import frappe
-from frappe import _
 
 def execute():
     frappe.reload_doc("lms", "doctype", "lms_batch_membership")

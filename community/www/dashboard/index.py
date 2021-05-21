@@ -7,7 +7,7 @@ def get_context(context):
     if frappe.session.user == "Guest":
         frappe.local.flags.redirect_location = "/login"
         raise frappe.Redirect
-    context.member = frappe.get_all("Community Member", {"email": frappe.session.user}, ["name", "email", "photo", "full_name", "abbr"])[0]
+    context.member = frappe.get_doc("User", frappe.session.user)
     context.memberships = get_memberships(context.member.name)
     context.courses = get_courses(context.memberships)
     context.activity = get_activity(context.memberships)
@@ -38,5 +38,4 @@ def get_activity(memberships):
     messages = frappe.get_all("LMS Message", {"batch": ["in", ",".join(batches)]}, ["message", "author", "creation", "batch"], order_by='creation desc')
     for message in messages:
         message.course = courses[message.batch]
-        message.profile, message.full_name, message.abbr = frappe.db.get_value("Community Member", message.author, ["photo", "full_name", "abbr"])
     return messages

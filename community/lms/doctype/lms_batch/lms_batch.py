@@ -42,13 +42,10 @@ class LMSBatch(Document):
 
         If member_type is specified, checks if the person is a Student/Mentor.
         """
-        member = find("Community Member", email=email)
-        if not member:
-            return
 
         filters = {
             "batch": self.name,
-            "member": member.name
+            "member": email
         }
         if member_type:
             filters['member_type'] = member_type
@@ -63,8 +60,8 @@ class LMSBatch(Document):
                     ["member"])
         member_names = [m['member'] for m in memberships]
         members = frappe.get_all(
-                    "Community Member",
-                    {"name": ["IN", member_names]},
+                    "Users",
+                    {"email": ["IN", member_names]},
                     ["email", "full_name", "username"])
         return members
 
