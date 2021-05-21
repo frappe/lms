@@ -3,7 +3,6 @@ from community.lms.models import Course
 
 def get_context(context):
     context.no_cache = 1
-
     course_name = frappe.form_dict["course"]
     batch_name = frappe.form_dict["batch"]
 

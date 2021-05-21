@@ -35,17 +35,6 @@ class LMSCourse(Document):
     def __repr__(self):
         return f"<Course#{self.name}>"
 
-    def get_topic(self, slug):
-        """Returns the topic with given slug in this course as a Document.
-        """
-        result = frappe.get_all(
-            "LMS Topic",
-            filters={"course": self.name, "slug": slug})
-
-        if result:
-            row = result[0]
-            return frappe.get_doc('LMS Topic', row['name'])
-
     def has_mentor(self, email):
         """Checks if this course has a mentor with given email.
         """
