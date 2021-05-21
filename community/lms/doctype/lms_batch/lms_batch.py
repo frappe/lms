@@ -5,7 +5,6 @@
 from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
-from community.www.courses.utils import get_member_with_email
 from frappe import _
 from community.lms.doctype.lms_batch_membership.lms_batch_membership import create_membership
 from community.query import find, find_all
@@ -59,30 +58,23 @@ class LMSBatch(Document):
                     {"batch": self.name, "member_type": "Student"},
                     ["member"])
         member_names = [m['member'] for m in memberships]
-        members = frappe.get_all(
-                    "Users",
-                    {"email": ["IN", member_names]},
-                    ["email", "full_name", "username"])
-        return members
+        return find_all("User", name=["IN", member_names])
 
-
-@frappe.whitelist()
-def get_messages(batch):
-    messages =  frappe.get_all("LMS Message", {"batch": batch}, ["*"], order_by="creation")
-    for message in messages:
-        message.message = frappe.utils.md_to_html(message.message)
-        member_email = frappe.db.get_value("Community Member", message.author, ["email"])
-        if member_email == frappe.session.user:
-            message.author_name = "You"
-            message.is_author = True
-    return messages
+    def get_messages(self):
+        messages =  frappe.get_all("LMS Message", {"batch": self.name}, ["*"], order_by="creation")
+        for message in messages:
+            message.message = frappe.utils.md_to_html(message.message)
+            if message.author == frappe.session.user:
+                message.author_name = "You"
+                message.is_author = True
+        return messages
 
 @frappe.whitelist()
 def save_message(message, batch):
     doc = frappe.get_doc({
         "doctype": "LMS Message",
         "batch": batch,
-        "author": get_member_with_email(),
+        "author": frappe.session.user,
         "message": message
     })
     doc.save(ignore_permissions=True)

@@ -90,12 +90,12 @@
 {% block content %}
 <section>
 	<div class="dashboard__parent">
-		<div>
-      {{ widgets.Avatar(member=member, avatar_class="avatar-medium") }} <a href="/{{member.username}}">{{ member.full_name }}</a>
+		<div class="mr-5">
+      {{ widgets.Avatar(member=member, avatar_class="avatar-xl") }}
 		</div>
 		<div class="dashboard__details">
 			<div class="dashboard__name">
-				{{member.full_name}}
+				<a class="anchor_style" href="/{{member.username}}">{{ member.full_name }}</a>
 			</div>
 			<div>
 				<ul class="nav nav-tabs mt-4" id="myTab" role="tablist">
@@ -120,20 +120,18 @@
 							{% if activity %}
 							{% for message in activity %}
 							<div class="dashboard__message border m-5 p-3">
+                <a class="anchor_style bold" href="/{{message.member.username}}">{{ message.member.full_name }}</a>
 								<div class="text-muted float-right">
 									{{ message.course }} ({{message.batch}})
 								</div>
 								<div class="d-flex align-items-center w-100">
 									<div>
-                    {{ widgets.Avatar(member=member, avatar_class="avatar-medium") }} <a href="/{{member.username}}">{{ member.full_name }}</a>
+                    {{ widgets.Avatar(member=message.member, avatar_class="avatar-medium") }}
 									</div>
 									<div class="ml-5 mt-5">{{ frappe.utils.md_to_html(message.message) }}</div>
 								</div>
-								<div class="d-flex  justify-content-between">
-									<div class="">
-										{{message.full_name}}
-									</div>
-									<div class="text-muted">
+								<div class="d-flex">
+									<div class="text-muted float-right">
 										{{ frappe.utils.pretty_date(message.creation) }}
 									</div>
 								</div>
