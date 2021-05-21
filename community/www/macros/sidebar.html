@@ -7,5 +7,8 @@
     <a href="/courses/{{course.name}}/{{batch.name}}/members"><i class="fa fa-users fa-lg"></i></a>
     <a href="/courses/{{course.name}}/{{batch.name}}/discuss"><i class="fa fa-comments fa-lg"></i></a>
     <a href="/courses/{{course.name}}/{{batch.name}}/about"><i class="fa fa-info-circle fa-lg"></i></a>
+    {% if batch.is_member(frappe.session.user, member_type="Mentor") %}
+      <a href="/courses/{{course.name}}/{{batch.name}}/progress"><i class="fa fa-flag-checkered fa-lg"></i></a>
+    {% endif %}
 </div>
 {% endmacro %}
