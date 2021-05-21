@@ -1,8 +1,8 @@
 {% set color = member.get_palette() %}
 <a href="/{{member.username}}">
 <span class="avatar {{ avatar_class }}" title="{{ member.full_name }}">
-  {% if member.get_photo_url() %}
-  <img class="avatar-frame standard-image" src="{{ member.get_photo_url() }}" title="{{ member.full_name }}">
+  {% if member.user_image %}
+  <img class="avatar-frame standard-image" src="{{ member.user_image }}" title="{{ member.full_name }}">
   </img>
   {% else %}
   <span class="avatar-frame standard-image" title="{{ member.full_name }}"

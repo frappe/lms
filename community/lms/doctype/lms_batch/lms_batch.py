@@ -35,7 +35,7 @@ class LMSBatch(Document):
                     {"batch": self.name, "member_type": "Mentor"},
                     ["member"])
         member_names = [m['member'] for m in memberships]
-        return find_all("Community Member", name=["IN", member_names])
+        return find_all("User", name=["IN", member_names])
 
     def is_member(self, email):
         """Checks if a person is part of a batch.

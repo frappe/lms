@@ -23,7 +23,7 @@
    "fieldtype": "Link",
    "in_standard_filter": 1,
    "label": "Mentor",
-   "options": "Community Member"
+   "options": "User"
   },
   {
    "fetch_from": "mentor.full_name",
@@ -36,7 +36,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-04-20 12:46:48.460934",
+ "modified": "2021-05-21 11:48:43.340315",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course Mentor Mapping",

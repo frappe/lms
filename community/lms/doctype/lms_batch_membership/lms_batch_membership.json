@@ -27,7 +27,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Member",
-   "options": "Community Member"
+   "options": "User"
   },
   {
    "fieldname": "member_type",
@@ -58,7 +58,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-04-26 12:52:59.826509",
+ "modified": "2021-05-21 11:48:05.363738",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch Membership",

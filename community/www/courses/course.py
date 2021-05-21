@@ -1,6 +1,4 @@
 import frappe
-from community.www.courses.utils import get_instructor
-from frappe.utils import nowdate, getdate
 from community.lms.models import Course
 
 def get_context(context):

@@ -26,7 +26,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Author",
-   "options": "Community Member"
+   "options": "User"
   },
   {
    "fieldname": "message",
@@ -58,7 +58,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-04-28 10:17:57.618127",
+ "modified": "2021-05-21 11:49:34.911479",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Message",

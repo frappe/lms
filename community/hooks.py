@@ -84,9 +84,9 @@ web_include_css = "community.bundle.css"
 # ---------------
 # Override standard doctype classes
 
-# override_doctype_class = {
-# 	"ToDo": "custom_app.overrides.CustomToDo"
-# }
+override_doctype_class = {
+	"User": "community.overrides.user.CustomUser"
+}
 
 # Document Events
 # ---------------

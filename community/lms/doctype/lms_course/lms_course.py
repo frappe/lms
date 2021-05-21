@@ -96,7 +96,7 @@ class LMSCourse(Document):
         course_mentors = []
         mentors = frappe.get_all("LMS Course Mentor Mapping", {"course": self.name}, ["mentor"])
         for mentor in mentors:
-            member = frappe.get_doc("Community Member", mentor.mentor)
+            member = frappe.get_doc("User", mentor.mentor)
             # TODO: change this to count query
             member.batch_count = len(frappe.get_all("LMS Batch Membership", {"member": member.name, "member_type": "Mentor"}))
             course_mentors.append(member)
@@ -144,8 +144,7 @@ class LMSCourse(Document):
             return frappe.get_doc("LMS Batch", batches[0])
 
     def get_instructor(self):
-        member_name = self.get_community_member(self.owner)
-        return frappe.get_doc("Community Member", member_name)
+        return frappe.get_doc("User", self.owner)
 
     def get_chapters(self):
         """Returns all chapters of this course.
