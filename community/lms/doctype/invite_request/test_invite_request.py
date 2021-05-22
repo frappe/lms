@@ -52,15 +52,8 @@ class TestInviteRequest(unittest.TestCase):
             self.assertEqual(user.send_welcome_email, 0)
             self.assertEqual(user.user_type, "Website User")
 
-            member = frappe.db.get_value("Community Member", {"email": "test_invite@example.com"})
-            self.assertTrue(member)
-
     @classmethod
     def tearDownClass(self):
-
-        if frappe.db.exists("Community Member", {"email": "test_invite@example.com"}):
-            frappe.delete_doc("Community Member", {"email": "test_invite@example.com"})
-
         if frappe.db.exists("User", "test_invite@example.com"):
             frappe.delete_doc("User", "test_invite@example.com")
 

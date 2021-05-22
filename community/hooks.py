@@ -93,13 +93,8 @@ override_doctype_class = {
 # Hook on document methods and events
 
 doc_events = {
-	"User": {
-		"after_insert": "community.community.doctype.community_member.community_member.create_member_from_user"
-	},
-    "LMS Message": {
-        "after_insert": "community.lms.doctype.lms_message.lms_message.publish_message"
-    }
- }
+
+}
 
 # Scheduled Tasks
 # ---------------

@@ -9,15 +9,57 @@ from frappe import _
 from frappe.utils import add_days, nowdate
 
 class LMSMessage(Document):
-    """ def after_insert(self):
-        Todo: Adding email preference field for users
-        self.send_email() """
+    def after_insert(self):
+        self.publish_message()
+        #Todo: Adding email preference field for users
+        #self.send_email()
+
+    def publish_message(self):
+        template = self.get_message_template()
+        message = frappe._dict({
+            "author_name": self.author_name,
+            "message_time": frappe.utils.pretty_date(self.creation),
+            "message": frappe.utils.md_to_html(self.message)
+        })
+
+        js = """
+                $(".msger-input").val("");
+                var template = `{0}`;
+                var message = {1};
+                var session_user = ("{2}" == frappe.session.user) ? true : false;
+                message.author_name = session_user ? "You" : message.author_name
+                message.is_author = session_user;
+                template = frappe.render_template(template, {{
+                    "message": message
+                }})
+                $(".message-section").append(template);
+            """.format(template, message, self.owner)
+
+        frappe.publish_realtime(event="eval_js", message=js, after_commit=True)
+
+    def get_message_template(self):
+        return """
+                <div class="discussion {% if message.is_author %} is-author {% endif %}">
+                    <div class="d-flex justify-content-between">
+                    <div class="font-weight-bold">
+                            {{ message.author_name }}
+                    </div>
+                    <div class="text-muted">
+                        {{ message.message_time }}
+                    </div>
+                    </div>
+                    <div class="mt-5">
+                        {{ message.message }}
+                    </div>
+                </div>
+            """
 
     def send_email(self):
         membership = frappe.get_all("LMS Batch Membership", {"batch": self.batch}, ["member"])
         for entry in membership:
             member = frappe.get_doc("User", entry.member)
             if member.name != self.author:
+                #Todo: wrap sendmail in frappe.enqueue, else messages takes long to display.
                 frappe.sendmail(
                     recipients = member.email,
                     subject = _("New Message on ") + self.batch,
@@ -65,42 +107,3 @@ def send_daily_digest():
             delayed = False
         )
 
-def publish_message(doc, method):
-    template = get_message_template()
-    message = frappe._dict({
-        "author_name": doc.author_name,
-        "message_time": frappe.utils.pretty_date(doc.creation),
-        "message": frappe.utils.md_to_html(doc.message)
-    })
-
-    js = """
-            $(".msger-input").val("");
-            var template = `{0}`;
-            var message = {1};
-            var session_user = ("{2}" == frappe.session.user) ? true : false;
-            message.author_name = session_user ? "You" : message.author_name
-            message.is_author = session_user;
-            template = frappe.render_template(template, {{
-                "message": message
-            }})
-            $(".message-section").append(template);
-        """.format(template, message, doc.owner)
-
-    frappe.publish_realtime(event="eval_js", message=js, after_commit=True)
-
-def get_message_template():
-    return """
-            <div class="discussion {% if message.is_author %} is-author {% endif %}">
-                <div class="d-flex justify-content-between">
-                <div class="font-weight-bold">
-                        {{ message.author_name }}
-                </div>
-                <div class="text-muted">
-                    {{ message.message_time }}
-                </div>
-                </div>
-                <div class="mt-5">
-                    {{ message.message }}
-                </div>
-            </div>
-        """

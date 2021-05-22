@@ -29,11 +29,11 @@ class LMSBatchMembership(Document):
     def validate_membership_in_different_batch_same_course(self):
         course = frappe.db.get_value("LMS Batch", self.batch, "course")
         previous_membership = frappe.get_all("LMS Batch Membership",
-            filters={
-                "member": self.member
-            },
-            fieldname=["batch", "member_type"]
-        )
+                                    filters={
+                                        "member": self.member
+                                    },
+                                    fields=["batch", "member_type"]
+                                )
 
         for membership in previous_membership:
             batch_course = frappe.db.get_value("LMS Batch", membership.batch, "course")
@@ -41,6 +41,7 @@ class LMSBatchMembership(Document):
                 member_name = frappe.db.get_value("User", self.member, "full_name")
                 frappe.throw(_("{0} is already a {1} of {2} course through {3} batch").format(member_name, membership.member_type, course, membership.batch))
 
+@frappe.whitelist()
 def create_membership(batch, member=None, member_type="Student", role="Member"):
     frappe.get_doc({
         "doctype": "LMS Batch Membership",

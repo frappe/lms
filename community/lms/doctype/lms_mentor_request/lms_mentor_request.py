@@ -111,8 +111,7 @@ def create_request(course):
 
 @frappe.whitelist()
 def cancel_request(course):
-    request = frappe.get_doc('LMS Mentor Request',
-                filters={
+    request = frappe.get_doc('LMS Mentor Request',{
                     'member': frappe.session.user,
                     'course': course,
                     'status': ['in', ('Pending', 'Approved')]
