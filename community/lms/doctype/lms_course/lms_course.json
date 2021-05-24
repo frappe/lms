@@ -28,7 +28,8 @@
   {
    "fieldname": "description",
    "fieldtype": "Markdown Editor",
-   "label": "Description"
+   "label": "Description",
+   "reqd": 1
   },
   {
    "default": "0",
@@ -57,7 +58,8 @@
   {
    "fieldname": "short_introduction",
    "fieldtype": "Small Text",
-   "label": "Short Introduction"
+   "label": "Short Introduction",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -84,7 +86,7 @@
    "link_fieldname": "course"
   }
  ],
- "modified": "2021-05-06 13:37:03.318829",
+ "modified": "2021-05-23 18:14:32.602647",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",

@@ -9,7 +9,9 @@
 {% block content %}
 <div class="container">
   <div class="course-header">
-    <div class="course-type">course</div>
+    <div class="mb-5">
+      <a class="font-weight-bold anchor_style" href="/courses">Courses</a> / <span class="text-muted">{{ course.title }}</span>
+    </div>
     <h1 id="course-title" data-course="{{course.name}}">{{course.title}}</h1>
     <div class="course-short-intro">{{ course.short_introduction }}</div>
   </div>
@@ -88,7 +90,7 @@
       {% if can_manage %}
         <a href="/courses/{{course.name}}/{{batch.name}}/about" class="btn btn-secondary">Manage</a>
       {% else %}
-        <button class="join-batch" data-batch="{{ batch.name | urlencode }}"
+        <button class="join-batch btn btn-primary" data-batch="{{ batch.name | urlencode }}"
         data-course="{{ course.name | urlencode }}">Join this Batch</button>
       {% endif %}
     </div>

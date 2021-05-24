@@ -1,5 +1,4 @@
 {% extends "templates/base.html" %}
-{% from "www/macros/sidebar.html" import Sidebar %}
 {% from "www/macros/common_macro.html" import BatchHearder %}
 
 {% block title %}Members{% endblock %}
@@ -10,11 +9,13 @@
 {% endblock %}
 
 {% block content %}
-{{ Sidebar(course, batch) }}
+<div>
+  {{ widgets.BatchTabs(course=course, batch=batch) }}
 
-<div class="container">
-  {{ BatchHearder(course.title, member_count)}}
-  {{ MembersList(members)}}
+  <div class="container">
+    {{ BatchHearder(course.title, member_count)}}
+    {{ MembersList(members)}}
+  </div>
 </div>
 {% endblock %}
 

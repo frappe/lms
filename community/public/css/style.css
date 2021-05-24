@@ -97,14 +97,6 @@ body {
   border-top: 1px solid #ddc;
 }
 
-.batch .cta button {
-  background: var(--cta-color);
-  color: white;
-  border: none;
-  border-radius: 5px;
-  padding: 5px 10px;
-}
-
 .batch .right {
   float: right;
 }
@@ -227,6 +219,14 @@ img.profile-photo {
 }
 
 .anchor_style {
+  color: inherit;
+}
+
+a:hover {
   text-decoration: none;
   color: inherit;
+}
+
+section {
+  padding: 5rem 0 5rem 0;
 }

@@ -1,5 +1,4 @@
 {% extends "templates/base.html" %}
-{% from "www/macros/sidebar.html" import Sidebar %}
 {% from "www/macros/common_macro.html" import InstructorsSection, MentorsSection %}
 
 {% block title %}About{% endblock %}
@@ -11,25 +10,26 @@
 {% endblock %}
 
 {% block content %}
-{{ Sidebar(course, batch) }}
-
-<div class="container">
-	{{ CourseBasicDetail(course)}}
-	{{ InstructorsSection(course.get_instructor()) }}
-	{{ BatchDetails(batch)}}
+<div>
+  {{ widgets.BatchTabs(course=course, batch=batch) }}
+  <div class="container">
+    {{ CourseBasicDetail(course)}}
+    {{ InstructorsSection(course.get_instructor()) }}
+    {{ BatchDetails(batch)}}
+  </div>
 </div>
 {% endblock %}
 
 {% macro CourseBasicDetail(course) %}
 <h2>{{course.title}}</h2>
 <div class="course-description">
-	{{course.short_introduction}}
+  {{course.short_introduction}}
 </div>
 {% if course.video_link %}
 <div class="preview-video">
-	<iframe width="560" height="315" src="{{course.video_link}}" title="YouTube video player" frameborder="0"
-		allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-		allowfullscreen></iframe>
+  <iframe width="560" height="315" src="{{course.video_link}}" title="YouTube video player" frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    allowfullscreen></iframe>
 </div>
 {% endif %}
 <h2>About the Course</h2>
@@ -41,18 +41,19 @@
 
 <div class="batch">
   <div class="batch-details">
-  <div>Session every {{batch.sessions_on}}</div>
-  <div>{{frappe.utils.format_time(batch.start_time, "short")}} -
-    {{frappe.utils.format_time(batch.end_time, "short")}}</div>
-  <div>Starting {{frappe.utils.format_date(batch.start_date, "medium")}}</div>
-  <div class="course-type" style="color: #888; padding: 10px 0px;">mentors</div>
+    <div>Session every {{batch.sessions_on}}</div>
+    <div>{{frappe.utils.format_time(batch.start_time, "short")}} -
+      {{frappe.utils.format_time(batch.end_time, "short")}}
+    </div>
+    <div>Starting {{frappe.utils.format_date(batch.start_date, "medium")}}</div>
+    <div class="course-type" style="color: #888; padding: 10px 0px;">mentors</div>
 
-  {% for m in batch.get_mentors() %}
+    {% for m in batch.get_mentors() %}
     <div>
       {{ widgets.Avatar(member=m, avatar_class="avatar-medium" ) }}
       <span class="instructor-title">{{m.full_name}}</span>
     </div>
-  {% endfor %}
+    {% endfor %}
   </div>
 </div>
 {% endmacro %}

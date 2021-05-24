@@ -1,6 +1,6 @@
 {% extends "templates/base.html" %}
-{% from "www/macros/sidebar.html" import Sidebar %}
 {% block title %}Schedule{% endblock %}
+
 {% block head_include %}
 <meta name="description" content="Courses" />
 <meta name="keywords" content="" />
@@ -8,7 +8,12 @@
 {% endblock %}
 
 {% block content %}
-{{ Sidebar(course, batch) }}
-<div class="container">
+<div>
+  {{ widgetsBatchTabs(course=course, batch=batch) }}
+  <div class="container">
+    <h3>
+      Schedule
+    </h3>
+  </div>
 </div>
 {% endblock %}
