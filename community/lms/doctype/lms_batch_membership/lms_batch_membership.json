@@ -8,11 +8,12 @@
   "batch",
   "member",
   "member_name",
-  "member_email",
+  "member_username",
   "column_break_3",
   "course",
   "member_type",
-  "role"
+  "role",
+  "current_lesson"
  ],
  "fields": [
   {
@@ -60,26 +61,30 @@
    "fieldtype": "Column Break"
   },
   {
-   "fetch_from": "member.email",
-   "fieldname": "member_email",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Member Email",
-   "read_only": 1,
-   "read_only_depends_on": "member.email"
-  },
-  {
    "fetch_from": "batch.course",
    "fieldname": "course",
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Course",
    "read_only": 1
+  },
+  {
+   "fieldname": "current_lesson",
+   "fieldtype": "Link",
+   "label": "Current Lesson",
+   "options": "Lesson"
+  },
+  {
+   "fetch_from": "member.username",
+   "fieldname": "member_username",
+   "fieldtype": "Data",
+   "label": "Memeber Username",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-05-24 09:32:04.128620",
+ "modified": "2021-05-24 12:40:57.125694",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch Membership",
