@@ -69,6 +69,24 @@ class LMSBatch(Document):
                 message.is_author = True
         return messages
 
+    def get_membership(self, email):
+        """Returns the membership document of given user.
+        """
+        name = frappe.get_value(
+            doctype="LMS Batch Membership",
+            filters={
+                "batch": self.name,
+                "member": email
+            },
+            fieldname="name")
+        return frappe.get_doc("LMS Batch Membership", name)
+
+    def get_current_lesson(self, user):
+        """Returns the name of the current lesson for the given user.
+        """
+        membership = self.get_membership(user)
+        return membership and membership.current_lesson
+
 @frappe.whitelist()
 def save_message(message, batch):
     doc = frappe.get_doc({

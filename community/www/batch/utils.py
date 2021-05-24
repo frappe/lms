@@ -13,7 +13,7 @@ def get_common_context(context):
         return
 
     batch = course.get_batch(batch_name)
-    if not batch:
+    if not batch or not batch.is_member(frappe.session.user):
         frappe.local.flags.redirect_location = "/courses/" + course_name
         raise frappe.Redirect
 
