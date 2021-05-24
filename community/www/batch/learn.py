@@ -12,13 +12,14 @@ def get_context(context):
     batch_name = context.batch.name
 
     if not chapter_index or not lesson_index:
-        frappe.local.flags.redirect_location = f"/courses/{course_name}/{batch_name}/learn/1.1"
+        index_ = get_lesson_index(context.course, context.batch, frappe.session.user) or "1.1"
+        frappe.local.flags.redirect_location = get_learn_url(course_name, batch_name, index_)
         raise frappe.Redirect
 
     context.lesson = context.course.get_lesson(chapter_index, lesson_index)
     context.lesson_index = lesson_index
     context.chapter_index = chapter_index
-    print(context.lesson)
+
     outline = context.course.get_outline()
     next_ = outline.get_next(lesson_number)
     prev_ = outline.get_prev(lesson_number)
@@ -29,3 +30,9 @@ def get_learn_url(course_name, batch_name, lesson_number):
     if not lesson_number:
         return
     return f"/courses/{course_name}/{batch_name}/learn/{lesson_number}"
+
+def get_lesson_index(course, batch, user):
+    lesson = batch.get_current_lesson(user)
+    return lesson and course.get_lesson_index(lesson)
+
+

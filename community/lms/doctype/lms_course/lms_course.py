@@ -150,6 +150,13 @@ class LMSCourse(Document):
             "name")
         return lesson_name and frappe.get_doc("Lesson", lesson_name)
 
+    def get_lesson_index(self, lesson_name):
+        """Returns the {chapter_index}.{lesson_index} for the lesson.
+        """
+        lesson = frappe.get_doc("Lesson", lesson_name)
+        chapter = frappe.get_doc("Chapter", lesson.chapter)
+        return f"{chapter.index_}.{lesson.index_}"
+
     def get_outline(self):
         return CourseOutline(self)
 

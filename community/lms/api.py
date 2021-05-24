@@ -34,3 +34,21 @@ def submit_solution(exercise, code):
         return
     doc = ex.submit(code)
     return {"name": doc.name, "creation": doc.creation}
+
+@frappe.whitelist()
+def save_current_lesson(batch_name, lesson_name):
+    """Saves the current lesson for a student/mentor.
+    """
+    name = frappe.get_value(
+        doctype="LMS Batch Membership",
+        filters={
+            "batch": batch_name,
+            "member_email": frappe.session.user
+        },
+        fieldname="name")
+    if not name:
+        return
+    doc = frappe.get_doc("LMS Batch Membership", name)
+    doc.current_lesson = lesson_name
+    doc.save(ignore_permissions=True)
+    return {"current_lesson": doc.current_lesson}
