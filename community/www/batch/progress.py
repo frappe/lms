@@ -32,8 +32,7 @@ class BatchReport:
 
 def get_submissions(batch):
     students = batch.get_students()
-    students_map = {s['email']: s for s in students}
-
+    students_map = {s.email: s for s in students}
     names, values = nparams("s", students_map.keys())
 
     sql = """
