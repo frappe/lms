@@ -1,5 +1,4 @@
 {% extends "templates/base.html" %}
-{% from "www/macros/profile.html" import Profile %}
 {% block title %}{{ _("Community") }}{% endblock %}
 {% block head_include %}
 <meta name="description" content="{{ 'Community' }}" />
@@ -13,34 +12,6 @@
 	svg {
 		width: 200px;
 		height: 200px;
-	}
-
-	.dashboard__profile {
-		width: 150px;
-		height: 155px;
-		border-radius: 50%;
-		object-fit: contain;
-	}
-
-	.dashboard__profileSmall {
-		width: 59px;
-		height: 57px;
-		border-radius: 50%;
-		object-fit: contain;
-	}
-
-	.dashboard__abbr {
-		font-size: 50px;
-		width: 155px;
-		height: 155px;
-		border-radius: 50%;
-	}
-
-	.dashboard__abbrSmall {
-		font-size: 20px;
-		width: 59px;
-		height: 57px;
-		border-radius: 50%;
 	}
 
 	.dashboard__parent {
