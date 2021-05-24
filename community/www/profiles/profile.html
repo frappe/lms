@@ -1,133 +1,103 @@
 {% extends "templates/web.html" %}
-{% from "www/macros/profile.html" import Profile %}
 {% block head_include %}
 <meta name="description" content="{{ 'Community' }}" />
 <meta name="keywords" content="An app that supports Communities." />
 <style>
-    section {
-        padding: 2rem;
-        color: #000000;
-    }
+  section {
+    padding: 2rem;
+    color: #000000;
+  }
 
-    svg {
-        width: 200px;
-        height: 200px;
-    }
+  svg {
+    width: 200px;
+    height: 200px;
+  }
 
-    .dashboard__profile {
-        width: 150px;
-        height: 155px;
-        border-radius: 50%;
-        object-fit: contain;
-    }
+  .dashboard__parent {
+    display: flex;
+  }
 
-    .dashboard__profileSmall {
-        width: 59px;
-        height: 57px;
-        border-radius: 50%;
-        object-fit: contain;
-    }
+  .dashboard__name {
+    font-weight: normal;
+    font-style: normal;
+    font-size: 36px;
+    line-height: 42px;
+  }
 
-    .dashboard__abbr {
-        font-size: 50px;
-        width: 155px;
-        height: 155px;
-        border-radius: 50%;
-    }
+  .dashboard__details {
+    padding-top: 2rem;
+  }
 
-    .dashboard__abbrSmall {
-        font-size: 20px;
-        width: 59px;
-        height: 57px;
-        border-radius: 50%;
-    }
+  .dashboard__course {
+    border: 1px solid black;
+    padding: 1rem;
+    margin: 0.5rem;
+    width: 48%;
+  }
 
+  .dashboard__courseHeader {
+    display: flex;
+    justify-content: space-between;
+    height: 50px;
+    margin-bottom: 3px;
+  }
+
+  .dashboard__badge {
+    background: #D6D6FF;
+    border-radius: 20px;
+    color: #1712FE;
+    padding: 0.5rem;
+    height: fit-content;
+  }
+
+  .dashboard__description {
+    height: 100px;
+  }
+
+  @media (max-width: 900px) {
     .dashboard__parent {
-        display: flex;
+      flex-direction: column;
     }
-
-    .dashboard__name {
-        font-weight: normal;
-        font-style: normal;
-        font-size: 36px;
-        line-height: 42px;
-    }
-
-    .dashboard__details {
-        padding-top: 2rem;
-    }
-
-    .dashboard__course {
-        border: 1px solid black;
-        padding: 1rem;
-        margin: 0.5rem;
-        width: 48%;
-    }
-
-    .dashboard__courseHeader {
-        display: flex;
-        justify-content: space-between;
-        height: 50px;
-        margin-bottom: 3px;
-    }
-
-    .dashboard__badge {
-        background: #D6D6FF;
-        border-radius: 20px;
-        color: #1712FE;
-        padding: 0.5rem;
-        height: fit-content;
-    }
-
-    .dashboard__description {
-        height: 100px;
-    }
-
-    @media (max-width: 900px) {
-      .dashboard__parent {
-        flex-direction: column;
-      }
-    }
-
+  }
 </style>
 {% endblock %}
 {% block page_content %}
-    <div class="dashboard__parent">
-        <div class="dashboard__photo">
-            {{ Profile(member.photo, member.full_name, member.abbr, "large")}}
-        </div>
-        <div class="dashboard__details">
-            <div class="dashboard__name">
-                {{member.full_name}}
-            </div>
-            <div>
-                <ul class="nav nav-tabs mt-4" id="myTab" role="tablist">
-                    <li class="nav-item">
-                        <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab"
-                            aria-controls="home" aria-selected="true">Sketches</a>
-                    </li>
-                </ul>
-            </div>
-            <div>
-                <div class="tab-content">
-                    <div class="tab-pane fade py-4 show active" role="tabpanel" id="home">
-                        <div class="row">
-                          {% if sketches %}
-                            {% for sketch in sketches %}
-                            <div class="col-md-4 col-sm-6">
-                                {{ widgets.SketchTeaser(sketch=sketch) }}
-                            </div>
-                            {% endfor %}
-                          {% endif %}
-                        </div>
-                        {% if not sketches %}
-                          <p class="text-center">{{member.full_name}} has not created any skecth yet.</p>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="dashboard__parent">
+  <div class="dashboard__photo mr-5">
+    {{ widgets.Avatar(member=member, avatar_class="avatar-xl") }}
+  </div>
+  <div class="dashboard__details">
+    <div class="dashboard__name">
+      <a class="anchor_style" href="/{{member.username}}">{{ member.full_name }}</a>
     </div>
+    <div>
+      <ul class="nav nav-tabs mt-4" id="myTab" role="tablist">
+        <li class="nav-item">
+          <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home"
+            aria-selected="true">Sketches</a>
+        </li>
+      </ul>
+    </div>
+    <div>
+      <div class="tab-content">
+        <div class="tab-pane fade py-4 show active" role="tabpanel" id="home">
+          <div class="row">
+            {% if sketches %}
+            {% for sketch in sketches %}
+            <div class="col-md-4 col-sm-6">
+              {{ widgets.SketchTeaser(sketch=sketch) }}
+            </div>
+            {% endfor %}
+            {% endif %}
+          </div>
+          {% if not sketches %}
+          <p class="text-center">{{member.full_name}} has not created any skecth yet.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 <!-- this is a sample default web page template -->

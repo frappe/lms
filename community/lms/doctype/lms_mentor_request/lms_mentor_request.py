@@ -25,7 +25,7 @@ class LMSMentorRequest(Document):
         })
         mapping.save()
 
-    def send_creation_email(self, member):
+    def send_creation_email(self):
         email_template = self.get_email_template('mentor_request_creation')
         if not email_template:
             return
@@ -33,7 +33,7 @@ class LMSMentorRequest(Document):
         course_details = frappe.db.get_value("LMS Course", self.course, ["owner", "slug", "title"], as_dict=True)
         message = frappe.render_template(email_template.response,
                 {
-                    'member_name': member.full_name,
+                    'member_name': frappe.db.get_value("User", frappe.session.user, "full_name"),
                     'course_url': '/courses/' + course_details.slug,
                     'course': course_details.title
                 })
@@ -59,12 +59,10 @@ class LMSMentorRequest(Document):
                     'course': course_details.title
                 })
 
-        member_email = frappe.db.get_value("Community Member", self.member, "email")
         if self.status == 'Approved' or self.status == 'Rejected':
-            reviewed_by = frappe.db.get_value('Community Member', self.reviewed_by, 'email')
             email_args = {
-                "recipients": member_email,
-                "cc": [course_details.owner, reviewed_by],
+                "recipients": self.member,
+                "cc": [course_details.owner, self.reviewed_by],
                 "subject": email_template.subject,
                 "header": email_template.subject,
                 "message": message
@@ -73,7 +71,7 @@ class LMSMentorRequest(Document):
 
         elif self.status == 'Withdrawn':
             email_args = {
-                "recipients": [member_email, course_details.owner],
+                "recipients": [self.member, course_details.owner],
                 "subject": email_template.subject,
                 "header": email_template.subject,
                 "message": message
@@ -89,7 +87,7 @@ class LMSMentorRequest(Document):
 def has_requested(course):
     return frappe.db.count('LMS Mentor Request',
                 filters = {
-                    'member': get_member().name,
+                    'member': frappe.session.user,
                     'course': course,
                     'status': ['in', ('Pending', 'Approved')]
                 }
@@ -98,15 +96,14 @@ def has_requested(course):
 @frappe.whitelist()
 def create_request(course):
     if not has_requested(course):
-        member = get_member()
         request = frappe.get_doc({
                     'doctype': 'LMS Mentor Request',
-                    'member': member.name,
+                    'member': frappe.session.user,
                     'course': course,
                     'status': 'Pending'
                 })
         request.save(ignore_permissions=True)
-        request.send_creation_email(member)
+        request.send_creation_email()
         return 'OK'
 
     else:
@@ -114,13 +111,12 @@ def create_request(course):
 
 @frappe.whitelist()
 def cancel_request(course):
-    request = frappe.get_doc('LMS Mentor Request', {'member': get_member().name, 'course': course, 'status': ['in', ('Pending', 'Approved')]})
+    request = frappe.get_doc('LMS Mentor Request',{
+                    'member': frappe.session.user,
+                    'course': course,
+                    'status': ['in', ('Pending', 'Approved')]
+                }
+            )
     request.status = 'Withdrawn'
     request.save(ignore_permissions=True)
     return 'OK'
-
-def get_member():
-    try:
-        return frappe.get_doc('Community Member', {'email': frappe.session.user})
-    except frappe.DoesNotExistError:
-        return

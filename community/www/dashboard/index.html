@@ -1,5 +1,4 @@
 {% extends "templates/base.html" %}
-{% from "www/macros/profile.html" import Profile %}
 {% block title %}{{ _("Community") }}{% endblock %}
 {% block head_include %}
 <meta name="description" content="{{ 'Community' }}" />
@@ -13,34 +12,6 @@
 	svg {
 		width: 200px;
 		height: 200px;
-	}
-
-	.dashboard__profile {
-		width: 150px;
-		height: 155px;
-		border-radius: 50%;
-		object-fit: contain;
-	}
-
-	.dashboard__profileSmall {
-		width: 59px;
-		height: 57px;
-		border-radius: 50%;
-		object-fit: contain;
-	}
-
-	.dashboard__abbr {
-		font-size: 50px;
-		width: 155px;
-		height: 155px;
-		border-radius: 50%;
-	}
-
-	.dashboard__abbrSmall {
-		font-size: 20px;
-		width: 59px;
-		height: 57px;
-		border-radius: 50%;
 	}
 
 	.dashboard__parent {
@@ -90,12 +61,12 @@
 {% block content %}
 <section>
 	<div class="dashboard__parent">
-		<div>
-			{{ Profile(member.photo, member.full_name, member.abbr, "large")}}
+		<div class="mr-5">
+      {{ widgets.Avatar(member=member, avatar_class="avatar-xl") }}
 		</div>
 		<div class="dashboard__details">
 			<div class="dashboard__name">
-				{{member.full_name}}
+				<a class="anchor_style" href="/{{member.username}}">{{ member.full_name }}</a>
 			</div>
 			<div>
 				<ul class="nav nav-tabs mt-4" id="myTab" role="tablist">
@@ -120,20 +91,18 @@
 							{% if activity %}
 							{% for message in activity %}
 							<div class="dashboard__message border m-5 p-3">
+                <a class="anchor_style bold" href="/{{message.member.username}}">{{ message.member.full_name }}</a>
 								<div class="text-muted float-right">
 									{{ message.course }} ({{message.batch}})
 								</div>
 								<div class="d-flex align-items-center w-100">
 									<div>
-										{{ Profile(message.profile, message.full_name, message.abbr, "small")}}
+                    {{ widgets.Avatar(member=message.member, avatar_class="avatar-medium") }}
 									</div>
 									<div class="ml-5 mt-5">{{ frappe.utils.md_to_html(message.message) }}</div>
 								</div>
-								<div class="d-flex  justify-content-between">
-									<div class="">
-										{{message.full_name}}
-									</div>
-									<div class="text-muted">
+								<div class="d-flex">
+									<div class="text-muted float-right">
 										{{ frappe.utils.pretty_date(message.creation) }}
 									</div>
 								</div>

@@ -19,7 +19,7 @@
    "fieldtype": "Link",
    "in_standard_filter": 1,
    "label": "Member",
-   "options": "Community Member"
+   "options": "User"
   },
   {
    "fieldname": "course",
@@ -52,7 +52,7 @@
    "fieldname": "reviewed_by",
    "fieldtype": "Link",
    "label": "Reviewed By",
-   "options": "Community Member"
+   "options": "User"
   },
   {
    "fieldname": "comments",
@@ -62,7 +62,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-04-19 09:27:03.814016",
+ "modified": "2021-05-21 11:49:12.543502",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Mentor Request",

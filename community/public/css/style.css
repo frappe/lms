@@ -163,7 +163,7 @@ img.profile-photo {
 }
 
 .msger-inputarea {
-  position: absolute;
+  position: fixed;
   bottom: 0;
   width: 100%;
   display: flex;
@@ -224,4 +224,9 @@ img.profile-photo {
   color: #2D005A;
   font-weight: 600;
   line-height: 51px;
+}
+
+.anchor_style {
+  text-decoration: none;
+  color: inherit;
 }

@@ -41,20 +41,8 @@ class LMSCourse(Document):
         if not email or email == "Guest":
             return False
 
-        member = self.get_community_member(email)
-        if not member:
-            return False
-
-        mapping = frappe.get_all("LMS Course Mentor Mapping", {"course": self.name, "mentor": member})
+        mapping = frappe.get_all("LMS Course Mentor Mapping", {"course": self.name, "mentor": email})
         return mapping != []
-
-    def get_community_member(self, email):
-        """Returns the name of Community Member document for a give user.
-        """
-        try:
-            return frappe.db.get_value("Community Member", {"email": email}, "name")
-        except frappe.DoesNotExistError:
-            return None
 
     def add_mentor(self, email):
         """Adds a new mentor to the course.
@@ -68,14 +56,10 @@ class LMSCourse(Document):
         if self.has_mentor(email):
             return
 
-        member = self.get_community_member(email)
-        if not member:
-            return False
-
         doc = frappe.get_doc({
             "doctype": "LMS Course Mentor Mapping",
             "course": self.name,
-            "mentor": member
+            "mentor": email
         })
         doc.insert()
 
@@ -85,7 +69,7 @@ class LMSCourse(Document):
         course_mentors = []
         mentors = frappe.get_all("LMS Course Mentor Mapping", {"course": self.name}, ["mentor"])
         for mentor in mentors:
-            member = frappe.get_doc("Community Member", mentor.mentor)
+            member = frappe.get_doc("User", mentor.mentor)
             # TODO: change this to count query
             member.batch_count = len(frappe.get_all("LMS Batch Membership", {"member": member.name, "member_type": "Mentor"}))
             course_mentors.append(member)
@@ -96,11 +80,10 @@ class LMSCourse(Document):
         """
         if not email:
             return False
-        member = self.get_community_member(email)
         return frappe.db.exists({
             "doctype": "LMS Course Mentor Mapping",
             "course": self.name,
-            "mentor": member
+            "mentor": email
         })
 
     def get_student_batch(self, email):
@@ -116,14 +99,13 @@ class LMSCourse(Document):
             filters={
                 "course": self.name,
                 "member_type": "Student",
-                "member_email": email
+                "member": email
             },
             fieldname="batch")
         return batch_name and frappe.get_doc("LMS Batch", batch_name)
 
     def get_instructor(self):
-        member_name = self.get_community_member(self.owner)
-        return frappe.get_doc("Community Member", member_name)
+        return frappe.get_doc("User", self.owner)
 
     def get_chapters(self):
         """Returns all chapters of this course.
@@ -138,10 +120,9 @@ class LMSCourse(Document):
         batches = find_all("LMS Batch", course=self.name)
         if mentor:
             # TODO: optimize this
-            member = self.get_community_member(email=mentor)
             memberships = frappe.db.get_all(
                 "LMS Batch Membership",
-                {"member": member},
+                {"member": mentor},
                 ["batch"])
             batch_names = {m.batch for m in memberships}
             return [b for b in batches if b.name in batch_names]
