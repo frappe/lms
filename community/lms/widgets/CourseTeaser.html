@@ -6,6 +6,10 @@
     </div>
   </div>
   <div class="course-footer">
+    {% set batch = course.get_student_batch(frappe.session.user) %}
+    {% if batch %}
+      <a class="btn btn-secondary pull-right" href="/courses/{{course.name}}/{{batch.name}}/learn">Resume Course</a>
+    {% endif %}
     <div class="course-author">
       {% with author = course.get_instructor() %}
         {{ widgets.Avatar(member=author, avatar_class="avatar-medium") }} <a href="/{{author.username}}">{{ author.full_name }}</a>
