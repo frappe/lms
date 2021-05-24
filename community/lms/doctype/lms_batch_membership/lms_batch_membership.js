@@ -2,7 +2,13 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on('LMS Batch Membership', {
-	// refresh: function(frm) {
-
-	// }
+	onload: function(frm) {
+		frm.set_query('member', function(doc) {
+			return {
+				filters: {
+					"ignore_user_type": 1,
+				}
+			};
+		});
+	},
 });
