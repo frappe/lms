@@ -6,11 +6,13 @@
  "engine": "InnoDB",
  "field_order": [
   "batch",
-  "role",
-  "column_break_3",
   "member",
   "member_name",
-  "member_type"
+  "member_email",
+  "column_break_3",
+  "course",
+  "member_type",
+  "role"
  ],
  "fields": [
   {
@@ -30,6 +32,7 @@
    "options": "User"
   },
   {
+   "default": "Student",
    "fieldname": "member_type",
    "fieldtype": "Select",
    "in_list_view": 1,
@@ -37,6 +40,7 @@
    "options": "\nStudent\nMentor\nStaff"
   },
   {
+   "default": "Member",
    "fieldname": "role",
    "fieldtype": "Select",
    "in_standard_filter": 1,
@@ -54,11 +58,28 @@
   {
    "fieldname": "column_break_3",
    "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "member.email",
+   "fieldname": "member_email",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Member Email",
+   "read_only": 1,
+   "read_only_depends_on": "member.email"
+  },
+  {
+   "fetch_from": "batch.course",
+   "fieldname": "course",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Course",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-05-21 11:48:05.363738",
+ "modified": "2021-05-24 09:32:04.128620",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch Membership",
