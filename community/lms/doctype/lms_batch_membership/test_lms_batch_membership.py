@@ -12,7 +12,6 @@ class TestLMSBatchMembership(unittest.TestCase):
         frappe.db.sql("DELETE FROM `tabLMS Batch`")
         frappe.db.sql('delete from `tabLMS Course Mentor Mapping`')
         frappe.db.sql("DELETE FROM `tabLMS Course`")
-        frappe.db.sql("DELETE FROM `tabCommunity Member` where email like '%@test.com'")
         frappe.db.sql("DELETE FROM `tabUser` where email like '%@test.com'")
 
     def new_course_batch(self):
