@@ -1,5 +1,4 @@
 {% extends "templates/base.html" %}
-{% from "www/macros/common_macro.html" import BatchHearder %}
 
 {% block title %}Discuss{% endblock %}
 {% block head_include %}
@@ -10,19 +9,15 @@
 {% endblock %}
 
 {% block content %}
-<div>
-  {{ widgets.BatchTabs(course=course, batch=batch) }}
 
-  <div class="">
-    <div class="batch-header">
-      {{ BatchHearder(course.title, member_count) }}
+<div class="container">
+  {{ widgets.BatchTabs(course=course, batch=batch) }}
+  {{ widgets.BatchHeader(course_name=course.title, member_count=member_count)}}
+  <div class="messages">
+    <div class="message-section">
+      {{ Messages(messages) }}
     </div>
-    <div class="messages">
-      <div class="message-section">
-        {{ Messages(messages) }}
-      </div>
-      {{ TextArea() }}
-    </div>
+    {{ TextArea() }}
   </div>
 </div>
 {% endblock %}

@@ -22,26 +22,24 @@
 
 
 {% block content %}
-<div>
-  {{ widgets.BatchTabs(course=course, batch=batch) }}
 
-  <div class="container">
-    <div class="mentor-dashboard">
-      <h1>Batch Progress</h1>
-      {% for exercise in report.exercises %}
-      <div class="exercise-submissions">
-        <h2>{{exercise.title}}</h2>
-        {% for s in report.get_submissions_of_exercise(exercise.name) %}
-        <div class="submission">
-          <h4><a href="/{{s.owner.username}}">{{s.owner.full_name}}</a></h4>
-          <div class="livecode-editor-small">
-            {{ LiveCodeEditor(name=s.name, code=s.solution, reset_code=s.solution) }}
-          </div>
+<div class="container">
+  {{ widgets.BatchTabs(course=course, batch=batch) }}
+  <div class="mentor-dashboard">
+    <h1>Batch Progress</h1>
+    {% for exercise in report.exercises %}
+    <div class="exercise-submissions">
+      <h2>{{exercise.title}}</h2>
+      {% for s in report.get_submissions_of_exercise(exercise.name) %}
+      <div class="submission">
+        <h4><a href="/{{s.owner.username}}">{{s.owner.full_name}}</a></h4>
+        <div class="livecode-editor-small">
+          {{ LiveCodeEditor(name=s.name, code=s.solution, reset_code=s.solution) }}
         </div>
-        {% endfor %}
       </div>
       {% endfor %}
     </div>
+    {% endfor %}
   </div>
 </div>
 {% endblock %}

@@ -8,12 +8,10 @@
 {% endblock %}
 
 {% block content %}
-<div>
-  {{ widgetsBatchTabs(course=course, batch=batch) }}
-  <div class="container">
-    <h3>
-      Schedule
-    </h3>
-  </div>
+<div class="container">
+  {{ widgets.BatchTabs(course=course, batch=batch) }}
+  <h3>
+    Schedule
+  </h3>
 </div>
 {% endblock %}

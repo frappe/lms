@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="/assets/frappe/css/font-awesome.css">
 <link rel="stylesheet" href="{{ livecode_url }}/static/codemirror/lib/codemirror.css">
 <link rel="stylesheet" href="/assets/css/lms.css">
+<link rel="stylesheet" href="/assets/frappe/css/hljs-night-owl.css">
 
 <script src="{{ livecode_url }}/static/codemirror/lib/codemirror.js"></script>
 <script src="{{ livecode_url }}/static/codemirror/mode/python/python.js"></script>
@@ -22,23 +23,20 @@
 
 
 {% block content %}
-<div>
+
+<div class="container">
   {{ widgets.BatchTabs(course=course, batch=batch) }}
+  <div class="lesson-page">
 
-  <div class="container">
-    <div class="lesson-page">
-      {{ pagination(prev_url, next_url) }}
+    <h2>{{ lesson.title }}</h2>
 
-      <h2>{{ lesson.title }}</h2>
-
-      {% for s in lesson.get_sections() %}
-      <div class="section section-{{ s.type }}">
-        {{ render_section(s) }}
-      </div>
-      {% endfor %}
-
-      {{ pagination(prev_url, next_url) }}
+    {% for s in lesson.get_sections() %}
+    <div class="section section-{{ s.type }}">
+      {{ render_section(s) }}
     </div>
+    {% endfor %}
+
+    {{ pagination(prev_chap, prev_url, next_chap, next_url) }}
   </div>
 </div>
 {% endblock %}
@@ -68,13 +66,17 @@
 </div>
 {% endmacro %}
 
-{% macro pagination(prev_url, next_url) %}
+{% macro pagination(prev_chap, prev_url, next_chap, next_url) %}
 <div class="lesson-pagination">
   {% if prev_url %}
-  <a href="{{prev_url}}" class="btn">&larr; Prev</a>
+  <span>
+    Prev: <a href="{{prev_url}}">{{prev_chap}}</a>
+  </span>
   {% endif %}
   {% if next_url %}
-  <a href="{{next_url}}" class="btn pull-right">Next &rarr;</a>
+  <span class="pull-right">
+    Next: <a href="{{next_url}}">{{next_chap}}</a>
+  </span>
   {% endif %}
   <div style="clear: both;"></div>
 </div>

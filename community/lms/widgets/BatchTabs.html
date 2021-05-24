@@ -1,28 +1,36 @@
-<ul class="nav nav-tabs mt-4" id="myTab" role="tablist">
+<div class="mt-5">
+  <a class="font-weight-bold anchor_style" href="/courses">Courses</a> / <a class="font-weight-bold anchor_style" href="/courses/{{ course.name }}"> {{ course.title }}</a>
+</div>
+<ul class="nav nav-tabs mt-4">
   <li class="nav-item">
-    <a class="nav-link active" id="home-tab" data-toggle="tab" href="/courses/{{course.name}}/{{batch.name}}/learn"
-      role="tab" aria-controls="home" aria-selected="true">Learn</a>
+    <a class="nav-link" id="learn" href="/courses/{{course.name}}/{{batch.name}}/learn">Learn</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" id="schedule-tab" data-toggle="tab" href="/courses/{{course.name}}/{{batch.name}}/schedule"
-      role="tab" aria-controls="schedule" aria-selected="false">Schedule</a>
+    <a class="nav-link" id="schedule" href="/courses/{{course.name}}/{{batch.name}}/schedule">Schedule</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" id="members-tab" data-toggle="tab" href="/courses/{{course.name}}/{{batch.name}}/members"
-      role="tab" aria-controls="members" aria-selected="false">Members</a>
+    <a class="nav-link" id="members" href="/courses/{{course.name}}/{{batch.name}}/members">Members</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" id="discussion-tab" data-toggle="tab" href="/courses/{{course.name}}/{{batch.name}}/discuss"
-      role="tab" aria-controls="discussion" aria-selected="false">Discussion</a>
+    <a class="nav-link" id="discussion" href="/courses/{{course.name}}/{{batch.name}}/discuss">Discussion</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" id="about-tab" data-toggle="tab" href="/courses/{{course.name}}/{{batch.name}}/about" role="tab"
-      aria-controls="about" aria-selected="false">About</a>
+    <a class="nav-link" id="about" href="/courses/{{course.name}}/{{batch.name}}/about">About</a>
   </li>
   {% if batch.is_member(frappe.session.user, member_type="Mentor") %}
   <li class="nav-item">
-    <a class="nav-link" id="progress-tab" data-toggle="tab" href="/courses/{{course.name}}/{{batch.name}}/progress"
-      role="tab" aria-controls="progress" aria-selected="false">Progress</a>
+    <a class="nav-link" id="progress" href="/courses/{{course.name}}/{{batch.name}}/progress">Progress</a>
   </li>
   {% endif %}
 </ul>
+<script>
+  frappe.ready(() => {
+    var selector = document.querySelector(`a[href="${decodeURIComponent(window.location.pathname)}"]`)
+    if (selector) {
+      selector.classList.add('active');
+    }
+    else {
+      $("#learn").addClass('active')
+    }
+  })
+</script>

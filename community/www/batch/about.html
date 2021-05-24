@@ -10,9 +10,9 @@
 {% endblock %}
 
 {% block content %}
-<div>
+<div class="container">
   {{ widgets.BatchTabs(course=course, batch=batch) }}
-  <div class="container">
+  <div class="tab-content" id="about">
     {{ CourseBasicDetail(course)}}
     {{ InstructorsSection(course.get_instructor()) }}
     {{ BatchDetails(batch)}}
