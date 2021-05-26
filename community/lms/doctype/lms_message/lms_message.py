@@ -18,7 +18,7 @@ class LMSMessage(Document):
         template = self.get_message_template()
         message = frappe._dict({
             "author_name": self.author_name,
-            "message_time": frappe.utils.pretty_date(self.creation),
+            "message_time": frappe.utils.format_datetime(self.creation, "dd-mm-yyyy HH:mm"),
             "message": frappe.utils.md_to_html(self.message)
         })
 
@@ -32,26 +32,28 @@ class LMSMessage(Document):
                 template = frappe.render_template(template, {{
                     "message": message
                 }})
-                $(".message-section").append(template);
+                $(".messages").append(template);
+                var message_element = document.getElementsByClassName("messages")[0]
+		        message_element.scrollTo(0, message_element.scrollHeight);
             """.format(template, message, self.owner)
 
         frappe.publish_realtime(event="eval_js", message=js, after_commit=True)
 
     def get_message_template(self):
         return """
-                <div class="discussion {% if message.is_author %} is-author {% endif %}">
+                <li class="{% if message.is_author %} ours {% endif %}">
                     <div class="d-flex justify-content-between">
                     <div class="font-weight-bold">
                             {{ message.author_name }}
                     </div>
-                    <div class="text-muted">
+                    <small class="">
                         {{ message.message_time }}
+                    </small>
                     </div>
-                    </div>
-                    <div class="mt-5">
+                    <div class="message-para">
                         {{ message.message }}
                     </div>
-                </div>
+                </li>
             """
 
     def send_email(self):
@@ -106,4 +108,3 @@ def send_daily_digest():
             },
             delayed = False
         )
-

@@ -12,8 +12,6 @@ from community.query import find, find_all
 class LMSBatch(Document):
     def validate(self):
         self.validate_if_mentor()
-        if not self.code:
-            self.generate_code()
 
     def validate_if_mentor(self):
         course = frappe.get_doc("LMS Course", self.course)
@@ -22,11 +20,6 @@ class LMSBatch(Document):
 
     def after_insert(self):
         create_membership(batch=self.name, member_type="Mentor")
-
-    def generate_code(self):
-        short_code = frappe.db.get_value("LMS Course", self.course, "short_code")
-        course_batches = frappe.get_all("LMS Batch",{"course":self.course})
-        self.code = short_code + str(len(course_batches) + 1)
 
     def get_mentors(self):
         memberships = frappe.get_all(
@@ -86,6 +79,11 @@ class LMSBatch(Document):
         """
         membership = self.get_membership(user)
         return membership and membership.current_lesson
+
+    def get_learn_url(self, lesson_number):
+        if not lesson_number:
+            return
+        return f"/courses/{self.course}/{self.name}/learn/{lesson_number}"
 
 @frappe.whitelist()
 def save_message(message, batch):

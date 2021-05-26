@@ -14,7 +14,9 @@ class TestExercise(unittest.TestCase):
         course = frappe.get_doc({
             "doctype": "LMS Course",
             "name": "test-course",
-            "title": "Test Course"
+            "title": "Test Course",
+            "short_introduction": "Test Course",
+            "description": "Test Course"
         })
         course.insert()
         e = frappe.get_doc({

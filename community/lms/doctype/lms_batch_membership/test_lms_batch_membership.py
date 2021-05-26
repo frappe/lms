@@ -19,7 +19,9 @@ class TestLMSBatchMembership(unittest.TestCase):
             "doctype": "LMS Course",
             "name": "test-course",
             "title": "Test Course",
-            "short_code": "XX"
+            "short_code": "XX",
+            "short_introduction": "Test Course",
+            "description": "Test Course"
         })
         course.insert()
 

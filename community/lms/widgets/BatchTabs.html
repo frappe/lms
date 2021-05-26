@@ -1,0 +1,39 @@
+<div class="mt-5">
+  <a class="anchor_style" href="/courses">Courses</a> /{% if course.is_mentor(frappe.session.user) %} <a class="anchor_style" href="/courses/{{ course.name }}"> {{ course.title }}</a> {% else %} <span class="text-muted"> {{ course.title }}</span> {% endif %}
+</div>
+<ul class="nav nav-tabs mt-4">
+  <li class="nav-item">
+    <a class="nav-link" id="home" href="/courses/{{course.name}}/{{batch.name}}/home">Home</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" id="learn" href="/courses/{{course.name}}/{{batch.name}}/learn">Learn</a>
+  </li>
+  <!-- <li class="nav-item">
+    <a class="nav-link" id="schedule" href="/courses/{{course.name}}/{{batch.name}}/schedule">Schedule</a>
+  </li> -->
+  <li class="nav-item">
+    <a class="nav-link" id="members" href="/courses/{{course.name}}/{{batch.name}}/members">Members</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" id="discussion" href="/courses/{{course.name}}/{{batch.name}}/discuss">Discussion</a>
+  </li>
+  <!-- <li class="nav-item">
+    <a class="nav-link" id="about" href="/courses/{{course.name}}/{{batch.name}}/about">About</a>
+  </li> -->
+  {% if batch.is_member(frappe.session.user, member_type="Mentor") %}
+  <li class="nav-item">
+    <a class="nav-link" id="progress" href="/courses/{{course.name}}/{{batch.name}}/progress">Progress</a>
+  </li>
+  {% endif %}
+</ul>
+<script>
+  frappe.ready(() => {
+    var selector = document.querySelector(`a[href="${decodeURIComponent(window.location.pathname)}"]`)
+    if (selector) {
+      selector.classList.add('active');
+    }
+    else {
+      $("#learn").addClass('active')
+    }
+  })
+</script>
