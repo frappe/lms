@@ -50,7 +50,7 @@ class LMSMessage(Document):
                         {{ message.message_time }}
                     </small>
                     </div>
-                    <div class="mt-5">
+                    <div class="message-para">
                         {{ message.message }}
                     </div>
                 </li>
@@ -108,4 +108,3 @@ def send_daily_digest():
             },
             delayed = False
         )
-
