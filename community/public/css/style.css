@@ -119,44 +119,13 @@ img.profile-photo {
   max-width: 100%
 }
 
-
-/* override style of base */
-
 .message {
   border: 1px dashed var(--text-color);
   padding: 20px;
   border-radius: 10px;
 }
 
-.dashboard__profile {
-  width: 150px;
-  height: 155px;
-  border-radius: 50%;
-}
-
-.dashboard__profileSmall {
-  width: 59px;
-  height: 57px;
-  border-radius: 50%;
-}
-
-.dashboard__abbr {
-  font-size: 50px;
-  width: 155px;
-  height: 155px;
-  border-radius: 50%;
-}
-
-.dashboard__abbrSmall {
-  font-size: 20px;
-  width: 59px;
-  height: 57px;
-  border-radius: 50%;
-}
-
 .msger-inputarea {
-  position: fixed;
-  bottom: 0;
   width: 100%;
   display: flex;
   padding: 10px;
@@ -173,37 +142,6 @@ img.profile-photo {
 .msger-input {
   flex: 1;
   background: #ddd;
-}
-.msger-send-btn {
-  margin-left: 10px;
-  background: var(--cta-color);
-  color: #fff;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.23s;
-}
-
-.discussion {
-  border: 1px solid var(--text-color);
-  padding: 10px;
-  margin: 10px;
-  border-radius: 10px;
-  background: var(--received-message);
-  width: 50%;
-  display: flex;
-  flex-direction: column;
-}
-
-.is-author {
-  float: right;
-  background: var(--send-message);
-}
-
-.batch-header {
-  position: fixed;
-  top: 0;
-  background: var(--bg);
-  width: 100%;
 }
 
 .message-section {
@@ -229,4 +167,39 @@ a:hover {
 
 section {
   padding: 5rem 0 5rem 0;
+}
+
+.messages-container {
+  margin: 0 auto;
+  background: url("/assets/community/images/wallpaper.png");
+  border: 1px solid black;
+}
+
+.messages {
+  overflow: auto;
+  height: 450px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 8px;
+  list-style-type: none;
+}
+
+.messages li {
+  background: #F7F5F5;
+  border-radius: 8px;
+  padding: 8px;
+  margin: 2px 8px 2px 0;
+  width: 40%;
+}
+
+.messages li.ours {
+  align-self: flex-end;
+  margin: 2px 0 2px 8px;
+  background: #EBEEC7;
+}
+
+.batch-header {
+  background: #eee;
+  border: 2px solid #ddd;
 }

@@ -17,7 +17,7 @@ class LMSBatch(Document):
 
     def validate_if_mentor(self):
         course = frappe.get_doc("LMS Course", self.course)
-        if not course.is_mentor(frappe.session.user):
+        if not course.is_mentor(frappe.session.user) and self.is_new():
            frappe.throw(_("You are not a mentor of the course {0}").format(course.title))
 
     def after_insert(self):
@@ -68,6 +68,29 @@ class LMSBatch(Document):
                 message.author_name = "You"
                 message.is_author = True
         return messages
+
+    def get_membership(self, email):
+        """Returns the membership document of given user.
+        """
+        name = frappe.get_value(
+            doctype="LMS Batch Membership",
+            filters={
+                "batch": self.name,
+                "member": email
+            },
+            fieldname="name")
+        return frappe.get_doc("LMS Batch Membership", name)
+
+    def get_current_lesson(self, user):
+        """Returns the name of the current lesson for the given user.
+        """
+        membership = self.get_membership(user)
+        return membership and membership.current_lesson
+
+    def get_learn_url(self, lesson_number):
+        if not lesson_number:
+            return
+        return f"/courses/{self.course}/{self.name}/learn/{lesson_number}"
 
 @frappe.whitelist()
 def save_message(message, batch):

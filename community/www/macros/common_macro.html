@@ -1,11 +1,3 @@
-{% macro InstructorsSection(instructor) %}
-  <h3>Instructor</h3>
-  <div class="instructor">
-      <div class="instructor-title">{{instructor.full_name}}</div>
-      <div class="instructor-subtitle">Created {{instructor.get_course_count()}} courses</div>
-  </div>
-{% endmacro %}
-
 {% macro MentorsSection(mentors, is_mentor, course_name) %}
   <h3>Mentors</h3>
   {% for m in mentors %}

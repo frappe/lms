@@ -11,7 +11,9 @@ frappe.ready(() => {
 	})
 
 	setTimeout(() => {
-		window.scrollTo(0, document.body.scrollHeight);
+    var message_element = document.getElementsByClassName("messages")[0]
+		message_element.scrollTo(0, message_element.scrollHeight);
+    document.getElementsByClassName("messages-container")[0].scrollIntoView({block: "center"})
 	}, 300);
 
 	$(".msger-send-btn").click((e) => {

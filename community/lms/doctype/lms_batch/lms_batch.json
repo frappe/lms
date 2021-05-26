@@ -6,11 +6,15 @@
  "engine": "InnoDB",
  "field_order": [
   "course",
+  "telegram_link",
+  "code",
+  "column_break_3",
   "title",
+  "video_call_link",
+  "batch_schedule_section",
   "start_date",
   "start_time",
-  "column_break_3",
-  "code",
+  "column_break_10",
   "sessions_on",
   "end_time",
   "section_break_5",
@@ -84,7 +88,8 @@
   },
   {
    "fieldname": "section_break_5",
-   "fieldtype": "Section Break"
+   "fieldtype": "Section Break",
+   "label": "Batch Description"
   },
   {
    "fieldname": "column_break_9",
@@ -92,7 +97,8 @@
   },
   {
    "fieldname": "section_break_7",
-   "fieldtype": "Section Break"
+   "fieldtype": "Section Break",
+   "label": "Batch Settings"
   },
   {
    "fieldname": "start_date",
@@ -116,6 +122,25 @@
    "fieldtype": "Time",
    "in_list_view": 1,
    "label": "End Time"
+  },
+  {
+   "fieldname": "telegram_link",
+   "fieldtype": "Data",
+   "label": "Telegram Link"
+  },
+  {
+   "fieldname": "video_call_link",
+   "fieldtype": "Data",
+   "label": "Video Call Link"
+  },
+  {
+   "fieldname": "batch_schedule_section",
+   "fieldtype": "Section Break",
+   "label": "Batch Schedule"
+  },
+  {
+   "fieldname": "column_break_10",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -126,7 +151,7 @@
    "link_fieldname": "batch"
   }
  ],
- "modified": "2021-05-06 05:46:38.469120",
+ "modified": "2021-05-25 18:28:01.718521",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch",

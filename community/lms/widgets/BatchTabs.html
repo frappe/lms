@@ -1,22 +1,25 @@
-<div class="mt-5">
-  <a class="font-weight-bold anchor_style" href="/courses">Courses</a> / <a class="font-weight-bold anchor_style" href="/courses/{{ course.name }}"> {{ course.title }}</a>
+<div class="mt-5 font-weight-bold course-title">
+  <a class="anchor_style" href="/courses">Courses</a> /{% if course.is_mentor(frappe.session.user) %} <a class="anchor_style" href="/courses/{{ course.name }}"> {{ course.title }}</a> {% else %} <span class="text-muted"> {{ course.title }}</span> {% endif %}
 </div>
 <ul class="nav nav-tabs mt-4">
   <li class="nav-item">
-    <a class="nav-link" id="learn" href="/courses/{{course.name}}/{{batch.name}}/learn">Learn</a>
+    <a class="nav-link" id="home" href="/courses/{{course.name}}/{{batch.name}}/home">Home</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" id="schedule" href="/courses/{{course.name}}/{{batch.name}}/schedule">Schedule</a>
+    <a class="nav-link" id="learn" href="/courses/{{course.name}}/{{batch.name}}/learn">Learn</a>
   </li>
+  <!-- <li class="nav-item">
+    <a class="nav-link" id="schedule" href="/courses/{{course.name}}/{{batch.name}}/schedule">Schedule</a>
+  </li> -->
   <li class="nav-item">
     <a class="nav-link" id="members" href="/courses/{{course.name}}/{{batch.name}}/members">Members</a>
   </li>
   <li class="nav-item">
     <a class="nav-link" id="discussion" href="/courses/{{course.name}}/{{batch.name}}/discuss">Discussion</a>
   </li>
-  <li class="nav-item">
+  <!-- <li class="nav-item">
     <a class="nav-link" id="about" href="/courses/{{course.name}}/{{batch.name}}/about">About</a>
-  </li>
+  </li> -->
   {% if batch.is_member(frappe.session.user, member_type="Mentor") %}
   <li class="nav-item">
     <a class="nav-link" id="progress" href="/courses/{{course.name}}/{{batch.name}}/progress">Progress</a>

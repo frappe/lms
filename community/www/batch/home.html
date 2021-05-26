@@ -1,0 +1,57 @@
+{% extends "templates/base.html" %}
+{% block title %}About{% endblock %}
+{% block head_include %}
+<meta name="description" content="Courses" />
+<meta name="keywords" content="" />
+
+<link rel="stylesheet" href="/assets/frappe/css/font-awesome.css">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  {{ widgets.BatchTabs(course=course, batch=batch) }}
+  <h1 class="mt-5">{{ batch.title }}</h1>
+  <div class="course-details">
+    {{ widgets.CourseOutline(course=course, batch=batch, show_link=True) }}
+  </div>
+  <div class="col-lg-4 col-md-12">
+    <h2>Batch Schedule</h2>
+    {{ BatchDetails(batch) }}
+  </div>
+  <h2>Batch Details</h2>
+  {{ frappe.utils.md_to_html(batch.description) }}
+  {{ ConnectWithBatch(batch) }}
+
+
+</div>
+{% endblock %}
+
+{% macro BatchDetails(batch) %}
+<div class="batch">
+  <div class="batch-details">
+    <div>Session every {{batch.sessions_on}}</div>
+    <div>{{frappe.utils.format_time(batch.start_time, "short")}} -
+      {{frappe.utils.format_time(batch.end_time, "short")}}
+    </div>
+    <div>Starting {{frappe.utils.format_date(batch.start_date, "medium")}}</div>
+    <div class="course-type" style="color: #888; padding: 10px 0px;">mentors</div>
+
+    {% for m in batch.get_mentors() %}
+    <div>
+      {{ widgets.Avatar(member=m, avatar_class="avatar-medium" ) }}
+      <span class="instructor-title">{{m.full_name}}</span>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endmacro %}
+
+{% macro ConnectWithBatch(batch)%}
+<h2>Connect with your Batch</h2>
+<p>
+  Reach out on <a href="{{ batch.telegram_link }}">Telegram</a>.
+</p>
+<p>
+  Join the <a href="{{ batch.video_call_link }}">Online Class</a>.
+</p>
+{% endmacro %}

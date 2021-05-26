@@ -86,49 +86,16 @@
 {{ super() }}
 {{ LiveCodeEditorJS() }}
 
-
-<!-- <script type="text/javascript">
+  <script type="text/javascript">
     $(function() {
-      var editorLookup = {};
+      var batch_name = "{{ batch.name }}";
+      var lesson_name = "{{ lesson.name }}";
 
-      $(".canvas-editor").each((i, e) => {
-        var data = $(e).data();
-        var editor = new LiveCodeEditor(e, {
-          runtime: "python-canvas",
-          base_url: "{{ livecode_url }}",
-          codemirror: true,
-          userdata: data,
-          autosave: function(editor, code) {
-            // can't autosave when user is Guest
-            if (frappe.session.user == "Guest") {
-              return;
-            }
-            var data = editor.options.userdata;
-            var code = editor.codemirror.doc.getValue();
-            // console.log("autosaving...")
-            frappe.call("community.lms.api.autosave_section", {
-              section: data.section,
-              code: code
-            }).then((r) => {
-              // TODO: verify
-            })
-          }
-        })
-        editorLookup[data.section] = editor;
-      })
-
-      $(".canvas-editor .reset").each((i, e) => {
-        $(e).on("click", function(event) {
-          var data = $(this).parents(".canvas-editor").data();
-          var section = data.section;
-          frappe.call("community.lms.api.get_section", {
-            name: section
-          }).then(r => {
-            var editor = editorLookup[data.section];
-            editor.codemirror.doc.setValue(r.message.contents);
-          })
-        })
+      frappe.call("community.lms.api.save_current_lesson", {
+        "batch_name": batch_name,
+        "lesson_name": lesson_name
       })
     })
-  </script> -->
+  </script>
+
 {%- endblock %}

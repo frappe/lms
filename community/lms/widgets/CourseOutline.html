@@ -1,0 +1,5 @@
+<h2>Course Outline</h2>
+
+{% for chapter in course.get_chapters() %}
+{{ widgets.ChapterTeaser(index=loop.index, chapter=chapter, course=course, batch=batch, show_link=show_link)}}
+{% endfor %}

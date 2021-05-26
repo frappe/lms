@@ -1,5 +1,5 @@
 {% extends "templates/base.html" %}
-{% from "www/macros/common_macro.html" import InstructorsSection, MentorsSection %}
+{% from "www/macros/common_macro.html" import MentorsSection %}
 {% block title %}{{ course.title }}{% endblock %}
 {% block head_include %}
 <meta name="description" content="Courses" />
@@ -23,12 +23,12 @@
 
         {{ CourseDescription(course) }}
         {{ BatchSection(course) }}
-        {{ CourseOutline(course) }}
+        {{ widgets.CourseOutline(course=course, show_link=False) }}
       </div>
     </div>
     <div class="col-lg-4 col-md-12">
       <div class="sidebar">
-        {{ InstructorsSection(course.get_instructor()) }}
+        {{ widgets.InstructorSection(instructor=course.get_instructor()) }}
       </div>
       <div class="sidebar">
         {{ MentorsSection(course.get_mentors(), course.is_mentor(frappe.session.user), course.name) }}
@@ -88,7 +88,7 @@
   <div class="cta">
     <div class="">
       {% if can_manage %}
-        <a href="/courses/{{course.name}}/{{batch.name}}/about" class="btn btn-secondary">Manage</a>
+        <a href="/courses/{{course.name}}/{{batch.name}}/about" class="btn btn-primary">Manage</a>
       {% else %}
         <button class="join-batch btn btn-primary" data-batch="{{ batch.name | urlencode }}"
         data-course="{{ course.name | urlencode }}">Join this Batch</button>
@@ -114,11 +114,11 @@
       {% endfor %}
     </div>
 
-    <a class="btn btn-primary add-batch margin-bottom" href="/add-a-new-batch?new=1&course={{course.title}}&slug={{course.name}}">Add a new batch</a>
+    <a class="add-batch margin-bottom" href="/add-a-new-batch?new=1&course={{course.title}}&slug={{course.name}}">Add a new batch</a>
   {% else %}
     <div class="mentor_message">
       <p> You are a mentor for this course. </p>
-      <a class="btn btn-primary" href="/add-a-new-batch?new=1&course={{course.title}}&slug={{course.name}}" >Create your first batch</a>
+      <a class="" href="/add-a-new-batch?new=1&course={{course.title}}&slug={{course.name}}" >Create your first batch</a>
     </div>
   {% endif %}
 {% endmacro %}
@@ -133,12 +133,4 @@
     </div>
     {% endfor %}
   </div>
-{% endmacro %}
-
-{% macro CourseOutline(course) %}
-  <h2>Course Outline</h2>
-
-  {% for chapter in course.get_chapters() %}
-    {{ widgets.ChapterTeaser(index=loop.index, chapter=chapter)}}
-  {% endfor %}
 {% endmacro %}

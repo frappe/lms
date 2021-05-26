@@ -7,7 +7,7 @@
     <div class="chapter-lessons">
       {% for lesson in chapter.get_lessons() %}
       <div class="lesson-teaser">
-        {{lesson.title}}
+        <a {% if show_link %} class="anchor_style" href="{{ batch.get_learn_url(course.get_lesson_index(lesson.name)) }}" {% endif %}>{{ lesson.title }}</a>
       </div>
       {% endfor %}
     </div>

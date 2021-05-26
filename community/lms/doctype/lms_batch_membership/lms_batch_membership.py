@@ -17,7 +17,8 @@ class LMSBatchMembership(Document):
         previous_membership = frappe.db.get_value("LMS Batch Membership",
             filters={
                 "member": self.member,
-                "batch": self.batch, "name": ["!=", self.name]
+                "batch": self.batch,
+                "name": ["!=", self.name]
             },
             fieldname=["member_type","member"],
             as_dict=1)
@@ -30,7 +31,8 @@ class LMSBatchMembership(Document):
         course = frappe.db.get_value("LMS Batch", self.batch, "course")
         previous_membership = frappe.get_all("LMS Batch Membership",
                                     filters={
-                                        "member": self.member
+                                        "member": self.member,
+                                        "name": ["!=", self.name]
                                     },
                                     fields=["batch", "member_type", "name"]
                                 )
