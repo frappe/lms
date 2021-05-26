@@ -15,7 +15,9 @@ class TestLMSCourse(unittest.TestCase):
     def new_course(self, title):
         doc = frappe.get_doc({
             "doctype": "LMS Course",
-            "title": title
+            "title": title,
+            "short_introduction": title,
+            "description": title
         })
         doc.insert()
         return doc
