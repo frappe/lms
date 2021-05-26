@@ -1,5 +1,5 @@
 {% extends "templates/base.html" %}
-{% block title %}About{% endblock %}
+{% block title %}Batch{% endblock %}
 {% block head_include %}
 <meta name="description" content="Courses" />
 <meta name="keywords" content="" />
@@ -20,7 +20,6 @@
   </div>
   <h2>Batch Details</h2>
   {{ frappe.utils.md_to_html(batch.description) }}
-  {{ ConnectWithBatch(batch) }}
 
 
 </div>
@@ -44,14 +43,4 @@
     {% endfor %}
   </div>
 </div>
-{% endmacro %}
-
-{% macro ConnectWithBatch(batch)%}
-<h2>Connect with your Batch</h2>
-<p>
-  Reach out on <a href="{{ batch.telegram_link }}">Telegram</a>.
-</p>
-<p>
-  Join the <a href="{{ batch.video_call_link }}">Online Class</a>.
-</p>
 {% endmacro %}

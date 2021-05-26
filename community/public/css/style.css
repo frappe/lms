@@ -165,13 +165,16 @@ a:hover {
   color: inherit;
 }
 
+.anchor_style:hover {
+  text-decoration: underline
+}
+
 section {
   padding: 5rem 0 5rem 0;
 }
 
 .messages-container {
   margin: 0 auto;
-  background: url("/assets/community/images/wallpaper.png");
   border: 1px solid black;
 }
 
@@ -196,7 +199,12 @@ section {
 .messages li.ours {
   align-self: flex-end;
   margin: 2px 0 2px 8px;
-  background: #EBEEC7;
+  background: var(--primary-color);
+  color: #fff
+}
+
+.message-para {
+  font-size: 20px;
 }
 
 .batch-header {

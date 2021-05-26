@@ -12,21 +12,14 @@ from community.query import find, find_all
 class LMSBatch(Document):
     def validate(self):
         self.validate_if_mentor()
-        if not self.code:
-            self.generate_code()
 
     def validate_if_mentor(self):
         course = frappe.get_doc("LMS Course", self.course)
-        if not course.is_mentor(frappe.session.user) and self.is_new():
+        if not course.is_mentor(frappe.session.user):
            frappe.throw(_("You are not a mentor of the course {0}").format(course.title))
 
     def after_insert(self):
         create_membership(batch=self.name, member_type="Mentor")
-
-    def generate_code(self):
-        short_code = frappe.db.get_value("LMS Course", self.course, "short_code")
-        course_batches = frappe.get_all("LMS Batch",{"course":self.course})
-        self.code = short_code + str(len(course_batches) + 1)
 
     def get_mentors(self):
         memberships = frappe.get_all(

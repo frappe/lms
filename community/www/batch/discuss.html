@@ -24,16 +24,16 @@
 
 {% macro Messages(messages) %}
 {% for message in messages %}
-<li class="discussion {% if message.is_author %} ours {% endif %}">
+<li class="{% if message.is_author %} ours {% endif %}">
   <div class="d-flex justify-content-between">
     <div class="font-weight-bold">
       {{ message.author_name }}
     </div>
-    <div class="text-muted">
+    <small class="">
       {{ frappe.utils.format_datetime(message.creation, "dd-mm-yyyy HH:mm") }}
-    </div>
+    </small>
   </div>
-  <div class="mt-5">
+  <div class="message-para">
     {{ message.message }}
   </div>
 </li>

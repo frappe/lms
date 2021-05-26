@@ -6,15 +6,10 @@
  "engine": "InnoDB",
  "field_order": [
   "course",
-  "telegram_link",
-  "code",
-  "column_break_3",
-  "title",
-  "video_call_link",
-  "batch_schedule_section",
   "start_date",
   "start_time",
-  "column_break_10",
+  "column_break_3",
+  "title",
   "sessions_on",
   "end_time",
   "section_break_5",
@@ -34,13 +29,6 @@
    "in_standard_filter": 1,
    "label": "Course",
    "options": "LMS Course"
-  },
-  {
-   "fieldname": "code",
-   "fieldtype": "Data",
-   "label": "Code",
-   "read_only": 1,
-   "unique": 1
   },
   {
    "fieldname": "title",
@@ -122,25 +110,6 @@
    "fieldtype": "Time",
    "in_list_view": 1,
    "label": "End Time"
-  },
-  {
-   "fieldname": "telegram_link",
-   "fieldtype": "Data",
-   "label": "Telegram Link"
-  },
-  {
-   "fieldname": "video_call_link",
-   "fieldtype": "Data",
-   "label": "Video Call Link"
-  },
-  {
-   "fieldname": "batch_schedule_section",
-   "fieldtype": "Section Break",
-   "label": "Batch Schedule"
-  },
-  {
-   "fieldname": "column_break_10",
-   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -151,7 +120,7 @@
    "link_fieldname": "batch"
   }
  ],
- "modified": "2021-05-25 18:28:01.718521",
+ "modified": "2021-05-26 16:43:57.399747",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch",

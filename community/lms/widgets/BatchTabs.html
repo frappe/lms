@@ -1,4 +1,4 @@
-<div class="mt-5 font-weight-bold course-title">
+<div class="mt-5">
   <a class="anchor_style" href="/courses">Courses</a> /{% if course.is_mentor(frappe.session.user) %} <a class="anchor_style" href="/courses/{{ course.name }}"> {{ course.title }}</a> {% else %} <span class="text-muted"> {{ course.title }}</span> {% endif %}
 </div>
 <ul class="nav nav-tabs mt-4">

@@ -31,12 +31,14 @@
 
 {% macro course_card(course) %}
 <div class="col-sm-4 mb-4 text-left">
-  <a class="anchor_style" href="/courses/{{course.name}}">
+  <a class="card-links" style="color: inherit;" href="/courses/{{course.name}}">
     <div class="card h-100">
       <div class='card-body'>
         <h5 class='card-title'>{{ course.title }}</h5>
         {% if course.description %}
-        {{ frappe.utils.md_to_html(course.description[:250]) }}
+        <div class="mt-4">
+          {{ frappe.utils.md_to_html(course.description[:200]) }}
+        </div>
         {% endif %}
       </div>
     </div>

@@ -39,7 +39,7 @@ class LMSBatchMembership(Document):
 
         for membership in previous_membership:
             batch_course = frappe.db.get_value("LMS Batch", membership.batch, "course")
-            if self.name != membership.name and batch_course == course and (membership.member_type == "Student" or self.member_type == "Student"):
+            if batch_course == course and (membership.member_type == "Student" or self.member_type == "Student"):
                 member_name = frappe.db.get_value("User", self.member, "full_name")
                 frappe.throw(_("{0} is already a {1} of {2} course through {3} batch").format(member_name, membership.member_type, course, membership.batch))
 

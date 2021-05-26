@@ -46,9 +46,9 @@ class LMSMessage(Document):
                     <div class="font-weight-bold">
                             {{ message.author_name }}
                     </div>
-                    <div class="text-muted">
+                    <small class="">
                         {{ message.message_time }}
-                    </div>
+                    </small>
                     </div>
                     <div class="mt-5">
                         {{ message.message }}
