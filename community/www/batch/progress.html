@@ -1,13 +1,12 @@
 {% extends "templates/base.html" %}
-{% from "www/macros/sidebar.html" import Sidebar %}
 {% from "www/macros/livecode.html" import LiveCodeEditorJS, LiveCodeEditor with context %}
-{% block title %}{{ course.title  }} - Batch Dashboard{% endblock %}
+{% block title %}{{ course.title }} - Batch Dashboard{% endblock %}
 
 {% block head_include %}
-	<meta name="description" content="{{course.title}} - Batch Dashboard" />
-	<meta name="keywords" content="{{course.title}} - Batch Dashboard" />
-	<style>
-	</style>
+<meta name="description" content="{{course.title}} - Batch Dashboard" />
+<meta name="keywords" content="{{course.title}} - Batch Dashboard" />
+<style>
+</style>
 
 <link rel="stylesheet" href="/assets/frappe/css/font-awesome.css">
 <link rel="stylesheet" href="{{ livecode_url }}/static/codemirror/lib/codemirror.css">
@@ -23,23 +22,23 @@
 
 
 {% block content %}
-{{ Sidebar(course, batch) }}
 
 <div class="container">
+  {{ widgets.BatchTabs(course=course, batch=batch) }}
   <div class="mentor-dashboard">
     <h1>Batch Progress</h1>
     {% for exercise in report.exercises %}
-      <div class="exercise-submissions">
-        <h2>{{exercise.title}}</h2>
-        {% for s in report.get_submissions_of_exercise(exercise.name) %}
-          <div class="submission">
-            <h4><a href="/{{s.owner.username}}">{{s.owner.full_name}}</a></h4>
-            <div class="livecode-editor-small">
-              {{ LiveCodeEditor(name=s.name, code=s.solution, reset_code=s.solution) }}
-            </div>
-          </div>
-        {% endfor %}
+    <div class="exercise-submissions">
+      <h2>{{exercise.title}}</h2>
+      {% for s in report.get_submissions_of_exercise(exercise.name) %}
+      <div class="submission">
+        <h4><a href="/{{s.owner.username}}">{{s.owner.full_name}}</a></h4>
+        <div class="livecode-editor-small">
+          {{ LiveCodeEditor(name=s.name, code=s.solution, reset_code=s.solution) }}
+        </div>
       </div>
+      {% endfor %}
+    </div>
     {% endfor %}
   </div>
 </div>
@@ -47,6 +46,6 @@
 
 
 {%- block script %}
-  {{ super() }}
-  {{ LiveCodeEditorJS() }}
+{{ super() }}
+{{ LiveCodeEditorJS() }}
 {% endblock %}

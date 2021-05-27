@@ -1,6 +1,4 @@
 {% extends "templates/base.html" %}
-{% from "www/macros/sidebar.html" import Sidebar %}
-{% from "www/macros/common_macro.html" import BatchHearder %}
 
 {% block title %}Discuss{% endblock %}
 {% block head_include %}
@@ -11,16 +9,14 @@
 {% endblock %}
 
 {% block content %}
-{{ Sidebar(course, batch) }}
 
-<div class="">
-  <div class="batch-header">
-    {{ BatchHearder(course.title, member_count) }}
-  </div>
-  <div class="messages">
-    <div class="message-section">
+<div class="container">
+  {{ widgets.BatchTabs(course=course, batch=batch) }}
+  <div class="messages-container mt-5">
+    {{ widgets.BatchHeader(batch_name=batch.title, member_count=member_count)}}
+    <ol class="messages">
       {{ Messages(messages) }}
-    </div>
+    </ol>
     {{ TextArea() }}
   </div>
 </div>
@@ -28,25 +24,25 @@
 
 {% macro Messages(messages) %}
 {% for message in messages %}
-<div class="discussion {% if message.is_author %} is-author {% endif %}">
+<li class="{% if message.is_author %} ours {% endif %}">
   <div class="d-flex justify-content-between">
     <div class="font-weight-bold">
       {{ message.author_name }}
     </div>
-    <div class="text-muted">
-      {{ frappe.utils.pretty_date(message.creation) }}
-    </div>
+    <small class="">
+      {{ frappe.utils.format_datetime(message.creation, "dd-mm-yyyy HH:mm") }}
+    </small>
   </div>
-  <div class="mt-5">
+  <div class="message-para">
     {{ message.message }}
   </div>
-</div>
+</li>
 {% endfor %}
 {% endmacro %}
 
 {% macro TextArea() %}
-<form class="msger-inputarea">
+<form class="msger-inputarea mb-1">
   <input type="text" class="msger-input" placeholder="Write your message...">
-  <button type="submit" class="msger-send-btn" data-batch="{{batch.name | urlencode }}">Send</button>
+  <button type="submit" class="btn btn-primary msger-send-btn" data-batch="{{batch.name | urlencode }}">Send</button>
 </form>
 {% endmacro %}

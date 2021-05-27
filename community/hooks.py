@@ -136,6 +136,7 @@ primary_rules = [
     {"from_route": "/hackathons/<hackathon>/<project>", "to_route": "hackathons/project"},
     {"from_route": "/dashboard", "to_route": ""},
     {"from_route": "/add-a-new-batch", "to_route": "add-a-new-batch"},
+    {"from_route": "/courses/<course>/<batch>/home", "to_route": "batch/home"},
     {"from_route": "/courses/<course>/<batch>/learn", "to_route": "batch/learn"},
     {"from_route": "/courses/<course>/<batch>/learn/<int:chapter>.<int:lesson>", "to_route": "batch/learn"},
     {"from_route": "/courses/<course>/<batch>/schedule", "to_route": "batch/schedule"},

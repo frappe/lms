@@ -34,7 +34,7 @@ class LMSBatchMembership(Document):
                                         "member": self.member,
                                         "name": ["!=", self.name]
                                     },
-                                    fields=["batch", "member_type"]
+                                    fields=["batch", "member_type", "name"]
                                 )
 
         for membership in previous_membership:

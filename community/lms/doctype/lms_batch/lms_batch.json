@@ -6,11 +6,10 @@
  "engine": "InnoDB",
  "field_order": [
   "course",
-  "title",
   "start_date",
   "start_time",
   "column_break_3",
-  "code",
+  "title",
   "sessions_on",
   "end_time",
   "section_break_5",
@@ -30,13 +29,6 @@
    "in_standard_filter": 1,
    "label": "Course",
    "options": "LMS Course"
-  },
-  {
-   "fieldname": "code",
-   "fieldtype": "Data",
-   "label": "Code",
-   "read_only": 1,
-   "unique": 1
   },
   {
    "fieldname": "title",
@@ -84,7 +76,8 @@
   },
   {
    "fieldname": "section_break_5",
-   "fieldtype": "Section Break"
+   "fieldtype": "Section Break",
+   "label": "Batch Description"
   },
   {
    "fieldname": "column_break_9",
@@ -92,7 +85,8 @@
   },
   {
    "fieldname": "section_break_7",
-   "fieldtype": "Section Break"
+   "fieldtype": "Section Break",
+   "label": "Batch Settings"
   },
   {
    "fieldname": "start_date",
@@ -126,7 +120,7 @@
    "link_fieldname": "batch"
   }
  ],
- "modified": "2021-05-06 05:46:38.469120",
+ "modified": "2021-05-26 16:43:57.399747",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch",

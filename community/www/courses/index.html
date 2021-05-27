@@ -1,10 +1,11 @@
 {% extends "templates/base.html" %}
+{% from "www/hackathons/macros/card.html" import null_card %}
 {% block title %}{{ 'Courses' }}{% endblock %}
 {% block head_include %}
-  <meta name="description" content="{{ 'Courses' }}" />
-  <meta name="keywords" content="Courses" />
-  <style>
-  </style>
+<meta name="description" content="{{ 'Courses' }}" />
+<meta name="keywords" content="Courses" />
+<style>
+</style>
 {% endblock %}
 
 {% block content %}
@@ -15,8 +16,13 @@
   <div class='container'>
     <div class="row mt-5">
       {% for course in courses %}
-        {{ course_card(course) }}
+      {{ course_card(course) }}
       {% endfor %}
+      {% if courses %}
+      {% for n in range( (3 - (courses|length)) %3) %}
+      {{ null_card() }}
+      {% endfor %}
+      {% endif %}
     </div>
   </div>
 </section>
@@ -24,13 +30,18 @@
 
 
 {% macro course_card(course) %}
-<div class="card mb-5 w-100">
-  <div class="card-body">
-    <h5 class="card-title"><a href="/courses/{{course.name}}">{{course.title}}</a></h5>
-    {% if course.description %}
-    <p class="card-text">{{ frappe.utils.md_to_html(course.description[:250]) }}</p>
-    {% endif %}
-    <a href="/courses/{{course.name}}" class="card-link">See more &rarr;</a>
-  </div>
+<div class="col-sm-4 mb-4 text-left">
+  <a class="card-links" style="color: inherit;" href="/courses/{{course.name}}">
+    <div class="card h-100">
+      <div class='card-body'>
+        <h5 class='card-title'>{{ course.title }}</h5>
+        {% if course.description %}
+        <div class="mt-4">
+          {{ frappe.utils.md_to_html(course.description[:200]) }}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </a>
 </div>
 {% endmacro %}
