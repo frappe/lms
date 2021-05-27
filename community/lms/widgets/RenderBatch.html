@@ -1,0 +1,29 @@
+<div class="batch">
+  <div class="batch-details">
+    <div>Session every {{batch.sessions_on}}</div>
+    <div>{{frappe.utils.format_time(batch.start_time, "short")}} -
+      {{frappe.utils.format_time(batch.end_time, "short")}}
+    </div>
+    <div>Starting {{frappe.utils.format_date(batch.start_date, "medium")}}</div>
+    <div class="course-type" style="color: #888; padding: 10px 0px;">mentors</div>
+
+    {% for m in batch.get_mentors() %}
+    <div>
+      {{ widgets.Avatar(member=m, avatar_class="avatar-medium" ) }}
+      <span class="instructor-title">{{m.full_name}}</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% if can_manage or can_join %}
+  <div class="cta">
+    <div class="">
+      {% if can_manage %}
+      <a href="/courses/{{course.name}}/{{batch.name}}/home" class="btn btn-primary">Manage</a>
+      {% elif can_join %}
+      <button class="join-batch btn btn-primary" data-batch="{{ batch.name | urlencode }}"
+        data-course="{{ course.name | urlencode }}">Join this Batch</button>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
