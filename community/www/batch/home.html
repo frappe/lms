@@ -8,20 +8,47 @@
 {% endblock %}
 
 {% block content %}
+{% set invite_link = frappe.utils.get_url() + "/become-a-member/" + batch.name %}
 <div class="container mt-5">
   {{ widgets.BatchTabs(course=course, batch=batch) }}
-  <h1 class="mt-5">{{ batch.title }}</h1>
+  <div>
+    <h1 class="mt-5">{{ batch.title }}</h1>
+    <div class="col pull-right w-25">
+      <button class="btn btn-primary  mr-5" id="invite-link" data-link="{{ invite_link }}">Get Batch Invitation
+        Link</button>
+      <small id="copy-message" class="text-muted pull-right" style="display: none;">Copied to Clipboard.</small>
+    </div>
+  </div>
   <div class="course-details">
     {{ widgets.CourseOutline(course=course, batch=batch, show_link=True) }}
   </div>
   <div class="w-25">
     <h2>Batch Schedule</h2>
-    {{ widgets.RenderBatch(batch=batch) }}
+    {{ widgets.RenderBatch(course=course, batch=batch) }}
   </div>
   {% if batch.description %}
   <h2>Batch Details</h2>
   {{ frappe.utils.md_to_html(batch.description) }}
   {% endif %}
-
 </div>
+
+<script>
+  frappe.ready(() => {
+    $("#invite-link").click((e) => {
+      e.preventDefault();
+      var link_element = $("#invite-link");
+      var input_element = document.createElement("input");
+      input_element.value = link_element.attr("data-link")
+      document.body.appendChild(input_element);
+      input_element.select();
+      document.execCommand("copy");
+      input_element.remove();
+      $("#copy-message").slideDown(function () {
+        setTimeout(function () {
+          $("#copy-message").slideUp();
+        }, 5000);
+      });
+    })
+  })
+</script>
 {% endblock %}

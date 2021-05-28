@@ -75,7 +75,7 @@
 <div class="row">
   {% for batch in mentor_batches %}
   <div class="col-lg-4 col-md-6">
-    {{ widgets.RenderBatch(batch=batch, can_manage=True) }}
+    {{ widgets.RenderBatch(course=course, batch=batch, can_manage=True) }}
   </div>
   {% endfor %}
 </div>
@@ -97,7 +97,7 @@
 <div class="row">
   {% for batch in upcoming_batches %}
   <div class="col-lg-4 col-md-6">
-    {{ widgets.RenderBatch(batch=batch, can_join=True) }}
+    {{ widgets.RenderBatch(course=course, batch=batch, can_join=True) }}
   </div>
   {% endfor %}
 </div>
