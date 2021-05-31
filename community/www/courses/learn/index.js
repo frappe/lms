@@ -1,3 +1,0 @@
-frappe.ready(() => {
-	
-})

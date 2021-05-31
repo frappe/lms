@@ -1,0 +1,74 @@
+% extends "templates/base.html" %}
+{% block title %}Join a Course{% endblock %}
+
+{% block head_include %}
+<meta name="description" content="Join a Course"/>
+<meta name="keywords" content="" />
+{% endblock %}
+
+{% block content %}
+{% if frappe.session.user == "Guest" %}
+
+<div class="page-card">
+  <div class='page-card-head'>
+    <span class='indicator blue password-box'>Login Required</span>
+  </div>
+  <div class=''>Please log in to confirm to join the course {{ batch.course_title }}.</div>
+  <a type="submit" id="login" class="btn btn-primary w-100"
+    href="/login?redirect-to=/courses/{{ batch.course }}/{{ batch.name }}/join">{{_("Login")}}</a>
+</div>
+
+{% elif already_a_member %}
+
+<div class="page-card">
+  <div class='page-card-head'>
+    <span class='indicator blue password-box'>Already a member</span>
+  </div>
+  <div class=''>You are already a member of the batch {{ batch.title }} for the course {{ batch.course_title }}.
+  </div>
+  <a type="submit" id="batch-home" class="btn btn-primary w-100" href="/courses/{{batch.course}}/{{batch.name}}/home">{{_("Go to Batch Home")}}</a>
+</div>
+
+{% else %}
+
+<div class="page-card">
+  <div class='page-card-head'>
+    <span class='indicator blue password-box'>Confirm your membership</span>
+  </div>
+  <div>Please provide your confirmation to be a part of the batch {{ batch.title }} for the course
+    {{ batch.course_title }}.
+  </div>
+  <a type="submit" id="confirm" class="btn btn-primary w-100" data-batch="{{ batch.name | urlencode }}"
+    data-course="{{ batch.course | urlencode }}">{{_("Confirm")}}</a>
+</div>
+
+{% endif %}
+
+<script>
+  frappe.ready(() => {
+    var confirm_element = $("#confirm");
+    var batch = decodeURIComponent(confirm_element.attr("data-batch"));
+    var course = decodeURIComponent(confirm_element.attr("data-course"));
+
+    confirm_element.click((e) => {
+      frappe.call({
+        "method": "community.lms.doctype.lms_batch_membership.lms_batch_membership.create_membership",
+        "args": {
+          "batch": batch
+        },
+        "callback": (data) => {
+          if (data.message == "OK") {
+            frappe.msgprint({
+              message: __("You are now a member of this batch!"),
+              clear: true
+            });
+            setTimeout(function () {
+              window.location.href = "/courses/" + course + "/" + batch + "/home";
+            }, 2000);
+          }
+        }
+      })
+    })
+  })
+</script>
+{% endblock %}

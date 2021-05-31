@@ -1,46 +1,60 @@
 {% extends "templates/base.html" %}
-{% block title %}Batch{% endblock %}
+{% block title %} Batch {% endblock %}
+
 {% block head_include %}
 <meta name="description" content="Courses" />
 <meta name="keywords" content="" />
-
 <link rel="stylesheet" href="/assets/frappe/css/font-awesome.css">
 {% endblock %}
 
 {% block content %}
+{% set invite_link = frappe.utils.get_url() + "/courses/" + course.name + "/" + batch.name + "/join" %}
 <div class="container mt-5">
   {{ widgets.BatchTabs(course=course, batch=batch) }}
-  <h1 class="mt-5">{{ batch.title }}</h1>
+  <div>
+    <h1 class="mt-5">{{ batch.title }}</h1>
+  </div>
   <div class="course-details">
     {{ widgets.CourseOutline(course=course, batch=batch, show_link=True) }}
   </div>
-  <div class="col-lg-4 col-md-12">
+  <div class="w-25">
     <h2>Batch Schedule</h2>
-    {{ BatchDetails(batch) }}
+    {{ widgets.RenderBatch(course=course, batch=batch) }}
   </div>
+
+  {% if batch.description %}
   <h2>Batch Details</h2>
   {{ frappe.utils.md_to_html(batch.description) }}
+  {% endif %}
 
-
-</div>
-{% endblock %}
-
-{% macro BatchDetails(batch) %}
-<div class="batch">
-  <div class="batch-details">
-    <div>Session every {{batch.sessions_on}}</div>
-    <div>{{frappe.utils.format_time(batch.start_time, "short")}} -
-      {{frappe.utils.format_time(batch.end_time, "short")}}
-    </div>
-    <div>Starting {{frappe.utils.format_date(batch.start_date, "medium")}}</div>
-    <div class="course-type" style="color: #888; padding: 10px 0px;">mentors</div>
-
-    {% for m in batch.get_mentors() %}
-    <div>
-      {{ widgets.Avatar(member=m, avatar_class="avatar-medium" ) }}
-      <span class="instructor-title">{{m.full_name}}</span>
-    </div>
-    {% endfor %}
+  {% if course.is_mentor(frappe.session.user) %}
+  <div class="">
+    <h2> Invite Members </h2>
+    <a href="" class="anchor_style mr-5" id="invite-link" data-link="{{ invite_link }}">Get Batch Invitation
+      Link</a>
+    <small id="copy-message" class="text-muted pull-right" style="display: none;">Copied to Clipboard.</small>
   </div>
+  {% endif %}
+
 </div>
-{% endmacro %}
+
+<script>
+  frappe.ready(() => {
+    $("#invite-link").click((e) => {
+      e.preventDefault();
+      var link_element = $("#invite-link");
+      var input_element = document.createElement("input");
+      input_element.value = link_element.attr("data-link")
+      document.body.appendChild(input_element);
+      input_element.select();
+      document.execCommand("copy");
+      input_element.remove();
+      $("#copy-message").slideDown(function () {
+        setTimeout(function () {
+          $("#copy-message").slideUp();
+        }, 5000);
+      });
+    })
+  })
+</script>
+{% endblock %}
