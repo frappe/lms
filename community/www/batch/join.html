@@ -1,7 +1,8 @@
 % extends "templates/base.html" %}
-{% block title %}Become a member{% endblock %}
+{% block title %}Join a Course{% endblock %}
+
 {% block head_include %}
-<meta name="description" content="Become a member" />
+<meta name="description" content="Join a Course"/>
 <meta name="keywords" content="" />
 {% endblock %}
 
@@ -12,9 +13,9 @@
   <div class='page-card-head'>
     <span class='indicator blue password-box'>Login Required</span>
   </div>
-  <div class=''>Please log in to confirm your membership.</div>
+  <div class=''>Please log in to confirm to join the course {{ batch.course_title }}.</div>
   <a type="submit" id="login" class="btn btn-primary w-100"
-    href="/login?redirect-to=/become-a-member/{{ batch.name }}">{{_("Login")}}</a>
+    href="/login?redirect-to=/courses/{{ batch.course }}/{{ batch.name }}/join">{{_("Login")}}</a>
 </div>
 
 {% elif already_a_member %}
@@ -23,7 +24,7 @@
   <div class='page-card-head'>
     <span class='indicator blue password-box'>Already a member</span>
   </div>
-  <div class=''>You are already a member of the batch {{ batch.title }}.
+  <div class=''>You are already a member of the batch {{ batch.title }} for the course {{ batch.course_title }}.
   </div>
   <a type="submit" id="batch-home" class="btn btn-primary w-100" href="/courses/{{batch.course}}/{{batch.name}}/home">{{_("Go to Batch Home")}}</a>
 </div>

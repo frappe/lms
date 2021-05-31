@@ -1,23 +1,18 @@
 {% extends "templates/base.html" %}
-{% block title %}Batch{% endblock %}
+{% block title %} Batch {% endblock %}
+
 {% block head_include %}
 <meta name="description" content="Courses" />
 <meta name="keywords" content="" />
-
 <link rel="stylesheet" href="/assets/frappe/css/font-awesome.css">
 {% endblock %}
 
 {% block content %}
-{% set invite_link = frappe.utils.get_url() + "/become-a-member/" + batch.name %}
+{% set invite_link = frappe.utils.get_url() + "/courses/" + course.name + "/" + batch.name + "/join" %}
 <div class="container mt-5">
   {{ widgets.BatchTabs(course=course, batch=batch) }}
   <div>
     <h1 class="mt-5">{{ batch.title }}</h1>
-    <div class="col pull-right w-25">
-      <button class="btn btn-primary  mr-5" id="invite-link" data-link="{{ invite_link }}">Get Batch Invitation
-        Link</button>
-      <small id="copy-message" class="text-muted pull-right" style="display: none;">Copied to Clipboard.</small>
-    </div>
   </div>
   <div class="course-details">
     {{ widgets.CourseOutline(course=course, batch=batch, show_link=True) }}
@@ -26,10 +21,21 @@
     <h2>Batch Schedule</h2>
     {{ widgets.RenderBatch(course=course, batch=batch) }}
   </div>
+
   {% if batch.description %}
   <h2>Batch Details</h2>
   {{ frappe.utils.md_to_html(batch.description) }}
   {% endif %}
+
+  {% if course.is_mentor(frappe.session.user) %}
+  <div class="">
+    <h2> Invite Members </h2>
+    <a href="" class="anchor_style mr-5" id="invite-link" data-link="{{ invite_link }}">Get Batch Invitation
+      Link</a>
+    <small id="copy-message" class="text-muted pull-right" style="display: none;">Copied to Clipboard.</small>
+  </div>
+  {% endif %}
+
 </div>
 
 <script>
