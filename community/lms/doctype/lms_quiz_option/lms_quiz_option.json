@@ -1,0 +1,38 @@
+{
+ "actions": [],
+ "creation": "2021-05-28 19:04:49.312616",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "option",
+  "is_correct"
+ ],
+ "fields": [
+  {
+   "fieldname": "option",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Option"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_correct",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Is Correct"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2021-05-28 19:13:48.869416",
+ "modified_by": "Administrator",
+ "module": "LMS",
+ "name": "LMS Quiz Option",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

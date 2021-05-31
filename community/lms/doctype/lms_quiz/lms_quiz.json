@@ -1,0 +1,54 @@
+{
+ "actions": [],
+ "creation": "2021-05-28 19:09:44.418823",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "title",
+  "maximum_attempts",
+  "questions"
+ ],
+ "fields": [
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Title"
+  },
+  {
+   "fieldname": "maximum_attempts",
+   "fieldtype": "Int",
+   "label": "Maximum Attempts"
+  },
+  {
+   "fieldname": "questions",
+   "fieldtype": "Link",
+   "label": "Questions",
+   "options": "LMS Quiz Question"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2021-05-28 19:18:38.688885",
+ "modified_by": "Administrator",
+ "module": "LMS",
+ "name": "LMS Quiz",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

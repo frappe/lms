@@ -1,0 +1,44 @@
+{
+ "actions": [],
+ "creation": "2021-05-28 19:07:17.347423",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "question",
+  "options",
+  "question_type"
+ ],
+ "fields": [
+  {
+   "fieldname": "question",
+   "fieldtype": "Markdown Editor",
+   "in_list_view": 1,
+   "label": "Question"
+  },
+  {
+   "fieldname": "options",
+   "fieldtype": "Table",
+   "label": "Options",
+   "options": "LMS Quiz Option"
+  },
+  {
+   "fieldname": "question_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Question Type",
+   "options": "Single Correct Answer\nMultiple Correct Answers"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2021-05-28 19:18:04.939778",
+ "modified_by": "Administrator",
+ "module": "LMS",
+ "name": "LMS Quiz Question",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
