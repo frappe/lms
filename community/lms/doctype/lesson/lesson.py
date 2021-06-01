@@ -20,6 +20,9 @@ class Lesson(Document):
     def get_sections(self):
         return sorted(self.get('sections'), key=lambda s: s.index)
 
+    def get_exercises(self):
+        return [frappe.get_doc("Exercise", s.id) for s in self.get("sections") if s.type=="exercise"]
+
     def make_lms_section(self, index, section):
             s = frappe.new_doc('LMS Section', parent_doc=self, parentfield='sections')
             s.type = section.type

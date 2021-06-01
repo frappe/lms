@@ -1,5 +1,18 @@
 {
- "actions": [],
+ "actions": [
+  {
+   "action": "community.lms.doctype.lms_course.lms_course.reindex_lessons",
+   "action_type": "Server Action",
+   "group": "Reindex",
+   "label": "Reindex Lessons"
+  },
+  {
+   "action": "community.lms.doctype.lms_course.lms_course.reindex_exercises",
+   "action_type": "Server Action",
+   "group": "Reindex",
+   "label": "Reindex Exercises"
+  }
+ ],
  "allow_guest_to_view": 1,
  "allow_rename": 1,
  "creation": "2021-03-01 16:49:33.622422",
@@ -86,7 +99,7 @@
    "link_fieldname": "course"
   }
  ],
- "modified": "2021-05-23 18:14:32.602647",
+ "modified": "2021-06-01 04:36:45.696776",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",
