@@ -29,7 +29,7 @@
     <h1>Batch Progress</h1>
     {% for exercise in report.exercises %}
     <div class="exercise-submissions">
-      <h2>{{exercise.title}}</h2>
+      <h2>Exercise {{exercise.index_label}}: {{exercise.title}}</h2>
       {% for s in report.get_submissions_of_exercise(exercise.name) %}
       <div class="submission">
         <h4><a href="/{{s.owner.username}}">{{s.owner.full_name}}</a></h4>

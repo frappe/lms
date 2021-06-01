@@ -16,9 +16,27 @@ class Lesson(Document):
                 e = s.get_exercise()
                 e.lesson = self.name
                 e.save()
+        self.update_orphan_exercises()
+
+    def update_orphan_exercises(self):
+        """Updates the exercises that were previously part of this lesson,
+        but not any more.
+        """
+        linked_exercises = {row['name'] for row in frappe.get_all('Exercise', {"lesson": self.name})}
+        active_exercises = {s.id for s in self.get("sections") if s.type=="exercise"}
+        orphan_exercises = linked_exercises - active_exercises
+        for name in orphan_exercises:
+            ex = frappe.get_doc("Exercise", name)
+            ex.lesson = None
+            ex.index_ = 0
+            ex.index_label = ""
+            ex.save()
 
     def get_sections(self):
         return sorted(self.get('sections'), key=lambda s: s.index)
+
+    def get_exercises(self):
+        return [frappe.get_doc("Exercise", s.id) for s in self.get("sections") if s.type=="exercise"]
 
     def make_lms_section(self, index, section):
             s = frappe.new_doc('LMS Section', parent_doc=self, parentfield='sections')

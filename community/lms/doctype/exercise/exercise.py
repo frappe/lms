@@ -25,7 +25,6 @@ class Exercise(Document):
             order_by="creation desc",
             page_length=1)
 
-        print("get_user_submission", result)
         if result:
             return result[0]
 

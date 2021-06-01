@@ -1,7 +1,7 @@
 {% from "www/macros/livecode.html" import LiveCodeEditorJS, LiveCodeEditor with context %}
 
 <div class="exercise">
-  <h2>{{ exercise.title }}</h2>
+  <h2>Exercise {{exercise.index_label}}: {{ exercise.title }}</h2>
   <div class="exercise-description">{{frappe.utils.md_to_html(exercise.description)}}</div>
 
   {% if exercise.image %}

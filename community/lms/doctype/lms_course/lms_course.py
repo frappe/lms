@@ -5,6 +5,7 @@
 from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
+import json
 from ...utils import slugify
 from community.query import find, find_all
 
@@ -157,6 +158,35 @@ class LMSCourse(Document):
         chapter = frappe.get_doc("Chapter", lesson.chapter)
         return f"{chapter.index_}.{lesson.index_}"
 
+    def reindex_lessons(self):
+        for i, c in enumerate(self.get_chapters(), start=1):
+            c.index_ = i
+            c.save()
+            self._reindex_lessons_in_chapter(c)
+
+    def _reindex_lessons_in_chapter(self, c):
+        for i, lesson in enumerate(c.get_lessons(), start=1):
+            lesson.index = i
+            lesson.index_label = f"{c.index_}.{i}"
+            lesson.save()
+
+    def reindex_exercises(self):
+        for i, c in enumerate(self.get_chapters(), start=1):
+            if c.index_ != i:
+                c.index_ = i
+                c.save()
+            self._reindex_exercises_in_chapter(c)
+
+    def _reindex_exercises_in_chapter(self, c):
+        i = 1
+        for lesson in c.get_lessons():
+            for exercise in lesson.get_exercises():
+                exercise.index_ = i
+                exercise.index_label = f"{c.index_}.{i}"
+                exercise.save()
+                i += 1
+
+
     def get_outline(self):
         return CourseOutline(self)
 
@@ -187,7 +217,8 @@ class CourseOutline:
     def get_chapters(self):
         return frappe.db.get_all("Chapter",
             filters={"course": self.course.name},
-            fields=["name", "title", "index_"])
+            fields=["name", "title", "index_"],
+            order_by="index_")
 
     def get_lessons(self):
         chapters = [c['name'] for c in self.chapters]
@@ -199,3 +230,17 @@ class CourseOutline:
         for lesson in lessons:
             lesson['number'] = "{}.{}".format(chapter_numbers[lesson['chapter']], lesson['index_'])
         return lessons
+
+@frappe.whitelist()
+def reindex_lessons(doc):
+    course_data = json.loads(doc)
+    course = frappe.get_doc("LMS Course", course_data['name'])
+    course.reindex_lessons()
+    frappe.msgprint("All lessons in this course have been re-indexed.")
+
+@frappe.whitelist()
+def reindex_exercises(doc):
+    course_data = json.loads(doc)
+    course = frappe.get_doc("LMS Course", course_data['name'])
+    course.reindex_exercises()
+    frappe.msgprint("All exercises in this course have been re-indexed.")

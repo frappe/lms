@@ -10,6 +10,7 @@
   "lesson_type",
   "title",
   "index_",
+  "index_label",
   "body",
   "sections"
  ],
@@ -51,11 +52,18 @@
    "fieldtype": "Table",
    "label": "Sections",
    "options": "LMS Section"
+  },
+  {
+   "fieldname": "index_label",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Index Label",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-05-13 20:03:51.510605",
+ "modified": "2021-06-01 05:30:48.127494",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Lesson",
