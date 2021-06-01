@@ -25,7 +25,7 @@ class BatchReport:
             self.submissions_by_exercise[s.exercise].append(s)
 
     def get_exercises(self, course_name):
-        return frappe.get_all("Exercise", {"course": course_name}, ["name", "title", "index_label"], order_by="index_label")
+        return frappe.get_all("Exercise", {"course": course_name, "lesson": ["!=", ""]}, ["name", "title", "index_label"], order_by="index_label")
 
     def get_submissions_of_exercise(self, exercise_name):
         return self.submissions_by_exercise[exercise_name]
