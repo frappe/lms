@@ -43,3 +43,54 @@ class Lesson(Document):
         The return value would be like 1.2, 2.1 etc.
         It will be None if there is no next lesson.
         """
+
+    def get_progress(self):
+        return frappe.db.get_value("LMS Course Progress", {"lesson": self.name, "owner": frappe.session.user}, "status")
+
+    def get_slugified_class(self):
+        if self.get_progress():
+            return ("").join([ s for s in self.get_progress().lower().split() ])
+        return
+
+@frappe.whitelist()
+def save_progress(lesson):
+    if frappe.db.exists("LMS Course Progress",
+            {
+                "lesson": lesson,
+                "owner": frappe.session.user
+            }):
+        return
+
+    lesson_details = frappe.get_doc("Lesson", lesson)
+    dynamic_content = frappe.db.count("LMS Section",
+                        filters={
+                            "type": ["not in", ["example", "text"]],
+                            "parent": lesson_details.name
+                        })
+
+    status = "Complete"
+    if dynamic_content:
+        status = "Partially Complete"
+
+    frappe.get_doc({
+        "doctype": "LMS Course Progress",
+        "lesson": lesson_details.name,
+        "status": status
+    }).save(ignore_permissions=True)
+
+def update_progress(lesson):
+    user = frappe.session.user
+    if not all_dynamic_content_submitted(lesson, user):
+        return
+    course_progress = frappe.get_doc("LMS Course Progress", {"lesson": lesson, "owner": user})
+    course_progress.status = "Complete"
+    course_progress.save()
+
+def all_dynamic_content_submitted(lesson, user):
+    exercises = frappe.get_all("Exercise", {"lesson": lesson}, ["name"])
+    all_exercises_submitted = True
+    for exercise in exercises:
+        if not frappe.db.count("Exercise Submission", {"exercise": exercise.name, "owner": user}):
+            all_exercises_submitted = False
+
+    return all_exercises_submitted

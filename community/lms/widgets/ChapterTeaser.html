@@ -8,6 +8,9 @@
       {% for lesson in chapter.get_lessons() %}
       <div class="lesson-teaser">
         <a {% if show_link %} class="anchor_style" href="{{ batch.get_learn_url(course.get_lesson_index(lesson.name)) }}" {% endif %}>{{ lesson.title }}</a>
+        {% if show_progress and not course.is_mentor(frappe.session.user) and lesson.get_progress() %}
+        <a class="pull-right badge p-1 {{ lesson.get_slugified_class() }}"> <img class="progress-image" src="/assets/community/images/Vector.png"> {{ lesson.get_progress() }}</a>
+        {% endif %}
       </div>
       {% endfor %}
     </div>

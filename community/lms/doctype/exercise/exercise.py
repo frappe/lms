@@ -4,6 +4,7 @@
 import frappe
 from frappe.model.document import Document
 from ..lms_sketch.livecode import livecode_to_svg
+from ..lesson.lesson import update_progress
 
 class Exercise(Document):
     def before_save(self):
@@ -55,5 +56,9 @@ class Exercise(Document):
             image=image,
             solution=code)
         doc.insert(ignore_permissions=True)
+
+        if not course.is_mentor(frappe.session.user):
+            update_progress(self.lesson)
+
         return doc
 
