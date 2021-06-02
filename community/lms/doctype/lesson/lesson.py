@@ -11,11 +11,15 @@ class Lesson(Document):
     def before_save(self):
         sections = SectionParser().parse(self.body or "")
         self.sections = [self.make_lms_section(i, s) for i, s in enumerate(sections)]
+
+        index = 1
         for s in self.sections:
             if s.type == "exercise":
                 e = s.get_exercise()
                 e.lesson = self.name
+                e.index_ = index
                 e.save()
+                index += 1
         self.update_orphan_exercises()
 
     def update_orphan_exercises(self):
