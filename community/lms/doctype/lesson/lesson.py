@@ -53,7 +53,13 @@ class Lesson(Document):
         return
 
 @frappe.whitelist()
-def save_progress(lesson):
+def save_progress(lesson, batch):
+    if not frappe.db.exists("LMS Batch Membership",
+            {
+                "member": frappe.session.user,
+                "batch": batch
+            }):
+        return
     if frappe.db.exists("LMS Course Progress",
             {
                 "lesson": lesson,
@@ -82,15 +88,20 @@ def update_progress(lesson):
     user = frappe.session.user
     if not all_dynamic_content_submitted(lesson, user):
         return
-    course_progress = frappe.get_doc("LMS Course Progress", {"lesson": lesson, "owner": user})
-    course_progress.status = "Complete"
-    course_progress.save()
+    if frappe.db.exists("LMS Course Progress", {"lesson": lesson, "owner": user}):
+        course_progress = frappe.get_doc("LMS Course Progress", {"lesson": lesson, "owner": user})
+        course_progress.status = "Complete"
+        course_progress.save()
 
 def all_dynamic_content_submitted(lesson, user):
-    exercises = frappe.get_all("Exercise", {"lesson": lesson}, ["name"])
-    all_exercises_submitted = True
-    for exercise in exercises:
-        if not frappe.db.count("Exercise Submission", {"exercise": exercise.name, "owner": user}):
-            all_exercises_submitted = False
+    exercise_names = frappe.get_list("Exercise", {"lesson": lesson}, ["name"], pluck="name")
+    all_exercises_submitted = False
+    print(exercise_names)
+    query = {
+        "exercise": ["in", exercise_names],
+        "owner": user
+    }
+    if frappe.db.count("Exercise Submission", query) == len(exercise_names):
+        all_exercises_submitted = True
 
     return all_exercises_submitted

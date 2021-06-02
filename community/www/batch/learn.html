@@ -28,7 +28,7 @@
   {{ widgets.BatchTabs(course=course, batch=batch) }}
   <div class="lesson-page">
 
-    <h2 class="title {% if course.is_mentor(frappe.session.user) %} is_mentor {% endif %}" data-name="{{ lesson.name }}">{{ lesson.title }}</h2>
+    <h2 class="title {% if course.is_mentor(frappe.session.user) %} is_mentor {% endif %}" data-name="{{ lesson.name }}" data-batch="{{ batch.name }}">{{ lesson.title }}</h2>
 
     {% for s in lesson.get_sections() %}
     <div class="section section-{{ s.type }}">
