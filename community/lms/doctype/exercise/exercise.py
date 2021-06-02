@@ -57,7 +57,7 @@ class Exercise(Document):
             solution=code)
         doc.insert(ignore_permissions=True)
 
-        if not course.is_mentor(frappe.session.user):
+        if not (course.is_mentor(frappe.session.user) or frappe.flags.in_test):
             update_progress(self.lesson)
 
         return doc
