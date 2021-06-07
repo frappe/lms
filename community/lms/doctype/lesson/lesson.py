@@ -65,3 +65,65 @@ class Lesson(Document):
         The return value would be like 1.2, 2.1 etc.
         It will be None if there is no next lesson.
         """
+
+    def get_progress(self):
+        return frappe.db.get_value("LMS Course Progress", {"lesson": self.name, "owner": frappe.session.user}, "status")
+
+    def get_slugified_class(self):
+        if self.get_progress():
+            return ("").join([ s for s in self.get_progress().lower().split() ])
+        return
+
+@frappe.whitelist()
+def save_progress(lesson, batch):
+    if not frappe.db.exists("LMS Batch Membership",
+            {
+                "member": frappe.session.user,
+                "batch": batch
+            }):
+        return
+    if frappe.db.exists("LMS Course Progress",
+            {
+                "lesson": lesson,
+                "owner": frappe.session.user
+            }):
+        return
+
+    lesson_details = frappe.get_doc("Lesson", lesson)
+    dynamic_content = frappe.db.count("LMS Section",
+                        filters={
+                            "type": ["not in", ["example", "text"]],
+                            "parent": lesson_details.name
+                        })
+
+    status = "Complete"
+    if dynamic_content:
+        status = "Partially Complete"
+
+    frappe.get_doc({
+        "doctype": "LMS Course Progress",
+        "lesson": lesson_details.name,
+        "status": status
+    }).save(ignore_permissions=True)
+
+def update_progress(lesson):
+    user = frappe.session.user
+    if not all_dynamic_content_submitted(lesson, user):
+        return
+    if frappe.db.exists("LMS Course Progress", {"lesson": lesson, "owner": user}):
+        course_progress = frappe.get_doc("LMS Course Progress", {"lesson": lesson, "owner": user})
+        course_progress.status = "Complete"
+        course_progress.save()
+
+def all_dynamic_content_submitted(lesson, user):
+    exercise_names = frappe.get_list("Exercise", {"lesson": lesson}, ["name"], pluck="name")
+    all_exercises_submitted = False
+    print(exercise_names)
+    query = {
+        "exercise": ["in", exercise_names],
+        "owner": user
+    }
+    if frappe.db.count("Exercise Submission", query) == len(exercise_names):
+        all_exercises_submitted = True
+
+    return all_exercises_submitted

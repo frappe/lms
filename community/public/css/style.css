@@ -238,3 +238,36 @@ section {
 .page-card .btn {
 	margin-top: 30px;
 }
+
+.partiallycomplete {
+  background: #FEF4E2;
+  color: #976417;
+}
+
+.partiallycomplete img {
+  background: #976417;
+}
+
+.complete {
+  background: #EAF5EE;
+  color: #38A160;
+}
+
+.complete img {
+  background: #38A160;
+}
+
+.incomplete {
+  background: #FEECEC;
+  color: #E24C4C;
+}
+
+.incomplete img {
+  background: #E24C4C;
+}
+
+.progress-image {
+  margin-right: 3px;
+  border-radius: 50px;
+  padding: 5px;
+}

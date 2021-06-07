@@ -54,5 +54,6 @@ class Exercise(Document):
             image=image,
             solution=code)
         doc.insert(ignore_permissions=True)
+
         return doc
 
