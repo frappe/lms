@@ -23,6 +23,7 @@
   --cta-color: var(--c4);
   --send-message: var(--c7);
   --received-message: var(--c8);
+	--checkbox-size: 14px;
 }
 
 body {
@@ -237,4 +238,8 @@ section {
 }
 .page-card .btn {
 	margin-top: 30px;
+}
+
+input[type=checkbox] {
+  appearance: auto;
 }

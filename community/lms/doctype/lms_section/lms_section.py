@@ -14,6 +14,10 @@ class LMSSection(Document):
         if self.type == "exercise":
             return frappe.get_doc("Exercise", self.id)
 
+    def get_quiz(self):
+        if self.type == "quiz":
+            return frappe.get_doc("LMS Quiz", self.id)
+
     def get_latest_code_for_user(self):
         """Returns the latest code for the logged in user.
         """

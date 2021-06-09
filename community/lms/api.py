@@ -43,7 +43,7 @@ def save_current_lesson(batch_name, lesson_name):
         doctype="LMS Batch Membership",
         filters={
             "batch": batch_name,
-            "member_email": frappe.session.user
+            "member": frappe.session.user
         },
         fieldname="name")
     if not name:

@@ -40,6 +40,7 @@
    "default": "1",
    "fieldname": "index_",
    "fieldtype": "Int",
+   "in_list_view": 1,
    "label": "Index"
   },
   {
@@ -56,14 +57,13 @@
   {
    "fieldname": "index_label",
    "fieldtype": "Data",
-   "in_list_view": 1,
    "label": "Index Label",
    "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-06-01 05:30:48.127494",
+ "modified": "2021-06-07 11:58:13.395438",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Lesson",

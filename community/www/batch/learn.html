@@ -53,6 +53,8 @@
     }}
 {% elif s.type == "exercise" %}
 {{ widgets.Exercise(exercise=s.get_exercise())}}
+{% elif s.type == "quiz" %}
+{{ widgets.Quiz(quiz=s.get_quiz())}}
 {% else %}
 <div>Unknown section type: {{s.type}}</div>
 {% endif %}
