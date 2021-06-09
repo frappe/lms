@@ -26,13 +26,42 @@ def markdown_to_html(text):
     """
     return markdown.markdown(text, extensions=['fenced_code', MacroExtension()])
 
+def find_macros(text):
+    """Returns all macros in the given text.
+
+        >>> find_macros(text)
+        [
+            ('YouTubeVideo': 'abcd1234')
+            ('Exercise', 'two-circles'),
+            ('Exercise', 'four-circles')
+        ]
+    """
+    macros = re.findall(MACRO_RE, text)
+    # remove the quotes around the argument
+    return [(name, _remove_quotes(arg)) for name, arg in macros]
+
+def _remove_quotes(value):
+    """Removes quotes around a value.
+
+    Also strips the whitespace.
+
+        >>> _remove_quotes('"hello"')
+        'hello'
+        >>> _remove_quotes("'hello'")
+        'hello'
+        >>> _remove_quotes("hello")
+        'hello'
+    """
+    return value.strip(" '\"")
+
+
 def get_macro_registry():
     d = frappe.get_hooks("community_markdown_macro_renderers") or {}
     return {name: frappe.get_attr(klass[0]) for name, klass in d.items()}
 
 def render_macro(macro_name, macro_argument):
     # stripping the quotes on either side of the argument
-    macro_argument = macro_argument.strip(" '\"")
+    macro_argument = _remove_quotes(macro_argument)
 
     registry = get_macro_registry()
     if macro_name in registry:
@@ -40,13 +69,13 @@ def render_macro(macro_name, macro_argument):
     else:
         return f"<p>Unknown macro: {macro_name}</p>"
 
+MACRO_RE = r'{{ *(\w+)\(([^{}]*)\) *}}'
+
 class MacroExtension(Extension):
     """MacroExtension is a markdown extension to support macro syntax.
     """
     def extendMarkdown(self, md):
         self.md = md
-
-        MACRO_RE = r'{{ *(\w+)\(([^{}]*)\) *}}'
         pattern = MacroInlineProcessor(MACRO_RE)
         pattern.md = md
         md.inlinePatterns.register(pattern, 'macro', 75)
