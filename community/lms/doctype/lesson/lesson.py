@@ -6,28 +6,28 @@ from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
 from ...section_parser import SectionParser
+from ...md import markdown_to_html, find_macros
 
 class Lesson(Document):
     def before_save(self):
-        sections = SectionParser().parse(self.body or "")
-        self.sections = [self.make_lms_section(i, s) for i, s in enumerate(sections)]
+        macros = find_macros(self.body)
+        exercises = [value for name, value in macros if name == "Exercise"]
 
         index = 1
-        for s in self.sections:
-            if s.type == "exercise":
-                e = s.get_exercise()
-                e.lesson = self.name
-                e.index_ = index
-                e.save()
-                index += 1
-        self.update_orphan_exercises()
+        for name in exercises:
+            e = frappe.get_doc("Exercise", name)
+            e.lesson = self.name
+            e.index_ = index
+            e.save()
+            index += 1
+        self.update_orphan_exercises(exercises)
 
-    def update_orphan_exercises(self):
+    def update_orphan_exercises(self, active_exercises):
         """Updates the exercises that were previously part of this lesson,
         but not any more.
         """
         linked_exercises = {row['name'] for row in frappe.get_all('Exercise', {"lesson": self.name})}
-        active_exercises = {s.id for s in self.get("sections") if s.type=="exercise"}
+        active_exercises = set(active_exercises)
         orphan_exercises = linked_exercises - active_exercises
         for name in orphan_exercises:
             ex = frappe.get_doc("Exercise", name)
@@ -36,11 +36,19 @@ class Lesson(Document):
             ex.index_label = ""
             ex.save()
 
+    def render_html(self):
+        return markdown_to_html(self.body)
+
     def get_sections(self):
         return sorted(self.get('sections'), key=lambda s: s.index)
 
     def get_exercises(self):
-        return [frappe.get_doc("Exercise", s.id) for s in self.get("sections") if s.type=="exercise"]
+        if not self.body:
+            return []
+
+        macros = find_macros(self.body)
+        exercises = [value for name, value in macros if name == "Exercise"]
+        return [frappe.get_doc("Exercise", name) for name in exercises]
 
     def make_lms_section(self, index, section):
             s = frappe.new_doc('LMS Section', parent_doc=self, parentfield='sections')
