@@ -1,6 +1,7 @@
 from re import I
 import frappe
 from . import utils
+from frappe.utils import cstr
 
 def get_context(context):
     utils.get_common_context(context)
@@ -10,9 +11,10 @@ def get_context(context):
     lesson_number = f"{chapter_index}.{lesson_index}"
 
     course_name = context.course.name
-
+    print(chapter_index, lesson_index)
     if not chapter_index or not lesson_index:
         index_ = get_lesson_index(context.course, context.batch, frappe.session.user) or "1.1"
+        print(index_)
         frappe.local.flags.redirect_location = context.batch.get_learn_url(index_)
         raise frappe.Redirect
 
@@ -33,8 +35,9 @@ def get_context(context):
 def get_chapter_title(course_name, lesson_number):
     if not lesson_number:
         return
-    chapter_index = lesson_number.split(".")[0]
-    lesson_index = lesson_number.split(".")[1]
+    lesson_split = cstr(lesson_number).split(".")
+    chapter_index = lesson_split[0]
+    lesson_index = lesson_split[1]
     chapter_name = frappe.db.get_value("Chapter", {"course": course_name, "index_": chapter_index}, "name")
     return frappe.db.get_value("Lesson", {"chapter": chapter_name, "index_": lesson_index}, "title")
 

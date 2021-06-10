@@ -12,7 +12,8 @@
   "index_",
   "index_label",
   "body",
-  "sections"
+  "sections",
+  "include_in_preview"
  ],
  "fields": [
   {
@@ -59,11 +60,17 @@
    "in_list_view": 1,
    "label": "Index Label",
    "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "include_in_preview",
+   "fieldtype": "Check",
+   "label": "Include In Preview"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-06-01 05:30:48.127494",
+ "modified": "2021-06-10 10:06:39.176891",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Lesson",

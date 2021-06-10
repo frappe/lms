@@ -12,4 +12,5 @@ class Chapter(Document):
             filters={"chapter": self.name},
             fields='name',
             order_by="index_")
+        print("rows", rows)
         return [frappe.get_doc('Lesson', row['name']) for row in rows]

@@ -19,23 +19,19 @@
 {% macro MembersList(members) %}
 <div class="mt-5">
   {% for member in members %}
-  <div class="row mb-5">
-    <div>
-      {{ widgets.Avatar(member=member, avatar_class="avatar-large") }}
-    </div>
-    <div class="col">
-      <div class="row ml-1">
-        <a class="anchor_style" href="/{{member.username}}">
+  <div class="d-flex align-items-center">
+    {{ widgets.Avatar(member=member, avatar_class="avatar-large") }}
+    <div class="d-flex flex-column ml-2">
+      <div class="d-flex">
+        <a class="anchor_style ml-2" href="/{{member.username}}">
           <h3>{{ member.full_name }}</h3>
         </a>
         {% if course.is_mentor(member.name) %}
-        <div class="ml-2">
-          <div class="badge badge-success">Mentor</div>
-        </div>
+        <div class="badge badge-success ml-2 align-self-start">Mentor</div>
         {% endif %}
       </div>
       {% if member.bio %}
-      <i>{{member.bio}}</i>
+      <i class="ml-2">{{member.bio}}</i>
       {% endif %}
     </div>
   </div>

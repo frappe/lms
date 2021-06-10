@@ -11,26 +11,28 @@
 {% set invite_link = frappe.utils.get_url() + "/courses/" + course.name + "/" + batch.name + "/join" %}
 <div class="container mt-5">
   {{ widgets.BatchTabs(course=course, batch=batch) }}
-  <div>
+  <!-- <div>
     <h1 class="mt-5">{{ batch.title }}</h1>
-  </div>
-  <div class="course-details">
+  </div> -->
+  <div class="course-details mt-5">
     {{ widgets.CourseOutline(course=course, batch=batch, show_link=True, show_progress=True) }}
   </div>
   <div class="w-25">
-    <h2>Batch Schedule</h2>
+    <h3>Batch Schedule</h3>
     {{ widgets.RenderBatch(course=course, batch=batch) }}
   </div>
 
   {% if batch.description %}
-  <h2>Batch Details</h2>
-  {{ frappe.utils.md_to_html(batch.description) }}
+  <div class="mt-5">
+    <h3>Batch Details</h3>
+    {{ frappe.utils.md_to_html(batch.description) }}
+  </div>
   {% endif %}
 
   {% if course.is_mentor(frappe.session.user) %}
   <div class="">
-    <h2> Invite Members </h2>
-    <a href="" class="anchor_style mr-5" id="invite-link" data-link="{{ invite_link }}">Get Batch Invitation
+    <h3> Invite Members </h3>
+    <a href="" class="" id="invite-link" data-link="{{ invite_link }}">Get Batch Invitation
       Link</a>
     <small id="copy-message" class="text-muted pull-right" style="display: none;">Copied to Clipboard.</small>
   </div>

@@ -1,5 +1,6 @@
-<h3>Instructor</h3>
 <div class="instructor">
-  <div class="instructor-title">{{instructor.full_name}}</div>
-  <div class="instructor-subtitle">Created {{instructor.get_course_count()}} courses</div>
+  {{ widgets.Avatar(member=instructor, avatar_class="avatar-medium") }}
+  <a class="ml-1 instructor-title" href="/{{instructor.username}}">{{ instructor.full_name }}</a>
+  <div class="instructor-subtitle">Course Creator</div>
+  <!-- <div class="instructor-subtitle">Created {{instructor.get_course_count()}} courses</div> -->
 </div>

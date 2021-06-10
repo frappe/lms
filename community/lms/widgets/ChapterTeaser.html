@@ -1,15 +1,15 @@
 <div class="chapter-teaser">
   <div class="teaser-body">
-    <h3 class="chapter-title"><span class="mr-1">{{index}}.</span> {{ chapter.title }}</h3>
+    <div class="chapter-title mb-5 font-weight-bold"><span class="mr-1">{{index}}.</span> {{ chapter.title }}</div>
     <div class="chapter-description">
       {{ chapter.description or "" }}
     </div>
     <div class="chapter-lessons">
       {% for lesson in chapter.get_lessons() %}
       <div class="lesson-teaser">
-        <a {% if show_link %} class="anchor_style" href="{{ batch.get_learn_url(course.get_lesson_index(lesson.name)) }}" {% endif %}>{{ lesson.title }}</a>
+        <a {% if show_link %} href="{{ batch.get_learn_url(course.get_lesson_index(lesson.name)) }}" {% endif %}>{{ lesson.title }}</a>
         {% if show_progress and not course.is_mentor(frappe.session.user) and lesson.get_progress() %}
-        <a class="pull-right badge p-1 {{ lesson.get_slugified_class() }}"> <img class="progress-image" src="/assets/community/images/Vector.png"> {{ lesson.get_progress() }}</a>
+        <a class="ml-5 badge p-1 {{ lesson.get_slugified_class() }}"> <img class="progress-image" src="/assets/community/images/Vector.png"> {{ lesson.get_progress() }}</a>
         {% endif %}
       </div>
       {% endfor %}

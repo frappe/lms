@@ -12,26 +12,18 @@
     <div class="mb-5">
       <a class="anchor_style" href="/courses">Courses</a> / <span class="text-muted">{{ course.title }}</span>
     </div>
-    <h1 id="course-title" data-course="{{course.name}}">{{course.title}}</h1>
+    <h2 id="course-title" data-course="{{course.name}}">{{course.title}}</h2>
     <div class="course-short-intro">{{ course.short_introduction }}</div>
   </div>
 
-  <div class="row">
-    <div class="col-lg-8 col-md-12">
+  <div class="">
+    <div class="">
       <div class="course-details">
         {{ CourseVideo(course) }}
-
         {{ CourseDescription(course) }}
+        {{ widgets.InstructorSection(instructor=course.get_instructor()) }}
         {{ BatchSection(course) }}
         {{ widgets.CourseOutline(course=course, show_link=False) }}
-      </div>
-    </div>
-    <div class="col-lg-4 col-md-12">
-      <div class="sidebar">
-        {{ widgets.InstructorSection(instructor=course.get_instructor()) }}
-      </div>
-      <div class="sidebar">
-        {{ MentorsSection(course.get_mentors(), course.is_mentor(frappe.session.user), course.name) }}
       </div>
     </div>
   </div>
@@ -49,28 +41,31 @@
 {% endmacro %}
 
 {% macro CourseDescription(course) %}
-<h2>Course Description</h2>
+<div class="mt-5">
+  <h3>Course Description</h3>
 
-<div class="course-description">
-  {{ frappe.utils.md_to_html(course.description) }}
+  <div class="course-description text-justify">
+    {{ frappe.utils.md_to_html(course.description) }}
+  </div>
 </div>
 {% endmacro %}
 
 {% macro BatchSection(course) %}
-{% if course.is_mentor(frappe.session.user) %}
-{{ BatchSectionForMentors(course, course.get_batches(mentor=frappe.session.user)) }}
-{% else %}
-{{ BatchSectionForStudents(course, course.get_upcoming_batches()) }}
-{% endif %}
+<div class="row">
+  <div class="col-lg-8 col-md-12">
+    {% if course.is_mentor(frappe.session.user) %}
+    {{ BatchSectionForMentors(course, course.get_batches(mentor=frappe.session.user)) }}
+    {% else %}
+    {{ BatchSectionForStudents(course, course.get_upcoming_batches()) }}
+    {% endif %}
+  </div>
+</div>
 {% endmacro %}
 
 {% macro BatchSectionForMentors(course, mentor_batches) %}
 <h2>Your Batches</h2>
 
 {% if mentor_batches %}
-<!-- <div class="alert alert-secondary">
-      You are a mentor for this course. Manage your batches or create a new batch from here.
-    </div> -->
 
 <div class="row">
   {% for batch in mentor_batches %}
@@ -92,14 +87,15 @@
 
 {% macro BatchSectionForStudents(course, upcoming_batches) %}
 {% if upcoming_batches %}
-<h2>Upcoming Batches</h2>
-
-<div class="row">
-  {% for batch in upcoming_batches %}
-  <div class="col-lg-4 col-md-6">
-    {{ widgets.RenderBatch(course=course, batch=batch, can_join=True) }}
+<div class="mt-5">
+  <h3>Upcoming Batches</h3>
+  <div class="row">
+    {% for batch in upcoming_batches %}
+    <div class="col-lg-4 col-md-6">
+      {{ widgets.RenderBatch(course=course, batch=batch, can_join=True) }}
+    </div>
+    {% endfor %}
   </div>
-  {% endfor %}
+  {% endif %}
 </div>
-{% endif %}
 {% endmacro %}

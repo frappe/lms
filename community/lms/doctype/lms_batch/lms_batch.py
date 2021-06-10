@@ -83,7 +83,7 @@ class LMSBatch(Document):
     def get_learn_url(self, lesson_number):
         if not lesson_number:
             return
-        return f"/courses/{self.course}/{self.name}/learn/{lesson_number}"
+        return f"/courses/{self.course}/learn/{lesson_number}"
 
 @frappe.whitelist()
 def save_message(message, batch):

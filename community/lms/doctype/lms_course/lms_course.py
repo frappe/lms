@@ -8,6 +8,7 @@ from frappe.model.document import Document
 import json
 from ...utils import slugify
 from community.query import find, find_all
+from frappe.utils import flt
 
 class LMSCourse(Document):
     @staticmethod
@@ -112,7 +113,7 @@ class LMSCourse(Document):
         """Returns all chapters of this course.
         """
         # TODO: chapters should have a way to specify the order
-        return find_all("Chapter", course=self.name, order_by="creation")
+        return find_all("Chapter", course=self.name, order_by="index_")
 
     def get_batch(self, batch_name):
         return find("LMS Batch", name=batch_name, course=self.name)
@@ -197,6 +198,7 @@ class CourseOutline:
         self.lessons = self.get_lessons()
 
     def get_next(self, current):
+        current = flt(current)
         numbers = sorted(lesson['number'] for lesson in self.lessons)
         try:
             index = numbers.index(current)
@@ -205,6 +207,7 @@ class CourseOutline:
             return None
 
     def get_prev(self, current):
+        current = flt(current)
         numbers = sorted(lesson['number'] for lesson in self.lessons)
         try:
             index = numbers.index(current)
@@ -228,7 +231,7 @@ class CourseOutline:
 
         chapter_numbers = {c['name']: c['index_'] for c in self.chapters}
         for lesson in lessons:
-            lesson['number'] = "{}.{}".format(chapter_numbers[lesson['chapter']], lesson['index_'])
+            lesson['number'] = flt("{}.{}".format(chapter_numbers[lesson['chapter']], lesson['index_']))
         return lessons
 
 @frappe.whitelist()
