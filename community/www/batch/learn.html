@@ -9,16 +9,13 @@
 </style>
 
 <link rel="stylesheet" href="/assets/frappe/css/font-awesome.css">
-<link rel="stylesheet" href="{{ livecode_url }}/static/codemirror/lib/codemirror.css">
 <link rel="stylesheet" href="/assets/css/lms.css">
 <link rel="stylesheet" href="/assets/frappe/css/hljs-night-owl.css">
 
-<script src="{{ livecode_url }}/static/codemirror/lib/codemirror.js"></script>
-<script src="{{ livecode_url }}/static/codemirror/mode/python/python.js"></script>
-<script src="{{ livecode_url }}/static/codemirror/keymap/sublime.js"></script>
+{% for ext in page_extensions %}
+  {{ ext.render_header() }}
+{% endfor %}
 
-<script src="{{ livecode_url }}/static/codemirror/addon/edit/matchbrackets.js"></script>
-<script src="{{ livecode_url }}/static/codemirror/addon/comment/comment.js"></script>
 {% endblock %}
 
 
@@ -30,41 +27,13 @@
 
     <h2 class="title {% if course.is_mentor(frappe.session.user) %} is_mentor {% endif %}" data-name="{{ lesson.name }}" data-batch="{{ batch.name }}">{{ lesson.title }}</h2>
 
-    {% for s in lesson.get_sections() %}
-    <div class="section section-{{ s.type }}">
-      {{ render_section(s) }}
-    </div>
-    {% endfor %}
+    {{ lesson.render_html() }}
 
     {{ pagination(prev_chap, prev_url, next_chap, next_url) }}
   </div>
 </div>
 {% endblock %}
 
-
-{% macro render_section(s) %}
-{% if s.type == "text" %}
-{{ render_section_text(s) }}
-{% elif s.type == "example" or s.type == "code" %}
-{{ LiveCodeEditor(s.name,
-          code=s.get_latest_code_for_user(),
-          reset_code=s.contents,
-          is_exercise=False)
-    }}
-{% elif s.type == "exercise" %}
-{{ widgets.Exercise(exercise=s.get_exercise())}}
-{% else %}
-<div>Unknown section type: {{s.type}}</div>
-{% endif %}
-{% endmacro %}
-
-{% macro render_section_text(s) %}
-<div class="row">
-  <div class="col-md-9">
-    {{ frappe.utils.md_to_html(s.contents) }}
-  </div>
-</div>
-{% endmacro %}
 
 {% macro pagination(prev_chap, prev_url, next_chap, next_url) %}
 <div class="lesson-pagination">
@@ -84,8 +53,6 @@
 
 {%- block script %}
 {{ super() }}
-{{ LiveCodeEditorJS() }}
-
   <script type="text/javascript">
     $(function() {
       var batch_name = "{{ batch.name }}";
@@ -97,5 +64,9 @@
       })
     })
   </script>
+
+{% for ext in page_extensions %}
+  {{ ext.render_footer() }}
+{% endfor %}
 
 {%- endblock %}

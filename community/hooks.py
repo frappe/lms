@@ -176,3 +176,15 @@ profile_rules = [
 website_route_rules = primary_rules + whitelist_rules + profile_rules
 
 update_website_context = 'community.widgets.update_website_context'
+
+## Specify the additional tabs to be included in the user profile page.
+## Each entry must be a subclass of community.community.plugins.ProfileTab
+# profile_tabs = []
+
+## Specify the extension to be used to control what scripts and stylesheets
+## to be included in lesson pages. The specified value must be be a
+## subclass of community.community.plugins.PageExtension
+# community_lesson_page_extension = None
+
+## Markdown Macros for Lessons
+# community_markdown_macro_renderers = {"Exercise": "myapp.mymodule.plugins.render_exercise"}
