@@ -187,6 +187,22 @@ class LMSCourse(Document):
                 exercise.save()
                 i += 1
 
+    def get_learn_url(self, lesson_number):
+        if not lesson_number:
+            return
+        return f"/courses/{self.name}/learn/{lesson_number}"
+
+    def get_current_batch(self, member=frappe.session.user):
+        current_membership = frappe.get_all("LMS Batch Membership", {"member": member, "course": self.name, "is_current": 1}, pluck="batch")
+        if len(current_membership):
+            return current_membership[0]
+        return frappe.db.get_value("LMS Batch Membership", {"member": member, "course": self.name}, "batch")
+
+    def get_all_memberships(self, member=frappe.session.user):
+        all_memberships = frappe.get_all("LMS Batch Membership", {"member": member, "course": self.name}, ["batch", "is_current"])
+        for membership in all_memberships:
+            membership.batch_title = frappe.db.get_value("LMS Batch", membership.batch, "title")
+        return all_memberships
 
     def get_outline(self):
         return CourseOutline(self)

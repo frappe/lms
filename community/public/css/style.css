@@ -157,19 +157,6 @@ img.profile-photo {
   line-height: 51px;
 }
 
-.anchor_style {
-  color: inherit;
-}
-
-a:hover {
-  text-decoration: none;
-  color: inherit;
-}
-
-.anchor_style:hover {
-  text-decoration: underline
-}
-
 section {
   padding: 5rem 0 5rem 0;
 }

@@ -25,9 +25,16 @@
   {{ widgets.BatchTabs(course=course, batch=batch) }}
   <div class="lesson-page">
 
-    <h2 class="title {% if course.is_mentor(frappe.session.user) %} is_mentor {% endif %}" data-name="{{ lesson.name }}" data-batch="{{ batch.name }}">{{ lesson.title }}</h2>
+    <h2 class="title {% if course.is_mentor(frappe.session.user) %} is_mentor {% endif %}" data-name="{{ lesson.name }}" {% if batch %} data-batch="{{ batch.name }}" {% endif %}>{{ lesson.title }}</h2>
 
+    {% if batch or lesson.include_in_preview %}
     {{ lesson.render_html() }}
+    {% else %}
+    <div class="no-preview-message">
+      <span>This lesson is not available for Preview. Please join a batch to access the complete course.</span>
+      <a href="/courses/{{ course.name }}">Checkout Upcoming Batches</a>
+    </div>
+    {% endif %}
 
     {{ pagination(prev_chap, prev_url, next_chap, next_url) }}
   </div>
@@ -53,18 +60,6 @@
 
 {%- block script %}
 {{ super() }}
-  <script type="text/javascript">
-    $(function() {
-      var batch_name = "{{ batch.name }}";
-      var lesson_name = "{{ lesson.name }}";
-
-      frappe.call("community.lms.api.save_current_lesson", {
-        "batch_name": batch_name,
-        "lesson_name": lesson_name
-      })
-    })
-  </script>
-
 {% for ext in page_extensions %}
   {{ ext.render_footer() }}
 {% endfor %}

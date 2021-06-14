@@ -1,5 +1,5 @@
 import frappe
-from community.lms.models import Course, Membership
+from community.lms.models import Course
 
 def get_common_context(context):
     context.no_cache = 1
@@ -10,16 +10,16 @@ def get_common_context(context):
     if not course:
         context.template = "www/404.html"
         return
-    batch_name = Membership.get_user_batch(course_name)
+
+    batch_name = course.get_current_batch()
     batch = course.get_batch(batch_name)
-    """ if not batch or not batch.is_member(frappe.session.user):
-        frappe.local.flags.redirect_location = "/courses/" + course_name
-        raise frappe.Redirect """
+    context.batch = batch
+    if batch_name:
+        context.members = batch.get_mentors() + batch.get_students()
+        context.member_count = len(context.members)
+
 
     context.course = course
-    context.batch = batch
-    context.members = batch.get_mentors() + batch.get_students()
-    context.member_count = len(context.members)
     context.livecode_url = get_livecode_url()
 
 def get_livecode_url():

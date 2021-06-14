@@ -16,13 +16,6 @@ def autosave_section(section, code):
     return {"name": doc.name}
 
 @frappe.whitelist()
-def get_section(name):
-    """Saves the code edited in one of the sections.
-    """
-    doc = frappe.get_doc("LMS Section", name)
-    return doc and doc.as_dict()
-
-@frappe.whitelist()
 def submit_solution(exercise, code):
     """Submits a solution.
 

@@ -13,7 +13,8 @@
   "course",
   "member_type",
   "role",
-  "current_lesson"
+  "current_lesson",
+  "is_current"
  ],
  "fields": [
   {
@@ -80,11 +81,19 @@
    "fieldtype": "Data",
    "label": "Memeber Username",
    "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_current",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Is Currently Being Used",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-05-24 12:40:57.125694",
+ "modified": "2021-06-14 10:24:35.425498",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch Membership",

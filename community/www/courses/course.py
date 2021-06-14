@@ -19,6 +19,6 @@ def get_context(context):
 
     batch = course.get_student_batch(frappe.session.user)
     if batch:
-        frappe.local.flags.redirect_location = f"/courses/{course.name}/{batch.name}/learn"
+        frappe.local.flags.redirect_location = f"/courses/{course.name}/learn"
         raise frappe.Redirect
 

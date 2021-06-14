@@ -43,9 +43,6 @@ class LMSBatchMembership(Document):
                 member_name = frappe.db.get_value("User", self.member, "full_name")
                 frappe.throw(_("{0} is already a {1} of {2} course through {3} batch").format(member_name, membership.member_type, course, membership.batch))
 
-    def get_user_batch(course, user=frappe.session.user):
-        return frappe.db.get_value("LMS Batch Membership", {"member": user, "course": course}, "batch")
-
 @frappe.whitelist()
 def create_membership(batch, member=None, member_type="Student", role="Member"):
     frappe.get_doc({
@@ -56,3 +53,13 @@ def create_membership(batch, member=None, member_type="Student", role="Member"):
         "member": member or frappe.session.user
     }).save(ignore_permissions=True)
     return "OK"
+
+@frappe.whitelist()
+def update_current_membership(batch, course, member=frappe.session.user):
+    all_memberships = frappe.get_all("LMS Batch Membership", {"member": member, "course": course})
+    for membership in all_memberships:
+        frappe.db.set_value("LMS Batch Membership", membership.name, "is_current", 0)
+
+    current_membership = frappe.get_all("LMS Batch Membership", {"batch": batch, "member": member})
+    if len(current_membership):
+        frappe.db.set_value("LMS Batch Membership", current_membership[0].name, "is_current", 1)

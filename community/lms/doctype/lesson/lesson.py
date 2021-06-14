@@ -5,7 +5,6 @@
 from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
-from ...section_parser import SectionParser
 from ...md import markdown_to_html, find_macros
 
 class Lesson(Document):
@@ -39,9 +38,6 @@ class Lesson(Document):
     def render_html(self):
         return markdown_to_html(self.body)
 
-    def get_sections(self):
-        return sorted(self.get('sections'), key=lambda s: s.index)
-
     def get_exercises(self):
         if not self.body:
             return []
@@ -49,30 +45,6 @@ class Lesson(Document):
         macros = find_macros(self.body)
         exercises = [value for name, value in macros if name == "Exercise"]
         return [frappe.get_doc("Exercise", name) for name in exercises]
-
-    def make_lms_section(self, index, section):
-            s = frappe.new_doc('LMS Section', parent_doc=self, parentfield='sections')
-            s.type = section.type
-            s.id = section.id
-            s.label = section.label
-            s.contents = section.contents
-            s.index = index
-            return s
-
-    def get_next(self):
-        """Returns the number for the next lesson.
-
-        The return value would be like 1.2, 2.1 etc.
-        It will be None if there is no next lesson.
-        """
-
-
-    def get_prev(self):
-        """Returns the number for the prev lesson.
-
-        The return value would be like 1.2, 2.1 etc.
-        It will be None if there is no next lesson.
-        """
 
     def get_progress(self):
         return frappe.db.get_value("LMS Course Progress", {"lesson": self.name, "owner": frappe.session.user}, "status")
@@ -98,11 +70,7 @@ def save_progress(lesson, batch):
         return
 
     lesson_details = frappe.get_doc("Lesson", lesson)
-    dynamic_content = frappe.db.count("LMS Section",
-                        filters={
-                            "type": ["not in", ["example", "text"]],
-                            "parent": lesson_details.name
-                        })
+    dynamic_content = find_macros(lesson_details.body)
 
     status = "Complete"
     if dynamic_content:
@@ -121,12 +89,11 @@ def update_progress(lesson):
     if frappe.db.exists("LMS Course Progress", {"lesson": lesson, "owner": user}):
         course_progress = frappe.get_doc("LMS Course Progress", {"lesson": lesson, "owner": user})
         course_progress.status = "Complete"
-        course_progress.save()
+        course_progress.save(ignore_permissions=True)
 
 def all_dynamic_content_submitted(lesson, user):
-    exercise_names = frappe.get_list("Exercise", {"lesson": lesson}, ["name"], pluck="name")
+    exercise_names = frappe.get_list("Exercise", {"lesson": lesson}, pluck="name")
     all_exercises_submitted = False
-    print(exercise_names)
     query = {
         "exercise": ["in", exercise_names],
         "owner": user
