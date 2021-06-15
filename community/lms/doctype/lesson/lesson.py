@@ -92,7 +92,7 @@ def update_progress(lesson):
         course_progress.save(ignore_permissions=True)
 
 def all_dynamic_content_submitted(lesson, user):
-    exercise_names = frappe.get_list("Exercise", {"lesson": lesson}, pluck="name")
+    exercise_names = frappe.get_list("Exercise", {"lesson": lesson}, pluck="name", ignore_permissions=True)
     all_exercises_submitted = False
     query = {
         "exercise": ["in", exercise_names],

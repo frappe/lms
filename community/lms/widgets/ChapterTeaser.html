@@ -45,7 +45,9 @@
     }
 
     window.checkout_upcoming_batches = () => {
-      $('html,body').animate({scrollTop: $(".upcoming").offset().top}, 300);
+      if ($(".upcoming").length > 0) {
+        $('html,body').animate({ scrollTop: $(".upcoming").offset().top }, 300);
+      }
       frappe.hide_msgprint();
     }
   })

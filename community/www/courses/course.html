@@ -96,6 +96,8 @@
     </div>
     {% endfor %}
   </div>
-  {% endif %}
+{% else %}
+<div class="mt-5 upcoming">There are no Upcoming Batches for this course currently.</div>
+{% endif %}
 </div>
 {% endmacro %}

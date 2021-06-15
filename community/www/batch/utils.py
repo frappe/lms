@@ -25,3 +25,6 @@ def get_common_context(context):
 def get_livecode_url():
     return frappe.db.get_single_value("LMS Settings", "livecode_url")
 
+def redirect_to_lesson(course, index_="1.1"):
+    frappe.local.flags.redirect_location = course.get_learn_url(index_)
+    raise frappe.Redirect
