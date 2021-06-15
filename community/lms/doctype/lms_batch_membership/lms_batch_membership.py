@@ -55,7 +55,7 @@ def create_membership(batch, member=None, member_type="Student", role="Member"):
     return "OK"
 
 @frappe.whitelist()
-def update_current_membership(batch, course, member=frappe.session.user):
+def update_current_membership(batch, course, member):
     all_memberships = frappe.get_all("LMS Batch Membership", {"member": member, "course": course})
     for membership in all_memberships:
         frappe.db.set_value("LMS Batch Membership", membership.name, "is_current", 0)

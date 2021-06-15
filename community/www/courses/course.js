@@ -82,7 +82,8 @@ frappe.ready(() => {
       method: "community.lms.doctype.lms_batch_membership.lms_batch_membership.update_current_membership",
       args: {
         batch: batch,
-        course: course
+        course: course,
+        member: frappe.session.user
       },
       callback: (data) => {
         window.location.href = `/courses/${course}/home`;
