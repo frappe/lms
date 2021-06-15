@@ -80,11 +80,6 @@ class LMSBatch(Document):
         membership = self.get_membership(user)
         return membership and membership.current_lesson
 
-    def get_learn_url(self, lesson_number):
-        if not lesson_number:
-            return
-        return f"/courses/{self.course}/{self.name}/learn/{lesson_number}"
-
 @frappe.whitelist()
 def save_message(message, batch):
     doc = frappe.get_doc({

@@ -1,6 +1,6 @@
 <div class="batch">
   <div class="batch-details">
-    <div>Session every {{batch.sessions_on}}</div>
+    <div class="">Session every {{batch.sessions_on}}</div>
     <div>{{frappe.utils.format_time(batch.start_time, "short")}} -
       {{frappe.utils.format_time(batch.end_time, "short")}}
     </div>
@@ -18,7 +18,8 @@
   <div class="cta">
     <div class="">
       {% if can_manage %}
-      <a href="/courses/{{course.name}}/{{batch.name}}/home" class="btn btn-primary">Manage</a>
+      <a href="" class="btn btn-primary manage-batch" data-batch="{{ batch.name | urlencode }}"
+        data-course="{{ course.name | urlencode }}">Manage</a>
       {% elif can_join %}
       <button class="join-batch btn btn-primary" data-batch="{{ batch.name | urlencode }}"
         data-course="{{ course.name | urlencode }}">Join this Batch</button>

@@ -82,6 +82,7 @@ body {
   border-radius: 10px;
   margin: 10px 0px;
   background: white;
+  box-shadow: 0px 5px 10px rgb(0 0 0 / 10%);
   border: 1px solid #ddc;
 }
 
@@ -154,19 +155,6 @@ img.profile-photo {
   color: #2D005A;
   font-weight: 600;
   line-height: 51px;
-}
-
-.anchor_style {
-  color: inherit;
-}
-
-a:hover {
-  text-decoration: none;
-  color: inherit;
-}
-
-.anchor_style:hover {
-  text-decoration: underline
 }
 
 section {

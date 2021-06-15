@@ -5,11 +5,12 @@
 from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
+from frappe import _
 
 class CommunityProjectMember(Document):
     def validate(self):
         self.validate_if_already_member()
-    
+
     def validate_if_already_member(self):
         if frappe.get_all("Community Project Member", {"owner": self.owner}):
             frappe.throw(_("You have already applied for the membership of this project."))

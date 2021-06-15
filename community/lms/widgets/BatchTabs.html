@@ -1,28 +1,49 @@
 <div class="mt-5">
-  <a class="anchor_style" href="/courses">Courses</a> /{% if course.is_mentor(frappe.session.user) %} <a class="anchor_style" href="/courses/{{ course.name }}"> {{ course.title }}</a> {% else %} <span class="text-muted"> {{ course.title }}</span> {% endif %}
+  <a class="anchor_style" href="/courses">Courses</a> /{% if course.is_mentor(frappe.session.user) %} <a
+    class="anchor_style" href="/courses/{{ course.name }}"> {{ course.title }}</a> {% else %} <span class="text-muted">
+    {{ course.title }}</span> {% endif %}
+  {% set all_memberships = course.get_all_memberships() %}
+  {% if all_memberships | length > 1 %}
+    <a class="nav-link pull-right" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true"
+    aria-expanded="false">
+    Switch Batch
+  </a>
+  <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+    {% for membership in all_memberships %}
+    {% if not membership.is_current %}
+    <a class="dropdown-item switch-batch" href="#" data-batch="{{ membership.batch | urlencode }}" data-course="{{ course.name | urlencode }}">{{ membership.batch_title }}</a>
+    {% endif %}
+    {% endfor %}
+  </div>
+  {% endif %}
 </div>
+{% if not batch %}
+{% set display_class = "hide" %}
+{% else %}
+{% set display_class = "" %}
+{% endif %}
 <ul class="nav nav-tabs mt-4">
-  <li class="nav-item">
-    <a class="nav-link" id="home" href="/courses/{{course.name}}/{{batch.name}}/home">Home</a>
+  <li class="nav-item {{ display_class }}">
+    <a class="nav-link" id="home" href="/courses/{{course.name}}/home">Home</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" id="learn" href="/courses/{{course.name}}/{{batch.name}}/learn">Learn</a>
-  </li>
-  <!-- <li class="nav-item">
-    <a class="nav-link" id="schedule" href="/courses/{{course.name}}/{{batch.name}}/schedule">Schedule</a>
-  </li> -->
-  <li class="nav-item">
-    <a class="nav-link" id="members" href="/courses/{{course.name}}/{{batch.name}}/members">Members</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" id="discussion" href="/courses/{{course.name}}/{{batch.name}}/discuss">Discussion</a>
+    <a class="nav-link" id="learn" href="/courses/{{course.name}}/learn">Lessons</a>
   </li>
   <!-- <li class="nav-item">
-    <a class="nav-link" id="about" href="/courses/{{course.name}}/{{batch.name}}/about">About</a>
+    <a class="nav-link" id="schedule" href="/courses/{{course.name}}/schedule">Schedule</a>
   </li> -->
-  {% if batch.is_member(frappe.session.user, member_type="Mentor") %}
+  <li class="nav-item {{ display_class }}">
+    <a class="nav-link" id="members" href="/courses/{{course.name}}/members">Members</a>
+  </li>
+  <li class="nav-item {{ display_class }}">
+    <a class="nav-link" id="discussion" href="/courses/{{course.name}}/discuss">Discussion</a>
+  </li>
+  <!-- <li class="nav-item">
+    <a class="nav-link" id="about" href="/courses/{{course.name}}/about">About</a>
+  </li> -->
+  {% if batch and batch.is_member(frappe.session.user, member_type="Mentor") %}
   <li class="nav-item">
-    <a class="nav-link" id="progress" href="/courses/{{course.name}}/{{batch.name}}/progress">Progress</a>
+    <a class="nav-link" id="progress" href="/courses/{{course.name}}/progress">Progress</a>
   </li>
   {% endif %}
 </ul>
@@ -35,5 +56,21 @@
     else {
       $("#learn").addClass('active')
     }
+
+    $(".switch-batch").click((e) => {
+      e.preventDefault();
+      var batch = decodeURIComponent($(e.currentTarget).attr("data-batch"));
+      var course = decodeURIComponent($(e.currentTarget).attr("data-course"));
+      frappe.call({
+        method: "community.lms.doctype.lms_batch_membership.lms_batch_membership.update_current_membership",
+        args: {
+          batch: batch,
+          course: course
+        },
+        callback: (data) => {
+          window.location.reload();
+        }
+      })
+    })
   })
 </script>

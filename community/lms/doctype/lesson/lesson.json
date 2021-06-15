@@ -8,11 +8,13 @@
  "field_order": [
   "chapter",
   "lesson_type",
+  "include_in_preview",
+  "column_break_4",
   "title",
   "index_",
   "index_label",
-  "body",
-  "sections"
+  "section_break_6",
+  "body"
  ],
  "fields": [
   {
@@ -48,22 +50,30 @@
    "label": "Body"
   },
   {
-   "fieldname": "sections",
-   "fieldtype": "Table",
-   "label": "Sections",
-   "options": "LMS Section"
-  },
-  {
    "fieldname": "index_label",
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Index Label",
    "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "include_in_preview",
+   "fieldtype": "Check",
+   "label": "Include In Preview"
+  },
+  {
+   "fieldname": "section_break_6",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-06-01 05:30:48.127494",
+ "modified": "2021-06-11 19:03:23.138165",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Lesson",

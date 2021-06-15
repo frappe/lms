@@ -13,9 +13,9 @@
   <div class='page-card-head'>
     <span class='indicator blue password-box'>Login Required</span>
   </div>
-  <div class=''>Please log in to confirm to join the course {{ batch.course_title }}.</div>
+  <div class=''>Please log in to confirm joining the course {{ batch.course_title }}.</div>
   <a type="submit" id="login" class="btn btn-primary w-100"
-    href="/login?redirect-to=/courses/{{ batch.course }}/{{ batch.name }}/join">{{_("Login")}}</a>
+    href="/login?redirect-to=/courses/{{ batch.course }}/join?batch={{ batch.name }}">{{_("Login")}}</a>
 </div>
 
 {% elif already_a_member %}
@@ -26,7 +26,7 @@
   </div>
   <div class=''>You are already a member of the batch {{ batch.title }} for the course {{ batch.course_title }}.
   </div>
-  <a type="submit" id="batch-home" class="btn btn-primary w-100" href="/courses/{{batch.course}}/{{batch.name}}/home">{{_("Go to Batch Home")}}</a>
+  <a type="submit" id="batch-home" class="btn btn-primary w-100" href="">{{_("Go to Batch Home")}}</a>
 </div>
 
 {% else %}
@@ -38,23 +38,20 @@
   <div>Please provide your confirmation to be a part of the batch {{ batch.title }} for the course
     {{ batch.course_title }}.
   </div>
-  <a type="submit" id="confirm" class="btn btn-primary w-100" data-batch="{{ batch.name | urlencode }}"
-    data-course="{{ batch.course | urlencode }}">{{_("Confirm")}}</a>
+  <a type="submit" id="confirm" class="btn btn-primary w-100">{{_("Confirm")}}</a>
 </div>
 
 {% endif %}
+{% endblock %}
 
+{% block script %}
 <script>
-  frappe.ready(() => {
-    var confirm_element = $("#confirm");
-    var batch = decodeURIComponent(confirm_element.attr("data-batch"));
-    var course = decodeURIComponent(confirm_element.attr("data-course"));
-
-    confirm_element.click((e) => {
+frappe.ready(() => {
+    $("#confirm").click((e) => {
       frappe.call({
         "method": "community.lms.doctype.lms_batch_membership.lms_batch_membership.create_membership",
         "args": {
-          "batch": batch
+          "batch": "{{ batch.name }}"
         },
         "callback": (data) => {
           if (data.message == "OK") {
@@ -63,9 +60,22 @@
               clear: true
             });
             setTimeout(function () {
-              window.location.href = "/courses/" + course + "/" + batch + "/home";
+              window.location.href = "/courses/{{ batch.course }}/home";
             }, 2000);
           }
+        }
+      })
+    })
+
+    $("#batch-home").click((e) => {
+      frappe.call({
+        method: "community.lms.doctype.lms_batch_membership.lms_batch_membership.update_current_membership",
+        args: {
+          "batch": "{{ batch.name }}",
+          "course": "{{ batch.course}}"
+        },
+        callback: (data) => {
+          window.location.href = "/courses/{{ batch.course }}/home"
         }
       })
     })
