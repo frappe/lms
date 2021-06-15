@@ -11,7 +11,7 @@ def get_common_context(context):
         context.template = "www/404.html"
         return
 
-    batch_name = course.get_current_batch()
+    batch_name = course.get_current_batch(frappe.session.user)
     batch = course.get_batch(batch_name)
     context.batch = batch
     if batch_name:

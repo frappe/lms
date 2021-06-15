@@ -72,7 +72,8 @@ frappe.ready(() => {
         method: "community.lms.doctype.lms_batch_membership.lms_batch_membership.update_current_membership",
         args: {
           "batch": "{{ batch.name }}",
-          "course": "{{ batch.course}}"
+          "course": "{{ batch.course}}",
+          "member": frappe.session.user
         },
         callback: (data) => {
           window.location.href = "/courses/{{ batch.course }}/home"
