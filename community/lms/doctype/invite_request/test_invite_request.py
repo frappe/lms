@@ -18,7 +18,7 @@ class TestInviteRequest(unittest.TestCase):
                         filters={"invite_email": "test_invite@example.com"},
                         fieldname=["invite_email", "status", "signup_email"],
                         as_dict=True)
-            self.assertEqual(invite.status, "Pending")
+            self.assertEqual(invite.status, "Approved")
             self.assertEqual(invite.signup_email, None)
 
     def test_create_invite_request_update(self):
