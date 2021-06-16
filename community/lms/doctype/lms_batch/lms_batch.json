@@ -33,8 +33,7 @@
   {
    "fieldname": "title",
    "fieldtype": "Data",
-   "label": "Title",
-   "unique": 1
+   "label": "Title"
   },
   {
    "fieldname": "description",
@@ -120,7 +119,7 @@
    "link_fieldname": "batch"
   }
  ],
- "modified": "2021-05-26 16:43:57.399747",
+ "modified": "2021-06-16 10:51:05.403726",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch",
