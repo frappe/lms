@@ -11,8 +11,7 @@
           href="{{ course.get_learn_url(course.get_lesson_index(lesson.name)) }}" {% else %} href="" class="no-preview"
           {% endif %} data-course="{{ course.name }}">{{ lesson.title }}</a>
         {% if show_progress and not course.is_mentor(frappe.session.user) and lesson.get_progress() %}
-        <a class="ml-5 badge p-1 {{ lesson.get_slugified_class() }}"> <img class="progress-image"
-            src="/assets/community/images/Vector.png"> {{ lesson.get_progress() }}</a>
+        <span class="ml-5 badge p-2 {{ lesson.get_slugified_class() }}"> {{ lesson.get_progress() }}</span>
         {% endif %}
       </div>
       {% endfor %}

@@ -19,7 +19,7 @@
  "is_standard": 1,
  "login_required": 1,
  "max_attachment_size": 0,
- "modified": "2021-06-14 15:28:08.206622",
+ "modified": "2021-06-15 18:49:50.530001",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "add-a-new-batch",
@@ -38,7 +38,7 @@
   {
    "allow_read_on_all_link_options": 0,
    "fieldname": "course",
-   "fieldtype": "Link",
+   "fieldtype": "Data",
    "hidden": 1,
    "label": "Course",
    "max_length": 0,
