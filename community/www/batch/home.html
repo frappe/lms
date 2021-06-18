@@ -8,15 +8,13 @@
 {% endblock %}
 
 {% block content %}
-{% set invite_link = frappe.utils.get_url() + "/courses/" + course.name + "/join?batch=" + batch.name %}
 <div class="container mt-5">
-  {{ widgets.BatchTabs(course=course, batch=batch) }}
-  <!-- <div>
-    <h1 class="mt-5">{{ batch.title }}</h1>
-  </div> -->
+  {{ widgets.BatchTabs(course=course, membership=membership) }}
   <div class="course-details mt-5">
     {{ widgets.CourseOutline(course=course, batch=batch, show_link=True, show_progress=True) }}
   </div>
+
+  {% if batch %}
   <div class="w-25">
     <h3>Batch Schedule</h3>
     {{ widgets.RenderBatch(course=course, batch=batch) }}
@@ -28,8 +26,9 @@
     {{ frappe.utils.md_to_html(batch.description) }}
   </div>
   {% endif %}
-
+  {% endif %}
   {% if course.is_mentor(frappe.session.user) %}
+  {% set invite_link = frappe.utils.get_url() + "/courses/" + course.name + "/join?batch=" + batch.name %}
   <div class="">
     <h3> Invite Members </h3>
     <a href="" class="" id="invite-link" data-link="{{ invite_link }}">Get Batch Invitation

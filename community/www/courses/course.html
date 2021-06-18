@@ -12,7 +12,12 @@
     <div class="mb-5">
       <a class="anchor_style" href="/courses">Courses</a> / <span class="text-muted">{{ course.title }}</span>
     </div>
-    <h2 id="course-title" data-course="{{course.name}}">{{course.title}}</h2>
+    <div class="d-flex justify-content-between align-items-end">
+      <h2 id="course-title" data-course="{{course.name}}">{{course.title}}</h2>
+      <div>
+        <button class="btn btn-primary join-batch" data-course="{{ course.name | urlencode }}"> Join the Course</button>
+      </div>
+    </div>
     <div class="course-short-intro">{{ course.short_introduction }}</div>
   </div>
 
@@ -96,8 +101,8 @@
     </div>
     {% endfor %}
   </div>
-{% else %}
-<div class="mt-5 upcoming">There are no Upcoming Batches for this course currently.</div>
-{% endif %}
+  {% else %}
+  <div class="mt-5 upcoming">There are no Upcoming Batches for this course currently.</div>
+  {% endif %}
 </div>
 {% endmacro %}

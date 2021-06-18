@@ -57,11 +57,13 @@ frappe.ready(() => {
       window.location.href = `/login?redirect-to=/courses/${course}`;
       return;
     }
-    batch = decodeURIComponent($(e.currentTarget).attr("data-batch"))
+    var batch = $(e.currentTarget).attr("data-batch");
+    batch = batch ? decodeURIComponent(batch) : "";
     frappe.call({
       "method": "community.lms.doctype.lms_batch_membership.lms_batch_membership.create_membership",
       "args": {
-        "batch": batch
+        "batch": batch ? batch : "",
+        "course": course
       },
       "callback": (data) => {
         if (data.message == "OK") {

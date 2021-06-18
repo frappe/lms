@@ -11,11 +11,16 @@ def get_common_context(context):
         context.template = "www/404.html"
         return
 
-    batch_name = course.get_current_batch(frappe.session.user)
-    batch = course.get_batch(batch_name)
-    context.batch = batch
-    if batch_name:
-        context.members = batch.get_mentors() + batch.get_students()
+    membership = course.get_current_membership(frappe.session.user)
+
+    if membership:
+        context.membership = membership
+        batch = course.get_batch(membership.batch)
+
+        if batch:
+            context.batch = batch
+
+        context.members = course.get_mentors(membership.batch) + course.get_students(membership.batch)
         context.member_count = len(context.members)
 
 

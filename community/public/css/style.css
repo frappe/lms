@@ -23,6 +23,7 @@
   --cta-color: var(--c4);
   --send-message: var(--c7);
   --received-message: var(--c8);
+	--control-bg: var(--gray-100);
 }
 
 body {

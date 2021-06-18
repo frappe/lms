@@ -17,13 +17,13 @@
   </div>
   {% endif %}
 </div>
-{% if not batch %}
+{% if not membership %}
 {% set display_class = "hide" %}
 {% else %}
 {% set display_class = "" %}
 {% endif %}
 <ul class="nav nav-tabs mt-4">
-  <li class="nav-item {{ display_class }}">
+  <li class="nav-item">
     <a class="nav-link" id="home" href="/courses/{{course.name}}/home">Home</a>
   </li>
   <li class="nav-item">
@@ -35,9 +35,9 @@
   <li class="nav-item {{ display_class }}">
     <a class="nav-link" id="members" href="/courses/{{course.name}}/members">Members</a>
   </li>
-  <li class="nav-item {{ display_class }}">
+  <!-- <li class="nav-item {{ display_class }}">
     <a class="nav-link" id="discussion" href="/courses/{{course.name}}/discuss">Discussion</a>
-  </li>
+  </li> -->
   <!-- <li class="nav-item">
     <a class="nav-link" id="about" href="/courses/{{course.name}}/about">About</a>
   </li> -->

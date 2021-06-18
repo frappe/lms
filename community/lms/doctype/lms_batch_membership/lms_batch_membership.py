@@ -44,10 +44,11 @@ class LMSBatchMembership(Document):
                 frappe.throw(_("{0} is already a {1} of {2} course through {3} batch").format(member_name, membership.member_type, course, membership.batch))
 
 @frappe.whitelist()
-def create_membership(batch, member=None, member_type="Student", role="Member"):
+def create_membership(course, batch=None, member=None, member_type="Student", role="Member"):
     frappe.get_doc({
         "doctype": "LMS Batch Membership",
         "batch": batch,
+        "course": course,
         "role": role,
         "member_type": member_type,
         "member": member or frappe.session.user
