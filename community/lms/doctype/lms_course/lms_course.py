@@ -192,7 +192,7 @@ class LMSCourse(Document):
             return
         return f"/courses/{self.name}/learn/{lesson_number}"
 
-    def get_membership(self, member, batch):
+    def get_membership(self, member, batch=None):
         filters = {
             "member": member,
             "course": self.name
@@ -205,6 +205,7 @@ class LMSCourse(Document):
         all_memberships = frappe.get_all("LMS Batch Membership", {"member": member, "course": self.name}, ["batch"])
         for membership in all_memberships:
             membership.batch_title = frappe.db.get_value("LMS Batch", membership.batch, "title")
+        print(all_memberships)
         return all_memberships
 
     def get_mentors(self, batch):

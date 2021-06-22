@@ -25,8 +25,8 @@
   {{ widgets.BatchTabs(course=course, membership=membership) }}
   <div class="lesson-page">
 
-    <h2 class="title {% if course.is_mentor(frappe.session.user) %} is_mentor {% endif %}" data-name="{{ lesson.name }}"
-      {% if batch %} data-batch="{{ batch.name }}" {% endif %}>{{ lesson.title }}</h2>
+    <h2 class="title {% if course.is_mentor(frappe.session.user) %} is_mentor {% endif %}" data-lesson="{{ lesson.name }}"
+      data-course="{{ course.name }}" {% if membership%} data-membership="{{membership.name}}" {% endif %}>{{ lesson.title }}</h2>
 
     {% if membership or lesson.include_in_preview %}
     {{ lesson.render_html() }}
@@ -64,27 +64,4 @@
 {% for ext in page_extensions %}
 {{ ext.render_footer() }}
 {% endfor %}
-<script>
-  var membership = "{{ membership.name }}";
-  var is_mentor = {{ course.is_mentor(frappe.session.user) }};
-  console.log(membership)
-  if (membership && !is_mentor) {
-    frappe.call({
-      method: "community.lms.doctype.lesson.lesson.save_progress",
-      args: {
-        lesson: "{{ lesson.name }}",
-        course: "{{ course.name }}"
-      }
-    })
-  }
-  if (membership) {
-    frappe.call({
-      method: "community.lms.api.save_current_lesson",
-      args: {
-        "course_name": "{{ course.name }}",
-        "lesson_name": "{{ lesson.name }}"
-      }
-    })
-  }
-</script>
 {%- endblock %}
