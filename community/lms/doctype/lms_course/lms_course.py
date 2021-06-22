@@ -208,7 +208,7 @@ class LMSCourse(Document):
         print(all_memberships)
         return all_memberships
 
-    def get_mentors(self, batch):
+    def get_mentors(self, batch=None):
         filters = {
             "course": self.name,
             "member_type": "Mentor"
@@ -223,7 +223,7 @@ class LMSCourse(Document):
         member_names = [m['member'] for m in memberships]
         return find_all("User", name=["IN", member_names])
 
-    def get_students(self, batch):
+    def get_students(self, batch=None):
         """Returns (email, full_name, username) of all the students of this batch as a list of dict.
         """
         filters = {
