@@ -19,7 +19,7 @@ class LMSBatch(Document):
            frappe.throw(_("You are not a mentor of the course {0}").format(course.title))
 
     def after_insert(self):
-        create_membership(batch=self.name, member_type="Mentor")
+        create_membership(batch=self.name, course=self.course, member_type="Mentor")
 
     def is_member(self, email, member_type=None):
         """Checks if a person is part of a batch.

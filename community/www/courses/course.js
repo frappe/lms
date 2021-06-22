@@ -75,21 +75,4 @@ frappe.ready(() => {
       }
     })
   })
-
-  $(".manage-batch").click((e) => {
-    e.preventDefault();
-    var batch = decodeURIComponent($(e.currentTarget).attr("data-batch"));
-    var course = decodeURIComponent($(e.currentTarget).attr("data-course"));
-    frappe.call({
-      method: "community.lms.doctype.lms_batch_membership.lms_batch_membership.update_current_membership",
-      args: {
-        batch: batch,
-        course: course,
-        member: frappe.session.user
-      },
-      callback: (data) => {
-        window.location.href = `/courses/${course}/home`;
-      }
-    })
-  })
 })

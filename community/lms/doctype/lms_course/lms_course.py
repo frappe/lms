@@ -192,16 +192,17 @@ class LMSCourse(Document):
             return
         return f"/courses/{self.name}/learn/{lesson_number}"
 
-    def get_current_membership(self, member):
-        current_membership = frappe.get_all("LMS Batch Membership", {"member": member, "course": self.name, "is_current": 1}, ["name", "batch"])
-        if len(current_membership):
-            return current_membership[0]
-        return frappe.db.get_value("LMS Batch Membership", {"member": member, "course": self.name}, ["name","batch"], as_dict=True)
+    def get_membership(self, member, batch):
+        filters = {
+            "member": member,
+            "course": self.name
+        }
+        if batch:
+            filters["batch"] = batch
+        return frappe.db.get_value("LMS Batch Membership", filters, ["name","batch", "current_lesson"], as_dict=True)
 
     def get_all_memberships(self, member=frappe.session.user):
-        print(member, frappe.session.user)
-        all_memberships = frappe.get_all("LMS Batch Membership", {"member": member, "course": self.name}, ["batch", "is_current"])
-        print(all_memberships)
+        all_memberships = frappe.get_all("LMS Batch Membership", {"member": member, "course": self.name}, ["batch"])
         for membership in all_memberships:
             membership.batch_title = frappe.db.get_value("LMS Batch", membership.batch, "title")
         return all_memberships
@@ -214,7 +215,6 @@ class LMSCourse(Document):
         if batch:
             filters["batch"] = batch
 
-        print(filters)
         memberships = frappe.get_all(
                     "LMS Batch Membership",
                     filters,

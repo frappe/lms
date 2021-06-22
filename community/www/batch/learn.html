@@ -65,9 +65,9 @@
 {{ ext.render_footer() }}
 {% endfor %}
 <script>
-  var membership = {{ membership }};
+  var membership = "{{ membership.name }}";
   var is_mentor = {{ course.is_mentor(frappe.session.user) }};
-  console.log(is_mentor)
+  console.log(membership)
   if (membership && !is_mentor) {
     frappe.call({
       method: "community.lms.doctype.lesson.lesson.save_progress",
@@ -78,9 +78,12 @@
     })
   }
   if (membership) {
-    frappe.call("community.lms.api.save_current_lesson", {
-      "course_name": "{{ course.name }}",
-      "lesson_name": "{{ lesson.name }}"
+    frappe.call({
+      method: "community.lms.api.save_current_lesson",
+      args: {
+        "course_name": "{{ course.name }}",
+        "lesson_name": "{{ lesson.name }}"
+      }
     })
   }
 </script>

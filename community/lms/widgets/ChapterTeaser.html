@@ -8,7 +8,7 @@
       {% for lesson in chapter.get_lessons() %}
       <div class="lesson-teaser">
         <a {% if show_link or lesson.include_in_preview %}
-          href="{{ course.get_learn_url(course.get_lesson_index(lesson.name)) }}" {% else %} href="" class="no-preview"
+          href="{{ course.get_learn_url(course.get_lesson_index(lesson.name)) }}{{course.query_parameter}}" {% else %} href="" class="no-preview"
           {% endif %} data-course="{{ course.name }}">{{ lesson.title }}</a>
         {% if show_progress and not course.is_mentor(frappe.session.user) and lesson.get_progress() %}
         <span class="ml-5 badge p-2 {{ lesson.get_slugified_class() }}"> {{ lesson.get_progress() }}</span>

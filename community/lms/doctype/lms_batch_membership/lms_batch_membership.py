@@ -14,18 +14,22 @@ class LMSBatchMembership(Document):
         self.validate_membership_in_different_batch_same_course()
 
     def validate_membership_in_same_batch(self):
+        filters={
+            "member": self.member,
+            "course": self.course,
+            "name": ["!=", self.name]
+        }
+        if self.batch:
+            filters["batch"] = self.batch
         previous_membership = frappe.db.get_value("LMS Batch Membership",
-            filters={
-                "member": self.member,
-                "batch": self.batch,
-                "name": ["!=", self.name]
-            },
+            filters,
             fieldname=["member_type","member"],
             as_dict=1)
 
         if previous_membership:
             member_name = frappe.db.get_value("User", self.member, "full_name")
-            frappe.throw(_("{0} is already a {1} of {2}").format(member_name, previous_membership.member_type, self.batch))
+            course_title = frappe.db.get_value("LMS Course", self.course, "title")
+            frappe.throw(_("{0} is already a {1} of the course {2}").format(member_name, previous_membership.member_type, course_title))
 
     def validate_membership_in_different_batch_same_course(self):
         course = frappe.db.get_value("LMS Batch", self.batch, "course")

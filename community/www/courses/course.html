@@ -14,9 +14,11 @@
     </div>
     <div class="d-flex justify-content-between align-items-end">
       <h2 id="course-title" data-course="{{course.name}}">{{course.title}}</h2>
+      {% if not course.disable_self_learning and not course.is_mentor(frappe.session.user) %}
       <div>
-        <button class="btn btn-primary join-batch" data-course="{{ course.name | urlencode }}"> Join the Course</button>
+        <button class="btn btn-primary join-batch" data-course="{{ course.name | urlencode }}"> Start Learning </button>
       </div>
+      {% endif %}
     </div>
     <div class="course-short-intro">{{ course.short_introduction }}</div>
   </div>
