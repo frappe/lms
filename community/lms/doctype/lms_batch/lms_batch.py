@@ -19,15 +19,7 @@ class LMSBatch(Document):
            frappe.throw(_("You are not a mentor of the course {0}").format(course.title))
 
     def after_insert(self):
-        create_membership(batch=self.name, member_type="Mentor")
-
-    def get_mentors(self):
-        memberships = frappe.get_all(
-                    "LMS Batch Membership",
-                    {"batch": self.name, "member_type": "Mentor"},
-                    ["member"])
-        member_names = [m['member'] for m in memberships]
-        return find_all("User", name=["IN", member_names])
+        create_membership(batch=self.name, course=self.course, member_type="Mentor")
 
     def is_member(self, email, member_type=None):
         """Checks if a person is part of a batch.
@@ -42,16 +34,6 @@ class LMSBatch(Document):
         if member_type:
             filters['member_type'] = member_type
         return frappe.db.exists("LMS Batch Membership", filters)
-
-    def get_students(self):
-        """Returns (email, full_name, username) of all the students of this batch as a list of dict.
-        """
-        memberships = frappe.get_all(
-                    "LMS Batch Membership",
-                    {"batch": self.name, "member_type": "Student"},
-                    ["member"])
-        member_names = [m['member'] for m in memberships]
-        return find_all("User", name=["IN", member_names])
 
     def get_messages(self):
         messages =  frappe.get_all("LMS Message", {"batch": self.name}, ["*"], order_by="creation")
@@ -79,11 +61,6 @@ class LMSBatch(Document):
         """
         membership = self.get_membership(user)
         return membership and membership.current_lesson
-
-    def get_learn_url(self, lesson_number):
-        if not lesson_number:
-            return
-        return f"/courses/{self.course}/{self.name}/learn/{lesson_number}"
 
 @frappe.whitelist()
 def save_message(message, batch):

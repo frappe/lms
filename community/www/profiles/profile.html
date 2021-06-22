@@ -72,29 +72,26 @@
     </div>
     <div>
       <ul class="nav nav-tabs mt-4" id="myTab" role="tablist">
-        <li class="nav-item">
-          <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home"
-            aria-selected="true">Sketches</a>
-        </li>
+        {% for tab in profile_tabs %}
+          <li class="nav-item">
+            {% set slug = title.lower().replace(" ", "-") %}
+            {% set selected = loop.index == 1 %}
+            {% set active = 'active' if loop.index == 1 else '' %}
+            <a class="nav-link {{ active }}" id="{{ slug }}-tab" data-toggle="tab" href="#{{ slug }}" role="tab" aria-controls="{{ slug }}"
+              aria-selected="{{ selected }}">Sketches</a>
+          </li>
+        {% endfor %}
       </ul>
     </div>
     <div>
-      <div class="tab-content">
-        <div class="tab-pane fade py-4 show active" role="tabpanel" id="home">
-          <div class="row">
-            {% if sketches %}
-            {% for sketch in sketches %}
-            <div class="col-md-4 col-sm-6">
-              {{ widgets.SketchTeaser(sketch=sketch) }}
-            </div>
-            {% endfor %}
-            {% endif %}
+      {% for tab in profile_tabs %}
+        {% set slug = title.lower().replace(" ", "-") %}
+        <div class="tab-content">
+          <div class="tab-pane fade py-4 show active" role="tabpanel" id="slug">
+            {{ tab.render() }}
           </div>
-          {% if not sketches %}
-          <p class="text-center">{{member.full_name}} has not created any skecth yet.</p>
-          {% endif %}
         </div>
-      </div>
+      {% endfor %}
     </div>
   </div>
 </div>

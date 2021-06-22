@@ -26,7 +26,6 @@ class TestLMSCourse(unittest.TestCase):
         course = self.new_course("Test Course")
         assert course.title == "Test Course"
         assert course.name == "test-course"
-        assert course.get_mentors() == []
 
     def test_find_all(self):
         courses = LMSCourse.find_all()

@@ -58,7 +58,8 @@ def create_invite_request(invite_email):
 
     frappe.get_doc({
             "doctype": "Invite Request",
-            "invite_email": invite_email
+            "invite_email": invite_email,
+            "status": "Approved"
         }).save(ignore_permissions=True)
     return "OK"
 

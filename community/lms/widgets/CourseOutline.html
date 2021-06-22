@@ -1,5 +1,7 @@
-<h2>Course Outline</h2>
+<div class="mt-5">
+  <h3> Course Outline </h3>
 
-{% for chapter in course.get_chapters() %}
-{{ widgets.ChapterTeaser(index=loop.index, chapter=chapter, course=course, batch=batch, show_link=show_link)}}
-{% endfor %}
+  {% for chapter in course.get_chapters() %}
+  {{ widgets.ChapterTeaser(index=loop.index, chapter=chapter, course=course, batch=batch, show_link=show_link, show_progress=show_progress)}}
+  {% endfor %}
+</div>

@@ -2,4 +2,4 @@
 """
 from .doctype.lms_course.lms_course import LMSCourse as Course
 from .doctype.lms_sketch.lms_sketch import LMSSketch as Sketch
-
+from .doctype.lms_batch_membership.lms_batch_membership import LMSBatchMembership as Membership

@@ -136,15 +136,15 @@ primary_rules = [
     {"from_route": "/hackathons/<hackathon>/<project>", "to_route": "hackathons/project"},
     {"from_route": "/dashboard", "to_route": ""},
     {"from_route": "/add-a-new-batch", "to_route": "add-a-new-batch"},
-    {"from_route": "/courses/<course>/<batch>/home", "to_route": "batch/home"},
-    {"from_route": "/courses/<course>/<batch>/learn", "to_route": "batch/learn"},
-    {"from_route": "/courses/<course>/<batch>/learn/<int:chapter>.<int:lesson>", "to_route": "batch/learn"},
-    {"from_route": "/courses/<course>/<batch>/schedule", "to_route": "batch/schedule"},
-    {"from_route": "/courses/<course>/<batch>/members", "to_route": "batch/members"},
-    {"from_route": "/courses/<course>/<batch>/discuss", "to_route": "batch/discuss"},
-    {"from_route": "/courses/<course>/<batch>/about", "to_route": "batch/about"},
-    {"from_route": "/courses/<course>/<batch>/progress", "to_route": "batch/progress"},
-    {"from_route": "/courses/<course>/<batch>/join", "to_route": "batch/join"}
+    {"from_route": "/courses/<course>/home", "to_route": "batch/home"},
+    {"from_route": "/courses/<course>/learn", "to_route": "batch/learn"},
+    {"from_route": "/courses/<course>/learn/<int:chapter>.<int:lesson>", "to_route": "batch/learn"},
+    {"from_route": "/courses/<course>/schedule", "to_route": "batch/schedule"},
+    {"from_route": "/courses/<course>/members", "to_route": "batch/members"},
+    {"from_route": "/courses/<course>/discuss", "to_route": "batch/discuss"},
+    {"from_route": "/courses/<course>/about", "to_route": "batch/about"},
+    {"from_route": "/courses/<course>/progress", "to_route": "batch/progress"},
+    {"from_route": "/courses/<course>/join", "to_route": "batch/join"}
 ]
 
 # Any frappe default URL is blocked by profile-rules, add it here to unblock it
@@ -165,6 +165,7 @@ whitelist = [
     "/add-a-new-batch",
     "/new-sign-up",
     "/message"
+    "/about"
 ]
 whitelist_rules = [{"from_route": p, "to_route": p[1:]} for p in whitelist]
 
@@ -176,3 +177,15 @@ profile_rules = [
 website_route_rules = primary_rules + whitelist_rules + profile_rules
 
 update_website_context = 'community.widgets.update_website_context'
+
+## Specify the additional tabs to be included in the user profile page.
+## Each entry must be a subclass of community.community.plugins.ProfileTab
+# profile_tabs = []
+
+## Specify the extension to be used to control what scripts and stylesheets
+## to be included in lesson pages. The specified value must be be a
+## subclass of community.community.plugins.PageExtension
+# community_lesson_page_extension = None
+
+## Markdown Macros for Lessons
+# community_markdown_macro_renderers = {"Exercise": "myapp.mymodule.plugins.render_exercise"}

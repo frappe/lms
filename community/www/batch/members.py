@@ -3,4 +3,5 @@ from . import utils
 
 def get_context(context):
     utils.get_common_context(context)
-    print(context.members[0].bio)
+    if not context.membership:
+        utils.redirect_to_lesson(context.course)

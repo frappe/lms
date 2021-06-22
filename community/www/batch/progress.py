@@ -17,9 +17,8 @@ def get_context(context):
 
 class BatchReport:
     def __init__(self, course, batch):
-        self.submissions = get_submissions(batch)
+        self.submissions = get_submissions(course, batch)
         self.exercises = self.get_exercises(course.name)
-
         self.submissions_by_exercise = defaultdict(list)
         for s in self.submissions:
             self.submissions_by_exercise[s.exercise].append(s)
@@ -30,11 +29,12 @@ class BatchReport:
     def get_submissions_of_exercise(self, exercise_name):
         return self.submissions_by_exercise[exercise_name]
 
-def get_submissions(batch):
-    students = batch.get_students()
+def get_submissions(course, batch):
+    students = course.get_students(batch.name)
+    if not len(students):
+        return []
     students_map = {s.email: s for s in students}
     names, values = nparams("s", students_map.keys())
-
     sql = """
     select owner, exercise, name, solution, creation, image
     from (
@@ -45,7 +45,6 @@ def get_submissions(batch):
     """.format(names)
 
     data = frappe.db.sql(sql, values=values, as_dict=True)
-
     for row in data:
         row['owner'] = students_map[row['owner']]
     return data

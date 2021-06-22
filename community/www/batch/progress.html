@@ -24,9 +24,9 @@
 {% block content %}
 
 <div class="container">
-  {{ widgets.BatchTabs(course=course, batch=batch) }}
+  {{ widgets.BatchTabs(course=course, membership=membership) }}
   <div class="mentor-dashboard">
-    <h1>Batch Progress</h1>
+    <h3>Batch Progress</h3>
     {% for exercise in report.exercises %}
     <div class="exercise-submissions">
       <h2>Exercise {{exercise.index_label}}: {{exercise.title}}</h2>

@@ -3,12 +3,9 @@
 
 import frappe
 from frappe.model.document import Document
-from ..lms_sketch.livecode import livecode_to_svg
+# from ..lms_sketch.livecode import livecode_to_svg
 
 class Exercise(Document):
-    def before_save(self):
-        self.image = livecode_to_svg(None, self.answer)
-
     def get_user_submission(self):
         """Returns the latest submission for this user.
         """
@@ -42,8 +39,6 @@ class Exercise(Document):
         course = frappe.get_doc("LMS Course", self.course)
         batch = course.get_student_batch(user)
 
-        image = livecode_to_svg(None, code)
-
         doc = frappe.get_doc(
             doctype="Exercise Submission",
             exercise=self.name,
@@ -51,8 +46,8 @@ class Exercise(Document):
             course=self.course,
             lesson=self.lesson,
             batch=batch and batch.name,
-            image=image,
             solution=code)
         doc.insert(ignore_permissions=True)
+
         return doc
 
