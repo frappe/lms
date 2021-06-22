@@ -51,7 +51,8 @@ frappe.ready(() => {
       frappe.call({
         "method": "community.lms.doctype.lms_batch_membership.lms_batch_membership.create_membership",
         "args": {
-          "batch": "{{ batch.name }}"
+          "batch": {{ batch.name }},
+          "course": {{ batch.course }}
         },
         "callback": (data) => {
           if (data.message == "OK") {
@@ -63,20 +64,6 @@ frappe.ready(() => {
               window.location.href = "/courses/{{ batch.course }}/home";
             }, 2000);
           }
-        }
-      })
-    })
-
-    $("#batch-home").click((e) => {
-      frappe.call({
-        method: "community.lms.doctype.lms_batch_membership.lms_batch_membership.update_current_membership",
-        args: {
-          "batch": "{{ batch.name }}",
-          "course": "{{ batch.course}}",
-          "member": frappe.session.user
-        },
-        callback: (data) => {
-          window.location.href = "/courses/{{ batch.course }}/home"
         }
       })
     })

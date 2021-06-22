@@ -13,7 +13,7 @@
 <link rel="stylesheet" href="/assets/frappe/css/hljs-night-owl.css">
 
 {% for ext in page_extensions %}
-  {{ ext.render_header() }}
+{{ ext.render_header() }}
 {% endfor %}
 
 {% endblock %}
@@ -22,17 +22,18 @@
 {% block content %}
 
 <div class="container">
-  {{ widgets.BatchTabs(course=course, batch=batch) }}
+  {{ widgets.BatchTabs(course=course, membership=membership) }}
   <div class="lesson-page">
 
-    <h2 class="title {% if course.is_mentor(frappe.session.user) %} is_mentor {% endif %}" data-name="{{ lesson.name }}" {% if batch %} data-batch="{{ batch.name }}" {% endif %}>{{ lesson.title }}</h2>
+    <h2 class="title {% if course.is_mentor(frappe.session.user) %} is_mentor {% endif %}" data-lesson="{{ lesson.name }}"
+      data-course="{{ course.name }}" {% if membership%} data-membership="{{membership.name}}" {% endif %}>{{ lesson.title }}</h2>
 
-    {% if batch or lesson.include_in_preview %}
+    {% if membership or lesson.include_in_preview %}
     {{ lesson.render_html() }}
     {% else %}
     <div class="no-preview-message">
-      <span>This lesson is not available for Preview. Please join a batch to access the complete course.</span>
-      <a href="/courses/{{ course.name }}">Checkout Upcoming Batches</a>
+      <span>This lesson is not available for Preview. Please join the course to access this lesson.</span>
+      <a href="/courses/{{ course.name }}">Checkout Course Details.</a>
     </div>
     {% endif %}
 
@@ -61,7 +62,6 @@
 {%- block script %}
 {{ super() }}
 {% for ext in page_extensions %}
-  {{ ext.render_footer() }}
+{{ ext.render_footer() }}
 {% endfor %}
-
 {%- endblock %}

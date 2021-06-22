@@ -55,11 +55,11 @@ class Lesson(Document):
         return
 
 @frappe.whitelist()
-def save_progress(lesson, batch):
+def save_progress(lesson, course):
     if not frappe.db.exists("LMS Batch Membership",
             {
                 "member": frappe.session.user,
-                "batch": batch
+                "course": course
             }):
         return
     if frappe.db.exists("LMS Course Progress",

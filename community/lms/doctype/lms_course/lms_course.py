@@ -82,11 +82,11 @@ class LMSCourse(Document):
         """
         if not email:
             return False
-        return frappe.db.exists({
-            "doctype": "LMS Course Mentor Mapping",
-            "course": self.name,
-            "mentor": email
-        })
+        return frappe.db.count("LMS Course Mentor Mapping",
+            {
+                "course": self.name,
+                "mentor": email
+            })
 
     def get_student_batch(self, email):
         """Returns the batch the given student is part of.
@@ -192,21 +192,52 @@ class LMSCourse(Document):
             return
         return f"/courses/{self.name}/learn/{lesson_number}"
 
-    def get_current_batch(self, member):
-        current_membership = frappe.get_all("LMS Batch Membership", {"member": member, "course": self.name, "is_current": 1}, pluck="batch")
-        print(current_membership, member, self.name, frappe.session.user)
-        if len(current_membership):
-            return current_membership[0]
-        print(frappe.db.get_value("LMS Batch Membership", {"member": member, "course": self.name}, "batch"))
-        return frappe.db.get_value("LMS Batch Membership", {"member": member, "course": self.name}, "batch")
+    def get_membership(self, member, batch=None):
+        filters = {
+            "member": member,
+            "course": self.name
+        }
+        if batch:
+            filters["batch"] = batch
+        return frappe.db.get_value("LMS Batch Membership", filters, ["name","batch", "current_lesson"], as_dict=True)
 
     def get_all_memberships(self, member=frappe.session.user):
-        print(member, frappe.session.user)
-        all_memberships = frappe.get_all("LMS Batch Membership", {"member": member, "course": self.name}, ["batch", "is_current"])
-        print(all_memberships)
+        all_memberships = frappe.get_all("LMS Batch Membership", {"member": member, "course": self.name}, ["batch"])
         for membership in all_memberships:
             membership.batch_title = frappe.db.get_value("LMS Batch", membership.batch, "title")
+        print(all_memberships)
         return all_memberships
+
+    def get_mentors(self, batch=None):
+        filters = {
+            "course": self.name,
+            "member_type": "Mentor"
+        }
+        if batch:
+            filters["batch"] = batch
+
+        memberships = frappe.get_all(
+                    "LMS Batch Membership",
+                    filters,
+                    ["member"])
+        member_names = [m['member'] for m in memberships]
+        return find_all("User", name=["IN", member_names])
+
+    def get_students(self, batch=None):
+        """Returns (email, full_name, username) of all the students of this batch as a list of dict.
+        """
+        filters = {
+            "course": self.name,
+            "member_type": "Student"
+        }
+        if batch:
+            filters["batch"] = batch
+        memberships = frappe.get_all(
+                    "LMS Batch Membership",
+                    filters,
+                    ["member"])
+        member_names = [m['member'] for m in memberships]
+        return find_all("User", name=["IN", member_names])
 
     def get_outline(self):
         return CourseOutline(self)

@@ -18,7 +18,7 @@ def get_context(context):
             index_ = get_lesson_index(context.course, context.batch, frappe.session.user) or "1.1"
         else:
             index_ = "1.1"
-        frappe.local.flags.redirect_location = context.course.get_learn_url(index_)
+        frappe.local.flags.redirect_location = context.course.get_learn_url(index_) + context.course.query_parameter
         raise frappe.Redirect
 
     context.lesson = context.course.get_lesson(chapter_index, lesson_index)
@@ -30,8 +30,8 @@ def get_context(context):
     next_ = outline.get_next(lesson_number)
     context.prev_chap = get_chapter_title(course_name, prev_)
     context.next_chap = get_chapter_title(course_name, next_)
-    context.next_url = context.course.get_learn_url(next_)
-    context.prev_url = context.course.get_learn_url(prev_)
+    context.next_url = context.course.get_learn_url(next_) + context.course.query_parameter
+    context.prev_url = context.course.get_learn_url(prev_) + context.course.query_parameter
 
     context.page_extensions = get_page_extensions()
 

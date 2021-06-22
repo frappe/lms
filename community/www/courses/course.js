@@ -57,11 +57,13 @@ frappe.ready(() => {
       window.location.href = `/login?redirect-to=/courses/${course}`;
       return;
     }
-    batch = decodeURIComponent($(e.currentTarget).attr("data-batch"))
+    var batch = $(e.currentTarget).attr("data-batch");
+    batch = batch ? decodeURIComponent(batch) : "";
     frappe.call({
       "method": "community.lms.doctype.lms_batch_membership.lms_batch_membership.create_membership",
       "args": {
-        "batch": batch
+        "batch": batch ? batch : "",
+        "course": course
       },
       "callback": (data) => {
         if (data.message == "OK") {
@@ -70,23 +72,6 @@ frappe.ready(() => {
             window.location.href = `/courses/${course}/home`;
           }, 2000);
         }
-      }
-    })
-  })
-
-  $(".manage-batch").click((e) => {
-    e.preventDefault();
-    var batch = decodeURIComponent($(e.currentTarget).attr("data-batch"));
-    var course = decodeURIComponent($(e.currentTarget).attr("data-course"));
-    frappe.call({
-      method: "community.lms.doctype.lms_batch_membership.lms_batch_membership.update_current_membership",
-      args: {
-        batch: batch,
-        course: course,
-        member: frappe.session.user
-      },
-      callback: (data) => {
-        window.location.href = `/courses/${course}/home`;
       }
     })
   })
