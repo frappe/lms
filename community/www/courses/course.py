@@ -16,6 +16,7 @@ def get_context(context):
         raise frappe.Redirect
 
     context.course = course
+    context.course.query_parameter = ""
     if not course.is_mentor(frappe.session.user):
         batch = course.get_membership(frappe.session.user)
         if batch:
