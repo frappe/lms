@@ -9,27 +9,35 @@ from ...md import markdown_to_html, find_macros
 
 class Lesson(Document):
     def before_save(self):
-        macros = find_macros(self.body)
-        exercises = [value for name, value in macros if name == "Exercise"]
+        dynamic_documents = ["Exercise", "Quiz"]
+        for section in dynamic_documents:
+            self.update_lesson_name_in_document(section)
 
+    def update_lesson_name_in_document(self, section):
+        doctype_map= {
+            "Exercise": "Exercise",
+            "Quiz": "LMS Quiz"
+        }
+        macros = find_macros(self.body)
+        documents = [value for name, value in macros if name == section]
         index = 1
-        for name in exercises:
-            e = frappe.get_doc("Exercise", name)
+        for name in documents:
+            e = frappe.get_doc(doctype_map[section], name)
             e.lesson = self.name
             e.index_ = index
             e.save()
             index += 1
-        self.update_orphan_exercises(exercises)
+        self.update_orphan_documents(doctype_map[section], documents)
 
-    def update_orphan_exercises(self, active_exercises):
-        """Updates the exercises that were previously part of this lesson,
+    def update_orphan_documents(self, doctype, documents):
+        """Updates the documents that were previously part of this lesson,
         but not any more.
         """
-        linked_exercises = {row['name'] for row in frappe.get_all('Exercise', {"lesson": self.name})}
-        active_exercises = set(active_exercises)
-        orphan_exercises = linked_exercises - active_exercises
-        for name in orphan_exercises:
-            ex = frappe.get_doc("Exercise", name)
+        linked_documents = {row['name'] for row in frappe.get_all(doctype, {"lesson": self.name})}
+        active_documents = set(documents)
+        orphan_documents = linked_documents - active_documents
+        for name in orphan_documents:
+            ex = frappe.get_doc(doctype, name)
             ex.lesson = None
             ex.index_ = 0
             ex.index_label = ""
@@ -92,13 +100,30 @@ def update_progress(lesson):
         course_progress.save(ignore_permissions=True)
 
 def all_dynamic_content_submitted(lesson, user):
+    all_exercises_submitted = check_all_exercise_submission(lesson, user)
+    all_quiz_submitted = check_all_quiz_submitted(lesson, user)
+    return all_exercises_submitted and all_quiz_submitted
+
+def check_all_exercise_submission(lesson, user):
     exercise_names = frappe.get_list("Exercise", {"lesson": lesson}, pluck="name", ignore_permissions=True)
-    all_exercises_submitted = False
+    if not len(exercise_names):
+        return True
     query = {
         "exercise": ["in", exercise_names],
         "owner": user
     }
     if frappe.db.count("Exercise Submission", query) == len(exercise_names):
-        all_exercises_submitted = True
+        return True
+    return False
 
-    return all_exercises_submitted
+def check_all_quiz_submitted(lesson, user):
+    quizzes = frappe.get_list("LMS Quiz", {"lesson": lesson}, pluck="name", ignore_permissions=True)
+    if not len(quizzes):
+        return True
+    query = {
+        "quiz": ["in", quizzes],
+        "owner": user
+    }
+    if frappe.db.count("LMS Quiz Submission", query) == len(quizzes):
+        return True
+    return False

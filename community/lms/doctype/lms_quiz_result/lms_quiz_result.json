@@ -6,7 +6,7 @@
  "engine": "InnoDB",
  "field_order": [
   "question",
-  "users_response",
+  "answer",
   "result"
  ],
  "fields": [
@@ -17,23 +17,23 @@
    "label": "Question"
   },
   {
-   "fieldname": "users_response",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Users Response"
-  },
-  {
    "fieldname": "result",
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Result",
    "options": "Right\nWrong"
+  },
+  {
+   "fieldname": "answer",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Users Response"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2021-06-07 14:21:07.768039",
+ "modified": "2021-06-22 18:32:28.813159",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz Result",

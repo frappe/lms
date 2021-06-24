@@ -7,7 +7,8 @@
  "engine": "InnoDB",
  "field_order": [
   "title",
-  "questions"
+  "questions",
+  "lesson"
  ],
  "fields": [
   {
@@ -21,11 +22,17 @@
    "fieldtype": "Table",
    "label": "Questions",
    "options": "LMS Quiz Question"
+  },
+  {
+   "fieldname": "lesson",
+   "fieldtype": "Link",
+   "label": "Lesson",
+   "options": "Lesson"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-06-07 12:22:37.333289",
+ "modified": "2021-06-23 17:58:57.642873",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz",

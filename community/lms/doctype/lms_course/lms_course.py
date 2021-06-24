@@ -199,13 +199,15 @@ class LMSCourse(Document):
         }
         if batch:
             filters["batch"] = batch
-        return frappe.db.get_value("LMS Batch Membership", filters, ["name","batch", "current_lesson"], as_dict=True)
+        membership = frappe.db.get_value("LMS Batch Membership", filters, ["name","batch", "current_lesson"], as_dict=True)
+        if membership and membership.batch:
+            membership.batch_title = frappe.db.get_value("LMS Batch", membership.batch, "title")
+        return membership
 
-    def get_all_memberships(self, member=frappe.session.user):
+    def get_all_memberships(self, member):
         all_memberships = frappe.get_all("LMS Batch Membership", {"member": member, "course": self.name}, ["batch"])
         for membership in all_memberships:
             membership.batch_title = frappe.db.get_value("LMS Batch", membership.batch, "title")
-        print(all_memberships)
         return all_memberships
 
     def get_mentors(self, batch=None):

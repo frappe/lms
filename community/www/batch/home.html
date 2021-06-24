@@ -11,7 +11,7 @@
 <div class="container mt-5">
   {{ widgets.BatchTabs(course=course, membership=membership) }}
   <div class="course-details mt-5">
-    {{ widgets.CourseOutline(course=course, batch=batch, show_link=True, show_progress=True) }}
+    {{ widgets.CourseOutline(course=course, batch=batch, show_link=membership, show_progress=True) }}
   </div>
 
   {% if batch %}

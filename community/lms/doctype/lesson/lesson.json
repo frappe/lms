@@ -7,7 +7,6 @@
  "engine": "InnoDB",
  "field_order": [
   "chapter",
-  "lesson_type",
   "include_in_preview",
   "column_break_4",
   "title",
@@ -23,14 +22,6 @@
    "in_list_view": 1,
    "label": "Chapter",
    "options": "Chapter"
-  },
-  {
-   "default": "Video",
-   "fieldname": "lesson_type",
-   "fieldtype": "Select",
-   "in_list_view": 1,
-   "label": "Lesson Type",
-   "options": "Video\nText\nQuiz"
   },
   {
    "fieldname": "title",
@@ -73,7 +64,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-06-11 19:03:23.138165",
+ "modified": "2021-06-23 17:59:52.946515",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Lesson",
