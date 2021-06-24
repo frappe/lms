@@ -7,9 +7,17 @@
     <div class="chapter-lessons">
       {% for lesson in chapter.get_lessons() %}
       <div class="lesson-teaser">
-        <a {% if show_link or lesson.include_in_preview %}
-          href="{{ course.get_learn_url(course.get_lesson_index(lesson.name)) }}{{course.query_parameter}}" {% else %} href="" class="no-preview"
-          {% endif %} data-course="{{ course.name }}">{{ lesson.title }}</a>
+        {% if show_link or lesson.include_in_preview %}
+        <a class="" href="{{ course.get_learn_url(course.get_lesson_index(lesson.name)) }}{{course.query_parameter}}"
+          data-course="{{ course.name }}">{{ lesson.title }}</a>
+        {% else %}
+        <div class="no-preview" title="This lesson is not available for preview">
+          <span style="color: #2490ef;">
+            {{ lesson.title }}
+          </span>
+          <i class="fa fa-lock ml-2"></i>
+        </div>
+        {% endif %}
         {% if show_progress and not course.is_mentor(frappe.session.user) and lesson.get_progress() %}
         <span class="ml-5 badge p-2 {{ lesson.get_slugified_class() }}"> {{ lesson.get_progress() }}</span>
         {% endif %}
@@ -18,36 +26,3 @@
     </div>
   </div>
 </div>
-
-<script>
-  frappe.ready(() => {
-    var d;
-    $(".no-preview").click((e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      e.stopImmediatePropagation();
-      var message = __("Please enroll for this course to access the lesson.");
-      var label = __("Checkout Upcoming Batches");
-      var action = "checkout_upcoming_batches";
-      d = frappe.msgprint({
-        title: __("This lesson is not available for preview!"),
-        message: message,
-        primary_action: {
-          "label": label,
-          "client_action": action,
-        }
-      });
-    })
-
-    window.redirect_to_login = () => {
-      window.location.href = `/login?redirect-to=/courses/${$(".no-preview").attr("data-course")}`
-    }
-
-    window.checkout_upcoming_batches = () => {
-      if ($(".upcoming").length > 0) {
-        $('html,body').animate({ scrollTop: $(".upcoming").offset().top }, 300);
-      }
-      frappe.hide_msgprint();
-    }
-  })
-</script>

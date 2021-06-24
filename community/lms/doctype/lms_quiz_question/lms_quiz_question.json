@@ -1,0 +1,118 @@
+{
+ "actions": [],
+ "creation": "2021-06-07 10:48:57.994714",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "question",
+  "options_section",
+  "option_1",
+  "is_correct_1",
+  "section_break_5",
+  "option_2",
+  "is_correct_2",
+  "column_break_4",
+  "option_3",
+  "is_correct_3",
+  "section_break_11",
+  "option_4",
+  "is_correct_4",
+  "multiple"
+ ],
+ "fields": [
+  {
+   "fieldname": "question",
+   "fieldtype": "Text",
+   "in_list_view": 1,
+   "label": "Question",
+   "reqd": 1
+  },
+  {
+   "fieldname": "option_1",
+   "fieldtype": "Data",
+   "label": "Option 1",
+   "reqd": 1
+  },
+  {
+   "fieldname": "option_2",
+   "fieldtype": "Data",
+   "label": "Option 2",
+   "reqd": 1
+  },
+  {
+   "fieldname": "option_3",
+   "fieldtype": "Data",
+   "label": "Option 3"
+  },
+  {
+   "fieldname": "option_4",
+   "fieldtype": "Data",
+   "label": "Option 4"
+  },
+  {
+   "default": "0",
+   "depends_on": "option_1",
+   "fieldname": "is_correct_1",
+   "fieldtype": "Check",
+   "label": "Is Correct"
+  },
+  {
+   "default": "0",
+   "depends_on": "option_2",
+   "fieldname": "is_correct_2",
+   "fieldtype": "Check",
+   "label": "Is Correct"
+  },
+  {
+   "default": "0",
+   "depends_on": "option_3",
+   "fieldname": "is_correct_3",
+   "fieldtype": "Check",
+   "label": "Is Correct"
+  },
+  {
+   "default": "0",
+   "depends_on": "option_4",
+   "fieldname": "is_correct_4",
+   "fieldtype": "Check",
+   "label": "Is Correct"
+  },
+  {
+   "default": "0",
+   "fieldname": "multiple",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Multiple Correct Answers",
+   "read_only": 1
+  },
+  {
+   "fieldname": "options_section",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "section_break_5",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "section_break_11",
+   "fieldtype": "Section Break"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2021-06-22 16:54:13.133859",
+ "modified_by": "Administrator",
+ "module": "LMS",
+ "name": "LMS Quiz Question",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

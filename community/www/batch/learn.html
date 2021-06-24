@@ -36,12 +36,12 @@
       <a href="/courses/{{ course.name }}">Checkout Course Details.</a>
     </div>
     {% endif %}
-
+    {% if membership %}
     {{ pagination(prev_chap, prev_url, next_chap, next_url) }}
+    {% endif %}
   </div>
 </div>
 {% endblock %}
-
 
 {% macro pagination(prev_chap, prev_url, next_chap, next_url) %}
 <div class="lesson-pagination">

@@ -14,6 +14,8 @@ The PageExtension is used to load additinal stylesheets and scripts to
 be loaded in a webpage.
 """
 
+import frappe
+
 class PageExtension:
     """PageExtension is a plugin to inject custom styles and scripts
     into a web page.
@@ -64,3 +66,24 @@ class ProfileTab:
         Every subclass must implement this.
         """
         raise NotImplementedError()
+
+def quiz_renderer(quiz_name):
+    quiz = frappe.get_doc("LMS Quiz", quiz_name)
+    context = dict(quiz=quiz)
+    return frappe.render_template("templates/quiz.html", context)
+
+def exercise_renderer(argument):
+    exercise = frappe.get_doc("Exercise", argument)
+    context = dict(exercise=exercise)
+    return frappe.render_template("templates/exercise.html", context)
+
+def youtube_video_renderer(video_id):
+    return f"""
+    <iframe width="560" height="315"
+        src="https://www.youtube.com/embed/{video_id}"
+        title="YouTube video player"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen>
+    </iframe>
+    """

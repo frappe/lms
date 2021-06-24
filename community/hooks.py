@@ -161,10 +161,10 @@ whitelist = [
     "/socket.io",
     "/hackathons",
     "/dashboard",
-    "/join-request"
+    "/join-request",
     "/add-a-new-batch",
     "/new-sign-up",
-    "/message"
+    "/message",
     "/about"
 ]
 whitelist_rules = [{"from_route": p, "to_route": p[1:]} for p in whitelist]
@@ -188,4 +188,8 @@ update_website_context = 'community.widgets.update_website_context'
 # community_lesson_page_extension = None
 
 ## Markdown Macros for Lessons
-# community_markdown_macro_renderers = {"Exercise": "myapp.mymodule.plugins.render_exercise"}
+community_markdown_macro_renderers = {
+	"Exercise": "community.plugins.exercise_renderer",
+	"Quiz": "community.plugins.quiz_renderer",
+	"YouTubeVideo": "community.plugins.youtube_video_renderer",
+}

@@ -1,0 +1,10 @@
+<div class="exercise">
+  <h3>Exercise {{exercise.index_label}}: {{ exercise.title }}</h3>
+  <div class="exercise-description">{{frappe.utils.md_to_html(exercise.description)}}</div>
+
+  {% set submission = exercise.get_user_submission() %}
+
+  <pre class="exercise" id="exercise-{{exercise.name}}"
+    data-last-submitted="{{ submission and submission.creation or '' }}" data-name="{{ exercise.name }}"
+    data-image='{{ (submission and submission.image or "") | tojson }}'><code class="language-joy">{{ submission.solution if submission else exercise.code }}</code></pre>
+</div>

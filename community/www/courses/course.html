@@ -4,6 +4,7 @@
 {% block head_include %}
 <meta name="description" content="Courses" />
 <meta name="keywords" content="Courses {{course.title}}" />
+<link rel="stylesheet" href="/assets/frappe/css/font-awesome.css">
 {% endblock %}
 
 {% block content %}
@@ -30,7 +31,7 @@
         {{ CourseDescription(course) }}
         {{ widgets.InstructorSection(instructor=course.get_instructor()) }}
         {{ BatchSection(course) }}
-        {{ widgets.CourseOutline(course=course, show_link=False) }}
+        {{ widgets.CourseOutline(course=course, show_link=membership) }}
       </div>
     </div>
   </div>
