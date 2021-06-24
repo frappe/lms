@@ -36,6 +36,8 @@ def find_macros(text):
             ('Exercise', 'four-circles')
         ]
     """
+    if not text:
+        return []
     macros = re.findall(MACRO_RE, text)
     # remove the quotes around the argument
     return [(name, _remove_quotes(arg)) for name, arg in macros]

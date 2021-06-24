@@ -32,20 +32,28 @@ class LMSBatchMembership(Document):
             frappe.throw(_("{0} is already a {1} of the course {2}").format(member_name, previous_membership.member_type, course_title))
 
     def validate_membership_in_different_batch_same_course(self):
-        course = frappe.db.get_value("LMS Batch", self.batch, "course")
-        previous_membership = frappe.get_all("LMS Batch Membership",
-                                    filters={
-                                        "member": self.member,
-                                        "name": ["!=", self.name]
-                                    },
-                                    fields=["batch", "member_type", "name"]
-                                )
+        """Ensures that a studnet is only part of one batch.
+        """
+        # nothing to worry if the member is not a student
+        if self.member_type != "Student":
+            return
 
-        for membership in previous_membership:
-            batch_course = frappe.db.get_value("LMS Batch", membership.batch, "course")
-            if batch_course == course and (membership.member_type == "Student" or self.member_type == "Student"):
-                member_name = frappe.db.get_value("User", self.member, "full_name")
-                frappe.throw(_("{0} is already a {1} of {2} course through {3} batch").format(member_name, membership.member_type, course, membership.batch))
+        course = frappe.db.get_value("LMS Batch", self.batch, "course")
+        memberships = frappe.get_all(
+            "LMS Batch Membership",
+            filters={
+                "member": self.member,
+                "name": ["!=", self.name],
+                "member_type": "Student",
+                "course": self.course
+            },
+            fields=["batch", "member_type", "name"]
+        )
+
+        if memberships:
+            membership = memberships[0]
+            member_name = frappe.db.get_value("User", self.member, "full_name")
+            frappe.throw(_("{0} is already a Student of {1} course through {2} batch").format(member_name, course, membership.batch))
 
 @frappe.whitelist()
 def create_membership(course, batch=None, member=None, member_type="Student", role="Member"):
