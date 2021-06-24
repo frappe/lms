@@ -30,8 +30,8 @@ def get_context(context):
     next_ = outline.get_next(lesson_number)
     context.prev_chap = get_chapter_title(course_name, prev_)
     context.next_chap = get_chapter_title(course_name, next_)
-    context.next_url = context.course.get_learn_url(next_) + context.course.query_parameter
-    context.prev_url = context.course.get_learn_url(prev_) + context.course.query_parameter
+    context.next_url = context.course.get_learn_url(next_) and  context.course.get_learn_url(next_) + context.course.query_parameter
+    context.prev_url = context.course.get_learn_url(prev_) and context.course.get_learn_url(prev_) + context.course.query_parameter
 
     context.page_extensions = get_page_extensions()
 
@@ -49,7 +49,7 @@ def get_lesson_index(course, batch, user):
     return lesson and course.get_lesson_index(lesson)
 
 def get_page_extensions():
-    default_value = ["community.community.plugins.PageExtension"]
+    default_value = ["community.plugins.PageExtension"]
     classnames = frappe.get_hooks("community_lesson_page_extensions") or default_value
     extensions = [frappe.get_attr(name)() for name in classnames]
     return extensions
