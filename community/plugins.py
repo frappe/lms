@@ -67,6 +67,25 @@ class ProfileTab:
         """
         raise NotImplementedError()
 
+class LiveCodeExtension(PageExtension):
+    def render_header(self):
+        livecode_url = frappe.get_value("LMS Settings", None, "livecode_url")
+        context = {
+            "livecode_url": livecode_url
+        }
+        return frappe.render_template(
+            "templates/livecode/extension_header.html",
+            context)
+
+    def render_footer(self):
+        livecode_url = frappe.get_value("LMS Settings", None, "livecode_url")
+        context = {
+            "livecode_url": livecode_url
+        }
+        return frappe.render_template(
+            "templates/livecode/extension_footer.html",
+            context)
+
 def quiz_renderer(quiz_name):
     quiz = frappe.get_doc("LMS Quiz", quiz_name)
     context = dict(quiz=quiz)

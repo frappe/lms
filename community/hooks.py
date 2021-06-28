@@ -187,6 +187,10 @@ update_website_context = 'community.widgets.update_website_context'
 ## subclass of community.community.plugins.PageExtension
 # community_lesson_page_extension = None
 
+community_lesson_page_extensions = [
+	"community.plugins.LiveCodeExtension"
+]
+
 ## Markdown Macros for Lessons
 community_markdown_macro_renderers = {
 	"Exercise": "community.plugins.exercise_renderer",

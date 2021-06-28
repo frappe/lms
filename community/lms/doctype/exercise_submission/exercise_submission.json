@@ -6,12 +6,17 @@
  "engine": "InnoDB",
  "field_order": [
   "exercise",
-  "solution",
+  "status",
+  "batch",
+  "column_break_4",
   "exercise_title",
   "course",
-  "batch",
   "lesson",
-  "image"
+  "section_break_8",
+  "solution",
+  "image",
+  "test_results",
+  "comments"
  ],
  "fields": [
   {
@@ -20,12 +25,6 @@
    "in_list_view": 1,
    "label": "Exercise",
    "options": "Exercise"
-  },
-  {
-   "fieldname": "solution",
-   "fieldtype": "Code",
-   "in_list_view": 1,
-   "label": "Solution"
   },
   {
    "fetch_from": "exercise.title",
@@ -61,11 +60,41 @@
    "fieldtype": "Code",
    "label": "Image",
    "read_only": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Correct\nIncorrect"
+  },
+  {
+   "fieldname": "test_results",
+   "fieldtype": "Small Text",
+   "label": "Test Results"
+  },
+  {
+   "fieldname": "comments",
+   "fieldtype": "Small Text",
+   "label": "Comments"
+  },
+  {
+   "fieldname": "solution",
+   "fieldtype": "Code",
+   "in_list_view": 1,
+   "label": "Solution"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_8",
+   "fieldtype": "Section Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-05-21 11:28:45.833018",
+ "modified": "2021-06-24 16:22:50.570845",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Exercise Submission",
