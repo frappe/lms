@@ -15,8 +15,8 @@
         </div>
       </div>
       <div class="col-lg-4 col-md-6 canvas-wrapper">
-        <canvas width="300" height="300"></canvas>
-        <pre class="output"></pre>
+          <canvas width="300" height="300"></canvas>
+          <pre class="output"></pre>
       </div>
     </div>
   </div>
@@ -30,20 +30,11 @@
       <div class="controls">
         <button class="run">Run</button>
         <button class="reset">Reset</button>
-        <a class="pull-right dropdown-item border rounded" style="width: 10rem;" href="#" id="navbarDropdown"
-          role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          {{ }}
-        </a>
-        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-          <span class="dropdown-item">Correct</span>
-          <span class="dropdown-item">Incorrect</span>
-        </div>
         {% if is_exercise %}
-        <button class="submit pull-right btn-primary">Submit</button>
-        {% if last_submitted %}
-        <span class="pull-right" style="padding-right: 10px;"><span class="human-time"
-            data-timestamp="{{last_submitted}}"></span></span>
-        {% endif %}
+          <button class="submit pull-right btn-primary">Submit</button>
+          {% if last_submitted %}
+          <span class="pull-right" style="padding-right: 10px;"><span class="human-time" data-timestamp="{{last_submitted}}"></span></span>
+          {% endif %}
         {% endif %}
       </div>
       <div style="display: none">
@@ -59,8 +50,8 @@
         </div>
       </div>
       <div class="col-lg-4 col-md-6 canvas-wrapper">
-        <canvas width="300" height="300"></canvas>
-        <pre class="output"></pre>
+          <canvas width="300" height="300"></canvas>
+          <pre class="output"></pre>
       </div>
     </div>
   </div>
@@ -72,15 +63,14 @@
 {% macro LiveCodeEditorJS(name, code) %}
 
 <script type="text/javascript" src="/assets/frappe/node_modules/moment/min/moment-with-locales.min.js"></script>
-<script type="text/javascript"
-  src="/assets/frappe/node_modules/moment-timezone/builds/moment-timezone-with-data.min.js"></script>
+<script type="text/javascript" src="/assets/frappe/node_modules/moment-timezone/builds/moment-timezone-with-data.min.js"></script>
 <script type="text/javascript" src="/assets/frappe/js/frappe/utils/datetime.js"></script>
 
 <script type="text/javascript">
-  // comment_when is failing because of this
-  if (!frappe.sys_defaults) {
-    frappe.sys_defaults = {}
-  }
+// comment_when is failing because of this
+if (!frappe.sys_defaults) {
+  frappe.sys_defaults = {}
+}
 </script>
 
 <script type="text/javascript" src="{{ livecode_url }}/static/livecode.js"></script>
@@ -90,7 +80,7 @@
   var livecodeEditors = [];
   var livecodeEditorsMap = {};
 
-  $(function () {
+  $(function() {
     $(".livecode-editor").each((i, e) => {
       var name = e.id.replace("editor-", "");
       var editor = new LiveCodeEditor(e, {
@@ -100,12 +90,12 @@
       livecodeEditors.push(editor);
       livecodeEditorsMap[e.id] = editor;
 
-      $(e).find(".reset").on('click', function () {
+      $(e).find(".reset").on('click', function() {
         let code = $(e).find(".reset-code").html();
         editor.codemirror.doc.setValue(code);
       });
 
-      $(e).find(".submit").on('click', function () {
+      $(e).find(".submit").on('click', function() {
         let code = editor.codemirror.doc.getValue();
         console.log("submit", name, code);
         frappe.call("community.lms.api.submit_solution", {
@@ -125,7 +115,7 @@
   });
 
   function updateSubmitTimes() {
-    $(".human-time").each(function (i, e) {
+    $(".human-time").each(function(i, e) {
       var d = $(e).data().timestamp;
       $(e).html(__("Submitted {0}", [comment_when(d)]));
     });
