@@ -9,37 +9,87 @@
 {% endblock %}
 
 {% block content %}
-<section class="top-section" style="padding: 1rem 0rem;">
-  <div class='container'>
-    <h4 class="mt-5">{{ 'All Courses' }}</h4>
-    <div class="row mt-5">
-      {% for course in courses %}
-      {{ course_card(course) }}
-      {% endfor %}
-      <!-- {% if courses %}
-      {% for n in range( (3 - (courses|length)) %3) %}
-      {{ null_card() }}
-      {% endfor %}
-      {% endif %} -->
+<div class="common-page-style">
+  <div class="">
+    <div class="course-top-section">
+      <div class="courses-header">
+        {{ 'All Courses' }}
+      </div>
+      <div class="course-divider"></div>
+      <div class="course-cards-parent">
+        {% for course in courses %}
+        {{ course_card(course) }}
+        {% endfor %}
+      </div>
     </div>
   </div>
-</section>
+</div>
 {% endblock %}
 
 
 {% macro course_card(course) %}
-<div class="col-sm-4 mb-4 text-left">
-  <a class="anchor_style" style="color: inherit;" href="/courses/{{course.name}}">
-    <div class="card h-100" style="box-shadow: 0px 5px 10px rgb(0 0 0 / 10%);">
-      <div class='card-body'>
-        <h5 class='card-title'>{{ course.title }}</h5>
-        {% if course.description %}
-        <div class="mt-4">
-          {{ frappe.utils.md_to_html(course.description[:200]) }}
-        </div>
-        {% endif %}
-      </div>
+<div class="common-card-style">
+  <div class="course-image" style="background-image: url({{ course.image }});">
+    <div class="course-tags">
+      {% for tag in course.get_tags() %}
+      <div class="course-card-pills">{{ tag }}</div>
+      {% endfor %}
     </div>
-  </a>
+  </div>
+  <div class="course-card-content">
+    <div class="course-card-meta">
+      {% if course.get_chapters() | length %}
+      <span>
+        {{ course.get_chapters() | length }} Chapters
+      </span>
+      {% endif %}
+      {% if course.get_chapters() | length and course.get_upcoming_batches() | length %}
+      <span class="font-weight-bold ml-3 mr-3"> . </span>
+      {% endif %}
+      {% if course.get_upcoming_batches() | length %}
+      <span class="">
+        {{ course.get_upcoming_batches() | length }} Open Batches
+      </span>
+      {% endif %}
+    </div>
+    <div class="course-card-title">{{ course.title }}</div>
+    <div class="card-divider"></div>
+    <div class="course-card-meta-2">
+      {{ widgets.Avatar(member=course.get_instructor(), avatar_class="avatar-small") }}
+      <span class="course-instructor">
+        {{ course.get_instructor().full_name }}
+      </span>
+      {% if course.get_students() | length %}
+      <span class="course-student-count">
+        <img class="icon-background mr-1" src="/assets/community/icons/user.svg" />
+        {{ course.get_students() | length }}
+      </span>
+      {% endif %}
+    </div>
+    <a class="button-links" href="/courses/{{ course.name }}">
+      {% if course.get_membership(frappe.session.user) %}
+      <div class="view-course-link is-primary">
+        Continue Course <img class="ml-3" src="/assets/community/icons/white-arrow.svg" />
+      </div>
+      {% else %}
+      <div class="view-course-link">
+        View Course <img class="ml-3" src="/assets/community/icons/black-arrow.svg" />
+      </div>
+      {% endif %}
+    </a>
+  </div>
 </div>
 {% endmacro %}
+
+{% block script %}
+<script>
+  frappe.ready(() => {
+    $(".course-card-title").each((i, element) => {
+      var title = $(element).text();
+      var length = $(window).width() <= 375 ? 60 : 65;
+      var suffix = title.length > length ? "..." : "";
+      $(element).text(title.substring(0, length) + suffix);
+    })
+  })
+</script>
+{% endblock %}

@@ -241,6 +241,9 @@ class LMSCourse(Document):
         member_names = [m['member'] for m in memberships]
         return find_all("User", name=["IN", member_names])
 
+    def get_tags(self):
+        return self.tags.split(",") if self.tags else []
+
     def get_outline(self):
         return CourseOutline(self)
 
