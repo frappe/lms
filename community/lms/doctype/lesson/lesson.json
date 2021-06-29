@@ -13,7 +13,9 @@
   "index_",
   "index_label",
   "section_break_6",
-  "body"
+  "body",
+  "help_section",
+  "help"
  ],
  "fields": [
   {
@@ -60,11 +62,20 @@
   {
    "fieldname": "column_break_4",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "help_section",
+   "fieldtype": "Section Break",
+   "label": "Help"
+  },
+  {
+   "fieldname": "help",
+   "fieldtype": "HTML"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-06-23 17:59:52.946515",
+ "modified": "2021-06-29 13:34:49.077363",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Lesson",
