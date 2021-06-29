@@ -165,7 +165,8 @@ whitelist = [
     "/add-a-new-batch",
     "/new-sign-up",
     "/message",
-    "/about"
+    "/about",
+    "/lms-course-review"
 ]
 whitelist_rules = [{"from_route": p, "to_route": p[1:]} for p in whitelist]
 
@@ -186,6 +187,10 @@ update_website_context = 'community.widgets.update_website_context'
 ## to be included in lesson pages. The specified value must be be a
 ## subclass of community.community.plugins.PageExtension
 # community_lesson_page_extension = None
+
+community_lesson_page_extensions = [
+	"community.plugins.LiveCodeExtension"
+]
 
 ## Markdown Macros for Lessons
 community_markdown_macro_renderers = {

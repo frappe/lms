@@ -5,3 +5,6 @@
 tags
 community/docs/current
 community/public/dist
+__pycache__/
+*.py[cod]
+*$py.class

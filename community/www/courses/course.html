@@ -15,7 +15,7 @@
     </div>
     <div class="d-flex justify-content-between align-items-end">
       <h2 id="course-title" data-course="{{course.name}}">{{course.title}}</h2>
-      {% if not course.disable_self_learning and not course.is_mentor(frappe.session.user) %}
+      {% if not course.disable_self_learning and not membership %}
       <div>
         <button class="btn btn-primary join-batch" data-course="{{ course.name | urlencode }}"> Start Learning </button>
       </div>
@@ -32,6 +32,7 @@
         {{ widgets.InstructorSection(instructor=course.get_instructor()) }}
         {{ BatchSection(course) }}
         {{ widgets.CourseOutline(course=course, show_link=membership) }}
+        {{ widgets.Reviews(course=course, membership=membership) }}
       </div>
     </div>
   </div>

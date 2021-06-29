@@ -28,7 +28,7 @@
 
 
 {% macro course_card(course) %}
-<div class="common-card-style">
+<div class="common-card-style course-card">
   <div class="course-image" style="background-image: url({{ course.image }});">
     <div class="course-tags">
       {% for tag in course.get_tags() %}

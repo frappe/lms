@@ -1,0 +1,64 @@
+<div>
+  <div class="reviews-heading">
+    <div class="reviews-title mb-5">Review</div>
+    {% if course.is_eligible_to_review(membership) %}
+    <a href="/lms-course-review?new=1">
+      Provide your Feedback
+    </a>
+    {% endif %}
+  </div>
+  <div>
+    {% for review in course.get_reviews() %}
+    <div class="common-card-style review-card">
+      <div class="review-content"> {{ review.review }} </div>
+      <div class="card-divider"></div>
+      <div class="review-card-footer">
+        <div>
+          {{ widgets.Avatar(member=review.owner_details, avatar_class="avatar-small") }}
+          <span class="course-instructor">
+            {{ course.get_instructor().full_name }}
+          </span>
+        </div>
+        <div class="rating pull-right">
+          {% for i in [1, 2, 3, 4, 5] %}
+          <svg class="icon icon-md {% if i <= review.rating %} star-click {% endif %}" data-rating="{{ i }}">
+            <use href="#icon-star"></use>
+          </svg>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="review-modal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <iframe src="/lms-course-review?new=1"></iframe>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+
+  frappe.ready(() => {
+    frappe.provide('frappe.ui');
+    console.log(frappe.ui)
+  })
+
+</script>

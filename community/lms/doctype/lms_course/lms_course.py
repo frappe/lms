@@ -199,7 +199,12 @@ class LMSCourse(Document):
         }
         if batch:
             filters["batch"] = batch
-        membership = frappe.db.get_value("LMS Batch Membership", filters, ["name","batch", "current_lesson"], as_dict=True)
+
+        membership = frappe.db.get_value("LMS Batch Membership",
+                        filters,
+                        ["name", "batch", "current_lesson", "member_type"],
+                        as_dict=True)
+
         if membership and membership.batch:
             membership.batch_title = frappe.db.get_value("LMS Batch", membership.batch, "title")
         return membership
@@ -243,6 +248,32 @@ class LMSCourse(Document):
 
     def get_tags(self):
         return self.tags.split(",") if self.tags else []
+
+    def get_reviews(self):
+        reviews = frappe.get_all("LMS Course Review",
+                    {
+                        "course": self.name
+                    },
+                    ["review", "rating", "owner"],
+                    order_by= "creation desc")
+
+        for review in reviews:
+            review.owner_details = frappe.get_doc("User", review.owner)
+
+        return reviews
+
+    def is_eligible_to_review(self, membership):
+        """ Checks if user is eligible to review the course """
+        if not membership:
+            return False
+        if frappe.db.count("LMS Course Review",
+                {
+                    "course": self.name,
+                    "owner": frappe.session.user
+                }):
+            return False
+        return True
+
 
     def get_outline(self):
         return CourseOutline(self)

@@ -1,0 +1,54 @@
+{
+ "actions": [],
+ "creation": "2021-06-28 13:36:36.146718",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "review",
+  "rating",
+  "course"
+ ],
+ "fields": [
+  {
+   "fieldname": "review",
+   "fieldtype": "Small Text",
+   "label": "Review"
+  },
+  {
+   "fieldname": "rating",
+   "fieldtype": "Rating",
+   "label": "Rating"
+  },
+  {
+   "fieldname": "course",
+   "fieldtype": "Link",
+   "label": "Course",
+   "options": "LMS Course"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2021-06-28 15:00:35.146196",
+ "modified_by": "Administrator",
+ "module": "LMS",
+ "name": "LMS Course Review",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

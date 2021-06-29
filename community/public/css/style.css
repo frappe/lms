@@ -296,10 +296,13 @@ input[type=checkbox] {
   align-items: flex-start;
   background: #FFFFFF;
   border-radius: 8px;
+  box-shadow: 0px 5px 10px rgb(0 0 0 / 10%);
+}
+
+.course-card {
   width: 352px;
   height: 380px;
   margin: 0px 16px 32px;
-  box-shadow: 0px 5px 10px rgb(0 0 0 / 10%);
 }
 
 @media (max-width: 768px) {
@@ -317,13 +320,14 @@ input[type=checkbox] {
 .course-card-meta {
   font-size: 12px;
   line-height: 135%;
-  margin: 12px 16px 8px;
+  margin: 16px 0px 8px;
   color: var(--muted-text);
   height: 15px;
 }
 
 .course-card-content {
   width: 100%;
+  padding: 0px 24px 20px;
 }
 
 .course-card-title {
@@ -333,17 +337,17 @@ input[type=checkbox] {
   letter-spacing: -0.014em;
   color: var(--text-color);
   align-self: stretch;
-  margin: 0px 16px 16px;
+  margin-bottom: 16px;
   height: 45px;
 }
 
 .card-divider {
   border: 1px solid #E2E6E9;
-  margin: 0px 16px 16px;
+  margin-bottom: 16px;
 }
 
 .course-card-meta-2 {
-  margin: 0px 16px 16px;
+  margin-bottom: 16px;
 }
 
 .course-instructor {
@@ -362,7 +366,6 @@ input[type=checkbox] {
 
 .view-course-link {
   height: 32px;
-  margin: 0px 16px 16px;
   background: var(--button-background);
   border-radius: 4px;
   font-size: 12px;
@@ -431,4 +434,33 @@ input[type=checkbox] {
 
 .small-margin {
   margin-left: 10px;
+}
+
+.reviews-heading {
+  display: flex;
+  justify-content: space-between;
+}
+
+.reviews-title {
+  font-weight: 600;
+  font-size: 22px;
+  line-height: 145%;
+}
+
+.review-card {
+  width: 300px;
+  height: 200px;
+  margin: 0px 16px 32px;
+  padding: 16px;
+}
+
+.review-card-footer {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.review-content {
+  font-size: 15px;
+  line-height: 135%;
 }
