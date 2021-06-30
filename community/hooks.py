@@ -104,6 +104,8 @@ doc_events = {
 #	]
 #}
 
+fixtures = ["Custom Field"]
+
 # Testing
 # -------
 
@@ -166,7 +168,7 @@ whitelist = [
     "/new-sign-up",
     "/message",
     "/about",
-    "/lms-course-review"
+    "/review"
 ]
 whitelist_rules = [{"from_route": p, "to_route": p[1:]} for p in whitelist]
 

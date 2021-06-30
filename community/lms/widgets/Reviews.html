@@ -7,7 +7,7 @@
     </a>
     {% endif %}
   </div>
-  <div>
+  <div class="cards-parent">
     {% for review in course.get_reviews() %}
     <div class="common-card-style review-card">
       <div class="review-content"> {{ review.review }} </div>
@@ -19,7 +19,7 @@
             {{ course.get_instructor().full_name }}
           </span>
         </div>
-        <div class="rating pull-right">
+        <div class="rating">
           {% for i in [1, 2, 3, 4, 5] %}
           <svg class="icon icon-md {% if i <= review.rating %} star-click {% endif %}" data-rating="{{ i }}">
             <use href="#icon-star"></use>

@@ -15,8 +15,7 @@
       <div class="courses-header">
         {{ 'All Courses' }}
       </div>
-      <div class="course-divider"></div>
-      <div class="course-cards-parent">
+      <div class="cards-parent">
         {% for course in courses %}
         {{ course_card(course) }}
         {% endfor %}
@@ -66,18 +65,17 @@
       </span>
       {% endif %}
     </div>
-    <a class="button-links" href="/courses/{{ course.name }}">
-      {% if course.get_membership(frappe.session.user) %}
-      <div class="view-course-link is-primary">
-        Continue Course <img class="ml-3" src="/assets/community/icons/white-arrow.svg" />
-      </div>
-      {% else %}
-      <div class="view-course-link">
-        View Course <img class="ml-3" src="/assets/community/icons/black-arrow.svg" />
-      </div>
-      {% endif %}
-    </a>
+    {% if course.get_membership(frappe.session.user) %}
+    <div class="view-course-link is-primary">
+      Continue Course <img class="ml-3" src="/assets/community/icons/white-arrow.svg" />
+    </div>
+    {% else %}
+    <div class="view-course-link">
+      View Course <img class="ml-3" src="/assets/community/icons/black-arrow.svg" />
+    </div>
+    {% endif %}
   </div>
+  <a class="stretched-link" href="/courses/{{ course.name }}"></a>
 </div>
 {% endmacro %}
 

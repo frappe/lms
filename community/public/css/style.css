@@ -297,6 +297,7 @@ input[type=checkbox] {
   background: #FFFFFF;
   border-radius: 8px;
   box-shadow: 0px 5px 10px rgb(0 0 0 / 10%);
+  position: relative;
 }
 
 .course-card {
@@ -375,7 +376,7 @@ input[type=checkbox] {
   color: var(--text-color);
 }
 
-.course-cards-parent {
+.cards-parent {
   display: flex;
   flex-wrap: wrap;
 }
@@ -386,13 +387,8 @@ input[type=checkbox] {
   }
 }
 
-.course-divider {
-  border: 1px solid #E2E6E9;
-  margin: 16px 0px 30px;
-}
-
 .courses-header {
-  padding: 50px 0px 20px;
+  padding: 50px 30px 20px;
   color: var(--text-color);
   font-weight: 600;
   font-size: 22px;
@@ -448,8 +444,8 @@ input[type=checkbox] {
 }
 
 .review-card {
-  width: 300px;
-  height: 200px;
+  width: 100%;
+  height: fit-content;
   margin: 0px 16px 32px;
   padding: 16px;
 }
@@ -457,7 +453,6 @@ input[type=checkbox] {
 .review-card-footer {
   width: 100%;
   display: flex;
-  justify-content: space-between;
 }
 
 .review-content {
