@@ -71,3 +71,38 @@ def save_message(message, batch):
         "message": message
     })
     doc.save(ignore_permissions=True)
+
+def switch_batch(course_name, email, batch_name):
+    """Switches the user from the current batch of the course to a new batch.
+    """
+    membership = frappe.get_last_doc(
+        "LMS Batch Membership",
+        filters={"course": course_name, "member": email})
+
+    batch = frappe.get_doc("LMS Batch", batch_name)
+    if not batch:
+        raise ValueError(f"Invalid Batch: {batch_name}")
+
+    if batch.course != course_name:
+        raise ValueError("Can not switch batches across courses")
+
+    if batch.is_member(email):
+        print(f"{email} is already a member of {batch.title}")
+        return
+
+    old_batch = frappe.get_doc("LMS Batch", membership.batch)
+
+    print("updating membership", membership.name)
+    membership.batch = batch_name
+    membership.save()
+
+    # update exercise submissions
+    filters = {
+        "owner": email,
+        "batch": old_batch.name
+    }
+    for name in frappe.db.get_all("Exercise Submission", filters=filters, pluck='name'):
+        doc = frappe.get_doc("Exercise Submission", name)
+        print("updating exercise submission", name)
+        doc.batch = batch_name
+        doc.save()
