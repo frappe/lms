@@ -14,9 +14,12 @@
     {% set options = [question.option_1, question.option_2, question.option_3, question.option_4] %}
     {% for option in options %}
     {% if option %}
-    <div class="checkbox mb-2">
-      <input {% if question.multiple %} type="checkbox" {% else %} type="radio"
-        name="{{ question.question | urlencode }}" {% endif %} class="option" value="{{ option | urlencode }}">
+    <div class="custom-checkbox mb-2">
+      <label>
+        <input {% if question.multiple %} type="checkbox" {% else %} type="radio"
+          name="{{ question.question | urlencode }}" {% endif %} class="option" value="{{ option | urlencode }}">
+          <img />
+      </label>
       <span class="label-area">{{ option }}</span>
     </div>
     {% endif %}

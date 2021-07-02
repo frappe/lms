@@ -1,28 +1,42 @@
-<div class="chapter-teaser">
-  <div class="teaser-body">
-    <div class="chapter-title mb-5 font-weight-bold"><span class="mr-1">{{index}}.</span> {{ chapter.title }}</div>
-    <div class="chapter-description">
-      {{ chapter.description or "" }}
+<div>
+  <a data-target="#{{ chapter.get_slugified_chapter_title() }}" data-toggle="collapse" aria-expanded="false">
+    <img class="" src="/assets/community/icons/side-arrow.svg"/>
+    <span class="chapter-title">
+      {{ chapter.title }}
+    </span>
+  </a>
+  <div class="chapter-content collapse navbar-collapse" id="{{ chapter.get_slugified_chapter_title() }}">
+    <div class="course-card-meta">
+      {{ chapter.description }}
     </div>
-    <div class="chapter-lessons">
+    <div class="lessons">
       {% for lesson in chapter.get_lessons() %}
-      <div class="lesson-teaser">
-        {% if show_link or lesson.include_in_preview %}
-        <a class="" href="{{ course.get_learn_url(course.get_lesson_index(lesson.name)) }}{{course.query_parameter}}"
-          data-course="{{ course.name }}">{{ lesson.title }}</a>
-        {% else %}
-        <div class="no-preview" title="This lesson is not available for preview">
-          <span style="color: #2490ef;">
-            {{ lesson.title }}
-          </span>
-          <i class="fa fa-lock ml-2"></i>
+        <div class="lesson-info">
+          {% if show_link or lesson.include_in_preview %}
+            <a class="" href="{{ course.get_learn_url(course.get_lesson_index(lesson.name)) }}{{course.query_parameter}}" data-course="{{ course.name }}">
+              {{ loop.index }}.
+              {{ lesson.title }}</a>
+          {% else %}
+            <div title="This lesson is not available for preview">
+              <span class="">
+                {{ loop.index }}.
+                {{ lesson.title }}
+              </span>
+              <i class="fa fa-lock ml-2"></i>
+            </div>
+          {% endif %}
         </div>
-        {% endif %}
-        {% if show_progress and not course.is_mentor(frappe.session.user) and lesson.get_progress() %}
-        <span class="ml-5 badge p-2 {{ lesson.get_slugified_class() }}"> {{ lesson.get_progress() }}</span>
-        {% endif %}
-      </div>
       {% endfor %}
     </div>
   </div>
 </div>
+<script>
+  frappe.ready(() => {
+    var elements = $(".collapse")
+    elements.each((i, elem) => {
+      if (i <= 5) {
+        $(elem).addClass("show")
+      }
+    })
+  })
+</script>

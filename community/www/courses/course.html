@@ -1,112 +1,109 @@
 {% extends "templates/base.html" %}
 {% from "www/macros/common_macro.html" import MentorsSection %}
-{% block title %}{{ course.title }}{% endblock %}
-{% block head_include %}
-<meta name="description" content="Courses" />
-<meta name="keywords" content="Courses {{course.title}}" />
-<link rel="stylesheet" href="/assets/frappe/css/font-awesome.css">
+{% block title %}{{ course.title }}
 {% endblock %}
-
+{% block head_include %}
+  <meta name="description" content="Courses"/>
+  <meta name="keywords" content="Courses {{course.title}}"/>
+  <link rel="stylesheet" href="/assets/frappe/css/font-awesome.css">
+{% endblock %}
 {% block content %}
-<div class="container">
-  <div class="course-header">
-    <div class="mb-5">
-      <a class="anchor_style" href="/courses">Courses</a> / <span class="text-muted">{{ course.title }}</span>
-    </div>
-    <div class="d-flex justify-content-between align-items-end">
-      <h2 id="course-title" data-course="{{course.name}}">{{course.title}}</h2>
-      {% if not course.disable_self_learning and not membership %}
-      <div>
-        <button class="btn btn-primary join-batch" data-course="{{ course.name | urlencode }}"> Start Learning </button>
+  <div class="common-page-style course-home-page">
+    <div class="common-card-style course-card-wide">
+      <div class="course-image-wide" style="background-image: url({{ course.image }});">
+        <div class="course-tags">
+          {% for tag in course.get_tags() %}
+            <div class="course-card-pills">{{ tag }}</div>
+          {% endfor %}
+        </div>
       </div>
+      <div class="course-card-wide-content">
+        <div class="course-card-wide-title">
+          {{ course.title }}
+        </div>
+        <div class="course-card-wide-intro">
+          {{ course.short_introduction }}
+        </div>
+        <div class="course-buttons">
+          <div class="wide-button start-learning">
+            Start Learning
+            <img class="" src="/assets/community/icons/white-arrow.svg"/>
+          </div>
+          <div class="wide-button video-preview">
+            Watch Video Preview
+            <img class="" src="/assets/community/icons/play.svg"/>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="course-home-outline">
+      {{ widgets.CourseOutline(course=course, show_link=membership) }}
+    </div>
+  </div>
+{% endblock %}
+{% macro CourseVideo(course) %}
+  {% if course.video_link %}
+    <div class="preview-video">
+      <iframe width="560" height="315" src="{{course.video_link}}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="allowfullscreen"></iframe>
+    </div>
+  {% endif %}
+{% endmacro %}
+{% macro CourseDescription(course) %}
+  <div class="mt-5">
+    <h3>Course Description</h3>
+
+    <div class="course-description text-justify">
+      {{ frappe.utils.md_to_html(course.description) }}
+    </div>
+  </div>
+{% endmacro %}
+{% macro BatchSection(course) %}
+  <div class="row">
+    <div class="col-lg-8 col-md-12">
+      {% if course.is_mentor(frappe.session.user) %}
+        {{ BatchSectionForMentors(course, course.get_batches(mentor=frappe.session.user)) }}
+      {% else %}
+        {{ BatchSectionForStudents(course, course.get_upcoming_batches()) }}
       {% endif %}
     </div>
-    <div class="course-short-intro">{{ course.short_introduction }}</div>
   </div>
+{% endmacro %}
+{% macro BatchSectionForMentors(course, mentor_batches) %}
+  <h2>Your Batches</h2>
 
-  <div class="">
-    <div class="">
-      <div class="course-details">
-        {{ CourseVideo(course) }}
-        {{ CourseDescription(course) }}
-        {{ widgets.InstructorSection(instructor=course.get_instructor()) }}
-        {{ BatchSection(course) }}
-        {{ widgets.CourseOutline(course=course, show_link=membership) }}
-        {{ widgets.Reviews(course=course, membership=membership) }}
-      </div>
+  {% if mentor_batches %}
+
+    <div class="row">
+      {% for batch in mentor_batches %}
+        <div class="col-lg-4 col-md-6">
+          {{ widgets.RenderBatch(course=course, batch=batch, can_manage=True) }}
+        </div>
+      {% endfor %}
     </div>
-  </div>
-</div>
-{% endblock %}
 
-{% macro CourseVideo(course) %}
-{% if course.video_link %}
-<div class="preview-video">
-  <iframe width="560" height="315" src="{{course.video_link}}" title="YouTube video player" frameborder="0"
-    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-    allowfullscreen></iframe>
-</div>
-{% endif %}
+    <a class="add-batch margin-bottom" href="/add-a-new-batch?new=1&course={{course.name}}">Add a new batch</a>
+  {% else %}
+    <div class="mentor_message">
+      <p>
+        You are a mentor for this course.
+      </p>
+      <a class="" href="/add-a-new-batch?new=1&course={{course.name}}">Create your first batch</a>
+    </div>
+  {% endif %}
 {% endmacro %}
-
-{% macro CourseDescription(course) %}
-<div class="mt-5">
-  <h3>Course Description</h3>
-
-  <div class="course-description text-justify">
-    {{ frappe.utils.md_to_html(course.description) }}
-  </div>
-</div>
-{% endmacro %}
-
-{% macro BatchSection(course) %}
-<div class="row">
-  <div class="col-lg-8 col-md-12">
-    {% if course.is_mentor(frappe.session.user) %}
-    {{ BatchSectionForMentors(course, course.get_batches(mentor=frappe.session.user)) }}
+{% macro BatchSectionForStudents(course, upcoming_batches) %}
+  {% if upcoming_batches %}
+    <div class="mt-5">
+      <h3 class="upcoming">Upcoming Batches</h3>
+      <div class="row">
+        {% for batch in upcoming_batches %}
+          <div class="col-lg-4 col-md-6">
+            {{ widgets.RenderBatch(course=course, batch=batch, can_join=True) }}
+          </div>
+        {% endfor %}
+      </div>
     {% else %}
-    {{ BatchSectionForStudents(course, course.get_upcoming_batches()) }}
+      <div class="mt-5 upcoming">There are no Upcoming Batches for this course currently.</div>
     {% endif %}
   </div>
-</div>
-{% endmacro %}
-
-{% macro BatchSectionForMentors(course, mentor_batches) %}
-<h2>Your Batches</h2>
-
-{% if mentor_batches %}
-
-<div class="row">
-  {% for batch in mentor_batches %}
-  <div class="col-lg-4 col-md-6">
-    {{ widgets.RenderBatch(course=course, batch=batch, can_manage=True) }}
-  </div>
-  {% endfor %}
-</div>
-
-<a class="add-batch margin-bottom" href="/add-a-new-batch?new=1&course={{course.name}}">Add a new
-  batch</a>
-{% else %}
-<div class="mentor_message">
-  <p> You are a mentor for this course. </p>
-  <a class="" href="/add-a-new-batch?new=1&course={{course.name}}">Create your first batch</a>
-</div>
-{% endif %}
-{% endmacro %}
-
-{% macro BatchSectionForStudents(course, upcoming_batches) %}
-{% if upcoming_batches %}
-<div class="mt-5">
-  <h3 class="upcoming">Upcoming Batches</h3>
-  <div class="row">
-    {% for batch in upcoming_batches %}
-    <div class="col-lg-4 col-md-6">
-      {{ widgets.RenderBatch(course=course, batch=batch, can_join=True) }}
-    </div>
-    {% endfor %}
-  </div>
-  {% else %}
-  <div class="mt-5 upcoming">There are no Upcoming Batches for this course currently.</div>
-  {% endif %}
-</div>
 {% endmacro %}

@@ -5,6 +5,7 @@
 from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
+from ...utils import slugify
 
 class Chapter(Document):
     def get_lessons(self):
@@ -13,3 +14,6 @@ class Chapter(Document):
             fields='name',
             order_by="index_")
         return [frappe.get_doc('Lesson', row['name']) for row in rows]
+
+    def get_slugified_chapter_title(self):
+        return slugify(self.title)
