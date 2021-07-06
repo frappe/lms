@@ -10,7 +10,7 @@
 {% block content %}
 <div class="common-page-style">
   <div class="course-home-page">
-    {{ BreadCrum(course) }}
+    {{ widgets.BreadCrumb(course=course) }}
     {{ CourseCardWide(course) }}
     {{ CourseOutlineAndCreator(course) }}
     {{ Mentors(course) }}
@@ -19,12 +19,6 @@
   </div>
 </div>
 {% endblock %}
-
-{% macro BreadCrum(course) %}
-<div class="course-instructor breadcrum">
-  <a class="dark-links" href="/courses">All Courses</a> > <span class="muted-text">{{ course.title }}</span>
-</div>
-{% endmacro %}
 
 <!-- Course Card -->
 

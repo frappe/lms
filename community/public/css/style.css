@@ -899,6 +899,10 @@ div.custom-checkbox>label>input:checked+img {
   color: inherit;
 }
 
-.breadcrum {
+.dark-links:hover {
+  color: inherit;
+}
+
+.breadcrumb {
   margin: 16px 10px 16px;
 }
