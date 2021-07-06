@@ -399,11 +399,6 @@ input[type=checkbox] {
   }
 }
 
-.is-primary {
-  background: var(--primary-color);
-  color: #FFFFFF;
-}
-
 .button-links:hover {
   text-decoration: none;
 }
@@ -548,14 +543,14 @@ div.custom-checkbox>label>input:checked+img {
 
 @media (max-width: 768px) {
   .course-home-page {
-  padding: 0px;
-  width: 688px;
+    padding: 0px;
+    width: 688px;
   }
 }
 
 @media (max-width: 375px) {
   .course-home-page {
-  width: 100%;
+    width: 100%;
   }
 }
 
@@ -598,7 +593,6 @@ div.custom-checkbox>label>input:checked+img {
   margin-bottom: 16px;
 }
 
-
 @media (max-width: 768px) {
   .course-card-wide-intro {
     width: 632px;
@@ -614,20 +608,40 @@ div.custom-checkbox>label>input:checked+img {
 .wide-button {
   box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.13), 0px 0px 0.5px rgba(0, 0, 0, 0.5);
   border-radius: 6px;
-  padding: 12px;
+  padding: 12px 24px 12px;
   margin-right: 16px;
   height: 48px;
   cursor: pointer;
-  width: 190px;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: fit-content;
 }
 
 @media (max-width: 375px) {
   .wide-button {
     width: 264px;
   }
+}
+
+.is-secondary {
+  background: #FFFFFF;
+}
+
+.is-secondary:hover {
+  text-decoration: none;
+  color: inherit;
+}
+
+@media (max-width: 375px) {
+  .is-secondary {
+    margin-top: 16px;
+  }
+}
+
+.is-primary {
+  background: var(--primary-color);
+  color: #FFFFFF;
 }
 
 .is-primary:hover {
@@ -714,18 +728,6 @@ div.custom-checkbox>label>input:checked+img {
   margin: 12px 0px 16px;
 }
 
-.video-preview {
-  background: #FFFFFF;
-  width: 234px;
-}
-
-@media (max-width: 375px) {
-  .video-preview {
-    width: 264px;
-    margin-top: 16px;
-  }
-}
-
 .course-buttons {
   display: flex;
 }
@@ -796,6 +798,10 @@ div.custom-checkbox>label>input:checked+img {
   letter-spacing: -0.0175em;
   color: #192734;
   margin: 48px 0px 16px;
+}
+
+.course-detail-headings {
+  margin: 0px;
 }
 
 .modal-headings {
@@ -905,4 +911,28 @@ div.custom-checkbox>label>input:checked+img {
 
 .breadcrumb {
   margin: 16px 10px 16px;
+}
+
+.course-details-outline {
+  width: 352px;
+}
+
+.lesson-content-card {
+  padding: 24px;
+  flex-direction: column;
+}
+
+.lesson-content {
+  width: 736px;
+}
+
+.course-content-parent {
+  display: flex;
+  justify-content: space-between;
+}
+
+.lesson-pagination {
+  display: flex;
+  justify-content: space-between;
+  margin: 24px 0px 0px;
 }

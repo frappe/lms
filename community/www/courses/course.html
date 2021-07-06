@@ -55,7 +55,7 @@
       </a>
       {% endif %}
       {% if course.video_link %}
-      <div class="wide-button video-preview">
+      <div class="wide-button is-secondary video-preview">
         Watch Video Preview
         <img class="ml-2" src="/assets/community/images/play.png" />
       </div>
@@ -135,6 +135,8 @@
       {{ frappe.utils.md_to_html(course.description) }}
     </div>
   </div>
+  {% set avg_rating = course.get_average_rating() %}
+  {% if course.get_students() | length or avg_rating %}
   <div>
     <div class="course-home-headings">
       Overview
@@ -146,7 +148,6 @@
         {{ course.get_students() | length }} Enrolled
       </div>
       {% endif %}
-      {% set avg_rating = course.get_average_rating() %}
       {% if avg_rating %}
       <div class="overtime-item">
         <img class="icon-background mr-1" src="/assets/community/icons/rating.svg" />
@@ -155,6 +156,7 @@
       {% endif %}
     </div>
   </div>
+  {% endif %}
 </div>
 {% endmacro %}
 

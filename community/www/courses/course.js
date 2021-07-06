@@ -3,8 +3,6 @@ frappe.ready(() => {
     check_mentor_request();
   }
 
-  expand_the_first_chapter();
-
   hide_wrapped_mentor_cards();
 
   $("#apply-now").click((e) => {
@@ -173,16 +171,6 @@ var rotate_chapter_icon = (e) => {
   } else {
     icon.css("transform", "none");
   }
-}
-
-var expand_the_first_chapter = () => {
-  var elements = $(".collapse");
-  elements.each((i, elem) => {
-    if (i <= 1) {
-      $(elem).addClass("show");
-      $(elem).siblings(".chapter-title").children(".chapter-icon").css("transform", "rotate(90deg)");
-    }
-  });
 }
 
 var highlight_rating = (e) => {

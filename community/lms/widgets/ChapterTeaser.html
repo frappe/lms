@@ -1,6 +1,6 @@
 <div>
-  <div class="small-title chapter-title" data-target="#{{ chapter.get_slugified_chapter_title() }}" data-toggle="collapse"
-    aria-expanded="false">
+  <div class="small-title chapter-title" data-target="#{{ chapter.get_slugified_chapter_title() }}"
+    data-toggle="collapse" aria-expanded="false">
     <img class="chapter-icon" src="/assets/community/icons/side-arrow.svg">
     {{ index }}. {{ chapter.title }}
   </div>
@@ -12,7 +12,8 @@
       {% for lesson in chapter.get_lessons() %}
       <div class="lesson-info">
         {% if show_link or lesson.include_in_preview %}
-        <a class="dark-links" href="{{ course.get_learn_url(course.get_lesson_index(lesson.name)) }}{{course.query_parameter}}"
+        <a class="dark-links"
+          href="{{ course.get_learn_url(course.get_lesson_index(lesson.name)) }}{{course.query_parameter}}"
           data-course="{{ course.name }}">
           {{ lesson.title }}</a>
         {% else %}
@@ -31,3 +32,20 @@
 {% if index != course.get_chapters() | length %}
 <div class="card-divider"></div>
 {% endif %}
+
+<script>
+  frappe.ready(() => {
+    expand_the_first_chapter();
+  })
+
+  var expand_the_first_chapter = () => {
+    var elements = $(".collapse");
+    elements.each((i, elem) => {
+      if (i <= 1) {
+        $(elem).addClass("show");
+        $(elem).siblings(".chapter-title").children(".chapter-icon").css("transform", "rotate(90deg)");
+      }
+    });
+  }
+
+</script>

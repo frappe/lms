@@ -65,8 +65,7 @@
    "fieldname": "course",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Course",
-   "read_only": 1
+   "label": "Course"
   },
   {
    "fieldname": "current_lesson",
@@ -84,7 +83,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-06-21 12:10:28.808803",
+ "modified": "2021-07-06 20:50:46.885325",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch Membership",
