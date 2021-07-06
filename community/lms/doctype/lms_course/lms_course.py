@@ -274,6 +274,11 @@ class LMSCourse(Document):
             return False
         return True
 
+    def get_average_rating(self):
+        ratings = [review.rating for review in self.get_reviews()]
+        if not len(ratings):
+            return None
+        return sum(ratings)/len(ratings)
 
     def get_outline(self):
         return CourseOutline(self)

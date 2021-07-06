@@ -1,10 +1,12 @@
+{% if course.get_chapters() | length %}
 <div class="">
-  <h3>
+  <div class="course-home-headings">
     Course Outline
-  </h3>
+  </div>
   <div class="coure-outline">
     {% for chapter in course.get_chapters() %}
-      {{ widgets.ChapterTeaser(index=loop.index, chapter=chapter, course=course, batch=batch, show_link=show_link, show_progress=show_progress)}}
+    {{ widgets.ChapterTeaser(index=loop.index, chapter=chapter, course=course, batch=batch, show_link=show_link, show_progress=show_progress)}}
     {% endfor %}
   </div>
 </div>
+{% endif %}

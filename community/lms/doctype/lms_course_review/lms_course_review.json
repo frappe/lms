@@ -13,23 +13,26 @@
   {
    "fieldname": "review",
    "fieldtype": "Small Text",
+   "in_list_view": 1,
    "label": "Review"
   },
   {
    "fieldname": "rating",
    "fieldtype": "Rating",
+   "in_list_view": 1,
    "label": "Rating"
   },
   {
    "fieldname": "course",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Course",
    "options": "LMS Course"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-06-28 15:00:35.146196",
+ "modified": "2021-07-05 14:57:03.841430",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course Review",

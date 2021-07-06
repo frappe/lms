@@ -1,42 +1,33 @@
 <div>
-  <a data-target="#{{ chapter.get_slugified_chapter_title() }}" data-toggle="collapse" aria-expanded="false">
-    <img class="" src="/assets/community/icons/side-arrow.svg"/>
-    <span class="chapter-title">
-      {{ chapter.title }}
-    </span>
-  </a>
+  <div class="small-title chapter-title" data-target="#{{ chapter.get_slugified_chapter_title() }}" data-toggle="collapse"
+    aria-expanded="false">
+    <img class="chapter-icon" src="/assets/community/icons/side-arrow.svg">
+    {{ index }}. {{ chapter.title }}
+  </div>
   <div class="chapter-content collapse navbar-collapse" id="{{ chapter.get_slugified_chapter_title() }}">
-    <div class="course-card-meta">
+    <div class="chapter-description muted-text">
       {{ chapter.description }}
     </div>
     <div class="lessons">
       {% for lesson in chapter.get_lessons() %}
-        <div class="lesson-info">
-          {% if show_link or lesson.include_in_preview %}
-            <a class="" href="{{ course.get_learn_url(course.get_lesson_index(lesson.name)) }}{{course.query_parameter}}" data-course="{{ course.name }}">
-              {{ loop.index }}.
-              {{ lesson.title }}</a>
-          {% else %}
-            <div title="This lesson is not available for preview">
-              <span class="">
-                {{ loop.index }}.
-                {{ lesson.title }}
-              </span>
-              <i class="fa fa-lock ml-2"></i>
-            </div>
-          {% endif %}
+      <div class="lesson-info">
+        {% if show_link or lesson.include_in_preview %}
+        <a class="dark-links" href="{{ course.get_learn_url(course.get_lesson_index(lesson.name)) }}{{course.query_parameter}}"
+          data-course="{{ course.name }}">
+          {{ lesson.title }}</a>
+        {% else %}
+        <div title="This lesson is not available for preview">
+          <span class="dark-links">
+            {{ lesson.title }}
+          </span>
+          <i class="fa fa-lock ml-2"></i>
         </div>
+        {% endif %}
+      </div>
       {% endfor %}
     </div>
   </div>
 </div>
-<script>
-  frappe.ready(() => {
-    var elements = $(".collapse")
-    elements.each((i, elem) => {
-      if (i <= 5) {
-        $(elem).addClass("show")
-      }
-    })
-  })
-</script>
+{% if index != course.get_chapters() | length %}
+<div class="card-divider"></div>
+{% endif %}

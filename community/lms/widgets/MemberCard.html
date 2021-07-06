@@ -1,0 +1,14 @@
+<div class="common-card-style member-card {{dimension_class}} ">
+  {% set avatar_class = "avatar-xl" if dimension_class == "member-card-large" else "avatar-large"%}
+  {{ widgets.Avatar(member=member, avatar_class=avatar_class) }}
+  <div class="small-title member-card-title">
+    {{ member.full_name }}
+  </div>
+  {% set course_count = member.get_course_count() %}
+  {% if show_course_count and course_count > 0 %}
+  {% set suffix = "Courses" if course_count > 1 else "Course" %}
+  <div class="small-title">
+    Created {{ course_count }} {{ suffix }}
+  </div>
+  {% endif %}
+</div>
