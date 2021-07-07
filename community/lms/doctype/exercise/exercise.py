@@ -3,7 +3,6 @@
 
 import frappe
 from frappe.model.document import Document
-# from ..lms_sketch.livecode import livecode_to_svg
 
 class Exercise(Document):
     def get_user_submission(self):
