@@ -283,6 +283,15 @@ class LMSCourse(Document):
     def get_outline(self):
         return CourseOutline(self)
 
+    def get_progress(self, lesson):
+        return frappe.db.get_value("LMS Course Progress",
+                {
+                    "course": self.name,
+                    "owner": frappe.session.user,
+                    "lesson": lesson
+                },
+                ["status"])
+
 class CourseOutline:
     def __init__(self, course):
         self.course = course

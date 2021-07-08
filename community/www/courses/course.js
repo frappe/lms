@@ -132,7 +132,7 @@ var join_course = (e) => {
       if (data.message == "OK") {
         frappe.msgprint(__("You are now a student of this course."));
         setTimeout(function () {
-          window.location.href = `/courses/${course}/home`;
+          window.location.href = `/courses/${course}/learn/1.1`;
         }, 2000);
       }
     }

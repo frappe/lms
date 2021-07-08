@@ -1,21 +1,34 @@
 <div>
+
   <div class="small-title chapter-title" data-target="#{{ chapter.get_slugified_chapter_title() }}"
     data-toggle="collapse" aria-expanded="false">
     <img class="chapter-icon" src="/assets/community/icons/side-arrow.svg">
     {{ index }}. {{ chapter.title }}
   </div>
+
   <div class="chapter-content collapse navbar-collapse" id="{{ chapter.get_slugified_chapter_title() }}">
+
     <div class="chapter-description muted-text">
       {{ chapter.description }}
     </div>
+
     <div class="lessons">
+
       {% for lesson in chapter.get_lessons() %}
+
       <div class="lesson-info">
+
         {% if show_link or lesson.include_in_preview %}
         <a class="dark-links"
           href="{{ course.get_learn_url(course.get_lesson_index(lesson.name)) }}{{course.query_parameter}}"
           data-course="{{ course.name }}">
           {{ lesson.title }}</a>
+
+        {% if show_link %}
+        <img class="lesson-progress-tick {{ course.get_progress(lesson.name) != 'Complete' and 'hide' }}"
+          src="/assets/community/icons/white-tick.svg">
+        {% endif %}
+
         {% else %}
         <div title="This lesson is not available for preview">
           <span class="dark-links">
@@ -24,11 +37,14 @@
           <i class="fa fa-lock ml-2"></i>
         </div>
         {% endif %}
+
       </div>
       {% endfor %}
+
     </div>
   </div>
 </div>
+
 {% if index != course.get_chapters() | length %}
 <div class="card-divider"></div>
 {% endif %}
@@ -36,16 +52,28 @@
 <script>
   frappe.ready(() => {
     expand_the_first_chapter();
+    expand_the_active_chapter();
   })
 
   var expand_the_first_chapter = () => {
     var elements = $(".collapse");
-    elements.each((i, elem) => {
+    elements.each((i, element) => {
       if (i <= 1) {
-        $(elem).addClass("show");
-        $(elem).siblings(".chapter-title").children(".chapter-icon").css("transform", "rotate(90deg)");
+        show_section(element);
       }
     });
+  }
+
+  var expand_the_active_chapter = () => {
+    var selector = $(`a[href="${decodeURIComponent(window.location.pathname)}"]`).parent();
+    if (selector.length) {
+      show_section(selector.parent().parent());
+    }
+  }
+
+  var show_section = (element) => {
+    $(element).addClass("show");
+    $(element).siblings(".chapter-title").children(".chapter-icon").css("transform", "rotate(90deg)");
   }
 
 </script>
