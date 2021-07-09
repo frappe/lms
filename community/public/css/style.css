@@ -249,14 +249,14 @@ input[type=checkbox] {
 .course-tags {
   display: flex;
   position: relative;
-  top: 12px;
-  left: 12px;
-  height: 20px;
+  top: 0.75rem;
+  left: 0.75rem;
 }
 
 .course-card-pills {
   background: #ffffff;
-  margin: 0px 10px;
+  margin-left: 0;
+  margin-right: .5rem;
   border-radius: 4px;
   padding: 4px 6px;
   font-size: 10px;
@@ -279,6 +279,8 @@ input[type=checkbox] {
   background: #FFFFFF;
   border-radius: 8px;
   position: relative;
+  border: 1px solid #EEF0F2;
+  box-shadow: 0 1px 4px 4px rgb(25, 39, 52, 0.02);
 }
 
 .course-card {
@@ -330,6 +332,11 @@ input[type=checkbox] {
 }
 
 .card-divider {
+  border: 1px solid #F4F5F6;
+  margin-bottom: 16px;
+}
+
+.card-divider-dark {
   border: 1px solid #E2E6E9;
   margin-bottom: 16px;
 }
@@ -451,10 +458,6 @@ input[type=checkbox] {
   flex: 1;
 }
 
-.review-link {
-  margin: 48px 0px 16px;
-}
-
 .submit-review {
   width: 100px;
 }
@@ -509,7 +512,7 @@ div.custom-checkbox>label>input:checked+img {
 }
 
 .course-image-wide {
-  width: 352px;
+  width: 100%;
   height: 200px;
   background-size: 352px 200px;
   margin-right: 32px;
@@ -661,6 +664,7 @@ div.custom-checkbox>label>input:checked+img {
 
 .course-home-outline {
   width: 832px;
+  margin-top: 3rem;
 }
 
 @media (max-width: 768px) {
@@ -681,16 +685,19 @@ div.custom-checkbox>label>input:checked+img {
 
 .chapter-title {
   font-weight: bold;
-  margin: 0px 5px 16px;
+  margin: 0 .25rem .5rem;
   cursor: pointer;
+  display: flex;
+  align-items: center;
 }
 
 .chapter-description {
   height: fit-content;
+  padding-left: 1rem;
 }
 
 .chapter-icon {
-  margin-right: 12px;
+  margin-right: .25rem;
 }
 
 .course-outline-instructor-parent {
@@ -705,10 +712,18 @@ div.custom-checkbox>label>input:checked+img {
   }
 }
 
+.course-home-mentors {
+  margin-top: 3rem;
+}
+
 @media (max-width: 375px) {
   .course-home-mentors {
     padding: 0px 24px 0px;
   }
+}
+
+.reviews-parent {
+  margin-top: 3rem;
 }
 
 @media (max-width: 375px) {
@@ -717,16 +732,38 @@ div.custom-checkbox>label>input:checked+img {
   }
 }
 
+.course-description-section {
+  margin-top: 3rem;
+}
+
+.course-overview-section {
+  margin-top: 3rem;
+}
+
 .lesson-info {
   font-size: 16px;
   line-height: 250%;
   letter-spacing: -0.011em;
-  margin-bottom: 2px;
-  padding-left: 10px;
+}
+
+.lesson-links {
+  display: block;
+  padding: 0 1rem;
+  margin-bottom: .25rem;
+  color: inherit;
+}
+
+.lesson-links:hover {
+  cursor: pointer;
+  text-decoration: none;
+  background: #F4F5F6;
+  color: inherit;
+  border-radius: .25rem;
 }
 
 .chapter-content {
-  margin: 4px 0px 0px 28px;
+  margin: 0;
+  margin-left: .875rem;
 }
 
 .coure-outline {
@@ -788,7 +825,7 @@ div.custom-checkbox>label>input:checked+img {
 .member-card-medium {
   width: 160px;
   height: 140px;
-  margin: 0px 20px 32px 0px;
+  margin: 0 20px 32px 0;
 }
 
 @media (max-width: 768px) {
@@ -812,13 +849,19 @@ div.custom-checkbox>label>input:checked+img {
   background: #E2E6E9;
 }
 
+.break {
+  flex-basis: 100%;
+  flex-grow: 1;
+  margin: .5rem 0;
+}
+
 .course-home-headings {
   font-weight: 600;
   font-size: 22px;
   line-height: 146%;
   letter-spacing: -0.0175em;
   color: #192734;
-  margin: 48px 0px 16px;
+  margin-bottom: 1rem;
 }
 
 .course-detail-headings {
@@ -884,6 +927,7 @@ div.custom-checkbox>label>input:checked+img {
   display: flex;
   align-items: baseline;
   cursor: pointer;
+  margin-top: 1rem;
 }
 
 .flex-one {
@@ -931,7 +975,9 @@ div.custom-checkbox>label>input:checked+img {
 }
 
 .breadcrumb {
-  margin: 16px 10px 0px;
+  margin: 1rem 0.5rem 0;
+  display: flex;
+  align-items: center;
 }
 
 .course-details-outline {
@@ -1040,6 +1086,10 @@ div.custom-checkbox>label>input:checked+img {
   margin: 0px 4px 4px;
 }
 
+.profile-courses {
+  margin-top: 3rem;
+}
+
 @media (max-width: 375px) {
   .profile-courses {
     padding: 0px 24px 0px;
@@ -1060,11 +1110,31 @@ div.custom-checkbox>label>input:checked+img {
   flex-direction: column;
 }
 
+.course-creator-section {
+  margin-top: 3rem;
+}
+
+.course-progress-section {
+  margin-top: 3rem;
+}
+
 .progress-card {
   width: 256px;
   display: flex;
   flex-direction: column;
   padding: 24px;
+}
+
+@media (max-width: 768px) {
+  .progress-card {
+    width: 248px;
+  }
+}
+
+@media (max-width: 375px) {
+  .progress-card {
+    width: 312px;
+  }
 }
 
 .progress {
@@ -1074,6 +1144,15 @@ div.custom-checkbox>label>input:checked+img {
 
 .progress-bar {
   background-color: #318AD8;
+}
+
+.progress-percentage {
+  width: 100%;
+  font-size: 12px;
+  line-height: 165%;
+  letter-spacing: 0.02em;
+  color: #000000;
+  text-align: center;
 }
 
 .hljs {

@@ -2,7 +2,7 @@
 
   <div class="small-title chapter-title" data-target="#{{ chapter.get_slugified_chapter_title() }}"
     data-toggle="collapse" aria-expanded="false">
-    <img class="chapter-icon" src="/assets/community/icons/side-arrow.svg">
+    <img class="chapter-icon" src="/assets/community/icons/chevron-right.svg">
     {{ index }}. {{ chapter.title }}
   </div>
 
@@ -19,22 +19,24 @@
       <div class="lesson-info {% if membership.current_lesson == lesson.name %} active-lesson {% endif %}">
 
         {% if membership or lesson.include_in_preview %}
-        <a class="dark-links"
+        <a class="lesson-links"
           href="{{ course.get_learn_url(course.get_lesson_index(lesson.name)) }}{{course.query_parameter}}"
           data-course="{{ course.name }}">
-          {{ lesson.title }}</a>
+          {{ lesson.title }}
 
-        {% if membership %}
-        <img class="lesson-progress-tick {{ course.get_progress(lesson.name) != 'Complete' and 'hide' }}"
-          src="/assets/community/icons/white-tick.svg">
-        {% endif %}
+          {% if membership %}
+          <img class="{{ course.get_progress(lesson.name) != 'Complete' and 'hide' }}"
+            src="/assets/community/icons/check.svg">
+          {% endif %}
+
+        </a>
 
         {% else %}
         <div class="no-preview" title="This lesson is not available for preview">
-          <span class="dark-links">
+          <div class="lesson-links">
             {{ lesson.title }}
-          </span>
-          <img class="ml-2" src="/assets/community/icons/lock.svg">
+            <img class="ml-2" src="/assets/community/icons/lock.svg">
+          </div>
         </div>
         {% endif %}
 
@@ -67,7 +69,7 @@
 
     /* Find anchor matching the URL for course details page */
     var selector = $(`a[href="${decodeURIComponent(window.location.pathname)}"]`).parent();
-    if (! selector.length) {
+    if (!selector.length) {
       selector = $(`a[href^="${decodeURIComponent(window.location.pathname)}"]`).parent();
     }
     if (selector.length && $(".course-details-page").length) {

@@ -7,7 +7,6 @@
 {% block content %}
 <div class="common-page-style">
   <div class="course-home-page">
-    {{ widgets.BreadCrumb(member_name = member.full_name)}}
     {{ widgets.MemberCard(member=member, show_course_count=True, dimension_class="member-card-xl") }}
     {{ AboutOverviewSection(member) }}
     <div class="profile-courses">
@@ -23,7 +22,7 @@
 {% macro AboutOverviewSection(member) %}
 <div class="course-outline-instructor-parent">
   {% if member.bio %}
-  <div>
+  <div class="course-overview-section">
     <div class="course-home-headings">
       About
     </div>
@@ -32,7 +31,7 @@
     </div>
   </div>
   {% endif %}
-  <div>
+  <div class="course-overview-section">
     <div class="course-home-headings">
       Overview
     </div>
