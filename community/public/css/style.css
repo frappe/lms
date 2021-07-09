@@ -1155,6 +1155,7 @@ div.custom-checkbox>label>input:checked+img {
   text-align: center;
 }
 
-.hljs {
-  white-space: pre-wrap;
+pre {
+  width: 100%;
+  overflow-x: auto;
 }
