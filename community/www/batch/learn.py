@@ -35,6 +35,12 @@ def get_context(context):
 
     context.page_extensions = get_page_extensions()
 
+    context.page_context = {
+        "course": context.course.name,
+        "batch": context.get("batch") and context.batch.name,
+        "lesson": context.lesson.name
+    }
+
 def get_chapter_title(course_name, lesson_number):
     if not lesson_number:
         return
