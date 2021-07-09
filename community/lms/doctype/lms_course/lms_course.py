@@ -8,7 +8,7 @@ from frappe.model.document import Document
 import json
 from ...utils import slugify
 from community.query import find, find_all
-from frappe.utils import flt
+from frappe.utils import flt, cint
 
 class LMSCourse(Document):
     @staticmethod
@@ -114,6 +114,26 @@ class LMSCourse(Document):
         """
         # TODO: chapters should have a way to specify the order
         return find_all("Chapter", course=self.name, order_by="index_")
+
+    def get_lessons(self):
+        """ Returns all lessons of this course """
+        lessons = []
+        chapters = self.get_chapters()
+        for chapter in chapters:
+            lessons.append(frappe.get_all("Lesson", {"chapter": chapter.name}))
+        return lessons
+
+    def get_course_progress(self):
+        """ Returns the course progress of the session user """
+        lesson_count = len(self.get_lessons())
+        completed_lessons = frappe.db.count("LMS Course Progress",
+                                {
+                                    "course": self.name,
+                                    "owner": frappe.session.user,
+                                    "status": "Complete"
+                                })
+        precision = cint(frappe.db.get_default("float_precision")) or 3
+        return flt(((completed_lessons/lesson_count) * 100), precision)
 
     def get_batch(self, batch_name):
         return find("LMS Batch", name=batch_name, course=self.name)

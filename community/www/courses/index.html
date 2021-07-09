@@ -10,87 +10,18 @@
 
 {% block content %}
 <div class="common-page-style">
-  <div class="">
-    <div class="course-top-section">
-      <div class="courses-header">
-        {{ 'All Courses' }}
-      </div>
-      <div class="cards-parent">
-        {% for course in courses %}
-        {{ course_card(course) }}
-        {% endfor %}
-      </div>
+  <div class="course-top-section">
+    <div class="courses-header">
+      {{ 'All Courses' }}
+    </div>
+    <div class="cards-parent">
+      {% for course in courses %}
+      {{ widgets.CourseCard(course=course) }}
+      {% endfor %}
     </div>
   </div>
 </div>
 {% endblock %}
-
-
-{% macro course_card(course) %}
-<div class="common-card-style course-card">
-  <div class="course-image" style="background-image: url({{ course.image }});">
-    <div class="course-tags">
-      {% for tag in course.get_tags() %}
-      <div class="course-card-pills">{{ tag }}</div>
-      {% endfor %}
-    </div>
-  </div>
-  <div class="course-card-content">
-    <div class="course-card-meta muted-text">
-      {% if course.get_chapters() | length %}
-      <span>
-        {{ course.get_chapters() | length }} Chapters
-      </span>
-      {% endif %}
-      {% if course.get_chapters() | length and course.get_upcoming_batches() | length %}
-      <span class="font-weight-bold ml-3 mr-3"> . </span>
-      {% endif %}
-      {% if course.get_upcoming_batches() | length %}
-      <span class="">
-        {{ course.get_upcoming_batches() | length }} Open Batches
-      </span>
-      {% endif %}
-    </div>
-    <div class="course-card-title">{{ course.title }}</div>
-    <div class="card-divider"></div>
-    <div class="course-card-meta-2">
-      {{ widgets.Avatar(member=course.get_instructor(), avatar_class="avatar-small") }}
-      <span class="course-instructor">
-        {{ course.get_instructor().full_name }}
-      </span>
-      {% if course.get_students() | length %}
-      <span class="course-student-count">
-        <img class="icon-background mr-1" src="/assets/community/icons/user.svg" />
-        {{ course.get_students() | length }}
-      </span>
-      {% endif %}
-    </div>
-    {% set membership = course.get_membership(frappe.session.user) %}
-
-    {% set lesson_index = course.get_lesson_index(membership.current_lesson) if membership and
-    membership.current_lesson
-    else '1.1' %}
-
-    {% set query_parameter = "?batch=" + membership.batch if membership and membership.batch else "" %}
-
-    {% if membership %}
-
-    <div class="view-course-link is-primary">
-      Continue Course <img class="ml-3" src="/assets/community/icons/white-arrow.svg" />
-    </div>
-    <a class="stretched-link" href="{{ course.get_learn_url(lesson_index) }}{{ query_parameter }}"></a>
-
-    {% else %}
-
-    <div class="view-course-link">
-      View Course <img class="ml-3" src="/assets/community/icons/black-arrow.svg" />
-    </div>
-    <a class="stretched-link" href="/courses/{{ course.name }}"></a>
-
-    {% endif %}
-  </div>
-</div>
-{% endmacro %}
 
 {% block script %}
 <script>

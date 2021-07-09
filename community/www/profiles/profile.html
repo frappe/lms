@@ -1,100 +1,117 @@
-{% extends "templates/web.html" %}
+{% extends "templates/base.html" %}
 {% block head_include %}
 <meta name="description" content="{{ 'Community' }}" />
 <meta name="keywords" content="An app that supports Communities." />
-<style>
-  section {
-    padding: 2rem;
-    color: #000000;
-  }
-
-  svg {
-    width: 200px;
-    height: 200px;
-  }
-
-  .dashboard__parent {
-    display: flex;
-  }
-
-  .dashboard__name {
-    font-weight: normal;
-    font-style: normal;
-    font-size: 36px;
-    line-height: 42px;
-  }
-
-  .dashboard__details {
-    padding-top: 2rem;
-  }
-
-  .dashboard__course {
-    border: 1px solid black;
-    padding: 1rem;
-    margin: 0.5rem;
-    width: 48%;
-  }
-
-  .dashboard__courseHeader {
-    display: flex;
-    justify-content: space-between;
-    height: 50px;
-    margin-bottom: 3px;
-  }
-
-  .dashboard__badge {
-    background: #D6D6FF;
-    border-radius: 20px;
-    color: #1712FE;
-    padding: 0.5rem;
-    height: fit-content;
-  }
-
-  .dashboard__description {
-    height: 100px;
-  }
-
-  @media (max-width: 900px) {
-    .dashboard__parent {
-      flex-direction: column;
-    }
-  }
-</style>
 {% endblock %}
-{% block page_content %}
-<div class="dashboard__parent">
-  <div class="dashboard__photo mr-5">
-    {{ widgets.Avatar(member=member, avatar_class="avatar-xl") }}
-  </div>
-  <div class="dashboard__details">
-    <div class="dashboard__name">
-      <a class="anchor_style" href="/{{member.username}}">{{ member.full_name }}</a>
+
+{% block content %}
+<div class="common-page-style">
+  <div class="course-home-page">
+    {{ widgets.BreadCrumb(member_name = member.full_name)}}
+    {{ widgets.MemberCard(member=member, show_course_count=True, dimension_class="member-card-xl") }}
+    {{ AboutOverviewSection(member) }}
+    <div class="profile-courses">
+      {{ CoursesCreated(member) }}
+      {{ CoursesMentored(member) }}
+      {{ CoursesEnrolled(member) }}
     </div>
-    <div>
-      <ul class="nav nav-tabs mt-4" id="myTab" role="tablist">
-        {% for tab in profile_tabs %}
-          <li class="nav-item">
-            {% set slug = title.lower().replace(" ", "-") %}
-            {% set selected = loop.index == 1 %}
-            {% set active = 'active' if loop.index == 1 else '' %}
-            <a class="nav-link {{ active }}" id="{{ slug }}-tab" data-toggle="tab" href="#{{ slug }}" role="tab" aria-controls="{{ slug }}"
-              aria-selected="{{ selected }}">Sketches</a>
-          </li>
-        {% endfor %}
-      </ul>
-    </div>
-    <div>
-      {% for tab in profile_tabs %}
-        {% set slug = title.lower().replace(" ", "-") %}
-        <div class="tab-content">
-          <div class="tab-pane fade py-4 show active" role="tabpanel" id="slug">
-            {{ tab.render() }}
-          </div>
-        </div>
-      {% endfor %}
-    </div>
+    {{ ProfileTabs(profile_tabs) }}
   </div>
 </div>
 {% endblock %}
 
-<!-- this is a sample default web page template -->
+{% macro AboutOverviewSection(member) %}
+<div class="course-outline-instructor-parent">
+  {% if member.bio %}
+  <div>
+    <div class="course-home-headings">
+      About
+    </div>
+    <div class="common-card-style description-card">
+      {{ member.bio }}
+    </div>
+  </div>
+  {% endif %}
+  <div>
+    <div class="course-home-headings">
+      Overview
+    </div>
+    <div class="common-card-style overview-card small-title">
+      {% if member.get_course_membership("Student") | length %}
+      <div class="overtime-item">
+        <img class="icon-background mr-1" src="/assets/community/icons/user.svg" />
+        {{ member.get_course_membership("Student") | length }} Enrolled
+      </div>
+      {% endif %}
+      {% if member.get_user_reviews() | length %}
+      <div class="overtime-item">
+        <img class="icon-background mr-1" src="/assets/community/icons/rating.svg" />
+        {{ member.get_user_reviews() | length }} Created
+      </div>
+      {% endif %}
+      {% if member.get_course_membership("Mentor") | length%}
+      <div class="overtime-item">
+        <img class="icon-background mr-1" src="/assets/community/icons/calendar.svg" />
+        {{ member.get_course_membership("Mentor") | length }} Mentored
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endmacro %}
+
+
+{% macro CoursesCreated(member) %}
+{% if member.get_authored_courses() | length %}
+<div class="course-home-headings">
+  Courses Created
+</div>
+<div class="cards-parent">
+  {% for course in member.get_authored_courses() %}
+  {% set course_details = frappe.get_doc("LMS Course", course) %}
+  {{ widgets.CourseCard(course=course_details) }}
+  {% endfor %}
+</div>
+{% endif %}
+{% endmacro %}
+
+{% macro CoursesMentored(member) %}
+{% if member.get_course_membership("Mentor") | length %}
+<div class="course-home-headings">
+  Courses Mentored
+</div>
+<div class="cards-parent">
+  {% for membership in member.get_course_membership("Mentor") %}
+  {% set course_details = frappe.get_doc("LMS Course", membership.course) %}
+  {{ widgets.CourseCard(course=course_details) }}
+  {% endfor %}
+</div>
+{% endif %}
+{% endmacro %}
+
+{% macro CoursesEnrolled(member) %}
+{% if member.get_course_membership("Student") | length %}
+<div class="course-home-headings">
+  Courses Enrolled
+</div>
+<div class="cards-parent">
+  {% for membership in member.get_course_membership("Student") %}
+  {% set course_details = frappe.get_doc("LMS Course", membership.course) %}
+  {{ widgets.CourseCard(course=course_details) }}
+  {% endfor %}
+</div>
+{% endif %}
+{% endmacro %}
+
+{% macro ProfileTabs(profile_tabs) %}
+<div>
+  {% for tab in profile_tabs %}
+  {% set slug = title.lower().replace(" ", "-") %}
+  <div class="tab-content">
+    <div class="tab-pane fade py-4 show active" role="tabpanel" id="slug">
+      {{ tab.render() }}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endmacro %}

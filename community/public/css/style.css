@@ -285,12 +285,12 @@ input[type=checkbox] {
   flex-direction: column;
   width: 352px;
   height: 380px;
-  margin: 0px 32px 32px 0px;
+  margin: 0px 20px 32px 0px;
 }
 
 @media (max-width: 768px) {
   .course-card {
-    margin: 0px 18px 32px 0px;
+    margin: 0px 8px 32px 0px;
     width: 336px;
   }
 }
@@ -368,7 +368,7 @@ input[type=checkbox] {
   flex-wrap: wrap;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 375px) {
   .cards-parent {
     justify-content: center;
   }
@@ -538,14 +538,14 @@ div.custom-checkbox>label>input:checked+img {
   padding: 0px 0px 80px;
   display: flex;
   flex-direction: column;
-  width: 1120px;
+  max-width: 1120px;
   margin: 0 auto;
 }
 
 @media (max-width: 768px) {
   .course-home-page {
     padding: 0px 0px 30px;
-    width: 90%;
+    max-width: 688px;
   }
 }
 
@@ -781,6 +781,10 @@ div.custom-checkbox>label>input:checked+img {
   font-weight: bold;
 }
 
+.member-card-xl .member-card-title {
+  font-weight: bold;
+}
+
 .member-card-medium {
   width: 160px;
   height: 140px;
@@ -800,6 +804,12 @@ div.custom-checkbox>label>input:checked+img {
     width: 144px;
     height: 140px;
   }
+}
+
+.member-card-xl {
+  height: 188px;
+  margin-top: 16px;
+  background: #E2E6E9;
 }
 
 .course-home-headings {
@@ -1028,4 +1038,44 @@ div.custom-checkbox>label>input:checked+img {
   border-radius: 2px;
   padding: 2px;
   margin: 0px 4px 4px;
+}
+
+@media (max-width: 375px) {
+  .profile-courses {
+    padding: 0px 24px 0px;
+  }
+}
+
+.no-preview {
+  display: flex;
+}
+
+.progress-text {
+  font-size: 12px;
+  line-height: 165%;
+}
+
+.course-creator-progress-parent {
+  display: flex;
+  flex-direction: column;
+}
+
+.progress-card {
+  width: 256px;
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+}
+
+.progress {
+  width: 100%;
+  height: 8px;
+}
+
+.progress-bar {
+  background-color: #318AD8;
+}
+
+.hljs {
+  white-space: pre-wrap;
 }

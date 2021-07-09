@@ -5,15 +5,18 @@ import hashlib
 
 class CustomUser(User):
 
-    def get_course_count(self) -> int:
+    def get_authored_courses(self) -> int:
         """Returns the number of courses authored by this user.
         """
-        return frappe.db.count(
+        return frappe.get_all(
             'LMS Course', {
-                'owner': self.email
+                'owner': self.name
         })
 
     def get_palette(self):
+        """
+        Returns a color unique to each member for Avatar """
+
         palette = [
             ['--orange-avatar-bg', '--orange-avatar-color'],
             ['--pink-avatar-bg', '--pink-avatar-color'],
@@ -40,3 +43,19 @@ class CustomUser(User):
                 'member_type': 'Mentor'
             })
 
+    def get_user_reviews(self):
+        """ Returns the reviews created by user """
+        return frappe.get_all("LMS Course Review",
+                {
+                    "owner": self.name
+                })
+
+    def get_course_membership(self, member_type=None):
+        """ Returns all memberships of the user  """
+        filters = {
+            "member": self.name
+        }
+        if member_type:
+            filters["member_type"] = member_type
+
+        return frappe.get_all("LMS Batch Membership", filters, ["name", "course"])

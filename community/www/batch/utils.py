@@ -17,8 +17,9 @@ def get_common_context(context):
     context.course = course
 
     membership = course.get_membership(frappe.session.user, batch_name)
+    print(membership)
+    context.membership = membership
     if membership:
-        context.membership = membership
         batch = course.get_batch(membership.batch)
 
         if batch:

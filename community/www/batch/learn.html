@@ -22,10 +22,10 @@
 {% block content %}
 <div class="common-page-style">
   <div class="course-details-page">
-    {{ widgets.Breadcrumb(course=course, lesson=lesson) }}
+    {{ widgets.BreadCrumb(course=course, lesson=lesson) }}
     <div class="course-content-parent">
       <div class="course-details-outline">
-        {{ widgets.CourseOutline(course=course, show_link=membership) }}
+        {{ widgets.CourseOutline(course=course, membership=membership) }}
       </div>
       <div class="lesson-pagination-parent">
         {{ LessonContent(lesson) }}
@@ -40,7 +40,7 @@
 
 {% macro LessonContent(lesson) %}
 <div class="lesson-content">
-  <div class="course-home-headings title" data-lesson="{{ lesson.name }}" data-course="{{ course.name }}">
+  <div class="course-home-headings title {% if membership %} is-member {% endif %}" data-lesson="{{ lesson.name }}" data-course="{{ course.name }}">
     {{ lesson.title }}
     <span class="lesson-progress {{hide if course.get_progress(lesson.name) != 'Complete' else ''}}">COMPLETED</span>
   </div>

@@ -5,7 +5,7 @@
   </div>
   <div class="coure-outline">
     {% for chapter in course.get_chapters() %}
-    {{ widgets.ChapterTeaser(index=loop.index, chapter=chapter, course=course, batch=batch, show_link=show_link, show_progress=show_progress)}}
+    {{ widgets.ChapterTeaser(index=loop.index, chapter=chapter, course=course, batch=batch, membership=membership) }}
     {% endfor %}
   </div>
 </div>

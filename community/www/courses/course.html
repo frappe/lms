@@ -89,13 +89,29 @@
 {% macro CourseOutlineAndCreator(course) %}
 <div class="course-outline-instructor-parent">
   <div class="course-home-outline">
-    {{ widgets.CourseOutline(course=course, show_link=membership) }}
+    {{ widgets.CourseOutline(course=course, membership=membership) }}
   </div>
-  <div class="">
+  <div class="course-creator-progress-parent">
     <div class="course-home-headings">
       Creator
     </div>
     {{ widgets.MemberCard(member=course.get_instructor(), show_course_count=True, dimension_class="member-card-large") }}
+    {% if course.get_course_progress() %}
+    <div class="course-home-headings">
+      Your Progress
+    </div>
+    <div class="common-card-style progress-card">
+      <p class="small-title">
+        Great work so far!
+      </p>
+      <p class="progress-text">
+        Challenge yourself to complete the lesson and grow professionally.
+      </p>
+      <div class="progress">
+        <div class="progress-bar" role="progressbar" style="width: {{ course.get_course_progress() }}%" aria-valuenow="{{ course.get_course_progress() }}" aria-valuemin="0" aria-valuemax="100"></div>
+      </div>
+    </div>
+    {% endif %}
   </div>
 </div>
 {% endmacro %}

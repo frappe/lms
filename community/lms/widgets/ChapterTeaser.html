@@ -16,25 +16,25 @@
 
       {% for lesson in chapter.get_lessons() %}
 
-      <div class="lesson-info">
+      <div class="lesson-info {% if membership.current_lesson == lesson.name %} active-lesson {% endif %}">
 
-        {% if show_link or lesson.include_in_preview %}
+        {% if membership or lesson.include_in_preview %}
         <a class="dark-links"
           href="{{ course.get_learn_url(course.get_lesson_index(lesson.name)) }}{{course.query_parameter}}"
           data-course="{{ course.name }}">
           {{ lesson.title }}</a>
 
-        {% if show_link %}
+        {% if membership %}
         <img class="lesson-progress-tick {{ course.get_progress(lesson.name) != 'Complete' and 'hide' }}"
           src="/assets/community/icons/white-tick.svg">
         {% endif %}
 
         {% else %}
-        <div title="This lesson is not available for preview">
+        <div class="no-preview" title="This lesson is not available for preview">
           <span class="dark-links">
             {{ lesson.title }}
           </span>
-          <i class="fa fa-lock ml-2"></i>
+          <img class="ml-2" src="/assets/community/icons/lock.svg">
         </div>
         {% endif %}
 
@@ -51,7 +51,6 @@
 
 <script>
   frappe.ready(() => {
-    expand_the_first_chapter();
     expand_the_active_chapter();
   })
 
@@ -65,9 +64,27 @@
   }
 
   var expand_the_active_chapter = () => {
+
+    /* Find anchor matching the URL for course details page */
     var selector = $(`a[href="${decodeURIComponent(window.location.pathname)}"]`).parent();
-    if (selector.length) {
+    if (! selector.length) {
+      selector = $(`a[href^="${decodeURIComponent(window.location.pathname)}"]`).parent();
+    }
+    if (selector.length && $(".course-details-page").length) {
+      $(".lesson-info").removeClass("active-lesson")
+      selector.addClass("active-lesson");
       show_section(selector.parent().parent());
+    }
+
+    /* For course home page */
+    else if ($(".active-lesson").length) {
+      selector = $(".active-lesson")
+      show_section(selector.parent().parent());
+    }
+
+    /* If no active chapter then exapand the first chapter */
+    else {
+      expand_the_first_chapter();
     }
   }
 

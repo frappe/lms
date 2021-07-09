@@ -1,7 +1,5 @@
 frappe.ready(() => {
 
-  highlight_active_lesson();
-
   save_current_lesson();
 
   $("#progress").click((e) => {
@@ -18,15 +16,8 @@ frappe.ready(() => {
 
 })
 
-var highlight_active_lesson = () => {
-  var selector = $(`a[href="${decodeURIComponent(window.location.pathname)}"]`).parent();
-  if (selector.length) {
-    selector.addClass('active-lesson');
-  }
-}
-
 var save_current_lesson = () => {
-  if ($(".title").attr("data-membership")) {
+  if ($(".title").hasClass("is-member")) {
     frappe.call("community.lms.api.save_current_lesson", {
       course_name: $(".title").attr("data-course"),
       lesson_name: $(".title").attr("data-lesson")
