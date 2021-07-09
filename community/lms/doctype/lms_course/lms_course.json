@@ -86,8 +86,7 @@
   {
    "fieldname": "image",
    "fieldtype": "Attach Image",
-   "label": "Preview Image",
-   "reqd": 1
+   "label": "Preview Image"
   },
   {
    "fieldname": "tags",
@@ -119,7 +118,7 @@
    "link_fieldname": "course"
   }
  ],
- "modified": "2021-06-28 12:04:21.524161",
+ "modified": "2021-07-09 15:05:05.372430",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",

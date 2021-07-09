@@ -167,8 +167,7 @@ whitelist = [
     "/add-a-new-batch",
     "/new-sign-up",
     "/message",
-    "/about",
-    "/review"
+    "/about"
 ]
 whitelist_rules = [{"from_route": p, "to_route": p[1:]} for p in whitelist]
 
