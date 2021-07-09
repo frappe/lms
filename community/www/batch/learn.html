@@ -40,7 +40,8 @@
 
 {% macro LessonContent(lesson) %}
 <div class="lesson-content">
-  <div class="course-home-headings title {% if membership %} is-member {% endif %}" data-lesson="{{ lesson.name }}" data-course="{{ course.name }}">
+  <div class="course-home-headings title {% if membership %} is-member {% endif %}" data-lesson="{{ lesson.name }}"
+    data-course="{{ course.name }}">
     {{ lesson.title }}
     <span class="lesson-progress {{hide if course.get_progress(lesson.name) != 'Complete' else ''}}">COMPLETED</span>
   </div>
@@ -60,12 +61,15 @@
 {% macro pagination(prev_chap, prev_url, next_chap, next_url) %}
 <div class="lesson-pagination">
 
-  {% if prev_url %}
-  <a class="button is-secondary dark-links" href="{{ prev_url }}">
-    <img class="mr-2" src="/assets/community/icons/left-arrow.svg">
-    Prev
-  </a>
-  {% endif %}
+  <div>
+    {% if prev_url %}
+    <a class="button is-secondary dark-links" href="{{ prev_url }}">
+      <img class="mr-2" src="/assets/community/icons/left-arrow.svg">
+      Prev
+    </a>
+    {% endif %}
+  </div>
+
 
   {% if not course.is_mentor(frappe.session.user) and membership %}
 
@@ -81,12 +85,14 @@
 
   {% endif %}
 
-  {% if next_url %}
-  <a class="button is-primary" href="{{ next_url }}">
-    Next
-    <img class="ml-2" src="/assets/community/icons/side-arrow-white.svg">
-  </a>
-  {% endif %}
+  <div>
+    {% if next_url %}
+    <a class="button is-primary" href="{{ next_url }}">
+      Next
+      <img class="ml-2" src="/assets/community/icons/side-arrow-white.svg">
+    </a>
+    {% endif %}
+  </div>
 
 </div>
 {% endmacro %}
