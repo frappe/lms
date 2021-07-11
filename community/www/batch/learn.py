@@ -38,7 +38,8 @@ def get_context(context):
     context.page_context = {
         "course": context.course.name,
         "batch": context.get("batch") and context.batch.name,
-        "lesson": context.lesson.name
+        "lesson": context.lesson.name,
+        "is_member": context.membership is not None
     }
 
 def get_chapter_title(course_name, lesson_number):
