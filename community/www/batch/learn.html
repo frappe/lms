@@ -20,42 +20,80 @@
 
 
 {% block content %}
-
-<div class="container">
-  {{ widgets.BatchTabs(course=course, membership=membership) }}
-  <div class="lesson-page">
-
-    <h2 class="title {% if course.is_mentor(frappe.session.user) %} is_mentor {% endif %}" data-lesson="{{ lesson.name }}"
-      data-course="{{ course.name }}" {% if membership%} data-membership="{{membership.name}}" {% endif %}>{{ lesson.title }}</h2>
-
-    {% if membership or lesson.include_in_preview %}
-    {{ lesson.render_html() }}
-    {% else %}
-    <div class="no-preview-message">
-      <span>This lesson is not available for Preview. Please join the course to access this lesson.</span>
-      <a href="/courses/{{ course.name }}">Checkout Course Details.</a>
+<div class="common-page-style">
+  <div class="course-details-page">
+    {{ widgets.BreadCrumb(course=course, lesson=lesson) }}
+    <div class="course-content-parent">
+      <div class="course-details-outline">
+        {{ widgets.CourseOutline(course=course, membership=membership) }}
+      </div>
+      <div class="lesson-pagination-parent">
+        {{ LessonContent(lesson) }}
+        {% if membership %}
+        {{ pagination(prev_chap, prev_url, next_chap, next_url) }}
+        {% endif %}
+      </div>
     </div>
-    {% endif %}
-    {% if membership %}
-    {{ pagination(prev_chap, prev_url, next_chap, next_url) }}
-    {% endif %}
   </div>
 </div>
 {% endblock %}
 
+{% macro LessonContent(lesson) %}
+<div class="lesson-content">
+  <div class="course-home-headings title {% if membership %} is-member {% endif %}" data-lesson="{{ lesson.name }}"
+    data-course="{{ course.name }}">
+    {{ lesson.title }}
+    <span class="lesson-progress {{hide if course.get_progress(lesson.name) != 'Complete' else ''}}">COMPLETED</span>
+  </div>
+
+  {% if membership or lesson.include_in_preview %}
+  <div class="common-card-style lesson-content-card">{{ lesson.render_html() }}</div>
+  {% else %}
+  <div class="no-preview-message">
+    <span>This lesson is not available for Preview. Please join the course to access this lesson.</span>
+    <a href="/courses/{{ course.name }}">Checkout Course Details.</a>
+  </div>
+  {% endif %}
+
+</div>
+{% endmacro %}
+
 {% macro pagination(prev_chap, prev_url, next_chap, next_url) %}
 <div class="lesson-pagination">
-  {% if prev_url %}
-  <span>
-    Prev: <a href="{{prev_url}}">{{prev_chap}}</a>
-  </span>
+
+  <div>
+    {% if prev_url %}
+    <a class="button is-secondary dark-links" href="{{ prev_url }}">
+      <img class="mr-2" src="/assets/community/icons/left-arrow.svg">
+      Prev
+    </a>
+    {% endif %}
+  </div>
+
+
+  {% if not course.is_mentor(frappe.session.user) and membership %}
+
+  {% if course.get_progress(lesson.name) != "Complete" %}
+  <div class="button is-secondary" id="progress" data-progress="Complete">
+    Mark as Complete
+  </div>
+  {% else %}
+  <div class="button is-secondary" id="progress" data-progress="Incomplete">
+    Mark as Incomplete
+  </div>
   {% endif %}
-  {% if next_url %}
-  <span class="pull-right">
-    Next: <a href="{{next_url}}">{{next_chap}}</a>
-  </span>
+
   {% endif %}
-  <div style="clear: both;"></div>
+
+  <div>
+    {% if next_url %}
+    <a class="button is-primary" href="{{ next_url }}">
+      Next
+      <img class="ml-2" src="/assets/community/icons/side-arrow-white.svg">
+    </a>
+    {% endif %}
+  </div>
+
 </div>
 {% endmacro %}
 

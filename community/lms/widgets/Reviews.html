@@ -1,0 +1,85 @@
+{% if course.get_reviews() | length %}
+<div class="reviews-parent col">
+  <div class="reviews-heading">
+    <div class="course-home-headings">Student Review</div>
+    {% if course.is_eligible_to_review(membership) %}
+    <a class="review-link" href="">
+      Provide your Feedback
+    </a>
+    {% endif %}
+  </div>
+  <div class="reviews-section">
+    {% for review in course.get_reviews() %}
+    <div class="review-card">
+      <div class="common-card-style review-content small-title"> {{ review.review }} </div>
+      <div class="review-card-footer">
+        <div>
+          {{ widgets.Avatar(member=review.owner_details, avatar_class="avatar-medium") }}
+          <span class="course-instructor">
+            {{ review.owner_details.full_name }}
+          </span>
+        </div>
+        <div class="rating">
+          {% for i in [1, 2, 3, 4, 5] %}
+          <svg class="icon icon-md {% if i <= review.rating %} star-click {% endif %}" data-rating="{{ i }}">
+            <use href="#icon-star"></use>
+          </svg>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="modal fade review-modal" id="review-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="course-home-headings modal-headings">Review</div>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form class="review-form" id="review-form">
+          <div class="form-group">
+            <div class="clearfix">
+              <label class="control-label reqd" style="padding-right: 0px;">Rating</label>
+            </div>
+            <div class="control-input-wrapper">
+              <div class="control-input">
+                <div class="rating rating-field" id="rating">
+                  {% for i in [1, 2, 3, 4, 5] %}
+                  <svg class="icon icon-md icon-rating" data-rating="{{ i }}">
+                    <use href="#icon-star"></use>
+                  </svg>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="clearfix">
+              <label class="control-label reqd" style="padding-right: 0px;">Review</label>
+            </div>
+            <div class="control-input-wrapper">
+              <div class="control-input">
+                <textarea type="text" autocomplete="off" class="input-with-feedback form-control review-field" data-fieldtype="Text"
+                  data-fieldname="feedback_comments" placeholder="" style="height: 300px;"
+                  spellcheck="false"></textarea>
+              </div>
+            </div>
+          </div>
+          <p class="error-field muted-text"></p>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <div class="button submit-review is-primary" data-course="{{ course.name | urlencode}}" id="submit-review">Submit</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}

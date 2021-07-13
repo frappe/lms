@@ -9,37 +9,29 @@
 {% endblock %}
 
 {% block content %}
-<section class="top-section" style="padding: 1rem 0rem;">
-  <div class='container'>
-    <h4 class="mt-5">{{ 'All Courses' }}</h4>
-    <div class="row mt-5">
+<div class="common-page-style">
+  <div class="col course-top-section">
+    <div class="courses-header">
+      {{ 'All Courses' }}
+    </div>
+    <div class="cards-parent">
       {% for course in courses %}
-      {{ course_card(course) }}
+      {{ widgets.CourseCard(course=course) }}
       {% endfor %}
-      <!-- {% if courses %}
-      {% for n in range( (3 - (courses|length)) %3) %}
-      {{ null_card() }}
-      {% endfor %}
-      {% endif %} -->
     </div>
   </div>
-</section>
+</div>
 {% endblock %}
 
-
-{% macro course_card(course) %}
-<div class="col-sm-4 mb-4 text-left">
-  <a class="anchor_style" style="color: inherit;" href="/courses/{{course.name}}">
-    <div class="card h-100" style="box-shadow: 0px 5px 10px rgb(0 0 0 / 10%);">
-      <div class='card-body'>
-        <h5 class='card-title'>{{ course.title }}</h5>
-        {% if course.description %}
-        <div class="mt-4">
-          {{ frappe.utils.md_to_html(course.description[:200]) }}
-        </div>
-        {% endif %}
-      </div>
-    </div>
-  </a>
-</div>
-{% endmacro %}
+{% block script %}
+<script>
+  frappe.ready(() => {
+    $(".course-card-title").each((i, element) => {
+      var title = $(element).text();
+      var length = $(window).width() <= 375 ? 60 : 65;
+      var suffix = title.length > length ? "..." : "";
+      $(element).text(title.substring(0, length) + suffix);
+    })
+  })
+</script>
+{% endblock %}

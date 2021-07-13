@@ -17,8 +17,8 @@ def get_common_context(context):
     context.course = course
 
     membership = course.get_membership(frappe.session.user, batch_name)
+    context.membership = membership
     if membership:
-        context.membership = membership
         batch = course.get_batch(membership.batch)
 
         if batch:
@@ -27,7 +27,7 @@ def get_common_context(context):
         context.members = course.get_mentors(membership.batch) + course.get_students(membership.batch)
         context.member_count = len(context.members)
 
-    context.course.query_parameter = "?batch=" + membership.batch if membership and membership.batch else " "
+    context.course.query_parameter = "?batch=" + membership.batch if membership and membership.batch else ""
     context.livecode_url = get_livecode_url()
 
 def get_livecode_url():

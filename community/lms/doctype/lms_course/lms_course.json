@@ -21,12 +21,14 @@
  "engine": "InnoDB",
  "field_order": [
   "title",
-  "is_published",
-  "disable_self_learning",
-  "column_break_3",
   "short_code",
   "video_link",
+  "column_break_3",
+  "is_published",
+  "disable_self_learning",
+  "image",
   "section_break_5",
+  "tags",
   "short_introduction",
   "description"
  ],
@@ -80,6 +82,16 @@
    "fieldname": "disable_self_learning",
    "fieldtype": "Check",
    "label": "Disable Self Learning"
+  },
+  {
+   "fieldname": "image",
+   "fieldtype": "Attach Image",
+   "label": "Preview Image"
+  },
+  {
+   "fieldname": "tags",
+   "fieldtype": "Data",
+   "label": "Tags"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -106,7 +118,7 @@
    "link_fieldname": "course"
   }
  ],
- "modified": "2021-06-21 11:34:04.552376",
+ "modified": "2021-07-09 15:05:05.372430",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",

@@ -1,28 +1,98 @@
-<div class="chapter-teaser">
-  <div class="teaser-body">
-    <div class="chapter-title mb-5 font-weight-bold"><span class="mr-1">{{index}}.</span> {{ chapter.title }}</div>
-    <div class="chapter-description">
-      {{ chapter.description or "" }}
+<div>
+
+  <div class="small-title chapter-title" data-target="#{{ chapter.get_slugified_chapter_title() }}"
+    data-toggle="collapse" aria-expanded="false">
+    <img class="chapter-icon" src="/assets/community/icons/chevron-right.svg">
+    {{ index }}. {{ chapter.title }}
+  </div>
+
+  <div class="chapter-content collapse navbar-collapse" id="{{ chapter.get_slugified_chapter_title() }}">
+
+    <div class="chapter-description muted-text">
+      {{ chapter.description }}
     </div>
-    <div class="chapter-lessons">
+
+    <div class="lessons">
+
       {% for lesson in chapter.get_lessons() %}
-      <div class="lesson-teaser">
-        {% if show_link or lesson.include_in_preview %}
-        <a class="" href="{{ course.get_learn_url(course.get_lesson_index(lesson.name)) }}{{course.query_parameter}}"
-          data-course="{{ course.name }}">{{ lesson.title }}</a>
+
+      <div class="lesson-info {% if membership.current_lesson == lesson.name %} active-lesson {% endif %}">
+
+        {% if membership or lesson.include_in_preview %}
+        <a class="lesson-links"
+          href="{{ course.get_learn_url(course.get_lesson_index(lesson.name)) }}{{course.query_parameter}}"
+          data-course="{{ course.name }}">
+          {{ lesson.title }}
+
+          {% if membership %}
+          <img class="{{ course.get_progress(lesson.name) != 'Complete' and 'hide' }}"
+            src="/assets/community/icons/check.svg">
+          {% endif %}
+
+        </a>
+
         {% else %}
         <div class="no-preview" title="This lesson is not available for preview">
-          <span style="color: #2490ef;">
+          <div class="lesson-links">
             {{ lesson.title }}
-          </span>
-          <i class="fa fa-lock ml-2"></i>
+            <img class="ml-2" src="/assets/community/icons/lock.svg">
+          </div>
         </div>
         {% endif %}
-        {% if show_progress and not course.is_mentor(frappe.session.user) and lesson.get_progress() %}
-        <span class="ml-5 badge p-2 {{ lesson.get_slugified_class() }}"> {{ lesson.get_progress() }}</span>
-        {% endif %}
+
       </div>
       {% endfor %}
+
     </div>
   </div>
 </div>
+
+{% if index != course.get_chapters() | length %}
+<div class="card-divider"></div>
+{% endif %}
+
+<script>
+  frappe.ready(() => {
+    expand_the_active_chapter();
+  })
+
+  var expand_the_first_chapter = () => {
+    var elements = $(".collapse");
+    elements.each((i, element) => {
+      if (i <= 1) {
+        show_section(element);
+      }
+    });
+  }
+
+  var expand_the_active_chapter = () => {
+
+    /* Find anchor matching the URL for course details page */
+    var selector = $(`a[href="${decodeURIComponent(window.location.pathname)}"]`).parent();
+    if (!selector.length) {
+      selector = $(`a[href^="${decodeURIComponent(window.location.pathname)}"]`).parent();
+    }
+    if (selector.length && $(".course-details-page").length) {
+      $(".lesson-info").removeClass("active-lesson")
+      selector.addClass("active-lesson");
+      show_section(selector.parent().parent());
+    }
+
+    /* For course home page */
+    else if ($(".active-lesson").length) {
+      selector = $(".active-lesson")
+      show_section(selector.parent().parent());
+    }
+
+    /* If no active chapter then exapand the first chapter */
+    else {
+      expand_the_first_chapter();
+    }
+  }
+
+  var show_section = (element) => {
+    $(element).addClass("show");
+    $(element).siblings(".chapter-title").children(".chapter-icon").css("transform", "rotate(90deg)");
+  }
+
+</script>

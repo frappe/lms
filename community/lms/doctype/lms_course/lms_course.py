@@ -8,7 +8,7 @@ from frappe.model.document import Document
 import json
 from ...utils import slugify
 from community.query import find, find_all
-from frappe.utils import flt
+from frappe.utils import flt, cint
 
 class LMSCourse(Document):
     @staticmethod
@@ -115,6 +115,28 @@ class LMSCourse(Document):
         # TODO: chapters should have a way to specify the order
         return find_all("Chapter", course=self.name, order_by="index_")
 
+    def get_lessons(self):
+        """ Returns all lessons of this course """
+        lessons = []
+        chapters = self.get_chapters()
+        for chapter in chapters:
+            lessons.append(frappe.get_all("Lesson", {"chapter": chapter.name}))
+        return lessons
+
+    def get_course_progress(self):
+        """ Returns the course progress of the session user """
+        lesson_count = len(self.get_lessons())
+        completed_lessons = frappe.db.count("LMS Course Progress",
+                                {
+                                    "course": self.name,
+                                    "owner": frappe.session.user,
+                                    "status": "Complete"
+                                })
+        precision = cint(frappe.db.get_default("float_precision")) or 3
+        if not lesson_count:
+            return 0
+        return flt(((completed_lessons/lesson_count) * 100), precision)
+
     def get_batch(self, batch_name):
         return find("LMS Batch", name=batch_name, course=self.name)
 
@@ -199,7 +221,12 @@ class LMSCourse(Document):
         }
         if batch:
             filters["batch"] = batch
-        membership = frappe.db.get_value("LMS Batch Membership", filters, ["name","batch", "current_lesson"], as_dict=True)
+
+        membership = frappe.db.get_value("LMS Batch Membership",
+                        filters,
+                        ["name", "batch", "current_lesson", "member_type"],
+                        as_dict=True)
+
         if membership and membership.batch:
             membership.batch_title = frappe.db.get_value("LMS Batch", membership.batch, "title")
         return membership
@@ -241,8 +268,51 @@ class LMSCourse(Document):
         member_names = [m['member'] for m in memberships]
         return find_all("User", name=["IN", member_names])
 
+    def get_tags(self):
+        return self.tags.split(",") if self.tags else []
+
+    def get_reviews(self):
+        reviews = frappe.get_all("LMS Course Review",
+                    {
+                        "course": self.name
+                    },
+                    ["review", "rating", "owner"],
+                    order_by= "creation desc")
+
+        for review in reviews:
+            review.owner_details = frappe.get_doc("User", review.owner)
+
+        return reviews
+
+    def is_eligible_to_review(self, membership):
+        """ Checks if user is eligible to review the course """
+        if not membership:
+            return False
+        if frappe.db.count("LMS Course Review",
+                {
+                    "course": self.name,
+                    "owner": frappe.session.user
+                }):
+            return False
+        return True
+
+    def get_average_rating(self):
+        ratings = [review.rating for review in self.get_reviews()]
+        if not len(ratings):
+            return None
+        return sum(ratings)/len(ratings)
+
     def get_outline(self):
         return CourseOutline(self)
+
+    def get_progress(self, lesson):
+        return frappe.db.get_value("LMS Course Progress",
+                {
+                    "course": self.name,
+                    "owner": frappe.session.user,
+                    "lesson": lesson
+                },
+                ["status"])
 
 class CourseOutline:
     def __init__(self, course):

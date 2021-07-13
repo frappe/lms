@@ -10,5 +10,5 @@ frappe.ui.form.on('LMS Batch Membership', {
 				}
 			};
 		});
-	},
+	}
 });

@@ -63,32 +63,35 @@ class Lesson(Document):
         return
 
 @frappe.whitelist()
-def save_progress(lesson, course):
+def save_progress(lesson, course, status):
     if not frappe.db.exists("LMS Batch Membership",
             {
                 "member": frappe.session.user,
                 "course": course
             }):
         return
+
     if frappe.db.exists("LMS Course Progress",
             {
                 "lesson": lesson,
-                "owner": frappe.session.user
+                "owner": frappe.session.user,
+                "course": course
             }):
-        return
-
-    lesson_details = frappe.get_doc("Lesson", lesson)
-    dynamic_content = find_macros(lesson_details.body)
-
-    status = "Complete"
-    if dynamic_content:
-        status = "Partially Complete"
-
-    frappe.get_doc({
-        "doctype": "LMS Course Progress",
-        "lesson": lesson_details.name,
-        "status": status
-    }).save(ignore_permissions=True)
+        doc = frappe.get_doc("LMS Course Progress",
+                {
+                    "lesson": lesson,
+                    "owner": frappe.session.user,
+                    "course": course
+                })
+        doc.status = status
+        doc.save(ignore_permissions=True)
+    else:
+        frappe.get_doc({
+            "doctype": "LMS Course Progress",
+            "lesson": lesson,
+            "status": status,
+        }).save(ignore_permissions=True)
+    return "OK"
 
 def update_progress(lesson):
     user = frappe.session.user

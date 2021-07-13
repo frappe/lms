@@ -5,8 +5,8 @@ def get_context(context):
     context.courses = get_courses()
 
 def get_courses():
-    courses = frappe.get_all(
-        "LMS Course",
-        fields=['name', 'title', 'description']
-    )
+    course_names = frappe.get_all("LMS Course", pluck="name")
+    courses = []
+    for course in course_names:
+        courses.append(frappe.get_doc("LMS Course", course))
     return courses

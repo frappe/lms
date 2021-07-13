@@ -1,0 +1,19 @@
+<div class="course-instructor breadcrumb">
+  <a class="dark-links" href="/courses">All Courses</a>
+  <img class="ml-1 mr-1" src="/assets/community/icons/chevron-right.svg">
+
+  {% if course %}
+  {% if lesson %}
+  <a class="dark-links" href="/courses/{{ course.name }}">{{ course.title }}</a>
+  <img class="ml-1 mr-1" src="/assets/community/icons/chevron-right.svg">
+  <span class="muted-text"> {{ lesson.title }}</span>
+  {% else %}
+  <span class="muted-text">{{ course.title }}</span>
+  {% endif %}
+  {% endif %}
+
+  {% if member_name %}
+  <span class="muted-text">{{ member_name }}</span>
+  {% endif %}
+
+</div>
