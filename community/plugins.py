@@ -98,7 +98,7 @@ def exercise_renderer(argument):
 
 def youtube_video_renderer(video_id):
     return f"""
-    <iframe width="560" height="315"
+    <iframe width="100%" height="315"
         src="https://www.youtube.com/embed/{video_id}"
         title="YouTube video player"
         frameborder="0"

@@ -1,14 +1,14 @@
 {% if course.get_reviews() | length %}
-<div class="reviews-parent">
+<div class="reviews-parent col">
   <div class="reviews-heading">
-    <div class="course-home-headings">Review</div>
+    <div class="course-home-headings">Student Review</div>
     {% if course.is_eligible_to_review(membership) %}
     <a class="review-link" href="">
       Provide your Feedback
     </a>
     {% endif %}
   </div>
-  <div class="mentors-section">
+  <div class="reviews-section">
     {% for review in course.get_reviews() %}
     <div class="review-card">
       <div class="common-card-style review-content small-title"> {{ review.review }} </div>
@@ -77,7 +77,7 @@
         </form>
       </div>
       <div class="modal-footer">
-        <div class="button wide-button submit-review is-primary" data-course="{{ course.name | urlencode}}" id="submit-review">Submit</div>
+        <div class="button submit-review is-primary" data-course="{{ course.name | urlencode}}" id="submit-review">Submit</div>
       </div>
     </div>
   </div>

@@ -9,7 +9,7 @@
 {% endblock %}
 {% block content %}
 <div class="common-page-style">
-  <div class="course-home-page">
+  <div class="col course-home-page">
     {{ widgets.BreadCrumb(course=course) }}
     {{ CourseCardWide(course) }}
     {{ CourseOutlineAndCreator(course) }}
@@ -88,10 +88,10 @@
 
 {% macro CourseOutlineAndCreator(course) %}
 <div class="course-outline-instructor-parent">
-  <div class="course-home-outline">
+  <div class="course-home-outline col">
     {{ widgets.CourseOutline(course=course, membership=membership) }}
   </div>
-  <div class="course-creator-progress-parent">
+  <div class="course-creator-progress-parent col-sm-auto">
     <div class="course-creator-section">
       <div class="course-home-headings">
         Creator
@@ -134,14 +134,14 @@
   </div>
   <div class="mentors-section">
     {% for mentor in course.get_mentors() %}
-    {{ widgets.MemberCard(member=mentor, show_course_count=False, dimension_class="member-card-medium") }}
+    {{ widgets.MemberCard(member=mentor, show_course_count=False, dimension_class="") }}
     {% endfor %}
-    <div class="view-all-mentors">
-      <span class="card-divider-dark flex-one"></span>
-      <span class="course-instructor"><span class="all-mentors-text">View all mentors</span> <img class="mentor-icon"
-          src="/assets/community/icons/down-arrow.svg" /></span>
-      <span class="card-divider-dark flex-one"></span>
-    </div>
+  </div>
+  <div class="view-all-mentors">
+    <span class="card-divider-dark flex-one"></span>
+    <span class="course-instructor"><span class="all-mentors-text">View all mentors</span> <img class="mentor-icon"
+        src="/assets/community/icons/down-arrow.svg" /></span>
+    <span class="card-divider-dark flex-one"></span>
   </div>
 </div>
 {% endif %}
@@ -151,7 +151,7 @@
 
 {% macro CourseDescriptionAndOverview(course) %}
 <div class="course-outline-instructor-parent">
-  <div class="course-description-section">
+  <div class="course-description-section col">
     <div class="course-home-headings">
       Course Description
     </div>
@@ -161,7 +161,7 @@
   </div>
   {% set avg_rating = course.get_average_rating() %}
   {% if course.get_students() | length or avg_rating %}
-  <div class="course-overview-section">
+  <div class="course-overview-section col-sm-auto">
     <div class="course-home-headings">
       Overview
     </div>

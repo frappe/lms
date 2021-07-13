@@ -61,7 +61,7 @@ var check_mentor_request = () => {
 var hide_wrapped_mentor_cards = () => {
   var offset_top_prev;
 
-  $('.member-card-medium').each(function () {
+  $(".mentors-section .member-card").each(function () {
     var offset_top = $(this).offset().top;
     if (offset_top > offset_top_prev) {
       $(this).addClass('wrapped').slideUp("fast");

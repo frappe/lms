@@ -226,24 +226,12 @@ input[type=checkbox] {
 
 .course-image {
   height: 168px;
-  width: 352px;
+  width: 100%;
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
-  background-size: 352px 168px;
-}
-
-@media (max-width: 768px) {
-  .course-image {
-    width: 336px;
-  }
-}
-
-@media (max-width: 375px) {
-  .course-image {
-    width: 312px;
-    background-size: cover;
-    background-repeat: no-repeat;
-  }
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .course-tags {
@@ -285,23 +273,7 @@ input[type=checkbox] {
 
 .course-card {
   flex-direction: column;
-  width: 352px;
   height: 380px;
-  margin: 0px 20px 32px 0px;
-}
-
-@media (max-width: 768px) {
-  .course-card {
-    margin: 0px 8px 32px 0px;
-    width: 336px;
-  }
-}
-
-@media (max-width: 375px) {
-  .course-card {
-    margin: 0px 0px 32px;
-    width: 312px;
-  }
 }
 
 .muted-text {
@@ -371,13 +343,29 @@ input[type=checkbox] {
 }
 
 .cards-parent {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  -moz-column-gap: 32px;
+  column-gap: 32px;
+  row-gap: 32px;
+  align-items: center;
+}
+
+@media (max-width: 767px) {
+  .cards-parent {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 336px));
+    -moz-column-gap: 16px;
+    column-gap: 16px;
+    row-gap: 16px;
+  }
 }
 
 @media (max-width: 375px) {
   .cards-parent {
-    justify-content: center;
+    grid-template-columns: repeat(auto-fill, minmax(100%, 312px));
+    -moz-column-gap: 24px;
+    column-gap: 24px;
+    row-gap: 24px;
   }
 }
 
@@ -391,18 +379,21 @@ input[type=checkbox] {
 }
 
 .course-top-section {
-  margin: 0px 120px 0px;
+  float: none;
+  margin: 0 auto;
+  max-width: 1150px;
+  padding-bottom: 2rem;
 }
 
 @media (max-width: 768px) {
   .course-top-section {
-    margin: 0px 30px 0px;
+    max-width: 720px;
   }
 }
 
-@media (max-width: 375px) {
+@media (max-width: 600px) {
   .course-top-section {
-    margin: 0px 24px 0px;
+    max-width: 342px;
   }
 }
 
@@ -421,30 +412,44 @@ input[type=checkbox] {
   margin-left: 10px;
 }
 
+.reviews-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  -moz-column-gap: 32px;
+  column-gap: 32px;
+  row-gap: 32px;
+}
+
+@media (max-width: 768px) {
+  .reviews-section {
+    -moz-column-gap: 16px;
+    column-gap: 16px;
+    row-gap: 16px;
+  }
+}
+
+@media (max-width: 600px) {
+  .reviews-section {
+    grid-template-columns: repeat(auto-fill, minmax(100%, 1fr));
+  }
+}
+
 .reviews-heading {
   display: flex;
   justify-content: space-between;
 }
 
+@media (max-width: 375px) {
+  .reviews-heading {
+    flex-direction: column;
+    margin-bottom: 1rem;
+  }
+}
+
 .review-card {
-  width: 352px;
-  margin: 0px 20px 32px 0px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-}
-
-@media (max-width: 768px) {
-  .review-card {
-    width: 336px;
-    margin: 0px 8px 32px 0px;
-  }
-}
-
-@media (max-width: 375px) {
-  .review-card {
-    width: 312px;
-  }
+  height: 100%;
 }
 
 .review-card-footer {
@@ -486,7 +491,7 @@ div.custom-checkbox>label>input:checked+img {
 }
 
 .course-card-wide {
-  height: 248px;
+  height: fit-content;
   display: flex;
   flex-direction: row;
   padding: 24px;
@@ -497,14 +502,12 @@ div.custom-checkbox>label>input:checked+img {
 
 @media (max-width: 768px) {
   .course-card-wide {
-    height: 535px;
     flex-direction: column;
   }
 }
 
-@media (max-width: 375px) {
+@media (max-width: 600px) {
   .course-card-wide {
-    height: 572px;
     padding: 40px 24px 40px;
     border-radius: 0px;
     align-items: center;
@@ -512,55 +515,69 @@ div.custom-checkbox>label>input:checked+img {
 }
 
 .course-image-wide {
-  width: 100%;
+  width: 352px;
   height: 200px;
-  background-size: 352px 200px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   margin-right: 32px;
   border-radius: 5px;
+  flex: 1;
 }
 
 @media (max-width: 768px) {
   .course-image-wide {
-    width: 640px;
+    width: 100%;
     height: 320px;
     flex-direction: column;
-    background-size: 640px 320px;
     margin: 0px;
+    flex: none;
   }
 }
 
-@media (max-width: 375px) {
+@media (max-width: 600px) {
   .course-image-wide {
-    width: 312px;
     height: 216px;
-    background-size: 312px 216px;
   }
 }
 
 .course-home-page {
-  padding: 0px 0px 80px;
-  display: flex;
-  flex-direction: column;
-  max-width: 1120px;
+  max-width: 1150px;
   margin: 0 auto;
+  padding-bottom: 2rem;
 }
 
 @media (max-width: 768px) {
   .course-home-page {
-    padding: 0px 0px 30px;
     max-width: 688px;
   }
 }
 
-@media (max-width: 375px) {
+@media (max-width: 600px) {
   .course-home-page {
     width: 100%;
+    padding-left: 0px;
+    padding-right: 0px;
   }
 }
 
 .course-card-wide-content {
   display: flex;
   flex-direction: column;
+  flex: 2;
+}
+
+@media (max-width: 768px) {
+  .course-card-wide-content {
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .course-card-wide-content {
+    width: 90%;
+    align-items: center;
+  }
 }
 
 .course-card-wide-title {
@@ -574,15 +591,13 @@ div.custom-checkbox>label>input:checked+img {
 
 @media (max-width: 768px) {
   .course-card-wide-title {
-    width: 632px;
     margin-top: 24px;
     font-size: 36px;
   }
 }
 
-@media (max-width: 375px) {
+@media (max-width: 600px) {
   .course-card-wide-title {
-    width: 264px;
     margin-top: 16px;
     font-size: 28px;
   }
@@ -592,21 +607,9 @@ div.custom-checkbox>label>input:checked+img {
   font-size: 16px;
   line-height: 172%;
   letter-spacing: -0.011em;
-  width: 688px;
-  height: 80px;
   margin-bottom: 16px;
-}
-
-@media (max-width: 768px) {
-  .course-card-wide-intro {
-    width: 632px;
-  }
-}
-
-@media (max-width: 375px) {
-  .course-card-wide-intro {
-    width: 264px;
-  }
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .button {
@@ -631,7 +634,7 @@ div.custom-checkbox>label>input:checked+img {
   line-height: 150%;
 }
 
-@media (max-width: 375px) {
+@media (max-width: 600px) {
   .wide-button {
     width: 264px;
   }
@@ -646,7 +649,7 @@ div.custom-checkbox>label>input:checked+img {
   color: inherit;
 }
 
-@media (max-width: 375px) {
+@media (max-width: 600px) {
   .video-preview {
     margin-top: 16px;
   }
@@ -663,20 +666,7 @@ div.custom-checkbox>label>input:checked+img {
 }
 
 .course-home-outline {
-  width: 832px;
   margin-top: 3rem;
-}
-
-@media (max-width: 768px) {
-  .course-home-outline {
-    width: 424px;
-  }
-}
-
-@media (max-width: 375px) {
-  .course-home-outline {
-    width: 312px;
-  }
 }
 
 .small-title {
@@ -705,10 +695,10 @@ div.custom-checkbox>label>input:checked+img {
   justify-content: space-between;
 }
 
-@media (max-width: 375px) {
+@media (max-width: 600px) {
   .course-outline-instructor-parent {
     flex-direction: column;
-    padding: 0px 24px 0px;
+    padding: 0px 9px 0px;
   }
 }
 
@@ -716,7 +706,7 @@ div.custom-checkbox>label>input:checked+img {
   margin-top: 3rem;
 }
 
-@media (max-width: 375px) {
+@media (max-width: 600px) {
   .course-home-mentors {
     padding: 0px 24px 0px;
   }
@@ -726,7 +716,7 @@ div.custom-checkbox>label>input:checked+img {
   margin-top: 3rem;
 }
 
-@media (max-width: 375px) {
+@media (max-width: 600px) {
   .reviews-parent {
     padding: 0px 24px 0px;
   }
@@ -780,7 +770,7 @@ div.custom-checkbox>label>input:checked+img {
   display: flex;
 }
 
-@media (max-width: 375px) {
+@media (max-width: 600px) {
   .course-buttons {
     flex-direction: column;
   }
@@ -804,9 +794,9 @@ div.custom-checkbox>label>input:checked+img {
   }
 }
 
-@media (max-width: 375px) {
+@media (max-width: 600px) {
   .member-card-large {
-    width: 312px;
+    width: 100%;
   }
 }
 
@@ -879,20 +869,7 @@ div.custom-checkbox>label>input:checked+img {
 
 .description-card {
   padding: 24px;
-  width: 832px;
   flex-direction: column;
-}
-
-@media (max-width: 768px) {
-  .description-card {
-    width: 424px;
-  }
-}
-
-@media (max-width: 375px) {
-  .description-card {
-    width: 312px;
-  }
 }
 
 .overview-card {
@@ -907,15 +884,28 @@ div.custom-checkbox>label>input:checked+img {
   }
 }
 
-@media (max-width: 375px) {
+@media (max-width: 600px) {
   .overview-card {
-    width: 312px;
+    padding: 8px 9px 8px;
+    width: 100%;
   }
 }
 
 .mentors-section {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  -moz-column-gap: 32px;
+  column-gap: 32px;
+  row-gap: 32px;
+}
+
+@media (max-width: 600px) {
+  .mentors-section {
+    grid-template-columns: repeat(auto-fill, minmax(125px, 1fr));
+    -moz-column-gap: 24px;
+    column-gap: 24px;
+    row-gap: 24px;
+  }
 }
 
 .overtime-item {
@@ -958,6 +948,12 @@ div.custom-checkbox>label>input:checked+img {
   height: 70%;
 }
 
+@media (max-width: 600px) {
+  .review-modl .modal-dialog {
+    width: auto;
+  }
+}
+
 .error-field {
   color: red;
 }
@@ -975,7 +971,7 @@ div.custom-checkbox>label>input:checked+img {
 }
 
 .breadcrumb {
-  margin: 1rem 0.5rem 0;
+  padding: 1rem 0.5rem 0;
   display: flex;
   align-items: center;
 }
@@ -985,15 +981,9 @@ div.custom-checkbox>label>input:checked+img {
   margin-top: 16px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1025px) {
   .course-details-outline {
-    width: 688px;
-  }
-}
-
-@media (max-width: 375px) {
-  .course-details-outline {
-    width: 312px;
+    width: 100%;
   }
 }
 
@@ -1029,36 +1019,35 @@ div.custom-checkbox>label>input:checked+img {
   margin-top: 16px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1025px) {
   .lesson-pagination-parent {
-    width: 690px;
+    width: 100%;
   }
 }
 
-@media (max-width: 375px) {
-  .lesson-pagination-parent {
-    width: 312px;
-  }
+.lesson-video {
+  width: 100%;
 }
 
 .course-details-page {
   padding: 0px 0px 80px;
   display: flex;
   flex-direction: column;
-  width: 1120px;
+  max-width: 1120px;
   margin: 0 auto;
+}
+
+@media (max-width: 1025px) {
+  .course-details-page {
+    padding: 24px 0px 24px;
+    width: 80%;
+  }
 }
 
 @media (max-width: 768px) {
   .course-details-page {
     padding: 24px 0px 24px;
     width: 90%;
-  }
-}
-
-@media (max-width: 375px) {
-  .course-details-page {
-    width: 100%;
   }
 }
 
@@ -1094,10 +1083,6 @@ div.custom-checkbox>label>input:checked+img {
   .profile-courses {
     padding: 0px 24px 0px;
   }
-}
-
-.no-preview {
-  display: flex;
 }
 
 .progress-text {

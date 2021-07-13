@@ -133,6 +133,8 @@ class LMSCourse(Document):
                                     "status": "Complete"
                                 })
         precision = cint(frappe.db.get_default("float_precision")) or 3
+        if not lesson_count:
+            return 0
         return flt(((completed_lessons/lesson_count) * 100), precision)
 
     def get_batch(self, batch_name):

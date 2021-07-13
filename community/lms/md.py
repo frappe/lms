@@ -93,11 +93,11 @@ class MacroInlineProcessor(InlineProcessor):
         macro = m.group(1)
         arg = m.group(2)
         html = render_macro(macro, arg)
-        html = sanitize_html(str(html))
+        html = sanitize_html(str(html), macro)
         e = etree.fromstring(html)
         return e, m.start(0), m.end(0)
 
-def sanitize_html(html):
+def sanitize_html(html, macro):
     """Sanotize the html using BeautifulSoup.
 
     The markdown processor request the correct markup and crashes on
@@ -106,4 +106,7 @@ def sanitize_html(html):
     """
     soup = BeautifulSoup(html, features="lxml")
     nodes = soup.body.children
-    return "<div>" + "\n".join(str(node) for node in nodes) + "</div>"
+    classname = ""
+    if macro == "YouTubeVideo":
+        classname = "lesson-video"
+    return "<div class='" + classname + "'>" + "\n".join(str(node) for node in nodes) + "</div>"
