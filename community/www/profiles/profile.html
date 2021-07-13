@@ -6,14 +6,12 @@
 
 {% block content %}
 <div class="common-page-style">
-  <div class="course-home-page">
+  <div class="col profile-page">
     {{ widgets.MemberCard(member=member, show_course_count=True, dimension_class="member-card-xl") }}
     {{ AboutOverviewSection(member) }}
-    <div class="profile-courses">
-      {{ CoursesCreated(member) }}
-      {{ CoursesMentored(member) }}
-      {{ CoursesEnrolled(member) }}
-    </div>
+    {{ CoursesCreated(member) }}
+    {{ CoursesMentored(member) }}
+    {{ CoursesEnrolled(member) }}
     {{ ProfileTabs(profile_tabs) }}
   </div>
 </div>
@@ -22,7 +20,7 @@
 {% macro AboutOverviewSection(member) %}
 <div class="course-outline-instructor-parent">
   {% if member.bio %}
-  <div class="course-overview-section">
+  <div class="course-overview-section col">
     <div class="course-home-headings">
       About
     </div>
@@ -31,7 +29,7 @@
     </div>
   </div>
   {% endif %}
-  <div class="course-overview-section">
+  <div class="course-overview-section col-sm-auto">
     <div class="course-home-headings">
       Overview
     </div>
@@ -62,42 +60,48 @@
 
 {% macro CoursesCreated(member) %}
 {% if member.get_authored_courses() | length %}
-<div class="course-home-headings">
-  Courses Created
-</div>
-<div class="cards-parent">
-  {% for course in member.get_authored_courses() %}
-  {% set course_details = frappe.get_doc("LMS Course", course) %}
-  {{ widgets.CourseCard(course=course_details) }}
-  {% endfor %}
+<div class="profile-courses">
+  <div class="course-home-headings">
+    Courses Created
+  </div>
+  <div class="cards-parent">
+    {% for course in member.get_authored_courses() %}
+    {% set course_details = frappe.get_doc("LMS Course", course) %}
+    {{ widgets.CourseCard(course=course_details) }}
+    {% endfor %}
+  </div>
 </div>
 {% endif %}
 {% endmacro %}
 
 {% macro CoursesMentored(member) %}
 {% if member.get_course_membership("Mentor") | length %}
-<div class="course-home-headings">
-  Courses Mentored
-</div>
-<div class="cards-parent">
-  {% for membership in member.get_course_membership("Mentor") %}
-  {% set course_details = frappe.get_doc("LMS Course", membership.course) %}
-  {{ widgets.CourseCard(course=course_details) }}
-  {% endfor %}
+<div class="profile-courses">
+  <div class="course-home-headings">
+    Courses Mentored
+  </div>
+  <div class="cards-parent">
+    {% for membership in member.get_course_membership("Mentor") %}
+    {% set course_details = frappe.get_doc("LMS Course", membership.course) %}
+    {{ widgets.CourseCard(course=course_details) }}
+    {% endfor %}
+  </div>
 </div>
 {% endif %}
 {% endmacro %}
 
 {% macro CoursesEnrolled(member) %}
 {% if member.get_course_membership("Student") | length %}
-<div class="course-home-headings">
-  Courses Enrolled
-</div>
-<div class="cards-parent">
-  {% for membership in member.get_course_membership("Student") %}
-  {% set course_details = frappe.get_doc("LMS Course", membership.course) %}
-  {{ widgets.CourseCard(course=course_details) }}
-  {% endfor %}
+<div class="profile-courses">
+  <div class="course-home-headings">
+    Courses Enrolled
+  </div>
+  <div class="cards-parent">
+    {% for membership in member.get_course_membership("Student") %}
+    {% set course_details = frappe.get_doc("LMS Course", membership.course) %}
+    {{ widgets.CourseCard(course=course_details) }}
+    {% endfor %}
+  </div>
 </div>
 {% endif %}
 {% endmacro %}

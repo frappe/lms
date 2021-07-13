@@ -29,12 +29,21 @@
       <span class="course-instructor">
         {{ course.get_instructor().full_name }}
       </span>
-      {% if course.get_students() | length %}
       <span class="course-student-count">
-        <img class="icon-background mr-1" src="/assets/community/icons/user.svg" />
-        {{ course.get_students() | length }}
+        {% if course.get_students() | length %}
+        <span class="mr-4">
+          <img class="icon-background" src="/assets/community/icons/user.svg" />
+          {{ course.get_students() | length }}
+        </span>
+        {% endif %}
+        {% set avg_rating = course.get_average_rating() %}
+        {% if avg_rating %}
+        <span>
+          <img class="icon-background" src="/assets/community/icons/rating.svg" />
+          {{ avg_rating }}
+        </span>
+        {% endif %}
       </span>
-      {% endif %}
     </div>
     {% set membership = course.get_membership(frappe.session.user) %}
 

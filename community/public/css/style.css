@@ -1075,6 +1075,13 @@ div.custom-checkbox>label>input:checked+img {
   margin: 0px 4px 4px;
 }
 
+.profile-page {
+  max-width: 1150px;
+  margin: 0 auto;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
 .profile-courses {
   margin-top: 3rem;
 }
