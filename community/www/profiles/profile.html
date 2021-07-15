@@ -6,23 +6,57 @@
 
 {% block content %}
 <div class="common-page-style">
-  <div class="course-home-page">
-    {{ widgets.MemberCard(member=member, show_course_count=True, dimension_class="member-card-xl") }}
+  <div class="col profile-page">
+    {{ ProfileBanner(member) }}
     {{ AboutOverviewSection(member) }}
-    <div class="profile-courses">
-      {{ CoursesCreated(member) }}
-      {{ CoursesMentored(member) }}
-      {{ CoursesEnrolled(member) }}
-    </div>
+    {{ CoursesCreated(member) }}
+    {{ CoursesMentored(member) }}
+    {{ CoursesEnrolled(member) }}
     {{ ProfileTabs(profile_tabs) }}
   </div>
 </div>
 {% endblock %}
 
+{% macro ProfileBanner(member) %}
+<div class="col">
+  <div class="profile-banner" style="background: url(/assets/community/images/profile-banner.png)">
+  <div class="profile-avatar">
+    {{ widgets.Avatar(member=member, avatar_class="avatar-xl") }}
+    <div class="profile-name"> {{ member.full_name }} </div>
+    {% if member.get_authored_courses() | length %}
+    <div class="creator-badge"> Creator </div>
+    {% endif %}
+   </div>
+  </div>
+  <div class="profile-info">
+    {% if member.profession %}
+    <span class="profile-profession"> {{ member.profession }} </span>
+    {% endif %}
+    <div class="social-icons">
+      {% if member.linkedin %}
+      <a class="linkedin" href="{{ member.linkedin }}">
+        <img src="/assets/community/images/linkedin.png">
+      </a>
+      {% endif %}
+      {% if member.medium %}
+      <a class="medium" href="{{ member.medium}}">
+        <img src="/assets/community/icons/medium.svg">
+      </a>
+      {% endif %}
+      {% if member.github %}
+      <a class="github" href="{{ member.github }}">
+        <img src="/assets/community/icons/github.svg">
+      </a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endmacro %}
+
 {% macro AboutOverviewSection(member) %}
 <div class="course-outline-instructor-parent">
   {% if member.bio %}
-  <div class="course-overview-section">
+  <div class="course-overview-section col">
     <div class="course-home-headings">
       About
     </div>
@@ -31,7 +65,7 @@
     </div>
   </div>
   {% endif %}
-  <div class="course-overview-section">
+  <div class="course-overview-section col-sm-auto">
     <div class="course-home-headings">
       Overview
     </div>
@@ -62,42 +96,48 @@
 
 {% macro CoursesCreated(member) %}
 {% if member.get_authored_courses() | length %}
-<div class="course-home-headings">
-  Courses Created
-</div>
-<div class="cards-parent">
-  {% for course in member.get_authored_courses() %}
-  {% set course_details = frappe.get_doc("LMS Course", course) %}
-  {{ widgets.CourseCard(course=course_details) }}
-  {% endfor %}
+<div class="profile-courses">
+  <div class="course-home-headings">
+    Courses Created
+  </div>
+  <div class="cards-parent">
+    {% for course in member.get_authored_courses() %}
+    {% set course_details = frappe.get_doc("LMS Course", course) %}
+    {{ widgets.CourseCard(course=course_details) }}
+    {% endfor %}
+  </div>
 </div>
 {% endif %}
 {% endmacro %}
 
 {% macro CoursesMentored(member) %}
-{% if member.get_course_membership("Mentor") | length %}
-<div class="course-home-headings">
-  Courses Mentored
-</div>
-<div class="cards-parent">
-  {% for membership in member.get_course_membership("Mentor") %}
-  {% set course_details = frappe.get_doc("LMS Course", membership.course) %}
-  {{ widgets.CourseCard(course=course_details) }}
-  {% endfor %}
+{% if member.get_mentored_courses() | length %}
+<div class="profile-courses">
+  <div class="course-home-headings">
+    Courses Mentored
+  </div>
+  <div class="cards-parent">
+    {% for mentorship in member.get_mentored_courses() %}
+    {% set course_details = frappe.get_doc("LMS Course", mentorship.course) %}
+    {{ widgets.CourseCard(course=course_details) }}
+    {% endfor %}
+  </div>
 </div>
 {% endif %}
 {% endmacro %}
 
 {% macro CoursesEnrolled(member) %}
 {% if member.get_course_membership("Student") | length %}
-<div class="course-home-headings">
-  Courses Enrolled
-</div>
-<div class="cards-parent">
-  {% for membership in member.get_course_membership("Student") %}
-  {% set course_details = frappe.get_doc("LMS Course", membership.course) %}
-  {{ widgets.CourseCard(course=course_details) }}
-  {% endfor %}
+<div class="profile-courses">
+  <div class="course-home-headings">
+    Courses Enrolled
+  </div>
+  <div class="cards-parent">
+    {% for membership in member.get_course_membership("Student") %}
+    {% set course_details = frappe.get_doc("LMS Course", membership.course) %}
+    {{ widgets.CourseCard(course=course_details) }}
+    {% endfor %}
+  </div>
 </div>
 {% endif %}
 {% endmacro %}

@@ -304,6 +304,11 @@ input[type=checkbox] {
   height: 45px;
 }
 
+@media (max-width: 360px) {
+  .course-card-title {
+    font-size: 14px;
+  }
+}
 .card-divider {
   border: 1px solid #F4F5F6;
   margin-bottom: 16px;
@@ -863,9 +868,28 @@ div.custom-checkbox>label>input:checked+img {
   margin: 0;
 }
 
-.avatar-xl {
+.avatar-large {
   width: 88px;
   height: 88px;
+}
+
+.avatar-xl {
+  width: 112px;
+  height: 112px;
+}
+
+@media (max-width: 500px) {
+  .avatar-xl {
+    width: 88px;
+    height: 88px;
+  }
+}
+
+@media (max-width: 375px) {
+  .avatar-xl {
+    width: 50px;
+    height: 50px;
+  }
 }
 
 .description-card {
@@ -1067,22 +1091,145 @@ div.custom-checkbox>label>input:checked+img {
   font-weight: bold;
 }
 
-.lesson-progress-tick {
-  width: 16px;
-  height: 16px;
-  background: #4C5A67;
-  border-radius: 2px;
-  padding: 2px;
-  margin: 0px 4px 4px;
+.profile-page {
+  max-width: 1150px;
+  margin: 0 auto;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.profile-banner {
+  width: 100%;
+  height: 248px;
+  border-radius: 12px 12px 0px 0px;
+}
+
+@media (max-width: 500px) {
+  .profile-banner {
+    height: 150px;
+  }
+}
+
+.profile-info {
+  height: 68px;
+  background: #ffffff;
+  border-radius: 0px 0px 12px 12px;
+}
+
+.profile-avatar {
+  position: relative;
+  top: 188px;
+  left: 40px;
+  display: flex;
+}
+
+@media (max-width: 500px) {
+  .profile-avatar {
+    top: 95px;
+    left: 10px;
+  }
+}
+
+@media (max-width: 375px) {
+  .profile-avatar {
+    top: 120px;
+    left: 10px;
+  }
+}
+
+.profile-name {
+  color: #FFFFFF;
+  font-weight: 600;
+  font-size: 22px;
+  line-height: 156%;
+  letter-spacing: -0.0175em;
+  text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.64);
+  padding: 20px;
+}
+
+@media (max-width: 375px) {
+  .profile-name {
+    font-size: 16px;
+    padding: 5px;
+  }
+}
+
+.creator-badge {
+  background: #48BB74;
+  padding: 4px 6px;
+  color: #ffffff;
+  font-style: normal;
+  font-weight: bold;
+  font-size: 10px;
+  line-height: 120%;
+  text-align: center;
+  letter-spacing: 0.011em;
+  text-transform: uppercase;
+  height: fit-content;
+  box-shadow: 0px 1px 1px rgb(0 0 0 / 16%);
+  border-radius: 4px;
+  margin-top: 25px;
+}
+
+@media (max-width: 375px) {
+  .creator-badge {
+    font-size: 8px;
+    margin: 8px 0px 0px;
+  }
+}
+
+.profile-profession {
+  position: relative;
+  top: 16px;
+  left: 174px;
+  font-size: 12px;
+  line-height: 165%;
+}
+
+@media (max-width: 500px) {
+  .profile-profession {
+    top: 10px;
+    left: 120px;
+  }
+}
+
+@media (max-width: 375px) {
+  .profile-profession {
+    top: 5px;
+    left: 70px;
+  }
+}
+
+.social-icons {
+  float: right;
+  margin: 16px;
+}
+
+@media (max-width: 500px) {
+  .social-icons {
+    margin: 10px;
+  }
+}
+
+@media (max-width: 375px) {
+  .social-icons {
+    margin: 5px;
+  }
 }
 
 .profile-courses {
   margin-top: 3rem;
 }
 
-@media (max-width: 375px) {
+@media (max-width: 500px) {
   .profile-courses {
     padding: 0px 24px 0px;
+  }
+}
+
+@media (max-width: 360px) {
+  .profile-courses {
+    padding: 0px 10px 0px;
   }
 }
 
@@ -1117,9 +1264,9 @@ div.custom-checkbox>label>input:checked+img {
   }
 }
 
-@media (max-width: 375px) {
+@media (max-width: 600px) {
   .progress-card {
-    width: 312px;
+    width: 100%;
   }
 }
 

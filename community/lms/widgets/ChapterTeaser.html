@@ -25,7 +25,7 @@
           {{ lesson.title }}
 
           {% if membership %}
-          <img class="{{ course.get_progress(lesson.name) != 'Complete' and 'hide' }}"
+          <img class="lesson-progress-tick {{ course.get_progress(lesson.name) != 'Complete' and 'hide' }}"
             src="/assets/community/icons/check.svg">
           {% endif %}
 
