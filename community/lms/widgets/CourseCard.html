@@ -70,3 +70,13 @@
     {% endif %}
   </div>
 </div>
+<script>
+  frappe.ready(() => {
+    $(".course-card-title").each((i, element) => {
+      var title = $(element).text();
+      var length = $(window).width() <= 375 ? 60 : 65;
+      var suffix = title.length > length ? "..." : "";
+      $(element).text(title.substring(0, length) + suffix);
+    })
+  })
+</script>
