@@ -167,7 +167,8 @@ whitelist = [
     "/add-a-new-batch",
     "/new-sign-up",
     "/message",
-    "/about"
+    "/about",
+    "/edit-profile"
 ]
 whitelist_rules = [{"from_route": p, "to_route": p[1:]} for p in whitelist]
 
@@ -177,6 +178,10 @@ profile_rules = [
 ]
 
 website_route_rules = primary_rules + whitelist_rules + profile_rules
+
+website_redirects = [
+    {"source": "/update-profile", "target": "/edit-profile"},
+]
 
 update_website_context = 'community.widgets.update_website_context'
 

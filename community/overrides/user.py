@@ -59,3 +59,12 @@ class CustomUser(User):
             filters["member_type"] = member_type
 
         return frappe.get_all("LMS Batch Membership", filters, ["name", "course"])
+
+    def get_mentored_courses(self):
+        """ Returns all courses mentored by this user """
+        return frappe.get_all("LMS Course Mentor Mapping",
+                    {
+                        "mentor": self.name
+                    },
+                    ["name", "course"]
+                )
