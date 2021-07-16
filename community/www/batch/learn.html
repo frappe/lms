@@ -21,7 +21,7 @@
 
 {% block content %}
 <div class="common-page-style">
-  <div class="course-details-page">
+  <div class="container">
     {{ widgets.BreadCrumb(course=course, lesson=lesson) }}
     <div class="course-content-parent">
       <div class="course-details-outline">
@@ -47,7 +47,7 @@
   </div>
 
   {% if membership or lesson.include_in_preview %}
-  <div class="common-card-style lesson-content-card">{{ lesson.render_html() }}</div>
+  <div class="common-card-style lesson-content-card from-markdown">{{ lesson.render_html() }}</div>
   {% else %}
   <div class="no-preview-message">
     <span>This lesson is not available for Preview. Please join the course to access this lesson.</span>
