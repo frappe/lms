@@ -397,25 +397,6 @@ input[type=checkbox] {
   }
 }
 
-.course-top-section {
-  float: none;
-  margin: 0 auto;
-  max-width: 1150px;
-  padding-bottom: 2rem;
-}
-
-@media (max-width: 768px) {
-  .course-top-section {
-    max-width: 720px;
-  }
-}
-
-@media (max-width: 600px) {
-  .course-top-section {
-    max-width: 342px;
-  }
-}
-
 .button-links:hover {
   text-decoration: none;
 }
@@ -1075,28 +1056,6 @@ div.custom-checkbox>label>input:checked+img {
 
 .lesson-video {
   width: 100%;
-}
-
-.course-details-page {
-  padding: 0px 0px 80px;
-  display: flex;
-  flex-direction: column;
-  max-width: 1120px;
-  margin: 0 auto;
-}
-
-@media (max-width: 1025px) {
-  .course-details-page {
-    padding: 24px 0px 24px;
-    width: 80%;
-  }
-}
-
-@media (max-width: 768px) {
-  .course-details-page {
-    padding: 24px 0px 24px;
-    width: 90%;
-  }
 }
 
 .active-lesson {
