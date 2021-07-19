@@ -45,7 +45,8 @@ class InviteRequest(Document):
             subject=subject,
             header=[subject, "green"],
             template = "lms_invite_request_approved",
-            args=args)
+            args=args,
+            now=True)
 
 @frappe.whitelist(allow_guest=True)
 def create_invite_request(invite_email):
