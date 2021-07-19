@@ -9,7 +9,7 @@
 {% endblock %}
 {% block content %}
 <div class="common-page-style">
-  <div class="col course-home-page">
+  <div class="container course-home-page">
     {{ widgets.BreadCrumb(course=course) }}
     {{ CourseCardWide(course) }}
     {{ CourseOutlineAndCreator(course) }}
@@ -32,11 +32,13 @@
     </div>
   </div>
   <div class="course-card-wide-content">
-    <div class="course-card-wide-title">
-      {{ course.title }}
-    </div>
-    <div class="course-card-wide-intro">
-      {{ course.short_introduction }}
+    <div class="course-info">
+      <div class="course-card-wide-title">
+        {{ course.title }}
+      </div>
+      <div class="course-card-wide-intro">
+        {{ course.short_introduction }}
+      </div>
     </div>
     <div class="course-buttons">
       {% if not course.disable_self_learning and not membership %}
@@ -88,10 +90,10 @@
 
 {% macro CourseOutlineAndCreator(course) %}
 <div class="course-outline-instructor-parent">
-  <div class="course-home-outline col">
+  <div class="course-home-outline">
     {{ widgets.CourseOutline(course=course, membership=membership) }}
   </div>
-  <div class="course-creator-progress-parent col-sm-auto">
+  <div class="course-creator-progress-parent">
     <div class="course-creator-section">
       <div class="course-home-headings">
         Creator
@@ -151,7 +153,7 @@
 
 {% macro CourseDescriptionAndOverview(course) %}
 <div class="course-outline-instructor-parent">
-  <div class="course-description-section col">
+  <div class="course-description-section">
     <div class="course-home-headings">
       Course Description
     </div>
@@ -161,7 +163,7 @@
   </div>
   {% set avg_rating = course.get_average_rating() %}
   {% if course.get_students() | length or avg_rating %}
-  <div class="course-overview-section col-sm-auto">
+  <div class="course-overview-section">
     <div class="course-home-headings">
       Overview
     </div>

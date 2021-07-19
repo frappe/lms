@@ -6,7 +6,7 @@
 
 {% block content %}
 <div class="common-page-style">
-  <div class="col profile-page">
+  <div class="container profile-page">
     {{ ProfileBanner(member) }}
     {{ AboutOverviewSection(member) }}
     {{ CoursesCreated(member) }}
@@ -18,8 +18,8 @@
 {% endblock %}
 
 {% macro ProfileBanner(member) %}
-<div class="col">
-  <div class="profile-banner" style="background: url(/assets/community/images/profile-banner.png)">
+<div class="">
+  <div class="profile-banner" style="background-image: url(/assets/community/images/profile-banner.png)">
   <div class="profile-avatar">
     {{ widgets.Avatar(member=member, avatar_class="avatar-xl") }}
     <div class="profile-name"> {{ member.full_name }} </div>
@@ -54,9 +54,9 @@
 {% endmacro %}
 
 {% macro AboutOverviewSection(member) %}
-<div class="course-outline-instructor-parent">
+<div class="profile-parent-section">
   {% if member.bio %}
-  <div class="course-overview-section col">
+  <div class="profile-about-section">
     <div class="course-home-headings">
       About
     </div>
@@ -65,7 +65,7 @@
     </div>
   </div>
   {% endif %}
-  <div class="course-overview-section col-sm-auto">
+  <div class="course-overview-section">
     <div class="course-home-headings">
       Overview
     </div>
