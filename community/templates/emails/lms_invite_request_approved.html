@@ -1,9 +1,8 @@
 <div>
-	{% set site_link = "<a href='" + site_url + "'>" + site_url + "</a>" %}
-	<p>{{_("Dear Community Member,")}}</p>
-	<p>{{_("Your Invite Request to be a part of {0}  has
-		been approved.").format(site_link)}}</p>
-	<p>Click on the link below to complete your Sign up and set a new password</p>
+	{% set site_link = "<a href='" + site_url + "'>" + site_name + "</a>" %}
+	<p>{{_("Dear {0},").format(full_name)}}</p>
+	<p>{{_("Welcome to {0}!").format(site_name)}}</p>
+	<p>Click on the link below to complete your sign up and set a new password</p>
 	<p style="margin: 15px 0px;">
 		<a href="{{ signup_form_link }}" rel="nofollow" class="btn btn-primary">{{ _("Complete Sign Up") }}</a>
 	</p>
@@ -14,5 +13,5 @@
 	</p>
 	<br>
 	<p>Thanks and Regards,</p>
-	<p>Your Community.</p>
+	<p>{{site_name}}</p>
 </div>

@@ -30,10 +30,13 @@ class InviteRequest(Document):
         return user
 
     def send_email(self):
-        subject = _("Your request has been approved.")
+        site_name = "Mon.School"
+        subject = _("Welcome to {0}!").format(site_name)
+
         args = {
             "full_name": self.full_name,
             "signup_form_link": "/new-sign-up?invite_code={0}".format(self.name),
+            "site_name": site_name,
             "site_url": frappe.utils.get_url()
         }
         frappe.sendmail(
