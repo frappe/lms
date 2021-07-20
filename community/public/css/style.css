@@ -390,13 +390,6 @@ input[type=checkbox] {
   letter-spacing: -0.0175em
 }
 
-@media (min-width: 576px) {
-  .container {
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
-}
-
 .button-links:hover {
   text-decoration: none;
 }
