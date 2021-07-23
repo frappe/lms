@@ -21,14 +21,14 @@
  "engine": "InnoDB",
  "field_order": [
   "title",
-  "short_code",
   "video_link",
-  "column_break_3",
-  "is_published",
-  "disable_self_learning",
   "image",
-  "section_break_5",
+  "column_break_3",
   "tags",
+  "is_published",
+  "upcoming",
+  "disable_self_learning",
+  "section_break_5",
   "short_introduction",
   "description"
  ],
@@ -52,11 +52,6 @@
    "fieldname": "is_published",
    "fieldtype": "Check",
    "label": "Published"
-  },
-  {
-   "fieldname": "short_code",
-   "fieldtype": "Data",
-   "label": "Short Code"
   },
   {
    "fieldname": "column_break_3",
@@ -92,6 +87,12 @@
    "fieldname": "tags",
    "fieldtype": "Data",
    "label": "Tags"
+  },
+  {
+   "default": "0",
+   "fieldname": "upcoming",
+   "fieldtype": "Check",
+   "label": "Is an Upcoming Course"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -118,7 +119,7 @@
    "link_fieldname": "course"
   }
  ],
- "modified": "2021-07-09 15:05:05.372430",
+ "modified": "2021-07-23 19:01:29.765570",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",
@@ -141,6 +142,5 @@
  "sort_field": "creation",
  "sort_order": "DESC",
  "title_field": "title",
- "track_changes": 1,
- "track_views": 1
+ "track_changes": 1
 }

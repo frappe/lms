@@ -653,6 +653,12 @@ div.custom-checkbox>label>input:checked+img {
   color: #FFFFFF;
 }
 
+.is-default {
+  background-color: white;
+  border: 1px solid #C8CFD5;
+  box-sizing: border-box;
+}
+
 .course-home-outline {
   margin-top: 3rem;
   flex: 1;

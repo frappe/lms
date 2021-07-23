@@ -53,15 +53,19 @@
 
     {% set query_parameter = "?batch=" + membership.batch if membership and membership.batch else "" %}
 
-    {% if membership %}
+    {% if course.upcoming %}
+    <div class="view-course-link is-default">
+      Upcoming Course <img class="ml-3" src="/assets/community/icons/black-arrow.svg" />
+    </div>
+    <a class="stretched-link" href="/courses/{{ course.name }}"></a>
 
+    {% elif membership %}
     <div class="view-course-link is-primary">
       Continue Course <img class="ml-3" src="/assets/community/icons/white-arrow.svg" />
     </div>
     <a class="stretched-link" href="{{ course.get_learn_url(lesson_index) }}{{ query_parameter }}"></a>
 
     {% else %}
-
     <div class="view-course-link">
       View Course <img class="ml-3" src="/assets/community/icons/black-arrow.svg" />
     </div>
