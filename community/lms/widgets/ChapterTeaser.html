@@ -8,9 +8,11 @@
 
   <div class="chapter-content collapse navbar-collapse" id="{{ chapter.get_slugified_chapter_title() }}">
 
+    {% if chapter.description %}
     <div class="chapter-description muted-text">
       {{ chapter.description }}
     </div>
+    {% endif %}
 
     <div class="lessons">
 
