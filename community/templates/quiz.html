@@ -1,11 +1,11 @@
 {% set last_submission = quiz.get_last_submission_details() %}
 {% if last_submission %}
-<div class="mb-5 pull-right">
-  <div class="text-muted">Last Submitted On: {{ frappe.utils.pretty_date(last_submission.creation) }}</div>
-  <div class="text-muted">Last Submission Score: {{ last_submission.score }}</div>
+<div class="pull-right">
+  <div class="muted-text">Last Submitted On: {{ frappe.utils.pretty_date(last_submission.creation) }}</div>
+  <div class="muted-text">Last Submission Score: {{ last_submission.score }}</div>
 </div>
 {% endif %}
-<h3 id="title" class="mb-5">{{ quiz.title }}</h3>
+<div id="title" class="course-home-headings">{{ quiz.title }}</div>
 <form id="quiz-form">
   {% for question in quiz.questions %}
   <div class="question mb-5" data-question="{{ question.question }}"
