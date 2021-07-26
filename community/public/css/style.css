@@ -1135,7 +1135,7 @@ div.custom-checkbox>label>input:checked+img {
   line-height: 156%;
   letter-spacing: -0.0175em;
   text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.64);
-  padding: 20px;
+  padding: 1.5rem;
 }
 
 @media (max-width: 375px) {
@@ -1159,7 +1159,7 @@ div.custom-checkbox>label>input:checked+img {
   height: fit-content;
   box-shadow: 0px 1px 1px rgb(0 0 0 / 16%);
   border-radius: 4px;
-  margin-top: 25px;
+  margin-top: 2rem;
 }
 
 @media (max-width: 375px) {
@@ -1175,6 +1175,7 @@ div.custom-checkbox>label>input:checked+img {
   left: 174px;
   font-size: 12px;
   line-height: 165%;
+  width: fit-content;
 }
 
 @media (max-width: 500px) {
