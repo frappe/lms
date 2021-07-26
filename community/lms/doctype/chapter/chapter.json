@@ -9,7 +9,6 @@
   "course",
   "title",
   "description",
-  "locked",
   "index_"
  ],
  "fields": [
@@ -23,12 +22,6 @@
    "fieldname": "description",
    "fieldtype": "Markdown Editor",
    "label": "Description"
-  },
-  {
-   "default": "0",
-   "fieldname": "locked",
-   "fieldtype": "Check",
-   "label": "Locked"
   },
   {
    "fieldname": "course",
@@ -52,7 +45,7 @@
    "link_fieldname": "chapter"
   }
  ],
- "modified": "2021-05-13 21:05:20.531890",
+ "modified": "2021-07-23 19:03:57.946831",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Chapter",

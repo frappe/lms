@@ -27,12 +27,13 @@
    "fieldname": "lesson",
    "fieldtype": "Link",
    "label": "Lesson",
-   "options": "Lesson"
+   "options": "Lesson",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-06-23 17:58:57.642873",
+ "modified": "2021-07-23 19:06:12.551633",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz",
