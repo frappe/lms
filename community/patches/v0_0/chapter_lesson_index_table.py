@@ -5,6 +5,8 @@ def execute():
     frappe.reload_doc("lms", "doctype", "lms_course")
     frappe.reload_doc("lms", "doctype", "chapter")
     frappe.reload_doc("lms", "doctype", "lesson")
+    frappe.reload_doc("lms", "doctype", "lessons")
+    frappe.reload_doc("lms", "doctype", "chapters")
 
     update_chapters()
     update_lessons()
