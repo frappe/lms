@@ -2,7 +2,15 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on('LMS Course', {
-	// refresh: function(frm) {
 
-	// }
+  onload: function (frm) {
+    frm.set_query("chapter", "chapters", function () {
+      return {
+        filters: {
+          "course": frm.doc.name,
+        }
+      };
+    });
+  }
+
 });

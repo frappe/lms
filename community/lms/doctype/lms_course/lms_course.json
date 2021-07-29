@@ -1,12 +1,6 @@
 {
  "actions": [
   {
-   "action": "community.lms.doctype.lms_course.lms_course.reindex_lessons",
-   "action_type": "Server Action",
-   "group": "Reindex",
-   "label": "Reindex Lessons"
-  },
-  {
    "action": "community.lms.doctype.lms_course.lms_course.reindex_exercises",
    "action_type": "Server Action",
    "group": "Reindex",
@@ -30,7 +24,8 @@
   "disable_self_learning",
   "section_break_5",
   "short_introduction",
-  "description"
+  "description",
+  "chapters"
  ],
  "fields": [
   {
@@ -93,6 +88,12 @@
    "fieldname": "upcoming",
    "fieldtype": "Check",
    "label": "Is an Upcoming Course"
+  },
+  {
+   "fieldname": "chapters",
+   "fieldtype": "Table",
+   "label": "Chapters",
+   "options": "Chapters"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -112,14 +113,9 @@
    "group": "Mentors",
    "link_doctype": "LMS Course Mentor Mapping",
    "link_fieldname": "course"
-  },
-  {
-   "group": "Mentors",
-   "link_doctype": "LMS Mentor Request",
-   "link_fieldname": "course"
   }
  ],
- "modified": "2021-07-23 19:01:29.765570",
+ "modified": "2021-07-28 19:01:50.677445",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",

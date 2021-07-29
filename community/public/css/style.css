@@ -757,7 +757,7 @@ div.custom-checkbox>label>input:checked+img {
 }
 
 .lesson-links {
-  display: block;
+  display: flex;
   padding: 0 1rem;
   margin-bottom: .25rem;
   color: inherit;

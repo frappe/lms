@@ -10,12 +10,12 @@ def get_common_context(context):
     except KeyError:
         batch_name = None
 
-    course = Course.find(course_name)
+    course = frappe.get_doc("LMS Course", course_name)
     if not course:
         context.template = "www/404.html"
         return
     context.course = course
-
+    context.lessons = course.get_lessons()
     membership = course.get_membership(frappe.session.user, batch_name)
     context.membership = membership
     if membership:

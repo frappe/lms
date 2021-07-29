@@ -9,7 +9,7 @@
   "course",
   "title",
   "description",
-  "index_"
+  "lessons"
  ],
  "fields": [
   {
@@ -31,10 +31,10 @@
    "options": "LMS Course"
   },
   {
-   "default": "1",
-   "fieldname": "index_",
-   "fieldtype": "Int",
-   "label": "Index"
+   "fieldname": "lessons",
+   "fieldtype": "Table",
+   "label": "Lessons",
+   "options": "Lessons"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -45,7 +45,7 @@
    "link_fieldname": "chapter"
   }
  ],
- "modified": "2021-07-23 19:03:57.946831",
+ "modified": "2021-07-27 16:28:08.667964",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Chapter",

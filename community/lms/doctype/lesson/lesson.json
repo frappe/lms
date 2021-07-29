@@ -10,7 +10,6 @@
   "include_in_preview",
   "column_break_4",
   "title",
-  "index_",
   "index_label",
   "section_break_6",
   "body",
@@ -30,13 +29,6 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Title"
-  },
-  {
-   "default": "1",
-   "fieldname": "index_",
-   "fieldtype": "Int",
-   "in_list_view": 1,
-   "label": "Index"
   },
   {
    "fieldname": "body",
@@ -75,7 +67,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-06-29 13:34:49.077363",
+ "modified": "2021-07-27 16:28:29.203624",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Lesson",
