@@ -1,5 +1,4 @@
 import frappe
-from community.lms.models import Course
 
 def get_context(context):
     context.no_cache = 1
@@ -10,7 +9,7 @@ def get_context(context):
         frappe.local.flags.redirect_location = "/courses"
         raise frappe.Redirect
 
-    course = Course.find(course_name)
+    course = frappe.get_doc("LMS Course", course_name)
     if course is None:
         frappe.local.flags.redirect_location = "/courses"
         raise frappe.Redirect

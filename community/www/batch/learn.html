@@ -30,7 +30,7 @@
       <div class="lesson-pagination-parent">
         {{ LessonContent(lesson) }}
         {% if membership %}
-        {{ pagination(prev_chap, prev_url, next_chap, next_url) }}
+        {{ pagination(prev_url, next_url) }}
         {% endif %}
       </div>
     </div>
@@ -49,16 +49,15 @@
   {% if membership or lesson.include_in_preview %}
   <div class="common-card-style lesson-content-card from-markdown">{{ lesson.render_html() }}</div>
   {% else %}
-  <div class="no-preview-message">
-    <span>This lesson is not available for Preview. Please join the course to access this lesson.</span>
-    <a href="/courses/{{ course.name }}">Checkout Course Details.</a>
+  <div class="common-card-style lesson-content-card">
+    <span>This lesson is not available for Preview. Please join the course to access this lesson. <a href="/courses/{{ course.name }}">Checkout Course Details.</a></span>
   </div>
   {% endif %}
 
 </div>
 {% endmacro %}
 
-{% macro pagination(prev_chap, prev_url, next_chap, next_url) %}
+{% macro pagination(prev_url, next_url) %}
 <div class="lesson-pagination">
 
   <div>

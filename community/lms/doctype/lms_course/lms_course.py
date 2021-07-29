@@ -9,8 +9,10 @@ import json
 from ...utils import slugify
 from community.query import find, find_all
 from frappe.utils import flt, cint
+from ...utils import slugify
 
 class LMSCourse(Document):
+
     @staticmethod
     def find(name):
         """Returns the course with specified name.
@@ -112,16 +114,41 @@ class LMSCourse(Document):
     def get_chapters(self):
         """Returns all chapters of this course.
         """
-        # TODO: chapters should have a way to specify the order
-        return find_all("Chapter", course=self.name, order_by="index_")
+        chapters = []
+        for row in self.chapters:
+            chapter_details = frappe.db.get_value("Chapter", row.chapter,
+                                                ["name", "title", "description"],
+                                                as_dict=True)
+            chapter_details.idx = row.idx
+            chapters.append(chapter_details)
+        return chapters
 
-    def get_lessons(self):
-        """ Returns all lessons of this course """
+    def get_lessons(self, chapter=None):
+        """ If chapter is passed, returns lessons of only that chapter.
+        Else returns lessons of all chapters of the course """
         lessons = []
-        chapters = self.get_chapters()
-        for chapter in chapters:
-            lessons.append(frappe.get_all("Lesson", {"chapter": chapter.name}))
+
+        if chapter:
+            return self.get_lesson_details(chapter)
+
+        for chapter in self.get_chapters():
+            lesson = self.get_lesson_details(chapter)
+            lessons += lesson
+
         return lessons
+
+    def get_lesson_details(self, chapter):
+        lessons = []
+        lesson_list = frappe.get_all("Lessons", {"parent": chapter.name},
+                                        ["lesson", "idx"], order_by="idx")
+        for row in lesson_list:
+            lesson_details = frappe.get_doc("Lesson", row.lesson)
+            lesson_details.number = flt("{}.{}".format(chapter.idx, row.idx))
+            lessons.append(lesson_details)
+        return lessons
+
+    def get_slugified_chapter_title(self, chapter):
+        return slugify(chapter)
 
     def get_course_progress(self):
         """ Returns the course progress of the session user """
@@ -160,38 +187,12 @@ class LMSCourse(Document):
             visibility="Public")
         return batches
 
-    def get_chapter(self, index):
-        return find("Chapter", course=self.name, index_=index)
-
-    def get_lesson(self, chapter_index, lesson_index):
-        chapter_name = frappe.get_value(
-            "Chapter",
-            {"course": self.name, "index_": chapter_index},
-            "name")
-        lesson_name = chapter_name and frappe.get_value(
-            "Lesson",
-            {"chapter": chapter_name, "index_": lesson_index},
-            "name")
-        return lesson_name and frappe.get_doc("Lesson", lesson_name)
-
     def get_lesson_index(self, lesson_name):
         """Returns the {chapter_index}.{lesson_index} for the lesson.
         """
-        lesson = frappe.get_doc("Lesson", lesson_name)
-        chapter = frappe.get_doc("Chapter", lesson.chapter)
-        return f"{chapter.index_}.{lesson.index_}"
-
-    def reindex_lessons(self):
-        for i, c in enumerate(self.get_chapters(), start=1):
-            c.index_ = i
-            c.save()
-            self._reindex_lessons_in_chapter(c)
-
-    def _reindex_lessons_in_chapter(self, c):
-        for i, lesson in enumerate(c.get_lessons(), start=1):
-            lesson.index = i
-            lesson.index_label = f"{c.index_}.{i}"
-            lesson.save()
+        lesson = frappe.db.get_value("Lessons", {"lesson": lesson_name}, ["idx", "parent"], as_dict=True)
+        chapter = frappe.db.get_value("Chapters", {"chapter": lesson.parent}, ["idx"], as_dict=True)
+        return f"{chapter.idx}.{lesson.idx}"
 
     def reindex_exercises(self):
         for i, c in enumerate(self.get_chapters(), start=1):
@@ -202,7 +203,7 @@ class LMSCourse(Document):
 
     def _reindex_exercises_in_chapter(self, c):
         i = 1
-        for lesson in c.get_lessons():
+        for lesson in self.get_lessons(c):
             for exercise in lesson.get_exercises():
                 exercise.index_ = i
                 exercise.index_label = f"{c.index_}.{i}"
@@ -302,9 +303,6 @@ class LMSCourse(Document):
             return None
         return sum(ratings)/len(ratings)
 
-    def get_outline(self):
-        return CourseOutline(self)
-
     def get_progress(self, lesson):
         return frappe.db.get_value("LMS Course Progress",
                 {
@@ -314,55 +312,14 @@ class LMSCourse(Document):
                 },
                 ["status"])
 
-class CourseOutline:
-    def __init__(self, course):
-        self.course = course
-        self.chapters = self.get_chapters()
-        self.lessons = self.get_lessons()
-
-    def get_next(self, current):
+    def get_neighbours(self, current, lessons):
         current = flt(current)
-        numbers = sorted(lesson['number'] for lesson in self.lessons)
-        try:
-            index = numbers.index(current)
-            return numbers[index+1]
-        except IndexError:
-            return None
-
-    def get_prev(self, current):
-        current = flt(current)
-        numbers = sorted(lesson['number'] for lesson in self.lessons)
-        try:
-            index = numbers.index(current)
-            if index == 0:
-                return None
-            return numbers[index-1]
-        except IndexError:
-            return None
-
-    def get_chapters(self):
-        return frappe.db.get_all("Chapter",
-            filters={"course": self.course.name},
-            fields=["name", "title", "index_"],
-            order_by="index_")
-
-    def get_lessons(self):
-        chapters = [c['name'] for c in self.chapters]
-        lessons = frappe.db.get_all("Lesson",
-            filters={"chapter": ["IN", chapters]},
-            fields=["name", "title", "chapter", "index_"])
-
-        chapter_numbers = {c['name']: c['index_'] for c in self.chapters}
-        for lesson in lessons:
-            lesson['number'] = flt("{}.{}".format(chapter_numbers[lesson['chapter']], lesson['index_']))
-        return lessons
-
-@frappe.whitelist()
-def reindex_lessons(doc):
-    course_data = json.loads(doc)
-    course = frappe.get_doc("LMS Course", course_data['name'])
-    course.reindex_lessons()
-    frappe.msgprint("All lessons in this course have been re-indexed.")
+        numbers = sorted(lesson.number for lesson in lessons)
+        index = numbers.index(current)
+        return {
+                "prev": numbers[index-1] if index-1 >= 0 else None,
+                "next": numbers[index+1] if index+1 < len(numbers) else None
+            }
 
 @frappe.whitelist()
 def reindex_exercises(doc):

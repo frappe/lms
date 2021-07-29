@@ -1,12 +1,12 @@
 <div>
 
-  <div class="small-title chapter-title" data-target="#{{ chapter.get_slugified_chapter_title() }}"
+  <div class="small-title chapter-title" data-target="#{{ course.get_slugified_chapter_title(chapter.title) }}"
     data-toggle="collapse" aria-expanded="false">
     <img class="chapter-icon" src="/assets/community/icons/chevron-right.svg">
     {{ index }}. {{ chapter.title }}
   </div>
 
-  <div class="chapter-content collapse navbar-collapse" id="{{ chapter.get_slugified_chapter_title() }}">
+  <div class="chapter-content collapse navbar-collapse" id="{{ course.get_slugified_chapter_title(chapter.title) }}">
 
     {% if chapter.description %}
     <div class="chapter-description muted-text">
@@ -16,13 +16,13 @@
 
     <div class="lessons">
 
-      {% for lesson in chapter.get_lessons() %}
+      {% for lesson in course.get_lessons(chapter) %}
 
-      <div class="lesson-info {% if membership.current_lesson == lesson.name %} active-lesson {% endif %}">
+      <div class="lesson-info{% if membership.current_lesson == lesson.name %} active-lesson {% endif %}">
 
         {% if membership or lesson.include_in_preview %}
         <a class="lesson-links"
-          href="{{ course.get_learn_url(course.get_lesson_index(lesson.name)) }}{{course.query_parameter}}"
+          href="{{ course.get_learn_url(lesson.number) }}{{course.query_parameter}}"
           data-course="{{ course.name }}">
           {{ lesson.title }}
 

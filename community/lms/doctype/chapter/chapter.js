@@ -2,7 +2,15 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on('Chapter', {
-	// refresh: function(frm) {
 
-	// }
+  onload: function (frm) {
+    frm.set_query("lesson", "lessons", function () {
+      return {
+        filters: {
+          "chapter": frm.doc.name,
+        }
+      };
+    });
+  }
+
 });
