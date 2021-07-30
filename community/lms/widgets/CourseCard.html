@@ -1,10 +1,14 @@
 <div class="common-card-style course-card">
-  <div class="course-image" style="background-image: url({{ course.image }});">
+  <div class="course-image {% if not course.image %}default-image{% endif %}"
+    {% if course.image %} style="background-image: url( {{ course.image }} );" {% endif %}>
     <div class="course-tags">
       {% for tag in course.get_tags() %}
       <div class="course-card-pills">{{ tag }}</div>
       {% endfor %}
     </div>
+    {% if not course.image %}
+    <div class="default-image-text">{{ course.title[0] }}</div>
+    {% endif %}
   </div>
   <div class="course-card-content">
     <div class="course-card-meta muted-text">
@@ -53,15 +57,19 @@
 
     {% set query_parameter = "?batch=" + membership.batch if membership and membership.batch else "" %}
 
-    {% if membership %}
+    {% if course.upcoming %}
+    <div class="view-course-link is-default">
+      Upcoming Course <img class="ml-3" src="/assets/community/icons/black-arrow.svg" />
+    </div>
+    <a class="stretched-link" href="/courses/{{ course.name }}"></a>
 
+    {% elif membership %}
     <div class="view-course-link is-primary">
       Continue Course <img class="ml-3" src="/assets/community/icons/white-arrow.svg" />
     </div>
     <a class="stretched-link" href="{{ course.get_learn_url(lesson_index) }}{{ query_parameter }}"></a>
 
     {% else %}
-
     <div class="view-course-link">
       View Course <img class="ml-3" src="/assets/community/icons/black-arrow.svg" />
     </div>

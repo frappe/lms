@@ -234,6 +234,22 @@ input[type=checkbox] {
   background-repeat: no-repeat;
 }
 
+.default-image {
+  background-color: var(--avatar-frame-bg);
+  color: var(--avatar-frame-color);
+  display: flex;
+  flex-direction: column;
+}
+
+.default-image-text {
+  display: flex;
+  flex: 1;
+  align-self: center;
+  justify-content: normal;
+  font-size: 7rem;
+  font-weight: bold;
+}
+
 .course-tags {
   display: flex;
   position: relative;
@@ -390,7 +406,7 @@ input[type=checkbox] {
   letter-spacing: -0.0175em
 }
 
-@media (min-width: 576px) {
+@media (min-width: 576px) and (max-width: 992px) {
   .container {
     padding-left: 1rem;
     padding-right: 1rem;
@@ -601,7 +617,7 @@ div.custom-checkbox>label>input:checked+img {
 }
 
 .button {
-  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.13), 0px 0px 0.5px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--btn-shadow);
   border-radius: 6px;
   cursor: pointer;
   display: flex;
@@ -653,9 +669,14 @@ div.custom-checkbox>label>input:checked+img {
   color: #FFFFFF;
 }
 
+.is-default {
+  background-color: white;
+  border: 1px solid #C8CFD5;
+  box-sizing: border-box;
+}
+
 .course-home-outline {
   margin-top: 3rem;
-  flex: 1;
 }
 
 .small-title {
@@ -673,6 +694,7 @@ div.custom-checkbox>label>input:checked+img {
 .chapter-description {
   height: fit-content;
   padding-left: 1rem;
+  padding-right: 1rem;
 }
 
 .chapter-icon {
@@ -680,26 +702,39 @@ div.custom-checkbox>label>input:checked+img {
 }
 
 .course-outline-instructor-parent {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-gap: 2rem;
+  grid-template-columns: 4fr 1fr;
+}
+
+@media (max-width: 768px) {
+  .course-outline-instructor-parent {
+    grid-gap: 1rem;
+  }
 }
 
 @media (max-width: 600px) {
   .course-outline-instructor-parent {
-    flex-direction: column;
     padding: 0px 24px 0px;
+    grid-template-columns: none;
   }
 }
 
-
 .profile-parent-section {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-gap: 2rem;
+  grid-template-columns: 4fr 1fr;
+}
+
+@media (max-width: 768px) {
+  .profile-parent-section {
+    grid-gap: 1rem;
+  }
 }
 
 @media (max-width: 600px) {
   .profile-parent-section {
-    flex-direction: column;
+    grid-template-columns: none;
   }
 }
 
@@ -731,18 +766,6 @@ div.custom-checkbox>label>input:checked+img {
   margin-top: 3rem;
 }
 
-@media (min-width: 1024px) {
-  .course-overview-section {
-    margin-left: 2rem;
-  }
-}
-
-@media (min-width: 600px) {
-  .course-overview-section {
-    margin-left: 1rem;
-  }
-}
-
 .lesson-info {
   font-size: 16px;
   line-height: 250%;
@@ -750,7 +773,7 @@ div.custom-checkbox>label>input:checked+img {
 }
 
 .lesson-links {
-  display: block;
+  display: flex;
   padding: 0 1rem;
   margin-bottom: .25rem;
   color: inherit;
@@ -900,14 +923,18 @@ div.custom-checkbox>label>input:checked+img {
 }
 
 .description-card {
-  padding: 24px;
+  padding: 1.5rem;
   flex-direction: column;
 }
 
 .overview-card {
-  padding: 24px 26px 24px;
+  padding: 1.5rem;
   width: 256px;
   flex-direction: column;
+  display: grid;
+  -moz-column-gap: 1rem;
+  column-gap: 1rem;
+  row-gap: 1rem;
 }
 
 @media (max-width: 768px) {
@@ -938,10 +965,6 @@ div.custom-checkbox>label>input:checked+img {
     column-gap: 24px;
     row-gap: 24px;
   }
-}
-
-.overtime-item {
-  margin: 16px 0px 16px;
 }
 
 .view-all-mentors {
@@ -1012,8 +1035,7 @@ div.custom-checkbox>label>input:checked+img {
 }
 
 .course-details-outline {
-  margin-top: 16px;
-  flex: 1;
+  margin-top: 1rem;
 }
 
 .lesson-content-card {
@@ -1022,14 +1044,15 @@ div.custom-checkbox>label>input:checked+img {
 }
 
 .course-content-parent {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-gap: 2rem;
+  grid-template-columns: 2fr minmax(600px, 5fr);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .course-content-parent {
+    display: flex;
     flex-direction: column-reverse;
-    justify-content: center;
   }
 }
 
@@ -1044,8 +1067,7 @@ div.custom-checkbox>label>input:checked+img {
 }
 
 .lesson-pagination-parent {
-  margin: 1rem 0px 0px 2rem;
-  flex: 3;
+  margin-top: 1rem;
 }
 
 @media (max-width: 768px) {
@@ -1129,7 +1151,7 @@ div.custom-checkbox>label>input:checked+img {
   line-height: 156%;
   letter-spacing: -0.0175em;
   text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.64);
-  padding: 20px;
+  padding: 1.5rem;
 }
 
 @media (max-width: 375px) {
@@ -1153,7 +1175,7 @@ div.custom-checkbox>label>input:checked+img {
   height: fit-content;
   box-shadow: 0px 1px 1px rgb(0 0 0 / 16%);
   border-radius: 4px;
-  margin-top: 25px;
+  margin-top: 2rem;
 }
 
 @media (max-width: 375px) {
@@ -1169,6 +1191,7 @@ div.custom-checkbox>label>input:checked+img {
   left: 174px;
   font-size: 12px;
   line-height: 165%;
+  width: fit-content;
 }
 
 @media (max-width: 500px) {
@@ -1186,7 +1209,6 @@ div.custom-checkbox>label>input:checked+img {
 }
 
 .social-icons {
-  float: right;
   margin: 16px;
 }
 
@@ -1214,12 +1236,6 @@ div.custom-checkbox>label>input:checked+img {
 .course-creator-progress-parent {
   display: flex;
   flex-direction: column;
-}
-
-@media (min-width: 600px) {
-  .course-creator-progress-parent {
-    margin-left: 2rem;
-  }
 }
 
 .course-creator-section {
@@ -1270,4 +1286,20 @@ div.custom-checkbox>label>input:checked+img {
 pre {
   width: 100%;
   overflow-x: auto;
+}
+
+.markdown-source h1 {
+  font-size: 1.3rem;
+}
+
+.markdown-source h2 {
+  font-size: 1.2rem;
+}
+
+.markdown-source h3 {
+  font-size: 1.1rem;
+}
+
+.markdown-source h4 {
+  font-size: 1rem;
 }

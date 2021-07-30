@@ -12,7 +12,6 @@ def get_context(context):
     lesson_index = frappe.form_dict.get("lesson")
     lesson_number = f"{chapter_index}.{lesson_index}"
 
-    course_name = context.course.name
     if not chapter_index or not lesson_index:
         if context.batch:
             index_ = get_lesson_index(context.course, context.batch, frappe.session.user) or "1.1"
@@ -21,26 +20,28 @@ def get_context(context):
         frappe.local.flags.redirect_location = context.course.get_learn_url(index_) + context.course.query_parameter
         raise frappe.Redirect
 
-    context.lesson = context.course.get_lesson(chapter_index, lesson_index)
-    context.lesson_index = lesson_index
-    context.chapter_index = chapter_index
+    context.lesson = list(filter(lambda x: cstr(x.number) == lesson_number, context.lessons))[0]
+    neighbours = context.course.get_neighbours(lesson_number, context.lessons)
+    context.next_url = get_learn_url(neighbours["next"], context.course)
+    context.prev_url = get_learn_url(neighbours["prev"], context.course)
 
-    outline = context.course.get_outline()
-    prev_ = outline.get_prev(lesson_number)
-    next_ = outline.get_next(lesson_number)
-    context.prev_chap = get_chapter_title(course_name, prev_)
-    context.next_chap = get_chapter_title(course_name, next_)
-    context.next_url = context.course.get_learn_url(next_) and  context.course.get_learn_url(next_) + context.course.query_parameter
-    context.prev_url = context.course.get_learn_url(prev_) and context.course.get_learn_url(prev_) + context.course.query_parameter
+    meta_info = context.lesson.title + " - " + context.course.title
+    context.metatags = {
+        "title": meta_info,
+        "keywords": meta_info,
+        "description": meta_info
+    }
 
     context.page_extensions = get_page_extensions()
-
     context.page_context = {
         "course": context.course.name,
         "batch": context.get("batch") and context.batch.name,
         "lesson": context.lesson.name,
         "is_member": context.membership is not None
     }
+
+def get_learn_url(lesson_number, course):
+    return course.get_learn_url(lesson_number) and course.get_learn_url(lesson_number) + course.query_parameter
 
 def get_chapter_title(course_name, lesson_number):
     if not lesson_number:

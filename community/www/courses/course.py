@@ -1,5 +1,4 @@
 import frappe
-from community.lms.models import Course
 
 def get_context(context):
     context.no_cache = 1
@@ -10,7 +9,7 @@ def get_context(context):
         frappe.local.flags.redirect_location = "/courses"
         raise frappe.Redirect
 
-    course = Course.find(course_name)
+    course = frappe.get_doc("LMS Course", course_name)
     if course is None:
         frappe.local.flags.redirect_location = "/courses"
         raise frappe.Redirect
@@ -19,3 +18,9 @@ def get_context(context):
     membership = course.get_membership(frappe.session.user)
     context.course.query_parameter = "?batch=" + membership.batch if membership and membership.batch else ""
     context.membership = membership
+    context.metatags = {
+        "title": course.title,
+        "image": course.image,
+        "description": course.short_introduction,
+        "keywords": course.title
+    }

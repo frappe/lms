@@ -20,34 +20,36 @@
 {% macro ProfileBanner(member) %}
 <div class="">
   <div class="profile-banner" style="background-image: url(/assets/community/images/profile-banner.png)">
-  <div class="profile-avatar">
-    {{ widgets.Avatar(member=member, avatar_class="avatar-xl") }}
-    <div class="profile-name"> {{ member.full_name }} </div>
-    {% if member.get_authored_courses() | length %}
-    <div class="creator-badge"> Creator </div>
-    {% endif %}
-   </div>
+    <div class="profile-avatar">
+      {{ widgets.Avatar(member=member, avatar_class="avatar-xl") }}
+      <div class="profile-name"> {{ member.full_name }} </div>
+      {% if member.get_authored_courses() | length %}
+      <div class="creator-badge"> Creator </div>
+      {% endif %}
+    </div>
   </div>
   <div class="profile-info">
-    {% if member.profession %}
-    <span class="profile-profession"> {{ member.profession }} </span>
-    {% endif %}
-    <div class="social-icons">
-      {% if member.linkedin %}
-      <a class="linkedin" href="{{ member.linkedin }}">
-        <img src="/assets/community/images/linkedin.png">
-      </a>
+    <div class="profile-profession">
+      {% if member.profession %}
+      <span class=""> {{ member.profession }} </span>
       {% endif %}
-      {% if member.medium %}
-      <a class="medium" href="{{ member.medium}}">
-        <img src="/assets/community/icons/medium.svg">
-      </a>
-      {% endif %}
-      {% if member.github %}
-      <a class="github" href="{{ member.github }}">
-        <img src="/assets/community/icons/github.svg">
-      </a>
-      {% endif %}
+      <span class="social-icons">
+        {% if member.linkedin %}
+        <a class="linkedin" href="{{ member.linkedin }}">
+          <img src="/assets/community/images/linkedin.png">
+        </a>
+        {% endif %}
+        {% if member.medium %}
+        <a class="medium" href="{{ member.medium}}">
+          <img src="/assets/community/icons/medium.svg">
+        </a>
+        {% endif %}
+        {% if member.github %}
+        <a class="github" href="{{ member.github }}">
+          <img src="/assets/community/icons/github.svg">
+        </a>
+        {% endif %}
+      </span>
     </div>
   </div>
 </div>

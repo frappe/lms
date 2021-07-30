@@ -9,8 +9,7 @@
   "course",
   "title",
   "description",
-  "locked",
-  "index_"
+  "lessons"
  ],
  "fields": [
   {
@@ -25,12 +24,6 @@
    "label": "Description"
   },
   {
-   "default": "0",
-   "fieldname": "locked",
-   "fieldtype": "Check",
-   "label": "Locked"
-  },
-  {
    "fieldname": "course",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -38,10 +31,10 @@
    "options": "LMS Course"
   },
   {
-   "default": "1",
-   "fieldname": "index_",
-   "fieldtype": "Int",
-   "label": "Index"
+   "fieldname": "lessons",
+   "fieldtype": "Table",
+   "label": "Lessons",
+   "options": "Lessons"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -52,7 +45,7 @@
    "link_fieldname": "chapter"
   }
  ],
- "modified": "2021-05-13 21:05:20.531890",
+ "modified": "2021-07-27 16:28:08.667964",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Chapter",
