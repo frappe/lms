@@ -1,13 +1,8 @@
 {% extends "templates/base.html" %}
 {% from "www/macros/livecode.html" import LiveCodeEditorJS, LiveCodeEditor with context %}
-{% block title %}{{ lesson.title }}{% endblock %}
+{% block title %} {{ lesson.title }} - {{ course.title }} {% endblock %}
 
 {% block head_include %}
-<meta name="description" content="{{lesson.title}} - {{course.title}}" />
-<meta name="keywords" content="{{lesson.title}} - {{course.title}}" />
-<style>
-</style>
-
 <link rel="stylesheet" href="/assets/frappe/css/font-awesome.css">
 <link rel="stylesheet" href="/assets/css/lms.css">
 <link rel="stylesheet" href="/assets/frappe/css/hljs-night-owl.css">
@@ -47,7 +42,7 @@
   </div>
 
   {% if membership or lesson.include_in_preview %}
-  <div class="common-card-style lesson-content-card from-markdown">{{ lesson.render_html() }}</div>
+  <div class="common-card-style lesson-content-card markdown-source">{{ lesson.render_html() }}</div>
   {% else %}
   <div class="common-card-style lesson-content-card">
     <span>This lesson is not available for Preview. Please join the course to access this lesson. <a href="/courses/{{ course.name }}">Checkout Course Details.</a></span>

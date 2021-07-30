@@ -18,3 +18,9 @@ def get_context(context):
     membership = course.get_membership(frappe.session.user)
     context.course.query_parameter = "?batch=" + membership.batch if membership and membership.batch else ""
     context.membership = membership
+    context.metatags = {
+        "title": course.title,
+        "image": course.image,
+        "description": course.short_introduction,
+        "keywords": course.title
+    }
