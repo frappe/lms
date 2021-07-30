@@ -25,6 +25,13 @@ def get_context(context):
     context.next_url = get_learn_url(neighbours["next"], context.course)
     context.prev_url = get_learn_url(neighbours["prev"], context.course)
 
+    meta_info = context.lesson.title + " - " + context.course.title
+    context.metatags = {
+        "title": meta_info,
+        "keywords": meta_info,
+        "description": meta_info
+    }
+
     context.page_extensions = get_page_extensions()
     context.page_context = {
         "course": context.course.name,

@@ -1,15 +1,18 @@
-{% if course.get_reviews() | length %}
 <div class="reviews-parent">
-  <div class="reviews-heading">
-    <div class="course-home-headings">Student Review</div>
+  {% set reviews = course.get_reviews() %}
+  {% if reviews | length or course.is_eligible_to_review(membership) %}
+  <div class="mb-5">
+    <span class="course-home-headings">Reviews</span>
     {% if course.is_eligible_to_review(membership) %}
-    <a class="review-link" href="">
-      Provide your Feedback
-    </a>
+    <span class="review-link button is-secondary pull-right">
+      Write a review
+    </span>
     {% endif %}
   </div>
+  {% endif %}
+  {% if reviews | length %}
   <div class="reviews-section">
-    {% for review in course.get_reviews() %}
+    {% for review in reviews %}
     <div class="review-card">
       <div class="common-card-style review-content small-title"> {{ review.review }} </div>
       <div class="review-card-footer">
@@ -30,6 +33,7 @@
     </div>
     {% endfor %}
   </div>
+  {% endif %}
 </div>
 
 <div class="modal fade review-modal" id="review-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
@@ -67,8 +71,8 @@
             </div>
             <div class="control-input-wrapper">
               <div class="control-input">
-                <textarea type="text" autocomplete="off" class="input-with-feedback form-control review-field" data-fieldtype="Text"
-                  data-fieldname="feedback_comments" placeholder="" style="height: 300px;"
+                <textarea type="text" autocomplete="off" class="input-with-feedback form-control review-field"
+                  data-fieldtype="Text" data-fieldname="feedback_comments" placeholder="" style="height: 300px;"
                   spellcheck="false"></textarea>
               </div>
             </div>
@@ -77,9 +81,9 @@
         </form>
       </div>
       <div class="modal-footer">
-        <div class="button submit-review is-primary" data-course="{{ course.name | urlencode}}" id="submit-review">Submit</div>
+        <div class="button submit-review is-primary" data-course="{{ course.name | urlencode}}" id="submit-review">
+          Submit</div>
       </div>
     </div>
   </div>
 </div>
-{% endif %}
