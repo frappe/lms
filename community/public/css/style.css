@@ -333,7 +333,7 @@ input[type=checkbox] {
 
 .card-divider {
   border: 1px solid #F4F5F6;
-  margin-bottom: 16px;
+  margin-bottom: 1rem;
 }
 
 .card-divider-dark {
@@ -487,23 +487,30 @@ input[type=checkbox] {
   --star-fill: #74808B;
 }
 
-div.custom-checkbox>label>input {
+.custom-checkbox {
+  display: flex;
+  align-items: center;
+}
+
+.custom-checkbox>label>input {
   visibility: hidden;
 }
 
-div.custom-checkbox>label>img {
-  height: 20px;
-  width: 20px;
+.custom-checkbox>label>.empty-checkbox {
+  height: 1.5rem;
+  width: 1.5rem;
   border: 1px solid black;
   border-radius: 5px;
 }
 
-div.custom-checkbox>label>input:checked+img {
-  background: url(/assets/community/images/Vector.png);
+.custom-checkbox>label>input:checked+.empty-checkbox {
+  background: url(/assets/community/icons/tick.svg);
   background-repeat: no-repeat;
   background-position: center center;
-  background-size: 15px 15px;
-  object-fit: contain;
+}
+
+.quiz-label {
+  margin-bottom: 0;
 }
 
 .course-card-wide {
@@ -1013,8 +1020,24 @@ div.custom-checkbox>label>input:checked+img {
   color: red;
 }
 
+.quiz-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .question {
   flex-direction: column;
+  width: 688px;
+  margin: auto;
+}
+
+.question p {
+  margin-bottom: 0;
+}
+
+.active-question .card-divider {
+  margin-top: 1rem;
 }
 
 .dark-links {
@@ -1057,7 +1080,7 @@ div.custom-checkbox>label>input:checked+img {
 }
 
 .course-content-parent .course-home-headings {
-  margin: 0px 0px 16px;
+  margin: 0px 0px 1rem;
 }
 
 .lesson-pagination {
