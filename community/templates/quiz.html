@@ -1,33 +1,59 @@
-{% set last_submission = quiz.get_last_submission_details() %}
-{% if last_submission %}
-<div class="mb-5 pull-right">
-  <div class="text-muted">Last Submitted On: {{ frappe.utils.pretty_date(last_submission.creation) }}</div>
-  <div class="text-muted">Last Submission Score: {{ last_submission.score }}</div>
-</div>
-{% endif %}
-<h3 id="title" class="mb-5">{{ quiz.title }}</h3>
-<form id="quiz-form">
-  {% for question in quiz.questions %}
-  <div class="question mb-5" data-question="{{ question.question }}"
-    data-multi="{{ question.multiple_correct_answers}}">
-    <p> {{ loop.index }}. {{ question.question }}</p>
-    {% set options = [question.option_1, question.option_2, question.option_3, question.option_4] %}
-    {% for option in options %}
-    {% if option %}
-    <div class="custom-checkbox mb-2">
-      <label>
-        <input {% if question.multiple %} type="checkbox" {% else %} type="radio"
-          name="{{ question.question | urlencode }}" {% endif %} class="option" value="{{ option | urlencode }}">
-          <img />
-      </label>
-      <span class="label-area">{{ option }}</span>
+<div id="quiz-title" class="course-home-headings">{{ quiz.title }}</div>
+
+<div class="card-divider"></div>
+
+<div class="mt-5">
+  <form id="quiz-form">
+    <div class="questions">
+      {% for question in quiz.questions %}
+      <div class="question {% if loop.index == 1 %} active-question {% else %} hide {% endif %}"
+        data-question="{{ question.question }}"data-multi="{{ question.multiple}}" data-qt-index="{{ loop.index }}">
+        <p>{{ question.question }}</p>
+
+        {% if question.multiple %}
+        <small class="font-weight-bold">Choose all answers that apply:</small>
+        {% else %}
+        <small class="font-weight-bold">Choose 1 answer:</small>
+        {% endif %}
+
+        <div class="card-divider"></div>
+
+        {% set options = [question.option_1, question.option_2, question.option_3, question.option_4] %}
+
+        {% for option in options %}
+        {% if option %}
+
+        <div class="custom-checkbox">
+          <label class="quiz-label">
+            <input class="option" value="{{ option | urlencode }}"
+            data-correct="{{ question['is_correct_' + loop.index | string] }}"
+            {% if question.multiple %} type="checkbox"
+            {% else %} type="radio" name="{{ question.question | urlencode }}" {% endif %}>
+            <img class="empty-checkbox mr-3"/>
+          </label>
+          <span class="label-area">{{ frappe.utils.md_to_html(option) }}</span>
+        </div>
+
+        {% set explanation = question['explanation_' + loop.index | string] %}
+        {% if explanation %}
+        <small class="explanation muted-text hide">{{ explanation }}</small>
+        {% endif %}
+
+        <div class="card-divider"></div>
+        {% endif %}
+        {% endfor %}
+
+      </div>
+      {% endfor %}
     </div>
-    {% endif %}
-    {% endfor %}
-  </div>
-  {% endfor %}
-  <button class="btn btn-secondary hide mb-5" id="try-again">Try Again</button>
-  <button class="btn btn-primary" id="submit-quiz">Submit</button>
-  <h4 class="success-message"></h4>
-  <h5 class="score text-muted"></h5>
-</form>
+    <div class="quiz-footer">
+      <span class="font-weight-bold"> <span class="current-question">1</span> of {{ quiz.questions | length }}</span>
+      <button class="btn btn-primary pull-right" id="check" disabled>Check</button>
+      <button class="btn btn-primary hide" id="next">Next</button>
+      <button class="btn btn-primary hide" id="summary">Summary</button>
+    </div>
+    <div class="button is-secondary pull-right hide" id="try-again">Try Again</div>
+    <h4 class="success-message"></h4>
+    <h5 class="score text-muted"></h5>
+  </form>
+</div>

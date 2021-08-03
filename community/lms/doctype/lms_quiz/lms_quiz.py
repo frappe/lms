@@ -46,34 +46,30 @@ class LMSQuiz(Document):
             return result[0]
 
 @frappe.whitelist()
-def submit(quiz, result):
+def quiz_summary(quiz, results):
     score = 0
-    answer_map = {
-        "is_correct_1": "option_1",
-        "is_correct_2": "option_2",
-        "is_correct_3": "option_3",
-        "is_correct_4": "option_4"
-    }
-    result = json.loads(result)
-    quiz_details = frappe.get_doc("LMS Quiz", quiz)
+    results = json.loads(results)
 
-    for response in result:
-        match = list(filter(lambda x: x.question == response.get("question"), quiz_details.questions))[0]
-        correct_options = quiz_details.get_correct_options(match)
-        correct_answers = [ match.get(answer_map[option]) for option in correct_options ]
+    for result in results:
+        correct = result["is_correct"][0]
+        result["question"] = frappe.db.get_value("LMS Quiz Question",
+                            {"parent": quiz, "idx": result["question_index"]},
+                            ["question"])
 
-        if response.get("answer") == correct_answers:
-            response["result"] = "Right"
-            score += 1
-        else:
-            response["result"] = "Wrong"
-        response["answer"] = ("").join([ ans if idx == len(response.get("answer")) -1 else ans + ", "  for idx, ans in enumerate(response.get("answer")) ])
+        for point in result["is_correct"]:
+            correct = correct and point
+
+        result["result"] = "Right" if correct else "Wrong"
+        score += correct
+
+        del result["is_correct"]
+        del result["question_index"]
 
     frappe.get_doc({
         "doctype": "LMS Quiz Submission",
         "quiz": quiz,
-        "result": result,
+        "result": results,
         "score": score
     }).save(ignore_permissions=True)
-    update_progress(quiz_details.lesson)
+
     return score
