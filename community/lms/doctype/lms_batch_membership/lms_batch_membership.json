@@ -37,6 +37,7 @@
    "fieldname": "member_type",
    "fieldtype": "Select",
    "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Member Type",
    "options": "\nStudent\nMentor\nStaff"
   },
@@ -44,7 +45,6 @@
    "default": "Member",
    "fieldname": "role",
    "fieldtype": "Select",
-   "in_standard_filter": 1,
    "label": "Role",
    "options": "\nMember\nAdmin"
   },
@@ -63,9 +63,10 @@
   {
    "fetch_from": "batch.course",
    "fieldname": "course",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Course"
+   "label": "Course",
+   "options": "LMS Course"
   },
   {
    "fieldname": "current_lesson",
@@ -83,7 +84,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-07-06 20:50:46.885325",
+ "modified": "2021-08-04 17:10:42.708479",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch Membership",
