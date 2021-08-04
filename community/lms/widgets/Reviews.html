@@ -18,9 +18,11 @@
       <div class="review-card-footer">
         <div>
           {{ widgets.Avatar(member=review.owner_details, avatar_class="avatar-medium") }}
-          <span class="course-instructor">
-            {{ review.owner_details.full_name }}
-          </span>
+          <a class="button-links" href="/{{review.owner_details.username}}">
+            <span class="course-instructor">
+              {{ review.owner_details.full_name }}
+            </span>
+          </a>
         </div>
         <div class="rating">
           {% for i in [1, 2, 3, 4, 5] %}

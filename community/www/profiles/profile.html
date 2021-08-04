@@ -35,21 +35,24 @@
       {% endif %}
       <span class="social-icons">
         {% if member.linkedin %}
-        <a class="linkedin" href="{{ member.linkedin }}">
+        <a class="linkedin button-links" href="{{ member.linkedin }}">
           <img src="/assets/community/images/linkedin.png">
         </a>
         {% endif %}
         {% if member.medium %}
-        <a class="medium" href="{{ member.medium}}">
+        <a class="medium button-links" href="{{ member.medium}}">
           <img src="/assets/community/icons/medium.svg">
         </a>
         {% endif %}
         {% if member.github %}
-        <a class="github" href="{{ member.github }}">
+        <a class="github button-links" href="{{ member.github }}">
           <img src="/assets/community/icons/github.svg">
         </a>
         {% endif %}
       </span>
+      {% if frappe.session.user == member.email %}
+      <a class="dark-links pull-right" href="edit-profile?name={{ member.email }}">Edit Profile</a>
+      {% endif %}
     </div>
   </div>
 </div>

@@ -1214,7 +1214,19 @@ input[type=checkbox] {
   left: 174px;
   font-size: 12px;
   line-height: 165%;
-  width: fit-content;
+  width: 85%;
+}
+
+@media (max-width: 1200px) {
+  .profile-profession {
+    width: 75%;
+  }
+}
+
+@media (max-width: 767px) {
+  .profile-profession {
+    width: 60%;
+  }
 }
 
 @media (max-width: 500px) {
@@ -1228,6 +1240,7 @@ input[type=checkbox] {
   .profile-profession {
     top: 5px;
     left: 70px;
+    width: 75%;
   }
 }
 

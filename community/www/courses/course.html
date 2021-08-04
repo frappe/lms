@@ -102,24 +102,33 @@
       </div>
       {{ widgets.MemberCard(member=course.get_instructor(), show_course_count=True, dimension_class="member-card-large") }}
     </div>
-    {% if course.get_course_progress() %}
+    {% set progress = course.get_course_progress() %}
+    {% if progress %}
     <div class="course-progress-section">
       <div class="course-home-headings">
         Your Progress
       </div>
       <div class="common-card-style progress-card">
         <p class="small-title">
+          {% if progress != 100 %}
           Great work so far!
+          {% else %}
+          Excellent Work on completing this course 👏
+          {% endif %}
         </p>
         <p class="progress-text">
+          {% if progress != 100 %}
           Challenge yourself to complete the lessons and grow professionally.
+          {% else %}
+          You have reached a new level in your journey to success!
+          {% endif %}
         </p>
         <div class="progress-percentage">
-          {{ frappe.utils.rounded(course.get_course_progress()) }}%
+          {{ frappe.utils.rounded(progress) }}%
         </div>
         <div class="progress">
-          <div class="progress-bar" role="progressbar" style="width: {{ course.get_course_progress() }}%"
-            aria-valuenow="{{ course.get_course_progress() }}" aria-valuemin="0" aria-valuemax="100"></div>
+          <div class="progress-bar" role="progressbar" style="width: {{ progress }}%"
+            aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
       </div>
     </div>

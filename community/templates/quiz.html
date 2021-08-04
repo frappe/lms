@@ -7,8 +7,8 @@
     <div class="questions">
       {% for question in quiz.questions %}
       <div class="question {% if loop.index == 1 %} active-question {% else %} hide {% endif %}"
-        data-question="{{ question.question }}"data-multi="{{ question.multiple}}" data-qt-index="{{ loop.index }}">
-        <p>{{ question.question }}</p>
+        data-question="{{ question.question }}" data-multi="{{ question.multiple}}" data-qt-index="{{ loop.index }}">
+        <p>{{ frappe.utils.md_to_html(question.question) }}</p>
 
         {% if question.multiple %}
         <small class="font-weight-bold">Choose all answers that apply:</small>
