@@ -17,10 +17,9 @@ def get_context(context):
             index_ = get_lesson_index(context.course, context.batch, frappe.session.user) or "1.1"
         else:
             index_ = "1.1"
-        frappe.local.flags.redirect_location = context.course.get_learn_url(index_) + context.course.query_parameter
-        raise frappe.Redirect
+        utils.redirect_to_lesson(context.course, index_)
 
-    context.lesson = list(filter(lambda x: cstr(x.number) == lesson_number, context.lessons))[0]
+    context.lesson = get_current_lesson_details(lesson_number, context)
     neighbours = context.course.get_neighbours(lesson_number, context.lessons)
     context.next_url = get_learn_url(neighbours["next"], context.course)
     context.prev_url = get_learn_url(neighbours["prev"], context.course)
@@ -39,6 +38,12 @@ def get_context(context):
         "lesson": context.lesson.name,
         "is_member": context.membership is not None
     }
+
+def get_current_lesson_details(lesson_number, context):
+    details_list = list(filter(lambda x: cstr(x.number) == lesson_number, context.lessons))
+    if not len(details_list):
+        utils.redirect_to_lesson(context.course)
+    return details_list[0]
 
 def get_learn_url(lesson_number, course):
     return course.get_learn_url(lesson_number) and course.get_learn_url(lesson_number) + course.query_parameter
