@@ -2,8 +2,27 @@ import frappe
 from frappe.core.doctype.user.user import User
 from frappe.utils import cint
 import hashlib
+import random
+import re
+from frappe import _
 
 class CustomUser(User):
+
+    """ def validate(self):
+        super(CustomUser, self).validate()
+        self.validate_username() """
+
+    """ def validate_username(self):
+        if self.is_new():
+            if self.username.find(" "):
+                self.username.replace(" ", "")
+            if not self.username:
+                self.username = frappe.scrub(self.first_name) + random.randint()
+
+        elif not re.match("^[A-Za-z0-9_]*$", self.username):
+            frappe.throw(_("Username can only contain alphabets, numbers and underscore.")) """
+
+
 
     def get_authored_courses(self) -> int:
         """Returns the number of courses authored by this user.
