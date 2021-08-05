@@ -194,7 +194,13 @@ class LMSCourse(Document):
         """Returns the {chapter_index}.{lesson_index} for the lesson.
         """
         lesson = frappe.db.get_value("Lessons", {"lesson": lesson_name}, ["idx", "parent"], as_dict=True)
+        if not lesson:
+            return None
+
         chapter = frappe.db.get_value("Chapters", {"chapter": lesson.parent}, ["idx"], as_dict=True)
+        if not chapter:
+            return None
+
         return f"{chapter.idx}.{lesson.idx}"
 
     def reindex_exercises(self):

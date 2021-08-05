@@ -58,6 +58,7 @@ var mark_active_question = (e = undefined) => {
   $(".current-question").text(`${next_index}`);
   $("#check").removeClass("hide").attr("disabled", true);
   $("#next").addClass("hide");
+  $(".explanation").addClass("hide");
 }
 
 var mark_progress = (e) => {

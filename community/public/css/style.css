@@ -780,7 +780,7 @@ input[type=checkbox] {
 }
 
 .lesson-links {
-  display: flex;
+  display: block;
   padding: 0 1rem;
   margin-bottom: .25rem;
   color: inherit;
@@ -792,6 +792,13 @@ input[type=checkbox] {
   background: #F4F5F6;
   color: inherit;
   border-radius: .25rem;
+}
+
+.course-content-parent .lesson-links {
+  padding: 0 0 0 1rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
+  line-height: 200%;
 }
 
 .chapter-content {
