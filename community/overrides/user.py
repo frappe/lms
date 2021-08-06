@@ -2,8 +2,49 @@ import frappe
 from frappe.core.doctype.user.user import User
 from frappe.utils import cint
 import hashlib
+import random
+import re
+from frappe import _
 
 class CustomUser(User):
+
+    def validate(self):
+        super(CustomUser, self).validate()
+        self.validate_username_characters()
+
+    def validate_username_characters(self):
+        if self.is_new():
+
+            if self.username.find(" "):
+                self.username.replace(" ", "")
+
+            if not re.match("^[A-Za-z0-9_]*$", self.username):
+                self.username = self.remove_illegal_characters()
+
+            if not self.username:
+                self.username = self.get_username_from_first_name()
+
+            if self.username_exists():
+                self.username = self.remove_illegal_characters() + str(random.randint(0, 99))
+
+        else:
+            if not re.match("^[A-Za-z0-9_-]*$", self.username):
+                frappe.throw(_("Username can only contain alphabets, numbers, hyphen and underscore."))
+
+            if self.username[0] == "-" or self.username[len(self.username) - 1] == "-":
+                frappe.throw(_("First and Last character of username cannot be Hyphen(-)."))
+
+    def get_username_from_first_name(self):
+        return frappe.scrub(self.first_name) + str(random.randint(0, 99))
+
+    def remove_illegal_characters(self):
+        username = ''.join([c for c in self.username if c.isalnum() or c in ['-', '_']])
+        while username[0] == "-" or username[len(username) - 1] == "-":
+            if username[0] == "-":
+                username = username[1:]
+            if username[len(username) - 1]:
+                username = username[:1]
+        return username
 
     def get_authored_courses(self) -> int:
         """Returns the number of courses authored by this user.
