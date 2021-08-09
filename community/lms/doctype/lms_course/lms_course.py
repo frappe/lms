@@ -3,6 +3,7 @@
 # For license information, please see license.txt
 
 from __future__ import unicode_literals
+from re import sub
 import frappe
 from frappe.model.document import Document
 import json
@@ -12,6 +13,38 @@ from frappe.utils import flt, cint
 from ...utils import slugify
 
 class LMSCourse(Document):
+
+    def on_update(self):
+        if not self.upcoming and self.has_value_changed("upcoming"):
+            self.send_email_to_interested_users()
+
+    def send_email_to_interested_users(self):
+        interested_users = frappe.get_all("LMS Course Interest",
+                                            {
+                                                "course": self.name
+                                            },
+                                            ["name", "user"])
+        subject = self.title + " is available!"
+        args = {
+            "title": self.title,
+            "course_link": "/courses/{0}".format(self.name),
+            "app_name": frappe.db.get_single_value("System Settings", "app_name"),
+            "site_url": frappe.utils.get_url()
+        }
+
+        for user in interested_users:
+            args["first_name"] = frappe.db.get_value("User", user.user, "first_name")
+            email_args = frappe._dict(
+                            recipients = user.user,
+                            sender = frappe.db.get_single_value("LMS Settings", "email_sender"),
+                            subject = subject,
+                            header = [subject, "green"],
+                            template = "lms_course_interest",
+                            args = args,
+                            now = True
+                        )
+            frappe.enqueue(method=frappe.sendmail, queue='short', timeout=300, is_async=True, **email_args)
+            frappe.db.set_value("LMS Course Interest", user.name, "email_sent", True)
 
     @staticmethod
     def find(name):
