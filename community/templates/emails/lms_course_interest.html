@@ -1,0 +1,19 @@
+<div>
+	{% set site_link = "<a href='" + site_url + "'>" + app_name + "</a>" %}
+	<p>{{ _("Hi {0},").format(first_name) }}</p>
+  <br>
+	<p>{{ _("The course {0} is now available on {1}.").format(frappe.bold(title), app_name) }}</p>
+  <br>
+	<p>Click on the link below to start learning.</p>
+	<p style="margin: 15px 0px;">
+		<a href="{{ course_link }}" rel="nofollow" class="btn btn-primary">{{ _("Start Learning") }}</a>
+	</p>
+	<br>
+	<p>
+		{{ _("You can also copy-paste following link in your browser") }}<br>
+		<a href="{{ course_link }}">{{ site_url }}{{ course_link }}</a>
+	</p>
+	<br>
+	<p>Thanks and Regards,</p>
+	<p>{{ app_name }}</p>
+</div>

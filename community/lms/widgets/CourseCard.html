@@ -58,7 +58,7 @@
     {% set query_parameter = "?batch=" + membership.batch if membership and membership.batch else "" %}
 
     {% if course.upcoming %}
-    <div class="view-course-link is-default">
+    <div class="view-course-link is-secondary border">
       Upcoming Course <img class="ml-3" src="/assets/community/icons/black-arrow.svg" />
     </div>
     <a class="stretched-link" href="/courses/{{ course.name }}"></a>

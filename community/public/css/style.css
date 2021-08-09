@@ -635,6 +635,11 @@ input[type=checkbox] {
   font-size: 12px;
   line-height: 135%;
   letter-spacing: -0.011em;
+  border: none;
+}
+
+.button:disabled {
+  cursor: not-allowed;
 }
 
 .wide-button {
@@ -660,6 +665,11 @@ input[type=checkbox] {
   color: inherit;
 }
 
+.is-default {
+  background: #98A1A9;
+  color: #ffffff;
+}
+
 @media (max-width: 600px) {
   .video-preview {
     margin-top: 16px;
@@ -674,12 +684,6 @@ input[type=checkbox] {
 .is-primary:hover {
   text-decoration: none;
   color: #FFFFFF;
-}
-
-.is-default {
-  background-color: white;
-  border: 1px solid #C8CFD5;
-  box-sizing: border-box;
 }
 
 .course-home-outline {

@@ -58,6 +58,12 @@
         Continue Learning <img class="ml-2" src="/assets/community/icons/white-arrow.svg" />
       </a>
       {% endif %}
+      {% if course.upcoming %}
+      <button class="button wide-button is-default" id="notify-me" data-course="{{course.name | urlencode}}"
+      {% if is_user_interested %} disabled="disabled" title="Your interest has already been noted." {% endif %} >
+        Notify me when available
+      </button>
+      {% endif %}
       {% if course.video_link %}
       <div class="button wide-button is-secondary video-preview">
         Watch Video Preview

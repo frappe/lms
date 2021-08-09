@@ -41,6 +41,10 @@ frappe.ready(() => {
     submit_review(e);
   })
 
+  $("#notify-me").click((e) => {
+    notify_user(e);
+  })
+
 })
 
 var check_mentor_request = () => {
@@ -206,6 +210,26 @@ var submit_review = (e) => {
           window.location.reload();
         }, 2000);
       }
+    }
+  })
+}
+
+var notify_user = (e) => {
+  e.preventDefault();
+  var course = decodeURIComponent($(e.currentTarget).attr("data-course"));
+  if (frappe.session.user == "Guest") {
+    window.location.href = `/login?redirect-to=/courses/${course}`;
+    return;
+  }
+
+  frappe.call({
+    method: "community.lms.doctype.lms_course_interest.lms_course_interest.capture_interest",
+    args: {
+      "course": course
+    },
+    callback: (data) => {
+      frappe.msgprint(__("Your interest has been noted. We'll notify you via email when this course becomes available."));
+      $("#notify-me").attr("disabled", true).attr("title", "Your interest has already been noted");
     }
   })
 }
