@@ -3,7 +3,6 @@
 # For license information, please see license.txt
 
 from __future__ import unicode_literals
-from re import sub
 import frappe
 from frappe.model.document import Document
 import json
