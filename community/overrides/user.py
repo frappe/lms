@@ -13,16 +13,23 @@ class CustomUser(User):
         self.validate_username_characters()
 
     def validate_username_characters(self):
-        if self.is_new():
+        if len(self.username):
+            underscore_condition = self.username[0] == "_" or self.username[-1] == "_"
+        else:
+            underscore_condition = ''
 
+        if self.is_new():
             if not self.username:
                 self.username = self.get_username_from_first_name()
 
             if self.username.find(" "):
                 self.username.replace(" ", "")
 
-            if not re.match("^[A-Za-z0-9_]*$", self.username):
+            if not re.match("^[A-Za-z0-9_]*$", self.username) or underscore_condition:
                 self.username = self.remove_illegal_characters()
+
+            if len(self.username) < 4:
+                self.username = self.email.replace("@", "").replace(".", "")
 
             while self.username_exists():
                 self.username = self.remove_illegal_characters() + str(random.randint(0, 99))
@@ -34,8 +41,11 @@ class CustomUser(User):
             if not re.match("^[A-Za-z0-9_]*$", self.username):
                 frappe.throw(_("Username can only contain alphabets, numbers and unedrscore."))
 
-            if self.username[0] == "_" or self.username[len(self.username) - 1] == "_":
+            if underscore_condition:
                 frappe.throw(_("First and Last character of username cannot be Underscore(_)."))
+
+            if len(self.username) < 4:
+                frappe.throw(_("Username cannot be less than 4 characters"))
 
     def get_username_from_first_name(self):
         return frappe.scrub(self.first_name) + str(random.randint(0, 99))
