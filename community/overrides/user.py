@@ -13,38 +13,45 @@ class CustomUser(User):
         self.validate_username_characters()
 
     def validate_username_characters(self):
+        if len(self.username):
+            underscore_condition = self.username[0] == "_" or self.username[-1] == "_"
+        else:
+            underscore_condition = ''
+
         if self.is_new():
+            if not self.username:
+                self.username = self.get_username_from_first_name()
 
             if self.username.find(" "):
                 self.username.replace(" ", "")
 
-            if not re.match("^[A-Za-z0-9_]*$", self.username):
+            if not re.match("^[A-Za-z0-9_]*$", self.username) or underscore_condition:
                 self.username = self.remove_illegal_characters()
 
-            if not self.username:
-                self.username = self.get_username_from_first_name()
+            if len(self.username) < 4:
+                self.username = self.email.replace("@", "").replace(".", "")
 
-            if self.username_exists():
+            while self.username_exists():
                 self.username = self.remove_illegal_characters() + str(random.randint(0, 99))
 
         else:
-            if not re.match("^[A-Za-z0-9_-]*$", self.username):
-                frappe.throw(_("Username can only contain alphabets, numbers, hyphen and underscore."))
+            if not self.username:
+                frappe.throw(_("Username already exists."))
 
-            if self.username[0] == "-" or self.username[len(self.username) - 1] == "-":
-                frappe.throw(_("First and Last character of username cannot be Hyphen(-)."))
+            if not re.match("^[A-Za-z0-9_]*$", self.username):
+                frappe.throw(_("Username can only contain alphabets, numbers and unedrscore."))
+
+            if underscore_condition:
+                frappe.throw(_("First and Last character of username cannot be Underscore(_)."))
+
+            if len(self.username) < 4:
+                frappe.throw(_("Username cannot be less than 4 characters"))
 
     def get_username_from_first_name(self):
         return frappe.scrub(self.first_name) + str(random.randint(0, 99))
 
     def remove_illegal_characters(self):
-        username = ''.join([c for c in self.username if c.isalnum() or c in ['-', '_']])
-        while username[0] == "-" or username[len(username) - 1] == "-":
-            if username[0] == "-":
-                username = username[1:]
-            if username[len(username) - 1]:
-                username = username[:1]
-        return username
+        return re.sub("[^\w]+", "", self.username).strip("_")
 
     def get_authored_courses(self) -> int:
         """Returns the number of courses authored by this user.

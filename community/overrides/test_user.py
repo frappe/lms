@@ -34,14 +34,22 @@ class TestCustomUser(unittest.TestCase):
                     }).insert()
         self.assertEqual(new_user.username[:8], "username")
 
-    def test_with_hyphen_at_end(self):
+    def test_with_underscore_at_end(self):
         new_user = frappe.get_doc({
                         "doctype": "User",
-                        "email": "test_with_hyphen_at_end@example.com",
-                        "first_name": "Username---"
+                        "email": "test_with_underscore_at_end@example.com",
+                        "first_name": "Username___"
                     }).insert()
-        length = len(new_user.username)
-        self.assertNotEqual(new_user.username[length-1], "-")
+        self.assertNotEqual(new_user.username[-1], "_")
+
+
+    def test_with_short_first_name(self):
+        new_user = frappe.get_doc({
+                        "doctype": "User",
+                        "email": "test_with_short_first_name@example.com",
+                        "first_name": "USN"
+                    }).insert()
+        self.assertGreaterEqual(len(new_user.username), 4)
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -49,6 +57,7 @@ class TestCustomUser(unittest.TestCase):
                     "test_with_basic_username@example.com",
                     "test-without-username@example.com",
                     "test_with_illegal_characters@example.com",
-                    "test_with_hyphen_at_end@example.com"
+                    "test_with_underscore_at_end@example.com",
+                    "test_with_short_first_name@example.com"
                 ]
         frappe.db.delete("User", {"name": ["in", users]})
