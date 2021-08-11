@@ -702,6 +702,7 @@ input[type=checkbox] {
   height: fit-content;
   padding-left: 1rem;
   padding-right: 1rem;
+  margin-bottom: 0.75rem;
 }
 
 .chapter-icon {
@@ -813,7 +814,7 @@ input[type=checkbox] {
 }
 
 .lessons {
-  margin: 12px 0px 16px;
+  margin-bottom: 1rem;
 }
 
 .course-buttons {
