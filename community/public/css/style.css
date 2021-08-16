@@ -22,6 +22,14 @@
   --control-bg: var(--gray-100);
   --muted-text: #4C5A67;
   --button-background: #EEF0F2;
+  --text-xs: 11px;
+  --text-sm: 12px;
+  --text-md: 13px;
+  --text-base: 14px;
+  --text-lg: 16px;
+  --text-xl: 18px;
+  --text-2xl: 20px;
+  --text-3xl: 22px;
 }
 
 body {
@@ -76,80 +84,8 @@ img.profile-photo {
   padding-right: 5px;
 }
 
-.message {
-  border: 1px dashed var(--text-color);
-  padding: 20px;
-  border-radius: 10px;
-}
-
-.msger-inputarea {
-  width: 100%;
-  display: flex;
-  padding: 10px;
-  border-top: 2px solid #ddd;
-  background: #eee;
-  z-index: 1;
-}
-
-.msger-inputarea * {
-  padding: 10px;
-  border: none;
-  border-radius: 3px;
-  font-size: 1em;
-}
-
-.msger-input {
-  flex: 1;
-  background: #ddd;
-}
-
-.message-section {
-  margin-left: 3%;
-  display: inline-block;
-  width: 95%;
-}
-
-.display-4 {
-  color: #2D005A;
-  font-weight: 600;
-  line-height: 51px;
-}
-
 section {
   padding: 5rem 0 5rem 0;
-}
-
-.messages-container {
-  margin: 0 auto;
-  border: 1px solid black;
-}
-
-.messages {
-  height: 450px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 8px;
-  list-style-type: none;
-}
-
-.messages li {
-  background: #F7F5F5;
-  border-radius: 8px;
-  padding: 8px;
-  margin: 2px 8px 2px 0;
-  width: 40%;
-}
-
-.messages li.ours {
-  align-self: flex-end;
-  margin: 2px 0 2px 8px;
-  background: var(--primary-color);
-  color: #fff
-}
-
-.message-para {
-  font-size: 20px;
 }
 
 .batch-header {
@@ -189,33 +125,6 @@ section {
 
 input[type=checkbox] {
   appearance: auto;
-}
-
-.partiallycomplete {
-  background: #FEF4E2;
-  color: #976417;
-}
-
-.partiallycomplete img {
-  background: #976417;
-}
-
-.complete {
-  background: #EAF5EE;
-  color: #38A160;
-}
-
-.complete img {
-  background: #38A160;
-}
-
-.incomplete {
-  background: #FEECEC;
-  color: #E24C4C;
-}
-
-.incomplete img {
-  background: #E24C4C;
 }
 
 .progress-image {
@@ -276,6 +185,7 @@ input[type=checkbox] {
 .common-page-style {
   background: #F4F5F6;
   padding-bottom: 2rem;
+  min-height: 60vh;
 }
 
 .common-card-style {
@@ -696,10 +606,11 @@ input[type=checkbox] {
 
 .chapter-title {
   font-weight: bold;
-  margin: 0 .25rem .5rem;
+  margin: 0 .25rem 0;
   cursor: pointer;
   display: flex;
   align-items: center;
+  padding-bottom: 0.5rem;
 }
 
 .chapter-description {
@@ -1350,4 +1261,37 @@ pre {
 
 .markdown-source h4 {
   font-size: 1rem;
+}
+
+.thread-card {
+  flex-direction: column;
+  padding: 1.5rem;
+}
+
+textarea.form-control {
+  height: 300px;
+}
+
+.discussion-on-page textarea.form-control {
+  background-color: #FFFFFF;
+  color: inherit;
+  height: 160px;
+}
+
+.comment-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.comment-field {
+  font-size: inherit;
+}
+
+.thread-title {
+  font-size: inherit;
+}
+
+.message-author {
+  color: #192734;
+  margin-left: 0.5rem;
 }

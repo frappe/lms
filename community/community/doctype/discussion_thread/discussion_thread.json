@@ -30,7 +30,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-08-11 10:55:29.341674",
+ "modified": "2021-08-11 12:29:43.564123",
  "modified_by": "Administrator",
  "module": "Community",
  "name": "Discussion Thread",
@@ -49,7 +49,9 @@
    "write": 1
   }
  ],
+ "search_fields": "title",
  "sort_field": "modified",
  "sort_order": "DESC",
+ "title_field": "title",
  "track_changes": 1
 }

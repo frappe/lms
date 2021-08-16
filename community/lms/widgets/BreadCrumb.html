@@ -1,8 +1,9 @@
 <div class="breadcrumb">
-  <a class="dark-links" href="/courses">All Courses</a>
-  <img class="ml-1 mr-1" src="/assets/community/icons/chevron-right.svg">
+
 
   {% if course %}
+  <a class="dark-links" href="/courses">All Courses</a>
+  <img class="ml-1 mr-1" src="/assets/community/icons/chevron-right.svg">
   {% if lesson %}
   <a class="dark-links" href="/courses/{{ course.name }}">{{ course.title }}</a>
   <img class="ml-1 mr-1" src="/assets/community/icons/chevron-right.svg">
@@ -12,8 +13,9 @@
   {% endif %}
   {% endif %}
 
-  {% if member_name %}
-  <span class="muted-text">{{ member_name }}</span>
+  {% if thread %}
+  <a class="dark-links" href="/discussions">Discussions</a>
+  <img class="ml-1 mr-1" src="/assets/community/icons/chevron-right.svg">
+  <span class="muted-text">{{ thread.title }}</span>
   {% endif %}
-
 </div>

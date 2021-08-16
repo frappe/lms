@@ -169,6 +169,7 @@ var show_review_dialog = (e) => {
 }
 
 var rotate_chapter_icon = (e) => {
+  e.preventDefault();
   var icon = $(e.currentTarget).children(".chapter-icon");
   if (icon.css("transform") == "none") {
     icon.css("transform", "rotate(90deg)");
