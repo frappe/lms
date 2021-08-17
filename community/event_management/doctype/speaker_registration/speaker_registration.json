@@ -1,0 +1,146 @@
+{
+ "actions": [],
+ "autoname": "SPEAKER-REGIS.####.",
+ "creation": "2021-08-11 10:37:32.124651",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "speaker_info_section",
+  "full_name",
+  "email",
+  "phone_number",
+  "job_title",
+  "company",
+  "column_break_8",
+  "picture",
+  "bio",
+  "talk_info_section",
+  "topic",
+  "title",
+  "column_break_13",
+  "about",
+  "attachment",
+  "status"
+ ],
+ "fields": [
+  {
+   "fieldname": "speaker_info_section",
+   "fieldtype": "Section Break",
+   "label": "Speaker Info"
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "label": "Email",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "phone_number",
+   "fieldtype": "Data",
+   "label": "Phone Number",
+   "unique": 1
+  },
+  {
+   "fieldname": "job_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Job Title"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Company"
+  },
+  {
+   "fieldname": "picture",
+   "fieldtype": "Attach Image",
+   "label": "Picture"
+  },
+  {
+   "fieldname": "bio",
+   "fieldtype": "Text",
+   "label": "Bio"
+  },
+  {
+   "fieldname": "talk_info_section",
+   "fieldtype": "Section Break",
+   "label": "Talk Info"
+  },
+  {
+   "fieldname": "topic",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Topic",
+   "options": "Delivery\nCloud\nCustomer Success\nMarketing\nDevelopment\nHR\nCustomer Stories",
+   "reqd": 1
+  },
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "about",
+   "fieldtype": "Text",
+   "label": "About",
+   "reqd": 1
+  },
+  {
+   "fieldname": "attachment",
+   "fieldtype": "Attach",
+   "label": "Attachment"
+  },
+  {
+   "fieldname": "column_break_8",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_13",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Applied",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Applied\nPending\nApproved\nRejected"
+  },
+  {
+   "fieldname": "full_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Full Name",
+   "reqd": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2021-08-17 00:31:28.656127",
+ "modified_by": "Administrator",
+ "module": "Event Management",
+ "name": "Speaker Registration",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

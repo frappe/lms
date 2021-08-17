@@ -1,0 +1,91 @@
+{
+ "actions": [],
+ "autoname": "field:event_name",
+ "creation": "2021-08-11 10:05:41.072432",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "event_name",
+  "start_date",
+  "end_date",
+  "event_details",
+  "hero_section",
+  "title",
+  "description",
+  "illustration",
+  "cta"
+ ],
+ "fields": [
+  {
+   "fieldname": "event_name",
+   "fieldtype": "Data",
+   "label": "Event Name",
+   "unique": 1
+  },
+  {
+   "fieldname": "start_date",
+   "fieldtype": "Date",
+   "label": "Start Date"
+  },
+  {
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "label": "End Date"
+  },
+  {
+   "fieldname": "event_details",
+   "fieldtype": "Markdown Editor",
+   "label": "Event Details"
+  },
+  {
+   "fieldname": "hero_section",
+   "fieldtype": "Section Break",
+   "label": "Hero "
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Data",
+   "label": "Description"
+  },
+  {
+   "fieldname": "illustration",
+   "fieldtype": "Attach Image",
+   "label": "Illustration"
+  },
+  {
+   "fieldname": "cta",
+   "fieldtype": "Data",
+   "label": "CTA"
+  },
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Title"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2021-08-12 12:06:51.911680",
+ "modified_by": "Administrator",
+ "module": "Event Management",
+ "name": "Event Details",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

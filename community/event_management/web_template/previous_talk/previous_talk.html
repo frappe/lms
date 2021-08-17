@@ -1,0 +1,46 @@
+{% set thumbnail_url = 'https://img.youtube.com/vi/JmOJtYW-0GI/maxresdefault.jpg' %}
+
+
+  <div class="courses-header">{{title}}</div>
+  <div class="cards-parent">
+    <div class="common-card-style talk-card mt-5">
+      <div
+        class="course-image"
+        style="background-image: url({{thumbnail_url}})"
+      >
+        <div class="course-tags"></div>
+      </div>
+      <div class="course-card-content">
+        <div class="course-card-meta muted-text">
+          <span> {{topic}} </span>
+        </div>
+        <div class="course-card-title">{{topic_title}}</div>
+        <div class="card-divider"></div>
+        <div class="course-card-meta-2">
+          <a class="button-links" href="/rushabh">
+            <span class="avatar avatar-small" title="Rushabh Mehta">
+              <img
+                class="avatar-frame standard-image"
+                style="object-fit: cover"
+                src="https://secure.gravatar.com/avatar/eeca4f691bffd042fc17aea885c4b439?d=404&amp;s=200"
+                title={{name}}
+              />
+            </span>
+          </a>
+          <span class="course-instructor"> {{name}} </span>
+          <span class="small-title company-name">{{</span>
+
+        </div>
+
+        <div class="view-talk-link">
+			Vew Talk
+          <img class="ml-3" src="/assets/community/icons/black-arrow.svg" />
+        </div>
+        <a
+          class="stretched-link"
+          href="{{talk_url}}"
+        ></a>
+      </div>
+    </div>
+  </div>
+

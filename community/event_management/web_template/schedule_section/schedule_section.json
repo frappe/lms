@@ -1,0 +1,42 @@
+{
+ "__unsaved": 1,
+ "creation": "2021-08-17 16:43:49.506200",
+ "docstatus": 0,
+ "doctype": "Web Template",
+ "fields": [
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Title",
+   "reqd": 0
+  },
+  {
+   "fieldname": "subtitle",
+   "fieldtype": "Data",
+   "label": "Subtitle",
+   "reqd": 0
+  },
+  {
+   "fieldname": "schedule_details",
+   "fieldtype": "Table Break",
+   "label": "schedule_details",
+   "reqd": 0
+  },
+  {
+   "fieldname": "schedule",
+   "fieldtype": "Link",
+   "label": "Schedule",
+   "options": "Schedule",
+   "reqd": 0
+  }
+ ],
+ "idx": 0,
+ "modified": "2021-08-17 16:47:40.356368",
+ "modified_by": "Administrator",
+ "module": "Event Management",
+ "name": "Schedule Section",
+ "owner": "Administrator",
+ "standard": 1,
+ "template": "",
+ "type": "Section"
+}

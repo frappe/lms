@@ -1,0 +1,77 @@
+{
+ "actions": [],
+ "creation": "2021-08-11 10:07:53.262504",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "attendee_info_section",
+  "name1",
+  "email",
+  "phone_number",
+  "occupation",
+  "company",
+  "what_are_you_hoping_to_learn"
+ ],
+ "fields": [
+  {
+   "fieldname": "attendee_info_section",
+   "fieldtype": "Section Break",
+   "label": "Attendee Info"
+  },
+  {
+   "fieldname": "name1",
+   "fieldtype": "Data",
+   "label": "Name"
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "label": "Email"
+  },
+  {
+   "fieldname": "phone_number",
+   "fieldtype": "Data",
+   "label": "Phone Number"
+  },
+  {
+   "fieldname": "occupation",
+   "fieldtype": "Data",
+   "label": "Occupation"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Data",
+   "label": "Company"
+  },
+  {
+   "fieldname": "what_are_you_hoping_to_learn",
+   "fieldtype": "Text",
+   "label": "What are you hoping to learn"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2021-08-11 10:07:53.262504",
+ "modified_by": "Administrator",
+ "module": "Event Management",
+ "name": "Attendee Registration",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

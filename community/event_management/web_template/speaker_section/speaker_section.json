@@ -1,0 +1,49 @@
+{
+ "__unsaved": 1,
+ "creation": "2021-08-12 21:15:14.492000",
+ "docstatus": 0,
+ "doctype": "Web Template",
+ "fields": [
+  {
+   "fieldname": "section_title",
+   "fieldtype": "Data",
+   "label": "Section Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "subtitle",
+   "fieldtype": "Data",
+   "label": "Subtitle",
+   "reqd": 0
+  },
+  {
+   "__unsaved": 1,
+   "fieldname": "cta_link",
+   "fieldtype": "Data",
+   "label": "CTA Link",
+   "reqd": 0
+  },
+  {
+   "fieldname": "speaker_details",
+   "fieldtype": "Table Break",
+   "label": "Speaker Details",
+   "reqd": 0
+  },
+  {
+   "fieldname": "speaker",
+   "fieldtype": "Link",
+   "label": "Speaker",
+   "options": "Speaker Registration",
+   "reqd": 0
+  }
+ ],
+ "idx": 0,
+ "modified": "2021-08-17 11:13:58.991190",
+ "modified_by": "Administrator",
+ "module": "Event Management",
+ "name": "Speaker Section",
+ "owner": "Administrator",
+ "standard": 1,
+ "template": "",
+ "type": "Section"
+}

@@ -1,0 +1,48 @@
+<div class="common-page-style">
+	<div class="container">
+		<div class="course-content-parent">
+			<div class="course-details-outline">
+				<div class="course-home-headings">{{title}}</div>
+				<div class="coure-outline">
+					<div>
+						{% for day in slot_data %}
+						<div class="small-title chapter-title" data-target="#apps-sites-and-bench"
+							data-toggle="collapse" aria-expanded="false">
+							<img class="chapter-icon" src="/assets/community/icons/chevron-right.svg" />
+							{{day}}
+						</div>
+						<div class="card-divider"></div>
+					</div>
+				</div>
+			</div>
+
+			<div>
+				<div class="course-details-outline">
+					<div class="course-home-headings">{{day}}</div>
+					<div class="coure-outline">
+						{% for slot in slot_data[day] %}
+						<div class="schedule-container">
+							<div class="schedule-slot">
+								{{ frappe.format(slot.start_time, {'fieldtype': 'Time'})}} - {{
+								frappe.format(slot.end_time, {'fieldtype': 'Time'}) }}
+							</div>
+							<div class="schedule-title">{{slot.title}}</div>
+							<span class="avatar avatar-medium avatar-medium-schedule">
+								<img class="avatar-frame" src="{{slot.picture}}" /></span>
+							<button class="btn btn-primary schedule-info-btn" onclick="openInfo()">
+								<img class="drop-down-icon" src="/assets/community/icons/down-arrow-white.svg" />
+							</button>
+						</div>
+						<div class="schedule-info hide">
+							<p>{{slot.about}}</p>
+						</div>
+						
+						<div class="card-divider"></div>
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+			{% endfor %}
+		</div>
+	</div>
+</div>

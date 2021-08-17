@@ -167,7 +167,12 @@ whitelist = [
     "/new-sign-up",
     "/message",
     "/about",
-    "/edit-profile"
+    "/edit-profile",
+    "/attendee-registration",
+    "/speaker-registration",
+    "/event",
+    "/hello",
+    "/exhibitor-registration"
 ]
 whitelist_rules = [{"from_route": p, "to_route": p[1:]} for p in whitelist]
 

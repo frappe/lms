@@ -2,3 +2,4 @@ Community
 Hackathon
 LMS
 Conference
+Event Management
