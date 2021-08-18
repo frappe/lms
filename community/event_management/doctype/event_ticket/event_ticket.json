@@ -5,6 +5,7 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "event",
   "ticket",
   "attendee"
  ],
@@ -19,11 +20,17 @@
    "fieldtype": "Link",
    "label": "attendee",
    "options": "Attendee Registration"
+  },
+  {
+   "fieldname": "event",
+   "fieldtype": "Link",
+   "label": "Event",
+   "options": "Event Details"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-08-11 11:17:28.452289",
+ "modified": "2021-08-18 09:51:14.654098",
  "modified_by": "Administrator",
  "module": "Event Management",
  "name": "Event Ticket",

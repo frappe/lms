@@ -18,7 +18,7 @@
  "is_standard": 1,
  "login_required": 1,
  "max_attachment_size": 0,
- "modified": "2021-08-17 11:51:17.008322",
+ "modified": "2021-08-18 11:35:06.067390",
  "modified_by": "Administrator",
  "module": "Event Management",
  "name": "attendee-registration",
@@ -31,7 +31,7 @@
  "show_in_grid": 0,
  "show_sidebar": 0,
  "sidebar_items": [],
- "success_url": "/attendee-registration",
+ "success_url": "/event/conference20221",
  "title": "Attendee Registration",
  "web_form_fields": [
   {

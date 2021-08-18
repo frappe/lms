@@ -18,6 +18,13 @@
   },
   {
    "__unsaved": 1,
+   "fieldname": "event_",
+   "fieldtype": "Link",
+   "label": "Event ",
+   "options": "Event Details",
+   "reqd": 0
+  },
+  {
    "fieldname": "cta_link",
    "fieldtype": "Data",
    "label": "CTA Link",
@@ -37,8 +44,8 @@
    "reqd": 0
   }
  ],
- "idx": 0,
- "modified": "2021-08-17 11:13:58.991190",
+ "idx": 1,
+ "modified": "2021-08-18 10:06:03.032441",
  "modified_by": "Administrator",
  "module": "Event Management",
  "name": "Speaker Section",

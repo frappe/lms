@@ -8,7 +8,7 @@
    "fieldname": "title",
    "fieldtype": "Data",
    "label": "Title",
-   "reqd": 0
+   "reqd": 1
   },
   {
    "fieldname": "subtitle",
@@ -17,68 +17,31 @@
    "reqd": 0
   },
   {
+   "__unsaved": 1,
+   "fieldname": "event",
+   "fieldtype": "Link",
+   "label": "Event",
+   "options": "Event Details",
+   "reqd": 1
+  },
+  {
    "fieldname": "talk_details",
    "fieldtype": "Table Break",
    "label": "Talk Details",
    "reqd": 0
   },
   {
-   "fieldname": "thumbnail",
-   "fieldtype": "Attach Image",
-   "label": "Thumbnail",
-   "reqd": 0
-  },
-  {
-   "fieldname": "thumbnail_url",
-   "fieldtype": "Data",
-   "label": "Thumbnail URL",
-   "reqd": 0
-  },
-  {
-   "fieldname": "topic",
-   "fieldtype": "Data",
-   "label": "Topic",
-   "reqd": 0
-  },
-  {
-   "fieldname": "topic_title",
-   "fieldtype": "Data",
-   "label": "Title",
-   "reqd": 0
-  },
-  {
-   "fieldname": "talk_url",
-   "fieldtype": "Data",
-   "label": "Talk URL",
-   "reqd": 0
-  },
-  {
-   "fieldname": "speaker_details",
-   "fieldtype": "Section Break",
-   "label": "Speaker Details",
-   "reqd": 0
-  },
-  {
-   "fieldname": "name",
-   "fieldtype": "Data",
-   "label": "Name",
-   "reqd": 0
-  },
-  {
-   "fieldname": "image",
-   "fieldtype": "Attach Image",
-   "label": "Image",
-   "reqd": 0
-  },
-  {
-   "fieldname": "cta_label",
-   "fieldtype": "Data",
-   "label": "CTA Label",
+   "__islocal": 1,
+   "__unsaved": 1,
+   "fieldname": "previous_content",
+   "fieldtype": "Link",
+   "label": "Previous Content",
+   "options": "Previous Content",
    "reqd": 0
   }
  ],
- "idx": 0,
- "modified": "2021-08-13 23:02:42.424577",
+ "idx": 1,
+ "modified": "2021-08-18 10:03:50.193908",
  "modified_by": "Administrator",
  "module": "Event Management",
  "name": "Previous Talk",

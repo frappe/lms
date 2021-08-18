@@ -17,8 +17,14 @@
    "reqd": 0
   },
   {
-   "__islocal": 1,
    "__unsaved": 1,
+   "fieldname": "event",
+   "fieldtype": "Link",
+   "label": "Event",
+   "options": "Event Details",
+   "reqd": 0
+  },
+  {
    "fieldname": "cta_link",
    "fieldtype": "Data",
    "label": "CTA Link",
@@ -38,8 +44,8 @@
    "reqd": 0
   }
  ],
- "idx": 0,
- "modified": "2021-08-17 11:44:49.998871",
+ "idx": 1,
+ "modified": "2021-08-18 10:05:11.753576",
  "modified_by": "Administrator",
  "module": "Event Management",
  "name": "Exhibitor Section",

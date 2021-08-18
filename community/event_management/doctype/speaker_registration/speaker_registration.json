@@ -46,18 +46,21 @@
    "fieldname": "job_title",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Job Title"
+   "label": "Job Title",
+   "reqd": 1
   },
   {
    "fieldname": "company",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Company"
+   "label": "Company",
+   "reqd": 1
   },
   {
    "fieldname": "picture",
    "fieldtype": "Attach Image",
-   "label": "Picture"
+   "label": "Profile Image",
+   "reqd": 1
   },
   {
    "fieldname": "bio",
@@ -121,7 +124,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-08-17 00:31:28.656127",
+ "modified": "2021-08-18 09:48:19.602309",
  "modified_by": "Administrator",
  "module": "Event Management",
  "name": "Speaker Registration",

@@ -9,64 +9,41 @@
   "event_name",
   "start_date",
   "end_date",
-  "event_details",
-  "hero_section",
-  "title",
-  "description",
-  "illustration",
-  "cta"
+  "event_details"
  ],
  "fields": [
   {
    "fieldname": "event_name",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Event Name",
+   "reqd": 1,
    "unique": 1
   },
   {
    "fieldname": "start_date",
    "fieldtype": "Date",
-   "label": "Start Date"
+   "in_list_view": 1,
+   "label": "Start Date",
+   "reqd": 1
   },
   {
    "fieldname": "end_date",
    "fieldtype": "Date",
-   "label": "End Date"
+   "in_list_view": 1,
+   "label": "End Date",
+   "reqd": 1
   },
   {
    "fieldname": "event_details",
    "fieldtype": "Markdown Editor",
+   "in_list_view": 1,
    "label": "Event Details"
-  },
-  {
-   "fieldname": "hero_section",
-   "fieldtype": "Section Break",
-   "label": "Hero "
-  },
-  {
-   "fieldname": "description",
-   "fieldtype": "Data",
-   "label": "Description"
-  },
-  {
-   "fieldname": "illustration",
-   "fieldtype": "Attach Image",
-   "label": "Illustration"
-  },
-  {
-   "fieldname": "cta",
-   "fieldtype": "Data",
-   "label": "CTA"
-  },
-  {
-   "fieldname": "title",
-   "fieldtype": "Data",
-   "label": "Title"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-08-12 12:06:51.911680",
+ "modified": "2021-08-18 09:46:06.455633",
  "modified_by": "Administrator",
  "module": "Event Management",
  "name": "Event Details",

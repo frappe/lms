@@ -8,7 +8,7 @@
    "fieldname": "title",
    "fieldtype": "Data",
    "label": "Title",
-   "reqd": 0
+   "reqd": 1
   },
   {
    "fieldname": "subtitle",
@@ -17,21 +17,16 @@
    "reqd": 0
   },
   {
-   "fieldname": "schedule_details",
-   "fieldtype": "Table Break",
-   "label": "schedule_details",
-   "reqd": 0
-  },
-  {
-   "fieldname": "schedule",
+   "__unsaved": 1,
+   "fieldname": "event",
    "fieldtype": "Link",
-   "label": "Schedule",
-   "options": "Schedule",
-   "reqd": 0
+   "label": "Event",
+   "options": "Event Details",
+   "reqd": 1
   }
  ],
  "idx": 0,
- "modified": "2021-08-17 16:47:40.356368",
+ "modified": "2021-08-18 10:13:49.300196",
  "modified_by": "Administrator",
  "module": "Event Management",
  "name": "Schedule Section",
