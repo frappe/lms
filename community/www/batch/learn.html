@@ -27,6 +27,11 @@
         {% if membership %}
         {{ pagination(prev_url, next_url) }}
         {% endif %}
+
+        {% set title = lesson.title + " - " + course.title %}
+        {{ widgets.DiscussionMessage(doctype="Lesson", docname=lesson.name,
+          title=title, condition=membership, button_name="Start Learning",
+          redirect_to="/courses/" + course.name) }}
       </div>
     </div>
   </div>
@@ -45,7 +50,8 @@
   <div class="common-card-style lesson-content-card markdown-source">{{ lesson.render_html() }}</div>
   {% else %}
   <div class="common-card-style lesson-content-card">
-    <span>This lesson is not available for Preview. Please join the course to access this lesson. <a href="/courses/{{ course.name }}">Checkout Course Details.</a></span>
+    <span>This lesson is not available for Preview. Please join the course to access this lesson. <a
+        href="/courses/{{ course.name }}">Checkout Course Details.</a></span>
   </div>
   {% endif %}
 

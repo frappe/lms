@@ -1,0 +1,70 @@
+<div class="discussions">
+
+  <form class="discussion-form {% if doctype or thread %} discussion-on-page {% endif %}" id="discussion-form">
+
+
+    <div class="form-group" {% if title or thread %} style="display: none;" {% endif %}>
+      <div class="control-input-wrapper">
+        <div class="control-input">
+          <input type="text" autocomplete="off" class="input-with-feedback form-control thread-title"
+            data-fieldtype="Data" data-fieldname="feedback_comments" placeholder="Title" spellcheck="false" {% if title
+            %} value="{{ title }}" {% endif %}></input>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="control-input-wrapper">
+        <div class="control-input">
+          <textarea type="text" autocomplete="off" class="input-with-feedback form-control comment-field"
+            data-fieldtype="Text" data-fieldname="feedback_comments" placeholder="Enter a comment..."
+            spellcheck="false"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="comment-footer">
+      <div class="button is-secondary pull-right" id="submit-discussion"
+        {% if doctype %} data-doctype="{{ doctype | urlencode}}" {% endif %}
+        {% if docname %} data-docname="{{ docname | urlencode}}" {% endif %}
+        {% if thread %} data-thread="{{ thread }}" {% endif %}>
+        Post</div>
+    </div>
+  </form>
+</div>
+<script>
+  frappe.ready(() => {
+    $("#submit-discussion").click((e) => {
+      submit_discussion(e);
+    })
+  })
+
+  var submit_discussion = (e) => {
+    var message = $(".comment-field").val().trim();
+
+    if (message) {
+      var doctype = $(e.currentTarget).attr("data-doctype");
+      doctype = doctype ? decodeURIComponent(doctype) : doctype;
+
+      var docname = $(e.currentTarget).attr("data-docname");
+      docname = docname ? decodeURIComponent(docname) : docname;
+
+      frappe.call({
+      method: "community.community.doctype.discussion_thread.discussion_thread.submit_discussion",
+      args: {
+        "doctype": doctype ? doctype : "",
+        "docname": docname ? docname : "",
+        "message": $(".comment-field").val(),
+        "title": $(".thread-title").val(),
+        "thread_name": $(e.currentTarget).attr("data-thread")
+      },
+      callback: (data) => {
+        if (! $(".discussion-on-page").length) {
+          $("#discussion-modal").modal("hide");
+          window.location.href = `/discussions/${data.message}`;
+        }
+      }
+    })
+
+    }
+  }
+</script>

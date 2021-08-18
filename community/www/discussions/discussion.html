@@ -1,0 +1,16 @@
+{% extends "templates/base.html" %}
+{% block title %}{{ thread.title }}{% endblock %}
+{% block head_include %}
+<style>
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="common-page-style">
+  <div class="container">
+    {{ widgets.BreadCrumb(thread=thread) }}
+    <div class="course-home-headings">{{ thread.title }}</div>
+    {{ widgets.DiscussionMessage(thread=thread.name) }}
+  </div>
+</div>
+{% endblock %}

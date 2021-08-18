@@ -1,0 +1,80 @@
+{% if doctype and docname and not thread %}
+
+{% set thread_info = frappe.get_all("Discussion Thread", {"reference_doctype": doctype, "reference_docname": docname},
+["name"]) %}
+
+{% if thread_info | length %}
+{% set thread = thread_info[0].name %}
+{% endif %}
+
+{% endif %}
+
+{% if thread %}
+{% set messages = frappe.get_all("Discussion Message", {"thread": thread}, ["name", "message", "owner", "creation"],
+order_by="creation") %}
+{% endif %}
+
+{% if doctype %}
+<div class="course-home-headings mt-5"> Discussions </div>
+{% endif %}
+
+<div class="messages mt-5">
+  {% for message in messages %}
+    {% include "community/templates/message_card.html" %}
+  {% endfor %}
+</div>
+
+{% if frappe.session.user == "Guest" or (condition is defined and not condition) %}
+<div class="d-flex flex-column align-items-center font-weight-bold">
+  Want to join the discussion?
+  {% if frappe.session.user == "Guest" %}
+  <div class="button is-primary" id="login-from-discussion">Log In</div>
+  {% elif not condition %}
+  <div class="button is-primary" id="login-from-discussion" data-redirect="{{ redirect_to }}">{{ button_name }}</div>
+  {% endif %}
+</div>
+{% else %}
+{{ widgets.DiscussionComment(doctype=doctype, docname=docname, title=title, thread=thread ) }}
+{% endif %}
+
+<script>
+  frappe.ready(() => {
+    setup_socket_io();
+
+    $("#login-from-discussion").click((e) => {
+      login_from_discussion(e);
+    })
+
+  })
+
+  var setup_socket_io = () => {
+    const assets = [
+      "/assets/frappe/js/lib/socket.io.min.js",
+      "/assets/frappe/js/frappe/socketio_client.js",
+    ]
+    frappe.require(assets, () => {
+
+      if (window.dev_server) {
+        frappe.boot.socketio_port = "9000";
+      }
+
+      frappe.socketio.init(9000);
+      var target = $("#submit-discussion");
+
+      frappe.socketio.socket.on("publish_message", (data) => {
+        if (target.attr("data-thread") == data.thread
+          || (decodeURIComponent(target.attr("data-doctype")) == data.thread_info.reference_doctype
+              && decodeURIComponent(target.attr("data-docname")) == data.thread_info.reference_docname)) {
+          $(".comment-field").val("");
+          $(".messages").append(data.template);
+        }
+      })
+    })
+  }
+
+  var login_from_discussion = (e) => {
+    var redirect = $(e.currentTarget).attr("data-redirect") || window.location.href;
+    window.location.href = `/login?redirect-to=${redirect}`;
+  }
+
+</script>

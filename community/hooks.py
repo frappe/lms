@@ -145,7 +145,8 @@ primary_rules = [
     {"from_route": "/courses/<course>/discuss", "to_route": "batch/discuss"},
     {"from_route": "/courses/<course>/about", "to_route": "batch/about"},
     {"from_route": "/courses/<course>/progress", "to_route": "batch/progress"},
-    {"from_route": "/courses/<course>/join", "to_route": "batch/join"}
+    {"from_route": "/courses/<course>/join", "to_route": "batch/join"},
+    {"from_route": "/discussions/<discussion>", "to_route": "discussions/discussion"}
 ]
 
 # Any frappe default URL is blocked by profile-rules, add it here to unblock it
@@ -172,7 +173,8 @@ whitelist = [
     "/speaker-registration",
     "/event",
     "/hello",
-    "/exhibitor-registration"
+    "/exhibitor-registration",
+    "/discussions"
 ]
 whitelist_rules = [{"from_route": p, "to_route": p[1:]} for p in whitelist]
 

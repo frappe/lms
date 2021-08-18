@@ -1,0 +1,12 @@
+<div class="common-card-style thread-card mb-5">
+  <div class="mb-4">
+    {% set member = frappe.get_doc("User", message.owner) %}
+    {{ widgets.Avatar(member=member, avatar_class="avatar-small")}}
+    <a class="button-links" href="/{{ member.username }}">
+      <span class="message-author">{{ member.full_name }}</span>
+    </a>
+    <span class="muted-text pull-right">{{ frappe.utils.format_datetime(message.creation, "dd MMM hh:mm") }}</span>
+  </div>
+  <div class="card-divider"></div>
+  <div>{{ message.message }}</div>
+</div>
