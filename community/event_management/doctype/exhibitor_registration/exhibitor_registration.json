@@ -19,8 +19,7 @@
   {
    "fieldname": "company",
    "fieldtype": "Data",
-   "label": "Company ",
-   "unique": 1
+   "label": "Company "
   },
   {
    "fieldname": "logo",
@@ -30,7 +29,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-08-16 17:01:51.344097",
+ "modified": "2021-08-18 20:08:31.591935",
  "modified_by": "Administrator",
  "module": "Event Management",
  "name": "Exhibitor Registration",

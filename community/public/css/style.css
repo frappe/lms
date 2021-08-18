@@ -1329,7 +1329,7 @@ a.talk-link {
 
 .schedule-inner-container {
   display: grid;
-  grid-template-columns: 1.2fr 3fr 0.4fr;
+  grid-template-columns: 1.2fr 2fr 1fr 0.2fr;
   padding: 0 20px 0;
 }
 
@@ -1342,7 +1342,7 @@ a.talk-link {
 }
 
 .schedule-info{
-  display: none;
+  /* display: none; */
   padding: 20px;
 }
 
@@ -1374,10 +1374,10 @@ a.talk-link {
   object-fit: contain;
 }
 
-.schedule-container:hover > .schedule-info {
+/* .schedule-container:hover > .schedule-info {
   display: block;
   transition: all 0.3s ease-in-out;
-}
+} */
 
 .info-speaker-avatar {
   display: flex;

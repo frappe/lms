@@ -9,7 +9,7 @@
   "event_name",
   "start_date",
   "end_date",
-  "event_details"
+  "event_description"
  ],
  "fields": [
   {
@@ -35,15 +35,15 @@
    "reqd": 1
   },
   {
-   "fieldname": "event_details",
+   "fieldname": "event_description",
    "fieldtype": "Markdown Editor",
    "in_list_view": 1,
-   "label": "Event Details"
+   "label": "Event Description"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-08-18 09:46:06.455633",
+ "modified": "2021-08-18 23:51:30.432691",
  "modified_by": "Administrator",
  "module": "Event Management",
  "name": "Event Details",

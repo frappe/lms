@@ -15,28 +15,36 @@
   {
    "fieldname": "event",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Event",
-   "options": "Event Details"
+   "options": "Event Details",
+   "reqd": 1
   },
   {
    "fieldname": "date",
    "fieldtype": "Date",
-   "label": "Date"
+   "in_list_view": 1,
+   "label": "Date",
+   "reqd": 1
   },
   {
    "fieldname": "start_time",
    "fieldtype": "Time",
-   "label": "Start Time"
+   "in_list_view": 1,
+   "label": "Start Time",
+   "reqd": 1
   },
   {
    "fieldname": "end_time",
    "fieldtype": "Time",
-   "label": "End Time"
+   "in_list_view": 1,
+   "label": "End Time",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-08-16 17:13:28.144260",
+ "modified": "2021-08-18 23:51:47.850435",
  "modified_by": "Administrator",
  "module": "Event Management",
  "name": "Slot",
