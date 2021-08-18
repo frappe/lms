@@ -1295,3 +1295,40 @@ textarea.form-control {
   color: #192734;
   margin-left: 0.5rem;
 }
+
+.certificate-page .common-card-style {
+  flex-direction: column;
+  font-family: Inter;
+  color: black;
+  font-size: 2rem;
+  text-align: center;
+  padding: 5rem;
+  background-image: url(/assets/community/images/certificate-background.png);
+}
+
+.certificate-heading {
+  font-size: 4rem;
+  margin-bottom: 3rem;
+  font-weight: bold;
+}
+
+.certificate-para {
+  margin-bottom: 3rem;
+}
+
+@media (max-width: 768px) {
+  .certificate-page .common-card-style {
+    padding: 2rem;
+    font-size: 1.5rem;
+  }
+
+  .certificate-heading {
+    font-size: 3rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .certificate-heading {
+    font-size: 2rem;
+  }
+}

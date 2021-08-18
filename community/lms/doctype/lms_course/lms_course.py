@@ -347,6 +347,16 @@ class LMSCourse(Document):
                 "next": numbers[index+1] if index+1 < len(numbers) else None
             }
 
+    def is_certified(self):
+        certificate = frappe.get_all("LMS Certification",
+                        {
+                            "student": frappe.session.user,
+                            "course": self.name
+                        })
+        if len(certificate):
+            return certificate[0].name
+        return
+
 @frappe.whitelist()
 def reindex_exercises(doc):
     course_data = json.loads(doc)

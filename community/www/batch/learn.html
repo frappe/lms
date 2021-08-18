@@ -63,7 +63,7 @@
 
   <div>
     {% if prev_url %}
-    <a class="button is-secondary dark-links" href="{{ prev_url }}">
+    <a class="button is-secondary dark-links prev" href="{{ prev_url }}">
       <img class="mr-2" src="/assets/community/icons/left-arrow.svg">
       Prev
     </a>
@@ -87,10 +87,14 @@
 
   <div>
     {% if next_url %}
-    <a class="button is-primary" href="{{ next_url }}">
+    <a class="button is-primary next" href="{{ next_url }}">
       Next
       <img class="ml-2" src="/assets/community/icons/side-arrow-white.svg">
     </a>
+    {% elif course.enable_certification  %}
+    <div class="button is-primary {% if course.get_course_progress() != 100 %} hide {% endif %}" id="certification">
+      Get Certificate
+    </div>
     {% endif %}
   </div>
 
