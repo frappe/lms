@@ -24,6 +24,6 @@ var export_as_pdf = (e) => {
     a.download = button.attr("data-certificate-name");
     a.click();
   }).finally(() => {
-    button.text(__("Export as PDF"))
+    button.text(__("Export"))
   });
 }
