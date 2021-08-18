@@ -18,7 +18,7 @@
  "is_standard": 1,
  "login_required": 1,
  "max_attachment_size": 0,
- "modified": "2021-08-17 11:51:11.852518",
+ "modified": "2021-08-18 14:54:32.498739",
  "modified_by": "Administrator",
  "module": "Event Management",
  "name": "speaker-registration",
@@ -26,12 +26,12 @@
  "payment_button_label": "Buy Now",
  "published": 1,
  "route": "event/conference2021/speaker-registration",
- "route_to_success_link": 0,
+ "route_to_success_link": 1,
  "show_attachments": 0,
  "show_in_grid": 0,
  "show_sidebar": 0,
  "sidebar_items": [],
- "success_url": "/speaker-registration",
+ "success_url": "/event/conference2021/about",
  "title": "Speaker Registration",
  "web_form_fields": [
   {
