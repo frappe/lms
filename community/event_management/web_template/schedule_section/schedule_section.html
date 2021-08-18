@@ -5,7 +5,7 @@
 {% for schedule in schedule_docs %}
 {% set speaker = frappe.get_doc("Speaker Registration", schedule.speaker) %}
 {% set slot = frappe.get_doc("Slot", schedule.slot) %}
-<div class="hide">{{ slot_data.setdefault(slot.date, []).append({
+{% set slot_data = slot_data.setdefault(slot.date, []).append({
 	"slot": slot.name,
 	"start_time": slot.start_time,
 	"end_time": slot.end_time,
@@ -14,7 +14,7 @@
 	"about": speaker.about,
 	"title": speaker.title,
 	"full_name": speaker.full_name
-	}) }}</div>
+	}) %}
 {% endfor %}
 <div class="courses-header">{{title}}</div>
 <div class="common-page-style">
