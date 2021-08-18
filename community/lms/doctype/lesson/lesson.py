@@ -91,42 +91,5 @@ def save_progress(lesson, course, status):
             "lesson": lesson,
             "status": status,
         }).save(ignore_permissions=True)
-    return "OK"
-
-def update_progress(lesson):
-    user = frappe.session.user
-    if not all_dynamic_content_submitted(lesson, user):
-        return
-    if frappe.db.exists("LMS Course Progress", {"lesson": lesson, "owner": user}):
-        course_progress = frappe.get_doc("LMS Course Progress", {"lesson": lesson, "owner": user})
-        course_progress.status = "Complete"
-        course_progress.save(ignore_permissions=True)
-
-def all_dynamic_content_submitted(lesson, user):
-    all_exercises_submitted = check_all_exercise_submission(lesson, user)
-    all_quiz_submitted = check_all_quiz_submitted(lesson, user)
-    return all_exercises_submitted and all_quiz_submitted
-
-def check_all_exercise_submission(lesson, user):
-    exercise_names = frappe.get_list("Exercise", {"lesson": lesson}, pluck="name", ignore_permissions=True)
-    if not len(exercise_names):
-        return True
-    query = {
-        "exercise": ["in", exercise_names],
-        "owner": user
-    }
-    if frappe.db.count("Exercise Submission", query) == len(exercise_names):
-        return True
-    return False
-
-def check_all_quiz_submitted(lesson, user):
-    quizzes = frappe.get_list("LMS Quiz", {"lesson": lesson}, pluck="name", ignore_permissions=True)
-    if not len(quizzes):
-        return True
-    query = {
-        "quiz": ["in", quizzes],
-        "owner": user
-    }
-    if frappe.db.count("LMS Quiz Submission", query) == len(quizzes):
-        return True
-    return False
+    course_details = frappe.get_doc("LMS Course", course)
+    return course_details.get_course_progress()

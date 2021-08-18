@@ -28,6 +28,10 @@ frappe.ready(() => {
     try_quiz_again(e);
   });
 
+  $("#certification").click((e) => {
+    create_certificate(e);
+  })
+
 })
 
 var save_current_lesson = () => {
@@ -71,8 +75,9 @@ var mark_progress = (e) => {
       status: status
     },
     callback: (data) => {
-      if (data.message == "OK") {
-        change_progress_indicators(status, e);
+      change_progress_indicators(status, e);
+      if (data.message == 100 && !$(".next").length && $("#certification").hasClass("hide")) {
+        $("#certification").removeClass("hide");
       }
     }
   })
@@ -165,4 +170,18 @@ var add_to_local_storage = (quiz_name, current_index, answer, is_correct) => {
   }
   quiz_stored ? quiz_stored.push(quiz_obj) : quiz_stored = [quiz_obj]
   localStorage.setItem(quiz_name, JSON.stringify(quiz_stored))
+}
+
+var create_certificate = (e) => {
+  e.preventDefault();
+  course = $(".title").attr("data-course");
+  frappe.call({
+    method: "community.lms.doctype.lms_certification.lms_certification.create_certificate",
+    args: {
+      "course": course
+    },
+    callback: (data) => {
+      window.location.href = `/courses/${course}/${data.message}`;
+    }
+  })
 }
