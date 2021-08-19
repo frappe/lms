@@ -2,7 +2,7 @@
   <div class="course-home-headings">{{title}}</div>
 <div class="speaker-cards-parent">
   {% for video in talk_details %}
-    {% set video_details = frappe.get_doc('Previous Content', video.previous_content, filters={
+    {% set video_details = frappe.get_doc('Talk', video.previous_content, filters={
       'event': event
     }) %}
   <div class="common-card-style talk-card">

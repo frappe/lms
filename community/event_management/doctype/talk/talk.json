@@ -7,13 +7,13 @@
  "engine": "InnoDB",
  "field_order": [
   "event",
+  "speaker",
   "topic",
   "title",
   "about",
   "attachment",
   "url",
   "thumbnail",
-  "speaker",
   "name_of_the_speaker",
   "status"
  ],
@@ -51,7 +51,7 @@
   },
   {
    "fieldname": "about",
-   "fieldtype": "Data",
+   "fieldtype": "Text",
    "label": "About"
   },
   {
@@ -71,12 +71,12 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Status",
-   "options": "Applied\nPending\nApproved\nRejected"
+   "options": "Applied\nPending\nApproved\nRejected\nPrevious Talk"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-08-19 15:20:07.750884",
+ "modified": "2021-08-19 16:44:58.181528",
  "modified_by": "Administrator",
  "module": "Event Management",
  "name": "Talk",

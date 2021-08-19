@@ -2,7 +2,13 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on('Schedule', {
-	// refresh: function(frm) {
-
-	// }
+	onload: function (frm) {
+		frm.set_query('talk', function (doc) {
+			return {
+				filters: {
+					"status": "Approved",
+				}
+			};
+		});
+	}
 });
