@@ -21,8 +21,7 @@
       <div class="lesson-info{% if membership.current_lesson == lesson.name %} active-lesson {% endif %}">
 
         {% if membership or lesson.include_in_preview %}
-        <a class="lesson-links"
-          href="{{ course.get_learn_url(lesson.number) }}{{course.query_parameter}}"
+        <a class="lesson-links" href="{{ course.get_learn_url(lesson.number) }}{{course.query_parameter}}"
           data-course="{{ course.name }}">
           {{ lesson.title }}
 
@@ -56,6 +55,11 @@
 <script>
   frappe.ready(() => {
     expand_the_active_chapter();
+
+    $(".chapter-title").click((e) => {
+      rotate_chapter_icon(e);
+    });
+
   })
 
   var expand_the_first_chapter = () => {
@@ -95,6 +99,16 @@
   var show_section = (element) => {
     $(element).addClass("show");
     $(element).siblings(".chapter-title").children(".chapter-icon").css("transform", "rotate(90deg)");
+  }
+
+  var rotate_chapter_icon = (e) => {
+    e.preventDefault();
+    var icon = $(e.currentTarget).children(".chapter-icon");
+    if (icon.css("transform") == "none") {
+      icon.css("transform", "rotate(90deg)");
+    } else {
+      icon.css("transform", "none");
+    }
   }
 
 </script>
