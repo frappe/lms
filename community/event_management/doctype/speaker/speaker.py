@@ -4,7 +4,7 @@
 import frappe
 from frappe.model.document import Document
 
-class SpeakerRegistration(Document):
+class Speaker(Document):
 	
 	def on_update(self):
 		pass

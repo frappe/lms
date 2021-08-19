@@ -17,7 +17,6 @@
    "reqd": 0
   },
   {
-   "__unsaved": 1,
    "fieldname": "event_",
    "fieldtype": "Link",
    "label": "Event ",
@@ -40,12 +39,12 @@
    "fieldname": "speaker",
    "fieldtype": "Link",
    "label": "Speaker",
-   "options": "Speaker Registration",
+   "options": "Speaker",
    "reqd": 0
   }
  ],
  "idx": 1,
- "modified": "2021-08-18 10:06:03.032441",
+ "modified": "2021-08-19 16:06:45.811889",
  "modified_by": "Administrator",
  "module": "Event Management",
  "name": "Speaker Section",

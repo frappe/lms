@@ -4,5 +4,5 @@
 # import frappe
 import unittest
 
-class TestSpeakerRegistration(unittest.TestCase):
+class TestSpeaker(unittest.TestCase):
 	pass

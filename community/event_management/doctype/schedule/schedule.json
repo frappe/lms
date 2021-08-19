@@ -7,18 +7,10 @@
  "engine": "InnoDB",
  "field_order": [
   "event",
-  "speaker",
+  "talk",
   "slot"
  ],
  "fields": [
-  {
-   "fieldname": "speaker",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Speaker",
-   "options": "Speaker Registration",
-   "reqd": 1
-  },
   {
    "fieldname": "slot",
    "fieldtype": "Link",
@@ -34,11 +26,17 @@
    "label": "Event",
    "options": "Event Details",
    "reqd": 1
+  },
+  {
+   "fieldname": "talk",
+   "fieldtype": "Link",
+   "label": "Talk",
+   "options": "Talk"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-08-18 09:46:18.694910",
+ "modified": "2021-08-19 15:23:18.137946",
  "modified_by": "Administrator",
  "module": "Event Management",
  "name": "Schedule",

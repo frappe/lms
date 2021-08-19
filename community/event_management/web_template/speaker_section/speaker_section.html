@@ -2,7 +2,7 @@
 	<h1 class="course-home-headings">{{section_title}}</h1>
 	<div class="speaker-cards-parent">
 		{% for speaker in speaker_details %}
-			{% set speaker_doc = frappe.get_doc("Speaker Registration", speaker.speaker) %}
+			{% set speaker_doc = frappe.get_doc("Speaker", speaker.speaker) %}
 
 			<div class="common-card-style member-card talk-card">
 				<span class="avatar avatar-large">
@@ -18,6 +18,6 @@
 			
 		</div>
 		{%- if cta_link -%}
-		<div class="event-btn"><a href={{cta_link}} class="btn btn-primary ">Become a Speaker</a></div>
+		<div class="event-btn"><a href={{cta_link}} class="btn btn-primary ">Propose a Talk</a></div>
 		{%- endif -%}
 	</div>

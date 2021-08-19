@@ -1,12 +1,13 @@
 {
  "actions": [],
- "autoname": "SPEAKER-REGIS.####.",
+ "autoname": "format:Speaker-{full_name}-{####}",
  "creation": "2021-08-11 10:37:32.124651",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
   "speaker_info_section",
+  "user",
   "full_name",
   "email",
   "phone_number",
@@ -14,14 +15,7 @@
   "company",
   "column_break_8",
   "picture",
-  "bio",
-  "talk_info_section",
-  "topic",
-  "title",
-  "column_break_13",
-  "about",
-  "attachment",
-  "status"
+  "bio"
  ],
  "fields": [
   {
@@ -30,16 +24,17 @@
    "label": "Speaker Info"
   },
   {
+   "fetch_from": "user.email",
    "fieldname": "email",
    "fieldtype": "Data",
    "label": "Email",
-   "reqd": 1,
-   "unique": 1
+   "read_only": 1
   },
   {
    "fieldname": "phone_number",
    "fieldtype": "Data",
    "label": "Phone Number",
+   "reqd": 1,
    "unique": 1
   },
   {
@@ -68,66 +63,30 @@
    "label": "Bio"
   },
   {
-   "fieldname": "talk_info_section",
-   "fieldtype": "Section Break",
-   "label": "Talk Info"
-  },
-  {
-   "fieldname": "topic",
-   "fieldtype": "Select",
-   "in_list_view": 1,
-   "label": "Topic",
-   "options": "Delivery\nCloud\nCustomer Success\nMarketing\nDevelopment\nHR\nCustomer Stories",
-   "reqd": 1
-  },
-  {
-   "fieldname": "title",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Title",
-   "reqd": 1
-  },
-  {
-   "fieldname": "about",
-   "fieldtype": "Text",
-   "label": "About",
-   "reqd": 1
-  },
-  {
-   "fieldname": "attachment",
-   "fieldtype": "Attach",
-   "label": "Attachment"
-  },
-  {
    "fieldname": "column_break_8",
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "column_break_13",
-   "fieldtype": "Column Break"
-  },
-  {
-   "default": "Applied",
-   "fieldname": "status",
-   "fieldtype": "Select",
-   "in_list_view": 1,
-   "label": "Status",
-   "options": "Applied\nPending\nApproved\nRejected"
-  },
-  {
+   "fetch_from": "user.full_name",
    "fieldname": "full_name",
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Full Name",
-   "reqd": 1
+   "read_only": 1
+  },
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "label": "User",
+   "options": "User"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-08-18 09:48:19.602309",
+ "modified": "2021-08-19 15:19:27.351589",
  "modified_by": "Administrator",
  "module": "Event Management",
- "name": "Speaker Registration",
+ "name": "Speaker",
  "owner": "Administrator",
  "permissions": [
   {

@@ -6,7 +6,8 @@
  "engine": "InnoDB",
  "field_order": [
   "attendee_info_section",
-  "name1",
+  "user",
+  "full_name",
   "email",
   "phone_number",
   "occupation",
@@ -20,24 +21,23 @@
    "label": "Attendee Info"
   },
   {
-   "fieldname": "name1",
-   "fieldtype": "Data",
-   "label": "Name"
-  },
-  {
+   "fetch_from": "user.email",
    "fieldname": "email",
    "fieldtype": "Data",
-   "label": "Email"
+   "label": "Email",
+   "read_only": 1
   },
   {
    "fieldname": "phone_number",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Phone Number"
   },
   {
    "fieldname": "occupation",
    "fieldtype": "Data",
-   "label": "Occupation"
+   "label": "Occupation",
+   "reqd": 1
   },
   {
    "fieldname": "company",
@@ -48,11 +48,24 @@
    "fieldname": "what_are_you_hoping_to_learn",
    "fieldtype": "Text",
    "label": "What are you hoping to learn"
+  },
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "label": "User",
+   "options": "User"
+  },
+  {
+   "fetch_from": "user.full_name",
+   "fieldname": "full_name",
+   "fieldtype": "Data",
+   "label": "Full Name",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-08-11 10:07:53.262504",
+ "modified": "2021-08-19 15:25:03.305762",
  "modified_by": "Administrator",
  "module": "Event Management",
  "name": "Attendee Registration",

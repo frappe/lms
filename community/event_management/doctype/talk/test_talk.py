@@ -4,5 +4,5 @@
 # import frappe
 import unittest
 
-class TestPreviousContent(unittest.TestCase):
+class TestTalk(unittest.TestCase):
 	pass
