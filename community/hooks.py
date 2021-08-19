@@ -130,7 +130,7 @@ fixtures = ["Custom Field"]
 # auto_cancel_exempted_doctypes = ["Auto Repeat"]
 
 # Add all simple route rules here
-primary_rules = [
+website_route_rules = [
     {"from_route": "/sketches/<sketch>", "to_route": "sketches/sketch"},
     {"from_route": "/courses/<course>", "to_route": "courses/course"},
     {"from_route": "/courses/<course>/<certificate>", "to_route": "courses/certificate"},
@@ -146,39 +146,9 @@ primary_rules = [
     {"from_route": "/courses/<course>/about", "to_route": "batch/about"},
     {"from_route": "/courses/<course>/progress", "to_route": "batch/progress"},
     {"from_route": "/courses/<course>/join", "to_route": "batch/join"},
-    {"from_route": "/discussions/<discussion>", "to_route": "discussions/discussion"}
+    {"from_route": "/discussions/<discussion>", "to_route": "discussions/discussion"},
+    {"from_route": "/user/<string(minlength=4):username>", "to_route": "profiles/profile"}
 ]
-
-# Any frappe default URL is blocked by profile-rules, add it here to unblock it
-whitelist = [
-    "/home",
-    "/login",
-    "/update-password",
-    "/update-profile",
-    "/third-party-apps",
-    "/website_script.js",
-    "/courses",
-    "/sketches",
-    "/admin",
-    "/socket.io",
-    "/hackathons",
-    "/dashboard",
-    "/join-request",
-    "/add-a-new-batch",
-    "/new-sign-up",
-    "/message",
-    "/about",
-    "/edit-profile",
-    "/discussions"
-]
-whitelist_rules = [{"from_route": p, "to_route": p[1:]} for p in whitelist]
-
-# regex rule to match all profiles
-profile_rules = [
-    {"from_route": "/<string(minlength=4):username>", "to_route": "profiles/profile"},
-]
-
-website_route_rules = primary_rules + whitelist_rules + profile_rules
 
 website_redirects = [
     {"source": "/update-profile", "target": "/edit-profile"},
