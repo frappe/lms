@@ -1,19 +1,20 @@
 <div class="section-with-cards">
-	<h1 class="course-home-headings">{{title}}</h1>
-	<div class="speaker-cards-parent">
-		{% for exhibitor in exhibitor_details %}
-		{% set exhibitor_doc = frappe.get_doc("Exhibitor Registration", exhibitor.exhibitor) %}
-		<div class="common-card-style talk-card exhibitor-card">
-			<span>
-				<img class="standard-image company-logo" src="{{exhibitor_doc.logo}}" />
-			</span>
-			<div class="small-title company-name">{{exhibitor_doc.company}}</div>
-		</div>
-		{% endfor %}
-	</div>
-	{%- if cta_link -%}
-	<div class="event-btn"><a href={{cta_link}} class="btn btn-primary ">Become an Exhibitor</a></div>
-	{%- endif -%}
-</div>
-
+  <div class="courses-header">
+    <span>{{ title }}</span>
+    {% set cta_link = "/exhibitor-registration" if frappe.session.user != "Guest" else
+    "/login?redirect_to=exhibitor-registration" %}
+    <a href={{cta_link}} class="button is-primary pull-right">Become an Exhibitor</a>
+  </div>
+  <div class="speaker-cards-parent">
+    {% for exhibitor in exhibitor_details %}
+    {% set exhibitor_doc = frappe.db.get_value("Exhibitor Registration", exhibitor.exhibitor, ["logo", "company"],
+    as_dict=True) %}
+    <div class="common-card-style flex-column exhibitor-card">
+      <span>
+        <img class="standard-image company-logo" src="{{exhibitor_doc.logo}}" />
+      </span>
+      <div class="font-weight-bold mt-5">{{exhibitor_doc.company}}</div>
+    </div>
+    {% endfor %}
+  </div>
 </div>

@@ -4,7 +4,7 @@
 		{% for speaker in speaker_details %}
 			{% set speaker_doc = frappe.get_doc("Speaker Registration", speaker.speaker) %}
 
-			<div class="common-card-style member-card talk-card">
+			<div class="common-card-style member-card">
 				<span class="avatar avatar-large">
 					<img class="avatar-frame" src="{{speaker_doc.picture}}" />
 				</span>
@@ -15,7 +15,7 @@
 				<div class="small-title company-name">{{speaker_doc.company}}</div>
 			</div>
 			{% endfor %}
-			
+
 		</div>
 		{%- if cta_link -%}
 		<div class="event-btn"><a href={{cta_link}} class="btn btn-primary ">Become a Speaker</a></div>

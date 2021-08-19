@@ -1283,7 +1283,7 @@ pre {
   font-size: 1rem;
 }
 
-.talk-card { 
+.talk-card {
   width: 16rem;
 }
 
@@ -1309,10 +1309,10 @@ a.talk-link {
 
 .speaker-cards-parent {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  -moz-column-gap: 32px;
-  column-gap: 14px;
-  row-gap: 32px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  -moz-column-gap: 2rem;
+  column-gap: 2rem;
+  row-gap: 2rem;
 }
 
 .avatar img {
@@ -1363,15 +1363,8 @@ a.talk-link {
   padding-bottom: 30px;
 }
 
-.exhibitor-card .company-name{
-  font-size: 25px;
-  margin-top: 30px;
-}
-
 .exhibitor-card .company-logo{
   height: 158px;
-  width: 252px;
-  object-fit: contain;
 }
 
 /* .schedule-container:hover > .schedule-info {
