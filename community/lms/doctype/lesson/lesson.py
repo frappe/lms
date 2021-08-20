@@ -91,7 +91,8 @@ def save_progress(lesson, course, status):
             "lesson": lesson,
             "status": status,
         }).save(ignore_permissions=True)
-    return "OK"
+    course_details = frappe.get_doc("LMS Course", course)
+    return course_details.get_course_progress()
 
 def update_progress(lesson):
     user = frappe.session.user

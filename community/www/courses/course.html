@@ -70,6 +70,10 @@
         <img class="ml-2" src="/assets/community/images/play.png" />
       </div>
       {% endif %}
+      {% set certificate = course.is_certified() %}
+      {% if certificate %}
+      <a class="button wide-button is-secondary dark-links" href="/courses/{{ course.name }}/{{ certificate }}">Get Certificate</a>
+      {% endif %}
     </div>
   </div>
 </div>
@@ -119,7 +123,7 @@
           {% if progress != 100 %}
           Great work so far!
           {% else %}
-          Excellent Work on completing this course 👏
+          Excellent work on completing this course 👏
           {% endif %}
         </p>
         <p class="progress-text">
