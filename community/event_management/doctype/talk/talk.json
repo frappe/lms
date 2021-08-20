@@ -7,7 +7,7 @@
  "engine": "InnoDB",
  "field_order": [
   "event",
-  "speaker",
+  "company",
   "topic",
   "title",
   "about",
@@ -15,7 +15,8 @@
   "url",
   "thumbnail",
   "name_of_the_speaker",
-  "status"
+  "status",
+  "speaker"
  ],
  "fields": [
   {
@@ -47,12 +48,12 @@
   {
    "fieldname": "topic",
    "fieldtype": "Data",
-   "label": "Topic"
+   "label": "Category"
   },
   {
    "fieldname": "about",
    "fieldtype": "Text",
-   "label": "About"
+   "label": "About the Talk"
   },
   {
    "fieldname": "attachment",
@@ -62,6 +63,7 @@
   {
    "fieldname": "speaker",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Speaker",
    "options": "Speaker"
   },
@@ -72,11 +74,16 @@
    "in_list_view": 1,
    "label": "Status",
    "options": "Applied\nPending\nApproved\nRejected\nPrevious Talk"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Data",
+   "label": "Company"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-08-19 16:44:58.181528",
+ "modified": "2021-08-20 12:08:11.304322",
  "modified_by": "Administrator",
  "module": "Event Management",
  "name": "Talk",

@@ -2,13 +2,7 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on('Speaker', {
-	onload: function (frm) {
-		frm.set_query('user', function (doc) {
-			return {
-				filters: {
-					"ignore_user_type": 1,
-				}
-			};
-		});
-	}
+	// refresh: function(frm) {
+
+	// }
 });

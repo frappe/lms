@@ -7,9 +7,9 @@
  "engine": "InnoDB",
  "field_order": [
   "speaker_info_section",
+  "event",
   "user",
   "full_name",
-  "email",
   "phone_number",
   "job_title",
   "company",
@@ -24,10 +24,19 @@
    "label": "Speaker Info"
   },
   {
-   "fetch_from": "user.email",
-   "fieldname": "email",
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "User",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "user.full_name",
+   "fieldname": "full_name",
    "fieldtype": "Data",
-   "label": "Email",
+   "in_list_view": 1,
+   "label": "Full Name",
    "read_only": 1
   },
   {
@@ -52,6 +61,11 @@
    "reqd": 1
   },
   {
+   "fieldname": "column_break_8",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "user.banner_image",
    "fieldname": "picture",
    "fieldtype": "Attach Image",
    "label": "Profile Image",
@@ -63,27 +77,16 @@
    "label": "Bio"
   },
   {
-   "fieldname": "column_break_8",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fetch_from": "user.full_name",
-   "fieldname": "full_name",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Full Name",
-   "read_only": 1
-  },
-  {
-   "fieldname": "user",
+   "fieldname": "event",
    "fieldtype": "Link",
-   "label": "User",
-   "options": "User"
+   "label": "Event",
+   "options": "Event Details",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-08-19 15:19:27.351589",
+ "modified": "2021-08-20 12:06:54.852070",
  "modified_by": "Administrator",
  "module": "Event Management",
  "name": "Speaker",

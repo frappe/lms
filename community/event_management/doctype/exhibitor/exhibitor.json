@@ -8,7 +8,9 @@
  "field_order": [
   "full_name",
   "company",
-  "logo"
+  "logo",
+  "description",
+  "is_paid"
  ],
  "fields": [
   {
@@ -25,14 +27,25 @@
    "fieldname": "logo",
    "fieldtype": "Attach Image",
    "label": "Logo"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text Editor",
+   "label": "Description"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_paid",
+   "fieldtype": "Check",
+   "label": "is_paid"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-08-18 20:08:31.591935",
+ "modified": "2021-08-20 13:38:07.709658",
  "modified_by": "Administrator",
  "module": "Event Management",
- "name": "Exhibitor Registration",
+ "name": "Exhibitor",
  "owner": "Administrator",
  "permissions": [
   {

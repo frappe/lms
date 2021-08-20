@@ -19,7 +19,7 @@
    "fieldname": "attendee",
    "fieldtype": "Link",
    "label": "attendee",
-   "options": "Attendee Registration"
+   "options": "Attendee"
   },
   {
    "fieldname": "event",
@@ -30,7 +30,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-08-18 09:51:14.654098",
+ "modified": "2021-08-20 13:38:28.688115",
  "modified_by": "Administrator",
  "module": "Event Management",
  "name": "Event Ticket",

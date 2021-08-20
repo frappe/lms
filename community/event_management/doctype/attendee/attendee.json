@@ -8,24 +8,17 @@
   "attendee_info_section",
   "user",
   "full_name",
-  "email",
   "phone_number",
   "occupation",
   "company",
-  "what_are_you_hoping_to_learn"
+  "what_are_you_hoping_to_learn",
+  "is_paid"
  ],
  "fields": [
   {
    "fieldname": "attendee_info_section",
    "fieldtype": "Section Break",
    "label": "Attendee Info"
-  },
-  {
-   "fetch_from": "user.email",
-   "fieldname": "email",
-   "fieldtype": "Data",
-   "label": "Email",
-   "read_only": 1
   },
   {
    "fieldname": "phone_number",
@@ -53,7 +46,8 @@
    "fieldname": "user",
    "fieldtype": "Link",
    "label": "User",
-   "options": "User"
+   "options": "User",
+   "read_only": 1
   },
   {
    "fetch_from": "user.full_name",
@@ -61,14 +55,20 @@
    "fieldtype": "Data",
    "label": "Full Name",
    "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_paid",
+   "fieldtype": "Check",
+   "label": "is_paid"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-08-19 15:25:03.305762",
+ "modified": "2021-08-20 13:40:25.690440",
  "modified_by": "Administrator",
  "module": "Event Management",
- "name": "Attendee Registration",
+ "name": "Attendee",
  "owner": "Administrator",
  "permissions": [
   {

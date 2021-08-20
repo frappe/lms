@@ -4,5 +4,5 @@
 # import frappe
 import unittest
 
-class TestExhibitorRegistration(unittest.TestCase):
+class TestExhibitor(unittest.TestCase):
 	pass

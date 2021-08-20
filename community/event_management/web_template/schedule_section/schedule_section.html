@@ -19,6 +19,9 @@
 {% endfor %}
 
 <div class="courses-header">{{title}}</div>
+{%- if subtitle -%}
+	<p class="section-description">{{ subtitle }}</p>
+{%- endif -%}
 <div class="common-page-style">
 	<div class="container">
 		<div class="course-content-parent">

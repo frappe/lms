@@ -24,12 +24,6 @@
    "reqd": 0
   },
   {
-   "fieldname": "cta_link",
-   "fieldtype": "Data",
-   "label": "CTA Link",
-   "reqd": 0
-  },
-  {
    "fieldname": "speaker_details",
    "fieldtype": "Table Break",
    "label": "Speaker Details",
@@ -44,7 +38,7 @@
   }
  ],
  "idx": 1,
- "modified": "2021-08-19 16:06:45.811889",
+ "modified": "2021-08-20 10:59:54.965714",
  "modified_by": "Administrator",
  "module": "Event Management",
  "name": "Speaker Section",

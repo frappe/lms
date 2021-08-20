@@ -17,7 +17,6 @@
    "reqd": 0
   },
   {
-   "__unsaved": 1,
    "fieldname": "event",
    "fieldtype": "Link",
    "label": "Event",
@@ -31,20 +30,18 @@
    "reqd": 0
   },
   {
-   "__islocal": 1,
-   "__unsaved": 1,
-   "fieldname": "previous_content",
+   "fieldname": "talk",
    "fieldtype": "Link",
-   "label": "Previous Content",
-   "options": "Previous Content",
+   "label": "Talk",
+   "options": "Talk",
    "reqd": 0
   }
  ],
  "idx": 1,
- "modified": "2021-08-18 10:03:50.193908",
+ "modified": "2021-08-20 10:58:45.556636",
  "modified_by": "Administrator",
  "module": "Event Management",
- "name": "Previous Talk",
+ "name": "Talk Section",
  "owner": "Administrator",
  "standard": 1,
  "template": "",
