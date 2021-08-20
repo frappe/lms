@@ -5,33 +5,15 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "attendee_info_section",
   "user",
   "full_name",
-  "phone_number",
-  "occupation",
+  "column_break_3",
   "company",
-  "what_are_you_hoping_to_learn",
-  "is_paid"
+  "is_paid",
+  "section_break_6",
+  "what_are_you_hoping_to_learn"
  ],
  "fields": [
-  {
-   "fieldname": "attendee_info_section",
-   "fieldtype": "Section Break",
-   "label": "Attendee Info"
-  },
-  {
-   "fieldname": "phone_number",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Phone Number"
-  },
-  {
-   "fieldname": "occupation",
-   "fieldtype": "Data",
-   "label": "Occupation",
-   "reqd": 1
-  },
   {
    "fieldname": "company",
    "fieldtype": "Data",
@@ -40,14 +22,13 @@
   {
    "fieldname": "what_are_you_hoping_to_learn",
    "fieldtype": "Text",
-   "label": "What are you hoping to learn"
+   "label": "What are you hoping to learn?"
   },
   {
    "fieldname": "user",
    "fieldtype": "Link",
    "label": "User",
-   "options": "User",
-   "read_only": 1
+   "options": "User"
   },
   {
    "fetch_from": "user.full_name",
@@ -60,12 +41,20 @@
    "default": "0",
    "fieldname": "is_paid",
    "fieldtype": "Check",
-   "label": "is_paid"
+   "label": "Is Paid"
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_6",
+   "fieldtype": "Section Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-08-20 13:40:25.690440",
+ "modified": "2021-08-20 17:03:09.741997",
  "modified_by": "Administrator",
  "module": "Event Management",
  "name": "Attendee",
@@ -86,5 +75,6 @@
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
+ "title_field": "user",
  "track_changes": 1
 }

@@ -1,40 +1,53 @@
 <div class="section-with-cards">
-	<div class="course-home-headings">{{title}}</div>
-	{%- if subtitle -%}
-	<p class="section-description">{{ subtitle }}</p>
+  <div class="course-home-headings">{{title}}</div>
+  {%- if subtitle -%}
+  <p class="section-description">{{ subtitle }}</p>
   {%- endif -%}
-  <div class="speaker-cards-parent">
-	  {% for talk in talk_details %}
-	  {% set talk_doc = frappe.get_doc('Talk', talk.talk, filters={
-	  'event': event
-	  }) %}
-	  <div class="common-card-style talk-card">
-		<div class="course-image" style="background-image: url({{talk_doc.thumbnail}})">
-		  <div class="course-tags"></div>
-		</div>
-		<div class="course-card-content">
-		  <div class="course-card-meta muted-text">
-			<span> {{talk_doc.topic}} </span>
-		  </div>
-		  <div class="course-card-title">{{talk_doc.title}}</div>
-		  <div class="card-divider"></div>
-		  <div class="course-card-meta-2">
-			<a class="button-links" href="">
-			  <span class="avatar avatar-small" title={{talk_doc.name_of_the_speaker}}>
-				<img class="avatar-frame standard-image" style="object-fit: cover" src="{{talk_doc.thumbnail}}"
-				  title={{talk_doc.name_of_the_speaker}} />
-			  </span>
-			</a>
-			<span class="course-instructor"> {{talk_doc.name_of_the_speaker}} </span>
-			<span class="small-title company-name"></span>
-		  </div>
-		  <div class="view-talk-link">
-			Vew Talk
-			<img class="ml-3" src="/assets/community/icons/black-arrow.svg" />
-		  </div>
-		  <a class="stretched-link" href="{{talk_doc.url}}"></a>
-		</div>
-	  </div>
-	  {% endfor %}
-	</div>
+  <div class="cards-parent">
+    {% for talk in talk_details %}
+    {% set talk_doc = frappe.db.get_value('Talk', talk.talk, ["title", "category", "speaker", "url", "thumbnail"], as_dict=True) %}
+    {% set speaker_info = frappe.db.get_value("Speaker", talk_doc.speaker, ["user"], as_dict=True) %}
+
+    {% set member = frappe.get_doc("User", speaker_info.user) %}
+    <div class="common-card-style flex-column">
+      <div class="course-image" style="background-image: url({{talk_doc.thumbnail}})">
+        <div class="course-tags"></div>
+      </div>
+      <div class="course-card-content">
+        <div class="course-card-meta muted-text">
+          <span> {{talk_doc.category}} </span>
+        </div>
+        <div class="course-card-title">{{talk_doc.title}}</div>
+        <div class="card-divider"></div>
+        <div class="course-card-meta-2">
+
+          {% set color = member.get_palette() %}
+          <a class="button-links" href="/user/{{member.username}}">
+            <span class="avatar avatar-small" title="{{ member.full_name }}">
+              {% if member.user_image %}
+              <img class="avatar-frame standard-image" style="object-fit: cover;" src="{{ member.user_image }}"
+                title="{{ member.full_name }}">
+              </img>
+              {% else %}
+              <span class="avatar-frame standard-image" title="{{ member.full_name }}"
+                style="background-color: var({{color[0]}}); color: var({{color[1]}});">
+                {{ frappe.utils.get_abbr(member.full_name) }}
+              </span>
+              {% endif %}
+            </span>
+          </a>
+
+
+          <span class="course-instructor"> {{ member.full_name }} </span>
+          <span class="small-title company-name"></span>
+        </div>
+        <div class="view-talk-link">
+          Vew Talk
+          <img class="ml-3" src="/assets/community/icons/black-arrow.svg" />
+        </div>
+        <a class="stretched-link" href="{{talk_doc.url}}"></a>
+      </div>
+    </div>
+    {% endfor %}
   </div>
+</div>

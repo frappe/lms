@@ -1,15 +1,13 @@
 {
  "actions": [],
- "autoname": "field:full_name",
  "creation": "2021-08-11 10:51:47.234690",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
   "event",
-  "full_name",
-  "user_image",
-  "title"
+  "user",
+  "full_name"
  ],
  "fields": [
   {
@@ -19,28 +17,21 @@
    "options": "Event Details"
   },
   {
-   "fieldname": "title",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Title"
-  },
-  {
    "fieldname": "full_name",
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Full Name",
-   "reqd": 1,
    "unique": 1
   },
   {
-   "fieldname": "user_image",
-   "fieldtype": "Attach Image",
-   "label": "Image"
+   "fieldname": "user",
+   "fieldtype": "Data",
+   "label": "User"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-08-11 23:54:17.790263",
+ "modified": "2021-08-20 17:03:26.733195",
  "modified_by": "Administrator",
  "module": "Event Management",
  "name": "Host",
@@ -61,5 +52,6 @@
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
+ "title_field": "user",
  "track_changes": 1
 }
