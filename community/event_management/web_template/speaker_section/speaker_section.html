@@ -20,6 +20,6 @@
 			
 		</div>
 		{%- if cta_link -%}
-		<div class="event-btn"><a href='/speaker-registration?event={{ event_ }}&user={{ frappe.session.user }}' class="btn btn-primary ">Propose a Talk</a></div>
+		<div class="event-btn"><a href='/speaker-registration?user={{ frappe.session.user }}&event={{ event_ }}' class="btn btn-primary ">Propose a Talk</a></div>
 		{%- endif -%}
 	</div>

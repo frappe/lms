@@ -6,6 +6,8 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "user",
+  "event",
   "full_name",
   "company",
   "logo",
@@ -14,9 +16,11 @@
  ],
  "fields": [
   {
+   "fetch_from": "user.full_name",
    "fieldname": "full_name",
    "fieldtype": "Data",
-   "label": "Full Name"
+   "label": "Full Name",
+   "read_only": 1
   },
   {
    "fieldname": "company",
@@ -38,11 +42,25 @@
    "fieldname": "is_paid",
    "fieldtype": "Check",
    "label": "is_paid"
+  },
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "label": "User",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "event",
+   "fieldtype": "Link",
+   "label": "Event",
+   "options": "Event Details",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-08-20 13:38:07.709658",
+ "modified": "2021-08-20 15:22:38.616972",
  "modified_by": "Administrator",
  "module": "Event Management",
  "name": "Exhibitor",

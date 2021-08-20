@@ -17,9 +17,8 @@
 		</a>
 		{% endfor %}
 	</div>
-	{%- if cta_link -%}
-	<div class="event-btn"><a href={{cta_link}} class="btn btn-primary ">Become an Exhibitor</a></div>
-	{%- endif -%}
+	<div class="event-btn"><a href="/exhibitor-registration/user={{ frappe.session.user }}&event={{ event_ }}" class="btn btn-primary ">Become an Exhibitor</a></div>
+
 </div>
 
 </div>
