@@ -19,7 +19,7 @@
  "is_standard": 1,
  "login_required": 1,
  "max_attachment_size": 0,
- "modified": "2021-08-20 11:24:52.350955",
+ "modified": "2021-08-20 16:16:51.107177",
  "modified_by": "Administrator",
  "module": "Event Management",
  "name": "speaker-registration",
@@ -49,7 +49,7 @@
    "show_in_filter": 0
   },
   {
-   "allow_read_on_all_link_options": 1,
+   "allow_read_on_all_link_options": 0,
    "fieldname": "user",
    "fieldtype": "Link",
    "hidden": 0,
@@ -57,7 +57,7 @@
    "max_length": 0,
    "max_value": 0,
    "options": "User",
-   "read_only": 0,
+   "read_only": 1,
    "reqd": 0,
    "show_in_filter": 0
   },
@@ -75,30 +75,6 @@
   },
   {
    "allow_read_on_all_link_options": 0,
-   "fieldname": "phone_number",
-   "fieldtype": "Data",
-   "hidden": 0,
-   "label": "Phone Number",
-   "max_length": 0,
-   "max_value": 0,
-   "read_only": 0,
-   "reqd": 1,
-   "show_in_filter": 0
-  },
-  {
-   "allow_read_on_all_link_options": 0,
-   "fieldname": "job_title",
-   "fieldtype": "Data",
-   "hidden": 0,
-   "label": "Job Title",
-   "max_length": 0,
-   "max_value": 0,
-   "read_only": 0,
-   "reqd": 1,
-   "show_in_filter": 0
-  },
-  {
-   "allow_read_on_all_link_options": 0,
    "fieldname": "company",
    "fieldtype": "Data",
    "hidden": 0,
@@ -107,30 +83,6 @@
    "max_value": 0,
    "read_only": 0,
    "reqd": 1,
-   "show_in_filter": 0
-  },
-  {
-   "allow_read_on_all_link_options": 0,
-   "fieldname": "picture",
-   "fieldtype": "Attach Image",
-   "hidden": 0,
-   "label": "Profile Image",
-   "max_length": 0,
-   "max_value": 0,
-   "read_only": 0,
-   "reqd": 1,
-   "show_in_filter": 0
-  },
-  {
-   "allow_read_on_all_link_options": 0,
-   "fieldname": "bio",
-   "fieldtype": "Text",
-   "hidden": 0,
-   "label": "Bio",
-   "max_length": 0,
-   "max_value": 0,
-   "read_only": 0,
-   "reqd": 0,
    "show_in_filter": 0
   }
  ]

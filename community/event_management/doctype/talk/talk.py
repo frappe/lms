@@ -7,21 +7,23 @@ from frappe.model.document import Document
 
 class Talk(Document):
     def before_save(self):
+        if not self.speaker:
+            self.save_speaker()
+
+    def save_speaker(self):
         exists = frappe.db.exists({
-            'doctype': 'Speaker',
-            'user': frappe.session.user
-        })
-        speaker = None
+                    'doctype': 'Speaker',
+                    'user': frappe.session.user
+                })
 
-        if(exists):
-            speaker = frappe.db.get_value(
-                	'Speaker', {'user': frappe.session.user})
+        if exists:
+            self.speaker = frappe.db.get_value(
+                    'Speaker', {'user': frappe.session.user}, ["name"])
 
-        elif(not exists):
-            speaker = frappe.get_doc(dict(
-                    event=self.event,
-                    user=frappe.session.user,
-                    company=self.company,
-                	)).insert(ignore_permissions=True)
-
-        self.speaker = speaker
+        else:
+            speaker = frappe.get_doc({
+                "doctype": "Speaker",
+                "event": self.event,
+                "user": frappe.session.user
+            }).save(ignore_permissions=True)
+            self.speaker = speaker
