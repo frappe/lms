@@ -1,0 +1,82 @@
+{% set schedule_docs = frappe.get_all("Schedule", fields =["talk", "slot"], filters={
+'event': event
+},) %}
+{% set slot_data = {} %}
+
+{% for schedule in schedule_docs %}
+{% set talk = frappe.get_doc("Talk", schedule.talk) %}
+{% set speaker = frappe.get_doc("Speaker", talk.speaker) %}
+{% set slot = frappe.get_doc("Slot", schedule.slot) %}
+{% set slot_data = slot_data.setdefault(slot.date, []).append({
+"slot": slot.name|string,
+"start_time": slot.start_time,
+"end_time": slot.end_time,
+"picture": speaker.picture,
+"about": talk.about,
+"title": talk.title,
+"full_name": speaker.full_name,
+}) %}
+{% endfor %}
+
+<div class="courses-header">{{title}}</div>
+{%- if subtitle -%}
+	<p class="section-description">{{ subtitle }}</p>
+{%- endif -%}
+<div class="common-page-style">
+	<div class="container">
+		<div class="course-content-parent">
+			<div class="course-details-outline">
+				<div class="course-home-outline">
+					<div class="coure-outline">
+						<div>
+							{% for day in slot_data %}
+							<div class="small-title chapter-title" data-target="#apps-sites-and-bench"
+								data-toggle="collapse" aria-expanded="false">
+								<img class="chapter-icon" src="/assets/community/icons/chevron-right.svg" />
+								{{frappe.utils.format_date(day, "dd MMMM, YYYY")}}
+							</div>
+							<div class="card-divider"></div>
+						</div>
+						{% endfor %}
+					</div>
+				</div>
+				<div>
+					{% for day in slot_data %}
+					{% set outer_loop = loop %}
+					<div class="course-details-outline">
+						<div class="coure-outline">
+							<div class="course-home-headings">{{frappe.utils.format_date(day, "dd MMMM, YYYY")}}</div>
+							{% for slot in slot_data[day] %}
+							<div class="schedule-container">
+								<div class="schedule-inner-container">
+									<span class="info-speaker-avatar">
+										<span class="info-avatar avatar avatar-small">
+											<img class="avatar-frame standard-image" src="{{slot.picture}}" />
+										</span>
+										<h6 class="info-speaker">{{slot.full_name}}</h6>
+									</span>
+									<div class="schedule-title">{{slot.title}}</div>
+									<div class="schedule-slot">
+										{{ frappe.format(slot.start_time, {'fieldtype': 'Time'})}} - {{
+										frappe.format(slot.end_time, {'fieldtype': 'Time'}) }}
+									</div>
+									<div class="chapter-title small-title" data-toggle="collapse"
+										data-target="#slot-{{loop.index}}-{{outer_loop.index}}" aria-expanded="false"
+										aria-controls="collapseExample">
+										<img class="chapter-icon" src="/assets/community/icons/chevron-right.svg">
+									</div>
+								</div>
+								<div class="collapse" id="slot-{{loop.index}}-{{outer_loop.index}}">
+									<p class="schedule-info">{{slot.about}}</p>
+								</div>
+								<div class="card-divider"></div>
+								{% endfor %}
+							</div>
+						</div>
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

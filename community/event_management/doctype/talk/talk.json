@@ -1,0 +1,108 @@
+{
+ "actions": [],
+ "autoname": "format:TALK-BY-{speaker}-{####}",
+ "creation": "2021-08-18 08:42:58.711932",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "event",
+  "company",
+  "topic",
+  "title",
+  "about",
+  "attachment",
+  "url",
+  "thumbnail",
+  "name_of_the_speaker",
+  "status",
+  "speaker"
+ ],
+ "fields": [
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Title"
+  },
+  {
+   "fieldname": "name_of_the_speaker",
+   "fieldtype": "Data",
+   "label": "Name of the Speaker"
+  },
+  {
+   "fieldname": "url",
+   "fieldtype": "Data",
+   "label": "Video Embed Link"
+  },
+  {
+   "fieldname": "thumbnail",
+   "fieldtype": "Data",
+   "label": "Preview Image (Link)"
+  },
+  {
+   "fieldname": "event",
+   "fieldtype": "Link",
+   "label": "Event",
+   "options": "Event Details"
+  },
+  {
+   "fieldname": "topic",
+   "fieldtype": "Data",
+   "label": "Category"
+  },
+  {
+   "fieldname": "about",
+   "fieldtype": "Text",
+   "label": "About the Talk"
+  },
+  {
+   "fieldname": "attachment",
+   "fieldtype": "Attach",
+   "label": "Attachment"
+  },
+  {
+   "fieldname": "speaker",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Speaker",
+   "options": "Speaker"
+  },
+  {
+   "default": "Applied",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Applied\nPending\nApproved\nRejected\nPrevious Talk"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Data",
+   "label": "Company"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2021-08-20 12:08:11.304322",
+ "modified_by": "Administrator",
+ "module": "Event Management",
+ "name": "Talk",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

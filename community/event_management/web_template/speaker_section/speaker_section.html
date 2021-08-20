@@ -1,0 +1,25 @@
+<div class="section-with-cards">
+	<h1 class="course-home-headings">{{section_title}}</h1>
+	{%- if subtitle -%}
+		<p class="section-description">{{ subtitle }}</p>
+	{%- endif -%}
+	<div class="speaker-cards-parent">
+			{% for speaker in speaker_details %}
+			{% set speaker_doc = frappe.get_doc("Speaker", speaker.speaker) %}
+			<div class="common-card-style member-card talk-card">
+				<span class="avatar avatar-large">
+					<img class="avatar-frame" src="{{speaker_doc.picture}}" />
+				</span>
+				<div class="small-title talk-title mt-5">
+					{{ speaker_doc.full_name }}
+				</div>
+				<div class="small-title mt-5 bb">{{speaker_doc.job_title}}</div>
+				<div class="small-title company-name">{{speaker_doc.company}}</div>
+			</div>
+			{% endfor %}
+			
+		</div>
+		{%- if cta_link -%}
+		<div class="event-btn"><a href='/speaker-registration?user={{ frappe.session.user }}&event={{ event_ }}' class="btn btn-primary ">Propose a Talk</a></div>
+		{%- endif -%}
+	</div>

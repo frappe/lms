@@ -279,6 +279,16 @@ input[type=checkbox] {
   line-height: 135%;
   color: var(--text-color);
 }
+.view-talk-link {
+  background: var(--button-background);
+  border-radius: 4px;
+  font-size: 14px;
+  padding: 8px 22px 8px;
+  text-align: center;
+  line-height: 135%;
+  color: var(--text-color);
+
+}
 
 .cards-parent {
   display: grid;
@@ -749,6 +759,10 @@ input[type=checkbox] {
   padding: 20px 0px 16px;
 }
 
+.member-card .talk-title{
+  font-weight: bold;
+}
+
 .member-card-large {
   width: 256px;
   height: 188px;
@@ -773,6 +787,7 @@ input[type=checkbox] {
 .member-card-large .member-card-title {
   font-weight: bold;
 }
+
 
 .member-card-xl .member-card-title {
   font-weight: bold;
@@ -826,6 +841,11 @@ input[type=checkbox] {
 
 .modal-headings {
   margin: 0;
+}
+
+.avatar-medium-schedule{
+  width: 70px;
+  height: 70px;
 }
 
 .avatar-large {
@@ -1261,6 +1281,111 @@ pre {
 
 .markdown-source h4 {
   font-size: 1rem;
+}
+
+.talk-card { 
+  width: 16rem;
+}
+
+.talk-title {
+  border-bottom: 1px solid #cecdcd;
+}
+
+.mt-5 {
+  margin-top: 5px;
+}
+
+.company-name {
+  font-weight: bold;
+}
+
+a.talk-link {
+  text-decoration: none;
+}
+
+.talk-card {
+  flex-direction: column;
+}
+
+.speaker-cards-parent {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  -moz-column-gap: 32px;
+  column-gap: 14px;
+  row-gap: 32px;
+}
+
+.avatar img {
+  object-fit: cover;
+}
+
+.section-with-cards .course-home-headings {
+  margin: 0px 0px 1rem;
+}
+
+.schedule-container {
+  padding-bottom: 16px;
+}
+
+.schedule-inner-container {
+  display: grid;
+  grid-template-columns: 1.2fr 2fr 1fr 0.2fr;
+  padding: 0 20px 0;
+}
+
+.schedule-slot {
+  font-weight: bolder;
+}
+
+.schedule-title {
+  font-size: 20px;
+}
+
+.schedule-info{
+  padding: 20px;
+}
+
+
+.drop-down-icon {
+  padding : 5px 0 0 5px;
+}
+
+.event-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 3rem;
+}
+
+.exhibitor-card {
+  text-align: center;
+  padding-bottom: 30px;
+}
+
+.exhibitor-card .company-name{
+  font-size: 25px;
+  margin-top: 30px;
+}
+
+.exhibitor-card .company-logo{
+  height: 158px;
+  width: 252px;
+  object-fit: contain;
+}
+
+.info-speaker-avatar {
+  display: flex;
+  text-align: left;
+}
+
+.info-speaker {
+  margin-left: 1rem;
+  padding-bottom: 0;
+  margin-top: 6px;
+}
+
+.info-avatar img{
+  object-fit: contain;
 }
 
 .thread-card {
