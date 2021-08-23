@@ -29,8 +29,9 @@
         {% endif %}
 
         {% set title = lesson.title + " - " + course.title %}
+        {% set condition = membership or is_instructor %}
         {{ widgets.DiscussionMessage(doctype="Lesson", docname=lesson.name,
-          title=title, condition=membership, button_name="Start Learning",
+          title=title, condition=condition, button_name="Start Learning",
           redirect_to="/courses/" + course.name) }}
       </div>
     </div>
@@ -46,7 +47,9 @@
     <span class="lesson-progress {{hide if course.get_progress(lesson.name) != 'Complete' else ''}}">COMPLETED</span>
   </div>
 
-  {% if membership or lesson.include_in_preview %}
+  {% set is_instructor = frappe.session.user == course.instructor %}
+
+  {% if membership or lesson.include_in_preview or is_instructor %}
   <div class="common-card-style lesson-content-card markdown-source">{{ lesson.render_html() }}</div>
   {% else %}
   <div class="common-card-style lesson-content-card">

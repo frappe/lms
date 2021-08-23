@@ -28,9 +28,9 @@ order_by="creation") %}
 <div class="d-flex flex-column align-items-center font-weight-bold">
   Want to join the discussion?
   {% if frappe.session.user == "Guest" %}
-  <div class="button is-primary" id="login-from-discussion">Log In</div>
+  <div class="button is-primary mt-5" id="login-from-discussion">Log In</div>
   {% elif not condition %}
-  <div class="button is-primary" id="login-from-discussion" data-redirect="{{ redirect_to }}">{{ button_name }}</div>
+  <div class="button is-primary mt-5" id="login-from-discussion" data-redirect="{{ redirect_to }}">{{ button_name }}</div>
   {% endif %}
 </div>
 {% else %}

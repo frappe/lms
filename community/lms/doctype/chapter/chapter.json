@@ -8,7 +8,9 @@
  "field_order": [
   "course",
   "title",
+  "column_break_3",
   "description",
+  "section_break_5",
   "lessons"
  ],
  "fields": [
@@ -20,7 +22,7 @@
   },
   {
    "fieldname": "description",
-   "fieldtype": "Markdown Editor",
+   "fieldtype": "Small Text",
    "label": "Description"
   },
   {
@@ -35,6 +37,14 @@
    "fieldtype": "Table",
    "label": "Lessons",
    "options": "Lessons"
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_5",
+   "fieldtype": "Section Break"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -45,7 +55,7 @@
    "link_fieldname": "chapter"
   }
  ],
- "modified": "2021-07-27 16:28:08.667964",
+ "modified": "2021-08-19 13:43:51.025072",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Chapter",

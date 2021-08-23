@@ -20,23 +20,7 @@
         <div class="course-card-title">{{talk_doc.title}}</div>
         <div class="card-divider"></div>
         <div class="course-card-meta-2">
-
-          {% set color = member.get_palette() %}
-          <a class="button-links" href="/user/{{member.username}}">
-            <span class="avatar avatar-small" title="{{ member.full_name }}">
-              {% if member.user_image %}
-              <img class="avatar-frame standard-image" style="object-fit: cover;" src="{{ member.user_image }}"
-                title="{{ member.full_name }}">
-              </img>
-              {% else %}
-              <span class="avatar-frame standard-image" title="{{ member.full_name }}"
-                style="background-color: var({{color[0]}}); color: var({{color[1]}});">
-                {{ frappe.utils.get_abbr(member.full_name) }}
-              </span>
-              {% endif %}
-            </span>
-          </a>
-
+          {{ widgets.Avatar(member=member, avatar_class="avatar-small")}}
 
           <span class="course-instructor"> {{ member.full_name }} </span>
           <span class="small-title company-name"></span>
