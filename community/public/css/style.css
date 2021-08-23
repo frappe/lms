@@ -1449,3 +1449,13 @@ textarea.form-control {
     font-size: 2rem;
   }
 }
+
+.speaker-details {
+  margin-top: 2.5rem;
+  flex-direction: column;
+  padding: 24px;
+}
+
+.pt-24{
+  padding-top: 24px;
+}

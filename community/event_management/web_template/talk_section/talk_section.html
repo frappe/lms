@@ -5,7 +5,7 @@
   {%- endif -%}
   <div class="cards-parent">
     {% for talk in talk_details %}
-    {% set talk_doc = frappe.db.get_value('Talk', talk.talk, ["title", "category", "speaker", "url", "thumbnail"], as_dict=True) %}
+    {% set talk_doc = frappe.db.get_value('Talk', talk.talk, ["name", "title", "category", "speaker", "url", "thumbnail"], as_dict=True) %}
     {% set speaker_info = frappe.db.get_value("Speaker", talk_doc.speaker, ["user"], as_dict=True) %}
 
     {% set member = frappe.get_doc("User", speaker_info.user) %}
@@ -45,7 +45,7 @@
           Vew Talk
           <img class="ml-3" src="/assets/community/icons/black-arrow.svg" />
         </div>
-        <a class="stretched-link" href="{{talk_doc.url}}"></a>
+        <a class="stretched-link" href="/talk/{{talk_doc.name}}"></a>
       </div>
     </div>
     {% endfor %}

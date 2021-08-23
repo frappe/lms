@@ -1,15 +1,22 @@
 {
  "actions": [],
+ "autoname": "format:Speaker-{full_name}-{####}",
  "creation": "2021-08-11 10:37:32.124651",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "speaker_info_section",
   "event",
+  "user",
+  "full_name",
+  "phone_number",
+  "job_title",
   "company",
   "column_break_8",
-  "user",
-  "full_name"
+  "picture",
+  "bio",
+  "data_11"
  ],
  "fields": [
   {
@@ -17,7 +24,8 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "User",
-   "options": "User"
+   "options": "User",
+   "read_only": 1
   },
   {
    "fetch_from": "user.full_name",
@@ -41,12 +49,45 @@
    "fieldname": "event",
    "fieldtype": "Link",
    "label": "Event",
-   "options": "Event Details"
+   "options": "Event Details",
+   "read_only": 1
+  },
+  {
+   "fieldname": "speaker_info_section",
+   "fieldtype": "Section Break",
+   "label": "Speaker Info"
+  },
+  {
+   "fieldname": "phone_number",
+   "fieldtype": "Data",
+   "label": "Phone Number",
+   "unique": 1
+  },
+  {
+   "fieldname": "job_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Job Title"
+  },
+  {
+   "fetch_from": "user.banner_image",
+   "fieldname": "picture",
+   "fieldtype": "Attach Image",
+   "label": "Profile Image"
+  },
+  {
+   "fieldname": "bio",
+   "fieldtype": "Text",
+   "label": "Bio"
+  },
+  {
+   "fieldname": "data_11",
+   "fieldtype": "Data"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-08-20 16:53:43.968260",
+ "modified": "2021-08-23 21:59:06.545524",
  "modified_by": "Administrator",
  "module": "Event Management",
  "name": "Speaker",
@@ -67,6 +108,5 @@
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
- "title_field": "user",
  "track_changes": 1
 }

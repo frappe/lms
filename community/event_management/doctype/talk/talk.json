@@ -1,27 +1,22 @@
 {
  "actions": [],
+ "autoname": "format:TALK-BY-{speaker}-{####}",
  "creation": "2021-08-18 08:42:58.711932",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
   "event",
-  "title",
-  "url",
-  "column_break_5",
   "speaker",
+  "company",
   "category",
-  "thumbnail",
-  "schedule_section",
-  "date",
-  "status",
-  "column_break_11",
-  "start_time",
-  "end_time",
-  "section_break_9",
+  "title",
   "about",
   "attachment",
-  "name_of_the_speaker"
+  "url",
+  "thumbnail",
+  "name_of_the_speaker",
+  "status"
  ],
  "fields": [
   {
@@ -61,26 +56,12 @@
    "label": "Attachment"
   },
   {
-   "fieldname": "speaker",
-   "fieldtype": "Link",
-   "label": "Speaker",
-   "options": "Speaker"
-  },
-  {
-   "default": "Pending",
+   "default": "Applied",
    "fieldname": "status",
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Status",
-   "options": "Pending\nApproved\nRejected"
-  },
-  {
-   "fieldname": "column_break_5",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "section_break_9",
-   "fieldtype": "Section Break"
+   "options": "Applied\nPending\nApproved\nRejected\nPrevious Talk"
   },
   {
    "fieldname": "category",
@@ -88,32 +69,21 @@
    "label": "Category"
   },
   {
-   "fieldname": "schedule_section",
-   "fieldtype": "Section Break"
+   "fieldname": "company",
+   "fieldtype": "Data",
+   "label": "Company"
   },
   {
-   "fieldname": "date",
-   "fieldtype": "Date",
-   "label": "Date"
-  },
-  {
-   "fieldname": "column_break_11",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "start_time",
-   "fieldtype": "Time",
-   "label": "Start Time"
-  },
-  {
-   "fieldname": "end_time",
-   "fieldtype": "Time",
-   "label": "End Time"
+   "fieldname": "speaker",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Speaker",
+   "options": "Speaker"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-08-20 17:02:51.609288",
+ "modified": "2021-08-23 21:50:36.182411",
  "modified_by": "Administrator",
  "module": "Event Management",
  "name": "Talk",
@@ -134,6 +104,5 @@
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
- "title_field": "title",
  "track_changes": 1
 }

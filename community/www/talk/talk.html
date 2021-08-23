@@ -1,0 +1,91 @@
+{% extends "templates/base.html" %}
+
+{% block title %} 
+  {{talk.title}} 
+{% endblock %} 
+
+{% block head_include %}
+  <link rel="stylesheet" href="/assets/frappe/css/font-awesome.css" />
+{% endblock %} 
+
+{% block content %}
+<div class="common-page-style">
+  <div class="container">
+    <div class="course-content-parent">
+      <div class="course-details-outline">
+        <div class="course-home-headings title">More Talks</div>
+        <div class="coure-outline">
+			    <div>
+				    {% for talk in talks %}
+				      <div
+                class="chapter-title small-title"
+                data-toggle="collapse"
+                data-target="#talk-{{loop.index}}"
+                aria-expanded="false"
+                aria-controls="collapseExample"
+              >{{talk.title}}
+              <img
+                class="chapter-icon"
+                src="/assets/community/icons/chevron-right.svg"
+              />
+              </div>
+			        <div class="collapse" id="talk-{{loop.index}}">
+				        <p class="schedule-info">{{talk.about}}</p>
+			        </div>
+			        <div class="card-divider"></div>
+			      {% endfor %}		 
+			    </div>
+        </div>
+      </div>
+
+      <div class="lesson-pagination-parent">
+        <div class="lesson-content">
+          <div
+            class="course-home-headings title"
+            data-lesson="0120 Creating an App"
+            data-course="frappe-developer-tutorial-2015"
+          >
+            {{talk.title}}
+          </div>
+
+          <div class="common-card-style lesson-content-card markdown-source">
+            <p></p>
+            <div class="lesson-video">
+              <iframe
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen=""
+                frameborder="0"
+                height="315"
+                src="{{talk.url}}"
+                title="YouTube video player"
+                width="100%"
+              >
+              </iframe>
+            </div>
+            <p></p>
+          </div>
+		  <div class="speaker-details common-card-style">
+			<div
+            class="course-home-headings title"
+            data-lesson="0120 Creating an App"
+            data-course="frappe-developer-tutorial-2015"
+          >
+            About Speaker
+          </div>
+		  <div>
+			<div>
+				<span class="info-speaker-avatar">
+                <span class="info-avatar avatar avatar-small">
+                  <img class="avatar-frame standard-image" src="{{talk.thumbnail}}" />
+                </span>
+                <h6 class="info-speaker">{{talk.name_of_the_speaker}}</h6>
+              </span></div>
+			<div>{{talk.about}}</div>
+		  </div>	  
+		</div>
+        </div>
+        </div>
+	    </div>
+	  </div>
+</div>
+{% endblock %}
