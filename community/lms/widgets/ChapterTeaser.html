@@ -14,13 +14,14 @@
     </div>
     {% endif %}
 
+    {% set is_instructor = frappe.session.user == course.instructor %}
     <div class="lessons">
 
       {% for lesson in course.get_lessons(chapter) %}
 
       <div class="lesson-info{% if membership.current_lesson == lesson.name %} active-lesson {% endif %}">
 
-        {% if membership or lesson.include_in_preview %}
+        {% if membership or lesson.include_in_preview or is_instructor %}
         <a class="lesson-links" href="{{ course.get_learn_url(lesson.number) }}{{course.query_parameter}}"
           data-course="{{ course.name }}">
           {{ lesson.title }}

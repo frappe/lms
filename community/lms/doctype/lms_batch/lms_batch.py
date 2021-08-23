@@ -35,14 +35,6 @@ class LMSBatch(Document):
             filters['member_type'] = member_type
         return frappe.db.exists("LMS Batch Membership", filters)
 
-    def get_messages(self):
-        messages =  frappe.get_all("LMS Message", {"batch": self.name}, ["*"], order_by="creation")
-        for message in messages:
-            message.message = frappe.utils.md_to_html(message.message)
-            if message.author == frappe.session.user:
-                message.author_name = "You"
-                message.is_author = True
-        return messages
 
     def get_membership(self, email):
         """Returns the membership document of given user.

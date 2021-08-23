@@ -1,12 +1,10 @@
 # Copyright (c) 2021, FOSS United and contributors
 # For license information, please see license.txt
 
-from community.lms.doctype.lesson.lesson import update_progress
 import frappe
 from frappe.model.document import Document
 import json
 from frappe import _
-from ..lesson.lesson import update_progress
 
 class LMSQuiz(Document):
     def validate(self):
