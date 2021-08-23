@@ -133,7 +133,7 @@ fixtures = ["Custom Field"]
 primary_rules = [
     {"from_route": "/sketches/<sketch>", "to_route": "sketches/sketch"},
     {"from_route": "/courses/<course>", "to_route": "courses/course"},
-    {"from_route": "/courses/<course>/<certificate>", "to_route": "courses/certificate"},
+    {"from_route": "/courses/<course>/<topic>", "to_route": "courses/topic"},
     {"from_route": "/hackathons/<hackathon>", "to_route": "hackathons/hackathon"},
     {"from_route": "/hackathons/<hackathon>/<project>", "to_route": "hackathons/project"},
     {"from_route": "/add-a-new-batch", "to_route": "add-a-new-batch"},
@@ -146,7 +146,7 @@ primary_rules = [
     {"from_route": "/courses/<course>/about", "to_route": "batch/about"},
     {"from_route": "/courses/<course>/progress", "to_route": "batch/progress"},
     {"from_route": "/courses/<course>/join", "to_route": "batch/join"},
-    {"from_route": "/discussions/<discussion>", "to_route": "discussions/discussion"}
+    {"from_route": "/discussions/<discussion>", "to_route": "discussions/discussion"},
 ]
 
 # Any frappe default URL is blocked by profile-rules, add it here to unblock it
@@ -169,7 +169,14 @@ whitelist = [
     "/message",
     "/about",
     "/edit-profile",
-    "/discussions"
+    "/attendee-registration",
+    "/speaker-registration",
+    "/event",
+    "/hello",
+    "/exhibitor-registration",
+    "/discussions",
+    "/propose-talk",
+
 ]
 whitelist_rules = [{"from_route": p, "to_route": p[1:]} for p in whitelist]
 

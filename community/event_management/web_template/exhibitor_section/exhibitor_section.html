@@ -1,0 +1,43 @@
+<div class="section-with-cards">
+  <h1 class="course-home-headings">{{title}}</h1>
+  {%- if subtitle -%}
+  <p class="section-description">{{ subtitle }}</p>
+  {%- endif -%}
+  <div>
+    <div class="mentors-section">
+      {% for exhibitor in exhibitor_details %}
+      {% set exhibitor_doc = frappe.db.get_value("Exhibitor", exhibitor.exhibitor, ["user", "company"], as_dict= True)
+      %}
+      {% set member = frappe.get_doc("User", exhibitor_doc.user) %}
+
+      <div class="common-card-style member-card">
+        {% set color = member.get_palette() %}
+        <a class="button-links" href="/user/{{member.username}}">
+          <span class="avatar avatar-large" title="{{ member.full_name }}">
+            {% if member.user_image %}
+            <img class="avatar-frame standard-image" style="object-fit: cover;" src="{{ member.user_image }}"
+              title="{{ member.full_name }}">
+            </img>
+            {% else %}
+            <span class="avatar-frame standard-image" title="{{ member.full_name }}"
+              style="background-color: var({{color[0]}}); color: var({{color[1]}});">
+              {{ frappe.utils.get_abbr(member.full_name) }}
+            </span>
+            {% endif %}
+          </span>
+        </a>
+
+        <div class="small-title member-card-title">
+          {{ member.full_name }}
+        </div>
+        <div class="small-title">
+          {{exhibitor_doc.company}}
+        </div>
+        <a class="stretched-link" href=""></a>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="event-btn"><a href="/exhibitor-registration?new=1&user={{ frappe.session.user }}&event={{ event }}"
+        class="btn btn-primary ">Become an Exhibitor</a></div>
+  </div>
+</div>
