@@ -26,13 +26,13 @@
  "owner": "Administrator",
  "payment_button_label": "Buy Now",
  "published": 1,
- "route": "event/conference2021/attendee-registration",
+ "route": "/attendee-registration",
  "route_to_success_link": 1,
  "show_attachments": 0,
  "show_in_grid": 0,
  "show_sidebar": 0,
  "sidebar_items": [],
- "success_url": "/event/conference2021/about",
+ "success_url": "/about",
  "title": "Attendee Registration",
  "web_form_fields": [
   {
