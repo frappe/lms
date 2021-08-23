@@ -1283,10 +1283,6 @@ pre {
   font-size: 1rem;
 }
 
-.talk-card { 
-  width: 16rem;
-}
-
 .talk-title {
   border-bottom: 1px solid #cecdcd;
 }
@@ -1301,10 +1297,6 @@ pre {
 
 a.talk-link {
   text-decoration: none;
-}
-
-.talk-card {
-  flex-direction: column;
 }
 
 .speaker-cards-parent {
