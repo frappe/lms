@@ -86,7 +86,7 @@ web_include_css = "community.bundle.css"
 
 override_doctype_class = {
 	"User": "community.overrides.user.CustomUser",
-    "Web Template": "community.overrides.web_template.CustomWebTemplate"
+	"Web Template": "community.overrides.web_template.CustomWebTemplate"
 }
 
 # Document Events
@@ -132,27 +132,27 @@ fixtures = ["Custom Field"]
 
 # Add all simple route rules here
 website_route_rules = [
-    {"from_route": "/sketches/<sketch>", "to_route": "sketches/sketch"},
-    {"from_route": "/courses/<course>", "to_route": "courses/course"},
-    {"from_route": "/courses/<course>/<topic>", "to_route": "courses/topic"},
-    {"from_route": "/hackathons/<hackathon>", "to_route": "hackathons/hackathon"},
-    {"from_route": "/hackathons/<hackathon>/<project>", "to_route": "hackathons/project"},
-    {"from_route": "/add-a-new-batch", "to_route": "add-a-new-batch"},
-    {"from_route": "/courses/<course>/home", "to_route": "batch/home"},
-    {"from_route": "/courses/<course>/learn", "to_route": "batch/learn"},
-    {"from_route": "/courses/<course>/learn/<int:chapter>.<int:lesson>", "to_route": "batch/learn"},
-    {"from_route": "/courses/<course>/schedule", "to_route": "batch/schedule"},
-    {"from_route": "/courses/<course>/members", "to_route": "batch/members"},
-    {"from_route": "/courses/<course>/discuss", "to_route": "batch/discuss"},
-    {"from_route": "/courses/<course>/about", "to_route": "batch/about"},
-    {"from_route": "/courses/<course>/progress", "to_route": "batch/progress"},
-    {"from_route": "/courses/<course>/join", "to_route": "batch/join"},
-    {"from_route": "/discussions/<discussion>", "to_route": "discussions/discussion"},
-    {"from_route": "/user/<string(minlength=4):username>", "to_route": "profiles/profile"},
+	{"from_route": "/sketches/<sketch>", "to_route": "sketches/sketch"},
+	{"from_route": "/courses/<course>", "to_route": "courses/course"},
+	{"from_route": "/courses/<course>/<topic>", "to_route": "courses/topic"},
+	{"from_route": "/hackathons/<hackathon>", "to_route": "hackathons/hackathon"},
+	{"from_route": "/hackathons/<hackathon>/<project>", "to_route": "hackathons/project"},
+	{"from_route": "/add-a-new-batch", "to_route": "add-a-new-batch"},
+	{"from_route": "/courses/<course>/home", "to_route": "batch/home"},
+	{"from_route": "/courses/<course>/learn", "to_route": "batch/learn"},
+	{"from_route": "/courses/<course>/learn/<int:chapter>.<int:lesson>", "to_route": "batch/learn"},
+	{"from_route": "/courses/<course>/schedule", "to_route": "batch/schedule"},
+	{"from_route": "/courses/<course>/members", "to_route": "batch/members"},
+	{"from_route": "/courses/<course>/discuss", "to_route": "batch/discuss"},
+	{"from_route": "/courses/<course>/about", "to_route": "batch/about"},
+	{"from_route": "/courses/<course>/progress", "to_route": "batch/progress"},
+	{"from_route": "/courses/<course>/join", "to_route": "batch/join"},
+	{"from_route": "/discussions/<discussion>", "to_route": "discussions/discussion"},
+	{"from_route": "/user/<string(minlength=4):username>", "to_route": "profiles/profile"},
 ]
 
 website_redirects = [
-    {"source": "/update-profile", "target": "/edit-profile"},
+	{"source": "/update-profile", "target": "/edit-profile"},
 ]
 
 update_website_context = 'community.widgets.update_website_context'
