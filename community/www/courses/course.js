@@ -29,10 +29,6 @@ frappe.ready(() => {
     show_review_dialog(e);
   });
 
-  $(".chapter-title").click((e) => {
-    rotate_chapter_icon(e);
-  });
-
   $(".icon-rating").click((e) => {
     highlight_rating(e);
   });
@@ -166,16 +162,6 @@ var show_video_dialog = (e) => {
 var show_review_dialog = (e) => {
   e.preventDefault();
   $("#review-modal").modal("show");
-}
-
-var rotate_chapter_icon = (e) => {
-  e.preventDefault();
-  var icon = $(e.currentTarget).children(".chapter-icon");
-  if (icon.css("transform") == "none") {
-    icon.css("transform", "rotate(90deg)");
-  } else {
-    icon.css("transform", "none");
-  }
 }
 
 var highlight_rating = (e) => {

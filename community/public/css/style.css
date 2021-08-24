@@ -630,6 +630,10 @@ input[type=checkbox] {
   margin-bottom: 0.75rem;
 }
 
+.course-content-parent .chapter-description {
+  font-size: 0.7rem;
+}
+
 .chapter-icon {
   margin-right: .25rem;
 }
@@ -1293,10 +1297,6 @@ pre {
 
 .company-name {
   font-weight: bold;
-}
-
-a.talk-link {
-  text-decoration: none;
 }
 
 .speaker-cards-parent {

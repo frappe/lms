@@ -38,7 +38,7 @@
   {
    "allow_read_on_all_link_options": 0,
    "fieldname": "user",
-   "fieldtype": "Link",
+   "fieldtype": "Data",
    "hidden": 0,
    "label": "User",
    "max_length": 0,

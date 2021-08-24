@@ -16,9 +16,9 @@ def get_context(context):
         redirect_to_course_list()
 
     context.course = frappe.db.get_value("LMS Course", course_name,
-                ["owner", "title", "name"], as_dict=True)
+                ["instructor", "title", "name"], as_dict=True)
 
-    context.instructor = frappe.db.get_value("User", context.course.owner,
+    context.instructor = frappe.db.get_value("User", context.course.instructor,
                 ["full_name", "username"], as_dict=True)
 
     context.student = frappe.db.get_value("User", context.certificate.student,

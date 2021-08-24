@@ -85,7 +85,8 @@ web_include_css = "community.bundle.css"
 # Override standard doctype classes
 
 override_doctype_class = {
-	"User": "community.overrides.user.CustomUser"
+	"User": "community.overrides.user.CustomUser",
+	"Web Template": "community.overrides.web_template.CustomWebTemplate"
 }
 
 # Document Events
@@ -130,23 +131,24 @@ fixtures = ["Custom Field"]
 # auto_cancel_exempted_doctypes = ["Auto Repeat"]
 
 # Add all simple route rules here
-primary_rules = [
-    {"from_route": "/sketches/<sketch>", "to_route": "sketches/sketch"},
-    {"from_route": "/courses/<course>", "to_route": "courses/course"},
-    {"from_route": "/courses/<course>/<topic>", "to_route": "courses/topic"},
-    {"from_route": "/hackathons/<hackathon>", "to_route": "hackathons/hackathon"},
-    {"from_route": "/hackathons/<hackathon>/<project>", "to_route": "hackathons/project"},
-    {"from_route": "/add-a-new-batch", "to_route": "add-a-new-batch"},
-    {"from_route": "/courses/<course>/home", "to_route": "batch/home"},
-    {"from_route": "/courses/<course>/learn", "to_route": "batch/learn"},
-    {"from_route": "/courses/<course>/learn/<int:chapter>.<int:lesson>", "to_route": "batch/learn"},
-    {"from_route": "/courses/<course>/schedule", "to_route": "batch/schedule"},
-    {"from_route": "/courses/<course>/members", "to_route": "batch/members"},
-    {"from_route": "/courses/<course>/discuss", "to_route": "batch/discuss"},
-    {"from_route": "/courses/<course>/about", "to_route": "batch/about"},
-    {"from_route": "/courses/<course>/progress", "to_route": "batch/progress"},
-    {"from_route": "/courses/<course>/join", "to_route": "batch/join"},
-    {"from_route": "/discussions/<discussion>", "to_route": "discussions/discussion"},
+website_route_rules = [
+	{"from_route": "/sketches/<sketch>", "to_route": "sketches/sketch"},
+	{"from_route": "/courses/<course>", "to_route": "courses/course"},
+	{"from_route": "/courses/<course>/<topic>", "to_route": "courses/topic"},
+	{"from_route": "/hackathons/<hackathon>", "to_route": "hackathons/hackathon"},
+	{"from_route": "/hackathons/<hackathon>/<project>", "to_route": "hackathons/project"},
+	{"from_route": "/add-a-new-batch", "to_route": "add-a-new-batch"},
+	{"from_route": "/courses/<course>/home", "to_route": "batch/home"},
+	{"from_route": "/courses/<course>/learn", "to_route": "batch/learn"},
+	{"from_route": "/courses/<course>/learn/<int:chapter>.<int:lesson>", "to_route": "batch/learn"},
+	{"from_route": "/courses/<course>/schedule", "to_route": "batch/schedule"},
+	{"from_route": "/courses/<course>/members", "to_route": "batch/members"},
+	{"from_route": "/courses/<course>/discuss", "to_route": "batch/discuss"},
+	{"from_route": "/courses/<course>/about", "to_route": "batch/about"},
+	{"from_route": "/courses/<course>/progress", "to_route": "batch/progress"},
+	{"from_route": "/courses/<course>/join", "to_route": "batch/join"},
+	{"from_route": "/discussions/<discussion>", "to_route": "discussions/discussion"},
+	{"from_route": "/user/<string(minlength=4):username>", "to_route": "profiles/profile"},
 ]
 
 # Any frappe default URL is blocked by profile-rules, add it here to unblock it
@@ -176,7 +178,8 @@ whitelist = [
     "/exhibitor-registration",
     "/discussions",
     "/propose-talk",
-    "/exhibitors"
+    "/exhibitors",
+    "/talk"
 
 ]
 whitelist_rules = [{"from_route": p, "to_route": p[1:]} for p in whitelist]
@@ -189,7 +192,7 @@ profile_rules = [
 website_route_rules = primary_rules + whitelist_rules + profile_rules
 
 website_redirects = [
-    {"source": "/update-profile", "target": "/edit-profile"},
+	{"source": "/update-profile", "target": "/edit-profile"},
 ]
 
 update_website_context = 'community.widgets.update_website_context'

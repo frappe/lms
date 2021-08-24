@@ -4,10 +4,19 @@
 frappe.ui.form.on('LMS Course', {
 
   onload: function (frm) {
+
     frm.set_query("chapter", "chapters", function () {
       return {
         filters: {
           "course": frm.doc.name,
+        }
+      };
+    });
+
+    frm.set_query("instructor", function (doc) {
+      return {
+        filters: {
+          "ignore_user_type": 1,
         }
       };
     });

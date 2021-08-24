@@ -36,8 +36,8 @@
   },
   {
    "fieldname": "thumbnail",
-   "fieldtype": "Data",
-   "label": "Preview Image (Link)"
+   "fieldtype": "Attach",
+   "label": "Preview Image"
   },
   {
    "fieldname": "event",

@@ -18,17 +18,18 @@
   "video_link",
   "image",
   "column_break_3",
+  "instructor",
   "tags",
+  "section_break_7",
   "is_published",
+  "column_break_9",
   "upcoming",
+  "column_break_11",
   "disable_self_learning",
   "section_break_5",
   "short_introduction",
   "description",
-  "chapters",
-  "certification_section",
-  "enable_certification",
-  "expiry"
+  "chapters"
  ],
  "fields": [
   {
@@ -99,23 +100,25 @@
    "options": "Chapters"
   },
   {
-   "fieldname": "certification_section",
+   "fieldname": "instructor",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Instructor",
+   "options": "User"
+  },
+  {
+   "fieldname": "section_break_7",
    "fieldtype": "Section Break",
-   "label": "Certification"
+   "label": "Course Settings"
   },
   {
-   "default": "0",
-   "fieldname": "enable_certification",
-   "fieldtype": "Check",
-   "label": "Enable Certification"
+   "fieldname": "column_break_9",
+   "fieldtype": "Column Break"
   },
   {
-   "default": "0",
-   "depends_on": "enable_certification",
-   "fieldname": "expiry",
-   "fieldtype": "Select",
-   "label": "Certification Expires After Years",
-   "options": "0\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10"
+   "fieldname": "column_break_11",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -137,7 +140,7 @@
    "link_fieldname": "course"
   }
  ],
- "modified": "2021-08-18 18:02:12.623807",
+ "modified": "2021-08-20 11:01:15.795219",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",
