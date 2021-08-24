@@ -4,25 +4,21 @@
   <p class="section-description">{{ subtitle }}</p>
   {%- endif -%}
   <div>
-    <div class="mentors-section">
+    <div class="exhibitor-content-parent">
       {% for exhibitor in exhibitor_details %}
-      {% set exhibitor_doc = frappe.db.get_value("Exhibitor", exhibitor.exhibitor, ["user", "company"], as_dict= True)
-      %}
-      {% set member = frappe.get_doc("User", exhibitor_doc.user) %}
-
-      <div class="common-card-style member-card">
-        {{ widgets.Avatar(member=member, avatar_class="avatar-large")}}
-        <div class="small-title member-card-title">
-          {{ member.full_name }}
+      {% set exhibitor_doc = frappe.get_doc("Exhibitor", exhibitor.exhibitor) %}
+        <a href="/exhibitor/{{exhibitor_doc.name}}">
+        <div class="common-card-style talk-card exhibitor-card">
+          <img class="standard-image company-logo" src="{{exhibitor_doc.logo}}" />
+          <div class="small-title company-name">{{exhibitor_doc.company}}</div>
         </div>
-        <div class="small-title">
-          {{exhibitor_doc.company}}
-        </div>
-        <a class="stretched-link" href=""></a>
-      </div>
+        </a>
       {% endfor %}
+      </div>
+    <div class="event-btn">
+      <a href="/exhibitor-registration?new=1/user={{ frappe.session.user }}&event={{ event }}" class="btn btn-primary ">
+        Become an Exhibitor
+      </a>
     </div>
-    <div class="event-btn"><a href="/exhibitor-registration?new=1&user={{ frappe.session.user }}&event={{ event }}"
-        class="btn btn-primary ">Become an Exhibitor</a></div>
   </div>
 </div>

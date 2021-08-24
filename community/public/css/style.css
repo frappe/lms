@@ -1352,6 +1352,8 @@ pre {
 .exhibitor-card {
   text-align: center;
   padding-bottom: 30px;
+  display: flex;
+  flex-direction: column;
 }
 
 .exhibitor-card .company-name{
@@ -1361,7 +1363,7 @@ pre {
 
 .exhibitor-card .company-logo{
   height: 158px;
-  width: 252px;
+  width: 100%;
   object-fit: contain;
 }
 
@@ -1448,4 +1450,10 @@ textarea.form-control {
   .certificate-heading {
     font-size: 2rem;
   }
+}
+
+.exhibitor-content-parent {
+  display: grid;
+  grid-gap: 2rem;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
 }
