@@ -26,7 +26,7 @@
  "owner": "Administrator",
  "payment_button_label": "Buy Now",
  "published": 1,
- "route": "/attendee-registration",
+ "route": "attendee-registration",
  "route_to_success_link": 1,
  "show_attachments": 0,
  "show_in_grid": 0,
