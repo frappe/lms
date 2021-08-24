@@ -41,8 +41,8 @@
   },
   {
    "fieldname": "thumbnail",
-   "fieldtype": "Data",
-   "label": "Preview Image (Link)"
+   "fieldtype": "Attach",
+   "label": "Preview Image"
   },
   {
    "fieldname": "event",
@@ -113,7 +113,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-08-20 17:02:51.609288",
+ "modified": "2021-08-24 11:46:34.476903",
  "modified_by": "Administrator",
  "module": "Event Management",
  "name": "Talk",
