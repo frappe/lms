@@ -5,13 +5,14 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "attendee_info_section",
   "user",
   "full_name",
-  "column_break_3",
+  "event",
+  "occupation",
   "company",
-  "is_paid",
-  "section_break_6",
-  "what_are_you_hoping_to_learn"
+  "what_are_you_hoping_to_learn",
+  "is_paid"
  ],
  "fields": [
   {
@@ -22,13 +23,14 @@
   {
    "fieldname": "what_are_you_hoping_to_learn",
    "fieldtype": "Text",
-   "label": "What are you hoping to learn?"
+   "label": "What are you hoping to learn"
   },
   {
    "fieldname": "user",
    "fieldtype": "Link",
    "label": "User",
-   "options": "User"
+   "options": "User",
+   "read_only": 1
   },
   {
    "fetch_from": "user.full_name",
@@ -41,20 +43,30 @@
    "default": "0",
    "fieldname": "is_paid",
    "fieldtype": "Check",
-   "label": "Is Paid"
+   "label": "is_paid"
   },
   {
-   "fieldname": "column_break_3",
-   "fieldtype": "Column Break"
+   "fieldname": "attendee_info_section",
+   "fieldtype": "Section Break",
+   "label": "Attendee Info"
   },
   {
-   "fieldname": "section_break_6",
-   "fieldtype": "Section Break"
+   "fieldname": "event",
+   "fieldtype": "Link",
+   "label": "Event",
+   "options": "Event Details"
+  },
+  {
+   "fieldname": "occupation",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Occupation",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-08-20 17:03:09.741997",
+ "modified": "2021-08-24 13:55:33.229236",
  "modified_by": "Administrator",
  "module": "Event Management",
  "name": "Attendee",
@@ -75,6 +87,5 @@
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
- "title_field": "user",
  "track_changes": 1
 }
