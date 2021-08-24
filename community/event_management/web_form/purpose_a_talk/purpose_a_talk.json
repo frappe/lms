@@ -20,7 +20,7 @@
  "is_standard": 1,
  "login_required": 1,
  "max_attachment_size": 0,
- "modified": "2021-08-23 10:18:17.486228",
+ "modified": "2021-08-24 19:57:06.806994",
  "modified_by": "Administrator",
  "module": "Event Management",
  "name": "purpose-a-talk",
@@ -76,6 +76,18 @@
   },
   {
    "allow_read_on_all_link_options": 0,
+   "fieldname": "thumbnail",
+   "fieldtype": "Attach",
+   "hidden": 0,
+   "label": "Preview Image",
+   "max_length": 0,
+   "max_value": 0,
+   "read_only": 0,
+   "reqd": 0,
+   "show_in_filter": 0
+  },
+  {
+   "allow_read_on_all_link_options": 0,
    "fieldname": "about",
    "fieldtype": "Text Editor",
    "hidden": 0,
@@ -84,18 +96,6 @@
    "max_value": 0,
    "read_only": 0,
    "reqd": 1,
-   "show_in_filter": 0
-  },
-  {
-   "allow_read_on_all_link_options": 0,
-   "fieldname": "attachment",
-   "fieldtype": "Attach",
-   "hidden": 0,
-   "label": "Attachment",
-   "max_length": 0,
-   "max_value": 0,
-   "read_only": 0,
-   "reqd": 0,
    "show_in_filter": 0
   }
  ]

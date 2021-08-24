@@ -19,7 +19,7 @@
  "is_standard": 1,
  "login_required": 1,
  "max_attachment_size": 0,
- "modified": "2021-08-23 10:13:19.224367",
+ "modified": "2021-08-24 19:57:25.516319",
  "modified_by": "Administrator",
  "module": "Event Management",
  "name": "attendee-registration",
@@ -37,6 +37,7 @@
  "web_form_fields": [
   {
    "allow_read_on_all_link_options": 0,
+   "default": "",
    "fieldname": "user",
    "fieldtype": "Data",
    "hidden": 0,
