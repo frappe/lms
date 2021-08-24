@@ -4,7 +4,6 @@
 import frappe
 from frappe.model.document import Document
 
-
 class Talk(Document):
     def before_save(self):
         if not self.speaker:
@@ -25,5 +24,6 @@ class Talk(Document):
                 "doctype": "Speaker",
                 "event": self.event,
                 "user": frappe.session.user
-            }).save(ignore_permissions=True)
-            self.speaker = speaker
+            })
+            speaker.save(ignore_permissions=True)
+            self.speaker = speaker.name
