@@ -15,8 +15,7 @@
   "company",
   "column_break_8",
   "picture",
-  "bio",
-  "data_11"
+  "bio"
  ],
  "fields": [
   {
@@ -79,15 +78,11 @@
    "fieldname": "bio",
    "fieldtype": "Text",
    "label": "Bio"
-  },
-  {
-   "fieldname": "data_11",
-   "fieldtype": "Data"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-08-23 21:59:06.545524",
+ "modified": "2021-08-24 14:42:48.824069",
  "modified_by": "Administrator",
  "module": "Event Management",
  "name": "Speaker",

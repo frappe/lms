@@ -151,46 +151,6 @@ website_route_rules = [
 	{"from_route": "/user/<string(minlength=4):username>", "to_route": "profiles/profile"},
 ]
 
-# Any frappe default URL is blocked by profile-rules, add it here to unblock it
-whitelist = [
-    "/home",
-    "/login",
-    "/update-password",
-    "/update-profile",
-    "/third-party-apps",
-    "/website_script.js",
-    "/courses",
-    "/sketches",
-    "/admin",
-    "/socket.io",
-    "/hackathons",
-    "/dashboard",
-    "/join-request",
-    "/add-a-new-batch",
-    "/new-sign-up",
-    "/message",
-    "/about",
-    "/edit-profile",
-    "/attendee-registration",
-    "/speaker-registration",
-    "/event",
-    "/hello",
-    "/exhibitor-registration",
-    "/discussions",
-    "/propose-talk",
-    "/exhibitors",
-    "/talk"
-
-]
-whitelist_rules = [{"from_route": p, "to_route": p[1:]} for p in whitelist]
-
-# regex rule to match all profiles
-profile_rules = [
-    {"from_route": "/<string(minlength=4):username>", "to_route": "profiles/profile"},
-]
-
-website_route_rules = primary_rules + whitelist_rules + profile_rules
-
 website_redirects = [
 	{"source": "/update-profile", "target": "/edit-profile"},
 ]

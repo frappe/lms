@@ -36,8 +36,8 @@
   },
   {
    "fieldname": "thumbnail",
-   "fieldtype": "Attach",
-   "label": "Preview Image"
+   "fieldtype": "Data",
+   "label": "Preview Image (Link)"
   },
   {
    "fieldname": "event",
@@ -61,7 +61,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Status",
-   "options": "Applied\nPending\nApproved\nRejected\nPrevious Talk"
+   "options": "Applied\nApproved\nRejected"
   },
   {
    "fieldname": "category",
@@ -83,7 +83,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-08-23 21:50:36.182411",
+ "modified": "2021-08-24 14:43:09.009976",
  "modified_by": "Administrator",
  "module": "Event Management",
  "name": "Talk",
