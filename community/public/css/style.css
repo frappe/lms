@@ -1457,3 +1457,10 @@ textarea.form-control {
   grid-gap: 2rem;
   grid-template-columns: 1fr 1fr 1fr 1fr;
 }
+
+@media (max-width: 1024px) {
+  .exhibitor-content-parent {
+    display: flex;
+    flex-direction: column;
+  }
+}
