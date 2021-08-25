@@ -1,13 +1,9 @@
 frappe.ready(() => {
 
-  if ($(document).width() <= 550) {
-    $(".certificate-footer").css("flex-direction", "column");
-    $(".certificate-footer").children().addClass("mb-5");
-  }
-
   $("#export-as-pdf").click((e) => {
     export_as_pdf(e);
   })
+
 })
 
 var export_as_pdf = (e) => {
