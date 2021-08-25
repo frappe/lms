@@ -106,3 +106,6 @@ def youtube_video_renderer(video_id):
         allowfullscreen>
     </iframe>
     """
+
+def video_renderer(src):
+    return "<video controls width='100%'><source src={0} type='video/mp4'></video>".format(src)

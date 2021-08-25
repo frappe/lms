@@ -26,10 +26,9 @@
         <div class="custom-checkbox">
           <label class="quiz-label">
             <input class="option" value="{{ option | urlencode }}"
-            data-correct="{{ question['is_correct_' + loop.index | string] }}"
-            {% if question.multiple %} type="checkbox"
-            {% else %} type="radio" name="{{ question.question | urlencode }}" {% endif %}>
-            <img class="empty-checkbox mr-3"/>
+              data-correct="{{ question['is_correct_' + loop.index | string] }}" {% if question.multiple %}
+              type="checkbox" {% else %} type="radio" name="{{ question.question | urlencode }}" {% endif %}>
+            <img class="empty-checkbox mr-3" />
           </label>
           <span class="label-area">{{ frappe.utils.md_to_html(option) }}</span>
         </div>
@@ -51,6 +50,7 @@
       <button class="btn btn-primary pull-right" id="check" disabled>Check</button>
       <button class="btn btn-primary hide" id="next">Next</button>
       <button class="btn btn-primary hide" id="summary">Summary</button>
+      <small id="submission-message" class="font-weight-bold hide"> Please join the course to submit the Quiz.</small>
     </div>
     <div class="button is-secondary pull-right hide" id="try-again">Try Again</div>
     <h4 class="success-message"></h4>

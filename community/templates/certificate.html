@@ -1,32 +1,35 @@
 <div class="common-card-style">
-  <div class="certificate-heading">
-    Certificate of Completion
-  </div>
-  <div class="certificate-para">
-    This is to certify that <span class="font-weight-bold">{{ student.full_name }}</span> has successfully completed
-    <span class="font-weight-bold">{{ course.title }}</span> online course on
-    <span class="font-weight-bold">{{ frappe.utils.format_date(certificate.issue_date, "medium") }}</span>
-  </div>
-  <div style="display: flex; justify-content: space-between;" class="certificate-footer">
-    <div>
-      <div class="font-weight-bold">
-        Instructor:
-      </div>
-      <div>
-        {{ instructor.full_name }}
-      </div>
+  <div class="certificate-content">
+    <div class="certificate-heading">
+      Certificate of Completion
     </div>
-    <div>
-      <div class="font-weight-bold">
-        Expiry Date:
-      </div>
-      <div>
-        {{ frappe.utils.format_date(certificate.expiry_date, "medium") }}
-      </div>
+    <div class="certificate-para">
+      This is to certify that <span class="font-weight-bold">{{ student.full_name }}</span> has successfully completed
+      <span class="font-weight-bold">{{ course.title }}</span> online course on
+      <span class="font-weight-bold">{{ frappe.utils.format_date(certificate.issue_date, "medium") }}</span>
     </div>
+    <div class="certificate-footer">
+      <div>
+        <span>
+          Instructor:
+        </span>
+        <span class="font-weight-bold">
+          {{ instructor.full_name }}
+        </span>
+      </div>
+      {% if certificate.expiry_date %}
+      <div>
+        <span>
+          Expiry Date:
+        </span>
+        <span class="font-weight-bold">
+          {{ frappe.utils.format_date(certificate.expiry_date, "medium") }}
+        </span>
+      </div>
+      {% endif %}
+    </div>
+    <img src="{{ logo }}" class="certificate-logo">
   </div>
-  <div>
-    <img src="{{ logo }}" style="height: 50px;">
-  </div>
+  <div class="certificate-ribbon"></div>
 </div>
 <script src="/assets/community/js/html2canvas.js"></script>

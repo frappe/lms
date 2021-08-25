@@ -133,7 +133,18 @@ var check_answer = (e) => {
 
   $(".explanation").removeClass("hide");
   $("#check").addClass("hide");
-  current_index == total_questions ? $("#summary").removeClass("hide") : $("#next").removeClass("hide");
+
+  if (current_index == total_questions) {
+    if ($(".eligible-for-submission").length) {
+      $("#summary").removeClass("hide")
+    }
+    else {
+      $("#submission-message").removeClass("hide");
+    }
+  }
+  else {
+    $("#next").removeClass("hide")
+  }
 
   var [answer, is_correct] = parse_options();
   add_to_local_storage(quiz_name, current_index, answer, is_correct)

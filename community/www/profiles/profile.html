@@ -59,6 +59,9 @@
 {% endmacro %}
 
 {% macro AboutOverviewSection(member) %}
+{% set enrollment = member.get_course_membership("Student") | length %}
+{% set mentorship = member.get_course_membership("Mentor") | length %}
+{% set reviews = member.get_user_reviews() | length %}
 <div class="profile-parent-section">
   {% if member.bio %}
   <div class="profile-about-section">
@@ -70,31 +73,35 @@
     </div>
   </div>
   {% endif %}
+
+  {% if enrollment or reviews or mentorship %}
   <div class="course-overview-section">
     <div class="course-home-headings">
       Overview
     </div>
     <div class="common-card-style overview-card small-title">
-      {% if member.get_course_membership("Student") | length %}
+      {% if enrollment %}
       <div class="overtime-item">
         <img class="icon-background mr-1" src="/assets/community/icons/user.svg" />
-        {{ member.get_course_membership("Student") | length }} Enrolled
+        {{ enrollment }} Enrolled
       </div>
       {% endif %}
-      {% if member.get_user_reviews() | length %}
+      {% if reviews %}
       <div class="overtime-item">
         <img class="icon-background mr-1" src="/assets/community/icons/rating.svg" />
-        {{ member.get_user_reviews() | length }} Created
+        {{ reviews }} Created
       </div>
       {% endif %}
-      {% if member.get_course_membership("Mentor") | length%}
+      {% if mentorship %}
       <div class="overtime-item">
         <img class="icon-background mr-1" src="/assets/community/icons/calendar.svg" />
-        {{ member.get_course_membership("Mentor") | length }} Mentored
+        {{ mentorship }} Mentored
       </div>
       {% endif %}
     </div>
   </div>
+  {% endif %}
+
 </div>
 {% endmacro %}
 

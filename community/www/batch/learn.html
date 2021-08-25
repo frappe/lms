@@ -40,14 +40,16 @@
 {% endblock %}
 
 {% macro LessonContent(lesson) %}
+{% set is_instructor = frappe.session.user == course.instructor %}
 <div class="lesson-content">
-  <div class="course-home-headings title {% if membership %} is-member {% endif %}" data-lesson="{{ lesson.name }}"
+  <div class="course-home-headings title
+  {% if membership %} is-member {% endif %}
+  {% if membership or is_instructor %} eligible-for-submission {% endif %}" data-lesson="{{ lesson.name }}"
     data-course="{{ course.name }}">
     {{ lesson.title }}
     <span class="lesson-progress {{hide if course.get_progress(lesson.name) != 'Complete' else ''}}">COMPLETED</span>
   </div>
 
-  {% set is_instructor = frappe.session.user == course.instructor %}
 
   {% if membership or lesson.include_in_preview or is_instructor %}
   <div class="common-card-style lesson-content-card markdown-source">{{ lesson.render_html() }}</div>

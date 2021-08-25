@@ -20,6 +20,7 @@ import markdown
 from markdown import Extension
 from markdown.inlinepatterns import InlineProcessor
 import xml.etree.ElementTree as etree
+import html as HTML
 
 def markdown_to_html(text):
     """Renders markdown text into html.
@@ -109,4 +110,5 @@ def sanitize_html(html, macro):
     classname = ""
     if macro == "YouTubeVideo":
         classname = "lesson-video"
+
     return "<div class='" + classname + "'>" + "\n".join(str(node) for node in nodes) + "</div>"

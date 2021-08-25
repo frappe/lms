@@ -29,7 +29,10 @@
   "section_break_5",
   "short_introduction",
   "description",
-  "chapters"
+  "chapters",
+  "certification_section",
+  "enable_certification",
+  "expiry"
  ],
  "fields": [
   {
@@ -119,6 +122,25 @@
   {
    "fieldname": "column_break_11",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "certification_section",
+   "fieldtype": "Section Break",
+   "label": "Certification"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_certification",
+   "fieldtype": "Check",
+   "label": "Enable Certification"
+  },
+  {
+   "default": "0",
+   "depends_on": "enable_certification",
+   "fieldname": "expiry",
+   "fieldtype": "Select",
+   "label": "Certification Expires After Years",
+   "options": "0\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -140,7 +162,7 @@
    "link_fieldname": "course"
   }
  ],
- "modified": "2021-08-20 11:01:15.795219",
+ "modified": "2021-08-25 11:04:57.211898",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",

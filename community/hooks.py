@@ -134,7 +134,7 @@ fixtures = ["Custom Field"]
 website_route_rules = [
 	{"from_route": "/sketches/<sketch>", "to_route": "sketches/sketch"},
 	{"from_route": "/courses/<course>", "to_route": "courses/course"},
-	{"from_route": "/courses/<course>/<topic>", "to_route": "courses/topic"},
+	{"from_route": "/courses/<course>/<certificate>", "to_route": "courses/certificate"},
 	{"from_route": "/hackathons/<hackathon>", "to_route": "hackathons/hackathon"},
 	{"from_route": "/hackathons/<hackathon>/<project>", "to_route": "hackathons/project"},
 	{"from_route": "/add-a-new-batch", "to_route": "add-a-new-batch"},
@@ -175,4 +175,5 @@ community_markdown_macro_renderers = {
 	"Exercise": "community.plugins.exercise_renderer",
 	"Quiz": "community.plugins.quiz_renderer",
 	"YouTubeVideo": "community.plugins.youtube_video_renderer",
+    "Video": "community.plugins.video_renderer"
 }

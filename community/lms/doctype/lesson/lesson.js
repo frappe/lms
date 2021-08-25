@@ -19,6 +19,15 @@ frappe.ui.form.on('Lesson', {
 
 <div class="row mb-3">
 	<div class="col-sm-4">
+		Video
+	</div>
+	<div class="col-sm-4">
+		{{ Video("url_of_source") }}
+	</div>
+</div>
+
+<div class="row mb-3">
+	<div class="col-sm-4">
 		YouTube Video
 	</div>
 	<div class="col-sm-4">
