@@ -3,7 +3,7 @@
   <div class="course-home-headings">
     Course Outline
   </div>
-  <div class="coure-outline">
+  <div class="common-card-style course-outline">
     {% for chapter in course.get_chapters() %}
     {{ widgets.ChapterTeaser(index=loop.index, chapter=chapter, course=course, batch=batch, membership=membership) }}
     {% endfor %}

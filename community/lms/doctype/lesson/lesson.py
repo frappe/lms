@@ -8,7 +8,7 @@ from frappe.model.document import Document
 from ...md import markdown_to_html, find_macros
 
 class Lesson(Document):
-    def before_save(self):
+    def on_update(self):
         dynamic_documents = ["Exercise", "Quiz"]
         for section in dynamic_documents:
             self.update_lesson_name_in_document(section)

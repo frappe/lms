@@ -98,7 +98,7 @@ section {
   padding: 15px;
   margin: 70px auto;
   border: 1px solid #d1d8dd;
-  border-radius: 4px;
+  border-radius: 8px;
   background-color: #fff;
   box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
 }
@@ -162,8 +162,8 @@ input[type=checkbox] {
 .course-tags {
   display: flex;
   position: relative;
-  top: 0.75rem;
-  left: 0.75rem;
+  top: 1rem;
+  left: 1rem;
 }
 
 .course-card-pills {
@@ -184,8 +184,9 @@ input[type=checkbox] {
 
 .common-page-style {
   background: #F4F5F6;
-  padding-bottom: 2rem;
+  padding-bottom: 5rem;
   min-height: 60vh;
+  padding-top: 3rem;
 }
 
 .common-card-style {
@@ -194,7 +195,7 @@ input[type=checkbox] {
   border-radius: 8px;
   position: relative;
   border: 1px solid #EEF0F2;
-  box-shadow: 0 1px 4px 4px rgb(25, 39, 52, 0.02);
+  box-shadow: 0 0px 4px 2px #19273405;
 }
 
 .course-card {
@@ -279,23 +280,13 @@ input[type=checkbox] {
   line-height: 135%;
   color: var(--text-color);
 }
-.view-talk-link {
-  background: var(--button-background);
-  border-radius: 4px;
-  font-size: 14px;
-  padding: 8px 22px 8px;
-  text-align: center;
-  line-height: 135%;
-  color: var(--text-color);
-
-}
 
 .cards-parent {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  -moz-column-gap: 32px;
-  column-gap: 32px;
-  row-gap: 32px;
+  -moz-column-gap: 40px;
+  column-gap: 40px;
+  row-gap: 40px;
   align-items: center;
 }
 
@@ -318,7 +309,8 @@ input[type=checkbox] {
 }
 
 .courses-header {
-  padding: 50px 20px 20px;
+  margin-bottom: 1.5rem;
+  padding: 0 1rem;
   color: var(--text-color);
   font-weight: 600;
   font-size: 22px;
@@ -420,7 +412,7 @@ input[type=checkbox] {
   height: 1.5rem;
   width: 1.5rem;
   border: 1px solid black;
-  border-radius: 5px;
+  border-radius: 8px;
 }
 
 .custom-checkbox>label>input:checked+.empty-checkbox {
@@ -438,7 +430,7 @@ input[type=checkbox] {
   flex-direction: row;
   padding: 24px;
   background: #E2E6E9;
-  border-radius: 12px;
+  border-radius: 8px;
   margin-top: 16px;
 }
 
@@ -463,7 +455,7 @@ input[type=checkbox] {
   background-position: center;
   background-repeat: no-repeat;
   margin-right: 32px;
-  border-radius: 5px;
+  border-radius: 8px;
   flex: 1;
   align-self: center;
 }
@@ -545,7 +537,7 @@ input[type=checkbox] {
 
 .button {
   box-shadow: var(--btn-shadow);
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -736,9 +728,8 @@ input[type=checkbox] {
   margin-left: .875rem;
 }
 
-.coure-outline {
-  background: #FFFFFF;
-  border-radius: 12px;
+.course-outline {
+  flex-direction: column;
   padding: 16px 12px 16px;
 }
 
@@ -763,7 +754,7 @@ input[type=checkbox] {
   padding: 20px 0px 16px;
 }
 
-.member-card .talk-title{
+.member-card .talk-title {
   font-weight: bold;
 }
 
@@ -791,7 +782,6 @@ input[type=checkbox] {
 .member-card-large .member-card-title {
   font-weight: bold;
 }
-
 
 .member-card-xl .member-card-title {
   font-weight: bold;
@@ -837,6 +827,7 @@ input[type=checkbox] {
   letter-spacing: -0.0175em;
   color: #192734;
   margin-bottom: 1rem;
+  padding: 0 1rem;
 }
 
 .course-detail-headings {
@@ -847,7 +838,7 @@ input[type=checkbox] {
   margin: 0;
 }
 
-.avatar-medium-schedule{
+.avatar-medium-schedule {
   width: 70px;
   height: 70px;
 }
@@ -879,6 +870,14 @@ input[type=checkbox] {
 .description-card {
   padding: 1.5rem;
   flex-direction: column;
+}
+
+.description-card p {
+  line-height: 1.72;
+}
+
+.description-card p:last-child {
+  margin-bottom: 0;
 }
 
 .overview-card {
@@ -996,7 +995,7 @@ input[type=checkbox] {
 }
 
 .breadcrumb {
-  padding: 1rem 0 0;
+  padding: 0 1rem;
   display: flex;
   align-items: center;
   font-size: 12px;
@@ -1052,7 +1051,7 @@ input[type=checkbox] {
 
 .active-lesson {
   background-color: #EBF5FF;
-  border-radius: 4px;
+  border-radius: 0.25rem;
 }
 
 .lesson-progress {
@@ -1061,7 +1060,7 @@ input[type=checkbox] {
   font-size: 10px;
   line-height: 120%;
   margin: 0px 10px 20px;
-  border-radius: 4px;
+  border-radius: 8px;
   font-weight: bold;
 }
 
@@ -1071,7 +1070,7 @@ input[type=checkbox] {
 
 .profile-banner {
   height: 248px;
-  border-radius: 12px 12px 0px 0px;
+  border-radius: 8px 8px 0px 0px;
   background-size: cover;
   background-position: center;
 }
@@ -1090,7 +1089,7 @@ input[type=checkbox] {
 .profile-info {
   height: 68px;
   background: #ffffff;
-  border-radius: 0px 0px 12px 12px;
+  border-radius: 0px 0px 8px 8px;
 }
 
 .profile-avatar {
@@ -1333,13 +1332,12 @@ pre {
   font-size: 20px;
 }
 
-.schedule-info{
+.schedule-info {
   padding: 20px;
 }
 
-
 .drop-down-icon {
-  padding : 5px 0 0 5px;
+  padding: 5px 0 0 5px;
 }
 
 .event-btn {
@@ -1354,12 +1352,12 @@ pre {
   padding-bottom: 30px;
 }
 
-.exhibitor-card .company-name{
+.exhibitor-card .company-name {
   font-size: 25px;
   margin-top: 30px;
 }
 
-.exhibitor-card .company-logo{
+.exhibitor-card .company-logo {
   height: 158px;
   width: 252px;
   object-fit: contain;
@@ -1376,7 +1374,7 @@ pre {
   margin-top: 6px;
 }
 
-.info-avatar img{
+.info-avatar img {
   object-fit: contain;
 }
 
@@ -1451,20 +1449,16 @@ textarea.form-control {
   }
 }
 
-
 @media (max-width: 768px) {
   .certificate-page .common-card-style {
     width: 50%;
   }
-
   .certificate-content {
     padding: 2rem;
   }
-
   .certificate-ribbon {
     margin-right: 1rem;
   }
-
   .certificate-heading {
     font-size: 2rem;
   }
@@ -1480,7 +1474,6 @@ textarea.form-control {
   .certificate-page .common-card-style {
     width: 90%;
   }
-
   .certificate-heading {
     font-size: 2rem;
   }

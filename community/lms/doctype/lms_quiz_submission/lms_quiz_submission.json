@@ -13,6 +13,8 @@
   {
    "fieldname": "quiz",
    "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Quiz",
    "options": "LMS Quiz"
   },
@@ -25,12 +27,13 @@
   {
    "fieldname": "score",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Score"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-06-07 14:19:54.958989",
+ "modified": "2021-08-26 12:24:15.973829",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz Submission",
