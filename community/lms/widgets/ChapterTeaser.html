@@ -19,7 +19,7 @@
 
       {% for lesson in course.get_lessons(chapter) %}
 
-      <div class="lesson-info{% if membership.current_lesson == lesson.name %} active-lesson {% endif %}">
+      <div class="lesson-info {% if membership.current_lesson == lesson.name %} active-lesson {% endif %}">
 
         {% if membership or lesson.include_in_preview or is_instructor %}
         <a class="lesson-links" href="{{ course.get_learn_url(lesson.number) }}{{course.query_parameter}}"
@@ -57,7 +57,7 @@
   frappe.ready(() => {
     expand_the_active_chapter();
 
-    $(".chapter-title").click((e) => {
+    $(".chapter-title").unbind().click((e) => {
       rotate_chapter_icon(e);
     });
 
@@ -103,7 +103,6 @@
   }
 
   var rotate_chapter_icon = (e) => {
-    e.preventDefault();
     var icon = $(e.currentTarget).children(".chapter-icon");
     if (icon.css("transform") == "none") {
       icon.css("transform", "rotate(90deg)");
@@ -111,5 +110,4 @@
       icon.css("transform", "none");
     }
   }
-
 </script>
