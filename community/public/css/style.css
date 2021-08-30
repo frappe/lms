@@ -1387,23 +1387,19 @@ textarea.form-control {
   height: 300px;
 }
 
-.discussion-on-page textarea.form-control {
+.discussion-on-page .form-control {
   background-color: #FFFFFF;
+  font-size: inherit;
   color: inherit;
+}
+
+.discussion-on-page textarea {
   height: 160px;
 }
 
 .comment-footer {
   display: flex;
   justify-content: flex-end;
-}
-
-.comment-field {
-  font-size: inherit;
-}
-
-.thread-title {
-  font-size: inherit;
 }
 
 .message-author {

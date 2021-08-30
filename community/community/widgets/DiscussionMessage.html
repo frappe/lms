@@ -1,80 +1,83 @@
-{% if doctype and docname and not thread %}
+{% set topics = frappe.get_all("Discussion Topic",
+{"reference_doctype": doctype, "reference_docname": docname}, ["name", "title"]) %}
 
-{% set thread_info = frappe.get_all("Discussion Thread", {"reference_doctype": doctype, "reference_docname": docname},
-["name"]) %}
+<div class="courses-header mt-10">
+  <span>{{_('Discussions')}}</span>
+  <div class="button is-primary pull-right reply">
+    <img src="/assets/community/icons/small-add.svg">
+    Start a Discussion
+  </div>
+</div>
 
-{% if thread_info | length %}
-{% set thread = thread_info[0].name %}
-{% endif %}
+{{ widgets.DiscussionComment(doctype=doctype, docname=docname) }}
 
-{% endif %}
-
-{% if thread %}
-{% set messages = frappe.get_all("Discussion Message", {"thread": thread}, ["name", "message", "owner", "creation"],
-order_by="creation") %}
-{% endif %}
-
-{% if doctype %}
-<div class="course-home-headings mt-5"> Discussions </div>
-{% endif %}
-
-<div class="messages mt-5">
-  {% for message in messages %}
-    {% include "community/templates/message_card.html" %}
+<div class="common-card-style thread-card discussions-section" data-doctype="{{ doctype }}"
+  data-docname="{{ docname }}">
+  {% for topic in topics %}
+  <div class="topic-parent" data-topic="{{ topic.name }}">
+    <div class="font-weight-bold mb-5">{{ topic.title }}</div>
+    {% set replies = frappe.get_all("Discussion Reply", {"topic": topic.name},
+    ["reply", "owner", "creation"], order_by="creation")%}
+    {% for reply in replies %}
+    {% include "community/templates/reply_card.html" %}
+    {% endfor %}
+  </div>
   {% endfor %}
 </div>
-
-{% if frappe.session.user == "Guest" or (condition is defined and not condition) %}
-<div class="d-flex flex-column align-items-center font-weight-bold">
-  Want to join the discussion?
-  {% if frappe.session.user == "Guest" %}
-  <div class="button is-primary mt-5" id="login-from-discussion">Log In</div>
-  {% elif not condition %}
-  <div class="button is-primary mt-5" id="login-from-discussion" data-redirect="{{ redirect_to }}">{{ button_name }}</div>
-  {% endif %}
-</div>
-{% else %}
-{{ widgets.DiscussionComment(doctype=doctype, docname=docname, title=title, thread=thread ) }}
-{% endif %}
 
 <script>
   frappe.ready(() => {
     setup_socket_io();
 
-    $("#login-from-discussion").click((e) => {
-      login_from_discussion(e);
+    $(document).on("click", ".reply", (e) => {
+      show_new_topic_modal(e);
     })
-
   })
+
+  var show_new_topic_modal = (e) => {
+    e.preventDefault();
+    if (frappe.session.user == "Guest") {
+      window.location.href = `/login?redirect-to=/discussions/`;
+      return;
+    }
+    $("#discussion-modal").modal("show");
+    var topic = $(e.currentTarget).attr("data-topic");
+    $(".modal-headings").text(topic ? "Reply" : "Start a Discussion");
+    topic ? $(".topic-title").addClass("hide") : $(".topic-title").removeClass("hide");
+    $("#submit-discussion").attr("data-topic", topic ? topic : "");
+  }
 
   var setup_socket_io = () => {
     const assets = [
       "/assets/frappe/js/lib/socket.io.min.js",
       "/assets/frappe/js/frappe/socketio_client.js",
     ]
-    frappe.require(assets, () => {
 
+    frappe.require(assets, () => {
       if (window.dev_server) {
         frappe.boot.socketio_port = "9000";
       }
-
       frappe.socketio.init(9000);
-      var target = $("#submit-discussion");
-
       frappe.socketio.socket.on("publish_message", (data) => {
-        if (target.attr("data-thread") == data.thread
-          || (decodeURIComponent(target.attr("data-doctype")) == data.thread_info.reference_doctype
-              && decodeURIComponent(target.attr("data-docname")) == data.thread_info.reference_docname)) {
-          $(".comment-field").val("");
-          $(".messages").append(data.template);
-        }
+        publish_message(data);
       })
     })
   }
 
-  var login_from_discussion = (e) => {
-    var redirect = $(e.currentTarget).attr("data-redirect") || window.location.href;
-    window.location.href = `/login?redirect-to=${redirect}`;
-  }
+  var publish_message = (data) => {
+    $(".comment-field").val("");
+    $("#discussion-modal").modal("hide");
 
+    if ($(`.topic-parent[data-topic=${data.topic_info.name}]`).length) {
+      $(`.topic-parent[data-topic=${data.topic_info.name}]`).append(data.template);
+    }
+    else if ((decodeURIComponent($(".discussions-section").attr("data-doctype")) == data.topic_info.reference_doctype
+      && decodeURIComponent($(".discussions-section").attr("data-docname")) == data.topic_info.reference_docname)) {
+      var html = `<div class="topic-parent" data-topic="${data.topic_info.name}">
+                        <div class="font-weight-bold mb-5">${data.topic_info.title}</div>
+                        ${data.template}
+                      </div>`;
+      $(".discussions-section").prepend(html);
+    }
+  }
 </script>

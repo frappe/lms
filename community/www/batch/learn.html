@@ -31,7 +31,7 @@
         {% set title = lesson.title + " - " + course.title %}
         {% set condition = membership or is_instructor %}
         {{ widgets.DiscussionMessage(doctype="Lesson", docname=lesson.name,
-          title=title, condition=condition, button_name="Start Learning",
+          condition=condition, button_name="Start Learning",
           redirect_to="/courses/" + course.name) }}
       </div>
     </div>

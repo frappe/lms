@@ -3,20 +3,22 @@
 
 import frappe
 from frappe.model.document import Document
-from community.widgets import Widget, Widgets
+from community.widgets import Widgets
 
-class DiscussionMessage(Document):
+class DiscussionReply(Document):
     def after_insert(self):
         data = {
-            "message": self,
+            "reply": self,
+            "topic": {
+                "name": self.topic
+            },
             "widgets": Widgets()
         }
-        template = frappe.render_template("community/templates/message_card.html", data)
-        thread_info = frappe.db.get_value("Discussion Thread", self.thread, ["reference_doctype", "reference_docname"], as_dict=True)
+        template = frappe.render_template("community/templates/reply_card.html", data)
+        topic_info = frappe.db.get_value("Discussion Topic", self.topic, ["reference_doctype", "reference_docname", "name", "title"], as_dict=True)
         frappe.publish_realtime(event="publish_message",
                                 message = {
-                                    "thread": self.thread,
                                     "template": template,
-                                    "thread_info": thread_info
+                                    "topic_info": topic_info
                                 },
                                 after_commit=True)
