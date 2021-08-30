@@ -1,1 +1,2 @@
-{{ widgets.DiscussionMessage }}
+{% set docname = frappe.db.get_value("Web Page", {"route": ""}, ["name"])%}
+{{ widgets.DiscussionMessage(doctype="Web Page", docname=docname) }}

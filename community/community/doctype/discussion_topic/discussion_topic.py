@@ -29,3 +29,7 @@ def save_message(reply, topic):
         "reply": reply,
         "topic": topic
     }).save(ignore_permissions=True)
+
+@frappe.whitelist()
+def get_docname(route):
+    return frappe.db.get_value("Web Page", {"route": route}, ["name"])
