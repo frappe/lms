@@ -22,18 +22,21 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Chapter",
-   "options": "Chapter"
+   "options": "Chapter",
+   "reqd": 1
   },
   {
    "fieldname": "title",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Title"
+   "label": "Title",
+   "reqd": 1
   },
   {
    "fieldname": "body",
    "fieldtype": "Markdown Editor",
-   "label": "Body"
+   "label": "Body",
+   "reqd": 1
   },
   {
    "fieldname": "index_label",
@@ -67,7 +70,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-07-27 16:28:29.203624",
+ "modified": "2021-08-31 10:44:14.168257",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Lesson",
