@@ -9,6 +9,7 @@
       <span class="font-weight-bold">{{ frappe.utils.format_date(certificate.issue_date, "medium") }}</span>
     </div>
     <div class="certificate-footer">
+      {% if instructor %}
       <div>
         <span>
           Instructor:
@@ -17,6 +18,7 @@
           {{ instructor.full_name }}
         </span>
       </div>
+      {% endif %}
       {% if certificate.expiry_date %}
       <div>
         <span>
