@@ -15,7 +15,7 @@
   data-docname="{{ docname }}">
   {% for topic in topics %}
   <div class="topic-parent" data-topic="{{ topic.name }}">
-    <div class="font-weight-bold mb-5">{{ topic.title }}</div>
+    <div class="course-home-headings p-0">{{ topic.title }}</div>
     {% set replies = frappe.get_all("Discussion Reply", {"topic": topic.name},
     ["reply", "owner", "creation"], order_by="creation")%}
     {% for reply in replies %}
@@ -24,7 +24,9 @@
   </div>
   {% endfor %}
   {% if not topics %}
-  <p id="no-discussions" class="text-center"> No discussions yet. </p>
+  <span id="no-discussions" class="text-center">
+    No discussions yet. <img src="/assets/community/icons/slash.svg">
+  </span>
   {% endif %}
 </div>
 <script>

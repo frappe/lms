@@ -20,7 +20,6 @@
   --received-message: var(--c8);
   --checkbox-size: 14px;
   --control-bg: var(--gray-100);
-  --muted-text: #4C5A67;
   --button-background: #EEF0F2;
   --text-xs: 11px;
   --text-sm: 12px;
@@ -109,8 +108,6 @@ input[type=checkbox] {
 .muted-text {
   font-size: 12px;
   line-height: 135%;
-  color: var(--muted-text);
-  height: 15px;
 }
 
 .course-card-meta {
@@ -169,7 +166,6 @@ input[type=checkbox] {
 .course-student-count {
   font-size: 12px;
   line-height: 135%;
-  color: var(--muted-text);
   float: right;
 }
 
@@ -225,9 +221,13 @@ input[type=checkbox] {
     padding-right: 1rem;
   }
 }
+.button-links {
+  color: #4C5A67;
+}
 
 .button-links:hover {
   text-decoration: none;
+  color: #4C5A67;
 }
 
 .icon-background {
@@ -1303,9 +1303,8 @@ textarea.form-control {
   justify-content: flex-end;
 }
 
-.message-author {
-  color: #192734;
-  margin-left: 0.5rem;
+.reply-card {
+  margin-bottom: 40px;
 }
 
 .certificate-page .common-card-style {
