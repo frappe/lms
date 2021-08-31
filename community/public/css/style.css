@@ -1313,69 +1313,66 @@ textarea.form-control {
 }
 
 .certificate-page .common-card-style {
-  font-family: Inter;
   color: black;
-  width: 40%;
-  margin: 0 auto;
+  font-size: 1.25rem;
 }
 
 .certificate-content {
-  padding: 5rem;
+  padding: 5rem 9rem;
+}
+
+.certificate-footer {
+  margin-bottom: 4rem;
 }
 
 .certificate-ribbon {
   background-color: var(--primary-color);
-  margin-right: 2rem;
-  width: 20%;
+  margin-right: 3rem;
+  width: 5%;
 }
 
 .certificate-heading {
-  font-size: 2rem;
+  font-size: 3rem;
   margin-bottom: 3rem;
   font-weight: bold;
 }
 
 .certificate-para {
-  margin-bottom: 3rem;
+  margin-bottom: 4rem;
 }
 
 .certificate-logo {
-  height: 20px;
-  margin-top: 2rem;
+  height: 30px;
 }
 
 @media (max-width: 1024px) {
   .certificate-content {
-    padding: 3rem;
+    padding: 3rem 5rem;
   }
 }
 
 @media (max-width: 768px) {
-  .certificate-page .common-card-style {
-    width: 50%;
-  }
-  .certificate-content {
-    padding: 2rem;
-  }
-  .certificate-ribbon {
-    margin-right: 1rem;
-  }
   .certificate-heading {
     font-size: 2rem;
-  }
-}
-
-@media (max-width: 550px) {
-  .certificate-page .common-card-style {
-    width: 60%;
   }
 }
 
 @media (max-width: 500px) {
   .certificate-page .common-card-style {
-    width: 90%;
+    font-size: 1rem;
   }
-  .certificate-heading {
-    font-size: 2rem;
+  .certificate-content {
+    padding: 3rem;
+  }
+  .certificate-ribbon {
+    background-color: var(--primary-color);
+    margin-right: 2rem;
+    width: 20%;
+  }
+}
+
+@media (max-width: 375px) {
+  .certificate-content {
+    padding: 2rem;
   }
 }
