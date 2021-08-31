@@ -22,8 +22,8 @@
 
 {% macro CourseCardWide(course) %}
 <div class="common-card-style course-card-wide">
-  <div class="course-image-wide {% if not course.image %} default-image {% endif %}"
-    {% if course.image %}style="background-image: url({{ course.image }});"{% endif %}>
+  <div class="course-image-wide {% if not course.image %} default-image {% endif %}" {% if course.image
+    %}style="background-image: url({{ course.image }});" {% endif %}>
     <div class="course-tags">
       {% for tag in course.get_tags() %}
       <div class="course-card-pills">{{ tag }}</div>
@@ -59,8 +59,8 @@
       </a>
       {% endif %}
       {% if course.upcoming %}
-      <button class="button wide-button is-default" id="notify-me" data-course="{{course.name | urlencode}}"
-      {% if is_user_interested %} disabled="disabled" title="Your interest has already been noted." {% endif %} >
+      <button class="button wide-button is-default" id="notify-me" data-course="{{course.name | urlencode}}" {% if
+        is_user_interested %} disabled="disabled" title="Your interest has already been noted." {% endif %}>
         Notify me when available
       </button>
       {% endif %}
@@ -69,10 +69,6 @@
         Watch Video Preview
         <img class="ml-2" src="/assets/community/images/play.png" />
       </div>
-      {% endif %}
-      {% set certificate = course.is_certified() %}
-      {% if certificate %}
-      <a class="button wide-button is-secondary dark-links" href="/courses/{{ course.name }}/{{ certificate }}">Get Certificate</a>
       {% endif %}
     </div>
   </div>
@@ -101,6 +97,7 @@
 <!-- Course Outline and Creator -->
 
 {% macro CourseOutlineAndCreator(course) %}
+{% set certificate = course.is_certified() %}
 <div class="course-outline-instructor-parent">
   <div class="course-home-outline">
     {{ widgets.CourseOutline(course=course, membership=membership) }}
@@ -137,9 +134,13 @@
           {{ frappe.utils.rounded(progress) }}%
         </div>
         <div class="progress">
-          <div class="progress-bar" role="progressbar" style="width: {{ progress }}%"
-            aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100"></div>
+          <div class="progress-bar" role="progressbar" style="width: {{ progress }}%" aria-valuenow="{{ progress }}"
+            aria-valuemin="0" aria-valuemax="100"></div>
         </div>
+        {% if certificate %}
+        <a class="muted-text dark-links mt-5 text-center" href="/courses/{{ course.name }}/{{ certificate }}">Get
+          Certificate</a>
+        {% endif %}
       </div>
     </div>
     {% endif %}
