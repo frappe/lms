@@ -63,7 +63,7 @@ To setup the repository locally follow the steps mentioned below:
 1. Run bench get-app https://github.com/fossunited/community.
 1. Run bench --site community.test install-app community.
 1. Map your site to localhost with the command ```bench --site community.test add-to-hosts```
-1. Now open the URL http://community.test:8000/docs in your browser, you should see the app running.
+1. Now open the URL http://community.test:8000/ in your browser, you should see the app running.
 
 ### Contribution Guidelines (for The Hard Way)
 

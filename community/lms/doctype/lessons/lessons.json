@@ -13,13 +13,14 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Lesson",
-   "options": "Lesson"
+   "options": "Lesson",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2021-07-27 16:53:52.732191",
+ "modified": "2021-08-31 10:44:42.048232",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Lessons",

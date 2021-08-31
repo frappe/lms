@@ -18,7 +18,8 @@
    "fieldname": "title",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Title"
+   "label": "Title",
+   "reqd": 1
   },
   {
    "fieldname": "description",
@@ -30,7 +31,8 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Course",
-   "options": "LMS Course"
+   "options": "LMS Course",
+   "reqd": 1
   },
   {
    "fieldname": "lessons",
@@ -55,7 +57,7 @@
    "link_fieldname": "chapter"
   }
  ],
- "modified": "2021-08-19 13:43:51.025072",
+ "modified": "2021-08-31 10:43:45.866864",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Chapter",

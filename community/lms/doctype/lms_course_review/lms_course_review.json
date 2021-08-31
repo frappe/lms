@@ -26,13 +26,14 @@
    "fieldname": "course",
    "fieldtype": "Link",
    "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Course",
    "options": "LMS Course"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-07-05 14:57:03.841430",
+ "modified": "2021-08-31 12:37:23.832131",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course Review",
