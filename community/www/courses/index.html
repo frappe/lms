@@ -14,7 +14,7 @@
     </div>
     <div class="cards-parent">
       {% for course in courses %}
-      {{ widgets.CourseCard(course=course) }}
+      {{ widgets.CourseCard(course=course, show_progress_indicators=True) }}
       {% endfor %}
     </div>
   </div>

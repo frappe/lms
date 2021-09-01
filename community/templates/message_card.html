@@ -2,7 +2,7 @@
   <div class="mb-4">
     {% set member = frappe.get_doc("User", message.owner) %}
     {{ widgets.Avatar(member=member, avatar_class="avatar-small")}}
-    <a class="button-links" href="/user/{{ member.username }}">
+    <a class="button-links" href="/users/{{ member.username }}">
       <span class="message-author">{{ member.full_name }}</span>
     </a>
     <span class="muted-text pull-right">{{ frappe.utils.format_datetime(message.creation, "dd MMM hh:mm") }}</span>

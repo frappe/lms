@@ -139,19 +139,34 @@
 {% endmacro %}
 
 {% macro CoursesEnrolled(member) %}
-{% if member.get_course_membership("Student") | length %}
+{% set enrolled = member.get_enrolled_courses() %}
+{% set show_progress = member.name == frappe.session.user %}
+{% if enrolled.in_progress | length %}
 <div class="profile-courses">
   <div class="course-home-headings">
-    Courses Enrolled
+    Courses In Progress
   </div>
   <div class="cards-parent">
-    {% for membership in member.get_course_membership("Student") %}
-    {% set course_details = frappe.get_doc("LMS Course", membership.course) %}
-    {{ widgets.CourseCard(course=course_details) }}
+    {% for course in enrolled.in_progress %}
+    {{ widgets.CourseCard(course=course, show_progress_indicators=show_progress) }}
     {% endfor %}
   </div>
 </div>
 {% endif %}
+
+{% if enrolled.completed | length %}
+<div class="profile-courses">
+  <div class="course-home-headings">
+    Courses Completed
+  </div>
+  <div class="cards-parent">
+    {% for course in enrolled.completed %}
+    {{ widgets.CourseCard(course=course, show_progress_indicators=show_progress) }}
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
 {% endmacro %}
 
 {% macro ProfileTabs(profile_tabs) %}
@@ -166,3 +181,16 @@
   {% endfor %}
 </div>
 {% endmacro %}
+
+{% block script %}
+<script>
+  frappe.ready(() => {
+    if ("{{ member.name }}" == frappe.session.user) {
+      setTimeout(() => {
+        var link_array = $('.nav-link').filter((i, elem) => $(elem).text().trim() === "My Profile");
+        link_array.length && $(link_array[0]).addClass("active");
+      }, 0)
+    }
+  })
+</script>
+{% endblock %}

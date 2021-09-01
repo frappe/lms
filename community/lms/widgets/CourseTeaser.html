@@ -12,7 +12,7 @@
     {% endif %}
     <div class="course-author">
       {% with author = course.get_instructor() %}
-        {{ widgets.Avatar(member=author, avatar_class="avatar-medium") }} <a href="/user/{{author.username}}">{{ author.full_name }}</a>
+        {{ widgets.Avatar(member=author, avatar_class="avatar-medium") }} <a href="/users/{{author.username}}">{{ author.full_name }}</a>
       {% endwith %}
     </div>
   </div>

@@ -1,5 +1,5 @@
 {% set color = member.get_palette() %}
-<a class="button-links" href="/user/{{member.username}}">
+<a class="button-links" href="/users/{{member.username}}">
   <span class="avatar {{ avatar_class }}" title="{{ member.full_name }}">
     {% if member.user_image %}
     <img class="avatar-frame standard-image" style="object-fit: cover;" src="{{ member.user_image }}" title="{{ member.full_name }}">
