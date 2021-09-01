@@ -31,7 +31,7 @@
       {% endif %}
       {% set certificate = course.is_certified() %}
       {% if certificate and show_progress_indicators %}
-      <a class="muted-text dark-links pull-right zindex" href="/courses/{{ course.name }}/{{ certificate }}">View
+      <a class="muted-text dark-links pull-right zindex" href="/courses/{{ course.name }}/{{ certificate }}">Get
         Certificate</a>
       {% endif %}
     </div>
