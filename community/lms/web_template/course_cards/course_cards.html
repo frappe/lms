@@ -3,7 +3,7 @@
   <div class="cards-parent mt-10">
     {% for course_row in courses %}
     {% set course = frappe.get_doc("LMS Course", course_row.course) %}
-    {{ widgets.CourseCard(course=course, show_progress_indicators=True) }}
+    {{ widgets.CourseCard(course=course, read_only=False) }}
     {% endfor %}
   </div>
 </div>

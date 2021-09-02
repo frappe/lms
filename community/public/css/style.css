@@ -67,6 +67,7 @@ input[type=checkbox] {
   position: relative;
   top: 1rem;
   left: 1rem;
+  width: 95%;
 }
 
 .course-card-pills {
@@ -103,7 +104,6 @@ input[type=checkbox] {
 
 .course-card {
   flex-direction: column;
-  height: 380px;
 }
 
 .muted-text {
@@ -135,8 +135,8 @@ input[type=checkbox] {
   letter-spacing: -0.014em;
   color: var(--text-color);
   align-self: stretch;
-  margin-bottom: 16px;
-  height: 45px;
+  margin-bottom: 1.5rem;
+  height: 56px;
 }
 
 @media (max-width: 360px) {
@@ -152,10 +152,6 @@ input[type=checkbox] {
 
 .card-divider-dark {
   border: 1px solid #E2E6E9;
-  margin-bottom: 16px;
-}
-
-.course-card-meta-2 {
   margin-bottom: 16px;
 }
 

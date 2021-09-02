@@ -7,6 +7,10 @@
       {% for tag in course.get_tags() %}
       <div class="course-card-pills">{{ tag }}</div>
       {% endfor %}
+      {% set progress = course.get_course_progress() %}
+      {% if membership and not read_only %}
+      <div class="course-card-pills ml-auto">{{ frappe.utils.rounded(progress) }}% </div>
+      {% endif %}
     </div>
     {% if not course.image %}
     <div class="default-image-text">{{ course.title[0] }}</div>
@@ -29,25 +33,11 @@
         {{ course.get_upcoming_batches() | length }} Open Batches
       </span>
       {% endif %}
-      {% set certificate = course.is_certified() %}
-      {% if certificate and show_progress_indicators %}
-      <a class="muted-text dark-links pull-right zindex" href="/courses/{{ course.name }}/{{ certificate }}">Get
-        Certificate</a>
-      {% endif %}
     </div>
 
     <div class="course-card-title">{{ course.title }}</div>
-    {% if membership and show_progress_indicators %}
-    {% set progress = course.get_course_progress() %}
-    <div class="progress mb-5 zindex" title="{{ frappe.utils.rounded(progress) }}%">
-      <div class="progress-bar" role="progressbar" style="width: {{ progress }}%" aria-valuenow="{{ progress }}"
-        aria-valuemin="0" aria-valuemax="100"></div>
-    </div>
-    {% else %}
-    <div class="card-divider"></div>
-    {% endif %}
 
-    <div class="course-card-meta-2">
+    <div {% if not read_only %} class="mb-4" {% endif %}>
       <span class="zindex">
         {{ widgets.Avatar(member=course.get_instructor(), avatar_class="avatar-small") }}
         <a class="button-links" href="/users/{{ course.get_instructor().username}}">
@@ -73,13 +63,22 @@
       </span>
     </div>
 
+    {% if not read_only %}
+
     {% set lesson_index = course.get_lesson_index(membership.current_lesson) if membership and
     membership.current_lesson
     else '1.1' %}
 
     {% set query_parameter = "?batch=" + membership.batch if membership and membership.batch else "" %}
 
-    {% if course.upcoming %}
+    {% set certificate = course.is_certified() %}
+    {% if certificate and not read_only %}
+    <div class="view-course-link is-secondary border">
+      Get Certificate <img class="ml-3" src="/assets/community/icons/black-arrow.svg" />
+    </div>
+    <a class="stretched-link" href="/courses/{{ course.name }}/{{ certificate }}"></a>
+
+    {% elif course.upcoming %}
     <div class="view-course-link is-secondary border">
       Upcoming Course <img class="ml-3" src="/assets/community/icons/black-arrow.svg" />
     </div>
@@ -96,8 +95,10 @@
       View Course <img class="ml-3" src="/assets/community/icons/black-arrow.svg" />
     </div>
     <a class="stretched-link" href="/courses/{{ course.name }}"></a>
+    {% endif %}
 
     {% endif %}
+
   </div>
 </div>
 <script>

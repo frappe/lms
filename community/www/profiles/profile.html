@@ -7,11 +7,12 @@
 {% block content %}
 <div class="common-page-style">
   <div class="container profile-page">
+    {% set read_only = member.name != frappe.session.user %}
     {{ ProfileBanner(member) }}
     {{ AboutOverviewSection(member) }}
-    {{ CoursesCreated(member) }}
-    {{ CoursesMentored(member) }}
-    {{ CoursesEnrolled(member) }}
+    {{ CoursesEnrolled(member, read_only) }}
+    {{ CoursesCreated(member, read_only) }}
+    {{ CoursesMentored(member, read_only) }}
     {{ ProfileTabs(profile_tabs) }}
   </div>
 </div>
@@ -106,7 +107,7 @@
 {% endmacro %}
 
 
-{% macro CoursesCreated(member) %}
+{% macro CoursesCreated(member, read_only) %}
 {% if member.get_authored_courses() | length %}
 <div class="profile-courses">
   <div class="course-home-headings">
@@ -115,14 +116,14 @@
   <div class="cards-parent">
     {% for course in member.get_authored_courses() %}
     {% set course_details = frappe.get_doc("LMS Course", course) %}
-    {{ widgets.CourseCard(course=course_details) }}
+    {{ widgets.CourseCard(course=course_details, read_only=read_only) }}
     {% endfor %}
   </div>
 </div>
 {% endif %}
 {% endmacro %}
 
-{% macro CoursesMentored(member) %}
+{% macro CoursesMentored(member, read_only) %}
 {% if member.get_mentored_courses() | length %}
 <div class="profile-courses">
   <div class="course-home-headings">
@@ -131,28 +132,15 @@
   <div class="cards-parent">
     {% for mentorship in member.get_mentored_courses() %}
     {% set course_details = frappe.get_doc("LMS Course", mentorship.course) %}
-    {{ widgets.CourseCard(course=course_details) }}
+    {{ widgets.CourseCard(course=course_details, read_only=read_only) }}
     {% endfor %}
   </div>
 </div>
 {% endif %}
 {% endmacro %}
 
-{% macro CoursesEnrolled(member) %}
+{% macro CoursesEnrolled(member, read_only) %}
 {% set enrolled = member.get_enrolled_courses() %}
-{% set show_progress = member.name == frappe.session.user %}
-{% if enrolled.in_progress | length %}
-<div class="profile-courses">
-  <div class="course-home-headings">
-    Courses In Progress
-  </div>
-  <div class="cards-parent">
-    {% for course in enrolled.in_progress %}
-    {{ widgets.CourseCard(course=course, show_progress_indicators=show_progress) }}
-    {% endfor %}
-  </div>
-</div>
-{% endif %}
 
 {% if enrolled.completed | length %}
 <div class="profile-courses">
@@ -161,7 +149,20 @@
   </div>
   <div class="cards-parent">
     {% for course in enrolled.completed %}
-    {{ widgets.CourseCard(course=course, show_progress_indicators=show_progress) }}
+    {{ widgets.CourseCard(course=course, read_only=read_only) }}
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% if enrolled.in_progress | length %}
+<div class="profile-courses">
+  <div class="course-home-headings">
+    Courses In Progress
+  </div>
+  <div class="cards-parent">
+    {% for course in enrolled.in_progress %}
+    {{ widgets.CourseCard(course=course, read_only=read_only) }}
     {% endfor %}
   </div>
 </div>
