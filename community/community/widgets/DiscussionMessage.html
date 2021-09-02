@@ -1,39 +1,73 @@
 {% set topics = frappe.get_all("Discussion Topic",
-{"reference_doctype": doctype, "reference_docname": docname}, ["name", "title"]) %}
+{"reference_doctype": doctype, "reference_docname": docname}, ["name", "title", "owner", "creation"]) %}
 
-<div class="courses-header mt-10">
-  <span>{{_('Discussions')}}</span>
-  <div class="button is-primary pull-right reply">
-    <img src="/assets/community/icons/small-add.svg">
-    Start a Discussion
+<div class="discussions-parent">
+  <div class="mt-10 mb-5">
+    <span class="course-home-headings">{{_('Discussions')}}</span>
+    <span class="review-link button is-secondary pull-right">
+      New Topic
+      <img src="/assets/community/icons/small-add-black.svg">
+    </span>
   </div>
-</div>
+  {{ widgets.DiscussionComment(doctype=doctype, docname=docname) }}
 
-{{ widgets.DiscussionComment(doctype=doctype, docname=docname) }}
+  <div class="common-card-style thread-card course-content-parent" data-doctype="{{ doctype }}"
+    data-docname="{{ docname }}">
 
-<div class="common-card-style thread-card discussions-section" data-doctype="{{ doctype }}"
-  data-docname="{{ docname }}">
-  {% for topic in topics %}
-  <div class="topic-parent" data-topic="{{ topic.name }}">
-    <div class="course-home-headings p-0">{{ topic.title }}</div>
-    {% set replies = frappe.get_all("Discussion Reply", {"topic": topic.name},
-    ["reply", "owner", "creation"], order_by="creation")%}
-    {% for reply in replies %}
-    {% include "community/templates/reply_card.html" %}
-    {% endfor %}
+    <div>
+      {% for topic in topics %}
+      {% set replies = frappe.get_all("Discussion Reply", {"topic": topic.name})%}
+      <div class="pl-3 pr-3" data-target="#t{{ topic.name }}" data-toggle="collapse" aria-expanded="false">
+        <div class="discussion-topic-title">{{ topic.title }}</div>
+        <div class="mt-2 mb-3">
+          {% set creator = frappe.get_doc("User", topic.owner) %}
+          {{ widgets.Avatar(member=creator, avatar_class="avatar-small") }}
+          <a class="button-links" href="/users/{{ creator.username }}">
+            <span class="course-instructor">
+              {{ creator.full_name }}
+            </span>
+          </a>
+          <span class="muted-text">
+            <img src="/assets/community/icons/message.svg"> {{ replies | length }}
+          </span>
+        </div>
+      </div>
+      {% if loop.index != topics | length %}
+      <div class="card-divider"></div>
+      {% endif %}
+      {% endfor %}
+
+    </div>
+
+    <div id="discussion-group">
+      {% for topic in topics %}
+      {% set replies = frappe.get_all("Discussion Reply", {"topic": topic.name},
+      ["reply", "owner", "creation"], order_by="creation")%}
+      <div class="collapse" id="t{{ topic.name }}" class="topic-parent" data-topic="{{ topic.name }}"
+        data-parent="#discussion-group">
+        <div class="course-home-headings p-0">{{ topic.title }}</div>
+        {% for reply in replies %}
+        {% include "community/templates/reply_card.html" %}
+        {% endfor %}
+      </div>
+      {% endfor %}
+    </div>
+
+    {% if not topics %}
+    <span id="no-discussions" class="text-center">
+      No discussions yet. <img src="/assets/community/icons/slash.svg">
+    </span>
+    {% endif %}
+
   </div>
-  {% endfor %}
-  {% if not topics %}
-  <span id="no-discussions" class="text-center">
-    No discussions yet. <img src="/assets/community/icons/slash.svg">
-  </span>
-  {% endif %}
 </div>
 <script>
   frappe.ready(() => {
     setup_socket_io();
 
     set_docname_if_missing();
+
+    expand_first_discussion();
 
     $(document).on("click", ".reply", (e) => {
       show_new_topic_modal(e);
@@ -105,5 +139,15 @@
         }
       })
     }
+  }
+
+  var expand_first_discussion = () => {
+    var elements = $(".discussions-parent .collapse");
+    elements.each((i, element) => {
+      if (i < 1) {
+        $(element).addClass("show");
+        return false;
+      }
+    });
   }
 </script>

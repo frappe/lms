@@ -438,7 +438,7 @@ input[type=checkbox] {
 
 .button {
   box-shadow: var(--btn-shadow);
-  border-radius: 8px;
+  border-radius: 4px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -1281,7 +1281,7 @@ pre {
 
 .thread-card {
   flex-direction: column;
-  padding: 1.5rem;
+  padding: 1rem;
 }
 
 textarea.form-control {
@@ -1305,6 +1305,14 @@ textarea.form-control {
 
 .reply-card {
   margin-bottom: 40px;
+}
+
+.discussions-parent .collapsing {
+  transition: height 0s;
+}
+
+.discussion-topic-title {
+  color: var(--text-color);
 }
 
 .certificate-page .common-card-style {
