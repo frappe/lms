@@ -27,14 +27,9 @@
         {% if membership %}
         {{ pagination(prev_url, next_url) }}
         {% endif %}
-
-        {% set title = lesson.title + " - " + course.title %}
-        {% set condition = membership or is_instructor %}
-        {{ widgets.DiscussionMessage(doctype="Lesson", docname=lesson.name,
-          title=title, condition=condition, button_name="Start Learning",
-          redirect_to="/courses/" + course.name) }}
       </div>
     </div>
+    {{ Discussions() }}
   </div>
 </div>
 {% endblock %}
@@ -96,7 +91,7 @@
       Next
       <img class="ml-2" src="/assets/community/icons/side-arrow-white.svg">
     </a>
-    {% elif course.enable_certification  %}
+    {% elif course.enable_certification %}
     <div class="button is-primary {% if course.get_course_progress() != 100 %} hide {% endif %}" id="certification">
       Get Certificate
     </div>
@@ -104,6 +99,15 @@
   </div>
 
 </div>
+{% endmacro %}
+
+{% macro Discussions() %}
+{% set is_instructor = frappe.session.user == course.instructor %}
+{% set title = lesson.title + " - " + course.title %}
+{% set condition = is_instructor if is_instructor else membership %}
+{{ widgets.DiscussionMessage(doctype="Lesson", docname=lesson.name,
+          condition=condition, button_name="Start Learning",
+          redirect_to="/courses/" + course.name) }}
 {% endmacro %}
 
 {%- block script %}

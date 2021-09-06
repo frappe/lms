@@ -4,5 +4,5 @@
 # import frappe
 import unittest
 
-class TestDiscussionThread(unittest.TestCase):
+class TestDiscussionTopic(unittest.TestCase):
 	pass

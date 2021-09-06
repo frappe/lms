@@ -1,80 +1,54 @@
-{% if doctype and docname and not thread %}
+{% set topics = frappe.get_all("Discussion Topic",
+{"reference_doctype": doctype, "reference_docname": docname}, ["name", "title", "owner", "creation"]) %}
 
-{% set thread_info = frappe.get_all("Discussion Thread", {"reference_doctype": doctype, "reference_docname": docname},
-["name"]) %}
+{% include "community/templates/discussions/topic_modal.html" %}
 
-{% if thread_info | length %}
-{% set thread = thread_info[0].name %}
+<div class="discussions-parent">
+  <div class="discussions-header">
+    <span class="course-home-headings">{{_('Discussions')}}</span>
+    {% if topics %}
+    {% include "community/templates/discussions/button.html" %}
+    {% endif %}
+  </div>
+
+  {% if topics %}
+  <div class="common-card-style thread-card course-content-parent" data-doctype="{{ doctype }}"
+    data-docname="{{ docname }}">
+
+    <div class="discussions-sidebar">
+      {% include "community/templates/discussions/search.html" %}
+      {% for topic in topics %}
+      {% set replies = frappe.get_all("Discussion Reply", {"topic": topic.name})%}
+      {% include "community/templates/discussions/sidebar.html" %}
+      {% endfor %}
+    </div>
+
+    <div class="mr-2" id="discussion-group">
+      {% include "community/templates/discussions/reply_section.html" %}
+    </div>
+  </div>
+  {% else %}
+
+  <div id="no-discussions" class="common-card-style thread-card">
+    <div class="no-discussions">
+      <div class="font-weight-bold">No Discussions</div>
+      <div class="muted-text mt-3 mb-3">There are no discussions for this {{ doctype | lower }}, why don't you start
+        one! </div>
+      {% if frappe.session.user == "Guest" %}
+      <div class="button is-primary mt-3" id="login-from-discussion">Log In</div>
+      {% elif not condition %}
+      <div class="button is-primary mt-3" id="login-from-discussion" data-redirect="{{ redirect_to }}">
+        {{ button_name }}
+      </div>
+      {% else %}
+      {% include "community/templates/discussions/button.html" %}
+      {% endif %}
+    </div>
+  </div>
+</div>
 {% endif %}
-
-{% endif %}
-
-{% if thread %}
-{% set messages = frappe.get_all("Discussion Message", {"thread": thread}, ["name", "message", "owner", "creation"],
-order_by="creation") %}
-{% endif %}
-
-{% if doctype %}
-<div class="course-home-headings mt-5"> Discussions </div>
-{% endif %}
-
-<div class="messages mt-5">
-  {% for message in messages %}
-    {% include "community/templates/message_card.html" %}
-  {% endfor %}
 </div>
 
-{% if frappe.session.user == "Guest" or (condition is defined and not condition) %}
-<div class="d-flex flex-column align-items-center font-weight-bold">
-  Want to join the discussion?
-  {% if frappe.session.user == "Guest" %}
-  <div class="button is-primary mt-5" id="login-from-discussion">Log In</div>
-  {% elif not condition %}
-  <div class="button is-primary mt-5" id="login-from-discussion" data-redirect="{{ redirect_to }}">{{ button_name }}</div>
-  {% endif %}
-</div>
-{% else %}
-{{ widgets.DiscussionComment(doctype=doctype, docname=docname, title=title, thread=thread ) }}
-{% endif %}
-
-<script>
-  frappe.ready(() => {
-    setup_socket_io();
-
-    $("#login-from-discussion").click((e) => {
-      login_from_discussion(e);
-    })
-
-  })
-
-  var setup_socket_io = () => {
-    const assets = [
-      "/assets/frappe/js/lib/socket.io.min.js",
-      "/assets/frappe/js/frappe/socketio_client.js",
-    ]
-    frappe.require(assets, () => {
-
-      if (window.dev_server) {
-        frappe.boot.socketio_port = "9000";
-      }
-
-      frappe.socketio.init(9000);
-      var target = $("#submit-discussion");
-
-      frappe.socketio.socket.on("publish_message", (data) => {
-        if (target.attr("data-thread") == data.thread
-          || (decodeURIComponent(target.attr("data-doctype")) == data.thread_info.reference_doctype
-              && decodeURIComponent(target.attr("data-docname")) == data.thread_info.reference_docname)) {
-          $(".comment-field").val("");
-          $(".messages").append(data.template);
-        }
-      })
-    })
-  }
-
-  var login_from_discussion = (e) => {
-    var redirect = $(e.currentTarget).attr("data-redirect") || window.location.href;
-    window.location.href = `/login?redirect-to=${redirect}`;
-  }
-
-</script>
+{% block script %}
+<script>{% include "community/templates/discussions/discussions.js" %}</script>
+{% endblock %}

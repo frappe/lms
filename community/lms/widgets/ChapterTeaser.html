@@ -64,10 +64,11 @@
   })
 
   var expand_the_first_chapter = () => {
-    var elements = $(".collapse");
+    var elements = $(".course-outline .collapse");
     elements.each((i, element) => {
-      if (i <= 1) {
+      if (i < 1) {
         show_section(element);
+        return false;
       }
     });
   }
