@@ -5,49 +5,31 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "thread",
-  "column_break_2",
-  "parent_message",
-  "section_break_4",
-  "message"
+  "topic",
+  "reply"
  ],
  "fields": [
   {
-   "fieldname": "message",
+   "fieldname": "reply",
    "fieldtype": "Long Text",
    "in_list_view": 1,
-   "label": "Message"
+   "label": "Reply"
   },
   {
-   "fieldname": "thread",
+   "fieldname": "topic",
    "fieldtype": "Link",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Thread",
-   "options": "Discussion Thread"
-  },
-  {
-   "fieldname": "column_break_2",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "parent_message",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Parent Message",
-   "options": "Discussion Message"
-  },
-  {
-   "fieldname": "section_break_4",
-   "fieldtype": "Section Break"
+   "label": "Topic",
+   "options": "Discussion Topic"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-08-12 15:59:04.811286",
+ "modified": "2021-08-27 15:06:51.362714",
  "modified_by": "Administrator",
  "module": "Community",
- "name": "Discussion Message",
+ "name": "Discussion Reply",
  "owner": "Administrator",
  "permissions": [
   {

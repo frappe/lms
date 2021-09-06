@@ -141,9 +141,8 @@ website_route_rules = [
 	{"from_route": "/courses/<course>/learn/<int:chapter>.<int:lesson>", "to_route": "batch/learn"},
 	{"from_route": "/courses/<course>/progress", "to_route": "batch/progress"},
 	{"from_route": "/courses/<course>/join", "to_route": "batch/join"},
-	{"from_route": "/discussions/<discussion>", "to_route": "discussions/discussion"},
 	{"from_route": "/users/<string(minlength=4):username>", "to_route": "profiles/profile"},
-	{"from_route": "/users", "to_route": "profiles/profile"},
+	{"from_route": "/users", "to_route": "profiles/profile"}
 ]
 
 website_redirects = [

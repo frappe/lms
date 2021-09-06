@@ -20,7 +20,6 @@
   --received-message: var(--c8);
   --checkbox-size: 14px;
   --control-bg: var(--gray-100);
-  --muted-text: #4C5A67;
   --button-background: #EEF0F2;
   --text-xs: 11px;
   --text-sm: 12px;
@@ -109,8 +108,6 @@ input[type=checkbox] {
 .muted-text {
   font-size: 12px;
   line-height: 135%;
-  color: var(--muted-text);
-  height: 15px;
 }
 
 .course-card-meta {
@@ -146,12 +143,12 @@ input[type=checkbox] {
 }
 
 .card-divider {
-  border: 1px solid #F4F5F6;
+  border: 1px solid #EEF0F2;
   margin-bottom: 1rem;
 }
 
 .card-divider-dark {
-  border: 1px solid #E2E6E9;
+  border: 1px solid #C8CFD5;
   margin-bottom: 16px;
 }
 
@@ -165,7 +162,6 @@ input[type=checkbox] {
 .course-student-count {
   font-size: 12px;
   line-height: 135%;
-  color: var(--muted-text);
   float: right;
 }
 
@@ -222,8 +218,13 @@ input[type=checkbox] {
   }
 }
 
+.button-links {
+  color: #4C5A67;
+}
+
 .button-links:hover {
   text-decoration: none;
+  color: #4C5A67;
 }
 
 .icon-background {
@@ -434,7 +435,7 @@ input[type=checkbox] {
 
 .button {
   box-shadow: var(--btn-shadow);
-  border-radius: 8px;
+  border-radius: 4px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -1282,17 +1283,77 @@ pre {
 
 .thread-card {
   flex-direction: column;
-  padding: 1.5rem;
+  padding: 1rem;
 }
 
-textarea.form-control {
+.discussions-parent .form-control {
+  background-color: #FFFFFF;
+  font-size: inherit;
+  color: inherit;
+  padding: 0.75rem 1rem;
+}
+
+.discussion-on-page .comment-field {
+  height: 48px;
+  box-shadow: inset 0px 0px 4px rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.modal .comment-field {
   height: 300px;
 }
 
-.discussion-on-page textarea.form-control {
-  background-color: #FFFFFF;
-  color: inherit;
-  height: 160px;
+.no-discussions {
+  width: 250px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.no-discussions .button {
+  margin: auto;
+}
+
+.discussions-header {
+  margin: 2.5rem 0 1.25rem;
+}
+
+.discussions-header .button {
+  float: right;
+}
+
+.discussions-parent .search-field {
+  background-color: #E2E6E9;
+  background-image: url(/assets/community/icons/search.svg);
+  background-repeat: no-repeat;
+  text-indent: 1.5rem;
+  background-position: 1rem 0.7rem;
+  height: 36px;
+  font-size: 12px;
+  padding: 0.65rem 0.9rem;
+}
+
+.discussions-sidebar {
+  background-color: #F4F5F6;
+  padding: 0.75rem;
+  border-radius: 4px;
+  max-height: 700px;
+  overflow-y: auto;
+}
+
+#discussion-group {
+  max-height: 700px;
+  overflow-y: auto;
+}
+
+.sidebar-topic {
+  padding: 0.75rem;
+  margin: 0.75rem 0;
+  cursor: pointer;
+}
+
+.sidebar-topic[aria-expanded="true"] {
+  background: #FFFFFF;
+  border-radius: 4px;
 }
 
 .comment-footer {
@@ -1300,17 +1361,24 @@ textarea.form-control {
   justify-content: flex-end;
 }
 
-.comment-field {
-  font-size: inherit;
+.reply-card {
+  margin-bottom: 40px;
 }
 
-.thread-title {
-  font-size: inherit;
+.discussions-parent .collapsing {
+  transition: height 0s;
 }
 
-.message-author {
-  color: #192734;
-  margin-left: 0.5rem;
+.discussion-topic-title {
+  color: var(--text-color);
+}
+
+.discussion-on-page .topic-title {
+  display: none;
+}
+
+.discussions-sidebar .sidebar-parent:last-child .card-divider {
+  display: none;
 }
 
 .certificate-page .common-card-style {
