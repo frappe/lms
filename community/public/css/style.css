@@ -143,12 +143,12 @@ input[type=checkbox] {
 }
 
 .card-divider {
-  border: 1px solid #F4F5F6;
+  border: 1px solid #EEF0F2;
   margin-bottom: 1rem;
 }
 
 .card-divider-dark {
-  border: 1px solid #E2E6E9;
+  border: 1px solid #C8CFD5;
   margin-bottom: 16px;
 }
 
@@ -221,6 +221,7 @@ input[type=checkbox] {
     padding-right: 1rem;
   }
 }
+
 .button-links {
   color: #4C5A67;
 }
@@ -1284,18 +1285,74 @@ pre {
   padding: 1rem;
 }
 
-textarea.form-control {
-  height: 300px;
-}
-
-.discussion-on-page .form-control {
+.discussions-parent .form-control {
   background-color: #FFFFFF;
   font-size: inherit;
   color: inherit;
+  padding: 0.75rem 1rem;
 }
 
-.discussion-on-page textarea {
-  height: 160px;
+.discussion-on-page .comment-field {
+  height: 48px;
+  box-shadow: inset 0px 0px 4px rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.modal .comment-field {
+  height: 300px;
+}
+
+.no-discussions {
+  width: 250px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.no-discussions .button {
+  margin: auto;
+}
+
+.discussions-header {
+  margin: 2.5rem 0 1.25rem;
+}
+
+.discussions-header .button {
+  float: right;
+}
+
+.discussions-parent .search-field {
+  background-color: #E2E6E9;
+  background-image: url(/assets/community/icons/search.svg);
+  background-repeat: no-repeat;
+  text-indent: 1.5rem;
+  background-position: 1rem 0.7rem;
+  height: 36px;
+  font-size: 12px;
+  padding: 0.65rem 0.9rem;
+}
+
+.discussions-sidebar {
+  background-color: #F4F5F6;
+  padding: 0.75rem;
+  border-radius: 4px;
+  max-height: 700px;
+  overflow-y: auto;
+}
+
+#discussion-group {
+  max-height: 700px;
+  overflow-y: auto;
+}
+
+.sidebar-topic {
+  padding: 0.75rem;
+  margin: 0.75rem 0;
+  cursor: pointer;
+}
+
+.sidebar-topic[aria-expanded="true"] {
+  background: #FFFFFF;
+  border-radius: 4px;
 }
 
 .comment-footer {
@@ -1313,6 +1370,14 @@ textarea.form-control {
 
 .discussion-topic-title {
   color: var(--text-color);
+}
+
+.discussion-on-page .topic-title {
+  display: none;
+}
+
+.discussions-sidebar .sidebar-parent:last-child .card-divider {
+  display: none;
 }
 
 .certificate-page .common-card-style {

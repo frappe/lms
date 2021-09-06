@@ -58,7 +58,7 @@ class CustomUser(User):
         """
         return frappe.get_all(
             'LMS Course', {
-                'owner': self.name,
+                'instructor': self.name,
                 'is_published': True
         })
 

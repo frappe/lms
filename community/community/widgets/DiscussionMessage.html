@@ -1,153 +1,54 @@
 {% set topics = frappe.get_all("Discussion Topic",
 {"reference_doctype": doctype, "reference_docname": docname}, ["name", "title", "owner", "creation"]) %}
 
-<div class="discussions-parent">
-  <div class="mt-10 mb-5">
-    <span class="course-home-headings">{{_('Discussions')}}</span>
-    <span class="review-link button is-secondary pull-right">
-      New Topic
-      <img src="/assets/community/icons/small-add-black.svg">
-    </span>
-  </div>
-  {{ widgets.DiscussionComment(doctype=doctype, docname=docname) }}
+{% include "community/templates/discussions/topic_modal.html" %}
 
+<div class="discussions-parent">
+  <div class="discussions-header">
+    <span class="course-home-headings">{{_('Discussions')}}</span>
+    {% if topics %}
+    {% include "community/templates/discussions/button.html" %}
+    {% endif %}
+  </div>
+
+  {% if topics %}
   <div class="common-card-style thread-card course-content-parent" data-doctype="{{ doctype }}"
     data-docname="{{ docname }}">
 
-    <div>
+    <div class="discussions-sidebar">
+      {% include "community/templates/discussions/search.html" %}
       {% for topic in topics %}
       {% set replies = frappe.get_all("Discussion Reply", {"topic": topic.name})%}
-      <div class="pl-3 pr-3" data-target="#t{{ topic.name }}" data-toggle="collapse" aria-expanded="false">
-        <div class="discussion-topic-title">{{ topic.title }}</div>
-        <div class="mt-2 mb-3">
-          {% set creator = frappe.get_doc("User", topic.owner) %}
-          {{ widgets.Avatar(member=creator, avatar_class="avatar-small") }}
-          <a class="button-links" href="/users/{{ creator.username }}">
-            <span class="course-instructor">
-              {{ creator.full_name }}
-            </span>
-          </a>
-          <span class="muted-text">
-            <img src="/assets/community/icons/message.svg"> {{ replies | length }}
-          </span>
-        </div>
+      {% include "community/templates/discussions/sidebar.html" %}
+      {% endfor %}
+    </div>
+
+    <div class="mr-2" id="discussion-group">
+      {% include "community/templates/discussions/reply_section.html" %}
+    </div>
+  </div>
+  {% else %}
+
+  <div id="no-discussions" class="common-card-style thread-card">
+    <div class="no-discussions">
+      <div class="font-weight-bold">No Discussions</div>
+      <div class="muted-text mt-3 mb-3">There are no discussions for this {{ doctype | lower }}, why don't you start
+        one! </div>
+      {% if frappe.session.user == "Guest" %}
+      <div class="button is-primary mt-3" id="login-from-discussion">Log In</div>
+      {% elif not condition %}
+      <div class="button is-primary mt-3" id="login-from-discussion" data-redirect="{{ redirect_to }}">
+        {{ button_name }}
       </div>
-      {% if loop.index != topics | length %}
-      <div class="card-divider"></div>
+      {% else %}
+      {% include "community/templates/discussions/button.html" %}
       {% endif %}
-      {% endfor %}
-
     </div>
-
-    <div id="discussion-group">
-      {% for topic in topics %}
-      {% set replies = frappe.get_all("Discussion Reply", {"topic": topic.name},
-      ["reply", "owner", "creation"], order_by="creation")%}
-      <div class="collapse" id="t{{ topic.name }}" class="topic-parent" data-topic="{{ topic.name }}"
-        data-parent="#discussion-group">
-        <div class="course-home-headings p-0">{{ topic.title }}</div>
-        {% for reply in replies %}
-        {% include "community/templates/reply_card.html" %}
-        {% endfor %}
-      </div>
-      {% endfor %}
-    </div>
-
-    {% if not topics %}
-    <span id="no-discussions" class="text-center">
-      No discussions yet. <img src="/assets/community/icons/slash.svg">
-    </span>
-    {% endif %}
-
   </div>
 </div>
-<script>
-  frappe.ready(() => {
-    setup_socket_io();
+{% endif %}
+</div>
 
-    set_docname_if_missing();
-
-    expand_first_discussion();
-
-    $(document).on("click", ".reply", (e) => {
-      show_new_topic_modal(e);
-    })
-  })
-
-  var show_new_topic_modal = (e) => {
-    e.preventDefault();
-    if (frappe.session.user == "Guest") {
-      window.location.href = `/login?redirect-to=/discussions/`;
-      return;
-    }
-    $("#discussion-modal").modal("show");
-    var topic = $(e.currentTarget).attr("data-topic");
-    $(".modal-headings").text(topic ? "Reply" : "Start a Discussion");
-    topic ? $(".topic-title").addClass("hide") : $(".topic-title").removeClass("hide");
-    $("#submit-discussion").attr("data-topic", topic ? topic : "");
-  }
-
-  var setup_socket_io = () => {
-    const assets = [
-      "/assets/frappe/js/lib/socket.io.min.js",
-      "/assets/frappe/js/frappe/socketio_client.js",
-    ]
-
-    frappe.require(assets, () => {
-      if (window.dev_server) {
-        frappe.boot.socketio_port = "9000";
-      }
-      frappe.socketio.init(9000);
-      frappe.socketio.socket.on("publish_message", (data) => {
-        publish_message(data);
-      })
-    })
-  }
-
-  var publish_message = (data) => {
-    if ($(`.topic-parent[data-topic=${data.topic_info.name}]`).length) {
-      post_message_cleanup();
-      $(`.topic-parent[data-topic=${data.topic_info.name}]`).append(data.template);
-    }
-
-    else if ((decodeURIComponent($(".discussions-section").attr("data-doctype")) == data.topic_info.reference_doctype
-      && decodeURIComponent($(".discussions-section").attr("data-docname")) == data.topic_info.reference_docname)) {
-      post_message_cleanup();
-      var html = `<div class="topic-parent" data-topic="${data.topic_info.name}">
-                        <div class="font-weight-bold mb-5">${data.topic_info.title}</div>
-                        ${data.template}
-                      </div>`;
-      $(".discussions-section").prepend(html);
-    }
-  }
-
-  var post_message_cleanup = () => {
-    $(".comment-field").val("");
-    $("#discussion-modal").modal("hide");
-    $("#no-discussions").addClass("hide");
-  }
-
-  var set_docname_if_missing = () => {
-    if ($("[data-docname='None']").length) {
-      frappe.call({
-        method: "community.community.doctype.discussion_topic.discussion_topic.get_docname",
-        args: {
-          "route": window.location.href.split("/").slice(-1)[0]
-        },
-        callback: (data) => {
-          $("[data-docname='None']").attr("data-docname", data.message);
-        }
-      })
-    }
-  }
-
-  var expand_first_discussion = () => {
-    var elements = $(".discussions-parent .collapse");
-    elements.each((i, element) => {
-      if (i < 1) {
-        $(element).addClass("show");
-        return false;
-      }
-    });
-  }
-</script>
+{% block script %}
+<script>{% include "community/templates/discussions/discussions.js" %}</script>
+{% endblock %}
