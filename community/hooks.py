@@ -149,8 +149,13 @@ website_redirects = [
 
 update_website_context = [
     'community.widgets.update_website_context',
-    'community.page_renderers.update_website_context'
 ]
+jinja = {
+    "methods": [
+        "community.page_renderers.get_profile_url"
+    ],
+    "filters": []
+}
 ## Specify the additional tabs to be included in the user profile page.
 ## Each entry must be a subclass of community.community.plugins.ProfileTab
 # profile_tabs = []

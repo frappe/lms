@@ -8,7 +8,7 @@ frappe.ready(function () {
 
   frappe.web_form.after_save = () => {
     setTimeout(() => {
-      window.location.href = `/user/${frappe.web_form.get_value(["username"])}`;
+      window.location.href = `/profile_/${frappe.web_form.get_value(["username"])}`;
     })
   }
 })

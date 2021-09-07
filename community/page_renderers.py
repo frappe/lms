@@ -17,13 +17,6 @@ from frappe.website.page_renderers.template_page import TemplatePage
 from frappe.website.page_renderers.web_form import WebFormPage
 
 
-def update_website_context(context):
-    """Adds get_profile_url to context
-
-    Specified in the hooks.
-    """
-    context.get_profile_url = get_profile_url
-
 def get_profile_url(username):
     """Returns the profile URL given username.
 
