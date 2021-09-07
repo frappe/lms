@@ -174,6 +174,7 @@ community_markdown_macro_renderers = {
 
 # page_renderer to manage profile pages
 page_renderer = [
+	"community.page_renderers.ProfileRedirectPage",
 	"community.page_renderers.ProfilePage"
 ]
 

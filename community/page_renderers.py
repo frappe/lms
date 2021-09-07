@@ -40,6 +40,20 @@ def get_profile_url_prefix():
 
 RE_USERNAME = re.compile("[a-zA-Z0-9_]{4,}")
 
+class ProfileRedirectPage(BaseRenderer):
+    """Renderer to redirect /profile_/foo to <profile_prefix>/foo.
+
+    This is useful to redirect to profile pages from javascript as there is no
+    easy to find the profile prefix.
+    """
+    def can_render(self):
+        return self.path.startswith("profile_/")
+
+    def render(self):
+        username = self.path[len("profile_/"):]
+        frappe.flags.redirect_location = get_profile_url_prefix() + username
+        return RedirectPage(self.path).render()
+
 class ProfilePage(BaseRenderer):
     def __init__(self, path, http_status_code):
         super().__init__(path, http_status_code)
