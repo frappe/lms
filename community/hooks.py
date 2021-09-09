@@ -141,16 +141,21 @@ website_route_rules = [
 	{"from_route": "/courses/<course>/learn/<int:chapter>.<int:lesson>", "to_route": "batch/learn"},
 	{"from_route": "/courses/<course>/progress", "to_route": "batch/progress"},
 	{"from_route": "/courses/<course>/join", "to_route": "batch/join"},
-	{"from_route": "/users/<string(minlength=4):username>", "to_route": "profiles/profile"},
-	{"from_route": "/users", "to_route": "profiles/profile"}
 ]
 
 website_redirects = [
 	{"source": "/update-profile", "target": "/edit-profile"},
 ]
 
-update_website_context = 'community.widgets.update_website_context'
-
+update_website_context = [
+    'community.widgets.update_website_context',
+]
+jinja = {
+    "methods": [
+        "community.page_renderers.get_profile_url"
+    ],
+    "filters": []
+}
 ## Specify the additional tabs to be included in the user profile page.
 ## Each entry must be a subclass of community.community.plugins.ProfileTab
 # profile_tabs = []
@@ -171,3 +176,12 @@ community_markdown_macro_renderers = {
 	"YouTubeVideo": "community.plugins.youtube_video_renderer",
     "Video": "community.plugins.video_renderer"
 }
+
+# page_renderer to manage profile pages
+page_renderer = [
+	"community.page_renderers.ProfileRedirectPage",
+	"community.page_renderers.ProfilePage"
+]
+
+# set this to "/" to have profiles on the top-level
+profile_url_prefix = "/users/"

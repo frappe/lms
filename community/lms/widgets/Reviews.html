@@ -19,7 +19,7 @@
       <div class="review-card-footer">
         <div>
           {{ widgets.Avatar(member=review.owner_details, avatar_class="avatar-medium") }}
-          <a class="button-links" href="/users/{{review.owner_details.username}}">
+          <a class="button-links" href="{{get_profile_url(review.owner_details.username) }}">
             <span class="course-instructor">
               {{ review.owner_details.full_name }}
             </span>
