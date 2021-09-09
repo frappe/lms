@@ -3,7 +3,7 @@
   <div class="d-flex align-items-center muted-text">
     {% set member = frappe.get_doc("User", reply.owner) %}
     {{ widgets.Avatar(member=member, avatar_class="avatar-small")}}
-    <a class="button-links ml-2" href="/user/{{ member.username }}">
+    <a class="button-links ml-2" href="{{ get_profile_url(member.username) }}">
       {{ member.full_name }}
     </a>
     <div class="ml-2 frappe-timestamp" data-timestamp="{{ reply.creation }}"> just now </div>
