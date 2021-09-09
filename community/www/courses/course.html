@@ -74,6 +74,7 @@
   </div>
 </div>
 
+{% if course.video_link %}
 <div class="modal fade preview-modal" id="video-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
   aria-hidden="true">
   <div class="modal-dialog" role="document">
@@ -92,6 +93,7 @@
     </div>
   </div>
 </div>
+{% endif %}
 {% endmacro%}
 
 <!-- Course Outline and Creator -->

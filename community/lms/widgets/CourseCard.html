@@ -40,7 +40,7 @@
     <div {% if not read_only %} class="mb-4" {% endif %}>
       <span class="zindex">
         {{ widgets.Avatar(member=course.get_instructor(), avatar_class="avatar-small") }}
-        <a class="button-links" href="/users/{{ course.get_instructor().username}}">
+        <a class="button-links" href="{{ get_profile_url(course.get_instructor().username) }}">
           <span class="course-instructor">
             {{ course.get_instructor().full_name }}
           </span>
