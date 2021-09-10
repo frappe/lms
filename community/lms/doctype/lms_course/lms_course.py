@@ -187,20 +187,6 @@ class LMSCourse(Document):
     def get_slugified_chapter_title(self, chapter):
         return slugify(chapter)
 
-    def get_course_progress(self):
-        """ Returns the course progress of the session user """
-        lesson_count = len(self.get_lessons())
-        completed_lessons = frappe.db.count("LMS Course Progress",
-                                {
-                                    "course": self.name,
-                                    "owner": frappe.session.user,
-                                    "status": "Complete"
-                                })
-        precision = cint(frappe.db.get_default("float_precision")) or 3
-        if not lesson_count:
-            return 0
-        return flt(((completed_lessons/lesson_count) * 100), precision)
-
     def get_batch(self, batch_name):
         return find("LMS Batch", name=batch_name, course=self.name)
 
@@ -339,6 +325,20 @@ class LMSCourse(Document):
                     "lesson": lesson
                 },
                 ["status"])
+
+    def get_course_progress(self, member=None):
+        """ Returns the course progress of the session user """
+        lesson_count = len(self.get_lessons())
+        completed_lessons = frappe.db.count("LMS Course Progress",
+                                {
+                                    "course": self.name,
+                                    "owner": member or frappe.session.user,
+                                    "status": "Complete"
+                                })
+        precision = cint(frappe.db.get_default("float_precision")) or 3
+        if not lesson_count:
+            return 0
+        return flt(((completed_lessons/lesson_count) * 100), precision)
 
     def get_neighbours(self, current, lessons):
         current = flt(current)

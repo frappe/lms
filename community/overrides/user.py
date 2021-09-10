@@ -124,3 +124,20 @@ class CustomUser(User):
                 mentored_courses.append(map)
 
         return mentored_courses
+
+    def get_enrolled_courses(self):
+        in_progress = []
+        completed = []
+        memberships = self.get_course_membership("Student");
+        for membership in memberships:
+            course = frappe.get_doc("LMS Course", membership.course)
+            progress = course.get_course_progress(member=self.name)
+            if progress < 100:
+                in_progress.append(course)
+            else:
+                completed.append(course)
+
+        return {
+            "in_progress": in_progress,
+            "completed": completed
+        }

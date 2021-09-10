@@ -66,6 +66,7 @@ input[type=checkbox] {
   position: relative;
   top: 1rem;
   left: 1rem;
+  width: 95%;
 }
 
 .course-card-pills {
@@ -75,13 +76,21 @@ input[type=checkbox] {
   border-radius: 4px;
   padding: 4px 6px;
   font-size: 10px;
-  line-height: 120%;
   text-align: center;
   letter-spacing: 0.011em;
   text-transform: uppercase;
   color: #2C5477;
   font-weight: bold;
   box-shadow: 0px 5px 10px rgb(0 0 0 / 10%);
+}
+
+.dark-pills {
+  background: rgba(25, 39, 52, 0.8);
+  color: #ffffff;
+}
+.dark-pills img {
+  width: 0.75rem;
+  height: 0.75rem;
 }
 
 .common-page-style {
@@ -102,7 +111,6 @@ input[type=checkbox] {
 
 .course-card {
   flex-direction: column;
-  height: 380px;
 }
 
 .muted-text {
@@ -132,8 +140,8 @@ input[type=checkbox] {
   letter-spacing: -0.014em;
   color: var(--text-color);
   align-self: stretch;
-  margin-bottom: 16px;
-  height: 45px;
+  margin-bottom: 1.5rem;
+  height: 56px;
 }
 
 @media (max-width: 360px) {
@@ -149,10 +157,6 @@ input[type=checkbox] {
 
 .card-divider-dark {
   border: 1px solid #C8CFD5;
-  margin-bottom: 16px;
-}
-
-.course-card-meta-2 {
   margin-bottom: 16px;
 }
 
@@ -176,6 +180,7 @@ input[type=checkbox] {
   padding: 8px 0px 8px;
   text-align: center;
   line-height: 135%;
+  cursor: pointer;
 }
 
 .cards-parent {
@@ -1149,13 +1154,18 @@ input[type=checkbox] {
   }
 }
 
+.zindex {
+  position: relative;
+  z-index: 2;
+}
+
 .progress {
   width: 100%;
   height: 8px;
 }
 
 .progress-bar {
-  background-color: #318AD8;
+  background-color: var(--primary-color);
 }
 
 .progress-percentage {

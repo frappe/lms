@@ -21,7 +21,7 @@ app_license = "AGPL"
 # include js, css files in header of web template
 web_include_css = "community.bundle.css"
 # web_include_css = "/assets/community/css/community.css"
-# web_include_js = "/assets/community/js/community.js"
+web_include_js = "website.bundle.js"
 
 # include custom scss in every website theme (without file extension ".scss")
 # website_theme_scss = "community/public/scss/website"
@@ -141,6 +141,7 @@ website_route_rules = [
 	{"from_route": "/courses/<course>/learn/<int:chapter>.<int:lesson>", "to_route": "batch/learn"},
 	{"from_route": "/courses/<course>/progress", "to_route": "batch/progress"},
 	{"from_route": "/courses/<course>/join", "to_route": "batch/join"},
+	{"from_route": "/users", "to_route": "profiles/profile"}
 ]
 
 website_redirects = [
@@ -150,6 +151,7 @@ website_redirects = [
 update_website_context = [
     'community.widgets.update_website_context',
 ]
+
 jinja = {
     "methods": [
         "community.page_renderers.get_profile_url"
