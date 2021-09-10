@@ -76,13 +76,21 @@ input[type=checkbox] {
   border-radius: 4px;
   padding: 4px 6px;
   font-size: 10px;
-  line-height: 120%;
   text-align: center;
   letter-spacing: 0.011em;
   text-transform: uppercase;
   color: #2C5477;
   font-weight: bold;
   box-shadow: 0px 5px 10px rgb(0 0 0 / 10%);
+}
+
+.dark-pills {
+  background: rgba(25, 39, 52, 0.8);
+  color: #ffffff;
+}
+.dark-pills img {
+  width: 0.75rem;
+  height: 0.75rem;
 }
 
 .common-page-style {
@@ -172,6 +180,7 @@ input[type=checkbox] {
   padding: 8px 0px 8px;
   text-align: center;
   line-height: 135%;
+  cursor: pointer;
 }
 
 .cards-parent {

@@ -1,4 +1,5 @@
 import frappe
+from community.page_renderers import get_profile_url_prefix
 
 def get_context(context):
     context.no_cache = 1
@@ -8,7 +9,7 @@ def get_context(context):
     except KeyError:
         username = frappe.db.get_value("User", frappe.session.user, ["username"])
         if username:
-            frappe.local.flags.redirect_location = "/users/" + username
+            frappe.local.flags.redirect_location = get_profile_url_prefix() + username
             raise frappe.Redirect
     try:
         context.member = frappe.get_doc("User", {"username": username})
