@@ -3,8 +3,6 @@
 {% block title %} {{ lesson.title }} - {{ course.title }} {% endblock %}
 
 {% block head_include %}
-<link rel="stylesheet" href="/assets/frappe/css/font-awesome.css">
-<link rel="stylesheet" href="/assets/css/lms.css">
 <link rel="stylesheet" href="/assets/frappe/css/hljs-night-owl.css">
 
 {% for ext in page_extensions %}
@@ -103,11 +101,12 @@
 
 {% macro Discussions() %}
 {% set is_instructor = frappe.session.user == course.instructor %}
-{% set title = lesson.title + " - " + course.title %}
 {% set condition = is_instructor if is_instructor else membership %}
-{{ widgets.DiscussionMessage(doctype="Lesson", docname=lesson.name,
-          condition=condition, button_name="Start Learning",
-          redirect_to="/courses/" + course.name) }}
+{% set doctype, docname = "Lesson", lesson.name %}
+{% set title = "Questions" %}
+{% set cta_title = "New Question" %}
+
+{% include "frappe/templates/discussions/discussions_section.html" %}
 {% endmacro %}
 
 {%- block script %}
