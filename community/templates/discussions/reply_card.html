@@ -9,5 +9,5 @@
     <div class="ml-2 frappe-timestamp" data-timestamp="{{ reply.creation }}"> just now </div>
   </div>
   <div class="card-divider mt-3"></div>
-  <div class="reply-text">{{ reply.reply }}</div>
+  <div class="markdown-source reply-text">{{ frappe.utils.md_to_html(reply.reply) }}</div>
 </div>
