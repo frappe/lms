@@ -48,8 +48,10 @@
   <div class="common-card-style lesson-content-card markdown-source">{{ lesson.render_html() }}</div>
   {% else %}
   <div class="common-card-style lesson-content-card">
-    <span>This lesson is not available for Preview. Please join the course to access this lesson. <a
-        href="/courses/{{ course.name }}">Checkout Course Details.</a></span>
+    <div class="w-25 text-center" style="margin: 0 auto;">
+      <small>This lesson is not available for preview. Please join the course to access this lesson.</small>
+      <a class="button is-primary ml-auto mr-auto mt-3" href="/courses/{{ course.name }}"> Start Learning </a>
+    </div>
   </div>
   {% endif %}
 
@@ -105,6 +107,8 @@
 {% set doctype, docname = "Lesson", lesson.name %}
 {% set title = "Questions" %}
 {% set cta_title = "New Question" %}
+{% set button_name = "Start Learning" %}
+{% set redirect_to = "/courses/" + course.name %}
 
 {% include "frappe/templates/discussions/discussions_section.html" %}
 {% endmacro %}

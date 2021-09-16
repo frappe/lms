@@ -1354,3 +1354,8 @@ pre {
     width: 1.5rem;
   }
 }
+
+.thread-card {
+  flex-direction: column;
+  padding: 1rem;
+}
