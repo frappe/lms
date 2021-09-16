@@ -39,7 +39,7 @@ class CustomUser(User):
                 frappe.throw(_("Username already exists."))
 
             if not re.match("^[A-Za-z0-9_]*$", self.username):
-                frappe.throw(_("Username can only contain alphabets, numbers and unedrscore."))
+                frappe.throw(_("Username can only contain alphabets, numbers and underscore."))
 
             if underscore_condition:
                 frappe.throw(_("First and Last character of username cannot be Underscore(_)."))
