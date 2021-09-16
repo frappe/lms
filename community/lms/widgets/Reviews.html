@@ -1,16 +1,15 @@
 {% if not course.upcoming %}
 <div class="reviews-parent">
   {% set reviews = course.get_reviews() %}
-  {% if reviews | length or course.is_eligible_to_review(membership) %}
   <div class="mb-5">
     <span class="course-home-headings">Reviews</span>
-    {% if course.is_eligible_to_review(membership) %}
+    {% if course.is_eligible_to_review(membership) and reviews | length %}
     <span class="review-link button is-secondary pull-right">
       Write a review
     </span>
     {% endif %}
   </div>
-  {% endif %}
+
   {% if reviews | length %}
   <div class="reviews-section">
     {% for review in reviews %}
@@ -36,9 +35,20 @@
     </div>
     {% endfor %}
   </div>
+
   {% else %}
   <div class="common-card-style thread-card">
-    <span class="text-center"> No Reviews <img src="/assets/community/icons/slash.svg"></span>
+    <div class="w-25 text-center" style="margin: 0 auto;">
+      <span class="font-weight-bold"> No Reviews </span>
+      <div class="small">
+        There are no reviews for this course.
+      </div>
+      {% if course.is_eligible_to_review(membership) %}
+      <span class="review-link button is-secondary ml-auto mr-auto mt-3">
+        Write a review
+      </span>
+      {% endif %}
+    </div>
   </div>
   {% endif %}
 </div>
@@ -48,7 +58,7 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <div class="course-home-headings modal-headings">Review</div>
+        <div class="font-weight-bold">Write a Review</div>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
