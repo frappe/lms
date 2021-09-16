@@ -29,8 +29,8 @@
               data-correct="{{ question['is_correct_' + loop.index | string] }}" {% if question.multiple %}
               type="checkbox" {% else %} type="radio" name="{{ question.question | urlencode }}" {% endif %}>
             <img class="empty-checkbox mr-3" />
+            <span class="label-area">{{ frappe.utils.md_to_html(option) }}</span>
           </label>
-          <span class="label-area">{{ frappe.utils.md_to_html(option) }}</span>
         </div>
 
         {% set explanation = question['explanation_' + loop.index | string] %}

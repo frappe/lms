@@ -169,7 +169,8 @@ var parse_options = () => {
 }
 
 var add_icon = (element, icon) => {
-  $(element).parent().empty().html(`<img class="mr-3" src="/assets/community/icons/${icon}.svg">`);
+  var label = $(element).parent().find(".label-area p").text();
+  $(element).parent().empty().html(`<img class="mr-3" src="/assets/community/icons/${icon}.svg"> ${label}`);
 }
 
 var add_to_local_storage = (quiz_name, current_index, answer, is_correct) => {
