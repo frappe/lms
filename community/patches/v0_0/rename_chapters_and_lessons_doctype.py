@@ -7,8 +7,11 @@ def execute():
     frappe.reload_doc("lms", "doctype", "chapter_reference")
     frappe.reload_doc("lms", "doctype", "lesson_reference")
 
-    move_chapters()
-    move_lessons()
+    if not frappe.db.count("Chapter Reference"):
+        move_chapters()
+
+    if not frappe.db.count("Lesson Reference"):
+        move_lessons()
 
 def move_chapters():
     docs = frappe.get_all("Chapters", fields=["*"])
