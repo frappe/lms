@@ -31,7 +31,7 @@ def get_profile_url_prefix():
     hooks = frappe.get_hooks("profile_url_prefix") or ["/users/"]
     return hooks[-1]
 
-RE_USERNAME = re.compile("[a-zA-Z0-9_]{4,}")
+RE_INVALID_USERNAME = re.compile("[@!#$%^&*()<>?/\\|}{~:-]")
 
 class ProfileRedirectPage(BaseRenderer):
     """Renderer to redirect /profile_/foo to <profile_prefix>/foo.
@@ -63,9 +63,8 @@ class ProfilePage(BaseRenderer):
 
         # not a userpage?
         username = self.get_username()
-        if not RE_USERNAME.match(username):
+        if RE_INVALID_USERNAME.search(username):
             return False
-
         # if there is prefix then we can allow all usernames
         if prefix:
             return True
