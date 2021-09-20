@@ -2,15 +2,28 @@ import frappe
 
 def execute():
     frappe.reload_doc("lms", "doctype", "lms_course")
-    frappe.reload_doc("lms", "doctype", "chapters")
     frappe.reload_doc("lms", "doctype", "chapter")
-    frappe.reload_doc("lms", "doctype", "lessons")
     frappe.reload_doc("lms", "doctype", "lesson")
     frappe.reload_doc("lms", "doctype", "chapter_reference")
     frappe.reload_doc("lms", "doctype", "lesson_reference")
 
-    frappe.rename_doc("DocType", "Chapters", "Chapter Reference")
-    frappe.reload_doctype("Chapter Reference", force=True)
+    move_chapters()
+    move_lessons()
 
-    frappe.rename_doc("DocType", "Lessons", "Lesson Reference")
-    frappe.reload_doctype("Lesson Reference", force=True)
+def move_chapters():
+    docs = frappe.get_all("Chapters", fields=["*"])
+    for doc in docs:
+        keys = doc
+        keys.update({"doctype": "Chapter Reference"})
+        del keys["name"]
+        frappe.get_doc(keys).save()
+
+def move_lessons():
+    docs = frappe.get_all("Lessons", fields=["*"])
+    for doc in docs:
+        keys = doc
+        keys.update({"doctype": "Lesson Reference"})
+        del keys["name"]
+        frappe.get_doc(keys).save()
+
+
