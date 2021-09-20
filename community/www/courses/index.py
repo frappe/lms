@@ -11,7 +11,7 @@ def get_context(context):
     }
 
 def get_courses():
-    course_names = frappe.get_all("LMS Course", filters={"is_published": True}, pluck="name")
+    course_names = frappe.get_all("LMS Course", filters={"is_published": True}, order_by="upcoming", pluck="name")
     courses = []
     for course in course_names:
         courses.append(frappe.get_doc("LMS Course", course))
