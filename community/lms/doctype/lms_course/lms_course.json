@@ -100,7 +100,7 @@
    "fieldname": "chapters",
    "fieldtype": "Table",
    "label": "Chapters",
-   "options": "Chapters"
+   "options": "Chapter Reference"
   },
   {
    "fieldname": "instructor",
@@ -160,9 +160,14 @@
    "group": "Mentors",
    "link_doctype": "LMS Course Mentor Mapping",
    "link_fieldname": "course"
+  },
+  {
+   "group": "Interests",
+   "link_doctype": "LMS Course Interest",
+   "link_fieldname": "course"
   }
  ],
- "modified": "2021-08-25 11:04:57.211898",
+ "modified": "2021-09-20 12:00:18.325579",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",

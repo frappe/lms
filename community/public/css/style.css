@@ -924,6 +924,10 @@ input[type=checkbox] {
   flex-direction: column;
 }
 
+.lesson-content-card .alert-dismissible .close {
+  padding: 0.5rem;
+}
+
 .course-content-parent {
   display: grid;
   grid-gap: 2rem;
