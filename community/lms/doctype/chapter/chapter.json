@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_rename": 1,
  "autoname": "format:{####} {title}",
  "creation": "2021-05-03 05:49:08.383057",
  "doctype": "DocType",
@@ -38,7 +39,7 @@
    "fieldname": "lessons",
    "fieldtype": "Table",
    "label": "Lessons",
-   "options": "Lessons"
+   "options": "Lesson Reference"
   },
   {
    "fieldname": "column_break_3",
@@ -57,10 +58,11 @@
    "link_fieldname": "chapter"
   }
  ],
- "modified": "2021-08-31 10:43:45.866864",
+ "modified": "2021-09-20 10:58:47.241660",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Chapter",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {

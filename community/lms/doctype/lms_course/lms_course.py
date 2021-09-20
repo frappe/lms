@@ -176,7 +176,7 @@ class LMSCourse(Document):
 
     def get_lesson_details(self, chapter):
         lessons = []
-        lesson_list = frappe.get_all("Lessons", {"parent": chapter.name},
+        lesson_list = frappe.get_all("Lesson Reference", {"parent": chapter.name},
                                         ["lesson", "idx"], order_by="idx")
         for row in lesson_list:
             lesson_details = frappe.get_doc("Lesson", row.lesson)
@@ -213,7 +213,7 @@ class LMSCourse(Document):
     def get_lesson_index(self, lesson_name):
         """Returns the {chapter_index}.{lesson_index} for the lesson.
         """
-        lesson = frappe.db.get_value("Lessons", {"lesson": lesson_name}, ["idx", "parent"], as_dict=True)
+        lesson = frappe.db.get_value("Lesson Reference", {"lesson": lesson_name}, ["idx", "parent"], as_dict=True)
         if not lesson:
             return None
 

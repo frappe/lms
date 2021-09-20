@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_rename": 1,
  "autoname": "format:{####} {title}",
  "creation": "2021-05-03 06:21:12.995987",
  "doctype": "DocType",
@@ -70,10 +71,11 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-08-31 10:44:14.168257",
+ "modified": "2021-09-20 10:52:29.116536",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Lesson",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {

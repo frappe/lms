@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_rename": 1,
  "autoname": "field:title",
  "creation": "2021-06-07 10:50:17.893625",
  "doctype": "DocType",
@@ -33,10 +34,11 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-07-23 19:06:12.551633",
+ "modified": "2021-09-20 10:44:15.930892",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz",
+ "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
   {

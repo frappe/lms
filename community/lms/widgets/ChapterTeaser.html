@@ -21,7 +21,7 @@
 
       <div class="lesson-info {% if membership.current_lesson == lesson.name %} active-lesson {% endif %}">
 
-        {% if membership or lesson.include_in_preview or is_instructor %}
+        {% if membership or lesson.include_in_preview %}
         <a class="lesson-links" href="{{ course.get_learn_url(lesson.number) }}{{course.query_parameter}}"
           data-course="{{ course.name }}">
           {{ lesson.title }}
@@ -31,6 +31,15 @@
             src="/assets/community/icons/check.svg">
           {% endif %}
 
+        </a>
+
+        {% elif is_instructor and not lesson.include_in_preview %}
+        <a class="lesson-links"
+        title="This lesson is not available for preview but as an instructor you can access it."
+        href="{{ course.get_learn_url(lesson.number) }}{{course.query_parameter}}"
+        data-course="{{ course.name }}">
+        {{ lesson.title }}
+          <img class="ml-2" src="/assets/community/icons/lock.svg">
         </a>
 
         {% else %}
