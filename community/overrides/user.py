@@ -18,6 +18,8 @@ class CustomUser(User):
         else:
             underscore_condition = ''
 
+        regex = re.compile('[@!#$%^&*()<>?/\|}{~:-]')
+
         if self.is_new():
             if not self.username:
                 self.username = self.get_username_from_first_name()
@@ -25,7 +27,7 @@ class CustomUser(User):
             if self.username.find(" "):
                 self.username.replace(" ", "")
 
-            if not re.match("^[A-Za-z0-9_]*$", self.username) or underscore_condition:
+            if regex.search(self.username) or underscore_condition:
                 self.username = self.remove_illegal_characters()
 
             if len(self.username) < 4:
@@ -38,8 +40,8 @@ class CustomUser(User):
             if not self.username:
                 frappe.throw(_("Username already exists."))
 
-            if not re.match("^[A-Za-z0-9_]*$", self.username):
-                frappe.throw(_("Username can only contain alphabets, numbers and unedrscore."))
+            if regex.search(self.username):
+                frappe.throw(_("Username can only contain alphabets, numbers and underscore."))
 
             if underscore_condition:
                 frappe.throw(_("First and Last character of username cannot be Underscore(_)."))

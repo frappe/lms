@@ -45,11 +45,18 @@
 
 
   {% if membership or lesson.include_in_preview or is_instructor %}
-  <div class="common-card-style lesson-content-card markdown-source">{{ lesson.render_html() }}</div>
+  <div class="common-card-style lesson-content-card markdown-source">
+    {% if is_instructor %}
+    <small class="alert alert-secondary alert-dismissible">
+      This lesson is not available for preview. As you are the Instructor of the course only you can see it.
+      <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+    </small>
+    {% endif %}
+    {{ lesson.render_html() }}</div>
   {% else %}
   <div class="common-card-style lesson-content-card">
     <div class="w-25 text-center" style="margin: 0 auto;">
-      <small>This lesson is not available for preview. Please join the course to access this lesson.</small>
+      <small>This lesson is not available for preview. Please join the course to access it.</small>
       <a class="button is-primary ml-auto mr-auto mt-3" href="/courses/{{ course.name }}"> Start Learning </a>
     </div>
   </div>

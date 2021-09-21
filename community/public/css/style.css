@@ -330,6 +330,11 @@ input[type=checkbox] {
 
 .quiz-label {
   margin-bottom: 0;
+  cursor: pointer;
+}
+
+.quiz-label p {
+  display: inline;
 }
 
 .course-card-wide {
@@ -519,7 +524,7 @@ input[type=checkbox] {
   cursor: pointer;
   display: flex;
   align-items: center;
-  padding-bottom: 0.5rem;
+  padding-bottom: 1rem;
 }
 
 .chapter-description {
@@ -637,7 +642,7 @@ input[type=checkbox] {
 
 .course-outline {
   flex-direction: column;
-  padding: 16px 12px 16px;
+  padding: 1rem 0.75rem 0;
 }
 
 .lessons {
@@ -881,8 +886,8 @@ input[type=checkbox] {
 
 .question {
   flex-direction: column;
-  width: 688px;
-  margin: auto;
+  width: 85%;
+  margin: 0 auto;
 }
 
 .question p {
@@ -917,6 +922,10 @@ input[type=checkbox] {
 .lesson-content-card {
   padding: 24px;
   flex-direction: column;
+}
+
+.lesson-content-card .alert-dismissible .close {
+  padding: 0.5rem;
 }
 
 .course-content-parent {
