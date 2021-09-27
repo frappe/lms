@@ -35,7 +35,7 @@
 
         {% elif is_instructor and not lesson.include_in_preview %}
         <a class="lesson-links"
-        title="This lesson is not available for preview but as an instructor you can access it."
+        title="This lesson is not available for preview. As you are the Instructor of the course only you can see it."
         href="{{ course.get_learn_url(lesson.number) }}{{course.query_parameter}}"
         data-course="{{ course.name }}">
         {{ lesson.title }}
