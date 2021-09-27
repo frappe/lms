@@ -48,7 +48,7 @@
 
   {% if membership or lesson.include_in_preview or is_instructor %}
   <div class="common-card-style lesson-content-card markdown-source">
-    {% if is_instructor %}
+    {% if is_instructor and not lesson.include_in_preview %}
     <small class="alert alert-secondary alert-dismissible">
       This lesson is not available for preview. As you are the Instructor of the course only you can see it.
       <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
