@@ -329,6 +329,8 @@ class LMSCourse(Document):
     def get_course_progress(self, member=None):
         """ Returns the course progress of the session user """
         lesson_count = len(self.get_lessons())
+        if not lesson_count:
+            return 0
         completed_lessons = frappe.db.count("LMS Course Progress",
                                 {
                                     "course": self.name,
@@ -336,8 +338,6 @@ class LMSCourse(Document):
                                     "status": "Complete"
                                 })
         precision = cint(frappe.db.get_default("float_precision")) or 3
-        if not lesson_count:
-            return 0
         return flt(((completed_lessons/lesson_count) * 100), precision)
 
     def get_neighbours(self, current, lessons):
