@@ -33,8 +33,10 @@ def get_data(filters=None):
 
         course_details = frappe.get_doc("LMS Course", current_course)
         summary.append(frappe._dict({
-            "course": course_details.title,
-            "member": membership.member_name,
+            "course": course_details.name,
+            "course_name": course_details.title,
+            "member": membership.member,
+            "member_name": membership.member_name,
             "progress": rounded(course_details.get_course_progress(membership.member))
         }))
 
@@ -47,6 +49,12 @@ def get_columns():
                     "fieldtype": "Link",
                     "label": _("Course"),
                     "options": "LMS Course",
+                    "width": 200
+                },
+                {
+                    "fieldname": "course_name",
+                    "fieldtype": "Data",
+                    "label": _("Course Name"),
                     "width": 300
                 },
                 {
@@ -54,13 +62,19 @@ def get_columns():
                     "fieldtype": "Link",
                     "label": _("Member"),
                     "options": "User",
+                    "width": 200
+                },
+                {
+                    "fieldname": "member_name",
+                    "fieldtype": "Data",
+                    "label": _("Member Name"),
                     "width": 150
                 },
                 {
                     "fieldname": "progress",
                     "fieldtype": "Data",
                     "label": _("Progress (%)"),
-                    "width": 150
+                    "width": 120
                 }
             ]
 
@@ -68,13 +82,11 @@ def get_charts(data):
     if not data:
         return None
 
-    labels = []
     completed = 0
     less_than_hundred = 0
     less_than_seventy = 0
     less_than_forty = 0
     less_than_ten = 0
-
 
     for row in data:
         if row.progress == 100:
@@ -87,8 +99,6 @@ def get_charts(data):
             less_than_forty += 1
         elif row.progress < 10:
             less_than_ten += 1
-
-
 
     charts = {
         "data": {
