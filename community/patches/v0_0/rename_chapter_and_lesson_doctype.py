@@ -16,15 +16,17 @@ def execute():
 def move_chapters():
     docs = frappe.get_all("Chapter", fields=["*"])
     for doc in docs:
-        keys = doc
-        keys.update({"doctype": "Course Chapter"})
-        del keys["name"]
-        frappe.get_doc(keys).save()
+        if frappe.db.exists("LMS Course", doc.course):
+            keys = doc
+            keys.update({"doctype": "Course Chapter"})
+            del keys["name"]
+            frappe.get_doc(keys).save()
 
 def move_lessons():
     docs = frappe.get_all("Lesson", fields=["*"])
     for doc in docs:
-        keys = doc
-        keys.update({"doctype": "Course Lesson"})
-        del keys["name"]
-        frappe.get_doc(keys).save()
+        if frappe.db.exists("Chapter", doc.chapter):
+            keys = doc
+            keys.update({"doctype": "Course Lesson"})
+            del keys["name"]
+            frappe.get_doc(keys).save()
