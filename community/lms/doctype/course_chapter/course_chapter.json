@@ -1,8 +1,8 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "CHP.",
- "creation": "2021-05-03 05:49:08.383057",
+ "autoname": "format:{####} {title}",
+ "creation": "2021-05-03 05:49:08.383050",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",

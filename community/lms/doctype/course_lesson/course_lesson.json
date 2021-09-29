@@ -1,8 +1,8 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "LES.",
- "creation": "2021-05-03 06:21:12.995987",
+ "autoname": "format:{####} {title}",
+ "creation": "2021-05-03 06:21:12.995981",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -22,7 +22,7 @@
    "fieldname": "chapter",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Chapter",
+   "label": "Course Chapter",
    "options": "Course Chapter",
    "reqd": 1
   },

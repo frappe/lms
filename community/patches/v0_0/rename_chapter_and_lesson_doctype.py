@@ -25,8 +25,10 @@ def move_chapters():
 def move_lessons():
     docs = frappe.get_all("Lesson", fields=["*"])
     for doc in docs:
+        print(frappe.db.exists("Chapter", doc.chapter))
         if frappe.db.exists("Chapter", doc.chapter):
             keys = doc
+            print(doc)
             keys.update({"doctype": "Course Lesson"})
             del keys["name"]
             frappe.get_doc(keys).save()
