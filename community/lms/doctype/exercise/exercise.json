@@ -78,7 +78,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Lesson",
-   "options": "Lesson"
+   "options": "Course Lesson"
   },
   {
    "fieldname": "index_",
@@ -96,7 +96,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-06-01 05:22:15.656013",
+ "modified": "2021-09-29 15:27:55.585874",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Exercise",
