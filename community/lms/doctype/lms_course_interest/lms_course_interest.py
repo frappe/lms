@@ -9,9 +9,11 @@ class LMSCourseInterest(Document):
 
 @frappe.whitelist()
 def capture_interest(course):
-    frappe.get_doc({
+    data = {
         "doctype": "LMS Course Interest",
         "course": course,
         "user": frappe.session.user
-    }).save(ignore_permissions=True)
+    }
+    if not frappe.db.exists(data):
+        frappe.get_doc(data).save(ignore_permissions=True)
     return "OK"
