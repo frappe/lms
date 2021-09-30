@@ -44,6 +44,7 @@ class Lesson(Document):
             ex.save()
 
     def render_html(self):
+        print(self.body)
         return markdown_to_html(self.body)
 
     def get_exercises(self):
@@ -55,7 +56,8 @@ class Lesson(Document):
         return [frappe.get_doc("Exercise", name) for name in exercises]
 
     def get_progress(self):
-        return frappe.db.get_value("LMS Course Progress", {"lesson": self.name, "owner": frappe.session.user}, "status")
+        return frappe.db.get_value("LMS Course Progress",
+            {"lesson": self.name, "owner": frappe.session.user}, "status")
 
     def get_slugified_class(self):
         if self.get_progress():

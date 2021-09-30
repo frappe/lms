@@ -112,7 +112,7 @@
 {% set is_instructor = frappe.session.user == course.instructor %}
 {% set title = lesson.title + " - " + course.title %}
 {% set condition = is_instructor if is_instructor else membership %}
-{{ widgets.DiscussionMessage(doctype="Lesson", docname=lesson.name,
+{{ widgets.DiscussionMessage(doctype="Course Lesson", docname=lesson.name,
           condition=condition, button_name="Start Learning",
           redirect_to="/courses/" + course.name) }}
 {% endmacro %}

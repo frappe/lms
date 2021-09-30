@@ -179,7 +179,7 @@ class LMSCourse(Document):
         lesson_list = frappe.get_all("Lesson Reference", {"parent": chapter.name},
                                         ["lesson", "idx"], order_by="idx")
         for row in lesson_list:
-            lesson_details = frappe.get_doc("Lesson", row.lesson)
+            lesson_details = frappe.get_doc("Course Lesson", row.lesson)
             lesson_details.number = flt("{}.{}".format(chapter.idx, row.idx))
             lessons.append(lesson_details)
         return lessons

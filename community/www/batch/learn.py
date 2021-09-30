@@ -48,15 +48,6 @@ def get_current_lesson_details(lesson_number, context):
 def get_learn_url(lesson_number, course):
     return course.get_learn_url(lesson_number) and course.get_learn_url(lesson_number) + course.query_parameter
 
-def get_chapter_title(course_name, lesson_number):
-    if not lesson_number:
-        return
-    lesson_split = cstr(lesson_number).split(".")
-    chapter_index = lesson_split[0]
-    lesson_index = lesson_split[1]
-    chapter_name = frappe.db.get_value("Chapter", {"course": course_name, "index_": chapter_index}, "name")
-    return frappe.db.get_value("Lesson", {"chapter": chapter_name, "index_": lesson_index}, "title")
-
 def get_lesson_index(course, batch, user):
     lesson = batch.get_current_lesson(user)
     return lesson and course.get_lesson_index(lesson)
