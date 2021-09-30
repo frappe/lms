@@ -10,25 +10,31 @@ def execute():
     if not frappe.db.count("Course Lesson"):
         move_lessons()
 
-    frappe.delete_doc("DocType", "Chapter")
-    frappe.delete_doc("DocType", "Lesson")
+    change_parent_for_lesson_reference()
 
 def move_chapters():
     docs = frappe.get_all("Chapter", fields=["*"])
     for doc in docs:
         if frappe.db.exists("LMS Course", doc.course):
-            keys = doc
-            keys.update({"doctype": "Course Chapter"})
-            del keys["name"]
-            frappe.get_doc(keys).save()
+            name = doc.name
+            doc.update({"doctype": "Course Chapter"})
+            del doc["name"]
+            new_doc = frappe.get_doc(doc)
+            new_doc.save()
+            frappe.rename_doc("Course Chapter", new_doc.name, name)
 
 def move_lessons():
     docs = frappe.get_all("Lesson", fields=["*"])
     for doc in docs:
-        print(frappe.db.exists("Chapter", doc.chapter))
         if frappe.db.exists("Chapter", doc.chapter):
-            keys = doc
-            print(doc)
-            keys.update({"doctype": "Course Lesson"})
-            del keys["name"]
-            frappe.get_doc(keys).save()
+            name = doc.name
+            doc.update({"doctype": "Course Lesson"})
+            del doc["name"]
+            new_doc = frappe.get_doc(doc)
+            new_doc.save()
+            frappe.rename_doc("Course Lesson", new_doc.name, name)
+
+def change_parent_for_lesson_reference():
+    lesson_reference = frappe.get_all("Lesson Reference", fields=["name", "parent"])
+    for reference in lesson_reference:
+        frappe.db.set_value("Lesson Reference", reference.name, "parenttype", "Course Chapter")

@@ -148,7 +148,7 @@
  "links": [
   {
    "group": "Chapters",
-   "link_doctype": "Chapter",
+   "link_doctype": "Course Chapter",
    "link_fieldname": "course"
   },
   {
@@ -167,7 +167,7 @@
    "link_fieldname": "course"
   }
  ],
- "modified": "2021-09-20 12:00:18.325579",
+ "modified": "2021-09-30 10:36:48.759994",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",

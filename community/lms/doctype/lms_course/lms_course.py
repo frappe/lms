@@ -153,7 +153,7 @@ class LMSCourse(Document):
         """
         chapters = []
         for row in self.chapters:
-            chapter_details = frappe.db.get_value("Chapter", row.chapter,
+            chapter_details = frappe.db.get_value("Course Chapter", row.chapter,
                                                 ["name", "title", "description"],
                                                 as_dict=True)
             chapter_details.idx = row.idx
@@ -217,7 +217,7 @@ class LMSCourse(Document):
         if not lesson:
             return None
 
-        chapter = frappe.db.get_value("Chapters", {"chapter": lesson.parent}, ["idx"], as_dict=True)
+        chapter = frappe.db.get_value("Chapter Reference", {"chapter": lesson.parent}, ["idx"], as_dict=True)
         if not chapter:
             return None
 
