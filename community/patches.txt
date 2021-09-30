@@ -12,3 +12,8 @@ community.patches.v0_0.course_instructor_update
 execute:frappe.delete_doc("DocType", "Discussion Message")
 execute:frappe.delete_doc("DocType", "Discussion Thread")
 community.patches.v0_0.rename_chapters_and_lessons_doctype
+execute:frappe.delete_doc("DocType", "Chapters")
+execute:frappe.delete_doc("DocType", "Lessons")
+execute:frappe.delete_doc("DocType", "Chapter")
+execute:frappe.delete_doc("DocType", "Lesson")
+execute:frappe.delete_doc("DocType", "LMS Topic")
