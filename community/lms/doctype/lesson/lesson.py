@@ -44,7 +44,6 @@ class Lesson(Document):
             ex.save()
 
     def render_html(self):
-        print(self.body)
         return markdown_to_html(self.body)
 
     def get_exercises(self):

@@ -6,8 +6,10 @@ community.patches.replace_member_with_user_in_batch_membership
 community.patches.replace_member_with_user_in_course_mentor_mapping
 community.patches.replace_member_with_user_in_lms_message
 community.patches.replace_member_with_user_in_mentor_request
+community.patches.v0_0.chapter_lesson_index_table
 execute:frappe.delete_doc("DocType", "LMS Message")
 community.patches.v0_0.course_instructor_update
 execute:frappe.delete_doc("DocType", "Discussion Message")
 execute:frappe.delete_doc("DocType", "Discussion Thread")
+community.patches.v0_0.rename_chapters_and_lessons_doctype
 community.patches.v0_0.rename_chapter_and_lesson_doctype #29-09-2021
