@@ -2,7 +2,7 @@
  "actions": [],
  "allow_rename": 1,
  "autoname": "format:{####} {title}",
- "creation": "2021-05-03 05:49:08.383057",
+ "creation": "2021-05-03 05:49:08.383058",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -16,18 +16,6 @@
  ],
  "fields": [
   {
-   "fieldname": "title",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Title",
-   "reqd": 1
-  },
-  {
-   "fieldname": "description",
-   "fieldtype": "Small Text",
-   "label": "Description"
-  },
-  {
    "fieldname": "course",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -36,32 +24,44 @@
    "reqd": 1
   },
   {
-   "fieldname": "lessons",
-   "fieldtype": "Table",
-   "label": "Lessons",
-   "options": "Lesson Reference"
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Title",
+   "reqd": 1
   },
   {
    "fieldname": "column_break_3",
    "fieldtype": "Column Break"
   },
   {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description"
+  },
+  {
    "fieldname": "section_break_5",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "lessons",
+   "fieldtype": "Table",
+   "label": "Lessons",
+   "options": "Lesson Reference"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [
   {
    "group": "Lessons",
-   "link_doctype": "Lesson",
+   "link_doctype": "Course Lesson",
    "link_fieldname": "chapter"
   }
  ],
- "modified": "2021-09-20 10:58:47.241660",
+ "modified": "2021-09-29 15:33:44.611228",
  "modified_by": "Administrator",
  "module": "LMS",
- "name": "Chapter",
+ "name": "Course Chapter",
  "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [

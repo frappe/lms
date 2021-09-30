@@ -72,7 +72,7 @@
    "fieldname": "current_lesson",
    "fieldtype": "Link",
    "label": "Current Lesson",
-   "options": "Lesson"
+   "options": "Course Lesson"
   },
   {
    "fetch_from": "member.username",
@@ -84,7 +84,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-08-04 17:10:42.708479",
+ "modified": "2021-09-29 15:27:58.765399",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch Membership",
