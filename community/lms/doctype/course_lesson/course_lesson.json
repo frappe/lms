@@ -1,0 +1,97 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:{####} {title}",
+ "creation": "2021-05-03 06:21:12.995984",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "chapter",
+  "include_in_preview",
+  "column_break_4",
+  "title",
+  "index_label",
+  "section_break_6",
+  "body",
+  "help_section",
+  "help"
+ ],
+ "fields": [
+  {
+   "fieldname": "chapter",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Course Chapter",
+   "options": "Course Chapter",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "include_in_preview",
+   "fieldtype": "Check",
+   "label": "Include In Preview"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "index_label",
+   "fieldtype": "Data",
+   "label": "Index Label",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_6",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "body",
+   "fieldtype": "Markdown Editor",
+   "label": "Body",
+   "reqd": 1
+  },
+  {
+   "fieldname": "help_section",
+   "fieldtype": "Section Break",
+   "label": "Help"
+  },
+  {
+   "fieldname": "help",
+   "fieldtype": "HTML"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2021-09-29 15:28:51.418015",
+ "modified_by": "Administrator",
+ "module": "LMS",
+ "name": "Course Lesson",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

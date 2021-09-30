@@ -79,7 +79,7 @@
    "hidden": 0,
    "is_query_report": 0,
    "label": "Chapter",
-   "link_to": "Chapter",
+   "link_to": "Course Chapter",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
