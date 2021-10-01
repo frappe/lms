@@ -111,7 +111,7 @@
 {% macro Discussions() %}
 {% set is_instructor = frappe.session.user == course.instructor %}
 {% set condition = is_instructor if is_instructor else membership %}
-{% set doctype, docname = "Lesson", lesson.name %}
+{% set doctype, docname = "Course Lesson", lesson.name %}
 {% set title = "Questions" %}
 {% set cta_title = "New Question" %}
 {% set button_name = "Start Learning" %}

@@ -153,7 +153,7 @@ class LMSCourse(Document):
         """
         chapters = []
         for row in self.chapters:
-            chapter_details = frappe.db.get_value("Chapter", row.chapter,
+            chapter_details = frappe.db.get_value("Course Chapter", row.chapter,
                                                 ["name", "title", "description"],
                                                 as_dict=True)
             chapter_details.idx = row.idx
@@ -179,7 +179,7 @@ class LMSCourse(Document):
         lesson_list = frappe.get_all("Lesson Reference", {"parent": chapter.name},
                                         ["lesson", "idx"], order_by="idx")
         for row in lesson_list:
-            lesson_details = frappe.get_doc("Lesson", row.lesson)
+            lesson_details = frappe.get_doc("Course Lesson", row.lesson)
             lesson_details.number = flt("{}.{}".format(chapter.idx, row.idx))
             lessons.append(lesson_details)
         return lessons
@@ -217,7 +217,7 @@ class LMSCourse(Document):
         if not lesson:
             return None
 
-        chapter = frappe.db.get_value("Chapters", {"chapter": lesson.parent}, ["idx"], as_dict=True)
+        chapter = frappe.db.get_value("Chapter Reference", {"chapter": lesson.parent}, ["idx"], as_dict=True)
         if not chapter:
             return None
 
@@ -329,6 +329,8 @@ class LMSCourse(Document):
     def get_course_progress(self, member=None):
         """ Returns the course progress of the session user """
         lesson_count = len(self.get_lessons())
+        if not lesson_count:
+            return 0
         completed_lessons = frappe.db.count("LMS Course Progress",
                                 {
                                     "course": self.name,
@@ -336,8 +338,6 @@ class LMSCourse(Document):
                                     "status": "Complete"
                                 })
         precision = cint(frappe.db.get_default("float_precision")) or 3
-        if not lesson_count:
-            return 0
         return flt(((completed_lessons/lesson_count) * 100), precision)
 
     def get_neighbours(self, current, lessons):
