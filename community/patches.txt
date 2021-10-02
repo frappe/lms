@@ -12,4 +12,4 @@ community.patches.v0_0.course_instructor_update
 execute:frappe.delete_doc("DocType", "Discussion Message")
 execute:frappe.delete_doc("DocType", "Discussion Thread")
 community.patches.v0_0.rename_chapters_and_lessons_doctype
-community.patches.v0_0.rename_chapter_and_lesson_doctype #29-09-2021
+community.patches.v0_0.rename_chapter_and_lesson_doctype #30-09-2021
