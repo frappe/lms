@@ -9,14 +9,29 @@
 {% block content %}
 <div class="common-page-style">
   <div class="container">
+
+    {% if live_courses | length %}
     <div class="courses-header">
-      {{ 'All Courses' }}
+      {{ _('Live Courses') }}
     </div>
     <div class="cards-parent">
-      {% for course in courses %}
+      {% for course in live_courses %}
       {{ widgets.CourseCard(course=course, read_only=False) }}
       {% endfor %}
     </div>
+    {% endif %}
+
+    {% if upcoming_courses | length %}
+    <div class="courses-header mt-12">
+      {{ _('Upcoming Courses') }}
+    </div>
+    <div class="cards-parent">
+      {% for course in upcoming_courses %}
+      {{ widgets.CourseCard(course=course, read_only=False) }}
+      {% endfor %}
+    </div>
+    {% endif %}
+
   </div>
 </div>
 {% endblock %}
