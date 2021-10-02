@@ -68,7 +68,7 @@ var mark_active_question = (e = undefined) => {
 var mark_progress = (e) => {
   var status = $(e.currentTarget).attr("data-progress");
   frappe.call({
-    method: "community.lms.doctype.lesson.lesson.save_progress",
+    method: "community.lms.doctype.course_lesson.course_lesson.save_progress",
     args: {
       lesson: $(".title").attr("data-lesson"),
       course: $(".title").attr("data-course"),
