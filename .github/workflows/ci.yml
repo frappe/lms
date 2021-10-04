@@ -60,6 +60,9 @@ jobs:
     - name: add community app to bench
       working-directory: /home/runner/frappe-bench
       run: bench get-app community $GITHUB_WORKSPACE
+    - name: update requirements
+      working-directory: /home/runner/frappe-bench
+      run: bench setup requirements
     - name: create bench site
       working-directory: /home/runner/frappe-bench
       run: bench new-site --mariadb-root-password root --admin-password admin frappe.local
