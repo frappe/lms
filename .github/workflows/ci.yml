@@ -53,7 +53,7 @@ jobs:
         then
            (cd && tar xzf ~/bench-cache/bench.tgz)
         else
-          bench init frappe-bench --skip-redis-config-generation --skip-assets --python "$(which python)" --frappe-path "${GITHUB_WORKSPACE}"
+          bench init frappe-bench --skip-redis-config-generation --skip-assets --python "$(which python)"
           mkdir -p ~/bench-cache
           (cd && tar czf ~/bench-cache/bench.tgz frappe-bench)
         fi
