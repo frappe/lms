@@ -53,16 +53,13 @@ jobs:
         then
            (cd && tar xzf ~/bench-cache/bench.tgz)
         else
-          bench init ~/frappe-bench --skip-redis-config-generation
+          bench init frappe-bench --skip-redis-config-generation --skip-assets --python "$(which python)" --frappe-path "${GITHUB_WORKSPACE}"
           mkdir -p ~/bench-cache
           (cd && tar czf ~/bench-cache/bench.tgz frappe-bench)
         fi
     - name: add community app to bench
       working-directory: /home/runner/frappe-bench
       run: bench get-app community $GITHUB_WORKSPACE
-    - name: update requirements
-      working-directory: /home/runner/frappe-bench
-      run: bench setup requirements
     - name: create bench site
       working-directory: /home/runner/frappe-bench
       run: bench new-site --mariadb-root-password root --admin-password admin frappe.local
