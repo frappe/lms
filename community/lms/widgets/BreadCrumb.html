@@ -1,6 +1,4 @@
 <div class="breadcrumb">
-
-
   {% if course %}
   <a class="dark-links" href="/courses">All Courses</a>
   <img class="ml-1 mr-1" src="/assets/community/icons/chevron-right.svg">
@@ -11,11 +9,5 @@
   {% else %}
   <span class="muted-text">{{ course.title }}</span>
   {% endif %}
-  {% endif %}
-
-  {% if thread %}
-  <a class="dark-links" href="/discussions">Discussions</a>
-  <img class="ml-1 mr-1" src="/assets/community/icons/chevron-right.svg">
-  <span class="muted-text">{{ thread.title }}</span>
   {% endif %}
 </div>

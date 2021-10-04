@@ -167,9 +167,9 @@ jinja = {
 ## subclass of community.community.plugins.PageExtension
 # community_lesson_page_extension = None
 
-community_lesson_page_extensions = [
-	"community.plugins.LiveCodeExtension"
-]
+#community_lesson_page_extensions = [
+#	"community.plugins.LiveCodeExtension"
+#]
 
 ## Markdown Macros for Lessons
 community_markdown_macro_renderers = {
