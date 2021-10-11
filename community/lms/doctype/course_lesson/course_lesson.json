@@ -56,6 +56,7 @@
   {
    "fieldname": "body",
    "fieldtype": "Markdown Editor",
+   "ignore_xss_filter": 1,
    "label": "Body",
    "reqd": 1
   },
@@ -71,7 +72,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-09-29 15:28:51.418015",
+ "modified": "2021-10-11 15:07:38.134809",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Course Lesson",
