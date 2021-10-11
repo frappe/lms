@@ -17,9 +17,9 @@ services:
   bench:
     image: anandology/frappe-bench
     volumes:
-      - .:/home/bench/frappe-bench/apps/community
+      - .:/home/bench/frappe-bench/apps/school
     environment:
-      - FRAPPE_APPS=community
+      - FRAPPE_APPS=school
       - FRAPPE_ALLOW_TESTS=true
       - FRAPPE_SITE_NAME=frappe.localhost
     depends_on:

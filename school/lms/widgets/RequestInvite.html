@@ -1,0 +1,64 @@
+<form id="invite-request-form">
+  <div class="row">
+    <div class="col-md">
+      <input class="form-control w-100 mr-5 mb-5 mt-2" id="invite_email" type="email" placeholder="Email Address">
+    </div>
+    <div class="col-md">
+      <a type="submit" id="submit-invite-request" class="btn btn-primary btn-lg" role="button">Request
+        Invite</a>
+    </div>
+  </div>
+</form>
+<script>
+  frappe.ready(() => {
+    $("#submit-invite-request").click(function () {
+      var invite_email = $("#invite_email").val()
+      frappe.call({
+        method: "school.lms.doctype.invite_request.invite_request.create_invite_request",
+        args: {
+          invite_email: invite_email
+        },
+        callback: (data) => {
+          if (data.message == "invalid email") {
+            $(".email-validation") && $(".email-validation").remove();
+            if (invite_email) {
+              var message = `<div>
+              <small class="email-validation" style="color: red;">${invite_email} is not a valid email address.</small>
+            </div>`;
+            }
+            else {
+              var message = `<div>
+              <small class="email-validation" style="color: red;">Please enter an email address.</small>
+            </div>`;
+            }
+
+            $("#invite-request-form").append(message);
+          }
+          else {
+            $("#invite-request-form").hide();
+
+            if (data.message == "OK") {
+              var message = `<div>
+              <p class="lead alert alert-secondary">Thanks for your interest in Mon School. We have recorded your interest and we will get back to you shortly.</p>
+            </div>`;
+            }
+
+            else if (data.message == "invite") {
+              var message = `<div>
+              <p class="lead alert alert-secondary">Email ${invite_email} has already been used to request an invitation.</p>
+            </div>`;
+            }
+
+            else if (data.message == "user") {
+              var message = `<div>
+              <p class="lead alert alert-secondary">Looks like there is already an account with email ${invite_email}. Would you like to <a href="/login">login</a>?</p>
+            </div>`;
+            }
+
+            $(".jumbotron").append(message);
+          }
+        }
+      })
+    })
+  })
+</script>

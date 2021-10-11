@@ -1,0 +1,25 @@
+{% extends "templates/base.html" %}
+{% from "www/macros/common_macro.html" import MentorsSection %}
+
+{% block title %} {{ student.full_name }} - {{ course.title }} {% endblock %}
+
+{% block content %}
+<div class="common-page-style">
+  <div class="container certificate-page">
+
+    <div class="breadcrumb">
+      <a class="dark-links" href="/courses">All Courses</a>
+      <img class="ml-1 mr-1" src="/assets/school/icons/chevron-right.svg">
+      <a class="dark-links" href="/courses/{{ course.name }}">{{ course.title }}</a>
+    </div>
+
+    {% if certificate.student == frappe.session.user %}
+    <div class="comment-footer mb-5">
+      <div class="button is-secondary pull-right" id="export-as-pdf" data-certificate="{{ certificate.name }}"
+        data-certificate-name="{{ student.full_name }} - {{ course.title }}">Export</div>
+    </div>
+    {% endif %}
+    {% include "school/templates/certificate.html" %}
+  </div>
+</div>
+{% endblock %}

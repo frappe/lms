@@ -1,0 +1,197 @@
+{% extends "templates/base.html" %}
+{% block head_include %}
+<meta name="description" content="{{ member.full_name }}" />
+<meta name="keywords" content="An app that supports Communities." />
+{% endblock %}
+
+{% block content %}
+<div class="common-page-style">
+  <div class="container profile-page">
+    {% set read_only = member.name != frappe.session.user %}
+    {{ ProfileBanner(member) }}
+    {{ AboutOverviewSection(member) }}
+    {{ CoursesEnrolled(member, read_only) }}
+    {{ CoursesCreated(member, read_only) }}
+    {{ CoursesMentored(member, read_only) }}
+    {{ ProfileTabs(profile_tabs) }}
+  </div>
+</div>
+{% endblock %}
+
+{% macro ProfileBanner(member) %}
+<div class="">
+  <div class="profile-banner" style="background-image: url(/assets/school/images/profile-banner.png)">
+    <div class="profile-avatar">
+      {{ widgets.Avatar(member=member, avatar_class="avatar-xl") }}
+      <div class="profile-name"> {{ member.full_name }} </div>
+      {% if member.get_authored_courses() | length %}
+      <div class="creator-badge"> Creator </div>
+      {% endif %}
+    </div>
+  </div>
+  <div class="profile-info">
+    <div class="profile-profession">
+      {% if member.profession %}
+      <span class=""> {{ member.profession }} </span>
+      {% endif %}
+      <span class="social-icons">
+        {% if member.linkedin %}
+        <a class="linkedin button-links" href="{{ member.linkedin }}">
+          <img src="/assets/school/images/linkedin.png">
+        </a>
+        {% endif %}
+        {% if member.medium %}
+        <a class="medium button-links" href="{{ member.medium}}">
+          <img src="/assets/school/icons/medium.svg">
+        </a>
+        {% endif %}
+        {% if member.github %}
+        <a class="github button-links" href="{{ member.github }}">
+          <img src="/assets/school/icons/github.svg">
+        </a>
+        {% endif %}
+      </span>
+      {% if frappe.session.user == member.email %}
+      <a class="dark-links pull-right" href="/edit-profile?name={{ member.email }}">Edit Profile</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endmacro %}
+
+{% macro AboutOverviewSection(member) %}
+{% set enrollment = member.get_course_membership("Student") | length %}
+{% set mentorship = member.get_course_membership("Mentor") | length %}
+{% set reviews = member.get_user_reviews() | length %}
+<div class="profile-parent-section">
+  {% if member.bio %}
+  <div class="profile-about-section">
+    <div class="course-home-headings">
+      About
+    </div>
+    <div class="common-card-style description-card">
+      {{ member.bio }}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if enrollment or reviews or mentorship %}
+  <div class="course-overview-section">
+    <div class="course-home-headings">
+      Overview
+    </div>
+    <div class="common-card-style overview-card small-title">
+      {% if enrollment %}
+      <div class="overtime-item">
+        <img class="icon-background mr-1" src="/assets/school/icons/user.svg" />
+        {{ enrollment }} Enrolled
+      </div>
+      {% endif %}
+      {% if reviews %}
+      <div class="overtime-item">
+        <img class="icon-background mr-1" src="/assets/school/icons/rating.svg" />
+        {{ reviews }} Created
+      </div>
+      {% endif %}
+      {% if mentorship %}
+      <div class="overtime-item">
+        <img class="icon-background mr-1" src="/assets/school/icons/calendar.svg" />
+        {{ mentorship }} Mentored
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endmacro %}
+
+
+{% macro CoursesCreated(member, read_only) %}
+{% if member.get_authored_courses() | length %}
+<div class="profile-courses">
+  <div class="course-home-headings">
+    Courses Created
+  </div>
+  <div class="cards-parent">
+    {% for course in member.get_authored_courses() %}
+    {% set course_details = frappe.get_doc("LMS Course", course) %}
+    {{ widgets.CourseCard(course=course_details, read_only=read_only) }}
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+{% endmacro %}
+
+{% macro CoursesMentored(member, read_only) %}
+{% if member.get_mentored_courses() | length %}
+<div class="profile-courses">
+  <div class="course-home-headings">
+    Courses Mentored
+  </div>
+  <div class="cards-parent">
+    {% for mentorship in member.get_mentored_courses() %}
+    {% set course_details = frappe.get_doc("LMS Course", mentorship.course) %}
+    {{ widgets.CourseCard(course=course_details, read_only=read_only) }}
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+{% endmacro %}
+
+{% macro CoursesEnrolled(member, read_only) %}
+{% set enrolled = member.get_enrolled_courses() %}
+
+{% if enrolled.completed | length %}
+<div class="profile-courses">
+  <div class="course-home-headings">
+    Courses Completed
+  </div>
+  <div class="cards-parent">
+    {% for course in enrolled.completed %}
+    {{ widgets.CourseCard(course=course, read_only=read_only) }}
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% if enrolled.in_progress | length %}
+<div class="profile-courses">
+  <div class="course-home-headings">
+    Courses In Progress
+  </div>
+  <div class="cards-parent">
+    {% for course in enrolled.in_progress %}
+    {{ widgets.CourseCard(course=course, read_only=read_only) }}
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% endmacro %}
+
+{% macro ProfileTabs(profile_tabs) %}
+<div>
+  {% for tab in profile_tabs %}
+  {% set slug = title.lower().replace(" ", "-") %}
+  <div class="tab-content">
+    <div class="tab-pane fade py-4 show active" role="tabpanel" id="slug">
+      {{ tab.render() }}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endmacro %}
+
+{% block script %}
+<script>
+  frappe.ready(() => {
+    if ("{{ member.name }}" == frappe.session.user) {
+      setTimeout(() => {
+        var link_array = $('.nav-link').filter((i, elem) => $(elem).text().trim() === "My Profile");
+        link_array.length && $(link_array[0]).addClass("active");
+      }, 0)
+    }
+  })
+</script>
+{% endblock %}
