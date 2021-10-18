@@ -57,7 +57,7 @@
         {% if avg_rating %}
         <span class="">
           <img class="icon-background" src="/assets/community/icons/rating.svg" />
-          {{ frappe.utils.flt(avg_rating, frappe.get_system_settings('float_precision') or 3) }}
+          {{ frappe.utils.flt(avg_rating, frappe.get_system_settings("float_precision") or 3) }}
         </span>
         {% endif %}
       </span>
