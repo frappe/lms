@@ -10,9 +10,9 @@
       {% endfor %}
       {% if membership and not read_only %}
       {% if progress < 100 %}
-       <div class="course-card-pills dark-pills ml-auto">{{ frappe.utils.rounded(progress) }}% Completed</div>
+       <div class="course-card-pills dark-pills ml-auto">{{ frappe.utils.rounded(progress) }}% _("Completed")</div>
       {% else %}
-      <div class="course-card-pills dark-pills ml-auto"> <img src="/assets/community/icons/check.svg"> Completed </div>
+      <div class="course-card-pills dark-pills ml-auto"> <img src="/assets/community/icons/check.svg"> _("Completed") </div>
       {% endif %}
       {% endif %}
     </div>
@@ -25,7 +25,7 @@
     <div class="course-card-meta muted-text">
       {% if course.get_chapters() | length %}
       <span>
-        {{ course.get_chapters() | length }} Chapters
+        {{ course.get_chapters() | length }} _("Chapters")
       </span>
       {% endif %}
       {% if course.get_chapters() | length and course.get_upcoming_batches() | length %}
@@ -33,7 +33,7 @@
       {% endif %}
       {% if course.get_upcoming_batches() | length %}
       <span class="">
-        {{ course.get_upcoming_batches() | length }} Open Batches
+        {{ course.get_upcoming_batches() | length }} _("Open Batches")
       </span>
       {% endif %}
     </div>
@@ -75,36 +75,36 @@
 
     {% if certificate %}
     <div class="view-course-link is-default">
-      Get Certificate <img class="ml-3" src="/assets/community/icons/black-arrow.svg" />
+      _("Get Certificate") <img class="ml-3" src="/assets/community/icons/black-arrow.svg" />
     </div>
     <a class="stretched-link" href="/courses/{{ course.name }}/{{ certificate }}"></a>
 
     {% elif course.enable_certification and progress == 100 %}
     <div class="view-course-link is-default" id="certification" data-course="{{ course.name }}">
-      Get Certificate <img class="ml-3" src="/assets/community/icons/black-arrow.svg" />
+      _("Get Certificate") <img class="ml-3" src="/assets/community/icons/black-arrow.svg" />
     </div>
 
     {% elif progress == 100 %}
     <div class="view-course-link is-default">
-      Course Completed <img class="ml-3" src="/assets/community/icons/black-arrow.svg" />
+      _("Course Completed") <img class="ml-3" src="/assets/community/icons/black-arrow.svg" />
     </div>
     <a class="stretched-link" href="/courses/{{ course.name }}"></a>
 
     {% elif course.upcoming %}
     <div class="view-course-link is-secondary border">
-      Upcoming Course <img class="ml-3" src="/assets/community/icons/black-arrow.svg" />
+      _("Upcoming Course") <img class="ml-3" src="/assets/community/icons/black-arrow.svg" />
     </div>
     <a class="stretched-link" href="/courses/{{ course.name }}"></a>
 
     {% elif membership %}
     <div class="view-course-link is-primary">
-      Continue Course <img class="ml-3" src="/assets/community/icons/white-arrow.svg" />
+      _("Continue Course") <img class="ml-3" src="/assets/community/icons/white-arrow.svg" />
     </div>
     <a class="stretched-link" href="{{ course.get_learn_url(lesson_index) }}{{ query_parameter }}"></a>
 
     {% else %}
     <div class="view-course-link is-default">
-      View Course <img class="ml-3" src="/assets/community/icons/black-arrow.svg" />
+      _("View Course") <img class="ml-3" src="/assets/community/icons/black-arrow.svg" />
     </div>
     <a class="stretched-link" href="/courses/{{ course.name }}"></a>
 
