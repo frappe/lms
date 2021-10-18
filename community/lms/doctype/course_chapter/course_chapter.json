@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_import": 1,
  "allow_rename": 1,
  "autoname": "format:{####} {title}",
  "creation": "2021-05-03 05:49:08.383058",
@@ -58,7 +59,7 @@
    "link_fieldname": "chapter"
   }
  ],
- "modified": "2021-09-29 15:33:44.611228",
+ "modified": "2021-09-29 15:33:44.611229",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Course Chapter",

@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_import": 1,
  "allow_rename": 1,
  "autoname": "format:{####} {title}",
  "creation": "2021-05-03 06:21:12.995984",
@@ -72,7 +73,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-10-11 15:07:38.134809",
+ "modified": "2021-10-11 15:07:38.134808",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Course Lesson",
