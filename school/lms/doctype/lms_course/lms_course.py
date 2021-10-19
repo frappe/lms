@@ -225,17 +225,14 @@ class LMSCourse(Document):
 
     def reindex_exercises(self):
         for i, c in enumerate(self.get_chapters(), start=1):
-            if c.index_ != i:
-                c.index_ = i
-                c.save()
-            self._reindex_exercises_in_chapter(c)
+            self._reindex_exercises_in_chapter(c, i)
 
-    def _reindex_exercises_in_chapter(self, c):
+    def _reindex_exercises_in_chapter(self, c, index):
         i = 1
         for lesson in self.get_lessons(c):
             for exercise in lesson.get_exercises():
                 exercise.index_ = i
-                exercise.index_label = f"{c.index_}.{i}"
+                exercise.index_label = f"{index}.{i}"
                 exercise.save()
                 i += 1
 

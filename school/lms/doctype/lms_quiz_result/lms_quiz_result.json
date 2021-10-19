@@ -12,7 +12,7 @@
  "fields": [
   {
    "fieldname": "question",
-   "fieldtype": "Data",
+   "fieldtype": "Text",
    "in_list_view": 1,
    "label": "Question"
   },
@@ -33,7 +33,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2021-06-22 18:32:28.813159",
+ "modified": "2021-10-12 10:32:45.139121",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz Result",

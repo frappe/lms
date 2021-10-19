@@ -8,6 +8,7 @@
   }
  ],
  "allow_guest_to_view": 1,
+ "allow_import": 1,
  "allow_rename": 1,
  "creation": "2021-03-01 16:49:33.622422",
  "doctype": "DocType",
@@ -167,7 +168,7 @@
    "link_fieldname": "course"
   }
  ],
- "modified": "2021-09-30 10:36:48.759994",
+ "modified": "2021-09-30 10:36:48.759995",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",
