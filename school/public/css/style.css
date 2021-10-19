@@ -124,7 +124,7 @@ input[type=checkbox] {
 
 .course-card-content {
   width: 100%;
-  padding: 0px 24px 20px;
+  padding: 0px 1rem 1.25rem;
 }
 
 @media (max-width: 350px) {
@@ -161,7 +161,7 @@ input[type=checkbox] {
 }
 
 .course-instructor {
-  margin: 0px 8px;
+  margin-left: 8px;
   font-size: 12px;
   line-height: 135%;
   color: var(--text-color);
