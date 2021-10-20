@@ -111,7 +111,7 @@
       </div>
       {{ widgets.MemberCard(member=course.get_instructor(), show_course_count=True, dimension_class="member-card-large") }}
     </div>
-    {% set progress = membership.progress %}
+    {% set progress = frappe.utils.cint(membership.progress) %}
     {% if progress %}
     <div class="course-progress-section">
       <div class="course-home-headings">

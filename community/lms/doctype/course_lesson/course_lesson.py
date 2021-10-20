@@ -96,5 +96,5 @@ def save_progress(lesson, course, status):
 
     course_details = frappe.get_doc("LMS Course", course)
     progress = course_details.get_course_progress()
-    frappe.db.set_value("LMS Batch Memebership", membership, "progress", progress)
+    frappe.db.set_value("LMS Batch Membership", membership, "progress", progress)
     return progress

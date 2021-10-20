@@ -132,6 +132,7 @@ class CustomUser(User):
         completed = []
         memberships = self.get_course_membership("Student")
         for membership in memberships:
+            course = frappe.get_doc("LMS Course", membership.course)
             progress = cint(membership.progress)
             if progress < 100:
                 in_progress.append(course)
