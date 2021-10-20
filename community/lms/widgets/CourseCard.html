@@ -1,5 +1,5 @@
 {% set membership = course.get_membership(frappe.session.user) %}
-{% set progress = course.get_course_progress() %}
+{% set progress = frappe.utils.cint(membership.progress) %}
 <div class="common-card-style course-card">
 
   <div class="course-image {% if not course.image %}default-image{% endif %}"

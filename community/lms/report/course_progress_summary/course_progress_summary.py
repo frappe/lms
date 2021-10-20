@@ -2,7 +2,7 @@
 # License: MIT. See LICENSE
 
 import frappe
-from frappe.utils import rounded
+from frappe.utils import cint
 from frappe import _
 
 def execute(filters=None):
@@ -23,21 +23,16 @@ def get_data(filters=None):
     memberships = frappe.get_all(
                         "LMS Batch Membership",
                         query_filter,
-                        ["name", "course", "member", "member_name"],
+                        ["name", "course", "member", "member_name", "progress"],
                         order_by="course")
 
-    current_course = memberships[0].course
     for membership in memberships:
-        if current_course != membership.course:
-            current_course = membership.course
-
-        course_details = frappe.get_doc("LMS Course", current_course)
         summary.append(frappe._dict({
-            "course": course_details.name,
-            "course_name": course_details.title,
+            "course": membership.name,
+            "course_name": frappe.db.get_value("LMS Course", membership.course, "title"),
             "member": membership.member,
             "member_name": membership.member_name,
-            "progress": rounded(course_details.get_course_progress(membership.member))
+            "progress": cint(membership.progress)
         }))
 
     return summary
