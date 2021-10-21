@@ -1,0 +1,28 @@
+{% set member = frappe.get_doc("User", frappe.session.user) %}
+<div class="mt-10">
+  {% set enrolled = member.get_enrolled_courses().in_progress + member.get_enrolled_courses().completed %}
+  {% if enrolled | length %}
+  <div class="mt-8">
+    <div class="course-home-headings">
+      {{ _("Courses Enrolled") }}
+    </div>
+    <div class="cards-parent">
+      {% for course in enrolled %}
+      {{ widgets.CourseCard(course=course) }}
+      {% endfor %}
+    </div>
+  </div>
+  {% else %}
+  <div class="common-card-style thread-card">
+    <div class="w-25 text-center" style="margin: 0 auto;">
+      <span class="font-weight-bold"> No Enrolled Courses </span>
+      <div class="small">
+        You have not enrolled in any course yet.
+      </div>
+      <a class="button is-primary ml-auto mr-auto mt-3" href="/courses">
+        Explore Courses
+      </a>
+    </div>
+  </div>
+  {% endif %}
+</div>

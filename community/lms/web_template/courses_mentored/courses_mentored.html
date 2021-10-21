@@ -1,0 +1,11 @@
+{% set member = frappe.get_doc("User", frappe.session.user) %}
+<div class="mt-10">
+  {% if member.get_mentored_courses() | length %}
+  <div class="course-home-headings"> {{ _("Courses Mentored") }} </div>
+  <div class="cards-parent">
+    {% for course in member.get_mentored_courses() %}
+    {{ widgets.CourseCard(course=course) }}
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>

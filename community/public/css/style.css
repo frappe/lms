@@ -212,7 +212,6 @@ input[type=checkbox] {
 
 .courses-header {
   margin-bottom: 1.5rem;
-  padding: 0 1rem;
   color: var(--text-color);
   font-weight: 600;
   font-size: 22px;
@@ -739,7 +738,6 @@ input[type=checkbox] {
   letter-spacing: -0.0175em;
   color: #192734;
   margin-bottom: 1rem;
-  padding: 0 1rem;
 }
 
 .course-detail-headings {
