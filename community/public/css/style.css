@@ -212,7 +212,6 @@ input[type=checkbox] {
 
 .courses-header {
   margin-bottom: 1.5rem;
-  padding: 0 1rem;
   color: var(--text-color);
   font-weight: 600;
   font-size: 22px;
