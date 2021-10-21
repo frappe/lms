@@ -29,8 +29,6 @@ jobs:
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
     steps:
     - uses: actions/checkout@v2
-        with:
-          path: 'frappe'
     - name: setup python
       uses: actions/setup-python@v2
       with:
