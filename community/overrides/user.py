@@ -123,7 +123,8 @@ class CustomUser(User):
 
         for map in mapping:
             if frappe.db.get_value("LMS Course", map.course, "is_published"):
-                mentored_courses.append(map)
+                course = frappe.get_doc("LMS Course", map.course)
+                mentored_courses.append(course)
 
         return mentored_courses
 
