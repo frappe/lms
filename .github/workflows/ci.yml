@@ -6,7 +6,7 @@ on:
   pull_request: {}
 jobs:
   tests:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     services:
       redis-cache:
         image: redis:alpine
@@ -32,7 +32,7 @@ jobs:
     - name: setup python
       uses: actions/setup-python@v2
       with:
-        python-version: 3.9
+        python-version: '3.9'
     - name: setup node
       uses: actions/setup-node@v2
       with:

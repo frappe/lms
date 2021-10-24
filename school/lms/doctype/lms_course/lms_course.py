@@ -251,7 +251,7 @@ class LMSCourse(Document):
 
         membership = frappe.db.get_value("LMS Batch Membership",
                         filters,
-                        ["name", "batch", "current_lesson", "member_type"],
+                        ["name", "batch", "current_lesson", "member_type", "progress"],
                         as_dict=True)
 
         if membership and membership.batch:

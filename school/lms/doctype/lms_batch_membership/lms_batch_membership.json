@@ -5,15 +5,16 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "batch",
+  "course",
   "member",
   "member_name",
   "member_username",
   "column_break_3",
-  "course",
+  "batch",
   "member_type",
-  "role",
-  "current_lesson"
+  "progress",
+  "current_lesson",
+  "role"
  ],
  "fields": [
   {
@@ -65,6 +66,7 @@
    "fieldname": "course",
    "fieldtype": "Link",
    "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Course",
    "options": "LMS Course"
   },
@@ -80,11 +82,18 @@
    "fieldtype": "Data",
    "label": "Memeber Username",
    "read_only": 1
+  },
+  {
+   "fieldname": "progress",
+   "fieldtype": "Data",
+   "label": "Progress",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-09-29 15:27:58.765399",
+ "migration_hash": "fe10c462acf5e727d864305d7ce90e73",
+ "modified": "2021-10-20 15:10:33.767419",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch Membership",
@@ -105,6 +114,5 @@
  ],
  "quick_entry": 1,
  "sort_field": "modified",
- "sort_order": "DESC",
- "track_changes": 1
+ "sort_order": "DESC"
 }

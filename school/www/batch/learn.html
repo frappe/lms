@@ -99,7 +99,7 @@
       <img class="ml-2" src="/assets/school/icons/side-arrow-white.svg">
     </a>
     {% elif course.enable_certification %}
-    <div class="button is-primary {% if course.get_course_progress() != 100 %} hide {% endif %}" id="certification">
+    <div class="button is-primary {% if membership.progress != 100 %} hide {% endif %}" id="certification">
       Get Certificate
     </div>
     {% endif %}

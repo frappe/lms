@@ -18,3 +18,5 @@ execute:frappe.delete_doc("DocType", "Lessons") #06-10-2021
 execute:frappe.delete_doc("DocType", "Chapter") #06-10-2021
 execute:frappe.delete_doc("DocType", "Lesson") #06-10-2021
 execute:frappe.delete_doc("DocType", "LMS Topic") #06-10-2021
+community.patches.v0_0.add_progress_to_membership #20-10-2021
+execute:frappe.delete_doc("Workspace", "LMS", ignore_missing=True, force=True) #24-10-2021

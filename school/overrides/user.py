@@ -109,7 +109,7 @@ class CustomUser(User):
         if member_type:
             filters["member_type"] = member_type
 
-        return frappe.get_all("LMS Batch Membership", filters, ["name", "course"])
+        return frappe.get_all("LMS Batch Membership", filters, ["name", "course", "progress"])
 
     def get_mentored_courses(self):
         """ Returns all courses mentored by this user """
@@ -123,17 +123,18 @@ class CustomUser(User):
 
         for map in mapping:
             if frappe.db.get_value("LMS Course", map.course, "is_published"):
-                mentored_courses.append(map)
+                course = frappe.get_doc("LMS Course", map.course)
+                mentored_courses.append(course)
 
         return mentored_courses
 
     def get_enrolled_courses(self):
         in_progress = []
         completed = []
-        memberships = self.get_course_membership("Student");
+        memberships = self.get_course_membership("Student")
         for membership in memberships:
             course = frappe.get_doc("LMS Course", membership.course)
-            progress = course.get_course_progress(member=self.name)
+            progress = cint(membership.progress)
             if progress < 100:
                 in_progress.append(course)
             else:

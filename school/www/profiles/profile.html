@@ -130,9 +130,8 @@
     Courses Mentored
   </div>
   <div class="cards-parent">
-    {% for mentorship in member.get_mentored_courses() %}
-    {% set course_details = frappe.get_doc("LMS Course", mentorship.course) %}
-    {{ widgets.CourseCard(course=course_details, read_only=read_only) }}
+    {% for course in member.get_mentored_courses() %}
+    {{ widgets.CourseCard(course=course, read_only=read_only) }}
     {% endfor %}
   </div>
 </div>
