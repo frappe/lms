@@ -164,7 +164,7 @@ jinja = {
 
 ## Specify the extension to be used to control what scripts and stylesheets
 ## to be included in lesson pages. The specified value must be be a
-## subclass of school.v.plugins.PageExtension
+## subclass of school.plugins.PageExtension
 # school_lesson_page_extension = None
 
 #school_lesson_page_extensions = [
