@@ -66,6 +66,9 @@ jobs:
     - name: install community app
       working-directory: /home/runner/frappe-bench
       run: bench --verbose --site frappe.local install-app community
+    - name: setup requirements
+      working-directory: /home/runner/frappe-bench
+      run: bench setup requirements --dev
     - name: allow tests
       working-directory: /home/runner/frappe-bench
       run: bench --site frappe.local set-config allow_tests true
