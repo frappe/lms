@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../apps/community/community/public/js/profile.js"],
+  "sourcesContent": ["frappe.ready(() => {\n  if (frappe.session.user == \"Guest\") {\n    var link_array = $('.nav-link').filter((i, elem) => $(elem).text().trim() === \"My Profile\");\n    link_array.length && $(link_array[0]).addClass(\"hide\");\n  }\n})\n"],
+  "mappings": ";;AAAA,SAAO,MAAM,MAAM;AACjB,QAAI,OAAO,QAAQ,QAAQ,SAAS;AAClC,UAAI,aAAa,EAAE,aAAa,OAAO,CAAC,GAAG,SAAS,EAAE,MAAM,OAAO,WAAW;AAC9E,iBAAW,UAAU,EAAE,WAAW,IAAI,SAAS;AAAA;AAAA;",
+  "names": []
+}

@@ -57,15 +57,15 @@ jobs:
           mkdir -p ~/bench-cache
           (cd && tar czf ~/bench-cache/bench.tgz frappe-bench)
         fi
-    - name: add community app to bench
+    - name: add school app to bench
       working-directory: /home/runner/frappe-bench
-      run: bench get-app community $GITHUB_WORKSPACE
+      run: bench get-app school $GITHUB_WORKSPACE
     - name: create bench site
       working-directory: /home/runner/frappe-bench
       run: bench new-site --mariadb-root-password root --admin-password admin frappe.local
-    - name: install community app
+    - name: install school app
       working-directory: /home/runner/frappe-bench
-      run: bench --verbose --site frappe.local install-app community
+      run: bench --verbose --site frappe.local install-app school
     - name: setup requirements
       working-directory: /home/runner/frappe-bench
       run: bench setup requirements --dev
@@ -77,5 +77,5 @@ jobs:
       run: bench --site frappe.local build
     - name: run tests
       working-directory: /home/runner/frappe-bench
-      run: bench --site frappe.local run-tests --app community
+      run: bench --site frappe.local run-tests --app school
 
