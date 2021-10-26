@@ -246,6 +246,10 @@ input[type=checkbox] {
   margin-left: 10px;
 }
 
+.overview-item {
+  display: flex;
+}
+
 .reviews-section {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -613,7 +617,7 @@ input[type=checkbox] {
 }
 
 .lesson-links {
-  display: block;
+  display: flex;
   padding: 0 1rem;
   margin-bottom: .25rem;
   color: inherit;

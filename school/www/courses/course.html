@@ -193,13 +193,13 @@
     </div>
     <div class="common-card-style overview-card small-title">
       {% if course.get_students() | length %}
-      <div class="overtime-item">
+      <div class="overview-item">
         <img class="icon-background mr-1" src="/assets/school/icons/user.svg" />
         {{ course.get_students() | length }} Enrolled
       </div>
       {% endif %}
       {% if avg_rating %}
-      <div class="overtime-item">
+      <div class="overview-item">
         <img class="icon-background mr-1" src="/assets/school/icons/rating.svg" />
         {{ frappe.utils.flt(avg_rating, frappe.get_system_settings("float_precision") or 3) }} Rating
       </div>
