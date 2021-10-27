@@ -4,6 +4,8 @@ Create online courses without much hassle.
 
 ![Course Home](/school/public/images/course-home.png)
 
+## Features
+
 1. Create online courses in a simple manner
 1. The UI is clean and minimal
 1. Lessons can be in the form of texts, videos, quizzes or a combination of all of these.
