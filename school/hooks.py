@@ -173,9 +173,9 @@ jinja = {
 
 ## Markdown Macros for Lessons
 school_markdown_macro_renderers = {
-	"Exercise": "school.plugins.exercise_renderer",
-	"Quiz": "school.plugins.quiz_renderer",
-	"YouTubeVideo": "school.plugins.youtube_video_renderer",
+    "Exercise": "school.plugins.exercise_renderer",
+    "Quiz": "school.plugins.quiz_renderer",
+    "YouTubeVideo": "school.plugins.youtube_video_renderer",
     "Video": "school.plugins.video_renderer"
 }
 
