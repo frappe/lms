@@ -214,8 +214,7 @@ input[type=checkbox] {
   margin-bottom: 1.5rem;
   color: var(--text-color);
   font-weight: 600;
-  font-size: 22px;
-  line-height: 145%;
+  font-size: var(--text-3xl);
   letter-spacing: -0.0175em
 }
 
@@ -737,8 +736,7 @@ input[type=checkbox] {
 
 .course-home-headings {
   font-weight: 600;
-  font-size: 22px;
-  line-height: 146%;
+  font-size: var(--text-3xl);
   letter-spacing: -0.0175em;
   color: #192734;
   margin-bottom: 1rem;
@@ -1369,4 +1367,12 @@ pre {
 .thread-card {
   flex-direction: column;
   padding: 1rem;
+}
+
+.empty-state {
+  background: #EBEEF0;
+  border: 1px dashed #C8CFD5;
+  box-sizing: border-box;
+  border-radius: 8px;
+  padding: 2.5rem;
 }

@@ -13,15 +13,18 @@
     </div>
   </div>
   {% else %}
-  <div class="common-card-style thread-card">
-    <div class="w-25 text-center" style="margin: 0 auto;">
-      <span class="font-weight-bold"> No Enrolled Courses </span>
-      <div class="small">
-        You have not enrolled in any course yet.
-      </div>
-      <a class="button is-primary ml-auto mr-auto mt-3" href="/courses">
-        Explore Courses
-      </a>
+  {% set site_name = frappe.db.get_single_value("System Settings", "app_name") %}
+  <div class="empty-state">
+    <div class="course-home-headings text-center mb-0" style="color: inherit;">You haven't enrolled for any courses</div>
+    <p class="text-center mb-8">Here are a few courses we recommend for you to get started with {{ site_name }}</p>
+    {% set recommended_courses = [course1, course2, course3] %}
+    <div class="cards-parent">
+    {% for recommended_course in recommended_courses %}
+    {% if recommended_course %}
+    {% set course_details = frappe.get_doc("LMS Course", recommended_course) %}
+    {{ widgets.CourseCard(course=course_details) }}
+    {% endif %}
+    {% endfor %}
     </div>
   </div>
   {% endif %}

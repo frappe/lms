@@ -3,9 +3,41 @@
  "creation": "2021-10-21 11:29:50.424865",
  "docstatus": 0,
  "doctype": "Web Template",
- "fields": [],
+ "fields": [
+  {
+   "__unsaved": 1,
+   "fieldname": "recommended_courses",
+   "fieldtype": "Section Break",
+   "label": "Recommended Courses for new users",
+   "reqd": 0
+  },
+  {
+   "__unsaved": 1,
+   "fieldname": "course1",
+   "fieldtype": "Link",
+   "label": "Course 1",
+   "options": "LMS Course",
+   "reqd": 1
+  },
+  {
+   "__unsaved": 1,
+   "fieldname": "course2",
+   "fieldtype": "Link",
+   "label": "Course 2",
+   "options": "LMS Course",
+   "reqd": 1
+  },
+  {
+   "__unsaved": 1,
+   "fieldname": "course3",
+   "fieldtype": "Link",
+   "label": "Course 3",
+   "options": "LMS Course",
+   "reqd": 1
+  }
+ ],
  "idx": 0,
- "modified": "2021-10-21 12:02:23.837501",
+ "modified": "2021-10-28 19:36:11.372396",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Courses Enrolled",
