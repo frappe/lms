@@ -168,8 +168,8 @@ input[type=checkbox] {
 }
 
 .course-student-count {
+  display: flex;
   font-size: 12px;
-  line-height: 135%;
   float: right;
 }
 
@@ -909,7 +909,6 @@ input[type=checkbox] {
 }
 
 .breadcrumb {
-  padding: 0 1rem;
   display: flex;
   align-items: center;
   font-size: 12px;
@@ -1369,4 +1368,9 @@ pre {
 .thread-card {
   flex-direction: column;
   padding: 1rem;
+}
+
+.vertically-center {
+  display: flex;
+  align-items: center;
 }
