@@ -151,12 +151,12 @@ input[type=checkbox] {
 }
 
 .card-divider {
-  border: 1px solid #EEF0F2;
+  border-top: 1px solid #EEF0F2;
   margin-bottom: 1rem;
 }
 
 .card-divider-dark {
-  border: 1px solid #C8CFD5;
+  border-top: 1px solid #C8CFD5;
   margin-bottom: 16px;
 }
 
@@ -168,8 +168,8 @@ input[type=checkbox] {
 }
 
 .course-student-count {
+  display: flex;
   font-size: 12px;
-  line-height: 135%;
   float: right;
 }
 
@@ -907,7 +907,6 @@ input[type=checkbox] {
 }
 
 .breadcrumb {
-  padding: 0 1rem;
   display: flex;
   align-items: center;
   font-size: 12px;
@@ -1375,4 +1374,9 @@ pre {
   box-sizing: border-box;
   border-radius: 8px;
   padding: 2.5rem;
+}
+
+.vertically-center {
+  display: flex;
+  align-items: center;
 }
