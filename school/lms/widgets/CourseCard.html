@@ -51,13 +51,13 @@
     </span>
     <span class="course-student-count">
       {% if course.get_students() | length %}
-      <span class="vertically-center  mr-4">
+      <span class="vertically-center mr-4">
         <img class="icon-background" src="/assets/school/icons/user.svg" />
         {{ course.get_students() | length }}
       </span> {% endif %}
       {% set avg_rating = course.get_average_rating() %}
       {% if avg_rating %}
-      <span class="vertically-center ">
+      <span class="vertically-center">
         <img class="icon-background" src="/assets/school/icons/rating.svg" />
         {{ frappe.utils.flt(avg_rating, frappe.get_system_settings("float_precision") or 3) }}
       </span>
