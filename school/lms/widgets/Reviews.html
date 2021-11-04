@@ -37,18 +37,19 @@
   </div>
 
   {% else %}
-  <div class="common-card-style thread-card">
-    <div class="w-25 text-center" style="margin: 0 auto;">
-      <span class="font-weight-bold"> No Reviews </span>
-      <div class="small">
-        There are no reviews for this course.
-      </div>
-      {% if course.is_eligible_to_review(membership) %}
+  <div class="empty-state text-center">
+    <svg class="icon icon-xl"><use href="#icon-small-message"></use></svg>
+    <div class="course-home-headings mt-4 mb-0" style="color: inherit;"> {{ _("Review the course") }} </div>
+    <div class="small mb-6"> {{ _("Help us improve our course material.") }} </div>
+    {% if course.is_eligible_to_review(membership) %}
       <span class="review-link button is-secondary ml-auto mr-auto mt-3">
         Write a review
       </span>
-      {% endif %}
-    </div>
+    {% elif frappe.session.user == "Guest" %}
+    <div class="button is-secondary ml-auto mr-auto mt-3"> {{ _("Login") }} </div>
+    {% elif not membership %}
+    <div class="button is-secondary join-batch ml-auto mr-auto mt-3" data-course="{{ course.name | urlencode }}"> {{ _("Start Learning") }} </div>
+    {% endif %}
   </div>
   {% endif %}
 </div>
