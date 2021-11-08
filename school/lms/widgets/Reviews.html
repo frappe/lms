@@ -38,7 +38,7 @@
 
   {% else %}
   <div class="empty-state text-center">
-    <svg class="icon icon-xl"><use href="#icon-small-message"></use></svg>
+    <img class="icon icon-xl" src="/assets/frappe/icons/timeless/message.svg">
     <div class="course-home-headings mt-4 mb-0" style="color: inherit;"> {{ _("Review the course") }} </div>
     <div class="small mb-6"> {{ _("Help us improve our course material.") }} </div>
     {% if course.is_eligible_to_review(membership) %}
@@ -46,7 +46,7 @@
         Write a review
       </span>
     {% elif frappe.session.user == "Guest" %}
-    <div class="button is-secondary ml-auto mr-auto mt-3"> {{ _("Login") }} </div>
+    <a class="button is-secondary dark-links ml-auto mr-auto mt-3" href="/login?redirect-to=/courses/{{ course.name }}"> {{ _("Login") }} </a>
     {% elif not membership %}
     <div class="button is-secondary join-batch ml-auto mr-auto mt-3" data-course="{{ course.name | urlencode }}"> {{ _("Start Learning") }} </div>
     {% endif %}
