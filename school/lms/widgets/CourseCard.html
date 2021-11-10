@@ -77,36 +77,36 @@
 
   {% if certificate %}
   <div class="view-course-link is-default">
-    _("Get Certificate") <img class="ml-1" src="/assets/school/icons/black-arrow.svg" />
+    {{ _("Get Certificate") }}
   </div>
   <a class="stretched-link" href="/courses/{{ course.name }}/{{ certificate }}"></a>
 
   {% elif course.enable_certification and progress == 100 %}
   <div class="view-course-link is-default" id="certification" data-course="{{ course.name }}">
-    {{ _("Get Certificate") }} <img class="ml-1" src="/assets/school/icons/black-arrow.svg" />
+    {{ _("Get Certificate") }}
   </div>
 
   {% elif progress == 100 %}
   <div class="view-course-link is-default">
-    {{ _("Course Completed") }} <img class="ml-1" src="/assets/school/icons/black-arrow.svg" />
+    {{ _("Course Completed") }}
   </div>
   <a class="stretched-link" href="/courses/{{ course.name }}"></a>
 
   {% elif course.upcoming %}
   <div class="view-course-link is-secondary border">
-    {{ _("Upcoming Course") }} <img class="ml-1" src="/assets/school/icons/black-arrow.svg" />
+    {{ _("Upcoming Course") }}
   </div>
   <a class="stretched-link" href="/courses/{{ course.name }}"></a>
 
   {% elif membership %}
   <div class="view-course-link is-primary">
-    {{ _("Continue Course") }} <img class="ml-1" src="/assets/school/icons/white-arrow.svg" />
+    {{ _("Continue Course") }}
   </div>
   <a class="stretched-link" href="{{ course.get_learn_url(lesson_index) }}{{ query_parameter }}"></a>
 
   {% else %}
   <div class="view-course-link is-default">
-    {{ _("View Course") }} <img class="ml-1" src="/assets/school/icons/black-arrow.svg" />
+    {{ _("View Course") }}
   </div>
   <a class="stretched-link" href="/courses/{{ course.name }}"></a>
 
