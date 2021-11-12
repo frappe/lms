@@ -113,9 +113,11 @@
 {% set condition = is_instructor if is_instructor else membership %}
 {% set doctype, docname = "Course Lesson", lesson.name %}
 {% set title = "Questions" %}
-{% set cta_title = "New Question" %}
+{% set cta_title = "Ask a Question" %}
 {% set button_name = "Start Learning" %}
 {% set redirect_to = "/courses/" + course.name %}
+{% set empty_state_title = "Have a doubt?" %}
+{% set empty_state_subtitle = "Post it here, our mentors will help you out." %}
 
 {% include "frappe/templates/discussions/discussions_section.html" %}
 {% endmacro %}
