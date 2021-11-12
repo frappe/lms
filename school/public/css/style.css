@@ -210,14 +210,6 @@ input[type=checkbox] {
   }
 }
 
-.courses-header {
-  margin-bottom: 1.5rem;
-  color: var(--text-color);
-  font-weight: 600;
-  font-size: var(--text-3xl);
-  letter-spacing: -0.0175em
-}
-
 @media (min-width: 576px) and (max-width: 992px) {
   .container {
     padding-left: 1rem;

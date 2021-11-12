@@ -10,27 +10,19 @@
 <div class="common-page-style">
   <div class="container">
 
-    {% if live_courses | length %}
-    <div class="courses-header">
-      {{ _('Live Courses') }}
-    </div>
-    <div class="cards-parent">
-      {% for course in live_courses %}
-      {{ widgets.CourseCard(course=course, read_only=False) }}
-      {% endfor %}
-    </div>
-    {% endif %}
+    {% include "school/templates/search_course/search_course.html" %}
 
-    {% if upcoming_courses | length %}
-    <div class="courses-header mt-12">
-      {{ _('Upcoming Courses') }}
+    <div class="course-list">
+      {% set title = _("Live Courses") %}
+      {% set courses = live_courses %}
+      {% set classes = "original-list" %}
+      {% include "school/templates/course_list.html" %}
+
+      {% set title = _("Upcoming Courses") %}
+      {% set courses = upcoming_courses %}
+      {% set classes = "original-list mt-10" %}
+      {% include "school/templates/course_list.html" %}
     </div>
-    <div class="cards-parent">
-      {% for course in upcoming_courses %}
-      {{ widgets.CourseCard(course=course, read_only=False) }}
-      {% endfor %}
-    </div>
-    {% endif %}
 
   </div>
 </div>

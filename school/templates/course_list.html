@@ -1,0 +1,14 @@
+<div class="{{ classes }}">
+  {% if courses | length %}
+  <div class="course-home-headings">
+    {{ title }}
+  </div>
+  <div class="cards-parent">
+    {% for course in courses %}
+    {{ widgets.CourseCard(course=course, read_only=False) }}
+    {% endfor %}
+  </div>
+{% endif %}
+</div>
+
+ 
