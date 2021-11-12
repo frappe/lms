@@ -1,26 +1,5 @@
 :root {
-  --c1: #fefae0;
-  --c2: #264653;
-  --c3: #e9c46a;
-  --c4: #2a9d8f;
-  --c5: #f4a261;
-  --c6: #e76f51;
-  --c7: #ccd5ae;
-  --c8: #EEEEEE;
-  --bg: var(--c1);
-  --header-bg: var(--c2);
-  --header-color: var(--c3);
-  --tag-color: var(--c7);
-  --sidebar-bg: var(--c7);
-  --h-color: var(--c2);
-  --text-color: #192734;
-  --text-color-light: #ccc;
-  --cta-color: var(--c4);
-  --send-message: var(--c7);
-  --received-message: var(--c8);
-  --checkbox-size: 14px;
-  --control-bg: var(--gray-100);
-  --button-background: #EEF0F2;
+  --text-color-dark: #192734;
   --text-xs: 11px;
   --text-sm: 12px;
   --text-md: 13px;
@@ -29,6 +8,7 @@
   --text-xl: 18px;
   --text-2xl: 20px;
   --text-3xl: 22px;
+  --navbar-shadow: 0px 1px 8px rgba(0, 0, 0, 0.08)
 }
 
 input[type=checkbox] {
@@ -106,7 +86,7 @@ input[type=checkbox] {
   border-radius: 8px;
   position: relative;
   border: 1px solid #EEF0F2;
-  box-shadow: 0 0px 4px 2px #19273405;
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 .course-card {
@@ -138,7 +118,7 @@ input[type=checkbox] {
   font-size: 18px;
   line-height: 156%;
   letter-spacing: -0.014em;
-  color: var(--text-color);
+  color: var(--text-color-dark);
   align-self: stretch;
   margin-bottom: 1.5rem;
   height: 56px;
@@ -164,7 +144,7 @@ input[type=checkbox] {
   margin-left: 8px;
   font-size: 12px;
   line-height: 135%;
-  color: var(--text-color);
+  color: var(--text-color-dark);
 }
 
 .course-student-count {
@@ -212,7 +192,7 @@ input[type=checkbox] {
 
 .courses-header {
   margin-bottom: 1.5rem;
-  color: var(--text-color);
+  color: var(--text-color-dark);
   font-weight: 600;
   font-size: var(--text-3xl);
   letter-spacing: -0.0175em
@@ -422,7 +402,7 @@ input[type=checkbox] {
   font-weight: 600;
   font-size: 40px;
   line-height: 120%;
-  color: #192734;
+  color: var(--text-color-dark);
   margin-bottom: 8px;
 }
 
@@ -493,7 +473,7 @@ input[type=checkbox] {
 
 .is-default {
   background: #F4F5F6;
-  color: #1F272E;
+  color: var(--text-color-dark);
 }
 
 @media (max-width: 600px) {
@@ -738,7 +718,7 @@ input[type=checkbox] {
   font-weight: 600;
   font-size: var(--text-3xl);
   letter-spacing: -0.0175em;
-  color: #192734;
+  color: var(--text-color-dark);
   margin-bottom: 1rem;
 }
 
@@ -911,7 +891,7 @@ input[type=checkbox] {
   align-items: center;
   font-size: 12px;
   line-height: 135%;
-  color: var(--text-color);
+  color: var(--text-color-dark);
 }
 
 .course-details-outline {
@@ -1321,7 +1301,7 @@ pre {
 .certificate-heading {
   font-size: 3rem;
   font-weight: 500;
-  color: var(--text-color);
+  color: var(--text-color-dark);
 }
 
 .certificate-para {
@@ -1379,4 +1359,20 @@ pre {
 .vertically-center {
   display: flex;
   align-items: center;
+}
+
+.navbar {
+  box-shadow: var(--navbar-shadow);
+}
+
+.interactive-arrow {
+  background-image: url("/assets/school/icons/arrow.svg");
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-left: 0.5rem;
+}
+
+.intercative-link:hover .interactive-arrow{
+  background-image: url("/assets/school/icons/blue-arrow.svg");
+  margin-left: 1.5rem;
 }
