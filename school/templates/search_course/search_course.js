@@ -9,8 +9,7 @@ const search_course = (e) => {
 
   if (input.length < 3 || input.trim() == "") {
     $(".course-card").removeClass("hide");
-    $(".course-home-headings").parent().removeClass("hide");
-    $(".upcoming-courses").addClass("mt-10");
+    fix_heading_styles();
     return;
   }
 
@@ -26,6 +25,7 @@ const search_course = (e) => {
 };
 
 const render_course_list = (courses) => {
+  fix_heading_styles();
   $(".course-card").addClass("hide");
   for (course in courses) {
     $("[data-course=" + courses[course].name + "]").removeClass("hide");
@@ -35,12 +35,16 @@ const render_course_list = (courses) => {
   const visible_upcoming_courses = $(".upcoming-courses .course-card").not(".hide");
 
   if (!visible_live_courses.length) {
-    $(".live-courses").addClass("hide");
+    $(".live-courses .course-home-headings").addClass("hide");
     $(".upcoming-courses").removeClass("mt-10");
   }
 
   if (!visible_upcoming_courses.length) {
-    $(".upcoming-courses").addClass("hide");
+    $(".upcoming-courses .course-home-headings").addClass("hide");
   }
 }
 
+const fix_heading_styles = () => {
+  $(".course-home-headings").removeClass("hide");
+  $(".upcoming-courses").addClass("mt-10");
+}
