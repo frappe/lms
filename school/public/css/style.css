@@ -1368,3 +1368,16 @@ pre {
   background-image: url("/assets/school/icons/blue-arrow.svg");
   margin-left: 1.5rem;
 }
+
+.search-course {
+	background-image: url(/assets/frappe/icons/timeless/search.svg);
+  border: 1px solid #C8CFD5;
+  box-sizing: border-box;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  height: 36px;
+  background-repeat: no-repeat;
+	text-indent: 1.5rem;
+	background-position: 1rem 0.65rem;
+}

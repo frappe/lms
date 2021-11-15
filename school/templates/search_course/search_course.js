@@ -6,10 +6,12 @@ frappe.ready(() => {
 
 const search_course = (e) => {
   let input = $(e.currentTarget).val();
-  console.log(input)
+
   if (input.length < 3 || input.trim() == "") {
     $(".course-card").removeClass("hide");
-    return
+    $(".course-home-headings").parent().removeClass("hide");
+    $(".upcoming-courses").addClass("mt-10");
+    return;
   }
 
   frappe.call({
@@ -26,8 +28,19 @@ const search_course = (e) => {
 const render_course_list = (courses) => {
   $(".course-card").addClass("hide");
   for (course in courses) {
-    console.log(courses[course])
-    
+    $("[data-course=" + courses[course].name + "]").removeClass("hide");
+  }
+
+  const visible_live_courses = $(".live-courses .course-card").not(".hide");
+  const visible_upcoming_courses = $(".upcoming-courses .course-card").not(".hide");
+
+  if (!visible_live_courses.length) {
+    $(".live-courses").addClass("hide");
+    $(".upcoming-courses").removeClass("mt-10");
+  }
+
+  if (!visible_upcoming_courses.length) {
+    $(".upcoming-courses").addClass("hide");
   }
 }
 

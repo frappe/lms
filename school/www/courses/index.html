@@ -15,15 +15,14 @@
     <div class="course-list">
       {% set title = _("Live Courses") %}
       {% set courses = live_courses %}
-      {% set classes = "original-list" %}
+      {% set classes = "live-courses" %}
       {% include "school/templates/course_list.html" %}
 
       {% set title = _("Upcoming Courses") %}
       {% set courses = upcoming_courses %}
-      {% set classes = "original-list mt-10" %}
+      {% set classes = "upcoming-courses mt-10" %}
       {% include "school/templates/course_list.html" %}
     </div>
-
   </div>
 </div>
 {% endblock %}
