@@ -1,0 +1,17 @@
+<div class="course-home-headings section-heading text-center"> {{ _(title) }} </div>
+<div class="cards-parent">
+  {% for testimonial_row in testimonials_table %}
+  {% set review = frappe.db.get_value("LMS Course Review", testimonial_row.testimonials, ["owner", "review"], as_dict=True) %}
+    <div class="common-card-style testimonial-card">
+      {% set member = frappe.get_doc("User", review.owner) %}
+      <div class="d-flex">
+        {{ widgets.Avatar(member=member, avatar_class="avatar-testimonial") }}
+        <div>
+          <div class="" >{{ member.full_name }}</div>
+          {% if member.profession %}<div style="font-size: 14px;">{{ member.profession }}</div> {% endif %}
+        </div>
+      </div>
+      {{ review.review }}
+    </div>
+  {% endfor %}
+</div>
