@@ -1395,4 +1395,62 @@ pre {
 .testimonial-card {
   flex-direction: column;
   padding: 1rem 1rem 2rem;
+  height: 100%;
+}
+
+.testimonial-author {
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 150%;
+  color: var(--text-color-dark);
+}
+
+.testimonial-review {
+  color: var(--text-color-dark);
+}
+
+.testimonial-profession {
+  font-size: 0.625rem;
+}
+
+.carousel-indicators li {
+  background-color: var(--gray-600);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.carousel-control-prev-icon {
+  background-image: url("/assets/school/icons/slider-arrow-left.svg");
+  width: 40px;
+  height: 40px;
+}
+
+.carousel-control-next-icon {
+  background-image: url("/assets/school/icons/slider-arrow-right.svg");
+  width: 40px;
+  height: 40px;
+}
+
+.carousel-control-prev, .carousel-control-next {
+  position: inherit;
+  width: auto;
+}
+
+.carousel-indicators {
+  position: inherit;
+  margin: 0;
+}
+
+.slider-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin: 40px auto 0;
+}
+
+.carousel-indicators li {
+  border: none;
+  margin: 0 6px;
 }
