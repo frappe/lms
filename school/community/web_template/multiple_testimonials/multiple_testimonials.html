@@ -45,3 +45,17 @@
     </a>
   </div>
 </div>
+<script>
+  frappe.ready(() => {
+
+    let max_height = 0;
+
+    $(".carousel-item").each((i, item) => {
+      if (max_height < $(item).height()) {
+        max_height = $(item).height();
+      }
+    });
+
+    $(".carousel-inner").css("height", max_height);
+  })
+</script>
