@@ -1,0 +1,61 @@
+<div class="course-home-headings section-heading text-center" style="margin-bottom: 40px"> {{ _(title) }} </div>
+<div class="carousel slide" id="carouselExampleControls" data-ride="carousel" data-interval="false">
+  <div class="carousel-inner">
+    {% for testimonial_row in testimonials_table %}
+    {% set review = frappe.db.get_value("LMS Course Review", testimonial_row.testimonials, ["owner", "review"], as_dict=True) %}
+
+      {% if loop.index % 3 == 1 %}
+      <div class="carousel-item {% if loop.index == 1 %} active {% endif %}"> <div class="cards-parent">
+      {% endif %}
+        <div class="common-card-style testimonial-card">
+          {% set member = frappe.get_doc("User", review.owner) %}
+          <div class="d-flex align-items-center mb-4">
+            <div>
+              {{ widgets.Avatar(member=member, avatar_class="avatar-testimonial") }}
+            </div>
+            <div class="ml-3">
+              <div class="testimonial-author" >{{ member.full_name }}</div>
+              {% if member.profession %}<div class="testimonial-profession">{{ member.profession }}</div> {% endif %}
+            </div>
+          </div>
+          <div class="testimonial-review">
+          "{{ review.review }}"
+          </div>
+        </div>
+      {% if loop.index % 3 == 0 or loop.index == testimonials_table | length %} </div> </div> {% endif %}
+    {% endfor %}
+  </div>
+
+  <div class="slider-controls">
+    <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
+      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      <span class="sr-only">Previous</span>
+    </a>
+
+    <ol class="carousel-indicators">
+      {% set number_of_slides = (testimonials_table|length / 3)|round(method="ceil")|int %}
+      {% for i in  range(number_of_slides) %}
+      <li data-target="#carouselExampleControls" data-slide-to="{{ i }}" {% if i == 0 %} class="active" {% endif %} ></li>
+      {% endfor %}
+    </ol>
+
+    <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      <span class="sr-only">Next</span>
+    </a>
+  </div>
+</div>
+<script>
+  frappe.ready(() => {
+
+    let max_height = 0;
+
+    $(".carousel-item").each((i, item) => {
+      if (max_height < $(item).height()) {
+        max_height = $(item).height();
+      }
+    });
+
+    $(".carousel-inner").css("height", max_height);
+  })
+</script>

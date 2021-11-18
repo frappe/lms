@@ -8,6 +8,7 @@
   --text-xl: 18px;
   --text-2xl: 20px;
   --text-3xl: 22px;
+  --text-4xl: 44px;
   --navbar-shadow: 0px 1px 8px rgba(0, 0, 0, 0.08)
 }
 
@@ -751,6 +752,11 @@ input[type=checkbox] {
   }
 }
 
+.avatar-testimonial {
+  width: 48px;
+  height: 48px;
+}
+
 .description-card {
   padding: 1.5rem;
   flex-direction: column;
@@ -1380,4 +1386,71 @@ pre {
   background-repeat: no-repeat;
 	text-indent: 1.5rem;
 	background-position: 1rem 0.65rem;
+}
+
+.section-heading {
+  font-size: var(--text-4xl);
+}
+
+.testimonial-card {
+  flex-direction: column;
+  padding: 1rem 1rem 2rem;
+  height: 100%;
+}
+
+.testimonial-author {
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 150%;
+  color: var(--text-color-dark);
+}
+
+.testimonial-review {
+  color: var(--text-color-dark);
+}
+
+.testimonial-profession {
+  font-size: 0.625rem;
+}
+
+.carousel-indicators li {
+  background-color: var(--gray-600);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.carousel-control-prev-icon {
+  background-image: url("/assets/school/icons/slider-arrow-left.svg");
+  width: 40px;
+  height: 40px;
+}
+
+.carousel-control-next-icon {
+  background-image: url("/assets/school/icons/slider-arrow-right.svg");
+  width: 40px;
+  height: 40px;
+}
+
+.carousel-control-prev, .carousel-control-next {
+  position: inherit;
+  width: auto;
+}
+
+.carousel-indicators {
+  position: inherit;
+  margin: 0;
+}
+
+.slider-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin: 40px auto 0;
+}
+
+.carousel-indicators li {
+  border: none;
+  margin: 0 6px;
 }
