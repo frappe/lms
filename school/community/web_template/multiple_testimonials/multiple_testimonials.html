@@ -22,7 +22,7 @@
           "{{ review.review }}"
           </div>
         </div>
-      {% if loop.index % 3 == 0 %} </div> </div> {% endif %}
+      {% if loop.index % 3 == 0 or loop.index == testimonials_table | length %} </div> </div> {% endif %}
     {% endfor %}
   </div>
 
