@@ -363,7 +363,7 @@ def reindex_exercises(doc):
     course.reindex_exercises()
     frappe.msgprint("All exercises in this course have been re-indexed.")
 
-@frappe.whitelist()
+@frappe.whitelist(allow_guest=True)
 def search_course(text):
     search_courses = []
     courses = frappe.get_all("LMS Course",
