@@ -7,8 +7,14 @@ frappe.ready(() => {
 const search_course = (e) => {
   let input = $(e.currentTarget).val();
 
+  if (input == window.input)
+    return;
+
+  window.input = input;
+
   if (input.length < 3 || input.trim() == "") {
     $(".course-card").removeClass("hide");
+    $(".search-empty-state").addClass("hide");
     fix_heading_styles();
     return;
   }
@@ -26,6 +32,14 @@ const search_course = (e) => {
 
 const render_course_list = (courses) => {
   fix_heading_styles();
+  $(".search-empty-state").addClass("hide");
+
+  if (!courses.length) {
+    $(".course-card").removeClass("hide");
+    $(".search-empty-state").removeClass("hide");
+    return;
+  }
+
   $(".course-card").addClass("hide");
   for (course in courses) {
     $("[data-course=" + courses[course].name + "]").removeClass("hide");
