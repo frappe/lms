@@ -1454,3 +1454,10 @@ pre {
   border: none;
   margin: 0 6px;
 }
+
+.search-empty-state {
+  text-align: center;
+  position: relative;
+  top: 4rem;
+  margin-bottom: 5rem;
+}

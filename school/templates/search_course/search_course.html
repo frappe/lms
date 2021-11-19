@@ -1,3 +1,10 @@
 <input class="search-course w-25 float-right" placeholder="{{ _("Try `Manufacturing` or `Accounting`") }}">
 
+<div id="" class="alert alert-dismissible empty-state search-empty-state hide">
+  <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+  <img class="icon icon-xl" src="/assets/frappe/images/ui-states/search-empty-state.svg">
+  <div class="course-home-headings mt-4 mb-0" style="color: inherit;"> {{ _("No results found") }} </div>
+  <div class="small mb-6"> {{ _("Try some other keyword or explore our list of courses.") }} </div>
+</div>
+
 <script> {% include "school/templates/search_course/search_course.js" %} </script>
