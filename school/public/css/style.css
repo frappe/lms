@@ -1376,7 +1376,7 @@ pre {
 }
 
 .search-course {
-	background-image: url(/assets/frappe/icons/timeless/search.svg);
+    background-image: url(/assets/frappe/icons/timeless/search.svg);
   border: 1px solid #C8CFD5;
   box-sizing: border-box;
   border-radius: 6px;
@@ -1384,8 +1384,8 @@ pre {
   padding: 0.625rem 0.75rem;
   height: 36px;
   background-repeat: no-repeat;
-	text-indent: 1.5rem;
-	background-position: 1rem 0.65rem;
+    text-indent: 1.5rem;
+    background-position: 1rem 0.65rem;
 }
 
 .section-heading {
@@ -1460,4 +1460,23 @@ pre {
   position: relative;
   top: 4rem;
   margin-bottom: 5rem;
+}
+
+.close-search-empty-state {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 0.75rem 1.25rem;
+  float: right;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #000;
+  text-shadow: 0 1px 0 #fff;
+  opacity: .5;
+}
+
+.close-search-empty-state:hover {
+  text-decoration: none;
+  color: #000;
 }
