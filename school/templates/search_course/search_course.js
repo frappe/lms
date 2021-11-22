@@ -2,6 +2,11 @@ frappe.ready(() => {
   $(".search-course").keyup((e) => {
     search_course(e);
   });
+
+  $(".close-search-empty-state").click((e) => {
+    close_search_empty_state(e);
+  });
+
 });
 
 const search_course = (e) => {
@@ -61,4 +66,9 @@ const render_course_list = (courses) => {
 const fix_heading_styles = () => {
   $(".course-home-headings").removeClass("hide");
   $(".upcoming-courses").addClass("mt-10");
+}
+
+const close_search_empty_state = (e) => {
+  $(".search-empty-state").addClass("hide");
+  $(".search-course").val("");
 }
