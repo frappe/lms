@@ -58,9 +58,9 @@
         Continue Learning <img class="ml-2" src="/assets/school/icons/white-arrow.svg" />
       </a>
       {% endif %}
-      {% if course.upcoming %}
-      <button class="button wide-button is-default" id="notify-me" data-course="{{course.name | urlencode}}" {% if
-        is_user_interested %} disabled="disabled" title="Your interest has already been noted." {% endif %}>
+      {% if course.upcoming and not is_user_interested %}
+      <button class="button wide-button is-default"
+        id="notify-me" data-course="{{course.name | urlencode}}">
         Notify me when available
       </button>
       {% endif %}
@@ -72,6 +72,11 @@
       {% endif %}
     </div>
   </div>
+</div>
+
+<div id="interest-alert" class="alert alert-dismissible empty-state p-4 mt-10 {% if not is_user_interested %} hide {% endif %}">
+  You have opted to be notified for this course. You will receive an email when the course becomes available.
+  <a href="#" class="close p-4" data-dismiss="alert" aria-label="close">&times;</a>
 </div>
 
 {% if course.video_link %}
