@@ -319,6 +319,7 @@ input[type=checkbox] {
   background: #E2E6E9;
   border-radius: 8px;
   margin-top: 16px;
+  box-shadow: 0px 2px 1px rgba(0, 0, 0, 0.02), 0px 0px 8px rgba(0, 0, 0, 0.04);
 }
 
 @media (max-width: 768px) {

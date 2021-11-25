@@ -215,8 +215,8 @@ var notify_user = (e) => {
       "course": course
     },
     callback: (data) => {
-      frappe.msgprint(__("Your interest has been noted. We'll notify you via email when this course becomes available."));
-      $("#notify-me").attr("disabled", true).attr("title", "Your interest has already been noted");
+      $("#interest-alert").removeClass("hide");
+      $("#notify-me").addClass("hide");
     }
   })
 }
