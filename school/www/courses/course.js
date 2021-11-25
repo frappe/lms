@@ -216,6 +216,7 @@ var notify_user = (e) => {
     },
     callback: (data) => {
       $("#interest-alert").removeClass("hide");
+      $("#notify-me").addClass("hide");
     }
   })
 }
