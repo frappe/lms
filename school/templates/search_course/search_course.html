@@ -1,4 +1,8 @@
-<input class="search-course w-25 float-right" placeholder="{{ _("Try `Manufacturing` or `Accounting`") }}">
+{% set show_search = frappe.db.get_single_value("LMS Settings", "show_search") %}
+{% set search_placeholder = frappe.db.get_single_value("LMS Settings", "search_placeholder") %}
+
+{% if show_search %}
+<input class="search-course" placeholder="{{ _(search_placeholder) }}">
 
 <div id="" class="alert alert-dismissible empty-state search-empty-state hide">
   <a href="#" class="close-search-empty-state" aria-label="close">&times;</a>
@@ -8,3 +12,4 @@
 </div>
 
 <script> {% include "school/templates/search_course/search_course.js" %} </script>
+{% endif %}
