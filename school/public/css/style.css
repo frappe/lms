@@ -1387,6 +1387,8 @@ pre {
   background-repeat: no-repeat;
   text-indent: 1.5rem;
   background-position: 1rem 0.65rem;
+  float: right;
+  width: 25%;
 }
 
 .section-heading {
@@ -1480,4 +1482,8 @@ pre {
 .close-search-empty-state:hover {
   text-decoration: none;
   color: #000;
+}
+
+.live-courses .course-home-headings {
+  margin-bottom: 1.5rem;
 }
