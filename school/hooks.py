@@ -141,6 +141,7 @@ website_route_rules = [
 	{"from_route": "/courses/<course>/learn/<int:chapter>.<int:lesson>", "to_route": "batch/learn"},
 	{"from_route": "/courses/<course>/progress", "to_route": "batch/progress"},
 	{"from_route": "/courses/<course>/join", "to_route": "batch/join"},
+	{"from_route": "/courses/<course>/manage", "to_route": "cohorts"},
 	{"from_route": "/users", "to_route": "profiles/profile"}
 ]
 
