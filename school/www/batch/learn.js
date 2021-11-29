@@ -8,7 +8,11 @@ frappe.ready(() => {
     enable_check(e);
   })
 
-  $("#progress").click((e) => {
+  $(".mark-progress").click((e) => {
+    mark_progress(e);
+  });
+
+  $(".next").click((e) => {
     mark_progress(e);
   });
 
@@ -66,21 +70,37 @@ var mark_active_question = (e = undefined) => {
 }
 
 var mark_progress = (e) => {
-  var status = $(e.currentTarget).attr("data-progress");
-  frappe.call({
-    method: "school.lms.doctype.course_lesson.course_lesson.save_progress",
-    args: {
-      lesson: $(".title").attr("data-lesson"),
-      course: $(".title").attr("data-course"),
-      status: status
-    },
-    callback: (data) => {
-      change_progress_indicators(status, e);
-      if (data.message == 100 && !$(".next").length && $("#certification").hasClass("hide")) {
-        $("#certification").removeClass("hide");
+  /* Prevent default only for Next button anchor tag and not for progress checkbox */
+  if ($(e.currentTarget).prop("nodeName") != "INPUT")
+    e.preventDefault();
+  else
+    return
+
+  const target = $(e.currentTarget).attr("data-progress") ? $(e.currentTarget) : $("input.mark-progress");
+  const current_status = $(".lesson-progress").hasClass("hide") ? "Incomplete": "Complete";
+
+  let status = "Incomplete";
+  if (target.prop("nodeName") == "INPUT" && target.prop("checked")) {
+    status = "Complete";
+  }
+
+  if (status != current_status) {
+    frappe.call({
+      method: "school.lms.doctype.course_lesson.course_lesson.save_progress",
+      args: {
+        lesson: $(".title").attr("data-lesson"),
+        course: $(".title").attr("data-course"),
+        status: status
+      },
+      callback: (data) => {
+        change_progress_indicators(status, e);
+        show_certificate_if_course_completed(data);
+        move_to_next_lesson(e);
       }
-    }
-  })
+    });
+  }
+  else
+    move_to_next_lesson(e);
 }
 
 var change_progress_indicators = (status, e) => {
@@ -92,9 +112,23 @@ var change_progress_indicators = (status, e) => {
     $(".lesson-progress").addClass("hide");
     $(".active-lesson .lesson-progress-tick").addClass("hide");
   }
-  var label = status != "Complete" ? "Mark as Complete" : "Mark as Incomplete";
-  var data_progress = status != "Complete" ? "Complete" : "Incomplete";
-  $(e.currentTarget).text(label).attr("data-progress", data_progress);
+  if (status == "Incomplete" && !$(e.currentTarget).hasClass("next")) {
+    $(e.currentTarget).addClass("hide");
+    $("input.mark-progress").prop("checked", false).closest(".custom-checkbox").removeClass("hide");
+  }
+}
+
+const show_certificate_if_course_completed = (data) => {
+  if (data.message == 100 && !$(".next").attr("data-next") && $("#certification").hasClass("hide")) {
+    $("#certification").removeClass("hide");
+    $(".next").addClass("hide");
+  }
+}
+
+const move_to_next_lesson = (e) => {
+  if ($(e.currentTarget).hasClass("next") && $(e.currentTarget).attr("data-href")) {
+    window.location.href = $(e.currentTarget).attr("data-href");
+  }
 }
 
 var quiz_summary = (e) => {
