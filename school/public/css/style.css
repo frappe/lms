@@ -1513,6 +1513,6 @@ pre {
   background-size: 1rem;
 }
 
-.no-discussion {
-  width: 80%;
+.no-discussions {
+  width: 80% !important;
 }
