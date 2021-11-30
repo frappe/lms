@@ -59,6 +59,8 @@
 
 
 {% macro render_join_requests() %}
+  {% set join_requests = subgroup.get_join_requests() %}
+  {% if join_requests %}
   <table class="table">
     <tr>
       <th>#</th>
@@ -78,6 +80,9 @@
     </tr>
     {% endfor %}
   </table>
+  {% else %}
+    <em>There are no pending join requests.</em>
+  {% endif %}
 {% endmacro %}
 
 {% macro render_navitem(title, link, count, active) %}
@@ -118,7 +123,7 @@ $(function() {
     frappe.confirm(
       `Are you sure to accept ${email} to this subgroup?`,
       function() {
-        console.log("approve", name);
+        run_action("school.lms.api.approve_cohort_join_request", name);
       }
     );
   });
@@ -127,10 +132,23 @@ $(function() {
     var name = $(this).parent().data("name");
     var email = $(this).parent().data("email");
     frappe.confirm(`Are you sure to reject <strong>${email}</strong> from joining this subgroup?`, function() {
-      console.log("reject", name);
+      run_action("school.lms.api.reject_cohort_join_request", name);
     });
   });
 
+  function run_action(method, join_request) {
+    frappe.call(method, {
+      join_request: join_request,
+    })
+    .then(r => {
+      if (r.message.ok) {
+        window.location.reload();
+      }
+      else {
+        frappe.msgprint(r.message.error);
+      }
+    });
+  }
 });
 </script>
 {% endblock %}

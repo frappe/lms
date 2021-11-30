@@ -57,5 +57,15 @@ class CohortSubgroup(Document):
         }
         return frappe.db.exists(q)
 
+    def is_manager(self, email):
+        """Returns True if the given user is a manager of this subgroup.
+
+        Mentors of the subgroup, admins of the Cohort are considered as managers.
+        """
+        return self.is_mentor(email) or self.get_cohort().is_admin(email)
+
+    def get_cohort(self):
+        return frappe.get_doc("Cohort", self.cohort)
+
 #def after_doctype_insert():
 #    frappe.db.add_unique("Cohort Subgroup", ("cohort", "slug"))

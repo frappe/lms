@@ -70,3 +70,41 @@ def join_cohort(course, cohort, subgroup, invite_code):
     doc = frappe.get_doc(data)
     doc.insert(ignore_permissions=True)
     return {"ok": True}
+
+@frappe.whitelist()
+def approve_cohort_join_request(join_request):
+    r = frappe.get_doc("Cohort Join Request", join_request)
+    sg = r and frappe.get_doc("Cohort Subgroup", r.subgroup)
+    if not sg or r.status not in ["Pending", "Accepted"]:
+        return {
+            "ok": False,
+            "error": "Invalid Join Request"
+        }
+    if not sg.is_manager(frappe.session.user):
+        return {
+            "ok": False,
+            "error": "Permission Deined"
+        }
+
+    r.status = "Accepted"
+    r.save(ignore_permissions=True)
+    return {"ok": True}
+
+@frappe.whitelist()
+def reject_cohort_join_request(join_request):
+    r = frappe.get_doc("Cohort Join Request", join_request)
+    sg = r and frappe.get_doc("Cohort Subgroup", r.subgroup)
+    if not sg or r.status not in ["Pending", "Rejected"]:
+        return {
+            "ok": False,
+            "error": "Invalid Join Request"
+        }
+    if not sg.is_manager(frappe.session.user):
+        return {
+            "ok": False,
+            "error": "Permission Deined"
+        }
+
+    r.status = "Rejected"
+    r.save(ignore_permissions=True)
+    return {"ok": True}
