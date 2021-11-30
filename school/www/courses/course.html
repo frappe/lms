@@ -72,8 +72,9 @@
       {% endif %}
 
       {% if course.is_cohort_staff(frappe.session.user) %}
-        <a class="button wide-button" style="position: absolute; right: 0;"
-           href="/courses/{{course.name}}/manage">
+        <a class="button wide-button is-secondary"
+           href="/courses/{{course.name}}/manage"
+           style="color: inherit;">
           Manage the course
         </a>
       {% endif %}
