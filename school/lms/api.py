@@ -45,3 +45,28 @@ def save_current_lesson(course_name, lesson_name):
     doc.current_lesson = lesson_name
     doc.save(ignore_permissions=True)
     return {"current_lesson": doc.current_lesson}
+
+
+@frappe.whitelist()
+def join_cohort(course, cohort, subgroup, invite_code):
+    """Creates a Cohort Join Request for given user.
+    """
+    course_doc = frappe.get_doc("LMS Course", course)
+    cohort_doc = course_doc and course_doc.get_cohort(cohort)
+    subgroup_doc = cohort_doc and cohort_doc.get_subgroup(subgroup)
+
+    if not subgroup_doc or subgroup_doc.invite_code != invite_code:
+        return {
+            "ok": False,
+            "error": "Invalid join link"
+        }
+
+    data = {
+        "doctype": "Cohort Join Request",
+        "cohort": cohort_doc.name,
+        "subgroup": subgroup_doc.name,
+        "email": frappe.session.user
+    }
+    doc = frappe.get_doc(data)
+    doc.insert(ignore_permissions=True)
+    return {"ok": True}

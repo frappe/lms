@@ -213,6 +213,10 @@ class LMSCourse(Document):
     def get_cohorts(self):
         return find_all("Cohort", course=self.name, order_by="creation")
 
+    def get_cohort(self, cohort_slug):
+        name = frappe.get_value("Cohort", {"course": self.name, "slug": cohort_slug})
+        return name and frappe.get_doc("Cohort", name)
+
     def is_cohort_staff(self, user_email):
         """Returns True if the user is either a mentor or a staff for one or more active cohorts of this course.
         """
