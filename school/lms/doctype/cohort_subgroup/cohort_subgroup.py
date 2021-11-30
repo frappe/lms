@@ -11,7 +11,8 @@ class CohortSubgroup(Document):
             self.invite_code = random_string(8)
 
     def get_invite_link(self):
-        return f"{frappe.utils.get_url()}/cohorts/{self.cohort}/join/{self.slug}/{self.invite_code}"
+        cohort = frappe.get_doc("Cohort", self.cohort)
+        return f"{frappe.utils.get_url()}/courses/{self.course}/join/{cohort.slug}/{self.slug}/{self.invite_code}"
 
     def has_student(self, email):
         """Check if given user is a student of this subgroup.
@@ -40,6 +41,21 @@ class CohortSubgroup(Document):
         }
         return frappe.get_all("Cohort Join Request", filters=q, fields=["*"], order_by="creation")
 
+    def get_mentors(self):
+        emails = frappe.get_all("Cohort Mentor", filters={"subgroup": self.name}, fields=["email"], pluck='email')
+        return [frappe.get_doc("User", email) for email in emails]
+
+    def get_students(self):
+        emails = frappe.get_all("LMS Batch Membership", filters={"subgroup": self.name}, fields=["member"], pluck='member')
+        return [frappe.get_doc("User", email) for email in emails]
+
+    def is_mentor(self, email):
+        q = {
+            "doctype": "Cohort Mentor",
+            "subgroup": self.name,
+            "email": email
+        }
+        return frappe.db.exists(q)
 
 #def after_doctype_insert():
 #    frappe.db.add_unique("Cohort Subgroup", ("cohort", "slug"))

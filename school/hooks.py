@@ -142,6 +142,10 @@ website_route_rules = [
 	{"from_route": "/courses/<course>/progress", "to_route": "batch/progress"},
 	{"from_route": "/courses/<course>/join", "to_route": "batch/join"},
 	{"from_route": "/courses/<course>/manage", "to_route": "cohorts"},
+	{"from_route": "/courses/<course>/cohorts/<cohort>", "to_route": "cohorts/cohort"},
+	{"from_route": "/courses/<course>/subgroups/<cohort>/<subgroup>", "to_route": "cohorts/subgroup", "defaults": {"page": "info"}},
+	{"from_route": "/courses/<course>/subgroups/<cohort>/<subgroup>/students", "to_route": "cohorts/subgroup", "defaults": {"page": "students"}},
+	{"from_route": "/courses/<course>/subgroups/<cohort>/<subgroup>/join-requests", "to_route": "cohorts/subgroup", "defaults": {"page": "join-requests"}},
 	{"from_route": "/users", "to_route": "profiles/profile"}
 ]
 

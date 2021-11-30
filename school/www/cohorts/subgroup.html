@@ -1,0 +1,136 @@
+{% extends "www/cohorts/base.html" %}
+{% block title %} Subgroup {{subgroup.title}} - {{ course.title }} {% endblock %}
+
+{% block page_content %}
+    <h2>{{subgroup.title}} <span class="badge badge-secondary">Subgroup</span></h2>
+
+    <ul class="nav nav-tabs">
+      {{ render_navitem("Info", "", -1, page=="info")}}
+      {{ render_navitem("Students", "/students", stats.students, page=="students")}}
+      {{ render_navitem("Requests to join", "/join-requests", stats.join_requests, page=="join-requests")}}
+    </ul>
+    <div class="my-5">
+    {% if page == "info" %}
+      {{ render_info() }}
+    {% elif page == "students" %}
+      {{ render_students() }}
+    {% elif page == "join-requests" %}
+      {{ render_join_requests() }}
+    {% endif %}
+    </div>
+{% endblock %}
+
+{% macro render_info() %}
+    <h5>Invite Link</h5>
+    {% set link = subgroup.get_invite_link() %}
+    <p><a href="{{ link }}" id="invite-link">{{link}}</a>
+    <br>
+    <a class="btn btn-seconday btn-sm" id="copy-to-clipboard">Copy to Clipboard</a>
+    </p>
+
+    <h5>Mentors</h5>
+    {% set mentors = subgroup.get_mentors() %}
+    {% if mentors %}
+      {% for m in mentors %}
+        <div class="my-5">
+          {{ widgets.Avatar(member=m, avatar_class="avatar-small") }}
+          <a href="/{{m.username}}" title="{{m.full_name}}">{{ m.full_name }}</a>
+        </div>
+      {% endfor %}
+    {% else %}
+      <em>None found.</em>
+    {% endif %}
+{% endmacro %}
+
+
+{% macro render_students() %}
+  {% set students = subgroup.get_students() %}
+  {% if students %}
+    {% for student in students %}
+      <div class="my-5">
+        {{ widgets.Avatar(member=student, avatar_class="avatar-small") }}
+        <a href="/{{student.username}}" title="{{student.full_name}}">{{ student.full_name }}</a>
+      </div>
+    {% endfor %}
+  {% else %}
+    <em>None found.</em>
+  {% endif %}
+{% endmacro %}
+
+
+{% macro render_join_requests() %}
+  <table class="table">
+    <tr>
+      <th>#</th>
+      <th>When</th>
+      <th>Email</th>
+      <th>Actions</th>
+    </tr>
+    {% for r in subgroup.get_join_requests() %}
+    <tr>
+        <td>{{loop.index}}</td>
+        <td>{{r.creation}}</td>
+        <td>{{r.email}}</td>
+        <td
+          data-name="{{r.name}}"
+          data-email="{{r.email}}">
+          <a class="action-approve" href="#">Approve</a> | <a class="action-reject" href="#">Reject</a></td>
+    </tr>
+    {% endfor %}
+  </table>
+{% endmacro %}
+
+{% macro render_navitem(title, link, count, active) %}
+  <li class="nav-item">
+    <a
+      class="nav-link {{ 'active' if active }}"
+      href="/courses/{{course.name}}/subgroups/{{cohort.slug}}/{{subgroup.slug}}{{link}}"
+    >{{title}}
+    {% if count != -1 %}
+      <span
+        class="badge {{'badge-primary' if active else 'badge-secondary'}}"
+      >{{count}}</span>
+    {% endif %}
+    </a>
+  </li>
+{% endmacro %}
+
+
+{% block script %}
+
+<script type="text/javascript">
+$(function() {
+  $("#copy-to-clipboard").click(function() {
+    var invite_link = $("#invite-link").text();
+    navigator.clipboard.writeText(invite_link)
+    .then(() => {
+      $("#copy-to-clipboard").text("Copied!");
+      setTimeout(
+        () => $("#copy-to-clipboard").text("Copy to Clipboard"),
+        500);
+     });
+  });
+
+  $(".action-approve").click(function() {
+    var name = $(this).parent().data("name");
+    var email = $(this).parent().data("email");
+
+    frappe.confirm(
+      `Are you sure to accept ${email} to this subgroup?`,
+      function() {
+        console.log("approve", name);
+      }
+    );
+  });
+
+  $(".action-reject").click(function() {
+    var name = $(this).parent().data("name");
+    var email = $(this).parent().data("email");
+    frappe.confirm(`Are you sure to reject <strong>${email}</strong> from joining this subgroup?`, function() {
+      console.log("reject", name);
+    });
+  });
+
+});
+</script>
+{% endblock %}
