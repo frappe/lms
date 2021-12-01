@@ -27,7 +27,8 @@ class Cohort(Document):
         q = f"""
             SELECT subgroup, count(*) as count
             FROM `tab{doctype}`
-            WHERE cohort = %(cohort)s"""
+            WHERE cohort = %(cohort)s
+            GROUP BY subgroup"""
         rows = frappe.db.sql(q, values={"cohort": self.name})
         return {subgroup: count for subgroup, count in rows}
 
