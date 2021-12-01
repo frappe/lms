@@ -5,6 +5,9 @@ import frappe
 from frappe.model.document import Document
 
 class Cohort(Document):
+    def get_url(self):
+        return f"{frappe.utils.get_url()}/courses/{self.course}/cohorts/{self.slug}"
+
     def get_subgroups(self, include_counts=False):
         names = frappe.get_all("Cohort Subgroup", filters={"cohort": self.name}, pluck="name")
         subgroups = [frappe.get_doc("Cohort Subgroup", name) for name in names]

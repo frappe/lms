@@ -10,6 +10,10 @@ class CohortSubgroup(Document):
         if not self.invite_code:
             self.invite_code = random_string(8)
 
+    def get_url(self):
+        cohort = frappe.get_doc("Cohort", self.cohort)
+        return f"{frappe.utils.get_url()}/courses/{self.course}/subgroups/{cohort.slug}/{self.slug}"
+
     def get_invite_link(self):
         cohort = frappe.get_doc("Cohort", self.cohort)
         return f"{frappe.utils.get_url()}/courses/{self.course}/join/{cohort.slug}/{self.slug}/{self.invite_code}"
