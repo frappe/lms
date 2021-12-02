@@ -16,21 +16,31 @@ class Cohort(Document):
         if include_counts:
             mentors = self._get_subgroup_counts("Cohort Mentor")
             students = self._get_subgroup_counts("LMS Batch Membership")
-            join_requests = self._get_subgroup_counts("Cohort Join Request")
+            join_requests = self._get_subgroup_counts("Cohort Join Request", status="Pending")
             for s in subgroups:
                 s.num_mentors = mentors.get(s.name, 0)
                 s.num_students = students.get(s.name, 0)
                 s.num_join_requests = join_requests.get(s.name, 0)
         return subgroups
 
-    def _get_subgroup_counts(self, doctype):
-        q = f"""
-            SELECT subgroup, count(*) as count
-            FROM `tab{doctype}`
-            WHERE cohort = %(cohort)s
-            GROUP BY subgroup"""
-        rows = frappe.db.sql(q, values={"cohort": self.name})
-        return {subgroup: count for subgroup, count in rows}
+    def _get_subgroup_counts(self, doctype, **kw):
+        rows = frappe.get_list(doctype,
+            filters={"cohort": self.name, **kw},
+            fields=['subgroup', 'count(*) as count'],
+            group_by='subgroup')
+        return {row['subgroup']: row['count'] for row in rows}
+
+    def _get_count(self, doctype, **kw):
+        filters = {"cohort": self.name, **kw}
+        return frappe.db.count(doctype, filters=filters)
+
+    def get_stats(self):
+        return {
+            "subgroups": self._get_count("Cohort Subgroup"),
+            "mentors": self._get_count("Cohort Mentor"),
+            "students": self._get_count("LMS Batch Membership"),
+            "join_requests": self._get_count("Cohort Join Request", status="Pending"),
+        }
 
     def get_subgroup(self, slug):
         q = dict(cohort=self.name, slug=slug)

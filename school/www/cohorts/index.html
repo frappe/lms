@@ -2,23 +2,19 @@
 {% block title %}Manage {{ course.title  }}{% endblock %}
 
 {% block page_content %}
-<div class="common-page-style">
-  <div class="container">
-    {% if cohorts %}
-      <h2>Cohorts</h2>
-      <div class="row">
-      {% for cohort in cohorts %}
-        <div class="col-md-4">
-        {{ render_cohort(course, cohort) }}
-        </div>
-      {% endfor %}
-    {% else %}
-        <h2>Permission Denied</h2>
-        <p>You don't have permission to manage this course.</p>
-    {% endif %}
-   </div>
-  </div>
-</div>
+  {% if cohorts %}
+    <h2>Cohorts</h2>
+    <div class="row">
+    {% for cohort in cohorts %}
+      <div class="col-md-6">
+      {{ render_cohort(course, cohort) }}
+      </div>
+    {% endfor %}
+    </div>
+  {% else %}
+      <h2>Permission Denied</h2>
+      <p>You don't have permission to manage this course.</p>
+  {% endif %}
 {% endblock %}
 
 {% macro render_cohort(course, cohort) %}
@@ -26,6 +22,14 @@
   <div class="card-body">
     <h5 class="card-title">{{cohort.title}}</h5>
     <h6 class="card-subtitle mb-2 text-muted">{{cohort.begin_date}} - {{cohort.end_date}}</h6>
+    <p>
+      {% set stats = cohort.get_stats() %}
+
+      {{ stats.subgroups }} Subgroups
+      | {{ stats.mentors }} Mentors
+      | {{ stats.students }} students
+      | {{ stats.join_requests }} join requests
+    </p>
 
     <a href="/courses/{{course.name}}/cohorts/{{cohort.slug}}" class="card-link">Manage</a>
   </div>

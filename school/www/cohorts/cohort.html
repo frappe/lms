@@ -4,6 +4,15 @@
 {% block page_content %}
 <h2>{{cohort.title}} <span class="badge badge-secondary">Cohort</span></h2>
 
+<p>
+  {% set stats = cohort.get_stats() %}
+
+  {{ stats.subgroups }} Subgroups
+  | {{ stats.mentors }} Mentors
+  | {{ stats.students }} students
+  | {{ stats.join_requests }} join requests
+</p>
+
 <h5>Subgroups</h5>
 <ul class="list-group">
   {% for sg in cohort.get_subgroups(include_counts=True) %}

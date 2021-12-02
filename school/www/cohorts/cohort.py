@@ -16,7 +16,7 @@ def get_context(context):
 
     utils.add_nav(context, "All Courses", "/courses")
     utils.add_nav(context, course.title, "/courses/" + course.name)
-    utils.add_nav(context, "Cohorts", "/courses/" + course.name + "/cohorts")
+    utils.add_nav(context, "Cohorts", "/courses/" + course.name + "/manage")
 
     context.course = course
     context.cohort = cohort
