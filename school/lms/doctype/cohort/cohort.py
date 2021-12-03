@@ -24,7 +24,7 @@ class Cohort(Document):
         return subgroups
 
     def _get_subgroup_counts(self, doctype, **kw):
-        rows = frappe.get_list(doctype,
+        rows = frappe.get_all(doctype,
             filters={"cohort": self.name, **kw},
             fields=['subgroup', 'count(*) as count'],
             group_by='subgroup')
