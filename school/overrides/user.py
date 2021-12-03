@@ -5,6 +5,7 @@ import hashlib
 import random
 import re
 from frappe import _
+from school.page_renderers import get_profile_url
 
 class CustomUser(User):
 
@@ -144,3 +145,6 @@ class CustomUser(User):
             "in_progress": in_progress,
             "completed": completed
         }
+
+    def get_profile_url(self):
+        return get_profile_url()
