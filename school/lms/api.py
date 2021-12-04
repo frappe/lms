@@ -129,3 +129,30 @@ def undo_reject_cohort_join_request(join_request):
     r.status = "Pending"
     r.save(ignore_permissions=True)
     return {"ok": True}
+
+@frappe.whitelist()
+def add_mentor_to_subgroup(subgroup, email):
+    try:
+        sg = frappe.get_doc("Cohort Subgroup", subgroup)
+    except frappe.DoesNotExistError:
+        return {
+            "ok": False,
+            "error": f"Invalid subgroup: {subgroup}"
+        }
+
+    if not sg.get_cohort().is_admin(frappe.session.user) and "System Manager" not in frappe.get_roles():
+        return {
+            "ok": False,
+            "error": "Permission Deined"
+        }
+
+    try:
+        user = frappe.get_doc("User", email)
+    except frappe.DoesNotExistError:
+        return {
+            "ok": False,
+            "error": f"Invalid user: {email}"
+        }
+
+    sg.add_mentor(email)
+    return {"ok": True}

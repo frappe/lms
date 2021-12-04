@@ -2,13 +2,19 @@
 {% block title %} Subgroup {{subgroup.title}} - {{ course.title }} {% endblock %}
 
 {% block page_content %}
-    <h2>{{subgroup.title}} <span class="badge badge-secondary">Subgroup</span></h2>
+    <h2 id="page-title"
+      data-subgroup="{{subgroup.name}}"
+      data-title="{{subgroup.title}}"
+    >{{subgroup.title}} <span class="badge badge-secondary">Subgroup</span></h2>
 
     <ul class="nav nav-tabs">
       {{ render_navitem("Mentors", "/mentors", stats.mentors, page=="mentors")}}
       {{ render_navitem("Students", "/students", stats.students, page=="students")}}
+      {% if is_mentor or is_admin %}
+        {{ render_navitem("Join Requests", "/join-requests", stats.join_requests, page=="join-requests")}}
+      {% endif %}
       {% if is_admin %}
-        {{ render_navitem("Admin", "/admin", stats.join_requests, page=="admin")}}
+        {{ render_navitem("Admin", "/admin", -1, page=="admin")}}
       {% endif %}
       </ul>
     <div class="my-5">
@@ -18,15 +24,24 @@
       {{ render_mentors() }}
     {% elif page == "students" %}
       {{ render_students() }}
-    {% elif page == "admin" %}
+    {% elif page == "join-requests" %}
       {{ render_join_requests() }}
+    {% elif page == "admin" %}
+      {{ render_admin() }}
     {% endif %}
     </div>
 {% endblock %}
 
-{% macro render_info() %}
-    {% if is_admin %}
-    {% endif %}
+{% macro render_admin() %}
+<div style="background: white; padding: 20px;">
+  <h5>Add a new mentor</h5>
+<form id="add-mentor-form">
+  <div class="form-group">
+    <input type="email" class="form-control" id="mentor-email" aria-describedby="emailHelp" placeholder="E-mail address">
+  </div>
+  <button type="button" class="btn btn-primary" id="add-mentor">Add Mentor</button>
+</form>
+</div>
 {% endmacro %}
 
 {% macro render_mentors() %}
@@ -202,6 +217,24 @@ $(function() {
       }
     });
   }
+
+  $("#add-mentor").click(function() {
+    var subgroup = $("#page-title").data("subgroup");
+    var title = $("#page-title").data("title");
+    var email = $("#mentor-email").val();
+    frappe.call("school.lms.api.add_mentor_to_subgroup", {
+      subgroup: subgroup,
+      email: email
+    })
+    .then(r => {
+      if (r.message.ok) {
+        frappe.msgprint(`Successfully added ${email} as mentor to ${title}`);
+      }
+      else {
+        frappe.msgprint(r.message.error);
+      }
+    });
+  });
 });
 </script>
 {% endblock %}

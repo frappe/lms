@@ -79,5 +79,17 @@ class CohortSubgroup(Document):
     def get_cohort(self):
         return frappe.get_doc("Cohort", self.cohort)
 
+    def add_mentor(self, email):
+        d = {
+            "doctype": "Cohort Mentor",
+            "subgroup": self.name,
+            "cohort": self.cohort,
+            "email": email
+        }
+        if frappe.db.exists(d):
+            return
+        doc = frappe.get_doc(d)
+        doc.insert(ignore_permissions=True)
+
 #def after_doctype_insert():
 #    frappe.db.add_unique("Cohort Subgroup", ("cohort", "slug"))
