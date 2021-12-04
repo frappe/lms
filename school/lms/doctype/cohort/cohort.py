@@ -10,7 +10,7 @@ class Cohort(Document):
 
     def get_subgroups(self, include_counts=False, sort_by=None):
         names = frappe.get_all("Cohort Subgroup", filters={"cohort": self.name}, pluck="name")
-        subgroups = [frappe.get_doc("Cohort Subgroup", name) for name in names]
+        subgroups = [frappe.get_cached_doc("Cohort Subgroup", name) for name in names]
         subgroups = sorted(subgroups, key=lambda sg: sg.title)
 
         if include_counts:

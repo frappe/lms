@@ -5,29 +5,31 @@
     <h2>{{subgroup.title}} <span class="badge badge-secondary">Subgroup</span></h2>
 
     <ul class="nav nav-tabs">
-      {{ render_navitem("Info", "", -1, page=="info")}}
+      {{ render_navitem("Mentors", "/mentors", stats.mentors, page=="mentors")}}
       {{ render_navitem("Students", "/students", stats.students, page=="students")}}
-      {{ render_navitem("Requests to join", "/join-requests", stats.join_requests, page=="join-requests")}}
-    </ul>
+      {% if is_admin %}
+        {{ render_navitem("Admin", "/admin", stats.join_requests, page=="admin")}}
+      {% endif %}
+      </ul>
     <div class="my-5">
     {% if page == "info" %}
       {{ render_info() }}
+    {% elif page == "mentors" %}
+      {{ render_mentors() }}
     {% elif page == "students" %}
       {{ render_students() }}
-    {% elif page == "join-requests" %}
+    {% elif page == "admin" %}
       {{ render_join_requests() }}
     {% endif %}
     </div>
 {% endblock %}
 
 {% macro render_info() %}
-    <h5>Invite Link</h5>
-    {% set link = subgroup.get_invite_link() %}
-    <p><a href="{{ link }}" id="invite-link">{{link}}</a>
-    <br>
-    <a class="btn btn-seconday btn-sm" id="copy-to-clipboard">Copy to Clipboard</a>
-    </p>
+    {% if is_admin %}
+    {% endif %}
+{% endmacro %}
 
+{% macro render_mentors() %}
     <h5>Mentors</h5>
     {% set mentors = subgroup.get_mentors() %}
     {% if mentors %}
@@ -57,7 +59,14 @@
 
 
 {% macro render_join_requests() %}
-  {% set join_requests = subgroup.get_join_requests() %}
+  <h5>Invite Link</h5>
+  {% set link = subgroup.get_invite_link() %}
+  <p><a href="{{ link }}" id="invite-link">{{link}}</a>
+  <br>
+  <a class="btn btn-seconday btn-sm" id="copy-to-clipboard">Copy to Clipboard</a>
+  </p>
+
+{% set join_requests = subgroup.get_join_requests() %}
   <h5>Pending Requests</h5>
   {% if join_requests %}
   <table class="table">
