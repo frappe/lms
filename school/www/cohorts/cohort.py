@@ -30,3 +30,4 @@ def get_context(context):
     context.mentor = mentor
     context.is_mentor = is_mentor
     context.is_admin = is_admin
+    context.page = frappe.form_dict.get("page") or ""

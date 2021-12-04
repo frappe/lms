@@ -19,10 +19,26 @@
   <p>You are a mentor of <b>{{sg.title}}</b> subgroup.</p>
   <p><a href="{{sg.get_url()}}" class="btn btn-primary">Visit Your Subgroup &rarr;</a></p>
 </div>
-
 {% endif %}
 
-<h5>All Subgroups</h5>
+<ul class="nav nav-tabs">
+  {{ render_navitem("Subgroups", "", page=page)}}
+  {% for p in cohort.pages %}
+    {{ render_navitem(p.title, p.slug, page=page) }}
+  {% endfor %}
+</ul>
+
+<div class="my-5">
+{% if not page %}
+  {{ render_subgroups() }}
+{% else %}
+  {{ cohort.get_page_template(page) }}
+{% endif %}
+</div>
+
+{% endblock %}
+
+{% macro render_subgroups() %}
 <ul class="list-group">
   {% for sg in cohort.get_subgroups(include_counts=True) %}
     <li class="list-group-item">
@@ -43,5 +59,19 @@
     </li>
   {% endfor %}
 </ul>
-{% endblock %}
+{% endmacro %}
 
+{% macro render_navitem(title, link, page, count=-1) %}
+  <li class="nav-item">
+    <a
+      class="nav-link {{ 'active' if link==page }}"
+      href="/courses/{{course.name}}/cohorts/{{cohort.slug}}/{{link}}"
+    >{{title}}
+    {% if count != -1 %}
+      <span
+        class="badge {{'badge-primary' if active else 'badge-secondary'}}"
+      >{{count}}</span>
+    {% endif %}
+    </a>
+  </li>
+{% endmacro %}

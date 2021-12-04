@@ -34,6 +34,11 @@ class Cohort(Document):
         filters = {"cohort": self.name, **kw}
         return frappe.db.count(doctype, filters=filters)
 
+    def get_page_template(self, slug):
+        for p in self.pages:
+            if p.slug == slug:
+                return p.get_template_html()
+
     def get_stats(self):
         return {
             "subgroups": self._get_count("Cohort Subgroup"),

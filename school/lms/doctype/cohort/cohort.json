@@ -18,7 +18,8 @@
   "end_date",
   "duration",
   "section_break_8",
-  "description"
+  "description",
+  "pages"
  ],
  "fields": [
   {
@@ -89,6 +90,12 @@
    "label": "Course",
    "options": "LMS Course",
    "reqd": 1
+  },
+  {
+   "fieldname": "pages",
+   "fieldtype": "Table",
+   "label": "Pages",
+   "options": "Cohort Web Page"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -109,7 +116,7 @@
    "link_fieldname": "cohort"
   }
  ],
- "modified": "2021-11-29 15:13:41.296384",
+ "modified": "2021-12-04 23:22:10.248781",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Cohort",
