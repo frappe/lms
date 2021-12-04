@@ -8,11 +8,18 @@ def get_context(context):
         raise frappe.Redirect()
 
     course = utils.get_course()
-    cohort = course and get_cohort(course, frappe.form_dict["cohort"])
-
+    cohort = course and utils.get_cohort(course, frappe.form_dict["cohort"])
     if not cohort:
         context.template = "www/404.html"
         return
+
+    user = frappe.session.user
+    mentor = cohort.get_mentor(user)
+    is_mentor = mentor is not None
+    is_admin = cohort.is_admin(user) or "System Manager" in frappe.get_roles()
+
+    if not is_admin and not is_mentor :
+        frappe.throw("Permission Deined", frappe.PermissionError)
 
     utils.add_nav(context, "All Courses", "/courses")
     utils.add_nav(context, course.title, "/courses/" + course.name)
@@ -20,15 +27,6 @@ def get_context(context):
 
     context.course = course
     context.cohort = cohort
-
-def get_cohort(course, cohort_slug):
-    cohort = utils.get_cohort(course, cohort_slug)
-
-    if cohort.is_mentor(frappe.session.user):
-        mentor = cohort.get_mentor(frappe.session.user)
-        sg = frappe.get_doc("Cohort Subgroup", mentor.subgroup)
-        frappe.local.flags.redirect_location = f"/courses/{course.name}/subgroups/{cohort.slug}/{sg.slug}"
-        raise frappe.Redirect
-    elif cohort.is_admin(frappe.session.user) or "System Manager" in frappe.get_roles():
-        return cohort
-
+    context.mentor = mentor
+    context.is_mentor = is_mentor
+    context.is_admin = is_admin

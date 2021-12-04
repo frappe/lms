@@ -13,6 +13,9 @@ def get_context(context):
         return
 
     context.cohorts = get_cohorts(context.course)
+    if len(context.cohorts) == 1:
+        frappe.local.flags.redirect_location = context.cohorts[0].get_url()
+        raise frappe.Redirect
 
     add_nav(context, "All Courses", "/courses")
     add_nav(context, context.course.title, "/courses/" + context.course.name)
@@ -24,7 +27,5 @@ def get_cohorts(course):
     staff_roles = frappe.get_all("Cohort Staff", filters={"course": course.name}, fields=["cohort"])
     mentor_roles = frappe.get_all("Cohort Mentor", filters={"course": course.name}, fields=["cohort"])
     roles = staff_roles + mentor_roles
-    print(roles)
     names = {role.cohort for role in roles}
-    print(names)
     return [frappe.get_doc("Cohort", name) for name in names]

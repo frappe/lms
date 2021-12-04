@@ -13,13 +13,26 @@
   | {{ stats.join_requests }} join requests
 </p>
 
-<h5>Subgroups</h5>
+{% if is_mentor %}
+<div class="alert alert-info">
+  {% set sg = mentor.get_subgroup() %}
+  <p>You are a mentor of <b>{{sg.title}}</b> subgroup.</p>
+  <p><a href="{{sg.get_url()}}" class="btn btn-primary">Visit Your Subgroup &rarr;</a></p>
+</div>
+
+{% endif %}
+
+<h5>All Subgroups</h5>
 <ul class="list-group">
   {% for sg in cohort.get_subgroups(include_counts=True) %}
     <li class="list-group-item">
       <div>
+        {% if is_admin %}
           <a class="subgroup-title" href="/courses/{{course.name}}/subgroups/{{cohort.slug}}/{{sg.slug}}">{{sg.title}}</a>
-      </div>
+        {% else %}
+          <span class="subgroup-title">{{sg.title}}</span>
+        {% endif %}
+        </div>
       <div style="font-size: 0.8em;">
         {{sg.num_mentors}} Mentors
         |
