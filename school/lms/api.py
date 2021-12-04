@@ -80,7 +80,7 @@ def approve_cohort_join_request(join_request):
             "ok": False,
             "error": "Invalid Join Request"
         }
-    if not sg.is_manager(frappe.session.user):
+    if not sg.is_manager(frappe.session.user) and "System Manager" not in frappe.get_roles():
         return {
             "ok": False,
             "error": "Permission Deined"
@@ -99,7 +99,7 @@ def reject_cohort_join_request(join_request):
             "ok": False,
             "error": "Invalid Join Request"
         }
-    if not sg.is_manager(frappe.session.user):
+    if not sg.is_manager(frappe.session.user) and "System Manager" not in frappe.get_roles():
         return {
             "ok": False,
             "error": "Permission Deined"
@@ -120,7 +120,7 @@ def undo_reject_cohort_join_request(join_request):
             "ok": False,
             "error": "Invalid Join Request"
         }
-    if not sg.is_manager(frappe.session.user):
+    if not sg.is_manager(frappe.session.user) and "System Manager" not in frappe.get_roles():
         return {
             "ok": False,
             "error": "Permission Deined"
