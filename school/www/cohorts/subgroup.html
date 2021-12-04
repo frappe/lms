@@ -81,7 +81,7 @@
         <td>{{loop.index}}</td>
         <td class="timestamp">{{r.creation}}</td>
         <td>{{r.email}}</td>
-        <td
+        <td class="actions"
           data-name="{{r.name}}"
           data-email="{{r.email}}">
           <a class="action-approve" href="#">Approve</a> | <a class="action-reject" href="#">Reject</a></td>
@@ -107,7 +107,7 @@
         <td>{{loop.index}}</td>
         <td class="timestamp">{{r.creation}}</td>
         <td>{{r.email}}</td>
-        <td
+        <td class="actions"
           data-name="{{r.name}}"
           data-email="{{r.email}}">
           <a class="action-undo" href="#">Undo</a></td>
@@ -157,40 +157,45 @@ $(function() {
   });
 
   $(".action-approve").click(function() {
+    var el = $(this).parent().parent();
     var name = $(this).parent().data("name");
     var email = $(this).parent().data("email");
 
     frappe.confirm(
       `Are you sure to accept ${email} to this subgroup?`,
       function() {
-        run_action("school.lms.api.approve_cohort_join_request", name);
+        run_action("school.lms.api.approve_cohort_join_request", name, el, "approved", "Approved");
       }
     );
   });
 
   $(".action-reject").click(function() {
+    var el = $(this).parent().parent();
     var name = $(this).parent().data("name");
     var email = $(this).parent().data("email");
     frappe.confirm(`Are you sure to reject <strong>${email}</strong> from joining this subgroup?`, function() {
-      run_action("school.lms.api.reject_cohort_join_request", name);
+      run_action("school.lms.api.reject_cohort_join_request", name, el, "rejected", "Rejected!");
     });
   });
 
   $(".action-undo").click(function() {
+    var el = $(this).parent().parent();
     var name = $(this).parent().data("name");
     var email = $(this).parent().data("email");
     frappe.confirm(`Are you sure to undo the rejection of <strong>${email}</strong>?`, function() {
-      run_action("school.lms.api.undo_reject_cohort_join_request", name);
+      run_action("school.lms.api.undo_reject_cohort_join_request", name, el, "undo-reject", "Reject Undone!");
     });
   });
 
-  function run_action(method, join_request) {
+  function run_action(method, join_request, elem, classname, label) {
     frappe.call(method, {
       join_request: join_request,
     })
     .then(r => {
       if (r.message.ok) {
-        window.location.reload();
+        $(elem)
+          .addClass(classname)
+          .find("td.actions").html(label);
       }
       else {
         frappe.msgprint(r.message.error);
@@ -199,4 +204,22 @@ $(function() {
   }
 });
 </script>
+{% endblock %}
+
+{% block style %}
+<style type="text/css">
+tr.approved {
+  background:#c3e6cb;
+  color: #155724;
+}
+
+tr.rejected {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+tr.undo-reject {
+  background:#d6d8d9;
+}
+</style>
 {% endblock %}
