@@ -31,12 +31,11 @@
     <h5>Mentors</h5>
     {% set mentors = subgroup.get_mentors() %}
     {% if mentors %}
+      <div class="mentors-section">
       {% for m in mentors %}
-        <div class="my-5">
-          {{ widgets.Avatar(member=m, avatar_class="avatar-small") }}
-          <a href="/{{m.username}}" title="{{m.full_name}}">{{ m.full_name }}</a>
-        </div>
+        {{ widgets.MemberCard(member=m, show_course_count=False, dimension_class="") }}
       {% endfor %}
+      </div>
     {% else %}
       <em>None found.</em>
     {% endif %}
@@ -46,12 +45,11 @@
 {% macro render_students() %}
   {% set students = subgroup.get_students() %}
   {% if students %}
+  <div class="mentors-section">
     {% for student in students %}
-      <div class="my-5">
-        {{ widgets.Avatar(member=student, avatar_class="avatar-small") }}
-        <a href="/{{student.username}}" title="{{student.full_name}}">{{ student.full_name }}</a>
-      </div>
+      {{ widgets.MemberCard(member=student, show_course_count=False, dimension_class="") }}
     {% endfor %}
+  </div>
   {% else %}
     <em>None found.</em>
   {% endif %}
