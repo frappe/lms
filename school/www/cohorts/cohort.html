@@ -44,7 +44,10 @@
     <li class="list-group-item">
       <div>
         {% if is_admin %}
-          <a class="subgroup-title" href="/courses/{{course.name}}/subgroups/{{cohort.slug}}/{{sg.slug}}">{{sg.title}}</a>
+          <a class="subgroup-title"
+            style="font-weight: 700; color: inherit;"
+            href="/courses/{{course.name}}/subgroups/{{cohort.slug}}/{{sg.slug}}"
+            >{{sg.title}}</a>
         {% else %}
           <span class="subgroup-title">{{sg.title}}</span>
         {% endif %}
