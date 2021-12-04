@@ -31,3 +31,8 @@ def get_context(context):
     context.is_mentor = is_mentor
     context.is_admin = is_admin
     context.page = frappe.form_dict.get("page") or ""
+
+    # Function to render to custom page given the slug
+    context.render_page = lambda page: frappe.render_template(
+        cohort.get_page_template(page),
+        context)

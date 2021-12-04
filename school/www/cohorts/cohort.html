@@ -32,7 +32,7 @@
 {% if not page %}
   {{ render_subgroups() }}
 {% else %}
-  {{ cohort.get_page_template(page) }}
+  {{ render_page(page) }}
 {% endif %}
 </div>
 
