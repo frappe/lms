@@ -50,7 +50,12 @@ class CohortSubgroup(Document):
         return [frappe.get_doc("User", email) for email in emails]
 
     def get_students(self):
-        emails = frappe.get_all("LMS Batch Membership", filters={"subgroup": self.name}, fields=["member"], pluck='member')
+        emails = frappe.get_all("LMS Batch Membership",
+            filters={"subgroup": self.name},
+            fields=["member"],
+            pluck='member',
+            page_length=1000)
+
         return [frappe.get_doc("User", email) for email in emails]
 
     def is_mentor(self, email):
