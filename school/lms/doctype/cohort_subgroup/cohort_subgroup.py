@@ -43,7 +43,7 @@ class CohortSubgroup(Document):
             "subgroup": self.name,
             "status": status
         }
-        return frappe.get_all("Cohort Join Request", filters=q, fields=["*"], order_by="creation")
+        return frappe.get_all("Cohort Join Request", filters=q, fields=["*"], order_by="creation desc")
 
     def get_mentors(self):
         emails = frappe.get_all("Cohort Mentor", filters={"subgroup": self.name}, fields=["email"], pluck='email')
