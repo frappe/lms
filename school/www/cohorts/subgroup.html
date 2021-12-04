@@ -60,6 +60,7 @@
 
 {% macro render_join_requests() %}
   {% set join_requests = subgroup.get_join_requests() %}
+  <h5>Pending Requests</h5>
   {% if join_requests %}
   <table class="table">
     <tr>
@@ -68,10 +69,10 @@
       <th>Email</th>
       <th>Actions</th>
     </tr>
-    {% for r in subgroup.get_join_requests() %}
+    {% for r in join_requests %}
     <tr>
         <td>{{loop.index}}</td>
-        <td>{{r.creation}}</td>
+        <td class="timestamp">{{r.creation}}</td>
         <td>{{r.email}}</td>
         <td
           data-name="{{r.name}}"
@@ -81,7 +82,33 @@
     {% endfor %}
   </table>
   {% else %}
-    <em>There are no pending join requests.</em>
+    <p><em>There are no pending join requests.</em></p>
+  {% endif %}
+  {% set rejected_requests = subgroup.get_join_requests(status="Rejected") %}
+
+  <h5>Rejected Requests</h5>
+  {% if rejected_requests %}
+    <table class="table">
+      <tr>
+        <th>#</th>
+        <th>When</th>
+        <th>Email</th>
+        <th>Actions</th>
+      </tr>
+    {% for r in rejected_requests %}
+      <tr>
+        <td>{{loop.index}}</td>
+        <td class="timestamp">{{r.creation}}</td>
+        <td>{{r.email}}</td>
+        <td
+          data-name="{{r.name}}"
+          data-email="{{r.email}}">
+          <a class="action-undo" href="#">Undo</a></td>
+      </tr>
+    {% endfor %}
+    </table>
+  {% else %}
+    <p><em>There are no rejected requests.</em></p>
   {% endif %}
 {% endmacro %}
 
@@ -116,6 +143,12 @@ $(function() {
      });
   });
 
+  $(".timestamp"). each(function() {
+    var t = moment($(this).text());
+    var dt = t.from(moment.now());
+    $(this).text(dt);
+  });
+
   $(".action-approve").click(function() {
     var name = $(this).parent().data("name");
     var email = $(this).parent().data("email");
@@ -133,6 +166,14 @@ $(function() {
     var email = $(this).parent().data("email");
     frappe.confirm(`Are you sure to reject <strong>${email}</strong> from joining this subgroup?`, function() {
       run_action("school.lms.api.reject_cohort_join_request", name);
+    });
+  });
+
+  $(".action-undo").click(function() {
+    var name = $(this).parent().data("name");
+    var email = $(this).parent().data("email");
+    frappe.confirm(`Are you sure to undo the rejection of <strong>${email}</strong>?`, function() {
+      run_action("school.lms.api.undo_reject_cohort_join_request", name);
     });
   });
 

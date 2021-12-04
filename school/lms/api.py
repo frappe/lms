@@ -108,3 +108,24 @@ def reject_cohort_join_request(join_request):
     r.status = "Rejected"
     r.save(ignore_permissions=True)
     return {"ok": True}
+
+
+@frappe.whitelist()
+def undo_reject_cohort_join_request(join_request):
+    r = frappe.get_doc("Cohort Join Request", join_request)
+    sg = r and frappe.get_doc("Cohort Subgroup", r.subgroup)
+    # keeping Pending as well to consider the case of duplicate requests
+    if not sg or r.status not in ["Pending", "Rejected"]:
+        return {
+            "ok": False,
+            "error": "Invalid Join Request"
+        }
+    if not sg.is_manager(frappe.session.user):
+        return {
+            "ok": False,
+            "error": "Permission Deined"
+        }
+
+    r.status = "Pending"
+    r.save(ignore_permissions=True)
+    return {"ok": True}
