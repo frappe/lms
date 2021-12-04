@@ -8,7 +8,7 @@ class Cohort(Document):
     def get_url(self):
         return f"{frappe.utils.get_url()}/courses/{self.course}/cohorts/{self.slug}"
 
-    def get_subgroups(self, include_counts=False):
+    def get_subgroups(self, include_counts=False, sort_by=None):
         names = frappe.get_all("Cohort Subgroup", filters={"cohort": self.name}, pluck="name")
         subgroups = [frappe.get_doc("Cohort Subgroup", name) for name in names]
         subgroups = sorted(subgroups, key=lambda sg: sg.title)
@@ -21,6 +21,9 @@ class Cohort(Document):
                 s.num_mentors = mentors.get(s.name, 0)
                 s.num_students = students.get(s.name, 0)
                 s.num_join_requests = join_requests.get(s.name, 0)
+
+        if sort_by:
+            subgroups.sort(key=lambda sg: getattr(sg, sort_by), reverse=True)
         return subgroups
 
     def _get_subgroup_counts(self, doctype, **kw):
