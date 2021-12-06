@@ -147,4 +147,8 @@ class CustomUser(User):
         }
 
     def get_profile_url(self):
-        return get_profile_url()
+        return get_profile_url_prefix() + self.username
+
+    def get_profile_url_prefix():
+        hooks = frappe.get_hooks("profile_url_prefix") or ["/users/"]
+        return hooks[-1]
