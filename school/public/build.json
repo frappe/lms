@@ -1,9 +1,5 @@
 {
   "css/school.css": [
     "public/css/style.css"
-  ],
-
-  "js/website.js": [
-    "public/js/profile.js"
   ]
 }
