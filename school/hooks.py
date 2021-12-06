@@ -19,9 +19,9 @@ app_license = "AGPL"
 # app_include_js = "/assets/school/js/school.js"
 
 # include js, css files in header of web template
-web_include_css = "school.bundle.css"
+#web_include_css = "school.bundle.css"
 # web_include_css = "/assets/school/css/school.css"
-web_include_js = "website.bundle.js"
+#web_include_js = "website.bundle.js"
 
 # include custom scss in every website theme (without file extension ".scss")
 # website_theme_scss = "school/public/scss/website"
