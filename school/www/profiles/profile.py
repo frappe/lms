@@ -1,5 +1,4 @@
 import frappe
-from school.page_renderers import get_profile_url_prefix
 from urllib.parse import urlencode
 
 def get_context(context):
@@ -27,3 +26,7 @@ def get_profile_tabs(user):
     """
     tabs = frappe.get_hooks("profile_tabs") or []
     return [frappe.get_attr(tab)(user) for tab in tabs]
+
+def get_profile_url_prefix():
+    hooks = frappe.get_hooks("profile_url_prefix") or ["/users/"]
+    return hooks[-1]

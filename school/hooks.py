@@ -152,12 +152,6 @@ update_website_context = [
     'school.widgets.update_website_context',
 ]
 
-jinja = {
-    "methods": [
-        "school.page_renderers.get_profile_url"
-    ],
-    "filters": []
-}
 ## Specify the additional tabs to be included in the user profile page.
 ## Each entry must be a subclass of school.school.plugins.ProfileTab
 # profile_tabs = []
@@ -178,12 +172,6 @@ school_markdown_macro_renderers = {
     "YouTubeVideo": "school.plugins.youtube_video_renderer",
     "Video": "school.plugins.video_renderer"
 }
-
-# page_renderer to manage profile pages
-#page_renderer = [
-#	"school.page_renderers.ProfileRedirectPage",
-#	"school.page_renderers.ProfilePage"
-#]
 
 # set this to "/" to have profiles on the top-level
 profile_url_prefix = "/users/"

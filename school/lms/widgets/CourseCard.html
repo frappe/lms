@@ -44,7 +44,7 @@
     {% set instructor = course.get_instructor() %}
     <span class="zindex">
       {{ widgets.Avatar(member=instructor, avatar_class="avatar-small") }}
-      <a class="button-links" href="instructor.get_profile_url()">
+      <a class="button-links" href="{{ instructor.get_profile_url() }}">
         <span class="course-instructor">
           {{ instructor.full_name }}
         </span>

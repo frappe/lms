@@ -5,7 +5,6 @@ import hashlib
 import random
 import re
 from frappe import _
-from school.page_renderers import get_profile_url
 
 class CustomUser(User):
 
@@ -147,8 +146,8 @@ class CustomUser(User):
         }
 
     def get_profile_url(self):
-        return get_profile_url_prefix() + self.username
+        return self.get_profile_url_prefix() + self.username
 
-    def get_profile_url_prefix():
+    def get_profile_url_prefix(self):
         hooks = frappe.get_hooks("profile_url_prefix") or ["/users/"]
         return hooks[-1]
