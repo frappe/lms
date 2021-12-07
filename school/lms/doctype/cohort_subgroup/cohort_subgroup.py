@@ -22,9 +22,9 @@ class CohortSubgroup(Document):
         """Check if given user is a student of this subgroup.
         """
         q = {
-            "doctype": "Cohort Student",
+            "doctype": "LMS Batch Membership",
             "subgroup": self.name,
-            "email": email
+            "member": email
         }
         return frappe.db.exists(q)
 
