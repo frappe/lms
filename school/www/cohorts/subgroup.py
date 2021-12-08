@@ -16,9 +16,24 @@ def get_context(context):
     is_mentor = subgroup.is_mentor(frappe.session.user)
     is_admin = cohort.is_admin(frappe.session.user) or "System Manager" in frappe.get_roles()
 
-    if (page not in ["mentors", "students", "join-requests", "admin"]
-            or (page == "join-requests" and not (is_mentor or is_admin))
-            or (page == "admin" and not is_admin)):
+    if is_admin:
+        role = "Admin"
+    elif is_mentor:
+        role = "Mentor"
+    else:
+        role = "Public"
+
+    pages = [
+        ("mentors", ["Admin", "Mentor", "Public"]),
+        ("students", ["Admin", "Mentor", "Public"]),
+        ("join-requests", ["Admin", "Mentor"]),
+        ("admin", ["Admin"])
+    ]
+    pages += [(p.slug, ["Admin", "Mentor"]) for p in cohort.get_pages(scope="Subgroup")]
+
+    page_names = [p for p, roles in pages if role in roles]
+
+    if page not in page_names:
         frappe.local.flags.redirect_location = subgroup.get_url() + "/mentors"
         raise frappe.Redirect
 
@@ -35,9 +50,17 @@ def get_context(context):
     context.is_admin = is_admin
     context.is_mentor = is_mentor
 
+    # Function to render to custom page given the slug
+    context.render_page = lambda page: frappe.render_template(
+        cohort.get_page_template(page),
+        context)
+
 def get_stats(subgroup):
     return {
         "join_requests": len(subgroup.get_join_requests()),
         "students": len(subgroup.get_students()),
         "mentors": len(subgroup.get_mentors())
     }
+
+def has_page(cohort, page):
+    return cohort.get_page(page, scope="Subgroup")

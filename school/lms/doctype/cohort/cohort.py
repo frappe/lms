@@ -37,10 +37,17 @@ class Cohort(Document):
         filters = {"cohort": self.name, **kw}
         return frappe.db.count(doctype, filters=filters)
 
-    def get_page_template(self, slug):
+    def get_page_template(self, slug, scope=None):
+        p = self.get_page(slug, scope=scope)
+        return p and p.get_template_html()
+
+    def get_page(self, slug, scope=None):
         for p in self.pages:
-            if p.slug == slug:
-                return p.get_template_html()
+            if p.slug == slug and scope in [p.scope, None]:
+                return p
+
+    def get_pages(self, scope=None):
+        return [p for p in self.pages if scope in [p.scope, None]]
 
     def get_stats(self):
         return {

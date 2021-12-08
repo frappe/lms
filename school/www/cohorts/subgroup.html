@@ -12,6 +12,10 @@
       {{ render_navitem("Students", "/students", stats.students, page=="students")}}
       {% if is_mentor or is_admin %}
         {{ render_navitem("Join Requests", "/join-requests", stats.join_requests, page=="join-requests")}}
+
+        {% for p in cohort.get_pages(scope="Subgroup") %}
+          {{ render_navitem(p.title, "/" + p.slug, -1, page==p.slug) }}
+        {% endfor %}
       {% endif %}
       {% if is_admin %}
         {{ render_navitem("Admin", "/admin", -1, page=="admin")}}
@@ -28,6 +32,8 @@
       {{ render_join_requests() }}
     {% elif page == "admin" %}
       {{ render_admin() }}
+    {% else %}
+      {{ render_page(page) }}
     {% endif %}
     </div>
 {% endblock %}

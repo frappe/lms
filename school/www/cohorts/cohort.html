@@ -24,7 +24,7 @@
 <ul class="nav nav-tabs">
   {% set num_subgroups = cohort.get_subgroups() | length %}
   {{ render_navitem("Subgroups", "", page=page, count=num_subgroups) }}
-  {% for p in cohort.pages %}
+  {% for p in cohort.get_pages(scope="Cohort") %}
     {{ render_navitem(p.title, p.slug, page=page) }}
   {% endfor %}
 </ul>
