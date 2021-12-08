@@ -36,7 +36,7 @@ class Exercise(Document):
             return old_submission
 
         course = frappe.get_doc("LMS Course", self.course)
-        batch = course.get_student_batch(user)
+        member = course.get_membership(frappe.session.user)
 
         doc = frappe.get_doc(
             doctype="Exercise Submission",
@@ -44,8 +44,9 @@ class Exercise(Document):
             exercise_title=self.title,
             course=self.course,
             lesson=self.lesson,
-            batch=batch and batch.name,
-            solution=code)
+            batch=member.batch,
+            solution=code,
+            member=member.name)
         doc.insert(ignore_permissions=True)
 
         return doc
