@@ -9,10 +9,11 @@
   "title",
   "company",
   "location",
+  "description",
+  "column_break_4",
   "current",
   "from_date",
-  "to_date",
-  "description"
+  "to_date"
  ],
  "fields": [
   {
@@ -48,7 +49,7 @@
    "fieldname": "to_date",
    "fieldtype": "Date",
    "label": "To Date",
-   "reqd": 1
+   "mandatory_depends_on": "eval: !doc.current"
   },
   {
    "fieldname": "description",
@@ -60,12 +61,16 @@
    "fieldname": "current",
    "fieldtype": "Check",
    "label": "I am currently working here"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2021-12-07 12:18:39.885407",
+ "modified": "2021-12-09 16:25:48.104205",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Work Experience",

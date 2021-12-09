@@ -60,7 +60,7 @@
  "modified": "2021-12-07 12:15:46.078717",
  "modified_by": "Administrator",
  "module": "LMS",
- "name": "Education Details",
+ "name": "Education Detail",
  "owner": "Administrator",
  "permissions": [],
  "sort_field": "modified",
