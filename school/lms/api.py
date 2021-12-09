@@ -65,11 +65,16 @@ def join_cohort(course, cohort, subgroup, invite_code):
         "doctype": "Cohort Join Request",
         "cohort": cohort_doc.name,
         "subgroup": subgroup_doc.name,
-        "email": frappe.session.user
+        "email": frappe.session.user,
+        "status": "Pending"
     }
-    doc = frappe.get_doc(data)
-    doc.insert(ignore_permissions=True)
-    return {"ok": True}
+    # Don't insert duplicate records
+    if frappe.db.exists(data):
+        return {"ok": True, "status": "record found"}
+    else:
+        doc = frappe.get_doc(data)
+        doc.insert(ignore_permissions=True)
+        return {"ok": True, "status": "record created"}
 
 @frappe.whitelist()
 def approve_cohort_join_request(join_request):
