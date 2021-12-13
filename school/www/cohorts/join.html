@@ -30,7 +30,7 @@
 {% elif subgroup.has_student(frappe.session.user) %}
   <div class="alert alert-info">
     <p>You are already a student of this course.</p>
-    <a class="btn btn-primary" href="#">Go to the course</a>
+    <a class="btn btn-primary" href="/">Start Learning &rarr;</a>
   </div>
 {% elif subgroup.has_join_request(frappe.session.user) %}
   <div class="alert alert-info">
