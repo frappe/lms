@@ -21,7 +21,7 @@
  "is_standard": 1,
  "login_required": 1,
  "max_attachment_size": 0,
- "modified": "2021-12-14 15:04:54.141518",
+ "modified": "2021-12-14 16:35:24.751439",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "profile",
@@ -127,7 +127,7 @@
   {
    "allow_read_on_all_link_options": 0,
    "fieldname": "bio",
-   "fieldtype": "Small Text",
+   "fieldtype": "Text Editor",
    "hidden": 0,
    "label": "Bio",
    "max_length": 0,
