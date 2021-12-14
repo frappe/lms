@@ -49,10 +49,11 @@ def get_context(context):
     context.page = page
     context.is_admin = is_admin
     context.is_mentor = is_mentor
+    context.page_scope = "Subgroup"
 
     # Function to render to custom page given the slug
     context.render_page = lambda page: frappe.render_template(
-        cohort.get_page_template(page),
+        cohort.get_page_template(page, scope="Subgroup"),
         context)
 
 def get_stats(subgroup):
