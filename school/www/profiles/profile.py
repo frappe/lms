@@ -10,7 +10,6 @@ def get_context(context):
     except KeyError:
         username = frappe.db.get_value("User", frappe.session.user, ["username"])
         if username:
-            print(urlencode({"username": username}))
             frappe.local.flags.redirect_location = get_profile_url_prefix() + username
             raise frappe.Redirect
     try:
