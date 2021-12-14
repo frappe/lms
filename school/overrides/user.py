@@ -11,6 +11,7 @@ class CustomUser(User):
     def validate(self):
         super(CustomUser, self).validate()
         self.validate_username_characters()
+        self.validate_skills()
 
     def validate_username_characters(self):
         if len(self.username):
@@ -48,6 +49,17 @@ class CustomUser(User):
 
             if len(self.username) < 4:
                 frappe.throw(_("Username cannot be less than 4 characters"))
+
+    def validate_skills(self):
+        unique_skills = []
+        for skill in self.skill:
+            if not skill.skill_name:
+                return
+            if not skill.skill_name in unique_skills:
+                unique_skills.append(skill.skill_name)
+            else:
+                frappe.throw(_("Skills must be unique"))
+
 
     def get_username_from_first_name(self):
         return frappe.scrub(self.first_name) + str(random.randint(0, 99))

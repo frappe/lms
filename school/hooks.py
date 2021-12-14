@@ -105,7 +105,7 @@ doc_events = {
 #	]
 #}
 
-fixtures = ["Custom Field"]
+fixtures = ["Custom Field", "Function", "Industry"]
 
 # Testing
 # -------

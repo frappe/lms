@@ -8,10 +8,11 @@
  "field_order": [
   "certification_name",
   "organization",
+  "description",
+  "column_break_4",
   "expire",
   "issue_date",
-  "expiration_date",
-  "description"
+  "expiration_date"
  ],
  "fields": [
   {
@@ -51,12 +52,16 @@
    "fieldname": "expire",
    "fieldtype": "Check",
    "label": "This certificate does no expire"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2021-12-07 12:22:10.591613",
+ "modified": "2021-12-14 11:42:24.844113",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Certification",

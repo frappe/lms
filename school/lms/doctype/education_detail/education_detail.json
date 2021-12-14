@@ -9,9 +9,12 @@
   "institution_name",
   "location",
   "degree_type",
-  "field_of_majorstudy",
+  "major",
+  "column_break_5",
   "grade_type",
-  "grade"
+  "grade",
+  "start_date",
+  "end_date"
  ],
  "fields": [
   {
@@ -36,13 +39,6 @@
    "reqd": 1
   },
   {
-   "fieldname": "field_of_majorstudy",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Field of Major/Study",
-   "reqd": 1
-  },
-  {
    "fieldname": "grade_type",
    "fieldtype": "Select",
    "label": "Grade Type",
@@ -52,12 +48,33 @@
    "fieldname": "grade",
    "fieldtype": "Data",
    "label": "Grade"
+  },
+  {
+   "fieldname": "major",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Field of Major/Study",
+   "reqd": 1
+  },
+  {
+   "fieldname": "start_date",
+   "fieldtype": "Date",
+   "label": "Start Date"
+  },
+  {
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "label": "End Date (or expected)"
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2021-12-07 12:15:46.078717",
+ "modified": "2021-12-10 12:12:58.827429",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Education Detail",

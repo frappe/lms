@@ -1,28 +1,28 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "field:skill",
- "creation": "2021-12-08 15:31:29.292544",
+ "autoname": "field:function",
+ "creation": "2021-12-14 14:02:35.435916",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "skill"
+  "function"
  ],
  "fields": [
   {
-   "fieldname": "skill",
+   "fieldname": "function",
    "fieldtype": "Data",
-   "label": "Skill",
+   "label": "Function",
    "unique": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-12-12 10:02:39.584832",
+ "modified": "2021-12-14 14:02:46.474260",
  "modified_by": "Administrator",
  "module": "LMS",
- "name": "Skill",
+ "name": "Function",
  "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [

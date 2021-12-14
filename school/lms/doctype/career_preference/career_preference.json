@@ -7,8 +7,9 @@
  "engine": "InnoDB",
  "field_order": [
   "preferred_functions",
-  "preferred_industries",
   "preferred_location",
+  "column_break_3",
+  "preferred_industries",
   "dream_companies"
  ],
  "fields": [
@@ -39,12 +40,16 @@
    "fieldname": "dream_companies",
    "fieldtype": "Data",
    "label": "Dream Companies"
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2021-12-07 14:53:49.068323",
+ "modified": "2021-12-14 11:43:42.220244",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Career Preference",
