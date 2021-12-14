@@ -65,7 +65,7 @@ jobs:
       run: bench new-site --mariadb-root-password root --admin-password admin frappe.local
     - name: install school app
       working-directory: /home/runner/frappe-bench
-      run: bench --verbose --site frappe.local install-app school
+      run: bench --site frappe.local install-app school
     - name: setup requirements
       working-directory: /home/runner/frappe-bench
       run: bench setup requirements --dev

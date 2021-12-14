@@ -1,0 +1,85 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2021-12-07 12:15:46.078717",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "institution_name",
+  "location",
+  "degree_type",
+  "major",
+  "column_break_5",
+  "grade_type",
+  "grade",
+  "start_date",
+  "end_date"
+ ],
+ "fields": [
+  {
+   "fieldname": "institution_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Institution Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "location",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Location",
+   "reqd": 1
+  },
+  {
+   "fieldname": "degree_type",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Degree Type",
+   "reqd": 1
+  },
+  {
+   "fieldname": "grade_type",
+   "fieldtype": "Select",
+   "label": "Grade Type",
+   "options": "Percentage (e.g. 70%)\nPoint of Score (e.g. 70)\nLetter Grade (e.g. A, B-)\nUK Grading  (e.g. 1st, 2:2)\nFrench (e.g. Distinction)\nCGPA/4"
+  },
+  {
+   "fieldname": "grade",
+   "fieldtype": "Data",
+   "label": "Grade"
+  },
+  {
+   "fieldname": "major",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Field of Major/Study",
+   "reqd": 1
+  },
+  {
+   "fieldname": "start_date",
+   "fieldtype": "Date",
+   "label": "Start Date"
+  },
+  {
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "label": "End Date (or expected)"
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2021-12-10 12:12:58.827429",
+ "modified_by": "Administrator",
+ "module": "LMS",
+ "name": "Education Detail",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}
