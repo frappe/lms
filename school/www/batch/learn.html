@@ -79,27 +79,30 @@
 
 
   {% if not course.is_mentor(frappe.session.user) and membership %}
-
-  {% if course.get_progress(lesson.name) != "Complete" %}
-  <div class="button is-secondary" id="progress" data-progress="Complete">
-    Mark as Complete
+  {% set progress = course.get_progress(lesson.name) %}
+  <div class="custom-checkbox {% if progress == 'Complete' %} hide {% endif %}">
+    <label class="quiz-label">
+      <input class="option mark-progress" type="checkbox" checked>
+      <img class="empty-checkbox" />
+      <span class="small">{{ _("Mark as complete on moving to the next lesson") }}</span>
+    </label>
   </div>
-  {% else %}
-  <div class="button is-secondary" id="progress" data-progress="Incomplete">
+
+  <div class="button is-secondary mark-progress {{ progress }} {% if progress == 'Incomplete' or progress == None %} hide {% endif %}"
+    data-progress="Incomplete">
     Mark as Incomplete
   </div>
-  {% endif %}
 
   {% endif %}
 
   <div>
-    {% if next_url %}
-    <a class="button is-primary next" href="{{ next_url }}">
-      Next
+    <a class="button is-primary next {% if membership.progress|int == 100 and not next_url %} hide {% endif %}"
+      {% if next_url %} data-href="{{ next_url }}" {% endif %} href="">
+      {% if next_url %} Next {% else %} Mark as Complete {% endif %}
       <img class="ml-2" src="/assets/school/icons/side-arrow-white.svg">
     </a>
-    {% elif course.enable_certification %}
-    <div class="button is-primary {% if membership.progress != 100 %} hide {% endif %}" id="certification">
+    {% if course.enable_certification %}
+    <div class="button is-primary {% if membership.progress|int != 100 or next_url %} hide {% endif %}" id="certification">
       Get Certificate
     </div>
     {% endif %}
