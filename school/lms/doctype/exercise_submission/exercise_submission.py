@@ -21,4 +21,4 @@ class ExerciseSubmission(Document):
                 "member": self.member,
                 "latest_submission": self.name
             })
-            doc.save(ignore_permissions=True)
+            doc.insert(ignore_permissions=True)
