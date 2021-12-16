@@ -104,19 +104,9 @@
    "group": "Links",
    "link_doctype": "Cohort Subgroup",
    "link_fieldname": "cohort"
-  },
-  {
-   "group": "Links",
-   "link_doctype": "Cohort Student",
-   "link_fieldname": "cohort"
-  },
-  {
-   "group": "Links",
-   "link_doctype": "Cohort Page",
-   "link_fieldname": "cohort"
   }
  ],
- "modified": "2021-12-04 23:22:10.248781",
+ "modified": "2021-12-16 11:45:12.451226",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Cohort",
