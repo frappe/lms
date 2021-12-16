@@ -10,9 +10,11 @@
   "cohort",
   "slug",
   "title",
-  "description",
+  "column_break_4",
   "invite_code",
-  "course"
+  "course",
+  "section_break_7",
+  "description"
  ],
  "fields": [
   {
@@ -31,18 +33,18 @@
    "in_list_view": 1,
    "in_preview": 1,
    "in_standard_filter": 1,
-   "label": "title",
+   "label": "Title",
    "reqd": 1
   },
   {
    "fieldname": "description",
    "fieldtype": "Markdown Editor",
-   "label": "description"
+   "label": "Description"
   },
   {
    "fieldname": "invite_code",
    "fieldtype": "Data",
-   "label": "invite_code",
+   "label": "Invite Code",
    "read_only": 1
   },
   {
@@ -58,22 +60,25 @@
    "label": "Course",
    "options": "LMS Course",
    "read_only": 1
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_7",
+   "fieldtype": "Section Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [
   {
    "group": "Links",
-   "link_doctype": "Cohort Student",
-   "link_fieldname": "subgroup"
-  },
-  {
-   "group": "Links",
    "link_doctype": "Cohort Join Request",
    "link_fieldname": "subgroup"
   }
  ],
- "modified": "2021-11-30 07:41:54.893270",
+ "modified": "2021-12-16 15:12:42.504883",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Cohort Subgroup",

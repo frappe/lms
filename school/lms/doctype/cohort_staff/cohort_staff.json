@@ -8,6 +8,7 @@
  "field_order": [
   "cohort",
   "course",
+  "column_break_3",
   "email",
   "role"
  ],
@@ -24,7 +25,7 @@
    "fieldname": "email",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "E-mail",
+   "label": "User",
    "options": "User",
    "reqd": 1
   },
@@ -43,11 +44,15 @@
    "label": "Course",
    "options": "LMS Course",
    "read_only": 1
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-11-29 16:31:57.214875",
+ "modified": "2021-12-16 15:16:04.042372",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Cohort Staff",

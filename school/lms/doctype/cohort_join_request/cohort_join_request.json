@@ -7,8 +7,9 @@
  "engine": "InnoDB",
  "field_order": [
   "cohort",
-  "subgroup",
   "email",
+  "column_break_3",
+  "subgroup",
   "status"
  ],
  "fields": [
@@ -42,11 +43,15 @@
    "in_list_view": 1,
    "label": "Status",
    "options": "Pending\nAccepted\nRejected"
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-11-29 12:18:15.947544",
+ "modified": "2021-12-16 15:06:03.985221",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Cohort Join Request",
