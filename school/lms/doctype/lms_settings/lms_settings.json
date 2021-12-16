@@ -13,7 +13,9 @@
   "mentor_request_status_update",
   "search_settings_section",
   "show_search",
-  "search_placeholder"
+  "search_placeholder",
+  "profile_restrictions_section",
+  "force_profile_completion"
  ],
  "fields": [
   {
@@ -65,12 +67,23 @@
    "fieldname": "search_placeholder",
    "fieldtype": "Data",
    "label": "Search Field Placeholder"
+  },
+  {
+   "fieldname": "profile_restrictions_section",
+   "fieldtype": "Section Break",
+   "label": "Profile Restrictions"
+  },
+  {
+   "default": "0",
+   "fieldname": "force_profile_completion",
+   "fieldtype": "Check",
+   "label": "Force users to complete their Profile"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2021-11-25 14:12:21.514922",
+ "modified": "2021-12-15 11:30:06.506403",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",
