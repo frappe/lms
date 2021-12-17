@@ -70,6 +70,14 @@
         <img class="ml-2" src="/assets/school/images/play.png" />
       </div>
       {% endif %}
+
+      {% if course.is_cohort_staff(frappe.session.user) %}
+        <a class="button wide-button is-secondary"
+           href="/courses/{{course.name}}/manage"
+           style="color: inherit;">
+          Manage the course
+        </a>
+      {% endif %}
     </div>
   </div>
 </div>

@@ -1,5 +1,5 @@
 <div class="exercise">
-  <h3>Exercise {{exercise.index_label}}: {{ exercise.title }}</h3>
+  <h3><a name="E{{exercise.index_label}}">Exercise {{exercise.index_label}}: {{ exercise.title }}</a></h3>
   <div class="exercise-description">{{frappe.utils.md_to_html(exercise.description)}}</div>
 
   {% set submission = exercise.get_user_submission() %}

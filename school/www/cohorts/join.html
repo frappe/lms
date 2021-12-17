@@ -1,0 +1,88 @@
+{% extends "www/cohorts/base.html" %}
+
+{% block title %}Join Course{% endblock %}
+
+{% block page_content %}
+
+<h2>Join Course</h2>
+
+<p>
+  Course: {{course.title}}
+</p>
+<p>
+  Cohort: {{cohort.title}}
+</p>
+<p>
+  Subgroup: {{subgroup.title}}
+</p>
+
+{% if frappe.session.user == "Guest" %}
+
+<div class="alert alert-warning">
+  <p>
+  Please login to be able to join the course.</p>
+
+  <p>
+  If you don't already have an account, you can <a href="/login#signup">sign up for a new account</a>.
+  </p>
+  <a class="btn btn-primary" href="/login">Login to continue</a>
+</div>
+{% elif subgroup.has_student(frappe.session.user) %}
+  <div class="alert alert-info">
+    <p>You are already a student of this course.</p>
+    <a class="btn btn-primary" href="/">Start Learning &rarr;</a>
+  </div>
+{% elif subgroup.has_join_request(frappe.session.user) %}
+  <div class="alert alert-info">
+    <p>We have received your request to join the course. You'll hear back from us soon.</p>
+  </div>
+{% else %}
+
+<a class="btn btn-primary" id="join">Join the course</a>
+
+{% endif %}
+
+{% endblock %}
+
+{% block script %}
+
+<script type="text/javascript">
+
+$(function() {
+  console.log("ready!")
+  $("#join").click(function() {
+    var parts = window.location.pathname.split("/")
+    var course = parts[2];
+    var cohort = parts[4];
+    var subgroup = parts[5];
+    var invite_code = parts[6];
+
+    frappe.call('school.lms.api.join_cohort', {
+      course: course,
+      cohort: cohort,
+      subgroup: subgroup,
+      invite_code: invite_code
+    })
+    .then(r => {
+      if (r.message.ok) {
+        let d = new frappe.ui.Dialog({
+          title: "Notification",
+          primary_action_label: "Proceed",
+          primary_action() {
+            d.hide();
+            window.location.reload();
+          }
+        });
+        var message = "We've received your interest to join the course. We'll hear from us soon.";
+        d.show();
+        d.set_message(message);
+      }
+      else {
+        frappe.msgprint(r.message.error);
+      }
+    });
+  });
+});
+</script>
+
+{% endblock %}

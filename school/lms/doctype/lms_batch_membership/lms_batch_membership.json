@@ -6,15 +6,19 @@
  "engine": "InnoDB",
  "field_order": [
   "course",
-  "member",
-  "member_name",
-  "member_username",
+  "cohort",
+  "subgroup",
   "column_break_3",
   "batch",
+  "current_lesson",
+  "role",
+  "member_section",
+  "member",
   "member_type",
   "progress",
-  "current_lesson",
-  "role"
+  "column_break_12",
+  "member_name",
+  "member_username"
  ],
  "fields": [
   {
@@ -88,12 +92,32 @@
    "fieldtype": "Data",
    "label": "Progress",
    "read_only": 1
+  },
+  {
+   "fieldname": "cohort",
+   "fieldtype": "Link",
+   "label": "Cohort",
+   "options": "Cohort"
+  },
+  {
+   "fieldname": "subgroup",
+   "fieldtype": "Link",
+   "label": "Subgroup",
+   "options": "Cohort Subgroup"
+  },
+  {
+   "fieldname": "member_section",
+   "fieldtype": "Section Break",
+   "label": "Member"
+  },
+  {
+   "fieldname": "column_break_12",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "migration_hash": "fe10c462acf5e727d864305d7ce90e73",
- "modified": "2021-10-20 15:10:33.767419",
+ "modified": "2021-12-16 14:49:25.964853",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch Membership",

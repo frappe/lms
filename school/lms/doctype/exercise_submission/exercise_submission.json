@@ -16,7 +16,8 @@
   "solution",
   "image",
   "test_results",
-  "comments"
+  "comments",
+  "member"
  ],
  "fields": [
   {
@@ -90,11 +91,17 @@
   {
    "fieldname": "section_break_8",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "member",
+   "fieldtype": "Link",
+   "label": "Member",
+   "options": "LMS Batch Membership"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-09-29 15:27:57.273879",
+ "modified": "2021-12-08 22:25:05.809376",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Exercise Submission",
