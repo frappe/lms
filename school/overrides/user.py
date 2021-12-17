@@ -1,10 +1,13 @@
 import frappe
 from frappe.core.doctype.user.user import User
-from frappe.utils import cint
+from frappe.utils import cint, escape_html, random_string
 import hashlib
 import random
 import re
 from frappe import _
+from frappe.website.utils import is_signup_disabled
+import requests
+from frappe.geo.country_info import get_all
 
 class CustomUser(User):
 
@@ -156,3 +159,69 @@ class CustomUser(User):
             "in_progress": in_progress,
             "completed": completed
         }
+
+@frappe.whitelist(allow_guest=True)
+def sign_up(email, full_name, verify_age):
+    if is_signup_disabled():
+        frappe.throw(_('Sign Up is disabled'), title='Not Allowed')
+
+    user = frappe.db.get("User", {"email": email})
+    if user:
+        if user.enabled:
+            return 0, _("Already Registered")
+        else:
+            return 0, _("Registered but disabled")
+    else:
+        if frappe.db.get_creation_count('User', 60) > 300:
+            frappe.respond_as_web_page(_('Temporarily Disabled'),
+                _('Too many users signed up recently, so the registration is disabled. Please try back in an hour'),
+                http_status_code=429)
+
+    user = frappe.get_doc({
+        "doctype":"User",
+        "email": email,
+        "first_name": escape_html(full_name),
+        "verify_age": verify_age,
+        "enabled": 1,
+        "new_password": random_string(10),
+        "user_type": "Website User"
+    })
+    user.flags.ignore_permissions = True
+    user.flags.ignore_password_policy = True
+    user.insert()
+
+    set_country_from_ip(user.name)
+
+    # set default signup role as per Portal Settings
+    default_role = frappe.db.get_value("Portal Settings", None, "default_role")
+    if default_role:
+        user.add_roles(default_role)
+
+    if user.flags.email_sent:
+        return 1, _("Please check your email for verification")
+    else:
+        return 2, _("Please ask your administrator to verify your sign-up")
+
+
+def set_country_from_ip(user=None):
+    if not user:
+        user = frappe.session.user
+
+    user_country = frappe.db.get_value("User", user, "country")
+    if user_country:
+        return
+
+    frappe.db.set_value("User", user, "country", get_country_code())
+    return
+
+def get_country_code():
+    res = requests.get("http://ip-api.com/json/?fields=61439")
+
+    try:
+        data = res.json()
+        if data.get("status") != "fail":
+            return data.get("country")
+    except Exception:
+        pass
+
+    return {}

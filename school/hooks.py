@@ -187,3 +187,7 @@ page_renderer = [
 
 # set this to "/" to have profiles on the top-level
 profile_url_prefix = "/users/"
+
+custom_signup_form = "school.plugins.show_custom_signup"
+
+on_login = "school.overrides.user.set_country_from_ip"
