@@ -182,6 +182,7 @@ def sign_up(email, full_name, verify_age):
         "email": email,
         "first_name": escape_html(full_name),
         "verify_age": verify_age,
+        "country": "",
         "enabled": 1,
         "new_password": random_string(10),
         "user_type": "Website User"
@@ -189,8 +190,7 @@ def sign_up(email, full_name, verify_age):
     user.flags.ignore_permissions = True
     user.flags.ignore_password_policy = True
     user.insert()
-
-    set_country_from_ip(user.name)
+    set_country_from_ip(None, user.name)
 
     # set default signup role as per Portal Settings
     default_role = frappe.db.get_value("Portal Settings", None, "default_role")
@@ -203,14 +203,13 @@ def sign_up(email, full_name, verify_age):
         return 2, _("Please ask your administrator to verify your sign-up")
 
 
-def set_country_from_ip(user=None):
-    if not user:
-        user = frappe.session.user
+def set_country_from_ip(login_manager=None, user=None):
+    if not user and login_manager:
+        user = login_manager.user
 
     user_country = frappe.db.get_value("User", user, "country")
     if user_country:
         return
-
     frappe.db.set_value("User", user, "country", get_country_code())
     return
 
