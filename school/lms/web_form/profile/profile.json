@@ -21,7 +21,7 @@
  "is_standard": 1,
  "login_required": 1,
  "max_attachment_size": 0,
- "modified": "2021-12-14 16:35:24.751439",
+ "modified": "2021-12-20 13:20:19.810134",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "profile",
@@ -335,7 +335,7 @@
    "max_value": 0,
    "options": "",
    "read_only": 0,
-   "reqd": 1,
+   "reqd": 0,
    "show_in_filter": 0
   },
   {

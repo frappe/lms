@@ -71,7 +71,7 @@
   {
    "fieldname": "profile_restrictions_section",
    "fieldtype": "Section Break",
-   "label": "Profile Restrictions"
+   "label": "Profile"
   },
   {
    "default": "0",
@@ -83,7 +83,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2021-12-15 11:30:06.506403",
+ "modified": "2021-12-20 12:11:26.628925",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",

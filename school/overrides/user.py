@@ -12,6 +12,7 @@ class CustomUser(User):
         super(CustomUser, self).validate()
         self.validate_username_characters()
         self.validate_skills()
+        self.validate_completion()
 
     def validate_username_characters(self):
         if len(self.username):
