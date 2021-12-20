@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from . import __version__ as app_version
+import frappe
 
 app_name = "school"
 app_title = "School"
@@ -188,6 +189,6 @@ page_renderer = [
 # set this to "/" to have profiles on the top-level
 profile_url_prefix = "/users/"
 
-custom_signup_form = "school.plugins.show_custom_signup"
+custom_signup_form = "school/templates/signup-form.html" if frappe.db.get_single_value("LMS Settings", "verify_age") else None
 
 on_login = "school.overrides.user.set_country_from_ip"
