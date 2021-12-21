@@ -42,16 +42,6 @@
  {
   "docstatus": 0,
   "doctype": "Function",
-  "function": "Engineering (Software & IT)",
-  "modified": "2021-12-14 15:16:26.348864",
-  "name": "Engineering (Software & IT)",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
- },
- {
-  "docstatus": 0,
-  "doctype": "Function",
   "function": "Finance, Investment & Accounting",
   "modified": "2021-12-14 15:16:26.351518",
   "name": "Finance, Investment & Accounting",
@@ -155,6 +145,16 @@
   "function": "Other",
   "modified": "2021-12-14 15:16:26.377761",
   "name": "Other",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Function",
+  "function": "Engineering (Software & IT)",
+  "modified": "2021-12-14 15:16:26.348864",
+  "name": "Engineering (Software & IT)",
   "parent": null,
   "parentfield": null,
   "parenttype": null

@@ -92,29 +92,9 @@
  {
   "docstatus": 0,
   "doctype": "Industry",
-  "industry": "Education & Training",
-  "modified": "2021-12-14 15:21:18.105864",
-  "name": "Education & Training",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
- },
- {
-  "docstatus": 0,
-  "doctype": "Industry",
   "industry": "Energy & Utilities",
   "modified": "2021-12-14 15:21:18.114022",
   "name": "Energy & Utilities",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
- },
- {
-  "docstatus": 0,
-  "doctype": "Industry",
-  "industry": "Engineering",
-  "modified": "2021-12-14 15:21:18.119149",
-  "name": "Engineering",
   "parent": null,
   "parentfield": null,
   "parenttype": null
@@ -235,6 +215,26 @@
   "industry": "Other",
   "modified": "2021-12-14 15:21:18.157766",
   "name": "Other",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Industry",
+  "industry": "Education & Training",
+  "modified": "2021-12-14 15:21:18.105864",
+  "name": "Education & Training",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Industry",
+  "industry": "Engineering",
+  "modified": "2021-12-14 15:21:18.119149",
+  "name": "Engineering",
   "parent": null,
   "parentfield": null,
   "parenttype": null

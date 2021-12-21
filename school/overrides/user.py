@@ -174,7 +174,7 @@ class CustomUser(User):
         }
 
 @frappe.whitelist(allow_guest=True)
-def sign_up(email, full_name, verify_age):
+def sign_up(email, full_name, verify_terms):
     if is_signup_disabled():
         frappe.throw(_('Sign Up is disabled'), title='Not Allowed')
 
@@ -194,7 +194,7 @@ def sign_up(email, full_name, verify_age):
         "doctype":"User",
         "email": email,
         "first_name": escape_html(full_name),
-        "verify_age": verify_age,
+        "verify_terms": verify_terms,
         "country": "",
         "enabled": 1,
         "new_password": random_string(10),

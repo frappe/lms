@@ -10,10 +10,10 @@
 <div class="common-page-style">
   <div class="container">
     {% if restriction.restrict %}
-    {% set site_link = "<a href='/edit-profile'> profile </a>" %}
+    {% set profile_link = "<a href='/edit-profile'> profile </a>" %}
     <div class="empty-state">
       <div class="course-home-headings text-center mb-0" style="color: inherit;">{{ _("You haven't completed your profile.") }}</div>
-      <p class="small text-center">{{ _("Complete your {0} to access the courses.").format(site_link) }}</p>
+      <p class="small text-center">{{ _("Complete your {0} to access the courses.").format(profile_link) }}</p>
     </div>
 
     {% else %}

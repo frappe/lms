@@ -10,18 +10,25 @@
       <input type="email" id="signup_email" class="form-control"
         placeholder="{{ _('jane@example.com') }}" required>
     </div>
+    {% if frappe.db.get_single_value("LMS Settings", "terms_of_use") %}
     <div class="form-group">
       <div class="checkbox">
         <label>
           <span class="input-area">
             <input type="checkbox" autocomplete="off" class="input-with-feedback"
-              data-fieldtype="Check" data-fieldname="age" id="signup-age" required>
+              data-fieldtype="Check" data-fieldname="terms" id="signup-terms" required>
             </span>
-          <span class="label-area">{{ _("I confirm that I am 18 years old or above") }}</span>
+          <span class="label-area">
+            {% set terms_page = frappe.db.get_single_value("LMS Settings", "terms_page") %}
+            {% set terms_page_route = frappe.db.get_value("Web Page", terms_page, "route") %}
+            {% set terms_link = "<a href='/" + terms_page_route  +"'> Terms of Use </a>" %}
+            {{ _("I have read and I agree to your {0}").format(terms_link) }}
+          </span>
         </label>
         <p class="help-box small text-muted"></p>
       </div>
     </div>
+    {% endif %}
   </div>
   <div class="page-card-actions">
     <button class="btn btn-sm btn-primary btn-block btn-signup"
@@ -50,7 +57,7 @@
         args: {
           "email": ($("#signup_email").val() || "").trim(),
           "full_name": frappe.utils.xss_sanitise(($("#signup_fullname").val() || "").trim()),
-          "verify_age": $("#signup-age").prop("checked") ? 1 : 0
+          "verify_terms": $("#signup-terms").prop("checked") ? 1 : 0
         },
         statusCode: login.login_handlers
       })
