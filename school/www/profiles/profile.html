@@ -309,11 +309,12 @@
 {% endmacro %}
 
 {% macro WorkDetails(member) %}
-{% if member.work_experience %}
+{% set work_details = member.work_experience + member.internship %}
+{% if work_details | length %}
 <div class="education-details">
   <div class="course-home-headings"> Work Experience </div>
   <div class="common-card-style profile-card">
-    {% for work in member.work_experience %}
+    {% for work in work_details %}
     <div class="">
       <div class="institute-name"> {{ work.title }} </div>
       <div class="profile-item"> {{ work.company }} </div>

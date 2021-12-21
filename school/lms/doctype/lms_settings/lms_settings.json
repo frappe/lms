@@ -6,16 +6,16 @@
  "engine": "InnoDB",
  "field_order": [
   "livecode_url",
-  "column_break_2",
   "email_sender",
-  "mentor_request_section",
-  "mentor_request_creation",
-  "mentor_request_status_update",
-  "search_settings_section",
+  "column_break_2",
+  "force_profile_completion",
   "show_search",
   "search_placeholder",
-  "profile_restrictions_section",
-  "force_profile_completion"
+  "terms_of_use",
+  "terms_page",
+  "mentor_request_section",
+  "mentor_request_creation",
+  "mentor_request_status_update"
  ],
  "fields": [
   {
@@ -52,11 +52,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "search_settings_section",
-   "fieldtype": "Section Break",
-   "label": "Search Settings"
-  },
-  {
    "default": "0",
    "fieldname": "show_search",
    "fieldtype": "Check",
@@ -69,21 +64,30 @@
    "label": "Search Field Placeholder"
   },
   {
-   "fieldname": "profile_restrictions_section",
-   "fieldtype": "Section Break",
-   "label": "Profile"
-  },
-  {
    "default": "0",
    "fieldname": "force_profile_completion",
    "fieldtype": "Check",
    "label": "Force users to complete their Profile"
+  },
+  {
+   "default": "0",
+   "fieldname": "terms_of_use",
+   "fieldtype": "Check",
+   "label": "Show Terms of Use on Signup"
+  },
+  {
+   "depends_on": "terms_of_use",
+   "fieldname": "terms_page",
+   "fieldtype": "Link",
+   "label": "Terms of Use Page",
+   "mandatory_depends_on": "terms_of_use",
+   "options": "Web Page"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2021-12-20 12:11:26.628925",
+ "modified": "2021-12-21 16:01:48.260411",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",
