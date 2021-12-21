@@ -86,6 +86,17 @@ class LiveCodeExtension(PageExtension):
             "templates/livecode/extension_footer.html",
             context)
 
+def set_mandatory_fields_for_profile():
+    profile_form = frappe.get_doc("Web Form", "profile")
+    profile_mandatory_fields = frappe.get_hooks("profile_mandatory_fields")
+    for field in profile_form.web_form_fields:
+        field.reqd = 0
+        if field.fieldname in profile_mandatory_fields:
+            print(field.fieldname)
+            field.reqd = 1
+
+    profile_form.save()
+
 def quiz_renderer(quiz_name):
     quiz = frappe.get_doc("LMS Quiz", quiz_name)
     context = dict(quiz=quiz)

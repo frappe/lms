@@ -1,4 +1,5 @@
 import frappe
+from school.lms.doctype.lms_settings.lms_settings import check_profile_restriction
 
 def get_context(context):
     context.no_cache = 1
@@ -20,6 +21,7 @@ def get_context(context):
     context.membership = membership
     if context.course.upcoming:
         context.is_user_interested = get_user_interest(context.course.name)
+    context.restriction = check_profile_restriction()
     context.metatags = {
         "title": course.title,
         "image": course.image,

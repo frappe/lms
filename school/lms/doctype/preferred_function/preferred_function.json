@@ -1,6 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
+ "autoname": "hash",
  "creation": "2021-12-14 14:42:48.823215",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -12,19 +13,20 @@
   {
    "fieldname": "function",
    "fieldtype": "Link",
+   "ignore_user_permissions": 1,
    "in_list_view": 1,
    "label": "Function",
-   "options": "Function",
-   "reqd": 1
+   "options": "Function"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2021-12-14 14:42:48.823215",
+ "modified": "2021-12-21 10:07:01.448239",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Preferred Function",
+ "naming_rule": "Random",
  "owner": "Administrator",
  "permissions": [],
  "sort_field": "modified",

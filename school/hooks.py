@@ -177,6 +177,26 @@ jinja = {
 #	"school.plugins.LiveCodeExtension"
 #]
 
+profile_mandatory_fields = [
+    "first_name",
+    "last_name",
+    "user_image",
+    "bio",
+    "linkedin",
+    "education",
+    "work_experience",
+    "skill",
+    "preferred_functions",
+    "preferred_industries",
+    "dream_companies",
+    "attire",
+    "collaboration",
+    "role",
+    "location_preference",
+    "time",
+    "company_type"
+]
+
 ## Markdown Macros for Lessons
 school_markdown_macro_renderers = {
     "Exercise": "school.plugins.exercise_renderer",
