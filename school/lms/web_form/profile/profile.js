@@ -14,7 +14,7 @@ frappe.ready(function () {
   frappe.web_form.validate = () => {
     let information_missing;
     const data = frappe.web_form.get_values();
-    data.work_experience.forEach(exp => {
+    data.work_experience && data.work_experience.length && data.work_experience.forEach(exp => {
       if (!exp.current && !exp.to_date) {
         information_missing = true
         frappe.msgprint('To Date is mandatory in Work Experience.');

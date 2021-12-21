@@ -172,6 +172,7 @@ jinja = {
 #]
 
 profile_mandatory_fields = [
+    "first_name",
     "last_name",
     "user_image",
     "bio",

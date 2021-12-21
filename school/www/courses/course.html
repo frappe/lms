@@ -43,9 +43,9 @@
       </div>
     </div>
     <div class="course-buttons">
-      {% if not course.disable_self_learning and not membership and not course.upcoming %}
+      {% if not course.disable_self_learning and not membership and not course.upcoming and not restriction.restrict %}
       <div class="button wide-button start-learning is-primary join-batch" data-course="{{ course.name | urlencode }}">
-        Start Learning
+        {{ _("Start Learning") }}
         <img class="ml-2" src="/assets/school/icons/white-arrow.svg" />
       </div>
       {% endif %}

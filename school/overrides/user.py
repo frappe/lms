@@ -51,6 +51,12 @@ class CustomUser(User):
             if len(self.username) < 4:
                 frappe.throw(_("Username cannot be less than 4 characters"))
 
+    def get_username_from_first_name(self):
+        return frappe.scrub(self.first_name) + str(random.randint(0, 99))
+
+    def remove_illegal_characters(self):
+        return re.sub("[^\w]+", "", self.username).strip("_")
+
     def validate_skills(self):
         unique_skills = []
         for skill in self.skill:
@@ -61,12 +67,18 @@ class CustomUser(User):
             else:
                 frappe.throw(_("Skills must be unique"))
 
+    def validate_completion(self):
+        all_fields_have_value = True
+        if frappe.db.get_single_value("LMS Settings", "force_profile_completion"):
+            profile_mandatory_fields = frappe.get_hooks("profile_mandatory_fields")
+            docfields = frappe.get_meta(self.doctype).fields
 
-    def get_username_from_first_name(self):
-        return frappe.scrub(self.first_name) + str(random.randint(0, 99))
+            for field in profile_mandatory_fields:
+                if not self.get(field):
+                    all_fields_have_value = False
+                    break
 
-    def remove_illegal_characters(self):
-        return re.sub("[^\w]+", "", self.username).strip("_")
+        self.profile_complete = all_fields_have_value
 
     def get_authored_courses(self) -> int:
         """Returns the number of courses authored by this user.

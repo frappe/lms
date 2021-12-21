@@ -14,7 +14,7 @@ def check_profile_restriction():
     force_profile_completion = frappe.db.get_single_value("LMS Settings", "force_profile_completion")
     user = frappe.db.get_value("User", frappe.session.user, ["profile_complete", "username"], as_dict=True)
     return {
-        "redirect": force_profile_completion and not user.profile_complete,
+        "restrict": force_profile_completion and not user.profile_complete,
         "username": user.username,
-        "prefix": frappe.get_hooks("profile_url_prefix") or "/users/"
+        "prefix": frappe.get_hooks("profile_url_prefix")[0] or "/users/"
     }

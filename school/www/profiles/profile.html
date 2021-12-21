@@ -290,12 +290,16 @@
     <div class="profile-card-row">
       <div class="institute-name"> {{ edu.institution_name }} </div>
       <div class="profile-item"> {{ edu.degree_type }} <span></span> {{ edu.major }}
-        {% if not member.hide_private %} <span></span>
+        {% if not member.hide_private %}
         <!-- {% if edu.grade_type %} {{ edu.grade_type }}  {% endif %} -->
-        {% if edu.grade %} {{ edu.grade }}  {% endif %}
+        {% if edu.grade %} <span></span> {{ edu.grade }}  {% endif %}
         {% endif %}
       </div>
-      <div> {{ frappe.utils.format_date(edu.start_date, "MMM YYYY") }} - {{ frappe.utils.format_date(edu.end_date, "MMM YYYY") }} </div>
+      <div>
+        {% if edu.start_date %}
+        {{ frappe.utils.format_date(edu.start_date, "MMM YYYY") }} -
+        {% endif %}
+        {{ frappe.utils.format_date(edu.end_date, "MMM YYYY") }} </div>
       <div> {{ edu.location }} </div>
     </div>
     {% endfor %}
