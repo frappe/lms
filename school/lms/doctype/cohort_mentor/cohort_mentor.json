@@ -1,0 +1,73 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2021-11-19 15:31:47.129156",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "cohort",
+  "email",
+  "subgroup",
+  "course"
+ ],
+ "fields": [
+  {
+   "fieldname": "cohort",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Cohort",
+   "options": "Cohort",
+   "reqd": 1
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "E-mail",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "subgroup",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Primary Subgroup",
+   "options": "Cohort Subgroup",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "cohort.course",
+   "fieldname": "course",
+   "fieldtype": "Link",
+   "label": "Course",
+   "options": "LMS Course",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2021-11-29 16:32:33.235281",
+ "modified_by": "Administrator",
+ "module": "LMS",
+ "name": "Cohort Mentor",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

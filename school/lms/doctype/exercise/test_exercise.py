@@ -6,6 +6,7 @@ import unittest
 
 class TestExercise(unittest.TestCase):
     def setUp(self):
+        frappe.db.sql('delete from `tabLMS Batch Membership`')
         frappe.db.sql('delete from `tabExercise Submission`')
         frappe.db.sql('delete from `tabExercise`')
         frappe.db.sql('delete from `tabLMS Course`')
@@ -19,6 +20,12 @@ class TestExercise(unittest.TestCase):
             "description": "Test Course"
         })
         course.insert()
+        member = frappe.get_doc({
+            "doctype": "LMS Batch Membership",
+            "course": course.name,
+            "member": frappe.session.user
+        })
+        member.insert()
         e = frappe.get_doc({
             "doctype": "Exercise",
             "name": "test-problem",

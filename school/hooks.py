@@ -141,6 +141,12 @@ website_route_rules = [
 	{"from_route": "/courses/<course>/learn/<int:chapter>.<int:lesson>", "to_route": "batch/learn"},
 	{"from_route": "/courses/<course>/progress", "to_route": "batch/progress"},
 	{"from_route": "/courses/<course>/join", "to_route": "batch/join"},
+	{"from_route": "/courses/<course>/manage", "to_route": "cohorts"},
+	{"from_route": "/courses/<course>/cohorts/<cohort>", "to_route": "cohorts/cohort"},
+	{"from_route": "/courses/<course>/cohorts/<cohort>/<page>", "to_route": "cohorts/cohort"},
+	{"from_route": "/courses/<course>/subgroups/<cohort>/<subgroup>", "to_route": "cohorts/subgroup"},
+	{"from_route": "/courses/<course>/subgroups/<cohort>/<subgroup>/<page>", "to_route": "cohorts/subgroup"},
+	{"from_route": "/courses/<course>/join/<cohort>/<subgroup>/<invite_code>", "to_route": "cohorts/join"},
 	{"from_route": "/users", "to_route": "profiles/profile"}
 ]
 
@@ -170,6 +176,26 @@ jinja = {
 #school_lesson_page_extensions = [
 #	"school.plugins.LiveCodeExtension"
 #]
+
+profile_mandatory_fields = [
+    "first_name",
+    "last_name",
+    "user_image",
+    "bio",
+    "linkedin",
+    "education",
+    "work_experience",
+    "skill",
+    "preferred_functions",
+    "preferred_industries",
+    "dream_companies",
+    "attire",
+    "collaboration",
+    "role",
+    "location_preference",
+    "time",
+    "company_type"
+]
 
 ## Markdown Macros for Lessons
 school_markdown_macro_renderers = {

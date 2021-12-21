@@ -1,8 +1,10 @@
 import frappe
+from school.lms.doctype.lms_settings.lms_settings import check_profile_restriction
 
 def get_context(context):
     context.no_cache = 1
     context.live_courses, context.upcoming_courses = get_courses()
+    context.restriction = check_profile_restriction()
     context.metatags = {
         "title": "All Courses",
         "image": frappe.db.get_single_value("Website Settings", "banner_image"),
