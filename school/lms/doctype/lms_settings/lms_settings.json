@@ -80,13 +80,14 @@
    "fieldname": "terms_page",
    "fieldtype": "Link",
    "label": "Terms of Use Page",
+   "mandatory_depends_on": "terms_of_use",
    "options": "Web Page"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2021-12-21 12:17:07.734189",
+ "modified": "2021-12-21 16:01:48.260411",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",
