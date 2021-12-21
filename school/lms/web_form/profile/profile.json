@@ -21,7 +21,7 @@
  "is_standard": 1,
  "login_required": 1,
  "max_attachment_size": 0,
- "modified": "2021-12-21 14:58:56.943438",
+ "modified": "2021-12-21 15:50:31.707751",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "profile",
@@ -236,7 +236,7 @@
   },
   {
    "allow_read_on_all_link_options": 0,
-   "fieldname": "volunteering_or_internship",
+   "fieldname": "internship",
    "fieldtype": "Table",
    "hidden": 0,
    "label": "Volunteering or Internship",
