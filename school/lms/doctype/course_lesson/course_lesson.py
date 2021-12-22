@@ -8,6 +8,9 @@ from frappe.model.document import Document
 from ...md import markdown_to_html, find_macros
 
 class CourseLesson(Document):
+    def validate(self):
+        self.check_and_create_folder()
+
     def on_update(self):
         dynamic_documents = ["Exercise", "Quiz"]
         for section in dynamic_documents:
@@ -43,8 +46,18 @@ class CourseLesson(Document):
             ex.index_label = ""
             ex.save()
 
+    def check_and_create_folder(self):
+        course = frappe.db.get_value("Chapter", self.chapter, "course")
+        args = {
+                "doctype": "File",
+                "is_folder": True,
+                "file_name": f"{self.name} {course}"
+        }
+        if not frappe.db.exists(args):
+            folder = frappe.get_doc(args)
+            folder.save(ignore_permissions=True)
+
     def render_html(self):
-        print(self.body)
         return markdown_to_html(self.body)
 
     def get_exercises(self):

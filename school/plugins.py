@@ -121,6 +121,9 @@ def youtube_video_renderer(video_id):
 def video_renderer(src):
     return "<video controls width='100%'><source src={0} type='video/mp4'></video>".format(src)
 
+def assignment_renderer(id):
+    return frappe.render_template("templates/assignment.html", {"id": id})
+
 def show_custom_signup():
     if frappe.db.get_single_value("LMS Settings", "terms_of_use"):
         return "school/templates/signup-form.html"

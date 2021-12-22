@@ -1,6 +1,7 @@
 frappe.ready(() => {
 
   localStorage.removeItem($("#quiz-title").text());
+  fetch_assignments();
 
   save_current_lesson();
 
@@ -34,26 +35,34 @@ frappe.ready(() => {
 
   $("#certification").click((e) => {
     create_certificate(e);
+  });
+
+  $(".submit-work").click((e) => {
+    attach_work(e);
+  });
+
+  $(".clear-work").click((e) => {
+    clear_work(e);
   })
 
-})
+});
 
-var save_current_lesson = () => {
+const save_current_lesson = () => {
   if ($(".title").hasClass("is-member")) {
     frappe.call("school.lms.api.save_current_lesson", {
       course_name: $(".title").attr("data-course"),
       lesson_name: $(".title").attr("data-lesson")
     })
   }
-}
+};
 
-var enable_check = (e) => {
+const enable_check = (e) => {
   if ($(".option:checked").length && $("#check").attr("disabled")) {
     $("#check").removeAttr("disabled");
   }
-}
+};
 
-var mark_active_question = (e = undefined) => {
+const mark_active_question = (e = undefined) => {
   var current_index;
   var next_index = 1;
   if (e) {
@@ -67,9 +76,9 @@ var mark_active_question = (e = undefined) => {
   $("#check").removeClass("hide").attr("disabled", true);
   $("#next").addClass("hide");
   $(".explanation").addClass("hide");
-}
+};
 
-var mark_progress = (e) => {
+const mark_progress = (e) => {
   /* Prevent default only for Next button anchor tag and not for progress checkbox */
   if ($(e.currentTarget).prop("nodeName") != "INPUT")
     e.preventDefault();
@@ -101,9 +110,9 @@ var mark_progress = (e) => {
   }
   else
     move_to_next_lesson(e);
-}
+};
 
-var change_progress_indicators = (status, e) => {
+const change_progress_indicators = (status, e) => {
   if (status == "Complete") {
     $(".lesson-progress").removeClass("hide");
     $(".active-lesson .lesson-progress-tick").removeClass("hide");
@@ -116,22 +125,22 @@ var change_progress_indicators = (status, e) => {
     $(e.currentTarget).addClass("hide");
     $("input.mark-progress").prop("checked", false).closest(".custom-checkbox").removeClass("hide");
   }
-}
+};
 
 const show_certificate_if_course_completed = (data) => {
   if (data.message == 100 && !$(".next").attr("data-next") && $("#certification").hasClass("hide")) {
     $("#certification").removeClass("hide");
     $(".next").addClass("hide");
   }
-}
+};
 
 const move_to_next_lesson = (e) => {
   if ($(e.currentTarget).hasClass("next") && $(e.currentTarget).attr("data-href")) {
     window.location.href = $(e.currentTarget).attr("data-href");
   }
-}
+};
 
-var quiz_summary = (e) => {
+const quiz_summary = (e) => {
   e.preventDefault();
   var quiz_name = $("#quiz-title").text();
   var total_questions = $(".question").length;
@@ -152,13 +161,13 @@ var quiz_summary = (e) => {
       $("#try-again").removeClass("hide");
     }
   })
-}
+};
 
-var try_quiz_again = (e) => {
+const try_quiz_again = (e) => {
   window.location.reload();
-}
+};
 
-var check_answer = (e) => {
+const check_answer = (e) => {
   e.preventDefault();
 
   var quiz_name = $("#quiz-title").text();
@@ -182,9 +191,9 @@ var check_answer = (e) => {
 
   var [answer, is_correct] = parse_options();
   add_to_local_storage(quiz_name, current_index, answer, is_correct)
-}
+};
 
-var parse_options = () => {
+const parse_options = () => {
   var answer = [];
   var is_correct = [];
   $(".active-question input").each((i, element) => {
@@ -200,14 +209,14 @@ var parse_options = () => {
     }
   })
   return [answer, is_correct];
-}
+};
 
-var add_icon = (element, icon) => {
+const add_icon = (element, icon) => {
   var label = $(element).parent().find(".label-area p").text();
   $(element).parent().empty().html(`<img class="mr-3" src="/assets/school/icons/${icon}.svg"> ${label}`);
-}
+};
 
-var add_to_local_storage = (quiz_name, current_index, answer, is_correct) => {
+const add_to_local_storage = (quiz_name, current_index, answer, is_correct) => {
   var quiz_stored = JSON.parse(localStorage.getItem(quiz_name));
   var quiz_obj = {
     "question_index": current_index,
@@ -216,9 +225,9 @@ var add_to_local_storage = (quiz_name, current_index, answer, is_correct) => {
   }
   quiz_stored ? quiz_stored.push(quiz_obj) : quiz_stored = [quiz_obj]
   localStorage.setItem(quiz_name, JSON.stringify(quiz_stored))
-}
+};
 
-var create_certificate = (e) => {
+const create_certificate = (e) => {
   e.preventDefault();
   course = $(".title").attr("data-course");
   frappe.call({
@@ -230,4 +239,139 @@ var create_certificate = (e) => {
       window.location.href = `/courses/${course}/${data.message}`;
     }
   })
+};
+
+const attach_work = (e) => {
+  const target = $(e.currentTarget);
+  let files = target.siblings(".attach-file").prop("files")
+  if (files && files.length) {
+    files = add_files(files)
+    return_as_dataurl(files)
+    files.map((file) => {
+      upload_file(file, target);
+    })
+  }
+};
+
+const upload_file = (file, target) => {
+  return new Promise((resolve, reject) => {
+    let xhr = new XMLHttpRequest();
+
+    xhr.onreadystatechange = () => {
+      if (xhr.readyState == XMLHttpRequest.DONE) {
+        if (xhr.status === 200) {
+          let response = JSON.parse(xhr.responseText)
+          create_lesson_work(response.message, target);
+        } else if (xhr.status === 403) {
+          file.failed = true;
+          let response = JSON.parse(xhr.responseText);
+          file.error_message = `Not permitted. ${response._error_message || ''}`;
+
+        } else if (xhr.status === 413) {
+          file.failed = true;
+          file.error_message = 'Size exceeds the maximum allowed file size.';
+
+        } else {
+          file.failed = true;
+          file.error_message = xhr.status === 0 ? 'XMLHttpRequest Error' : `${xhr.status} : ${xhr.statusText}`;
+
+          let error = null;
+          try {
+            error = JSON.parse(xhr.responseText);
+          } catch(e) {
+            // pass
+          }
+          frappe.request.cleanup({}, error);
+        }
+      }
+    }
+    xhr.open('POST', '/api/method/upload_file', true);
+    xhr.setRequestHeader('Accept', 'application/json');
+    xhr.setRequestHeader('X-Frappe-CSRF-Token', frappe.csrf_token);
+
+    let form_data = new FormData();
+    if (file.file_obj) {
+      form_data.append('file', file.file_obj, file.name);
+      form_data.append('folder', `${$(".title").attr("data-lesson")} ${$(".title").attr("data-course")}`)
+    }
+
+    xhr.send(form_data);
+  });
+}
+
+const create_lesson_work = (file, target) => {
+  frappe.call({
+    method: "school.lms.doctype.lesson_assignment.lesson_assignment.upload_assignment",
+    args: {
+      assignment: file.file_url,
+      lesson: $(".title").attr("data-lesson"),
+      identifier: target.siblings(".attach-file").attr("id")
+    },
+    callback: (data) => {
+      target.siblings(".attach-file").addClass("hide");
+      target.siblings(".preview-work").removeClass("hide");
+      target.siblings(".preview-work").find("a").attr("href", file.file_url).text(file.file_name)
+      target.addClass("hide");
+      target.next(".clear-work").removeClass("hide");
+    }
+  });
+};
+
+const return_as_dataurl = (files) => {
+  let promises = files.map(file =>
+    frappe.dom.file_to_base64(file.file_obj)
+      .then(dataurl => {
+        file.dataurl = dataurl;
+        this.on_success && this.on_success(file);
+      })
+  );
+  return Promise.all(promises);
+}
+
+const add_files = (files) => {
+  files = Array.from(files).map(file => {
+    let is_image = file.type.startsWith('image');
+    return {
+      file_obj: file,
+      cropper_file: file,
+      crop_box_data: null,
+      optimize: this.attach_doc_image ? true : false,
+      name: file.name,
+      doc: null,
+      progress: 0,
+      total: 0,
+      failed: false,
+      request_succeeded: false,
+      error_message: null,
+      uploading: false,
+      private: !is_image
+    }
+  });
+  return files
+};
+
+const clear_work = (e) => {
+  const target = $(e.currentTarget);
+  target.siblings(".attach-file").removeClass("hide").val(null);
+  target.siblings(".preview-work").addClass("hide");
+  target.siblings(".submit-work").removeClass("hide");
+  target.addClass("hide");
+}
+
+const fetch_assignments = () => {
+  if ($(".attach-file").length > 0) {
+    frappe.call({
+      method: "school.lms.doctype.lesson_assignment.lesson_assignment.get_assignment",
+      args: {
+        "lesson": $(".title").attr("data-lesson")
+      },
+      callback: (data) => {
+        if (data.message && data.message.length) {
+          for (let assignment in data.message) {
+            console.log(assignment.id)
+          }
+        }
+      }
+    })
+  }
 }
