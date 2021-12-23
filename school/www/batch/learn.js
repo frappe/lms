@@ -263,25 +263,14 @@ const upload_file = (file, target) => {
           let response = JSON.parse(xhr.responseText)
           create_lesson_work(response.message, target);
         } else if (xhr.status === 403) {
-          file.failed = true;
           let response = JSON.parse(xhr.responseText);
-          file.error_message = `Not permitted. ${response._error_message || ''}`;
+          frappe.msgprint(`Not permitted. ${response._error_message || ''}`);
 
         } else if (xhr.status === 413) {
-          file.failed = true;
-          file.error_message = 'Size exceeds the maximum allowed file size.';
+          frappe.msgprint('Size exceeds the maximum allowed file size.');
 
         } else {
-          file.failed = true;
-          file.error_message = xhr.status === 0 ? 'XMLHttpRequest Error' : `${xhr.status} : ${xhr.statusText}`;
-
-          let error = null;
-          try {
-            error = JSON.parse(xhr.responseText);
-          } catch(e) {
-            // pass
-          }
-          frappe.request.cleanup({}, error);
+          frappe.msgprint(xhr.status === 0 ? 'XMLHttpRequest Error' : `${xhr.status} : ${xhr.statusText}`);
         }
       }
     }
@@ -291,7 +280,7 @@ const upload_file = (file, target) => {
 
     let form_data = new FormData();
     if (file.file_obj) {
-      form_data.append('file', file.file_obj, file.name);
+      form_data.append('file', file.file_obj, `${frappe.session.user}-${file.name}`);
       form_data.append('folder', `${$(".title").attr("data-lesson")} ${$(".title").attr("data-course")}`)
     }
 
@@ -312,7 +301,6 @@ const create_lesson_work = (file, target) => {
       target.siblings(".preview-work").removeClass("hide");
       target.siblings(".preview-work").find("a").attr("href", file.file_url).text(file.file_name)
       target.addClass("hide");
-      target.next(".clear-work").removeClass("hide");
     }
   });
 };
@@ -352,10 +340,10 @@ const add_files = (files) => {
 
 const clear_work = (e) => {
   const target = $(e.currentTarget);
-  target.siblings(".attach-file").removeClass("hide").val(null);
-  target.siblings(".preview-work").addClass("hide");
-  target.siblings(".submit-work").removeClass("hide");
-  target.addClass("hide");
+  const parent = target.closest(".preview-work");
+  parent.addClass("hide");
+  parent.siblings(".attach-file").removeClass("hide").val(null);
+  parent.siblings(".submit-work").removeClass("hide");
 }
 
 const fetch_assignments = () => {
@@ -367,8 +355,13 @@ const fetch_assignments = () => {
       },
       callback: (data) => {
         if (data.message && data.message.length) {
-          for (let assignment in data.message) {
-            console.log(assignment.id)
+          const assignments = data.message;
+          for (let i in assignments) {
+            let target = $(`#${assignments[i]["id"]}`);
+            target.addClass("hide");
+            target.siblings(".submit-work").addClass("hide");
+            target.siblings(".preview-work").removeClass("hide");
+            target.siblings(".preview-work").find("a").attr("href", assignments[i]["assignment"]).text(assignments[i]["file_name"]);
           }
         }
       }

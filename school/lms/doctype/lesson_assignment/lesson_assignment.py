@@ -10,15 +10,19 @@ class LessonAssignment(Document):
 
 @frappe.whitelist()
 def upload_assignment(assignment, lesson, identifier):
-    lesson_work = frappe.get_doc({
+    args = {
         "doctype": "Lesson Assignment",
         "lesson": lesson,
         "user": frappe.session.user,
-        "assignment": assignment,
         "id": identifier
-    })
-    lesson_work.save(ignore_permissions=True)
-    return lesson_work.name
+    }
+    lesson_work = frappe.db.exists(args)
+    if lesson_work:
+        frappe.db.set_value("Lesson Assignment", lesson_work[0], "assignment", assignment)
+    else:
+        args.update({"assignment": assignment})
+        lesson_work = frappe.get_doc(args)
+        lesson_work.save(ignore_permissions=True)
 
 @frappe.whitelist()
 def get_assignment(lesson):
@@ -28,6 +32,10 @@ def get_assignment(lesson):
             "user": frappe.session.user
         },
         ["lesson", "user", "id", "assignment"])
+    if len(assignments):
+        for assignment in assignments:
+            assignment.file_name = frappe.db.get_value("File", {"file_url": assignment.assignment}, "file_name")
+    return assignments
 
 
 
