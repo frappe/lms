@@ -239,11 +239,11 @@
   <div class="course-home-headings"> {{ _("Contact") }} </div>
   <div class="common-card-style overview-card">
 
-    {% if not member.hide_private %}
+    {% if not member.hide_private and not hide_primary_contact %}
     <a class="button-links" href="mailto:{{ member.email }}"> <img src="/assets/school/icons/mail.svg"> {{ member.email }} </a>
     {% endif %}
 
-    {% if member.mobile_no and not member.hide_private %}
+    {% if member.mobile_no and not member.hide_private and not hide_primary_contact %}
     <a class="button-links" href="tel:{{ member.mobile_no }}" >
       <img src="/assets/school/icons/call.svg"> {{ member.mobile_no }}
     </a>
