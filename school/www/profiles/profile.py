@@ -17,6 +17,7 @@ def get_context(context):
     except:
         context.template = "www/404.html"
         return
+    context.hide_primary_contact = frappe.db.get_single_value("LMS Settings", "hide_primary_contact")
     context.profile_tabs = get_profile_tabs(context.member)
 
 def get_profile_tabs(user):
