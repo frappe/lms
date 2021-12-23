@@ -16,9 +16,9 @@ def upload_assignment(assignment, lesson, identifier):
         "user": frappe.session.user,
         "id": identifier
     }
-    lesson_work = frappe.db.exists(args)
-    if lesson_work:
-        frappe.db.set_value("Lesson Assignment", lesson_work[0], "assignment", assignment)
+    if frappe.db.exists(args):
+        del args["doctype"]
+        frappe.db.set_value("Lesson Assignment", args, "assignment", assignment)
     else:
         args.update({"assignment": assignment})
         lesson_work = frappe.get_doc(args)
