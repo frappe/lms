@@ -121,6 +121,17 @@ def youtube_video_renderer(video_id):
 def video_renderer(src):
     return "<video controls width='100%'><source src={0} type='video/mp4'></video>".format(src)
 
+def assignment_renderer(detail):
+    supported_types = {
+        "Document": ".doc,.docx,.xml,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "PDF": ".pdf",
+        "Image": ".png, .jpg, .jpeg",
+        "Video": "video/*"
+    }
+    file_type = detail.split("-")[1]
+    accept = supported_types[file_type] if file_type else ""
+    return frappe.render_template("templates/assignment.html", {"id": detail.split("-")[0], "accept": accept})
+
 def show_custom_signup():
     if frappe.db.get_single_value("LMS Settings", "terms_of_use"):
         return "school/templates/signup-form.html"

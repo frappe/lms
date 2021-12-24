@@ -1458,3 +1458,8 @@ pre {
 .no-discussions {
   width: 80% !important;
 }
+
+.preview-work {
+  width: 50%;
+  justify-content: space-between;
+}

@@ -202,7 +202,8 @@ school_markdown_macro_renderers = {
     "Exercise": "school.plugins.exercise_renderer",
     "Quiz": "school.plugins.quiz_renderer",
     "YouTubeVideo": "school.plugins.youtube_video_renderer",
-    "Video": "school.plugins.video_renderer"
+    "Video": "school.plugins.video_renderer",
+    "Assignment": "school.plugins.assignment_renderer"
 }
 
 # page_renderer to manage profile pages
