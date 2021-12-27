@@ -10,9 +10,8 @@
   <div class="container course-home-page">
     {{ widgets.BreadCrumb(course=course) }}
     {{ CourseCardWide(course) }}
-    {{ CourseOutlineAndCreator(course) }}
+    {{ CourseSections(course) }}
     {{ Mentors(course) }}
-    {{ CourseDescriptionAndOverview(course) }}
     {{ widgets.Reviews(course=course, membership=membership) }}
   </div>
 </div>
@@ -111,56 +110,102 @@
 
 <!-- Course Outline and Creator -->
 
-{% macro CourseOutlineAndCreator(course) %}
-{% set certificate = course.is_certified() %}
+{% macro CourseSections(course) %}
 <div class="course-outline-instructor-parent">
   <div class="course-home-outline">
     {{ widgets.CourseOutline(course=course, membership=membership) }}
+    {{ Description(course) }}
   </div>
   <div class="course-creator-progress-parent">
-    <div class="course-creator-section">
-      <div class="course-home-headings">
-        Creator
-      </div>
-      {{ widgets.MemberCard(member=course.get_instructor(), show_course_count=True, dimension_class="member-card-large") }}
+    {{ CreatorSection(course) }}
+    {{ Progress(course) }}
+    {{ Overview(course) }}
+  </div>
+</div>
+{% endmacro %}
+
+{% macro CreatorSection(course) %}
+<div class="course-creator-section">
+  <div class="course-home-headings">
+    Creator
+  </div>
+  {{ widgets.MemberCard(member=course.get_instructor(), show_course_count=True, dimension_class="member-card-large") }}
+</div>
+{% endmacro %}
+
+{% macro Progress(course) %}
+{% set certificate = course.is_certified() %}
+{% set progress = frappe.utils.cint(membership.progress) %}
+{% if progress %}
+<div class="course-progress-section">
+  <div class="course-home-headings">
+    Your Progress
+  </div>
+  <div class="common-card-style progress-card">
+    <p class="small-title">
+      {% if progress != 100 %}
+      Great work so far!
+      {% else %}
+      Excellent work on completing this course 👏
+      {% endif %}
+    </p>
+    <p class="progress-text">
+      {% if progress != 100 %}
+      Challenge yourself to complete the lessons and grow professionally.
+      {% else %}
+      You have reached a new level in your journey to success!
+      {% endif %}
+    </p>
+    <div class="progress-percentage">
+      {{ frappe.utils.rounded(progress) }}%
     </div>
-    {% set progress = frappe.utils.cint(membership.progress) %}
-    {% if progress %}
-    <div class="course-progress-section">
-      <div class="course-home-headings">
-        Your Progress
-      </div>
-      <div class="common-card-style progress-card">
-        <p class="small-title">
-          {% if progress != 100 %}
-          Great work so far!
-          {% else %}
-          Excellent work on completing this course 👏
-          {% endif %}
-        </p>
-        <p class="progress-text">
-          {% if progress != 100 %}
-          Challenge yourself to complete the lessons and grow professionally.
-          {% else %}
-          You have reached a new level in your journey to success!
-          {% endif %}
-        </p>
-        <div class="progress-percentage">
-          {{ frappe.utils.rounded(progress) }}%
-        </div>
-        <div class="progress">
-          <div class="progress-bar" role="progressbar" style="width: {{ progress }}%" aria-valuenow="{{ progress }}"
-            aria-valuemin="0" aria-valuemax="100"></div>
-        </div>
-        {% if certificate %}
-        <a class="muted-text dark-links mt-5 text-center" href="/courses/{{ course.name }}/{{ certificate }}">Get
-          Certificate</a>
-        {% endif %}
-      </div>
+    <div class="progress">
+      <div class="progress-bar" role="progressbar" style="width: {{ progress }}%" aria-valuenow="{{ progress }}"
+        aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+    {% if certificate %}
+    <a class="muted-text dark-links mt-5 text-center" href="/courses/{{ course.name }}/{{ certificate }}">Get
+      Certificate</a>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+{% endmacro %}
+
+{% macro Description(course) %}
+<div class="course-description-section">
+  <div class="course-home-headings">
+    Course Description
+  </div>
+  <div class="common-card-style description-card">
+    {{ frappe.utils.md_to_html(course.description) }}
+  </div>
+</div>
+{% endmacro %}
+
+{% macro Overview(course) %}
+{% set avg_rating = course.get_average_rating() %}
+{% if course.get_students() | length or avg_rating %}
+<div class="course-overview-section">
+  <div class="course-home-headings">
+    Overview
+  </div>
+  <div class="common-card-style overview-card small-title">
+    {% if course.get_students() | length %}
+    <div class="overview-item">
+      <img class="icon-background mr-1" src="/assets/school/icons/user.svg" />
+      {{ course.get_students() | length }} Enrolled
+    </div>
+    {% endif %}
+    {% if avg_rating %}
+    <div class="overview-item">
+      <img class="icon-background mr-1" src="/assets/school/icons/rating.svg" />
+      {{ frappe.utils.flt(avg_rating, frappe.get_system_settings("float_precision") or 3) }} Rating
     </div>
     {% endif %}
   </div>
 </div>
+{% endif %}
 {% endmacro %}
 
 <!-- Mentors -->
@@ -184,41 +229,4 @@
   </div>
 </div>
 {% endif %}
-{% endmacro %}
-
-<!-- Course Description and Overview -->
-
-{% macro CourseDescriptionAndOverview(course) %}
-<div class="course-outline-instructor-parent">
-  <div class="course-description-section">
-    <div class="course-home-headings">
-      Course Description
-    </div>
-    <div class="common-card-style description-card">
-      {{ frappe.utils.md_to_html(course.description) }}
-    </div>
-  </div>
-  {% set avg_rating = course.get_average_rating() %}
-  {% if course.get_students() | length or avg_rating %}
-  <div class="course-overview-section">
-    <div class="course-home-headings">
-      Overview
-    </div>
-    <div class="common-card-style overview-card small-title">
-      {% if course.get_students() | length %}
-      <div class="overview-item">
-        <img class="icon-background mr-1" src="/assets/school/icons/user.svg" />
-        {{ course.get_students() | length }} Enrolled
-      </div>
-      {% endif %}
-      {% if avg_rating %}
-      <div class="overview-item">
-        <img class="icon-background mr-1" src="/assets/school/icons/rating.svg" />
-        {{ frappe.utils.flt(avg_rating, frappe.get_system_settings("float_precision") or 3) }} Rating
-      </div>
-      {% endif %}
-    </div>
-  </div>
-  {% endif %}
-</div>
 {% endmacro %}
