@@ -312,8 +312,15 @@ class LMSCourse(Document):
                     },
                     ["review", "rating", "owner"],
                     order_by= "creation desc")
-
+        out_of_ratings = frappe.db.get_all("DocField",
+            {
+                "parent": "LMS Course Review",
+                "fieldtype": "Rating"
+            },
+            ["options"])
+        out_of_ratings = (len(out_of_ratings) and out_of_ratings[0].options) or 5
         for review in reviews:
+            review.rating = review.rating * out_of_ratings
             review.owner_details = frappe.get_doc("User", review.owner)
 
         return reviews
