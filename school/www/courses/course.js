@@ -192,10 +192,7 @@ var submit_review = (e) => {
     callback: (data) => {
       if (data.message == "OK") {
         $(".review-modal").modal("hide");
-        frappe.msgprint("Thanks for providing your feedback!");
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
+        window.location.reload();
       }
     }
   })
