@@ -1,0 +1,43 @@
+{% extends "templates/base.html" %}
+{% from "www/hackathons/macros/card.html" import null_card %}
+{% block title %}{{ 'Job Openings' }}{% endblock %}
+
+{% block content %}
+
+<div class="common-page-style">
+  <div class="container">
+    {{ BreadCrumb(job) }}
+    <div class="common-card-style thread-card">
+      <div  class="job-card">
+        <div>
+          <span class="course-tags">
+            <div class="course-card-pills">{{ job.type }}</div>
+            <div class="course-card-pills">{{ job.location }}</div>
+          </span>
+          <div class="job-card-info">
+            <div class="card-heading">{{ job.job_title }}</div>
+            <a class="dark-links" href="{{ job.company_website }}">{{ job.company_name }}</a>
+            <div class="small mt-1">Posted On: {{ frappe.utils.format_date(job.creation, "medium") }}</div>
+          </div>
+        </div>
+        <div class="avatar avatar-large" title="{{ job.company_name}}">
+          <span class="avatar-frame company-logo" style="background-image: url( {{ job.company_logo | urlencode }} );"></span>
+        </div>
+      </div>
+      <div class="job-description-section">
+        <div>{{ job.description }}</div>
+        <a class="button is-primary mt-5" href="{{ job.application_link }}">Apply Now</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% macro BreadCrumb(job) %}
+<div class="breadcrumb">
+  <a class="dark-links" href="/jobs">Job Openings</a>
+  <img class="ml-1 mr-1" src="/assets/school/icons/chevron-right.svg">
+  <span class="muted-text">{{ job.job_title }}</span>
+</div>
+{% endmacro %}

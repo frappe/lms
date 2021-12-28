@@ -9,7 +9,7 @@
       <div class="course-card-pills">{{ tag }}</div>
       {% endfor %}
       {% if membership and not read_only %}
-      {% if progress < 100 %}  <div class="course-card-pills dark-pills ml-auto">{{ frappe.utils.rounded(progress) }}%
+      {% if progress < 100 %} <div class="course-card-pills dark-pills ml-auto">{{ frappe.utils.rounded(progress) }}%
         {{ _("Completed") }}
     </div>
     {% else %}
@@ -39,7 +39,7 @@
     </span>
     {% endif %}
   </div>
-  <div class="course-card-title">{{ course.title }}</div>
+  <div class="card-heading course-card-title">{{ course.title }}</div>
   <div {% if not read_only %} class="mb-4" {% endif %}>
     <span class="zindex">
       {{ widgets.Avatar(member=course.get_instructor(), avatar_class="avatar-small") }}

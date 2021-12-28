@@ -47,6 +47,9 @@ input[type=checkbox] {
   position: relative;
   top: 1rem;
   left: 1rem;
+}
+
+.course-image .course-tags {
   width: 95%;
 }
 
@@ -114,20 +117,23 @@ input[type=checkbox] {
   }
 }
 
-.course-card-title {
+.card-heading {
   font-weight: 600;
-  font-size: 18px;
+  font-size: 1.5rem;
   line-height: 156%;
   letter-spacing: -0.014em;
   color: var(--text-color-dark);
-  align-self: stretch;
+}
+
+.course-card-title {
+  font-size: 1.125rem;
   margin-bottom: 1.5rem;
   height: 56px;
 }
 
 @media (max-width: 360px) {
-  .course-card-title {
-    font-size: 14px;
+  .card-heading {
+    font-size: 0.875rem;
   }
 }
 
@@ -1119,7 +1125,7 @@ input[type=checkbox] {
   margin-top: 3rem;
 }
 
-.institute-name {
+.bold-title {
   font-weight: bold;
   color: var(--text-color-dark);
 }
@@ -1462,4 +1468,24 @@ pre {
 .preview-work {
   width: 50%;
   justify-content: space-between;
+}
+
+.job-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-right: 1rem;
+}
+
+.job-card-info {
+  padding: 2rem 1rem 1rem;
+}
+
+.job-description-section {
+  padding: 1rem;
+}
+
+.company-logo {
+  background-position: left;
+  background-size: 88px;
 }
