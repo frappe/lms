@@ -1,6 +1,6 @@
 {% extends "templates/base.html" %}
 {% from "www/hackathons/macros/card.html" import null_card %}
-{% block title %}{{ job.job_title }}{% endblock %}
+{% block title %}{{ _(job.job_title) }}{% endblock %}
 
 {% block content %}
 
@@ -11,11 +11,11 @@
       <div  class="job-card">
         <div>
           <span class="course-tags">
-            <div class="course-card-pills">{{ job.type }}</div>
+            <div class="course-card-pills">{{ _(job.type) }}</div>
             <div class="course-card-pills">{{ job.location }}</div>
           </span>
           <div class="job-card-info">
-            <div class="card-heading">{{ job.job_title }}</div>
+            <div class="card-heading">{{ _(job.job_title) }}</div>
             <a class="dark-links" href="{{ job.company_website }}">{{ job.company_name }}</a>
             <div class="small mt-1">Posted On: {{ frappe.utils.format_date(job.creation, "medium") }}</div>
           </div>
@@ -25,7 +25,7 @@
         </div>
       </div>
       <div class="job-description-section">
-        <div>{{ job.description }}</div>
+        <div>{{ _(job.description) }}</div>
         <a class="button is-primary mt-5" href="{{ job.application_link }}">{{ _("Apply Now") }}</a>
       </div>
     </div>
@@ -38,6 +38,6 @@
 <div class="breadcrumb">
   <a class="dark-links" href="/jobs">{{ _("Job Openings") }}</a>
   <img class="ml-1 mr-1" src="/assets/school/icons/chevron-right.svg">
-  <span class="muted-text">{{ job.job_title }}</span>
+  <span class="muted-text">{{ _(job.job_title) }}</span>
 </div>
 {% endmacro %}

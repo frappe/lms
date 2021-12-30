@@ -113,7 +113,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-12-30 10:04:01.049256",
+ "modified": "2021-12-30 12:10:08.849547",
  "modified_by": "Administrator",
  "module": "Job",
  "name": "Job Opportunity",
@@ -129,6 +129,7 @@
    "read": 1,
    "report": 1,
    "role": "System Manager",
+   "select": 1,
    "share": 1,
    "write": 1
   },
