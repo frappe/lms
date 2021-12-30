@@ -21,7 +21,7 @@
  "is_standard": 1,
  "login_required": 1,
  "max_attachment_size": 0,
- "modified": "2021-12-21 15:50:31.707751",
+ "modified": "2021-12-28 16:09:47.675523",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "profile",
@@ -451,6 +451,18 @@
    "max_length": 0,
    "max_value": 0,
    "options": "Corporate Organization\nStartup Organization",
+   "read_only": 0,
+   "reqd": 0,
+   "show_in_filter": 0
+  },
+  {
+   "allow_read_on_all_link_options": 0,
+   "fieldname": "looking_for_job",
+   "fieldtype": "Check",
+   "hidden": 0,
+   "label": "I am looking for a job",
+   "max_length": 0,
+   "max_value": 0,
    "read_only": 0,
    "reqd": 0,
    "show_in_filter": 0

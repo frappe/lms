@@ -147,7 +147,8 @@ website_route_rules = [
 	{"from_route": "/courses/<course>/subgroups/<cohort>/<subgroup>", "to_route": "cohorts/subgroup"},
 	{"from_route": "/courses/<course>/subgroups/<cohort>/<subgroup>/<page>", "to_route": "cohorts/subgroup"},
 	{"from_route": "/courses/<course>/join/<cohort>/<subgroup>/<invite_code>", "to_route": "cohorts/join"},
-	{"from_route": "/users", "to_route": "profiles/profile"}
+	{"from_route": "/users", "to_route": "profiles/profile"},
+    {"from_route": "/jobs/<job>", "to_route": "jobs/job"}
 ]
 
 website_redirects = [

@@ -32,6 +32,9 @@
       {% if member.get_authored_courses() | length %}
       <div class="creator-badge"> Creator </div>
       {% endif %}
+      {% if member.looking_for_job %}
+      <div class="creator-badge"> Open Network </div>
+      {% endif %}
     </div>
 
     {% if frappe.session.user == member.email %}
@@ -78,20 +81,20 @@
     <div class="common-card-style overview-card small-title">
       {% if enrollment %}
       <div class="overview-item">
-        <img class="icon-background mr-1" src="/assets/school/icons/user.svg" />
-        {{ enrollment }} Enrolled
+        <img class="icon-background mr-1" src="/assets/school/icons/course.svg" />
+        {{ enrollment }} {% if enrollment > 1 %} Courses {% else %} Course {% endif %} Taken
       </div>
       {% endif %}
       {% if reviews %}
       <div class="overview-item">
         <img class="icon-background mr-1" src="/assets/school/icons/rating.svg" />
-        {{ reviews }} Created
+        {{ reviews }} {% if reviews > 1 %} Courses {% else %} Course {% endif %} Reviewed
       </div>
       {% endif %}
       {% if mentorship %}
       <div class="overview-item">
         <img class="icon-background mr-1" src="/assets/school/icons/calendar.svg" />
-        {{ mentorship }} Mentored
+        {{ mentorship }} {% if mentorship > 1 %} Courses {% else %} Course {% endif %} Mentored
       </div>
       {% endif %}
     </div>
@@ -288,7 +291,7 @@
   <div class="common-card-style profile-card">
     {% for edu in member.education %}
     <div class="profile-card-row">
-      <div class="institute-name"> {{ edu.institution_name }} </div>
+      <div class="bold-title"> {{ edu.institution_name }} </div>
       <div class="profile-item"> {{ edu.degree_type }} <span></span> {{ edu.major }}
         {% if not member.hide_private %}
         <!-- {% if edu.grade_type %} {{ edu.grade_type }}  {% endif %} -->
@@ -316,7 +319,7 @@
   <div class="common-card-style profile-card">
     {% for work in work_details %}
     <div class="">
-      <div class="institute-name"> {{ work.title }} </div>
+      <div class="bold-title"> {{ work.title }} </div>
       <div class="profile-item"> {{ work.company }} </div>
       <div> {{ frappe.utils.format_date(work.from_date, "MMM YYYY") }} -
         {% if work.to_date %} {{ frappe.utils.format_date(work.to_date, "MMM YYYY") }} {% else %} Present {% endif %} </div>
@@ -336,7 +339,7 @@
   <div class="common-card-style profile-card">
     {% for cert in member.certification %}
     <div class="">
-      <div class="institute-name"> {{ cert.certification_name }} </div>
+      <div class="bold-title"> {{ cert.certification_name }} </div>
       <div class="profile-item"> {{ cert.organization }} </div>
       <div> {{ frappe.utils.format_date(cert.issue_date, "MMM YYYY") }}
         {% if cert.expiration_date %} - {{ frappe.utils.format_date(cert.expiration_date, "MMM YYYY") }} {% endif %} </div>

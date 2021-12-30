@@ -1,0 +1,28 @@
+{
+ "attach_print": 0,
+ "channel": "Email",
+ "creation": "2021-12-30 12:29:56.533903",
+ "days_in_advance": 0,
+ "docstatus": 0,
+ "doctype": "Notification",
+ "document_type": "Job Opportunity",
+ "enabled": 1,
+ "event": "New",
+ "idx": 0,
+ "is_standard": 1,
+ "message": "Hey,\n\nA new Job Opportunity has been created. \n\n<p>Company Name: {{ doc.company_name}}</p>\n<p>Job Title: {{ doc.job_title}}</p>\n<p>Job Location: {{ doc.location}}</p><br>\n<p>Job Description: {{ doc.description}}</p><br>\n\n<p>Find all the posted jobs  <a href=\"{{ frappe.utils.get_url() }}/app/job-opportunity\">here</a>.</p><br>\n",
+ "modified": "2021-12-30 12:54:13.382512",
+ "modified_by": "Administrator",
+ "module": "Job",
+ "name": "New job alert",
+ "owner": "Administrator",
+ "recipients": [
+  {
+   "receiver_by_role": "System Manager"
+  }
+ ],
+ "send_system_notification": 0,
+ "send_to_all_assignees": 0,
+ "sender_email": "",
+ "subject": "New job added by {{ doc.company_name}}"
+}
