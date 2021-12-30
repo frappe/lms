@@ -12,6 +12,7 @@
   "column_break_5",
   "type",
   "status",
+  "job_opportunity_status",
   "section_break_6",
   "description",
   "company_details_section",
@@ -39,15 +40,15 @@
    "reqd": 1
   },
   {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "type",
    "fieldtype": "Select",
    "label": "Type",
    "options": "Full Time\nPart Time\nFreelance\nContract",
    "reqd": 1
-  },
-  {
-   "fieldname": "column_break_5",
-   "fieldtype": "Column Break"
   },
   {
    "default": "Pending",
@@ -56,7 +57,18 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Status",
-   "options": "Pending\nApproved\nRejected\nClosed"
+   "options": "Pending\nApproved\nRejected"
+  },
+  {
+   "default": "Open",
+   "fieldname": "job_opportunity_status",
+   "fieldtype": "Select",
+   "label": "Job Opportunity Status",
+   "options": "Open\nClosed"
+  },
+  {
+   "fieldname": "section_break_6",
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "description",
@@ -84,16 +96,6 @@
    "reqd": 1
   },
   {
-   "fieldname": "section_break_6",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "application_link",
-   "fieldtype": "Data",
-   "label": "Application Form Link",
-   "reqd": 1
-  },
-  {
    "fieldname": "column_break_11",
    "fieldtype": "Column Break"
   },
@@ -101,13 +103,19 @@
    "fieldname": "company_logo",
    "fieldtype": "Attach Image",
    "label": "Company Logo"
+  },
+  {
+   "fieldname": "application_link",
+   "fieldtype": "Data",
+   "label": "Application Form Link",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-12-27 19:46:50.881715",
+ "modified": "2021-12-30 10:04:01.049256",
  "modified_by": "Administrator",
- "module": "Community",
+ "module": "Job",
  "name": "Job Opportunity",
  "naming_rule": "Expression",
  "owner": "Administrator",
@@ -128,15 +136,18 @@
    "create": 1,
    "email": 1,
    "export": 1,
+   "if_owner": 1,
    "print": 1,
    "read": 1,
    "report": 1,
    "role": "All",
+   "select": 1,
    "share": 1,
    "write": 1
   }
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "title_field": "job_title"
 }

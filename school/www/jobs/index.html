@@ -1,12 +1,12 @@
 {% extends "templates/base.html" %}
 {% from "www/hackathons/macros/card.html" import null_card %}
-{% block title %}{{ 'Job Openings' }}{% endblock %}
+{% block title %}{{ _('Job Openings') }}{% endblock %}
 
 {% block content %}
 <div class="common-page-style">
   <div class="container">
-  <a class="button is-primary pull-right" href="/job-opportunity?new=1">Post a Job</a>
-  <div class="course-home-headings"> Job Openings </div>
+  <a class="button is-primary pull-right" href="/job-opportunity">{{ _("Post a Job") }}</a>
+  <div class="course-home-headings">{{ _("Job Openings") }}</div>
     <div class="cards-parent">
       {% for job in jobs %}
         <div class="common-card-style course-card">

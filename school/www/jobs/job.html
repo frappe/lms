@@ -1,6 +1,6 @@
 {% extends "templates/base.html" %}
 {% from "www/hackathons/macros/card.html" import null_card %}
-{% block title %}{{ 'Job Openings' }}{% endblock %}
+{% block title %}{{ job.job_title }}{% endblock %}
 
 {% block content %}
 
@@ -26,7 +26,7 @@
       </div>
       <div class="job-description-section">
         <div>{{ job.description }}</div>
-        <a class="button is-primary mt-5" href="{{ job.application_link }}">Apply Now</a>
+        <a class="button is-primary mt-5" href="{{ job.application_link }}">{{ _("Apply Now") }}</a>
       </div>
     </div>
   </div>
@@ -36,7 +36,7 @@
 
 {% macro BreadCrumb(job) %}
 <div class="breadcrumb">
-  <a class="dark-links" href="/jobs">Job Openings</a>
+  <a class="dark-links" href="/jobs">{{ _("Job Openings") }}</a>
   <img class="ml-1 mr-1" src="/assets/school/icons/chevron-right.svg">
   <span class="muted-text">{{ job.job_title }}</span>
 </div>
