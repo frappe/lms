@@ -1,0 +1,34 @@
+{% extends "templates/base.html" %}
+{% from "www/hackathons/macros/card.html" import null_card %}
+{% block title %}{{ _('Job Openings') }}{% endblock %}
+
+{% block content %}
+<div class="common-page-style">
+  <div class="container">
+  <a class="button is-primary pull-right" href="/job-opportunity">{{ _("Post a Job") }}</a>
+  <div class="course-home-headings">{{ _("Job Openings") }}</div>
+    <div class="cards-parent">
+      {% for job in jobs %}
+        <div class="common-card-style course-card">
+          <div class="job-card">
+            <div>
+              <div class="course-tags">
+                <div class="course-card-pills">{{ _(job.type) }}</div>
+                <div class="course-card-pills">{{ job.location }}</div>
+              </div>
+              <div class="job-card-info">
+                <div class="bold-title">{{ _(job.job_title) }}</div>
+                <small>{{ job.company_name }}</small>
+              </div>
+            </div>
+            <div class="avatar avatar-large" title="{{ job.company_name}}">
+              <span class="avatar-frame company-logo" style="background-image: url( {{ job.company_logo | urlencode }} );"></span>
+            </div>
+          </div>
+          <a class="stretched-link" href="/jobs/{{ job.name }}"></a>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
