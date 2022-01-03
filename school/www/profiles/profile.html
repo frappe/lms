@@ -238,7 +238,7 @@
 {% endmacro %}
 
 {% macro Contact(member) %}
-{% if not hide_primary_contact and member.email and member.mobile_no and member.linkedin and member.github and member.medium %}
+{% if show_contacts_section %}
 <div class="education-details">
   <div class="course-home-headings"> {{ _("Contact") }} </div>
   <div class="common-card-style overview-card">
