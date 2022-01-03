@@ -81,20 +81,20 @@
     <div class="common-card-style overview-card small-title">
       {% if enrollment %}
       <div class="overview-item">
-        <img class="icon-background mr-1" src="/assets/school/icons/course.svg" />
-        {{ enrollment }} {% if enrollment > 1 %} Courses {% else %} Course {% endif %} Taken
+        <img class="mr-1" src="/assets/school/icons/course.svg" />
+        <span> {{ enrollment }} {% if enrollment > 1 %} Courses {% else %} Course {% endif %} Taken </span>
       </div>
       {% endif %}
       {% if reviews %}
       <div class="overview-item">
-        <img class="icon-background mr-1" src="/assets/school/icons/rating.svg" />
-        {{ reviews }} {% if reviews > 1 %} Courses {% else %} Course {% endif %} Reviewed
+        <img class="mr-1" src="/assets/school/icons/rating.svg" />
+        <span> {{ reviews }} {% if reviews > 1 %} Courses {% else %} Course {% endif %} Reviewed </span>
       </div>
       {% endif %}
       {% if mentorship %}
       <div class="overview-item">
-        <img class="icon-background mr-1" src="/assets/school/icons/calendar.svg" />
-        {{ mentorship }} {% if mentorship > 1 %} Courses {% else %} Course {% endif %} Mentored
+        <img class="mr-1" src="/assets/school/icons/calendar.svg" />
+        <span> {{ mentorship }} {% if mentorship > 1 %} Courses {% else %} Course {% endif %} Mentored </span>
       </div>
       {% endif %}
     </div>
@@ -238,6 +238,7 @@
 {% endmacro %}
 
 {% macro Contact(member) %}
+{% if not hide_primary_contact and member.email and member.mobile_no and member.linkedin and member.github and member.medium %}
 <div class="education-details">
   <div class="course-home-headings"> {{ _("Contact") }} </div>
   <div class="common-card-style overview-card">
@@ -269,6 +270,7 @@
     {% endif %}
   </div>
 </div>
+{% endif %}
 {% endmacro %}
 
 {% macro Skills(member) %}

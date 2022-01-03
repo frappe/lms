@@ -71,8 +71,8 @@ class CustomUser(User):
                 frappe.throw(_("Skills must be unique"))
 
     def validate_completion(self):
-        all_fields_have_value = True
         if frappe.db.get_single_value("LMS Settings", "force_profile_completion"):
+            all_fields_have_value = True
             profile_mandatory_fields = frappe.get_hooks("profile_mandatory_fields")
             docfields = frappe.get_meta(self.doctype).fields
 
@@ -81,7 +81,7 @@ class CustomUser(User):
                     all_fields_have_value = False
                     break
 
-        self.profile_complete = all_fields_have_value
+            self.profile_complete = all_fields_have_value
 
     def get_authored_courses(self) -> int:
         """Returns the number of courses authored by this user.
