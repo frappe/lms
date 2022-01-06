@@ -1,5 +1,5 @@
 <div class="common-card-style member-card {{dimension_class}} ">
-  {% set avatar_class = "avatar-large" if not dimension_class else "avatar-large"%}
+  {% set avatar_class = "avatar-xl" if not dimension_class else "avatar-large"%}
   {{ widgets.Avatar(member=member, avatar_class=avatar_class) }}
   <div class="small-title member-card-title">
     {{ member.full_name }}

@@ -1,0 +1,32 @@
+{% extends "templates/base.html" %}
+{% from "www/hackathons/macros/card.html" import null_card %}
+{% block title %}{{ _('Community') }}{% endblock %}
+
+{% block content %}
+<div class="common-page-style">
+  <div class="container">
+
+    <input class="search" id="search-user" placeholder="{{ _('Try a Name, Company, or Industry') }}">
+
+    <div class="course-home-headings">Community</div>
+
+    <div class="alert alert-dismissible empty-state text-center hide" id="search-empty-state">
+      <a href="#" class="close-search-empty-state" aria-label="close">&times;</a>
+      <img class="icon icon-xl" src="/assets/frappe/images/ui-states/search-empty-state.svg">
+      <div class="course-home-headings mt-4 mb-0" style="color: inherit;"> {{ _("No results found") }} </div>
+      <div class="small mb-6"> {{ _("Try some other keyword or explore our community") }} </div>
+    </div>
+
+    <div class="member-parent">
+      {% for user in user_details %}
+      {{ widgets.MemberCard(member=user, show_course_count=False) }}
+      {% endfor %}
+    </div>
+    {% if user_count > user_details | length %}
+    <div class="mt-10 d-flex justify-content-center">
+      <div class="button is-secondary" id="load-more" data-start="30" data-count="{{ user_count }}">Load More</div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

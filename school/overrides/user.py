@@ -1,6 +1,6 @@
 import frappe
 from frappe.core.doctype.user.user import User
-from frappe.utils import cint, escape_html, random_string
+from frappe.utils import cint, escape_html, random_string, unique
 import hashlib
 import random
 import re
@@ -8,6 +8,7 @@ from frappe import _
 from frappe.website.utils import is_signup_disabled
 import requests
 from frappe.geo.country_info import get_all
+from school.widgets import Widgets
 
 class CustomUser(User):
 
@@ -237,3 +238,72 @@ def get_country_code():
         pass
 
     return {}
+
+@frappe.whitelist(allow_guest=True)
+def search_users(start=0, text=""):
+    or_filters = get_or_filters(text)
+    count = len(get_users(or_filters, 0, 900000000, text))
+    users = get_users(or_filters, start, 30, text)
+    user_details = get_user_details(users)
+
+    return {
+        "user_details": user_details,
+        "start": cint(start) + 30,
+        "count": count
+    }
+
+def get_or_filters(text):
+    user_fields = ["first_name", "last_name", "full_name", "email", "preferred_location", "dream_companies"]
+    education_fields = ["institution_name", "location", "degree_type", "major"]
+    work_fields = ["title", "company"]
+    certification_fields = ["certification_name", "organization"]
+
+    or_filters = []
+    if text:
+        for field in user_fields:
+            or_filters.append(f"u.{field} like '%{text}%'")
+        for field in education_fields:
+            or_filters.append(f"ed.{field} like '%{text}%'")
+        for field in work_fields:
+            or_filters.append(f"we.{field} like '%{text}%'")
+        for field in certification_fields:
+            or_filters.append(f"c.{field} like '%{text}%'")
+
+        or_filters.append(f"s.skill_name like '%{text}%'")
+        or_filters.append(f"pf.function like '%{text}%'")
+        or_filters.append(f"pi.industry like '%{text}%'")
+
+
+    return "AND {}".format(" OR ".join(or_filters)) if or_filters else ""
+
+def get_user_details(users):
+    user_details = []
+    for user in users:
+        details = frappe.get_doc("User", user)
+        user_details.append(Widgets().MemberCard(member=details))
+
+    return user_details
+
+def get_users(or_filters, start, page_length, text):
+
+    users = frappe.db.sql("""
+        SELECT DISTINCT u.name
+        FROM `tabUser` u
+        LEFT JOIN `tabEducation Detail` ed
+        ON u.name = ed.parent
+        LEFT JOIN `tabWork Experience` we
+        ON u.name = we.parent
+        LEFT JOIN `tabCertification` c
+        ON u.name = c.parent
+        LEFT JOIN `tabSkills` s
+        ON u.name = s.parent
+        LEFT JOIN `tabPreferred Function` pf
+        ON u.name = pf.parent
+        LEFT JOIN `tabPreferred Industry` pi
+        ON u.name = pi.parent
+        WHERE u.enabled = True {or_filters}
+        ORDER BY u.creation desc
+        LIMIT {start}, {page_length}
+	""".format(or_filters = or_filters, start=start, page_length=page_length), as_dict=1)
+
+    return users

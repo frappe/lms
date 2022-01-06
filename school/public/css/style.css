@@ -546,7 +546,7 @@ input[type=checkbox] {
 .profile-parent-section {
   display: grid;
   grid-gap: 2rem;
-  grid-template-columns: 4fr 1fr;
+  grid-template-columns: 5fr 1.5fr;
 }
 
 @media (max-width: 768px) {
@@ -645,7 +645,7 @@ input[type=checkbox] {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px 0px 16px;
+  padding: 1rem 0;
 }
 
 .member-card .talk-title {
@@ -670,7 +670,8 @@ input[type=checkbox] {
 }
 
 .member-card-title {
-  margin: 12px 0px 4px;
+  margin-top: 0.75rem;
+  text-align: center;
 }
 
 .member-card-large .member-card-title {
@@ -740,6 +741,11 @@ input[type=checkbox] {
   height: 88px;
 }
 
+.member-card .avatar-xl {
+  width: 150px;
+  height: 150px;
+}
+
 .avatar-xl {
   width: 112px;
   height: 112px;
@@ -799,16 +805,16 @@ input[type=checkbox] {
   }
 }
 
-.mentors-section {
+.member-parent {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   -moz-column-gap: 32px;
   column-gap: 32px;
   row-gap: 32px;
 }
 
 @media (max-width: 600px) {
-  .mentors-section {
+  .member-parent {
     grid-template-columns: repeat(auto-fill, minmax(125px, 1fr));
     -moz-column-gap: 24px;
     column-gap: 24px;
@@ -1318,7 +1324,7 @@ pre {
   margin-left: 1.5rem;
 }
 
-.search-course {
+.search {
   background-image: url(/assets/frappe/icons/timeless/search.svg);
   border: 1px solid #C8CFD5;
   box-sizing: border-box;
