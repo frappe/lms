@@ -1,6 +1,6 @@
 import frappe
 from frappe.core.doctype.user.user import User
-from frappe.utils import cint, escape_html, random_string, unique
+from frappe.utils import cint, escape_html, random_string
 import hashlib
 import random
 import re
@@ -274,7 +274,7 @@ def get_or_filters(text):
         or_filters.append(f"pi.industry like '%{text}%'")
 
 
-    return "AND {}".format(" OR ".join(or_filters)) if or_filters else ""
+    return "AND ({})".format(" OR ".join(or_filters)) if or_filters else ""
 
 def get_user_details(users):
     user_details = []
