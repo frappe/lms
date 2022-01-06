@@ -254,8 +254,9 @@
     {% endif %}
 
     {% if member.linkedin %}
+      {% set linkedin = member.linkedin[:-1] if member.linkedin[-1] == "/" else member.linkedin %}
       <a class="button-links" href="{{ member.linkedin }}">
-        <img src="/assets/school/icons/linkedin.svg"> {{ member.linkedin.split("/")[-1] }}
+        <img src="/assets/school/icons/linkedin.svg"> {{ linkedin.split("/")[-1] }}
       </a>
     {% endif %}
     {% if member.medium %}

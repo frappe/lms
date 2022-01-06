@@ -2,7 +2,7 @@
 {% set search_placeholder = frappe.db.get_single_value("LMS Settings", "search_placeholder") %}
 
 {% if show_search %}
-<input class="search-course" placeholder="{{ _(search_placeholder) }}">
+<input class="search" id="search-course" placeholder="{{ _(search_placeholder) }}">
 
 <div id="" class="alert alert-dismissible empty-state search-empty-state hide">
   <a href="#" class="close-search-empty-state" aria-label="close">&times;</a>

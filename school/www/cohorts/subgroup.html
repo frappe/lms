@@ -54,7 +54,7 @@
     <h5>Mentors</h5>
     {% set mentors = subgroup.get_mentors() %}
     {% if mentors %}
-      <div class="mentors-section">
+      <div class="member-parent">
       {% for m in mentors %}
         {{ widgets.MemberCard(member=m, show_course_count=False, dimension_class="") }}
       {% endfor %}
@@ -68,7 +68,7 @@
 {% macro render_students() %}
   {% set students = subgroup.get_students() %}
   {% if students %}
-  <div class="mentors-section">
+  <div class="member-parent">
     {% for student in students %}
       {{ widgets.MemberCard(member=student, show_course_count=False, dimension_class="") }}
     {% endfor %}

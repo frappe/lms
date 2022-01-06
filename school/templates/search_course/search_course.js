@@ -1,5 +1,5 @@
 frappe.ready(() => {
-  $(".search-course").keyup((e) => {
+  $("#search-course").keyup((e) => {
     search_course(e);
   });
 
@@ -70,5 +70,5 @@ const fix_heading_styles = () => {
 
 const close_search_empty_state = (e) => {
   $(".search-empty-state").addClass("hide");
-  $(".search-course").val("");
+  $("#search-course").val("");
 }

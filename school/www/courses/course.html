@@ -216,7 +216,7 @@
   <div class="course-home-headings">
     Mentors
   </div>
-  <div class="mentors-section">
+  <div class="member-parent">
     {% for mentor in course.get_mentors() %}
     {{ widgets.MemberCard(member=mentor, show_course_count=False, dimension_class="") }}
     {% endfor %}
