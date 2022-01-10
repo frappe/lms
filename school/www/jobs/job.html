@@ -8,23 +8,28 @@
   <div class="container">
     {{ BreadCrumb(job) }}
     <div class="common-card-style thread-card">
-      <div  class="job-card">
-        <div>
-          <span class="course-tags">
-            <div class="course-card-pills">{{ _(job.type) }}</div>
-            <div class="course-card-pills">{{ job.location }}</div>
-          </span>
-          <div class="job-card-info">
-            <div class="card-heading">{{ _(job.job_title) }}</div>
-            <a class="dark-links" href="{{ job.company_website }}">{{ job.company_name }}</a>
-            <div class="small mt-1">Posted On: {{ frappe.utils.format_date(job.creation, "medium") }}</div>
-          </div>
-        </div>
+      <div class="d-flex">
         <div class="avatar avatar-large" title="{{ job.company_name}}">
           <span class="avatar-frame company-logo" style="background-image: url( {{ job.company_logo | urlencode }} );"></span>
         </div>
+        <div class="job-card-info">
+          <span class="d-flex mb-1">
+            <div class="course-card-pills">{{ _(job.type) }}</div>
+            <div class="course-card-pills">{{ job.location }}</div>
+          </span>
+          <div class="">
+            <div class="card-heading">{{ _(job.job_title) }}</div>
+            <a class="dark-links" href="{{ job.company_website }}">{{ job.company_name }}</a>
+          </div>
+        </div>
+        <div>
+          <div class="small">Posted On: {{ frappe.utils.format_date(job.creation, "medium") }}</div>
+          <a class="pull-right mt-3" href="/job-opportunity/{{ job.name }}">Edit</a>
+        </div>
+
       </div>
-      <div class="job-description-section">
+
+      <div class="mt-5">
         <div>{{ _(job.description) }}</div>
         <a class="button is-primary mt-5" href="{{ job.application_link }}">{{ _("Apply Now") }}</a>
       </div>
