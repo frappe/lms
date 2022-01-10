@@ -56,7 +56,7 @@
     {% if mentors %}
       <div class="member-parent">
       {% for m in mentors %}
-        {{ widgets.MemberCard(member=m, show_course_count=False, dimension_class="") }}
+        {{ widgets.MemberCard(member=m, show_course_count=False) }}
       {% endfor %}
       </div>
     {% else %}
@@ -70,7 +70,7 @@
   {% if students %}
   <div class="member-parent">
     {% for student in students %}
-      {{ widgets.MemberCard(member=student, show_course_count=False, dimension_class="") }}
+      {{ widgets.MemberCard(member=student, show_course_count=False) }}
     {% endfor %}
   </div>
   {% else %}
