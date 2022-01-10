@@ -807,10 +807,10 @@ input[type=checkbox] {
 
 .member-parent {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  -moz-column-gap: 32px;
-  column-gap: 32px;
-  row-gap: 32px;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  -moz-column-gap: 1rem;
+  column-gap: 1rem;
+  row-gap: 1rem;
 }
 
 @media (max-width: 600px) {
