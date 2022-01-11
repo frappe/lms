@@ -18,7 +18,7 @@
 
     <div class="member-parent">
       {% for user in user_details %}
-      {{ widgets.MemberCard(member=user, show_course_count=False) }}
+      {{ widgets.MemberCard(member=user, show_course_count=False, avatar_class="avatar-large") }}
       {% endfor %}
     </div>
     {% if user_count > user_details | length %}

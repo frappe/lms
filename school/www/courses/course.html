@@ -129,7 +129,7 @@
   <div class="course-home-headings">
     Creator
   </div>
-  {{ widgets.MemberCard(member=course.get_instructor(), show_course_count=True, dimension_class="member-card-large") }}
+  {{ widgets.MemberCard(member=course.get_instructor(), show_course_count=True, avatar_class="avatar-large") }}
 </div>
 {% endmacro %}
 
@@ -218,7 +218,7 @@
   </div>
   <div class="member-parent">
     {% for mentor in course.get_mentors() %}
-    {{ widgets.MemberCard(member=mentor, show_course_count=False, dimension_class="") }}
+    {{ widgets.MemberCard(member=mentor, show_course_count=False) }}
     {% endfor %}
   </div>
   <div class="view-all-mentors">

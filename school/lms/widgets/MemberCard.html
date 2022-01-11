@@ -1,7 +1,6 @@
-<div class="common-card-style member-card {{dimension_class}} ">
-  {% set avatar_class = "avatar-xl" if not dimension_class else "avatar-large"%}
+<div class="common-card-style member-card">
   {{ widgets.Avatar(member=member, avatar_class=avatar_class) }}
-  <div class="small-title member-card-title">
+  <div class="small-title member-card-title {% if show_course_count %} font-weight-bold {% endif %}">
     {{ member.full_name }}
   </div>
   {% set course_count = member.get_authored_courses() | length %}

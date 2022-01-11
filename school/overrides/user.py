@@ -280,7 +280,7 @@ def get_user_details(users):
     user_details = []
     for user in users:
         details = frappe.get_doc("User", user)
-        user_details.append(Widgets().MemberCard(member=details))
+        user_details.append(Widgets().MemberCard(member=details, avatar_class="avatar-large"))
 
     return user_details
 
