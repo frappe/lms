@@ -1,34 +1,36 @@
 {% extends "templates/base.html" %}
-{% from "www/hackathons/macros/card.html" import null_card %}
 {% block title %}{{ _('Job Openings') }}{% endblock %}
 
 {% block content %}
+{% set allow_posting = frappe.db.get_single_value("Job Settings", "allow_posting") %}
 <div class="common-page-style">
   <div class="container">
-  <a class="button is-primary pull-right" href="/job-opportunity">{{ _("Post a Job") }}</a>
+
+  {% if allow_posting and jobs | length %}
+  <a class="button is-primary pull-right" href="/job-opportunity?new=1">{{ _("Post a Job") }}</a>
+  {% endif %}
+
   <div class="course-home-headings">{{ _("Job Openings") }}</div>
-    <div class="cards-parent">
+  {% if jobs | length %}
+  <div class="job-card-parent">
       {% for job in jobs %}
         <div class="common-card-style course-card">
-          <div class="job-card">
-            <div>
-              <div class="course-tags">
-                <div class="course-card-pills">{{ _(job.type) }}</div>
-                <div class="course-card-pills">{{ job.location }}</div>
-              </div>
-              <div class="job-card-info">
-                <div class="bold-title">{{ _(job.job_title) }}</div>
-                <small>{{ job.company_name }}</small>
-              </div>
-            </div>
-            <div class="avatar avatar-large" title="{{ job.company_name}}">
-              <span class="avatar-frame company-logo" style="background-image: url( {{ job.company_logo | urlencode }} );"></span>
-            </div>
-          </div>
+          {% set show_edit_link = False %}
+          {% include "school/templates/job_card.html" %}
           <a class="stretched-link" href="/jobs/{{ job.name }}"></a>
         </div>
       {% endfor %}
     </div>
+    {% else %}
+    <div class="empty-state text-center">
+      <img class="icon icon-xl" src="/assets/frappe/icons/timeless/message.svg">
+      <div class="course-home-headings mt-4 mb-0" style="color: inherit;"> {{ _("No open jobs") }} </div>
+      <div class="small mb-6"> {{ _("There are no job openings at present.") }} </div>
+      {% if allow_posting %}
+      <a class="button is-secondary dark-links m-auto" href="/job-opportunity?new=1">{{ _("Post a Job") }}</a>
+      {% endif %}
+    </div>
+    {% endif %}
   </div>
 </div>
 {% endblock %}

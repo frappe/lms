@@ -1,0 +1,6 @@
+{% set job_link = "<a href='" + job_url + "'>" + job + "</a>" %}
+
+<p>{{ _("Hey,") }}</p>
+<p>{{ _("{0} has reported a job post for the following reason.").format(user) }}</p>
+<p>" {{ reason }} "</p>
+<p>{{ _("Please take appropriate action at {0}").format(job_url) }}</p>

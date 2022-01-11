@@ -9,10 +9,10 @@
  "field_order": [
   "job_title",
   "location",
+  "disabled",
   "column_break_5",
   "type",
   "status",
-  "job_opportunity_status",
   "section_break_6",
   "description",
   "company_details_section",
@@ -51,19 +51,12 @@
    "reqd": 1
   },
   {
-   "default": "Pending",
+   "default": "Open",
    "fieldname": "status",
    "fieldtype": "Select",
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Status",
-   "options": "Pending\nApproved\nRejected"
-  },
-  {
-   "default": "Open",
-   "fieldname": "job_opportunity_status",
-   "fieldtype": "Select",
-   "label": "Job Opportunity Status",
    "options": "Open\nClosed"
   },
   {
@@ -109,11 +102,17 @@
    "fieldtype": "Data",
    "label": "Application Form Link",
    "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "disabled",
+   "fieldtype": "Check",
+   "label": "Disabled"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-12-30 12:10:08.849547",
+ "modified": "2022-01-11 14:56:42.509351",
  "modified_by": "Administrator",
  "module": "Job",
  "name": "Job Opportunity",
