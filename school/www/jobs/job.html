@@ -11,10 +11,14 @@
       {% include "school/templates/job_card.html" %}
       <div class="p-4">
         <div>{{ _(job.description) }}</div>
+        {% if frappe.session.user != "Guest" %}
         <div class="d-flex justify-content-between mt-5">
           <a class="button is-primary" href="{{ job.application_link }}">{{ _("Apply Now") }}</a>
           <div class="button is-secondary" id="report">{{ _("Report this post") }}</div>
         </div>
+        {% else %}
+        <p class="small alert alert-secondary text-center">Login to apply for this job.</p>
+        {% endif %}
       </div>
     </div>
   </div>
