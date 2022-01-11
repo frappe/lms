@@ -22,7 +22,7 @@ const report = (e) => {
     },
     callback: (data) => {
       $(".report-modal").modal("hide");
-      frappe.msgprint(__("Thanks for informing us about this post. The Admins will look into this and take an appropriate action soon."))
+      frappe.msgprint(__("Thanks for informing us about this post. The admin will look into it and take an appropriate action soon."))
     }
   })
 }
