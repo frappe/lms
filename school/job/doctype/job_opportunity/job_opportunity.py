@@ -13,8 +13,8 @@ class JobOpportunity(Document):
 @frappe.whitelist()
 def report(job, reason):
     system_managers = get_system_managers(only_name=True)
-    subject = _("User {0} has reported the job post {1}").format(user, job)
     user = frappe.db.get_value("User", frappe.session.user, "full_name")
+    subject = _("User {0} has reported the job post {1}").format(user, job)
     args = {
         "job": job,
         "job_url": get_link_to_form("Job Opportunity", job),
