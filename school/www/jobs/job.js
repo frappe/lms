@@ -21,7 +21,8 @@ const report = (e) => {
       "reason": $(".report-field").val()
     },
     callback: (data) => {
-      frappe.msgprint(__("Thanks for informing us about this post. Site admins will look into this and take an appropriate action soon."))
+      $(".report-modal").modal("hide");
+      frappe.msgprint(__("Thanks for informing us about this post. The Admins will look into this and take an appropriate action soon."))
     }
   })
 }
