@@ -1479,16 +1479,26 @@ pre {
 }
 
 .job-card-info {
-  padding: 0 1.5rem;
   flex: 1;
 }
 
 .company-logo {
   background-position: center;
-  background-size: 88px;
+  background-size: 37px;
 }
 
 .job-card-parent {
   display: grid;
   row-gap: 1rem;
+}
+
+.job-card-logo-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.job-detail-card {
+  flex-direction: column;
 }

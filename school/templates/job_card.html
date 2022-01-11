@@ -1,0 +1,21 @@
+<div class="job-card">
+  <div class="job-card-info">
+    <div class="d-flex mb-3">
+      <div class="course-card-pills">{{ _(job.type) }}</div>
+      <div class="course-card-pills">{{ job.location }}</div>
+    </div>
+    <div class="card-heading">{{ _(job.job_title) }}</div>
+    <div class="mt-1">
+      <a class="dark-links" href="{{ job.company_website }}">{{ job.company_name }}</a>
+    </div>
+    {% if show_edit_link and job.owner == frappe.session.user %}
+    <a href="/job-opportunity?name={{ job.name }}">Edit</a>
+    {% endif %}
+  </div>
+  <div class="job-card-logo-section">
+    <div class="small">Posted on: {{ frappe.utils.format_date(job.creation, "medium") }}</div>
+    <div class="avatar avatar-medium" title="{{ job.company_name}}">
+      <span class="avatar-frame company-logo" style="background-image: url( {{ job.company_logo | urlencode }} );"></span>
+    </div>
+  </div>
+</div>

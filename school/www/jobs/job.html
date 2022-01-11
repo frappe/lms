@@ -1,5 +1,4 @@
 {% extends "templates/base.html" %}
-{% from "www/hackathons/macros/card.html" import null_card %}
 {% block title %}{{ _(job.job_title) }}{% endblock %}
 
 {% block content %}
@@ -7,31 +6,50 @@
 <div class="common-page-style">
   <div class="container">
     {{ BreadCrumb(job) }}
-    <div class="common-card-style thread-card">
-      <div class="d-flex">
-        <div class="avatar avatar-large" title="{{ job.company_name}}">
-          <span class="avatar-frame company-logo" style="background-image: url( {{ job.company_logo | urlencode }} );"></span>
-        </div>
-        <div class="job-card-info">
-          <span class="d-flex mb-1">
-            <div class="course-card-pills">{{ _(job.type) }}</div>
-            <div class="course-card-pills">{{ job.location }}</div>
-          </span>
-          <div class="">
-            <div class="card-heading">{{ _(job.job_title) }}</div>
-            <a class="dark-links" href="{{ job.company_website }}">{{ job.company_name }}</a>
-          </div>
-        </div>
-        <div>
-          <div class="small">Posted On: {{ frappe.utils.format_date(job.creation, "medium") }}</div>
-          <a class="pull-right mt-3" href="/job-opportunity/{{ job.name }}">Edit</a>
-        </div>
-
-      </div>
-
-      <div class="mt-5">
+    <div class="common-card-style job-detail-card">
+      {% set show_edit_link = True %}
+      {% include "school/templates/job_card.html" %}
+      <div class="p-4">
         <div>{{ _(job.description) }}</div>
-        <a class="button is-primary mt-5" href="{{ job.application_link }}">{{ _("Apply Now") }}</a>
+        <div class="d-flex justify-content-between mt-5">
+          <a class="button is-primary" href="{{ job.application_link }}">{{ _("Apply Now") }}</a>
+          <div class="button is-secondary" id="report">{{ _("Report this post") }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade report-modal" id="report-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="font-weight-bold">{{ _("Report this Post") }}</div>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form class="review-form" id="review-form">
+          <div class="form-group">
+            <div class="clearfix">
+              <label class="control-label reqd" style="padding-right: 0px;">{{ _("Reason for reporting") }}</label>
+            </div>
+            <div class="control-input-wrapper">
+              <div class="control-input">
+                <textarea type="text" autocomplete="off" class="input-with-feedback form-control report-field"
+                  data-fieldtype="Text" data-fieldname="feedback_comments" placeholder="" style="height: 200px;"
+                  spellcheck="false"></textarea>
+              </div>
+            </div>
+          </div>
+          <p class="error-field muted-text"></p>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <div class="button submit-review is-primary" data-job="{{ job.name }}" id="submit-report">
+          Report</div>
       </div>
     </div>
   </div>
