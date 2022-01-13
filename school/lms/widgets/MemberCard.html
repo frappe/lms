@@ -1,14 +1,25 @@
+{% if show_authored_course_count %}
+  {% set course_count = member.get_authored_courses() | length %}
+{% else %}
+  {% set course_count = member.get_course_membership("Student") | length %}
+{% endif %}
+
+{% set suffix = "Courses" if course_count > 1 else "Course" %}
+{% set type = "Authored" if show_authored_course_count else "Taken" %}
+
 <div class="common-card-style member-card">
   {{ widgets.Avatar(member=member, avatar_class=avatar_class) }}
-  <div class="small-title member-card-title {% if show_course_count %} font-weight-bold {% endif %}">
-    {{ member.full_name }}
-  </div>
-  {% set course_count = member.get_authored_courses() | length %}
-  {% if show_course_count and course_count > 0 %}
-  {% set suffix = "Courses" if course_count > 1 else "Course" %}
+  <div class="member-card-title"> {{ member.full_name }} </div>
+
+  {% if member.headline %}
+  <div>{{ member.headline }}</div>
+  {% endif %}
+
+  {% if course_count > 0 %}
   <div class="small-title">
-    Created {{ course_count }} {{ suffix }}
+    {{ course_count }} {{ suffix }} {{ type }}
   </div>
   {% endif %}
+
   <a class="stretched-link" href="{{ get_profile_url(member.username) }}"></a>
 </div>

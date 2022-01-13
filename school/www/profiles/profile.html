@@ -25,20 +25,25 @@
     <div class="profile-avatar">
       {{ widgets.Avatar(member=member, avatar_class="avatar-xl") }}
     </div>
+    <div class="course-tags">
+        {% if member.get_authored_courses() | length %}
+        <div class="course-card-pills"> Creator </div>
+        {% endif %}
+        {% if member.looking_for_job %}
+        <div class="course-card-pills"> Open Network </div>
+        {% endif %}
+    </div>
   </div>
   <div class="profile-info">
     <div class="profile-name-section">
       <div class="profile-name"> {{ member.full_name }} </div>
-      {% if member.get_authored_courses() | length %}
-      <div class="creator-badge"> Creator </div>
-      {% endif %}
-      {% if member.looking_for_job %}
-      <div class="creator-badge"> Open Network </div>
+      {% if member.headline %}
+      <div> {{ member.headline }} </div>
       {% endif %}
     </div>
 
     {% if frappe.session.user == member.email %}
-      <a class="dark-links profile-link" href="/edit-profile?name={{ member.email }}">Edit Profile</a>
+    <a class="link" href="/edit-profile?name={{ member.email }}"> <img src="/assets/school/icons/pencil.svg"> {{ _("Edit") }} </a>
     {% endif %}
 
   </div>
@@ -70,10 +75,11 @@
 {% macro Overview(member) %}
 
 {% set enrollment = member.get_course_membership("Student") | length %}
+{% set authored = member.get_authored_courses() | length %}
 {% set mentorship = member.get_course_membership("Mentor") | length %}
 {% set reviews = member.get_user_reviews() | length %}
 
-{% if enrollment or reviews or mentorship %}
+{% if enrollment or authored or reviews or mentorship %}
   <div class="course-overview-section">
     <div class="course-home-headings">
       Overview
@@ -83,6 +89,12 @@
       <div class="overview-item">
         <img class="mr-1" src="/assets/school/icons/course.svg" />
         <span> {{ enrollment }} {% if enrollment > 1 %} Courses {% else %} Course {% endif %} Taken </span>
+      </div>
+      {% endif %}
+      {% if enrollment %}
+      <div class="overview-item">
+        <img class="mr-1" src="/assets/school/icons/creator.svg" />
+        <span> {{ authored }} {% if authored > 1 %} Courses {% else %} Course {% endif %} Created </span>
       </div>
       {% endif %}
       {% if reviews %}

@@ -241,7 +241,7 @@ def get_country_code():
 
 @frappe.whitelist(allow_guest=True)
 def search_users(start=0, text=""):
-    or_filters = get_or_filters(text)
+    or_filters = get_filters_and_tables(text)
     count = len(get_users(or_filters, 0, 900000000, text))
     users = get_users(or_filters, start, 30, text)
     user_details = get_user_details(users)
@@ -252,14 +252,19 @@ def search_users(start=0, text=""):
         "count": count
     }
 
-def get_or_filters(text):
-    user_fields = ["first_name", "last_name", "full_name", "email", "preferred_location", "dream_companies"]
+def get_filters_and_tables(text):
+    tables = ["`tabUser` u"]
+    or_filters = []
+    filters = ""
+
+    user_fields = ["first_name", "last_name", "full_name", "email", "headline",
+        "preferred_location", "dream_companies"]
     education_fields = ["institution_name", "location", "degree_type", "major"]
     work_fields = ["title", "company"]
     certification_fields = ["certification_name", "organization"]
 
-    or_filters = []
     if text:
+        
         for field in user_fields:
             or_filters.append(f"u.{field} like '%{text}%'")
         for field in education_fields:
@@ -273,8 +278,13 @@ def get_or_filters(text):
         or_filters.append(f"pf.function like '%{text}%'")
         or_filters.append(f"pi.industry like '%{text}%'")
 
+        tables.append("`tabEducation Detail` ed", "`tabWork Experience` we", "`tabCertification` c", "`tabSkills` s",
+            "`tabPreferred Function` pf", "`tabPreferred Industry` pi", "`tabLMS Batch Membership` lbm")
 
-    return "AND ({})".format(" OR ".join(or_filters)) if or_filters else ""
+    if len(or_filters):
+        filters = "AND ({})".format(" OR ".join(or_filters)) if or_filters else ""
+
+    return tables, filters
 
 def get_user_details(users):
     user_details = []
@@ -286,24 +296,15 @@ def get_user_details(users):
 
 def get_users(or_filters, start, page_length, text):
 
-    users = frappe.db.sql("""
-        SELECT DISTINCT u.name
-        FROM `tabUser` u
-        LEFT JOIN `tabEducation Detail` ed
-        ON u.name = ed.parent
-        LEFT JOIN `tabWork Experience` we
-        ON u.name = we.parent
-        LEFT JOIN `tabCertification` c
-        ON u.name = c.parent
-        LEFT JOIN `tabSkills` s
-        ON u.name = s.parent
-        LEFT JOIN `tabPreferred Function` pf
-        ON u.name = pf.parent
-        LEFT JOIN `tabPreferred Industry` pi
-        ON u.name = pi.parent
-        WHERE u.enabled = True {or_filters}
-        ORDER BY u.creation desc
-        LIMIT {start}, {page_length}
-	""".format(or_filters = or_filters, start=start, page_length=page_length), as_dict=1)
 
+
+    users = frappe.db.sql("""
+        SELECT DISTINCT u.name, COUNT(DISTINCT lbm.name) as course_count
+    FROM , `tabLMS Batch Membership` lbm, `tabSkills` s, `tabPreferred Function` pf
+    WHERE u.enabled = True and u.name = lbm.member and lbm.member_type = "Student" and ((pf.parent = u.name and pf.function like '%Engineering%') or (s.parent = u.name and s.skill_name = "Figma"))
+    GROUP BY lbm.member ORDER BY course_count desc;
+    """
+
+
+    print(users)
     return users
