@@ -24,6 +24,11 @@ class PageExtension:
     `render_footer()` methods to inject whatever styles/scripts into
     the webpage.
     """
+    def __init__(self):
+        self.context = frappe._dict()
+
+    def set_context(self, context):
+        self.context = context
 
     def render_header(self):
         """Returns the HTML snippet to be included in the head section
