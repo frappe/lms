@@ -31,7 +31,7 @@ def get_context(context):
         "description": meta_info
     }
 
-    context.page_extensions = get_page_extensions()
+    context.page_extensions = get_page_extensions(context)
     context.page_context = {
         "course": context.course.name,
         "batch": context.get("batch") and context.batch.name,
@@ -52,8 +52,10 @@ def get_lesson_index(course, batch, user):
     lesson = batch.get_current_lesson(user)
     return lesson and course.get_lesson_index(lesson)
 
-def get_page_extensions():
+def get_page_extensions(context):
     default_value = ["school.plugins.PageExtension"]
     classnames = frappe.get_hooks("school_lesson_page_extensions") or default_value
     extensions = [frappe.get_attr(name)() for name in classnames]
+    for e in extensions:
+        e.set_context(context)
     return extensions
