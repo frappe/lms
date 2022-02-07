@@ -41,14 +41,16 @@
   </div>
   <div class="card-heading course-card-title">{{ course.title }}</div>
   <div {% if not read_only %} class="mb-4" {% endif %}>
+    {% for instructor in course.get_instructors() %}
     <span class="zindex">
-      {{ widgets.Avatar(member=course.get_instructor(), avatar_class="avatar-small") }}
-      <a class="button-links" href="{{ get_profile_url(course.get_instructor().username) }}">
+      {{ widgets.Avatar(member=instructor, avatar_class="avatar-small") }}
+      <a class="button-links" href="{{ get_profile_url(instructor.username) }}">
         <span class="course-instructor">
-          {{ course.get_instructor().full_name }}
+          {{ instructor.full_name }}
         </span>
       </a>
     </span>
+    {% endfor %}
     <span class="course-student-count">
       {% if course.get_students() | length %}
       <span class="vertically-center mr-4">

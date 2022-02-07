@@ -19,7 +19,7 @@
   "video_link",
   "image",
   "column_break_3",
-  "instructor",
+  "instructors",
   "tags",
   "section_break_7",
   "is_published",
@@ -104,10 +104,10 @@
    "options": "Chapter Reference"
   },
   {
-   "fieldname": "instructor",
+   "fieldname": "instructors",
    "fieldtype": "Table MultiSelect",
    "in_standard_filter": 1,
-   "label": "Instructor",
+   "label": "Instructors",
    "options": "Course Instructor"
   },
   {
@@ -167,7 +167,7 @@
    "link_fieldname": "course"
   }
  ],
- "modified": "2022-02-07 11:41:39.735324",
+ "modified": "2022-02-07 11:41:39.735325",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",

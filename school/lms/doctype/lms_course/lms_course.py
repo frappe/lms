@@ -143,10 +143,14 @@ class LMSCourse(Document):
             fieldname="batch")
         return batch_name and frappe.get_doc("LMS Batch", batch_name)
 
-    def get_instructor(self):
-        if self.instructor:
-            return frappe.get_doc("User", self.instructor)
-        return frappe.get_doc("User", self.owner)
+    def get_instructors(self):
+        instructors = []
+        if self.instructors:
+            for instructor in self.instructors:
+                instructors.append(frappe.get_doc("User", instructor.instructor))
+        else:
+            instructors.append(frappe.get_doc("User", self.owner))
+        return instructors
 
     def get_chapters(self):
         """Returns all chapters of this course.
