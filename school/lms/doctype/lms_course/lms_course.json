@@ -105,11 +105,10 @@
   },
   {
    "fieldname": "instructor",
-   "fieldtype": "Link",
-   "in_list_view": 1,
+   "fieldtype": "Table MultiSelect",
    "in_standard_filter": 1,
    "label": "Instructor",
-   "options": "User"
+   "options": "Course Instructor"
   },
   {
    "fieldname": "section_break_7",
@@ -168,7 +167,7 @@
    "link_fieldname": "course"
   }
  ],
- "modified": "2021-09-30 10:36:48.759995",
+ "modified": "2022-02-07 11:41:39.735324",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",
@@ -190,6 +189,7 @@
  "search_fields": "title",
  "sort_field": "creation",
  "sort_order": "DESC",
+ "states": [],
  "title_field": "title",
  "track_changes": 1
 }
