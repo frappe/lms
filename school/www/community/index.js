@@ -8,11 +8,9 @@ frappe.ready(() => {
     close_search_empty_state(e);
   });
 
-  $("#search-user").keyup(function() {
-    let timer;
-    clearTimeout(timer);
-    timer = setTimeout(() => { search.apply(this, arguments); }, 300);
-  });
+  $("#search-user").on('keyup', frappe.utils.debounce(function() {
+    search.apply(this, arguments)
+  }, 500));
 
 });
 
@@ -52,7 +50,7 @@ const close_search_empty_state = (e) => {
 const update_load_more_state = (data) => {
   $("#load-more").data("start", data.message.start);
   $("#load-more").data("count", data.message.count);
-  if ($(".member-card").length == $("#load-more").data("count")) {
+  if ($("#load-more").data("count") < 1) {
     $("#load-more").addClass("hide");
   }
 }

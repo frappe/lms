@@ -241,70 +241,60 @@ def get_country_code():
 
 @frappe.whitelist(allow_guest=True)
 def search_users(start=0, text=""):
-    or_filters = get_filters_and_tables(text)
-    count = len(get_users(or_filters, 0, 900000000, text))
-    users = get_users(or_filters, start, 30, text)
+    users = get_users(start, 30, text)
     user_details = get_user_details(users)
+
+    next_start = cint(start) + 30
+    count = len(get_users(next_start, 30, text))
 
     return {
         "user_details": user_details,
-        "start": cint(start) + 30,
+        "start": next_start,
         "count": count
     }
 
 def get_filters_and_tables(text):
-    tables = ["`tabUser` u"]
-    or_filters = []
+    tables = []
     filters = ""
 
-    user_fields = ["first_name", "last_name", "full_name", "email", "headline",
-        "preferred_location", "dream_companies"]
-    education_fields = ["institution_name", "location", "degree_type", "major"]
-    work_fields = ["title", "company"]
-    certification_fields = ["certification_name", "organization"]
-
     if text:
-        
-        for field in user_fields:
-            or_filters.append(f"u.{field} like '%{text}%'")
-        for field in education_fields:
-            or_filters.append(f"ed.{field} like '%{text}%'")
-        for field in work_fields:
-            or_filters.append(f"we.{field} like '%{text}%'")
-        for field in certification_fields:
-            or_filters.append(f"c.{field} like '%{text}%'")
+        filters = """AND (u.first_name like '%{text}%' OR u.last_name like '%{text}%' OR u.full_name like '%{text}%'
+            OR u.email like '%{text}%' OR u.headline like '%{text}%' OR u.preferred_location like '%{text}%' OR u.dream_companies like '%{text}%'
+            OR (ed.parent = u.name AND (ed.institution_name like '%{text}%' OR ed.location like '%{text}%'
+            OR ed.degree_type like '%{text}%' OR ed.major like '%{text}%'))
+            OR (we.parent = u.name AND (we.title like '%{text}%' OR we.company like '%{text}%' OR we.location like '%{text}%'))
+            OR (c.parent = u.name AND (c.certification_name like '%{text}%' OR c.organization like '%{text}%'))
+            OR (s.parent = u.name AND s.skill_name like '%{text}%')
+            OR (pf.parent = u.name AND pf.function like '%{text}%')
+            OR (pi.parent = u.name AND pi.industry like '%{text}%'))""".format(text=text)
 
-        or_filters.append(f"s.skill_name like '%{text}%'")
-        or_filters.append(f"pf.function like '%{text}%'")
-        or_filters.append(f"pi.industry like '%{text}%'")
-
-        tables.append("`tabEducation Detail` ed", "`tabWork Experience` we", "`tabCertification` c", "`tabSkills` s",
-            "`tabPreferred Function` pf", "`tabPreferred Industry` pi", "`tabLMS Batch Membership` lbm")
-
-    if len(or_filters):
-        filters = "AND ({})".format(" OR ".join(or_filters)) if or_filters else ""
-
-    return tables, filters
+        tables.extend(["`tabEducation Detail` ed", "`tabWork Experience` we", "`tabCertification` c", "`tabSkills` s",
+            "`tabPreferred Function` pf", "`tabPreferred Industry` pi"])
+    tables.extend(["`tabUser` u"])
+    return filters, tables
 
 def get_user_details(users):
     user_details = []
     for user in users:
-        details = frappe.get_doc("User", user)
+        details = frappe.get_doc("User", user.name)
         user_details.append(Widgets().MemberCard(member=details, avatar_class="avatar-large"))
 
     return user_details
 
-def get_users(or_filters, start, page_length, text):
-
-
-
-    users = frappe.db.sql("""
+def get_users(start, page_length, text):
+    filters, tables  = get_filters_and_tables(text)
+    query = """
         SELECT DISTINCT u.name, COUNT(DISTINCT lbm.name) as course_count
-    FROM , `tabLMS Batch Membership` lbm, `tabSkills` s, `tabPreferred Function` pf
-    WHERE u.enabled = True and u.name = lbm.member and lbm.member_type = "Student" and ((pf.parent = u.name and pf.function like '%Engineering%') or (s.parent = u.name and s.skill_name = "Figma"))
-    GROUP BY lbm.member ORDER BY course_count desc;
-    """
-
-
-    print(users)
+        FROM {tables}
+        LEFT JOIN `tabLMS Batch Membership` lbm
+        ON lbm.member = u.name AND lbm.member_type = "Student"
+        WHERE u.enabled = True {filters}
+        GROUP BY lbm.member ORDER BY course_count desc
+        LIMIT {start}, {page_length};
+        """.format(tables = ",".join(tables),
+        filters = filters,
+        start = start,
+        page_length = page_length)
+    print(query)
+    users = frappe.db.sql(query, as_dict=1)
     return users
