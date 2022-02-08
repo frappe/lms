@@ -1,4 +1,4 @@
-{% set color = member.get_palette() %}
+{% set color = get_palette(member.full_name) %}
 <a class="button-links" href="{{ get_profile_url(member.username) }}">
   <span class="avatar {{ avatar_class }}" title="{{ member.full_name }}">
     {% if member.user_image %}

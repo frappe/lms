@@ -161,7 +161,11 @@ update_website_context = [
 
 jinja = {
     "methods": [
-        "school.page_renderers.get_profile_url"
+        "school.page_renderers.get_profile_url",
+        "school.overrides.user.get_palette",
+        "school.www.utils.get_membership",
+        "school.www.utils.get_lessons",
+        "school.www.utils.get_tags"
     ],
     "filters": []
 }

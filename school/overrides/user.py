@@ -93,27 +93,6 @@ class CustomUser(User):
                 'is_published': True
         })
 
-    def get_palette(self):
-        """
-        Returns a color unique to each member for Avatar """
-
-        palette = [
-            ['--orange-avatar-bg', '--orange-avatar-color'],
-            ['--pink-avatar-bg', '--pink-avatar-color'],
-            ['--blue-avatar-bg', '--blue-avatar-color'],
-            ['--green-avatar-bg', '--green-avatar-color'],
-            ['--dark-green-avatar-bg', '--dark-green-avatar-color'],
-            ['--red-avatar-bg', '--red-avatar-color'],
-            ['--yellow-avatar-bg', '--yellow-avatar-color'],
-            ['--purple-avatar-bg', '--purple-avatar-color'],
-            ['--gray-avatar-bg', '--gray-avatar-color0']
-        ]
-
-        encoded_name = str(self.full_name).encode("utf-8")
-        hash_name = hashlib.md5(encoded_name).hexdigest()
-        idx = cint((int(hash_name[4:6], 16) + 1) / 5.33)
-        return palette[idx % 8]
-
     def get_batch_count(self) -> int:
         """Returns the number of batches authored by this user.
         """
@@ -173,6 +152,27 @@ class CustomUser(User):
             "in_progress": in_progress,
             "completed": completed
         }
+
+def get_palette(full_name):
+        """
+        Returns a color unique to each member for Avatar """
+
+        palette = [
+            ['--orange-avatar-bg', '--orange-avatar-color'],
+            ['--pink-avatar-bg', '--pink-avatar-color'],
+            ['--blue-avatar-bg', '--blue-avatar-color'],
+            ['--green-avatar-bg', '--green-avatar-color'],
+            ['--dark-green-avatar-bg', '--dark-green-avatar-color'],
+            ['--red-avatar-bg', '--red-avatar-color'],
+            ['--yellow-avatar-bg', '--yellow-avatar-color'],
+            ['--purple-avatar-bg', '--purple-avatar-color'],
+            ['--gray-avatar-bg', '--gray-avatar-color0']
+        ]
+
+        encoded_name = str(full_name).encode("utf-8")
+        hash_name = hashlib.md5(encoded_name).hexdigest()
+        idx = cint((int(hash_name[4:6], 16) + 1) / 5.33)
+        return palette[idx % 8]
 
 @frappe.whitelist(allow_guest=True)
 def sign_up(email, full_name, verify_terms):

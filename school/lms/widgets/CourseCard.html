@@ -1,47 +1,41 @@
-{% set membership = course.get_membership(frappe.session.user) %}
+{% set membership = get_membership(course.name, frappe.session.user) %}
 {% set progress = frappe.utils.cint(membership.progress) %}
 <div class="common-card-style course-card" data-course="{{ course.name }}">
 
   <div class="course-image {% if not course.image %}default-image{% endif %}" {% if course.image %}
     style="background-image: url( {{ course.image }} );" {% endif %}>
     <div class="course-tags">
-      {% for tag in course.get_tags() %}
+      {% for tag in get_tags(course.name) %}
       <div class="course-card-pills">{{ tag }}</div>
       {% endfor %}
-      {% if membership and not read_only %}
-      {% if progress < 100 %} <div class="course-card-pills dark-pills ml-auto">{{ frappe.utils.rounded(progress) }}%
-        {{ _("Completed") }}
     </div>
-    {% else %}
-    <div class="course-card-pills dark-pills ml-auto"> <img src="/assets/school/icons/check.svg"> {{ _("Completed")
-      }}</div>
+    {% if not course.image %}
+      <div class="default-image-text">{{ course.title[0] }}</div>
     {% endif %}
-    {% endif %}
-  </div>
-  {% if not course.image %}
-  <div class="default-image-text">{{ course.title[0] }}</div>
-  {% endif %}
 </div>
 
 <div class="course-card-content">
-  <div class="course-card-meta muted-text">
-    {% if course.get_chapters() | length %}
+  <div class="course-card-meta">
+    {% if get_lessons(course.name) | length %}
     <span>
-      {{ course.get_chapters() | length }} {{ _("Chapters") }}
-    </span>
-    {% endif %}
-    {% if course.get_chapters() | length and course.get_upcoming_batches() | length %}
-    <span class="font-weight-bold ml-3 mr-3"> . </span>
-    {% endif %}
-    {% if course.get_upcoming_batches() | length %}
-    <span class="">
-      {{ course.get_upcoming_batches() | length }} {{ _("Open Batches") }}
+      {{ get_lessons(course.name) | length }} {{ _("Lessons") }}
     </span>
     {% endif %}
   </div>
   <div class="card-heading course-card-title">{{ course.title }}</div>
-  <div {% if not read_only %} class="mb-4" {% endif %}>
-    <span class="zindex">
+
+  {% if membership and not read_only %}
+  <div class="progress">
+    <div class="progress-bar" role="progressbar" aria-valuenow="{{ progress }}"
+    aria-valuemin="0" aria-valuemax="100" style="width:{{ progress }}%">
+      <span class="sr-only"> {{ progress }} Complete</span>
+    </div>
+  </div>
+  <div class="progress-percentage">{{ progress }}% Completed</div>
+  {% endif %}
+
+  <div class="course-card-footer">
+    <span>
       {{ widgets.Avatar(member=course.get_instructor(), avatar_class="avatar-small") }}
       <a class="button-links" href="{{ get_profile_url(course.get_instructor().username) }}">
         <span class="course-instructor">
@@ -76,38 +70,21 @@
   {% set certificate = course.is_certified() %}
 
   {% if certificate %}
-  <div class="view-course-link is-default">
-    {{ _("Get Certificate") }}
-  </div>
   <a class="stretched-link" href="/courses/{{ course.name }}/{{ certificate }}"></a>
 
   {% elif course.enable_certification and progress == 100 %}
-  <div class="view-course-link is-default" id="certification" data-course="{{ course.name }}">
-    {{ _("Get Certificate") }}
-  </div>
+  <a class="stretched-link" id="certification" data-course="{{ course.name }}"></a>
 
   {% elif progress == 100 %}
-  <div class="view-course-link is-default">
-    {{ _("Course Completed") }}
-  </div>
   <a class="stretched-link" href="/courses/{{ course.name }}"></a>
 
   {% elif course.upcoming %}
-  <div class="view-course-link is-secondary border">
-    {{ _("Upcoming Course") }}
-  </div>
   <a class="stretched-link" href="/courses/{{ course.name }}"></a>
 
   {% elif membership %}
-  <div class="view-course-link is-primary">
-    {{ _("Continue Course") }}
-  </div>
   <a class="stretched-link" href="{{ course.get_learn_url(lesson_index) }}{{ query_parameter }}"></a>
 
   {% else %}
-  <div class="view-course-link is-default">
-    {{ _("View Course") }}
-  </div>
   <a class="stretched-link" href="/courses/{{ course.name }}"></a>
 
   {% endif %}
@@ -117,21 +94,12 @@
 
 <script>
   frappe.ready(() => {
-    trim_course_titles();
 
     $("#certification").unbind().click((e) => {
       create_certificate(e);
     });
-  })
 
-  var trim_course_titles = () => {
-    $(".course-card-title").each((i, element) => {
-      var title = $(element).text();
-      var length = $(window).width() <= 375 ? 60 : 65;
-      var suffix = title.length > length ? "..." : "";
-      $(element).text(title.substring(0, length) + suffix);
-    });
-  }
+  })
 
   var create_certificate = (e) => {
     e.preventDefault();

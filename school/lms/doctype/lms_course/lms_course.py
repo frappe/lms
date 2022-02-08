@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright (c) 2021, FOSS United and contributors
+# Copyright (c) 2021, Frappe and contributors
 # For license information, please see license.txt
 
 from __future__ import unicode_literals
@@ -143,46 +142,7 @@ class LMSCourse(Document):
             fieldname="batch")
         return batch_name and frappe.get_doc("LMS Batch", batch_name)
 
-    def get_instructor(self):
-        if self.instructor:
-            return frappe.get_doc("User", self.instructor)
-        return frappe.get_doc("User", self.owner)
-
-    def get_chapters(self):
-        """Returns all chapters of this course.
-        """
-        chapters = []
-        for row in self.chapters:
-            chapter_details = frappe.db.get_value("Course Chapter", row.chapter,
-                                                ["name", "title", "description"],
-                                                as_dict=True)
-            chapter_details.idx = row.idx
-            chapters.append(chapter_details)
-        return chapters
-
-    def get_lessons(self, chapter=None):
-        """ If chapter is passed, returns lessons of only that chapter.
-        Else returns lessons of all chapters of the course """
-        lessons = []
-
-        if chapter:
-            return self.get_lesson_details(chapter)
-
-        for chapter in self.get_chapters():
-            lesson = self.get_lesson_details(chapter)
-            lessons += lesson
-
-        return lessons
-
-    def get_lesson_details(self, chapter):
-        lessons = []
-        lesson_list = frappe.get_all("Lesson Reference", {"parent": chapter.name},
-                                        ["lesson", "idx"], order_by="idx")
-        for row in lesson_list:
-            lesson_details = frappe.get_doc("Course Lesson", row.lesson)
-            lesson_details.number = flt("{}.{}".format(chapter.idx, row.idx))
-            lessons.append(lesson_details)
-        return lessons
+    
 
     def get_slugified_chapter_title(self, chapter):
         return slugify(chapter)
@@ -200,15 +160,6 @@ class LMSCourse(Document):
                 ["batch"])
             batch_names = {m.batch for m in memberships}
             return [b for b in batches if b.name in batch_names]
-
-    def get_upcoming_batches(self):
-        now = frappe.utils.nowdate()
-        batches =  find_all("LMS Batch",
-            course=self.name,
-            start_date=[">", now],
-            status="Active",
-            visibility="Public")
-        return batches
 
     def get_cohorts(self):
         return find_all("Cohort", course=self.name, order_by="creation")
@@ -263,22 +214,7 @@ class LMSCourse(Document):
             return
         return f"/courses/{self.name}/learn/{lesson_number}"
 
-    def get_membership(self, member, batch=None):
-        filters = {
-            "member": member,
-            "course": self.name
-        }
-        if batch:
-            filters["batch"] = batch
 
-        membership = frappe.db.get_value("LMS Batch Membership",
-                        filters,
-                        ["name", "batch", "current_lesson", "member_type", "progress"],
-                        as_dict=True)
-
-        if membership and membership.batch:
-            membership.batch_title = frappe.db.get_value("LMS Batch", membership.batch, "title")
-        return membership
 
     def get_all_memberships(self, member):
         all_memberships = frappe.get_all("LMS Batch Membership", {"member": member, "course": self.name}, ["batch"])
@@ -302,8 +238,7 @@ class LMSCourse(Document):
         member_names = [m['member'] for m in memberships]
         return find_all("User", name=["IN", member_names])
 
-    def get_tags(self):
-        return self.tags.split(",") if self.tags else []
+
 
     def get_reviews(self):
         reviews = frappe.get_all("LMS Course Review",
