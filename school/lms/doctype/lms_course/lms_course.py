@@ -142,8 +142,6 @@ class LMSCourse(Document):
             fieldname="batch")
         return batch_name and frappe.get_doc("LMS Batch", batch_name)
 
-    
-
     def get_slugified_chapter_title(self, chapter):
         return slugify(chapter)
 

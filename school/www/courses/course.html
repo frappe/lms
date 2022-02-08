@@ -129,7 +129,9 @@
   <div class="course-home-headings">
     Creator
   </div>
-  {{ widgets.MemberCard(member=course.get_instructor(), show_course_count=True, avatar_class="avatar-large") }}
+  {% for instructor in course.get_instructors() %}
+  {{ widgets.MemberCard(member=instructor, show_course_count=True, avatar_class="avatar-large") }}
+  {% endfor %}
 </div>
 {% endmacro %}
 

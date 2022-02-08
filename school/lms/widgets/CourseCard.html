@@ -39,10 +39,11 @@
       {{ widgets.Avatar(member=course.get_instructor(), avatar_class="avatar-small") }}
       <a class="button-links" href="{{ get_profile_url(course.get_instructor().username) }}">
         <span class="course-instructor">
-          {{ course.get_instructor().full_name }}
+          {{ instructor.full_name }}
         </span>
       </a>
     </span>
+    {% endfor %}
     <span class="course-student-count">
       {% if course.get_students() | length %}
       <span class="vertically-center mr-4">

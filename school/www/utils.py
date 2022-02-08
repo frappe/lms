@@ -91,7 +91,11 @@ def get_tags(course):
     tags = frappe.db.get_value("LMS Course", course, "tags")
     return tags.split(",") if tags else []
 
-def get_instructor(course):
-    if self.instructor:
-        return frappe.get_doc("User", self.instructor)
-    return frappe.get_doc("User", self.owner)
+def get_instructors(self):
+        instructors = []
+        if self.instructors:
+            for instructor in self.instructors:
+                instructors.append(frappe.get_doc("User", instructor.instructor))
+        else:
+            instructors.append(frappe.get_doc("User", self.owner))
+        return instructors
