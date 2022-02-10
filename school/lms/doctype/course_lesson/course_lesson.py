@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
 from ...md import find_macros
-from school.www.utils import get_course_progress
+from school.lms.utils import get_course_progress
 
 class CourseLesson(Document):
     def validate(self):

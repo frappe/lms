@@ -1205,10 +1205,19 @@ input[type=checkbox] {
   background-color: var(--primary-color);
 }
 
-.progress-percentage {
+.progress-percent {
   margin: 0.5rem 0 1.3rem;
   font-size: 0.8rem;
   font-weight: 500;
+}
+
+.progress-percentage {
+  width: 100%;
+  font-size: 12px;
+  line-height: 165%;
+  letter-spacing: 0.02em;
+  color: #000000;
+  text-align: center;
 }
 
 pre {

@@ -1,6 +1,6 @@
 import frappe
 from frappe.utils import rounded
-from school.www.utils import get_course_progress
+from school.lms.utils import get_course_progress
 
 def execute():
     frappe.reload_doc("lms", "doctype", "lms_batch_membership")

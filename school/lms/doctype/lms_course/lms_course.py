@@ -8,7 +8,7 @@ import json
 from ...utils import slugify
 from school.query import find, find_all
 from frappe.utils import flt, cint
-from school.www.utils import get_chapters
+from school.lms.utils import get_chapters
 
 class LMSCourse(Document):
 

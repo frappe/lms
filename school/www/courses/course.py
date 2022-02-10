@@ -1,6 +1,6 @@
 import frappe
 from school.lms.doctype.lms_settings.lms_settings import check_profile_restriction
-from school.www.utils import get_membership
+from school.lms.utils import get_membership
 
 def get_context(context):
     context.no_cache = 1

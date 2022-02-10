@@ -1,8 +1,8 @@
 from re import I
 import frappe
-from school.www.utils import get_common_context, redirect_to_lesson, get_lesson_url
+from school.www.utils import get_common_context, redirect_to_lesson
+from school.lms.utils import get_lesson_url
 from frappe.utils import cstr, flt
-
 from school.www import batch
 
 def get_context(context):

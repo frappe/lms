@@ -19,7 +19,7 @@ class TestLMSCourse(unittest.TestCase):
             "short_introduction": title,
             "description": title
         })
-        doc.insert()
+        doc.insert(ignore_permissions=True)
         return doc
 
     def test_new_course(self):
