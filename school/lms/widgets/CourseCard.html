@@ -37,22 +37,24 @@
   <div class="zindex course-card-footer">
     <span class="">
       {% set instructors = get_instructors(course.name) %}
+      {% set ins_len = instructors | length %}
       {% for instructor in instructors %}
-      {% if instructors | length > 1 and loop.index == 1 %}
+      {% if ins_len > 1 and loop.index == 1 %}
       <div class="avatar-group overlap">
       {% endif %}
       {{ widgets.Avatar(member=instructor, avatar_class="avatar-small") }}
 
-      {% if instructors | length > 1 and loop.index == instructors | length %}
+      {% if ins_len > 1 and loop.index == ins_len %}
       </div>
       {% endif %}
       {% endfor %}
       <a class="button-links" href="{{ get_profile_url(instructors[0].username) }}">
         <span class="course-instructor">
-        {% if instructors | length == 1 %}
+        {% if ins_len == 1 %}
           {{ instructors[0].full_name }}
         {% else %}
-          {{ instructors[0].full_name.split(" ")[0] }} and {{ instructors | length - 1 }} others
+          {% set suffix = "other" if ins_len - 1 == 1 else "others"  %}
+          {{ instructors[0].full_name.split(" ")[0] }} and {{ ins_len - 1 }} {{ suffix }}
         {% endif %}
         </span>
       </a>
