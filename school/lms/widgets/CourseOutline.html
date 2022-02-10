@@ -1,10 +1,10 @@
-{% if course.get_chapters() | length %}
+{% if get_chapters(course.name) | length %}
 <div class="">
   <div class="course-home-headings">
     Course Outline
   </div>
   <div class="common-card-style course-outline">
-    {% for chapter in course.get_chapters() %}
+    {% for chapter in get_chapters(course.name) %}
     {{ widgets.ChapterTeaser(index=loop.index, chapter=chapter, course=course, batch=batch, membership=membership) }}
     {% endfor %}
   </div>

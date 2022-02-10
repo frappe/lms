@@ -84,14 +84,7 @@ class CustomUser(User):
 
             self.profile_complete = all_fields_have_value
 
-    def get_authored_courses(self) -> int:
-        """Returns the number of courses authored by this user.
-        """
-        return frappe.get_all(
-            'LMS Course', {
-                'instructor': self.name,
-                'is_published': True
-        })
+
 
     def get_batch_count(self) -> int:
         """Returns the number of batches authored by this user.
@@ -131,7 +124,8 @@ class CustomUser(User):
 
         for map in mapping:
             if frappe.db.get_value("LMS Course", map.course, "is_published"):
-                course = frappe.get_doc("LMS Course", map.course)
+                course = frappe.db.get_value("LMS Course", map.course,
+                    ["name", "upcoming", "title", "image", "enable_certification"], as_dict=True)
                 mentored_courses.append(course)
 
         return mentored_courses
@@ -141,7 +135,8 @@ class CustomUser(User):
         completed = []
         memberships = self.get_course_membership("Student")
         for membership in memberships:
-            course = frappe.get_doc("LMS Course", membership.course)
+            course = frappe.db.get_value("LMS Course", membership.course,
+                ["name", "upcoming", "title", "image", "enable_certification"], as_dict=True)
             progress = cint(membership.progress)
             if progress < 100:
                 in_progress.append(course)
@@ -152,6 +147,14 @@ class CustomUser(User):
             "in_progress": in_progress,
             "completed": completed
         }
+def get_authored_courses(member):
+    """Returns the number of courses authored by this user.
+    """
+    return frappe.get_all(
+        'LMS Course', {
+            'instructor': member,
+            'is_published': True
+    })
 
 def get_palette(full_name):
         """

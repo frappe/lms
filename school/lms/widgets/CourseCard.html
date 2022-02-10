@@ -34,23 +34,38 @@
   <div class="progress-percentage">{{ progress }}% Completed</div>
   {% endif %}
 
-  <div class="course-card-footer">
-    <span>
-      {{ widgets.Avatar(member=course.get_instructor(), avatar_class="avatar-small") }}
-      <a class="button-links" href="{{ get_profile_url(course.get_instructor().username) }}">
+  <div class="zindex course-card-footer">
+    <span class="">
+      {% set instructors = get_instructors(course.name) %}
+      {% for instructor in instructors %}
+      {% if instructors | length > 1 and loop.index == 1 %}
+      <div class="avatar-group left overlap">
+      {% endif %}
+      {{ widgets.Avatar(member=instructor, avatar_class="avatar-small") }}
+
+      {% if instructors | length > 1 and loop.index == instructors | length %}
+      </div>
+      {% endif %}
+      {% endfor %}
+      <a class="button-links" href="{{ get_profile_url(instructors[0].username) }}">
         <span class="course-instructor">
-          {{ instructor.full_name }}
+        {% if instructors | length == 1 %}
+          {{ instructors[0].full_name }}
+        {% else %}
+          {{ instructors[0].full_name.split(" ")[0] }} and {{ instructors | length - 1 }} others
+        {% endif %}
         </span>
       </a>
-    </span>
-    {% endfor %}
+        </span>
+    {% set student_count = get_students(course.name) | length %}
     <span class="course-student-count">
-      {% if course.get_students() | length %}
+      {% if student_count %}
       <span class="vertically-center mr-4">
         <img class="icon-background" src="/assets/school/icons/user.svg" />
-        {{ course.get_students() | length }}
-      </span> {% endif %}
-      {% set avg_rating = course.get_average_rating() %}
+        {{ student_count }}
+      </span>
+      {% endif %}
+      {% set avg_rating = get_average_rating(course.name) %}
       {% if avg_rating %}
       <span class="vertically-center">
         <img class="icon-background" src="/assets/school/icons/rating.svg" />
@@ -64,11 +79,11 @@
   <a class="stretched-link" href="/courses/{{ course.name }}"></a>
   {% else %}
 
-  {% set lesson_index = course.get_lesson_index(membership.current_lesson) if membership and
+  {% set lesson_index = get_lesson_index(membership.current_lesson) if membership and
   membership.current_lesson else '1.1' %}
   {% set query_parameter = "?batch=" + membership.batch if membership and
   membership.batch else "" %}
-  {% set certificate = course.is_certified() %}
+  {% set certificate = is_certified(course.name) %}
 
   {% if certificate %}
   <a class="stretched-link" href="/courses/{{ course.name }}/{{ certificate }}"></a>
@@ -83,7 +98,7 @@
   <a class="stretched-link" href="/courses/{{ course.name }}"></a>
 
   {% elif membership %}
-  <a class="stretched-link" href="{{ course.get_learn_url(lesson_index) }}{{ query_parameter }}"></a>
+  <a class="stretched-link" href="{{ get_lesson_url(course.name, lesson_index) }}{{ query_parameter }}"></a>
 
   {% else %}
   <a class="stretched-link" href="/courses/{{ course.name }}"></a>

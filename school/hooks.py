@@ -162,10 +162,26 @@ update_website_context = [
 jinja = {
     "methods": [
         "school.page_renderers.get_profile_url",
+        "school.overrides.user.get_authored_courses",
         "school.overrides.user.get_palette",
         "school.www.utils.get_membership",
         "school.www.utils.get_lessons",
-        "school.www.utils.get_tags"
+        "school.www.utils.get_tags",
+        "school.www.utils.get_instructors",
+        "school.www.utils.get_students",
+        "school.www.utils.get_average_rating",
+        "school.www.utils.is_certified",
+        "school.www.utils.get_lesson_index",
+        "school.www.utils.get_lesson_url",
+        "school.www.utils.get_chapters",
+        "school.www.utils.get_slugified_chapter_title",
+        "school.www.utils.get_progress",
+        "school.www.utils.render_html",
+        "school.www.utils.is_mentor",
+        "school.www.utils.is_cohort_staff",
+        "school.www.utils.get_mentors",
+        "school.www.utils.get_reviews",
+        "school.www.utils.is_eligible_to_review",
     ],
     "filters": []
 }

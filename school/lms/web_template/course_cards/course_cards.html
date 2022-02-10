@@ -2,7 +2,8 @@
   <h2 class="section-title">{{ title }}</h2>
   <div class="cards-parent mt-10">
     {% for course_row in courses %}
-    {% set course = frappe.get_doc("LMS Course", course_row.course) %}
+    {% set course = frappe.db.get_value("LMS Course", course_row.course,
+      ["name", "upcoming", "title", "image", "enable_certification"], as_dict=True) %}
     {{ widgets.CourseCard(course=course, read_only=False) }}
     {% endfor %}
   </div>

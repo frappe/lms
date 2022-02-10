@@ -40,7 +40,7 @@
   {% if membership or is_instructor %} eligible-for-submission {% endif %}" data-lesson="{{ lesson.name }}"
     data-course="{{ course.name }}">
     {{ lesson.title }}
-    <span class="lesson-progress {{hide if course.get_progress(lesson.name) != 'Complete' else ''}}">COMPLETED</span>
+    <span class="lesson-progress {{hide if get_progress(course.name, lesson.name) != 'Complete' else ''}}">COMPLETED</span>
   </div>
 
 
@@ -52,7 +52,7 @@
       <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
     </small>
     {% endif %}
-    {{ lesson.render_html() }}</div>
+    {{ render_html(lesson.body) }}</div>
   {% else %}
   <div class="common-card-style lesson-content-card">
     <div class="w-25 text-center" style="margin: 0 auto;">
@@ -78,8 +78,8 @@
   </div>
 
 
-  {% if not course.is_mentor(frappe.session.user) and membership %}
-  {% set progress = course.get_progress(lesson.name) %}
+  {% if not is_mentor(course.name, frappe.session.user) and membership %}
+  {% set progress = get_progress(course.name, lesson.name) %}
   <div class="custom-checkbox {% if progress == 'Complete' %} hide {% endif %}">
     <label class="quiz-label">
       <input class="option mark-progress" type="checkbox" checked>

@@ -79,7 +79,6 @@ input[type=checkbox] {
 }
 
 .common-page-style {
-  background: #F4F5F6;
   padding-bottom: 5rem;
   min-height: 60vh;
   padding-top: 3rem;
@@ -169,6 +168,10 @@ input[type=checkbox] {
 
 .course-card-footer {
   margin-top: auto;
+}
+
+.course-card-footer .avatar-group {
+  display: inherit;
 }
 
 .view-course-link {

@@ -29,7 +29,7 @@
   <div class="profile-info">
     <div class="profile-name-section">
       <div class="profile-name"> {{ member.full_name }} </div>
-      {% if member.get_authored_courses() | length %}
+      {% if get_authored_courses(member.name) | length %}
       <div class="creator-badge"> Creator </div>
       {% endif %}
       {% if member.looking_for_job %}
@@ -104,14 +104,16 @@
 
 
 {% macro CoursesCreated(member, read_only) %}
-{% if member.get_authored_courses() | length %}
+{% set authored_courses = get_authored_courses(member.name) %}
+{% if authored_courses | length %}
 <div class="profile-courses">
   <div class="course-home-headings">
     Courses Created
   </div>
   <div class="cards-parent">
-    {% for course in member.get_authored_courses() %}
-    {% set course_details = frappe.get_doc("LMS Course", course) %}
+    {% for course in authored_courses %}
+    {% set course_details = frappe.db.get_value("LMS Course", course,
+      ["name", "upcoming", "title", "image", "enable_certification"], as_dict=True) %}
     {{ widgets.CourseCard(course=course_details, read_only=read_only) }}
     {% endfor %}
   </div>
