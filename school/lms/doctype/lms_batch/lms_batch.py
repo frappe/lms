@@ -8,7 +8,7 @@ from frappe.model.document import Document
 from frappe import _
 from school.lms.doctype.lms_batch_membership.lms_batch_membership import create_membership
 from school.query import find, find_all
-from frappe.lms.utils import is_mentor
+from school.lms.utils import is_mentor
 
 class LMSBatch(Document):
     def validate(self):

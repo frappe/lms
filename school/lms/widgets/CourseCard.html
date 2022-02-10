@@ -39,7 +39,7 @@
       {% set instructors = get_instructors(course.name) %}
       {% for instructor in instructors %}
       {% if instructors | length > 1 and loop.index == 1 %}
-      <div class="avatar-group left overlap">
+      <div class="avatar-group overlap">
       {% endif %}
       {{ widgets.Avatar(member=instructor, avatar_class="avatar-small") }}
 
