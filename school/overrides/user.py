@@ -231,7 +231,8 @@ def set_country_from_ip(login_manager=None, user=None):
     return
 
 def get_country_code():
-    res = requests.get("http://ip-api.com/json/?fields=61439")
+    ip = frappe.local.request_ip
+    res = requests.get("http://ip-api.com/json/{ip}".format(ip=ip))
 
     try:
         data = res.json()
@@ -239,8 +240,7 @@ def get_country_code():
             return data.get("country")
     except Exception:
         pass
-
-    return {}
+    return
 
 @frappe.whitelist(allow_guest=True)
 def search_users(start=0, text=""):
