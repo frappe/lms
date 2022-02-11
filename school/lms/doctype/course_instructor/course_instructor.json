@@ -1,0 +1,32 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2022-02-07 11:39:59.998762",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "instructor"
+ ],
+ "fields": [
+  {
+   "fieldname": "instructor",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Instructor",
+   "options": "User"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2022-02-07 11:41:42.943250",
+ "modified_by": "Administrator",
+ "module": "LMS",
+ "name": "Course Instructor",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -12,7 +12,7 @@ class TestLMSQuiz(unittest.TestCase):
         frappe.get_doc({
             "doctype": "LMS Quiz",
             "title": "Test Quiz"
-        }).save()
+        }).save(ignore_permissions=True)
 
     def test_with_multiple_options(self):
         quiz = frappe.get_doc("LMS Quiz", "Test Quiz")

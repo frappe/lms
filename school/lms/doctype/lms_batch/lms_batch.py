@@ -8,14 +8,14 @@ from frappe.model.document import Document
 from frappe import _
 from school.lms.doctype.lms_batch_membership.lms_batch_membership import create_membership
 from school.query import find, find_all
+from school.lms.utils import is_mentor
 
 class LMSBatch(Document):
     def validate(self):
         self.validate_if_mentor()
 
     def validate_if_mentor(self):
-        course = frappe.get_doc("LMS Course", self.course)
-        if not course.is_mentor(frappe.session.user):
+        if not is_mentor(self.course, frappe.session.user):
            frappe.throw(_("You are not a mentor of the course {0}").format(course.title))
 
     def after_insert(self):

@@ -12,7 +12,7 @@ class TestCustomUser(unittest.TestCase):
                         "doctype": "User",
                         "email": "test_with_basic_username@example.com",
                         "first_name": "Username"
-                    }).insert()
+                    }).insert(ignore_permissions=True)
         self.assertEqual(new_user.username, "username")
 
     def test_without_username(self):
@@ -23,7 +23,7 @@ class TestCustomUser(unittest.TestCase):
                         "doctype": "User",
                         "email": "test-without-username@example.com",
                         "first_name": "Username"
-                    }).insert()
+                    }).insert(ignore_permissions=True)
         self.assertTrue(new_user.username)
 
     def test_with_illegal_characters(self):
@@ -31,7 +31,7 @@ class TestCustomUser(unittest.TestCase):
                         "doctype": "User",
                         "email": "test_with_illegal_characters@example.com",
                         "first_name": "Username$$"
-                    }).insert()
+                    }).insert(ignore_permissions=True)
         self.assertEqual(new_user.username[:8], "username")
 
     def test_with_underscore_at_end(self):
@@ -39,7 +39,7 @@ class TestCustomUser(unittest.TestCase):
                         "doctype": "User",
                         "email": "test_with_underscore_at_end@example.com",
                         "first_name": "Username___"
-                    }).insert()
+                    }).insert(ignore_permissions=True)
         self.assertNotEqual(new_user.username[-1], "_")
 
 
@@ -48,7 +48,7 @@ class TestCustomUser(unittest.TestCase):
                         "doctype": "User",
                         "email": "test_with_short_first_name@example.com",
                         "first_name": "USN"
-                    }).insert()
+                    }).insert(ignore_permissions=True)
         self.assertGreaterEqual(len(new_user.username), 4)
 
     @classmethod

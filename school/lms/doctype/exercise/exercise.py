@@ -3,6 +3,7 @@
 
 import frappe
 from frappe.model.document import Document
+from school.lms.utils import get_membership
 
 class Exercise(Document):
     def get_user_submission(self):
@@ -35,8 +36,7 @@ class Exercise(Document):
         if old_submission and old_submission.solution == code:
             return old_submission
 
-        course = frappe.get_doc("LMS Course", self.course)
-        member = course.get_membership(frappe.session.user)
+        member = get_membership(self.course, frappe.session.user)
 
         doc = frappe.get_doc(
             doctype="Exercise Submission",

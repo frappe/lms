@@ -3,7 +3,7 @@
   <div class="small-title member-card-title {% if show_course_count %} font-weight-bold {% endif %}">
     {{ member.full_name }}
   </div>
-  {% set course_count = member.get_authored_courses() | length %}
+  {% set course_count = get_authored_courses(member.name) | length %}
   {% if show_course_count and course_count > 0 %}
   {% set suffix = "Courses" if course_count > 1 else "Course" %}
   <div class="small-title">

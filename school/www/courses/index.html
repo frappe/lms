@@ -19,13 +19,13 @@
 
     {% include "school/templates/search_course/search_course.html" %}
     <div class="course-list">
-      {% set title = _("Live Courses") %}
       {% set courses = live_courses %}
+      {% set title = _("All Live Courses ({0})").format(courses | length) %}
       {% set classes = "live-courses" %}
       {% include "school/templates/course_list.html" %}
 
-      {% set title = _("Upcoming Courses") %}
       {% set courses = upcoming_courses %}
+      {% set title = _("All Upcoming Courses ({0})").format(courses | length) %}
       {% set classes = "upcoming-courses mt-10" %}
       {% include "school/templates/course_list.html" %}
     </div>

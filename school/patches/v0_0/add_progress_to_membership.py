@@ -1,5 +1,6 @@
 import frappe
 from frappe.utils import rounded
+from school.lms.utils import get_course_progress
 
 def execute():
     frappe.reload_doc("lms", "doctype", "lms_batch_membership")
@@ -14,8 +15,7 @@ def execute():
             if current_course != membership.course:
                 current_course = membership.course
 
-            course_details = frappe.get_doc("LMS Course", current_course)
-            progress = rounded(course_details.get_course_progress(membership.member))
+            progress = rounded(get_course_progress(current_course, membership.member))
             frappe.db.set_value("LMS Batch Membership", membership.name, "progress", progress)
 
     frappe.db.delete("Prepared Report", {"ref_report_doctype": "Course Progress Summary"})

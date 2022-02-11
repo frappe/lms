@@ -1,5 +1,6 @@
 import frappe
 from school.lms.doctype.lms_settings.lms_settings import check_profile_restriction
+from school.lms.utils import get_membership
 
 def get_context(context):
     context.no_cache = 1
@@ -16,7 +17,7 @@ def get_context(context):
         raise frappe.Redirect
 
     context.course = course
-    membership = course.get_membership(frappe.session.user)
+    membership = get_membership(course.name, frappe.session.user)
     context.course.query_parameter = "?batch=" + membership.batch if membership and membership.batch else ""
     context.membership = membership
     if context.course.upcoming:

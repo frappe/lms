@@ -1,12 +1,12 @@
 <div>
 
-  <div class="chapter-title small-title" data-target="#{{ course.get_slugified_chapter_title(chapter.title) }}"
+  <div class="chapter-title small-title" data-target="#{{ get_slugified_chapter_title(chapter.title) }}"
     data-toggle="collapse" aria-expanded="false">
     <img class="chapter-icon" src="/assets/school/icons/chevron-right.svg">
     {{ index }}. {{ chapter.title }}
   </div>
 
-  <div class="chapter-content collapse navbar-collapse" id="{{ course.get_slugified_chapter_title(chapter.title) }}">
+  <div class="chapter-content collapse navbar-collapse" id="{{ get_slugified_chapter_title(chapter.title) }}">
 
     {% if chapter.description %}
     <div class="chapter-description muted-text">
@@ -17,17 +17,17 @@
     {% set is_instructor = frappe.session.user == course.instructor %}
     <div class="lessons">
 
-      {% for lesson in course.get_lessons(chapter) %}
+      {% for lesson in get_lessons(course.name, chapter) %}
 
       <div class="lesson-info {% if membership.current_lesson == lesson.name %} active-lesson {% endif %}">
 
         {% if membership or lesson.include_in_preview %}
-        <a class="lesson-links" href="{{ course.get_learn_url(lesson.number) }}{{course.query_parameter}}"
+        <a class="lesson-links" href="{{ get_lesson_url(course.name, lesson.number) }}{{course.query_parameter}}"
           data-course="{{ course.name }}">
           {{ lesson.title }}
 
           {% if membership %}
-          <img class="ml-1 lesson-progress-tick {{ course.get_progress(lesson.name) != 'Complete' and 'hide' }}"
+          <img class="ml-1 lesson-progress-tick {{ get_progress(course.name, lesson.name) != 'Complete' and 'hide' }}"
             src="/assets/school/icons/check.svg">
           {% endif %}
 
@@ -36,7 +36,7 @@
         {% elif is_instructor and not lesson.include_in_preview %}
         <a class="lesson-links"
         title="This lesson is not available for preview. As you are the Instructor of the course only you can see it."
-        href="{{ course.get_learn_url(lesson.number) }}{{course.query_parameter}}"
+        href="{{ course.get_lesson_url(lesson.number) }}{{course.query_parameter}}"
         data-course="{{ course.name }}">
         {{ lesson.title }}
           <img class="ml-2" src="/assets/school/icons/lock.svg">
@@ -58,7 +58,7 @@
   </div>
 </div>
 
-{% if index != course.get_chapters() | length %}
+{% if index != get_chapters(course.name) | length %}
 <div class="card-divider"></div>
 {% endif %}
 

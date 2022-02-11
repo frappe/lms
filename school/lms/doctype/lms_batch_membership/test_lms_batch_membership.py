@@ -23,7 +23,7 @@ class TestLMSBatchMembership(unittest.TestCase):
             "short_introduction": "Test Course",
             "description": "Test Course"
         })
-        course.insert()
+        course.insert(ignore_permissions=True)
 
         self.new_user("mentor@test.com", "Test Mentor")
         # without this, the creating batch will fail
