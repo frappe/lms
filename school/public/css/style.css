@@ -1,5 +1,4 @@
 :root {
-  --text-color-dark: #192734;
   --text-xs: 11px;
   --text-sm: 12px;
   --text-md: 13px;
@@ -8,9 +7,9 @@
   --text-xl: 18px;
   --text-2xl: 20px;
   --text-3xl: 22px;
+  --text-3-5xl: 24px;
   --text-4xl: 44px;
   --navbar-shadow: 0px 1px 8px rgba(0, 0, 0, 0.08);
-  --gray-750: #505A62;
 }
 
 input[type=checkbox] {
@@ -58,7 +57,7 @@ input[type=checkbox] {
   background: #ffffff;
   margin-left: 0;
   margin-right: 1rem;
-  border-radius: 6px;
+  border-radius: var(--border-radius);
   padding: 3.5px 8px;
   font-size: 11px;
   text-align: center;
@@ -87,10 +86,10 @@ input[type=checkbox] {
 .common-card-style {
   display: flex;
   background: #FFFFFF;
-  border-radius: 8px;
+  border-radius: var(--border-radius-md);
   position: relative;
   border: 1px solid #EEF0F2;
-  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-base);
 }
 
 .course-card {
@@ -106,12 +105,12 @@ input[type=checkbox] {
 
 .course-card-meta {
   margin: 0.75rem 0 0.5rem;
-  font-size: 14px;
+  font-size: var(--text-base);
   color: var(--gray-600);
 }
 
 .course-card-meta-2 {
-  color: var(--gray-750);
+  color: var(--gray-700);
 }
 
 .course-card-content {
@@ -127,15 +126,10 @@ input[type=checkbox] {
   }
 }
 
-.card-heading {
-  font-weight: 600;
-  font-size: var(--text-3xl);
-  color: var(--text-color-dark);
-}
-
 .course-card-title {
   font-size: 1.125rem;
   font-weight: 600;
+  color: var(--gray-800);
   margin-bottom: 1.25rem;
 }
 
@@ -146,7 +140,7 @@ input[type=checkbox] {
 }
 
 .card-divider {
-  border-top: 1px solid #EEF0F2;
+  border-top: 1px solid var(--gray-300);
   margin-bottom: 1rem;
 }
 
@@ -158,7 +152,7 @@ input[type=checkbox] {
 .course-instructor {
   margin-left: 0.625rem;
   font-size: 0.875rem;
-  color: var(--gray-750);
+  color: var(--gray-700);
 }
 
 .course-student-count {
@@ -178,7 +172,7 @@ input[type=checkbox] {
 
 .view-course-link {
   height: 32px;
-  border-radius: 4px;
+  border-radius: var(--border-radius-sm);
   font-size: 12px;
   padding: 8px 0px 8px;
   text-align: center;
@@ -316,7 +310,7 @@ input[type=checkbox] {
   height: 1.5rem;
   width: 1.5rem;
   border: 1px solid black;
-  border-radius: 8px;
+  border-radius: var(--border-radius-md);
 }
 
 .custom-checkbox>label>input:checked+.empty-checkbox {
@@ -339,7 +333,7 @@ input[type=checkbox] {
   flex-direction: row;
   padding: 24px;
   background: #E2E6E9;
-  border-radius: 8px;
+  border-radius: var(--border-radius-md);
   margin-top: 16px;
   box-shadow: 0px 2px 1px rgba(0, 0, 0, 0.02), 0px 0px 8px rgba(0, 0, 0, 0.04);
 }
@@ -365,7 +359,7 @@ input[type=checkbox] {
   background-position: center;
   background-repeat: no-repeat;
   margin-right: 32px;
-  border-radius: 8px;
+  border-radius: var(--border-radius-md);
   flex: 1;
   align-self: center;
 }
@@ -418,7 +412,7 @@ input[type=checkbox] {
   font-weight: 600;
   font-size: 40px;
   line-height: 120%;
-  color: var(--text-color-dark);
+  color: var(--gray-800);
   margin-bottom: 8px;
 }
 
@@ -446,18 +440,15 @@ input[type=checkbox] {
 }
 
 .button {
-  box-shadow: var(--btn-shadow);
-  border-radius: 4px;
+  border-radius: var(--border-radius);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   width: fit-content;
-  padding: 8px 12px 8px;
-  font-size: 12px;
-  line-height: 135%;
-  letter-spacing: -0.011em;
-  border: none;
+  padding: 0.25rem 1.25rem;
+  font-size: var(--text-md);
+  line-height: 20px;
 }
 
 .button:disabled {
@@ -488,8 +479,8 @@ input[type=checkbox] {
 }
 
 .is-default {
-  background: #F4F5F6;
-  color: var(--text-color-dark);
+  background: var(--gray-100);
+  color: var(--gray-700);
 }
 
 @media (max-width: 600px) {
@@ -623,7 +614,7 @@ input[type=checkbox] {
   text-decoration: none;
   background: #F4F5F6;
   color: inherit;
-  border-radius: .25rem;
+  border-radius: var(--border-radius-sm);
 }
 
 .course-content-parent .lesson-links {
@@ -733,9 +724,9 @@ input[type=checkbox] {
 
 .course-home-headings {
   font-weight: 600;
-  font-size: var(--text-3xl);
+  font-size: var(--text-3-5xl);
   letter-spacing: -0.0175em;
-  color: var(--text-color-dark);
+  color: var(--gray-800);
   margin-bottom: 1rem;
 }
 
@@ -747,9 +738,9 @@ input[type=checkbox] {
   margin: 0;
 }
 
-.avatar-medium-schedule {
-  width: 70px;
-  height: 70px;
+.avatar-medium {
+  width: 42px;
+  height: 42px;
 }
 
 .avatar-large {
@@ -917,7 +908,7 @@ input[type=checkbox] {
   align-items: center;
   font-size: 12px;
   line-height: 135%;
-  color: var(--text-color-dark);
+  color: var(--gray-800);
 }
 
 .course-details-outline {
@@ -972,7 +963,7 @@ input[type=checkbox] {
 
 .active-lesson {
   background-color: #EBF5FF;
-  border-radius: 0.25rem;
+  border-radius: var(--border-radius-sm);
 }
 
 .lesson-progress {
@@ -981,7 +972,7 @@ input[type=checkbox] {
   font-size: 10px;
   line-height: 120%;
   margin: 0px 10px 20px;
-  border-radius: 8px;
+  border-radius: var(--border-radius-md);
   font-weight: bold;
 }
 
@@ -1037,7 +1028,7 @@ input[type=checkbox] {
 }
 
 .profile-name {
-  color: var(--text-color-dark);
+  color: var(--gray-800);
   font-weight: 600;
   font-size: 22px;
   line-height: 156%;
@@ -1094,7 +1085,7 @@ input[type=checkbox] {
   text-transform: uppercase;
   height: fit-content;
   box-shadow: 0px 1px 1px rgb(0 0 0 / 16%);
-  border-radius: 4px;
+  border-radius: var(--border-radius-sm);
   margin-left: 0.5rem;
 }
 
@@ -1112,7 +1103,7 @@ input[type=checkbox] {
 }
 
 .profile-item {
-  color: var(--text-color-dark);
+  color: var(--gray-800);
   font-weight: 500;
 }
 
@@ -1149,7 +1140,7 @@ input[type=checkbox] {
 
 .bold-title {
   font-weight: bold;
-  color: var(--text-color-dark);
+  color: var(--gray-800);
 }
 
 .profile-courses {
@@ -1270,7 +1261,7 @@ pre {
 .certificate-heading {
   font-size: 3rem;
   font-weight: 500;
-  color: var(--text-color-dark);
+  color: var(--gray-800);
 }
 
 .certificate-para {
@@ -1321,7 +1312,7 @@ pre {
   background: #EBEEF0;
   border: 1px dashed #C8CFD5;
   box-sizing: border-box;
-  border-radius: 8px;
+  border-radius: var(--border-radius-md);
   padding: 2.5rem;
 }
 
@@ -1350,7 +1341,7 @@ pre {
   background-image: url(/assets/frappe/icons/timeless/search.svg);
   border: 1px solid #C8CFD5;
   box-sizing: border-box;
-  border-radius: 6px;
+  border-radius: var(--border-radius);
   font-size: 0.75rem;
   padding: 0.625rem 0.75rem;
   height: 36px;
@@ -1377,11 +1368,11 @@ pre {
   font-weight: 500;
   font-size: 18px;
   line-height: 150%;
-  color: var(--text-color-dark);
+  color: var(--gray-800);
 }
 
 .testimonial-review {
-  color: var(--text-color-dark);
+  color: var(--gray-800);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -1468,14 +1459,14 @@ pre {
   .lesson-pagination .custom-checkbox .empty-checkbox {
     width: 1rem;
     height: 1rem;
-    border-radius: 4px;
+    border-radius: var(--border-radius-sm);
   }
 }
 
 @media (max-width: 767px) {
   .lesson-pagination .custom-checkbox .empty-checkbox {
     margin-bottom: 1rem;
-    border-radius: 4px;
+    border-radius: var(--border-radius-sm);
   }
 
   .lesson-pagination .custom-checkbox span {
@@ -1500,16 +1491,12 @@ pre {
 
 .job-card {
   display: flex;
-  padding: 1rem;
-}
-
-.job-card-info {
-  flex: 1;
+  position: relative;
 }
 
 .company-logo {
   background-position: center;
-  background-size: 37px;
+  background-size: 42px;
 }
 
 .job-card-parent {
@@ -1525,5 +1512,54 @@ pre {
 }
 
 .job-detail-card {
+  padding: 1.5rem;
   flex-direction: column;
+}
+
+.job-subtitle {
+  font-size: var(--text-base);
+  margin-bottom: 1.875rem;
+}
+
+.job-list-card {
+  padding: 1.25rem 1.56rem;
+  flex-direction: column;
+}
+
+.job-card-heading {
+  font-weight: 600;
+  color: var(--gray-900);
+}
+
+.company-name {
+  font-size: var(--text-base);
+}
+
+.job-meta {
+  display: flex;
+  align-items: center;
+  color: var(--gray-700);
+  font-size: var(--text-base);
+}
+
+.job-type {
+  background-color: var(--dark-green-100);
+  color: var(--dark-green-500);
+  border-radius: var(--border-radius-md);
+  padding: 0.25rem 0.5rem;
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 0.5rem;
+  width: fit-content;
+}
+
+.job-description {
+  margin-top: 3.75rem;
+}
+
+.job-detail-card span::before {
+  content: "\00B7";
+  margin: 0 8px;
 }

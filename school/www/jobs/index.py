@@ -11,4 +11,6 @@ def get_context(context):
             "company_logo", "name", "creation"
         ],
         order_by="creation desc")
-
+    context.title = frappe.db.get_single_value("Job Settings", "title")
+    context.subtitle = frappe.db.get_single_value("Job Settings", "subtitle")
+    context.allow_posting = frappe.db.get_single_value("Job Settings", "allow_posting")

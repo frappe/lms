@@ -2,25 +2,43 @@
 {% block title %}{{ _('Job Openings') }}{% endblock %}
 
 {% block content %}
-{% set allow_posting = frappe.db.get_single_value("Job Settings", "allow_posting") %}
 <div class="common-page-style">
+
   <div class="container">
+    {% if allow_posting and jobs | length %}
+    <a class="button is-primary pull-right mt-5" href="/job-opportunity?new=1">{{ _("Post a Job") }}</a>
+    {% endif %}
 
-  {% if allow_posting and jobs | length %}
-  <a class="button is-primary pull-right" href="/job-opportunity?new=1">{{ _("Post a Job") }}</a>
-  {% endif %}
+    <div class="course-home-headings mb-2">{{ _("{0}").format(title) }}</div>
+    <div class="job-subtitle">{{ _("{0}").format(subtitle) }}</div>
 
-  <div class="course-home-headings">{{ _("Job Openings") }}</div>
-  {% if jobs | length %}
-  <div class="job-card-parent">
-      {% for job in jobs %}
-        <div class="common-card-style course-card">
-          {% set show_edit_link = False %}
-          {% include "school/templates/job_card.html" %}
-          <a class="stretched-link" href="/jobs/{{ job.name }}"></a>
+    {% if jobs | length %}
+    <div class="common-card-style job-list-card">
+    {% for job in jobs %}
+      <div class="job-card">
+        <div class="avatar avatar-medium" title="{{ job.company_name}}">
+          <span class="avatar-frame company-logo" style="background-image: url( {{ job.company_logo | urlencode }} );"></span>
         </div>
-      {% endfor %}
+        <div class="job-card-info col-8">
+          <div class="job-card-heading">{{ _(job.job_title) }}</div>
+          <a class="dark-links company-name mt-1" href="{{ job.company_website }}">{{ job.company_name }}</a>
+        </div>
+        <div class="job-meta col">
+          <img class="mr-2" src="/assets/school/icons/location.svg">
+          <div>{{ job.location }}</div>
+        </div>
+        <div class="job-card-logo-section">
+          <div class="job-type"> {{ job.type }} </div>
+          <div class="job-meta">{{ frappe.utils.pretty_date(job.creation) }}</div>
+        </div>
+        <a class="stretched-link" href="/jobs/{{ job.name }}"></a>
+      </div>
+      {% if loop.index != jobs | length %}
+      <div class="card-divider mt-5"></div>
+      {% endif %}
+    {% endfor %}
     </div>
+      </div>
     {% else %}
     <div class="empty-state text-center">
       <img class="icon icon-xl" src="/assets/frappe/icons/timeless/message.svg">
