@@ -21,6 +21,8 @@
               <img class="mr-2" src="/assets/school/icons/location.svg">
               <div>{{ job.location }}</div>
             </div>
+            <span></span>
+            <div class="job-meta"> {{ frappe.utils.format_date(job.creation, "medium") }} </div>
           </div>
           <div class="job-type"> {{ job.type }} </div>
         </div>

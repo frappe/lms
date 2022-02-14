@@ -29,7 +29,7 @@
         </div>
         <div class="job-card-logo-section">
           <div class="job-type"> {{ job.type }} </div>
-          <div class="job-meta">{{ frappe.utils.pretty_date(job.creation) }}</div>
+          <div class="job-meta">{{ frappe.utils.format_date(job.creation, "medium") }}</div>
         </div>
         <a class="stretched-link" href="/jobs/{{ job.name }}"></a>
       </div>
