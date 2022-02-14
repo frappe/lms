@@ -1,12 +1,14 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2022-01-10 17:16:46.598673",
+ "creation": "2022-02-07 12:01:41.422955",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "allow_posting"
+  "allow_posting",
+  "title",
+  "subtitle"
  ],
  "fields": [
   {
@@ -14,12 +16,22 @@
    "fieldname": "allow_posting",
    "fieldtype": "Check",
    "label": "Allow Job Posting From Website"
+  },
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Job Board Title"
+  },
+  {
+   "fieldname": "subtitle",
+   "fieldtype": "Data",
+   "label": "Job Board Subtitle"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2022-01-10 18:45:26.646438",
+ "modified": "2022-02-11 15:56:38.958317",
  "modified_by": "Administrator",
  "module": "Job",
  "name": "Job Settings",

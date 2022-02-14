@@ -225,8 +225,8 @@ def set_country_from_ip(login_manager=None, user=None):
         user = login_manager.user
 
     user_country = frappe.db.get_value("User", user, "country")
-    if user_country:
-        return
+    #if user_country:
+    #    return
     frappe.db.set_value("User", user, "country", get_country_code())
     return
 

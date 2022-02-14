@@ -7,20 +7,39 @@
   <div class="container">
     {{ BreadCrumb(job) }}
     <div class="common-card-style job-detail-card">
-      {% set show_edit_link = True %}
-      {% include "school/templates/job_card.html" %}
-      <div class="p-4">
-        <div>{{ _(job.description) }}</div>
-        <div class="d-flex justify-content-between mt-5">
-          {% if frappe.session.user != "Guest" %}
-          <a class="button is-primary" href="{{ job.application_link }}">{{ _("Apply Now") }}</a>
-          <div class="button is-secondary" id="report">{{ _("Report this post") }}</div>
-          {% else %}
-          <a class="button is-secondary dark-links" href="/login?redirect-to=/jobs/{{ job.name }}">Login to apply for this job.</a>
+
+      <div class="d-flex justify-content-between">
+        <div>
+          <div class="avatar avatar-medium mb-6" title="{{ job.company_name}}">
+            <div class="avatar-frame company-logo" style="background-image: url( {{ job.company_logo | urlencode }} );"></div>
+          </div>
+          <div class="course-home-headings mb-2">{{ _(job.job_title) }}</div>
+          <div class="d-flex align-items-center mb-2">
+            <a class="dark-links company-name" href="{{ job.company_website }}">{{ job.company_name }}</a>
+            <span></span>
+            <div class="job-meta">
+              <img class="mr-2" src="/assets/school/icons/location.svg">
+              <div>{{ job.location }}</div>
+            </div>
+            <span></span>
+            <div class="job-meta"> {{ frappe.utils.format_date(job.creation, "medium") }} </div>
+          </div>
+          <div class="job-type"> {{ job.type }} </div>
+        </div>
+
+        {% set application_link = job.application_link if frappe.session.user != 'Guest' else '/login?redirect-to=/jobs/' + job.name %}
+        <div class="d-flex align-items-start">
+          <a class="button is-primary mr-2"
+          href="{{ application_link }}">{{ _("Apply") }}</a>
+          <div class="button is-default mr-2" id="report" data-job="{{ job.name }}">{{ _("Report") }}</div>
+          {% if job.owner == frappe.session.user %}
+          <a class="button is-default button-links" href="/job-opportunity?name={{ job.name }}">Edit</a>
           {% endif %}
         </div>
-      </div>
     </div>
+
+    <div class="job-description job-meta">{{ _(job.description) }}</div>
+
   </div>
 </div>
 

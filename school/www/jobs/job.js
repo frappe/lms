@@ -10,6 +10,10 @@ frappe.ready(() => {
 
 const open_report_dialog = (e) => {
   e.preventDefault();
+  if (frappe.session.user == "Guest") {
+    window.location.href = `/login?redirect-to=/jobs/${$(e.currentTarget).data("job")}`;
+    return;
+  }
   $("#report-modal").modal("show");
 };
 
