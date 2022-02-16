@@ -7,10 +7,8 @@
     {{ widgets.CourseCard(course=course, read_only=False) }}
     {% endfor %}
   </div>
-  <a class="button-links d-flex justify-content-center mt-12 intercative-link" style="color: var(--gray-800);" href="/courses">
-    <div>
-      Explore More
-    </div>
-    <img src="/assets/school/icons/arrow.svg" class="ml-2"/>
+  <a class="d-flex justify-content-center align-items-center mt-12" href="/courses">
+    <span>{{ _("Explore More") }}</span>
+    <img src="/assets/school/icons/blue-arrow.svg" class="ml-2"/>
   </a>
 </div>

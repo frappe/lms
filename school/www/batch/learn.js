@@ -104,7 +104,7 @@ const mark_progress = (e) => {
       callback: (data) => {
         change_progress_indicators(status, e);
         show_certificate_if_course_completed(data);
-        move_to_next_lesson(e);
+        move_to_next_lesson(status, e);
       }
     });
   }
@@ -134,9 +134,19 @@ const show_certificate_if_course_completed = (data) => {
   }
 };
 
-const move_to_next_lesson = (e) => {
+const move_to_next_lesson = (status, e) => {
   if ($(e.currentTarget).hasClass("next") && $(e.currentTarget).attr("data-href")) {
     window.location.href = $(e.currentTarget).attr("data-href");
+  }
+  else if (status == "Complete") {
+    $("input.mark-progress").closest(".custom-checkbox").addClass("hide");
+    $("div.mark-progress").removeClass("hide");
+    $(".next").addClass("hide");
+  }
+  else {
+    $("input.mark-progress").closest(".custom-checkbox").removeClass("hide");
+    $("div.mark-progress").addClass("hide");
+    $(".next").removeClass("hide");
   }
 };
 

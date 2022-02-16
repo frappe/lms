@@ -6,6 +6,7 @@ from frappe.model.document import Document
 from frappe.utils import nowdate, add_years
 from frappe import _
 from frappe.utils.pdf import get_pdf
+from school.lms.utils import is_certified
 
 class LMSCertification(Document):
 
@@ -22,8 +23,7 @@ class LMSCertification(Document):
 
 @frappe.whitelist()
 def create_certificate(course):
-    course_details = frappe.get_doc("LMS Course", course)
-    certificate = course_details.is_certified()
+    certificate = is_certified()
 
     if certificate:
         return certificate

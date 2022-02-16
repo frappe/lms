@@ -1,12 +1,131 @@
 {% if get_chapters(course.name) | length %}
-<div class="">
+<div class="course-home-outline">
   <div class="course-home-headings">
-    Course Outline
+    {{ _("Course Content") }}
   </div>
-  <div class="common-card-style course-outline">
-    {% for chapter in get_chapters(course.name) %}
-    {{ widgets.ChapterTeaser(index=loop.index, chapter=chapter, course=course, batch=batch, membership=membership) }}
-    {% endfor %}
+  {% for chapter in get_chapters(course.name) %}
+  <div class="mb-2">
+    <div class="chapter-title" data-target="#{{ get_slugified_chapter_title(chapter.title) }}"
+      data-toggle="collapse" aria-expanded="false">
+      <img class="chapter-icon" src="/assets/school/icons/chevron-right.svg">
+      <div>{{ chapter.title }}</div>
+    </div>
+
+    <div class="chapter-content collapse navbar-collapse" id="{{ get_slugified_chapter_title(chapter.title) }}">
+
+      {% if chapter.description %}
+      <div class="chapter-description muted-text">
+        {{ chapter.description }}
+      </div>
+      {% endif %}
+
+      {% set is_instructor = frappe.session.user == course.instructor %}
+      <div class="lessons">
+
+        {% for lesson in get_lessons(course.name, chapter) %}
+
+        <div class="lesson-info {% if membership.current_lesson == lesson.name %} active-lesson {% endif %}">
+
+          {% if membership or lesson.include_in_preview %}
+          <a class="lesson-links" href="{{ get_lesson_url(course.name, lesson.number) }}{{course.query_parameter}}"
+            data-course="{{ course.name }}">
+            {{ lesson.title }}
+
+            {% if membership %}
+            <img class="ml-1 lesson-progress-tick {{ get_progress(course.name, lesson.name) != 'Complete' and 'hide' }}"
+              src="/assets/school/icons/check.svg">
+            {% endif %}
+
+          </a>
+
+          {% elif is_instructor and not lesson.include_in_preview %}
+          <a class="lesson-links"
+          title="This lesson is not available for preview. As you are the Instructor of the course only you can see it."
+          href="{{ course.get_lesson_url(lesson.number) }}{{course.query_parameter}}"
+          data-course="{{ course.name }}">
+          <img class="mr-3" src="/assets/school/icons/lock.svg">
+          <div>{{ lesson.title }}</div>
+          </a>
+
+          {% else %}
+          <div class="no-preview" title="This lesson is not available for preview">
+            <div class="lesson-links">
+              <img class="mr-3" src="/assets/school/icons/lock.svg">
+              <div>{{ lesson.title }}</div>
+            </div>
+          </div>
+          {% endif %}
+
+        </div>
+        {% endfor %}
+
+      </div>
+    </div>
   </div>
+  {% endfor %}
 </div>
 {% endif %}
+
+<script>
+
+frappe.ready(() => {
+
+  expand_the_active_chapter();
+
+  $(".chapter-title").unbind().click((e) => {
+    rotate_chapter_icon(e);
+  });
+
+})
+
+var expand_the_first_chapter = () => {
+  var elements = $(".course-outline .collapse");
+  elements.each((i, element) => {
+    if (i < 1) {
+      show_section(element);
+      return false;
+    }
+  });
+}
+
+var expand_the_active_chapter = () => {
+
+  /* Find anchor matching the URL for course details page */
+  var selector = $(`a[href="${decodeURIComponent(window.location.pathname)}"]`).parent();
+  if (!selector.length) {
+    selector = $(`a[href^="${decodeURIComponent(window.location.pathname)}"]`).parent();
+  }
+  if (selector.length && $(".course-details-page").length) {
+    $(".lesson-info").removeClass("active-lesson")
+    selector.addClass("active-lesson");
+    show_section(selector.parent().parent());
+  }
+
+  /* For course home page */
+  else if ($(".active-lesson").length) {
+    selector = $(".active-lesson")
+    show_section(selector.parent().parent());
+  }
+
+  /* If no active chapter then exapand the first chapter */
+  else {
+    expand_the_first_chapter();
+  }
+}
+
+var show_section = (element) => {
+  $(element).addClass("show");
+  $(element).siblings(".chapter-title").children(".chapter-icon").css("transform", "rotate(90deg)");
+  $(element).siblings(".chapter-title").attr("aria-expanded", true);
+}
+
+var rotate_chapter_icon = (e) => {
+  var icon = $(e.currentTarget).children(".chapter-icon");
+  if (icon.css("transform") == "none") {
+    icon.css("transform", "rotate(90deg)");
+  } else {
+    icon.css("transform", "none");
+  }
+}
+
+</script>

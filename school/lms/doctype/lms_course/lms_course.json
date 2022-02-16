@@ -10,7 +10,7 @@
  "allow_guest_to_view": 1,
  "allow_import": 1,
  "allow_rename": 1,
- "creation": "2021-03-01 16:49:33.622422",
+ "creation": "2022-02-08 16:34:42.721203",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -31,6 +31,7 @@
   "short_introduction",
   "description",
   "chapters",
+  "related_courses",
   "certification_section",
   "enable_certification",
   "expiry"
@@ -141,6 +142,12 @@
    "fieldtype": "Select",
    "label": "Certification Expires After Years",
    "options": "0\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10"
+  },
+  {
+   "fieldname": "related_courses",
+   "fieldtype": "Table",
+   "label": "Related Courses",
+   "options": "Related Courses"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -167,7 +174,7 @@
    "link_fieldname": "course"
   }
  ],
- "modified": "2022-02-07 11:41:39.735325",
+ "modified": "2022-02-16 11:50:20.661085",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",

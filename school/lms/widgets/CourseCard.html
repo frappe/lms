@@ -58,11 +58,11 @@
         {% endif %}
         </span>
       </a>
-        </span>
+      </span>
     {% set student_count = get_students(course.name) | length %}
     <span class="course-student-count">
       {% if student_count %}
-      <span class="vertically-center mr-4">
+      <span class="vertically-center mr-3">
         <img class="icon-background" src="/assets/school/icons/user.svg" />
         {{ student_count }}
       </span>
@@ -85,15 +85,8 @@
   membership.current_lesson else '1.1' %}
   {% set query_parameter = "?batch=" + membership.batch if membership and
   membership.batch else "" %}
-  {% set certificate = is_certified(course.name) %}
 
-  {% if certificate %}
-  <a class="stretched-link" href="/courses/{{ course.name }}/{{ certificate }}"></a>
-
-  {% elif course.enable_certification and progress == 100 %}
-  <a class="stretched-link" id="certification" data-course="{{ course.name }}"></a>
-
-  {% elif progress == 100 %}
+  {% if progress == 100 %}
   <a class="stretched-link" href="/courses/{{ course.name }}"></a>
 
   {% elif course.upcoming %}
@@ -109,27 +102,3 @@
   {% endif %}
 </div>
 </div>
-
-<script>
-  frappe.ready(() => {
-
-    $("#certification").unbind().click((e) => {
-      create_certificate(e);
-    });
-
-  })
-
-  var create_certificate = (e) => {
-    e.preventDefault();
-    course = $(e.currentTarget).attr("data-course");
-    frappe.call({
-      method: "school.lms.doctype.lms_certification.lms_certification.create_certificate",
-      args: {
-        "course": course
-      },
-      callback: (data) => {
-        window.location.href = `/courses/${course}/${data.message}`;
-      }
-    })
-  }
-</script>
