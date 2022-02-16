@@ -1136,6 +1136,9 @@ input[type=checkbox] {
 .progress {
   width: 100%;
   height: 4px;
+}
+
+.course-card-wide .progress {
   background-color: var(--gray-500);
 }
 
@@ -1346,6 +1349,11 @@ pre {
 
 .related-courses .carousel-control-prev, .related-courses .carousel-control-next {
   top: 40%;
+}
+
+.related-courses {
+  background: var(--gray-50);
+  padding: 5rem 0;
 }
 
 .carousel-indicators {
@@ -1559,7 +1567,7 @@ pre {
 }
 
 .video-in-overlay {
-  top: 20%;
+  top: 30%;
 }
 
 .course-overlay-content {

@@ -14,8 +14,8 @@
       {{ CourseCreator(course) }}
       {{ widgets.Reviews(course=course, membership=membership) }}
     </div>
-    {{ RelatedCourses(course) }}
   </div>
+  {{ RelatedCourses(course) }}
 </div>
 {% endblock %}
 
@@ -214,33 +214,36 @@
 {% macro RelatedCourses(course) %}
 {% if course.related_courses | length %}
 <div class="related-courses">
-  <div class="course-home-headings"> {{ _("Other Courses") }} </div>
-  <div class="carousel slide" id="carouselExampleControls" data-ride="carousel" data-interval="false">
-    <div class="carousel-inner">
-      {% for crs in course.related_courses %}
-        {% if loop.index % 3 == 1 %}
-        <div class="carousel-item {% if loop.index == 1 %} active {% endif %}"><div class="cards-parent">
-        {% endif %}
-        {{ widgets.CourseCard(course=crs, read_only=False) }}
-        {% if loop.index % 3 == 0 or loop.index == course.related_courses | length %} </div> </div> {% endif %}
-      {% endfor %}
+  <div class="container">
+    <div class="course-home-headings"> {{ _("Other Courses") }} </div>
+    <div class="carousel slide" id="carouselExampleControls" data-ride="carousel" data-interval="false">
+      <div class="carousel-inner">
+        {% for crs in course.related_courses %}
+          {% if loop.index % 3 == 1 %}
+          <div class="carousel-item {% if loop.index == 1 %} active {% endif %}"><div class="cards-parent">
+          {% endif %}
+          {{ widgets.CourseCard(course=crs, read_only=False) }}
+          {% if loop.index % 3 == 0 or loop.index == course.related_courses | length %} </div> </div> {% endif %}
+        {% endfor %}
+      </div>
+
+      {% if course.related_courses | length > 3 %}
+      <div class="slider-controls">
+        <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="sr-only">Previous</span>
+        </a>
+
+        <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="sr-only">Next</span>
+        </a>
+      </div>
+      {% endif %}
+
     </div>
-
-    {% if course.related_courses | length > 3 %}
-    <div class="slider-controls">
-      <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="sr-only">Previous</span>
-      </a>
-
-      <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="sr-only">Next</span>
-      </a>
-    </div>
-    {% endif %}
-
   </div>
+
 </div>
 {% endif%}
 {% endmacro %}
