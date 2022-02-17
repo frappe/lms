@@ -1263,6 +1263,26 @@ pre {
   padding: 2.5rem;
 }
 
+.empty-state-new {
+  background: var(--gray-50);
+  border-radius: var(--border-radius-lg);
+  padding: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.empty-state-text {
+  flex: 1;
+  margin-left: 1.25rem;
+}
+
+.empty-state-heading {
+  font-size: var(--text-xl);
+  color: var(--gray-900);
+  font-weight: 600;
+}
+
 .vertically-center {
   display: flex;
   align-items: center;
