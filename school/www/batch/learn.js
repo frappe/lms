@@ -246,7 +246,7 @@ const create_certificate = (e) => {
       "course": course
     },
     callback: (data) => {
-      window.location.href = `/courses/${course}/${data.message}`;
+      window.location.href = `/courses/${course}/${data.message.name}`;
     }
   })
 };

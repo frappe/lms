@@ -12,18 +12,10 @@ class TestLMSCourse(unittest.TestCase):
         frappe.db.sql('delete from `tabLMS Course Mentor Mapping`')
         frappe.db.sql('delete from `tabLMS Course`')
 
-    def new_course(self, title):
-        doc = frappe.get_doc({
-            "doctype": "LMS Course",
-            "title": title,
-            "short_introduction": title,
-            "description": title
-        })
-        doc.insert(ignore_permissions=True)
-        return doc
+
 
     def test_new_course(self):
-        course = self.new_course("Test Course")
+        course = new_course("Test Course")
         assert course.title == "Test Course"
         assert course.name == "test-course"
 
@@ -32,7 +24,7 @@ class TestLMSCourse(unittest.TestCase):
         assert courses == []
 
         # new couse, but not published
-        course = self.new_course("Test Course")
+        course = new_course("Test Course")
         assert courses == []
 
         # publish the course
@@ -45,7 +37,7 @@ class TestLMSCourse(unittest.TestCase):
 
     # disabled this test as it is failing
     def _test_add_mentors(self):
-        course = self.new_course("Test Course")
+        course = new_course("Test Course")
         assert course.get_mentors() == []
 
         user = new_user("Tester", "tester@example.com")
@@ -65,4 +57,15 @@ def new_user(name, email):
             email=email,
             first_name=name))
     doc.insert()
+    return doc
+
+def new_course(title, certificate=0):
+    doc = frappe.get_doc({
+        "doctype": "LMS Course",
+        "title": title,
+        "short_introduction": title,
+        "description": title,
+        "enable_certificate": certificate
+    })
+    doc.insert(ignore_permissions=True)
     return doc

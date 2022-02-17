@@ -42,4 +42,4 @@ def create_certificate(course):
                             "expiry_date": expiry_date
                         })
         certificate.save(ignore_permissions=True)
-        return certificate.name
+        return certificate
