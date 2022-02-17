@@ -3,7 +3,7 @@
 
 import frappe
 import unittest
-from school.lms.doctype.lms_course.lms_course import new_course
+from school.lms.doctype.lms_course.test_lms_course import new_course
 from school.lms.doctype.lms_certification.lms_certification import create_certificate
 
 class TestLMSCertification(unittest.TestCase):
