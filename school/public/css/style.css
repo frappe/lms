@@ -92,8 +92,7 @@ input[type=checkbox] {
   background: #FFFFFF;
   border-radius: var(--border-radius-md);
   position: relative;
-  border: 1px solid #EEF0F2;
-  box-shadow: var(--shadow-base);
+  box-shadow: var(--shadow-sm);
 }
 
 .course-card {
@@ -400,7 +399,6 @@ input[type=checkbox] {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: fit-content;
   padding: 0.25rem 1.25rem;
   font-size: var(--text-md);
   line-height: 20px;
@@ -424,6 +422,7 @@ input[type=checkbox] {
 
 .is-secondary {
   background: #FFFFFF;
+  color: inherit;
 }
 
 .is-secondary:hover {
@@ -1274,17 +1273,17 @@ pre {
 }
 .search {
   background-image: url(/assets/frappe/icons/timeless/search.svg);
-  border: 1px solid #C8CFD5;
-  box-sizing: border-box;
-  border-radius: var(--border-radius);
-  font-size: 0.75rem;
+  border: none;
+  border-radius: var(--border-radius-md);
+  font-size: var(--text-sm);
   padding: 0.625rem 0.75rem;
   height: 36px;
   background-repeat: no-repeat;
   text-indent: 1.5rem;
-  background-position: 1rem 0.65rem;
+  background-position: 1rem 0.6rem;
   float: right;
   width: 25%;
+  background-color: var(--gray-100);
 }
 
 .section-heading {

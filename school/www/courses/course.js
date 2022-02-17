@@ -41,6 +41,10 @@ frappe.ready(() => {
     notify_user(e);
   })
 
+  $("#certification").click((e) => {
+    create_certificate(e);
+  });
+
 })
 
 var check_mentor_request = () => {
@@ -196,7 +200,7 @@ var submit_review = (e) => {
       }
     }
   })
-}
+};
 
 var notify_user = (e) => {
   e.preventDefault();
@@ -216,4 +220,18 @@ var notify_user = (e) => {
       $("#notify-me").addClass("hide");
     }
   })
-}
+};
+
+const create_certificate = (e) => {
+  e.preventDefault();
+  course = $(e.currentTarget).attr("data-course");
+  frappe.call({
+    method: "school.lms.doctype.lms_certification.lms_certification.create_certificate",
+    args: {
+      "course": course
+    },
+    callback: (data) => {
+      window.location.href = `/courses/${course}/${data.message.name}`;
+    }
+  })
+};

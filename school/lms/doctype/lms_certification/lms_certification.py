@@ -23,13 +23,13 @@ class LMSCertification(Document):
 
 @frappe.whitelist()
 def create_certificate(course):
-    certificate = is_certified()
+    certificate = is_certified(course)
 
     if certificate:
         return certificate
 
     else:
-        expires_after_yrs = int(course_details.expiry)
+        expires_after_yrs = int(frappe.db.get_value("LMS Course", course, "expiry"))
         expiry_date = None
         if expires_after_yrs:
             expiry_date = add_years(nowdate(), expires_after_yrs)
@@ -42,4 +42,4 @@ def create_certificate(course):
                             "expiry_date": expiry_date
                         })
         certificate.save(ignore_permissions=True)
-        return certificate.name
+        return certificate
