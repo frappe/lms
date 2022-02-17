@@ -13,7 +13,7 @@ def get_context(context):
 
     course = frappe.db.get_value("LMS Course", course_name,
         ["name", "title", "image", "short_introduction", "description", "is_published", "upcoming",
-        "disable_self_learning", "video_link"],
+        "disable_self_learning", "video_link", "enable_certification"],
         as_dict=True)
 
     related_courses = frappe.get_all("Related Courses", {"parent": course.name}, ["course"])
