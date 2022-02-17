@@ -225,8 +225,6 @@ var notify_user = (e) => {
 const create_certificate = (e) => {
   e.preventDefault();
   course = $(e.currentTarget).attr("data-course");
-  console.log(course)
-  console.log($(e.currentTarget))
   frappe.call({
     method: "school.lms.doctype.lms_certification.lms_certification.create_certificate",
     args: {
