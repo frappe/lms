@@ -5,8 +5,8 @@
 {% endblock %}
 
 {% block content %}
-<div class="common-page-style">
-  <div class="container profile-page">
+<div class="common-page-style profile-page">
+  <div class="container">
     {% set read_only = member.name != frappe.session.user %}
     {{ ProfileBanner(member) }}
     {{ ProfileSections(member) }}
@@ -20,15 +20,20 @@
 
 {% macro ProfileBanner(member) %}
 {% set cover_image = member.cover_image if member.cover_image else "/assets/school/images/profile-banner.png" %}
+{% set enrollment = member.get_course_membership("Student") | length %}
+{% set enrollment_suffix = "Courses" if enrollment > 1 "Course" %}
 <div class="">
   <div class="profile-banner" style="background-image: url({{ cover_image }})">
     <div class="profile-avatar">
-      {{ widgets.Avatar(member=member, avatar_class="avatar-xl") }}
+      {{ widgets.Avatar(member=member, avatar_class="avatar-square") }}
     </div>
   </div>
   <div class="profile-info">
     <div class="profile-name-section">
       <div class="profile-name"> {{ member.full_name }} </div>
+      {% if enrollment %}
+      <div>{{ enrollment }}</div>
+      {% endif %}
       {% if get_authored_courses(member.name) | length %}
       <div class="creator-badge"> Creator </div>
       {% endif %}
@@ -69,7 +74,6 @@
 
 {% macro Overview(member) %}
 
-{% set enrollment = member.get_course_membership("Student") | length %}
 {% set mentorship = member.get_course_membership("Mentor") | length %}
 {% set reviews = member.get_user_reviews() | length %}
 

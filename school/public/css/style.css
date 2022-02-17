@@ -681,6 +681,15 @@ input[type=checkbox] {
   margin: 0;
 }
 
+.avatar-square {
+  width: 130px;
+  height: 130px;
+}
+
+.avatar-square .avatar-frame {
+  border-radius: 20px;
+}
+
 .avatar-medium {
   width: 42px;
   height: 42px;
@@ -920,12 +929,12 @@ input[type=checkbox] {
 }
 
 .profile-page {
-  padding-top: 1rem;
+  padding-top: 0;
 }
 
 .profile-banner {
   height: 248px;
-  border-radius: 8px 8px 0px 0px;
+  border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
   background-size: cover;
   background-position: center;
 }
@@ -971,16 +980,15 @@ input[type=checkbox] {
 }
 
 .profile-name {
-  color: var(--gray-800);
+  color: var(--gray-900);
   font-weight: 600;
-  font-size: 22px;
-  line-height: 156%;
-  letter-spacing: -0.0175em;
+  font-size: var(--text-3xl);
+  margin-left: 1.25rem;
 }
 
 @media (max-width: 375px) {
   .profile-name {
-    font-size: 16px;
+    font-size: var(--text-lg);
     padding: 5px;
   }
 }
