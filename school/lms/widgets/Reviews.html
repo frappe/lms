@@ -10,29 +10,76 @@
     {% endif %}
   </div>
 
-  {% if reviews | length %}
-  <div class="reviews-section">
-    {% for review in reviews %}
-    <div class="review-card">
-      <div class="common-card-style review-content small-title"> {{ review.review }} </div>
-      <div class="review-card-footer">
-        <div>
-          {{ widgets.Avatar(member=review.owner_details, avatar_class="avatar-medium") }}
-          <a class="button-links" href="{{get_profile_url(review.owner_details.username) }}">
-            <span class="course-instructor">
-              {{ review.owner_details.full_name }}
-            </span>
-          </a>
-        </div>
+  {% set avg_rating = get_average_rating(course.name) %}
+  <div class="reviews-header">
+    <div class="text-center">
+      <div class="avg-rating"> {{ avg_rating }} </div>
+      <div class="course-meta"> {{ reviews | length }} {{ _("ratings") }} </div>
+      <div class="avg-rating-stars">
         <div class="rating">
           {% for i in [1, 2, 3, 4, 5] %}
-          <svg class="icon icon-md {% if i <= review.rating %} star-click {% endif %}" data-rating="{{ i }}">
+          <svg class="icon icon-md {% if i <= avg_rating %} star-click {% endif %}" data-rating="{{ i }}">
             <use href="#icon-star"></use>
           </svg>
           {% endfor %}
         </div>
       </div>
+      <div class="course-meta"> {{ avg_rating }} {{ _("out of 5 ") }} </div>
     </div>
+    <div class="vertical-divider"></div>
+    {% set sorted_reviews = get_sorted_reviews(course.name) %}
+    <div>
+      {% for review in sorted_reviews %}
+      <div class="d-flex align-items-center mb-3">
+        <div class="course-meta mr-2"> {{ frappe.utils.cint(review) }} {{ _("stars") }} </div>
+        <div class="progress">
+          <div class="progress-bar" role="progressbar" aria-valuenow="{{ sorted_reviews[review] }}"
+          aria-valuemin="0" aria-valuemax="100" style="width:{{ sorted_reviews[review] }}%">
+            <span class="sr-only"> {{ sorted_reviews[review] }} Complete</span>
+          </div>
+        </div>
+        <div class="course-meta ml-3"> {{ frappe.utils.cint(sorted_reviews[review]) }}% </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+
+
+
+  {% if reviews | length %}
+  <div class="mt-12">
+    {% for review in reviews %}
+    <div class="">
+      <div class="review-card-footer">
+        <div class="d-flex align-items-center">
+          <div class="mr-5">
+            {{ widgets.Avatar(member=review.owner_details, avatar_class="avatar-medium") }}
+          </div>
+          <div>
+            <a class="button-links" href="{{get_profile_url(review.owner_details.username) }}">
+              <span class="review-author">
+                {{ review.owner_details.full_name }}
+              </span>
+            </a>
+            <div class="rating">
+              {% for i in [1, 2, 3, 4, 5] %}
+              <svg class="icon icon-md {% if i <= review.rating %} star-click {% endif %}" data-rating="{{ i }}">
+                <use href="#icon-star"></use>
+              </svg>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        <div class="ml-16 mt-4">
+          <div> {{ review.review }} </div>
+          <div class="frappe-timestamp mt-2 mb-6 course-meta" data-timestamp="{{ review.creation }}"> frappe.utils.pretty_date(review.creation) </div>
+        </div>
+      </div>
+    </div>
+    {% if loop.index != reviews | length %}
+    <div class="card-divider"></div>
+    {% endif %}
     {% endfor %}
   </div>
 

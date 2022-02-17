@@ -20,6 +20,14 @@ frappe.ui.form.on('LMS Course', {
         }
       };
     });
+
+    frm.set_query("course", "related_courses", function () {
+      return {
+        filters: {
+          "is_published": true,
+        }
+      };
+    });
   }
 
 });

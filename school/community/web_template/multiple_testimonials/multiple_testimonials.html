@@ -26,6 +26,7 @@
     {% endfor %}
   </div>
 
+  {% if testimonials_table | length > 3 %}
   <div class="slider-controls">
     <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
       <span class="carousel-control-prev-icon" aria-hidden="true"></span>
@@ -44,4 +45,6 @@
       <span class="sr-only">Next</span>
     </a>
   </div>
+  {% endif %}
+
 </div>

@@ -11,7 +11,17 @@ def get_context(context):
         frappe.local.flags.redirect_location = "/courses"
         raise frappe.Redirect
 
-    course = frappe.get_doc("LMS Course", course_name)
+    course = frappe.db.get_value("LMS Course", course_name,
+        ["name", "title", "image", "short_introduction", "description", "is_published", "upcoming",
+        "disable_self_learning", "video_link"],
+        as_dict=True)
+
+    related_courses = frappe.get_all("Related Courses", {"parent": course.name}, ["course"])
+    for csr in related_courses:
+        csr.update(frappe.db.get_value("LMS Course",
+            csr.course, ["name", "upcoming", "title", "image", "enable_certification"], as_dict=True))
+    course.related_courses = related_courses
+
     if course is None:
         frappe.local.flags.redirect_location = "/courses"
         raise frappe.Redirect
