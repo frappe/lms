@@ -60,7 +60,6 @@ def new_user(name, email):
     return doc
 
 def new_course(title, certificate=0):
-    print(title)
     doc = frappe.get_doc({
         "doctype": "LMS Course",
         "title": title,
