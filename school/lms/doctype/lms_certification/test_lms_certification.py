@@ -8,17 +8,14 @@ from school.lms.doctype.lms_certification.lms_certification import create_certif
 
 class TestLMSCertification(unittest.TestCase):
 
-    def setup(self):
-        self.course = new_course("Test Certificate")
-
     def test_certificate_creation(self):
-        self.certificate = create_certificate(self.course.name)
-        self.assertEqual(self.certificate.student, "Administrator")
-        self.assertEqual(self.certificate.course, self.course.name)
-        self.assertEqual(self.certificate.issue_date, frappe.utils.nowdate())
-        self.assertEqual(self.certificate.expiry_date, None)
+        course = new_course("Test Certificate", 1)
+        certificate = create_certificate(course.name)
 
-    def tearDown(self):
-        frappe.db.delete("LMS Course", self.course.name)
-        frappe.db.delete("LMS Certification", self.certificate.name)
+        self.assertEqual(certificate.student, "Administrator")
+        self.assertEqual(certificate.course, course.name)
+        self.assertEqual(certificate.issue_date, frappe.utils.nowdate())
+        self.assertEqual(certificate.expiry_date, None)
 
+        frappe.db.delete("LMS Course", course.name)
+        frappe.db.delete("LMS Certification", certificate.name)
