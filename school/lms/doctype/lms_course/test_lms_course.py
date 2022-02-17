@@ -59,13 +59,14 @@ def new_user(name, email):
     doc.insert()
     return doc
 
-def new_course(title, certificate=0):
+def new_course(title, certificate=0, expiry=0):
     doc = frappe.get_doc({
         "doctype": "LMS Course",
         "title": title,
         "short_introduction": title,
         "description": title,
-        "enable_certificate": certificate
+        "enable_certificate": certificate,
+        "expiry": expiry
     })
     doc.insert(ignore_permissions=True)
     return doc
