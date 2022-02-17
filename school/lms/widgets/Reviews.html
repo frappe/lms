@@ -11,6 +11,7 @@
   </div>
 
   {% set avg_rating = get_average_rating(course.name) %}
+  {% if avg_rating %}
   <div class="reviews-header">
     <div class="text-center">
       <div class="avg-rating"> {{ avg_rating }} </div>
@@ -43,9 +44,7 @@
       {% endfor %}
     </div>
   </div>
-
-
-
+  {% endif %}
 
   {% if reviews | length %}
   <div class="mt-12">
