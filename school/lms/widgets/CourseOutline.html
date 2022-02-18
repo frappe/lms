@@ -41,14 +41,14 @@
           {% elif is_instructor and not lesson.include_in_preview %}
           <a class="lesson-links"
           title="This lesson is not available for preview. As you are the Instructor of the course only you can see it."
-          href="{{ course.get_lesson_url(lesson.number) }}{{course.query_parameter}}"
+          href="{{ get_lesson_url(lesson.number) }}{{course.query_parameter}}"
           data-course="{{ course.name }}">
           <img class="mr-3" src="/assets/school/icons/lock.svg">
           <div>{{ lesson.title }}</div>
           </a>
 
           {% else %}
-          <div class="no-preview" title="This lesson is not available for preview">
+          <div class="no-preview" title="This lesson is not available for preview" data-course="{{ course.name }}">
             <div class="lesson-links">
               <img class="mr-3" src="/assets/school/icons/lock.svg">
               <div>{{ lesson.title }}</div>
@@ -76,9 +76,13 @@ frappe.ready(() => {
     rotate_chapter_icon(e);
   });
 
-})
+  $(".no-preview").click((e) => {
+    show_no_preview_dialog(e);
+  });
 
-var expand_the_first_chapter = () => {
+});
+
+const expand_the_first_chapter = () => {
   var elements = $(".course-outline .collapse");
   elements.each((i, element) => {
     if (i < 1) {
@@ -86,9 +90,9 @@ var expand_the_first_chapter = () => {
       return false;
     }
   });
-}
+};
 
-var expand_the_active_chapter = () => {
+const expand_the_active_chapter = () => {
 
   /* Find anchor matching the URL for course details page */
   var selector = $(`a[href="${decodeURIComponent(window.location.pathname)}"]`).parent();
@@ -111,21 +115,30 @@ var expand_the_active_chapter = () => {
   else {
     expand_the_first_chapter();
   }
-}
+};
 
-var show_section = (element) => {
+const show_section = (element) => {
   $(element).addClass("show");
   $(element).siblings(".chapter-title").children(".chapter-icon").css("transform", "rotate(90deg)");
   $(element).siblings(".chapter-title").attr("aria-expanded", true);
-}
+};
 
-var rotate_chapter_icon = (e) => {
+const rotate_chapter_icon = (e) => {
   var icon = $(e.currentTarget).children(".chapter-icon");
   if (icon.css("transform") == "none") {
     icon.css("transform", "rotate(90deg)");
   } else {
     icon.css("transform", "none");
   }
-}
+};
+
+const show_no_preview_dialog = (e) => {
+  frappe.warn(__("Not available for preview"),
+      __("This lesson is not available for preview. Please join the course to access it."),
+      () => {
+        window.location.href = `/courses/${ $(e.currentTarget).data("course") }`
+      },
+      __("Start Learning"), false);
+};
 
 </script>

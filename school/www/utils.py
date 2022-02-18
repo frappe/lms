@@ -1,6 +1,5 @@
 import frappe
-from school.lms.utils import slugify, get_membership, get_lessons, get_batch
-
+from school.lms.utils import slugify, get_membership, get_lessons, get_batch, get_lesson_url
 def get_common_context(context):
     context.no_cache = 1
 

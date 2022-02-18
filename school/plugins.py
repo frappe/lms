@@ -114,10 +114,11 @@ def exercise_renderer(argument):
 
 def youtube_video_renderer(video_id):
     return f"""
-    <iframe width="100%" height="315"
+    <iframe width="100%" height="400"
         src="https://www.youtube.com/embed/{video_id}"
         title="YouTube video player"
         frameborder="0"
+        style="border-radius: var(--border-radius-lg)"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         allowfullscreen>
     </iframe>
