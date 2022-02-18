@@ -414,6 +414,7 @@ input[type=checkbox] {
 .wide-button {
   padding: 0.5rem 6rem;
   font-weight: 500;
+  width: inherit;
 }
 
 @media (max-width: 768px) {
