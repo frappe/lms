@@ -33,34 +33,60 @@
 {% endblock %}
 
 {% macro LessonContent(lesson) %}
-{% set is_instructor = frappe.session.user == course.instructor %}
+{% set instructors = get_instructors(course.name) %}
+{% set is_instructor = is_instructor(course.name) %}
 <div class="lesson-content">
-  <div class="course-home-headings title
-  {% if membership %} is-member {% endif %}
-  {% if membership or is_instructor %} eligible-for-submission {% endif %}" data-lesson="{{ lesson.name }}"
-    data-course="{{ course.name }}">
-    {{ lesson.title }}
+  <div class="lesson-title">
+    <div class="course-home-headings title mb-0
+    {% if membership %} is-member {% endif %}
+    {% if membership or is_instructor %} eligible-for-submission {% endif %}" data-lesson="{{ lesson.name }}"
+      data-course="{{ course.name }}">{{ lesson.title }}</div>
     <span class="lesson-progress {{hide if get_progress(course.name, lesson.name) != 'Complete' else ''}}">COMPLETED</span>
   </div>
 
+  <div class="d-flex align-items-center">
+    {% set instructors = instructors %}
+    {% set ins_len = instructors | length %}
+    {% for instructor in instructors %}
+    {% if ins_len > 1 and loop.index == 1 %}
+    <div class="avatar-group overlap">
+    {% endif %}
+    {{ widgets.Avatar(member=instructor, avatar_class="avatar-small") }}
 
+    {% if ins_len > 1 and loop.index == ins_len %}
+    </div>
+    {% endif %}
+    {% endfor %}
+    <a class="button-links ml-2" href="{{ get_profile_url(instructors[0].username) }}">
+      <span class="course-creator-name">
+      {% if ins_len == 1 %}
+        {{ instructors[0].full_name }}
+      {% else %}
+        {% set suffix = "other" if ins_len - 1 == 1 else "others"  %}
+        {{ instructors[0].full_name.split(" ")[0] }} and {{ ins_len - 1 }} {{ suffix }}
+      {% endif %}
+      </span>
+    </a>
+    <div class="ml-3 course-meta"> {{ frappe.utils.format_date(lesson.creation, "medium") }} </div>
+  </div>
+
+
+  <div class="markdown-source lesson-content-card">
   {% if membership or lesson.include_in_preview or is_instructor %}
-  <div class="common-card-style lesson-content-card markdown-source">
-    {% if is_instructor and not lesson.include_in_preview %}
-    <small class="alert alert-secondary alert-dismissible">
+  {% if is_instructor and not lesson.include_in_preview %}
+    <div class="small alert alert-secondary alert-dismissible mt-4 mb-4">
       This lesson is not available for preview. As you are the Instructor of the course only you can see it.
       <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-    </small>
-    {% endif %}
-    {{ render_html(lesson.body) }}</div>
-  {% else %}
-  <div class="common-card-style lesson-content-card">
-    <div class="w-25 text-center" style="margin: 0 auto;">
-      <small>This lesson is not available for preview. Please join the course to access it.</small>
-      <a class="button is-primary ml-auto mr-auto mt-3" href="/courses/{{ course.name }}"> Start Learning </a>
     </div>
-  </div>
   {% endif %}
+    {{ render_html(lesson.body) }}
+  {% else %}
+    <div class="">
+      <a class="button is-primary pull-right" href="/courses/{{ course.name }}"> Start Learning </a>
+      <div class="">This lesson is not available for preview. Please join the course to access it.</div>
+    </div>
+  {% endif %}
+  </div>
 
 </div>
 {% endmacro %}

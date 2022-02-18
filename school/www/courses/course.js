@@ -21,10 +21,6 @@ frappe.ready(() => {
     view_all_mentors(e);
   });
 
-  $(".video-preview").click((e) => {
-    show_video_dialog(e);
-  });
-
   $(".review-link").click((e) => {
     show_review_dialog(e);
   });
@@ -156,11 +152,6 @@ var view_all_mentors = (e) => {
   } else {
     $(".mentor-icon").css("transform", "");
   }
-}
-
-var show_video_dialog = (e) => {
-  e.preventDefault();
-  $("#video-modal").modal("show");
 }
 
 var show_review_dialog = (e) => {
