@@ -11,9 +11,9 @@
         <p>{{ frappe.utils.md_to_html(question.question) }}</p>
 
         {% if question.multiple %}
-        <small class="font-weight-bold">Choose all answers that apply:</small>
+        <small class="font-weight-bold">{{ _("Choose all answers that apply:") }}</small>
         {% else %}
-        <small class="font-weight-bold">Choose 1 answer:</small>
+        <small class="font-weight-bold">{{ _("Choose 1 answer:") }}</small>
         {% endif %}
 
         <div class="card-divider"></div>
@@ -47,12 +47,12 @@
     </div>
     <div class="quiz-footer">
       <span class="font-weight-bold"> <span class="current-question">1</span> of {{ quiz.questions | length }}</span>
-      <button class="button pull-right is-default" id="check" disabled>Check</button>
-      <div class="button is-secondary hide" id="next">Next Question</div>
-      <div class="button is-secondary is-default hide" id="summary">Summary</div>
-      <small id="submission-message" class="font-weight-bold hide"> Please join the course to submit the Quiz.</small>
+      <button class="button pull-right is-default" id="check" disabled>{{ _("Check") }}</button>
+      <div class="button is-secondary hide" id="next">{{ _("Next Question") }}</div>
+      <div class="button is-secondary is-default hide" id="summary">{{ _("Summary") }}</div>
+      <small id="submission-message" class="font-weight-bold hide"> {{ _("Please join the course to submit the Quiz.") }}</small>
     </div>
-    <div class="button is-secondary pull-right hide" id="try-again">Try Again</div>
+    <div class="button is-secondary pull-right hide" id="try-again">{{ _("Try Again") }}</div>
     <h4 class="success-message"></h4>
     <h5 class="score text-muted"></h5>
   </form>

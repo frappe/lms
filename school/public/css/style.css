@@ -466,10 +466,6 @@ input[type=checkbox] {
   align-items: center;
 }
 
-.chapter-title[aria-expanded="true"] {
-  background: var(--gray-100);
-}
-
 .chapter-description {
   margin: 0.75rem 3rem 1rem;
 }
@@ -1714,4 +1710,8 @@ pre {
 
 .reviews-parent .progress-bar {
   background-color: var(--gray-600);
+}
+
+.body-content {
+
 }
