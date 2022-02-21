@@ -224,8 +224,9 @@ const parse_options = () => {
 };
 
 const add_icon = (element, icon) => {
+  $(element).closest(".custom-checkbox").removeClass("active-option");
   var label = $(element).siblings(".option-text").text();
-  $(element).parent().empty().html(`<img class="mr-3" src="/assets/school/icons/${icon}.svg"> ${label}`);
+  $(element).parent().empty().html(`<div class="option-text"><img class="mr-3" src="/assets/school/icons/${icon}.svg"> ${label}</div>`);
 };
 
 const add_to_local_storage = (quiz_name, current_index, answer, is_correct) => {
