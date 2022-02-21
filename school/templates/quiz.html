@@ -2,12 +2,12 @@
 
 <div class="card-divider"></div>
 
-<div class="">
+<div class="common-card-style question-card">
   <form id="quiz-form">
     <div class="questions">
       {% for question in quiz.questions %}
       {% set instruction = _("Choose all answers that apply") if question.multiple else _("Choose 1 answer") %}
-      <div class="question common-card-style {% if loop.index == 1 %} active-question {% else %} hide {% endif %}"
+      <div class="question {% if loop.index == 1 %} active-question {% else %} hide {% endif %}"
         data-question="{{ question.question }}" data-multi="{{ question.multiple}}" data-qt-index="{{ loop.index }}">
         <div class="question-header">
           <div class="question-number">{{ loop.index }}</div>
@@ -22,22 +22,22 @@
         {% set options = [question.option_1, question.option_2, question.option_3, question.option_4] %}
         {% for option in options %}
         {% if option %}
+        <div class="mb-2">
+          <div class="custom-checkbox">
+            <label class="quiz-label">
+              <div class="course-meta font-weight-bold ml-3"> {{ convert_number_to_character(loop.index - 1) }}</div>
+              <input class="option" value="{{ option | urlencode }}"
+                data-correct="{{ question['is_correct_' + loop.index | string] }}" {% if question.multiple %}
+                type="checkbox" {% else %} type="radio" name="{{ question.question | urlencode }}" {% endif %}>
+              <div class="option-text">{{ frappe.utils.md_to_html(option) }}</div>
+            </label>
+          </div>
 
-        <div class="custom-checkbox">
-          <label class="quiz-label">
-            <div class="course-meta font-weight-bold"> {{ convert_number_to_character(loop.index - 1) }}</div>
-            <input class="option" value="{{ option | urlencode }}"
-              data-correct="{{ question['is_correct_' + loop.index | string] }}" {% if question.multiple %}
-              type="checkbox" {% else %} type="radio" name="{{ question.question | urlencode }}" {% endif %}>
-            <div class="option-text">{{ frappe.utils.md_to_html(option) }}</div>
-          </label>
+          {% set explanation = question['explanation_' + loop.index | string] %}
+          {% if explanation %}
+          <small class="explanation muted-text hide">{{ explanation }}</small>
+          {% endif %}
         </div>
-
-        {% set explanation = question['explanation_' + loop.index | string] %}
-        {% if explanation %}
-        <small class="explanation muted-text hide">{{ explanation }}</small>
-        {% endif %}
-
         {% endif %}
         {% endfor %}
 

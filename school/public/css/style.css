@@ -824,9 +824,14 @@ input[type=checkbox] {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-top: 5rem;
 }
 
 .question {
+  flex-direction: column;
+}
+
+.question-card {
   flex-direction: column;
   padding: 1.25rem;
 }
@@ -1721,6 +1726,7 @@ pre {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 2rem;
 }
 
 .question-number {
