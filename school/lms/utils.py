@@ -2,6 +2,7 @@ import re
 import frappe
 from frappe.utils import flt, cint, cstr
 from school.lms.md import markdown_to_html
+import string
 
 RE_SLUG_NOTALLOWED = re.compile("[^a-z0-9]+")
 
@@ -292,3 +293,6 @@ def get_initial_members(course):
 
 def is_instructor(course):
     return len(list(filter(lambda x: x.name == frappe.session.user, get_instructors(course)))) > 0
+
+def convert_number_to_character(number):
+    return string.ascii_uppercase[number]

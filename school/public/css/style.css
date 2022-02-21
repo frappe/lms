@@ -308,11 +308,6 @@ input[type=checkbox] {
   width: 100px;
 }
 
-.custom-checkbox {
-  display: flex;
-  align-items: center;
-}
-
 .custom-checkbox>label>input {
   visibility: hidden;
 }
@@ -324,6 +319,10 @@ input[type=checkbox] {
   border-radius: var(--border-radius-md);
 }
 
+.empty-checkbox {
+  margin-right: 0.5rem;
+}
+
 .custom-checkbox>label>input:checked+.empty-checkbox {
   background: url(/assets/school/icons/tick.svg);
   background-repeat: no-repeat;
@@ -331,6 +330,8 @@ input[type=checkbox] {
 }
 
 .quiz-label {
+  display: flex;
+  align-items: center;
   margin-bottom: 0;
   cursor: pointer;
 }
@@ -823,12 +824,16 @@ input[type=checkbox] {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-top: 5rem;
 }
 
 .question {
   flex-direction: column;
-  width: 85%;
-  margin: 0 auto;
+}
+
+.question-card {
+  flex-direction: column;
+  padding: 1.25rem;
 }
 
 .question p {
@@ -887,6 +892,7 @@ input[type=checkbox] {
 .lesson-pagination {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin: 24px 0px 0px;
 }
 
@@ -1683,7 +1689,7 @@ pre {
   }
 }
 
-.review-author {
+.bold-heading {
   font-size: var(--text-lg);
   color: var(--gray-900);
   font-weight: 600;
@@ -1714,4 +1720,37 @@ pre {
 
 .reviews-parent .progress-bar {
   background-color: var(--gray-600);
+}
+
+.question-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.question-number {
+  padding: 0.25rem 0.75rem;
+  border-radius: 50%;
+  box-shadow: var(--shadow-sm);
+}
+
+.option-text {
+  padding: 0.75rem;
+  box-shadow: var(--shadow-sm);
+  border-radius: var(--border-radius-md);
+  flex: 1;
+}
+
+.active-option .option-text {
+  background-color: var(--blue-50);
+  border: 1px solid var(--blue-500);
+}
+
+.question-text {
+  font-size: var(--text-lg);
+  color: var(--gray-900);
+  font-weight: 600;
+  flex-grow: 1;
+  margin-left: 1rem;
 }

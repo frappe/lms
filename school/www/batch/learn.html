@@ -108,7 +108,7 @@
   {% set progress = get_progress(course.name, lesson.name) %}
   <div class="custom-checkbox {% if progress == 'Complete' %} hide {% endif %}">
     <label class="quiz-label">
-      <input class="option mark-progress" type="checkbox" checked>
+      <input class="mark-progress" type="checkbox" checked>
       <img class="empty-checkbox" />
       <span class="small">{{ _("Mark as complete on moving to the next lesson") }}</span>
     </label>

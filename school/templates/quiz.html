@@ -2,43 +2,42 @@
 
 <div class="card-divider"></div>
 
-<div class="mt-5">
+<div class="common-card-style question-card">
   <form id="quiz-form">
     <div class="questions">
       {% for question in quiz.questions %}
+      {% set instruction = _("Choose all answers that apply") if question.multiple else _("Choose 1 answer") %}
       <div class="question {% if loop.index == 1 %} active-question {% else %} hide {% endif %}"
         data-question="{{ question.question }}" data-multi="{{ question.multiple}}" data-qt-index="{{ loop.index }}">
-        <p>{{ frappe.utils.md_to_html(question.question) }}</p>
-
-        {% if question.multiple %}
-        <small class="font-weight-bold">Choose all answers that apply:</small>
-        {% else %}
-        <small class="font-weight-bold">Choose 1 answer:</small>
-        {% endif %}
-
-        <div class="card-divider"></div>
-
-        {% set options = [question.option_1, question.option_2, question.option_3, question.option_4] %}
-
-        {% for option in options %}
-        {% if option %}
-
-        <div class="custom-checkbox">
-          <label class="quiz-label">
-            <input class="option" value="{{ option | urlencode }}"
-              data-correct="{{ question['is_correct_' + loop.index | string] }}" {% if question.multiple %}
-              type="checkbox" {% else %} type="radio" name="{{ question.question | urlencode }}" {% endif %}>
-            <img class="empty-checkbox mr-3" />
-            <span class="label-area">{{ frappe.utils.md_to_html(option) }}</span>
-          </label>
+        <div class="question-header">
+          <div class="question-number">{{ loop.index }}</div>
+          <div class="question-text">
+            <div class="course-meta pull-right ml-2"> {{ instruction }} </div>
+            {{ frappe.utils.md_to_html(question.question) }}
+          </div>
         </div>
 
-        {% set explanation = question['explanation_' + loop.index | string] %}
-        {% if explanation %}
-        <small class="explanation muted-text hide">{{ explanation }}</small>
-        {% endif %}
 
-        <div class="card-divider"></div>
+
+        {% set options = [question.option_1, question.option_2, question.option_3, question.option_4] %}
+        {% for option in options %}
+        {% if option %}
+        <div class="mb-2">
+          <div class="custom-checkbox">
+            <label class="quiz-label">
+              <div class="course-meta font-weight-bold ml-3"> {{ convert_number_to_character(loop.index - 1) }}</div>
+              <input class="option" value="{{ option | urlencode }}"
+                data-correct="{{ question['is_correct_' + loop.index | string] }}" {% if question.multiple %}
+                type="checkbox" {% else %} type="radio" name="{{ question.question | urlencode }}" {% endif %}>
+              <div class="option-text">{{ frappe.utils.md_to_html(option) }}</div>
+            </label>
+          </div>
+
+          {% set explanation = question['explanation_' + loop.index | string] %}
+          {% if explanation %}
+          <small class="explanation ml-3 hide">{{ explanation }}</small>
+          {% endif %}
+        </div>
         {% endif %}
         {% endfor %}
 
@@ -51,8 +50,8 @@
       <div class="button is-secondary hide" id="next">Next Question</div>
       <div class="button is-secondary is-default hide" id="summary">Summary</div>
       <small id="submission-message" class="font-weight-bold hide"> Please join the course to submit the Quiz.</small>
+      <div class="button is-secondary hide" id="try-again">Try Again</div>
     </div>
-    <div class="button is-secondary pull-right hide" id="try-again">Try Again</div>
     <h4 class="success-message"></h4>
     <h5 class="score text-muted"></h5>
   </form>
