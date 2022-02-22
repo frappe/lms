@@ -37,7 +37,6 @@ def get_context(context):
         "lesson": context.lesson.name,
         "is_member": context.membership is not None
     }
-    print(context)
 
 def get_current_lesson_details(lesson_number, context):
     details_list = list(filter(lambda x: cstr(x.number) == lesson_number, context.lessons))

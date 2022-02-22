@@ -41,6 +41,12 @@ frappe.ready(() => {
     create_certificate(e);
   });
 
+  $(document).scroll(function() {
+    let timer;
+    clearTimeout(timer);
+    timer = setTimeout(() => { handle_overlay_display.apply(this, arguments); }, 500);
+  });
+
 })
 
 var check_mentor_request = () => {
@@ -226,3 +232,27 @@ const create_certificate = (e) => {
     }
   })
 };
+
+
+const element_not_in_viewport = (el) => {
+  const rect = el.getBoundingClientRect();
+  return rect.bottom < 0 || rect.right < 0 || rect.left > window.innerWidth || rect.top > window.innerHeight;
+}
+
+const handle_overlay_display = () => {
+  const element = $(".related-courses").length && $(".related-courses")[0];
+  if (element && element_not_in_viewport(element)) {
+    $(".course-overlay-card").css({
+      "position": "fixed",
+      "top": "30%",
+      "bottom": "inherit"
+    });
+  }
+  else if (element && !element_not_in_viewport(element)) {
+    $(".course-overlay-card").css({
+        "position": "absolute",
+        "top": "inherit",
+        "bottom": "5%"
+      });
+  }
+}

@@ -475,7 +475,7 @@ input[type=checkbox] {
 }
 
 .chapter-icon {
-  margin: 0 1.25rem;
+  margin-right: 1.25rem;
 }
 
 .course-outline-instructor-parent {
@@ -539,14 +539,12 @@ input[type=checkbox] {
 
 .lesson-info {
   font-size: 16px;
-  line-height: 250%;
   letter-spacing: -0.011em;
-  margin-top: 0.5rem;
 }
 
 .lesson-links {
   display: flex;
-  padding: 0 1rem;
+  padding: 0.75rem 1rem;
   color: inherit;
 }
 
@@ -557,16 +555,14 @@ input[type=checkbox] {
   border-radius: var(--border-radius-md);
 }
 
-.course-content-parent .lesson-links {
-  padding: 0.5rem 1rem;
-  margin-bottom: 0.75rem;
-  font-size: 0.85rem;
-  line-height: 200%;
+.course-content-parent .chapter-title {
+  font-size: var(--text-md);
 }
 
-.chapter-content {
-  margin: 0;
-  margin-left: .875rem;
+.course-content-parent .lesson-links {
+  padding: 0.5rem 1rem;
+  font-size: var(--text-md);
+  line-height: 200%;
 }
 
 .course-outline {
@@ -575,7 +571,7 @@ input[type=checkbox] {
 }
 
 .lessons {
-  margin-left: 2rem;
+  margin-left: 2.5rem;
 }
 
 .course-buttons {
@@ -1376,6 +1372,8 @@ pre {
 .related-courses {
   background: var(--gray-50);
   padding: 5rem 0;
+  position: relative;
+  z-index: 5;
 }
 
 .carousel-indicators {
@@ -1570,10 +1568,11 @@ pre {
   box-shadow: var(--shadow-sm);
   overflow: auto;
   width: fit-content;
-  position: absolute;
+  position: fixed;
   top: 40%;
   right: 7%;
   max-width: 400px;
+  z-index: 4;
 }
 
 @media (max-width: 768px) {
@@ -1627,8 +1626,8 @@ pre {
 .overlay-student-count {
   display: flex;
   align-items: center;
-  justify-content: center;
   margin-bottom: 1.5rem;
+  margin-top: 1rem;
 }
 
 .course-creators-card {
@@ -1712,6 +1711,6 @@ pre {
   background-color: var(--gray-600);
 }
 
-.body-content {
-
+.course-home-top-container {
+  position: relative;
 }
