@@ -2,6 +2,7 @@ import re
 import frappe
 from frappe.utils import flt, cint, cstr
 from school.lms.md import markdown_to_html
+import string
 
 RE_SLUG_NOTALLOWED = re.compile("[^a-z0-9]+")
 
@@ -81,7 +82,7 @@ def get_lesson_details(chapter):
 
     for row in lesson_list:
         lesson_details = frappe.db.get_value("Course Lesson", row.lesson,
-            ["name", "title", "include_in_preview", "body"], as_dict=True)
+            ["name", "title", "include_in_preview", "body", "creation"], as_dict=True)
         lesson_details.number = flt("{}.{}".format(chapter.idx, row.idx))
         lessons.append(lesson_details)
     return lessons
@@ -289,3 +290,9 @@ def get_initial_members(course):
             member.member, ["name", "username", "full_name", "user_image"], as_dict=True))
 
     return member_details
+
+def is_instructor(course):
+    return len(list(filter(lambda x: x.name == frappe.session.user, get_instructors(course)))) > 0
+
+def convert_number_to_character(number):
+    return string.ascii_uppercase[number]

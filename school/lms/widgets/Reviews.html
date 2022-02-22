@@ -11,6 +11,7 @@
   </div>
 
   {% set avg_rating = get_average_rating(course.name) %}
+  {% if avg_rating %}
   <div class="reviews-header">
     <div class="text-center">
       <div class="avg-rating"> {{ avg_rating }} </div>
@@ -43,9 +44,7 @@
       {% endfor %}
     </div>
   </div>
-
-
-
+  {% endif %}
 
   {% if reviews | length %}
   <div class="mt-12">
@@ -58,7 +57,7 @@
           </div>
           <div>
             <a class="button-links" href="{{get_profile_url(review.owner_details.username) }}">
-              <span class="review-author">
+              <span class="bold-heading">
                 {{ review.owner_details.full_name }}
               </span>
             </a>
@@ -84,19 +83,25 @@
   </div>
 
   {% else %}
-  <div class="empty-state text-center">
-    <img class="icon icon-xl" src="/assets/frappe/icons/timeless/message.svg">
-    <div class="course-home-headings mt-4 mb-0" style="color: inherit;"> {{ _("Review the course") }} </div>
-    <div class="small mb-6"> {{ _("Help us improve our course material.") }} </div>
-    {% if is_eligible_to_review(course.name, membership) %}
-      <span class="review-link button is-secondary ml-auto mr-auto mt-3">
+  <div class="empty-state-new">
+    <div>
+      <img class="icon icon-xl" src="/assets/school/icons/comment.svg">
+    </div>
+    <div class="empty-state-text">
+      <div class="empty-state-heading">{{ _("Review the course") }}</div>
+      <div class="course-meta">{{ _("Help us improve our course material.") }}</div>
+    </div>
+    <div>
+      {% if is_eligible_to_review(course.name, membership) %}
+      <span class="review-link button is-secondary">
         {{ _("Write a review") }}
       </span>
-    {% elif frappe.session.user == "Guest" %}
-    <a class="button is-secondary dark-links ml-auto mr-auto mt-3" href="/login?redirect-to=/courses/{{ course.name }}"> {{ _("Login") }} </a>
-    {% elif not membership %}
-    <div class="button is-secondary join-batch ml-auto mr-auto mt-3" data-course="{{ course.name | urlencode }}"> {{ _("Start Learning") }} </div>
-    {% endif %}
+      {% elif frappe.session.user == "Guest" %}
+      <a class="button is-primary" href="/login?redirect-to=/courses/{{ course.name }}"> {{ _("Login") }} </a>
+      {% elif not membership %}
+      <div class="button is-primary join-batch" data-course="{{ course.name | urlencode }}"> {{ _("Start Learning") }} </div>
+      {% endif %}
+    </div>
   </div>
   {% endif %}
 </div>

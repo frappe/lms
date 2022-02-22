@@ -21,10 +21,6 @@ frappe.ready(() => {
     view_all_mentors(e);
   });
 
-  $(".video-preview").click((e) => {
-    show_video_dialog(e);
-  });
-
   $(".review-link").click((e) => {
     show_review_dialog(e);
   });
@@ -43,6 +39,12 @@ frappe.ready(() => {
 
   $("#certification").click((e) => {
     create_certificate(e);
+  });
+
+  $(document).scroll(function() {
+    let timer;
+    clearTimeout(timer);
+    timer = setTimeout(() => { handle_overlay_display.apply(this, arguments); }, 500);
   });
 
 })
@@ -158,11 +160,6 @@ var view_all_mentors = (e) => {
   }
 }
 
-var show_video_dialog = (e) => {
-  e.preventDefault();
-  $("#video-modal").modal("show");
-}
-
 var show_review_dialog = (e) => {
   e.preventDefault();
   $("#review-modal").modal("show");
@@ -235,3 +232,27 @@ const create_certificate = (e) => {
     }
   })
 };
+
+
+const element_not_in_viewport = (el) => {
+  const rect = el.getBoundingClientRect();
+  return rect.bottom < 0 || rect.right < 0 || rect.left > window.innerWidth || rect.top > window.innerHeight;
+}
+
+const handle_overlay_display = () => {
+  const element = $(".related-courses").length && $(".related-courses")[0];
+  if (element && element_not_in_viewport(element)) {
+    $(".course-overlay-card").css({
+      "position": "fixed",
+      "top": "30%",
+      "bottom": "inherit"
+    });
+  }
+  else if (element && !element_not_in_viewport(element)) {
+    $(".course-overlay-card").css({
+        "position": "absolute",
+        "top": "inherit",
+        "bottom": "5%"
+      });
+  }
+}

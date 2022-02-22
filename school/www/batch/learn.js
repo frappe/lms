@@ -43,7 +43,7 @@ frappe.ready(() => {
 
   $(".clear-work").click((e) => {
     clear_work(e);
-  })
+  });
 
 });
 
@@ -57,8 +57,10 @@ const save_current_lesson = () => {
 };
 
 const enable_check = (e) => {
-  if ($(".option:checked").length && $("#check").attr("disabled")) {
+  if ($(".option:checked").length) {
     $("#check").removeAttr("disabled");
+    $(".custom-checkbox").removeClass("active-option");
+    $(".option:checked").closest(".custom-checkbox").addClass("active-option");
   }
 };
 
@@ -164,7 +166,7 @@ const quiz_summary = (e) => {
     callback: (data) => {
       var message = data.message == total_questions ? "Excellent Work" : "You were almost there."
       $(".question").addClass("hide");
-      $(".quiz-footer").addClass("hide");
+      $("#summary").addClass("hide");
       $("#quiz-form").parent().prepend(
         `<div class="text-center summary"><h2>${message} 👏 </h2>
           <div class="font-weight-bold">${data.message}/${total_questions} correct.</div></div>`);
@@ -222,8 +224,9 @@ const parse_options = () => {
 };
 
 const add_icon = (element, icon) => {
-  var label = $(element).parent().find(".label-area p").text();
-  $(element).parent().empty().html(`<img class="mr-3" src="/assets/school/icons/${icon}.svg"> ${label}`);
+  $(element).closest(".custom-checkbox").removeClass("active-option");
+  var label = $(element).siblings(".option-text").text();
+  $(element).parent().empty().html(`<div class="option-text"><img class="mr-3" src="/assets/school/icons/${icon}.svg"> ${label}</div>`);
 };
 
 const add_to_local_storage = (quiz_name, current_index, answer, is_correct) => {
@@ -354,27 +357,27 @@ const clear_work = (e) => {
   parent.addClass("hide");
   parent.siblings(".attach-file").removeClass("hide").val(null);
   parent.siblings(".submit-work").removeClass("hide");
-}
+};
 
 const fetch_assignments = () => {
-  if ($(".attach-file").length > 0) {
-    frappe.call({
-      method: "school.lms.doctype.lesson_assignment.lesson_assignment.get_assignment",
-      args: {
-        "lesson": $(".title").attr("data-lesson")
-      },
-      callback: (data) => {
-        if (data.message && data.message.length) {
-          const assignments = data.message;
-          for (let i in assignments) {
-            let target = $(`#${assignments[i]["id"]}`);
-            target.addClass("hide");
-            target.siblings(".submit-work").addClass("hide");
-            target.siblings(".preview-work").removeClass("hide");
-            target.siblings(".preview-work").find("a").attr("href", assignments[i]["assignment"]).text(assignments[i]["file_name"]);
-          }
+  if ($(".attach-file").length <= 0)
+    return;
+  frappe.call({
+    method: "school.lms.doctype.lesson_assignment.lesson_assignment.get_assignment",
+    args: {
+      "lesson": $(".title").attr("data-lesson")
+    },
+    callback: (data) => {
+      if (data.message && data.message.length) {
+        const assignments = data.message;
+        for (let i in assignments) {
+          let target = $(`#${assignments[i]["id"]}`);
+          target.addClass("hide");
+          target.siblings(".submit-work").addClass("hide");
+          target.siblings(".preview-work").removeClass("hide");
+          target.siblings(".preview-work").find("a").attr("href", assignments[i]["assignment"]).text(assignments[i]["file_name"]);
         }
       }
-    })
-  }
-}
+    }
+  });
+};

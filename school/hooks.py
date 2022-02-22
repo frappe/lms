@@ -183,7 +183,9 @@ jinja = {
         "school.lms.utils.get_reviews",
         "school.lms.utils.is_eligible_to_review",
         "school.lms.utils.get_initial_members",
-        "school.lms.utils.get_sorted_reviews"
+        "school.lms.utils.get_sorted_reviews",
+        "school.lms.utils.is_instructor",
+        "school.lms.utils.convert_number_to_character"
     ],
     "filters": []
 }
