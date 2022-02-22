@@ -4,7 +4,7 @@
     {{ _("Course Content") }}
   </div>
   {% for chapter in get_chapters(course.name) %}
-  <div class="mb-2">
+  <div class="">
     <div class="chapter-title" data-target="#{{ get_slugified_chapter_title(chapter.title) }}"
       data-toggle="collapse" aria-expanded="false">
       <img class="chapter-icon" src="/assets/school/icons/chevron-right.svg">
