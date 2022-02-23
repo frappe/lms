@@ -1,15 +1,24 @@
 {% extends "templates/base.html" %}
 {% block head_include %}
 <meta name="description" content="{{ member.full_name }}" />
-<meta name="keywords" content="An app that supports Communities." />
 {% endblock %}
 
 {% block content %}
 <div class="common-page-style profile-page">
+  {{ ProfileBanner(member) }}
+  <div class="profile-page-body">
+    <div class="container">
+      {% set read_only = member.name != frappe.session.user %}
+      {{ About(member) }}
+      {{ EducationDetails(member) }}
+      {{ WorkDetails(member) }}
+      {{ Certification(member) }}
+      {{ Contact(member) }}
+      {{ Skills(member) }}
+      {{ CareerPreference(member) }}
+    </div>
+  </div>
   <div class="container">
-    {% set read_only = member.name != frappe.session.user %}
-    {{ ProfileBanner(member) }}
-    {{ ProfileSections(member) }}
     {{ CoursesEnrolled(member, read_only) }}
     {{ CoursesCreated(member, read_only) }}
     {{ CoursesMentored(member, read_only) }}
@@ -21,8 +30,8 @@
 {% macro ProfileBanner(member) %}
 {% set cover_image = member.cover_image if member.cover_image else "/assets/school/images/profile-banner.png" %}
 {% set enrollment = member.get_course_membership("Student") | length %}
-{% set enrollment_suffix = "Courses" if enrollment > 1 "Course" %}
-<div class="">
+{% set enrollment_suffix = _("Courses") if enrollment > 1 else _("Course") %}
+<div class="container">
   <div class="profile-banner" style="background-image: url({{ cover_image }})">
     <div class="profile-avatar">
       {{ widgets.Avatar(member=member, avatar_class="avatar-square") }}
@@ -31,89 +40,41 @@
   <div class="profile-info">
     <div class="profile-name-section">
       <div class="profile-name"> {{ member.full_name }} </div>
-      {% if enrollment %}
-      <div>{{ enrollment }}</div>
-      {% endif %}
+
       {% if get_authored_courses(member.name) | length %}
-      <div class="creator-badge"> Creator </div>
+      <div class="creator-badge"> {{ _("Creator") }} </div>
       {% endif %}
+
       {% if member.looking_for_job %}
-      <div class="creator-badge"> Open Network </div>
+      <div class="creator-badge"> {{ _("Open Network") }} </div>
+      {% endif %}
+
+      {% if frappe.session.user == member.email %}
+      <a class="dark-links profile-link" href="/edit-profile?name={{ member.email }}"> {{ _("Edit Profile") }} </a>
       {% endif %}
     </div>
 
-    {% if frappe.session.user == member.email %}
-      <a class="dark-links profile-link" href="/edit-profile?name={{ member.email }}">Edit Profile</a>
-    {% endif %}
+    <div class="profile-meta">
+      {% if member.headline %}
+      <div class="course-meta mr-3"> {{ member.headline }} </div>
+      {% endif %}
 
-  </div>
-</div>
-{% endmacro %}
-
-{% macro ProfileSections(member) %}
-
-<div class="profile-parent-section">
-
-  <div class="profile-column-one">
-    {{ About(member) }}
-    {{ EducationDetails(member) }}
-    {{ WorkDetails(member) }}
-    {{ Certification(member) }}
-  </div>
-
-  <div class="profile-column-two">
-    {{ Overview(member) }}
-    {{ Contact(member) }}
-    {{ Skills(member) }}
-    {{ CareerPreference(member) }}
-    <!-- {{ WorkPreference(member) }} -->
-  </div>
-
-</div>
-{% endmacro %}
-
-{% macro Overview(member) %}
-
-{% set mentorship = member.get_course_membership("Mentor") | length %}
-{% set reviews = member.get_user_reviews() | length %}
-
-{% if enrollment or reviews or mentorship %}
-  <div class="course-overview-section">
-    <div class="course-home-headings">
-      Overview
-    </div>
-    <div class="common-card-style overview-card ">
       {% if enrollment %}
-      <div class="overview-item">
-        <img class="mr-1" src="/assets/school/icons/course.svg" />
-        <span> {{ enrollment }} {% if enrollment > 1 %} Courses {% else %} Course {% endif %} Taken </span>
-      </div>
-      {% endif %}
-      {% if reviews %}
-      <div class="overview-item">
-        <img class="mr-1" src="/assets/school/icons/rating.svg" />
-        <span> {{ reviews }} {% if reviews > 1 %} Courses {% else %} Course {% endif %} Reviewed </span>
-      </div>
-      {% endif %}
-      {% if mentorship %}
-      <div class="overview-item">
-        <img class="mr-1" src="/assets/school/icons/calendar.svg" />
-        <span> {{ mentorship }} {% if mentorship > 1 %} Courses {% else %} Course {% endif %} Mentored </span>
-      </div>
+      <div class="course-meta">
+        <img src="/assets/school/icons/book_plain.svg">
+        {{ enrollment }} {{ enrollment_suffix }} {{ _("taken") }} </div>
       {% endif %}
     </div>
-  </div>
-{% endif %}
-{% endmacro %}
 
+  </div>
+</div>
+{% endmacro %}
 
 {% macro CoursesCreated(member, read_only) %}
 {% set authored_courses = get_authored_courses(member.name) %}
 {% if authored_courses | length %}
 <div class="profile-courses">
-  <div class="course-home-headings">
-    Courses Created
-  </div>
+  <div class="course-home-headings"> {{ _("Courses Created") }} </div>
   <div class="cards-parent">
     {% for course in authored_courses %}
     {% set course_details = frappe.db.get_value("LMS Course", course,
@@ -181,9 +142,9 @@
 {% macro About(member) %}
 {% if member.bio %}
   <div class="profile-about-section">
-    <div class="course-home-headings"> {{ _("About") }} </div>
-    <div class="common-card-style description-card">
-      {{ member.bio }}
+    <div class="common-card-style profile-card">
+      <div class="course-home-headings"> {{ _("About") }} </div>
+      <div class="description">{{ member.bio }}</div>
     </div>
   </div>
 {% endif %}
@@ -191,8 +152,8 @@
 
 {% macro WorkPreference(member) %}
 <div class="education-details">
-  <div class="course-home-headings"> {{ _("Work Preference") }} </div>
-  <div class="common-card-style overview-card">
+  <div class="common-card-style profile-card">
+    <div class="course-home-headings"> {{ _("Work Preference") }} </div>
     <div> {{ member.attire }} </div>
     <div> {{ member.collaboration }} </div>
     <div> {{ member.role }} </div>
@@ -206,38 +167,42 @@
 {% macro CareerPreference(member) %}
 {% if member.preferred_functions or member.preferred_industries or member.preferred_location or member.dream_companies %}
 <div class="education-details">
-  <div class="course-home-headings"> {{ _("Career Preference") }} </div>
-  <div class="common-card-style overview-card">
-
-    {% if member.preferred_functions | length %}
-    <div>
-      <b>Preferred Functions:</b>
+  <div class="common-card-style profile-card">
+    <div class="course-home-headings"> {{ _("Career Preference") }} </div>
+    <div class="profile-column-grid">
+      {% if member.preferred_functions | length %}
       <div>
-      {% for function in member.preferred_functions %}
-      <div>{{ function.function }}</div>
-      {% endfor %}
+        <b>{{ _("Preferred Functions:") }}</b>
+        {% for function in member.preferred_functions %}
+        <div class="description">{{ function.function }}</div>
+        {% endfor %}
       </div>
-    </div>
-    {% endif %}
+      {% endif %}
 
-    {% if member.preferred_industries | length %}
-    <div>
-      <b>Preferred Industries:</b>
+      {% if member.preferred_industries | length %}
       <div>
-      {% for industry in member.preferred_industries %}
-      <div>{{ industry.industry }}</div>
-      {% endfor %}
+        <b>{{ _("Preferred Industries:") }}</b>
+        {% for industry in member.preferred_industries %}
+        <div class="description">{{ industry.industry }}</div>
+        {% endfor %}
       </div>
+      {% endif %}
+
+      {% if member.preferred_location %}
+      <div>
+        <b> {{ _("Preferred Locations:") }} </b>
+        <div class="description"> {{ member.preferred_location }} </div>
+      </div>
+      {% endif %}
+
+      {% if member.dream_companies %}
+      <div>
+        <b> {{ _("Dream Companies:") }} </b>
+        <div class="description"> {{ member.dream_companies }} </div>
+      </div>
+      {% endif %}
     </div>
-    {% endif %}
 
-    {% if member.preferred_location %}
-    <div> <b>Preferred Locations:</b> {{ member.preferred_location }} </div>
-    {% endif %}
-
-    {% if member.dream_companies %}
-    <div> <b>Dream Companies:</b> {{ member.dream_companies }} </div>
-    {% endif %}
   </div>
 </div>
 {% endif %}
@@ -246,35 +211,28 @@
 {% macro Contact(member) %}
 {% if show_contacts_section %}
 <div class="education-details">
-  <div class="course-home-headings"> {{ _("Contact") }} </div>
-  <div class="common-card-style overview-card">
-
-    {% if not member.hide_private and not hide_primary_contact %}
-    <a class="button-links" href="mailto:{{ member.email }}"> <img src="/assets/school/icons/mail.svg"> {{ member.email }} </a>
-    {% endif %}
-
-    {% if member.mobile_no and not member.hide_private and not hide_primary_contact %}
-    <a class="button-links" href="tel:{{ member.mobile_no }}" >
-      <img src="/assets/school/icons/call.svg"> {{ member.mobile_no }}
-    </a>
-    {% endif %}
-
-    {% if member.linkedin %}
+  <div class="common-card-style profile-card">
+    <div class="course-home-headings"> {{ _("Contact") }} </div>
+    <div class="profile-column-grid">
+      {% if member.linkedin %}
       {% set linkedin = member.linkedin[:-1] if member.linkedin[-1] == "/" else member.linkedin %}
-      <a class="button-links" href="{{ member.linkedin }}">
+      <a class="button-links description" href="{{ member.linkedin }}">
         <img src="/assets/school/icons/linkedin.svg"> {{ linkedin.split("/")[-1] }}
       </a>
     {% endif %}
+
     {% if member.medium %}
-    <a class="button-links" href="{{ member.medium}}">
+    <a class="button-links description" href="{{ member.medium}}">
       <img src="/assets/school/icons/medium.svg"> {{ member.medium.split("/")[-1] }}
     </a>
     {% endif %}
+
     {% if member.github %}
-    <a class="button-links" href="{{ member.github }}">
+    <a class="button-links description" href="{{ member.github }}">
       <img src="/assets/school/icons/github.svg"> {{ member.github.split("/")[-1] }}
     </a>
     {% endif %}
+    </div>
   </div>
 </div>
 {% endif %}
@@ -283,11 +241,13 @@
 {% macro Skills(member) %}
 {% if member.skill | length %}
 <div class="education-details">
-  <div class="course-home-headings"> {{ _("Skills")}} </div>
-  <div class="common-card-style overview-card">
-    {% for skill in member.skill %}
-    <div> {{ skill.skill_name }} </div>
-    {% endfor %}
+  <div class="common-card-style profile-card">
+    <div class="course-home-headings"> {{ _("Skills")}} </div>
+    <div class="profile-column-grid">
+      {% for skill in member.skill %}
+      <div class="description"> {{ skill.skill_name }} </div>
+      {% endfor %}
+    </div>
   </div>
 </div>
 {% endif %}
@@ -296,25 +256,28 @@
 {% macro EducationDetails(member) %}
 {% if member.education %}
 <div class="education-details">
-  <div class="course-home-headings"> Education </div>
   <div class="common-card-style profile-card">
-    {% for edu in member.education %}
-    <div class="profile-card-row">
-      <div class="bold-title"> {{ edu.institution_name }} </div>
-      <div class="profile-item"> {{ edu.degree_type }} <span></span> {{ edu.major }}
-        {% if not member.hide_private %}
-        <!-- {% if edu.grade_type %} {{ edu.grade_type }}  {% endif %} -->
-        {% if edu.grade %} <span></span> {{ edu.grade }}  {% endif %}
-        {% endif %}
+    <div class="course-home-headings"> {{ _("Education") }} </div>
+    <div class="profile-grid-card">
+      {% for edu in member.education %}
+      <div class="profile-card-row">
+        <div class="bold-title"> {{ edu.institution_name }} </div>
+        <div class="profile-item"> {{ edu.degree_type }} <span></span> {{ edu.major }}
+          {% if not member.hide_private %}
+          <!-- {% if edu.grade_type %} {{ edu.grade_type }}  {% endif %} -->
+          {% if edu.grade %} <span></span> {{ edu.grade }}  {% endif %}
+          {% endif %}
+        </div>
+        <div class="description">
+          {% if edu.start_date %}
+          {{ frappe.utils.format_date(edu.start_date, "MMM YYYY") }} -
+          {% endif %}
+          {{ frappe.utils.format_date(edu.end_date, "MMM YYYY") }} </div>
+        <div class="description"> {{ edu.location }} </div>
       </div>
-      <div>
-        {% if edu.start_date %}
-        {{ frappe.utils.format_date(edu.start_date, "MMM YYYY") }} -
-        {% endif %}
-        {{ frappe.utils.format_date(edu.end_date, "MMM YYYY") }} </div>
-      <div> {{ edu.location }} </div>
+      {% endfor %}
     </div>
-    {% endfor %}
+
   </div>
 </div>
 {% endif %}
@@ -324,18 +287,20 @@
 {% set work_details = member.work_experience + member.internship %}
 {% if work_details | length %}
 <div class="education-details">
-  <div class="course-home-headings"> Work Experience </div>
   <div class="common-card-style profile-card">
+   <div class="course-home-headings"> {{ _("Work Experience") }} </div>
+   <div class="profile-grid-card">
     {% for work in work_details %}
     <div class="">
       <div class="bold-title"> {{ work.title }} </div>
       <div class="profile-item"> {{ work.company }} </div>
-      <div> {{ frappe.utils.format_date(work.from_date, "MMM YYYY") }} -
+      <div class="description"> {{ frappe.utils.format_date(work.from_date, "MMM YYYY") }} -
         {% if work.to_date %} {{ frappe.utils.format_date(work.to_date, "MMM YYYY") }} {% else %} Present {% endif %} </div>
-        <div> {{ work.location }} </div>
+        <div class="description"> {{ work.location }} </div>
         {% if work.description %} <div class="profile-item"> {{ work.description }} </div> {% endif %}
     </div>
     {% endfor %}
+   </div>
   </div>
 </div>
 {% endif %}
@@ -344,17 +309,20 @@
 {% macro Certification(member) %}
 {% if member.certification %}
 <div class="education-details">
-  <div class="course-home-headings"> Certification </div>
   <div class="common-card-style profile-card">
-    {% for cert in member.certification %}
-    <div class="">
-      <div class="bold-title"> {{ cert.certification_name }} </div>
-      <div class="profile-item"> {{ cert.organization }} </div>
-      <div> {{ frappe.utils.format_date(cert.issue_date, "MMM YYYY") }}
-        {% if cert.expiration_date %} - {{ frappe.utils.format_date(cert.expiration_date, "MMM YYYY") }} {% endif %} </div>
-        {% if cert.description %} <div class="profile-item"> {{ cert.description }} </div> {% endif %}
+    <div class="course-home-headings"> {{ _("Certification") }} </div>
+    <div class="profile-grid-card">
+      {% for cert in member.certification %}
+      <div class="">
+        <div class="bold-title"> {{ cert.certification_name }} </div>
+        <div class="profile-item"> {{ cert.organization }} </div>
+        <div class="description"> {{ frappe.utils.format_date(cert.issue_date, "MMM YYYY") }}
+          {% if cert.expiration_date %} - {{ frappe.utils.format_date(cert.expiration_date, "MMM YYYY") }} {% endif %} </div>
+          {% if cert.description %} <div class="profile-item"> {{ cert.description }} </div> {% endif %}
+      </div>
+      {% endfor %}
     </div>
-    {% endfor %}
+
   </div>
 </div>
 {% endif %}

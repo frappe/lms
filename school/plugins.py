@@ -97,7 +97,6 @@ def set_mandatory_fields_for_profile():
     for field in profile_form.web_form_fields:
         field.reqd = 0
         if field.fieldname in profile_mandatory_fields:
-            print(field.fieldname)
             field.reqd = 1
 
     profile_form.save()
