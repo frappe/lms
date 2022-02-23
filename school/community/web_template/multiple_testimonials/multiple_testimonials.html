@@ -3,26 +3,26 @@
   <div class="carousel-inner">
     {% for testimonial_row in testimonials_table %}
     {% set review = frappe.db.get_value("LMS Course Review", testimonial_row.testimonials, ["owner", "review"], as_dict=True) %}
+    {% set member = frappe.db.get_value("User", review.owner, ["name", "username", "full_name", "user_image", "headline"], as_dict=True) %}
 
-      {% if loop.index % 3 == 1 %}
-      <div class="carousel-item {% if loop.index == 1 %} active {% endif %}"> <div class="cards-parent">
-      {% endif %}
-        <div class="common-card-style testimonial-card">
-          {% set member = frappe.get_doc("User", review.owner) %}
-          <div class="d-flex align-items-center mb-4">
-            <div>
-              {{ widgets.Avatar(member=member, avatar_class="avatar-testimonial") }}
-            </div>
-            <div class="ml-3">
-              <div class="testimonial-author" >{{ member.full_name }}</div>
-              {% if member.profession %}<div class="testimonial-profession">{{ member.profession }}</div> {% endif %}
-            </div>
-          </div>
-          <div class="testimonial-review">
+    {% if loop.index % 3 == 1 %}
+    <div class="carousel-item {% if loop.index == 1 %} active {% endif %}"> <div class="cards-parent">
+    {% endif %}
+      <div class="common-card-style testimonial-card">
+        <div class="testimonial-review">
           {{ review.review }}
+        </div>
+        <div class="d-flex align-items-center">
+          <div>
+            {{ widgets.Avatar(member=member, avatar_class="avatar-small") }}
+          </div>
+          <div class="ml-3">
+            <div class="testimonial-author" >{{ member.full_name }}</div>
+            {% if member.headline %}<div class="testimonial-profession">{{ member.headline }}</div> {% endif %}
           </div>
         </div>
-      {% if loop.index % 3 == 0 or loop.index == testimonials_table | length %} </div> </div> {% endif %}
+      </div>
+    {% if loop.index % 3 == 0 or loop.index == testimonials_table | length %} </div> </div> {% endif %}
     {% endfor %}
   </div>
 
