@@ -209,7 +209,7 @@
 {% endmacro %}
 
 {% macro Contact(member) %}
-{% if show_contacts_section %}
+{% if member.linkedin or member.medium or member.github %}
 <div class="education-details">
   <div class="common-card-style profile-card">
     <div class="course-home-headings"> {{ _("Contact") }} </div>
@@ -232,6 +232,7 @@
       <img src="/assets/school/icons/github.svg"> {{ member.github.split("/")[-1] }}
     </a>
     {% endif %}
+
     </div>
   </div>
 </div>

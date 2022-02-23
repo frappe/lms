@@ -17,16 +17,7 @@ def get_context(context):
     except:
         context.template = "www/404.html"
         return
-    context.hide_primary_contact = frappe.db.get_single_value("LMS Settings", "hide_primary_contact")
-    context.show_contacts_section = show_contacts_section(context.member, context.hide_primary_contact)
     context.profile_tabs = get_profile_tabs(context.member)
-
-def show_contacts_section(member, hide_primary_contact):
-    if member.github or member.linkedin or member.medium:
-        return True
-    if hide_primary_contact or member.hide_private:
-        return False
-    return True
 
 def get_profile_tabs(user):
     """Returns the enabled ProfileTab objects.

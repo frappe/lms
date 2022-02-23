@@ -41,7 +41,6 @@ class InviteRequest(Document):
         }
         frappe.sendmail(
             recipients=self.invite_email,
-            sender=frappe.db.get_single_value("LMS Settings", "email_sender"),
             subject=subject,
             header=[subject, "green"],
             template = "lms_invite_request_approved",
