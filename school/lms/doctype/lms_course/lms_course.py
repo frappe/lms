@@ -34,7 +34,6 @@ class LMSCourse(Document):
             args["first_name"] = frappe.db.get_value("User", user.user, "first_name")
             email_args = frappe._dict(
                             recipients = user.user,
-                            sender = frappe.db.get_single_value("LMS Settings", "email_sender"),
                             subject = subject,
                             header = [subject, "green"],
                             template = "lms_course_interest",

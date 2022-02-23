@@ -138,6 +138,7 @@ def assignment_renderer(detail):
     return frappe.render_template("templates/assignment.html", {"id": detail.split("-")[0], "accept": accept})
 
 def show_custom_signup():
-    if frappe.db.get_single_value("LMS Settings", "terms_of_use"):
+    if (frappe.db.get_single_value("LMS Settings", "terms_of_use")
+        or frappe.db.get_single_value("LMS Settings", "privacy_policy")):
         return "school/templates/signup-form.html"
     return "frappe/templates/signup.html"

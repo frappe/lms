@@ -5,15 +5,17 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "livecode_url",
-  "email_sender",
-  "hide_primary_contact",
-  "column_break_2",
-  "force_profile_completion",
   "show_search",
   "search_placeholder",
+  "column_break_2",
+  "force_profile_completion",
+  "livecode_url",
+  "signup_settings_section",
   "terms_of_use",
   "terms_page",
+  "column_break_12",
+  "privacy_policy",
+  "privacy_policy_page",
   "mentor_request_section",
   "mentor_request_creation",
   "mentor_request_status_update"
@@ -36,12 +38,6 @@
    "fieldtype": "Link",
    "label": "Mentor Request Status Update Template",
    "options": "Email Template"
-  },
-  {
-   "fieldname": "email_sender",
-   "fieldtype": "Data",
-   "label": "Senders Email Id",
-   "options": "Email"
   },
   {
    "fieldname": "mentor_request_section",
@@ -85,16 +81,32 @@
    "options": "Web Page"
   },
   {
+   "fieldname": "signup_settings_section",
+   "fieldtype": "Section Break",
+   "label": "Signup Settings"
+  },
+  {
    "default": "0",
-   "fieldname": "hide_primary_contact",
+   "fieldname": "privacy_policy",
    "fieldtype": "Check",
-   "label": "Hide Primary Contact on Profile Page"
+   "label": "Show Privacy Policy on Signup"
+  },
+  {
+   "depends_on": "privacy_policy",
+   "fieldname": "privacy_policy_page",
+   "fieldtype": "Link",
+   "label": "Privacy Policy Page",
+   "options": "Web Page"
+  },
+  {
+   "fieldname": "column_break_12",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2021-12-23 19:49:02.194513",
+ "modified": "2022-02-23 16:15:28.586903",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",
@@ -113,5 +125,6 @@
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
+ "states": [],
  "track_changes": 1
 }

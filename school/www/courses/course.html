@@ -121,14 +121,14 @@
   {% endif %}
 
   <div class="course-overlay-content">
+    <div class="course-home-headings"> {{ course.title }} </div>
 
     <div id="interest-alert" class="{% if not is_user_interested %} hide {% endif %}">
       You have opted to be notified for this course. You will receive an email when the course becomes available.
     </div>
 
-    <div class="course-home-headings"> {{ course.title }} </div>
     {% if get_lessons(course.name) | length %}
-    <div class="mt-3">
+    <div class="mt-3 mb-4">
       <img class="mr-3" src="/assets/school/icons/book.svg">
       {{ get_lessons(course.name) | length }} {{ _("Lessons") }}
     </div>
