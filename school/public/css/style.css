@@ -1,16 +1,6 @@
 :root {
-  --text-xs: 11px;
-  --text-sm: 12px;
-  --text-md: 13px;
-  --text-base: 14px;
-  --text-lg: 16px;
-  --text-xl: 18px;
-  --text-2xl: 20px;
-  --text-3xl: 22px;
   --text-3-5xl: 24px;
   --text-3-8xl: 34px;
-  --text-4xl: 44px;
-  --navbar-shadow: 0px 1px 8px rgba(0, 0, 0, 0.08);
 }
 
 body {
@@ -675,6 +665,15 @@ input[type=checkbox] {
   margin: 0;
 }
 
+.avatar-square {
+  width: 130px;
+  height: 130px;
+}
+
+.avatar-square .avatar-frame {
+  border-radius: 20px;
+}
+
 .avatar-medium {
   width: 42px;
   height: 42px;
@@ -700,6 +699,11 @@ input[type=checkbox] {
     width: 88px;
     height: 88px;
   }
+
+  .avatar-square {
+    width: 75px;
+    height: 75px;
+  }
 }
 
 @media (max-width: 375px) {
@@ -712,19 +716,6 @@ input[type=checkbox] {
 .avatar-testimonial {
   width: 48px;
   height: 48px;
-}
-
-.description-card {
-  padding: 1.5rem;
-  flex-direction: column;
-}
-
-.description-card p {
-  line-height: 1.72;
-}
-
-.description-card p:last-child {
-  margin-bottom: 0;
 }
 
 .overview-card {
@@ -925,12 +916,12 @@ input[type=checkbox] {
 }
 
 .profile-page {
-  padding-top: 1rem;
+  padding-top: 0;
 }
 
 .profile-banner {
   height: 248px;
-  border-radius: 8px 8px 0px 0px;
+  border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
   background-size: cover;
   background-position: center;
 }
@@ -949,9 +940,19 @@ input[type=checkbox] {
   height: 68px;
   background: #ffffff;
   border-radius: 0px 0px 8px 8px;
-  font-size: 12px;
+  font-size: var(--text-sm);
   display: flex;
   justify-content: space-between;
+  margin: 0 1rem 4rem 0;
+  flex-direction: column;
+  padding-left: 200px;
+}
+
+@media (max-width: 550px) {
+  .profile-info {
+    align-items: flex-end;
+    padding-left: 0;
+  }
 }
 
 .profile-avatar {
@@ -976,48 +977,34 @@ input[type=checkbox] {
 }
 
 .profile-name {
-  color: var(--gray-800);
+  color: var(--gray-900);
   font-weight: 600;
-  font-size: 22px;
-  line-height: 156%;
-  letter-spacing: -0.0175em;
+  font-size: var(--text-3xl);
 }
 
 @media (max-width: 375px) {
   .profile-name {
-    font-size: 16px;
-    padding: 5px;
+    font-size: var(--text-lg);
+    padding-top: 5px;
   }
 }
 
 .profile-name-section {
   display: flex;
   align-items: center;
-  margin-bottom: 0.25rem;
-  padding-left: 175px;
+  margin: 1rem 0 0.25rem;
+}
+
+@media (max-width: 550px) {
+  .profile-name-section {
+    flex-direction: column;
+    align-items: flex-end;
+    margin: 0 0 0.5rem;
+  }
 }
 
 .profile-link {
-  display: flex;
-  align-items: center;
-  padding: 1rem;
-}
-
-@media (max-width: 500px) {
-  .profile-info {
-    flex-direction: column;
-    align-items: end;
-    justify-content: space-around;
-    padding-right: 1rem;
-  }
-
-  .profile-name-section {
-    padding-left: 0;
-  }
-
-  .profile-link {
-    padding: 0;
-  }
+  margin-left: auto;
 }
 
 .creator-badge {
@@ -1043,11 +1030,16 @@ input[type=checkbox] {
   }
 }
 
-.profile-card {
-  flex-direction: column;
-  padding: 1.5rem;
+@media (max-width: 550px) {
+  .creator-badge {
+    margin-top: 0.25rem;
+    margin-left: 0;
+  }
+}
+
+.profile-grid-card {
   display: grid;
-  row-gap: 2rem;
+  row-gap: 1rem;
 }
 
 .profile-item {
@@ -1255,9 +1247,9 @@ pre {
   }
 }
 
-.thread-card {
+.profile-card {
   flex-direction: column;
-  padding: 1rem;
+  padding: 1rem 1.25rem;
 }
 
 .empty-state {
@@ -1293,9 +1285,6 @@ pre {
   align-items: center;
 }
 
-.navbar {
-  box-shadow: var(--navbar-shadow);
-}
 .search {
   background-image: url(/assets/frappe/icons/timeless/search.svg);
   border: none;
@@ -1752,4 +1741,24 @@ pre {
   font-weight: 600;
   flex-grow: 1;
   margin-left: 1rem;
+}
+
+.profile-page-body {
+  background-color: var(--gray-50);
+  padding: 2rem 0;
+}
+
+.profile-column-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+}
+
+.description {
+  font-size: var(--text-base);
+  color: var(--gray-800);
+}
+
+.profile-meta {
+  display: flex;
+  align-items: center;
 }
