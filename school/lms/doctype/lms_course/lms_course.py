@@ -33,13 +33,12 @@ class LMSCourse(Document):
         for user in interested_users:
             args["first_name"] = frappe.db.get_value("User", user.user, "first_name")
             email_args = frappe._dict(
-                            recipients = user.user,
-                            subject = subject,
-                            header = [subject, "green"],
-                            template = "lms_course_interest",
-                            args = args,
-                            now = True
-                        )
+                recipients = user.user,
+                subject = subject,
+                header = [subject, "green"],
+                template = "lms_course_interest",
+                args = args,
+                now = True)
             frappe.enqueue(method=frappe.sendmail, queue='short', timeout=300, is_async=True, **email_args)
             frappe.db.set_value("LMS Course Interest", user.name, "email_sent", True)
 

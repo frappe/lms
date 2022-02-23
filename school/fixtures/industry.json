@@ -4,239 +4,167 @@
   "doctype": "Industry",
   "industry": "Accounting",
   "modified": "2021-12-14 15:21:18.044741",
-  "name": "Accounting",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Accounting"
  },
  {
   "docstatus": 0,
   "doctype": "Industry",
   "industry": "Ads, Marketing, PR & Events",
   "modified": "2021-12-14 15:21:18.069794",
-  "name": "Ads, Marketing, PR & Events",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Ads, Marketing, PR & Events"
  },
  {
   "docstatus": 0,
   "doctype": "Industry",
   "industry": "Agriculture, Fishing & Forestry",
   "modified": "2021-12-14 15:21:18.074148",
-  "name": "Agriculture, Fishing & Forestry",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Agriculture, Fishing & Forestry"
  },
  {
   "docstatus": 0,
   "doctype": "Industry",
   "industry": "Architecture",
   "modified": "2021-12-14 15:21:18.078250",
-  "name": "Architecture",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Architecture"
  },
  {
   "docstatus": 0,
   "doctype": "Industry",
   "industry": "Aviation & Aerospace",
   "modified": "2021-12-14 15:21:18.082127",
-  "name": "Aviation & Aerospace",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Aviation & Aerospace"
  },
  {
   "docstatus": 0,
   "doctype": "Industry",
   "industry": "Banking, Financial Services & Insurance",
   "modified": "2021-12-14 15:21:18.087499",
-  "name": "Banking, Financial Services & Insurance",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Banking, Financial Services & Insurance"
  },
  {
   "docstatus": 0,
   "doctype": "Industry",
   "industry": "Biotech & Pharmaceuticals",
   "modified": "2021-12-14 15:21:18.092094",
-  "name": "Biotech & Pharmaceuticals",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Biotech & Pharmaceuticals"
  },
  {
   "docstatus": 0,
   "doctype": "Industry",
   "industry": "Construction & Real Estate",
   "modified": "2021-12-14 15:21:18.095728",
-  "name": "Construction & Real Estate",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Construction & Real Estate"
  },
  {
   "docstatus": 0,
   "doctype": "Industry",
   "industry": "Consulting & Professional Services",
   "modified": "2021-12-14 15:21:18.099171",
-  "name": "Consulting & Professional Services",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Consulting & Professional Services"
  },
  {
   "docstatus": 0,
   "doctype": "Industry",
   "industry": "Energy & Utilities",
   "modified": "2021-12-14 15:21:18.114022",
-  "name": "Energy & Utilities",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Energy & Utilities"
  },
  {
   "docstatus": 0,
   "doctype": "Industry",
   "industry": "Food & Beverages",
   "modified": "2021-12-14 15:21:18.124655",
-  "name": "Food & Beverages",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Food & Beverages"
  },
  {
   "docstatus": 0,
   "doctype": "Industry",
   "industry": "Health & Medical",
   "modified": "2021-12-14 15:21:18.127914",
-  "name": "Health & Medical",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Health & Medical"
  },
  {
   "docstatus": 0,
   "doctype": "Industry",
   "industry": "Hospitality & Tourism",
   "modified": "2021-12-14 15:21:18.130783",
-  "name": "Hospitality & Tourism",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Hospitality & Tourism"
  },
  {
   "docstatus": 0,
   "doctype": "Industry",
   "industry": "IT / Ecommerce / Internet",
   "modified": "2021-12-14 15:21:18.134069",
-  "name": "IT / Ecommerce / Internet",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "IT / Ecommerce / Internet"
  },
  {
   "docstatus": 0,
   "doctype": "Industry",
   "industry": "Manufacturing & Production",
   "modified": "2021-12-14 15:21:18.137362",
-  "name": "Manufacturing & Production",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Manufacturing & Production"
  },
  {
   "docstatus": 0,
   "doctype": "Industry",
   "industry": "Media & Entertainment",
   "modified": "2021-12-14 15:21:18.140180",
-  "name": "Media & Entertainment",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Media & Entertainment"
  },
  {
   "docstatus": 0,
   "doctype": "Industry",
   "industry": "Public Service & NGOs",
   "modified": "2021-12-14 15:21:18.143125",
-  "name": "Public Service & NGOs",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Public Service & NGOs"
  },
  {
   "docstatus": 0,
   "doctype": "Industry",
   "industry": "Retail, Fashion & FMCG",
   "modified": "2021-12-14 15:21:18.146020",
-  "name": "Retail, Fashion & FMCG",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Retail, Fashion & FMCG"
  },
  {
   "docstatus": 0,
   "doctype": "Industry",
   "industry": "Staffing & Recruiting",
   "modified": "2021-12-14 15:21:18.149084",
-  "name": "Staffing & Recruiting",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Staffing & Recruiting"
  },
  {
   "docstatus": 0,
   "doctype": "Industry",
   "industry": "Transportation & Logistics",
   "modified": "2021-12-14 15:21:18.151952",
-  "name": "Transportation & Logistics",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Transportation & Logistics"
  },
  {
   "docstatus": 0,
   "doctype": "Industry",
   "industry": "Security & Law Enforcement",
   "modified": "2021-12-14 15:21:18.154929",
-  "name": "Security & Law Enforcement",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Security & Law Enforcement"
  },
  {
   "docstatus": 0,
   "doctype": "Industry",
   "industry": "Other",
   "modified": "2021-12-14 15:21:18.157766",
-  "name": "Other",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Other"
  },
  {
   "docstatus": 0,
   "doctype": "Industry",
   "industry": "Education & Training",
   "modified": "2021-12-14 15:21:18.105864",
-  "name": "Education & Training",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Education & Training"
  },
  {
   "docstatus": 0,
   "doctype": "Industry",
   "industry": "Engineering",
   "modified": "2021-12-14 15:21:18.119149",
-  "name": "Engineering",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Engineering"
  }
 ]

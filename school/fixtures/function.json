@@ -4,159 +4,111 @@
   "doctype": "Function",
   "function": "Consulting",
   "modified": "2021-12-14 15:16:26.189604",
-  "name": "Consulting",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Consulting"
  },
  {
   "docstatus": 0,
   "doctype": "Function",
   "function": "Data & Analytics",
   "modified": "2021-12-14 15:16:26.341051",
-  "name": "Data & Analytics",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Data & Analytics"
  },
  {
   "docstatus": 0,
   "doctype": "Function",
   "function": "Design & Creative",
   "modified": "2021-12-14 15:16:26.343820",
-  "name": "Design & Creative",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Design & Creative"
  },
  {
   "docstatus": 0,
   "doctype": "Function",
   "function": "Engineering (Non Software)",
   "modified": "2021-12-14 15:16:26.346329",
-  "name": "Engineering (Non Software)",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Engineering (Non Software)"
  },
  {
   "docstatus": 0,
   "doctype": "Function",
   "function": "Finance, Investment & Accounting",
   "modified": "2021-12-14 15:16:26.351518",
-  "name": "Finance, Investment & Accounting",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Finance, Investment & Accounting"
  },
  {
   "docstatus": 0,
   "doctype": "Function",
   "function": "Human Resource & Recruiting",
   "modified": "2021-12-14 15:16:26.354310",
-  "name": "Human Resource & Recruiting",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Human Resource & Recruiting"
  },
  {
   "docstatus": 0,
   "doctype": "Function",
   "function": "Legal",
   "modified": "2021-12-14 15:16:26.356844",
-  "name": "Legal",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Legal"
  },
  {
   "docstatus": 0,
   "doctype": "Function",
   "function": "Marketing, Advertising & PR",
   "modified": "2021-12-14 15:16:26.359511",
-  "name": "Marketing, Advertising & PR",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Marketing, Advertising & PR"
  },
  {
   "docstatus": 0,
   "doctype": "Function",
   "function": "Operations & Admin",
   "modified": "2021-12-14 15:16:26.362571",
-  "name": "Operations & Admin",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Operations & Admin"
  },
  {
   "docstatus": 0,
   "doctype": "Function",
   "function": "Project Management",
   "modified": "2021-12-14 15:16:26.365033",
-  "name": "Project Management",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Project Management"
  },
  {
   "docstatus": 0,
   "doctype": "Function",
   "function": "Product",
   "modified": "2021-12-14 15:16:26.367804",
-  "name": "Product",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Product"
  },
  {
   "docstatus": 0,
   "doctype": "Function",
   "function": "Research, Training & Education",
   "modified": "2021-12-14 15:16:26.370085",
-  "name": "Research, Training & Education",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Research, Training & Education"
  },
  {
   "docstatus": 0,
   "doctype": "Function",
   "function": "Sales & Customer Service",
   "modified": "2021-12-14 15:16:26.372635",
-  "name": "Sales & Customer Service",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Sales & Customer Service"
  },
  {
   "docstatus": 0,
   "doctype": "Function",
   "function": "Supply Chain, Logistics Strategy & Management",
   "modified": "2021-12-14 15:16:26.375091",
-  "name": "Supply Chain, Logistics Strategy & Management",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Supply Chain, Logistics Strategy & Management"
  },
  {
   "docstatus": 0,
   "doctype": "Function",
   "function": "Other",
   "modified": "2021-12-14 15:16:26.377761",
-  "name": "Other",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Other"
  },
  {
   "docstatus": 0,
   "doctype": "Function",
   "function": "Engineering (Software & IT)",
   "modified": "2021-12-14 15:16:26.348864",
-  "name": "Engineering (Software & IT)",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Engineering (Software & IT)"
  }
 ]
