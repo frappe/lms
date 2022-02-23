@@ -246,12 +246,12 @@ def get_country_code():
 def search_users(start=0, text=""):
     or_filters = get_or_filters(text)
     count = len(get_users(or_filters, 0, 900000000, text))
-    users = get_users(or_filters, start, 30, text)
+    users = get_users(or_filters, start, 24, text)
     user_details = get_user_details(users)
 
     return {
         "user_details": user_details,
-        "start": cint(start) + 30,
+        "start": cint(start) + 24,
         "count": count
     }
 
@@ -282,7 +282,7 @@ def get_or_filters(text):
 def get_user_details(users):
     user_details = []
     for user in users:
-        details = frappe.get_doc("User", user)
+        details = frappe.db.get_value("User", user, ["name", "username", "full_name", "user_image", "headline"], as_dict=True)
         user_details.append(Widgets().MemberCard(member=details, avatar_class="avatar-large"))
 
     return user_details

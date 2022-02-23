@@ -7,7 +7,7 @@
 
     <input class="search" id="search-user" placeholder="{{ _('Try a Name, Company, or Industry') }}">
 
-    <div class="course-home-headings">Community</div>
+    <div class="course-home-headings">{{ _("Community") }} </div>
 
     <div class="alert alert-dismissible empty-state text-center hide" id="search-empty-state">
       <a href="#" class="close-search-empty-state" aria-label="close">&times;</a>
@@ -17,13 +17,13 @@
     </div>
 
     <div class="member-parent">
-      {% for user in user_details %}
+      {% for user in users %}
       {{ widgets.MemberCard(member=user, show_course_count=False, avatar_class="avatar-large") }}
       {% endfor %}
     </div>
     {% if user_count > user_details | length %}
     <div class="mt-10 d-flex justify-content-center">
-      <div class="button is-secondary" id="load-more" data-start="30" data-count="{{ user_count }}">Load More</div>
+      <div class="button is-secondary" id="load-more" data-start="30" data-count="{{ user_count }}">{{ _("Load More") }}</div>
     </div>
     {% endif %}
   </div>

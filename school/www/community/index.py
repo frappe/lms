@@ -2,16 +2,9 @@ import frappe
 
 def get_context(context):
     context.user_count = frappe.db.count("User", {"enabled": True})
-    users = frappe.get_all("User",
-        {"enabled": True},
-        pluck="name",
+    context.users = frappe.get_all("User",
+        filters={"enabled": True},
+        fields=["name", "username", "full_name", "user_image", "headline"],
         start=0,
-        page_length=30,
+        page_length=24,
         order_by="creation desc")
-
-    user_details = []
-    for user in users:
-        details = frappe.get_doc("User", user)
-        user_details.append(details)
-
-    context.user_details = user_details
