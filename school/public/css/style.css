@@ -1154,6 +1154,16 @@ pre {
   justify-content: space-between;
 }
 
+.job-detail-card {
+  padding: 1.5rem;
+  flex-direction: column;
+}
+
+.job-detail-card span::before {
+  content: "\00B7";
+  margin: 0 8px;
+}
+
 .job-subtitle {
   font-size: var(--text-base);
   margin-bottom: 1.875rem;
