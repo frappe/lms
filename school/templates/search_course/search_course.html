@@ -4,11 +4,15 @@
 {% if show_search %}
 <input class="search" id="search-course" placeholder="{{ _(search_placeholder) }}">
 
-<div id="" class="alert alert-dismissible empty-state search-empty-state hide">
+<div class="empty-state-new alert alert-dismissible search-empty-state hide">
   <a href="#" class="close-search-empty-state" aria-label="close">&times;</a>
-  <img class="icon icon-xl" src="/assets/frappe/images/ui-states/search-empty-state.svg">
-  <div class="course-home-headings mt-4 mb-0" style="color: inherit;"> {{ _("No results found") }} </div>
-  <div class="small mb-6"> {{ _("Try some other keyword or explore our list of courses.") }} </div>
+  <div>
+    <img class="icon icon-xl" src="/assets/frappe/images/ui-states/search-empty-state.svg">
+  </div>
+  <div class="empty-state-text">
+    <div class="empty-state-heading">{{ _("No results found") }}</div>
+    <div class="course-meta">{{ _("Try some other keyword or explore our list of courses.") }}</div>
+  </div>
 </div>
 
 <script> {% include "school/templates/search_course/search_course.js" %} </script>

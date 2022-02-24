@@ -9,11 +9,15 @@
 
     <div class="course-home-headings">{{ _("Community") }} </div>
 
-    <div class="alert alert-dismissible empty-state text-center hide" id="search-empty-state">
+    <div class="empty-state-new alert alert-dismissible hide" id="search-empty-state">
       <a href="#" class="close-search-empty-state" aria-label="close">&times;</a>
-      <img class="icon icon-xl" src="/assets/frappe/images/ui-states/search-empty-state.svg">
-      <div class="course-home-headings mt-4 mb-0" style="color: inherit;"> {{ _("No results found") }} </div>
-      <div class="small mb-6"> {{ _("Try some other keyword or explore our community") }} </div>
+      <div>
+        <img class="icon icon-xl" src="/assets/frappe/images/ui-states/search-empty-state.svg">
+      </div>
+      <div class="empty-state-text">
+        <div class="empty-state-heading">{{ _("No results found") }}</div>
+        <div class="course-meta">{{ _("Try some other keyword or explore our community") }}</div>
+      </div>
     </div>
 
     <div class="member-parent">

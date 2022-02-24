@@ -40,13 +40,20 @@
     </div>
       </div>
     {% else %}
-    <div class="empty-state text-center">
-      <img class="icon icon-xl" src="/assets/frappe/icons/timeless/message.svg">
-      <div class="course-home-headings mt-4 mb-0" style="color: inherit;"> {{ _("No open jobs") }} </div>
-      <div class="small mb-6"> {{ _("There are no job openings at present.") }} </div>
-      {% if allow_posting %}
-      <a class="button is-secondary dark-links m-auto" href="/job-opportunity?new=1">{{ _("Post a Job") }}</a>
-      {% endif %}
+
+    <div class="empty-state-new">
+      <div>
+        <img class="icon icon-xl" src="/assets/school/icons/comment.svg">
+      </div>
+      <div class="empty-state-text">
+        <div class="empty-state-heading">{{ _("No open jobs") }}</div>
+        <div class="course-meta">{{ _("There are no job openings at present.") }}</div>
+      </div>
+      <div>
+        {% if allow_posting %}
+        <a class="button is-secondary dark-links m-auto" href="/job-opportunity?new=1">{{ _("Post a Job") }}</a>
+        {% endif %}
+      </div>
     </div>
     {% endif %}
   </div>

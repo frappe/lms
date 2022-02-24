@@ -1069,10 +1069,10 @@ pre {
 }
 
 .search-empty-state {
-  text-align: center;
   position: relative;
-  top: 4rem;
+  top: 1rem;
   margin-bottom: 5rem;
+  width: 100%;
 }
 
 .close-search-empty-state {
