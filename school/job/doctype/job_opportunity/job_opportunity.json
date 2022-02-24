@@ -2,7 +2,7 @@
  "actions": [],
  "allow_rename": 1,
  "autoname": "format: JOB-{#####}",
- "creation": "2021-12-27 16:53:32.316215",
+ "creation": "2022-02-07 12:01:41.074418",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -95,7 +95,8 @@
   {
    "fieldname": "company_logo",
    "fieldtype": "Attach Image",
-   "label": "Company Logo"
+   "label": "Company Logo",
+   "reqd": 1
   },
   {
    "fieldname": "application_link",
@@ -112,7 +113,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-01-11 14:56:42.509351",
+ "modified": "2022-02-24 12:37:45.666484",
  "modified_by": "Administrator",
  "module": "Job",
  "name": "Job Opportunity",

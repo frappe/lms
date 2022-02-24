@@ -927,14 +927,6 @@ pre {
 }
 
 .empty-state {
-  background: #EBEEF0;
-  border: 1px dashed #C8CFD5;
-  box-sizing: border-box;
-  border-radius: var(--border-radius-md);
-  padding: 2.5rem;
-}
-
-.empty-state-new {
   background: var(--gray-50);
   border-radius: var(--border-radius-lg);
   padding: 2rem;
@@ -1069,10 +1061,10 @@ pre {
 }
 
 .search-empty-state {
-  text-align: center;
   position: relative;
-  top: 4rem;
+  top: 1rem;
   margin-bottom: 5rem;
+  width: 100%;
 }
 
 .close-search-empty-state {
