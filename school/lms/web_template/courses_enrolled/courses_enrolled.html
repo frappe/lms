@@ -14,7 +14,7 @@
   </div>
   {% else %}
   {% set site_name = frappe.db.get_single_value("System Settings", "app_name") %}
-  <div class="empty-state-new">
+  <div class="empty-state">
     <div class="empty-state-text">
       <div class="text-center">
         <div class="empty-state-heading">{{ _("You haven't enrolled for any courses") }}</div>

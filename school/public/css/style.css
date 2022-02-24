@@ -927,14 +927,6 @@ pre {
 }
 
 .empty-state {
-  background: #EBEEF0;
-  border: 1px dashed #C8CFD5;
-  box-sizing: border-box;
-  border-radius: var(--border-radius-md);
-  padding: 2.5rem;
-}
-
-.empty-state-new {
   background: var(--gray-50);
   border-radius: var(--border-radius-lg);
   padding: 2rem;
