@@ -19,7 +19,7 @@
       </div>
       {% endif %}
 
-      {% set is_instructor = frappe.session.user == course.instructor %}
+      {% set is_instructor = is_instructor(course.name) %}
       <div class="lessons">
 
         {% for lesson in get_lessons(course.name, chapter) %}
@@ -41,7 +41,7 @@
           {% elif is_instructor and not lesson.include_in_preview %}
           <a class="lesson-links"
           title="This lesson is not available for preview. As you are the Instructor of the course only you can see it."
-          href="{{ get_lesson_url(lesson.number) }}{{course.query_parameter}}"
+          href="{{ get_lesson_url(course.name, lesson.number) }}{{course.query_parameter}}"
           data-course="{{ course.name }}">
           <img class="mr-3" src="/assets/school/icons/lock.svg">
           <div>{{ lesson.title }}</div>
