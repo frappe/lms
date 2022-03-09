@@ -13,9 +13,12 @@
   "signup_settings_section",
   "terms_of_use",
   "terms_page",
-  "column_break_12",
+  "column_break_9",
   "privacy_policy",
   "privacy_policy_page",
+  "column_break_12",
+  "cookie_policy",
+  "cookie_policy_page",
   "mentor_request_section",
   "mentor_request_creation",
   "mentor_request_status_update"
@@ -96,17 +99,36 @@
    "fieldname": "privacy_policy_page",
    "fieldtype": "Link",
    "label": "Privacy Policy Page",
+   "mandatory_depends_on": "privacy_policy",
    "options": "Web Page"
   },
   {
    "fieldname": "column_break_12",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_9",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "cookie_policy",
+   "fieldtype": "Check",
+   "label": "Show Cookie Policy on Signup"
+  },
+  {
+   "depends_on": "cookie_policy",
+   "fieldname": "cookie_policy_page",
+   "fieldtype": "Link",
+   "label": "Cookie Policy Page",
+   "mandatory_depends_on": "cookie_policy",
+   "options": "Web Page"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2022-02-23 16:15:28.586903",
+ "modified": "2022-03-09 12:40:27.464136",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",

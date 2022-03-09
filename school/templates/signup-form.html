@@ -10,24 +10,6 @@
       <input type="email" id="signup_email" class="form-control"
         placeholder="{{ _('jane@example.com') }}" required>
     </div>
-    {% set terms_of_use = frappe.db.get_single_value("LMS Settings", "terms_of_use") %}
-    {% set privacy_policy = frappe.db.get_single_value("LMS Settings", "privacy_policy") %}
-
-    {% if terms_of_use or privacy_policy %}
-
-    {% if terms_of_use %}
-    {% set terms_page = frappe.db.get_single_value("LMS Settings", "terms_page") %}
-    {% set terms_page_route = frappe.db.get_value("Web Page", terms_page, "route") %}
-    {% set terms_link = "<a href='/" + terms_page_route  +"'>" + _("Terms of Use") + "</a>" %}
-    {% endif %}
-
-    {% if privacy_policy %}
-    {% set privacy_policy_page = frappe.db.get_single_value("LMS Settings", "privacy_policy_page") %}
-    {% set privacy_page_route = frappe.db.get_value("Web Page", privacy_policy_page, "route") %}
-    {% set privacy_link = "<a href='/" + privacy_page_route  +"'>" + _("Privacy Policy") + "</a>" %}
-    {% endif %}
-
-    {% set final_link = terms_link + _(" and ") + privacy_link if terms_of_use and privacy_policy else terms_link if terms_of_use else privacy_link %}
 
     <div class="form-group">
       <div class="checkbox">
@@ -37,13 +19,12 @@
               data-fieldtype="Check" data-fieldname="terms" id="signup-terms" required>
             </span>
           <span class="label-area">
-            {{ _("I have read and agree to your {0}").format(final_link) }}
+            {{ _("I have read and agree to your {0}").format(get_signup_optin_checks()) }}
           </span>
         </label>
         <p class="help-box small text-muted"></p>
       </div>
     </div>
-    {% endif %}
   </div>
   <div class="page-card-actions">
     <button class="btn btn-sm btn-primary btn-block btn-signup"
