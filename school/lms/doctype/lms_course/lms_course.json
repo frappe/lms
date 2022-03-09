@@ -7,7 +7,6 @@
    "label": "Reindex Exercises"
   }
  ],
- "allow_guest_to_view": 1,
  "allow_import": 1,
  "allow_rename": 1,
  "creation": "2022-02-22 15:28:26.091549",
@@ -150,7 +149,6 @@
    "options": "Related Courses"
   }
  ],
- "index_web_pages_for_search": 1,
  "is_published_field": "is_published",
  "links": [
   {
@@ -174,7 +172,7 @@
    "link_fieldname": "course"
   }
  ],
- "modified": "2022-03-07 14:47:51.745509",
+ "modified": "2022-03-08 15:20:58.501082",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",
@@ -189,6 +187,7 @@
    "read": 1,
    "report": 1,
    "role": "System Manager",
+   "select": 1,
    "share": 1,
    "write": 1
   },

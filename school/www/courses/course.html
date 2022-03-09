@@ -1,9 +1,11 @@
 {% extends "templates/base.html" %}
 {% block title %}{{ course.title }}
 {% endblock %}
+
 {% block head_include %}
 <link rel="stylesheet" href="/assets/frappe/css/font-awesome.css">
 {% endblock %}
+
 {% block content %}
 <div class="common-page-style pt-0">
   <div class="course-home-top-container">
@@ -26,6 +28,11 @@
   style=" {% if course.image %} background-position: center; background-size: cover; background-image: url({{ course.image }});
   {% else %} background-color: var(--gray-200) {% endif %}">
   <div class="container pt-10 pb-10">
+    {% if is_instructor(course.name) %}
+    <a class="button is-default button-links pull-right" href="/lesson?new=1"> {{ _("New Lesson") }} </a>
+    <a class="button is-default button-links pull-right mr-2" href="/chapter?new=1"> {{ _("New Chapter") }} </a>
+    <a class="button is-default button-links pull-right mr-2" href="/course?name={{ course.name }}"> {{ _("Edit") }} </a>
+    {% endif %}
     {{ BreadCrumb(course) }}
     {{ CourseCardWide(course) }}
   </div>

@@ -59,7 +59,7 @@
    "link_fieldname": "chapter"
   }
  ],
- "modified": "2021-09-29 15:33:44.611229",
+ "modified": "2022-03-08 15:21:10.389729",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Course Chapter",
@@ -77,11 +77,25 @@
    "role": "System Manager",
    "share": 1,
    "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "if_owner": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "All",
+   "select": 1,
+   "share": 1,
+   "write": 1
   }
  ],
  "search_fields": "title",
  "sort_field": "modified",
  "sort_order": "DESC",
+ "states": [],
  "title_field": "title",
  "track_changes": 1
 }
