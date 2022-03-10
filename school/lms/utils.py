@@ -3,6 +3,7 @@ import frappe
 from frappe.utils import flt, cint, cstr
 from school.lms.md import markdown_to_html
 import string
+from frappe import _
 
 RE_SLUG_NOTALLOWED = re.compile("[^a-z0-9]+")
 
@@ -296,3 +297,30 @@ def is_instructor(course):
 
 def convert_number_to_character(number):
     return string.ascii_uppercase[number]
+
+def get_signup_optin_checks():
+
+    mapper = frappe._dict({
+        "terms_of_use": {
+            "page_name": "terms_page",
+            "title": _("Terms of Use")
+        },
+        "privacy_policy": {
+            "page_name": "privacy_policy_page",
+            "title": _("Privacy Policy")
+        },
+        "cookie_policy": {
+            "page_name": "cookie_policy_page",
+            "title": _("Cookie Policy")
+        }
+    })
+    checks = ["terms_of_use", "privacy_policy", "cookie_policy"]
+    links = []
+
+    for check in checks:
+        if frappe.db.get_single_value("LMS Settings", check):
+            page = frappe.db.get_single_value("LMS Settings", mapper[check].get("page_name"))
+            route = frappe.db.get_value("Web Page", page, "route")
+            links.append("<a href='/" + route + "'>" + mapper[check].get("title") + "</a>")
+
+    return (", ").join(links)
