@@ -6,6 +6,7 @@
  "engine": "InnoDB",
  "field_order": [
   "show_search",
+  "portal_course_creation",
   "search_placeholder",
   "column_break_2",
   "force_profile_completion",
@@ -101,12 +102,18 @@
   {
    "fieldname": "column_break_12",
    "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "portal_course_creation",
+   "fieldtype": "Check",
+   "label": "Enable Course Creation from Portal"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2022-02-23 16:15:28.586903",
+ "modified": "2022-03-10 18:45:58.372370",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",
