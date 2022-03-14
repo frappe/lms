@@ -12,8 +12,6 @@ class TestLMSCourse(unittest.TestCase):
         frappe.db.sql('delete from `tabLMS Course Mentor Mapping`')
         frappe.db.sql('delete from `tabLMS Course`')
 
-
-
     def test_new_course(self):
         course = new_course("Test Course")
         assert course.title == "Test Course"

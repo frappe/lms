@@ -22,3 +22,4 @@ school.patches.v0_0.add_progress_to_membership #20-10-2021
 execute:frappe.delete_doc("Workspace", "LMS", ignore_missing=True, force=True) #24-10-2021
 execute:frappe.delete_doc("Custom Field", "User-verify_age", ignore_missing=True, force=True)
 school.patches.v0_0.multiple_instructors #11-02-2022
+school.patches.v0_0.set_course_in_lesson #14-03-2022

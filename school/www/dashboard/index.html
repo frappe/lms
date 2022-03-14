@@ -1,0 +1,32 @@
+{% extends "templates/base.html" %}
+{% block title %}{{ _("Dashboard")}}
+{% endblock %}
+
+{% block content %}
+<div class="common-page-style dashboard">
+  <div class="container">
+    <ul class="nav mb-8">
+      <li class="nav-item">
+        <a class="nav-link active" data-toggle="tab" href="#courses-enrolled"> {{ _("Courses Enrolled") }} </a>
+      </li>
+      {% if frappe.db.get_single_value("LMS Settings", "portal_course_creation") %}
+      <li class="nav-item">
+        <a class="nav-link" data-toggle="tab" href="#courses-created">{{ _("Courses Created") }}</a>
+      </li>
+      {% endif %}
+    </ul>
+    <div class="tab-content">
+      <div class="tab-pane active" id="courses-enrolled" role="tabpanel" aria-labelledby="courses-enrolled">
+        {% include "school/lms/web_template/courses_enrolled/courses_enrolled.html" %}
+      </div>
+      {% if frappe.db.get_single_value("LMS Settings", "portal_course_creation") %}
+      <div class="tab-pane fade" id="courses-created" role="tabpanel" aria-labelledby="courses-created">
+        {% include "school/templates/courses_created.html" %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+{% endblock %}

@@ -20,13 +20,14 @@
   "column_break_3",
   "instructors",
   "tags",
+  "status",
   "section_break_7",
   "is_published",
-  "column_break_9",
+  "column_break_10",
   "upcoming",
-  "column_break_11",
+  "column_break_12",
   "disable_self_learning",
-  "section_break_5",
+  "section_break_18",
   "short_introduction",
   "description",
   "chapters",
@@ -42,7 +43,8 @@
    "in_list_view": 1,
    "label": "Title",
    "reqd": 1,
-   "unique": 1
+   "unique": 1,
+   "width": "200"
   },
   {
    "fieldname": "description",
@@ -64,10 +66,6 @@
    "fieldname": "video_link",
    "fieldtype": "Data",
    "label": "Video Embed Link"
-  },
-  {
-   "fieldname": "section_break_5",
-   "fieldtype": "Section Break"
   },
   {
    "fieldname": "short_introduction",
@@ -108,20 +106,13 @@
    "fieldtype": "Table MultiSelect",
    "in_standard_filter": 1,
    "label": "Instructors",
+   "max_height": "50px",
    "options": "Course Instructor"
   },
   {
    "fieldname": "section_break_7",
    "fieldtype": "Section Break",
    "label": "Course Settings"
-  },
-  {
-   "fieldname": "column_break_9",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "column_break_11",
-   "fieldtype": "Column Break"
   },
   {
    "fieldname": "certification_section",
@@ -147,6 +138,27 @@
    "fieldtype": "Table",
    "label": "Related Courses",
    "options": "Related Courses"
+  },
+  {
+   "default": "In Progress",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Status",
+   "options": "In Progress\nReady for Review\nApproved",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_18",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_10",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_12",
+   "fieldtype": "Column Break"
   }
  ],
  "is_published_field": "is_published",
@@ -172,7 +184,7 @@
    "link_fieldname": "course"
   }
  ],
- "modified": "2022-03-08 15:20:58.501082",
+ "modified": "2022-03-14 17:56:46.514391",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",

@@ -1,7 +1,5 @@
 frappe.ready(function() {
-	frappe.web_form.after_save = () => {
-    setTimeout(() => {
-      window.location.href = `/courses/${frappe.web_form.doc.name}`;
-    })
-  }
+    frappe.web_form.after_save = () => {
+        window.location.href = `/dashboard#courses-created`;
+    }
 });

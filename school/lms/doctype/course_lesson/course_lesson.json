@@ -9,6 +9,7 @@
  "engine": "InnoDB",
  "field_order": [
   "chapter",
+  "course",
   "include_in_preview",
   "column_break_4",
   "title",
@@ -69,11 +70,20 @@
   {
    "fieldname": "help",
    "fieldtype": "HTML"
+  },
+  {
+   "fetch_from": "chapter.course",
+   "fieldname": "course",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Course",
+   "options": "LMS Course",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-03-08 17:56:50.504143",
+ "modified": "2022-03-14 18:56:31.969801",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Course Lesson",

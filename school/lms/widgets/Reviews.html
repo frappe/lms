@@ -92,14 +92,16 @@
       <div class="course-meta">{{ _("Help us improve our course material.") }}</div>
     </div>
     <div>
-      {% if is_eligible_to_review(course.name, membership) %}
-      <span class="review-link button is-secondary">
-        {{ _("Write a review") }}
-      </span>
-      {% elif frappe.session.user == "Guest" %}
-      <a class="button is-primary" href="/login?redirect-to=/courses/{{ course.name }}"> {{ _("Login") }} </a>
-      {% elif not membership %}
-      <div class="button is-primary join-batch" data-course="{{ course.name | urlencode }}"> {{ _("Start Learning") }} </div>
+      {% if not is_instructor(course.name) %}
+        {% if is_eligible_to_review(course.name, membership) %}
+        <span class="review-link button is-secondary">
+          {{ _("Write a review") }}
+        </span>
+        {% elif frappe.session.user == "Guest" %}
+        <a class="button is-primary" href="/login?redirect-to=/courses/{{ course.name }}"> {{ _("Login") }} </a>
+        {% elif not membership %}
+        <div class="button is-primary join-batch" data-course="{{ course.name | urlencode }}"> {{ _("Start Learning") }} </div>
+        {% endif %}
       {% endif %}
     </div>
   </div>

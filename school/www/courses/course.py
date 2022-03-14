@@ -1,6 +1,6 @@
 import frappe
 from school.lms.doctype.lms_settings.lms_settings import check_profile_restriction
-from school.lms.utils import get_membership
+from school.lms.utils import get_membership, is_instructor
 
 def get_context(context):
     context.no_cache = 1
@@ -33,6 +33,7 @@ def get_context(context):
     if context.course.upcoming:
         context.is_user_interested = get_user_interest(context.course.name)
     context.restriction = check_profile_restriction()
+    context.show_start_learing_cta = show_start_learing_cta(course, membership)
     context.metatags = {
         "title": course.title,
         "image": course.image,
@@ -46,3 +47,6 @@ def get_user_interest(course):
                 "course": course,
                 "user": frappe.session.user
             })
+
+def show_start_learing_cta(course, membership):
+    return not course.disable_self_learning and not membership and not course.upcoming and not restriction.restrict and not is_instructor(course.name)

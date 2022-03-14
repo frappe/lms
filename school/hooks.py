@@ -162,6 +162,8 @@ update_website_context = [
 jinja = {
     "methods": [
         "school.page_renderers.get_profile_url",
+        "school.overrides.user.get_enrolled_courses",
+        "school.overrides.user.get_course_membership",
         "school.overrides.user.get_authored_courses",
         "school.overrides.user.get_palette",
         "school.lms.utils.get_membership",
@@ -185,7 +187,9 @@ jinja = {
         "school.lms.utils.get_initial_members",
         "school.lms.utils.get_sorted_reviews",
         "school.lms.utils.is_instructor",
-        "school.lms.utils.convert_number_to_character"
+        "school.lms.utils.convert_number_to_character",
+        "school.lms.utils.get_signup_optin_checks",
+        "school.lms.utils.get_popular_courses"
     ],
     "filters": []
 }

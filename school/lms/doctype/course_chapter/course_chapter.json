@@ -59,7 +59,7 @@
    "link_fieldname": "chapter"
   }
  ],
- "modified": "2022-03-08 15:21:10.389729",
+ "modified": "2022-03-14 17:57:00.707416",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Course Chapter",
@@ -93,6 +93,7 @@
   }
  ],
  "search_fields": "title",
+ "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],

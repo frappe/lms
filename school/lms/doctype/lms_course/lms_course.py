@@ -12,6 +12,24 @@ from school.lms.utils import get_chapters
 
 class LMSCourse(Document):
 
+    def validate(self):
+        self.validate_instructors()
+        self.validate_status()
+
+    def validate_instructors(self):
+        if self.is_new() and not self.instructors:
+            frappe.get_doc({
+                "doctype": "Course Instructor",
+                "instructor": self.owner,
+                "parent": self.name,
+                "parentfield": "instructors",
+                "parenttype": "LMS Course"
+            }).save(ignore_permissions=True)
+
+    def validate_status(self):
+        if self.is_published:
+            self.status = "Approved"
+
     def on_update(self):
         if not self.upcoming and self.has_value_changed("upcoming"):
             self.send_email_to_interested_users()
@@ -184,3 +202,11 @@ def search_course(text):
     }) """
 
     return courses
+
+@frappe.whitelist()
+def submit_for_review(course):
+    chapters = frappe.get_all("Chapter Reference", {"parent": course})
+    if not len(chapters):
+        return "No Chp"
+    frappe.db.set_value("LMS Course", course, "status", "Ready for Review")
+    return "OK"

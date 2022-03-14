@@ -21,7 +21,7 @@
  "is_standard": 1,
  "login_required": 1,
  "max_attachment_size": 0,
- "modified": "2022-03-09 09:55:58.406164",
+ "modified": "2022-03-14 18:49:33.526455",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "lesson",
@@ -38,7 +38,7 @@
  "title": "Lesson",
  "web_form_fields": [
   {
-   "allow_read_on_all_link_options": 1,
+   "allow_read_on_all_link_options": 0,
    "fieldname": "chapter",
    "fieldtype": "Link",
    "hidden": 0,
@@ -78,7 +78,7 @@
   {
    "allow_read_on_all_link_options": 0,
    "fieldname": "body",
-   "fieldtype": "Data",
+   "fieldtype": "Text",
    "hidden": 0,
    "label": "Body",
    "max_length": 0,

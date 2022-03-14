@@ -41,6 +41,10 @@ frappe.ready(() => {
     create_certificate(e);
   });
 
+  $("#submit-for-review").click((e) => {
+    submit_for_review(e);
+  });
+
   $(document).scroll(function() {
     let timer;
     clearTimeout(timer);
@@ -237,7 +241,7 @@ const create_certificate = (e) => {
 const element_not_in_viewport = (el) => {
   const rect = el.getBoundingClientRect();
   return rect.bottom < 0 || rect.right < 0 || rect.left > window.innerWidth || rect.top > window.innerHeight;
-}
+};
 
 const handle_overlay_display = () => {
   const element = $(".related-courses").length && $(".related-courses")[0];
@@ -255,4 +259,22 @@ const handle_overlay_display = () => {
         "bottom": "5%"
       });
   }
+};
+
+const submit_for_review = (e) => {
+  let course = $(e.currentTarget).data("course");
+  frappe.call({
+    method: "school.lms.doctype.lms_course.lms_course.submit_for_review",
+    args: {
+      "course": course
+    },
+    callback: (data) => {
+      if (data.message == "No Chp") {
+        frappe.msgprint(__(`There are no chapters in this course.
+          Please add chapters and lessons to your course before you submit it for review.`));
+      } else if (data.message == "OK") {
+        frappe.msgprint(__("Your course has been submitted for review."))
+      }
+    }
+  })
 }

@@ -73,9 +73,9 @@ input[type=checkbox] {
 }
 
 .common-page-style {
-  padding-bottom: 5rem;
+  padding: 4rem 0 5rem;
   min-height: 60vh;
-  padding-top: 3rem;
+  font-size: var(--text-base);
 }
 
 .common-card-style {
@@ -1226,7 +1226,7 @@ pre {
   width: fit-content;
   position: fixed;
   top: 40%;
-  right: 7%;
+  right: 10%;
   max-width: 400px;
   z-index: 4;
 }
@@ -1425,4 +1425,24 @@ pre {
 
 .carousel-inner {
   overflow: inherit;
+}
+
+.dashboard .nav-link {
+  color: var(--text-muted);
+    padding: var(--padding-md) 0;
+    margin-right: var(--margin-xl);
+}
+
+.dashboard .nav-link.active {
+  font-weight: 600;
+  border-bottom: 1px solid var(--primary);
+  color: var(--text-color);
+}
+
+.dashboard .nav-link:hover {
+  color: inherit;
+}
+
+.dashboard .nav {
+  border-bottom: 1px solid var(--border-color);
 }
