@@ -274,6 +274,7 @@ const submit_for_review = (e) => {
           Please add chapters and lessons to your course before you submit it for review.`));
       } else if (data.message == "OK") {
         frappe.msgprint(__("Your course has been submitted for review."))
+        window.location.reload();
       }
     }
   })

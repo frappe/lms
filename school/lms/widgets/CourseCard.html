@@ -17,9 +17,11 @@
 <div class="course-card-content">
   <div class="course-card-meta">
     {% if get_lessons(course.name) | length %}
-    <span>
-      {{ get_lessons(course.name) | length }} {{ _("Lessons") }}
-    </span>
+    <span> {{ get_lessons(course.name) | length }} {{ _("Lessons") }} </span>
+    {% endif %}
+    {% if course.status and course.status != "Approved"%}
+    {% set pill_color = "gray" if course.status == "In Progress" else "orange" %}
+    <span class="pull-right indicator-pill {{ pill_color }} "> {{ course.status }} </span>
     {% endif %}
   </div>
   <div class="course-card-title">{{ course.title }}</div>

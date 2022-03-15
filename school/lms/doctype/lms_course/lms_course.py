@@ -208,5 +208,5 @@ def submit_for_review(course):
     chapters = frappe.get_all("Chapter Reference", {"parent": course})
     if not len(chapters):
         return "No Chp"
-    frappe.db.set_value("LMS Course", course, "status", "Ready for Review")
+    frappe.db.set_value("LMS Course", course, "status", "Under Review")
     return "OK"

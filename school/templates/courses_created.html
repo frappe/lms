@@ -1,4 +1,4 @@
-{% set courses = get_authored_courses(only_published=False) %}
+{% set courses = get_authored_courses(frappe.session.user, only_published=False) %}
 {% if courses | length %}
 <div class="cards-parent">
   {% for course in courses %}

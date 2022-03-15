@@ -73,7 +73,7 @@ input[type=checkbox] {
 }
 
 .common-page-style {
-  padding: 4rem 0 5rem;
+  padding: 2rem 0 5rem;
   min-height: 60vh;
   font-size: var(--text-base);
 }
@@ -347,7 +347,7 @@ input[type=checkbox] {
 
 .is-secondary {
   background: #FFFFFF;
-  color: inherit;
+  color: var(--gray-900);
 }
 
 .is-secondary:hover {
@@ -357,7 +357,7 @@ input[type=checkbox] {
 
 .is-default {
   background: var(--gray-100);
-  color: var(--gray-700);
+  color: var(--gray-900);
 }
 
 .is-default:disabled {
@@ -1238,7 +1238,6 @@ pre {
   }
 
   .course-intructor-rating-section .seperator::before {
-    content: "\00B7";
     margin: 0 0.25rem;
   }
 }
@@ -1428,8 +1427,8 @@ pre {
 }
 
 .dashboard .nav-link {
-  color: var(--text-muted);
-    padding: var(--padding-md) 0;
+    color: var(--text-muted);
+    padding: 0 0 var(--padding-md);
     margin-right: var(--margin-xl);
 }
 
@@ -1443,6 +1442,8 @@ pre {
   color: inherit;
 }
 
-.dashboard .nav {
-  border-bottom: 1px solid var(--border-color);
+.dashboard-button {
+    position: relative;
+    top: -50px;
+    margin-left: auto;
 }

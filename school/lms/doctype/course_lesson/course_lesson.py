@@ -110,11 +110,5 @@ def save_progress(lesson, course, status):
     return progress
 
 @frappe.whitelist()
-def get_lesson_info(lesson_name):
-    chapter = frappe.db.get_value("Course Lesson", lesson_name, "chapter")
-    course = frappe.db.get_value("Course Chapter", chapter, "course")
-
-    lesson_idx = frappe.db.get_value("Lesson Reference", {"lesson": lesson_name}, ["idx"])
-    chapter_idx = frappe.db.get_value("Chapter Reference", {"chapter": chapter}, ["idx"])
-
-    return get_lesson_url(course, f"{chapter_idx}.{lesson_idx}")
+def get_lesson_info(chapter):
+    return frappe.db.get_value("Course Chapter", chapter, "course")

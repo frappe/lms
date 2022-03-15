@@ -124,7 +124,7 @@ class CustomUser(User):
 def get_enrolled_courses():
     in_progress = []
     completed = []
-    memberships = get_course_membership(member_type="Student")
+    memberships = get_course_membership(frappe.session.user, member_type="Student")
     for membership in memberships:
         course = frappe.db.get_value("LMS Course", membership.course,
             ["name", "upcoming", "title", "image", "enable_certification"], as_dict=True)
@@ -139,7 +139,7 @@ def get_enrolled_courses():
         "completed": completed
     }
 
-def get_course_membership(member=frappe.session.user, member_type=None):
+def get_course_membership(member, member_type=None):
     """ Returns all memberships of the user  """
     filters = {
         "member": member
@@ -150,7 +150,7 @@ def get_course_membership(member=frappe.session.user, member_type=None):
     return frappe.get_all("LMS Batch Membership", filters, ["name", "course", "progress"])
 
 
-def get_authored_courses(member=frappe.session.user, only_published=True):
+def get_authored_courses(member, only_published=True):
     """Returns the number of courses authored by this user.
     """
     course_details = []
@@ -164,7 +164,7 @@ def get_authored_courses(member=frappe.session.user, only_published=True):
 
     for course in courses:
         course_details.append(frappe.db.get_value("LMS Course", course,
-      ["name", "upcoming", "title", "image", "enable_certification"], as_dict=True))
+      ["name", "upcoming", "title", "image", "enable_certification", "status"], as_dict=True))
 
     return course_details
 

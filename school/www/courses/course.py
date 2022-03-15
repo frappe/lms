@@ -13,7 +13,7 @@ def get_context(context):
 
     course = frappe.db.get_value("LMS Course", course_name,
         ["name", "title", "image", "short_introduction", "description", "is_published", "upcoming",
-        "disable_self_learning", "video_link", "enable_certification"],
+        "disable_self_learning", "video_link", "enable_certification", "status"],
         as_dict=True)
 
     related_courses = frappe.get_all("Related Courses", {"parent": course.name}, ["course"])
@@ -33,7 +33,7 @@ def get_context(context):
     if context.course.upcoming:
         context.is_user_interested = get_user_interest(context.course.name)
     context.restriction = check_profile_restriction()
-    context.show_start_learing_cta = show_start_learing_cta(course, membership)
+    context.show_start_learing_cta = show_start_learing_cta(course, membership, context.restriction)
     context.metatags = {
         "title": course.title,
         "image": course.image,
@@ -48,5 +48,5 @@ def get_user_interest(course):
                 "user": frappe.session.user
             })
 
-def show_start_learing_cta(course, membership):
-    return not course.disable_self_learning and not membership and not course.upcoming and not restriction.restrict and not is_instructor(course.name)
+def show_start_learing_cta(course, membership, restriction):
+    return not course.disable_self_learning and not membership and not course.upcoming and not restriction.get("restrict") and not is_instructor(course.name)

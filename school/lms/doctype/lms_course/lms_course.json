@@ -144,8 +144,10 @@
    "fieldname": "status",
    "fieldtype": "Select",
    "hidden": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Status",
-   "options": "In Progress\nReady for Review\nApproved",
+   "options": "In Progress\nUnder Review\nApproved",
    "read_only": 1
   },
   {
@@ -184,7 +186,7 @@
    "link_fieldname": "course"
   }
  ],
- "modified": "2022-03-14 17:56:46.514391",
+ "modified": "2022-03-15 10:16:53.796878",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",

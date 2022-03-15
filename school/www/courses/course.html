@@ -29,8 +29,14 @@
   {% else %} background-color: var(--gray-200) {% endif %}">
   <div class="container pt-10 pb-10">
     {% if is_instructor(course.name) %}
-    <a class="button is-default button-links pull-right" href="/lesson?new=1"> {{ _("New Lesson") }} </a>
-    <a class="button is-default button-links pull-right mr-2" href="/chapter?new=1"> {{ _("New Chapter") }} </a>
+    <a class="button is-default button-links pull-right" href="/lesson">
+        <svg class="icon icon-sm mr-1"><use href="#icon-add"></use></svg>
+        {{ _("Add Lesson") }}
+    </a>
+    <a class="button is-default button-links pull-right mr-2" href="/chapter">
+        <svg class="icon icon-sm mr-1"><use href="#icon-add"></use></svg>
+        {{ _("Add Chapter") }}
+    </a>
     <a class="button is-default button-links pull-right mr-2" href="/course?name={{ course.name }}"> {{ _("Edit") }} </a>
     {% endif %}
     {{ BreadCrumb(course) }}
@@ -131,8 +137,14 @@
     <div class="course-home-headings"> {{ course.title }} </div>
 
     <div id="interest-alert" class="{% if not is_user_interested %} hide {% endif %}">
-      You have opted to be notified for this course. You will receive an email when the course becomes available.
+        {{ _("You have opted to be notified for this course. You will receive an email when the course becomes available.") }}
     </div>
+
+    {% if course.status == "Under Review" %}
+    <div>
+        {{ _("Your course is currently under review. Once the review is complete, the System Admins will publish it on the website.") }}
+    </div>
+    {% endif %}
 
     {% if get_lessons(course.name) | length %}
     <div class="mt-3 mb-4">
@@ -162,14 +174,13 @@
     {% set lesson_index = get_lesson_index(membership.current_lesson) if membership and
       membership.current_lesson
       else '1.1' %}
-
     {% if show_start_learing_cta %}
     <div class="button wide-button is-primary join-batch" data-course="{{ course.name | urlencode }}">
       {{ _("Start Learning") }}
       <img class="ml-2" src="/assets/school/icons/white-arrow.svg" />
     </div>
 
-    {% elif is_instructor(course.name) and not course.is_published and status != "Ready for Review" %}
+    {% elif is_instructor(course.name) and not course.is_published and course.status != "Under Review" %}
     <div class="button wide-button is-primary" id="submit-for-review" data-course="{{ course.name | urlencode }}">
       {{ _("Submit for Review") }}
       <img class="ml-2" src="/assets/school/icons/white-arrow.svg" />
