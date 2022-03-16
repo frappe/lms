@@ -3,6 +3,7 @@
 {% block title %} {{ lesson.title }} - {{ course.title }} {% endblock %}
 
 {% block head_include %}
+{% include "public/icons/symbol-defs.svg" %}
 <link rel="stylesheet" href="/assets/frappe/css/hljs-night-owl.css">
 
 {% for ext in page_extensions %}
@@ -10,7 +11,6 @@
 {% endfor %}
 
 {% endblock %}
-
 
 {% block content %}
 <div class="common-page-style">

@@ -23,12 +23,15 @@
       <div class="lessons">
 
         {% for lesson in get_lessons(course.name, chapter) %}
-
-        <div class="lesson-info {% if membership.current_lesson == lesson.name %} active-lesson {% endif %}">
+        {% set active = membership.current_lesson == lesson.name %}
+        <div class="lesson-info {% if active %} active-lesson {% endif %}">
 
           {% if membership or lesson.include_in_preview %}
           <a class="lesson-links" href="{{ get_lesson_url(course.name, lesson.number) }}{{course.query_parameter}}"
             data-course="{{ course.name }}">
+            <svg class="icon icon-md">
+              <use class="" href="#{{ lesson.icon }}{% if active %}-blue{% endif %}">
+            </svg>
             {{ lesson.title }}
 
             {% if membership %}
@@ -43,14 +46,18 @@
           title="This lesson is not available for preview. As you are the Instructor of the course only you can see it."
           href="{{ get_lesson_url(course.name, lesson.number) }}{{course.query_parameter}}"
           data-course="{{ course.name }}">
-          <img class="mr-3" src="/assets/school/icons/lock.svg">
+          <svg class="icon icon-md">
+            <use class="" href="#icon-lock">
+          </svg>
           <div>{{ lesson.title }}</div>
           </a>
 
           {% else %}
           <div class="no-preview" title="This lesson is not available for preview" data-course="{{ course.name }}">
             <div class="lesson-links">
-              <img class="mr-3" src="/assets/school/icons/lock.svg">
+              <svg class="icon icon-md">
+                <use class="" href="#icon-lock">
+              </svg>
               <div>{{ lesson.title }}</div>
             </div>
           </div>
@@ -83,7 +90,7 @@ frappe.ready(() => {
 });
 
 const expand_the_first_chapter = () => {
-  var elements = $(".course-outline .collapse");
+  let elements = $(".course-outline .collapse");
   elements.each((i, element) => {
     if (i < 1) {
       show_section(element);
@@ -95,13 +102,21 @@ const expand_the_first_chapter = () => {
 const expand_the_active_chapter = () => {
 
   /* Find anchor matching the URL for course details page */
-  var selector = $(`a[href="${decodeURIComponent(window.location.pathname)}"]`).parent();
+  let selector = $(`a[href="${decodeURIComponent(window.location.pathname)}"]`).parent();
   if (!selector.length) {
     selector = $(`a[href^="${decodeURIComponent(window.location.pathname)}"]`).parent();
   }
   if (selector.length && $(".course-details-page").length) {
-    $(".lesson-info").removeClass("active-lesson")
+    $(".lesson-info").removeClass("active-lesson");
+    $(".lesson-info").each((i, elem) => {
+      let href = $(elem).find("use").attr("href");
+      href.endsWith("blue") && $(elem).find("use").attr("href", href.substring(0, href.length - 5));
+    })
+
     selector.addClass("active-lesson");
+    let href = selector.find("use").attr("href");
+    !href.endsWith("blue") && selector.find("use").attr("href", `${href}-blue`);
+
     show_section(selector.parent().parent());
   }
 
@@ -124,7 +139,7 @@ const show_section = (element) => {
 };
 
 const rotate_chapter_icon = (e) => {
-  var icon = $(e.currentTarget).children(".chapter-icon");
+  let icon = $(e.currentTarget).children(".chapter-icon");
   if (icon.css("transform") == "none") {
     icon.css("transform", "rotate(90deg)");
   } else {

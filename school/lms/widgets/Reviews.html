@@ -19,7 +19,7 @@
       <div class="avg-rating-stars">
         <div class="rating">
           {% for i in [1, 2, 3, 4, 5] %}
-          <svg class="icon icon-md {% if i <= avg_rating %} star-click {% endif %}" data-rating="{{ i }}">
+          <svg class="icon icon-md {% if i <= frappe.utils.ceil(avg_rating) %} star-click {% endif %}" data-rating="{{ i }}">
             <use href="#icon-star"></use>
           </svg>
           {% endfor %}
@@ -49,14 +49,16 @@
   {% if reviews | length %}
   <div class="mt-12">
     {% for review in reviews %}
-    <div class="">
-      <div class="review-card-footer">
-        <div class="d-flex align-items-center">
-          <div class="mr-5">
-            {{ widgets.Avatar(member=review.owner_details, avatar_class="avatar-medium") }}
-          </div>
-          <div>
-            <a class="button-links" href="{{get_profile_url(review.owner_details.username) }}">
+    <div class="mb-4">
+      <div class="d-flex align-items-center">
+
+        <div class="mr-3">
+          {{ widgets.Avatar(member=review.owner_details, avatar_class="avatar-medium") }}
+        </div>
+
+        <div>
+          <div class="d-flex align-items-center">
+            <a class="button-links mr-2" href="{{get_profile_url(review.owner_details.username) }}">
               <span class="bold-heading">
                 {{ review.owner_details.full_name }}
               </span>
@@ -69,12 +71,12 @@
               {% endfor %}
             </div>
           </div>
-        </div>
-        <div class="ml-16 mt-4">
-          <div> {{ review.review }} </div>
-          <div class="frappe-timestamp mt-2 mb-6 course-meta" data-timestamp="{{ review.creation }}"> frappe.utils.pretty_date(review.creation) </div>
+
+          <div class="frappe-timestamp course-meta" data-timestamp="{{ review.creation }}"> frappe.utils.pretty_date(review.creation) </div>
         </div>
       </div>
+
+      <div class="review-content"> {{ review.review }} </div>
     </div>
     {% if loop.index != reviews | length %}
     <div class="card-divider"></div>
