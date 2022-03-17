@@ -1,6 +1,10 @@
 {% extends "templates/base.html" %}
 {% block title %}{{ _('Job Openings') }}{% endblock %}
 
+{% block head_include %}
+{% include "public/icons/symbol-defs.svg" %}
+{% endblock %}
+
 {% block content %}
 <div class="common-page-style">
 
@@ -16,20 +20,25 @@
     <div class="common-card-style job-list-card">
     {% for job in jobs %}
       <div class="job-card">
-        <div class="avatar avatar-medium" title="{{ job.company_name}}">
+        <div class="avatar avatar-medium mr-3" title="{{ job.company_name}}">
           <span class="avatar-frame company-logo" style="background-image: url( {{ job.company_logo | urlencode }} );"></span>
         </div>
-        <div class="job-card-info col-8">
+        <div class="job-card-info">
           <div class="job-card-heading">{{ _(job.job_title) }}</div>
-          <a class="dark-links company-name mt-1" href="{{ job.company_website }}">{{ job.company_name }}</a>
+          <div class="vertically-center course-meta">
+            <div class="mr-3">{{ job.company_name }}</div>
+            <div class="vertically-center">
+              <svg class="icon icon-sm">
+                <use class="" href="#icon-location">
+              </svg>
+              {{ job.location }}
+            </div>
+         </div>
         </div>
-        <div class="job-meta col">
-          <img class="mr-2" src="/assets/school/icons/location.svg">
-          <div>{{ job.location }}</div>
-        </div>
-        <div class="job-card-logo-section">
-          <div class="job-type"> {{ job.type }} </div>
-          <div class="job-meta">{{ frappe.utils.format_date(job.creation, "medium") }}</div>
+
+        <div class="job-card-logo-section course-meta">
+          <div class="indicator-pill green ml-3"> {{ job.type }} </div>
+          <div class="">{{ frappe.utils.format_date(job.creation, "medium") }}</div>
         </div>
         <a class="stretched-link" href="/jobs/{{ job.name }}"></a>
       </div>

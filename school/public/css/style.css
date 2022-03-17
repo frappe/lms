@@ -111,7 +111,9 @@ input[type=checkbox] {
 .icon {
   margin: 0;
   margin-right: 0.25rem;
-  fill: none;
+}
+
+.lesson-links .icon {
   stroke: none;
 }
 
@@ -499,17 +501,17 @@ input[type=checkbox] {
 .member-parent {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  -moz-column-gap: 1.25rem;
-  column-gap: 1.25rem;
-  row-gap: 1.25rem;
+  -moz-column-gap: 2rem;
+  column-gap: 2rem;
+  row-gap: 2rem;
 }
 
 @media (max-width: 600px) {
   .member-parent {
     grid-template-columns: repeat(auto-fill, minmax(125px, 1fr));
-    -moz-column-gap: 1.25rem;
-    column-gap: 1.25rem;
-    row-gap: 1.25rem;
+    -moz-column-gap: 2rem;
+    column-gap: 2rem;
+    row-gap: 2rem;
   }
 }
 
@@ -1136,16 +1138,12 @@ pre {
   flex-direction: column;
   align-items: flex-end;
   justify-content: space-between;
+  margin-left: auto;
 }
 
 .job-detail-card {
   padding: 1.5rem;
   flex-direction: column;
-}
-
-.job-detail-card span::before {
-  content: "\00B7";
-  margin: 0 8px;
 }
 
 .job-subtitle {
@@ -1161,34 +1159,6 @@ pre {
 .job-card-heading {
   font-weight: 600;
   color: var(--gray-900);
-}
-
-.company-name {
-  font-size: var(--text-base);
-}
-
-.job-meta {
-  display: flex;
-  align-items: center;
-  color: var(--gray-700);
-  font-size: var(--text-base);
-}
-
-.job-type {
-  background-color: var(--dark-green-100);
-  color: var(--dark-green-500);
-  border-radius: var(--border-radius-md);
-  padding: 0.25rem 0.5rem;
-  font-weight: 600;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
-  margin-bottom: 0.5rem;
-  width: fit-content;
-}
-
-.job-description {
-  margin-top: 3.75rem;
 }
 
 .course-head-container {
