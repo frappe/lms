@@ -29,7 +29,7 @@
           {% if membership or lesson.include_in_preview %}
           <a class="lesson-links" href="{{ get_lesson_url(course.name, lesson.number) }}{{course.query_parameter}}"
             data-course="{{ course.name }}">
-            <svg class="icon icon-md">
+            <svg class="icon icon-md mr-2">
               <use class="" href="#{{ lesson.icon }}{% if active %}-blue{% endif %}">
             </svg>
             {{ lesson.title }}

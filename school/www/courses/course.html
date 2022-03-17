@@ -6,15 +6,17 @@
 <link rel="stylesheet" href="/assets/frappe/css/font-awesome.css">
 {% endblock %}
 {% block content %}
-<div class="common-page-style pt-0">
+<div class="common-page-style pt-0 pb-0">
   <div class="course-home-top-container">
     {{ CourseHomeHeader(course) }}
-    <div class="container course-home-page">
-      <div class="course-body-container">
-        {{ CourseHeaderOverlay(course) }}
-        {{ Description(course) }}
-        {{ widgets.CourseOutline(course=course, membership=membership) }}
-        {{ widgets.Reviews(course=course, membership=membership) }}
+    <div class="course-home-page">
+      <div class="container">
+        <div class="course-body-container">
+          {{ CourseHeaderOverlay(course) }}
+          {{ Description(course) }}
+          {{ widgets.CourseOutline(course=course, membership=membership) }}
+          {{ widgets.Reviews(course=course, membership=membership) }}
+        </div>
       </div>
     </div>
   </div>
@@ -65,24 +67,20 @@
   <div class="course-intructor-rating-section">
 
     <div class="vertically-center">
-      <svg class="icon icon-md mr-1">
+      <svg class="icon icon-md">
         <use class="" href="#icon-users">
       </svg>
       {{ get_students(course.name) | length }} {{ _("Enrolled") }}
     </div>
 
-    <span class="seperator"></span>
-
     {% if get_lessons(course.name) | length %}
     <div class="vertically-center">
-      <svg class="icon icon-md mr-1">
+      <svg class="icon icon-md">
         <use href="#icon-education"></use>
       </svg>
       {{ get_lessons(course.name) | length }} {{ _("Lessons") }}
     </div>
     {% endif %}
-
-    <span class="seperator"></span>
 
     {% set avg_rating = get_average_rating(course.name) %}
     {% if avg_rating %}
@@ -92,8 +90,8 @@
         <use href="#icon-star"></use>
       </svg>
       {% endfor %}
+      <span> {{ avg_rating }} {{ _(" Rating ") }} </span>
     </div>
-    <span> {{ avg_rating }} {{ _(" Rating ") }} </span>
     {% endif %}
 
   </div>
