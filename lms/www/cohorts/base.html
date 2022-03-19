@@ -1,0 +1,34 @@
+{% extends "templates/base.html" %}
+
+{% macro render_nav(nav) %}
+
+<div class="breadcrumb">
+  {% for link in nav %}
+    <a class="dark-links" href="{{ link.href }}">{{ link.title }}</a>
+    {% if not loop.last %}
+    <img class="ml-1 mr-1" src="/assets/lms/icons/chevron-right.svg">
+    {% endif %}
+  {% endfor %}
+</div>
+{% endmacro %}
+
+{% block title %}Cohorts{% endblock %}
+{% block head_include %}
+<meta name="description" content="Cohorts" />
+<meta name="keywords" content="Cohorts" />
+{% endblock %}
+
+
+{% block content %}
+<div class="common-page-style">
+  <div class='container'>
+    {{ render_nav(nav | default([])) }}
+
+    {% block page_content %}
+    Hello, world!
+    {% endblock %}
+  </div>
+</div>
+{% endblock %}
+
+

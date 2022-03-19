@@ -1,0 +1,49 @@
+<div class="common-card-style">
+  <div class="certificate-content">
+    <img src="{{ logo }}" class="certificate-logo">
+    <div class="text-muted mt-18">
+      Completion Certificate
+    </div>
+    <div class="certificate-heading"> {{ course.title }} </div>
+    <div class="text-muted mt-18"> Awarded To </div>
+    <div class="certificate-heading"> {{ student.full_name }} </div> 
+
+    <div class="certificate-footer">
+      {% if certificate.issue_date %}
+      <div class="certificate-footer-item">
+        <div class="font-weight-bold">
+          {{ frappe.utils.format_date(certificate.issue_date, "medium") }}
+        </div>
+        <div>
+          Issue date
+        </div>
+      </div>
+      {% endif %}
+
+      {% if certificate.expiry_date %}
+      <div class="certificate-footer-item">
+        <div class="font-weight-bold">
+          {{ frappe.utils.format_date(certificate.expiry_date, "medium") }}
+        </div>
+        <div>
+          Expiry date
+        </div>
+      </div>
+      {% endif %}
+
+      {% if instructor.full_name %}
+      <div class="certificate-footer-item">
+        <div class="font-weight-bold">
+        {{ instructor.full_name }}
+        </div>
+        <div>
+          Instructor
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+  <div class="certificate-ribbon"></div>
+</div>
+<script src="/assets/lms/js/html2canvas.js"></script>

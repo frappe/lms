@@ -1,0 +1,264 @@
+{% extends "www/cohorts/base.html" %}
+{% block title %} Subgroup {{subgroup.title}} - {{ course.title }} {% endblock %}
+
+{% block page_content %}
+    <h2 id="page-title"
+      data-subgroup="{{subgroup.name}}"
+      data-title="{{subgroup.title}}"
+    >{{subgroup.title}} <span class="badge badge-secondary">Subgroup</span></h2>
+
+    <ul class="nav nav-tabs">
+      {{ render_navitem("Mentors", "/mentors", stats.mentors, page=="mentors")}}
+      {{ render_navitem("Students", "/students", stats.students, page=="students")}}
+      {% if is_mentor or is_admin %}
+        {{ render_navitem("Join Requests", "/join-requests", stats.join_requests, page=="join-requests")}}
+
+        {% for p in cohort.get_pages(scope="Subgroup") %}
+          {{ render_navitem(p.title, "/" + p.slug, -1, page==p.slug) }}
+        {% endfor %}
+      {% endif %}
+      {% if is_admin %}
+        {{ render_navitem("Admin", "/admin", -1, page=="admin")}}
+      {% endif %}
+      </ul>
+    <div class="my-5">
+    {% if page == "info" %}
+      {{ render_info() }}
+    {% elif page == "mentors" %}
+      {{ render_mentors() }}
+    {% elif page == "students" %}
+      {{ render_students() }}
+    {% elif page == "join-requests" %}
+      {{ render_join_requests() }}
+    {% elif page == "admin" %}
+      {{ render_admin() }}
+    {% else %}
+      {{ render_page(page) }}
+    {% endif %}
+    </div>
+{% endblock %}
+
+{% macro render_admin() %}
+<div style="background: white; padding: 20px;">
+  <h5>Add a new mentor</h5>
+<form id="add-mentor-form">
+  <div class="form-group">
+    <input type="email" class="form-control" id="mentor-email" aria-describedby="emailHelp" placeholder="E-mail address">
+  </div>
+  <button type="button" class="btn btn-primary" id="add-mentor">Add Mentor</button>
+</form>
+</div>
+{% endmacro %}
+
+{% macro render_mentors() %}
+    <h5>Mentors</h5>
+    {% set mentors = subgroup.get_mentors() %}
+    {% if mentors %}
+      <div class="member-parent">
+      {% for m in mentors %}
+        {{ widgets.MemberCard(member=m, show_course_count=False) }}
+      {% endfor %}
+      </div>
+    {% else %}
+      <em>None found.</em>
+    {% endif %}
+{% endmacro %}
+
+
+{% macro render_students() %}
+  {% set students = subgroup.get_students() %}
+  {% if students %}
+  <div class="member-parent">
+    {% for student in students %}
+      {{ widgets.MemberCard(member=student, show_course_count=False) }}
+    {% endfor %}
+  </div>
+  {% else %}
+    <em>None found.</em>
+  {% endif %}
+{% endmacro %}
+
+
+{% macro render_join_requests() %}
+  <h5>Invite Link</h5>
+  {% set link = subgroup.get_invite_link() %}
+  <p><a href="{{ link }}" id="invite-link">{{link}}</a>
+  <br>
+  <a class="btn btn-seconday btn-sm" id="copy-to-clipboard">Copy to Clipboard</a>
+  </p>
+
+{% set join_requests = subgroup.get_join_requests() %}
+  <h5>Pending Requests</h5>
+  {% if join_requests %}
+  <table class="table">
+    <tr>
+      <th>#</th>
+      <th>When</th>
+      <th>Email</th>
+      <th>Actions</th>
+    </tr>
+    {% for r in join_requests %}
+    <tr>
+        <td>{{loop.index}}</td>
+        <td class="timestamp">{{r.creation}}</td>
+        <td>{{r.email}}</td>
+        <td class="actions"
+          data-name="{{r.name}}"
+          data-email="{{r.email}}">
+          <a class="action-approve" href="#">Approve</a> | <a class="action-reject" href="#">Reject</a></td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}
+    <p><em>There are no pending join requests.</em></p>
+  {% endif %}
+  {% set rejected_requests = subgroup.get_join_requests(status="Rejected") %}
+
+  <h5>Rejected Requests</h5>
+  {% if rejected_requests %}
+    <table class="table">
+      <tr>
+        <th>#</th>
+        <th>When</th>
+        <th>Email</th>
+        <th>Actions</th>
+      </tr>
+    {% for r in rejected_requests %}
+      <tr>
+        <td>{{loop.index}}</td>
+        <td class="timestamp">{{r.creation}}</td>
+        <td>{{r.email}}</td>
+        <td class="actions"
+          data-name="{{r.name}}"
+          data-email="{{r.email}}">
+          <a class="action-undo" href="#">Undo</a></td>
+      </tr>
+    {% endfor %}
+    </table>
+  {% else %}
+    <p><em>There are no rejected requests.</em></p>
+  {% endif %}
+{% endmacro %}
+
+{% macro render_navitem(title, link, count, active) %}
+  <li class="nav-item">
+    <a
+      class="nav-link {{ 'active' if active }}"
+      href="/courses/{{course.name}}/subgroups/{{cohort.slug}}/{{subgroup.slug}}{{link}}"
+    >{{title}}
+    {% if count != -1 %}
+      <span
+        class="badge {{'badge-primary' if active else 'badge-secondary'}}"
+      >{{count}}</span>
+    {% endif %}
+    </a>
+  </li>
+{% endmacro %}
+
+
+{% block script %}
+
+<script type="text/javascript">
+$(function() {
+  $("#copy-to-clipboard").click(function() {
+    var invite_link = $("#invite-link").text();
+    navigator.clipboard.writeText(invite_link)
+    .then(() => {
+      $("#copy-to-clipboard").text("Copied!");
+      setTimeout(
+        () => $("#copy-to-clipboard").text("Copy to Clipboard"),
+        500);
+     });
+  });
+
+  $(".timestamp"). each(function() {
+    var t = moment($(this).text());
+    var dt = t.from(moment.now());
+    $(this).text(dt);
+  });
+
+  $(".action-approve").click(function() {
+    var el = $(this).parent().parent();
+    var name = $(this).parent().data("name");
+    var email = $(this).parent().data("email");
+
+    frappe.confirm(
+      `Are you sure to accept ${email} to this subgroup?`,
+      function() {
+        run_action("lms.lms.api.approve_cohort_join_request", name, el, "approved", "Approved");
+      }
+    );
+  });
+
+  $(".action-reject").click(function() {
+    var el = $(this).parent().parent();
+    var name = $(this).parent().data("name");
+    var email = $(this).parent().data("email");
+    frappe.confirm(`Are you sure to reject <strong>${email}</strong> from joining this subgroup?`, function() {
+      run_action("lms.lms.api.reject_cohort_join_request", name, el, "rejected", "Rejected!");
+    });
+  });
+
+  $(".action-undo").click(function() {
+    var el = $(this).parent().parent();
+    var name = $(this).parent().data("name");
+    var email = $(this).parent().data("email");
+    frappe.confirm(`Are you sure to undo the rejection of <strong>${email}</strong>?`, function() {
+      run_action("lms.lms.api.undo_reject_cohort_join_request", name, el, "undo-reject", "Reject Undone!");
+    });
+  });
+
+  function run_action(method, join_request, elem, classname, label) {
+    frappe.call(method, {
+      join_request: join_request,
+    })
+    .then(r => {
+      if (r.message.ok) {
+        $(elem)
+          .addClass(classname)
+          .find("td.actions").html(label);
+      }
+      else {
+        frappe.msgprint(r.message.error);
+      }
+    });
+  }
+
+  $("#add-mentor").click(function() {
+    var subgroup = $("#page-title").data("subgroup");
+    var title = $("#page-title").data("title");
+    var email = $("#mentor-email").val();
+    frappe.call("lms.lms.api.add_mentor_to_subgroup", {
+      subgroup: subgroup,
+      email: email
+    })
+    .then(r => {
+      if (r.message.ok) {
+        frappe.msgprint(`Successfully added ${email} as mentor to ${title}`);
+      }
+      else {
+        frappe.msgprint(r.message.error);
+      }
+    });
+  });
+});
+</script>
+{% endblock %}
+
+{% block style %}
+<style type="text/css">
+tr.approved {
+  background:#c3e6cb;
+  color: #155724;
+}
+
+tr.rejected {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+tr.undo-reject {
+  background:#d6d8d9;
+}
+</style>
+{% endblock %}

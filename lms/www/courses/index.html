@@ -1,0 +1,35 @@
+{% extends "templates/base.html" %}
+{% block title %}{{ 'Courses' }}{% endblock %}
+{% block head_include %}
+<style>
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="common-page-style">
+  <div class="container">
+    {% if restriction.restrict %}
+    {% set profile_link = "<a href='/edit-profile'> profile </a>" %}
+    <div class="empty-state">
+      <div class="course-home-headings text-center mb-0" style="color: inherit;">{{ _("You haven't completed your profile.") }}</div>
+      <p class="small text-center">{{ _("Complete your {0} to access the courses.").format(profile_link) }}</p>
+    </div>
+
+    {% else %}
+
+    {% include "lms/templates/search_course/search_course.html" %}
+    <div class="course-list">
+      {% set courses = live_courses %}
+      {% set title = _("All Live Courses ({0})").format(courses | length) %}
+      {% set classes = "live-courses" %}
+      {% include "lms/templates/course_list.html" %}
+
+      {% set courses = upcoming_courses %}
+      {% set title = _("All Upcoming Courses ({0})").format(courses | length) %}
+      {% set classes = "upcoming-courses mt-10" %}
+      {% include "lms/templates/course_list.html" %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
