@@ -1,0 +1,23 @@
+{% set courses = get_authored_courses(frappe.session.user, only_published=False) %}
+{% if courses | length %}
+<div class="cards-parent">
+  {% for course in courses %}
+  {{ widgets.CourseCard(course=course) }}
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <div>
+    <img class="icon icon-xl" src="/assets/school/icons/comment.svg">
+  </div>
+  <div class="empty-state-text">
+    <div class="empty-state-heading">{{ _("No courses created") }}</div>
+    <div class="course-meta">{{ _("Help others learn something new.") }}</div>
+  </div>
+  <div>
+    <a class="button is-secondary button-links" href="/course?new=1">
+      {{ _("Create a Course") }}
+    </a>
+  </div>
+</div>
+{% endif %}

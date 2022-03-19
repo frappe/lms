@@ -26,4 +26,4 @@ indent_style = tab
 
 # HTML, CSS, javascript, JSON and YAML
 [*.{html,css,js,json,yml,yaml}]
-indent_size = 2
+indent_size = 4

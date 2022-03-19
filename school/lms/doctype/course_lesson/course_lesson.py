@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
 from ...md import find_macros
-from school.lms.utils import get_course_progress
+from school.lms.utils import get_course_progress, get_lesson_url
 
 class CourseLesson(Document):
     def validate(self):
@@ -108,3 +108,7 @@ def save_progress(lesson, course, status):
     progress = get_course_progress(course)
     frappe.db.set_value("LMS Batch Membership", membership, "progress", progress)
     return progress
+
+@frappe.whitelist()
+def get_lesson_info(chapter):
+    return frappe.db.get_value("Course Chapter", chapter, "course")

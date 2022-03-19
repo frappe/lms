@@ -7,10 +7,9 @@
    "label": "Reindex Exercises"
   }
  ],
- "allow_guest_to_view": 1,
  "allow_import": 1,
  "allow_rename": 1,
- "creation": "2022-02-08 16:34:42.721203",
+ "creation": "2022-02-22 15:28:26.091549",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -21,13 +20,14 @@
   "column_break_3",
   "instructors",
   "tags",
+  "status",
   "section_break_7",
   "is_published",
-  "column_break_9",
+  "column_break_10",
   "upcoming",
-  "column_break_11",
+  "column_break_12",
   "disable_self_learning",
-  "section_break_5",
+  "section_break_18",
   "short_introduction",
   "description",
   "chapters",
@@ -43,7 +43,8 @@
    "in_list_view": 1,
    "label": "Title",
    "reqd": 1,
-   "unique": 1
+   "unique": 1,
+   "width": "200"
   },
   {
    "fieldname": "description",
@@ -65,10 +66,6 @@
    "fieldname": "video_link",
    "fieldtype": "Data",
    "label": "Video Embed Link"
-  },
-  {
-   "fieldname": "section_break_5",
-   "fieldtype": "Section Break"
   },
   {
    "fieldname": "short_introduction",
@@ -109,20 +106,13 @@
    "fieldtype": "Table MultiSelect",
    "in_standard_filter": 1,
    "label": "Instructors",
+   "max_height": "50px",
    "options": "Course Instructor"
   },
   {
    "fieldname": "section_break_7",
    "fieldtype": "Section Break",
    "label": "Course Settings"
-  },
-  {
-   "fieldname": "column_break_9",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "column_break_11",
-   "fieldtype": "Column Break"
   },
   {
    "fieldname": "certification_section",
@@ -148,9 +138,31 @@
    "fieldtype": "Table",
    "label": "Related Courses",
    "options": "Related Courses"
+  },
+  {
+   "default": "In Progress",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "In Progress\nUnder Review\nApproved",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_18",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_10",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_12",
+   "fieldtype": "Column Break"
   }
  ],
- "index_web_pages_for_search": 1,
  "is_published_field": "is_published",
  "links": [
   {
@@ -174,7 +186,7 @@
    "link_fieldname": "course"
   }
  ],
- "modified": "2022-02-16 11:50:20.661085",
+ "modified": "2022-03-15 10:16:53.796878",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",
@@ -189,6 +201,20 @@
    "read": 1,
    "report": 1,
    "role": "System Manager",
+   "select": 1,
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "if_owner": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "All",
+   "select": 1,
    "share": 1,
    "write": 1
   }

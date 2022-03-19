@@ -102,16 +102,6 @@ class CustomUser(User):
                     "owner": self.name
                 })
 
-    def get_course_membership(self, member_type=None):
-        """ Returns all memberships of the user  """
-        filters = {
-            "member": self.name
-        }
-        if member_type:
-            filters["member_type"] = member_type
-
-        return frappe.get_all("LMS Batch Membership", filters, ["name", "course", "progress"])
-
     def get_mentored_courses(self):
         """ Returns all courses mentored by this user """
         mentored_courses = []
@@ -130,31 +120,53 @@ class CustomUser(User):
 
         return mentored_courses
 
-    def get_enrolled_courses(self):
-        in_progress = []
-        completed = []
-        memberships = self.get_course_membership("Student")
-        for membership in memberships:
-            course = frappe.db.get_value("LMS Course", membership.course,
-                ["name", "upcoming", "title", "image", "enable_certification"], as_dict=True)
-            progress = cint(membership.progress)
-            if progress < 100:
-                in_progress.append(course)
-            else:
-                completed.append(course)
 
-        return {
-            "in_progress": in_progress,
-            "completed": completed
-        }
-def get_authored_courses(member):
+def get_enrolled_courses():
+    in_progress = []
+    completed = []
+    memberships = get_course_membership(frappe.session.user, member_type="Student")
+    for membership in memberships:
+        course = frappe.db.get_value("LMS Course", membership.course,
+            ["name", "upcoming", "title", "image", "enable_certification"], as_dict=True)
+        progress = cint(membership.progress)
+        if progress < 100:
+            in_progress.append(course)
+        else:
+            completed.append(course)
+
+    return {
+        "in_progress": in_progress,
+        "completed": completed
+    }
+
+def get_course_membership(member, member_type=None):
+    """ Returns all memberships of the user  """
+    filters = {
+        "member": member
+    }
+    if member_type:
+        filters["member_type"] = member_type
+
+    return frappe.get_all("LMS Batch Membership", filters, ["name", "course", "progress"])
+
+
+def get_authored_courses(member, only_published=True):
     """Returns the number of courses authored by this user.
     """
-    return frappe.get_all(
-        'LMS Course', {
-            'instructor': member,
-            'is_published': True
-    })
+    course_details = []
+
+    filters = {
+        "instructor": member
+    }
+    if only_published:
+        filters["is_published"] = True
+    courses = frappe.get_all('LMS Course', filters)
+
+    for course in courses:
+        course_details.append(frappe.db.get_value("LMS Course", course,
+      ["name", "upcoming", "title", "image", "enable_certification", "status"], as_dict=True))
+
+    return course_details
 
 def get_palette(full_name):
         """

@@ -1,6 +1,6 @@
 {
  "actions": [],
- "allow_import": 1,
+ "allow_events_in_timeline": 1,
  "allow_rename": 1,
  "autoname": "format:{####} {title}",
  "creation": "2021-05-03 06:21:12.995984",
@@ -9,6 +9,7 @@
  "engine": "InnoDB",
  "field_order": [
   "chapter",
+  "course",
   "include_in_preview",
   "column_break_4",
   "title",
@@ -69,11 +70,20 @@
   {
    "fieldname": "help",
    "fieldtype": "HTML"
+  },
+  {
+   "fetch_from": "chapter.course",
+   "fieldname": "course",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Course",
+   "options": "LMS Course",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-10-11 15:07:38.134808",
+ "modified": "2022-03-14 18:56:31.969801",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Course Lesson",
@@ -89,11 +99,26 @@
    "read": 1,
    "report": 1,
    "role": "System Manager",
+   "select": 1,
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "if_owner": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "All",
+   "select": 1,
    "share": 1,
    "write": 1
   }
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
+ "states": [],
  "track_changes": 1
 }

@@ -52,10 +52,13 @@
     {% if membership or is_instructor %} eligible-for-submission {% endif %}" data-lesson="{{ lesson.name }}"
       data-course="{{ course.name }}">{{ lesson.title }}</div>
     <span class="lesson-progress {{hide if get_progress(course.name, lesson.name) != 'Complete' else ''}}">COMPLETED</span>
+
+    {% if is_instructor %}
+    <a class="button is-default button-links ml-auto" href="/lesson?name={{ lesson.name }}"> {{ _("Edit") }} </a>
+    {% endif %}
   </div>
 
   <div class="d-flex align-items-center">
-    {% set instructors = instructors %}
     {% set ins_len = instructors | length %}
     {% for instructor in instructors %}
     {% if ins_len > 1 and loop.index == 1 %}

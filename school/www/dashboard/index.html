@@ -1,0 +1,49 @@
+{% extends "templates/base.html" %}
+{% block title %}{{ _("Dashboard")}}
+{% endblock %}
+
+{% block content %}
+{% set portal_course_creation = frappe.db.get_single_value("LMS Settings", "portal_course_creation") %}
+<div class="common-page-style dashboard">
+  <div class="container">
+    {% if portal_course_creation %}
+    <a class="button is-default button-links pull-right hide" id="create-course-link" href="/course">
+        <svg class="icon icon-sm mr-1"><use href="#icon-add"></use></svg>
+        {{ _("New Course")}}
+    </a>
+    {% endif %}
+    <ul class="nav" id="courses-tab">
+      <li class="nav-item">
+        <a class="nav-link active" data-toggle="tab" href="#courses-enrolled"> {{ _("Courses Enrolled") }} </a>
+      </li>
+      {% if portal_course_creation %}
+      <li class="nav-item">
+        <a class="nav-link" data-toggle="tab" href="#courses-created">{{ _("Courses Created") }}
+        </a>
+      </li>
+      {% endif %}
+    </ul>
+    <div class="border-bottom mb-4"></div>
+    <div class="tab-content">
+      <div class="tab-pane active" id="courses-enrolled" role="tabpanel" aria-labelledby="courses-enrolled">
+        {% include "school/lms/web_template/courses_enrolled/courses_enrolled.html" %}
+      </div>
+      {% if portal_course_creation %}
+      <div class="tab-pane fade" id="courses-created" role="tabpanel" aria-labelledby="courses-created">
+        {% include "school/templates/courses_created.html" %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script>
+    frappe.ready(() => {
+        $('#courses-tab a[data-toggle="tab"]').on('shown.bs.tab', (e) => {
+            let link = $("#create-course-link");
+            $(e.currentTarget).attr("href") == "#courses-created" ? link.removeClass("hide") : link.addClass("hide");
+        });
+    })
+</script>
+{% endblock %}

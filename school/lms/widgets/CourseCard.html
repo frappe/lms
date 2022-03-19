@@ -25,8 +25,15 @@
     </div>
     {% endif %}
 
+    {% if course.status and course.status != "Approved"%}
+    {% set pill_color = "gray" if course.status == "In Progress" else "orange" %}
+    <div class="pull-right indicator-pill {{ pill_color }} "> {{ course.status }} </div>
+    {% endif %}
+
+    {% set student_count = get_students(course.name) | length %}
+    {% set avg_rating = get_average_rating(course.name) %}
+    {% if student_count and avg_rating %}
     <div class="vertically-center">
-      {% set student_count = get_students(course.name) | length %}
       {% if student_count %}
         <div class="vertically-center">
           <svg class="icon  icon-md">
@@ -36,7 +43,6 @@
         </div>
       {% endif %}
 
-      {% set avg_rating = get_average_rating(course.name) %}
         {% if avg_rating %}
         <div class="vertically-center ml-3">
           <svg class="icon icon-md">
@@ -46,6 +52,7 @@
         </div>
         {% endif %}
     </div>
+    {% endif %}
   </div>
   <div class="course-card-title">{{ course.title }}</div>
 
@@ -59,7 +66,7 @@
   <div class="progress-percent">{{ progress }}% Completed</div>
   {% endif %}
 
-  <div class="zindex course-card-footer">
+  <div class="course-card-footer">
     <span class="">
       {% set instructors = get_instructors(course.name) %}
       {% set ins_len = instructors | length %}

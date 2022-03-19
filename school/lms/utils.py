@@ -331,3 +331,16 @@ def get_signup_optin_checks():
             links.append("<a href='/" + route + "'>" + mapper[check].get("title") + "</a>")
 
     return (", ").join(links)
+
+def get_popular_courses():
+    courses = frappe.get_all("LMS Course", {"is_published": 1, "upcoming": 0})
+    course_membership = []
+
+    for course in courses:
+        course_membership.append({
+            "course": course.name,
+            "members": cint(frappe.db.count("LMS Batch Membership", {"course": course.name}))
+        })
+
+    course_membership = sorted(course_membership, key = lambda x: x.get("members"), reverse=True)
+    return course_membership[:3]

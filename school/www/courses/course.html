@@ -1,10 +1,12 @@
 {% extends "templates/base.html" %}
 {% block title %}{{ course.title }}
 {% endblock %}
+
 {% block head_include %}
 {% include "public/icons/symbol-defs.svg" %}
 <link rel="stylesheet" href="/assets/frappe/css/font-awesome.css">
 {% endblock %}
+
 {% block content %}
 <div class="common-page-style pt-0 pb-0">
   <div class="course-home-top-container">
@@ -132,10 +134,30 @@
     <div class="course-home-headings"> {{ course.title }} </div>
 
     <div id="interest-alert" class="{% if not is_user_interested %} hide {% endif %}">
-      You have opted to be notified for this course. You will receive an email when the course becomes available.
+        {{ _("You have opted to be notified for this course. You will receive an email when the course becomes available.") }}
     </div>
 
-    <div class="d-flex align-items-center mb-2">
+    {% if course.status == "Under Review" %}
+    <div class="mb-4">
+        {{ _("Your course is currently under review. Once the review is complete, the System Admins will publish it on the website.") }}
+    </div>
+    {% endif %}
+
+    <div class="vertically-center mb-4">
+        {% if is_instructor(course.name) %}
+            <a class="button is-default button-links mr-2" href="/course?name={{ course.name }}"> {{ _("Edit") }} </a>
+            <a class="button is-default button-links mr-2" href="/chapter">
+                <svg class="icon icon-sm mr-1"><use href="#icon-add"></use></svg>
+                {{ _("Add Chapter") }}
+            </a>
+            <a class="button is-default button-links mr-2" href="/lesson">
+                <svg class="icon icon-sm mr-1"><use href="#icon-add"></use></svg>
+                {{ _("Add Lesson") }}
+            </a>
+        {% endif %}
+    </div>
+
+    <div class="vertically-center mb-2">
       <div class="">
         <svg class="icon icon-md mr-1">
           <use class="" href="#icon-users">
@@ -155,35 +177,45 @@
       {% endif %}
     </div>
 
-    {% if not course.disable_self_learning and not membership and not course.upcoming and not restriction.restrict %}
-    <div class="button wide-button start-learning is-primary join-batch" data-course="{{ course.name | urlencode }}">
+    {% set lesson_index = get_lesson_index(membership.current_lesson) if membership and
+      membership.current_lesson
+      else '1.1' %}
+
+    {% if show_start_learing_cta %}
+    <div class="button wide-button is-primary join-batch" data-course="{{ course.name | urlencode }}">
       {{ _("Start Learning") }}
       <img class="ml-2" src="/assets/school/icons/white-arrow.svg" />
     </div>
-    {% endif %}
 
-    {% if membership %}
-    {% set lesson_index = get_lesson_index(membership.current_lesson) if membership and
-    membership.current_lesson
-    else '1.1' %}
+    {% elif is_instructor(course.name) and not course.is_published and course.status != "Under Review" %}
+    <div class="button wide-button is-primary" id="submit-for-review" data-course="{{ course.name | urlencode }}">
+      {{ _("Submit for Review") }}
+      <img class="ml-2" src="/assets/school/icons/white-arrow.svg" />
+    </div>
+
+    {% elif is_instructor(course.name) %}
     <a class="button wide-button is-primary" id="continue-learning"
       href="{{ get_lesson_url(course.name, lesson_index) }}{{ course.query_parameter }}">
-      Continue Learning <img class="ml-2" src="/assets/school/icons/white-arrow.svg" />
+      {{ _("Checkout Course") }} <img class="ml-2" src="/assets/school/icons/white-arrow.svg" />
     </a>
-    {% endif %}
 
-    {% if course.upcoming and not is_user_interested %}
+    {% elif membership %}
+    <a class="button wide-button is-primary" id="continue-learning"
+      href="{{ get_lesson_url(course.name, lesson_index) }}{{ course.query_parameter }}">
+      {{ _("Continue Learning") }} <img class="ml-2" src="/assets/school/icons/white-arrow.svg" />
+    </a>
+
+    {% elif course.upcoming and not is_user_interested %}
       <div class="button wide-button is-default"
         id="notify-me" data-course="{{course.name | urlencode}}">
-        Notify me when available
+       {{ _("Notify me when available") }}
       </div>
-    {% endif %}
 
-    {% if is_cohort_staff(course.name, frappe.session.user) %}
+    {% elif is_cohort_staff(course.name, frappe.session.user) %}
       <a class="button wide-button is-secondary"
           href="/courses/{{course.name}}/manage"
           style="color: inherit;">
-        Manage the course
+        {{ _("Manage the course") }}
       </a>
     {% endif %}
 
@@ -247,12 +279,10 @@
       <div class="slider-controls">
         <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
           <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-          <span class="sr-only">Previous</span>
         </a>
 
         <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
           <span class="carousel-control-next-icon" aria-hidden="true"></span>
-          <span class="sr-only">Next</span>
         </a>
       </div>
       {% endif %}

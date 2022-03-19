@@ -5,9 +5,10 @@
 from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
+from frappe import _
 
 class LMSSettings(Document):
-	pass
+    pass
 
 @frappe.whitelist()
 def check_profile_restriction():

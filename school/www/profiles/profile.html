@@ -29,7 +29,7 @@
 
 {% macro ProfileBanner(member) %}
 {% set cover_image = member.cover_image if member.cover_image else "/assets/school/images/profile-banner.png" %}
-{% set enrollment = member.get_course_membership("Student") | length %}
+{% set enrollment = get_course_membership(frappe.session.user, member_type="Student") | length %}
 {% set enrollment_suffix = _("Courses") if enrollment > 1 else _("Course") %}
 <div class="container">
   <div class="profile-banner" style="background-image: url({{ cover_image }})">
@@ -77,9 +77,7 @@
   <div class="course-home-headings"> {{ _("Courses Created") }} </div>
   <div class="cards-parent">
     {% for course in authored_courses %}
-    {% set course_details = frappe.db.get_value("LMS Course", course,
-      ["name", "upcoming", "title", "image", "enable_certification"], as_dict=True) %}
-    {{ widgets.CourseCard(course=course_details, read_only=read_only) }}
+    {{ widgets.CourseCard(course=course, read_only=read_only) }}
     {% endfor %}
   </div>
 </div>
@@ -100,7 +98,7 @@
 {% endmacro %}
 
 {% macro CoursesEnrolled(member, read_only) %}
-{% set enrolled = member.get_enrolled_courses() %}
+{% set enrolled = get_enrolled_courses() %}
 
 {% if enrolled.completed | length %}
 <div class="profile-courses">
