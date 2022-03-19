@@ -3,6 +3,7 @@
 {% block title %} {{ lesson.title }} - {{ course.title }} {% endblock %}
 
 {% block head_include %}
+{% include "public/icons/symbol-defs.svg" %}
 <link rel="stylesheet" href="/assets/frappe/css/hljs-night-owl.css">
 
 {% for ext in page_extensions %}
@@ -11,11 +12,10 @@
 
 {% endblock %}
 
-
 {% block content %}
 <div class="common-page-style">
   <div class="container course-details-page">
-    {{ widgets.BreadCrumb(course=course, lesson=lesson) }}
+    {{ BreadCrumb(course, lesson) }}
     <div class="course-content-parent">
       <div class="course-details-outline">
         {{ widgets.CourseOutline(course=course, membership=membership) }}
@@ -31,6 +31,16 @@
   </div>
 </div>
 {% endblock %}
+
+{% macro BreadCrumb(course, lesson) %}
+<div class="breadcrumb">
+  <a class="dark-links" href="/courses">{{ _("All Courses") }}</a>
+  <img class="ml-1 mr-1" src="/assets/school/icons/chevron-right.svg">
+  <a class="dark-links" href="/courses">{{ course.title }}</a>
+  <img class="ml-1 mr-1" src="/assets/school/icons/chevron-right.svg">
+  <span class="breadcrumb-destination">{{ lesson.title }}</span>
+</div>
+{% endmacro %}
 
 {% macro LessonContent(lesson) %}
 {% set instructors = get_instructors(course.name) %}
@@ -60,8 +70,8 @@
     </div>
     {% endif %}
     {% endfor %}
-    <a class="button-links ml-2" href="{{ get_profile_url(instructors[0].username) }}">
-      <span class="course-creator-name">
+    <a class="button-links ml-1" href="{{ get_profile_url(instructors[0].username) }}">
+      <span class="course-meta">
       {% if ins_len == 1 %}
         {{ instructors[0].full_name }}
       {% else %}
@@ -70,7 +80,7 @@
       {% endif %}
       </span>
     </a>
-    <div class="ml-3 course-meta"> {{ frappe.utils.format_date(lesson.creation, "medium") }} </div>
+    <div class="ml-5 course-meta"> {{ frappe.utils.format_date(lesson.creation, "medium") }} </div>
   </div>
 
 

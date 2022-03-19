@@ -1,7 +1,7 @@
 import re
 import frappe
 from frappe.utils import flt, cint, cstr
-from school.lms.md import markdown_to_html
+from school.lms.md import markdown_to_html, find_macros
 import string
 from frappe import _
 
@@ -85,6 +85,13 @@ def get_lesson_details(chapter):
         lesson_details = frappe.db.get_value("Course Lesson", row.lesson,
             ["name", "title", "include_in_preview", "body", "creation"], as_dict=True)
         lesson_details.number = flt("{}.{}".format(chapter.idx, row.idx))
+        lesson_details.icon = "icon-list"
+        macros = find_macros(lesson_details.body)
+        for macro in macros:
+            if macro[0] == "YouTubeVideo":
+                lesson_details.icon = "icon-video"
+            elif macro[0] == "Quiz":
+                lesson_details.icon = "icon-quiz"
         lessons.append(lesson_details)
     return lessons
 
