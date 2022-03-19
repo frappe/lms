@@ -34,17 +34,6 @@
   background-image:  url({{ course.image }});
   {% else %} background-color: var(--gray-200) {% endif %}">
   <div class="container pt-5 pb-5">
-    {% if is_instructor(course.name) %}
-        <a class="button is-default button-links pull-right" href="/lesson">
-            <svg class="icon icon-sm mr-1"><use href="#icon-add"></use></svg>
-            {{ _("Add Lesson") }}
-        </a>
-        <a class="button is-default button-links pull-right mr-2" href="/chapter">
-            <svg class="icon icon-sm mr-1"><use href="#icon-add"></use></svg>
-            {{ _("Add Chapter") }}
-        </a>
-        <a class="button is-default button-links pull-right mr-2" href="/course?name={{ course.name }}"> {{ _("Edit") }} </a>
-    {% endif %}
     <div class="course-card-wide" style="">
       {{ BreadCrumb(course) }}
       {{ CourseCardWide(course) }}
@@ -149,12 +138,26 @@
     </div>
 
     {% if course.status == "Under Review" %}
-    <div>
+    <div class="mb-4">
         {{ _("Your course is currently under review. Once the review is complete, the System Admins will publish it on the website.") }}
     </div>
     {% endif %}
 
-    <div class="d-flex align-items-center mb-2">
+    <div class="vertically-center mb-4">
+        {% if is_instructor(course.name) %}
+            <a class="button is-default button-links mr-2" href="/course?name={{ course.name }}"> {{ _("Edit") }} </a>
+            <a class="button is-default button-links mr-2" href="/chapter">
+                <svg class="icon icon-sm mr-1"><use href="#icon-add"></use></svg>
+                {{ _("Add Chapter") }}
+            </a>
+            <a class="button is-default button-links mr-2" href="/lesson">
+                <svg class="icon icon-sm mr-1"><use href="#icon-add"></use></svg>
+                {{ _("Add Lesson") }}
+            </a>
+        {% endif %}
+    </div>
+
+    <div class="vertically-center mb-2">
       <div class="">
         <svg class="icon icon-md mr-1">
           <use class="" href="#icon-users">
