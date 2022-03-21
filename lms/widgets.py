@@ -15,7 +15,6 @@ from frappe.utils.jinja import get_jenv
 # widgets/SomeWidgets.html in each of these modules.
 MODULES = [
     "lms",
-    "community"
 ]
 
 def update_website_context(context):

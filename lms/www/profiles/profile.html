@@ -50,7 +50,7 @@
       {% endif %}
 
       {% if frappe.session.user == member.email %}
-      <a class="dark-links profile-link" href="/edit-profile?name={{ member.email }}"> {{ _("Edit Profile") }} </a>
+      <a class="button is-secondary ml-auto mt-1" href="/edit-profile?name={{ member.email }}"> {{ _("Edit Profile") }} </a>
       {% endif %}
     </div>
 

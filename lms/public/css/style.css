@@ -348,7 +348,7 @@ input[type=checkbox] {
 
 .is-secondary:hover {
   text-decoration: none;
-  color: inherit;
+  color: var(--gray-900);
 }
 
 .is-default {
@@ -657,7 +657,6 @@ input[type=checkbox] {
 
 .profile-banner {
   height: 248px;
-  border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
   background-size: cover;
   background-position: center;
 }
@@ -669,21 +668,23 @@ input[type=checkbox] {
 }
 
 .profile-info {
-  height: 68px;
+  height: 90px;
   background: #ffffff;
   border-radius: 0px 0px 8px 8px;
   font-size: var(--text-sm);
   display: flex;
-  justify-content: space-between;
-  margin: 0 1rem 4rem 0;
   flex-direction: column;
+  margin-bottom: 4rem;
   padding-left: 200px;
+  padding-right: 1rem;
+  box-shadow: var(--shadow-sm);
 }
 
 @media (max-width: 550px) {
   .profile-info {
     align-items: flex-end;
     padding-left: 0;
+    height: 150px;
   }
 }
 
@@ -733,10 +734,6 @@ input[type=checkbox] {
     align-items: flex-end;
     margin: 0 0 0.5rem;
   }
-}
-
-.profile-link {
-  margin-left: auto;
 }
 
 .creator-badge {
