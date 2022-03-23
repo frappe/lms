@@ -4,13 +4,13 @@ from setuptools import setup, find_packages
 with open('requirements.txt') as f:
 	install_requires = f.read().strip().split('\n')
 
-# get version from __version__ variable in school/__init__.py
-from school import __version__ as version
+# get version from __version__ variable in lms/__init__.py
+from lms import __version__ as version
 
 setup(
-	name='school',
+	name='lms',
 	version=version,
-	description='school App',
+	description='LMS App',
 	author='Frappe',
 	author_email='school@frappe.io',
 	packages=find_packages(),

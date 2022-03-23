@@ -1,0 +1,63 @@
+<form class="signup-form" role="form">
+  <div class="page-card-body">
+    <div class="form-group">
+      <label class="form-label sr-only" for="signup_fullname">Full Name</label>
+      <input type="text" id="signup_fullname" class="form-control" placeholder="{{ _('Jane Doe') }}"
+        required autofocus>
+    </div>
+    <div class="form-group">
+      <label class="form-label sr-only" for="signup_email">Email</label>
+      <input type="email" id="signup_email" class="form-control"
+        placeholder="{{ _('jane@example.com') }}" required>
+    </div>
+
+    <div class="form-group">
+      <div class="checkbox">
+        <label>
+          <span class="input-area">
+            <input type="checkbox" autocomplete="off" class="input-with-feedback"
+              data-fieldtype="Check" data-fieldname="terms" id="signup-terms" required>
+            </span>
+          <span class="label-area">
+            {{ _("I have read and agree to your {0}").format(get_signup_optin_checks()) }}
+          </span>
+        </label>
+        <p class="help-box small text-muted"></p>
+      </div>
+    </div>
+  </div>
+  <div class="page-card-actions">
+    <button class="btn btn-sm btn-primary btn-block btn-signup"
+      type="submit">{{ _("Sign up") }}</button>
+
+    <p class="text-center sign-up-message">
+      <a href="#login" class="blue">{{ _("Have an account? Login") }}</a>
+    </p>
+  </div>
+</form>
+
+<script>
+  frappe.ready(function () {
+    $(".signup-form").on("submit", function (e) {
+      e.preventDefault();
+      const email = ($("#signup_email").val() || "").trim();
+      const full_name = frappe.utils.xss_sanitise(($("#signup_fullname").val() || "").trim());
+
+      if (!email || !validate_email(email) || !full_name) {
+        login.set_status('{{ _("Valid email and name required") }}', 'red');
+        return false;
+      }
+
+      frappe.call({
+        method: "lms.overrides.user.sign_up",
+        args: {
+          "email": ($("#signup_email").val() || "").trim(),
+          "full_name": frappe.utils.xss_sanitise(($("#signup_fullname").val() || "").trim()),
+          "verify_terms": $("#signup-terms").prop("checked") ? 1 : 0
+        },
+        statusCode: login.login_handlers
+      })
+    return false;
+    });
+  });
+</script>

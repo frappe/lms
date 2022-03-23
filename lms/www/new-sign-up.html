@@ -1,0 +1,70 @@
+{% extends "templates/web.html" %}
+
+{% block title %} {{_("New Sign Up")}} {% endblock %}
+
+{% block page_content %}
+
+<form id="new-sign-up">
+	<div class="form-group">
+		<label for="full_name">Full Name:</label>
+		<input id="full_name" type="text" class="form-control" required>
+	</div>
+	<div class="form-group">
+		<label for="signup_email">Email:</label>
+		<input id="signup_email" type="email" class="form-control" required>
+	</div>
+	<div class="form-group">
+		<label for="username">Username:</label>
+		<input id="username" type="text" class="form-control" required>
+	</div>
+	<div class="form-group">
+		<label for="password">Password:</label>
+		<input id="password" type="password" class="form-control" required>
+		<span class="password-strength-indicator indicator"></span>
+
+	</div>
+	<p class='password-strength-message text-muted small hidden'></p>
+	<div class="form-group">
+		<label for="invite_code">Invite Code:</label>
+		<input id="invite_code" type="text" class="form-control" readonly required
+			value="{{ frappe.form_dict['invite_code'] }}">
+	</div>
+	<button type="submit" id="submit" class="btn btn-primary">{{_("Submit")}}</button>
+</form>
+
+<script>
+	frappe.ready(() => {
+		$("#submit").click(function () {
+			var data = {
+				full_name: $("#full_name").val(),
+				signup_email: $("#signup_email").val(),
+				username: $("#username").val(),
+				password: $("#password").val(),
+				invite_code: $("#invite_code").val(),
+			};
+
+			frappe.call({
+				type: "POST",
+				method: "lms.lms.doctype.invite_request.invite_request.update_invite",
+				args: {
+					"data": data
+				},
+				callback: (data) => {
+					$("input").val("");
+					if (data.message == "OK") {
+						frappe.msgprint({
+							message: __("Your Account has been successfully created!"),
+							clear: true
+						});
+						setTimeout(function() {
+							window.location.href = "/login";
+						}, 2000);
+					}
+				}
+			});
+			return false;
+		});
+	})
+</script>
+
+{% endblock %}

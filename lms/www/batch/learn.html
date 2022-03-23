@@ -1,0 +1,177 @@
+{% extends "templates/base.html" %}
+{% from "www/macros/livecode.html" import LiveCodeEditorJS, LiveCodeEditor with context %}
+{% block title %} {{ lesson.title }} - {{ course.title }} {% endblock %}
+
+{% block head_include %}
+{% include "public/icons/symbol-defs.svg" %}
+<link rel="stylesheet" href="/assets/frappe/css/hljs-night-owl.css">
+
+{% for ext in page_extensions %}
+{{ ext.render_header() }}
+{% endfor %}
+
+{% endblock %}
+
+{% block content %}
+<div class="common-page-style lesson-page">
+  <div class="container course-details-page">
+    {{ BreadCrumb(course, lesson) }}
+    <div class="course-content-parent">
+      <div class="course-details-outline">
+        {{ widgets.CourseOutline(course=course, membership=membership) }}
+      </div>
+      <div class="lesson-pagination-parent">
+        {{ LessonContent(lesson) }}
+        {% if membership %}
+        {{ pagination(prev_url, next_url) }}
+        {% endif %}
+      </div>
+    </div>
+    {{ Discussions() }}
+  </div>
+</div>
+{% endblock %}
+
+{% macro BreadCrumb(course, lesson) %}
+<div class="breadcrumb">
+  <a class="dark-links" href="/courses">{{ _("All Courses") }}</a>
+  <img class="ml-1 mr-1" src="/assets/lms/icons/chevron-right.svg">
+  <a class="dark-links" href="/courses/{{ course.name }}">{{ course.title }}</a>
+  <img class="ml-1 mr-1" src="/assets/lms/icons/chevron-right.svg">
+  <span class="breadcrumb-destination">{{ lesson.title }}</span>
+</div>
+{% endmacro %}
+
+{% macro LessonContent(lesson) %}
+{% set instructors = get_instructors(course.name) %}
+{% set is_instructor = is_instructor(course.name) %}
+<div class="lesson-content">
+  <div class="lesson-title">
+    <div class="course-home-headings title mb-0
+    {% if membership %} is-member {% endif %}
+    {% if membership or is_instructor %} eligible-for-submission {% endif %}" data-lesson="{{ lesson.name }}"
+      data-course="{{ course.name }}">{{ lesson.title }}</div>
+    <span class="lesson-progress {{hide if get_progress(course.name, lesson.name) != 'Complete' else ''}}">COMPLETED</span>
+
+    {% if is_instructor %}
+    <a class="button is-default button-links ml-auto" href="/lesson?name={{ lesson.name }}"> {{ _("Edit") }} </a>
+    {% endif %}
+  </div>
+
+  <div class="d-flex align-items-center">
+    {% set ins_len = instructors | length %}
+    {% for instructor in instructors %}
+    {% if ins_len > 1 and loop.index == 1 %}
+    <div class="avatar-group overlap">
+    {% endif %}
+    {{ widgets.Avatar(member=instructor, avatar_class="avatar-small") }}
+
+    {% if ins_len > 1 and loop.index == ins_len %}
+    </div>
+    {% endif %}
+    {% endfor %}
+    <a class="button-links ml-1" href="{{ get_profile_url(instructors[0].username) }}">
+      <span class="course-meta">
+      {% if ins_len == 1 %}
+        {{ instructors[0].full_name }}
+      {% else %}
+        {% set suffix = "other" if ins_len - 1 == 1 else "others"  %}
+        {{ instructors[0].full_name.split(" ")[0] }} and {{ ins_len - 1 }} {{ suffix }}
+      {% endif %}
+      </span>
+    </a>
+    <div class="ml-5 course-meta"> {{ frappe.utils.format_date(lesson.creation, "medium") }} </div>
+  </div>
+
+
+  <div class="markdown-source lesson-content-card">
+  {% if membership or lesson.include_in_preview or is_instructor %}
+  {% if is_instructor and not lesson.include_in_preview %}
+    <div class="small alert alert-secondary alert-dismissible mt-4 mb-4">
+      This lesson is not available for preview. As you are the Instructor of the course only you can see it.
+      <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+    </div>
+  {% endif %}
+    {{ render_html(lesson.body) }}
+  {% else %}
+    <div class="">
+      <a class="button is-primary pull-right" href="/courses/{{ course.name }}"> Start Learning </a>
+      <div class="">This lesson is not available for preview. Please join the course to access it.</div>
+    </div>
+  {% endif %}
+  </div>
+
+</div>
+{% endmacro %}
+
+{% macro pagination(prev_url, next_url) %}
+<div class="lesson-pagination">
+
+  <div>
+    {% if prev_url %}
+    <a class="button is-secondary dark-links prev" href="{{ prev_url }}">
+      <img class="mr-2" src="/assets/lms/icons/left-arrow.svg">
+      Prev
+    </a>
+    {% endif %}
+  </div>
+
+
+  {% if not is_mentor(course.name, frappe.session.user) and membership %}
+  {% set progress = get_progress(course.name, lesson.name) %}
+  <div class="custom-checkbox {% if progress == 'Complete' %} hide {% endif %}">
+    <label class="quiz-label">
+      <input class="mark-progress" type="checkbox" checked>
+      <img class="empty-checkbox" />
+      <span class="small">{{ _("Mark as complete on moving to the next lesson") }}</span>
+    </label>
+  </div>
+
+  <div class="button is-secondary mark-progress {{ progress }} {% if progress == 'Incomplete' or progress == None %} hide {% endif %}"
+    data-progress="Incomplete">
+    Mark as Incomplete
+  </div>
+
+  {% endif %}
+
+  <div>
+    <a class="button is-primary next {% if membership.progress|int == 100 and not next_url %} hide {% endif %}"
+      {% if next_url %} data-href="{{ next_url }}" {% endif %} href="">
+      {% if next_url %} Next {% else %} Mark as Complete {% endif %}
+      <img class="ml-2" src="/assets/lms/icons/side-arrow-white.svg">
+    </a>
+    {% if course.enable_certification %}
+    <div class="button is-primary {% if membership.progress|int != 100 or next_url %} hide {% endif %}" id="certification">
+      Get Certificate
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endmacro %}
+
+{% macro Discussions() %}
+{% set is_instructor = frappe.session.user == course.instructor %}
+{% set condition = is_instructor if is_instructor else membership %}
+{% set doctype, docname = "Course Lesson", lesson.name %}
+{% set title = "Questions" %}
+{% set cta_title = "Ask a Question" %}
+{% set button_name = "Start Learning" %}
+{% set redirect_to = "/courses/" + course.name %}
+{% set empty_state_title = "Have a doubt?" %}
+{% set empty_state_subtitle = "Post it here, our mentors will help you out." %}
+
+{% include "frappe/templates/discussions/discussions_section.html" %}
+{% endmacro %}
+
+{%- block script %}
+{{ super() }}
+
+<script type="text/javascript">
+  var page_context = {{ page_context | tojson }};
+</script>
+
+{% for ext in page_extensions %}
+{{ ext.render_footer() }}
+{% endfor %}
+{%- endblock %}

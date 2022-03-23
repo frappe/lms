@@ -1,0 +1,263 @@
+{% extends "templates/base.html" %}
+{% block title %}{{ course.title }}
+{% endblock %}
+
+{% block head_include %}
+{% include "public/icons/symbol-defs.svg" %}
+<link rel="stylesheet" href="/assets/frappe/css/font-awesome.css">
+{% endblock %}
+
+{% block content %}
+<div class="common-page-style pt-0 pb-0">
+  <div class="course-home-top-container">
+    {{ CourseHomeHeader(course) }}
+    <div class="course-home-page">
+      <div class="container">
+        <div class="course-body-container">
+          {{ CourseHeaderOverlay(course) }}
+          {{ Description(course) }}
+          {{ widgets.CourseOutline(course=course, membership=membership) }}
+          {{ widgets.Reviews(course=course, membership=membership) }}
+        </div>
+      </div>
+    </div>
+  </div>
+  {{ RelatedCourses(course) }}
+</div>
+{% endblock %}
+
+{% macro CourseHomeHeader(course) %}
+<div class="course-head-container"
+  style=" {% if course.image %}
+  background-position: center;
+  background-size: cover;
+  background-image:  url({{ course.image }});
+  {% else %} background-color: var(--gray-200) {% endif %}">
+  <div class="container pt-5 pb-5">
+    <div class="course-card-wide" style="">
+      {{ BreadCrumb(course) }}
+      {{ CourseCardWide(course) }}
+    </div>
+  </div>
+</div>
+{% endmacro %}
+<!-- BreadCrumb -->
+
+{% macro BreadCrumb(course) %}
+<div class="breadcrumb">
+  <a class="dark-links" href="/courses">{{ _("All Courses") }}</a>
+  <img class="ml-1 mr-1" src="/assets/lms/icons/chevron-right.svg">
+  <span class="breadcrumb-destination">{{ course.title }}</span>
+</div>
+{% endmacro %}
+<!-- Course Card -->
+
+{% macro CourseCardWide(course) %}
+<div class="">
+  <div class="d-flex align-items-center">
+    {% for tag in get_tags(course.name) %}
+    <div class="course-card-pills">{{ tag }}</div>
+    {% endfor %}
+  </div>
+  <div class="course-card-wide-title">
+    {{ course.title }}
+  </div>
+  <div class="">
+    {{ course.short_introduction }}
+  </div>
+
+  {% if membership %}
+  {% set progress = frappe.utils.cint(membership.progress) %}
+  <div class="progress" title="{{ progress }}% Completed">
+    <div class="progress-bar" role="progressbar" aria-valuenow="{{ progress }}"
+    aria-valuemin="0" aria-valuemax="100" style="width:{{ progress }}%">
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="mt-3">
+    <div class="bold-heading">Instructors:</div>
+    {% for instructor in get_instructors(course.name) %}
+      <div class="mt-1">
+       {{ widgets.Avatar(member=instructor, avatar_class="avatar-small") }}
+        <a class="button-links" href="{{ get_profile_url(instructor.username) }}">
+          <span class="course-instructor"> {{ instructor.full_name }} </span>
+        </a>
+      </div>
+    {% endfor %}
+  </div>
+
+</div>
+
+{% endmacro%}
+
+{% macro CourseHeaderOverlay(course) %}
+<div class="course-overlay-card {% if course.video_link %} video-in-overlay {% endif %}">
+
+  {% if course.video_link %}
+  <iframe class="preview-video" src="{{ course.video_link }}"></iframe>
+  {% endif %}
+
+  <div class="course-overlay-content">
+    <div class="course-home-headings"> {{ course.title }} </div>
+
+    <div id="interest-alert" class="{% if not is_user_interested %} hide {% endif %}">
+        {{ _("You have opted to be notified for this course. You will receive an email when the course becomes available.") }}
+    </div>
+
+    {% if course.status == "Under Review" %}
+    <div class="mb-4">
+        {{ _("Your course is currently under review. Once the review is complete, the System Admins will publish it on the website.") }}
+    </div>
+    {% endif %}
+
+    {% if is_instructor(course.name) %}
+    <div class="vertically-center mb-4">
+        <a class="button is-default button-links mr-2" href="/course?name={{ course.name }}"> {{ _("Edit") }} </a>
+        <a class="button is-default button-links mr-2" href="/chapter">
+            <svg class="icon icon-sm mr-1"><use href="#icon-add"></use></svg>
+            {{ _("Add Chapter") }}
+        </a>
+        <a class="button is-default button-links mr-2" href="/lesson">
+            <svg class="icon icon-sm mr-1"><use href="#icon-add"></use></svg>
+            {{ _("Add Lesson") }}
+        </a>
+    </div>
+    {% endif %}
+
+    <div class="vertically-center mb-2">
+      <div class="">
+        <svg class="icon icon-md mr-1">
+          <use class="" href="#icon-users">
+        </svg>
+        {{ get_students(course.name) | length }} {{ _("Enrolled") }}
+      </div>
+
+      <span class="seperator"></span>
+
+      {% if get_lessons(course.name) | length %}
+      <div class="">
+        <svg class="icon icon-md mr-1">
+          <use href="#icon-education"></use>
+        </svg>
+        {{ get_lessons(course.name) | length }} {{ _("Lessons") }}
+      </div>
+      {% endif %}
+    </div>
+
+    {% set lesson_index = get_lesson_index(membership.current_lesson) if membership and
+      membership.current_lesson
+      else '1.1' %}
+
+    {% if show_start_learing_cta %}
+    <div class="button wide-button is-primary join-batch" data-course="{{ course.name | urlencode }}">
+      {{ _("Start Learning") }}
+      <img class="ml-2" src="/assets/lms/icons/white-arrow.svg" />
+    </div>
+
+    {% elif is_instructor(course.name) and not course.is_published and course.status != "Under Review" %}
+    <div class="button wide-button is-primary" id="submit-for-review" data-course="{{ course.name | urlencode }}">
+      {{ _("Submit for Review") }}
+      <img class="ml-2" src="/assets/lms/icons/white-arrow.svg" />
+    </div>
+
+    {% elif is_instructor(course.name) %}
+    <a class="button wide-button is-primary" id="continue-learning"
+      href="{{ get_lesson_url(course.name, lesson_index) }}{{ course.query_parameter }}">
+      {{ _("Checkout Course") }} <img class="ml-2" src="/assets/lms/icons/white-arrow.svg" />
+    </a>
+
+    {% elif membership %}
+    <a class="button wide-button is-primary" id="continue-learning"
+      href="{{ get_lesson_url(course.name, lesson_index) }}{{ course.query_parameter }}">
+      {{ _("Continue Learning") }} <img class="ml-2" src="/assets/lms/icons/white-arrow.svg" />
+    </a>
+
+    {% elif course.upcoming and not is_user_interested %}
+      <div class="button wide-button is-default"
+        id="notify-me" data-course="{{course.name | urlencode}}">
+       {{ _("Notify me when available") }}
+      </div>
+
+    {% elif is_cohort_staff(course.name, frappe.session.user) %}
+      <a class="button wide-button is-secondary"
+          href="/courses/{{course.name}}/manage"
+          style="color: inherit;">
+        {{ _("Manage the course") }}
+      </a>
+    {% endif %}
+
+    {% set certificate = is_certified(course.name) %}
+    {% set progress = frappe.utils.cint(membership.progress) %}
+    {% if certificate %}
+    <a class="button wide-button is-secondary mt-2" href="/courses/{{ course.name }}/{{ certificate }}">
+      {{ _("Get Certificate") }}
+    </a>
+    {% elif course.enable_certification and progress == 100 %}
+    <div class="button wide-button is-secondary mt-4" id="certification" data-course="{{ course.name }}">
+      {{ _("Get Certificate") }}
+    </div>
+    {% endif %}
+
+  </div>
+
+</div>
+{% endmacro %}
+
+{% macro Description(course) %}
+<div class="course-description-section">
+  {{ frappe.utils.md_to_html(course.description) }}
+</div>
+{% endmacro %}
+
+{% macro CourseCreator(course) %}
+<div class="course-home-headings"> {{ _("Course Creators") }} </div>
+
+<div class="common-card-style course-creators-card">
+  {% set instructors = get_instructors(course.name) %}
+  {% for instructor in instructors %}
+  <div class="d-flex align-items-center">
+    {{ widgets.Avatar(member=instructor, avatar_class="avatar-medium") }}
+    <div class="ml-4">
+      <div class="course-creator-name"> {{ instructor.full_name }} </div>
+      <div class="course-meta"> {{ get_authored_courses(instructor.name) | length }} {{ _("Courses Created") }} </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endmacro %}
+
+{% macro RelatedCourses(course) %}
+{% if course.related_courses | length %}
+<div class="related-courses">
+  <div class="container">
+    <div class="course-home-headings"> {{ _("Other Courses") }} </div>
+    <div class="carousel slide" id="carouselExampleControls" data-ride="carousel" data-interval="false">
+      <div class="carousel-inner">
+        {% for crs in course.related_courses %}
+          {% if loop.index % 3 == 1 %}
+          <div class="carousel-item {% if loop.index == 1 %} active {% endif %}"><div class="cards-parent">
+          {% endif %}
+          {{ widgets.CourseCard(course=crs, read_only=False) }}
+          {% if loop.index % 3 == 0 or loop.index == course.related_courses | length %} </div> </div> {% endif %}
+        {% endfor %}
+      </div>
+
+      {% if course.related_courses | length > 3 %}
+      <div class="slider-controls">
+        <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        </a>
+
+        <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        </a>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+
+</div>
+{% endif%}
+{% endmacro %}
