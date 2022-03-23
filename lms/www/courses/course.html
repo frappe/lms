@@ -66,38 +66,6 @@
     {{ course.short_introduction }}
   </div>
 
-  <div class="course-intructor-rating-section">
-
-    <div class="vertically-center">
-      <svg class="icon icon-md">
-        <use class="" href="#icon-users">
-      </svg>
-      {{ get_students(course.name) | length }} {{ _("Enrolled") }}
-    </div>
-
-    {% if get_lessons(course.name) | length %}
-    <div class="vertically-center">
-      <svg class="icon icon-md">
-        <use href="#icon-education"></use>
-      </svg>
-      {{ get_lessons(course.name) | length }} {{ _("Lessons") }}
-    </div>
-    {% endif %}
-
-    {% set avg_rating = get_average_rating(course.name) %}
-    {% if avg_rating %}
-    <div class="rating mr-2">
-      {% for i in [1, 2, 3, 4, 5] %}
-      <svg class="icon icon-md {% if i <= avg_rating %} star-click {% endif %}" data-rating="{{ i }}">
-        <use href="#icon-star"></use>
-      </svg>
-      {% endfor %}
-      <span> {{ avg_rating }} {{ _(" Rating ") }} </span>
-    </div>
-    {% endif %}
-
-  </div>
-
   {% if membership %}
   {% set progress = frappe.utils.cint(membership.progress) %}
   <div class="progress" title="{{ progress }}% Completed">

@@ -275,7 +275,7 @@ input[type=checkbox] {
 
 .course-card-wide {
   background-color: white;
-  padding: 0 1rem 1rem;
+  padding: 0 1.25rem 1.25rem;
   border-radius: var(--border-radius);
   width: 50%;
   box-shadow: var(--shadow-base);
@@ -305,10 +305,9 @@ input[type=checkbox] {
 
 .course-card-wide-title {
   font-weight: bold;
-  font-size: 36px;
+  font-size: var(--text-3xl);
   line-height: 44px;
   color: var(--gray-900);
-  margin-bottom: 0.75rem;
 }
 
 .button {
@@ -584,7 +583,11 @@ input[type=checkbox] {
 }
 
 .lesson-content-card {
-  margin-top: 2rem;
+  margin-top: 1rem;
+}
+
+.lesson-page {
+    background-color: #FFFFFF;
 }
 
 .lesson-content-card .alert-dismissible .close {
@@ -841,6 +844,10 @@ pre {
 
 .markdown-source h4 {
   font-size: 1rem;
+}
+
+.markdown-source p:last-child {
+    margin-bottom: 0;
 }
 
 .avatar img {
@@ -1160,13 +1167,6 @@ pre {
 
 .course-head-container {
   color: var(--gray-900);
-}
-
-.course-intructor-rating-section {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 2rem;
 }
 
 .seperator {
