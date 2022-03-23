@@ -143,19 +143,19 @@
     </div>
     {% endif %}
 
+    {% if is_instructor(course.name) %}
     <div class="vertically-center mb-4">
-        {% if is_instructor(course.name) %}
-            <a class="button is-default button-links mr-2" href="/course?name={{ course.name }}"> {{ _("Edit") }} </a>
-            <a class="button is-default button-links mr-2" href="/chapter">
-                <svg class="icon icon-sm mr-1"><use href="#icon-add"></use></svg>
-                {{ _("Add Chapter") }}
-            </a>
-            <a class="button is-default button-links mr-2" href="/lesson">
-                <svg class="icon icon-sm mr-1"><use href="#icon-add"></use></svg>
-                {{ _("Add Lesson") }}
-            </a>
-        {% endif %}
+        <a class="button is-default button-links mr-2" href="/course?name={{ course.name }}"> {{ _("Edit") }} </a>
+        <a class="button is-default button-links mr-2" href="/chapter">
+            <svg class="icon icon-sm mr-1"><use href="#icon-add"></use></svg>
+            {{ _("Add Chapter") }}
+        </a>
+        <a class="button is-default button-links mr-2" href="/lesson">
+            <svg class="icon icon-sm mr-1"><use href="#icon-add"></use></svg>
+            {{ _("Add Lesson") }}
+        </a>
     </div>
+    {% endif %}
 
     <div class="vertically-center mb-2">
       <div class="">

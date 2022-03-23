@@ -148,12 +148,13 @@ const rotate_chapter_icon = (e) => {
 };
 
 const show_no_preview_dialog = (e) => {
-  frappe.warn(__("Not available for preview"),
-      __("This lesson is not available for preview. Please join the course to access it."),
-      () => {
-        window.location.href = `/courses/${ $(e.currentTarget).data("course") }`
-      },
-      __("Start Learning"), false);
+    const d = frappe.warn(__("Not available for preview"),
+        __("This lesson is not available for preview. Please join the course to access it."),
+        () => {
+            const route = `/courses/${ $(e.currentTarget).data("course") }`;
+            window.location.pathname == route ? d.hide() : window.location.href = route;
+        },
+        __("Start Learning"), false);
 };
 
 </script>

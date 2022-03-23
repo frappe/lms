@@ -401,7 +401,7 @@ input[type=checkbox] {
 }
 
 .reviews-parent {
-  margin: 5rem 0;
+  padding-bottom: 5rem;
   color: var(--gray-900);
 }
 
