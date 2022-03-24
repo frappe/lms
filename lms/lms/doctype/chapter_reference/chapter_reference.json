@@ -1,0 +1,35 @@
+{
+ "actions": [],
+ "autoname": "hash",
+ "creation": "2021-07-27 16:25:02.903245",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "chapter"
+ ],
+ "fields": [
+  {
+   "fieldname": "chapter",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Chapter",
+   "options": "Course Chapter",
+   "reqd": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2022-03-15 09:39:41.937565",
+ "modified_by": "Administrator",
+ "module": "LMS",
+ "name": "Chapter Reference",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

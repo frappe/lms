@@ -11,9 +11,9 @@ services:
   bench:
     image: anandology/frappe-bench:2021.10
     volumes:
-      - .:/opt/frappe-bench/apps/school
+      - .:/opt/frappe-bench/apps/lms
     environment:
-      - FRAPPE_APPS=school
+      - FRAPPE_APPS=lms
       - FRAPPE_ALLOW_TESTS=true
       - FRAPPE_SITE_NAME=frappe.localhost
     depends_on:

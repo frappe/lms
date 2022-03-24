@@ -3,8 +3,8 @@
 *.egg-info
 *.swp
 tags
-school/docs/current
-school/public/dist
+lms/docs/current
+lms/public/dist
 __pycache__/
 *.py[cod]
 *$py.class
