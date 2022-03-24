@@ -14,7 +14,7 @@ def get_context(context):
 
 def get_courses():
     courses = frappe.get_all("LMS Course",
-                                filters={"is_published": True},
+                                filters={"published": True},
                                 fields=["name", "upcoming", "title", "image", "enable_certification"])
 
     live_courses, upcoming_courses = [], []

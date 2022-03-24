@@ -7,7 +7,6 @@ import frappe
 from frappe.model.document import Document
 from frappe import _
 from lms.lms.doctype.lms_batch_membership.lms_batch_membership import create_membership
-from lms.query import find, find_all
 from lms.lms.utils import is_mentor
 
 class LMSBatch(Document):

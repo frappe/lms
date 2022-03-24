@@ -22,7 +22,7 @@
   "tags",
   "status",
   "section_break_7",
-  "is_published",
+  "published",
   "column_break_10",
   "upcoming",
   "column_break_12",
@@ -54,7 +54,7 @@
   },
   {
    "default": "0",
-   "fieldname": "is_published",
+   "fieldname": "published",
    "fieldtype": "Check",
    "label": "Published"
   },
@@ -93,7 +93,7 @@
    "default": "0",
    "fieldname": "upcoming",
    "fieldtype": "Check",
-   "label": "Is an Upcoming Course"
+   "label": "Upcoming"
   },
   {
    "fieldname": "chapters",
@@ -163,7 +163,7 @@
    "fieldtype": "Column Break"
   }
  ],
- "is_published_field": "is_published",
+ "is_published_field": "published",
  "links": [
   {
    "group": "Chapters",
@@ -186,7 +186,7 @@
    "link_fieldname": "course"
   }
  ],
- "modified": "2022-03-15 10:16:53.796878",
+ "modified": "2022-03-24 13:09:37.228855",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",

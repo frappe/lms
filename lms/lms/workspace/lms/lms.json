@@ -144,7 +144,7 @@
    "format": "{} Published",
    "label": "Courses",
    "link_to": "LMS Course",
-   "stats_filter": "{\"is_published\": 1}",
+   "stats_filter": "{\"published\": 1}",
    "type": "DocType"
   },
   {

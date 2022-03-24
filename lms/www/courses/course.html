@@ -155,7 +155,7 @@
       <img class="ml-2" src="/assets/lms/icons/white-arrow.svg" />
     </div>
 
-    {% elif is_instructor(course.name) and not course.is_published and course.status != "Under Review" %}
+    {% elif is_instructor(course.name) and not course.published and course.status != "Under Review" %}
     <div class="button wide-button is-primary" id="submit-for-review" data-course="{{ course.name | urlencode }}">
       {{ _("Submit for Review") }}
       <img class="ml-2" src="/assets/lms/icons/white-arrow.svg" />
