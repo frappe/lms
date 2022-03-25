@@ -333,7 +333,7 @@ def get_signup_optin_checks():
     return (", ").join(links)
 
 def get_popular_courses():
-    courses = frappe.get_all("LMS Course", {"is_published": 1, "upcoming": 0})
+    courses = frappe.get_all("LMS Course", {"published": 1, "upcoming": 0})
     course_membership = []
 
     for course in courses:

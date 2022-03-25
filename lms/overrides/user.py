@@ -113,7 +113,7 @@ class CustomUser(User):
                 )
 
         for map in mapping:
-            if frappe.db.get_value("LMS Course", map.course, "is_published"):
+            if frappe.db.get_value("LMS Course", map.course, "published"):
                 course = frappe.db.get_value("LMS Course", map.course,
                     ["name", "upcoming", "title", "image", "enable_certification"], as_dict=True)
                 mentored_courses.append(course)
@@ -159,7 +159,7 @@ def get_authored_courses(member, only_published=True):
         "instructor": member
     }
     if only_published:
-        filters["is_published"] = True
+        filters["published"] = True
     courses = frappe.get_all('LMS Course', filters)
 
     for course in courses:

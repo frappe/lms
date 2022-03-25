@@ -12,7 +12,7 @@ def get_context(context):
         raise frappe.Redirect
 
     course = frappe.db.get_value("LMS Course", course_name,
-        ["name", "title", "image", "short_introduction", "description", "is_published", "upcoming",
+        ["name", "title", "image", "short_introduction", "description", "published", "upcoming",
         "disable_self_learning", "video_link", "enable_certification", "status"],
         as_dict=True)
 

@@ -6,7 +6,6 @@ import frappe
 from frappe.model.document import Document
 import json
 from ...utils import slugify
-from lms.query import find, find_all
 from frappe.utils import flt, cint
 from lms.lms.utils import get_chapters
 
@@ -27,7 +26,7 @@ class LMSCourse(Document):
             }).save(ignore_permissions=True)
 
     def validate_status(self):
-        if self.is_published:
+        if self.published:
             self.status = "Approved"
 
     def on_update(self):
@@ -64,17 +63,11 @@ class LMSCourse(Document):
     def find(name):
         """Returns the course with specified name.
         """
-        return find("LMS Course", is_published=True, name=name)
+        return find("LMS Course", published=True, name=name)
 
     def autoname(self):
         if not self.name:
             self.name = self.generate_slug(title=self.title)
-
-    @staticmethod
-    def find_all():
-        """Returns all published courses.
-        """
-        return find_all("LMS Course", is_published=True)
 
     def generate_slug(self, title):
         result = frappe.get_all(
@@ -135,7 +128,7 @@ class LMSCourse(Document):
         return batch_name and frappe.get_doc("LMS Batch", batch_name)
 
     def get_batches(self, mentor=None):
-        batches = find_all("LMS Batch", course=self.name)
+        batches = frappe.get_all("LMS Batch", {"course": self.name})
         if mentor:
             # TODO: optimize this
             memberships = frappe.db.get_all(
@@ -146,7 +139,7 @@ class LMSCourse(Document):
             return [b for b in batches if b.name in batch_names]
 
     def get_cohorts(self):
-        return find_all("Cohort", course=self.name, order_by="creation")
+        return frappe.get_all("Cohort", {"course": self.name}, order_by="creation")
 
     def get_cohort(self, cohort_slug):
         name = frappe.get_value("Cohort", {"course": self.name, "slug": cohort_slug})
@@ -183,7 +176,7 @@ def search_course(text):
     search_courses = []
     courses = frappe.get_all("LMS Course",
                 filters= {
-                    "is_published": True
+                    "published": True
                 },
                 or_filters = {
                     "title": ["like", "%{0}%".format(text)],

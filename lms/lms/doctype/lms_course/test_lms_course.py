@@ -17,22 +17,6 @@ class TestLMSCourse(unittest.TestCase):
         assert course.title == "Test Course"
         assert course.name == "test-course"
 
-    def test_find_all(self):
-        courses = LMSCourse.find_all()
-        assert courses == []
-
-        # new couse, but not published
-        course = new_course("Test Course")
-        assert courses == []
-
-        # publish the course
-        course.is_published = True
-        course.save()
-
-        # now we should find one course
-        courses = LMSCourse.find_all()
-        assert [c.name for c in courses] == [course.name]
-
     # disabled this test as it is failing
     def _test_add_mentors(self):
         course = new_course("Test Course")
