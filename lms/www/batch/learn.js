@@ -111,7 +111,7 @@ const mark_progress = (e) => {
     });
   }
   else
-    move_to_next_lesson(e);
+    move_to_next_lesson(status, e);
 };
 
 const change_progress_indicators = (status, e) => {
