@@ -24,4 +24,4 @@ execute:frappe.delete_doc("Custom Field", "User-verify_age", ignore_missing=True
 school.patches.v0_0.multiple_instructors #11-02-2022
 school.patches.v0_0.set_course_in_lesson #21-03-2022
 school.patches.v0_0.set_status_in_course #21-03-2022
-lms.patches.v0_0.change_published_field_data
+lms.patches.v0_0.change_published_field_data #25-03-2022
