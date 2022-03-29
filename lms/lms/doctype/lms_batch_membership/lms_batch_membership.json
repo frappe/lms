@@ -115,7 +115,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-03-09 15:17:15.386067",
+ "modified": "2022-03-29 09:47:05.007133",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch Membership",
@@ -135,7 +135,9 @@
   }
  ],
  "quick_entry": 1,
+ "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "title_field": "member"
 }

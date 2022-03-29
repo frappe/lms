@@ -34,7 +34,11 @@
   "related_courses",
   "certification_section",
   "enable_certification",
-  "expiry"
+  "expiry",
+  "column_break_22",
+  "paid_certificate",
+  "grant_certificate_after",
+  "evaluator"
  ],
  "fields": [
   {
@@ -129,9 +133,8 @@
    "default": "0",
    "depends_on": "enable_certification",
    "fieldname": "expiry",
-   "fieldtype": "Select",
-   "label": "Certification Expires After Years",
-   "options": "0\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10"
+   "fieldtype": "Int",
+   "label": "Certification Expires After (Years)"
   },
   {
    "fieldname": "related_courses",
@@ -161,6 +164,31 @@
   {
    "fieldname": "column_break_12",
    "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "depends_on": "enable_certification",
+   "fieldname": "paid_certificate",
+   "fieldtype": "Check",
+   "label": "Paid Certificate"
+  },
+  {
+   "fieldname": "column_break_22",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "enable_certification",
+   "fieldname": "grant_certificate_after",
+   "fieldtype": "Select",
+   "label": "Grant Certificate After",
+   "options": "Completion\nEvaluation"
+  },
+  {
+   "depends_on": "eval: doc.grant_certificate_after == \"Evaluation\"",
+   "fieldname": "evaluator",
+   "fieldtype": "Link",
+   "label": "Evaluator",
+   "options": "Course Evaluator"
   }
  ],
  "is_published_field": "published",
@@ -186,7 +214,7 @@
    "link_fieldname": "course"
   }
  ],
- "modified": "2022-03-24 13:09:37.228855",
+ "modified": "2022-03-29 14:56:03.989375",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",

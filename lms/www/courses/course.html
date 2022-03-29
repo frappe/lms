@@ -189,14 +189,20 @@
 
     {% set certificate = is_certified(course.name) %}
     {% set progress = frappe.utils.cint(membership.progress) %}
+    {% if membership and course.enable_certification %}
     {% if certificate %}
     <a class="button wide-button is-secondary mt-2" href="/courses/{{ course.name }}/{{ certificate }}">
       {{ _("Get Certificate") }}
     </a>
-    {% elif course.enable_certification and progress == 100 %}
+    {% elif course.grant_certificate_after == "Evaluation" %}
+    <a class="button wide-button is-secondary mt-2" href="/courses/{{ course.name }}/{{ certificate }}">
+        {{ _("Apply for Certificate") }}
+      </a>
+    {% elif progress == 100 %}
     <div class="button wide-button is-secondary mt-4" id="certification" data-course="{{ course.name }}">
       {{ _("Get Certificate") }}
     </div>
+    {% endif %}
     {% endif %}
 
   </div>
