@@ -9,7 +9,11 @@
   "course",
   "member",
   "evaluator",
-  "slot"
+  "column_break_4",
+  "date",
+  "day",
+  "start_time",
+  "end_time"
  ],
  "fields": [
   {
@@ -31,17 +35,38 @@
   {
    "fieldname": "evaluator",
    "fieldtype": "Data",
-   "label": "Evaluator"
+   "label": "Evaluator",
+   "read_only": 1
   },
   {
-   "fieldname": "slot",
-   "fieldtype": "Data",
-   "label": "Slot"
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "label": "Date"
+  },
+  {
+   "fieldname": "day",
+   "fieldtype": "Select",
+   "label": "Day",
+   "options": "Sunday\nMonday\nTuesday\nWednesday\nThursday\nFriday\nSaturday"
+  },
+  {
+   "fieldname": "start_time",
+   "fieldtype": "Time",
+   "label": "Start Time"
+  },
+  {
+   "fieldname": "end_time",
+   "fieldtype": "Time",
+   "label": "End Time"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-03-29 10:43:50.889723",
+ "modified": "2022-03-30 10:04:17.530698",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate Request",

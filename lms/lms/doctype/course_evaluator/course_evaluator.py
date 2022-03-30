@@ -31,3 +31,8 @@ class CourseEvaluator(Document):
 
             if overlap:
                 frappe.throw(_("Slot Times are overlapping for some schedules."))
+
+@frappe.whitelist()
+def get_schedule(course):
+    evaluator = frappe.db.get_value("LMS Course", course, "evaluator")
+    return frappe.get_all("Evaluator Schedule", filters={"parent": evaluator}, fields=["day", "start_time", "end_time"])

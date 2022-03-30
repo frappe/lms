@@ -38,6 +38,14 @@ frappe.ready(() => {
     submit_for_review(e);
   });
 
+  $("#apply-certificate").click((e) => {
+      apply_cetificate(e);
+  });
+
+  $(".slot").click((e) => {
+      submit_slot(e);
+  });
+
   $(document).scroll(function() {
     let timer;
     clearTimeout(timer);
@@ -236,4 +244,41 @@ const submit_for_review = (e) => {
       }
     }
   })
-}
+};
+
+const apply_cetificate = (e) => {
+    frappe.call({
+        method: "lms.lms.doctype.course_evaluator.course_evaluator.get_schedule",
+        args: {
+            "course": $(e.currentTarget).data("course")
+        },
+        callback: (data) => {
+            let options = "";
+            data.message.forEach((obj) => {
+                options += `<button class="btn btn-sm btn-secondary mr-3 slot"
+                    data-course="${$(e.currentTarget).data("course")}"
+                    data-day="${obj.day}" data-start="${obj.start_time}" data-end="${obj.end_time}">
+                    ${obj.day} ${obj.start_time} - ${obj.end_time}</button>`;
+            });
+            e.preventDefault();
+            $("#slot-modal .slots").html(options);
+            $("#slot-modal").modal("show");
+        }
+    })
+};
+
+const submit_slot = (e) => {
+    const target = $(e.currentTarget);
+    frappe.call({
+        method: "lms.lms.doctype.lms_certificate_request.lms_certificate_request.create_certificate_request",
+        args: {
+            "course": target.data("course"),
+            "day": target.data("day"),
+            "start_time": target.data("start"),
+            "end_time": target.data("end")
+        },
+        callback: (data) => {
+
+        }
+    });
+};

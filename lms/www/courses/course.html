@@ -155,7 +155,7 @@
       <img class="ml-2" src="/assets/lms/icons/white-arrow.svg" />
     </div>
 
-    {% elif is_instructor(course.name) and not course.published and course.status != "Under Review" %}
+    {% elif is_instructor(course.name) and not course.published and course.status == "Under Review" %}
     <div class="button wide-button is-primary" id="submit-for-review" data-course="{{ course.name | urlencode }}">
       {{ _("Submit for Review") }}
       <img class="ml-2" src="/assets/lms/icons/white-arrow.svg" />
@@ -195,7 +195,7 @@
       {{ _("Get Certificate") }}
     </a>
     {% elif course.grant_certificate_after == "Evaluation" %}
-    <a class="button wide-button is-secondary mt-2" href="/courses/{{ course.name }}/{{ certificate }}">
+    <a class="button wide-button is-secondary mt-2" id="apply-certificate" data-course="{{ course.name }}">
         {{ _("Apply for Certificate") }}
       </a>
     {% elif progress == 100 %}
@@ -204,9 +204,49 @@
     </div>
     {% endif %}
     {% endif %}
-
   </div>
+</div>
 
+<div class="modal fade" id="slot-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="font-weight-bold">{{ _("Pick a slot") }}</div>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="slot-form">
+            <div class="form-group">
+                <div class="clearfix">
+                    <label class="control-label reqd" style="padding-right: 0px;">{{ _("Date") }}</label>
+                </div>
+                <div class="control-input-wrapper">
+                    <div class="control-input">
+                        <input type="text" autocomplete="off" class="input-with-feedback form-control bold" data-fieldtype="Date">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="clearfix">
+                <label class="control-label reqd" style="padding-right: 0px;">{{ _("Slots") }}</label>
+                </div>
+                <div class="control-input-wrapper">
+                <div class="control-input">
+                    <div class="slots"></div>
+                </div>
+                </div>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <div class="btn btn-sm btn-primary" data-course="{{ course.name | urlencode}}" id="submit-slot">
+          {{ _("Submit") }}</div>
+      </div>
+    </div>
+  </div>
 </div>
 {% endmacro %}
 
