@@ -46,6 +46,10 @@ frappe.ready(() => {
       submit_slot(e);
   });
 
+  $("#slot-date").on("change", (e) => {
+    
+  });
+
   $(document).scroll(function() {
     let timer;
     clearTimeout(timer);
