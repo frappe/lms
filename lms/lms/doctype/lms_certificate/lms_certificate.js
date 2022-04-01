@@ -1,7 +1,7 @@
 // Copyright (c) 2021, FOSS United and contributors
 // For license information, please see license.txt
 
-frappe.ui.form.on('LMS Certification', {
+frappe.ui.form.on('LMS Certificate', {
   onload: function (frm) {
     frm.set_query("student", function (doc) {
       return {

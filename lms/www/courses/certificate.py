@@ -9,7 +9,7 @@ def get_context(context):
     except KeyError:
         redirect_to_course_list()
 
-    context.certificate = frappe.db.get_value("LMS Certification", certificate_name,
+    context.certificate = frappe.db.get_value("LMS Certificate", certificate_name,
                 ["name", "student", "issue_date", "expiry_date", "course"], as_dict=True)
 
     if context.certificate.course != course_name:

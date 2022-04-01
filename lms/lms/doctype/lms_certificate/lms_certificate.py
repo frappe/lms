@@ -8,16 +8,16 @@ from frappe import _
 from frappe.utils.pdf import get_pdf
 from lms.lms.utils import is_certified
 
-class LMSCertification(Document):
+class LMSCertificate(Document):
 
     def validate(self):
-        certificates = frappe.get_all("LMS Certification", {
-                            "student": self.student,
+        certificates = frappe.get_all("LMS Certificate", {
+                            "member": self.member,
                             "course": self.course,
                             "expiry_date": [">", nowdate()]
                         })
         if len(certificates):
-            full_name = frappe.db.get_value("User", self.student, "full_name")
+            full_name = frappe.db.get_value("User", self.member, "full_name")
             course_name = frappe.db.get_value("LMS Course", self.course, "title")
             frappe.throw(_("There is already a valid certificate for user {0} for the course {1}").format(full_name, course_name))
 
@@ -35,8 +35,8 @@ def create_certificate(course):
             expiry_date = add_years(nowdate(), expires_after_yrs)
 
         certificate = frappe.get_doc({
-                            "doctype": "LMS Certification",
-                            "student": frappe.session.user,
+                            "doctype": "LMS Certificate",
+                            "member": frappe.session.user,
                             "course": course,
                             "issue_date": nowdate(),
                             "expiry_date": expiry_date
