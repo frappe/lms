@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "autoname": "format:CERT-{#####}",
  "creation": "2021-08-16 15:47:19.494055",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -45,10 +46,11 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-08-16 15:47:19.494055",
+ "modified": "2022-04-01 16:41:10.213765",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certification",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {
@@ -66,5 +68,6 @@
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
+ "states": [],
  "track_changes": 1
 }

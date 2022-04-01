@@ -20,6 +20,7 @@
    "fieldname": "course",
    "fieldtype": "Link",
    "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Course",
    "options": "LMS Course",
    "reqd": 1
@@ -29,19 +30,24 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Member",
-   "options": "LMS Batch Membership",
+   "options": "User",
    "reqd": 1
   },
   {
+   "fetch_from": "course.evaluator",
    "fieldname": "evaluator",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "label": "Evaluator",
+   "options": "Course Evaluator",
    "read_only": 1
   },
   {
    "fieldname": "date",
    "fieldtype": "Date",
-   "label": "Date"
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Date",
+   "reqd": 1
   },
   {
    "fieldname": "day",
@@ -52,12 +58,16 @@
   {
    "fieldname": "start_time",
    "fieldtype": "Time",
-   "label": "Start Time"
+   "in_list_view": 1,
+   "label": "Start Time",
+   "reqd": 1
   },
   {
    "fieldname": "end_time",
    "fieldtype": "Time",
-   "label": "End Time"
+   "in_list_view": 1,
+   "label": "End Time",
+   "reqd": 1
   },
   {
    "fieldname": "column_break_4",
@@ -66,7 +76,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-03-30 10:04:17.530698",
+ "modified": "2022-04-01 15:29:31.553492",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate Request",

@@ -2,7 +2,12 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on('LMS Certificate Request', {
-	// refresh: function(frm) {
-
-	// }
+    refresh: function(frm) {
+        frm.add_custom_button(__("Create LMS Certificate Evaluation"), () => {
+            frappe.model.open_mapped_doc({
+                method: "lms.lms.doctype.lms_certificate_request.lms_certificate_request.create_lms_certificate_evaluation",
+                frm: frm
+            });
+        });
+    }
 });

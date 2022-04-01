@@ -8,8 +8,9 @@
  "field_order": [
   "course",
   "member",
-  "start",
-  "end",
+  "date",
+  "start_time",
+  "end_time",
   "column_break_5",
   "rating",
   "summary"
@@ -30,18 +31,8 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Member",
-   "options": "LMS Batch Membership",
+   "options": "User",
    "reqd": 1
-  },
-  {
-   "fieldname": "start",
-   "fieldtype": "Datetime",
-   "label": "Start"
-  },
-  {
-   "fieldname": "end",
-   "fieldtype": "Datetime",
-   "label": "End"
   },
   {
    "fieldname": "column_break_5",
@@ -51,17 +42,37 @@
    "fieldname": "rating",
    "fieldtype": "Rating",
    "in_list_view": 1,
-   "label": "Rating"
+   "label": "Rating",
+   "reqd": 1
   },
   {
    "fieldname": "summary",
    "fieldtype": "Text",
    "label": "Summary"
+  },
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "start_time",
+   "fieldtype": "Time",
+   "label": "Start Time",
+   "reqd": 1
+  },
+  {
+   "fieldname": "end_time",
+   "fieldtype": "Time",
+   "label": "End Time"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-03-29 09:48:45.682678",
+ "modified": "2022-04-01 16:26:39.168390",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate Evaluation",
