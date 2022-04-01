@@ -25,9 +25,9 @@
         {% if membership %}
         {{ pagination(prev_url, next_url) }}
         {% endif %}
+        {{ Discussions() }}
       </div>
     </div>
-    {{ Discussions() }}
   </div>
 </div>
 {% endblock %}
@@ -51,7 +51,7 @@
     {% if membership %} is-member {% endif %}
     {% if membership or is_instructor %} eligible-for-submission {% endif %}" data-lesson="{{ lesson.name }}"
       data-course="{{ course.name }}">{{ lesson.title }}</div>
-    <span class="lesson-progress {{hide if get_progress(course.name, lesson.name) != 'Complete' else ''}}">COMPLETED</span>
+    <span class="lesson-progress {{hide if get_progress(course.name, lesson.name) != 'Complete' else ''}}">{{ _("COMPLETED") }}</span>
 
     {% if is_instructor %}
     <a class="button is-default button-links ml-auto" href="/lesson?name={{ lesson.name }}"> {{ _("Edit") }} </a>
@@ -75,7 +75,7 @@
       {% if ins_len == 1 %}
         {{ instructors[0].full_name }}
       {% else %}
-        {% set suffix = "other" if ins_len - 1 == 1 else "others"  %}
+        {% set suffix = _("other") if ins_len - 1 == 1 else _("others")  %}
         {{ instructors[0].full_name.split(" ")[0] }} and {{ ins_len - 1 }} {{ suffix }}
       {% endif %}
       </span>
@@ -83,22 +83,21 @@
     <div class="ml-5 course-meta"> {{ frappe.utils.format_date(lesson.creation, "medium") }} </div>
   </div>
 
-
   <div class="markdown-source lesson-content-card">
-  {% if membership or lesson.include_in_preview or is_instructor %}
-  {% if is_instructor and not lesson.include_in_preview %}
-    <div class="small alert alert-secondary alert-dismissible mt-4 mb-4">
-      This lesson is not available for preview. As you are the Instructor of the course only you can see it.
-      <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-    </div>
-  {% endif %}
-    {{ render_html(lesson.body) }}
-  {% else %}
-    <div class="">
-      <a class="button is-primary pull-right" href="/courses/{{ course.name }}"> Start Learning </a>
-      <div class="">This lesson is not available for preview. Please join the course to access it.</div>
-    </div>
-  {% endif %}
+    {% if membership or lesson.include_in_preview or is_instructor %}
+    {% if is_instructor and not lesson.include_in_preview %}
+      <div class="small alert alert-secondary alert-dismissible mt-4 mb-4">
+        {{ _("This lesson is not available for preview. As you are the Instructor of the course only you can see it.") }}
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+      </div>
+    {% endif %}
+      {{ render_html(lesson.body) }}
+    {% else %}
+      <div class="">
+        <a class="button is-primary pull-right" href="/courses/{{ course.name }}"> {{ _("Start Learning") }} </a>
+        <div class=""> {{ _("This lesson is not available for preview. Please join the course to access it.") }} </div>
+      </div>
+    {% endif %}
   </div>
 
 </div>
@@ -111,7 +110,7 @@
     {% if prev_url %}
     <a class="button is-secondary dark-links prev" href="{{ prev_url }}">
       <img class="mr-2" src="/assets/lms/icons/left-arrow.svg">
-      Prev
+      {{ _("Prev") }}
     </a>
     {% endif %}
   </div>
@@ -129,7 +128,7 @@
 
   <div class="button is-secondary mark-progress {{ progress }} {% if progress == 'Incomplete' or progress == None %} hide {% endif %}"
     data-progress="Incomplete">
-    Mark as Incomplete
+    {{ _("Mark as Incomplete") }}
   </div>
 
   {% endif %}
@@ -137,12 +136,12 @@
   <div>
     <a class="button is-primary next {% if membership.progress|int == 100 and not next_url %} hide {% endif %}"
       {% if next_url %} data-href="{{ next_url }}" {% endif %} href="">
-      {% if next_url %} Next {% else %} Mark as Complete {% endif %}
+      {% if next_url %} {{ _("Next") }} {% else %} {{ _("Mark as Complete") }} {% endif %}
       <img class="ml-2" src="/assets/lms/icons/side-arrow-white.svg">
     </a>
     {% if course.enable_certification %}
     <div class="button is-primary {% if membership.progress|int != 100 or next_url %} hide {% endif %}" id="certification">
-      Get Certificate
+      {{ _("Get Certificate") }}
     </div>
     {% endif %}
   </div>

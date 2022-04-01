@@ -99,7 +99,7 @@ class MacroInlineProcessor(InlineProcessor):
         return e, m.start(0), m.end(0)
 
 def sanitize_html(html, macro):
-    """Sanotize the html using BeautifulSoup.
+    """Sanitize the html using BeautifulSoup.
 
     The markdown processor request the correct markup and crashes on
     any broken tags. This makes sures that all those things are fixed
