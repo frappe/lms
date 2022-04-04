@@ -14,8 +14,7 @@ from frappe.utils.jinja import get_jenv
 # When {{widgets.SomeWidget()}} is called, it looks for
 # widgets/SomeWidgets.html in each of these modules.
 MODULES = [
-    "lms",
-    "community"
+    "lms"
 ]
 
 def update_website_context(context):
