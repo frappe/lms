@@ -9,7 +9,7 @@
 
     <div class="breadcrumb">
       <a class="dark-links" href="/courses">All Courses</a>
-      <img class="ml-1 mr-1" src="/assets/school/icons/chevron-right.svg">
+      <img class="ml-1 mr-1" src="/assets/lms/icons/chevron-right.svg">
       <a class="dark-links" href="/courses/{{ course.name }}">{{ course.title }}</a>
     </div>
 
@@ -19,7 +19,7 @@
         data-certificate-name="{{ student.full_name }} - {{ course.title }}">Export</div>
     </div>
     {% endif %}
-    {% include "school/templates/certificate.html" %}
+    {% include "lms/templates/certificate.html" %}
   </div>
 </div>
 {% endblock %}

@@ -7,7 +7,7 @@ Macros can be added to the markdown text in the following format.
 
 These macros will be rendered using a pluggable mechanism.
 
-Apps can provide a hook school_markdown_macro_renderers, a
+Apps can provide a hook lms_markdown_macro_renderers, a
 dictionary mapping the macro name to the function that to render
 that macro. The function will get the argument passed to the macro
 as argument.
@@ -59,7 +59,7 @@ def _remove_quotes(value):
 
 
 def get_macro_registry():
-    d = frappe.get_hooks("school_markdown_macro_renderers") or {}
+    d = frappe.get_hooks("lms_markdown_macro_renderers") or {}
     return {name: frappe.get_attr(klass[0]) for name, klass in d.items()}
 
 def render_macro(macro_name, macro_argument):

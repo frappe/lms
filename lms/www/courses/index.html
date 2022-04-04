@@ -10,18 +10,18 @@
 <div class="common-page-style">
   <div class="container">
 
-    {% include "school/templates/search_course/search_course.html" %}
+    {% include "lms/templates/search_course/search_course.html" %}
 
     <div class="course-list">
       {% set title = _("Live Courses") %}
       {% set courses = live_courses %}
       {% set classes = "live-courses" %}
-      {% include "school/templates/course_list.html" %}
+      {% include "lms/templates/course_list.html" %}
 
       {% set title = _("Upcoming Courses") %}
       {% set courses = upcoming_courses %}
       {% set classes = "upcoming-courses mt-10" %}
-      {% include "school/templates/course_list.html" %}
+      {% include "lms/templates/course_list.html" %}
     </div>
   </div>
 </div>

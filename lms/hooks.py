@@ -2,10 +2,10 @@
 from __future__ import unicode_literals
 from . import __version__ as app_version
 
-app_name = "school"
-app_title = "School"
+app_name = "lms"
+app_title = "LMS"
 app_publisher = "Frappe"
-app_description = "School"
+app_description = "LMS"
 app_icon = "octicon octicon-file-directory"
 app_color = "grey"
 app_email = "school@frappe.io"
@@ -15,16 +15,16 @@ app_license = "AGPL"
 # ------------------
 
 # include js, css files in header of desk.html
-# app_include_css = "/assets/school/css/school.css"
-# app_include_js = "/assets/school/js/school.js"
+# app_include_css = "/assets/lms/css/lms.css"
+# app_include_js = "/assets/lms/js/lms.js"
 
 # include js, css files in header of web template
-web_include_css = "/assets/css/school.css"
-# web_include_css = "/assets/school/css/school.css"
+web_include_css = "/assets/css/lms.css"
+# web_include_css = "/assets/lms/css/lms.css"
 #web_include_js = "website.bundle.js"
 
 # include custom scss in every website theme (without file extension ".scss")
-# website_theme_scss = "school/public/scss/website"
+# website_theme_scss = "lms/public/scss/website"
 
 # include js, css files in header of web form
 # webform_include_js = {"doctype": "public/js/doctype.js"}
@@ -59,14 +59,14 @@ web_include_css = "/assets/css/school.css"
 # Installation
 # ------------
 
-# before_install = "school.install.before_install"
-# after_install = "school.install.after_install"
+# before_install = "lms.install.before_install"
+# after_install = "lms.install.after_install"
 
 # Desk Notifications
 # ------------------
 # See frappe.core.notifications.get_notification_config
 
-# notification_config = "school.notifications.get_notification_config"
+# notification_config = "lms.notifications.get_notification_config"
 
 # Permissions
 # -----------
@@ -85,8 +85,8 @@ web_include_css = "/assets/css/school.css"
 # Override standard doctype classes
 
 override_doctype_class = {
-	"User": "school.overrides.user.CustomUser",
-	"Web Template": "school.overrides.web_template.CustomWebTemplate"
+	"User": "lms.overrides.user.CustomUser",
+	"Web Template": "lms.overrides.web_template.CustomWebTemplate"
 }
 
 # Document Events
@@ -110,20 +110,20 @@ fixtures = ["Custom Field"]
 # Testing
 # -------
 
-# before_tests = "school.install.before_tests"
+# before_tests = "lms.install.before_tests"
 
 # Overriding Methods
 # ------------------------------
 #
 # override_whitelisted_methods = {
-# 	"frappe.desk.doctype.event.event.get_events": "school.event.get_events"
+# 	"frappe.desk.doctype.event.event.get_events": "lms.event.get_events"
 # }
 #
 # each overriding function accepts a `data` argument;
 # generated from the base implementation of the doctype dashboard,
 # along with any modifications made in other Frappe apps
 # override_doctype_dashboards = {
-# 	"Task": "school.task.get_dashboard_data"
+# 	"Task": "lms.task.get_dashboard_data"
 # }
 
 # exempt linked doctypes from being automatically cancelled
@@ -149,28 +149,28 @@ website_redirects = [
 ]
 
 update_website_context = [
-    'school.widgets.update_website_context',
+    'lms.widgets.update_website_context',
 ]
 
 ## Specify the additional tabs to be included in the user profile page.
-## Each entry must be a subclass of school.school.plugins.ProfileTab
+## Each entry must be a subclass of lms.lms.plugins.ProfileTab
 # profile_tabs = []
 
 ## Specify the extension to be used to control what scripts and stylesheets
 ## to be included in lesson pages. The specified value must be be a
-## subclass of school.plugins.PageExtension
-# school_lesson_page_extension = None
+## subclass of lms.plugins.PageExtension
+# lms = None
 
-#school_lesson_page_extensions = [
-#	"school.plugins.LiveCodeExtension"
+#lms_lesson_page_extensions = [
+#	"lms.plugins.LiveCodeExtension"
 #]
 
 ## Markdown Macros for Lessons
-school_markdown_macro_renderers = {
-    "Exercise": "school.plugins.exercise_renderer",
-    "Quiz": "school.plugins.quiz_renderer",
-    "YouTubeVideo": "school.plugins.youtube_video_renderer",
-    "Video": "school.plugins.video_renderer"
+lms_markdown_macro_renderers = {
+    "Exercise": "lms.plugins.exercise_renderer",
+    "Quiz": "lms.plugins.quiz_renderer",
+    "YouTubeVideo": "lms.plugins.youtube_video_renderer",
+    "Video": "lms.plugins.video_renderer"
 }
 
 # set this to "/" to have profiles on the top-level

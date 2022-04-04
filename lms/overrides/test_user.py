@@ -18,7 +18,7 @@ class TestCustomUser(unittest.TestCase):
     def test_without_username(self):
         """ The user in this test has the same first name as the user of the test test_with_basic_username.
         In such cases frappe makes the username of the second user empty.
-        The condition in school app should override this and save a username. """
+        The condition in lms app should override this and save a username. """
         new_user = frappe.get_doc({
                         "doctype": "User",
                         "email": "test-without-username@example.com",

@@ -4,7 +4,7 @@ from frappe import _
 
 def execute():
     frappe.reload_doc("email", "doctype", "email_template")
-    base_path = frappe.get_app_path("school", "templates", "emails")
+    base_path = frappe.get_app_path("lms", "templates", "emails")
 
     if not frappe.db.exists("Email Template", _('Mentor Request Creation Template')):
         response = frappe.read_file(os.path.join(base_path, "mentor_request_creation_email.html"))

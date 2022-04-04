@@ -13,7 +13,7 @@
         {{ _("Completed") }}
     </div>
     {% else %}
-    <div class="course-card-pills dark-pills ml-auto"> <img src="/assets/school/icons/check.svg"> {{ _("Completed")
+    <div class="course-card-pills dark-pills ml-auto"> <img src="/assets/lms/icons/check.svg"> {{ _("Completed")
       }}</div>
     {% endif %}
     {% endif %}
@@ -53,13 +53,13 @@
     <span class="course-student-count">
       {% if course.get_students() | length %}
       <span class="vertically-center mr-4">
-        <img class="icon-background" src="/assets/school/icons/user.svg" />
+        <img class="icon-background" src="/assets/lms/icons/user.svg" />
         {{ course.get_students() | length }}
       </span> {% endif %}
       {% set avg_rating = course.get_average_rating() %}
       {% if avg_rating %}
       <span class="vertically-center">
-        <img class="icon-background" src="/assets/school/icons/rating.svg" />
+        <img class="icon-background" src="/assets/lms/icons/rating.svg" />
         {{ frappe.utils.flt(avg_rating, frappe.get_system_settings("float_precision") or 3) }}
       </span>
       {% endif %}
@@ -138,7 +138,7 @@
     e.preventDefault();
     course = $(e.currentTarget).attr("data-course");
     frappe.call({
-      method: "school.lms.doctype.lms_certification.lms_certification.create_certificate",
+      method: "lms.lms.doctype.lms_certification.lms_certification.create_certificate",
       args: {
         "course": course
       },

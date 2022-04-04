@@ -74,7 +74,7 @@ if (!frappe.sys_defaults) {
 </script>
 
 <script type="text/javascript" src="{{ livecode_url }}/static/livecode.js"></script>
-<script type="text/javascript" src="/assets/school/js/livecode-canvas.js"></script>
+<script type="text/javascript" src="/assets/lms/js/livecode-canvas.js"></script>
 
 <script type="text/javascript">
   var livecodeEditors = [];
@@ -98,7 +98,7 @@ if (!frappe.sys_defaults) {
       $(e).find(".submit").on('click', function() {
         let code = editor.codemirror.doc.getValue();
         console.log("submit", name, code);
-        frappe.call("school.lms.api.submit_solution", {
+        frappe.call("lms.lms.api.submit_solution", {
           "exercise": name,
           "code": code
         }).then(r => {

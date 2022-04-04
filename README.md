@@ -1,8 +1,8 @@
-## School
+## LMS
 
 Create online courses without much hassle.
 
-![Course Home](/school/public/images/course-home.png)
+![Course Home](/lms/public/images/course-home.png)
 
 ## Features
 

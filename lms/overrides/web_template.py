@@ -1,6 +1,6 @@
 import frappe
 from frappe.website.doctype.web_template.web_template import WebTemplate
-from school.widgets import Widgets
+from lms.widgets import Widgets
 import json
 
 class CustomWebTemplate(WebTemplate):

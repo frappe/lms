@@ -2,7 +2,7 @@
 # Copyright (c) 2021, FOSS United and Contributors
 # See license.txt
 from __future__ import unicode_literals
-from school.lms.doctype.invite_request.invite_request import create_invite_request, update_invite
+from lms.lms.doctype.invite_request.invite_request import create_invite_request, update_invite
 import frappe
 import unittest
 

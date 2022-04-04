@@ -7,7 +7,7 @@ import frappe
 from frappe.model.document import Document
 import json
 from ...utils import slugify
-from school.query import find, find_all
+from lms.query import find, find_all
 from frappe.utils import flt, cint
 from ...utils import slugify
 
@@ -380,7 +380,7 @@ def search_course(text):
     """ for course in courses:
         search_courses.append(frappe.get_doc("LMS Course", course)) """
 
-    """ template = frappe.render_template("school/templates/course_list.html", {
+    """ template = frappe.render_template("lms/templates/course_list.html", {
         "title": _("Search Results"),
         "courses": search_courses,
         "widgets": Widgets()

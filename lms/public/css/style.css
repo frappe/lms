@@ -298,7 +298,7 @@ input[type=checkbox] {
 }
 
 .custom-checkbox>label>input:checked+.empty-checkbox {
-  background: url(/assets/school/icons/tick.svg);
+  background: url(/assets/lms/icons/tick.svg);
   background-repeat: no-repeat;
   background-position: center center;
 }
@@ -1365,14 +1365,14 @@ pre {
 }
 
 .interactive-arrow {
-  background-image: url("/assets/school/icons/arrow.svg");
+  background-image: url("/assets/lms/icons/arrow.svg");
   width: 1.5rem;
   height: 1.5rem;
   margin-left: 0.5rem;
 }
 
 .intercative-link:hover .interactive-arrow{
-  background-image: url("/assets/school/icons/blue-arrow.svg");
+  background-image: url("/assets/lms/icons/blue-arrow.svg");
   margin-left: 1.5rem;
 }
 
@@ -1430,13 +1430,13 @@ pre {
 }
 
 .carousel-control-prev-icon {
-  background-image: url("/assets/school/icons/slider-arrow-left.svg");
+  background-image: url("/assets/lms/icons/slider-arrow-left.svg");
   width: 40px;
   height: 40px;
 }
 
 .carousel-control-next-icon {
-  background-image: url("/assets/school/icons/slider-arrow-right.svg");
+  background-image: url("/assets/lms/icons/slider-arrow-right.svg");
   width: 40px;
   height: 40px;
 }

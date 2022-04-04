@@ -2,7 +2,7 @@
 
   <div class="chapter-title small-title" data-target="#{{ course.get_slugified_chapter_title(chapter.title) }}"
     data-toggle="collapse" aria-expanded="false">
-    <img class="chapter-icon" src="/assets/school/icons/chevron-right.svg">
+    <img class="chapter-icon" src="/assets/lms/icons/chevron-right.svg">
     {{ index }}. {{ chapter.title }}
   </div>
 
@@ -28,7 +28,7 @@
 
           {% if membership %}
           <img class="ml-1 lesson-progress-tick {{ course.get_progress(lesson.name) != 'Complete' and 'hide' }}"
-            src="/assets/school/icons/check.svg">
+            src="/assets/lms/icons/check.svg">
           {% endif %}
 
         </a>
@@ -39,14 +39,14 @@
         href="{{ course.get_learn_url(lesson.number) }}{{course.query_parameter}}"
         data-course="{{ course.name }}">
         {{ lesson.title }}
-          <img class="ml-2" src="/assets/school/icons/lock.svg">
+          <img class="ml-2" src="/assets/lms/icons/lock.svg">
         </a>
 
         {% else %}
         <div class="no-preview" title="This lesson is not available for preview">
           <div class="lesson-links">
             {{ lesson.title }}
-            <img class="ml-2" src="/assets/school/icons/lock.svg">
+            <img class="ml-2" src="/assets/lms/icons/lock.svg">
           </div>
         </div>
         {% endif %}

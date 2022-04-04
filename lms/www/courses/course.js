@@ -45,7 +45,7 @@ frappe.ready(() => {
 
 var check_mentor_request = () => {
   frappe.call({
-    'method': 'school.lms.doctype.lms_mentor_request.lms_mentor_request.has_requested',
+    'method': 'lms.lms.doctype.lms_mentor_request.lms_mentor_request.has_requested',
     'args': {
       course: decodeURIComponent($("#course-title").attr("data-course")),
     },
@@ -84,7 +84,7 @@ var create_mentor_request = (e) => {
     return;
   }
   frappe.call({
-    "method": "school.lms.doctype.lms_mentor_request.lms_mentor_request.create_request",
+    "method": "lms.lms.doctype.lms_mentor_request.lms_mentor_request.create_request",
     "args": {
       "course": decodeURIComponent($(e.currentTarget).attr("data-course"))
     },
@@ -100,7 +100,7 @@ var create_mentor_request = (e) => {
 var cancel_mentor_request = (e) => {
   e.preventDefault()
   frappe.call({
-    "method": "school.lms.doctype.lms_mentor_request.lms_mentor_request.cancel_request",
+    "method": "lms.lms.doctype.lms_mentor_request.lms_mentor_request.cancel_request",
     "args": {
       "course": decodeURIComponent($(e.currentTarget).attr("data-course"))
     },
@@ -123,7 +123,7 @@ var join_course = (e) => {
   var batch = $(e.currentTarget).attr("data-batch");
   batch = batch ? decodeURIComponent(batch) : "";
   frappe.call({
-    "method": "school.lms.doctype.lms_batch_membership.lms_batch_membership.create_membership",
+    "method": "lms.lms.doctype.lms_batch_membership.lms_batch_membership.create_membership",
     "args": {
       "batch": batch ? batch : "",
       "course": course
@@ -183,7 +183,7 @@ var submit_review = (e) => {
     return;
   }
   frappe.call({
-    method: "school.lms.doctype.lms_course_review.lms_course_review.submit_review",
+    method: "lms.lms.doctype.lms_course_review.lms_course_review.submit_review",
     args: {
       "rating": rating,
       "review": review,
@@ -210,7 +210,7 @@ var notify_user = (e) => {
   }
 
   frappe.call({
-    method: "school.lms.doctype.lms_course_interest.lms_course_interest.capture_interest",
+    method: "lms.lms.doctype.lms_course_interest.lms_course_interest.capture_interest",
     args: {
       "course": course
     },

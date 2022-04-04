@@ -13,7 +13,7 @@ var set_likes = function (liked, likes) {
 
 // set initial likes
 frappe.ready(() => {
-    frappe.call('school.www.hackathons.project.like', { project: get_url_arg().get("project"), initial: true }, (data) => {
+    frappe.call('lms.www.hackathons.project.like', { project: get_url_arg().get("project"), initial: true }, (data) => {
         set_likes(data.message.action == "Liked", data.message.likes)
     })
 })
@@ -23,26 +23,26 @@ var get_url_arg = () => {
 }
 // like - unlike
 $('.btn-like').on('click', (e) => {
-    frappe.call('school.www.hackathons.project.like', { project: get_url_arg().get("project") }, (data) => {
+    frappe.call('lms.www.hackathons.project.like', { project: get_url_arg().get("project") }, (data) => {
         set_likes(data.message.action == "Liked", data.message.likes);
     });
 });
 
 // accept / reject
 $('.btn-accept').on('click', (e) => {
-    frappe.call('school.www.hackathons.project.join_request', { id: $(e.target).attr('data-request-id'), action: 'Accept' }, (data) => {
+    frappe.call('lms.www.hackathons.project.join_request', { id: $(e.target).attr('data-request-id'), action: 'Accept' }, (data) => {
         window.location.reload();
     });
 });
 
 $('.btn-reject').on('click', (ev) => {
-    frappe.call('school.www.hackathons.project.join_request', { id: $(ev.target).attr('data-request-id'), action: 'Reject' }, (data) => {
+    frappe.call('lms.www.hackathons.project.join_request', { id: $(ev.target).attr('data-request-id'), action: 'Reject' }, (data) => {
         window.location.reload();
     });
 });
 
 $('.btn-leave').on('click', (ev) => {
-    frappe.call('school.www.hackathons.project.join_request', { id: $(ev.target).attr('data-request-id'), action: 'Reject' }, (data) => {
+    frappe.call('lms.www.hackathons.project.join_request', { id: $(ev.target).attr('data-request-id'), action: 'Reject' }, (data) => {
         window.location.reload();
     });
 });

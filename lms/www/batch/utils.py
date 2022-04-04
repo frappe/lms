@@ -1,5 +1,5 @@
 import frappe
-from school.lms.models import Course
+from lms.lms.models import Course
 
 def get_common_context(context):
     context.no_cache = 1

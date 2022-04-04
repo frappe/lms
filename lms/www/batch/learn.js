@@ -40,7 +40,7 @@ frappe.ready(() => {
 
 var save_current_lesson = () => {
   if ($(".title").hasClass("is-member")) {
-    frappe.call("school.lms.api.save_current_lesson", {
+    frappe.call("lms.lms.api.save_current_lesson", {
       course_name: $(".title").attr("data-course"),
       lesson_name: $(".title").attr("data-lesson")
     })
@@ -86,7 +86,7 @@ var mark_progress = (e) => {
 
   if (status != current_status) {
     frappe.call({
-      method: "school.lms.doctype.course_lesson.course_lesson.save_progress",
+      method: "lms.lms.doctype.course_lesson.course_lesson.save_progress",
       args: {
         lesson: $(".title").attr("data-lesson"),
         course: $(".title").attr("data-course"),
@@ -137,7 +137,7 @@ var quiz_summary = (e) => {
   var total_questions = $(".question").length;
 
   frappe.call({
-    method: "school.lms.doctype.lms_quiz.lms_quiz.quiz_summary",
+    method: "lms.lms.doctype.lms_quiz.lms_quiz.quiz_summary",
     args: {
       "quiz": quiz_name,
       "results": localStorage.getItem(quiz_name)
@@ -204,7 +204,7 @@ var parse_options = () => {
 
 var add_icon = (element, icon) => {
   var label = $(element).parent().find(".label-area p").text();
-  $(element).parent().empty().html(`<img class="mr-3" src="/assets/school/icons/${icon}.svg"> ${label}`);
+  $(element).parent().empty().html(`<img class="mr-3" src="/assets/lms/icons/${icon}.svg"> ${label}`);
 }
 
 var add_to_local_storage = (quiz_name, current_index, answer, is_correct) => {
@@ -222,7 +222,7 @@ var create_certificate = (e) => {
   e.preventDefault();
   course = $(".title").attr("data-course");
   frappe.call({
-    method: "school.lms.doctype.lms_certification.lms_certification.create_certificate",
+    method: "lms.lms.doctype.lms_certification.lms_certification.create_certificate",
     args: {
       "course": course
     },

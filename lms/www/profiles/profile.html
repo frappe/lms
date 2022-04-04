@@ -20,7 +20,7 @@
 
 {% macro ProfileBanner(member) %}
 <div class="">
-  <div class="profile-banner" style="background-image: url(/assets/school/images/profile-banner.png)">
+  <div class="profile-banner" style="background-image: url(/assets/lms/images/profile-banner.png)">
     <div class="profile-avatar">
       {{ widgets.Avatar(member=member, avatar_class="avatar-xl") }}
       <div class="profile-name"> {{ member.full_name }} </div>
@@ -37,17 +37,17 @@
       <span class="social-icons">
         {% if member.linkedin %}
         <a class="linkedin button-links" href="{{ member.linkedin }}">
-          <img src="/assets/school/images/linkedin.png">
+          <img src="/assets/lms/images/linkedin.png">
         </a>
         {% endif %}
         {% if member.medium %}
         <a class="medium button-links" href="{{ member.medium}}">
-          <img src="/assets/school/icons/medium.svg">
+          <img src="/assets/lms/icons/medium.svg">
         </a>
         {% endif %}
         {% if member.github %}
         <a class="github button-links" href="{{ member.github }}">
-          <img src="/assets/school/icons/github.svg">
+          <img src="/assets/lms/icons/github.svg">
         </a>
         {% endif %}
       </span>
@@ -83,19 +83,19 @@
     <div class="common-card-style overview-card small-title">
       {% if enrollment %}
       <div class="overview-item">
-        <img class="icon-background mr-1" src="/assets/school/icons/user.svg" />
+        <img class="icon-background mr-1" src="/assets/lms/icons/user.svg" />
         {{ enrollment }} Enrolled
       </div>
       {% endif %}
       {% if reviews %}
       <div class="overview-item">
-        <img class="icon-background mr-1" src="/assets/school/icons/rating.svg" />
+        <img class="icon-background mr-1" src="/assets/lms/icons/rating.svg" />
         {{ reviews }} Created
       </div>
       {% endif %}
       {% if mentorship %}
       <div class="overview-item">
-        <img class="icon-background mr-1" src="/assets/school/icons/calendar.svg" />
+        <img class="icon-background mr-1" src="/assets/lms/icons/calendar.svg" />
         {{ mentorship }} Mentored
       </div>
       {% endif %}

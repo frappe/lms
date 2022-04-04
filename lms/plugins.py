@@ -1,6 +1,6 @@
 """
 The plugins module provides various plugins to change the default
-behaviour some parts of the school app.
+behaviour some parts of the lms app.
 
 A site specify what plugins to use using appropriate entries in the frappe
 hooks, written in the `hooks.py`.

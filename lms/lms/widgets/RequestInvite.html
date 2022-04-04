@@ -14,7 +14,7 @@
     $("#submit-invite-request").click(function () {
       var invite_email = $("#invite_email").val()
       frappe.call({
-        method: "school.lms.doctype.invite_request.invite_request.create_invite_request",
+        method: "lms.lms.doctype.invite_request.invite_request.create_invite_request",
         args: {
           invite_email: invite_email
         },

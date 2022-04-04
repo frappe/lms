@@ -71,7 +71,7 @@
   <div>
     {% if prev_url %}
     <a class="button is-secondary dark-links prev" href="{{ prev_url }}">
-      <img class="mr-2" src="/assets/school/icons/left-arrow.svg">
+      <img class="mr-2" src="/assets/lms/icons/left-arrow.svg">
       Prev
     </a>
     {% endif %}
@@ -99,7 +99,7 @@
     <a class="button is-primary next {% if membership.progress|int == 100 and not next_url %} hide {% endif %}"
       {% if next_url %} data-href="{{ next_url }}" {% endif %} href="">
       {% if next_url %} Next {% else %} Mark as Complete {% endif %}
-      <img class="ml-2" src="/assets/school/icons/side-arrow-white.svg">
+      <img class="ml-2" src="/assets/lms/icons/side-arrow-white.svg">
     </a>
     {% if course.enable_certification %}
     <div class="button is-primary {% if membership.progress|int != 100 or next_url %} hide {% endif %}" id="certification">

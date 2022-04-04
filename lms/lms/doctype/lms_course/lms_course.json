@@ -1,7 +1,7 @@
 {
  "actions": [
   {
-   "action": "school.lms.doctype.lms_course.lms_course.reindex_exercises",
+   "action": "lms.lms.doctype.lms_course.lms_course.reindex_exercises",
    "action_type": "Server Action",
    "group": "Reindex",
    "label": "Reindex Exercises"

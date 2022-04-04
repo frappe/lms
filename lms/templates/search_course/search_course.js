@@ -25,7 +25,7 @@ const search_course = (e) => {
   }
 
   frappe.call({
-    method: "school.lms.doctype.lms_course.lms_course.search_course",
+    method: "lms.lms.doctype.lms_course.lms_course.search_course",
     args: {
       "text": input
     },

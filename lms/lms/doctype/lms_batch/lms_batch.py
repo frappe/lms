@@ -6,8 +6,8 @@ from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
 from frappe import _
-from school.lms.doctype.lms_batch_membership.lms_batch_membership import create_membership
-from school.query import find, find_all
+from lms.lms.doctype.lms_batch_membership.lms_batch_membership import create_membership
+from lms.query import find, find_all
 
 class LMSBatch(Document):
     def validate(self):

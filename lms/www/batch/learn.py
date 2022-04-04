@@ -3,7 +3,7 @@ import frappe
 from . import utils
 from frappe.utils import cstr
 
-from school.www import batch
+from lms.www import batch
 
 def get_context(context):
     utils.get_common_context(context)
@@ -53,7 +53,7 @@ def get_lesson_index(course, batch, user):
     return lesson and course.get_lesson_index(lesson)
 
 def get_page_extensions():
-    default_value = ["school.plugins.PageExtension"]
-    classnames = frappe.get_hooks("school_lesson_page_extensions") or default_value
+    default_value = ["lms.plugins.PageExtension"]
+    classnames = frappe.get_hooks("lms_lesson_page_extensions") or default_value
     extensions = [frappe.get_attr(name)() for name in classnames]
     return extensions
