@@ -1,0 +1,127 @@
+{% macro LiveCodeEditorLarge(name, code) %}
+<div class="livecode-editor livecode-editor-large" id="editor-{{name}}">
+  <div class="row">
+    <div class="col-lg-8 col-md-6">
+      <div class="controls">
+        <button class="run">Run</button>
+      </div>
+    </div>
+  </div>
+  <div class="code-editor">
+    <div class="row">
+      <div class="col-lg-8 col-md-6">
+        <div class="code-wrapper">
+          <textarea class="code">{{code}}</textarea>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6 canvas-wrapper">
+          <canvas width="300" height="300"></canvas>
+          <pre class="output"></pre>
+      </div>
+    </div>
+  </div>
+</div>
+{% endmacro %}
+
+{% macro LiveCodeEditor(name, code, reset_code, is_exercise=False, last_submitted=None) %}
+<div class="livecode-editor livecode-editor-inline" id="editor-{{name}}">
+  <div class="row">
+    <div class="col-lg-8 col-md-6">
+      <div class="controls">
+        <button class="run">Run</button>
+        <button class="reset">Reset</button>
+        {% if is_exercise %}
+          <button class="submit pull-right btn-primary">Submit</button>
+          {% if last_submitted %}
+          <span class="pull-right" style="padding-right: 10px;"><span class="human-time" data-timestamp="{{last_submitted}}"></span></span>
+          {% endif %}
+        {% endif %}
+      </div>
+      <div style="display: none">
+        <pre class="reset-code">{{reset_code}}</pre>
+      </div>
+    </div>
+  </div>
+  <div class="code-editor">
+    <div class="row">
+      <div class="col-lg-8 col-md-6">
+        <div class="code-wrapper">
+          <textarea class="code">{{code}}</textarea>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6 canvas-wrapper">
+          <canvas width="300" height="300"></canvas>
+          <pre class="output"></pre>
+      </div>
+    </div>
+  </div>
+</div>
+{% endmacro %}
+
+
+
+{% macro LiveCodeEditorJS(name, code) %}
+
+<script type="text/javascript" src="/assets/frappe/node_modules/moment/min/moment-with-locales.min.js"></script>
+<script type="text/javascript" src="/assets/frappe/node_modules/moment-timezone/builds/moment-timezone-with-data.min.js"></script>
+<script type="text/javascript" src="/assets/frappe/js/frappe/utils/datetime.js"></script>
+
+<script type="text/javascript">
+// comment_when is failing because of this
+if (!frappe.sys_defaults) {
+  frappe.sys_defaults = {}
+}
+</script>
+
+<script type="text/javascript" src="{{ livecode_url }}/static/livecode.js"></script>
+<script type="text/javascript" src="/assets/lms/js/livecode-canvas.js"></script>
+
+<script type="text/javascript">
+  var livecodeEditors = [];
+  var livecodeEditorsMap = {};
+
+  $(function() {
+    $(".livecode-editor").each((i, e) => {
+      var name = e.id.replace("editor-", "");
+      var editor = new LiveCodeEditor(e, {
+        base_url: "{{ livecode_url }}",
+        ...getLiveCodeOptions()
+      })
+      livecodeEditors.push(editor);
+      livecodeEditorsMap[e.id] = editor;
+
+      $(e).find(".reset").on('click', function() {
+        let code = $(e).find(".reset-code").html();
+        editor.codemirror.doc.setValue(code);
+      });
+
+      $(e).find(".submit").on('click', function() {
+        let code = editor.codemirror.doc.getValue();
+        console.log("submit", name, code);
+        frappe.call("lms.lms.api.submit_solution", {
+          "exercise": name,
+          "code": code
+        }).then(r => {
+          if (r.message.name) {
+            frappe.msgprint("Submitted successfully!");
+
+            let d = r.message.creation;
+            $(e).find(".human-time").html(__("Submitted {0}", [comment_when(d)]));
+          }
+        });
+      });
+
+    });
+  });
+
+  function updateSubmitTimes() {
+    $(".human-time").each(function(i, e) {
+      var d = $(e).data().timestamp;
+      $(e).html(__("Submitted {0}", [comment_when(d)]));
+    });
+  }
+
+  updateSubmitTimes();
+</script>
+
+{% endmacro %}

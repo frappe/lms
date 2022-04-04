@@ -1,0 +1,28 @@
+{% extends "templates/base.html" %}
+{% from "www/hackathons/macros/card.html" import null_card %}
+{% block title %}{{ 'Courses' }}{% endblock %}
+{% block head_include %}
+<style>
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="common-page-style">
+  <div class="container">
+
+    {% include "lms/templates/search_course/search_course.html" %}
+
+    <div class="course-list">
+      {% set title = _("Live Courses") %}
+      {% set courses = live_courses %}
+      {% set classes = "live-courses" %}
+      {% include "lms/templates/course_list.html" %}
+
+      {% set title = _("Upcoming Courses") %}
+      {% set courses = upcoming_courses %}
+      {% set classes = "upcoming-courses mt-10" %}
+      {% include "lms/templates/course_list.html" %}
+    </div>
+  </div>
+</div>
+{% endblock %}

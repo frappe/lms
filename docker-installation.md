@@ -1,9 +1,9 @@
 **Step 1:** Clone the repo
 
 ```
-$ git clone https://github.com/frappe/school.git
+$ git clone https://github.com/frappe/lms.git
 
-$ cd school
+$ cd lms
 ```
 
 **Step 2:** Run docker-compose
