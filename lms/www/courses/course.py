@@ -16,15 +16,15 @@ def get_context(context):
         "disable_self_learning", "video_link", "enable_certification", "status"],
         as_dict=True)
 
+    if course is None:
+        frappe.local.flags.redirect_location = "/courses"
+        raise frappe.Redirect
+
     related_courses = frappe.get_all("Related Courses", {"parent": course.name}, ["course"])
     for csr in related_courses:
         csr.update(frappe.db.get_value("LMS Course",
             csr.course, ["name", "upcoming", "title", "image", "enable_certification"], as_dict=True))
     course.related_courses = related_courses
-
-    if course is None:
-        frappe.local.flags.redirect_location = "/courses"
-        raise frappe.Redirect
 
     context.course = course
     membership = get_membership(course.name, frappe.session.user)
