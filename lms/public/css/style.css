@@ -856,41 +856,54 @@ pre {
 
 .certificate-content {
   padding: 2.5rem 3rem;
+  background-color: #FFFFFF;
 }
 
 .certificate-footer {
-  margin-top: 4.5rem;
-  display: flex;
-}
-
-.certificate-footer-item {
-  margin-right: 3.5rem;
+    display: flex;
+    justify-content: space-between;
+    width: 50%;
+    margin: 5rem auto 0;
 }
 
 .certificate-ribbon {
   background-color: var(--primary-color);
-  margin-left: auto;
-  margin-right: 2.5rem;
-  width: 4.5rem;
+  padding: 1rem;
+  border-radius: var(--border-radius-md);
 }
 
 .certificate-heading {
-  font-size: 3rem;
+  font-size: 1.5rem;
   font-weight: 500;
-  color: var(--gray-800);
+  color: var(--text-color);
 }
 
 .certificate-para {
   margin-bottom: 4rem;
 }
 
+.certificate-card {
+    background: #FFFFFF;
+    border-radius: var(--border-radius-md);
+    position: relative;
+    box-shadow: var(--shadow-sm);
+    padding: 2rem;
+    text-align: center;
+    margin: 0 6rem;
+}
+
+.certificate-footer-item {
+    color: var(--text-color);
+    font-weight: 500;
+}
+
 .certificate-logo {
-  height: 20px;
+  height: 1.5rem;
 }
 
 @media (max-width: 768px) {
   .certificate-heading {
-    font-size: 2rem;
+    font-size: 1rem;
   }
 }
 
@@ -898,24 +911,15 @@ pre {
   .certificate-footer {
     flex-direction: column;
   }
-
-  .certificate-footer-item {
-    margin-bottom: 1rem;
-  }
 }
 
 @media (max-width: 500px) {
   .certificate-heading {
-    font-size: 1.5rem;
+    font-size: 0.5rem;
   }
 
   .certificate-content {
     padding: 2.5rem 2rem;
-  }
-
-  .certificate-ribbon {
-    margin-right: 1rem;
-    width: 1.5rem;
   }
 }
 

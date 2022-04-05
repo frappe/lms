@@ -1,7 +1,7 @@
 import frappe
 
 def execute():
-    old = frappe.get_all("LMS Certification", fields=["name", "course", "member", "student", "issue_date", "expiry_date"])
+    old = frappe.get_all("LMS Certification", fields=["name", "course", "student", "issue_date", "expiry_date"])
     for data in old:
         frappe.get_doc({
             "doctype": "LMS Certificate",
