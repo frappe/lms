@@ -307,5 +307,4 @@ const display_slots = (e) => {
     } else {
         $("#no-slots-message").removeClass("hide");
     }
-}
-;
+};
