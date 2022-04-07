@@ -22,9 +22,9 @@ class CourseEvaluator(Document):
         overlap = False
 
         for slot in same_day_slots:
-            if schedule.start_time < slot.start_time < schedule.end_time:
+            if schedule.start_time <= slot.start_time < schedule.end_time:
                 overlap = True
-            if schedule.start_time < slot.end_time < schedule.end_time:
+            if schedule.start_time < slot.end_time <= schedule.end_time:
                 overlap = True
             if slot.start_time < schedule.start_time and schedule.end_time < slot.end_time:
                 overlap = True
