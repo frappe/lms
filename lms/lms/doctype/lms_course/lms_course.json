@@ -36,9 +36,12 @@
   "enable_certification",
   "expiry",
   "column_break_22",
-  "paid_certificate",
   "grant_certificate_after",
-  "evaluator"
+  "evaluator",
+  "pricing_section",
+  "paid_certificate",
+  "currency",
+  "price_certificate"
  ],
  "fields": [
   {
@@ -189,6 +192,25 @@
    "fieldtype": "Link",
    "label": "Evaluator",
    "options": "Course Evaluator"
+  },
+  {
+   "depends_on": "eval: doc.grant_certificate_after == \"Evaluation\"",
+   "fieldname": "pricing_section",
+   "fieldtype": "Section Break",
+   "label": "Pricing"
+  },
+  {
+   "depends_on": "paid_certificate",
+   "fieldname": "price_certificate",
+   "fieldtype": "Currency",
+   "label": "Certificate Price"
+  },
+  {
+   "depends_on": "paid_certificate",
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency"
   }
  ],
  "is_published_field": "published",
@@ -214,7 +236,7 @@
    "link_fieldname": "course"
   }
  ],
- "modified": "2022-04-01 15:19:13.075063",
+ "modified": "2022-04-07 12:27:05.353788",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",

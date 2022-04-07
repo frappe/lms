@@ -7,6 +7,7 @@
  "field_order": [
   "course",
   "member",
+  "member_name",
   "column_break_3",
   "issue_date",
   "expiry_date"
@@ -44,11 +45,18 @@
    "label": "Member",
    "options": "User",
    "reqd": 1
+  },
+  {
+   "fetch_from": "member.full_name",
+   "fieldname": "member_name",
+   "fieldtype": "Data",
+   "label": "Member Name",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-04-05 14:19:34.409244",
+ "modified": "2022-04-06 11:49:36.077370",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate",
@@ -70,6 +78,6 @@
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
- "title_field": "member",
+ "title_field": "member_name",
  "track_changes": 1
 }

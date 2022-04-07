@@ -122,6 +122,7 @@ input[type=checkbox] {
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
+  color: var(--text-color);
 }
 
 .course-card-title {
@@ -813,16 +814,6 @@ input[type=checkbox] {
 .progress-percent {
   margin: 0.5rem 0;
   font-size: var(--text-base);
-  font-weight: 500;
-}
-
-.progress-percentage {
-  width: 100%;
-  font-size: 12px;
-  line-height: 165%;
-  letter-spacing: 0.02em;
-  color: #000000;
-  text-align: center;
 }
 
 pre {
@@ -862,13 +853,18 @@ pre {
 .certificate-footer {
     display: flex;
     justify-content: space-between;
-    width: 50%;
+    width: 30%;
     margin: 5rem auto 0;
+}
+
+.certificate-price {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
 }
 
 .certificate-ribbon {
   background-color: var(--primary-color);
-  padding: 1rem;
+  padding: 0.5rem;
   border-radius: var(--border-radius-md);
 }
 
@@ -887,7 +883,7 @@ pre {
     border-radius: var(--border-radius-md);
     position: relative;
     box-shadow: var(--shadow-sm);
-    padding: 2rem;
+    padding: 1rem;
     text-align: center;
     margin: 0 6rem;
 }
@@ -901,26 +897,26 @@ pre {
   height: 1.5rem;
 }
 
+@media (max-width: 1050px) {
+    .certificate-footer {
+        width: 50%;
+    }
+}
+
 @media (max-width: 768px) {
-  .certificate-heading {
-    font-size: 1rem;
-  }
+    .certificate-card {
+        margin: 0;
+    }
 }
 
 @media (max-width: 550px) {
-  .certificate-footer {
-    flex-direction: column;
-  }
-}
+    .certificate-content {
+        padding: 1rem;
+    }
 
-@media (max-width: 500px) {
-  .certificate-heading {
-    font-size: 0.5rem;
-  }
-
-  .certificate-content {
-    padding: 2.5rem 2rem;
-  }
+    .certificate-footer {
+        width: 100%;
+    }
 }
 
 .profile-card {
@@ -944,7 +940,7 @@ pre {
 
 .empty-state-heading {
   font-size: var(--text-xl);
-  color: var(--gray-900);
+  color: var(--text-color);
   font-weight: 600;
 }
 
@@ -957,7 +953,7 @@ pre {
   background-image: url(/assets/frappe/icons/timeless/search.svg);
   border: none;
   border-radius: var(--border-radius-md);
-  font-size: var(--text-base);
+  font-size: var(--text-sm);
   padding: 0.625rem 0.75rem;
   height: 36px;
   background-repeat: no-repeat;
@@ -982,11 +978,11 @@ pre {
 .testimonial-author {
   font-weight: 500;
   font-size: var(--text-lg);
-  color: var(--gray-900);
+  color: var(--text-color);
 }
 
 .testimonial-review {
-  color: var(--gray-900);
+  color: var(--text-color);
   margin-bottom: 2rem;
 }
 
@@ -1212,7 +1208,8 @@ pre {
 .course-overlay-content {
   padding: 1.25rem;
   font-size: var(--text-base);
-  color: var(--gray-900);
+  color: var(--text-color);
+  text-align: center;
 }
 
 .breadcrumb-destination {

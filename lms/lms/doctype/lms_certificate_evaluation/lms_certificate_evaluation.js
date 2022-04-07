@@ -20,5 +20,13 @@ frappe.ui.form.on('LMS Certificate Evaluation', {
                 }
             };
         });
+
+        frm.set_query('member', function(doc) {
+            return {
+                filters: {
+                    "ignore_user_type": 1,
+                }
+            };
+        });
     }
 });

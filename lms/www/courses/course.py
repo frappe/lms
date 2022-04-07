@@ -12,8 +12,8 @@ def get_context(context):
         raise frappe.Redirect
 
     course = frappe.db.get_value("LMS Course", course_name,
-        ["name", "title", "image", "short_introduction", "description", "published", "upcoming",
-        "disable_self_learning", "video_link", "enable_certification", "status", "grant_certificate_after"],
+        ["name", "title", "image", "short_introduction", "description", "published", "upcoming", "disable_self_learning", "status",
+        "video_link", "enable_certification", "grant_certificate_after", "paid_certificate", "price_certificate", "currency"],
         as_dict=True)
 
     related_courses = frappe.get_all("Related Courses", {"parent": course.name}, ["course"])
