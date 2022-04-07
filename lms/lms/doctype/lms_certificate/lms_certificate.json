@@ -5,25 +5,19 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "student",
-  "issue_date",
-  "column_break_3",
   "course",
+  "member",
+  "member_name",
+  "column_break_3",
+  "issue_date",
   "expiry_date"
  ],
  "fields": [
   {
-   "fieldname": "student",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Student",
-   "options": "User"
-  },
-  {
    "fieldname": "issue_date",
    "fieldtype": "Date",
-   "label": "Issue Date"
+   "label": "Issue Date",
+   "reqd": 1
   },
   {
    "fieldname": "column_break_3",
@@ -35,20 +29,37 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Course",
-   "options": "LMS Course"
+   "options": "LMS Course",
+   "reqd": 1
   },
   {
    "fieldname": "expiry_date",
    "fieldtype": "Date",
    "label": "Expiry Date"
+  },
+  {
+   "fieldname": "member",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Member",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "member.full_name",
+   "fieldname": "member_name",
+   "fieldtype": "Data",
+   "label": "Member Name",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-08-16 15:47:19.494055",
+ "modified": "2022-04-06 11:49:36.077370",
  "modified_by": "Administrator",
  "module": "LMS",
- "name": "LMS Certification",
+ "name": "LMS Certificate",
  "owner": "Administrator",
  "permissions": [
   {
@@ -66,5 +77,7 @@
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
+ "states": [],
+ "title_field": "member_name",
  "track_changes": 1
 }

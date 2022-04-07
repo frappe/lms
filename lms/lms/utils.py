@@ -170,9 +170,9 @@ def get_sorted_reviews(course):
     return rating_percent
 
 def is_certified(course):
-    certificate = frappe.get_all("LMS Certification",
+    certificate = frappe.get_all("LMS Certificate",
                     {
-                        "student": frappe.session.user,
+                        "member": frappe.session.user,
                         "course": course
                     })
     if len(certificate):

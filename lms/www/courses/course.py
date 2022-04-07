@@ -12,8 +12,8 @@ def get_context(context):
         raise frappe.Redirect
 
     course = frappe.db.get_value("LMS Course", course_name,
-        ["name", "title", "image", "short_introduction", "description", "published", "upcoming",
-        "disable_self_learning", "video_link", "enable_certification", "status"],
+        ["name", "title", "image", "short_introduction", "description", "published", "upcoming", "disable_self_learning", "status",
+        "video_link", "enable_certification", "grant_certificate_after", "paid_certificate", "price_certificate", "currency"],
         as_dict=True)
 
     if course is None:
@@ -30,10 +30,19 @@ def get_context(context):
     membership = get_membership(course.name, frappe.session.user)
     context.course.query_parameter = "?batch=" + membership.batch if membership and membership.batch else ""
     context.membership = membership
-    if context.course.upcoming:
-        context.is_user_interested = get_user_interest(context.course.name)
     context.restriction = check_profile_restriction()
     context.show_start_learing_cta = show_start_learing_cta(course, membership, context.restriction)
+    context.certificate_request = frappe.db.get_value("LMS Certificate Request",
+        {
+            "course": course.name,
+            "member": frappe.session.user
+        },
+        ["date", "start_time", "end_time"],
+        as_dict=True)
+
+    if context.course.upcoming:
+        context.is_user_interested = get_user_interest(context.course.name)
+
     context.metatags = {
         "title": course.title,
         "image": course.image,

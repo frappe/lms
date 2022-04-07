@@ -244,7 +244,7 @@ const create_certificate = (e) => {
   e.preventDefault();
   course = $(".title").attr("data-course");
   frappe.call({
-    method: "lms.lms.doctype.lms_certification.lms_certification.create_certificate",
+    method: "lms.lms.doctype.lms_certificate.lms_certificate.create_certificate",
     args: {
       "course": course
     },

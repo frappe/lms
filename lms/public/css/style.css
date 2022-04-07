@@ -122,6 +122,7 @@ input[type=checkbox] {
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
+  color: var(--text-color);
 }
 
 .course-card-title {
@@ -813,16 +814,6 @@ input[type=checkbox] {
 .progress-percent {
   margin: 0.5rem 0;
   font-size: var(--text-base);
-  font-weight: 500;
-}
-
-.progress-percentage {
-  width: 100%;
-  font-size: 12px;
-  line-height: 165%;
-  letter-spacing: 0.02em;
-  color: #000000;
-  text-align: center;
 }
 
 pre {
@@ -856,67 +847,76 @@ pre {
 
 .certificate-content {
   padding: 2.5rem 3rem;
+  background-color: #FFFFFF;
 }
 
 .certificate-footer {
-  margin-top: 4.5rem;
-  display: flex;
+    display: flex;
+    justify-content: space-between;
+    width: 30%;
+    margin: 5rem auto 0;
 }
 
-.certificate-footer-item {
-  margin-right: 3.5rem;
+.certificate-price {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
 }
 
 .certificate-ribbon {
   background-color: var(--primary-color);
-  margin-left: auto;
-  margin-right: 2.5rem;
-  width: 4.5rem;
+  padding: 0.5rem;
+  border-radius: var(--border-radius-md);
 }
 
 .certificate-heading {
-  font-size: 3rem;
+  font-size: 1.5rem;
   font-weight: 500;
-  color: var(--gray-800);
+  color: var(--text-color);
 }
 
 .certificate-para {
   margin-bottom: 4rem;
 }
 
+.certificate-card {
+    background: #FFFFFF;
+    border-radius: var(--border-radius-md);
+    position: relative;
+    box-shadow: var(--shadow-sm);
+    padding: 1rem;
+    text-align: center;
+    margin: 0 6rem;
+}
+
+.certificate-footer-item {
+    color: var(--text-color);
+    font-weight: 500;
+}
+
 .certificate-logo {
-  height: 20px;
+  height: 1.5rem;
+}
+
+@media (max-width: 1050px) {
+    .certificate-footer {
+        width: 50%;
+    }
 }
 
 @media (max-width: 768px) {
-  .certificate-heading {
-    font-size: 2rem;
-  }
+    .certificate-card {
+        margin: 0;
+    }
 }
 
 @media (max-width: 550px) {
-  .certificate-footer {
-    flex-direction: column;
-  }
+    .certificate-content {
+        padding: 1rem;
+    }
 
-  .certificate-footer-item {
-    margin-bottom: 1rem;
-  }
-}
-
-@media (max-width: 500px) {
-  .certificate-heading {
-    font-size: 1.5rem;
-  }
-
-  .certificate-content {
-    padding: 2.5rem 2rem;
-  }
-
-  .certificate-ribbon {
-    margin-right: 1rem;
-    width: 1.5rem;
-  }
+    .certificate-footer {
+        width: 100%;
+    }
 }
 
 .profile-card {
@@ -940,7 +940,7 @@ pre {
 
 .empty-state-heading {
   font-size: var(--text-xl);
-  color: var(--gray-900);
+  color: var(--text-color);
   font-weight: 600;
 }
 
@@ -953,7 +953,7 @@ pre {
   background-image: url(/assets/frappe/icons/timeless/search.svg);
   border: none;
   border-radius: var(--border-radius-md);
-  font-size: var(--text-base);
+  font-size: var(--text-sm);
   padding: 0.625rem 0.75rem;
   height: 36px;
   background-repeat: no-repeat;
@@ -978,11 +978,11 @@ pre {
 .testimonial-author {
   font-weight: 500;
   font-size: var(--text-lg);
-  color: var(--gray-900);
+  color: var(--text-color);
 }
 
 .testimonial-review {
-  color: var(--gray-900);
+  color: var(--text-color);
   margin-bottom: 2rem;
 }
 
@@ -1208,7 +1208,8 @@ pre {
 .course-overlay-content {
   padding: 1.25rem;
   font-size: var(--text-base);
-  color: var(--gray-900);
+  color: var(--text-color);
+  text-align: center;
 }
 
 .breadcrumb-destination {

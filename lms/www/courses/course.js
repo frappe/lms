@@ -1,50 +1,62 @@
 frappe.ready(() => {
 
-  hide_wrapped_mentor_cards();
+    hide_wrapped_mentor_cards();
 
-  $("#cancel-request").click((e) => {
-    cancel_mentor_request(e);
-  });
+    $("#cancel-request").click((e) => {
+        cancel_mentor_request(e);
+    });
 
-  $(".join-batch").click((e) => {
-    join_course(e)
-  });
+    $(".join-batch").click((e) => {
+        join_course(e)
+    });
 
-  $(".view-all-mentors").click((e) => {
-    view_all_mentors(e);
-  });
+    $(".view-all-mentors").click((e) => {
+        view_all_mentors(e);
+    });
 
-  $(".review-link").click((e) => {
-    show_review_dialog(e);
-  });
+    $(".review-link").click((e) => {
+        show_review_dialog(e);
+    });
 
-  $(".icon-rating").click((e) => {
-    highlight_rating(e);
-  });
+    $(".icon-rating").click((e) => {
+        highlight_rating(e);
+    });
 
-  $("#submit-review").click((e) => {
-    submit_review(e);
-  })
+    $("#submit-review").click((e) => {
+        submit_review(e);
+    })
 
-  $("#notify-me").click((e) => {
-    notify_user(e);
-  })
+    $("#notify-me").click((e) => {
+        notify_user(e);
+    })
 
-  $("#certification").click((e) => {
-    create_certificate(e);
-  });
+    $("#certification").click((e) => {
+        create_certificate(e);
+    });
 
-  $("#submit-for-review").click((e) => {
-    submit_for_review(e);
-  });
+    $("#submit-for-review").click((e) => {
+        submit_for_review(e);
+    });
 
-  $(document).scroll(function() {
-    let timer;
-    clearTimeout(timer);
-    timer = setTimeout(() => { handle_overlay_display.apply(this, arguments); }, 500);
-  });
+    $("#apply-certificate").click((e) => {
+        apply_cetificate(e);
+    });
 
-})
+    $("#slot-date").on("change", (e) => {
+       display_slots(e);
+    });
+
+    $(document).on("click", ".slot", (e) => {
+        submit_slot(e);
+    });
+
+    $(document).scroll(function() {
+        let timer;
+        clearTimeout(timer);
+        timer = setTimeout(() => { handle_overlay_display.apply(this, arguments); }, 500);
+    });
+
+});
 
 var hide_wrapped_mentor_cards = () => {
   var offset_top_prev;
@@ -185,7 +197,7 @@ const create_certificate = (e) => {
   e.preventDefault();
   course = $(e.currentTarget).attr("data-course");
   frappe.call({
-    method: "lms.lms.doctype.lms_certification.lms_certification.create_certificate",
+    method: "lms.lms.doctype.lms_certificate.lms_certificate.create_certificate",
     args: {
       "course": course
     },
@@ -236,4 +248,63 @@ const submit_for_review = (e) => {
       }
     }
   })
-}
+};
+
+const apply_cetificate = (e) => {
+    frappe.call({
+        method: "lms.lms.doctype.course_evaluator.course_evaluator.get_schedule",
+        args: {
+            "course": $(e.currentTarget).data("course")
+        },
+        callback: (data) => {
+            let options = "";
+            data.message.forEach((obj) => {
+                options += `<button type="button" class="btn btn-sm btn-secondary mr-3 slot hide"
+                    data-course="${$(e.currentTarget).data("course")}"
+                    data-day="${obj.day}" data-start="${obj.start_time}" data-end="${obj.end_time}">
+                    ${obj.day} ${obj.start_time} - ${obj.end_time}</button>`;
+            });
+            e.preventDefault();
+            $("#slot-modal .slots").html(options);
+            $("#slot-modal").modal("show");
+        }
+    })
+};
+
+const submit_slot = (e) => {
+    e.preventDefault();
+    const slot = $(e.currentTarget);
+    frappe.call({
+        method: "lms.lms.doctype.lms_certificate_request.lms_certificate_request.create_certificate_request",
+        args: {
+            "course": slot.data("course"),
+            "date": $("#slot-date").val(),
+            "day": slot.data("day"),
+            "start_time": slot.data("start"),
+            "end_time": slot.data("end")
+        },
+        callback: (data) => {
+            $("#slot-modal").modal("hide");
+            frappe.msgprint(__("Your slot has been booked. Prepare well for the evaluations."));
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+        }
+    });
+};
+
+const display_slots = (e) => {
+    const weekday = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+    const day = weekday[new Date($(e.currentTarget).val()).getDay()]
+
+    $(".slot").addClass("hide");
+    $(".slot-label").addClass("hide");
+
+    if ($(`[data-day='${day}']`).length) {
+        $(".slot-label").removeClass("hide");
+        $(`[data-day='${day}']`).removeClass("hide");
+        $("#no-slots-message").addClass("hide");
+    } else {
+        $("#no-slots-message").removeClass("hide");
+    }
+};

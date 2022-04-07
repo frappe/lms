@@ -105,6 +105,12 @@
         {{ _("You have opted to be notified for this course. You will receive an email when the course becomes available.") }}
     </div>
 
+    {% if certificate_request %}
+    <p class="mb-2"> <b>{{ _("Evaluation On: ") }}</b>
+        {{ _("{0} at {1}").format(frappe.utils.format_date(certificate_request.date, "medium"),
+        frappe.utils.format_time(certificate_request.start_time, "short")) }} </p>
+    {% endif %}
+
     {% if course.status == "Under Review" %}
     <div class="mb-4">
         {{ _("Your course is currently under review. Once the review is complete, the System Admins will publish it on the website.") }}
@@ -125,7 +131,7 @@
     </div>
     {% endif %}
 
-    <div class="vertically-center mb-2">
+    <div class="vertically-center justify-content-center mb-2">
       <div class="">
         <svg class="icon icon-md mr-1">
           <use class="" href="#icon-users">
@@ -145,6 +151,12 @@
       {% endif %}
     </div>
 
+    {% if course.paid_certificate %}
+    <div class="certificate-price">
+        {{ _("Certificate Price:") }} {{ frappe.utils.fmt_money(course.price_certificate, 2, course.currency) }}
+    </div>
+    {% endif %}
+
     {% set lesson_index = get_lesson_index(membership.current_lesson) if membership and
       membership.current_lesson
       else '1.1' %}
@@ -155,7 +167,7 @@
       <img class="ml-2" src="/assets/lms/icons/white-arrow.svg" />
     </div>
 
-    {% elif is_instructor(course.name) and not course.published and course.status != "Under Review" %}
+    {% elif is_instructor(course.name) and not course.published and course.status == "Under Review" %}
     <div class="button wide-button is-primary" id="submit-for-review" data-course="{{ course.name | urlencode }}">
       {{ _("Submit for Review") }}
       <img class="ml-2" src="/assets/lms/icons/white-arrow.svg" />
@@ -165,12 +177,6 @@
     <a class="button wide-button is-primary" id="continue-learning"
       href="{{ get_lesson_url(course.name, lesson_index) }}{{ course.query_parameter }}">
       {{ _("Checkout Course") }} <img class="ml-2" src="/assets/lms/icons/white-arrow.svg" />
-    </a>
-
-    {% elif membership %}
-    <a class="button wide-button is-primary" id="continue-learning"
-      href="{{ get_lesson_url(course.name, lesson_index) }}{{ course.query_parameter }}">
-      {{ _("Continue Learning") }} <img class="ml-2" src="/assets/lms/icons/white-arrow.svg" />
     </a>
 
     {% elif course.upcoming and not is_user_interested %}
@@ -185,22 +191,73 @@
           style="color: inherit;">
         {{ _("Manage the course") }}
       </a>
+
+    {% elif membership %}
+    <a class="button wide-button is-primary" id="continue-learning"
+    href="{{ get_lesson_url(course.name, lesson_index) }}{{ course.query_parameter }}">
+    {{ _("Continue Learning") }} <img class="ml-2" src="/assets/lms/icons/white-arrow.svg" />
+    </a>
     {% endif %}
 
     {% set certificate = is_certified(course.name) %}
     {% set progress = frappe.utils.cint(membership.progress) %}
+    {% if membership and course.enable_certification %}
     {% if certificate %}
     <a class="button wide-button is-secondary mt-2" href="/courses/{{ course.name }}/{{ certificate }}">
       {{ _("Get Certificate") }}
     </a>
-    {% elif course.enable_certification and progress == 100 %}
+    {% elif course.grant_certificate_after == "Evaluation" and not certificate_request %}
+    <a class="button wide-button is-secondary mt-2" id="apply-certificate" data-course="{{ course.name }}">
+        {{ _("Apply for Certificate") }}
+      </a>
+    {% elif progress == 100 %}
     <div class="button wide-button is-secondary mt-4" id="certification" data-course="{{ course.name }}">
       {{ _("Get Certificate") }}
     </div>
     {% endif %}
+    {% endif %}
 
   </div>
+</div>
 
+<div class="modal fade" id="slot-modal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="font-weight-bold">{{ _("Pick a Slot") }}</div>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="slot-form">
+            <p class="">{{ _("This course requires you to complete an evaluation to get certified. Please pick a slot based on your convenience for the evaluations. ") }}</p>
+            <div class="form-group">
+                <div class="clearfix">
+                    <label class="control-label reqd" style="padding-right: 0px;">{{ _("Date") }}</label>
+                </div>
+                <div class="control-input-wrapper">
+                    <div class="control-input">
+                        <input type="date" class="input-with-feedback form-control bold" data-fieldtype="Date"
+                            id="slot-date" min="{{ frappe.utils.format_date(frappe.utils.getdate(), 'yyyy-mm-dd') }}">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="clearfix">
+                <label class="control-label reqd slot-label hide" style="padding-right: 0px;">{{ _("Slots") }}</label>
+                </div>
+                <div class="control-input-wrapper">
+                <div class="control-input">
+                    <div class="slots"></div>
+                </div>
+                </div>
+            </div>
+            <p id="no-slots-message" class="small text-danger hide"> {{ _("There are no slots available on this day.") }} </p>
+        </form>
+      </div>
+    </div>
+  </div>
 </div>
 {% endmacro %}
 

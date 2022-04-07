@@ -9,8 +9,8 @@ def get_context(context):
     except KeyError:
         redirect_to_course_list()
 
-    context.certificate = frappe.db.get_value("LMS Certification", certificate_name,
-                ["name", "student", "issue_date", "expiry_date", "course"], as_dict=True)
+    context.certificate = frappe.db.get_value("LMS Certificate", certificate_name,
+                ["name", "member", "issue_date", "expiry_date", "course"], as_dict=True)
 
     if context.certificate.course != course_name:
         redirect_to_course_list()
@@ -21,7 +21,7 @@ def get_context(context):
     context.instructor = frappe.db.get_value("User", context.course.instructor,
                 ["full_name", "username"], as_dict=True)
 
-    context.student = frappe.db.get_value("User", context.certificate.student,
+    context.member = frappe.db.get_value("User", context.certificate.member,
                 ["full_name"], as_dict=True)
 
     context.logo = frappe.db.get_single_value("Website Settings", "banner_image")
