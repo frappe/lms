@@ -6,7 +6,7 @@ def execute():
         frappe.get_doc({
             "doctype": "LMS Certificate",
             "course": data.course,
-            "member": data.member or data.student,
+            "member": data.student,
             "issue_date": data.issue_date,
             "expiry_date": data.expiry_date
         }).save(ignore_permissions=True)
