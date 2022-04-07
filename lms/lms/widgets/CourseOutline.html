@@ -71,6 +71,28 @@
   </div>
   {% endfor %}
 </div>
+
+<!-- No Preview Modal -->
+<div class="modal fade no-preview-modal" id="no-preview-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="font-weight-bold">{{ _("Not available for preview") }}</div>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class=""> {{ _("This lesson is not available for preview. Please join the course to access it.") }} </div>
+      </div>
+      <div class="modal-footer">
+        <div class="button is-primary join-batch" data-course="{{ course.name | urlencode}}">
+          {{ _("Start Learning") }}</div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endif %}
 
 <script>
@@ -148,13 +170,7 @@ const rotate_chapter_icon = (e) => {
 };
 
 const show_no_preview_dialog = (e) => {
-    const d = frappe.warn(__("Not available for preview"),
-        __("This lesson is not available for preview. Please join the course to access it."),
-        () => {
-            const route = `/courses/${ $(e.currentTarget).data("course") }`;
-            window.location.pathname == route ? d.hide() : window.location.href = route;
-        },
-        __("Start Learning"), false);
+    $("#no-preview-modal").modal("show");
 };
 
 </script>
