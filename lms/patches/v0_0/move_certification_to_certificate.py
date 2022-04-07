@@ -11,4 +11,4 @@ def execute():
             "member": data.student,
             "issue_date": data.issue_date,
             "expiry_date": data.expiry_date
-        }).save(ignore_permissions=True)
+        }).save(ignore_permissions=True, ignore_mandatory=True)
