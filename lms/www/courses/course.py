@@ -1,6 +1,6 @@
 import frappe
 from lms.lms.doctype.lms_settings.lms_settings import check_profile_restriction
-from lms.lms.utils import get_membership, is_instructor
+from lms.lms.utils import get_membership, is_instructor, is_certified
 
 def get_context(context):
     context.no_cache = 1
@@ -32,6 +32,7 @@ def get_context(context):
     context.membership = membership
     context.restriction = check_profile_restriction()
     context.show_start_learing_cta = show_start_learing_cta(course, membership, context.restriction)
+    context.certificate = is_certified(course.name)
     context.certificate_request = frappe.db.get_value("LMS Certificate Request",
         {
             "course": course.name,
