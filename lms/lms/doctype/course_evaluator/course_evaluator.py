@@ -33,6 +33,18 @@ class CourseEvaluator(Document):
                 frappe.throw(_("Slot Times are overlapping for some schedules."))
 
 @frappe.whitelist()
-def get_schedule(course):
+def get_schedule(course, date):
     evaluator = frappe.db.get_value("LMS Course", course, "evaluator")
-    return frappe.get_all("Evaluator Schedule", filters={"parent": evaluator}, fields=["day", "start_time", "end_time"])
+    all_slots = frappe.get_all("Evaluator Schedule",
+        filters = { "parent": evaluator },
+        fields = ["day", "start_time", "end_time"])
+    booked_slots = frappe.get_all("LMS Certificate Request",
+        filters = {"course": course, "date": date},
+        fields = ["start_time"])
+
+    for slot in booked_slots:
+        same_slot = list(filter(lambda x: x.start_time == slot.start_time, all_slots))
+        if len(same_slot):
+            all_slots.remove(same_slot[0])
+
+    return all_slots

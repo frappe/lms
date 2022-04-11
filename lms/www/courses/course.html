@@ -105,7 +105,7 @@
         {{ _("You have opted to be notified for this course. You will receive an email when the course becomes available.") }}
     </div>
 
-    {% if certificate_request %}
+    {% if certificate_request and not certificate %}
     <p class="mb-2"> <b>{{ _("Evaluation On: ") }}</b>
         {{ _("{0} at {1}").format(frappe.utils.format_date(certificate_request.date, "medium"),
         frappe.utils.format_time(certificate_request.start_time, "short")) }} </p>
@@ -199,7 +199,6 @@
     </a>
     {% endif %}
 
-    {% set certificate = is_certified(course.name) %}
     {% set progress = frappe.utils.cint(membership.progress) %}
     {% if membership and course.enable_certification %}
     {% if certificate %}
@@ -225,7 +224,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <div class="font-weight-bold">{{ _("Pick a Slot") }}</div>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <button type="button" class="close close-slot-modal" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
@@ -238,8 +237,8 @@
                 </div>
                 <div class="control-input-wrapper">
                     <div class="control-input">
-                        <input type="date" class="input-with-feedback form-control bold" data-fieldtype="Date"
-                            id="slot-date" min="{{ frappe.utils.format_date(frappe.utils.getdate(), 'yyyy-mm-dd') }}">
+                        <input type="date" class="input-with-feedback form-control bold" data-fieldtype="Date" data-course="{{ course.name | urlencode }}"
+                            id="slot-date" min="{{ frappe.utils.format_date(frappe.utils.add_days(frappe.utils.getdate(), 1), 'yyyy-mm-dd') }}">
                     </div>
                 </div>
             </div>
@@ -255,6 +254,10 @@
             </div>
             <p id="no-slots-message" class="small text-danger hide"> {{ _("There are no slots available on this day.") }} </p>
         </form>
+      </div>
+      <div class="modal-footer">
+        <div class="button is-primary" data-course="{{ course.name | urlencode}}" id="submit-slot">
+          {{ _("Submit") }}</div>
       </div>
     </div>
   </div>

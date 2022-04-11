@@ -191,6 +191,7 @@
    "fieldname": "evaluator",
    "fieldtype": "Link",
    "label": "Evaluator",
+   "mandatory_depends_on": "eval: doc.grant_certificate_after == \"Evaluation\"",
    "options": "Course Evaluator"
   },
   {
@@ -236,7 +237,7 @@
    "link_fieldname": "course"
   }
  ],
- "modified": "2022-04-07 12:27:05.353788",
+ "modified": "2022-04-08 14:36:22.254656",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",

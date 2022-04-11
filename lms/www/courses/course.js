@@ -7,7 +7,7 @@ frappe.ready(() => {
     });
 
     $(".join-batch").click((e) => {
-        join_course(e)
+        join_course(e);
     });
 
     $(".view-all-mentors").click((e) => {
@@ -46,8 +46,16 @@ frappe.ready(() => {
        display_slots(e);
     });
 
-    $(document).on("click", ".slot", (e) => {
+    $("#submit-slot").click((e) => {
         submit_slot(e);
+    });
+
+    $(".close-slot-modal").click((e) => {
+        close_slot_modal(e);
+    });
+
+    $(document).on("click", ".slot", (e) => {
+        select_slot(e);
     });
 
     $(document).scroll(function() {
@@ -93,31 +101,35 @@ var cancel_mentor_request = (e) => {
   })
 }
 
-var join_course = (e) => {
-  e.preventDefault();
-  var course = $(e.currentTarget).attr("data-course")
-  if (frappe.session.user == "Guest") {
-    window.location.href = `/login?redirect-to=/courses/${course}`;
-    return;
-  }
-  var batch = $(e.currentTarget).attr("data-batch");
-  batch = batch ? decodeURIComponent(batch) : "";
-  frappe.call({
-    "method": "lms.lms.doctype.lms_batch_membership.lms_batch_membership.create_membership",
-    "args": {
-      "batch": batch ? batch : "",
-      "course": course
-    },
-    "callback": (data) => {
-      if (data.message == "OK") {
-        frappe.msgprint(__("You are now a student of this course."));
-        setTimeout(function () {
-          window.location.href = `/courses/${course}/learn/1.1`;
-        }, 2000);
-      }
+const join_course = (e) => {
+    e.preventDefault();
+    let course = $(e.currentTarget).attr("data-course");
+    if (frappe.session.user == "Guest") {
+        window.location.href = `/login?redirect-to=/courses/${course}`;
+        return;
     }
-  })
-}
+
+    let batch = $(e.currentTarget).attr("data-batch");
+    batch = batch ? decodeURIComponent(batch) : "";
+    frappe.call({
+        "method": "lms.lms.doctype.lms_batch_membership.lms_batch_membership.create_membership",
+        "args": {
+            "batch": batch ? batch : "",
+            "course": course
+        },
+        "callback": (data) => {
+            if (data.message == "OK") {
+                frappe.msgprint({
+                    "title": __("Successfully Enrolled"),
+                    "message": __("You are now a student of this course.")
+                });
+                setTimeout(function () {
+                    window.location.href = `/courses/${course}/learn/1.1`;
+                }, 2000);
+            }
+        }
+    })
+};
 
 var view_all_mentors = (e) => {
   $(".wrapped").each((i, element) => {
@@ -251,29 +263,14 @@ const submit_for_review = (e) => {
 };
 
 const apply_cetificate = (e) => {
-    frappe.call({
-        method: "lms.lms.doctype.course_evaluator.course_evaluator.get_schedule",
-        args: {
-            "course": $(e.currentTarget).data("course")
-        },
-        callback: (data) => {
-            let options = "";
-            data.message.forEach((obj) => {
-                options += `<button type="button" class="btn btn-sm btn-secondary mr-3 slot hide"
-                    data-course="${$(e.currentTarget).data("course")}"
-                    data-day="${obj.day}" data-start="${obj.start_time}" data-end="${obj.end_time}">
-                    ${obj.day} ${obj.start_time} - ${obj.end_time}</button>`;
-            });
-            e.preventDefault();
-            $("#slot-modal .slots").html(options);
-            $("#slot-modal").modal("show");
-        }
-    })
+    $("#slot-modal").modal("show");
+
+
 };
 
 const submit_slot = (e) => {
     e.preventDefault();
-    const slot = $(e.currentTarget);
+    const slot = window.selected_slot;
     frappe.call({
         method: "lms.lms.doctype.lms_certificate_request.lms_certificate_request.create_certificate_request",
         args: {
@@ -294,17 +291,51 @@ const submit_slot = (e) => {
 };
 
 const display_slots = (e) => {
-    const weekday = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-    const day = weekday[new Date($(e.currentTarget).val()).getDay()]
+    frappe.call({
+        method: "lms.lms.doctype.course_evaluator.course_evaluator.get_schedule",
+        args: {
+            "course": $(e.currentTarget).data("course"),
+            "date": $(e.currentTarget).val()
+        },
+        callback: (data) => {
+            let options = "";
+            data.message.forEach((obj) => {
+                options += `<button type="button" class="btn btn-sm btn-secondary mr-3 slot hide"
+                    data-course="${$(e.currentTarget).data("course")}"
+                    data-day="${obj.day}" data-start="${obj.start_time}" data-end="${obj.end_time}">
+                    ${format_time(obj.start_time)} - ${format_time(obj.end_time)}</button>`;
+            });
+            e.preventDefault();
+            $("#slot-modal .slots").html(options);
+            const weekday = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+            const day = weekday[new Date($(e.currentTarget).val()).getDay()]
 
-    $(".slot").addClass("hide");
-    $(".slot-label").addClass("hide");
+            $(".slot").addClass("hide");
+            $(".slot-label").addClass("hide");
 
-    if ($(`[data-day='${day}']`).length) {
-        $(".slot-label").removeClass("hide");
-        $(`[data-day='${day}']`).removeClass("hide");
-        $("#no-slots-message").addClass("hide");
-    } else {
-        $("#no-slots-message").removeClass("hide");
-    }
+            if ($(`[data-day='${day}']`).length) {
+                $(".slot-label").removeClass("hide");
+                $(`[data-day='${day}']`).removeClass("hide");
+                $("#no-slots-message").addClass("hide");
+            } else {
+                $("#no-slots-message").removeClass("hide");
+            }
+        }
+    });
 };
+
+const select_slot = (e) => {
+    $(".slot").removeClass("btn-outline-primary");
+    $(e.currentTarget).addClass("btn-outline-primary");
+    window.selected_slot = $(e.currentTarget);
+};
+
+const format_time = (time) => {
+    let date = moment(new Date()).format("ddd MMM DD YYYY");
+    return moment(`${date} ${time}`).format("HH:mm a");
+};
+
+const close_slot_modal = (e) => {
+    $("#slot-date").val("");
+    $(".slot-label").addClass("hide");
+}

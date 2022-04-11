@@ -1,49 +1,53 @@
 frappe.ready(() => {
 
-  localStorage.removeItem($("#quiz-title").text());
-  fetch_assignments();
+    localStorage.removeItem($("#quiz-title").text());
+    fetch_assignments();
 
-  save_current_lesson();
+    save_current_lesson();
 
-  $(".option").click((e) => {
-    enable_check(e);
-  })
+    $(".option").click((e) => {
+     enable_check(e);
+    })
 
-  $(".mark-progress").click((e) => {
-    mark_progress(e);
-  });
+    $(".mark-progress").click((e) => {
+        mark_progress(e);
+    });
 
-  $(".next").click((e) => {
-    mark_progress(e);
-  });
+    $(".next").click((e) => {
+        mark_progress(e);
+    });
 
-  $("#summary").click((e) => {
-    quiz_summary(e);
-  });
+    $("#summary").click((e) => {
+        quiz_summary(e);
+    });
 
-  $("#check").click((e) => {
-    check_answer(e);
-  });
+    $("#check").click((e) => {
+        check_answer(e);
+    });
 
-  $("#next").click((e) => {
-    mark_active_question(e);
-  });
+    $("#next").click((e) => {
+        mark_active_question(e);
+    });
 
-  $("#try-again").click((e) => {
-    try_quiz_again(e);
-  });
+    $("#try-again").click((e) => {
+        try_quiz_again(e);
+    });
 
-  $("#certification").click((e) => {
-    create_certificate(e);
-  });
+    $("#certification").click((e) => {
+        create_certificate(e);
+    });
 
-  $(".submit-work").click((e) => {
-    attach_work(e);
-  });
+    $(".submit-work").click((e) => {
+        attach_work(e);
+    });
 
-  $(".clear-work").click((e) => {
-    clear_work(e);
-  });
+    $(".clear-work").click((e) => {
+        clear_work(e);
+    });
+
+    $(".join-batch").click((e) => {
+        join_course(e)
+    });
 
 });
 
@@ -238,6 +242,36 @@ const add_to_local_storage = (quiz_name, current_index, answer, is_correct) => {
   }
   quiz_stored ? quiz_stored.push(quiz_obj) : quiz_stored = [quiz_obj]
   localStorage.setItem(quiz_name, JSON.stringify(quiz_stored))
+};
+
+const join_course = (e) => {
+    e.preventDefault();
+    let course = $(e.currentTarget).attr("data-course")
+    if (frappe.session.user == "Guest") {
+        window.location.href = `/login?redirect-to=/courses/${course}`;
+        return;
+    }
+
+    let batch = $(e.currentTarget).attr("data-batch");
+    batch = batch ? decodeURIComponent(batch) : "";
+    frappe.call({
+        "method": "lms.lms.doctype.lms_batch_membership.lms_batch_membership.create_membership",
+        "args": {
+            "batch": batch ? batch : "",
+            "course": course
+        },
+        "callback": (data) => {
+            if (data.message == "OK") {
+                frappe.msgprint({
+                    "title": __("Successfully Enrolled"),
+                    "message": __("You are now a student of this course.")
+                });
+                setTimeout(function () {
+                    window.location.href = `/courses/${course}/learn/1.1`;
+                }, 2000);
+            }
+        }
+    });
 };
 
 const create_certificate = (e) => {

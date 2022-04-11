@@ -1410,3 +1410,7 @@ pre {
 .course-content-parent .course-details-outline .course-home-headings {
   display: none;
 }
+
+.btn-outline-primary {
+    border: 1px solid var(--primary-color);
+}
