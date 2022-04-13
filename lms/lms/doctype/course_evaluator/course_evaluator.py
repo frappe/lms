@@ -39,7 +39,7 @@ def get_schedule(course, date):
         filters = { "parent": evaluator },
         fields = ["day", "start_time", "end_time"])
     booked_slots = frappe.get_all("LMS Certificate Request",
-        filters = {"course": course, "date": date},
+        filters = {"evaluator": evaluator, "date": date},
         fields = ["start_time"])
 
     for slot in booked_slots:
