@@ -249,7 +249,7 @@ def get_country_code():
     try:
         data = res.json()
         if data.get("status") != "fail":
-            return data.get("country")
+            return frappe.db.get_value("Country", {"code": data.get("countryCode")}, "name")
     except Exception:
         pass
     return
