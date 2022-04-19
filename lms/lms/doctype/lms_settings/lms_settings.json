@@ -14,6 +14,7 @@
   "signup_settings_section",
   "terms_of_use",
   "terms_page",
+  "designation",
   "column_break_9",
   "privacy_policy",
   "privacy_policy_page",
@@ -130,12 +131,18 @@
    "label": "Cookie Policy Page",
    "mandatory_depends_on": "cookie_policy",
    "options": "Web Page"
+  },
+  {
+   "default": "0",
+   "fieldname": "designation",
+   "fieldtype": "Check",
+   "label": "Ask Designation during Signup"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2022-03-23 16:07:29.491432",
+ "modified": "2022-04-19 13:48:45.176536",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",

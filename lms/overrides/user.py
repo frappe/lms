@@ -190,7 +190,7 @@ def get_palette(full_name):
         return palette[idx % 8]
 
 @frappe.whitelist(allow_guest=True)
-def sign_up(email, full_name, verify_terms):
+def sign_up(email, full_name, verify_terms, designation):
     if is_signup_disabled():
         frappe.throw(_('Sign Up is disabled'), title='Not Allowed')
 
@@ -211,6 +211,7 @@ def sign_up(email, full_name, verify_terms):
         "email": email,
         "first_name": escape_html(full_name),
         "verify_terms": verify_terms,
+        "designation": designation,
         "country": "",
         "enabled": 1,
         "new_password": random_string(10),
