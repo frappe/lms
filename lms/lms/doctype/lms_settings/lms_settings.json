@@ -14,7 +14,7 @@
   "signup_settings_section",
   "terms_of_use",
   "terms_page",
-  "designation",
+  "user_category",
   "column_break_9",
   "privacy_policy",
   "privacy_policy_page",
@@ -134,15 +134,15 @@
   },
   {
    "default": "0",
-   "fieldname": "designation",
+   "fieldname": "user_category",
    "fieldtype": "Check",
-   "label": "Ask Designation during Signup"
+   "label": "Ask User Category during Signup"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2022-04-19 13:48:45.176536",
+ "modified": "2022-04-20 09:09:12.369728",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",
