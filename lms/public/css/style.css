@@ -975,7 +975,7 @@ pre {
   height: 100%;
 }
 
-.testimonial-author {
+.testimonial-author_name {
   font-weight: 500;
   font-size: var(--text-lg);
   color: var(--text-color);
