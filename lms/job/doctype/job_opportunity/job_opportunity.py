@@ -8,7 +8,10 @@ from frappe import _
 from frappe.utils import get_link_to_form
 
 class JobOpportunity(Document):
-	pass
+
+    def validate(self):
+        frappe.utils.validate_url(self.company_website, True)
+        frappe.utils.validate_url(self.application_link, True)
 
 @frappe.whitelist()
 def report(job, reason):
