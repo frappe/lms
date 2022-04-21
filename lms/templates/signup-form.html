@@ -87,7 +87,7 @@
                 "email": email,
                 "full_name": full_name,
                 "verify_terms": $("#signup-terms").prop("checked") ? 1 : 0,
-                "user_category": $("#user_category").val()
+                "user_category": $("#user_category").length ?  $("#user_category").val() : ""
             },
             statusCode: login.login_handlers
         })
