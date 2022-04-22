@@ -142,6 +142,3 @@ def show_custom_signup():
         or frappe.db.get_single_value("LMS Settings", "privacy_policy")):
         return "lms/templates/signup-form.html"
     return "frappe/templates/signup.html"
-
-def image_renderer(src);
-    return f"<img src={src}>"
