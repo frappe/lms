@@ -12,8 +12,9 @@ def get_context(context):
         raise frappe.Redirect
 
     course = frappe.db.get_value("LMS Course", course_name,
-        ["name", "title", "image", "short_introduction", "description", "published", "upcoming", "disable_self_learning", "status",
-        "video_link", "enable_certification", "grant_certificate_after", "paid_certificate", "price_certificate", "currency"],
+        ["name", "title", "image", "short_introduction", "description", "published", "upcoming", "disable_self_learning",
+        "status", "video_link", "enable_certification", "grant_certificate_after", "paid_certificate",
+        "price_certificate", "currency", "max_attempts", "reapplication"],
         as_dict=True)
 
     if course is None:
@@ -33,13 +34,18 @@ def get_context(context):
     context.restriction = check_profile_restriction()
     context.show_start_learing_cta = show_start_learing_cta(course, membership, context.restriction)
     context.certificate = is_certified(course.name)
-    context.certificate_request = frappe.db.get_value("LMS Certificate Request",
-        {
+    context.certificate_request = frappe.db.get_value("LMS Certificate Request", {
             "course": course.name,
             "member": frappe.session.user
-        },
-        ["date", "start_time", "end_time"],
+        }, ["date", "start_time", "end_time"],
         as_dict=True)
+
+    context.no_of_attempts = frappe.db.count("LMS Certificate Evaluation", {
+        "course": course.name,
+        "member": frappe.session.user,
+        "status" != "Pass",
+        "creation": [">=", add_days()]
+    })
 
     if context.course.upcoming:
         context.is_user_interested = get_user_interest(context.course.name)
@@ -52,11 +58,10 @@ def get_context(context):
     }
 
 def get_user_interest(course):
-    return frappe.db.count("LMS Course Interest",
-            {
-                "course": course,
-                "user": frappe.session.user
-            })
+    return frappe.db.count("LMS Course Interest", {
+            "course": course,
+            "user": frappe.session.user
+        })
 
 def show_start_learing_cta(course, membership, restriction):
     return not course.disable_self_learning and not membership and not course.upcoming and not restriction.get("restrict") and not is_instructor(course.name)

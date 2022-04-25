@@ -14,6 +14,7 @@
   "end_time",
   "column_break_5",
   "rating",
+  "status",
   "summary"
  ],
  "fields": [
@@ -75,11 +76,17 @@
    "fieldtype": "Data",
    "label": "Member Name",
    "read_only": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Pass\nFail"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-04-06 11:44:17.051279",
+ "modified": "2022-04-25 12:14:28.262851",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate Evaluation",
