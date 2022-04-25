@@ -2,10 +2,11 @@ frappe.ready(function() {
 
     frappe.web_form.after_load = () => {
         add_file_upload_component();
+        fetch_course();
     };
 
     frappe.web_form.after_save = () => {
-      show_success_message();
+        show_success_message();
     };
 
     $(document).on("click", ".add-attachment", (e) => {
@@ -14,9 +15,22 @@ frappe.ready(function() {
 
     $(document).on("click", ".copy-link", (e) => {
         frappe.utils.copy_to_clipboard($(e.currentTarget).data("link"));
+        $(".attachments").collapse("hide");
     });
 
 });
+
+const fetch_course = () => {
+    frappe.call({
+        method: "lms.lms.doctype.course_lesson.course_lesson.get_lesson_info",
+        args: {
+            "chapter": frappe.web_form.doc.chapter
+        },
+        callback: (data) => {
+            this.course = data.message;
+        }
+    });
+}
 
 const show_upload_modal = () => {
     new frappe.ui.FileUploader({
@@ -35,18 +49,10 @@ const show_upload_modal = () => {
 };
 
 const show_success_message = () => {
-    frappe.call({
-        method: "lms.lms.doctype.course_lesson.course_lesson.get_lesson_info",
-        args: {
-            "chapter": frappe.web_form.doc.chapter
-        },
-        callback: (data) => {
-            frappe.msgprint(__(`Lesson has been saved successfully. Go back to the chapter and add this lesson to the lessons table.`));
-            setTimeout(() => {
-                window.location.href = `/courses/${data.message}`;
-            }, 3000);
-        }
-    });
+    frappe.msgprint(__(`Lesson has been saved successfully. Go back to the chapter and add this lesson to the lessons table.`));
+    setTimeout(() => {
+        window.location.href = `/courses/${this.course}`;
+    }, 2000);
 };
 
 const add_file_upload_component = () => {
@@ -68,7 +74,7 @@ const get_attachment_controls_html = () => {
                         <svg class="icon icon-sm">
                             <use class="" href="#icon-upload">
                         </svg>
-                        {{ _("Upload Image") }}
+                        {{ _("Upload Attachments") }}
                     </span>
                 </div>
             </div>

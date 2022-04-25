@@ -25,7 +25,6 @@ import html as HTML
 def markdown_to_html(text):
     """Renders markdown text into html.
     """
-    print(text)
     return markdown.markdown(text, extensions=['fenced_code', MacroExtension()])
 
 def find_macros(text):
@@ -106,7 +105,7 @@ def sanitize_html(html, macro):
     any broken tags. This makes sures that all those things are fixed
     before passing to the etree parser.
     """
-    soup = BeautifulSoup(html, features="html5lib")
+    soup = BeautifulSoup(html, features="lxml")
     nodes = soup.body.children
     classname = ""
     if macro == "YouTubeVideo":
