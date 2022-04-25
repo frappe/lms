@@ -1414,3 +1414,32 @@ pre {
 .btn-outline-primary {
     border: 1px solid var(--primary-color);
 }
+
+.show-attachments {
+    padding-right: 0.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.attachment-controls {
+    display: flex;
+    align-items: center;
+    width: fit-content;
+    cursor: pointer;
+}
+
+.attachments {
+    flex-direction: column;
+    padding: 0.5rem 0;
+    margin-top: 1rem;
+    position: absolute;
+    z-index: 1;
+    width: fit-content;
+    border-collapse: separate;
+    border-spacing: 1rem 0.5rem;
+}
+
+.attachments-parent {
+    float: right;
+    font-size: var(--text-sm);
+}

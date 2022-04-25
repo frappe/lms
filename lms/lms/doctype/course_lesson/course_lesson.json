@@ -10,9 +10,9 @@
  "field_order": [
   "chapter",
   "course",
-  "include_in_preview",
   "column_break_4",
   "title",
+  "include_in_preview",
   "index_label",
   "section_break_6",
   "body",
@@ -75,7 +75,6 @@
    "fetch_from": "chapter.course",
    "fieldname": "course",
    "fieldtype": "Link",
-   "hidden": 1,
    "label": "Course",
    "options": "LMS Course",
    "read_only": 1
@@ -83,7 +82,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-03-14 18:56:31.969801",
+ "modified": "2022-04-22 12:59:23.641915",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Course Lesson",
