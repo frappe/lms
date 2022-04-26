@@ -1,6 +1,7 @@
 import frappe
 from lms.lms.doctype.lms_settings.lms_settings import check_profile_restriction
 from lms.lms.utils import get_membership, is_instructor, is_certified
+from frappe.utils import add_months, getdate
 
 def get_context(context):
     context.no_cache = 1
@@ -36,17 +37,18 @@ def get_context(context):
     context.certificate = is_certified(course.name)
     context.certificate_request = frappe.db.get_value("LMS Certificate Request", {
             "course": course.name,
-            "member": frappe.session.user
+            "member": frappe.session.user,
+            "date": [">=", getdate()]
         }, ["date", "start_time", "end_time"],
         as_dict=True)
 
     context.no_of_attempts = frappe.db.count("LMS Certificate Evaluation", {
         "course": course.name,
         "member": frappe.session.user,
-        "status" != "Pass",
-        "creation": [">=", add_days()]
+        "status": ["!=", "Pass"],
+        "creation": [">=", add_months(getdate(), -2)]
     })
-
+    print(context.certificate_request)
     if context.course.upcoming:
         context.is_user_interested = get_user_interest(context.course.name)
 
