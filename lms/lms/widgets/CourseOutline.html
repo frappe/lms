@@ -77,15 +77,20 @@
 aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-        <div class="modal-header">
-            <div class="font-weight-bold">{{ _("Not available for preview") }}</div>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-        <div class="modal-body">
-            <div class=""> {{ _("This lesson is not available for preview. Please join the course to access it.") }} </div>
-        </div>
+            <div class="modal-header">
+                <div class="font-weight-bold">{{ _("Not available for preview") }}</div>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                {% if is_user_interested %}
+                    <div class=""> {{ _("You have opted to be notified for this course. You will receive an email when the course becomes available.") }} </div>
+                {% else %}
+                    <div class=""> {{ _("This lesson is not available for preview. Please join the course to access it.") }} </div>
+                {% endif %}
+            </div>
+            {% if not is_user_interested %}
             <div class="modal-footer">
                 {% if course.upcoming %}
                 <div class="button is-primary notify-me" data-course="{{course.name | urlencode}}">
@@ -95,8 +100,8 @@ aria-hidden="true">
                 <div class="button is-primary join-batch" data-course="{{ course.name | urlencode}}">
                 {{ _("Start Learning") }}</div>
                 {% endif %}
-
             </div>
+            {% endif %}
         </div>
     </div>
 </div>
