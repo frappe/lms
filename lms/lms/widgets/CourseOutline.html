@@ -74,24 +74,31 @@
 
 <!-- No Preview Modal -->
 <div class="modal fade no-preview-modal" id="no-preview-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-  aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <div class="font-weight-bold">{{ _("Not available for preview") }}</div>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div class=""> {{ _("This lesson is not available for preview. Please join the course to access it.") }} </div>
-      </div>
-      <div class="modal-footer">
-        <div class="button is-primary join-batch" data-course="{{ course.name | urlencode}}">
-          {{ _("Start Learning") }}</div>
-      </div>
+aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <div class="font-weight-bold">{{ _("Not available for preview") }}</div>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class=""> {{ _("This lesson is not available for preview. Please join the course to access it.") }} </div>
+        </div>
+            <div class="modal-footer">
+                {% if course.upcoming %}
+                <div class="button is-primary notify-me" data-course="{{course.name | urlencode}}">
+                    {{ _("Notify me when available") }}
+                </div>
+                {% else %}
+                <div class="button is-primary join-batch" data-course="{{ course.name | urlencode}}">
+                {{ _("Start Learning") }}</div>
+                {% endif %}
+
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 {% endif %}
 
@@ -112,7 +119,7 @@ frappe.ready(() => {
 });
 
 const expand_the_first_chapter = () => {
-  let elements = $(".course-outline .collapse");
+  let elements = $(".course-home-outline .collapse");
   elements.each((i, element) => {
     if (i < 1) {
       show_section(element);
