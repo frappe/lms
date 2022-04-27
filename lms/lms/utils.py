@@ -344,3 +344,26 @@ def get_popular_courses():
 
     course_membership = sorted(course_membership, key = lambda x: x.get("members"), reverse=True)
     return course_membership[:3]
+
+def get_evaluation_details(course):
+    info = frappe.db.get_value("LMS Course", course, ["grant_certificate_after", "max_attempts"], as_dict=True)
+
+    request = frappe.db.get_value("LMS Certificate Request", {
+        "course": course.name,
+        "member": frappe.session.user,
+        "date": [">=", getdate()]
+        }, ["date", "start_time", "end_time"],
+        as_dict=True)
+
+    no_of_attempts = frappe.db.count("LMS Certificate Evaluation", {
+        "course": course.name,
+        "member": frappe.session.user,
+        "status": ["!=", "Pass"],
+        "creation": [">=", add_months(getdate(), -2)]
+    })
+
+    return {
+        "eligible": info.grant_certificate_after == "Evaluation" and not request and no_of_attempts < info.max_attempts,
+        "request": request,
+        "no_of_attempts": no_of_attempts
+    }
