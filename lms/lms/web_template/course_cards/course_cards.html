@@ -3,7 +3,7 @@
   <div class="cards-parent mt-10">
     {% for course_row in courses %}
     {% set course = frappe.db.get_value("LMS Course", course_row.course,
-      ["name", "upcoming", "title", "image", "enable_certification"], as_dict=True) %}
+      ["name", "upcoming", "title", "image", "enable_certification", "paid_certificate", "price_certificate"], as_dict=True) %}
     {{ widgets.CourseCard(course=course, read_only=False) }}
     {% endfor %}
   </div>
