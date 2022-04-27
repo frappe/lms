@@ -429,11 +429,6 @@ input[type=checkbox] {
   font-size: var(--text-base);
 }
 
-.course-outline {
-  flex-direction: column;
-  padding: 1rem 0.75rem 0;
-}
-
 .lessons {
   margin-left: 2rem;
 }

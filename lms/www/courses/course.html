@@ -16,7 +16,7 @@
         <div class="course-body-container">
           {{ CourseHeaderOverlay(course) }}
           {{ Description(course) }}
-          {{ widgets.CourseOutline(course=course, membership=membership) }}
+          {{ widgets.CourseOutline(course=course, membership=membership, is_user_interested=is_user_interested) }}
           {{ widgets.Reviews(course=course, membership=membership) }}
         </div>
       </div>
@@ -180,8 +180,7 @@
     </a>
 
     {% elif course.upcoming and not is_user_interested %}
-      <div class="button wide-button is-default"
-        id="notify-me" data-course="{{course.name | urlencode}}">
+      <div class="button wide-button is-default notify-me" data-course="{{course.name | urlencode}}">
        {{ _("Notify me when available") }}
       </div>
 
