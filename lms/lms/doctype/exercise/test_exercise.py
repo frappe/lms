@@ -3,23 +3,16 @@
 
 import frappe
 import unittest
+from lms.lms.doctype.lms_course.test_lms_course import new_course
 
 class TestExercise(unittest.TestCase):
     def setUp(self):
         frappe.db.sql('delete from `tabLMS Batch Membership`')
         frappe.db.sql('delete from `tabExercise Submission`')
         frappe.db.sql('delete from `tabExercise`')
-        frappe.db.sql('delete from `tabLMS Course`')
 
     def new_exercise(self):
-        course = frappe.get_doc({
-            "doctype": "LMS Course",
-            "name": "test-course",
-            "title": "Test Course",
-            "short_introduction": "Test Course",
-            "description": "Test Course"
-        })
-        course.insert()
+        course = new_course("Test Course")
         member = frappe.get_doc({
             "doctype": "LMS Batch Membership",
             "course": course.name,

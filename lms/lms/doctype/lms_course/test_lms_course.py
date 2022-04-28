@@ -8,9 +8,6 @@ from .lms_course import LMSCourse
 import unittest
 
 class TestLMSCourse(unittest.TestCase):
-    def setUp(self):
-        frappe.db.sql('delete from `tabLMS Course Mentor Mapping`')
-        frappe.db.sql('delete from `tabLMS Course`')
 
     def test_new_course(self):
         course = new_course("Test Course")
@@ -34,21 +31,45 @@ class TestLMSCourse(unittest.TestCase):
             frappe.delete_doc("User", "tester@example.com")
 
 def new_user(name, email):
-    doc = frappe.get_doc(dict(
-            doctype='User',
-            email=email,
-            first_name=name))
-    doc.insert()
-    return doc
+    user = frappe.db.exists("User", email)
+    if user:
+        return frappe.get_doc("User", user)
+    else:
+        filters = {
+            "doctype": "User",
+            "email": email,
+            "first_name": name,
+            "send_welcome_email": False
+        }
 
-def new_course(title, certificate=0, expiry=0):
-    doc = frappe.get_doc({
-        "doctype": "LMS Course",
-        "title": title,
-        "short_introduction": title,
-        "description": title,
-        "enable_certificate": certificate,
-        "expiry": expiry
-    })
-    doc.insert(ignore_permissions=True)
-    return doc
+        doc = frappe.get_doc(filters)
+        doc.insert()
+        return doc
+
+def new_course(title, additional_filters=None):
+    course = frappe.db.exists("LMS Course", { "title": title })
+    if course:
+        return frappe.get_doc("LMS Course", course)
+    else:
+        create_evaluator()
+        filters = {
+            "doctype": "LMS Course",
+            "title": title,
+            "short_introduction": title,
+            "description": title
+        }
+
+        if additional_filters:
+            filters.update(additional_filters)
+
+        doc = frappe.get_doc(filters)
+        doc.insert(ignore_permissions=True)
+        return doc
+
+def create_evaluator():
+    if not frappe.db.exists("Course Evaluator", "evaluator@example.com"):
+        new_user("Evaluator", "evaluator@example.com")
+        frappe.get_doc({
+            "doctype": "Course Evaluator",
+            "evaluator": "evaluator@example.com"
+        }).save(ignore_permissions=True)

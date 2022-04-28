@@ -1,6 +1,6 @@
 import frappe
 from lms.lms.doctype.lms_settings.lms_settings import check_profile_restriction
-from lms.lms.utils import get_membership, is_instructor, is_certified, eligible_for_certificate_evaluation
+from lms.lms.utils import get_membership, is_instructor, is_certified, get_evaluation_details
 from frappe.utils import add_months, getdate
 
 def get_context(context):
@@ -35,8 +35,10 @@ def get_context(context):
     context.restriction = check_profile_restriction()
     context.show_start_learing_cta = show_start_learing_cta(course, membership, context.restriction)
     context.certificate = is_certified(course.name)
-    context.eligible_for_evaluation = eligible_for_certificate_evaluation()
-    context.certificate_request = 
+    eval_details = get_evaluation_details(course.name)
+    context.eligible_for_evaluation = eval_details.eligible
+    context.certificate_request = eval_details.request
+    context.no_of_attempts = eval_details.no_of_attempts
 
     if context.course.upcoming:
         context.is_user_interested = get_user_interest(context.course.name)

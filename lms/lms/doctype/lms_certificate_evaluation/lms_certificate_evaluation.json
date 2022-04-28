@@ -81,12 +81,13 @@
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
-   "options": "Pass\nFail"
+   "options": "Pass\nFail",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-04-25 12:14:28.262851",
+ "modified": "2022-04-28 10:24:09.832428",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate Evaluation",
