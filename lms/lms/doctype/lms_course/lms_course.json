@@ -34,10 +34,12 @@
   "related_courses",
   "certification_section",
   "enable_certification",
-  "expiry",
-  "column_break_22",
   "grant_certificate_after",
   "evaluator",
+  "column_break_22",
+  "expiry",
+  "max_attempts",
+  "duration",
   "pricing_section",
   "paid_certificate",
   "currency",
@@ -212,6 +214,20 @@
    "fieldtype": "Link",
    "label": "Currency",
    "options": "Currency"
+  },
+  {
+   "default": "1",
+   "depends_on": "eval: doc.grant_certificate_after == \"Evaluation\"",
+   "fieldname": "max_attempts",
+   "fieldtype": "Int",
+   "label": "Max Attempts for Evaluations"
+  },
+  {
+   "depends_on": "eval: doc.grant_certificate_after == \"Evaluation\"",
+   "fieldname": "duration",
+   "fieldtype": "Select",
+   "label": "Duration for Attempts",
+   "options": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12"
   }
  ],
  "is_published_field": "published",
@@ -237,7 +253,7 @@
    "link_fieldname": "course"
   }
  ],
- "modified": "2022-04-08 14:36:22.254656",
+ "modified": "2022-04-28 16:15:10.047183",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",

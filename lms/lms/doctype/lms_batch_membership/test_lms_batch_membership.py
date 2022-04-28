@@ -5,27 +5,19 @@ from __future__ import unicode_literals
 
 import frappe
 import unittest
+from lms.lms.doctype.lms_course.test_lms_course import new_user, new_course
 
 class TestLMSBatchMembership(unittest.TestCase):
     def setUp(self):
         frappe.db.sql("DELETE FROM `tabLMS Batch Membership`")
         frappe.db.sql("DELETE FROM `tabLMS Batch`")
         frappe.db.sql('delete from `tabLMS Course Mentor Mapping`')
-        frappe.db.sql("DELETE FROM `tabLMS Course`")
         frappe.db.sql("DELETE FROM `tabUser` where email like '%@test.com'")
 
     def new_course_batch(self):
-        course = frappe.get_doc({
-            "doctype": "LMS Course",
-            "name": "test-course",
-            "title": "Test Course",
-            "short_code": "XX",
-            "short_introduction": "Test Course",
-            "description": "Test Course"
-        })
-        course.insert(ignore_permissions=True)
+        course = new_course("Test Course")
 
-        self.new_user("mentor@test.com", "Test Mentor")
+        new_user("Test Mentor", "mentor@test.com")
         # without this, the creating batch will fail
         course.add_mentor("mentor@test.com")
 
@@ -42,16 +34,6 @@ class TestLMSBatchMembership(unittest.TestCase):
         frappe.session.user = "Administrator"
         return course, batch
 
-    def new_user(self, email="test@test.com", full_name="Test User"):
-        user = frappe.get_doc({
-            "doctype": "User",
-            "name": email,
-            "email": email,
-            "first_name": full_name,
-        })
-        user.insert()
-        return user
-
     def add_membership(self, batch_name, member_name, member_type="Student"):
         doc = frappe.get_doc({
             "doctype": "LMS Batch Membership",
@@ -64,7 +46,7 @@ class TestLMSBatchMembership(unittest.TestCase):
 
     def test_membership(self):
         course, batch = self.new_course_batch()
-        member = self.new_user("test01@test.com")
+        member = new_user("Test", "test01@test.com")
         membership = self.add_membership(batch.name, member.name)
 
         assert membership.course == course.name
@@ -72,7 +54,7 @@ class TestLMSBatchMembership(unittest.TestCase):
 
     def test_membership_change_role(self):
         course, batch = self.new_course_batch()
-        member = self.new_user("test01@test.com")
+        member = new_user("Test", "test01@test.com")
         membership = self.add_membership(batch.name, member.name)
 
         # it should be possible to change role

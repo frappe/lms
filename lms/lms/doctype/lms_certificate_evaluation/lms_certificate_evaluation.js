@@ -3,12 +3,14 @@
 
 frappe.ui.form.on('LMS Certificate Evaluation', {
     refresh: function(frm) {
-        frm.add_custom_button(__("Create LMS Certificate"), () => {
-            frappe.model.open_mapped_doc({
-                method: "lms.lms.doctype.lms_certificate_evaluation.lms_certificate_evaluation.create_lms_certificate",
-                frm: frm
+        if (frm.doc.status == "Pass") {
+            frm.add_custom_button(__("Create LMS Certificate"), () => {
+                frappe.model.open_mapped_doc({
+                    method: "lms.lms.doctype.lms_certificate_evaluation.lms_certificate_evaluation.create_lms_certificate",
+                    frm: frm
+                });
             });
-        });
+        }
     },
 
     onload: function(frm) {

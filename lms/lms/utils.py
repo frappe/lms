@@ -1,6 +1,6 @@
 import re
 import frappe
-from frappe.utils import flt, cint, cstr
+from frappe.utils import flt, cint, cstr, getdate, add_months
 from lms.lms.md import markdown_to_html, find_macros
 import string
 from frappe import _
@@ -344,3 +344,25 @@ def get_popular_courses():
 
     course_membership = sorted(course_membership, key = lambda x: x.get("members"), reverse=True)
     return course_membership[:3]
+
+def get_evaluation_details(course, member=None):
+    info = frappe.db.get_value("LMS Course", course, ["grant_certificate_after", "max_attempts", "duration"], as_dict=True)
+    request = frappe.db.get_value("LMS Certificate Request", {
+        "course": course,
+        "member": member or frappe.session.user,
+        "date": [">=", getdate()]
+        }, ["date", "start_time", "end_time"],
+        as_dict=True)
+
+    no_of_attempts = frappe.db.count("LMS Certificate Evaluation", {
+        "course": course,
+        "member": member or frappe.session.user,
+        "status": ["!=", "Pass"],
+        "creation": [">=", add_months(getdate(), -abs(cint(info.duration)))]
+    })
+
+    return frappe._dict({
+        "eligible": info.grant_certificate_after == "Evaluation" and not request and no_of_attempts < info.max_attempts,
+        "request": request,
+        "no_of_attempts": no_of_attempts
+    })

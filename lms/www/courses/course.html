@@ -117,6 +117,10 @@
     </div>
     {% endif %}
 
+    {% if no_of_attempts >= course.max_attempts %}
+    <p> {{ _("You have exceeded the maximum number of attempts allowed to appear for evaluations of this course.") }} </p>
+    {% endif %}
+
     {% if is_instructor(course.name) %}
     <div class="vertically-center mb-4">
         <a class="button is-default button-links mr-2" href="/course?name={{ course.name }}"> {{ _("Edit") }} </a>
@@ -204,11 +208,11 @@
     <a class="button wide-button is-secondary mt-2" href="/courses/{{ course.name }}/{{ certificate }}">
       {{ _("Get Certificate") }}
     </a>
-    {% elif course.grant_certificate_after == "Evaluation" and not certificate_request %}
+    {% elif eligible %}
     <a class="button wide-button is-secondary mt-2" id="apply-certificate" data-course="{{ course.name }}">
         {{ _("Apply for Certificate") }}
       </a>
-    {% elif progress == 100 %}
+    {% elif course.grant_certificate_after == "Completion" and progress == 100 %}
     <div class="button wide-button is-secondary mt-4" id="certification" data-course="{{ course.name }}">
       {{ _("Get Certificate") }}
     </div>
