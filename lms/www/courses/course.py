@@ -15,7 +15,7 @@ def get_context(context):
     course = frappe.db.get_value("LMS Course", course_name,
         ["name", "title", "image", "short_introduction", "description", "published", "upcoming", "disable_self_learning",
         "status", "video_link", "enable_certification", "grant_certificate_after", "paid_certificate",
-        "price_certificate", "currency", "max_attempts", "reapplication"],
+        "price_certificate", "currency", "max_attempts", "duration"],
         as_dict=True)
 
     if course is None:

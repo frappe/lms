@@ -346,7 +346,7 @@ def get_popular_courses():
     return course_membership[:3]
 
 def get_evaluation_details(course, member=None):
-    info = frappe.db.get_value("LMS Course", course, ["grant_certificate_after", "max_attempts", "reapplication"], as_dict=True)
+    info = frappe.db.get_value("LMS Course", course, ["grant_certificate_after", "max_attempts", "duration"], as_dict=True)
     request = frappe.db.get_value("LMS Certificate Request", {
         "course": course,
         "member": member or frappe.session.user,
@@ -358,7 +358,7 @@ def get_evaluation_details(course, member=None):
         "course": course,
         "member": member or frappe.session.user,
         "status": ["!=", "Pass"],
-        "creation": [">=", add_months(getdate(), -abs(cint(info.reapplication)))]
+        "creation": [">=", add_months(getdate(), -abs(cint(info.duration)))]
     })
 
     return frappe._dict({

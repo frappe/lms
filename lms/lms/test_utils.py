@@ -25,7 +25,7 @@ class TestUtils(unittest.TestCase):
             "grant_certificate_after": "Evaluation",
             "evaluator": "evaluator@example.com",
             "max_attempts": 3,
-            "reapplication": 2
+            "duration": 2
         })
         user = new_user("Eval", "eval@test.com")
 
