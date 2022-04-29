@@ -127,7 +127,7 @@ def get_enrolled_courses():
     memberships = get_course_membership(frappe.session.user, member_type="Student")
     for membership in memberships:
         course = frappe.db.get_value("LMS Course", membership.course,
-            ["name", "upcoming", "title", "image", "enable_certification"], as_dict=True)
+            ["name", "upcoming", "title", "image", "enable_certification", "paid_certificate", "price_certificate", "currency"], as_dict=True)
         progress = cint(membership.progress)
         if progress < 100:
             in_progress.append(course)
