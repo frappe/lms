@@ -60,21 +60,21 @@
 
         <div>
           <div class="d-flex align-items-center">
-            <a class="button-links mr-2" href="{{get_profile_url(review.owner_details.username) }}">
+            <a class="button-links mr-4" href="{{get_profile_url(review.owner_details.username) }}">
               <span class="bold-heading">
                 {{ review.owner_details.full_name }}
               </span>
             </a>
-            <div class="rating">
-              {% for i in [1, 2, 3, 4, 5] %}
-              <svg class="icon icon-md {% if i <= review.rating %} star-click {% endif %}" data-rating="{{ i }}">
-                <use href="#icon-star"></use>
-              </svg>
-              {% endfor %}
-            </div>
+          <div class="frappe-timestamp course-meta" data-timestamp="{{ review.creation }}"> frappe.utils.pretty_date(review.creation) </div>
           </div>
 
-          <div class="frappe-timestamp course-meta" data-timestamp="{{ review.creation }}"> frappe.utils.pretty_date(review.creation) </div>
+          <div class="rating">
+            {% for i in [1, 2, 3, 4, 5] %}
+            <svg class="icon icon-md {% if i <= review.rating %} star-click {% endif %}" data-rating="{{ i }}">
+              <use href="#icon-star"></use>
+            </svg>
+            {% endfor %}
+          </div>
         </div>
       </div>
 
