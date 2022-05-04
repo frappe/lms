@@ -27,12 +27,7 @@
 {% endblock %}
 
 {% macro CourseHomeHeader(course) %}
-<div class="course-head-container"
-  style=" {% if course.image %}
-  background-position: center;
-  background-size: cover;
-  background-image:  url({{ course.image }});
-  {% else %} background-color: var(--gray-200) {% endif %}">
+<div class="course-head-container">
   <div class="container pt-5 pb-5">
     <div class="course-card-wide" style="">
       {{ BreadCrumb(course) }}
@@ -92,7 +87,7 @@
 {% endmacro%}
 
 {% macro CourseHeaderOverlay(course) %}
-<div class="course-overlay-card {% if course.video_link %} video-in-overlay {% endif %}">
+<div class="course-overlay-card">
 
   {% if course.video_link %}
   <iframe class="preview-video" src="{{ course.video_link }}"></iframe>
@@ -201,19 +196,18 @@
     {{ _("Continue Learning") }} <img class="ml-2" src="/assets/lms/icons/white-arrow.svg" />
     </a>
     {% endif %}
-
     {% set progress = frappe.utils.cint(membership.progress) %}
     {% if membership and course.enable_certification %}
     {% if certificate %}
-    <a class="button wide-button is-secondary mt-2" href="/courses/{{ course.name }}/{{ certificate }}">
+    <a class="button wide-button is-secondary mt-3" href="/courses/{{ course.name }}/{{ certificate }}">
       {{ _("Get Certificate") }}
     </a>
-    {% elif eligible %}
-    <a class="button wide-button is-secondary mt-2" id="apply-certificate" data-course="{{ course.name }}">
+    {% elif eligible_for_evaluation %}
+    <a class="button wide-button is-secondary mt-3" id="apply-certificate" data-course="{{ course.name }}">
         {{ _("Apply for Certificate") }}
       </a>
     {% elif course.grant_certificate_after == "Completion" and progress == 100 %}
-    <div class="button wide-button is-secondary mt-4" id="certification" data-course="{{ course.name }}">
+    <div class="button wide-button is-secondary mt-3" id="certification" data-course="{{ course.name }}">
       {{ _("Get Certificate") }}
     </div>
     {% endif %}

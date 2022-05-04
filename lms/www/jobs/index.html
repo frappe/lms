@@ -26,7 +26,7 @@
         <div class="job-card-info">
           <div class="job-card-heading">{{ _(job.job_title) }}</div>
           <div class="vertically-center course-meta">
-            <div class="mr-3">{{ job.company_name }}</div>
+            <div class="mr-5">{{ job.company_name }}</div>
             <div class="vertically-center">
               <svg class="icon icon-sm">
                 <use class="" href="#icon-location">
@@ -38,7 +38,7 @@
 
         <div class="job-card-logo-section course-meta">
           <div class="indicator-pill green ml-3"> {{ job.type }} </div>
-          <div class="">{{ frappe.utils.format_date(job.creation, "medium") }}</div>
+          <div class="mt-2 text-muted">{{ frappe.utils.format_date(job.creation, "medium") }}</div>
         </div>
         <a class="stretched-link" href="/jobs/{{ job.name }}"></a>
       </div>

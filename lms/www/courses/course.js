@@ -50,12 +50,6 @@ frappe.ready(() => {
         select_slot(e);
     });
 
-    $(document).scroll(function() {
-        let timer;
-        clearTimeout(timer);
-        timer = setTimeout(() => { handle_overlay_display.apply(this, arguments); }, 500);
-    });
-
 });
 
 var hide_wrapped_mentor_cards = () => {
@@ -127,8 +121,8 @@ var submit_review = (e) => {
   e.preventDefault();
   var rating = $(".rating-field").children(".star-click").length;
   var review = $(".review-field").val();
-  if (!review || !rating) {
-    $(".error-field").text("Both Rating and Review are required.");
+  if (!rating) {
+    $(".error-field").text("Please provide a rating.");
     return;
   }
   frappe.call({
@@ -164,24 +158,6 @@ const create_certificate = (e) => {
 const element_not_in_viewport = (el) => {
   const rect = el.getBoundingClientRect();
   return rect.bottom < 0 || rect.right < 0 || rect.left > window.innerWidth || rect.top > window.innerHeight;
-};
-
-const handle_overlay_display = () => {
-  const element = $(".related-courses").length && $(".related-courses")[0];
-  if (element && element_not_in_viewport(element)) {
-    $(".course-overlay-card").css({
-      "position": "fixed",
-      "top": "30%",
-      "bottom": "inherit"
-    });
-  }
-  else if (element && !element_not_in_viewport(element)) {
-    $(".course-overlay-card").css({
-        "position": "absolute",
-        "top": "inherit",
-        "bottom": "5%"
-      });
-  }
 };
 
 const submit_for_review = (e) => {

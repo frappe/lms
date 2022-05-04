@@ -24,6 +24,7 @@
    "fieldname": "chapter",
    "fieldtype": "Link",
    "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Course Chapter",
    "options": "Course Chapter",
    "reqd": 1
@@ -75,6 +76,8 @@
    "fetch_from": "chapter.course",
    "fieldname": "course",
    "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Course",
    "options": "LMS Course",
    "read_only": 1
@@ -82,7 +85,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-04-22 12:59:23.641915",
+ "modified": "2022-05-02 17:16:12.450460",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Course Lesson",
