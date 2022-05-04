@@ -275,11 +275,7 @@ input[type=checkbox] {
 }
 
 .course-card-wide {
-  background-color: white;
-  padding: 0 1.25rem 1.25rem;
-  border-radius: var(--border-radius);
   width: 50%;
-  box-shadow: var(--shadow-base);
   font-size: var(--text-base);
 }
 
@@ -611,7 +607,7 @@ input[type=checkbox] {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 24px 0px 0px;
+  margin: 2rem 0 4rem;
 }
 
 .lesson-pagination-parent {
@@ -629,9 +625,8 @@ input[type=checkbox] {
 }
 
 .active-lesson {
-  background-color: var(--blue-100);
+  background-color: var(--gray-200);
   border-radius: var(--border-radius-md);
-  color: var(--blue-500);
 }
 
 .lesson-title {
@@ -854,7 +849,7 @@ pre {
 
 .certificate-price {
     font-weight: bold;
-    margin-bottom: 0.5rem;
+    margin-bottom: 1rem;
 }
 
 .certificate-ribbon {
@@ -1158,10 +1153,12 @@ pre {
 .job-card-heading {
   font-weight: 600;
   color: var(--gray-900);
+  margin-bottom: 0.4rem;
 }
 
 .course-head-container {
   color: var(--gray-900);
+  background-color: var(--gray-200);
 }
 
 .seperator {
@@ -1178,8 +1175,8 @@ pre {
   box-shadow: var(--shadow-sm);
   overflow: auto;
   width: fit-content;
-  position: fixed;
-  top: 50%;
+  position: absolute;
+  top: 10%;
   right: 7%;
   max-width: 400px;
   z-index: 4;
@@ -1194,10 +1191,6 @@ pre {
   .seperator {
     margin: 0 0.25rem;
   }
-}
-
-.video-in-overlay {
-  top: 40%;
 }
 
 .course-overlay-content {

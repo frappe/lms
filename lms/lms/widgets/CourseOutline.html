@@ -30,7 +30,7 @@
           <a class="lesson-links" href="{{ get_lesson_url(course.name, lesson.number) }}{{course.query_parameter}}"
             data-course="{{ course.name }}">
             <svg class="icon icon-md mr-2">
-              <use class="" href="#{{ lesson.icon }}{% if active %}-blue{% endif %}">
+              <use class="" href="#{{ lesson.icon }}">
             </svg>
             {{ lesson.title }}
 
@@ -148,8 +148,6 @@ const expand_the_active_chapter = () => {
     })
 
     selector.addClass("active-lesson");
-    let href = selector.find("use").attr("href");
-    !href.endsWith("blue") && selector.find("use").attr("href", `${href}-blue`);
 
     show_section(selector.parent().parent());
   }
