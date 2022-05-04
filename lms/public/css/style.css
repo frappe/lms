@@ -389,7 +389,7 @@ input[type=checkbox] {
 }
 
 .course-content-parent .chapter-description {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
 }
 
 .chapter-icon {
@@ -1114,7 +1114,7 @@ pre {
 
 .job-card {
   display: flex;
-  position: relative;
+  align-items: center;
 }
 
 .company-logo {
