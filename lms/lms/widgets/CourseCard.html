@@ -32,7 +32,7 @@
 
     {% set student_count = get_students(course.name) | length %}
     {% set avg_rating = get_average_rating(course.name) %}
-    {% if student_count and avg_rating %}
+    {% if student_count or avg_rating %}
     <div class="vertically-center">
       {% if student_count %}
         <div class="vertically-center">
