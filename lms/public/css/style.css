@@ -1115,6 +1115,7 @@ pre {
 .job-card {
   display: flex;
   align-items: center;
+  position: relative;
 }
 
 .company-logo {
