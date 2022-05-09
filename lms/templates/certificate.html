@@ -1,50 +1,33 @@
 <div class="certificate-card">
-    <div class="certificate-ribbon">
-        <div class="certificate-content">
-            <img src="{{ logo }}" class="certificate-logo">
-            <div class="mt-20">
-              {{ _("This certifies that") }}
+    <div class="certificate-content" style="border-image: url(/assets/lms/images/border.png) 13% round;">
+        <img src="{{ logo }}" class="certificate-logo">
+        <div class="mt-16">
+            {{ _("This certifies that") }}
+        </div>
+        <div class="certificate-heading"> {{ member.full_name }} </div>
+        <div class="mt-2"> {{ _("has successfully completed the course on") }}
+            <b> {{ course.title }} </b> on {{ frappe.utils.format_date(certificate.issue_date, "medium") }}. </div>
+
+        <div class="certificate-footer">
+
+            {% if instructors %}
+            <div class="">
+                <span class="certificate-footer-item"> {{ instructors }} </span>
+                <hr class="mt-2 mb-2">
+                <div class=""> {{ _("Course Instructor") }} </div>
             </div>
-            <div class="certificate-heading"> {{ member.full_name }} </div>
-            <div class="mt-2"> {{ _("has successfully completed the course on") }} </div>
-            <div class="certificate-heading"> {{ course.title }} </div>
+            {% endif %}
 
-            <div class="certificate-footer">
-              {% if certificate.issue_date %}
-              <div class="">
-                <div class="certificate-footer-item">
-                  {{ frappe.utils.format_date(certificate.issue_date, "medium") }}
-                </div>
-                <div>
-                  {{ _("Issue date") }}
-                </div>
-              </div>
-              {% endif %}
-
-              {% if certificate.expiry_date %}
-              <div class="">
-                <div class="certificate-footer-item">
-                  {{ frappe.utils.format_date(certificate.expiry_date, "medium") }}
-                </div>
-                <div>
-                  {{ _("Expiry date") }}
-                </div>
-              </div>
-              {% endif %}
-
-              {% if instructor.full_name %}
-              <div class="">
-                <div class="certificate-footer-item">
-                {{ instructor.full_name }}
-                </div>
-                <div>
-                  {{ _("Instructor") }}
-                </div>
-              </div>
-              {% endif %}
-
+            {% if certificate.expiry_date %}
+            <div class="ml-8">
+            <div class="certificate-footer-item">
+                {{ frappe.utils.format_date(certificate.expiry_date, "medium") }}
             </div>
+            <hr class="mt-2 mb-2">
+            <div class=""> {{ _("Expiry date") }} </div>
+            </div>
+            {% endif %}
+
         </div>
     </div>
 </div>
-<script src="/assets/lms/js/html2canvas.js"></script>
