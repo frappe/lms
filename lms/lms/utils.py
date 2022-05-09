@@ -185,12 +185,12 @@ def get_lesson_index(lesson_name):
     lesson = frappe.db.get_value("Lesson Reference",
         {"lesson": lesson_name}, ["idx", "parent"], as_dict=True)
     if not lesson:
-        return None
+        return "1.1"
 
     chapter = frappe.db.get_value("Chapter Reference",
         {"chapter": lesson.parent}, ["idx"], as_dict=True)
     if not chapter:
-        return None
+        return "1.1"
 
     return f"{chapter.idx}.{lesson.idx}"
 
