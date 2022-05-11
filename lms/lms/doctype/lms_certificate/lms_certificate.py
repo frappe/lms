@@ -10,16 +10,15 @@ from lms.lms.utils import is_certified
 
 class LMSCertificate(Document):
 
-    def validate(self):
+    def before_insert(self):
         certificates = frappe.get_all("LMS Certificate", {
-                            "member": self.member,
-                            "course": self.course,
-                            "expiry_date": [">", nowdate()]
-                        })
+            "member": self.member,
+            "course": self.course
+        })
         if len(certificates):
             full_name = frappe.db.get_value("User", self.member, "full_name")
             course_name = frappe.db.get_value("LMS Course", self.course, "title")
-            frappe.throw(_("There is already a valid certificate for user {0} for the course {1}").format(full_name, course_name))
+            frappe.throw(_("{0} is already certified for the course {1}").format(full_name, course_name))
 
 @frappe.whitelist()
 def create_certificate(course):
@@ -35,11 +34,11 @@ def create_certificate(course):
             expiry_date = add_years(nowdate(), expires_after_yrs)
 
         certificate = frappe.get_doc({
-                            "doctype": "LMS Certificate",
-                            "member": frappe.session.user,
-                            "course": course,
-                            "issue_date": nowdate(),
-                            "expiry_date": expiry_date
-                        })
+            "doctype": "LMS Certificate",
+            "member": frappe.session.user,
+            "course": course,
+            "issue_date": nowdate(),
+            "expiry_date": expiry_date
+        })
         certificate.save(ignore_permissions=True)
         return certificate

@@ -5,18 +5,23 @@
 <div class="common-page-style">
   <div class="container certificate-page">
 
-    {% if certificate.member == frappe.session.user %}
+    <!-- {% if certificate.member == frappe.session.user %}
     <div class="button is-secondary pull-right mt-4" id="export-as-pdf" data-certificate="{{ certificate.name }}"
         data-certificate-name="{{ member.full_name }} - {{ course.title }}">{{ _("Export") }}</div>
-    {% endif %}
+    {% endif %} -->
 
     <div class="breadcrumb">
         <a class="dark-links" href="/courses">{{ _("All Courses") }}</a>
         <img class="ml-1 mr-1" src="/assets/lms/icons/chevron-right.svg">
         <a class="dark-links" href="/courses/{{ course.name }}">{{ course.title }}</a>
-      </div>
-
+    </div>
+    {% if custom_template %}
+    {{ custom_template }}
+    {% else %}
     {% include "lms/templates/certificate.html" %}
+    {% endif %}
+    <script src="/assets/lms/js/html2canvas.js"></script>
+
   </div>
 </div>
 {% endblock %}

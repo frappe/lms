@@ -836,15 +836,22 @@ pre {
 }
 
 .certificate-content {
-  padding: 2.5rem 3rem;
-  background-color: #FFFFFF;
+    background-color: #FFFFFF;
+    border-width: 100px;
+    border-style: solid;
+}
+
+@media (max-width: 500px) {
+    .certificate-content {
+        border-width: 50px;
+    }
 }
 
 .certificate-footer {
     display: flex;
     justify-content: space-between;
-    width: 30%;
-    margin: 5rem auto 0;
+    margin: 4rem auto 0;
+    width: fit-content;
 }
 
 .certificate-price {
@@ -862,6 +869,7 @@ pre {
   font-size: 1.5rem;
   font-weight: 500;
   color: var(--text-color);
+  margin-top: 0.5rem;
 }
 
 .certificate-para {
@@ -875,22 +883,17 @@ pre {
     box-shadow: var(--shadow-sm);
     padding: 1rem;
     text-align: center;
-    margin: 0 6rem;
 }
 
 .certificate-footer-item {
     color: var(--text-color);
-    font-weight: 500;
+    font-weight: bold;
+    font-family: cursive;
+    font-size: 1.25rem;
 }
 
 .certificate-logo {
   height: 1.5rem;
-}
-
-@media (max-width: 1050px) {
-    .certificate-footer {
-        width: 50%;
-    }
 }
 
 @media (max-width: 768px) {
@@ -902,10 +905,6 @@ pre {
 @media (max-width: 550px) {
     .certificate-content {
         padding: 1rem;
-    }
-
-    .certificate-footer {
-        width: 100%;
     }
 }
 

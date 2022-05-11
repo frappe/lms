@@ -1,4 +1,6 @@
 import frappe
+from frappe.utils.jinja import render_template
+from lms.lms.utils import get_instructors
 
 def get_context(context):
     context.no_cache = 1
@@ -15,16 +17,15 @@ def get_context(context):
     if context.certificate.course != course_name:
         redirect_to_course_list()
 
-    context.course = frappe.db.get_value("LMS Course", course_name,
-                ["instructor", "title", "name"], as_dict=True)
-
-    context.instructor = frappe.db.get_value("User", context.course.instructor,
-                ["full_name", "username"], as_dict=True)
-
+    context.course = frappe.db.get_value("LMS Course", course_name, ["title", "name"], as_dict=True)
+    context.instructors = (", ").join([x.full_name for x in get_instructors(course_name)])
     context.member = frappe.db.get_value("User", context.certificate.member,
                 ["full_name"], as_dict=True)
 
     context.logo = frappe.db.get_single_value("Website Settings", "banner_image")
+    template_name = frappe.db.get_single_value("LMS Settings", "custom_certificate_template")
+    context.custom_certificate_template = frappe.db.get_value("Web Template", template_name, "template")
+    context.custom_template = render_template(context.custom_certificate_template, context)
 
 def redirect_to_course_list():
     frappe.local.flags.redirect_location = "/courses"
