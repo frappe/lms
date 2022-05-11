@@ -3,6 +3,7 @@
 Create online courses without much hassle.
 
 ![Course Home](/lms/public/images/course-home.png)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Ffrappe%2Flms.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Ffrappe%2Flms?ref=badge_shield)
 
 ## Features
 
@@ -23,3 +24,6 @@ Create online courses without much hassle.
 ## License
 
 [GNU AFFERO GENERAL PUBLIC LICENSE](license.txt)
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Ffrappe%2Flms.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Ffrappe%2Flms?ref=badge_large)
