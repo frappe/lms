@@ -28,8 +28,8 @@
 
 {% macro CourseHomeHeader(course) %}
 <div class="course-head-container">
-  <div class="container pt-5 pb-5">
-    <div class="course-card-wide" style="">
+  <div class="container pt-10 pb-10">
+    <div class="course-card-wide">
       {{ BreadCrumb(course) }}
       {{ CourseCardWide(course) }}
     </div>
@@ -49,38 +49,41 @@
 
 {% macro CourseCardWide(course) %}
 <div class="">
-  <div class="d-flex align-items-center mt-2">
-    {% for tag in get_tags(course.name) %}
-    <div class="course-card-pills">{{ tag }}</div>
-    {% endfor %}
-  </div>
-  <div class="course-card-wide-title">
-    {{ course.title }}
-  </div>
-  <div class="">
-    {{ course.short_introduction }}
-  </div>
-
-  {% if membership %}
-  {% set progress = frappe.utils.cint(membership.progress) %}
-  <div class="progress" title="{{ progress }}% Completed">
-    <div class="progress-bar" role="progressbar" aria-valuenow="{{ progress }}"
-    aria-valuemin="0" aria-valuemax="100" style="width:{{ progress }}%">
+    <div class="d-flex align-items-center mt-10">
+        {% for tag in get_tags(course.name) %}
+        <div class="course-card-pills">{{ tag }}</div>
+        {% endfor %}
     </div>
-  </div>
-  {% endif %}
+    <div class="course-card-wide-title">
+        {{ course.title }}
+    </div>
+    <div class="">
+        {{ course.short_introduction }}
+    </div>
 
-  <div class="mt-6">
-    <div class="bold-heading">Instructors:</div>
-    {% for instructor in get_instructors(course.name) %}
-      <div class="mt-1">
-       {{ widgets.Avatar(member=instructor, avatar_class="avatar-small") }}
-        <a class="button-links" href="{{ get_profile_url(instructor.username) }}">
-          <span class="course-instructor"> {{ instructor.full_name }} </span>
-        </a>
-      </div>
-    {% endfor %}
-  </div>
+    <div class="mt-10">
+        <div class="bold-heading">Instructors:</div>
+        {% for instructor in get_instructors(course.name) %}
+        <div class="mt-1">
+        {{ widgets.Avatar(member=instructor, avatar_class="avatar-small") }}
+            <a class="button-links" href="{{ get_profile_url(instructor.username) }}">
+            <span class="course-instructor"> {{ instructor.full_name }} </span>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if membership %}
+    {% set progress = frappe.utils.cint(membership.progress) %}
+    <div class="mt-10">
+        <div class="progress-percent m-0">{{ progress }}% Completed</div>
+        <div class="progress" title="{{ progress }}% Completed">
+            <div class="progress-bar" role="progressbar" aria-valuenow="{{ progress }}"
+            aria-valuemin="0" aria-valuemax="100" style="width:{{ progress }}%">
+            </div>
+        </div>
+    </div>
+    {% endif %}
 
 </div>
 

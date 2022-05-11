@@ -305,6 +305,7 @@ input[type=checkbox] {
   font-size: var(--text-3xl);
   line-height: 44px;
   color: var(--gray-900);
+  margin: 0.25rem 0;
 }
 
 .button {
@@ -567,7 +568,7 @@ input[type=checkbox] {
   font-size: var(--text-base);
   line-height: 20px;
   color: var(--gray-900);
-  padding: 1rem 0;
+  padding: 0;
 }
 
 .course-details-outline {
@@ -1166,10 +1167,6 @@ pre {
   margin: 0 1rem;
 }
 
-.course-head-container .progress {
-  margin-top: 1rem;
-}
-
 .course-overlay-card {
   background-color: white;
   border-radius: var(--border-radius-lg);
@@ -1265,14 +1262,14 @@ pre {
 }
 
 @media (max-width: 500px) {
-  .reviews-header {
-    flex-direction: column;
-    align-items: center;
-  }
+    .reviews-header {
+        flex-direction: column;
+        align-items: center;
+    }
 
-  .vertical-divider {
-    margin: 1rem 0;
-  }
+    .vertical-divider {
+        margin: 1rem;
+    }
 }
 
 .bold-heading {
@@ -1291,7 +1288,8 @@ pre {
 }
 
 .vertical-divider {
-  border: 1px solid var(--gray-300);
+    border: 1px solid var(--gray-300);
+    margin: 0 1rem;
 }
 
 .avg-rating-stars {
@@ -1432,3 +1430,8 @@ pre {
     float: right;
     font-size: var(--text-sm);
 }
+
+li {
+    line-height: 1.7;
+}
+
