@@ -849,7 +849,7 @@ pre {
 
 .certificate-footer {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     margin: 4rem auto 0;
     width: fit-content;
 }
