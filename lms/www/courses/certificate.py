@@ -17,7 +17,7 @@ def get_context(context):
     if context.certificate.course != course_name:
         redirect_to_course_list()
 
-    context.course = frappe.db.get_value("LMS Course", course_name, ["title", "name"], as_dict=True)
+    context.course = frappe.db.get_value("LMS Course", course_name, ["title", "name", "image"], as_dict=True)
     context.instructors = (", ").join([x.full_name for x in get_instructors(course_name)])
     context.member = frappe.db.get_value("User", context.certificate.member,
                 ["full_name"], as_dict=True)
@@ -26,6 +26,12 @@ def get_context(context):
     template_name = frappe.db.get_single_value("LMS Settings", "custom_certificate_template")
     context.custom_certificate_template = frappe.db.get_value("Web Template", template_name, "template")
     context.custom_template = render_template(context.custom_certificate_template, context)
+
+    context.metatags = {
+        "title": f"{member.full_name} - {course.title}",
+        "image": course.image,
+        "keywords": course.title, member.full_name
+    }
 
 def redirect_to_course_list():
     frappe.local.flags.redirect_location = "/courses"

@@ -860,16 +860,15 @@ pre {
 }
 
 .certificate-ribbon {
-  background-color: var(--primary-color);
-  padding: 0.5rem;
-  border-radius: var(--border-radius-md);
+    background-color: var(--primary-color);
+    padding: 0.5rem;
+    border-radius: var(--border-radius-md);
 }
 
 .certificate-heading {
-  font-size: 1.5rem;
-  font-weight: 500;
-  color: var(--text-color);
-  margin-top: 0.5rem;
+    font-size: 2rem;
+    font-weight: 500;
+    color: var(--text-color);
 }
 
 .certificate-para {
