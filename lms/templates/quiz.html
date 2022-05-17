@@ -9,11 +9,20 @@
 
 <div class="common-card-style question-card">
     <div id="start-banner" class="text-center">
-        <div class="font-weight-bold mb-4" style="font-size: var(--text-lg);"> {{ quiz.title }} </div>
-        <div> {{ _("This quiz has {0} questions.").format(quiz.questions | length) }} </div>
-        {% if quiz.time %}
-        <div> {{ _("This is a time bound quiz. You will have {0} seconds per question.").format(quiz.time) }} </div>
-        {% endif %}
+        <div class="font-weight-bold mb-2" style="font-size: var(--text-lg);"> {{ quiz.title }} </div>
+        <div class="mb-2">
+            {{ _("This quiz has {0} questions.").format(quiz.questions | length) }}
+
+            {% if quiz.max_attempts %}
+            {% set suffix = "times" if quiz.max_attempts > 1 else "time" %}
+            {{ _("You can attempt this quiz {0} {1}.").format(quiz.max_attempts, suffix) }}
+            {% endif %}
+
+            {% if quiz.time %}
+            {{ _("The quiz is time bound. You will have {0} seconds per question.").format(quiz.time) }}
+            {% endif %}
+        </div>
+
         <div class="btn btn-primary btn-start-quiz"> {{ _("Start") }} </div>
     </div>
 
