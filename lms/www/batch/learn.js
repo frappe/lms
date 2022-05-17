@@ -51,11 +51,10 @@ frappe.ready(() => {
         mark_active_question();
     });
 
-    if ($("#quiz-form").length) {
+    if ($("#quiz-title").data("max-attempts") && $(".active-question").length) {
         window.addEventListener("beforeunload", (e) => {
             e.preventDefault();
-            if ($("#quiz-title").data("max-attempts") && $(".active-question").length)
-                quiz_summary();
+            quiz_summary();
             e.returnValue = '';
         });
     }
