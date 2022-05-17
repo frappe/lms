@@ -49,8 +49,16 @@ frappe.ready(() => {
         $("#start-banner").addClass("hide");
         $("#quiz-form").removeClass("hide");
         mark_active_question();
-    })
+    });
 
+    if ($("#quiz-form").length) {
+        window.addEventListener("beforeunload", (e) => {
+            e.preventDefault();
+            if ($("#quiz-title").data("max-attempts") && $(".active-question").length)
+                quiz_summary();
+            e.returnValue = '';
+        });
+    }
 });
 
 const save_current_lesson = () => {
@@ -158,27 +166,27 @@ const move_to_next_lesson = (status, e) => {
   }
 };
 
-const quiz_summary = (e) => {
-  e.preventDefault();
-  var quiz_name = $("#quiz-title").text();
-  var total_questions = $(".question").length;
+const quiz_summary = (e=undefined) => {
+    e && e.preventDefault();
+    var quiz_name = $("#quiz-title").text();
+    var total_questions = $(".question").length;
 
-  frappe.call({
-    method: "lms.lms.doctype.lms_quiz.lms_quiz.quiz_summary",
-    args: {
-      "quiz": quiz_name,
-      "results": localStorage.getItem(quiz_name)
-    },
-    callback: (data) => {
-      var message = data.message == total_questions ? "Excellent Work" : "You were almost there."
-      $(".question").addClass("hide");
-      $("#summary").addClass("hide");
-      $("#quiz-form").parent().prepend(
-        `<div class="text-center summary"><h2>${message} 👏 </h2>
-          <div class="font-weight-bold">${data.message}/${total_questions} correct.</div></div>`);
-      $("#try-again").removeClass("hide");
-    }
-  })
+    frappe.call({
+        method: "lms.lms.doctype.lms_quiz.lms_quiz.quiz_summary",
+        args: {
+            "quiz": quiz_name,
+            "results": localStorage.getItem(quiz_name)
+        },
+        callback: (data) => {
+            var message = data.message == total_questions ? "Excellent Work" : "You were almost there."
+            $(".question").addClass("hide");
+            $("#summary").addClass("hide");
+            $("#quiz-form").parent().prepend(
+                `<div class="text-center summary"><h2>${message} 👏 </h2>
+                <div class="font-weight-bold">${data.message}/${total_questions} correct.</div></div>`);
+            $("#try-again").removeClass("hide");
+        }
+    })
 };
 
 const try_quiz_again = (e) => {
