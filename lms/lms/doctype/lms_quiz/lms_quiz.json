@@ -10,7 +10,9 @@
  "field_order": [
   "title",
   "questions",
-  "lesson"
+  "lesson",
+  "max_attempts",
+  "time"
  ],
  "fields": [
   {
@@ -31,11 +33,23 @@
    "label": "Lesson",
    "options": "Course Lesson",
    "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "max_attempts",
+   "fieldtype": "Int",
+   "label": "Max Attempts"
+  },
+  {
+   "default": "0",
+   "fieldname": "time",
+   "fieldtype": "Int",
+   "label": "Time Per Question (in Seconds)"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-09-30 13:10:06.929358",
+ "modified": "2022-05-16 14:47:55.364743",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz",
@@ -57,5 +71,6 @@
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
+ "states": [],
  "track_changes": 1
 }
