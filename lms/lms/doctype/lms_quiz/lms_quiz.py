@@ -46,13 +46,14 @@ class LMSQuiz(Document):
 @frappe.whitelist()
 def quiz_summary(quiz, results):
     score = 0
-    results = json.loads(results)
+    results = results and json.loads(results)
 
     for result in results:
         correct = result["is_correct"][0]
         result["question"] = frappe.db.get_value("LMS Quiz Question",
-                            {"parent": quiz, "idx": result["question_index"]},
-                            ["question"])
+            {"parent": quiz,
+             "idx": result["question_index"]},
+            ["question"])
 
         for point in result["is_correct"]:
             correct = correct and point
