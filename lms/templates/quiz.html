@@ -2,7 +2,7 @@
 <div class="common-card-style text-center p-5" style="flex-direction: column;">
     <div class="font-weight-bold mb-4" style="font-size: var(--text-lg);">{{ quiz.title }}</div>
     <div> {{ _("You have already exceeded the maximum number of attempts allowed for this quiz.") }} </div>
-    <div> {{ _("You latest score is {0}.").format(last_attempt_score) }} </div>
+    <div> {{ _("Your latest score is {0}.").format(last_attempt_score) }} </div>
 </div>
 {% else %}
 <div id="quiz-title" class="hide" data-max-attempts="{{ quiz.max_attempts }}">{{ quiz.title }}</div>

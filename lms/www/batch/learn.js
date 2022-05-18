@@ -51,11 +51,10 @@ frappe.ready(() => {
         mark_active_question();
     });
 
-    if ($("#quiz-title").data("max-attempts") && $(".active-question").length) {
+    if ($("#quiz-title").data("max-attempts")) {
         window.addEventListener("beforeunload", (e) => {
-            e.preventDefault();
-            quiz_summary();
-            e.returnValue = '';
+            e.returnValue = "";
+            $(".active-question").length && quiz_summary();
         });
     }
 });
@@ -169,7 +168,6 @@ const quiz_summary = (e=undefined) => {
     e && e.preventDefault();
     var quiz_name = $("#quiz-title").text();
     var total_questions = $(".question").length;
-
     frappe.call({
         method: "lms.lms.doctype.lms_quiz.lms_quiz.quiz_summary",
         args: {
@@ -177,12 +175,12 @@ const quiz_summary = (e=undefined) => {
             "results": localStorage.getItem(quiz_name)
         },
         callback: (data) => {
-            var message = data.message == total_questions ? "Excellent Work" : "You were almost there."
+            var message = data.message == total_questions ? __("Excellent Work 👏") : __("Better luck next time")
             $(".question").addClass("hide");
             $("#summary").addClass("hide");
             $("#quiz-form").parent().prepend(
-                `<div class="text-center summary"><h2>${message} 👏 </h2>
-                <div class="font-weight-bold">${data.message}/${total_questions} correct.</div></div>`);
+                `<div class="text-center summary"><h2> ${message} </h2>
+                <div class="font-weight-bold">${data.message}/${total_questions}</div></div>`);
             $("#try-again").removeClass("hide");
         }
     })
