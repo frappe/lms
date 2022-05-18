@@ -103,7 +103,25 @@ def set_mandatory_fields_for_profile():
 
 def quiz_renderer(quiz_name):
     quiz = frappe.get_doc("LMS Quiz", quiz_name)
-    context = dict(quiz=quiz)
+
+    context = {
+        "quiz": quiz
+    }
+
+    no_of_attempts = frappe.db.count("LMS Quiz Submission", {
+        "owner": frappe.session.user,
+        "quiz": quiz_name})
+
+    if quiz.max_attempts and no_of_attempts >= quiz.max_attempts:
+        last_attempt_score = frappe.db.get_value("LMS Quiz Submission", {
+            "owner": frappe.session.user,
+            "quiz": quiz_name
+        }, ["score"])
+
+        context.update({
+            "attempts_exceeded": True,
+            "last_attempt_score": last_attempt_score
+        })
     return frappe.render_template("templates/quiz.html", context)
 
 def exercise_renderer(argument):

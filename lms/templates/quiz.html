@@ -1,18 +1,35 @@
-<div id="quiz-title" class="hide">{{ quiz.title }}</div>
+{% if attempts_exceeded %}
+<div class="common-card-style text-center p-5" style="flex-direction: column;">
+    <div class="font-weight-bold mb-4" style="font-size: var(--text-lg);">{{ quiz.title }}</div>
+    <div> {{ _("You have already exceeded the maximum number of attempts allowed for this quiz.") }} </div>
+    <div> {{ _("Your latest score is {0}.").format(last_attempt_score) }} </div>
+</div>
+{% else %}
+<div id="quiz-title" class="hide" data-max-attempts="{{ quiz.max_attempts }}">{{ quiz.title }}</div>
 
 <div class="common-card-style question-card">
-  <form id="quiz-form">
+    <div id="start-banner" class="text-center">
+        <div class="font-weight-bold mb-3" style="font-size: var(--text-lg);"> {{ quiz.title }} </div>
+        <div class="mb-3">{{ _("There are {0} questions in this quiz.").format(quiz.questions | length) }}{% if quiz.max_attempts %}
+            {% set suffix = "times" if quiz.max_attempts > 1 else "time" %} {{ _("This quiz can only be taken {0} {1}. If you attempt the quiz and leave the page before submitting, the quiz will be automatically submitted.").format(quiz.max_attempts, suffix) }}{% endif %}
+            {% if quiz.time %}{{ _("The quiz has a time limit. Each question will be given {0} seconds.").format(quiz.time) }}{% endif %}
+        </div>
+
+        <button class="button is-default m-auto btn-start-quiz"> {{ _("Start") }} </bu>
+    </div>
+
+  <form id="quiz-form" class="hide">
     <div class="questions">
       {% for question in quiz.questions %}
       {% set instruction = _("Choose all answers that apply") if question.multiple else _("Choose 1 answer") %}
-      <div class="question {% if loop.index == 1 %} active-question {% else %} hide {% endif %}"
-        data-question="{{ question.question }}" data-multi="{{ question.multiple}}" data-qt-index="{{ loop.index }}">
+      <div class="question hide"
+        data-question="{{ question.question }}" data-multi="{{ question.multiple }}" data-qt-index="{{ loop.index }}">
         <div class="question-header">
-          <div class="question-number">{{ loop.index }}</div>
-          <div class="question-text">
-            <div class="course-meta pull-right ml-2"> {{ instruction }} </div>
-            {{ frappe.utils.md_to_html(question.question) }}
-          </div>
+            <div class="question-number">{{ loop.index }}</div>
+            <div class="question-text">
+                {{ frappe.utils.md_to_html(question.question) }}
+            </div>
+            <div class="course-meta"> {{ instruction }} </div>
         </div>
 
         {% set options = [question.option_1, question.option_2, question.option_3, question.option_4] %}
@@ -40,15 +57,23 @@
       </div>
       {% endfor %}
     </div>
+
     <div class="quiz-footer">
-      <span class="font-weight-bold"> <span class="current-question">1</span> of {{ quiz.questions | length }}</span>
-      <button class="button pull-right is-default" id="check" disabled>{{ _("Check") }}</button>
-      <div class="button is-secondary hide" id="next">{{ _("Next Question") }}</div>
-      <div class="button is-secondary is-default hide" id="summary">{{ _("Summary") }}</div>
-      <small id="submission-message" class="font-weight-bold hide"> {{ _("Please join the course to submit the Quiz.") }} </small>
-      <div class="button is-secondary hide" id="try-again">{{ _("Try Again") }}</div>
+        <span class="font-weight-bold"> <span class="current-question">1</span> of {{ quiz.questions | length }}</span>
+
+        {% if quiz.time %}
+        <div class="progress timer w-75" data-time="{{ quiz.time }}">
+            <div class="progress-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%">
+            </div>
+        </div>
+        {% endif %}
+
+        <button class="button pull-right is-default" id="check" disabled>{{ _("Check") }}</button>
+        <div class="button is-secondary hide" id="next">{{ _("Next Question") }}</div>
+        <div class="button is-secondary is-default hide" id="summary">{{ _("Summary") }}</div>
+        <small id="submission-message" class="font-weight-bold hide"> {{ _("Please join the course to submit the Quiz.") }} </small>
+        <div class="button is-secondary hide" id="try-again">{{ _("Try Again") }}</div>
     </div>
-    <h4 class="success-message"></h4>
-    <h5 class="score text-muted"></h5>
   </form>
 </div>
+{% endif %}

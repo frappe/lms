@@ -45,6 +45,18 @@ frappe.ready(() => {
         clear_work(e);
     });
 
+    $(".btn-start-quiz").click((e) => {
+        $("#start-banner").addClass("hide");
+        $("#quiz-form").removeClass("hide");
+        mark_active_question();
+    });
+
+    if ($("#quiz-title").data("max-attempts")) {
+        window.addEventListener("beforeunload", (e) => {
+            e.returnValue = "";
+            $(".active-question").length && quiz_summary();
+        });
+    }
 });
 
 const save_current_lesson = () => {
@@ -65,19 +77,19 @@ const enable_check = (e) => {
 };
 
 const mark_active_question = (e = undefined) => {
-  var current_index;
-  var next_index = 1;
-  if (e) {
-    e.preventDefault();
-    current_index = $(".active-question").attr("data-qt-index");
-    next_index = parseInt(current_index) + 1;
-  }
-  $(".question").addClass("hide").removeClass("active-question");
-  $(`.question[data-qt-index='${next_index}']`).removeClass("hide").addClass("active-question");
-  $(".current-question").text(`${next_index}`);
-  $("#check").removeClass("hide").attr("disabled", true);
-  $("#next").addClass("hide");
-  $(".explanation").addClass("hide");
+    $(".timer").addClass("hide");
+    calculate_and_display_time(100);
+    $(".timer").removeClass("hide");
+
+    let current_index = $(".active-question").attr("data-qt-index") || 0;
+    let next_index = parseInt(current_index) + 1;
+    $(".question").addClass("hide").removeClass("active-question");
+    $(`.question[data-qt-index='${next_index}']`).removeClass("hide").addClass("active-question");
+    $(".current-question").text(`${next_index}`);
+    $("#check").removeClass("hide").attr("disabled", true);
+    $("#next").addClass("hide");
+    $(".explanation").addClass("hide");
+    initialize_timer();
 };
 
 const mark_progress = (e) => {
@@ -85,7 +97,7 @@ const mark_progress = (e) => {
   if ($(e.currentTarget).prop("nodeName") != "INPUT")
     e.preventDefault();
   else
-    return
+    return;
 
   const target = $(e.currentTarget).attr("data-progress") ? $(e.currentTarget) : $("input.mark-progress");
   const current_status = $(".lesson-progress").hasClass("hide") ? "Incomplete": "Complete";
@@ -152,57 +164,56 @@ const move_to_next_lesson = (status, e) => {
   }
 };
 
-const quiz_summary = (e) => {
-  e.preventDefault();
-  var quiz_name = $("#quiz-title").text();
-  var total_questions = $(".question").length;
-
-  frappe.call({
-    method: "lms.lms.doctype.lms_quiz.lms_quiz.quiz_summary",
-    args: {
-      "quiz": quiz_name,
-      "results": localStorage.getItem(quiz_name)
-    },
-    callback: (data) => {
-      var message = data.message == total_questions ? "Excellent Work" : "You were almost there."
-      $(".question").addClass("hide");
-      $("#summary").addClass("hide");
-      $("#quiz-form").parent().prepend(
-        `<div class="text-center summary"><h2>${message} 👏 </h2>
-          <div class="font-weight-bold">${data.message}/${total_questions} correct.</div></div>`);
-      $("#try-again").removeClass("hide");
-    }
-  })
+const quiz_summary = (e=undefined) => {
+    e && e.preventDefault();
+    var quiz_name = $("#quiz-title").text();
+    var total_questions = $(".question").length;
+    frappe.call({
+        method: "lms.lms.doctype.lms_quiz.lms_quiz.quiz_summary",
+        args: {
+            "quiz": quiz_name,
+            "results": localStorage.getItem(quiz_name)
+        },
+        callback: (data) => {
+            var message = data.message == total_questions ? __("Excellent Work 👏") : __("Better luck next time")
+            $(".question").addClass("hide");
+            $("#summary").addClass("hide");
+            $("#quiz-form").parent().prepend(
+                `<div class="text-center summary"><h2> ${message} </h2>
+                <div class="font-weight-bold">${data.message}/${total_questions}</div></div>`);
+            $("#try-again").removeClass("hide");
+        }
+    })
 };
 
 const try_quiz_again = (e) => {
   window.location.reload();
 };
 
-const check_answer = (e) => {
-  e.preventDefault();
+const check_answer = (e=undefined) => {
+    e && e.preventDefault();
+    clearInterval(self.timer);
+    $(".timer").addClass("hide");
+    var quiz_name = $("#quiz-title").text();
+    var total_questions = $(".question").length;
+    var current_index = $(".active-question").attr("data-qt-index");
 
-  var quiz_name = $("#quiz-title").text();
-  var total_questions = $(".question").length;
-  var current_index = $(".active-question").attr("data-qt-index");
+    $(".explanation").removeClass("hide");
+    $("#check").addClass("hide");
 
-  $(".explanation").removeClass("hide");
-  $("#check").addClass("hide");
-
-  if (current_index == total_questions) {
-    if ($(".eligible-for-submission").length) {
-      $("#summary").removeClass("hide")
+    if (current_index == total_questions) {
+        if ($(".eligible-for-submission").length) {
+            $("#summary").removeClass("hide");
+        }
+        else {
+            $("#submission-message").removeClass("hide");
+        }
     }
     else {
-      $("#submission-message").removeClass("hide");
+        $("#next").removeClass("hide");
     }
-  }
-  else {
-    $("#next").removeClass("hide")
-  }
-
-  var [answer, is_correct] = parse_options();
-  add_to_local_storage(quiz_name, current_index, answer, is_correct)
+    var [answer, is_correct] = parse_options();
+    add_to_local_storage(quiz_name, current_index, answer, is_correct);
 };
 
 const parse_options = () => {
@@ -380,4 +391,36 @@ const fetch_assignments = () => {
       }
     }
   });
+};
+
+const initialize_timer = () => {
+    this.time_left = $(".timer").data("time");
+    calculate_and_display_time(100, this.time_left);
+    $(".timer").removeClass("hide");
+    const total_time = $(".timer").data("time");
+    this.start_time = new Date().getTime();
+    const self = this;
+    let old_diff;
+
+    this.timer = setInterval(function () {
+        var diff = (new Date().getTime() - self.start_time)/1000;
+        var variation = old_diff ? diff - old_diff : diff;
+        old_diff = diff;
+        self.time_left -= variation;
+        let percent_time = (self.time_left / total_time) * 100;
+        calculate_and_display_time(percent_time);
+        if (self.time_left <= 0) {
+            clearInterval(self.timer);
+            $(".timer").addClass("hide");
+            check_answer();
+        }
+    }, 100);
+};
+
+const calculate_and_display_time = (percent_time) => {
+    $(".timer .progress-bar").attr("aria-valuenow", percent_time);
+    $(".timer .progress-bar").attr("aria-valuemax", percent_time);
+    $(".timer .progress-bar").css("width", `${percent_time}%`);
+    let progress_color = percent_time < 20 ? "red" : "var(--primary-color)";
+    $(".timer .progress-bar").css("background-color", progress_color);
 };

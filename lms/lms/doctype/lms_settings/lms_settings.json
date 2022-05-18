@@ -10,6 +10,7 @@
   "force_profile_completion",
   "column_break_2",
   "search_placeholder",
+  "custom_certificate_template",
   "livecode_url",
   "signup_settings_section",
   "terms_of_use",
@@ -63,7 +64,7 @@
    "depends_on": "show_search",
    "fieldname": "search_placeholder",
    "fieldtype": "Data",
-   "label": "Search Field Placeholder"
+   "label": "Course List Search Bar Placeholder"
   },
   {
    "default": "0",
@@ -137,12 +138,18 @@
    "fieldname": "user_category",
    "fieldtype": "Check",
    "label": "Ask User Category during Signup"
+  },
+  {
+   "fieldname": "custom_certificate_template",
+   "fieldtype": "Link",
+   "label": "Custom Certificate Template",
+   "options": "Web Template"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2022-04-20 09:09:12.369728",
+ "modified": "2022-05-09 09:55:24.519269",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",

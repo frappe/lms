@@ -139,11 +139,6 @@
       {% if next_url %} {{ _("Next") }} {% else %} {{ _("Mark as Complete") }} {% endif %}
       <img class="ml-2" src="/assets/lms/icons/side-arrow-white.svg">
     </a>
-    {% if course.enable_certification %}
-    <div class="button is-primary {% if membership.progress|int != 100 or next_url %} hide {% endif %}" id="certification">
-      {{ _("Get Certificate") }}
-    </div>
-    {% endif %}
   </div>
 
 </div>
