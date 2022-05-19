@@ -1,6 +1,6 @@
 import re
 import frappe
-from frappe.utils import flt, cint, cstr, getdate, add_months
+from frappe.utils import flt, cint, cstr, getdate, add_months, fmt_money
 from lms.lms.md import markdown_to_html, find_macros
 import string
 from frappe import _
@@ -366,3 +366,10 @@ def get_evaluation_details(course, member=None):
         "request": request,
         "no_of_attempts": no_of_attempts
     })
+
+def format_amount(amount, currency):
+    amount_reduced = amount / 1000
+    if amount_reduced < 1:
+        return amount
+    precision = 0 if amount % 1000 == 0 else 1
+    return _("{0}K").format(fmt_money(amount_reduced, precision, currency))
