@@ -97,7 +97,7 @@
   {% endif %}
 
   <div class="course-overlay-content">
-    <div class="course-card-wide-title mb-4"> {{ course.title }} </div>
+    <div class="course-overlay-title"> {{ course.title }} </div>
 
     <div id="interest-alert" class="{% if not is_user_interested %} hide {% endif %}">
         {{ _("You have opted to be notified for this course. You will receive an email when the course becomes available.") }}
@@ -132,25 +132,22 @@
     </div>
     {% endif %}
 
-    <div class="vertically-center justify-content-center mb-2">
-      <div class="">
+    <div class="mb-3">
         <svg class="icon icon-md mr-1">
           <use class="" href="#icon-users">
         </svg>
         {{ get_students(course.name) | length }} {{ _("Enrolled") }}
-      </div>
+    </div>
 
-      <span class="seperator"></span>
 
-      {% if get_lessons(course.name) | length %}
-      <div class="">
+    {% if get_lessons(course.name) | length %}
+    <div class="mb-3">
         <svg class="icon icon-md mr-1">
-          <use href="#icon-education"></use>
+            <use href="#icon-education"></use>
         </svg>
         {{ get_lessons(course.name) | length }} {{ _("Lessons") }}
-      </div>
-      {% endif %}
     </div>
+    {% endif %}
 
     {% if course.paid_certificate %}
     <div class="certificate-price" data-price="{{ course.price_certificate }}">

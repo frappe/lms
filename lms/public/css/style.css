@@ -301,11 +301,11 @@ input[type=checkbox] {
 }
 
 .course-card-wide-title {
-  font-weight: bold;
-  font-size: var(--text-3xl);
+  font-weight: 700;
+  font-size: var(--text-4xl);
   line-height: 44px;
   color: var(--gray-900);
-  margin: 0.25rem 0;
+  margin: 0.5rem 0;
 }
 
 .button {
@@ -1193,7 +1193,6 @@ pre {
   padding: 1.25rem;
   font-size: var(--text-base);
   color: var(--text-color);
-  text-align: center;
 }
 
 .breadcrumb-destination {
@@ -1251,6 +1250,12 @@ pre {
   display: flex;
   justify-content: space-between;
   width: 75%;
+}
+
+@media (max-width: 1250px) {
+  .reviews-header {
+    width: 85%;
+  }
 }
 
 @media (max-width: 768px) {
@@ -1432,3 +1437,10 @@ li {
     line-height: 1.7;
 }
 
+.course-overlay-title {
+    font-weight: 700;
+    font-size: var(--text-2xl);
+    line-height: 1rem;
+    color: var(--gray-900);
+    margin-bottom: 1.25rem;
+}
