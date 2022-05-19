@@ -203,13 +203,15 @@
    "depends_on": "paid_certificate",
    "fieldname": "price_certificate",
    "fieldtype": "Currency",
-   "label": "Certificate Price"
+   "label": "Certificate Price",
+   "mandatory_depends_on": "paid_certificate"
   },
   {
    "depends_on": "paid_certificate",
    "fieldname": "currency",
    "fieldtype": "Link",
    "label": "Currency",
+   "mandatory_depends_on": "paid_certificate",
    "options": "Currency"
   },
   {
@@ -258,7 +260,7 @@
    "link_fieldname": "course"
   }
  ],
- "modified": "2022-05-04 11:03:24.001015",
+ "modified": "2022-05-19 16:59:21.933367",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",

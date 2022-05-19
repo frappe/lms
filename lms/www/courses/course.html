@@ -151,7 +151,7 @@
 
     {% if course.paid_certificate %}
     <div class="certificate-price" data-price="{{ course.price_certificate }}">
-        {{ _("Certificate Price:") }} {{ frappe.utils.fmt_money(course.price_certificate, 2, course.currency) }}
+        {{ _("Certificate Price:") }} {{ format_amount(course.price_certificate, course.currency) }}
     </div>
     {% endif %}
 
