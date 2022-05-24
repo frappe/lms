@@ -8,46 +8,47 @@
 {% block content %}
 
 <div class="common-page-style">
-  <div class="container">
-    {{ BreadCrumb(job) }}
-    <div class="common-card-style job-detail-card">
+    <div class="container">
+        {{ BreadCrumb(job) }}
+        <div class="common-card-style job-detail-card">
 
-      <div class="d-flex">
-          <div class="avatar avatar-medium align-self-center" title="{{ job.company_name}}">
-            <div class="avatar-frame company-logo" style="
-              background-image: url( {{ job.company_logo | urlencode }} );"></div>
-          </div>
-          <div class="ml-5">
-            <div class="vertically-center">
-              <div class="course-home-headings mb-0">{{ _(job.job_title) }}</div>
-              <div class="indicator-pill green ml-5"> {{ job.type }} </div>
-            </div>
-            <div class="d-flex align-items-center mt-2">
-              <a class="dark-links course-meta mr-5" href="{{ job.company_website }}">{{ job.company_name }}</a>
-              <div class="vertically-center course-meta mr-5">
-                <svg class="icon icon-sm">
-                  <use class="" href="#icon-location">
-                </svg>
-                <div>{{ job.location }}</div>
-              </div>
-              <div class="course-meta"> {{ frappe.utils.format_date(job.creation, "medium") }} </div>
-            </div>
-          </div>
+            <div class="d-flex">
+                <div class="avatar avatar-medium align-self-center" title="{{ job.company_name}}">
+                    <div class="avatar-frame company-logo" style="
+                    background-image: url( {{ job.company_logo | urlencode }} );"></div>
+                </div>
+                <div class="ml-5">
+                    <div class="vertically-center">
+                    <div class="course-home-headings mb-0">{{ _(job.job_title) }}</div>
+                    <div class="indicator-pill green ml-5"> {{ job.type }} </div>
+                    </div>
+                    <div class="d-flex align-items-center mt-2">
+                    <a class="dark-links course-meta mr-5" href="{{ job.company_website }}">{{ job.company_name }}</a>
+                    <div class="vertically-center course-meta mr-5">
+                        <svg class="icon icon-sm">
+                        <use class="" href="#icon-location">
+                        </svg>
+                        <div>{{ job.location }}</div>
+                    </div>
+                    <div class="course-meta"> {{ frappe.utils.format_date(job.creation, "medium") }} </div>
+                    </div>
+                </div>
 
-        {% set application_link = job.application_link if frappe.session.user != 'Guest' else '/login?redirect-to=/jobs/' + job.name %}
-        <div class="d-flex align-items-start ml-auto">
-          <a class="button is-primary mr-2"
-          href="{{ application_link }}">{{ _("Apply") }}</a>
-          <div class="button is-default mr-2" id="report" data-job="{{ job.name }}">{{ _("Report") }}</div>
-          {% if job.owner == frappe.session.user %}
-          <a class="button is-default button-links" href="/job-opportunity?name={{ job.name }}">Edit</a>
-          {% endif %}
+                {% set application_link = job.application_link if frappe.session.user != 'Guest' else '/login?redirect-to=/jobs/' + job.name %}
+                <div class="d-flex align-items-start ml-auto">
+                <a class="button is-primary mr-2"
+                href="{{ application_link }}">{{ _("Apply") }}</a>
+                <div class="button is-default mr-2" id="report" data-job="{{ job.name }}">{{ _("Report") }}</div>
+                {% if job.owner == frappe.session.user %}
+                <a class="button is-default button-links" href="/job-opportunity?name={{ job.name }}">Edit</a>
+                {% endif %}
+                </div>
+            </div>
+
+            <div class="course-meta mt-10">{{ _(job.description) }}</div>
+
         </div>
     </div>
-
-    <div class="course-meta mt-10">{{ _(job.description) }}</div>
-
-  </div>
 </div>
 
 <div class="modal fade report-modal" id="report-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"

@@ -189,7 +189,8 @@ jinja = {
         "lms.lms.utils.is_instructor",
         "lms.lms.utils.convert_number_to_character",
         "lms.lms.utils.get_signup_optin_checks",
-        "lms.lms.utils.get_popular_courses"
+        "lms.lms.utils.get_popular_courses",
+        "lms.lms.utils.format_amount"
     ],
     "filters": []
 }
