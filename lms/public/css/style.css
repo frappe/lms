@@ -58,7 +58,6 @@ input[type=checkbox] {
   letter-spacing: 0.011em;
   text-transform: uppercase;
   font-weight: 600;
-  box-shadow: var(--shadow-sm);
   color: var(--gray-900);
   width: fit-content;
 }
@@ -305,7 +304,7 @@ input[type=checkbox] {
   font-size: var(--text-4xl);
   line-height: 44px;
   color: var(--gray-900);
-  margin: 0.5rem 0;
+  margin: 0.25rem 0;
 }
 
 .button {
@@ -853,11 +852,6 @@ pre {
     justify-content: center;
     margin: 4rem auto 0;
     width: fit-content;
-}
-
-.certificate-price {
-    font-weight: bold;
-    margin-bottom: 1rem;
 }
 
 .certificate-ribbon {
@@ -1443,4 +1437,16 @@ li {
     line-height: 1rem;
     color: var(--gray-900);
     margin-bottom: 1.25rem;
+}
+
+.course-card-wide .avatar .standard-image {
+    border: 1px solid var(--gray-400);
+}
+
+.lesson-progress-tick {
+    margin: 0 0.5rem
+}
+
+.no-preview {
+    color: var(--gray-600);
 }

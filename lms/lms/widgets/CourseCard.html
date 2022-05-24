@@ -51,6 +51,18 @@
           {{ frappe.utils.flt(avg_rating, frappe.get_system_settings("float_precision") or 3) }}
         </div>
         {% endif %}
+
+        {% if course.paid_certificate %}
+        <div class="vertically-center ml-3">
+            <svg class="icon icon-md">
+              <use href="#icon-badge"></use>
+            </svg>
+            <span class="certificate-price" data-price="{{ course.price_certificate }}">
+                {{ format_amount(course.price_certificate, course.currency) }}
+            </span>
+        </div>
+        {% endif %}
+
     </div>
     {% endif %}
   </div>
@@ -65,12 +77,6 @@
   </div>
   <div class="progress-percent">{{ progress }}% {{ _("Completed") }} </div>
   {% endif %}
-
-    {% if course.paid_certificate %}
-    <div class="certificate-price small mt-3" data-price="{{ course.price_certificate }}">
-        {{ _("Certificate Price: {0}").format(format_amount(course.price_certificate, course.currency)) }}
-    </div>
-    {% endif %}
 
   <div class="course-card-footer">
     <span class="">
