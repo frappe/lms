@@ -61,7 +61,7 @@
 </div>
 
 <div class="mt-8">
-    <div class="bold-heading">Instructors:</div>
+    <div class="bold-heading">{{ _("Instructors") }}:</div>
     {% for instructor in get_instructors(course.name) %}
     <div class="mt-1">
     {{ widgets.Avatar(member=instructor, avatar_class="avatar-small") }}
@@ -75,7 +75,7 @@
 {% if membership %}
 {% set progress = frappe.utils.cint(membership.progress) %}
 <div class="mt-8">
-    <div class="progress-percent m-0">{{ progress }}% Completed</div>
+    <div class="progress-percent m-0">{{ progress }}% {{ _("Completed") }}</div>
     <div class="progress" title="{{ progress }}% Completed">
         <div class="progress-bar" role="progressbar" aria-valuenow="{{ progress }}"
         aria-valuemin="0" aria-valuemax="100" style="width:{{ progress }}%">

@@ -1,4 +1,5 @@
 import frappe
+from frappe import _
 from lms.lms.doctype.lms_settings.lms_settings import check_profile_restriction
 
 def get_context(context):
@@ -6,7 +7,7 @@ def get_context(context):
     context.live_courses, context.upcoming_courses = get_courses()
     context.restriction = check_profile_restriction()
     context.metatags = {
-        "title": "All Live Courses",
+        "title": _("All Live Courses"),
         "image": frappe.db.get_single_value("Website Settings", "banner_image"),
         "description": "This page lists all the courses published on our website",
         "keywords": "All Courses, Courses, Learn"
