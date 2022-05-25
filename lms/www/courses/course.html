@@ -28,8 +28,8 @@
 
 {% macro CourseHomeHeader(course) %}
 <div class="course-head-container">
-  <div class="container pt-5 pb-5">
-    <div class="course-card-wide" style="">
+  <div class="container pt-8 pb-10">
+    <div class="course-card-wide">
       {{ BreadCrumb(course) }}
       {{ CourseCardWide(course) }}
     </div>
@@ -48,42 +48,41 @@
 <!-- Course Card -->
 
 {% macro CourseCardWide(course) %}
-<div class="">
-  <div class="d-flex align-items-center mt-2">
+<div class="d-flex align-items-center mt-8">
     {% for tag in get_tags(course.name) %}
     <div class="course-card-pills">{{ tag }}</div>
     {% endfor %}
-  </div>
-  <div class="course-card-wide-title">
+</div>
+<div class="course-card-wide-title">
     {{ course.title }}
-  </div>
-  <div class="">
+</div>
+<div class="">
     {{ course.short_introduction }}
-  </div>
-
-  {% if membership %}
-  {% set progress = frappe.utils.cint(membership.progress) %}
-  <div class="progress" title="{{ progress }}% Completed">
-    <div class="progress-bar" role="progressbar" aria-valuenow="{{ progress }}"
-    aria-valuemin="0" aria-valuemax="100" style="width:{{ progress }}%">
-    </div>
-  </div>
-  {% endif %}
-
-  <div class="mt-6">
-    <div class="bold-heading">Instructors:</div>
-    {% for instructor in get_instructors(course.name) %}
-      <div class="mt-1">
-       {{ widgets.Avatar(member=instructor, avatar_class="avatar-small") }}
-        <a class="button-links" href="{{ get_profile_url(instructor.username) }}">
-          <span class="course-instructor"> {{ instructor.full_name }} </span>
-        </a>
-      </div>
-    {% endfor %}
-  </div>
-
 </div>
 
+<div class="mt-8">
+    <div class="bold-heading">Instructors:</div>
+    {% for instructor in get_instructors(course.name) %}
+    <div class="mt-1">
+    {{ widgets.Avatar(member=instructor, avatar_class="avatar-small") }}
+        <a class="button-links" href="{{ get_profile_url(instructor.username) }}">
+        <span class="course-instructor"> {{ instructor.full_name }} </span>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+
+{% if membership %}
+{% set progress = frappe.utils.cint(membership.progress) %}
+<div class="mt-8">
+    <div class="progress-percent m-0">{{ progress }}% Completed</div>
+    <div class="progress" title="{{ progress }}% Completed">
+        <div class="progress-bar" role="progressbar" aria-valuenow="{{ progress }}"
+        aria-valuemin="0" aria-valuemax="100" style="width:{{ progress }}%">
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endmacro%}
 
 {% macro CourseHeaderOverlay(course) %}
@@ -94,7 +93,7 @@
   {% endif %}
 
   <div class="course-overlay-content">
-    <div class="course-card-wide-title mb-4"> {{ course.title }} </div>
+    <div class="course-overlay-title"> {{ course.title }} </div>
 
     <div id="interest-alert" class="{% if not is_user_interested %} hide {% endif %}">
         {{ _("You have opted to be notified for this course. You will receive an email when the course becomes available.") }}
@@ -129,29 +128,31 @@
     </div>
     {% endif %}
 
-    <div class="vertically-center justify-content-center mb-2">
-      <div class="">
+    <div class="vertically-center mb-3">
         <svg class="icon icon-md mr-1">
           <use class="" href="#icon-users">
         </svg>
         {{ get_students(course.name) | length }} {{ _("Enrolled") }}
-      </div>
-
-      <span class="seperator"></span>
-
-      {% if get_lessons(course.name) | length %}
-      <div class="">
-        <svg class="icon icon-md mr-1">
-          <use href="#icon-education"></use>
-        </svg>
-        {{ get_lessons(course.name) | length }} {{ _("Lessons") }}
-      </div>
-      {% endif %}
     </div>
 
+    {% if get_lessons(course.name) | length %}
+    <div class="vertically-center mb-3">
+        <svg class="icon icon-md mr-1">
+            <use href="#icon-education"></use>
+        </svg>
+        {{ get_lessons(course.name) | length }} {{ _("Lessons") }}
+    </div>
+    {% endif %}
+
     {% if course.paid_certificate %}
-    <div class="certificate-price" data-price="{{ course.price_certificate }}">
-        {{ _("Certificate Price:") }} {{ format_amount(course.price_certificate, course.currency) }}
+    <div class="vertically-center mb-3">
+        <svg class="icon icon-md mr-1">
+            <use href="#icon-badge"></use>
+        </svg>
+        <span class="certificate-price" data-price="{{ course.price_certificate }}">
+            {{ format_amount(course.price_certificate, course.currency) }}
+        </span>
+        <span class="indicator-pill green ml-3"> {{ _("Get Certified") }} </span>
     </div>
     {% endif %}
 
