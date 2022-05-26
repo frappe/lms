@@ -11,9 +11,9 @@
 
 <div class="page-card">
   <div class='page-card-head'>
-    <span class='indicator blue password-box'>Login Required</span>
+    <span class='indicator blue password-box'>{{ _("Login Required") }}</span>
   </div>
-  <div class=''>Please log in to confirm joining the course {{ batch.course_title }}.</div>
+  <div class=''>{{ _("Please log in to confirm joining the course" )}} {{ batch.course_title }}.</div>
   <a type="submit" id="login" class="btn btn-primary w-100"
     href="/login?redirect-to=/courses/{{ batch.course }}/join?batch={{ batch.name }}">{{_("Login")}}</a>
 </div>
@@ -22,9 +22,9 @@
 
 <div class="page-card">
   <div class='page-card-head'>
-    <span class='indicator blue password-box'>Already a member</span>
+    <span class='indicator blue password-box'>{{ _("Already a member") }}</span>
   </div>
-  <div class=''>You are already a member of the batch {{ batch.title }} for the course {{ batch.course_title }}.
+  <div class=''>{{ _("You are already a member of the batch") }} {{ batch.title }} {{ _("for the course") }} {{ batch.course_title }}.
   </div>
   <a type="submit" id="batch-home" class="btn btn-primary w-100" href="">{{_("Go to Batch Home")}}</a>
 </div>
@@ -33,9 +33,9 @@
 
 <div class="page-card">
   <div class='page-card-head'>
-    <span class='indicator blue password-box'>Confirm your membership</span>
+    <span class='indicator blue password-box'>{{ _("Confirm your membership") }}</span>
   </div>
-  <div>Please provide your confirmation to be a part of the batch {{ batch.title }} for the course
+  <div>{{ _("Please provide your confirmation to be a part of the batch") }} {{ batch.title }} {{ _("for the course") }}
     {{ batch.course_title }}.
   </div>
   <a type="submit" id="confirm" class="btn btn-primary w-100">{{_("Confirm")}}</a>
