@@ -1,10 +1,10 @@
 {% extends "www/cohorts/base.html" %}
 
-{% block title %}Join Course{% endblock %}
+{% block title %}{{ _("Join Course") }}{% endblock %}
 
 {% block page_content %}
 
-<h2>Join Course</h2>
+<h2>{{ _("Join Course") }}</h2>
 
 <p>
   Course: {{course.title}}
@@ -20,25 +20,25 @@
 
 <div class="alert alert-warning">
   <p>
-  Please login to be able to join the course.</p>
+  {{ _("Please login to be able to join the course.") }}</p>
 
   <p>
-  If you don't already have an account, you can <a href="/login#signup">sign up for a new account</a>.
+  {{ _("If you don't already have an account, you can") }} <a href="/login#signup">{{ _("sign up for a new account") }}</a>.
   </p>
-  <a class="btn btn-primary" href="/login">Login to continue</a>
+  <a class="btn btn-primary" href="/login">{{ _("Login to continue") }}</a>
 </div>
 {% elif subgroup.has_student(frappe.session.user) %}
   <div class="alert alert-info">
-    <p>You are already a student of this course.</p>
-    <a class="btn btn-primary" href="/">Start Learning &rarr;</a>
+    <p>{{ _("You are already a student of this course.") }}</p>
+    <a class="btn btn-primary" href="/">{{ _("Start Learning") }} &rarr;</a>
   </div>
 {% elif subgroup.has_join_request(frappe.session.user) %}
   <div class="alert alert-info">
-    <p>We have received your request to join the course. You'll hear back from us soon.</p>
+    <p>{{ _("We have received your request to join the course. You'll hear back from us soon.") }}</p>
   </div>
 {% else %}
 
-<a class="btn btn-primary" id="join">Join the course</a>
+<a class="btn btn-primary" id="join">{{ _("Join the course") }}</a>
 
 {% endif %}
 

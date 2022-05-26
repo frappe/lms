@@ -3,7 +3,7 @@
 
 {% block page_content %}
   {% if cohorts %}
-    <h2>Cohorts</h2>
+    <h2>{{ _("Cohorts") }}</h2>
     <div class="row">
     {% for cohort in cohorts %}
       <div class="col-md-6">
@@ -12,8 +12,8 @@
     {% endfor %}
     </div>
   {% else %}
-      <h2>Permission Denied</h2>
-      <p>You don't have permission to manage this course.</p>
+      <h2>{{ _("Permission Denied") }}</h2>
+      <p>{{ _("You don't have permission to manage this course.") }}</p>
   {% endif %}
 {% endblock %}
 
@@ -31,7 +31,7 @@
       | {{ stats.join_requests }} join requests
     </p>
 
-    <a href="/courses/{{course.name}}/cohorts/{{cohort.slug}}" class="card-link">Manage</a>
+    <a href="/courses/{{course.name}}/cohorts/{{cohort.slug}}" class="card-link">{{ _("Manage") }}</a>
   </div>
 </div>
 
