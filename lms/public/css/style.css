@@ -58,7 +58,6 @@ input[type=checkbox] {
   letter-spacing: 0.011em;
   text-transform: uppercase;
   font-weight: 600;
-  box-shadow: var(--shadow-sm);
   color: var(--gray-900);
   width: fit-content;
 }
@@ -301,10 +300,11 @@ input[type=checkbox] {
 }
 
 .course-card-wide-title {
-  font-weight: bold;
-  font-size: var(--text-3xl);
+  font-weight: 700;
+  font-size: var(--text-4xl);
   line-height: 44px;
   color: var(--gray-900);
+  margin: 0.25rem 0;
 }
 
 .button {
@@ -567,7 +567,7 @@ input[type=checkbox] {
   font-size: var(--text-base);
   line-height: 20px;
   color: var(--gray-900);
-  padding: 1rem 0;
+  padding: 0;
 }
 
 .course-details-outline {
@@ -852,11 +852,6 @@ pre {
     justify-content: center;
     margin: 4rem auto 0;
     width: fit-content;
-}
-
-.certificate-price {
-    font-weight: bold;
-    margin-bottom: 1rem;
 }
 
 .certificate-ribbon {
@@ -1164,10 +1159,6 @@ pre {
   margin: 0 1rem;
 }
 
-.course-head-container .progress {
-  margin-top: 1rem;
-}
-
 .course-overlay-card {
   background-color: white;
   border-radius: var(--border-radius-lg);
@@ -1196,7 +1187,6 @@ pre {
   padding: 1.25rem;
   font-size: var(--text-base);
   color: var(--text-color);
-  text-align: center;
 }
 
 .breadcrumb-destination {
@@ -1256,6 +1246,12 @@ pre {
   width: 75%;
 }
 
+@media (max-width: 1250px) {
+  .reviews-header {
+    width: 85%;
+  }
+}
+
 @media (max-width: 768px) {
   .reviews-header {
     width: 100%;
@@ -1263,14 +1259,14 @@ pre {
 }
 
 @media (max-width: 500px) {
-  .reviews-header {
-    flex-direction: column;
-    align-items: center;
-  }
+    .reviews-header {
+        flex-direction: column;
+        align-items: center;
+    }
 
-  .vertical-divider {
-    margin: 1rem 0;
-  }
+    .vertical-divider {
+        margin: 1rem;
+    }
 }
 
 .bold-heading {
@@ -1289,7 +1285,8 @@ pre {
 }
 
 .vertical-divider {
-  border: 1px solid var(--gray-300);
+    border: 1px solid var(--gray-300);
+    margin: 0 1rem;
 }
 
 .avg-rating-stars {
@@ -1428,4 +1425,28 @@ pre {
 .attachments-parent {
     float: right;
     font-size: var(--text-sm);
+}
+
+li {
+    line-height: 1.7;
+}
+
+.course-overlay-title {
+    font-weight: 700;
+    font-size: var(--text-2xl);
+    line-height: 1rem;
+    color: var(--gray-900);
+    margin-bottom: 1.25rem;
+}
+
+.course-card-wide .avatar .standard-image {
+    border: 1px solid var(--gray-400);
+}
+
+.lesson-progress-tick {
+    margin: 0 0.5rem
+}
+
+.no-preview {
+    color: var(--gray-600);
 }

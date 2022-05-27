@@ -217,7 +217,7 @@ const display_slots = (e) => {
         callback: (data) => {
             let options = "";
             data.message.forEach((obj) => {
-                options += `<button type="button" class="btn btn-sm btn-secondary mr-3 slot hide"
+                options += `<button type="button" class="btn btn-sm btn-secondary mb-3 mr-3 slot hide"
                     data-course="${$(e.currentTarget).data("course")}"
                     data-day="${obj.day}" data-start="${obj.start_time}" data-end="${obj.end_time}">
                     ${format_time(obj.start_time)} - ${format_time(obj.end_time)}</button>`;

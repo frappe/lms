@@ -13,60 +13,62 @@
 
     <div class="chapter-content collapse navbar-collapse" id="{{ get_slugified_chapter_title(chapter.title) }}">
 
-      {% if chapter.description %}
-      <div class="chapter-description muted-text">
-        {{ chapter.description }}
-      </div>
-      {% endif %}
+        {% if chapter.description %}
+        <div class="chapter-description muted-text">
+            {{ chapter.description }}
+        </div>
+        {% endif %}
 
-      {% set is_instructor = is_instructor(course.name) %}
-      <div class="lessons">
+        {% set is_instructor = is_instructor(course.name) %}
+        <div class="lessons">
 
-        {% for lesson in get_lessons(course.name, chapter) %}
-        {% set active = membership.current_lesson == lesson.name %}
-        <div class="lesson-info {% if active %} active-lesson {% endif %}">
+            {% for lesson in get_lessons(course.name, chapter) %}
+            {% set active = membership.current_lesson == lesson.name %}
+            <div class="lesson-info {% if active %} active-lesson {% endif %}">
 
-          {% if membership or lesson.include_in_preview %}
-          <a class="lesson-links" href="{{ get_lesson_url(course.name, lesson.number) }}{{course.query_parameter}}"
-            data-course="{{ course.name }}">
-            <svg class="icon icon-md mr-2">
-              <use class="" href="#{{ lesson.icon }}">
-            </svg>
-            {{ lesson.title }}
+            {% if membership or lesson.include_in_preview %}
+            <a class="lesson-links" href="{{ get_lesson_url(course.name, lesson.number) }}{{course.query_parameter}}"
+                data-course="{{ course.name }}">
+                <svg class="icon icon-md mr-2">
+                <use class="" href="#{{ lesson.icon }}">
+                </svg>
+                {{ lesson.title }}
 
-            {% if membership %}
-            <img class="ml-1 lesson-progress-tick {{ get_progress(course.name, lesson.name) != 'Complete' and 'hide' }}"
-              src="/assets/lms/icons/check.svg">
+                {% if membership %}
+                <svg class="icon icon-md lesson-progress-tick {{ get_progress(course.name, lesson.name) != 'Complete' and 'hide' }}">
+                    <use class="" href="#icon-green-check">
+                </svg>
+                {% endif %}
+
+            </a>
+
+            {% elif is_instructor and not lesson.include_in_preview %}
+            <a class="lesson-links"
+                title="This lesson is not available for preview. As you are the Instructor of the course only you can see it."
+                href="{{ get_lesson_url(course.name, lesson.number) }}{{course.query_parameter}}"
+                data-course="{{ course.name }}">
+
+                <svg class="icon icon-md">
+                    <use class="" href="#icon-lock">
+                </svg>
+                <div>{{ lesson.title }}</div>
+            </a>
+
+            {% else %}
+            <div class="no-preview" title="This lesson is not available for preview" data-course="{{ course.name }}">
+                <div class="lesson-links">
+                <svg class="icon icon-md">
+                    <use class="" href="#icon-lock-gray">
+                </svg>
+                <div>{{ lesson.title }}</div>
+                </div>
+            </div>
             {% endif %}
 
-          </a>
-
-          {% elif is_instructor and not lesson.include_in_preview %}
-          <a class="lesson-links"
-          title="This lesson is not available for preview. As you are the Instructor of the course only you can see it."
-          href="{{ get_lesson_url(course.name, lesson.number) }}{{course.query_parameter}}"
-          data-course="{{ course.name }}">
-          <svg class="icon icon-md">
-            <use class="" href="#icon-lock">
-          </svg>
-          <div>{{ lesson.title }}</div>
-          </a>
-
-          {% else %}
-          <div class="no-preview" title="This lesson is not available for preview" data-course="{{ course.name }}">
-            <div class="lesson-links">
-              <svg class="icon icon-md">
-                <use class="" href="#icon-lock">
-              </svg>
-              <div>{{ lesson.title }}</div>
             </div>
-          </div>
-          {% endif %}
+            {% endfor %}
 
         </div>
-        {% endfor %}
-
-      </div>
     </div>
   </div>
   {% endfor %}

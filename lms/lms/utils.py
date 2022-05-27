@@ -372,4 +372,4 @@ def format_amount(amount, currency):
     if amount_reduced < 1:
         return amount
     precision = 0 if amount % 1000 == 0 else 1
-    return _("{0}K").format(fmt_money(amount_reduced, precision, currency))
+    return _("{0}k").format(fmt_money(amount_reduced, precision, currency))
