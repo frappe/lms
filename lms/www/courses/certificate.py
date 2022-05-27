@@ -27,12 +27,6 @@ def get_context(context):
     context.custom_certificate_template = frappe.db.get_value("Web Template", template_name, "template")
     context.custom_template = render_template(context.custom_certificate_template, context)
 
-    context.metatags = {
-        "title": f"{member.full_name} - {course.title}",
-        "image": course.image,
-        "keywords": course.title, member.full_name
-    }
-
 def redirect_to_course_list():
     frappe.local.flags.redirect_location = "/courses"
     raise frappe.Redirect
