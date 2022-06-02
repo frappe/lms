@@ -4,9 +4,24 @@
 import frappe
 from frappe.model.document import Document
 from frappe.model.mapper import get_mapped_doc
+from frappe import _
+from frappe.utils import getdate, format_date, format_time
 
 class LMSCertificateRequest(Document):
-	pass
+
+    def validate(self):
+        self.validate_if_existing_requests()
+
+    def validate_if_existing_requests(self):
+        existing_requests = frappe.get_all("LMS Certificate Request", {
+            "member": self.member,
+            "course": self.course
+        }, ["date", "start_time", "course"])
+
+        for req in existing_requests:
+            if req.date == getdate(self.date) and getdate(self.date) <= getdate():
+                course_title = frappe.db.get_value("LMS Course", req.course, "title")
+                frappe.throw(_(f"You already have an evaluation on {format_date(req.date, 'medium')} at {format_time(req.start_time, 'short')} for the course {course_title}."))
 
 @frappe.whitelist()
 def create_certificate_request(course, date, day, start_time, end_time):
