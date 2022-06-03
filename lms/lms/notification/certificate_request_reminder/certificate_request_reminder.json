@@ -1,0 +1,28 @@
+{
+ "attach_print": 0,
+ "channel": "Email",
+ "creation": "2022-06-03 11:51:02.681803",
+ "date_changed": "date",
+ "days_in_advance": 1,
+ "docstatus": 0,
+ "doctype": "Notification",
+ "document_type": "LMS Certificate Request",
+ "enabled": 1,
+ "event": "Days Before",
+ "idx": 0,
+ "is_standard": 1,
+ "message": "{% set title = frappe.db.get_value(\"LMS Course\", doc.course, \"title\") %}\n<p> {{ _('Your evaluation for the course ${0} has been scheduled on ${1} at ${2}.').format(title, frappe.utils.format_date(doc.date, \"medium\"), frappe.utils.format_time(doc.start_time, \"short\")) }}</p>\n<p> {{ _(\"Please prepare well and be on time for the evaluations.\") }} </p>\n",
+ "modified": "2022-06-03 11:51:02.681803",
+ "modified_by": "Administrator",
+ "module": "LMS",
+ "name": "Certificate Request Reminder",
+ "owner": "Administrator",
+ "recipients": [
+  {
+   "receiver_by_document_field": "member"
+  }
+ ],
+ "send_system_notification": 0,
+ "send_to_all_assignees": 0,
+ "subject": "Reminder for Certificate Evaluation"
+}
