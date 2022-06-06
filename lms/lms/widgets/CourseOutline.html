@@ -29,13 +29,12 @@
             {% if membership or lesson.include_in_preview %}
             <a class="lesson-links" href="{{ get_lesson_url(course.name, lesson.number) }}{{course.query_parameter}}"
                 data-course="{{ course.name }}">
-                <svg class="icon icon-md mr-2">
+                <svg class="icon icon-sm mr-2">
                 <use class="" href="#{{ lesson.icon }}">
                 </svg>
-                {{ lesson.title }}
-
+                <span>{{ lesson.title }}</span>
                 {% if membership %}
-                <svg class="icon icon-md lesson-progress-tick {{ get_progress(course.name, lesson.name) != 'Complete' and 'hide' }}">
+                <svg class="icon icon-sm lesson-progress-tick {{ get_progress(course.name, lesson.name) != 'Complete' and 'hide' }}">
                     <use class="" href="#icon-green-check">
                 </svg>
                 {% endif %}
@@ -48,7 +47,7 @@
                 href="{{ get_lesson_url(course.name, lesson.number) }}{{course.query_parameter}}"
                 data-course="{{ course.name }}">
 
-                <svg class="icon icon-md">
+                <svg class="icon icon-sm">
                     <use class="" href="#icon-lock">
                 </svg>
                 <div>{{ lesson.title }}</div>
@@ -57,7 +56,7 @@
             {% else %}
             <div class="no-preview" title="This lesson is not available for preview" data-course="{{ course.name }}">
                 <div class="lesson-links">
-                <svg class="icon icon-md">
+                <svg class="icon icon-sm">
                     <use class="" href="#icon-lock-gray">
                 </svg>
                 <div>{{ lesson.title }}</div>

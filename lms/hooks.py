@@ -214,7 +214,6 @@ profile_mandatory_fields = [
     "bio",
     "linkedin",
     "education",
-    "work_experience",
     "skill",
     "preferred_functions",
     "preferred_industries",

@@ -28,13 +28,13 @@ const join_course = (e) => {
         "callback": (data) => {
             if (data.message == "OK") {
                 $(".no-preview-modal").modal("hide");
-                frappe.msgprint({
-                    "title": __("Successfully Enrolled"),
-                    "message": __("You are now a student of this course.")
-                });
+                frappe.show_alert({
+                    message: __("You are now a student of this course."),
+                    indicator:'green'
+                }, 3);
                 setTimeout(function () {
                     window.location.href = `/courses/${course}/learn/1.1`;
-                }, 2000);
+                }, 3000);
             }
         }
     })
@@ -55,10 +55,13 @@ const notify_user = (e) => {
         },
         callback: (data) => {
             $(".no-preview-modal").modal("hide");
-            frappe.msgprint(__("You have opted to be notified for this course. You will receive an email when the course becomes available."));
+            frappe.show_alert({
+                message: __("You have opted to be notified for this course. You will receive an email when the course becomes available."),
+                indicator:'green'
+            }, 3);
             setTimeout(() => {
                 window.location.reload();
-            }, 2000);
+            }, 3000);
         }
     })
 };

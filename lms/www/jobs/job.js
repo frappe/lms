@@ -18,15 +18,18 @@ const open_report_dialog = (e) => {
 };
 
 const report = (e) => {
-  frappe.call({
-    method: "lms.job.doctype.job_opportunity.job_opportunity.report",
-    args: {
-      "job": $(e.currentTarget).data("job"),
-      "reason": $(".report-field").val()
-    },
-    callback: (data) => {
-      $(".report-modal").modal("hide");
-      frappe.msgprint(__("Thanks for informing us about this post. The admin will look into it and take an appropriate action soon."))
-    }
-  })
+    frappe.call({
+        method: "lms.job.doctype.job_opportunity.job_opportunity.report",
+        args: {
+            "job": $(e.currentTarget).data("job"),
+            "reason": $(".report-field").val()
+        },
+        callback: (data) => {
+            $(".report-modal").modal("hide");
+            frappe.show_alert({
+                message: __("Thanks for informing us about this post. The admin will look into it and take an appropriate action soon."),
+                indicator:'green'
+            }, 5);
+        }
+    });
 }
