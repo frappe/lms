@@ -161,22 +161,27 @@ const element_not_in_viewport = (el) => {
 };
 
 const submit_for_review = (e) => {
-  let course = $(e.currentTarget).data("course");
-  frappe.call({
-    method: "lms.lms.doctype.lms_course.lms_course.submit_for_review",
-    args: {
-      "course": course
-    },
-    callback: (data) => {
-      if (data.message == "No Chp") {
-        frappe.msgprint(__(`There are no chapters in this course.
-          Please add chapters and lessons to your course before you submit it for review.`));
-      } else if (data.message == "OK") {
-        frappe.msgprint(__("Your course has been submitted for review."))
-        window.location.reload();
-      }
-    }
-  })
+    let course = $(e.currentTarget).data("course");
+    frappe.call({
+        method: "lms.lms.doctype.lms_course.lms_course.submit_for_review",
+        args: {
+            "course": course
+        },
+        callback: (data) => {
+            if (data.message == "No Chp") {
+                frappe.msgprint(__(`There are no chapters in this course.
+                Please add chapters and lessons to your course before you submit it for review.`));
+            } else if (data.message == "OK") {
+                frappe.show_alert({
+                    message: __("Your course has been submitted for review."),
+                    indicator:'green'
+                }, 3);
+                setTimeout(() => {
+                    window.location.reload();
+                }, 3000);
+            }
+        }
+    });
 };
 
 const apply_cetificate = (e) => {
@@ -199,10 +204,13 @@ const submit_slot = (e) => {
         },
         callback: (data) => {
             $("#slot-modal").modal("hide");
-            frappe.msgprint(__("Your slot has been booked. Prepare well for the evaluations."));
+            frappe.show_alert({
+                message: __("Your slot has been booked. Prepare well for the evaluations."),
+                indicator:'green'
+            }, 3);
             setTimeout(() => {
                 window.location.reload();
-            }, 2000);
+            }, 3000);
         }
     });
 };

@@ -411,18 +411,15 @@ input[type=checkbox] {
   display: flex;
   align-items: center;
   padding: 0.5rem;
-  color: inherit;
+  color: var(--gray-900);
+  font-size: var(--text-base);
 }
 
 .lesson-links:hover {
   cursor: pointer;
   text-decoration: none;
-  color: inherit;
+  color: var(--gray-900);
   border-radius: var(--border-radius-md);
-}
-
-.course-content-parent .lesson-links {
-  font-size: var(--text-base);
 }
 
 .lessons {
@@ -540,11 +537,6 @@ input[type=checkbox] {
   flex-direction: column;
 }
 
-.question-card {
-  flex-direction: column;
-  padding: 1.25rem;
-}
-
 .question p {
   margin-bottom: 0;
 }
@@ -574,12 +566,13 @@ input[type=checkbox] {
   margin-top: 1rem;
 }
 
-.lesson-content-card {
-  margin: 3rem 0;
+.lesson-content {
+    padding: 1.5rem;
+    flex-direction: column;
 }
 
-.lesson-page {
-    background-color: #FFFFFF;
+.lesson-content-card {
+    margin: 2rem 0 3rem;
 }
 
 .lesson-content-card .alert-dismissible .close {
@@ -607,7 +600,6 @@ input[type=checkbox] {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 2rem 0 4rem;
 }
 
 .lesson-pagination-parent {
@@ -1449,4 +1441,8 @@ li {
 
 .no-preview {
     color: var(--gray-600);
+}
+
+.discussions-parent .empty-state {
+    background-color: var(--gray-200);
 }

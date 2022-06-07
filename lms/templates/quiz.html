@@ -1,5 +1,5 @@
 {% if attempts_exceeded %}
-<div class="common-card-style text-center p-5" style="flex-direction: column;">
+<div class="text-center">
     <div class="font-weight-bold mb-4" style="font-size: var(--text-lg);">{{ quiz.title }}</div>
     <div> {{ _("You have already exceeded the maximum number of attempts allowed for this quiz.") }} </div>
     <div> {{ _("Your latest score is {0}.").format(last_attempt_score) }} </div>
@@ -7,7 +7,7 @@
 {% else %}
 <div id="quiz-title" class="hide" data-max-attempts="{{ quiz.max_attempts }}">{{ quiz.title }}</div>
 
-<div class="common-card-style question-card">
+<div class="">
     <div id="start-banner" class="text-center">
         <div class="font-weight-bold mb-3" style="font-size: var(--text-lg);"> {{ quiz.title }} </div>
         <div class="mb-3">{{ _("There are {0} questions in this quiz.").format(quiz.questions | length) }}{% if quiz.max_attempts %}
@@ -70,7 +70,7 @@
 
         <button class="button pull-right is-default" id="check" disabled>{{ _("Check") }}</button>
         <div class="button is-secondary hide" id="next">{{ _("Next Question") }}</div>
-        <div class="button is-secondary is-default hide" id="summary">{{ _("Summary") }}</div>
+        <div class="button is-secondary is-default hide" id="summary">{{ _("Submit") }}</div>
         <small id="submission-message" class="font-weight-bold hide"> {{ _("Please join the course to submit the Quiz.") }} </small>
         <div class="button is-secondary hide" id="try-again">{{ _("Try Again") }}</div>
     </div>
