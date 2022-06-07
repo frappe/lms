@@ -22,7 +22,7 @@
  "is_standard": 1,
  "login_required": 1,
  "max_attachment_size": 0,
- "modified": "2022-02-23 09:32:37.352930",
+ "modified": "2022-06-06 10:38:37.784113",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "profile",
@@ -83,7 +83,7 @@
    "max_length": 0,
    "max_value": 0,
    "read_only": 0,
-   "reqd": 0,
+   "reqd": 1,
    "show_in_filter": 0
   },
   {
@@ -244,7 +244,7 @@
    "max_value": 0,
    "options": "Work Experience",
    "read_only": 0,
-   "reqd": 1,
+   "reqd": 0,
    "show_in_filter": 0
   },
   {

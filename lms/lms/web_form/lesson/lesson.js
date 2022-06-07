@@ -49,10 +49,13 @@ const show_upload_modal = () => {
 };
 
 const show_success_message = () => {
-    frappe.msgprint(__(`Lesson has been saved successfully. Go back to the chapter and add this lesson to the lessons table.`));
+    frappe.show_alert({
+        message: __(`Lesson has been saved successfully. Go back to the chapter and add this lesson to the lessons table.`),
+        indicator:'green'
+    }, 3);
     setTimeout(() => {
         window.location.href = `/courses/${this.course}`;
-    }, 2000);
+    }, 3000);
 };
 
 const add_file_upload_component = () => {

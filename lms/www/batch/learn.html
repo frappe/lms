@@ -22,9 +22,6 @@
       </div>
       <div class="lesson-pagination-parent">
         {{ LessonContent(lesson) }}
-        {% if membership %}
-        {{ pagination(prev_url, next_url) }}
-        {% endif %}
         {{ Discussions() }}
       </div>
     </div>
@@ -45,7 +42,7 @@
 {% macro LessonContent(lesson) %}
 {% set instructors = get_instructors(course.name) %}
 {% set is_instructor = is_instructor(course.name) %}
-<div class="lesson-content">
+<div class="common-card-style lesson-content">
   <div class="lesson-title">
     <div class="course-home-headings title mb-0
     {% if membership %} is-member {% endif %}
@@ -100,6 +97,8 @@
     {% endif %}
   </div>
 
+  {{ pagination(prev_url, next_url) }}
+
 </div>
 {% endmacro %}
 
@@ -145,10 +144,12 @@
 {% endmacro %}
 
 {% macro Discussions() %}
+{% set topics_count = frappe.db.count("Discussion Topic",
+    {"reference_doctype": "Course Lesson", "reference_docname": lesson.name}) %}
 {% set is_instructor = frappe.session.user == course.instructor %}
 {% set condition = is_instructor if is_instructor else membership %}
 {% set doctype, docname = "Course Lesson", lesson.name %}
-{% set title = "Questions" %}
+{% set title = "Questions" if topics_count else "" %}
 {% set cta_title = "Ask a Question" %}
 {% set button_name = "Start Learning" %}
 {% set redirect_to = "/courses/" + course.name %}
