@@ -25,11 +25,11 @@
       <div class="question hide"
         data-question="{{ question.question }}" data-multi="{{ question.multiple }}" data-qt-index="{{ loop.index }}">
         <div class="question-header">
-            <div class="question-number">{{ loop.index }}</div>
+            <div class="question-number">{{ loop.index }}. </div>
             <div class="question-text">
                 {{ frappe.utils.md_to_html(question.question) }}
             </div>
-            <div class="course-meta"> {{ instruction }} </div>
+            <div class="small"> {{ instruction }} </div>
         </div>
 
         {% set options = [question.option_1, question.option_2, question.option_3, question.option_4] %}
@@ -38,7 +38,7 @@
         <div class="mb-2">
           <div class="custom-checkbox">
             <label class="quiz-label">
-              <div class="course-meta font-weight-bold ml-3"> {{ convert_number_to_character(loop.index - 1) }}</div>
+              <div class="course-meta font-weight-bold"> {{ convert_number_to_character(loop.index - 1) }}</div>
               <input class="option" value="{{ option | urlencode }}"
                 data-correct="{{ question['is_correct_' + loop.index | string] }}" {% if question.multiple %}
                 type="checkbox" {% else %} type="radio" name="{{ question.question | urlencode }}" {% endif %}>
@@ -48,7 +48,7 @@
 
           {% set explanation = question['explanation_' + loop.index | string] %}
           {% if explanation %}
-          <small class="explanation ml-3 hide">{{ explanation }}</small>
+          <small class="explanation ml-10 hide">{{ explanation }}</small>
           {% endif %}
         </div>
         {% endif %}

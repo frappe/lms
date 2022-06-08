@@ -1309,14 +1309,12 @@ pre {
 }
 
 .question-number {
-  padding: 0.25rem 0.75rem;
-  border-radius: 50%;
-  box-shadow: var(--shadow-sm);
+  padding-right: 0.25rem;
 }
 
 .option-text {
   padding: 0.75rem;
-  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--gray-200);
   border-radius: var(--border-radius-md);
   flex: 1;
 }
