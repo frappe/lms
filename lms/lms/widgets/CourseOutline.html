@@ -47,7 +47,7 @@
                 href="{{ get_lesson_url(course.name, lesson.number) }}{{course.query_parameter}}"
                 data-course="{{ course.name }}">
 
-                <svg class="icon icon-sm">
+                <svg class="icon icon-sm mr-2">
                     <use class="" href="#icon-lock">
                 </svg>
                 <div>{{ lesson.title }}</div>
@@ -56,7 +56,7 @@
             {% else %}
             <div class="no-preview" title="This lesson is not available for preview" data-course="{{ course.name }}">
                 <div class="lesson-links">
-                <svg class="icon icon-sm">
+                <svg class="icon icon-sm mr-2">
                     <use class="" href="#icon-lock-gray">
                 </svg>
                 <div>{{ lesson.title }}</div>
