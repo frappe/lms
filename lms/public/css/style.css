@@ -1304,7 +1304,6 @@ pre {
 .question-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   margin-bottom: 2rem;
 }
 
@@ -1328,7 +1327,8 @@ pre {
   font-size: var(--text-lg);
   color: var(--gray-900);
   font-weight: 600;
-  width: 75%;
+  flex: 1;
+  margin: 0 1rem;
 }
 
 .profile-page-body {

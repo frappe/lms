@@ -25,7 +25,7 @@
         </div>
         {% endif %}
 
-        {% if course.status and course.status != "Approved"%}
+        {% if course.status and course.status != "Approved" %}
         {% set pill_color = "gray" if course.status == "In Progress" else "orange" %}
         <div class="pull-right indicator-pill {{ pill_color }} "> {{ course.status }} </div>
         {% endif %}
