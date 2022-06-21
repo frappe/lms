@@ -27,3 +27,4 @@ school.patches.v0_0.set_status_in_course #21-03-2022
 lms.patches.v0_0.change_published_field_data #25-03-2022
 execute:frappe.delete_doc("Workspace", "School", ignore_missing=True, force=True)
 lms.patches.v0_0.move_certification_to_certificate
+lms.patches.v0_0.quiz_submission_member

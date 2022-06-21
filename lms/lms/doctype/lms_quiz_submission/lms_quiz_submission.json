@@ -5,9 +5,10 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "member",
   "quiz",
-  "result",
-  "score"
+  "score",
+  "result"
  ],
  "fields": [
   {
@@ -29,11 +30,20 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Score"
+  },
+  {
+   "fieldname": "member",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Member",
+   "options": "User"
   }
  ],
+ "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-08-26 12:24:15.973829",
+ "modified": "2022-06-20 10:13:23.013802",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz Submission",
@@ -54,5 +64,6 @@
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
+ "states": [],
  "track_changes": 1
 }
