@@ -2,10 +2,10 @@
 from __future__ import unicode_literals
 from . import __version__ as app_version
 
-app_name = "lms"
-app_title = "LMS"
+app_name = "frappe_lms"
+app_title = "Frappe LMS"
 app_publisher = "Frappe"
-app_description = "LMS App"
+app_description = "Frappe LMS App"
 app_icon = "octicon octicon-file-directory"
 app_color = "grey"
 app_email = "school@frappe.io"
