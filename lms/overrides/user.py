@@ -20,9 +20,9 @@ class CustomUser(User):
 
     def validate_username_characters(self):
         if len(self.username):
-            underscore_condition = self.username[0] == "_" or self.username[-1] == "_"
+            other_conditions = self.username[0] == "_" or self.username[-1] == "_" or "-" in self.username
         else:
-            underscore_condition = ''
+            other_conditions = ''
 
         regex = re.compile('[@!#$%^&*()<>?/\|}{~:-]')
 
@@ -33,11 +33,11 @@ class CustomUser(User):
             if self.username.find(" "):
                 self.username.replace(" ", "")
 
-            if regex.search(self.username) or underscore_condition:
-                self.username = self.remove_illegal_characters()
-
             if len(self.username) < 4:
                 self.username = self.email.replace("@", "").replace(".", "")
+
+            if regex.search(self.username) or other_conditions:
+                self.username = self.remove_illegal_characters()
 
             while self.username_exists():
                 self.username = self.remove_illegal_characters() + str(random.randint(0, 99))
@@ -49,8 +49,11 @@ class CustomUser(User):
             if regex.search(self.username):
                 frappe.throw(_("Username can only contain alphabets, numbers and underscore."))
 
-            if underscore_condition:
-                frappe.throw(_("First and Last character of username cannot be Underscore(_)."))
+            if other_conditions:
+                if "-" in self.username:
+                    frappe.throw(_("Username cannot contain a Hyphen(-)"))
+                else:
+                    frappe.throw(_("First and Last character of username cannot be Underscore(_)."))
 
             if len(self.username) < 4:
                 frappe.throw(_("Username cannot be less than 4 characters"))
