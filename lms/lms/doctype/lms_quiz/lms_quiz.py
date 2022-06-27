@@ -68,7 +68,8 @@ def quiz_summary(quiz, results):
         "doctype": "LMS Quiz Submission",
         "quiz": quiz,
         "result": results,
-        "score": score
+        "score": score,
+        "member": frappe.session.user
     }).save(ignore_permissions=True)
 
     return score

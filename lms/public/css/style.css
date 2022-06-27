@@ -900,7 +900,7 @@ pre {
 }
 
 .empty-state {
-  background: var(--gray-50);
+  background: var(--gray-200);
   border-radius: var(--border-radius-lg);
   padding: 2rem;
   display: flex;
