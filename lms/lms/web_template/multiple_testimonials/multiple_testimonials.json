@@ -8,6 +8,12 @@
    "fieldname": "title",
    "fieldtype": "Data",
    "label": "Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "subtitle",
+   "fieldtype": "Small Text",
+   "label": "Subtitle",
    "reqd": 0
   },
   {
@@ -25,7 +31,7 @@
   }
  ],
  "idx": 1,
- "modified": "2022-03-21 11:52:27.728610",
+ "modified": "2022-06-28 17:16:39.614879",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Multiple Testimonials",

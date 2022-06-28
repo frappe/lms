@@ -1,6 +1,9 @@
 <div>
     {% include "public/icons/symbol-defs.svg" %}
     <h2 class="section-title">{{ _(title) }}</h2>
+    {% if subtitle %}
+    <p> {{ _(subtitle) }} </p>
+    {% endif %}
     <div class="cards-parent mt-10">
         {% for course_row in courses %}
         {% set course = frappe.db.get_value("LMS Course", course_row.course,

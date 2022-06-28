@@ -1,17 +1,25 @@
-<h3 class="section-title text-center mb-10">{{ _(title) }}</h3>
-<div id="carouselExampleControls" class="carousel slide" data-ride="carousel" data-interval="5000">
+<div class="text-center mb-10">
+    <h3 class="section-title">{{ _(title) }}</h3>
+    {% if subtitle %}
+    <p class="section-subtitle"> {{ _(subtitle) }} </p>
+    {% endif %}
+</div>
+<!-- data-ride="carousel" data-interval="5000" -->
+<div id="carouselExampleControls" class="carousel slide">
     <div class="carousel-inner">
 
         {% for testimonial_row in testimonials_table %}
         {% set review = frappe.db.get_value("LMS Course Review", testimonial_row.testimonials, ["owner", "review"], as_dict=True) %}
         {% set member = frappe.db.get_value("User", review.owner, ["name", "username", "full_name", "user_image", "headline"], as_dict=True) %}
         <div class="testimonial carousel-item {% if loop.index == 1 %} active {% endif %} ">
-            {{ widgets.Avatar(member=member, avatar_class="avatar-large") }}
-            <div class="testimonial-content">
-                “{{ review.review }}”
-            </div>
-            <div class="testimonial-by">
-                {{ member.full_name }}
+            <div class="common-card-style p-10" style="width: 70%; margin: 0 auto;">
+                {{ widgets.Avatar(member=member, avatar_class="avatar-large") }}
+                <div class="ml-10">
+                    <div class="">“{{ review.review }}”</div>
+                    <div class="mt-2">
+                        - {{ member.full_name }}
+                    </div>
+                </div>
             </div>
         </div>
         {% endfor %}
