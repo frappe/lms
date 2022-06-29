@@ -945,8 +945,7 @@ pre {
 
 .testimonial-card {
   flex-direction: column;
-  justify-content: space-between;
-  padding: 1rem;
+  padding: 2rem;
   height: 100%;
 }
 
@@ -959,6 +958,14 @@ pre {
 .testimonial-review {
   color: var(--text-color);
   margin-bottom: 2rem;
+}
+
+.testimonial-footer {
+    display: flex;
+    align-items: center;
+    border-top: 1px solid var(--gray-200);
+    padding-top: 2rem;
+    margin-top: auto;
 }
 
 .testimonial-profession {
@@ -986,7 +993,7 @@ pre {
 
 .carousel-control-prev, .carousel-control-next {
   width: auto;
-  top: 30%;
+  top: 40%;
   height: fit-content;
   background: white;
   border-radius: 50%;

@@ -5,21 +5,25 @@
  "doctype": "Web Template",
  "fields": [
   {
-   "__unsaved": 1,
    "fieldname": "title",
    "fieldtype": "Data",
    "label": "Title",
-   "reqd": 0
+   "reqd": 1
   },
   {
    "__unsaved": 1,
+   "fieldname": "subtitle",
+   "fieldtype": "Small Text",
+   "label": "Subtitle",
+   "reqd": 0
+  },
+  {
    "fieldname": "courses",
    "fieldtype": "Table Break",
    "label": "Courses",
    "reqd": 0
   },
   {
-   "__unsaved": 1,
    "fieldname": "course",
    "fieldtype": "Link",
    "label": "Course",
@@ -27,8 +31,8 @@
    "reqd": 0
   }
  ],
- "idx": 0,
- "modified": "2021-08-26 10:35:35.903834",
+ "idx": 2,
+ "modified": "2022-06-28 17:15:55.981008",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Course Cards",

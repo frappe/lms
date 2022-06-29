@@ -1,27 +1,50 @@
-<h3 class="section-title text-center mb-10">{{ _(title) }}</h3>
-<div id="carouselExampleControls" class="carousel slide" data-ride="carousel" data-interval="5000">
+<div class="text-center mb-10">
+    <h3 class="section-title">{{ _(title) }}</h3>
+    {% if subtitle %}
+    <p class="section-subtitle"> {{ _(subtitle) }} </p>
+    {% endif %}
+</div>
+<!-- data-ride="carousel" data-interval="5000" -->
+<div id="carouselExampleControls" class="carousel slide">
     <div class="carousel-inner">
 
         {% for testimonial_row in testimonials_table %}
         {% set review = frappe.db.get_value("LMS Course Review", testimonial_row.testimonials, ["owner", "review"], as_dict=True) %}
         {% set member = frappe.db.get_value("User", review.owner, ["name", "username", "full_name", "user_image", "headline"], as_dict=True) %}
-        <div class="testimonial carousel-item {% if loop.index == 1 %} active {% endif %} ">
-            {{ widgets.Avatar(member=member, avatar_class="avatar-large") }}
-            <div class="testimonial-content">
-                “{{ review.review }}”
+        {% if loop.index % 3 == 1 %}
+        <div class="carousel-item {% if loop.index == 1 %} active {% endif %}"> <div class="cards-parent">
+        {% endif %}
+        <div class="common-card-style testimonial-card">
+            <svg class="icon icon-xl">
+                <use href="#icon-quote"></use>
+            </svg>
+            <div class="testimonial-review">
+                {{ review.review }}
             </div>
-            <div class="testimonial-by">
-                {{ member.full_name }}
-            </div>
+            <div class="testimonial-footer">
+                <div>
+                  {{ widgets.Avatar(member=member, avatar_class="avatar-medium") }}
+                </div>
+                <div class="ml-3">
+                  <div class="testimonial-author-name" >{{ member.full_name }}</div>
+                  {% if member.headline %}<div class="testimonial-profession">{{ member.headline }}</div> {% endif %}
+                </div>
+              </div>
         </div>
+        {% if loop.index % 3 == 0 or loop.index == testimonials_table | length %} </div> </div> {% endif %}
         {% endfor %}
+        </div>
+
+        {% if testimonials_table | length > 3 %}
+            <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="sr-only">Previous</span>
+              </a>
+              <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="sr-only">Next</span>
+              </a>
+        {% endif %}
     </div>
-    <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
-      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-      <span class="sr-only">Previous</span>
-    </a>
-    <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
-      <span class="carousel-control-next-icon" aria-hidden="true"></span>
-      <span class="sr-only">Next</span>
-    </a>
+
 </div>
