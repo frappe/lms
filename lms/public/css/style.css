@@ -1105,14 +1105,19 @@ pre {
 }
 
 .job-card {
-  display: flex;
-  align-items: center;
-  position: relative;
+    position: relative;
+    padding: 1rem;
 }
 
 .company-logo {
-  background-position: center;
-  background-size: 42px;
+    background-position: center;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: var(--border-radius-sm);
+    width: 50px;
+    height: 50px;
+    margin-right: 0.5rem;
 }
 
 .job-card-parent {
@@ -1121,11 +1126,9 @@ pre {
 }
 
 .job-card-logo-section {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: space-between;
-  margin-left: auto;
+    display: flex;
+    align-items: center;
+    margin-top: 1rem;
 }
 
 .job-detail-card {
@@ -1136,11 +1139,6 @@ pre {
 .job-subtitle {
   font-size: var(--text-base);
   margin-bottom: 1.875rem;
-}
-
-.job-list-card {
-  padding: 1.25rem 1.56rem;
-  flex-direction: column;
 }
 
 .job-card-heading {
@@ -1450,4 +1448,36 @@ li {
 
 .discussions-parent .empty-state {
     background-color: var(--gray-200);
+}
+
+.job-cards-parent {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+    -moz-column-gap: 40px;
+    grid-gap: 1rem;
+    align-items: center;
+}
+
+.job-company {
+    display: flex;
+    align-items: center;
+}
+
+@media (max-width: 600px) {
+    .job-company {
+        flex-direction: column;
+        align-items: inherit;
+    }
+}
+
+@media (max-width: 1200px) {
+    .job-cards-parent {
+        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    }
+}
+
+@media (max-width: 500px) {
+    .job-cards-parent {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    }
 }
