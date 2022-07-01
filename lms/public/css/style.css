@@ -1117,7 +1117,7 @@ pre {
     border-radius: var(--border-radius-sm);
     width: 50px;
     height: 50px;
-    margin-right: 0.5rem;
+    margin-right: 1rem;
 }
 
 .job-card-parent {
@@ -1128,11 +1128,11 @@ pre {
 .job-card-logo-section {
     display: flex;
     align-items: center;
-    margin-top: 1rem;
+    margin-top: 0.5rem;
 }
 
 .job-detail-card {
-  padding: 1.5rem;
+  padding: 1rem;
   flex-direction: column;
 }
 
@@ -1144,7 +1144,7 @@ pre {
 .job-card-heading {
   font-weight: 600;
   color: var(--gray-900);
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.5rem;
 }
 
 .course-head-container {
@@ -1463,6 +1463,17 @@ li {
     align-items: center;
 }
 
+.job-actions {
+    display: flex;
+    align-items: flex-start;
+    margin-left: auto;
+    margin-bottom: 1rem;
+}
+
+.job-detail-header {
+    display: flex;
+}
+
 @media (max-width: 600px) {
     .job-company {
         flex-direction: column;
@@ -1479,5 +1490,13 @@ li {
 @media (max-width: 500px) {
     .job-cards-parent {
         grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    }
+
+    .job-detail-header {
+        flex-wrap: wrap;
+    }
+
+    .job-actions {
+        margin-top: 1rem;
     }
 }
