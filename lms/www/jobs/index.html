@@ -8,63 +8,60 @@
 {% block content %}
 <div class="common-page-style">
 
-  <div class="container">
-    {% if allow_posting and jobs | length %}
-    <a class="button is-primary pull-right mt-5" href="/job-opportunity?new=1">{{ _("Post a Job") }}</a>
-    {% endif %}
+    <div class="container">
+        {% if allow_posting and jobs | length %}
+        <a class="button is-primary pull-right" href="/job-opportunity?new=1">{{ _("Post a Job") }}</a>
+        {% endif %}
 
-    <div class="course-home-headings mb-2">{{ _("{0}").format(title) }}</div>
-    <div class="job-subtitle">{{ _("{0}").format(subtitle) }}</div>
+        <div class="course-home-headings mb-2">{{ _("{0}").format(title) }}</div>
+        <div class="job-subtitle">{{ _("{0}").format(subtitle) }}</div>
 
-    {% if jobs | length %}
-    <div class="common-card-style job-list-card">
-    {% for job in jobs %}
-      <div class="job-card">
-        <div class="avatar avatar-medium mr-3" title="{{ job.company_name}}">
-          <span class="avatar-frame company-logo" style="background-image: url( {{ job.company_logo | urlencode }} );"></span>
-        </div>
-        <div class="job-card-info">
-          <div class="job-card-heading">{{ _(job.job_title) }}</div>
-          <div class="vertically-center course-meta">
-            <div class="mr-5">{{ job.company_name }}</div>
-            <div class="vertically-center">
-              <svg class="icon icon-sm">
-                <use class="" href="#icon-location">
-              </svg>
-              {{ job.location }}
+        {% if jobs | length %}
+        <div class="job-cards-parent">
+        {% for job in jobs %}
+            <div class="common-card-style job-card">
+                <span title="{{ job.company_name}}" style="background-image: url( {{ job.company_logo | urlencode }} );"
+                class="company-logo"></span>
+                <div class="job-card-info">
+                    <div class="job-card-heading">{{ _(job.job_title) }}</div>
+
+                    <div class="job-company course-meta">
+                        <div class="mr-5">{{ job.company_name }}</div>
+                        <div class="vertically-center">
+                            <svg class="icon icon-sm">
+                                <use class="" href="#icon-location">
+                            </svg>
+                            {{ job.location }}
+                        </div>
+                    </div>
+
+                    <div class="job-card-logo-section course-meta">
+                        <div class="indicator-pill green mr-5"> {{ job.type }} </div>
+                        <div class="text-muted">{{ frappe.utils.format_date(job.creation, "medium") }}</div>
+                    </div>
+                </div>
+                <a class="stretched-link" href="/jobs/{{ job.name }}"></a>
             </div>
-         </div>
+        {% endfor %}
         </div>
-
-        <div class="job-card-logo-section course-meta">
-          <div class="indicator-pill green ml-3"> {{ job.type }} </div>
-          <div class="mt-2 text-muted">{{ frappe.utils.format_date(job.creation, "medium") }}</div>
-        </div>
-        <a class="stretched-link" href="/jobs/{{ job.name }}"></a>
-      </div>
-      {% if loop.index != jobs | length %}
-      <div class="card-divider mt-5"></div>
-      {% endif %}
-    {% endfor %}
     </div>
-      </div>
     {% else %}
 
     <div class="empty-state">
-      <div>
-        <img class="icon icon-xl" src="/assets/lms/icons/comment.svg">
-      </div>
-      <div class="empty-state-text">
-        <div class="empty-state-heading">{{ _("No open jobs") }}</div>
-        <div class="course-meta">{{ _("There are no job openings at present.") }}</div>
-      </div>
-      <div>
-        {% if allow_posting %}
-        <a class="button is-secondary dark-links m-auto" href="/job-opportunity?new=1">{{ _("Post a Job") }}</a>
-        {% endif %}
-      </div>
+        <div>
+            <img class="icon icon-xl" src="/assets/lms/icons/comment.svg">
+        </div>
+        <div class="empty-state-text">
+            <div class="empty-state-heading">{{ _("No open jobs") }}</div>
+            <div class="course-meta">{{ _("There are no job openings at present.") }}</div>
+        </div>
+        <div>
+            {% if allow_posting %}
+            <a class="button is-secondary dark-links m-auto" href="/job-opportunity?new=1">{{ _("Post a Job") }}</a>
+            {% endif %}
+        </div>
     </div>
     {% endif %}
-  </div>
+    </div>
 </div>
 {% endblock %}
