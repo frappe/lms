@@ -14,14 +14,14 @@
 </p>
 
 
-<div>
+<div align="center">
   <a href="https://www.frappelms.com/">
     <img src="https://www.frappelms.com/files/flms.svg" alt="Frappe LMS" width="80" height="80">
   </a>
 
-  <h3>Frappe LMS</h3>
+  <h3 align="center">Frappe LMS</h3>
 
-  <p>
+  <p align="center">
     Easy to Use, Open Source Learning Management System
     <br />
     <a href="https://www.frappelms.com"><strong>Visit the website »</strong></a>
