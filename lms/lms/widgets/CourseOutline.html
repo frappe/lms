@@ -1,109 +1,98 @@
 {% if get_chapters(course.name) | length %}
 <div class="course-home-outline">
-  <div class="course-home-headings">
-    {{ _("Course Content") }}
-  </div>
-  {% for chapter in get_chapters(course.name) %}
-  <div class="">
-    <div class="chapter-title" data-target="#{{ get_slugified_chapter_title(chapter.title) }}"
-      data-toggle="collapse" aria-expanded="false">
-      <img class="chapter-icon" src="/assets/lms/icons/chevron-right.svg">
-      <div>{{ chapter.title }}</div>
+    <div class="course-home-headings">
+        {{ _("Course Content") }}
     </div>
-
-    <div class="chapter-content collapse navbar-collapse" id="{{ get_slugified_chapter_title(chapter.title) }}">
-
-        {% if chapter.description %}
-        <div class="chapter-description muted-text">
-            {{ chapter.description }}
+    {% for chapter in get_chapters(course.name) %}
+    <div class="">
+        <div class="chapter-title" data-target="#{{ get_slugified_chapter_title(chapter.title) }}"
+        data-toggle="collapse" aria-expanded="false">
+            {% if not course.edit_mode %}
+            <img class="chapter-icon" src="/assets/lms/icons/chevron-right.svg">
+            {% endif %}
+            <div class="w-100 chapter-title-main" {% if course.edit_mode %} contenteditable="true" {% endif %} >{{ chapter.title }}</div>
         </div>
-        {% endif %}
 
-        {% set is_instructor = is_instructor(course.name) %}
-        <div class="lessons">
+        <div class="chapter-content collapse navbar-collapse" id="{{ get_slugified_chapter_title(chapter.title) }}">
 
-            {% for lesson in get_lessons(course.name, chapter) %}
-            {% set active = membership.current_lesson == lesson.name %}
-            <div class="lesson-info {% if active %} active-lesson {% endif %}">
-
-            {% if membership or lesson.include_in_preview %}
-            <a class="lesson-links" href="{{ get_lesson_url(course.name, lesson.number) }}{{course.query_parameter}}"
-                data-course="{{ course.name }}">
-                <svg class="icon icon-sm mr-2">
-                <use class="" href="#{{ lesson.icon }}">
-                </svg>
-                <span>{{ lesson.title }}</span>
-                {% if membership %}
-                <svg class="icon icon-sm lesson-progress-tick {{ get_progress(course.name, lesson.name) != 'Complete' and 'hide' }}">
-                    <use class="" href="#icon-green-check">
-                </svg>
-                {% endif %}
-
-            </a>
-
-            {% elif is_instructor and not lesson.include_in_preview %}
-            <a class="lesson-links"
-                title="This lesson is not available for preview. As you are the Instructor of the course only you can see it."
-                href="{{ get_lesson_url(course.name, lesson.number) }}{{course.query_parameter}}"
-                data-course="{{ course.name }}">
-
-                <svg class="icon icon-sm mr-2">
-                    <use class="" href="#icon-lock">
-                </svg>
-                <div>{{ lesson.title }}</div>
-            </a>
-
-            {% else %}
-            <div class="no-preview" title="This lesson is not available for preview" data-course="{{ course.name }}">
-                <div class="lesson-links">
-                <svg class="icon icon-sm mr-2">
-                    <use class="" href="#icon-lock-gray">
-                </svg>
-                <div>{{ lesson.title }}</div>
-                </div>
-            </div>
+            {% if chapter.description or course.edit_mode %}
+            <div {% if course.edit_mode %} contenteditable="true" {% endif %} class="chapter-description
+            {% if not course.edit_mode %} mx-8 mb-2 {% endif %} "
+            data-placeholder="{{ _('Short Description') }}">{{ chapter.description }}</div>
             {% endif %}
 
-            </div>
-            {% endfor %}
+            {% if course.edit_mode %}
+            <button class="btn btn-sm btn-secondary d-block btn-save-chapter mt-2 mb-8"> {{ _('Save') }} </button>
+            {% endif %}
 
+            {% set is_instructor = is_instructor(course.name) %}
+            <div class="lessons">
+
+                {% for lesson in get_lessons(course.name, chapter) %}
+                {% set active = membership.current_lesson == lesson.name %}
+                <div class="lesson-info {% if active and not course.edit_mode %} active-lesson {% endif %}">
+
+                {% if membership or lesson.include_in_preview %}
+                <a class="lesson-links" href="{{ get_lesson_url(course.name, lesson.number) }}{{course.query_parameter}}"
+                    data-course="{{ course.name }}">
+                    <svg class="icon icon-sm mr-2">
+                        <use class="" href="#{{ lesson.icon }}">
+                    </svg>
+                    <span>{{ lesson.title }}</span>
+                    {% if membership %}
+                    <svg class="icon icon-sm lesson-progress-tick {{ get_progress(course.name, lesson.name) != 'Complete' and 'hide' }}">
+                        <use class="" href="#icon-green-check">
+                    </svg>
+                    {% endif %}
+
+                </a>
+
+                {% elif is_instructor and not lesson.include_in_preview %}
+                <a class="lesson-links"
+                    title="This lesson is not available for preview. As you are the Instructor of the course only you can see it."
+                    href="{{ get_lesson_url(course.name, lesson.number) }}{{course.query_parameter}}"
+                    data-course="{{ course.name }}">
+
+                    <svg class="icon icon-sm mr-2">
+                        <use class="" href="#icon-lock">
+                    </svg>
+                    <div>{{ lesson.title }}</div>
+                </a>
+
+                {% else %}
+                <div class="no-preview" title="This lesson is not available for preview" data-course="{{ course.name }}">
+                    <div class="lesson-links">
+                    <svg class="icon icon-sm mr-2">
+                        <use class="" href="#icon-lock-gray">
+                    </svg>
+                    <div>{{ lesson.title }}</div>
+                    </div>
+                </div>
+                {% endif %}
+
+                </div>
+                {% endfor %}
+
+            </div>
         </div>
     </div>
-  </div>
-  {% endfor %}
+    {% endfor %}
+
+    <div>
+        <button class="btn btn-md btn-secondary btn-chapter" data-index=" {{ chapters | length + 1 }} "> {{ _("Add Chapter") }} </button>
+    </div>
 </div>
 
 <!-- No Preview Modal -->
-<div class="modal fade no-preview-modal" id="no-preview-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="font-weight-bold">{{ _("Not available for preview") }}</div>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                {% if is_user_interested %}
-                    <div class=""> {{ _("You have opted to be notified for this course. You will receive an email when the course becomes available.") }} </div>
-                {% else %}
-                    <div class=""> {{ _("This lesson is not available for preview. Please join the course to access it.") }} </div>
-                {% endif %}
-            </div>
-            {% if not is_user_interested %}
-            <div class="modal-footer">
-                {% if course.upcoming %}
-                <div class="button is-primary notify-me" data-course="{{course.name | urlencode}}">
-                    {{ _("Notify me when available") }}
-                </div>
-                {% else %}
-                <div class="button is-primary join-batch" data-course="{{ course.name | urlencode}}">
-                {{ _("Start Learning") }}</div>
-                {% endif %}
-            </div>
-            {% endif %}
-        </div>
+{{ widgets.NoPreviewModal(course=course) }}
+
+{% elif course.edit_mode and course.name %}
+<div class="course-home-outline">
+    <div class="course-home-headings">
+      {{ _("Course Content") }}
+    </div>
+    <div>
+        <button class="btn btn-md btn-secondary btn-chapter" data-index="1"> {{ _("Add Chapter") }} </button>
     </div>
 </div>
 {% endif %}

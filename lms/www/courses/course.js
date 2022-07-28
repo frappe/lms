@@ -1,5 +1,7 @@
 frappe.ready(() => {
 
+    setup_vue_and_file_size();
+
     hide_wrapped_mentor_cards();
 
     $("#cancel-request").click((e) => {
@@ -50,115 +52,164 @@ frappe.ready(() => {
         select_slot(e);
     });
 
+    $(".btn-attach").click((e) => {
+        show_upload_modal(e);
+    });
+
+    $(".btn-clear").click((e) => {
+        clear_image(e);
+    });
+
+    $(".btn-tag").click((e) => {
+        add_tag(e);
+    });
+
+    $(".btn-save-course").click((e) => {
+        save_course(e);
+    });
+
+    $(".btn-delete-tag").click((e) => {
+        remove_tag(e);
+    });
+
 });
 
-var hide_wrapped_mentor_cards = () => {
-  var offset_top_prev;
 
-  $(".member-parent .member-card").each(function () {
-    var offset_top = $(this).offset().top;
-    if (offset_top > offset_top_prev) {
-      $(this).addClass('wrapped').slideUp("fast");
+const setup_vue_and_file_size = () => {
+    frappe.require("/assets/frappe/node_modules/vue/dist/vue.js", () => {
+        Vue.prototype.__ = window.__;
+        Vue.prototype.frappe = window.frappe;
+    });
+
+    frappe.provide("frappe.form.formatters");
+    frappe.form.formatters.FileSize = file_size;
+};
+
+
+const file_size = (value) => {
+    if(value > 1048576) {
+        value = flt(flt(value) / 1048576, 1) + "M";
+    } else if (value > 1024) {
+        value = flt(flt(value) / 1024, 1) + "K";
     }
-    if (!offset_top_prev) {
-      offset_top_prev = offset_top;
+    return value;
+};
+
+
+const hide_wrapped_mentor_cards = () => {
+    let offset_top_prev;
+
+    $(".member-parent .member-card").each(function () {
+        var offset_top = $(this).offset().top;
+        if (offset_top > offset_top_prev) {
+            $(this).addClass('wrapped').slideUp("fast");
+        }
+        if (!offset_top_prev) {
+            offset_top_prev = offset_top;
+        }
+    });
+
+    if ($(".wrapped").length < 1) {
+        $(".view-all-mentors").hide();
     }
+};
 
-  });
 
-  if ($(".wrapped").length < 1) {
-    $(".view-all-mentors").hide();
-  }
-}
+const cancel_mentor_request = (e) => {
+    e.preventDefault();
+    frappe.call({
+        "method": "lms.lms.doctype.lms_mentor_request.lms_mentor_request.cancel_request",
+        "args": {
+            "course": decodeURIComponent($(e.currentTarget).attr("data-course"))
+        },
+        "callback": (data) => {
+            if (data.message == "OK") {
+                $("#mentor-request").removeClass("hide");
+                $("#already-applied").addClass("hide")
+            }
+        }
+    });
+};
 
-var cancel_mentor_request = (e) => {
-  e.preventDefault()
-  frappe.call({
-    "method": "lms.lms.doctype.lms_mentor_request.lms_mentor_request.cancel_request",
-    "args": {
-      "course": decodeURIComponent($(e.currentTarget).attr("data-course"))
-    },
-    "callback": (data) => {
-      if (data.message == "OK") {
-        $("#mentor-request").removeClass("hide");
-        $("#already-applied").addClass("hide")
-      }
+
+const view_all_mentors = (e) => {
+    $(".wrapped").each((i, element) => {
+        $(element).slideToggle("slow");
+    })
+    var text_element = $(".view-all-mentors .course-instructor .all-mentors-text");
+    var text = text_element.text() == "View all mentors" ? "View less" : "View all mentors";
+    text_element.text(text);
+
+    if ($(".mentor-icon").css("transform") == "none") {
+        $(".mentor-icon").css("transform", "rotate(180deg)");
+    } else {
+        $(".mentor-icon").css("transform", "");
     }
-  })
-}
+};
 
-var view_all_mentors = (e) => {
-  $(".wrapped").each((i, element) => {
-    $(element).slideToggle("slow");
-  })
-  var text_element = $(".view-all-mentors .course-instructor .all-mentors-text");
-  var text = text_element.text() == "View all mentors" ? "View less" : "View all mentors";
-  text_element.text(text);
 
-  if ($(".mentor-icon").css("transform") == "none") {
-    $(".mentor-icon").css("transform", "rotate(180deg)");
-  } else {
-    $(".mentor-icon").css("transform", "");
-  }
-}
+const show_review_dialog = (e) => {
+    e.preventDefault();
+    $("#review-modal").modal("show");
+};
 
-var show_review_dialog = (e) => {
-  e.preventDefault();
-  $("#review-modal").modal("show");
-}
 
-var highlight_rating = (e) => {
-  var rating = $(e.currentTarget).attr("data-rating");
-  $(".icon-rating").removeClass("star-click");
-  $(".icon-rating").each((i, elem) => {
-    if (i <= rating-1) {
-      $(elem).addClass("star-click");
-    }
-  })
-}
+const highlight_rating = (e) => {
+    var rating = $(e.currentTarget).attr("data-rating");
+    $(".icon-rating").removeClass("star-click");
+    $(".icon-rating").each((i, elem) => {
+        if (i <= rating-1) {
+            $(elem).addClass("star-click");
+        }
+    });
+};
+
 
 var submit_review = (e) => {
-  e.preventDefault();
-  var rating = $(".rating-field").children(".star-click").length;
-  var review = $(".review-field").val();
-  if (!rating) {
-    $(".error-field").text("Please provide a rating.");
-    return;
-  }
-  frappe.call({
-    method: "lms.lms.doctype.lms_course_review.lms_course_review.submit_review",
-    args: {
-      "rating": rating,
-      "review": review,
-      "course": decodeURIComponent($(e.currentTarget).attr("data-course"))
-    },
-    callback: (data) => {
-      if (data.message == "OK") {
-        $(".review-modal").modal("hide");
-        window.location.reload();
-      }
+    e.preventDefault();
+    var rating = $(".rating-field").children(".star-click").length;
+    var review = $(".review-field").val();
+    if (!rating) {
+        $(".error-field").text("Please provide a rating.");
+        return;
     }
-  })
+    frappe.call({
+        method: "lms.lms.doctype.lms_course_review.lms_course_review.submit_review",
+        args: {
+        "rating": rating,
+        "review": review,
+        "course": decodeURIComponent($(e.currentTarget).attr("data-course"))
+        },
+        callback: (data) => {
+            if (data.message == "OK") {
+                $(".review-modal").modal("hide");
+                window.location.reload();
+            }
+        }
+    });
 };
+
 
 const create_certificate = (e) => {
-  e.preventDefault();
-  course = $(e.currentTarget).attr("data-course");
-  frappe.call({
-    method: "lms.lms.doctype.lms_certificate.lms_certificate.create_certificate",
-    args: {
-      "course": course
-    },
-    callback: (data) => {
-      window.location.href = `/courses/${course}/${data.message.name}`;
-    }
-  })
+    e.preventDefault();
+    course = $(e.currentTarget).attr("data-course");
+    frappe.call({
+        method: "lms.lms.doctype.lms_certificate.lms_certificate.create_certificate",
+        args: {
+        "course": course
+        },
+        callback: (data) => {
+            window.location.href = `/courses/${course}/${data.message.name}`;
+        }
+    });
 };
 
+
 const element_not_in_viewport = (el) => {
-  const rect = el.getBoundingClientRect();
-  return rect.bottom < 0 || rect.right < 0 || rect.left > window.innerWidth || rect.top > window.innerHeight;
+    const rect = el.getBoundingClientRect();
+    return rect.bottom < 0 || rect.right < 0 || rect.left > window.innerWidth || rect.top > window.innerHeight;
 };
+
 
 const submit_for_review = (e) => {
     let course = $(e.currentTarget).data("course");
@@ -184,11 +235,11 @@ const submit_for_review = (e) => {
     });
 };
 
+
 const apply_cetificate = (e) => {
     $("#slot-modal").modal("show");
-
-
 };
+
 
 const submit_slot = (e) => {
     e.preventDefault();
@@ -214,6 +265,7 @@ const submit_slot = (e) => {
         }
     });
 };
+
 
 const display_slots = (e) => {
     frappe.call({
@@ -249,18 +301,73 @@ const display_slots = (e) => {
     });
 };
 
+
 const select_slot = (e) => {
     $(".slot").removeClass("btn-outline-primary");
     $(e.currentTarget).addClass("btn-outline-primary");
     window.selected_slot = $(e.currentTarget);
 };
 
+
 const format_time = (time) => {
     let date = moment(new Date()).format("ddd MMM DD YYYY");
     return moment(`${date} ${time}`).format("HH:mm a");
 };
 
+
 const close_slot_modal = (e) => {
     $("#slot-date").val("");
     $(".slot-label").addClass("hide");
-}
+};
+
+
+const show_upload_modal = () => {
+    new frappe.ui.FileUploader({
+        folder: "Home/Attachments",
+        restrictions: {
+            allowed_file_types: ['image/*']
+        },
+        on_success: (file_doc) => {
+            $(".course-image-attachment").removeClass("hide");
+            $(".course-image-attachment a").attr("href", file_doc.file_url).text(file_doc.file_url);
+            $(".btn-attach").addClass("hide");
+        },
+    });
+};
+
+
+const clear_image = () => {
+    $(".course-image-attachment").addClass("hide");
+    $(".course-image-attachment a").removeAttr("href");
+    $(".btn-attach").removeClass("hide");
+};
+
+
+const add_tag = (e) => {
+    $(`<div class="course-card-pills" contenteditable="true"
+        data-placeholder="${__('Tags')}"></div>`).insertBefore(`.btn-tag`);
+};
+
+
+const save_course = (e) => {
+    let course = $("#title").data("course");
+    frappe.call({
+        method: "lms.lms.doctype.lms_course.lms_course.save_course",
+        args: {
+            "tags": $('.course-card-pills').map((i, el) => $(el).text().trim()).get().join(", "),
+            "title": $("#title").text(),
+            "short_introduction": $("#intro").text(),
+            "video_link": $("#video-link").text(),
+            "image": $("#image").attr("href"),
+            "description": $("#description").text(),
+            "course": course ? course : ""
+        },
+        callback: (data) => {
+            window.location.href = `/courses/${data.message}?edit=1`;
+        }
+    });
+};
+
+const remove_tag = (e) => {
+    $(e.currentTarget).closest(".course-card-pills").remove();
+};

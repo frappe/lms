@@ -53,6 +53,8 @@ def get_membership(course, member, batch=None):
 def get_chapters(course):
     """Returns all chapters of this course.
     """
+    if not course:
+        return []
     chapters = frappe.get_all("Chapter Reference", {"parent": course},
         ["idx", "chapter"], order_by="idx")
     for chapter in chapters:
@@ -373,3 +375,15 @@ def format_amount(amount, currency):
         return amount
     precision = 0 if amount % 1000 == 0 else 1
     return _("{0}k").format(fmt_money(amount_reduced, precision, currency))
+
+
+def first_lesson_exists(course):
+    first_chapter = frappe.db.get_value("Chapter Reference", {"parent": course, "idx": 1}, "name")
+    if not first_chapter:
+        return False
+
+    first_lesson = frappe.db.get_value("Lesson Reference", {"parent": first_chapter, "idx": 1}, "name")
+    if not first_lesson:
+        return False
+
+    return True

@@ -2,6 +2,7 @@
 # For license information, please see license.txt
 
 from __future__ import unicode_literals
+from codecs import ignore_errors
 import frappe
 from frappe.model.document import Document
 import json
@@ -203,3 +204,47 @@ def submit_for_review(course):
         return "No Chp"
     frappe.db.set_value("LMS Course", course, "status", "Under Review")
     return "OK"
+
+
+@frappe.whitelist()
+def save_course(tags, title, short_introduction, video_link, image, description, course):
+    if course:
+        doc = frappe.get_doc("LMS Course", course)
+    else:
+        doc = frappe.get_doc({
+            "doctype": "LMS Course"
+        })
+
+    doc.update({
+        "title": title,
+        "short_introduction": short_introduction,
+        "video_link": video_link,
+        "image": image,
+        "description": description,
+        "tags": tags
+    })
+    doc.save(ignore_permissions=True)
+    return doc.name
+
+
+@frappe.whitelist()
+def save_chapter(course, chapter, chapter_description, idx):
+    chapter = frappe.get_doc({
+        "doctype": "Course Chapter",
+        "course": course,
+        "title": chapter,
+        "description": chapter_description
+    })
+    chapter.save(ignore_permissions=True)
+
+    chapter_reference = frappe.get_doc({
+        "doctype": "Chapter Reference",
+        "parent": course,
+        "chapter": chapter.name,
+        "parenttype": "LMS Course",
+        "parentfield": "chapters",
+        "idx": idx
+    })
+    chapter_reference.save(ignore_permissions=True)
+
+    return chapter.name

@@ -1,17 +1,25 @@
 import frappe
 from lms.lms.doctype.lms_settings.lms_settings import check_profile_restriction
 from lms.lms.utils import get_membership, is_instructor, is_certified, get_evaluation_details
-from frappe.utils import add_months, getdate
 
 def get_context(context):
     context.no_cache = 1
 
     try:
+        print(frappe.form_dict)
         course_name = frappe.form_dict["course"]
     except KeyError:
         frappe.local.flags.redirect_location = "/courses"
         raise frappe.Redirect
 
+    if course_name == "new-course":
+        context.course = frappe._dict()
+        context.course.edit_mode = True
+        context.membership = None
+    else:
+        set_course_context(context, course_name)
+
+def set_course_context(context, course_name):
     course = frappe.db.get_value("LMS Course", course_name,
         ["name", "title", "image", "short_introduction", "description", "published", "upcoming", "disable_self_learning",
         "status", "video_link", "enable_certification", "grant_certificate_after", "paid_certificate",
@@ -42,6 +50,9 @@ def get_context(context):
 
     if context.course.upcoming:
         context.is_user_interested = get_user_interest(context.course.name)
+
+    if frappe.form_dict.get("edit"):
+        context.course.edit_mode = True
 
     context.metatags = {
         "title": course.title,
