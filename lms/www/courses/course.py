@@ -6,11 +6,9 @@ def get_context(context):
     context.no_cache = 1
 
     try:
-        print(frappe.form_dict)
         course_name = frappe.form_dict["course"]
     except KeyError:
-        frappe.local.flags.redirect_location = "/courses"
-        raise frappe.Redirect
+        redirect_to_courses_list()
 
     if course_name == "new-course":
         context.course = frappe._dict()
@@ -25,6 +23,11 @@ def set_course_context(context, course_name):
         "status", "video_link", "enable_certification", "grant_certificate_after", "paid_certificate",
         "price_certificate", "currency", "max_attempts", "duration"],
         as_dict=True)
+
+    if frappe.form_dict.get("edit"):
+        if not is_instructor(course.name):
+            redirect_to_courses_list()
+        course.edit_mode = True
 
     if course is None:
         frappe.local.flags.redirect_location = "/courses"
@@ -51,9 +54,6 @@ def set_course_context(context, course_name):
     if context.course.upcoming:
         context.is_user_interested = get_user_interest(context.course.name)
 
-    if frappe.form_dict.get("edit"):
-        context.course.edit_mode = True
-
     context.metatags = {
         "title": course.title,
         "image": course.image,
@@ -69,3 +69,7 @@ def get_user_interest(course):
 
 def show_start_learing_cta(course, membership, restriction):
     return not course.disable_self_learning and not membership and not course.upcoming and not restriction.get("restrict") and not is_instructor(course.name)
+
+def redirect_to_courses_list():
+    frappe.local.flags.redirect_location = "/courses"
+    raise frappe.Redirect

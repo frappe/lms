@@ -228,23 +228,33 @@ def save_course(tags, title, short_introduction, video_link, image, description,
 
 
 @frappe.whitelist()
-def save_chapter(course, chapter, chapter_description, idx):
-    chapter = frappe.get_doc({
-        "doctype": "Course Chapter",
+def save_chapter(course, title, chapter_description, idx, chapter):
+    if chapter:
+        doc = frappe.get_doc("Course Chapter", chapter)
+    else:
+        doc = frappe.get_doc({
+            "doctype": "Course Chapter"
+        })
+
+    doc.update({
         "course": course,
-        "title": chapter,
+        "title": title,
         "description": chapter_description
     })
-    chapter.save(ignore_permissions=True)
+    doc.save(ignore_permissions=True)
 
-    chapter_reference = frappe.get_doc({
+    if chapter:
+        chapter_reference = frappe.get_doc("Chapter Reference", {"chapter": chapter})
+    else:
+        chapter_reference =  frappe.get_doc({
         "doctype": "Chapter Reference",
         "parent": course,
-        "chapter": chapter.name,
         "parenttype": "LMS Course",
         "parentfield": "chapters",
         "idx": idx
     })
+
+    chapter_reference.update({"chapter": doc.name})
     chapter_reference.save(ignore_permissions=True)
 
-    return chapter.name
+    return doc.name
