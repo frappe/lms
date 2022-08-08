@@ -5,10 +5,10 @@
 <div class="common-page-style">
   <div class="container certificate-page">
 
-    <!-- {% if certificate.member == frappe.session.user %}
-    <div class="button is-secondary pull-right mt-4" id="export-as-pdf" data-certificate="{{ certificate.name }}"
+    {% if certificate.member == frappe.session.user %}
+    <div class="button is-secondary pull-right" id="export-as-pdf" data-certificate="{{ certificate.name }}"
         data-certificate-name="{{ member.full_name }} - {{ course.title }}">{{ _("Export") }}</div>
-    {% endif %} -->
+    {% endif %}
 
     <div class="breadcrumb">
         <a class="dark-links" href="/courses">{{ _("All Courses") }}</a>
