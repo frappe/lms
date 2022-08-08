@@ -42,3 +42,9 @@ def create_certificate(course):
         })
         certificate.save(ignore_permissions=True)
         return certificate
+
+@frappe.whitelist()
+def get_certificate_pdf(html):
+    frappe.local.response.filename = "certificate.pdf"
+    frappe.local.response.filecontent = get_pdf(html, {"orientation": "LandScape"})
+    frappe.local.response.type = "pdf"
