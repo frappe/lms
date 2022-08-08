@@ -72,8 +72,8 @@
     {% endif %}
 </div>
 
-<div {% if course.edit_mode %} data-placeholder="{{ _('Title') }}" contenteditable="true" {% endif %}
-class="course-card-wide-title" id="title" data-course="{{ course.name | urlencode }}">{% if course.title %} {{ course.title }} {% endif %}</div>
+<div {% if course.edit_mode %} data-placeholder="{{ _('Title') }}" contenteditable="true" {% endif %} id="title"
+class="course-card-wide-title" data-course="{{ course.name | urlencode }}">{% if course.title %} {{ course.title }} {% endif %}</div>
 
 <div {% if course.edit_mode %} contenteditable="true" data-placeholder="{{ _('Short Introduction') }}"
 {% endif %} id="intro" >{% if course.short_introduction %} {{ course.short_introduction }} {% endif %}</div>

@@ -17,6 +17,7 @@ def get_context(context):
     else:
         set_course_context(context, course_name)
 
+
 def set_course_context(context, course_name):
     course = frappe.db.get_value("LMS Course", course_name,
         ["name", "title", "image", "short_introduction", "description", "published", "upcoming", "disable_self_learning",
@@ -61,14 +62,17 @@ def set_course_context(context, course_name):
         "keywords": course.title
     }
 
+
 def get_user_interest(course):
     return frappe.db.count("LMS Course Interest", {
             "course": course,
             "user": frappe.session.user
         })
 
+
 def show_start_learing_cta(course, membership, restriction):
     return not course.disable_self_learning and not membership and not course.upcoming and not restriction.get("restrict") and not is_instructor(course.name)
+
 
 def redirect_to_courses_list():
     frappe.local.flags.redirect_location = "/courses"

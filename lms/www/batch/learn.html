@@ -1,6 +1,16 @@
 {% extends "templates/base.html" %}
 {% from "www/macros/livecode.html" import LiveCodeEditorJS, LiveCodeEditor with context %}
-{% block title %} {{ lesson.title }} - {{ course.title }} {% endblock %}
+
+{% block title %}
+
+{% if lesson.title %}
+{{ lesson.title }} - {{ course.title }}
+{% else %}
+{{ _("New Lesson") }}
+{% endif %}
+
+{% endblock %}
+
 
 {% block head_include %}
 {% include "public/icons/symbol-defs.svg" %}
@@ -11,6 +21,7 @@
 {% endfor %}
 
 {% endblock %}
+
 
 {% block content %}
 <div class="common-page-style lesson-page">
@@ -29,25 +40,31 @@
 </div>
 {% endblock %}
 
+
+<!-- BreadCrumb -->
 {% macro BreadCrumb(course, lesson) %}
 <div class="breadcrumb">
     <a class="dark-links" href="/courses">{{ _("All Courses") }}</a>
     <img class="ml-1 mr-1" src="/assets/lms/icons/chevron-right.svg">
     <a class="dark-links" href="/courses/{{ course.name }}">{{ course.title }}</a>
     <img class="ml-1 mr-1" src="/assets/lms/icons/chevron-right.svg">
-    <span class="breadcrumb-destination">{{ lesson.title }}</span>
+    <span class="breadcrumb-destination">{{ lesson.title if lesson.title else _("New Lesson") }}</span>
 </div>
 {% endmacro %}
 
+
+<!-- Lesson Details -->
 {% macro LessonContent(lesson) %}
 {% set instructors = get_instructors(course.name) %}
 {% set is_instructor = is_instructor(course.name) %}
 <div class="common-card-style lesson-content">
   <div class="lesson-title">
-    <div class="course-home-headings title mb-0
-    {% if membership %} is-member {% endif %}
-    {% if membership or is_instructor %} eligible-for-submission {% endif %}" data-lesson="{{ lesson.name }}"
-      data-course="{{ course.name }}">{{ lesson.title }}</div>
+
+    <div class="course-home-headings title mb-0 {% if membership %} is-member {% endif %}
+    {% if membership or is_instructor %} eligible-for-submission {% endif %}"
+    {% if lesson.edit_mode %} data-placeholder="{{ _('Title') }}" contenteditable="true" {% endif %}
+    data-lesson="{{ lesson.name }}" data-course="{{ course.name }}"
+    > {% if lesson.title %} {{ lesson.title }} {% endif %} </div>
     <span class="lesson-progress {{hide if get_progress(course.name, lesson.name) != 'Complete' else ''}}">{{ _("COMPLETED") }}</span>
 
     {% if is_instructor %}
