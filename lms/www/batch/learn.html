@@ -25,18 +25,18 @@
 
 {% block content %}
 <div class="common-page-style lesson-page">
-  <div class="container course-details-page">
-    {{ BreadCrumb(course, lesson) }}
-    <div class="course-content-parent">
-      <div class="course-details-outline">
-        {{ widgets.CourseOutline(course=course, membership=membership) }}
-      </div>
-      <div class="lesson-pagination-parent">
-        {{ LessonContent(lesson) }}
-        {{ Discussions() }}
-      </div>
+    <div class="container course-details-page">
+        {{ BreadCrumb(course, lesson) }}
+        <div class="course-content-parent">
+            <div class="course-details-outline">
+                {{ widgets.CourseOutline(course=course, membership=membership) }}
+            </div>
+            <div class="lesson-pagination-parent">
+                {{ LessonContent(lesson) }}
+                {% if not lesson.edit_mode %} {{ Discussions() }} {% endif %}
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 {% endblock %}
 
@@ -58,63 +58,106 @@
 {% set instructors = get_instructors(course.name) %}
 {% set is_instructor = is_instructor(course.name) %}
 <div class="common-card-style lesson-content">
-  <div class="lesson-title">
+    <div class="lesson-title">
 
-    <div class="course-home-headings title mb-0 {% if membership %} is-member {% endif %}
-    {% if membership or is_instructor %} eligible-for-submission {% endif %}"
-    {% if lesson.edit_mode %} data-placeholder="{{ _('Title') }}" contenteditable="true" {% endif %}
-    data-lesson="{{ lesson.name }}" data-course="{{ course.name }}"
-    > {% if lesson.title %} {{ lesson.title }} {% endif %} </div>
-    <span class="lesson-progress {{hide if get_progress(course.name, lesson.name) != 'Complete' else ''}}">{{ _("COMPLETED") }}</span>
+        <!-- Title -->
+        <div class="course-home-headings title mb-0 {% if membership %} is-member {% endif %}
+            {% if membership or is_instructor %} eligible-for-submission {% endif %}" id="title"
+            {% if lesson.edit_mode %} data-placeholder="{{ _('Title') }}" contenteditable="true" {% endif %}
+            data-index="{{ lesson_index }}" data-course="{{ course.name }}" data-chapter="{{ chapter }}"
+            {% if lesson.name %} data-lesson="{{ lesson.name }}" {% endif %}
+            >{% if lesson.title %}{{ lesson.title }}{% endif %}</div>
+        <span class="lesson-progress {{ hide if get_progress(course.name, lesson.name) != 'Complete' else ''}}">{{ _("COMPLETED") }}</span>
 
-    {% if is_instructor %}
-    <a class="button is-default button-links ml-auto" href="/lesson?name={{ lesson.name }}"> {{ _("Edit") }} </a>
-    {% endif %}
-  </div>
-
-  <div class="d-flex align-items-center">
-    {% set ins_len = instructors | length %}
-    {% for instructor in instructors %}
-    {% if ins_len > 1 and loop.index == 1 %}
-    <div class="avatar-group overlap">
-    {% endif %}
-    {{ widgets.Avatar(member=instructor, avatar_class="avatar-small") }}
-
-    {% if ins_len > 1 and loop.index == ins_len %}
+        <!-- Edit Button -->
+        {% if is_instructor and not lesson.edit_mode %}
+        <button class="button is-default button-links ml-auto btn-edit"> {{ _("Edit") }} </button>
+        {% endif %}
     </div>
-    {% endif %}
-    {% endfor %}
-    <a class="button-links ml-1" href="{{ get_profile_url(instructors[0].username) }}">
-      <span class="course-meta">
-      {% if ins_len == 1 %}
-        {{ instructors[0].full_name }}
-      {% else %}
-        {% set suffix = _("other") if ins_len - 1 == 1 else _("others")  %}
-        {{ instructors[0].full_name.split(" ")[0] }} and {{ ins_len - 1 }} {{ suffix }}
-      {% endif %}
-      </span>
-    </a>
-    <div class="ml-5 course-meta"> {{ frappe.utils.format_date(lesson.creation, "medium") }} </div>
-  </div>
 
-  <div class="markdown-source lesson-content-card">
-    {% if membership or lesson.include_in_preview or is_instructor %}
-    {% if is_instructor and not lesson.include_in_preview %}
-      <div class="small alert alert-secondary alert-dismissible mt-4 mb-4">
-        {{ _("This lesson is not available for preview. As you are the Instructor of the course only you can see it.") }}
-        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-      </div>
-    {% endif %}
-      {{ render_html(lesson.body) }}
-    {% else %}
-      <div class="">
-        <div class="button is-primary pull-right join-batch" data-course="{{ course.name | urlencode }}"> {{ _("Start Learning") }} </div>
-        <div class=""> {{ _("This lesson is not available for preview. Please join the course to access it.") }} </div>
-      </div>
-    {% endif %}
-  </div>
+    <!-- Instructors -->
+    <div class="d-flex align-items-center">
+        {% set ins_len = instructors | length %}
+        {% for instructor in instructors %}
+        {% if ins_len > 1 and loop.index == 1 %}
+        <div class="avatar-group overlap">
+        {% endif %}
+        {{ widgets.Avatar(member=instructor, avatar_class="avatar-small") }}
 
-  {{ pagination(prev_url, next_url) }}
+        {% if ins_len > 1 and loop.index == ins_len %}
+        </div>
+        {% endif %}
+        {% endfor %}
+        <a class="button-links ml-1" href="{{ get_profile_url(instructors[0].username) }}">
+        <span class="course-meta">
+        {% if ins_len == 1 %}
+            {{ instructors[0].full_name }}
+        {% else %}
+            {% set suffix = _("other") if ins_len - 1 == 1 else _("others")  %}
+            {{ instructors[0].full_name.split(" ")[0] }} and {{ ins_len - 1 }} {{ suffix }}
+        {% endif %}
+        </span>
+        </a>
+        <div class="ml-5 course-meta"> {{ frappe.utils.format_date(lesson.creation, "medium") }} </div>
+    </div>
+
+    <!-- Lesson Content -->
+    <div class="markdown-source lesson-content-card">
+        {% if membership or lesson.include_in_preview or is_instructor %}
+
+            {% if is_instructor and not lesson.include_in_preview and not lesson.edit_mode %}
+            <div class="small alert alert-secondary alert-dismissible mb-4">
+                {{ _("This lesson is not available for preview. As you are the Instructor of the course only you can see it.") }}
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            </div>
+            {% endif %}
+
+            {% if lesson.edit_mode %}
+
+            <div class="attachments-parent">
+                <div class="attachment-controls">
+                    <div class="show-attachments" data-toggle="collapse" data-target="#collapse-attachments" aria-expanded="false">
+                        <svg class="icon icon-sm">
+                            <use class="" href="#icon-attachment">
+                        </svg>
+                        <span class="attachment-count" data-count="0">0 {{ _("attachments") }}</span>
+                    </div>
+                    <div class="add-attachment">
+                        <span class="button is-secondary">
+                            <svg class="icon icon-sm">
+                                <use class="" href="#icon-upload">
+                            </svg>
+                            {{ _("Upload Attachments") }}
+                        </span>
+                    </div>
+                </div>
+                <table class="attachments common-card-style collapse hide" id="collapse-attachments"></table>
+            </div>
+
+            <label class="d-flex align-items-center mb-4 small">
+                <input {% if lesson.include_in_preview %} checked {% endif %}
+                type="checkbox" id="preview"> {{ _("Show preview of this lesson") }}
+            </label>
+
+            <div contenteditable="true" data-placeholder="{{ _('Enter the lesson content.') }}"
+            id="body"> {% if lesson.body %} {{ lesson.body }} {% endif %} </div>
+            <button class="btn btn-primary btn-md mt-8 btn-lesson pull-right"> {{ _("Save") }} </button>
+
+            {% else %}
+            {{ render_html(lesson.body) }}
+            {% endif %}
+
+        {% else %}
+            <div class="">
+                <div class="button is-primary pull-right join-batch" data-course="{{ course.name | urlencode }}"> {{ _("Start Learning") }} </div>
+                <div class=""> {{ _("This lesson is not available for preview. Please join the course to access it.") }} </div>
+            </div>
+        {% endif %}
+    </div>
+
+    {% if not lesson.edit_mode %}
+    {{ pagination(prev_url, next_url) }}
+    {% endif %}
 
 </div>
 {% endmacro %}

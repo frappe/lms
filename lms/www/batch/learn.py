@@ -10,28 +10,30 @@ def get_context(context):
     chapter_index = frappe.form_dict.get("chapter")
     lesson_index = frappe.form_dict.get("lesson")
     lesson_number = f"{chapter_index}.{lesson_index}"
-    print(chapter_index, lesson_index, type(chapter_index), type(lesson_index))
-    if (not chapter_index and chapter_index != 0) or (not lesson_index and lesson_index != 0):
+    context.lesson_index = lesson_index
+    context.chapter = frappe.db.get_value("Chapter Reference", {
+        "idx": chapter_index,
+        "parent": context.course.name
+        }, "chapter")
+
+    if not chapter_index or not lesson_index:
         if context.batch:
             index_ = get_lesson_index(context.course, context.batch, frappe.session.user) or "1.1"
         else:
             index_ = "1.1"
         redirect_to_lesson(context.course, index_)
 
-    if chapter_index == 0 and lesson_index == 0:
-        context.lesson = frappe._dict()
-        context.lesson.edit_mode = True
-    else:
-        set_lesson_context(context, lesson_number)
-
-
-def set_lesson_context(context, lesson_number):
     context.lesson = get_current_lesson_details(lesson_number, context)
+    if not context.lesson:
+        context.lessom = frappe._dict()
+
+    if frappe.form_dict.get("edit"):
+        context.lesson.edit_mode = True
+
     neighbours = get_neighbours(lesson_number, context.lessons)
     context.next_url = get_url(neighbours["next"], context.course)
     context.prev_url = get_url(neighbours["prev"], context.course)
-
-    meta_info = context.lesson.title + " - " + context.course.title
+    meta_info = context.lesson.title + " - " + context.course.title if context.lesson.title else "New Lesson"
     context.metatags = {
         "title": meta_info,
         "keywords": meta_info,
@@ -42,7 +44,7 @@ def set_lesson_context(context, lesson_number):
     context.page_context = {
         "course": context.course.name,
         "batch": context.get("batch") and context.batch.name,
-        "lesson": context.lesson.name,
+        "lesson": context.lesson.name if context.lesson.name else "New Lesson",
         "is_member": context.membership is not None
     }
 

@@ -1,4 +1,7 @@
 frappe.ready(() => {
+
+    setup_vue_and_file_size();
+
     $(".join-batch").click((e) => {
         join_course(e);
     });
@@ -16,6 +19,28 @@ frappe.ready(() => {
     });
 
 });
+
+
+const setup_vue_and_file_size = () => {
+    frappe.require("/assets/frappe/node_modules/vue/dist/vue.js", () => {
+        Vue.prototype.__ = window.__;
+        Vue.prototype.frappe = window.frappe;
+    });
+
+    frappe.provide("frappe.form.formatters");
+    frappe.form.formatters.FileSize = file_size;
+};
+
+
+const file_size = (value) => {
+    if(value > 1048576) {
+        value = flt(flt(value) / 1048576, 1) + "M";
+    } else if (value > 1024) {
+        value = flt(flt(value) / 1024, 1) + "K";
+    }
+    return value;
+};
+
 
 const join_course = (e) => {
     e.preventDefault();

@@ -258,3 +258,36 @@ def save_chapter(course, title, chapter_description, idx, chapter):
     chapter_reference.save(ignore_permissions=True)
 
     return doc.name
+
+@frappe.whitelist()
+def save_lesson(title, body, chapter, preview, idx, lesson):
+    if lesson:
+        doc = frappe.get_doc("Course Lesson", lesson)
+    else:
+        doc = frappe.get_doc({
+            "doctype": "Course Lesson"
+        })
+
+    doc.update({
+        "chapter": chapter,
+        "title": title,
+        "body": body,
+        "include_in_preview": preview
+    })
+    doc.save(ignore_permissions=True)
+
+    if lesson:
+        lesson_reference = frappe.get_doc("Lesson Reference", {"lesson": lesson})
+    else:
+        lesson_reference =  frappe.get_doc({
+        "doctype": "Lesson Reference",
+        "parent": chapter,
+        "parenttype": "Course Chapter",
+        "parentfield": "lessons",
+        "idx": idx
+    })
+
+    lesson_reference.update({"lesson": doc.name})
+    lesson_reference.save(ignore_permissions=True)
+
+    return doc.name

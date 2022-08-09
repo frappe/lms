@@ -22,8 +22,10 @@
             <div class="w-100 chapter-title-main" {% if course.edit_mode %} contenteditable="true" {% endif %} >{{ chapter.title }}</div>
         </div>
 
+       {% set lessons = get_lessons(course.name, chapter) %}
+
         <div class="chapter-content {% if not course.edit_mode %} collapse navbar-collapse {% endif %} "
-        id="{{ get_slugified_chapter_title(chapter.title) }}">
+            id="{{ get_slugified_chapter_title(chapter.title) }}">
 
             {% if chapter.description or course.edit_mode %}
             <div {% if course.edit_mode %} contenteditable="true" {% endif %} class="chapter-description
@@ -35,25 +37,28 @@
             <div class="mt-2 mb-8">
                 <button class="btn btn-sm btn-secondary btn-save-chapter"
                 data-index="{{ loop.index }}" data-chapter="{{ chapter.name }}"> {{ _('Save') }} </button>
-                <a class="btn btn-sm btn-secondary btn-lesson ml-4" href="/courses/{{ course.name }}/learn/0.0"> {{ _("New Lesson") }}  </a>
+                <a class="btn btn-sm btn-secondary btn-lesson ml-4"
+                    href="/courses/{{ course.name }}/learn/{{loop.index}}.{{ lessons | length + 1 }}?edit=1"> {{ _("New Lesson") }}  </a>
             </div>
-
             {% endif %}
 
             {% set is_instructor = is_instructor(course.name) %}
             <div class="lessons">
 
-                {% for lesson in get_lessons(course.name, chapter) %}
+                {% for lesson in lessons %}
                 {% set active = membership.current_lesson == lesson.name %}
                 <div class="lesson-info {% if active and not course.edit_mode %} active-lesson {% endif %}">
 
                 {% if membership or lesson.include_in_preview %}
                 <a class="lesson-links" href="{{ get_lesson_url(course.name, lesson.number) }}{{course.query_parameter}}"
                     data-course="{{ course.name }}">
+
                     <svg class="icon icon-sm mr-2">
                         <use class="" href="#{{ lesson.icon }}">
                     </svg>
+
                     <span>{{ lesson.title }}</span>
+
                     {% if membership %}
                     <svg class="icon icon-sm lesson-progress-tick {{ get_progress(course.name, lesson.name) != 'Complete' and 'hide' }}">
                         <use class="" href="#icon-green-check">
@@ -63,10 +68,9 @@
                 </a>
 
                 {% elif is_instructor and not lesson.include_in_preview %}
-                <a class="lesson-links"
+                <a class="lesson-links" data-course="{{ course.name }}"
                     title="This lesson is not available for preview. As you are the Instructor of the course only you can see it."
-                    href="{{ get_lesson_url(course.name, lesson.number) }}{{course.query_parameter}}"
-                    data-course="{{ course.name }}">
+                    href="{{ get_lesson_url(course.name, lesson.number) }}{% if course.edit_mode %}?edit=1{% endif %}{{course.query_parameter}}">
 
                     <svg class="icon icon-sm mr-2">
                         <use class="" href="#icon-lock">

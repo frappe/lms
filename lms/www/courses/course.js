@@ -1,7 +1,5 @@
 frappe.ready(() => {
 
-    setup_vue_and_file_size();
-
     hide_wrapped_mentor_cards();
 
     $("#cancel-request").click((e) => {
@@ -73,27 +71,6 @@ frappe.ready(() => {
     });
 
 });
-
-
-const setup_vue_and_file_size = () => {
-    frappe.require("/assets/frappe/node_modules/vue/dist/vue.js", () => {
-        Vue.prototype.__ = window.__;
-        Vue.prototype.frappe = window.frappe;
-    });
-
-    frappe.provide("frappe.form.formatters");
-    frappe.form.formatters.FileSize = file_size;
-};
-
-
-const file_size = (value) => {
-    if(value > 1048576) {
-        value = flt(flt(value) / 1048576, 1) + "M";
-    } else if (value > 1024) {
-        value = flt(flt(value) / 1024, 1) + "K";
-    }
-    return value;
-};
 
 
 const hide_wrapped_mentor_cards = () => {
@@ -350,7 +327,6 @@ const add_tag = (e) => {
 
 
 const save_course = (e) => {
-    let course = $("#title").data("course");
     frappe.call({
         method: "lms.lms.doctype.lms_course.lms_course.save_course",
         args: {
@@ -360,7 +336,7 @@ const save_course = (e) => {
             "video_link": $("#video-link").text(),
             "image": $("#image").attr("href"),
             "description": $("#description").text(),
-            "course": course ? course : ""
+            "course": $("#title").data("course")
         },
         callback: (data) => {
             window.location.href = `/courses/${data.message}?edit=1`;

@@ -1421,6 +1421,7 @@ pre {
 .attachments-parent {
     float: right;
     font-size: var(--text-sm);
+    margin-bottom: 1rem;
 }
 
 li {
@@ -1506,10 +1507,8 @@ li {
     border: 1px solid var(--gray-400);
     padding: 0.5rem;
     border-radius: var(--border-radius);
-}
-
-[contenteditable] {
     outline: none;
+    white-space: pre-wrap;
 }
 
 [contenteditable]:empty:before{
