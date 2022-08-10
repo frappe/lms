@@ -113,36 +113,7 @@
             {% endif %}
 
             {% if lesson.edit_mode %}
-
-            <div class="attachments-parent">
-                <div class="attachment-controls">
-                    <div class="show-attachments" data-toggle="collapse" data-target="#collapse-attachments" aria-expanded="false">
-                        <svg class="icon icon-sm">
-                            <use class="" href="#icon-attachment">
-                        </svg>
-                        <span class="attachment-count" data-count="0">0 {{ _("attachments") }}</span>
-                    </div>
-                    <div class="add-attachment">
-                        <span class="button is-secondary">
-                            <svg class="icon icon-sm">
-                                <use class="" href="#icon-upload">
-                            </svg>
-                            {{ _("Upload Attachments") }}
-                        </span>
-                    </div>
-                </div>
-                <table class="attachments common-card-style collapse hide" id="collapse-attachments"></table>
-            </div>
-
-            <label class="d-flex align-items-center mb-4 small">
-                <input {% if lesson.include_in_preview %} checked {% endif %}
-                type="checkbox" id="preview"> {{ _("Show preview of this lesson") }}
-            </label>
-
-            <div contenteditable="true" data-placeholder="{{ _('Enter the lesson content.') }}"
-            id="body"> {% if lesson.body %} {{ lesson.body }} {% endif %} </div>
-            <button class="btn btn-primary btn-md mt-8 btn-lesson pull-right"> {{ _("Save") }} </button>
-
+            {{ EditLesson(lesson) }}
             {% else %}
             {{ render_html(lesson.body) }}
             {% endif %}
@@ -200,6 +171,42 @@
     </a>
   </div>
 
+</div>
+{% endmacro %}
+
+{% macro EditLesson(lesson) %}
+<div contenteditable="true" data-placeholder="{{ _('Enter the lesson content.') }}"
+> {% if lesson.body %} {{ lesson.body }} {% endif %} </div>
+
+<div id="body"></div>
+
+<label class="preview">
+    <input {% if lesson.include_in_preview %} checked {% endif %}
+    type="checkbox" id="preview"> {{ _("Show preview of this lesson") }}
+</label>
+
+<div class="mt-8">
+    <button class="btn btn-primary btn-md btn-lesson pull-right"> {{ _("Save") }} </button>
+
+    <div class="attachments-parent">
+        <div class="attachment-controls">
+            <div class="show-attachments" data-toggle="collapse" data-target="#collapse-attachments" aria-expanded="false">
+                <svg class="icon icon-sm">
+                    <use class="" href="#icon-attachment">
+                </svg>
+                <span class="attachment-count" data-count="0">0 {{ _("attachments") }}</span>
+            </div>
+            <div class="add-attachment">
+                <span class="btn btn-md btn-secondary">
+                    <svg class="icon icon-sm">
+                        <use class="" href="#icon-upload">
+                    </svg>
+                    {{ _("Upload Attachments") }}
+                </span>
+            </div>
+        </div>
+        <table class="attachments common-card-style collapse hide" id="collapse-attachments"></table>
+    </div>
 </div>
 {% endmacro %}
 

@@ -60,6 +60,7 @@ input[type=checkbox] {
   font-weight: 600;
   color: var(--gray-900);
   width: fit-content;
+  box-shadow: var(--shadow-sm);
 }
 
 .dark-pills {
@@ -378,7 +379,6 @@ input[type=checkbox] {
 .chapter-title {
     cursor: pointer;
     border-radius: var(--border-radius-lg);
-    padding: 0.5rem 0;
     color: var(--gray-900);
     display: flex;
     align-items: center;
@@ -409,11 +409,10 @@ input[type=checkbox] {
 }
 
 .lesson-links {
-  display: flex;
-  align-items: center;
-  padding: 0.5rem;
-  color: var(--gray-900);
-  font-size: var(--text-base);
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    color: var(--gray-900);
 }
 
 .lesson-links:hover {
@@ -424,7 +423,7 @@ input[type=checkbox] {
 }
 
 .lessons {
-  margin-left: 2rem;
+    margin-left: 1.5rem;
 }
 
 .member-card {
@@ -439,9 +438,9 @@ input[type=checkbox] {
 }
 
 .break {
-  flex-basis: 100%;
-  flex-grow: 1;
-  margin: .5rem 0;
+    flex-basis: 100%;
+    flex-grow: 1;
+    margin: 0.5rem 0;
 }
 
 .course-home-headings {
@@ -594,7 +593,8 @@ input[type=checkbox] {
 }
 
 .course-content-parent .course-home-headings {
-  margin: 0px 0px 1rem;
+    margin: 0 0 1rem;
+    width: 100%;
 }
 
 .lesson-pagination {
@@ -1149,8 +1149,8 @@ pre {
 }
 
 .course-head-container {
-  color: var(--gray-900);
-  background-color: var(--gray-200);
+    color: var(--gray-900);
+    background-color: var(--gray-50);
 }
 
 .seperator {
@@ -1419,9 +1419,7 @@ pre {
 }
 
 .attachments-parent {
-    float: right;
-    font-size: var(--text-sm);
-    margin-bottom: 1rem;
+    color: var(--text-color);
 }
 
 li {
@@ -1504,26 +1502,58 @@ li {
 }
 
 [contenteditable] {
-    border: 1px solid var(--gray-400);
-    padding: 0.5rem;
-    border-radius: var(--border-radius);
     outline: none;
-    white-space: pre-wrap;
+    background-color: var(--bg-light-gray);
+    border-radius: var(--border-radius);
+    border: 1px dashed var(--gray-400);
+    padding: 0.5rem 0.75rem;
 }
 
-[contenteditable]:empty:before{
+[contenteditable]:empty:before {
     content: attr(data-placeholder);
     color: var(--gray-600);
 }
 
 .course-image-attachment {
     margin-top: 1rem;
-    border: 1px solid var(--gray-400);
+    background-color: var(--bg-light-gray);
     border-radius: var(--border-radius);
-    padding: 0.25rem 0.5rem;
+    border: 1px dashed var(--gray-400);
+    padding: 0.5rem 0.75rem;
     width: fit-content;
 }
 
 .btn-delete-tag {
     cursor: pointer;
+}
+
+.chapter-edit {
+    border: 1px solid var(--dark-border-color);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.chapter-edit .lessons {
+    margin-left: 0;
+    margin-top: 2rem;
+}
+
+.chapter-parent {
+    margin-bottom: 1rem;
+}
+
+.chapter-edit .chapter-title {
+    padding: 0.5rem 0;
+}
+
+.course-card-pills[contenteditable] {
+    box-shadow: none;
+}
+
+.preview {
+    display: flex;
+    align-items: center;
+    font-size: var(--text-md);
+    margin-top: 1rem;
 }

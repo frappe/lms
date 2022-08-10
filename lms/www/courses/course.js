@@ -322,7 +322,7 @@ const clear_image = () => {
 
 const add_tag = (e) => {
     $(`<div class="course-card-pills" contenteditable="true"
-        data-placeholder="${__('Tags')}"></div>`).insertBefore(`.btn-tag`);
+        data-placeholder="${__('Tag')}"></div>`).insertBefore(`.btn-tag`);
 };
 
 

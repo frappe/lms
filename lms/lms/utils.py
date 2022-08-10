@@ -387,3 +387,7 @@ def first_lesson_exists(course):
         return False
 
     return True
+
+def redirect_to_courses_list():
+    frappe.local.flags.redirect_location = "/courses"
+    raise frappe.Redirect

@@ -1,5 +1,7 @@
 frappe.ready(() => {
 
+    frappe.provide("frappe.ui.form");
+
     setup_vue_and_file_size();
 
     $(".join-batch").click((e) => {
@@ -17,6 +19,10 @@ frappe.ready(() => {
     $(document).on("click", ".btn-save-chapter", (e) => {
         save_chapter(e);
     });
+
+    if ($("#body").length) {
+        make_editor();
+    }
 
 });
 
@@ -104,11 +110,11 @@ const notify_user = (e) => {
 const add_chapter = (e) => {
     let next_index = $("[data-index]").last().data("index");
 
-    $(`<div class="chapter-parent">
+    $(`<div class="chapter-parent chapter-edit">
         <div contenteditable="true" data-placeholder="${__('Chapter Name')}" class="chapter-title-main"></div>
         <div class="small my-2" contenteditable="true" data-placeholder="${__('Short Description')}"
-        id="chapter-description"></div>
-        <button class="btn btn-sm btn-secondary d-block btn-save-chapter mb-8"
+        class="chapter-description"></div>
+        <button class="btn btn-sm btn-secondary d-block btn-save-chapter"
         data-index="${next_index}"> ${__('Save')} </button>
         </div>`).insertAfter(`.chapter-parent:last`);
 
@@ -130,7 +136,7 @@ const save_chapter = (e) => {
         args: {
             "course": $("#title").data("course"),
             "title": parent.find(".chapter-title-main").text(),
-            "chapter_description": parent.find("#chapter-description").text(),
+            "chapter_description": parent.find(".chapter-description").text(),
             "idx": target.data("index"),
             "chapter": target.data("chapter") ? target.data("chapter") : ""
         },
@@ -139,3 +145,24 @@ const save_chapter = (e) => {
         }
     });
 };
+
+
+const make_editor = () => {
+    this.code_field_group = new frappe.ui.FieldGroup({
+        fields: [
+            {
+                fieldname: "code_md",
+                fieldtype: "Code",
+                options: "Markdown",
+                wrap: true,
+                max_lines: Infinity,
+                min_lines: 20,
+                default: "Jannat Patel",
+                depends_on: 'eval:doc.type=="Markdown"',
+            }
+        ],
+        body: $("#body").get(0),
+    });
+    this.code_field_group.make();
+    $("#body .form-section:last").removeClass("empty-section");
+}

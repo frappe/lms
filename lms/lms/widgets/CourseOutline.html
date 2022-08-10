@@ -13,7 +13,7 @@
     {% if get_chapters(course.name) | length %}
 
     {% for chapter in get_chapters(course.name) %}
-    <div class="chapter-parent">
+    <div class="chapter-parent {% if course.edit_mode %} chapter-edit {% endif %} ">
         <div class="chapter-title" {% if not course.edit_mode %}  data-toggle="collapse" aria-expanded="false"
         data-target="#{{ get_slugified_chapter_title(chapter.title) }}" {% endif %} >
             {% if not course.edit_mode %}
@@ -34,7 +34,7 @@
             {% endif %}
 
             {% if course.edit_mode %}
-            <div class="mt-2 mb-8">
+            <div class="mt-2">
                 <button class="btn btn-sm btn-secondary btn-save-chapter"
                 data-index="{{ loop.index }}" data-chapter="{{ chapter.name }}"> {{ _('Save') }} </button>
                 <a class="btn btn-sm btn-secondary btn-lesson ml-4"
@@ -43,7 +43,13 @@
             {% endif %}
 
             {% set is_instructor = is_instructor(course.name) %}
+
+            {% if lessons | length %}
             <div class="lessons">
+
+                {% if course.edit_mode %}
+                <b class="course-meta"> {{ _("Lessons") }}: </b>
+                {% endif %}
 
                 {% for lesson in lessons %}
                 {% set active = membership.current_lesson == lesson.name %}
@@ -93,6 +99,8 @@
                 {% endfor %}
 
             </div>
+            {% endif %}
+
         </div>
     </div>
     {% endfor %}

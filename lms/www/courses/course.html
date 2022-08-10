@@ -307,7 +307,8 @@ data-placeholder="Description">{% if course.description %}{{ frappe.utils.md_to_
 {% macro Save(course) %}
 {% if course.edit_mode %}
 <div>
-    <button class="btn btn-primary btn-md btn-save-course my-4"> {{ _("Save") }} </button>
+    <button class="btn btn-primary btn-md btn-save-course my-4">
+        {{ _("Save Course Details") }} </button>
 </div>
 {% endif %}
 {% endmacro %}

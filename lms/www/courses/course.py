@@ -1,6 +1,6 @@
 import frappe
 from lms.lms.doctype.lms_settings.lms_settings import check_profile_restriction
-from lms.lms.utils import get_membership, is_instructor, is_certified, get_evaluation_details
+from lms.lms.utils import get_membership, is_instructor, is_certified, get_evaluation_details, redirect_to_courses_list
 
 def get_context(context):
     context.no_cache = 1
@@ -72,8 +72,3 @@ def get_user_interest(course):
 
 def show_start_learing_cta(course, membership, restriction):
     return not course.disable_self_learning and not membership and not course.upcoming and not restriction.get("restrict") and not is_instructor(course.name)
-
-
-def redirect_to_courses_list():
-    frappe.local.flags.redirect_location = "/courses"
-    raise frappe.Redirect

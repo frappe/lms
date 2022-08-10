@@ -1,6 +1,7 @@
 frappe.ready(() => {
 
     localStorage.removeItem($("#quiz-title").text());
+
     fetch_assignments();
 
     save_current_lesson();
@@ -478,7 +479,7 @@ const save_lesson = (e) => {
         method: "lms.lms.doctype.lms_course.lms_course.save_lesson",
         args: {
             "title": $("#title").text(),
-            "body": $("#body").text(),
+            "body": $("#body").find("br").replaceWith("\n\n").end().text(),
             "chapter": $("#title").data("chapter"),
             "preview": $("#preview").prop("checked") ? 1 : 0,
             "idx": $("#title").data("index"),

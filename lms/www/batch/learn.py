@@ -1,7 +1,6 @@
-from re import I
 import frappe
 from lms.www.utils import get_common_context, redirect_to_lesson
-from lms.lms.utils import get_lesson_url
+from lms.lms.utils import get_lesson_url, is_instructor, redirect_to_courses_list
 from frappe.utils import cstr, flt
 
 def get_context(context):
@@ -28,6 +27,8 @@ def get_context(context):
         context.lessom = frappe._dict()
 
     if frappe.form_dict.get("edit"):
+        if not is_instructor(context.course.name):
+            redirect_to_courses_list()
         context.lesson.edit_mode = True
 
     neighbours = get_neighbours(lesson_number, context.lessons)
