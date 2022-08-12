@@ -64,6 +64,10 @@ frappe.ready(() => {
         window.location.href = `${window.location.href}?edit=1`;
     });
 
+    $(".btn-back").click((e) => {
+        window.location.href = window.location.href.split("?")[0];
+    })
+
     $(document).on("click", ".copy-link", (e) => {
         frappe.utils.copy_to_clipboard($(e.currentTarget).data("link"));
         $(".attachments").collapse("hide");
