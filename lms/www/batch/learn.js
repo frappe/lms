@@ -75,6 +75,10 @@ frappe.ready(() => {
             $(".active-question").length && quiz_summary();
         });
     }
+
+    if ($("#body").length) {
+        make_editor();
+    }
 });
 
 
@@ -479,14 +483,14 @@ const save_lesson = (e) => {
         method: "lms.lms.doctype.lms_course.lms_course.save_lesson",
         args: {
             "title": $("#title").text(),
-            "body": $("#body").find("br").replaceWith("\n\n").end().text(),
+            "body": this.code_field_group.fields_dict["code_md"].last_value,
             "chapter": $("#title").data("chapter"),
             "preview": $("#preview").prop("checked") ? 1 : 0,
             "idx": $("#title").data("index"),
             "lesson": lesson ? lesson : ""
         },
         callback: (data) => {
-            window.location.reload();
+            window.location.href = window.location.href.split("?")[0];
         }
     });
 };
@@ -517,4 +521,27 @@ const build_attachment_table = (file_doc) => {
             data-name="${file_doc.file_name}" > ${__("Copy Link")} </a></td>
         </tr>
     `);
+};
+
+
+const make_editor = () => {
+    this.code_field_group = new frappe.ui.FieldGroup({
+        fields: [
+            {
+                fieldname: "code_md",
+                fieldtype: "Code",
+                options: "Markdown",
+                wrap: true,
+                max_lines: Infinity,
+                min_lines: 20,
+                default: $("#body").data("body"),
+                depends_on: 'eval:doc.type=="Markdown"',
+            }
+        ],
+        body: $("#body").get(0),
+    });
+    this.code_field_group.make();
+    $("#body .form-section:last").removeClass("empty-section");
+    $("#body .frappe-control").removeClass("hide-control");
+    $("#body .form-column").addClass("p-0");
 };

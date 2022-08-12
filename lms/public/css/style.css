@@ -329,7 +329,7 @@ input[type=checkbox] {
 .wide-button {
   padding: 0.5rem 6rem;
   font-weight: 500;
-  width: inherit;
+  width: 100%;
 }
 
 @media (max-width: 768px) {
@@ -1505,7 +1505,7 @@ li {
     outline: none;
     background-color: var(--bg-light-gray);
     border-radius: var(--border-radius);
-    border: 1px dashed var(--gray-400);
+    border: 1px dashed var(--gray-600);
     padding: 0.5rem 0.75rem;
 }
 
@@ -1555,5 +1555,4 @@ li {
     display: flex;
     align-items: center;
     font-size: var(--text-md);
-    margin-top: 1rem;
 }

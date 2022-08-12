@@ -54,7 +54,10 @@ def get_current_lesson_details(lesson_number, context):
     details_list = list(filter(lambda x: cstr(x.number) == lesson_number, context.lessons))
     if not len(details_list):
         redirect_to_lesson(context.course)
-    return details_list[0]
+    lesson_info = details_list[0]
+    lesson_info.body = lesson_info.body.replace("\"", "'")
+    print(lesson_info)
+    return lesson_info
 
 
 def get_url(lesson_number, course):

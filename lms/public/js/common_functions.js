@@ -20,10 +20,6 @@ frappe.ready(() => {
         save_chapter(e);
     });
 
-    if ($("#body").length) {
-        make_editor();
-    }
-
 });
 
 
@@ -108,9 +104,13 @@ const notify_user = (e) => {
 
 
 const add_chapter = (e) => {
-    let next_index = $("[data-index]").last().data("index");
+    if ($(".new-chapter").length) {
+        scroll_to_chapter_container();
+        return;
+    }
 
-    $(`<div class="chapter-parent chapter-edit">
+    let next_index = $("[data-index]").last().data("index");
+    $(`<div class="chapter-parent chapter-edit new-chapter">
         <div contenteditable="true" data-placeholder="${__('Chapter Name')}" class="chapter-title-main"></div>
         <div class="small my-2" contenteditable="true" data-placeholder="${__('Short Description')}"
         class="chapter-description"></div>
@@ -118,13 +118,16 @@ const add_chapter = (e) => {
         data-index="${next_index}"> ${__('Save')} </button>
         </div>`).insertAfter(`.chapter-parent:last`);
 
-    $(".btn-chapter").attr("disabled", true);
-    $([document.documentElement, document.body]).animate({
-        scrollTop: $(".chapter-parent:last").offset().top
-    }, 1000);
-
-    $(".chapter-parent:last").find(".chapter-title-main").focus();
+    scroll_to_chapter_container();
 };
+
+
+const scroll_to_chapter_container = () => {
+    $([document.documentElement, document.body]).animate({
+        scrollTop: $(".new-chapter").offset().top
+    }, 1000);
+    $(".new-chapter").find(".chapter-title-main").focus();
+}
 
 
 const save_chapter = (e) => {
@@ -146,23 +149,3 @@ const save_chapter = (e) => {
     });
 };
 
-
-const make_editor = () => {
-    this.code_field_group = new frappe.ui.FieldGroup({
-        fields: [
-            {
-                fieldname: "code_md",
-                fieldtype: "Code",
-                options: "Markdown",
-                wrap: true,
-                max_lines: Infinity,
-                min_lines: 20,
-                default: "Jannat Patel",
-                depends_on: 'eval:doc.type=="Markdown"',
-            }
-        ],
-        body: $("#body").get(0),
-    });
-    this.code_field_group.make();
-    $("#body .form-section:last").removeClass("empty-section");
-}

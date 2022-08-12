@@ -37,7 +37,7 @@
             <div class="mt-2">
                 <button class="btn btn-sm btn-secondary btn-save-chapter"
                 data-index="{{ loop.index }}" data-chapter="{{ chapter.name }}"> {{ _('Save') }} </button>
-                <a class="btn btn-sm btn-secondary btn-lesson ml-4"
+                <a class="btn btn-sm btn-secondary btn-lesson ml-2"
                     href="/courses/{{ course.name }}/learn/{{loop.index}}.{{ lessons | length + 1 }}?edit=1"> {{ _("New Lesson") }}  </a>
             </div>
             {% endif %}
@@ -55,9 +55,12 @@
                 {% set active = membership.current_lesson == lesson.name %}
                 <div class="lesson-info {% if active and not course.edit_mode %} active-lesson {% endif %}">
 
-                {% if membership or lesson.include_in_preview %}
-                <a class="lesson-links" href="{{ get_lesson_url(course.name, lesson.number) }}{{course.query_parameter}}"
-                    data-course="{{ course.name }}">
+                {% if membership or lesson.include_in_preview or is_instructor %}
+                <a class="lesson-links" data-course="{{ course.name }}"
+                {% if is_instructor and not lesson.include_in_preview %}
+                title="{{ _('This lesson is not available for preview. As you are the Instructor of the course only you can see it.') }}"
+                {% endif %}
+                href="{{ get_lesson_url(course.name, lesson.number) }}{% if course.edit_mode and is_instructor %}?edit=1{% endif %}{{course.query_parameter}}">
 
                     <svg class="icon icon-sm mr-2">
                         <use class="" href="#{{ lesson.icon }}">
@@ -71,17 +74,6 @@
                     </svg>
                     {% endif %}
 
-                </a>
-
-                {% elif is_instructor and not lesson.include_in_preview %}
-                <a class="lesson-links" data-course="{{ course.name }}"
-                    title="This lesson is not available for preview. As you are the Instructor of the course only you can see it."
-                    href="{{ get_lesson_url(course.name, lesson.number) }}{% if course.edit_mode %}?edit=1{% endif %}{{course.query_parameter}}">
-
-                    <svg class="icon icon-sm mr-2">
-                        <use class="" href="#icon-lock">
-                    </svg>
-                    <div>{{ lesson.title }}</div>
                 </a>
 
                 {% else %}
@@ -108,20 +100,8 @@
     {% endif %}
 
 </div>
-{{ widgets.NoPreviewModal(course=course) }}
-
-
-<div class="course-home-outline">
-
-
-
-
-
-
-</div>
-
 <!-- No Preview Modal -->
-
+{{ widgets.NoPreviewModal(course=course) }}
 
 <script>
 
@@ -139,6 +119,7 @@ frappe.ready(() => {
 
 });
 
+
 const expand_the_first_chapter = () => {
     let elements = $(".course-home-outline .collapse");
     elements.each((i, element) => {
@@ -148,6 +129,7 @@ const expand_the_first_chapter = () => {
         }
     });
 };
+
 
 const expand_the_active_chapter = () => {
 
@@ -180,11 +162,13 @@ const expand_the_active_chapter = () => {
     }
 };
 
+
 const show_section = (element) => {
     $(element).addClass("show");
     $(element).siblings(".chapter-title").children(".chapter-icon").css("transform", "rotate(90deg)");
     $(element).siblings(".chapter-title").attr("aria-expanded", true);
 };
+
 
 const rotate_chapter_icon = (e) => {
     let icon = $(e.currentTarget).children(".chapter-icon");
@@ -194,6 +178,7 @@ const rotate_chapter_icon = (e) => {
         icon.css("transform", "none");
     }
 };
+
 
 const show_no_preview_dialog = (e) => {
     $("#no-preview-modal").modal("show");

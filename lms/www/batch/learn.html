@@ -102,7 +102,7 @@
     </div>
 
     <!-- Lesson Content -->
-    <div class="markdown-source lesson-content-card">
+    <div class="markdown-source lesson-content-card {% if lesson.edit_mode %} mb-0 mt-2 {% endif %} ">
         {% if membership or lesson.include_in_preview or is_instructor %}
 
             {% if is_instructor and not lesson.include_in_preview and not lesson.edit_mode %}
@@ -135,57 +135,52 @@
 
 {% macro pagination(prev_url, next_url) %}
 <div class="lesson-pagination">
+    <div>
+        {% if prev_url %}
+        <a class="button is-secondary dark-links prev" href="{{ prev_url }}">
+            <img class="mr-2" src="/assets/lms/icons/left-arrow.svg">
+            {{ _("Prev") }}
+        </a>
+        {% endif %}
+    </div>
 
-  <div>
-    {% if prev_url %}
-    <a class="button is-secondary dark-links prev" href="{{ prev_url }}">
-      <img class="mr-2" src="/assets/lms/icons/left-arrow.svg">
-      {{ _("Prev") }}
-    </a>
+    {% if not is_mentor(course.name, frappe.session.user) and membership %}
+    {% set progress = get_progress(course.name, lesson.name) %}
+    <div class="custom-checkbox {% if progress == 'Complete' %} hide {% endif %}">
+        <label class="quiz-label">
+            <input class="mark-progress" type="checkbox" checked>
+            <img class="empty-checkbox" />
+            <span class="small">{{ _("Mark as complete on moving to the next lesson") }}</span>
+        </label>
+    </div>
+
+    <div class="button is-secondary mark-progress {{ progress }} {% if progress == 'Incomplete' or progress == None %} hide {% endif %}"
+        data-progress="Incomplete">
+        {{ _("Mark as Incomplete") }}
+    </div>
     {% endif %}
-  </div>
 
-
-  {% if not is_mentor(course.name, frappe.session.user) and membership %}
-  {% set progress = get_progress(course.name, lesson.name) %}
-  <div class="custom-checkbox {% if progress == 'Complete' %} hide {% endif %}">
-    <label class="quiz-label">
-      <input class="mark-progress" type="checkbox" checked>
-      <img class="empty-checkbox" />
-      <span class="small">{{ _("Mark as complete on moving to the next lesson") }}</span>
-    </label>
-  </div>
-
-  <div class="button is-secondary mark-progress {{ progress }} {% if progress == 'Incomplete' or progress == None %} hide {% endif %}"
-    data-progress="Incomplete">
-    {{ _("Mark as Incomplete") }}
-  </div>
-
-  {% endif %}
-
-  <div>
-    <a class="button is-primary next {% if membership.progress|int == 100 and not next_url %} hide {% endif %}"
-      {% if next_url %} data-href="{{ next_url }}" {% endif %} href="">
-      {% if next_url %} {{ _("Next") }} {% else %} {{ _("Mark as Complete") }} {% endif %}
-      <img class="ml-2" src="/assets/lms/icons/side-arrow-white.svg">
-    </a>
-  </div>
+    <div>
+        <a class="button is-primary next {% if membership.progress|int == 100 and not next_url %} hide {% endif %}"
+        {% if next_url %} data-href="{{ next_url }}" {% endif %} href="">
+        {% if next_url %} {{ _("Next") }} {% else %} {{ _("Mark as Complete") }} {% endif %}
+        <img class="ml-2" src="/assets/lms/icons/side-arrow-white.svg">
+        </a>
+    </div>
 
 </div>
 {% endmacro %}
 
 {% macro EditLesson(lesson) %}
-<div contenteditable="true" data-placeholder="{{ _('Enter the lesson content.') }}"
-> {% if lesson.body %} {{ lesson.body }} {% endif %} </div>
-
-<div id="body"></div>
+<div id="body" {% if lesson.body %} data-body="{{ lesson.body }}" {% endif %}></div>
 
 <label class="preview">
-    <input {% if lesson.include_in_preview %} checked {% endif %}
-    type="checkbox" id="preview"> {{ _("Show preview of this lesson") }}
+    <input {% if lesson.include_in_preview %} checked {% endif %} type="checkbox"
+    id="preview"> {{ _("Show preview of this lesson") }}
 </label>
 
-<div class="mt-8">
+<div class="mt-4">
+    <a class="btn btn-secondary btn-md" href=""> {{ _("Back to Lesson") }} </a>
     <button class="btn btn-primary btn-md btn-lesson pull-right"> {{ _("Save") }} </button>
 
     <div class="attachments-parent">
@@ -210,6 +205,8 @@
 </div>
 {% endmacro %}
 
+
+<!-- Discussions Component -->
 {% macro Discussions() %}
 {% set topics_count = frappe.db.count("Discussion Topic",
     {"reference_doctype": "Course Lesson", "reference_docname": lesson.name}) %}
@@ -222,17 +219,17 @@
 {% set redirect_to = "/courses/" + course.name %}
 {% set empty_state_title = _("Have a doubt?") %}
 {% set empty_state_subtitle = _("Post it here, our mentors will help you out.") %}
-
 {% include "frappe/templates/discussions/discussions_section.html" %}
 {% endmacro %}
 
+
+<!-- Scripts -->
 {%- block script %}
 {{ super() }}
-
 <script type="text/javascript">
-  var page_context = {{ page_context | tojson }};
+    var page_context = {{ page_context | tojson }};
 </script>
-
+{{ include_script('controls.bundle.js') }}
 {% for ext in page_extensions %}
 {{ ext.render_footer() }}
 {% endfor %}

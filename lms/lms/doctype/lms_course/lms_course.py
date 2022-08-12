@@ -2,7 +2,6 @@
 # For license information, please see license.txt
 
 from __future__ import unicode_literals
-from codecs import ignore_errors
 import frappe
 from frappe.model.document import Document
 import json
