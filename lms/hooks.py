@@ -137,6 +137,8 @@ website_route_rules = [
 	{"from_route": "/courses/<course>/<certificate>", "to_route": "courses/certificate"},
 	{"from_route": "/courses/<course>/learn", "to_route": "batch/learn"},
 	{"from_route": "/courses/<course>/learn/<int:chapter>.<int:lesson>", "to_route": "batch/learn"},
+    {"from_route": "/courses/quiz-list", "to_route": "batch/quiz_list"},
+    {"from_route": "/courses/quiz/<quiz-name>", "to_route": "batch/quiz"},
 	{"from_route": "/courses/<course>/progress", "to_route": "batch/progress"},
 	{"from_route": "/courses/<course>/join", "to_route": "batch/join"},
 	{"from_route": "/courses/<course>/manage", "to_route": "cohorts"},

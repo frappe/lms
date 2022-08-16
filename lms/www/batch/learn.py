@@ -56,7 +56,6 @@ def get_current_lesson_details(lesson_number, context):
         redirect_to_lesson(context.course)
     lesson_info = details_list[0]
     lesson_info.body = lesson_info.body.replace("\"", "'")
-    print(lesson_info)
     return lesson_info
 
 

@@ -1,0 +1,36 @@
+{% extends "templates/base.html" %}
+{% block title %}
+    {{ _("Quiz List") }}
+{% endblock %}
+
+
+{% block head_include %}
+    {% include "public/icons/symbol-defs.svg" %}
+{% endblock %}
+
+
+{% block content %}
+<div class="common-page-style">
+    <div class="container">
+        <a class="btn btn-primary btn-sm pull-right"> {{ _("Add Quiz") }} </a>
+        <div class="course-home-headings"> {{ _("Quiz List") }} </div>
+        <div class="common-card-style">
+            <table class="table">
+                <tr>
+                    <td style="width: 5%;"> {{ _("No.") }} </td>
+                    <td> {{ _("Quiz") }} </td>
+                </tr>
+                {% for quiz in quiz_list %}
+                <tr style="position: relative; color: var(--text-color);">
+                    <td> {{ loop.index }} </td>
+                    <td>
+                        <a class="button-links" href="/courses/quiz/{{ quiz.name }}">{{ quiz.name }}</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

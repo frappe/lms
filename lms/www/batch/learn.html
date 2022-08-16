@@ -120,7 +120,7 @@
 
         {% else %}
             <div class="">
-                <div class="button is-primary pull-right join-batch" data-course="{{ course.name | urlencode }}"> {{ _("Start Learning") }} </div>
+                <div class="btn btn-primary pull-right join-batch" data-course="{{ course.name | urlencode }}"> {{ _("Start Learning") }} </div>
                 <div class=""> {{ _("This lesson is not available for preview. Please join the course to access it.") }} </div>
             </div>
         {% endif %}
@@ -133,11 +133,13 @@
 </div>
 {% endmacro %}
 
+
+<!-- Pagination -->
 {% macro pagination(prev_url, next_url) %}
 <div class="lesson-pagination">
     <div>
         {% if prev_url %}
-        <a class="button is-secondary dark-links prev" href="{{ prev_url }}">
+        <a class="btn btn-secondary dark-links prev" href="{{ prev_url }}">
             <img class="mr-2" src="/assets/lms/icons/left-arrow.svg">
             {{ _("Prev") }}
         </a>
@@ -154,14 +156,14 @@
         </label>
     </div>
 
-    <div class="button is-secondary mark-progress {{ progress }} {% if progress == 'Incomplete' or progress == None %} hide {% endif %}"
+    <div class="btn btn-default mark-progress {{ progress }} {% if progress == 'Incomplete' or progress == None %} hide {% endif %}"
         data-progress="Incomplete">
         {{ _("Mark as Incomplete") }}
     </div>
     {% endif %}
 
     <div>
-        <a class="button is-primary next {% if membership.progress|int == 100 and not next_url %} hide {% endif %}"
+        <a class="btn btn-primary next {% if membership.progress|int == 100 and not next_url %} hide {% endif %}"
         {% if next_url %} data-href="{{ next_url }}" {% endif %} href="">
         {% if next_url %} {{ _("Next") }} {% else %} {{ _("Mark as Complete") }} {% endif %}
         <img class="ml-2" src="/assets/lms/icons/side-arrow-white.svg">
@@ -171,6 +173,8 @@
 </div>
 {% endmacro %}
 
+
+<!-- Edit Lesson -->
 {% macro EditLesson(lesson) %}
 <div id="body" {% if lesson.body %} data-body="{{ lesson.body }}" {% endif %}></div>
 
@@ -180,8 +184,9 @@
 </label>
 
 <div class="mt-4">
-    <button class="btn btn-primary btn-md btn-lesson pull-right ml-2"> {{ _("Save") }} </button>
-    <button class="btn btn-secondary btn-md pull-right btn-back"> {{ _("Back to Lesson") }} </button>
+    <button class="btn btn-primary btn-sm btn-lesson pull-right ml-2"> {{ _("Save") }} </button>
+    <button class="btn btn-secondary btn-sm pull-right btn-back ml-2"> {{ _("Back to Lesson") }} </button>
+    <a class="btn btn-secondary btn-sm pull-right" href="/courses/quiz-list"> {{ _("Create a Quiz") }} </a>
 
     <div class="attachments-parent">
         <div class="attachment-controls">
@@ -192,7 +197,7 @@
                 <span class="attachment-count" data-count="0">0 {{ _("attachments") }}</span>
             </div>
             <div class="add-attachment">
-                <span class="btn btn-md btn-secondary">
+                <span class="btn btn-sm btn-secondary">
                     <svg class="icon icon-sm">
                         <use class="" href="#icon-upload">
                     </svg>
@@ -202,6 +207,51 @@
         </div>
         <table class="attachments common-card-style collapse hide" id="collapse-attachments"></table>
     </div>
+</div>
+
+{{ HelpArticle() }}
+{% endmacro %}
+
+
+<!-- Help Article -->
+{% macro HelpArticle() %}
+<div>
+    <h3> {{ _("Help Article") }} </h3>
+    <p>
+        {{ _("You can add additional content to the lesson using a special syntax.The table below
+            mentions all types of dynamic content that you can add to the lessons and the syntax for the
+            same.") }}
+    </p>
+    <table class="table w-100">
+        <tr>
+            <th class="w-50"> {{ _("Content Type") }} </th>
+            <th> {{ _("Syntax") }} </th>
+        </tr>
+        <tr>
+            <td>
+                {{ _("Video") }}
+            </td>
+            <td>
+                {% raw %} {{ Video("url_of_source") }} {% endraw %}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                {{ _("YouTube Video") }}
+            </td>
+            <td>
+                {% raw %} {{ YouTubeVideo("unique_embed_id") }} {% endraw %}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                {{ _("Quiz") }}
+            </td>
+            <td>
+                {% raw %} {{ Quiz("lms_quiz_name") }} {% endraw %}
+            </td>
+        </tr>
+    </table>
 </div>
 {% endmacro %}
 
