@@ -910,8 +910,9 @@ pre {
 }
 
 .empty-state-text {
-  flex: 1;
-  margin-left: 1.25rem;
+    flex: 1;
+    margin-left: 1.25rem;
+    text-align: center;
 }
 
 .empty-state-heading {
@@ -1546,6 +1547,7 @@ li {
     border-radius: var(--border-radius);
     border: 1px dashed var(--gray-600);
     padding: 0.5rem 0.75rem;
+    color: var(--gray-900);
 }
 
 [contenteditable]:empty:before {
@@ -1598,4 +1600,23 @@ li {
 
 .table {
     margin-bottom: 0;
+}
+
+.quiz-card {
+    border: 1px solid var(--dark-border-color);
+    border-radius: var(--border-radius);
+    padding: 1.25rem;
+    margin-top: 1.25rem;
+    font-size: var(--text-base);
+}
+
+.option-input {
+    width: 45%;
+    margin-right: 1rem;
+}
+
+.option-checkbox {
+    width: 15%;
+    display: flex;
+    align-items: center;
 }

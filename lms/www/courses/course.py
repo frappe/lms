@@ -11,6 +11,8 @@ def get_context(context):
         redirect_to_courses_list()
 
     if course_name == "new-course":
+        if frappe.session.user == "Guest":
+            redirect_to_courses_list()
         context.course = frappe._dict()
         context.course.edit_mode = True
         context.membership = None

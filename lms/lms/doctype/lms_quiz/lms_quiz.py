@@ -10,6 +10,7 @@ class LMSQuiz(Document):
     def validate(self):
         self.validate_correct_answers()
 
+
     def validate_correct_answers(self):
         for question in self.questions:
             correct_options = self.get_correct_options(question)
@@ -20,9 +21,11 @@ class LMSQuiz(Document):
             if not len(correct_options):
                 frappe.throw(_("At least one answer must be correct for this question: {0}").format(frappe.bold(question.question)))
 
+
     def get_correct_options(self, question):
         correct_option_fields = ["is_correct_1", "is_correct_2", "is_correct_3", "is_correct_4"]
         return list(filter(lambda x: question.get(x) == 1, correct_option_fields))
+
 
     def get_last_submission_details(self):
         """Returns the latest submission for this user.
@@ -42,6 +45,7 @@ class LMSQuiz(Document):
 
         if result:
             return result[0]
+
 
 @frappe.whitelist()
 def quiz_summary(quiz, results):

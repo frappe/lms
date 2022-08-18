@@ -336,13 +336,14 @@ const save_course = (e) => {
             "video_link": $("#video-link").text(),
             "image": $("#image").attr("href"),
             "description": $("#description").text(),
-            "course": $("#title").data("course")
+            "course": $("#title").data("course") ? $("#title").data("course") : ""
         },
         callback: (data) => {
             window.location.href = `/courses/${data.message}?edit=1`;
         }
     });
 };
+
 
 const remove_tag = (e) => {
     $(e.currentTarget).closest(".course-card-pills").remove();

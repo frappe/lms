@@ -109,14 +109,16 @@ const add_chapter = (e) => {
         return;
     }
 
-    let next_index = $("[data-index]").last().data("index");
+    let next_index = $("[data-index]").last().data("index") || 1;
+    let add_after = $(`.chapter-parent:last`).length ? $(`.chapter-parent:last`) : $("#outline-heading");
+    console.log(add_after)
     $(`<div class="chapter-parent chapter-edit new-chapter">
         <div contenteditable="true" data-placeholder="${__('Chapter Name')}" class="chapter-title-main"></div>
-        <div class="small my-2" contenteditable="true" data-placeholder="${__('Short Description')}"
-        class="chapter-description"></div>
+        <div class="chapter-description small my-2" contenteditable="true"
+            data-placeholder="${__('Short Description')}"></div>
         <button class="btn btn-sm btn-secondary d-block btn-save-chapter"
         data-index="${next_index}"> ${__('Save')} </button>
-        </div>`).insertAfter(`.chapter-parent:last`);
+        </div>`).insertAfter(add_after);
 
     scroll_to_chapter_container();
 };
@@ -133,7 +135,9 @@ const scroll_to_chapter_container = () => {
 const save_chapter = (e) => {
     let target = $(e.currentTarget);
     let parent = target.closest(".chapter-parent");
-
+    console.log(parent)
+    console.log(parent.find(".chapter-description"))
+    debugger;
     frappe.call({
         method: "lms.lms.doctype.lms_course.lms_course.save_chapter",
         args: {

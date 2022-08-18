@@ -1,14 +1,14 @@
 <div class="course-home-outline">
 
     {% if course.edit_mode and course.name %}
-    <div>
-        <button class="btn btn-md btn-secondary btn-chapter pull-right"> {{ _("New Chapter") }} </button>
-    </div>
+    <button class="btn btn-md btn-secondary btn-chapter pull-right"> {{ _("New Chapter") }} </button>
     {% endif %}
 
-    <div class="course-home-headings">
+    {% if course.name and (course.edit_mode or get_chapters(course.name) | length) %}
+    <div class="course-home-headings" id="outline-heading">
         {{ _("Course Content") }}
     </div>
+    {% endif %}
 
     {% if get_chapters(course.name) | length %}
 

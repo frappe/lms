@@ -12,7 +12,8 @@
 {% block content %}
 <div class="common-page-style">
     <div class="container">
-        <a class="btn btn-primary btn-sm pull-right"> {{ _("Add Quiz") }} </a>
+        {% if quiz_list | length %}
+        <a class="btn btn-secondary btn-sm pull-right" href="/quizzes/new-quiz"> {{ _("Add Quiz") }} </a>
         <div class="course-home-headings"> {{ _("Quiz List") }} </div>
         <div class="common-card-style">
             <table class="table">
@@ -24,12 +25,23 @@
                 <tr style="position: relative; color: var(--text-color);">
                     <td> {{ loop.index }} </td>
                     <td>
-                        <a class="button-links" href="/courses/quiz/{{ quiz.name }}">{{ quiz.name }}</a>
+                        <a class="button-links" href="/quizzes/{{ quiz.name }}">{{ quiz.name }}</a>
                     </td>
                 </tr>
                 {% endfor %}
             </table>
         </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-text">
+                <div class="empty-state-heading">{{ _("You have not created any quiz yet.") }}</div>
+                <div class="course-meta mb-6">{{ _("Create a quiz and add it to your course to engage users.") }}</div>
+                <a class="btn btn-secondary btn-sm"
+                href="{% if frappe.session.user == 'Guest' %} /login?redirect-to=/quizzes {% else %} /quizzes/new-quiz  {% endif %}">
+                {{ _("Add Quiz") }} </a>
+            </div>
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
