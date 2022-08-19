@@ -33,6 +33,15 @@ def slugify(title, used_slugs=[]):
             return new_slug
         count = count+1
 
+
+def generate_slug(title, doctype):
+    result = frappe.get_all(
+        doctype,
+        fields=['name'])
+    slugs = set([row['name'] for row in result])
+    return slugify(title, used_slugs=slugs)
+
+
 def get_membership(course, member, batch=None):
     filters = {
         "member": member,

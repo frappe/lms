@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
 import json
-from ...utils import slugify
+from ...utils import generate_slug
 from frappe.utils import flt, cint
 from lms.lms.utils import get_chapters
 
@@ -59,22 +59,11 @@ class LMSCourse(Document):
             frappe.enqueue(method=frappe.sendmail, queue='short', timeout=300, is_async=True, **email_args)
             frappe.db.set_value("LMS Course Interest", user.name, "email_sent", True)
 
-    @staticmethod
-    def find(name):
-        """Returns the course with specified name.
-        """
-        return find("LMS Course", published=True, name=name)
 
     def autoname(self):
         if not self.name:
-            self.name = self.generate_slug(title=self.title)
+            self.name = generate_slug(self.title, "LMS Course")
 
-    def generate_slug(self, title):
-        result = frappe.get_all(
-            'LMS Course',
-            fields=['name'])
-        slugs = set([row['name'] for row in result])
-        return slugify(title, used_slugs=slugs)
 
     def __repr__(self):
         return f"<Course#{self.name}>"

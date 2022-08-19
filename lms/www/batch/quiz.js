@@ -8,6 +8,8 @@ frappe.ready(() => {
         save_question(e);
     });
 
+    get_questions()
+
 });
 
 
@@ -56,7 +58,8 @@ const save_question = (e) => {
         method: "lms.lms.doctype.lms_quiz.lms_quiz.save_quiz",
         args: {
             "quiz_title": $("#quiz-title").text(),
-            "questions": get_questions()
+            "questions": get_questions(),
+            "quiz": $("#quiz-title").data("name") || ""
         },
         callback: (data) => {
             window.location.href = "/quizzes";
@@ -69,16 +72,17 @@ const get_questions = () => {
     let questions = [];
 
     $(".quiz-card").each((i, el) => {
-
         if (!$(el).find(".question").text())
             return;
 
         let details = {};
         let one_correct_option = false;
         details["question"] = $(el).find(".question").text();
+        details["question_name"] = $(el).find(".question").data("question") || "";
 
         Array.from({length: 4}, (x, i) => {
             let num = i + 1;
+
             details[`option_${num}`] = $(el).find(`.option-${num} .option-input:first`).text();
             details[`explanation_${num}`] = $(el).find(`.option-${num} .option-input:last`).text();
 
@@ -89,12 +93,12 @@ const get_questions = () => {
             details[`is_correct_${num}`] = is_correct;
         });
 
-        if (!details["option_1"] || !details["option_2"]) {
+        if (!details["option_1"] || !details["option_2"])
             frappe.throw(__("Each question must have at least two options."))
-        }
 
         if (!one_correct_option)
             frappe.throw(__("Each question must have at least one correct option."))
+
         questions.push(details);
     });
 
