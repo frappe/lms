@@ -258,6 +258,7 @@ def save_chapter(course, title, chapter_description, idx, chapter):
 
     return doc.name
 
+
 @frappe.whitelist()
 def save_lesson(title, body, chapter, preview, idx, lesson):
     if lesson:

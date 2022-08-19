@@ -12,7 +12,7 @@ frappe.ready(() => {
 
 
 const add_question = (e) => {
-    let add_after = $(".quiz-card").length ? $(".quiz-card") : $("#quiz-title");
+    let add_after = $(".quiz-card").length ? $(".quiz-card:last") : $("#quiz-title");
     let question_template = `<div class="quiz-card">
             <div contenteditable="true" data-placeholder="${__("Question")}" class="question mb-4"></div>
         </div>`;
@@ -52,16 +52,14 @@ const save_question = (e) => {
     if (!$("#quiz-title").text()) {
         frappe.throw(__("Quiz Title is mandatory."));
     }
-    console.log(get_questions());
-    debugger;
     frappe.call({
-        method: lms.lms.doctype.lms_quiz.lms_quiz.save_quiz,
+        method: "lms.lms.doctype.lms_quiz.lms_quiz.save_quiz",
         args: {
-            "quiz-title": $("#quiz-title"),
+            "quiz_title": $("#quiz-title").text(),
             "questions": get_questions()
         },
         callback: (data) => {
-
+            window.location.href = "/quizzes";
         }
     });
 };
@@ -70,22 +68,35 @@ const save_question = (e) => {
 const get_questions = () => {
     let questions = [];
 
-    $(".quiz-card").each((i, elem) => {
+    $(".quiz-card").each((i, el) => {
 
-        if (!$(elem).find(".question").text())
+        if (!$(el).find(".question").text())
             return;
 
-        let question_details = {};
-        question_details["question"] = $(elem).find(".question").text();
+        let details = {};
+        let one_correct_option = false;
+        details["question"] = $(el).find(".question").text();
 
         Array.from({length: 4}, (x, i) => {
             let num = i + 1;
-            question_details[`option_${num}`] =  $(`.option-${num} .option-input:first`).text();
-            question_details[`explanation_${num}`] =  $(`.option-${num} .option-input:last`).text();
-            question_details[`is_correct_${num}`] = $(`.option-${num} .option-checkbox`).find("input").prop("checked");
+            details[`option_${num}`] = $(el).find(`.option-${num} .option-input:first`).text();
+            details[`explanation_${num}`] = $(el).find(`.option-${num} .option-input:last`).text();
+
+            let is_correct = $(el).find(`.option-${num} .option-checkbox`).find("input").prop("checked");
+            if (is_correct)
+                one_correct_option = true;
+
+            details[`is_correct_${num}`] = is_correct;
         });
-        questions.push(question_details);
+
+        if (!details["option_1"] || !details["option_2"]) {
+            frappe.throw(__("Each question must have at least two options."))
+        }
+
+        if (!one_correct_option)
+            frappe.throw(__("Each question must have at least one correct option."))
+        questions.push(details);
     });
 
-    return questions
+    return questions;
 };

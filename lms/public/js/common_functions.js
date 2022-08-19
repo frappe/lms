@@ -135,9 +135,6 @@ const scroll_to_chapter_container = () => {
 const save_chapter = (e) => {
     let target = $(e.currentTarget);
     let parent = target.closest(".chapter-parent");
-    console.log(parent)
-    console.log(parent.find(".chapter-description"))
-    debugger;
     frappe.call({
         method: "lms.lms.doctype.lms_course.lms_course.save_chapter",
         args: {

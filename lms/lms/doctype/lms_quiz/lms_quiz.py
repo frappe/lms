@@ -5,6 +5,7 @@ import frappe
 from frappe.model.document import Document
 import json
 from frappe import _
+from frappe.utils import cstr
 
 class LMSQuiz(Document):
     def validate(self):
@@ -77,3 +78,31 @@ def quiz_summary(quiz, results):
     }).save(ignore_permissions=True)
 
     return score
+
+
+@frappe.whitelist()
+def save_quiz(quiz_title, questions):
+    doc = frappe.get_doc({
+        "doctype": "LMS Quiz",
+        "title": quiz_title
+    })
+    doc.save(ignore_permissions=True)
+    for index, row in enumerate(json.loads(questions)):
+        question_details = {
+            "doctype": "LMS Quiz Question",
+            "parent": doc.name,
+            "question": row["question"],
+            "parenttype": "LMS Quiz",
+            "parentfield": "questions",
+            "idx": index + 1
+        }
+
+        for num in range(1,5):
+            question_details["option_" + cstr(num)] = row["option_" + cstr(num)]
+            question_details["explanation_" + cstr(num)] = row["explanation_" + cstr(num)]
+            question_details["is_correct_" + cstr(num)] = row["is_correct_" + cstr(num)]
+
+        question_doc = frappe.get_doc(question_details)
+        question_doc.save(ignore_permissions=True)
+
+    return doc.name
