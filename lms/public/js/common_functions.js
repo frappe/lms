@@ -109,7 +109,7 @@ const add_chapter = (e) => {
         return;
     }
 
-    let next_index = $("[data-index]").last().data("index") || 1;
+    let next_index = $("[data-index]").last().data("index") + 1 || 1;
     let add_after = $(`.chapter-parent:last`).length ? $(`.chapter-parent:last`) : $("#outline-heading");
     console.log(add_after)
     $(`<div class="chapter-parent chapter-edit new-chapter">

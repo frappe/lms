@@ -185,7 +185,9 @@
 
 <div class="mt-4">
     <button class="btn btn-primary btn-sm btn-lesson pull-right ml-2"> {{ _("Save") }} </button>
+    {% if lesson.name %}
     <button class="btn btn-secondary btn-sm pull-right btn-back ml-2"> {{ _("Back to Lesson") }} </button>
+    {% endif %}
     <a class="btn btn-secondary btn-sm pull-right" href="/quizzes"> {{ _("Create a Quiz") }} </a>
 
     <div class="attachments-parent">

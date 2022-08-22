@@ -24,16 +24,17 @@ def get_context(context):
 
     context.lesson = get_current_lesson_details(lesson_number, context)
     if not context.lesson:
-        context.lessom = frappe._dict()
+        context.lesson = frappe._dict()
 
     if frappe.form_dict.get("edit"):
         if not is_instructor(context.course.name):
             redirect_to_courses_list()
         context.lesson.edit_mode = True
+    else:
+        neighbours = get_neighbours(lesson_number, context.lessons)
+        context.next_url = get_url(neighbours["next"], context.course)
+        context.prev_url = get_url(neighbours["prev"], context.course)
 
-    neighbours = get_neighbours(lesson_number, context.lessons)
-    context.next_url = get_url(neighbours["next"], context.course)
-    context.prev_url = get_url(neighbours["prev"], context.course)
     meta_info = context.lesson.title + " - " + context.course.title if context.lesson.title else "New Lesson"
     context.metatags = {
         "title": meta_info,
@@ -52,8 +53,13 @@ def get_context(context):
 
 def get_current_lesson_details(lesson_number, context):
     details_list = list(filter(lambda x: cstr(x.number) == lesson_number, context.lessons))
+
     if not len(details_list):
-        redirect_to_lesson(context.course)
+        if frappe.form_dict.get("edit"):
+            return None
+        else:
+            redirect_to_lesson(context.course)
+
     lesson_info = details_list[0]
     lesson_info.body = lesson_info.body.replace("\"", "'")
     return lesson_info

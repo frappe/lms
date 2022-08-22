@@ -15,11 +15,7 @@
     </div>
 
     {% else %}
-
-    <div class="course-search-header">
-        {% include "lms/templates/search_course/search_course.html" %}
-        <a class="btn btn-secondary btn-md ml-2" href="/courses/new-course"> {{ _("Create a Course") }} </a>
-    </div>
+    {% include "lms/templates/search_course/search_course.html" %}
 
     <div class="course-list">
       {% set courses = live_courses %}

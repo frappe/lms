@@ -400,3 +400,10 @@ def first_lesson_exists(course):
 def redirect_to_courses_list():
     frappe.local.flags.redirect_location = "/courses"
     raise frappe.Redirect
+
+
+def has_course_instructor_role():
+    return frappe.db.get_value("Has Role", {
+        "parent": frappe.session.user,
+        "role": "Course Instructor"
+        }, "name")

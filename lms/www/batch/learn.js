@@ -1,6 +1,6 @@
 frappe.ready(() => {
 
-    localStorage.removeItem($("#quiz-title").text());
+    localStorage.removeItem($("#quiz-title").data("name"));
 
     fetch_assignments();
 
@@ -200,8 +200,9 @@ const move_to_next_lesson = (status, e) => {
 
 const quiz_summary = (e=undefined) => {
     e && e.preventDefault();
-    let quiz_name = $("#quiz-title").text();
+    let quiz_name = $("#quiz-title").data("name");
     let total_questions = $(".question").length;
+
     frappe.call({
         method: "lms.lms.doctype.lms_quiz.lms_quiz.quiz_summary",
         args: {
@@ -230,7 +231,6 @@ const check_answer = (e=undefined) => {
     e && e.preventDefault();
     clearInterval(self.timer);
     $(".timer").addClass("hide");
-    let quiz_name = $("#quiz-title").text();
     let total_questions = $(".question").length;
     let current_index = $(".active-question").attr("data-qt-index");
 
@@ -249,7 +249,7 @@ const check_answer = (e=undefined) => {
         $("#next").removeClass("hide");
     }
     let [answer, is_correct] = parse_options();
-    add_to_local_storage(quiz_name, current_index, answer, is_correct);
+    add_to_local_storage(current_index, answer, is_correct);
 };
 
 
@@ -285,13 +285,16 @@ const add_icon = (element, icon) => {
 };
 
 
-const add_to_local_storage = (quiz_name, current_index, answer, is_correct) => {
+const add_to_local_storage = (current_index, answer, is_correct) => {
+    let quiz_name = $("#quiz-title").data("name")
     let quiz_stored = JSON.parse(localStorage.getItem(quiz_name));
+
     let quiz_obj = {
         "question_index": current_index,
         "answer": answer.join(),
         "is_correct": is_correct
     }
+
     quiz_stored ? quiz_stored.push(quiz_obj) : quiz_stored = [quiz_obj]
     localStorage.setItem(quiz_name, JSON.stringify(quiz_stored))
 };

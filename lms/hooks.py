@@ -191,7 +191,8 @@ jinja = {
         "lms.lms.utils.get_signup_optin_checks",
         "lms.lms.utils.get_popular_courses",
         "lms.lms.utils.format_amount",
-        "lms.lms.utils.first_lesson_exists"
+        "lms.lms.utils.first_lesson_exists",
+        "lms.lms.utils.has_course_instructor_role"
     ],
     "filters": []
 }

@@ -5,7 +5,8 @@
     <div> {{ _("Your latest score is {0}.").format(last_attempt_score) }} </div>
 </div>
 {% else %}
-<div id="quiz-title" class="hide" data-max-attempts="{{ quiz.max_attempts }}">{{ quiz.title }}</div>
+<div id="quiz-title" class="hide" data-name="{{ quiz.name }}"
+    data-max-attempts="{{ quiz.max_attempts }}">{{ quiz.title }}</div>
 
 <div class="">
     <div id="start-banner" class="text-center">
