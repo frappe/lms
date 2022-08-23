@@ -1,7 +1,5 @@
 frappe.ready(() => {
 
-    frappe.provide("frappe.ui.form");
-
     setup_vue_and_file_size();
 
     $(".join-batch").click((e) => {
@@ -111,7 +109,7 @@ const add_chapter = (e) => {
 
     let next_index = $("[data-index]").last().data("index") + 1 || 1;
     let add_after = $(`.chapter-parent:last`).length ? $(`.chapter-parent:last`) : $("#outline-heading");
-    console.log(add_after)
+
     $(`<div class="chapter-parent chapter-edit new-chapter">
         <div contenteditable="true" data-placeholder="${__('Chapter Name')}" class="chapter-title-main"></div>
         <div class="chapter-description small my-2" contenteditable="true"
