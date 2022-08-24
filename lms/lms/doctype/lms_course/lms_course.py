@@ -195,7 +195,7 @@ def submit_for_review(course):
 
 
 @frappe.whitelist()
-def save_course(tags, title, short_introduction, video_link, image, description, course):
+def save_course(tags, title, short_introduction, video_link, description, course, image=None):
     if course:
         doc = frappe.get_doc("LMS Course", course)
     else:

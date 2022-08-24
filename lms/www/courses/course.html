@@ -82,15 +82,22 @@
 {% endif %} id="intro" >{% if course.short_introduction %} {{ course.short_introduction }} {% endif %}</div>
 
 {% if course.edit_mode %}
-    <div class="d-block mt-1" contenteditable="true" id="video-link"
-    data-placeholder=" {{ _('Preview Video Link') }} ">{% if course.video_link %}{{ course.video_link }}{% endif %}</div>
+    <div class="preview-video-header">
+        <div class="d-block mt-1" contenteditable="true" id="video-link"
+        data-placeholder=" {{ _('Preview Video Link') }} ">{% if course.video_link %}{{ course.video_link }}{% endif %}</div>
+        <svg class="icon icon-md preview-info">
+            <title>{{ _("If you have a video that provides a teaser or preview of the course, you can add it here. Upload the video on youtube. When you share a youtube video, it shows an option called Embed. On clicking it, it provides an iframe. Copy the source of the iframe and paste it here.") }}</title>
+            <use href="#icon-solid-info"></use>
+        </svg>
+    </div>
 
+
+    {% if course.image %}
     <div class="course-image-attachment {% if not course.image %} hide {% endif %} ">
         <a href="{{ course.image }}" id="image" target="_blank"> {{ course.image }} </a>
         <button class="btn btn-sm btn-default btn-clear ml-4"> {{ _("Clear") }} </button>
     </div>
-
-    {% if not course.image %}
+    {% else %}
     <a class="btn btn-default btn-sm btn-attach mt-1 {% if course.image %} hide {% endif %}"> {{ _("Attach Image") }} </a>
     {% endif %}
 {% endif %}

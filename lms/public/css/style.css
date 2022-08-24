@@ -1620,3 +1620,13 @@ li {
     display: flex;
     align-items: center;
 }
+
+.preview-video-header {
+    position: relative;
+}
+
+.preview-info {
+    position: absolute;
+    top: 0;
+    right: -30px;
+}
