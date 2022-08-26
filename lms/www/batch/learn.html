@@ -163,7 +163,7 @@
     {% endif %}
 
     <div>
-        <a class="btn btn-primary next {% if membership.progress|int == 100 and not next_url %} hide {% endif %}"
+        <a class="btn btn-primary next {% if not next_url and (membership.progress|int == 100  or is_instructor)  %} hide {% endif %}"
         {% if next_url %} data-href="{{ next_url }}" {% endif %} href="">
         {% if next_url %} {{ _("Next") }} {% else %} {{ _("Mark as Complete") }} {% endif %}
         <img class="ml-2" src="/assets/lms/icons/side-arrow-white.svg">
@@ -187,8 +187,8 @@
     <button class="btn btn-primary btn-sm btn-lesson pull-right ml-2"> {{ _("Save") }} </button>
     {% if lesson.name %}
     <button class="btn btn-secondary btn-sm pull-right btn-back ml-2"> {{ _("Back to Lesson") }} </button>
+    <a class="btn btn-secondary btn-sm pull-right" href="/quizzes"> {{ _("Create Quiz") }} </a>
     {% endif %}
-    <a class="btn btn-secondary btn-sm pull-right" href="/quizzes"> {{ _("Create a Quiz") }} </a>
 
     <div class="attachments-parent">
         <div class="attachment-controls">
@@ -217,32 +217,42 @@
 
 <!-- Help Article -->
 {% macro HelpArticle() %}
-<div>
+<div class="help-article">
     <h3> {{ _("Help Article") }} </h3>
     <p>
-        {{ _("You can add additional content to the lesson using a special syntax.The table below
-            mentions all types of dynamic content that you can add to the lessons and the syntax for the
-            same.") }}
+        {{ _("You can add additional content to the lesson using a special syntax. The table below mentions
+            all types of dynamic content that you can add to the lessons and the syntax for the same.") }}
     </p>
     <table class="table w-100">
         <tr>
-            <th class="w-50"> {{ _("Content Type") }} </th>
-            <th> {{ _("Syntax") }} </th>
-        </tr>
-        <tr>
-            <td>
-                {{ _("Video") }}
-            </td>
-            <td>
-                {% raw %} {{ Video("url_of_source") }} {% endraw %}
-            </td>
+            <th style="width: 20%;"> {{ _("Content Type") }} </th>
+            <th style="width: 40%;"> {{ _("Syntax") }} </th>
+            <th> {{ _("Description") }} </th>
         </tr>
         <tr>
             <td>
                 {{ _("YouTube Video") }}
             </td>
             <td>
-                {% raw %} {{ YouTubeVideo("unique_embed_id") }} {% endraw %}
+                {% raw %} {{ YouTubeVideo("embed_src") }} {% endraw %}
+            </td>
+            <td>
+                <span>
+                    {{ _("Copy and paste the syntax in the editor. Replace 'embed_src' with the embed source
+                        that YouTube provides. To get the source, follow the steps mentioned below.") }}
+                </span>
+                <ul class="p-4">
+                    <li>
+                        {{ _("Upload the video on youtube.") }}
+                    </li>
+                    <li>
+                        {{ _("When you share a youtube video, it shows an option called Embed.") }}
+                    </li>
+                    <li>
+                        {{ _("On clicking it, it provides an iframe. Copy the source (src) of the iframe and
+                            paste it here.") }}
+                    </li>
+                </ul>
             </td>
         </tr>
         <tr>
@@ -250,7 +260,11 @@
                 {{ _("Quiz") }}
             </td>
             <td>
-                {% raw %} {{ Quiz("lms_quiz_name") }} {% endraw %}
+                {% raw %} {{ Quiz("lms_quiz_id") }} {% endraw %}
+            </td>
+            <td>
+                {% set quiz_link = "<a href='/quizzes'> Quiz List </a>" %}
+                {{ _("Copy and paste the syntax in the editor. Replace 'lms_quiz_id' with the ID of the Quiz. You can get the ID of the quiz from the {0}.").format(quiz_link) }}
             </td>
         </tr>
     </table>

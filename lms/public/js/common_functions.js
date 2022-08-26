@@ -133,6 +133,7 @@ const scroll_to_chapter_container = () => {
 const save_chapter = (e) => {
     let target = $(e.currentTarget);
     let parent = target.closest(".chapter-parent");
+
     frappe.call({
         method: "lms.lms.doctype.lms_course.lms_course.save_chapter",
         args: {
@@ -143,7 +144,13 @@ const save_chapter = (e) => {
             "chapter": target.data("chapter") ? target.data("chapter") : ""
         },
         callback: (data) => {
-            window.location.reload();
+            frappe.show_alert({
+                message: __("Saved"),
+                indicator: "green",
+            });
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000)
         }
     });
 };

@@ -1630,3 +1630,34 @@ li {
     top: 0;
     right: -30px;
 }
+
+.tool-tip {
+    position: relative;
+    display: inline-block;
+}
+
+.tool-tip .tooltiptext {
+    visibility: hidden;
+    width: 30rem;
+    background-color: var(--gray-800);
+    color: var(--fg-color);
+    padding: 1rem;
+    border-radius: var(--border-radius-md);
+    position: absolute;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.tool-tip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+.tooltiptext ul {
+    padding: 1rem;
+}
+
+.help-article {
+    font-size: var(--text-base);
+}

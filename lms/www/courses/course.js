@@ -327,10 +327,12 @@ const add_tag = (e) => {
 
 
 const save_course = (e) => {
+    let tags = $('.course-card-pills').map((i, el) => $(el).text().trim()).get();
+    tags = tags.filter(word => word.trim().length > 0);
     frappe.call({
         method: "lms.lms.doctype.lms_course.lms_course.save_course",
         args: {
-            "tags": $('.course-card-pills').map((i, el) => $(el).text().trim()).get().join(", "),
+            "tags": tags.join(", "),
             "title": $("#title").text(),
             "short_introduction": $("#intro").text(),
             "video_link": $("#video-link").text(),
@@ -339,7 +341,13 @@ const save_course = (e) => {
             "course": $("#title").data("course") ? $("#title").data("course") : ""
         },
         callback: (data) => {
-            window.location.href = `/courses/${data.message}?edit=1`;
+            frappe.show_alert({
+                message: __("Saved"),
+                indicator: "green",
+            });
+            setTimeout(() => {
+                window.location.href = `/courses/${data.message}?edit=1`;
+            }, 1000);
         }
     });
 };

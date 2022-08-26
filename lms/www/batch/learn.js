@@ -507,7 +507,7 @@ const show_upload_modal = () => {
     new frappe.ui.FileUploader({
         folder: "Home/Attachments",
         restrictions: {
-            allowed_file_types: ['image/*']
+            allowed_file_types: ['image/*', 'video/*']
         },
         on_success: (file_doc) => {
             $(".attachments").append(build_attachment_table(file_doc));
@@ -521,11 +521,19 @@ const show_upload_modal = () => {
 
 
 const build_attachment_table = (file_doc) => {
+    let video_types = ["mov", "mp4", "mkv"];
+    let video_extension =  file_doc.file_url.split(".").pop();
+    let is_video = video_types.indexOf(video_extension) >= 0;
+    let link = is_video ? `{{ Video('${file_doc.file_url}') }}` : `![](${file_doc.file_url})`;
+
     return $(`
         <tr class="attachment-row">
             <td>${file_doc.file_name}</td>
-            <td class=""><a class="button is-secondary button-links copy-link" data-link="![](${file_doc.file_url})"
-            data-name="${file_doc.file_name}" > ${__("Copy Link")} </a></td>
+            <td class="">
+                <a class="button is-secondary button-links copy-link" data-link="${link}"
+                data-name="${file_doc.file_name}" > ${__("Copy Link")}
+                </a>
+            </td>
         </tr>
     `);
 };
