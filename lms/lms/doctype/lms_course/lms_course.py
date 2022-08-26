@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
 import json
-from ...utils import slugify
+from ...utils import generate_slug
 from frappe.utils import flt, cint
 from lms.lms.utils import get_chapters
 
@@ -59,22 +59,11 @@ class LMSCourse(Document):
             frappe.enqueue(method=frappe.sendmail, queue='short', timeout=300, is_async=True, **email_args)
             frappe.db.set_value("LMS Course Interest", user.name, "email_sent", True)
 
-    @staticmethod
-    def find(name):
-        """Returns the course with specified name.
-        """
-        return find("LMS Course", published=True, name=name)
 
     def autoname(self):
         if not self.name:
-            self.name = self.generate_slug(title=self.title)
+            self.name = generate_slug(self.title, "LMS Course")
 
-    def generate_slug(self, title):
-        result = frappe.get_all(
-            'LMS Course',
-            fields=['name'])
-        slugs = set([row['name'] for row in result])
-        return slugify(title, used_slugs=slugs)
 
     def __repr__(self):
         return f"<Course#{self.name}>"
@@ -203,3 +192,91 @@ def submit_for_review(course):
         return "No Chp"
     frappe.db.set_value("LMS Course", course, "status", "Under Review")
     return "OK"
+
+
+@frappe.whitelist()
+def save_course(tags, title, short_introduction, video_link, description, course, image=None):
+    if course:
+        doc = frappe.get_doc("LMS Course", course)
+    else:
+        doc = frappe.get_doc({
+            "doctype": "LMS Course"
+        })
+
+    doc.update({
+        "title": title,
+        "short_introduction": short_introduction,
+        "video_link": video_link,
+        "image": image,
+        "description": description,
+        "tags": tags
+    })
+    doc.save(ignore_permissions=True)
+    return doc.name
+
+
+@frappe.whitelist()
+def save_chapter(course, title, chapter_description, idx, chapter):
+    if chapter:
+        doc = frappe.get_doc("Course Chapter", chapter)
+    else:
+        doc = frappe.get_doc({
+            "doctype": "Course Chapter"
+        })
+
+    doc.update({
+        "course": course,
+        "title": title,
+        "description": chapter_description
+    })
+    doc.save(ignore_permissions=True)
+
+    if chapter:
+        chapter_reference = frappe.get_doc("Chapter Reference", {"chapter": chapter})
+    else:
+        chapter_reference =  frappe.get_doc({
+        "doctype": "Chapter Reference",
+        "parent": course,
+        "parenttype": "LMS Course",
+        "parentfield": "chapters",
+        "idx": idx
+    })
+
+    chapter_reference.update({"chapter": doc.name})
+    chapter_reference.save(ignore_permissions=True)
+
+    return doc.name
+
+
+@frappe.whitelist()
+def save_lesson(title, body, chapter, preview, idx, lesson):
+    if lesson:
+        doc = frappe.get_doc("Course Lesson", lesson)
+    else:
+        doc = frappe.get_doc({
+            "doctype": "Course Lesson"
+        })
+
+    doc.update({
+        "chapter": chapter,
+        "title": title,
+        "body": body,
+        "include_in_preview": preview
+    })
+    doc.save(ignore_permissions=True)
+
+    if lesson:
+        lesson_reference = frappe.get_doc("Lesson Reference", {"lesson": lesson})
+    else:
+        lesson_reference =  frappe.get_doc({
+        "doctype": "Lesson Reference",
+        "parent": chapter,
+        "parenttype": "Course Chapter",
+        "parentfield": "lessons",
+        "idx": idx
+    })
+
+    lesson_reference.update({"lesson": doc.name})
+    lesson_reference.save(ignore_permissions=True)
+
+    return doc.name

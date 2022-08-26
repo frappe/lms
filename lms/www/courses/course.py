@@ -1,7 +1,6 @@
 import frappe
 from lms.lms.doctype.lms_settings.lms_settings import check_profile_restriction
-from lms.lms.utils import get_membership, is_instructor, is_certified, get_evaluation_details
-from frappe.utils import add_months, getdate
+from lms.lms.utils import get_membership, is_instructor, is_certified, get_evaluation_details, redirect_to_courses_list
 
 def get_context(context):
     context.no_cache = 1
@@ -9,14 +8,29 @@ def get_context(context):
     try:
         course_name = frappe.form_dict["course"]
     except KeyError:
-        frappe.local.flags.redirect_location = "/courses"
-        raise frappe.Redirect
+        redirect_to_courses_list()
 
+    if course_name == "new-course":
+        if frappe.session.user == "Guest":
+            redirect_to_courses_list()
+        context.course = frappe._dict()
+        context.course.edit_mode = True
+        context.membership = None
+    else:
+        set_course_context(context, course_name)
+
+
+def set_course_context(context, course_name):
     course = frappe.db.get_value("LMS Course", course_name,
         ["name", "title", "image", "short_introduction", "description", "published", "upcoming", "disable_self_learning",
         "status", "video_link", "enable_certification", "grant_certificate_after", "paid_certificate",
         "price_certificate", "currency", "max_attempts", "duration"],
         as_dict=True)
+
+    if frappe.form_dict.get("edit"):
+        if not is_instructor(course.name):
+            redirect_to_courses_list()
+        course.edit_mode = True
 
     if course is None:
         frappe.local.flags.redirect_location = "/courses"
@@ -50,11 +64,13 @@ def get_context(context):
         "keywords": course.title
     }
 
+
 def get_user_interest(course):
     return frappe.db.count("LMS Course Interest", {
             "course": course,
             "user": frappe.session.user
         })
+
 
 def show_start_learing_cta(course, membership, restriction):
     return not course.disable_self_learning and not membership and not course.upcoming and not restriction.get("restrict") and not is_instructor(course.name)

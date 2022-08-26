@@ -1,0 +1,52 @@
+{% extends "templates/base.html" %}
+{% block title %}
+    {{ _("Quiz List") }}
+{% endblock %}
+
+
+{% block head_include %}
+    {% include "public/icons/symbol-defs.svg" %}
+{% endblock %}
+
+
+{% block content %}
+<div class="common-page-style">
+    <div class="container">
+        {% if quiz_list | length %}
+        <a class="btn btn-secondary btn-sm pull-right" href="/quizzes/new-quiz"> {{ _("Add Quiz") }} </a>
+        <div class="course-home-headings"> {{ _("Quiz List") }} </div>
+        <div class="common-card-style">
+            <table class="table">
+                <tr style="background-color: var(--fg-hover-color); font-weight: bold">
+                    <td style="width: 10%;"> {{ _("No.") }} </td>
+                    <td style="width: 45%;"> {{ _("Title") }} </td>
+                    <td> {{ _("ID") }} </td>
+                </tr>
+                {% for quiz in quiz_list %}
+                <tr style="position: relative; color: var(--text-color);">
+                    <td> {{ loop.index }} </td>
+                    <td>
+                        <a class="button-links" href="/quizzes/{{ quiz.name }}">{{ quiz.title }}</a>
+                    </td>
+                    <td>
+                        <a class="button-links" href="/quizzes/{{ quiz.name }}">{{ quiz.name }}</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-text">
+                <div class="empty-state-heading">{{ _("You have not created any quiz yet.") }}</div>
+                <div class="course-meta mb-6">{{ _("Create a quiz and add it to your course to engage users.") }}</div>
+                <a class="btn btn-secondary btn-sm"
+                href="{% if frappe.session.user == 'Guest' %} /login?redirect-to=/quizzes {% else %} /quizzes/new-quiz  {% endif %}">
+                {{ _("Add Quiz") }} </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

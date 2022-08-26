@@ -29,3 +29,5 @@ execute:frappe.delete_doc("Workspace", "School", ignore_missing=True, force=True
 lms.patches.v0_0.move_certification_to_certificate
 lms.patches.v0_0.quiz_submission_member
 lms.patches.v0_0.delete_old_module_docs #08-07-2022
+lms.patches.v0_0.delete_course_web_forms #21-08-2022
+lms.patches.v0_0.create_course_instructor_role

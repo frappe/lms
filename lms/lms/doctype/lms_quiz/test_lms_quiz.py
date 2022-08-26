@@ -15,7 +15,7 @@ class TestLMSQuiz(unittest.TestCase):
         }).save(ignore_permissions=True)
 
     def test_with_multiple_options(self):
-        quiz = frappe.get_doc("LMS Quiz", "Test Quiz")
+        quiz = frappe.get_doc("LMS Quiz", "test-quiz")
         quiz.append("questions", {
             "question": "Question multiple",
             "option_1": "Option 1",
@@ -27,7 +27,7 @@ class TestLMSQuiz(unittest.TestCase):
         self.assertTrue(quiz.questions[0].multiple)
 
     def test_with_no_correct_option(self):
-        quiz = frappe.get_doc("LMS Quiz", "Test Quiz")
+        quiz = frappe.get_doc("LMS Quiz", "test-quiz")
         quiz.append("questions", {
             "question": "Question no correct option",
             "option_1": "Option 1",
@@ -37,5 +37,5 @@ class TestLMSQuiz(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls) -> None:
-        frappe.db.delete("LMS Quiz", "Test Quiz")
-        frappe.db.delete("LMS Quiz Question", {"parent": "Test Quiz"})
+        frappe.db.delete("LMS Quiz", "test-quiz")
+        frappe.db.delete("LMS Quiz Question", {"parent": "test-quiz"})

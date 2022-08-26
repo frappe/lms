@@ -33,6 +33,15 @@ def slugify(title, used_slugs=[]):
             return new_slug
         count = count+1
 
+
+def generate_slug(title, doctype):
+    result = frappe.get_all(
+        doctype,
+        fields=['name'])
+    slugs = set([row['name'] for row in result])
+    return slugify(title, used_slugs=slugs)
+
+
 def get_membership(course, member, batch=None):
     filters = {
         "member": member,
@@ -53,6 +62,8 @@ def get_membership(course, member, batch=None):
 def get_chapters(course):
     """Returns all chapters of this course.
     """
+    if not course:
+        return []
     chapters = frappe.get_all("Chapter Reference", {"parent": course},
         ["idx", "chapter"], order_by="idx")
     for chapter in chapters:
@@ -373,3 +384,26 @@ def format_amount(amount, currency):
         return amount
     precision = 0 if amount % 1000 == 0 else 1
     return _("{0}k").format(fmt_money(amount_reduced, precision, currency))
+
+
+def first_lesson_exists(course):
+    first_chapter = frappe.db.get_value("Chapter Reference", {"parent": course, "idx": 1}, "name")
+    if not first_chapter:
+        return False
+
+    first_lesson = frappe.db.get_value("Lesson Reference", {"parent": first_chapter, "idx": 1}, "name")
+    if not first_lesson:
+        return False
+
+    return True
+
+def redirect_to_courses_list():
+    frappe.local.flags.redirect_location = "/courses"
+    raise frappe.Redirect
+
+
+def has_course_instructor_role():
+    return frappe.db.get_value("Has Role", {
+        "parent": frappe.session.user,
+        "role": "Course Instructor"
+        }, "name")

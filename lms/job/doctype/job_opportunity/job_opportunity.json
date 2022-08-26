@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_import": 1,
  "allow_rename": 1,
  "autoname": "format: JOB-{#####}",
  "creation": "2022-02-07 12:01:41.074418",
@@ -113,7 +114,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-02-24 12:37:45.666484",
+ "modified": "2022-07-28 13:41:29.224332",
  "modified_by": "Administrator",
  "module": "Job",
  "name": "Job Opportunity",

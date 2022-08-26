@@ -5,10 +5,19 @@ import frappe
 from frappe.model.document import Document
 import json
 from frappe import _
+from frappe.utils import cstr
+from lms.lms.utils import generate_slug
 
 class LMSQuiz(Document):
+
+    def autoname(self):
+        if not self.name:
+            self.name = generate_slug(self.title, "LMS Quiz")
+
+
     def validate(self):
         self.validate_correct_answers()
+
 
     def validate_correct_answers(self):
         for question in self.questions:
@@ -18,11 +27,13 @@ class LMSQuiz(Document):
                 question.multiple = 1
 
             if not len(correct_options):
-                frappe.throw(_("At least one answer must be correct for this question: {0}").format(frappe.bold(question.question)))
+                frappe.throw(_("At least one option must be correct for this question: {0}").format(frappe.bold(question.question)))
+
 
     def get_correct_options(self, question):
         correct_option_fields = ["is_correct_1", "is_correct_2", "is_correct_3", "is_correct_4"]
         return list(filter(lambda x: question.get(x) == 1, correct_option_fields))
+
 
     def get_last_submission_details(self):
         """Returns the latest submission for this user.
@@ -42,6 +53,7 @@ class LMSQuiz(Document):
 
         if result:
             return result[0]
+
 
 @frappe.whitelist()
 def quiz_summary(quiz, results):
@@ -73,3 +85,45 @@ def quiz_summary(quiz, results):
     }).save(ignore_permissions=True)
 
     return score
+
+
+@frappe.whitelist()
+def save_quiz(quiz_title, questions, quiz):
+    if quiz:
+        doc = frappe.get_doc("LMS Quiz", quiz)
+    else:
+        doc = frappe.get_doc({
+            "doctype": "LMS Quiz",
+        })
+
+    doc.update({
+        "title": quiz_title
+    })
+    doc.save(ignore_permissions=True)
+
+    for index, row in enumerate(json.loads(questions)):
+        if row["question_name"]:
+            question_doc = frappe.get_doc("LMS Quiz Question", row["question_name"])
+        else:
+            question_doc = frappe.get_doc({
+                "doctype": "LMS Quiz Question",
+                "parent": doc.name,
+                "parenttype": "LMS Quiz",
+                "parentfield": "questions",
+                "idx": index + 1
+            })
+
+        question_doc.update({
+            "question": row["question"]
+        })
+
+        for num in range(1,5):
+            question_doc.update({
+                "option_" + cstr(num): row["option_" + cstr(num)],
+                "explanation_" + cstr(num): row["explanation_" + cstr(num)],
+                "is_correct_" + cstr(num): row["is_correct_" + cstr(num)]
+            })
+
+        question_doc.save(ignore_permissions=True)
+
+    return doc.name

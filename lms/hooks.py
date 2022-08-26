@@ -135,10 +135,10 @@ website_route_rules = [
 	{"from_route": "/sketches/<sketch>", "to_route": "sketches/sketch"},
 	{"from_route": "/courses/<course>", "to_route": "courses/course"},
 	{"from_route": "/courses/<course>/<certificate>", "to_route": "courses/certificate"},
-	{"from_route": "/hackathons/<hackathon>", "to_route": "hackathons/hackathon"},
-	{"from_route": "/hackathons/<hackathon>/<project>", "to_route": "hackathons/project"},
 	{"from_route": "/courses/<course>/learn", "to_route": "batch/learn"},
 	{"from_route": "/courses/<course>/learn/<int:chapter>.<int:lesson>", "to_route": "batch/learn"},
+    {"from_route": "/quizzes", "to_route": "batch/quiz_list"},
+    {"from_route": "/quizzes/<quizname>", "to_route": "batch/quiz"},
 	{"from_route": "/courses/<course>/progress", "to_route": "batch/progress"},
 	{"from_route": "/courses/<course>/join", "to_route": "batch/join"},
 	{"from_route": "/courses/<course>/manage", "to_route": "cohorts"},
@@ -190,7 +190,9 @@ jinja = {
         "lms.lms.utils.convert_number_to_character",
         "lms.lms.utils.get_signup_optin_checks",
         "lms.lms.utils.get_popular_courses",
-        "lms.lms.utils.format_amount"
+        "lms.lms.utils.format_amount",
+        "lms.lms.utils.first_lesson_exists",
+        "lms.lms.utils.has_course_instructor_role"
     ],
     "filters": []
 }

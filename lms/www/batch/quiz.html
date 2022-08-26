@@ -1,0 +1,77 @@
+{% extends "templates/base.html" %}
+{% block title %}
+    {{ _("Quiz List") }}
+{% endblock %}
+
+
+{% block head_include %}
+    {% include "public/icons/symbol-defs.svg" %}
+{% endblock %}
+
+
+{% block content %}
+<div class="common-page-style" style="background-color: var(--fg-color);">
+    <div class="container">
+        {{ BreadCrumb(quiz) }}
+        {{ QuizCard(quiz) }}
+    </div>
+</div>
+{% endblock %}
+
+
+{% macro BreadCrumb(quiz) %}
+<div class="breadcrumb">
+    <a class="dark-links" href="/quizzes">{{ _("Quizzes") }}</a>
+    <img class="ml-1 mr-1" src="/assets/lms/icons/chevron-right.svg">
+    <span class="breadcrumb-destination">{{ quiz.title if quiz.title else _("New Quiz") }}</span>
+</div>
+{% endmacro %}
+
+
+{% macro QuizCard(quiz) %}
+<div style="width: 60%;">
+
+    <div class="course-home-headings mb-2" data-placeholder="{{ _('Quiz Title') }}" id="quiz-title"
+        {% if quiz.name %} data-name="{{ quiz.name }}" {% endif %}
+        contenteditable="true" >{% if quiz.title %}{{ quiz.title }}{% endif %}</div>
+
+
+    {% if quiz.questions %}
+    {% for question in quiz.questions %}
+    <div class="quiz-card">
+        <div contenteditable="true" data-placeholder="{{ _('Question') }}" data-question="{{ question.name }}"
+        class="question mb-4">{% if question.question %} {{ question.question }} {% endif %}</div>
+
+        {% for i in range(1,5) %}
+        {% set num = frappe.utils.cstr(i) %}
+        {% set option = question["option_" + num] %}
+        {% set explanation = question["explanation_" + num] %}
+
+        <div class="mt-4">
+            <label class=""> {{ _("Option") }} {{ num }} </label>
+            <div class="d-flex justify-content-between option-{{ num }}">
+                <div contenteditable="true" data-placeholder="{{ _('Option') }}"
+                    class="option-input">{% if option %}{{ option }}{% endif %}</div>
+                <div contenteditable="true" data-placeholder="{{ _('Explanation') }}"
+                    class="option-input">{% if explanation %}{{ explanation }}{% endif %}</div>
+                <div class="option-checkbox">
+                    <input type="checkbox" {% if question['is_correct_' + num] %} checked {% endif %}>
+                    <label class="mb-0"> {{ _("Is Correct") }} </label>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+
+    <div class="mt-4">
+        <button class="btn btn-secondary btn-sm btn-question"> {{ _("New Question") }} </button>
+        <button class="btn btn-primary btn-sm btn-save-question ml-2
+            {% if not quiz.name %} hide {% endif %}"> {{ _("Save Quiz") }} </button>
+    </div>
+</div>
+{% endmacro %}
+
+

@@ -15,16 +15,16 @@
     </div>
 
     {% else %}
-
     {% include "lms/templates/search_course/search_course.html" %}
+
     <div class="course-list">
       {% set courses = live_courses %}
-      {% set title = _("All Live Courses ({0})").format(courses | length) %}
+      {% set title = _("Live Courses ({0})").format(courses | length) %}
       {% set classes = "live-courses" %}
       {% include "lms/templates/course_list.html" %}
 
       {% set courses = upcoming_courses %}
-      {% set title = _("All Upcoming Courses ({0})").format(courses | length) %}
+      {% set title = _("Upcoming Courses ({0})").format(courses | length) %}
       {% set classes = "upcoming-courses mt-10" %}
       {% include "lms/templates/course_list.html" %}
     </div>

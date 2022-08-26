@@ -1,6 +1,16 @@
 {% extends "templates/base.html" %}
 {% from "www/macros/livecode.html" import LiveCodeEditorJS, LiveCodeEditor with context %}
-{% block title %} {{ lesson.title }} - {{ course.title }} {% endblock %}
+
+{% block title %}
+
+{% if lesson.title %}
+{{ lesson.title }} - {{ course.title }}
+{% else %}
+{{ _("New Lesson") }}
+{% endif %}
+
+{% endblock %}
+
 
 {% block head_include %}
 {% include "public/icons/symbol-defs.svg" %}
@@ -12,137 +22,257 @@
 
 {% endblock %}
 
+
 {% block content %}
 <div class="common-page-style lesson-page">
-  <div class="container course-details-page">
-    {{ BreadCrumb(course, lesson) }}
-    <div class="course-content-parent">
-      <div class="course-details-outline">
-        {{ widgets.CourseOutline(course=course, membership=membership) }}
-      </div>
-      <div class="lesson-pagination-parent">
-        {{ LessonContent(lesson) }}
-        {{ Discussions() }}
-      </div>
+    <div class="container course-details-page">
+        {{ BreadCrumb(course, lesson) }}
+        <div class="course-content-parent">
+            <div class="course-details-outline">
+                {{ widgets.CourseOutline(course=course, membership=membership) }}
+            </div>
+            <div class="lesson-pagination-parent">
+                {{ LessonContent(lesson) }}
+                {% if not lesson.edit_mode %} {{ Discussions() }} {% endif %}
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 {% endblock %}
 
+
+<!-- BreadCrumb -->
 {% macro BreadCrumb(course, lesson) %}
 <div class="breadcrumb">
     <a class="dark-links" href="/courses">{{ _("All Courses") }}</a>
     <img class="ml-1 mr-1" src="/assets/lms/icons/chevron-right.svg">
     <a class="dark-links" href="/courses/{{ course.name }}">{{ course.title }}</a>
     <img class="ml-1 mr-1" src="/assets/lms/icons/chevron-right.svg">
-    <span class="breadcrumb-destination">{{ lesson.title }}</span>
+    <span class="breadcrumb-destination">{{ lesson.title if lesson.title else _("New Lesson") }}</span>
 </div>
 {% endmacro %}
 
+
+<!-- Lesson Details -->
 {% macro LessonContent(lesson) %}
 {% set instructors = get_instructors(course.name) %}
 {% set is_instructor = is_instructor(course.name) %}
 <div class="common-card-style lesson-content">
-  <div class="lesson-title">
-    <div class="course-home-headings title mb-0
-    {% if membership %} is-member {% endif %}
-    {% if membership or is_instructor %} eligible-for-submission {% endif %}" data-lesson="{{ lesson.name }}"
-      data-course="{{ course.name }}">{{ lesson.title }}</div>
-    <span class="lesson-progress {{hide if get_progress(course.name, lesson.name) != 'Complete' else ''}}">{{ _("COMPLETED") }}</span>
+    <div class="lesson-title">
 
-    {% if is_instructor %}
-    <a class="button is-default button-links ml-auto" href="/lesson?name={{ lesson.name }}"> {{ _("Edit") }} </a>
-    {% endif %}
-  </div>
+        <!-- Title -->
+        <div class="course-home-headings title mb-0 {% if membership %} is-member {% endif %}
+            {% if membership or is_instructor %} eligible-for-submission {% endif %}" id="title"
+            {% if lesson.edit_mode %} data-placeholder="{{ _('Title') }}" contenteditable="true" {% endif %}
+            data-index="{{ lesson_index }}" data-course="{{ course.name }}" data-chapter="{{ chapter }}"
+            {% if lesson.name %} data-lesson="{{ lesson.name }}" {% endif %}
+            >{% if lesson.title %}{{ lesson.title }}{% endif %}</div>
+        <span class="lesson-progress {{ hide if get_progress(course.name, lesson.name) != 'Complete' else ''}}">{{ _("COMPLETED") }}</span>
 
-  <div class="d-flex align-items-center">
-    {% set ins_len = instructors | length %}
-    {% for instructor in instructors %}
-    {% if ins_len > 1 and loop.index == 1 %}
-    <div class="avatar-group overlap">
-    {% endif %}
-    {{ widgets.Avatar(member=instructor, avatar_class="avatar-small") }}
-
-    {% if ins_len > 1 and loop.index == ins_len %}
+        <!-- Edit Button -->
+        {% if is_instructor and not lesson.edit_mode %}
+        <button class="button is-default button-links ml-auto btn-edit"> {{ _("Edit") }} </button>
+        {% endif %}
     </div>
-    {% endif %}
-    {% endfor %}
-    <a class="button-links ml-1" href="{{ get_profile_url(instructors[0].username) }}">
-      <span class="course-meta">
-      {% if ins_len == 1 %}
-        {{ instructors[0].full_name }}
-      {% else %}
-        {% set suffix = _("other") if ins_len - 1 == 1 else _("others")  %}
-        {{ instructors[0].full_name.split(" ")[0] }} and {{ ins_len - 1 }} {{ suffix }}
-      {% endif %}
-      </span>
-    </a>
-    <div class="ml-5 course-meta"> {{ frappe.utils.format_date(lesson.creation, "medium") }} </div>
-  </div>
 
-  <div class="markdown-source lesson-content-card">
-    {% if membership or lesson.include_in_preview or is_instructor %}
-    {% if is_instructor and not lesson.include_in_preview %}
-      <div class="small alert alert-secondary alert-dismissible mt-4 mb-4">
-        {{ _("This lesson is not available for preview. As you are the Instructor of the course only you can see it.") }}
-        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-      </div>
-    {% endif %}
-      {{ render_html(lesson.body) }}
-    {% else %}
-      <div class="">
-        <div class="button is-primary pull-right join-batch" data-course="{{ course.name | urlencode }}"> {{ _("Start Learning") }} </div>
-        <div class=""> {{ _("This lesson is not available for preview. Please join the course to access it.") }} </div>
-      </div>
-    {% endif %}
-  </div>
+    <!-- Instructors -->
+    <div class="d-flex align-items-center">
+        {% set ins_len = instructors | length %}
+        {% for instructor in instructors %}
+        {% if ins_len > 1 and loop.index == 1 %}
+        <div class="avatar-group overlap">
+        {% endif %}
+        {{ widgets.Avatar(member=instructor, avatar_class="avatar-small") }}
 
-  {{ pagination(prev_url, next_url) }}
+        {% if ins_len > 1 and loop.index == ins_len %}
+        </div>
+        {% endif %}
+        {% endfor %}
+        <a class="button-links ml-1" href="{{ get_profile_url(instructors[0].username) }}">
+        <span class="course-meta">
+        {% if ins_len == 1 %}
+            {{ instructors[0].full_name }}
+        {% else %}
+            {% set suffix = _("other") if ins_len - 1 == 1 else _("others")  %}
+            {{ instructors[0].full_name.split(" ")[0] }} and {{ ins_len - 1 }} {{ suffix }}
+        {% endif %}
+        </span>
+        </a>
+        <div class="ml-5 course-meta"> {{ frappe.utils.format_date(lesson.creation, "medium") }} </div>
+    </div>
+
+    <!-- Lesson Content -->
+    <div class="markdown-source lesson-content-card {% if lesson.edit_mode %} mb-0 mt-2 {% endif %} ">
+        {% if membership or lesson.include_in_preview or is_instructor %}
+
+            {% if is_instructor and not lesson.include_in_preview and not lesson.edit_mode %}
+            <div class="small alert alert-secondary alert-dismissible mb-4">
+                {{ _("This lesson is not available for preview. As you are the Instructor of the course only you can see it.") }}
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            </div>
+            {% endif %}
+
+            {% if lesson.edit_mode %}
+            {{ EditLesson(lesson) }}
+            {% else %}
+            {{ render_html(lesson.body) }}
+            {% endif %}
+
+        {% else %}
+            <div class="">
+                <div class="btn btn-primary pull-right join-batch" data-course="{{ course.name | urlencode }}"> {{ _("Start Learning") }} </div>
+                <div class=""> {{ _("This lesson is not available for preview. Please join the course to access it.") }} </div>
+            </div>
+        {% endif %}
+    </div>
+
+    {% if not lesson.edit_mode %}
+    {{ pagination(prev_url, next_url) }}
+    {% endif %}
 
 </div>
 {% endmacro %}
 
+
+<!-- Pagination -->
 {% macro pagination(prev_url, next_url) %}
 <div class="lesson-pagination">
+    <div>
+        {% if prev_url %}
+        <a class="btn btn-secondary dark-links prev" href="{{ prev_url }}">
+            <img class="mr-2" src="/assets/lms/icons/left-arrow.svg">
+            {{ _("Prev") }}
+        </a>
+        {% endif %}
+    </div>
 
-  <div>
-    {% if prev_url %}
-    <a class="button is-secondary dark-links prev" href="{{ prev_url }}">
-      <img class="mr-2" src="/assets/lms/icons/left-arrow.svg">
-      {{ _("Prev") }}
-    </a>
+    {% if not is_mentor(course.name, frappe.session.user) and membership %}
+    {% set progress = get_progress(course.name, lesson.name) %}
+    <div class="custom-checkbox {% if progress == 'Complete' %} hide {% endif %}">
+        <label class="quiz-label">
+            <input class="mark-progress" type="checkbox" checked>
+            <img class="empty-checkbox" />
+            <span class="small">{{ _("Mark as complete on moving to the next lesson") }}</span>
+        </label>
+    </div>
+
+    <div class="btn btn-default mark-progress {{ progress }} {% if progress == 'Incomplete' or progress == None %} hide {% endif %}"
+        data-progress="Incomplete">
+        {{ _("Mark as Incomplete") }}
+    </div>
     {% endif %}
-  </div>
 
-
-  {% if not is_mentor(course.name, frappe.session.user) and membership %}
-  {% set progress = get_progress(course.name, lesson.name) %}
-  <div class="custom-checkbox {% if progress == 'Complete' %} hide {% endif %}">
-    <label class="quiz-label">
-      <input class="mark-progress" type="checkbox" checked>
-      <img class="empty-checkbox" />
-      <span class="small">{{ _("Mark as complete on moving to the next lesson") }}</span>
-    </label>
-  </div>
-
-  <div class="button is-secondary mark-progress {{ progress }} {% if progress == 'Incomplete' or progress == None %} hide {% endif %}"
-    data-progress="Incomplete">
-    {{ _("Mark as Incomplete") }}
-  </div>
-
-  {% endif %}
-
-  <div>
-    <a class="button is-primary next {% if membership.progress|int == 100 and not next_url %} hide {% endif %}"
-      {% if next_url %} data-href="{{ next_url }}" {% endif %} href="">
-      {% if next_url %} {{ _("Next") }} {% else %} {{ _("Mark as Complete") }} {% endif %}
-      <img class="ml-2" src="/assets/lms/icons/side-arrow-white.svg">
-    </a>
-  </div>
+    <div>
+        <a class="btn btn-primary next {% if not next_url and (membership.progress|int == 100  or is_instructor)  %} hide {% endif %}"
+        {% if next_url %} data-href="{{ next_url }}" {% endif %} href="">
+        {% if next_url %} {{ _("Next") }} {% else %} {{ _("Mark as Complete") }} {% endif %}
+        <img class="ml-2" src="/assets/lms/icons/side-arrow-white.svg">
+        </a>
+    </div>
 
 </div>
 {% endmacro %}
 
+
+<!-- Edit Lesson -->
+{% macro EditLesson(lesson) %}
+<div id="body" {% if lesson.body %} data-body="{{ lesson.body }}" {% endif %}></div>
+
+<label class="preview">
+    <input {% if lesson.include_in_preview %} checked {% endif %} type="checkbox"
+    id="preview"> {{ _("Show preview of this lesson to Guest users.") }}
+</label>
+
+<div class="mt-4">
+    <button class="btn btn-primary btn-sm btn-lesson pull-right ml-2"> {{ _("Save") }} </button>
+    {% if lesson.name %}
+    <button class="btn btn-secondary btn-sm pull-right btn-back ml-2"> {{ _("Back to Lesson") }} </button>
+    <a class="btn btn-secondary btn-sm pull-right" href="/quizzes"> {{ _("Create Quiz") }} </a>
+    {% endif %}
+
+    <div class="attachments-parent">
+        <div class="attachment-controls">
+            <div class="show-attachments" data-toggle="collapse" data-target="#collapse-attachments" aria-expanded="false">
+                <svg class="icon icon-sm">
+                    <use class="" href="#icon-attachment">
+                </svg>
+                <span class="attachment-count" data-count="0">0 {{ _("attachments") }}</span>
+            </div>
+            <div class="add-attachment">
+                <span class="btn btn-sm btn-secondary">
+                    <svg class="icon icon-sm">
+                        <use class="" href="#icon-upload">
+                    </svg>
+                    {{ _("Upload Attachments") }}
+                </span>
+            </div>
+        </div>
+        <table class="attachments common-card-style collapse hide" id="collapse-attachments"></table>
+    </div>
+</div>
+
+{{ HelpArticle() }}
+{% endmacro %}
+
+
+<!-- Help Article -->
+{% macro HelpArticle() %}
+<div class="help-article">
+    <h3> {{ _("Help Article") }} </h3>
+    <p>
+        {{ _("You can add additional content to the lesson using a special syntax. The table below mentions
+            all types of dynamic content that you can add to the lessons and the syntax for the same.") }}
+    </p>
+    <table class="table w-100">
+        <tr>
+            <th style="width: 20%;"> {{ _("Content Type") }} </th>
+            <th style="width: 40%;"> {{ _("Syntax") }} </th>
+            <th> {{ _("Description") }} </th>
+        </tr>
+        <tr>
+            <td>
+                {{ _("YouTube Video") }}
+            </td>
+            <td>
+                {% raw %} {{ YouTubeVideo("embed_src") }} {% endraw %}
+            </td>
+            <td>
+                <span>
+                    {{ _("Copy and paste the syntax in the editor. Replace 'embed_src' with the embed source
+                        that YouTube provides. To get the source, follow the steps mentioned below.") }}
+                </span>
+                <ul class="p-4">
+                    <li>
+                        {{ _("Upload the video on youtube.") }}
+                    </li>
+                    <li>
+                        {{ _("When you share a youtube video, it shows an option called Embed.") }}
+                    </li>
+                    <li>
+                        {{ _("On clicking it, it provides an iframe. Copy the source (src) of the iframe and
+                            paste it here.") }}
+                    </li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                {{ _("Quiz") }}
+            </td>
+            <td>
+                {% raw %} {{ Quiz("lms_quiz_id") }} {% endraw %}
+            </td>
+            <td>
+                {% set quiz_link = "<a href='/quizzes'> Quiz List </a>" %}
+                {{ _("Copy and paste the syntax in the editor. Replace 'lms_quiz_id' with the ID of the Quiz. You can get the ID of the quiz from the {0}.").format(quiz_link) }}
+            </td>
+        </tr>
+    </table>
+</div>
+{% endmacro %}
+
+
+<!-- Discussions Component -->
 {% macro Discussions() %}
 {% set topics_count = frappe.db.count("Discussion Topic",
     {"reference_doctype": "Course Lesson", "reference_docname": lesson.name}) %}
@@ -155,17 +285,17 @@
 {% set redirect_to = "/courses/" + course.name %}
 {% set empty_state_title = _("Have a doubt?") %}
 {% set empty_state_subtitle = _("Post it here, our mentors will help you out.") %}
-
 {% include "frappe/templates/discussions/discussions_section.html" %}
 {% endmacro %}
 
+
+<!-- Scripts -->
 {%- block script %}
 {{ super() }}
-
 <script type="text/javascript">
-  var page_context = {{ page_context | tojson }};
+    var page_context = {{ page_context | tojson }};
 </script>
-
+{{ include_script('controls.bundle.js') }}
 {% for ext in page_extensions %}
 {{ ext.render_footer() }}
 {% endfor %}
