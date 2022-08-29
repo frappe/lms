@@ -26,6 +26,10 @@
                 </a>
             </li>
             {% endif %}
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#notifications">{{ _("Notifications") }}
+                </a>
+            </li>
         </ul>
 
         <div class="border-bottom mb-4"></div>
@@ -39,6 +43,9 @@
                 {% include "lms/templates/courses_created.html" %}
             </div>
             {% endif %}
+            <div class="tab-pane fade" id="notifications" role="tabpanel" aria-labelledby="notifications">
+                {% include "lms/templates/courses_created.html" %}
+            </div>
         </div>
 
     </div>
