@@ -67,7 +67,7 @@
             data-index="{{ lesson_index }}" data-course="{{ course.name }}" data-chapter="{{ chapter }}"
             {% if lesson.name %} data-lesson="{{ lesson.name }}" {% endif %}
             >{% if lesson.title %}{{ lesson.title }}{% endif %}</div>
-        <span class="lesson-progress {{ hide if get_progress(course.name, lesson.name) != 'Complete' else ''}}">{{ _("COMPLETED") }}</span>
+        <span class="indicator-pill green {{ hide if get_progress(course.name, lesson.name) != 'Complete' else ''}}">{{ _("COMPLETED") }}</span>
 
         <!-- Edit Button -->
         {% if is_instructor and not lesson.edit_mode %}
@@ -119,9 +119,13 @@
             {% endif %}
 
         {% else %}
+        {% set course_link = "<a class='join-batch' data-course=" + course.name | urlencode + " href=''>" + _('here') +  "</a>" %}
             <div class="">
-                <div class="btn btn-primary pull-right join-batch" data-course="{{ course.name | urlencode }}"> {{ _("Start Learning") }} </div>
-                <div class=""> {{ _("This lesson is not available for preview. Please join the course to access it.") }} </div>
+                <div>
+                    {{ _("This lesson is not available for preview.
+                    Please join the course to access it.
+                    Click {0} to join the course.").format(course_link) }}
+                </div>
             </div>
         {% endif %}
     </div>
@@ -140,14 +144,14 @@
     <div>
         {% if prev_url %}
         <a class="btn btn-secondary dark-links prev" href="{{ prev_url }}">
-            <img class="mr-2" src="/assets/lms/icons/left-arrow.svg">
-            {{ _("Prev") }}
+            {{ _("Previous") }}
         </a>
         {% endif %}
     </div>
 
-    {% if not is_mentor(course.name, frappe.session.user) and membership %}
     {% set progress = get_progress(course.name, lesson.name) %}
+
+    {% if not is_mentor(course.name, frappe.session.user) and membership %}
     <div class="custom-checkbox {% if progress == 'Complete' %} hide {% endif %}">
         <label class="quiz-label">
             <input class="mark-progress" type="checkbox" checked>
@@ -155,18 +159,19 @@
             <span class="small">{{ _("Mark as complete on moving to the next lesson") }}</span>
         </label>
     </div>
-
-    <div class="btn btn-default mark-progress {{ progress }} {% if progress == 'Incomplete' or progress == None %} hide {% endif %}"
-        data-progress="Incomplete">
-        {{ _("Mark as Incomplete") }}
-    </div>
     {% endif %}
 
     <div>
-        <a class="btn btn-primary next {% if not next_url and (membership.progress|int == 100  or is_instructor)  %} hide {% endif %}"
-        {% if next_url %} data-href="{{ next_url }}" {% endif %} href="">
-        {% if next_url %} {{ _("Next") }} {% else %} {{ _("Mark as Complete") }} {% endif %}
-        <img class="ml-2" src="/assets/lms/icons/side-arrow-white.svg">
+        {% if not is_mentor(course.name, frappe.session.user) and membership %}
+        <div class="btn btn-default mark-progress {{ progress }} {% if progress == 'Incomplete' or progress == None %} hide {% endif %}"
+            data-progress="Incomplete">
+            {{ _("Mark as Incomplete") }}
+        </div>
+        {% endif %}
+
+        <a class="btn btn-primary next ml-2 {% if not next_url and (membership.progress|int == 100  or is_instructor)  %} hide {% endif %}"
+            {% if next_url %} data-href="{{ next_url }}" {% endif %} href="">
+            {% if next_url %} {{ _("Next") }} {% else %} {{ _("Mark as Complete") }} {% endif %}
         </a>
     </div>
 

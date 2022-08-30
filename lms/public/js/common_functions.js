@@ -67,7 +67,7 @@ const join_course = (e) => {
                 }, 3);
                 setTimeout(function () {
                     window.location.href = `/courses/${course}/learn/1.1`;
-                }, 3000);
+                }, 1000);
             }
         }
     })

@@ -48,25 +48,25 @@
 <script>
 frappe.ready(() => {
     $("#confirm").click((e) => {
-      frappe.call({
-        "method": "lms.lms.doctype.lms_batch_membership.lms_batch_membership.create_membership",
-        "args": {
-          "batch": {{ batch.name }},
-          "course": {{ batch.course }}
-        },
-        "callback": (data) => {
-          if (data.message == "OK") {
-            frappe.msgprint({
-              message: __("You are now a member of this batch!"),
-              clear: true
-            });
-            setTimeout(function () {
-              window.location.href = "/courses/{{ batch.course }}/home";
-            }, 2000);
-          }
-        }
-      })
-    })
-  })
+        frappe.call({
+            "method": "lms.lms.doctype.lms_batch_membership.lms_batch_membership.create_membership",
+            "args": {
+                "batch": {{ batch.name }},
+                "course": {{ batch.course }}
+            },
+            "callback": (data) => {
+            if (data.message == "OK") {
+                frappe.msgprint({
+                    message: __("You are now a member of this batch!"),
+                    clear: true
+                });
+                setTimeout(function () {
+                    window.location.href = "/courses/{{ batch.course }}/home";
+                }, 1000);
+            }
+            }
+        });
+    });
+});
 </script>
 {% endblock %}
