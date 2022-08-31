@@ -223,7 +223,7 @@
 <!-- Help Article -->
 {% macro HelpArticle() %}
 <div class="help-article">
-    <h3> {{ _("Help Article") }} </h3>
+    <h3> {{ _("Embed Components") }} </h3>
     <p>
         {{ _("You can add additional content to the lesson using a special syntax. The table below mentions
             all types of dynamic content that you can add to the lessons and the syntax for the same.") }}
@@ -239,11 +239,11 @@
                 {{ _("YouTube Video") }}
             </td>
             <td>
-                {% raw %} {{ YouTubeVideo("embed_src") }} {% endraw %}
+                {% raw %} {{ YouTubeVideo('Video ID') }} {% endraw %}
             </td>
             <td>
                 <span>
-                    {{ _("Copy and paste the syntax in the editor. Replace 'embed_src' with the embed source
+                    {{ _("Copy and paste the syntax in the editor. Replace 'Video ID' with the embed source
                         that YouTube provides. To get the source, follow the steps mentioned below.") }}
                 </span>
                 <ul class="p-4">
@@ -265,11 +265,12 @@
                 {{ _("Quiz") }}
             </td>
             <td>
-                {% raw %} {{ Quiz("lms_quiz_id") }} {% endraw %}
+                {% raw %} {{ Quiz('Quiz ID') }} {% endraw %}
             </td>
             <td>
                 {% set quiz_link = "<a href='/quizzes'> Quiz List </a>" %}
-                {{ _("Copy and paste the syntax in the editor. Replace 'lms_quiz_id' with the ID of the Quiz. You can get the ID of the quiz from the {0}.").format(quiz_link) }}
+                {{ _("Copy and paste the syntax in the editor. Replace 'Quiz ID' with the Id of the Quiz.
+                You can get the Id of the quiz from the {0}.").format(quiz_link) }}
             </td>
         </tr>
     </table>
@@ -279,8 +280,10 @@
 
 <!-- Discussions Component -->
 {% macro Discussions() %}
-{% set topics_count = frappe.db.count("Discussion Topic",
-    {"reference_doctype": "Course Lesson", "reference_docname": lesson.name}) %}
+{% set topics_count = frappe.db.count("Discussion Topic", {
+    "reference_doctype": "Course Lesson",
+    "reference_docname": lesson.name
+}) %}
 {% set is_instructor = frappe.session.user == course.instructor %}
 {% set condition = is_instructor if is_instructor else membership %}
 {% set doctype, docname = _("Course Lesson"), lesson.name %}

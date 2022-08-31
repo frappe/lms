@@ -8,7 +8,11 @@ frappe.ready(() => {
         save_question(e);
     });
 
-    get_questions()
+    $(".copy-quiz-id").click((e) => {
+        frappe.utils.copy_to_clipboard($(e.currentTarget).data("name"));
+    });
+
+    get_questions();
 
 });
 
@@ -54,6 +58,7 @@ const save_question = (e) => {
     if (!$("#quiz-title").text()) {
         frappe.throw(__("Quiz Title is mandatory."));
     }
+
     frappe.call({
         method: "lms.lms.doctype.lms_quiz.lms_quiz.save_quiz",
         args: {

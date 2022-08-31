@@ -661,7 +661,7 @@ input[type=checkbox] {
   font-size: var(--text-sm);
   display: flex;
   flex-direction: column;
-  margin-bottom: 3rem;
+  margin-bottom: 2.5rem;
   padding-left: 200px;
   padding-right: 1rem;
   box-shadow: var(--shadow-sm);
@@ -764,7 +764,7 @@ input[type=checkbox] {
 }
 
 .education-details {
-  margin-top: 3rem;
+  margin-top: 1.25rem;
 }
 
 .bold-title {
@@ -1660,4 +1660,10 @@ li {
 
 .help-article {
     font-size: var(--text-base);
+}
+
+.quiz-row {
+    position: relative;
+    color: var(--text-color);
+    cursor: pointer;
 }

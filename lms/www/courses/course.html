@@ -114,7 +114,9 @@
         </div>
 
         <div class="course-image-attachment {% if not course.image %} hide {% endif %} ">
-            <a href="{{ course.image }}" id="image" target="_blank"> {{ course.image }} </a>
+            <a {% if course.image %} href="{{ course.image }}" {% endif %} id="image" target="_blank">
+                {{ course.image }}
+            </a>
             <button class="btn btn-sm btn-default btn-clear ml-4"> {{ _("Clear") }} </button>
         </div>
         <a class="btn btn-default btn-sm btn-attach mt-1 {% if course.image %} hide {% endif %}"> {{ _("Attach Image") }} </a>

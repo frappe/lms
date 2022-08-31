@@ -329,6 +329,7 @@ const add_tag = (e) => {
 const save_course = (e) => {
     let tags = $('.course-card-pills').map((i, el) => $(el).text().trim()).get();
     tags = tags.filter(word => word.trim().length > 0);
+
     frappe.call({
         method: "lms.lms.doctype.lms_course.lms_course.save_course",
         args: {

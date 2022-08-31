@@ -66,7 +66,7 @@ frappe.ready(() => {
 
     $(".btn-back").click((e) => {
         window.location.href = window.location.href.split("?")[0];
-    })
+    });
 
     $(document).on("click", ".copy-link", (e) => {
         frappe.utils.copy_to_clipboard($(e.currentTarget).data("link"));
@@ -540,6 +540,11 @@ const build_attachment_table = (file_doc) => {
 
 
 const make_editor = () => {
+    let comment =  `<!--
+    {{ YouTubeVideo('Video Id') }}
+    {{ Quiz('Quiz Id') }}
+-->`
+
     this.code_field_group = new frappe.ui.FieldGroup({
         fields: [
             {
@@ -549,7 +554,7 @@ const make_editor = () => {
                 wrap: true,
                 max_lines: Infinity,
                 min_lines: 20,
-                default: $("#body").data("body"),
+                default: $("#body").data("body") || comment,
                 depends_on: 'eval:doc.type=="Markdown"',
             }
         ],
