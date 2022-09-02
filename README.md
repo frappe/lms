@@ -1,55 +1,26 @@
 <p align="center">
-
     <a href="https://github.com/frappe/lms/commits/main">
-
-    <img src="https://img.shields.io/github/last-commit/frappe/lms.svg?style=flat-square&logo=github&logoColor=white"
-
-         alt="GitHub last commit">
-
+    <img src="https://img.shields.io/github/last-commit/frappe/lms.svg?style=flat-square&logo=github&logoColor=white" alt="GitHub last commit">
     <a href="https://github.com/frappe/lms/issues">
-
-    <img src="https://img.shields.io/github/issues-raw/frappe/lms.svg?style=flat-square&logo=github&logoColor=white"
-
-         alt="GitHub issues">
-
+    <img src="https://img.shields.io/github/issues-raw/frappe/lms.svg?style=flat-square&logo=github&logoColor=white" alt="GitHub issues">
     <a href="https://github.com/frappe/lms/pulls">
-
-    <img src="https://img.shields.io/github/issues-pr-raw/frappe/lms.svg?style=flat-square&logo=github&logoColor=white"
-
-         alt="GitHub pull requests">
-
+    <img src="https://img.shields.io/github/issues-pr-raw/frappe/lms.svg?style=flat-square&logo=github&logoColor=white" alt="GitHub pull requests">
      <a href="https://github.com/frappe/lms/license">
-
-    <img src="https://img.shields.io/github/license/frappe/lms.svg?style=flat-square&logo=github&logoColor=white"
-
-         alt="GitHub pull requests">
-
+    <img src="https://img.shields.io/github/license/frappe/lms.svg?style=flat-square&logo=github&logoColor=white" alt="GitHub pull requests">
 </p>
 
 <div align="center">
-
   <a href="https://www.frappelms.com/">
-
     <img src="https://www.frappelms.com/files/flms.svg" alt="Frappe LMS" width="80" height="80">
-
   </a>
-
   <h3 align="center">Frappe LMS</h3>
-
   <p align="center">
-
     Easy to Use, Open Source Learning Management System
-
-    <br />
-
+    <br/>
     <a href="https://www.frappelms.com"><strong>Visit the website »</strong></a>
-
-    <br />
-
-    <br />
-
+    <br/>
+    <br/>
     <a href="https://www.frappelms.com/introduction">Explore the docs</a>.
-
     <a href="https://github.com/frappe/lms/issues">Report Bug</a>
 
   </p>
