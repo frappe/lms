@@ -490,7 +490,9 @@ const save_lesson = (e) => {
         method: "lms.lms.doctype.lms_course.lms_course.save_lesson",
         args: {
             "title": $("#title").text(),
-            "body": this.code_field_group.fields_dict["code_md"].last_value,
+            "body": this.code_field_group.fields_dict["code_md"].value,
+            "youtube": $("#youtube").text(),
+            "quiz_id": $("#quiz-id").text(),
             "chapter": $("#title").data("chapter"),
             "preview": $("#preview").prop("checked") ? 1 : 0,
             "idx": $("#title").data("index"),

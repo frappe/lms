@@ -4,6 +4,7 @@
 
 from __future__ import unicode_literals
 import frappe
+from frappe import _
 from frappe.model.document import Document
 from ...md import find_macros
 from lms.lms.utils import get_course_progress, get_lesson_url
@@ -11,6 +12,11 @@ from lms.lms.utils import get_course_progress, get_lesson_url
 class CourseLesson(Document):
     def validate(self):
         self.check_and_create_folder()
+        self.validate_quiz_id()
+
+    def validate_quiz_id(self):
+        if self.quiz_id and not frappe.db.exists("LMS Quiz", self.quiz_id):
+            frappe.throw(_("Invalid Quiz ID"))
 
     def on_update(self):
         dynamic_documents = ["Exercise", "Quiz"]

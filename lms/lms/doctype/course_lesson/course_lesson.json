@@ -15,6 +15,10 @@
   "include_in_preview",
   "index_label",
   "section_break_6",
+  "youtube",
+  "column_break_9",
+  "quiz_id",
+  "section_break_11",
   "body",
   "help_section",
   "help"
@@ -81,11 +85,31 @@
    "label": "Course",
    "options": "LMS Course",
    "read_only": 1
+  },
+  {
+   "description": "Quiz will appear at the bottom of the lesson.",
+   "fieldname": "quiz_id",
+   "fieldtype": "Data",
+   "label": "Quiz ID"
+  },
+  {
+   "fieldname": "column_break_9",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_11",
+   "fieldtype": "Section Break"
+  },
+  {
+   "description": "YouTube Video will appear at the top of the lesson.",
+   "fieldname": "youtube",
+   "fieldtype": "Data",
+   "label": "YouTube Video URL"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-05-02 17:16:12.450460",
+ "modified": "2022-09-02 11:30:15.450624",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Course Lesson",

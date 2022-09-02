@@ -249,7 +249,7 @@ def save_chapter(course, title, chapter_description, idx, chapter):
 
 
 @frappe.whitelist()
-def save_lesson(title, body, chapter, preview, idx, lesson):
+def save_lesson(title, body, chapter, preview, idx, lesson, youtube=None, quiz_id=None):
     if lesson:
         doc = frappe.get_doc("Course Lesson", lesson)
     else:
@@ -261,7 +261,9 @@ def save_lesson(title, body, chapter, preview, idx, lesson):
         "chapter": chapter,
         "title": title,
         "body": body,
-        "include_in_preview": preview
+        "include_in_preview": preview,
+        "youtube": youtube,
+        "quiz_id": quiz_id
     })
     doc.save(ignore_permissions=True)
 
