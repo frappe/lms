@@ -145,7 +145,7 @@ def get_enrolled_courses():
     }
 
 def get_course_membership(member, member_type=None):
-    """ Returns all memberships of the user  """
+    """ Returns all memberships of the user.  """
     filters = {
         "member": member
     }
@@ -156,8 +156,7 @@ def get_course_membership(member, member_type=None):
 
 
 def get_authored_courses(member, only_published=True):
-    """Returns the number of courses authored by this user.
-    """
+    """ Returns the number of courses authored by this user. """
     course_details = []
 
     filters = {
