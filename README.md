@@ -45,7 +45,7 @@ Lessons can be in the form of text, videos, quizzes or a combination of all thes
 
 ## Getting Started
 
-Frappe LMS app is built1 using [Frappe Framework](https://frappeframework.com).
+Frappe LMS app is built using [Frappe Framework](https://frappeframework.com).
 
 ### Direct installation through bench
 
