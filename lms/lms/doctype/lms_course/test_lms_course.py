@@ -7,12 +7,15 @@ import frappe
 from .lms_course import LMSCourse
 import unittest
 
+
 class TestLMSCourse(unittest.TestCase):
+
 
     def test_new_course(self):
         course = new_course("Test Course")
         assert course.title == "Test Course"
         assert course.name == "test-course"
+
 
     # disabled this test as it is failing
     def _test_add_mentors(self):
@@ -26,9 +29,22 @@ class TestLMSCourse(unittest.TestCase):
         mentors_data = [dict(email=mentor.email, batch_count=mentor.batch_count) for mentor in mentors]
         assert mentors_data == [{"email": "tester@example.com", "batch_count": 0}]
 
+
     def tearDown(self):
         if frappe.db.exists("User", "tester@example.com"):
             frappe.delete_doc("User", "tester@example.com")
+
+        if frappe.db.exists("LMS Course", "test-course"):
+            frappe.db.delete("Exercise Submission", {"course": "test-course"})
+            frappe.db.delete("Exercise Latest Submission", {"course": "test-course"})
+            frappe.db.delete("Exercise", {"course": "test-course"})
+            frappe.db.delete("LMS Batch Membership", {"course": "test-course"})
+            frappe.db.delete("LMS Batch", {"course": "test-course"})
+            frappe.db.delete("LMS Course Mentor Mapping", {"course": "test-course"})
+            frappe.db.delete("Course Instructor", {"parent": "test-course"})
+            frappe.db.sql('delete from `tabCourse Instructor`')
+            frappe.delete_doc("LMS Course", "test-course")
+
 
 def new_user(name, email):
     user = frappe.db.exists("User", email)
@@ -45,6 +61,7 @@ def new_user(name, email):
         doc = frappe.get_doc(filters)
         doc.insert()
         return doc
+
 
 def new_course(title, additional_filters=None):
     course = frappe.db.exists("LMS Course", { "title": title })
@@ -65,6 +82,7 @@ def new_course(title, additional_filters=None):
         doc = frappe.get_doc(filters)
         doc.insert(ignore_permissions=True)
         return doc
+
 
 def create_evaluator():
     if not frappe.db.exists("Course Evaluator", "evaluator@example.com"):

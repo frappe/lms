@@ -44,32 +44,32 @@ input[type=checkbox] {
 }
 
 .course-image .course-tags {
-  width: 95%;
+    width: fit-content;
 }
 
 .course-card-pills {
-  background: #ffffff;
-  margin-left: 0;
-  margin-right: 1rem;
-  border-radius: var(--border-radius);
-  padding: 3.5px 8px;
-  font-size: 11px;
-  text-align: center;
-  letter-spacing: 0.011em;
-  text-transform: uppercase;
-  font-weight: 600;
-  color: var(--gray-900);
-  width: fit-content;
-  box-shadow: var(--shadow-sm);
+    background: #ffffff;
+    margin-left: 0;
+    margin-right: 1rem;
+    border-radius: var(--border-radius);
+    padding: 3.5px 8px;
+    font-size: 11px;
+    text-align: center;
+    letter-spacing: 0.011em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--gray-900);
+    width: fit-content;
+    box-shadow: var(--shadow-sm);
 }
 
 .dark-pills {
-  background: rgba(25, 39, 52, 0.8);
-  color: #ffffff;
+    background: rgba(25, 39, 52, 0.8);
+    color: #ffffff;
 }
 .dark-pills img {
-  width: 0.75rem;
-  height: 0.75rem;
+    width: 0.75rem;
+    height: 0.75rem;
 }
 
 .common-page-style {
@@ -903,7 +903,7 @@ pre {
 .empty-state {
   background: var(--gray-200);
   border-radius: var(--border-radius-lg);
-  padding: 2rem;
+  padding: 1.25rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -911,7 +911,6 @@ pre {
 
 .empty-state-text {
     flex: 1;
-    margin-left: 1.25rem;
     text-align: center;
 }
 
@@ -1666,4 +1665,15 @@ li {
     position: relative;
     color: var(--text-color);
     cursor: pointer;
+}
+
+.course-creation-link {
+    float: right;
+}
+
+@media (max-width: 500px) {
+    .course-creation-link {
+        float: inherit;
+        margin-bottom: 1rem;
+    }
 }

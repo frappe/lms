@@ -167,7 +167,8 @@ def get_authored_courses(member=None, only_published=True):
     for course in courses:
         detail = frappe.db.get_value("LMS Course", course.parent,
             ["name", "upcoming", "title", "image", "enable_certification", "status", "published"], as_dict=True)
-        if only_published and not detail.published:
+
+        if only_published and detail and not detail.published:
             continue
         course_details.append(detail)
 

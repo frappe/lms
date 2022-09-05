@@ -58,7 +58,7 @@
             {% if frappe.session.user == member.email %}
             <div class="ml-auto mt-1">
                 <a class="btn btn-secondary btn-sm" href="/dashboard"> {{ _("Visit Dashboard") }} </a>
-                <a class="btn btn-secondary btn-sm ml-2" href="/edit-profile?name={{ member.email }}"> {{ _("Edit Profile") }} </a>
+                <a class="btn btn-secondary btn-sm ml-2" href="/edit-profile/{{ member.email }}"> {{ _("Edit Profile") }} </a>
             </div>
             {% endif %}
         </div>

@@ -5,14 +5,12 @@
 
 
 {% block content %}
-{% set portal_course_creation = frappe.db.get_single_value("LMS Settings", "portal_course_creation") %}
-{% set show_creators_section = portal_course_creation == "Anyone" or has_course_instructor_role() %}
 {{ frappe.session.user }}
 <div class="common-page-style dashboard">
     <div class="container">
 
         {% if show_creators_section %}
-        <a class="btn btn-secondary btn-sm pull-right" id="create-course-link" href="/courses/new-course">
+        <a class="btn btn-secondary btn-sm course-creation-link" id="create-course-link" href="/courses/new-course">
             {{ _("Create a Course") }}
         </a>
         {% endif %}
