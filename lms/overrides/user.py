@@ -128,6 +128,7 @@ def get_enrolled_courses():
     in_progress = []
     completed = []
     memberships = get_course_membership(frappe.session.user, member_type="Student")
+
     for membership in memberships:
         course = frappe.db.get_value("LMS Course", membership.course, ["name", "upcoming", "title", "image",
             "enable_certification", "paid_certificate", "price_certificate", "currency", "published"], as_dict=True)
@@ -146,6 +147,7 @@ def get_enrolled_courses():
 
 def get_course_membership(member, member_type=None):
     """ Returns all memberships of the user.  """
+
     filters = {
         "member": member
     }
@@ -158,19 +160,19 @@ def get_course_membership(member, member_type=None):
 def get_authored_courses(member, only_published=True):
     """ Returns the number of courses authored by this user. """
     course_details = []
-
-    filters = {
+    courses = frappe.get_all("Course Instructor", {
         "instructor": member
-    }
-    if only_published:
-        filters["published"] = True
-    courses = frappe.get_all('LMS Course', filters)
+    }, ["parent"])
 
     for course in courses:
-        course_details.append(frappe.db.get_value("LMS Course", course,
-      ["name", "upcoming", "title", "image", "enable_certification", "status"], as_dict=True))
+        detail = frappe.db.get_value("LMS Course", course.parent,
+            ["name", "upcoming", "title", "image", "enable_certification", "status", "published"], as_dict=True)
+        if only_published and not detail.published:
+            continue
+        course_details.append(detail)
 
     return course_details
+
 
 def get_palette(full_name):
         """
