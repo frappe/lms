@@ -239,7 +239,7 @@ def get_progress(course, lesson):
 
 
 def render_html(body, youtube, quiz_id):
-    if "/" in youtube:
+    if youtube and "/" in youtube:
         youtube = youtube.split("/")[-1]
 
     quiz_id = "{{ Quiz('" + quiz_id + "') }}" if quiz_id else ""
