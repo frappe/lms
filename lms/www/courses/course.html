@@ -227,23 +227,6 @@
 {% endmacro %}
 
 
-{% macro CourseCreator(course) %}
-    <div class="course-home-headings"> {{ _("Course Creators") }} </div>
-    <div class="common-card-style course-creators-card">
-        {% set instructors = get_instructors(course.name) %}
-        {% for instructor in instructors %}
-            <div class="d-flex align-items-center">
-                {{ widgets.Avatar(member=instructor, avatar_class="avatar-medium") }}
-                <div class="ml-4">
-                <div class="course-creator-name"> {{ instructor.full_name }} </div>
-                <div class="course-meta"> {{ get_authored_courses(instructor.name) | length }} {{ _("Courses Created") }} </div>
-                </div>
-            </div>
-        {% endfor %}
-    </div>
-{% endmacro %}
-
-
 <!-- Related Courses Section -->
 {% macro RelatedCourses(course) %}
     {% if course.related_courses | length %}

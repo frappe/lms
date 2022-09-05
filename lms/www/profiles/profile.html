@@ -33,7 +33,7 @@
 <!-- Banner -->
 {% macro ProfileBanner(member) %}
 {% set cover_image = member.cover_image if member.cover_image else "/assets/lms/images/profile-banner.png" %}
-{% set enrollment = get_course_membership(frappe.session.user, member_type="Student") | length %}
+{% set enrollment = get_course_membership(None, member_type="Student") | length %}
 {% set enrollment_suffix = _("Courses") if enrollment > 1 else _("Course") %}
 
 <div class="container">
