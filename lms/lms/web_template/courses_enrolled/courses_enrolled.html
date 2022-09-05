@@ -1,5 +1,5 @@
 {% set enrolled = get_enrolled_courses().in_progress + get_enrolled_courses().completed %}
-{{ enrolled }}
+
 {% if enrolled | length %}
 <div class="cards-parent">
   {% for course in enrolled %}

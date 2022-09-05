@@ -8,8 +8,6 @@
 {% set portal_course_creation = frappe.db.get_single_value("LMS Settings", "portal_course_creation") %}
 {% set show_creators_section = portal_course_creation == "Anyone" or has_course_instructor_role() %}
 
-{{ show_creators_section }}
-{{ frappe.session.user }}
 <div class="common-page-style dashboard">
     <div class="container">
 
