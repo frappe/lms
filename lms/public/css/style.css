@@ -1677,3 +1677,13 @@ li {
         margin-bottom: 1rem;
     }
 }
+
+.indicator-pill::before {
+    width: 0;
+    height: 0;
+    margin-right: 0;
+}
+
+.review-link {
+    float: right
+}

@@ -90,10 +90,12 @@
         <a class="button-links" href="{{ get_profile_url(instructors[0].username) }}">
             <span class="course-instructor">
             {% if ins_len == 1 %}
-            {{ instructors[0].full_name }}
+                {{ instructors[0].full_name }}
+            {% elif ins_len == 2 %}
+                {{ instructors[0].full_name.split(" ")[0] }} and {{ instructors[1].full_name.split(" ")[0] }}
             {% else %}
-            {% set suffix = "other" if ins_len - 1 == 1 else "others"  %}
-            {{ instructors[0].full_name.split(" ")[0] }} and {{ ins_len - 1 }} {{ suffix }}
+                {% set suffix = "other" if ins_len - 2 == 1 else "others"  %}
+                {{ instructors[0].full_name.split(" ")[0] }}, {{ instructors[1].full_name.split(" ")[0] }} and {{ ins_len - 2 }} {{ suffix }}
             {% endif %}
             </span>
         </a>
