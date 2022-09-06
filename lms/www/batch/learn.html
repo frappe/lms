@@ -95,8 +95,8 @@
             {% elif ins_len == 2 %}
                 {{ instructors[0].full_name.split(" ")[0] }} and {{ instructors[1].full_name.split(" ")[0] }}
             {% else %}
-                {% set suffix = "other" if ins_len - 2 == 1 else "others"  %}
-                {{ instructors[0].full_name.split(" ")[0] }}, {{ instructors[1].full_name.split(" ")[0] }} and {{ ins_len - 2 }} {{ suffix }}
+                {% set suffix = "other" if ins_len - 1 == 1 else "others"  %}
+                {{ instructors[0].full_name.split(" ")[0] }} and {{ ins_len - 1 }} {{ suffix }}
             {% endif %}
         </span>
         </a>
@@ -124,9 +124,9 @@
         {% set course_link = "<a class='join-batch' data-course=" + course.name | urlencode + " href=''>" + _('here') +  "</a>" %}
             <div class="">
                 <div>
-                    {{ _("This lesson is not available for preview.
+                    {{ _("There is no preview available for this lesson.
                     Please join the course to access it.
-                    Click {0} to join the course.").format(course_link) }}
+                    Click {0} to enroll.").format(course_link) }}
                 </div>
             </div>
         {% endif %}
