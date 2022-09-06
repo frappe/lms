@@ -4,7 +4,7 @@
   <div class="mb-5">
     <span class="course-home-headings"> {{ _("Reviews") }} </span>
     {% if is_eligible_to_review(course.name, membership) and reviews | length %}
-    <span class="review-link button is-secondary pull-right">
+    <span class="btn btn-secondary btn-sm review-link">
       {{ _("Write a review") }}
     </span>
     {% endif %}
