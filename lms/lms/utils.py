@@ -440,3 +440,15 @@ def has_course_instructor_role():
         "parent": frappe.session.user,
         "role": "Course Instructor"
         }, "name")
+
+
+def has_course_moderator_role():
+    return frappe.db.get_value("Has Role", {
+        "parent": frappe.session.user,
+        "role": "Course Moderator"
+        }, "name")
+
+
+def get_courses_under_review():
+    return "jan"
+

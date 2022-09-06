@@ -1,6 +1,6 @@
 import frappe
 from lms.www.utils import get_common_context, redirect_to_lesson
-from lms.lms.utils import get_lesson_url, is_instructor, redirect_to_courses_list
+from lms.lms.utils import get_lesson_url, has_course_moderator_role, is_instructor, redirect_to_courses_list
 from frappe.utils import cstr, flt
 
 def get_context(context):
@@ -27,7 +27,7 @@ def get_context(context):
         context.lesson = frappe._dict()
 
     if frappe.form_dict.get("edit"):
-        if not is_instructor(context.course.name):
+        if not is_instructor(context.course.name) or has_course_moderator_role():
             redirect_to_courses_list()
         context.lesson.edit_mode = True
     else:
