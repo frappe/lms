@@ -55,8 +55,10 @@
                 <div contenteditable="true" data-placeholder="{{ _('Explain the option') }}"
                     class="option-input">{% if explanation %}{{ explanation }}{% endif %}</div>
                 <div class="option-checkbox">
-                    <input type="checkbox" {% if question['is_correct_' + num] %} checked {% endif %}>
-                    <label class="mb-0"> {{ _("Is Correct") }} </label>
+                    <label class="mb-0">
+                        <input type="checkbox" {% if question['is_correct_' + num] %} checked {% endif %}>
+                        {{ _("Is Correct") }}
+                    </label>
                 </div>
             </div>
         </div>

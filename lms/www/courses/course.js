@@ -339,7 +339,9 @@ const save_course = (e) => {
             "video_link": $("#video-link").text(),
             "image": $("#image").attr("href"),
             "description": $("#description").text(),
-            "course": $("#title").data("course") ? $("#title").data("course") : ""
+            "course": $("#title").data("course") ? $("#title").data("course") : "",
+            "published": $("#published").prop("checked") ? 1 : 0,
+            "upcoming": $("#upcoming").prop("checked") ? 1 : 0
         },
         callback: (data) => {
             frappe.show_alert({

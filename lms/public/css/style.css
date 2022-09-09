@@ -74,7 +74,6 @@ input[type=checkbox] {
 
 .common-page-style {
   padding: 2rem 0 5rem;
-  min-height: 60vh;
   padding-top: 3rem;
   background-color: var(--bg-color);
 }

@@ -55,7 +55,7 @@
                 {% set active = membership.current_lesson == lesson.name %}
                 <div class="lesson-info {% if active and not course.edit_mode %} active-lesson {% endif %}">
 
-                {% if membership or lesson.include_in_preview or is_instructor %}
+                {% if membership or lesson.include_in_preview or is_instructor or has_course_moderator_role() %}
                 <a class="lesson-links" data-course="{{ course.name }}"
                 {% if is_instructor and not lesson.include_in_preview %}
                 title="{{ _('This lesson is not available for preview. As you are the Instructor of the course only you can see it.') }}"
@@ -185,6 +185,4 @@ const show_no_preview_dialog = (e) => {
 };
 
 </script>
-dahanukar
-sandesh
-chetna
+

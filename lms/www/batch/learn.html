@@ -57,6 +57,7 @@
 {% macro LessonContent(lesson) %}
 {% set instructors = get_instructors(course.name) %}
 {% set is_instructor = is_instructor(course.name) %}
+
 <div class="common-card-style lesson-content">
     <div class="lesson-title">
 
@@ -70,7 +71,7 @@
         <span class="indicator-pill green {{ hide if get_progress(course.name, lesson.name) != 'Complete' else ''}}">{{ _("COMPLETED") }}</span>
 
         <!-- Edit Button -->
-        {% if is_instructor and not lesson.edit_mode %}
+        {% if (is_instructor or has_course_moderator_role()) and not lesson.edit_mode %}
         <button class="button is-default button-links ml-auto btn-edit"> {{ _("Edit") }} </button>
         {% endif %}
     </div>
@@ -105,7 +106,7 @@
 
     <!-- Lesson Content -->
     <div class="markdown-source lesson-content-card {% if lesson.edit_mode %} mb-0 mt-2 {% endif %} ">
-        {% if membership or lesson.include_in_preview or is_instructor %}
+        {% if show_lesson %}
 
             {% if is_instructor and not lesson.include_in_preview and not lesson.edit_mode %}
             <div class="small alert alert-secondary alert-dismissible mb-4">
@@ -190,9 +191,9 @@
     <div class="medium mb-4" contenteditable="true" data-placeholder="{{ _('Quiz ID') }}"
     id="quiz-id">{% if lesson.quiz_id %}{{ lesson.quiz_id }}{% endif %}</div>
 
-    <label class="preview">
-        <input {% if lesson.include_in_preview %} checked {% endif %} type="checkbox"
-        id="preview"> {{ _("Show preview of this lesson to Guest users.") }}
+    <label class="preview" for="preview">
+        <input {% if lesson.include_in_preview %} checked {% endif %} type="checkbox" id="preview">
+        {{ _("Show preview of this lesson to Guest users.") }}
     </label>
 
     <div class="mt-4">

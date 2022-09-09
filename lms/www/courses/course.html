@@ -18,6 +18,7 @@
             <div class="container">
                 <div class="course-body-container">
                     {{ CourseHeaderOverlay(course) }}
+                    {{ CourseSettings(course) }}
                     {{ Description(course) }}
                     {{ Save(course) }}
                     {{ widgets.CourseOutline(course=course, membership=membership, is_user_interested=is_user_interested) }}
@@ -207,6 +208,25 @@
     <div class="course-description-section" {% if course.edit_mode %} style="min-height: 100px" {% endif %}
     {% if course.edit_mode %} contenteditable="true" {% endif %} id="description"
     data-placeholder="Description">{% if course.description %}{{ frappe.utils.md_to_html(course.description) }}{% endif %}</div>
+{% endmacro %}
+
+
+<!-- Course Settings -->
+{% macro CourseSettings(course) %}
+
+    {% if has_course_moderator_role() %}
+    <div class="mb-4">
+        <label for="published" class="mb-0">
+            <input type="checkbox" id="published" {% if course.published %} checked {% endif %}>
+            {{ _("Published") }}
+        </label>
+        <label for="upcoming" class="mb-0 ml-20">
+            <input type="checkbox" id="upcoming" {% if course.upcoming %} checked {% endif %}>
+            {{ _("Upcoming") }}
+        </label>
+    </div>
+    {% endif %}
+
 {% endmacro %}
 
 
