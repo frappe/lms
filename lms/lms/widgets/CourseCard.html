@@ -3,7 +3,7 @@
 <div class="common-card-style course-card" data-course="{{ course.name }}">
 
   <div class="course-image {% if not course.image %}default-image{% endif %}" {% if course.image %}
-    style="background-image: url( {{ course.image }} );" {% endif %}>
+    style="background-image: url( {{ course.image | urlencode }} );" {% endif %}>
     <div class="course-tags">
       {% for tag in get_tags(course.name) %}
       <div class="course-card-pills">{{ tag }}</div>

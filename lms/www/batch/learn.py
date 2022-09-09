@@ -27,7 +27,7 @@ def get_context(context):
         context.lesson = frappe._dict()
 
     if frappe.form_dict.get("edit"):
-        if not is_instructor(context.course.name) or has_course_moderator_role():
+        if not is_instructor(context.course.name) and not has_course_moderator_role():
             redirect_to_courses_list()
         context.lesson.edit_mode = True
     else:

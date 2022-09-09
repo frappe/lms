@@ -450,5 +450,8 @@ def has_course_moderator_role():
 
 
 def get_courses_under_review():
-    return "jan"
+    return frappe.get_all("LMS Course", {
+        "status": "Under Review"
+    }, ["name", "upcoming", "title", "image", "enable_certification", "status", "published"]
+    )
 

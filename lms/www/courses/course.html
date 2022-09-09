@@ -270,7 +270,7 @@
     membership.current_lesson else "1.1" if first_lesson_exists(course.name) else None %}
 
     {% if show_start_learing_cta %}
-    <div class="btn btn-primary wide-button join-batch" data-course="{{ course.name | urlencode }}">
+    <div class="btn btn-primary wide-button join-batch mb-2" data-course="{{ course.name | urlencode }}">
         {{ _("Start Learning") }}
         <img class="ml-2" src="/assets/lms/icons/white-arrow.svg" />
     </div>
@@ -323,7 +323,7 @@
     {% endif %}
     {% endif %}
 
-    {% if is_instructor(course.name) %}
+    {% if is_instructor(course.name) or has_course_moderator_role() %}
     <a class="btn btn-secondary wide-button" href="/courses/{{ course.name }}?edit=1"> {{ _("Edit Course") }} </a>
     {% endif %}
 {% endmacro %}
@@ -341,9 +341,9 @@
         frappe.utils.format_time(certificate_request.start_time, "short")) }} </p>
     {% endif %}
 
-    {% if course.status == "Under Review" %}
+    {% if course.status == "Under Review" and is_instructor(course.name) %}
     <div class="mb-4">
-        {{ _("Your course is currently under review. Once the review is complete, the System Admins will publish it on the website.") }}
+        {{ _("This course is currently under review. Once the review is complete, the System Admins will publish it on the website.") }}
     </div>
     {% endif %}
 

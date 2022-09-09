@@ -206,7 +206,7 @@ const submit_for_review = (e) => {
                 }, 3);
                 setTimeout(() => {
                     window.location.reload();
-                }, 3000);
+                }, 1000);
             }
         }
     });

@@ -542,10 +542,6 @@ const build_attachment_table = (file_doc) => {
 
 
 const make_editor = () => {
-    let comment =  `<!--
-    {{ YouTubeVideo('Video Id') }}
-    {{ Quiz('Quiz Id') }}
--->`
 
     this.code_field_group = new frappe.ui.FieldGroup({
         fields: [
@@ -556,7 +552,7 @@ const make_editor = () => {
                 wrap: true,
                 max_lines: Infinity,
                 min_lines: 20,
-                default: $("#body").data("body") || comment,
+                default: $("#body").data("body"),
                 depends_on: 'eval:doc.type=="Markdown"',
             }
         ],
