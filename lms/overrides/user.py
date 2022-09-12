@@ -330,3 +330,22 @@ def get_users(or_filters, start, page_length, text):
 	""".format(or_filters = or_filters, start=start, page_length=page_length), as_dict=1)
 
     return users
+
+
+@frappe.whitelist()
+def save_role(user, role, value):
+    if cint(value):
+        doc = frappe.get_doc({
+            "doctype": "Has Role",
+            "parent": user,
+            "role": role,
+            "parenttype": "User",
+            "parentfield": "roles"
+        })
+        doc.save(ignore_permissions=True)
+    else:
+        frappe.db.delete("Has Role", {
+            "parent": user,
+            "role": role
+        })
+    return True

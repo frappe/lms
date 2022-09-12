@@ -11,6 +11,7 @@
     <div class="profile-page-body">
         <div class="container">
         {% set read_only = member.name != frappe.session.user %}
+        {{ RoleSettings(member) }}
         {{ About(member) }}
         {{ EducationDetails(member) }}
         {{ WorkDetails(member) }}
@@ -45,7 +46,7 @@
 
     <div class="profile-info">
         <div class="profile-name-section">
-            <div class="profile-name"> {{ member.full_name }} </div>
+            <div class="profile-name" data-name="{{ member.name }}"> {{ member.full_name }} </div>
 
             {% if get_authored_courses(member.name) | length %}
             <div class="creator-badge"> {{ _("Creator") }} </div>
@@ -155,10 +156,34 @@
 {% endmacro %}
 
 
+<!-- Role Settings -->
+{% macro RoleSettings(member) %}
+    {% if has_course_moderator_role() %}
+        <div class="">
+            <div class="common-card-style profile-card">
+                <div class="course-home-headings"> {{ _("Role Settings") }} </div>
+                <div>
+                    <label class="role">
+                        <input type="checkbox" id="instructor" data-role="Course Instructor"
+                        {% if has_course_instructor_role(member.name) %} checked {% endif %}>
+                        {{ _("Course Instructor") }}
+                    </label>
+                    <label class="role ml-20">
+                        <input type="checkbox" id="moderator" data-role="Course Moderator"
+                            {% if has_course_moderator_role(member.name) %} checked {% endif %}>
+                        {{ _("Course Moderator") }}
+                    </label>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endmacro %}
+
+
 <!-- About Section -->
 {% macro About(member) %}
 {% if member.bio %}
-    <div class="">
+    <div class="education-details">
         <div class="common-card-style profile-card">
             <div class="course-home-headings"> {{ _("About") }} </div>
             <div class="description">{{ member.bio }}</div>
@@ -386,21 +411,3 @@
 </div>
 {% endif %}
 {% endmacro %}
-
-
-{% block script %}
-<script>
-    frappe.ready(() => {
-        if ("{{ member.name }}" == frappe.session.user) {
-            setTimeout(() => {
-                var link_array = $('.nav-link').filter((i, elem) => $(elem).text().trim() === "My Profile");
-                link_array.length && $(link_array[0]).addClass("active");
-            }, 0)
-        }
-
-        if ($(".profile-column-one").children().length == 0) {
-            $(".profile-column-one").hide();
-        }
-    });
-</script>
-{% endblock %}

@@ -435,16 +435,16 @@ def redirect_to_courses_list():
     raise frappe.Redirect
 
 
-def has_course_instructor_role():
+def has_course_instructor_role(member=None):
     return frappe.db.get_value("Has Role", {
-        "parent": frappe.session.user,
+        "parent": member or frappe.session.user,
         "role": "Course Instructor"
         }, "name")
 
 
-def has_course_moderator_role():
+def has_course_moderator_role(member=None):
     return frappe.db.get_value("Has Role", {
-        "parent": frappe.session.user,
+        "parent": member or frappe.session.user,
         "role": "Course Moderator"
         }, "name")
 
@@ -453,5 +453,5 @@ def get_courses_under_review():
     return frappe.get_all("LMS Course", {
         "status": "Under Review"
     }, ["name", "upcoming", "title", "image", "enable_certification", "status", "published"]
-    )
+)
 

@@ -1686,3 +1686,8 @@ li {
 .review-link {
     float: right
 }
+
+.role {
+    margin-bottom: 0;
+    cursor: pointer;
+}

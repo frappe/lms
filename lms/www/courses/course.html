@@ -214,7 +214,7 @@
 <!-- Course Settings -->
 {% macro CourseSettings(course) %}
 
-    {% if has_course_moderator_role() %}
+    {% if course.edit_mode and has_course_moderator_role() %}
     <div class="mb-4">
         <label for="published" class="mb-0">
             <input type="checkbox" id="published" {% if course.published %} checked {% endif %}>
@@ -306,7 +306,7 @@
     {{ _("Checkout Course") }} <img class="ml-2" src="/assets/lms/icons/white-arrow.svg" />
     </a>
 
-    {% elif course.upcoming and not is_user_interested %}
+    {% elif course.upcoming and not is_user_interested and not is_instructor %}
     <div class="btn btn-secondary wide-button notify-me" data-course="{{course.name | urlencode}}">
     {{ _("Notify me when available") }}
     </div>
