@@ -1,0 +1,19 @@
+{% set courses = get_courses_under_review() %}
+
+{% if courses | length %}
+<div class="cards-parent">
+    {% for course in courses %}
+    {{ widgets.CourseCard(course=course) }}
+    {% endfor %}
+</div>
+
+{% else %}
+<div class="empty-state">
+    <div>
+        <img class="icon icon-xl" src="/assets/lms/icons/comment.svg">
+    </div>
+    <div class="empty-state-text">
+        <div class="empty-state-heading">{{ _("No courses under review") }}</div>
+    </div>
+</div>
+{% endif %}

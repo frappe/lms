@@ -16,12 +16,23 @@
 
         <ul class="nav" id="courses-tab">
             <li class="nav-item">
-                <a class="nav-link active" data-toggle="tab" href="#courses-enrolled"> {{ _("Courses Enrolled") }} </a>
+                <a class="nav-link active" data-toggle="tab" href="#courses-enrolled">
+                    {{ _("Courses Enrolled") }}
+                </a>
             </li>
 
             {% if show_creators_section %}
             <li class="nav-item">
-                <a class="nav-link" data-toggle="tab" href="#courses-created">{{ _("Courses Created") }}
+                <a class="nav-link" data-toggle="tab" href="#courses-created">
+                    {{ _("Courses Created") }}
+                </a>
+            </li>
+            {% endif %}
+
+            {% if show_review_section %}
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#courses-under-review">
+                    {{ _("Courses Under Review") }}
                 </a>
             </li>
             {% endif %}
@@ -39,8 +50,14 @@
                 {% include "lms/templates/courses_created.html" %}
             </div>
             {% endif %}
-        </div>
 
+            {% if show_review_section %}
+            <div class="tab-pane fade" id="courses-under-review" role="tabpanel" aria-labelledby="courses-under-review">
+                {% include "lms/templates/courses_under_review.html" %}
+            </div>
+            {% endif %}
+
+        </div>
     </div>
 </div>
 

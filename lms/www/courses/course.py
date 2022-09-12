@@ -1,6 +1,6 @@
 import frappe
 from lms.lms.doctype.lms_settings.lms_settings import check_profile_restriction
-from lms.lms.utils import get_membership, is_instructor, is_certified, get_evaluation_details, redirect_to_courses_list
+from lms.lms.utils import get_membership, has_course_moderator_role, is_instructor, is_certified, get_evaluation_details, redirect_to_courses_list
 
 def get_context(context):
     context.no_cache = 1
@@ -28,7 +28,7 @@ def set_course_context(context, course_name):
         as_dict=True)
 
     if frappe.form_dict.get("edit"):
-        if not is_instructor(course.name):
+        if not is_instructor(course.name) and not has_course_moderator_role():
             redirect_to_courses_list()
         course.edit_mode = True
 
