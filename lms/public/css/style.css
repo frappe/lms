@@ -902,15 +902,14 @@ pre {
 .empty-state {
   background: var(--gray-200);
   border-radius: var(--border-radius-lg);
-  padding: 1.25rem;
+  padding: 4rem;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
 }
 
 .empty-state-text {
-    flex: 1;
-    text-align: center;
+    margin-left: 1rem;
 }
 
 .empty-state-heading {
@@ -1690,4 +1689,9 @@ li {
 .role {
     margin-bottom: 0;
     cursor: pointer;
+}
+
+.icon-xl {
+    width: 2.75rem;
+    height: 2.75rem;
 }
