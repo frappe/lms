@@ -125,9 +125,10 @@ input[type=checkbox] {
 }
 
 .course-card-title {
-  font-weight: 600;
-  color: var(--gray-900);
-  margin-bottom: 1.25rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: 1.25rem;
+    font-size: 1.125rem;
 }
 
 .card-divider {
@@ -1399,14 +1400,20 @@ pre {
 
 .lms-nav .nav-link {
     color: var(--text-muted);
-    padding: 0 0 var(--padding-md);
-    margin-right: var(--margin-xl);
+    padding: var(--padding-md) 0;
+    margin: 0 var(--margin-md);
 }
 
 .lms-nav .nav-link.active {
   font-weight: 600;
   border-bottom: 1px solid var(--primary);
   color: var(--text-color);
+}
+
+@media (min-width: 500px) {
+    .lms-nav .nav-item:first-child .nav-link {
+        margin-left: 0;
+    }
 }
 
 .lms-nav .nav-link:hover {
@@ -1689,6 +1696,12 @@ li {
 .role {
     margin-bottom: 0;
     cursor: pointer;
+}
+
+@media (min-width: 500px) {
+    .role:last-child {
+        margin-left: 5rem
+    }
 }
 
 .icon-xl {

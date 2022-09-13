@@ -8,7 +8,7 @@
   <div> {{ member.headline }} </div>
   {% endif %}
 
-  {% set course_count = get_authored_courses(member.name) | length %}
+  {% set course_count = get_authored_courses(member.name, True) | length %}
   {% if show_course_count and course_count > 0 %}
   {% set suffix = "Courses" if course_count > 1 else "Course" %}
   <div class="">

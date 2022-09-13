@@ -1,4 +1,4 @@
-{% set courses = get_authored_courses(user or None, only_published=False) %}
+{% set courses = get_authored_courses(user or None, only_published or False) %}
 
 {% if courses | length %}
 <div class="cards-parent">

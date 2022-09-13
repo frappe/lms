@@ -7,6 +7,8 @@
 {% block content %}
 {% set read_only = member.name != frappe.session.user %}
 {% set user = member.name %}
+{% set courses_created = get_authored_courses(member.name, True) %}
+{% set certificates = get_certificates(user) %}
 
 <div class="common-page-style profile-page">
     {{ ProfileBanner(member) }}
@@ -21,17 +23,21 @@
                     </a>
                 </li>
 
+                {% if courses_created | length %}
                 <li class="nav-item">
                     <a class="nav-link" data-toggle="tab" href="#courses-created">
                         {{ _("Courses Created") }}
                     </a>
                 </li>
+                {% endif %}
 
+                {% if certificates | length %}
                 <li class="nav-item">
                     <a class="nav-link" data-toggle="tab" href="#certificates">
                         {{ _("Certificates") }}
                     </a>
                 </li>
+                {% endif %}
 
                 <li class="nav-item">
                     <a class="nav-link" data-toggle="tab" href="#settings">
@@ -55,13 +61,18 @@
                     {{ ProfileTabs(profile_tabs) }}
                 </div>
 
+                {% if courses_created | length %}
+                {% set only_published = True %}
                 <div class="tab-pane fade" id="courses-created" role="tabpanel" aria-labelledby="courses-created">
                     {% include "lms/templates/courses_created.html" %}
                 </div>
+                {% endif %}
 
+                {% if certificates | length %}
                 <div class="tab-pane fade" id="certificates" role="tabpanel" aria-labelledby="certificates">
                     {% include "lms/templates/certificates_section.html" %}
                 </div>
+                {% endif %}
 
                 <div class="tab-pane fade" id="settings" role="tabpanel" aria-labelledby="settings">
                     {{ RoleSettings(member) }}
@@ -92,7 +103,7 @@
         <div class="profile-name-section">
             <div class="profile-name" data-name="{{ member.name }}"> {{ member.full_name }} </div>
 
-            {% if get_authored_courses(member.name) | length %}
+            {% if courses_created | length %}
             <div class="creator-badge"> {{ _("Creator") }} </div>
             {% endif %}
 
@@ -167,7 +178,7 @@
                         {% if has_course_instructor_role(member.name) %} checked {% endif %}>
                         {{ _("Course Instructor") }}
                     </label>
-                    <label class="role ml-20">
+                    <label class="role">
                         <input type="checkbox" id="moderator" data-role="Course Moderator"
                             {% if has_course_moderator_role(member.name) %} checked {% endif %}>
                         {{ _("Course Moderator") }}
