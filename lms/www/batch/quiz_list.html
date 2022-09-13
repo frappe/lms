@@ -12,10 +12,15 @@
 {% block content %}
 <div class="common-page-style">
     <div class="container">
-        {% if quiz_list | length %}
-        <a class="btn btn-secondary btn-sm pull-right" href="/quizzes/new-quiz"> {{ _("Add Quiz") }} </a>
-        <div class="course-home-headings"> {{ _("Quiz List") }} </div>
 
+        <a class="btn btn-secondary btn-sm pull-right" href="/quizzes/new-quiz">
+            {{ _("Add Quiz") }}
+        </a>
+        <div class="course-home-headings">
+            {{ _("Quiz List") }}
+        </div>
+
+        {% if quiz_list | length %}
         <div class="common-card-style">
             <table class="table">
 
@@ -48,13 +53,14 @@
 
         {% else %}
         <div class="empty-state">
+            <img class="icon icon-xl" src="/assets/lms/icons/comment.svg">
             <div class="empty-state-text">
-                <div class="empty-state-heading">{{ _("You have not created any quiz yet.") }}</div>
-                <div class="course-meta mb-6">{{ _("Create a quiz and add it to your course to engage users.") }}</div>
-                <a class="btn btn-secondary btn-sm"
-                    href="{% if frappe.session.user == 'Guest' %} /login?redirect-to=/quizzes {% else %} /quizzes/new-quiz  {% endif %}">
-                    {{ _("Add Quiz") }}
-                </a>
+                <div class="empty-state-heading">
+                    {{ _("You have not created any quiz yet.") }}
+                </div>
+                <div class="course-meta ">
+                    {{ _("Create a quiz and add it to your course to engage your users.") }}
+                </div>
             </div>
         </div>
         {% endif %}

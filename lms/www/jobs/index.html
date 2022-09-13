@@ -9,7 +9,7 @@
 <div class="common-page-style">
 
     <div class="container">
-        {% if allow_posting and jobs | length %}
+        {% if allow_posting %}
         <a class="button is-primary pull-right" href="/job-opportunity?new=1">{{ _("Post a Job") }}</a>
         {% endif %}
 
@@ -48,17 +48,10 @@
     {% else %}
 
     <div class="empty-state">
-        <div>
-            <img class="icon icon-xl" src="/assets/lms/icons/comment.svg">
-        </div>
+        <img class="icon icon-xl" src="/assets/lms/icons/comment.svg">
         <div class="empty-state-text">
             <div class="empty-state-heading">{{ _("No open jobs") }}</div>
             <div class="course-meta">{{ _("There are no job openings at present.") }}</div>
-        </div>
-        <div>
-            {% if allow_posting %}
-            <a class="button is-secondary dark-links m-auto" href="/job-opportunity?new=1">{{ _("Post a Job") }}</a>
-            {% endif %}
         </div>
     </div>
     {% endif %}
