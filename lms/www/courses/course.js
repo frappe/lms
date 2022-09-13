@@ -70,6 +70,10 @@ frappe.ready(() => {
         remove_tag(e);
     });
 
+    if ($("#description").length) {
+        make_editor();
+    }
+
 });
 
 
@@ -338,7 +342,7 @@ const save_course = (e) => {
             "short_introduction": $("#intro").text(),
             "video_link": $("#video-link").text(),
             "image": $("#image").attr("href"),
-            "description": $("#description").text(),
+            "description": this.code_field_group.fields_dict["code_md"].value,
             "course": $("#title").data("course") ? $("#title").data("course") : "",
             "published": $("#published").prop("checked") ? 1 : 0,
             "upcoming": $("#upcoming").prop("checked") ? 1 : 0
@@ -358,4 +362,27 @@ const save_course = (e) => {
 
 const remove_tag = (e) => {
     $(e.currentTarget).closest(".course-card-pills").remove();
+};
+
+
+const make_editor = () => {
+    this.code_field_group = new frappe.ui.FieldGroup({
+        fields: [
+            {
+                fieldname: "code_md",
+                fieldtype: "Code",
+                options: "Markdown",
+                wrap: true,
+                max_lines: Infinity,
+                min_lines: 20,
+                default: $("#description").data("description"),
+                depends_on: 'eval:doc.type=="Markdown"',
+            }
+        ],
+        body: $("#description").get(0),
+    });
+    this.code_field_group.make();
+    $("#description .form-section:last").removeClass("empty-section");
+    $("#description .frappe-control").removeClass("hide-control");
+    $("#description .form-column").addClass("p-0");
 };

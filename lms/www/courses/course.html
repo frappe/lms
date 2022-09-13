@@ -205,9 +205,13 @@
 
 <!-- Description -->
 {% macro Description(course) %}
-    <div class="course-description-section" {% if course.edit_mode %} style="min-height: 100px" {% endif %}
-    {% if course.edit_mode %} contenteditable="true" {% endif %} id="description"
-    data-placeholder="Description">{% if course.description %}{{ frappe.utils.md_to_html(course.description) }}{% endif %}</div>
+    {% if course.edit_mode %}
+        <div id="description" {% if course.description %} data-description="{{ course.description }}" {% endif %}></div>
+    {% else %}
+        <div class="course-description-section">
+            {{ frappe.utils.md_to_html(course.description) }}
+        </div>
+    {% endif %}
 {% endmacro %}
 
 
@@ -419,3 +423,9 @@
     </div>
 </div>
 {% endmacro %}
+
+
+{% block base_scripts %}
+    {{ include_script("frappe-web.bundle.js") }}
+    {{ include_script('controls.bundle.js') }}
+{% endblock %}

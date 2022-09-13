@@ -542,7 +542,6 @@ const build_attachment_table = (file_doc) => {
 
 
 const make_editor = () => {
-
     this.code_field_group = new frappe.ui.FieldGroup({
         fields: [
             {
