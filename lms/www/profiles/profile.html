@@ -39,11 +39,13 @@
                 </li>
                 {% endif %}
 
+                {% if has_course_moderator_role() %}
                 <li class="nav-item">
                     <a class="nav-link" data-toggle="tab" href="#settings">
                         {{ _("Settings") }}
                     </a>
                 </li>
+                {% endif %}
 
             </ul>
 
@@ -192,14 +194,18 @@
 
 <!-- About Section -->
 {% macro About(member) %}
-{% if member.bio %}
     <div class="education-details">
         <div class="common-card-style column-card">
             <div class="course-home-headings"> {{ _("About") }} </div>
-            <div class="description">{{ member.bio }}</div>
+            <div class="description">
+                {% if member.bio  %}
+                    {{ member.bio }}
+                {% else %}
+                    {{ _("Hey, my name is ") }} {{ member.full_name }}
+                {% endif %}
+            </div>
         </div>
     </div>
-{% endif %}
 {% endmacro %}
 
 
