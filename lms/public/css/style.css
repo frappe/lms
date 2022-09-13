@@ -1409,7 +1409,7 @@ pre {
   color: var(--text-color);
 }
 
-.lma.nav .nav-link:hover {
+.lms-nav .nav-link:hover {
   color: inherit;
 }
 
