@@ -5,28 +5,72 @@
 
 
 {% block content %}
+{% set read_only = member.name != frappe.session.user %}
+{% set user = member.name %}
+
 <div class="common-page-style profile-page">
     {{ ProfileBanner(member) }}
-
     <div class="profile-page-body">
         <div class="container">
-        {% set read_only = member.name != frappe.session.user %}
-        {{ RoleSettings(member) }}
-        {{ About(member) }}
-        {{ EducationDetails(member) }}
-        {{ WorkDetails(member) }}
-        {{ Certification(member) }}
-        {{ Contact(member) }}
-        {{ Skills(member) }}
-        {{ CareerPreference(member) }}
+
+            <ul class="nav lms-nav" id="courses-tab">
+
+                <li class="nav-item">
+                    <a class="nav-link active" data-toggle="tab" href="#profile">
+                        {{ _("Profile") }}
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#courses-created">
+                        {{ _("Courses Created") }}
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#certificates">
+                        {{ _("Certificates") }}
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#settings">
+                        {{ _("Settings") }}
+                    </a>
+                </li>
+
+            </ul>
+
+            <div class="border-bottom mb-4"></div>
+
+            <div class="tab-content">
+                <div class="tab-pane active" id="profile" role="tabpanel" aria-labelledby="profile">
+                    {{ About(member) }}
+                    {{ EducationDetails(member) }}
+                    {{ WorkDetails(member) }}
+                    {{ ExternalCertification(member) }}
+                    {{ Contact(member) }}
+                    {{ Skills(member) }}
+                    {{ CareerPreference(member) }}
+                    {{ ProfileTabs(profile_tabs) }}
+                </div>
+
+                <div class="tab-pane fade" id="courses-created" role="tabpanel" aria-labelledby="courses-created">
+                    {% include "lms/templates/courses_created.html" %}
+                </div>
+
+                <div class="tab-pane fade" id="certificates" role="tabpanel" aria-labelledby="certificates">
+                    {% include "lms/templates/certificates_section.html" %}
+                </div>
+
+                <div class="tab-pane fade" id="settings" role="tabpanel" aria-labelledby="settings">
+                    {{ RoleSettings(member) }}
+                </div>
+
+            </div>
         </div>
     </div>
 
-    <div class="container">
-        {{ CoursesCreated(member, read_only) }}
-        {{ CoursesMentored(member, read_only) }}
-        {{ ProfileTabs(profile_tabs) }}
-    </div>
 </div>
 {% endblock %}
 
@@ -81,23 +125,6 @@
 {% endmacro %}
 
 
-<!-- Courses Created -->
-{% macro CoursesCreated(member, read_only) %}
-{% set authored_courses = get_authored_courses(member.name) %}
-
-{% if authored_courses | length %}
-<div class="profile-courses">
-    <div class="course-home-headings"> {{ _("Courses Created") }} </div>
-    <div class="cards-parent">
-        {% for course in authored_courses %}
-        {{ widgets.CourseCard(course=course, read_only=read_only) }}
-        {% endfor %}
-    </div>
-</div>
-{% endif %}
-{% endmacro %}
-
-
 <!-- Courses Mentored -->
 {% macro CoursesMentored(member, read_only) %}
 {% if member.get_mentored_courses() | length %}
@@ -105,34 +132,6 @@
     <div class="course-home-headings"> {{ _("Courses Mentored") }} </div>
     <div class="cards-parent">
         {% for course in member.get_mentored_courses() %}
-        {{ widgets.CourseCard(course=course, read_only=read_only) }}
-        {% endfor %}
-    </div>
-</div>
-{% endif %}
-{% endmacro %}
-
-
-<!-- Courses Enrolled -->
-{% macro CoursesEnrolled(member, read_only) %}
-{% set enrolled = get_enrolled_courses() %}
-
-{% if enrolled.completed | length %}
-<div class="profile-courses">
-    <div class="course-home-headings"> {{ _("Courses Completed") }} </div>
-    <div class="cards-parent">
-        {% for course in enrolled.completed %}
-        {{ widgets.CourseCard(course=course, read_only=read_only) }}
-        {% endfor %}
-    </div>
-</div>
-{% endif %}
-
-{% if enrolled.in_progress | length %}
-<div class="profile-courses">
-    <div class="course-home-headings"> {{ _("Courses In Progress") }} </div>
-    <div class="cards-parent">
-        {% for course in enrolled.in_progress %}
         {{ widgets.CourseCard(course=course, read_only=read_only) }}
         {% endfor %}
     </div>
@@ -160,7 +159,7 @@
 {% macro RoleSettings(member) %}
     {% if has_course_moderator_role() %}
         <div class="">
-            <div class="common-card-style profile-card">
+            <div class="common-card-style column-card">
                 <div class="course-home-headings"> {{ _("Role Settings") }} </div>
                 <div>
                     <label class="role">
@@ -184,7 +183,7 @@
 {% macro About(member) %}
 {% if member.bio %}
     <div class="education-details">
-        <div class="common-card-style profile-card">
+        <div class="common-card-style column-card">
             <div class="course-home-headings"> {{ _("About") }} </div>
             <div class="description">{{ member.bio }}</div>
         </div>
@@ -196,7 +195,7 @@
 <!-- Work Preference -->
 {% macro WorkPreference(member) %}
 <div class="education-details">
-    <div class="common-card-style profile-card">
+    <div class="common-card-style column-card">
         <div class="course-home-headings"> {{ _("Work Preference") }} </div>
         <div> {{ member.attire }} </div>
         <div> {{ member.collaboration }} </div>
@@ -213,7 +212,7 @@
 {% macro CareerPreference(member) %}
 {% if member.preferred_functions or member.preferred_industries or member.preferred_location or member.dream_companies %}
 <div class="education-details">
-    <div class="common-card-style profile-card">
+    <div class="common-card-style column-card">
 
         <div class="course-home-headings"> {{ _("Career Preference") }} </div>
         <div class="profile-column-grid">
@@ -261,7 +260,7 @@
 {% macro Contact(member) %}
 {% if member.linkedin or member.medium or member.github %}
 <div class="education-details">
-    <div class="common-card-style profile-card">
+    <div class="common-card-style column-card">
         <div class="course-home-headings"> {{ _("Contact") }} </div>
         <div class="profile-column-grid">
         {% if member.linkedin %}
@@ -294,7 +293,7 @@
 {% macro Skills(member) %}
 {% if member.skill | length %}
 <div class="education-details">
-    <div class="common-card-style profile-card">
+    <div class="common-card-style column-card">
         <div class="course-home-headings"> {{ _("Skills")}} </div>
         <div class="profile-column-grid">
             {% for skill in member.skill %}
@@ -311,12 +310,12 @@
 {% macro EducationDetails(member) %}
 {% if member.education %}
 <div class="education-details">
-    <div class="common-card-style profile-card">
+    <div class="common-card-style column-card">
         <div class="course-home-headings"> {{ _("Education") }} </div>
 
         <div class="profile-grid-card">
             {% for edu in member.education %}
-            <div class="profile-card-row">
+            <div class="column-card-row">
                 <div class="bold-title"> {{ edu.institution_name }} </div>
                 <div class="profile-item"> {{ edu.degree_type }} <span></span> {{ edu.major }}
                     {% if not member.hide_private %}
@@ -347,7 +346,7 @@
 
 {% if work_details | length %}
 <div class="education-details">
-    <div class="common-card-style profile-card">
+    <div class="common-card-style column-card">
         <div class="course-home-headings"> {{ _("Work Experience") }} </div>
         <div class="profile-grid-card">
 
@@ -379,11 +378,11 @@
 
 
 <!-- Certifications -->
-{% macro Certification(member) %}
+{% macro ExternalCertification(member) %}
 {% if member.certification %}
 <div class="education-details">
-    <div class="common-card-style profile-card">
-        <div class="course-home-headings"> {{ _("Certification") }} </div>
+    <div class="common-card-style column-card">
+        <div class="course-home-headings"> {{ _("External Certification") }} </div>
         <div class="profile-grid-card">
             {% for cert in member.certification %}
             <div class="">

@@ -894,9 +894,9 @@ pre {
     }
 }
 
-.profile-card {
-  flex-direction: column;
-  padding: 1rem 1.25rem;
+.column-card {
+    flex-direction: column;
+    padding: 1.25rem;
 }
 
 .empty-state {
@@ -1397,19 +1397,19 @@ pre {
   overflow: inherit;
 }
 
-.dashboard .nav-link {
+.lms-nav .nav-link {
     color: var(--text-muted);
     padding: 0 0 var(--padding-md);
     margin-right: var(--margin-xl);
 }
 
-.dashboard .nav-link.active {
+.lms-nav .nav-link.active {
   font-weight: 600;
   border-bottom: 1px solid var(--primary);
   color: var(--text-color);
 }
 
-.dashboard .nav-link:hover {
+.lms-nav .nav-link:hover {
   color: inherit;
 }
 

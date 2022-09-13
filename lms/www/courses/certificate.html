@@ -16,9 +16,9 @@
         <a class="dark-links" href="/courses/{{ course.name }}">{{ course.title }}</a>
     </div>
     {% if custom_template %}
-    {{ custom_template }}
+        {{ custom_template }}
     {% else %}
-    {% include "lms/templates/certificate.html" %}
+        {% include "lms/templates/certificate.html" %}
     {% endif %}
     <script src="/assets/lms/js/html2canvas.js"></script>
 

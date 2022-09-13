@@ -194,7 +194,8 @@ jinja = {
         "lms.lms.utils.first_lesson_exists",
         "lms.lms.utils.get_courses_under_review",
         "lms.lms.utils.has_course_instructor_role",
-        "lms.lms.utils.has_course_moderator_role"
+        "lms.lms.utils.has_course_moderator_role",
+        "lms.lms.utils.get_certificates"
     ],
     "filters": []
 }

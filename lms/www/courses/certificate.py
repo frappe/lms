@@ -19,8 +19,7 @@ def get_context(context):
 
     context.course = frappe.db.get_value("LMS Course", course_name, ["title", "name", "image"], as_dict=True)
     context.instructors = (", ").join([x.full_name for x in get_instructors(course_name)])
-    context.member = frappe.db.get_value("User", context.certificate.member,
-                ["full_name"], as_dict=True)
+    context.member = frappe.db.get_value("User", context.certificate.member, ["full_name"], as_dict=True)
 
     context.logo = frappe.db.get_single_value("Website Settings", "banner_image")
     template_name = frappe.db.get_single_value("LMS Settings", "custom_certificate_template")
