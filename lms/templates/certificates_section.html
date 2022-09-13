@@ -1,0 +1,30 @@
+{% set certificates = get_certificates(user) %}
+
+{% if certificates | length %}
+<div class="cards-parent">
+    {% for certificate in certificates %}
+        {% set course = frappe.db.get_value("LMS Course", certificate.course, ["title", "name", "image"], as_dict=True) %}
+
+        <div class="common-card-style column-card">
+            <div class="font-weight-bold">
+                {{ course.title }}
+            </div>
+            <div>
+                {{ _("Issued on") }} : {{ frappe.utils.format_date(certificate.issue_date, "medium") }}
+            </div>
+            <a class="stretched-link" href="/courses/{{ course.name }}/{{ certificate.name }}"></a>
+        </div>
+    {% endfor %}
+</div>
+
+{% else %}
+{% set course_list_link = "<a href='/courses'> course list </a>" %}
+<div class="empty-state">
+    <img class="icon icon-xl" src="/assets/lms/icons/comment.svg">
+    <div class="empty-state-text">
+        <div class="empty-state-heading">{{ _("No certificates") }}</div>
+        <div class="course-meta">{{ _("Check out the {0} to know more about certification.").format(course_list_link) }}</div>
+    </div>
+</div>
+{% endif %}
+

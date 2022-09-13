@@ -1,5 +1,6 @@
 import frappe
 from lms.page_renderers import get_profile_url_prefix
+from frappe.utils.jinja import render_template
 
 
 def get_context(context):
@@ -20,6 +21,8 @@ def get_context(context):
         return
 
     context.profile_tabs = get_profile_tabs(context.member)
+    template_name = frappe.db.get_single_value("LMS Settings", "custom_certificate_template")
+    context.custom_certificate_template = frappe.db.get_value("Web Template", template_name, "template")
 
 
 def get_profile_tabs(user):

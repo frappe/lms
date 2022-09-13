@@ -455,3 +455,8 @@ def get_courses_under_review():
     }, ["name", "upcoming", "title", "image", "enable_certification", "status", "published"]
 )
 
+
+def get_certificates(member=None):
+    return frappe.get_all("LMS Certificate", {
+        "member": member or frappe.session.user
+    }, ["course", "member", "issue_date", "expiry_date", "name"])
