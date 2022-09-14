@@ -26,7 +26,7 @@
                     {{ instructors }}
                 </div>
                 <hr style="margin: 0.5rem 0;">
-                <div> {{ _("Course Instructor") }} </div>
+                <div class="text-center"> {{ _("Course Instructor") }} </div>
             </div>
             {% endif %}
 
@@ -36,7 +36,7 @@
                     {{ frappe.utils.format_date(certificate.expiry_date, "medium") }}
                 </div>
                 <hr style="margin: 0.5rem 0;">
-                <div> {{ _("Expiry date") }} </div>
+                <div class="text-center"> {{ _("Expiry date") }} </div>
             </div>
             {% endif %}
         </div>
