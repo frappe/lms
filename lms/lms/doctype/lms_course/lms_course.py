@@ -9,11 +9,13 @@ from ...utils import generate_slug
 from frappe.utils import flt, cint
 from lms.lms.utils import get_chapters
 
+
 class LMSCourse(Document):
 
     def validate(self):
         self.validate_instructors()
         self.validate_status()
+
 
     def validate_instructors(self):
         if self.is_new() and not self.instructors:
@@ -25,13 +27,16 @@ class LMSCourse(Document):
                 "parenttype": "LMS Course"
             }).save(ignore_permissions=True)
 
+
     def validate_status(self):
         if self.published:
             self.status = "Approved"
 
+
     def on_update(self):
         if not self.upcoming and self.has_value_changed("upcoming"):
             self.send_email_to_interested_users()
+
 
     def send_email_to_interested_users(self):
         interested_users = frappe.get_all("LMS Course Interest", {
@@ -67,6 +72,7 @@ class LMSCourse(Document):
     def __repr__(self):
         return f"<Course#{self.name}>"
 
+
     def has_mentor(self, email):
         """Checks if this course has a mentor with given email.
         """
@@ -75,6 +81,7 @@ class LMSCourse(Document):
 
         mapping = frappe.get_all("LMS Course Mentor Mapping", {"course": self.name, "mentor": email})
         return mapping != []
+
 
     def add_mentor(self, email):
         """Adds a new mentor to the course.
@@ -96,7 +103,6 @@ class LMSCourse(Document):
         doc.insert()
 
 
-
     def get_student_batch(self, email):
         """Returns the batch the given student is part of.
 
@@ -115,6 +121,7 @@ class LMSCourse(Document):
             fieldname="batch")
         return batch_name and frappe.get_doc("LMS Batch", batch_name)
 
+
     def get_batches(self, mentor=None):
         batches = frappe.get_all("LMS Batch", {"course": self.name})
         if mentor:
@@ -126,16 +133,20 @@ class LMSCourse(Document):
             batch_names = {m.batch for m in memberships}
             return [b for b in batches if b.name in batch_names]
 
+
     def get_cohorts(self):
         return frappe.get_all("Cohort", {"course": self.name}, order_by="creation")
+
 
     def get_cohort(self, cohort_slug):
         name = frappe.get_value("Cohort", {"course": self.name, "slug": cohort_slug})
         return name and frappe.get_doc("Cohort", name)
 
+
     def reindex_exercises(self):
         for i, c in enumerate(get_chapters(self.name), start=1):
             self._reindex_exercises_in_chapter(c, i)
+
 
     def _reindex_exercises_in_chapter(self, c, index):
         i = 1
@@ -146,11 +157,13 @@ class LMSCourse(Document):
                 exercise.save()
                 i += 1
 
+
     def get_all_memberships(self, member):
         all_memberships = frappe.get_all("LMS Batch Membership", {"member": member, "course": self.name}, ["batch"])
         for membership in all_memberships:
             membership.batch_title = frappe.db.get_value("LMS Batch", membership.batch, "title")
         return all_memberships
+
 
 @frappe.whitelist()
 def reindex_exercises(doc):
@@ -158,6 +171,7 @@ def reindex_exercises(doc):
     course = frappe.get_doc("LMS Course", course_data['name'])
     course.reindex_exercises()
     frappe.msgprint("All exercises in this course have been re-indexed.")
+
 
 @frappe.whitelist(allow_guest=True)
 def search_course(text):
@@ -184,6 +198,7 @@ def search_course(text):
 
     return courses
 
+
 @frappe.whitelist()
 def submit_for_review(course):
     chapters = frappe.get_all("Chapter Reference", {"parent": course})
@@ -209,8 +224,8 @@ def save_course(tags, title, short_introduction, video_link, description, course
         "image": image,
         "description": description,
         "tags": tags,
-        "published": published,
-        "upcoming": upcoming
+        "published": cint(published),
+        "upcoming": cint(upcoming)
     })
     doc.save(ignore_permissions=True)
     return doc.name

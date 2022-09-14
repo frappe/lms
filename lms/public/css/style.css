@@ -1545,7 +1545,7 @@ li {
     }
 }
 
-[contenteditable] {
+[contenteditable="true"] {
     outline: none;
     background-color: var(--bg-light-gray);
     border-radius: var(--border-radius);
@@ -1554,7 +1554,7 @@ li {
     color: var(--gray-900);
 }
 
-[contenteditable]:empty:before {
+[contenteditable="true"]:empty:before {
     content: attr(data-placeholder);
     color: var(--gray-600);
 }
@@ -1592,7 +1592,7 @@ li {
     padding: 0.5rem 0;
 }
 
-.course-card-pills[contenteditable] {
+.course-card-pills[contenteditable="true"] {
     box-shadow: none;
 }
 

@@ -73,4 +73,4 @@ def get_user_interest(course):
 
 
 def show_start_learing_cta(course, membership, restriction):
-    return not course.disable_self_learning and not membership and not course.upcoming and not restriction.get("restrict") and not is_instructor(course.name)
+    return not course.disable_self_learning and not membership and not course.upcoming and not restriction.get("restrict") and not is_instructor(course.name) and course.status == "Approved"

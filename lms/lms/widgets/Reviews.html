@@ -9,7 +9,7 @@
             </span>
         {% elif not is_instructor(course.name) and frappe.session.user == "Guest" %}
             <a class="btn btn-secondary btn-s pull-rightm" href="/login?redirect-to=/courses/{{ course.name }}"> {{ _("Login") }} </a>
-        {% elif not is_instructor(course.name) and not membership %}
+        {% elif not is_instructor(course.name) and not membership and course.status == "Approved" %}
             <div class="btn btn-secondary btn-sm join-batch pull-right" data-course="{{ course.name | urlencode }}"> {{ _("Start Learning") }} </div>
         {% endif %}
     </div>
