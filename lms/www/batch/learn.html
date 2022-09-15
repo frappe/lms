@@ -33,7 +33,9 @@
             </div>
             <div class="lesson-pagination-parent">
                 {{ LessonContent(lesson) }}
-                {% if not lesson.edit_mode %} {{ Discussions() }} {% endif %}
+                {% if not lesson.edit_mode and course.staus == "Approved" and not course.upcoming %}
+                {{ Discussions() }}
+                {% endif %}
             </div>
         </div>
     </div>
