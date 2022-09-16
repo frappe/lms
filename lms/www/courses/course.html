@@ -6,7 +6,6 @@
 
 {% block head_include %}
     {% include "public/icons/symbol-defs.svg" %}
-    <link rel="stylesheet" href="/assets/frappe/css/font-awesome.css">
 {% endblock %}
 
 
@@ -22,7 +21,7 @@
                     {{ Description(course) }}
                     {{ Save(course) }}
                     {{ widgets.CourseOutline(course=course, membership=membership, is_user_interested=is_user_interested) }}
-                    {% if not course.edit_mode %}
+                    {% if not course.edit_mode and course.status == "Approved" and not frappe.utils.cint(course.upcoming) %}
                     {{ widgets.Reviews(course=course, membership=membership) }}
                     {% endif %}
                 </div>
@@ -423,9 +422,3 @@
     </div>
 </div>
 {% endmacro %}
-
-
-{% block base_scripts %}
-    {{ include_script("frappe-web.bundle.js") }}
-    {{ include_script('controls.bundle.js') }}
-{% endblock %}

@@ -498,8 +498,14 @@ const save_lesson = (e) => {
             "idx": $("#title").data("index"),
             "lesson": lesson ? lesson : ""
         },
-        callback: (data) => {
-            window.location.href = window.location.href.split("?")[0];
+        callback: (data) => {;
+            frappe.show_alert({
+                message: __("Saved"),
+                indicator: "green",
+            });
+            setTimeout(() => {
+                window.location.href = window.location.href.split("?")[0];
+            }, 1000);
         }
     });
 };
