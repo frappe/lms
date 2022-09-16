@@ -29,7 +29,7 @@ const add_question = () => {
 
     let add_after = $(".quiz-card").length ? $(".quiz-card:last") : $("#quiz-title");
     let question_template = `<div class="quiz-card new-quiz-card">
-            <div contenteditable="true" data-placeholder="${__("Question")}" class="question req mb-4"></div>
+            <div contenteditable="true" data-placeholder="${__("Question")}" class="question mb-4"></div>
         </div>`;
     $(question_template).insertAfter(add_after);
     get_question_template();
