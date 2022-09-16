@@ -97,7 +97,7 @@
 {% set enrollment_suffix = _("Courses") if enrollment > 1 else _("Course") %}
 
 <div class="container">
-    <div class="profile-banner" style="background-image: url({{ cover_image }})">
+    <div class="profile-banner" style="background-image: url({{ cover_image | urlencode }})">
         <div class="profile-avatar">
             {{ widgets.Avatar(member=member, avatar_class="avatar-square") }}
         </div>
