@@ -7,7 +7,6 @@ from frappe.utils.user import get_system_managers
 from frappe import _
 from frappe.utils import get_link_to_form
 from lms.lms.utils import validate_image
-from lms.lms.utils import validate_image
 
 class JobOpportunity(Document):
 
