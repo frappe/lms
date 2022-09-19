@@ -463,7 +463,7 @@ def get_certificates(member=None):
 
 
 def validate_image(path):
-    if "/private" in path:
+    if path and "/private" in path:
         file = frappe.get_doc("File", {"file_url": path})
         file.is_private = 0
         file.save(ignore_permissions=True)
