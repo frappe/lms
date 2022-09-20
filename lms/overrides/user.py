@@ -6,17 +6,22 @@ import random
 import re
 from frappe import _
 from frappe.website.utils import is_signup_disabled
+from lms.lms.utils import validate_image
 import requests
-from frappe.geo.country_info import get_all
 from lms.widgets import Widgets
 
+
 class CustomUser(User):
+
 
     def validate(self):
         super(CustomUser, self).validate()
         self.validate_username_characters()
         self.validate_skills()
         self.validate_completion()
+        self.user_image = validate_image(self.user_image)
+        self.cover_image = validate_image(self.cover_image)
+
 
     def validate_username_characters(self):
         if len(self.username):
