@@ -6,25 +6,20 @@ from frappe.model.document import Document
 from frappe.utils.user import get_system_managers
 from frappe import _
 from frappe.utils import get_link_to_form
+from lms.lms.utils import validate_image
 
 class JobOpportunity(Document):
 
 
     def validate(self):
         self.validate_urls()
-        self.validate_logo()
+        self.company_logo = validate_image(self.company_logo)
 
 
     def validate_urls(self):
         frappe.utils.validate_url(self.company_website, True)
         frappe.utils.validate_url(self.application_link, True)
 
-
-    def validate_logo(self):
-        if "/private" in self.company_logo:
-            frappe.db.set_value("File", {"file_url": self.company_logo}, "is_private", 0)
-            frappe.db.set_value("File", {"file_url": self.company_logo}, "file_url", self.company_logo.replace("/private", ""))
-            self.company_logo = self.company_logo.replace("/private", "")
 
 @frappe.whitelist()
 def report(job, reason):

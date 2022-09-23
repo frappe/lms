@@ -460,3 +460,12 @@ def get_certificates(member=None):
     return frappe.get_all("LMS Certificate", {
         "member": member or frappe.session.user
     }, ["course", "member", "issue_date", "expiry_date", "name"])
+
+
+def validate_image(path):
+    if path and "/private" in path:
+        file = frappe.get_doc("File", {"file_url": path})
+        file.is_private = 0
+        file.save(ignore_permissions=True)
+        return file.file_url
+    return path

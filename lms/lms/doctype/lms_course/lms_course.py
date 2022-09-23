@@ -5,8 +5,8 @@ from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
 import json
-from ...utils import generate_slug
-from frappe.utils import flt, cint
+from ...utils import generate_slug, validate_image
+from frappe.utils import cint
 from lms.lms.utils import get_chapters
 
 
@@ -15,7 +15,7 @@ class LMSCourse(Document):
     def validate(self):
         self.validate_instructors()
         self.validate_status()
-
+        self.image = validate_image(self.image)
 
     def validate_instructors(self):
         if self.is_new() and not self.instructors:
