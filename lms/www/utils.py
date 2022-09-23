@@ -9,7 +9,7 @@ def get_common_context(context):
         batch_name = None
 
     course = frappe.db.get_value("LMS Course",
-        frappe.form_dict["course"], ["name", "title", "video_link", "enable_certification"], as_dict=True)
+        frappe.form_dict["course"], ["name", "title", "video_link", "enable_certification", "status"], as_dict=True)
     if not course:
         context.template = "www/404.html"
         return
