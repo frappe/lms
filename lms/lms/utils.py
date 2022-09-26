@@ -7,6 +7,7 @@ from frappe import _
 
 RE_SLUG_NOTALLOWED = re.compile("[^a-z0-9]+")
 
+
 def slugify(title, used_slugs=[]):
     """Converts title to a slug.
 
@@ -59,6 +60,7 @@ def get_membership(course, member, batch=None):
         membership.batch_title = frappe.db.get_value("LMS Batch", membership.batch, "title")
     return membership
 
+
 def get_chapters(course):
     """Returns all chapters of this course.
     """
@@ -85,6 +87,7 @@ def get_lessons(course, chapter=None):
 
     return lessons
 
+
 def get_lesson_details(chapter):
     lessons = []
     lesson_list = frappe.get_all("Lesson Reference",
@@ -94,10 +97,11 @@ def get_lesson_details(chapter):
 
     for row in lesson_list:
         lesson_details = frappe.db.get_value("Course Lesson", row.lesson,
-            ["name", "title", "include_in_preview", "body", "creation"], as_dict=True)
+            ["name", "title", "include_in_preview", "body", "creation", "youtube", "quiz_id"], as_dict=True)
         lesson_details.number = flt("{}.{}".format(chapter.idx, row.idx))
         lesson_details.icon = "icon-list"
         macros = find_macros(lesson_details.body)
+
         for macro in macros:
             if macro[0] == "YouTubeVideo":
                 lesson_details.icon = "icon-video"
@@ -106,9 +110,11 @@ def get_lesson_details(chapter):
         lessons.append(lesson_details)
     return lessons
 
+
 def get_tags(course):
     tags = frappe.db.get_value("LMS Course", course, "tags")
     return tags.split(",") if tags else []
+
 
 def get_instructors(course):
     instructor_details = []
@@ -122,6 +128,7 @@ def get_instructors(course):
             ["name", "username", "full_name", "user_image"],
             as_dict=True))
     return instructor_details
+
 
 def get_students(course, batch=None):
     """Returns (email, full_name, username) of all the students of this batch as a list of dict.
@@ -137,11 +144,13 @@ def get_students(course, batch=None):
         filters,
         ["member"])
 
+
 def get_average_rating(course):
     ratings = [review.rating for review in get_reviews(course)]
     if not len(ratings):
         return None
     return sum(ratings)/len(ratings)
+
 
 def get_reviews(course):
     reviews = frappe.get_all("LMS Course Review",
@@ -164,6 +173,7 @@ def get_reviews(course):
 
     return reviews
 
+
 def get_sorted_reviews(course):
     rating_count = rating_percent = frappe._dict()
     keys = ["5.0", "4.0", "3.0", "2.0", "1.0"]
@@ -180,6 +190,7 @@ def get_sorted_reviews(course):
 
     return rating_percent
 
+
 def is_certified(course):
     certificate = frappe.get_all("LMS Certificate",
                     {
@@ -189,6 +200,7 @@ def is_certified(course):
     if len(certificate):
         return certificate[0].name
     return
+
 
 def get_lesson_index(lesson_name):
     """Returns the {chapter_index}.{lesson_index} for the lesson.
@@ -204,6 +216,7 @@ def get_lesson_index(lesson_name):
         return "1.1"
 
     return f"{chapter.idx}.{lesson.idx}"
+
 
 def get_lesson_url(course, lesson_number):
     if not lesson_number:
@@ -224,8 +237,16 @@ def get_progress(course, lesson):
         },
         ["status"])
 
-def render_html(body):
-    return markdown_to_html(body)
+
+def render_html(body, youtube, quiz_id):
+    if youtube and "/" in youtube:
+        youtube = youtube.split("/")[-1]
+
+    quiz_id = "{{ Quiz('" + quiz_id + "') }}" if quiz_id else ""
+    youtube = "{{ YouTubeVideo('" + youtube + "') }}" if youtube else ""
+    text = youtube + body + quiz_id
+    return markdown_to_html(text)
+
 
 def is_mentor(course, email):
     """Checks if given user is a mentor for this course.
@@ -237,6 +258,7 @@ def is_mentor(course, email):
             "course": course,
             "mentor": email
         })
+
 
 def is_cohort_staff(course, user_email):
     """Returns True if the user is either a mentor or a staff for one or more active cohorts of this course.
@@ -252,6 +274,7 @@ def is_cohort_staff(course, user_email):
         "email": user_email
     }
     return frappe.db.exists(staff) or frappe.db.exists(mentor)
+
 
 def get_mentors(course):
     """Returns the list of all mentors for this course.
@@ -269,6 +292,7 @@ def get_mentors(course):
         course_mentors.append(member)
     return course_mentors
 
+
 def is_eligible_to_review(course, membership):
     """ Checks if user is eligible to review the course """
     if not membership:
@@ -280,6 +304,7 @@ def is_eligible_to_review(course, membership):
             }):
         return False
     return True
+
 
 def get_course_progress(course, member=None):
     """ Returns the course progress of the session user """
@@ -294,6 +319,7 @@ def get_course_progress(course, member=None):
                             })
     precision = cint(frappe.db.get_default("float_precision")) or 3
     return flt(((completed_lessons/lesson_count) * 100), precision)
+
 
 def get_initial_members(course):
     members = frappe.get_all("LMS Batch Membership",
@@ -310,11 +336,14 @@ def get_initial_members(course):
 
     return member_details
 
+
 def is_instructor(course):
     return len(list(filter(lambda x: x.name == frappe.session.user, get_instructors(course)))) > 0
 
+
 def convert_number_to_character(number):
     return string.ascii_uppercase[number]
+
 
 def get_signup_optin_checks():
 
@@ -343,6 +372,7 @@ def get_signup_optin_checks():
 
     return (", ").join(links)
 
+
 def get_popular_courses():
     courses = frappe.get_all("LMS Course", {"published": 1, "upcoming": 0})
     course_membership = []
@@ -355,6 +385,7 @@ def get_popular_courses():
 
     course_membership = sorted(course_membership, key = lambda x: x.get("members"), reverse=True)
     return course_membership[:3]
+
 
 def get_evaluation_details(course, member=None):
     info = frappe.db.get_value("LMS Course", course, ["grant_certificate_after", "max_attempts", "duration"], as_dict=True)
@@ -378,6 +409,7 @@ def get_evaluation_details(course, member=None):
         "no_of_attempts": no_of_attempts
     })
 
+
 def format_amount(amount, currency):
     amount_reduced = amount / 1000
     if amount_reduced < 1:
@@ -397,13 +429,43 @@ def first_lesson_exists(course):
 
     return True
 
+
 def redirect_to_courses_list():
     frappe.local.flags.redirect_location = "/courses"
     raise frappe.Redirect
 
 
-def has_course_instructor_role():
+def has_course_instructor_role(member=None):
     return frappe.db.get_value("Has Role", {
-        "parent": frappe.session.user,
+        "parent": member or frappe.session.user,
         "role": "Course Instructor"
         }, "name")
+
+
+def has_course_moderator_role(member=None):
+    return frappe.db.get_value("Has Role", {
+        "parent": member or frappe.session.user,
+        "role": "Course Moderator"
+        }, "name")
+
+
+def get_courses_under_review():
+    return frappe.get_all("LMS Course", {
+        "status": "Under Review"
+    }, ["name", "upcoming", "title", "image", "enable_certification", "status", "published"]
+)
+
+
+def get_certificates(member=None):
+    return frappe.get_all("LMS Certificate", {
+        "member": member or frappe.session.user
+    }, ["course", "member", "issue_date", "expiry_date", "name"])
+
+
+def validate_image(path):
+    if path and "/private" in path:
+        file = frappe.get_doc("File", {"file_url": path})
+        file.is_private = 0
+        file.save(ignore_permissions=True)
+        return file.file_url
+    return path

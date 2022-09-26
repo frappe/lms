@@ -52,11 +52,13 @@
             <div class="d-flex justify-content-between option-{{ num }}">
                 <div contenteditable="true" data-placeholder="{{ _('Option') }}"
                     class="option-input">{% if option %}{{ option }}{% endif %}</div>
-                <div contenteditable="true" data-placeholder="{{ _('Explanation') }}"
+                <div contenteditable="true" data-placeholder="{{ _('Explain the option') }}"
                     class="option-input">{% if explanation %}{{ explanation }}{% endif %}</div>
                 <div class="option-checkbox">
-                    <input type="checkbox" {% if question['is_correct_' + num] %} checked {% endif %}>
-                    <label class="mb-0"> {{ _("Is Correct") }} </label>
+                    <label class="mb-0">
+                        <input type="checkbox" {% if question['is_correct_' + num] %} checked {% endif %}>
+                        {{ _("Is Correct") }}
+                    </label>
                 </div>
             </div>
         </div>
@@ -68,8 +70,17 @@
 
     <div class="mt-4">
         <button class="btn btn-secondary btn-sm btn-question"> {{ _("New Question") }} </button>
-        <button class="btn btn-primary btn-sm btn-save-question ml-2
-            {% if not quiz.name %} hide {% endif %}"> {{ _("Save Quiz") }} </button>
+
+        {% if quiz.name %}
+        <button class="btn btn-secondary btn-sm copy-quiz-id ml-2" data-name="'{{ quiz.name }}'">
+            {{ _("Copy Quiz ID") }}
+        </button>
+        {% endif %}
+
+        <button class="btn btn-primary btn-sm btn-save-question ml-2 {% if not quiz.name %} hide {% endif %}">
+            {{ _("Save Quiz") }}
+        </button>
+
     </div>
 </div>
 {% endmacro %}

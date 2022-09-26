@@ -67,7 +67,7 @@ const join_course = (e) => {
                 }, 3);
                 setTimeout(function () {
                     window.location.href = `/courses/${course}/learn/1.1`;
-                }, 3000);
+                }, 1000);
             }
         }
     })
@@ -127,7 +127,7 @@ const scroll_to_chapter_container = () => {
         scrollTop: $(".new-chapter").offset().top
     }, 1000);
     $(".new-chapter").find(".chapter-title-main").focus();
-}
+};
 
 
 const save_chapter = (e) => {
@@ -150,7 +150,7 @@ const save_chapter = (e) => {
             });
             setTimeout(() => {
                 window.location.reload();
-            }, 1000)
+            }, 1000);
         }
     });
 };

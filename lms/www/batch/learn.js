@@ -66,7 +66,7 @@ frappe.ready(() => {
 
     $(".btn-back").click((e) => {
         window.location.href = window.location.href.split("?")[0];
-    })
+    });
 
     $(document).on("click", ".copy-link", (e) => {
         frappe.utils.copy_to_clipboard($(e.currentTarget).data("link"));
@@ -490,14 +490,22 @@ const save_lesson = (e) => {
         method: "lms.lms.doctype.lms_course.lms_course.save_lesson",
         args: {
             "title": $("#title").text(),
-            "body": this.code_field_group.fields_dict["code_md"].last_value,
+            "body": this.code_field_group.fields_dict["code_md"].value,
+            "youtube": $("#youtube").text(),
+            "quiz_id": $("#quiz-id").text(),
             "chapter": $("#title").data("chapter"),
             "preview": $("#preview").prop("checked") ? 1 : 0,
             "idx": $("#title").data("index"),
             "lesson": lesson ? lesson : ""
         },
-        callback: (data) => {
-            window.location.href = window.location.href.split("?")[0];
+        callback: (data) => {;
+            frappe.show_alert({
+                message: __("Saved"),
+                indicator: "green",
+            });
+            setTimeout(() => {
+                window.location.href = window.location.href.split("?")[0];
+            }, 1000);
         }
     });
 };

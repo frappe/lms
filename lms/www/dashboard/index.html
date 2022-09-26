@@ -1,28 +1,38 @@
 {% extends "templates/base.html" %}
-{% block title %}{{ _("Dashboard")}}
+{% block title %}
+{{ _("Dashboard")}}
 {% endblock %}
 
 
 {% block content %}
-{% set portal_course_creation = frappe.db.get_single_value("LMS Settings", "portal_course_creation") %}
-{% set show_creators_section = portal_course_creation == "Anyone" or has_course_instructor_role() %}
-
 <div class="common-page-style dashboard">
     <div class="container">
 
         {% if show_creators_section %}
-        <a class="btn btn-secondary btn-md pull-right" id="create-course-link" href="/courses/new-course">
-            {{ _("Create a Course")}}
+        <a class="btn btn-secondary btn-sm course-creation-link" id="create-course-link" href="/courses/new-course">
+            {{ _("Create a Course") }}
         </a>
         {% endif %}
 
-        <ul class="nav" id="courses-tab">
+        <ul class="nav lms-nav" id="courses-tab">
             <li class="nav-item">
-                <a class="nav-link active" data-toggle="tab" href="#courses-enrolled"> {{ _("Courses Enrolled") }} </a>
+                <a class="nav-link active" data-toggle="tab" href="#courses-enrolled">
+                    {{ _("Courses Enrolled") }}
+                </a>
             </li>
+
             {% if show_creators_section %}
             <li class="nav-item">
-                <a class="nav-link" data-toggle="tab" href="#courses-created">{{ _("Courses Created") }}
+                <a class="nav-link" data-toggle="tab" href="#courses-created">
+                    {{ _("Courses Created") }}
+                </a>
+            </li>
+            {% endif %}
+
+            {% if show_review_section %}
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#courses-under-review">
+                    {{ _("Courses Under Review") }}
                 </a>
             </li>
             {% endif %}
@@ -38,16 +48,24 @@
             <div class="tab-pane active" id="courses-enrolled" role="tabpanel" aria-labelledby="courses-enrolled">
                 {% include "lms/lms/web_template/courses_enrolled/courses_enrolled.html" %}
             </div>
+
             {% if show_creators_section %}
             <div class="tab-pane fade" id="courses-created" role="tabpanel" aria-labelledby="courses-created">
                 {% include "lms/templates/courses_created.html" %}
             </div>
             {% endif %}
+
+            {% if show_review_section %}
+            <div class="tab-pane fade" id="courses-under-review" role="tabpanel" aria-labelledby="courses-under-review">
+                {% include "lms/templates/courses_under_review.html" %}
+            </div>
+            {% endif %}
+
             <div class="tab-pane fade" id="notifications" role="tabpanel" aria-labelledby="notifications">
                 {% include "lms/templates/courses_created.html" %}
             </div>
-        </div>
 
+        </div>
     </div>
 </div>
 

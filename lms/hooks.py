@@ -21,7 +21,7 @@ app_license = "AGPL"
 # include js, css files in header of web template
 web_include_css = "lms.bundle.css"
 # web_include_css = "/assets/lms/css/lms.css"
-web_include_js = "website.bundle.js"
+web_include_js = ["website.bundle.js", "controls.bundle.js"]
 
 # include custom scss in every website theme (without file extension ".scss")
 # website_theme_scss = "lms/public/scss/website"
@@ -192,7 +192,10 @@ jinja = {
         "lms.lms.utils.get_popular_courses",
         "lms.lms.utils.format_amount",
         "lms.lms.utils.first_lesson_exists",
-        "lms.lms.utils.has_course_instructor_role"
+        "lms.lms.utils.get_courses_under_review",
+        "lms.lms.utils.has_course_instructor_role",
+        "lms.lms.utils.has_course_moderator_role",
+        "lms.lms.utils.get_certificates"
     ],
     "filters": []
 }

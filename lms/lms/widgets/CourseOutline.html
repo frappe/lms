@@ -1,18 +1,28 @@
 <div class="course-home-outline">
 
+    {% set chapters = get_chapters(course.name) %}
+
     {% if course.edit_mode and course.name %}
     <button class="btn btn-md btn-secondary btn-chapter pull-right"> {{ _("New Chapter") }} </button>
     {% endif %}
 
-    {% if course.name and (course.edit_mode or get_chapters(course.name) | length) %}
+    {% if course.name and (course.edit_mode or chapters | length) %}
     <div class="course-home-headings" id="outline-heading">
         {{ _("Course Content") }}
     </div>
     {% endif %}
 
-    {% if get_chapters(course.name) | length %}
+    {% if course.edit_mode and course.name and not chapters | length %}
+    <div class="chapter-parent chapter-edit new-chapter">
+        <div contenteditable="true" data-placeholder="{{ _('Chapter Name') }}" class="chapter-title-main"></div>
+        <div class="chapter-description small my-2" contenteditable="true" data-placeholder="{{ _('Short Description') }}"></div>
+        <button class="btn btn-sm btn-secondary d-block btn-save-chapter" data-index="1"> {{ _('Save') }} </button>
+    </div>
+    {% endif %}
 
-    {% for chapter in get_chapters(course.name) %}
+    {% if chapters | length %}
+
+    {% for chapter in chapters %}
     <div class="chapter-parent {% if course.edit_mode %} chapter-edit {% endif %} ">
         <div class="chapter-title" {% if not course.edit_mode %}  data-toggle="collapse" aria-expanded="false"
         data-target="#{{ get_slugified_chapter_title(chapter.title) }}" {% endif %} >
@@ -55,7 +65,7 @@
                 {% set active = membership.current_lesson == lesson.name %}
                 <div class="lesson-info {% if active and not course.edit_mode %} active-lesson {% endif %}">
 
-                {% if membership or lesson.include_in_preview or is_instructor %}
+                {% if membership or lesson.include_in_preview or is_instructor or has_course_moderator_role() %}
                 <a class="lesson-links" data-course="{{ course.name }}"
                 {% if is_instructor and not lesson.include_in_preview %}
                 title="{{ _('This lesson is not available for preview. As you are the Instructor of the course only you can see it.') }}"
@@ -185,3 +195,4 @@ const show_no_preview_dialog = (e) => {
 };
 
 </script>
+

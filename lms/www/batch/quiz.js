@@ -1,21 +1,34 @@
 frappe.ready(() => {
 
+    if(!$(".quiz-card").length) {
+        add_question();
+    }
+
     $(".btn-question").click((e) => {
-        add_question(e);
+        add_question();
     });
 
     $(".btn-save-question").click((e) => {
         save_question(e);
     });
 
-    get_questions()
+    $(".copy-quiz-id").click((e) => {
+        frappe.utils.copy_to_clipboard($(e.currentTarget).data("name"));
+    });
+
+    get_questions();
 
 });
 
 
-const add_question = (e) => {
+const add_question = () => {
+    if ($(".new-quiz-card").length) {
+        scroll_to_question_container();
+        return;
+    }
+
     let add_after = $(".quiz-card").length ? $(".quiz-card:last") : $("#quiz-title");
-    let question_template = `<div class="quiz-card">
+    let question_template = `<div class="quiz-card new-quiz-card">
             <div contenteditable="true" data-placeholder="${__("Question")}" class="question mb-4"></div>
         </div>`;
     $(question_template).insertAfter(add_after);
@@ -54,6 +67,7 @@ const save_question = (e) => {
     if (!$("#quiz-title").text()) {
         frappe.throw(__("Quiz Title is mandatory."));
     }
+
     frappe.call({
         method: "lms.lms.doctype.lms_quiz.lms_quiz.save_quiz",
         args: {
@@ -104,3 +118,11 @@ const get_questions = () => {
 
     return questions;
 };
+
+
+const scroll_to_question_container = () => {
+    $([document.documentElement, document.body]).animate({
+        scrollTop: $(".new-quiz-card").offset().top
+    }, 1000);
+    $(".new-quiz-card").find(".question").focus();
+}

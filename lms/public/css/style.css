@@ -44,37 +44,36 @@ input[type=checkbox] {
 }
 
 .course-image .course-tags {
-  width: 95%;
+    width: fit-content;
 }
 
 .course-card-pills {
-  background: #ffffff;
-  margin-left: 0;
-  margin-right: 1rem;
-  border-radius: var(--border-radius);
-  padding: 3.5px 8px;
-  font-size: 11px;
-  text-align: center;
-  letter-spacing: 0.011em;
-  text-transform: uppercase;
-  font-weight: 600;
-  color: var(--gray-900);
-  width: fit-content;
-  box-shadow: var(--shadow-sm);
+    background: #ffffff;
+    margin-left: 0;
+    margin-right: 1rem;
+    border-radius: var(--border-radius);
+    padding: 3.5px 8px;
+    font-size: 11px;
+    text-align: center;
+    letter-spacing: 0.011em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--gray-900);
+    width: fit-content;
+    box-shadow: var(--shadow-sm);
 }
 
 .dark-pills {
-  background: rgba(25, 39, 52, 0.8);
-  color: #ffffff;
+    background: rgba(25, 39, 52, 0.8);
+    color: #ffffff;
 }
 .dark-pills img {
-  width: 0.75rem;
-  height: 0.75rem;
+    width: 0.75rem;
+    height: 0.75rem;
 }
 
 .common-page-style {
   padding: 2rem 0 5rem;
-  min-height: 60vh;
   padding-top: 3rem;
   background-color: var(--bg-color);
 }
@@ -126,9 +125,10 @@ input[type=checkbox] {
 }
 
 .course-card-title {
-  font-weight: 600;
-  color: var(--gray-900);
-  margin-bottom: 1.25rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: 1.25rem;
+    font-size: 1.125rem;
 }
 
 .card-divider {
@@ -661,7 +661,7 @@ input[type=checkbox] {
   font-size: var(--text-sm);
   display: flex;
   flex-direction: column;
-  margin-bottom: 3rem;
+  margin-bottom: 2.5rem;
   padding-left: 200px;
   padding-right: 1rem;
   box-shadow: var(--shadow-sm);
@@ -764,7 +764,7 @@ input[type=checkbox] {
 }
 
 .education-details {
-  margin-top: 3rem;
+  margin-top: 1.25rem;
 }
 
 .bold-title {
@@ -895,24 +895,22 @@ pre {
     }
 }
 
-.profile-card {
-  flex-direction: column;
-  padding: 1rem 1.25rem;
+.column-card {
+    flex-direction: column;
+    padding: 1.25rem;
 }
 
 .empty-state {
   background: var(--gray-200);
   border-radius: var(--border-radius-lg);
-  padding: 2rem;
+  padding: 4rem;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
 }
 
 .empty-state-text {
-    flex: 1;
-    margin-left: 1.25rem;
-    text-align: center;
+    margin-left: 1rem;
 }
 
 .empty-state-heading {
@@ -1400,19 +1398,25 @@ pre {
   overflow: inherit;
 }
 
-.dashboard .nav-link {
+.lms-nav .nav-link {
     color: var(--text-muted);
-    padding: 0 0 var(--padding-md);
-    margin-right: var(--margin-xl);
+    padding: var(--padding-md) 0;
+    margin: 0 var(--margin-md);
 }
 
-.dashboard .nav-link.active {
+.lms-nav .nav-link.active {
   font-weight: 600;
   border-bottom: 1px solid var(--primary);
   color: var(--text-color);
 }
 
-.dashboard .nav-link:hover {
+@media (min-width: 500px) {
+    .lms-nav .nav-item:first-child .nav-link {
+        margin-left: 0;
+    }
+}
+
+.lms-nav .nav-link:hover {
   color: inherit;
 }
 
@@ -1541,7 +1545,7 @@ li {
     }
 }
 
-[contenteditable] {
+[contenteditable="true"] {
     outline: none;
     background-color: var(--bg-light-gray);
     border-radius: var(--border-radius);
@@ -1550,7 +1554,7 @@ li {
     color: var(--gray-900);
 }
 
-[contenteditable]:empty:before {
+[contenteditable="true"]:empty:before {
     content: attr(data-placeholder);
     color: var(--gray-600);
 }
@@ -1588,7 +1592,7 @@ li {
     padding: 0.5rem 0;
 }
 
-.course-card-pills[contenteditable] {
+.course-card-pills[contenteditable="true"] {
     box-shadow: none;
 }
 
@@ -1658,6 +1662,49 @@ li {
     padding: 1rem;
 }
 
-.help-article {
+.medium {
     font-size: var(--text-base);
+}
+
+.quiz-row {
+    position: relative;
+    color: var(--text-color);
+    cursor: pointer;
+}
+
+.course-creation-link {
+    float: right;
+}
+
+@media (max-width: 500px) {
+    .course-creation-link {
+        float: inherit;
+        margin-bottom: 1rem;
+    }
+}
+
+.indicator-pill::before {
+    width: 0;
+    height: 0;
+    margin-right: 0;
+}
+
+.review-link {
+    float: right
+}
+
+.role {
+    margin-bottom: 0;
+    cursor: pointer;
+}
+
+@media (min-width: 500px) {
+    .role:last-child {
+        margin-left: 5rem
+    }
+}
+
+.icon-xl {
+    width: 2.75rem;
+    height: 2.75rem;
 }

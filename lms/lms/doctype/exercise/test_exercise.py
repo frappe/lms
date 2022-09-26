@@ -6,10 +6,6 @@ import unittest
 from lms.lms.doctype.lms_course.test_lms_course import new_course
 
 class TestExercise(unittest.TestCase):
-    def setUp(self):
-        frappe.db.sql('delete from `tabLMS Batch Membership`')
-        frappe.db.sql('delete from `tabExercise Submission`')
-        frappe.db.sql('delete from `tabExercise`')
 
     def new_exercise(self):
         course = new_course("Test Course")
@@ -47,3 +43,8 @@ class TestExercise(unittest.TestCase):
         user_submission = e.get_user_submission()
         assert user_submission is not None
         assert user_submission.name == submission.name
+
+    def tearDown(self):
+        frappe.db.sql('delete from `tabLMS Batch Membership`')
+        frappe.db.sql('delete from `tabExercise Submission`')
+        frappe.db.sql('delete from `tabExercise`')

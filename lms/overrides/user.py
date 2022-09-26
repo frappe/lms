@@ -6,17 +6,22 @@ import random
 import re
 from frappe import _
 from frappe.website.utils import is_signup_disabled
+from lms.lms.utils import validate_image
 import requests
-from frappe.geo.country_info import get_all
 from lms.widgets import Widgets
 
+
 class CustomUser(User):
+
 
     def validate(self):
         super(CustomUser, self).validate()
         self.validate_username_characters()
         self.validate_skills()
         self.validate_completion()
+        self.user_image = validate_image(self.user_image)
+        self.cover_image = validate_image(self.cover_image)
+
 
     def validate_username_characters(self):
         if len(self.username):
@@ -127,7 +132,8 @@ class CustomUser(User):
 def get_enrolled_courses():
     in_progress = []
     completed = []
-    memberships = get_course_membership(frappe.session.user, member_type="Student")
+    memberships = get_course_membership(None, member_type="Student")
+
     for membership in memberships:
         course = frappe.db.get_value("LMS Course", membership.course, ["name", "upcoming", "title", "image",
             "enable_certification", "paid_certificate", "price_certificate", "currency", "published"], as_dict=True)
@@ -144,10 +150,11 @@ def get_enrolled_courses():
         "completed": completed
     }
 
-def get_course_membership(member, member_type=None):
-    """ Returns all memberships of the user  """
+def get_course_membership(member=None, member_type=None):
+    """ Returns all memberships of the user.  """
+
     filters = {
-        "member": member
+        "member": member or frappe.session.user
     }
     if member_type:
         filters["member_type"] = member_type
@@ -155,23 +162,23 @@ def get_course_membership(member, member_type=None):
     return frappe.get_all("LMS Batch Membership", filters, ["name", "course", "progress"])
 
 
-def get_authored_courses(member, only_published=True):
-    """Returns the number of courses authored by this user.
-    """
+def get_authored_courses(member=None, only_published=True):
+    """ Returns the number of courses authored by this user. """
     course_details = []
-
-    filters = {
-        "instructor": member
-    }
-    if only_published:
-        filters["published"] = True
-    courses = frappe.get_all('LMS Course', filters)
+    courses = frappe.get_all("Course Instructor", {
+        "instructor": member or frappe.session.user
+    }, ["parent"])
 
     for course in courses:
-        course_details.append(frappe.db.get_value("LMS Course", course,
-      ["name", "upcoming", "title", "image", "enable_certification", "status"], as_dict=True))
+        detail = frappe.db.get_value("LMS Course", course.parent,
+            ["name", "upcoming", "title", "image", "enable_certification", "status", "published"], as_dict=True)
+
+        if only_published and detail and not detail.published:
+            continue
+        course_details.append(detail)
 
     return course_details
+
 
 def get_palette(full_name):
         """
@@ -328,3 +335,22 @@ def get_users(or_filters, start, page_length, text):
 	""".format(or_filters = or_filters, start=start, page_length=page_length), as_dict=1)
 
     return users
+
+
+@frappe.whitelist()
+def save_role(user, role, value):
+    if cint(value):
+        doc = frappe.get_doc({
+            "doctype": "Has Role",
+            "parent": user,
+            "role": role,
+            "parenttype": "User",
+            "parentfield": "roles"
+        })
+        doc.save(ignore_permissions=True)
+    else:
+        frappe.db.delete("Has Role", {
+            "parent": user,
+            "role": role
+        })
+    return True
