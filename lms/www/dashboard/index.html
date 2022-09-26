@@ -62,7 +62,19 @@
             {% endif %}
 
             <div class="tab-pane fade" id="notifications" role="tabpanel" aria-labelledby="notifications">
-                {% include "lms/templates/courses_created.html" %}
+                {% if notifications | length %}
+                {% for notification in notifications %}
+                {{ notification }}
+                {% endfor %}
+                {% else %}
+                <div class="empty-state">
+                    <img class="icon icon-xl" src="/assets/lms/icons/comment.svg">
+                    <div class="empty-state-text">
+                        <div class="empty-state-heading">{{ _("No Notifications") }}</div>
+                        <div class="course-meta">{{ _("You don't have any notifications.") }}</div>
+                    </div>
+                </div>
+                {% endif  %}
             </div>
 
         </div>
