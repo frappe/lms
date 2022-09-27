@@ -1,6 +1,6 @@
 import frappe
 from datetime import datetime
-from lms.lms.utils import has_course_instructor_role, has_course_moderator_role
+from lms.lms.utils import has_course_instructor_role, has_course_moderator_role, get_lesson_index
 
 
 def get_context(context):
@@ -12,6 +12,19 @@ def get_context(context):
 
 
 def get_notifications():
+    notifications = frappe.get_all("Notification Log", {
+        "document_type": "Course Lesson",
+        "for_user": frappe.session.user
+    }, ["subject", "creation", "from_user", "document_name"])
+
+    for notification in notifications:
+        course = frappe.db.get_value("Course Lesson", notification.document_name, "course")
+        notification.url = "/courses/{0}/learn/{1}".format(course, get_lesson_index(notification.document_name))
+
+    return notifications
+
+
+def get_notifications_old():
     notifications = []
 
     notifications +=  get_notifications_from_lessons_created()
@@ -19,7 +32,6 @@ def get_notifications():
     notifications +=  get_notifications_from_topics_created()
 
     if len(notifications):
-        print(notifications)
         notifications = sorted(notifications, key=lambda t: datetime.strptime(frappe.utils.format_datetime(t.creation, "dd-mm-yyyy HH:mm:ss"),"%d/%m/%Y %H:%M:%S"))
     return notifications
 
@@ -56,7 +68,6 @@ def get_notifications_from_replies(topics):
         replies = frappe.get_all("Discussion Reply", {
             "topic": topic.name
         }, ["reply", "owner", "creation"])
-
 
         for reply in replies:
             notification = frappe._dict()

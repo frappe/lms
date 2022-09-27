@@ -13,7 +13,7 @@ def get_context(context):
     context.chapter = frappe.db.get_value("Chapter Reference", {
         "idx": chapter_index,
         "parent": context.course.name
-        }, "chapter")
+    }, "chapter")
 
     if not chapter_index or not lesson_index:
         if context.batch:

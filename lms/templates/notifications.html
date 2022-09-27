@@ -1,0 +1,30 @@
+{% if notifications | length %}
+    <div class="common-card-style column-card">
+        {% for notification in notifications %}
+        <div class="notification-card">
+            <div>
+                {% set member = frappe.db.get_value("User", notification.from_user,
+                    ["username", "full_name", "user_image"], as_dict=1) %}
+                {{ widgets.Avatar(member=member, avatar_class="avatar-medium") }}
+            </div>
+            <div class="ml-2">
+                <div class="medium">
+                    {{ notification.subject }} {{ frappe.utils.pretty_date(notification.creation) }}
+                </div>
+                <!-- <div class="timestamp"> {{ frappe.utils.pretty_date(notification.creation) }} </div> -->
+            </div>
+            <a class="stretched-link" href="{{ notification.url }}"></a>
+        </div>
+
+        {% endfor %}
+    </div>
+
+{% else %}
+    <div class="empty-state">
+        <img class="icon icon-xl" src="/assets/lms/icons/comment.svg">
+        <div class="empty-state-text">
+            <div class="empty-state-heading">{{ _("No Notifications") }}</div>
+            <div class="course-meta">{{ _("You don't have any notifications.") }}</div>
+        </div>
+    </div>
+{% endif  %}

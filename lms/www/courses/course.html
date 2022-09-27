@@ -347,7 +347,7 @@
     {% endif %}
 
     {% if is_instructor(course.name) or has_course_moderator_role() %}
-    <a class="btn btn-secondary wide-button" href="/courses/{{ course.name }}?edit=1"> {{ _("Edit Course") }} </a>
+    <a class="btn btn-secondary wide-button mt-3" href="/courses/{{ course.name }}?edit=1"> {{ _("Edit Course") }} </a>
     {% endif %}
 {% endmacro %}
 

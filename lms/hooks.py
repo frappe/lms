@@ -85,8 +85,8 @@ web_include_js = ["website.bundle.js", "controls.bundle.js"]
 # Override standard doctype classes
 
 override_doctype_class = {
-	"User": "lms.overrides.user.CustomUser",
-	"Web Template": "lms.overrides.web_template.CustomWebTemplate"
+    "User": "lms.overrides.user.CustomUser",
+    "Web Template": "lms.overrides.web_template.CustomWebTemplate"
 }
 
 # Document Events
@@ -94,7 +94,9 @@ override_doctype_class = {
 # Hook on document methods and events
 
 doc_events = {
-
+    "Discussion Reply": {
+        "after_insert": "lms.lms.utils.create_notification_log"
+    }
 }
 
 # Scheduled Tasks

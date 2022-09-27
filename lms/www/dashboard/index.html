@@ -17,14 +17,14 @@
         <ul class="nav lms-nav" id="courses-tab">
             <li class="nav-item">
                 <a class="nav-link active" data-toggle="tab" href="#courses-enrolled">
-                    {{ _("Courses Enrolled") }}
+                    {{ _("Enrolled") }}
                 </a>
             </li>
 
             {% if show_creators_section %}
             <li class="nav-item">
                 <a class="nav-link" data-toggle="tab" href="#courses-created">
-                    {{ _("Courses Created") }}
+                    {{ _("Created") }}
                 </a>
             </li>
             {% endif %}
@@ -32,7 +32,7 @@
             {% if show_review_section %}
             <li class="nav-item">
                 <a class="nav-link" data-toggle="tab" href="#courses-under-review">
-                    {{ _("Courses Under Review") }}
+                    {{ _("Under Review") }}
                 </a>
             </li>
             {% endif %}
@@ -61,20 +61,8 @@
             </div>
             {% endif %}
 
-            <div class="tab-pane fade" id="notifications" role="tabpanel" aria-labelledby="notifications">
-                {% if notifications | length %}
-                {% for notification in notifications %}
-                {{ notification }}
-                {% endfor %}
-                {% else %}
-                <div class="empty-state">
-                    <img class="icon icon-xl" src="/assets/lms/icons/comment.svg">
-                    <div class="empty-state-text">
-                        <div class="empty-state-heading">{{ _("No Notifications") }}</div>
-                        <div class="course-meta">{{ _("You don't have any notifications.") }}</div>
-                    </div>
-                </div>
-                {% endif  %}
+            <div class="tab-pane" id="notifications" role="tabpanel" aria-labelledby="notifications">
+                {% include "lms/templates/notifications.html" %}
             </div>
 
         </div>
