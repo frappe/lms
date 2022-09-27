@@ -4,6 +4,7 @@ from frappe.utils import flt, cint, cstr, getdate, add_months, fmt_money
 from lms.lms.md import markdown_to_html, find_macros
 import string
 from frappe import _
+from frappe.desk.doctype.notification_log.notification_log import make_notification_logs
 
 RE_SLUG_NOTALLOWED = re.compile("[^a-z0-9]+")
 
@@ -469,3 +470,35 @@ def validate_image(path):
         file.save(ignore_permissions=True)
         return file.file_url
     return path
+
+
+def create_notification_log(doc, method):
+    topic = frappe.db.get_value("Discussion Topic", doc.topic,
+        ["reference_doctype", "reference_docname", "owner", "title"], as_dict=1)
+
+    if topic.reference_doctype != "Course Lesson":
+        return
+
+    course = frappe.db.get_value("Course Lesson", topic.reference_docname, "course")
+    instructors = frappe.db.get_all("Course Instructor", { "parent": course }, pluck="instructor")
+
+    notification = frappe._dict({
+        "subject": _("New reply on the topic {0}").format(topic.title),
+        "email_content": doc.reply,
+        "document_type": topic.reference_doctype,
+        "document_name": topic.reference_docname,
+        "for_user": topic.owner,
+        "from_user": doc.owner,
+        "type": "Alert"
+    })
+
+    users = []
+    if doc.owner != topic.owner:
+        users.append(topic.owner)
+
+    if doc.owner not in instructors:
+        users += instructors
+    make_notification_logs(notification, users)
+
+
+

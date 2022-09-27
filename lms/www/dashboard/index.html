@@ -17,14 +17,14 @@
         <ul class="nav lms-nav" id="courses-tab">
             <li class="nav-item">
                 <a class="nav-link active" data-toggle="tab" href="#courses-enrolled">
-                    {{ _("Courses Enrolled") }}
+                    {{ _("Enrolled") }}
                 </a>
             </li>
 
             {% if show_creators_section %}
             <li class="nav-item">
                 <a class="nav-link" data-toggle="tab" href="#courses-created">
-                    {{ _("Courses Created") }}
+                    {{ _("Created") }}
                 </a>
             </li>
             {% endif %}
@@ -32,10 +32,14 @@
             {% if show_review_section %}
             <li class="nav-item">
                 <a class="nav-link" data-toggle="tab" href="#courses-under-review">
-                    {{ _("Courses Under Review") }}
+                    {{ _("Under Review") }}
                 </a>
             </li>
             {% endif %}
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#notifications">{{ _("Notifications") }}
+                </a>
+            </li>
         </ul>
 
         <div class="border-bottom mb-4"></div>
@@ -56,6 +60,10 @@
                 {% include "lms/templates/courses_under_review.html" %}
             </div>
             {% endif %}
+
+            <div class="tab-pane" id="notifications" role="tabpanel" aria-labelledby="notifications">
+                {% include "lms/templates/notifications.html" %}
+            </div>
 
         </div>
     </div>
