@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "autoname": "format: BATCH-{#####}",
  "creation": "2021-03-18 19:37:34.614796",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -28,12 +29,14 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Course",
-   "options": "LMS Course"
+   "options": "LMS Course",
+   "reqd": 1
   },
   {
    "fieldname": "title",
    "fieldtype": "Data",
-   "label": "Title"
+   "label": "Title",
+   "reqd": 1
   },
   {
    "fieldname": "description",
@@ -119,10 +122,11 @@
    "link_fieldname": "batch"
   }
  ],
- "modified": "2021-06-16 10:51:05.403726",
+ "modified": "2022-09-28 18:43:22.955907",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {
@@ -141,5 +145,6 @@
  "quick_entry": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
+ "states": [],
  "track_changes": 1
 }
