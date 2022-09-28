@@ -70,11 +70,14 @@
             data-index="{{ lesson_index }}" data-course="{{ course.name }}" data-chapter="{{ chapter }}"
             {% if lesson.name %} data-lesson="{{ lesson.name }}" {% endif %}
             >{% if lesson.title %}{{ lesson.title }}{% endif %}</div>
-        <span class="indicator-pill green {{ hide if get_progress(course.name, lesson.name) != 'Complete' else ''}}">{{ _("COMPLETED") }}</span>
+
+        {% if get_progress(course.name, lesson.name) == 'Complete' %}
+        <span id="status-indicator" class="indicator-pill green">{{ _("COMPLETED") }}</span>
+        {% endif %}
 
         <!-- Edit Button -->
         {% if (is_instructor or has_course_moderator_role()) and not lesson.edit_mode %}
-        <button class="button is-default button-links ml-2 btn-edit"> {{ _("Edit") }} </button>
+        <button class="btn btn-secondary btn-sm ml-2 btn-edit"> {{ _("Edit") }} </button>
         {% endif %}
     </div>
 
@@ -145,42 +148,23 @@
 
 <!-- Pagination -->
 {% macro pagination(prev_url, next_url) %}
-<div class="lesson-pagination">
-    <div>
+    <div class="lesson-pagination">
         {% if prev_url %}
-        <a class="btn btn-secondary dark-links prev" href="{{ prev_url }}">
-            {{ _("Previous") }}
-        </a>
-        {% endif %}
-    </div>
-
-    {% set progress = get_progress(course.name, lesson.name) %}
-
-    {% if not is_mentor(course.name, frappe.session.user) and membership %}
-    <div class="custom-checkbox {% if progress == 'Complete' %} hide {% endif %}">
-        <label class="quiz-label">
-            <input class="mark-progress" type="checkbox" checked>
-            <img class="empty-checkbox" />
-            <span class="small">{{ _("Mark as complete on moving to the next lesson") }}</span>
-        </label>
-    </div>
-    {% endif %}
-
-    <div>
-        {% if not is_mentor(course.name, frappe.session.user) and membership %}
-        <div class="btn btn-default mark-progress {{ progress }} {% if progress == 'Incomplete' or progress == None %} hide {% endif %}"
-            data-progress="Incomplete">
-            {{ _("Mark as Incomplete") }}
+        <div>
+            <a class="btn btn-secondary btn-sm prev" href="{{ prev_url }}">
+                {{ _("Previous") }}
+            </a>
         </div>
         {% endif %}
 
-        <a class="btn btn-primary next ml-2 {% if not next_url and (membership.progress|int == 100  or is_instructor)  %} hide {% endif %}"
-            {% if next_url %} data-href="{{ next_url }}" {% endif %} href="">
-            {% if next_url %} {{ _("Next") }} {% else %} {{ _("Mark as Complete") }} {% endif %}
-        </a>
+        {% if next_url %}
+        <div>
+            <a class="btn btn-primary btn-sm next ml-2 " href="{{ next_url }}">
+                {{ _("Next") }}
+            </a>
+        </div>
+        {% endif %}
     </div>
-
-</div>
 {% endmacro %}
 
 
@@ -261,52 +245,6 @@
                 </ul>
             </li>
         </ol>
-        <!-- <table class="table w-100">
-            <tr>
-                <th style="width: 20%;"> {{ _("Content Type") }} </th>
-                <th style="width: 40%;"> {{ _("Syntax") }} </th>
-                <th> {{ _("Description") }} </th>
-            </tr>
-            <tr>
-                <td>
-                    {{ _("YouTube Video") }}
-                </td>
-                <td>
-                    {% raw %} {{ YouTubeVideo('Video ID') }} {% endraw %}
-                </td>
-                <td>
-                    <span>
-                        {{ _("Copy and paste the syntax in the editor. Replace 'Video ID' with the embed source
-                            that YouTube provides. To get the source, follow the steps mentioned below.") }}
-                    </span>
-                    <ul class="p-4">
-                        <li>
-                            {{ _("Upload the video on youtube.") }}
-                        </li>
-                        <li>
-                            {{ _("When you share a youtube video, it shows an option called Embed.") }}
-                        </li>
-                        <li>
-                            {{ _("On clicking it, it provides an iframe. Copy the source (src) of the iframe and
-                                paste it here.") }}
-                        </li>
-                    </ul>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    {{ _("Quiz") }}
-                </td>
-                <td>
-                    {% raw %} {{ Quiz('Quiz ID') }} {% endraw %}
-                </td>
-                <td>
-                    {% set quiz_link = "<a href='/quizzes'> Quiz List </a>" %}
-                    {{ _("Copy and paste the syntax in the editor. Replace 'Quiz ID' with the Id of the Quiz.
-                    You can get the Id of the quiz from the {0}.").format(quiz_link) }}
-                </td>
-            </tr>
-        </table> -->
     </div>
 {% endmacro %}
 
