@@ -628,16 +628,6 @@ input[type=checkbox] {
   margin-bottom: 1rem;
 }
 
-.lesson-progress {
-  background: #BFDDF7;
-  padding: 4px 8px 4px;
-  font-size: 10px;
-  line-height: 120%;
-  margin-left: 1rem;
-  border-radius: var(--border-radius-md);
-  font-weight: bold;
-}
-
 .profile-page {
   padding-top: 0;
 }

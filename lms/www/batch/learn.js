@@ -1,5 +1,7 @@
 frappe.ready(() => {
 
+    this.marked_as_complete = false;
+
     localStorage.removeItem($("#quiz-title").data("name"));
 
     fetch_assignments();
@@ -7,15 +9,15 @@ frappe.ready(() => {
     save_current_lesson();
 
     $(".option").click((e) => {
-     enable_check(e);
-    })
-
-    $(".mark-progress").click((e) => {
-        mark_progress(e);
+        enable_check(e);
     });
 
-    $(".next").click((e) => {
-        mark_progress(e);
+    $(window).scroll(() => {
+        let self = this;
+        if (!$("#status-indicator").length && !self.marked_as_complete && $(".title").hasClass("is-member")) {
+            self.marked_as_complete = true;
+            mark_progress();
+        }
     });
 
     $("#summary").click((e) => {
@@ -112,6 +114,7 @@ const mark_active_question = (e = undefined) => {
 
     let current_index = $(".active-question").attr("data-qt-index") || 0;
     let next_index = parseInt(current_index) + 1;
+
     $(".question").addClass("hide").removeClass("active-question");
     $(`.question[data-qt-index='${next_index}']`).removeClass("hide").addClass("active-question");
     $(".current-question").text(`${next_index}`);
@@ -122,81 +125,33 @@ const mark_active_question = (e = undefined) => {
 };
 
 
-const mark_progress = (e) => {
-    /* Prevent default only for Next button anchor tag and not for progress checkbox */
-    if ($(e.currentTarget).prop("nodeName") != "INPUT")
-        e.preventDefault();
-    else
-        return;
-
-    const target = $(e.currentTarget).attr("data-progress") ? $(e.currentTarget) : $("input.mark-progress");
-    const current_status = $(".lesson-progress").hasClass("hide") ? "Incomplete": "Complete";
-
-    let status = "Incomplete";
-    if (target.prop("nodeName") == "INPUT" && target.prop("checked")) {
-        status = "Complete";
-    }
-
-    if (status != current_status) {
-        frappe.call({
-            method: "lms.lms.doctype.course_lesson.course_lesson.save_progress",
-            args: {
-                lesson: $(".title").attr("data-lesson"),
-                course: $(".title").attr("data-course"),
-                status: status
-            },
-            callback: (data) => {
-                change_progress_indicators(status, e);
-                show_certificate_if_course_completed(data);
-                move_to_next_lesson(status, e);
-            }
-        });
-    }
-    else
-        move_to_next_lesson(status, e);
+const mark_progress = () => {
+    let status = "Complete"
+    frappe.call({
+        method: "lms.lms.doctype.course_lesson.course_lesson.save_progress",
+        args: {
+            lesson: $(".title").attr("data-lesson"),
+            course: $(".title").attr("data-course"),
+            status: status
+        },
+        callback: (data) => {
+            change_progress_indicators();
+            show_certificate_if_course_completed(data);
+        }
+    });
 };
 
 
-const change_progress_indicators = (status, e) => {
-    if (status == "Complete") {
-        $(".lesson-progress").removeClass("hide");
-        $(".active-lesson .lesson-progress-tick").removeClass("hide");
-    }
-    else {
-        $(".lesson-progress").addClass("hide");
-        $(".active-lesson .lesson-progress-tick").addClass("hide");
-    }
-    if (status == "Incomplete" && !$(e.currentTarget).hasClass("next")) {
-        $(e.currentTarget).addClass("hide");
-        $("input.mark-progress").prop("checked", false).closest(".custom-checkbox").removeClass("hide");
-    }
+const change_progress_indicators = () => {
+    $(".active-lesson .lesson-progress-tick").removeClass("hide");
 };
 
 
 const show_certificate_if_course_completed = (data) => {
-    if (data.message == 100 && !$(".next").attr("data-next") && $("#certification").hasClass("hide")) {
+    if (data.message == 100 && !$(".next").length && $("#certification").hasClass("hide")) {
         $("#certification").removeClass("hide");
-        $(".next").addClass("hide");
     }
 };
-
-
-const move_to_next_lesson = (status, e) => {
-    if ($(e.currentTarget).hasClass("next") && $(e.currentTarget).attr("data-href")) {
-        window.location.href = $(e.currentTarget).attr("data-href");
-    }
-    else if (status == "Complete") {
-        $("input.mark-progress").closest(".custom-checkbox").addClass("hide");
-        $("div.mark-progress").removeClass("hide");
-        $(".next").addClass("hide");
-    }
-    else {
-        $("input.mark-progress").closest(".custom-checkbox").removeClass("hide");
-        $("div.mark-progress").addClass("hide");
-        $(".next").removeClass("hide");
-    }
-};
-
 
 const quiz_summary = (e=undefined) => {
     e && e.preventDefault();
