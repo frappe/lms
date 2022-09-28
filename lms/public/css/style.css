@@ -1726,3 +1726,26 @@ li {
 .timestamp {
     font-size: var(--text-xs);
 }
+
+.stats-parent {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-gap: 2rem;
+}
+
+.stats-label {
+    color: var(--text-muted);
+    font-weight: bold;
+}
+
+.stats-value {
+    color: var(--gray-900);
+    font-weight: 600;
+    font-size: 2rem;
+}
+
+.stats-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}

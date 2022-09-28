@@ -1,0 +1,36 @@
+<div class="stats-parent">
+
+    {% if published_courses %}
+    <div class="stats-card">
+        <div class="stats-label">
+            {{ _("Published Courses") }}
+        </div>
+        <div class="stats-value">
+            {{ format_number(frappe.db.count("LMS Course", { "published": 1, "upcoming": 0 })) }}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if total_signups %}
+    <div class="stats-card">
+        <div class="stats-label">
+            {{ _("Total Signups") }}
+        </div>
+        <div class="stats-value">
+            {{ format_number(frappe.db.count("User", { "enabled": 1 })) }}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if enrollment_count %}
+    <div class="stats-card">
+        <div class="stats-label">
+            {{ _("Enrollment Count") }}
+        </div>
+        <div class="stats-value">
+            {{ format_number(frappe.db.count("LMS Batch Membership")) }}
+        </div>
+    </div>
+    {% endif %}
+
+</div>
