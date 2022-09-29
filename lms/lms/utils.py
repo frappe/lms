@@ -537,6 +537,6 @@ def get_all_memberships(member):
     }, ["name", "course", "batch", "current_lesson", "member_type", "progress"])
 
 
-def get_course_membership(course, memberships):
+def get_filtered_membership(course, memberships):
     current_membership = list(filter(lambda x: x.course == course, memberships))
     return current_membership[0] if len(current_membership) else None

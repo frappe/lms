@@ -1,5 +1,5 @@
 {% set memberships = get_all_memberships(frappe.session.user) %}
-{% set membership = get_course_membership(course.name, memberships) %}
+{% set membership = get_filtered_membership(course.name, memberships) %}
 {% set progress = frappe.utils.cint(membership.progress) %}
 
 

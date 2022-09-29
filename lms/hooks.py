@@ -201,7 +201,7 @@ jinja = {
         "lms.lms.utils.format_number",
         "lms.lms.utils.get_lesson_count",
         "lms.lms.utils.get_all_memberships",
-        "lms.lms.utils.get_course_membership"
+        "lms.lms.utils.get_filtered_membership"
     ],
     "filters": []
 }
