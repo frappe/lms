@@ -1,18 +1,22 @@
-{% set membership = get_membership(course.name, frappe.session.user) %}
+{% set memberships = get_all_memberships(frappe.session.user) %}
+{% set membership = get_course_membership(course.name, memberships) %}
 {% set progress = frappe.utils.cint(membership.progress) %}
+
+
 <div class="common-card-style course-card" data-course="{{ course.name }}">
 
-    <div class="course-image {% if not course.image %}default-image{% endif %}"
+    <div class="course-image {% if not course.image %} default-image {% endif %}"
     {% if course.image %} style="background-image: url( {{ course.image | urlencode }} );" {% endif %}>
         <div class="course-tags">
         {% for tag in get_tags(course.name) %}
-        <div class="course-card-pills">{{ tag }}</div>
+            <div class="course-card-pills">{{ tag }}</div>
         {% endfor %}
         </div>
         {% if not course.image %}
-        <div class="default-image-text">{{ course.title[0] }}</div>
+            <div class="default-image-text">{{ course.title[0] }}</div>
         {% endif %}
     </div>
+
 
     <div class="course-card-content">
         <div class="course-card-meta">
@@ -104,27 +108,21 @@
         </div>
 
         {% if read_only %}
-        <a class="stretched-link" href="/courses/{{ course.name }}"></a>
-        {% else %}
+            <a class="stretched-link" href="/courses/{{ course.name }}"></a>
+            {% else %}
 
-        {% set lesson_index = get_lesson_index(membership.current_lesson) if membership and
-        membership.current_lesson else '1.1' %}
-        {% set query_parameter = "?batch=" + membership.batch if membership and
-        membership.batch else "" %}
+            {% set lesson_index = get_lesson_index(membership.current_lesson) if membership and
+            membership.current_lesson else '1.1' %}
+            {% set query_parameter = "?batch=" + membership.batch if membership and
+            membership.batch else "" %}
 
-        {% if progress == 100 %}
-        <a class="stretched-link" href="/courses/{{ course.name }}"></a>
+            {% if progress != 100 and membership and not course.upcoming %}
+            <a class="stretched-link" href="{{ get_lesson_url(course.name, lesson_index) }}{{ query_parameter }}"></a>
 
-        {% elif course.upcoming %}
-        <a class="stretched-link" href="/courses/{{ course.name }}"></a>
+            {% else %}
+            <a class="stretched-link" href="/courses/{{ course.name }}"></a>
 
-        {% elif membership %}
-        <a class="stretched-link" href="{{ get_lesson_url(course.name, lesson_index) }}{{ query_parameter }}"></a>
-
-        {% else %}
-        <a class="stretched-link" href="/courses/{{ course.name }}"></a>
-
-        {% endif %}
+            {% endif %}
         {% endif %}
     </div>
 </div>

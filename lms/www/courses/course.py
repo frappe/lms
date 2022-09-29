@@ -1,5 +1,4 @@
 import frappe
-from lms.lms.doctype.lms_settings.lms_settings import check_profile_restriction
 from lms.lms.utils import get_membership, has_course_moderator_role, is_instructor, is_certified, get_evaluation_details, redirect_to_courses_list
 
 def get_context(context):
@@ -46,7 +45,6 @@ def set_course_context(context, course_name):
     membership = get_membership(course.name, frappe.session.user)
     context.course.query_parameter = "?batch=" + membership.batch if membership and membership.batch else ""
     context.membership = membership
-    context.restriction = check_profile_restriction()
     context.show_start_learing_cta = show_start_learing_cta(course, membership, context.restriction)
     context.certificate = is_certified(course.name)
     eval_details = get_evaluation_details(course.name)

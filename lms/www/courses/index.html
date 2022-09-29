@@ -1,13 +1,20 @@
 {% extends "templates/base.html" %}
-{% block title %}{{ 'Courses' }}{% endblock %}
+
+
+{% block title %}
+{{ 'Courses' }}
+{% endblock %}
+
+
 {% block head_include %}
 {% include "public/icons/symbol-defs.svg" %}
 {% endblock %}
 
+
 {% block content %}
 <div class="common-page-style">
     <div class="container">
-        {% if restriction.restrict %}
+        {% if restriction %}
         {% set profile_link = "<a href='/edit-profile'> profile </a>" %}
         <div class="empty-state">
             <div class="course-home-headings text-center mb-0" style="color: inherit;">

@@ -138,8 +138,10 @@ def get_students(course, batch=None):
         "course": course,
         "member_type": "Student"
     }
+
     if batch:
         filters["batch"] = batch
+
     return frappe.get_all(
         "LMS Batch Membership",
         filters,
@@ -515,3 +517,26 @@ def get_lesson_count(course):
         lesson_count += frappe.db.count("Lesson Reference", {"parent": chapter.chapter})
 
     return lesson_count
+
+
+def check_profile_restriction():
+    return frappe.db.get_single_value("LMS Settings", "force_profile_completion")
+
+def get_restriction_details():
+    user = frappe.db.get_value("User", frappe.session.user, ["profile_complete", "username"], as_dict=True)
+    return {
+        "restrict": not user.profile_complete,
+        "username": user.username,
+        "prefix": frappe.get_hooks("profile_url_prefix")[0] or "/users/"
+    }
+
+
+def get_all_memberships(member):
+    return frappe.get_all("LMS Batch Membership", {
+        "member": member
+    }, ["name", "course", "batch", "current_lesson", "member_type", "progress"])
+
+
+def get_course_membership(course, memberships):
+    current_membership = list(filter(lambda x: x.course == course, memberships))
+    return current_membership[0] if len(current_membership) else None
