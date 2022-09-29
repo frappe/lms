@@ -198,7 +198,8 @@ jinja = {
         "lms.lms.utils.has_course_instructor_role",
         "lms.lms.utils.has_course_moderator_role",
         "lms.lms.utils.get_certificates",
-        "lms.lms.utils.format_number"
+        "lms.lms.utils.format_number",
+        "lms.lms.utils.get_lesson_count"
     ],
     "filters": []
 }

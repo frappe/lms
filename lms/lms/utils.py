@@ -508,4 +508,10 @@ def create_notification_log(doc, method):
     make_notification_logs(notification, users)
 
 
+def get_lesson_count(course):
+    lesson_count = 0
+    chapters = frappe.get_all("Chapter Reference", {"parent": course}, ["chapter"])
+    for chapter in chapters:
+        lesson_count += frappe.db.count("Lesson Reference", {"parent": chapter.chapter})
 
+    return lesson_count
