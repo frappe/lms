@@ -419,6 +419,13 @@ def format_amount(amount, currency):
     return _("{0}k").format(fmt_money(amount_reduced, precision, currency))
 
 
+def format_number(number):
+    number_reduced = number / 1000
+    if number_reduced < 1:
+        return number
+    return "{0}k".format(frappe.utils.flt(number_reduced, 1))
+
+
 def first_lesson_exists(course):
     first_chapter = frappe.db.get_value("Chapter Reference", {"parent": course, "idx": 1}, "name")
     if not first_chapter:
