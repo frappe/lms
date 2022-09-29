@@ -1,5 +1,5 @@
 import frappe
-from lms.lms.utils import get_membership, has_course_moderator_role, is_instructor, is_certified, get_evaluation_details, redirect_to_courses_list
+from lms.lms.utils import check_profile_restriction, get_membership, get_restriction_details, has_course_moderator_role, is_instructor, is_certified, get_evaluation_details, redirect_to_courses_list
 
 def get_context(context):
     context.no_cache = 1
@@ -45,13 +45,17 @@ def set_course_context(context, course_name):
     membership = get_membership(course.name, frappe.session.user)
     context.course.query_parameter = "?batch=" + membership.batch if membership and membership.batch else ""
     context.membership = membership
-    context.show_start_learing_cta = show_start_learing_cta(course, membership, context.restriction)
     context.certificate = is_certified(course.name)
     eval_details = get_evaluation_details(course.name)
     context.eligible_for_evaluation = eval_details.eligible
     context.certificate_request = eval_details.request
     context.no_of_attempts = eval_details.no_of_attempts
+    context.restriction = check_profile_restriction()
 
+    if context.restriction:
+        context.restriction_details = get_restriction_details()
+
+    context.show_start_learing_cta = show_start_learing_cta(course, membership, context.restriction)
     if context.course.upcoming:
         context.is_user_interested = get_user_interest(context.course.name)
 
@@ -71,4 +75,5 @@ def get_user_interest(course):
 
 
 def show_start_learing_cta(course, membership, restriction):
-    return not course.disable_self_learning and not membership and not course.upcoming and not restriction.get("restrict") and not is_instructor(course.name) and course.status == "Approved"
+    return not course.disable_self_learning and not membership and not course.upcoming \
+        and not restriction and not is_instructor(course.name) and course.status == "Approved"
