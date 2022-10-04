@@ -54,11 +54,10 @@ class CourseLesson(Document):
             ex.save()
 
     def check_and_create_folder(self):
-        course = frappe.db.get_value("Chapter", self.chapter, "course")
         args = {
                 "doctype": "File",
                 "is_folder": True,
-                "file_name": f"{self.name} {course}"
+                "file_name": f"{self.name} {self.course}"
         }
         if not frappe.db.exists(args):
             folder = frappe.get_doc(args)
