@@ -24,7 +24,7 @@ class CustomUser(User):
 
 
     def validate_username_characters(self):
-        if len(self.username):
+        if self.username and len(self.username):
             other_conditions = self.username[0] == "_" or self.username[-1] == "_" or "-" in self.username
         else:
             other_conditions = ''
