@@ -34,7 +34,7 @@
                 </span>
             {% elif not is_instructor(course.name) and frappe.session.user == "Guest" %}
                 <a class="btn btn-secondary btn-sm mt-5" href="/login?redirect-to=/courses/{{ course.name }}">
-                    {{ _("Login") }}
+                    {{ _("Write a review") }}
                 </a>
             {% elif show_start_learing_cta(course, membership) %}
                 <div class="btn btn-secondary btn-sm join-batch mt-5" data-course="{{ course.name | urlencode }}">
