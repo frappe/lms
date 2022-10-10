@@ -292,10 +292,9 @@
     {% set lesson_index = get_lesson_index(membership.current_lesson) if membership and
     membership.current_lesson else "1.1" if first_lesson_exists(course.name) else None %}
 
-    {% if show_start_learing_cta %}
+    {% if show_start_learing_cta(course, membership) %}
     <div class="btn btn-primary wide-button join-batch mb-2" data-course="{{ course.name | urlencode }}">
         {{ _("Start Learning") }}
-        <img class="ml-2" src="/assets/lms/icons/white-arrow.svg" />
     </div>
 
     {% elif is_instructor(course.name) and not course.published and course.status != "Under Review" %}
@@ -305,13 +304,13 @@
 
     {% elif is_instructor(course.name) and lesson_index %}
     <a class="btn btn-primary wide-button" id="continue-learning"
-    href="{{ get_lesson_url(course.name, lesson_index) }}{{ course.query_parameter }}">
-    {{ _("Checkout Course") }} <img class="ml-2" src="/assets/lms/icons/white-arrow.svg" />
+        href="{{ get_lesson_url(course.name, lesson_index) }}{{ course.query_parameter }}">
+        {{ _("Checkout Course") }}
     </a>
 
     {% elif course.upcoming and not is_user_interested and not is_instructor %}
     <div class="btn btn-secondary wide-button notify-me" data-course="{{course.name | urlencode}}">
-    {{ _("Notify me when available") }}
+        {{ _("Notify me when available") }}
     </div>
 
     {% elif is_cohort_staff(course.name, frappe.session.user) %}
@@ -321,29 +320,29 @@
 
     {% elif membership %}
     <a class="btn btn-primary wide-button" id="continue-learning"
-    href="{{ get_lesson_url(course.name, lesson_index) }}{{ course.query_parameter }}">
-    {{ _("Continue Learning") }} <img class="ml-2" src="/assets/lms/icons/white-arrow.svg" />
+        href="{{ get_lesson_url(course.name, lesson_index) }}{{ course.query_parameter }}">
+        {{ _("Continue Learning") }}
     </a>
     {% endif %}
 
     {% set progress = frappe.utils.cint(membership.progress) %}
 
     {% if membership and course.enable_certification %}
-    {% if certificate %}
-    <a class="btn btn-secondary wide-button mt-3" href="/courses/{{ course.name }}/{{ certificate }}">
-    {{ _("Get Certificate") }}
-    </a>
+        {% if certificate %}
+        <a class="btn btn-secondary wide-button mt-3" href="/courses/{{ course.name }}/{{ certificate }}">
+            {{ _("Get Certificate") }}
+        </a>
 
-    {% elif eligible_for_evaluation %}
-    <a class="btn btn-secondary wide-button mt-3" id="apply-certificate" data-course="{{ course.name }}">
-        {{ _("Apply for Certificate") }}
-    </a>
+        {% elif eligible_for_evaluation %}
+        <a class="btn btn-secondary wide-button mt-3" id="apply-certificate" data-course="{{ course.name }}">
+            {{ _("Apply for Certificate") }}
+        </a>
 
-    {% elif course.grant_certificate_after == "Completion" and progress == 100 %}
-    <div class="btn btn-secondary wide-button is-secondary mt-3" id="certification" data-course="{{ course.name }}">
-    {{ _("Get Certificate") }}
-    </div>
-    {% endif %}
+        {% elif course.grant_certificate_after == "Completion" and progress == 100 %}
+        <div class="btn btn-secondary wide-button is-secondary mt-3" id="certification" data-course="{{ course.name }}">
+            {{ _("Get Certificate") }}
+        </div>
+        {% endif %}
     {% endif %}
 
     {% if is_instructor(course.name) or has_course_moderator_role() %}

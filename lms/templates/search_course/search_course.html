@@ -2,7 +2,7 @@
 {% set portal_course_creation = frappe.db.get_single_value("LMS Settings", "portal_course_creation") %}
 
 <div class="course-search-header">
-    <input class="search" id="search-course" placeholder="{{ _(search_placeholder) }}">
+    <input class="search" id="search-course" placeholder="{{ _(search_placeholder) or 'Search' }}">
     {% if portal_course_creation == "Anyone" or has_course_instructor_role() %}
     <a class="btn btn-secondary btn-md ml-2" href="/courses/new-course"> {{ _("Create a Course") }} </a>
     {% endif %}

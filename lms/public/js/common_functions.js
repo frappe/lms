@@ -62,7 +62,7 @@ const join_course = (e) => {
             if (data.message == "OK") {
                 $(".no-preview-modal").modal("hide");
                 frappe.show_alert({
-                    message: __("You are now a student of this course."),
+                    message: __("Enrolled successfully"),
                     indicator:'green'
                 }, 3);
                 setTimeout(function () {
