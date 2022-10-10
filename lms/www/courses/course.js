@@ -146,10 +146,10 @@ const highlight_rating = (e) => {
 };
 
 
-var submit_review = (e) => {
+const submit_review = (e) => {
     e.preventDefault();
-    var rating = $(".rating-field").children(".star-click").length;
-    var review = $(".review-field").val();
+    let rating = $(".rating-field").children(".star-click").length;
+    let review = $(".review-field").val();
     if (!rating) {
         $(".error-field").text("Please provide a rating.");
         return;
@@ -164,7 +164,13 @@ var submit_review = (e) => {
         callback: (data) => {
             if (data.message == "OK") {
                 $(".review-modal").modal("hide");
-                window.location.reload();
+                frappe.show_alert({
+                    message: __("Review submitted."),
+                    indicator:'green'
+                }, 3);
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
             }
         }
     });

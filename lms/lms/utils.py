@@ -522,6 +522,7 @@ def get_lesson_count(course):
 def check_profile_restriction():
     return frappe.db.get_single_value("LMS Settings", "force_profile_completion")
 
+
 def get_restriction_details():
     user = frappe.db.get_value("User", frappe.session.user, ["profile_complete", "username"], as_dict=True)
     return {
@@ -540,3 +541,8 @@ def get_all_memberships(member):
 def get_filtered_membership(course, memberships):
     current_membership = list(filter(lambda x: x.course == course, memberships))
     return current_membership[0] if len(current_membership) else None
+
+
+def show_start_learing_cta(course, membership):
+    return not course.disable_self_learning and not membership and not course.upcoming \
+        and not check_profile_restriction() and not is_instructor(course.name) and course.status == "Approved"

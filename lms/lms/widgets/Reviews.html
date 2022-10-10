@@ -1,18 +1,7 @@
 {% if not course.upcoming %}
 <div class="reviews-parent">
     {% set reviews = get_reviews(course.name) %}
-    <div class="mb-5">
-        <span class="course-home-headings"> {{ _("Reviews") }} </span>
-        {% if is_eligible_to_review(course.name, membership) %}
-            <span class="btn btn-secondary btn-sm review-link">
-                {{ _("Write a review") }}
-            </span>
-        {% elif not is_instructor(course.name) and frappe.session.user == "Guest" %}
-            <a class="btn btn-secondary btn-sm pull-right" href="/login?redirect-to=/courses/{{ course.name }}"> {{ _("Login") }} </a>
-        {% elif not is_instructor(course.name) and not membership and course.status == "Approved" %}
-            <div class="btn btn-secondary btn-sm join-batch pull-right" data-course="{{ course.name | urlencode }}"> {{ _("Start Learning") }} </div>
-        {% endif %}
-    </div>
+    <div class="course-home-headings mb-5"> {{ _("Reviews") }} </div>
 
 
     {% set avg_rating = get_average_rating(course.name) %}
@@ -22,7 +11,9 @@
             <div class="avg-rating">
                 {{ frappe.utils.flt(avg_rating, frappe.get_system_settings("float_precision") or 3) }}
             </div>
+
             <div class="course-meta"> {{ reviews | length }} {{ _("ratings") }} </div>
+
             <div class="avg-rating-stars">
                 <div class="rating">
                     {% for i in [1, 2, 3, 4, 5] %}
@@ -32,9 +23,24 @@
                     {% endfor %}
                 </div>
             </div>
+
             <div class="course-meta">
                 {{ frappe.utils.flt(avg_rating, frappe.get_system_settings("float_precision") or 3) }} {{ _("out of 5 ") }}
             </div>
+
+            {% if is_eligible_to_review(course.name, membership) %}
+                <span class="btn btn-secondary btn-sm review-link mt-5">
+                    {{ _("Write a review") }}
+                </span>
+            {% elif not is_instructor(course.name) and frappe.session.user == "Guest" %}
+                <a class="btn btn-secondary btn-sm mt-5" href="/login?redirect-to=/courses/{{ course.name }}">
+                    {{ _("Login") }}
+                </a>
+            {% elif show_start_learing_cta(course, membership) %}
+                <div class="btn btn-secondary btn-sm join-batch mt-5" data-course="{{ course.name | urlencode }}">
+                    {{ _("Start Learning") }}
+                </div>
+            {% endif %}
         </div>
 
 
