@@ -1,6 +1,7 @@
 frappe.ready(() => {
 
     this.marked_as_complete = false;
+    this.quiz_submitted = false;
 
     localStorage.removeItem($("#quiz-title").data("name"));
 
@@ -76,9 +77,12 @@ frappe.ready(() => {
     });
 
     if ($("#quiz-title").data("max-attempts")) {
+        let self = this;
         window.addEventListener("beforeunload", (e) => {
             e.returnValue = "";
-            $(".active-question").length && quiz_summary();
+            if ($(".active-question").length && !self.quiz_submitted) {
+                quiz_summary();
+            }
         });
     }
 
@@ -157,6 +161,7 @@ const quiz_summary = (e=undefined) => {
     e && e.preventDefault();
     let quiz_name = $("#quiz-title").data("name");
     let total_questions = $(".question").length;
+    let self = this;
 
     frappe.call({
         method: "lms.lms.doctype.lms_quiz.lms_quiz.quiz_summary",
@@ -169,9 +174,12 @@ const quiz_summary = (e=undefined) => {
             $(".question").addClass("hide");
             $("#summary").addClass("hide");
             $("#quiz-form").parent().prepend(
-                `<div class="text-center summary"><h2> ${message} </h2>
-                <div class="font-weight-bold">${data.message}/${total_questions}</div></div>`);
+                `<div class="text-center summary">
+                    <h2> ${message} </h2>
+                    <div class="font-weight-bold"> ${data.message}/${total_questions} </div>
+                </div>`);
             $("#try-again").removeClass("hide");
+            self.quiz_submitted = true;
         }
     });
 };
@@ -232,7 +240,7 @@ const add_icon = (element, icon) => {
     let label = $(element).siblings(".option-text").text();
     $(element).siblings(".option-text").html(`
         <div>
-            <img class="mr-3" src="/assets/lms/icons/${icon}.svg">
+            <img class="d-inline mr-3" src="/assets/lms/icons/${icon}.svg">
             ${label}
         </div>
     `);

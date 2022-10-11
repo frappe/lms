@@ -6,8 +6,11 @@
  "engine": "InnoDB",
  "field_order": [
   "member",
+  "member_name",
+  "column_break_3",
   "quiz",
   "score",
+  "section_break_6",
   "result"
  ],
  "fields": [
@@ -38,12 +41,26 @@
    "in_standard_filter": 1,
    "label": "Member",
    "options": "User"
+  },
+  {
+   "fetch_from": "member.full_name",
+   "fieldname": "member_name",
+   "fieldtype": "Data",
+   "label": "Member Name"
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_6",
+   "fieldtype": "Section Break"
   }
  ],
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-06-20 10:13:23.013802",
+ "modified": "2022-10-10 18:57:42.813738",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz Submission",
@@ -65,5 +82,6 @@
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
+ "title_field": "member_name",
  "track_changes": 1
 }

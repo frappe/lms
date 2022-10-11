@@ -114,7 +114,7 @@
         {% if show_lesson %}
 
             {% if is_instructor and not lesson.include_in_preview and not lesson.edit_mode %}
-            <div class="small alert alert-secondary alert-dismissible mb-4">
+            <div class="medium alert alert-info alert-dismissible mb-4">
                 {{ _("This lesson is not available for preview. As you are the Instructor of the course only you can see it.") }}
                 <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
             </div>
@@ -127,13 +127,11 @@
             {% endif %}
 
         {% else %}
-        {% set course_link = "<a class='join-batch' data-course=" + course.name | urlencode + " href=''>" + _('here') +  "</a>" %}
-            <div class="">
-                <div>
-                    {{ _("There is no preview available for this lesson.
-                    Please join the course to access it.
-                    Click {0} to enroll.").format(course_link) }}
-                </div>
+            {% set course_link = "<a class='join-batch' data-course=" + course.name | urlencode + " href=''>" + _('here') +  "</a>" %}
+            <div class="alert alert-info medium mb-0">
+                {{ _("There is no preview available for this lesson.
+                Please join the course to access it.
+                Click {0} to enroll.").format(course_link) }}
             </div>
         {% endif %}
     </div>
@@ -148,6 +146,7 @@
 
 <!-- Pagination -->
 {% macro pagination(prev_url, next_url) %}
+    {% if prev_url or next_url %}
     <div class="lesson-pagination">
         {% if prev_url %}
         <div>
@@ -165,6 +164,7 @@
         </div>
         {% endif %}
     </div>
+    {% endif %}
 {% endmacro %}
 
 

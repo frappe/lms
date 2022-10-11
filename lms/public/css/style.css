@@ -573,7 +573,7 @@ input[type=checkbox] {
 }
 
 .lesson-content-card {
-    margin: 2rem 0 3rem;
+    margin-top: 2rem;
 }
 
 .lesson-content-card .alert-dismissible .close {
@@ -599,9 +599,10 @@ input[type=checkbox] {
 }
 
 .lesson-pagination {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2rem
 }
 
 .lesson-pagination-parent {
