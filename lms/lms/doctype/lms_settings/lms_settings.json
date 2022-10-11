@@ -5,11 +5,10 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "show_search",
-  "force_profile_completion",
-  "portal_course_creation",
-  "column_break_2",
   "search_placeholder",
+  "portal_course_creation",
+  "force_profile_completion",
+  "column_break_2",
   "custom_certificate_template",
   "livecode_url",
   "signup_settings_section",
@@ -55,13 +54,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "default": "0",
-   "fieldname": "show_search",
-   "fieldtype": "Check",
-   "label": "Show Search on Website"
-  },
-  {
-   "depends_on": "show_search",
    "fieldname": "search_placeholder",
    "fieldtype": "Data",
    "label": "Course List Search Bar Placeholder"
@@ -150,7 +142,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2022-08-22 10:02:59.988499",
+ "modified": "2022-10-11 16:26:15.898514",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",
