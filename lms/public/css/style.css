@@ -238,10 +238,6 @@ input[type=checkbox] {
   color: var(--gray-700);
 }
 
-.submit-review {
-  width: 100px;
-}
-
 .custom-checkbox>label>input {
   visibility: hidden;
 }
@@ -1743,4 +1739,38 @@ li {
     width: 0;
     border-radius: 0;
     margin-right: 0;
+}
+
+.modal-header {
+    padding: 1.5rem 1.5rem 0 !important;
+}
+
+.modal-body {
+    padding: 0 1.5rem !important;
+}
+
+.modal-footer {
+    padding: 0.75rem 1.5rem !important;
+}
+
+.modal-content {
+    font-size: var(--text-base) !important;
+}
+
+.modal-header, .modal-body {
+    margin-bottom: 1rem !important;
+}
+
+.modal-header {
+    border-bottom: none !important;
+}
+
+.modal-footer {
+    border-top: none !important;
+    background-color: var(--gray-200) !important;
+    justify-content: flex-end !important;
+}
+
+.modal-header .modal-title {
+    color: var(--gray-900);
 }
