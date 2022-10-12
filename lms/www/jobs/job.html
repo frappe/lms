@@ -52,39 +52,45 @@
     </div>
 </div>
 
-<div class="modal fade report-modal" id="report-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-  aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <div class="font-weight-bold">{{ _("Report this Post") }}</div>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <form class="review-form" id="review-form">
-          <div class="form-group">
-            <div class="clearfix">
-              <label class="control-label reqd" style="padding-right: 0px;">{{ _("Reason for reporting") }}</label>
+<div class="modal fade report-modal" id="report-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <div class="modal-title">{{ _("Report this Post") }}</div>
             </div>
-            <div class="control-input-wrapper">
-              <div class="control-input">
-                <textarea type="text" autocomplete="off" class="input-with-feedback form-control report-field"
-                  data-fieldtype="Text" data-fieldname="feedback_comments" placeholder="" style="height: 200px;"
-                  spellcheck="false"></textarea>
-              </div>
+
+            <div class="modal-body">
+                <form class="review-form" id="review-form">
+                <div class="form-group">
+                    <div class="clearfix">
+                        <label class="control-label reqd" style="padding-right: 0px;">
+                            {{ _("Reason for Reporting") }}
+                        </label>
+                    </div>
+                    <div class="control-input-wrapper">
+                        <div class="control-input">
+                            <textarea type="text" autocomplete="off" class="input-with-feedback form-control report-field"
+                                data-fieldtype="Text" data-fieldname="feedback_comments" spellcheck="false"></textarea>
+                            </textarea>
+                        </div>
+                    </div>
+                </div>
+                <p class="error-field muted-text"></p>
+                </form>
             </div>
-          </div>
-          <p class="error-field muted-text"></p>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <div class="button submit-review is-primary" data-job="{{ job.name }}" id="submit-report">
-          Report</div>
-      </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary btn-sm mr-2 pull-right" data-dismiss="modal" aria-label="Close">
+                    {{ _("Discard") }}
+                </button>
+
+                <div class="btn btn-primary btn-sm pull-right" data-job="{{ job.name }}" id="submit-report">
+                    {{ _("Report") }}
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
 {% endblock %}
