@@ -1,32 +1,42 @@
-<div class="modal fade no-preview-modal" id="no-preview-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-aria-hidden="true">
+<div class="modal fade no-preview-modal" id="no-preview-modal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
+
             <div class="modal-header">
-                <div class="font-weight-bold">{{ _("Not available for preview") }}</div>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-                </button>
+                <div class="modal-title">{{ _("Not Available for Preview") }}</div>
             </div>
+
             <div class="modal-body">
                 {% if is_user_interested %}
-                    <div class=""> {{ _("You have opted to be notified for this course. You will receive an email when the course becomes available.") }} </div>
+                    <div class="">
+                        {{ _("You have opted to be notified for this course. You will receive an email when the course becomes available.") }}
+                    </div>
                 {% else %}
-                    <div class=""> {{ _("This lesson is not available for preview. Please join the course to access it.") }} </div>
+                    <div class="">
+                        {{ _("This lesson is not available for preview. Please join the course to access it.") }}
+                    </div>
                 {% endif %}
             </div>
+
             {% if not is_user_interested %}
             <div class="modal-footer">
+
+                <button class="btn btn-secondary btn-sm pull-right mr-2" data-dismiss="modal" aria-label="Close">
+                    {{ _("Discard") }}
+                </button>
+
                 {% if course.upcoming %}
-                <div class="button is-primary notify-me" data-course="{{course.name | urlencode}}">
+                <button class="btn btn-primary btn-sm notify-me pull-right" data-course="{{course.name | urlencode}}">
                     {{ _("Notify me when available") }}
-                </div>
+                </button>
                 {% else %}
-                <div class="button is-primary join-batch" data-course="{{ course.name | urlencode}}">
-                {{ _("Start Learning") }}</div>
+                <button class="btn btn-primary btn-sm join-batch pull-right" data-course="{{ course.name | urlencode}}">
+                    {{ _("Start Learning") }}
+                </button>
                 {% endif %}
             </div>
             {% endif %}
+
         </div>
     </div>
 </div>

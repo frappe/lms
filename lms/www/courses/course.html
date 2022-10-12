@@ -381,10 +381,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
         <div class="modal-header">
-            <div class="font-weight-bold">{{ _("Pick a Slot") }}</div>
-            <button type="button" class="close close-slot-modal" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-            </button>
+            <div class="modal-title">{{ _("Pick a Slot") }}</div>
         </div>
         <div class="modal-body">
             <form id="slot-form">
@@ -414,8 +411,13 @@
             </form>
         </div>
         <div class="modal-footer">
-            <div class="button is-primary" data-course="{{ course.name | urlencode}}" id="submit-slot">
-            {{ _("Submit") }}</div>
+            <button class="btn btn-secondary btn-sm pull-right mr-2 close-slot-modal" data-dismiss="modal" aria-label="Close">
+                {{ _("Discard") }}
+            </button>
+
+            <button class="btn btn-primary btn-sm pull-right" data-course="{{ course.name | urlencode}}" id="submit-slot">
+                {{ _("Submit") }}
+            </button>
         </div>
         </div>
     </div>
