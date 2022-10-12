@@ -32,3 +32,4 @@ lms.patches.v0_0.delete_old_module_docs #08-07-2022
 lms.patches.v0_0.delete_course_web_forms #21-08-2022
 lms.patches.v0_0.create_course_instructor_role #29-08-2022
 lms.patches.v0_0.create_course_moderator_role
+lms.patches.v0_0.set_dashboard #11-10-2022

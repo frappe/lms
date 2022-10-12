@@ -50,7 +50,7 @@ input[type=checkbox] {
 .course-card-pills {
     background: #ffffff;
     margin-left: 0;
-    margin-right: 1rem;
+    margin-right: 0.5rem;
     border-radius: var(--border-radius);
     padding: 3.5px 8px;
     font-size: 11px;

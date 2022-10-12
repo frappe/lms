@@ -23,6 +23,14 @@
                     </a>
                 </li>
 
+                {% if not read_only %}
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#courses-enrolled">
+                        {{ _("Courses Enrolled") }}
+                    </a>
+                </li>
+                {% endif %}
+
                 {% if courses_created | length %}
                 <li class="nav-item">
                     <a class="nav-link" data-toggle="tab" href="#courses-created">
@@ -35,6 +43,13 @@
                 <li class="nav-item">
                     <a class="nav-link" data-toggle="tab" href="#certificates">
                         {{ _("Certificates") }}
+                    </a>
+                </li>
+                {% endif %}
+
+                {% if not read_only %}
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#notifications">{{ _("Notifications") }}
                     </a>
                 </li>
                 {% endif %}
@@ -65,6 +80,12 @@
                     </div>
                 </div>
 
+                {% if not read_only %}
+                <div class="tab-pane fade" id="courses-enrolled" role="tabpanel" aria-labelledby="courses-enrolled">
+                    {% include "lms/lms/web_template/courses_enrolled/courses_enrolled.html" %}
+                </div>
+                {% endif %}
+
                 {% if courses_created | length %}
                 {% set only_published = True %}
                 <div class="tab-pane fade" id="courses-created" role="tabpanel" aria-labelledby="courses-created">
@@ -75,6 +96,12 @@
                 {% if certificates | length %}
                 <div class="tab-pane fade" id="certificates" role="tabpanel" aria-labelledby="certificates">
                     {% include "lms/templates/certificates_section.html" %}
+                </div>
+                {% endif %}
+
+                {% if not read_only %}
+                <div class="tab-pane" id="notifications" role="tabpanel" aria-labelledby="notifications">
+                    {% include "lms/templates/notifications.html" %}
                 </div>
                 {% endif %}
 
@@ -117,7 +144,7 @@
 
             {% if frappe.session.user == member.email %}
             <div class="ml-auto mt-1">
-                <a class="btn btn-secondary btn-sm" href="/dashboard"> {{ _("Visit Dashboard") }} </a>
+                <a class="btn btn-secondary btn-sm" href="/courses"> {{ _("Course List") }} </a>
                 <a class="btn btn-secondary btn-sm ml-2" href="/edit-profile/{{ member.email }}/edit"> {{ _("Edit Profile") }} </a>
             </div>
             {% endif %}
@@ -176,7 +203,7 @@
         <div class="">
             <div class="common-card-style column-card">
                 <div class="course-home-headings"> {{ _("Role Settings") }} </div>
-                <div>
+                <div class="medium">
                     <label class="role">
                         <input type="checkbox" id="instructor" data-role="Course Instructor"
                         {% if has_course_instructor_role(member.name) %} checked {% endif %}>

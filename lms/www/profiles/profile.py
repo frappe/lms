@@ -1,5 +1,6 @@
 import frappe
 from lms.page_renderers import get_profile_url_prefix
+from lms.lms.utils import get_lesson_index
 
 
 def get_context(context):
@@ -20,6 +21,7 @@ def get_context(context):
         return
 
     context.profile_tabs = get_profile_tabs(context.member)
+    context.notifications = get_notifications()
 
 
 def get_profile_tabs(user):
@@ -30,3 +32,16 @@ def get_profile_tabs(user):
     """
     tabs = frappe.get_hooks("profile_tabs") or []
     return [frappe.get_attr(tab)(user) for tab in tabs]
+
+
+def get_notifications():
+    notifications = frappe.get_all("Notification Log", {
+        "document_type": "Course Lesson",
+        "for_user": frappe.session.user
+    }, ["subject", "creation", "from_user", "document_name"])
+
+    for notification in notifications:
+        course = frappe.db.get_value("Course Lesson", notification.document_name, "course")
+        notification.url = "/courses/{0}/learn/{1}".format(course, get_lesson_index(notification.document_name))
+
+    return notifications

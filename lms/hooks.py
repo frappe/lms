@@ -156,6 +156,7 @@ website_route_rules = [
 
 website_redirects = [
 	{"source": "/update-profile", "target": "/edit-profile"},
+	{"source": "/dashboard", "target": "/users"},
 ]
 
 update_website_context = [

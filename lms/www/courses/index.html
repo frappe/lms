@@ -26,19 +26,95 @@
         </div>
 
         {% else %}
-        {% include "lms/templates/search_course/search_course.html" %}
 
-        <div class="course-list">
-            {% set courses = live_courses %}
-            {% set title = _("Live Courses ({0})").format(courses | length) %}
-            {% set classes = "live-courses" %}
-            {% include "lms/templates/course_list.html" %}
+            <!-- {% include "lms/templates/search_course/search_course.html" %} -->
 
-            {% set courses = upcoming_courses %}
-            {% set title = _("Upcoming Courses ({0})").format(courses | length) %}
-            {% set classes = "upcoming-courses mt-10" %}
-            {% include "lms/templates/course_list.html" %}
-        </div>
+            <div class="course-home-headings">
+                {{ _("All Courses") }}
+            </div>
+
+            {% if show_creators_section %}
+            <div class="pull-right">
+                <a class="btn btn-secondary btn-sm" href="/users"> {{ _("Visit Dashboard") }} </a>
+                <a class="btn btn-secondary btn-sm ml-2" href="/courses/new-course"> {{ _("Create a Course") }} </a>
+            </div>
+            {% endif %}
+
+            <ul class="nav lms-nav" id="courses-tab">
+                <li class="nav-item">
+                    <a class="nav-link active" data-toggle="tab" href="#live">
+                        {{ _("Live") }}
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#upcoming">
+                        {{ _("Upcoming") }}
+                    </a>
+                </li>
+
+                {% if frappe.session.user != "Guest" %}
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#courses-enrolled">
+                        {{ _("Enrolled") }}
+                    </a>
+                </li>
+                {% endif %}
+
+                {% if show_creators_section %}
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#courses-created">
+                        {{ _("Created") }}
+                    </a>
+                </li>
+                {% endif %}
+
+                {% if show_review_section %}
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#courses-under-review">
+                        {{ _("Under Review") }}
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+
+            <div class="border-bottom mb-4"></div>
+
+            <div class="tab-content">
+                <div class="tab-pane active" id="live" role="tabpanel" aria-labelledby="live">
+                    {% set courses = live_courses %}
+                    {% set title = _("Live Courses") %}
+                    {% set classes = "live-courses" %}
+                    {% include "lms/templates/course_list.html" %}
+                </div>
+
+                <div class="tab-pane" id="upcoming" role="tabpanel" aria-labelledby="upcoming">
+                    {% set courses = upcoming_courses %}
+                    {% set title = _("Upcoming Courses") %}
+                    {% set classes = "upcoming-courses" %}
+                    {% include "lms/templates/course_list.html" %}
+                </div>
+
+                {% if frappe.session.user != "Guest" %}
+                <div class="tab-pane fade" id="courses-enrolled" role="tabpanel" aria-labelledby="courses-enrolled">
+                    {% include "lms/lms/web_template/courses_enrolled/courses_enrolled.html" %}
+                </div>
+                {% endif %}
+
+                {% if show_creators_section %}
+                <div class="tab-pane fade" id="courses-created" role="tabpanel" aria-labelledby="courses-created">
+                    {% include "lms/templates/courses_created.html" %}
+                </div>
+                {% endif %}
+
+                {% if show_review_section %}
+                <div class="tab-pane fade" id="courses-under-review" role="tabpanel" aria-labelledby="courses-under-review">
+                    {% include "lms/templates/courses_under_review.html" %}
+                </div>
+                {% endif %}
+
+            </div>
+
         {% endif %}
     </div>
 </div>
