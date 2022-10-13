@@ -2,10 +2,9 @@
 {% block title %} Subgroup {{subgroup.title}} - {{ course.title }} {% endblock %}
 
 {% block page_content %}
-    <h2 id="page-title"
-      data-subgroup="{{subgroup.name}}"
-      data-title="{{subgroup.title}}"
-    >{{subgroup.title}} <span class="badge badge-secondary">Subgroup</span></h2>
+    <div id="page-title" class="course-home-headings" data-subgroup="{{subgroup.name}}" data-title="{{subgroup.title}}">
+        {{subgroup.title}}
+    </div>
 
     <ul class="nav nav-tabs">
       {{ render_navitem("Mentors", "/mentors", stats.mentors, page=="mentors")}}
@@ -51,31 +50,30 @@
 {% endmacro %}
 
 {% macro render_mentors() %}
-    <h5>Mentors</h5>
     {% set mentors = subgroup.get_mentors() %}
     {% if mentors %}
       <div class="member-parent">
       {% for m in mentors %}
-        {{ widgets.MemberCard(member=m, show_course_count=False) }}
+        {{ widgets.MemberCard(member=m, avatar_class="avatar-medium", show_course_count=False) }}
       {% endfor %}
       </div>
     {% else %}
-      <em>None found.</em>
+      <div>None found.</div>
     {% endif %}
 {% endmacro %}
 
 
 {% macro render_students() %}
-  {% set students = subgroup.get_students() %}
-  {% if students %}
-  <div class="member-parent">
-    {% for student in students %}
-      {{ widgets.MemberCard(member=student, show_course_count=False) }}
-    {% endfor %}
-  </div>
-  {% else %}
-    <em>None found.</em>
-  {% endif %}
+    {% set students = subgroup.get_students() %}
+    {% if students %}
+    <div class="member-parent">
+        {% for student in students %}
+        {{ widgets.MemberCard(member=student, avatar_class="avatar-medium", show_course_count=False) }}
+        {% endfor %}
+    </div>
+    {% else %}
+        <div>None found.</div>
+    {% endif %}
 {% endmacro %}
 
 
@@ -110,7 +108,7 @@
     {% endfor %}
   </table>
   {% else %}
-    <p><em>There are no pending join requests.</em></p>
+    <div> {{ _("There are no pending join requests.") }} </div>
   {% endif %}
   {% set rejected_requests = subgroup.get_join_requests(status="Rejected") %}
 

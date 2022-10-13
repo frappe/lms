@@ -2,22 +2,25 @@
 {% block title %}Manage {{ course.title  }}{% endblock %}
 
 {% block page_content %}
-<h2>{{cohort.title}} <span class="badge badge-secondary">Cohort</span></h2>
+<div class="course-home-headings">
+    {{ cohort.title }}
+</div>
 
 <p>
   {% set stats = cohort.get_stats() %}
 
-  {{ stats.subgroups }} Subgroups
-  | {{ stats.mentors }} Mentors
-  | {{ stats.students }} students
-  | {{ stats.join_requests }} join requests
+  {{ stats.subgroups }} {{ _("Subgroups")}}
+  | {{ stats.mentors }} {{ _("Mentors") }}
+  | {{ stats.students }} {{ _("Students") }}
+  | {{ stats.join_requests }} {{ _("Join Requests") }}
 </p>
 
 {% if is_mentor %}
-<div class="alert alert-info">
-  {% set sg = mentor.get_subgroup() %}
-  <p>You are a mentor of <b>{{sg.title}}</b> subgroup.</p>
-  <p><a href="{{sg.get_url()}}" class="btn btn-primary">Visit Your Subgroup &rarr;</a></p>
+{% set sg = mentor.get_subgroup() %}
+<div class="alert alert-info medium">
+    <a href="{{sg.get_url()}}">
+        {{ _("You are a mentor of {0} subgroup.").format(frappe.bold(sg.title)) }}
+    </a>
 </div>
 {% endif %}
 
@@ -40,38 +43,36 @@
 {% endblock %}
 
 {% macro render_subgroups() %}
-<ul class="list-group">
-  {% for sg in cohort.get_subgroups(include_counts=True) %}
-    <li class="list-group-item">
-      <div>
-        <a class="subgroup-title"
-          style="font-weight: 700; color: inherit;"
-          href="/courses/{{course.name}}/subgroups/{{cohort.slug}}/{{sg.slug}}"
-          >{{sg.title}}</a>
-        </div>
-      <div style="font-size: 0.8em;">
-        {{sg.num_mentors}} Mentors
-        |
-        {{sg.num_students}} Students
-        |
-        {{sg.num_join_requests}} Join Requests
-      </div>
-    </li>
-  {% endfor %}
-</ul>
+    <ul class="list-group">
+        {% for sg in cohort.get_subgroups(include_counts=True) %}
+            <li class="list-group-item">
+                <div>
+                    <a class="subgroup-title" style="font-weight: 700; color: inherit;"
+                    href="/courses/{{course.name}}/subgroups/{{cohort.slug}}/{{sg.slug}}">
+                        {{ sg.title }}
+                    </a>
+                </div>
+                <div style="font-size: 0.8em;">
+                    {{ sg.num_mentors }} {{ _("Mentors") }}
+                    |
+                    {{sg.num_students}} {{ _(Students) }}
+                    |
+                    {{sg.num_join_requests}} {{ _("Join Requests") }}
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
 {% endmacro %}
 
 {% macro render_navitem(title, link, page, count=-1) %}
-  <li class="nav-item">
-    <a
-      class="nav-link {{ 'active' if link==page }}"
-      href="/courses/{{course.name}}/cohorts/{{cohort.slug}}/{{link}}"
-    >{{title}}
-    {% if count != -1 %}
-      <span
-        class="badge {{'badge-primary' if link==page else 'badge-secondary'}}"
-      >{{count}}</span>
-    {% endif %}
-    </a>
-  </li>
+    <li class="nav-item">
+        <a class="nav-link {{ 'active' if link==page }}" href="/courses/{{course.name}}/cohorts/{{cohort.slug}}/{{link}}">
+            {{ title }}
+            {% if count != -1 %}
+            <span class="badge {{'badge-primary' if link==page else 'badge-secondary'}}">
+                {{ count }}
+            </span>
+            {% endif %}
+        </a>
+    </li>
 {% endmacro %}

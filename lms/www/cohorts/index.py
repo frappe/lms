@@ -1,5 +1,6 @@
 import frappe
 from .utils import get_course, add_nav
+from frappe.utils import get_url
 
 def get_context(context):
     context.no_cache = 1
@@ -14,7 +15,7 @@ def get_context(context):
 
     context.cohorts = get_cohorts(context.course)
     if len(context.cohorts) == 1:
-        frappe.local.flags.redirect_location = context.cohorts[0].get_url()
+        frappe.local.flags.redirect_location = f"{get_url()}/courses/{context.course.name}/cohorts/{context.cohorts[0].slug}"
         raise frappe.Redirect
 
     add_nav(context, "All Courses", "/courses")
