@@ -108,7 +108,7 @@
     {% endfor %}
   </table>
   {% else %}
-    <p><em>There are no pending join requests.</em></p>
+    <div> {{ _("There are no pending join requests.") }} </div>
   {% endif %}
   {% set rejected_requests = subgroup.get_join_requests(status="Rejected") %}
 
