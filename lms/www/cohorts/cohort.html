@@ -2,22 +2,24 @@
 {% block title %}Manage {{ course.title  }}{% endblock %}
 
 {% block page_content %}
-<h2>{{cohort.title}} <span class="badge badge-secondary">Cohort</span></h2>
+<div class="course-home-headings">
+    {{ cohort.title }}
+</div>
 
 <p>
   {% set stats = cohort.get_stats() %}
 
-  {{ stats.subgroups }} Subgroups
-  | {{ stats.mentors }} Mentors
-  | {{ stats.students }} students
-  | {{ stats.join_requests }} join requests
+  {{ stats.subgroups }} {{ _("Subgroups")}}
+  | {{ stats.mentors }} {{ _("Mentors") }}
+  | {{ stats.students }} {{ _("Students") }}
+  | {{ stats.join_requests }} {{ _("Join Requests") }}
 </p>
 
 {% if is_mentor %}
-<div class="alert alert-info">
-  {% set sg = mentor.get_subgroup() %}
-  <p>You are a mentor of <b>{{sg.title}}</b> subgroup.</p>
-  <p><a href="{{sg.get_url()}}" class="btn btn-primary">Visit Your Subgroup &rarr;</a></p>
+{% set sg = mentor.get_subgroup() %}
+<div class="alert alert-info medium">
+
+    <a href="{{sg.get_url()}}">{{ _("You are a mentor of {0} subgroup.").format(frappe.bold(sg.title)) }}</a>
 </div>
 {% endif %}
 
