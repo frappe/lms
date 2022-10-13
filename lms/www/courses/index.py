@@ -10,13 +10,13 @@ def get_context(context):
     portal_course_creation = frappe.db.get_single_value("LMS Settings", "portal_course_creation")
     context.show_creators_section = frappe.session.user != "Guest" and \
         (portal_course_creation == "Anyone" or has_course_instructor_role())
-    context.show_review_section = has_course_moderator_role() and frappe.session.user != "Gurst"
+    context.show_review_section = has_course_moderator_role() and frappe.session.user != "Guest"
 
     if context.restriction:
         context.restriction_details = get_restriction_details()
 
     context.metatags = {
-        "title": _("Courses List"),
+        "title": _("Course List"),
         "image": frappe.db.get_single_value("Website Settings", "banner_image"),
         "description": "This page lists all the courses published on our website",
         "keywords": "All Courses, Courses, Learn"
