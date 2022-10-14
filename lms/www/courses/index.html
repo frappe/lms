@@ -42,7 +42,7 @@
 
             <ul class="nav lms-nav" id="courses-tab">
                 <li class="nav-item">
-                    <a class="nav-link active" data-toggle="tab" href="#live">
+                    <a class="nav-link" data-toggle="tab" href="#live">
                         {{ _("Live") }}
                     </a>
                 </li>
@@ -76,12 +76,18 @@
                     </a>
                 </li>
                 {% endif %}
+
+                <li class="nav-item">
+                    <a class="nav-link active" data-toggle="tab" href="#stats">
+                        {{ _("Statistics") }}
+                    </a>
+                </li>
             </ul>
 
             <div class="border-bottom mb-4"></div>
 
             <div class="tab-content">
-                <div class="tab-pane active" id="live" role="tabpanel" aria-labelledby="live">
+                <div class="tab-pane" id="live" role="tabpanel" aria-labelledby="live">
                     {% set courses = live_courses %}
                     {% set title = _("Live Courses") %}
                     {% set classes = "live-courses" %}
@@ -112,6 +118,10 @@
                     {% include "lms/templates/courses_under_review.html" %}
                 </div>
                 {% endif %}
+
+                <div class="tab-pane active" id="stats" role="tabpanel" aria-labelledby="stats">
+                    {% include "lms/templates/stats.html" %}
+                </div>
 
             </div>
 

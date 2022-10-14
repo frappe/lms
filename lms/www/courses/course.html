@@ -423,3 +423,9 @@
     </div>
 </div>
 {% endmacro %}
+
+
+{%- block script %}
+    {{ super() }}
+    {{ include_script('controls.bundle.js') }}
+{% endblock %}
