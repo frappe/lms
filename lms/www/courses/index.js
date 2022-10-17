@@ -1,7 +1,9 @@
 
 frappe.ready(() => {
-    generate_graph("New Signups");
-    generate_graph("Course Enrollments");
+    if (frappe.session.user != "Guest") {
+        generate_graph("New Signups");
+        generate_graph("Course Enrollments");
+    }
 });
 
 
@@ -30,7 +32,7 @@ const render_chart = (data, chart_name) => {
         data: data,
         type: 'line',
         height: 250,
-        colors: ['#2490ef'],
+        colors: ['#4563f1'],
         axisOptions: {
             xIsSeries: 1,
         },
