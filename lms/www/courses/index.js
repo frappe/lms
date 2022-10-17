@@ -26,7 +26,7 @@ const generate_graph = (chart_name) => {
 
 
 const render_chart = (data, chart_name) => {
-    let dom_element = chart_name == "Course Enrollments" ? "#course-enrollments" : "#new-signups"
+    let dom_element = chart_name == "Course Enrollments" ? "#course-enrollments" : "#new-signups";
     const chart = new frappe.Chart(dom_element, {
         title: chart_name,
         data: data,
