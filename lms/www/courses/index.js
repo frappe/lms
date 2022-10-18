@@ -1,9 +1,7 @@
 
 frappe.ready(() => {
-    if (frappe.session.user != "Guest") {
-        generate_graph("New Signups");
-        generate_graph("Course Enrollments");
-    }
+    generate_graph("New Signups");
+    generate_graph("Course Enrollments");
 });
 
 
@@ -11,10 +9,11 @@ const generate_graph = (chart_name) => {
     let date = frappe.datetime;
 
     frappe.call({
-        method: "frappe.desk.doctype.dashboard_chart.dashboard_chart.get",
+        method: "lms.lms.utils.get_chart_data",
         args: {
             "chart_name": chart_name,
             "timespan": "Select Date Range",
+            "timegrain": "Daily",
             "from_date": date.add_days(date.get_today(), -30),
             "to_date": date.get_today()
         },

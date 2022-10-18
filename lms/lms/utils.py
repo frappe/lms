@@ -1,10 +1,13 @@
 import re
 import frappe
-from frappe.utils import flt, cint, cstr, getdate, add_months, fmt_money
+from frappe.utils import flt, cint, cstr, getdate, add_months, fmt_money, get_datetime, format_date
 from lms.lms.md import markdown_to_html, find_macros
 import string
 from frappe import _
 from frappe.desk.doctype.notification_log.notification_log import make_notification_logs
+from frappe.desk.doctype.dashboard_chart.dashboard_chart import get_result
+from frappe.utils.dateutils import get_period
+
 
 RE_SLUG_NOTALLOWED = re.compile("[^a-z0-9]+")
 
@@ -546,3 +549,38 @@ def get_filtered_membership(course, memberships):
 def show_start_learing_cta(course, membership):
     return not course.disable_self_learning and not membership and not course.upcoming \
         and not check_profile_restriction() and not is_instructor(course.name) and course.status == "Approved"
+
+
+@frappe.whitelist(allow_guest=True)
+def get_chart_data(chart_name, timespan, timegrain, from_date, to_date):
+    chart = frappe.get_doc("Dashboard Chart", chart_name)
+    filters = [([chart.document_type, "docstatus", "<", 2, False])]
+    doctype = chart.document_type
+    datefield = chart.based_on
+    value_field = chart.value_based_on or "1"
+    from_date = get_datetime(from_date).strftime("%Y-%m-%d")
+    to_date = get_datetime(to_date)
+
+    filters.append([doctype, datefield, ">=", from_date, False])
+    filters.append([doctype, datefield, "<=", to_date, False])
+
+    data = frappe.db.get_all(
+        doctype,
+        fields=[f"{datefield} as _unit", f"SUM({value_field})", "COUNT(*)"],
+        filters=filters,
+        group_by="_unit",
+        order_by="_unit asc",
+        as_list=True,
+    )
+
+    result = get_result(data, timegrain, from_date, to_date, chart.chart_type)
+
+    return {
+        "labels": [
+            format_date(get_period(r[0], timegrain), parse_day_first=True)
+            if timegrain in ("Daily", "Weekly")
+            else get_period(r[0], timegrain)
+            for r in result
+        ],
+        "datasets": [{"name": chart.name, "values": [r[1] for r in result]}],
+    }

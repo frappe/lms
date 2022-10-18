@@ -77,13 +77,11 @@
                 </li>
                 {% endif %}
 
-                {% if frappe.session.user != "Guest" %}
                 <li class="nav-item">
                     <a class="nav-link" data-toggle="tab" href="#stats">
                         {{ _("Statistics") }}
                     </a>
                 </li>
-                {% endif %}
             </ul>
 
             <div class="border-bottom mb-4"></div>
@@ -121,11 +119,9 @@
                 </div>
                 {% endif %}
 
-                {% if frappe.session.user != "Guest" %}
                 <div class="tab-pane fade" id="stats" role="tabpanel" aria-labelledby="stats">
                     {% include "lms/templates/stats.html" %}
                 </div>
-                {% endif %}
 
             </div>
 
