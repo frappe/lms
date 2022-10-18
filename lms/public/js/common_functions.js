@@ -1,6 +1,6 @@
 frappe.ready(() => {
 
-    setup_vue_and_file_size();
+    setup_file_size();
 
     $(".join-batch").click((e) => {
         join_course(e);
@@ -21,12 +21,7 @@ frappe.ready(() => {
 });
 
 
-const setup_vue_and_file_size = () => {
-    frappe.require("/assets/frappe/node_modules/vue/dist/vue.js", () => {
-        Vue.prototype.__ = window.__;
-        Vue.prototype.frappe = window.frappe;
-    });
-
+const setup_file_size = () => {
     frappe.provide("frappe.form.formatters");
     frappe.form.formatters.FileSize = file_size;
 };

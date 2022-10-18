@@ -1718,20 +1718,15 @@ li {
 }
 
 .stats-label {
-    color: var(--text-muted);
-    font-weight: bold;
+    color: var(--gray-900);
+    font-weight: 500;
 }
 
 .stats-value {
     color: var(--gray-900);
-    font-weight: 600;
-    font-size: 2rem;
-}
-
-.stats-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    font-weight: 500;
+    font-size: 1.5rem;
+    margin-top: 2rem;
 }
 
 .indicator-pill.green::before {
@@ -1772,5 +1767,11 @@ li {
 }
 
 .modal-header .modal-title {
+    color: var(--gray-900);
+}
+
+.frappe-chart .title {
+    font-size: 1rem;
+    font-weight: bold;
     color: var(--gray-900);
 }

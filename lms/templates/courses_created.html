@@ -1,4 +1,4 @@
-{% set courses = get_authored_courses(user or None, only_published or False) %}
+{% set courses = courses_created if courses_created else get_authored_courses(user or None, only_published or False) %}
 
 {% if courses | length %}
 <div class="cards-parent">
@@ -12,7 +12,7 @@
     <img class="icon icon-xl" src="/assets/lms/icons/comment.svg">
     <div class="empty-state-text">
         <div class="empty-state-heading">{{ _("No courses created") }}</div>
-        <div class="course-meta">{{ _("Help others learn something new.") }}</div>
+        <div class="course-meta">{{ _("Help others learn something new by creating a course.") }}</div>
     </div>
 </div>
 {% endif %}

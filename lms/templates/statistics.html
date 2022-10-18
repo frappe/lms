@@ -1,7 +1,7 @@
 <div class="stats-parent">
 
     {% if published_courses %}
-    <div class="stats-card">
+    <div class="common-card-style p-4 flex-column">
         <div class="stats-label">
             {{ _("Published Courses") }}
         </div>
@@ -12,7 +12,7 @@
     {% endif %}
 
     {% if total_signups %}
-    <div class="stats-card">
+    <div class="common-card-style p-4 flex-column">
         <div class="stats-label">
             {{ _("Total Signups") }}
         </div>
@@ -23,7 +23,7 @@
     {% endif %}
 
     {% if enrollment_count %}
-    <div class="stats-card">
+    <div class="common-card-style p-4 flex-column">
         <div class="stats-label">
             {{ _("Enrollment Count") }}
         </div>

@@ -1,0 +1,16 @@
+{% set published_courses = True %}
+{% set total_signups = True %}
+{% set enrollment_count = True %}
+
+<div class="mt-10">
+    {% include "lms/templates/statistics.html" %}
+
+    <div class="row mt-10">
+        <div class="col">
+            <div class="common-card-style p-4" id="new-signups"></div>
+        </div>
+        <div class="col">
+            <div class="common-card-style p-4" id="course-enrollments"></div>
+        </div>
+    </div>
+</div>

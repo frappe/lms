@@ -255,8 +255,7 @@
         "reference_doctype": "Course Lesson",
         "reference_docname": lesson.name
     }) %}
-    {% set is_instructor = frappe.session.user == course.instructor %}
-    {% set condition = is_instructor if is_instructor else membership %}
+    {% set condition = is_instructor(course.name) or membership %}
     {% set doctype, docname = _("Course Lesson"), lesson.name %}
     {% set title = "Questions" if topics_count else "" %}
     {% set cta_title = "Ask a Question" %}
