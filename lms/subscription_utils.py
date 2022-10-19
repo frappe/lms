@@ -30,7 +30,7 @@ def get_add_on_courses(plan: str) -> int:
 
 
 def get_add_on_members(plan: str) -> int:
-    MEMBER_LIMITS = {"Lite": 100, "Pro": 500}
+    MEMBER_LIMITS = {"Lite": 500, "Pro": 1000}
     add_on_members = 0
     members_included_in_plans = MEMBER_LIMITS.get(plan)
 
