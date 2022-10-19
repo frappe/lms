@@ -1,0 +1,13 @@
+{% if is_eligible_to_review(course.name, membership) %}
+    <span class="btn btn-secondary btn-sm review-link">
+        {{ _("Write a review") }}
+    </span>
+{% elif not is_instructor(course.name) and frappe.session.user == "Guest" %}
+    <a class="btn btn-secondary btn-sm" href="/login?redirect-to=/courses/{{ course.name }}">
+        {{ _("Write a review") }}
+    </a>
+{% elif show_start_learing_cta(course, membership) %}
+    <div class="btn btn-secondary btn-sm join-batch" data-course="{{ course.name | urlencode }}">
+        {{ _("Start Learning") }}
+    </div>
+{% endif %}

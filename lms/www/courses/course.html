@@ -22,7 +22,7 @@
                     {{ Save(course) }}
                     {{ widgets.CourseOutline(course=course, membership=membership, is_user_interested=is_user_interested) }}
                     {% if not course.edit_mode and course.status == "Approved" and not frappe.utils.cint(course.upcoming) %}
-                    {{ widgets.Reviews(course=course, membership=membership) }}
+                    {% include "lms/templates/reviews.html" %}
                     {% endif %}
                 </div>
               </div>
@@ -329,24 +329,24 @@
 
     {% if membership and course.enable_certification %}
         {% if certificate %}
-        <a class="btn btn-secondary wide-button mt-3" href="/courses/{{ course.name }}/{{ certificate }}">
+        <a class="btn btn-secondary wide-button mt-2" href="/courses/{{ course.name }}/{{ certificate }}">
             {{ _("Get Certificate") }}
         </a>
 
         {% elif eligible_for_evaluation %}
-        <a class="btn btn-secondary wide-button mt-3" id="apply-certificate" data-course="{{ course.name }}">
+        <a class="btn btn-secondary wide-button mt-2" id="apply-certificate" data-course="{{ course.name }}">
             {{ _("Apply for Certificate") }}
         </a>
 
         {% elif course.grant_certificate_after == "Completion" and progress == 100 %}
-        <div class="btn btn-secondary wide-button is-secondary mt-3" id="certification" data-course="{{ course.name }}">
+        <div class="btn btn-secondary wide-button is-secondary mt-2" id="certification" data-course="{{ course.name }}">
             {{ _("Get Certificate") }}
         </div>
         {% endif %}
     {% endif %}
 
     {% if is_instructor(course.name) or has_course_moderator_role() %}
-    <a class="btn btn-secondary wide-button mt-3" href="/courses/{{ course.name }}?edit=1"> {{ _("Edit Course") }} </a>
+    <a class="btn btn-secondary wide-button mt-2" href="/courses/{{ course.name }}?edit=1"> {{ _("Edit Course") }} </a>
     {% endif %}
 {% endmacro %}
 
