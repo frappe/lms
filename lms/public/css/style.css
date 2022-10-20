@@ -364,13 +364,12 @@ input[type=checkbox] {
 }
 
 .course-home-page .course-home-outline {
-    margin-top: 5rem;
     padding-bottom: 4rem;
 }
 
 .course-home-page {
   background-color: #FFFFFF;
-  padding-top: 3.75rem;
+  padding-top: 4rem;
 }
 
 .chapter-title {
@@ -1774,4 +1773,8 @@ li {
     font-size: 1rem;
     font-weight: bold;
     color: var(--gray-900);
+}
+
+.course-description-section {
+    padding-bottom: 4rem;
 }

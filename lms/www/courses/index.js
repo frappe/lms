@@ -35,5 +35,8 @@ const render_chart = (data, chart_name) => {
         axisOptions: {
             xIsSeries: 1,
         },
+        lineOptions: {
+            "regionFill": 1
+        }
     });
 };
