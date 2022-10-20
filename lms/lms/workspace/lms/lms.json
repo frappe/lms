@@ -9,7 +9,7 @@
    "label": "Enrollments"
   }
  ],
- "content": "[{\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Get Started</b></span>\",\"col\":12}},{\"type\":\"paragraph\",\"data\":{\"text\":\"<a href=\\\"/courses\\\" draggable=\\\"false\\\">Visit LMS Portal</a>\",\"col\":4}},{\"type\":\"paragraph\",\"data\":{\"text\":\"<a href=\\\"/courses/new-course\\\" draggable=\\\"false\\\">Create a Course</a>\",\"col\":4}},{\"type\":\"paragraph\",\"data\":{\"text\":\"<a href=\\\"http://fsl:8000/app/web-page/new-web-page-1\\\">Setup a Home Page</a>\",\"col\":4}},{\"type\":\"paragraph\",\"data\":{\"text\":\"<a href=\\\"https://frappelms.com/introduction\\\">Documentation</a>\",\"col\":4}},{\"type\":\"paragraph\",\"data\":{\"text\":\"<a href=\\\"https://frappe.school/courses/introducing-frappe-lms\\\">Video Tutorials</a>\",\"col\":4}},{\"type\":\"spacer\",\"data\":{\"col\":12}},{\"type\":\"chart\",\"data\":{\"chart_name\":\"Signups\",\"col\":6}},{\"type\":\"chart\",\"data\":{\"chart_name\":\"Enrollments\",\"col\":6}},{\"type\":\"spacer\",\"data\":{\"col\":12}},{\"type\":\"header\",\"data\":{\"text\":\"<span style=\\\"font-size: 18px;\\\"><b>Statistics</b></span>\",\"col\":12}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Course\",\"col\":4}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Course Enrollments\",\"col\":4}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Course Completed\",\"col\":4}},{\"type\":\"spacer\",\"data\":{\"col\":12}},{\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Master</b></span>\",\"col\":12}},{\"type\":\"card\",\"data\":{\"card_name\":\"Course Data\",\"col\":4}},{\"type\":\"card\",\"data\":{\"card_name\":\"Course Stats\",\"col\":4}}]",
+ "content": "[{\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Get Started</b></span>\",\"col\":12}},{\"type\":\"paragraph\",\"data\":{\"text\":\"<a href=\\\"/courses\\\" draggable=\\\"false\\\">Visit LMS Portal</a>\",\"col\":4}},{\"type\":\"paragraph\",\"data\":{\"text\":\"<a href=\\\"/courses/new-course\\\" draggable=\\\"false\\\">Create a Course</a>\",\"col\":4}},{\"type\":\"paragraph\",\"data\":{\"text\":\"<a href=\\\"http://fsl:8000/app/web-page/new-web-page-1\\\">Setup a Home Page</a>\",\"col\":4}},{\"type\":\"paragraph\",\"data\":{\"text\":\"<a href=\\\"https://frappelms.com/introduction\\\">Documentation</a>\",\"col\":4}},{\"type\":\"paragraph\",\"data\":{\"text\":\"<a href=\\\"https://frappe.school/courses/introducing-frappe-lms\\\">Video Tutorials</a>\",\"col\":4}},{\"type\":\"spacer\",\"data\":{\"col\":12}},{\"type\":\"chart\",\"data\":{\"chart_name\":\"Signups\",\"col\":6}},{\"type\":\"chart\",\"data\":{\"chart_name\":\"Enrollments\",\"col\":6}},{\"type\":\"spacer\",\"data\":{\"col\":12}},{\"type\":\"header\",\"data\":{\"text\":\"<span style=\\\"font-size: 18px;\\\"><b>Statistics</b></span>\",\"col\":12}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Course\",\"col\":4}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Course Enrollments\",\"col\":4}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Course Completed\",\"col\":4}},{\"type\":\"spacer\",\"data\":{\"col\":12}},{\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Master</b></span>\",\"col\":12}},{\"type\":\"card\",\"data\":{\"card_name\":\"Course Data\",\"col\":4}},{\"type\":\"card\",\"data\":{\"card_name\":\"Course Stats\",\"col\":4}},{\"type\":\"card\",\"data\":{\"card_name\":\"Certification\",\"col\":4}}]",
  "creation": "2021-10-21 17:20:01.358903",
  "docstatus": 0,
  "doctype": "Workspace",
@@ -103,9 +103,47 @@
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Certification",
+   "link_count": 3,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Certification",
+   "link_count": 0,
+   "link_to": "LMS Certificate",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Evaluation Request",
+   "link_count": 0,
+   "link_to": "LMS Certificate Request",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Evaluation",
+   "link_count": 0,
+   "link_to": "LMS Certificate Evaluation",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
   }
  ],
- "modified": "2022-10-20 17:22:43.124094",
+ "modified": "2022-10-20 17:43:31.515047",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS",
