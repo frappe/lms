@@ -15,7 +15,7 @@ const generate_graph = (chart_name) => {
             "timespan": "Select Date Range",
             "timegrain": "Daily",
             "from_date": date.add_days(date.get_today(), -30),
-            "to_date": date.get_today()
+            "to_date": date.add_days(date.get_today(), +1)
         },
         callback: (data) => {
             render_chart(data.message, chart_name);
@@ -35,5 +35,8 @@ const render_chart = (data, chart_name) => {
         axisOptions: {
             xIsSeries: 1,
         },
+        lineOptions: {
+            "regionFill": 1
+        }
     });
 };
