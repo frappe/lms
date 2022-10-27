@@ -5,6 +5,22 @@
  "doctype": "Web Template",
  "fields": [
   {
+   "__islocal": 1,
+   "__unsaved": 1,
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Title",
+   "reqd": 0
+  },
+  {
+   "__islocal": 1,
+   "__unsaved": 1,
+   "fieldname": "subtitle",
+   "fieldtype": "Text",
+   "label": "Subtitle",
+   "reqd": 0
+  },
+  {
    "fieldname": "published_courses",
    "fieldtype": "Check",
    "label": "Published Courses",
@@ -24,10 +40,10 @@
   }
  ],
  "idx": 0,
- "modified": "2022-09-28 17:44:37.982923",
+ "modified": "2022-10-20 20:10:48.490785",
  "modified_by": "Administrator",
  "module": "LMS",
- "name": "Dashboard Stats",
+ "name": "LMS Statistics",
  "owner": "Administrator",
  "standard": 1,
  "template": "",

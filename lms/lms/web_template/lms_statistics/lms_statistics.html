@@ -1,1 +1,15 @@
-{% include "lms/templates/statistics.html" %}
+{% if title %}
+    <h2 class="hero-title">
+        {{ _(title) }}
+    </h2>
+{% endif %}
+
+{% if subtitle %}
+    <p class="hero-subtitle">
+        {{ _(subtitle) }}
+    </p>
+{%- endif -%}
+
+<div class="mt-12">
+    {% include "lms/templates/statistics.html" %}
+</div>
