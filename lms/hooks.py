@@ -60,6 +60,7 @@ web_include_js = ["website.bundle.js"]
 # ------------
 
 # before_install = "lms.install.before_install"
+after_sync = "lms.install.after_sync"
 after_uninstall = "lms.install.after_uninstall"
 
 
@@ -135,28 +136,28 @@ fixtures = ["Custom Field", "Function", "Industry"]
 
 # Add all simple route rules here
 website_route_rules = [
-	{"from_route": "/sketches/<sketch>", "to_route": "sketches/sketch"},
-	{"from_route": "/courses/<course>", "to_route": "courses/course"},
-	{"from_route": "/courses/<course>/<certificate>", "to_route": "courses/certificate"},
-	{"from_route": "/courses/<course>/learn", "to_route": "batch/learn"},
-	{"from_route": "/courses/<course>/learn/<int:chapter>.<int:lesson>", "to_route": "batch/learn"},
+    {"from_route": "/sketches/<sketch>", "to_route": "sketches/sketch"},
+    {"from_route": "/courses/<course>", "to_route": "courses/course"},
+    {"from_route": "/courses/<course>/<certificate>", "to_route": "courses/certificate"},
+    {"from_route": "/courses/<course>/learn", "to_route": "batch/learn"},
+    {"from_route": "/courses/<course>/learn/<int:chapter>.<int:lesson>", "to_route": "batch/learn"},
     {"from_route": "/quizzes", "to_route": "batch/quiz_list"},
     {"from_route": "/quizzes/<quizname>", "to_route": "batch/quiz"},
-	{"from_route": "/courses/<course>/progress", "to_route": "batch/progress"},
-	{"from_route": "/courses/<course>/join", "to_route": "batch/join"},
-	{"from_route": "/courses/<course>/manage", "to_route": "cohorts"},
-	{"from_route": "/courses/<course>/cohorts/<cohort>", "to_route": "cohorts/cohort"},
-	{"from_route": "/courses/<course>/cohorts/<cohort>/<page>", "to_route": "cohorts/cohort"},
-	{"from_route": "/courses/<course>/subgroups/<cohort>/<subgroup>", "to_route": "cohorts/subgroup"},
-	{"from_route": "/courses/<course>/subgroups/<cohort>/<subgroup>/<page>", "to_route": "cohorts/subgroup"},
-	{"from_route": "/courses/<course>/join/<cohort>/<subgroup>/<invite_code>", "to_route": "cohorts/join"},
-	{"from_route": "/users", "to_route": "profiles/profile"},
+    {"from_route": "/courses/<course>/progress", "to_route": "batch/progress"},
+    {"from_route": "/courses/<course>/join", "to_route": "batch/join"},
+    {"from_route": "/courses/<course>/manage", "to_route": "cohorts"},
+    {"from_route": "/courses/<course>/cohorts/<cohort>", "to_route": "cohorts/cohort"},
+    {"from_route": "/courses/<course>/cohorts/<cohort>/<page>", "to_route": "cohorts/cohort"},
+    {"from_route": "/courses/<course>/subgroups/<cohort>/<subgroup>", "to_route": "cohorts/subgroup"},
+    {"from_route": "/courses/<course>/subgroups/<cohort>/<subgroup>/<page>", "to_route": "cohorts/subgroup"},
+    {"from_route": "/courses/<course>/join/<cohort>/<subgroup>/<invite_code>", "to_route": "cohorts/join"},
+    {"from_route": "/users", "to_route": "profiles/profile"},
     {"from_route": "/jobs/<job>", "to_route": "jobs/job"}
 ]
 
 website_redirects = [
-	{"source": "/update-profile", "target": "/edit-profile"},
-	{"source": "/dashboard", "target": "/users"},
+    {"source": "/update-profile", "target": "/edit-profile"},
+    {"source": "/dashboard", "target": "/courses"},
 ]
 
 update_website_context = [

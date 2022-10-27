@@ -1,38 +1,53 @@
 {% extends "www/cohorts/base.html" %}
-{% block title %}Manage {{ course.title  }}{% endblock %}
+{% block title %}
+    _("Manage") {{ course.title  }}
+{% endblock %}
 
 {% block page_content %}
-  {% if cohorts %}
-    <h2>{{ _("Cohorts") }}</h2>
-    <div class="row">
-    {% for cohort in cohorts %}
-      <div class="col-md-6">
-      {{ render_cohort(course, cohort) }}
-      </div>
-    {% endfor %}
-    </div>
-  {% else %}
-      <h2>{{ _("Permission Denied") }}</h2>
-      <p>{{ _("You don't have permission to manage this course.") }}</p>
-  {% endif %}
+    {% if cohorts %}
+        <h2>
+            {{ _("Cohorts") }}
+        </h2>
+        <div class="row">
+            {% for cohort in cohorts %}
+            <div class="col-md-6">
+            {{ render_cohort(course, cohort) }}
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <h2>
+            {{ _("Permission Denied") }}
+        </h2>
+        <p>
+            {{ _("You don't have permission to manage this course.") }}
+        </p>
+    {% endif %}
 {% endblock %}
 
 {% macro render_cohort(course, cohort) %}
-<div class="card">
-  <div class="card-body">
-    <h5 class="card-title">{{cohort.title}}</h5>
-    <h6 class="card-subtitle mb-2 text-muted">{{cohort.begin_date}} - {{cohort.end_date}}</h6>
-    <p>
-      {% set stats = cohort.get_stats() %}
+<div class="cards-parent">
+    <div class="common-card-style flex-column p-5">
+        <h5 class="card-title">
+            {{ cohort.title }}
+        </h5>
 
-      {{ stats.subgroups }} Subgroups
-      | {{ stats.mentors }} Mentors
-      | {{ stats.students }} students
-      | {{ stats.join_requests }} join requests
-    </p>
+        {% if cohort.begin_date %}
+        <h6 class="card-subtitle mb-2 text-muted">
+            {{ frappe.utils.format_date(cohort.begin_date, "medium") }} - {{ frappe.utils.format_date(cohort.end_date, "medium") }}
+        </h6>
+        {% endif %}
 
-    <a href="/courses/{{course.name}}/cohorts/{{cohort.slug}}" class="card-link">{{ _("Manage") }}</a>
-  </div>
+        <p class="mb-0">
+            {{ frappe.db.count("Cohort Subgroup", {"cohort": cohort.name}) }} {{ _("Subgroups") }}
+            | {{ frappe.db.count("Cohort Mentor", {"cohort": cohort.name}) }} {{ _("Mentors") }}
+            | {{ frappe.db.count("LMS Batch Membership", {"cohort": cohort.name}) }} {{ _("Students") }}
+            | {{ frappe.db.count("Cohort Join Request", {"cohort": cohort.name}) }} {{ _("Join Requests") }}
+        </p>
+
+
+        <a class="stretched-link" href="/courses/{{course.name}}/cohorts/{{cohort.slug}}"></a>
+    </div>
 </div>
 
 {% endmacro %}

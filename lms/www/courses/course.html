@@ -292,12 +292,7 @@
     {% set lesson_index = get_lesson_index(membership.current_lesson) if membership and
     membership.current_lesson else "1.1" if first_lesson_exists(course.name) else None %}
 
-    {% if show_start_learing_cta(course, membership) %}
-    <div class="btn btn-primary wide-button join-batch" data-course="{{ course.name | urlencode }}">
-        {{ _("Start Learning") }}
-    </div>
-
-    {% elif is_instructor(course.name) and not course.published and course.status != "Under Review" %}
+    {% if is_instructor(course.name) and not course.published and course.status != "Under Review" %}
     <div class="btn btn-primary wide-button" id="submit-for-review" data-course="{{ course.name | urlencode }}">
         {{ _("Submit for Review") }}
     </div>
@@ -308,7 +303,7 @@
         {{ _("Checkout Course") }}
     </a>
 
-    {% elif course.upcoming and not is_user_interested and not is_instructor %}
+    {% elif course.upcoming and not is_user_interested and not is_instructor(course.name) %}
     <div class="btn btn-secondary wide-button notify-me" data-course="{{course.name | urlencode}}">
         {{ _("Notify me when available") }}
     </div>
@@ -323,6 +318,11 @@
         href="{{ get_lesson_url(course.name, lesson_index) }}{{ course.query_parameter }}">
         {{ _("Continue Learning") }}
     </a>
+
+    {% elif show_start_learing_cta(course, membership) %}
+    <div class="btn btn-primary wide-button join-batch" data-course="{{ course.name | urlencode }}">
+        {{ _("Start Learning") }}
+    </div>
     {% endif %}
 
     {% set progress = frappe.utils.cint(membership.progress) %}
@@ -358,9 +358,13 @@
     </div>
 
     {% if certificate_request and not certificate %}
-    <p class="mb-2"> <b>{{ _("Evaluation On: ") }}</b>
+    <p class="mb-2">
+        <b>
+            {{ _("Evaluation On: ") }}
+        </b>
         {{ _("{0} at {1}").format(frappe.utils.format_date(certificate_request.date, "medium"),
-        frappe.utils.format_time(certificate_request.start_time, "short")) }} </p>
+        frappe.utils.format_time(certificate_request.start_time, "short")) }}
+    </p>
     {% endif %}
 
     {% if course.status == "Under Review" and is_instructor(course.name) %}
@@ -370,7 +374,9 @@
     {% endif %}
 
     {% if no_of_attempts and no_of_attempts >= course.max_attempts %}
-    <p> {{ _("You have exceeded the maximum number of attempts allowed to appear for evaluations of this course.") }} </p>
+    <p>
+        {{ _("You have exceeded the maximum number of attempts allowed to appear for evaluations of this course.") }}
+    </p>
     {% endif %}
 {% endmacro %}
 

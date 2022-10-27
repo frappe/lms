@@ -1,11 +1,7 @@
+from venv import create
 import frappe
+from lms.install import create_moderator_role
 
 def execute():
-    if not frappe.db.exists("Role", "Course Moderator"):
-        role = frappe.get_doc({
-            "doctype": "Role",
-            "role_name": "Course Moderator",
-            "home_page": "/dashboard",
-            "desk_access": 0
-        })
-        role.save(ignore_permissions=True)
+    create_moderator_role()
+
