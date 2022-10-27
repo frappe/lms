@@ -17,7 +17,6 @@ class CustomUser(User):
     def validate(self):
         super(CustomUser, self).validate()
         self.validate_username_characters()
-        self.validate_skills()
         self.validate_completion()
         self.user_image = validate_image(self.user_image)
         self.cover_image = validate_image(self.cover_image)

@@ -1,6 +1,8 @@
+{% set chapters = get_chapters(course.name) %}
+
+{% if course.edit_mode or chapters | length %}
 <div class="course-home-outline">
 
-    {% set chapters = get_chapters(course.name) %}
 
     {% if course.edit_mode and course.name %}
     <button class="btn btn-md btn-secondary btn-chapter pull-right"> {{ _("New Chapter") }} </button>
@@ -110,8 +112,13 @@
     {% endif %}
 
 </div>
+{% endif %}
+
+{% if chapters | length %}
 <!-- No Preview Modal -->
 {{ widgets.NoPreviewModal(course=course, membership=membership) }}
+
+{% endif %}
 
 <script>
 

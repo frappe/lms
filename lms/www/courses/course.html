@@ -303,7 +303,7 @@
         {{ _("Checkout Course") }}
     </a>
 
-    {% elif course.upcoming and not is_user_interested and not is_instructor %}
+    {% elif course.upcoming and not is_user_interested and not is_instructor(course.name) %}
     <div class="btn btn-secondary wide-button notify-me" data-course="{{course.name | urlencode}}">
         {{ _("Notify me when available") }}
     </div>
@@ -358,9 +358,13 @@
     </div>
 
     {% if certificate_request and not certificate %}
-    <p class="mb-2"> <b>{{ _("Evaluation On: ") }}</b>
+    <p class="mb-2">
+        <b>
+            {{ _("Evaluation On: ") }}
+        </b>
         {{ _("{0} at {1}").format(frappe.utils.format_date(certificate_request.date, "medium"),
-        frappe.utils.format_time(certificate_request.start_time, "short")) }} </p>
+        frappe.utils.format_time(certificate_request.start_time, "short")) }}
+    </p>
     {% endif %}
 
     {% if course.status == "Under Review" and is_instructor(course.name) %}
@@ -370,7 +374,9 @@
     {% endif %}
 
     {% if no_of_attempts and no_of_attempts >= course.max_attempts %}
-    <p> {{ _("You have exceeded the maximum number of attempts allowed to appear for evaluations of this course.") }} </p>
+    <p>
+        {{ _("You have exceeded the maximum number of attempts allowed to appear for evaluations of this course.") }}
+    </p>
     {% endif %}
 {% endmacro %}
 
