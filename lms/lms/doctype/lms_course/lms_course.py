@@ -137,7 +137,10 @@ class LMSCourse(Document):
 
 
     def get_cohorts(self):
-        return frappe.get_all("Cohort", {"course": self.name}, ["name", "slug"], order_by="creation")
+        return frappe.get_all("Cohort",
+            {"course": self.name},
+            ["name", "slug", "title", "begin_date", "end_date"],
+            order_by="creation")
 
 
     def get_cohort(self, cohort_slug):

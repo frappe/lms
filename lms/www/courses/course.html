@@ -292,12 +292,7 @@
     {% set lesson_index = get_lesson_index(membership.current_lesson) if membership and
     membership.current_lesson else "1.1" if first_lesson_exists(course.name) else None %}
 
-    {% if show_start_learing_cta(course, membership) %}
-    <div class="btn btn-primary wide-button join-batch" data-course="{{ course.name | urlencode }}">
-        {{ _("Start Learning") }}
-    </div>
-
-    {% elif is_instructor(course.name) and not course.published and course.status != "Under Review" %}
+    {% if is_instructor(course.name) and not course.published and course.status != "Under Review" %}
     <div class="btn btn-primary wide-button" id="submit-for-review" data-course="{{ course.name | urlencode }}">
         {{ _("Submit for Review") }}
     </div>
@@ -323,6 +318,11 @@
         href="{{ get_lesson_url(course.name, lesson_index) }}{{ course.query_parameter }}">
         {{ _("Continue Learning") }}
     </a>
+
+    {% elif show_start_learing_cta(course, membership) %}
+    <div class="btn btn-primary wide-button join-batch" data-course="{{ course.name | urlencode }}">
+        {{ _("Start Learning") }}
+    </div>
     {% endif %}
 
     {% set progress = frappe.utils.cint(membership.progress) %}

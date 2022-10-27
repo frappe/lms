@@ -1,5 +1,7 @@
 {% extends "www/cohorts/base.html" %}
-{% block title %}Manage {{ course.title  }}{% endblock %}
+{% block title %}
+{{ _("Manage") }} {{ course.title  }}
+{% endblock %}
 
 {% block page_content %}
 <div class="course-home-headings">
@@ -7,12 +9,10 @@
 </div>
 
 <p>
-  {% set stats = cohort.get_stats() %}
-
-  {{ stats.subgroups }} {{ _("Subgroups")}}
-  | {{ stats.mentors }} {{ _("Mentors") }}
-  | {{ stats.students }} {{ _("Students") }}
-  | {{ stats.join_requests }} {{ _("Join Requests") }}
+    {{ frappe.db.count("Cohort Subgroup", {"cohort": cohort.name}) }} {{ _("Subgroups") }}
+    | {{ frappe.db.count("Cohort Mentor", {"cohort": cohort.name}) }} {{ _("Mentors") }}
+    | {{ frappe.db.count("LMS Batch Membership", {"cohort": cohort.name}) }} {{ _("Students") }}
+    | {{ frappe.db.count("Cohort Join Request", {"cohort": cohort.name}) }} {{ _("Join Requests") }}
 </p>
 
 {% if is_mentor %}
@@ -25,19 +25,19 @@
 {% endif %}
 
 <ul class="nav nav-tabs">
-  {% set num_subgroups = cohort.get_subgroups() | length %}
-  {{ render_navitem("Subgroups", "", page=page, count=num_subgroups) }}
-  {% for p in cohort.get_pages(scope="Cohort") %}
-    {{ render_navitem(p.title, p.slug, page=page) }}
-  {% endfor %}
+    {% set num_subgroups = cohort.get_subgroups() | length %}
+    {{ render_navitem("Subgroups", "", page=page, count=num_subgroups) }}
+    {% for p in cohort.get_pages(scope="Cohort") %}
+        {{ render_navitem(p.title, p.slug, page=page) }}
+    {% endfor %}
 </ul>
 
 <div class="my-5">
-{% if not page %}
-  {{ render_subgroups() }}
-{% else %}
-  {{ render_page(page) }}
-{% endif %}
+    {% if not page %}
+        {{ render_subgroups() }}
+    {% else %}
+    {{ render_page(page) }}
+    {% endif %}
 </div>
 
 {% endblock %}
@@ -55,7 +55,7 @@
                 <div style="font-size: 0.8em;">
                     {{ sg.num_mentors }} {{ _("Mentors") }}
                     |
-                    {{sg.num_students}} {{ _(Students) }}
+                    {{sg.num_students}} {{ _("Students") }}
                     |
                     {{sg.num_join_requests}} {{ _("Join Requests") }}
                 </div>
