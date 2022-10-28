@@ -100,8 +100,10 @@ def get_lesson_details(chapter):
         order_by="idx")
 
     for row in lesson_list:
-        lesson_details = frappe.db.get_value("Course Lesson", row.lesson,
-            ["name", "title", "include_in_preview", "body", "creation", "youtube", "quiz_id"], as_dict=True)
+        lesson_details = frappe.db.get_value("Course Lesson",
+            row.lesson,
+            ["name", "title", "include_in_preview", "body", "creation", "youtube", "quiz_id", "question", "unique_id", "file_type"],
+            as_dict=True)
         lesson_details.number = flt("{}.{}".format(chapter.idx, row.idx))
         lesson_details.icon = "icon-list"
         macros = find_macros(lesson_details.body)
@@ -244,13 +246,22 @@ def get_progress(course, lesson):
         ["status"])
 
 
-def render_html(body, youtube, quiz_id):
+def render_html(lesson):
+    youtube = lesson.youtube
+    quiz_id = lesson.quiz_id
+    body = lesson.body
+
     if youtube and "/" in youtube:
         youtube = youtube.split("/")[-1]
 
     quiz_id = "{{ Quiz('" + quiz_id + "') }}" if quiz_id else ""
     youtube = "{{ YouTubeVideo('" + youtube + "') }}" if youtube else ""
     text = youtube + body + quiz_id
+
+    if lesson.question:
+        assignment = "{{ Assignment('" + lesson.question + "-" + lesson.file_type + "') }}"
+        text = text + assignment
+
     return markdown_to_html(text)
 
 

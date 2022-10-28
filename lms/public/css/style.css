@@ -1126,8 +1126,7 @@ pre {
 }
 
 .preview-work {
-  width: 50%;
-  justify-content: space-between;
+    width: 50%;
 }
 
 .job-card {
@@ -1777,4 +1776,26 @@ li {
 
 .course-description-section {
     padding-bottom: 4rem;
+}
+
+input::file-selector-button {
+    border-radius: var(--border-radius);
+    font-size: var(--text-md);
+    padding: 0.25rem 1.25rem;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+}
+
+input::file-selector-button:hover {
+    background-color: var(--gray-400);
+}
+
+.btn {
+    font-weight: 400;
+}
+
+select {
+    appearance: none;
+    -webkit-appearance: none;
 }

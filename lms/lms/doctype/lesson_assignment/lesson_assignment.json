@@ -6,11 +6,12 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "lesson",
-  "user",
-  "column_break_3",
   "assignment",
-  "id"
+  "lesson",
+  "course",
+  "column_break_3",
+  "member",
+  "member_name"
  ],
  "fields": [
   {
@@ -22,31 +23,38 @@
    "options": "Course Lesson"
   },
   {
-   "fieldname": "user",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "User",
-   "options": "User"
-  },
-  {
    "fieldname": "column_break_3",
    "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "id",
-   "fieldtype": "Data",
-   "label": "ID"
   },
   {
    "fieldname": "assignment",
    "fieldtype": "Attach",
    "label": "Assignment"
+  },
+  {
+   "fieldname": "member",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Member",
+   "options": "User"
+  },
+  {
+   "fetch_from": "member.full_name",
+   "fieldname": "member_name",
+   "fieldtype": "Data",
+   "label": "Member Name"
+  },
+  {
+   "fetch_from": "lesson.course",
+   "fieldname": "course",
+   "fieldtype": "Data",
+   "label": "Course"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-12-22 11:17:08.390615",
+ "modified": "2022-10-28 12:38:05.541906",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Lesson Assignment",
@@ -66,5 +74,6 @@
   }
  ],
  "sort_field": "modified",
- "sort_order": "DESC"
+ "sort_order": "DESC",
+ "states": []
 }

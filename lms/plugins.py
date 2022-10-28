@@ -151,9 +151,10 @@ def assignment_renderer(detail):
         "Image": ".png, .jpg, .jpeg",
         "Video": "video/*"
     }
+    question = detail.split("-")[0]
     file_type = detail.split("-")[1]
     accept = supported_types[file_type] if file_type else ""
-    return frappe.render_template("templates/assignment.html", {"id": detail.split("-")[0], "accept": accept})
+    return frappe.render_template("templates/assignment.html", {"question": question, "accept": accept})
 
 def show_custom_signup():
     if (frappe.db.get_single_value("LMS Settings", "terms_of_use")
