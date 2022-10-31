@@ -3,11 +3,18 @@
 
 import frappe
 from frappe.model.document import Document
-from frappe.handler import upload_file
+from frappe import _
 
 
 class LessonAssignment(Document):
-	pass
+    def validate(self):
+        self.validate_duplicates()
+
+
+    def validate_duplicates(self):
+        if frappe.db.exists("Lesson Assignment", {"lesson": self.lesson, "member": self.member}):
+            lesson_title = frappe.db.get_value("Course Lesson", self.lesson, "title")
+            frappe.throw(_("Assignment for Lesson {0} by {1} already exists.").format(lesson_title, self.member_name))
 
 
 @frappe.whitelist()

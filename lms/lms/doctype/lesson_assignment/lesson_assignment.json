@@ -20,7 +20,8 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Lesson",
-   "options": "Course Lesson"
+   "options": "Course Lesson",
+   "reqd": 1
   },
   {
    "fieldname": "column_break_3",
@@ -29,7 +30,8 @@
   {
    "fieldname": "assignment",
    "fieldtype": "Attach",
-   "label": "Assignment"
+   "label": "Assignment",
+   "reqd": 1
   },
   {
    "fieldname": "member",
@@ -37,24 +39,32 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Member",
-   "options": "User"
+   "options": "User",
+   "reqd": 1
   },
   {
    "fetch_from": "member.full_name",
    "fieldname": "member_name",
    "fieldtype": "Data",
-   "label": "Member Name"
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Member Name",
+   "read_only": 1
   },
   {
    "fetch_from": "lesson.course",
    "fieldname": "course",
    "fieldtype": "Data",
-   "label": "Course"
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Course",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-10-28 12:38:05.541906",
+ "make_attachments_public": 1,
+ "modified": "2022-10-31 13:18:09.609729",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Lesson Assignment",
@@ -75,5 +85,6 @@
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "title_field": "lesson"
 }
