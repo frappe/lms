@@ -40,7 +40,6 @@ def get_assignment(lesson):
             "member": frappe.session.user
         }, ["lesson", "member", "assignment"],
         as_dict=True)
-    print(assignment)
     assignment.file_name = frappe.db.get_value("File", {"file_url": assignment.assignment}, "file_name")
     return assignment
 

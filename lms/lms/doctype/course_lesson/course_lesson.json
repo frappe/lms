@@ -13,7 +13,6 @@
   "column_break_4",
   "title",
   "include_in_preview",
-  "included_in_course",
   "index_label",
   "section_break_6",
   "youtube",
@@ -112,14 +111,6 @@
    "label": "YouTube Video URL"
   },
   {
-   "default": "0",
-   "fieldname": "included_in_course",
-   "fieldtype": "Check",
-   "hidden": 1,
-   "label": "Included in Course",
-   "read_only": 1
-  },
-  {
    "fieldname": "section_break_16",
    "fieldtype": "Section Break",
    "label": "Assignment"
@@ -144,7 +135,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-10-28 12:36:01.978640",
+ "modified": "2022-10-28 12:36:01.978641",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Course Lesson",
