@@ -16,10 +16,7 @@ def get_context(context):
     }, "chapter")
 
     if not chapter_index or not lesson_index:
-        if context.batch:
-            index_ = get_lesson_index(context.course, context.batch, frappe.session.user) or "1.1"
-        else:
-            index_ = "1.1"
+        index_ = "1.1"
         redirect_to_lesson(context.course, index_)
 
     context.lesson = get_current_lesson_details(lesson_number, context)
@@ -48,7 +45,7 @@ def get_context(context):
     context.page_extensions = get_page_extensions(context)
     context.page_context = {
         "course": context.course.name,
-        "batch": context.get("batch") and context.batch.name,
+        "batch":  context.batch,
         "lesson": context.lesson.name if context.lesson.name else "New Lesson",
         "is_member": context.membership is not None
     }
@@ -70,11 +67,6 @@ def get_current_lesson_details(lesson_number, context):
 
 def get_url(lesson_number, course):
     return get_lesson_url(course.name, lesson_number) and get_lesson_url(course.name, lesson_number) + course.query_parameter
-
-
-def get_lesson_index(course, batch, user):
-    lesson = batch.get_current_lesson(user)
-    return lesson and course.get_lesson_index(lesson)
 
 
 def get_page_extensions(context):
