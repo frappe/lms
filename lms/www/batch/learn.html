@@ -123,7 +123,7 @@
             {% if lesson.edit_mode %}
             {{ EditLesson(lesson) }}
             {% else %}
-            {{ render_html(lesson.body, lesson.youtube, lesson.quiz_id) }}
+            {{ render_html(lesson) }}
             {% endif %}
 
         {% else %}
@@ -171,11 +171,30 @@
 <!-- Edit Lesson -->
 {% macro EditLesson(lesson) %}
 
-    <div class="medium mt-2" contenteditable="true" data-placeholder="{{ _('YouTube Video ID') }}"
-    id="youtube">{% if lesson.youtube %}{{ lesson.youtube }}{% endif %}</div>
+    <div class="d-flex mt-2 medium">
+        <div class="flex-grow-1" contenteditable="true" data-placeholder="{{ _('YouTube Video ID') }}"
+        id="youtube">{% if lesson.youtube %}{{ lesson.youtube }}{% endif %}</div>
+
+        <div class="flex-grow-1 ml-2" contenteditable="true" data-placeholder="{{ _('Quiz ID') }}"
+        id="quiz-id">{% if lesson.quiz_id %}{{ lesson.quiz_id }}{% endif %}</div>
+    </div>
+
     <div id="body" {% if lesson.body %} data-body="{{ lesson.body }}" {% endif %}></div>
-    <div class="medium mb-4" contenteditable="true" data-placeholder="{{ _('Quiz ID') }}"
-    id="quiz-id">{% if lesson.quiz_id %}{{ lesson.quiz_id }}{% endif %}</div>
+
+    <div class="d-flex medium mx-0 mb-4">
+        <div class="flex-grow-1" contenteditable="true" data-placeholder="{{ _('Assignment Question') }}"
+        id="assignment-question">{% if lesson.question %}{{ lesson.question }}{% endif %}</div>
+
+        <select class="btn btn-default ml-2" id="file-type" data-type="{{ lesson.file_type }}">
+            <option selected> {{ _("File Type") }} </option>
+            <option value="Image"> {{ _("Image") }} </option>
+            <option value="Document"> {{ _("Document") }} </option>
+            <option value="PDF"> {{ _("PDF") }} </option>
+        </select>
+    </div>
+
+
+
 
     <label class="preview" for="preview">
         <input {% if lesson.include_in_preview %} checked {% endif %} type="checkbox" id="preview">

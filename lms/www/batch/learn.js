@@ -2,12 +2,16 @@ frappe.ready(() => {
 
     this.marked_as_complete = false;
     this.quiz_submitted = false;
+    this.file_type;
+    let self = this;
 
     localStorage.removeItem($("#quiz-title").data("name"));
 
     fetch_assignments();
 
     save_current_lesson();
+
+    set_file_type();
 
     $(".option").click((e) => {
         enable_check(e);
@@ -77,7 +81,6 @@ frappe.ready(() => {
     });
 
     if ($("#quiz-title").data("max-attempts")) {
-        let self = this;
         window.addEventListener("beforeunload", (e) => {
             e.returnValue = "";
             if ($(".active-question").length && !self.quiz_submitted) {
@@ -89,6 +92,12 @@ frappe.ready(() => {
     if ($("#body").length) {
         make_editor();
     }
+
+    $("#file-type").change((e) => {
+        $("#file-type option:selected" ).each(function() {
+            self.file_type = $(this).val();
+        });
+    });
 });
 
 
@@ -318,8 +327,7 @@ const upload_file = (file, target) => {
 
         let form_data = new FormData();
         if (file.file_obj) {
-            form_data.append('file', file.file_obj, `${frappe.session.user}-${file.name}`);
-            form_data.append('folder', `${$(".title").attr("data-lesson")} ${$(".title").attr("data-course")}`)
+            form_data.append('file', file.file_obj, file.name);
         }
 
         xhr.send(form_data);
@@ -333,7 +341,6 @@ const create_lesson_work = (file, target) => {
         args: {
             assignment: file.file_url,
             lesson: $(".title").attr("data-lesson"),
-            identifier: target.siblings(".attach-file").attr("id")
         },
         callback: (data) => {
             target.siblings(".attach-file").addClass("hide");
@@ -398,16 +405,14 @@ const fetch_assignments = () => {
             "lesson": $(".title").attr("data-lesson")
         },
         callback: (data) => {
-        if (data.message && data.message.length) {
-            const assignments = data.message;
-            for (let i in assignments) {
-                let target = $(`#${assignments[i]["id"]}`);
+            if (data.message) {
+                const assignment = data.message;
+                let target = $(".attach-file");
                 target.addClass("hide");
                 target.siblings(".submit-work").addClass("hide");
                 target.siblings(".preview-work").removeClass("hide");
-                target.siblings(".preview-work").find("a").attr("href", assignments[i]["assignment"]).text(assignments[i]["file_name"]);
+                target.siblings(".preview-work").find("a").attr("href", assignment.assignment).text(assignment.file_name);
             }
-        }
         }
     });
 };
@@ -449,6 +454,7 @@ const calculate_and_display_time = (percent_time) => {
 
 const save_lesson = (e) => {
     let lesson = $("#title").data("lesson");
+    let self = this;
     frappe.call({
         method: "lms.lms.doctype.lms_course.lms_course.save_lesson",
         args: {
@@ -459,7 +465,9 @@ const save_lesson = (e) => {
             "chapter": $("#title").data("chapter"),
             "preview": $("#preview").prop("checked") ? 1 : 0,
             "idx": $("#title").data("index"),
-            "lesson": lesson ? lesson : ""
+            "lesson": lesson ? lesson : "",
+            "question": $("#assignment-question").text(),
+            "file_type": self.file_type
         },
         callback: (data) => {;
             frappe.show_alert({
@@ -531,3 +539,15 @@ const make_editor = () => {
     $("#body .frappe-control").removeClass("hide-control");
     $("#body .form-column").addClass("p-0");
 };
+
+
+const set_file_type = () => {
+    let file_type = $("#file-type").data("type");
+    if (file_type) {
+        $("#file-type option").each((i, elem) => {
+            if ($(elem).val() == file_type) {
+                $(elem).attr("selected", true);
+            }
+        })
+    }
+}

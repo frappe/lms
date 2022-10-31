@@ -9,19 +9,23 @@ from frappe.model.document import Document
 from ...md import find_macros
 from lms.lms.utils import get_course_progress, get_lesson_url
 
+
 class CourseLesson(Document):
     def validate(self):
-        self.check_and_create_folder()
+        #self.check_and_create_folder()
         self.validate_quiz_id()
+
 
     def validate_quiz_id(self):
         if self.quiz_id and not frappe.db.exists("LMS Quiz", self.quiz_id):
             frappe.throw(_("Invalid Quiz ID"))
 
+
     def on_update(self):
         dynamic_documents = ["Exercise", "Quiz"]
         for section in dynamic_documents:
             self.update_lesson_name_in_document(section)
+
 
     def update_lesson_name_in_document(self, section):
         doctype_map= {
@@ -39,6 +43,7 @@ class CourseLesson(Document):
             index += 1
         self.update_orphan_documents(doctype_map[section], documents)
 
+
     def update_orphan_documents(self, doctype, documents):
         """Updates the documents that were previously part of this lesson,
         but not any more.
@@ -53,6 +58,7 @@ class CourseLesson(Document):
             ex.index_label = ""
             ex.save()
 
+
     def check_and_create_folder(self):
         args = {
                 "doctype": "File",
@@ -62,6 +68,7 @@ class CourseLesson(Document):
         if not frappe.db.exists(args):
             folder = frappe.get_doc(args)
             folder.save(ignore_permissions=True)
+
 
     def get_exercises(self):
         if not self.body:
@@ -79,28 +86,26 @@ class CourseLesson(Document):
             return ("").join([ s for s in self.get_progress().lower().split() ])
         return
 
+
 @frappe.whitelist()
 def save_progress(lesson, course, status):
-    membership = frappe.db.exists("LMS Batch Membership",
-                    {
-                        "member": frappe.session.user,
-                        "course": course
-                    })
+    membership = frappe.db.exists("LMS Batch Membership", {
+        "member": frappe.session.user,
+        "course": course
+    })
     if not membership:
         return
 
-    if frappe.db.exists("LMS Course Progress",
-            {
-                "lesson": lesson,
-                "owner": frappe.session.user,
-                "course": course
-            }):
-        doc = frappe.get_doc("LMS Course Progress",
-                {
-                    "lesson": lesson,
-                    "owner": frappe.session.user,
-                    "course": course
-                })
+    if frappe.db.exists("LMS Course Progress", {
+        "lesson": lesson,
+        "owner": frappe.session.user,
+        "course": course
+    }):
+        doc = frappe.get_doc("LMS Course Progress", {
+            "lesson": lesson,
+            "owner": frappe.session.user,
+            "course": course
+        })
         doc.status = status
         doc.save(ignore_permissions=True)
     else:
@@ -113,6 +118,7 @@ def save_progress(lesson, course, status):
     progress = get_course_progress(course)
     frappe.db.set_value("LMS Batch Membership", membership, "progress", progress)
     return progress
+
 
 @frappe.whitelist()
 def get_lesson_info(chapter):

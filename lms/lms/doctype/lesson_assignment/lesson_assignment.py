@@ -3,18 +3,26 @@
 
 import frappe
 from frappe.model.document import Document
-from frappe.handler import upload_file
+from frappe import _
+
 
 class LessonAssignment(Document):
-	pass
+    def validate(self):
+        self.validate_duplicates()
+
+
+    def validate_duplicates(self):
+        if frappe.db.exists("Lesson Assignment", {"lesson": self.lesson, "member": self.member}):
+            lesson_title = frappe.db.get_value("Course Lesson", self.lesson, "title")
+            frappe.throw(_("Assignment for Lesson {0} by {1} already exists.").format(lesson_title, self.member_name))
+
 
 @frappe.whitelist()
-def upload_assignment(assignment, lesson, identifier):
+def upload_assignment(assignment, lesson):
     args = {
         "doctype": "Lesson Assignment",
         "lesson": lesson,
-        "user": frappe.session.user,
-        "id": identifier
+        "member": frappe.session.user
     }
     if frappe.db.exists(args):
         del args["doctype"]
@@ -24,18 +32,16 @@ def upload_assignment(assignment, lesson, identifier):
         lesson_work = frappe.get_doc(args)
         lesson_work.save(ignore_permissions=True)
 
+
 @frappe.whitelist()
 def get_assignment(lesson):
-    assignments = frappe.get_all("Lesson Assignment",
-        {
+    assignment = frappe.db.get_value("Lesson Assignment", {
             "lesson": lesson,
-            "user": frappe.session.user
-        },
-        ["lesson", "user", "id", "assignment"])
-    if len(assignments):
-        for assignment in assignments:
-            assignment.file_name = frappe.db.get_value("File", {"file_url": assignment.assignment}, "file_name")
-    return assignments
+            "member": frappe.session.user
+        }, ["lesson", "member", "assignment"],
+        as_dict=True)
+    assignment.file_name = frappe.db.get_value("File", {"file_url": assignment.assignment}, "file_name")
+    return assignment
 
 
 
