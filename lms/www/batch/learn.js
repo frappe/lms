@@ -542,11 +542,13 @@ const make_editor = () => {
 
 
 const set_file_type = () => {
+    let self = this;
     let file_type = $("#file-type").data("type");
     if (file_type) {
         $("#file-type option").each((i, elem) => {
             if ($(elem).val() == file_type) {
                 $(elem).attr("selected", true);
+                self.file_type = file_type;
             }
         })
     }
