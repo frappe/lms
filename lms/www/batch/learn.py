@@ -1,7 +1,9 @@
 import frappe
 from lms.www.utils import get_common_context, redirect_to_lesson
-from lms.lms.utils import get_lesson_url, has_course_moderator_role, is_instructor, redirect_to_courses_list
+from lms.lms.utils import get_lesson_url, has_course_moderator_role, is_instructor
 from frappe.utils import cstr, flt
+from frappe import _
+
 
 def get_context(context):
     get_common_context(context)
@@ -28,7 +30,7 @@ def get_context(context):
 
     if frappe.form_dict.get("edit"):
         if not instructor and not has_course_moderator_role():
-            redirect_to_courses_list()
+            raise frappe.PermissionError(_("You do not have permission to access this page."))
         context.lesson.edit_mode = True
     else:
         neighbours = get_neighbours(lesson_number, context.lessons)

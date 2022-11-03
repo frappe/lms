@@ -34,12 +34,11 @@ def set_course_context(context, course_name):
 
     if frappe.form_dict.get("edit"):
         if not is_instructor(course.name) and not has_course_moderator_role():
-            redirect_to_courses_list()
+            raise frappe.PermissionError(_("You do not have permission to access this page."))
         course.edit_mode = True
 
     if course is None:
-        frappe.local.flags.redirect_location = "/courses"
-        raise frappe.Redirect
+        redirect_to_courses_list()
 
     related_courses = frappe.get_all("Related Courses", {"parent": course.name}, ["course"])
     for csr in related_courses:
