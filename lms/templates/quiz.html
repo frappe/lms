@@ -15,20 +15,29 @@
 
 <div class="">
     <div id="start-banner">
+        <button class="btn btn-secondary btn-sm btn-start-quiz pull-right"> {{ _("Start the Quiz") }} </button>
+
         <div class="font-weight-bold mb-5" style="font-size: var(--text-lg);"> {{ quiz.title }} </div>
-        <div class="alert alert-info medium mb-5">
+
+        <div class="alert alert-info medium">
             {{ _("This quiz consists of {0} questions.").format(quiz.questions | length) }}
-            {% if quiz.max_attempts %}
-            {% set suffix = "times" if quiz.max_attempts > 1 else "time" %}
-            {{ _("This quiz can only be taken {0} {1}. If you attempt the quiz but leave the page before submitting,
-            the quiz will be automatically submitted.").format(quiz.max_attempts, suffix) }}
-            {% endif %}
-            {% if quiz.time %}
-            {{ _("The quiz has a time limit. For each question you will be given {0} seconds.").format(quiz.time) }}
-            {% endif %}
         </div>
 
-        <button class="btn btn-secondary m-auto btn-start-quiz"> {{ _("Start the Quiz") }} </bu>
+        {% if quiz.max_attempts %}
+        {% set suffix = "times" if quiz.max_attempts > 1 else "time" %}
+        <div class="alert alert-info medium">
+            {{ _("This quiz can only be taken {0} {1}. If you attempt the quiz but leave the page before submitting,
+            the quiz will be automatically submitted.").format(quiz.max_attempts, suffix) }}
+        </div>
+        {% endif %}
+
+        {% if quiz.time %}
+        <div class="alert alert-info medium">
+            {{ _("The quiz has a time limit. For each question you will be given {0} seconds.").format(quiz.time) }}
+        </div>
+        {% endif %}
+
+
     </div>
 
     <form id="quiz-form" class="hide">
