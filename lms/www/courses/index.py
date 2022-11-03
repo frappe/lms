@@ -1,15 +1,13 @@
 import frappe
 from frappe import _
-from lms.lms.utils import has_course_instructor_role, has_course_moderator_role, check_profile_restriction, get_restriction_details
+from lms.lms.utils import can_create_courses, has_course_moderator_role, check_profile_restriction, get_restriction_details
 
 
 def get_context(context):
     context.no_cache = 1
     context.live_courses, context.upcoming_courses = get_courses()
     context.restriction = check_profile_restriction()
-    portal_course_creation = frappe.db.get_single_value("LMS Settings", "portal_course_creation")
-    context.show_creators_section = frappe.session.user != "Guest" and \
-        (portal_course_creation == "Anyone" or has_course_instructor_role())
+    context.show_creators_section = can_create_courses()
     context.show_review_section = has_course_moderator_role() and frappe.session.user != "Guest"
 
     if context.restriction:

@@ -466,6 +466,14 @@ def has_course_instructor_role(member=None):
         }, "name")
 
 
+def can_create_courses(member=None):
+    if not member:
+        member = frappe.session.user
+
+    portal_course_creation = frappe.db.get_single_value("LMS Settings", "portal_course_creation")
+    return frappe.session.user != "Guest" and (portal_course_creation == "Anyone" or has_course_instructor_role(member))
+
+
 def has_course_moderator_role(member=None):
     return frappe.db.get_value("Has Role", {
         "parent": member or frappe.session.user,
