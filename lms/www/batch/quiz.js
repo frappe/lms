@@ -22,10 +22,10 @@ frappe.ready(() => {
 
 
 const add_question = () => {
-    if ($(".new-quiz-card").length) {
+    /* if ($(".new-quiz-card").length) {
         scroll_to_question_container();
         return;
-    }
+    } */
 
     let add_after = $(".quiz-card").length ? $(".quiz-card:last") : $("#quiz-title");
     let question_template = `<div class="quiz-card new-quiz-card">

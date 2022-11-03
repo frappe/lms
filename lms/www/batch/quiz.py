@@ -3,6 +3,7 @@ from frappe.utils import cstr
 
 
 def get_context(context):
+    context.no_cache = 1
     quizname = frappe.form_dict["quizname"]
     if quizname == "new-quiz":
         context.quiz = frappe._dict()
