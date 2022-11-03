@@ -205,7 +205,8 @@ jinja = {
         "lms.lms.utils.get_lesson_count",
         "lms.lms.utils.get_all_memberships",
         "lms.lms.utils.get_filtered_membership",
-        "lms.lms.utils.show_start_learing_cta"
+        "lms.lms.utils.show_start_learing_cta",
+        "lms.lms.utils.can_create_courses"
     ],
     "filters": []
 }

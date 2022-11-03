@@ -1,6 +1,6 @@
 import frappe
-from lms.lms.utils import get_membership, has_course_moderator_role, is_instructor, is_certified, get_evaluation_details, redirect_to_courses_list
-
+from lms.lms.utils import can_create_courses, get_membership, has_course_moderator_role, is_instructor, is_certified, get_evaluation_details, redirect_to_courses_list
+from frappe import _
 
 def get_context(context):
     context.no_cache = 1
@@ -11,8 +11,13 @@ def get_context(context):
         redirect_to_courses_list()
 
     if course_name == "new-course":
-        if frappe.session.user == "Guest":
-            redirect_to_courses_list()
+        if not can_create_courses():
+            message = "You do not have permission to access this page."
+            if frappe.session.user == "Guest":
+                message = "Please login to access this page."
+
+            raise frappe.PermissionError(_(message))
+
         context.course = frappe._dict()
         context.course.edit_mode = True
         context.membership = None
