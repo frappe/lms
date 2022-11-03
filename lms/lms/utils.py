@@ -102,7 +102,7 @@ def get_lesson_details(chapter):
     for row in lesson_list:
         lesson_details = frappe.db.get_value("Course Lesson",
             row.lesson,
-            ["name", "title", "include_in_preview", "body", "creation", "youtube", "quiz_id", "question", "unique_id", "file_type"],
+            ["name", "title", "include_in_preview", "body", "creation", "youtube", "quiz_id", "question", "file_type"],
             as_dict=True)
         lesson_details.number = flt("{}.{}".format(chapter.idx, row.idx))
         lesson_details.icon = "icon-list"
