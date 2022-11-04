@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 from . import __version__ as app_version
 
 app_name = "frappe_lms"
@@ -47,7 +45,7 @@ web_include_js = ["website.bundle.js"]
 
 # website user home page (by Role)
 # role_home_page = {
-#	"Role": "home_page"
+# 	"Role": "home_page"
 # }
 
 # Generators
@@ -87,8 +85,8 @@ after_uninstall = "lms.install.after_uninstall"
 # Override standard doctype classes
 
 override_doctype_class = {
-    "User": "lms.overrides.user.CustomUser",
-    "Web Template": "lms.overrides.web_template.CustomWebTemplate"
+	"User": "lms.overrides.user.CustomUser",
+	"Web Template": "lms.overrides.web_template.CustomWebTemplate",
 }
 
 # Document Events
@@ -96,18 +94,16 @@ override_doctype_class = {
 # Hook on document methods and events
 
 doc_events = {
-    "Discussion Reply": {
-        "after_insert": "lms.lms.utils.create_notification_log"
-    }
+	"Discussion Reply": {"after_insert": "lms.lms.utils.create_notification_log"}
 }
 
 # Scheduled Tasks
 # ---------------
-#scheduler_events = {
-#	"daily": [
-#		"erpnext.stock.reorder_item.reorder_item"
-#	]
-#}
+# scheduler_events = {
+# 	"daily": [
+# 		"erpnext.stock.reorder_item.reorder_item"
+# 	]
+# }
 
 fixtures = ["Custom Field", "Function", "Industry"]
 
@@ -136,79 +132,94 @@ fixtures = ["Custom Field", "Function", "Industry"]
 
 # Add all simple route rules here
 website_route_rules = [
-    {"from_route": "/sketches/<sketch>", "to_route": "sketches/sketch"},
-    {"from_route": "/courses/<course>", "to_route": "courses/course"},
-    {"from_route": "/courses/<course>/<certificate>", "to_route": "courses/certificate"},
-    {"from_route": "/courses/<course>/learn", "to_route": "batch/learn"},
-    {"from_route": "/courses/<course>/learn/<int:chapter>.<int:lesson>", "to_route": "batch/learn"},
-    {"from_route": "/quizzes", "to_route": "batch/quiz_list"},
-    {"from_route": "/quizzes/<quizname>", "to_route": "batch/quiz"},
-    {"from_route": "/courses/<course>/progress", "to_route": "batch/progress"},
-    {"from_route": "/courses/<course>/join", "to_route": "batch/join"},
-    {"from_route": "/courses/<course>/manage", "to_route": "cohorts"},
-    {"from_route": "/courses/<course>/cohorts/<cohort>", "to_route": "cohorts/cohort"},
-    {"from_route": "/courses/<course>/cohorts/<cohort>/<page>", "to_route": "cohorts/cohort"},
-    {"from_route": "/courses/<course>/subgroups/<cohort>/<subgroup>", "to_route": "cohorts/subgroup"},
-    {"from_route": "/courses/<course>/subgroups/<cohort>/<subgroup>/<page>", "to_route": "cohorts/subgroup"},
-    {"from_route": "/courses/<course>/join/<cohort>/<subgroup>/<invite_code>", "to_route": "cohorts/join"},
-    {"from_route": "/users", "to_route": "profiles/profile"},
-    {"from_route": "/jobs/<job>", "to_route": "jobs/job"}
+	{"from_route": "/sketches/<sketch>", "to_route": "sketches/sketch"},
+	{"from_route": "/courses/<course>", "to_route": "courses/course"},
+	{"from_route": "/courses/<course>/<certificate>", "to_route": "courses/certificate"},
+	{"from_route": "/courses/<course>/learn", "to_route": "batch/learn"},
+	{
+		"from_route": "/courses/<course>/learn/<int:chapter>.<int:lesson>",
+		"to_route": "batch/learn",
+	},
+	{"from_route": "/quizzes", "to_route": "batch/quiz_list"},
+	{"from_route": "/quizzes/<quizname>", "to_route": "batch/quiz"},
+	{"from_route": "/courses/<course>/progress", "to_route": "batch/progress"},
+	{"from_route": "/courses/<course>/join", "to_route": "batch/join"},
+	{"from_route": "/courses/<course>/manage", "to_route": "cohorts"},
+	{"from_route": "/courses/<course>/cohorts/<cohort>", "to_route": "cohorts/cohort"},
+	{
+		"from_route": "/courses/<course>/cohorts/<cohort>/<page>",
+		"to_route": "cohorts/cohort",
+	},
+	{
+		"from_route": "/courses/<course>/subgroups/<cohort>/<subgroup>",
+		"to_route": "cohorts/subgroup",
+	},
+	{
+		"from_route": "/courses/<course>/subgroups/<cohort>/<subgroup>/<page>",
+		"to_route": "cohorts/subgroup",
+	},
+	{
+		"from_route": "/courses/<course>/join/<cohort>/<subgroup>/<invite_code>",
+		"to_route": "cohorts/join",
+	},
+	{"from_route": "/users", "to_route": "profiles/profile"},
+	{"from_route": "/jobs/<job>", "to_route": "jobs/job"},
 ]
 
 website_redirects = [
-    {"source": "/update-profile", "target": "/edit-profile"},
-    {"source": "/dashboard", "target": "/courses"},
+	{"source": "/update-profile", "target": "/edit-profile"},
+	{"source": "/dashboard", "target": "/courses"},
 ]
 
 update_website_context = [
-    'lms.widgets.update_website_context',
+	"lms.widgets.update_website_context",
 ]
 
 jinja = {
-    "methods": [
-        "lms.page_renderers.get_profile_url",
-        "lms.overrides.user.get_enrolled_courses",
-        "lms.overrides.user.get_course_membership",
-        "lms.overrides.user.get_authored_courses",
-        "lms.overrides.user.get_palette",
-        "lms.lms.utils.get_membership",
-        "lms.lms.utils.get_lessons",
-        "lms.lms.utils.get_tags",
-        "lms.lms.utils.get_instructors",
-        "lms.lms.utils.get_students",
-        "lms.lms.utils.get_average_rating",
-        "lms.lms.utils.is_certified",
-        "lms.lms.utils.get_lesson_index",
-        "lms.lms.utils.get_lesson_url",
-        "lms.lms.utils.get_chapters",
-        "lms.lms.utils.get_slugified_chapter_title",
-        "lms.lms.utils.get_progress",
-        "lms.lms.utils.render_html",
-        "lms.lms.utils.is_mentor",
-        "lms.lms.utils.is_cohort_staff",
-        "lms.lms.utils.get_mentors",
-        "lms.lms.utils.get_reviews",
-        "lms.lms.utils.is_eligible_to_review",
-        "lms.lms.utils.get_initial_members",
-        "lms.lms.utils.get_sorted_reviews",
-        "lms.lms.utils.is_instructor",
-        "lms.lms.utils.convert_number_to_character",
-        "lms.lms.utils.get_signup_optin_checks",
-        "lms.lms.utils.get_popular_courses",
-        "lms.lms.utils.format_amount",
-        "lms.lms.utils.first_lesson_exists",
-        "lms.lms.utils.get_courses_under_review",
-        "lms.lms.utils.has_course_instructor_role",
-        "lms.lms.utils.has_course_moderator_role",
-        "lms.lms.utils.get_certificates",
-        "lms.lms.utils.format_number",
-        "lms.lms.utils.get_lesson_count",
-        "lms.lms.utils.get_all_memberships",
-        "lms.lms.utils.get_filtered_membership",
-        "lms.lms.utils.show_start_learing_cta",
-        "lms.lms.utils.can_create_courses"
-    ],
-    "filters": []
+	"methods": [
+		"lms.page_renderers.get_profile_url",
+		"lms.overrides.user.get_enrolled_courses",
+		"lms.overrides.user.get_course_membership",
+		"lms.overrides.user.get_authored_courses",
+		"lms.overrides.user.get_palette",
+		"lms.lms.utils.get_membership",
+		"lms.lms.utils.get_lessons",
+		"lms.lms.utils.get_tags",
+		"lms.lms.utils.get_instructors",
+		"lms.lms.utils.get_students",
+		"lms.lms.utils.get_average_rating",
+		"lms.lms.utils.is_certified",
+		"lms.lms.utils.get_lesson_index",
+		"lms.lms.utils.get_lesson_url",
+		"lms.lms.utils.get_chapters",
+		"lms.lms.utils.get_slugified_chapter_title",
+		"lms.lms.utils.get_progress",
+		"lms.lms.utils.render_html",
+		"lms.lms.utils.is_mentor",
+		"lms.lms.utils.is_cohort_staff",
+		"lms.lms.utils.get_mentors",
+		"lms.lms.utils.get_reviews",
+		"lms.lms.utils.is_eligible_to_review",
+		"lms.lms.utils.get_initial_members",
+		"lms.lms.utils.get_sorted_reviews",
+		"lms.lms.utils.is_instructor",
+		"lms.lms.utils.convert_number_to_character",
+		"lms.lms.utils.get_signup_optin_checks",
+		"lms.lms.utils.get_popular_courses",
+		"lms.lms.utils.format_amount",
+		"lms.lms.utils.first_lesson_exists",
+		"lms.lms.utils.get_courses_under_review",
+		"lms.lms.utils.has_course_instructor_role",
+		"lms.lms.utils.has_course_moderator_role",
+		"lms.lms.utils.get_certificates",
+		"lms.lms.utils.format_number",
+		"lms.lms.utils.get_lesson_count",
+		"lms.lms.utils.get_all_memberships",
+		"lms.lms.utils.get_filtered_membership",
+		"lms.lms.utils.show_start_learing_cta",
+		"lms.lms.utils.can_create_courses",
+	],
+	"filters": [],
 }
 ## Specify the additional tabs to be included in the user profile page.
 ## Each entry must be a subclass of lms.lms.plugins.ProfileTab
@@ -219,42 +230,42 @@ jinja = {
 ## subclass of lms.plugins.PageExtension
 # lms_lesson_page_extension = None
 
-#lms_lesson_page_extensions = [
-#	"lms.plugins.LiveCodeExtension"
-#]
+# lms_lesson_page_extensions = [
+# 	"lms.plugins.LiveCodeExtension"
+# ]
 
 profile_mandatory_fields = [
-    "first_name",
-    "last_name",
-    "user_image",
-    "bio",
-    "linkedin",
-    "education",
-    "skill",
-    "preferred_functions",
-    "preferred_industries",
-    "dream_companies",
-    "attire",
-    "collaboration",
-    "role",
-    "location_preference",
-    "time",
-    "company_type"
+	"first_name",
+	"last_name",
+	"user_image",
+	"bio",
+	"linkedin",
+	"education",
+	"skill",
+	"preferred_functions",
+	"preferred_industries",
+	"dream_companies",
+	"attire",
+	"collaboration",
+	"role",
+	"location_preference",
+	"time",
+	"company_type",
 ]
 
 ## Markdown Macros for Lessons
 lms_markdown_macro_renderers = {
-    "Exercise": "lms.plugins.exercise_renderer",
-    "Quiz": "lms.plugins.quiz_renderer",
-    "YouTubeVideo": "lms.plugins.youtube_video_renderer",
-    "Video": "lms.plugins.video_renderer",
-    "Assignment": "lms.plugins.assignment_renderer"
+	"Exercise": "lms.plugins.exercise_renderer",
+	"Quiz": "lms.plugins.quiz_renderer",
+	"YouTubeVideo": "lms.plugins.youtube_video_renderer",
+	"Video": "lms.plugins.video_renderer",
+	"Assignment": "lms.plugins.assignment_renderer",
 }
 
 # page_renderer to manage profile pages
 page_renderer = [
 	"lms.page_renderers.ProfileRedirectPage",
-	"lms.page_renderers.ProfilePage"
+	"lms.page_renderers.ProfilePage",
 ]
 
 # set this to "/" to have profiles on the top-level

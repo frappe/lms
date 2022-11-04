@@ -4,5 +4,6 @@
 # import frappe
 import unittest
 
+
 class TestIndustry(unittest.TestCase):
 	pass
