@@ -318,7 +318,7 @@ const upload_file = (file, target) => {
 					);
 				} else if (xhr.status === 413) {
 					frappe.msgprint(
-						"Size exceeds the maximum allowed file size."
+						__("Size exceeds the maximum allowed file size.")
 					);
 				} else {
 					frappe.msgprint(

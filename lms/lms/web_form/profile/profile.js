@@ -15,7 +15,9 @@ frappe.ready(function () {
 			data.work_experience.forEach((exp) => {
 				if (!exp.current && !exp.to_date) {
 					information_missing = true;
-					frappe.msgprint("To Date is mandatory in Work Experience.");
+					frappe.msgprint(
+						__("To Date is mandatory in Work Experience.")
+					);
 				}
 			});
 		}

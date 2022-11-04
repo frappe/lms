@@ -23,8 +23,10 @@ class LMSCertificateRequest(Document):
 			if req.date == getdate(self.date) and getdate() <= getdate(self.date):
 				course_title = frappe.db.get_value("LMS Course", req.course, "title")
 				frappe.throw(
-					_(
-						f"You already have an evaluation on {format_date(req.date, 'medium')} at {format_time(req.start_time, 'short')} for the course {course_title}."
+					_("You already have an evaluation on {0} at {1} for the course {2}.").format(
+						format_date(req.date, "medium"),
+						format_time(req.start_time, "short"),
+						course_title,
 					)
 				)
 

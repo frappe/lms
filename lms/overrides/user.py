@@ -224,7 +224,8 @@ def get_palette(full_name):
 @frappe.whitelist(allow_guest=True)
 def sign_up(email, full_name, verify_terms, user_category):
 	if is_signup_disabled():
-		frappe.throw(_("Sign Up is disabled"), title="Not Allowed")
+		error = _("Sign Up is disabled")
+		frappe.throw(error, title="Not Allowed")
 
 	user = frappe.db.get("User", {"email": email})
 	if user:
@@ -351,7 +352,7 @@ def get_user_details(users):
 
 
 def get_users(or_filters, start, page_length, text):
-
+	# nosemgrep
 	users = frappe.db.sql(
 		"""
         SELECT DISTINCT u.name
