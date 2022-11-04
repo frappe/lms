@@ -4,6 +4,14 @@ frappe.ready(() => {
     $(".role").change((e) => {
         save_role(e);
     });
+
+    $(".nav-link").click((e) => {
+        change_hash(e);
+    });
+
+    if (window.location.hash) {
+        open_tab();
+    }
 });
 
 const make_profile_active_in_navbar = () => {
@@ -37,4 +45,12 @@ const save_role = (e) => {
             }
         },
     });
+};
+
+const change_hash = (e) => {
+    window.location.hash = $(e.currentTarget).attr("href");
+};
+
+const open_tab = () => {
+    $(`a[href="${window.location.hash}"]`).click();
 };
