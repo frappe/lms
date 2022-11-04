@@ -33,12 +33,19 @@
                 {{ _("All Courses") }}
             </div>
 
-            {% if show_creators_section %}
             <div class="pull-right">
-                <a class="btn btn-secondary btn-sm" href="/users"> {{ _("Visit Dashboard") }} </a>
-                <a class="btn btn-secondary btn-sm ml-2" href="/courses/new-course"> {{ _("Create a Course") }} </a>
+                {% if frappe.session.user %}
+                <a class="btn btn-secondary btn-sm" href="/users">
+                    {{ _("Visit Dashboard") }}
+                </a>
+                {% endif %}
+
+                {% if show_creators_section %}
+                <a class="btn btn-secondary btn-sm ml-2" href="/courses/new-course">
+                    {{ _("Create a Course") }}
+                </a>
+                {% endif %}
             </div>
-            {% endif %}
 
             <ul class="nav lms-nav" id="courses-tab">
                 <li class="nav-item">
