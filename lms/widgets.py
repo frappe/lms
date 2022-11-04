@@ -56,7 +56,10 @@ class Widget:
 	    '<div>Hello, World!</div>'
 	"""
 
-	def __init__(self, name, widget_globals={}):
+	def __init__(self, name, widget_globals):
+		if not widget_globals:
+			widget_globals = {}
+
 		self.widget_globals = widget_globals
 		self.name = name
 

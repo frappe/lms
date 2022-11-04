@@ -2,6 +2,6 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on("Cohort Join Request", {
-    // refresh: function(frm) {
-    // }
+	// refresh: function(frm) {
+	// }
 });

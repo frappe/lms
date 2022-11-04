@@ -17,7 +17,7 @@ def get_context(context):
 
 	try:
 		context.member = frappe.get_doc("User", {"username": username})
-	except:
+	except Exception:
 		context.template = "www/404.html"
 		return
 

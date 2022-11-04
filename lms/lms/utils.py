@@ -5,7 +5,7 @@ import frappe
 from frappe import _
 from frappe.desk.doctype.dashboard_chart.dashboard_chart import get_result
 from frappe.desk.doctype.notification_log.notification_log import \
-    make_notification_logs
+				make_notification_logs
 from frappe.utils import (add_months, cint, cstr, flt, fmt_money, format_date,
                           get_datetime, getdate)
 from frappe.utils.dateutils import get_period
@@ -15,7 +15,7 @@ from lms.lms.md import find_macros, markdown_to_html
 RE_SLUG_NOTALLOWED = re.compile("[^a-z0-9]+")
 
 
-def slugify(title, used_slugs=[]):
+def slugify(title, used_slugs):
 	"""Converts title to a slug.
 
 	If a list of used slugs is specified, it will make sure the generated slug
@@ -28,6 +28,9 @@ def slugify(title, used_slugs=[]):
 	    >>> slugify("Hello World!", ['hello-world', 'hello-world-2'])
 	    'hello-world-3'
 	"""
+	if not used_slugs:
+		used_slugs = []
+
 	slug = RE_SLUG_NOTALLOWED.sub("-", title.lower()).strip("-")
 	used_slugs = set(used_slugs)
 
