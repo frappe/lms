@@ -224,8 +224,7 @@ def get_palette(full_name):
 @frappe.whitelist(allow_guest=True)
 def sign_up(email, full_name, verify_terms, user_category):
 	if is_signup_disabled():
-		error = _("Sign Up is disabled")
-		frappe.throw(error, title="Not Allowed")
+		frappe.throw(_("Sign Up is disabled"), _("Not Allowed"))
 
 	user = frappe.db.get("User", {"email": email})
 	if user:
