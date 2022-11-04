@@ -5,8 +5,7 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 
-from lms.lms.doctype.lms_batch_membership.lms_batch_membership import \
-				create_membership
+from lms.lms.doctype.lms_batch_membership.lms_batch_membership import create_membership
 from lms.lms.utils import is_mentor
 
 

@@ -2,8 +2,7 @@ import frappe
 from frappe import _
 from frappe.utils import cstr, flt
 
-from lms.lms.utils import (get_lesson_url, has_course_moderator_role,
-                           is_instructor)
+from lms.lms.utils import get_lesson_url, has_course_moderator_role, is_instructor
 from lms.www.utils import get_common_context, redirect_to_lesson
 
 

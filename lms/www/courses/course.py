@@ -1,10 +1,15 @@
 import frappe
 from frappe import _
 
-from lms.lms.utils import (can_create_courses, get_evaluation_details,
-                           get_membership, has_course_moderator_role,
-                           is_certified, is_instructor,
-                           redirect_to_courses_list)
+from lms.lms.utils import (
+	can_create_courses,
+	get_evaluation_details,
+	get_membership,
+	has_course_moderator_role,
+	is_certified,
+	is_instructor,
+	redirect_to_courses_list,
+)
 
 
 def get_context(context):

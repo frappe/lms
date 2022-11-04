@@ -1,7 +1,6 @@
 import frappe
 
-from lms.lms.utils import (get_batch, get_lesson_url, get_lessons,
-                           get_membership, slugify)
+from lms.lms.utils import get_lesson_url, get_lessons, get_membership
 
 
 def get_common_context(context):

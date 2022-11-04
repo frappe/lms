@@ -4,10 +4,17 @@ import string
 import frappe
 from frappe import _
 from frappe.desk.doctype.dashboard_chart.dashboard_chart import get_result
-from frappe.desk.doctype.notification_log.notification_log import \
-				make_notification_logs
-from frappe.utils import (add_months, cint, cstr, flt, fmt_money, format_date,
-                          get_datetime, getdate)
+from frappe.desk.doctype.notification_log.notification_log import make_notification_logs
+from frappe.utils import (
+	add_months,
+	cint,
+	cstr,
+	flt,
+	fmt_money,
+	format_date,
+	get_datetime,
+	getdate,
+)
 from frappe.utils.dateutils import get_period
 
 from lms.lms.md import find_macros, markdown_to_html
