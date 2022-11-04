@@ -22,7 +22,7 @@ from lms.lms.md import find_macros, markdown_to_html
 RE_SLUG_NOTALLOWED = re.compile("[^a-z0-9]+")
 
 
-def slugify(title, used_slugs):
+def slugify(title, used_slugs=None):
 	"""Converts title to a slug.
 
 	If a list of used slugs is specified, it will make sure the generated slug
