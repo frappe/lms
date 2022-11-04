@@ -14,50 +14,58 @@ from frappe.utils.jinja import get_jenv
 # When {{widgets.SomeWidget()}} is called, it looks for
 # widgets/SomeWidgets.html in each of these modules.
 MODULES = [
-    "lms",
+	"lms",
 ]
 
-def update_website_context(context):
-    """Adds widgets to the context.
 
-    Called from hooks.
-    """
-    context.widgets = Widgets()
+def update_website_context(context):
+	"""Adds widgets to the context.
+
+	Called from hooks.
+	"""
+	context.widgets = Widgets()
+
 
 class Widgets:
-    """The widget collection.
+	"""The widget collection.
 
-    This is just a placeholder object and returns the appropriate
-    widget when accessed using attribute.
+	This is just a placeholder object and returns the appropriate
+	widget when accessed using attribute.
 
-        >>> widgets = Widgets()
-        >>> widgets.HelloWorld(name="World!")
-        '<div>Hello, World!</div>'
-    """
-    def __getattr__(self, name):
-        widget_globals = {"widgets": self}
-        if not name.startswith("__"):
-            return Widget(name, widget_globals)
-        else:
-            raise AttributeError(name)
+	    >>> widgets = Widgets()
+	    >>> widgets.HelloWorld(name="World!")
+	    '<div>Hello, World!</div>'
+	"""
+
+	def __getattr__(self, name):
+		widget_globals = {"widgets": self}
+		if not name.startswith("__"):
+			return Widget(name, widget_globals)
+		else:
+			raise AttributeError(name)
+
 
 class Widget:
-    """The Widget class renders a widget.
+	"""The Widget class renders a widget.
 
-    Widget is a reusable template defined in widgets/ directory in
-    each frappe module.
+	Widget is a reusable template defined in widgets/ directory in
+	each frappe module.
 
-        >>> w = Widget("HelloWorld")
-        >>> w(name="World!")
-        '<div>Hello, World!</div>'
-    """
-    def __init__(self, name, widget_globals={}):
-        self.widget_globals = widget_globals
-        self.name = name
+	    >>> w = Widget("HelloWorld")
+	    >>> w(name="World!")
+	    '<div>Hello, World!</div>'
+	"""
 
-    def __call__(self, **kwargs):
-        # the widget could be in any of the modules
-        paths = [f"{module}/widgets/{self.name}.html" for module in MODULES]
-        env = get_jenv()
-        kwargs.update(self.widget_globals)
-        return env.get_or_select_template(paths).render(kwargs)
+	def __init__(self, name, widget_globals):
+		if not widget_globals:
+			widget_globals = {}
+
+		self.widget_globals = widget_globals
+		self.name = name
+
+	def __call__(self, **kwargs):
+		# the widget could be in any of the modules
+		paths = [f"{module}/widgets/{self.name}.html" for module in MODULES]
+		env = get_jenv()
+		kwargs.update(self.widget_globals)
+		return env.get_or_select_template(paths).render(kwargs)

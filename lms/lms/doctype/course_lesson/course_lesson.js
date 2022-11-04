@@ -1,17 +1,21 @@
 // Copyright (c) 2021, FOSS United and contributors
 // For license information, please see license.txt
 
-frappe.ui.form.on('Course Lesson', {
-    setup: function (frm) {
-        frm.trigger('setup_help');
-    },
-    setup_help(frm) {
-        let quiz_link = `<a href="/app/lms-quiz"> ${__("Quiz List")} </a>`;
-        let exercise_link = `<a href="/app/exercise"> ${__("Exercise List")} </a>`;
-        let file_link = `<a href="/app/file"> ${__("File DocType")} </a>`;
+frappe.ui.form.on("Course Lesson", {
+	setup: function (frm) {
+		frm.trigger("setup_help");
+	},
+	setup_help(frm) {
+		let quiz_link = `<a href="/app/lms-quiz"> ${__("Quiz List")} </a>`;
+		let exercise_link = `<a href="/app/exercise"> ${__(
+			"Exercise List"
+		)} </a>`;
+		let file_link = `<a href="/app/file"> ${__("File DocType")} </a>`;
 
-        frm.get_field('help').html(`
-            <p>${__("You can add some more additional content to the lesson using a special syntax. The table below mentions all types of dynamic content that you can add to the lessons and the syntax for the same.")}</p>
+		frm.get_field("help").html(`
+            <p>${__(
+				"You can add some more additional content to the lesson using a special syntax. The table below mentions all types of dynamic content that you can add to the lessons and the syntax for the same."
+			)}</p>
             <table class="table">
                 <tr style="background-color: var(--fg-hover-color); font-weight: bold">
                     <th style="width: 20%;">
@@ -33,17 +37,23 @@ frappe.ui.form.on('Course Lesson', {
                     </td>
                     <td>
                         <span>
-                            ${ __("Copy and paste the syntax in the editor. Replace 'embed_src' with the embed source that YouTube provides. To get the source, follow the steps mentioned below.") }
+                            ${__(
+								"Copy and paste the syntax in the editor. Replace 'embed_src' with the embed source that YouTube provides. To get the source, follow the steps mentioned below."
+							)}
                         </span>
                         <ul class="p-4">
                             <li>
-                                ${ __("Upload the video on youtube.") }
+                                ${__("Upload the video on youtube.")}
                             </li>
                             <li>
-                                ${ __("When you share a youtube video, it shows an option called Embed.") }
+                                ${__(
+									"When you share a youtube video, it shows an option called Embed."
+								)}
                             </li>
                             <li>
-                                ${ __("On clicking it, it provides an iframe. Copy the source (src) of the iframe and paste it here.") }
+                                ${__(
+									"On clicking it, it provides an iframe. Copy the source (src) of the iframe and paste it here."
+								)}
                             </li>
                         </ul>
                     </td>
@@ -56,7 +66,10 @@ frappe.ui.form.on('Course Lesson', {
                         {{ Quiz("lms_quiz_id") }}
                     </td>
                     <td>
-                        ${ __("Copy and paste the syntax in the editor. Replace 'lms_quiz_id' with the ID of the Quiz you want to add. You can get the ID of the quiz from the {0}.", [quiz_link]) }
+                        ${__(
+							"Copy and paste the syntax in the editor. Replace 'lms_quiz_id' with the ID of the Quiz you want to add. You can get the ID of the quiz from the {0}.",
+							[quiz_link]
+						)}
                     </td>
                 </tr>
                 <tr>
@@ -67,7 +80,10 @@ frappe.ui.form.on('Course Lesson', {
                         {{ Video("url_of_source") }}
                     </td>
                     <td>
-                        ${ __("Upload a video from your local machine to the {0}. Copy and paste this syntax in the editor. Replace 'url_of_source' with the File URL field of the document you created in the File DocType.", [file_link]) }
+                        ${__(
+							"Upload a video from your local machine to the {0}. Copy and paste this syntax in the editor. Replace 'url_of_source' with the File URL field of the document you created in the File DocType.",
+							[file_link]
+						)}
                     </td>
                 </tr>
                 <tr>
@@ -78,7 +94,10 @@ frappe.ui.form.on('Course Lesson', {
                         {{ Exercise("exercise_id") }}
                     </td>
                     <td>
-                        ${ __("Copy and paste the syntax in the editor. Replace 'exercise_id' with the ID of the Exercise you want to add. You can get the ID of the exercise from the {0}.", [exercise_link]) }
+                        ${__(
+							"Copy and paste the syntax in the editor. Replace 'exercise_id' with the ID of the Exercise you want to add. You can get the ID of the exercise from the {0}.",
+							[exercise_link]
+						)}
                     </td>
                 </tr>
                 <tr>
@@ -125,5 +144,5 @@ frappe.ui.form.on('Course Lesson', {
                 </tr>
             </table>
         `);
-    }
+	},
 });
