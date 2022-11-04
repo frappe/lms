@@ -2,7 +2,6 @@ exclude: 'node_modules|.git'
 default_stages: [commit]
 fail_fast: false
 
-
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.3.0
