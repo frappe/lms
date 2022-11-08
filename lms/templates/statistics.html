@@ -6,10 +6,16 @@
             {{ _("Published Courses") }}
         </div>
         <div class="stats-value">
-            {{ frappe.db.count("LMS Course", { "published": 1, "upcoming": 0 }) }}
+            {{ frappe.utils.fmt_money(
+				frappe.db.count("LMS Course", {
+					"published": 1,
+					"upcoming": 0
+				})
+				, 0) }}
         </div>
     </div>
     {% endif %}
+
 
     {% if total_signups %}
     <div class="common-card-style p-4 flex-column">
@@ -17,10 +23,15 @@
             {{ _("Total Signups") }}
         </div>
         <div class="stats-value">
-            {{ frappe.db.count("User", { "enabled": 1 }) }}
+            {{ frappe.utils.fmt_money(
+				frappe.db.count("User", {
+					"enabled": 1
+				})
+				, 0) }}
         </div>
     </div>
     {% endif %}
+
 
     {% if enrollment_count %}
     <div class="common-card-style p-4 flex-column">
@@ -28,7 +39,9 @@
             {{ _("Enrollment Count") }}
         </div>
         <div class="stats-value">
-            {{ frappe.db.count("LMS Batch Membership") }}
+            {{ frappe.utils.fmt_money(
+				frappe.db.count("LMS Batch Membership")
+				, 0) }}
         </div>
     </div>
     {% endif %}
