@@ -1,0 +1,25 @@
+{% extends "templates/base.html" %}
+{% block title %}
+    {{  _("All Classes") }}
+{% endblock %}
+
+{% block content %}
+<div class="common-page-style">
+	<div class="container">
+		<a class="btn btn-default btn-sm pull-right" href="/classes/new-class">
+			{{ _("Create Class") }}
+		</a>
+		<div class="course-home-headings"> {{ _("All Classes") }} </div>
+		{% if classes %}
+		{% else %}
+		<div class="empty-state">
+			<img class="icon icon-xl" src="/assets/lms/icons/comment.svg">
+			<div class="empty-state-text">
+				<div class="empty-state-heading">{{ _("No Classes") }}</div>
+				<div class="course-meta">{{ _("There are no classes on this site.") }}</div>
+			</div>
+		</div>
+		{% endif %}
+	</div>
+</div>
+{% endblock %}
