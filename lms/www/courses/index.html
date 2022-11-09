@@ -34,9 +34,9 @@
             </div>
 
             <div class="pull-right">
-                {% if frappe.session.user %}
+                {% if frappe.session.user != "Guest" %}
                 <a class="btn btn-secondary btn-sm" href="/users">
-                    {{ _("Visit Dashboard") }}
+                    {{ _("My Profile") }}
                 </a>
                 {% endif %}
 
