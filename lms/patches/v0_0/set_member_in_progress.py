@@ -1,5 +1,6 @@
 import frappe
 
+
 def execute():
 	progress_records = frappe.get_all("LMS Course Progress", fields=["name", "owner"])
 
