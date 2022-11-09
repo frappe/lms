@@ -5,6 +5,8 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "member",
+  "member_name",
   "status",
   "column_break_3",
   "lesson",
@@ -26,7 +28,6 @@
    "fetch_from": "lesson.chapter",
    "fieldname": "chapter",
    "fieldtype": "Link",
-   "in_list_view": 1,
    "label": "Chapter",
    "options": "Course Chapter",
    "read_only": 1
@@ -49,11 +50,24 @@
   {
    "fieldname": "column_break_3",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "member",
+   "fieldtype": "Link",
+   "label": "Member",
+   "options": "User"
+  },
+  {
+   "fetch_from": "member.full_name",
+   "fieldname": "member_name",
+   "fieldtype": "Data",
+   "label": "Member Name",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-09-30 13:07:54.246863",
+ "modified": "2022-11-09 14:24:06.312623",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course Progress",
@@ -74,5 +88,7 @@
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
+ "states": [],
+ "title_field": "member_name",
  "track_changes": 1
 }
