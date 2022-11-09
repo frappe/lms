@@ -1216,9 +1216,9 @@ pre {
 }
 
 .preview-video {
-  width: 100%;
-  height: 190px;
-  border: none;
+	width: 100%;
+	height: 190px;
+	border: none;
 }
 
 .course-body-container {
@@ -1715,6 +1715,11 @@ li {
     grid-gap: 2rem;
 }
 
+.tab-pane .stats-parent {
+	grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+	grid-gap: 1rem;
+}
+
 .stats-label {
     color: var(--gray-900);
     font-weight: 500;
@@ -1770,8 +1775,8 @@ li {
 
 .frappe-chart .title {
     font-size: 1rem;
-    font-weight: bold;
-    color: var(--gray-900);
+    font-weight: 500;
+    fill: var(--gray-900);
 }
 
 .course-description-section {
@@ -1798,4 +1803,8 @@ input::file-selector-button:hover {
 select {
     appearance: none;
     -webkit-appearance: none;
+}
+
+.course-list-cta {
+	float: right;
 }

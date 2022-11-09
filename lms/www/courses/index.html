@@ -29,22 +29,22 @@
 
             <!-- {% include "lms/templates/search_course/search_course.html" %} -->
 
-            <div class="course-home-headings">
-                {{ _("All Courses") }}
-            </div>
-
-            <div class="pull-right">
+			<div class="course-list-cta">
                 {% if frappe.session.user != "Guest" %}
-                <a class="btn btn-secondary btn-sm" href="/users">
+                <a class="btn btn-default btn-sm" href="/users">
                     {{ _("My Profile") }}
                 </a>
                 {% endif %}
 
                 {% if show_creators_section %}
-                <a class="btn btn-secondary btn-sm ml-2" href="/courses/new-course">
+                <a class="btn btn-default btn-sm ml-2" href="/courses/new-course">
                     {{ _("Create a Course") }}
                 </a>
                 {% endif %}
+            </div>
+
+            <div class="course-home-headings">
+                {{ _("All Courses") }}
             </div>
 
             <ul class="nav lms-nav" id="courses-tab">
