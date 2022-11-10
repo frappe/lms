@@ -16,6 +16,14 @@ frappe.ready(() => {
 	$(document).on("click", ".btn-save-chapter", (e) => {
 		save_chapter(e);
 	});
+
+	if (window.location.pathname == "/statistics") {
+		generate_graph("New Signups", "#new-signups");
+		generate_graph("Course Enrollments", "#course-enrollments");
+		generate_graph("Lesson Completion", "#lesson-completion");
+		generate_course_completion_graph();
+	}
+
 });
 
 const setup_file_size = () => {
@@ -51,13 +59,10 @@ const join_course = (e) => {
 		callback: (data) => {
 			if (data.message == "OK") {
 				$(".no-preview-modal").modal("hide");
-				frappe.show_alert(
-					{
-						message: __("Enrolled successfully"),
-						indicator: "green",
-					},
-					3
-				);
+				frappe.show_alert({
+					message: __("Enrolled successfully"),
+					indicator: "green",
+				}, 3);
 				setTimeout(function () {
 					window.location.href = `/courses/${course}/learn/1.1`;
 				}, 1000);
@@ -81,15 +86,12 @@ const notify_user = (e) => {
 		},
 		callback: (data) => {
 			$(".no-preview-modal").modal("hide");
-			frappe.show_alert(
-				{
-					message: __(
-						"You have opted to be notified for this course. You will receive an email when the course becomes available."
-					),
-					indicator: "green",
-				},
-				3
-			);
+			frappe.show_alert({
+				message: __(
+					"You have opted to be notified for this course. You will receive an email when the course becomes available."
+				),
+				indicator: "green",
+			}, 3);
 			setTimeout(() => {
 				window.location.reload();
 			}, 3000);
@@ -121,15 +123,14 @@ const add_chapter = (e) => {
 	scroll_to_chapter_container();
 };
 
+
 const scroll_to_chapter_container = () => {
-	$([document.documentElement, document.body]).animate(
-		{
-			scrollTop: $(".new-chapter").offset().top,
-		},
-		1000
-	);
+	$([document.documentElement, document.body]).animate({
+		scrollTop: $(".new-chapter").offset().top,
+	}, 1000);
 	$(".new-chapter").find(".chapter-title-main").focus();
 };
+
 
 const save_chapter = (e) => {
 	let target = $(e.currentTarget);
@@ -155,3 +156,47 @@ const save_chapter = (e) => {
 		},
 	});
 };
+
+const generate_graph = (chart_name, element, type="line") => {
+	let date = frappe.datetime;
+
+	frappe.call({
+		method: "lms.lms.utils.get_chart_data",
+		args: {
+			chart_name: chart_name,
+			timespan: "Select Date Range",
+			timegrain: "Daily",
+			from_date: date.add_days(date.get_today(), -30),
+			to_date: date.add_days(date.get_today(), +1)
+		},
+		callback: (data) => {
+			render_chart(data.message, chart_name, element, type);
+		},
+	});
+};
+
+const render_chart = (data, chart_name, element, type) => {
+	const chart = new frappe.Chart(element, {
+		title: chart_name,
+		data: data,
+		type: type,
+		height: 250,
+		colors: ["#4563f1"],
+		axisOptions: {
+			xIsSeries: 1,
+		},
+		lineOptions: {
+			regionFill: 1,
+		},
+	});
+};
+
+
+const generate_course_completion_graph = () => {
+	frappe.call({
+		method: "lms.lms.utils.get_course_completion_data",
+		callback: (data) => {
+			render_chart(data.message, "Course Completion", "#course-completion", "pie")
+		}
+	})
+}

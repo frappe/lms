@@ -1,0 +1,46 @@
+{% extends "templates/base.html" %}
+
+
+{% block title %}
+{{ _("Statistics") }}
+{% endblock %}
+
+
+{% block content %}
+<div class="common-page-style statistics">
+	<div class="container">
+		<div class="course-home-headings">
+			{{ _("Statistics") }}
+		</div>
+		{% set published_courses = True %}
+		{% set total_signups = True %}
+		{% set enrollment_count = True %}
+		{% set course_completion = True %}
+		{% set lesson_completion = True %}
+		{% set quiz_completion = True %}
+
+		<div class="mt-10">
+			{% include "lms/templates/statistics.html" %}
+
+			<div class="row mt-10">
+				<div class="col">
+					<div class="common-card-style p-2" id="new-signups"></div>
+				</div>
+				<div class="col">
+					<div class="common-card-style p-2" id="course-enrollments"></div>
+				</div>
+			</div>
+
+			<div class="row mt-8">
+				<div class="col">
+					<div class="common-card-style p-2" id="lesson-completion"></div>
+				</div>
+				<div class="col">
+					<div class="common-card-style p-2" id="course-completion"></div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+</div>
+{% endblock %}
