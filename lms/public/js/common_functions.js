@@ -23,7 +23,6 @@ frappe.ready(() => {
 		generate_graph("Lesson Completion", "#lesson-completion");
 		generate_course_completion_graph();
 	}
-
 });
 
 const setup_file_size = () => {
@@ -59,10 +58,13 @@ const join_course = (e) => {
 		callback: (data) => {
 			if (data.message == "OK") {
 				$(".no-preview-modal").modal("hide");
-				frappe.show_alert({
-					message: __("Enrolled successfully"),
-					indicator: "green",
-				}, 3);
+				frappe.show_alert(
+					{
+						message: __("Enrolled successfully"),
+						indicator: "green",
+					},
+					3
+				);
 				setTimeout(function () {
 					window.location.href = `/courses/${course}/learn/1.1`;
 				}, 1000);
@@ -86,12 +88,15 @@ const notify_user = (e) => {
 		},
 		callback: (data) => {
 			$(".no-preview-modal").modal("hide");
-			frappe.show_alert({
-				message: __(
-					"You have opted to be notified for this course. You will receive an email when the course becomes available."
-				),
-				indicator: "green",
-			}, 3);
+			frappe.show_alert(
+				{
+					message: __(
+						"You have opted to be notified for this course. You will receive an email when the course becomes available."
+					),
+					indicator: "green",
+				},
+				3
+			);
 			setTimeout(() => {
 				window.location.reload();
 			}, 3000);
@@ -123,14 +128,15 @@ const add_chapter = (e) => {
 	scroll_to_chapter_container();
 };
 
-
 const scroll_to_chapter_container = () => {
-	$([document.documentElement, document.body]).animate({
-		scrollTop: $(".new-chapter").offset().top,
-	}, 1000);
+	$([document.documentElement, document.body]).animate(
+		{
+			scrollTop: $(".new-chapter").offset().top,
+		},
+		1000
+	);
 	$(".new-chapter").find(".chapter-title-main").focus();
 };
-
 
 const save_chapter = (e) => {
 	let target = $(e.currentTarget);
@@ -157,7 +163,7 @@ const save_chapter = (e) => {
 	});
 };
 
-const generate_graph = (chart_name, element, type="line") => {
+const generate_graph = (chart_name, element, type = "line") => {
 	let date = frappe.datetime;
 
 	frappe.call({
@@ -167,7 +173,7 @@ const generate_graph = (chart_name, element, type="line") => {
 			timespan: "Select Date Range",
 			timegrain: "Daily",
 			from_date: date.add_days(date.get_today(), -30),
-			to_date: date.add_days(date.get_today(), +1)
+			to_date: date.add_days(date.get_today(), +1),
 		},
 		callback: (data) => {
 			render_chart(data.message, chart_name, element, type);
@@ -191,12 +197,16 @@ const render_chart = (data, chart_name, element, type) => {
 	});
 };
 
-
 const generate_course_completion_graph = () => {
 	frappe.call({
 		method: "lms.lms.utils.get_course_completion_data",
 		callback: (data) => {
-			render_chart(data.message, "Course Completion", "#course-completion", "pie")
-		}
-	})
-}
+			render_chart(
+				data.message,
+				"Course Completion",
+				"#course-completion",
+				"pie"
+			);
+		},
+	});
+};

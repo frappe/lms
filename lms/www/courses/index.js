@@ -1,5 +1,4 @@
 frappe.ready(() => {
-
 	$(".nav-link").click((e) => {
 		change_hash(e);
 	});
@@ -7,9 +6,7 @@ frappe.ready(() => {
 	if (window.location.hash) {
 		open_tab();
 	}
-
 });
-
 
 const change_hash = (e) => {
 	window.location.hash = $(e.currentTarget).attr("href");

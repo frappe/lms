@@ -659,19 +659,14 @@ def get_chart_data(chart_name, timespan, timegrain, from_date, to_date):
 @frappe.whitelist(allow_guest=True)
 def get_course_completion_data():
 	all_membership = frappe.db.count("LMS Batch Membership")
-	completed = frappe.db.count("LMS Batch Membership", {
-		"progress": ["like", "%100%"]
-	})
+	completed = frappe.db.count("LMS Batch Membership", {"progress": ["like", "%100%"]})
 
 	return {
-			"labels": ["Completed", "In Progress"],
-			"datasets": [
-				{
-					"name": "Course Completion",
-					"values": [
-						completed,
-						all_membership - completed
-					],
-				}
-			],
-		}
+		"labels": ["Completed", "In Progress"],
+		"datasets": [
+			{
+				"name": "Course Completion",
+				"values": [completed, all_membership - completed],
+			}
+		],
+	}
