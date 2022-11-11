@@ -48,7 +48,7 @@
 
 	{% if course_completion %}
 	{% set course_completion_count = frappe.db.count("LMS Batch Membership", {
-		"progress":["=","100"]
+		"progress":["like","%100%"]
 	}) %}
 	<div class="common-card-style p-4 flex-column">
 		<div class="stats-label">

@@ -89,7 +89,7 @@
   },
   {
    "fieldname": "progress",
-   "fieldtype": "Data",
+   "fieldtype": "Float",
    "label": "Progress",
    "read_only": 1
   },
@@ -116,7 +116,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-10-10 12:38:17.839525",
+ "modified": "2022-10-10 12:38:17.839526",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch Membership",
