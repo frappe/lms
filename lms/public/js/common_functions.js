@@ -16,6 +16,13 @@ frappe.ready(() => {
 	$(document).on("click", ".btn-save-chapter", (e) => {
 		save_chapter(e);
 	});
+
+	if (window.location.pathname == "/statistics") {
+		generate_graph("New Signups", "#new-signups");
+		generate_graph("Course Enrollments", "#course-enrollments");
+		generate_graph("Lesson Completion", "#lesson-completion");
+		generate_course_completion_graph();
+	}
 });
 
 const setup_file_size = () => {
@@ -152,6 +159,54 @@ const save_chapter = (e) => {
 			setTimeout(() => {
 				window.location.reload();
 			}, 1000);
+		},
+	});
+};
+
+const generate_graph = (chart_name, element, type = "line") => {
+	let date = frappe.datetime;
+
+	frappe.call({
+		method: "lms.lms.utils.get_chart_data",
+		args: {
+			chart_name: chart_name,
+			timespan: "Select Date Range",
+			timegrain: "Daily",
+			from_date: date.add_days(date.get_today(), -30),
+			to_date: date.add_days(date.get_today(), +1),
+		},
+		callback: (data) => {
+			render_chart(data.message, chart_name, element, type);
+		},
+	});
+};
+
+const render_chart = (data, chart_name, element, type) => {
+	const chart = new frappe.Chart(element, {
+		title: chart_name,
+		data: data,
+		type: type,
+		height: 250,
+		colors: ["#4563f1"],
+		axisOptions: {
+			xIsSeries: 1,
+		},
+		lineOptions: {
+			regionFill: 1,
+		},
+	});
+};
+
+const generate_course_completion_graph = () => {
+	frappe.call({
+		method: "lms.lms.utils.get_course_completion_data",
+		callback: (data) => {
+			render_chart(
+				data.message,
+				"Course Completion",
+				"#course-completion",
+				"pie"
+			);
 		},
 	});
 };
