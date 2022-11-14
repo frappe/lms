@@ -1,11 +1,5 @@
 frappe.ready(() => {
-	$(".nav-link").click((e) => {
-		change_hash(e);
-	});
 
-	if (window.location.hash) {
-		open_tab();
-	}
 });
 
 const change_hash = (e) => {

@@ -9,7 +9,21 @@ body {
 }
 
 input[type=checkbox] {
-  appearance: auto;
+	appearance: auto;
+	position: relative;
+    width: var(--checkbox-size)!important;
+    height: var(--checkbox-size);
+    margin-right: var(--checkbox-right-margin)!important;
+    background-repeat: no-repeat;
+    background-position: center;
+    border: 1px solid var(--gray-400);
+    box-sizing: border-box;
+    box-shadow: 0 1px 2px #0000001a;
+    border-radius: 4px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    -webkit-print-color-adjust: exact;
 }
 
 .course-image {
@@ -1747,10 +1761,6 @@ li {
     padding: 0 1.5rem !important;
 }
 
-.modal-footer {
-    padding: 0.75rem 1.5rem !important;
-}
-
 .modal-content {
     font-size: var(--text-base) !important;
 }
@@ -1764,9 +1774,9 @@ li {
 }
 
 .modal-footer {
+    padding: 0.75rem 1.5rem !important;
     border-top: none !important;
     background-color: var(--gray-200) !important;
-    justify-content: flex-end !important;
 }
 
 .modal-header .modal-title {
@@ -1807,4 +1817,26 @@ select {
 
 .course-list-cta {
 	float: right;
+}
+
+.modal-title {
+	font-size: var(--text-base) !important;
+}
+
+.class-form-title {
+	font-size: var(--text-base);
+}
+
+.remove-student {
+	cursor: pointer;
+}
+
+.class-course-list {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+	grid-gap: 1rem;
+}
+
+.class-cours {
+	cursor: pointer;
 }

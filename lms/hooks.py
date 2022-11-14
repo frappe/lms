@@ -143,6 +143,7 @@ website_route_rules = [
 	},
 	{"from_route": "/quizzes", "to_route": "batch/quiz_list"},
 	{"from_route": "/quizzes/<quizname>", "to_route": "batch/quiz"},
+	{"from_route": "/classes/<classname>", "to_route": "classes/class"},
 	{"from_route": "/courses/<course>/progress", "to_route": "batch/progress"},
 	{"from_route": "/courses/<course>/join", "to_route": "batch/join"},
 	{"from_route": "/courses/<course>/manage", "to_route": "cohorts"},

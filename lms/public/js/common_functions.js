@@ -17,6 +17,14 @@ frappe.ready(() => {
 		save_chapter(e);
 	});
 
+	$(".nav-link").click((e) => {
+		change_hash(e);
+	});
+
+	if (window.location.hash) {
+		open_tab();
+	}
+
 	if (window.location.pathname == "/statistics") {
 		generate_graph("New Signups", "#new-signups");
 		generate_graph("Course Enrollments", "#course-enrollments");
@@ -197,6 +205,7 @@ const render_chart = (data, chart_name, element, type) => {
 	});
 };
 
+
 const generate_course_completion_graph = () => {
 	frappe.call({
 		method: "lms.lms.utils.get_course_completion_data",
@@ -209,4 +218,14 @@ const generate_course_completion_graph = () => {
 			);
 		},
 	});
+};
+
+
+const change_hash = (e) => {
+	window.location.hash = $(e.currentTarget).attr("href");
+};
+
+
+const open_tab = () => {
+	$(`a[href="${window.location.hash}"]`).click();
 };
