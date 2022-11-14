@@ -63,7 +63,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-11-11 17:41:05.472822",
+ "modified": "2022-11-14 17:08:03.206840",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Class",
@@ -90,7 +90,7 @@
    "print": 1,
    "read": 1,
    "report": 1,
-   "role": "Course Moderator",
+   "role": "Moderator",
    "share": 1,
    "write": 1
   }
