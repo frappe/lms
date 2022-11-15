@@ -1,6 +1,6 @@
 {% extends "templates/base.html" %}
 {% block title %}
-    {{  _(class_info.title) }}
+    {{ _(class_info.title) }}
 {% endblock %}
 
 
@@ -33,7 +33,7 @@
 	<div class="course-home-headings">
 		{{ class_info.title }}
 	</div>
-	<div>
+	<div class="medium">
 		{{ class_info.description }}
 	</div>
 	<div class="medium">
@@ -108,11 +108,12 @@
 	{% if class_students | length %}
 	<div class="mt-10">
 		{% for student in class_students %}
-		<div class="">
+		<div class="" style="position: relative;">
 			<span>{{ student.student_name }}</span>
 			<svg class="icon icon-md pull-right remove-student" data-student="{{ student.student }}">
 				<use href="#icon-delete"></use>
 			</svg>
+			<a class="stretched-link" href="/classes/{{ class_info.name }}/students/{{ student.username }}"></a>
 		</div>
 		{% if not loop.last %} <hr> {% endif %}
 		{% endfor %}

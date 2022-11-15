@@ -33,6 +33,7 @@ class CourseLesson(Document):
 			e = frappe.get_doc(doctype_map[section], name)
 			e.lesson = self.name
 			e.index_ = index
+			e.course = self.course
 			e.save(ignore_permissions=True)
 			index += 1
 		self.update_orphan_documents(doctype_map[section], documents)
@@ -49,6 +50,7 @@ class CourseLesson(Document):
 		for name in orphan_documents:
 			ex = frappe.get_doc(doctype, name)
 			ex.lesson = None
+			ex.course = None
 			ex.index_ = 0
 			ex.index_label = ""
 			ex.save()

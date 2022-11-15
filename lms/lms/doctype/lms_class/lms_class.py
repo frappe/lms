@@ -7,7 +7,21 @@ from frappe import _
 from frappe.utils import cint
 
 class LMSClass(Document):
-	pass
+
+	def validate(self):
+		validate_membership(self)
+
+
+def validate_membership(self):
+	for course in self.courses:
+		for student in self.students:
+			filters = {
+				"doctype": "LMS Batch Membership",
+				"member": student.student,
+				"course": course.course
+			}
+			if not frappe.db.exists(filters):
+				frappe.get_doc(filters).save()
 
 
 @frappe.whitelist()

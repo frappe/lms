@@ -5,11 +5,12 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "member",
-  "member_name",
-  "column_break_3",
   "quiz",
   "score",
+  "course",
+  "column_break_3",
+  "member",
+  "member_name",
   "section_break_6",
   "result"
  ],
@@ -46,7 +47,8 @@
    "fetch_from": "member.full_name",
    "fieldname": "member_name",
    "fieldtype": "Data",
-   "label": "Member Name"
+   "label": "Member Name",
+   "read_only": 1
   },
   {
    "fieldname": "column_break_3",
@@ -55,12 +57,20 @@
   {
    "fieldname": "section_break_6",
    "fieldtype": "Section Break"
+  },
+  {
+   "fetch_from": "quiz.course",
+   "fieldname": "course",
+   "fieldtype": "Link",
+   "label": "Course",
+   "options": "LMS Course",
+   "read_only": 1
   }
  ],
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-10-10 18:57:42.813738",
+ "modified": "2022-11-15 15:27:07.770945",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz Submission",

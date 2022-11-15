@@ -87,9 +87,9 @@ input[type=checkbox] {
 }
 
 .common-page-style {
-  padding: 2rem 0 5rem;
-  padding-top: 3rem;
-  background-color: var(--bg-color);
+	padding: 2rem 0 5rem;
+	padding-top: 3rem;
+	background-color: var(--bg-color);
 }
 
 .common-card-style {
@@ -441,10 +441,6 @@ input[type=checkbox] {
   flex-direction: column;
   align-items: center;
   padding: 2rem 1rem;
-}
-
-.member-card .talk-title {
-  font-weight: bold;
 }
 
 .break {
@@ -976,10 +972,6 @@ pre {
         justify-content: space-between;
         margin-bottom: 1rem;
     }
-}
-
-.section-heading {
-  font-size: var(--text-4xl);
 }
 
 .testimonial-card {
@@ -1835,8 +1827,28 @@ select {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
 	grid-gap: 1rem;
+	font-size: var(--text-base);
 }
 
 .class-cours {
 	cursor: pointer;
+}
+
+.subheading {
+	font-weight: 500;
+	color: var(--gray-900);
+}
+
+.progress-course-header {
+	display: flex;
+	justify-content: space-between;
+	background-color: var(--gray-100);
+	padding: 0.5rem;
+	border-radius: var(--border-radius-sm);
+}
+
+.section-heading {
+	font-size: 1rem;
+	color: var(--gray-900);
+	font-weight: 500;
 }

@@ -1,0 +1,76 @@
+{% extends "templates/base.html" %}
+{% block title %}
+    {{ student.first_name }} 's {{ _("Progress") }}
+{% endblock %}
+
+
+{% block content %}
+<div class="common-page-style">
+	<div class="container">
+		{{ BreadCrumb(class_info, student) }}
+		<div class="common-card-style column-card">
+			<div class="course-home-headings">
+				{{ student.full_name }}
+			</div>
+			{{ Progress(class_courses, student) }}
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+
+{% macro BreadCrumb(class_info, student) %}
+<div class="breadcrumb">
+    <a class="dark-links" href="/classes">{{ _("All Classes") }}</a>
+    <img class="ml-1 mr-1" src="/assets/lms/icons/chevron-right.svg">
+    <a class="dark-links" href="/classes/{{ class_info.name }}">{{ class_info.name }}</a>
+    <img class="ml-1 mr-1" src="/assets/lms/icons/chevron-right.svg">
+    <span class="breadcrumb-destination">{{ student.full_name }}</span>
+</div>
+{% endmacro %}
+
+
+{% macro Progress(class_info, student) %}
+<div>
+	{% for course in class_courses %}
+	<div class="medium">
+		<div class="progress-course-header">
+			<div class="section-heading"> {{ course.title }} </div>
+			<div> {{ frappe.utils.cint(course.membership.progress) }}% </div>
+		</div>
+
+
+		{% for quiz in course.quizzes %}
+
+		{% set filters = { "member": student.name, "course": course.course } %}
+		{% set submitted = frappe.db.exists("LMS Quiz Submission", filters) %}
+		{% set score = frappe.db.get_value("LMS Quiz Submission", filters, ["score"]) %}
+
+		<div class="my-5">
+			<div class="subheading"> {{ _("Quiz") }}: </div>
+			<div class="d-flex">
+				<div>
+					{{ quiz.title }}
+				</div>
+				{% if submitted %}
+				<div class="ml-5">
+					{{ score }}
+				</div>
+				{% else  %}
+				<div class="indicator-pill red ml-5">
+					Not Attempted
+				</div>
+				{% endif %}
+			</div>
+		</div>
+
+		{% endfor %}
+		{% for quiz in class_courses.assignments %}
+		<div>
+			{{ assignments.assignment }}
+		</div>
+		{% endfor %}
+	</div>
+	{% endfor %}
+</div>
+{% endmacro %}

@@ -60,6 +60,13 @@ class LMSQuiz(Document):
 			return result[0]
 
 
+def update_lesson_info(doc, method):
+	if doc.quiz_id:
+		frappe.db.set_value("LMS Quiz", doc.quiz_id, {
+			"lesson": doc.name,
+			"course": doc.course
+		})
+
 @frappe.whitelist()
 def quiz_summary(quiz, results):
 	score = 0
