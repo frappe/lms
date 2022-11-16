@@ -1,8 +1,16 @@
 import frappe
-
+from lms.lms.utils import has_course_moderator_role
+from frappe import _
 
 def get_context(context):
 	context.no_cache = 1
+
+	if not has_course_moderator_role():
+		message = "Only Moderators have access to this page."
+		if frappe.session.user == "Guest":
+			message = "Please login to access this page."
+
+		raise frappe.PermissionError(_(message))
 
 	student = frappe.form_dict["username"]
 	classname = frappe.form_dict["classname"]
@@ -20,7 +28,6 @@ def get_context(context):
 			"course": course.course
 		}, ["progress"], as_dict=True)
 		course.quizzes = frappe.get_all("LMS Quiz", {"course": course.course}, ["name", "title"])
-		course.assignments = frappe.get_all("Lesson Assignment", {"course": course.course}, ["name", "assignment"])
+		course.assignments = frappe.get_all("Course Lesson", {"course": course.course, "question": ["is", "set"]}, ["name", "title"])
 
-	print(class_courses)
 	context.class_courses = class_courses

@@ -36,40 +36,106 @@
 	<div class="medium">
 		<div class="progress-course-header">
 			<div class="section-heading"> {{ course.title }} </div>
-			<div> {{ frappe.utils.cint(course.membership.progress) }}% </div>
+			<div class="ml-3"> {{ frappe.utils.cint(course.membership.progress) }}% </div>
 		</div>
 
-
-		{% for quiz in course.quizzes %}
-
-		{% set filters = { "member": student.name, "course": course.course } %}
-		{% set submitted = frappe.db.exists("LMS Quiz Submission", filters) %}
-		{% set score = frappe.db.get_value("LMS Quiz Submission", filters, ["score"]) %}
-
+		{% if course.quizzes | length or course.assignments | length %}
 		<div class="my-5">
-			<div class="subheading"> {{ _("Quiz") }}: </div>
-			<div class="d-flex">
-				<div>
-					{{ quiz.title }}
-				</div>
-				{% if submitted %}
-				<div class="ml-5">
-					{{ score }}
-				</div>
-				{% else  %}
-				<div class="indicator-pill red ml-5">
-					Not Attempted
-				</div>
-				{% endif %}
-			</div>
-		</div>
+			<table class="table">
+				<tr>
+					<th style="width: 40%;">
+						{{ _("Activity") }}
+					</th>
+					<th style="width: 20%;">
+						{{ _("Type") }}
+					</th>
+					<th style="width: 20%;">
+						{{ _("Score/Status") }}
+					</th>
+					<th style="width: 20%;">
+						{{ _("Last Attempt Date") }}
+					</th>
+				</tr>
+				{% for quiz in course.quizzes %}
 
-		{% endfor %}
-		{% for quiz in class_courses.assignments %}
-		<div>
-			{{ assignments.assignment }}
+				{% set filters = { "member": student.name, "course": course.course } %}
+				{% set has_submitted = frappe.db.exists("LMS Quiz Submission", filters) %}
+				{% set submission = frappe.db.get_value("LMS Quiz Submission", filters, ["score", "creation"], as_dict=True) %}
+
+				<tr class="">
+					<td>
+						{{ quiz.title }}
+					</td>
+					<td>
+						{{ _("Quiz") }}
+					</td>
+					{% if has_submitted %}
+					<td>
+						{{ submission.score }}
+					</td>
+					<td>
+						{{ frappe.utils.format_date(submission.creation, "medium") }}
+					</td>
+					{% else %}
+					<td>
+						-
+					</td>
+					<td>
+						<div class="indicator-pill red">
+							{{ _("Not Attempted") }}
+						</div>
+					</td>
+					{% endif %}
+				</tr>
+				{% endfor %}
+
+				{% for assignment in course.assignments %}
+
+				{% set filters = { "member": student.name, "course": course.course, "lesson": assignment.name } %}
+				{% set has_submitted = frappe.db.exists("Lesson Assignment", filters) %}
+				{% set submission = frappe.db.get_value("Lesson Assignment", filters, ["assignment", "creation", "status"], as_dict=True) %}
+				{% set status = submission.status %}
+				{% set color = "green" if status == "Pass" else "red" if status == "Fail" else "orange" %}
+
+				<tr>
+					<td>
+						{{ assignment.title }}
+					</td>
+					<td>
+						{{ _("Assignment") }}
+					</td>
+					{% if has_submitted %}
+					<td>
+						{% if status == "Not Graded" %}
+						<a class="btn btn-secondary btn-sm" href="/assignments/{{ has_submitted }}"> {{ _("Grade") }} </a>
+						{% else %}
+						<div class="indicator-pill {{ color }}">
+							{{ status }}
+						</div>
+						{% endif %}
+					</td>
+					<td>
+						{{ frappe.utils.format_date(submission.creation, "medium") }}
+					</td>
+					{% else %}
+					<td>
+						-
+					</td>
+					<td>
+						<div class="indicator-pill red">
+							{{ _("Not Attempted") }}
+						</div>
+					</td>
+					{% endif %}
+				</tr>
+				{% endfor %}
+			</table>
 		</div>
-		{% endfor %}
+		{% else %}
+		<div class="text-muted medium my-5">
+			{{ _("There are no activities in this course.") }}
+		</div>
+		{% endif %}
 	</div>
 	{% endfor %}
 </div>

@@ -1841,14 +1841,18 @@ select {
 
 .progress-course-header {
 	display: flex;
-	justify-content: space-between;
 	background-color: var(--gray-100);
 	padding: 0.5rem;
-	border-radius: var(--border-radius-sm);
 }
 
 .section-heading {
 	font-size: 1rem;
 	color: var(--gray-900);
 	font-weight: 500;
+}
+
+.table th {
+	color: var(--gray-900);
+	font-weight: 500;
+	border-bottom: 1px solid var(--gray-300);
 }

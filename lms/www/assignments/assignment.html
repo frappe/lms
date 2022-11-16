@@ -1,0 +1,36 @@
+{% extends "templates/base.html" %}
+{% block title %}
+	{{ _("Assignments") }}
+{% endblock %}
+
+
+{% block content %}
+<div class="common-page-style">
+	<div class="container">
+		<div class="common-card-style column-card">
+			<div class="btn btn-primary btn-sm pull-right" id="save-assignment"> {{ _("Save") }} </div>
+			<div class="course-home-headings"> {{ _("Assignments") }} </div>
+			<div class="row medium">
+				<div class="col">
+					<div>
+						<a href="{{ assignment.assignment }}" target="_blank">
+							{{ _("Click to open assignment") }}
+						</a>
+					</div>
+					<div>
+						<select class="btn btn-default ml-2" id="file-type" data-type="{{ assignment.status }}">
+							<option selected> {{ _("Result") }} </option>
+							<option value="Image"> {{ _("Pass") }} </option>
+							<option value="Document"> {{ _("Fail") }} </option>
+						</select>
+					</div>
+				</div>
+				<div class="col">
+					<div contenteditable="true" data-placeholder="{{ _('Comments') }}"
+					style="height: 100px;" >{% if assignment.comments %}{{ assignment.comments }}{% endif %}</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

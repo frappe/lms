@@ -12,7 +12,7 @@ class LessonAssignment(Document):
 
 	def validate_duplicates(self):
 		if frappe.db.exists(
-			"Lesson Assignment", {"lesson": self.lesson, "member": self.member}
+			"Lesson Assignment", {"lesson": self.lesson, "member": self.member, "name": ["!=", self.name]}
 		):
 			lesson_title = frappe.db.get_value("Course Lesson", self.lesson, "title")
 			frappe.throw(

@@ -159,7 +159,8 @@ website_route_rules = [
 	{"from_route": "/users", "to_route": "profiles/profile"},
 	{"from_route": "/jobs/<job>", "to_route": "jobs/job"},
 	{"from_route": "/classes/<classname>/students/<username>",
-		"to_route": "/classes/progress"}
+		"to_route": "/classes/progress"},
+	{"from_route": "/assignments/<assignment>", "to_route": "assignments/assignment"}
 ]
 
 website_redirects = [
