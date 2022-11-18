@@ -96,7 +96,7 @@ override_doctype_class = {
 
 doc_events = {
 	"Discussion Reply": {"after_insert": "lms.lms.utils.create_notification_log"},
-	"Course Lesson": {"on_update": "lms.lms.doctype.lms_quiz.lms_quiz.update_lesson_info"}
+	"Course Lesson": {"on_update": "lms.lms.doctype.lms_quiz.lms_quiz.update_lesson_info"},
 }
 
 # Scheduled Tasks
@@ -138,29 +138,40 @@ website_route_rules = [
 	{"from_route": "/courses/<course>", "to_route": "courses/course"},
 	{"from_route": "/courses/<course>/<certificate>", "to_route": "courses/certificate"},
 	{"from_route": "/courses/<course>/learn", "to_route": "batch/learn"},
-	{"from_route": "/courses/<course>/learn/<int:chapter>.<int:lesson>",
-		"to_route": "batch/learn"},
+	{
+		"from_route": "/courses/<course>/learn/<int:chapter>.<int:lesson>",
+		"to_route": "batch/learn",
+	},
 	{"from_route": "/quizzes", "to_route": "batch/quiz_list"},
 	{"from_route": "/quizzes/<quizname>", "to_route": "batch/quiz"},
 	{"from_route": "/classes/<classname>", "to_route": "classes/class"},
 	{"from_route": "/courses/<course>/progress", "to_route": "batch/progress"},
 	{"from_route": "/courses/<course>/join", "to_route": "batch/join"},
 	{"from_route": "/courses/<course>/manage", "to_route": "cohorts"},
-	{"from_route": "/courses/<course>/cohorts/<cohort>",
-		"to_route": "cohorts/cohort"},
-	{"from_route": "/courses/<course>/cohorts/<cohort>/<page>",
-		"to_route": "cohorts/cohort"},
-	{"from_route": "/courses/<course>/subgroups/<cohort>/<subgroup>",
-		"to_route": "cohorts/subgroup"},
-	{"from_route": "/courses/<course>/subgroups/<cohort>/<subgroup>/<page>",
-		"to_route": "cohorts/subgroup"},
-	{"from_route": "/courses/<course>/join/<cohort>/<subgroup>/<invite_code>",
-		"to_route": "cohorts/join"},
+	{"from_route": "/courses/<course>/cohorts/<cohort>", "to_route": "cohorts/cohort"},
+	{
+		"from_route": "/courses/<course>/cohorts/<cohort>/<page>",
+		"to_route": "cohorts/cohort",
+	},
+	{
+		"from_route": "/courses/<course>/subgroups/<cohort>/<subgroup>",
+		"to_route": "cohorts/subgroup",
+	},
+	{
+		"from_route": "/courses/<course>/subgroups/<cohort>/<subgroup>/<page>",
+		"to_route": "cohorts/subgroup",
+	},
+	{
+		"from_route": "/courses/<course>/join/<cohort>/<subgroup>/<invite_code>",
+		"to_route": "cohorts/join",
+	},
 	{"from_route": "/users", "to_route": "profiles/profile"},
 	{"from_route": "/jobs/<job>", "to_route": "jobs/job"},
-	{"from_route": "/classes/<classname>/students/<username>",
-		"to_route": "/classes/progress"},
-	{"from_route": "/assignments/<assignment>", "to_route": "assignments/assignment"}
+	{
+		"from_route": "/classes/<classname>/students/<username>",
+		"to_route": "/classes/progress",
+	},
+	{"from_route": "/assignments/<assignment>", "to_route": "assignments/assignment"},
 ]
 
 website_redirects = [

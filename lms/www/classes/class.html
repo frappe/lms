@@ -33,9 +33,11 @@
 	<div class="course-home-headings">
 		{{ class_info.title }}
 	</div>
+	{% if class_info.description %}
 	<div class="medium">
 		{{ class_info.description }}
 	</div>
+	{% endif %}
 	<div class="medium">
 		{% if class_info.start_date %}
 		<span>
@@ -108,18 +110,19 @@
 	{% if class_students | length %}
 	<div class="mt-10">
 		{% for student in class_students %}
-		<div class="" style="position: relative;">
-			<span>{{ student.student_name }}</span>
+		<div class="d-flex" style="position: relative;">
+			<a class="button-links flex-grow-1" href="/classes/{{ class_info.name }}/students/{{ student.username }}">
+				{{ student.student_name }}
+			</a>
 			<svg class="icon icon-md pull-right remove-student" data-student="{{ student.student }}">
 				<use href="#icon-delete"></use>
 			</svg>
-			<a class="stretched-link" href="/classes/{{ class_info.name }}/students/{{ student.username }}"></a>
 		</div>
 		{% if not loop.last %} <hr> {% endif %}
 		{% endfor %}
 	</div>
 	{% else %}
-	<p class="text-muted"> {{ _("No Students are added to this class.") }} </p>
+	<p class="text-muted mt-3"> {{ _("No Students are added to this class.") }} </p>
 	{% endif %}
 </div>
 {% endmacro %}

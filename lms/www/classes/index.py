@@ -13,4 +13,6 @@ def get_context(context):
 
 		raise frappe.PermissionError(_(message))
 
-	context.classes = frappe.get_all("LMS Class", fields=["name", "title", "start_date", "end_date"])
+	context.classes = frappe.get_all(
+		"LMS Class", fields=["name", "title", "start_date", "end_date"]
+	)

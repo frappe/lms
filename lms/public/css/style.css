@@ -895,6 +895,7 @@ pre {
 .column-card {
     flex-direction: column;
     padding: 1.25rem;
+	height: 100%;
 }
 
 .empty-state {
@@ -1674,9 +1675,9 @@ li {
 }
 
 .indicator-pill::before {
-    width: 0;
-    height: 0;
-    margin-right: 0;
+    width: 0 !important;
+    height: 0 !important;
+    margin-right: 0 !important;
 }
 
 .role {
@@ -1855,4 +1856,22 @@ select {
 	color: var(--gray-900);
 	font-weight: 500;
 	border-bottom: 1px solid var(--gray-300);
+	border-top: none;
+}
+
+.lms-dropdown {
+	border: 1px solid var(--gray-400);
+    border-radius: var(--border-radius-sm);
+    padding: 0.25rem 2rem;
+    cursor: pointer;
+	text-align: center;
+}
+
+.lms-menu {
+	background-image: url(/assets/lms/icons/down-arrow.svg);
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 0.75rem;
+    padding-right: 2.5rem;
+    -webkit-print-color-adjust: exact;
 }

@@ -152,7 +152,8 @@ def assignment_renderer(detail):
 	file_type = detail.split("-")[1]
 	accept = supported_types[file_type] if file_type else ""
 	return frappe.render_template(
-		"templates/assignment.html", {"question": question, "accept": accept, "file_type": file_type}
+		"templates/assignment.html",
+		{"question": question, "accept": accept, "file_type": file_type},
 	)
 
 

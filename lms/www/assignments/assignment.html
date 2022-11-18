@@ -8,26 +8,53 @@
 <div class="common-page-style">
 	<div class="container">
 		<div class="common-card-style column-card">
-			<div class="btn btn-primary btn-sm pull-right" id="save-assignment"> {{ _("Save") }} </div>
-			<div class="course-home-headings"> {{ _("Assignments") }} </div>
-			<div class="row medium">
-				<div class="col">
-					<div>
-						<a href="{{ assignment.assignment }}" target="_blank">
-							{{ _("Click to open assignment") }}
-						</a>
-					</div>
-					<div>
-						<select class="btn btn-default ml-2" id="file-type" data-type="{{ assignment.status }}">
-							<option selected> {{ _("Result") }} </option>
-							<option value="Image"> {{ _("Pass") }} </option>
-							<option value="Document"> {{ _("Fail") }} </option>
-						</select>
+			<div class="course-home-headings"> {{ _("Assignment Grading") }} </div>
+			<div class="medium w-50 mt-3">
+				<a class="btn btn-secondary btn-sm"	href="{{ assignment.assignment }}" target="_blank">
+					{{ _("Open Attachment") }}
+				</a>
+				<select class="btn btn-secondary btn-sm ml-2 lms-menu" id="result" data-type="{{ assignment.status }}">
+					<option selected> {{ _("Not Graded") }} </option>
+					<option value="Pass"> {{ _("Pass") }} </option>
+					<option value="Fail"> {{ _("Fail") }} </option>
+				</select>
+
+				<div class="mt-3">
+					<span class="subheading">
+						{{ _("Member") }}:
+					</span>
+					<span>
+						{{ assignment.member_name }}
+					</span>
+				</div>
+				<div class="mt-3">
+					{% set course_title = frappe.db.get_value("LMS Course", assignment.course, "title") %}
+					<span class="subheading">
+						{{ _("Course") }}:
+					</span>
+					<span>
+						{{ course_title }}
+					</span>
+				</div>
+				<div class="mt-3">
+					{% set lesson_title = frappe.db.get_value("Course Lesson", assignment.lesson, "title") %}
+					<span class="subheading"> {{ _("Lesson") }}: </span>
+					<span>
+						{{ lesson_title }}
+					</span>
+				</div>
+
+				<div class="subheading mt-3"> {{ _("Comments") }}: </div>
+				<div class="control-input-wrapper">
+					<div class="control-input">
+						<textarea type="text" class="input-with-feedback form-control" id="comments" spellcheck="false"
+							autocomplete="off" placeholder="Comments">{% if assignment.comments %}{{ assignment.comments }}{% endif %}
+						</textarea>
 					</div>
 				</div>
-				<div class="col">
-					<div contenteditable="true" data-placeholder="{{ _('Comments') }}"
-					style="height: 100px;" >{% if assignment.comments %}{{ assignment.comments }}{% endif %}</div>
+
+				<div class="btn btn-primary btn-sm mt-3" id="save-assignment" data-assignment="{{ assignment.name }}">
+					{{ _("Save") }}
 				</div>
 			</div>
 		</div>

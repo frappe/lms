@@ -33,6 +33,7 @@
 {% macro Progress(class_info, student) %}
 <div>
 	{% for course in class_courses %}
+	{% set progress = course.membership.progress %}
 	<div class="medium">
 		<div class="progress-course-header">
 			<div class="section-heading"> {{ course.title }} </div>
@@ -56,11 +57,12 @@
 						{{ _("Last Attempt Date") }}
 					</th>
 				</tr>
-				{% for quiz in course.quizzes %}
 
+				{% for quiz in course.quizzes %}
 				{% set filters = { "member": student.name, "course": course.course } %}
 				{% set has_submitted = frappe.db.exists("LMS Quiz Submission", filters) %}
 				{% set submission = frappe.db.get_value("LMS Quiz Submission", filters, ["score", "creation"], as_dict=True) %}
+				{% set total_questions = frappe.db.count("LMS Quiz Question", {"parent": quiz.name}) %}
 
 				<tr class="">
 					<td>
@@ -71,7 +73,7 @@
 					</td>
 					{% if has_submitted %}
 					<td>
-						{{ submission.score }}
+						{{ submission.score }}/{{ total_questions }}
 					</td>
 					<td>
 						{{ frappe.utils.format_date(submission.creation, "medium") }}

@@ -1,6 +1,4 @@
-frappe.ready(() => {
-
-});
+frappe.ready(() => {});
 
 const change_hash = (e) => {
 	window.location.hash = $(e.currentTarget).attr("href");
