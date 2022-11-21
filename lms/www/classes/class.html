@@ -111,7 +111,7 @@
 	<div class="mt-10">
 		{% for student in class_students %}
 		<div class="d-flex" style="position: relative;">
-			<a class="button-links flex-grow-1" href="/classes/{{ class_info.name }}/students/{{ student.username }}">
+			<a class="subheading button-links flex-grow-1" href="/classes/{{ class_info.name }}/students/{{ student.username }}">
 				{{ student.student_name }}
 			</a>
 			<svg class="icon icon-md pull-right remove-student" data-student="{{ student.student }}">

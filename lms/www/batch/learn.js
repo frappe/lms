@@ -412,22 +412,22 @@ const fetch_assignments = () => {
 		callback: (data) => {
 			if (data.message) {
 				const assignment = data.message;
-				const status = assignment.status
+				const status = assignment.status;
 				let target = $(".attach-file");
 				target.addClass("hide");
 				target.siblings(".submit-work").addClass("hide");
 				target.siblings(".preview-work").removeClass("hide");
-				if(status != "Not Graded") {
-					let color = status == "Pass" ? "green": "red";
+				if (status != "Not Graded") {
+					let color = status == "Pass" ? "green" : "red";
 					$(".assignment-status")
 						.removeClass("hide")
 						.addClass(color)
-						.text(data.message.status)
+						.text(data.message.status);
 					target.siblings(".alert").addClass("hide");
 					$(".clear-work").addClass("hide");
 					if (assignment.comments) {
 						$(".comments").removeClass("hide");
-						$(".comment").text(assignment.comments)
+						$(".comment").text(assignment.comments);
 					}
 				}
 				target

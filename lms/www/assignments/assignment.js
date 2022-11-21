@@ -1,5 +1,4 @@
 frappe.ready(() => {
-
 	this.result;
 	let self = this;
 
@@ -14,9 +13,7 @@ frappe.ready(() => {
 			self.result = $(this).val();
 		});
 	});
-
 });
-
 
 const set_result = () => {
 	let self = this;
@@ -31,20 +28,19 @@ const set_result = () => {
 	}
 };
 
-
 const save_assignment = (e) => {
 	frappe.call({
 		method: "lms.lms.doctype.lesson_assignment.lesson_assignment.grade_assignment",
 		args: {
-			"name": $(e.currentTarget).data("assignment"),
-			"result": self.result,
-			"comments": $("#comments").val(),
+			name: $(e.currentTarget).data("assignment"),
+			result: self.result,
+			comments: $("#comments").val(),
 		},
 		callback: (data) => {
 			frappe.show_alert({
 				message: __("Saved"),
 				indicator: "green",
 			});
-		}
-	})
-}
+		},
+	});
+};
