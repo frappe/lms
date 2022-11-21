@@ -28,7 +28,8 @@
   {
    "fieldname": "end_date",
    "fieldtype": "Date",
-   "label": "End Date"
+   "label": "End Date",
+   "reqd": 1
   },
   {
    "fieldname": "column_break_4",
@@ -58,12 +59,13 @@
   {
    "fieldname": "start_date",
    "fieldtype": "Date",
-   "label": "Start Date"
+   "label": "Start Date",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-11-14 17:08:03.206840",
+ "modified": "2022-11-21 10:55:50.067225",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Class",

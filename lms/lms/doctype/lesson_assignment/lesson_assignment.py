@@ -44,7 +44,7 @@ def get_assignment(lesson):
 	assignment = frappe.db.get_value(
 		"Lesson Assignment",
 		{"lesson": lesson, "member": frappe.session.user},
-		["lesson", "member", "assignment"],
+		["lesson", "member", "assignment", "comments", "status"],
 		as_dict=True,
 	)
 	assignment.file_name = frappe.db.get_value(
