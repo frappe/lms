@@ -9,9 +9,12 @@
  "field_order": [
   "title",
   "questions",
-  "lesson",
+  "section_break_3",
   "max_attempts",
-  "time"
+  "time",
+  "column_break_5",
+  "lesson",
+  "course"
  ],
  "fields": [
   {
@@ -46,11 +49,27 @@
    "fieldname": "time",
    "fieldtype": "Int",
    "label": "Time Per Question (in Seconds)"
+  },
+  {
+   "fetch_from": "lesson.course",
+   "fieldname": "course",
+   "fieldtype": "Link",
+   "label": "Course",
+   "options": "LMS Course",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_3",
+   "fieldtype": "Section Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-08-19 17:54:41.685182",
+ "modified": "2022-11-15 15:36:39.585488",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz",
@@ -69,8 +88,10 @@
    "write": 1
   }
  ],
+ "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
+ "title_field": "title",
  "track_changes": 1
 }

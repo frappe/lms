@@ -12,7 +12,8 @@ class LessonAssignment(Document):
 
 	def validate_duplicates(self):
 		if frappe.db.exists(
-			"Lesson Assignment", {"lesson": self.lesson, "member": self.member}
+			"Lesson Assignment",
+			{"lesson": self.lesson, "member": self.member, "name": ["!=", self.name]},
 		):
 			lesson_title = frappe.db.get_value("Course Lesson", self.lesson, "title")
 			frappe.throw(
@@ -43,10 +44,18 @@ def get_assignment(lesson):
 	assignment = frappe.db.get_value(
 		"Lesson Assignment",
 		{"lesson": lesson, "member": frappe.session.user},
-		["lesson", "member", "assignment"],
+		["lesson", "member", "assignment", "comments", "status"],
 		as_dict=True,
 	)
 	assignment.file_name = frappe.db.get_value(
 		"File", {"file_url": assignment.assignment}, "file_name"
 	)
 	return assignment
+
+
+@frappe.whitelist()
+def grade_assignment(name, result, comments):
+	doc = frappe.get_doc("Lesson Assignment", name)
+	doc.status = result
+	doc.comments = comments
+	doc.save()

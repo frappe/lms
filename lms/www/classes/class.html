@@ -1,0 +1,146 @@
+{% extends "templates/base.html" %}
+{% block title %}
+    {{ _(class_info.title) }}
+{% endblock %}
+
+
+{% block content %}
+<div class="common-page-style">
+	<div class="container">
+		{{ BreadCrumb(class_info) }}
+		<div class="common-card-style column-card">
+			{{ ClassDetails(class_info) }}
+			{{ ClassSections(class_info, class_courses, class_students, published_courses) }}
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+
+<!-- BreadCrumb -->
+{% macro BreadCrumb(class_info) %}
+<div class="breadcrumb">
+    <a class="dark-links" href="/classes">{{ _("All Classes") }}</a>
+    <img class="ml-1 mr-1" src="/assets/lms/icons/chevron-right.svg">
+    <span class="breadcrumb-destination">{{ class_info.title }}</span>
+</div>
+{% endmacro %}
+
+
+<!-- Class Details -->
+{% macro ClassDetails(class_info) %}
+<div class="class-details" data-class="{{ class_info.name }}">
+	<div class="course-home-headings">
+		{{ class_info.title }}
+	</div>
+	{% if class_info.description %}
+	<div class="medium">
+		{{ class_info.description }}
+	</div>
+	{% endif %}
+	<div class="medium">
+		{% if class_info.start_date %}
+		<span>
+			{{ frappe.utils.format_date(class_info.start_date, "medium") }} -
+		</span>
+		{% endif %}
+		{% if class_info.end_date %}
+		<span>
+			{{ frappe.utils.format_date(class_info.end_date, "medium") }}
+		</span>
+		{% endif %}
+	</div>
+</div>
+{% endmacro %}
+
+
+<!-- Class Sections -->
+{% macro ClassSections(class_info, class_courses, class_students, published_courses) %}
+<div class="mt-4">
+	<ul class="nav lms-nav" id="classes-tab">
+		<li class="nav-item">
+			<a class="nav-link active" data-toggle="tab" href="#courses">
+				{{ _("Courses") }}
+			</a>
+		</li>
+
+		<li class="nav-item">
+			<a class="nav-link" data-toggle="tab" href="#students">
+				{{ _("Students") }}
+			</a>
+		</li>
+
+	</ul>
+
+	<div class="border-bottom mb-4"></div>
+
+	<div class="tab-content">
+		<div class="tab-pane active" id="courses" role="tabpanel" aria-labelledby="courses">
+			{{ CoursesSection(class_info, class_courses, published_courses) }}
+		</div>
+
+		<div class="tab-pane" id="students" role="tabpanel" aria-labelledby="students">
+			{{ StudentsSection(class_info, class_students) }}
+		</div>
+
+	</div>
+</div>
+{% endmacro %}
+
+
+{% macro CoursesSection(class_info, class_courses, published_courses) %}
+<div class="class-course-list">
+	{% if published_courses | length %}
+	{% for course in published_courses %}
+	{% set checked = course.name in class_courses  %}
+	<label class="class-course" data-course="{{ course.name }}">
+		<input type="checkbox" {% if checked %} checked {% endif %}>
+		{{ course.title }}
+	</label>
+	{% endfor %}
+	{% endif %}
+</div>
+{% endmacro %}
+
+
+{% macro StudentsSection(class_info, class_students) %}
+<div class="medium">
+	{{ AddStudents() }}
+
+	{% if class_students | length %}
+	<div class="mt-10">
+		{% for student in class_students %}
+		<div class="d-flex" style="position: relative;">
+			<a class="subheading button-links flex-grow-1" href="/classes/{{ class_info.name }}/students/{{ student.username }}">
+				{{ student.student_name }}
+			</a>
+			<svg class="icon icon-md pull-right remove-student" data-student="{{ student.student }}">
+				<use href="#icon-delete"></use>
+			</svg>
+		</div>
+		{% if not loop.last %} <hr> {% endif %}
+		{% endfor %}
+	</div>
+	{% else %}
+	<p class="text-muted mt-3"> {{ _("No Students are added to this class.") }} </p>
+	{% endif %}
+</div>
+{% endmacro %}
+
+
+{% macro AddStudents() %}
+<div>
+	<div class="mb-2">
+		{{ _("Add Student") }}
+	</div>
+	<form>
+		<div class="control-input-wrapper mb-2 w-50">
+			<div class="control-input">
+				<input type="text" autocomplete="off" class="input-with-feedback form-control" id="student-email"
+				spellcheck="false">
+			</div>
+		</div>
+		<button class="btn btn-primary btn-sm" id="submit-student"> {{ _("Add") }} </button>
+	</form>
+</div>
+{% endmacro %}

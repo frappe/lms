@@ -1,0 +1,144 @@
+{% extends "templates/base.html" %}
+{% block title %}
+    {{ student.first_name }} 's {{ _("Progress") }}
+{% endblock %}
+
+
+{% block content %}
+<div class="common-page-style">
+	<div class="container">
+		{{ BreadCrumb(class_info, student) }}
+		<div class="common-card-style column-card">
+			<div class="course-home-headings">
+				{{ student.full_name }}
+			</div>
+			{{ Progress(class_courses, student) }}
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+
+{% macro BreadCrumb(class_info, student) %}
+<div class="breadcrumb">
+    <a class="dark-links" href="/classes">{{ _("All Classes") }}</a>
+    <img class="ml-1 mr-1" src="/assets/lms/icons/chevron-right.svg">
+    <a class="dark-links" href="/classes/{{ class_info.name }}">{{ class_info.name }}</a>
+    <img class="ml-1 mr-1" src="/assets/lms/icons/chevron-right.svg">
+    <span class="breadcrumb-destination">{{ student.full_name }}</span>
+</div>
+{% endmacro %}
+
+
+{% macro Progress(class_info, student) %}
+<div>
+	{% for course in class_courses %}
+	{% set progress = course.membership.progress %}
+	<div class="medium">
+		<div class="progress-course-header">
+			<div class="section-heading"> {{ course.title }} </div>
+			<div class="ml-3"> {{ frappe.utils.cint(course.membership.progress) }}% </div>
+		</div>
+
+		{% if course.quizzes | length or course.assignments | length %}
+		<div class="my-5">
+			<table class="table">
+				<tr>
+					<th style="width: 40%;">
+						{{ _("Activity") }}
+					</th>
+					<th style="width: 20%;">
+						{{ _("Type") }}
+					</th>
+					<th style="width: 20%;">
+						{{ _("Score/Status") }}
+					</th>
+					<th style="width: 20%;">
+						{{ _("Last Attempt Date") }}
+					</th>
+				</tr>
+
+				{% for quiz in course.quizzes %}
+				{% set filters = { "member": student.name, "course": course.course } %}
+				{% set has_submitted = frappe.db.exists("LMS Quiz Submission", filters) %}
+				{% set submission = frappe.db.get_value("LMS Quiz Submission", filters, ["score", "creation"], as_dict=True) %}
+				{% set total_questions = frappe.db.count("LMS Quiz Question", {"parent": quiz.name}) %}
+
+				<tr class="">
+					<td>
+						{{ quiz.title }}
+					</td>
+					<td>
+						{{ _("Quiz") }}
+					</td>
+					{% if has_submitted %}
+					<td>
+						{{ submission.score }}/{{ total_questions }}
+					</td>
+					<td>
+						{{ frappe.utils.format_date(submission.creation, "medium") }}
+					</td>
+					{% else %}
+					<td>
+						-
+					</td>
+					<td>
+						<div class="indicator-pill red">
+							{{ _("Not Attempted") }}
+						</div>
+					</td>
+					{% endif %}
+				</tr>
+				{% endfor %}
+
+				{% for assignment in course.assignments %}
+
+				{% set filters = { "member": student.name, "course": course.course, "lesson": assignment.name } %}
+				{% set has_submitted = frappe.db.exists("Lesson Assignment", filters) %}
+				{% set submission = frappe.db.get_value("Lesson Assignment", filters, ["assignment", "creation", "status"], as_dict=True) %}
+				{% set status = submission.status %}
+				{% set color = "green" if status == "Pass" else "red" if status == "Fail" else "orange" %}
+
+				<tr>
+					<td>
+						{{ assignment.title }}
+					</td>
+					<td>
+						{{ _("Assignment") }}
+					</td>
+					{% if has_submitted %}
+					<td>
+						{% if status == "Not Graded" %}
+						<a class="btn btn-secondary btn-sm" href="/assignments/{{ has_submitted }}"> {{ _("Grade") }} </a>
+						{% else %}
+						<div class="indicator-pill {{ color }}">
+							{{ status }}
+						</div>
+						{% endif %}
+					</td>
+					<td>
+						{{ frappe.utils.format_date(submission.creation, "medium") }}
+					</td>
+					{% else %}
+					<td>
+						-
+					</td>
+					<td>
+						<div class="indicator-pill red">
+							{{ _("Not Attempted") }}
+						</div>
+					</td>
+					{% endif %}
+				</tr>
+				{% endfor %}
+			</table>
+		</div>
+		{% else %}
+		<div class="text-muted medium my-5">
+			{{ _("There are no activities in this course.") }}
+		</div>
+		{% endif %}
+	</div>
+	{% endfor %}
+</div>
+{% endmacro %}

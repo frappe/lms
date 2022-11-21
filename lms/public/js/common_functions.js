@@ -17,6 +17,14 @@ frappe.ready(() => {
 		save_chapter(e);
 	});
 
+	$(".nav-link").click((e) => {
+		change_hash(e);
+	});
+
+	if (window.location.hash) {
+		open_tab();
+	}
+
 	if (window.location.pathname == "/statistics") {
 		generate_graph("New Signups", "#new-signups");
 		generate_graph("Course Enrollments", "#course-enrollments");
@@ -209,4 +217,12 @@ const generate_course_completion_graph = () => {
 			);
 		},
 	});
+};
+
+const change_hash = (e) => {
+	window.location.hash = $(e.currentTarget).attr("href");
+};
+
+const open_tab = () => {
+	$(`a[href="${window.location.hash}"]`).click();
 };

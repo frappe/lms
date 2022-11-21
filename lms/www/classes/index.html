@@ -1,0 +1,66 @@
+{% extends "templates/base.html" %}
+{% block title %}
+    {{  _("All Classes") }}
+{% endblock %}
+
+{% block content %}
+<div class="common-page-style">
+	<div class="container">
+		<a class="btn btn-default btn-sm pull-right" href="/class/new">
+			{{ _("Create Class") }}
+		</a>
+		<div class="course-home-headings"> {{ _("All Classes") }} </div>
+		{% if classes %}
+		{{ ClassCards(classes) }}
+		{% else %}
+		<div class="empty-state">
+			<img class="icon icon-xl" src="/assets/lms/icons/comment.svg">
+			<div class="empty-state-text">
+				<div class="empty-state-heading">{{ _("No Classes") }}</div>
+				<div class="course-meta">{{ _("Nothing to see here.") }}</div>
+			</div>
+		</div>
+		{% endif %}
+	</div>
+</div>
+{% endblock %}
+
+
+{% macro ClassCards(classes) %}
+<div class="cards-parent">
+	{% for class in classes %}
+	{% set course_count = frappe.db.count("Class Course", {"parent": class.name}) %}
+    {% set student_count = frappe.db.count("Class Student", {"parent": class.name}) %}
+
+	<div class="common-card-style column-card">
+		<div class="text-muted small">
+			{% if course_count %}
+			<span>
+				{{ course_count }} {{ _("Courses") }}
+			</span>
+			{% endif %}
+
+			{% if student_count %}
+			<span class="ml-3">
+				{{ student_count }} {{ _("Students") }}
+			</span>
+			{% endif %}
+		</div>
+
+		<div class="course-card-title mb-4">
+			{{ class.title }}
+		</div>
+
+		<div class="">
+			<span>
+				{{ frappe.utils.format_date(class.start_date, "medium") }} -
+			</span>
+			<span>
+				{{ frappe.utils.format_date(class.end_date, "medium") }}
+			</span>
+		</div>
+		<a class="stretched-link" href="/classes/{{ class.name }}"></a>
+	</div>
+	{% endfor %}
+</div>
+{% endmacro %}	
