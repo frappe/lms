@@ -9,8 +9,13 @@
 	<div class="container">
 		{{ BreadCrumb(class_info, student) }}
 		<div class="common-card-style column-card">
-			<div class="course-home-headings">
-				{{ student.full_name }}
+			<div class="mb-5">
+				<div class="medium pull-right">
+					{{ frappe.utils.format_datetime(student.last_active, "medium") }}
+				</div>
+				<div class="course-home-headings">
+					{{ student.full_name }}
+				</div>
 			</div>
 			{{ Progress(class_courses, student) }}
 		</div>

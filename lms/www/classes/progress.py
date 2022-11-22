@@ -17,7 +17,7 @@ def get_context(context):
 	classname = frappe.form_dict["classname"]
 
 	context.student = frappe.db.get_value(
-		"User", {"username": student}, ["first_name", "full_name", "name"], as_dict=True
+		"User", {"username": student}, ["first_name", "full_name", "name", "last_active"], as_dict=True
 	)
 	context.class_info = frappe.db.get_value(
 		"LMS Class", classname, ["name"], as_dict=True
