@@ -108,22 +108,40 @@
 	{{ AddStudents() }}
 
 	{% if class_students | length %}
-	<div class="mt-10">
+	<table class="table mt-10">
+		<tr>
+			<th style="width: 70%">
+				{{ _("Student") }}
+			</th>
+			<th style="width: 20%">
+				{{ _("Last Active") }}
+			</th>
+			<th style="width: 10%"></th>
+		</tr>
 		{% for student in class_students %}
-		<div class="d-flex" style="position: relative;">
-			<a class="subheading button-links flex-grow-1" href="/classes/{{ class_info.name }}/students/{{ student.username }}">
-				{{ student.student_name }}
-			</a>
-			<svg class="icon icon-md pull-right remove-student" data-student="{{ student.student }}">
-				<use href="#icon-delete"></use>
-			</svg>
-		</div>
-		{% if not loop.last %} <hr> {% endif %}
+		{% set last_active = frappe.db.get_value("User", student.student, "last_active") %}
+		<tr>
+			<td>
+				<a class="subheading button-links d-block" href="/classes/{{ class_info.name }}/students/{{ student.username }}">
+					{{ student.student_name }}
+				</a>
+			</td>
+			<td>
+				{{ frappe.utils.format_datetime(last_active, "medium") }}
+			</td>
+			<td>
+				<svg class="icon icon-md pull-right remove-student" data-student="{{ student.student }}">
+					<use href="#icon-delete"></use>
+				</svg>
+			</td>
+		</tr>
 		{% endfor %}
-	</div>
+
+	</table>
 	{% else %}
 	<p class="text-muted mt-3"> {{ _("No Students are added to this class.") }} </p>
 	{% endif %}
+
 </div>
 {% endmacro %}
 
