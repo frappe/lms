@@ -2,6 +2,7 @@ import frappe
 from frappe import _
 from lms.lms.utils import has_course_moderator_role
 
+
 def get_context(context):
 
 	if not has_course_moderator_role():
