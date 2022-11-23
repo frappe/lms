@@ -6,15 +6,17 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "course",
   "member",
   "member_name",
+  "column_break_5",
+  "course",
+  "status",
+  "section_break_6",
   "date",
   "start_time",
   "end_time",
-  "column_break_5",
+  "column_break_10",
   "rating",
-  "status",
   "summary"
  ],
  "fields": [
@@ -48,7 +50,7 @@
   },
   {
    "fieldname": "summary",
-   "fieldtype": "Text",
+   "fieldtype": "Small Text",
    "label": "Summary"
   },
   {
@@ -83,11 +85,19 @@
    "label": "Status",
    "options": "Pass\nFail",
    "reqd": 1
+  },
+  {
+   "fieldname": "section_break_6",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_10",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-04-28 10:24:09.832428",
+ "modified": "2022-11-23 11:49:01.400292",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate Evaluation",
