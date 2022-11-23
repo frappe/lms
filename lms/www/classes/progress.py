@@ -48,7 +48,7 @@ def get_context(context):
 		course.evaluations = frappe.get_all(
 			"LMS Certificate Evaluation",
 			{"course": course.course, "member": context.student.name},
-			["rating", "status", "creation"]
+			["rating", "status", "creation", "name"]
 		)
 
 	context.class_courses = class_courses

@@ -80,7 +80,7 @@
 				{% set total_questions = frappe.db.count("LMS Quiz Question", {"parent": quiz.name}) %}
 
 				<tr class="">
-					<td class="vertically-center">
+					<td class="subheading vertically-center">
 						<svg class="icon icon-sm">
 							<use href="#icon-quiz"></use>
 						</svg>
@@ -109,7 +109,7 @@
 				{% set color = "green" if status == "Pass" else "red" if status == "Fail" else "orange" %}
 
 				<tr>
-					<td class="vertically-center">
+					<td class="subheading vertically-center">
 						<svg class="icon icon-md">
 							<use href="#icon-file"></use>
 						</svg>
@@ -139,8 +139,8 @@
 
 				{% for evaluation in course.evaluations %}
 				{% set color = "green" if evaluation.status == "Pass" else "red" %}
-				<tr>
-					<td class="vertically-center">
+				<tr class="clickable-row" data-href="/evaluation/{{evaluation.name}}">
+					<td class="subheading vertically-center">
 						<svg class="icon icon-md">
 							<use href="#icon-quality"></use>
 						</svg>
