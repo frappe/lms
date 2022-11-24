@@ -38,3 +38,4 @@ lms.patches.v0_0.set_member_in_progress #09-11-2022
 lms.patches.v0_0.convert_progress_to_float
 lms.patches.v0_0.add_pages_to_nav #11-11-2022
 lms.patches.v0_0.change_role_names
+lms.patches.v0_0.quiz_submission_result

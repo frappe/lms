@@ -247,6 +247,7 @@ const parse_options = () => {
 				: add_icon(element, "minus-circle");
 		}
 	});
+	console.log(answer, is_correct)
 	return [answer, is_correct];
 };
 

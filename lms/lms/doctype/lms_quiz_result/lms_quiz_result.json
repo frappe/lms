@@ -7,33 +7,36 @@
  "field_order": [
   "question",
   "answer",
-  "result"
+  "is_correct"
  ],
  "fields": [
   {
    "fieldname": "question",
    "fieldtype": "Text",
    "in_list_view": 1,
-   "label": "Question"
-  },
-  {
-   "fieldname": "result",
-   "fieldtype": "Select",
-   "in_list_view": 1,
-   "label": "Result",
-   "options": "Right\nWrong"
+   "label": "Question",
+   "read_only": 1
   },
   {
    "fieldname": "answer",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Users Response"
+   "label": "Users Response",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_correct",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Is Correct",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2021-10-12 10:32:45.139121",
+ "modified": "2022-11-24 11:15:45.931119",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz Result",
@@ -41,5 +44,6 @@
  "permissions": [],
  "sort_field": "modified",
  "sort_order": "DESC",
+ "states": [],
  "track_changes": 1
 }

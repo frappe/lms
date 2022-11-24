@@ -29,11 +29,17 @@ const set_result = () => {
 };
 
 const save_assignment = (e) => {
+	e.preventDefault();
+	if (!["Pass", "Fail"].includes(this.result))
+		frappe.throw({
+			"title": __("Not Graded"),
+			"message": __("Please grade the assignment.")
+		})
 	frappe.call({
 		method: "lms.lms.doctype.lesson_assignment.lesson_assignment.grade_assignment",
 		args: {
 			name: $(e.currentTarget).data("assignment"),
-			result: self.result,
+			result: this.result,
 			comments: $("#comments").val(),
 		},
 		callback: (data) => {
@@ -41,6 +47,9 @@ const save_assignment = (e) => {
 				message: __("Saved"),
 				indicator: "green",
 			});
+			setTimeout(() => {
+				window.history.go(-2);
+			}, 2000);
 		},
 	});
 };

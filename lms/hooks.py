@@ -172,6 +172,7 @@ website_route_rules = [
 		"to_route": "/classes/progress",
 	},
 	{"from_route": "/assignments/<assignment>", "to_route": "assignments/assignment"},
+	{"from_route": "/quiz-result/<subname>", "to_route": "quiz_result/quiz_result"},
 ]
 
 website_redirects = [
