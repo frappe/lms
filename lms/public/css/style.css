@@ -1874,6 +1874,7 @@ select {
 	background-repeat: no-repeat;
 	background-size: 0.75rem;
 	padding-right: 2.5rem;
+	text-align: left;
 	-webkit-print-color-adjust: exact;
 }
 

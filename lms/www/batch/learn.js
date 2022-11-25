@@ -234,6 +234,7 @@ const check_answer = (e = undefined) => {
 const parse_options = () => {
 	let answer = [];
 	let is_correct = [];
+
 	$(".active-question input").each((i, element) => {
 		let correct = parseInt($(element).attr("data-correct"));
 		if ($(element).prop("checked")) {
@@ -247,6 +248,7 @@ const parse_options = () => {
 				: add_icon(element, "minus-circle");
 		}
 	});
+
 	return [answer, is_correct];
 };
 

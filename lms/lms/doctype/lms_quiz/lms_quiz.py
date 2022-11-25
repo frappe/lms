@@ -81,10 +81,8 @@ def quiz_summary(quiz, results):
 		for point in result["is_correct"]:
 			correct = correct and point
 
-		result["result"] = "Right" if correct else "Wrong"
+		result["is_correct"] = correct
 		score += correct
-
-		del result["is_correct"]
 		del result["question_index"]
 
 	frappe.get_doc(

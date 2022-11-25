@@ -21,6 +21,7 @@ def get_context(context):
 		["name", "title", "start_date", "end_date", "description"],
 		as_dict=True,
 	)
+
 	context.published_courses = frappe.get_all(
 		"LMS Course", {"published": 1}, ["name", "title"]
 	)

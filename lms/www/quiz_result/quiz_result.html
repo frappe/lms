@@ -1,0 +1,33 @@
+{% extends "templates/base.html" %}
+{% block title %}
+	{{ _("Quiz Submission") }}
+{% endblock %}
+
+
+{% block content %}
+<div class="common-page-style">
+	<div class="container">
+		<div class="common-card-style column-card">
+			<div class="course-home-headings">
+				{{ _("Quiz Submission") }}
+			</div>
+			{% for question in questions %}
+			<div>
+				{{ question.question }}
+			</div>
+			{{ question.is_correct }}
+			{{ question.answer }}
+			{% for i in range(1,5) %}
+				{% set num = frappe.utils.cstr(i) %}
+				{% set option = question["option_" + num] %}
+				{% if question["option_" + num]  %}
+				<div>
+					{{ question["option_" + num] }}
+				</div>
+				{% endif %}
+			{% endfor %}
+			{% endfor %}
+		</div>
+	</div>
+</div>
+{% endblock %}

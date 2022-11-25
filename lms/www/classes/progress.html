@@ -79,8 +79,8 @@
 				{% set submission = frappe.db.get_value("LMS Quiz Submission", filters, ["score", "creation"], as_dict=True) %}
 				{% set total_questions = frappe.db.count("LMS Quiz Question", {"parent": quiz.name}) %}
 
-				<tr class="">
-					<td class="subheading vertically-center">
+				<tr>
+					<td class="vertically-center">
 						<svg class="icon icon-sm">
 							<use href="#icon-quiz"></use>
 						</svg>
@@ -108,26 +108,28 @@
 				{% set status = submission.status %}
 				{% set color = "green" if status == "Pass" else "red" if status == "Fail" else "orange" %}
 
-				<tr>
-					<td class="subheading vertically-center">
+				<tr {% if has_submitted %} class="clickable-row" data-href="/assignments/{{ has_submitted }}" {% endif %}>
+					<td class="{% if has_submitted %} subheading {% endif %} vertically-center">
 						<svg class="icon icon-md">
 							<use href="#icon-file"></use>
 						</svg>
-						{{ _("Assignment") }}</td>
+						{{ _("Assignment") }}
+					</td>
+
 					<td>{{ assignment.title }}</td>
+
 					{% if has_submitted %}
 					<td>
-						{% if status == "Not Graded" %}
-						<a class="btn btn-secondary btn-sm" href="/assignments/{{ has_submitted }}"> {{ _("Grade") }} </a>
-						{% else %}
 						<div class="indicator-pill {{ color }}">
 							{{ status }}
 						</div>
-						{% endif %}
 					</td>
+
 					<td>{{ frappe.utils.format_date(submission.creation, "medium") }}</td>
+
 					{% else %}
 					<td>-</td>
+
 					<td>
 						<div class="indicator-pill red">
 							{{ _("Not Attempted") }}
