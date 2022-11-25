@@ -6012,7 +6012,7 @@
 		if (isSelectElement(element)) {
 			return new SelectElementContainer(context, element);
 		}
-		if (isElement(element)) {
+		if (isTextareaElement(element)) {
 			return new TextareaElementContainer(context, element);
 		}
 		if (isIFrameElement(element)) {

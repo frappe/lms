@@ -6,8 +6,7 @@ from frappe import _
 def get_context(context):
 	context.no_cache = 1
 	assignment = frappe.form_dict["assignment"]
-	print("assignment")
-	print(assignment)
+
 	if not has_course_moderator_role():
 		message = "Only Moderators have access to this page."
 		if frappe.session.user == "Guest":
@@ -21,4 +20,3 @@ def get_context(context):
 		["assignment", "comments", "status", "name", "member_name", "course", "lesson"],
 		as_dict=True,
 	)
-	print("call twice")

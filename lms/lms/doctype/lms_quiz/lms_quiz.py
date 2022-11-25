@@ -77,7 +77,7 @@ def quiz_summary(quiz, results):
 		result["question"] = frappe.db.get_value(
 			"LMS Quiz Question", {"parent": quiz, "idx": result["question_index"]}, ["question"]
 		)
-		print(result)
+
 		for point in result["is_correct"]:
 			correct = correct and point
 
