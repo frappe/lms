@@ -242,6 +242,10 @@ jinja = {
 # 	"lms.plugins.LiveCodeExtension"
 # ]
 
+has_website_permission = {
+	"LMS Certificate Evaluation": "lms.lms.doctype.lms_certificate_evaluation.lms_certificate_evaluation.has_website_permission"
+}
+
 profile_mandatory_fields = [
 	"first_name",
 	"last_name",

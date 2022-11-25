@@ -50,6 +50,9 @@
 		</span>
 		{% endif %}
 	</div>
+	{% if class_info.custom_component %}
+		{{ class_info.custom_component }}
+	{% endif %}
 </div>
 {% endmacro %}
 
@@ -94,7 +97,8 @@
 	{% for course in published_courses %}
 	{% set checked = course.name in class_courses  %}
 	<label class="class-course" data-course="{{ course.name }}">
-		<input type="checkbox" {% if checked %} checked {% endif %}>
+		<input type="checkbox" {% if checked %} checked {% endif %}
+		{% if not is_moderator %} disabled {% endif %}>
 		{{ course.title }}
 	</label>
 	{% endfor %}
@@ -105,10 +109,12 @@
 
 {% macro StudentsSection(class_info, class_students) %}
 <div class="medium">
+	{% if is_moderator %}
 	{{ AddStudents() }}
+	{% endif %}
 
 	{% if class_students | length %}
-	<table class="table mt-10">
+	<table class="table">
 		<tr>
 			<th style="width: 70%">
 				{{ _("Student") }}
@@ -116,7 +122,9 @@
 			<th style="width: 20%">
 				{{ _("Last Active") }}
 			</th>
+			{% if is_moderator %}
 			<th style="width: 10%"></th>
+			{% endif %}
 		</tr>
 		{% for student in class_students %}
 		{% set last_active = frappe.db.get_value("User", student.student, "last_active") %}
@@ -129,11 +137,13 @@
 			<td>
 				{{ frappe.utils.format_datetime(last_active, "medium") }}
 			</td>
+			{% if is_moderator %}
 			<td>
 				<svg class="icon icon-md pull-right remove-student" data-student="{{ student.student }}">
 					<use href="#icon-delete"></use>
 				</svg>
 			</td>
+			{% endif %}
 		</tr>
 		{% endfor %}
 
@@ -147,7 +157,7 @@
 
 
 {% macro AddStudents() %}
-<div>
+<div class="mb-10">
 	<div class="mb-2">
 		{{ _("Add Student") }}
 	</div>
@@ -158,7 +168,9 @@
 				spellcheck="false">
 			</div>
 		</div>
-		<button class="btn btn-primary btn-sm" id="submit-student"> {{ _("Add") }} </button>
+		<button class="btn btn-primary btn-sm" id="submit-student">
+			{{ _("Add") }}
+		</button>
 	</form>
 </div>
 {% endmacro %}

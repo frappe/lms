@@ -4,10 +4,17 @@
 import frappe
 from frappe.model.document import Document
 from frappe.model.mapper import get_mapped_doc
+from lms.lms.utils import has_course_moderator_role
 
 
 class LMSCertificateEvaluation(Document):
 	pass
+
+
+def has_website_permission(doc, ptype, user, verbose=False):
+	if has_course_moderator_role() or doc.member == frappe.session.user:
+		return True
+	return False
 
 
 @frappe.whitelist()

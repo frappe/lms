@@ -19,9 +19,11 @@
 					<span>
 						{{ frappe.utils.format_datetime(student.last_active, "medium") }}
 					</span>
+					{% if is_moderator %}
 					<a class="btn btn-secondary btn-sm ml-3" href="/evaluation/new?member={{student.name}}&date={{frappe.utils.getdate()}}">
 						{{ _("Evaluate") }}
 					</a>
+					{% endif %}
 				</div>
 				<div class="course-home-headings">
 					{{ student.full_name }}
@@ -55,7 +57,7 @@
 			<div class="ml-3"> {{ frappe.utils.cint(course.membership.progress) }}% </div>
 		</div>
 
-		{% if course.quizzes | length or course.assignments | length %}
+		{% if course.quizzes | length or course.assignments | length or course.evaluations | length %}
 		<div class="my-5">
 			<table class="table">
 				<tr>
@@ -73,90 +75,10 @@
 					</th>
 				</tr>
 
-				{% for quiz in course.quizzes %}
-				{% set filters = { "member": student.name, "course": course.course } %}
-				{% set has_submitted = frappe.db.exists("LMS Quiz Submission", filters) %}
-				{% set submission = frappe.db.get_value("LMS Quiz Submission", filters, ["score", "creation"], as_dict=True) %}
-				{% set total_questions = frappe.db.count("LMS Quiz Question", {"parent": quiz.name}) %}
+				{{ Quiz(course, student) }}
+				{{ Assignment(course, student, is_moderator) }}
+				{{ Evaluation(course, student, is_moderator) }}
 
-				<tr>
-					<td class="vertically-center">
-						<svg class="icon icon-sm">
-							<use href="#icon-quiz"></use>
-						</svg>
-						{{ _("Quiz") }}
-					</td>
-					<td>{{ quiz.title }}</td>
-					{% if has_submitted %}
-					<td>{{ submission.score }}/{{ total_questions }}</td>
-					<td>{{ frappe.utils.format_date(submission.creation, "medium") }}</td>
-					{% else %}
-					<td>-</td>
-					<td>
-						<div class="indicator-pill red">
-							{{ _("Not Attempted") }}
-						</div>
-					</td>
-					{% endif %}
-				</tr>
-				{% endfor %}
-
-				{% for assignment in course.assignments %}
-				{% set filters = { "member": student.name, "course": course.course, "lesson": assignment.name } %}
-				{% set has_submitted = frappe.db.exists("Lesson Assignment", filters) %}
-				{% set submission = frappe.db.get_value("Lesson Assignment", filters, ["assignment", "creation", "status"], as_dict=True) %}
-				{% set status = submission.status %}
-				{% set color = "green" if status == "Pass" else "red" if status == "Fail" else "orange" %}
-
-				<tr {% if has_submitted %} class="clickable-row" data-href="/assignments/{{ has_submitted }}" {% endif %}>
-					<td class="{% if has_submitted %} subheading {% endif %} vertically-center">
-						<svg class="icon icon-md">
-							<use href="#icon-file"></use>
-						</svg>
-						{{ _("Assignment") }}
-					</td>
-
-					<td>{{ assignment.title }}</td>
-
-					{% if has_submitted %}
-					<td>
-						<div class="indicator-pill {{ color }}">
-							{{ status }}
-						</div>
-					</td>
-
-					<td>{{ frappe.utils.format_date(submission.creation, "medium") }}</td>
-
-					{% else %}
-					<td>-</td>
-
-					<td>
-						<div class="indicator-pill red">
-							{{ _("Not Attempted") }}
-						</div>
-					</td>
-					{% endif %}
-				</tr>
-				{% endfor %}
-
-				{% for evaluation in course.evaluations %}
-				{% set color = "green" if evaluation.status == "Pass" else "red" %}
-				<tr class="clickable-row" data-href="/evaluation/{{evaluation.name}}">
-					<td class="subheading vertically-center">
-						<svg class="icon icon-md">
-							<use href="#icon-quality"></use>
-						</svg>
-						{{ _("Evaluation") }}
-					</td>
-					<td> - </td>
-					<td>
-						<div class="indicator-pill {{ color }}">
-							{{ evaluation.status }}
-						</div>
-					</td>
-					<td>{{ frappe.utils.format_date(evaluation.creation, "medium") }}</td>
-				</tr>
-				{% endfor %}
 			</table>
 		</div>
 		{% else %}
@@ -167,4 +89,101 @@
 	</div>
 	{% endfor %}
 </div>
+{% endmacro %}
+
+
+{% macro Quiz(course, student) %}
+	{% for quiz in course.quizzes %}
+		{% set filters = { "member": student.name, "course": course.course } %}
+		{% set has_submitted = frappe.db.exists("LMS Quiz Submission", filters) %}
+		{% set submission = frappe.db.get_value("LMS Quiz Submission", filters, ["score", "creation"], as_dict=True) %}
+		{% set total_questions = frappe.db.count("LMS Quiz Question", {"parent": quiz.name}) %}
+
+		<tr>
+			<td class="vertically-center">
+				<svg class="icon icon-sm">
+					<use href="#icon-quiz"></use>
+				</svg>
+				{{ _("Quiz") }}
+			</td>
+			<td>{{ quiz.title }}</td>
+			{% if has_submitted %}
+			<td>{{ submission.score }}/{{ total_questions }}</td>
+			<td>{{ frappe.utils.format_date(submission.creation, "medium") }}</td>
+			{% else %}
+			<td>-</td>
+			<td>
+				<div class="indicator-pill red">
+					{{ _("Not Attempted") }}
+				</div>
+			</td>
+			{% endif %}
+		</tr>
+	{% endfor %}
+{% endmacro %}
+
+
+{% macro Assignment(course, student, is_moderator) %}
+	{% for assignment in course.assignments %}
+		{% set filters = { "member": student.name, "course": course.course, "lesson": assignment.name } %}
+		{% set has_submitted = frappe.db.exists("Lesson Assignment", filters) %}
+		{% set submission = frappe.db.get_value("Lesson Assignment", filters, ["assignment", "creation", "status"], as_dict=True) %}
+		{% set status = submission.status %}
+		{% set color = "green" if status == "Pass" else "red" if status == "Fail" else "orange" %}
+		{% set can_see_details = has_submitted and (is_moderator or frappe.session.user == student.name) %}
+
+		<tr {% if can_see_details %} class="clickable-row" data-href="/assignments/{{ has_submitted }}" {% endif %}>
+			<td class="{% if can_see_details %} subheading {% endif %} vertically-center">
+				<svg class="icon icon-md">
+					<use href="#icon-file"></use>
+				</svg>
+				{{ _("Assignment") }}
+			</td>
+
+			<td>{{ assignment.title }}</td>
+
+			{% if has_submitted %}
+			<td>
+				<div class="indicator-pill {{ color }}">
+					{{ status }}
+				</div>
+			</td>
+
+			<td>{{ frappe.utils.format_date(submission.creation, "medium") }}</td>
+
+			{% else %}
+			<td>-</td>
+
+			<td>
+				<div class="indicator-pill red">
+					{{ _("Not Attempted") }}
+				</div>
+			</td>
+			{% endif %}
+		</tr>
+	{% endfor %}
+{% endmacro %}
+
+
+{% macro Evaluation(course, student, is_moderator) %}
+	{% for evaluation in course.evaluations %}
+		{% set color = "green" if evaluation.status == "Pass" else "red" %}
+		{% set can_see_details = is_moderator or frappe.session.user == student.name %}
+
+		<tr {% if can_see_details %} class="clickable-row" data-href="/evaluation/{{evaluation.name}}" {% endif %}>
+			<td class="{% if can_see_details %} subheading {% endif %} vertically-center">
+				<svg class="icon icon-md">
+					<use href="#icon-quality"></use>
+				</svg>
+				{{ _("Evaluation") }}
+			</td>
+			<td> - </td>
+			<td>
+				<div class="indicator-pill {{ color }}">
+					{{ evaluation.status }}
+				</div>
+			</td>
+			<td>{{ frappe.utils.format_date(evaluation.creation, "medium") }}</td>
+		</tr>
+	{% endfor %}
 {% endmacro %}

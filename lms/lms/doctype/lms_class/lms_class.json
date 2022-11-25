@@ -15,7 +15,8 @@
   "description",
   "section_break_6",
   "students",
-  "courses"
+  "courses",
+  "custom_component"
  ],
  "fields": [
   {
@@ -61,11 +62,18 @@
    "fieldtype": "Date",
    "label": "Start Date",
    "reqd": 1
+  },
+  {
+   "description": "The HTML code entered here will be displayed on the class details page.",
+   "fieldname": "custom_component",
+   "fieldtype": "Code",
+   "label": "Custom Component",
+   "options": "HTML"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-11-21 10:55:50.067225",
+ "modified": "2022-11-25 10:37:24.250557",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Class",
