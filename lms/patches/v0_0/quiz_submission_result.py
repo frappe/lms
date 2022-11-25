@@ -1,5 +1,6 @@
 import frappe
 
+
 def execute():
 	frappe.reload_doc("lms", "doctype", "lms_quiz_submission")
 	frappe.reload_doc("lms", "doctype", "lms_quiz_result")

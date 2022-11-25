@@ -79,8 +79,8 @@
 				{% set submission = frappe.db.get_value("LMS Quiz Submission", filters, ["score", "creation"], as_dict=True) %}
 				{% set total_questions = frappe.db.count("LMS Quiz Question", {"parent": quiz.name}) %}
 
-				<tr {% if has_submitted %} class="clickable-row" data-href="/quiz-submissions/{{ has_submitted }}" {% endif %}>
-					<td class="{% if has_submitted %} subheading {% endif %} vertically-center">
+				<tr>
+					<td class="vertically-center">
 						<svg class="icon icon-sm">
 							<use href="#icon-quiz"></use>
 						</svg>

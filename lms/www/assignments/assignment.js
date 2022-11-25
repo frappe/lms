@@ -32,9 +32,9 @@ const save_assignment = (e) => {
 	e.preventDefault();
 	if (!["Pass", "Fail"].includes(this.result))
 		frappe.throw({
-			"title": __("Not Graded"),
-			"message": __("Please grade the assignment.")
-		})
+			title: __("Not Graded"),
+			message: __("Please grade the assignment."),
+		});
 	frappe.call({
 		method: "lms.lms.doctype.lesson_assignment.lesson_assignment.grade_assignment",
 		args: {
