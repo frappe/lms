@@ -1,6 +1,10 @@
-{% set memberships = get_all_memberships(frappe.session.user) %}
-{% set membership = get_filtered_membership(course.name, memberships) %}
+{% if frappe.session.user != "Guest" %}
+{% set membership = frappe.db.get_value("LMS Batch Membership", {"member": frappe.session.user},
+	["name", "course", "batch", "current_lesson", "member_type", "progress"], as_dict=1) %}
 {% set progress = frappe.utils.cint(membership.progress) %}
+{% else %}
+{% set membership, progress = None, None %}
+{% endif %}
 
 
 <div class="common-card-style course-card" data-course="{{ course.name }}">
@@ -68,7 +72,7 @@
         </div>
         <div class="course-card-title">{{ course.title }}</div>
 
-        {% if membership and not read_only %}
+        {% if membership and not is_instructor(course.name) and not read_only %}
         <div class="progress">
             <div class="progress-bar" role="progressbar" aria-valuenow="{{ progress }}"
             aria-valuemin="0" aria-valuemax="100" style="width:{{ progress }}%">
