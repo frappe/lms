@@ -69,52 +69,6 @@ To setup the repository locally, follow the steps mentioned below:
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-### Installation through Docker
-
-1. Clone the repo.
-
-```
-
-$ git clone https://github.com/frappe/lms.git
-
-$ cd lms
-
-```
-
-2. Run docker-compose
-
-```
-
-$ docker-compose up
-
-```
-
-3. Visit the website at  [http://localhost:8000/](http://localhost:8000/)
-
-You'll have to go through the setup wizard to set up the website the first time you access it. Log in using the following credentials to complete the setup wizard.
-
-```
-
-Username: Administrator
-
-password: admin
-
-```
-
-## [](https://github.com/frappe/lms/blob/main/docker-installation.md#stopping-the-server)Stopping the server
-
-Press  ctrl+c  in the terminal to stop the server. You can also run  docker-compose down  in another terminal to stop it.
-
-To completely reset the instance, do the following:
-
-```
-
-$ docker-compose down --volumes
-
-$ docker-compose up
-
-```
-
 <!-- CONTRIBUTING -->
 
 ## Contributing
