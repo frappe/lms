@@ -6,15 +6,9 @@ from frappe import _
 def get_context(context):
 	context.no_cache = 1
 
-	if not has_course_moderator_role():
-		message = "Only Moderators have access to this page."
-		if frappe.session.user == "Guest":
-			message = "Please login to access this page."
-
-		raise frappe.PermissionError(_(message))
-
 	student = frappe.form_dict["username"]
 	classname = frappe.form_dict["classname"]
+	context.is_moderator = has_course_moderator_role()
 
 	context.student = frappe.db.get_value(
 		"User",

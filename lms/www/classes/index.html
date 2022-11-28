@@ -6,9 +6,11 @@
 {% block content %}
 <div class="common-page-style">
 	<div class="container">
+		{% if has_course_moderator_role() %}
 		<a class="btn btn-default btn-sm pull-right" href="/class/new">
 			{{ _("Create Class") }}
 		</a>
+		{% endif %}
 		<div class="course-home-headings"> {{ _("All Classes") }} </div>
 		{% if classes %}
 		{{ ClassCards(classes) }}
@@ -63,4 +65,4 @@
 	</div>
 	{% endfor %}
 </div>
-{% endmacro %}	
+{% endmacro %}

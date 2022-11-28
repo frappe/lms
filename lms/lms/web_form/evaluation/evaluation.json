@@ -20,7 +20,7 @@
  "list_columns": [],
  "login_required": 1,
  "max_attachment_size": 0,
- "modified": "2022-11-23 14:57:47.700695",
+ "modified": "2022-11-25 17:05:30.851109",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "evaluation",
@@ -29,7 +29,7 @@
  "published": 1,
  "route": "evaluation",
  "show_attachments": 0,
- "show_list": 1,
+ "show_list": 0,
  "show_sidebar": 0,
  "title": "Evaluation",
  "web_form_fields": [

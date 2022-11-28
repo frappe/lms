@@ -45,7 +45,8 @@
 				<div class="form-group">
 					<label> {{ _("Result") }} </label>
 					<div class="control-input flex align-center form-control">
-						<select class="input-with-feedback form-control pl-0" id="result" data-type="{{ assignment.status }}">
+						<select class="input-with-feedback form-control pl-0" id="result"
+						{% if not is_moderator %} disabled {% endif %} data-type="{{ assignment.status }}">
 							<option selected> {{ _("Not Graded") }} </option>
 							<option value="Pass"> {{ _("Pass") }} </option>
 							<option value="Fail"> {{ _("Fail") }} </option>
@@ -61,7 +62,8 @@
 
 			<div class="form-group col-md-6">
 				<label>{{ _("Comments") }}</label>
-				<textarea class="form-control" id="comments">{% if assignment.comments %}{{ assignment.comments }}{% endif %}</textarea>
+				<textarea class="form-control" id="comments" {% if not is_moderator %} disabled readonly {% endif %}
+				>{% if assignment.comments %}{{ assignment.comments }}{% endif %}</textarea>
 			</div>
 		</div>
 	</div>
