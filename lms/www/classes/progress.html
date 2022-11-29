@@ -13,7 +13,7 @@
 <div class="common-page-style">
 	<div class="container">
 		{{ BreadCrumb(class_info, student) }}
-		<div class="common-card-style column-card">
+		<div class="common-card-style flex-column p-5">
 			<div class="mb-5">
 				<div class="medium d-flex align-items-center pull-right">
 					<span>
@@ -58,7 +58,7 @@
 		</div>
 
 		{% if course.quizzes | length or course.assignments | length or course.evaluations | length %}
-		<div class="my-5">
+		<div class="{% if not loop.last %} my-5 {% else %} mt-5 {% endif %}">
 			<table class="table">
 				<tr>
 					<th style="width: 20%;">
