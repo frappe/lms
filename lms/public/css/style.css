@@ -87,9 +87,12 @@ input[type=checkbox] {
 }
 
 .common-page-style {
-	padding: 2rem 0 5rem;
-	padding-top: 3rem;
+	display: inline-flex;
 	background-color: var(--bg-color);
+}
+
+.common-page-style .container {
+	padding: 3rem 0 5rem;
 }
 
 .common-card-style {
@@ -1880,4 +1883,16 @@ select {
 
 .clickable-row {
 	cursor: pointer;
+}
+
+.lms-sidebar {
+	display: flex;
+	flex-direction: column;
+	width: fit-content;
+	border-right: 1px solid var(--gray-400);
+	padding: 1rem;
+}
+
+.lms-sidebar a {
+	margin-bottom: 1rem;
 }

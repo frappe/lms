@@ -13,6 +13,7 @@
 
 {% block content %}
 <div class="common-page-style">
+	{% include "lms/templates/sidebar.html" %}
     <div class="container">
         {% if restriction %}
         {% set profile_link = "<a href='/edit-profile'> profile </a>" %}
