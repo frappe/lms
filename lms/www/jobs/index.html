@@ -7,7 +7,7 @@
 
 {% block content %}
 <div class="common-page-style">
-
+	{% include "lms/templates/sidebar.html" %}
     <div class="container">
         {% if allow_posting %}
         <a class="button is-primary pull-right" href="/job-opportunity?new=1">{{ _("Post a Job") }}</a>

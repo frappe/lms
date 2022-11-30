@@ -1889,7 +1889,7 @@ select {
 	display: flex;
 	flex-direction: column;
 	width: fit-content;
-	border-right: 1px solid var(--gray-400);
+	border-right: 1px solid var(--gray-300);
 	padding: 1rem;
 }
 

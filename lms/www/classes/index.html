@@ -5,6 +5,7 @@
 
 {% block content %}
 <div class="common-page-style">
+	{% include "lms/templates/sidebar.html" %}
 	<div class="container">
 		{% if has_course_moderator_role() %}
 		<a class="btn btn-default btn-sm pull-right" href="/class/new">

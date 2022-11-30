@@ -3,7 +3,8 @@
 
 {% block content %}
 <div class="common-page-style">
-  <div class="container">
+	{% include "lms/templates/sidebar.html" %}
+ 	<div class="container">
 
     <input class="search pull-right" id="search-user" placeholder="{{ _('Search') }}">
 
