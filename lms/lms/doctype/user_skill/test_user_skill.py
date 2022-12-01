@@ -5,5 +5,5 @@
 import unittest
 
 
-class TestSkill(unittest.TestCase):
+class TestUserSkill(unittest.TestCase):
 	pass
