@@ -17,7 +17,7 @@ def after_uninstall():
 
 
 def create_lms_roles():
-	create_instructor_role()
+	create_course_creator_role()
 	create_moderator_role()
 
 
@@ -25,12 +25,12 @@ def set_default_home():
 	frappe.db.set_value("Portal Settings", None, "default_portal_home", "/courses")
 
 
-def create_instructor_role():
-	if not frappe.db.exists("Role", "Course Instructor"):
+def create_course_creator_role():
+	if not frappe.db.exists("Role", "Course Creator"):
 		role = frappe.get_doc(
 			{
 				"doctype": "Role",
-				"role_name": "Course Instructor",
+				"role_name": "Course Creator",
 				"home_page": "",
 				"desk_access": 0,
 			}
@@ -39,11 +39,11 @@ def create_instructor_role():
 
 
 def create_moderator_role():
-	if not frappe.db.exists("Role", "Course Moderator"):
+	if not frappe.db.exists("Role", "Moderator"):
 		role = frappe.get_doc(
 			{
 				"doctype": "Role",
-				"role_name": "Course Moderator",
+				"role_name": "Moderator",
 				"home_page": "",
 				"desk_access": 0,
 			}

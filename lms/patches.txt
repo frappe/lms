@@ -40,3 +40,4 @@ lms.patches.v0_0.add_pages_to_nav #25-11-2022
 lms.patches.v0_0.change_role_names
 lms.patches.v0_0.quiz_submission_result
 lms.patches.v0_0.skill_to_user_skill
+lms.patches.v0_0.rename_instructor_role

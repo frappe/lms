@@ -486,7 +486,7 @@ def redirect_to_courses_list():
 def has_course_instructor_role(member=None):
 	return frappe.db.get_value(
 		"Has Role",
-		{"parent": member or frappe.session.user, "role": "Instructor"},
+		{"parent": member or frappe.session.user, "role": "Course Creator"},
 		"name",
 	)
 
