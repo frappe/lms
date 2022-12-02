@@ -102,11 +102,11 @@
    "fieldtype": "Column Break"
   },
   {
-   "default": "Course Instructor Role",
+   "default": "Course Creator Role",
    "fieldname": "portal_course_creation",
    "fieldtype": "Select",
    "label": "Course Creation Access Through Website To",
-   "options": "Course Instructor Role\nAnyone"
+   "options": "Course Creator Role\nAnyone"
   },
   {
    "fieldname": "column_break_9",
@@ -142,7 +142,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2022-10-11 16:26:15.898514",
+ "modified": "2022-12-01 15:13:39.901611",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",
