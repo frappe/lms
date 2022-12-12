@@ -1,5 +1,6 @@
 {% if frappe.session.user != "Guest" %}
-{% set membership = frappe.db.get_value("LMS Batch Membership", {"member": frappe.session.user},
+{% set membership = frappe.db.get_value("LMS Batch Membership",
+	{"member": frappe.session.user, "course": course.name},
 	["name", "course", "batch", "current_lesson", "member_type", "progress"], as_dict=1) %}
 {% set progress = frappe.utils.cint(membership.progress) %}
 {% else %}
@@ -113,19 +114,17 @@
 
         {% if read_only %}
             <a class="stretched-link" href="/courses/{{ course.name }}"></a>
-            {% else %}
-
-            {% set lesson_index = get_lesson_index(membership.current_lesson) if membership and
-            membership.current_lesson else '1.1' %}
-            {% set query_parameter = "?batch=" + membership.batch if membership and
-            membership.batch else "" %}
-
+		{% else %}
             {% if progress != 100 and membership and not course.upcoming %}
-            <a class="stretched-link" href="{{ get_lesson_url(course.name, lesson_index) }}{{ query_parameter }}"></a>
 
-            {% else %}
-            <a class="stretched-link" href="/courses/{{ course.name }}"></a>
+				{% set lesson_index = get_lesson_index(membership.current_lesson or "1.1") %}
 
+				{% set query_parameter = "?batch=" + membership.batch if membership.batch else "" %}
+
+				<a class="stretched-link" href="{{ get_lesson_url(course.name, lesson_index) }}{{ query_parameter }}"></a>
+
+			{% else %}
+				<a class="stretched-link" href="/courses/{{ course.name }}"></a>
             {% endif %}
         {% endif %}
     </div>
