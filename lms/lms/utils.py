@@ -624,14 +624,14 @@ def show_start_learing_cta(course, membership):
 
 def has_lessons(course):
 	lesson_exists = False
-	chapter_exists = frappe.db.get_value("Chapter Reference", {
-		"parent": course.name
-	}, ["name", "chapter"], as_dict=True)
+	chapter_exists = frappe.db.get_value(
+		"Chapter Reference", {"parent": course.name}, ["name", "chapter"], as_dict=True
+	)
 
 	if chapter_exists:
-		lesson_exists = frappe.db.exists("Lesson Reference", {
-			"parent": chapter_exists.chapter
-		})
+		lesson_exists = frappe.db.exists(
+			"Lesson Reference", {"parent": chapter_exists.chapter}
+		)
 
 	return lesson_exists
 
