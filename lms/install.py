@@ -2,10 +2,6 @@ import frappe
 from frappe.desk.page.setup_wizard.setup_wizard import add_all_roles_to
 
 
-def after_install():
-	add_pages_to_nav()
-
-
 def after_sync():
 	create_lms_roles()
 	set_default_home()
@@ -95,42 +91,3 @@ def delete_custom_fields():
 	for field in fields:
 		frappe.db.delete("Custom Field", {"fieldname": field})
 		frappe.db.commit()
-
-
-def add_pages_to_nav():
-	pages = [
-		{"label": "Courses", "url": "/courses", "parent": "Explore", "idx": 2},
-		{"label": "Classes", "url": "/classes", "parent": "Explore", "idx": 3},
-		{"label": "Statistics", "url": "/statistics", "parent": "Explore", "idx": 4},
-		{"label": "Jobs", "url": "/jobs", "parent": "Explore", "idx": 5},
-		{"label": "People", "url": "/community", "parent": "Explore", "idx": 6},
-	]
-
-	if not frappe.db.exists("Top Bar Item", {"label": "Explore"}):
-		frappe.get_doc(
-			{
-				"doctype": "Top Bar Item",
-				"label": "Explore",
-				"parent": "Website Settings",
-				"parenttype": "Website Settings",
-				"parentfield": "top_bar_items",
-				"idx": 1,
-			}
-		).save()
-
-	for page in pages:
-		if not frappe.db.exists(
-			"Top Bar Item", {"url": ["like", "%" + page.get("url") + "%"]}
-		):
-			frappe.get_doc(
-				{
-					"doctype": "Top Bar Item",
-					"label": page.get("label"),
-					"url": page.get("url"),
-					"parent_label": page.get("parent"),
-					"idx": page.get("idx"),
-					"parent": "Website Settings",
-					"parenttype": "Website Settings",
-					"parentfield": "top_bar_items",
-				}
-			).save()
