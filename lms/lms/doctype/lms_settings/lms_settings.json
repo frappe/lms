@@ -7,7 +7,6 @@
  "field_order": [
   "search_placeholder",
   "portal_course_creation",
-  "add_to_navbar",
   "column_break_2",
   "custom_certificate_template",
   "livecode_url",
@@ -138,18 +137,12 @@
    "fieldtype": "Link",
    "label": "Custom Certificate Template",
    "options": "Web Template"
-  },
-  {
-   "default": "0",
-   "fieldname": "add_to_navbar",
-   "fieldtype": "Check",
-   "label": "Add LMS pages to navbar"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2022-12-12 11:36:16.162795",
+ "modified": "2022-12-15 10:23:08.638117",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",
