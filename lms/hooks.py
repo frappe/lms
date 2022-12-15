@@ -58,6 +58,7 @@ web_include_js = ["website.bundle.js"]
 # ------------
 
 # before_install = "lms.install.before_install"
+after_install = "lms.install.after_install"
 after_sync = "lms.install.after_sync"
 after_uninstall = "lms.install.after_uninstall"
 
