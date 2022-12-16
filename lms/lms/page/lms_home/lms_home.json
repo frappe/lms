@@ -1,0 +1,19 @@
+{
+ "content": null,
+ "creation": "2022-12-15 13:45:06.602567",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2022-12-15 13:45:06.602567",
+ "modified_by": "Administrator",
+ "module": "LMS",
+ "name": "lms-home",
+ "owner": "Administrator",
+ "page_name": "lms-home",
+ "roles": [],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 1,
+ "title": "LMS"
+}

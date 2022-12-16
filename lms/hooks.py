@@ -58,9 +58,12 @@ web_include_js = ["website.bundle.js"]
 # ------------
 
 # before_install = "lms.install.before_install"
+after_install = "lms.install.after_install"
 after_sync = "lms.install.after_sync"
 after_uninstall = "lms.install.after_uninstall"
 
+
+setup_wizard_requires = "assets/lms/js/setup_wizard.js"
 
 # Desk Notifications
 # ------------------
@@ -284,4 +287,6 @@ profile_url_prefix = "/users/"
 
 signup_form_template = "lms.plugins.show_custom_signup"
 
-on_login = "lms.overrides.user.set_country_from_ip"
+on_login = "lms.overrides.user.on_login"
+
+on_session_creation = "lms.overrides.user.on_session_creation"

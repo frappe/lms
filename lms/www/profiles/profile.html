@@ -205,9 +205,9 @@
                 <div class="course-home-headings"> {{ _("Role Settings") }} </div>
                 <div class="medium">
                     <label class="role">
-                        <input type="checkbox" id="instructor" data-role="Instructor"
+                        <input type="checkbox" id="course-creator" data-role="Course Creator"
                         {% if has_course_instructor_role(member.name) %} checked {% endif %}>
-                        {{ _("Instructor") }}
+                        {{ _("Course Creator") }}
                     </label>
                     <label class="role">
                         <input type="checkbox" id="moderator" data-role="Moderator"
