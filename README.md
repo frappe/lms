@@ -20,7 +20,7 @@
     <a href="https://www.frappelms.com"><strong>Visit the website »</strong></a>
     <br/>
     <br/>
-    <a href="https://www.frappelms.com/introduction">Explore the docs</a>.
+    <a href="https://docs.frappelms.com">Explore the docs</a>.
     <a href="https://github.com/frappe/lms/issues">Report Bug</a>
 
   </p>
