@@ -1,0 +1,50 @@
+{% set is_onboarding_complete = frappe.db.get_single_value("LMS Settings", "is_onboarding_complete") %}
+
+{% if has_course_moderator_role() and not is_onboarding_complete %}
+
+{% set course_created = frappe.db.count("LMS Course") %}
+{% set chapter_created = frappe.db.count("Course Chapter") %}
+{% set lesson_created = frappe.db.count("Course Lesson") %}
+{% set quiz_created = frappe.db.count("LMS Quiz") %}
+
+
+<div class="onboarding-parent">
+	<div class="container">
+		<h3 class="mt-0"> {{ _("Welcome") }} 🎉</h3>
+		<div class="onboarding-subtitle">
+			{{ _("Lets start setting up your content on the LMS so that you can reclaim time and focus on growth.") }}
+		</div>
+		<div class="onboarding-steps">
+			<a class="onboarding-steps-link" href="/courses/new-course">
+				<svg class="icon icon-md">
+					<use href="{% if course_created %} #icon-green-check-circled {% else %} #icon-disabled-check {% endif %}">
+					</use>
+				</svg>
+				{{ _("Create a Course") }}
+			</a>
+			<a class="onboarding-steps-link" {% if course_created %}  href="" {% endif %}>
+				<svg class="icon icon-md">
+					<use href="{% if chapter_created %} #icon-green-check-circled {% else %} #icon-disabled-check {% endif %}">
+					</use>
+				</svg>
+				{{ _("Add a Chapter") }}
+			</a>
+			<a class="onboarding-steps-link" {% if chapter_created %} href="" {% endif %}>
+				<svg class="icon icon-md">
+					<use href="{% if lesson_created %} #icon-green-check-circled {% else %} #icon-disabled-check {% endif %}">
+					</use>
+				</svg>
+				{{ _("Add a Lesson") }}
+			</a>
+			<a class="onboarding-steps-link" {% if lesson_created %} href="" {% endif %}>
+				<svg class="icon icon-md">
+					<use href="{% if quiz_created %} #icon-green-check-circled {% else %} #icon-disabled-check {% endif %}">
+					</use>
+				</svg>
+				{{ _("Create a Quiz") }}
+			</a>
+		</div>
+
+	</div>
+</div>
+{% endif %}

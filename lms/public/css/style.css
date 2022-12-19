@@ -130,6 +130,10 @@ input[type=checkbox] {
   stroke: none;
 }
 
+.onboarding-parent .icon {
+	stroke: none;
+}
+
 .course-card-content {
   padding: 1rem;
   display: flex;
@@ -1882,4 +1886,28 @@ select {
 
 .clickable-row {
 	cursor: pointer;
+}
+
+.onboarding-parent {
+	background-color: var(--primary-light);
+	padding: 2rem 0;
+}
+
+.onboarding-steps {
+	display: flex;
+	justify-content: space-between;
+	padding-top: 1.5rem;
+	font-weight: 500;
+	color: var(--gray-900);
+}
+
+.onboarding-steps-link {
+	display: flex;
+	align-items: center;
+	color: inherit;
+}
+
+.onboarding-steps-link:hover {
+	text-decoration: none;
+	color: inherit;
 }
