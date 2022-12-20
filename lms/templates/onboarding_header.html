@@ -3,6 +3,7 @@
 {% if has_course_moderator_role() and not is_onboarding_complete %}
 
 {% set course_created = frappe.db.count("LMS Course") %}
+{% set first_course = frappe.db.get_all("LMS Course", order_by="creation", pluck="name")[0] %}
 {% set chapter_created = frappe.db.count("Course Chapter") %}
 {% set lesson_created = frappe.db.count("Course Lesson") %}
 {% set quiz_created = frappe.db.count("LMS Quiz") %}
@@ -10,6 +11,7 @@
 
 <div class="onboarding-parent">
 	<div class="container">
+		<div class="onboarding-skip">{{ _("Skip") }}</div>
 		<h3 class="mt-0"> {{ _("Welcome") }} 🎉</h3>
 		<div class="onboarding-subtitle">
 			{{ _("Lets start setting up your content on the LMS so that you can reclaim time and focus on growth.") }}
@@ -22,21 +24,21 @@
 				</svg>
 				{{ _("Create a Course") }}
 			</a>
-			<a class="onboarding-steps-link" {% if course_created %}  href="" {% endif %}>
+			<a class="onboarding-steps-link" {% if course_created %}  href="/courses/{{ first_course }}?edit=1" {% endif %}>
 				<svg class="icon icon-md">
 					<use href="{% if chapter_created %} #icon-green-check-circled {% else %} #icon-disabled-check {% endif %}">
 					</use>
 				</svg>
 				{{ _("Add a Chapter") }}
 			</a>
-			<a class="onboarding-steps-link" {% if chapter_created %} href="" {% endif %}>
+			<a class="onboarding-steps-link" {% if chapter_created %} href="/courses/{{ first_course }}?edit=1" {% endif %}>
 				<svg class="icon icon-md">
 					<use href="{% if lesson_created %} #icon-green-check-circled {% else %} #icon-disabled-check {% endif %}">
 					</use>
 				</svg>
 				{{ _("Add a Lesson") }}
 			</a>
-			<a class="onboarding-steps-link" {% if lesson_created %} href="" {% endif %}>
+			<a class="onboarding-steps-link" {% if lesson_created %} href="/quizzes/new-quiz" {% endif %}>
 				<svg class="icon icon-md">
 					<use href="{% if quiz_created %} #icon-green-check-circled {% else %} #icon-disabled-check {% endif %}">
 					</use>
@@ -48,3 +50,29 @@
 	</div>
 </div>
 {% endif %}
+
+<script>
+	frappe.ready(() => {
+
+		$(".onboarding-skip").click((e) => {
+			skip_onboarding(e);
+		});
+
+	});
+
+	const skip_onboarding = (e) => {
+		frappe.call({
+			method: "frappe.client.set_value",
+			args: {
+				doctype: "LMS Settings",
+				name: "LMS Settings",
+				fieldname: "is_onboarding_complete",
+				value: 1,
+			},
+			freeze: true,
+			callback: function (data) {
+				window.location.reload();
+			}
+		});
+	}
+</script>
