@@ -143,13 +143,14 @@
    "default": "0",
    "fieldname": "is_onboarding_complete",
    "fieldtype": "Check",
-   "label": "Is Onboarding Complete"
+   "label": "Is Onboarding Complete",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2022-12-19 18:36:33.987735",
+ "modified": "2022-12-20 11:44:06.317159",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",

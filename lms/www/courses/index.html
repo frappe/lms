@@ -1,4 +1,4 @@
-{% extends "templates/base.html" %}
+{% extends "lms/templates/lms_base.html" %}
 
 
 {% block title %}
@@ -6,13 +6,7 @@
 {% endblock %}
 
 
-{% block head_include %}
-{% include "public/icons/symbol-defs.svg" %}
-{% endblock %}
-
-
-{% block content %}
-{% include "lms/templates/onboarding_header.html" %}
+{% block page_content %}
 <div class="common-page-style">
     <div class="container">
         {% if restriction %}

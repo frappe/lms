@@ -1,10 +1,10 @@
-{% extends "templates/base.html" %}
+{% extends "lms/templates/lms_base.html" %}
 {% block title %}
     {{ _(class_info.title) }}
 {% endblock %}
 
 
-{% block content %}
+{% block page_content %}
 <div class="common-page-style">
 	<div class="container">
 		{{ BreadCrumb(class_info) }}
