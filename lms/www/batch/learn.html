@@ -1,29 +1,26 @@
-{% extends "templates/base.html" %}
+{% extends "lms/templates/lms_base.html" %}
 {% from "www/macros/livecode.html" import LiveCodeEditorJS, LiveCodeEditor with context %}
 
-{% block title %}
 
+{% block title %}
 {% if lesson.title %}
 {{ lesson.title }} - {{ course.title }}
 {% else %}
 {{ _("New Lesson") }}
 {% endif %}
-
 {% endblock %}
 
 
 {% block head_include %}
-{% include "public/icons/symbol-defs.svg" %}
 <link rel="stylesheet" href="/assets/frappe/css/hljs-night-owl.css">
 
 {% for ext in page_extensions %}
 {{ ext.render_header() }}
 {% endfor %}
-
 {% endblock %}
 
 
-{% block content %}
+{% block page_content %}
 <div class="common-page-style lesson-page">
     <div class="container course-details-page">
         {{ BreadCrumb(course, lesson) }}

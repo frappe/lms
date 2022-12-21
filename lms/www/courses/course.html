@@ -1,15 +1,10 @@
-{% extends "templates/base.html" %}
+{% extends "lms/templates/lms_base.html" %}
 {% block title %}
     {{  course.title if course.title else _("New Course") }}
 {% endblock %}
 
 
-{% block head_include %}
-    {% include "public/icons/symbol-defs.svg" %}
-{% endblock %}
-
-
-{% block content %}
+{% block page_content %}
 <div class="common-page-style pt-0 pb-0">
     <div class="course-home-top-container">
         {{ CourseHomeHeader(course) }}

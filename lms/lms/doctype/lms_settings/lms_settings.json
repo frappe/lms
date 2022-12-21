@@ -7,10 +7,11 @@
  "field_order": [
   "search_placeholder",
   "portal_course_creation",
-  "force_profile_completion",
+  "is_onboarding_complete",
   "column_break_2",
   "custom_certificate_template",
   "livecode_url",
+  "force_profile_completion",
   "signup_settings_section",
   "terms_of_use",
   "terms_page",
@@ -102,11 +103,11 @@
    "fieldtype": "Column Break"
   },
   {
-   "default": "Course Instructor Role",
+   "default": "Course Creator Role",
    "fieldname": "portal_course_creation",
    "fieldtype": "Select",
    "label": "Course Creation Access Through Website To",
-   "options": "Course Instructor Role\nAnyone"
+   "options": "Course Creator Role\nAnyone"
   },
   {
    "fieldname": "column_break_9",
@@ -137,12 +138,19 @@
    "fieldtype": "Link",
    "label": "Custom Certificate Template",
    "options": "Web Template"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_onboarding_complete",
+   "fieldtype": "Check",
+   "label": "Is Onboarding Complete",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2022-10-11 16:26:15.898514",
+ "modified": "2022-12-20 11:44:06.317159",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",

@@ -8,7 +8,6 @@ from frappe import _
 from frappe.core.doctype.user.user import User
 from frappe.utils import cint, escape_html, random_string
 from frappe.website.utils import is_signup_disabled
-
 from lms.lms.utils import validate_image
 from lms.widgets import Widgets
 
@@ -293,6 +292,14 @@ def get_country_code():
 	except Exception:
 		pass
 	return
+
+
+def on_login(login_manager):
+	set_country_from_ip()
+
+
+def on_session_creation(login_manager):
+	frappe.local.response["home_page"] = "/courses"
 
 
 @frappe.whitelist(allow_guest=True)

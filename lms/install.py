@@ -12,12 +12,44 @@ def after_sync():
 	add_all_roles_to("Administrator")
 
 
+def add_pages_to_nav():
+	pages = [
+		{"label": "Explore", "idx": 1},
+		{"label": "Courses", "url": "/courses", "parent": "Explore", "idx": 2},
+		{"label": "Classes", "url": "/classes", "parent": "Explore", "idx": 3},
+		{"label": "Statistics", "url": "/statistics", "parent": "Explore", "idx": 4},
+		{"label": "Jobs", "url": "/jobs", "parent": "Explore", "idx": 5},
+		{"label": "People", "url": "/community", "parent": "Explore", "idx": 6},
+	]
+
+	for page in pages:
+		filters = frappe._dict()
+		if page.get("url"):
+			filters["url"] = ["like", "%" + page.get("url") + "%"]
+		else:
+			filters["label"] = page.get("label")
+
+		if not frappe.db.exists("Top Bar Item", filters):
+			frappe.get_doc(
+				{
+					"doctype": "Top Bar Item",
+					"label": page.get("label"),
+					"url": page.get("url"),
+					"parent_label": page.get("parent"),
+					"idx": page.get("idx"),
+					"parent": "Website Settings",
+					"parenttype": "Website Settings",
+					"parentfield": "top_bar_items",
+				}
+			).save()
+
+
 def after_uninstall():
 	delete_custom_fields()
 
 
 def create_lms_roles():
-	create_instructor_role()
+	create_course_creator_role()
 	create_moderator_role()
 
 
@@ -25,12 +57,12 @@ def set_default_home():
 	frappe.db.set_value("Portal Settings", None, "default_portal_home", "/courses")
 
 
-def create_instructor_role():
-	if not frappe.db.exists("Role", "Course Instructor"):
+def create_course_creator_role():
+	if not frappe.db.exists("Role", "Course Creator"):
 		role = frappe.get_doc(
 			{
 				"doctype": "Role",
-				"role_name": "Course Instructor",
+				"role_name": "Course Creator",
 				"home_page": "",
 				"desk_access": 0,
 			}
@@ -39,11 +71,11 @@ def create_instructor_role():
 
 
 def create_moderator_role():
-	if not frappe.db.exists("Role", "Course Moderator"):
+	if not frappe.db.exists("Role", "Moderator"):
 		role = frappe.get_doc(
 			{
 				"doctype": "Role",
-				"role_name": "Course Moderator",
+				"role_name": "Moderator",
 				"home_page": "",
 				"desk_access": 0,
 			}
@@ -95,42 +127,3 @@ def delete_custom_fields():
 	for field in fields:
 		frappe.db.delete("Custom Field", {"fieldname": field})
 		frappe.db.commit()
-
-
-def add_pages_to_nav():
-	pages = [
-		{"label": "Courses", "url": "/courses", "parent": "Explore", "idx": 2},
-		{"label": "Classes", "url": "/classes", "parent": "Explore", "idx": 3},
-		{"label": "Statistics", "url": "/statistics", "parent": "Explore", "idx": 4},
-		{"label": "Jobs", "url": "/jobs", "parent": "Explore", "idx": 5},
-		{"label": "People", "url": "/community", "parent": "Explore", "idx": 6},
-	]
-
-	if not frappe.db.exists("Top Bar Item", {"label": "Explore"}):
-		frappe.get_doc(
-			{
-				"doctype": "Top Bar Item",
-				"label": "Explore",
-				"parent": "Website Settings",
-				"parenttype": "Website Settings",
-				"parentfield": "top_bar_items",
-				"idx": 1,
-			}
-		).save()
-
-	for page in pages:
-		if not frappe.db.exists(
-			"Top Bar Item", {"url": ["like", "%" + page.get("url") + "%"]}
-		):
-			frappe.get_doc(
-				{
-					"doctype": "Top Bar Item",
-					"label": page.get("label"),
-					"url": page.get("url"),
-					"parent_label": page.get("parent"),
-					"idx": page.get("idx"),
-					"parent": "Website Settings",
-					"parenttype": "Website Settings",
-					"parentfield": "top_bar_items",
-				}
-			).save()

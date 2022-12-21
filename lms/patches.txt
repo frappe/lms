@@ -39,3 +39,7 @@ lms.patches.v0_0.convert_progress_to_float
 lms.patches.v0_0.add_pages_to_nav #25-11-2022
 lms.patches.v0_0.change_role_names
 lms.patches.v0_0.quiz_submission_result
+lms.patches.v0_0.skill_to_user_skill
+lms.patches.v0_0.rename_instructor_role
+lms.patches.v0_0.change_course_creation_settings #12-12-2022
+lms.patches.v0_0.check_onboarding_status #21-12-2022
