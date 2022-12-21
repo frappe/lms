@@ -1,35 +1,44 @@
-{% extends "templates/base.html" %}
-{% block title %}{{ _('Community') }}{% endblock %}
+{% extends "lms/templates/lms_base.html" %}
+{% block title %}
+{{ _('Community') }}
+{% endblock %}
 
-{% block content %}
+
+{% block page_content %}
 <div class="common-page-style">
-  <div class="container">
+	<div class="container">
 
-    <input class="search pull-right" id="search-user" placeholder="{{ _('Search') }}">
+		<input class="search pull-right" id="search-user" placeholder="{{ _('Search') }}">
+		<div class="course-home-headings">{{ _("People") }} </div>
 
-    <div class="course-home-headings">{{ _("Community") }} </div>
+		<div class="empty-state alert alert-dismissible hide" id="search-empty-state">
+			<a href="#" class="close-search-empty-state" aria-label="close">&times;</a>
+			<div>
+				<img class="icon icon-xl" src="/assets/frappe/images/ui-states/search-empty-state.svg">
+			</div>
+			<div class="empty-state-text">
+				<div class="empty-state-heading">
+					{{ _("No results found") }}
+				</div>
+				<div class="course-meta">
+					{{ _("Try some other keyword or explore our community") }}
+				</div>
+			</div>
+		</div>
 
-    <div class="empty-state alert alert-dismissible hide" id="search-empty-state">
-      <a href="#" class="close-search-empty-state" aria-label="close">&times;</a>
-      <div>
-        <img class="icon icon-xl" src="/assets/frappe/images/ui-states/search-empty-state.svg">
-      </div>
-      <div class="empty-state-text">
-        <div class="empty-state-heading">{{ _("No results found") }}</div>
-        <div class="course-meta">{{ _("Try some other keyword or explore our community") }}</div>
-      </div>
-    </div>
+		<div class="member-parent">
+			{% for user in users %}
+			{{ widgets.MemberCard(member=user, show_course_count=False, avatar_class="avatar-large") }}
+			{% endfor %}
+		</div>
 
-    <div class="member-parent">
-      {% for user in users %}
-      {{ widgets.MemberCard(member=user, show_course_count=False, avatar_class="avatar-large") }}
-      {% endfor %}
-    </div>
-    {% if user_count > user_details | length %}
-    <div class="mt-10 d-flex justify-content-center">
-      <div class="button is-secondary" id="load-more" data-start="30" data-count="{{ user_count }}">{{ _("Load More") }}</div>
-    </div>
-    {% endif %}
-  </div>
+		{% if user_count > user_details | length %}
+		<div class="mt-10 d-flex justify-content-center">
+			<div class="btn btn-md btn-default" id="load-more" data-start="30" data-count="{{ user_count }}">
+				{{ _("Load More") }}
+			</div>
+		</div>
+		{% endif %}
+	</div>
 </div>
 {% endblock %}

@@ -1,9 +1,9 @@
-{% extends "templates/base.html" %}
+{% extends "lms/templates/lms_base.html" %}
 {% block title %}
     {{  _("All Classes") }}
 {% endblock %}
 
-{% block content %}
+{% block page_content %}
 <div class="common-page-style">
 	<div class="container">
 		{% if has_course_moderator_role() %}
