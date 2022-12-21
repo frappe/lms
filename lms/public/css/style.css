@@ -88,11 +88,10 @@ input[type=checkbox] {
 
 .common-page-style {
 	display: inline-flex;
-	background-color: var(--bg-color);
 }
 
 .common-page-style .container {
-	padding: 3rem 0 5rem;
+	padding: 3rem;
 }
 
 .common-card-style {
@@ -1925,11 +1924,20 @@ select {
 .lms-sidebar {
 	display: flex;
 	flex-direction: column;
+	background-color: var(--bg-color);
 	width: fit-content;
 	border-right: 1px solid var(--gray-300);
-	padding: 1rem;
+	padding: 1.5rem;
+	font-size: var(--text-base);
 }
 
-.lms-sidebar a {
+.sidebar-links {
+	display: flex;
+	align-items: center;
 	margin-bottom: 1rem;
+	color: inherit;
+}
+
+.sidebar-links:hover {
+	color: inherit;
 }
