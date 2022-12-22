@@ -6,6 +6,14 @@ frappe.ready(() => {
 	$(".close-search-empty-state").click((e) => {
 		close_search_empty_state(e);
 	});
+
+	$("#open-search").click((e) => {
+		show_search_bar();
+	});
+
+	$("#search-course").focusout((e) => {
+		hide_search_bar();
+	});
 });
 
 const search_course = (e) => {
@@ -28,7 +36,14 @@ const search_course = (e) => {
 			text: input,
 		},
 		callback: (data) => {
-			render_course_list(data.message);
+			let courses = data.message;
+			$(".result-row").remove();
+			for (let i in courses) {
+				let element = `<div class="result-row">
+					${courses[i].title}
+				</div>`;
+				$("#search-result").append(element);
+			}
 		},
 	});
 };
@@ -71,4 +86,15 @@ const fix_heading_styles = () => {
 const close_search_empty_state = (e) => {
 	$(".search-empty-state").addClass("hide");
 	$("#search-course").val("");
+};
+
+const show_search_bar = () => {
+	$("#open-search").addClass("hide");
+	$("#search-modal").css("display", "block");
+	$("#search-course").focus();
+};
+
+const hide_search_bar = () => {
+	$("#open-search").removeClass("hide");
+	$("#search-modal").css("display", "none");
 };

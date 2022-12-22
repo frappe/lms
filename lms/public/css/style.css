@@ -929,17 +929,17 @@ pre {
 }
 
 .search {
-  background-image: url(/assets/frappe/icons/timeless/search.svg);
-  border: none;
-  border-radius: var(--border-radius-md);
-  font-size: var(--text-sm);
-  padding: 0.625rem 0.75rem;
-  height: 36px;
-  background-repeat: no-repeat;
-  text-indent: 1.5rem;
-  background-position: 1rem 0.7rem;
-  width: 30%;
-  box-shadow: var(--shadow-sm);
+	border: none;
+	border-radius: var(--border-radius-md);
+	font-size: var(--text-base);
+	padding: 0.625rem 0.75rem;
+	height: 36px;
+	width: 80%;
+	box-shadow: var(--shadow-base);
+}
+
+.search:focus {
+	outline: none;
 }
 
 .course-search-header {
@@ -1917,4 +1917,37 @@ select {
 	float: right;
 	cursor: pointer;
 	margin-right: 1rem;
+}
+
+.modal-container {
+	display: none;
+	position: fixed;
+	z-index: 10;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	overflow: auto;
+	background-color: rgb(0,0,0);
+	background-color: rgba(0,0,0,0.4);
+}
+
+.modal-inner {
+	background: #ffffff;
+	margin: 15% auto 2rem;
+}
+
+
+.close {
+	color: #aaa;
+	float: right;
+	font-size: 28px;
+	font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+	color: black;
+	text-decoration: none;
+	cursor: pointer;
 }
