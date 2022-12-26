@@ -176,7 +176,7 @@ def search_course(text):
 			"short_introduction": ["like", f"%{text}%"],
 			"description": ["like", f"%{text}%"],
 		},
-		fields=["name", "title", "image"],
+		fields=["name", "title"],
 	)
 	return courses
 
