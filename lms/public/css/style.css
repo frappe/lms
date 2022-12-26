@@ -929,17 +929,29 @@ pre {
 }
 
 .search {
-  background-image: url(/assets/frappe/icons/timeless/search.svg);
-  border: none;
-  border-radius: var(--border-radius-md);
-  font-size: var(--text-sm);
-  padding: 0.625rem 0.75rem;
-  height: 36px;
-  background-repeat: no-repeat;
-  text-indent: 1.5rem;
-  background-position: 1rem 0.7rem;
-  width: 30%;
-  box-shadow: var(--shadow-sm);
+	background-image: url(/assets/frappe/icons/timeless/search.svg);
+	border: none;
+	border-radius: var(--border-radius-md);
+	font-size: var(--text-sm);
+	padding: 0.625rem 0.75rem;
+	height: 36px;
+	background-repeat: no-repeat;
+	text-indent: 1.5rem;
+	background-position: 1rem 0.7rem;
+	width: 30%;
+	box-shadow: var(--shadow-sm);
+}
+
+.search-course {
+	background-position: 1rem;
+	text-indent: 1rem;
+    font-size: var(--text-base);
+    padding: 1.5rem;
+    width: 100%;
+}
+
+.search:focus {
+	outline: none;
 }
 
 .course-search-header {
@@ -1917,4 +1929,29 @@ select {
 	float: right;
 	cursor: pointer;
 	margin-right: 1rem;
+}
+
+.result-row {
+	display: block;
+	padding: 1rem;
+    border-top: 1px solid var(--gray-300);
+    font-weight: 500;
+    color: var(--gray-900);
+    font-size: var(--text-base);
+    cursor: pointer;
+}
+
+.result-row:hover {
+	color: inherit;
+	text-decoration: none;
+}
+
+.search-modal .modal-dialog {
+	max-width: 70%;
+	margin: 15% auto !important;
+}
+
+.search-modal .modal-body {
+	padding: 0 !important;
+	margin: 0 !important;
 }

@@ -1,16 +1,14 @@
 {% set search_placeholder = frappe.db.get_single_value("LMS Settings", "search_placeholder") %}
 {% set portal_course_creation = frappe.db.get_single_value("LMS Settings", "portal_course_creation") %}
 
-<input class="search" id="search-course" placeholder="{{ _(search_placeholder) or 'Search' }}">
-<div class="empty-state alert alert-dismissible search-empty-state hide">
-    <a href="#" class="close-search-empty-state" aria-label="close">&times;</a>
-    <div>
-        <img class="icon icon-xl" src="/assets/frappe/images/ui-states/search-empty-state.svg">
-    </div>
-    <div class="empty-state-text">
-        <div class="empty-state-heading">{{ _("No results found") }}</div>
-        <div class="course-meta">{{ _("Try some other keyword or explore our list of courses.") }}</div>
+
+<div class="modal fade search-modal" id="search-modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <input class="search search-course" id="search-course" placeholder="{{ _(search_placeholder) or 'Search for courses' }}">
+            </div>
+        </div>
     </div>
 </div>
-
 <script> {% include "lms/templates/search_course/search_course.js" %} </script>

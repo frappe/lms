@@ -22,7 +22,7 @@
 
         {% else %}
 
-            <!-- {% include "lms/templates/search_course/search_course.html" %} -->
+            {% include "lms/templates/search_course/search_course.html" %}
 
 			<div class="course-list-cta">
                 {% if frappe.session.user != "Guest" %}
@@ -36,6 +36,10 @@
                     {{ _("Create a Course") }}
                 </a>
                 {% endif %}
+
+				<a class="btn btn-default btn-sm ml-2" id="open-search">
+					{{ _("Search") }}
+				</a>
             </div>
 
             <div class="course-home-headings">
