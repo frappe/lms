@@ -3,10 +3,6 @@ frappe.ready(() => {
 		search_course(e);
 	});
 
-	$(".close-search-empty-state").click((e) => {
-		close_search_empty_state(e);
-	});
-
 	$("#open-search").click((e) => {
 		show_search_bar(e);
 	});
@@ -55,11 +51,6 @@ const render_course_list = (data) => {
 		</a>`;
 		$(element).insertAfter("#search-course");
 	}
-};
-
-const close_search_empty_state = (e) => {
-	$(".search-empty-state").addClass("hide");
-	$("#search-course").val("");
 };
 
 const show_search_bar = (e) => {
