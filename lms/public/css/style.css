@@ -1766,11 +1766,11 @@ li {
 }
 
 .modal-header {
-	padding: 1.5rem 1.5rem 0 !important;
+	padding: 1rem 1rem 0 !important;
 }
 
 .modal-body {
-	padding: 0 1.5rem !important;
+	padding: 0 1rem !important;
 }
 
 .modal-content {
@@ -1778,7 +1778,7 @@ li {
 }
 
 .modal-header, .modal-body {
-	margin-bottom: 1rem !important;
+	margin-bottom: 0.5rem !important;
 }
 
 .modal-header {
