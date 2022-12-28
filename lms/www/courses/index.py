@@ -5,7 +5,7 @@ from lms.lms.utils import (
 	check_profile_restriction,
 	get_restriction_details,
 	has_course_moderator_role,
-	get_courses_under_review
+	get_courses_under_review,
 )
 from lms.overrides.user import get_enrolled_courses, get_authored_courses
 
@@ -13,7 +13,9 @@ from lms.overrides.user import get_enrolled_courses, get_authored_courses
 def get_context(context):
 	context.no_cache = 1
 	context.live_courses, context.upcoming_courses = get_courses()
-	context.enrolled_courses = get_enrolled_courses()["in_progress"] + get_enrolled_courses()["completed"]
+	context.enrolled_courses = (
+		get_enrolled_courses()["in_progress"] + get_enrolled_courses()["completed"]
+	)
 	context.created_courses = get_authored_courses(None, False)
 	context.review_courses = get_courses_under_review()
 	context.restriction = check_profile_restriction()
