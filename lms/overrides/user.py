@@ -299,7 +299,7 @@ def on_login(login_manager):
 
 
 def on_session_creation(login_manager):
-	if frappe.db.get_single_value("LMS Settings", "setup_complete"):
+	if frappe.db.get_single_value("System Settings", "setup_complete"):
 		frappe.local.response["home_page"] = "/courses"
 
 
