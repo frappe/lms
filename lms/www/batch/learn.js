@@ -184,18 +184,15 @@ const quiz_summary = (e = undefined) => {
 			results: localStorage.getItem(quiz_name),
 		},
 		callback: (data) => {
-			let message =
-				data.message == total_questions
-					? __("Excellent Work 👏")
-					: __("Better luck next time");
 			$(".question").addClass("hide");
 			$("#summary").addClass("hide");
 			$("#quiz-form")
 				.parent()
 				.prepend(
-					`<div class="text-center summary">
-                    <h2> ${message} </h2>
-                    <div class="font-weight-bold"> ${data.message}/${total_questions} </div>
+					`<div class="summary">
+                    <div class="font-weight-bold"> ${__("Score")}: ${
+						data.message
+					}/${total_questions} </div>
                 </div>`
 				);
 			$("#try-again").removeClass("hide");

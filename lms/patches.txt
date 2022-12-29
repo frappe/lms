@@ -43,3 +43,4 @@ lms.patches.v0_0.skill_to_user_skill
 lms.patches.v0_0.rename_instructor_role
 lms.patches.v0_0.change_course_creation_settings #12-12-2022
 lms.patches.v0_0.check_onboarding_status #21-12-2022
+lms.patches.v0_0.assignment_file_type
