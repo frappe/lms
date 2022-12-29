@@ -126,7 +126,7 @@
    "fieldtype": "Select",
    "label": "File Type",
    "mandatory_depends_on": "question",
-   "options": "Image\nDocument\nPDF"
+   "options": "\nImage\nDocument\nPDF"
   },
   {
    "fieldname": "column_break_15",
@@ -135,7 +135,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-10-28 12:36:01.978641",
+ "modified": "2022-12-28 16:01:42.191123",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Course Lesson",

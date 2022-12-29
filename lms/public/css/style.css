@@ -948,6 +948,7 @@ pre {
     font-size: var(--text-base);
     padding: 1.5rem;
     width: 100%;
+	box-shadow: none;
 }
 
 .search:focus {
@@ -1470,10 +1471,6 @@ pre {
 	width: fit-content;
 	border-collapse: separate;
 	border-spacing: 1rem 0.5rem;
-}
-
-.attachments-parent {
-	color: var(--text-color);
 }
 
 li {

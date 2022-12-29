@@ -10,6 +10,12 @@ frappe.ready(() => {
 	$("#search-modal").on("hidden.bs.modal", () => {
 		hide_search_bar();
 	});
+
+	$(document).keydown(function(e) {
+		if ((e.metaKey || e.ctrlKey) && e.key == "k") {
+			show_search_bar(e);
+		}
+	});
 });
 
 const search_course = (e) => {
