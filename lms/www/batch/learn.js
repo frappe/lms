@@ -190,7 +190,9 @@ const quiz_summary = (e = undefined) => {
 				.parent()
 				.prepend(
 					`<div class="summary">
-                    <div class="font-weight-bold"> ${__("Score")}: ${data.message}/${total_questions} </div>
+                    <div class="font-weight-bold"> ${__("Score")}: ${
+						data.message
+					}/${total_questions} </div>
                 </div>`
 				);
 			$("#try-again").removeClass("hide");

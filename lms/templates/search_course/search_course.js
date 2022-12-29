@@ -11,7 +11,7 @@ frappe.ready(() => {
 		hide_search_bar();
 	});
 
-	$(document).keydown(function(e) {
+	$(document).keydown(function (e) {
 		if ((e.metaKey || e.ctrlKey) && e.key == "k") {
 			show_search_bar(e);
 		}
