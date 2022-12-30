@@ -2,7 +2,7 @@
   <a href="https://www.frappelms.com/">
     <img src="https://www.frappelms.com/files/flms.svg" alt="Frappe LMS" width="100" height="100">
   </a>
-  <p align="center">Easy to use, open source, Learning Management System</p>
+  <p align="center">Easy to use, open source, learning management system.</p>
 </p>
 
 <p align="center">
@@ -12,13 +12,12 @@
 </p>
 
 <img width="1402" alt="Lesson" src="https://frappelms.com/files/fs-banner71f330.png">
+
 <details>
 	<summary>Show more screenshots</summary>
-
-	![Screenshot 1](/lms/public/images/ss1.png)
-	![Screenshot 2](/lms/public/images/ss2.png)
-	![Screenshot 3](/lms/public/images/ss3.png)
-
+	<img width="1520" alt="ss1" src="https://user-images.githubusercontent.com/31363128/210056046-584bc8aa-d28c-4514-b031-73817012837d.png">
+	<img width="830" alt="ss2" src="https://user-images.githubusercontent.com/31363128/210056097-36849182-6db0-43a2-8c62-5333cd2aedf4.png">
+	<img width="941" alt="ss3" src="https://user-images.githubusercontent.com/31363128/210056134-01a7c429-1ef4-434e-9d43-128dda35d7e5.png">	
 </details>
 
 Frappe LMS is an easy-to-use, open-source learning management system. You can use it to create and share online courses. The app has a clear UI that helps students focus only on what's important and assists in distraction-free learning.
@@ -48,6 +47,7 @@ These are some of the tools it's built on:
 - [Socket.io](https://socket.io/)
 
 ## Local Setup
+
 ### Docker
 You need Docker, docker-compose and git setup on your machine. Refer [Docker documentation](https://docs.docker.com/). After that, run the following commands:
 ```
