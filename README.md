@@ -1,100 +1,92 @@
 <p align="center">
-    <a href="https://github.com/frappe/lms/commits/main">
-    <img src="https://img.shields.io/github/last-commit/frappe/lms.svg?style=flat-square&logo=github&logoColor=white" alt="GitHub last commit">
-    <a href="https://github.com/frappe/lms/issues">
-    <img src="https://img.shields.io/github/issues-raw/frappe/lms.svg?style=flat-square&logo=github&logoColor=white" alt="GitHub issues">
-    <a href="https://github.com/frappe/lms/pulls">
-    <img src="https://img.shields.io/github/issues-pr-raw/frappe/lms.svg?style=flat-square&logo=github&logoColor=white" alt="GitHub pull requests">
-     <a href="https://github.com/frappe/lms/license">
-    <img src="https://img.shields.io/github/license/frappe/lms.svg?style=flat-square&logo=github&logoColor=white" alt="GitHub pull requests">
+  <a href="https://www.frappelms.com/">
+    <img src="https://www.frappelms.com/files/flms.svg" alt="Frappe LMS" width="100" height="100">
+  </a>
+  <p align="center">Easy to use, open source, Learning Management System</p>
 </p>
 
-<div align="center">
-  <a href="https://www.frappelms.com/">
-    <img src="https://www.frappelms.com/files/flms.svg" alt="Frappe LMS" width="80" height="80">
+<p align="center">
+  <a href="https://github.com/frappe/lms/blob/main/LICENSE">
+    <img alt="license" src="https://img.shields.io/badge/license-AGPLv3-blue">
   </a>
-  <h3 align="center">Frappe LMS</h3>
-  <p align="center">
-    Easy to Use, Open Source Learning Management System
-    <br/>
-    <a href="https://www.frappelms.com"><strong>Visit the website »</strong></a>
-    <br/>
-    <br/>
-    <a href="https://docs.frappelms.com">Explore the docs</a>.
-    <a href="https://github.com/frappe/lms/issues">Report Bug</a>
+</p>
 
-  </p>
+<img width="1402" alt="Lesson" src="https://frappelms.com/files/fs-banner71f330.png">
+<details>
+	<summary>Show more screenshots</summary>
 
-</div>
+	![Screenshot 1](/lms/public/images/ss1.png)
+	![Screenshot 2](/lms/public/images/ss2.png)
+	![Screenshot 3](/lms/public/images/ss3.png)
 
-<!-- ABOUT THE PROJECT -->
+</details>
 
-## About The Project
+Frappe LMS is an easy-to-use, open-source learning management system. You can use it to create and share online courses. The app has a clear UI that helps students focus only on what's important and assists in distraction-free learning.
 
-![Frappe LMS](/lms/public/images/course-home.png)
+You can create courses and lessons through simple forms. Lessons can be in the form of text, videos, quizzes or a combination of all these. You can keep your students engaged with quizzes to help revise and test the concepts learned.Course Instructors and Students can reach out to each other through the discussions section available for each lesson and get queries resolved.
 
-Frappe LMS is an easy-to-use, open-source learning management system. It has a clear UI that helps students focus only on what's important and assists in distraction-free learning.
+## Features
+- Create online courses. 📚
+- Add detailed descriptions and preview video to the course. 🎬
+- Add videos, quizzes and assignments to your lessons and make them interesting and interactive 📝
+- Discussions section below each lesson where instructors and students can interact with each other. 💬
+- Create classes to group your students based on courses and track their progress 🏛
+- Statistics dashboard that provides all important numbers at a glimpse. 📈
+- Job Board where users can post and look for jobs. 💼
+- People directory with each person's profile page 👨‍👩‍👧‍👦
+- Set cover image, profile photo, short bio and other professional information. 🦹🏼‍♀️
+- Simple layout that optimizes readability 🤓
+- Delightful user-experience in overall usage ✨
 
-You can create courses and lessons through simple forms in the backend that you can analyze with the help of reports. Course Instructors and students can reach out to each other through the discussions section available for each lesson and get queries resolved.
+## Tech Stack
 
-Lessons can be in the form of text, videos, quizzes or a combination of all these. You can keep your students engaged with quizzes to help revise and test the concepts learned.
+Frappe LMS is built on [Frappe Framework](https://frappeframework.com) which is a batteries-included python web-framework.
+These are some of the tools it's built on:
+- [Python](https://www.python.org)
+- [Redis](https://redis.io/)
+- [MariaDB](https://mariadb.org/)
+- [Socket.io](https://socket.io/)
 
-<p align="right">(<a href="#top">back to top</a>)</p>
+## Local Setup
+### Docker
+You need Docker, docker-compose and git setup on your machine. Refer [Docker documentation](https://docs.docker.com/). After that, run the following commands:
+```
+git clone https://github.com/frappe/lms
+cd lms/docker
+docker-compose up
+```
 
-<!-- GETTING STARTED -->
+Wait for sometime until the setup script creates a site. After that you can
+access `http://localhost:8000` in your browser and the app's login screen
+should show up.
 
-## Getting Started
+### Frappe Bench
 
-Frappe LMS app is built using [Frappe Framework](https://frappeframework.com).
+Currently, this app depends on the `develop` branch of [frappe](https://github.com/frappe/frappe).
 
-### Direct installation through bench
+1. Setup frappe-bench by following [this guide](https://frappeframework.com/docs/v14/user/en/installation)
+1. In the frappe-bench directory, run `bench start` and keep it running. Open a new terminal session and cd into `frappe-bench` directory.
+1. Run the following commands:
+    ```sh
+    bench new-site lms.test
+    bench get-app lms
+    bench --site lms.test install-app lms
+    bench --site lms.test add-to-hosts
 
-To setup the repository locally, follow the steps mentioned below:
+ 1. Now, you can access the site at `http://gameplan.test:8080`
 
-1.  Install bench and set up a frappe-bench directory by following the  [Installation Steps](https://frappeframework.com/docs/user/en/installation).
 
-2.  Start the server by running ```bench start```.
+## Deployment
+Frappe LMS is an app built on top of Frappe Framework. So, you can follow any deployment guide for hosting a Frappe Framework based site.
 
-3.  In a separate terminal window, create a new site by running ```bench new-site lms.test```.
+### Managed Hosting
+Frappe LMS can be deployed in a few clicks on [Frappe Cloud](https://frappecloud.com/marketplace/apps/lms).
 
-4.  Fork the Frappe LMS app and clone it.
+### Self hosting
+If you want to self-host, you can follow official [Frappe Bench Installation](https://github.com/frappe/bench#installation) instructions.
 
-5.  Run ```bench get-app lms``` to get the app on your bench.
-
-6.  Run ```bench --site lms.test install-app lms```.
-
-7.  Map your site to localhost with the command  ```bench --site lms.test add-to-hosts```.
-
-8.  Now open the URL  [http://lms.test:8000/](http://lms.test:8000/)  in your browser, you should see the app running.
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-<!-- CONTRIBUTING -->
-
-## Contributing
-
-Contributions are what makes the open source community such an amazing place to learn, inspire, and create. Any contributions you make are greatly appreciated.
-
-Thank you for your interest in contributing to an open-source project! Our world works on people taking initiative to contribute to the "commons" and contributing to open source means you are contributing to making things better for not only yourself but everyone else too! So thank you for taking this initiative.
-
-Great projects also work because of great quality. Open source or not, the user really cares that things should work as they are advertised, and consistently. New features should follow the same pattern so that users don't have to learn things again and again.
-
-Developers who maintain open source also expect that you follow certain guidelines. These guidelines ensure that developers are able to quickly give feedback on your contribution and how to make it better. Most probably you might have to go back and change a few things, but it will be in the interest of making this process better for everyone. So be prepared for some back and forth.
-
-Don't forget to give the project a star! Thanks again!
-
-1.  Go to the apps/lms directory of your installation and execute git pull --unshallow to ensure that you have the full git repository. Also, fork the frappe/lms repository on GitHub.
-
-2.  Check out a working branch in git (e.g. ```git checkout -b my-new-branch```).
-
-3.  Run your local version (e.g. bench start in your bench installation). Make sure that your changes work the way you want them to.
-
-4.  Commit your changes to your branch. Make sure to use a semantic commit message.
-
-6.  Push your branch to your fork on Github, and create a pull request.
-
-<p align="right">(<a href="#top">back to top</a>)</p>
+## Bugs and Feature Requests
+If you find any bugs or have a feature idea for the app, feel free to report them here on [GitHub Issues](https://github.com/frappe/lms/issues). Make sure you share enough information (app screenshots, browser console screenshots, stack traces, etc) for project maintainers.
 
 ## License
-
 Distributed under [GNU AFFERO GENERAL PUBLIC LICENSE](license.txt)
