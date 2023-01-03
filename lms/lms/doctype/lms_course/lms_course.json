@@ -44,7 +44,9 @@
   "pricing_section",
   "paid_certificate",
   "currency",
-  "price_certificate"
+  "price_certificate",
+  "website_meta_section",
+  "meta_image"
  ],
  "fields": [
   {
@@ -235,6 +237,16 @@
   {
    "fieldname": "column_break_26",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "website_meta_section",
+   "fieldtype": "Section Break",
+   "label": "Website Meta"
+  },
+  {
+   "fieldname": "meta_image",
+   "fieldtype": "Attach Image",
+   "label": "Meta Image"
   }
  ],
  "is_published_field": "published",
@@ -261,7 +273,7 @@
   }
  ],
  "make_attachments_public": 1,
- "modified": "2022-09-14 13:26:53.153822",
+ "modified": "2023-01-03 16:38:35.237691",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",
