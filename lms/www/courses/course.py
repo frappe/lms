@@ -57,7 +57,6 @@ def set_course_context(context, course_name):
 			"currency",
 			"max_attempts",
 			"duration",
-			"meta_image",
 		],
 		as_dict=True,
 	)
@@ -99,8 +98,8 @@ def set_course_context(context, course_name):
 		context.is_user_interested = get_user_interest(context.course.name)
 
 	context.metatags = {
-		"name": course.title,
-		"image": course.meta_image or course.image,
+		"title": course.title,
+		"image": course.image,
 		"description": course.short_introduction,
 		"keywords": course.title,
 	}
