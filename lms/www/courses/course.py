@@ -57,7 +57,7 @@ def set_course_context(context, course_name):
 			"currency",
 			"max_attempts",
 			"duration",
-			"meta_image"
+			"meta_image",
 		],
 		as_dict=True,
 	)
