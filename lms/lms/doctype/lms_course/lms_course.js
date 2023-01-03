@@ -27,4 +27,7 @@ frappe.ui.form.on("LMS Course", {
 			};
 		});
 	},
+	refresh: (frm) => {
+		frm.add_web_link(`/courses/${frm.doc.name}`, "View in Website");
+	},
 });
