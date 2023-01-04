@@ -2,9 +2,9 @@ import frappe
 
 
 def execute():
-	rows = frappe.db.sql(
-		"select field from `tabSingles` where doctype='User'", as_dict=True
-	)
+	table = frappe.qb.DocType("Singles")
+	q = frappe.qb.from_(table).select(table.field).where(table.doctype == "User")
+	rows = q.run()
 
 	if len(rows):
-		frappe.db.sql("delete from `tabSingles` where doctype='User'")
+		frappe.db.delete("Singles", {"doctype": "User"})
