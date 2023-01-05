@@ -287,6 +287,4 @@ profile_url_prefix = "/users/"
 
 signup_form_template = "lms.plugins.show_custom_signup"
 
-on_login = "lms.overrides.user.on_login"
-
 on_session_creation = "lms.overrides.user.on_session_creation"

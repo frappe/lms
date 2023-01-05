@@ -273,7 +273,6 @@ def sign_up(email, full_name, verify_terms, user_category):
 def set_country_from_ip(login_manager=None, user=None):
 	if not user and login_manager:
 		user = login_manager.user
-
 	user_country = frappe.db.get_value("User", user, "country")
 	# if user_country:
 	#    return
@@ -292,10 +291,6 @@ def get_country_code():
 	except Exception:
 		pass
 	return
-
-
-def on_login(login_manager):
-	set_country_from_ip()
 
 
 def on_session_creation(login_manager):
