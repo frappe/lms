@@ -345,7 +345,7 @@ def get_user_details(users):
 		details = frappe.db.get_value(
 			"User",
 			user,
-			["name", "username", "full_name", "user_image", "headline"],
+			["name", "username", "full_name", "user_image", "headline", "looking_for_job"],
 			as_dict=True,
 		)
 		user_details.append(Widgets().MemberCard(member=details, avatar_class="avatar-large"))

@@ -445,8 +445,7 @@ input[type=checkbox] {
 .member-card {
 	display: flex;
 	flex-direction: column;
-	align-items: center;
-	padding: 2rem 1rem;
+	padding: 1rem;
 	font-size: var(--text-base);
 }
 
@@ -1954,12 +1953,7 @@ select {
 	margin: 0 !important;
 }
 
-.member-card .standard-image {
-	border: 5px solid #FFFFFF;
-}
-
 .member-card-title {
 	color: var(--gray-900);
 	font-weight: 500;
-	margin-top: 1rem;
 }

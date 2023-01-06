@@ -1,20 +1,38 @@
 {% set color = get_palette(member.full_name) %}
-<div class="common-card-style member-card" style="background: linear-gradient(180deg, var({{ color[0] }}), #FFFFFF 60%);">
-	{{ widgets.Avatar(member=member, avatar_class=avatar_class) }}
-	<div class="member-card-title">
-		{{ member.full_name }}
-	</div>
+<div class="common-card-style member-card">
+	<div class="d-flex">
+		{{ widgets.Avatar(member=member, avatar_class=avatar_class) }}
 
-	{% if member.headline %}
-	<div> {{ member.headline }} </div>
-	{% endif %}
+		<div class="ml-3 my-auto">
+			<div class="member-card-title">
+				{{ member.full_name }}
+			</div>
 
-	{% set course_count = get_authored_courses(member.name, True) | length %}
-	{% if show_course_count and course_count > 0 %}
-	{% set suffix = "Courses" if course_count > 1 else "Course" %}
-	<div class="">
-		Created {{ course_count }} {{ suffix }}
+			{% if member.headline %}
+			<div> {{ member.headline }} </div>
+			{% endif %}
+
+			{% if member.looking_for_job %}
+			<div class="indicator-pill green"> {{ _("Open Network") }} </div>
+			{% endif %}
+
+			{% set course_count = get_authored_courses(member.name, True) | length %}
+			{% set suffix = "Courses" if course_count > 1 else "Course" %}
+
+			{% if show_course_count and course_count > 0 %}
+			<div class="">
+				Created {{ course_count }} {{ suffix }}
+			</div>
+			{% endif %}
 	</div>
-	{% endif %}
 	<a class="stretched-link" href="{{ get_profile_url(member.username) }}"></a>
+</div>
+
+
+
+
+
+
+
+
 </div>
