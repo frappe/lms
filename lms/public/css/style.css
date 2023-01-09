@@ -443,10 +443,10 @@ input[type=checkbox] {
 }
 
 .member-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 2rem 1rem;
+	display: flex;
+	flex-direction: column;
+	padding: 1rem;
+	font-size: var(--text-base);
 }
 
 .break {
@@ -1951,4 +1951,9 @@ select {
 .search-modal .modal-body {
 	padding: 0 !important;
 	margin: 0 !important;
+}
+
+.member-card-title {
+	color: var(--gray-900);
+	font-weight: 500;
 }

@@ -32,7 +32,7 @@
 			{% endfor %}
 		</div>
 
-		{% if user_count > user_details | length %}
+		{% if user_count > users | length %}
 		<div class="mt-10 d-flex justify-content-center">
 			<div class="btn btn-md btn-default" id="load-more" data-start="30" data-count="{{ user_count }}">
 				{{ _("Load More") }}
