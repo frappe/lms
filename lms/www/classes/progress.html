@@ -5,27 +5,25 @@
 
 
 {% block page_content %}
-<div class="common-page-style">
-	<div class="container">
-		{{ BreadCrumb(class_info, student) }}
-		<div class="common-card-style flex-column p-5">
-			<div class="mb-5">
-				<div class="medium d-flex align-items-center pull-right">
-					<span>
-						{{ frappe.utils.format_datetime(student.last_active, "medium") }}
-					</span>
-					{% if is_moderator %}
-					<a class="btn btn-secondary btn-sm ml-3" href="/evaluation/new?member={{student.name}}&date={{frappe.utils.getdate()}}">
-						{{ _("Evaluate") }}
-					</a>
-					{% endif %}
-				</div>
-				<div class="course-home-headings">
-					{{ student.full_name }}
-				</div>
+<div class="container">
+	{{ BreadCrumb(class_info, student) }}
+	<div class="mt-8">
+		<div class="mb-5">
+			<div class="medium d-flex align-items-center pull-right">
+				<span>
+					{{ frappe.utils.format_datetime(student.last_active, "medium") }}
+				</span>
+				{% if is_moderator %}
+				<a class="btn btn-secondary btn-sm ml-3" href="/evaluation/new?member={{student.name}}&date={{frappe.utils.getdate()}}">
+					{{ _("Evaluate") }}
+				</a>
+				{% endif %}
 			</div>
-			{{ Progress(class_courses, student) }}
+			<div class="course-home-headings">
+				{{ student.full_name }}
+			</div>
 		</div>
+		{{ Progress(class_courses, student) }}
 	</div>
 </div>
 {% endblock %}

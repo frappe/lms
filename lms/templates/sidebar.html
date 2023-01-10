@@ -1,32 +1,54 @@
 <div class="lms-sidebar">
-	<a class="sidebar-links" href="/courses" title="Courses">
-		<svg class="icon icon-sm">
-			<use href="#icon-education"></use>
-		</svg>
-		{{ _("Courses") }}
-	</a>
-	<a class="sidebar-links" href="/classes" title="Classes">
-		<svg class="icon icon-sm">
-			<use href="#icon-add-people"></use>
-		</svg>
-		{{ _("Classes") }}
-	</a>
-	<a class="sidebar-links" href="/statistics" title="Statistics">
-		<svg class="icon icon-sm">
-			<use href="#icon-bar-graph"></use>
-		</svg>
-		{{ _("Statistics") }}
-	</a>
-	<a class="sidebar-links" href="/jobs" title="Jobs">
-		<svg class="icon icon-sm">
-			<use href="#icon-hr"></use>
-		</svg>
-		{{ _("Jobs") }}
-	</a>
-	<a class="sidebar-links" href="/community", title="Community">
-		<svg class="icon icon-sm">
-			<use href="#icon-users"></use>
-		</svg>
-		{{ _("People") }}
-	</a>
+
+	{% if frappe.session.user != "Guest" %}
+	{% set user_info = frappe.db.get_value("User", frappe.session.user, ["full_name", "user_image", "username"], as_dict=1) %}
+	<div class="dropdown my-4">
+		<div role="button" id="profile-dowpdown" aria-haspopup="true" aria-expanded="false" data-toggle="dropdown">
+			<div class="profile-dropdown">
+				{{ widgets.Avatar(member=user_info, avatar_class="avatar-small") }}
+				<div class="member-card-title mx-2">{{ user_info.full_name }}</div>
+				<svg class="icon icon-sm">
+					<use href="#icon-down"></use>
+				</svg>
+			</div>
+		</div>
+		<div class="dropdown-menu" aria-labelledby="profile-dowpdown">
+		  <a class="dropdown-item" href="/users"> {{ _("My Profile") }} </a>
+		  <a class="dropdown-item" href="#"> {{ _("Log out") }} </a>
+		</div>
+	  </div>
+	{% endif %}
+
+	<div class="ml-4">
+		<a class="sidebar-links" href="/courses" title="Courses">
+			<svg class="icon icon-md">
+				<use href="#icon-education"></use>
+			</svg>
+			{{ _("Courses") }}
+		</a>
+		<a class="sidebar-links" href="/classes" title="Classes">
+			<svg class="icon icon-md">
+				<use href="#icon-add-people"></use>
+			</svg>
+			{{ _("Classes") }}
+		</a>
+		<a class="sidebar-links" href="/statistics" title="Statistics">
+			<svg class="icon icon-md">
+				<use href="#icon-bar-graph"></use>
+			</svg>
+			{{ _("Statistics") }}
+		</a>
+		<a class="sidebar-links" href="/jobs" title="Jobs">
+			<svg class="icon icon-md">
+				<use href="#icon-hr"></use>
+			</svg>
+			{{ _("Jobs") }}
+		</a>
+		<a class="sidebar-links" href="/community", title="Community">
+			<svg class="icon icon-md">
+				<use href="#icon-users"></use>
+			</svg>
+			{{ _("People") }}
+		</a>
+	</div>
 </div>

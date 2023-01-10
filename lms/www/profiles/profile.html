@@ -1,118 +1,119 @@
-{% extends "templates/base.html" %}
+{% extends "lms/templates/lms_base.html" %}
 {% block head_include %}
 <meta name="description" content="{{ member.full_name }}" />
 {% endblock %}
 
 
-{% block content %}
+{% block page_content %}
 {% set read_only = member.name != frappe.session.user %}
 {% set user = member.name %}
 {% set courses_created = get_authored_courses(member.name, True) %}
 {% set certificates = get_certificates(user) %}
 
 <div class="common-page-style profile-page">
-    {{ ProfileBanner(member) }}
-    <div class="profile-page-body">
-        <div class="container">
+	<div>
+		{{ ProfileBanner(member) }}
+		<div class="profile-page-body">
+			<div class="container">
 
-            <ul class="nav lms-nav" id="courses-tab">
+				<ul class="nav lms-nav" id="courses-tab">
 
-                <li class="nav-item">
-                    <a class="nav-link active" data-toggle="tab" href="#profile">
-                        {{ _("Profile") }}
-                    </a>
-                </li>
+					<li class="nav-item">
+						<a class="nav-link active" data-toggle="tab" href="#profile">
+							{{ _("Profile") }}
+						</a>
+					</li>
 
-                {% if not read_only %}
-                <li class="nav-item">
-                    <a class="nav-link" data-toggle="tab" href="#courses-enrolled">
-                        {{ _("Courses Enrolled") }}
-                    </a>
-                </li>
-                {% endif %}
+					{% if not read_only %}
+					<li class="nav-item">
+						<a class="nav-link" data-toggle="tab" href="#courses-enrolled">
+							{{ _("Courses Enrolled") }}
+						</a>
+					</li>
+					{% endif %}
 
-                {% if courses_created | length %}
-                <li class="nav-item">
-                    <a class="nav-link" data-toggle="tab" href="#courses-created">
-                        {{ _("Courses Created") }}
-                    </a>
-                </li>
-                {% endif %}
+					{% if courses_created | length %}
+					<li class="nav-item">
+						<a class="nav-link" data-toggle="tab" href="#courses-created">
+							{{ _("Courses Created") }}
+						</a>
+					</li>
+					{% endif %}
 
-                {% if certificates | length %}
-                <li class="nav-item">
-                    <a class="nav-link" data-toggle="tab" href="#certificates">
-                        {{ _("Certificates") }}
-                    </a>
-                </li>
-                {% endif %}
+					{% if certificates | length %}
+					<li class="nav-item">
+						<a class="nav-link" data-toggle="tab" href="#certificates">
+							{{ _("Certificates") }}
+						</a>
+					</li>
+					{% endif %}
 
-                {% if not read_only %}
-                <li class="nav-item">
-                    <a class="nav-link" data-toggle="tab" href="#notifications">{{ _("Notifications") }}
-                    </a>
-                </li>
-                {% endif %}
+					{% if not read_only %}
+					<li class="nav-item">
+						<a class="nav-link" data-toggle="tab" href="#notifications">{{ _("Notifications") }}
+						</a>
+					</li>
+					{% endif %}
 
-                {% if has_course_moderator_role() %}
-                <li class="nav-item">
-                    <a class="nav-link" data-toggle="tab" href="#settings">
-                        {{ _("Settings") }}
-                    </a>
-                </li>
-                {% endif %}
+					{% if has_course_moderator_role() %}
+					<li class="nav-item">
+						<a class="nav-link" data-toggle="tab" href="#settings">
+							{{ _("Settings") }}
+						</a>
+					</li>
+					{% endif %}
 
-            </ul>
+				</ul>
 
-            <div class="border-bottom mb-4"></div>
+				<div class="border-bottom mb-4"></div>
 
-            <div class="tab-content">
-                <div class="tab-pane active" id="profile" role="tabpanel" aria-labelledby="profile">
-                    <div class="common-card-style column-card mt-5">
-                        {{ About(member) }}
-                        {{ EducationDetails(member) }}
-                        {{ WorkDetails(member) }}
-                        {{ ExternalCertification(member) }}
-                        {{ Contact(member) }}
-                        {{ Skills(member) }}
-                        {{ CareerPreference(member) }}
-                        {{ ProfileTabs(profile_tabs) }}
-                    </div>
-                </div>
+				<div class="tab-content">
+					<div class="tab-pane active" id="profile" role="tabpanel" aria-labelledby="profile">
+						<div class="common-card-style column-card mt-5">
+							{{ About(member) }}
+							{{ EducationDetails(member) }}
+							{{ WorkDetails(member) }}
+							{{ ExternalCertification(member) }}
+							{{ Contact(member) }}
+							{{ Skills(member) }}
+							{{ CareerPreference(member) }}
+							{{ ProfileTabs(profile_tabs) }}
+						</div>
+					</div>
 
-                {% if not read_only %}
-                <div class="tab-pane fade" id="courses-enrolled" role="tabpanel" aria-labelledby="courses-enrolled">
-                    {% include "lms/lms/web_template/courses_enrolled/courses_enrolled.html" %}
-                </div>
-                {% endif %}
+					{% if not read_only %}
+					<div class="tab-pane fade" id="courses-enrolled" role="tabpanel" aria-labelledby="courses-enrolled">
+						{% include "lms/lms/web_template/courses_enrolled/courses_enrolled.html" %}
+					</div>
+					{% endif %}
 
-                {% if courses_created | length %}
-                {% set only_published = True %}
-                <div class="tab-pane fade" id="courses-created" role="tabpanel" aria-labelledby="courses-created">
-                    {% include "lms/templates/courses_created.html" %}
-                </div>
-                {% endif %}
+					{% if courses_created | length %}
+					{% set only_published = True %}
+					<div class="tab-pane fade" id="courses-created" role="tabpanel" aria-labelledby="courses-created">
+						{% include "lms/templates/courses_created.html" %}
+					</div>
+					{% endif %}
 
-                {% if certificates | length %}
-                <div class="tab-pane fade" id="certificates" role="tabpanel" aria-labelledby="certificates">
-                    {% include "lms/templates/certificates_section.html" %}
-                </div>
-                {% endif %}
+					{% if certificates | length %}
+					<div class="tab-pane fade" id="certificates" role="tabpanel" aria-labelledby="certificates">
+						{% include "lms/templates/certificates_section.html" %}
+					</div>
+					{% endif %}
 
-                {% if not read_only %}
-                <div class="tab-pane" id="notifications" role="tabpanel" aria-labelledby="notifications">
-                    {% include "lms/templates/notifications.html" %}
-                </div>
-                {% endif %}
+					{% if not read_only %}
+					<div class="tab-pane" id="notifications" role="tabpanel" aria-labelledby="notifications">
+						{% include "lms/templates/notifications.html" %}
+					</div>
+					{% endif %}
 
-                <div class="tab-pane fade" id="settings" role="tabpanel" aria-labelledby="settings">
-                    {{ RoleSettings(member) }}
-                </div>
+					<div class="tab-pane fade" id="settings" role="tabpanel" aria-labelledby="settings">
+						{{ RoleSettings(member) }}
+					</div>
 
-            </div>
-        </div>
-    </div>
-
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 {% endblock %}
 

@@ -5,13 +5,11 @@
 
 
 {% block page_content %}
-<div class="common-page-style">
-	<div class="container">
-		{{ BreadCrumb(class_info) }}
-		<div class="common-card-style column-card">
-			{{ ClassDetails(class_info) }}
-			{{ ClassSections(class_info, class_courses, class_students, published_courses) }}
-		</div>
+<div class="container">
+	{{ BreadCrumb(class_info) }}
+	<div class="">
+		{{ ClassDetails(class_info) }}
+		{{ ClassSections(class_info, class_courses, class_students, published_courses) }}
 	</div>
 </div>
 {% endblock %}

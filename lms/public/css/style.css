@@ -1506,8 +1506,8 @@ li {
 .job-cards-parent {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
-	-moz-column-gap: 40px;
-	grid-gap: 1rem;
+	-moz-column-gap: 1.5rem;
+	grid-gap: 1.5rem;
 	align-items: center;
 }
 
@@ -1862,6 +1862,7 @@ select {
 	display: flex;
 	background-color: var(--gray-100);
 	padding: 0.5rem;
+	border-radius: var(--border-radius);
 }
 
 .section-heading {
@@ -1931,12 +1932,13 @@ select {
 }
 
 .lms-sidebar {
-	display: flex;
-	flex-direction: column;
+	position: sticky;
+	top: 0;
+	height: 100vh;
 	background-color: var(--bg-color);
-	width: fit-content;
-	border-right: 1px solid var(--gray-300);
-	padding: 1.5rem;
+	width: 250px;
+	border-right: 1px solid var(--gray-200);
+	padding: 0.5rem;
 	font-size: var(--text-base);
 }
 
@@ -1949,6 +1951,11 @@ select {
 
 .sidebar-links:hover {
 	color: inherit;
+	text-decoration: none;
+}
+
+.sidebar-links .icon {
+	margin-right: 0.75rem;
 }
 
 .result-row {
@@ -1979,4 +1986,16 @@ select {
 .member-card-title {
 	color: var(--gray-900);
 	font-weight: 500;
+}
+
+.profile-dropdown {
+	display: flex;
+    align-items: center;
+    padding: 0.3rem 0.5rem;
+    width: fit-content;
+}
+
+.profile-dropdown:hover {
+    background: var(--gray-200);
+    border-radius: var(--border-radius);
 }

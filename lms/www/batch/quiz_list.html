@@ -1,65 +1,63 @@
-{% extends "templates/base.html" %}
+{% extends "lms/templates/lms_base.html" %}
 {% block title %}
     {{ _("Quiz List") }}
 {% endblock %}
 
 
-{% block content %}
-<div class="common-page-style">
-    <div class="container">
+{% block page_content %}
+<div class="container">
 
-        <a class="btn btn-secondary btn-sm pull-right" href="/quizzes/new-quiz">
-            {{ _("Add Quiz") }}
-        </a>
-        <div class="course-home-headings">
-            {{ _("Quiz List") }}
-        </div>
+	<a class="btn btn-secondary btn-sm pull-right" href="/quizzes/new-quiz">
+		{{ _("Add Quiz") }}
+	</a>
+	<div class="course-home-headings">
+		{{ _("Quiz List") }}
+	</div>
 
-        {% if quiz_list | length %}
-        <div class="common-card-style">
-            <table class="table">
+	{% if quiz_list | length %}
+	<div class="common-card-style">
+		<table class="table">
 
-                <tr style="background-color: var(--fg-hover-color); font-weight: bold">
-                    <td style="width: 10%;"> {{ _("No.") }} </td>
-                    <td style="width: 45%;"> {{ _("Title") }} </td>
-                    <td> {{ _("ID") }} </td>
-                    <td>  </td>
-                </tr>
+			<tr style="background-color: var(--fg-hover-color); font-weight: bold">
+				<td style="width: 10%;"> {{ _("No.") }} </td>
+				<td style="width: 45%;"> {{ _("Title") }} </td>
+				<td> {{ _("ID") }} </td>
+				<td>  </td>
+			</tr>
 
-                {% for quiz in quiz_list %}
-                <tr class="quiz-row" data-name="{{ quiz.name }}">
-                    <td> {{ loop.index }} </td>
-                    <td>
-                        {{ quiz.title }}
-                    </td>
-                    <td>
-                        {{ quiz.name }}
-                    </td>
-                    <td>
-                        <a class="btn btn-secondary btn-sm copy-quiz-id" data-name="{{ quiz.name }}">
-                            {{ _("Copy Quiz ID") }}
-                        </a>
-                    </td>
-                </tr>
-                {% endfor %}
+			{% for quiz in quiz_list %}
+			<tr class="quiz-row" data-name="{{ quiz.name }}">
+				<td> {{ loop.index }} </td>
+				<td>
+					{{ quiz.title }}
+				</td>
+				<td>
+					{{ quiz.name }}
+				</td>
+				<td>
+					<a class="btn btn-secondary btn-sm copy-quiz-id" data-name="{{ quiz.name }}">
+						{{ _("Copy Quiz ID") }}
+					</a>
+				</td>
+			</tr>
+			{% endfor %}
 
-            </table>
-        </div>
+		</table>
+	</div>
 
-        {% else %}
-        <div class="empty-state">
-            <img class="icon icon-xl" src="/assets/lms/icons/comment.svg">
-            <div class="empty-state-text">
-                <div class="empty-state-heading">
-                    {{ _("You have not created any quiz yet.") }}
-                </div>
-                <div class="course-meta ">
-                    {{ _("Create a quiz and add it to your course to engage your users.") }}
-                </div>
-            </div>
-        </div>
-        {% endif %}
-    </div>
+	{% else %}
+	<div class="empty-state">
+		<img class="icon icon-xl" src="/assets/lms/icons/comment.svg">
+		<div class="empty-state-text">
+			<div class="empty-state-heading">
+				{{ _("You have not created any quiz yet.") }}
+			</div>
+			<div class="course-meta ">
+				{{ _("Create a quiz and add it to your course to engage your users.") }}
+			</div>
+		</div>
+	</div>
+	{% endif %}
 </div>
 {% endblock %}
 

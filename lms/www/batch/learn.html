@@ -13,14 +13,14 @@
 
 {% block head_include %}
 <link rel="stylesheet" href="/assets/frappe/css/hljs-night-owl.css">
-
+{% include "public/icons/symbol-defs.svg" %}
 {% for ext in page_extensions %}
 {{ ext.render_header() }}
 {% endfor %}
 {% endblock %}
 
 
-{% block page_content %}
+{% block content %}
 <div class="common-page-style lesson-page">
     <div class="container course-details-page">
         {{ BreadCrumb(course, lesson) }}

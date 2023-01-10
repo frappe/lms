@@ -7,7 +7,10 @@
 {% block content %}
 	{% include "public/icons/symbol-defs.svg" %}
 	{% include "lms/templates/onboarding_header.html" %}
-	{% block page_content %}
-		Hello, world!
-	{% endblock %}
+	<div class="common-page-style">
+		{% include "lms/templates/sidebar.html" %}
+		{% block page_content %}
+			Hello, world!
+		{% endblock %}
+	</div>
 {% endblock %}
