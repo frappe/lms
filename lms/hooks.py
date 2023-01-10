@@ -179,6 +179,7 @@ website_route_rules = [
 website_redirects = [
 	{"source": "/update-profile", "target": "/edit-profile"},
 	{"source": "/dashboard", "target": "/courses"},
+	{"source": "/community", "target": "/people"},
 ]
 
 update_website_context = [
@@ -286,7 +287,5 @@ page_renderer = [
 profile_url_prefix = "/users/"
 
 signup_form_template = "lms.plugins.show_custom_signup"
-
-on_login = "lms.overrides.user.on_login"
 
 on_session_creation = "lms.overrides.user.on_session_creation"

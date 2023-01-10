@@ -445,10 +445,10 @@ input[type=checkbox] {
 }
 
 .member-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 2rem 1rem;
+	display: flex;
+	flex-direction: column;
+	padding: 1rem;
+	font-size: var(--text-base);
 }
 
 .break {
@@ -931,17 +931,30 @@ pre {
 }
 
 .search {
-  background-image: url(/assets/frappe/icons/timeless/search.svg);
-  border: none;
-  border-radius: var(--border-radius-md);
-  font-size: var(--text-sm);
-  padding: 0.625rem 0.75rem;
-  height: 36px;
-  background-repeat: no-repeat;
-  text-indent: 1.5rem;
-  background-position: 1rem 0.7rem;
-  width: 30%;
-  box-shadow: var(--shadow-sm);
+	background-image: url(/assets/frappe/icons/timeless/search.svg);
+	border: none;
+	border-radius: var(--border-radius-md);
+	font-size: var(--text-sm);
+	padding: 0.625rem 0.75rem;
+	height: 36px;
+	background-repeat: no-repeat;
+	text-indent: 1.5rem;
+	background-position: 1rem 0.7rem;
+	width: 30%;
+	box-shadow: var(--shadow-sm);
+}
+
+.search-course {
+	background-position: 1rem;
+	text-indent: 1rem;
+    font-size: var(--text-base);
+    padding: 1.5rem;
+    width: 100%;
+	box-shadow: none;
+}
+
+.search:focus {
+	outline: none;
 }
 
 .course-search-header {
@@ -1462,10 +1475,6 @@ pre {
 	border-spacing: 1rem 0.5rem;
 }
 
-.attachments-parent {
-	color: var(--text-color);
-}
-
 li {
 	line-height: 1.7;
 }
@@ -1756,11 +1765,11 @@ li {
 }
 
 .modal-header {
-	padding: 1.5rem 1.5rem 0 !important;
+	padding: 1rem 1rem 0 !important;
 }
 
 .modal-body {
-	padding: 0 1.5rem !important;
+	padding: 0 1rem !important;
 }
 
 .modal-content {
@@ -1768,7 +1777,7 @@ li {
 }
 
 .modal-header, .modal-body {
-	margin-bottom: 1rem !important;
+	margin-bottom: 0.5rem !important;
 }
 
 .modal-header {
@@ -1940,4 +1949,34 @@ select {
 
 .sidebar-links:hover {
 	color: inherit;
+}
+
+.result-row {
+	display: block;
+	padding: 1rem;
+    border-top: 1px solid var(--gray-300);
+    font-weight: 500;
+    color: var(--gray-900);
+    font-size: var(--text-base);
+    cursor: pointer;
+}
+
+.result-row:hover {
+	color: inherit;
+	text-decoration: none;
+}
+
+.search-modal .modal-dialog {
+	max-width: 70%;
+	margin: 15% auto !important;
+}
+
+.search-modal .modal-body {
+	padding: 0 !important;
+	margin: 0 !important;
+}
+
+.member-card-title {
+	color: var(--gray-900);
+	font-weight: 500;
 }

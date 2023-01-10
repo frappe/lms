@@ -273,7 +273,6 @@ def sign_up(email, full_name, verify_terms, user_category):
 def set_country_from_ip(login_manager=None, user=None):
 	if not user and login_manager:
 		user = login_manager.user
-
 	user_country = frappe.db.get_value("User", user, "country")
 	# if user_country:
 	#    return
@@ -294,12 +293,9 @@ def get_country_code():
 	return
 
 
-def on_login(login_manager):
-	set_country_from_ip()
-
-
 def on_session_creation(login_manager):
-	frappe.local.response["home_page"] = "/courses"
+	if frappe.db.get_single_value("System Settings", "setup_complete"):
+		frappe.local.response["home_page"] = "/courses"
 
 
 @frappe.whitelist(allow_guest=True)
@@ -349,7 +345,7 @@ def get_user_details(users):
 		details = frappe.db.get_value(
 			"User",
 			user,
-			["name", "username", "full_name", "user_image", "headline"],
+			["name", "username", "full_name", "user_image", "headline", "looking_for_job"],
 			as_dict=True,
 		)
 		user_details.append(Widgets().MemberCard(member=details, avatar_class="avatar-large"))

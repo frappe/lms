@@ -167,7 +167,6 @@ def reindex_exercises(doc):
 
 @frappe.whitelist(allow_guest=True)
 def search_course(text):
-	search_courses = []
 	courses = frappe.get_all(
 		"LMS Course",
 		filters={"published": True},
@@ -177,17 +176,8 @@ def search_course(text):
 			"short_introduction": ["like", f"%{text}%"],
 			"description": ["like", f"%{text}%"],
 		},
+		fields=["name", "title"],
 	)
-
-	""" for course in courses:
-        search_courses.append(frappe.get_doc("LMS Course", course)) """
-
-	""" template = frappe.render_template("lms/templates/course_list.html", {
-        "title": _("Search Results"),
-        "courses": search_courses,
-        "widgets": Widgets()
-    }) """
-
 	return courses
 
 
