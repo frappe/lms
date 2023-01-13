@@ -82,4 +82,9 @@
 		<path d="M13.5 4.5H18" stroke="#171B1F" stroke-linecap="round" stroke-linejoin="round"/>
 		<path d="M17.4467 9.10157C17.4823 9.39973 17.5001 9.69973 17.5 10C17.5 11.4834 17.0601 12.9334 16.236 14.1668C15.4119 15.4001 14.2406 16.3614 12.8701 16.9291C11.4997 17.4968 9.99168 17.6453 8.53683 17.3559C7.08197 17.0665 5.7456 16.3522 4.6967 15.3033C3.64781 14.2544 2.9335 12.918 2.64411 11.4632C2.35472 10.0083 2.50325 8.50032 3.07091 7.12987C3.63856 5.75943 4.59986 4.58809 5.83323 3.76398C7.0666 2.93987 8.51664 2.5 10 2.5C10.2347 2.5 10.4667 2.51062 10.696 2.53186" stroke="#171B1F" stroke-linecap="round" stroke-linejoin="round"/>
 	</svg>
+	<svg id="icon-log-out" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#333C44" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather feather-log-out">
+		<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+		<polyline points="16 17 21 12 16 7"></polyline>
+		<line x1="21" y1="12" x2="9" y2="12"></line>
+	</svg>
 </svg>

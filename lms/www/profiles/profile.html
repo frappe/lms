@@ -11,7 +11,7 @@
 {% set certificates = get_certificates(user) %}
 
 <div class="common-page-style profile-page">
-	<div>
+	<div class="flex-grow-1">
 		{{ ProfileBanner(member) }}
 		<div class="profile-page-body">
 			<div class="container">
@@ -69,7 +69,7 @@
 
 				<div class="tab-content">
 					<div class="tab-pane active" id="profile" role="tabpanel" aria-labelledby="profile">
-						<div class="common-card-style column-card mt-5">
+						<div class="mt-5">
 							{{ About(member) }}
 							{{ EducationDetails(member) }}
 							{{ WorkDetails(member) }}
@@ -124,10 +124,10 @@
 {% set enrollment = get_course_membership(member.name, member_type="Student") | length %}
 {% set enrollment_suffix = _("Courses") if enrollment > 1 else _("Course") %}
 
-<div class="container">
+<div>
     <div class="profile-banner" style="background-image: url({{ cover_image | urlencode }})">
         <div class="profile-avatar">
-            {{ widgets.Avatar(member=member, avatar_class="avatar-square") }}
+            {{ widgets.Avatar(member=member, avatar_class="avatar-xl") }}
         </div>
     </div>
 
@@ -145,7 +145,6 @@
 
             {% if frappe.session.user == member.email %}
             <div class="ml-auto mt-1">
-                <a class="btn btn-secondary btn-sm" href="/courses"> {{ _("Course List") }} </a>
                 <a class="btn btn-secondary btn-sm ml-2" href="/edit-profile/{{ member.email }}/edit"> {{ _("Edit Profile") }} </a>
             </div>
             {% endif %}
@@ -202,7 +201,7 @@
 {% macro RoleSettings(member) %}
     {% if has_course_moderator_role() %}
         <div class="">
-            <div class="common-card-style column-card">
+            <div class="">
                 <div class="course-home-headings"> {{ _("Role Settings") }} </div>
                 <div class="medium">
                     <label class="role">

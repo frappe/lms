@@ -1,25 +1,14 @@
 <div class="lms-sidebar">
-
-	{% if frappe.session.user != "Guest" %}
-	{% set user_info = frappe.db.get_value("User", frappe.session.user, ["full_name", "user_image", "username"], as_dict=1) %}
-	<div class="dropdown my-4">
-		<div role="button" id="profile-dowpdown" aria-haspopup="true" aria-expanded="false" data-toggle="dropdown">
-			<div class="profile-dropdown">
-				{{ widgets.Avatar(member=user_info, avatar_class="avatar-small") }}
-				<div class="member-card-title mx-2">{{ user_info.full_name }}</div>
-				<svg class="icon icon-sm">
-					<use href="#icon-down"></use>
-				</svg>
-			</div>
+	<div class="mt-4">
+		{% if frappe.session.user != "Guest" %}
+		{% set user_info = frappe.db.get_value("User", frappe.session.user, ["full_name", "user_image", "username"], as_dict=1) %}
+		<div class="sidebar-links">
+			{{ widgets.Avatar(member=user_info, avatar_class="avatar-small") }}
+			<a class="member-card-title mx-2 button-links" href="/users" title="{{ user_info.full_name }}">
+				{{ user_info.full_name }}
+			</a>
 		</div>
-		<div class="dropdown-menu" aria-labelledby="profile-dowpdown">
-		  <a class="dropdown-item" href="/users"> {{ _("My Profile") }} </a>
-		  <a class="dropdown-item" href="#"> {{ _("Log out") }} </a>
-		</div>
-	  </div>
-	{% endif %}
-
-	<div class="ml-4">
+		{% endif %}
 		<a class="sidebar-links" href="/courses" title="Courses">
 			<svg class="icon icon-md">
 				<use href="#icon-education"></use>
@@ -44,11 +33,31 @@
 			</svg>
 			{{ _("Jobs") }}
 		</a>
-		<a class="sidebar-links" href="/community", title="Community">
+		<a class="sidebar-links" href="/people", title="Community">
 			<svg class="icon icon-md">
 				<use href="#icon-users"></use>
 			</svg>
 			{{ _("People") }}
 		</a>
+		{% if frappe.session.user != "Guest" %}
+		<a class="sidebar-links" href="/?cmd=web_logout" rel="nofollow">
+			<svg class="icon icon-md">
+				<use href="#icon-log-out"></use>
+			</svg>
+			{{ _("Log out") }}
+		</a>
+		{% endif %}
 	</div>
 </div>
+<script>
+	frappe.ready(() => {
+		mark_sidebar_link();
+	});
+
+	const mark_sidebar_link = () => {
+		let link = $(`.sidebar-links[href='${window.location.pathname}']`);
+		if (link.length) {
+			link.css("background", "var(--gray-200)")
+		}
+	}
+</script>

@@ -79,33 +79,6 @@
         <div class="preview-video-header">
             <div class="d-block mt-1" contenteditable="true" id="video-link"
             data-placeholder=" {{ _('Preview Video Link') }} ">{% if course.video_link %}{{ course.video_link }}{% endif %}</div>
-
-            <div class="preview-info">
-                <div class="tool-tip">
-                    <div class="tooltiptext">
-                        <span>
-                            {{ _('If you have a video that provides a teaser or preview of the course, you can add it here.') }}
-                        </span>
-                        <span>
-                            {{ _("Follow the steps mentioned below for the same.") }}
-                        </span>
-                        <ul>
-                            <li>
-                                {{ _("Upload the video on youtube.") }}
-                            </li>
-                            <li>
-                                {{ _("When you share a youtube video, it shows an option called Embed.") }}
-                            </li>
-                            <li>
-                                {{ _("On clicking it, it provides an iframe. Copy the source (src) of the iframe and paste it here.") }}
-                            </li>
-                        </ul>
-                    </div>
-                    <svg class="icon icon-md">
-                        <use href="#icon-solid-info"></use>
-                    </svg>
-                </div>
-            </div>
         </div>
 
         <div class="course-image-attachment {% if not course.image %} hide {% endif %} ">
@@ -151,7 +124,7 @@
     <div class="course-overlay-card">
 
         {% if course.video_link %}
-        <iframe class="preview-video" src="{{ course.video_link }}"></iframe>
+        <iframe class="preview-video" src="https://www.youtube.com/embed/{{ course.video_link }}"></iframe>
         {% endif %}
 
         <div class="course-overlay-content">
