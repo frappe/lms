@@ -102,6 +102,7 @@ def set_course_context(context, course_name):
 		"image": course.image,
 		"description": course.short_introduction,
 		"keywords": course.title,
+		"og:type": "website",
 	}
 
 
