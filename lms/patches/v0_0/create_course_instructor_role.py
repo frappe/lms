@@ -1,9 +1,6 @@
-from venv import create
-
 import frappe
-
-from lms.install import create_instructor_role
+from lms.install import create_course_creator_role
 
 
 def execute():
-	create_instructor_role()
+	create_course_creator_role()
