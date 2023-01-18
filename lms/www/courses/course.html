@@ -151,7 +151,8 @@
     <div class="course-overlay-card">
 
         {% if course.video_link %}
-        <iframe class="preview-video" src="{{ course.video_link }}"></iframe>
+        <iframe class="preview-video" frameborder="0" allowfullscreen src="{{ course.video_link }}"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
         {% endif %}
 
         <div class="course-overlay-content">
