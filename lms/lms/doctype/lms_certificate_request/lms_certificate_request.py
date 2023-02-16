@@ -35,7 +35,9 @@ class LMSCertificateRequest(Document):
 				)
 
 	def create_event(self):
-		calendar = frappe.db.get_value("Google Calendar", {"user": self.evaluator}, "name")
+		calendar = frappe.db.get_value(
+			"Google Calendar", {"user": self.evaluator, "enable": 1}, "name"
+		)
 
 		if calendar:
 			event = frappe.get_doc(
