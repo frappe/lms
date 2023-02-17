@@ -12,6 +12,10 @@ class LMSCertificateRequest(Document):
 	def validate(self):
 		self.validate_if_existing_requests()
 
+	def after_insert(self):
+		if frappe.db.get_single_value("LMS Settings", "send_calendar_invite_for_evaluations"):
+			self.create_event()
+
 	def validate_if_existing_requests(self):
 		existing_requests = frappe.get_all(
 			"LMS Certificate Request",
@@ -29,6 +33,48 @@ class LMSCertificateRequest(Document):
 						course_title,
 					)
 				)
+
+	def create_event(self):
+		calendar = frappe.db.get_value(
+			"Google Calendar", {"user": self.evaluator, "enable": 1}, "name"
+		)
+
+		if calendar:
+			event = frappe.get_doc(
+				{
+					"doctype": "Event",
+					"subject": f"Evaluation of {self.member_name}",
+					"starts_on": f"{self.date} {self.start_time}",
+					"ends_on": f"{self.date} {self.end_time}",
+				}
+			)
+			event.save()
+
+			participants = [self.member, self.evaluator]
+			for participant in participants:
+				contact_name = frappe.db.get_value("Contact", {"email_id": participant}, "name")
+				frappe.get_doc(
+					{
+						"doctype": "Event Participants",
+						"reference_doctype": "Contact",
+						"reference_docname": contact_name,
+						"email": participant,
+						"parent": event.name,
+						"parenttype": "Event",
+						"parentfield": "event_participants",
+					}
+				).save()
+
+			event.reload()
+			event.update(
+				{
+					"sync_with_google_calendar": 1,
+					"add_video_conferencing": 1,
+					"google_calendar": calendar,
+				}
+			)
+
+			event.save()
 
 
 @frappe.whitelist()

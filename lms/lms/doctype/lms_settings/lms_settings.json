@@ -5,14 +5,18 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "search_placeholder",
-  "portal_course_creation",
   "default_home",
   "is_onboarding_complete",
+  "column_break_zdel",
+  "send_calendar_invite_for_evaluations",
+  "force_profile_completion",
+  "section_break_szgq",
+  "search_placeholder",
+  "portal_course_creation",
   "column_break_2",
   "custom_certificate_template",
   "livecode_url",
-  "force_profile_completion",
+  "signup_settings_tab",
   "signup_settings_section",
   "terms_of_use",
   "terms_page",
@@ -23,6 +27,7 @@
   "column_break_12",
   "cookie_policy",
   "cookie_policy_page",
+  "mentor_request_tab",
   "mentor_request_section",
   "mentor_request_creation",
   "mentor_request_status_update"
@@ -82,8 +87,7 @@
   },
   {
    "fieldname": "signup_settings_section",
-   "fieldtype": "Section Break",
-   "label": "Signup Settings"
+   "fieldtype": "Section Break"
   },
   {
    "default": "0",
@@ -152,12 +156,36 @@
    "fieldname": "default_home",
    "fieldtype": "Check",
    "label": "Make LMS the default home"
+  },
+  {
+   "fieldname": "column_break_zdel",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "send_calendar_invite_for_evaluations",
+   "fieldtype": "Check",
+   "label": "Send calendar invite for evaluations"
+  },
+  {
+   "fieldname": "section_break_szgq",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "signup_settings_tab",
+   "fieldtype": "Tab Break",
+   "label": "Signup Settings"
+  },
+  {
+   "fieldname": "mentor_request_tab",
+   "fieldtype": "Tab Break",
+   "label": "Mentor Request"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2023-02-07 19:53:46.073914",
+ "modified": "2023-02-15 17:13:11.802215",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",

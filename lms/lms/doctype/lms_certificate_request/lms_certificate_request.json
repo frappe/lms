@@ -7,12 +7,14 @@
  "engine": "InnoDB",
  "field_order": [
   "course",
-  "member",
-  "member_name",
   "evaluator",
   "column_break_4",
+  "member",
+  "member_name",
+  "section_break_lifi",
   "date",
   "day",
+  "column_break_ddyh",
   "start_time",
   "end_time"
  ],
@@ -80,11 +82,19 @@
    "fieldtype": "Data",
    "label": "Member Name",
    "read_only": 1
+  },
+  {
+   "fieldname": "section_break_lifi",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_ddyh",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-04-06 11:33:33.711545",
+ "modified": "2023-02-17 09:26:13.776325",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate Request",
@@ -99,6 +109,7 @@
    "read": 1,
    "report": 1,
    "role": "System Manager",
+   "select": 1,
    "share": 1,
    "write": 1
   }
