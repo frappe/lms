@@ -46,3 +46,4 @@ lms.patches.v0_0.check_onboarding_status #21-12-2022
 lms.patches.v0_0.assignment_file_type
 lms.patches.v0_0.user_singles_issue #23-11-2022
 lms.patches.v0_0.rename_community_to_users #06-01-2023
+lms.patches.v0_0.video_embed_link
