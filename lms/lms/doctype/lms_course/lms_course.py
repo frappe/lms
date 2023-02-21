@@ -15,6 +15,7 @@ from ...utils import generate_slug, validate_image
 class LMSCourse(Document):
 	def validate(self):
 		self.validate_instructors()
+		self.validate_video_link()
 		self.validate_status()
 		self.image = validate_image(self.image)
 
@@ -29,6 +30,10 @@ class LMSCourse(Document):
 					"parenttype": "LMS Course",
 				}
 			).save(ignore_permissions=True)
+
+	def validate_video_link(self):
+		if self.video_link and "/" in self.video_link:
+			self.video_link = self.video_link.split("/")[-1]
 
 	def validate_status(self):
 		if self.published:
