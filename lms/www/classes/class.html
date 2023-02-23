@@ -30,15 +30,7 @@
 <!-- Class Details -->
 {% macro ClassDetails(class_info) %}
 <div class="class-details" data-class="{{ class_info.name }}">
-	<div class="course-home-headings">
-		{{ class_info.title }}
-	</div>
-	{% if class_info.description %}
-	<div class="medium">
-		{{ class_info.description }}
-	</div>
-	{% endif %}
-	<div class="medium">
+	<div class="medium pull-right">
 		{% if class_info.start_date %}
 		<span>
 			{{ frappe.utils.format_date(class_info.start_date, "medium") }} -
@@ -50,6 +42,15 @@
 		</span>
 		{% endif %}
 	</div>
+	<div class="course-home-headings">
+		{{ class_info.title }}
+	</div>
+	{% if class_info.description %}
+	<div class="medium">
+		{{ class_info.description }}
+	</div>
+	{% endif %}
+
 	{% if class_info.custom_component %}
 		{{ class_info.custom_component }}
 	{% endif %}
@@ -128,9 +129,10 @@
 		</tr>
 		{% for student in class_students %}
 		{% set last_active = frappe.db.get_value("User", student.student, "last_active") %}
+		{% set allow_progress = is_moderator or student.student == frappe.session.user or frappe.db.get_single_value("LMS Settings", "allow_student_progress") %}
 		<tr>
 			<td>
-				<a class="subheading button-links d-block" href="/classes/{{ class_info.name }}/students/{{ student.username }}">
+				<a class="subheading button-links d-block" {% if allow_progress %} href="/classes/{{ class_info.name }}/students/{{ student.username }}" {% endif %}>
 					{{ student.student_name }}
 				</a>
 			</td>

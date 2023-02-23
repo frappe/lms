@@ -1,7 +1,10 @@
 frappe.ready(function () {
 	frappe.web_form.after_save = () => {
-		setTimeout(() => {
-			window.history.back();
-		});
+		let data = frappe.web_form.get_values();
+		if (data.class) {
+			setTimeout(() => {
+				window.location.href = `/classes/${data.class}`;
+			}, 2000);
+		}
 	};
 });

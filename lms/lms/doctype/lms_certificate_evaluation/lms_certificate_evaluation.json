@@ -9,8 +9,9 @@
   "member",
   "member_name",
   "column_break_5",
-  "course",
   "status",
+  "course",
+  "class",
   "section_break_6",
   "date",
   "start_time",
@@ -93,11 +94,17 @@
   {
    "fieldname": "column_break_10",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "class",
+   "fieldtype": "Link",
+   "label": "Class",
+   "options": "LMS Class"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-11-23 11:49:01.400292",
+ "modified": "2023-02-22 16:00:34.361934",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate Evaluation",

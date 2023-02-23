@@ -13,7 +13,7 @@ def get_context(context):
 	context.student = frappe.db.get_value(
 		"User",
 		{"username": student},
-		["first_name", "full_name", "name", "last_active"],
+		["first_name", "full_name", "name", "last_active", "username"],
 		as_dict=True,
 	)
 	context.class_info = frappe.db.get_value(
