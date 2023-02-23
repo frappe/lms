@@ -20,7 +20,7 @@
  "list_columns": [],
  "login_required": 1,
  "max_attachment_size": 0,
- "modified": "2022-11-25 17:05:30.851109",
+ "modified": "2023-02-23 13:04:00.405266",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "evaluation",
@@ -29,7 +29,7 @@
  "published": 1,
  "route": "evaluation",
  "show_attachments": 0,
- "show_list": 0,
+ "show_list": 1,
  "show_sidebar": 0,
  "title": "Evaluation",
  "web_form_fields": [
@@ -57,6 +57,31 @@
    "options": "LMS Course",
    "read_only": 0,
    "reqd": 1,
+   "show_in_filter": 0
+  },
+  {
+   "allow_read_on_all_link_options": 0,
+   "fieldname": "summary",
+   "fieldtype": "Small Text",
+   "hidden": 0,
+   "label": "Summary",
+   "max_length": 0,
+   "max_value": 0,
+   "read_only": 0,
+   "reqd": 0,
+   "show_in_filter": 0
+  },
+  {
+   "allow_read_on_all_link_options": 0,
+   "fieldname": "",
+   "fieldtype": "Column Break",
+   "hidden": 0,
+   "label": "",
+   "max_length": 0,
+   "max_value": 0,
+   "options": "",
+   "read_only": 0,
+   "reqd": 0,
    "show_in_filter": 0
   },
   {
@@ -97,19 +122,6 @@
   },
   {
    "allow_read_on_all_link_options": 0,
-   "fieldname": "",
-   "fieldtype": "Column Break",
-   "hidden": 0,
-   "label": "",
-   "max_length": 0,
-   "max_value": 0,
-   "options": "",
-   "read_only": 0,
-   "reqd": 0,
-   "show_in_filter": 0
-  },
-  {
-   "allow_read_on_all_link_options": 0,
    "fieldname": "rating",
    "fieldtype": "Rating",
    "hidden": 0,
@@ -135,13 +147,14 @@
   },
   {
    "allow_read_on_all_link_options": 0,
-   "fieldname": "summary",
-   "fieldtype": "Small Text",
-   "hidden": 0,
-   "label": "Summary",
+   "fieldname": "class",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Class",
    "max_length": 0,
    "max_value": 0,
-   "read_only": 0,
+   "options": "LMS Class",
+   "read_only": 1,
    "reqd": 0,
    "show_in_filter": 0
   }

@@ -9,25 +9,46 @@ from frappe.utils import cint
 
 class LMSClass(Document):
 	def validate(self):
-		validate_membership(self)
+		self.validate_duplicate_students()
+		self.validate_membership()
 
+	def validate_duplicate_students(self):
+		students = [row.student for row in self.students]
+		duplicates = {student for student in students if students.count(student) > 1}
+		if len(duplicates):
+			frappe.throw(
+				_("Student {0} has already been added to this class.").format(
+					frappe.bold(next(iter(duplicates)))
+				)
+			)
 
-def validate_membership(self):
-	for course in self.courses:
-		for student in self.students:
-			filters = {
-				"doctype": "LMS Batch Membership",
-				"member": student.student,
-				"course": course.course,
-			}
-			if not frappe.db.exists(filters):
-				frappe.get_doc(filters).save()
+	def validate_membership(self):
+		for course in self.courses:
+			for student in self.students:
+				filters = {
+					"doctype": "LMS Batch Membership",
+					"member": student.student,
+					"course": course.course,
+				}
+				if not frappe.db.exists(filters):
+					frappe.get_doc(filters).save()
 
 
 @frappe.whitelist()
 def add_student(email, class_name):
 	if not frappe.db.exists("User", email):
 		frappe.throw(_("There is no such user. Please create a user with this Email ID."))
+
+	filters = {
+		"student": email,
+		"parent": class_name,
+		"parenttype": "LMS Class",
+		"parentfield": "students",
+	}
+	if frappe.db.exists("Class Student", filters):
+		frappe.throw(
+			_("Student {0} has already been added to this class.").format(frappe.bold(email))
+		)
 
 	frappe.get_doc(
 		{

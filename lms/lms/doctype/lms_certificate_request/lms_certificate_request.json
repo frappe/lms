@@ -31,7 +31,7 @@
   {
    "fieldname": "member",
    "fieldtype": "Link",
-   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Member",
    "options": "User",
    "reqd": 1
@@ -68,7 +68,6 @@
   {
    "fieldname": "end_time",
    "fieldtype": "Time",
-   "in_list_view": 1,
    "label": "End Time",
    "reqd": 1
   },
@@ -94,7 +93,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-02-17 09:26:13.776325",
+ "modified": "2023-02-23 09:47:46.480376",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate Request",

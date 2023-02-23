@@ -463,6 +463,11 @@ input[type=checkbox] {
   margin-bottom: 1rem;
 }
 
+.course-home-headings:hover {
+	color: var(--gray-900);
+	text-decoration: none;
+}
+
 .modal-headings {
   margin: 0;
 }
@@ -1869,10 +1874,21 @@ select {
 }
 
 .table th {
-	color: var(--gray-900);
-	font-weight: 500;
+	font-weight: 400;
+	border: none;
+	font-size: var(--text-md);
+}
+
+.table td {
+	border: none;
+}
+
+.table tr:first-child, .table tr:last-child {
+	border-bottom: none;
+}
+
+.table tr {
 	border-bottom: 1px solid var(--gray-300);
-	border-top: none;
 }
 
 .lms-dropdown {
@@ -1957,3 +1973,5 @@ select {
 	color: var(--gray-900);
 	font-weight: 500;
 }
+
+

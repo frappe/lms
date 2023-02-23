@@ -6,9 +6,10 @@
  "engine": "InnoDB",
  "field_order": [
   "default_home",
-  "is_onboarding_complete",
-  "column_break_zdel",
   "send_calendar_invite_for_evaluations",
+  "allow_student_progress",
+  "column_break_zdel",
+  "is_onboarding_complete",
   "force_profile_completion",
   "section_break_szgq",
   "search_placeholder",
@@ -180,12 +181,18 @@
    "fieldname": "mentor_request_tab",
    "fieldtype": "Tab Break",
    "label": "Mentor Request"
+  },
+  {
+   "default": "0",
+   "fieldname": "allow_student_progress",
+   "fieldtype": "Check",
+   "label": "Allow students to see each others progress in class"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2023-02-15 17:13:11.802215",
+ "modified": "2023-02-23 10:39:38.912549",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",

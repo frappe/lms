@@ -2,6 +2,13 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on("LMS Class", {
-	// refresh: function(frm) {
-	// }
+	onload: function (frm) {
+		frm.set_query("student", "students", function (doc) {
+			return {
+				filters: {
+					ignore_user_type: 1,
+				},
+			};
+		});
+	},
 });

@@ -15,14 +15,14 @@
 						{{ frappe.utils.format_datetime(student.last_active, "medium") }}
 					</span>
 					{% if is_moderator %}
-					<a class="btn btn-secondary btn-sm ml-3" href="/evaluation/new?member={{student.name}}&date={{frappe.utils.getdate()}}">
+					<a class="btn btn-secondary btn-sm ml-3" href="/evaluation/new?member={{student.name}}&date={{frappe.utils.getdate()}}&class={{class_info.name}}">
 						{{ _("Evaluate") }}
 					</a>
 					{% endif %}
 				</div>
-				<div class="course-home-headings">
+				<a class="course-home-headings" href="/users/{{student.username}}">
 					{{ student.full_name }}
-				</div>
+				</a>
 			</div>
 			{{ Progress(class_courses, student) }}
 		</div>
