@@ -46,7 +46,9 @@ def add_student(email, class_name):
 		"parentfield": "students",
 	}
 	if frappe.db.exists("Class Student", filters):
-		frappe.throw(_(f"Student {frappe.bold(email)} has already been added to this class."))
+		frappe.throw(
+			_("Student {0} has already been added to this class.").format(frappe.bold(email))
+		)
 
 	frappe.get_doc(
 		{

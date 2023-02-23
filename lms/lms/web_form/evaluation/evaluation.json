@@ -20,7 +20,7 @@
  "list_columns": [],
  "login_required": 1,
  "max_attachment_size": 0,
- "modified": "2022-02-26 17:05:30.851122",
+ "modified": "2023-02-23 13:04:00.405266",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "evaluation",
@@ -31,7 +31,6 @@
  "show_attachments": 0,
  "show_list": 1,
  "show_sidebar": 0,
- "success_message": "Evaluation has been submitted successfully.",
  "title": "Evaluation",
  "web_form_fields": [
   {
@@ -123,6 +122,18 @@
   },
   {
    "allow_read_on_all_link_options": 0,
+   "fieldname": "rating",
+   "fieldtype": "Rating",
+   "hidden": 0,
+   "label": "Rating",
+   "max_length": 0,
+   "max_value": 0,
+   "read_only": 0,
+   "reqd": 1,
+   "show_in_filter": 0
+  },
+  {
+   "allow_read_on_all_link_options": 0,
    "fieldname": "status",
    "fieldtype": "Select",
    "hidden": 0,
@@ -135,29 +146,17 @@
    "show_in_filter": 0
   },
   {
-	"allow_read_on_all_link_options": 0,
-	"fieldname": "rating",
-	"fieldtype": "Rating",
-	"hidden": 0,
-	"label": "Rating",
-	"max_length": 0,
-	"max_value": 0,
-	"read_only": 0,
-	"reqd": 1,
-	"show_in_filter": 0
-  },
-  {
-	"allow_read_on_all_link_options": 0,
-	"fieldname": "class",
-	"fieldtype": "Link",
-	"hidden": 0,
-	"label": "Class",
-	"max_length": 0,
-	"max_value": 0,
-	"options": "LMS Class",
-	"read_only": 1,
-	"reqd": 0,
-	"show_in_filter": 0
-   }
+   "allow_read_on_all_link_options": 0,
+   "fieldname": "class",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Class",
+   "max_length": 0,
+   "max_value": 0,
+   "options": "LMS Class",
+   "read_only": 1,
+   "reqd": 0,
+   "show_in_filter": 0
+  }
  ]
 }
