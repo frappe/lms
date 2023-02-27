@@ -126,7 +126,7 @@ def save_quiz(quiz_title, questions, quiz):
 				}
 			)
 
-		question_doc.update({"question": row["question"]})
+		question_doc.update({"question": row["question"], "multiple": row["multiple"]})
 
 		for num in range(1, 5):
 			question_doc.update(
