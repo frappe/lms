@@ -58,4 +58,4 @@ def grade_assignment(name, result, comments):
 	doc = frappe.get_doc("Lesson Assignment", name)
 	doc.status = result
 	doc.comments = comments
-	doc.save()
+	doc.save(ignore_permissions=True)

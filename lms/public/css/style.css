@@ -1974,4 +1974,6 @@ select {
 	font-weight: 500;
 }
 
-
+.common-page-style .tooltip-content {
+	display: none;
+}

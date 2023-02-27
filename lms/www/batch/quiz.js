@@ -92,7 +92,7 @@ const get_questions = () => {
 		if (!$(el).find(".question").text()) return;
 
 		let details = {};
-		let one_correct_option = false;
+		let correct_options = 0;
 		details["question"] = $(el).find(".question").text();
 		details["question_name"] =
 			$(el).find(".question").data("question") || "";
@@ -111,7 +111,7 @@ const get_questions = () => {
 				.find(`.option-${num} .option-checkbox`)
 				.find("input")
 				.prop("checked");
-			if (is_correct) one_correct_option = true;
+			if (is_correct) correct_options += 1;
 
 			details[`is_correct_${num}`] = is_correct;
 		});
@@ -119,11 +119,12 @@ const get_questions = () => {
 		if (!details["option_1"] || !details["option_2"])
 			frappe.throw(__("Each question must have at least two options."));
 
-		if (!one_correct_option)
+		if (!correct_options)
 			frappe.throw(
 				__("Each question must have at least one correct option.")
 			);
 
+		details["multiple"] = correct_options > 1 ? 1 : 0;
 		questions.push(details);
 	});
 
