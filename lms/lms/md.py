@@ -114,7 +114,7 @@ def sanitize_html(html, macro):
 	any broken tags. This makes sures that all those things are fixed
 	before passing to the etree parser.
 	"""
-	soup = BeautifulSoup(html, features="lxml")
+	soup = BeautifulSoup(html, features="html5lib")
 	nodes = soup.body.children
 	classname = ""
 	if macro == "YouTubeVideo":

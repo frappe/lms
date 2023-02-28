@@ -5,6 +5,9 @@ import frappe
 from frappe.model.document import Document
 from frappe import _
 from frappe.utils import cint
+import requests
+import urllib
+from requests.auth import HTTPBasicAuth
 
 
 class LMSClass(Document):
@@ -85,3 +88,22 @@ def update_course(class_name, course, value):
 	else:
 		frappe.db.delete("Class Course", {"parent": class_name, "course": course})
 	return True
+
+
+@frappe.whitelist()
+def create_live_class(class_name):
+	authenticate()
+
+
+def authenticate():
+	zoom = frappe.get_single("Zoom Settings")
+	if not zoom.enable:
+		frappe.throw(_("Please enable Zoom Settings to use this feature."))
+
+	authenticate_url = "https://zoom.us/oauth/token?grant_type=client_credentials"
+	print(authenticate_url)
+	breakpoint
+	r = requests.get(
+		authenticate_url, auth=HTTPBasicAuth(zoom.client_id, zoom.client_secret)
+	)
+	return r

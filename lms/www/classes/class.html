@@ -74,6 +74,12 @@
 			</a>
 		</li>
 
+		<li class="nav-item">
+			<a class="nav-link" data-toggle="tab" href="#live-class">
+				{{ _("Live Class") }}
+			</a>
+		</li>
+
 	</ul>
 
 	<div class="border-bottom mb-4"></div>
@@ -85,6 +91,10 @@
 
 		<div class="tab-pane" id="students" role="tabpanel" aria-labelledby="students">
 			{{ StudentsSection(class_info, class_students) }}
+		</div>
+
+		<div class="tab-pane" id="live-class" role="tabpanel" aria-labelledby="live-class">
+			{{ LiveClassSection(class_info) }}
 		</div>
 
 	</div>
@@ -174,5 +184,16 @@
 			{{ _("Add") }}
 		</button>
 	</form>
+</div>
+{% endmacro %}
+
+
+{% macro LiveClassSection(class_info) %}
+<div>
+	{% if is_moderator %}
+	<button class="btn btn-secondary btn-sm" id="create-live-class">
+		{{ _("Create a Live Class") }}
+	</button>
+	{% endif %}
 </div>
 {% endmacro %}

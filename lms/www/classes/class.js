@@ -10,6 +10,11 @@ frappe.ready(() => {
 	$(".class-course").click((e) => {
 		update_course(e);
 	});
+
+	$("#create-live-class").click((e) => {
+		console.log("call");
+		create_live_class(e);
+	});
 });
 
 const submit_student = (e) => {
@@ -65,6 +70,19 @@ const update_course = (e) => {
 			course: $(e.currentTarget).data("course"),
 			value: $(e.currentTarget).children("input").prop("checked") ? 1 : 0,
 			class_name: $(".class-details").data("class"),
+		},
+	});
+};
+
+const create_live_class = (e) => {
+	console.log("call");
+	frappe.call({
+		method: "lms.lms.doctype.lms_class.lms_class.create_live_class",
+		args: {
+			class_name: $(".class-details").data("class"),
+		},
+		callback: (data) => {
+			console.log(data);
 		},
 	});
 };
