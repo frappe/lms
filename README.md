@@ -71,7 +71,7 @@ Currently, this app depends on the `develop` branch of [frappe](https://github.c
     bench --site lms.test install-app lms
     bench --site lms.test add-to-hosts
 
- 1. Now, you can access the site at `http://gameplan.test:8080`
+ 1. Now, you can access the site at `http://lms.test:8000`
 
 
 ## Deployment
