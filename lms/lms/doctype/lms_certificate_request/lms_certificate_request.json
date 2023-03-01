@@ -41,7 +41,7 @@
    "fieldname": "evaluator",
    "fieldtype": "Link",
    "label": "Evaluator",
-   "options": "Course Evaluator",
+   "options": "User",
    "read_only": 1
   },
   {
@@ -93,7 +93,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-02-23 09:47:46.480376",
+ "modified": "2023-02-28 19:53:17.534351",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate Request",
