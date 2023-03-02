@@ -11,8 +11,16 @@ frappe.ready(() => {
 		update_course(e);
 	});
 
+	if ($("#live-class-form").length) {
+		make_live_class_form();
+	}
+
+	$("#open-class-modal").click((e) => {
+		e.preventDefault();
+		$("#live-class-modal").modal("show");
+	});
+
 	$("#create-live-class").click((e) => {
-		console.log("call");
 		create_live_class(e);
 	});
 });
@@ -75,14 +83,77 @@ const update_course = (e) => {
 };
 
 const create_live_class = (e) => {
-	console.log("call");
 	frappe.call({
 		method: "lms.lms.doctype.lms_class.lms_class.create_live_class",
 		args: {
 			class_name: $(".class-details").data("class"),
+			title: $("input[data-fieldname='meeting_title']").val(),
+			duration: $("input[data-fieldname='meeting_duration']").val(),
+			date: $("input[data-fieldname='meeting_date']").val(),
+			time: $("input[data-fieldname='meeting_time']").val(),
+			description: $(
+				"textarea[data-fieldname='meeting_description']"
+			).val(),
 		},
 		callback: (data) => {
-			console.log(data);
+			$("#live-class-modal").modal("hide");
 		},
 	});
+};
+
+const make_live_class_form = (e) => {
+	this.field_group = new frappe.ui.FieldGroup({
+		fields: [
+			{
+				fieldname: "meeting_title",
+				fieldtype: "Data",
+				options: "",
+				label: "Title",
+				reqd: 1,
+			},
+			{
+				fieldname: "meeting_time",
+				fieldtype: "Datetime",
+				options: "",
+				label: "Date and Time",
+				reqd: 1,
+			},
+			{
+				fieldname: "meeting_col",
+				fieldtype: "Column Break",
+				options: "",
+			},
+			{
+				fieldname: "meeting_date",
+				fieldtype: "Date",
+				options: "",
+				label: "Date",
+				reqd: 1,
+			},
+			{
+				fieldname: "meeting_duration",
+				fieldtype: "Int",
+				options: "",
+				label: "Duration (in Minutes)",
+				reqd: 1,
+			},
+			{
+				fieldname: "meeting_sec",
+				fieldtype: "Section Break",
+				options: "",
+			},
+			{
+				fieldname: "meeting_description",
+				fieldtype: "Small Text",
+				options: "",
+				max_height: 100,
+				min_lines: 5,
+				label: "Description",
+			},
+		],
+		body: $("#live-class-form").get(0),
+	});
+	this.field_group.make();
+	$("#live-class-form .form-section:last").removeClass("empty-section");
+	$("#live-class-form .frappe-control").removeClass("hide-control");
 };

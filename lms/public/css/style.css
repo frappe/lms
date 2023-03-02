@@ -1776,7 +1776,7 @@ li {
 }
 
 .modal-content {
-	font-size: var(--text-base) !important;
+	font-size: var(--text-sm) !important;
 }
 
 .modal-header, .modal-body {
@@ -1790,11 +1790,14 @@ li {
 .modal-footer {
 	padding: 0.75rem 1.5rem !important;
 	border-top: none !important;
-	background-color: var(--gray-200) !important;
+	background-color: var(--gray-50) !important;
+	justify-content: flex-end !important;
 }
 
 .modal-header .modal-title {
 	color: var(--gray-900);
+	line-height: 1.5rem;
+	margin-bottom: 0.5rem;
 }
 
 .frappe-chart .title {
@@ -1976,4 +1979,8 @@ select {
 
 .common-page-style .tooltip-content {
 	display: none;
+}
+
+.resize-none {
+	resize: none;
 }

@@ -191,9 +191,41 @@
 {% macro LiveClassSection(class_info) %}
 <div>
 	{% if is_moderator %}
-	<button class="btn btn-secondary btn-sm" id="create-live-class">
+	<button class="btn btn-secondary btn-sm" id="open-class-modal">
 		{{ _("Create a Live Class") }}
 	</button>
+
+	<div class="modal fade live-class-modal" id="live-class-modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">{{ _("Live Class Details") }}</div>
+            </div>
+
+
+            <div class="modal-body">
+                <form class="live-class-form" id="live-class-form"></form>
+            </div>
+
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary btn-sm mr-2" data-dismiss="modal" aria-label="Close">
+                    {{ _("Discard") }}
+                </button>
+
+                <button class="btn btn-primary btn-sm" id="create-live-class">
+					{{ _("Submit") }}
+				</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 	{% endif %}
 </div>
 {% endmacro %}
+
+{%- block script %}
+    {{ super() }}
+    {{ include_script('controls.bundle.js') }}
+{% endblock %}
