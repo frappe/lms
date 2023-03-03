@@ -21,7 +21,7 @@ def submit_solution(exercise, code):
 	@exerecise: name of the exercise to submit
 	@code: solution to the exercise
 	"""
-	ex = frappe.get_doc("Exercise", exercise)
+	ex = frappe.get_doc("LMS Exercise", exercise)
 	if not ex:
 		return
 	doc = ex.submit(code)

@@ -119,7 +119,7 @@ def quiz_renderer(quiz_name):
 
 
 def exercise_renderer(argument):
-	exercise = frappe.get_doc("Exercise", argument)
+	exercise = frappe.get_doc("LMS Exercise", argument)
 	context = dict(exercise=exercise)
 	return frappe.render_template("templates/exercise.html", context)
 

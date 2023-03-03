@@ -8,7 +8,7 @@ import frappe
 from lms.lms.doctype.lms_course.test_lms_course import new_course
 
 
-class TestExercise(unittest.TestCase):
+class TestLMSExercise(unittest.TestCase):
 	def new_exercise(self):
 		course = new_course("Test Course")
 		member = frappe.get_doc(
