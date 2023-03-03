@@ -11,7 +11,7 @@ class LMSSection(Document):
 
 	def get_exercise(self):
 		if self.type == "exercise":
-			return frappe.get_doc("Exercise", self.id)
+			return frappe.get_doc("LMS Exercise", self.id)
 
 	def get_quiz(self):
 		if self.type == "quiz":

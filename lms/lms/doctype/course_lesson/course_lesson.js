@@ -7,7 +7,7 @@ frappe.ui.form.on("Course Lesson", {
 	},
 	setup_help(frm) {
 		let quiz_link = `<a href="/app/lms-quiz"> ${__("Quiz List")} </a>`;
-		let exercise_link = `<a href="/app/exercise"> ${__(
+		let exercise_link = `<a href="/app/lms-exercise"> ${__(
 			"Exercise List"
 		)} </a>`;
 		let file_link = `<a href="/app/file"> ${__("File DocType")} </a>`;

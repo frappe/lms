@@ -35,7 +35,7 @@ class TestLMSCourse(unittest.TestCase):
 		if frappe.db.exists("LMS Course", "test-course"):
 			frappe.db.delete("Exercise Submission", {"course": "test-course"})
 			frappe.db.delete("Exercise Latest Submission", {"course": "test-course"})
-			frappe.db.delete("Exercise", {"course": "test-course"})
+			frappe.db.delete("LMS Exercise", {"course": "test-course"})
 			frappe.db.delete("LMS Batch Membership", {"course": "test-course"})
 			frappe.db.delete("LMS Batch", {"course": "test-course"})
 			frappe.db.delete("LMS Course Mentor Mapping", {"course": "test-course"})

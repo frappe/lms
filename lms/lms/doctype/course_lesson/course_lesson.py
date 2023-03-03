@@ -25,7 +25,7 @@ class CourseLesson(Document):
 			self.update_lesson_name_in_document(section)
 
 	def update_lesson_name_in_document(self, section):
-		doctype_map = {"Exercise": "Exercise", "Quiz": "LMS Quiz"}
+		doctype_map = {"Exercise": "LMS Exercise", "Quiz": "LMS Quiz"}
 		macros = find_macros(self.body)
 		documents = [value for name, value in macros if name == section]
 		index = 1
@@ -71,7 +71,7 @@ class CourseLesson(Document):
 
 		macros = find_macros(self.body)
 		exercises = [value for name, value in macros if name == "Exercise"]
-		return [frappe.get_doc("Exercise", name) for name in exercises]
+		return [frappe.get_doc("LMS Exercise", name) for name in exercises]
 
 	def get_progress(self):
 		return frappe.db.get_value(
@@ -92,14 +92,9 @@ def save_progress(lesson, course, status):
 	if not membership:
 		return
 
-	if frappe.db.exists(
-		"LMS Course Progress",
-		{"lesson": lesson, "owner": frappe.session.user, "course": course},
-	):
-		doc = frappe.get_doc(
-			"LMS Course Progress",
-			{"lesson": lesson, "owner": frappe.session.user, "course": course},
-		)
+	filters = {"lesson": lesson, "owner": frappe.session.user, "course": course}
+	if frappe.db.exists("LMS Course Progress", filters):
+		doc = frappe.get_doc("LMS Course Progress", filters)
 		doc.status = status
 		doc.save(ignore_permissions=True)
 	else:
@@ -108,6 +103,7 @@ def save_progress(lesson, course, status):
 				"doctype": "LMS Course Progress",
 				"lesson": lesson,
 				"status": status,
+				"member": frappe.session.user,
 			}
 		).save(ignore_permissions=True)
 

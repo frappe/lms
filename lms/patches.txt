@@ -34,7 +34,7 @@ lms.patches.v0_0.create_course_instructor_role #29-08-2022
 lms.patches.v0_0.create_course_moderator_role
 lms.patches.v0_0.set_dashboard #11-10-2022
 lms.patches.v0_0.set_courses_page_as_home
-lms.patches.v0_0.set_member_in_progress #09-11-2022
+lms.patches.v0_0.set_member_in_progress #03-03-2023
 lms.patches.v0_0.convert_progress_to_float
 lms.patches.v0_0.add_pages_to_nav #25-11-2022
 lms.patches.v0_0.change_role_names
@@ -47,3 +47,4 @@ lms.patches.v0_0.assignment_file_type
 lms.patches.v0_0.user_singles_issue #23-11-2022
 lms.patches.v0_0.rename_community_to_users #06-01-2023
 lms.patches.v0_0.video_embed_link
+lms.patches.v0_0.rename_exercise_doctype

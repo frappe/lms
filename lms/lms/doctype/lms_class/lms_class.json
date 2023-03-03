@@ -29,6 +29,7 @@
   {
    "fieldname": "end_date",
    "fieldtype": "Date",
+   "in_list_view": 1,
    "label": "End Date",
    "reqd": 1
   },
@@ -60,6 +61,7 @@
   {
    "fieldname": "start_date",
    "fieldtype": "Date",
+   "in_list_view": 1,
    "label": "Start Date",
    "reqd": 1
   },
@@ -73,7 +75,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-11-25 10:37:24.250557",
+ "modified": "2023-03-02 22:47:13.139289",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Class",
@@ -107,5 +109,6 @@
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "title_field": "title"
 }
