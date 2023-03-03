@@ -51,4 +51,4 @@ class TestLMSExercise(unittest.TestCase):
 	def tearDown(self):
 		frappe.db.sql("delete from `tabLMS Batch Membership`")
 		frappe.db.sql("delete from `tabExercise Submission`")
-		frappe.db.sql("delete from `tabExercise`")
+		frappe.db.sql("delete from `tabLMS Exercise`")
