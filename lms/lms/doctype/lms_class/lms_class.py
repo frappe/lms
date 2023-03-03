@@ -120,6 +120,9 @@ def create_live_class(class_name, title, duration, date, time, description=None)
 				"host": frappe.session.user,
 				"date": date,
 				"time": time,
+				"class": class_name,
+				"password": data.get("password"),
+				"description": description,
 			}
 		)
 		class_details = frappe.get_doc(payload)

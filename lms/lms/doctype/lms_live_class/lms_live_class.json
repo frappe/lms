@@ -17,7 +17,7 @@
   "date",
   "timezone",
   "column_break_spvt",
-  "start_time",
+  "time",
   "duration",
   "section_break_yrpq",
   "start_url",
@@ -42,12 +42,6 @@
    "fieldtype": "Date",
    "in_list_view": 1,
    "label": "Date",
-   "reqd": 1
-  },
-  {
-   "fieldname": "start_time",
-   "fieldtype": "Time",
-   "label": "Start Time",
    "reqd": 1
   },
   {
@@ -114,11 +108,17 @@
    "fieldname": "password",
    "fieldtype": "Password",
    "label": "Password"
+  },
+  {
+   "fieldname": "time",
+   "fieldtype": "Time",
+   "label": "Time",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-03-02 17:47:07.807968",
+ "modified": "2023-03-02 23:00:33.006661",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Live Class",

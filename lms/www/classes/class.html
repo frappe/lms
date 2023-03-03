@@ -94,7 +94,7 @@
 		</div>
 
 		<div class="tab-pane" id="live-class" role="tabpanel" aria-labelledby="live-class">
-			{{ LiveClassSection(class_info) }}
+			{{ LiveClassSection(class_info, live_classes) }}
 		</div>
 
 	</div>
@@ -188,40 +188,65 @@
 {% endmacro %}
 
 
-{% macro LiveClassSection(class_info) %}
+{% macro LiveClassSection(class_info, live_classes) %}
 <div>
 	{% if is_moderator %}
-	<button class="btn btn-secondary btn-sm" id="open-class-modal">
-		{{ _("Create a Live Class") }}
-	</button>
-
-	<div class="modal fade live-class-modal" id="live-class-modal" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-title">{{ _("Live Class Details") }}</div>
-            </div>
+	{{ CreateLiveClass(class_info) }}
+	{% endif %}
+	{{ LiveClassList(class_info, live_classes) }}
+</div>
+{% endmacro %}
 
 
-            <div class="modal-body">
-                <form class="live-class-form" id="live-class-form"></form>
-            </div>
+{% macro CreateLiveClass(class_info) %}
+<button class="btn btn-secondary btn-sm" id="open-class-modal">
+	{{ _("Create a Live Class") }}
+</button>
+
+<div class="modal fade live-class-modal" id="live-class-modal" tabindex="-1" role="dialog">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div class="modal-title">{{ _("Live Class Details") }}</div>
+			</div>
 
 
-            <div class="modal-footer">
-                <button class="btn btn-secondary btn-sm mr-2" data-dismiss="modal" aria-label="Close">
-                    {{ _("Discard") }}
-                </button>
+			<div class="modal-body">
+				<form class="live-class-form" id="live-class-form"></form>
+			</div>
 
-                <button class="btn btn-primary btn-sm" id="create-live-class">
+
+			<div class="modal-footer">
+				<button class="btn btn-secondary btn-sm mr-2" data-dismiss="modal" aria-label="Close">
+					{{ _("Discard") }}
+				</button>
+
+				<button class="btn btn-primary btn-sm" id="create-live-class">
 					{{ _("Submit") }}
 				</button>
-            </div>
-        </div>
-    </div>
+			</div>
+		</div>
+	</div>
 </div>
+{% endmacro %}
 
-	{% endif %}
+
+{% macro LiveClassList(class_info, live_classes) %}
+<div class="cards-parent mt-5">
+	{% for class in live_classes %}
+	<div class="common-card-style column-card">
+		<div class="course-card-title">
+			{{ class.title }}
+		</div>
+		<div>
+			{{ class.description }}
+		</div>
+		<div>
+			{{ frappe.utils.format_date(class.date, "medium") }} {{ _("at") }}
+			{{ frappe.utils.format_time(class.time, "hh:mm a") }}
+		</div>
+	</div>
+	{% endfor %}
 </div>
 {% endmacro %}
 

@@ -113,9 +113,9 @@ const make_live_class_form = (e) => {
 			},
 			{
 				fieldname: "meeting_time",
-				fieldtype: "Datetime",
+				fieldtype: "Time",
 				options: "",
-				label: "Date and Time",
+				label: "Time",
 				reqd: 1,
 			},
 			{

@@ -28,6 +28,14 @@ def get_context(context):
 		"Class Student", {"parent": class_name}, ["student", "student_name", "username"]
 	)
 
+	context.is_moderator = has_course_moderator_role()
+
+	context.live_classes = frappe.get_all(
+		"LMS Live Class",
+		{"class": class_name},
+		["title", "description", "time", "date", "start_url", "join_url"],
+	)
+
 	for student in class_students:
 		if student.student == frappe.session.user:
 			session_user.append(student)
@@ -38,5 +46,3 @@ def get_context(context):
 		context.class_students = session_user + remaining_students
 	else:
 		context.class_students = class_students
-
-	context.is_moderator = has_course_moderator_role()
