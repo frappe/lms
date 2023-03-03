@@ -21,7 +21,7 @@ class TestLMSExercise(unittest.TestCase):
 		member.insert()
 		e = frappe.get_doc(
 			{
-				"doctype": "Exercise",
+				"doctype": "LMS Exercise",
 				"name": "test-problem",
 				"course": course.name,
 				"title": "Test Problem",
