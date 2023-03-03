@@ -8,7 +8,7 @@ import frappe
 from lms.lms.doctype.lms_course.test_lms_course import new_course
 
 
-class TestExercise(unittest.TestCase):
+class TestLMSExercise(unittest.TestCase):
 	def new_exercise(self):
 		course = new_course("Test Course")
 		member = frappe.get_doc(
@@ -21,7 +21,7 @@ class TestExercise(unittest.TestCase):
 		member.insert()
 		e = frappe.get_doc(
 			{
-				"doctype": "Exercise",
+				"doctype": "LMS Exercise",
 				"name": "test-problem",
 				"course": course.name,
 				"title": "Test Problem",
@@ -51,4 +51,4 @@ class TestExercise(unittest.TestCase):
 	def tearDown(self):
 		frappe.db.sql("delete from `tabLMS Batch Membership`")
 		frappe.db.sql("delete from `tabExercise Submission`")
-		frappe.db.sql("delete from `tabExercise`")
+		frappe.db.sql("delete from `tabLMS Exercise`")

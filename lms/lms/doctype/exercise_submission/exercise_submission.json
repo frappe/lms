@@ -25,7 +25,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Exercise",
-   "options": "Exercise"
+   "options": "LMS Exercise"
   },
   {
    "fetch_from": "exercise.title",

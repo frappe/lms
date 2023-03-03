@@ -7,7 +7,7 @@ from frappe.model.document import Document
 from lms.lms.utils import get_membership
 
 
-class Exercise(Document):
+class LMSExercise(Document):
 	def get_user_submission(self):
 		"""Returns the latest submission for this user."""
 		user = frappe.session.user
