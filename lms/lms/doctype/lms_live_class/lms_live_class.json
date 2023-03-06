@@ -9,7 +9,7 @@
  "field_order": [
   "title",
   "host",
-  "class",
+  "class_name",
   "password",
   "column_break_astv",
   "description",
@@ -56,12 +56,6 @@
    "in_list_view": 1,
    "label": "Timezone",
    "reqd": 1
-  },
-  {
-   "fieldname": "class",
-   "fieldtype": "Link",
-   "label": "Class",
-   "options": "LMS Class"
   },
   {
    "fieldname": "host",
@@ -114,11 +108,17 @@
    "fieldtype": "Time",
    "label": "Time",
    "reqd": 1
+  },
+  {
+   "fieldname": "class_name",
+   "fieldtype": "Link",
+   "label": "Class",
+   "options": "LMS Class"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-03-02 23:00:33.006661",
+ "modified": "2023-03-06 16:59:28.565587",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Live Class",

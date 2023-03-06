@@ -83,10 +83,11 @@ const update_course = (e) => {
 };
 
 const create_live_class = (e) => {
+	let class_name = $(".class-details").data("class");
 	frappe.call({
 		method: "lms.lms.doctype.lms_class.lms_class.create_live_class",
 		args: {
-			class_name: $(".class-details").data("class"),
+			class_name: class_name,
 			title: $("input[data-fieldname='meeting_title']").val(),
 			duration: $("input[data-fieldname='meeting_duration']").val(),
 			date: $("input[data-fieldname='meeting_date']").val(),
@@ -97,6 +98,16 @@ const create_live_class = (e) => {
 		},
 		callback: (data) => {
 			$("#live-class-modal").modal("hide");
+			frappe.show_alert(
+				{
+					message: __("Live Class created successfully"),
+					indicator: "green",
+				},
+				3
+			);
+			setTimeout(function () {
+				window.location.href = `/classes/${class_name}#live-class`;
+			}, 1000);
 		},
 	});
 };

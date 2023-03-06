@@ -4,10 +4,10 @@
 {% endblock %}
 
 {% block page_content %}
-<div class="common-page-style">
+<div class="common-page-style lms-page-style">
 	<div class="container">
 		{% if has_course_moderator_role() %}
-		<a class="btn btn-default btn-sm pull-right" href="/class/new">
+		<a class="btn btn-secondary btn-sm pull-right" href="/class/new">
 			{{ _("Create Class") }}
 		</a>
 		{% endif %}
@@ -34,7 +34,7 @@
 	{% set course_count = frappe.db.count("Class Course", {"parent": class.name}) %}
     {% set student_count = frappe.db.count("Class Student", {"parent": class.name}) %}
 
-	<div class="common-card-style column-card">
+	<div class="lms-card">
 		<div class="text-muted small">
 			{% if course_count %}
 			<span>

@@ -92,7 +92,7 @@ def update_course(class_name, course, value):
 
 @frappe.whitelist()
 def create_live_class(class_name, title, duration, date, time, description=None):
-	date = format_date(date, "yyyy-mm-dd")
+	date = format_date(date, "yyyy-mm-dd", True)
 	payload = {
 		"topic": title,
 		"start_time": format_datetime(f"{date} {time}", "yyyy-MM-ddTHH:mm:ssZ"),
@@ -120,7 +120,7 @@ def create_live_class(class_name, title, duration, date, time, description=None)
 				"host": frappe.session.user,
 				"date": date,
 				"time": time,
-				"class": class_name,
+				"class_name": class_name,
 				"password": data.get("password"),
 				"description": description,
 			}

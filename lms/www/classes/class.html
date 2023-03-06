@@ -5,10 +5,10 @@
 
 
 {% block page_content %}
-<div class="common-page-style">
+<div class="common-page-style lms-page-style">
 	<div class="container">
 		{{ BreadCrumb(class_info) }}
-		<div class="common-card-style column-card">
+		<div class="">
 			{{ ClassDetails(class_info) }}
 			{{ ClassSections(class_info, class_courses, class_students, published_courses) }}
 		</div>
@@ -30,7 +30,11 @@
 <!-- Class Details -->
 {% macro ClassDetails(class_info) %}
 <div class="class-details" data-class="{{ class_info.name }}">
-	<div class="medium pull-right">
+
+	<div class="course-home-headings">
+		{{ class_info.title }}
+	</div>
+	<div class="mt-2">
 		{% if class_info.start_date %}
 		<span>
 			{{ frappe.utils.format_date(class_info.start_date, "medium") }} -
@@ -42,11 +46,8 @@
 		</span>
 		{% endif %}
 	</div>
-	<div class="course-home-headings">
-		{{ class_info.title }}
-	</div>
 	{% if class_info.description %}
-	<div class="medium">
+	<div class="">
 		{{ class_info.description }}
 	</div>
 	{% endif %}
@@ -74,11 +75,13 @@
 			</a>
 		</li>
 
+		{% if is_moderator or is_student %}
 		<li class="nav-item">
 			<a class="nav-link" data-toggle="tab" href="#live-class">
 				{{ _("Live Class") }}
 			</a>
 		</li>
+		{% endif %}
 
 	</ul>
 
@@ -93,9 +96,11 @@
 			{{ StudentsSection(class_info, class_students) }}
 		</div>
 
+		{% if is_moderator or is_student %}
 		<div class="tab-pane" id="live-class" role="tabpanel" aria-labelledby="live-class">
 			{{ LiveClassSection(class_info, live_classes) }}
 		</div>
+		{% endif %}
 
 	</div>
 </div>
@@ -119,7 +124,7 @@
 
 
 {% macro StudentsSection(class_info, class_students) %}
-<div class="medium">
+<div class="">
 	{% if is_moderator %}
 	{{ AddStudents() }}
 	{% endif %}
@@ -190,15 +195,15 @@
 
 {% macro LiveClassSection(class_info, live_classes) %}
 <div>
-	{% if is_moderator %}
 	{{ CreateLiveClass(class_info) }}
-	{% endif %}
 	{{ LiveClassList(class_info, live_classes) }}
 </div>
 {% endmacro %}
 
 
 {% macro CreateLiveClass(class_info) %}
+
+{% if is_moderator %}
 <button class="btn btn-secondary btn-sm" id="open-class-modal">
 	{{ _("Create a Live Class") }}
 </button>
@@ -228,23 +233,38 @@
 		</div>
 	</div>
 </div>
+{% endif %}
+
 {% endmacro %}
 
 
 {% macro LiveClassList(class_info, live_classes) %}
-<div class="cards-parent mt-5">
+<div class="cards-parent mt-8">
 	{% for class in live_classes %}
-	<div class="common-card-style column-card">
-		<div class="course-card-title">
+	<div class="lms-card">
+		<div class="course-card-title mb-0">
 			{{ class.title }}
 		</div>
-		<div>
-			{{ class.description }}
-		</div>
-		<div>
+		<div class="small">
 			{{ frappe.utils.format_date(class.date, "medium") }} {{ _("at") }}
 			{{ frappe.utils.format_time(class.time, "hh:mm a") }}
 		</div>
+		<div class="my-4">
+			{{ class.description }}
+		</div>
+
+		{% if class.owner == frappe.session.user and class.date == frappe.utils.getdate() %}
+		<a class="btn btn-secondary btn-sm mt-auto" href="{{ class.start_url }}">
+			{{ _("Start Class") }}
+		</a>
+		{% endif %}
+
+		{% if is_student and class.date == frappe.utils.getdate() %}
+		<a class="btn btn-secondary btn-sm mt-auto" href="{{ class.join_url }}">
+			{{ _("Join Class") }}
+		</a>
+		{% endif %}
+
 	</div>
 	{% endfor %}
 </div>

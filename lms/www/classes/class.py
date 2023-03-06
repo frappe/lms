@@ -1,6 +1,7 @@
 import frappe
 from lms.lms.utils import has_course_moderator_role
 from frappe import _
+from frappe.utils import getdate
 
 
 def get_context(context):
@@ -28,14 +29,6 @@ def get_context(context):
 		"Class Student", {"parent": class_name}, ["student", "student_name", "username"]
 	)
 
-	context.is_moderator = has_course_moderator_role()
-
-	context.live_classes = frappe.get_all(
-		"LMS Live Class",
-		{"class": class_name},
-		["title", "description", "time", "date", "start_url", "join_url"],
-	)
-
 	for student in class_students:
 		if student.student == frappe.session.user:
 			session_user.append(student)
@@ -46,3 +39,15 @@ def get_context(context):
 		context.class_students = session_user + remaining_students
 	else:
 		context.class_students = class_students
+
+	context.is_moderator = has_course_moderator_role()
+
+	students = [student.student for student in class_students]
+	context.is_student = frappe.session.user in students
+
+	context.live_classes = frappe.get_all(
+		"LMS Live Class",
+		{"class_name": class_name, "date": [">=", getdate()]},
+		["title", "description", "time", "date", "start_url", "join_url", "owner"],
+		order_by="date",
+	)
