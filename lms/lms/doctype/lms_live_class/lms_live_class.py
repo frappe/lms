@@ -7,13 +7,13 @@ from frappe.model.document import Document
 
 class LMSLiveClass(Document):
 	def after_insert(self):
-		"""calendar = frappe.db.get_value(
-		        "Google Calendar", {"user": frappe.session.user, "enable": 1}, "name"
+		calendar = frappe.db.get_value(
+			"Google Calendar", {"user": frappe.session.user, "enable": 1}, "name"
 		)
 
 		if calendar:
-		        event = self.create_event()
-		        self.add_event_participants(event, calendar)"""
+			event = self.create_event()
+			self.add_event_participants(event, calendar)
 
 	def create_event(self):
 		event = frappe.get_doc(
