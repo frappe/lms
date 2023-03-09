@@ -1993,10 +1993,19 @@ select {
 .lms-card {
 	display: flex;
 	flex-direction: column;
-	border-width: 1px;
     border-radius: 0.75rem;
-    border: 1px solid var(--gray-200);
+    /* border: 1px solid var(--gray-200); */
+	box-shadow: var(--shadow-sm);
     padding: 1rem;
 	height: 100%;
 	position: relative;
+}
+
+.live-class-panel {
+	margin-top: auto;
+	display: none;
+}
+
+.lms-card:hover + .live-class-panel {
+	display: block;
 }

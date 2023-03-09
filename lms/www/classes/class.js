@@ -107,7 +107,7 @@ const create_live_class = (e) => {
 			);
 			setTimeout(function () {
 				window.location.href = `/classes/${class_name}#live-class`;
-			}, 1000);
+			}, 2000);
 		},
 	});
 };

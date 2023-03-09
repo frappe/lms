@@ -253,11 +253,23 @@
 			{{ class.description }}
 		</div>
 
-		{% if class.owner == frappe.session.user and class.date == frappe.utils.getdate() %}
-		<a class="btn btn-secondary btn-sm mt-auto" href="{{ class.start_url }}">
-			{{ _("Start Class") }}
-		</a>
-		{% endif %}
+		<div class="live-class-panel">
+			{% if class.owner == frappe.session.user and class.date == frappe.utils.getdate() %}
+			<a class="btn btn-secondary btn-sm mr-2" href="{{ class.start_url }}">
+				{{ _("Start") }}
+			</a>
+			{% endif %}
+
+			{% if class.owner == frappe.session.user %}
+			<a class="btn btn-secondary btn-sm mr-2" href="{{ class.start_url }}">
+				{{ _("Edit") }}
+			</a>
+
+			<a class="btn btn-secondary btn-sm" href="{{ class.start_url }}">
+				{{ _("Delete") }}
+			</a>
+			{% endif %}
+		</div>
 
 		{% if is_student and class.date == frappe.utils.getdate() %}
 		<a class="btn btn-secondary btn-sm mt-auto" href="{{ class.join_url }}">

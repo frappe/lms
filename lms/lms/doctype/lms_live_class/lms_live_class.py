@@ -3,6 +3,8 @@
 
 import frappe
 from frappe.model.document import Document
+from datetime import timedelta
+from frappe.utils import cint, get_datetime
 
 
 class LMSLiveClass(Document):
@@ -16,11 +18,14 @@ class LMSLiveClass(Document):
 			self.add_event_participants(event, calendar)
 
 	def create_event(self):
+		start = f"{self.date} {self.time}"
+
 		event = frappe.get_doc(
 			{
 				"doctype": "Event",
-				"subject": f"Live Class {self.title}",
-				"starts_on": f"{self.date} {self.time}",
+				"subject": f"Live Class on {self.title}",
+				"starts_on": start,
+				"ends_on": get_datetime(start) + timedelta(minutes=cint(self.duration)),
 			}
 		)
 		event.save()
