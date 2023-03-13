@@ -15,6 +15,10 @@ frappe.ready(() => {
 		make_live_class_form();
 	}
 
+	if ($(".add-students").length) {
+		make_add_students_section();
+	}
+
 	$("#open-class-modal").click((e) => {
 		e.preventDefault();
 		$("#live-class-modal").modal("show");
@@ -23,27 +27,34 @@ frappe.ready(() => {
 	$("#create-live-class").click((e) => {
 		create_live_class(e);
 	});
+
+	setTimeout(() => {
+		console.log(locals.Doctype)
+	}, 10000);
+
 });
 
 const submit_student = (e) => {
 	e.preventDefault();
-	frappe.call({
-		method: "lms.lms.doctype.lms_class.lms_class.add_student",
-		args: {
-			email: $("#student-email").val(),
-			class_name: $(".class-details").data("class"),
-		},
-		callback: (data) => {
-			frappe.show_alert(
-				{
-					message: __("Student added successfully"),
-					indicator: "green",
-				},
-				3
-			);
-			window.location.reload();
-		},
-	});
+	if ($('input[data-fieldname="student_input"]').val()) {
+		frappe.call({
+			method: "lms.lms.doctype.lms_class.lms_class.add_student",
+			args: {
+				email: $('input[data-fieldname="student_input"]').val(),
+				class_name: $(".class-details").data("class"),
+			},
+			callback: (data) => {
+				frappe.show_alert(
+					{
+						message: __("Student added successfully"),
+						indicator: "green",
+					},
+					3
+				);
+				window.location.reload();
+			},
+		});
+	}
 };
 
 const remove_student = (e) => {
@@ -100,14 +111,14 @@ const create_live_class = (e) => {
 			$("#live-class-modal").modal("hide");
 			frappe.show_alert(
 				{
-					message: __("Live Class created successfully"),
+					message: __("Live Class added successfully"),
 					indicator: "green",
 				},
 				3
 			);
 			setTimeout(function () {
-				window.location.href = `/classes/${class_name}#live-class`;
-			}, 2000);
+				window.location.reload()
+			}, 1000);
 		},
 	});
 };
@@ -168,3 +179,24 @@ const make_live_class_form = (e) => {
 	$("#live-class-form .form-section:last").removeClass("empty-section");
 	$("#live-class-form .frappe-control").removeClass("hide-control");
 };
+
+
+const make_add_students_section = () => {
+	this.field_group = new frappe.ui.FieldGroup({
+		fields: [
+			{
+				fieldname: "student_input",
+				fieldtype: "Link",
+				options: "User",
+				label: "Add Student",
+				filters: {
+					ignore_user_type: 1
+				}
+			}
+		],
+		body: $(".add-students").get(0)
+	});
+	this.field_group.make();
+	$(".add-students .form-section:last").removeClass("empty-section");
+	$(".add-students .frappe-control").removeClass("hide-control");
+}

@@ -2003,9 +2003,16 @@ select {
 
 .live-class-panel {
 	margin-top: auto;
-	display: none;
 }
 
-.lms-card:hover + .live-class-panel {
-	display: block;
+.lms-card .live-class-panel .btn {
+	visibility: hidden;
+}
+
+.lms-card:hover .live-class-panel .btn {
+	visibility: visible;
+}
+
+.add-students .text-primary.link-option {
+	visibility: hidden;
 }

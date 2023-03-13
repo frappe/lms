@@ -75,7 +75,7 @@
 			</a>
 		</li>
 
-		{% if is_moderator or is_student %}
+		{% if class_students | length and (is_moderator or is_student) %}
 		<li class="nav-item">
 			<a class="nav-link" data-toggle="tab" href="#live-class">
 				{{ _("Live Class") }}
@@ -96,7 +96,7 @@
 			{{ StudentsSection(class_info, class_students) }}
 		</div>
 
-		{% if is_moderator or is_student %}
+		{% if class_students | length and (is_moderator or is_student) %}
 		<div class="tab-pane" id="live-class" role="tabpanel" aria-labelledby="live-class">
 			{{ LiveClassSection(class_info, live_classes) }}
 		</div>
@@ -175,20 +175,10 @@
 
 {% macro AddStudents() %}
 <div class="mb-10">
-	<div class="mb-2">
-		{{ _("Add Student") }}
-	</div>
-	<form>
-		<div class="control-input-wrapper mb-2 w-50">
-			<div class="control-input">
-				<input type="text" autocomplete="off" class="input-with-feedback form-control" id="student-email"
-				spellcheck="false">
-			</div>
-		</div>
-		<button class="btn btn-primary btn-sm" id="submit-student">
-			{{ _("Add") }}
-		</button>
-	</form>
+	<div class="add-students"></div>
+	<button class="btn btn-primary btn-sm ml-5" id="submit-student">
+		{{ _("Add") }}
+	</button>
 </div>
 {% endmacro %}
 
@@ -254,13 +244,19 @@
 		</div>
 
 		<div class="live-class-panel">
-			{% if class.owner == frappe.session.user and class.date == frappe.utils.getdate() %}
+			{% if class.owner == frappe.session.user %}
 			<a class="btn btn-secondary btn-sm mr-2" href="{{ class.start_url }}">
 				{{ _("Start") }}
 			</a>
 			{% endif %}
 
-			{% if class.owner == frappe.session.user %}
+			{% if is_student %}
+			<a class="btn btn-secondary btn-sm mt-auto" href="{{ class.join_url }}">
+				{{ _("Join Class") }}
+			</a>
+			{% endif %}
+
+			<!-- {% if class.owner == frappe.session.user %}
 			<a class="btn btn-secondary btn-sm mr-2" href="{{ class.start_url }}">
 				{{ _("Edit") }}
 			</a>
@@ -268,14 +264,8 @@
 			<a class="btn btn-secondary btn-sm" href="{{ class.start_url }}">
 				{{ _("Delete") }}
 			</a>
-			{% endif %}
+			{% endif %} -->
 		</div>
-
-		{% if is_student and class.date == frappe.utils.getdate() %}
-		<a class="btn btn-secondary btn-sm mt-auto" href="{{ class.join_url }}">
-			{{ _("Join Class") }}
-		</a>
-		{% endif %}
 
 	</div>
 	{% endfor %}
@@ -284,5 +274,22 @@
 
 {%- block script %}
     {{ super() }}
+	
+	{% if is_moderator %}
+	<script>
+		frappe.boot.user = {
+			"can_create": [],
+			"can_select": ["User"],
+			"can_read": ["User"]
+		};
+
+		frappe.router = {
+			slug (name) {
+				return name.toLowerCase().replace(/ /g, "-");
+			}
+		}
+	</script>
+	{% endif %}
+
     {{ include_script('controls.bundle.js') }}
 {% endblock %}
