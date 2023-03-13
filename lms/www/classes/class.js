@@ -29,9 +29,8 @@ frappe.ready(() => {
 	});
 
 	setTimeout(() => {
-		console.log(locals.Doctype)
+		console.log(locals.Doctype);
 	}, 10000);
-
 });
 
 const submit_student = (e) => {
@@ -117,7 +116,7 @@ const create_live_class = (e) => {
 				3
 			);
 			setTimeout(function () {
-				window.location.reload()
+				window.location.reload();
 			}, 1000);
 		},
 	});
@@ -180,7 +179,6 @@ const make_live_class_form = (e) => {
 	$("#live-class-form .frappe-control").removeClass("hide-control");
 };
 
-
 const make_add_students_section = () => {
 	this.field_group = new frappe.ui.FieldGroup({
 		fields: [
@@ -190,13 +188,13 @@ const make_add_students_section = () => {
 				options: "User",
 				label: "Add Student",
 				filters: {
-					ignore_user_type: 1
-				}
-			}
+					ignore_user_type: 1,
+				},
+			},
 		],
-		body: $(".add-students").get(0)
+		body: $(".add-students").get(0),
 	});
 	this.field_group.make();
 	$(".add-students .form-section:last").removeClass("empty-section");
 	$(".add-students .frappe-control").removeClass("hide-control");
-}
+};
