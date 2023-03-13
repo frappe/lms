@@ -245,13 +245,13 @@
 
 		<div class="live-class-panel">
 			{% if class.owner == frappe.session.user %}
-			<a class="btn btn-secondary btn-sm mr-2" href="{{ class.start_url }}">
+			<a class="btn btn-secondary btn-sm mr-2" target="_blank" href="{{ class.start_url }}">
 				{{ _("Start") }}
 			</a>
 			{% endif %}
 
 			{% if is_student %}
-			<a class="btn btn-secondary btn-sm mt-auto" href="{{ class.join_url }}">
+			<a class="btn btn-secondary btn-sm mt-auto" target="_blank" href="{{ class.join_url }}">
 				{{ _("Join Class") }}
 			</a>
 			{% endif %}

@@ -2013,6 +2013,6 @@ select {
 	visibility: visible;
 }
 
-.add-students .text-primary.link-option {
-	visibility: hidden;
+.add-students ul li:nth-last-child(-n+2) {
+	display: none;
 }
