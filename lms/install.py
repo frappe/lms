@@ -44,7 +44,7 @@ def add_pages_to_nav():
 			).save()
 
 
-def after_uninstall():
+def before_uninstall():
 	delete_custom_fields()
 	delete_lms_roles()
 
@@ -59,7 +59,6 @@ def delete_lms_roles():
 	for role in roles:
 		if frappe.db.exists("Role", role):
 			frappe.db.delete("Role", role)
-	frappe.db.commit()
 
 
 def set_default_home():
@@ -135,4 +134,3 @@ def delete_custom_fields():
 
 	for field in fields:
 		frappe.db.delete("Custom Field", {"fieldname": field})
-		frappe.db.commit()
