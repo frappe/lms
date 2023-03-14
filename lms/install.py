@@ -46,11 +46,20 @@ def add_pages_to_nav():
 
 def after_uninstall():
 	delete_custom_fields()
+	delete_lms_roles()
 
 
 def create_lms_roles():
 	create_course_creator_role()
 	create_moderator_role()
+
+
+def delete_lms_roles():
+	roles = ["Course Creator", "Moderator"]
+	for role in roles:
+		if frappe.db.exists("Role", role):
+			frappe.db.delete("Role", role)
+	frappe.db.commit()
 
 
 def set_default_home():
