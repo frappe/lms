@@ -52,7 +52,7 @@ These are some of the tools it's built on:
 You need Docker, docker-compose, and git setup on your machine. Refer to [Docker documentation](https://docs.docker.com/). After that, run the following commands:
 ```
 git clone https://github.com/frappe/lms
-cd lms/docker
+cd apps/lms/docker
 docker-compose up
 ```
 
