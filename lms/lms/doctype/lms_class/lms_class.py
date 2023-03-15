@@ -91,15 +91,21 @@ def update_course(class_name, course, value):
 
 
 @frappe.whitelist()
-def create_live_class(class_name, title, duration, date, time, description=None):
+def create_live_class(
+	class_name, title, duration, date, time, timezone, auto_recording, description=None
+):
 	date = format_date(date, "yyyy-mm-dd", True)
+
 	payload = {
 		"topic": title,
 		"start_time": format_datetime(f"{date} {time}", "yyyy-MM-ddTHH:mm:ssZ"),
 		"duration": duration,
-		"timezone": "IN",
 		"agenda": description,
 		"private_meeting": True,
+		"auto_recording": "none"
+		if auto_recording == "No Recording"
+		else auto_recording.lower(),
+		"timezone": timezone,
 	}
 	headers = {
 		"Authorization": "Bearer " + authenticate(),
@@ -123,6 +129,7 @@ def create_live_class(class_name, title, duration, date, time, description=None)
 				"class_name": class_name,
 				"password": data.get("password"),
 				"description": description,
+				"auto_recording": auto_recording,
 			}
 		)
 		class_details = frappe.get_doc(payload)
