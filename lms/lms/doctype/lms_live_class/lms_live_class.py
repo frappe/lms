@@ -38,9 +38,7 @@ class LMSLiveClass(Document):
 		)
 
 		participants.append(frappe.session.user)
-		print(participants)
 		for participant in participants:
-			print(participant)
 			frappe.get_doc(
 				{
 					"doctype": "Event Participants",
