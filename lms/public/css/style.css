@@ -1996,7 +1996,7 @@ select {
     border-radius: 0.75rem;
     /* border: 1px solid var(--gray-200); */
 	box-shadow: var(--shadow-sm);
-    padding: 1rem;
+    padding: 0.5rem;
 	height: 100%;
 	position: relative;
 }
@@ -2015,4 +2015,15 @@ select {
 
 .add-students ul li:nth-last-child(-n+2) {
 	display: none;
+}
+
+.lms-card-title {
+	color: var(--gray-900);
+	font-weight: 500;
+}
+
+.lms-card-parent {
+	display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-gap: 1.5rem;
 }
