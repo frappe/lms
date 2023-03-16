@@ -4,10 +4,10 @@
 {% endblock %}
 
 {% block page_content %}
-<div class="common-page-style">
+<div class="common-page-style lms-page-style">
 	<div class="container">
 		{% if has_course_moderator_role() %}
-		<a class="btn btn-default btn-sm pull-right" href="/class/new">
+		<a class="btn btn-secondary btn-sm pull-right" href="/class/new">
 			{{ _("Create Class") }}
 		</a>
 		{% endif %}
@@ -29,36 +29,40 @@
 
 
 {% macro ClassCards(classes) %}
-<div class="cards-parent">
+<div class="lms-card-parent">
 	{% for class in classes %}
 	{% set course_count = frappe.db.count("Class Course", {"parent": class.name}) %}
     {% set student_count = frappe.db.count("Class Student", {"parent": class.name}) %}
 
-	<div class="common-card-style column-card">
-		<div class="text-muted small">
+	<div class="lms-card">
+
+		<div class="lms-card-title">
+			{{ class.title }}
+		</div>
+
+		<div class="text-muted small mb-4">
 			{% if course_count %}
-			<span>
+			<span class="mr-3">
 				{{ course_count }} {{ _("Courses") }}
 			</span>
 			{% endif %}
 
 			{% if student_count %}
-			<span class="ml-3">
+			<span>
 				{{ student_count }} {{ _("Students") }}
 			</span>
 			{% endif %}
 		</div>
 
-		<div class="course-card-title mb-4">
-			{{ class.title }}
-		</div>
-
 		<div class="">
+			<svg class="icon icon-sm">
+				<use href="#icon-calendar"></use>
+			</svg>
 			<span>
-				{{ frappe.utils.format_date(class.start_date, "medium") }} -
+				{{ frappe.utils.format_date(class.start_date, "long") }} -
 			</span>
 			<span>
-				{{ frappe.utils.format_date(class.end_date, "medium") }}
+				{{ frappe.utils.format_date(class.end_date, "long") }}
 			</span>
 		</div>
 		<a class="stretched-link" href="/classes/{{ class.name }}"></a>

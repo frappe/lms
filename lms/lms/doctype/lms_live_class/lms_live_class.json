@@ -1,0 +1,164 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2023-03-02 10:59:01.741349",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "title",
+  "host",
+  "class_name",
+  "password",
+  "auto_recording",
+  "column_break_astv",
+  "description",
+  "section_break_glxh",
+  "date",
+  "timezone",
+  "column_break_spvt",
+  "time",
+  "duration",
+  "section_break_yrpq",
+  "start_url",
+  "column_break_yokr",
+  "join_url"
+ ],
+ "fields": [
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text",
+   "label": "Description"
+  },
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "duration",
+   "fieldtype": "Int",
+   "label": "Duration",
+   "reqd": 1
+  },
+  {
+   "fieldname": "timezone",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Timezone",
+   "reqd": 1
+  },
+  {
+   "fieldname": "host",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Host",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_astv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_glxh",
+   "fieldtype": "Section Break",
+   "label": "Date and Time"
+  },
+  {
+   "fieldname": "column_break_spvt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_yrpq",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "start_url",
+   "fieldtype": "Small Text",
+   "label": "Start URL",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_yokr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "join_url",
+   "fieldtype": "Small Text",
+   "label": "Join URL",
+   "read_only": 1
+  },
+  {
+   "fieldname": "password",
+   "fieldtype": "Password",
+   "label": "Password"
+  },
+  {
+   "fieldname": "time",
+   "fieldtype": "Time",
+   "label": "Time",
+   "reqd": 1
+  },
+  {
+   "fieldname": "class_name",
+   "fieldtype": "Link",
+   "label": "Class",
+   "options": "LMS Class"
+  },
+  {
+   "default": "No Recording",
+   "fieldname": "auto_recording",
+   "fieldtype": "Select",
+   "label": "Auto Recording",
+   "options": "No Recording\nLocal\nCloud"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2023-03-14 18:44:48.813102",
+ "modified_by": "Administrator",
+ "module": "LMS",
+ "name": "LMS Live Class",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Moderator",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

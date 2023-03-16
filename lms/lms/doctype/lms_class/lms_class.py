@@ -4,7 +4,10 @@
 import frappe
 from frappe.model.document import Document
 from frappe import _
-from frappe.utils import cint
+from frappe.utils import cint, format_date, format_datetime
+import requests
+import base64
+import json
 
 
 class LMSClass(Document):
@@ -85,3 +88,72 @@ def update_course(class_name, course, value):
 	else:
 		frappe.db.delete("Class Course", {"parent": class_name, "course": course})
 	return True
+
+
+@frappe.whitelist()
+def create_live_class(
+	class_name, title, duration, date, time, timezone, auto_recording, description=None
+):
+	date = format_date(date, "yyyy-mm-dd", True)
+
+	payload = {
+		"topic": title,
+		"start_time": format_datetime(f"{date} {time}", "yyyy-MM-ddTHH:mm:ssZ"),
+		"duration": duration,
+		"agenda": description,
+		"private_meeting": True,
+		"auto_recording": "none"
+		if auto_recording == "No Recording"
+		else auto_recording.lower(),
+		"timezone": timezone,
+	}
+	headers = {
+		"Authorization": "Bearer " + authenticate(),
+		"content-type": "application/json",
+	}
+	response = requests.post(
+		"https://api.zoom.us/v2/users/me/meetings", headers=headers, data=json.dumps(payload)
+	)
+
+	if response.status_code == 201:
+		data = json.loads(response.text)
+		payload.update(
+			{
+				"doctype": "LMS Live Class",
+				"start_url": data.get("start_url"),
+				"join_url": data.get("join_url"),
+				"title": title,
+				"host": frappe.session.user,
+				"date": date,
+				"time": time,
+				"class_name": class_name,
+				"password": data.get("password"),
+				"description": description,
+				"auto_recording": auto_recording,
+			}
+		)
+		class_details = frappe.get_doc(payload)
+		class_details.save()
+		return class_details
+
+
+def authenticate():
+	zoom = frappe.get_single("Zoom Settings")
+	if not zoom.enable:
+		frappe.throw(_("Please enable Zoom Settings to use this feature."))
+
+	authenticate_url = f"https://zoom.us/oauth/token?grant_type=account_credentials&account_id={zoom.account_id}"
+
+	headers = {
+		"Authorization": "Basic "
+		+ base64.b64encode(
+			bytes(
+				zoom.client_id
+				+ ":"
+				+ zoom.get_password(fieldname="client_secret", raise_exception=False),
+				encoding="utf8",
+			)
+		).decode()
+	}
+	response = requests.request("POST", authenticate_url, headers=headers)
+	return response.json()["access_token"]

@@ -1,0 +1,71 @@
+{
+ "actions": [],
+ "creation": "2023-02-27 14:30:28.696814",
+ "default_view": "List",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "enable",
+  "sb_00",
+  "account_id",
+  "client_id",
+  "client_secret"
+ ],
+ "fields": [
+  {
+   "default": "0",
+   "fieldname": "enable",
+   "fieldtype": "Check",
+   "label": "Enable"
+  },
+  {
+   "depends_on": "enable",
+   "fieldname": "sb_00",
+   "fieldtype": "Section Break",
+   "label": "OAuth Client ID"
+  },
+  {
+   "description": "The Client ID obtained from the Google Cloud Console under <a href=\"https://console.cloud.google.com/apis/credentials\">\n\"APIs &amp; Services\" &gt; \"Credentials\"\n</a>",
+   "fieldname": "client_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Client ID",
+   "mandatory_depends_on": "google_drive_picker_enabled"
+  },
+  {
+   "fieldname": "client_secret",
+   "fieldtype": "Password",
+   "in_list_view": 1,
+   "label": "Client Secret"
+  },
+  {
+   "fieldname": "account_id",
+   "fieldtype": "Data",
+   "label": "Account ID"
+  }
+ ],
+ "issingle": 1,
+ "links": [],
+ "modified": "2023-03-01 17:15:59.722497",
+ "modified_by": "Administrator",
+ "module": "LMS",
+ "name": "Zoom Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "ASC",
+ "states": [],
+ "track_changes": 1
+}
