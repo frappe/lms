@@ -21,17 +21,39 @@ class LMSQuiz(Document):
 
 	def validate_correct_answers(self):
 		for question in self.questions:
-			correct_options = self.get_correct_options(question)
+			if question.type == "Choices":
+				self.validate_correct_options(question)
+			else:
+				self.validate_possible_answer(question)
 
-			if len(correct_options) > 1:
-				question.multiple = 1
+	def validate_correct_options(self, question):
+		correct_options = self.get_correct_options(question)
 
-			if not len(correct_options):
-				frappe.throw(
-					_("At least one option must be correct for this question: {0}").format(
-						frappe.bold(question.question)
-					)
+		if len(correct_options) > 1:
+			question.multiple = 1
+
+		if not len(correct_options):
+			frappe.throw(
+				_("At least one option must be correct for this question: {0}").format(
+					frappe.bold(question.question)
 				)
+			)
+
+	def validate_possible_answer(self, question):
+		possible_answers_fields = [
+			"possibility_1",
+			"possibility_2",
+			"possibility_3",
+			"possibility_4",
+		]
+		possible_answers = list(filter(lambda x: question.get(x), possible_answers_fields))
+
+		if not len(possible_answers):
+			frappe.throw(
+				_("Add at least one possible answer for this question: {0}").format(
+					frappe.bold(question.question)
+				)
+			)
 
 	def get_correct_options(self, question):
 		correct_option_fields = [
@@ -140,3 +162,41 @@ def save_quiz(quiz_title, questions, quiz):
 		question_doc.save(ignore_permissions=True)
 
 	return doc.name
+
+
+@frappe.whitelist()
+def check_answer(question, type, answer):
+	if type == "Choices":
+		return check_choice_answers(question, answer)
+	else:
+		return check_input_answers(question, answer)
+
+
+def check_choice_answers(question, answer):
+	fields = []
+	for num in range(1, 5):
+		fields.append(f"option_{cstr(num)}")
+		fields.append(f"is_correct_{cstr(num)}")
+
+	question_details = frappe.db.get_value(
+		"LMS Quiz Question", question, fields, as_dict=1
+	)
+
+	for num in range(1, 5):
+		if question_details[f"option_{num}"] == answer:
+			return question_details[f"is_correct_{num}"]
+	return 0
+
+
+def check_input_answers(question, answer):
+	fields = []
+	for num in range(1, 5):
+		fields.append(f"possibility_{cstr(num)}")
+
+	question_details = frappe.db.get_value(
+		"LMS Quiz Question", question, fields, as_dict=1
+	)
+	for num in range(1, 5):
+		if question_details[f"possibility_{num}"] == answer:
+			return 1
+	return 0
