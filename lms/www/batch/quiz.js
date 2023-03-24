@@ -93,42 +93,67 @@ const get_questions = () => {
 
 		let details = {};
 		let correct_options = 0;
+		let possibilities = 0;
+
 		details["question"] = $(el).find(".question").text();
 		details["question_name"] =
 			$(el).find(".question").data("question") || "";
+		details["type"] = $(el).find(".type").val();
 
 		Array.from({ length: 4 }, (x, i) => {
 			let num = i + 1;
 
-			details[`option_${num}`] = $(el)
-				.find(`.option-${num} .option-input:first`)
-				.text();
-			details[`explanation_${num}`] = $(el)
-				.find(`.option-${num} .option-input:last`)
-				.text();
+			if (details.type == "Choices") {
+				details[`option_${num}`] = $(el)
+					.find(`.option-${num} .option-input:first`)
+					.text();
+				details[`explanation_${num}`] = $(el)
+					.find(`.option-${num} .option-input:last`)
+					.text();
 
-			let is_correct = $(el)
-				.find(`.option-${num} .option-checkbox`)
-				.find("input")
-				.prop("checked");
-			if (is_correct) correct_options += 1;
+				let is_correct = $(el)
+					.find(`.option-${num} .option-checkbox`)
+					.find("input")
+					.prop("checked");
+				if (is_correct) correct_options += 1;
 
-			details[`is_correct_${num}`] = is_correct;
+				details[`is_correct_${num}`] = is_correct;
+			} else {
+				let possible_answer = $(el)
+					.find(`.possibility-${num}`)
+					.text()
+					.trim();
+				if (possible_answer) possibilities += 1;
+				details[`possibility_${num}`] = possible_answer;
+			}
 		});
-
-		if (!details["option_1"] || !details["option_2"])
-			frappe.throw(__("Each question must have at least two options."));
-
-		if (!correct_options)
-			frappe.throw(
-				__("Each question must have at least one correct option.")
-			);
+		validate_mandatory(details, correct_options, possibilities);
 
 		details["multiple"] = correct_options > 1 ? 1 : 0;
 		questions.push(details);
 	});
 
 	return questions;
+};
+
+const validate_mandatory = (details, correct_options, possibilities) => {
+	if (details["type"] == "Choices") {
+		if (!details["option_1"] || !details["option_2"])
+			frappe.throw(__("Each question must have at least two options."));
+
+		if (!correct_options)
+			frappe.throw(
+				__(
+					"Question with choices must have at least one correct option."
+				)
+			);
+	} else if (!possibilities) {
+		frappe.throw(
+			__(
+				"Question with user input must have at least one possible answer."
+			)
+		);
+	}
 };
 
 const scroll_to_question_container = () => {

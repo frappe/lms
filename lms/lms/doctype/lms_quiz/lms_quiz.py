@@ -148,17 +148,7 @@ def save_quiz(quiz_title, questions, quiz):
 				}
 			)
 
-		question_doc.update({"question": row["question"], "multiple": row["multiple"]})
-
-		for num in range(1, 5):
-			question_doc.update(
-				{
-					"option_" + cstr(num): row["option_" + cstr(num)],
-					"explanation_" + cstr(num): row["explanation_" + cstr(num)],
-					"is_correct_" + cstr(num): row["is_correct_" + cstr(num)],
-				}
-			)
-
+		question_doc.update(row)
 		question_doc.save(ignore_permissions=True)
 
 	return doc.name
@@ -197,6 +187,8 @@ def check_input_answers(question, answer):
 		"LMS Quiz Question", question, fields, as_dict=1
 	)
 	for num in range(1, 5):
-		if question_details[f"possibility_{num}"] == answer:
+		current_possibility = question_details[f"possibility_{num}"]
+		if current_possibility and current_possibility.lower() == answer.lower():
 			return 1
+
 	return 0

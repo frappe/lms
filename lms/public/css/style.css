@@ -90,6 +90,7 @@ input[type=checkbox] {
 	padding: 2rem 0 5rem;
 	padding-top: 3rem;
 	background-color: var(--bg-color);
+	font-size: var(--text-base);
 }
 
 .common-card-style {
@@ -425,7 +426,6 @@ input[type=checkbox] {
 
 .lesson-links {
 	display: flex;
-	align-items: center;
 	padding: 0.5rem;
 	color: var(--gray-900);
 	font-size: var(--text-base);
@@ -544,10 +544,10 @@ input[type=checkbox] {
 }
 
 .quiz-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 5rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-top: 2rem;
 }
 
 .question {
@@ -1366,7 +1366,7 @@ pre {
 .question-header {
   display: flex;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 }
 
 .question-number {
@@ -2026,4 +2026,19 @@ select {
 	display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     grid-gap: 1.5rem;
+}
+
+.answer-indicator {
+	border-radius: var(--border-radius-md);
+	padding: 0.2rem 0.5rem;
+	width: fit-content;
+	margin-top: 0.5rem;
+}
+
+.answer-indicator.success {
+	background-color: var(--dark-green-50);
+}
+
+.answer-indicator.failure {
+	background-color: var(--red-50);
 }

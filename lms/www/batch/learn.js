@@ -35,6 +35,7 @@ frappe.ready(() => {
 	});
 
 	$("#summary").click((e) => {
+		add_to_local_storage();
 		quiz_summary(e);
 	});
 
@@ -247,7 +248,7 @@ const parse_options = () => {
 };
 
 const is_answer_correct = (type, element) => {
-	let answer = type == "Choices" ? decodeURIComponent($(element).val()) : "";
+	let answer = decodeURIComponent($(element).val());
 
 	frappe.call({
 		async: false,
@@ -260,7 +261,7 @@ const is_answer_correct = (type, element) => {
 		callback: (data) => {
 			type == "Choices"
 				? parse_choices(element, data.message)
-				: parse_possible_answers(e);
+				: parse_possible_answers(element, data.message);
 		},
 	});
 };
@@ -278,9 +279,27 @@ const parse_choices = (element, correct) => {
 	}
 };
 
-const parse_possible_answers = () => {
+const parse_possible_answers = (element, correct) => {
 	self.answer.push(decodeURIComponent($(element).val()));
-	correct ? self.is_correct.push(1) : self.is_correct.push(0);
+	if (correct) {
+		self.is_correct.push(1);
+		show_indicator("success", element);
+	} else {
+		self.is_correct.push(0);
+		show_indicator("failure", element);
+	}
+};
+
+const show_indicator = (class_name, element) => {
+	let label = class_name == "success" ? "Correct" : "Incorrect";
+	let icon =
+		class_name == "success" ? "#icon-solid-success" : "#icon-solid-error";
+	$(`<div class="answer-indicator ${class_name}">
+			<svg class="icon icon-md">
+				<use href=${icon}>
+			</svg>
+			<span style="font-weight: 500">${__(label)}</span>
+		</div>`).insertAfter(element);
 };
 
 const add_icon = (element, icon) => {
@@ -292,7 +311,6 @@ const add_icon = (element, icon) => {
             ${label}
         </div>
     `);
-	//$(element).parent().empty().html(`<div class="option-text"><img class="mr-3" src="/assets/lms/icons/${icon}.svg"> ${label}</div>`);
 };
 
 const add_to_local_storage = () => {
@@ -308,6 +326,9 @@ const add_to_local_storage = () => {
 
 	quiz_stored ? quiz_stored.push(quiz_obj) : (quiz_stored = [quiz_obj]);
 	localStorage.setItem(quiz_name, JSON.stringify(quiz_stored));
+
+	self.answer = [];
+	self.is_correct = [];
 };
 
 const create_certificate = (e) => {
