@@ -6,6 +6,7 @@
  "engine": "InnoDB",
  "field_order": [
   "question",
+  "type",
   "options_section",
   "option_1",
   "is_correct_1",
@@ -26,6 +27,13 @@
   "is_correct_4",
   "column_break_20",
   "explanation_4",
+  "section_break_mnhr",
+  "possibility_1",
+  "possibility_3",
+  "column_break_vnaj",
+  "possibility_2",
+  "possibility_4",
+  "section_break_c1lf",
   "multiple"
  ],
  "fields": [
@@ -40,13 +48,13 @@
    "fieldname": "option_1",
    "fieldtype": "Data",
    "label": "Option 1",
-   "reqd": 1
+   "mandatory_depends_on": "eval: doc.type == 'Choices'"
   },
   {
    "fieldname": "option_2",
    "fieldtype": "Data",
    "label": "Option 2",
-   "reqd": 1
+   "mandatory_depends_on": "eval: doc.type == 'Choices'"
   },
   {
    "fieldname": "option_3",
@@ -95,18 +103,22 @@
    "read_only": 1
   },
   {
+   "depends_on": "eval: doc.type == 'Choices'",
    "fieldname": "options_section",
    "fieldtype": "Section Break"
   },
   {
+   "depends_on": "eval: doc.type == 'Choices'",
    "fieldname": "column_break_4",
    "fieldtype": "Section Break"
   },
   {
+   "depends_on": "eval: doc.type == 'Choices'",
    "fieldname": "section_break_5",
    "fieldtype": "Section Break"
   },
   {
+   "depends_on": "eval: doc.type == 'Choices'",
    "fieldname": "section_break_11",
    "fieldtype": "Section Break"
   },
@@ -149,12 +161,52 @@
   {
    "fieldname": "column_break_20",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "type",
+   "fieldtype": "Select",
+   "label": "Type",
+   "options": "Choices\nUser Input"
+  },
+  {
+   "depends_on": "eval: doc.type == 'User Input'",
+   "fieldname": "section_break_mnhr",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "possibility_1",
+   "fieldtype": "Small Text",
+   "label": "Possible Answer 1",
+   "mandatory_depends_on": "eval: doc.type == 'User Input'"
+  },
+  {
+   "fieldname": "possibility_2",
+   "fieldtype": "Small Text",
+   "label": "Possible Answer 2"
+  },
+  {
+   "fieldname": "possibility_3",
+   "fieldtype": "Small Text",
+   "label": "Possible Answer 3"
+  },
+  {
+   "fieldname": "possibility_4",
+   "fieldtype": "Small Text",
+   "label": "Possible Answer 4"
+  },
+  {
+   "fieldname": "section_break_c1lf",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_vnaj",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2021-07-19 19:35:28.446236",
+ "modified": "2023-03-17 18:22:20.324536",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz Question",
@@ -162,5 +214,6 @@
  "permissions": [],
  "sort_field": "modified",
  "sort_order": "DESC",
+ "states": [],
  "track_changes": 1
 }

@@ -15,15 +15,25 @@ frappe.ready(() => {
 		frappe.utils.copy_to_clipboard($(e.currentTarget).data("name"));
 	});
 
+	$(document).on("change", ".type", function () {
+		toggle_form($(this));
+	});
+
 	get_questions();
 });
 
-const add_question = () => {
-	/* if ($(".new-quiz-card").length) {
-        scroll_to_question_container();
-        return;
-    } */
+const toggle_form = (el) => {
+	let type = el.val();
+	if (type === "Choices") {
+		el.siblings(".option-group").removeClass("hide");
+		el.siblings(".possibility-group").addClass("hide");
+	} else if (type === "User Input") {
+		el.siblings(".option-group").addClass("hide");
+		el.siblings(".possibility-group").removeClass("hide");
+	}
+};
 
+const add_question = () => {
 	let add_after = $(".quiz-card").length
 		? $(".quiz-card:last")
 		: $("#quiz-title");
@@ -31,7 +41,11 @@ const add_question = () => {
             <div contenteditable="true" data-placeholder="${__(
 				"Question"
 			)}" class="question mb-4"></div>
-        </div>`;
+			<select value="{{ question.type }}" class="input-with-feedback form-control ellipsis type" maxlength="140" data-fieldtype="Select" data-fieldname="type" placeholder="" data-doctype="LMS Quiz Question">
+				<option value="Choices"> ${__("Choices")} </option>
+				<option value="User Input"> ${__("User Input")} </option>
+			</select>
+		</div>`;
 	$(question_template).insertAfter(add_after);
 	get_question_template();
 	$(".btn-save-question").removeClass("hide");
@@ -40,11 +54,31 @@ const add_question = () => {
 const get_question_template = () => {
 	Array.from({ length: 4 }, (x, num) => {
 		let option_template = get_option_template(num + 1);
+
 		let add_after = $(".quiz-card:last .option-group").length
 			? $(".quiz-card:last .option-group").last()
-			: $(".question:last");
+			: $(".type:last");
 		question_template = $(option_template).insertAfter(add_after);
 	});
+
+	Array.from({ length: 4 }, (x, num) => {
+		let possibility_template = get_possibility_template(num + 1);
+		let add_after = $(".quiz-card:last .possibility-group").length
+			? $(".quiz-card:last .possibility-group").last()
+			: $(".quiz-card:last .option-group:last");
+		question_template = $(possibility_template).insertAfter(add_after);
+	});
+};
+
+const get_possibility_template = (num) => {
+	return `<div class="possibility-group mt-4 hide">
+			<label class=""> ${__("Possible Answer")} ${num} </label>
+			<div class="control-input-wrapper">
+				<div class="control-input">
+					<div contenteditable="true" class="input-with-feedback form-control bold possibility-{{ num }}" style="height: 100px;" spellcheck="false"></div>
+				</div>
+			</div>
+		</div>`;
 };
 
 const get_option_template = (num) => {
@@ -93,36 +127,42 @@ const get_questions = () => {
 
 		let details = {};
 		let correct_options = 0;
+		let possibilities = 0;
+
+		details["element"] = el;
 		details["question"] = $(el).find(".question").text();
 		details["question_name"] =
 			$(el).find(".question").data("question") || "";
+		details["type"] = $(el).find(".type").val();
 
 		Array.from({ length: 4 }, (x, i) => {
 			let num = i + 1;
 
-			details[`option_${num}`] = $(el)
-				.find(`.option-${num} .option-input:first`)
-				.text();
-			details[`explanation_${num}`] = $(el)
-				.find(`.option-${num} .option-input:last`)
-				.text();
+			if (details.type == "Choices") {
+				details[`option_${num}`] = $(el)
+					.find(`.option-${num} .option-input:first`)
+					.text();
+				details[`explanation_${num}`] = $(el)
+					.find(`.option-${num} .option-input:last`)
+					.text();
 
-			let is_correct = $(el)
-				.find(`.option-${num} .option-checkbox`)
-				.find("input")
-				.prop("checked");
-			if (is_correct) correct_options += 1;
+				let is_correct = $(el)
+					.find(`.option-${num} .option-checkbox`)
+					.find("input")
+					.prop("checked");
+				if (is_correct) correct_options += 1;
 
-			details[`is_correct_${num}`] = is_correct;
+				details[`is_correct_${num}`] = is_correct;
+			} else {
+				let possible_answer = $(el)
+					.find(`.possibility-${num}`)
+					.text()
+					.trim();
+				if (possible_answer) possibilities += 1;
+				details[`possibility_${num}`] = possible_answer;
+			}
 		});
-
-		if (!details["option_1"] || !details["option_2"])
-			frappe.throw(__("Each question must have at least two options."));
-
-		if (!correct_options)
-			frappe.throw(
-				__("Each question must have at least one correct option.")
-			);
+		validate_mandatory(details, correct_options, possibilities);
 
 		details["multiple"] = correct_options > 1 ? 1 : 0;
 		questions.push(details);
@@ -131,12 +171,42 @@ const get_questions = () => {
 	return questions;
 };
 
+const validate_mandatory = (details, correct_options, possibilities) => {
+	if (details["type"] == "Choices") {
+		if (!details["option_1"] || !details["option_2"]) {
+			scroll_to_element(details["element"]);
+			frappe.throw(__("Each question must have at least two options."));
+		}
+
+		if (!correct_options) {
+			scroll_to_element(details["element"]);
+			frappe.throw(
+				__(
+					"Question with choices must have at least one correct option."
+				)
+			);
+		}
+	} else if (!possibilities) {
+		scroll_to_element(details["element"]);
+		frappe.throw(
+			__(
+				"Question with user input must have at least one possible answer."
+			)
+		);
+	}
+};
+
 const scroll_to_question_container = () => {
-	$([document.documentElement, document.body]).animate(
-		{
-			scrollTop: $(".new-quiz-card").offset().top,
-		},
-		1000
-	);
+	scroll_to_element(".new-quiz-card:last");
 	$(".new-quiz-card").find(".question").focus();
+};
+
+const scroll_to_element = (element) => {
+	if ($(element).length)
+		$([document.documentElement, document.body]).animate(
+			{
+				scrollTop: $(element).offset().top,
+			},
+			1000
+		);
 };

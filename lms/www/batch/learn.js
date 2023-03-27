@@ -2,6 +2,8 @@ frappe.ready(() => {
 	this.marked_as_complete = false;
 	this.quiz_submitted = false;
 	this.file_type;
+	this.answer = [];
+	this.is_correct = [];
 	let self = this;
 
 	localStorage.removeItem($("#quiz-title").data("name"));
@@ -13,6 +15,10 @@ frappe.ready(() => {
 	set_file_type();
 
 	$(".option").click((e) => {
+		enable_check(e);
+	});
+
+	$(".possibility").keyup((e) => {
 		enable_check(e);
 	});
 
@@ -29,6 +35,7 @@ frappe.ready(() => {
 	});
 
 	$("#summary").click((e) => {
+		add_to_local_storage();
 		quiz_summary(e);
 	});
 
@@ -37,6 +44,7 @@ frappe.ready(() => {
 	});
 
 	$("#next").click((e) => {
+		add_to_local_storage();
 		mark_active_question(e);
 	});
 
@@ -224,29 +232,74 @@ const check_answer = (e = undefined) => {
 	} else {
 		$("#next").removeClass("hide");
 	}
-	let [answer, is_correct] = parse_options();
-	add_to_local_storage(current_index, answer, is_correct);
+	parse_options();
 };
 
 const parse_options = () => {
-	let answer = [];
-	let is_correct = [];
+	let type = $(".active-question").data("type");
 
-	$(".active-question input").each((i, element) => {
-		let correct = parseInt($(element).attr("data-correct"));
-		if ($(element).prop("checked")) {
-			answer.push(decodeURIComponent($(element).val()));
-			correct && is_correct.push(1);
-			correct ? add_icon(element, "check") : add_icon(element, "wrong");
-		} else {
-			correct && is_correct.push(0);
-			correct
-				? add_icon(element, "minus-circle-green")
-				: add_icon(element, "minus-circle");
-		}
+	if (type == "Choices") {
+		$(".active-question input").each((i, element) => {
+			is_answer_correct(type, element);
+		});
+	} else {
+		is_answer_correct(type, $(".active-question textarea"));
+	}
+};
+
+const is_answer_correct = (type, element) => {
+	let answer = decodeURIComponent($(element).val());
+
+	frappe.call({
+		async: false,
+		method: "lms.lms.doctype.lms_quiz.lms_quiz.check_answer",
+		args: {
+			question: $(".active-question").data("name"),
+			type: type,
+			answer: answer,
+		},
+		callback: (data) => {
+			type == "Choices"
+				? parse_choices(element, data.message)
+				: parse_possible_answers(element, data.message);
+		},
 	});
+};
 
-	return [answer, is_correct];
+const parse_choices = (element, correct) => {
+	if ($(element).prop("checked")) {
+		self.answer.push(decodeURIComponent($(element).val()));
+		correct && self.is_correct.push(1);
+		correct ? add_icon(element, "check") : add_icon(element, "wrong");
+	} else {
+		correct && self.is_correct.push(0);
+		correct
+			? add_icon(element, "minus-circle-green")
+			: add_icon(element, "minus-circle");
+	}
+};
+
+const parse_possible_answers = (element, correct) => {
+	self.answer.push(decodeURIComponent($(element).val()));
+	if (correct) {
+		self.is_correct.push(1);
+		show_indicator("success", element);
+	} else {
+		self.is_correct.push(0);
+		show_indicator("failure", element);
+	}
+};
+
+const show_indicator = (class_name, element) => {
+	let label = class_name == "success" ? "Correct" : "Incorrect";
+	let icon =
+		class_name == "success" ? "#icon-solid-success" : "#icon-solid-error";
+	$(`<div class="answer-indicator ${class_name}">
+			<svg class="icon icon-md">
+				<use href=${icon}>
+			</svg>
+			<span style="font-weight: 500">${__(label)}</span>
+		</div>`).insertAfter(element);
 };
 
 const add_icon = (element, icon) => {
@@ -258,21 +311,24 @@ const add_icon = (element, icon) => {
             ${label}
         </div>
     `);
-	//$(element).parent().empty().html(`<div class="option-text"><img class="mr-3" src="/assets/lms/icons/${icon}.svg"> ${label}</div>`);
 };
 
-const add_to_local_storage = (current_index, answer, is_correct) => {
+const add_to_local_storage = () => {
+	let current_index = $(".active-question").attr("data-qt-index");
 	let quiz_name = $("#quiz-title").data("name");
 	let quiz_stored = JSON.parse(localStorage.getItem(quiz_name));
 
 	let quiz_obj = {
 		question_index: current_index,
-		answer: answer.join(),
-		is_correct: is_correct,
+		answer: self.answer.join(),
+		is_correct: self.is_correct,
 	};
 
 	quiz_stored ? quiz_stored.push(quiz_obj) : (quiz_stored = [quiz_obj]);
 	localStorage.setItem(quiz_name, JSON.stringify(quiz_stored));
+
+	self.answer = [];
+	self.is_correct = [];
 };
 
 const create_certificate = (e) => {

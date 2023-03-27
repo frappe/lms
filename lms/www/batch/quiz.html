@@ -37,12 +37,19 @@
         <div contenteditable="true" data-placeholder="{{ _('Question') }}" data-question="{{ question.name }}"
         class="question mb-4">{% if question.question %} {{ question.question }} {% endif %}</div>
 
+        <select value="{{ question.type }}" class="input-with-feedback form-control ellipsis type" maxlength="140" data-fieldtype="Select" data-fieldname="type" placeholder="" data-doctype="LMS Quiz Question">
+            {% for option in ["Choices", "User Input"] %}
+            <option value="{{ option }}" {% if question.type == option %} selected {% endif %} > {{ _(option) }} </option>
+            {% endfor %}
+        </select>
+
         {% for i in range(1,5) %}
         {% set num = frappe.utils.cstr(i) %}
+
         {% set option = question["option_" + num] %}
         {% set explanation = question["explanation_" + num] %}
 
-        <div class="mt-4">
+        <div class="option-group mt-4 {% if question.type == 'User Input' %} hide {% endif %} ">
             <label class=""> {{ _("Option") }} {{ num }} </label>
             <div class="d-flex justify-content-between option-{{ num }}">
                 <div contenteditable="true" data-placeholder="{{ _('Option') }}"
@@ -54,6 +61,17 @@
                         <input type="checkbox" {% if question['is_correct_' + num] %} checked {% endif %}>
                         {{ _("Is Correct") }}
                     </label>
+                </div>
+            </div>
+        </div>
+
+        {% set possible_answer = question["possibility_" + num] %}
+
+        <div class="possibility-group mt-4 {% if question.type == 'Choices' %} hide {% endif %}">
+            <label class=""> {{ _("Possible Answer") }} {{ num }} </label>
+            <div class="control-input-wrapper">
+                <div class="control-input">
+                    <div contenteditable="true" class="input-with-feedback form-control bold possibility-{{ num }}" style="height: 100px;" spellcheck="false">{% if possible_answer %}{{possible_answer}}{% endif %}</div>
                 </div>
             </div>
         </div>

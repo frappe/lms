@@ -46,9 +46,9 @@
 	<form id="quiz-form" class="hide">
 		<div class="questions">
 		{% for question in quiz.questions %}
-		{% set instruction = _("Choose all answers that apply") if question.multiple else _("Choose 1 answer") %}
+		{% set instruction = _("Choose all answers that apply") if question.type == "Choices" and question.multiple else _("Choose 1 answer") if question.type == "Choices" else _("Enter the correct answer") %}
 
-		<div class="question hide"
+		<div class="question hide" data-name="{{ question.name }}" data-type="{{ question.type }}"
 			data-question="{{ question.question }}" data-multi="{{ question.multiple }}" data-qt-index="{{ loop.index }}">
 			<div class="question-header">
 				<div class="question-number">{{ loop.index }}. </div>
@@ -58,6 +58,7 @@
 				<div class="small"> {{ instruction }} </div>
 			</div>
 
+			{% if question.type == "Choices" %}
 			{% set options = [question.option_1, question.option_2, question.option_3, question.option_4] %}
 			{% for option in options %}
 				{% if option %}
@@ -66,8 +67,7 @@
 						<label class="quiz-label">
 						<div class="course-meta font-weight-bold"> {{ convert_number_to_character(loop.index - 1) }}</div>
 						<input class="option" value="{{ option | urlencode }}"
-							data-correct="{{ question['is_correct_' + loop.index | string] }}" {% if question.multiple %}
-							type="checkbox" {% else %} type="radio" name="{{ question.question | urlencode }}" {% endif %}>
+							{% if question.multiple %} type="checkbox" {% else %} type="radio" name="{{ question.question | urlencode }}" {% endif %}>
 						<div class="option-text">{{ frappe.utils.md_to_html(option) }}</div>
 						</label>
 					</div>
@@ -79,6 +79,14 @@
 				</div>
 				{% endif %}
 			{% endfor %}
+
+			{% else %}
+			<div class="control-input-wrapper">
+				<div class="control-input">
+					<textarea type="text" autocomplete="off" class="input-with-feedback form-control bold possibility" style="height: 150px;" spellcheck="false"></textarea>
+				</div>
+			</div>
+			{% endif %}
 
 		</div>
 		{% endfor %}
@@ -96,19 +104,19 @@
 			{% endif %}
 
 
-			<button class="button pull-right is-default" id="check" disabled>
+			<button class="btn btn-secondary btn-sm pull-right" id="check" disabled>
 				{{ _("Check") }}
 			</button>
-			<div class="button is-secondary hide" id="next">
+			<div class="btn btn-secondary btn-sm hide" id="next">
 				{{ _("Next Question") }}
 			</div>
-			<div class="button is-secondary is-default hide" id="summary">
+			<div class="btn btn-secondary btn-sm hide" id="summary">
 				{{ _("Submit") }}
 			</div>
 			<small id="submission-message" class="font-weight-bold hide">
 				{{ _("Please join the course to submit the Quiz.") }}
 			</small>
-			<div class="button is-secondary hide" id="try-again">
+			<div class="btn btn-secondary btn-sm hide" id="try-again">
 				{{ _("Try Again") }}
 			</div>
 		</div>
