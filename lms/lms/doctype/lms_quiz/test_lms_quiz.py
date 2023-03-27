@@ -19,7 +19,8 @@ class TestLMSQuiz(unittest.TestCase):
 		quiz.append(
 			"questions",
 			{
-				"question": "Question multiple",
+				"question": "Question Multiple",
+				"type": "Choices",
 				"option_1": "Option 1",
 				"is_correct_1": 1,
 				"option_2": "Option 2",
@@ -35,8 +36,20 @@ class TestLMSQuiz(unittest.TestCase):
 			"questions",
 			{
 				"question": "Question no correct option",
+				"type": "Choices",
 				"option_1": "Option 1",
 				"option_2": "Option 2",
+			},
+		)
+		self.assertRaises(frappe.ValidationError, quiz.save)
+
+	def test_with_no_possible_answers(self):
+		quiz = frappe.get_doc("LMS Quiz", "test-quiz")
+		quiz.append(
+			"questions",
+			{
+				"question": "Question Possible Answers",
+				"type": "User Input",
 			},
 		)
 		self.assertRaises(frappe.ValidationError, quiz.save)
