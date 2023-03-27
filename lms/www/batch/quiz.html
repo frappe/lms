@@ -37,7 +37,7 @@
         <div contenteditable="true" data-placeholder="{{ _('Question') }}" data-question="{{ question.name }}"
         class="question mb-4">{% if question.question %} {{ question.question }} {% endif %}</div>
 
-        <select type="text" value="{{ question.type }}" class="input-with-feedback form-control ellipsis type" maxlength="140" data-fieldtype="Select" data-fieldname="type" placeholder="" data-doctype="LMS Quiz Question">
+        <select value="{{ question.type }}" class="input-with-feedback form-control ellipsis type" maxlength="140" data-fieldtype="Select" data-fieldname="type" placeholder="" data-doctype="LMS Quiz Question">
             {% for option in ["Choices", "User Input"] %}
             <option value="{{ option }}" {% if question.type == option %} selected {% endif %} > {{ _(option) }} </option>
             {% endfor %}
@@ -46,11 +46,10 @@
         {% for i in range(1,5) %}
         {% set num = frappe.utils.cstr(i) %}
 
-        {% if question.type == "Choices" %}
         {% set option = question["option_" + num] %}
         {% set explanation = question["explanation_" + num] %}
 
-        <div class="mt-4">
+        <div class="option-group mt-4 {% if question.type == 'User Input' %} hide {% endif %} ">
             <label class=""> {{ _("Option") }} {{ num }} </label>
             <div class="d-flex justify-content-between option-{{ num }}">
                 <div contenteditable="true" data-placeholder="{{ _('Option') }}"
@@ -66,10 +65,9 @@
             </div>
         </div>
 
-        {% else %}
         {% set possible_answer = question["possibility_" + num] %}
 
-        <div class="mt-4">
+        <div class="possibility-group mt-4 {% if question.type == 'Choices' %} hide {% endif %}">
             <label class=""> {{ _("Possible Answer") }} {{ num }} </label>
             <div class="control-input-wrapper">
                 <div class="control-input">
@@ -77,7 +75,6 @@
                 </div>
             </div>
         </div>
-        {% endif %}
         {% endfor %}
     </div>
     {% endfor %}
