@@ -143,7 +143,8 @@
 		</tr>
 		{% for student in class_students %}
 		{% set last_active = frappe.db.get_value("User", student.student, "last_active") %}
-		{% set allow_progress = is_moderator or student.student == frappe.session.user or frappe.db.get_single_value("LMS Settings", "allow_student_progress") %}
+		{% set allow_progress = is_moderator or student.student == frappe.session.user or (frappe.db.get_single_value("LMS Settings", "allow_student_progress") and
+		is_student) %}
 		<tr>
 			<td>
 				<a class="subheading button-links d-block" {% if allow_progress %} href="/classes/{{ class_info.name }}/students/{{ student.username }}" {% endif %}>
