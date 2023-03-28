@@ -1,0 +1,27 @@
+{
+ "attach_print": 0,
+ "channel": "Email",
+ "creation": "2023-03-27 16:34:03.505645",
+ "days_in_advance": 0,
+ "docstatus": 0,
+ "doctype": "Notification",
+ "document_type": "Lesson Assignment",
+ "enabled": 1,
+ "event": "New",
+ "idx": 0,
+ "is_standard": 1,
+ "message": "<h3> {{ _(\"Assignment Submission\") }}\n\n{% set title = frappe.db.get_value(\"Course Lesson\", doc.lesson, \"title\") %}\n\n<p> {{ _(\"{0} has submitted their assignment for the lesson {1}\").format(doc.member_name, title) }} </p>\n\n <p> {{ _(\" Please evaluate and grade the assignment. \") }} </p>",
+ "modified": "2023-03-27 16:46:44.564007",
+ "modified_by": "Administrator",
+ "module": "LMS",
+ "name": "Assignment Submission Notification",
+ "owner": "Administrator",
+ "recipients": [
+  {
+   "receiver_by_document_field": "evaluator"
+  }
+ ],
+ "send_system_notification": 0,
+ "send_to_all_assignees": 0,
+ "subject": "Assignment Submission"
+}

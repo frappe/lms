@@ -9,6 +9,7 @@
   "assignment",
   "lesson",
   "course",
+  "evaluator",
   "status",
   "column_break_3",
   "member",
@@ -56,10 +57,11 @@
   {
    "fetch_from": "lesson.course",
    "fieldname": "course",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Course",
+   "options": "LMS Course",
    "read_only": 1
   },
   {
@@ -73,12 +75,20 @@
    "fieldname": "comments",
    "fieldtype": "Small Text",
    "label": "Comments"
+  },
+  {
+   "fetch_from": "course.evaluator",
+   "fieldname": "evaluator",
+   "fieldtype": "Link",
+   "label": "Evaluator",
+   "options": "User",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
  "make_attachments_public": 1,
- "modified": "2022-11-16 12:11:59.472025",
+ "modified": "2023-03-27 13:24:18.696868",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Lesson Assignment",
