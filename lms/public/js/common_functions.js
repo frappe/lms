@@ -31,7 +31,53 @@ frappe.ready(() => {
 		generate_graph("Lesson Completion", "#lesson-completion");
 		generate_course_completion_graph();
 	}
+
+	expand_the_active_chapter();
+
+	$(".chapter-title")
+		.unbind()
+		.click((e) => {
+			rotate_chapter_icon(e);
+		});
+
+	$(".no-preview").click((e) => {
+		show_no_preview_dialog(e);
+	});
+
+	$(".lesson-dropzone").each((i, el) => {
+		setSortable(el);
+	});
+
+	$(".chapter-dropzone").each((i, el) => {
+		setSortable(el);
+	});
 });
+
+const setSortable = (el) => {
+	new Sortable(el, {
+		group: {
+			name: "les",
+			pull: "les",
+			put: "les",
+		},
+		onEnd: (e) => {
+			if ($(e.item).hasClass("lesson-info")) reorder_lesson(e);
+			else reorder_chapter(e);
+		},
+		onMove: (e) => {
+			if (
+				$(e.dragged).hasClass("lesson-info") &&
+				$(e.to).hasClass("chapter-dropzone")
+			)
+				return false;
+			if (
+				$(e.dragged).hasClass("chapter-edit") &&
+				$(e.to).hasClass("lesson-dropzone")
+			)
+				return false;
+		},
+	});
+};
 
 const setup_file_size = () => {
 	frappe.provide("frappe.form.formatters");
@@ -49,7 +95,7 @@ const file_size = (value) => {
 
 const join_course = (e) => {
 	e.preventDefault();
-	let course = $(e.currentTarget).attr("data-course");
+	let course = $("#outline-heading").attr("data-course");
 	if (frappe.session.user == "Guest") {
 		window.location.href = `/login?redirect-to=/courses/${course}`;
 		return;
@@ -83,7 +129,7 @@ const join_course = (e) => {
 
 const notify_user = (e) => {
 	e.preventDefault();
-	var course = decodeURIComponent($(e.currentTarget).attr("data-course"));
+	var course = decodeURIComponent($("#outline-heading").attr("data-course"));
 	if (frappe.session.user == "Guest") {
 		window.location.href = `/login?redirect-to=/courses/${course}`;
 		return;
@@ -120,7 +166,7 @@ const add_chapter = (e) => {
 
 	let next_index = $("[data-index]").last().data("index") + 1 || 1;
 	let add_after = $(`.chapter-parent:last`).length
-		? $(`.chapter-parent:last`)
+		? $(`.chapter-dropzone`)
 		: $("#outline-heading");
 
 	$(`<div class="chapter-parent chapter-edit new-chapter">
@@ -157,7 +203,7 @@ const save_chapter = (e) => {
 			title: parent.find(".chapter-title-main").text(),
 			chapter_description: parent.find(".chapter-description").text(),
 			idx: target.data("index"),
-			chapter: target.data("chapter") ? target.data("chapter") : "",
+			chapter: parent.data("chapter") ? parent.data("chapter") : "",
 		},
 		callback: (data) => {
 			frappe.show_alert({
@@ -225,4 +271,117 @@ const change_hash = (e) => {
 
 const open_tab = () => {
 	$(`a[href="${window.location.hash}"]`).click();
+};
+
+const expand_the_first_chapter = () => {
+	let elements = $(".course-home-outline .collapse");
+	elements.each((i, element) => {
+		if (i < 1) {
+			show_section(element);
+			return false;
+		}
+	});
+};
+
+const expand_the_active_chapter = () => {
+	/* Find anchor matching the URL for course details page */
+	let selector = $(
+		`a[href="${decodeURIComponent(window.location.pathname)}"]`
+	).parent();
+
+	if (!selector.length) {
+		selector = $(
+			`a[href^="${decodeURIComponent(window.location.pathname)}"]`
+		).parent();
+	}
+	if (selector.length && $(".course-details-page").length) {
+		expand_for_course_details(selector);
+	} else if ($(".active-lesson").length) {
+		/* For course home page */
+		selector = $(".active-lesson");
+		show_section(selector.parent().parent());
+	} else {
+		/* If no active chapter then exapand the first chapter */
+		expand_the_first_chapter();
+	}
+};
+
+const expand_for_course_details = (selector) => {
+	$(".lesson-info").removeClass("active-lesson");
+	$(".lesson-info").each((i, elem) => {
+		let href = $(elem).find("use").attr("href");
+		href.endsWith("blue") &&
+			$(elem)
+				.find("use")
+				.attr("href", href.substring(0, href.length - 5));
+	});
+	selector.addClass("active-lesson");
+
+	show_section(selector.parent().parent());
+};
+
+const show_section = (element) => {
+	$(element).addClass("show");
+	$(element)
+		.siblings(".chapter-title")
+		.children(".chapter-icon")
+		.css("transform", "rotate(90deg)");
+	$(element).siblings(".chapter-title").attr("aria-expanded", true);
+};
+
+const rotate_chapter_icon = (e) => {
+	let icon = $(e.currentTarget).children(".chapter-icon");
+	if (icon.css("transform") == "none") {
+		icon.css("transform", "rotate(90deg)");
+	} else {
+		icon.css("transform", "none");
+	}
+};
+
+const show_no_preview_dialog = (e) => {
+	$("#no-preview-modal").modal("show");
+};
+
+const reorder_lesson = (e) => {
+	let old_chapter = $(e.from).closest(".chapter-edit").data("chapter");
+	let new_chapter = $(e.to).closest(".chapter-edit").data("chapter");
+
+	if (old_chapter == new_chapter && e.oldIndex == e.newIndex) return;
+
+	frappe.call({
+		method: "lms.lms.doctype.lms_course.lms_course.reorder_lesson",
+		args: {
+			old_chapter: old_chapter,
+			old_lesson_array: $(e.from)
+				.children()
+				.map((i, e) => $(e).data("lesson"))
+				.get(),
+			new_chapter: new_chapter,
+			new_lesson_array: $(e.to)
+				.children()
+				.map((i, e) => $(e).data("lesson"))
+				.get(),
+		},
+		callback: (data) => {
+			window.location.reload();
+		},
+	});
+};
+
+const reorder_chapter = (e) => {
+	if (e.oldIndex == e.newIndex) return;
+
+	frappe.call({
+		method: "lms.lms.doctype.lms_course.lms_course.reorder_chapter",
+		args: {
+			new_index: e.newIndex + 1,
+			chapter_array: $(e.to)
+				.children()
+				.map((i, e) => $(e).data("chapter"))
+				.get(),
+		},
+		callback: (data) => {
+			window.location.reload();
+		},
+	});
 };

@@ -9,7 +9,7 @@
     {% endif %}
 
     {% if course.name and (course.edit_mode or chapters | length) %}
-    <div class="course-home-headings" id="outline-heading">
+    <div class="course-home-headings" id="outline-heading" data-course="{{ course.name }}">
         {{ _("Course Content") }}
     </div>
     {% endif %}
@@ -23,9 +23,9 @@
     {% endif %}
 
     {% if chapters | length %}
-
+    <div class="chapter-dropzone">
     {% for chapter in chapters %}
-    <div class="chapter-parent {% if course.edit_mode %} chapter-edit {% endif %} ">
+    <div class="chapter-parent {% if course.edit_mode %} chapter-edit {% endif %}" data-chapter="{{ chapter.name }}">
         <div class="chapter-title" {% if not course.edit_mode %}  data-toggle="collapse" aria-expanded="false"
         data-target="#{{ get_slugified_chapter_title(chapter.title) }}" {% endif %} >
             {% if not course.edit_mode %}
@@ -42,13 +42,13 @@
             {% if chapter.description or course.edit_mode %}
             <div {% if course.edit_mode %} contenteditable="true" {% endif %} class="chapter-description
             {% if not course.edit_mode %} mx-8 mb-2 {% endif %} "
-            data-placeholder="{{ _('Short Description') }}">{{ chapter.description }}</div>
+            data-placeholder="{{ _('Short Description') }}">{% if chapter.description %}{{ chapter.description }}{% endif %}</div>
             {% endif %}
 
             {% if course.edit_mode %}
             <div class="mt-2">
                 <button class="btn btn-sm btn-secondary btn-save-chapter"
-                data-index="{{ loop.index }}" data-chapter="{{ chapter.name }}"> {{ _('Save') }} </button>
+                data-index="{{ loop.index }}"> {{ _('Save') }} </button>
                 <a class="btn btn-sm btn-secondary btn-lesson ml-2"
                     href="/courses/{{ course.name }}/learn/{{loop.index}}.{{ lessons | length + 1 }}?edit=1"> {{ _("New Lesson") }}  </a>
             </div>
@@ -56,19 +56,22 @@
 
             {% set is_instructor = is_instructor(course.name) %}
 
-            {% if lessons | length %}
-            <div class="lessons">
+            {% if course.edit_mode %}
+            <div class="course-meta mt-8 font-weight-bold"> {{ _("Lessons") }}: </div>
+            {% endif %}
 
-                {% if course.edit_mode %}
-                <b class="course-meta"> {{ _("Lessons") }}: </b>
-                {% endif %}
+            <div class="lessons {% if course.edit_mode %} lesson-dropzone {% endif %}">
+
+
+
+                {% if lessons | length %}
 
                 {% for lesson in lessons %}
                 {% set active = membership.current_lesson == lesson.name %}
-                <div class="lesson-info {% if active and not course.edit_mode %} active-lesson {% endif %}">
+                <div data-lesson="{{ lesson.name }}" class="lesson-info {% if active and not course.edit_mode %} active-lesson {% endif %}">
 
                 {% if membership or lesson.include_in_preview or is_instructor or has_course_moderator_role() %}
-                <a class="lesson-links" data-course="{{ course.name }}"
+                <a class="lesson-links"
                 {% if is_instructor and not lesson.include_in_preview %}
                 title="{{ _('This lesson is not available for preview. As you are the Instructor of the course only you can see it.') }}"
                 {% endif %}
@@ -89,7 +92,7 @@
                 </a>
 
                 {% else %}
-                <div class="no-preview" title="This lesson is not available for preview" data-course="{{ course.name }}">
+                <div class="no-preview" title="This lesson is not available for preview">
                     <div class="lesson-links">
                     <svg class="icon icon-sm mr-2">
                         <use class="" href="#icon-lock-gray">
@@ -102,12 +105,13 @@
                 </div>
                 {% endfor %}
 
-            </div>
             {% endif %}
+            </div>
 
         </div>
     </div>
     {% endfor %}
+    </div>
 
     {% endif %}
 
@@ -119,87 +123,3 @@
 {{ widgets.NoPreviewModal(course=course, membership=membership) }}
 
 {% endif %}
-
-<script>
-
-frappe.ready(() => {
-
-    expand_the_active_chapter();
-
-    $(".chapter-title").unbind().click((e) => {
-        rotate_chapter_icon(e);
-    });
-
-    $(".no-preview").click((e) => {
-        show_no_preview_dialog(e);
-    });
-
-});
-
-
-const expand_the_first_chapter = () => {
-    let elements = $(".course-home-outline .collapse");
-    elements.each((i, element) => {
-        if (i < 1) {
-            show_section(element);
-            return false;
-        }
-    });
-};
-
-
-const expand_the_active_chapter = () => {
-
-    /* Find anchor matching the URL for course details page */
-    let selector = $(`a[href="${decodeURIComponent(window.location.pathname)}"]`).parent();
-    if (!selector.length) {
-        selector = $(`a[href^="${decodeURIComponent(window.location.pathname)}"]`).parent();
-    }
-    if (selector.length && $(".course-details-page").length) {
-        $(".lesson-info").removeClass("active-lesson");
-        $(".lesson-info").each((i, elem) => {
-            let href = $(elem).find("use").attr("href");
-            href.endsWith("blue") && $(elem).find("use").attr("href", href.substring(0, href.length - 5));
-        })
-
-        selector.addClass("active-lesson");
-
-        show_section(selector.parent().parent());
-    }
-
-    /* For course home page */
-    else if ($(".active-lesson").length) {
-        selector = $(".active-lesson")
-        show_section(selector.parent().parent());
-    }
-
-    /* If no active chapter then exapand the first chapter */
-    else {
-        expand_the_first_chapter();
-    }
-};
-
-
-const show_section = (element) => {
-    $(element).addClass("show");
-    $(element).siblings(".chapter-title").children(".chapter-icon").css("transform", "rotate(90deg)");
-    $(element).siblings(".chapter-title").attr("aria-expanded", true);
-};
-
-
-const rotate_chapter_icon = (e) => {
-    let icon = $(e.currentTarget).children(".chapter-icon");
-    if (icon.css("transform") == "none") {
-        icon.css("transform", "rotate(90deg)");
-    } else {
-        icon.css("transform", "none");
-    }
-};
-
-
-const show_no_preview_dialog = (e) => {
-    $("#no-preview-modal").modal("show");
-};
-
-</script>
-
