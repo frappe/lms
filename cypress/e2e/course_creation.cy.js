@@ -1,10 +1,7 @@
 describe("Course Creation", () => {
-	beforeEach(() => {
+	it("creates a new course", () => {
 		cy.login();
 		cy.visit("/courses");
-	});
-
-	it("creates a new course", () => {
 		// Create a course
 		cy.get("a.btn").contains("Create a Course").click();
 		cy.wait(1000);
@@ -19,7 +16,7 @@ describe("Course Creation", () => {
 		cy.wait(1000);
 		cy.button("Save Course Details").click();
 
-		// Add Cha
+		// Add Chapter
 		cy.wait(3000);
 		cy.button("New Chapter").click();
 		cy.get(".new-chapter .chapter-title-main").type("Test Chapter");
