@@ -5,14 +5,10 @@ cd ~ || exit
 echo "Setting Up Bench..."
 
 pip install frappe-bench
-bench -v init frappe-bench --skip-assets --python "$(which python)" --frappe-path "${GITHUB_WORKSPACE}"
+bench -v init frappe-bench --skip-assets --python "$(which python)"
 cd ./frappe-bench || exit
 
-bench -v setup requirements --dev
-if [ "$TYPE" == "ui" ]
-then
-  bench -v setup requirements --node;
-fi
+bench -v setup requirements
 
 echo "Setting Up LMS App..."
 bench get-app lms "${GITHUB_WORKSPACE}"
