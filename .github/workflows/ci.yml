@@ -1,4 +1,4 @@
-name: Run tests
+name: Server Tests
 on:
   push:
     branches:

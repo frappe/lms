@@ -42,6 +42,10 @@ Cypress.Commands.add("button", (text) => {
 	return cy.get(`button:contains("${text}")`);
 });
 
+Cypress.Commands.add("link", (text) => {
+	return cy.get(`a:contains("${text}")`);
+});
+
 Cypress.Commands.add("iconButton", (text) => {
 	return cy.get(`button[aria-label="${text}"]`);
 });
