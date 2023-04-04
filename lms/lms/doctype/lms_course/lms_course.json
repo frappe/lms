@@ -53,7 +53,6 @@
    "in_list_view": 1,
    "label": "Title",
    "reqd": 1,
-   "unique": 1,
    "width": "200"
   },
   {
@@ -261,7 +260,7 @@
   }
  ],
  "make_attachments_public": 1,
- "modified": "2023-02-23 09:45:54.826324",
+ "modified": "2023-02-23 09:45:54.826327",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",
