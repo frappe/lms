@@ -597,13 +597,8 @@ const make_editor = () => {
 		fields: [
 			{
 				fieldname: "code_md",
-				fieldtype: "Code",
-				options: "Markdown",
-				wrap: true,
-				max_lines: Infinity,
-				min_lines: 20,
-				default: $("#body").data("body"),
-				depends_on: 'eval:doc.type=="Markdown"',
+				fieldtype: "Text Editor",
+				default: $(".body-data").html(),
 			},
 		],
 		body: $("#body").get(0),

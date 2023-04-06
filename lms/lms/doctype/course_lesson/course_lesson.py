@@ -53,7 +53,7 @@ class CourseLesson(Document):
 			ex.course = None
 			ex.index_ = 0
 			ex.index_label = ""
-			ex.save()
+			ex.save(ignore_permissions=True)
 
 	def check_and_create_folder(self):
 		args = {

@@ -201,7 +201,10 @@
 <!-- Description -->
 {% macro Description(course) %}
     {% if course.edit_mode %}
-        <div id="description" {% if course.description %} data-description="{{ course.description }}" {% endif %}></div>
+        {% if course.description %}
+        <div class="description-data hide">{{ course.description }}</div>
+        {% endif %}
+        <div id="description"></div>
     {% else %}
         <div class="course-description-section">
             {{ frappe.utils.md_to_html(course.description) }}
@@ -232,12 +235,12 @@
 <!-- Save -->
 {% macro Save(course) %}
     {% if course.edit_mode %}
-    <div class="mt-4 mb-16">
-        <button class="btn btn-primary btn-md btn-save-course">
+    <div class="mb-16">
+        <button class="btn btn-primary btn-sm btn-save-course">
             {{ _("Save Course Details") }}
         </button>
         {% if course.name %}
-        <a class="btn btn-secondary btn-md btn-exit-edit ml-2" href="/courses/{{ course.name }}">
+        <a class="btn btn-secondary btn-sm btn-exit-edit ml-2" href="/courses/{{ course.name }}">
             {{ _("Back to Course") }}
         </a>
         {% endif %}

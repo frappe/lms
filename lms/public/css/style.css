@@ -1561,7 +1561,7 @@ li {
 	outline: none;
 	background-color: var(--bg-light-gray);
 	border-radius: var(--border-radius);
-	border: 1px dashed var(--gray-600);
+	border: 1px solid var(--gray-300);
 	padding: 0.5rem 0.75rem;
 	color: var(--gray-900);
 }
@@ -1575,7 +1575,7 @@ li {
 	margin-top: 0.25rem;
 	background-color: var(--bg-light-gray);
 	border-radius: var(--border-radius);
-	border: 1px dashed var(--gray-600);
+	border: 1px solid var(--gray-300);
 	padding: 0.5rem 0.75rem;
 	width: fit-content;
 }

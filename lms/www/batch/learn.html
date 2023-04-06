@@ -176,7 +176,10 @@
         id="quiz-id">{% if lesson.quiz_id %}{{ lesson.quiz_id }}{% endif %}</div>
     </div>
 
-    <div id="body" {% if lesson.body %} data-body="{{ lesson.body }}" {% endif %}></div>
+    {% if lesson.body %}
+    <div class="body-data hide"> {{ lesson.body }} </div>
+    {% endif %}
+    <div id="body"></div>
 
     <div class="d-flex medium mx-0 mb-4">
         <div class="flex-grow-1" contenteditable="true" data-placeholder="{{ _('Assignment Question') }}"

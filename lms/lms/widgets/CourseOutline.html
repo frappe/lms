@@ -5,7 +5,7 @@
 
 
     {% if course.edit_mode and course.name %}
-    <button class="btn btn-md btn-secondary btn-chapter pull-right"> {{ _("New Chapter") }} </button>
+    <button class="btn btn-sm btn-secondary btn-chapter pull-right"> {{ _("New Chapter") }} </button>
     {% endif %}
 
     {% if course.name and (course.edit_mode or chapters | length) %}
