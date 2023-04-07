@@ -269,7 +269,6 @@ def get_progress(course, lesson):
 
 
 def render_html(lesson):
-	print(lesson.body)
 	youtube = lesson.youtube
 	quiz_id = lesson.quiz_id
 	body = lesson.body
