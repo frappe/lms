@@ -49,6 +49,6 @@ lms.patches.v0_0.rename_community_to_users #06-01-2023
 lms.patches.v0_0.video_embed_link
 lms.patches.v0_0.rename_exercise_doctype
 lms.patches.v0_0.add_question_type #09-04-2023
-lms.patches.v0_0.add_evaluator_to_assignment
+lms.patches.v0_0.add_evaluator_to_assignment #09-04-2023
 lms.patches.v0_0.convert_lesson_markdown_to_html #05-04-2023
 lms.patches.v0_0.convert_course_description_to_html

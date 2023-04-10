@@ -2,6 +2,7 @@ import frappe
 
 
 def execute():
+	frappe.reload_doc("lms", "doctype", "lesson_assignment")
 	assignments = frappe.get_all("Lesson Assignment", fields=["name", "course"])
 	for assignment in assignments:
 		evaluator = frappe.db.get_value("LMS Course", assignment.course, "evaluator")
