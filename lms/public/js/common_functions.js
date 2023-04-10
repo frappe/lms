@@ -51,6 +51,10 @@ frappe.ready(() => {
 	$(".chapter-dropzone").each((i, el) => {
 		setSortable(el);
 	});
+
+	$("#create-class").click((e) => {
+		open_class_dialog(e);
+	});
 });
 
 const setSortable = (el) => {
@@ -382,6 +386,68 @@ const reorder_chapter = (e) => {
 		},
 		callback: (data) => {
 			window.location.reload();
+		},
+	});
+};
+
+const open_class_dialog = (e) => {
+	let class_details = $(e.currentTarget).data("class");
+	console.log(class_details);
+	console.log(decodeURIComponent(class_details));
+	console.log(JSON.parse(class_details));
+	let dialog = new frappe.ui.Dialog({
+		title: __("New Class"),
+		fields: [
+			{
+				fieldtype: "Data",
+				label: __("Title"),
+				fieldname: "title",
+				reqd: 1,
+			},
+			{
+				fieldtype: "Date",
+				label: __("Start Date"),
+				fieldname: "start_date",
+				reqd: 1,
+			},
+			{
+				fieldtype: "Date",
+				label: __("End Date"),
+				fieldname: "end_date",
+				reqd: 1,
+			},
+			{
+				fieldtype: "Small Text",
+				label: __("Description"),
+				fieldname: "description",
+			},
+		],
+		primary_action_label: __("Save"),
+		primary_action: (values) => {
+			create_class(values);
+		},
+	});
+	dialog.show();
+};
+
+const create_class = (values) => {
+	frappe.call({
+		method: "lms.lms.doctype.lms_class.lms_class.create_class",
+		args: {
+			title: values.title,
+			start_date: values.start_date,
+			end_date: values.end_date,
+			description: values.description,
+		},
+		callback: (r) => {
+			if (r.message) {
+				frappe.show_alert({
+					message: __("Class Created"),
+					indicator: "green",
+				});
+				dialog.hide();
+				window.location.href = `/classes/${r.message.name}`;
+			}
 		},
 	});
 };

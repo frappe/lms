@@ -7,9 +7,9 @@
 <div class="common-page-style lms-page-style">
 	<div class="container">
 		{% if has_course_moderator_role() %}
-		<a class="btn btn-secondary btn-sm pull-right" href="/class/new">
+		<button class="btn btn-secondary btn-sm pull-right" id="create-class">
 			{{ _("Create Class") }}
-		</a>
+		</button>
 		{% endif %}
 		<div class="course-home-headings"> {{ _("All Classes") }} </div>
 		{% if classes %}
@@ -27,6 +27,10 @@
 </div>
 {% endblock %}
 
+{%- block script %}
+    {{ super() }}
+    {{ include_script('controls.bundle.js') }}
+{% endblock %}
 
 {% macro ClassCards(classes) %}
 <div class="lms-card-parent">
