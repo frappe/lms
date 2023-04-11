@@ -6,7 +6,7 @@
 {% block page_content %}
 <div class="common-page-style lms-page-style">
 	<div class="container">
-		{% if has_course_moderator_role() %}
+		{% if is_moderator %}
 		<button class="btn btn-secondary btn-sm pull-right" id="create-class">
 			{{ _("Create Class") }}
 		</button>
@@ -30,9 +30,11 @@
 {%- block script %}
     {{ super() }}
     {{ include_script('controls.bundle.js') }}
+	{% if is_moderator %}
 	<script>
 		let class_info = null;
 	</script>
+	{% endif %}
 {% endblock %}
 
 {% macro ClassCards(classes) %}
