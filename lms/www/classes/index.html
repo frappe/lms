@@ -30,6 +30,9 @@
 {%- block script %}
     {{ super() }}
     {{ include_script('controls.bundle.js') }}
+	<script>
+		let class_info = null;
+	</script>
 {% endblock %}
 
 {% macro ClassCards(classes) %}

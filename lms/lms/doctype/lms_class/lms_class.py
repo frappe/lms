@@ -160,10 +160,14 @@ def authenticate():
 
 
 @frappe.whitelist()
-def create_class(title, start_date, end_date, description):
-	class_details = frappe.get_doc(
+def create_class(title, start_date, end_date, description=None, name=None):
+	if name:
+		class_details = frappe.get_doc("LMS Class", name)
+	else:
+		class_details = frappe.get_doc({"doctype": "LMS Class"})
+
+	class_details.update(
 		{
-			"doctype": "LMS Class",
 			"title": title,
 			"start_date": start_date,
 			"end_date": end_date,

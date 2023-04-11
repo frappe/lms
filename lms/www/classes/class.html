@@ -62,7 +62,7 @@
 {% macro ClassSections(class_info, class_courses, class_students, published_courses) %}
 <div class="mt-4">
 
-	<button class="btn btn-secondary btn-sm pull-right" id="create-class" data-class="{{ json.dumps(class_info) }}">
+	<button class="btn btn-secondary btn-sm pull-right" id="create-class">
 		{{ _("Edit") }}
 	</button>
 
@@ -286,8 +286,8 @@
 {%- block script %}
     {{ super() }}
 
-	{% if is_moderator %}
 	<script>
+		{% if is_moderator %}
 		frappe.boot.user = {
 			"can_create": [],
 			"can_select": ["User"],
@@ -299,8 +299,9 @@
 				return name.toLowerCase().replace(/ /g, "-");
 			}
 		}
+		{% endif %}
+		let class_info = {{ class_info | json }};
 	</script>
-	{% endif %}
 
     {{ include_script('controls.bundle.js') }}
 {% endblock %}
