@@ -15,11 +15,7 @@
         <img class="ml-1 mr-1" src="/assets/lms/icons/chevron-right.svg">
         <a class="dark-links" href="/courses/{{ course.name }}">{{ course.title }}</a>
     </div>
-    {% if custom_template %}
-        {{ custom_template }}
-    {% else %}
-        {% include "lms/templates/certificate.html" %}
-    {% endif %}
+    {% include "lms/templates/certificate.html" %}
     <script src="/assets/lms/js/html2canvas.js"></script>
 
   </div>

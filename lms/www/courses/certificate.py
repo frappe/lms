@@ -1,6 +1,6 @@
 import frappe
 from frappe.utils.jinja import render_template
-
+from frappe.utils import get_url
 from lms.lms.utils import get_instructors
 
 
@@ -31,7 +31,9 @@ def get_context(context):
 		"User", context.certificate.member, ["full_name"], as_dict=True
 	)
 
-	context.logo = frappe.db.get_single_value("Website Settings", "banner_image")
+	context.logo = get_url(
+		frappe.db.get_single_value("Website Settings", "banner_image"), full_address=True
+	)
 	template_name = frappe.db.get_single_value(
 		"LMS Settings", "custom_certificate_template"
 	)

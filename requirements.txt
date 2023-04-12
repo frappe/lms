@@ -3,3 +3,4 @@ websocket_client
 markdown
 beautifulsoup4
 lxml
+cairocffi

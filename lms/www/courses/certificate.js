@@ -1,6 +1,6 @@
 frappe.ready(() => {
 	$("#export-as-pdf").click((e) => {
-		export_as_png(e);
+		export_as_pdf(e);
 	});
 });
 
@@ -8,7 +8,7 @@ const export_as_pdf = (e) => {
 	var formData = new FormData();
 
 	//Push the HTML content into an element
-	formData.append("html", $("#certificate-card").html());
+	formData.append("html_str", $("#certificate-card").html());
 
 	var blob = new Blob([], { type: "text/xml" });
 	formData.append("blob", blob);
