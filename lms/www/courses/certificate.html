@@ -6,8 +6,9 @@
   <div class="container certificate-page">
 
     {% if certificate.member == frappe.session.user %}
-    <div class="button is-secondary pull-right" id="export-as-pdf" data-certificate="{{ certificate.name }}"
-        data-certificate-name="{{ member.full_name }} - {{ course.title }}">{{ _("Export") }}</div>
+    <a class="btn btn-default btn-sm pull-right" target="_blank" href="/api/method/frappe.utils.print_format.download_pdf?doctype=LMS%20Certificate&name={{ certificate.name }}&_lang=en">
+      {{ _("Export") }}
+    </a>
     {% endif %}
 
     <div class="breadcrumb">

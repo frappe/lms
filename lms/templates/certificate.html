@@ -1,43 +1,47 @@
 
-<div id="certificate-card" style="background: #FFFFFF; border-radius: 0.5rem; position: relative;
-    box-shadow: 0px 1px 2px rgba(25, 39, 52, 0.05), 0px 0px 4px rgba(25, 39, 52, 0.1); padding: 1rem;">
+<div id="certificate-card" class="certificate-card">
 
-    <div style="border-image: url(/assets/lms/images/border.png); padding: 4rem; background-color: #FFFFFF; text-align: center;">
+    <div class="certificate-content">
 
-        <img src="{{ logo }}" style="height: 1.5rem;">
-        <div style="margin-top: 4rem;">
-            {{ _("This certifies that") }}
-        </div>
+        <div class="certificate-border">
 
-        <div style="font-size: 2rem; font-weight: 500; color: #192734;">
-            {{ member.full_name }}
-        </div>
-        <div style="margin-top: 0.5rem;">
-            {{ _("has successfully completed the course on") }}
-            <b> {{ course.title }} </b>
-            on {{ frappe.utils.format_date(certificate.issue_date, "medium") }}.
-        </div>
-
-        <div style="display: flex; justify-content: center; margin: 4rem auto 0; width: fit-content;">
-            {% if instructors %}
+            <img src="{{ logo }}" class="certificate-logo">
             <div>
-                <div style="color: #192734; font-weight: bold; font-family: cursive; font-size: 1.25rem;">
-                    {{ instructors }}
-                </div>
-                <hr style="margin: 0.5rem 0;">
-                <div class="text-center"> {{ _("Course Instructor") }} </div>
+                {{ _("This certifies that") }}
             </div>
-            {% endif %}
 
-            {% if certificate.expiry_date %}
-            <div style="margin-left: 2rem;">
-                <div style="color: #192734; font-weight: bold; font-family: cursive; font-size: 1.25rem;">
-                    {{ frappe.utils.format_date(certificate.expiry_date, "medium") }}
-                </div>
-                <hr style="margin: 0.5rem 0;">
-                <div class="text-center"> {{ _("Expiry date") }} </div>
+            <div class="certificate-name">
+                {{ member.full_name }}
             </div>
-            {% endif %}
+            <div>
+                {{ _("has successfully completed the course on") }}
+                <b> {{ course.title }} </b>
+                on {{ frappe.utils.format_date(certificate.issue_date, "medium") }}.
+            </div>
+
+            <table class="certificate-footer">
+                <tr>
+                    {% if instructors %}
+                    <td>
+                        <div class="certificate-footer-item cursive-font">
+                            {{ instructors }}
+                        </div>
+                        <hr class="certificate-divider">
+                        <div class="text-center"> {{ _("Course Instructor") }} </div>
+                    </td>
+                    {% endif %}
+                    {% if certificate.expiry_date %}
+                    <td style="width: 30%;"></td>
+                    <td>
+                        <div class="certificate-footer-item">
+                            {{ frappe.utils.format_date(certificate.expiry_date, "medium") }}
+                        </div>
+                        <hr class="certificate-divider">
+                        <div class="text-center"> {{ _("Expiry date") }} </div>
+                    </td>
+                    {% endif %}
+                </tr>
+            </table>
         </div>
     </div>
 </div>
