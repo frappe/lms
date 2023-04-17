@@ -859,6 +859,11 @@ pre {
 	text-align: center;
 }
 
+.certificate-parent {
+	display: grid;
+    grid-template-columns: 10fr 2fr;
+    grid-gap: 3rem;
+}
 
 .certificate-logo {
     height: 1.5rem;
@@ -1189,7 +1194,7 @@ pre {
   margin-bottom: 1.875rem;
 }
 
-.job-card-heading {
+.card-heading {
   font-weight: 600;
   color: var(--gray-900);
   margin-bottom: 0.5rem;
