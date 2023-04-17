@@ -1,7 +1,6 @@
 import frappe
 from frappe.utils.jinja import render_template
 from frappe.utils import get_url
-from lms.lms.utils import get_instructors
 
 
 def get_context(context):
@@ -29,6 +28,7 @@ def get_context(context):
 	context.member = frappe.db.get_value(
 		"User", context.doc.member, ["full_name", "username"], as_dict=True
 	)
+	context.url = f"{get_url()}/courses/{context.course.name}/{context.doc.name}"
 
 	default_print_format = frappe.db.get_value(
 		"Property Setter",
@@ -43,8 +43,9 @@ def get_context(context):
 	template = frappe.db.get_value(
 		"Print Format", default_print_format.value, ["html", "css"], as_dict=True
 	)
-	final_template = "<style> " + template.css + " </style>" + template.html
-	context.final_template = render_template(final_template, context)
+	merged_template = "<style> " + template.css + " </style>" + template.html
+	final_template = render_template(merged_template, context)
+	context.final_template = final_template
 
 
 def redirect_to_course_list():

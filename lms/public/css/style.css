@@ -1197,7 +1197,7 @@ pre {
 .card-heading {
   font-weight: 600;
   color: var(--gray-900);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
 }
 
 .course-head-container {
