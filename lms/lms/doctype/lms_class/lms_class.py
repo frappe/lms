@@ -157,3 +157,22 @@ def authenticate():
 	}
 	response = requests.request("POST", authenticate_url, headers=headers)
 	return response.json()["access_token"]
+
+
+@frappe.whitelist()
+def create_class(title, start_date, end_date, description=None, name=None):
+	if name:
+		class_details = frappe.get_doc("LMS Class", name)
+	else:
+		class_details = frappe.get_doc({"doctype": "LMS Class"})
+
+	class_details.update(
+		{
+			"title": title,
+			"start_date": start_date,
+			"end_date": end_date,
+			"description": description,
+		}
+	)
+	class_details.save()
+	return class_details
