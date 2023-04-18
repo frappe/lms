@@ -61,6 +61,11 @@
 <!-- Class Sections -->
 {% macro ClassSections(class_info, class_courses, class_students, published_courses) %}
 <div class="mt-4">
+
+	<button class="btn btn-secondary btn-sm pull-right" id="create-class">
+		{{ _("Edit") }}
+	</button>
+
 	<ul class="nav lms-nav" id="classes-tab">
 		<li class="nav-item">
 			<a class="nav-link active" data-toggle="tab" href="#courses">
@@ -280,7 +285,6 @@
 
 {%- block script %}
     {{ super() }}
-
 	{% if is_moderator %}
 	<script>
 		frappe.boot.user = {
@@ -294,6 +298,7 @@
 				return name.toLowerCase().replace(/ /g, "-");
 			}
 		}
+		let class_info = {{ class_info | json }};
 	</script>
 	{% endif %}
 

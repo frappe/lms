@@ -51,6 +51,10 @@ frappe.ready(() => {
 	$(".chapter-dropzone").each((i, el) => {
 		setSortable(el);
 	});
+
+	$("#create-class").click((e) => {
+		open_class_dialog(e);
+	});
 });
 
 const setSortable = (el) => {
@@ -382,6 +386,71 @@ const reorder_chapter = (e) => {
 		},
 		callback: (data) => {
 			window.location.reload();
+		},
+	});
+};
+
+const open_class_dialog = (e) => {
+	this.class_dialog = new frappe.ui.Dialog({
+		title: __("New Class"),
+		fields: [
+			{
+				fieldtype: "Data",
+				label: __("Title"),
+				fieldname: "title",
+				reqd: 1,
+				default: class_info && class_info.title,
+			},
+			{
+				fieldtype: "Date",
+				label: __("Start Date"),
+				fieldname: "start_date",
+				reqd: 1,
+				default: class_info && class_info.start_date,
+			},
+			{
+				fieldtype: "Date",
+				label: __("End Date"),
+				fieldname: "end_date",
+				reqd: 1,
+				default: class_info && class_info.end_date,
+			},
+			{
+				fieldtype: "Small Text",
+				label: __("Description"),
+				fieldname: "description",
+				default: class_info && class_info.description,
+			},
+		],
+		primary_action_label: __("Save"),
+		primary_action: (values) => {
+			create_class(values);
+		},
+	});
+	this.class_dialog.show();
+};
+
+const create_class = (values) => {
+	frappe.call({
+		method: "lms.lms.doctype.lms_class.lms_class.create_class",
+		args: {
+			title: values.title,
+			start_date: values.start_date,
+			end_date: values.end_date,
+			description: values.description,
+			name: class_info && class_info.name,
+		},
+		callback: (r) => {
+			if (r.message) {
+				frappe.show_alert({
+					message: class_info
+						? __("Class Updated")
+						: __("Class Created"),
+					indicator: "green",
+				});
+				this.class_dialog.hide();
+				window.location.href = `/classes/${r.message.name}`;
+			}
 		},
 	});
 };
