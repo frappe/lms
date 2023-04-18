@@ -1,7 +1,6 @@
 import frappe
 from frappe.utils.jinja import render_template
-
-from lms.lms.utils import get_instructors
+from frappe.utils import get_url
 
 
 def get_context(context):
@@ -13,32 +12,40 @@ def get_context(context):
 	except KeyError:
 		redirect_to_course_list()
 
-	context.certificate = frappe.db.get_value(
+	context.doc = frappe.db.get_value(
 		"LMS Certificate",
 		certificate_name,
 		["name", "member", "issue_date", "expiry_date", "course"],
 		as_dict=True,
 	)
 
-	if context.certificate.course != course_name:
+	if context.doc.course != course_name:
 		redirect_to_course_list()
 
 	context.course = frappe.db.get_value(
 		"LMS Course", course_name, ["title", "name", "image"], as_dict=True
 	)
-	context.instructors = (", ").join([x.full_name for x in get_instructors(course_name)])
 	context.member = frappe.db.get_value(
-		"User", context.certificate.member, ["full_name"], as_dict=True
+		"User", context.doc.member, ["full_name", "username"], as_dict=True
+	)
+	context.url = f"{get_url()}/courses/{context.course.name}/{context.doc.name}"
+
+	default_print_format = frappe.db.get_value(
+		"Property Setter",
+		{
+			"doc_type": "LMS Certificate",
+			"property": "default_print_format",
+		},
+		["value"],
+		as_dict=True,
 	)
 
-	context.logo = frappe.db.get_single_value("Website Settings", "banner_image")
-	template_name = frappe.db.get_single_value(
-		"LMS Settings", "custom_certificate_template"
+	template = frappe.db.get_value(
+		"Print Format", default_print_format.value, ["html", "css"], as_dict=True
 	)
-	context.custom_certificate_template = frappe.db.get_value(
-		"Web Template", template_name, "template"
-	)
-	context.custom_template = render_template(context.custom_certificate_template, context)
+	merged_template = "<style> " + template.css + " </style>" + template.html
+	final_template = render_template(merged_template, context)
+	context.final_template = final_template
 
 
 def redirect_to_course_list():

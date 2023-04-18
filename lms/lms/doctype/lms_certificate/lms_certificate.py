@@ -5,8 +5,6 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.utils import add_years, nowdate
-from frappe.utils.pdf import get_pdf
-
 from lms.lms.utils import is_certified
 
 
@@ -47,10 +45,3 @@ def create_certificate(course):
 		)
 		certificate.save(ignore_permissions=True)
 		return certificate
-
-
-@frappe.whitelist()
-def get_certificate_pdf(html):
-	frappe.local.response.filename = "certificate.pdf"
-	frappe.local.response.filecontent = get_pdf(html, {"orientation": "LandScape"})
-	frappe.local.response.type = "pdf"
