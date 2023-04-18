@@ -593,7 +593,7 @@ const build_attachment_table = (file_doc) => {
 };
 
 const make_editor = () => {
-	this.code_field_group = new frappe.ui.FieldGroup({
+	/* this.code_field_group = new frappe.ui.FieldGroup({
 		fields: [
 			{
 				fieldname: "code_md",
@@ -606,7 +606,7 @@ const make_editor = () => {
 	this.code_field_group.make();
 	$("#body .form-section:last").removeClass("empty-section");
 	$("#body .frappe-control").removeClass("hide-control");
-	$("#body .form-column").addClass("p-0");
+	$("#body .form-column").addClass("p-0"); */
 };
 
 const set_file_type = () => {

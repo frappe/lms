@@ -1,6 +1,7 @@
 import frappe
 
 from lms.lms.utils import get_lesson_url, get_lessons, get_membership
+from frappe.utils import cstr
 
 
 def get_common_context(context):
@@ -40,3 +41,17 @@ def redirect_to_lesson(course, index_="1.1"):
 		get_lesson_url(course.name, index_) + course.query_parameter
 	)
 	raise frappe.Redirect
+
+
+def get_current_lesson_details(lesson_number, context):
+	details_list = list(filter(lambda x: cstr(x.number) == lesson_number, context.lessons))
+
+	if not len(details_list):
+		if frappe.form_dict.get("edit"):
+			return None
+		else:
+			redirect_to_lesson(context.course)
+
+	lesson_info = details_list[0]
+	lesson_info.body = lesson_info.body.replace('"', "'")
+	return lesson_info

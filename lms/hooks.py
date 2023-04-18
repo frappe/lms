@@ -144,6 +144,10 @@ website_route_rules = [
 		"from_route": "/courses/<course>/learn/<int:chapter>.<int:lesson>",
 		"to_route": "batch/learn",
 	},
+	{
+		"from_route": "/courses/<course>/learn/<int:chapter>.<int:lesson>/edit",
+		"to_route": "batch/edit",
+	},
 	{"from_route": "/quizzes", "to_route": "batch/quiz_list"},
 	{"from_route": "/quizzes/<quizname>", "to_route": "batch/quiz"},
 	{"from_route": "/classes/<classname>", "to_route": "classes/class"},

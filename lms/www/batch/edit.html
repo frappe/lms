@@ -1,0 +1,25 @@
+{% extends "lms/templates/lms_base.html" %}
+
+{% block title %}
+{% if lesson.title %}
+{{ lesson.title }} - {{ course.title }}
+{% else %}
+{{ _("New Lesson") }}
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div>
+        <div class="">
+            <div>
+                {{ _("Title") }}
+            </div>
+            <div>
+                {{ _("Something short and concise.") }}
+            </div>
+            <input class="form-control">
+        </div>
+    </div>
+</div>
+{% endblock %}
