@@ -2,7 +2,26 @@
   --text-3-5xl: 24px;
   --text-3-8xl: 34px;
   --text-4xl: 36px;
+  --primary-color: var(--gray-900);
+  --accent-color: #0B9E92
 }
+
+.btn.btn-primary {
+	background-color: var(--primary-color);
+}
+
+.nav-link .course-list-count {
+	border-radius: var(--border-radius-md);
+	padding: 0 0.3rem;
+	font-size: var(--text-sm);
+	border: 1px solid var(--gray-600)
+}
+
+.nav-link.active .course-list-count {
+	border: 1px solid var(--primary-color)
+}
+
+
 
 body {
   background-color: #FFFFFF;
@@ -799,7 +818,7 @@ input[type=checkbox] {
 }
 
 .progress-bar {
-  background-color: var(--primary-color);
+  background-color: var(--accent-color);
 }
 
 .progress-percent {
@@ -2041,3 +2060,4 @@ select {
 .answer-indicator.failure {
 	background-color: var(--red-50);
 }
+

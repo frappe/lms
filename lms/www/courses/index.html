@@ -49,20 +49,29 @@
             <ul class="nav lms-nav" id="courses-tab">
                 <li class="nav-item">
                     <a class="nav-link active" data-toggle="tab" href="#live">
-                        {{ _("Live") }} ({{ live_courses | length }})
+                        {{ _("Live") }}
+                        <span class="course-list-count">
+                            {{ live_courses | length }}
+                        </span>
                     </a>
                 </li>
 
                 <li class="nav-item">
                     <a class="nav-link" data-toggle="tab" href="#upcoming">
-                        {{ _("Upcoming") }} ({{ upcoming_courses | length }})
+                        {{ _("Upcoming") }}
+                        <span class="course-list-count">
+                            {{ upcoming_courses | length }}
+                        </span>
                     </a>
                 </li>
 
                 {% if frappe.session.user != "Guest" %}
                 <li class="nav-item">
                     <a class="nav-link" data-toggle="tab" href="#courses-enrolled">
-                        {{ _("Enrolled") }} ({{ enrolled_courses | length }})
+                        {{ _("Enrolled") }}
+                        <span class="course-list-count">
+                            {{ enrolled_courses | length }}
+                        </span>
                     </a>
                 </li>
                 {% endif %}
@@ -70,7 +79,10 @@
                 {% if show_creators_section %}
                 <li class="nav-item">
                     <a class="nav-link" data-toggle="tab" href="#courses-created">
-                        {{ _("Created") }} ({{ created_courses | length }})
+                        {{ _("Created") }}
+                        <span class="course-list-count">
+                            {{ created_courses | length }}
+                        </span>
                     </a>
                 </li>
                 {% endif %}
@@ -78,7 +90,10 @@
                 {% if show_review_section %}
                 <li class="nav-item">
                     <a class="nav-link" data-toggle="tab" href="#courses-under-review">
-                        {{ _("Under Review") }} ({{ review_courses | length }})
+                        {{ _("Under Review") }}
+                        <span class="course-list-count">
+                            {{ review_courses | length }}
+                        </span>
                     </a>
                 </li>
                 {% endif %}
