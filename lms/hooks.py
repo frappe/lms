@@ -138,6 +138,7 @@ fixtures = ["Custom Field", "Function", "Industry"]
 website_route_rules = [
 	{"from_route": "/sketches/<sketch>", "to_route": "sketches/sketch"},
 	{"from_route": "/courses/<course>", "to_route": "courses/course"},
+	{"from_route": "/courses/<course>/edit", "to_route": "courses/create"},
 	{"from_route": "/courses/<course>/<certificate>", "to_route": "courses/certificate"},
 	{"from_route": "/courses/<course>/learn", "to_route": "batch/learn"},
 	{

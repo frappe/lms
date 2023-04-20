@@ -93,18 +93,24 @@ def get_chapters(course):
 	return chapters
 
 
-def get_lessons(course, chapter=None):
+def get_lessons(course, chapter=None, get_details=True):
 	"""If chapter is passed, returns lessons of only that chapter.
 	Else returns lessons of all chapters of the course"""
 	lessons = []
+	lesson_count = 0
 	if chapter:
-		return get_lesson_details(chapter)
+		if get_details:
+			return get_lesson_details(chapter)
+		else:
+			return frappe.db.count("Lesson Reference", {"parent": chapter.name})
 
 	for chapter in get_chapters(course):
-		lesson = get_lesson_details(chapter)
-		lessons += lesson
+		if get_details:
+			lessons += get_lesson_details(chapter)
+		else:
+			lesson_count += frappe.db.count("Lesson Reference", {"parent": chapter.name})
 
-	return lessons
+	return lessons if get_details else lesson_count
 
 
 def get_lesson_details(chapter):
