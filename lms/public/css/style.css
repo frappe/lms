@@ -2048,7 +2048,7 @@ select {
 	font-weight: 500;
 }
 
-.common-page-style .tooltip-content {
+.tooltip-content {
 	display: none;
 }
 

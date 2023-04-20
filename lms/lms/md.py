@@ -42,6 +42,7 @@ def find_macros(text):
 	if not text:
 		return []
 	macros = re.findall(MACRO_RE, text)
+	print(macros)
 	# remove the quotes around the argument
 	return [(name, _remove_quotes(arg)) for name, arg in macros]
 

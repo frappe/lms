@@ -52,3 +52,4 @@ lms.patches.v0_0.add_question_type #09-04-2023
 lms.patches.v0_0.add_evaluator_to_assignment #09-04-2023
 lms.patches.v0_0.convert_lesson_markdown_to_html #05-04-2023
 lms.patches.v0_0.convert_course_description_to_html
+execute:frappe.delete_doc("Web Form", "class", ignore_missing=True, force=True)
