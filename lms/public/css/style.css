@@ -58,8 +58,14 @@
 
 .field-input {
 	border: 1px solid var(--gray-300);
-	border-radius: var(--border-radius-sm);
-	padding: 0.5rem;
+    border-radius: var(--border-radius-md);
+    padding: 0.5rem;
+    width: 75%;
+    margin: 0.25rem 0 1rem;
+}
+
+.field-input:focus-visible {
+	outline: none;
 }
 
 .field-description {
@@ -80,6 +86,10 @@
 	border-radius: var(--border-radius-sm);
 	border: 1px solid var(--gray-300);
 	margin-top: 1rem;
+}
+
+textarea.field-input {
+	height: 300px;
 }
 
 body {
