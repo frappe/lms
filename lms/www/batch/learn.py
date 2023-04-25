@@ -27,6 +27,7 @@ def get_context(context):
 
 	context.lesson = get_current_lesson_details(lesson_number, context)
 	instructor = is_instructor(context.course.name)
+
 	context.show_lesson = (
 		context.membership
 		or (context.lesson and context.lesson.include_in_preview)

@@ -4,6 +4,7 @@
 {% if chapters | length %}
 <div class="course-home-outline">
 
+    {% if not lesson_page %}
     <div class="page-title mb-8" id="outline-heading" data-course="{{ course.name }}">
         {{ _("Course Content") }}
     </div>
@@ -16,9 +17,10 @@
             . {{ get_lessons(course.name, None, False) }} lessons
         </span>
     </div>
+    {% endif %}
 
     {% if chapters | length %}
-    <div class="common-card-style column-card p-4">
+    <div {% if not lesson_page %} class="common-card-style column-card p-4" {% endif %}>
     {% for chapter in chapters %}
     {% set lessons = get_lessons(course.name, chapter) %}
 
@@ -41,7 +43,7 @@
         <div class="chapter-content collapse navbar-collapse" id="{{ get_slugified_chapter_title(chapter.title) }}">
 
             {% if chapter.description %}
-            <div class="chapter-description ml-2 mb-2">
+            <div class="chapter-description">
                 {{ chapter.description }}
             </div>
             {% endif %}
@@ -67,8 +69,8 @@
                     <span>{{ lesson.title }}</span>
 
                     {% if membership %}
-                    <svg class="icon icon-sm lesson-progress-tick {{ get_progress(course.name, lesson.name) != 'Complete' and 'hide' }}">
-                        <use class="" href="#icon-green-check">
+                    <svg class="icon icon-md lesson-progress-tick ml-auto {{ get_progress(course.name, lesson.name) != 'Complete' and 'hide' }}">
+                        <use class="" href="#icon-success">
                     </svg>
                     {% endif %}
 

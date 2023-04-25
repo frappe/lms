@@ -1,0 +1,37 @@
+{% extends "lms/templates/lms_base.html" %}
+
+
+{% block title %}
+{{ _("Outline") }} - {{ course.title }}
+{% endblock %}
+
+{% block page_content %}
+<main class="common-page-style">
+    <div class="container">
+        {{ EmptyState() }}
+    </div>
+</main>
+{% endblock %}
+
+{% macro EmptyState() %}
+<article class="empty-state">
+    <div class="text-center">
+        <div class="bold-heading">
+            {{ _("You have not added any chapter yet") }}
+        </div>
+        <div>
+            {{ _("Create and manage your chapters from here.") }}
+        </div>
+        <div class="mt-4">
+            <button class="btn btn-default btn-sm">
+                <svg class="icon  icon-xs">
+                    <use class="" href="#icon-add"></use>
+                </svg>
+                <span>
+                    {{ _("Add Chapter") }}
+                </span>
+            </button>
+        </div>
+    </div>
+</article>
+{% endmacro %}

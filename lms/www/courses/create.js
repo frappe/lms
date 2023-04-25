@@ -1,4 +1,6 @@
 frappe.ready(() => {
+	pin_header();
+
 	$(".tags").click((e) => {
 		e.preventDefault();
 		$("#tags-input").focus();
@@ -12,16 +14,24 @@ frappe.ready(() => {
 		$(e.target).parent().parent().remove();
 	});
 
-	$("#image").change((e) => {
-		$(e.target)
-			.parent()
-			.siblings("img")
-			.addClass("image-preview")
-			.attr("src", URL.createObjectURL(e.target.files[0]));
-	});
-
 	$(".btn-save-course").click((e) => {
 		save_course(e);
+	});
+
+	if ($("#description").length) {
+		make_editor();
+	}
+
+	$("#tags-input").focus((e) => {
+		$(e.target).keypress((e) => {
+			if (e.which == 13) {
+				create_tag(e);
+			}
+		});
+	});
+
+	$(".btn-upload").click((e) => {
+		upload_file(e);
 	});
 });
 
@@ -50,11 +60,11 @@ const save_course = (e) => {
 		method: "lms.lms.doctype.lms_course.lms_course.save_course",
 		args: {
 			tags: tags.join(", "),
-			title: $("#title").text(),
-			short_introduction: $("#intro").text(),
-			video_link: $("#video-link").text(),
-			image: $("#image").attr("href"),
-			description: this.code_field_group.fields_dict["code_md"].value,
+			title: $("#title").val(),
+			short_introduction: $("#intro").val(),
+			video_link: $("#video-link").val(),
+			image: $(".image-preview").attr("src"),
+			description: this.description.fields_dict["description"].value,
 			course: $("#title").data("course")
 				? $("#title").data("course")
 				: "",
@@ -67,8 +77,54 @@ const save_course = (e) => {
 				indicator: "green",
 			});
 			setTimeout(() => {
-				window.location.href = `/courses/${data.message}?edit=1`;
+				window.location.href = `/courses/${data.message}`;
 			}, 1000);
+		},
+	});
+};
+
+const make_editor = () => {
+	this.description = new frappe.ui.FieldGroup({
+		fields: [
+			{
+				fieldname: "description",
+				fieldtype: "Text Editor",
+				default: $("#description-data").html(),
+			},
+		],
+		body: $("#description").get(0),
+	});
+	this.description.make();
+	$("#description .form-section:last").removeClass("empty-section");
+	$("#description .frappe-control").removeClass("hide-control");
+	$("#description .form-column").addClass("p-0");
+};
+
+const pin_header = () => {
+	const el = document.querySelector(".sticky");
+	const observer = new IntersectionObserver(
+		([e]) =>
+			e.target.classList.toggle("is-pinned", e.intersectionRatio < 1),
+		{ threshold: [1] }
+	);
+
+	observer.observe(el);
+};
+
+const upload_file = (e) => {
+	new frappe.ui.FileUploader({
+		disable_file_browser: true,
+		folder: "Home/Attachments",
+		make_attachments_public: true,
+		restrictions: {
+			allowed_file_types: ["image/*"],
+		},
+		on_success: (file_doc) => {
+			$(e.target)
+				.parent()
+				.siblings("img")
+				.addClass("image-preview")
+				.attr("src", file_doc.file_url);
 		},
 	});
 };

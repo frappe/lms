@@ -29,6 +29,30 @@
 	letter-spacing: 0.005em;
 }
 
+.sticky {
+	position: sticky;
+	top: -1px;
+	z-index: 1020;
+}
+
+.is-pinned {
+	background: #FFFFFF;
+	padding: 0.5rem 0;
+	border-bottom: 1px solid var(--gray-300);
+}
+
+.field-parent {
+	margin-top: 2rem;
+}
+
+.frappe-control .ql-editor:not(.read-mode) {
+	background-color: #FFFFFF;
+}
+
+.ql-toolbar.ql-snow, .ql-container.ql-snow {
+	border: 1px solid var(--gray-300);
+}
+
 .rating .icon {
 	background: var(--gray-200);
 	border-radius: var(--border-radius-md);
@@ -60,16 +84,20 @@
 	border: 1px solid var(--gray-300);
     border-radius: var(--border-radius-md);
     padding: 0.5rem;
-    width: 75%;
-    margin: 0.25rem 0 1rem;
+    width: 100%;
+    margin-top: 0.25rem;
 }
 
 .field-input:focus-visible {
 	outline: none;
 }
 
+.field-group {
+	margin-bottom: 2rem;
+}
+
 .field-description {
-	font-size: var(--text-sm);
+	font-size: var(--text-md);
 }
 
 .invisible-input {
@@ -480,7 +508,8 @@ input[type=checkbox] {
 	color: var(--gray-900);
 	display: flex;
 	align-items: center;
-	padding-bottom: 0.5rem;
+	padding-bottom: 0.25rem;
+	padding-right: 0.5rem;
 	font-size: var(--text-lg);
 }
 
@@ -491,6 +520,8 @@ input[type=checkbox] {
 .chapter-description {
 	color: var(--gray-900);
 	font-size: var(--text-sm);
+	margin-left: 0.5rem;
+	margin-bottom: 0.5rem;
 }
 
 .course-content-parent .chapter-description {
@@ -663,7 +694,7 @@ input[type=checkbox] {
 }
 
 .course-details-outline {
-  margin-top: 1rem;
+  margin-top: 2.5rem;
 }
 
 .lesson-content {
@@ -672,7 +703,7 @@ input[type=checkbox] {
 }
 
 .lesson-content-card {
-	margin-top: 2rem;
+	margin-top: 1.5rem;
 }
 
 .lesson-content-card .alert-dismissible .close {
@@ -682,7 +713,7 @@ input[type=checkbox] {
 .course-content-parent {
   display: grid;
   grid-gap: 2rem;
-  grid-template-columns: 2fr minmax(600px, 5fr);
+  grid-template-columns: 1fr 3fr;
 }
 
 @media (max-width: 1024px) {
@@ -704,16 +735,6 @@ input[type=checkbox] {
 	margin-top: 2rem
 }
 
-.lesson-pagination-parent {
-  margin-top: 1rem;
-}
-
-@media (max-width: 768px) {
-  .lesson-pagination-parent {
-	margin-left: 0px;
-  }
-}
-
 .lesson-video {
   width: 100%;
 }
@@ -721,12 +742,6 @@ input[type=checkbox] {
 .active-lesson {
   background-color: var(--gray-200);
   border-radius: var(--border-radius-md);
-}
-
-.lesson-title {
-  display: flex;
-  align-items: center;
-  margin-bottom: 1rem;
 }
 
 .profile-page {
@@ -993,12 +1008,12 @@ pre {
 }
 
 .empty-state {
-  background: var(--gray-200);
-  border-radius: var(--border-radius-lg);
-  padding: 4rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+	border: 1px solid var(--gray-300);
+	border-radius: var(--border-radius-lg);
+	padding: 4rem;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 
 .empty-state-text {
@@ -1566,14 +1581,6 @@ li {
 	line-height: 1.5;
 	color: var(--gray-900);
 	margin-bottom: 1.25rem;
-}
-
-.course-card-wide .avatar .standard-image {
-	border: 1px solid var(--gray-400);
-}
-
-.lesson-progress-tick {
-	margin: 0 0.5rem
 }
 
 .no-preview {

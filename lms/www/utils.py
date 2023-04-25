@@ -25,6 +25,7 @@ def get_common_context(context):
 	context.lessons = get_lessons(course.name)
 	membership = get_membership(course.name, frappe.session.user, batch_name)
 	context.membership = membership
+	context.progress = frappe.utils.cint(membership.progress) if membership else 0
 	context.batch = membership.batch if membership and membership.batch else None
 	context.course.query_parameter = (
 		"?batch=" + membership.batch if membership and membership.batch else ""

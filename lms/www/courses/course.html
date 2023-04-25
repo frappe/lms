@@ -12,11 +12,9 @@
             <div class="container">
                 <div class="course-body-container">
                     {{ CourseHeaderOverlay(course) }}
-                    {{ CourseSettings(course) }}
                     {{ Description(course) }}
-                    {{ Save(course) }}
                     {{ widgets.CourseOutline(course=course, membership=membership, is_user_interested=is_user_interested) }}
-                    {% if not course.edit_mode and course.status == "Approved" and not frappe.utils.cint(course.upcoming) %}
+                    {% if course.status == "Approved" and not frappe.utils.cint(course.upcoming) %}
                     {% include "lms/templates/reviews.html" %}
                     {% endif %}
                 </div>
@@ -69,6 +67,7 @@
         {% endif %}
     </div>
 
+    {% if not course.upcoming %}
     <div class="avg-rating-stars">
         <div class="rating">
             {% for i in [1, 2, 3, 4, 5] %}
@@ -78,10 +77,9 @@
             {% endfor %}
         </div>
     </div>
+    {% endif %}
 
-
-
-    <div class="mt-4">
+    <div class="mt-2">
         <div class="bold-heading">{{ _("Instructors") }}:</div>
         {% for instructor in get_instructors(course.name) %}
         <div class="mt-1">
@@ -149,8 +147,6 @@
             </div>
             {% endif %}
 
-
-
         </div>
     </div>
     {{ SlotModal(course) }}
@@ -160,53 +156,11 @@
 
 <!-- Description -->
 {% macro Description(course) %}
-    {% if course.edit_mode %}
-        {% if course.description %}
-        <div class="description-data hide">{{ course.description }}</div>
-        {% endif %}
-        <div id="description"></div>
-    {% else %}
-        <div class="course-description-section">
-            {{ frappe.utils.md_to_html(course.description) }}
-        </div>
-    {% endif %}
+<div class="course-description-section">
+    {{ course.description }}
+</div>
 {% endmacro %}
 
-
-<!-- Course Settings -->
-{% macro CourseSettings(course) %}
-
-    {% if course.edit_mode and has_course_moderator_role() %}
-    <div class="mb-4">
-        <label for="published" class="mb-0">
-            <input type="checkbox" id="published" {% if course.published %} checked {% endif %}>
-            {{ _("Published") }}
-        </label>
-        <label for="upcoming" class="mb-0 ml-20">
-            <input type="checkbox" id="upcoming" {% if course.upcoming %} checked {% endif %}>
-            {{ _("Upcoming") }}
-        </label>
-    </div>
-    {% endif %}
-
-{% endmacro %}
-
-
-<!-- Save -->
-{% macro Save(course) %}
-    {% if course.edit_mode %}
-    <div class="mb-16">
-        <button class="btn btn-primary btn-sm btn-save-course">
-            {{ _("Save Course Details") }}
-        </button>
-        {% if course.name %}
-        <a class="btn btn-secondary btn-sm btn-exit-edit ml-2" href="/courses/{{ course.name }}">
-            {{ _("Back to Course") }}
-        </a>
-        {% endif %}
-    </div>
-    {% endif %}
-{% endmacro %}
 
 
 <!-- Related Courses Section -->
@@ -250,7 +204,6 @@
 {% macro CTASection(course, membership) %}
     {% set lesson_index = get_lesson_index(membership.current_lesson) if membership and
     membership.current_lesson else "1.1" if first_lesson_exists(course.name) else None %}
-
 
     <div class="all-cta">
         {% if is_instructor(course.name) and not course.published and course.status != "Under Review" %}
@@ -310,7 +263,7 @@
 
     <div>
         {% if is_instructor(course.name) or has_course_moderator_role() %}
-        <a class="btn btn-default btn-sm pull-right ml-2" title="Edit Course" href="/courses/{{ course.name }}?edit=1">
+        <a class="btn btn-default btn-sm pull-right ml-2" title="Edit Course" href="/courses/{{ course.name }}/edit">
             <svg class="icon icon-md">
                 <use href="#icon-edit"></use>
             </svg>
