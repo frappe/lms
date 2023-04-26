@@ -120,6 +120,27 @@ textarea.field-input {
 	height: 300px;
 }
 
+.outline-lesson {
+	border-bottom: 1px solid var(--gray-300);
+	padding: 1rem 0;
+}
+
+.common-card-style .outline-lesson:last-child {
+	border-bottom: none;
+	padding-bottom: 0;
+}
+
+.level {
+	justify-content: start;
+}
+
+.icon-bg {
+	background: var(--gray-100);
+	padding: 0.5rem;
+	border-radius: var(--border-radius-md);
+	margin: 0 0.5rem;
+}
+
 body {
   background-color: #FFFFFF;
 }
