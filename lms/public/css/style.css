@@ -22,7 +22,7 @@
 }
 
 .page-title {
-	font-size: 1.5rem;
+	font-size: 1.25rem;
 	font-weight: 600;
 	color: var(--gray-900);
 	line-height: 160%;
@@ -93,7 +93,7 @@
 }
 
 .field-group {
-	margin-bottom: 2rem;
+	margin-bottom: 1.5rem;
 }
 
 .field-description {
@@ -125,9 +125,8 @@ textarea.field-input {
 	padding: 1rem 0;
 }
 
-.common-card-style .outline-lesson:last-child {
+.common-card-style .outline-lesson:last-of-type {
 	border-bottom: none;
-	padding-bottom: 0;
 }
 
 .level {
@@ -364,12 +363,12 @@ input[type=checkbox] {
 }
 
 .button-links {
-  color: var(--gray-900);
+  color: inherit;
 }
 
 .button-links:hover {
   text-decoration: none;
-  color: var(--gray-900);
+  color: inherit;
 }
 
 .icon-background {

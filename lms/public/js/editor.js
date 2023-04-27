@@ -2,9 +2,10 @@ import EditorJS from "@editorjs/editorjs";
 import Header from "@editorjs/header";
 import List from "@editorjs/list";
 
-const create_editor_for_short_description = () => {
-	let editor = new EditorJS({
-		holder: "course-description",
+let self = this;
+const create_editor_for_lesson_content = () => {
+	self.editor = new EditorJS({
+		holder: "lesson-content",
 		tools: {
 			header: {
 				class: Header,
@@ -13,3 +14,6 @@ const create_editor_for_short_description = () => {
 		},
 	});
 };
+
+create_editor_for_lesson_content();
+console.log(self.editor);

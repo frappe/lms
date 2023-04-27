@@ -1,5 +1,6 @@
 frappe.ready(() => {
 	setup_file_size();
+	pin_header();
 
 	$(".join-batch").click((e) => {
 		join_course(e);
@@ -56,6 +57,18 @@ frappe.ready(() => {
 		open_class_dialog(e);
 	});
 });
+
+const pin_header = () => {
+	const el = document.querySelector(".sticky");
+	if (el) {
+		const observer = new IntersectionObserver(
+			([e]) =>
+				e.target.classList.toggle("is-pinned", e.intersectionRatio < 1),
+			{ threshold: [1] }
+		);
+		observer.observe(el);
+	}
+};
 
 const setSortable = (el) => {
 	new Sortable(el, {

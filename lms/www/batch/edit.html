@@ -9,17 +9,56 @@
 {% endblock %}
 
 {% block content %}
-<div class="container">
-    <div>
-        <div class="">
-            <div>
-                {{ _("Title") }}
-            </div>
-            <div>
-                {{ _("Something short and concise.") }}
-            </div>
-            <input class="form-control">
+<main class="common-page-style">
+    {{ Header() }}
+    <div class="container w-75" id="course-outline" {% if course.name %} data-course="{{ course.name }}" {% endif %}>
+        {{ CreateLesson() }}
+    </div>
+</main>
+{% endblock %}
+
+
+{% macro Header() %}
+<header class="sticky">
+    <div class="container w-75">
+        <button class="btn btn-primary btn-sm pull-right mt-1" id="save-lesson">
+            <span>
+                {{ _("Save") }}
+            </span>
+        </button>
+
+        <div class="page-title">
+            {{ course.title if course.name else _("Course Outline") }}
         </div>
     </div>
-</div>
+</header>
+{% endmacro %}
+
+{% macro CreateLesson() %}
+<article class="field-parent">
+    <div class="field-group">
+        <div>
+            <div class="field-label">
+                {{ _("Title") }}
+            </div>
+            <div class="field-description">
+                {{ _("Something Short and Concise") }}
+            </div>
+        </div>
+        <div class="">
+            <input id="lesson-title" type="text" class="field-input" {% if lesson.name %} data-course="{{ lesson.name }}" value="{{ lesson.title }}" {% endif %}>
+        </div>
+    </div>
+
+    <div id="lesson-content"></div>
+
+</article>
+{% endmacro %}
+
+
+{%- block script %}
+    {{ super() }}
+    {{ include_script('controls.bundle.js') }}
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
 {% endblock %}
+

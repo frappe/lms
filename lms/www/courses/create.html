@@ -5,147 +5,155 @@
 
 {% block content %}
 <main class="common-page-style">
-
-    <header class="sticky">
-        <div class="container w-75">
-            <button class="btn btn-primary btn-sm btn-save-course pull-right mt-1">
-                {{ _("Save") }}
-            </button>
-
-            <div class="page-title"> {{ _("Course Details") }} </div>
-        </div>
-    </header>
-
+    {{ Header() }}
     <div class="container w-75">
-
-        <div class="field-parent">
-            <div class="field-group">
-                <div>
-                    <div class="field-label">
-                        {{ _("Title") }}
-                    </div>
-                    <div class="field-description">
-                        {{ _("Something Short and Concise") }}
-                    </div>
-                </div>
-                <div class="">
-                    <input id="title" type="text" class="field-input" data-course="{{ course.name }}" {% if course.title %} value="{{ course.title }}" {% endif %}>
-                </div>
-            </div>
-
-            <div class="field-group">
-                <div>
-                    <div class="field-label">
-                        {{ _("Preview Video") }}
-                    </div>
-                    <div class="field-description">
-                        {{ _("A feature video that provides a preview of the course") }}
-                    </div>
-                </div>
-                <div class="">
-                    <input id="video-link" type="text" class="field-input" {% if course.video_link %} value="{{ course.video_link }}" {% endif %}>
-                </div>
-            </div>
-
-            <div class="field-group">
-                <div>
-                    <div class="field-label">
-                        {{ _("Short Introduction") }}
-                    </div>
-                    <div class="field-description">
-                        {{ _("A one line breif description") }}
-                    </div>
-                </div>
-                <div class="">
-                    <input id="intro" type="text" class="field-input" {% if course.short_introduction %} value="{{ course.short_introduction }}" {% endif %}>
-                </div>
-            </div>
-
-            <div class="field-group">
-                <div>
-                    <div class="field-label">
-                        {{ _("Tags") }}
-                    </div>
-                    <div class="field-description">
-                        {{ _("Add suitable tags") }}
-                    </div>
-                </div>
-                <div class="tags field-input">
-                    {% for tag in get_tags(course.name) %}
-                        <button class="btn btn-secondary btn-sm mr-2 text-uppercase">
-                            {{ tag }}
-                            <span class="btn-remove">
-                                <svg class="icon  icon-sm">
-                                    <use class="" href="#icon-close"></use>
-                                </svg>
-                            </span>
-                        </button>
-                    {% endfor %}
-                    <input type="text" class="invisible-input" id="tags-input">
-                </div>
-            </div>
-
-            <div class="field-group">
-                <label for="published" class="mb-0">
-                    <input type="checkbox" id="published" {% if course.published %} checked {% endif %}>
-                    {{ _("Published") }}
-                </label>
-                <label for="upcoming" class="mb-0 ml-20">
-                    <input type="checkbox" id="upcoming" {% if course.upcoming %} checked {% endif %}>
-                    {{ _("Upcoming") }}
-                </label>
-            </div>
-
-            <div class="field-group">
-                <div>
-                    <div class="field-label">
-                        {{ _("Course Image") }}
-                    </div>
-                    <div class="field-description">
-                        {{ _("Add an appropriate image") }}
-                    </div>
-                </div>
-                <div class="">
-                    <button class="btn btn-secondary btn-sm btn-upload mt-2">
-                        {{ _("Upload Image") }}
-                    </button>
-                </div>
-                <img {% if course.image %} class="image-preview" src="{{ course.image }}" {% endif %}>
-            </div>
-
-            <div class="field-group">
-                <div>
-                    <div class="field-label">
-                        {{ _("Course Description") }}
-                    </div>
-                    <div class="field-description">
-                        {{ _("Add a detailed description") }}
-                    </div>
-                </div>
-                <div id="description" class=""></div>
-                {% if course.description %}
-                <div id="description-data" class="hide">
-                    {{ course.description }}
-                </div>
-                {% endif %}
-            </div>
-
-            <div class="field-group">
-                <div class="field-label">
-                    {{ _("Instructor") }}
-                </div>
-                <div class="mt-2">
-                    {{ widgets.Avatar(member=member, avatar_class="avatar-medium") }}
-                    <span class="ml-2">
-                        {{ member.full_name }}
-                    </span>
-                </div>
-            </div>
-
-        </div>
+        {{ CreateCourse() }}
     </div>
 </main>
 {% endblock %}
+
+
+{% macro Header() %}
+<header class="sticky">
+    <div class="container w-75">
+        <button class="btn btn-primary btn-sm btn-save-course pull-right mt-1">
+            {{ _("Save") }}
+        </button>
+
+        <div class="page-title"> {{ _("Course Details") }} </div>
+    </div>
+</header>
+{% endmacro %}
+
+
+{% macro CreateCourse() %}
+<div class="field-parent">
+    <div class="field-group">
+        <div>
+            <div class="field-label">
+                {{ _("Title") }}
+            </div>
+            <div class="field-description">
+                {{ _("Something Short and Concise") }}
+            </div>
+        </div>
+        <div class="">
+            <input id="title" type="text" class="field-input" {% if course.title %} data-course="{{ course.name }}" value="{{ course.title }}" {% endif %}>
+        </div>
+    </div>
+
+    <div class="field-group">
+        <div>
+            <div class="field-label">
+                {{ _("Preview Video") }}
+            </div>
+            <div class="field-description">
+                {{ _("A feature video that provides a preview of the course") }}
+            </div>
+        </div>
+        <div class="">
+            <input id="video-link" type="text" class="field-input" {% if course.video_link %} value="{{ course.video_link }}" {% endif %}>
+        </div>
+    </div>
+
+    <div class="field-group">
+        <div>
+            <div class="field-label">
+                {{ _("Short Introduction") }}
+            </div>
+            <div class="field-description">
+                {{ _("A one line breif description") }}
+            </div>
+        </div>
+        <div class="">
+            <input id="intro" type="text" class="field-input" {% if course.short_introduction %} value="{{ course.short_introduction }}" {% endif %}>
+        </div>
+    </div>
+
+    <div class="field-group">
+        <div>
+            <div class="field-label">
+                {{ _("Tags") }}
+            </div>
+            <div class="field-description">
+                {{ _("Add suitable tags") }}
+            </div>
+        </div>
+        <div class="tags field-input">
+            {% for tag in get_tags(course.name) %}
+                <button class="btn btn-secondary btn-sm mr-2 text-uppercase">
+                    {{ tag }}
+                    <span class="btn-remove">
+                        <svg class="icon  icon-sm">
+                            <use class="" href="#icon-close"></use>
+                        </svg>
+                    </span>
+                </button>
+            {% endfor %}
+            <input type="text" class="invisible-input" id="tags-input">
+        </div>
+    </div>
+
+    <div class="field-group">
+        <label for="published" class="mb-0">
+            <input type="checkbox" id="published" {% if course.published %} checked {% endif %}>
+            {{ _("Published") }}
+        </label>
+        <label for="upcoming" class="mb-0 ml-20">
+            <input type="checkbox" id="upcoming" {% if course.upcoming %} checked {% endif %}>
+            {{ _("Upcoming") }}
+        </label>
+    </div>
+
+    <div class="field-group">
+        <div>
+            <div class="field-label">
+                {{ _("Course Image") }}
+            </div>
+            <div class="field-description">
+                {{ _("Add an appropriate image") }}
+            </div>
+        </div>
+        <div class="">
+            <button class="btn btn-secondary btn-sm btn-upload mt-2">
+                {{ _("Upload Image") }}
+            </button>
+        </div>
+        <img {% if course.image %} class="image-preview" src="{{ course.image }}" {% endif %}>
+    </div>
+
+    <div class="field-group">
+        <div>
+            <div class="field-label">
+                {{ _("Course Description") }}
+            </div>
+            <div class="field-description">
+                {{ _("Add a detailed description") }}
+            </div>
+        </div>
+        <div id="description" class=""></div>
+        {% if course.description %}
+        <div id="description-data" class="hide">
+            {{ course.description }}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="field-group">
+        <div class="field-label">
+            {{ _("Instructor") }}
+        </div>
+        <div class="mt-2">
+            {{ widgets.Avatar(member=member, avatar_class="avatar-medium") }}
+            <span class="ml-2">
+                {{ member.full_name }}
+            </span>
+        </div>
+    </div>
+
+</div>
+{% endmacro %}
+
 
 {%- block script %}
     {{ super() }}

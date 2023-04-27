@@ -7,4 +7,4 @@ def get_context(context):
 	chapter_index = frappe.form_dict.get("chapter")
 	lesson_index = frappe.form_dict.get("lesson")
 	lesson_number = f"{chapter_index}.{lesson_index}"
-	context.lesson = get_current_lesson_details(lesson_number, context)
+	context.lesson = get_current_lesson_details(lesson_number, context, True)

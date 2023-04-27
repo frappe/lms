@@ -44,11 +44,11 @@ def redirect_to_lesson(course, index_="1.1"):
 	raise frappe.Redirect
 
 
-def get_current_lesson_details(lesson_number, context):
+def get_current_lesson_details(lesson_number, context, is_edit=False):
 	details_list = list(filter(lambda x: cstr(x.number) == lesson_number, context.lessons))
 
 	if not len(details_list):
-		if frappe.form_dict.get("edit"):
+		if is_edit:
 			return None
 		else:
 			redirect_to_lesson(context.course)

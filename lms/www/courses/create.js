@@ -1,6 +1,4 @@
 frappe.ready(() => {
-	pin_header();
-
 	$(".tags").click((e) => {
 		e.preventDefault();
 		$("#tags-input").focus();
@@ -94,21 +92,12 @@ const make_editor = () => {
 		],
 		body: $("#description").get(0),
 	});
+	console.log(this.description);
 	this.description.make();
+	console.log(this.description);
 	$("#description .form-section:last").removeClass("empty-section");
 	$("#description .frappe-control").removeClass("hide-control");
 	$("#description .form-column").addClass("p-0");
-};
-
-const pin_header = () => {
-	const el = document.querySelector(".sticky");
-	const observer = new IntersectionObserver(
-		([e]) =>
-			e.target.classList.toggle("is-pinned", e.intersectionRatio < 1),
-		{ threshold: [1] }
-	);
-
-	observer.observe(el);
 };
 
 const upload_file = (e) => {

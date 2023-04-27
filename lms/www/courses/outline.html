@@ -7,102 +7,150 @@
 
 {% block page_content %}
 <main class="common-page-style">
-
-    <header class="sticky">
-        <div class="container w-75">
-            <button class="btn btn-primary btn-sm btn-save-course pull-right mt-1">
-                {{ _("Save") }}
-            </button>
-
-            <div class="page-title"> {{ _("Course Outline") }} </div>
-        </div>
-    </header>
-
-    <div class="container w-75">
-        {{ Outline(chapters) }}
+    {{ Header() }}
+    <div class="container w-75" id="course-outline" {% if course.name %} data-course="{{ course.name }}" {% endif %}>
+        {% if chapters | length %}
+            {{ Outline(chapters) }}
+        {% else %}
+            {{ EmptyState() }}
+        {% endif %}
         {{ CreateChapter() }}
-        {{ EmptyState() }}
     </div>
 </main>
 {% endblock %}
 
-{% macro Outline(chapters) %}
-{% if chapters %}
-{% for chapter in chapters %}
-<article>
-    <div class="common-card-style column-card p-4 mb-5">
-        <div class="level">
-            <svg class="icon icon-xs level-item mr-2">
-                <use class="" href="#icon-drag"></use>
-            </svg>
-            <div class="bold-heading">
-                {{ chapter.title }}
-            </div>
-        </div>
 
-        {% for lesson in get_lessons(course.name, chapter) %}
-        <div class="outline-lesson level">
-            <svg class="icon icon-xs level-item mr-2">
-                <use class="" href="#icon-drag"></use>
-            </svg>
-            <!-- <div class="icon-bg">
-                <svg class="icon icon-sm level-item">
-                    <use class="" href="#{{ lesson.icon }}">
-                </svg>
-            </div> -->
-            <div class="">
-                {{ lesson.title }}
-            </div>
-        </div>
-        {% endfor %}
-
-        <button class="btn btn-default btn-sm align-self-start">
-            <svg class="icon  icon-xs">
-                <use class="" href="#icon-add"></use>
-            </svg>
+{% macro Header() %}
+<header class="sticky">
+    <div class="container w-75">
+        <button class="btn btn-primary btn-sm pull-right mt-1" id="add-chapter">
             <span>
-                {{ _("Add Lesson") }}
+                {{ _("Add Chapter") }}
             </span>
         </button>
+
+        <div class="page-title">
+            {{ course.title if course.name else _("Course Outline") }}
+        </div>
     </div>
-</article>
-{% endfor %}
-{% endif %}
+</header>
+{% endmacro %}
+
+
+{% macro Outline(chapters) %}
+    {% if chapters %}
+        {% for chapter in chapters %}
+        {% set chapter_index = loop.index %}
+        {% set lessons = get_lessons(course.name, chapter) %}
+        <article>
+            <div class="common-card-style column-card chapter-container p-4 my-5" data-chapter="{{ chapter.name }}" data-idx="{{ loop.index }}">
+                <div class="level">
+                    <svg class="icon icon-xs level-item mr-2">
+                        <use class="" href="#icon-drag"></use>
+                    </svg>
+                    <div class="bold-heading chapters-title">
+                        {{ chapter.title }}
+                    </div>
+                </div>
+                <div class="mb-2 ml-5 chapter-description">
+                    {{ chapter.description }}
+                </div>
+
+                {% for lesson in lessons %}
+                    <div class="outline-lesson level">
+                        <svg class="icon icon-xs level-item mr-2">
+                            <use class="" href="#icon-drag"></use>
+                        </svg>
+                        <!-- <div class="icon-bg">
+                            <svg class="icon icon-sm level-item">
+                                <use class="" href="#{{ lesson.icon }}">
+                            </svg>
+                        </div> -->
+                        <a class="button-links" href="/courses/{{ course.name }}/learn/{{ chapter_index }}.{{ loop.index }}/edit">
+                            {{ lesson.title }}
+                        </a>
+                    </div>
+                {% endfor %}
+
+                <div class="align-self-start mt-4">
+                    <a class="btn btn-secondary btn-sm" href="/courses/{{ course.name }}/learn/{{ loop.index }}.{{ lessons | length + 1 }}/edit">
+                        <span>
+                            {{ _("Add Lesson") }}
+                        </span>
+                    </a>
+                    <button class="btn btn-secondary btn-sm ml-2 edit-chapter">
+                        <span>
+                            {{ _("Edit") }}
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </article>
+        {% endfor %}
+    {% endif %}
+
 {% endmacro %}
 
 
 {% macro CreateChapter() %}
-<article>
-    <div class="common-card-style column-card p-4">
-        <div class="field-group">
-            <div>
-                <div class="field-label">
-                    {{ _("Chapter Title") }}
-                </div>
-                <div class="field-description">
-                    {{ _("Something Short and Concise") }}
-                </div>
+<div class="modal fade chapter-modal" id="chapter-modal" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">{{ _("New Chapter") }}</div>
             </div>
-            <div class="">
-                <input id="chapter-title" type="text" class="field-input">
-            </div>
-        </div>
 
-        <div class="field-group">
-            <div>
-                <div class="field-label">
-                    {{ _("Short Description") }}
-                </div>
-                <div class="field-description">
-                    {{ _("A breif description about this chapter.") }}
-                </div>
+
+            <div class="modal-body">
+                <article id="create-chapter">
+                    <div class="chapter-container">
+
+                        <div class="field-group">
+                            <div>
+                                <div class="field-label">
+                                    {{ _("Chapter Title") }}
+                                </div>
+                                <div class="field-description">
+                                    {{ _("Something Short and Concise") }}
+                                </div>
+                            </div>
+                            <div class="">
+                                <input id="chapter-title" type="text" class="field-input">
+                            </div>
+                        </div>
+
+                        <div class="field-group">
+                            <div>
+                                <div class="field-label">
+                                    {{ _("Short Description") }}
+                                </div>
+                                <div class="field-description">
+                                    {{ _("A breif description about this chapter.") }}
+                                </div>
+                            </div>
+                            <div class="">
+                                <input id="chapter-description" type="text" class="field-input">
+                            </div>
+                        </div>
+
+                    </div>
+                </article>
             </div>
-            <div class="">
-                <input id="chapter-description" type="text" class="field-input">
+
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary btn-sm mr-2" data-dismiss="modal" aria-label="Close">
+                    {{ _("Discard") }}
+                </button>
+
+                <button class="btn btn-primary btn-sm align-self-start" id="save-chapter">
+                    {{ _("Save") }}
+                </button>
             </div>
         </div>
     </div>
-</article>
+</div>
 {% endmacro %}
 
 
