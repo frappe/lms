@@ -1989,8 +1989,8 @@ select {
 	display: flex;
 	flex-direction: column;
     border-radius: 0.75rem;
-    /* border: 1px solid var(--gray-200); */
-	box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-300);
+	/* box-shadow: var(--shadow-sm); */
     padding: 0.5rem;
 	height: 100%;
 	position: relative;

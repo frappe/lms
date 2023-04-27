@@ -12,8 +12,8 @@
 		</button>
 		{% endif %}
 		<div class="course-home-headings"> {{ _("All Classes") }} </div>
-		{% if classes %}
-		{{ ClassCards(classes) }}
+		{% if past_classes | length or upcoming_classes | length %}
+		{{ ClassTabs(past_classes, upcoming_classes) }}
 		{% else %}
 		<div class="empty-state">
 			<img class="icon icon-xl" src="/assets/lms/icons/comment.svg">
@@ -27,15 +27,38 @@
 </div>
 {% endblock %}
 
-{%- block script %}
-    {{ super() }}
-    {{ include_script('controls.bundle.js') }}
-	{% if is_moderator %}
-	<script>
-		let class_info = null;
-	</script>
-	{% endif %}
-{% endblock %}
+{% macro ClassTabs(past_classes, upcoming_classes) %}
+<article>
+	<ul class="nav lms-nav" id="courses-tab">
+
+		<li class="nav-item">
+			<a class="nav-link active" data-toggle="tab" href="#upcoming">
+				{{ _("Upcoming") }} ({{ upcoming_classes | length }})
+			</a>
+		</li>
+
+		<li class="nav-item">
+			<a class="nav-link" data-toggle="tab" href="#past">
+				{{ _("Past Classes") }} ({{ past_classes | length }})
+			</a>
+		</li>
+
+	</ul>
+
+	<div class="border-bottom mb-4"></div>
+
+	<div class="tab-content">
+		<div class="tab-pane active" id="upcoming" role="tabpanel" aria-labelledby="upcoming">
+			{{ ClassCards(upcoming_classes) }}
+		</div>
+
+		<div class="tab-pane" id="past" role="tabpanel" aria-labelledby="past">
+			{{ ClassCards(past_classes) }}
+		</div>
+
+	</div>
+</article>
+{% endmacro %}
 
 {% macro ClassCards(classes) %}
 <div class="lms-card-parent">
@@ -79,3 +102,13 @@
 	{% endfor %}
 </div>
 {% endmacro %}
+
+{%- block script %}
+    {{ super() }}
+    {{ include_script('controls.bundle.js') }}
+	{% if is_moderator %}
+	<script>
+		let class_info = null;
+	</script>
+	{% endif %}
+{% endblock %}

@@ -1,22 +1,14 @@
 frappe.ready(() => {
-	$("#submit-student").click((e) => {
-		submit_student(e);
+	$(".btn-add-student").click((e) => {
+		show_student_modal(e);
 	});
 
 	$(".remove-student").click((e) => {
 		remove_student(e);
 	});
 
-	$(".class-course").click((e) => {
-		update_course(e);
-	});
-
 	if ($("#live-class-form").length) {
 		make_live_class_form();
-	}
-
-	if ($(".add-students").length) {
-		make_add_students_section();
 	}
 
 	$("#open-class-modal").click((e) => {
@@ -26,6 +18,14 @@ frappe.ready(() => {
 
 	$("#create-live-class").click((e) => {
 		create_live_class(e);
+	});
+
+	$(".btn-add-course").click((e) => {
+		show_course_modal(e);
+	});
+
+	$(".btn-remove-course").click((e) => {
+		remove_course(e);
 	});
 });
 
@@ -75,17 +75,6 @@ const remove_student = (e) => {
 			});
 		}
 	);
-};
-
-const update_course = (e) => {
-	frappe.call({
-		method: "lms.lms.doctype.lms_class.lms_class.update_course",
-		args: {
-			course: $(e.currentTarget).data("course"),
-			value: $(e.currentTarget).children("input").prop("checked") ? 1 : 0,
-			class_name: $(".class-details").data("class"),
-		},
-	});
 };
 
 const create_live_class = (e) => {
@@ -352,4 +341,111 @@ const make_add_students_section = () => {
 	this.field_group.make();
 	$(".add-students .form-section:last").removeClass("empty-section");
 	$(".add-students .frappe-control").removeClass("hide-control");
+};
+
+const show_course_modal = () => {
+	let course_modal = new frappe.ui.Dialog({
+		title: "Add Course",
+		fields: [
+			{
+				fieldtype: "Link",
+				options: "LMS Course",
+				label: __("Course"),
+				fieldname: "course",
+				reqd: 1,
+			},
+		],
+		primary_action_label: __("Add"),
+		primary_action(values) {
+			frappe.call({
+				method: "frappe.client.insert",
+				args: {
+					doc: {
+						doctype: "Class Course",
+						course: values.course,
+						parenttype: "LMS Class",
+						parentfield: "courses",
+						parent: $(".class-details").data("class"),
+					},
+				},
+				callback(r) {
+					frappe.show_alert(
+						{
+							message: __("Course Added"),
+							indicator: "green",
+						},
+						3
+					);
+					window.location.reload();
+				},
+			});
+			course_modal.hide();
+		},
+	});
+	course_modal.show();
+};
+
+const remove_course = (e) => {
+	frappe.call({
+		method: "lms.lms.doctype.lms_class.lms_class.remove_course",
+		args: {
+			course: $(e.target).data("course"),
+			parent: $(".class-details").data("class"),
+		},
+		callback(r) {
+			frappe.show_alert(
+				{
+					message: __("Course Removed"),
+					indicator: "green",
+				},
+				3
+			);
+			window.location.reload();
+		},
+	});
+};
+
+const show_student_modal = () => {
+	let student_modal = new frappe.ui.Dialog({
+		title: "Add Student",
+		fields: [
+			{
+				fieldtype: "Link",
+				options: "User",
+				label: __("Student"),
+				fieldname: "student",
+				reqd: 1,
+				filters: {
+					ignore_user_type: 1,
+				},
+			},
+		],
+		primary_action_label: __("Add"),
+		primary_action(values) {
+			frappe.call({
+				method: "frappe.client.insert",
+				args: {
+					doc: {
+						doctype: "Class Student",
+						student: values.student,
+						parenttype: "LMS Class",
+						parentfield: "students",
+						parent: $(".class-details").data("class"),
+					},
+				},
+				callback(r) {
+					frappe.show_alert(
+						{
+							message: __("Student Added"),
+							indicator: "green",
+						},
+						3
+					);
+					window.location.reload();
+				},
+			});
+			student_modal.hide();
+		},
+	});
+	student_modal.show();
 };

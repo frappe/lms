@@ -22,7 +22,7 @@ def get_context(context):
 	)
 
 	context.class_courses = frappe.get_all(
-		"Class Course", {"parent": class_name}, pluck="course"
+		"Class Course", {"parent": class_name}, ["name", "course", "title"]
 	)
 
 	class_students = frappe.get_all(

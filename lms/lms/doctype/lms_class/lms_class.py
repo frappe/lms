@@ -73,21 +73,8 @@ def remove_student(student, class_name):
 
 
 @frappe.whitelist()
-def update_course(class_name, course, value):
-	if cint(value):
-		doc = frappe.get_doc(
-			{
-				"doctype": "Class Course",
-				"parent": class_name,
-				"course": course,
-				"parenttype": "LMS Class",
-				"parentfield": "courses",
-			}
-		)
-		doc.save()
-	else:
-		frappe.db.delete("Class Course", {"parent": class_name, "course": course})
-	return True
+def remove_course(course, parent):
+	frappe.db.delete("Class Course", {"name": course, "parent": parent})
 
 
 @frappe.whitelist()
