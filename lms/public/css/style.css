@@ -140,6 +140,26 @@ textarea.field-input {
 	margin: 0 0.5rem;
 }
 
+.quiz-modal {
+	min-height: 500px;
+}
+
+.ce-block__content {
+    max-width: 100%;
+    padding: 0 0.5rem;
+    margin: 0;
+}
+
+.ce-toolbar__content {
+	position: unset;
+}
+
+.lesson-editor {
+	border: 1px solid var(--gray-300);
+    border-radius: var(--border-radius-md);
+    padding-top: 0.5rem;
+}
+
 body {
   background-color: #FFFFFF;
 }
@@ -732,7 +752,7 @@ input[type=checkbox] {
 
 .course-content-parent {
   display: grid;
-  grid-gap: 2rem;
+  grid-gap: 4rem;
   grid-template-columns: 1fr 3fr;
 }
 

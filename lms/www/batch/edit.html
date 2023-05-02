@@ -50,7 +50,18 @@
         </div>
     </div>
 
-    <div id="lesson-content"></div>
+    <div class="field-group">
+        <div>
+            <div class="field-label">
+                {{ _("Content") }}
+            </div>
+            <div class="field-description">
+                {{ _("Add your lesson content here") }}
+            </div>
+        </div>
+        <div id="lesson-content" class="lesson-editor"></div>
+    </div>
+
 
 </article>
 {% endmacro %}
@@ -58,6 +69,21 @@
 
 {%- block script %}
     {{ super() }}
+    {% if is_moderator %}
+	<script>
+		frappe.boot.user = {
+			"can_create": [],
+			"can_select": ["LMS Quiz"],
+			"can_read": ["LMS Quiz"]
+		};
+
+		frappe.router = {
+			slug (name) {
+				return name.toLowerCase().replace(/ /g, "-");
+			}
+		}
+	</script>
+	{% endif %}
     {{ include_script('controls.bundle.js') }}
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
 {% endblock %}
