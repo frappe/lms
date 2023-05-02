@@ -2,25 +2,70 @@
 {% block title %} {{ member.full_name }} - {{ course.title }} {% endblock %}
 
 {% block content %}
-<div class="common-page-style">
-  <div class="container certificate-page">
-
-    {% if certificate.member == frappe.session.user %}
-    <div class="button is-secondary pull-right" id="export-as-pdf" data-certificate="{{ certificate.name }}"
-        data-certificate-name="{{ member.full_name }} - {{ course.title }}">{{ _("Export") }}</div>
-    {% endif %}
+<div class="common-page-style lms-page-style">
+  <div class="container">
 
     <div class="breadcrumb">
         <a class="dark-links" href="/courses">{{ _("All Courses") }}</a>
         <img class="ml-1 mr-1" src="/assets/lms/icons/chevron-right.svg">
         <a class="dark-links" href="/courses/{{ course.name }}">{{ course.title }}</a>
     </div>
-    {% if custom_template %}
-        {{ custom_template }}
-    {% else %}
-        {% include "lms/templates/certificate.html" %}
-    {% endif %}
-    <script src="/assets/lms/js/html2canvas.js"></script>
+
+    <div class="certificate-parent">
+
+      <div>
+        {{ final_template }}
+      </div>
+
+      <div>
+
+        {% if doc.member == frappe.session.user %}
+        <div class="">
+          <a class="btn btn-default btn-sm" target="_blank" href="/api/method/frappe.utils.print_format.download_pdf?doctype=LMS%20Certificate&name={{ doc.name }}&_lang=en">
+            {{ _("Download") }}
+          </a>
+
+          <!-- <a class="btn btn-default btn-sm ml-2" target="_blank" href="https://www.linkedin.com/sharing/share-offsite?url={{ url | urlencode }}">
+            {{ _("Share") }}
+          </a> -->
+        </div>
+        {% endif %}
+
+        <div class="card-heading mt-4">
+          {{ _("Certificate Recipient") }}:
+        </div>
+
+        <div class="certificate-recipient">
+          {{ widgets.Avatar(member=member, avatar_class="avatar-small") }}
+          <span class="ml-2">
+            {{ member.full_name }}
+          </span>
+        </div>
+
+        <div class="card-heading mt-4">
+          {{ _("Issued On") }}:
+        </div>
+
+        <div>
+          {{ frappe.utils.format_date(doc.issue_date, "medium") }}
+        </div>
+
+        <div class="card-heading mt-4">
+          {{ _("About the Course") }}:
+        </div>
+
+        <div>
+          {{ course.title }}
+        </div>
+
+
+
+
+
+      </div>
+    </div>
+
+
 
   </div>
 </div>
