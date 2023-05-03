@@ -46,7 +46,7 @@
             </div>
         </div>
         <div class="">
-            <input id="lesson-title" type="text" class="field-input" {% if lesson.name %} data-course="{{ lesson.name }}" value="{{ lesson.title }}" {% endif %}>
+            <input id="lesson-title" type="text" class="field-input" data-index="{{ lesson_index }}" data-chapter="{{ chapter }}" data-course="{{ lesson.name }}" {% if lesson.name %} data-lesson="{{ lesson.name }}"  value="{{ lesson.title }}" {% endif %}>
         </div>
     </div>
 
@@ -60,6 +60,9 @@
             </div>
         </div>
         <div id="lesson-content" class="lesson-editor"></div>
+        {% if lesson.body %}
+        <div id="current-lesson-content" class="hide">{{ lesson.body }}</div>
+        {% endif %}
     </div>
 
 
@@ -86,5 +89,7 @@
 	{% endif %}
     {{ include_script('controls.bundle.js') }}
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/paragraph@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/header@latest"></script>
 {% endblock %}
 

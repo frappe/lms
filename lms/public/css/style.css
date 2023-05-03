@@ -121,8 +121,7 @@ textarea.field-input {
 }
 
 .outline-lesson {
-	border-bottom: 1px solid var(--gray-300);
-	padding: 1rem 0;
+	padding: 0.5rem 0;
 }
 
 .common-card-style .outline-lesson:last-of-type {
@@ -158,6 +157,12 @@ textarea.field-input {
 	border: 1px solid var(--gray-300);
     border-radius: var(--border-radius-md);
     padding-top: 0.5rem;
+}
+
+.lesson-parent .breadcrumb {
+	border-bottom: 1px solid var(--gray-300);
+	margin-bottom: 2rem;
+	padding-bottom: 1rem;
 }
 
 body {
@@ -764,15 +769,12 @@ input[type=checkbox] {
 }
 
 .course-content-parent .course-home-headings {
-	margin: 0 0 1rem;
+	margin: 0 0 0.5rem;
 	width: 100%;
 }
 
 .lesson-pagination {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	margin-top: 2rem
+	margin: 2rem 0;
 }
 
 .lesson-video {
@@ -937,7 +939,7 @@ input[type=checkbox] {
 }
 
 .progress-bar {
-  background-color: var(--accent-color);
+  background-color: var(--primary-color);
 }
 
 .progress-percent {

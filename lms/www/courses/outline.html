@@ -52,9 +52,12 @@
                         {{ chapter.title }}
                     </div>
                 </div>
+
+                {% if chapter.description %}
                 <div class="mb-2 ml-5 chapter-description">
                     {{ chapter.description }}
                 </div>
+                {% endif %}
 
                 {% for lesson in lessons %}
                     <div class="outline-lesson level">

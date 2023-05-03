@@ -42,7 +42,7 @@
                     {{ widgets.CourseOutline(course=course, membership=membership, lesson_page=True) }}
                 </div>
             </div>
-            <div class="lesson-pagination-parent">
+            <div class="lesson-parent">
                 {{ BreadCrumb(course, lesson) }}
                 {{ LessonContent(lesson) }}
                 {% if course.status == "Approved" and not course.upcoming %}
@@ -85,7 +85,7 @@
             {% endif %}
         </div>
 
-        <div class="page-title title {% if membership %} is-member {% endif %}
+        <div class="course-home-headings title {% if membership %} is-member {% endif %}
             {% if membership or is_instructor %} eligible-for-submission {% endif %}" id="title"
             data-index="{{ lesson_index }}" data-course="{{ course.name }}" data-chapter="{{ chapter }}"
             {% if lesson.name %} data-lesson="{{ lesson.name }}" {% endif %}
@@ -155,19 +155,15 @@
     {% if prev_url or next_url %}
     <div class="lesson-pagination">
         {% if prev_url %}
-        <div>
-            <a class="btn btn-secondary btn-sm prev" href="{{ prev_url }}">
-                {{ _("Previous") }}
-            </a>
-        </div>
+        <a class="btn btn-secondary btn-sm prev" href="{{ prev_url }}">
+            {{ _("Previous Lesson") }}
+        </a>
         {% endif %}
 
         {% if next_url %}
-        <div>
-            <a class="btn btn-primary btn-sm next ml-2 " href="{{ next_url }}">
-                {{ _("Next") }}
-            </a>
-        </div>
+        <a class="btn btn-primary btn-sm next pull-right" href="{{ next_url }}">
+            {{ _("Next Lesson") }}
+        </a>
         {% endif %}
     </div>
     {% endif %}
