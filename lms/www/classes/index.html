@@ -68,11 +68,7 @@
 
 	<div class="lms-card">
 
-		<div class="lms-card-title">
-			{{ class.title }}
-		</div>
-
-		<div class="text-muted small mb-4">
+		<div class="text-muted small mb-2">
 			{% if course_count %}
 			<span class="mr-3">
 				{{ course_count }} {{ _("Courses") }}
@@ -84,6 +80,16 @@
 				{{ student_count }} {{ _("Students") }}
 			</span>
 			{% endif %}
+
+			{% if class.seats_left %}
+			<span class="indicator-pill yellow pull-right">
+				{{ class.seats_left }} {{ _("seats left") }}
+			</span>
+			{% endif  %}
+		</div>
+
+		<div class="lms-card-title mb-4">
+			{{ class.title }}
 		</div>
 
 		<div class="">
@@ -97,6 +103,13 @@
 				{{ frappe.utils.format_date(class.end_date, "long") }}
 			</span>
 		</div>
+
+		{% if class.paid_class and class.start_date > frappe.utils.getdate() %}
+		<a class="btn btn-secondary btn-sm mt-4">
+			{{ _("Register") }}
+		</a>
+		{% endif  %}
+
 		<a class="stretched-link" href="/classes/{{ class.name }}"></a>
 	</div>
 	{% endfor %}
