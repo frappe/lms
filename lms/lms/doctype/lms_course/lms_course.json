@@ -57,7 +57,7 @@
   },
   {
    "fieldname": "description",
-   "fieldtype": "Text Editor",
+   "fieldtype": "Markdown Editor",
    "label": "Description",
    "reqd": 1
   },
@@ -260,7 +260,7 @@
   }
  ],
  "make_attachments_public": 1,
- "modified": "2023-02-23 09:45:54.826328",
+ "modified": "2023-05-02 09:45:54.826328",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",
