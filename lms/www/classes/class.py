@@ -21,6 +21,8 @@ def get_context(context):
 			"description",
 			"custom_component",
 			"seat_count",
+			"start_time",
+			"end_time",
 		],
 		as_dict=True,
 	)
