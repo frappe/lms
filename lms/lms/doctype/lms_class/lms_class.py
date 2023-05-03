@@ -12,6 +12,8 @@ import json
 
 class LMSClass(Document):
 	def validate(self):
+		if self.seat_count:
+			self.validate_seats_left()
 		self.validate_duplicate_students()
 		self.validate_membership()
 
@@ -35,6 +37,10 @@ class LMSClass(Document):
 				}
 				if not frappe.db.exists(filters):
 					frappe.get_doc(filters).save()
+
+	def validate_seats_left(self):
+		if self.seat_count < len(self.students):
+			frappe.throw(_("There are no seats available in this class."))
 
 
 @frappe.whitelist()
