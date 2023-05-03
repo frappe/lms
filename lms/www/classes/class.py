@@ -13,7 +13,15 @@ def get_context(context):
 	context.class_info = frappe.db.get_value(
 		"LMS Class",
 		class_name,
-		["name", "title", "start_date", "end_date", "description", "custom_component"],
+		[
+			"name",
+			"title",
+			"start_date",
+			"end_date",
+			"description",
+			"custom_component",
+			"seat_count",
+		],
 		as_dict=True,
 	)
 

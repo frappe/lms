@@ -416,6 +416,12 @@ const open_class_dialog = (e) => {
 				default: class_info && class_info.end_date,
 			},
 			{
+				fieldtype: "Int",
+				label: __("Seat Count"),
+				fieldname: "seat_count",
+				default: class_info && class_info.seat_count,
+			},
+			{
 				fieldtype: "Small Text",
 				label: __("Description"),
 				fieldname: "description",
@@ -438,6 +444,7 @@ const create_class = (values) => {
 			start_date: values.start_date,
 			end_date: values.end_date,
 			description: values.description,
+			seat_count: values.seat_count,
 			name: class_info && class_info.name,
 		},
 		callback: (r) => {
