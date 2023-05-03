@@ -13,8 +13,10 @@
   "end_date",
   "column_break_4",
   "seat_count",
-  "description",
+  "start_time",
+  "end_time",
   "section_break_6",
+  "description",
   "students",
   "courses",
   "custom_component"
@@ -77,11 +79,21 @@
    "fieldname": "seat_count",
    "fieldtype": "Int",
    "label": "Seat Count"
+  },
+  {
+   "fieldname": "start_time",
+   "fieldtype": "Time",
+   "label": "Start Time"
+  },
+  {
+   "fieldname": "end_time",
+   "fieldtype": "Time",
+   "label": "End Time"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-05-03 20:57:22.579068",
+ "modified": "2023-05-03 23:07:06.725720",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Class",

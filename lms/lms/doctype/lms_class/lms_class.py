@@ -167,7 +167,14 @@ def authenticate():
 
 @frappe.whitelist()
 def create_class(
-	title, start_date, end_date, description=None, seat_count=0, name=None
+	title,
+	start_date,
+	end_date,
+	description=None,
+	seat_count=0,
+	start_time=None,
+	end_time=None,
+	name=None,
 ):
 	if name:
 		class_details = frappe.get_doc("LMS Class", name)
@@ -181,6 +188,8 @@ def create_class(
 			"end_date": end_date,
 			"description": description,
 			"seat_count": seat_count,
+			"start_time": start_time,
+			"end_time": end_time,
 		}
 	)
 	class_details.save()
