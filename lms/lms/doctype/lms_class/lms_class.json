@@ -12,8 +12,11 @@
   "start_date",
   "end_date",
   "column_break_4",
-  "description",
+  "seat_count",
+  "start_time",
+  "end_time",
   "section_break_6",
+  "description",
   "students",
   "courses",
   "custom_component"
@@ -71,11 +74,26 @@
    "fieldtype": "Code",
    "label": "Custom Component",
    "options": "HTML"
+  },
+  {
+   "fieldname": "seat_count",
+   "fieldtype": "Int",
+   "label": "Seat Count"
+  },
+  {
+   "fieldname": "start_time",
+   "fieldtype": "Time",
+   "label": "Start Time"
+  },
+  {
+   "fieldname": "end_time",
+   "fieldtype": "Time",
+   "label": "End Time"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-03-02 22:47:13.139289",
+ "modified": "2023-05-03 23:07:06.725720",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Class",
