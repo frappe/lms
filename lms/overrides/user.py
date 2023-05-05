@@ -300,7 +300,7 @@ def on_session_creation(login_manager):
 		frappe.local.response["home_page"] = "/courses"
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def search_users(start=0, text=""):
 	or_filters = get_or_filters(text)
 	count = len(get_users(or_filters, 0, 900000000, text))
