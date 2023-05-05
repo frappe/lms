@@ -78,10 +78,6 @@ frappe.ready(() => {
 		mark_active_question();
 	});
 
-	$(".btn-edit").click((e) => {
-		window.location.href = `${window.location.href}?edit=1`;
-	});
-
 	$(".btn-back").click((e) => {
 		window.location.href = window.location.href.split("?")[0];
 	});

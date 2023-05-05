@@ -8,7 +8,7 @@
 {% block page_content %}
 <main class="common-page-style">
     {{ Header() }}
-    <div class="container w-75" id="course-outline" {% if course.name %} data-course="{{ course.name }}" {% endif %}>
+    <div class="container form-width" id="course-outline" {% if course.name %} data-course="{{ course.name }}" {% endif %}>
         {% if chapters | length %}
             {{ Outline(chapters) }}
         {% else %}
@@ -22,8 +22,8 @@
 
 {% macro Header() %}
 <header class="sticky">
-    <div class="container w-75">
-        <button class="btn btn-primary btn-sm pull-right mt-1" id="add-chapter">
+    <div class="container form-width">
+        <button class="btn btn-primary btn-sm pull-right mt-1 btn-add-chapter">
             <span>
                 {{ _("Add Chapter") }}
             </span>
@@ -69,7 +69,7 @@
                                 <use class="" href="#{{ lesson.icon }}">
                             </svg>
                         </div> -->
-                        <a class="button-links" href="/courses/{{ course.name }}/learn/{{ chapter_index }}.{{ loop.index }}/edit">
+                        <a class="clickable" href="/courses/{{ course.name }}/learn/{{ chapter_index }}.{{ loop.index }}/edit">
                             {{ lesson.title }}
                         </a>
                     </div>
@@ -158,7 +158,7 @@
 
 
 {% macro EmptyState() %}
-<article class="empty-state">
+<article class="empty-state my-5">
     <div class="text-center">
         <div class="bold-heading">
             {{ _("You have not added any chapter yet") }}
@@ -167,10 +167,10 @@
             {{ _("Create and manage your chapters from here.") }}
         </div>
         <div class="mt-4">
-            <button class="btn btn-default btn-sm">
-                <svg class="icon  icon-xs">
+            <button class="btn btn-default btn-sm btn-add-chapter">
+                <!-- <svg class="icon  icon-xs">
                     <use class="" href="#icon-add"></use>
-                </svg>
+                </svg> -->
                 <span>
                     {{ _("Add Chapter") }}
                 </span>

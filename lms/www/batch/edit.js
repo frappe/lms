@@ -12,6 +12,35 @@ frappe.ready(() => {
 	});
 });
 
+const setup_editor = () => {
+	self.editor = new EditorJS({
+		holder: "lesson-content",
+		tools: {
+			header: {
+				class: Header,
+				inlineToolbar: ["bold", "italic", "link"],
+				config: {
+					levels: [4, 5, 6],
+					defaultLevel: 5,
+				},
+			},
+			paragraph: {
+				class: Paragraph,
+				inlineToolbar: true,
+				config: {
+					preserveBlank: true,
+				},
+			},
+			youtube: YouTubeVideo,
+			quiz: Quiz,
+			upload: Upload,
+		},
+		data: {
+			blocks: self.blocks ? self.blocks : [],
+		},
+	});
+};
+
 const parse_string_to_lesson = () => {
 	let lesson_content = $("#current-lesson-content").html();
 	let lesson_blocks = [];
@@ -33,6 +62,31 @@ const parse_string_to_lesson = () => {
 					quiz: quiz,
 				},
 			});
+		} else if (block.includes("{{ Video")) {
+			let video = block.match(/'([^']+)'/)[1];
+			lesson_blocks.push({
+				type: "upload",
+				data: {
+					file_url: video,
+				},
+			});
+		} else if (block.includes("![]")) {
+			let image = block.match(/\((.*?)\)/)[1];
+			lesson_blocks.push({
+				type: "upload",
+				data: {
+					file_url: image,
+				},
+			});
+		} else if (block.includes("#")) {
+			let level = (block.match(/#/g) || []).length;
+			lesson_blocks.push({
+				type: "header",
+				data: {
+					text: block.replace(/#/g, "").trim(),
+					level: level,
+				},
+			});
 		} else {
 			lesson_blocks.push({
 				type: "paragraph",
@@ -44,26 +98,6 @@ const parse_string_to_lesson = () => {
 	});
 
 	this.blocks = lesson_blocks;
-};
-
-const setup_editor = () => {
-	self.editor = new EditorJS({
-		holder: "lesson-content",
-		tools: {
-			youtube: YouTubeVideo,
-			quiz: Quiz,
-			paragraph: {
-				class: Paragraph,
-				inlineToolbar: true,
-				config: {
-					preserveBlank: true,
-				},
-			},
-		},
-		data: {
-			blocks: self.blocks ? self.blocks : [],
-		},
-	});
 };
 
 const save_lesson = (e) => {
@@ -79,6 +113,15 @@ const parse_lesson_to_string = (data) => {
 			lesson_content += `{{ YouTubeVideo("${block.data.youtube}") }}\n`;
 		} else if (block.type == "quiz") {
 			lesson_content += `{{ Quiz("${block.data.quiz}") }}\n`;
+		} else if (block.type == "upload") {
+			let url = block.data.file_url;
+			lesson_content += block.data.is_video
+				? `{{ Video("${url}") }}\n`
+				: `![](${url})`;
+		} else if (block.type == "header") {
+			console.log(block);
+			lesson_content +=
+				"#".repeat(block.data.level) + ` ${block.data.text}\n`;
 		} else if (block.type == "paragraph") {
 			lesson_content += `${block.data.text}\n`;
 		}
@@ -95,7 +138,7 @@ const save = (lesson_content) => {
 			title: $("#lesson-title").val(),
 			body: lesson_content,
 			chapter: $("#lesson-title").data("chapter"),
-			preview: 0,
+			preview: $("#preview").prop("checked") ? 1 : 0,
 			idx: $("#lesson-title").data("index"),
 			lesson: lesson ? lesson : "",
 		},
@@ -118,6 +161,12 @@ const fetch_quiz_list = () => {
 			self.quiz_list = r.message;
 		},
 	});
+};
+
+const is_video = (url) => {
+	let video_types = ["mov", "mp4", "mkv"];
+	let video_extension = url.split(".").pop();
+	return video_types.indexOf(video_extension) >= 0;
 };
 
 class YouTubeVideo {
@@ -242,29 +291,58 @@ class Quiz {
 	}
 }
 
-class Video {
+class Upload {
 	static get toolbox() {
 		return {
-			title: "Video",
+			title: "Upload",
 		};
+	}
+
+	constructor({ data }) {
+		this.data = data;
 	}
 
 	render() {
 		this.wrapper = document.createElement("div");
+		if (this.data && this.data.file_url) {
+			$(this.wrapper).html(this.render_upload(this.data.file_url));
+		} else {
+			this.render_upload_dialog();
+		}
+		return this.wrapper;
+	}
+
+	render_upload_dialog() {
+		let self = this;
 		new frappe.ui.FileUploader({
 			disable_file_browser: true,
 			folder: "Home/Attachments",
 			make_attachments_public: true,
 			restrictions: {
-				allowed_file_types: ["video/*"],
+				allowed_file_types: ["image/*", "video/*"],
 			},
 			on_success: (file_doc) => {
-				$(e.target)
-					.parent()
-					.siblings("img")
-					.addClass("image-preview")
-					.attr("src", file_doc.file_url);
+				self.file_url = file_doc.file_url;
+				$(self.wrapper).html(self.render_upload(self.file_url));
 			},
 		});
+	}
+
+	render_upload(url) {
+		this.is_video = is_video(url);
+		if (this.is_video) {
+			return `<video controls width='100%'>
+				<source src=${encodeURI(url)} type='video/mp4'>
+			</video>`;
+		} else {
+			return `<img src=${encodeURI(url)} width='100%'>`;
+		}
+	}
+
+	save(block_content) {
+		return {
+			file_url: this.data.file_url || this.file_url,
+			is_video: this.is_video,
+		};
 	}
 }

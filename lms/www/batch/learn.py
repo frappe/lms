@@ -16,6 +16,7 @@ def get_context(context):
 	chapter_index = frappe.form_dict.get("chapter")
 	lesson_index = frappe.form_dict.get("lesson")
 	lesson_number = f"{chapter_index}.{lesson_index}"
+	context.lesson_number = lesson_number
 	context.lesson_index = lesson_index
 	context.chapter = frappe.db.get_value(
 		"Chapter Reference", {"idx": chapter_index, "parent": context.course.name}, "chapter"

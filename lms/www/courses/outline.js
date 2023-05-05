@@ -1,5 +1,5 @@
 frappe.ready(() => {
-	$("#add-chapter").click((e) => {
+	$(".btn-add-chapter").click((e) => {
 		show_chapter_modal(e);
 	});
 
@@ -35,7 +35,7 @@ const save_chapter = (e) => {
 			course: $("#course-outline").data("course"),
 			title: $("#chapter-title").val(),
 			chapter_description: $("#chapter-description").val(),
-			idx: parent.data("idx") || $(".chapter-container").length + 1,
+			idx: parent.data("idx") || $(".chapter-container").length,
 			chapter: parent.data("chapter") || null,
 		},
 		callback: (data) => {

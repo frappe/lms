@@ -81,7 +81,9 @@
 
             <!-- Edit Button -->
             {% if (is_instructor or has_course_moderator_role()) %}
-            <button class="btn btn-secondary btn-sm ml-2 btn-edit"> {{ _("Edit") }} </button>
+            <a class="btn btn-secondary btn-sm ml-2" href="{{ get_lesson_url(course.name, lesson_number) }}/edit">
+                {{ _("Edit") }}
+            </a>
             {% endif %}
         </div>
 

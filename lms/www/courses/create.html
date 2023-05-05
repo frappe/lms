@@ -6,7 +6,7 @@
 {% block content %}
 <main class="common-page-style">
     {{ Header() }}
-    <div class="container w-75">
+    <div class="container form-width">
         {{ CreateCourse() }}
     </div>
 </main>
@@ -15,10 +15,16 @@
 
 {% macro Header() %}
 <header class="sticky">
-    <div class="container w-75">
+    <div class="container form-width">
         <button class="btn btn-primary btn-sm btn-save-course pull-right mt-1">
             {{ _("Save") }}
         </button>
+
+        {% if course.name %}
+        <a class="btn btn-default btn-sm pull-right mt-1 mr-2" href="/courses/{{ course.name }}">
+            {{ _("Preview") }}
+        </a>
+        {% endif %}
 
         <div class="page-title"> {{ _("Course Details") }} </div>
     </div>

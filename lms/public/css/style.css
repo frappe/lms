@@ -3,11 +3,7 @@
   --text-3-8xl: 34px;
   --text-4xl: 36px;
   --primary-color: var(--gray-900);
-  --accent-color: #0B9E92
-}
-
-.btn.btn-primary {
-	background-color: var(--primary-color);
+  --primary: var(--gray-900);
 }
 
 .nav-link .course-list-count {
@@ -121,7 +117,7 @@ textarea.field-input {
 }
 
 .outline-lesson {
-	padding: 0.5rem 0;
+	padding: 0.75rem 0;
 }
 
 .common-card-style .outline-lesson:last-of-type {
@@ -163,6 +159,31 @@ textarea.field-input {
 	border-bottom: 1px solid var(--gray-300);
 	margin-bottom: 2rem;
 	padding-bottom: 1rem;
+}
+
+.form-width {
+	width: 50%;
+}
+
+@media (max-width: 768px) {
+	.form-width {
+		width: 75%;
+	}
+}
+
+.clickable {
+	color: var(--gray-900);
+	font-weight: 500;
+}
+
+.clickable:hover {
+	color: var(--gray-900);
+	text-decoration: none;
+}
+
+.form-checkbox {
+	display: flex;
+	align-items: center;
 }
 
 body {
@@ -1487,7 +1508,7 @@ pre {
 }
 
 .reviews-parent .progress-bar {
-  background-color: var(--accent-color);
+  background-color: var(--primary-color);
 }
 
 .course-home-top-container {

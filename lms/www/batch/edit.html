@@ -11,7 +11,7 @@
 {% block content %}
 <main class="common-page-style">
     {{ Header() }}
-    <div class="container w-75" id="course-outline" {% if course.name %} data-course="{{ course.name }}" {% endif %}>
+    <div class="container form-width" id="course-outline" {% if course.name %} data-course="{{ course.name }}" {% endif %}>
         {{ CreateLesson() }}
     </div>
 </main>
@@ -20,12 +20,21 @@
 
 {% macro Header() %}
 <header class="sticky">
-    <div class="container w-75">
+    <div class="container form-width">
+
         <button class="btn btn-primary btn-sm pull-right mt-1" id="save-lesson">
             <span>
                 {{ _("Save") }}
             </span>
         </button>
+
+        {% if lesson.name %}
+        <a class="btn btn-default btn-sm pull-right mt-1 mr-2" href="{{ get_lesson_url(course.name, lesson_number) }}">
+            <span>
+                {{ _("Preview") }}
+            </span>
+        </a>
+        {% endif %}
 
         <div class="page-title">
             {{ course.title if course.name else _("Course Outline") }}
@@ -46,8 +55,15 @@
             </div>
         </div>
         <div class="">
-            <input id="lesson-title" type="text" class="field-input" data-index="{{ lesson_index }}" data-chapter="{{ chapter }}" data-course="{{ lesson.name }}" {% if lesson.name %} data-lesson="{{ lesson.name }}"  value="{{ lesson.title }}" {% endif %}>
+            <input id="lesson-title" type="text" class="field-input" data-index="{{ lesson_index }}" data-chapter="{{ chapter }}" data-course="{{ course.name }}" {% if lesson.name %} data-lesson="{{ lesson.name }}"  value="{{ lesson.title }}" {% endif %}>
         </div>
+    </div>
+
+    <div class="field-group">
+        <label for="published" class="form-checkbox">
+            <input type="checkbox" id="preview" {% if lesson.include_in_preview %} checked {% endif %}>
+            <span>{{ _("Show preview of this lesson to Guest users.") }}</span>
+        </label>
     </div>
 
     <div class="field-group">

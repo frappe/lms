@@ -92,9 +92,7 @@ const make_editor = () => {
 		],
 		body: $("#description").get(0),
 	});
-	console.log(this.description);
 	this.description.make();
-	console.log(this.description);
 	$("#description .form-section:last").removeClass("empty-section");
 	$("#description .frappe-control").removeClass("hide-control");
 	$("#description .form-column").addClass("p-0");
