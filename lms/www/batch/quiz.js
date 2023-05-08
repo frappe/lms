@@ -1,8 +1,4 @@
 frappe.ready(() => {
-	if (!$(".quiz-card").length) {
-		add_question();
-	}
-
 	$(".btn-question").click((e) => {
 		add_question();
 	});
@@ -15,21 +11,35 @@ frappe.ready(() => {
 		frappe.utils.copy_to_clipboard($(e.currentTarget).data("name"));
 	});
 
-	$(document).on("change", ".type", function () {
-		toggle_form($(this));
+	$(".question-type").click((e) => {
+		toggle_form($(e.currentTarget));
 	});
 
 	get_questions();
 });
 
 const toggle_form = (el) => {
-	let type = el.val();
-	if (type === "Choices") {
-		el.siblings(".option-group").removeClass("hide");
-		el.siblings(".possibility-group").addClass("hide");
-	} else if (type === "User Input") {
-		el.siblings(".option-group").addClass("hide");
-		el.siblings(".possibility-group").removeClass("hide");
+	if ($(el).hasClass("active")) {
+		let type = $(el).find("input").data("type");
+		if (type == "Choices") {
+			$(el)
+				.closest(".field-parent")
+				.find(".options-group")
+				.removeClass("hide");
+			$(el)
+				.closest(".field-parent")
+				.find(".answers-group")
+				.addClass("hide");
+		} else {
+			$(el)
+				.closest(".field-parent")
+				.find(".options-group")
+				.addClass("hide");
+			$(el)
+				.closest(".field-parent")
+				.find(".answers-group")
+				.removeClass("hide");
+		}
 	}
 };
 
@@ -102,19 +112,19 @@ const get_option_template = (num) => {
 };
 
 const save_question = (e) => {
-	if (!$("#quiz-title").text()) {
+	if (!$("#quiz-title").val()) {
 		frappe.throw(__("Quiz Title is mandatory."));
 	}
 
 	frappe.call({
 		method: "lms.lms.doctype.lms_quiz.lms_quiz.save_quiz",
 		args: {
-			quiz_title: $("#quiz-title").text(),
+			quiz_title: $("#quiz-title").val(),
 			questions: get_questions(),
 			quiz: $("#quiz-title").data("name") || "",
 		},
 		callback: (data) => {
-			window.location.href = "/quizzes";
+			window.location.reload();
 		},
 	});
 };
@@ -122,41 +132,37 @@ const save_question = (e) => {
 const get_questions = () => {
 	let questions = [];
 
-	$(".quiz-card").each((i, el) => {
-		if (!$(el).find(".question").text()) return;
-
+	$(".field-parent").each((i, el) => {
+		if (!$(el).find(".question").val()) return;
 		let details = {};
 		let correct_options = 0;
 		let possibilities = 0;
 
 		details["element"] = el;
-		details["question"] = $(el).find(".question").text();
+		details["question"] = $(el).find(".question").val();
 		details["question_name"] =
 			$(el).find(".question").data("question") || "";
-		details["type"] = $(el).find(".type").val();
+		details["type"] = $(el).find("label.active").find("input").data("type");
 
 		Array.from({ length: 4 }, (x, i) => {
 			let num = i + 1;
 
 			if (details.type == "Choices") {
-				details[`option_${num}`] = $(el)
-					.find(`.option-${num} .option-input:first`)
-					.text();
-				details[`explanation_${num}`] = $(el)
-					.find(`.option-${num} .option-input:last`)
-					.text();
+				details[`option_${num}`] = $(el).find(`.option-${num}`).val();
 
-				let is_correct = $(el)
-					.find(`.option-${num} .option-checkbox`)
-					.find("input")
-					.prop("checked");
+				details[`explanation_${num}`] = $(el)
+					.find(`.explanation-${num}`)
+					.val();
+
+				let is_correct = $(el).find(`.correct-${num}`).prop("checked");
+
 				if (is_correct) correct_options += 1;
 
 				details[`is_correct_${num}`] = is_correct;
 			} else {
 				let possible_answer = $(el)
 					.find(`.possibility-${num}`)
-					.text()
+					.val()
 					.trim();
 				if (possible_answer) possibilities += 1;
 				details[`possibility_${num}`] = possible_answer;

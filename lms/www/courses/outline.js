@@ -10,6 +10,14 @@ frappe.ready(() => {
 	$("#save-chapter").click((e) => {
 		save_chapter(e);
 	});
+
+	$(".lesson-dropzone").each((i, el) => {
+		setSortable(el);
+	});
+
+	$(".chapter-dropzone").each((i, el) => {
+		setSortable(el);
+	});
 });
 
 const show_chapter_modal = (e) => {
@@ -46,6 +54,76 @@ const save_chapter = (e) => {
 			setTimeout(() => {
 				window.location.reload();
 			}, 1000);
+		},
+	});
+};
+
+const setSortable = (el) => {
+	new Sortable(el, {
+		group: "drag",
+		handle: ".drag-handle",
+		animation: 150,
+		fallbackOnBody: true,
+		swapThreshold: 0.65,
+		onEnd: (e) => {
+			if ($(e.item).hasClass("outline-lesson")) reorder_lesson(e);
+			else reorder_chapter(e);
+		},
+		onMove: (e) => {
+			if (
+				$(e.dragged).hasClass("outline-lesson") &&
+				$(e.to).hasClass("chapter-dropzone")
+			)
+				return false;
+			if (
+				$(e.dragged).hasClass("chapter-edit") &&
+				$(e.to).hasClass("lesson-dropzone")
+			)
+				return false;
+		},
+	});
+};
+
+const reorder_lesson = (e) => {
+	let old_chapter = $(e.from).closest(".chapter-container").data("chapter");
+	let new_chapter = $(e.to).closest(".chapter-container").data("chapter");
+
+	if (old_chapter == new_chapter && e.oldIndex == e.newIndex) return;
+
+	frappe.call({
+		method: "lms.lms.doctype.lms_course.lms_course.reorder_lesson",
+		args: {
+			old_chapter: old_chapter,
+			old_lesson_array: $(e.from)
+				.children()
+				.map((i, e) => $(e).data("lesson"))
+				.get(),
+			new_chapter: new_chapter,
+			new_lesson_array: $(e.to)
+				.children()
+				.map((i, e) => $(e).data("lesson"))
+				.get(),
+		},
+		callback: (data) => {
+			window.location.reload();
+		},
+	});
+};
+
+const reorder_chapter = (e) => {
+	if (e.oldIndex == e.newIndex) return;
+
+	frappe.call({
+		method: "lms.lms.doctype.lms_course.lms_course.reorder_chapter",
+		args: {
+			new_index: e.newIndex + 1,
+			chapter_array: $(e.to)
+				.children()
+				.map((i, e) => $(e).data("chapter"))
+				.get(),
+		},
+		callback: (data) => {
+			window.location.reload();
 		},
 	});
 };

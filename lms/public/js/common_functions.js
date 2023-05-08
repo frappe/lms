@@ -45,14 +45,6 @@ frappe.ready(() => {
 		show_no_preview_dialog(e);
 	});
 
-	$(".lesson-dropzone").each((i, el) => {
-		setSortable(el);
-	});
-
-	$(".chapter-dropzone").each((i, el) => {
-		setSortable(el);
-	});
-
 	$("#create-class").click((e) => {
 		open_class_dialog(e);
 	});

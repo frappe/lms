@@ -141,8 +141,8 @@ def get_lesson_details(chapter):
 		macros = find_macros(lesson_details.body)
 
 		for macro in macros:
-			if macro[0] == "YouTubeVideo":
-				lesson_details.icon = "icon-video"
+			if macro[0] == "YouTubeVideo" or macro[0] == "Video":
+				lesson_details.icon = "icon-youtube"
 			elif macro[0] == "Quiz":
 				lesson_details.icon = "icon-quiz"
 		lessons.append(lesson_details)

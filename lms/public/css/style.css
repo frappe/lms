@@ -181,9 +181,24 @@ textarea.field-input {
 	text-decoration: none;
 }
 
-.form-checkbox {
+.codex-editor path {
+    stroke: var(--gray-800);
+}
+
+.drag-handle {
+	cursor: grabbing;
+}
+
+.edit-header {
 	display: flex;
 	align-items: center;
+	justify-content: space-between;
+}
+
+.btn-default:not(:disabled):not(.disabled).active {
+	color: white;
+	background-color: var(--primary);
+	border: none;
 }
 
 body {
@@ -610,6 +625,7 @@ input[type=checkbox] {
 
 .lesson-links {
 	display: flex;
+	align-items: center;
 	padding: 0.5rem;
 	color: var(--gray-900);
 	font-size: var(--text-base);

@@ -23,6 +23,9 @@ const setup_editor = () => {
 					levels: [4, 5, 6],
 					defaultLevel: 5,
 				},
+				icon: `<svg class="icon  icon-sm" style="">
+					<use class="" href="#icon-header"></use>
+				</svg>`,
 			},
 			paragraph: {
 				class: Paragraph,
@@ -177,6 +180,7 @@ class YouTubeVideo {
 	static get toolbox() {
 		return {
 			title: "YouTube Video",
+			icon: `<img src="/assets/lms/icons/video.svg" width="15" height="15">`,
 		};
 	}
 
@@ -234,6 +238,7 @@ class Quiz {
 	static get toolbox() {
 		return {
 			title: "Quiz",
+			icon: `<img src="/assets/lms/icons/quiz.svg" width="15" height="15">`,
 		};
 	}
 
@@ -270,10 +275,14 @@ class Quiz {
 				quizdialog.hide();
 				$(self.wrapper).html(self.render_quiz(self.quiz));
 			},
+			secondary_action_label: __("Create New"),
+			secondary_action: () => {
+				window.location.href = `/quizzes`;
+			},
 		});
 		quizdialog.show();
 		setTimeout(() => {
-			$(".modal-body").css("min-height", "300px");
+			$(".modal-body").css("min-height", "200px");
 			$(".modal-body input").focus();
 		}, 1000);
 	}
@@ -295,6 +304,7 @@ class Upload {
 	static get toolbox() {
 		return {
 			title: "Upload",
+			icon: `<img src="/assets/lms/icons/upload.svg" width="15" height="15">`,
 		};
 	}
 

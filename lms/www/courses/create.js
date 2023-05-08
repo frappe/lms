@@ -75,7 +75,7 @@ const save_course = (e) => {
 				indicator: "green",
 			});
 			setTimeout(() => {
-				window.location.href = `/courses/${data.message}/outline`;
+				window.location.reload();
 			}, 1000);
 		},
 	});
