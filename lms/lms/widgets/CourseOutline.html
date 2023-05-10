@@ -9,18 +9,18 @@
         {{ _("Course Content") }}
     </div>
 
-    <div class="mb-2">
+    <!-- <div class="mb-2">
         <span>
             {{ chapters | length }} chapters
         </span>
         <span>
             . {{ get_lessons(course.name, None, False) }} lessons
         </span>
-    </div>
+    </div> -->
     {% endif %}
 
     {% if chapters | length %}
-    <div {% if not lesson_page %} class="common-card-style column-card p-4" {% endif %}>
+    <div>
     {% for chapter in chapters %}
     {% set lessons = get_lessons(course.name, chapter) %}
 
@@ -62,7 +62,7 @@
                 title="{{ _('This lesson is not available for preview. As you are the Instructor of the course only you can see it.') }}"
                 {% endif %}>
 
-                    <svg class="icon icon-md mr-2">
+                    <svg class="icon icon-sm mr-2">
                         <use class="" href="#{{ lesson.icon }}">
                     </svg>
 

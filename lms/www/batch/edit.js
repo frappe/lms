@@ -122,7 +122,6 @@ const parse_lesson_to_string = (data) => {
 				? `{{ Video("${url}") }}\n`
 				: `![](${url})`;
 		} else if (block.type == "header") {
-			console.log(block);
 			lesson_content +=
 				"#".repeat(block.data.level) + ` ${block.data.text}\n`;
 		} else if (block.type == "paragraph") {
@@ -133,6 +132,7 @@ const parse_lesson_to_string = (data) => {
 };
 
 const save = (lesson_content) => {
+	validate_mandatory(lesson_content);
 	let lesson = $("#lesson-title").data("lesson");
 
 	frappe.call({
@@ -155,6 +155,28 @@ const save = (lesson_content) => {
 			}, 1000);
 		},
 	});
+};
+
+const validate_mandatory = (lesson_content) => {
+	if (!$("#lesson-title").val()) {
+		let error = $("p")
+			.addClass("error-message")
+			.text(__("Please enter a Lesson Title"));
+		$(error).insertAfter("#lesson-title");
+		$("#lesson-title").focus();
+		throw "Title is mandatory";
+	}
+
+	if (!lesson_content.trim()) {
+		let error = $("p")
+			.addClass("error-message")
+			.text(__("Please enter some content for the lesson"));
+		$(error).insertAfter("#lesson-content");
+		document
+			.getElementById("lesson-content")
+			.scrollIntoView({ block: "start" });
+		throw "Lesson Content is mandatory";
+	}
 };
 
 const fetch_quiz_list = () => {
@@ -204,6 +226,19 @@ class YouTubeVideo {
 					fieldtype: "Data",
 					label: __("YouTube Video ID"),
 					reqd: 1,
+				},
+				{
+					fieldname: "instructions_section_break",
+					fieldtype: "Section Break",
+					label: __("Instructions:"),
+				},
+				{
+					fieldname: "instructions",
+					fieldtype: "HTML",
+					label: __("Instructions"),
+					options: __(
+						"Enter the YouTube Video ID. The ID is the part of the URL after <code>watch?v=</code>. For example, if the URL is <code>https://www.youtube.com/watch?v=QH2-TGUlwu4</code>, the ID is <code>QH2-TGUlwu4</code>"
+					),
 				},
 			],
 			primary_action_label: __("Insert"),

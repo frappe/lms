@@ -46,7 +46,7 @@
 <div class="field-parent">
     <div class="field-group">
         <div>
-            <div class="field-label">
+            <div class="field-label reqd">
                 {{ _("Title") }}
             </div>
             <div class="field-description">
@@ -60,21 +60,7 @@
 
     <div class="field-group">
         <div>
-            <div class="field-label">
-                {{ _("Preview Video") }}
-            </div>
-            <div class="field-description">
-                {{ _("A feature video that provides a preview of the course") }}
-            </div>
-        </div>
-        <div class="">
-            <input id="video-link" type="text" class="field-input" {% if course.video_link %} value="{{ course.video_link }}" {% endif %}>
-        </div>
-    </div>
-
-    <div class="field-group">
-        <div>
-            <div class="field-label">
+            <div class="field-label reqd">
                 {{ _("Short Introduction") }}
             </div>
             <div class="field-description">
@@ -83,6 +69,37 @@
         </div>
         <div class="">
             <input id="intro" type="text" class="field-input" {% if course.short_introduction %} value="{{ course.short_introduction }}" {% endif %}>
+        </div>
+    </div>
+
+    <div class="field-group">
+        <div>
+            <div class="field-label reqd">
+                {{ _("Course Description") }}
+            </div>
+            <div class="field-description">
+                {{ _("Add a detailed description") }}
+            </div>
+        </div>
+        <div id="description" class=""></div>
+        {% if course.description %}
+        <div id="description-data" class="hide">
+            {{ course.description }}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="field-group">
+        <div>
+            <div class="field-label">
+                {{ _("Preview Video ID") }}
+            </div>
+            <div class="field-description">
+                {{ _("Enter the Preview Video ID. The ID is the part of the URL after <code>watch?v=</code>. For example, if the URL is <code>https://www.youtube.com/watch?v=QH2-TGUlwu4</code>, the ID is <code>QH2-TGUlwu4</code>") }}
+            </div>
+        </div>
+        <div class="">
+            <input id="video-link" type="text" class="field-input" {% if course.video_link %} value="{{ course.video_link }}" {% endif %}>
         </div>
     </div>
 
@@ -110,12 +127,12 @@
         </div>
     </div>
 
-    <div class="field-group">
-        <label for="published" class="mb-0">
+    <div class="field-group vertically-center">
+        <label for="published" class="vertically-center mb-0">
             <input type="checkbox" id="published" {% if course.published %} checked {% endif %}>
             {{ _("Published") }}
         </label>
-        <label for="upcoming" class="mb-0 ml-20">
+        <label for="upcoming" class="vertically-center mb-0 ml-20">
             <input type="checkbox" id="upcoming" {% if course.upcoming %} checked {% endif %}>
             {{ _("Upcoming") }}
         </label>
@@ -136,23 +153,6 @@
             </button>
         </div>
         <img {% if course.image %} class="image-preview" src="{{ course.image }}" {% endif %}>
-    </div>
-
-    <div class="field-group">
-        <div>
-            <div class="field-label">
-                {{ _("Course Description") }}
-            </div>
-            <div class="field-description">
-                {{ _("Add a detailed description") }}
-            </div>
-        </div>
-        <div id="description" class=""></div>
-        {% if course.description %}
-        <div id="description-data" class="hide">
-            {{ course.description }}
-        </div>
-        {% endif %}
     </div>
 
     <div class="field-group">

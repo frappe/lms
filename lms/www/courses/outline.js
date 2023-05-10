@@ -35,6 +35,7 @@ const show_chapter_modal = (e) => {
 };
 
 const save_chapter = (e) => {
+	validate_mandatory();
 	let parent = $("#chapter-modal");
 
 	frappe.call({
@@ -56,6 +57,16 @@ const save_chapter = (e) => {
 			}, 1000);
 		},
 	});
+};
+
+const validate_mandatory = () => {
+	if (!$("#chapter-title").val()) {
+		let error = $("p")
+			.addClass("error-message")
+			.text("Chapter title is required");
+		$(error).insertAfter("#chapter-title");
+		throw __("Chapter title is required");
+	}
 };
 
 const setSortable = (el) => {

@@ -35,7 +35,7 @@
 <div class="mt-5">
     <ul class="list-unstyled">
        {% for quiz in quiz_list %}
-       <li>
+       <li class="mt-2">
         <a class="clickable" href="/quizzes/{{ quiz.name }}">
             {{ quiz.title }}
         </a>
@@ -58,22 +58,3 @@
     </div>
 </div>
 {% endmacro %}
-
-{% block script %}
-<script>
-    frappe.ready(() => {
-
-        $(".copy-quiz-id").click((e) => {
-            e.preventDefault();
-            frappe.utils.copy_to_clipboard($(e.currentTarget).data("name"));
-        });
-
-        $(".quiz-row").click((e) => {
-            if (!$(e.target).hasClass("copy-quiz-id")) {
-                window.location.href = `/quizzes/${$(e.currentTarget).data('name')}`;
-            }
-        });
-
-    });
-</script>
-{% endblock %}

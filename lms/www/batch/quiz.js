@@ -1,6 +1,10 @@
 frappe.ready(() => {
-	$(".btn-question").click((e) => {
+	if ($(".question-card").length <= 1) {
 		add_question();
+	}
+
+	$(".btn-add-question").click((e) => {
+		add_question(true);
 	});
 
 	$(".btn-save-question").click((e) => {
@@ -11,7 +15,7 @@ frappe.ready(() => {
 		frappe.utils.copy_to_clipboard($(e.currentTarget).data("name"));
 	});
 
-	$(".question-type").click((e) => {
+	$(document).on("click", ".question-type", (e) => {
 		toggle_form($(e.currentTarget));
 	});
 
@@ -43,72 +47,21 @@ const toggle_form = (el) => {
 	}
 };
 
-const add_question = () => {
-	let add_after = $(".quiz-card").length
-		? $(".quiz-card:last")
-		: $("#quiz-title");
-	let question_template = `<div class="quiz-card new-quiz-card">
-            <div contenteditable="true" data-placeholder="${__(
-				"Question"
-			)}" class="question mb-4"></div>
-			<select value="{{ question.type }}" class="input-with-feedback form-control ellipsis type" maxlength="140" data-fieldtype="Select" data-fieldname="type" placeholder="" data-doctype="LMS Quiz Question">
-				<option value="Choices"> ${__("Choices")} </option>
-				<option value="User Input"> ${__("User Input")} </option>
-			</select>
-		</div>`;
-	$(question_template).insertAfter(add_after);
-	get_question_template();
-	$(".btn-save-question").removeClass("hide");
+const add_question = (scroll = false) => {
+	let template = $("#question-template").html();
+	let index = $(".question-card:nth-last-child(2)").data("index") + 1 || 1;
+	template = update_index(template, index);
+
+	$(template).insertBefore($("#question-template"));
+	scroll && scroll_to_question_container();
 };
 
-const get_question_template = () => {
-	Array.from({ length: 4 }, (x, num) => {
-		let option_template = get_option_template(num + 1);
-
-		let add_after = $(".quiz-card:last .option-group").length
-			? $(".quiz-card:last .option-group").last()
-			: $(".type:last");
-		question_template = $(option_template).insertAfter(add_after);
-	});
-
-	Array.from({ length: 4 }, (x, num) => {
-		let possibility_template = get_possibility_template(num + 1);
-		let add_after = $(".quiz-card:last .possibility-group").length
-			? $(".quiz-card:last .possibility-group").last()
-			: $(".quiz-card:last .option-group:last");
-		question_template = $(possibility_template).insertAfter(add_after);
-	});
-};
-
-const get_possibility_template = (num) => {
-	return `<div class="possibility-group mt-4 hide">
-			<label class=""> ${__("Possible Answer")} ${num} </label>
-			<div class="control-input-wrapper">
-				<div class="control-input">
-					<div contenteditable="true" class="input-with-feedback form-control bold possibility-{{ num }}" style="height: 100px;" spellcheck="false"></div>
-				</div>
-			</div>
-		</div>`;
-};
-
-const get_option_template = (num) => {
-	return `<div class="option-group mt-4">
-                <label class="">${__("Option")} ${num}</label>
-                <div class="d-flex justify-content-between option-${num}">
-                    <div contenteditable="true" data-placeholder="${__(
-						"Option"
-					)}"
-                        class="option-input"></div>
-                    <div contenteditable="true" data-placeholder="${__(
-						"Explanation"
-					)}"
-                        class="option-input"></div>
-                    <div class="option-checkbox">
-                        <input type="checkbox">
-                        <label class="mb-0"> ${__("Is Correct")} </label>
-                    </div>
-                </div>
-            </div>`;
+const update_index = (template, index) => {
+	const $template = $(template);
+	$template.attr("data-index", index);
+	$template.find(".question-label").text("Question " + index);
+	$template.find(".question-type input").attr("name", "type-" + index);
+	return $template.prop("outerHTML");
 };
 
 const save_question = (e) => {
@@ -124,7 +77,7 @@ const save_question = (e) => {
 			quiz: $("#quiz-title").data("name") || "",
 		},
 		callback: (data) => {
-			window.location.reload();
+			window.location.href = `/quizzes/${data.message}`;
 		},
 	});
 };
@@ -203,15 +156,15 @@ const validate_mandatory = (details, correct_options, possibilities) => {
 };
 
 const scroll_to_question_container = () => {
-	scroll_to_element(".new-quiz-card:last");
-	$(".new-quiz-card").find(".question").focus();
+	scroll_to_element(".question-card:nth-last-child(2)");
+	$(".question-card:nth-last-child(2)").find(".question").focus();
 };
 
 const scroll_to_element = (element) => {
 	if ($(element).length)
 		$([document.documentElement, document.body]).animate(
 			{
-				scrollTop: $(element).offset().top,
+				scrollTop: $(element).offset().top - 100,
 			},
 			1000
 		);

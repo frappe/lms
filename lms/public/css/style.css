@@ -4,6 +4,7 @@
   --text-4xl: 36px;
   --primary-color: var(--gray-900);
   --primary: var(--gray-900);
+	--checkbox-gradient: linear-gradient(180deg, #3d4142 -124.51%, var(--primary) 100%);
 }
 
 .nav-link .course-list-count {
@@ -28,7 +29,7 @@
 .sticky {
 	position: sticky;
 	top: -1px;
-	z-index: 1020;
+	z-index: 100;
 }
 
 .is-pinned {
@@ -118,6 +119,7 @@ textarea.field-input {
 
 .outline-lesson {
 	padding: 0.75rem 0;
+	border-bottom: 1px solid var(--gray-300);
 }
 
 .common-card-style .outline-lesson:last-of-type {
@@ -186,7 +188,7 @@ textarea.field-input {
 }
 
 .drag-handle {
-	cursor: grabbing;
+	cursor: move;
 }
 
 .edit-header {
@@ -199,6 +201,16 @@ textarea.field-input {
 	color: white;
 	background-color: var(--primary);
 	border: none;
+}
+
+.field-label.reqd::after {
+	content: " *";
+	color: var(--red-400);
+}
+
+.error-message {
+	color: var(--red-500);
+	font-size: var(--text-sm);
 }
 
 body {
@@ -1761,14 +1773,6 @@ li {
 
 .table {
 	margin-bottom: 0;
-}
-
-.quiz-card {
-	border: 1px solid var(--dark-border-color);
-	border-radius: var(--border-radius);
-	padding: 1.25rem;
-	margin-top: 1.25rem;
-	font-size: var(--text-base);
 }
 
 .option-input {

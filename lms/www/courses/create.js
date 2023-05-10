@@ -20,6 +20,12 @@ frappe.ready(() => {
 		make_editor();
 	}
 
+	$(".field-input").focusout((e) => {
+		if ($(e.currentTarget).siblings(".error-message")) {
+			$(e.currentTarget).siblings(".error-message").remove();
+		}
+	});
+
 	$("#tags-input").focus((e) => {
 		$(e.target).keypress((e) => {
 			if (e.which == 13) {
@@ -50,6 +56,7 @@ const create_tag = (e) => {
 };
 
 const save_course = (e) => {
+	validate_mandatory();
 	let tags = $(".tags button")
 		.map((i, el) => $(el).text().trim())
 		.get();
@@ -75,10 +82,43 @@ const save_course = (e) => {
 				indicator: "green",
 			});
 			setTimeout(() => {
-				window.location.reload();
+				window.location.href = `/courses/${data.message}/edit`;
 			}, 1000);
 		},
 	});
+};
+
+const validate_mandatory = () => {
+	let fields = $(".field-label.reqd");
+	fields.each((i, el) => {
+		let input = $(el).closest(".field-group").find(".field-input");
+		if (input.length && input.val().trim() == "") {
+			if (input.siblings(".error-message").length == 0) {
+				let error = document.createElement("p");
+				error.classList.add("error-message");
+				error.innerText = `Please enter a ${$(el).text().trim()}`;
+				$(error).insertAfter($(input));
+			}
+			scroll_to_element(input);
+			throw "Mandatory field missing";
+		}
+	});
+	console.log(this.description.fields_dict["description"].value);
+	if (!this.description.fields_dict["description"].value) {
+		scroll_to_element("#description");
+		frappe.throw(__(`Please enter a description`));
+	}
+};
+
+const scroll_to_element = (element) => {
+	if ($(element).length) {
+		$([document.documentElement, document.body]).animate(
+			{
+				scrollTop: $(element).offset().top - 100,
+			},
+			1000
+		);
+	}
 };
 
 const make_editor = () => {
