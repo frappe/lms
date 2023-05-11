@@ -1,4 +1,5 @@
 frappe.ready(() => {
+	frappe.telemetry.capture("on_course_outline_page", "lms");
 	$(".btn-add-chapter").click((e) => {
 		show_chapter_modal(e);
 	});

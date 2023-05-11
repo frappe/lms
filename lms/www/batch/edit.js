@@ -1,4 +1,5 @@
 frappe.ready(() => {
+	frappe.telemetry.capture("on_lesson_creation_page", "lms");
 	let self = this;
 	if ($("#current-lesson-content").length) {
 		parse_string_to_lesson();

@@ -6,9 +6,8 @@ import random
 import frappe
 from frappe.model.document import Document
 from frappe.utils import cint
-
+from frappe.utils.telemetry import capture
 from lms.lms.utils import get_chapters
-
 from ...utils import generate_slug, validate_image
 
 
@@ -42,6 +41,9 @@ class LMSCourse(Document):
 	def on_update(self):
 		if not self.upcoming and self.has_value_changed("upcoming"):
 			self.send_email_to_interested_users()
+
+	def after_insert(self):
+		capture("course_created", "lms")
 
 	def send_email_to_interested_users(self):
 		interested_users = frappe.get_all(
