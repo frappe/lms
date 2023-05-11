@@ -138,7 +138,6 @@ def youtube_video_renderer(video_id):
 
 
 def video_renderer(src):
-	print(src)
 	return f"<video controls width='100%'><source src={src} type='video/mp4'></video>"
 
 

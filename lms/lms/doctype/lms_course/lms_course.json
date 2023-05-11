@@ -48,7 +48,6 @@
  ],
  "fields": [
   {
-   "documentation_url": "https://frappe.school",
    "fieldname": "title",
    "fieldtype": "Data",
    "in_list_view": 1,
