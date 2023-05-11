@@ -22,6 +22,8 @@ def get_context(context):
 		context.course = frappe._dict()
 		context.course.edit_mode = True
 		context.membership = None
+	elif not frappe.db.exists("LMS Course", course_name):
+		redirect_to_courses_list()
 	else:
 		set_course_context(context, course_name)
 
