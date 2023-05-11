@@ -2,6 +2,7 @@ import frappe
 
 from lms.lms.utils import get_lesson_url, get_lessons, get_membership
 from frappe.utils import cstr
+from lms.lms.utils import redirect_to_courses_list
 
 
 def get_common_context(context):
@@ -19,8 +20,8 @@ def get_common_context(context):
 		as_dict=True,
 	)
 	if not course:
-		context.template = "www/404.html"
-		return
+		redirect_to_courses_list()
+
 	context.course = course
 	context.lessons = get_lessons(course.name)
 	membership = get_membership(course.name, frappe.session.user, batch_name)
