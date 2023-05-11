@@ -1,10 +1,8 @@
 {% if not course.upcoming %}
 <div class="reviews-parent">
     {% set reviews = get_reviews(course.name) %}
-    <div class="course-home-headings mb-5"> {{ _("Reviews") }} </div>
+    <div class="page-title mb-5"> {{ _("Reviews") }} </div>
 
-
-    {% set avg_rating = get_average_rating(course.name) %}
 
     {% if avg_rating %}
     <div class="reviews-header">
@@ -13,21 +11,21 @@
                 {{ frappe.utils.flt(avg_rating, frappe.get_system_settings("float_precision") or 3) }}
             </div>
 
-            <div class="course-meta"> {{ reviews | length }} {{ _("ratings") }} </div>
 
             <div class="avg-rating-stars">
                 <div class="rating">
                     {% for i in [1, 2, 3, 4, 5] %}
-                    <svg class="icon icon-md {% if i <= frappe.utils.ceil(avg_rating) %} star-click {% endif %}" data-rating="{{ i }}">
+                    <svg class="icon icon-lg {% if i <= frappe.utils.ceil(avg_rating) %} star-click {% endif %}" data-rating="{{ i }}">
                         <use href="#icon-star"></use>
                     </svg>
                     {% endfor %}
                 </div>
             </div>
 
-            <div class="course-meta">
-                {{ frappe.utils.flt(avg_rating, frappe.get_system_settings("float_precision") or 3) }} {{ _("out of 5 ") }}
-            </div>
+            <div class="course-meta"> {{ reviews | length }} {{ _("ratings") }} </div>
+            <!--
+
+             -->
 
             <div class="mt-5">
                 {% include "lms/templates/reviews_cta.html" %}

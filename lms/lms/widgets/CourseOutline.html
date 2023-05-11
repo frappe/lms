@@ -1,81 +1,66 @@
 {% set chapters = get_chapters(course.name) %}
+{% set is_instructor = is_instructor(course.name) %}
 
-{% if course.edit_mode or chapters | length %}
+{% if chapters | length %}
 <div class="course-home-outline">
 
-
-    {% if course.edit_mode and course.name %}
-    <button class="btn btn-sm btn-secondary btn-chapter pull-right"> {{ _("New Chapter") }} </button>
-    {% endif %}
-
-    {% if course.name and (course.edit_mode or chapters | length) %}
-    <div class="course-home-headings" id="outline-heading" data-course="{{ course.name }}">
+    {% if not lesson_page %}
+    <div class="page-title mb-8" id="outline-heading" data-course="{{ course.name }}">
         {{ _("Course Content") }}
     </div>
-    {% endif %}
 
-    {% if course.edit_mode and course.name and not chapters | length %}
-    <div class="chapter-parent chapter-edit new-chapter">
-        <div contenteditable="true" data-placeholder="{{ _('Chapter Name') }}" class="chapter-title-main"></div>
-        <div class="chapter-description small my-2" contenteditable="true" data-placeholder="{{ _('Short Description') }}"></div>
-        <button class="btn btn-sm btn-secondary d-block btn-save-chapter" data-index="1"> {{ _('Save') }} </button>
-    </div>
+    <!-- <div class="mb-2">
+        <span>
+            {{ chapters | length }} chapters
+        </span>
+        <span>
+            . {{ get_lessons(course.name, None, False) }} lessons
+        </span>
+    </div> -->
     {% endif %}
 
     {% if chapters | length %}
-    <div class="chapter-dropzone">
+    <div>
     {% for chapter in chapters %}
-    <div class="chapter-parent {% if course.edit_mode %} chapter-edit {% endif %}" data-chapter="{{ chapter.name }}">
-        <div class="chapter-title" {% if not course.edit_mode %}  data-toggle="collapse" aria-expanded="false"
-        data-target="#{{ get_slugified_chapter_title(chapter.title) }}" {% endif %} >
-            {% if not course.edit_mode %}
+    {% set lessons = get_lessons(course.name, chapter) %}
+
+    <div class="chapter-parent" data-chapter="{{ chapter.name }}">
+
+        <div class="chapter-title" data-toggle="collapse" aria-expanded="false"
+        data-target="#{{ get_slugified_chapter_title(chapter.title) }}">
+
             <img class="chapter-icon" src="/assets/lms/icons/chevron-right.svg">
-            {% endif %}
-            <div class="w-100 chapter-title-main" {% if course.edit_mode %} contenteditable="true" {% endif %} >{{ chapter.title }}</div>
+            <div class="chapter-title-main">
+                {{ chapter.title }}
+            </div>
+            <div class="small ml-auto">
+                {{ lessons | length }} lessons
+            </div>
+
         </div>
 
-       {% set lessons = get_lessons(course.name, chapter) %}
 
-        <div class="chapter-content {% if not course.edit_mode %} collapse navbar-collapse {% endif %} "
-            id="{{ get_slugified_chapter_title(chapter.title) }}">
+        <div class="chapter-content collapse navbar-collapse" id="{{ get_slugified_chapter_title(chapter.title) }}">
 
-            {% if chapter.description or course.edit_mode %}
-            <div {% if course.edit_mode %} contenteditable="true" {% endif %} class="chapter-description
-            {% if not course.edit_mode %} mx-8 mb-2 {% endif %} "
-            data-placeholder="{{ _('Short Description') }}">{% if chapter.description %}{{ chapter.description }}{% endif %}</div>
-            {% endif %}
-
-            {% if course.edit_mode %}
-            <div class="mt-2">
-                <button class="btn btn-sm btn-secondary btn-save-chapter"
-                data-index="{{ loop.index }}"> {{ _('Save') }} </button>
-                <a class="btn btn-sm btn-secondary btn-lesson ml-2"
-                    href="/courses/{{ course.name }}/learn/{{loop.index}}.{{ lessons | length + 1 }}?edit=1"> {{ _("New Lesson") }}  </a>
+            {% if chapter.description %}
+            <div class="chapter-description">
+                {{ chapter.description }}
             </div>
             {% endif %}
 
-            {% set is_instructor = is_instructor(course.name) %}
-
-            {% if course.edit_mode %}
-            <div class="course-meta mt-8 font-weight-bold"> {{ _("Lessons") }}: </div>
-            {% endif %}
-
-            <div class="lessons {% if course.edit_mode %} lesson-dropzone {% endif %}">
-
-
+            <div class="lessons">
 
                 {% if lessons | length %}
 
                 {% for lesson in lessons %}
                 {% set active = membership.current_lesson == lesson.name %}
-                <div data-lesson="{{ lesson.name }}" class="lesson-info {% if active and not course.edit_mode %} active-lesson {% endif %}">
+                <div data-lesson="{{ lesson.name }}" class="lesson-info {% if active %} active-lesson {% endif %}">
 
                 {% if membership or lesson.include_in_preview or is_instructor or has_course_moderator_role() %}
-                <a class="lesson-links"
+                <a class="lesson-links" href="{{ get_lesson_url(course.name, lesson.number) }}{{course.query_parameter}}"
                 {% if is_instructor and not lesson.include_in_preview %}
                 title="{{ _('This lesson is not available for preview. As you are the Instructor of the course only you can see it.') }}"
-                {% endif %}
-                href="{{ get_lesson_url(course.name, lesson.number) }}{% if course.edit_mode and is_instructor %}?edit=1{% endif %}{{course.query_parameter}}">
+                {% endif %}>
 
                     <svg class="icon icon-sm mr-2">
                         <use class="" href="#{{ lesson.icon }}">
@@ -84,8 +69,8 @@
                     <span>{{ lesson.title }}</span>
 
                     {% if membership %}
-                    <svg class="icon icon-sm lesson-progress-tick {{ get_progress(course.name, lesson.name) != 'Complete' and 'hide' }}">
-                        <use class="" href="#icon-green-check">
+                    <svg class="icon icon-md lesson-progress-tick ml-auto {{ get_progress(course.name, lesson.name) != 'Complete' and 'hide' }}">
+                        <use class="" href="#icon-success">
                     </svg>
                     {% endif %}
 

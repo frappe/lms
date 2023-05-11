@@ -3,11 +3,7 @@
 
 
 {% block title %}
-{% if lesson.title %}
 {{ lesson.title }} - {{ course.title }}
-{% else %}
-{{ _("New Lesson") }}
-{% endif %}
 {% endblock %}
 
 
@@ -21,16 +17,35 @@
 
 
 {% block page_content %}
-<div class="common-page-style lesson-page">
+
+<div class="common-page-style">
     <div class="container course-details-page">
-        {{ BreadCrumb(course, lesson) }}
+
         <div class="course-content-parent">
-            <div class="course-details-outline">
-                {{ widgets.CourseOutline(course=course, membership=membership) }}
+            <div>
+                <div class="bold-heading mb-4">
+                    {{ course.title }}
+                </div>
+
+                {% if membership %}
+                <div class="">
+                    <div class="progress-percent m-0">{{ progress }}% {{ _("Completed") }}</div>
+                    <div class="progress" title="{{ progress }}% Completed">
+                        <div class="progress-bar" role="progressbar" aria-valuenow="{{ progress }}"
+                        aria-valuemin="0" aria-valuemax="100" style="width:{{ progress }}%">
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="course-details-outline">
+                    {{ widgets.CourseOutline(course=course, membership=membership, lesson_page=True) }}
+                </div>
             </div>
-            <div class="lesson-pagination-parent">
+            <div class="lesson-parent">
+                {{ BreadCrumb(course, lesson) }}
                 {{ LessonContent(lesson) }}
-                {% if not lesson.edit_mode and course.status == "Approved" and not course.upcoming %}
+                {% if course.status == "Approved" and not course.upcoming %}
                 {{ Discussions() }}
                 {% endif %}
             </div>
@@ -57,25 +72,26 @@
 {% set instructors = get_instructors(course.name) %}
 {% set is_instructor = is_instructor(course.name) %}
 
-<div class="common-card-style lesson-content">
-    <div class="lesson-title">
+<div>
+    <div>
+        <div class="pull-right">
+            {% if get_progress(course.name, lesson.name) == 'Complete' %}
+            <span id="status-indicator" class="indicator-pill green">{{ _("COMPLETED") }}</span>
+            {% endif %}
 
-        <!-- Title -->
-        <div class="course-home-headings title mb-0 {% if membership %} is-member {% endif %}
+            <!-- Edit Button -->
+            {% if (is_instructor or has_course_moderator_role()) %}
+            <a class="btn btn-secondary btn-sm ml-2" href="{{ get_lesson_url(course.name, lesson_number) }}/edit">
+                {{ _("Edit") }}
+            </a>
+            {% endif %}
+        </div>
+
+        <div class="course-home-headings title {% if membership %} is-member {% endif %}
             {% if membership or is_instructor %} eligible-for-submission {% endif %}" id="title"
-            {% if lesson.edit_mode %} data-placeholder="{{ _('Title') }}" contenteditable="true" {% endif %}
             data-index="{{ lesson_index }}" data-course="{{ course.name }}" data-chapter="{{ chapter }}"
             {% if lesson.name %} data-lesson="{{ lesson.name }}" {% endif %}
             >{% if lesson.title %}{{ lesson.title }}{% endif %}</div>
-
-        {% if get_progress(course.name, lesson.name) == 'Complete' %}
-        <span id="status-indicator" class="indicator-pill green">{{ _("COMPLETED") }}</span>
-        {% endif %}
-
-        <!-- Edit Button -->
-        {% if (is_instructor or has_course_moderator_role()) and not lesson.edit_mode %}
-        <button class="btn btn-secondary btn-sm ml-2 btn-edit"> {{ _("Edit") }} </button>
-        {% endif %}
     </div>
 
     <!-- Instructors -->
@@ -107,21 +123,17 @@
     </div>
 
     <!-- Lesson Content -->
-    <div class="markdown-source lesson-content-card {% if lesson.edit_mode %} mb-0 mt-2 {% endif %} ">
+    <div class="markdown-source lesson-content-card">
         {% if show_lesson %}
 
-            {% if is_instructor and not lesson.include_in_preview and not lesson.edit_mode %}
+            {% if is_instructor and not lesson.include_in_preview %}
             <div class="medium alert alert-info alert-dismissible mb-4">
                 {{ _("This lesson is not available for preview. As you are the Instructor of the course only you can see it.") }}
                 <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
             </div>
             {% endif %}
 
-            {% if lesson.edit_mode %}
-            {{ EditLesson(lesson) }}
-            {% else %}
             {{ render_html(lesson) }}
-            {% endif %}
 
         {% else %}
             {% set course_link = "<a class='join-batch' data-course=" + course.name | urlencode + " href=''>" + _('here') +  "</a>" %}
@@ -133,9 +145,8 @@
         {% endif %}
     </div>
 
-    {% if not lesson.edit_mode %}
     {{ pagination(prev_url, next_url) }}
-    {% endif %}
+
 
 </div>
 {% endmacro %}
@@ -146,73 +157,19 @@
     {% if prev_url or next_url %}
     <div class="lesson-pagination">
         {% if prev_url %}
-        <div>
-            <a class="btn btn-secondary btn-sm prev" href="{{ prev_url }}">
-                {{ _("Previous") }}
-            </a>
-        </div>
+        <a class="btn btn-secondary btn-sm prev" href="{{ prev_url }}">
+            {{ _("Previous Lesson") }}
+        </a>
         {% endif %}
 
         {% if next_url %}
-        <div>
-            <a class="btn btn-primary btn-sm next ml-2 " href="{{ next_url }}">
-                {{ _("Next") }}
-            </a>
-        </div>
+        <a class="btn btn-primary btn-sm next pull-right" href="{{ next_url }}">
+            {{ _("Next Lesson") }}
+        </a>
         {% endif %}
     </div>
     {% endif %}
 {% endmacro %}
-
-
-<!-- Edit Lesson -->
-{% macro EditLesson(lesson) %}
-
-    <div class="d-flex mt-2 medium">
-        <div class="flex-grow-1" contenteditable="true" data-placeholder="{{ _('YouTube Video ID') }}"
-        id="youtube">{% if lesson.youtube %}{{ lesson.youtube }}{% endif %}</div>
-
-        <div class="flex-grow-1 ml-2" contenteditable="true" data-placeholder="{{ _('Quiz ID') }}"
-        id="quiz-id">{% if lesson.quiz_id %}{{ lesson.quiz_id }}{% endif %}</div>
-    </div>
-
-    {% if lesson.body %}
-    <div class="body-data hide"> {{ lesson.body }} </div>
-    {% endif %}
-    <div id="body"></div>
-
-    <div class="d-flex medium mx-0 mb-4">
-        <div class="flex-grow-1" contenteditable="true" data-placeholder="{{ _('Assignment Question') }}"
-        id="assignment-question">{% if lesson.question %}{{ lesson.question }}{% endif %}</div>
-
-        <select class="btn btn-default ml-2" id="file-type" data-type="{{ lesson.file_type }}">
-            <option selected> {{ _("File Type") }} </option>
-            <option value="Image"> {{ _("Image") }} </option>
-            <option value="Document"> {{ _("Document") }} </option>
-            <option value="PDF"> {{ _("PDF") }} </option>
-        </select>
-    </div>
-
-
-    <label class="preview" for="preview">
-        <input {% if lesson.include_in_preview %} checked {% endif %} type="checkbox" id="preview">
-        {{ _("Show preview of this lesson to Guest users.") }}
-    </label>
-
-    <div class="mt-4">
-        <button class="btn btn-primary btn-sm btn-lesson pull-right ml-2"> {{ _("Save") }} </button>
-        {% if lesson.name %}
-        <button class="btn btn-secondary btn-sm pull-right btn-back ml-2"> {{ _("Back to Lesson") }} </button>
-        <a class="btn btn-secondary btn-sm pull-right" href="/quizzes"> {{ _("Create Quiz") }} </a>
-        {% endif %}
-
-        {{ UploadAttachments() }}
-
-    </div>
-
-    {{ HelpArticle() }}
-{% endmacro %}
-
 
 {% macro UploadAttachments() %}
     <div class="attachments-parent">

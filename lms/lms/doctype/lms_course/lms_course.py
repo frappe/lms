@@ -2,7 +2,7 @@
 # For license information, please see license.txt
 
 import json
-
+import random
 import frappe
 from frappe.model.document import Document
 from frappe.utils import cint
@@ -72,7 +72,10 @@ class LMSCourse(Document):
 
 	def autoname(self):
 		if not self.name:
-			self.name = generate_slug(self.title, "LMS Course")
+			title = self.title
+			if self.title == "New Course":
+				title = self.title + str(random.randint(0, 99))
+			self.name = generate_slug(title, "LMS Course")
 
 	def __repr__(self):
 		return f"<Course#{self.name}>"

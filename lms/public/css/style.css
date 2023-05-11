@@ -2,6 +2,215 @@
   --text-3-5xl: 24px;
   --text-3-8xl: 34px;
   --text-4xl: 36px;
+  --primary-color: var(--gray-900);
+  --primary: var(--gray-900);
+	--checkbox-gradient: linear-gradient(180deg, #3d4142 -124.51%, var(--primary) 100%);
+}
+
+.nav-link .course-list-count {
+	border-radius: var(--border-radius-md);
+	padding: 0 0.3rem;
+	font-size: var(--text-sm);
+	border: 1px solid var(--gray-600)
+}
+
+.nav-link.active .course-list-count {
+	border: 1px solid var(--primary-color)
+}
+
+.page-title {
+	font-size: 1.25rem;
+	font-weight: 600;
+	color: var(--gray-900);
+	line-height: 160%;
+	letter-spacing: 0.005em;
+}
+
+.sticky {
+	position: sticky;
+	top: -1px;
+	z-index: 100;
+}
+
+.is-pinned {
+	background: #FFFFFF;
+	padding: 0.5rem 0;
+	border-bottom: 1px solid var(--gray-300);
+}
+
+.field-parent {
+	margin-top: 2rem;
+}
+
+.frappe-control .ql-editor:not(.read-mode) {
+	background-color: #FFFFFF;
+}
+
+.ql-toolbar.ql-snow, .ql-container.ql-snow {
+	border: 1px solid var(--gray-300);
+}
+
+.rating .icon {
+	background: var(--gray-200);
+	border-radius: var(--border-radius-md);
+	padding: var(--padding-xs);
+}
+
+.rating .star-click {
+    --star-fill: var(--orange-500);
+    background: var(--gray-200);
+    border-radius: var(--border-radius-md);
+    padding: var(--padding-xs);
+}
+
+.cta-parent {
+	display: flex;
+	margin-bottom: 1rem;
+}
+
+.all-cta {
+	flex: 1
+}
+
+.field-label {
+	color: var(--gray-900);
+	font-weight: 600;
+}
+
+.field-input {
+	border: 1px solid var(--gray-300);
+    border-radius: var(--border-radius-md);
+    padding: 0.5rem;
+    width: 100%;
+    margin-top: 0.25rem;
+}
+
+.field-input:focus-visible {
+	outline: none;
+}
+
+.field-group {
+	margin-bottom: 1.5rem;
+}
+
+.field-description {
+	font-size: var(--text-md);
+}
+
+.invisible-input {
+	border: none;
+}
+
+.invisible-input:focus-visible {
+	outline: none;
+}
+
+.image-preview {
+	width: 280px;
+	height: 178px;
+	border-radius: var(--border-radius-sm);
+	border: 1px solid var(--gray-300);
+	margin-top: 1rem;
+}
+
+textarea.field-input {
+	height: 300px;
+}
+
+.outline-lesson {
+	padding: 0.75rem 0;
+	border-bottom: 1px solid var(--gray-300);
+}
+
+.common-card-style .outline-lesson:last-of-type {
+	border-bottom: none;
+}
+
+.level {
+	justify-content: start;
+}
+
+.icon-bg {
+	background: var(--gray-100);
+	padding: 0.5rem;
+	border-radius: var(--border-radius-md);
+	margin: 0 0.5rem;
+}
+
+.quiz-modal {
+	min-height: 500px;
+}
+
+.ce-block__content {
+    max-width: 100%;
+    padding: 0 0.5rem;
+    margin: 0;
+}
+
+.ce-toolbar__content {
+	position: unset;
+}
+
+.lesson-editor {
+	border: 1px solid var(--gray-300);
+    border-radius: var(--border-radius-md);
+    padding-top: 0.5rem;
+}
+
+.lesson-parent .breadcrumb {
+	border-bottom: 1px solid var(--gray-300);
+	margin-bottom: 2rem;
+	padding-bottom: 1rem;
+}
+
+.form-width {
+	width: 50%;
+}
+
+@media (max-width: 768px) {
+	.form-width {
+		width: 75%;
+	}
+}
+
+.clickable {
+	color: var(--gray-900);
+	font-weight: 500;
+}
+
+.clickable:hover {
+	color: var(--gray-900);
+	text-decoration: none;
+}
+
+.codex-editor path {
+    stroke: var(--gray-800);
+}
+
+.drag-handle {
+	cursor: move;
+}
+
+.edit-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.btn-default:not(:disabled):not(.disabled).active {
+	color: white;
+	background-color: var(--primary);
+	border: none;
+}
+
+.field-label.reqd::after {
+	content: " *";
+	color: var(--red-400);
+}
+
+.error-message {
+	color: var(--red-500);
+	font-size: var(--text-sm);
 }
 
 body {
@@ -74,7 +283,7 @@ input[type=checkbox] {
 	font-weight: 600;
 	color: var(--gray-900);
 	width: fit-content;
-	box-shadow: var(--shadow-sm);
+	border: 1px solid var(--gray-300);
 }
 
 .dark-pills {
@@ -87,9 +296,7 @@ input[type=checkbox] {
 }
 
 .common-page-style {
-	padding: 2rem 0 5rem;
-	padding-top: 3rem;
-	background-color: var(--bg-color);
+	padding: 1.25rem 0 5rem;
 	font-size: var(--text-base);
 }
 
@@ -98,7 +305,7 @@ input[type=checkbox] {
   background: #FFFFFF;
   border-radius: var(--border-radius-md);
   position: relative;
-  box-shadow: var(--shadow-base);
+  border: 1px solid var(--gray-300)
 }
 
 .course-card {
@@ -199,9 +406,7 @@ input[type=checkbox] {
 .cards-parent {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  -moz-column-gap: 40px;
-  column-gap: 40px;
-  row-gap: 40px;
+  grid-gap: 2rem;
   align-items: center;
 }
 
@@ -231,12 +436,12 @@ input[type=checkbox] {
 }
 
 .button-links {
-  color: var(--gray-900);
+  color: inherit;
 }
 
 .button-links:hover {
   text-decoration: none;
-  color: var(--gray-900);
+  color: inherit;
 }
 
 .icon-background {
@@ -290,21 +495,21 @@ input[type=checkbox] {
 }
 
 .course-card-wide {
-  width: 50%;
-  font-size: var(--text-base);
+	width: 50%;
+	margin-bottom: 2rem;
 }
 
 @media (max-width: 1000px) {
   .course-card-wide {
 	width: 75%;
-	margin: 0 auto;
+	margin: 0 auto 2rem;
   }
 }
 
 @media (max-width: 768px) {
   .course-card-wide {
 	width: 100%;
-	margin: 0;
+	margin: 0 0 2rem;
   }
 }
 
@@ -342,15 +547,14 @@ input[type=checkbox] {
 }
 
 .wide-button {
-  padding: 0.5rem 6rem;
-  font-weight: 500;
-  width: 100%;
+	padding: 0.3rem 4rem;
+	width: 100%;
 }
 
 @media (max-width: 768px) {
-  .wide-button {
-	padding: 0.5rem 4rem;
-  }
+	.wide-button {
+		padding: 0.3rem 4rem;
+	}
 }
 
 .is-secondary {
@@ -388,7 +592,7 @@ input[type=checkbox] {
 
 .course-home-page {
   background-color: #FFFFFF;
-  padding-top: 4rem;
+  padding-top: 2.5rem;
 }
 
 .chapter-title {
@@ -397,12 +601,20 @@ input[type=checkbox] {
 	color: var(--gray-900);
 	display: flex;
 	align-items: center;
-	padding-bottom: 0.5rem;
+	padding-bottom: 0.25rem;
+	padding-right: 0.5rem;
+	font-size: var(--text-lg);
+}
+
+.chapter-title:last-child {
+	padding-bottom: 0;
 }
 
 .chapter-description {
 	color: var(--gray-900);
 	font-size: var(--text-sm);
+	margin-left: 0.5rem;
+	margin-bottom: 0.5rem;
 }
 
 .course-content-parent .chapter-description {
@@ -414,8 +626,7 @@ input[type=checkbox] {
 }
 
 .reviews-parent {
-  padding-bottom: 5rem;
-  color: var(--gray-900);
+  	color: var(--gray-900);
 }
 
 .lesson-info {
@@ -426,6 +637,7 @@ input[type=checkbox] {
 
 .lesson-links {
 	display: flex;
+	align-items: center;
 	padding: 0.5rem;
 	color: var(--gray-900);
 	font-size: var(--text-base);
@@ -436,10 +648,6 @@ input[type=checkbox] {
   text-decoration: none;
   color: var(--gray-900);
   border-radius: var(--border-radius-md);
-}
-
-.lessons {
-	margin-left: 1.5rem;
 }
 
 .member-card {
@@ -580,7 +788,7 @@ input[type=checkbox] {
 }
 
 .course-details-outline {
-  margin-top: 1rem;
+  margin-top: 2.5rem;
 }
 
 .lesson-content {
@@ -589,7 +797,7 @@ input[type=checkbox] {
 }
 
 .lesson-content-card {
-	margin-top: 2rem;
+	margin-top: 1.5rem;
 }
 
 .lesson-content-card .alert-dismissible .close {
@@ -598,8 +806,8 @@ input[type=checkbox] {
 
 .course-content-parent {
   display: grid;
-  grid-gap: 2rem;
-  grid-template-columns: 2fr minmax(600px, 5fr);
+  grid-gap: 4rem;
+  grid-template-columns: 1fr 3fr;
 }
 
 @media (max-width: 1024px) {
@@ -610,25 +818,12 @@ input[type=checkbox] {
 }
 
 .course-content-parent .course-home-headings {
-	margin: 0 0 1rem;
+	margin: 0 0 0.5rem;
 	width: 100%;
 }
 
 .lesson-pagination {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	margin-top: 2rem
-}
-
-.lesson-pagination-parent {
-  margin-top: 1rem;
-}
-
-@media (max-width: 768px) {
-  .lesson-pagination-parent {
-	margin-left: 0px;
-  }
+	margin: 2rem 0;
 }
 
 .lesson-video {
@@ -638,12 +833,6 @@ input[type=checkbox] {
 .active-lesson {
   background-color: var(--gray-200);
   border-radius: var(--border-radius-md);
-}
-
-.lesson-title {
-  display: flex;
-  align-items: center;
-  margin-bottom: 1rem;
 }
 
 .profile-page {
@@ -803,8 +992,8 @@ input[type=checkbox] {
 }
 
 .progress-percent {
-  margin: 0.5rem 0;
-  font-size: var(--text-base);
+	margin: 0.5rem 0;
+	font-size: var(--text-sm);
 }
 
 pre {
@@ -906,12 +1095,12 @@ pre {
 }
 
 .empty-state {
-  background: var(--gray-200);
-  border-radius: var(--border-radius-lg);
-  padding: 4rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+	border: 1px solid var(--gray-300);
+	border-radius: var(--border-radius-lg);
+	padding: 4rem;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 
 .empty-state-text {
@@ -946,9 +1135,9 @@ pre {
 .search-course {
 	background-position: 1rem;
 	text-indent: 1rem;
-    font-size: var(--text-base);
-    padding: 1.5rem;
-    width: 100%;
+	font-size: var(--text-base);
+	padding: 1.5rem;
+	width: 100%;
 	box-shadow: none;
 }
 
@@ -1201,8 +1390,7 @@ pre {
 }
 
 .course-head-container {
-	color: var(--gray-900);
-	background-color: var(--gray-50);
+	border-bottom: 1px solid var(--gray-300);
 }
 
 .seperator {
@@ -1210,16 +1398,16 @@ pre {
 }
 
 .course-overlay-card {
-  background-color: white;
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-sm);
-  overflow: auto;
-  width: fit-content;
-  position: absolute;
-  top: 10%;
-  right: 7%;
-  max-width: 400px;
-  z-index: 4;
+	background-color: white;
+	border-radius: var(--border-radius-lg);
+	border: 1px solid var(--gray-300);
+	overflow: auto;
+	width: fit-content;
+	position: absolute;
+	top: 10%;
+	right: 7%;
+	width: 350px;
+	z-index: 4;
 }
 
 @media (max-width: 1000px) {
@@ -1339,20 +1527,16 @@ pre {
 	margin: 0 1rem;
 }
 
-.avg-rating-stars {
-  background: var(--gray-200);
-  border-radius: 100px;
-  padding: 0.5rem 0.75rem;
-  margin: 1.25rem 0 0.5rem;
+.course-card-wide .avg-rating-stars {
+	margin-top: 2rem;
 }
-
 .reviews-parent .progress {
   width: 200px;
   color: var(--gray-900);
 }
 
 .reviews-parent .progress-bar {
-  background-color: var(--gray-600);
+  background-color: var(--primary-color);
 }
 
 .course-home-top-container {
@@ -1486,14 +1670,6 @@ li {
 	margin-bottom: 1.25rem;
 }
 
-.course-card-wide .avatar .standard-image {
-	border: 1px solid var(--gray-400);
-}
-
-.lesson-progress-tick {
-	margin: 0 0.5rem
-}
-
 .no-preview {
 	color: var(--gray-600);
 }
@@ -1553,20 +1729,6 @@ li {
 	}
 }
 
-[contenteditable="true"] {
-	outline: none;
-	background-color: var(--bg-light-gray);
-	border-radius: var(--border-radius);
-	border: 1px solid var(--gray-300);
-	padding: 0.5rem 0.75rem;
-	color: var(--gray-900);
-}
-
-[contenteditable="true"]:empty:before {
-	content: attr(data-placeholder);
-	color: var(--gray-600);
-}
-
 .course-image-attachment {
 	margin-top: 0.25rem;
 	background-color: var(--bg-light-gray);
@@ -1595,12 +1757,12 @@ li {
 	margin-bottom: 1rem;
 }
 
-.chapter-edit .chapter-title {
-	padding: 0.5rem 0;
+.chapter-parent:last-child {
+	margin-bottom: 0;
 }
 
-.course-card-pills[contenteditable="true"] {
-	box-shadow: none;
+.chapter-edit .chapter-title {
+	padding: 0.5rem 0;
 }
 
 .preview {
@@ -1611,14 +1773,6 @@ li {
 
 .table {
 	margin-bottom: 0;
-}
-
-.quiz-card {
-	border: 1px solid var(--dark-border-color);
-	border-radius: var(--border-radius);
-	padding: 1.25rem;
-	margin-top: 1.25rem;
-	font-size: var(--text-base);
 }
 
 .option-input {
@@ -1789,6 +1943,10 @@ li {
 	justify-content: flex-end !important;
 }
 
+.modal-footer .btn:first-child {
+	margin-right: 0.5rem;
+}
+
 .modal-header .modal-title {
 	color: var(--gray-900);
 	line-height: 1.5rem;
@@ -1802,7 +1960,7 @@ li {
 }
 
 .course-description-section {
-	padding-bottom: 4rem;
+	padding-bottom: 2.5rem;
 }
 
 input::file-selector-button {
@@ -1945,11 +2103,11 @@ select {
 .result-row {
 	display: block;
 	padding: 1rem;
-    border-top: 1px solid var(--gray-300);
-    font-weight: 500;
-    color: var(--gray-900);
-    font-size: var(--text-base);
-    cursor: pointer;
+	border-top: 1px solid var(--gray-300);
+	font-weight: 500;
+	color: var(--gray-900);
+	font-size: var(--text-base);
+	cursor: pointer;
 }
 
 .result-row:hover {
@@ -1988,10 +2146,10 @@ select {
 .lms-card {
 	display: flex;
 	flex-direction: column;
-    border-radius: 0.75rem;
-    /* border: 1px solid var(--gray-200); */
+	border-radius: 0.75rem;
+	/* border: 1px solid var(--gray-200); */
 	box-shadow: var(--shadow-sm);
-    padding: 0.5rem;
+	padding: 0.5rem;
 	height: 100%;
 	position: relative;
 }
@@ -2019,8 +2177,8 @@ select {
 
 .lms-card-parent {
 	display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    grid-gap: 1.5rem;
+	grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+	grid-gap: 1.5rem;
 }
 
 .answer-indicator {
@@ -2037,3 +2195,4 @@ select {
 .answer-indicator.failure {
 	background-color: var(--red-50);
 }
+

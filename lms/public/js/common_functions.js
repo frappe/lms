@@ -1,5 +1,6 @@
 frappe.ready(() => {
 	setup_file_size();
+	pin_header();
 
 	$(".join-batch").click((e) => {
 		join_course(e);
@@ -7,14 +8,6 @@ frappe.ready(() => {
 
 	$(".notify-me").click((e) => {
 		notify_user(e);
-	});
-
-	$(".btn-chapter").click((e) => {
-		add_chapter(e);
-	});
-
-	$(document).on("click", ".btn-save-chapter", (e) => {
-		save_chapter(e);
 	});
 
 	$(".nav-link").click((e) => {
@@ -44,43 +37,21 @@ frappe.ready(() => {
 		show_no_preview_dialog(e);
 	});
 
-	$(".lesson-dropzone").each((i, el) => {
-		setSortable(el);
-	});
-
-	$(".chapter-dropzone").each((i, el) => {
-		setSortable(el);
-	});
-
 	$("#create-class").click((e) => {
 		open_class_dialog(e);
 	});
 });
 
-const setSortable = (el) => {
-	new Sortable(el, {
-		group: {
-			name: "les",
-			pull: "les",
-			put: "les",
-		},
-		onEnd: (e) => {
-			if ($(e.item).hasClass("lesson-info")) reorder_lesson(e);
-			else reorder_chapter(e);
-		},
-		onMove: (e) => {
-			if (
-				$(e.dragged).hasClass("lesson-info") &&
-				$(e.to).hasClass("chapter-dropzone")
-			)
-				return false;
-			if (
-				$(e.dragged).hasClass("chapter-edit") &&
-				$(e.to).hasClass("lesson-dropzone")
-			)
-				return false;
-		},
-	});
+const pin_header = () => {
+	const el = document.querySelector(".sticky");
+	if (el) {
+		const observer = new IntersectionObserver(
+			([e]) =>
+				e.target.classList.toggle("is-pinned", e.intersectionRatio < 1),
+			{ threshold: [1] }
+		);
+		observer.observe(el);
+	}
 };
 
 const setup_file_size = () => {
@@ -158,65 +129,6 @@ const notify_user = (e) => {
 			setTimeout(() => {
 				window.location.reload();
 			}, 3000);
-		},
-	});
-};
-
-const add_chapter = (e) => {
-	if ($(".new-chapter").length) {
-		scroll_to_chapter_container();
-		return;
-	}
-
-	let next_index = $("[data-index]").last().data("index") + 1 || 1;
-	let add_after = $(`.chapter-parent:last`).length
-		? $(`.chapter-dropzone`)
-		: $("#outline-heading");
-
-	$(`<div class="chapter-parent chapter-edit new-chapter">
-        <div contenteditable="true" data-placeholder="${__(
-			"Chapter Name"
-		)}" class="chapter-title-main"></div>
-        <div class="chapter-description small my-2" contenteditable="true"
-            data-placeholder="${__("Short Description")}"></div>
-        <button class="btn btn-sm btn-secondary d-block btn-save-chapter"
-        data-index="${next_index}"> ${__("Save")} </button>
-        </div>`).insertAfter(add_after);
-
-	scroll_to_chapter_container();
-};
-
-const scroll_to_chapter_container = () => {
-	$([document.documentElement, document.body]).animate(
-		{
-			scrollTop: $(".new-chapter").offset().top,
-		},
-		1000
-	);
-	$(".new-chapter").find(".chapter-title-main").focus();
-};
-
-const save_chapter = (e) => {
-	let target = $(e.currentTarget);
-	let parent = target.closest(".chapter-parent");
-
-	frappe.call({
-		method: "lms.lms.doctype.lms_course.lms_course.save_chapter",
-		args: {
-			course: $("#title").data("course"),
-			title: parent.find(".chapter-title-main").text(),
-			chapter_description: parent.find(".chapter-description").text(),
-			idx: target.data("index"),
-			chapter: parent.data("chapter") ? parent.data("chapter") : "",
-		},
-		callback: (data) => {
-			frappe.show_alert({
-				message: __("Saved"),
-				indicator: "green",
-			});
-			setTimeout(() => {
-				window.location.reload();
-			}, 1000);
 		},
 	});
 };
@@ -344,50 +256,6 @@ const rotate_chapter_icon = (e) => {
 
 const show_no_preview_dialog = (e) => {
 	$("#no-preview-modal").modal("show");
-};
-
-const reorder_lesson = (e) => {
-	let old_chapter = $(e.from).closest(".chapter-edit").data("chapter");
-	let new_chapter = $(e.to).closest(".chapter-edit").data("chapter");
-
-	if (old_chapter == new_chapter && e.oldIndex == e.newIndex) return;
-
-	frappe.call({
-		method: "lms.lms.doctype.lms_course.lms_course.reorder_lesson",
-		args: {
-			old_chapter: old_chapter,
-			old_lesson_array: $(e.from)
-				.children()
-				.map((i, e) => $(e).data("lesson"))
-				.get(),
-			new_chapter: new_chapter,
-			new_lesson_array: $(e.to)
-				.children()
-				.map((i, e) => $(e).data("lesson"))
-				.get(),
-		},
-		callback: (data) => {
-			window.location.reload();
-		},
-	});
-};
-
-const reorder_chapter = (e) => {
-	if (e.oldIndex == e.newIndex) return;
-
-	frappe.call({
-		method: "lms.lms.doctype.lms_course.lms_course.reorder_chapter",
-		args: {
-			new_index: e.newIndex + 1,
-			chapter_array: $(e.to)
-				.children()
-				.map((i, e) => $(e).data("chapter"))
-				.get(),
-		},
-		callback: (data) => {
-			window.location.reload();
-		},
-	});
 };
 
 const open_class_dialog = (e) => {

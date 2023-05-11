@@ -6,79 +6,55 @@
 
 {% block content %}
 <div class="common-page-style">
-    <div class="container">
-
-        <a class="btn btn-secondary btn-sm pull-right" href="/quizzes/new-quiz">
-            {{ _("Add Quiz") }}
-        </a>
-        <div class="course-home-headings">
-            {{ _("Quiz List") }}
-        </div>
-
+    <div class="container form-width">
+        {{ Header() }}
         {% if quiz_list | length %}
-        <div class="common-card-style">
-            <table class="table">
-
-                <tr style="background-color: var(--fg-hover-color); font-weight: bold">
-                    <td style="width: 10%;"> {{ _("No.") }} </td>
-                    <td style="width: 45%;"> {{ _("Title") }} </td>
-                    <td> {{ _("ID") }} </td>
-                    <td>  </td>
-                </tr>
-
-                {% for quiz in quiz_list %}
-                <tr class="quiz-row" data-name="{{ quiz.name }}">
-                    <td> {{ loop.index }} </td>
-                    <td>
-                        {{ quiz.title }}
-                    </td>
-                    <td>
-                        {{ quiz.name }}
-                    </td>
-                    <td>
-                        <a class="btn btn-secondary btn-sm copy-quiz-id" data-name="{{ quiz.name }}">
-                            {{ _("Copy Quiz ID") }}
-                        </a>
-                    </td>
-                </tr>
-                {% endfor %}
-
-            </table>
-        </div>
-
+        {{ QuizList(quiz_list) }}
         {% else %}
-        <div class="empty-state">
-            <img class="icon icon-xl" src="/assets/lms/icons/comment.svg">
-            <div class="empty-state-text">
-                <div class="empty-state-heading">
-                    {{ _("You have not created any quiz yet.") }}
-                </div>
-                <div class="course-meta ">
-                    {{ _("Create a quiz and add it to your course to engage your users.") }}
-                </div>
-            </div>
-        </div>
+        {{ EmptyState() }}
         {% endif %}
     </div>
 </div>
 {% endblock %}
 
+{% macro Header() %}
+<header class="sticky">
+    <div class="edit-header">
+        <div class="page-title">
+            {{ _("Quiz List") }}
+        </div>
 
-{% block script %}
-<script>
-    frappe.ready(() => {
+        <a class="btn btn-primary btn-sm align-self-center" href="/quizzes/new-quiz">
+            {{ _("Add Quiz") }}
+        </a>
+    </div>
+</header>
+{% endmacro  %}
 
-        $(".copy-quiz-id").click((e) => {
-            e.preventDefault();
-            frappe.utils.copy_to_clipboard($(e.currentTarget).data("name"));
-        });
+{% macro QuizList(quiz_list) %}
+<div class="mt-5">
+    <ul class="list-unstyled">
+       {% for quiz in quiz_list %}
+       <li class="mt-2">
+        <a class="clickable" href="/quizzes/{{ quiz.name }}">
+            {{ quiz.title }}
+        </a>
+    </li>
+    {% endfor %}
+    </ul>
+</div>
+{% endmacro %}
 
-        $(".quiz-row").click((e) => {
-            if (!$(e.target).hasClass("copy-quiz-id")) {
-                window.location.href = `/quizzes/${$(e.currentTarget).data('name')}`;
-            }
-        });
-
-    });
-</script>
-{% endblock %}
+{% macro EmptyState() %}
+<div class="empty-state mt-5">
+    <img class="icon icon-xl" src="/assets/lms/icons/comment.svg">
+    <div class="empty-state-text">
+        <div class="empty-state-heading">
+            {{ _("You have not created any quiz yet.") }}
+        </div>
+        <div class="course-meta ">
+            {{ _("Create a quiz and add it to your course to engage your users.") }}
+        </div>
+    </div>
+</div>
+{% endmacro %}

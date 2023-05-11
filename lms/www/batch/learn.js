@@ -1,7 +1,6 @@
 frappe.ready(() => {
 	this.marked_as_complete = false;
 	this.quiz_submitted = false;
-	this.file_type;
 	this.answer = [];
 	this.is_correct = [];
 	let self = this;
@@ -11,8 +10,6 @@ frappe.ready(() => {
 	fetch_assignments();
 
 	save_current_lesson();
-
-	set_file_type();
 
 	$(".option").click((e) => {
 		enable_check(e);
@@ -64,22 +61,10 @@ frappe.ready(() => {
 		clear_work(e);
 	});
 
-	$(".btn-lesson").click((e) => {
-		save_lesson(e);
-	});
-
-	$(".add-attachment").click((e) => {
-		show_upload_modal();
-	});
-
 	$(".btn-start-quiz").click((e) => {
 		$("#start-banner").addClass("hide");
 		$("#quiz-form").removeClass("hide");
 		mark_active_question();
-	});
-
-	$(".btn-edit").click((e) => {
-		window.location.href = `${window.location.href}?edit=1`;
 	});
 
 	$(".btn-back").click((e) => {
@@ -99,16 +84,6 @@ frappe.ready(() => {
 			}
 		});
 	}
-
-	if ($("#body").length) {
-		make_editor();
-	}
-
-	$("#file-type").change((e) => {
-		$("#file-type option:selected").each(function () {
-			self.file_type = $(this).val();
-		});
-	});
 });
 
 const save_current_lesson = () => {
@@ -525,99 +500,4 @@ const calculate_and_display_time = (percent_time) => {
 	$(".timer .progress-bar").css("width", `${percent_time}%`);
 	let progress_color = percent_time < 20 ? "red" : "var(--primary-color)";
 	$(".timer .progress-bar").css("background-color", progress_color);
-};
-
-const save_lesson = (e) => {
-	let lesson = $("#title").data("lesson");
-	let self = this;
-	frappe.call({
-		method: "lms.lms.doctype.lms_course.lms_course.save_lesson",
-		args: {
-			title: $("#title").text(),
-			body: this.code_field_group.fields_dict["code_md"].value,
-			youtube: $("#youtube").text(),
-			quiz_id: $("#quiz-id").text(),
-			chapter: $("#title").data("chapter"),
-			preview: $("#preview").prop("checked") ? 1 : 0,
-			idx: $("#title").data("index"),
-			lesson: lesson ? lesson : "",
-			question: $("#assignment-question").text(),
-			file_type: self.file_type,
-		},
-		callback: (data) => {
-			frappe.show_alert({
-				message: __("Saved"),
-				indicator: "green",
-			});
-			setTimeout(() => {
-				window.location.href = window.location.href.split("?")[0];
-			}, 1000);
-		},
-	});
-};
-
-const show_upload_modal = () => {
-	new frappe.ui.FileUploader({
-		folder: "Home/Attachments",
-		restrictions: {
-			allowed_file_types: ["image/*", "video/*"],
-		},
-		on_success: (file_doc) => {
-			$(".attachments").append(build_attachment_table(file_doc));
-			let count = $(".attachment-count").data("count") + 1;
-			$(".attachment-count").data("count", count);
-			$(".attachment-count").html(__(`${count} attachments`));
-			$(".attachments").removeClass("hide");
-		},
-	});
-};
-
-const build_attachment_table = (file_doc) => {
-	let video_types = ["mov", "mp4", "mkv"];
-	let video_extension = file_doc.file_url.split(".").pop();
-	let is_video = video_types.indexOf(video_extension) >= 0;
-	let link = is_video
-		? `{{ Video('${file_doc.file_url}') }}`
-		: `![](${file_doc.file_url})`;
-
-	return $(`
-        <tr class="attachment-row">
-            <td>${file_doc.file_name}</td>
-            <td class="">
-                <a class="button is-secondary button-links copy-link" data-link="${link}"
-                data-name="${file_doc.file_name}" > ${__("Copy Link")}
-                </a>
-            </td>
-        </tr>
-    `);
-};
-
-const make_editor = () => {
-	this.code_field_group = new frappe.ui.FieldGroup({
-		fields: [
-			{
-				fieldname: "code_md",
-				fieldtype: "Text Editor",
-				default: $(".body-data").html(),
-			},
-		],
-		body: $("#body").get(0),
-	});
-	this.code_field_group.make();
-	$("#body .form-section:last").removeClass("empty-section");
-	$("#body .frappe-control").removeClass("hide-control");
-	$("#body .form-column").addClass("p-0");
-};
-
-const set_file_type = () => {
-	let self = this;
-	let file_type = $("#file-type").data("type");
-	if (file_type) {
-		$("#file-type option").each((i, elem) => {
-			if ($(elem).val() == file_type) {
-				$(elem).attr("selected", true);
-				self.file_type = file_type;
-			}
-		});
-	}
 };

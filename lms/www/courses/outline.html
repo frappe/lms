@@ -1,0 +1,194 @@
+{% extends "lms/templates/lms_base.html" %}
+
+
+{% block title %}
+{{ _("Outline") }} - {{ course.title }}
+{% endblock %}
+
+{% block page_content %}
+<main class="common-page-style">
+    {{ Header() }}
+    <div class="container form-width" id="course-outline" {% if course.name %} data-course="{{ course.name }}" {% endif %}>
+        {% if chapters | length %}
+            {{ Outline(chapters) }}
+        {% else %}
+            {{ EmptyState() }}
+        {% endif %}
+        {{ CreateChapter() }}
+    </div>
+</main>
+{% endblock %}
+
+
+{% macro Header() %}
+<header class="sticky">
+    <div class="container form-width">
+
+        <div class="edit-header">
+            <div>
+                <div class="page-title">
+                    {{ course.title if course.name else _("Course Outline") }}
+                </div>
+                <div class="vertically-center small">
+                    <a class="dark-links" href="/courses/{{ course.name }}/edit">{{ _("Course Details") }}</a>
+                    <img class="icon icon-sm mr-0" src="/assets/lms/icons/chevron-right.svg">
+                    <span class="breadcrumb-destination">{{ _("Course Outline") }}</span>
+                </div>
+            </div>
+
+            <button class="btn btn-primary btn-sm btn-add-chapter align-self-center">
+                <span>
+                    {{ _("Add Chapter") }}
+                </span>
+            </button>
+        </div>
+
+    </div>
+</header>
+{% endmacro %}
+
+
+{% macro Outline(chapters) %}
+    {% if chapters %}
+        <div class="chapter-dropzone">
+            {% for chapter in chapters %}
+            {% set chapter_index = loop.index %}
+            {% set lessons = get_lessons(course.name, chapter) %}
+            <div class="common-card-style column-card chapter-container p-4 my-5" data-chapter="{{ chapter.name }}" data-idx="{{ loop.index }}">
+                <div class="level">
+                    <div class="drag-handle">
+                        <svg class="icon icon-xs level-item mr-2">
+                            <use class="" href="#icon-drag"></use>
+                        </svg>
+                    </div>
+                    <div class="bold-heading chapters-title">
+                        {{ chapter.title }}
+                    </div>
+                </div>
+
+                {% if chapter.description %}
+                <div class="mb-2 ml-5 chapter-description">
+                    {{ chapter.description }}
+                </div>
+                {% endif %}
+
+                {% if lessons | length %}
+                <div class="lesson-dropzone">
+                    {% for lesson in lessons %}
+                    <div class="outline-lesson level" data-lesson="{{ lesson.name }}">
+                        <div class="drag-handle">
+                            <svg class="icon icon-xs level-item mr-2">
+                                <use class="" href="#icon-drag"></use>
+                            </svg>
+                        </div>
+                        <div>
+                            <a class="clickable" href="/courses/{{ course.name }}/learn/{{ chapter_index }}.{{ loop.index }}/edit">
+                                {{ lesson.title }}
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+
+                <div class="align-self-start mt-4">
+                    <a class="btn btn-secondary btn-sm" href="/courses/{{ course.name }}/learn/{{ loop.index }}.{{ lessons | length + 1 }}/edit">
+                        <span>
+                            {{ _("Add Lesson") }}
+                        </span>
+                    </a>
+                    <button class="btn btn-secondary btn-sm ml-2 edit-chapter">
+                        <span>
+                            {{ _("Edit") }}
+                        </span>
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+{% endmacro %}
+
+
+{% macro CreateChapter() %}
+<div class="modal fade chapter-modal" id="chapter-modal" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">{{ _("New Chapter") }}</div>
+            </div>
+
+
+            <div class="modal-body">
+                <article id="create-chapter">
+                    <div class="chapter-container">
+
+                        <div class="field-group">
+                            <div>
+                                <div class="field-label reqd">
+                                    {{ _("Chapter Title") }}
+                                </div>
+                                <div class="field-description">
+                                    {{ _("Something Short and Concise") }}
+                                </div>
+                            </div>
+                            <div class="">
+                                <input id="chapter-title" type="text" class="field-input">
+                            </div>
+                        </div>
+
+                        <div class="field-group">
+                            <div>
+                                <div class="field-label">
+                                    {{ _("Short Description") }}
+                                </div>
+                                <div class="field-description">
+                                    {{ _("A breif description about this chapter.") }}
+                                </div>
+                            </div>
+                            <div class="">
+                                <input id="chapter-description" type="text" class="field-input">
+                            </div>
+                        </div>
+
+                    </div>
+                </article>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary btn-sm mr-2" data-dismiss="modal" aria-label="Close">
+                    {{ _("Discard") }}
+                </button>
+
+                <button class="btn btn-primary btn-sm align-self-start" id="save-chapter">
+                    {{ _("Save") }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+
+{% macro EmptyState() %}
+<article class="empty-state my-5">
+    <div class="text-center">
+        <div class="bold-heading">
+            {{ _("You have not added any chapter yet") }}
+        </div>
+        <div>
+            {{ _("Create and manage your chapters from here.") }}
+        </div>
+        <div class="mt-4">
+            <button class="btn btn-default btn-sm btn-add-chapter">
+                <span>
+                    {{ _("Add Chapter") }}
+                </span>
+            </button>
+        </div>
+    </div>
+</article>
+{% endmacro %}
