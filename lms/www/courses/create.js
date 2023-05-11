@@ -94,20 +94,28 @@ const validate_mandatory = () => {
 		let input = $(el).closest(".field-group").find(".field-input");
 		if (input.length && input.val().trim() == "") {
 			if (input.siblings(".error-message").length == 0) {
-				let error = document.createElement("p");
-				error.classList.add("error-message");
-				error.innerText = `Please enter a ${$(el).text().trim()}`;
-				$(error).insertAfter($(input));
+				scroll_to_element(input);
+				throw_error(el, input);
 			}
-			scroll_to_element(input);
-			throw "Mandatory field missing";
+			throw `${$(el).text().trim()} is mandatory`;
 		}
 	});
-	console.log(this.description.fields_dict["description"].value);
-	if (!this.description.fields_dict["description"].value) {
+
+	if (!strip_html(this.description.fields_dict["description"].value)) {
 		scroll_to_element("#description");
-		frappe.throw(__(`Please enter a description`));
+		throw_error(
+			"#description",
+			this.description.fields_dict["description"].parent
+		);
+		throw "Description is mandatory";
 	}
+};
+
+const throw_error = (el, input) => {
+	let error = document.createElement("p");
+	error.classList.add("error-message");
+	error.innerText = `Please enter a ${$(el).text().trim()}`;
+	$(error).insertAfter($(input));
 };
 
 const scroll_to_element = (element) => {

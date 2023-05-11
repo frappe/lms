@@ -1398,16 +1398,16 @@ pre {
 }
 
 .course-overlay-card {
-  background-color: white;
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-sm);
-  overflow: auto;
-  width: fit-content;
-  position: absolute;
-  top: 10%;
-  right: 7%;
-  max-width: 350px;
-  z-index: 4;
+	background-color: white;
+	border-radius: var(--border-radius-lg);
+	border: 1px solid var(--gray-300);
+	overflow: auto;
+	width: fit-content;
+	position: absolute;
+	top: 10%;
+	right: 7%;
+	width: 350px;
+	z-index: 4;
 }
 
 @media (max-width: 1000px) {

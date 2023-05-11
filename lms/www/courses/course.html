@@ -129,14 +129,12 @@
                 {{ format_number(get_students(course.name) | length) }} {{ _("Enrolled") }}
             </div>
 
-            {% if get_lessons(course.name) | length %}
             <div class="vertically-center mb-3">
                 <svg class="icon icon-md mr-1">
                     <use href="#icon-education"></use>
                 </svg>
                 {{ get_lessons(course.name, None, False) }} {{ _("Lessons") }}
             </div>
-            {% endif %}
 
             {% if course.enable_certification %}
             <div class="vertically-center mb-3">
@@ -253,23 +251,24 @@
             </a>
 
             {% elif course.grant_certificate_after == "Completion" and progress == 100 %}
-            <div class="btn btn-secondary wide-button is-secondary mt-2" id="certification" data-course="{{ course.name }}">
+            <div class="btn btn-secondary wide-button mt-2" id="certification" data-course="{{ course.name }}">
                 {{ _("Get Certificate") }}
             </div>
             {% endif %}
         {% endif %}
-    </div>
 
-
-    <div>
         {% if is_instructor(course.name) or has_course_moderator_role() %}
-        <a class="btn btn-default btn-sm pull-right ml-2" title="Edit Course" href="/courses/{{ course.name }}/edit">
-            <svg class="icon icon-md">
-                <use href="#icon-edit"></use>
-            </svg>
-        </a>
+            <a class="btn btn-secondary wide-button mt-2" title="Edit Course" href="/courses/{{ course.name }}/edit">
+                <!-- <svg class="icon icon-md">
+                    <use href="#icon-edit"></use>
+                </svg> -->
+                {{ _("Edit") }}
+            </a>
         {% endif %}
     </div>
+
+
+
 
 {% endmacro %}
 
