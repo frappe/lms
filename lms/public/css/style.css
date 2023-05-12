@@ -1,9 +1,7 @@
 :root {
-  --text-3-5xl: 24px;
-  --text-3-8xl: 34px;
-  --text-4xl: 36px;
-  --primary-color: var(--gray-900);
-  --primary: var(--gray-900);
+	--text-3-5xl: 24px;
+	--text-3-8xl: 34px;
+	--text-4xl: 36px;
 	--checkbox-gradient: linear-gradient(180deg, #3d4142 -124.51%, var(--primary) 100%);
 }
 
