@@ -247,7 +247,6 @@
     <script type="text/javascript">
         var page_context = {{ page_context | tojson }};
     </script>
-    {{ include_script('controls.bundle.js') }}
     {% for ext in page_extensions %}
     {{ ext.render_footer() }}
     {% endfor %}

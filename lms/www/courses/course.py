@@ -69,7 +69,7 @@ def set_course_context(context, course_name):
 		course.edit_mode = True
 
 	if course is None:
-		redirect_to_courses_list()
+		raise frappe.PermissionError(_("This is not a valid course URL."))
 
 	related_courses = frappe.get_all(
 		"Related Courses", {"parent": course.name}, ["course"]
