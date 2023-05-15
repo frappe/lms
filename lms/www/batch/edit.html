@@ -1,0 +1,131 @@
+{% extends "lms/templates/lms_base.html" %}
+
+{% block title %}
+{% if lesson.title %}
+{{ lesson.title }} - {{ course.title }}
+{% else %}
+{{ _("New Lesson") }}
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<main class="common-page-style">
+    {{ Header() }}
+    <div class="container form-width" id="course-outline" {% if course.name %} data-course="{{ course.name }}" {% endif %}>
+        {{ CreateLesson() }}
+    </div>
+</main>
+{% endblock %}
+
+
+{% macro Header() %}
+<header class="sticky">
+    <div class="container form-width">
+
+        <div class="edit-header">
+
+            <div>
+                <div class="page-title">
+                    {{ course.title if course.name else _("Course Outline") }}
+                </div>
+                <div class="vertically-center small">
+                    <a class="dark-links" href="/courses/{{ course.name }}/edit">
+                        {{ _("Course Details") }}
+                    </a>
+                    <img class="icon icon-sm mr-0" src="/assets/lms/icons/chevron-right.svg">
+                    <a class="dark-links" href="/courses/{{ course.name }}/outline">
+                        {{ _("Course Outline") }}
+                    </a>
+                    <img class="icon icon-sm mr-0" src="/assets/lms/icons/chevron-right.svg">
+                    <span class="breadcrumb-destination">
+                        {{ _("New Lesson") }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="align-self-center">
+                {% if lesson.name %}
+                <a class="btn btn-default btn-sm mr-2" href="{{ get_lesson_url(course.name, lesson_number) }}">
+                    <span>
+                        {{ _("Back to Lesson") }}
+                    </span>
+                </a>
+                {% endif %}
+
+                <button class="btn btn-primary btn-sm" id="save-lesson">
+                    <span>
+                        {{ _("Save") }}
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+</header>
+{% endmacro %}
+
+{% macro CreateLesson() %}
+<article class="field-parent">
+    <div class="field-group">
+        <div>
+            <div class="field-label">
+                {{ _("Title") }}
+            </div>
+            <div class="field-description">
+                {{ _("Something Short and Concise") }}
+            </div>
+        </div>
+        <div class="">
+            <input id="lesson-title" type="text" class="field-input" data-index="{{ lesson_index }}" data-chapter="{{ chapter }}" data-course="{{ course.name }}" {% if lesson.name %} data-lesson="{{ lesson.name }}"  value="{{ lesson.title }}" {% endif %}>
+        </div>
+    </div>
+
+    <div class="field-group">
+        <label for="published" class="vertically-center">
+            <input type="checkbox" id="preview" {% if lesson.include_in_preview %} checked {% endif %}>
+            <span>{{ _("Show preview of this lesson to Guest users.") }}</span>
+        </label>
+    </div>
+
+    <div class="field-group">
+        <div>
+            <div class="field-label">
+                {{ _("Content") }}
+            </div>
+            <div class="field-description">
+                {{ _("Add your lesson content here") }}
+            </div>
+        </div>
+        <div id="lesson-content" class="lesson-editor"></div>
+        {% if lesson.body %}
+        <div id="current-lesson-content" class="hide">{{ lesson.body }}</div>
+        {% endif %}
+    </div>
+
+
+</article>
+{% endmacro %}
+
+
+{%- block script %}
+    {{ super() }}
+    {% if is_moderator %}
+	<script>
+		frappe.boot.user = {
+			"can_create": [],
+			"can_select": ["LMS Quiz"],
+			"can_read": ["LMS Quiz"]
+		};
+
+		frappe.router = {
+			slug (name) {
+				return name.toLowerCase().replace(/ /g, "-");
+			}
+		}
+	</script>
+	{% endif %}
+    {{ include_script('controls.bundle.js') }}
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/paragraph@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/header@latest"></script>
+{% endblock %}
+

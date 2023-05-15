@@ -9,6 +9,7 @@ from lms.lms.utils import (
 	is_certified,
 	is_instructor,
 	redirect_to_courses_list,
+	get_average_rating,
 )
 
 
@@ -33,6 +34,7 @@ def get_context(context):
 		context.membership = None
 	else:
 		set_course_context(context, course_name)
+	context.avg_rating = get_average_rating(context.course.name)
 
 
 def set_course_context(context, course_name):
@@ -67,7 +69,7 @@ def set_course_context(context, course_name):
 		course.edit_mode = True
 
 	if course is None:
-		redirect_to_courses_list()
+		raise frappe.PermissionError(_("This is not a valid course URL."))
 
 	related_courses = frappe.get_all(
 		"Related Courses", {"parent": course.name}, ["course"]

@@ -5,22 +5,20 @@
 
 
 {% block page_content %}
-<div class="common-page-style pt-0 pb-0">
+<div class="common-page-style">
     <div class="course-home-top-container">
         {{ CourseHomeHeader(course) }}
         <div class="course-home-page">
             <div class="container">
                 <div class="course-body-container">
                     {{ CourseHeaderOverlay(course) }}
-                    {{ CourseSettings(course) }}
                     {{ Description(course) }}
-                    {{ Save(course) }}
                     {{ widgets.CourseOutline(course=course, membership=membership, is_user_interested=is_user_interested) }}
-                    {% if not course.edit_mode and course.status == "Approved" and not frappe.utils.cint(course.upcoming) %}
+                    {% if course.status == "Approved" and not frappe.utils.cint(course.upcoming) %}
                     {% include "lms/templates/reviews.html" %}
                     {% endif %}
                 </div>
-              </div>
+            </div>
         </div>
     </div>
 </div>
@@ -29,10 +27,10 @@
 
 {% macro CourseHomeHeader(course) %}
 <div class="course-head-container">
-    <div class="container pt-8 pb-10">
+    <div class="container">
         <div class="course-card-wide">
-        {{ BreadCrumb(course) }}
-        {{ CourseCardWide(course) }}
+            {{ BreadCrumb(course) }}
+            {{ CourseCardWide(course) }}
         </div>
     </div>
 </div>
@@ -53,72 +51,35 @@
 {% macro CourseCardWide(course) %}
     <div class="d-flex align-items-center mt-8">
         {% for tag in get_tags(course.name) %}
-        <div class="course-card-pills" {% if course.edit_mode %} contenteditable="true" {% endif %}>{{ tag }}
-            {% if course.edit_mode %}
-            <span class="btn-delete-tag">
-                <svg class="icon  icon-sm">
-                    <use class="" href="#icon-close"></use>
-                </svg>
-            </span>
-            {% endif %}
+        <div class="course-card-pills">
+            {{ tag }}
         </div>
         {% endfor %}
-        {% if course.edit_mode %}
-        <button class="btn btn-default btn-sm btn-tag"> {{ _("Add Tag") }} </button>
+    </div>
+
+    <div id="title" {% if course.name %} data-course="{{ course.name | urlencode }}" {% endif %} class="page-title">
+        {% if course.title %} {{ course.title }} {% endif %}
+    </div>
+
+    <div id="intro">
+        {% if course.short_introduction %}
+        {{ course.short_introduction }}
         {% endif %}
     </div>
 
-    <div {% if course.edit_mode %} data-placeholder="{{ _('Title') }}" contenteditable="true" {% endif %}
-        id="title" {% if course.name %} data-course="{{ course.name | urlencode }}" {% endif %}
-        class="course-card-wide-title">{% if course.title %} {{ course.title }} {% endif %}</div>
-
-    <div {% if course.edit_mode %} contenteditable="true" data-placeholder="{{ _('Short Introduction') }}"
-    {% endif %} id="intro" >{% if course.short_introduction %} {{ course.short_introduction }} {% endif %}</div>
-
-    {% if course.edit_mode %}
-        <div class="preview-video-header">
-            <div class="d-block mt-1" contenteditable="true" id="video-link"
-            data-placeholder=" {{ _('Preview Video Link') }} ">{% if course.video_link %}{{ course.video_link }}{% endif %}</div>
-
-            <div class="preview-info">
-                <div class="tool-tip">
-                    <div class="tooltiptext">
-                        <span>
-                            {{ _('If you have a video that provides a teaser or preview of the course, you can add it here.') }}
-                        </span>
-                        <span>
-                            {{ _("Follow the steps mentioned below for the same.") }}
-                        </span>
-                        <ul>
-                            <li>
-                                {{ _("Upload the video on youtube.") }}
-                            </li>
-                            <li>
-                                {{ _("When you share a youtube video, it shows an option called Embed.") }}
-                            </li>
-                            <li>
-                                {{ _("On clicking it, it provides an iframe. Copy the source (src) of the iframe and paste it here.") }}
-                            </li>
-                        </ul>
-                    </div>
-                    <svg class="icon icon-md">
-                        <use href="#icon-solid-info"></use>
-                    </svg>
-                </div>
-            </div>
+    {% if not course.upcoming %}
+    <div class="avg-rating-stars">
+        <div class="rating">
+            {% for i in [1, 2, 3, 4, 5] %}
+            <svg class="icon icon-lg {% if i <= frappe.utils.ceil(avg_rating) %} star-click {% endif %}" data-rating="{{ i }}">
+                <use href="#icon-star"></use>
+            </svg>
+            {% endfor %}
         </div>
-
-        <div class="course-image-attachment {% if not course.image %} hide {% endif %} ">
-            <a {% if course.image %} href="{{ course.image }}" {% endif %} id="image" target="_blank">
-                {{ course.image }}
-            </a>
-            <button class="btn btn-sm btn-default btn-clear ml-4"> {{ _("Clear") }} </button>
-        </div>
-        <a class="btn btn-default btn-sm btn-attach mt-1 {% if course.image %} hide {% endif %}"> {{ _("Attach Image") }} </a>
+    </div>
     {% endif %}
 
-    {% if not course.edit_mode %}
-    <div class="mt-8">
+    <div class="mt-2">
         <div class="bold-heading">{{ _("Instructors") }}:</div>
         {% for instructor in get_instructors(course.name) %}
         <div class="mt-1">
@@ -129,9 +90,8 @@
         </div>
         {% endfor %}
     </div>
-    {% endif %}
 
-    {% if membership and not course.edit_mode %}
+    {% if membership %}
     {% set progress = frappe.utils.cint(membership.progress) %}
     <div class="mt-8">
         <div class="progress-percent m-0">{{ progress }}% {{ _("Completed") }}</div>
@@ -147,7 +107,6 @@
 
 <!-- Overlay -->
 {% macro CourseHeaderOverlay(course) %}
-    {% if not course.edit_mode %}
     <div class="course-overlay-card">
 
         {% if course.video_link %}
@@ -156,7 +115,10 @@
         {% endif %}
 
         <div class="course-overlay-content">
-            <div class="course-overlay-title"> {{ course.title }} </div>
+
+            <div class="cta-parent">
+                {{ CTASection(course, membership) }}
+            </div>
 
             {{ Notes(course) }}
 
@@ -164,89 +126,39 @@
                 <svg class="icon icon-md mr-1">
                     <use class="" href="#icon-users">
                 </svg>
-                {{ get_students(course.name) | length }} {{ _("Enrolled") }}
+                {{ format_number(get_students(course.name) | length) }} {{ _("Enrolled") }}
             </div>
 
-            {% if get_lessons(course.name) | length %}
             <div class="vertically-center mb-3">
                 <svg class="icon icon-md mr-1">
                     <use href="#icon-education"></use>
                 </svg>
-                {{ get_lessons(course.name) | length }} {{ _("Lessons") }}
+                {{ get_lessons(course.name, None, False) }} {{ _("Lessons") }}
             </div>
-            {% endif %}
 
-            {% if course.paid_certificate %}
+            {% if course.enable_certification %}
             <div class="vertically-center mb-3">
                 <svg class="icon icon-md mr-1">
                     <use href="#icon-badge"></use>
                 </svg>
-                <span class="certificate-price" data-price="{{ course.price_certificate }}">
-                    {{ format_amount(course.price_certificate, course.currency) }}
-                </span>
-                <span class="indicator-pill green ml-3"> {{ _("Get Certified") }} </span>
+                {{ _("Get Certified") }}
             </div>
             {% endif %}
-
-            {{ CTASection(course, membership) }}
 
         </div>
     </div>
     {{ SlotModal(course) }}
 
-    {% endif %}
 {% endmacro %}
 
 
 <!-- Description -->
 {% macro Description(course) %}
-    {% if course.edit_mode %}
-        {% if course.description %}
-        <div class="description-data hide">{{ course.description }}</div>
-        {% endif %}
-        <div id="description"></div>
-    {% else %}
-        <div class="course-description-section">
-            {{ frappe.utils.md_to_html(course.description) }}
-        </div>
-    {% endif %}
+<div class="course-description-section">
+    {{ course.description }}
+</div>
 {% endmacro %}
 
-
-<!-- Course Settings -->
-{% macro CourseSettings(course) %}
-
-    {% if course.edit_mode and has_course_moderator_role() %}
-    <div class="mb-4">
-        <label for="published" class="mb-0">
-            <input type="checkbox" id="published" {% if course.published %} checked {% endif %}>
-            {{ _("Published") }}
-        </label>
-        <label for="upcoming" class="mb-0 ml-20">
-            <input type="checkbox" id="upcoming" {% if course.upcoming %} checked {% endif %}>
-            {{ _("Upcoming") }}
-        </label>
-    </div>
-    {% endif %}
-
-{% endmacro %}
-
-
-<!-- Save -->
-{% macro Save(course) %}
-    {% if course.edit_mode %}
-    <div class="mb-16">
-        <button class="btn btn-primary btn-sm btn-save-course">
-            {{ _("Save Course Details") }}
-        </button>
-        {% if course.name %}
-        <a class="btn btn-secondary btn-sm btn-exit-edit ml-2" href="/courses/{{ course.name }}">
-            {{ _("Back to Course") }}
-        </a>
-        {% endif %}
-    </div>
-    {% endif %}
-{% endmacro %}
 
 
 <!-- Related Courses Section -->
@@ -254,7 +166,7 @@
     {% if course.related_courses | length %}
     <div class="related-courses">
     <div class="container">
-        <div class="course-home-headings"> {{ _("Other Courses") }} </div>
+        <div class="page-title"> {{ _("Other Courses") }} </div>
         <div class="carousel slide" id="carouselExampleControls" data-ride="carousel" data-interval="false">
         <div class="carousel-inner">
             {% for crs in course.related_courses %}
@@ -291,62 +203,73 @@
     {% set lesson_index = get_lesson_index(membership.current_lesson) if membership and
     membership.current_lesson else "1.1" if first_lesson_exists(course.name) else None %}
 
-    {% if is_instructor(course.name) and not course.published and course.status != "Under Review" %}
-    <div class="btn btn-primary wide-button" id="submit-for-review" data-course="{{ course.name | urlencode }}">
-        {{ _("Submit for Review") }}
-    </div>
+    <div class="all-cta">
+        {% if is_instructor(course.name) and not course.published and course.status != "Under Review" %}
+        <div class="btn btn-primary wide-button" id="submit-for-review" data-course="{{ course.name | urlencode }}">
+            {{ _("Submit for Review") }}
+        </div>
 
-    {% elif is_instructor(course.name) and lesson_index %}
-    <a class="btn btn-primary wide-button" id="continue-learning"
-        href="{{ get_lesson_url(course.name, lesson_index) }}{{ course.query_parameter }}">
-        {{ _("Checkout Course") }}
-    </a>
-
-    {% elif course.upcoming and not is_user_interested and not is_instructor(course.name) %}
-    <div class="btn btn-secondary wide-button notify-me" data-course="{{course.name | urlencode}}">
-        {{ _("Notify me when available") }}
-    </div>
-
-    {% elif is_cohort_staff(course.name, frappe.session.user) %}
-    <a class="btn btn-secondary button-links wide-button" href="/courses/{{course.name}}/manage">
-        {{ _("Manage Cohorts") }}
-    </a>
-
-    {% elif membership %}
-    <a class="btn btn-primary wide-button" id="continue-learning"
-        href="{{ get_lesson_url(course.name, lesson_index) }}{{ course.query_parameter }}">
-        {{ _("Continue Learning") }}
-    </a>
-
-    {% elif show_start_learing_cta(course, membership) %}
-    <div class="btn btn-primary wide-button join-batch" data-course="{{ course.name | urlencode }}">
-        {{ _("Start Learning") }}
-    </div>
-    {% endif %}
-
-    {% set progress = frappe.utils.cint(membership.progress) %}
-
-    {% if membership and course.enable_certification %}
-        {% if certificate %}
-        <a class="btn btn-secondary wide-button mt-2" href="/courses/{{ course.name }}/{{ certificate }}">
-            {{ _("Get Certificate") }}
+        {% elif is_instructor(course.name) and lesson_index %}
+        <a class="btn btn-primary wide-button" id="continue-learning"
+            href="{{ get_lesson_url(course.name, lesson_index) }}{{ course.query_parameter }}">
+            {{ _("Checkout Course") }}
         </a>
 
-        {% elif eligible_for_evaluation %}
-        <a class="btn btn-secondary wide-button mt-2" id="apply-certificate" data-course="{{ course.name }}">
-            {{ _("Apply for Certificate") }}
+        {% elif course.upcoming and not is_user_interested and not is_instructor(course.name) %}
+        <div class="btn btn-secondary wide-button notify-me" data-course="{{course.name | urlencode}}">
+            {{ _("Notify me when available") }}
+        </div>
+
+        {% elif is_cohort_staff(course.name, frappe.session.user) %}
+        <a class="btn btn-secondary button-links wide-button" href="/courses/{{course.name}}/manage">
+            {{ _("Manage Cohorts") }}
         </a>
 
-        {% elif course.grant_certificate_after == "Completion" and progress == 100 %}
-        <div class="btn btn-secondary wide-button is-secondary mt-2" id="certification" data-course="{{ course.name }}">
-            {{ _("Get Certificate") }}
+        {% elif membership %}
+        <a class="btn btn-primary wide-button" id="continue-learning"
+            href="{{ get_lesson_url(course.name, lesson_index) }}{{ course.query_parameter }}">
+            {{ _("Continue Learning") }}
+        </a>
+
+        {% elif show_start_learing_cta(course, membership) %}
+        <div class="btn btn-primary wide-button join-batch" data-course="{{ course.name | urlencode }}">
+            {{ _("Start Learning") }}
         </div>
         {% endif %}
-    {% endif %}
 
-    {% if is_instructor(course.name) or has_course_moderator_role() %}
-    <a class="btn btn-secondary wide-button mt-2" href="/courses/{{ course.name }}?edit=1"> {{ _("Edit Course") }} </a>
-    {% endif %}
+        {% set progress = frappe.utils.cint(membership.progress) %}
+
+        {% if membership and course.enable_certification %}
+            {% if certificate %}
+            <a class="btn btn-secondary wide-button mt-2" href="/courses/{{ course.name }}/{{ certificate }}">
+                {{ _("Get Certificate") }}
+            </a>
+
+            {% elif eligible_for_evaluation %}
+            <a class="btn btn-secondary wide-button mt-2" id="apply-certificate" data-course="{{ course.name }}">
+                {{ _("Apply for Certificate") }}
+            </a>
+
+            {% elif course.grant_certificate_after == "Completion" and progress == 100 %}
+            <div class="btn btn-secondary wide-button mt-2" id="certification" data-course="{{ course.name }}">
+                {{ _("Get Certificate") }}
+            </div>
+            {% endif %}
+        {% endif %}
+
+        {% if is_instructor(course.name) or has_course_moderator_role() %}
+            <a class="btn btn-secondary wide-button mt-2" title="Edit Course" href="/courses/{{ course.name }}/edit">
+                <!-- <svg class="icon icon-md">
+                    <use href="#icon-edit"></use>
+                </svg> -->
+                {{ _("Edit") }}
+            </a>
+        {% endif %}
+    </div>
+
+
+
+
 {% endmacro %}
 
 
@@ -429,8 +352,3 @@
 </div>
 {% endmacro %}
 
-
-{%- block script %}
-    {{ super() }}
-    {{ include_script('controls.bundle.js') }}
-{% endblock %}

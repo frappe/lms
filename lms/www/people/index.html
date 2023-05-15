@@ -8,7 +8,9 @@
 <div class="common-page-style">
 	<div class="container">
 
+		{% if frappe.session.user != "Guest" %}
 		<input class="search pull-right" id="search-user" placeholder="{{ _('Search') }}">
+		{% endif  %}
 		<div class="course-home-headings">{{ _("People") }} </div>
 
 		<div class="empty-state alert alert-dismissible hide" id="search-empty-state">

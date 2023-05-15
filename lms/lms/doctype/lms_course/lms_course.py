@@ -2,13 +2,12 @@
 # For license information, please see license.txt
 
 import json
-
+import random
 import frappe
 from frappe.model.document import Document
 from frappe.utils import cint
-
+from frappe.utils.telemetry import capture
 from lms.lms.utils import get_chapters
-
 from ...utils import generate_slug, validate_image
 
 
@@ -43,6 +42,9 @@ class LMSCourse(Document):
 		if not self.upcoming and self.has_value_changed("upcoming"):
 			self.send_email_to_interested_users()
 
+	def after_insert(self):
+		capture("course_created", "lms")
+
 	def send_email_to_interested_users(self):
 		interested_users = frappe.get_all(
 			"LMS Course Interest", {"course": self.name}, ["name", "user"]
@@ -72,7 +74,10 @@ class LMSCourse(Document):
 
 	def autoname(self):
 		if not self.name:
-			self.name = generate_slug(self.title, "LMS Course")
+			title = self.title
+			if self.title == "New Course":
+				title = self.title + str(random.randint(0, 99))
+			self.name = generate_slug(title, "LMS Course")
 
 	def __repr__(self):
 		return f"<Course#{self.name}>"

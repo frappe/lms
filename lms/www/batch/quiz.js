@@ -1,10 +1,10 @@
 frappe.ready(() => {
-	if (!$(".quiz-card").length) {
+	if ($(".question-card").length <= 1) {
 		add_question();
 	}
 
-	$(".btn-question").click((e) => {
-		add_question();
+	$(".btn-add-question").click((e) => {
+		add_question(true);
 	});
 
 	$(".btn-save-question").click((e) => {
@@ -15,106 +15,69 @@ frappe.ready(() => {
 		frappe.utils.copy_to_clipboard($(e.currentTarget).data("name"));
 	});
 
-	$(document).on("change", ".type", function () {
-		toggle_form($(this));
+	$(document).on("click", ".question-type", (e) => {
+		toggle_form($(e.currentTarget));
 	});
 
 	get_questions();
 });
 
 const toggle_form = (el) => {
-	let type = el.val();
-	if (type === "Choices") {
-		el.siblings(".option-group").removeClass("hide");
-		el.siblings(".possibility-group").addClass("hide");
-	} else if (type === "User Input") {
-		el.siblings(".option-group").addClass("hide");
-		el.siblings(".possibility-group").removeClass("hide");
+	if ($(el).hasClass("active")) {
+		let type = $(el).find("input").data("type");
+		if (type == "Choices") {
+			$(el)
+				.closest(".field-parent")
+				.find(".options-group")
+				.removeClass("hide");
+			$(el)
+				.closest(".field-parent")
+				.find(".answers-group")
+				.addClass("hide");
+		} else {
+			$(el)
+				.closest(".field-parent")
+				.find(".options-group")
+				.addClass("hide");
+			$(el)
+				.closest(".field-parent")
+				.find(".answers-group")
+				.removeClass("hide");
+		}
 	}
 };
 
-const add_question = () => {
-	let add_after = $(".quiz-card").length
-		? $(".quiz-card:last")
-		: $("#quiz-title");
-	let question_template = `<div class="quiz-card new-quiz-card">
-            <div contenteditable="true" data-placeholder="${__(
-				"Question"
-			)}" class="question mb-4"></div>
-			<select value="{{ question.type }}" class="input-with-feedback form-control ellipsis type" maxlength="140" data-fieldtype="Select" data-fieldname="type" placeholder="" data-doctype="LMS Quiz Question">
-				<option value="Choices"> ${__("Choices")} </option>
-				<option value="User Input"> ${__("User Input")} </option>
-			</select>
-		</div>`;
-	$(question_template).insertAfter(add_after);
-	get_question_template();
-	$(".btn-save-question").removeClass("hide");
+const add_question = (scroll = false) => {
+	let template = $("#question-template").html();
+	let index = $(".question-card:nth-last-child(2)").data("index") + 1 || 1;
+	template = update_index(template, index);
+
+	$(template).insertBefore($("#question-template"));
+	scroll && scroll_to_question_container();
 };
 
-const get_question_template = () => {
-	Array.from({ length: 4 }, (x, num) => {
-		let option_template = get_option_template(num + 1);
-
-		let add_after = $(".quiz-card:last .option-group").length
-			? $(".quiz-card:last .option-group").last()
-			: $(".type:last");
-		question_template = $(option_template).insertAfter(add_after);
-	});
-
-	Array.from({ length: 4 }, (x, num) => {
-		let possibility_template = get_possibility_template(num + 1);
-		let add_after = $(".quiz-card:last .possibility-group").length
-			? $(".quiz-card:last .possibility-group").last()
-			: $(".quiz-card:last .option-group:last");
-		question_template = $(possibility_template).insertAfter(add_after);
-	});
-};
-
-const get_possibility_template = (num) => {
-	return `<div class="possibility-group mt-4 hide">
-			<label class=""> ${__("Possible Answer")} ${num} </label>
-			<div class="control-input-wrapper">
-				<div class="control-input">
-					<div contenteditable="true" class="input-with-feedback form-control bold possibility-{{ num }}" style="height: 100px;" spellcheck="false"></div>
-				</div>
-			</div>
-		</div>`;
-};
-
-const get_option_template = (num) => {
-	return `<div class="option-group mt-4">
-                <label class="">${__("Option")} ${num}</label>
-                <div class="d-flex justify-content-between option-${num}">
-                    <div contenteditable="true" data-placeholder="${__(
-						"Option"
-					)}"
-                        class="option-input"></div>
-                    <div contenteditable="true" data-placeholder="${__(
-						"Explanation"
-					)}"
-                        class="option-input"></div>
-                    <div class="option-checkbox">
-                        <input type="checkbox">
-                        <label class="mb-0"> ${__("Is Correct")} </label>
-                    </div>
-                </div>
-            </div>`;
+const update_index = (template, index) => {
+	const $template = $(template);
+	$template.attr("data-index", index);
+	$template.find(".question-label").text("Question " + index);
+	$template.find(".question-type input").attr("name", "type-" + index);
+	return $template.prop("outerHTML");
 };
 
 const save_question = (e) => {
-	if (!$("#quiz-title").text()) {
+	if (!$("#quiz-title").val()) {
 		frappe.throw(__("Quiz Title is mandatory."));
 	}
 
 	frappe.call({
 		method: "lms.lms.doctype.lms_quiz.lms_quiz.save_quiz",
 		args: {
-			quiz_title: $("#quiz-title").text(),
+			quiz_title: $("#quiz-title").val(),
 			questions: get_questions(),
 			quiz: $("#quiz-title").data("name") || "",
 		},
 		callback: (data) => {
-			window.location.href = "/quizzes";
+			window.location.href = `/quizzes/${data.message}`;
 		},
 	});
 };
@@ -122,41 +85,37 @@ const save_question = (e) => {
 const get_questions = () => {
 	let questions = [];
 
-	$(".quiz-card").each((i, el) => {
-		if (!$(el).find(".question").text()) return;
-
+	$(".field-parent").each((i, el) => {
+		if (!$(el).find(".question").val()) return;
 		let details = {};
 		let correct_options = 0;
 		let possibilities = 0;
 
 		details["element"] = el;
-		details["question"] = $(el).find(".question").text();
+		details["question"] = $(el).find(".question").val();
 		details["question_name"] =
 			$(el).find(".question").data("question") || "";
-		details["type"] = $(el).find(".type").val();
+		details["type"] = $(el).find("label.active").find("input").data("type");
 
 		Array.from({ length: 4 }, (x, i) => {
 			let num = i + 1;
 
 			if (details.type == "Choices") {
-				details[`option_${num}`] = $(el)
-					.find(`.option-${num} .option-input:first`)
-					.text();
-				details[`explanation_${num}`] = $(el)
-					.find(`.option-${num} .option-input:last`)
-					.text();
+				details[`option_${num}`] = $(el).find(`.option-${num}`).val();
 
-				let is_correct = $(el)
-					.find(`.option-${num} .option-checkbox`)
-					.find("input")
-					.prop("checked");
+				details[`explanation_${num}`] = $(el)
+					.find(`.explanation-${num}`)
+					.val();
+
+				let is_correct = $(el).find(`.correct-${num}`).prop("checked");
+
 				if (is_correct) correct_options += 1;
 
 				details[`is_correct_${num}`] = is_correct;
 			} else {
 				let possible_answer = $(el)
 					.find(`.possibility-${num}`)
-					.text()
+					.val()
 					.trim();
 				if (possible_answer) possibilities += 1;
 				details[`possibility_${num}`] = possible_answer;
@@ -197,15 +156,15 @@ const validate_mandatory = (details, correct_options, possibilities) => {
 };
 
 const scroll_to_question_container = () => {
-	scroll_to_element(".new-quiz-card:last");
-	$(".new-quiz-card").find(".question").focus();
+	scroll_to_element(".question-card:nth-last-child(2)");
+	$(".question-card:nth-last-child(2)").find(".question").focus();
 };
 
 const scroll_to_element = (element) => {
 	if ($(element).length)
 		$([document.documentElement, document.body]).animate(
 			{
-				scrollTop: $(element).offset().top,
+				scrollTop: $(element).offset().top - 100,
 			},
 			1000
 		);

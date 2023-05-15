@@ -12,6 +12,8 @@ import json
 
 class LMSClass(Document):
 	def validate(self):
+		if self.seat_count:
+			self.validate_seats_left()
 		self.validate_duplicate_students()
 		self.validate_membership()
 
@@ -35,6 +37,10 @@ class LMSClass(Document):
 				}
 				if not frappe.db.exists(filters):
 					frappe.get_doc(filters).save()
+
+	def validate_seats_left(self):
+		if cint(self.seat_count) < len(self.students):
+			frappe.throw(_("There are no seats available in this class."))
 
 
 @frappe.whitelist()
@@ -147,7 +153,16 @@ def authenticate():
 
 
 @frappe.whitelist()
-def create_class(title, start_date, end_date, description=None, name=None):
+def create_class(
+	title,
+	start_date,
+	end_date,
+	description=None,
+	seat_count=0,
+	start_time=None,
+	end_time=None,
+	name=None,
+):
 	if name:
 		class_details = frappe.get_doc("LMS Class", name)
 	else:
@@ -159,6 +174,9 @@ def create_class(title, start_date, end_date, description=None, name=None):
 			"start_date": start_date,
 			"end_date": end_date,
 			"description": description,
+			"seat_count": seat_count,
+			"start_time": start_time,
+			"end_time": end_time,
 		}
 	)
 	class_details.save()

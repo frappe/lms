@@ -1,101 +1,144 @@
 {% extends "templates/base.html" %}
 {% block title %}
-    {{ _("Quiz List") }}
+    {{ quiz.title if quiz.name else _("Quiz Details") }}
 {% endblock %}
 
 
 {% block content %}
-<div class="common-page-style" style="background-color: var(--fg-color);">
-    <div class="container">
-        {{ BreadCrumb(quiz) }}
-        {{ QuizCard(quiz) }}
+<div class="common-page-style">
+    {{ Header() }}
+    <div class="container form-width">
+        {{ QuizForm(quiz) }}
     </div>
 </div>
 {% endblock %}
 
-
-{% macro BreadCrumb(quiz) %}
-<div class="breadcrumb">
-    <a class="dark-links" href="/quizzes">{{ _("Quizzes") }}</a>
-    <img class="ml-1 mr-1" src="/assets/lms/icons/chevron-right.svg">
-    <span class="breadcrumb-destination">{{ quiz.title if quiz.title else _("New Quiz") }}</span>
+{% macro QuizForm(quiz) %}
+<div>
+    {{ QuizDetails(quiz) }}
+    {% if quiz.questions %}
+    {% for question in quiz.questions %}
+    {{ Question(question, loop.index) }}
+    {% endfor %}
+    {% endif %}
+    <div id="question-template" class="hide">
+        {{ Question({}, 0) }}
+    </div>
 </div>
 {% endmacro %}
 
+{% macro Header() %}
+<header class="sticky">
+    <div class="container form-width">
+        <div class="edit-header">
+            <div>
+                <div class="page-title">
+                    {{ _("Quiz Details") }}
+                </div>
+                <div class="vertically-center small">
+                    <a class="dark-links" href="/quizzes">
+                        {{ _("Quiz List") }}
+                    </a>
+                    <img class="icon icon-sm mr-0" src="/assets/lms/icons/chevron-right.svg">
+                    <span class="breadcrumb-destination">{{ quiz.title if quiz.title else _("New Quiz") }}</span>
+                </div>
+            </div>
 
-{% macro QuizCard(quiz) %}
-<div style="width: 60%;">
+            <div class="align-self-center">
+                <button class="btn btn-default btn-sm btn-add-question">
+                    {{ _("Add Question") }}
+                </button>
+                <button class="btn btn-primary btn-sm btn-save-question">
+                    {{ _("Save") }}
+                </button>
+            </div>
 
-    <div class="course-home-headings mb-2" data-placeholder="{{ _('Quiz Title') }}" id="quiz-title"
-        {% if quiz.name %} data-name="{{ quiz.name }}" {% endif %}
-        contenteditable="true" >{% if quiz.title %}{{ quiz.title }}{% endif %}</div>
+        </div>
+    </div>
+</header>
+{% endmacro  %}
 
+{% macro QuizDetails(quiz) %}
+<div class="field-parent">
+    <div class="field-group">
+        <div>
+            <div class="field-label">
+                {{ _("Title") }}
+            </div>
+            <div class="field-description">
+                {{ _("Give your quiz a title") }}
+            </div>
+        </div>
+        <div class="">
+            <input type="text" class="field-input" id="quiz-title" {% if quiz.name %} value="{{ quiz.title }}" data-name="{{ quiz.name }}" {% endif %}>
+        </div>
+    </div>
+</div>
+{% endmacro %}
 
-    {% if quiz.questions %}
-    {% for question in quiz.questions %}
-    <div class="quiz-card">
-        <div contenteditable="true" data-placeholder="{{ _('Question') }}" data-question="{{ question.name }}"
-        class="question mb-4">{% if question.question %} {{ question.question }} {% endif %}</div>
+{% macro Question(question, index) %}
+{% set type = question.type if question.type else "Choices" %}
+<div class="common-card-style column-card field-parent question-card" data-index="{{ index }}">
+    <div class="field-group">
+        <div>
+            <div class="field-label question-label">
+                {{ _("Question") }} {{ index }}
+            </div>
+        </div>
+        <div class="">
+            <input type="text" class="field-input question" {% if question.name %} value="{{ question.question }}" data-question="{{ question.name }}" {% endif %}>
+        </div>
+    </div>
 
-        <select value="{{ question.type }}" class="input-with-feedback form-control ellipsis type" maxlength="140" data-fieldtype="Select" data-fieldname="type" placeholder="" data-doctype="LMS Quiz Question">
-            {% for option in ["Choices", "User Input"] %}
-            <option value="{{ option }}" {% if question.type == option %} selected {% endif %} > {{ _(option) }} </option>
-            {% endfor %}
-        </select>
+    <div class="field-group">
+        <div class="vertically-center justify-content-between">
+            <div class="field-label">
+                {{ _("Question Type") }}
+            </div>
+            <div class="btn-group btn-group-toggle type align-self-center" data-toggle="buttons">
+                <label class="btn btn-default btn-sm active question-type">
+                    <input type="radio" name="type-{{ index }}" data-type="Choices" {% if type == "Choices" %} checked {% endif %}>
+                    {{ _("Choices") }}
+                </label>
+                <label class="btn btn-default btn-sm question-type">
+                    <input type="radio" name="type-{{ index }}" data-type="User Input" {% if type == "User Input" %} checked {% endif %}>
+                    {{ _("User Input") }}
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="">
 
         {% for i in range(1,5) %}
         {% set num = frappe.utils.cstr(i) %}
 
         {% set option = question["option_" + num] %}
         {% set explanation = question["explanation_" + num] %}
-
-        <div class="option-group mt-4 {% if question.type == 'User Input' %} hide {% endif %} ">
-            <label class=""> {{ _("Option") }} {{ num }} </label>
-            <div class="d-flex justify-content-between option-{{ num }}">
-                <div contenteditable="true" data-placeholder="{{ _('Option') }}"
-                    class="option-input">{% if option %}{{ option }}{% endif %}</div>
-                <div contenteditable="true" data-placeholder="{{ _('Explain the option') }}"
-                    class="option-input">{% if explanation %}{{ explanation }}{% endif %}</div>
-                <div class="option-checkbox">
-                    <label class="mb-0">
-                        <input type="checkbox" {% if question['is_correct_' + num] %} checked {% endif %}>
-                        {{ _("Is Correct") }}
-                    </label>
-                </div>
-            </div>
-        </div>
-
         {% set possible_answer = question["possibility_" + num] %}
 
-        <div class="possibility-group mt-4 {% if question.type == 'Choices' %} hide {% endif %}">
-            <label class=""> {{ _("Possible Answer") }} {{ num }} </label>
-            <div class="control-input-wrapper">
-                <div class="control-input">
-                    <div contenteditable="true" class="input-with-feedback form-control bold possibility-{{ num }}" style="height: 100px;" spellcheck="false">{% if possible_answer %}{{possible_answer}}{% endif %}</div>
+        <div class="field-group">
+
+            <div class="options-group {% if type == 'User Input' %} hide {% endif %}">
+                <input type="text" placeholder="Option" class="field-input option-{{ num }}" {% if option %} value="{{ option }}" {% endif %}>
+                <input type="text" placeholder="Explanation" class="field-input explanation-{{ num }}" {% if explanation %} value="{{ explanation }}" {% endif %}>
+                <label class="vertically-center mt-1">
+                    <input type="checkbox" class="correct-{{ num }}" {% if question['is_correct_' + num] %} checked {% endif %}>
+                    {{ _("Is Correct") }}
+                </label>
+            </div>
+
+            <div class="answers-group  {% if type == 'Choices' %} hide {% endif %}">
+                <div class="field-label">
+                    {{ _("Possible Answers") }} {{ num }}
                 </div>
+                <textarea class="field-input possibility-{{ num }}"
+                style="height: 100px;">{% if possible_answer %}{{ possible_answer }}{% endif %}</textarea>
             </div>
         </div>
+
+
         {% endfor %}
-    </div>
-    {% endfor %}
-    {% endif %}
-
-
-    <div class="mt-4">
-        <button class="btn btn-secondary btn-sm btn-question"> {{ _("New Question") }} </button>
-
-        {% if quiz.name %}
-        <button class="btn btn-secondary btn-sm copy-quiz-id ml-2" data-name="'{{ quiz.name }}'">
-            {{ _("Copy Quiz ID") }}
-        </button>
-        {% endif %}
-
-        <button class="btn btn-primary btn-sm btn-save-question ml-2 {% if not quiz.name %} hide {% endif %}">
-            {{ _("Save Quiz") }}
-        </button>
-
     </div>
 </div>
 {% endmacro %}
-
-

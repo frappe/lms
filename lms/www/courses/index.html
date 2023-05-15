@@ -7,7 +7,7 @@
 
 
 {% block page_content %}
-<div class="common-page-style">
+<div class="common-page-style pt-8">
     <div class="container">
         {% if restriction %}
         {% set profile_link = "<a href='/edit-profile'> profile </a>" %}
@@ -32,7 +32,7 @@
                 {% endif %}
 
                 {% if show_creators_section %}
-                <a class="btn btn-default btn-sm ml-2" href="/courses/new-course">
+                <a class="btn btn-default btn-sm ml-2" href="/courses/new-course/edit">
                     {{ _("Create a Course") }}
                 </a>
                 {% endif %}
@@ -42,27 +42,36 @@
 				</a>
             </div>
 
-            <div class="course-home-headings">
+            <div class="page-title mb-6">
                 {{ _("All Courses") }}
             </div>
 
             <ul class="nav lms-nav" id="courses-tab">
                 <li class="nav-item">
                     <a class="nav-link active" data-toggle="tab" href="#live">
-                        {{ _("Live") }} ({{ live_courses | length }})
+                        {{ _("Live") }}
+                        <span class="course-list-count">
+                            {{ live_courses | length }}
+                        </span>
                     </a>
                 </li>
 
                 <li class="nav-item">
                     <a class="nav-link" data-toggle="tab" href="#upcoming">
-                        {{ _("Upcoming") }} ({{ upcoming_courses | length }})
+                        {{ _("Upcoming") }}
+                        <span class="course-list-count">
+                            {{ upcoming_courses | length }}
+                        </span>
                     </a>
                 </li>
 
                 {% if frappe.session.user != "Guest" %}
                 <li class="nav-item">
                     <a class="nav-link" data-toggle="tab" href="#courses-enrolled">
-                        {{ _("Enrolled") }} ({{ enrolled_courses | length }})
+                        {{ _("Enrolled") }}
+                        <span class="course-list-count">
+                            {{ enrolled_courses | length }}
+                        </span>
                     </a>
                 </li>
                 {% endif %}
@@ -70,7 +79,10 @@
                 {% if show_creators_section %}
                 <li class="nav-item">
                     <a class="nav-link" data-toggle="tab" href="#courses-created">
-                        {{ _("Created") }} ({{ created_courses | length }})
+                        {{ _("Created") }}
+                        <span class="course-list-count">
+                            {{ created_courses | length }}
+                        </span>
                     </a>
                 </li>
                 {% endif %}
@@ -78,7 +90,10 @@
                 {% if show_review_section %}
                 <li class="nav-item">
                     <a class="nav-link" data-toggle="tab" href="#courses-under-review">
-                        {{ _("Under Review") }} ({{ review_courses | length }})
+                        {{ _("Under Review") }}
+                        <span class="course-list-count">
+                            {{ review_courses | length }}
+                        </span>
                     </a>
                 </li>
                 {% endif %}

@@ -192,3 +192,10 @@ def check_input_answers(question, answer):
 			return 1
 
 	return 0
+
+
+@frappe.whitelist()
+def get_user_quizzes():
+	return frappe.get_all(
+		"LMS Quiz", filters={"owner": frappe.session.user}, fields=["name", "title"]
+	)

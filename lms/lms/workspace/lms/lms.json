@@ -9,13 +9,14 @@
    "label": "Enrollments"
   }
  ],
- "content": "[{\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Get Started</b></span>\",\"col\":12}},{\"type\":\"paragraph\",\"data\":{\"text\":\"<a href=\\\"/courses\\\" draggable=\\\"false\\\">Visit LMS Portal</a>\",\"col\":4}},{\"type\":\"paragraph\",\"data\":{\"text\":\"<a href=\\\"/courses/new-course\\\" draggable=\\\"false\\\">Create a Course</a>\",\"col\":4}},{\"type\":\"paragraph\",\"data\":{\"text\":\"<a href=\\\"/app/web-page/new-web-page-1\\\">Setup a Home Page</a>\",\"col\":4}},{\"type\":\"paragraph\",\"data\":{\"text\":\"<a href=\\\"/app/website-settings/Website%20Settings\\\">Website Settings</a>\",\"col\":4}},{\"type\":\"paragraph\",\"data\":{\"text\":\"<a href=\\\"https://docs.frappelms.com\\\">Documentation</a>\",\"col\":4}},{\"type\":\"paragraph\",\"data\":{\"text\":\"<a href=\\\"https://frappe.school/courses/introducing-frappe-lms\\\">Video Tutorials</a>\",\"col\":4}},{\"type\":\"spacer\",\"data\":{\"col\":12}},{\"type\":\"chart\",\"data\":{\"chart_name\":\"Signups\",\"col\":6}},{\"type\":\"chart\",\"data\":{\"chart_name\":\"Enrollments\",\"col\":6}},{\"type\":\"spacer\",\"data\":{\"col\":12}},{\"type\":\"header\",\"data\":{\"text\":\"<span style=\\\"font-size: 18px;\\\"><b>Statistics</b></span>\",\"col\":12}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Users\",\"col\":4}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Course\",\"col\":4}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Enrollments\",\"col\":4}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Course Completed\",\"col\":4}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Certificate\",\"col\":4}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Evaluation\",\"col\":4}},{\"type\":\"spacer\",\"data\":{\"col\":12}},{\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Master</b></span>\",\"col\":12}},{\"type\":\"card\",\"data\":{\"card_name\":\"Course Data\",\"col\":4}},{\"type\":\"card\",\"data\":{\"card_name\":\"Course Stats\",\"col\":4}},{\"type\":\"card\",\"data\":{\"card_name\":\"Certification\",\"col\":4}}]",
+ "content": "[{\"id\":\"jNO4sdKxHu\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Get Started</b></span>\",\"col\":12}},{\"id\":\"5s0qRBc4rY\",\"type\":\"paragraph\",\"data\":{\"text\":\"<a href=\\\"/courses\\\" draggable=\\\"false\\\">Visit LMS Portal</a>\",\"col\":4}},{\"id\":\"lGMuNLpmv-\",\"type\":\"paragraph\",\"data\":{\"text\":\"<a href=\\\"/courses/new-course/edit\\\">Create a Course</a>\",\"col\":4}},{\"id\":\"3TVyc9AkPy\",\"type\":\"paragraph\",\"data\":{\"text\":\"<a href=\\\"/app/web-page/new-web-page-1\\\">Setup a Home Page</a>\",\"col\":4}},{\"id\":\"9zcbqpu2gm\",\"type\":\"paragraph\",\"data\":{\"text\":\"<a href=\\\"/app/lms-settings/LMS%20Settings\\\">LMS Setting</a>\",\"col\":4}},{\"id\":\"0ATmnKmXjc\",\"type\":\"paragraph\",\"data\":{\"text\":\"<a href=\\\"https://docs.frappelms.com\\\">Documentation</a>\",\"col\":4}},{\"id\":\"7tGB2TYPmn\",\"type\":\"paragraph\",\"data\":{\"text\":\"<a href=\\\"https://frappe.school/courses/introducing-frappe-lms\\\">Video Tutorials</a>\",\"col\":4}},{\"id\":\"C128a4abjX\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"5q4sPiv2ci\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Signups\",\"col\":6}},{\"id\":\"8NSaRaEV5u\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Enrollments\",\"col\":6}},{\"id\":\"kMuzko0uAU\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"iuvIOHmztI\",\"type\":\"header\",\"data\":{\"text\":\"<span style=\\\"font-size: 18px;\\\"><b>Statistics</b></span>\",\"col\":12}},{\"id\":\"l0VTd66Uy2\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Users\",\"col\":4}},{\"id\":\"wAWZin1KKk\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Course\",\"col\":4}},{\"id\":\"RLrIlFx0Hd\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Enrollments\",\"col\":4}},{\"id\":\"OuhWkhCQmq\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Course Completed\",\"col\":4}},{\"id\":\"3g8QmNqUXG\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Certificate\",\"col\":4}},{\"id\":\"EZsdsujs8N\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Evaluation\",\"col\":4}},{\"id\":\"s-nfsFQbGV\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"jeOBWBzHEa\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Master</b></span>\",\"col\":12}},{\"id\":\"sVhgfS5GIh\",\"type\":\"card\",\"data\":{\"card_name\":\"Course Data\",\"col\":4}},{\"id\":\"Iea0snm4Fg\",\"type\":\"card\",\"data\":{\"card_name\":\"Course Stats\",\"col\":4}},{\"id\":\"bZB7RqOl6a\",\"type\":\"card\",\"data\":{\"card_name\":\"Certification\",\"col\":4}}]",
  "creation": "2021-10-21 17:20:01.358903",
  "docstatus": 0,
  "doctype": "Workspace",
  "hide_custom": 0,
  "icon": "education",
  "idx": 0,
+ "is_hidden": 0,
  "label": "LMS",
  "links": [
   {
@@ -143,10 +144,11 @@
    "type": "Link"
   }
  ],
- "modified": "2022-12-28 17:45:18.539185",
+ "modified": "2023-05-11 15:41:25.514442",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS",
+ "number_cards": [],
  "owner": "Administrator",
  "parent_page": "",
  "public": 1,

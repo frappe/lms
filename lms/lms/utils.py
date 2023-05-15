@@ -93,18 +93,24 @@ def get_chapters(course):
 	return chapters
 
 
-def get_lessons(course, chapter=None):
+def get_lessons(course, chapter=None, get_details=True):
 	"""If chapter is passed, returns lessons of only that chapter.
 	Else returns lessons of all chapters of the course"""
 	lessons = []
+	lesson_count = 0
 	if chapter:
-		return get_lesson_details(chapter)
+		if get_details:
+			return get_lesson_details(chapter)
+		else:
+			return frappe.db.count("Lesson Reference", {"parent": chapter.name})
 
 	for chapter in get_chapters(course):
-		lesson = get_lesson_details(chapter)
-		lessons += lesson
+		if get_details:
+			lessons += get_lesson_details(chapter)
+		else:
+			lesson_count += frappe.db.count("Lesson Reference", {"parent": chapter.name})
 
-	return lessons
+	return lessons if get_details else lesson_count
 
 
 def get_lesson_details(chapter):
@@ -135,8 +141,8 @@ def get_lesson_details(chapter):
 		macros = find_macros(lesson_details.body)
 
 		for macro in macros:
-			if macro[0] == "YouTubeVideo":
-				lesson_details.icon = "icon-video"
+			if macro[0] == "YouTubeVideo" or macro[0] == "Video":
+				lesson_details.icon = "icon-youtube"
 			elif macro[0] == "Quiz":
 				lesson_details.icon = "icon-quiz"
 		lessons.append(lesson_details)
@@ -495,12 +501,17 @@ def can_create_courses(member=None):
 	if not member:
 		member = frappe.session.user
 
+	if frappe.session.user == "Guest":
+		return False
+
+	if has_course_instructor_role(member) or has_course_moderator_role(member):
+		return True
+
 	portal_course_creation = frappe.db.get_single_value(
 		"LMS Settings", "portal_course_creation"
 	)
-	return frappe.session.user != "Guest" and (
-		portal_course_creation == "Anyone" or has_course_instructor_role(member)
-	)
+
+	return portal_course_creation == "Anyone"
 
 
 def has_course_moderator_role(member=None):
@@ -611,15 +622,17 @@ def get_filtered_membership(course, memberships):
 
 
 def show_start_learing_cta(course, membership):
-	return (
-		not course.disable_self_learning
-		and not membership
-		and not course.upcoming
-		and not check_profile_restriction()
-		and not is_instructor(course.name)
-		and course.status == "Approved"
-		and has_lessons(course)
-	)
+
+	if course.disable_self_learning or course.upcoming:
+		return False
+	if is_instructor(course.name):
+		return False
+	if course.status != "Approved":
+		return False
+	if not has_lessons(course):
+		return False
+	if not membership:
+		return True
 
 
 def has_lessons(course):
