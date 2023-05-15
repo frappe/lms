@@ -211,8 +211,8 @@ textarea.field-input {
 	font-size: var(--text-sm);
 }
 
-body {
-  background-color: #FFFFFF;
+.lessons {
+	margin-left: 1.5rem;
 }
 
 input[type=checkbox] {
@@ -611,7 +611,7 @@ input[type=checkbox] {
 .chapter-description {
 	color: var(--gray-900);
 	font-size: var(--text-sm);
-	margin-left: 0.5rem;
+	margin-left: 2rem;
 	margin-bottom: 0.5rem;
 }
 
@@ -804,7 +804,7 @@ input[type=checkbox] {
 
 .course-content-parent {
   display: grid;
-  grid-gap: 4rem;
+  grid-gap: 2rem;
   grid-template-columns: 1fr 3fr;
 }
 
