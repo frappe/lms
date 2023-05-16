@@ -120,11 +120,6 @@
 </div>
 {% endmacro %}
 
-{% block style %}
-	{{ super() }}
-	{{ include_style('controls.bundle.css') }}
-{% endblock %}
-
 {%- block script %}
     {{ super() }}
     {{ include_script('controls.bundle.js') }}

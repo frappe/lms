@@ -13,11 +13,12 @@ def get_context(context):
 
 	past_classes, upcoming_classes = [], []
 	for class_ in classes:
-
+		print(class_.start_date)
 		if getdate(class_.start_date) < getdate():
 			past_classes.append(class_)
 		else:
 			upcoming_classes.append(class_)
 
-	context.past_classes = past_classes
-	context.upcoming_classes = upcoming_classes
+	context.past_classes = sorted(past_classes, key=lambda d: d.start_date)
+
+	context.upcoming_classes = sorted(upcoming_classes, key=lambda d: d.start_date)
