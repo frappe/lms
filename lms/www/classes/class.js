@@ -1,22 +1,14 @@
 frappe.ready(() => {
-	$("#submit-student").click((e) => {
-		submit_student(e);
+	$(".btn-add-student").click((e) => {
+		show_student_modal(e);
 	});
 
-	$(".remove-student").click((e) => {
+	$(".btn-remove-student").click((e) => {
 		remove_student(e);
-	});
-
-	$(".class-course").click((e) => {
-		update_course(e);
 	});
 
 	if ($("#live-class-form").length) {
 		make_live_class_form();
-	}
-
-	if ($(".add-students").length) {
-		make_add_students_section();
 	}
 
 	$("#open-class-modal").click((e) => {
@@ -26,6 +18,14 @@ frappe.ready(() => {
 
 	$("#create-live-class").click((e) => {
 		create_live_class(e);
+	});
+
+	$(".btn-add-course").click((e) => {
+		show_course_modal(e);
+	});
+
+	$(".btn-remove-course").click((e) => {
+		remove_course(e);
 	});
 });
 
@@ -75,17 +75,6 @@ const remove_student = (e) => {
 			});
 		}
 	);
-};
-
-const update_course = (e) => {
-	frappe.call({
-		method: "lms.lms.doctype.lms_class.lms_class.update_course",
-		args: {
-			course: $(e.currentTarget).data("course"),
-			value: $(e.currentTarget).children("input").prop("checked") ? 1 : 0,
-			class_name: $(".class-details").data("class"),
-		},
-	});
 };
 
 const create_live_class = (e) => {
@@ -334,22 +323,133 @@ const get_timezones = () => {
 	];
 };
 
-const make_add_students_section = () => {
-	this.field_group = new frappe.ui.FieldGroup({
+const show_course_modal = () => {
+	let course_modal = new frappe.ui.Dialog({
+		title: "Add Course",
 		fields: [
 			{
-				fieldname: "student_input",
+				fieldtype: "Link",
+				options: "LMS Course",
+				label: __("Course"),
+				fieldname: "course",
+				reqd: 1,
+			},
+			{
+				fieldtype: "HTML",
+				fieldname: "instructions",
+				label: __("Instructions"),
+				options: __("Select a course to add to this class."),
+			},
+		],
+		primary_action_label: __("Add"),
+		primary_action(values) {
+			frappe.call({
+				method: "frappe.client.insert",
+				args: {
+					doc: {
+						doctype: "Class Course",
+						course: values.course,
+						parenttype: "LMS Class",
+						parentfield: "courses",
+						parent: $(".class-details").data("class"),
+					},
+				},
+				callback(r) {
+					frappe.show_alert(
+						{
+							message: __("Course Added"),
+							indicator: "green",
+						},
+						3
+					);
+					window.location.reload();
+				},
+			});
+			course_modal.hide();
+		},
+	});
+	course_modal.show();
+	setTimeout(() => {
+		$(".modal-body").css("min-height", "200px");
+		$(".modal-body input").focus();
+	}, 1000);
+};
+
+const remove_course = (e) => {
+	frappe.confirm("Are you sure you want to remove this course?", () => {
+		frappe.call({
+			method: "lms.lms.doctype.lms_class.lms_class.remove_course",
+			args: {
+				course: $(e.currentTarget).data("course"),
+				parent: $(".class-details").data("class"),
+			},
+			callback(r) {
+				frappe.show_alert(
+					{
+						message: __("Course Removed"),
+						indicator: "green",
+					},
+					3
+				);
+				window.location.reload();
+			},
+		});
+	});
+};
+
+const show_student_modal = () => {
+	let student_modal = new frappe.ui.Dialog({
+		title: "Add Student",
+		fields: [
+			{
 				fieldtype: "Link",
 				options: "User",
-				label: "Add Student",
+				label: __("Student"),
+				fieldname: "student",
+				reqd: 1,
 				filters: {
 					ignore_user_type: 1,
 				},
 			},
+			{
+				fieldtype: "HTML",
+				fieldname: "instructions",
+				label: __("Instructions"),
+				options: __(
+					"Please ensure a user account exists for the student before adding them to the class. Only users can be enrolled as students."
+				),
+			},
 		],
-		body: $(".add-students").get(0),
+		primary_action_label: __("Add"),
+		primary_action(values) {
+			frappe.call({
+				method: "frappe.client.insert",
+				args: {
+					doc: {
+						doctype: "Class Student",
+						student: values.student,
+						parenttype: "LMS Class",
+						parentfield: "students",
+						parent: $(".class-details").data("class"),
+					},
+				},
+				callback(r) {
+					frappe.show_alert(
+						{
+							message: __("Student Added"),
+							indicator: "green",
+						},
+						3
+					);
+					window.location.reload();
+				},
+			});
+			student_modal.hide();
+		},
 	});
-	this.field_group.make();
-	$(".add-students .form-section:last").removeClass("empty-section");
-	$(".add-students .frappe-control").removeClass("hide-control");
+	student_modal.show();
+	setTimeout(() => {
+		$(".modal-body").css("min-height", "200px");
+		$(".modal-body input").focus();
+	}, 1000);
 };

@@ -31,10 +31,10 @@
 {% macro ClassDetails(class_info) %}
 <div class="class-details" data-class="{{ class_info.name }}">
 
-	<div class="course-home-headings">
+	<div class="page-title">
 		{{ class_info.title }}
 	</div>
-	<div class="mt-2">
+	<div class="mt-1">
 		<svg class="icon icon-sm">
 			<use href="#icon-calendar"></use>
 		</svg>
@@ -46,7 +46,7 @@
 		</span>
 	</div>
 	{% if class_info.description %}
-	<div class="">
+	<div class="mt-1">
 		{{ class_info.description }}
 	</div>
 	{% endif %}
@@ -62,20 +62,28 @@
 {% macro ClassSections(class_info, class_courses, class_students, published_courses) %}
 <div class="mt-4">
 
-	<button class="btn btn-secondary btn-sm pull-right" id="create-class">
+	{% if is_moderator %}
+	<button class="btn btn-default btn-sm pull-right" id="create-class">
 		{{ _("Edit") }}
 	</button>
+	{% endif %}
 
 	<ul class="nav lms-nav" id="classes-tab">
 		<li class="nav-item">
 			<a class="nav-link active" data-toggle="tab" href="#courses">
 				{{ _("Courses") }}
+				<span class="course-list-count">
+					{{ class_courses | length }}
+				</span>
 			</a>
 		</li>
 
 		<li class="nav-item">
 			<a class="nav-link" data-toggle="tab" href="#students">
 				{{ _("Students") }}
+				<span class="course-list-count">
+					{{ class_students | length }}
+				</span>
 			</a>
 		</li>
 
@@ -112,84 +120,107 @@
 
 
 {% macro CoursesSection(class_info, class_courses, published_courses) %}
-<div class="class-course-list">
-	{% if published_courses | length %}
-	{% for course in published_courses %}
-	{% set checked = course.name in class_courses  %}
-	<label class="class-course" data-course="{{ course.name }}">
-		<input type="checkbox" {% if checked %} checked {% endif %}
-		{% if not is_moderator %} disabled {% endif %}>
-		{{ course.title }}
-	</label>
-	{% endfor %}
+<article>
+	<header class="mb-5">
+		<div class="edit-header">
+			<div class="bold-heading">
+				{{ _("Courses") }}
+			</div>
+			{% if is_moderator %}
+			<button class="btn btn-default btn-sm btn-add-course">
+				{{ _("Add Courses") }}
+			</button>
+			{% endif %}
+		</div>
+	</header>
+
+	{% if class_courses | length %}
+	<div>
+		{% for course in class_courses %}
+		<div class="list-row level">
+			<div {% if is_moderator %} class="clickable" {% endif %}>
+				{{ course.title }}
+			</div>
+			{% if is_moderator %}
+			<div type="button" class="btn-remove-course" data-course="{{ course.course }}">
+				<svg class="icon icon-sm">
+					<use href="#icon-delete"></use>
+				</svg>
+			</div>
+			{% endif %}
+		</div>
+		{% endfor %}
+	</div>
+	{% else %}
+	<div class="">
+		{{ _("No courses") }}
+	</div>
 	{% endif %}
-</div>
+
+
+</article>
+
 {% endmacro %}
 
 
 {% macro StudentsSection(class_info, class_students) %}
-<div class="">
-	{% if is_moderator %}
-	{{ AddStudents() }}
-	{% endif %}
+<article>
+	<header>
+		<div class="edit-header mb-5">
+			<div class="bold-heading">
+				{{ _("Students") }}
+			</div>
+			{% if is_moderator %}
+			<button class="btn btn-default btn-sm btn-add-student">
+				{{ _("Add Students") }}
+			</button>
+			{% endif %}
+		</div>
+	</header>
 
 	{% if class_students | length %}
-	<table class="table">
-		<tr>
-			<th style="width: 70%">
-				{{ _("Student") }}
-			</th>
-			<th style="width: 20%">
-				{{ _("Last Active") }}
-			</th>
-			{% if is_moderator %}
-			<th style="width: 10%"></th>
-			{% endif %}
-		</tr>
+	<div>
 		{% for student in class_students %}
 		{% set last_active = frappe.db.get_value("User", student.student, "last_active") %}
 		{% set allow_progress = is_moderator or student.student == frappe.session.user or (frappe.db.get_single_value("LMS Settings", "allow_student_progress") and
 		is_student) %}
-		<tr>
-			<td>
-				<a class="subheading button-links d-block" {% if allow_progress %} href="/classes/{{ class_info.name }}/students/{{ student.username }}" {% endif %}>
+
+		<div class="list-row level">
+			<div>
+				<a {% if allow_progress %} class="clickable" href="/classes/{{ class_info.name }}/students/{{ student.username }}" {% endif %}>
 					{{ student.student_name }}
 				</a>
-			</td>
-			<td>
-				{{ frappe.utils.format_datetime(last_active, "medium") }}
-			</td>
+			</div>
 			{% if is_moderator %}
-			<td>
-				<svg class="icon icon-md pull-right remove-student" data-student="{{ student.student }}">
+			<div type="button" class="btn-remove-student" data-student="{{ student.student }}">
+				<svg class="icon icon-sm">
 					<use href="#icon-delete"></use>
 				</svg>
-			</td>
+			</div>
 			{% endif %}
-		</tr>
+		</div>
+
 		{% endfor %}
-
-	</table>
+	</div>
 	{% else %}
-	<p class="text-muted mt-3 ml-5"> {{ _("No Students are added to this class.") }} </p>
+	<p class="text-muted mt-3"> {{ _("No Students") }} </p>
 	{% endif %}
-
-</div>
-{% endmacro %}
-
-
-{% macro AddStudents() %}
-<div class="mb-10">
-	<div class="add-students"></div>
-	<button class="btn btn-primary btn-sm ml-5" id="submit-student">
-		{{ _("Add") }}
-	</button>
-</div>
+</article>
 {% endmacro %}
 
 
 {% macro LiveClassSection(class_info, live_classes) %}
-<div>
+<article>
+	<header class="edit-header">
+		<div class="bold-heading">
+			{{ _("Live Class") }}
+		</div>
+		{% if is_moderator %}
+		<button class="btn btn-default btn-sm" id="open-class-modal">
+			{{ _("Create a Live Class") }}
+		</button>
+		{% endif %}
+	</header>
 	{{ CreateLiveClass(class_info) }}
 	{{ LiveClassList(class_info, live_classes) }}
 </div>
@@ -199,9 +230,6 @@
 {% macro CreateLiveClass(class_info) %}
 
 {% if is_moderator %}
-<button class="btn btn-secondary btn-sm" id="open-class-modal">
-	{{ _("Create a Live Class") }}
-</button>
 
 <div class="modal fade live-class-modal" id="live-class-modal" tabindex="-1" role="dialog">
 	<div class="modal-dialog" role="document">
@@ -234,7 +262,8 @@
 
 
 {% macro LiveClassList(class_info, live_classes) %}
-<div class="lms-card-parent mt-8">
+<div class="lms-card-parent mt-5">
+	{% if live_classes | length %}
 	{% for class in live_classes %}
 	<div class="lms-card">
 
@@ -280,6 +309,9 @@
 
 	</div>
 	{% endfor %}
+	{% else %}
+	<p class=""> {{ _("No Live Classes") }} </p>
+	{% endif %}
 </div>
 {% endmacro %}
 

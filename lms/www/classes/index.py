@@ -6,8 +6,19 @@ from lms.lms.utils import has_course_moderator_role
 def get_context(context):
 	context.no_cache = 1
 	context.is_moderator = has_course_moderator_role()
-	context.classes = frappe.get_all(
+	classes = frappe.get_all(
 		"LMS Class",
-		{"end_date": [">=", getdate()]},
-		["name", "title", "start_date", "end_date"],
+		fields=["name", "title", "start_date", "end_date", "paid_class", "seat_count"],
 	)
+
+	past_classes, upcoming_classes = [], []
+	for class_ in classes:
+		print(class_.start_date)
+		if getdate(class_.start_date) < getdate():
+			past_classes.append(class_)
+		else:
+			upcoming_classes.append(class_)
+
+	context.past_classes = sorted(past_classes, key=lambda d: d.start_date)
+
+	context.upcoming_classes = sorted(upcoming_classes, key=lambda d: d.start_date)

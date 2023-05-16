@@ -35,10 +35,10 @@
 
                     {% set application_link = job.application_link if frappe.session.user != 'Guest' else '/login?redirect-to=/jobs/' + job.name %}
                     <div class="job-actions">
-                        <a class="button is-primary mr-2" href="{{ application_link }}"> {{ _("Apply") }} </a>
-                        <div class="button is-default mr-2" id="report" data-job="{{ job.name }}"> {{ _("Report") }} </div>
+                        <a class="btn btn-primary btn-sm mr-2" href="{{ application_link }}"> {{ _("Apply") }} </a>
+                        <div class="btn btn-default btn-sm mr-2" id="report" data-job="{{ job.name }}"> {{ _("Report") }} </div>
                         {% if job.owner == frappe.session.user %}
-                        <a class="button is-default button-links" href="/job-opportunity?name={{ job.name }}"> {{ _("Edit") }} </a>
+                        <a class="btn btn-defaultb btn-sm button-links" href="/job-opportunity?name={{ job.name }}"> {{ _("Edit") }} </a>
                         {% endif %}
                     </div>
 

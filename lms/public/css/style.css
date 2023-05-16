@@ -124,7 +124,7 @@ textarea.field-input {
 	border-bottom: none;
 }
 
-.level {
+.outline-lesson .level {
 	justify-content: start;
 }
 
@@ -526,24 +526,6 @@ input[type=checkbox] {
   margin: 0.25rem 0;
 }
 
-.button {
-  border-radius: var(--border-radius);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.25rem 1.25rem;
-  font-size: var(--text-md);
-  line-height: 20px;
-  box-shadow: var(--btn-shadow);
-  border: none;
-  width: fit-content;
-}
-
-.button:disabled {
-  cursor: not-allowed;
-}
-
 .wide-button {
 	padding: 0.3rem 4rem;
 	width: 100%;
@@ -553,35 +535,6 @@ input[type=checkbox] {
 	.wide-button {
 		padding: 0.3rem 4rem;
 	}
-}
-
-.is-secondary {
-  background: #FFFFFF;
-  color: var(--gray-900);
-}
-
-.is-secondary:hover {
-  text-decoration: none;
-  color: var(--gray-900);
-}
-
-.is-default {
-  background: var(--gray-100);
-  color: var(--gray-900);
-}
-
-.is-default:disabled {
-  color: var(--gray-500);
-}
-
-.is-primary {
-  background: var(--primary-color);
-  color: #FFFFFF;
-}
-
-.is-primary:hover {
-  text-decoration: none;
-  color: #FFFFFF;
 }
 
 .course-home-page .course-home-outline {
@@ -2144,10 +2097,10 @@ select {
 .lms-card {
 	display: flex;
 	flex-direction: column;
-	border-radius: 0.75rem;
-	/* border: 1px solid var(--gray-200); */
-	box-shadow: var(--shadow-sm);
-	padding: 0.5rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--gray-300);
+	/* box-shadow: var(--shadow-sm); */
+    padding: 0.5rem;
 	height: 100%;
 	position: relative;
 }
@@ -2194,3 +2147,11 @@ select {
 	background-color: var(--red-50);
 }
 
+.list-row {
+	border-bottom: 1px solid var(--gray-300);
+	padding: 0.75rem 0;
+}
+
+.list-row:last-child {
+	border-bottom: none;
+}

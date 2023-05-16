@@ -6,50 +6,79 @@
 {% block page_content %}
 <div class="common-page-style lms-page-style">
 	<div class="container">
-		{% if is_moderator %}
-		<button class="btn btn-secondary btn-sm pull-right" id="create-class">
-			{{ _("Create Class") }}
-		</button>
-		{% endif %}
-		<div class="course-home-headings"> {{ _("All Classes") }} </div>
-		{% if classes %}
-		{{ ClassCards(classes) }}
+		{{ Header() }}
+		{% if past_classes | length or upcoming_classes | length %}
+		{{ ClassTabs(past_classes, upcoming_classes) }}
 		{% else %}
-		<div class="empty-state">
-			<img class="icon icon-xl" src="/assets/lms/icons/comment.svg">
-			<div class="empty-state-text">
-				<div class="empty-state-heading">{{ _("No Classes") }}</div>
-				<div class="course-meta">{{ _("Nothing to see here.") }}</div>
-			</div>
-		</div>
+		{{ EmptyState() }}
 		{% endif %}
 	</div>
 </div>
 {% endblock %}
 
-{%- block script %}
-    {{ super() }}
-    {{ include_script('controls.bundle.js') }}
+{% macro Header() %}
+<header class="edit-header">
+	<div class="page-title mb-6"> {{ _("All Classes") }} </div>
 	{% if is_moderator %}
-	<script>
-		let class_info = null;
-	</script>
+	<button class="btn btn-default btn-sm pull-right" id="create-class">
+		{{ _("Create Class") }}
+	</button>
 	{% endif %}
-{% endblock %}
+</header>
+{% endmacro %}
+
+{% macro ClassTabs(past_classes, upcoming_classes) %}
+<article>
+	<ul class="nav lms-nav" id="courses-tab">
+
+		<li class="nav-item">
+			<a class="nav-link active" data-toggle="tab" href="#upcoming">
+				{{ _("Upcoming") }}
+				<span class="course-list-count">
+					{{ upcoming_classes | length }}
+				</span>
+			</a>
+		</li>
+
+		<li class="nav-item">
+			<a class="nav-link" data-toggle="tab" href="#past">
+				{{ _("Past Classes") }}
+				<span class="course-list-count">
+					{{ past_classes | length }}
+				</span>
+			</a>
+		</li>
+
+	</ul>
+
+	<div class="border-bottom mb-4"></div>
+
+	<div class="tab-content">
+		<div class="tab-pane active" id="upcoming" role="tabpanel" aria-labelledby="upcoming">
+			{{ ClassCards(upcoming_classes) }}
+		</div>
+
+		<div class="tab-pane" id="past" role="tabpanel" aria-labelledby="past">
+			{{ ClassCards(past_classes) }}
+		</div>
+
+	</div>
+</article>
+{% endmacro %}
 
 {% macro ClassCards(classes) %}
 <div class="lms-card-parent">
 	{% for class in classes %}
 	{% set course_count = frappe.db.count("Class Course", {"parent": class.name}) %}
-    {% set student_count = frappe.db.count("Class Student", {"parent": class.name}) %}
+	{% set student_count = frappe.db.count("Class Student", {"parent": class.name}) %}
 
 	<div class="lms-card">
 
-		<div class="lms-card-title">
+		<div class="lms-card-title mb-4">
 			{{ class.title }}
 		</div>
 
-		<div class="text-muted small mb-4">
+		<!-- <div class="text-muted small mb-4">
 			{% if course_count %}
 			<span class="mr-3">
 				{{ course_count }} {{ _("Courses") }}
@@ -61,7 +90,7 @@
 				{{ student_count }} {{ _("Students") }}
 			</span>
 			{% endif %}
-		</div>
+		</div> -->
 
 		<div class="">
 			<svg class="icon icon-sm">
@@ -74,8 +103,29 @@
 				{{ frappe.utils.format_date(class.end_date, "long") }}
 			</span>
 		</div>
+
 		<a class="stretched-link" href="/classes/{{ class.name }}"></a>
 	</div>
 	{% endfor %}
 </div>
 {% endmacro %}
+
+{% macro EmptyState() %}
+<div class="empty-state">
+	<img class="icon icon-xl" src="/assets/lms/icons/comment.svg">
+	<div class="empty-state-text">
+		<div class="empty-state-heading">{{ _("No Classes") }}</div>
+		<div class="course-meta">{{ _("Nothing to see here.") }}</div>
+	</div>
+</div>
+{% endmacro %}
+
+{%- block script %}
+    {{ super() }}
+    {{ include_script('controls.bundle.js') }}
+	{% if is_moderator %}
+	<script>
+		let class_info = null;
+	</script>
+	{% endif %}
+{% endblock %}

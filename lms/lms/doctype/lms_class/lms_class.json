@@ -11,6 +11,7 @@
   "title",
   "start_date",
   "end_date",
+  "paid_class",
   "column_break_4",
   "seat_count",
   "start_time",
@@ -74,6 +75,12 @@
    "fieldtype": "Code",
    "label": "Custom Component",
    "options": "HTML"
+  },
+  {
+   "default": "0",
+   "fieldname": "paid_class",
+   "fieldtype": "Check",
+   "label": "Paid Class"
   },
   {
    "fieldname": "seat_count",
