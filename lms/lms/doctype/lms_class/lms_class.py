@@ -75,12 +75,11 @@ def add_student(email, class_name):
 @frappe.whitelist()
 def remove_student(student, class_name):
 	frappe.db.delete("Class Student", {"student": student, "parent": class_name})
-	return True
 
 
 @frappe.whitelist()
 def remove_course(course, parent):
-	frappe.db.delete("Class Course", {"name": course, "parent": parent})
+	frappe.db.delete("Class Course", {"course": course, "parent": parent})
 
 
 @frappe.whitelist()

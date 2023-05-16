@@ -3,7 +3,7 @@ frappe.ready(() => {
 		show_student_modal(e);
 	});
 
-	$(".remove-student").click((e) => {
+	$(".btn-remove-student").click((e) => {
 		remove_student(e);
 	});
 
@@ -323,26 +323,6 @@ const get_timezones = () => {
 	];
 };
 
-const make_add_students_section = () => {
-	this.field_group = new frappe.ui.FieldGroup({
-		fields: [
-			{
-				fieldname: "student_input",
-				fieldtype: "Link",
-				options: "User",
-				label: "Add Student",
-				filters: {
-					ignore_user_type: 1,
-				},
-			},
-		],
-		body: $(".add-students").get(0),
-	});
-	this.field_group.make();
-	$(".add-students .form-section:last").removeClass("empty-section");
-	$(".add-students .frappe-control").removeClass("hide-control");
-};
-
 const show_course_modal = () => {
 	let course_modal = new frappe.ui.Dialog({
 		title: "Add Course",
@@ -353,6 +333,12 @@ const show_course_modal = () => {
 				label: __("Course"),
 				fieldname: "course",
 				reqd: 1,
+			},
+			{
+				fieldtype: "HTML",
+				fieldname: "instructions",
+				label: __("Instructions"),
+				options: __("Select a course to add to this class."),
 			},
 		],
 		primary_action_label: __("Add"),
@@ -383,25 +369,31 @@ const show_course_modal = () => {
 		},
 	});
 	course_modal.show();
+	setTimeout(() => {
+		$(".modal-body").css("min-height", "200px");
+		$(".modal-body input").focus();
+	}, 1000);
 };
 
 const remove_course = (e) => {
-	frappe.call({
-		method: "lms.lms.doctype.lms_class.lms_class.remove_course",
-		args: {
-			course: $(e.target).data("course"),
-			parent: $(".class-details").data("class"),
-		},
-		callback(r) {
-			frappe.show_alert(
-				{
-					message: __("Course Removed"),
-					indicator: "green",
-				},
-				3
-			);
-			window.location.reload();
-		},
+	frappe.confirm("Are you sure you want to remove this course?", () => {
+		frappe.call({
+			method: "lms.lms.doctype.lms_class.lms_class.remove_course",
+			args: {
+				course: $(e.currentTarget).data("course"),
+				parent: $(".class-details").data("class"),
+			},
+			callback(r) {
+				frappe.show_alert(
+					{
+						message: __("Course Removed"),
+						indicator: "green",
+					},
+					3
+				);
+				window.location.reload();
+			},
+		});
 	});
 };
 
@@ -418,6 +410,14 @@ const show_student_modal = () => {
 				filters: {
 					ignore_user_type: 1,
 				},
+			},
+			{
+				fieldtype: "HTML",
+				fieldname: "instructions",
+				label: __("Instructions"),
+				options: __(
+					"Please ensure a user account exists for the student before adding them to the class. Only users can be enrolled as students."
+				),
 			},
 		],
 		primary_action_label: __("Add"),
@@ -448,4 +448,8 @@ const show_student_modal = () => {
 		},
 	});
 	student_modal.show();
+	setTimeout(() => {
+		$(".modal-body").css("min-height", "200px");
+		$(".modal-body input").focus();
+	}, 1000);
 };
