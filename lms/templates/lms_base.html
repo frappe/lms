@@ -17,6 +17,6 @@
 		if (telemetry_boot_info && Object.keys(telemetry_boot_info).length)
 			Object.assign(frappe.boot, telemetry_boot_info)
 	</script>
-    {{ include_script("telemetry.bundle.js") }}
 	{% endif %}
+    {{ include_script("telemetry.bundle.js") }}
 {%- endblock -%}
