@@ -124,7 +124,7 @@ textarea.field-input {
 	border-bottom: none;
 }
 
-.outline-lesson .level {
+.outline-lesson .level, .chapter-container .level {
 	justify-content: start;
 }
 
