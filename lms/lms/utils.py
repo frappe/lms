@@ -698,3 +698,19 @@ def get_course_completion_data():
 			}
 		],
 	}
+
+
+def get_telemetry_boot_info():
+	POSTHOG_PROJECT_FIELD = "posthog_project_id"
+	POSTHOG_HOST_FIELD = "posthog_host"
+
+	if not frappe.conf.get(POSTHOG_HOST_FIELD) or not frappe.conf.get(
+		POSTHOG_PROJECT_FIELD
+	):
+		return {}
+
+	return {
+		"posthog_host": frappe.conf.get(POSTHOG_HOST_FIELD),
+		"posthog_project_id": frappe.conf.get(POSTHOG_PROJECT_FIELD),
+		"enable_telemetry": 1,
+	}

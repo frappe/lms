@@ -235,6 +235,7 @@ jinja = {
 		"lms.lms.utils.get_filtered_membership",
 		"lms.lms.utils.show_start_learing_cta",
 		"lms.lms.utils.can_create_courses",
+		"lms.lms.utils.get_telemetry_boot_info",
 	],
 	"filters": [],
 }

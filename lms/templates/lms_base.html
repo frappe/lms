@@ -7,3 +7,16 @@
 		Hello, world!
 	{% endblock %}
 {% endblock %}
+
+{%- block script -%}
+	{{ super() }}
+	{% if frappe.get_system_settings("enable_telemetry") %}
+	{% set telemetry_boot_info = get_telemetry_boot_info() %}
+	<script>
+		const telemetry_boot_info = {{ get_telemetry_boot_info() }}
+		if (telemetry_boot_info && Object.keys(telemetry_boot_info).length)
+			Object.assign(frappe.boot, telemetry_boot_info)
+	</script>
+	{% endif %}
+    {{ include_script("telemetry.bundle.js") }}
+{%- endblock -%}
