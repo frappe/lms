@@ -30,6 +30,9 @@ class CustomUser(User):
 		if " " in self.username:
 			self.username = self.username.replace(" ", "")
 
+		if len(self.username) < 4:
+			self.username = self.email.replace("@", "").replace(".", "")
+
 	def validate_skills(self):
 		unique_skills = []
 		for skill in self.skill:
