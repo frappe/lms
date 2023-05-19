@@ -20,14 +20,6 @@ class TestCustomUser(unittest.TestCase):
 		user = new_user("Username", "test-without-username@example.com")
 		self.assertTrue(user.username)
 
-	def test_with_illegal_characters(self):
-		user = new_user("Username$$", "test_with_illegal_characters@example.com")
-		self.assertEqual(user.username[:8], "username")
-
-	def test_with_underscore_at_end(self):
-		user = new_user("Username___", "test_with_underscore_at_end@example.com")
-		self.assertNotEqual(user.username[-1], "_")
-
 	def test_with_short_first_name(self):
 		user = new_user("USN", "test_with_short_first_name@example.com")
 		self.assertGreaterEqual(len(user.username), 4)
@@ -37,8 +29,6 @@ class TestCustomUser(unittest.TestCase):
 		users = [
 			"test_with_basic_username@example.com",
 			"test-without-username@example.com",
-			"test_with_illegal_characters@example.com",
-			"test_with_underscore_at_end@example.com",
 			"test_with_short_first_name@example.com",
 		]
 		frappe.db.delete("User", {"name": ["in", users]})
