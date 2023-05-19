@@ -30,12 +30,6 @@ class CustomUser(User):
 		if " " in self.username:
 			self.username = self.username.replace(" ", "")
 
-	def get_username_from_first_name(self):
-		return frappe.scrub(self.first_name) + str(random.randint(0, 99))
-
-	def remove_illegal_characters(self):
-		return re.sub(r"[^\w]+", "", self.username).strip("_")
-
 	def validate_skills(self):
 		unique_skills = []
 		for skill in self.skill:
