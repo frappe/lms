@@ -57,8 +57,8 @@ class ProfilePage(BaseRenderer):
 		self.renderer = None
 
 	def can_render(self):
-		if "." in self.path:
-			return False
+		"""if "." in self.path:
+		return False"""
 
 		# has prefix and path starts with prefix?
 		prefix = get_profile_url_prefix().lstrip("/")
@@ -67,8 +67,8 @@ class ProfilePage(BaseRenderer):
 
 		# not a userpage?
 		username = self.get_username()
-		if RE_INVALID_USERNAME.search(username):
-			return False
+		""" if RE_INVALID_USERNAME.search(username):
+			return False """
 		# if there is prefix then we can allow all usernames
 		if prefix:
 			return True

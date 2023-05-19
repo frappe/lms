@@ -2,7 +2,6 @@
 	--text-3-5xl: 24px;
 	--text-3-8xl: 34px;
 	--text-4xl: 36px;
-	--checkbox-gradient: linear-gradient(180deg, #3d4142 -124.51%, var(--primary) 100%);
 }
 
 .nav-link .course-list-count {
@@ -651,8 +650,12 @@ input[type=checkbox] {
 }
 
 .avatar-xl {
-  width: 112px;
-  height: 112px;
+  width: 8rem;
+  height: 8rem;
+}
+
+.avatar-xl .standard-image {
+	border: 4px solid #ffffff;
 }
 
 @media (max-width: 500px) {
@@ -791,9 +794,9 @@ input[type=checkbox] {
 }
 
 .profile-banner {
-  height: 248px;
-  background-size: cover;
-  background-position: center;
+	height: 248px;
+	background-size: cover;
+	background-position: center;
 }
 
 @media (max-width: 500px) {
@@ -803,24 +806,24 @@ input[type=checkbox] {
 }
 
 .profile-info {
-  height: 90px;
-  background: #ffffff;
-  border-radius: 0px 0px 8px 8px;
-  font-size: var(--text-sm);
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 2.5rem;
-  padding-left: 200px;
-  padding-right: 1rem;
-  box-shadow: var(--shadow-sm);
+	height: 90px;
+	background: #ffffff;
+	border-radius: 0px 0px 8px 8px;
+	font-size: var(--text-sm);
+	display: flex;
+	flex-direction: column;
+	margin-bottom: 2.5rem;
+	padding-left: 200px;
+	padding-right: 1rem;
+	border: 1px solid var(--gray-300);
 }
 
 @media (max-width: 550px) {
-  .profile-info {
-	align-items: flex-end;
-	padding-left: 0;
-	height: 150px;
-  }
+	.profile-info {
+		align-items: flex-end;
+		padding-left: 0;
+		height: 150px;
+	}
 }
 
 .profile-avatar {
@@ -1524,10 +1527,6 @@ pre {
   margin: 0 1rem;
 }
 
-.profile-page-body {
-  background-color: var(--gray-50);
-}
-
 .profile-column-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
@@ -1802,6 +1801,8 @@ li {
 }
 
 .role {
+	display: flex;
+	align-items: center;
 	margin-bottom: 0;
 	cursor: pointer;
 }

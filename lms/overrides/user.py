@@ -9,58 +9,26 @@ from frappe.core.doctype.user.user import User
 from frappe.utils import cint, escape_html, random_string
 from frappe.website.utils import is_signup_disabled
 from lms.lms.utils import validate_image
+from frappe.website.utils import cleanup_page_name
+from frappe.model.naming import append_number_if_name_exists
 from lms.widgets import Widgets
 
 
 class CustomUser(User):
 	def validate(self):
 		super().validate()
-		self.validate_username_characters()
+		self.validate_username_duplicates()
 		self.validate_completion()
 		self.user_image = validate_image(self.user_image)
 		self.cover_image = validate_image(self.cover_image)
 
-	def validate_username_characters(self):
-		if self.username and len(self.username):
-			other_conditions = (
-				self.username[0] == "_" or self.username[-1] == "_" or "-" in self.username
+	def validate_username_duplicates(self):
+		while not self.username or self.username_exists():
+			self.username = append_number_if_name_exists(
+				self.doctype, cleanup_page_name(self.full_name), fieldname="username"
 			)
-		else:
-			other_conditions = ""
-
-		regex = re.compile(r"[@!#$%^&*()<>?/\|}{~:-]")
-
-		if self.is_new():
-			if not self.username:
-				self.username = self.get_username_from_first_name()
-
-			if self.username.find(" "):
-				self.username.replace(" ", "")
-
-			if len(self.username) < 4:
-				self.username = self.email.replace("@", "").replace(".", "")
-
-			if regex.search(self.username) or other_conditions:
-				self.username = self.remove_illegal_characters()
-
-			while self.username_exists():
-				self.username = self.remove_illegal_characters() + str(random.randint(0, 99))
-
-		else:
-			if not self.username:
-				frappe.throw(_("Username already exists."))
-
-			if regex.search(self.username):
-				frappe.throw(_("Username can only contain alphabets, numbers and underscore."))
-
-			if other_conditions:
-				if "-" in self.username:
-					frappe.throw(_("Username cannot contain a Hyphen(-)"))
-				else:
-					frappe.throw(_("First and Last character of username cannot be Underscore(_)."))
-
-			if len(self.username) < 4:
-				frappe.throw(_("Username cannot be less than 4 characters"))
+		if " " in self.username:
+			self.username = self.username.replace(" ", "")
 
 	def get_username_from_first_name(self):
 		return frappe.scrub(self.first_name) + str(random.randint(0, 99))
