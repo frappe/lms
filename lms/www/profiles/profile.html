@@ -68,7 +68,7 @@
 
             <div class="tab-content">
                 <div class="tab-pane active" id="profile" role="tabpanel" aria-labelledby="profile">
-                    <div class="common-card-style column-card mt-5">
+                    <div class="">
                         {{ About(member) }}
                         {{ EducationDetails(member) }}
                         {{ WorkDetails(member) }}
@@ -126,7 +126,7 @@
 <div class="container">
     <div class="profile-banner" style="background-image: url({{ cover_image | urlencode }})">
         <div class="profile-avatar">
-            {{ widgets.Avatar(member=member, avatar_class="avatar-square") }}
+            {{ widgets.Avatar(member=member, avatar_class="avatar-xl") }}
         </div>
     </div>
 
@@ -201,9 +201,9 @@
 {% macro RoleSettings(member) %}
     {% if has_course_moderator_role() %}
         <div class="">
-            <div class="common-card-style column-card">
+            <div class="">
                 <div class="course-home-headings"> {{ _("Role Settings") }} </div>
-                <div class="medium">
+                <div class="d-flex">
                     <label class="role">
                         <input type="checkbox" id="course-creator" data-role="Course Creator"
                         {% if has_course_instructor_role(member.name) %} checked {% endif %}>
