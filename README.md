@@ -6,12 +6,15 @@
 </p>
 
 <p align="center">
+	<a href="https://dashboard.cypress.io/projects/vandxn/runs">
+    <img alt="cypress" src="https://img.shields.io/endpoint?url=https://dashboard.cypress.io/badge/simple/vandxn/main&style=flat&logo=cypress">
+  </a>
   <a href="https://github.com/frappe/lms/blob/main/LICENSE">
     <img alt="license" src="https://img.shields.io/badge/license-AGPLv3-blue">
   </a>
 </p>
 
-<img width="1402" alt="Lesson" src="https://frappelms.com/files/fs-banner71f330.png">
+<img width="1402" alt="Lesson" src="https://frappelms.com/files/banner.png">
 
 <details>
 	<summary>Show more screenshots</summary>
