@@ -1,9 +1,19 @@
 import frappe
 from frappe.utils import cstr
+from frappe import _
+from lms.lms.utils import can_create_courses
 
 
 def get_context(context):
 	context.no_cache = 1
+
+	if not can_create_courses():
+		message = "You do not have permission to access this page."
+		if frappe.session.user == "Guest":
+			message = "Please login to access this page."
+
+		raise frappe.PermissionError(_(message))
+
 	quizname = frappe.form_dict["quizname"]
 	if quizname == "new-quiz":
 		context.quiz = frappe._dict()

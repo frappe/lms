@@ -54,3 +54,4 @@ lms.patches.v0_0.share_certificates
 execute:frappe.delete_doc("Web Form", "class", ignore_missing=True, force=True)
 lms.patches.v0_0.amend_course_and_lesson_editor_fields
 lms.patches.v0_0.convert_course_description_to_html #11-05-2023
+lms.patches.v1_0.rename_assignment_doctype

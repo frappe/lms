@@ -35,11 +35,16 @@
 <div class="mt-5">
     <ul class="list-unstyled">
        {% for quiz in quiz_list %}
-       <li class="mt-2">
-        <a class="clickable" href="/quizzes/{{ quiz.name }}">
-            {{ quiz.title }}
-        </a>
-    </li>
+       <li class="outline-lesson">
+            <a class="clickable" href="/quizzes/{{ quiz.name }}">
+                <span>
+                    {{ loop.index }}.
+                </span>
+                <span>
+                    {{ quiz.title }}
+                </span>
+            </a>
+        </li>
     {% endfor %}
     </ul>
 </div>
