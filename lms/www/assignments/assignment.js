@@ -36,7 +36,7 @@ const save_assignment = (e) => {
 			message: __("Please grade the assignment."),
 		});
 	frappe.call({
-		method: "lms.lms.doctype.lesson_assignment.lesson_assignment.grade_assignment",
+		method: "lms.lms.doctype.lms_assignment_submission.lms_assignment_submission.grade_assignment",
 		args: {
 			name: $(e.currentTarget).data("assignment"),
 			result: this.result,

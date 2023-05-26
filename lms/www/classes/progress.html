@@ -121,8 +121,8 @@
 {% macro Assignment(course, student, is_moderator) %}
 	{% for assignment in course.assignments %}
 		{% set filters = { "member": student.name, "course": course.course, "lesson": assignment.name } %}
-		{% set has_submitted = frappe.db.exists("Lesson Assignment", filters) %}
-		{% set submission = frappe.db.get_value("Lesson Assignment", filters, ["assignment", "creation", "status"], as_dict=True) %}
+		{% set has_submitted = frappe.db.exists("LMS Assignment Submission", filters) %}
+		{% set submission = frappe.db.get_value("LMS Assignment Submission", filters, ["assignment", "creation", "status"], as_dict=True) %}
 		{% set status = submission.status %}
 		{% set color = "green" if status == "Pass" else "red" if status == "Fail" else "orange" %}
 		{% set can_see_details = has_submitted and (is_moderator or frappe.session.user == student.name) %}

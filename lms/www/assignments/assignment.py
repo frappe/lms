@@ -8,7 +8,7 @@ def get_context(context):
 	assignment = frappe.form_dict["assignment"]
 
 	context.assignment = frappe.db.get_value(
-		"Lesson Assignment",
+		"LMS Assignment Submission",
 		assignment,
 		[
 			"assignment",

@@ -12,7 +12,7 @@ class LessonAssignment(Document):
 
 	def validate_duplicates(self):
 		if frappe.db.exists(
-			"Lesson Assignment",
+			"LMS Assignment Submission",
 			{"lesson": self.lesson, "member": self.member, "name": ["!=", self.name]},
 		):
 			lesson_title = frappe.db.get_value("Course Lesson", self.lesson, "title")
@@ -26,13 +26,13 @@ class LessonAssignment(Document):
 @frappe.whitelist()
 def upload_assignment(assignment, lesson):
 	args = {
-		"doctype": "Lesson Assignment",
+		"doctype": "LMS Assignment Submission",
 		"lesson": lesson,
 		"member": frappe.session.user,
 	}
 	if frappe.db.exists(args):
 		del args["doctype"]
-		frappe.db.set_value("Lesson Assignment", args, "assignment", assignment)
+		frappe.db.set_value("LMS Assignment Submission", args, "assignment", assignment)
 	else:
 		args.update({"assignment": assignment})
 		lesson_work = frappe.get_doc(args)
@@ -42,7 +42,7 @@ def upload_assignment(assignment, lesson):
 @frappe.whitelist()
 def get_assignment(lesson):
 	assignment = frappe.db.get_value(
-		"Lesson Assignment",
+		"LMS Assignment Submission",
 		{"lesson": lesson, "member": frappe.session.user},
 		["lesson", "member", "assignment", "comments", "status"],
 		as_dict=True,
@@ -55,7 +55,7 @@ def get_assignment(lesson):
 
 @frappe.whitelist()
 def grade_assignment(name, result, comments):
-	doc = frappe.get_doc("Lesson Assignment", name)
+	doc = frappe.get_doc("LMS Assignment Submission", name)
 	doc.status = result
 	doc.comments = comments
 	doc.save(ignore_permissions=True)
