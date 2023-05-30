@@ -5,5 +5,5 @@
 import unittest
 
 
-class TestLessonAssignment(unittest.TestCase):
+class TestLMSAssignmentSubmission(unittest.TestCase):
 	pass

@@ -7,7 +7,7 @@ import frappe
 from frappe.model.document import Document
 from frappe.utils import cint
 from frappe.utils.telemetry import capture
-from lms.lms.utils import get_chapters
+from lms.lms.utils import get_chapters, can_create_courses
 from ...utils import generate_slug, validate_image
 
 
@@ -212,6 +212,9 @@ def save_course(
 	upcoming,
 	image=None,
 ):
+	if not can_create_courses():
+		return
+
 	if course:
 		doc = frappe.get_doc("LMS Course", course)
 	else:

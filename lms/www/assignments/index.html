@@ -1,0 +1,64 @@
+{% extends "templates/base.html" %}
+{% block title %}
+    {{ _("Assignment List") }}
+{% endblock %}
+
+{% block content %}
+<main class="common-page-style">
+    <div class="container form-width">
+        {{ Header() }}
+        {% if assignments | length %}
+        {{ AssignmentList(assignments) }}
+        {% else %}
+        {{ EmptyState() }}
+        {% endif %}
+    </div>
+</main>
+{% endblock %}
+
+{% macro Header() %}
+<header class="sticky">
+    <div class="edit-header">
+        <div class="page-title">
+            {{ _("Assignment List") }}
+        </div>
+
+        <a class="btn btn-primary btn-sm align-self-center" href="/assignments/new-assignments">
+            {{ _("Add Assignment") }}
+        </a>
+    </div>
+</header>
+{% endmacro %}
+
+{% macro AssignmentList(assignments) %}
+<div class="mt-5">
+    <ul class="list-unstyled">
+       {% for assignment in assignments %}
+       <li class="list-row">
+            <a class="clickable" href="/assignments/{{ assignment.name }}">
+                <span>
+                    {{ loop.index }}.
+                </span>
+                <span>
+                    {{ assignment.title }}
+                </span>
+            </a>
+        </li>
+    {% endfor %}
+    </ul>
+</div>
+{% endmacro %}
+
+{% macro EmptyState() %}
+<div class="empty-state mt-5">
+    <img class="icon icon-xl" src="/assets/lms/icons/comment.svg">
+    <div class="empty-state-text">
+        <div class="empty-state-heading">
+            {{ _("You have not created any assignment yet.") }}
+        </div>
+        <div class="course-meta ">
+            {{ _("Create an assignment and evaluate your students.") }}
+        </div>
+    </div>
+</div>
+{% endmacro %}

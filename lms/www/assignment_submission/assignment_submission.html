@@ -1,0 +1,72 @@
+{% extends "lms/templates/lms_base.html" %}
+{% block title %}
+    {{ assignment.title }}
+{% endblock %}
+
+{% block page_content %}
+<main class="common-page-style">
+    {{ Header() }}
+    <div class="container form-width">
+        {{ SubmissionForm(assignment) }}
+    </div>
+</main>
+{% endblock %}
+
+{% macro Header() %}
+<header class="sticky mb-5">
+    <div class="container form-width">
+        <div class="edit-header">
+            <div class="vertically-center">
+                <div class="page-title">
+                    {{ assignment.title }}
+                </div>
+                {% if submission.status %}
+                {% set color = "green" if submission.status == "Pass" else "red" if submission.status == "Fail" else "orange" %}
+                <div class="indicator-pill {{ color }} ml-2">
+                    {{ submission.status }}
+                </div>
+                {% endif %}
+            </div>
+
+            {% if submission.status == "Not Graded" %}
+            <div class="align-self-center">
+                <button class="btn btn-primary btn-sm btn-save-assignment" {% if assignment.name %} data-assignment="{{ assignment.name }}" {% endif %}>
+                    {{ _("Save") }}
+                </button>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</header>
+{% endmacro %}
+
+{% macro SubmissionForm(assignment) %}
+<article class="field-parent">
+    <div class="field-group">
+        <div class="field-label">
+            {{ _("Question")}}
+        </div>
+        {{ assignment.question }}
+    </div>
+
+    <div class="field-group">
+        <div class="field-label">
+            {{ _("Submit your assignment")}}
+        </div>
+
+        <div class="file-source-preview">
+            {% if submission.status == "Not Graded" %}
+            <span class="btn btn-default btn-sm btn-close">
+				{{ _("Clear") }}
+            </span>
+            {% endif %}
+            <div class="btn-upload clickable {% if submission.assignment_attachment %} hide {% endif %}" data-type="{{ assignment.type }}">
+                {{ _("Upload a {0}").format(assignment.type) }}
+            </div>
+            <iframe class="image-preview {% if not submission.assignment_attachment %} hide {% endif %}" {% if submission.assignment_attachment %} src="{{ submission.assignment_attachment }}" {% endif %}></iframe>
+        </div>
+    </div>
+
+
+</article>
+{% endmacro %}

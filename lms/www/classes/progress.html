@@ -6,80 +6,61 @@
 
 {% block page_content %}
 <div class="common-page-style">
-	<div class="container">
-		{{ BreadCrumb(class_info, student) }}
-		<div class="common-card-style flex-column p-5">
-			<div class="mb-5">
-				<div class="medium d-flex align-items-center pull-right">
-					<span>
-						{{ frappe.utils.format_datetime(student.last_active, "medium") }}
-					</span>
-					{% if is_moderator %}
-					<a class="btn btn-secondary btn-sm ml-3" href="/evaluation/new?member={{student.name}}&date={{frappe.utils.getdate()}}&class={{class_info.name}}">
-						{{ _("Evaluate") }}
-					</a>
-					{% endif %}
-				</div>
-				<a class="course-home-headings" href="/users/{{student.username}}">
-					{{ student.full_name }}
-				</a>
-			</div>
-			{{ Progress(class_courses, student) }}
-		</div>
+	{{ Header() }}
+	<div class="container form-width">
+		{{ Progress() }}
 	</div>
 </div>
 {% endblock %}
 
+{% macro Header() %}
+<header class="sticky mb-5">
+    <div class="container form-width">
+        <div class="edit-header">
+            <div>
+                <div class="page-title">
+                    {{ _("{0}'s Progress").format(student.full_name) }}
+                </div>
+                <div class="vertically-center small">
+                    <a class="dark-links" href="/classes">
+                        {{ _("All Classes") }}
+                    </a>
+                    <img class="icon icon-sm mr-0" src="/assets/lms/icons/chevron-right.svg">
+					<a class="dark-links" href="/classes/{{ class_info.name }}">
+                        {{ class_info.name }}
+                    </a>
+                    <img class="icon icon-sm mr-0" src="/assets/lms/icons/chevron-right.svg">
+                    <span class="breadcrumb-destination">{{ _("{0}'s Progress").format(student.full_name) }}</span>
+                </div>
+            </div>
 
-{% macro BreadCrumb(class_info, student) %}
-<div class="breadcrumb">
-    <a class="dark-links" href="/classes">{{ _("All Classes") }}</a>
-    <img class="ml-1 mr-1" src="/assets/lms/icons/chevron-right.svg">
-    <a class="dark-links" href="/classes/{{ class_info.name }}">{{ class_info.name }}</a>
-    <img class="ml-1 mr-1" src="/assets/lms/icons/chevron-right.svg">
-    <span class="breadcrumb-destination">{{ student.full_name }}</span>
-</div>
+            <div class="align-self-center">
+                <a class="btn btn-secondary btn-sm btn-evaluate" href=/evaluation/new?member={{student.name}}&date={{frappe.utils.getdate()}}&class={{class_info.name}}">
+                    {{ _("Save") }}
+				</a>
+            </div>
+
+        </div>
+    </div>
+</header>
 {% endmacro %}
 
 
 {% macro Progress(class_info, student) %}
 <div>
-	{% for course in class_courses %}
-	{% set progress = course.membership.progress %}
-	<div class="medium">
-		<div class="progress-course-header">
-			<div class="section-heading"> {{ course.title }} </div>
-			<div class="ml-3"> {{ frappe.utils.cint(course.membership.progress) }}% </div>
+	{% for assessment in assessments %}
+	<div>
+		<div>
+			{{ assessment.title }}
 		</div>
-
-		{% if course.quizzes | length or course.assignments | length or course.evaluations | length %}
-		<div class="{% if not loop.last %} my-5 {% else %} mt-5 {% endif %}">
-			<table class="table">
-				<tr>
-					<th style="width: 20%;">
-						{{ _("Type") }}
-					</th>
-					<th style="width: 40%;">
-						{{ _("Title") }}
-					</th>
-					<th style="width: 20%;">
-						{{ _("Score/Status") }}
-					</th>
-					<th style="width: 20%;">
-						{{ _("Last Attempt Date") }}
-					</th>
-				</tr>
-
-				{{ Quiz(course, student) }}
-				{{ Assignment(course, student, is_moderator) }}
-				{{ Evaluation(course, student, is_moderator) }}
-
-			</table>
+		{{ assessment.submission}}
+		{% if assessment.submission %}
+		<div>
+			{{ assessment.submission.status }}
 		</div>
-		{% else %}
-		<div class="text-muted medium my-5">
-			{{ _("There are no activities in this course.") }}
-		</div>
+		<a class="btn btn-secondary btn-sm" href="{{ assessment.url }}">
+			{{ _("Grade") }}
+		</a>
 		{% endif %}
 	</div>
 	{% endfor %}

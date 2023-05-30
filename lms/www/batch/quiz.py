@@ -17,7 +17,6 @@ def get_context(context):
 	quizname = frappe.form_dict["quizname"]
 	if quizname == "new-quiz":
 		context.quiz = frappe._dict()
-		context.quiz.edit_mode = 1
 	else:
 		fields_arr = ["name", "question", "type"]
 		for num in range(1, 5):

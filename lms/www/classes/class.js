@@ -1,4 +1,6 @@
 frappe.ready(() => {
+	let self = this;
+
 	$(".btn-add-student").click((e) => {
 		show_student_modal(e);
 	});
@@ -26,6 +28,19 @@ frappe.ready(() => {
 
 	$(".btn-remove-course").click((e) => {
 		remove_course(e);
+	});
+
+	$("#open-assessment-modal").click((e) => {
+		e.preventDefault();
+		$("#assessment-modal").modal("show");
+	});
+
+	$(".assessment-item").click((e) => {
+		update_assessment(e);
+	});
+
+	$(".btn-assessment-close").click((e) => {
+		window.location.reload();
 	});
 });
 
@@ -452,4 +467,16 @@ const show_student_modal = () => {
 		$(".modal-body").css("min-height", "200px");
 		$(".modal-body input").focus();
 	}, 1000);
+};
+
+const update_assessment = (e) => {
+	frappe.call({
+		method: "lms.lms.doctype.lms_class.lms_class.update_assessment",
+		args: {
+			type: $(e.currentTarget).data("type"),
+			name: $(e.currentTarget).data("name"),
+			value: $(e.currentTarget).prop("checked") ? 1 : 0,
+			class_name: $(".class-details").data("class"),
+		},
+	});
 };
