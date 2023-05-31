@@ -49,18 +49,22 @@
 {% macro Progress(class_info, student) %}
 <div>
 	{% for assessment in assessments %}
-	<div>
+	<div class="list-row level">
 		<div>
 			{{ assessment.title }}
 		</div>
-		{{ assessment.submission}}
+
 		{% if assessment.submission %}
-		<div>
-			{{ assessment.submission.status }}
-		</div>
-		<a class="btn btn-secondary btn-sm" href="{{ assessment.url }}">
-			{{ _("Grade") }}
-		</a>
+			{% set status = assessment.submission.status %}
+			{% set color = "green" if status == "Pass" else "red" if status == "Fail" else "orange"  %}
+			<div>
+				<div class="indicator-pill {{ color }}">
+					{{ assessment.submission.status }}
+				</div>
+				<a class="btn btn-secondary btn-sm" href="{{ assessment.url }}">
+					{{ _("Grade") }}
+				</a>
+			</div>
 		{% endif %}
 	</div>
 	{% endfor %}
