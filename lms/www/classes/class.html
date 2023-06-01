@@ -87,7 +87,7 @@
 			</a>
 		</li>
 
-		{% if class_students | length and (is_moderator or is_student) %}
+		{% if is_moderator %}
 		<li class="nav-item">
 			<a class="nav-link" data-toggle="tab" href="#assessments">
 				{{ _("Assessments") }}
@@ -96,7 +96,9 @@
 				</span>
 			</a>
 		</li>
+		{% endif %}
 
+		{% if class_students | length and (is_moderator or is_student) %}
 		<li class="nav-item">
 			<a class="nav-link" data-toggle="tab" href="#live-class">
 				{{ _("Live Class") }}
@@ -120,11 +122,13 @@
 			{{ StudentsSection(class_info, class_students) }}
 		</div>
 
-		{% if class_students | length and (is_moderator or is_student) %}
+		{% if is_moderator %}
 		<div class="tab-pane" id="assessments" role="tabpanel" aria-labelledby="assessments">
 			{{ AssessmentsSection(class_info) }}
 		</div>
+		{% endif %}
 
+		{% if class_students | length and (is_moderator or is_student) %}
 		<div class="tab-pane" id="live-class" role="tabpanel" aria-labelledby="live-class">
 			{{ LiveClassSection(class_info, live_classes) }}
 		</div>
@@ -154,9 +158,9 @@
 	<div>
 		{% for course in class_courses %}
 		<div class="list-row level">
-			<div {% if is_moderator %} class="clickable" {% endif %}>
+			<a class="clickable" href="/courses/{{ course.course }}">
 				{{ course.title }}
-			</div>
+			</a>
 			{% if is_moderator %}
 			<div type="button" class="btn-remove-course" data-course="{{ course.course }}">
 				<svg class="icon icon-sm">
@@ -251,15 +255,29 @@
 			</div>
 
 			<div class="modal-body">
-				<p class="alert alert-info">
-					{{ _("Please select the assignments you wish to include for the assessment of this class. Your selections will be automatically saved upon clicking. If you decide to remove an item from the list, simply uncheck it.") }}
-				</p>
-				<form class="profile-column-grid" id="assessment-form">
+				<div class="mb-5">
+					<div class="field-label">
+						{{ _("Create New") }}
+					</div>
+					<p class="field-description">
+						{{ _("To create a new assignment for this class, click on the create assignment button. Once you have created the new assignment you can come back to the class and add the assignment from here.") }}
+					</p>
+					<div>
+						<a class="btn btn-default btn-sm" href="/assignments/new-assignment" target="_blank">
+							{{ _("Create Assignment") }}
+						</a>
+					</div>
+				</div>
+
+				<form class="" id="assessment-form">
 					{% if all_assignments | length %}
 						<div>
 							<div class="field-label mb-2">
 								{{ _("Assignments") }}
 							</div>
+							<p class="field-description">
+								{{ _("Select the assignments you wish to include for the assessment of this class. Your selections will be automatically saved upon clicking. If you decide to remove an item from the list, simply uncheck it.") }}
+							</p>
 							{% for assignment in all_assignments %}
 								<div>
 									<label class="vertically-center">
@@ -286,13 +304,11 @@
 						</div>
 					{% endif %} -->
 				</form>
-				<div class="field-label">
-					{{ _("Create New") }}
-				</div>
+
 			</div>
 
 			<div class="modal-footer">
-				<button class="btn btn-primary btn-sm mr-2 btn-assessment-close" data-dismiss="modal" aria-label="Close">
+				<button class="btn btn-primary btn-sm btn-assessment-close" data-dismiss="modal" aria-label="Close">
 					{{ _("Done") }}
 				</button>
 			</div>
@@ -316,7 +332,7 @@
 		{% for assessment in assessments %}
 		<div class="list-row level level-left">
 			<div class="w-50">
-				<a class="clickable" href="{{ assessment.url }}">
+				<a class="clickable" href="{{ assessment.edit_url }}">
 					{{ assessment.title }}
 				</a>
 			</div>

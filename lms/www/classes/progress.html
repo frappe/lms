@@ -35,8 +35,8 @@
             </div>
 
             <div class="align-self-center">
-                <a class="btn btn-secondary btn-sm btn-evaluate" href=/evaluation/new?member={{student.name}}&date={{frappe.utils.getdate()}}&class={{class_info.name}}">
-                    {{ _("Save") }}
+                <a class="btn btn-primary btn-sm btn-evaluate" href=/evaluation/new?member={{student.name}}&date={{frappe.utils.getdate()}}&class={{class_info.name}}">
+                    {{ _("Evaluate") }}
 				</a>
             </div>
 
@@ -50,9 +50,9 @@
 <div>
 	{% for assessment in assessments %}
 	<div class="list-row level">
-		<div>
+		<a {% if assessment.submission %} class="clickable" href="{{ assessment.url }}" {% endif %}>
 			{{ assessment.title }}
-		</div>
+		</a>
 
 		{% if assessment.submission %}
 			{% set status = assessment.submission.status %}
@@ -61,9 +61,10 @@
 				<div class="indicator-pill {{ color }}">
 					{{ assessment.submission.status }}
 				</div>
-				<a class="btn btn-secondary btn-sm" href="{{ assessment.url }}">
-					{{ _("Grade") }}
-				</a>
+			</div>
+		{% else %}
+			<div class="indicator-pill red">
+				{{ _("Not Attempted") }}
 			</div>
 		{% endif %}
 	</div>

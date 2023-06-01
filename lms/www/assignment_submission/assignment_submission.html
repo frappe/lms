@@ -44,29 +44,38 @@
 <article class="field-parent">
     <div class="field-group">
         <div class="field-label">
-            {{ _("Question")}}
+            {{ _("Student") }}
         </div>
+        {{ submission.member_name }}
+    </div>
+
+    <div class="field-group">
+       <!--  <div class="field-label">
+            {{ _("Question")}}
+        </div> -->
         {{ assignment.question }}
     </div>
 
     <div class="field-group">
         <div class="field-label">
-            {{ _("Submit your assignment")}}
+            {{ _("Submit")}}
+        </div>
+        <div class="field-description">
+            {{ _("Upload assignment as {0}").format(assignment.type) }}
         </div>
 
         <div class="file-source-preview">
-            {% if submission.status == "Not Graded" %}
+            {% if submission.status == "Not Graded" and submission.member == frappe.session.user %}
             <span class="btn btn-default btn-sm btn-close">
 				{{ _("Clear") }}
             </span>
             {% endif %}
             <div class="btn-upload clickable {% if submission.assignment_attachment %} hide {% endif %}" data-type="{{ assignment.type }}">
-                {{ _("Upload a {0}").format(assignment.type) }}
+                {{ _("Browse").format(assignment.type) }}
             </div>
             <iframe class="image-preview {% if not submission.assignment_attachment %} hide {% endif %}" {% if submission.assignment_attachment %} src="{{ submission.assignment_attachment }}" {% endif %}></iframe>
         </div>
     </div>
-
 
 </article>
 {% endmacro %}

@@ -75,7 +75,7 @@ body {
 
 .field-label {
 	color: var(--gray-900);
-	font-weight: 600;
+	font-weight: 500;
 }
 
 .field-input {
@@ -117,7 +117,7 @@ body {
 .image-preview {
 	width: 100%;
 	height: 100%;
-	border: none;
+	border-radius: var(--border-radius-md);
 }
 
 .file-source-preview {
@@ -1913,13 +1913,7 @@ li {
 
 .modal-footer {
 	padding: 0.75rem 1.5rem !important;
-	border-top: none !important;
-	background-color: var(--gray-50) !important;
 	justify-content: flex-end !important;
-}
-
-.modal-footer .btn:first-child {
-	margin-right: 0.5rem;
 }
 
 .modal-header .modal-title {

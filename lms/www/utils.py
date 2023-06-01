@@ -59,7 +59,7 @@ def get_current_lesson_details(lesson_number, context, is_edit=False):
 	return lesson_info
 
 
-def get_assessments(is_moderator, class_name, member):
+def get_assessments(is_moderator, class_name, member=None):
 	if not member:
 		member = frappe.session.user
 

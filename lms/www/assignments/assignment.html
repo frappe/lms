@@ -58,7 +58,7 @@
             </div>
             <div class="field-input flex align-center">
                 <select class="form-control" id="type">
-                    {% set types = ["Document", "PDF", "URL", "Image"] %}
+                    {% set types = ["Document", "PDF", "Image"] %}
                     {% for type in types %}
                     <option value="{{ type }}" {% if assignment.type == type %} selected {% endif %}>
                         {{ type }}
