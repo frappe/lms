@@ -96,7 +96,7 @@ const save_current_lesson = () => {
 };
 
 const enable_check = (e) => {
-	if ($(".option:checked").length) {
+	if ($(".option:checked").length || $(".possibility").val().trim()) {
 		$("#check").removeAttr("disabled");
 		$(".custom-checkbox").removeClass("active-option");
 		$(".option:checked")
@@ -190,8 +190,15 @@ const try_quiz_again = (e) => {
 
 const check_answer = (e = undefined) => {
 	e && e.preventDefault();
+
+	let answer = $(".active-question textarea");
+	if (answer.length && !answer.val().trim()) {
+		frappe.throw(__("Please enter your answer"));
+	}
+
 	clearInterval(self.timer);
 	$(".timer").addClass("hide");
+
 	let total_questions = $(".question").length;
 	let current_index = $(".active-question").attr("data-qt-index");
 
