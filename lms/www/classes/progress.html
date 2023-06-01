@@ -8,7 +8,7 @@
 <div class="common-page-style">
 	{{ Header() }}
 	<div class="container form-width">
-		{{ Progress() }}
+		{{ Progress(class_info, student) }}
 	</div>
 </div>
 {% endblock %}
@@ -50,7 +50,7 @@
 <div>
 	{% for assessment in assessments %}
 	<div class="list-row level">
-		<a {% if assessment.submission %} class="clickable" href="{{ assessment.url }}" {% endif %}>
+		<a {% if is_moderator and assessment.submission or frappe.session.user == student.name %} class="clickable" href="{{ assessment.url }}" {% endif %}>
 			{{ assessment.title }}
 		</a>
 

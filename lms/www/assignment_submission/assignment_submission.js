@@ -15,10 +15,15 @@ frappe.ready(() => {
 const upload_file = (e) => {
 	let type = $(e.currentTarget).data("type");
 	let mapper = {
-		Image: "image/*",
-		Document:
-			".doc,.docx,.xml,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-		PDF: ".pdf",
+		Image: ["image/*"],
+		Document: [
+			".doc",
+			".docx",
+			".xml",
+			"application/msword",
+			"application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+		],
+		PDF: [".pdf"],
 	};
 
 	new frappe.ui.FileUploader({
@@ -26,20 +31,23 @@ const upload_file = (e) => {
 		folder: "Home/Attachments",
 		make_attachments_public: true,
 		restrictions: {
-			allowed_file_types: [mapper[type]],
+			allowed_file_types: mapper[type],
 		},
 		on_success: (file_doc) => {
 			$(e.currentTarget).addClass("hide");
-			$(".file-source-preview .btn-close").removeClass("hide");
-			$(".file-source-preview iframe")
-				.attr("src", file_doc.file_url)
-				.removeClass("hide");
+			$("#assignment-preview").removeClass("hide");
+			$("#assignment-preview .btn-close").removeClass("hide");
+			$("#assignment-preview a").attr(
+				"href",
+				encodeURI(file_doc.file_url)
+			);
+			$("#assignment-preview a").text(file_doc.file_url);
 		},
 	});
 };
 
 const save_assignment = (e) => {
-	let file = $(".image-preview").attr("src");
+	let file = $("#assignment-preview a").attr("href");
 	if (!file) {
 		frappe.throw({
 			title: __("No File"),
@@ -51,7 +59,10 @@ const save_assignment = (e) => {
 		method: "lms.lms.doctype.lms_assignment_submission.lms_assignment_submission.upload_assignment",
 		args: {
 			assignment: $(e.currentTarget).data("assignment"),
+			submission: $(e.currentTarget).data("submission") || "",
 			assignment_attachment: file,
+			status: $("#status").val(),
+			comments: $("#comments").val(),
 		},
 		callback: (data) => {
 			frappe.show_alert({
@@ -68,7 +79,8 @@ const save_assignment = (e) => {
 };
 
 const clear_preview = (e) => {
-	$(".file-source-preview .btn-upload").removeClass("hide");
-	$(".file-source-preview iframe").attr("src", "").addClass("hide");
-	$(".file-source-preview .btn-close").addClass("hide");
+	$(".btn-upload").removeClass("hide");
+	$("#assignment-preview").addClass("hide");
+	$("#assignment-preview a").attr("href", "");
+	$("#assignment-preview .btn-close").addClass("hide");
 };

@@ -25,5 +25,5 @@ def get_context(context):
 		if not context.is_moderator and frappe.session.user != context.submission.member:
 			raise frappe.PermissionError(_("You don't have permission to access this page."))
 
-	if not context.assignment or not context.submission:
-		raise frappe.PermissionError(_("Invalid Submission URL"))
+		if not context.assignment or not context.submission:
+			raise frappe.PermissionError(_("Invalid Submission URL"))

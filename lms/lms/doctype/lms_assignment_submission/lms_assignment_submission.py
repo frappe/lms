@@ -24,26 +24,39 @@ class LMSAssignmentSubmission(Document):
 
 
 @frappe.whitelist()
-def upload_assignment(assignment_attachment, assignment, lesson=None):
+def upload_assignment(
+	assignment_attachment,
+	assignment,
+	lesson=None,
+	status="Not Graded",
+	comments=None,
+	submission=None,
+):
 	if frappe.session.user == "Guest":
 		return
 
-	args = {
-		"doctype": "LMS Assignment Submission",
-		"member": frappe.session.user,
-		"assignment": assignment,
-	}
-	if frappe.db.exists(args):
-		del args["doctype"]
-		frappe.db.set_value(
-			"LMS Assignment Submission", args, "assignment_attachment", assignment_attachment
-		)
-		return frappe.db.get_value("LMS Assignment Submission", args, "name")
+	if submission:
+		doc = frappe.get_doc("LMS Assignment Submission", submission)
 	else:
-		args.update({"assignment_attachment": assignment_attachment})
-		doc = frappe.get_doc(args)
-		doc.save(ignore_permissions=True)
-		return doc.name
+		doc = frappe.get_doc(
+			{
+				"doctype": "LMS Assignment Submission",
+				"assignment": assignment,
+				"lesson": lesson,
+				"member": frappe.session.user,
+			}
+		)
+	print(doc.assignment)
+	print(comments)
+	doc.update(
+		{
+			"assignment_attachment": assignment_attachment,
+			"status": status,
+			"comments": comments,
+		}
+	)
+	doc.save(ignore_permissions=True)
+	return doc.name
 
 
 @frappe.whitelist()

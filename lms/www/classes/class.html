@@ -263,7 +263,7 @@
 						{{ _("To create a new assignment for this class, click on the create assignment button. Once you have created the new assignment you can come back to the class and add the assignment from here.") }}
 					</p>
 					<div>
-						<a class="btn btn-default btn-sm" href="/assignments/new-assignment" target="_blank">
+						<a class="btn btn-default btn-sm" href="/assignments/new-assignment">
 							{{ _("Create Assignment") }}
 						</a>
 					</div>
@@ -322,7 +322,7 @@
 {% if assessments | length %}
 	<div>
 		<div class="list-row level level-left small">
-			<div class="w-50">
+			<div class="w-25">
 				{{ _("Title") }}
 			</div>
 			<div class="">
@@ -331,7 +331,7 @@
 		</div>
 		{% for assessment in assessments %}
 		<div class="list-row level level-left">
-			<div class="w-50">
+			<div class="w-25">
 				<a class="clickable" href="{{ assessment.edit_url }}">
 					{{ assessment.title }}
 				</a>

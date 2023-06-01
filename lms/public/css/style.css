@@ -1916,6 +1916,10 @@ li {
 	justify-content: flex-end !important;
 }
 
+.modal-footer .btn-primary {
+	margin-left: 0.5rem
+}
+
 .modal-header .modal-title {
 	color: var(--gray-900);
 	line-height: 1.5rem;
