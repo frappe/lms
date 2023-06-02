@@ -102,5 +102,4 @@ def get_assessments(class_name, member=None):
 				"LMS Quiz", assessment.assessment_name, "title"
 			)
 			assessment.url = f"/quizzes/{assessment.assessment_name}"
-	print(assessments)
 	return assessments

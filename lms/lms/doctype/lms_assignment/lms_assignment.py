@@ -21,6 +21,5 @@ def save_assignment(assignment, title, type, question):
 		doc = frappe.get_doc({"doctype": "LMS Assignment"})
 
 	doc.update({"title": title, "type": type, "question": question})
-
 	doc.save(ignore_permissions=True)
 	return doc.name
