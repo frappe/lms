@@ -197,5 +197,6 @@ def update_assessment(type, name, value, class_name):
 	if exists and not value:
 		frappe.db.delete("LMS Assessment", exists)
 	elif not exists and value:
-		filters.update({"doctype": "LMS Assessment"})
-		frappe.get_doc(filters).insert()
+		doc = frappe.new_doc("LMS Assessment")
+		doc.update(filters)
+		doc.insert()
