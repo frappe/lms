@@ -59,7 +59,7 @@ def get_current_lesson_details(lesson_number, context, is_edit=False):
 	return lesson_info
 
 
-def get_assessments(is_moderator, class_name, member=None):
+def get_assessments(class_name, member=None):
 	if not member:
 		member = frappe.session.user
 
@@ -92,7 +92,6 @@ def get_assessments(is_moderator, class_name, member=None):
 				)
 
 			assessment.edit_url = f"/assignments/{assessment.assessment_name}"
-			assessment.grade_url = f"/assignment-grading/{existing_submission}"
 			submission_name = existing_submission if existing_submission else "new-submission"
 			assessment.url = (
 				f"/assignment-submission/{assessment.assessment_name}/{submission_name}"
@@ -103,5 +102,5 @@ def get_assessments(is_moderator, class_name, member=None):
 				"LMS Quiz", assessment.assessment_name, "title"
 			)
 			assessment.url = f"/quizzes/{assessment.assessment_name}"
-
+	print(assessments)
 	return assessments

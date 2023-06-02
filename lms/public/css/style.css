@@ -115,26 +115,11 @@ body {
 }
 
 .image-preview {
-	width: 100%;
-	height: 100%;
+	width: 280px;
+	height: 178px;
 	border-radius: var(--border-radius-md);
-}
-
-.file-source-preview {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	position: relative;
-	width: 100%;
-	height: 250px;
 	border: 1px solid var(--gray-300);
-	border-radius: var(--border-radius-md);
-}
-
-.file-source-preview .btn-close {
-	position: absolute;
-	top: 5%;
-	right: 5%;
+	margin-top: 1rem;
 }
 
 textarea.field-input {

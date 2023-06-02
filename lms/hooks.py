@@ -179,10 +179,6 @@ website_route_rules = [
 		"from_route": "/classes/<classname>/students/<username>",
 		"to_route": "/classes/progress",
 	},
-	{
-		"from_route": "/assignment-grading/<assignment>",
-		"to_route": "assignment_grading/assignment_grading",
-	},
 	{"from_route": "/assignments/<assignment>", "to_route": "assignments/assignment"},
 	{
 		"from_route": "/assignment-submission/<assignment>/<submission>",

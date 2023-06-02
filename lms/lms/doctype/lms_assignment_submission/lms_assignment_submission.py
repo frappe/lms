@@ -46,8 +46,7 @@ def upload_assignment(
 				"member": frappe.session.user,
 			}
 		)
-	print(doc.assignment)
-	print(comments)
+
 	doc.update(
 		{
 			"assignment_attachment": assignment_attachment,

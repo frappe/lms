@@ -34,11 +34,13 @@
                 </div>
             </div>
 
+			{% if is_moderator %}
             <div class="align-self-center">
                 <a class="btn btn-primary btn-sm btn-evaluate" href=/evaluation/new?member={{student.name}}&date={{frappe.utils.getdate()}}&class={{class_info.name}}">
                     {{ _("Evaluate") }}
 				</a>
             </div>
+			{% endif %}
 
         </div>
     </div>
@@ -47,7 +49,8 @@
 
 
 {% macro Progress(class_info, student) %}
-<div>
+{% if assessments | length %}
+<article>
 	{% for assessment in assessments %}
 	<div class="list-row level">
 		<a {% if is_moderator and assessment.submission or frappe.session.user == student.name %} class="clickable" href="{{ assessment.url }}" {% endif %}>
@@ -69,102 +72,8 @@
 		{% endif %}
 	</div>
 	{% endfor %}
-</div>
-{% endmacro %}
-
-
-{% macro Quiz(course, student) %}
-	{% for quiz in course.quizzes %}
-		{% set filters = { "member": student.name, "course": course.course } %}
-		{% set has_submitted = frappe.db.exists("LMS Quiz Submission", filters) %}
-		{% set submission = frappe.db.get_value("LMS Quiz Submission", filters, ["score", "creation"], as_dict=True) %}
-		{% set total_questions = frappe.db.count("LMS Quiz Question", {"parent": quiz.name}) %}
-
-		<tr>
-			<td class="vertically-center">
-				<svg class="icon icon-sm">
-					<use href="#icon-quiz"></use>
-				</svg>
-				{{ _("Quiz") }}
-			</td>
-			<td>{{ quiz.title }}</td>
-			{% if has_submitted %}
-			<td>{{ submission.score }}/{{ total_questions }}</td>
-			<td>{{ frappe.utils.format_date(submission.creation, "medium") }}</td>
-			{% else %}
-			<td>-</td>
-			<td>
-				<div class="indicator-pill red">
-					{{ _("Not Attempted") }}
-				</div>
-			</td>
-			{% endif %}
-		</tr>
-	{% endfor %}
-{% endmacro %}
-
-
-{% macro Assignment(course, student, is_moderator) %}
-	{% for assignment in course.assignments %}
-		{% set filters = { "member": student.name, "course": course.course, "lesson": assignment.name } %}
-		{% set has_submitted = frappe.db.exists("LMS Assignment Submission", filters) %}
-		{% set submission = frappe.db.get_value("LMS Assignment Submission", filters, ["assignment", "creation", "status"], as_dict=True) %}
-		{% set status = submission.status %}
-		{% set color = "green" if status == "Pass" else "red" if status == "Fail" else "orange" %}
-		{% set can_see_details = has_submitted and (is_moderator or frappe.session.user == student.name) %}
-
-		<tr {% if can_see_details %} class="clickable-row" data-href="/assignments/{{ has_submitted }}" {% endif %}>
-			<td class="{% if can_see_details %} subheading {% endif %} vertically-center">
-				<svg class="icon icon-md">
-					<use href="#icon-file"></use>
-				</svg>
-				{{ _("Assignment") }}
-			</td>
-
-			<td>{{ assignment.title }}</td>
-
-			{% if has_submitted %}
-			<td>
-				<div class="indicator-pill {{ color }}">
-					{{ status }}
-				</div>
-			</td>
-
-			<td>{{ frappe.utils.format_date(submission.creation, "medium") }}</td>
-
-			{% else %}
-			<td>-</td>
-
-			<td>
-				<div class="indicator-pill red">
-					{{ _("Not Attempted") }}
-				</div>
-			</td>
-			{% endif %}
-		</tr>
-	{% endfor %}
-{% endmacro %}
-
-
-{% macro Evaluation(course, student, is_moderator) %}
-	{% for evaluation in course.evaluations %}
-		{% set color = "green" if evaluation.status == "Pass" else "red" %}
-		{% set can_see_details = is_moderator or frappe.session.user == student.name %}
-
-		<tr {% if can_see_details %} class="clickable-row" data-href="/evaluation/{{evaluation.name}}" {% endif %}>
-			<td class="{% if can_see_details %} subheading {% endif %} vertically-center">
-				<svg class="icon icon-md">
-					<use href="#icon-quality"></use>
-				</svg>
-				{{ _("Evaluation") }}
-			</td>
-			<td> - </td>
-			<td>
-				<div class="indicator-pill {{ color }}">
-					{{ evaluation.status }}
-				</div>
-			</td>
-			<td>{{ frappe.utils.format_date(evaluation.creation, "medium") }}</td>
-		</tr>
-	{% endfor %}
+</article>
+{% else %}
+<p class="text-muted mt-3"> {{ _("No Assessments") }} </p>
+{% endif %}
 {% endmacro %}

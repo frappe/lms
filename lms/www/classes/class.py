@@ -68,22 +68,12 @@ def get_context(context):
 		order_by="date",
 	)
 
-	context.assessments = get_assessments(context.is_moderator, class_name)
+	context.assessments = get_assessments(class_name)
+	context.all_assignments = get_all_assignments(class_name)
+	context.all_quizzes = get_all_quizzes(class_name)
 
-	all_assignments = frappe.get_all(
-		"LMS Assignment", {"owner": frappe.session.user}, ["name", "title"]
-	)
-	for assignment in all_assignments:
-		assignment.checked = frappe.db.exists(
-			{
-				"doctype": "LMS Assessment",
-				"assessment_type": "LMS Assignment",
-				"assessment_name": assignment.name,
-				"parent": class_name,
-			}
-		)
-	context.all_assignments = all_assignments
 
+def get_all_quizzes(class_name):
 	all_quizzes = frappe.get_all(
 		"LMS Quiz", {"owner": frappe.session.user}, ["name", "title"]
 	)
@@ -96,4 +86,20 @@ def get_context(context):
 				"parent": class_name,
 			}
 		)
-	context.all_quizzes = all_quizzes
+	return all_quizzes
+
+
+def get_all_assignments(class_name):
+	all_assignments = frappe.get_all(
+		"LMS Assignment", {"owner": frappe.session.user}, ["name", "title"]
+	)
+	for assignment in all_assignments:
+		assignment.checked = frappe.db.exists(
+			{
+				"doctype": "LMS Assessment",
+				"assessment_type": "LMS Assignment",
+				"assessment_name": assignment.name,
+				"parent": class_name,
+			}
+		)
+	return all_assignments

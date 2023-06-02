@@ -13,7 +13,6 @@ def get_context(context):
 
 	past_classes, upcoming_classes = [], []
 	for class_ in classes:
-		print(class_.start_date)
 		if getdate(class_.start_date) < getdate():
 			past_classes.append(class_)
 		else:
@@ -39,5 +38,3 @@ def get_context(context):
 			)
 
 		context.my_classes = my_classes_info
-
-	print(context.my_classes)

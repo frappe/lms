@@ -21,6 +21,4 @@ def get_context(context):
 		"LMS Class", class_name, ["name"], as_dict=True
 	)
 
-	context.assessments = get_assessments(
-		context.is_moderator, class_name, context.student.name
-	)
+	context.assessments = get_assessments(class_name, context.student.name)
