@@ -49,8 +49,8 @@ lms.patches.v0_0.rename_community_to_users #06-01-2023
 lms.patches.v0_0.video_embed_link
 lms.patches.v0_0.rename_exercise_doctype
 lms.patches.v0_0.add_question_type #09-04-2023
-lms.patches.v0_0.add_evaluator_to_assignment #09-04-2023
 lms.patches.v0_0.share_certificates
 execute:frappe.delete_doc("Web Form", "class", ignore_missing=True, force=True)
 lms.patches.v0_0.amend_course_and_lesson_editor_fields
 lms.patches.v0_0.convert_course_description_to_html #11-05-2023
+lms.patches.v1_0.rename_assignment_doctype

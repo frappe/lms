@@ -57,3 +57,49 @@ def get_current_lesson_details(lesson_number, context, is_edit=False):
 	lesson_info = details_list[0]
 	lesson_info.body = lesson_info.body.replace('"', "'")
 	return lesson_info
+
+
+def get_assessments(class_name, member=None):
+	if not member:
+		member = frappe.session.user
+
+	assessments = frappe.get_all(
+		"LMS Assessment",
+		{"parent": class_name},
+		["name", "assessment_type", "assessment_name"],
+	)
+
+	for assessment in assessments:
+		if assessment.assessment_type == "LMS Assignment":
+			assessment.title = frappe.db.get_value(
+				"LMS Assignment", assessment.assessment_name, "title"
+			)
+
+			existing_submission = frappe.db.exists(
+				{
+					"doctype": "LMS Assignment Submission",
+					"member": member,
+					"assignment": assessment.assessment_name,
+				}
+			)
+
+			if existing_submission:
+				assessment.submission = frappe.db.get_value(
+					"LMS Assignment Submission",
+					existing_submission,
+					["name", "status", "comments"],
+					as_dict=True,
+				)
+
+			assessment.edit_url = f"/assignments/{assessment.assessment_name}"
+			submission_name = existing_submission if existing_submission else "new-submission"
+			assessment.url = (
+				f"/assignment-submission/{assessment.assessment_name}/{submission_name}"
+			)
+
+		elif assessment.assessment_type == "LMS Quiz":
+			assessment.title = frappe.db.get_value(
+				"LMS Quiz", assessment.assessment_name, "title"
+			)
+			assessment.url = f"/quizzes/{assessment.assessment_name}"
+	return assessments

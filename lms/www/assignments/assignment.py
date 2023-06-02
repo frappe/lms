@@ -1,35 +1,23 @@
 import frappe
-from lms.lms.utils import has_course_moderator_role
 from frappe import _
+from lms.lms.utils import can_create_courses
 
 
 def get_context(context):
 	context.no_cache = 1
-	assignment = frappe.form_dict["assignment"]
 
-	context.assignment = frappe.db.get_value(
-		"Lesson Assignment",
-		assignment,
-		[
-			"assignment",
-			"comments",
-			"status",
-			"name",
-			"member",
-			"member_name",
-			"course",
-			"lesson",
-		],
-		as_dict=True,
-	)
-	context.is_moderator = has_course_moderator_role()
-
-	if (
-		not has_course_moderator_role()
-		and not frappe.session.user == context.assignment.member
-	):
-		message = "You don't have the permissions to access this page."
+	if not can_create_courses():
+		message = "You do not have permission to access this page."
 		if frappe.session.user == "Guest":
 			message = "Please login to access this page."
 
 		raise frappe.PermissionError(_(message))
+
+	assignment = frappe.form_dict["assignment"]
+
+	if assignment == "new-assignment":
+		context.assignment = frappe._dict()
+	else:
+		context.assignment = frappe.db.get_value(
+			"LMS Assignment", assignment, ["title", "name", "type", "question"], as_dict=1
+		)

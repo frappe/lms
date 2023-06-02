@@ -180,6 +180,10 @@ website_route_rules = [
 		"to_route": "/classes/progress",
 	},
 	{"from_route": "/assignments/<assignment>", "to_route": "assignments/assignment"},
+	{
+		"from_route": "/assignment-submission/<assignment>/<submission>",
+		"to_route": "assignment_submission/assignment_submission",
+	},
 ]
 
 website_redirects = [

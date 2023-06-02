@@ -1,46 +1,38 @@
 frappe.ready(() => {
-	this.result;
-	let self = this;
+	if ($("#question").length) {
+		make_editor();
+	}
 
-	set_result();
-
-	$("#save-assignment").click((e) => {
+	$(".btn-save-assignment").click((e) => {
 		save_assignment(e);
-	});
-
-	$("#result").change((e) => {
-		$("#result option:selected").each(function () {
-			self.result = $(this).val();
-		});
 	});
 });
 
-const set_result = () => {
-	let self = this;
-	let result = $("#result").data("type");
-	if (result) {
-		$("#result option").each((i, elem) => {
-			if ($(elem).val() == result) {
-				$(elem).attr("selected", true);
-				self.result = result;
-			}
-		});
-	}
+const make_editor = () => {
+	this.question = new frappe.ui.FieldGroup({
+		fields: [
+			{
+				fieldname: "question",
+				fieldtype: "Text Editor",
+				default: $("#question-data").html(),
+			},
+		],
+		body: $("#question").get(0),
+	});
+	this.question.make();
+	$("#question .form-section:last").removeClass("empty-section");
+	$("#question .frappe-control").removeClass("hide-control");
+	$("#question .form-column").addClass("p-0");
 };
 
 const save_assignment = (e) => {
-	e.preventDefault();
-	if (!["Pass", "Fail"].includes(this.result))
-		frappe.throw({
-			title: __("Not Graded"),
-			message: __("Please grade the assignment."),
-		});
 	frappe.call({
-		method: "lms.lms.doctype.lesson_assignment.lesson_assignment.grade_assignment",
+		method: "lms.lms.doctype.lms_assignment.lms_assignment.save_assignment",
 		args: {
-			name: $(e.currentTarget).data("assignment"),
-			result: this.result,
-			comments: $("#comments").val(),
+			assignment: $(e.currentTarget).data("assignment") || "",
+			title: $("#title").val(),
+			question: this.question.fields_dict["question"].value,
+			type: $("#type").val(),
 		},
 		callback: (data) => {
 			frappe.show_alert({
@@ -48,7 +40,7 @@ const save_assignment = (e) => {
 				indicator: "green",
 			});
 			setTimeout(() => {
-				window.history.go(-2);
+				window.location.href = `/assignments/${data.message}`;
 			}, 2000);
 		},
 	});

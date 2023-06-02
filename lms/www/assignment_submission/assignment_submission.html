@@ -1,0 +1,133 @@
+{% extends "lms/templates/lms_base.html" %}
+{% block title %}
+    {{ assignment.title }}
+{% endblock %}
+
+{% block page_content %}
+<main class="common-page-style">
+    {{ Header() }}
+    <div class="container form-width">
+        {{ SubmissionForm(assignment) }}
+    </div>
+</main>
+{% endblock %}
+
+{% macro Header() %}
+<header class="sticky mb-5">
+    <div class="container form-width">
+        <div class="edit-header">
+            <div>
+                <div class="vertically-center">
+                    <div class="page-title">
+                        {{ assignment.title }}
+                    </div>
+                    {% if submission.status %}
+                    {% set color = "green" if submission.status == "Pass" else "red" if submission.status == "Fail" else "orange" %}
+                    <div class="indicator-pill {{ color }} ml-2">
+                        {{ submission.status }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="vertically-center small">
+                    <a class="dark-links" href="/classes">
+                        {{ _("All Classes") }}
+                    </a>
+                </div>
+            </div>
+
+
+            <div class="align-self-center">
+                <button class="btn btn-primary btn-sm btn-save-assignment" {% if assignment.name %} data-assignment="{{ assignment.name }}" {% endif %}
+                    {% if submission.name %} data-submission="{{ submission.name }}" {% endif %}>
+                    {{ _("Save") }}
+                </button>
+            </div>
+        </div>
+    </div>
+</header>
+{% endmacro %}
+
+{% macro SubmissionForm(assignment) %}
+<article class="field-parent">
+    {% if submission.name and is_moderator %}
+    <div class="field-group">
+        <div class="field-label">
+            {{ _("Student Name") }}
+        </div>
+        {{ submission.member_name }}
+    </div>
+    {% endif %}
+
+    <div class="field-group">
+        <div class="field-label">
+            {{ _("Question")}}
+        </div>
+        {{ assignment.question }}
+    </div>
+
+    <div class="field-group">
+        <div class="field-label">
+            {{ _("Submit")}}
+        </div>
+        <div class="field-description">
+            {{ _("Upload assignment as {0}").format(assignment.type) }}
+        </div>
+
+
+        <div class="btn btn-default btn-sm btn-upload mt-2 {% if submission.assignment_attachment %} hide {% endif %}" data-type="{{ assignment.type }}">
+            {{ _("Browse").format(assignment.type) }}
+        </div>
+        <div class="field-input flex justify-between align-center {% if not submission.assignment_attachment %} hide {% endif %}" id="assignment-preview">
+            <a class="clickable" {% if submission.assignment_attachment %} href="{{ submission.assignment_attachment }}" {% endif %}>
+                {% if submission.assignment_attachment %} {{ submission.assignment_attachment }} {% endif %}
+            </a>
+            <span class="btn btn-default btn-sm btn-close {% if not submission %} hide {% endif %}">
+                {{ _("Clear") }}
+            </span>
+        </div>
+    </div>
+
+    {% if is_moderator %}
+        <div class="field-group">
+            <div class="field-label">
+                {{ _("Status") }}
+            </div>
+            <div class="field-input flex align-center">
+                <select class="form-control" id="status">
+                    {% set statuses = ["Not Graded", "Pass", "Fail"] %}
+                    {% for status in statuses %}
+                    <option value="{{ status }}" {% if submission.status == status %} selected {% endif %}>
+                        {{ status }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <div class="select-icon">
+                    <svg class="icon  icon-sm">
+                        <use class="" href="#icon-select"></use>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="field-group">
+            <div class="field-label">
+                {{ _("Comments by Mentor") }}
+            </div>
+            <textarea id="comments" type="text" class="field-input" height="300px"
+                >{% if submission.comments %}{{ submission.comments }}{% endif %}</textarea>
+        </div>
+    {% endif %}
+
+    {% if submission and submission.member == frappe.session.user and submission.comments %}
+    <div class="field-group">
+        <div class="field-label">
+            {{ _("Comments by Mentor") }}
+        </div>
+        <div>
+            {{ submission.comments }}
+        </div>
+    </div>
+    {% endif  %}
+
+</article>
+{% endmacro %}

@@ -4,6 +4,10 @@
 	--text-4xl: 36px;
 }
 
+body {
+	font-size: var(--text-base);
+}
+
 .nav-link .course-list-count {
 	border-radius: var(--border-radius-md);
 	padding: 0 0.3rem;
@@ -71,7 +75,7 @@
 
 .field-label {
 	color: var(--gray-900);
-	font-weight: 600;
+	font-weight: 500;
 }
 
 .field-input {
@@ -84,6 +88,14 @@
 
 .field-input:focus-visible {
 	outline: none;
+}
+
+.field-input .form-control {
+	color: initial;
+	background-color: inherit;
+	padding: 0;
+	height: inherit;
+	cursor: pointer;
 }
 
 .field-group {
@@ -105,7 +117,7 @@
 .image-preview {
 	width: 280px;
 	height: 178px;
-	border-radius: var(--border-radius-sm);
+	border-radius: var(--border-radius-md);
 	border: 1px solid var(--gray-300);
 	margin-top: 1rem;
 }
@@ -119,7 +131,7 @@ textarea.field-input {
 	border-bottom: 1px solid var(--gray-300);
 }
 
-.common-card-style .outline-lesson:last-of-type {
+.outline-lesson:last-of-type {
 	border-bottom: none;
 }
 
@@ -173,6 +185,7 @@ textarea.field-input {
 .clickable {
 	color: var(--gray-900);
 	font-weight: 500;
+	cursor: pointer;
 }
 
 .clickable:hover {
@@ -328,7 +341,6 @@ input[type=checkbox] {
 
 .icon {
   margin: 0;
-  margin-right: 0.25rem;
 }
 
 .lesson-links .icon {
@@ -1876,10 +1888,6 @@ li {
 	padding: 0 1rem !important;
 }
 
-.modal-content {
-	font-size: var(--text-sm) !important;
-}
-
 .modal-header, .modal-body {
 	margin-bottom: 0.5rem !important;
 }
@@ -1890,13 +1898,11 @@ li {
 
 .modal-footer {
 	padding: 0.75rem 1.5rem !important;
-	border-top: none !important;
-	background-color: var(--gray-50) !important;
 	justify-content: flex-end !important;
 }
 
-.modal-footer .btn:first-child {
-	margin-right: 0.5rem;
+.modal-footer .btn-primary {
+	margin-left: 0.5rem
 }
 
 .modal-header .modal-title {

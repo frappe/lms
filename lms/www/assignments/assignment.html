@@ -1,80 +1,99 @@
-{% extends "templates/base.html" %}
+{% extends "lms/templates/lms_base.html" %}
 {% block title %}
-	{{ _("Assignments") }}
+    {{ assignment.title if assignment.name else _("Assignment Details") }}
 {% endblock %}
 
-
-{% block content %}
+{% block page_content %}
 <div class="common-page-style">
-	<div class="container">
-		<div class="common-card-style column-card medium">
-			<div class="course-home-headings"> {{ _("Assignment Grading") }} </div>
-			{{ AssignmentForm(assignment) }}
-		</div>
-	</div>
+    {{ Header() }}
+    <div class="container form-width">
+        {{ AssignmentForm(assignment) }}
+    </div>
 </div>
-
 {% endblock %}
 
+{% macro Header() %}
+<header class="sticky">
+    <div class="container form-width">
+        <div class="edit-header">
+            <div>
+                <div class="page-title">
+                    {{ _("Assignment Details") }}
+                </div>
+                <div class="vertically-center small">
+                    <a class="dark-links" href="/assignments">
+                        {{ _("Assignment List") }}
+                    </a>
+                    <img class="icon icon-sm mr-0" src="/assets/lms/icons/chevron-right.svg">
+                    <span class="breadcrumb-destination">{{ assignment.title if assignment.title else _("New Assignment") }}</span>
+                </div>
+            </div>
+
+            <div class="align-self-center">
+                <button class="btn btn-primary btn-sm btn-save-assignment" {% if assignment.name %} data-assignment="{{ assignment.name }}" {% endif %}>
+                    {{ _("Save") }}
+                </button>
+            </div>
+
+        </div>
+    </div>
+</header>
+{% endmacro %}
 
 {% macro AssignmentForm(assignment) %}
-{% set course_title = frappe.db.get_value("LMS Course", assignment.course, "title") %}
-{% set lesson_title = frappe.db.get_value("Course Lesson", assignment.lesson, "title") %}
+<article>
+    <div class="field-parent">
+        <div class="field-group">
+            <div class="field-label reqd"> {{ _("Title") }} </div>
+            <div class="field-description">
+                {{ _("Give the assignment a title.") }}
+            </div>
+            <input type="text" id="title" class="field-input" {% if assignment.name %} value="{{ assignment.title }}" data-name="{{ assignment.name }}" {% endif %}>
+        </div>
 
-<form class="register-form">
+        <div class="field-group">
+            <div class="field-label reqd"> {{ "Type" }} </div>
+            <div class="field-description">
+                {{ _("Select the format in which students will have to submit the assignment.") }}
+            </div>
+            <div class="field-input flex align-center">
+                <select class="form-control" id="type">
+                    {% set types = ["Document", "PDF", "Image"] %}
+                    {% for type in types %}
+                    <option value="{{ type }}" {% if assignment.type == type %} selected {% endif %}>
+                        {{ type }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <div class="select-icon">
+                    <svg class="icon  icon-sm" style="">
+                        <use class="" href="#icon-select"></use>
+                    </svg>
+                </div>
+            </div>
 
-	<div class="form-padding">
-		<div class="form-row">
-			<div class="form-group col-md-6">
-				<label> {{ _("Member") }} </label>
-				<input type="text" class="form-control" value="{{ assignment.member_name }}" disabled readonly />
-			</div>
-			<div class="form-group col-md-6">
-				<label> {{ _("Course") }} </label>
-				<input type="text" class="form-control" value="{{ course_title }}" disabled readonly />
-			</div>
-		</div>
+        </div>
 
-		<div class="form-row">
-			<div class="col-md-6">
-				<div class="form-group">
-					<label> {{ _("Lesson") }} </label>
-					<input type="text" class="form-control" value="{{ lesson_title }}" disabled readonly />
-				</div>
-
-				<div class="form-group">
-					<label> {{ _("Result") }} </label>
-					<div class="control-input flex align-center form-control">
-						<select class="input-with-feedback form-control pl-0" id="result"
-						{% if not is_moderator %} disabled {% endif %} data-type="{{ assignment.status }}">
-							<option selected> {{ _("Not Graded") }} </option>
-							<option value="Pass"> {{ _("Pass") }} </option>
-							<option value="Fail"> {{ _("Fail") }} </option>
-						</select>
-						<div class="select-icon">
-							<svg class="icon icon-sm">
-								<use class="" href="#icon-select"></use>
-							</svg>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<div class="form-group col-md-6">
-				<label>{{ _("Comments") }}</label>
-				<textarea class="form-control" id="comments" {% if not is_moderator %} disabled readonly {% endif %}
-				>{% if assignment.comments %}{{ assignment.comments }}{% endif %}</textarea>
-			</div>
-		</div>
-	</div>
-
-	<div class="text-right form-padding">
-		<a class="btn btn-secondary btn-sm"	href="{{ assignment.assignment }}" target="_blank">
-			{{ _("Open Attachment") }}
-		</a>
-		  <button class="btn btn-primary btn-sm ml-2" id="save-assignment" data-assignment="{{ assignment.name }}">
-			{{ _("Save") }}
-		</button>
-	</div>
-</form>
+        <div class="field-group">
+            <div class="field-label reqd">
+                {{ _("Question") }}
+            </div>
+            <div class="field-description">
+                {{ _("Enter an assignment question.") }}
+            </div>
+            <div id="question" class=""></div>
+            {% if assignment.question %}
+            <div id="question-data" class="hide">
+                {{ assignment.question }}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</article>
 {% endmacro %}
+
+
+{%- block script %}
+    {{ super() }}
+    {{ include_script('controls.bundle.js') }}
+{% endblock %}

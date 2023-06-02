@@ -1,11 +1,11 @@
 {
  "attach_print": 0,
  "channel": "Email",
- "creation": "2023-03-27 16:34:03.505645",
+ "creation": "2023-03-27 16:34:03.505647",
  "days_in_advance": 0,
  "docstatus": 0,
  "doctype": "Notification",
- "document_type": "Lesson Assignment",
+ "document_type": "LMS Assignment Submission",
  "enabled": 1,
  "event": "New",
  "idx": 0,

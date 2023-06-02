@@ -6,7 +6,7 @@ frappe.ready(() => {
 	}
 
 	setup_editor();
-	fetch_quiz_list();
+	//fetch_quiz_list();
 
 	$("#save-lesson").click((e) => {
 		save_lesson(e);

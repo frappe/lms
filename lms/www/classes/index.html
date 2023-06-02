@@ -8,7 +8,7 @@
 	<div class="container">
 		{{ Header() }}
 		{% if past_classes | length or upcoming_classes | length %}
-		{{ ClassTabs(past_classes, upcoming_classes) }}
+		{{ ClassTabs(past_classes, upcoming_classes, my_classes) }}
 		{% else %}
 		{{ EmptyState() }}
 		{% endif %}
@@ -27,7 +27,7 @@
 </header>
 {% endmacro %}
 
-{% macro ClassTabs(past_classes, upcoming_classes) %}
+{% macro ClassTabs(past_classes, upcoming_classes, my_classes) %}
 <article>
 	<ul class="nav lms-nav" id="courses-tab">
 
@@ -40,6 +40,7 @@
 			</a>
 		</li>
 
+		{% if is_moderator %}
 		<li class="nav-item">
 			<a class="nav-link" data-toggle="tab" href="#past">
 				{{ _("Past Classes") }}
@@ -48,6 +49,18 @@
 				</span>
 			</a>
 		</li>
+		{% endif %}
+
+		{% if frappe.session.user != "Guest" %}
+		<li class="nav-item">
+			<a class="nav-link" data-toggle="tab" href="#my-class">
+				{{ _("My Classes") }}
+				<span class="course-list-count">
+					{{ my_classes | length }}
+				</span>
+			</a>
+		</li>
+		{% endif %}
 
 	</ul>
 
@@ -58,9 +71,17 @@
 			{{ ClassCards(upcoming_classes) }}
 		</div>
 
+		{% if is_moderator %}
 		<div class="tab-pane" id="past" role="tabpanel" aria-labelledby="past">
 			{{ ClassCards(past_classes) }}
 		</div>
+		{% endif %}
+
+		{% if frappe.session.user != "Guest" %}
+		<div class="tab-pane" id="my-class" role="tabpanel" aria-labelledby="my-classes">
+			{{ ClassCards(my_classes) }}
+		</div>
+		{% endif %}
 
 	</div>
 </article>

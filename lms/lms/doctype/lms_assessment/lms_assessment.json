@@ -1,0 +1,40 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2023-05-29 14:50:07.910319",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "assessment_type",
+  "assessment_name"
+ ],
+ "fields": [
+  {
+   "fieldname": "assessment_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Assessment Type",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "assessment_name",
+   "fieldtype": "Dynamic Link",
+   "in_list_view": 1,
+   "label": "Assessment Name",
+   "options": "assessment_type"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2023-05-29 14:56:36.602399",
+ "modified_by": "Administrator",
+ "module": "LMS",
+ "name": "LMS Assessment",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

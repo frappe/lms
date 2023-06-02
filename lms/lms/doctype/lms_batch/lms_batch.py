@@ -80,7 +80,6 @@ def switch_batch(course_name, email, batch_name):
 
 	old_batch = frappe.get_doc("LMS Batch", membership.batch)
 
-	print("updating membership", membership.name)
 	membership.batch = batch_name
 	membership.save()
 

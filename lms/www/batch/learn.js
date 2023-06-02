@@ -381,7 +381,7 @@ const upload_file = (file, target) => {
 
 const create_lesson_work = (file, target) => {
 	frappe.call({
-		method: "lms.lms.doctype.lesson_assignment.lesson_assignment.upload_assignment",
+		method: "lms.lms.doctype.lms_assignment_submission.lms_assignment_submission.upload_assignment",
 		args: {
 			assignment: file.file_url,
 			lesson: $(".title").attr("data-lesson"),
@@ -442,7 +442,7 @@ const clear_work = (e) => {
 const fetch_assignments = () => {
 	if ($(".attach-file").length <= 0) return;
 	frappe.call({
-		method: "lms.lms.doctype.lesson_assignment.lesson_assignment.get_assignment",
+		method: "lms.lms.doctype.lms_assignment_submission.lms_assignment_submission.get_assignment",
 		args: {
 			lesson: $(".title").attr("data-lesson"),
 		},

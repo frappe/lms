@@ -20,7 +20,9 @@
   "description",
   "students",
   "courses",
-  "custom_component"
+  "custom_component",
+  "assessment_tab",
+  "assessment"
  ],
  "fields": [
   {
@@ -96,11 +98,22 @@
    "fieldname": "end_time",
    "fieldtype": "Time",
    "label": "End Time"
+  },
+  {
+   "fieldname": "assessment_tab",
+   "fieldtype": "Tab Break",
+   "label": "Assessment"
+  },
+  {
+   "fieldname": "assessment",
+   "fieldtype": "Table",
+   "label": "Assessment",
+   "options": "LMS Assessment"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-05-03 23:07:06.725720",
+ "modified": "2023-05-29 14:52:45.866901",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Class",

@@ -87,10 +87,24 @@
 			</a>
 		</li>
 
+		{% if is_moderator %}
+		<li class="nav-item">
+			<a class="nav-link" data-toggle="tab" href="#assessments">
+				{{ _("Assessments") }}
+				<span class="course-list-count">
+					{{ assessments | length }}
+				</span>
+			</a>
+		</li>
+		{% endif %}
+
 		{% if class_students | length and (is_moderator or is_student) %}
 		<li class="nav-item">
 			<a class="nav-link" data-toggle="tab" href="#live-class">
 				{{ _("Live Class") }}
+				<span class="course-list-count">
+					{{ live_classes | length }}
+				</span>
 			</a>
 		</li>
 		{% endif %}
@@ -107,6 +121,12 @@
 		<div class="tab-pane" id="students" role="tabpanel" aria-labelledby="students">
 			{{ StudentsSection(class_info, class_students) }}
 		</div>
+
+		{% if is_moderator %}
+		<div class="tab-pane" id="assessments" role="tabpanel" aria-labelledby="assessments">
+			{{ AssessmentsSection(class_info) }}
+		</div>
+		{% endif %}
 
 		{% if class_students | length and (is_moderator or is_student) %}
 		<div class="tab-pane" id="live-class" role="tabpanel" aria-labelledby="live-class">
@@ -138,9 +158,9 @@
 	<div>
 		{% for course in class_courses %}
 		<div class="list-row level">
-			<div {% if is_moderator %} class="clickable" {% endif %}>
+			<a class="clickable" href="/courses/{{ course.course }}">
 				{{ course.title }}
-			</div>
+			</a>
 			{% if is_moderator %}
 			<div type="button" class="btn-remove-course" data-course="{{ course.course }}">
 				<svg class="icon icon-sm">
@@ -159,7 +179,6 @@
 
 
 </article>
-
 {% endmacro %}
 
 
@@ -182,8 +201,7 @@
 	<div>
 		{% for student in class_students %}
 		{% set last_active = frappe.db.get_value("User", student.student, "last_active") %}
-		{% set allow_progress = is_moderator or student.student == frappe.session.user or (frappe.db.get_single_value("LMS Settings", "allow_student_progress") and
-		is_student) %}
+		{% set allow_progress = is_moderator or student.student == frappe.session.user %}
 
 		<div class="list-row level">
 			<div>
@@ -209,6 +227,127 @@
 {% endmacro %}
 
 
+{% macro AssessmentsSection(class_info) %}
+<article>
+	<header class="edit-header mb-5">
+		<div class="bold-heading">
+			{{ _("Assessments") }}
+		</div>
+		{% if is_moderator %}
+		<button class="btn btn-default btn-sm" id="open-assessment-modal">
+			{{ _("Manage Assessments") }}
+		</button>
+		{% endif %}
+	</header>
+	{{ CreateAssessment() }}
+	{{ AssessmentList(assessments) }}
+</article>
+{% endmacro %}
+
+
+{% macro CreateAssessment() %}
+{% if is_moderator %}
+<div class="modal fade assessment-modal" id="assessment-modal" tabindex="-1" role="dialog">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div class="modal-title">{{ _("Manage Assessments") }}</div>
+			</div>
+
+			<div class="modal-body">
+				<div class="mb-5">
+					<div class="field-label">
+						{{ _("Create New") }}
+					</div>
+					<p class="field-description">
+						{{ _("To create a new assignment for this class, click on the create assignment button. Once you have created the new assignment you can come back to the class and add the assignment from here.") }}
+					</p>
+					<div>
+						<a class="btn btn-default btn-sm" href="/assignments/new-assignment">
+							{{ _("Create Assignment") }}
+						</a>
+					</div>
+				</div>
+
+				<form class="" id="assessment-form">
+					{% if all_assignments | length %}
+						<div>
+							<div class="field-label mb-2">
+								{{ _("Assignments") }}
+							</div>
+							<p class="field-description">
+								{{ _("Select the assignments you wish to include for the assessment of this class. Your selections will be automatically saved upon clicking. If you decide to remove an item from the list, simply uncheck it.") }}
+							</p>
+							{% for assignment in all_assignments %}
+								<div>
+									<label class="vertically-center">
+										<input type="checkbox" class="assessment-item" {% if assignment.checked %} checked {% endif %} value="{{ assignment.name }}" data-type="LMS Assignment" data-name="{{ assignment.name }}">
+										{{ assignment.title }}
+									</label>
+								</div>
+							{% endfor %}
+						</div>
+					{% endif %}
+					<!-- {% if all_quizzes | length %}
+						<div>
+							<div class="field-label mb-2">
+								{{ _("Quiz") }}
+							</div>
+							{% for quiz in all_quizzes %}
+								<div>
+									<label class="vertically-center">
+										<input type="checkbox" class="assessment-item" {% if quiz.checked %} checked {% endif %} value="{{ quiz.name }}" data-type="LMS Quiz" data-name="{{ quiz.name }}">
+										{{ quiz.title }}
+									</label>
+								</div>
+							{% endfor %}
+						</div>
+					{% endif %} -->
+				</form>
+
+			</div>
+
+			<div class="modal-footer">
+				<button class="btn btn-primary btn-sm btn-assessment-close" data-dismiss="modal" aria-label="Close">
+					{{ _("Done") }}
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+{% endif %}
+{% endmacro %}
+
+{% macro AssessmentList(assessments) %}
+{% if assessments | length %}
+	<div>
+		<div class="list-row level level-left small">
+			<div class="w-25">
+				{{ _("Title") }}
+			</div>
+			<div class="">
+				{{ _("Type") }}
+			</div>
+		</div>
+		{% for assessment in assessments %}
+		<div class="list-row level level-left">
+			<div class="w-25">
+				<a class="clickable" href="{{ assessment.edit_url }}">
+					{{ assessment.title }}
+				</a>
+			</div>
+			<div class="">
+				{{ assessment.assessment_type.split("LMS ")[1] }}
+			</div>
+		</div>
+		{% endfor %}
+	</div>
+	{% else %}
+	<p class="text-muted mt-3"> {{ _("No Assessments") }} </p>
+	{% endif %}
+{% endmacro %}
+
+
 {% macro LiveClassSection(class_info, live_classes) %}
 <article>
 	<header class="edit-header">
@@ -230,7 +369,6 @@
 {% macro CreateLiveClass(class_info) %}
 
 {% if is_moderator %}
-
 <div class="modal fade live-class-modal" id="live-class-modal" tabindex="-1" role="dialog">
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
@@ -316,7 +454,7 @@
 {% endmacro %}
 
 {%- block script %}
-    {{ super() }}
+	{{ super() }}
 	{% if is_moderator %}
 	<script>
 		frappe.boot.user = {
@@ -334,5 +472,5 @@
 	</script>
 	{% endif %}
 
-    {{ include_script('controls.bundle.js') }}
+	{{ include_script('controls.bundle.js') }}
 {% endblock %}

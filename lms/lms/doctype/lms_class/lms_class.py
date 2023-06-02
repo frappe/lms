@@ -180,3 +180,23 @@ def create_class(
 	)
 	class_details.save()
 	return class_details
+
+
+@frappe.whitelist()
+def update_assessment(type, name, value, class_name):
+	value = cint(value)
+	filters = {
+		"assessment_type": type,
+		"assessment_name": name,
+		"parent": class_name,
+		"parenttype": "LMS Class",
+		"parentfield": "assessment",
+	}
+	exists = frappe.db.exists("LMS Assessment", filters)
+
+	if exists and not value:
+		frappe.db.delete("LMS Assessment", exists)
+	elif not exists and value:
+		doc = frappe.new_doc("LMS Assessment")
+		doc.update(filters)
+		doc.insert()

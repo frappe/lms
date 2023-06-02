@@ -1,47 +1,46 @@
 {% extends "templates/base.html" %}
 {% block title %}
-    {{ _("Quiz List") }}
+    {{ _("Assignment List") }}
 {% endblock %}
 
-
 {% block content %}
-<div class="common-page-style">
+<main class="common-page-style">
     <div class="container form-width">
         {{ Header() }}
-        {% if quiz_list | length %}
-        {{ QuizList(quiz_list) }}
+        {% if assignments | length %}
+        {{ AssignmentList(assignments) }}
         {% else %}
         {{ EmptyState() }}
         {% endif %}
     </div>
-</div>
+</main>
 {% endblock %}
 
 {% macro Header() %}
 <header class="sticky">
     <div class="edit-header">
         <div class="page-title">
-            {{ _("Quiz List") }}
+            {{ _("Assignment List") }}
         </div>
 
-        <a class="btn btn-primary btn-sm align-self-center" href="/quizzes/new-quiz">
-            {{ _("Add Quiz") }}
+        <a class="btn btn-primary btn-sm align-self-center" href="/assignments/new-assignments">
+            {{ _("Add Assignment") }}
         </a>
     </div>
 </header>
-{% endmacro  %}
+{% endmacro %}
 
-{% macro QuizList(quiz_list) %}
+{% macro AssignmentList(assignments) %}
 <div class="mt-5">
     <ul class="list-unstyled">
-       {% for quiz in quiz_list %}
-       <li class="outline-lesson">
-            <a class="clickable" href="/quizzes/{{ quiz.name }}">
+       {% for assignment in assignments %}
+       <li class="list-row">
+            <a class="clickable" href="/assignments/{{ assignment.name }}">
                 <span>
                     {{ loop.index }}.
                 </span>
                 <span>
-                    {{ quiz.title }}
+                    {{ assignment.title }}
                 </span>
             </a>
         </li>
@@ -55,10 +54,10 @@
     <img class="icon icon-xl" src="/assets/lms/icons/comment.svg">
     <div class="empty-state-text">
         <div class="empty-state-heading">
-            {{ _("You have not created any quiz yet.") }}
+            {{ _("You have not created any assignment yet.") }}
         </div>
         <div class="course-meta ">
-            {{ _("Create a quiz and add it to your course to engage your users.") }}
+            {{ _("Create an assignment and evaluate your students.") }}
         </div>
     </div>
 </div>
