@@ -26,7 +26,7 @@ class LMSAssignmentSubmission(Document):
 @frappe.whitelist()
 def upload_assignment(
 	assignment_attachment,
-	assignment,
+	assignment=None,
 	lesson=None,
 	status="Not Graded",
 	comments=None,
@@ -63,11 +63,11 @@ def get_assignment(lesson):
 	assignment = frappe.db.get_value(
 		"LMS Assignment Submission",
 		{"lesson": lesson, "member": frappe.session.user},
-		["lesson", "member", "assignment", "comments", "status"],
+		["name", "lesson", "member", "assignment_attachment", "comments", "status"],
 		as_dict=True,
 	)
 	assignment.file_name = frappe.db.get_value(
-		"File", {"file_url": assignment.assignment}, "file_name"
+		"File", {"file_url": assignment.assignment_attachment}, "file_name"
 	)
 	return assignment
 
