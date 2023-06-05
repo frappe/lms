@@ -263,6 +263,10 @@ class YouTubeVideo {
 		</iframe>`;
 	}
 
+	validate(savedData) {
+		return !savedData.youtube || !savedData.youtube.trim() ? false : true;
+	}
+
 	save(block_content) {
 		return {
 			youtube: this.data.youtube || this.youtube,
@@ -329,6 +333,10 @@ class Quiz {
 		</div>`;
 	}
 
+	validate(savedData) {
+		return !savedData.quiz || !savedData.quiz.trim() ? false : true;
+	}
+
 	save(block_content) {
 		return {
 			quiz: this.data.quiz || this.quiz,
@@ -383,6 +391,10 @@ class Upload {
 		} else {
 			return `<img src=${encodeURI(url)} width='100%'>`;
 		}
+	}
+
+	validate(savedData) {
+		return !savedData.file_url || !savedData.file_url.trim() ? false : true;
 	}
 
 	save(block_content) {
