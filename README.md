@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://www.frappelms.com/">
-    <img src="https://frappelms.com/files/lms-logo-medium.png" alt="Frappe LMS" width="100" height="100">
+    <img src="https://frappelms.com/files/lms-logo-medium.png" alt="Frappe LMS" width="120px" height="25px">
   </a>
   <p align="center">Easy to use, open source, learning management system.</p>
 </p>
