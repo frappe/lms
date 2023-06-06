@@ -15,6 +15,7 @@ be loaded in a webpage.
 """
 
 import frappe
+from urllib.parse import quote
 
 
 class PageExtension:
@@ -138,7 +139,9 @@ def youtube_video_renderer(video_id):
 
 
 def video_renderer(src):
-	return f"<video controls width='100%'><source src={src} type='video/mp4'></video>"
+	return (
+		f"<video controls width='100%'><source src={quote(src)} type='video/mp4'></video>"
+	)
 
 
 def assignment_renderer(detail):
