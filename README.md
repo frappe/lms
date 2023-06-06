@@ -1,8 +1,12 @@
 <p align="center">
   <a href="https://www.frappelms.com/">
-    <img src="https://frappelms.com/files/flms.svg" alt="Frappe LMS" width="100" height="100">
+    <img src="https://frappelms.com/files/lms-logo-medium.png" alt="Frappe LMS" width="100" height="100">
   </a>
   <p align="center">Easy to use, open source, learning management system.</p>
+</p>
+
+<p align="center">
+	<a href="https://www.producthunt.com/posts/frappe-lms?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-frappe&#0045;lms" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=396079&theme=dark" alt="Frappe&#0032;LMS - Easy&#0032;to&#0032;Use&#0044;&#0032;100&#0037;&#0032;Open&#0032;Source&#0044;&#0032;Learning&#0032;Management&#0032;System | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
 </p>
 
 <p align="center">
