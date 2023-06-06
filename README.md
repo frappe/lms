@@ -9,6 +9,12 @@
 	<a href="https://www.producthunt.com/posts/frappe-lms?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-frappe&#0045;lms" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=396079&theme=dark" alt="Frappe&#0032;LMS - Easy&#0032;to&#0032;Use&#0044;&#0032;100&#0037;&#0032;Open&#0032;Source&#0044;&#0032;Learning&#0032;Management&#0032;System | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
 </p>
 
+<div align="center" style="max-height: 40px;">
+    <a href="https://frappecloud.com/lms/signup">
+        <img src=".github/try-on-f-cloud-button.svg" height="40">
+    </a>
+</div>
+
 <p align="center">
 	<a href="https://dashboard.cypress.io/projects/vandxn/runs">
     <img alt="cypress" src="https://img.shields.io/endpoint?url=https://dashboard.cypress.io/badge/simple/vandxn/main&style=flat&logo=cypress">
