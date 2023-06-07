@@ -127,6 +127,7 @@
         </div>
     </div>
 
+    {% if is_moderator %}
     <div class="field-group vertically-center">
         <label for="published" class="vertically-center mb-0">
             <input type="checkbox" id="published" {% if course.published %} checked {% endif %}>
@@ -137,6 +138,7 @@
             {{ _("Upcoming") }}
         </label>
     </div>
+    {% endif %}
 
     <div class="field-group">
         <div>
