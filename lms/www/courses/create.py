@@ -1,5 +1,9 @@
 import frappe
-from lms.lms.utils import redirect_to_courses_list, can_create_courses
+from lms.lms.utils import (
+	redirect_to_courses_list,
+	can_create_courses,
+	has_course_moderator_role,
+)
 from frappe import _
 
 
@@ -27,6 +31,7 @@ def get_context(context):
 	else:
 		set_course_context(context, course_name)
 
+	context.is_moderator = has_course_moderator_role()
 	context.member = frappe.db.get_value(
 		"User", frappe.session.user, ["full_name", "username"], as_dict=True
 	)
