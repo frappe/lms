@@ -1,13 +1,6 @@
-{% set onboarding_settings = frappe.db.get_single_value("LMS Settings", "is_onboarding_complete") %}
-{% set course_created = frappe.db.count("LMS Course") %}
-{% set chapter_created = frappe.db.count("Course Chapter") %}
-{% set lesson_created = frappe.db.count("Course Lesson") %}
-{% set quiz_created = frappe.db.count("LMS Quiz") %}
-{% set first_course = frappe.db.get_all("LMS Course", order_by="creation", pluck="name")[0] %}
+{% set onboarding_status = is_onboarding_complete() %}
 
-{% set is_onboarding_complete = onboarding_settings or (course_created and chapter_created and lesson_created and quiz_created) %}
-
-{% if has_course_moderator_role() and not is_onboarding_complete %}
+{% if has_course_moderator_role() and not onboarding_status.is_onboarded %}
 <div class="onboarding-parent">
 	<div class="container">
 		<div class="onboarding-skip">{{ _("Skip") }}</div>
@@ -18,33 +11,26 @@
 			{{ _("Lets start setting up your content on the LMS so that you can reclaim time and focus on growth.") }}
 		</div>
 		<div class="onboarding-steps">
-			<a class="onboarding-steps-link" href="/courses/new-course">
-				<svg class="icon icon-md">
-					<use href="{% if course_created %} #icon-green-check-circled {% else %} #icon-disabled-check {% endif %}">
+			<a class="onboarding-steps-link" href="/courses/new-course/edit">
+				<svg class="icon icon-md mr-2">
+					<use href="{% if onboarding_status.course_created %} #icon-green-check-circled {% else %} #icon-disabled-check {% endif %}">
 					</use>
 				</svg>
 				{{ _("Create a Course") }}
 			</a>
-			<a class="onboarding-steps-link" {% if course_created %}  href="/courses/{{ first_course }}?edit=1" {% else %} disabled {% endif %}>
-				<svg class="icon icon-md">
-					<use href="{% if chapter_created %} #icon-green-check-circled {% else %} #icon-disabled-check {% endif %}">
+			<a class="onboarding-steps-link" {% if onboarding_status.course_created %}  href="/courses/{{ onboarding_status.first_course }}/outline" {% else %} disabled {% endif %}>
+				<svg class="icon icon-md mr-2">
+					<use href="{% if onboarding_status.chapter_created %} #icon-green-check-circled {% else %} #icon-disabled-check {% endif %}">
 					</use>
 				</svg>
 				{{ _("Add a Chapter") }}
 			</a>
-			<a class="onboarding-steps-link" {% if chapter_created %} href="/courses/{{ first_course }}?edit=1" {% endif %}>
-				<svg class="icon icon-md">
-					<use href="{% if lesson_created %} #icon-green-check-circled {% else %} #icon-disabled-check {% endif %}">
+			<a class="onboarding-steps-link" {% if onboarding_status.chapter_created %} href="/courses/{{ onboarding_status.first_course }}/learn/1.1/edit" {% endif %}>
+				<svg class="icon icon-md mr-2">
+					<use href="{% if onboarding_status.lesson_created %} #icon-green-check-circled {% else %} #icon-disabled-check {% endif %}">
 					</use>
 				</svg>
 				{{ _("Add a Lesson") }}
-			</a>
-			<a class="onboarding-steps-link" {% if lesson_created %} href="/quizzes/new-quiz" {% endif %}>
-				<svg class="icon icon-md">
-					<use href="{% if quiz_created %} #icon-green-check-circled {% else %} #icon-disabled-check {% endif %}">
-					</use>
-				</svg>
-				{{ _("Create a Quiz") }}
 			</a>
 		</div>
 
