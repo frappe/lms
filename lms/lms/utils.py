@@ -722,12 +722,14 @@ def is_onboarding_complete():
 	lesson_created = frappe.db.a_row_exists("Course Lesson")
 
 	if course_created and chapter_created and lesson_created:
-		frappe.db.set_value("LMS Settings", "is_onboarding_complete", 1)
+		frappe.db.set_single_value("LMS Settings", "is_onboarding_complete", 1)
 
 	return {
 		"is_onboarded": frappe.db.get_single_value("LMS Settings", "is_onboarding_complete"),
 		"course_created": course_created,
 		"chapter_created": chapter_created,
 		"lesson_created": lesson_created,
-		"first_course": frappe.get_all("LMS Course", limit=1, order_by=None, pluck="name"),
+		"first_course": frappe.get_all("LMS Course", limit=1, order_by=None, pluck="name")[0]
+		if course_created
+		else None,
 	}

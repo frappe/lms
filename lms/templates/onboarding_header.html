@@ -1,5 +1,5 @@
 {% set onboarding_status = is_onboarding_complete() %}
-{{ onboarding_status.is_onboarded }}
+
 {% if has_course_moderator_role() and not onboarding_status.is_onboarded %}
 <div class="onboarding-parent">
 	<div class="container">
@@ -13,21 +13,21 @@
 		<div class="onboarding-steps">
 			<a class="onboarding-steps-link" href="/courses/new-course/edit">
 				<svg class="icon icon-md mr-2">
-					<use href="{% if course_created %} #icon-green-check-circled {% else %} #icon-disabled-check {% endif %}">
+					<use href="{% if onboarding_status.course_created %} #icon-green-check-circled {% else %} #icon-disabled-check {% endif %}">
 					</use>
 				</svg>
 				{{ _("Create a Course") }}
 			</a>
 			<a class="onboarding-steps-link" {% if onboarding_status.course_created %}  href="/courses/{{ onboarding_status.first_course }}/outline" {% else %} disabled {% endif %}>
 				<svg class="icon icon-md mr-2">
-					<use href="{% if chapter_created %} #icon-green-check-circled {% else %} #icon-disabled-check {% endif %}">
+					<use href="{% if onboarding_status.chapter_created %} #icon-green-check-circled {% else %} #icon-disabled-check {% endif %}">
 					</use>
 				</svg>
 				{{ _("Add a Chapter") }}
 			</a>
 			<a class="onboarding-steps-link" {% if onboarding_status.chapter_created %} href="/courses/{{ onboarding_status.first_course }}/learn/1.1/edit" {% endif %}>
 				<svg class="icon icon-md mr-2">
-					<use href="{% if lesson_created %} #icon-green-check-circled {% else %} #icon-disabled-check {% endif %}">
+					<use href="{% if onboarding_status.lesson_created %} #icon-green-check-circled {% else %} #icon-disabled-check {% endif %}">
 					</use>
 				</svg>
 				{{ _("Add a Lesson") }}
