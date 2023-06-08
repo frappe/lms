@@ -49,6 +49,7 @@ const save_chapter = (e) => {
 			chapter: parent.data("chapter") || null,
 		},
 		callback: (data) => {
+			$("#chapter-modal").modal("hide");
 			frappe.show_alert({
 				message: __("Saved"),
 				indicator: "green",

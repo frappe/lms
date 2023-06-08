@@ -9,6 +9,17 @@ frappe.ready(() => {
 		create_tag(e);
 	});
 
+	$("#tags-input").focus((e) => {
+		$(e.target).keypress((e) => {
+			if (e.which == 13 || e.which == 44) {
+				create_tag(e);
+				setTimeout(() => {
+					$("#tags-input").val("");
+				}, 0);
+			}
+		});
+	});
+
 	$(document).on("click", ".btn-remove", (e) => {
 		$(e.target).parent().parent().remove();
 	});
@@ -25,14 +36,6 @@ frappe.ready(() => {
 		if ($(e.currentTarget).siblings(".error-message")) {
 			$(e.currentTarget).siblings(".error-message").remove();
 		}
-	});
-
-	$("#tags-input").focus((e) => {
-		$(e.target).keypress((e) => {
-			if (e.which == 13) {
-				create_tag(e);
-			}
-		});
 	});
 
 	$(".btn-upload").click((e) => {
