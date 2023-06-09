@@ -120,7 +120,8 @@
         <div class="field-group">
 
             <div class="options-group {% if type == 'User Input' %} hide {% endif %}">
-                <input type="text" placeholder="Option" class="field-input option-{{ num }}" {% if option %} value="{{ option }}" {% endif %}>
+                <textarea placeholder="Option" class="field-input option-{{ num }}"
+                style="height: 100px;">{% if option %}{{ option }}{% endif %}</textarea>
                 <input type="text" placeholder="Explanation" class="field-input explanation-{{ num }}" {% if explanation %} value="{{ explanation }}" {% endif %}>
                 <label class="vertically-center mt-1">
                     <input type="checkbox" class="correct-{{ num }}" {% if question['is_correct_' + num] %} checked {% endif %}>

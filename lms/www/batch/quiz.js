@@ -77,7 +77,13 @@ const save_question = (e) => {
 			quiz: $("#quiz-title").data("name") || "",
 		},
 		callback: (data) => {
-			window.location.href = `/quizzes/${data.message}`;
+			frappe.show_alert({
+				message: __("Saved"),
+				indicator: "green",
+			});
+			setTimeout(() => {
+				window.location.href = `/quizzes/${data.message}`;
+			}, 2000);
 		},
 	});
 };
