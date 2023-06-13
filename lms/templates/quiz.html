@@ -9,20 +9,16 @@
 	</div>
 </div>
 
-
 {% else %}
-
 <div class="">
-	<div id="start-banner">
-		<button class="btn btn-secondary btn-sm btn-start-quiz pull-right">
-			{{ _("Start the Quiz") }}
-		</button>
+	<div id="start-banner" class="common-card-style column-card align-items-center">
 
-		<h2 class="mt-3" id="quiz-title" data-name="{{ quiz.name }}" data-max-attempts="{{ quiz.max_attempts }}">
-			{{ quiz.title }}
-		</h2>
+		<div class="text-center my-10">
+			<div class="bold-heading" id="quiz-title" data-name="{{ quiz.name }}" data-max-attempts="{{ quiz.max_attempts }}">
+				{{ quiz.title }}
+			</div>
 
-		<div class="alert alert-info medium">
+		<div class="">
 			{{ _("This quiz consists of {0} questions.").format(quiz.questions | length) }}
 		</div>
 
@@ -40,22 +36,27 @@
 		</div>
 		{% endif %}
 
+		<button class="btn btn-secondary btn-sm btn-start-quiz mt-4">
+			{{ _("Start the Quiz") }}
+		</button>
+		</div>
+
 
 	</div>
 
-	<form id="quiz-form" class="hide">
+	<form id="quiz-form" class="common-card-style column-card hide">
 		<div class="questions">
 		{% for question in quiz.questions %}
-		{% set instruction = _("Choose all answers that apply") if question.type == "Choices" and question.multiple else _("Choose 1 answer") if question.type == "Choices" else _("Enter the correct answer") %}
+		{% set instruction = _("Choose all answers that apply") if question.type == "Choices" and question.multiple else _("Choose one answer") if question.type == "Choices" else _("Enter the correct answer") %}
 
 		<div class="question hide" data-name="{{ question.name }}" data-type="{{ question.type }}"
-			data-question="{{ question.question }}" data-multi="{{ question.multiple }}" data-qt-index="{{ loop.index }}">
-			<div class="question-header">
-				<div class="question-number">{{ loop.index }}. </div>
+			data-multi="{{ question.multiple }}" data-qt-index="{{ loop.index }}">
+			<div>
+				<div class="question-number">
+					{{ _("Question ") }}{{ loop.index }}: {{ instruction }}</div>
 				<div class="question-text">
-					{{ frappe.utils.md_to_html(question.question) }}
+					{{ question.question }}
 				</div>
-				<div class="small"> {{ instruction }} </div>
 			</div>
 
 			{% if question.type == "Choices" %}
@@ -64,8 +65,7 @@
 				{% if option %}
 				<div class="mb-2">
 					<div class="custom-checkbox">
-						<label class="quiz-label">
-						<div class="course-meta font-weight-bold"> {{ convert_number_to_character(loop.index - 1) }}</div>
+						<label class="option-row">
 						<input class="option" value="{{ option | urlencode }}"
 							{% if question.multiple %} type="checkbox" {% else %} type="radio" name="{{ question.question | urlencode }}" {% endif %}>
 						<div class="option-text">{{ frappe.utils.md_to_html(option) }}</div>
@@ -83,7 +83,7 @@
 			{% else %}
 			<div class="control-input-wrapper">
 				<div class="control-input">
-					<textarea type="text" autocomplete="off" class="input-with-feedback form-control bold possibility" style="height: 150px;" spellcheck="false"></textarea>
+					<textarea type="text" autocomplete="off" class="input-with-feedback form-control bold possibility mt-4" style="height: 150px;" spellcheck="false"></textarea>
 				</div>
 			</div>
 			{% endif %}
@@ -93,7 +93,12 @@
 		</div>
 
 		<div class="quiz-footer">
-			<span class="font-weight-bold"> <span class="current-question">1</span> of {{ quiz.questions | length }}</span>
+			<span>
+				{{ _("Question") }}
+				<span class="current-question">1</span>
+				{{ _("of") }}
+				{{ quiz.questions | length }}
+			</span>
 
 			{% if quiz.time %}
 			<div class="progress timer w-75" data-time="{{ quiz.time }}">

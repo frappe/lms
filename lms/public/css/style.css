@@ -185,12 +185,16 @@ textarea.field-input {
 .clickable {
 	color: var(--gray-900);
 	font-weight: 500;
-	cursor: pointer;
 }
 
 .clickable:hover {
 	color: var(--gray-900);
 	text-decoration: none;
+	cursor: pointer;
+}
+
+.question-row .ql-editor.read-mode p:hover {
+	cursor: pointer;
 }
 
 .codex-editor path {
@@ -471,10 +475,6 @@ input[type=checkbox] {
   color: var(--gray-700);
 }
 
-.custom-checkbox>label>input {
-  visibility: hidden;
-}
-
 .custom-checkbox>label>.empty-checkbox {
   height: 1.5rem;
   width: 1.5rem;
@@ -493,14 +493,28 @@ input[type=checkbox] {
 }
 
 .quiz-label {
-  display: flex;
-  align-items: center;
-  margin-bottom: 0;
-  cursor: pointer;
+
 }
 
 .quiz-label p {
   display: inline;
+}
+
+.option-row {
+	display: flex;
+	align-items: center;
+	flex: 1;
+	margin-bottom: 0;
+	padding: 0.75rem;
+	border: 1px solid var(--gray-200);
+	border-radius: var(--border-radius-lg);
+	cursor:pointer;
+	background-color: var(--gray-100);
+}
+
+.active-option .option-row {
+	background-color: var(--blue-50);
+	border: 1px solid var(--blue-500);
 }
 
 .course-card-wide {
@@ -1056,7 +1070,7 @@ pre {
 
 .column-card {
 	flex-direction: column;
-	padding: 1.25rem;
+	padding: 1rem;
 	height: 100%;
 }
 
@@ -1502,41 +1516,21 @@ pre {
 }
 
 .reviews-parent .progress-bar {
-  background-color: var(--primary-color);
+	background-color: var(--primary-color);
 }
 
 .course-home-top-container {
   position: relative;
 }
 
-.question-header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.question-number {
-  padding-right: 0.25rem;
-}
-
-.option-text {
-  padding: 0.75rem;
-  border: 1px solid var(--gray-200);
-  border-radius: var(--border-radius-md);
-  flex: 1;
-}
-
-.active-option .option-text {
-  background-color: var(--blue-50);
-  border: 1px solid var(--blue-500);
-}
-
 .question-text {
-  font-size: var(--text-lg);
-  color: var(--gray-900);
-  font-weight: 600;
-  flex: 1;
-  margin: 0 1rem;
+	margin: 0.5rem 0 1rem;
+	font-weight: 600;
+}
+
+.question-text .ql-editor.read-mode {
+	white-space: inherit;
+	font-weight: 600;
 }
 
 .profile-column-grid {

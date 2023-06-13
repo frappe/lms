@@ -14,18 +14,30 @@
 {% endblock %}
 
 {% macro QuizForm(quiz) %}
-<div>
+<div id="quiz-form" {% if quiz.name %} data-name="{{ quiz.name }}" data-index="{{ quiz.questions | length }}" {% endif %}>
     {{ QuizDetails(quiz) }}
     {% if quiz.questions %}
-    {% for question in quiz.questions %}
-    {{ Question(question, loop.index) }}
-    {% endfor %}
+        <div class="field-group">
+            <div class="field-label mb-1">
+                {{ _("Questions") }}
+            </div>
+            <div class="common-card-style column-card px-3 py-0">
+                {% for question in quiz.questions %}
+                    {{ Question(question, loop.index) }}
+                {% endfor %}
+            </div>
+            <button class="btn btn-secondary btn-sm btn-add-question mt-4">
+                {{ _("Add Question") }}
+            </button>
+        </div>
     {% endif %}
-    <div id="question-template" class="hide">
-        {{ Question({}, 0) }}
-    </div>
+
+    {% if quiz.name and not quiz.questions | length %}
+        {{ EmptyState() }}
+    {% endif %}
 </div>
 {% endmacro %}
+
 
 {% macro Header() %}
 <header class="sticky">
@@ -40,18 +52,19 @@
                         {{ _("Quiz List") }}
                     </a>
                     <img class="icon icon-sm mr-0" src="/assets/lms/icons/chevron-right.svg">
-                    <span class="breadcrumb-destination">{{ quiz.title if quiz.title else _("New Quiz") }}</span>
+                    <span class="breadcrumb-destination">
+                        {{ quiz.title if quiz.title else _("New Quiz") }}
+                    </span>
                 </div>
             </div>
 
+            {% if quiz.name %}
             <div class="align-self-center">
-                <button class="btn btn-default btn-sm btn-add-question">
+                <button class="btn btn-primary btn-sm btn-add-question">
                     {{ _("Add Question") }}
                 </button>
-                <button class="btn btn-primary btn-sm btn-save-question">
-                    {{ _("Save") }}
-                </button>
             </div>
+            {% endif %}
 
         </div>
     </div>
@@ -66,11 +79,11 @@
                 {{ _("Title") }}
             </div>
             <div class="field-description">
-                {{ _("Give your quiz a title") }}
+                {{ _("Add a title for the quiz") }}
             </div>
         </div>
         <div class="">
-            <input type="text" class="field-input" id="quiz-title" {% if quiz.name %} value="{{ quiz.title }}" data-name="{{ quiz.name }}" {% endif %}>
+            <input type="text" class="field-input" id="quiz-title" {% if quiz.name %} value="{{ quiz.title }}" data-title="{{ quiz.title }}" {% endif %}>
         </div>
     </div>
 </div>
@@ -78,67 +91,39 @@
 
 {% macro Question(question, index) %}
 {% set type = question.type if question.type else "Choices" %}
-<div class="common-card-style column-card field-parent question-card" data-index="{{ index }}">
-    <div class="field-group">
-        <div>
-            <div class="field-label question-label">
-                {{ _("Question") }} {{ index }}
-            </div>
-        </div>
-        <div class="">
-            <input type="text" class="field-input question" {% if question.name %} value="{{ question.question }}" data-question="{{ question.name }}" {% endif %}>
-        </div>
+<div class="list-row question-row" role="button" data-question="{{ question.name }}">
+    <div class="flex clickable">
+       <span class="mr-1">
+            {{ index }}.
+        </span>
+        {{ question.question.split("\n")[0] }}
     </div>
 
-    <div class="field-group">
-        <div class="vertically-center justify-content-between">
-            <div class="field-label">
-                {{ _("Question Type") }}
-            </div>
-            <div class="btn-group btn-group-toggle type align-self-center" data-toggle="buttons">
-                <label class="btn btn-default btn-sm active question-type">
-                    <input type="radio" name="type-{{ index }}" data-type="Choices" {% if type == "Choices" %} checked {% endif %}>
-                    {{ _("Choices") }}
-                </label>
-                <label class="btn btn-default btn-sm question-type">
-                    <input type="radio" name="type-{{ index }}" data-type="User Input" {% if type == "User Input" %} checked {% endif %}>
-                    {{ _("User Input") }}
-                </label>
-            </div>
-        </div>
-    </div>
 
-    <div class="">
-
-        {% for i in range(1,5) %}
-        {% set num = frappe.utils.cstr(i) %}
-
-        {% set option = question["option_" + num] %}
-        {% set explanation = question["explanation_" + num] %}
-        {% set possible_answer = question["possibility_" + num] %}
-
-        <div class="field-group">
-
-            <div class="options-group {% if type == 'User Input' %} hide {% endif %}">
-                <input type="text" placeholder="Option" class="field-input option-{{ num }}" {% if option %} value="{{ option }}" {% endif %}>
-                <input type="text" placeholder="Explanation" class="field-input explanation-{{ num }}" {% if explanation %} value="{{ explanation }}" {% endif %}>
-                <label class="vertically-center mt-1">
-                    <input type="checkbox" class="correct-{{ num }}" {% if question['is_correct_' + num] %} checked {% endif %}>
-                    {{ _("Is Correct") }}
-                </label>
-            </div>
-
-            <div class="answers-group  {% if type == 'Choices' %} hide {% endif %}">
-                <div class="field-label">
-                    {{ _("Possible Answers") }} {{ num }}
-                </div>
-                <textarea class="field-input possibility-{{ num }}"
-                style="height: 100px;">{% if possible_answer %}{{ possible_answer }}{% endif %}</textarea>
-            </div>
-        </div>
-
-
-        {% endfor %}
-    </div>
 </div>
 {% endmacro %}
+
+{% macro EmptyState() %}
+<article class="empty-state my-5">
+    <div class="text-center">
+        <div class="bold-heading">
+            {{ _("You have not added any question yet") }}
+        </div>
+        <div>
+            {{ _("Create and manage questions from here.") }}
+        </div>
+        <div class="mt-4">
+            <button class="btn btn-default btn-sm btn-add-question">
+                <span>
+                    {{ _("Add Question") }}
+                </span>
+            </button>
+        </div>
+    </div>
+</article>
+{% endmacro %}
+
+{%- block script %}
+    {{ super() }}
+    {{ include_script('controls.bundle.js') }}
+{% endblock %}
