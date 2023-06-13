@@ -31,7 +31,7 @@ const show_chapter_modal = (e) => {
 			$.trim(parent.find(".chapter-description").text())
 		);
 		$("#chapter-modal").data("chapter", parent.data("chapter"));
-		$("#ch	apter-modal").data("idx", parent.data("idx"));
+		$("#chapter-modal").data("idx", parent.data("idx"));
 	}
 };
 

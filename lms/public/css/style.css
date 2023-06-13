@@ -162,8 +162,8 @@ textarea.field-input {
 
 .lesson-editor {
 	border: 1px solid var(--gray-300);
-    border-radius: var(--border-radius-md);
-    padding-top: 0.5rem;
+	border-radius: var(--border-radius-md);
+	padding-top: 0.5rem;
 }
 
 .lesson-parent .breadcrumb {
@@ -195,6 +195,14 @@ textarea.field-input {
 
 .question-row .ql-editor.read-mode p:hover {
 	cursor: pointer;
+}
+
+.question-row .ql-editor.read-mode p {
+	display: none;
+}
+
+.question-row .ql-editor.read-mode p:first-child {
+	display: block;
 }
 
 .codex-editor path {
