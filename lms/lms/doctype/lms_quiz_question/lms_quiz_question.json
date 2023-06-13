@@ -39,31 +39,31 @@
  "fields": [
   {
    "fieldname": "question",
-   "fieldtype": "Text",
+   "fieldtype": "Text Editor",
    "in_list_view": 1,
    "label": "Question",
    "reqd": 1
   },
   {
    "fieldname": "option_1",
-   "fieldtype": "Data",
+   "fieldtype": "Small Text",
    "label": "Option 1",
    "mandatory_depends_on": "eval: doc.type == 'Choices'"
   },
   {
    "fieldname": "option_2",
-   "fieldtype": "Data",
+   "fieldtype": "Small Text",
    "label": "Option 2",
    "mandatory_depends_on": "eval: doc.type == 'Choices'"
   },
   {
    "fieldname": "option_3",
-   "fieldtype": "Data",
+   "fieldtype": "Small Text",
    "label": "Option 3"
   },
   {
    "fieldname": "option_4",
-   "fieldtype": "Data",
+   "fieldtype": "Small Text",
    "label": "Option 4"
   },
   {
@@ -206,7 +206,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-03-17 18:22:20.324536",
+ "modified": "2023-06-09 17:09:53.740179",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz Question",

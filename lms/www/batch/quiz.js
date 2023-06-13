@@ -150,7 +150,13 @@ const save_quiz = (values) => {
 			quiz: $("#quiz-form").data("name") || "",
 		},
 		callback: (data) => {
-			window.location.href = `/quizzes/${data.message}`;
+			frappe.show_alert({
+				message: __("Saved"),
+				indicator: "green",
+			});
+			setTimeout(() => {
+				window.location.href = `/quizzes/${data.message}`;
+			}, 2000);
 		},
 	});
 };
