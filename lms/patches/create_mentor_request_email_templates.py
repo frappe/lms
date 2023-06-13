@@ -22,7 +22,7 @@ def execute():
 			}
 		).insert(ignore_permissions=True)
 
-		frappe.db.set_value(
+		frappe.db.set_single_value(
 			"LMS Settings",
 			None,
 			"mentor_request_creation",
@@ -43,7 +43,7 @@ def execute():
 			}
 		).insert(ignore_permissions=True)
 
-		frappe.db.set_value(
+		frappe.db.set_single_value(
 			"LMS Settings",
 			None,
 			"mentor_request_status_update",

@@ -77,7 +77,7 @@ const get_question_fields = (values = {}) => {
 		let option = {
 			fieldtype: "Small Text",
 			fieldname: `option_${num}`,
-			label: __(`Option ${num}`),
+			label: __("Option") + ` ${num}`,
 			depends_on: "eval:doc.type=='Choices'",
 			default: values[`option_${num}`] || "",
 		};
@@ -110,7 +110,7 @@ const get_question_fields = (values = {}) => {
 		possibility = {
 			fieldtype: "Small Text",
 			fieldname: `possibility_${num}`,
-			label: __(`Possible Answer ${num}`),
+			label: __("Possible Answer") + ` ${num}`,
 			depends_on: "eval:doc.type=='User Input'",
 			default: values[`possibility_${num}`] || "",
 		};
