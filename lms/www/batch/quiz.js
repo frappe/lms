@@ -1,80 +1,148 @@
 frappe.ready(() => {
-	if ($(".question-card").length <= 1) {
-		add_question();
-	}
+	$("#quiz-title").focusout((e) => {
+		if ($("#quiz-title").val() != $("#quiz-title").data("title")) {
+			save_quiz({ quiz_title: $("#quiz-title").val() });
+		}
+	});
+
+	$(".question-row").click((e) => {
+		edit_question(e);
+	});
 
 	$(".btn-add-question").click((e) => {
-		add_question(true);
+		show_question_modal();
 	});
-
-	$(".btn-save-question").click((e) => {
-		save_question(e);
-	});
-
-	$(".copy-quiz-id").click((e) => {
-		frappe.utils.copy_to_clipboard($(e.currentTarget).data("name"));
-	});
-
-	$(document).on("click", ".question-type", (e) => {
-		toggle_form($(e.currentTarget));
-	});
-
-	get_questions();
 });
 
-const toggle_form = (el) => {
-	if ($(el).hasClass("active")) {
-		let type = $(el).find("input").data("type");
-		if (type == "Choices") {
-			$(el)
-				.closest(".field-parent")
-				.find(".options-group")
-				.removeClass("hide");
-			$(el)
-				.closest(".field-parent")
-				.find(".answers-group")
-				.addClass("hide");
-		} else {
-			$(el)
-				.closest(".field-parent")
-				.find(".options-group")
-				.addClass("hide");
-			$(el)
-				.closest(".field-parent")
-				.find(".answers-group")
-				.removeClass("hide");
-		}
-	}
+const show_quiz_modal = () => {
+	let quiz_dialog = new frappe.ui.Dialog({
+		title: __("Create Quiz"),
+		fields: [
+			{
+				fieldtype: "Data",
+				label: __("Quiz Title"),
+				fieldname: "quiz_title",
+				reqd: 1,
+			},
+		],
+		primary_action: (values) => {
+			quiz_dialog.hide();
+			save_quiz(values);
+		},
+	});
+
+	quiz_dialog.show();
 };
 
-const add_question = (scroll = false) => {
-	let template = $("#question-template").html();
-	let index = $(".question-card:nth-last-child(2)").data("index") + 1 || 1;
-	template = update_index(template, index);
+const show_question_modal = (values = {}) => {
+	let fields = get_question_fields(values);
 
-	$(template).insertBefore($("#question-template"));
-	scroll && scroll_to_question_container();
+	this.question_dialog = new frappe.ui.Dialog({
+		title: __("Add Question"),
+		fields: fields,
+		primary_action: (data) => {
+			if (values) data.name = values.name;
+			save_question(data);
+		},
+	});
+
+	question_dialog.show();
 };
 
-const update_index = (template, index) => {
-	const $template = $(template);
-	$template.attr("data-index", index);
-	$template.find(".question-label").text("Question " + index);
-	$template.find(".question-type input").attr("name", "type-" + index);
-	return $template.prop("outerHTML");
+const get_question_fields = (values = {}) => {
+	let dialog_fields = [
+		{
+			fieldtype: "Text Editor",
+			fieldname: "question",
+			label: __("Question"),
+			reqd: 1,
+			default: values.question || "",
+		},
+		{
+			fieldtype: "Select",
+			fieldname: "type",
+			label: __("Type"),
+			options: ["Choices", "User Input"],
+			default: values.type || "Choices",
+		},
+	];
+	Array.from({ length: 4 }, (x, i) => {
+		num = i + 1;
+
+		dialog_fields.push({
+			fieldtype: "Section Break",
+			fieldname: `section_break_${num}`,
+		});
+
+		let option = {
+			fieldtype: "Small Text",
+			fieldname: `option_${num}`,
+			label: __("Option") + ` ${num}`,
+			depends_on: "eval:doc.type=='Choices'",
+			default: values[`option_${num}`] || "",
+		};
+
+		if (num <= 2) option.mandatory_depends_on = "eval:doc.type=='Choices'";
+
+		dialog_fields.push(option);
+
+		dialog_fields.push({
+			fieldtype: "Data",
+			fieldname: `explanaion_${num}`,
+			label: __("Explanation"),
+			depends_on: "eval:doc.type=='Choices'",
+			default: values[`explanaion_${num}`] || "",
+		});
+
+		let is_correct = {
+			fieldtype: "Check",
+			fieldname: `is_correct_${num}`,
+			label: __("Is Correct"),
+			depends_on: "eval:doc.type=='Choices'",
+			default: values[`is_correct_${num}`] || 0,
+		};
+
+		if (num <= 2)
+			is_correct.mandatory_depends_on = "eval:doc.type=='Choices'";
+
+		dialog_fields.push(is_correct);
+
+		possibility = {
+			fieldtype: "Small Text",
+			fieldname: `possibility_${num}`,
+			label: __("Possible Answer") + ` ${num}`,
+			depends_on: "eval:doc.type=='User Input'",
+			default: values[`possibility_${num}`] || "",
+		};
+
+		if (num == 1)
+			possibility.mandatory_depends_on = "eval:doc.type=='User Input'";
+
+		dialog_fields.push(possibility);
+	});
+
+	return dialog_fields;
 };
 
-const save_question = (e) => {
-	if (!$("#quiz-title").val()) {
-		frappe.throw(__("Quiz Title is mandatory."));
-	}
+const edit_question = (e) => {
+	let question = $(e.currentTarget).data("question");
+	frappe.call({
+		method: "lms.lms.doctype.lms_quiz.lms_quiz.get_question_details",
+		args: {
+			question: question,
+		},
+		callback: (data) => {
+			if (data.message) show_question_modal(data.message);
+		},
+	});
+};
 
+const save_quiz = (values) => {
 	frappe.call({
 		method: "lms.lms.doctype.lms_quiz.lms_quiz.save_quiz",
 		args: {
-			quiz_title: $("#quiz-title").val(),
-			questions: get_questions(),
-			quiz: $("#quiz-title").data("name") || "",
+			quiz_title: values.quiz_title,
+			quiz: $("#quiz-form").data("name") || "",
 		},
 		callback: (data) => {
 			frappe.show_alert({
@@ -88,90 +156,24 @@ const save_question = (e) => {
 	});
 };
 
-const get_questions = () => {
-	let questions = [];
+const save_question = (values) => {
+	frappe.call({
+		method: "lms.lms.doctype.lms_quiz.lms_quiz.save_question",
+		args: {
+			quiz: $("#quiz-form").data("name") || "",
+			values: values,
+			index: $("#quiz-form").data("index") + 1,
+		},
+		callback: (data) => {
+			if (data.message) this.question_dialog.hide();
 
-	$(".field-parent").each((i, el) => {
-		if (!$(el).find(".question").val()) return;
-		let details = {};
-		let correct_options = 0;
-		let possibilities = 0;
-
-		details["element"] = el;
-		details["question"] = $(el).find(".question").val();
-		details["question_name"] =
-			$(el).find(".question").data("question") || "";
-		details["type"] = $(el).find("label.active").find("input").data("type");
-
-		Array.from({ length: 4 }, (x, i) => {
-			let num = i + 1;
-
-			if (details.type == "Choices") {
-				details[`option_${num}`] = $(el).find(`.option-${num}`).val();
-
-				details[`explanation_${num}`] = $(el)
-					.find(`.explanation-${num}`)
-					.val();
-
-				let is_correct = $(el).find(`.correct-${num}`).prop("checked");
-
-				if (is_correct) correct_options += 1;
-
-				details[`is_correct_${num}`] = is_correct;
-			} else {
-				let possible_answer = $(el)
-					.find(`.possibility-${num}`)
-					.val()
-					.trim();
-				if (possible_answer) possibilities += 1;
-				details[`possibility_${num}`] = possible_answer;
-			}
-		});
-		validate_mandatory(details, correct_options, possibilities);
-
-		details["multiple"] = correct_options > 1 ? 1 : 0;
-		questions.push(details);
+			frappe.show_alert({
+				message: __("Saved"),
+				indicator: "green",
+			});
+			setTimeout(() => {
+				window.location.reload();
+			}, 1000);
+		},
 	});
-
-	return questions;
-};
-
-const validate_mandatory = (details, correct_options, possibilities) => {
-	if (details["type"] == "Choices") {
-		if (!details["option_1"] || !details["option_2"]) {
-			scroll_to_element(details["element"]);
-			frappe.throw(__("Each question must have at least two options."));
-		}
-
-		if (!correct_options) {
-			scroll_to_element(details["element"]);
-			frappe.throw(
-				__(
-					"Question with choices must have at least one correct option."
-				)
-			);
-		}
-	} else if (!possibilities) {
-		scroll_to_element(details["element"]);
-		frappe.throw(
-			__(
-				"Question with user input must have at least one possible answer."
-			)
-		);
-	}
-};
-
-const scroll_to_question_container = () => {
-	scroll_to_element(".question-card:nth-last-child(2)");
-	$(".question-card:nth-last-child(2)").find(".question").focus();
-};
-
-const scroll_to_element = (element) => {
-	if ($(element).length)
-		$([document.documentElement, document.body]).animate(
-			{
-				scrollTop: $(element).offset().top - 100,
-			},
-			1000
-		);
 };

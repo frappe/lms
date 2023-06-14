@@ -1,5 +1,5 @@
 import frappe
-from lms.lms.utils import can_create_courses
+from lms.lms.utils import can_create_courses, has_course_moderator_role
 from frappe import _
 
 
@@ -13,6 +13,5 @@ def get_context(context):
 
 		raise frappe.PermissionError(_(message))
 
-	context.quiz_list = frappe.get_all(
-		"LMS Quiz", {"owner": frappe.session.user}, ["name", "title"]
-	)
+	filters = {} if has_course_moderator_role() else {"owner": frappe.session.user}
+	context.quiz_list = frappe.get_all("LMS Quiz", filters, ["name", "title"])

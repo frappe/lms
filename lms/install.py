@@ -62,7 +62,7 @@ def delete_lms_roles():
 
 
 def set_default_home():
-	frappe.db.set_value("Portal Settings", None, "default_portal_home", "/courses")
+	frappe.db.set_single_value("Portal Settings", "default_portal_home", "/courses")
 
 
 def create_course_creator_role():

@@ -19,11 +19,6 @@ def get_context(context):
 		context.quiz = frappe._dict()
 	else:
 		fields_arr = ["name", "question", "type"]
-		for num in range(1, 5):
-			fields_arr.append("option_" + cstr(num))
-			fields_arr.append("is_correct_" + cstr(num))
-			fields_arr.append("explanation_" + cstr(num))
-			fields_arr.append("possibility_" + cstr(num))
 
 		context.quiz = frappe.db.get_value("LMS Quiz", quizname, ["title", "name"], as_dict=1)
 		context.quiz.questions = frappe.get_all(

@@ -17,52 +17,7 @@ class LMSQuiz(Document):
 			self.name = generate_slug(self.title, "LMS Quiz")
 
 	def validate(self):
-		self.validate_correct_answers()
-
-	def validate_correct_answers(self):
-		for question in self.questions:
-			if question.type == "Choices":
-				self.validate_correct_options(question)
-			else:
-				self.validate_possible_answer(question)
-
-	def validate_correct_options(self, question):
-		correct_options = self.get_correct_options(question)
-
-		if len(correct_options) > 1:
-			question.multiple = 1
-
-		if not len(correct_options):
-			frappe.throw(
-				_("At least one option must be correct for this question: {0}").format(
-					frappe.bold(question.question)
-				)
-			)
-
-	def validate_possible_answer(self, question):
-		possible_answers_fields = [
-			"possibility_1",
-			"possibility_2",
-			"possibility_3",
-			"possibility_4",
-		]
-		possible_answers = list(filter(lambda x: question.get(x), possible_answers_fields))
-
-		if not len(possible_answers):
-			frappe.throw(
-				_("Add at least one possible answer for this question: {0}").format(
-					frappe.bold(question.question)
-				)
-			)
-
-	def get_correct_options(self, question):
-		correct_option_fields = [
-			"is_correct_1",
-			"is_correct_2",
-			"is_correct_3",
-			"is_correct_4",
-		]
-		return list(filter(lambda x: question.get(x) == 1, correct_option_fields))
+		validate_correct_answers(self.questions)
 
 	def get_last_submission_details(self):
 		"""Returns the latest submission for this user."""
@@ -80,6 +35,71 @@ class LMSQuiz(Document):
 
 		if result:
 			return result[0]
+
+
+def get_correct_options(question):
+	correct_option_fields = [
+		"is_correct_1",
+		"is_correct_2",
+		"is_correct_3",
+		"is_correct_4",
+	]
+	return list(filter(lambda x: question.get(x) == 1, correct_option_fields))
+
+
+def validate_correct_answers(questions):
+	for question in questions:
+		if question.type == "Choices":
+			validate_duplicate_options(question)
+			validate_correct_options(question)
+		else:
+			validate_possible_answer(question)
+
+
+def validate_duplicate_options(question):
+	options = []
+
+	for num in range(1, 5):
+		if question.get(f"option_{num}"):
+			options.append(question.get(f"option_{num}"))
+
+	if len(set(options)) != len(options):
+		frappe.throw(
+			_("Duplicate options found for this question: {0}").format(
+				frappe.bold(question.question)
+			)
+		)
+
+
+def validate_correct_options(question):
+	correct_options = get_correct_options(question)
+
+	if len(correct_options) > 1:
+		question.multiple = 1
+
+	if not len(correct_options):
+		frappe.throw(
+			_("At least one option must be correct for this question: {0}").format(
+				frappe.bold(question.question)
+			)
+		)
+
+
+def validate_possible_answer(question):
+	possible_answers_fields = [
+		"possibility_1",
+		"possibility_2",
+		"possibility_3",
+		"possibility_4",
+	]
+	possible_answers = list(filter(lambda x: question.get(x), possible_answers_fields))
+
+	if not len(possible_answers):
+		frappe.throw(
+			_("Add at least one possible answer for this question: {0}").format(
+				frappe.bold(question.question)
+			)
+		)
 
 
 def update_lesson_info(doc, method):
@@ -121,37 +141,84 @@ def quiz_summary(quiz, results):
 
 
 @frappe.whitelist()
-def save_quiz(quiz_title, questions, quiz):
+def save_quiz(quiz_title, quiz):
 	if quiz:
-		doc = frappe.get_doc("LMS Quiz", quiz)
+		frappe.db.set_value("LMS Quiz", quiz, "title", quiz_title)
+		return quiz
 	else:
-		doc = frappe.get_doc(
+		doc = frappe.new_doc("LMS Quiz")
+		doc.update({"title": quiz_title})
+		doc.save(ignore_permissions=True)
+		return doc.name
+
+
+@frappe.whitelist()
+def save_question(quiz, values, index):
+	values = frappe._dict(json.loads(values))
+	validate_correct_answers([values])
+
+	if values.get("name"):
+		doc = frappe.get_doc("LMS Quiz Question", values.get("name"))
+	else:
+		doc = frappe.new_doc("LMS Quiz Question")
+
+	doc.update(
+		{
+			"question": values["question"],
+			"type": values["type"],
+		}
+	)
+
+	if not values.get("name"):
+		doc.update(
 			{
-				"doctype": "LMS Quiz",
+				"parent": quiz,
+				"parenttype": "LMS Quiz",
+				"parentfield": "questions",
+				"idx": index,
 			}
 		)
 
-	doc.update({"title": quiz_title})
-	doc.save(ignore_permissions=True)
-
-	for index, row in enumerate(json.loads(questions)):
-		if row["question_name"]:
-			question_doc = frappe.get_doc("LMS Quiz Question", row["question_name"])
-		else:
-			question_doc = frappe.get_doc(
+	for num in range(1, 5):
+		if values.get(f"option_{num}"):
+			doc.update(
 				{
-					"doctype": "LMS Quiz Question",
-					"parent": doc.name,
-					"parenttype": "LMS Quiz",
-					"parentfield": "questions",
-					"idx": index + 1,
+					f"option_{num}": values[f"option_{num}"],
+					f"is_correct_{num}": values[f"is_correct_{num}"],
 				}
 			)
 
-		question_doc.update(row)
-		question_doc.save(ignore_permissions=True)
+		if values.get(f"explanation_{num}"):
+			doc.update(
+				{
+					f"explanation_{num}": values[f"explanation_{num}"],
+				}
+			)
 
-	return doc.name
+		if values.get(f"possibility_{num}"):
+			doc.update(
+				{
+					f"possibility_{num}": values[f"possibility_{num}"],
+				}
+			)
+
+		doc.save(ignore_permissions=True)
+
+	return quiz
+
+
+@frappe.whitelist()
+def get_question_details(question):
+	if frappe.db.exists("LMS Quiz Question", question):
+		fields = ["name", "question", "type"]
+		for num in range(1, 5):
+			fields.append(f"option_{cstr(num)}")
+			fields.append(f"is_correct_{cstr(num)}")
+			fields.append(f"explanation_{cstr(num)}")
+			fields.append(f"possibility_{cstr(num)}")
+
+		return frappe.db.get_value("LMS Quiz Question", question, fields, as_dict=1)
+	return
 
 
 @frappe.whitelist()
