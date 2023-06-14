@@ -13,7 +13,7 @@ frappe.ready(() => {
 	save_current_lesson();
 
 	$(".option").click((e) => {
-		enable_check(e);
+		if (!$("#check").hasClass("hide")) enable_check(e);
 	});
 
 	$(".possibility").keyup((e) => {
@@ -287,6 +287,7 @@ const show_indicator = (class_name, element) => {
 
 const add_icon = (element, icon) => {
 	$(element).closest(".custom-checkbox").removeClass("active-option");
+	$(element).closest(".option").addClass("hide");
 	let label = $(element).siblings(".option-text").text();
 	$(element).siblings(".option-text").html(`
         <div>
