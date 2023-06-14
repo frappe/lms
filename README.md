@@ -9,7 +9,7 @@
 &nbsp;
 
 <p align="center">
-	<a href="https://www.producthunt.com/posts/frappe-lms?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-frappe&#0045;lms" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=396079&theme=dark" alt="Frappe&#0032;LMS - Easy&#0032;to&#0032;Use&#0044;&#0032;100&#0037;&#0032;Open&#0032;Source&#0044;&#0032;Learning&#0032;Management&#0032;System | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
+    <a href="https://www.producthunt.com/posts/frappe-lms?utm_source=badge-top-post-topic-badge&utm_medium=badge&utm_souce=badge-frappe&#0045;lms" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/top-post-topic-badge.svg?post_id=396079&theme=dark&period=weekly&topic_id=204" alt="Frappe&#0032;LMS - Easy&#0032;to&#0032;use&#0044;&#0032;100&#0037;&#0032;open&#0032;source&#0032;learning&#0032;management&#0032;system | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
 </p>
 
 
