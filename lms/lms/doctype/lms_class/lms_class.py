@@ -160,6 +160,8 @@ def create_class(
 	seat_count=0,
 	start_time=None,
 	end_time=None,
+	medium="Online",
+	category=None,
 	name=None,
 ):
 	if name:
@@ -176,6 +178,8 @@ def create_class(
 			"seat_count": seat_count,
 			"start_time": start_time,
 			"end_time": end_time,
+			"medium": medium,
+			"category": category,
 		}
 	)
 	class_details.save()

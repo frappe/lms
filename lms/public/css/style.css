@@ -2164,3 +2164,7 @@ select {
 .list-row:last-child {
 	border-bottom: none;
 }
+
+.awesomplete ul li:last-child {
+	display: none;
+}
