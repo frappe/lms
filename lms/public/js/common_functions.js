@@ -258,7 +258,7 @@ const show_no_preview_dialog = (e) => {
 	$("#no-preview-modal").modal("show");
 };
 
-const open_class_dialog = (e) => {
+const open_class_dialog = () => {
 	this.class_dialog = new frappe.ui.Dialog({
 		title: __("New Class"),
 		fields: [
@@ -284,13 +284,14 @@ const open_class_dialog = (e) => {
 				default: class_info && class_info.end_date,
 			},
 			{
-				fieldtype: "Column Break",
+				fieldtype: "Select",
+				label: __("Medium"),
+				fieldname: "medium",
+				options: ["Online", "Offline"],
+				default: (class_info && class_info.medium) || "Online",
 			},
 			{
-				fieldtype: "Int",
-				label: __("Seat Count"),
-				fieldname: "seat_count",
-				default: class_info && class_info.seat_count,
+				fieldtype: "Column Break",
 			},
 			{
 				fieldtype: "Time",
@@ -305,6 +306,19 @@ const open_class_dialog = (e) => {
 				default: class_info && class_info.end_time,
 			},
 			{
+				fieldtype: "Int",
+				label: __("Seat Count"),
+				fieldname: "seat_count",
+				default: class_info && class_info.seat_count,
+			},
+			{
+				fieldtype: "Link",
+				label: __("Category"),
+				fieldname: "category",
+				options: "LMS Category",
+				default: class_info && class_info.category,
+			},
+			{
 				fieldtype: "Section Break",
 			},
 			{
@@ -316,13 +330,13 @@ const open_class_dialog = (e) => {
 		],
 		primary_action_label: __("Save"),
 		primary_action: (values) => {
-			create_class(values);
+			save_class(values);
 		},
 	});
 	this.class_dialog.show();
 };
 
-const create_class = (values) => {
+const save_class = (values) => {
 	frappe.call({
 		method: "lms.lms.doctype.lms_class.lms_class.create_class",
 		args: {
@@ -333,6 +347,8 @@ const create_class = (values) => {
 			seat_count: values.seat_count,
 			start_time: values.start_time,
 			end_time: values.end_time,
+			medium: values.medium,
+			category: values.category,
 			name: class_info && class_info.name,
 		},
 		callback: (r) => {

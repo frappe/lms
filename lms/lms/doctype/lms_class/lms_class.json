@@ -11,11 +11,15 @@
   "title",
   "start_date",
   "end_date",
-  "paid_class",
   "column_break_4",
-  "seat_count",
-  "start_time",
   "end_time",
+  "start_time",
+  "section_break_rgfj",
+  "medium",
+  "category",
+  "column_break_flwy",
+  "seat_count",
+  "paid_class",
   "section_break_6",
   "description",
   "students",
@@ -109,11 +113,31 @@
    "fieldtype": "Table",
    "label": "Assessment",
    "options": "LMS Assessment"
+  },
+  {
+   "fieldname": "section_break_rgfj",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "Online",
+   "fieldname": "medium",
+   "fieldtype": "Select",
+   "label": "Medium",
+   "options": "Online\nOffline"
+  },
+  {
+   "fieldname": "column_break_flwy",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "category",
+   "fieldtype": "Autocomplete",
+   "label": "Category"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-05-29 14:52:45.866901",
+ "modified": "2023-06-15 12:30:26.929156",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Class",

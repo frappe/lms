@@ -146,6 +146,17 @@
     {{ include_script('controls.bundle.js') }}
 	{% if is_moderator %}
 	<script>
+		frappe.boot.user = {
+			"can_create": [],
+			"can_select": ["LMS Category"],
+			"can_read": ["LMS Category"]
+		};
+
+		frappe.router = {
+			slug (name) {
+				return name.toLowerCase().replace(/ /g, "-");
+			}
+		}
 		let class_info = null;
 	</script>
 	{% endif %}
