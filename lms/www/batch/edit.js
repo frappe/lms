@@ -6,7 +6,7 @@ frappe.ready(() => {
 	}
 
 	setup_editor();
-	//fetch_quiz_list();
+	fetch_quiz_list();
 
 	$("#save-lesson").click((e) => {
 		save_lesson(e);
@@ -48,6 +48,7 @@ const setup_editor = () => {
 const parse_string_to_lesson = () => {
 	let lesson_content = $("#current-lesson-content").html();
 	let lesson_blocks = [];
+	this.quiz_in_lesson = [];
 
 	lesson_content.split("\n").forEach((block) => {
 		if (block.includes("{{ YouTubeVideo")) {
@@ -60,6 +61,7 @@ const parse_string_to_lesson = () => {
 			});
 		} else if (block.includes("{{ Quiz")) {
 			let quiz = block.match(/'([^']+)'/)[1];
+			this.quiz_in_lesson.push(quiz);
 			lesson_blocks.push({
 				type: "quiz",
 				data: {
@@ -218,7 +220,7 @@ class YouTubeVideo {
 	}
 
 	render_youtube_dialog() {
-		let self = this;
+		let me = this;
 		let youtubedialog = new frappe.ui.Dialog({
 			title: __("YouTube Video"),
 			fields: [
@@ -245,8 +247,8 @@ class YouTubeVideo {
 			primary_action_label: __("Insert"),
 			primary_action(values) {
 				youtubedialog.hide();
-				self.youtube = values.youtube;
-				$(self.wrapper).html(self.render_youtube(values.youtube));
+				me.youtube = values.youtube;
+				$(me.wrapper).html(me.render_youtube(values.youtube));
 			},
 		});
 		youtubedialog.show();
@@ -286,6 +288,54 @@ class Quiz {
 		this.data = data;
 	}
 
+	get_fields() {
+		let fields = [
+			{
+				fieldname: "quiz_information",
+				fieldtype: "HTML",
+				label: __("Create New"),
+				options: __(
+					"Click to create a new quiz to add to this lesson."
+				),
+			},
+			{
+				fieldname: "create_quiz",
+				fieldtype: "Button",
+				label: __("Create Quiz"),
+				click: () => {
+					window.location.href = "/quizzes";
+				},
+			},
+			{
+				fieldname: "quiz_list_section",
+				fieldtype: "Section Break",
+			},
+			{
+				fieldname: "quiz_list_information",
+				fieldtype: "HTML",
+				label: __("Quiz List"),
+				options: __("Select a quiz to add to this lesson."),
+			},
+		];
+		let break_index = Math.ceil(self.quiz_list.length / 2);
+
+		self.quiz_list.forEach((quiz) => {
+			fields.push({
+				fieldname: quiz.name,
+				fieldtype: "Check",
+				label: quiz.title,
+				default: self.quiz_in_lesson.includes(quiz.name) ? 1 : 0,
+				read_only: self.quiz_in_lesson.includes(quiz.name) ? 1 : 0,
+			});
+		});
+
+		fields.splice(break_index, 0, {
+			fieldname: "column_break",
+			fieldtype: "Column Break",
+		});
+		return fields;
+	}
+
 	render() {
 		this.wrapper = document.createElement("div");
 		if (this.data && this.data.quiz) {
@@ -297,23 +347,17 @@ class Quiz {
 	}
 
 	render_quiz_dialog() {
-		let self = this;
+		let me = this;
+		let fields = this.get_fields();
 		let quizdialog = new frappe.ui.Dialog({
-			title: __("Select a Quiz"),
-			fields: [
-				{
-					fieldname: "quiz",
-					fieldtype: "Link",
-					label: __("Quiz"),
-					reqd: 1,
-					options: "LMS Quiz",
-				},
-			],
+			title: __("Manage Quiz"),
+			fields: fields,
 			primary_action_label: __("Insert"),
 			primary_action(values) {
-				self.quiz = values.quiz;
+				me.analyze_quiz_list(values);
 				quizdialog.hide();
-				$(self.wrapper).html(self.render_quiz(self.quiz));
+				/* self.quiz = values.quiz;
+				$(self.wrapper).html(self.render_quiz(self.quiz)); */
 			},
 			secondary_action_label: __("Create New"),
 			secondary_action: () => {
@@ -325,6 +369,22 @@ class Quiz {
 			$(".modal-body").css("min-height", "200px");
 			$(".modal-body input").focus();
 		}, 1000);
+	}
+
+	analyze_quiz_list(values) {
+		/* If quiz is selected and is not already in the lesson then render it.
+		If quiz is in the lesson and is unselected then unrender it */
+
+		Object.keys(values).forEach((key) => {
+			if (values[key] === 1 && !self.quiz_in_lesson.includes(key)) {
+				self.quiz_in_lesson.push(key);
+				this.quiz = key;
+				$(this.wrapper).html(this.render_quiz(key));
+			} else if (values[key] == 0 && self.quiz_in_lesson.includes(key)) {
+				self.quiz_in_lesson.splice(self.quiz_in_lesson.indexOf(key), 1);
+				$(this.wrapper).html(this.render_quiz(key));
+			}
+		});
 	}
 
 	render_quiz(quiz) {
