@@ -65,7 +65,7 @@ const parse_string_to_lesson = () => {
 			lesson_blocks.push({
 				type: "quiz",
 				data: {
-					quiz: quiz,
+					quiz: [quiz],
 				},
 			});
 		} else if (block.includes("{{ Video")) {
@@ -118,7 +118,9 @@ const parse_lesson_to_string = (data) => {
 		if (block.type == "youtube") {
 			lesson_content += `{{ YouTubeVideo("${block.data.youtube}") }}\n`;
 		} else if (block.type == "quiz") {
-			lesson_content += `{{ Quiz("${block.data.quiz}") }}\n`;
+			block.data.quiz.forEach((quiz) => {
+				lesson_content += `{{ Quiz("${quiz}") }}\n`;
+			});
 		} else if (block.type == "upload") {
 			let url = block.data.file_url;
 			lesson_content += block.data.is_video
@@ -291,11 +293,10 @@ class Quiz {
 	get_fields() {
 		let fields = [
 			{
-				fieldname: "quiz_information",
-				fieldtype: "HTML",
-				label: __("Create New"),
-				options: __(
-					"Click to create a new quiz to add to this lesson."
+				fieldname: "start_section",
+				fieldtype: "Section Break",
+				label: __(
+					"To create a new quiz, click on the button below. Once you have created the new quiz you can come back to this lesson and add it from here."
 				),
 			},
 			{
@@ -307,17 +308,17 @@ class Quiz {
 				},
 			},
 			{
-				fieldname: "quiz_list_section",
-				fieldtype: "Section Break",
+				fieldname: "quiz_information",
+				fieldtype: "HTML",
+				options: __("OR"),
 			},
 			{
-				fieldname: "quiz_list_information",
-				fieldtype: "HTML",
-				label: __("Quiz List"),
-				options: __("Select a quiz to add to this lesson."),
+				fieldname: "quiz_list_section",
+				fieldtype: "Section Break",
+				label: __("Select a exisitng quiz to add to this lesson."),
 			},
 		];
-		let break_index = Math.ceil(self.quiz_list.length / 2);
+		let break_index = Math.ceil(self.quiz_list.length / 2) + 4;
 
 		self.quiz_list.forEach((quiz) => {
 			fields.push({
@@ -339,7 +340,7 @@ class Quiz {
 	render() {
 		this.wrapper = document.createElement("div");
 		if (this.data && this.data.quiz) {
-			$(this.wrapper).html(this.render_quiz(this.data.quiz));
+			$(this.wrapper).html(this.render_quiz());
 		} else {
 			this.render_quiz_dialog();
 		}
@@ -359,7 +360,7 @@ class Quiz {
 				/* self.quiz = values.quiz;
 				$(self.wrapper).html(self.render_quiz(self.quiz)); */
 			},
-			secondary_action_label: __("Create New"),
+			secondary_action_label: __("Create New Quiz"),
 			secondary_action: () => {
 				window.location.href = `/quizzes`;
 			},
@@ -375,31 +376,35 @@ class Quiz {
 		/* If quiz is selected and is not already in the lesson then render it.
 		If quiz is in the lesson and is unselected then unrender it */
 
+		this.quiz_to_render = [];
 		Object.keys(values).forEach((key) => {
 			if (values[key] === 1 && !self.quiz_in_lesson.includes(key)) {
 				self.quiz_in_lesson.push(key);
-				this.quiz = key;
-				$(this.wrapper).html(this.render_quiz(key));
-			} else if (values[key] == 0 && self.quiz_in_lesson.includes(key)) {
-				self.quiz_in_lesson.splice(self.quiz_in_lesson.indexOf(key), 1);
-				$(this.wrapper).html(this.render_quiz(key));
+				this.quiz_to_render.push(key);
 			}
 		});
+
+		$(this.wrapper).html(this.render_quiz());
 	}
 
-	render_quiz(quiz) {
-		return `<div class="common-card-style p-2 my-2 bold-heading">
-			Quiz: ${quiz}
-		</div>`;
+	render_quiz() {
+		let html = ``;
+		let quiz_list = this.data.quiz || this.quiz_to_render;
+		quiz_list.forEach((quiz) => {
+			html += `<div class="common-card-style p-2 my-2 bold-heading">
+				Quiz: ${quiz}
+			</div>`;
+		});
+		return html;
 	}
 
 	validate(savedData) {
-		return !savedData.quiz || !savedData.quiz.trim() ? false : true;
+		return !savedData.quiz || !savedData.quiz.length ? false : true;
 	}
 
 	save(block_content) {
 		return {
-			quiz: this.data.quiz || this.quiz,
+			quiz: this.data.quiz || this.quiz_to_render,
 		};
 	}
 }
