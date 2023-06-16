@@ -6,7 +6,7 @@ frappe.ready(() => {
 	}
 
 	setup_editor();
-	//fetch_quiz_list();
+	fetch_quiz_list();
 
 	$("#save-lesson").click((e) => {
 		save_lesson(e);
@@ -48,6 +48,7 @@ const setup_editor = () => {
 const parse_string_to_lesson = () => {
 	let lesson_content = $("#current-lesson-content").html();
 	let lesson_blocks = [];
+	this.quiz_in_lesson = [];
 
 	lesson_content.split("\n").forEach((block) => {
 		if (block.includes("{{ YouTubeVideo")) {
@@ -60,10 +61,11 @@ const parse_string_to_lesson = () => {
 			});
 		} else if (block.includes("{{ Quiz")) {
 			let quiz = block.match(/'([^']+)'/)[1];
+			this.quiz_in_lesson.push(quiz);
 			lesson_blocks.push({
 				type: "quiz",
 				data: {
-					quiz: quiz,
+					quiz: [quiz],
 				},
 			});
 		} else if (block.includes("{{ Video")) {
@@ -116,7 +118,9 @@ const parse_lesson_to_string = (data) => {
 		if (block.type == "youtube") {
 			lesson_content += `{{ YouTubeVideo("${block.data.youtube}") }}\n`;
 		} else if (block.type == "quiz") {
-			lesson_content += `{{ Quiz("${block.data.quiz}") }}\n`;
+			block.data.quiz.forEach((quiz) => {
+				lesson_content += `{{ Quiz("${quiz}") }}\n`;
+			});
 		} else if (block.type == "upload") {
 			let url = block.data.file_url;
 			lesson_content += block.data.is_video
@@ -218,7 +222,7 @@ class YouTubeVideo {
 	}
 
 	render_youtube_dialog() {
-		let self = this;
+		let me = this;
 		let youtubedialog = new frappe.ui.Dialog({
 			title: __("YouTube Video"),
 			fields: [
@@ -245,8 +249,8 @@ class YouTubeVideo {
 			primary_action_label: __("Insert"),
 			primary_action(values) {
 				youtubedialog.hide();
-				self.youtube = values.youtube;
-				$(self.wrapper).html(self.render_youtube(values.youtube));
+				me.youtube = values.youtube;
+				$(me.wrapper).html(me.render_youtube(values.youtube));
 			},
 		});
 		youtubedialog.show();
@@ -286,10 +290,57 @@ class Quiz {
 		this.data = data;
 	}
 
+	get_fields() {
+		let fields = [
+			{
+				fieldname: "start_section",
+				fieldtype: "Section Break",
+				label: __(
+					"To create a new quiz, click on the button below. Once you have created the new quiz you can come back to this lesson and add it from here."
+				),
+			},
+			{
+				fieldname: "create_quiz",
+				fieldtype: "Button",
+				label: __("Create Quiz"),
+				click: () => {
+					window.location.href = "/quizzes";
+				},
+			},
+			{
+				fieldname: "quiz_information",
+				fieldtype: "HTML",
+				options: __("OR"),
+			},
+			{
+				fieldname: "quiz_list_section",
+				fieldtype: "Section Break",
+				label: __("Select a exisitng quiz to add to this lesson."),
+			},
+		];
+		let break_index = Math.ceil(self.quiz_list.length / 2) + 4;
+
+		self.quiz_list.forEach((quiz) => {
+			fields.push({
+				fieldname: quiz.name,
+				fieldtype: "Check",
+				label: quiz.title,
+				default: self.quiz_in_lesson.includes(quiz.name) ? 1 : 0,
+				read_only: self.quiz_in_lesson.includes(quiz.name) ? 1 : 0,
+			});
+		});
+
+		fields.splice(break_index, 0, {
+			fieldname: "column_break",
+			fieldtype: "Column Break",
+		});
+		return fields;
+	}
+
 	render() {
 		this.wrapper = document.createElement("div");
 		if (this.data && this.data.quiz) {
-			$(this.wrapper).html(this.render_quiz(this.data.quiz));
+			$(this.wrapper).html(this.render_quiz());
 		} else {
 			this.render_quiz_dialog();
 		}
@@ -297,25 +348,17 @@ class Quiz {
 	}
 
 	render_quiz_dialog() {
-		let self = this;
+		let me = this;
+		let fields = this.get_fields();
 		let quizdialog = new frappe.ui.Dialog({
-			title: __("Select a Quiz"),
-			fields: [
-				{
-					fieldname: "quiz",
-					fieldtype: "Link",
-					label: __("Quiz"),
-					reqd: 1,
-					options: "LMS Quiz",
-				},
-			],
+			title: __("Manage Quiz"),
+			fields: fields,
 			primary_action_label: __("Insert"),
 			primary_action(values) {
-				self.quiz = values.quiz;
+				me.analyze_quiz_list(values);
 				quizdialog.hide();
-				$(self.wrapper).html(self.render_quiz(self.quiz));
 			},
-			secondary_action_label: __("Create New"),
+			secondary_action_label: __("Create New Quiz"),
 			secondary_action: () => {
 				window.location.href = `/quizzes`;
 			},
@@ -327,19 +370,38 @@ class Quiz {
 		}, 1000);
 	}
 
-	render_quiz(quiz) {
-		return `<div class="common-card-style p-2 my-2 bold-heading">
-			Quiz: ${quiz}
-		</div>`;
+	analyze_quiz_list(values) {
+		/* If quiz is selected and is not already in the lesson then render it.*/
+
+		this.quiz_to_render = [];
+		Object.keys(values).forEach((key) => {
+			if (values[key] === 1 && !self.quiz_in_lesson.includes(key)) {
+				self.quiz_in_lesson.push(key);
+				this.quiz_to_render.push(key);
+			}
+		});
+
+		$(this.wrapper).html(this.render_quiz());
+	}
+
+	render_quiz() {
+		let html = ``;
+		let quiz_list = this.data.quiz || this.quiz_to_render;
+		quiz_list.forEach((quiz) => {
+			html += `<div class="common-card-style p-2 my-2 bold-heading">
+				Quiz: ${quiz}
+			</div>`;
+		});
+		return html;
 	}
 
 	validate(savedData) {
-		return !savedData.quiz || !savedData.quiz.trim() ? false : true;
+		return !savedData.quiz || !savedData.quiz.length ? false : true;
 	}
 
 	save(block_content) {
 		return {
-			quiz: this.data.quiz || this.quiz,
+			quiz: this.data.quiz || this.quiz_to_render,
 		};
 	}
 }

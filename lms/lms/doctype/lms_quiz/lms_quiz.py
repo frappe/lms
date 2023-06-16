@@ -7,8 +7,7 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.utils import cstr
-
-from lms.lms.utils import generate_slug
+from lms.lms.utils import generate_slug, has_course_moderator_role
 
 
 class LMSQuiz(Document):
@@ -263,6 +262,5 @@ def check_input_answers(question, answer):
 
 @frappe.whitelist()
 def get_user_quizzes():
-	return frappe.get_all(
-		"LMS Quiz", filters={"owner": frappe.session.user}, fields=["name", "title"]
-	)
+	filters = {} if has_course_moderator_role() else {"owner": frappe.session.user}
+	return frappe.get_all("LMS Quiz", filters=filters, fields=["name", "title"])
