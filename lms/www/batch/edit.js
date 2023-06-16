@@ -357,8 +357,6 @@ class Quiz {
 			primary_action(values) {
 				me.analyze_quiz_list(values);
 				quizdialog.hide();
-				/* self.quiz = values.quiz;
-				$(self.wrapper).html(self.render_quiz(self.quiz)); */
 			},
 			secondary_action_label: __("Create New Quiz"),
 			secondary_action: () => {
@@ -373,8 +371,7 @@ class Quiz {
 	}
 
 	analyze_quiz_list(values) {
-		/* If quiz is selected and is not already in the lesson then render it.
-		If quiz is in the lesson and is unselected then unrender it */
+		/* If quiz is selected and is not already in the lesson then render it.*/
 
 		this.quiz_to_render = [];
 		Object.keys(values).forEach((key) => {
