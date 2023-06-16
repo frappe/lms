@@ -25,6 +25,8 @@ def get_context(context):
 			"seat_count",
 			"start_time",
 			"end_time",
+			"category",
+			"medium",
 		],
 		as_dict=True,
 	)
