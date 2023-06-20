@@ -70,7 +70,7 @@ const file_size = (value) => {
 
 const join_course = (e) => {
 	e.preventDefault();
-	let course = $("#outline-heading").attr("data-course");
+	let course = $(e.currentTarget).attr("data-course");
 	if (frappe.session.user == "Guest") {
 		window.location.href = `/login?redirect-to=/courses/${course}`;
 		return;

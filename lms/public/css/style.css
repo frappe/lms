@@ -1950,7 +1950,7 @@ select {
 }
 
 .modal-title {
-	font-size: var(--text-base) !important;
+	font-size: var(--text-lg) !important;
 }
 
 .class-form-title {

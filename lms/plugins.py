@@ -16,6 +16,7 @@ be loaded in a webpage.
 
 import frappe
 from urllib.parse import quote
+from frappe import _
 
 
 class PageExtension:
@@ -102,8 +103,13 @@ def set_mandatory_fields_for_profile():
 
 
 def quiz_renderer(quiz_name):
-	quiz = frappe.get_doc("LMS Quiz", quiz_name)
+	if frappe.session.user == "Guest":
+		return " <div class='alert alert-info'>" + _(
+			"Quiz is not available to Guest users. Please login to continue."
+		)
+		+"</div>"
 
+	quiz = frappe.get_doc("LMS Quiz", quiz_name)
 	context = {"quiz": quiz}
 
 	no_of_attempts = frappe.db.count(
@@ -116,7 +122,7 @@ def quiz_renderer(quiz_name):
 		)
 
 		context.update({"attempts_exceeded": True, "last_attempt_score": last_attempt_score})
-	return frappe.render_template("templates/quiz.html", context)
+	return frappe.render_template("templates/quiz/quiz.html", context)
 
 
 def exercise_renderer(argument):

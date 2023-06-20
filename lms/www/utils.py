@@ -71,35 +71,61 @@ def get_assessments(class_name, member=None):
 
 	for assessment in assessments:
 		if assessment.assessment_type == "LMS Assignment":
-			assessment.title = frappe.db.get_value(
-				"LMS Assignment", assessment.assessment_name, "title"
-			)
-
-			existing_submission = frappe.db.exists(
-				{
-					"doctype": "LMS Assignment Submission",
-					"member": member,
-					"assignment": assessment.assessment_name,
-				}
-			)
-
-			if existing_submission:
-				assessment.submission = frappe.db.get_value(
-					"LMS Assignment Submission",
-					existing_submission,
-					["name", "status", "comments"],
-					as_dict=True,
-				)
-
-			assessment.edit_url = f"/assignments/{assessment.assessment_name}"
-			submission_name = existing_submission if existing_submission else "new-submission"
-			assessment.url = (
-				f"/assignment-submission/{assessment.assessment_name}/{submission_name}"
-			)
+			assessment = get_assignment_details(assessment, member)
 
 		elif assessment.assessment_type == "LMS Quiz":
-			assessment.title = frappe.db.get_value(
-				"LMS Quiz", assessment.assessment_name, "title"
-			)
-			assessment.url = f"/quizzes/{assessment.assessment_name}"
+			assessment = get_quiz_details(assessment, member)
+
 	return assessments
+
+
+def get_assignment_details(assessment, member):
+	assessment.title = frappe.db.get_value(
+		"LMS Assignment", assessment.assessment_name, "title"
+	)
+
+	existing_submission = frappe.db.exists(
+		{
+			"doctype": "LMS Assignment Submission",
+			"member": member,
+			"assignment": assessment.assessment_name,
+		}
+	)
+
+	if existing_submission:
+		assessment.submission = frappe.db.get_value(
+			"LMS Assignment Submission",
+			existing_submission,
+			["name", "status", "comments"],
+			as_dict=True,
+		)
+
+	assessment.edit_url = f"/assignments/{assessment.assessment_name}"
+	submission_name = existing_submission if existing_submission else "new-submission"
+	assessment.url = (
+		f"/assignment-submission/{assessment.assessment_name}/{submission_name}"
+	)
+
+
+def get_quiz_details(assessment, member):
+	assessment.title = frappe.db.get_value("LMS Quiz", assessment.assessment_name, "title")
+
+	existing_submission = frappe.db.exists(
+		{
+			"doctype": "LMS Quiz Submission",
+			"member": member,
+			"quiz": assessment.assessment_name,
+		}
+	)
+
+	if existing_submission:
+		assessment.submission = frappe.db.get_value(
+			"LMS Quiz Submission",
+			existing_submission,
+			["name", "score"],
+			as_dict=True,
+		)
+
+	assessment.edit_url = f"/quizzes/{assessment.assessment_name}"
+	submission_name = existing_submission if existing_submission else "new-submission"
+	assessment.url = f"/quiz-submission/{assessment.assessment_name}/{submission_name}"

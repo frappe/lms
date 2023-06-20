@@ -76,9 +76,8 @@ def get_context(context):
 
 
 def get_all_quizzes(class_name):
-	all_quizzes = frappe.get_all(
-		"LMS Quiz", {"owner": frappe.session.user}, ["name", "title"]
-	)
+	filters = {} if has_course_moderator_role() else {"owner": frappe.session.user}
+	all_quizzes = frappe.get_all("LMS Quiz", filters, ["name", "title"])
 	for quiz in all_quizzes:
 		quiz.checked = frappe.db.exists(
 			{
@@ -92,9 +91,8 @@ def get_all_quizzes(class_name):
 
 
 def get_all_assignments(class_name):
-	all_assignments = frappe.get_all(
-		"LMS Assignment", {"owner": frappe.session.user}, ["name", "title"]
-	)
+	filters = {} if has_course_moderator_role() else {"owner": frappe.session.user}
+	all_assignments = frappe.get_all("LMS Assignment", filters, ["name", "title"])
 	for assignment in all_assignments:
 		assignment.checked = frappe.db.exists(
 			{

@@ -1,6 +1,6 @@
 import frappe
-from frappe import _
 from lms.lms.utils import has_course_moderator_role
+from frappe import _
 
 
 def get_context(context):
@@ -11,19 +11,17 @@ def get_context(context):
 
 	context.is_moderator = has_course_moderator_role()
 	submission = frappe.form_dict["submission"]
-	assignment = frappe.form_dict["assignment"]
+	quiz_name = frappe.form_dict["quiz"]
 
-	context.assignment = frappe.db.get_value(
-		"LMS Assignment", assignment, ["title", "name", "type", "question"], as_dict=1
-	)
+	context.quiz = frappe.get_doc("LMS Quiz", quiz_name)
 
 	if submission == "new-submission":
 		context.submission = frappe._dict()
 	else:
 		context.submission = frappe.db.get_value(
-			"LMS Assignment Submission",
+			"LMS Quiz Submission",
 			submission,
-			["name", "assignment_attachment", "comments", "status", "member", "member_name"],
+			["name", "score", "member", "member_name"],
 			as_dict=True,
 		)
 		if not context.is_moderator and frappe.session.user != context.submission.member:
