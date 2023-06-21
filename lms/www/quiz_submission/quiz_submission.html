@@ -21,16 +21,13 @@
                     <div class="page-title">
                         {{ quiz.title }}
                     </div>
-                    {% if submission.score %}
-                    <div>
-                        {{ submission.score }}
-                    </div>
-                    {% endif %}
                 </div>
                 <div class="vertically-center small">
                     <a class="dark-links" href="/classes">
                         {{ _("All Classes") }}
                     </a>
+                    <img class="icon icon-sm mr-0" src="/assets/lms/icons/chevron-right.svg">
+                    <span class="breadcrumb-destination">{{ _("Quiz Submission") }}</span>
                 </div>
             </div>
 

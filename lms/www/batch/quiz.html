@@ -58,13 +58,16 @@
                 </div>
             </div>
 
-            {% if quiz.name %}
             <div class="align-self-center">
-                <button class="btn btn-primary btn-sm btn-add-question">
+                {% if quiz.name %}
+                <button class="btn btn-secondary btn-sm btn-add-question mr-2">
                     {{ _("Add Question") }}
                 </button>
+                {% endif %}
+                <button class="btn btn-primary btn-sm btn-save-quiz">
+                    {{ _("Save") }}
+                </button>
             </div>
-            {% endif %}
 
         </div>
     </div>
@@ -84,6 +87,19 @@
         </div>
         <div class="">
             <input type="text" class="field-input" id="quiz-title" {% if quiz.name %} value="{{ quiz.title }}" data-title="{{ quiz.title }}" {% endif %}>
+        </div>
+    </div>
+
+    <div class="field-group">
+        <div class="field-label">
+            {{ _("Max Attempts") }}
+        </div>
+        <div class="field-description">
+            {{ _("Enter the maximum number of times a user can attempt this quiz") }}
+        </div>
+        <div>
+            {% set max_attempts = quiz.max_attempts if quiz.name else 1 %}
+            <input type="number" class="field-input" id="max-attempts" value="{{ max_attempts }}">
         </div>
     </div>
 </div>

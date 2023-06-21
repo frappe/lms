@@ -2,12 +2,11 @@
 # For license information, please see license.txt
 
 import json
-
 import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.utils import cstr
-from lms.lms.utils import generate_slug, has_course_moderator_role
+from lms.lms.utils import generate_slug, has_course_moderator_role, can_create_courses
 
 
 class LMSQuiz(Document):
@@ -126,7 +125,7 @@ def quiz_summary(quiz, results):
 		score += correct
 		del result["question_index"]
 
-	frappe.get_doc(
+	submission = frappe.get_doc(
 		{
 			"doctype": "LMS Quiz Submission",
 			"quiz": quiz,
@@ -134,19 +133,32 @@ def quiz_summary(quiz, results):
 			"score": score,
 			"member": frappe.session.user,
 		}
-	).save(ignore_permissions=True)
+	)
+	submission.save(ignore_permissions=True)
 
-	return score
+	return {
+		"score": score,
+		"submission": submission.name,
+	}
 
 
 @frappe.whitelist()
-def save_quiz(quiz_title, quiz):
+def save_quiz(quiz_title, max_attempts=1, quiz=None):
+	if not can_create_courses():
+		return
+
+	values = {
+		"title": quiz_title,
+		"max_attempts": max_attempts,
+	}
+
 	if quiz:
-		frappe.db.set_value("LMS Quiz", quiz, "title", quiz_title)
+		print(max_attempts)
+		frappe.db.set_value("LMS Quiz", quiz, values)
 		return quiz
 	else:
 		doc = frappe.new_doc("LMS Quiz")
-		doc.update({"title": quiz_title})
+		doc.update(values)
 		doc.save(ignore_permissions=True)
 		return doc.name
 

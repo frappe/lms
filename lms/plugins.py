@@ -110,19 +110,29 @@ def quiz_renderer(quiz_name):
 		+"</div>"
 
 	quiz = frappe.get_doc("LMS Quiz", quiz_name)
-	context = {"quiz": quiz}
-
 	no_of_attempts = frappe.db.count(
 		"LMS Quiz Submission", {"owner": frappe.session.user, "quiz": quiz_name}
 	)
 
-	if quiz.max_attempts and no_of_attempts >= quiz.max_attempts:
-		last_attempt_score = frappe.db.get_value(
-			"LMS Quiz Submission", {"owner": frappe.session.user, "quiz": quiz_name}, ["score"]
-		)
+	all_submissions = frappe.get_all(
+		"LMS Quiz Submission",
+		{
+			"quiz": quiz.name,
+			"member": frappe.session.user,
+		},
+		["name", "score", "creation"],
+		order_by="creation desc",
+	)
 
-		context.update({"attempts_exceeded": True, "last_attempt_score": last_attempt_score})
-	return frappe.render_template("templates/quiz/quiz.html", context)
+	return frappe.render_template(
+		"templates/quiz/quiz.html",
+		{
+			"quiz": quiz,
+			"no_of_attempts": no_of_attempts,
+			"all_submissions": all_submissions,
+			"no_of_attempts": no_of_attempts,
+		},
+	)
 
 
 def exercise_renderer(argument):

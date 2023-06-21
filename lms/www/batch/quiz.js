@@ -1,8 +1,9 @@
 frappe.ready(() => {
-	$("#quiz-title").focusout((e) => {
-		if ($("#quiz-title").val() != $("#quiz-title").data("title")) {
-			save_quiz({ quiz_title: $("#quiz-title").val() });
-		}
+	$(".btn-save-quiz").click((e) => {
+		save_quiz({
+			quiz_title: $("#quiz-title").val(),
+			max_attempts: $("#max-attempts").val(),
+		});
 	});
 
 	$(".question-row").click((e) => {
@@ -13,26 +14,6 @@ frappe.ready(() => {
 		show_question_modal();
 	});
 });
-
-const show_quiz_modal = () => {
-	let quiz_dialog = new frappe.ui.Dialog({
-		title: __("Create Quiz"),
-		fields: [
-			{
-				fieldtype: "Data",
-				label: __("Quiz Title"),
-				fieldname: "quiz_title",
-				reqd: 1,
-			},
-		],
-		primary_action: (values) => {
-			quiz_dialog.hide();
-			save_quiz(values);
-		},
-	});
-
-	quiz_dialog.show();
-};
 
 const show_question_modal = (values = {}) => {
 	let fields = get_question_fields(values);
@@ -142,6 +123,7 @@ const save_quiz = (values) => {
 		method: "lms.lms.doctype.lms_quiz.lms_quiz.save_quiz",
 		args: {
 			quiz_title: values.quiz_title,
+			max_attempts: values.max_attempts,
 			quiz: $("#quiz-form").data("name") || "",
 		},
 		callback: (data) => {

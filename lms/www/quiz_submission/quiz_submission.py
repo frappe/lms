@@ -24,8 +24,25 @@ def get_context(context):
 			["name", "score", "member", "member_name"],
 			as_dict=True,
 		)
+
 		if not context.is_moderator and frappe.session.user != context.submission.member:
 			raise frappe.PermissionError(_("You don't have permission to access this page."))
 
-		if not context.assignment or not context.submission:
+		if not context.quiz or not context.submission:
 			raise frappe.PermissionError(_("Invalid Submission URL"))
+
+		context.all_submissions = frappe.get_all(
+			"LMS Quiz Submission",
+			{
+				"quiz": context.quiz.name,
+				"member": context.submission.member,
+			},
+			["name", "score", "creation"],
+			order_by="creation desc",
+		)
+
+		context.no_of_attempts = len(context.all_submissions) or 0
+		context.hide_quiz = (
+			context.is_moderator and context.submission.member != frappe.session.user
+		)
+		print(context.no_of_attempts)

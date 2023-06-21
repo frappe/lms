@@ -110,22 +110,21 @@ def get_assignment_details(assessment, member):
 def get_quiz_details(assessment, member):
 	assessment.title = frappe.db.get_value("LMS Quiz", assessment.assessment_name, "title")
 
-	existing_submission = frappe.db.exists(
+	existing_submission = frappe.get_all(
+		"LMS Quiz Submission",
 		{
-			"doctype": "LMS Quiz Submission",
 			"member": member,
 			"quiz": assessment.assessment_name,
-		}
+		},
+		["name", "score"],
+		order_by="creation desc",
 	)
 
-	if existing_submission:
-		assessment.submission = frappe.db.get_value(
-			"LMS Quiz Submission",
-			existing_submission,
-			["name", "score"],
-			as_dict=True,
-		)
+	if len(existing_submission):
+		assessment.submission = existing_submission[0]
 
 	assessment.edit_url = f"/quizzes/{assessment.assessment_name}"
-	submission_name = existing_submission if existing_submission else "new-submission"
+	submission_name = (
+		existing_submission[0].name if len(existing_submission) else "new-submission"
+	)
 	assessment.url = f"/quiz-submission/{assessment.assessment_name}/{submission_name}"

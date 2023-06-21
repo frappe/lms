@@ -3,6 +3,7 @@ frappe.ready(() => {
 	this.answer = [];
 	this.is_correct = [];
 	const self = this;
+	localStorage.removeItem($("#quiz-title").data("name"));
 
 	$(".btn-start-quiz").click((e) => {
 		$("#start-banner").addClass("hide");
@@ -19,15 +20,18 @@ frappe.ready(() => {
 	});
 
 	$("#summary").click((e) => {
+		e.preventDefault();
 		add_to_local_storage();
 		quiz_summary(e);
 	});
 
 	$("#check").click((e) => {
+		e.preventDefault();
 		check_answer(e);
 	});
 
 	$("#next").click((e) => {
+		e.preventDefault();
 		add_to_local_storage();
 		mark_active_question(e);
 	});
@@ -35,15 +39,6 @@ frappe.ready(() => {
 	$("#try-again").click((e) => {
 		try_quiz_again(e);
 	});
-
-	if ($("#quiz-title").data("max-attempts")) {
-		window.addEventListener("beforeunload", (e) => {
-			e.returnValue = "";
-			if ($(".active-question").length && !self.quiz_submitted) {
-				quiz_summary();
-			}
-		});
-	}
 });
 
 const mark_active_question = (e = undefined) => {
@@ -122,13 +117,15 @@ const quiz_summary = (e = undefined) => {
 		callback: (data) => {
 			$(".question").addClass("hide");
 			$("#summary").addClass("hide");
-			$(".quiz-footer").prepend(
-				`<div class="summary">
-                    <div class="font-weight-bold"> ${__("Score")}: ${
-					data.message
-				}/${total_questions} </div>
-                </div>`
+			$(".quiz-footer span").addClass("hide");
+			$("#quiz-form").prepend(
+				`<div class="summary bold-heading text-center">
+					${__("Your score is ")} ${data.message.score} ${__(
+					" out of "
+				)} ${total_questions}
+				</div>`
 			);
+			$("#try-again").data("submission", data.message.submission);
 			$("#try-again").removeClass("hide");
 			self.quiz_submitted = true;
 		},
@@ -136,7 +133,14 @@ const quiz_summary = (e = undefined) => {
 };
 
 const try_quiz_again = (e) => {
-	window.location.reload();
+	if (window.location.href.includes("new-submission")) {
+		window.location.href = window.location.pathname.replace(
+			"new-submission",
+			$
+		);
+	} else {
+		window.location.reload();
+	}
 };
 
 const check_answer = (e = undefined) => {

@@ -20,7 +20,9 @@ def get_context(context):
 	else:
 		fields_arr = ["name", "question", "type"]
 
-		context.quiz = frappe.db.get_value("LMS Quiz", quizname, ["title", "name"], as_dict=1)
+		context.quiz = frappe.db.get_value(
+			"LMS Quiz", quizname, ["title", "name", "max_attempts"], as_dict=1
+		)
 		context.quiz.questions = frappe.get_all(
 			"LMS Quiz Question", {"parent": quizname}, fields_arr, order_by="idx"
 		)

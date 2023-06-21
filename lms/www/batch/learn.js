@@ -3,7 +3,6 @@ frappe.ready(() => {
 	let self = this;
 
 	frappe.telemetry.capture("on_lesson_page", "lms");
-	localStorage.removeItem($("#quiz-title").data("name"));
 
 	fetch_assignments();
 
