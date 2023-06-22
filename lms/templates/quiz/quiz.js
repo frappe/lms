@@ -125,7 +125,7 @@ const quiz_summary = (e = undefined) => {
 				)} ${total_questions}
 				</div>`
 			);
-			$("#try-again").data("submission", data.message.submission);
+			$("#try-again").attr("data-submission", data.message.submission);
 			$("#try-again").removeClass("hide");
 			self.quiz_submitted = true;
 		},
@@ -133,11 +133,12 @@ const quiz_summary = (e = undefined) => {
 };
 
 const try_quiz_again = (e) => {
+	e.preventDefault();
 	if (window.location.href.includes("new-submission")) {
-		window.location.href = window.location.pathname.replace(
-			"new-submission",
-			$
-		);
+		const target = $(e.currentTarget);
+		window.location.href = `/quiz-submission/${target.data(
+			"quiz"
+		)}/${target.data("submission")}`;
 	} else {
 		window.location.reload();
 	}

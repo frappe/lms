@@ -17,6 +17,8 @@ def get_context(context):
 
 	if submission == "new-submission":
 		context.submission = frappe._dict()
+		context.no_of_attempts = 0
+		context.hide_quiz = False
 	else:
 		context.submission = frappe.db.get_value(
 			"LMS Quiz Submission",
@@ -45,4 +47,3 @@ def get_context(context):
 		context.hide_quiz = (
 			context.is_moderator and context.submission.member != frappe.session.user
 		)
-		print(context.no_of_attempts)
