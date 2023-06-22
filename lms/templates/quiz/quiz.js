@@ -136,9 +136,9 @@ const try_quiz_again = (e) => {
 	e.preventDefault();
 	if (window.location.href.includes("new-submission")) {
 		const target = $(e.currentTarget);
-		window.location.href = `/quiz-submission/${target.data(
-			"quiz"
-		)}/${target.data("submission")}`;
+		window.location.href = `/quiz-submission/
+		${target.data("quiz")}/
+		${target.data("submission")}`;
 	} else {
 		window.location.reload();
 	}
