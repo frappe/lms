@@ -120,9 +120,8 @@ const quiz_summary = (e = undefined) => {
 			$(".quiz-footer span").addClass("hide");
 			$("#quiz-form").prepend(
 				`<div class="summary bold-heading text-center">
-					${__("Your score is ")} ${data.message.score} ${__(
-					" out of "
-				)} ${total_questions}
+					${__("Your score is")} ${data.message.score}
+					${__("out of")} ${total_questions}
 				</div>`
 			);
 			$("#try-again").attr("data-submission", data.message.submission);
