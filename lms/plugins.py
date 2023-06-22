@@ -130,7 +130,7 @@ def quiz_renderer(quiz_name):
 			"quiz": quiz,
 			"no_of_attempts": no_of_attempts,
 			"all_submissions": all_submissions,
-			"no_of_attempts": no_of_attempts,
+			"hide_quiz": False,
 		},
 	)
 

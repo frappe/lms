@@ -153,7 +153,6 @@ def save_quiz(quiz_title, max_attempts=1, quiz=None):
 	}
 
 	if quiz:
-		print(max_attempts)
 		frappe.db.set_value("LMS Quiz", quiz, values)
 		return quiz
 	else:
