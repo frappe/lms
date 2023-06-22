@@ -260,49 +260,58 @@
 						{{ _("Create New") }}
 					</div>
 					<p class="field-description">
-						{{ _("To create a new assignment for this class, click on the create assignment button. Once you have created the new assignment you can come back to the class and add the assignment from here.") }}
+						{{ _("To create a new assignment or quiz for this class, click on the buttons below. Once you have created the new assignment or quiz you can come back and add it from here.") }}
 					</p>
-					<div>
+					<div class="flex">
 						<a class="btn btn-default btn-sm" href="/assignments/new-assignment">
 							{{ _("Create Assignment") }}
+						</a>
+						<a class="btn btn-default btn-sm ml-2" href="/quizzes/new-quiz">
+							{{ _("Create Quiz") }}
 						</a>
 					</div>
 				</div>
 
 				<form class="" id="assessment-form">
-					{% if all_assignments | length %}
-						<div>
-							<div class="field-label mb-2">
-								{{ _("Assignments") }}
-							</div>
-							<p class="field-description">
-								{{ _("Select the assignments you wish to include for the assessment of this class. Your selections will be automatically saved upon clicking. If you decide to remove an item from the list, simply uncheck it.") }}
-							</p>
-							{% for assignment in all_assignments %}
-								<div>
-									<label class="vertically-center">
-										<input type="checkbox" class="assessment-item" {% if assignment.checked %} checked {% endif %} value="{{ assignment.name }}" data-type="LMS Assignment" data-name="{{ assignment.name }}">
-										{{ assignment.title }}
-									</label>
+					<div class="field-label mb-2">
+						{{ _("Select Assessments") }}
+					</div>
+					<p class="field-description">
+						{{ _("Select the assessments you wish to include for this class. Your selections will be automatically saved upon clicking. If you decide to remove an item from the list, simply uncheck it.") }}
+					</p>
+					<div class="flex justify-content-between">
+						{% if all_assignments | length %}
+							<div>
+								<div class="field-label mb-2">
+									{{ _("Assignments") }}
 								</div>
-							{% endfor %}
-						</div>
-					{% endif %}
-					<!-- {% if all_quizzes | length %}
-						<div>
-							<div class="field-label mb-2">
-								{{ _("Quiz") }}
+								{% for assignment in all_assignments %}
+									<div>
+										<label class="vertically-center">
+											<input type="checkbox" class="assessment-item" {% if assignment.checked %} checked {% endif %} value="{{ assignment.name }}" data-type="LMS Assignment" data-name="{{ assignment.name }}">
+											{{ assignment.title }}
+										</label>
+									</div>
+								{% endfor %}
 							</div>
-							{% for quiz in all_quizzes %}
-								<div>
-									<label class="vertically-center">
-										<input type="checkbox" class="assessment-item" {% if quiz.checked %} checked {% endif %} value="{{ quiz.name }}" data-type="LMS Quiz" data-name="{{ quiz.name }}">
-										{{ quiz.title }}
-									</label>
+						{% endif %}
+						{% if all_quizzes | length %}
+							<div>
+								<div class="field-label mb-2">
+									{{ _("Quizzes") }}
 								</div>
-							{% endfor %}
-						</div>
-					{% endif %} -->
+								{% for quiz in all_quizzes %}
+									<div>
+										<label class="vertically-center">
+											<input type="checkbox" class="assessment-item" {% if quiz.checked %} checked {% endif %} value="{{ quiz.name }}" data-type="LMS Quiz" data-name="{{ quiz.name }}">
+											{{ quiz.title }}
+										</label>
+									</div>
+								{% endfor %}
+							</div>
+						{% endif %}
+					</div>
+
 				</form>
 
 			</div>

@@ -1,6 +1,6 @@
 {% extends "lms/templates/lms_base.html" %}
 {% block title %}
-    {{ student.first_name }} 's {{ _("Progress") }}
+	{{ student.first_name }}'s {{ _("Progress") }}
 {% endblock %}
 
 
@@ -15,61 +15,93 @@
 
 {% macro Header() %}
 <header class="sticky mb-5">
-    <div class="container form-width">
-        <div class="edit-header">
-            <div>
-                <div class="page-title">
-                    {{ _("{0}'s Progress").format(student.full_name) }}
-                </div>
-                <div class="vertically-center small">
-                    <a class="dark-links" href="/classes">
-                        {{ _("All Classes") }}
-                    </a>
-                    <img class="icon icon-sm mr-0" src="/assets/lms/icons/chevron-right.svg">
+	<div class="container form-width">
+		<div class="edit-header">
+			<div>
+				<div class="page-title">
+					{{ _("{0}").format(student.full_name) }}
+				</div>
+				<div class="vertically-center small">
+					<a class="dark-links" href="/classes">
+						{{ _("All Classes") }}
+					</a>
+					<img class="icon icon-sm mr-0" src="/assets/lms/icons/chevron-right.svg">
 					<a class="dark-links" href="/classes/{{ class_info.name }}">
-                        {{ class_info.name }}
-                    </a>
-                    <img class="icon icon-sm mr-0" src="/assets/lms/icons/chevron-right.svg">
-                    <span class="breadcrumb-destination">{{ _("{0}'s Progress").format(student.full_name) }}</span>
-                </div>
-            </div>
+						{{ class_info.name }}
+					</a>
+					<img class="icon icon-sm mr-0" src="/assets/lms/icons/chevron-right.svg">
+					<span class="breadcrumb-destination">{{ _("Student Progress").format(student.full_name) }}</span>
+				</div>
+			</div>
 
 			{% if is_moderator %}
-            <div class="align-self-center">
-                <a class="btn btn-primary btn-sm btn-evaluate" href=/evaluation/new?member={{student.name}}&date={{frappe.utils.getdate()}}&class={{class_info.name}}">
-                    {{ _("Evaluate") }}
+			<div class="align-self-center">
+				<a class="btn btn-default btn-sm mr-2" href="/users/{{ student.username }}">
+					{{ _("View Profile") }}
 				</a>
-            </div>
+				<a class="btn btn-primary btn-sm btn-evaluate" href=/evaluation/new?member={{student.name}}&date={{frappe.utils.getdate()}}&class={{class_info.name}}">
+					{{ _("Evaluate") }}
+				</a>
+			</div>
 			{% endif %}
 
-        </div>
-    </div>
+		</div>
+	</div>
 </header>
 {% endmacro %}
 
 
 {% macro Progress(class_info, student) %}
 {% if assessments | length %}
-<article>
-	{% for assessment in assessments %}
-	<div class="list-row level">
-		<a {% if is_moderator and assessment.submission or frappe.session.user == student.name %} class="clickable" href="{{ assessment.url }}" {% endif %}>
-			{{ assessment.title }}
-		</a>
-
-		{% if assessment.submission %}
-			{% set status = assessment.submission.status %}
-			{% set color = "green" if status == "Pass" else "red" if status == "Fail" else "orange"  %}
-			<div>
-				<div class="indicator-pill {{ color }}">
-					{{ assessment.submission.status }}
+<article class="form-grid">
+	<div class="grid-heading-row">
+		<div class="grid-row">
+			<div class="data-row row">
+				<div class="col grid-static-col">
+					{{ _("Assessment") }}
+				</div>
+				<div class="col grid-static-col">
+					{{ _("Type") }}
+				</div>
+				<div class="col grid-static-col">
+					{{ _("Status/Score") }}
 				</div>
 			</div>
-		{% else %}
-			<div class="indicator-pill red">
-				{{ _("Not Attempted") }}
+		</div>
+
+	</div>
+	{% for assessment in assessments %}
+	{% set has_access = is_moderator and assessment.submission or frappe.session.user == student.name %}
+	<div class="grid-row">
+		<div class="data-row row">
+			<a class="col grid-static-col {% if has_access %} clickable {% endif %}" {% if has_access %} href="{{ assessment.url }}" {% endif %}>
+				{{ assessment.title }}
+			</a>
+			<div class="col grid-static-col">
+				{{ (assessment.assessment_type).split("LMS ")[1] }}
 			</div>
-		{% endif %}
+
+			<div class="col grid-static-col mb-2">
+				{% if assessment.submission %}
+					{% if assessment.assessment_type == "LMS Assignment" %}
+						{% set status = assessment.submission.status %}
+						{% set color = "green" if status == "Pass" else "red" if status == "Fail" else "orange"  %}
+						<div class="indicator-pill {{ color }}">
+							{{ status }}
+						</div>
+					{% else %}
+						<div>
+							{{ assessment.submission.score }}
+						</div>
+					{% endif %}
+				{% else %}
+					<div class="indicator-pill red">
+						{{ _("Not Attempted") }}
+					</div>
+				{% endif %}
+			</div>
+
+		</div>
 	</div>
 	{% endfor %}
 </article>

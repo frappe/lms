@@ -184,6 +184,10 @@ website_route_rules = [
 		"from_route": "/assignment-submission/<assignment>/<submission>",
 		"to_route": "assignment_submission/assignment_submission",
 	},
+	{
+		"from_route": "/quiz-submission/<quiz>/<submission>",
+		"to_route": "quiz_submission/quiz_submission",
+	},
 ]
 
 website_redirects = [

@@ -1,7 +1,4 @@
 import hashlib
-import random
-import re
-
 import frappe
 import requests
 from frappe import _

@@ -87,8 +87,7 @@
             {% endif %}
         </div>
 
-        <div class="course-home-headings title {% if membership %} is-member {% endif %}
-            {% if membership or is_instructor %} eligible-for-submission {% endif %}" id="title"
+        <div class="course-home-headings title {% if membership %} is-member {% endif %}" id="title"
             data-index="{{ lesson_index }}" data-course="{{ course.name }}" data-chapter="{{ chapter }}"
             {% if lesson.name %} data-lesson="{{ lesson.name }}" {% endif %}
             >{% if lesson.title %}{{ lesson.title }}{% endif %}</div>
@@ -246,6 +245,7 @@
     {{ super() }}
     <script type="text/javascript">
         var page_context = {{ page_context | tojson }};
+        {% include "lms/templates/quiz/quiz.js" %}
     </script>
     {% for ext in page_extensions %}
     {{ ext.render_footer() }}

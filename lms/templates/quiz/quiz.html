@@ -1,16 +1,26 @@
-{% if attempts_exceeded %}
-<div class="">
-	<h2 class="mt-3">
-		{{ quiz.title }}
-	</h2>
-	<div class="alert alert-info medium mb-0">
-		{{ _("You have already exceeded the maximum number of attempts allowed for this quiz.") }}
-		{{ _("Your latest score is {0}.").format(last_attempt_score) }}
-	</div>
-</div>
+{% if not hide_quiz %}
+<div class="mt-4">
+	<ul class="alert alert-info pl-8">
 
-{% else %}
-<div class="">
+		<li>
+			{{ _("This quiz consists of {0} questions.").format(quiz.questions | length) }}
+		</li>
+
+		{% if quiz.max_attempts %}
+			{% set suffix = "times" if quiz.max_attempts > 1 else "time" %}
+			<li>
+				{{ _("You can attempt this quiz only {0} {1}").format(quiz.max_attempts, suffix) }}
+			</li>
+		{% endif %}
+
+		{% if quiz.time %}
+			<li class="alert alert-info medium">
+				{{ _("The quiz has a time limit. For each question you will be given {0} seconds.").format(quiz.time) }}
+			</li>
+		{% endif %}
+		</ul>
+
+
 	<div id="start-banner" class="common-card-style column-card align-items-center">
 
 		<div class="text-center my-10">
@@ -18,29 +28,16 @@
 				{{ quiz.title }}
 			</div>
 
-		<div class="">
-			{{ _("This quiz consists of {0} questions.").format(quiz.questions | length) }}
+			{% if not quiz.max_attempts or no_of_attempts < quiz.max_attempts %}
+			<button class="btn btn-secondary btn-sm btn-start-quiz mt-4">
+				{{ _("Start") }}
+			</button>
+			{% else %}
+			<div>
+				{{ _("You have already exceeded the maximum number of attempts allowed for this quiz.") }}
+			</div>
+			{% endif %}
 		</div>
-
-		{% if quiz.max_attempts %}
-		{% set suffix = "times" if quiz.max_attempts > 1 else "time" %}
-		<div class="alert alert-info medium">
-			{{ _("This quiz can only be taken {0} {1}. If you attempt the quiz but leave the page before submitting,
-			the quiz will be automatically submitted.").format(quiz.max_attempts, suffix) }}
-		</div>
-		{% endif %}
-
-		{% if quiz.time %}
-		<div class="alert alert-info medium">
-			{{ _("The quiz has a time limit. For each question you will be given {0} seconds.").format(quiz.time) }}
-		</div>
-		{% endif %}
-
-		<button class="btn btn-secondary btn-sm btn-start-quiz mt-4">
-			{{ _("Start the Quiz") }}
-		</button>
-		</div>
-
 
 	</div>
 
@@ -108,23 +105,50 @@
 			</div>
 			{% endif %}
 
-
 			<button class="btn btn-secondary btn-sm pull-right" id="check" disabled>
 				{{ _("Check") }}
 			</button>
-			<div class="btn btn-secondary btn-sm hide" id="next">
+			<button class="btn btn-secondary btn-sm hide" id="next">
 				{{ _("Next Question") }}
-			</div>
-			<div class="btn btn-secondary btn-sm hide" id="summary">
+			</button>
+			<button class="btn btn-secondary btn-sm hide" id="summary">
 				{{ _("Submit") }}
-			</div>
-			<small id="submission-message" class="font-weight-bold hide">
-				{{ _("Please join the course to submit the Quiz.") }}
-			</small>
-			<div class="btn btn-secondary btn-sm hide" id="try-again">
+			</button>
+			<button class="btn btn-secondary btn-sm mx-auto hide" id="try-again" data-quiz="{{ quiz.name }}">
 				{{ _("Try Again") }}
-			</div>
+			</button>
 		</div>
 	</form>
 </div>
+{% endif %}
+
+{% if all_submissions | length %}
+<article class="mt-8">
+	<div class="field-label">
+		{{ _("All Submissions") }}
+	</div>
+	<div class="form-grid">
+		<div class="grid-heading-row">
+			<div class="grid-row">
+				<div class="data-row row">
+					<div class="col grid-static-col">{{ _("No.") }}</div>
+					<div class="col grid-static-col">{{ _("Date") }}</div>
+					<div class="col grid-static-col text-right">{{ _("Score") }}</div>
+				</div>
+			</div>
+		</div>
+		<div>
+			{% for submission in all_submissions %}
+			<div class="grid-row">
+				<div class="data-row row">
+					<div class="col grid-static-col">{{ loop.index }}</div>
+					<div class="col grid-static-col">{{ frappe.utils.format_datetime(submission.creation, "medium") }}</div>
+					<div class="col grid-static-col text-right">{{ submission.score }}</div>
+				</div>
+			</div>
+			{% endfor %}
+		</div>
+	</div>
+
+</article>
 {% endif %}

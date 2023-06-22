@@ -1,0 +1,55 @@
+{% extends "lms/templates/lms_base.html" %}
+{% block title %}
+    {{ quiz.title }}
+{% endblock %}
+
+{% block page_content %}
+<main class="common-page-style">
+    {{ Header() }}
+    <div class="container form-width">
+        {{ SubmissionForm(quiz) }}
+    </div>
+</main>
+{% endblock %}
+
+{% macro Header() %}
+<header class="sticky mb-5">
+    <div class="container form-width">
+        <div class="edit-header">
+            <div>
+                <div class="vertically-center">
+                    <div class="page-title">
+                        {{ quiz.title }}
+                    </div>
+                </div>
+                <div class="vertically-center small">
+                    <a class="dark-links" href="/classes">
+                        {{ _("All Classes") }}
+                    </a>
+                    <img class="icon icon-sm mr-0" src="/assets/lms/icons/chevron-right.svg">
+                    <span class="breadcrumb-destination">{{ _("Quiz Submission") }}</span>
+                </div>
+            </div>
+
+
+            <div class="align-self-center">
+                <!-- <button class="btn btn-primary btn-sm btn-save-assignment" {% if quiz.name %} data-quiz="{{ quiz.name }}" {% endif %}
+                    {% if submission.name %} data-submission="{{ submission.name }}" {% endif %}>
+                    {{ _("Save") }}
+                </button> -->
+            </div>
+        </div>
+    </div>
+</header>
+{% endmacro %}
+
+{% macro SubmissionForm(quiz) %}
+    {% include("lms/templates/quiz/quiz.html") %}
+{% endmacro %}
+
+{% block script %}
+    {{ super() }}
+    <script type="text/javascript">
+        {% include "lms/templates/quiz/quiz.js" %}
+    </script>
+{% endblock %}
