@@ -34,22 +34,45 @@
 	<div class="page-title">
 		{{ class_info.title }}
 	</div>
-	<div class="mt-1">
-		<svg class="icon icon-sm">
-			<use href="#icon-calendar"></use>
-		</svg>
-		<span>
-			{{ frappe.utils.format_date(class_info.start_date, "long") }} -
-		</span>
-		<span>
-			{{ frappe.utils.format_date(class_info.end_date, "long") }}
-		</span>
-	</div>
+
 	{% if class_info.description %}
-	<div class="mt-1">
+	<div class="mb-4">
 		{{ class_info.description }}
 	</div>
 	{% endif %}
+
+	<div class="vertically-center">
+		<div class="">
+			<svg class="icon icon-sm">
+				<use href="#icon-calendar"></use>
+			</svg>
+			<span>
+				{{ frappe.utils.format_date(class_info.start_date, "long") }} -
+			</span>
+			<span>
+				{{ frappe.utils.format_date(class_info.end_date, "long") }}
+			</span>
+		</div>
+
+		<span class="seperator"></span>
+
+		<div class="">
+			<svg class="icon icon-md">
+				<use href="#icon-education"></use>
+			</svg>
+				{{ class_courses | length }} {{ _("Courses") }}
+		</div>
+
+		<span class="seperator"></span>
+
+		<div class="">
+			<svg class="icon icon-md">
+				<use href="#icon-users"></use>
+			</svg>
+				{{ class_students | length }} {{ _("Students") }}
+		</div>
+	</div>
+
 
 	{% if class_info.custom_component %}
 		{{ class_info.custom_component }}
@@ -155,20 +178,9 @@
 	</header>
 
 	{% if class_courses | length %}
-	<div>
+	<div class="cards-parent">
 		{% for course in class_courses %}
-		<div class="list-row level">
-			<a class="clickable" href="/courses/{{ course.course }}">
-				{{ course.title }}
-			</a>
-			{% if is_moderator %}
-			<div type="button" class="btn-remove-course" data-course="{{ course.course }}">
-				<svg class="icon icon-sm">
-					<use href="#icon-delete"></use>
-				</svg>
-			</div>
-			{% endif %}
-		</div>
+		{{ widgets.CourseCard(course=course, read_only=False) }}
 		{% endfor %}
 	</div>
 	{% else %}
@@ -176,7 +188,6 @@
 		{{ _("No courses") }}
 	</div>
 	{% endif %}
-
 
 </article>
 {% endmacro %}
@@ -198,24 +209,71 @@
 	</header>
 
 	{% if class_students | length %}
-	<div>
+	<div class="form-grid">
+		<div class="grid-heading-row">
+			<div class="grid-row">
+				<div class="data-row row">
+					<div class="col grid-static-col">
+						{{ _("Full Name") }}
+					</div>
+					<div class="col grid-static-col col-xs-2 text-right">
+						{{ _("Courses Completed") }}
+					</div>
+					<div class="col grid-static-col col-xs-2 text-right">
+						{{ _("Assessments Completed") }}
+					</div>
+					<div class="col grid-static-col col-xs-2 text-right">
+						{{ _("Assessments Graded") }}
+					</div>
+					<div class="col grid-static-col">
+						{{ _("Last Active") }}
+					</div>
+					{% if is_moderator %}
+					<div class="col grid-static-col col-xs-1">
+						<svg class="icon  icon-sm" style="filter: opacity(0.5)">
+							<use class="" href="#icon-setting-gear"></use>
+						</svg>
+					</div>
+					{% endif %}
+				</div>
+			</div>
+		</div>
 		{% for student in class_students %}
-		{% set last_active = frappe.db.get_value("User", student.student, "last_active") %}
 		{% set allow_progress = is_moderator or student.student == frappe.session.user %}
-
-		<div class="list-row level">
-			<div>
-				<a {% if allow_progress %} class="clickable" href="/classes/{{ class_info.name }}/students/{{ student.username }}" {% endif %}>
+		<div class="grid-row">
+			<div class="data-row row">
+				<a class="col grid-static-col {% if allow_progress %} clickable {% endif %}" {% if allow_progress %} href="/classes/{{ class_info.name }}/students/{{ student.username }}" {% endif %}>
 					{{ student.student_name }}
 				</a>
+				<div class="col grid-static-col col-xs-2 text-right">
+					{{ student.courses_completed }}
+				</div>
+				<div class="col grid-static-col col-xs-2 text-right">
+					{{ student.assessments_completed }}
+				</div>
+				<div class="col grid-static-col col-xs-2 text-right">
+					{{ student.assessments_graded }}
+				</div>
+				<div class="col grid-static-col">
+					{{ frappe.utils.format_datetime(student.last_active, "medium") }}
+				</div>
+				{% if is_moderator %}
+				<div type="button" class="col grid-static-col col-xs-1 btn-remove-student" data-student="{{ student.student }}">
+					<svg class="icon icon-sm">
+						<use href="#icon-delete"></use>
+					</svg>
+				</div>
+				{% endif %}
 			</div>
-			{% if is_moderator %}
-			<div type="button" class="btn-remove-student" data-student="{{ student.student }}">
-				<svg class="icon icon-sm">
-					<use href="#icon-delete"></use>
-				</svg>
-			</div>
-			{% endif %}
+
+			<!-- <div class="progress w-25">
+				<div class="progress-bar" role="progressbar" aria-valuenow="{{ student.course_completion }}"
+				aria-valuemin="0" aria-valuemax="100" style="width:{{ student.course_completion }}%">
+				<span class="sr-only"> {{ student.course_completion }} {{ _("Complete") }} </span>
+				</div>
+			</div> -->
+
+
 		</div>
 
 		{% endfor %}
@@ -239,13 +297,13 @@
 		</button>
 		{% endif %}
 	</header>
-	{{ CreateAssessment() }}
+	<!-- {{ ManageAssessments() }} -->
 	{{ AssessmentList(assessments) }}
 </article>
 {% endmacro %}
 
 
-{% macro CreateAssessment() %}
+{% macro ManageAssessments() %}
 {% if is_moderator %}
 <div class="modal fade assessment-modal" id="assessment-modal" tabindex="-1" role="dialog">
 	<div class="modal-dialog" role="document">
@@ -279,35 +337,48 @@
 					<p class="field-description">
 						{{ _("Select the assessments you wish to include for this class. Your selections will be automatically saved upon clicking. If you decide to remove an item from the list, simply uncheck it.") }}
 					</p>
-					<div class="flex justify-content-between">
+					<div class="">
 						{% if all_assignments | length %}
 							<div>
-								<div class="field-label mb-2">
+								<div class="clickable flex align-center field-label mb-2" data-toggle="collapse" data-target="#assignments-list">
 									{{ _("Assignments") }}
+									<svg class="icon icon-sm ml-2">
+										<use class="mb-1" href="#icon-down"></use>
+									</svg>
 								</div>
-								{% for assignment in all_assignments %}
-									<div>
-										<label class="vertically-center">
-											<input type="checkbox" class="assessment-item" {% if assignment.checked %} checked {% endif %} value="{{ assignment.name }}" data-type="LMS Assignment" data-name="{{ assignment.name }}">
-											{{ assignment.title }}
-										</label>
-									</div>
-								{% endfor %}
+								<div id="assignments-list" class="collapse">
+									{% for assignment in all_assignments %}
+										<div>
+											<label class="vertically-center">
+												<input type="checkbox" class="assessment-item" {% if assignment.checked %} checked {% endif %} value="{{ assignment.name }}" data-type="LMS Assignment" data-name="{{ assignment.name }}">
+												{{ assignment.title }}
+											</label>
+										</div>
+									{% endfor %}
+								</div>
+								<hr>
 							</div>
 						{% endif %}
 						{% if all_quizzes | length %}
 							<div>
-								<div class="field-label mb-2">
-									{{ _("Quizzes") }}
-								</div>
-								{% for quiz in all_quizzes %}
+								<div class="clickable flex align-center field-label mb-2" data-toggle="collapse" data-target="#quiz-list">
 									<div>
-										<label class="vertically-center">
-											<input type="checkbox" class="assessment-item" {% if quiz.checked %} checked {% endif %} value="{{ quiz.name }}" data-type="LMS Quiz" data-name="{{ quiz.name }}">
-											{{ quiz.title }}
-										</label>
+										{{ _("Quizzes") }}
 									</div>
-								{% endfor %}
+									<svg class="icon icon-sm ml-2">
+										<use class="mb-1" href="#icon-down"></use>
+									</svg>
+								</div>
+								<div id="quiz-list" class="collapse">
+									{% for quiz in all_quizzes %}
+										<div>
+											<label class="vertically-center">
+												<input type="checkbox" class="assessment-item" {% if quiz.checked %} checked {% endif %} value="{{ quiz.name }}" data-type="LMS Quiz" data-name="{{ quiz.name }}">
+												{{ quiz.title }}
+											</label>
+										</div>
+									{% endfor %}
+								</div>
 							</div>
 						{% endif %}
 					</div>
@@ -317,7 +388,7 @@
 			</div>
 
 			<div class="modal-footer">
-				<button class="btn btn-primary btn-sm btn-assessment-close" data-dismiss="modal" aria-label="Close">
+				<button class="btn btn-primary btn-sm btn-close" data-dismiss="modal" aria-label="Close">
 					{{ _("Done") }}
 				</button>
 			</div>
@@ -329,27 +400,36 @@
 
 {% macro AssessmentList(assessments) %}
 {% if assessments | length %}
-	<div>
-		<div class="list-row level level-left small">
-			<div class="w-25">
-				{{ _("Title") }}
-			</div>
-			<div class="">
-				{{ _("Type") }}
-			</div>
-		</div>
-		{% for assessment in assessments %}
-		<div class="list-row level level-left">
-			<div class="w-25">
-				<a class="clickable" href="{{ assessment.edit_url }}">
-					{{ assessment.title }}
-				</a>
-			</div>
-			<div class="">
-				{{ assessment.assessment_type.split("LMS ")[1] }}
+	<div class="form-grid">
+		<div class="grid-heading-row">
+			<div class="grid-row">
+				<div class="row data-row">
+					<div class="col grid-static-col">
+						{{ _("Title") }}
+					</div>
+					<div class="col grid-static-col">
+						{{ _("Type") }}
+					</div>
+				</div>
 			</div>
 		</div>
-		{% endfor %}
+
+		<div class="grid-body">
+			<div class="rows">
+				{% for assessment in assessments %}
+					<div class="grid-row">
+						<div class="row data-row">
+							<a class="col grid-static-col clickable" href="{{ assessment.edit_url }}">
+								{{ assessment.title }}
+							</a>
+							<div class="col grid-static-col">
+								{{ assessment.assessment_type.split("LMS ")[1] }}
+							</div>
+						</div>
+					</div>
+				{% endfor %}
+			</div>
+		</div>
 	</div>
 	{% else %}
 	<p class="text-muted mt-3"> {{ _("No Assessments") }} </p>
@@ -376,7 +456,6 @@
 
 
 {% macro CreateLiveClass(class_info) %}
-
 {% if is_moderator %}
 <div class="modal fade live-class-modal" id="live-class-modal" tabindex="-1" role="dialog">
 	<div class="modal-dialog" role="document">
@@ -404,7 +483,6 @@
 	</div>
 </div>
 {% endif %}
-
 {% endmacro %}
 
 
@@ -412,52 +490,51 @@
 <div class="lms-card-parent mt-5">
 	{% if live_classes | length %}
 	{% for class in live_classes %}
-	<div class="lms-card">
+		<div class="common-card-style column-card">
 
-		<div class="mb-0">
-			<div class="dropdown pull-right">
-				<svg class="icon icon-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-					<use href="#icon-dot-horizontal"></use>
+			<div class="mb-0">
+				<div class="dropdown pull-right">
+					<svg class="icon icon-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						<use href="#icon-dot-horizontal"></use>
+					</svg>
+					<ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+						{% if class.owner == frappe.session.user %}
+						<li>
+							<a class="dropdown-item small" href="{{ class.start_url }}"> {{ _("Start") }} </a>
+						</li>
+						{% endif %}
+						{% if is_student %}
+						<li>
+							<a class="dropdown-item small" href="{{ class.join_url }}"> {{ _("Join") }} </a>
+						</li>
+						{% endif %}
+					</ul>
+				</div>
+				<div class="bold-heading mb-4">
+					{{ class.title }}
+				</div>
+			</div>
+			<div>
+				<svg class="icon icon-sm">
+					<use href="#icon-calendar"></use>
 				</svg>
-				<ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-					{% if class.owner == frappe.session.user %}
-					<li>
-						<a class="dropdown-item small" href="{{ class.start_url }}"> {{ _("Start") }} </a>
-					</li>
-					{% endif %}
-					{% if is_student %}
-					<li>
-						<a class="dropdown-item small" href="{{ class.join_url }}"> {{ _("Join") }} </a>
-					</li>
-					{% endif %}
-
-				</ul>
+				{{ frappe.utils.format_date(class.date, "full") }}
 			</div>
-			<div class="lms-card-title mb-4">
-				{{ class.title }}
+			<div>
+				<svg class="icon icon-sm">
+					<use href="#icon-clock"></use>
+				</svg>
+				{{ frappe.utils.format_time(class.time, "hh:mm a") }}
 			</div>
-		</div>
-		<div>
-			<svg class="icon icon-sm">
-				<use href="#icon-calendar"></use>
-			</svg>
-			{{ frappe.utils.format_date(class.date, "full") }}
-		</div>
-		<div>
-			<svg class="icon icon-sm">
-				<use href="#icon-clock"></use>
-			</svg>
-			{{ frappe.utils.format_time(class.time, "hh:mm a") }}
-		</div>
 
-		<div class="mt-4">
-			{{ class.description }}
-		</div>
+			<div class="mt-4">
+				{{ class.description }}
+			</div>
 
-	</div>
+		</div>
 	{% endfor %}
 	{% else %}
-	<p class=""> {{ _("No Live Classes") }} </p>
+		<p class=""> {{ _("No Live Classes") }} </p>
 	{% endif %}
 </div>
 {% endmacro %}
@@ -468,9 +545,11 @@
 	<script>
 		frappe.boot.user = {
 			"can_create": [],
-			"can_select": ["User", "LMS Category"],
-			"can_read": ["User", "LMS Category"]
+			"can_select": ["User", "LMS Category", "LMS Assignment", "LMS Quiz"],
+			"can_read": ["User", "LMS Category", "LMS Assignment", "LMS Quiz"]
 		};
+
+		frappe.boot.single_types = []
 
 		frappe.router = {
 			slug (name) {

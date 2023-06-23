@@ -93,36 +93,36 @@
 	{% set course_count = frappe.db.count("Class Course", {"parent": class.name}) %}
 	{% set student_count = frappe.db.count("Class Student", {"parent": class.name}) %}
 
-	<div class="lms-card">
+	<div class="common-card-style column-card">
 
-		<div class="lms-card-title mb-4">
+		<div class="bold-heading mb-2">
 			{{ class.title }}
 		</div>
 
-		<!-- <div class="text-muted small mb-4">
-			{% if course_count %}
-			<span class="mr-3">
-				{{ course_count }} {{ _("Courses") }}
-			</span>
-			{% endif %}
-
-			{% if student_count %}
-			<span>
-				{{ student_count }} {{ _("Students") }}
-			</span>
-			{% endif %}
-		</div> -->
-
-		<div class="">
+		<div class="mb-1">
 			<svg class="icon icon-sm">
 				<use href="#icon-calendar"></use>
 			</svg>
 			<span>
-				{{ frappe.utils.format_date(class.start_date, "long") }} -
+				{{ frappe.utils.format_date(class.start_date, "medium") }} -
 			</span>
 			<span>
-				{{ frappe.utils.format_date(class.end_date, "long") }}
+				{{ frappe.utils.format_date(class.end_date, "medium") }}
 			</span>
+		</div>
+
+		<div class="mb-1">
+			<svg class="icon icon-md">
+				<use href="#icon-education"></use>
+			</svg>
+				{{ course_count }} {{ _("Courses") }}
+		</div>
+
+		<div class="mb-1">
+			<svg class="icon icon-md">
+				<use href="#icon-users"></use>
+			</svg>
+				{{ student_count }} {{ _("Students") }}
 		</div>
 
 		<a class="stretched-link" href="/classes/{{ class.name }}"></a>

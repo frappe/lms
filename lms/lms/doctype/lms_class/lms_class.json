@@ -50,7 +50,8 @@
   {
    "fieldname": "description",
    "fieldtype": "Small Text",
-   "label": "Description"
+   "label": "Description",
+   "reqd": 1
   },
   {
    "fieldname": "section_break_6",
@@ -137,7 +138,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-06-15 12:30:26.929156",
+ "modified": "2023-06-22 15:57:25.190084",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Class",

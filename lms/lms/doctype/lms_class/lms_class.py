@@ -8,6 +8,7 @@ from frappe.utils import cint, format_date, format_datetime
 import requests
 import base64
 import json
+from lms.lms.utils import has_course_moderator_role
 
 
 class LMSClass(Document):
@@ -188,6 +189,9 @@ def create_class(
 
 @frappe.whitelist()
 def update_assessment(type, name, value, class_name):
+	if not has_course_moderator_role():
+		return
+
 	value = cint(value)
 	filters = {
 		"assessment_type": type,

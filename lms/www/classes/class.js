@@ -32,14 +32,15 @@ frappe.ready(() => {
 
 	$("#open-assessment-modal").click((e) => {
 		e.preventDefault();
-		$("#assessment-modal").modal("show");
+		show_assessment_modal();
+		/* $("#assessment-modal").modal("show"); */
 	});
 
 	$(".assessment-item").click((e) => {
 		update_assessment(e);
 	});
 
-	$(".btn-assessment-close").click((e) => {
+	$(".btn-close").click((e) => {
 		window.location.reload();
 	});
 });
@@ -349,12 +350,6 @@ const show_course_modal = () => {
 				fieldname: "course",
 				reqd: 1,
 			},
-			{
-				fieldtype: "HTML",
-				fieldname: "instructions",
-				label: __("Instructions"),
-				options: __("Select a course to add to this class."),
-			},
 		],
 		primary_action_label: __("Add"),
 		primary_action(values) {
@@ -384,10 +379,6 @@ const show_course_modal = () => {
 		},
 	});
 	course_modal.show();
-	setTimeout(() => {
-		$(".modal-body").css("min-height", "200px");
-		$(".modal-body input").focus();
-	}, 1000);
 };
 
 const remove_course = (e) => {
@@ -426,14 +417,6 @@ const show_student_modal = () => {
 					ignore_user_type: 1,
 				},
 			},
-			{
-				fieldtype: "HTML",
-				fieldname: "instructions",
-				label: __("Instructions"),
-				options: __(
-					"Please ensure a user account exists for the student before adding them to the class. Only users can be enrolled as students."
-				),
-			},
 		],
 		primary_action_label: __("Add"),
 		primary_action(values) {
@@ -463,20 +446,61 @@ const show_student_modal = () => {
 		},
 	});
 	student_modal.show();
-	setTimeout(() => {
-		$(".modal-body").css("min-height", "200px");
-		$(".modal-body input").focus();
-	}, 1000);
 };
 
-const update_assessment = (e) => {
-	frappe.call({
-		method: "lms.lms.doctype.lms_class.lms_class.update_assessment",
-		args: {
-			type: $(e.currentTarget).data("type"),
-			name: $(e.currentTarget).data("name"),
-			value: $(e.currentTarget).prop("checked") ? 1 : 0,
-			class_name: $(".class-details").data("class"),
+const show_assessment_modal = (e) => {
+	let assessment_modal = new frappe.ui.Dialog({
+		title: "Manage Assessments",
+		fields: [
+			{
+				fieldtype: "Link",
+				options: "DocType",
+				label: __("Assessment Type"),
+				fieldname: "assessment_type",
+				reqd: 1,
+				get_query: () => {
+					return {
+						filters: {
+							name: ["in", ["LMS Assignment", "LMS Quiz"]],
+						},
+					};
+				},
+			},
+			{
+				fieldtype: "Dynamic Link",
+				options: "assessment_type",
+				label: __("Assessment"),
+				fieldname: "assessment_name",
+				reqd: 1,
+			},
+		],
+		primary_action_label: __("Add"),
+		primary_action(values) {
+			frappe.call({
+				method: "frappe.client.insert",
+				args: {
+					doc: {
+						doctype: "LMS Assessment",
+						assessment_type: values.assessment_type,
+						assessment_name: values.assessment_name,
+						parenttype: "LMS Class",
+						parentfield: "assessments",
+						parent: $(".class-details").data("class"),
+					},
+				},
+				callback(r) {
+					frappe.show_alert(
+						{
+							message: __("Assessment Added"),
+							indicator: "green",
+						},
+						3
+					);
+					window.location.reload();
+				},
+			});
+			assessment_modal.hide();
 		},
 	});
+	assessment_modal.show();
 };

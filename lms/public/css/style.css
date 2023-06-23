@@ -374,8 +374,16 @@ input[type=checkbox] {
 .course-card-title {
 	font-weight: 600;
 	color: var(--gray-900);
-	margin-bottom: 1.25rem;
 	font-size: 1.125rem;
+}
+
+.short-introduction {
+	text-overflow: ellipsis;
+	width: 100%;
+	overflow: hidden;
+	white-space: nowrap;
+	margin-bottom: 1.25rem;
+
 }
 
 .card-divider {
@@ -1385,6 +1393,10 @@ pre {
   margin: 0 1rem;
 }
 
+.seperator::after {
+	content: "\00B7";
+}
+
 .course-overlay-card {
 	background-color: white;
 	border-radius: var(--border-radius-lg);
@@ -1890,6 +1902,14 @@ li {
 	padding: 0 1rem !important;
 }
 
+.modal-dialog-scrollable .modal-body {
+	overflow-y: unset;
+}
+
+.modal-dialog-scrollable .modal-content {
+	overflow: unset;
+}
+
 .modal-header, .modal-body {
 	margin-bottom: 0.5rem !important;
 }
@@ -2167,4 +2187,10 @@ select {
 
 .awesomplete ul li:last-child {
 	display: none;
+}
+
+.students-parent {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, 150px);
+	grid-gap: 1rem;
 }
