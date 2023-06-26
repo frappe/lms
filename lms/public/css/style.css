@@ -2196,3 +2196,12 @@ select {
 	grid-template-columns: repeat(auto-fill, 150px);
 	grid-gap: 1rem;
 }
+
+.btn-remove-course {
+	opacity: 0;
+	margin-top: 0.25rem;
+}
+
+.btn-remove-course:hover {
+	opacity: 1;
+}

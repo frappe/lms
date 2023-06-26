@@ -48,7 +48,7 @@ def get_context(context):
 	class_students = frappe.get_all(
 		"Class Student",
 		{"parent": class_name},
-		["student", "student_name", "username"],
+		["name", "student", "student_name", "username"],
 		order_by="creation desc",
 	)
 

@@ -180,7 +180,15 @@
 	{% if class_courses | length %}
 	<div class="cards-parent">
 		{% for course in class_courses %}
-		{{ widgets.CourseCard(course=course, read_only=False) }}
+		<div>
+			{{ widgets.CourseCard(course=course, read_only=False) }}
+			<button class="btn icon-btn btn-default btn-block btn-remove-course" data-course="{{ course.name }}">
+				<svg class="icon icon-sm">
+					<use href="#icon-delete"></use>
+				</svg>
+			</button>
+		</div>
+
 		{% endfor %}
 	</div>
 	{% else %}
@@ -230,7 +238,7 @@
 					</div>
 					{% if is_moderator %}
 					<div class="col grid-static-col col-xs-1">
-						<svg class="icon  icon-sm" style="filter: opacity(0.5)">
+						<svg class="icon icon-sm" style="filter: opacity(0.5)">
 							<use class="" href="#icon-setting-gear"></use>
 						</svg>
 					</div>
@@ -255,7 +263,7 @@
 					{{ student.assessments_graded }}
 				</div>
 				<div class="col grid-static-col">
-					{{ frappe.utils.format_datetime(student.last_active, "medium") }}
+					{{ frappe.utils.pretty_date(student.last_active) }}
 				</div>
 				{% if is_moderator %}
 				<div type="button" class="col grid-static-col col-xs-1 btn-remove-student" data-student="{{ student.student }}">
@@ -265,17 +273,7 @@
 				</div>
 				{% endif %}
 			</div>
-
-			<!-- <div class="progress w-25">
-				<div class="progress-bar" role="progressbar" aria-valuenow="{{ student.course_completion }}"
-				aria-valuemin="0" aria-valuemax="100" style="width:{{ student.course_completion }}%">
-				<span class="sr-only"> {{ student.course_completion }} {{ _("Complete") }} </span>
-				</div>
-			</div> -->
-
-
 		</div>
-
 		{% endfor %}
 	</div>
 	{% else %}
@@ -297,105 +295,8 @@
 		</button>
 		{% endif %}
 	</header>
-	<!-- {{ ManageAssessments() }} -->
 	{{ AssessmentList(assessments) }}
 </article>
-{% endmacro %}
-
-
-{% macro ManageAssessments() %}
-{% if is_moderator %}
-<div class="modal fade assessment-modal" id="assessment-modal" tabindex="-1" role="dialog">
-	<div class="modal-dialog" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<div class="modal-title">{{ _("Manage Assessments") }}</div>
-			</div>
-
-			<div class="modal-body">
-				<div class="mb-5">
-					<div class="field-label">
-						{{ _("Create New") }}
-					</div>
-					<p class="field-description">
-						{{ _("To create a new assignment or quiz for this class, click on the buttons below. Once you have created the new assignment or quiz you can come back and add it from here.") }}
-					</p>
-					<div class="flex">
-						<a class="btn btn-default btn-sm" href="/assignments/new-assignment">
-							{{ _("Create Assignment") }}
-						</a>
-						<a class="btn btn-default btn-sm ml-2" href="/quizzes/new-quiz">
-							{{ _("Create Quiz") }}
-						</a>
-					</div>
-				</div>
-
-				<form class="" id="assessment-form">
-					<div class="field-label mb-2">
-						{{ _("Select Assessments") }}
-					</div>
-					<p class="field-description">
-						{{ _("Select the assessments you wish to include for this class. Your selections will be automatically saved upon clicking. If you decide to remove an item from the list, simply uncheck it.") }}
-					</p>
-					<div class="">
-						{% if all_assignments | length %}
-							<div>
-								<div class="clickable flex align-center field-label mb-2" data-toggle="collapse" data-target="#assignments-list">
-									{{ _("Assignments") }}
-									<svg class="icon icon-sm ml-2">
-										<use class="mb-1" href="#icon-down"></use>
-									</svg>
-								</div>
-								<div id="assignments-list" class="collapse">
-									{% for assignment in all_assignments %}
-										<div>
-											<label class="vertically-center">
-												<input type="checkbox" class="assessment-item" {% if assignment.checked %} checked {% endif %} value="{{ assignment.name }}" data-type="LMS Assignment" data-name="{{ assignment.name }}">
-												{{ assignment.title }}
-											</label>
-										</div>
-									{% endfor %}
-								</div>
-								<hr>
-							</div>
-						{% endif %}
-						{% if all_quizzes | length %}
-							<div>
-								<div class="clickable flex align-center field-label mb-2" data-toggle="collapse" data-target="#quiz-list">
-									<div>
-										{{ _("Quizzes") }}
-									</div>
-									<svg class="icon icon-sm ml-2">
-										<use class="mb-1" href="#icon-down"></use>
-									</svg>
-								</div>
-								<div id="quiz-list" class="collapse">
-									{% for quiz in all_quizzes %}
-										<div>
-											<label class="vertically-center">
-												<input type="checkbox" class="assessment-item" {% if quiz.checked %} checked {% endif %} value="{{ quiz.name }}" data-type="LMS Quiz" data-name="{{ quiz.name }}">
-												{{ quiz.title }}
-											</label>
-										</div>
-									{% endfor %}
-								</div>
-							</div>
-						{% endif %}
-					</div>
-
-				</form>
-
-			</div>
-
-			<div class="modal-footer">
-				<button class="btn btn-primary btn-sm btn-close" data-dismiss="modal" aria-label="Close">
-					{{ _("Done") }}
-				</button>
-			</div>
-		</div>
-	</div>
-</div>
-{% endif %}
 {% endmacro %}
 
 {% macro AssessmentList(assessments) %}
@@ -409,6 +310,11 @@
 					</div>
 					<div class="col grid-static-col">
 						{{ _("Type") }}
+					</div>
+					<div class="col grid-static-col col-xs-1">
+						<svg class="icon icon-sm" style="filter: opacity(0.5)">
+							<use href="#icon-setting-gear"></use>
+						</svg>
 					</div>
 				</div>
 			</div>
@@ -424,6 +330,11 @@
 							</a>
 							<div class="col grid-static-col">
 								{{ assessment.assessment_type.split("LMS ")[1] }}
+							</div>
+							<div type="button" class="col grid-static-col col-xs-1 btn-remove-assessment" data-assessment="{{ assessment.assessment_name }}">
+								<svg class="icon icon-sm">
+									<use href="#icon-delete"></use>
+								</svg>
 							</div>
 						</div>
 					</div>
