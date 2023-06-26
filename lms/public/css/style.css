@@ -378,12 +378,14 @@ input[type=checkbox] {
 }
 
 .short-introduction {
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
 	text-overflow: ellipsis;
 	width: 100%;
 	overflow: hidden;
 	white-space: nowrap;
 	margin-bottom: 1.25rem;
-
 }
 
 .card-divider {

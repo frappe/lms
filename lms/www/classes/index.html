@@ -1,6 +1,6 @@
 {% extends "lms/templates/lms_base.html" %}
 {% block title %}
-    {{  _("All Classes") }}
+	{{  _("All Classes") }}
 {% endblock %}
 
 {% block page_content %}
@@ -93,13 +93,19 @@
 	{% set course_count = frappe.db.count("Class Course", {"parent": class.name}) %}
 	{% set student_count = frappe.db.count("Class Student", {"parent": class.name}) %}
 
-	<div class="common-card-style column-card">
+	<div class="common-card-style column-card" style="min-height: 150px;">
 
-		<div class="bold-heading mb-2">
+		<div class="bold-heading">
 			{{ class.title }}
 		</div>
 
-		<div class="mb-1">
+		{% if class.description %}
+		<div class="short-introduction">
+			{{ class.description }}
+		</div>
+		{% endif %}
+
+		<div class="mt-auto mb-1">
 			<svg class="icon icon-sm">
 				<use href="#icon-calendar"></use>
 			</svg>
