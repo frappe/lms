@@ -2,13 +2,12 @@
 # For license information, please see license.txt
 
 import frappe
-from frappe.model.document import Document
-from frappe import _
-from frappe.utils import cint, format_date, format_datetime
 import requests
 import base64
 import json
-from lms.lms.utils import has_course_moderator_role
+from frappe import _
+from frappe.model.document import Document
+from frappe.utils import cint, format_date, format_datetime
 
 
 class LMSClass(Document):
@@ -41,16 +40,16 @@ class LMSClass(Document):
 
 	def validate_duplicate_assessments(self):
 		assessments = [row.assessment_name for row in self.assessment]
-		duplicates = {
-			assessment for assessment in assessments if assessments.count(assessment) > 1
-		}
-		if len(duplicates):
-			title = frappe.db.get_value("LMS Assessment", next(iter(duplicates)), "title")
-			frappe.throw(
-				_("Assessment {0} has already been added to this class.").format(
-					frappe.bold(next(iter(duplicates)))
+		for assessment in self.assessment:
+			if assessments.count(assessment.assessment_name) > 1:
+				title = frappe.db.get_value(
+					assessment.assessment_type, assessment.assessment_name, "title"
 				)
-			)
+				frappe.throw(
+					_("Assessment {0} has already been added to this class.").format(
+						frappe.bold(title)
+					)
+				)
 
 	def validate_membership(self):
 		for course in self.courses:

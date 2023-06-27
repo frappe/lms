@@ -2205,3 +2205,9 @@ select {
 .btn-remove-course:hover {
 	opacity: 1;
 }
+
+.rows .grid-row .data-row,
+.rows .grid-row .grid-footer-toolbar,
+.grid-form-heading {
+	cursor: none;
+}
