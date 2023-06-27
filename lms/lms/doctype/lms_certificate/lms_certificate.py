@@ -14,7 +14,8 @@ class LMSCertificate(Document):
 
 	def validate_duplicate_certificate(self):
 		certificates = frappe.get_all(
-			"LMS Certificate", {"member": self.member, "course": self.course}
+			"LMS Certificate",
+			{"member": self.member, "course": self.course, "name": ["!=", self.name]},
 		)
 		if len(certificates):
 			full_name = frappe.db.get_value("User", self.member, "full_name")
