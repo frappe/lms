@@ -2,19 +2,21 @@
 # For license information, please see license.txt
 
 import frappe
-from frappe.model.document import Document
-from frappe import _
-from frappe.utils import cint, format_date, format_datetime
 import requests
 import base64
 import json
+from frappe import _
+from frappe.model.document import Document
+from frappe.utils import cint, format_date, format_datetime
 
 
 class LMSClass(Document):
 	def validate(self):
 		if self.seat_count:
 			self.validate_seats_left()
+		self.validate_duplicate_courses()
 		self.validate_duplicate_students()
+		self.validate_duplicate_assessments()
 		self.validate_membership()
 
 	def validate_duplicate_students(self):
@@ -26,6 +28,28 @@ class LMSClass(Document):
 					frappe.bold(next(iter(duplicates)))
 				)
 			)
+
+	def validate_duplicate_courses(self):
+		courses = [row.course for row in self.courses]
+		duplicates = {course for course in courses if courses.count(course) > 1}
+		if len(duplicates):
+			title = frappe.db.get_value("LMS Course", next(iter(duplicates)), "title")
+			frappe.throw(
+				_("Course {0} has already been added to this class.").format(frappe.bold(title))
+			)
+
+	def validate_duplicate_assessments(self):
+		assessments = [row.assessment_name for row in self.assessment]
+		for assessment in self.assessment:
+			if assessments.count(assessment.assessment_name) > 1:
+				title = frappe.db.get_value(
+					assessment.assessment_type, assessment.assessment_name, "title"
+				)
+				frappe.throw(
+					_("Assessment {0} has already been added to this class.").format(
+						frappe.bold(title)
+					)
+				)
 
 	def validate_membership(self):
 		for course in self.courses:
@@ -44,42 +68,21 @@ class LMSClass(Document):
 
 
 @frappe.whitelist()
-def add_student(email, class_name):
-	if not frappe.db.exists("User", email):
-		frappe.throw(_("There is no such user. Please create a user with this Email ID."))
-
-	filters = {
-		"student": email,
-		"parent": class_name,
-		"parenttype": "LMS Class",
-		"parentfield": "students",
-	}
-	if frappe.db.exists("Class Student", filters):
-		frappe.throw(
-			_("Student {0} has already been added to this class.").format(frappe.bold(email))
-		)
-
-	frappe.get_doc(
-		{
-			"doctype": "Class Student",
-			"student": email,
-			"student_name": frappe.db.get_value("User", email, "full_name"),
-			"parent": class_name,
-			"parenttype": "LMS Class",
-			"parentfield": "students",
-		}
-	).save()
-	return True
-
-
-@frappe.whitelist()
 def remove_student(student, class_name):
+	frappe.only_for("Moderator")
 	frappe.db.delete("Class Student", {"student": student, "parent": class_name})
 
 
 @frappe.whitelist()
 def remove_course(course, parent):
+	frappe.only_for("Moderator")
 	frappe.db.delete("Class Course", {"course": course, "parent": parent})
+
+
+@frappe.whitelist()
+def remove_assessment(assessment, parent):
+	frappe.only_for("Moderator")
+	frappe.db.delete("LMS Assessment", {"assessment_name": assessment, "parent": parent})
 
 
 @frappe.whitelist()
@@ -87,7 +90,7 @@ def create_live_class(
 	class_name, title, duration, date, time, timezone, auto_recording, description=None
 ):
 	date = format_date(date, "yyyy-mm-dd", True)
-
+	frappe.only_for("Moderator")
 	payload = {
 		"topic": title,
 		"start_time": format_datetime(f"{date} {time}", "yyyy-MM-ddTHH:mm:ssZ"),
@@ -164,6 +167,7 @@ def create_class(
 	category=None,
 	name=None,
 ):
+	frappe.only_for("Moderator")
 	if name:
 		class_details = frappe.get_doc("LMS Class", name)
 	else:
@@ -184,23 +188,3 @@ def create_class(
 	)
 	class_details.save()
 	return class_details
-
-
-@frappe.whitelist()
-def update_assessment(type, name, value, class_name):
-	value = cint(value)
-	filters = {
-		"assessment_type": type,
-		"assessment_name": name,
-		"parent": class_name,
-		"parenttype": "LMS Class",
-		"parentfield": "assessment",
-	}
-	exists = frappe.db.exists("LMS Assessment", filters)
-
-	if exists and not value:
-		frappe.db.delete("LMS Assessment", exists)
-	elif not exists and value:
-		doc = frappe.new_doc("LMS Assessment")
-		doc.update(filters)
-		doc.insert()

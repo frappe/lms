@@ -326,6 +326,7 @@ const open_class_dialog = () => {
 				label: __("Description"),
 				fieldname: "description",
 				default: class_info && class_info.description,
+				reqd: 1,
 			},
 		],
 		primary_action_label: __("Save"),

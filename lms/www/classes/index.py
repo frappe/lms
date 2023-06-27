@@ -8,7 +8,15 @@ def get_context(context):
 	context.is_moderator = has_course_moderator_role()
 	classes = frappe.get_all(
 		"LMS Class",
-		fields=["name", "title", "start_date", "end_date", "paid_class", "seat_count"],
+		fields=[
+			"name",
+			"title",
+			"description",
+			"start_date",
+			"end_date",
+			"paid_class",
+			"seat_count",
+		],
 	)
 
 	past_classes, upcoming_classes = [], []

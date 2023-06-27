@@ -43,6 +43,7 @@ def get_courses():
 			"name",
 			"upcoming",
 			"title",
+			"short_introduction",
 			"image",
 			"enable_certification",
 			"paid_certificate",

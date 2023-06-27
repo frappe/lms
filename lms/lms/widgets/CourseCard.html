@@ -72,6 +72,9 @@
             {% endif %}
         </div>
         <div class="course-card-title">{{ course.title }}</div>
+        <div class="short-introduction">
+            {{ course.short_introduction }}
+        </div>
 
         {% if membership and not is_instructor(course.name) and not read_only %}
         <div class="progress">

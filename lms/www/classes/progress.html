@@ -68,7 +68,6 @@
 				</div>
 			</div>
 		</div>
-
 	</div>
 	{% for assessment in assessments %}
 	{% set has_access = is_moderator and assessment.submission or frappe.session.user == student.name %}

@@ -733,3 +733,23 @@ def is_onboarding_complete():
 		if course_created
 		else None,
 	}
+
+
+def has_submitted_assessment(assessment, type, member=None):
+	if not member:
+		member = frappe.session.user
+
+	doctype = (
+		"LMS Assignment Submission" if type == "LMS Assignment" else "LMS Quiz Submission"
+	)
+	docfield = "assignment" if type == "LMS Assignment" else "quiz"
+
+	filters = {}
+	filters[docfield] = assessment
+	filters["member"] = member
+	return frappe.db.exists(doctype, filters)
+
+
+def has_graded_assessment(submission):
+	status = frappe.db.get_value("LMS Assignment Submission", submission, "status")
+	return False if status == "Not Graded" else True
