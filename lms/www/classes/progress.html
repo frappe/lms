@@ -7,7 +7,7 @@
 {% block page_content %}
 <div class="common-page-style">
 	{{ Header() }}
-	<div class="container form-width">
+	<div class="container">
 		{{ Progress(class_info, student) }}
 	</div>
 </div>
@@ -15,7 +15,7 @@
 
 {% macro Header() %}
 <header class="sticky mb-5">
-	<div class="container form-width">
+	<div class="container">
 		<div class="edit-header">
 			<div>
 				<div class="page-title">
@@ -60,10 +60,10 @@
 				<div class="col grid-static-col">
 					{{ _("Assessment") }}
 				</div>
-				<div class="col grid-static-col">
+				<div class="col grid-static-col col-xs-2">
 					{{ _("Type") }}
 				</div>
-				<div class="col grid-static-col">
+				<div class="col grid-static-col col-xs-2">
 					{{ _("Status/Score") }}
 				</div>
 			</div>
@@ -76,11 +76,11 @@
 			<a class="col grid-static-col {% if has_access %} clickable {% endif %}" {% if has_access %} href="{{ assessment.url }}" {% endif %}>
 				{{ assessment.title }}
 			</a>
-			<div class="col grid-static-col">
+			<div class="col grid-static-col col-xs-2">
 				{{ (assessment.assessment_type).split("LMS ")[1] }}
 			</div>
 
-			<div class="col grid-static-col mb-2">
+			<div class="col grid-static-col col-xs-2 mb-2">
 				{% if assessment.submission %}
 					{% if assessment.assessment_type == "LMS Assignment" %}
 						{% set status = assessment.submission.status %}
