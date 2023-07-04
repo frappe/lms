@@ -119,12 +119,19 @@ const edit_question = (e) => {
 };
 
 const save_quiz = (values) => {
+	validate_mandatory();
 	frappe.call({
 		method: "lms.lms.doctype.lms_quiz.lms_quiz.save_quiz",
 		args: {
 			quiz_title: values.quiz_title,
 			max_attempts: values.max_attempts,
 			quiz: $("#quiz-form").data("name") || "",
+			show_answers: $("#show-answers").is(":checked") ? 1 : 0,
+			show_submission_history: $("#show-submission-history").is(
+				":checked"
+			)
+				? 1
+				: 0,
 		},
 		callback: (data) => {
 			frappe.show_alert({
@@ -136,6 +143,17 @@ const save_quiz = (values) => {
 			}, 2000);
 		},
 	});
+};
+
+const validate_mandatory = () => {
+	if (!$("#quiz-title").val()) {
+		let error = $("p")
+			.addClass("error-message")
+			.text(__("Please enter a Quiz Title"));
+		$(error).insertAfter("#quiz-title");
+		$("#quiz-title").focus();
+		throw "Title is mandatory";
+	}
 };
 
 const save_question = (values) => {

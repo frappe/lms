@@ -143,13 +143,17 @@ def quiz_summary(quiz, results):
 
 
 @frappe.whitelist()
-def save_quiz(quiz_title, max_attempts=1, quiz=None):
+def save_quiz(
+	quiz_title, max_attempts=1, quiz=None, show_answers=1, show_submission_history=0
+):
 	if not can_create_courses():
 		return
 
 	values = {
 		"title": quiz_title,
 		"max_attempts": max_attempts,
+		"show_answers": show_answers,
+		"show_submission_history": show_submission_history,
 	}
 
 	if quiz:
@@ -232,15 +236,17 @@ def get_question_details(question):
 
 
 @frappe.whitelist()
-def check_answer(question, type, answer):
+def check_answer(question, type, answers):
+	answers = json.loads(answers)
 	if type == "Choices":
-		return check_choice_answers(question, answer)
+		return check_choice_answers(question, answers)
 	else:
-		return check_input_answers(question, answer)
+		return check_input_answers(question, answers[0])
 
 
-def check_choice_answers(question, answer):
+def check_choice_answers(question, answers):
 	fields = []
+	is_correct = []
 	for num in range(1, 5):
 		fields.append(f"option_{cstr(num)}")
 		fields.append(f"is_correct_{cstr(num)}")
@@ -250,9 +256,13 @@ def check_choice_answers(question, answer):
 	)
 
 	for num in range(1, 5):
-		if question_details[f"option_{num}"] == answer:
-			return question_details[f"is_correct_{num}"]
-	return 0
+		print(question_details[f"option_{num}"], answers)
+		if question_details[f"option_{num}"] in answers:
+			is_correct.append(question_details[f"is_correct_{num}"])
+		else:
+			is_correct.append(0)
+
+	return is_correct
 
 
 def check_input_answers(question, answer):

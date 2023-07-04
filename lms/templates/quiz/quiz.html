@@ -24,7 +24,8 @@
 	<div id="start-banner" class="common-card-style column-card align-items-center">
 
 		<div class="text-center my-10">
-			<div class="bold-heading" id="quiz-title" data-name="{{ quiz.name }}" data-max-attempts="{{ quiz.max_attempts }}">
+			<div class="bold-heading" id="quiz-title" data-max-attempts="{{ quiz.max_attempts }}"
+				data-name="{{ quiz.name }}" data-show-answers="{{ quiz.show_answers }}">
 				{{ quiz.title }}
 			</div>
 
@@ -105,10 +106,13 @@
 			</div>
 			{% endif %}
 
+			{% if quiz.show_answers %}
 			<button class="btn btn-secondary btn-sm pull-right" id="check" disabled>
 				{{ _("Check") }}
 			</button>
-			<button class="btn btn-secondary btn-sm hide" id="next">
+			{% endif %}
+
+			<button class="btn btn-secondary btn-sm {% if quiz.show_answers %} hide {% endif %}" id="next" disabled>
 				{{ _("Next Question") }}
 			</button>
 			<button class="btn btn-secondary btn-sm hide" id="summary">
@@ -122,7 +126,7 @@
 </div>
 {% endif %}
 
-{% if all_submissions | length %}
+{% if quiz.show_submission_history and all_submissions | length %}
 <article class="mt-8">
 	<div class="field-label">
 		{{ _("All Submissions") }}
@@ -131,9 +135,9 @@
 		<div class="grid-heading-row">
 			<div class="grid-row">
 				<div class="data-row row">
-					<div class="col grid-static-col">{{ _("No.") }}</div>
-					<div class="col grid-static-col">{{ _("Date") }}</div>
+					<div class="col grid-static-col col-xs-1">{{ _("No.") }}</div>
 					<div class="col grid-static-col text-right">{{ _("Score") }}</div>
+					<div class="col grid-static-col">{{ _("Date") }}</div>
 				</div>
 			</div>
 		</div>
@@ -141,9 +145,11 @@
 			{% for submission in all_submissions %}
 			<div class="grid-row">
 				<div class="data-row row">
-					<div class="col grid-static-col">{{ loop.index }}</div>
-					<div class="col grid-static-col">{{ frappe.utils.format_datetime(submission.creation, "medium") }}</div>
+					<div class="col grid-static-col col-xs-1">{{ loop.index }}</div>
 					<div class="col grid-static-col text-right">{{ submission.score }}</div>
+					<div class="col grid-static-col" title="{{ frappe.utils.format_datetime(submission.creation, "medium") }}">
+						{{ frappe.utils.pretty_date(submission.creation) }}
+					</div>
 				</div>
 			</div>
 			{% endfor %}

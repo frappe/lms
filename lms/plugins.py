@@ -114,22 +114,23 @@ def quiz_renderer(quiz_name):
 		"LMS Quiz Submission", {"owner": frappe.session.user, "quiz": quiz_name}
 	)
 
-	all_submissions = frappe.get_all(
-		"LMS Quiz Submission",
-		{
-			"quiz": quiz.name,
-			"member": frappe.session.user,
-		},
-		["name", "score", "creation"],
-		order_by="creation desc",
-	)
+	if quiz.show_submission_history:
+		all_submissions = frappe.get_all(
+			"LMS Quiz Submission",
+			{
+				"quiz": quiz.name,
+				"member": frappe.session.user,
+			},
+			["name", "score", "creation"],
+			order_by="creation desc",
+		)
 
 	return frappe.render_template(
 		"templates/quiz/quiz.html",
 		{
 			"quiz": quiz,
 			"no_of_attempts": no_of_attempts,
-			"all_submissions": all_submissions,
+			"all_submissions": all_submissions if quiz.show_submission_history else None,
 			"hide_quiz": False,
 		},
 	)

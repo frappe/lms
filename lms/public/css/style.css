@@ -242,7 +242,7 @@ textarea.field-input {
 input[type=checkbox] {
 	appearance: auto;
 	position: relative;
-	width: var(--checkbox-size)!important;
+	width: var(--checkbox-size) !important;
 	height: var(--checkbox-size);
 	margin-right: var(--checkbox-right-margin)!important;
 	background-repeat: no-repeat;
@@ -252,8 +252,6 @@ input[type=checkbox] {
 	box-shadow: 0 1px 2px #0000001a;
 	border-radius: 4px;
 	-webkit-appearance: none;
-	-moz-appearance: none;
-	appearance: none;
 	-webkit-print-color-adjust: exact;
 }
 
@@ -1902,10 +1900,6 @@ li {
 
 .modal-body {
 	padding: 0 1rem !important;
-}
-
-.modal-dialog-scrollable .modal-body {
-	overflow-y: unset;
 }
 
 .modal-dialog-scrollable .modal-content {
