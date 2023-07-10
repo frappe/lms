@@ -256,7 +256,6 @@ def check_choice_answers(question, answers):
 	)
 
 	for num in range(1, 5):
-		print(question_details[f"option_{num}"], answers)
 		if question_details[f"option_{num}"] in answers:
 			is_correct.append(question_details[f"is_correct_{num}"])
 		else:
