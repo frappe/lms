@@ -382,7 +382,6 @@ input[type=checkbox] {
 	text-overflow: ellipsis;
 	width: 100%;
 	overflow: hidden;
-	white-space: nowrap;
 	margin-bottom: 1.25rem;
 }
 
