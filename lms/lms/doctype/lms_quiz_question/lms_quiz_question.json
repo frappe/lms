@@ -165,6 +165,7 @@
   {
    "fieldname": "type",
    "fieldtype": "Select",
+   "in_list_view": 1,
    "label": "Type",
    "options": "Choices\nUser Input"
   },
@@ -206,7 +207,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-06-09 17:09:53.740179",
+ "modified": "2023-07-04 16:43:49.837134",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz Question",

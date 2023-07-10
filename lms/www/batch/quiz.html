@@ -78,7 +78,7 @@
 <div class="field-parent">
     <div class="field-group">
         <div>
-            <div class="field-label">
+            <div class="field-label reqd">
                 {{ _("Title") }}
             </div>
             <div class="field-description">
@@ -101,6 +101,18 @@
             {% set max_attempts = quiz.max_attempts if quiz.name else 1 %}
             <input type="number" class="field-input" id="max-attempts" value="{{ max_attempts }}">
         </div>
+    </div>
+
+    <div class="field-group vertically-center">
+        {% set show_answers = quiz.show_answers or not quiz.name %}
+        <label for="show-answers" class="vertically-center mb-0">
+            <input type="checkbox" id="show-answers" {% if show_answers %} checked {% endif %}>
+            {{ _("Show Answers") }}
+        </label>
+        <label for="upcoming" class="vertically-center mb-0 ml-20">
+            <input type="checkbox" id="show-submission-history" {% if quiz.show_submission_history %} checked {% endif %}>
+            {{ _("Show Submission History") }}
+        </label>
     </div>
 </div>
 {% endmacro %}
