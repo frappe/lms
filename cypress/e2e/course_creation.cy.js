@@ -21,6 +21,7 @@ describe("Course Creation", () => {
 
 		cy.wait(1000);
 		cy.get(".edit-header .btn-add-chapter").click();
+		cy.wait(500);
 		cy.get("#chapter-title").type("Test Chapter");
 		cy.get("#chapter-description").type("Test Chapter Description");
 		cy.button("Save").click();
