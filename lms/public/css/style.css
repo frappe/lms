@@ -384,7 +384,6 @@ input[type=checkbox] {
 	text-overflow: ellipsis;
 	width: 100%;
 	overflow: hidden;
-	white-space: nowrap;
 	margin-bottom: 1.25rem;
 }
 
@@ -1902,10 +1901,6 @@ li {
 
 .modal-body {
 	padding: 0 1rem !important;
-}
-
-.modal-dialog-scrollable .modal-body {
-	overflow-y: unset;
 }
 
 .modal-dialog-scrollable .modal-content {

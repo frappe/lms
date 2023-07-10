@@ -309,6 +309,9 @@ const show_course_modal = () => {
 		},
 	});
 	course_modal.show();
+	setTimeout(() => {
+		$(".modal-body").css("min-height", "200px");
+	}, 1000);
 };
 
 const add_course = (values) => {
@@ -380,6 +383,9 @@ const show_student_modal = () => {
 		},
 	});
 	student_modal.show();
+	setTimeout(() => {
+		$(".modal-body").css("min-height", "200px");
+	}, 1000);
 };
 
 const add_student = (values) => {
@@ -457,6 +463,29 @@ const show_assessment_modal = (e) => {
 				fieldname: "assessment_name",
 				reqd: 1,
 			},
+			{
+				fieldtype: "Section Break",
+				label: __("OR"),
+			},
+			{
+				fieldtype: "Button",
+				label: __("Create Assignment"),
+				fieldname: "create_assignment",
+				click: () => {
+					window.location.href = "/assignments";
+				},
+			},
+			{
+				fieldtype: "Column Break",
+			},
+			{
+				fieldtype: "Button",
+				label: __("Create Quiz"),
+				fieldname: "create_quiz",
+				click: () => {
+					window.location.href = "/quizzes";
+				},
+			},
 		],
 		primary_action_label: __("Add"),
 		primary_action(values) {
@@ -465,6 +494,9 @@ const show_assessment_modal = (e) => {
 		},
 	});
 	assessment_modal.show();
+	setTimeout(() => {
+		$(".modal-body").css("min-height", "300px");
+	}, 1000);
 };
 
 const add_addessment = (values) => {
