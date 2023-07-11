@@ -43,7 +43,7 @@ body {
 	margin-top: 2rem;
 }
 
-.frappe-control .ql-editor:not(.read-mode) {
+.field-group .frappe-control .ql-editor:not(.read-mode) {
 	background-color: #FFFFFF;
 }
 
@@ -321,11 +321,12 @@ input[type=checkbox] {
 }
 
 .common-card-style {
-  display: flex;
-  background: #FFFFFF;
-  border-radius: var(--border-radius-md);
-  position: relative;
-  border: 1px solid var(--gray-300)
+	display: flex;
+	background: #FFFFFF;
+	border-radius: var(--border-radius-md);
+	position: relative;
+	border: 1px solid var(--gray-300);
+	box-shadow: var(--card-shadow);
 }
 
 .course-card {

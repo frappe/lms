@@ -118,7 +118,9 @@
             {% endif %}
         </span>
         </a>
-        <div class="ml-5 course-meta"> {{ frappe.utils.format_date(lesson.creation, "medium") }} </div>
+        <div class="ml-5 course-meta">
+            {{ frappe.utils.format_date(lesson.creation, "medium") }}
+        </div>
     </div>
 
     <!-- Lesson Content -->
@@ -240,9 +242,9 @@
 {% endmacro %}
 
 
-<!-- Scripts -->
 {%- block script %}
     {{ super() }}
+    {{ include_script('controls.bundle.js') }}
     <script type="text/javascript">
         var page_context = {{ page_context | tojson }};
         {% include "lms/templates/quiz/quiz.js" %}

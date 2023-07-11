@@ -34,6 +34,9 @@ def get_context(context):
 		as_dict=True,
 	)
 
+	context.reference_doctype = "LMS Class"
+	context.reference_name = class_name
+
 	context.published_courses = frappe.get_all(
 		"LMS Course", {"published": 1}, ["name", "title"]
 	)

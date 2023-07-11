@@ -1,6 +1,6 @@
 {% extends "lms/templates/lms_base.html" %}
 {% block title %}
-    {{ _(class_info.title) }}
+	{{ _(class_info.title) }}
 {% endblock %}
 
 
@@ -20,9 +20,9 @@
 <!-- BreadCrumb -->
 {% macro BreadCrumb(class_info) %}
 <div class="breadcrumb">
-    <a class="dark-links" href="/classes">{{ _("All Classes") }}</a>
-    <img class="ml-1 mr-1" src="/assets/lms/icons/chevron-right.svg">
-    <span class="breadcrumb-destination">{{ class_info.title }}</span>
+	<a class="dark-links" href="/classes">{{ _("All Classes") }}</a>
+	<img class="ml-1 mr-1" src="/assets/lms/icons/chevron-right.svg">
+	<span class="breadcrumb-destination">{{ class_info.title }}</span>
 </div>
 {% endmacro %}
 
@@ -93,7 +93,13 @@
 
 	<ul class="nav lms-nav" id="classes-tab">
 		<li class="nav-item">
-			<a class="nav-link active" data-toggle="tab" href="#courses">
+			<a class="nav-link active" data-toggle="tab" href="#dashboard">
+				{{ _("Dashboard") }}
+			</a>
+		</li>
+
+		<li class="nav-item">
+			<a class="nav-link" data-toggle="tab" href="#courses">
 				{{ _("Courses") }}
 				<span class="course-list-count">
 					{{ class_courses | length }}
@@ -137,7 +143,11 @@
 	<div class="border-bottom mb-4"></div>
 
 	<div class="tab-content">
-		<div class="tab-pane active" id="courses" role="tabpanel" aria-labelledby="courses">
+		<div class="tab-pane active" id="dashboard" role="tabpanel" aria-labelledby="dashboard">
+			{{ Dashboard(class_info) }}
+		</div>
+
+		<div class="tab-pane" id="courses" role="tabpanel" aria-labelledby="courses">
 			{{ CoursesSection(class_info, class_courses, published_courses) }}
 		</div>
 
@@ -161,6 +171,20 @@
 </div>
 {% endmacro %}
 
+{% macro Dashboard(class_info) %}
+<article class="class-discussion">
+	{% set condition = is_moderator or is_student %}
+	{% set doctype, docname = _("LMS Class"), class_info.name %}
+	{% set single_thread = True %}
+	{% set title = "Announcements" %}
+	{% set cta_title = "Post" %}
+	{% set button_name = _("Start Learning") %}
+	{% set redirect_to = "/classes/" + class_info.name %}
+	{% set empty_state_title = _("Have a doubt?") %}
+	{% set empty_state_subtitle = _("Post it here, our mentors will help you out.") %}
+	{% include "frappe/templates/discussions/discussions_section.html" %}
+</article>
+{% endmacro %}
 
 {% macro CoursesSection(class_info, class_courses, published_courses) %}
 <article>
