@@ -180,7 +180,7 @@
 	{% if class_courses | length %}
 	<div class="cards-parent">
 		{% for course in class_courses %}
-		<div>
+		<div class="h-100">
 			{{ widgets.CourseCard(course=course, read_only=False) }}
 			<button class="btn icon-btn btn-default btn-block btn-remove-course" data-course="{{ course.name }}">
 				<svg class="icon icon-sm">

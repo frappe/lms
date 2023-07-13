@@ -42,6 +42,7 @@ def get_schedule(course, date):
 		"Evaluator Schedule",
 		filters={"parent": evaluator},
 		fields=["day", "start_time", "end_time"],
+		order_by="start_time",
 	)
 	booked_slots = frappe.get_all(
 		"LMS Certificate Request",

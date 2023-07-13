@@ -93,7 +93,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-02-28 19:53:17.534351",
+ "modified": "2023-07-13 11:30:41.740461",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate Request",
@@ -109,6 +109,18 @@
    "report": 1,
    "role": "System Manager",
    "select": 1,
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Class Evaluator",
    "share": 1,
    "write": 1
   }

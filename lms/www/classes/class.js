@@ -301,6 +301,14 @@ const show_course_modal = () => {
 				fieldname: "course",
 				reqd: 1,
 			},
+			{
+				fieldtype: "Link",
+				options: "Course Evaluator",
+				label: __("Evaluator"),
+				fieldname: "evaluator",
+				fetch_from: "course.evaluator",
+				reqd: 1,
+			},
 		],
 		primary_action_label: __("Add"),
 		primary_action(values) {
@@ -310,7 +318,7 @@ const show_course_modal = () => {
 	});
 	course_modal.show();
 	setTimeout(() => {
-		$(".modal-body").css("min-height", "200px");
+		$(".modal-body").css("min-height", "300px");
 	}, 1000);
 };
 
@@ -321,6 +329,7 @@ const add_course = (values) => {
 			doc: {
 				doctype: "Class Course",
 				course: values.course,
+				evaluator: values.evaluator,
 				parenttype: "LMS Class",
 				parentfield: "courses",
 				parent: $(".class-details").data("class"),
