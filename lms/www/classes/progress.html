@@ -30,21 +30,27 @@
 						{{ class_info.name }}
 					</a>
 					<img class="icon icon-sm mr-0" src="/assets/lms/icons/chevron-right.svg">
-					<span class="breadcrumb-destination">{{ _("Student Progress").format(student.full_name) }}</span>
+					<span class="breadcrumb-destination">
+						{{ _("Student Progress").format(student.full_name) }}
+					</span>
 				</div>
 			</div>
 
-			{% if is_moderator %}
 			<div class="align-self-center">
-				<a class="btn btn-default btn-sm mr-2" href="/users/{{ student.username }}">
+				<a class="btn btn-default btn-sm" href="/users/{{ student.username }}">
 					{{ _("View Profile") }}
 				</a>
-				<a class="btn btn-primary btn-sm btn-evaluate" href=/evaluation/new?member={{student.name}}&date={{frappe.utils.getdate()}}&class={{class_info.name}}">
+				{% if student.name == frappe.session.user %}
+				<button class="btn btn-default btn-sm btn-schedule-eval ml-2">
+					{{ _("Schedule Evaluation") }}
+				</button>
+				{% endif %}
+				{% if is_moderator %}
+				<a class="btn btn-primary btn-sm btn-evaluate ml-2" href=/evaluation/new?member={{student.name}}&date={{frappe.utils.getdate()}}&class={{class_info.name}}">
 					{{ _("Evaluate") }}
 				</a>
+				{% endif %}
 			</div>
-			{% endif %}
-
 		</div>
 	</div>
 </header>
@@ -108,3 +114,17 @@
 <p class="text-muted mt-3"> {{ _("No Assessments") }} </p>
 {% endif %}
 {% endmacro %}
+
+{%- block script %}
+	{{ super() }}
+	<script>
+		frappe.boot.user = {
+			"can_create": [],
+			"can_select": ["LMS Course"],
+			"can_read": ["LMS Course"]
+		};
+		let courses = {{ courses | json }};
+		let class_name = "{{ class_info.name }}";
+	</script>
+	{{ include_script('controls.bundle.js') }}
+{% endblock %}

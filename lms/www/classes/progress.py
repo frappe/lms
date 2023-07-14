@@ -21,4 +21,8 @@ def get_context(context):
 		"LMS Class", class_name, ["name"], as_dict=True
 	)
 
+	context.courses = frappe.get_all(
+		"Class Course", {"parent": class_name}, pluck="course"
+	)
+
 	context.assessments = get_assessments(class_name, context.student.name)
