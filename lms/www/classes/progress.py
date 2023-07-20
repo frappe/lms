@@ -26,3 +26,20 @@ def get_context(context):
 	)
 
 	context.assessments = get_assessments(class_name, context.student.name)
+
+	upcoming_evals = frappe.get_all(
+		"LMS certificate Request",
+		{
+			"member": context.student.name,
+			"course": ["in", context.courses],
+			"date": [">=", frappe.utils.nowdate()],
+		},
+		["date", "start_time", "course", "evaluator"],
+		order_by="date",
+	)
+
+	for evals in upcoming_evals:
+		evals.course_title = frappe.db.get_value("LMS Course", evals.course, "title")
+		evals.evaluator_name = frappe.db.get_value("User", evals.evaluator, "full_name")
+
+	context.upcoming_evals = upcoming_evals

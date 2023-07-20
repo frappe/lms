@@ -753,3 +753,19 @@ def has_submitted_assessment(assessment, type, member=None):
 def has_graded_assessment(submission):
 	status = frappe.db.get_value("LMS Assignment Submission", submission, "status")
 	return False if status == "Not Graded" else True
+
+
+def get_evaluator(course, class_name=None):
+	evaluator = None
+
+	if class_name:
+		evaluator = frappe.db.get_value(
+			"Class Course",
+			{"parent": class_name, "course": course},
+			"evaluator",
+		)
+
+	if not evaluator:
+		evaluator = frappe.db.get_value("LMS Course", course, "evaluator")
+
+	return evaluator

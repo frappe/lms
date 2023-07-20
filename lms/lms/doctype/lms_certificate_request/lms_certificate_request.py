@@ -6,6 +6,7 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.model.mapper import get_mapped_doc
 from frappe.utils import format_date, format_time, getdate
+from lms.lms.utils import get_evaluator
 
 
 class LMSCertificateRequest(Document):
@@ -24,7 +25,7 @@ class LMSCertificateRequest(Document):
 		)
 
 		for req in existing_requests:
-			if req.date == getdate(self.date) and getdate() <= getdate(self.date):
+			if req.date == getdate(self.date) or getdate() <= getdate(self.date):
 				course_title = frappe.db.get_value("LMS Course", req.course, "title")
 				frappe.throw(
 					_("You already have an evaluation on {0} at {1} for the course {2}.").format(
@@ -78,7 +79,9 @@ class LMSCertificateRequest(Document):
 
 
 @frappe.whitelist()
-def create_certificate_request(course, date, day, start_time, end_time):
+def create_certificate_request(
+	course, date, day, start_time, end_time, class_name=None
+):
 	is_member = frappe.db.exists(
 		{"doctype": "LMS Batch Membership", "course": course, "member": frappe.session.user}
 	)
@@ -90,6 +93,7 @@ def create_certificate_request(course, date, day, start_time, end_time):
 		{
 			"doctype": "LMS Certificate Request",
 			"course": course,
+			"evaluator": get_evaluator(course, class_name),
 			"member": frappe.session.user,
 			"date": date,
 			"day": day,

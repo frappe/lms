@@ -35,9 +35,8 @@ const open_evaluation_form = (e) => {
 				fieldname: "date",
 				label: __("Date"),
 				reqd: 1,
-				min_date: frappe.datetime.add_days(
-					frappe.datetime.get_today(),
-					1
+				min_date: new Date(
+					frappe.datetime.add_days(frappe.datetime.get_today(), 1)
 				),
 				change: () => {
 					get_slots();
@@ -69,7 +68,6 @@ const get_slots = () => {
 		},
 		callback: (r) => {
 			if (r.message) {
-				console.log(r.message);
 				display_slots(r.message);
 			}
 		},
@@ -82,13 +80,12 @@ const display_slots = (slots) => {
 
 	slots.forEach((slot) => {
 		if (slot.day == day) {
-			slot_html += `<div class="slot" data-day="${
+			slot_html += `<div class="btn btn-sm btn-default slot" data-day="${
 				slot.day
-			}" data-start="${slot.start_time}" data-end="${slot.end_time}">
-				${moment(slot.start_time, "hh:mm").format("hh:mm a")} - ${moment(
-				slot.end_time,
-				"hh:mm"
-			).format("hh:mm a")}
+			}"
+				data-start="${slot.start_time}" data-end="${slot.end_time}">
+				${moment(slot.start_time, "hh:mm").format("hh:mm a")} -
+				${moment(slot.end_time, "hh:mm").format("hh:mm a")}
 			</div>`;
 		}
 	});
@@ -123,13 +120,12 @@ const submit_evaluation_form = (values) => {
 			day: this.current_slot.data("day"),
 		},
 		callback: (r) => {
-			if (r.message) {
-				frappe.msgprint({
-					title: __("Success"),
-					message: __("Evaluation scheduled successfully"),
-				});
-				this.eval_form.hide();
-			}
+			frappe.msgprint({
+				title: __("Success"),
+				message: __("Evaluation scheduled successfully"),
+			});
+			this.eval_form.hide();
+			window.location.reload();
 		},
 	});
 };

@@ -21,7 +21,7 @@
 				<div class="page-title">
 					{{ _("{0}").format(student.full_name) }}
 				</div>
-				<div class="vertically-center small">
+				<div class="vertically-center">
 					<a class="dark-links" href="/classes">
 						{{ _("All Classes") }}
 					</a>
@@ -58,61 +58,122 @@
 
 
 {% macro Progress(class_info, student) %}
-{% if assessments | length %}
-<article class="form-grid">
-	<div class="grid-heading-row">
+	{{ UpcomingEvals(upcoming_evals) }}
+	{{ Assessments(class_info, student) }}
+{% endmacro %}
+
+{% macro UpcomingEvals(upcoming_evals) %}
+<div class="mb-8">
+	<div class="bold-heading mb-2">
+		{{ _("Upcoming Evaluations") }}
+	</div>
+	{% if upcoming_evals | length %}
+	<article class="form-grid">
+		<div class="grid-heading-row">
+			<div class="grid-row">
+				<div class="data-row row">
+					<div class="col grid-static-col">
+						{{ _("Course") }}
+					</div>
+					<div class="col grid-static-col col-xs-2">
+						{{ _("Date") }}
+					</div>
+					<div class="col grid-static-col col-xs-2">
+						{{ _("Time") }}
+					</div>
+					<div class="col grid-static-col col-xs-2">
+						{{ _("Evaluator") }}
+					</div>
+				</div>
+			</div>
+		</div>
+		{% for eval in upcoming_evals %}
 		<div class="grid-row">
 			<div class="data-row row">
-				<div class="col grid-static-col">
-					{{ _("Assessment") }}
+				<a class="col grid-static-col clickable" href="{{ eval.url }}">
+					{{ eval.course_title }}
+				</a>
+				<div class="col grid-static-col col-xs-2">
+					{{ eval.date }}
 				</div>
 				<div class="col grid-static-col col-xs-2">
-					{{ _("Type") }}
+					{{ eval.start_time  }}
 				</div>
 				<div class="col grid-static-col col-xs-2">
-					{{ _("Status/Score") }}
+					{{ eval.evaluator_name }}
 				</div>
 			</div>
 		</div>
-	</div>
-	{% for assessment in assessments %}
-	{% set has_access = is_moderator and assessment.submission or frappe.session.user == student.name %}
-	<div class="grid-row">
-		<div class="data-row row">
-			<a class="col grid-static-col {% if has_access %} clickable {% endif %}" {% if has_access %} href="{{ assessment.url }}" {% endif %}>
-				{{ assessment.title }}
-			</a>
-			<div class="col grid-static-col col-xs-2">
-				{{ (assessment.assessment_type).split("LMS ")[1] }}
-			</div>
+		{% endfor %}
+	</article>
+	{% else %}
+	<p class="text-muted mt-3"> {{ _("No Upcoming Evaluations") }} </p>
+	{% endif %}
+</div>
+{% endmacro %}
 
-			<div class="col grid-static-col col-xs-2 mb-2">
-				{% if assessment.submission %}
-					{% if assessment.assessment_type == "LMS Assignment" %}
-						{% set status = assessment.submission.status %}
-						{% set color = "green" if status == "Pass" else "red" if status == "Fail" else "orange"  %}
-						<div class="indicator-pill {{ color }}">
-							{{ status }}
-						</div>
+{% macro Assessments(class_info, student) %}
+<div class="mb-8">
+	<div class="bold-heading mb-2">
+		{{ _("Assessments") }}
+	</div>
+	{% if assessments | length %}
+	<article class="form-grid">
+		<div class="grid-heading-row">
+			<div class="grid-row">
+				<div class="data-row row">
+					<div class="col grid-static-col">
+						{{ _("Assessment") }}
+					</div>
+					<div class="col grid-static-col col-xs-2">
+						{{ _("Type") }}
+					</div>
+					<div class="col grid-static-col col-xs-2">
+						{{ _("Status/Score") }}
+					</div>
+				</div>
+			</div>
+		</div>
+		{% for assessment in assessments %}
+		{% set has_access = is_moderator and assessment.submission or frappe.session.user == student.name %}
+		<div class="grid-row">
+			<div class="data-row row">
+				<a class="col grid-static-col {% if has_access %} clickable {% endif %}" {% if has_access %} href="{{ assessment.url }}" {% endif %}>
+					{{ assessment.title }}
+				</a>
+				<div class="col grid-static-col col-xs-2">
+					{{ (assessment.assessment_type).split("LMS ")[1] }}
+				</div>
+
+				<div class="col grid-static-col col-xs-2 mb-2">
+					{% if assessment.submission %}
+						{% if assessment.assessment_type == "LMS Assignment" %}
+							{% set status = assessment.submission.status %}
+							{% set color = "green" if status == "Pass" else "red" if status == "Fail" else "orange"  %}
+							<div class="indicator-pill {{ color }}">
+								{{ status }}
+							</div>
+						{% else %}
+							<div>
+								{{ assessment.submission.score }}
+							</div>
+						{% endif %}
 					{% else %}
-						<div>
-							{{ assessment.submission.score }}
+						<div class="indicator-pill red">
+							{{ _("Not Attempted") }}
 						</div>
 					{% endif %}
-				{% else %}
-					<div class="indicator-pill red">
-						{{ _("Not Attempted") }}
-					</div>
-				{% endif %}
-			</div>
+				</div>
 
+			</div>
 		</div>
-	</div>
-	{% endfor %}
-</article>
-{% else %}
-<p class="text-muted mt-3"> {{ _("No Assessments") }} </p>
-{% endif %}
+		{% endfor %}
+	</article>
+	{% else %}
+	<p class="text-muted mt-3"> {{ _("No Assessments") }} </p>
+	{% endif %}
+</div>
+
 {% endmacro %}
 
 {%- block script %}
