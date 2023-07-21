@@ -55,6 +55,9 @@ def get_current_lesson_details(lesson_number, context, is_edit=False):
 			redirect_to_lesson(context.course)
 
 	lesson_info = details_list[0]
+	# to show pdf in the lesson if needed 
+	lesson_info.body = lesson_info.body.replace("&lt;object", "<object").replace("&lt;/object", "</object").replace("&gt;", ">")
+	lesson_info.body = lesson_info.body.replace("&lt;iframe", "<iframe").replace("&lt;/iframe", "</iframe").replace("&gt;", ">")
 	lesson_info.body = lesson_info.body.replace('"', "'")
 	return lesson_info
 
