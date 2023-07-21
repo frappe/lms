@@ -22,13 +22,10 @@ const open_evaluation_form = (e) => {
 				label: __("Course"),
 				options: "LMS Course",
 				reqd: 1,
-				get_query: () => {
-					return {
-						filters: {
-							name: ["in", courses],
-						},
-					};
+				filters: {
+					name: ["in", courses],
 				},
+				filter_description: " ",
 			},
 			{
 				fieldtype: "Date",
@@ -118,14 +115,17 @@ const submit_evaluation_form = (values) => {
 			start_time: this.current_slot.data("start"),
 			end_time: this.current_slot.data("end"),
 			day: this.current_slot.data("day"),
+			class_name: class_name,
 		},
 		callback: (r) => {
-			frappe.msgprint({
-				title: __("Success"),
+			frappe.show_alert({
 				message: __("Evaluation scheduled successfully"),
+				indicator: "green",
 			});
 			this.eval_form.hide();
-			window.location.reload();
+			setTimeout(() => {
+				window.location.reload();
+			}, 1000);
 		},
 	});
 };

@@ -301,14 +301,6 @@ const show_course_modal = () => {
 				fieldname: "course",
 				reqd: 1,
 			},
-			{
-				fieldtype: "Link",
-				options: "Course Evaluator",
-				label: __("Evaluator"),
-				fieldname: "evaluator",
-				fetch_from: "course.evaluator",
-				reqd: 1,
-			},
 		],
 		primary_action_label: __("Add"),
 		primary_action(values) {
@@ -318,7 +310,7 @@ const show_course_modal = () => {
 	});
 	course_modal.show();
 	setTimeout(() => {
-		$(".modal-body").css("min-height", "300px");
+		$(".modal-body").css("min-height", "200px");
 	}, 1000);
 };
 
@@ -329,7 +321,6 @@ const add_course = (values) => {
 			doc: {
 				doctype: "Class Course",
 				course: values.course,
-				evaluator: values.evaluator,
 				parenttype: "LMS Class",
 				parentfield: "courses",
 				parent: $(".class-details").data("class"),
@@ -383,6 +374,7 @@ const show_student_modal = () => {
 				filters: {
 					ignore_user_type: 1,
 				},
+				filter_description: " ",
 			},
 		],
 		primary_action_label: __("Add"),
@@ -457,13 +449,10 @@ const show_assessment_modal = (e) => {
 				label: __("Assessment Type"),
 				fieldname: "assessment_type",
 				reqd: 1,
-				get_query: () => {
-					return {
-						filters: {
-							name: ["in", ["LMS Assignment", "LMS Quiz"]],
-						},
-					};
+				filters: {
+					name: ["in", ["LMS Assignment", "LMS Quiz"]],
 				},
+				filter_description: " ",
 			},
 			{
 				fieldtype: "Dynamic Link",

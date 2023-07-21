@@ -4,6 +4,7 @@ from frappe.utils import getdate
 from lms.www.utils import get_assessments
 from lms.lms.utils import (
 	has_course_moderator_role,
+	has_course_evaluator_role,
 	get_course_progress,
 	has_submitted_assessment,
 	has_graded_assessment,
@@ -14,6 +15,7 @@ def get_context(context):
 	context.no_cache = 1
 	class_name = frappe.form_dict["classname"]
 	context.is_moderator = has_course_moderator_role()
+	context.is_evaluator = has_course_evaluator_role()
 
 	context.class_info = frappe.db.get_value(
 		"LMS Class",

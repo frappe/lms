@@ -1,6 +1,5 @@
 import re
 import string
-
 import frappe
 from frappe import _
 from frappe.desk.doctype.dashboard_chart.dashboard_chart import get_result
@@ -518,6 +517,14 @@ def has_course_moderator_role(member=None):
 	return frappe.db.get_value(
 		"Has Role",
 		{"parent": member or frappe.session.user, "role": "Moderator"},
+		"name",
+	)
+
+
+def has_course_evaluator_role(member=None):
+	return frappe.db.get_value(
+		"Has Role",
+		{"parent": member or frappe.session.user, "role": "Evaluator"},
 		"name",
 	)
 

@@ -88,10 +88,9 @@ def create_certificate_request(
 
 	if not is_member:
 		return
-
-	frappe.get_doc(
+	eval = frappe.new_doc("LMS Certificate Request")
+	eval.update(
 		{
-			"doctype": "LMS Certificate Request",
 			"course": course,
 			"evaluator": get_evaluator(course, class_name),
 			"member": frappe.session.user,
@@ -100,7 +99,8 @@ def create_certificate_request(
 			"start_time": start_time,
 			"end_time": end_time,
 		}
-	).save(ignore_permissions=True)
+	)
+	eval.save()
 
 
 @frappe.whitelist()

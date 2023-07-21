@@ -68,46 +68,36 @@
 		{{ _("Upcoming Evaluations") }}
 	</div>
 	{% if upcoming_evals | length %}
-	<article class="form-grid">
-		<div class="grid-heading-row">
-			<div class="grid-row">
-				<div class="data-row row">
-					<div class="col grid-static-col">
-						{{ _("Course") }}
-					</div>
-					<div class="col grid-static-col col-xs-2">
-						{{ _("Date") }}
-					</div>
-					<div class="col grid-static-col col-xs-2">
-						{{ _("Time") }}
-					</div>
-					<div class="col grid-static-col col-xs-2">
-						{{ _("Evaluator") }}
-					</div>
-				</div>
-			</div>
-		</div>
+	<article class="cards-parent">
 		{% for eval in upcoming_evals %}
-		<div class="grid-row">
-			<div class="data-row row">
-				<a class="col grid-static-col clickable" href="{{ eval.url }}">
-					{{ eval.course_title }}
-				</a>
-				<div class="col grid-static-col col-xs-2">
-					{{ eval.date }}
-				</div>
-				<div class="col grid-static-col col-xs-2">
-					{{ eval.start_time  }}
-				</div>
-				<div class="col grid-static-col col-xs-2">
+		<div class="common-card-style column-card">
+			<div class="bold-heading">
+				{{ eval.course_title }}
+			</div>
+			<div class="vertically-center">
+				<svg class="icon icon-sm mr-1">
+					<use href="#icon-calendar"></use>
+				</svg>
+				<span>
+					{{ frappe.utils.format_date(eval.date, "medium") }}&nbsp;-&nbsp;
+				</span>
+				<span>
+					{{ frappe.utils.format_time(eval.start_time, "hh:mm a") }}
+				</span>
+			</div>
+			<div>
+				<span class="field-label">
+					{{ _("Evaluator") }}:
+				</span>
+				<span>
 					{{ eval.evaluator_name }}
-				</div>
+				</span>
 			</div>
 		</div>
 		{% endfor %}
 	</article>
 	{% else %}
-	<p class="text-muted mt-3"> {{ _("No Upcoming Evaluations") }} </p>
+	<p class="text-muted"> {{ _("No Upcoming Evaluations") }} </p>
 	{% endif %}
 </div>
 {% endmacro %}
@@ -170,7 +160,7 @@
 		{% endfor %}
 	</article>
 	{% else %}
-	<p class="text-muted mt-3"> {{ _("No Assessments") }} </p>
+	<p class="text-muted"> {{ _("No Assessments") }} </p>
 	{% endif %}
 </div>
 

@@ -38,6 +38,7 @@
   },
   {
    "fetch_from": "course.evaluator",
+   "fetch_if_empty": 1,
    "fieldname": "evaluator",
    "fieldtype": "Link",
    "label": "Evaluator",
@@ -93,7 +94,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-07-13 11:30:41.740461",
+ "modified": "2023-07-21 11:13:38.827783",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate Request",
@@ -121,6 +122,18 @@
    "read": 1,
    "report": 1,
    "role": "Class Evaluator",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Moderator",
    "share": 1,
    "write": 1
   }
