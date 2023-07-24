@@ -124,7 +124,7 @@ def create_certificate_request(
 			"end_time": end_time,
 		}
 	)
-	eval.save()
+	eval.save(ignore_permissions=True)
 
 
 @frappe.whitelist()
