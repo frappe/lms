@@ -374,6 +374,7 @@ const show_student_modal = () => {
 				filters: {
 					ignore_user_type: 1,
 				},
+				filter_description: " ",
 			},
 		],
 		primary_action_label: __("Add"),
@@ -448,13 +449,10 @@ const show_assessment_modal = (e) => {
 				label: __("Assessment Type"),
 				fieldname: "assessment_type",
 				reqd: 1,
-				get_query: () => {
-					return {
-						filters: {
-							name: ["in", ["LMS Assignment", "LMS Quiz"]],
-						},
-					};
+				filters: {
+					name: ["in", ["LMS Assignment", "LMS Quiz"]],
 				},
+				filter_description: " ",
 			},
 			{
 				fieldtype: "Dynamic Link",

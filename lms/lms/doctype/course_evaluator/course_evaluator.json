@@ -27,7 +27,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-04-01 15:14:03.300260",
+ "modified": "2023-07-13 11:30:22.641076",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Course Evaluator",
@@ -43,6 +43,30 @@
    "read": 1,
    "report": 1,
    "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Moderator",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Class Evaluator",
    "share": 1,
    "write": 1
   }

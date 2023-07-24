@@ -5,26 +5,23 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.model.mapper import get_mapped_doc
-from frappe.utils import format_date, format_time, getdate
+from frappe.utils import format_date, format_time, getdate, add_to_date, get_datetime
+from lms.lms.utils import get_evaluator
 
 
 class LMSCertificateRequest(Document):
 	def validate(self):
 		self.validate_if_existing_requests()
 
-	def after_insert(self):
-		if frappe.db.get_single_value("LMS Settings", "send_calendar_invite_for_evaluations"):
-			self.create_event()
-
 	def validate_if_existing_requests(self):
 		existing_requests = frappe.get_all(
 			"LMS Certificate Request",
-			{"member": self.member, "course": self.course},
+			{"member": self.member, "course": self.course, "name": ["!=", self.name]},
 			["date", "start_time", "course"],
 		)
 
 		for req in existing_requests:
-			if req.date == getdate(self.date) and getdate() <= getdate(self.date):
+			if req.date == getdate(self.date) or getdate() <= getdate(self.date):
 				course_title = frappe.db.get_value("LMS Course", req.course, "title")
 				frappe.throw(
 					_("You already have an evaluation on {0} at {1} for the course {2}.").format(
@@ -34,69 +31,100 @@ class LMSCertificateRequest(Document):
 					)
 				)
 
-	def create_event(self):
-		calendar = frappe.db.get_value(
-			"Google Calendar", {"user": self.evaluator, "enable": 1}, "name"
+
+def schedule_evals():
+	if frappe.db.get_single_value("LMS Settings", "send_calendar_invite_for_evaluations"):
+		one_hour_ago = add_to_date(get_datetime(), hours=-1)
+		evals = frappe.get_all(
+			"LMS Certificate Request",
+			{"creation": [">=", one_hour_ago], "google_meet_link": ["is", "not set"]},
+			["name", "member", "member_name", "evaluator", "date", "start_time", "end_time"],
 		)
+		for eval in evals:
+			setup_calendar_event(eval)
 
-		if calendar:
-			event = frappe.get_doc(
-				{
-					"doctype": "Event",
-					"subject": f"Evaluation of {self.member_name}",
-					"starts_on": f"{self.date} {self.start_time}",
-					"ends_on": f"{self.date} {self.end_time}",
-				}
-			)
-			event.save()
 
-			participants = [self.member, self.evaluator]
-			for participant in participants:
-				contact_name = frappe.db.get_value("Contact", {"email_id": participant}, "name")
-				frappe.get_doc(
-					{
-						"doctype": "Event Participants",
-						"reference_doctype": "Contact",
-						"reference_docname": contact_name,
-						"email": participant,
-						"parent": event.name,
-						"parenttype": "Event",
-						"parentfield": "event_participants",
-					}
-				).save()
+def setup_calendar_event(eval):
+	calendar = frappe.db.get_value(
+		"Google Calendar", {"user": eval.evaluator, "enable": 1}, "name"
+	)
 
-			event.reload()
-			event.update(
-				{
-					"sync_with_google_calendar": 1,
-					"add_video_conferencing": 1,
-					"google_calendar": calendar,
-				}
-			)
+	if calendar:
+		event = create_event(eval)
+		add_participants(eval, event)
+		update_meeting_details(eval, event, calendar)
 
-			event.save()
+
+def create_event(eval):
+	event = frappe.get_doc(
+		{
+			"doctype": "Event",
+			"subject": f"Evaluation of {eval.member_name}",
+			"starts_on": f"{eval.date} {eval.start_time}",
+			"ends_on": f"{eval.date} {eval.end_time}",
+		}
+	)
+	event.save()
+	return event
+
+
+def add_participants(eval, event):
+	participants = [eval.member, eval.evaluator]
+	for participant in participants:
+		contact_name = frappe.db.get_value("Contact", {"email_id": participant}, "name")
+		frappe.get_doc(
+			{
+				"doctype": "Event Participants",
+				"reference_doctype": "Contact",
+				"reference_docname": contact_name,
+				"email": participant,
+				"parent": event.name,
+				"parenttype": "Event",
+				"parentfield": "event_participants",
+			}
+		).save()
+
+
+def update_meeting_details(eval, event, calendar):
+	event.reload()
+	event.update(
+		{
+			"sync_with_google_calendar": 1,
+			"add_video_conferencing": 1,
+			"google_calendar": calendar,
+		}
+	)
+
+	event.save()
+	event.reload()
+	frappe.db.set_value(
+		"LMS Certificate Request", eval.name, "google_meet_link", event.google_meet_link
+	)
 
 
 @frappe.whitelist()
-def create_certificate_request(course, date, day, start_time, end_time):
+def create_certificate_request(
+	course, date, day, start_time, end_time, class_name=None
+):
 	is_member = frappe.db.exists(
 		{"doctype": "LMS Batch Membership", "course": course, "member": frappe.session.user}
 	)
 
 	if not is_member:
 		return
-
-	frappe.get_doc(
+	eval = frappe.new_doc("LMS Certificate Request")
+	eval.update(
 		{
-			"doctype": "LMS Certificate Request",
 			"course": course,
+			"evaluator": get_evaluator(course, class_name),
 			"member": frappe.session.user,
 			"date": date,
 			"day": day,
 			"start_time": start_time,
 			"end_time": end_time,
 		}
-	).save(ignore_permissions=True)
+	)
+	eval.save()
 
 
 @frappe.whitelist()

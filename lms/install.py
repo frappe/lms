@@ -52,6 +52,7 @@ def before_uninstall():
 def create_lms_roles():
 	create_course_creator_role()
 	create_moderator_role()
+	create_evaluator_role()
 
 
 def delete_lms_roles():
@@ -84,6 +85,19 @@ def create_moderator_role():
 			{
 				"doctype": "Role",
 				"role_name": "Moderator",
+				"home_page": "",
+				"desk_access": 0,
+			}
+		)
+		role.save(ignore_permissions=True)
+
+
+def create_evaluator_role():
+	if not frappe.db.exists("Role", "Class Evaluator"):
+		role = frappe.new_doc("Role")
+		role.update(
+			{
+				"role_name": "Class Evaluator",
 				"home_page": "",
 				"desk_access": 0,
 			}

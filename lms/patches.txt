@@ -56,3 +56,8 @@ lms.patches.v0_0.convert_course_description_to_html #11-05-2023
 lms.patches.v1_0.rename_assignment_doctype
 execute:frappe.permissions.reset_perms("LMS Assignment")
 execute:frappe.permissions.reset_perms("LMS Quiz")
+lms.patches.v1_0.create_class_evaluator_role
+execute:frappe.permissions.reset_perms("LMS Class")
+execute:frappe.permissions.reset_perms("Course Evaluator")
+execute:frappe.permissions.reset_perms("LMS Certificate Request")
+execute:frappe.permissions.reset_perms("LMS Certificate Evaluation")

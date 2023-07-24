@@ -21,7 +21,7 @@
 				<div class="page-title">
 					{{ _("{0}").format(student.full_name) }}
 				</div>
-				<div class="vertically-center small">
+				<div class="vertically-center">
 					<a class="dark-links" href="/classes">
 						{{ _("All Classes") }}
 					</a>
@@ -30,21 +30,27 @@
 						{{ class_info.name }}
 					</a>
 					<img class="icon icon-sm mr-0" src="/assets/lms/icons/chevron-right.svg">
-					<span class="breadcrumb-destination">{{ _("Student Progress").format(student.full_name) }}</span>
+					<span class="breadcrumb-destination">
+						{{ _("Student Progress").format(student.full_name) }}
+					</span>
 				</div>
 			</div>
 
-			{% if is_moderator %}
 			<div class="align-self-center">
-				<a class="btn btn-default btn-sm mr-2" href="/users/{{ student.username }}">
+				<a class="btn btn-default btn-sm" href="/users/{{ student.username }}">
 					{{ _("View Profile") }}
 				</a>
-				<a class="btn btn-primary btn-sm btn-evaluate" href=/evaluation/new?member={{student.name}}&date={{frappe.utils.getdate()}}&class={{class_info.name}}">
+				{% if student.name == frappe.session.user %}
+				<button class="btn btn-default btn-sm btn-schedule-eval ml-2">
+					{{ _("Schedule Evaluation") }}
+				</button>
+				{% endif %}
+				{% if is_moderator %}
+				<a class="btn btn-primary btn-sm btn-evaluate ml-2" href=/evaluation/new?member={{student.name}}&date={{frappe.utils.getdate()}}&class={{class_info.name}}">
 					{{ _("Evaluate") }}
 				</a>
+				{% endif %}
 			</div>
-			{% endif %}
-
 		</div>
 	</div>
 </header>
@@ -52,59 +58,132 @@
 
 
 {% macro Progress(class_info, student) %}
-{% if assessments | length %}
-<article class="form-grid">
-	<div class="grid-heading-row">
-		<div class="grid-row">
-			<div class="data-row row">
-				<div class="col grid-static-col">
-					{{ _("Assessment") }}
-				</div>
-				<div class="col grid-static-col col-xs-2">
-					{{ _("Type") }}
-				</div>
-				<div class="col grid-static-col col-xs-2">
-					{{ _("Status/Score") }}
-				</div>
-			</div>
-		</div>
-	</div>
-	{% for assessment in assessments %}
-	{% set has_access = is_moderator and assessment.submission or frappe.session.user == student.name %}
-	<div class="grid-row">
-		<div class="data-row row">
-			<a class="col grid-static-col {% if has_access %} clickable {% endif %}" {% if has_access %} href="{{ assessment.url }}" {% endif %}>
-				{{ assessment.title }}
-			</a>
-			<div class="col grid-static-col col-xs-2">
-				{{ (assessment.assessment_type).split("LMS ")[1] }}
-			</div>
+	{{ UpcomingEvals(upcoming_evals) }}
+	{{ Assessments(class_info, student) }}
+{% endmacro %}
 
-			<div class="col grid-static-col col-xs-2 mb-2">
-				{% if assessment.submission %}
-					{% if assessment.assessment_type == "LMS Assignment" %}
-						{% set status = assessment.submission.status %}
-						{% set color = "green" if status == "Pass" else "red" if status == "Fail" else "orange"  %}
-						<div class="indicator-pill {{ color }}">
-							{{ status }}
-						</div>
-					{% else %}
-						<div>
-							{{ assessment.submission.score }}
-						</div>
-					{% endif %}
-				{% else %}
-					<div class="indicator-pill red">
-						{{ _("Not Attempted") }}
-					</div>
+{% macro UpcomingEvals(upcoming_evals) %}
+<div class="mb-8">
+	<div class="bold-heading mb-2">
+		{{ _("Upcoming Evaluations") }}
+	</div>
+	{% if upcoming_evals | length %}
+	<article class="cards-parent">
+		{% for eval in upcoming_evals %}
+		<div class="common-card-style column-card">
+			<div class="flex align-center justify-between">
+				<div class="bold-heading">
+					{{ eval.course_title }}
+				</div>
+				{% if eval.google_meet_link %}
+				<a class="btn btn-default btn-sm pull-right" href="{{ eval.google_meet_link }}">
+					{{ _("Join") }}
+				</a>
 				{% endif %}
 			</div>
 
+			<div class="vertically-center">
+				<svg class="icon icon-sm mr-1">
+					<use href="#icon-calendar"></use>
+				</svg>
+				<span>
+					{{ frappe.utils.format_date(eval.date, "medium") }}&nbsp;-&nbsp;
+				</span>
+				<span>
+					{{ frappe.utils.format_time(eval.start_time, "hh:mm a") }}
+				</span>
+			</div>
+			<div>
+				<span class="field-label">
+					{{ _("Evaluator") }}:
+				</span>
+				<span>
+					{{ eval.evaluator_name }}
+				</span>
+			</div>
 		</div>
-	</div>
-	{% endfor %}
-</article>
-{% else %}
-<p class="text-muted mt-3"> {{ _("No Assessments") }} </p>
-{% endif %}
+		{% endfor %}
+	</article>
+	{% else %}
+	<p class="text-muted"> {{ _("No Upcoming Evaluations") }} </p>
+	{% endif %}
+</div>
 {% endmacro %}
+
+{% macro Assessments(class_info, student) %}
+<div class="mb-8">
+	<div class="bold-heading mb-2">
+		{{ _("Assessments") }}
+	</div>
+	{% if assessments | length %}
+	<article class="form-grid">
+		<div class="grid-heading-row">
+			<div class="grid-row">
+				<div class="data-row row">
+					<div class="col grid-static-col">
+						{{ _("Assessment") }}
+					</div>
+					<div class="col grid-static-col col-xs-2">
+						{{ _("Type") }}
+					</div>
+					<div class="col grid-static-col col-xs-2">
+						{{ _("Status/Score") }}
+					</div>
+				</div>
+			</div>
+		</div>
+		{% for assessment in assessments %}
+		{% set has_access = is_moderator and assessment.submission or frappe.session.user == student.name %}
+		<div class="grid-row">
+			<div class="data-row row">
+				<a class="col grid-static-col {% if has_access %} clickable {% endif %}" {% if has_access %} href="{{ assessment.url }}" {% endif %}>
+					{{ assessment.title }}
+				</a>
+				<div class="col grid-static-col col-xs-2">
+					{{ (assessment.assessment_type).split("LMS ")[1] }}
+				</div>
+
+				<div class="col grid-static-col col-xs-2 mb-2">
+					{% if assessment.submission %}
+						{% if assessment.assessment_type == "LMS Assignment" %}
+							{% set status = assessment.submission.status %}
+							{% set color = "green" if status == "Pass" else "red" if status == "Fail" else "orange"  %}
+							<div class="indicator-pill {{ color }}">
+								{{ status }}
+							</div>
+						{% else %}
+							<div>
+								{{ assessment.submission.score }}
+							</div>
+						{% endif %}
+					{% else %}
+						<div class="indicator-pill red">
+							{{ _("Not Attempted") }}
+						</div>
+					{% endif %}
+				</div>
+
+			</div>
+		</div>
+		{% endfor %}
+	</article>
+	{% else %}
+	<p class="text-muted"> {{ _("No Assessments") }} </p>
+	{% endif %}
+</div>
+
+{% endmacro %}
+
+{%- block script %}
+	{{ super() }}
+	<script>
+		frappe.boot.user = {
+			"can_create": [],
+			"can_select": ["LMS Course"],
+			"can_read": ["LMS Course"]
+		};
+		let courses = {{ courses | json }};
+		let class_name = "{{ class_info.name }}";
+	</script>
+	{{ include_script('controls.bundle.js') }}
+{% endblock %}
