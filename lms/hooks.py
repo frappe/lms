@@ -103,11 +103,11 @@ doc_events = {
 
 # Scheduled Tasks
 # ---------------
-# scheduler_events = {
-# 	"daily": [
-# 		"erpnext.stock.reorder_item.reorder_item"
-# 	]
-# }
+scheduler_events = {
+	"hourly": [
+		"lms.lms.doctype.lms_certificate_request.lms_certificate_request.schedule_evals"
+	]
+}
 
 fixtures = ["Custom Field", "Function", "Industry"]
 

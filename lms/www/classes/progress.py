@@ -42,7 +42,7 @@ def get_context(context):
 			"course": ["in", context.courses],
 			"date": [">=", frappe.utils.nowdate()],
 		},
-		["date", "start_time", "course", "evaluator"],
+		["date", "start_time", "course", "evaluator", "google_meet_link"],
 		order_by="date",
 	)
 

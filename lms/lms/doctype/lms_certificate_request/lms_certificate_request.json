@@ -14,6 +14,7 @@
   "section_break_lifi",
   "date",
   "day",
+  "google_meet_link",
   "column_break_ddyh",
   "start_time",
   "end_time"
@@ -90,11 +91,17 @@
   {
    "fieldname": "column_break_ddyh",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "google_meet_link",
+   "fieldtype": "Data",
+   "label": "Google Meet Link",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-07-21 11:13:38.827783",
+ "modified": "2023-07-21 16:00:11.795521",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate Request",
