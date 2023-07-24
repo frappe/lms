@@ -1,6 +1,5 @@
 import re
 import string
-
 import frappe
 from frappe import _
 from frappe.desk.doctype.dashboard_chart.dashboard_chart import get_result
@@ -522,6 +521,14 @@ def has_course_moderator_role(member=None):
 	)
 
 
+def has_course_evaluator_role(member=None):
+	return frappe.db.get_value(
+		"Has Role",
+		{"parent": member or frappe.session.user, "role": "Evaluator"},
+		"name",
+	)
+
+
 def get_courses_under_review():
 	return frappe.get_all(
 		"LMS Course",
@@ -753,3 +760,19 @@ def has_submitted_assessment(assessment, type, member=None):
 def has_graded_assessment(submission):
 	status = frappe.db.get_value("LMS Assignment Submission", submission, "status")
 	return False if status == "Not Graded" else True
+
+
+def get_evaluator(course, class_name=None):
+	evaluator = None
+
+	if class_name:
+		evaluator = frappe.db.get_value(
+			"Class Course",
+			{"parent": class_name, "course": course},
+			"evaluator",
+		)
+
+	if not evaluator:
+		evaluator = frappe.db.get_value("LMS Course", course, "evaluator")
+
+	return evaluator

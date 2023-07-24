@@ -204,7 +204,7 @@
 	{% if class_courses | length %}
 	<div class="cards-parent">
 		{% for course in class_courses %}
-		<div>
+		<div class="h-100">
 			{{ widgets.CourseCard(course=course, read_only=False) }}
 			<button class="btn icon-btn btn-default btn-block btn-remove-course" data-course="{{ course.name }}">
 				<svg class="icon icon-sm">
@@ -271,7 +271,7 @@
 			</div>
 		</div>
 		{% for student in class_students %}
-		{% set allow_progress = is_moderator or student.student == frappe.session.user %}
+		{% set allow_progress = is_moderator or student.student == frappe.session.user or is_evaluator %}
 		<div class="grid-row">
 			<div class="data-row row">
 				<a class="col grid-static-col {% if allow_progress %} clickable {% endif %}" {% if allow_progress %} href="/classes/{{ class_info.name }}/students/{{ student.username }}" {% endif %}>

@@ -7,7 +7,8 @@
  "engine": "InnoDB",
  "field_order": [
   "course",
-  "title"
+  "title",
+  "evaluator"
  ],
  "fields": [
   {
@@ -23,14 +24,21 @@
    "fieldname": "title",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Title",
+   "label": "Course Title",
    "read_only": 1
+  },
+  {
+   "fieldname": "evaluator",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Evaluator",
+   "options": "Course Evaluator"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2022-11-11 15:51:45.560864",
+ "modified": "2023-07-13 17:51:36.278393",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Class Course",
