@@ -157,12 +157,6 @@
 			"can_select": ["LMS Category"],
 			"can_read": ["LMS Category"]
 		};
-
-		frappe.router = {
-			slug (name) {
-				return name.toLowerCase().replace(/ /g, "-");
-			}
-		}
 		let class_info = null;
 	</script>
 	{% endif %}

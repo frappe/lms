@@ -462,11 +462,6 @@
 
 		frappe.boot.single_types = []
 
-		frappe.router = {
-			slug (name) {
-				return name.toLowerCase().replace(/ /g, "-");
-			}
-		}
 		let class_info = {{ class_info | json }};
 	</script>
 	{% endif %}
