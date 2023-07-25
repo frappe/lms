@@ -36,7 +36,7 @@ def get_context(context):
 	context.assessments = get_assessments(class_name, context.student.name)
 
 	upcoming_evals = frappe.get_all(
-		"LMS certificate Request",
+		"LMS Certificate Request",
 		{
 			"member": context.student.name,
 			"course": ["in", context.courses],
