@@ -14,17 +14,5 @@
   "bugs": {
     "url": "https://github.com/frappe/lms/issues"
   },
-  "homepage": "https://github.com/frappe/lms#readme",
-  "devDependencies": {
-    "cypress": "^10"
-  },
-  "dependencies": {
-    "@4tw/cypress-drag-drop": "^2",
-    "@cypress/code-coverage": "^3",
-    "@editorjs/header": "^2.7.0",
-    "@editorjs/list": "^1.8.0",
-    "@testing-library/cypress": "^8",
-    "@testing-library/dom": "8.17.1",
-    "cypress-real-events": "^1.7.6"
-  }
+  "homepage": "https://github.com/frappe/lms#readme"
 }
