@@ -1,7 +1,6 @@
 frappe.ready(() => {
 	setup_file_size();
 	pin_header();
-	setup_router();
 
 	$(".join-batch").click((e) => {
 		join_course(e);
@@ -42,14 +41,6 @@ frappe.ready(() => {
 		open_class_dialog(e);
 	});
 });
-
-const setup_router = () => {
-	frappe.router = {
-		slug(name) {
-			return name.toLowerCase().replace(/ /g, "-");
-		},
-	};
-};
 
 const pin_header = () => {
 	const el = document.querySelector(".sticky");
