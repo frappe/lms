@@ -533,7 +533,16 @@ def get_courses_under_review():
 	return frappe.get_all(
 		"LMS Course",
 		{"status": "Under Review"},
-		["name", "upcoming", "title", "image", "enable_certification", "status", "published"],
+		[
+			"name",
+			"upcoming",
+			"title",
+			"short_introduction",
+			"image",
+			"enable_certification",
+			"status",
+			"published",
+		],
 	)
 
 
