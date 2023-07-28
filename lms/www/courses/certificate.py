@@ -40,6 +40,20 @@ def get_context(context):
 		as_dict=True,
 	)
 
+	# SET Default Print Format For Certificate
+	if  not default_print_format:
+		default_print_format = frappe.get_doc(
+			{
+				"doctype": "Property Setter",
+				"doctype_or_field": "DocType",
+				"doc_type": "LMS Certificate",
+				"property": "default_print_format",
+				"property_type": "Data",
+				"value": "Certificate",
+			}
+		).insert(ignore_permissions=True)
+		frappe.db.commit()
+
 	template = frappe.db.get_value(
 		"Print Format", default_print_format.value, ["html", "css"], as_dict=True
 	)
