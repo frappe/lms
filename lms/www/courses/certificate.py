@@ -40,9 +40,15 @@ def get_context(context):
 		as_dict=True,
 	)
 
+	# Get Each LMS Course different Certificate Print Format 
+	 
+	course_print_format = frappe.db.get_value("LMS Course", course_name, "print_format")
+
 	template = frappe.db.get_value(
-		"Print Format", default_print_format.value, ["html", "css"], as_dict=True
+		"Print Format", course_print_format or default_print_format.value, ["html", "css"], as_dict=True
 	)
+	
+	# inested of in certificate.py file
 	merged_template = "<style> " + template.css + " </style>" + template.html
 	final_template = render_template(merged_template, context)
 	context.final_template = final_template
