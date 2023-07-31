@@ -1,0 +1,60 @@
+<div>
+    <div class="bold-heading mb-2">
+		{{ _("Assessments") }}
+	</div>
+	{% if assessments | length %}
+	<article class="form-grid">
+		<div class="grid-heading-row">
+			<div class="grid-row">
+				<div class="data-row row">
+					<div class="col grid-static-col">
+						{{ _("Assessment") }}
+					</div>
+					<div class="col grid-static-col col-xs-2">
+						{{ _("Type") }}
+					</div>
+					<div class="col grid-static-col col-xs-2">
+						{{ _("Status/Score") }}
+					</div>
+				</div>
+			</div>
+		</div>
+		{% for assessment in assessments %}
+		{% set has_access = is_moderator and assessment.submission or frappe.session.user == student.name %}
+		<div class="grid-row">
+			<div class="data-row row">
+				<a class="col grid-static-col {% if has_access %} clickable {% endif %}" {% if has_access %} href="{{ assessment.url }}" {% endif %}>
+					{{ assessment.title }}
+				</a>
+				<div class="col grid-static-col col-xs-2">
+					{{ (assessment.assessment_type).split("LMS ")[1] }}
+				</div>
+
+				<div class="col grid-static-col col-xs-2 mb-2">
+					{% if assessment.submission %}
+						{% if assessment.assessment_type == "LMS Assignment" %}
+							{% set status = assessment.submission.status %}
+							{% set color = "green" if status == "Pass" else "red" if status == "Fail" else "orange"  %}
+							<div class="indicator-pill {{ color }}">
+								{{ status }}
+							</div>
+						{% else %}
+							<div>
+								{{ assessment.submission.score }}
+							</div>
+						{% endif %}
+					{% else %}
+						<div class="indicator-pill red">
+							{{ _("Not Attempted") }}
+						</div>
+					{% endif %}
+				</div>
+
+			</div>
+		</div>
+		{% endfor %}
+	</article>
+	{% else %}
+	<p class="text-muted"> {{ _("No Assessments") }} </p>
+	{% endif %}
+</div>

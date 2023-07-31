@@ -57,21 +57,28 @@ def generate_slug(title, doctype):
 	return slugify(title, used_slugs=slugs)
 
 
-def get_membership(course, member, batch=None):
+def get_membership(course, member=None, batch=None):
+	if not member:
+		member = frappe.session.user
+
 	filters = {"member": member, "course": course}
 	if batch:
 		filters["batch"] = batch
 
-	membership = frappe.db.get_value(
-		"LMS Batch Membership",
-		filters,
-		["name", "batch", "current_lesson", "member_type", "progress"],
-		as_dict=True,
-	)
+	is_member = frappe.db.exists("LMS Batch Membership", filters)
+	if is_member:
+		membership = frappe.db.get_value(
+			"LMS Batch Membership",
+			filters,
+			["name", "batch", "current_lesson", "member_type", "progress"],
+			as_dict=True,
+		)
 
-	if membership and membership.batch:
-		membership.batch_title = frappe.db.get_value("LMS Batch", membership.batch, "title")
-	return membership
+		if membership and membership.batch:
+			membership.batch_title = frappe.db.get_value("LMS Batch", membership.batch, "title")
+		return membership
+
+	return False
 
 
 def get_chapters(course):
@@ -524,7 +531,7 @@ def has_course_moderator_role(member=None):
 def has_course_evaluator_role(member=None):
 	return frappe.db.get_value(
 		"Has Role",
-		{"parent": member or frappe.session.user, "role": "Evaluator"},
+		{"parent": member or frappe.session.user, "role": "Class Evaluator"},
 		"name",
 	)
 
@@ -700,7 +707,7 @@ def get_chart_data(chart_name, timespan, timegrain, from_date, to_date):
 	}
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def get_course_completion_data():
 	all_membership = frappe.db.count("LMS Batch Membership")
 	completed = frappe.db.count("LMS Batch Membership", {"progress": ["like", "%100%"]})
@@ -785,3 +792,23 @@ def get_evaluator(course, class_name=None):
 		evaluator = frappe.db.get_value("LMS Course", course, "evaluator")
 
 	return evaluator
+
+
+def get_upcoming_evals(student, courses):
+	print(student, courses)
+	upcoming_evals = frappe.get_all(
+		"LMS Certificate Request",
+		{
+			"member": student,
+			"course": ["in", courses],
+			"date": [">=", frappe.utils.nowdate()],
+		},
+		["date", "start_time", "course", "evaluator", "google_meet_link"],
+		order_by="date",
+	)
+
+	for evals in upcoming_evals:
+		evals.course_title = frappe.db.get_value("LMS Course", evals.course, "title")
+		evals.evaluator_name = frappe.db.get_value("User", evals.evaluator, "full_name")
+	print(upcoming_evals)
+	return upcoming_evals

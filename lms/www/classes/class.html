@@ -10,7 +10,7 @@
 		{{ BreadCrumb(class_info) }}
 		<div class="">
 			{{ ClassDetails(class_info) }}
-			{{ ClassSections(class_info, class_courses, class_students, published_courses) }}
+			{{ ClassSections(class_info, class_courses, class_students) }}
 		</div>
 	</div>
 </div>
@@ -82,7 +82,7 @@
 
 
 <!-- Class Sections -->
-{% macro ClassSections(class_info, class_courses, class_students, published_courses) %}
+{% macro ClassSections(class_info, class_courses, class_students) %}
 <div class="mt-4">
 
 	{% if is_moderator %}
@@ -92,14 +92,17 @@
 	{% endif %}
 
 	<ul class="nav lms-nav" id="classes-tab">
+
+		{% if is_student %}
 		<li class="nav-item">
-			<a class="nav-link active" data-toggle="tab" href="#dashboard">
+			<a class="nav-link {% if is_student %} active {% endif %}" data-toggle="tab" href="#dashboard">
 				{{ _("Dashboard") }}
 			</a>
 		</li>
+		{% endif %}
 
 		<li class="nav-item">
-			<a class="nav-link" data-toggle="tab" href="#courses">
+			<a class="nav-link {% if not is_student %} active {% endif %}" data-toggle="tab" href="#courses">
 				{{ _("Courses") }}
 				<span class="course-list-count">
 					{{ class_courses | length }}
@@ -129,6 +132,12 @@
 
 		{% if class_students | length and (is_moderator or is_student) %}
 		<li class="nav-item">
+			<a class="nav-link" data-toggle="tab" href="#discussions">
+				{{ _("Discussions") }}
+			</a>
+		</li>
+
+		<li class="nav-item">
 			<a class="nav-link" data-toggle="tab" href="#live-class">
 				{{ _("Live Class") }}
 				<span class="course-list-count">
@@ -143,12 +152,15 @@
 	<div class="border-bottom mb-4"></div>
 
 	<div class="tab-content">
-		<div class="tab-pane active" id="dashboard" role="tabpanel" aria-labelledby="dashboard">
-			{{ Dashboard(class_info) }}
-		</div>
 
-		<div class="tab-pane" id="courses" role="tabpanel" aria-labelledby="courses">
-			{{ CoursesSection(class_info, class_courses, published_courses) }}
+		{% if is_student %}
+		<div class="tab-pane {% if is_student %} active {% endif %}" id="dashboard" role="tabpanel" aria-labelledby="dashboard">
+			{{ Dashboard(class_info, class_courses, current_student) }}
+		</div>
+		{% endif %}
+
+		<div class="tab-pane {% if not is_student %} active {% endif %}" id="courses" role="tabpanel" aria-labelledby="courses">
+			{{ CoursesSection(class_info, class_courses) }}
 		</div>
 
 		<div class="tab-pane" id="students" role="tabpanel" aria-labelledby="students">
@@ -162,6 +174,10 @@
 		{% endif %}
 
 		{% if class_students | length and (is_moderator or is_student) %}
+		<div class="tab-pane" id="discussions" role="tabpanel" aria-labelledby="discussions">
+			{{ Discussions(class_info) }}
+		</div>
+
 		<div class="tab-pane" id="live-class" role="tabpanel" aria-labelledby="live-class">
 			{{ LiveClassSection(class_info, live_classes) }}
 		</div>
@@ -171,12 +187,53 @@
 </div>
 {% endmacro %}
 
-{% macro Dashboard(class_info) %}
+{% macro Dashboard(class_info, class_courses, current_student) %}
+
+{% set upcoming_evals = current_student.upcoming_evals %}
+{% set assessments = current_student.assessments %}
+{% set student = current_student %}
+
+{% if student.name == frappe.session.user %}
+	<button class="btn btn-default btn-sm btn-schedule-eval ml-2 pull-right">
+		{{ _("Schedule Evaluation") }}
+	</button>
+{% endif %}
+
+<div class="mb-8">
+	{% include "lms/templates/upcoming_evals.html" %}
+</div>
+<div class="mb-8">
+	{% include "lms/templates/assessments.html" %}
+</div>
+<!-- <div class="class-dashboard">
+	{% for course in is_student.courses %}
+		{% set value = is_student.courses[course] %}
+		{% set degree = value / 100 * 360 %}
+		<div class="progress mx-auto" data-value="{{ value }}">
+			<span class="progress-left">
+				<span class="progress-bar border-primary"
+				{% if value > 50 %} style="transform: rotate({{ degree }}deg);" {% endif %}></span>
+			</span>
+			<span class="progress-right">
+				<span class="progress-bar border-primary"
+				{% if value > 0 and value <= 50 %} style="transform: rotate({{ degree }}deg);" {% endif %}></span>
+			</span>
+			<div class="progress-value w-100 h-100 rounded-circle flex align-center justify-center">
+				<div class="bold-heading">
+					{{ value }} <sup class="small">%</sup>
+				</div>
+			</div>
+        </div>
+	{% endfor %}
+</div> -->
+{% endmacro %}
+
+{% macro Discussions(class_info) %}
 <article class="class-discussion">
 	{% set condition = is_moderator or is_student %}
 	{% set doctype, docname = _("LMS Class"), class_info.name %}
 	{% set single_thread = True %}
-	{% set title = "Announcements" %}
+	{% set title = "Discussions" %}
 	{% set cta_title = "Post" %}
 	{% set button_name = _("Start Learning") %}
 	{% set redirect_to = "/classes/" + class_info.name %}
@@ -186,7 +243,7 @@
 </article>
 {% endmacro %}
 
-{% macro CoursesSection(class_info, class_courses, published_courses) %}
+{% macro CoursesSection(class_info, class_courses) %}
 <article>
 	<header class="mb-5">
 		<div class="edit-header">
@@ -487,6 +544,15 @@
 		frappe.boot.single_types = []
 
 		let class_info = {{ class_info | json }};
+	</script>
+	{% else %}
+	<script>
+		frappe.boot.user = {
+			"can_create": [],
+			"can_select": ["LMS Course"],
+			"can_read": ["LMS Course"]
+		};
+		let courses = {{ course_list | json }};
 	</script>
 	{% endif %}
 
