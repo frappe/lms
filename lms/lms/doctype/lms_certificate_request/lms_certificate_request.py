@@ -21,7 +21,7 @@ class LMSCertificateRequest(Document):
 		)
 
 		for req in existing_requests:
-			print(req.date, getdate(self.date), getdate())
+
 			if req.date == getdate(self.date) or getdate() <= getdate(req.date):
 				course_title = frappe.db.get_value("LMS Course", req.course, "title")
 				frappe.throw(
