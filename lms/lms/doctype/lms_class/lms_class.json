@@ -24,6 +24,10 @@
   "description",
   "students",
   "courses",
+  "section_break_lbwu",
+  "fetch_lessons",
+  "scheduled_flow",
+  "section_break_ubxi",
   "custom_component",
   "assessment_tab",
   "assessment"
@@ -134,11 +138,30 @@
    "fieldname": "category",
    "fieldtype": "Autocomplete",
    "label": "Category"
+  },
+  {
+   "fieldname": "section_break_lbwu",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "scheduled_flow",
+   "fieldtype": "Table",
+   "label": "Scheduled Flow",
+   "options": "Scheduled Flow"
+  },
+  {
+   "fieldname": "section_break_ubxi",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "fetch_lessons",
+   "fieldtype": "Button",
+   "label": "Fetch Lessons"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-07-13 11:30:09.097605",
+ "modified": "2023-07-31 15:45:03.839896",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Class",

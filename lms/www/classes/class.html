@@ -10,7 +10,7 @@
 		{{ BreadCrumb(class_info) }}
 		<div class="">
 			{{ ClassDetails(class_info) }}
-			{{ ClassSections(class_info, class_courses, class_students, published_courses) }}
+			{{ ClassSections(class_info, class_courses, class_students, published_courses, flow) }}
 		</div>
 	</div>
 </div>
@@ -82,7 +82,7 @@
 
 
 <!-- Class Sections -->
-{% macro ClassSections(class_info, class_courses, class_students, published_courses) %}
+{% macro ClassSections(class_info, class_courses, class_students, published_courses, flow) %}
 <div class="mt-4">
 
 	{% if is_moderator %}
@@ -92,6 +92,7 @@
 	{% endif %}
 
 	<ul class="nav lms-nav" id="classes-tab">
+
 		<li class="nav-item">
 			<a class="nav-link active" data-toggle="tab" href="#courses">
 				{{ _("Courses") }}
@@ -100,6 +101,17 @@
 				</span>
 			</a>
 		</li>
+
+		{% if flow | length %}
+		<li class="nav-item">
+			<a class="nav-link" data-toggle="tab" href="#schedule">
+				{{ _("Schedule") }}
+				<span class="course-list-count">
+					{{ flow | length }}
+				</span>
+			</a>
+		</li>
+		{% endif %}
 
 		<li class="nav-item">
 			<a class="nav-link" data-toggle="tab" href="#students">
@@ -140,6 +152,12 @@
 		<div class="tab-pane active" id="courses" role="tabpanel" aria-labelledby="courses">
 			{{ CoursesSection(class_info, class_courses, published_courses) }}
 		</div>
+
+		{% if flow | length %}
+		<div class="tab-pane" id="schedule" role="tabpanel" aria-labelledby="schedule">
+			{{ ScheduleSection(flow) }}
+		</div>
+		{% endif %}
 
 		<div class="tab-pane" id="students" role="tabpanel" aria-labelledby="students">
 			{{ StudentsSection(class_info, class_students) }}
@@ -448,6 +466,32 @@
 		<p class=""> {{ _("No Live Classes") }} </p>
 	{% endif %}
 </div>
+{% endmacro %}
+
+
+{% macro ScheduleSection(flow) %}
+<article>
+	<header class="edit-header mb-5">
+		<div class="bold-heading">
+			{{ _("Schedule") }}
+		</div>
+	</header>
+	<div class="form-grid">
+		<div class="grid-body">
+			<div class="rows">
+				{% for lesson in flow %}
+					<div class="grid-row">
+						<div class="row data-row">
+							<a class="col grid-static-col clickable">
+								{{ lesson.lesson }}
+							</a>
+						</div>
+					</div>
+				{% endfor %}
+			</div>
+		</div>
+	</div>
+</article>
 {% endmacro %}
 
 {%- block script %}

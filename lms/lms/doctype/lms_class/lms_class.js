@@ -11,4 +11,25 @@ frappe.ui.form.on("LMS Class", {
 			};
 		});
 	},
+
+	fetch_lessons: (frm) => {
+		frm.clear_table("scheduled_flow");
+		frappe.call({
+			method: "lms.lms.doctype.lms_class.lms_class.fetch_lessons",
+			args: {
+				courses: frm.doc.courses,
+			},
+			callback: (r) => {
+				if (r.message) {
+					console.log(r.message);
+					r.message.forEach((lesson) => {
+						console.log(typeof lesson);
+						let row = frm.add_child("scheduled_flow");
+						row.lesson = lesson.name;
+					});
+					frm.refresh_field("scheduled_flow");
+				}
+			},
+		});
+	},
 });

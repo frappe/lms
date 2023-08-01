@@ -73,6 +73,7 @@ def get_context(context):
 	context.is_student = is_student(class_students)
 	context.all_assignments = get_all_assignments(class_name)
 	context.all_quizzes = get_all_quizzes(class_name)
+	context.flow = get_scheduled_flow(class_name)
 
 
 def get_all_quizzes(class_name):
@@ -185,3 +186,14 @@ def sort_students(class_students):
 def is_student(class_students):
 	students = [student.student for student in class_students]
 	return frappe.session.user in students
+
+
+def get_scheduled_flow(class_name):
+	lessons = frappe.get_all("Scheduled Flow", {"parent": class_name}, ["name", "lesson"])
+
+	for lesson in lessons:
+		lesson.update(
+			frappe.db.get_value("Course Lesson", lesson.lesson, ["body"], as_dict=True)
+		)
+
+	return lessons

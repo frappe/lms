@@ -8,6 +8,7 @@ import json
 from frappe import _
 from frappe.model.document import Document
 from frappe.utils import cint, format_date, format_datetime
+from lms.lms.utils import get_lessons
 
 
 class LMSClass(Document):
@@ -188,3 +189,14 @@ def create_class(
 	)
 	class_details.save()
 	return class_details
+
+
+@frappe.whitelist()
+def fetch_lessons(courses):
+	lessons = []
+	courses = json.loads(courses)
+
+	for course in courses:
+		lessons.extend(get_lessons(course.get("course")))
+
+	return lessons
