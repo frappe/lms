@@ -200,16 +200,8 @@ const expand_the_first_chapter = () => {
 };
 
 const expand_the_active_chapter = () => {
-	/* Find anchor matching the URL for course details page */
-	let selector = $(
-		`a[href="${decodeURIComponent(window.location.pathname)}"]`
-	).parent();
-
-	if (!selector.length) {
-		selector = $(
-			`a[href^="${decodeURIComponent(window.location.pathname)}"]`
-		).parent();
-	}
+	let selector = $(".course-home-headings.title");
+	console.log(selector);
 	if (selector.length && $(".course-details-page").length) {
 		expand_for_course_details(selector);
 	} else if ($(".active-lesson").length) {
@@ -225,15 +217,11 @@ const expand_the_active_chapter = () => {
 const expand_for_course_details = (selector) => {
 	$(".lesson-info").removeClass("active-lesson");
 	$(".lesson-info").each((i, elem) => {
-		let href = $(elem).find("use").attr("href");
-		href.endsWith("blue") &&
-			$(elem)
-				.find("use")
-				.attr("href", href.substring(0, href.length - 5));
+		if ($(elem).data("lesson") == selector.data("lesson")) {
+			$(elem).addClass("active-lesson");
+			show_section($(elem).parent().parent());
+		}
 	});
-	selector.addClass("active-lesson");
-
-	show_section(selector.parent().parent());
 };
 
 const show_section = (element) => {

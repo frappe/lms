@@ -1,6 +1,7 @@
 frappe.ready(() => {
 	frappe.telemetry.capture("on_lesson_creation_page", "lms");
 	let self = this;
+	this.quiz_in_lesson = [];
 	if ($("#current-lesson-content").length) {
 		parse_string_to_lesson();
 	}
@@ -48,7 +49,6 @@ const setup_editor = () => {
 const parse_string_to_lesson = () => {
 	let lesson_content = $("#current-lesson-content").html();
 	let lesson_blocks = [];
-	this.quiz_in_lesson = [];
 
 	lesson_content.split("\n").forEach((block) => {
 		if (block.includes("{{ YouTubeVideo")) {

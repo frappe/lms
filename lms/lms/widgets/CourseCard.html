@@ -120,7 +120,7 @@
 		{% else %}
             {% if progress != 100 and membership and not course.upcoming %}
 
-				{% set lesson_index = get_lesson_index(membership.current_lesson or "1.1") %}
+				{% set lesson_index = get_lesson_index(membership.current_lesson) or "1.1" %}
 
 				{% set query_parameter = "?batch=" + membership.batch if membership.batch else "" %}
 

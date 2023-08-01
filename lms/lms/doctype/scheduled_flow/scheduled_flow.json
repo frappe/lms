@@ -8,8 +8,9 @@
  "engine": "InnoDB",
  "field_order": [
   "lesson",
-  "date",
+  "lesson_title",
   "column_break_yikh",
+  "date",
   "start_time",
   "end_time"
  ],
@@ -43,12 +44,19 @@
    "fieldtype": "Date",
    "in_list_view": 1,
    "label": "Date"
+  },
+  {
+   "fetch_from": "lesson.title",
+   "fieldname": "lesson_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Lesson Title"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-07-31 16:53:36.829164",
+ "modified": "2023-08-01 12:31:27.512437",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Scheduled Flow",

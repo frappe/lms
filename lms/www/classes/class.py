@@ -8,6 +8,8 @@ from lms.lms.utils import (
 	get_course_progress,
 	has_submitted_assessment,
 	has_graded_assessment,
+	get_lesson_index,
+	get_lesson_url,
 )
 
 
@@ -189,11 +191,17 @@ def is_student(class_students):
 
 
 def get_scheduled_flow(class_name):
-	lessons = frappe.get_all("Scheduled Flow", {"parent": class_name}, ["name", "lesson"])
+	lessons = frappe.get_all(
+		"Scheduled Flow", {"parent": class_name}, ["name", "lesson"], order_by="idx"
+	)
 
 	for lesson in lessons:
 		lesson.update(
-			frappe.db.get_value("Course Lesson", lesson.lesson, ["body"], as_dict=True)
+			frappe.db.get_value(
+				"Course Lesson", lesson.lesson, ["title", "body", "course"], as_dict=True
+			)
 		)
+		lesson["index"] = get_lesson_index(lesson.lesson)
+		lesson["url"] = get_lesson_url(lesson.course, lesson.index) + "?class=" + class_name
 
 	return lessons

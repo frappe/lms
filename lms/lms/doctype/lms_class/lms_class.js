@@ -21,11 +21,10 @@ frappe.ui.form.on("LMS Class", {
 			},
 			callback: (r) => {
 				if (r.message) {
-					console.log(r.message);
 					r.message.forEach((lesson) => {
-						console.log(typeof lesson);
 						let row = frm.add_child("scheduled_flow");
 						row.lesson = lesson.name;
+						row.lesson_title = lesson.title;
 					});
 					frm.refresh_field("scheduled_flow");
 				}

@@ -482,8 +482,8 @@
 				{% for lesson in flow %}
 					<div class="grid-row">
 						<div class="row data-row">
-							<a class="col grid-static-col clickable">
-								{{ lesson.lesson }}
+							<a class="col grid-static-col clickable" href="{{ lesson.url }}">
+								{{ lesson.title }}
 							</a>
 						</div>
 					</div>
