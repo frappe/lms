@@ -45,9 +45,8 @@ def get_courses():
 			"title",
 			"short_introduction",
 			"image",
-			"enable_certification",
-			"paid_certificate",
-			"price_certificate",
+			"paid_course",
+			"course_price",
 			"currency",
 		],
 	)

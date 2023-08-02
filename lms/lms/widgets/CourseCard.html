@@ -59,19 +59,12 @@
                 {{ frappe.utils.flt(avg_rating, frappe.get_system_settings("float_precision") or 3) }}
             </div>
             {% endif %}
-
-            {% if course.paid_certificate %}
-            <div class="vertically-center">
-                <svg class="icon icon-md">
-                    <use href="#icon-badge"></use>
-                </svg>
-                <span class="certificate-price" data-price="{{ course.price_certificate }}">
-                    {{ format_amount(course.price_certificate, course.currency) }}
-                </span>
-            </div>
-            {% endif %}
         </div>
-        <div class="course-card-title">{{ course.title }}</div>
+
+        <div class="course-card-title">
+            {{ course.title }}
+        </div>
+
         <div class="short-introduction">
             {{ course.short_introduction }}
         </div>
@@ -87,7 +80,8 @@
         {% endif %}
 
         <div class="course-card-footer">
-            <span class="">
+
+            <div class="course-card-instructors">
                 {% set instructors = get_instructors(course.name) %}
                 {% set ins_len = instructors | length %}
                 {% for instructor in instructors %}
@@ -112,7 +106,15 @@
                     {% endif %}
                     </span>
                 </a>
-            </span>
+            </div>
+
+            <div class="course-price">
+                {% if course.paid_course %}
+                    {{ format_amount(course.course_price, course.currency) }}
+                {% else %}
+                    {{ _("Free") }}
+                {% endif %}
+            </div>
         </div>
 
         {% if read_only %}

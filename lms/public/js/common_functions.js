@@ -2,8 +2,8 @@ frappe.ready(() => {
 	setup_file_size();
 	pin_header();
 
-	$(".join-batch").click((e) => {
-		join_course(e);
+	$(".enroll-in-course").click((e) => {
+		enroll_in_course(e);
 	});
 
 	$(".notify-me").click((e) => {
@@ -68,7 +68,7 @@ const file_size = (value) => {
 	return value;
 };
 
-const join_course = (e) => {
+const enroll_in_course = (e) => {
 	e.preventDefault();
 	let course = $(e.currentTarget).attr("data-course");
 	if (frappe.session.user == "Guest") {

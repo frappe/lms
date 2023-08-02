@@ -414,11 +414,13 @@ input[type=checkbox] {
 }
 
 .course-card-footer {
-  margin-top: auto;
+	display: flex;
+	justify-content: space-between;
+	margin-top: auto;
 }
 
-.course-card-footer .avatar-group {
-  display: inherit;
+.course-price {
+	font-weight: 700;
 }
 
 .view-course-link {
@@ -549,6 +551,11 @@ input[type=checkbox] {
 	width: 100%;
 	margin: 0 0 2rem;
   }
+}
+
+.course-card-instructors {
+	display: flex;
+	align-items: center;
 }
 
 .course-card-wide-content {

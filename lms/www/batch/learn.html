@@ -135,7 +135,7 @@
             {{ render_html(lesson) }}
 
         {% else %}
-            {% set course_link = "<a class='join-batch' data-course=" + course.name | urlencode + " href=''>" + _('here') +  "</a>" %}
+            {% set course_link = "<a class='enroll-in-course' data-course=" + course.name | urlencode + " href=''>" + _('here') +  "</a>" %}
             <div class="alert alert-info medium mb-0">
                 {{ _("There is no preview available for this lesson.
                 Please join the course to access it.
