@@ -9,6 +9,8 @@ from frappe.utils import cint
 from frappe.utils.telemetry import capture
 from lms.lms.utils import get_chapters, can_create_courses
 from ...utils import generate_slug, validate_image
+from frappe import _
+import razorpay
 
 
 class LMSCourse(Document):
@@ -354,3 +356,44 @@ def reorder_chapter(chapter_array):
 					"idx": chapter_array.index(chap) + 1,
 				},
 			)
+
+
+@frappe.whitelist()
+def buy_course(course):
+	razorpay_key = frappe.get_single_value("LMS Settings", "razorpay_key")
+	razorpay_secret = frappe.get_single_value("LMS Settings", "razorpay_secret")
+
+	if not razorpay_key and not razorpay_secret:
+		frappe.throw(
+			_(
+				"There is a problem with the payment gateway. Please contact the Administrator to proceed."
+			)
+		)
+
+	create_payment_link(razorpay_key, razorpay_secret, course)
+
+
+def create_payment_link(razorpy_key, razorpay_secret, course):
+	client = razorpay.Client(auth=(razorpy_key, razorpay_secret))
+
+	course_details = frappe.db.get_value(
+		"LMS Course", course, ["title", "price_course", "currency"], as_dict=True
+	)
+	user_details = frappe.db.get_value(
+		"User", frappe.session.user, ["full_name", "email"], as_dict=True
+	)
+
+	client.payment_link.create(
+		{
+			"amount": course_details.price_course,
+			"currency": course_details.currency,
+			"description": "Complete your course purchase",
+			"customer": {
+				"name": user_details.full_name,
+				"email": user_details.email,
+			},
+			"notify": {"sms": True, "email": True},
+			"callback_url": "/api/method/lms.lms.doctype.lms_course.lms_course.verify_payment",
+			"callback_method": "get",
+		}
+	)

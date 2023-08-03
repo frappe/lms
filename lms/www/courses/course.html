@@ -222,9 +222,9 @@
         </a>
 
         {% elif course.paid_course %}
-        <a class="btn btn-primary wide-button" id="buy-course">
+        <div class="btn btn-primary wide-button" id="buy-course" data-course="{{ course.name | urlencode }}">
             {{ _("Buy This Course") }}
-        </a>
+        </div>
 
         {% elif show_start_learing_cta(course, membership) %}
         <div class="btn btn-primary wide-button enroll-in-course" data-course="{{ course.name | urlencode }}">
