@@ -359,10 +359,35 @@ def reorder_chapter(chapter_array):
 
 
 @frappe.whitelist()
-def buy_course(course):
-	razorpay_key = frappe.get_single_value("LMS Settings", "razorpay_key")
-	razorpay_secret = frappe.get_single_value("LMS Settings", "razorpay_secret")
+def get_payment_options(course):
+	course_details = frappe.db.get_value(
+		"LMS Course", course, ["name", "title", "currency", "course_price"], as_dict=True
+	)
+	razorpay_key = frappe.db.get_single_value("LMS Settings", "razorpay_key")
+	razorpay_secret = frappe.db.get_single_value("LMS Settings", "razorpay_secret")
 
+	client = get_client(razorpay_key, razorpay_secret)
+	order = create_order(client, course_details)
+
+	options = {
+		"key_id": razorpay_key,
+		"name": frappe.db.get_single_value("Website Settings", "app_name"),
+		"description": _("Payment for {0} course").format(course_details["title"]),
+		"order_id": order["id"],
+		"amount": order["amount"] * 100,
+		"currency": order["currency"],
+		"prefill": {
+			"name": frappe.db.get_value("User", frappe.session.user, "full_name"),
+			"email": frappe.session.user,
+		},
+		"callback_url": frappe.utils.get_url(
+			"/api/method/lms.lms.doctype.lms_course.lms_course.verify_payment"
+		),
+	}
+	return options
+
+
+def get_client(razorpay_key, razorpay_secret):
 	if not razorpay_key and not razorpay_secret:
 		frappe.throw(
 			_(
@@ -370,30 +395,13 @@ def buy_course(course):
 			)
 		)
 
-	create_payment_link(razorpay_key, razorpay_secret, course)
+	return razorpay.Client(auth=(razorpay_key, razorpay_secret))
 
 
-def create_payment_link(razorpy_key, razorpay_secret, course):
-	client = razorpay.Client(auth=(razorpy_key, razorpay_secret))
-
-	course_details = frappe.db.get_value(
-		"LMS Course", course, ["title", "price_course", "currency"], as_dict=True
-	)
-	user_details = frappe.db.get_value(
-		"User", frappe.session.user, ["full_name", "email"], as_dict=True
-	)
-
-	client.payment_link.create(
+def create_order(client, course_details):
+	return client.order.create(
 		{
-			"amount": course_details.price_course,
+			"amount": course_details.course_price * 100,
 			"currency": course_details.currency,
-			"description": "Complete your course purchase",
-			"customer": {
-				"name": user_details.full_name,
-				"email": user_details.email,
-			},
-			"notify": {"sms": True, "email": True},
-			"callback_url": "/api/method/lms.lms.doctype.lms_course.lms_course.verify_payment",
-			"callback_method": "get",
 		}
 	)

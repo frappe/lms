@@ -22,16 +22,7 @@ frappe.ready(() => {
 	});
 
 	$("#buy-course").click((e) => {
-		e.preventDefault();
-		frappe.call({
-			method: "lms.lms.doctype.lms_course.lms_course.buy_course",
-			args: {
-				course: decodeURIComponent(
-					$(e.currentTarget).attr("data-course")
-				),
-			},
-			callback: (data) => {},
-		});
+		generate_checkout_link(e);
 	});
 });
 
@@ -152,6 +143,27 @@ const submit_for_review = (e) => {
 					window.location.reload();
 				}, 1000);
 			}
+		},
+	});
+};
+
+generate_checkout_link = (e) => {
+	e.preventDefault();
+	let course = decodeURIComponent($(e.currentTarget).attr("data-course"));
+
+	if (frappe.session.user == "Guest") {
+		window.location.href = `/login?redirect-to=/courses/${course}`;
+		return;
+	}
+
+	frappe.call({
+		method: "lms.lms.doctype.lms_course.lms_course.get_payment_options",
+		args: {
+			course: course,
+		},
+		callback: (data) => {
+			let rzp1 = new Razorpay(data.message);
+			rzp1.open();
 		},
 	});
 };
