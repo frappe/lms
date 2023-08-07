@@ -142,6 +142,9 @@ const quiz_summary = (e = undefined) => {
 			$("#try-again").attr("data-submission", data.message.submission);
 			$("#try-again").removeClass("hide");
 			self.quiz_submitted = true;
+			if (this.hasOwnProperty("marked_as_complete")) {
+				mark_progress();
+			}
 		},
 	});
 };

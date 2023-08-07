@@ -21,10 +21,13 @@ frappe.ui.form.on("LMS Class", {
 			},
 			callback: (r) => {
 				if (r.message) {
+					let date = frappe.datetime.get_today();
 					r.message.forEach((lesson) => {
 						let row = frm.add_child("scheduled_flow");
 						row.lesson = lesson.name;
 						row.lesson_title = lesson.title;
+						row.date = date;
+						date = frappe.datetime.add_days(date, 1);
 					});
 					frm.refresh_field("scheduled_flow");
 				}

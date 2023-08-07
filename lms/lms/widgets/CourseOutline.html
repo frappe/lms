@@ -36,7 +36,6 @@
             <!-- <div class="small ml-auto">
                 {{ lessons | length }} lessons
             </div> -->
-
         </div>
 
 
@@ -58,9 +57,7 @@
 
                 {% if membership or lesson.include_in_preview or is_instructor or has_course_moderator_role() %}
                 <a class="lesson-links"
-                {% if not from_class %}
-                href="{{ get_lesson_url(course.name, lesson.number) }}{{course.query_parameter}}"
-                {% endif %}
+                href="{{ get_lesson_url(course.name, lesson.number) }}{% if classname %}?class={{ classname }}{% endif %}{{course.query_parameter}}"
                 {% if is_instructor and not lesson.include_in_preview %}
                 title="{{ _('This lesson is not available for preview. As you are the Instructor of the course only you can see it.') }}"
                 {% endif %}>

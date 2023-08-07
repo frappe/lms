@@ -10,7 +10,7 @@
 		{{ BreadCrumb(class_info) }}
 		<div class="">
 			{{ ClassDetails(class_info) }}
-			{{ ClassSections(class_info, class_courses, class_students, published_courses, flow) }}
+			{{ ClassSections(class_info, class_courses, class_students, flow) }}
 		</div>
 	</div>
 </div>
@@ -82,7 +82,7 @@
 
 
 <!-- Class Sections -->
-{% macro ClassSections(class_info, class_courses, class_students, published_courses, flow) %}
+{% macro ClassSections(class_info, class_courses, class_students, flow) %}
 <div class="mt-4">
 
 	{% if is_moderator %}
@@ -150,7 +150,7 @@
 
 	<div class="tab-content">
 		<div class="tab-pane active" id="courses" role="tabpanel" aria-labelledby="courses">
-			{{ CoursesSection(class_info, class_courses, published_courses) }}
+			{{ CoursesSection(class_info, class_courses) }}
 		</div>
 
 		{% if flow | length %}
@@ -180,7 +180,7 @@
 {% endmacro %}
 
 
-{% macro CoursesSection(class_info, class_courses, published_courses) %}
+{% macro CoursesSection(class_info, class_courses) %}
 <article>
 	<header class="mb-5">
 		<div class="edit-header">
@@ -476,20 +476,64 @@
 			{{ _("Schedule") }}
 		</div>
 	</header>
-	<div class="form-grid">
-		<div class="grid-body">
-			<div class="rows">
-				{% for lesson in flow %}
-					<div class="grid-row">
-						<div class="row data-row">
-							<a class="col grid-static-col clickable" href="{{ lesson.url }}">
-								{{ lesson.title }}
-							</a>
+
+	<div>
+		{% for chapter in flow %}
+			<div class="chapter-parent">
+				<div class="chapter-title" data-toggle="collapse" data-target="#{{ get_slugified_chapter_title(chapter.chapter_title) }}">
+					<img class="chapter-icon" src="/assets/lms/icons/chevron-right.svg">
+					<div class="chapter-title-main">
+						{{ chapter.chapter_title }}
+					</div>
+				</div>
+				<div class="chapter-content lessons collapse navbar-collapse" id="{{ get_slugified_chapter_title(chapter.chapter_title) }}">
+
+					<div class="schedule-header">
+						<div class="w-50">
+							{{ _("Lesson") }}
+						</div>
+						<div class="w-25">
+							{{ _("Date") }}
+						</div>
+						<div class="w-25 text-center">
+							{{ _("Start Time") }}
+						</div>
+						<div class="w-25 text-center">
+							{{ _("End Time") }}
 						</div>
 					</div>
-				{% endfor %}
+
+					{% for lesson in chapter.lessons %}
+						<div class="lesson-info flex align-center">
+							<a class="lesson-links w-50" href="{{ lesson.url }}">
+								<svg class="icon icon-sm mr-2">
+									<use class="" href="#{{ lesson.icon }}">
+								</svg>
+
+								{{ lesson.title }}
+							</a>
+							<div class="w-25">
+								{{ frappe.utils.format_date(lesson.date, "medium") }}
+							</div>
+							<div class="w-25 text-center">
+								{% if lesson.start_time %}
+								{{ frappe.utils.format_time(lesson.start_time, "HH:mm a") }}
+								{% else %}
+								-
+								{% endif %}
+							</div>
+							<div class="w-25 text-center">
+								{% if lesson.end_time %}
+								{{ frappe.utils.format_time(lesson.end_time, "HH:mm a") }}
+								{% else %}
+								-
+								{% endif %}
+							</div>
+						</div>
+					{% endfor %}
+				</div>
 			</div>
-		</div>
+		{% endfor %}
 	</div>
 </article>
 {% endmacro %}

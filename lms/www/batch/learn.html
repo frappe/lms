@@ -39,8 +39,8 @@
                 {% endif %}
 
                 <div class="course-details-outline">
-                    {% set from_class = True if class_info else False %}
-                    {{ widgets.CourseOutline(course=course, membership=membership, lesson_page=True, from_class=from_class) }}
+                    {% set classname = class_info.name if class_info else False %}
+                    {{ widgets.CourseOutline(course=course, membership=membership, lesson_page=True, classname=classname) }}
                 </div>
             </div>
             <div class="lesson-parent">
