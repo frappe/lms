@@ -1,6 +1,8 @@
 frappe.ready(() => {
 	frappe.telemetry.capture("on_lesson_creation_page", "lms");
 	let self = this;
+	this.quiz_in_lesson = [];
+
 	if ($("#current-lesson-content").length) {
 		parse_string_to_lesson();
 	}
