@@ -205,27 +205,6 @@
 <div class="mb-8">
 	{% include "lms/templates/assessments.html" %}
 </div>
-<!-- <div class="class-dashboard">
-	{% for course in is_student.courses %}
-		{% set value = is_student.courses[course] %}
-		{% set degree = value / 100 * 360 %}
-		<div class="progress mx-auto" data-value="{{ value }}">
-			<span class="progress-left">
-				<span class="progress-bar border-primary"
-				{% if value > 50 %} style="transform: rotate({{ degree }}deg);" {% endif %}></span>
-			</span>
-			<span class="progress-right">
-				<span class="progress-bar border-primary"
-				{% if value > 0 and value <= 50 %} style="transform: rotate({{ degree }}deg);" {% endif %}></span>
-			</span>
-			<div class="progress-value w-100 h-100 rounded-circle flex align-center justify-center">
-				<div class="bold-heading">
-					{{ value }} <sup class="small">%</sup>
-				</div>
-			</div>
-        </div>
-	{% endfor %}
-</div> -->
 {% endmacro %}
 
 {% macro Discussions(class_info) %}

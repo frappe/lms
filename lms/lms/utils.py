@@ -795,7 +795,6 @@ def get_evaluator(course, class_name=None):
 
 
 def get_upcoming_evals(student, courses):
-	print(student, courses)
 	upcoming_evals = frappe.get_all(
 		"LMS Certificate Request",
 		{
@@ -810,5 +809,4 @@ def get_upcoming_evals(student, courses):
 	for evals in upcoming_evals:
 		evals.course_title = frappe.db.get_value("LMS Course", evals.course, "title")
 		evals.evaluator_name = frappe.db.get_value("User", evals.evaluator, "full_name")
-	print(upcoming_evals)
 	return upcoming_evals
