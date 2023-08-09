@@ -29,5 +29,13 @@ frappe.ui.form.on("LMS Course", {
 	},
 	refresh: (frm) => {
 		frm.add_web_link(`/courses/${frm.doc.name}`, "See on Website");
+
+		frm.set_query("print_format", function () {
+			return {
+				filters: {
+					doc_type: "LMS Certificate",
+				},
+			};
+		});
 	},
 });
