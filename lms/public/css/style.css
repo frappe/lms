@@ -43,7 +43,7 @@ body {
 	margin-top: 2rem;
 }
 
-.frappe-control .ql-editor:not(.read-mode) {
+.field-group .frappe-control .ql-editor:not(.read-mode) {
 	background-color: #FFFFFF;
 }
 
@@ -321,11 +321,12 @@ input[type=checkbox] {
 }
 
 .common-card-style {
-  display: flex;
-  background: #FFFFFF;
-  border-radius: var(--border-radius-md);
-  position: relative;
-  border: 1px solid var(--gray-300)
+	display: flex;
+	background: #FFFFFF;
+	border-radius: var(--border-radius-md);
+	position: relative;
+	border: 1px solid var(--gray-300);
+	box-shadow: var(--shadow-inset);
 }
 
 .course-card {
@@ -817,7 +818,7 @@ input[type=checkbox] {
 }
 
 .lesson-pagination {
-	margin: 2rem 0;
+	margin: 2rem 0 5rem;
 }
 
 .lesson-video {
@@ -1648,10 +1649,6 @@ li {
 	color: var(--gray-600);
 }
 
-.discussions-parent .empty-state {
-	background-color: var(--gray-200);
-}
-
 .job-cards-parent {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
@@ -2208,4 +2205,77 @@ select {
 	display: flex;
 	font-size: var(--text-sm);
 	padding: 0.5rem 0.5rem 0 0.5rem;
+}
+
+.lms-page-style .discussions-section-title {
+	font-size: var(--text-lg);
+}
+
+.class-dashboard .progress {
+	width: 150px;
+	height: 150px;
+	background: none;
+	position: relative;
+}
+
+.class-dashboard .progress::after {
+	content: "";
+	width: 100%;
+	height: 100%;
+	border-radius: 50%;
+	border: 6px solid #eee;
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+.class-dashboard .progress>span {
+	width: 50%;
+	height: 100%;
+	overflow: hidden;
+	position: absolute;
+	top: 0;
+	z-index: 1;
+}
+
+.class-dashboard .progress .progress-left {
+	left: 0;
+}
+
+.class-dashboard .progress .progress-bar {
+	width: 100%;
+	height: 100%;
+	background: none;
+	border-width: 6px;
+	border-style: solid;
+	position: absolute;
+	top: 0;
+}
+
+.class-dashboard .progress .progress-left .progress-bar {
+	left: 100%;
+	border-top-right-radius: 80px;
+	border-bottom-right-radius: 80px;
+	border-left: 0;
+	-webkit-transform-origin: center left;
+	transform-origin: center left;
+}
+
+.class-dashboard .progress .progress-right {
+	right: 0;
+}
+
+.class-dashboard .progress .progress-right .progress-bar {
+	left: -100%;
+	border-top-left-radius: 80px;
+	border-bottom-left-radius: 80px;
+	border-right: 0;
+	-webkit-transform-origin: center right;
+	transform-origin: center right;
+}
+
+.class-dashboard .progress .progress-value {
+	position: absolute;
+	top: 0;
+	left: 0;
 }

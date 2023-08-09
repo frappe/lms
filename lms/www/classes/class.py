@@ -1,16 +1,17 @@
 from frappe import _
 import frappe
-from frappe.utils import getdate
+from frappe.utils import getdate, cint
 from lms.www.utils import get_assessments
 from lms.lms.utils import (
 	has_course_moderator_role,
 	has_course_evaluator_role,
-	get_course_progress,
+	get_upcoming_evals,
 	has_submitted_assessment,
 	has_graded_assessment,
 	get_lesson_index,
 	get_lesson_url,
 	get_lesson_icon,
+	get_membership,
 )
 
 
@@ -39,10 +40,13 @@ def get_context(context):
 		as_dict=True,
 	)
 
+	context.reference_doctype = "LMS Class"
+	context.reference_name = class_name
+
 	class_courses = frappe.get_all(
 		"Class Course",
 		{"parent": class_name},
-		["name", "course"],
+		["name", "course", "title"],
 		order_by="creation desc",
 	)
 
@@ -54,6 +58,7 @@ def get_context(context):
 	)
 
 	context.class_courses = get_class_course_details(class_courses)
+	context.course_list = [course.course for course in context.class_courses]
 	context.all_courses = frappe.get_all(
 		"LMS Course", fields=["name", "title"], limit_page_length=0
 	)
@@ -74,6 +79,9 @@ def get_context(context):
 		order_by="date",
 	)
 
+	context.current_student = (
+		get_current_student_details(class_courses, class_name) if context.is_student else None
+	)
 	context.all_assignments = get_all_assignments(class_name)
 	context.all_quizzes = get_all_quizzes(class_name)
 	context.flow = get_scheduled_flow(class_name)
@@ -140,34 +148,45 @@ def get_class_student_details(class_students, class_courses, assessments):
 			)
 		)
 		student.update(frappe.db.get_value("User", student.student, "last_active", as_dict=1))
-
-		courses_completed = 0
-		for course in class_courses:
-			if get_course_progress(course.course, student.student) == 100:
-				courses_completed += 1
-		student["courses_completed"] = courses_completed
-
-		assessments_completed = 0
-		assessments_graded = 0
-		for assessment in assessments:
-			submission = has_submitted_assessment(
-				assessment.assessment_name, assessment.assessment_type, student.student
-			)
-			if submission:
-				assessments_completed += 1
-
-				if (
-					assessment.assessment_type == "LMS Assignment"
-					and has_graded_assessment(submission)
-				):
-					assessments_graded += 1
-				elif assessment.assessment_type == "LMS Quiz":
-					assessments_graded += 1
-
-		student["assessments_completed"] = assessments_completed
-		student["assessments_graded"] = assessments_graded
+		get_progress_info(student, class_courses)
+		get_assessment_info(student, assessments)
 
 	return sort_students(class_students)
+
+
+def get_progress_info(student, class_courses):
+	courses_completed = 0
+	student["courses"] = frappe._dict()
+	for course in class_courses:
+		membership = get_membership(course.course, student.student)
+		if membership and membership.progress == 100:
+			courses_completed += 1
+
+	student["courses_completed"] = courses_completed
+	return student
+
+
+def get_assessment_info(student, assessments):
+	assessments_completed = 0
+	assessments_graded = 0
+	for assessment in assessments:
+		submission = has_submitted_assessment(
+			assessment.assessment_name, assessment.assessment_type, student.student
+		)
+		if submission:
+			assessments_completed += 1
+
+			if (
+				assessment.assessment_type == "LMS Assignment" and has_graded_assessment(submission)
+			):
+				assessments_graded += 1
+			elif assessment.assessment_type == "LMS Quiz":
+				assessments_graded += 1
+
+	student["assessments_completed"] = assessments_completed
+	student["assessments_graded"] = assessments_graded
+
+	return student
 
 
 def sort_students(class_students):
@@ -226,3 +245,25 @@ def get_scheduled_flow(class_name):
 			chapter_exists[0]["lessons"].append(lesson)
 
 	return chapters
+
+
+def get_current_student_details(class_courses, class_name):
+	student_details = frappe._dict()
+	student_details.courses = frappe._dict()
+	course_list = [course.course for course in class_courses]
+
+	get_course_progress(class_courses, student_details)
+	student_details.name = frappe.session.user
+	student_details.assessments = get_assessments(class_name, frappe.session.user)
+	student_details.upcoming_evals = get_upcoming_evals(frappe.session.user, course_list)
+
+	return student_details
+
+
+def get_course_progress(class_courses, student_details):
+	for course in class_courses:
+		membership = get_membership(course.course, frappe.session.user)
+		if membership:
+			student_details.courses[course.course] = membership.progress
+		else:
+			student_details.courses[course.course] = 0

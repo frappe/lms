@@ -1,6 +1,6 @@
 {% extends "lms/templates/lms_base.html" %}
 {% block title %}
-    {{ _(class_info.title) }}
+	{{ _(class_info.title) }}
 {% endblock %}
 
 
@@ -20,9 +20,9 @@
 <!-- BreadCrumb -->
 {% macro BreadCrumb(class_info) %}
 <div class="breadcrumb">
-    <a class="dark-links" href="/classes">{{ _("All Classes") }}</a>
-    <img class="ml-1 mr-1" src="/assets/lms/icons/chevron-right.svg">
-    <span class="breadcrumb-destination">{{ class_info.title }}</span>
+	<a class="dark-links" href="/classes">{{ _("All Classes") }}</a>
+	<img class="ml-1 mr-1" src="/assets/lms/icons/chevron-right.svg">
+	<span class="breadcrumb-destination">{{ class_info.title }}</span>
 </div>
 {% endmacro %}
 
@@ -93,8 +93,16 @@
 
 	<ul class="nav lms-nav" id="classes-tab">
 
+		{% if is_student %}
 		<li class="nav-item">
-			<a class="nav-link active" data-toggle="tab" href="#courses">
+			<a class="nav-link {% if is_student %} active {% endif %}" data-toggle="tab" href="#dashboard">
+				{{ _("Dashboard") }}
+			</a>
+		</li>
+		{% endif %}
+
+		<li class="nav-item">
+			<a class="nav-link {% if not is_student %} active {% endif %}" data-toggle="tab" href="#courses">
 				{{ _("Courses") }}
 				<span class="course-list-count">
 					{{ class_courses | length }}
@@ -135,6 +143,12 @@
 
 		{% if class_students | length and (is_moderator or is_student) %}
 		<li class="nav-item">
+			<a class="nav-link" data-toggle="tab" href="#discussions">
+				{{ _("Discussions") }}
+			</a>
+		</li>
+
+		<li class="nav-item">
 			<a class="nav-link" data-toggle="tab" href="#live-class">
 				{{ _("Live Class") }}
 				<span class="course-list-count">
@@ -149,7 +163,14 @@
 	<div class="border-bottom mb-4"></div>
 
 	<div class="tab-content">
-		<div class="tab-pane active" id="courses" role="tabpanel" aria-labelledby="courses">
+
+		{% if is_student %}
+		<div class="tab-pane {% if is_student %} active {% endif %}" id="dashboard" role="tabpanel" aria-labelledby="dashboard">
+			{{ Dashboard(class_info, class_courses, current_student) }}
+		</div>
+		{% endif %}
+
+		<div class="tab-pane {% if not is_student %} active {% endif %}" id="courses" role="tabpanel" aria-labelledby="courses">
 			{{ CoursesSection(class_info, class_courses) }}
 		</div>
 
@@ -169,7 +190,11 @@
 		</div>
 		{% endif %}
 
-		{% if class_students | length and (is_moderator or is_student) %}
+		{% if class_students | length and (is_moderator or is_student or is_evaluator) %}
+		<div class="tab-pane" id="discussions" role="tabpanel" aria-labelledby="discussions">
+			{{ Discussions(class_info) }}
+		</div>
+
 		<div class="tab-pane" id="live-class" role="tabpanel" aria-labelledby="live-class">
 			{{ LiveClassSection(class_info, live_classes) }}
 		</div>
@@ -179,6 +204,40 @@
 </div>
 {% endmacro %}
 
+{% macro Dashboard(class_info, class_courses, current_student) %}
+
+{% set upcoming_evals = current_student.upcoming_evals %}
+{% set assessments = current_student.assessments %}
+{% set student = current_student %}
+
+{% if student.name == frappe.session.user %}
+	<button class="btn btn-default btn-sm btn-schedule-eval ml-2 pull-right">
+		{{ _("Schedule Evaluation") }}
+	</button>
+{% endif %}
+
+<div class="mb-8">
+	{% include "lms/templates/upcoming_evals.html" %}
+</div>
+<div class="mb-8">
+	{% include "lms/templates/assessments.html" %}
+</div>
+{% endmacro %}
+
+{% macro Discussions(class_info) %}
+<article class="class-discussion">
+	{% set condition = is_moderator or is_student or is_evaluator %}
+	{% set doctype, docname = _("LMS Class"), class_info.name %}
+	{% set single_thread = True %}
+	{% set title = "Discussions" %}
+	{% set cta_title = "Post" %}
+	{% set button_name = _("Start Learning") %}
+	{% set redirect_to = "/classes/" + class_info.name %}
+	{% set empty_state_title = _("Have a doubt?") %}
+	{% set empty_state_subtitle = _("Post it here, our mentors will help you out.") %}
+	{% include "frappe/templates/discussions/discussions_section.html" %}
+</article>
+{% endmacro %}
 
 {% macro CoursesSection(class_info, class_courses) %}
 <article>
@@ -265,10 +324,10 @@
 			</div>
 		</div>
 		{% for student in class_students %}
-		{% set allow_progress = is_moderator or student.student == frappe.session.user or is_evaluator %}
+		{% set allow_progress = is_moderator or is_evaluator %}
 		<div class="grid-row">
 			<div class="data-row row">
-				<a class="col grid-static-col {% if allow_progress %} clickable {% endif %}" {% if allow_progress %} href="/classes/{{ class_info.name }}/students/{{ student.username }}" {% endif %}>
+				<a class="col grid-static-col button-links {% if allow_progress %} clickable {% endif %}" {% if allow_progress %} href="/classes/{{ class_info.name }}/students/{{ student.username }}" {% endif %}>
 					{{ student.student_name }}
 				</a>
 				<div class="col grid-static-col col-xs-2 text-right">
@@ -551,6 +610,15 @@
 		frappe.boot.single_types = []
 
 		let class_info = {{ class_info | json }};
+	</script>
+	{% else %}
+	<script>
+		frappe.boot.user = {
+			"can_create": [],
+			"can_select": ["LMS Course"],
+			"can_read": ["LMS Course"]
+		};
+		let courses = {{ course_list | json }};
 	</script>
 	{% endif %}
 

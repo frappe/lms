@@ -86,26 +86,50 @@ describe("Course Creation", () => {
 		// Add Discussion
 		cy.get(".reply").click();
 		cy.wait(500);
-		cy.get(".topic-title").type("Question Title");
-		cy.get(".comment-field").type(
-			"Question Content. This is a very long question. It contains more than once sentence. Its meant to be this long as this is a UI test."
-		);
-		cy.get(".submit-discussion").click();
+		cy.get(".discussion-modal").should("be.visible");
 
-		// View Discussion
-		cy.wait(1000);
-		cy.get(".discussion-topic-title:first").contains("Question Title");
-		cy.get(".sidebar-parent:first").click();
-		cy.get(".reply-text").contains(
-			"Question Content. This is a very long question. It contains more than once sentence. Its meant to be this long as this is a UI test."
+		// Enter title
+		cy.get(".modal .topic-title")
+			.type("Discussion from tests")
+			.should("have.value", "Discussion from tests");
+
+		// Enter comment
+		cy.get(".modal .discussions-comment").type(
+			"This is a discussion from the cypress ui tests."
 		);
-		cy.get(".comment-field:visible").type(
-			"This is a reply to the previous comment. Its not that long."
+
+		// Submit
+		cy.get(".modal .submit-discussion").click();
+		cy.wait(2000);
+
+		// Check if discussion is added to page and content is visible
+		cy.get(".sidebar-parent:first .discussion-topic-title").should(
+			"have.text",
+			"Discussion from tests"
 		);
-		cy.get(".submit-discussion:visible").click();
-		cy.wait(1000);
-		cy.get(".reply-text:last p").contains(
-			"This is a reply to the previous comment. Its not that long."
+		cy.get(".sidebar-parent:first .discussion-topic-title").click();
+		cy.get(".discussion-on-page:visible").should("have.class", "show");
+		cy.get(
+			".discussion-on-page:visible .reply-card .reply-text .ql-editor p"
+		).should(
+			"have.text",
+			"This is a discussion from the cypress ui tests."
 		);
+
+		cy.get(".discussion-form:visible .discussions-comment").type(
+			"This is a discussion from the cypress ui tests. \n\nThis comment was entered through the commentbox on the page."
+		);
+
+		cy.get(".discussion-form:visible .submit-discussion").click();
+		cy.wait(3000);
+		cy.get(".discussion-on-page:visible").should("have.class", "show");
+		cy.get(".discussion-on-page:visible")
+			.children(".reply-card")
+			.eq(1)
+			.find(".reply-text")
+			.should(
+				"have.text",
+				"This is a discussion from the cypress ui tests. This comment was entered through the commentbox on the page.\n"
+			);
 	});
 });

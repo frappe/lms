@@ -139,7 +139,9 @@
             {% endif %}
         </span>
         </a>
-        <div class="ml-5 course-meta"> {{ frappe.utils.format_date(lesson.creation, "medium") }} </div>
+        <div class="ml-5 course-meta">
+            {{ frappe.utils.format_date(lesson.creation, "medium") }}
+        </div>
     </div>
 
     <!-- Lesson Content -->
@@ -258,13 +260,15 @@
     {% set redirect_to = "/courses/" + course.name %}
     {% set empty_state_title = _("Have a doubt?") %}
     {% set empty_state_subtitle = _("Post it here, our mentors will help you out.") %}
-    {% include "frappe/templates/discussions/discussions_section.html" %}
+    <div class="pt-8">
+        {% include "frappe/templates/discussions/discussions_section.html" %}
+    </div>
 {% endmacro %}
 
 
-<!-- Scripts -->
 {%- block script %}
     {{ super() }}
+    {{ include_script('controls.bundle.js') }}
     <script type="text/javascript">
         var page_context = {{ page_context | tojson }};
         {% include "lms/templates/quiz/quiz.js" %}

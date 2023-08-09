@@ -1,0 +1,45 @@
+<div>
+    <div class="bold-heading mb-2">
+		{{ _("Upcoming Evaluations") }}
+	</div>
+	{% if upcoming_evals | length %}
+	<article class="cards-parent">
+		{% for eval in upcoming_evals %}
+		<div class="common-card-style column-card">
+			<div class="flex align-center justify-between">
+				<div class="bold-heading">
+					{{ eval.course_title }}
+				</div>
+				{% if eval.google_meet_link %}
+				<a class="btn btn-default btn-sm pull-right" href="{{ eval.google_meet_link }}">
+					{{ _("Join") }}
+				</a>
+				{% endif %}
+			</div>
+
+			<div class="vertically-center">
+				<svg class="icon icon-sm mr-1">
+					<use href="#icon-calendar"></use>
+				</svg>
+				<span>
+					{{ frappe.utils.format_date(eval.date, "medium") }}&nbsp;-&nbsp;
+				</span>
+				<span>
+					{{ frappe.utils.format_time(eval.start_time, "hh:mm a") }}
+				</span>
+			</div>
+			<div>
+				<span class="field-label">
+					{{ _("Evaluator") }}:
+				</span>
+				<span>
+					{{ eval.evaluator_name }}
+				</span>
+			</div>
+		</div>
+		{% endfor %}
+	</article>
+	{% else %}
+	<p class="text-muted"> {{ _("No Upcoming Evaluations") }} </p>
+	{% endif %}
+</div>
