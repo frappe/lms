@@ -173,7 +173,7 @@
 		</div>
 		{% endif %}
 
-		{% if class_students | length and (is_moderator or is_student) %}
+		{% if class_students | length and (is_moderator or is_student or is_evaluator) %}
 		<div class="tab-pane" id="discussions" role="tabpanel" aria-labelledby="discussions">
 			{{ Discussions(class_info) }}
 		</div>
@@ -230,7 +230,7 @@
 
 {% macro Discussions(class_info) %}
 <article class="class-discussion">
-	{% set condition = is_moderator or is_student %}
+	{% set condition = is_moderator or is_student or is_evaluator %}
 	{% set doctype, docname = _("LMS Class"), class_info.name %}
 	{% set single_thread = True %}
 	{% set title = "Discussions" %}
