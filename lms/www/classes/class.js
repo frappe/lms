@@ -648,7 +648,6 @@ const submit_evaluation_form = (values) => {
 		frappe.throw(__("Please select a slot"));
 	}
 
-	this.eval_form.hide();
 	frappe.call({
 		method: "lms.lms.doctype.lms_certificate_request.lms_certificate_request.create_certificate_request",
 		args: {
@@ -660,6 +659,7 @@ const submit_evaluation_form = (values) => {
 			class_name: $(".class-details").data("class"),
 		},
 		callback: (r) => {
+			this.eval_form.hide();
 			frappe.show_alert({
 				message: __("Evaluation scheduled successfully"),
 				indicator: "green",
