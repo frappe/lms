@@ -1,7 +1,7 @@
 {
  "absolute_value": 0,
  "align_labels_right": 0,
- "creation": "2023-02-22 21:36:54.560420",
+ "creation": "2023-08-09 16:46:41.214175",
  "css": ".outer-border {\n    font-family: \"Inter\" sans-serif;\n    font-size: 16px;\n    border-radius: 0.5rem;\n    border: 1px solid #E2E6E9;\n    padding: 1rem;\n}\n\n.inner-border {\n    border: 10px solid #0089FF;\n    border-radius: 8px;\n    text-align: center;\n    padding: 6rem 4rem;\n    background-color: #FFFFFF;\n}\n\n.certificate-logo {\n    height: 1.5rem;\n    margin-bottom: 4rem;\n}\n\n.certificate-name {\n    font-size: 2rem;\n    font-weight: 500;\n    color: #192734;\n    margin-bottom: 0.5rem;\n}\n\n.certificate-footer {\n    margin: 4rem auto 0;\n    width: 70%;\n    text-align: center;\n}\n\n.certificate-footer-item {\n    color: #192734;\n}\n\n.cursive-font {\n    font-family: cursive;\n    font-weight: 600;\n}\n\n.certificate-divider {\n    margin: 0.5rem 0;\n}\n\n.certificate-expiry {\n    margin-left: 2rem;\n}",
  "custom_format": 1,
  "disabled": 0,
@@ -17,7 +17,7 @@
  "margin_left": 0.0,
  "margin_right": 0.0,
  "margin_top": 0.0,
- "modified": "2023-08-09 16:29:07.233894",
+ "modified": "2023-08-09 16:46:41.214175",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Certificate",

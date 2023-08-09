@@ -1,4 +1,5 @@
 import frappe
+from frappe import _
 from frappe.utils.jinja import render_template
 from frappe.utils import get_url
 
@@ -30,18 +31,7 @@ def get_context(context):
 	)
 	context.url = f"{get_url()}/courses/{context.course.name}/{context.doc.name}"
 
-	print_format = frappe.db.get_value(
-		"Property Setter",
-		{
-			"doc_type": "LMS Certificate",
-			"property": "default_print_format",
-		},
-		["value"],
-		as_dict=True,
-	)
-
-	if not print_format:
-		print_format = "Certificate"
+	print_format = get_print_format()
 
 	template = frappe.db.get_value(
 		"Print Format", print_format.value, ["html", "css"], as_dict=True
@@ -54,3 +44,30 @@ def get_context(context):
 def redirect_to_course_list():
 	frappe.local.flags.redirect_location = "/courses"
 	raise frappe.Redirect
+
+
+def get_print_format():
+	print_format = None
+	default = frappe.db.get_value(
+		"Property Setter",
+		{
+			"doc_type": "LMS Certificate",
+			"property": "default_print_format",
+		},
+		"value",
+	)
+
+	if frappe.db.exists("Print Format", default):
+		print_format = default
+
+	if not print_format and frappe.db.exists("Print Format", "Certificate"):
+		print_format = "Certificate"
+
+	if not print_format:
+		raise ValueError(
+			_(
+				"Default Print Format is not set for Certificate. Please contact the Administrator."
+			)
+		)
+
+	return print_format
