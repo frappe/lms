@@ -34,7 +34,7 @@ def get_context(context):
 	print_format = get_print_format()
 
 	template = frappe.db.get_value(
-		"Print Format", print_format.value, ["html", "css"], as_dict=True
+		"Print Format", print_format, ["html", "css"], as_dict=True
 	)
 	merged_template = "<style> " + template.css + " </style>" + template.html
 	final_template = render_template(merged_template, context)
