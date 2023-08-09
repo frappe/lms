@@ -15,6 +15,7 @@ frappe.ready(() => {
 			!self.marked_as_complete &&
 			$(".title").hasClass("is-member")
 		) {
+			self.marked_as_complete = true;
 			mark_progress();
 		}
 	});
@@ -63,7 +64,6 @@ const mark_progress = () => {
 			if (data.message) {
 				change_progress_indicators();
 				show_certificate_if_course_completed(data);
-				self.marked_as_complete = true;
 			}
 		},
 	});
