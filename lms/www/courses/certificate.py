@@ -30,7 +30,7 @@ def get_context(context):
 	)
 	context.url = f"{get_url()}/courses/{context.course.name}/{context.doc.name}"
 
-	default_print_format = frappe.db.get_value(
+	print_format = frappe.db.get_value(
 		"Property Setter",
 		{
 			"doc_type": "LMS Certificate",
@@ -40,8 +40,11 @@ def get_context(context):
 		as_dict=True,
 	)
 
+	if not print_format:
+		print_format = "Certificate"
+
 	template = frappe.db.get_value(
-		"Print Format", default_print_format.value, ["html", "css"], as_dict=True
+		"Print Format", print_format.value, ["html", "css"], as_dict=True
 	)
 	merged_template = "<style> " + template.css + " </style>" + template.html
 	final_template = render_template(merged_template, context)
