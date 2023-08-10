@@ -43,7 +43,7 @@ body {
 	margin-top: 2rem;
 }
 
-.frappe-control .ql-editor:not(.read-mode) {
+.field-group .frappe-control .ql-editor:not(.read-mode) {
 	background-color: #FFFFFF;
 }
 
@@ -58,10 +58,10 @@ body {
 }
 
 .rating .star-click {
-    --star-fill: var(--orange-500);
-    background: var(--gray-200);
-    border-radius: var(--border-radius-md);
-    padding: var(--padding-xs);
+	--star-fill: var(--orange-500);
+	background: var(--gray-200);
+	border-radius: var(--border-radius-md);
+	padding: var(--padding-xs);
 }
 
 .cta-parent {
@@ -80,10 +80,10 @@ body {
 
 .field-input {
 	border: 1px solid var(--gray-300);
-    border-radius: var(--border-radius-md);
-    padding: 0.5rem;
-    width: 100%;
-    margin-top: 0.25rem;
+	border-radius: var(--border-radius-md);
+	padding: 0.5rem;
+	width: 100%;
+	margin-top: 0.25rem;
 }
 
 .field-input:focus-visible {
@@ -151,9 +151,9 @@ textarea.field-input {
 }
 
 .ce-block__content {
-    max-width: 100%;
-    padding: 0 0.5rem;
-    margin: 0;
+	max-width: 100%;
+	padding: 0 0.5rem;
+	margin: 0;
 }
 
 .ce-toolbar__content {
@@ -206,7 +206,7 @@ textarea.field-input {
 }
 
 .codex-editor path {
-    stroke: var(--gray-800);
+	stroke: var(--gray-800);
 }
 
 .drag-handle {
@@ -321,11 +321,12 @@ input[type=checkbox] {
 }
 
 .common-card-style {
-  display: flex;
-  background: #FFFFFF;
-  border-radius: var(--border-radius-md);
-  position: relative;
-  border: 1px solid var(--gray-300)
+	display: flex;
+	background: #FFFFFF;
+	border-radius: var(--border-radius-md);
+	position: relative;
+	border: 1px solid var(--gray-300);
+	box-shadow: var(--shadow-inset);
 }
 
 .course-card {
@@ -624,19 +625,18 @@ input[type=checkbox] {
 }
 
 .reviews-parent {
-  	color: var(--gray-900);
+	color: var(--gray-900);
 }
 
 .lesson-info {
-  font-size: 16px;
-  color: var(--gray-900);
-  letter-spacing: -0.011em;
+	padding: 0.5rem;
+	color: var(--gray-900);
+	letter-spacing: -0.011em;
 }
 
 .lesson-links {
 	display: flex;
 	align-items: center;
-	padding: 0.5rem;
 	color: var(--gray-900);
 	font-size: var(--text-base);
 }
@@ -825,7 +825,7 @@ input[type=checkbox] {
 }
 
 .lesson-pagination {
-	margin: 2rem 0;
+	margin: 2rem 0 5rem;
 }
 
 .lesson-video {
@@ -1052,42 +1052,42 @@ pre {
 
 .certificate-parent {
 	display: grid;
-    grid-template-columns: 10fr 2fr;
-    grid-gap: 3rem;
+	grid-template-columns: 10fr 2fr;
+	grid-gap: 3rem;
 }
 
 .certificate-logo {
-    height: 1.5rem;
-    margin-bottom: 4rem;
+	height: 1.5rem;
+	margin-bottom: 4rem;
 }
 
 .certificate-name {
-    font-size: 2rem;
-    font-weight: 500;
-    color: #192734;
-    margin-bottom: 0.25rem;
+	font-size: 2rem;
+	font-weight: 500;
+	color: #192734;
+	margin-bottom: 0.25rem;
 }
 
 .certificate-footer {
-    margin: 4rem auto 0;
-    width: fit-content;
+	margin: 4rem auto 0;
+	width: fit-content;
 }
 
 .certificate-footer-item {
-    color: #192734;
+	color: #192734;
 }
 
 .cursive-font {
-    font-family: cursive;
+	font-family: cursive;
 	font-weight: 600;
 }
 
 .certificate-divider {
-    margin: 0.5rem 0;
+	margin: 0.5rem 0;
 }
 
 .certificate-expiry {
-    margin-left: 2rem;
+	margin-left: 2rem;
 }
 
 .column-card {
@@ -1656,10 +1656,6 @@ li {
 	color: var(--gray-600);
 }
 
-.discussions-parent .empty-state {
-	background-color: var(--gray-200);
-}
-
 .job-cards-parent {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
@@ -2128,10 +2124,10 @@ select {
 .lms-card {
 	display: flex;
 	flex-direction: column;
-    border-radius: 0.75rem;
-    border: 1px solid var(--gray-300);
+	border-radius: 0.75rem;
+	border: 1px solid var(--gray-300);
 	/* box-shadow: var(--shadow-sm); */
-    padding: 0.5rem;
+	padding: 0.5rem;
 	height: 100%;
 	position: relative;
 }
@@ -2210,4 +2206,83 @@ select {
 .rows .grid-row .grid-footer-toolbar,
 .grid-form-heading {
 	cursor: none;
+}
+
+.schedule-header {
+	display: flex;
+	font-size: var(--text-sm);
+	padding: 0.5rem 0.5rem 0 0.5rem;
+}
+
+.lms-page-style .discussions-section-title {
+	font-size: var(--text-lg);
+}
+
+.class-dashboard .progress {
+	width: 150px;
+	height: 150px;
+	background: none;
+	position: relative;
+}
+
+.class-dashboard .progress::after {
+	content: "";
+	width: 100%;
+	height: 100%;
+	border-radius: 50%;
+	border: 6px solid #eee;
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+.class-dashboard .progress>span {
+	width: 50%;
+	height: 100%;
+	overflow: hidden;
+	position: absolute;
+	top: 0;
+	z-index: 1;
+}
+
+.class-dashboard .progress .progress-left {
+	left: 0;
+}
+
+.class-dashboard .progress .progress-bar {
+	width: 100%;
+	height: 100%;
+	background: none;
+	border-width: 6px;
+	border-style: solid;
+	position: absolute;
+	top: 0;
+}
+
+.class-dashboard .progress .progress-left .progress-bar {
+	left: 100%;
+	border-top-right-radius: 80px;
+	border-bottom-right-radius: 80px;
+	border-left: 0;
+	-webkit-transform-origin: center left;
+	transform-origin: center left;
+}
+
+.class-dashboard .progress .progress-right {
+	right: 0;
+}
+
+.class-dashboard .progress .progress-right .progress-bar {
+	left: -100%;
+	border-top-left-radius: 80px;
+	border-bottom-left-radius: 80px;
+	border-right: 0;
+	-webkit-transform-origin: center right;
+	transform-origin: center right;
+}
+
+.class-dashboard .progress .progress-value {
+	position: absolute;
+	top: 0;
+	left: 0;
 }

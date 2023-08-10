@@ -57,21 +57,28 @@ def generate_slug(title, doctype):
 	return slugify(title, used_slugs=slugs)
 
 
-def get_membership(course, member, batch=None):
+def get_membership(course, member=None, batch=None):
+	if not member:
+		member = frappe.session.user
+
 	filters = {"member": member, "course": course}
 	if batch:
 		filters["batch"] = batch
 
-	membership = frappe.db.get_value(
-		"LMS Batch Membership",
-		filters,
-		["name", "batch", "current_lesson", "member_type", "progress"],
-		as_dict=True,
-	)
+	is_member = frappe.db.exists("LMS Batch Membership", filters)
+	if is_member:
+		membership = frappe.db.get_value(
+			"LMS Batch Membership",
+			filters,
+			["name", "batch", "current_lesson", "member_type", "progress"],
+			as_dict=True,
+		)
 
-	if membership and membership.batch:
-		membership.batch_title = frappe.db.get_value("LMS Batch", membership.batch, "title")
-	return membership
+		if membership and membership.batch:
+			membership.batch_title = frappe.db.get_value("LMS Batch", membership.batch, "title")
+		return membership
+
+	return False
 
 
 def get_chapters(course):
@@ -136,16 +143,26 @@ def get_lesson_details(chapter):
 			as_dict=True,
 		)
 		lesson_details.number = flt(f"{chapter.idx}.{row.idx}")
-		lesson_details.icon = "icon-list"
-		macros = find_macros(lesson_details.body)
+		lesson_details.icon = get_lesson_icon(lesson_details.body)
 
-		for macro in macros:
-			if macro[0] == "YouTubeVideo" or macro[0] == "Video":
-				lesson_details.icon = "icon-youtube"
-			elif macro[0] == "Quiz":
-				lesson_details.icon = "icon-quiz"
 		lessons.append(lesson_details)
 	return lessons
+
+
+def get_lesson_icon(content):
+	icon = None
+	macros = find_macros(content)
+
+	for macro in macros:
+		if macro[0] == "YouTubeVideo" or macro[0] == "Video":
+			icon = "icon-youtube"
+		elif macro[0] == "Quiz":
+			icon = "icon-quiz"
+
+	if not icon:
+		icon = "icon-list"
+
+	return icon
 
 
 def get_tags(course):
@@ -265,10 +282,13 @@ def get_slugified_chapter_title(chapter):
 	return slugify(chapter)
 
 
-def get_progress(course, lesson):
+def get_progress(course, lesson, member=None):
+	if not member:
+		member = frappe.session.user
+
 	return frappe.db.get_value(
 		"LMS Course Progress",
-		{"course": course, "owner": frappe.session.user, "lesson": lesson},
+		{"course": course, "owner": member, "lesson": lesson},
 		["status"],
 	)
 
@@ -336,7 +356,7 @@ def is_eligible_to_review(course, membership):
 
 def get_course_progress(course, member=None):
 	"""Returns the course progress of the session user"""
-	lesson_count = len(get_lessons(course))
+	lesson_count = get_lessons(course, get_details=False)
 	if not lesson_count:
 		return 0
 	completed_lessons = frappe.db.count(
@@ -524,7 +544,7 @@ def has_course_moderator_role(member=None):
 def has_course_evaluator_role(member=None):
 	return frappe.db.get_value(
 		"Has Role",
-		{"parent": member or frappe.session.user, "role": "Evaluator"},
+		{"parent": member or frappe.session.user, "role": "Class Evaluator"},
 		"name",
 	)
 
@@ -700,7 +720,7 @@ def get_chart_data(chart_name, timespan, timegrain, from_date, to_date):
 	}
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def get_course_completion_data():
 	all_membership = frappe.db.count("LMS Batch Membership")
 	completed = frappe.db.count("LMS Batch Membership", {"progress": ["like", "%100%"]})
@@ -785,3 +805,21 @@ def get_evaluator(course, class_name=None):
 		evaluator = frappe.db.get_value("LMS Course", course, "evaluator")
 
 	return evaluator
+
+
+def get_upcoming_evals(student, courses):
+	upcoming_evals = frappe.get_all(
+		"LMS Certificate Request",
+		{
+			"member": student,
+			"course": ["in", courses],
+			"date": [">=", frappe.utils.nowdate()],
+		},
+		["date", "start_time", "course", "evaluator", "google_meet_link"],
+		order_by="date",
+	)
+
+	for evals in upcoming_evals:
+		evals.course_title = frappe.db.get_value("LMS Course", evals.course, "title")
+		evals.evaluator_name = frappe.db.get_value("User", evals.evaluator, "full_name")
+	return upcoming_evals

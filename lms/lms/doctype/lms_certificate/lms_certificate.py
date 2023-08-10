@@ -24,17 +24,15 @@ class LMSCertificate(Document):
 				_("{0} is already certified for the course {1}").format(full_name, course_name)
 			)
 
-	def after_insert(self):
-		share = frappe.get_doc(
-			{
-				"doctype": "DocShare",
-				"read": 1,
-				"share_doctype": "LMS Certificate",
-				"share_name": self.name,
-				"user": self.member,
-			}
+	def on_update(self):
+		frappe.share.add_docshare(
+			self.doctype,
+			self.name,
+			self.member,
+			write=1,
+			share=1,
+			flags={"ignore_share_permission": True},
 		)
-		share.save(ignore_permissions=True)
 
 
 @frappe.whitelist()

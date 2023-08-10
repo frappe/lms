@@ -92,7 +92,17 @@ def save_progress(lesson, course, status):
 		"LMS Batch Membership", {"member": frappe.session.user, "course": course}
 	)
 	if not membership:
-		return
+		return 0
+
+	body = frappe.db.get_value("Course Lesson", lesson, "body")
+	macros = find_macros(body)
+	quizzes = [value for name, value in macros if name == "Quiz"]
+
+	for quiz in quizzes:
+		if not frappe.db.exists(
+			"LMS Quiz Submission", {"quiz": quiz, "owner": frappe.session.user}
+		):
+			return 0
 
 	filters = {"lesson": lesson, "owner": frappe.session.user, "course": course}
 	if frappe.db.exists("LMS Course Progress", filters):

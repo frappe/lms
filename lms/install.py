@@ -9,6 +9,7 @@ def after_install():
 def after_sync():
 	create_lms_roles()
 	set_default_home()
+	set_default_certificate_print_format()
 	add_all_roles_to("Administrator")
 
 
@@ -76,7 +77,7 @@ def create_course_creator_role():
 				"desk_access": 0,
 			}
 		)
-		role.save(ignore_permissions=True)
+		role.save()
 
 
 def create_moderator_role():
@@ -89,7 +90,7 @@ def create_moderator_role():
 				"desk_access": 0,
 			}
 		)
-		role.save(ignore_permissions=True)
+		role.save()
 
 
 def create_evaluator_role():
@@ -102,7 +103,26 @@ def create_evaluator_role():
 				"desk_access": 0,
 			}
 		)
-		role.save(ignore_permissions=True)
+		role.save()
+
+
+def set_default_certificate_print_format():
+	filters = {
+		"doc_type": "LMS Certificate",
+		"property": "default_print_format",
+	}
+	if not frappe.db.exists("Property Setter", filters):
+		filters.update(
+			{
+				"doctype_or_field": "DocType",
+				"property_type": "Data",
+				"value": "Certificate",
+			}
+		)
+
+		doc = frappe.new_doc("Property Setter")
+		doc.update(filters)
+		doc.save()
 
 
 def delete_custom_fields():
