@@ -571,7 +571,7 @@
 
 								{{ lesson.title }}
 
-								{% if get_membership(lesson.course, current_student.name) %}
+								{% if current_student.name and get_membership(lesson.course, current_student.name) %}
 									{% set lesson_progress = get_progress(lesson.course, lesson.name, current_student.name) %}
 									<svg class="icon icon-md lesson-progress-tick ml-3 {% if lesson_progress != 'Complete' %} hide {% endif %}">
 										<use class="" href="#icon-success">
