@@ -171,7 +171,7 @@ def get_instructors(course):
 		instructor_details.append(
 			frappe.db.get_value(
 				"User",
-				instructor.instructor,
+				instructor,
 				["name", "username", "full_name", "user_image"],
 				as_dict=True,
 			)
