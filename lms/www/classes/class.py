@@ -221,16 +221,11 @@ def get_scheduled_flow(class_name):
 	)
 
 	for lesson in lessons:
-		lesson.update(
-			frappe.db.get_value(
-				"Course Lesson", lesson.lesson, ["title", "body", "course", "chapter"], as_dict=True
-			)
-		)
-		lesson.index = get_lesson_index(lesson.lesson)
-		lesson.url = get_lesson_url(lesson.course, lesson.index) + "?class=" + class_name
-		lesson.icon = get_lesson_icon(lesson.body)
+		lesson = get_lesson_details(lesson, class_name)
+		chapter_exists = [
+			chapter for chapter in chapters if chapter.chapter == lesson.chapter
+		]
 
-		chapter_exists = list(filter(lambda x: x.chapter == lesson.chapter, chapters))
 		if len(chapter_exists) == 0:
 			chapters.append(
 				frappe._dict(
@@ -245,6 +240,21 @@ def get_scheduled_flow(class_name):
 			chapter_exists[0]["lessons"].append(lesson)
 
 	return chapters
+
+
+def get_lesson_details(lesson, class_name):
+	lesson.update(
+		frappe.db.get_value(
+			"Course Lesson",
+			lesson.lesson,
+			["name", "title", "body", "course", "chapter"],
+			as_dict=True,
+		)
+	)
+	lesson.index = get_lesson_index(lesson.lesson)
+	lesson.url = get_lesson_url(lesson.course, lesson.index) + "?class=" + class_name
+	lesson.icon = get_lesson_icon(lesson.body)
+	return lesson
 
 
 def get_current_student_details(class_courses, class_name):

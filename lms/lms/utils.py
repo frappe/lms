@@ -282,10 +282,13 @@ def get_slugified_chapter_title(chapter):
 	return slugify(chapter)
 
 
-def get_progress(course, lesson):
+def get_progress(course, lesson, member=None):
+	if not member:
+		member = frappe.session.user
+
 	return frappe.db.get_value(
 		"LMS Course Progress",
-		{"course": course, "owner": frappe.session.user, "lesson": lesson},
+		{"course": course, "owner": member, "lesson": lesson},
 		["status"],
 	)
 
