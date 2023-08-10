@@ -8,6 +8,7 @@ import json
 from frappe import _
 from frappe.model.document import Document
 from frappe.utils import cint, format_date, format_datetime
+from lms.lms.utils import get_lessons
 
 
 class LMSClass(Document):
@@ -18,6 +19,7 @@ class LMSClass(Document):
 		self.validate_duplicate_students()
 		self.validate_duplicate_assessments()
 		self.validate_membership()
+		self.validate_schedule()
 
 	def validate_duplicate_students(self):
 		students = [row.student for row in self.students]
@@ -65,6 +67,35 @@ class LMSClass(Document):
 	def validate_seats_left(self):
 		if cint(self.seat_count) < len(self.students):
 			frappe.throw(_("There are no seats available in this class."))
+
+	def validate_schedule(self):
+		for schedule in self.scheduled_flow:
+			if schedule.start_time and schedule.end_time:
+				if (
+					schedule.start_time > schedule.end_time or schedule.start_time == schedule.end_time
+				):
+					frappe.throw(
+						_("Row #{0} Start time cannot be greater than or equal to end time.").format(
+							schedule.idx
+						)
+					)
+
+				if schedule.start_time < self.start_time or schedule.start_time > self.end_time:
+					frappe.throw(
+						_("Row #{0} Start time cannot be outside the class duration.").format(
+							schedule.idx
+						)
+					)
+
+				if schedule.end_time < self.start_time or schedule.end_time > self.end_time:
+					frappe.throw(
+						_("Row #{0} End time cannot be outside the class duration.").format(schedule.idx)
+					)
+
+			if schedule.date < self.start_date or schedule.date > self.end_date:
+				frappe.throw(
+					_("Row #{0} Date cannot be outside the class duration.").format(schedule.idx)
+				)
 
 
 @frappe.whitelist()
@@ -188,3 +219,14 @@ def create_class(
 	)
 	class_details.save()
 	return class_details
+
+
+@frappe.whitelist()
+def fetch_lessons(courses):
+	lessons = []
+	courses = json.loads(courses)
+
+	for course in courses:
+		lessons.extend(get_lessons(course.get("course")))
+
+	return lessons

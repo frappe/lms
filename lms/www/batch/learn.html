@@ -39,13 +39,14 @@
                 {% endif %}
 
                 <div class="course-details-outline">
-                    {{ widgets.CourseOutline(course=course, membership=membership, lesson_page=True) }}
+                    {% set classname = class_info.name if class_info else False %}
+                    {{ widgets.CourseOutline(course=course, membership=membership, lesson_page=True, classname=classname) }}
                 </div>
             </div>
             <div class="lesson-parent">
-                {{ BreadCrumb(course, lesson) }}
-                {{ LessonContent(lesson) }}
-                {% if course.status == "Approved" and not course.upcoming %}
+                {{ BreadCrumb(course, lesson, class_info) }}
+                {{ LessonContent(lesson, class_info) }}
+                {% if course.status == "Approved" and not course.upcoming and not class_info %}
                 {{ Discussions() }}
                 {% endif %}
             </div>
@@ -56,19 +57,39 @@
 
 
 <!-- BreadCrumb -->
-{% macro BreadCrumb(course, lesson) %}
+{% macro BreadCrumb(course, lesson, class_info) %}
 <div class="breadcrumb">
-    <a class="dark-links" href="/courses">{{ _("All Courses") }}</a>
-    <img class="ml-1 mr-1" src="/assets/lms/icons/chevron-right.svg">
-    <a class="dark-links" href="/courses/{{ course.name }}">{{ course.title }}</a>
-    <img class="ml-1 mr-1" src="/assets/lms/icons/chevron-right.svg">
-    <span class="breadcrumb-destination">{{ lesson.title if lesson.title else _("New Lesson") }}</span>
+    {% if class_info %}
+        <a class="dark-links" href="/courses">
+            {{ _("All Classes") }}
+        </a>
+        <img class="ml-1 mr-1" src="/assets/lms/icons/chevron-right.svg">
+        <a class="dark-links" href="/classes/{{ class_info.name }}">
+            {{ class_info.title }}
+        </a>
+        <img class="ml-1 mr-1" src="/assets/lms/icons/chevron-right.svg">
+        <span class="breadcrumb-destination">
+            {{ lesson.title }}
+        </span>
+    {% else %}
+        <a class="dark-links" href="/courses">
+            {{ _("All Courses") }}
+        </a>
+        <img class="ml-1 mr-1" src="/assets/lms/icons/chevron-right.svg">
+        <a class="dark-links" href="/courses/{{ course.name }}">
+            {{ course.title }}
+        </a>
+        <img class="ml-1 mr-1" src="/assets/lms/icons/chevron-right.svg">
+        <span class="breadcrumb-destination">
+            {{ lesson.title }}
+        </span>
+    {% endif %}
 </div>
 {% endmacro %}
 
 
 <!-- Lesson Details -->
-{% macro LessonContent(lesson) %}
+{% macro LessonContent(lesson, class_info) %}
 {% set instructors = get_instructors(course.name) %}
 {% set is_instructor = is_instructor(course.name) %}
 
@@ -146,8 +167,9 @@
         {% endif %}
     </div>
 
+    {% if not class_info %}
     {{ pagination(prev_url, next_url) }}
-
+    {% endif %}
 
 </div>
 {% endmacro %}

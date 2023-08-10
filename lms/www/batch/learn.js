@@ -61,8 +61,10 @@ const mark_progress = () => {
 			status: status,
 		},
 		callback: (data) => {
-			change_progress_indicators();
-			show_certificate_if_course_completed(data);
+			if (data.message) {
+				change_progress_indicators();
+				show_certificate_if_course_completed(data);
+			}
 		},
 	});
 };

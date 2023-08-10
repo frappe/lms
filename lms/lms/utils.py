@@ -143,16 +143,26 @@ def get_lesson_details(chapter):
 			as_dict=True,
 		)
 		lesson_details.number = flt(f"{chapter.idx}.{row.idx}")
-		lesson_details.icon = "icon-list"
-		macros = find_macros(lesson_details.body)
+		lesson_details.icon = get_lesson_icon(lesson_details.body)
 
-		for macro in macros:
-			if macro[0] == "YouTubeVideo" or macro[0] == "Video":
-				lesson_details.icon = "icon-youtube"
-			elif macro[0] == "Quiz":
-				lesson_details.icon = "icon-quiz"
 		lessons.append(lesson_details)
 	return lessons
+
+
+def get_lesson_icon(content):
+	icon = None
+	macros = find_macros(content)
+
+	for macro in macros:
+		if macro[0] == "YouTubeVideo" or macro[0] == "Video":
+			icon = "icon-youtube"
+		elif macro[0] == "Quiz":
+			icon = "icon-quiz"
+
+	if not icon:
+		icon = "icon-list"
+
+	return icon
 
 
 def get_tags(course):
@@ -272,10 +282,13 @@ def get_slugified_chapter_title(chapter):
 	return slugify(chapter)
 
 
-def get_progress(course, lesson):
+def get_progress(course, lesson, member=None):
+	if not member:
+		member = frappe.session.user
+
 	return frappe.db.get_value(
 		"LMS Course Progress",
-		{"course": course, "owner": frappe.session.user, "lesson": lesson},
+		{"course": course, "owner": member, "lesson": lesson},
 		["status"],
 	)
 
@@ -343,7 +356,7 @@ def is_eligible_to_review(course, membership):
 
 def get_course_progress(course, member=None):
 	"""Returns the course progress of the session user"""
-	lesson_count = len(get_lessons(course))
+	lesson_count = get_lessons(course, get_details=False)
 	if not lesson_count:
 		return 0
 	completed_lessons = frappe.db.count(

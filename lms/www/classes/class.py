@@ -8,6 +8,9 @@ from lms.lms.utils import (
 	get_upcoming_evals,
 	has_submitted_assessment,
 	has_graded_assessment,
+	get_lesson_index,
+	get_lesson_url,
+	get_lesson_icon,
 	get_membership,
 )
 
@@ -54,16 +57,9 @@ def get_context(context):
 		order_by="creation desc",
 	)
 
-	context.live_classes = frappe.get_all(
-		"LMS Live Class",
-		{"class_name": class_name, "date": [">=", getdate()]},
-		["title", "description", "time", "date", "start_url", "join_url", "owner"],
-		order_by="date",
-	)
-
 	context.class_courses = get_class_course_details(class_courses)
 	context.course_list = [course.course for course in context.class_courses]
-	context.all_courses = frappe.get_list(
+	context.all_courses = frappe.get_all(
 		"LMS Course", fields=["name", "title"], limit_page_length=0
 	)
 	context.course_name_list = [course.course for course in context.class_courses]
@@ -73,11 +69,22 @@ def get_context(context):
 	)
 	context.is_student = is_student(class_students)
 
+	if not context.is_student and not context.is_moderator and not context.is_evaluator:
+		raise frappe.PermissionError(_("You don't have permission to access this page."))
+
+	context.live_classes = frappe.get_all(
+		"LMS Live Class",
+		{"class_name": class_name, "date": [">=", getdate()]},
+		["title", "description", "time", "date", "start_url", "join_url", "owner"],
+		order_by="date",
+	)
+
 	context.current_student = (
 		get_current_student_details(class_courses, class_name) if context.is_student else None
 	)
 	context.all_assignments = get_all_assignments(class_name)
 	context.all_quizzes = get_all_quizzes(class_name)
+	context.flow = get_scheduled_flow(class_name)
 
 
 def get_all_quizzes(class_name):
@@ -201,6 +208,53 @@ def sort_students(class_students):
 def is_student(class_students):
 	students = [student.student for student in class_students]
 	return frappe.session.user in students
+
+
+def get_scheduled_flow(class_name):
+	chapters = []
+
+	lessons = frappe.get_all(
+		"Scheduled Flow",
+		{"parent": class_name},
+		["name", "lesson", "date", "start_time", "end_time"],
+		order_by="idx",
+	)
+
+	for lesson in lessons:
+		lesson = get_lesson_details(lesson, class_name)
+		chapter_exists = [
+			chapter for chapter in chapters if chapter.chapter == lesson.chapter
+		]
+
+		if len(chapter_exists) == 0:
+			chapters.append(
+				frappe._dict(
+					{
+						"chapter": lesson.chapter,
+						"chapter_title": frappe.db.get_value("Course Chapter", lesson.chapter, "title"),
+						"lessons": [lesson],
+					}
+				)
+			)
+		else:
+			chapter_exists[0]["lessons"].append(lesson)
+
+	return chapters
+
+
+def get_lesson_details(lesson, class_name):
+	lesson.update(
+		frappe.db.get_value(
+			"Course Lesson",
+			lesson.lesson,
+			["name", "title", "body", "course", "chapter"],
+			as_dict=True,
+		)
+	)
+	lesson.index = get_lesson_index(lesson.lesson)
+	lesson.url = get_lesson_url(lesson.course, lesson.index) + "?class=" + class_name
+	lesson.icon = get_lesson_icon(lesson.body)
+	return lesson
 
 
 def get_current_student_details(class_courses, class_name):
