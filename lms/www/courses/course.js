@@ -20,10 +20,6 @@ frappe.ready(() => {
 	$("#submit-for-review").click((e) => {
 		submit_for_review(e);
 	});
-
-	$("#buy-course").click((e) => {
-		generate_checkout_link(e);
-	});
 });
 
 const hide_wrapped_mentor_cards = () => {
@@ -143,27 +139,6 @@ const submit_for_review = (e) => {
 					window.location.reload();
 				}, 1000);
 			}
-		},
-	});
-};
-
-generate_checkout_link = (e) => {
-	e.preventDefault();
-	let course = decodeURIComponent($(e.currentTarget).attr("data-course"));
-
-	if (frappe.session.user == "Guest") {
-		window.location.href = `/login?redirect-to=/courses/${course}`;
-		return;
-	}
-
-	frappe.call({
-		method: "lms.lms.doctype.lms_course.lms_course.get_payment_options",
-		args: {
-			course: course,
-		},
-		callback: (data) => {
-			let rzp1 = new Razorpay(data.message);
-			rzp1.open();
 		},
 	});
 };

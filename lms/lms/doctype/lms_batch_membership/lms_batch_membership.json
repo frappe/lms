@@ -12,6 +12,12 @@
   "member",
   "member_name",
   "member_username",
+  "billing_information_section",
+  "address",
+  "payment_received",
+  "column_break_rvzn",
+  "order_id",
+  "payment_id",
   "section_break_8",
   "cohort",
   "subgroup",
@@ -112,11 +118,42 @@
   {
    "fieldname": "section_break_8",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "billing_information_section",
+   "fieldtype": "Section Break",
+   "label": "Billing Information"
+  },
+  {
+   "fieldname": "address",
+   "fieldtype": "Link",
+   "label": "Address",
+   "options": "Address"
+  },
+  {
+   "default": "0",
+   "fieldname": "payment_received",
+   "fieldtype": "Check",
+   "label": "Payment Received"
+  },
+  {
+   "fieldname": "column_break_rvzn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "order_id",
+   "fieldtype": "Data",
+   "label": "Order ID"
+  },
+  {
+   "fieldname": "payment_id",
+   "fieldtype": "Data",
+   "label": "Payment ID"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-10-10 12:38:17.839526",
+ "modified": "2023-08-11 15:39:50.194348",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch Membership",

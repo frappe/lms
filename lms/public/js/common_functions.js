@@ -201,7 +201,7 @@ const expand_the_first_chapter = () => {
 
 const expand_the_active_chapter = () => {
 	let selector = $(".course-home-headings.title");
-	console.log(selector);
+
 	if (selector.length && $(".course-details-page").length) {
 		expand_for_course_details(selector);
 	} else if ($(".active-lesson").length) {

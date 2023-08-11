@@ -359,14 +359,12 @@ def reorder_chapter(chapter_array):
 
 
 @frappe.whitelist()
-def get_payment_options(course):
+def get_payment_options(course, phone):
 	course_details = frappe.db.get_value(
 		"LMS Course", course, ["name", "title", "currency", "course_price"], as_dict=True
 	)
 	razorpay_key = frappe.db.get_single_value("LMS Settings", "razorpay_key")
-	razorpay_secret = frappe.db.get_single_value("LMS Settings", "razorpay_secret")
-
-	client = get_client(razorpay_key, razorpay_secret)
+	client = get_client()
 	order = create_order(client, course_details)
 
 	options = {
@@ -379,15 +377,32 @@ def get_payment_options(course):
 		"prefill": {
 			"name": frappe.db.get_value("User", frappe.session.user, "full_name"),
 			"email": frappe.session.user,
+			"contact": phone,
 		},
-		"callback_url": frappe.utils.get_url(
-			"/api/method/lms.lms.doctype.lms_course.lms_course.verify_payment"
-		),
 	}
 	return options
 
 
-def get_client(razorpay_key, razorpay_secret):
+def save_address(address):
+	address = json.loads(address)
+	address.update(
+		{
+			"address_title": frappe.db.get_value("User", frappe.session.user, "full_name"),
+			"address_type": "Billing",
+			"is_primary_address": 1,
+			"email_id": frappe.session.user,
+		}
+	)
+	doc = frappe.new_doc("Address")
+	doc.update(address)
+	doc.save(ignore_permissions=True)
+	return doc.name
+
+
+def get_client():
+	razorpay_key = frappe.db.get_single_value("LMS Settings", "razorpay_key")
+	razorpay_secret = frappe.db.get_single_value("LMS Settings", "razorpay_secret")
+
 	if not razorpay_key and not razorpay_secret:
 		frappe.throw(
 			_(
@@ -399,9 +414,48 @@ def get_client(razorpay_key, razorpay_secret):
 
 
 def create_order(client, course_details):
-	return client.order.create(
+	try:
+		return client.order.create(
+			{
+				"amount": course_details.course_price * 100,
+				"currency": course_details.currency,
+			}
+		)
+	except Exception as e:
+		frappe.throw(
+			_("Error during payment: {0}. Please contact the Administrator.").format(e)
+		)
+
+
+@frappe.whitelist()
+def verify_payment(response, course, address, order_id):
+	response = json.loads(response)
+	client = get_client()
+	client.utility.verify_payment_signature(
 		{
-			"amount": course_details.course_price * 100,
-			"currency": course_details.currency,
+			"razorpay_order_id": order_id,
+			"razorpay_payment_id": response["razorpay_payment_id"],
+			"razorpay_signature": response["razorpay_signature"],
 		}
 	)
+
+	return create_membership(address, response, course)
+
+
+def create_membership(address, response, course):
+	address_name = save_address(address)
+	membership = frappe.new_doc("LMS Batch Membership")
+
+	membership.update(
+		{
+			"member": frappe.session.user,
+			"course": course,
+			"address": address_name,
+			"payment_received": 1,
+			"order_id": response["razorpay_order_id"],
+			"payment_id": response["razorpay_payment_id"],
+		}
+	)
+	membership.save(ignore_permissions=True)
+
+	return f"/courses/{course}/learn/1.1"

@@ -2286,3 +2286,14 @@ select {
 	top: 0;
 	left: 0;
 }
+
+.form-section .section-head {
+	margin-bottom: var(--margin-sm);
+	font-weight: 700;
+	color: var(--heading-color);
+}
+
+.form-column:first-child {
+	padding-right: 1rem !important;
+}
+
