@@ -265,13 +265,16 @@ def on_session_creation(login_manager):
 
 
 @frappe.whitelist()
-def search_users(start=0, text=""):
-	or_filters = get_or_filters(text)
-	count = len(get_users(or_filters, 0, 900000000, text))
-	users = get_users(or_filters, start, 24, text)
+def search_users(start: int = 0, text: str=""):
+	start = cint(start)
+	search_text = frappe.db.escape(f"%{text}%")
+
+	or_filters = get_or_filters(search_text)
+	count = len(get_users(or_filters, 0, 900000000))
+	users = get_users(or_filters, start, 24)
 	user_details = get_user_details(users)
 
-	return {"user_details": user_details, "start": cint(start) + 24, "count": count}
+	return {"user_details": user_details, "start": start + 24, "count": count}
 
 
 def get_or_filters(text):
@@ -290,17 +293,17 @@ def get_or_filters(text):
 	or_filters = []
 	if text:
 		for field in user_fields:
-			or_filters.append(f"u.{field} like '%{text}%'")
+			or_filters.append(f"u.{field} like {text}")
 		for field in education_fields:
-			or_filters.append(f"ed.{field} like '%{text}%'")
+			or_filters.append(f"ed.{field} like {text}")
 		for field in work_fields:
-			or_filters.append(f"we.{field} like '%{text}%'")
+			or_filters.append(f"we.{field} like {text}")
 		for field in certification_fields:
-			or_filters.append(f"c.{field} like '%{text}%'")
+			or_filters.append(f"c.{field} like {text}")
 
-		or_filters.append(f"s.skill_name like '%{text}%'")
-		or_filters.append(f"pf.function like '%{text}%'")
-		or_filters.append(f"pi.industry like '%{text}%'")
+		or_filters.append(f"s.skill_name like {text}")
+		or_filters.append(f"pf.function like {text}")
+		or_filters.append(f"pi.industry like {text}")
 
 	return "AND ({})".format(" OR ".join(or_filters)) if or_filters else ""
 
@@ -319,8 +322,7 @@ def get_user_details(users):
 	return user_details
 
 
-def get_users(or_filters, start, page_length, text):
-	# nosemgrep
+def get_users(or_filters, start, page_length):
 	users = frappe.db.sql(
 		"""
         SELECT DISTINCT u.name
