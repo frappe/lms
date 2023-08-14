@@ -41,6 +41,10 @@ frappe.ready(() => {
 	$(".btn-upload").click((e) => {
 		upload_file(e);
 	});
+
+	$("#paid-course").click((e) => {
+		setup_paid_course(e);
+	});
 });
 
 const create_tag = (e) => {
@@ -79,6 +83,9 @@ const save_course = (e) => {
 				: "",
 			published: $("#published").prop("checked") ? 1 : 0,
 			upcoming: $("#upcoming").prop("checked") ? 1 : 0,
+			paid_course: $("#paid-course").prop("checked") ? 1 : 0,
+			course_price: $("#course-price").val(),
+			currency: $("#currency").val(),
 		},
 		callback: (data) => {
 			frappe.show_alert({
@@ -166,4 +173,14 @@ const upload_file = (e) => {
 				.attr("src", file_doc.file_url);
 		},
 	});
+};
+
+const setup_paid_course = (e) => {
+	if ($(e.target).prop("checked")) {
+		$(".price-field").removeClass("hide");
+		$(".price-field").find(".field-label").addClass("reqd");
+	} else {
+		$(".price-field").addClass("hide");
+		$(".price-field").find(".field-label").removeClass("reqd");
+	}
 };

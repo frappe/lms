@@ -15,7 +15,7 @@
 {% endblock %}
 
 {% macro Header() %}
-<div class="px-4">
+<div class="px-4 pb-2">
     <div class="page-title">
         {{ _("Order Details") }}
     </div>
@@ -26,25 +26,18 @@
 {% endmacro %}
 
 {% macro CourseDetails() %}
-<div class="px-4 pt-10 pb-8 border-bottom">
-    <div class="flex justify-between">
-        <div class="">
-            {{ _("Course:") }}
+<div class="px-4 pt-5 border-top">
+    <div class="">
+        <div class="flex mb-2">
+            <div class="field-label">
+                {{ _("Course Name: ") }} {{ course.title }}
+            </div>
         </div>
-        <div class="field-label">
-            {{ course.title }}
-        </div>
-    </div>
 
-    <div class="card-divider my-2"></div>
-
-    <div class="flex justify-between">
-        <div class="">
-            {{ _("Total Price:") }}
-        </div>
-        <div class="field-label">
-            <!-- $ 50k -->
-            {{ frappe.utils.fmt_money(course.course_price, 2, course.currency) }}
+        <div class="flex">
+            <div class="field-label">
+                {{ _("Total Price: ") }} {{ frappe.utils.fmt_money(course.course_price, 2, course.currency) }}
+            </div>
         </div>
     </div>
 </div>

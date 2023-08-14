@@ -475,7 +475,7 @@ def get_evaluation_details(course, member=None):
 def format_amount(amount, currency):
 	amount_reduced = amount / 1000
 	if amount_reduced < 1:
-		return amount
+		return fmt_money(amount, 0, currency)
 	precision = 0 if amount % 1000 == 0 else 1
 	return _("{0}k").format(fmt_money(amount_reduced, precision, currency))
 

@@ -5,7 +5,7 @@ import json
 import random
 import frappe
 from frappe.model.document import Document
-from frappe.utils import cint
+from frappe.utils import cint, validate_phone_number
 from frappe.utils.telemetry import capture
 from lms.lms.utils import get_chapters, can_create_courses
 from ...utils import generate_slug, validate_image
@@ -213,6 +213,9 @@ def save_course(
 	published,
 	upcoming,
 	image=None,
+	paid_course=False,
+	course_price=None,
+	currency=None,
 ):
 	if not can_create_courses():
 		return
@@ -232,6 +235,9 @@ def save_course(
 			"tags": tags,
 			"published": cint(published),
 			"upcoming": cint(upcoming),
+			"paid_course": cint(paid_course),
+			"course_price": course_price,
+			"currency": currency,
 		}
 	)
 	doc.save(ignore_permissions=True)
@@ -360,6 +366,7 @@ def reorder_chapter(chapter_array):
 
 @frappe.whitelist()
 def get_payment_options(course, phone):
+	validate_phone_number(phone, True)
 	course_details = frappe.db.get_value(
 		"LMS Course", course, ["name", "title", "currency", "course_price"], as_dict=True
 	)

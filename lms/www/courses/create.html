@@ -158,6 +158,43 @@
     </div>
 
     <div class="field-group">
+        <label for="paid_course" class="vertically-center mb-0">
+            <input type="checkbox" id="paid-course" {% if course.paid_course %} checked {% endif %}>
+            {{ _("Paid Course") }}
+        </label>
+    </div>
+
+    <div class="field-group price-field {% if not course.paid_course %} hide {% endif %}">
+        <div class="field-label {% if course.paid_course %} reqd {% endif %}">
+            {{ _("Course Price") }}
+        </div>
+        <div class="field-description">
+            {{ _("The price of this course.") }}
+        </div>
+        <div class="">
+            <input id="course-price" type="number" class="field-input" {% if course.course_price %} value="{{ course.course_price }}" {% endif %}>
+        </div>
+    </div>
+
+     <div class="field-group price-field {% if not course.paid_course %} hide {% endif %}">
+        <div class="field-label {% if course.paid_course %} reqd {% endif %}">
+            {{ _("Currency") }}
+        </div>
+        <div class="field-description">
+            {{ _("The currency in which users will pay for this course.") }}
+        </div>
+
+        <select class="field-input" id="currency">
+            <option></option>
+            {% for currency in currencies %}
+            <option value="{{ currency }}" {% if currency == course.currency %} selected {% endif %}>
+                {{ currency}}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="field-group">
         <div class="field-label">
             {{ _("Instructor") }}
         </div>

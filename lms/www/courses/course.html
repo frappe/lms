@@ -122,6 +122,10 @@
 
             {{ Notes(course) }}
 
+            <div class="vertically-center mb-3 bold-heading">
+                {{ format_amount(course.course_price, course.currency)  }}
+            </div>
+
             <div class="vertically-center mb-3">
                 <svg class="icon icon-md mr-1">
                     <use class="" href="#icon-users">
@@ -194,18 +198,18 @@
     membership.current_lesson else "1.1" if first_lesson_exists(course.name) else None %}
 
     <div class="all-cta">
-        {% if is_instructor(course.name) and not course.published and course.status != "Under Review" %}
+        {% if is_instructor and not course.published and course.status != "Under Review" %}
         <div class="btn btn-primary wide-button" id="submit-for-review" data-course="{{ course.name | urlencode }}">
             {{ _("Submit for Review") }}
         </div>
 
-        {% elif is_instructor(course.name) and lesson_index %}
+        {% elif is_instructor and lesson_index %}
         <a class="btn btn-primary wide-button" id="continue-learning"
             href="{{ get_lesson_url(course.name, lesson_index) }}{{ course.query_parameter }}">
             {{ _("Checkout Course") }}
         </a>
 
-        {% elif course.upcoming and not is_user_interested and not is_instructor(course.name) %}
+        {% elif course.upcoming and not is_user_interested and not is_instructor %}
         <div class="btn btn-secondary wide-button notify-me" data-course="{{course.name | urlencode}}">
             {{ _("Notify me when available") }}
         </div>
@@ -221,7 +225,7 @@
             {{ _("Continue Learning") }}
         </a>
 
-        {% elif course.paid_course %}
+        {% elif course.paid_course and not is_instructor %}
         <a class="btn btn-primary wide-button" href="/billing/{{ course.name | urlencode }}">
             {{ _("Buy This Course") }}
         </a>
@@ -247,7 +251,7 @@
             {% endif %}
         {% endif %}
 
-        {% if is_instructor(course.name) or has_course_moderator_role() %}
+        {% if is_instructor or has_course_moderator_role() %}
             <a class="btn btn-secondary wide-button mt-2" title="Edit Course" href="/courses/{{ course.name }}/edit">
                 <!-- <svg class="icon icon-md">
                     <use href="#icon-edit"></use>
@@ -266,7 +270,7 @@
         {{ _("You have opted to be notified for this course. You will receive an email when the course becomes available.") }}
     </div>
 
-    {% if course.status == "Under Review" and is_instructor(course.name) %}
+    {% if course.status == "Under Review" and is_instructor %}
     <div class="mb-4">
         {{ _("This course is currently under review. Once the review is complete, the System Admins will publish it on the website.") }}
     </div>

@@ -35,6 +35,7 @@ def get_context(context):
 	context.member = frappe.db.get_value(
 		"User", frappe.session.user, ["full_name", "username"], as_dict=True
 	)
+	context.currencies = frappe.get_all("Currency", {"enabled": 1}, pluck="currency_name")
 
 
 def set_course_context(context, course_name):
@@ -51,8 +52,8 @@ def set_course_context(context, course_name):
 		"video_link",
 		"enable_certification",
 		"grant_certificate_after",
-		"paid_certificate",
-		"price_certificate",
+		"paid_course",
+		"course_price",
 		"currency",
 		"max_attempts",
 	]

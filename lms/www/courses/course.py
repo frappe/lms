@@ -88,6 +88,7 @@ def set_course_context(context, course_name):
 		"?batch=" + membership.batch if membership and membership.batch else ""
 	)
 	context.membership = membership
+	context.is_instructor = is_instructor(course.name)
 	context.certificate = is_certified(course.name)
 	eval_details = get_evaluation_details(course.name)
 	context.eligible_for_evaluation = eval_details.eligible

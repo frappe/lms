@@ -99,7 +99,13 @@ const handle_success = (response, course, address, order_id) => {
 			order_id: order_id,
 		},
 		callback: (data) => {
-			window.location.href = data.message;
+			frappe.show_alert({
+				message: __("Payment Successful"),
+				indicator: "green",
+			});
+			setTimeout(() => {
+				window.location.href = data.message;
+			}, 2000);
 		},
 	});
 };
