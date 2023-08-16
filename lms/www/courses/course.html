@@ -123,7 +123,7 @@
             {{ Notes(course) }}
 
             <div class="vertically-center mb-3 bold-heading">
-                {{ format_amount(course.course_price, course.currency)  }}
+                {{ frappe.utils.fmt_money(course.course_price, 0, course.currency)  }}
             </div>
 
             <div class="vertically-center mb-3">

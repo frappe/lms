@@ -110,7 +110,7 @@
 
             <div class="course-price">
                 {% if course.paid_course %}
-                    {{ format_amount(course.course_price, course.currency) }}
+                    {{ frappe.utils.fmt_money(course.course_price, 0, course.currency) }}
                 {% else %}
                     {{ _("Free") }}
                 {% endif %}
