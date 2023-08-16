@@ -8,7 +8,8 @@
 {% endif %}
 
 
-<div class="common-card-style course-card" data-course="{{ course.name }}">
+<div class="common-card-style course-card" data-course="{{ course.name }}" data-rating="{{ course.avg_rating }}"
+    data-enrollment="{{ course.enrollment_count }}" data-creation="{{ course.creation }}">
 
     <div class="course-image {% if not course.image %} default-image {% endif %}"
     {% if course.image %} style="background-image: url( {{ course.image | urlencode }} );" {% endif %}>
@@ -40,23 +41,21 @@
             <div class="pull-right indicator-pill {{ pill_color }} "> {{ course.status }} </div>
             {% endif %}
 
-            {% set student_count = get_students(course.name) | length %}
-            {% set avg_rating = get_average_rating(course.name) %}
-            {% if student_count %}
+            {% if course.enrollment_count %}
                 <div class="vertically-center">
                     <svg class="icon  icon-md">
                         <use class="" href="#icon-users">
                     </svg>
-                    {{ student_count }}
+                    {{ course.enrollment_count }}
                 </div>
             {% endif %}
 
-            {% if avg_rating %}
+            {% if course.avg_rating %}
             <div class="vertically-center">
                 <svg class="icon icon-md">
                     <use href="#icon-star"></use>
                 </svg>
-                {{ frappe.utils.flt(avg_rating, frappe.get_system_settings("float_precision") or 3) }}
+                {{ frappe.utils.flt(course.avg_rating, frappe.get_system_settings("float_precision") or 3) }}
             </div>
             {% endif %}
 

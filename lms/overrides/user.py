@@ -5,7 +5,7 @@ from frappe import _
 from frappe.core.doctype.user.user import User
 from frappe.utils import cint, escape_html, random_string
 from frappe.website.utils import is_signup_disabled
-from lms.lms.utils import validate_image
+from lms.lms.utils import validate_image, get_average_rating
 from frappe.website.utils import cleanup_page_name
 from frappe.model.naming import append_number_if_name_exists
 from lms.widgets import Widgets
@@ -107,11 +107,16 @@ def get_enrolled_courses():
 				"price_certificate",
 				"currency",
 				"published",
+				"creation",
 			],
 			as_dict=True,
 		)
 		if not course.published:
 			continue
+		course.enrollment_count = frappe.db.count(
+			"LMS Batch Membership", {"course": course.name, "member_type": "Student"}
+		)
+		course.avg_rating = get_average_rating(course.name) or 0
 		progress = cint(membership.progress)
 		if progress < 100:
 			in_progress.append(course)
@@ -151,12 +156,17 @@ def get_authored_courses(member=None, only_published=True):
 				"enable_certification",
 				"status",
 				"published",
+				"creation",
 			],
 			as_dict=True,
 		)
 
 		if only_published and detail and not detail.published:
 			continue
+		detail.enrollment_count = frappe.db.count(
+			"LMS Batch Membership", {"course": detail.name, "member_type": "Student"}
+		)
+		detail.avg_rating = get_average_rating(detail.name) or 0
 		course_details.append(detail)
 
 	return course_details
@@ -265,7 +275,7 @@ def on_session_creation(login_manager):
 
 
 @frappe.whitelist()
-def search_users(start: int = 0, text: str=""):
+def search_users(start: int = 0, text: str = ""):
 	start = cint(start)
 	search_text = frappe.db.escape(f"%{text}%")
 

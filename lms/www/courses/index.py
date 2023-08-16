@@ -6,6 +6,7 @@ from lms.lms.utils import (
 	get_restriction_details,
 	has_course_moderator_role,
 	get_courses_under_review,
+	get_average_rating,
 )
 from lms.overrides.user import get_enrolled_courses, get_authored_courses
 
@@ -49,13 +50,22 @@ def get_courses():
 			"paid_certificate",
 			"price_certificate",
 			"currency",
+			"creation",
 		],
 	)
 
 	live_courses, upcoming_courses = [], []
 	for course in courses:
+		course.enrollment_count = frappe.db.count(
+			"LMS Batch Membership", {"course": course.name, "member_type": "Student"}
+		)
+		course.avg_rating = get_average_rating(course.name) or 0
 		if course.upcoming:
 			upcoming_courses.append(course)
 		else:
 			live_courses.append(course)
+
+	live_courses.sort(key=lambda x: x.enrollment_count, reverse=True)
+	upcoming_courses.sort(key=lambda x: x.enrollment_count, reverse=True)
+
 	return live_courses, upcoming_courses

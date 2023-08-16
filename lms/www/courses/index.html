@@ -24,9 +24,25 @@
 
             {% include "lms/templates/search_course/search_course.html" %}
 
-			<div class="course-list-cta">
+			<div class="flex align-center pull-right">
+
+                <select class="lms-menu" id="course-filter">
+                    <option disabled value="">
+                        {{ _("Sort By") }}
+                    </option>
+                    <option selected value="enrollment">
+                        {{ _("Most Popular") }}
+                    </option>
+                    <option value="rating">
+                        {{ _("Highest Rated") }}
+                    </option>
+                    <option value="creation">
+                        {{ _("Newest") }}
+                    </option>
+                </select>
+
                 {% if frappe.session.user != "Guest" %}
-                <a class="btn btn-default btn-sm" href="/users">
+                <a class="btn btn-default btn-sm ml-2" href="/users">
                     {{ _("My Profile") }}
                 </a>
                 {% endif %}
