@@ -265,7 +265,7 @@ def on_session_creation(login_manager):
 
 
 @frappe.whitelist()
-def search_users(start: int = 0, text: str=""):
+def search_users(start: int = 0, text: str = ""):
 	start = cint(start)
 	search_text = frappe.db.escape(f"%{text}%")
 
