@@ -105,7 +105,7 @@ const handle_success = (response, course, address, order_id) => {
 			});
 			setTimeout(() => {
 				window.location.href = data.message;
-			}, 2000);
+			}, 1000);
 		},
 	});
 };

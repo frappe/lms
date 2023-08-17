@@ -446,23 +446,31 @@ def verify_payment(response, course, address, order_id):
 		}
 	)
 
-	return create_membership(address, response, course)
+	return create_membership(address, response, course, client)
 
 
-def create_membership(address, response, course):
-	address_name = save_address(address)
-	membership = frappe.new_doc("LMS Batch Membership")
+def create_membership(address, response, course, client):
+	try:
+		address_name = save_address(address)
+		membership = frappe.new_doc("LMS Batch Membership")
+		payment = client.payment.fetch(response["razorpay_payment_id"])
 
-	membership.update(
-		{
-			"member": frappe.session.user,
-			"course": course,
-			"address": address_name,
-			"payment_received": 1,
-			"order_id": response["razorpay_order_id"],
-			"payment_id": response["razorpay_payment_id"],
-		}
-	)
-	membership.save(ignore_permissions=True)
+		membership.update(
+			{
+				"member": frappe.session.user,
+				"course": course,
+				"address": address_name,
+				"payment_received": 1,
+				"order_id": response["razorpay_order_id"],
+				"payment_id": response["razorpay_payment_id"],
+				"amount": payment["amount"] / 100,
+				"currency": payment["currency"],
+			}
+		)
+		membership.save(ignore_permissions=True)
 
-	return f"/courses/{course}/learn/1.1"
+		return f"/courses/{course}/learn/1.1"
+	except Exception as e:
+		frappe.throw(
+			_("Error during payment: {0}. Please contact the Administrator.").format(e)
+		)
