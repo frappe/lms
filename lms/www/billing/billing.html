@@ -1,0 +1,68 @@
+{% extends "lms/templates/lms_base.html" %}
+{% block title %}
+    {{  course.title if course.title else _("New Course") }}
+{% endblock %}
+
+
+{% block page_content %}
+<div class="common-page-style">
+     <div class="container form-width common-card-style column-card px-0 h-0 mt-8">
+        {{ Header() }}
+        {{ CourseDetails() }}
+        {{ BillingDetails() }}
+    </div>
+</div>
+{% endblock %}
+
+{% macro Header() %}
+<div class="px-4 pb-2">
+    <div class="page-title">
+        {{ _("Order Details") }}
+    </div>
+    <div>
+        {{ _("Enter the billing information and complete the payment to purchase this course.") }}
+    </div>
+</div>
+{% endmacro %}
+
+{% macro CourseDetails() %}
+<div class="px-4 pt-5 border-top">
+    <div class="">
+        <div class="flex mb-2">
+            <div class="field-label">
+                {{ _("Course Name: ") }} {{ course.title }}
+            </div>
+        </div>
+
+        <div class="flex">
+            <div class="field-label">
+                {{ _("Total Price: ") }} {{ frappe.utils.fmt_money(course.course_price, 2, course.currency) }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+{% macro BillingDetails() %}
+<div class="mt-8 px-4">
+    <div class="bold-heading mb-4">
+        {{ _("Billing Details") }}
+    </div>
+    <div id="billing-form"></div>
+    <button class="btn btn-primary btn-md btn-pay" data-course="{{ course.name | urlencode }}">
+        {{ "Proceed to Payment" }}
+    </button>
+</div>
+{% endmacro %}
+
+{%- block script %}
+{{ super() }}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    frappe.boot.user = {
+        "can_create": [],
+        "can_select": ["Country"],
+        "can_read": ["Country"]
+    };
+</script>
+{% endblock %}

@@ -52,13 +52,10 @@ def set_course_context(context, course_name):
 			"disable_self_learning",
 			"status",
 			"video_link",
-			"enable_certification",
-			"grant_certificate_after",
-			"paid_certificate",
-			"price_certificate",
+			"paid_course",
+			"course_price",
 			"currency",
-			"max_attempts",
-			"duration",
+			"grant_certificate_after",
 		],
 		as_dict=True,
 	)
@@ -79,7 +76,7 @@ def set_course_context(context, course_name):
 			frappe.db.get_value(
 				"LMS Course",
 				csr.course,
-				["name", "upcoming", "title", "image", "enable_certification"],
+				["name", "upcoming", "title", "image"],
 				as_dict=True,
 			)
 		)
@@ -91,10 +88,10 @@ def set_course_context(context, course_name):
 		"?batch=" + membership.batch if membership and membership.batch else ""
 	)
 	context.membership = membership
+	context.is_instructor = is_instructor(course.name)
 	context.certificate = is_certified(course.name)
 	eval_details = get_evaluation_details(course.name)
 	context.eligible_for_evaluation = eval_details.eligible
-	context.certificate_request = eval_details.request
 	context.no_of_attempts = eval_details.no_of_attempts
 	if context.course.upcoming:
 		context.is_user_interested = get_user_interest(context.course.name)

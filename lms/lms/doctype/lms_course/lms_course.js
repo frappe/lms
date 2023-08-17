@@ -11,14 +11,6 @@ frappe.ui.form.on("LMS Course", {
 			};
 		});
 
-		frm.set_query("instructor", "instructors", function () {
-			return {
-				filters: {
-					ignore_user_type: 1,
-				},
-			};
-		});
-
 		frm.set_query("course", "related_courses", function () {
 			return {
 				filters: {
@@ -29,5 +21,12 @@ frappe.ui.form.on("LMS Course", {
 	},
 	refresh: (frm) => {
 		frm.add_web_link(`/courses/${frm.doc.name}`, "See on Website");
+
+		if (!frm.doc.currency)
+			frappe.db
+				.get_single_value("LMS Settings", "default_currency")
+				.then((value) => {
+					frm.set_value("currency", value);
+				});
 	},
 });
