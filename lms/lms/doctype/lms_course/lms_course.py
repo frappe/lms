@@ -5,10 +5,12 @@ import json
 import random
 import frappe
 from frappe.model.document import Document
-from frappe.utils import cint
+from frappe.utils import cint, validate_phone_number
 from frappe.utils.telemetry import capture
 from lms.lms.utils import get_chapters, can_create_courses
 from ...utils import generate_slug, validate_image
+from frappe import _
+import razorpay
 
 
 class LMSCourse(Document):
@@ -211,6 +213,9 @@ def save_course(
 	published,
 	upcoming,
 	image=None,
+	paid_course=False,
+	course_price=None,
+	currency=None,
 ):
 	if not can_create_courses():
 		return
@@ -230,6 +235,9 @@ def save_course(
 			"tags": tags,
 			"published": cint(published),
 			"upcoming": cint(upcoming),
+			"paid_course": cint(paid_course),
+			"course_price": course_price,
+			"currency": currency,
 		}
 	)
 	doc.save(ignore_permissions=True)
@@ -354,3 +362,115 @@ def reorder_chapter(chapter_array):
 					"idx": chapter_array.index(chap) + 1,
 				},
 			)
+
+
+@frappe.whitelist()
+def get_payment_options(course, phone):
+	validate_phone_number(phone, True)
+	course_details = frappe.db.get_value(
+		"LMS Course", course, ["name", "title", "currency", "course_price"], as_dict=True
+	)
+	razorpay_key = frappe.db.get_single_value("LMS Settings", "razorpay_key")
+	client = get_client()
+	order = create_order(client, course_details)
+
+	options = {
+		"key_id": razorpay_key,
+		"name": frappe.db.get_single_value("Website Settings", "app_name"),
+		"description": _("Payment for {0} course").format(course_details["title"]),
+		"order_id": order["id"],
+		"amount": order["amount"] * 100,
+		"currency": order["currency"],
+		"prefill": {
+			"name": frappe.db.get_value("User", frappe.session.user, "full_name"),
+			"email": frappe.session.user,
+			"contact": phone,
+		},
+	}
+	return options
+
+
+def save_address(address):
+	address = json.loads(address)
+	address.update(
+		{
+			"address_title": frappe.db.get_value("User", frappe.session.user, "full_name"),
+			"address_type": "Billing",
+			"is_primary_address": 1,
+			"email_id": frappe.session.user,
+		}
+	)
+	doc = frappe.new_doc("Address")
+	doc.update(address)
+	doc.save(ignore_permissions=True)
+	return doc.name
+
+
+def get_client():
+	razorpay_key = frappe.db.get_single_value("LMS Settings", "razorpay_key")
+	razorpay_secret = frappe.db.get_single_value("LMS Settings", "razorpay_secret")
+
+	if not razorpay_key and not razorpay_secret:
+		frappe.throw(
+			_(
+				"There is a problem with the payment gateway. Please contact the Administrator to proceed."
+			)
+		)
+
+	return razorpay.Client(auth=(razorpay_key, razorpay_secret))
+
+
+def create_order(client, course_details):
+	try:
+		return client.order.create(
+			{
+				"amount": course_details.course_price * 100,
+				"currency": course_details.currency,
+			}
+		)
+	except Exception as e:
+		frappe.throw(
+			_("Error during payment: {0}. Please contact the Administrator.").format(e)
+		)
+
+
+@frappe.whitelist()
+def verify_payment(response, course, address, order_id):
+	response = json.loads(response)
+	client = get_client()
+	client.utility.verify_payment_signature(
+		{
+			"razorpay_order_id": order_id,
+			"razorpay_payment_id": response["razorpay_payment_id"],
+			"razorpay_signature": response["razorpay_signature"],
+		}
+	)
+
+	return create_membership(address, response, course, client)
+
+
+def create_membership(address, response, course, client):
+	try:
+		address_name = save_address(address)
+		membership = frappe.new_doc("LMS Batch Membership")
+		payment = client.payment.fetch(response["razorpay_payment_id"])
+
+		membership.update(
+			{
+				"member": frappe.session.user,
+				"course": course,
+				"address": address_name,
+				"payment_received": 1,
+				"order_id": response["razorpay_order_id"],
+				"payment_id": response["razorpay_payment_id"],
+				"amount": payment["amount"] / 100,
+				"currency": payment["currency"],
+			}
+		)
+		membership.save(ignore_permissions=True)
+
+		return f"/courses/{course}/learn/1.1"
+	except Exception as e:
+		frappe.throw(
+			_("Error during payment: {0}. Please contact the Administrator.").format(e)
+		)

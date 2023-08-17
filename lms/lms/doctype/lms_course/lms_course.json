@@ -32,19 +32,18 @@
   "description",
   "chapters",
   "related_courses",
+  "pricing_section",
+  "paid_course",
+  "currency",
+  "course_price",
   "certification_section",
   "enable_certification",
   "expiry",
-  "section_break_23",
+  "max_attempts",
+  "column_break_rxww",
   "grant_certificate_after",
   "evaluator",
-  "column_break_26",
-  "max_attempts",
-  "duration",
-  "pricing_section",
-  "paid_certificate",
-  "currency",
-  "price_certificate"
+  "duration"
  ],
  "fields": [
   {
@@ -171,13 +170,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "default": "0",
-   "depends_on": "enable_certification",
-   "fieldname": "paid_certificate",
-   "fieldtype": "Check",
-   "label": "Paid Certificate"
-  },
-  {
    "depends_on": "enable_certification",
    "fieldname": "grant_certificate_after",
    "fieldtype": "Select",
@@ -193,24 +185,16 @@
    "options": "Course Evaluator"
   },
   {
-   "depends_on": "eval: doc.grant_certificate_after == \"Evaluation\"",
    "fieldname": "pricing_section",
    "fieldtype": "Section Break",
    "label": "Pricing"
   },
   {
-   "depends_on": "paid_certificate",
-   "fieldname": "price_certificate",
-   "fieldtype": "Currency",
-   "label": "Certificate Price",
-   "mandatory_depends_on": "paid_certificate"
-  },
-  {
-   "depends_on": "paid_certificate",
+   "depends_on": "paid_course",
    "fieldname": "currency",
    "fieldtype": "Link",
    "label": "Currency",
-   "mandatory_depends_on": "paid_certificate",
+   "mandatory_depends_on": "paid_course",
    "options": "Currency"
   },
   {
@@ -228,11 +212,21 @@
    "options": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12"
   },
   {
-   "fieldname": "section_break_23",
-   "fieldtype": "Section Break"
+   "default": "0",
+   "fieldname": "paid_course",
+   "fieldtype": "Check",
+   "label": "Paid Course"
   },
   {
-   "fieldname": "column_break_26",
+   "depends_on": "paid_course",
+   "fieldname": "course_price",
+   "fieldtype": "Currency",
+   "label": "Course Price",
+   "option": "currency",
+   "mandatory_depends_on": "paid_course"
+  },
+  {
+   "fieldname": "column_break_rxww",
    "fieldtype": "Column Break"
   }
  ],
@@ -260,39 +254,12 @@
   }
  ],
  "make_attachments_public": 1,
- "modified": "2023-05-11 17:08:19.763405",
+ "modified": "2023-08-02 12:07:26.354110",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",
  "owner": "Administrator",
- "permissions": [
-  {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "System Manager",
-   "select": 1,
-   "share": 1,
-   "write": 1
-  },
-  {
-   "create": 1,
-   "email": 1,
-   "export": 1,
-   "if_owner": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "All",
-   "select": 1,
-   "share": 1,
-   "write": 1
-  }
- ],
+ "permissions": [],
  "search_fields": "title",
  "show_title_field_in_link": 1,
  "sort_field": "creation",

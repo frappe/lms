@@ -103,8 +103,8 @@ def get_enrolled_courses():
 				"short_introduction",
 				"image",
 				"enable_certification",
-				"paid_certificate",
-				"price_certificate",
+				"paid_course",
+				"course_price",
 				"currency",
 				"published",
 			],
@@ -148,7 +148,9 @@ def get_authored_courses(member=None, only_published=True):
 				"title",
 				"short_introduction",
 				"image",
-				"enable_certification",
+				"paid_course",
+				"course_price",
+				"currency",
 				"status",
 				"published",
 			],
@@ -265,7 +267,7 @@ def on_session_creation(login_manager):
 
 
 @frappe.whitelist()
-def search_users(start: int = 0, text: str=""):
+def search_users(start: int = 0, text: str = ""):
 	start = cint(start)
 	search_text = frappe.db.escape(f"%{text}%")
 

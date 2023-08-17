@@ -6,16 +6,23 @@
  "engine": "InnoDB",
  "field_order": [
   "default_home",
-  "send_calendar_invite_for_evaluations",
-  "allow_student_progress",
-  "column_break_zdel",
-  "is_onboarding_complete",
   "force_profile_completion",
-  "section_break_szgq",
-  "search_placeholder",
-  "portal_course_creation",
-  "column_break_2",
+  "is_onboarding_complete",
+  "column_break_zdel",
   "livecode_url",
+  "course_settings_section",
+  "search_placeholder",
+  "column_break_iqxy",
+  "portal_course_creation",
+  "section_break_szgq",
+  "send_calendar_invite_for_evaluations",
+  "column_break_2",
+  "allow_student_progress",
+  "payment_section",
+  "razorpay_key",
+  "default_currency",
+  "column_break_cfcv",
+  "razorpay_secret",
   "signup_settings_tab",
   "signup_settings_section",
   "terms_of_use",
@@ -37,6 +44,7 @@
    "default": "https://livecode.dev.fossunited.org",
    "fieldname": "livecode_url",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "LiveCode URL"
   },
   {
@@ -163,7 +171,8 @@
   },
   {
    "fieldname": "section_break_szgq",
-   "fieldtype": "Section Break"
+   "fieldtype": "Section Break",
+   "label": "Class Settings"
   },
   {
    "fieldname": "signup_settings_tab",
@@ -180,12 +189,46 @@
    "fieldname": "allow_student_progress",
    "fieldtype": "Check",
    "label": "Allow students to see each others progress in class"
+  },
+  {
+   "fieldname": "payment_section",
+   "fieldtype": "Section Break",
+   "label": "Payment"
+  },
+  {
+   "fieldname": "default_currency",
+   "fieldtype": "Link",
+   "label": "Default Currency",
+   "options": "Currency"
+  },
+  {
+   "fieldname": "column_break_cfcv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "course_settings_section",
+   "fieldtype": "Section Break",
+   "label": "Course Settings"
+  },
+  {
+   "fieldname": "column_break_iqxy",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "razorpay_key",
+   "fieldtype": "Data",
+   "label": "Razorpay Key"
+  },
+  {
+   "fieldname": "razorpay_secret",
+   "fieldtype": "Password",
+   "label": "Razorpay Secret"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2023-04-17 12:54:44.706101",
+ "modified": "2023-08-02 18:59:01.267732",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",

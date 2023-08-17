@@ -415,11 +415,13 @@ input[type=checkbox] {
 }
 
 .course-card-footer {
-  margin-top: auto;
+	display: flex;
+	justify-content: space-between;
+	margin-top: auto;
 }
 
-.course-card-footer .avatar-group {
-  display: inherit;
+.course-price {
+	font-weight: 500;
 }
 
 .view-course-link {
@@ -550,6 +552,11 @@ input[type=checkbox] {
 	width: 100%;
 	margin: 0 0 2rem;
   }
+}
+
+.course-card-instructors {
+	display: flex;
+	align-items: center;
 }
 
 .course-card-wide-content {
@@ -2279,3 +2286,14 @@ select {
 	top: 0;
 	left: 0;
 }
+
+.form-section .section-head {
+	margin-bottom: var(--margin-sm);
+	font-weight: 700;
+	color: var(--heading-color);
+}
+
+.form-column:first-child {
+	padding-right: 1rem !important;
+}
+
