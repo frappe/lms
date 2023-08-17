@@ -7,7 +7,7 @@
         {% for course_row in courses %}
         {% set course = frappe.db.get_value("LMS Course", course_row.course,
         ["name", "short_introduction", "upcoming", "title", "image", "currency",
-        "enable_certification", "paid_certificate", "price_certificate"], as_dict=True) %}
+        "enable_certification", "paid_course", "course_price"], as_dict=True) %}
         {{ widgets.CourseCard(course=course, read_only=False) }}
         {% endfor %}
     </div>

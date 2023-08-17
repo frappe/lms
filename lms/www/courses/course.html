@@ -122,9 +122,11 @@
 
             {{ Notes(course) }}
 
+            {% if course.paid_course %}
             <div class="vertically-center mb-3 bold-heading">
                 {{ frappe.utils.fmt_money(course.course_price, 0, course.currency)  }}
             </div>
+            {% endif %}
 
             <div class="vertically-center mb-3">
                 <svg class="icon icon-md mr-1">
