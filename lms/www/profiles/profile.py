@@ -10,16 +10,13 @@ def get_context(context):
 
 	try:
 		username = frappe.form_dict["username"]
-		print("username", username)
 	except KeyError:
 		username = frappe.db.get_value("User", frappe.session.user, ["username"])
-		print("except", username)
 		if username:
 			frappe.local.flags.redirect_location = get_profile_url_prefix() + username
 			raise frappe.Redirect
 
 	try:
-		print(username)
 		context.member = frappe.get_doc("User", {"username": username})
 		context.courses_created = get_authored_courses(context.member.name, True)
 		context.enrolled_courses = (
