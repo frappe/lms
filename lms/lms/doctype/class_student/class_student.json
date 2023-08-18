@@ -7,30 +7,36 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "class_student",
-  "student"
+  "student",
+  "student_name",
+  "username"
  ],
  "fields": [
   {
    "fieldname": "student",
    "fieldtype": "Link",
-   "hidden": 1,
+   "in_list_view": 1,
    "label": "Student",
-   "options": "User"
+   "options": "User",
+   "reqd": 1
   },
   {
-   "fieldname": "class_student",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Class Student",
-   "options": "Class Student Registration",
-   "reqd": 1
+   "fetch_from": "student.full_name",
+   "fieldname": "student_name",
+   "fieldtype": "Data",
+   "label": "Student Name"
+  },
+  {
+   "fetch_from": "student.username",
+   "fieldname": "username",
+   "fieldtype": "Data",
+   "label": "Username"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-08-18 16:56:34.435008",
+ "modified": "2023-08-18 18:45:22.787839",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Class Student",
