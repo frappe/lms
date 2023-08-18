@@ -5,7 +5,7 @@ from frappe import _
 from frappe.core.doctype.user.user import User
 from frappe.utils import cint, escape_html, random_string
 from frappe.website.utils import is_signup_disabled
-from lms.lms.utils import validate_image, get_average_rating
+from lms.lms.utils import get_average_rating
 from frappe.website.utils import cleanup_page_name
 from frappe.model.naming import append_number_if_name_exists
 from lms.widgets import Widgets
@@ -16,8 +16,6 @@ class CustomUser(User):
 		super().validate()
 		self.validate_username_duplicates()
 		self.validate_completion()
-		self.user_image = validate_image(self.user_image)
-		self.cover_image = validate_image(self.cover_image)
 
 	def validate_username_duplicates(self):
 		while not self.username or self.username_exists():
