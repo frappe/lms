@@ -3,10 +3,10 @@
 
 frappe.ui.form.on("LMS Class", {
 	onload: function (frm) {
-		frm.set_query("student", "students", function (doc) {
+		frm.set_query("class_student", "students", function (doc) {
 			return {
 				filters: {
-					ignore_user_type: 1,
+					class_name: doc.name,
 				},
 			};
 		});

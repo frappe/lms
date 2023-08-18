@@ -2,6 +2,7 @@ import frappe
 
 
 def execute():
+	frappe.reload_doc("lms", "doctype", "lms_course")
 	courses = frappe.get_all(
 		"LMS Course",
 		{"paid_certificate": ["is", "set"]},

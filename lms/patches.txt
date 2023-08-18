@@ -61,4 +61,5 @@ execute:frappe.permissions.reset_perms("LMS Class")
 execute:frappe.permissions.reset_perms("Course Evaluator")
 execute:frappe.permissions.reset_perms("LMS Certificate Request")
 execute:frappe.permissions.reset_perms("LMS Certificate Evaluation")
-lms.patches.v1_0.paid_certificate_to_paid_course
+lms.patches.v1_0.paid_certificate_to_paid_course #18-08-2023
+lms.patches.v1_0.create_class_student_registration #19-08-2023
