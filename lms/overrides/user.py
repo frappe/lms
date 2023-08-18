@@ -123,6 +123,9 @@ def get_enrolled_courses():
 		else:
 			completed.append(course)
 
+	in_progress.sort(key=lambda x: x.enrollment_count, reverse=True)
+	completed.sort(key=lambda x: x.enrollment_count, reverse=True)
+
 	return {"in_progress": in_progress, "completed": completed}
 
 
@@ -171,6 +174,7 @@ def get_authored_courses(member=None, only_published=True):
 		detail.avg_rating = get_average_rating(detail.name) or 0
 		course_details.append(detail)
 
+	course_details.sort(key=lambda x: x.enrollment_count, reverse=True)
 	return course_details
 
 
