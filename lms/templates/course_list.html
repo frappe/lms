@@ -1,6 +1,6 @@
 <div class="{{ classes }}">
     {% if courses | length %}
-    <div class="cards-parent">
+    <div class="course-cards-parent cards-parent">
         {% for course in courses %}
         {{ widgets.CourseCard(course=course, read_only=False) }}
         {% endfor %}

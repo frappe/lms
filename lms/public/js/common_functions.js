@@ -40,6 +40,10 @@ frappe.ready(() => {
 	$("#create-class").click((e) => {
 		open_class_dialog(e);
 	});
+
+	$("#course-filter").change((e) => {
+		filter_courses(e);
+	});
 });
 
 const pin_header = () => {
@@ -352,5 +356,19 @@ const save_class = (values) => {
 				window.location.href = `/classes/${r.message.name}`;
 			}
 		},
+	});
+};
+
+const filter_courses = (e) => {
+	const course_lists = $(".course-cards-parent");
+	const filter = $(e.currentTarget).val();
+	course_lists.each((i, list) => {
+		const course_cards = $(list).children(".course-card");
+		course_cards.sort((a, b) => {
+			var value1 = $(a).data(filter);
+			var value2 = $(b).data(filter);
+			return value1 > value2 ? -1 : value1 < value2 ? 1 : 0;
+		});
+		$(list).append(course_cards);
 	});
 };

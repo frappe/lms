@@ -5,11 +5,6 @@
 
 
 {% block content %}
-{% set read_only = member.name != frappe.session.user %}
-{% set user = member.name %}
-{% set courses_created = get_authored_courses(member.name, True) %}
-{% set certificates = get_certificates(user) %}
-
 <div class="common-page-style profile-page">
     {{ ProfileBanner(member) }}
     <div class="profile-page-body">
@@ -82,14 +77,19 @@
 
                 {% if not read_only %}
                 <div class="tab-pane fade" id="courses-enrolled" role="tabpanel" aria-labelledby="courses-enrolled">
-                    {% include "lms/lms/web_template/courses_enrolled/courses_enrolled.html" %}
+                    {% set courses = enrolled_courses %}
+                    {% set title = _("Enrolled Courses") %}
+                    {% set classes = "enrolled-courses" %}
+                    {% include "lms/templates/course_list.html" %}
                 </div>
                 {% endif %}
 
                 {% if courses_created | length %}
-                {% set only_published = True %}
                 <div class="tab-pane fade" id="courses-created" role="tabpanel" aria-labelledby="courses-created">
-                    {% include "lms/templates/courses_created.html" %}
+                    {% set courses = courses_created %}
+                    {% set title = _("Created Courses") %}
+                    {% set classes = "created-courses" %}
+                    {% include "lms/templates/course_list.html" %}
                 </div>
                 {% endif %}
 
@@ -249,7 +249,9 @@
 <!-- Career Preference -->
 {% macro CareerPreference(member) %}
     {% if member.preferred_functions or member.preferred_industries or member.preferred_location or member.dream_companies %}
-    <div class="course-home-headings mt-10"> {{ _("Career Preference") }} </div>
+    <div class="course-home-headings mt-10">
+        {{ _("Career Preference") }}
+    </div>
     <div class="profile-column-grid">
 
         {% if member.preferred_functions | length %}

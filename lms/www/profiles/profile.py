@@ -1,7 +1,8 @@
 import frappe
 
-from lms.lms.utils import get_lesson_index
+from lms.lms.utils import get_lesson_index, get_certificates
 from lms.page_renderers import get_profile_url_prefix
+from lms.overrides.user import get_authored_courses, get_enrolled_courses
 
 
 def get_context(context):
@@ -17,6 +18,12 @@ def get_context(context):
 
 	try:
 		context.member = frappe.get_doc("User", {"username": username})
+		context.courses_created = get_authored_courses(context.member.name, True)
+		context.enrolled_courses = (
+			get_enrolled_courses()["in_progress"] + get_enrolled_courses()["completed"]
+		)
+		context.read_only = frappe.session.user != context.member.name
+		context.certificates = get_certificates(context.member.name)
 	except Exception:
 		context.template = "www/404.html"
 		return

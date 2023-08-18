@@ -1963,10 +1963,6 @@ select {
 	-webkit-appearance: none;
 }
 
-.course-list-cta {
-	float: right;
-}
-
 .modal-title {
 	font-size: var(--text-lg) !important;
 }
@@ -2034,13 +2030,22 @@ select {
 }
 
 .lms-menu {
+	background-color: var(--control-bg);
+	color: var(--text-color);
+	border: none;
+	border-radius: var(--border-radius);
+	padding: 0.15rem 0.5rem;
+	box-shadow: var(--btn-shadow);
 	background-image: url(/assets/lms/icons/down-arrow.svg);
 	background-position: right 0.5rem center;
 	background-repeat: no-repeat;
 	background-size: 0.75rem;
-	padding-right: 2.5rem;
-	text-align: left;
+	padding-right: 2rem;
 	-webkit-print-color-adjust: exact;
+}
+
+.lms-menu:focus-visible {
+	outline: var(--gray-500);
 }
 
 .clickable-row {
