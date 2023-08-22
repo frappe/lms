@@ -3,21 +3,66 @@ from frappe import _
 
 
 def get_context(context):
-	course_name = frappe.form_dict.course
-
-	if not course_name:
-		raise ValueError(_("Course is required."))
+	module = frappe.form_dict.module
+	docname = frappe.form_dict.modulename
 
 	if frappe.session.user == "Guest":
 		raise frappe.PermissionError(_("You are not allowed to access this page."))
 
-	membership = frappe.db.exists(
-		"LMS Batch Membership", {"member": frappe.session.user, "course": course_name}
-	)
+	if module not in ["course", "class"]:
+		raise ValueError(_("Module is incorrect."))
 
-	if membership:
-		raise frappe.PermissionError(_("You are already enrolled for this course"))
+	doctype = "LMS Course" if module == "course" else "LMS Class"
+	context.module = module
+	context.docname = docname
+	context.doctype = doctype
 
-	context.course = frappe.db.get_value(
-		"LMS Course", course_name, ["title", "name", "course_price", "currency"], as_dict=True
-	)
+	if not frappe.db.exists(doctype, docname):
+		print(doctype, docname)
+		raise ValueError(_("Module Name is incorrect or does not exist."))
+
+	if doctype == "LMS Course":
+		membership = frappe.db.exists(
+			"LMS Batch Membership", {"member": frappe.session.user, "course": docname}
+		)
+		if membership:
+			raise frappe.PermissionError(_("You are already enrolled for this course"))
+
+	else:
+		membership = frappe.db.exists(
+			"Class Student", {"student": frappe.session.user, "parent": docname}
+		)
+		if membership:
+			raise frappe.PermissionError(_("You are already enrolled for this class"))
+
+	if doctype == "LMS Course":
+		course = frappe.db.get_value(
+			"LMS Course",
+			docname,
+			["title", "name", "paid_course", "course_price", "currency"],
+			as_dict=True,
+		)
+
+		if not course.paid_course:
+			raise frappe.PermissionError(_("This course is free."))
+
+		context.title = course.title
+		context.amount = course.course_price
+		context.currency = course.currency
+
+	else:
+		class_info = frappe.db.get_value(
+			"LMS Class",
+			docname,
+			["title", "name", "paid_class", "amount", "currency"],
+			as_dict=True,
+		)
+
+		if not class_info.paid_class:
+			raise frappe.PermissionError(
+				_("To join this class, please contact the Administrator.")
+			)
+
+		context.title = class_info.title
+		context.amount = class_info.amount
+		context.currency = class_info.currency

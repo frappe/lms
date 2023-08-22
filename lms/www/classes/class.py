@@ -1,7 +1,7 @@
 from frappe import _
 import frappe
 from frappe.utils import getdate, cint
-from lms.www.utils import get_assessments
+from lms.www.utils import get_assessments, is_student
 from lms.lms.utils import (
 	has_course_moderator_role,
 	has_course_evaluator_role,
@@ -36,6 +36,10 @@ def get_context(context):
 			"start_time",
 			"end_time",
 			"category",
+			"paid_class",
+			"amount",
+			"currency",
+			"prerequisite",
 		],
 		as_dict=True,
 	)
@@ -67,7 +71,7 @@ def get_context(context):
 	context.class_students = get_class_student_details(
 		class_students, class_courses, context.assessments
 	)
-	context.is_student = is_student(class_students)
+	context.is_student = is_student(class_name)
 
 	if not context.is_student and not context.is_moderator and not context.is_evaluator:
 		raise frappe.PermissionError(_("You don't have permission to access this page."))
@@ -203,11 +207,6 @@ def sort_students(class_students):
 		return session_user + remaining_students
 	else:
 		return class_students
-
-
-def is_student(class_students):
-	students = [student.student for student in class_students]
-	return frappe.session.user in students
 
 
 def get_scheduled_flow(class_name):

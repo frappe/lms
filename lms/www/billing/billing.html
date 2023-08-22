@@ -1,6 +1,6 @@
 {% extends "lms/templates/lms_base.html" %}
 {% block title %}
-    {{  course.title if course.title else _("New Course") }}
+    {{  title }} {{ _("Billing") }}
 {% endblock %}
 
 
@@ -8,7 +8,7 @@
 <div class="common-page-style">
      <div class="container form-width common-card-style column-card px-0 h-0 mt-8">
         {{ Header() }}
-        {{ CourseDetails() }}
+        {{ Details() }}
         {{ BillingDetails() }}
     </div>
 </div>
@@ -20,23 +20,24 @@
         {{ _("Order Details") }}
     </div>
     <div>
-        {{ _("Enter the billing information and complete the payment to purchase this course.") }}
+        {{ _("Enter the billing information and complete the payment to purchase this {0}.").format(module) }}
     </div>
 </div>
 {% endmacro %}
 
-{% macro CourseDetails() %}
+{% macro Details() %}
 <div class="px-4 pt-5 border-top">
     <div class="">
         <div class="flex mb-2">
             <div class="field-label">
-                {{ _("Course Name: ") }} {{ course.title }}
+                {% set label = "Course Name" if module == "course" else "Class Name" %}
+                {{ _(label) }} : {{ title }}
             </div>
         </div>
 
         <div class="flex">
             <div class="field-label">
-                {{ _("Total Price: ") }} {{ frappe.utils.fmt_money(course.course_price, 2, course.currency) }}
+                {{ _("Total Price: ") }} {{ frappe.utils.fmt_money(amount, 2, currency) }}
             </div>
         </div>
     </div>
@@ -49,7 +50,7 @@
         {{ _("Billing Details") }}
     </div>
     <div id="billing-form"></div>
-    <button class="btn btn-primary btn-md btn-pay" data-course="{{ course.name | urlencode }}">
+    <button class="btn btn-primary btn-md btn-pay" data-doctype="{{ doctype }}" data-name="{{ docname | urlencode }}">
         {{ "Proceed to Payment" }}
     </button>
 </div>

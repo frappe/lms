@@ -1,0 +1,214 @@
+{% extends "lms/templates/lms_base.html" %}
+{% block title %}
+	{{ _(class_info.title) }}
+{% endblock %}
+
+
+{% block page_content %}
+<div class="common-page-style lms-page-style">
+    {{ ClassHeader(class_info) }}
+	<div class="container">
+        {{ CourseHeaderOverlay(class_info) }}
+        <div class="pt-10">
+            {{ Prerequisites(class_info) }}
+            {{ CourseList(class_info) }}
+        </div>
+	</div>
+</div>
+{% endblock %}
+
+{% macro ClassHeader(class_info) %}
+<div class="course-head-container">
+    <div class="container">
+        <div class="course-card-wide">
+            {{ BreadCrumb(class_info) }}
+            {{ ClassHeaderDetails(class_info) }}
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+{% macro BreadCrumb(class_info) %}
+<article class="mb-8">
+    <a class="dark-links" href="/classes">
+        {{ _("All Classes") }}
+    </a>
+    <img class="" src="/assets/lms/icons/chevron-right.svg">
+    <span class="breadcrumb-destination">
+        {{ _("Class Details") }}
+    </span>
+</article>
+{% endmacro %}
+
+{% macro ClassHeaderDetails(class_info) %}
+    <div class="class-details" data-class="{{ class_info.name }}">
+        <div class="flex align-center">
+            <span>
+                {{ class_info.courses | length }} {{ _("Courses") }}
+            </span>
+            <span class="px-2"> · </span>
+            <span>
+                {{ class_info.students | length }} {{ _("Students") }}
+            </span>
+        </div>
+
+        <div class="page-title">
+            {{ class_info.title }}
+        </div>
+
+        <div class="">
+            {{ class_info.description }}
+        </div>
+
+        <div class="mt-8">
+            <svg class="icon icon-sm">
+                <use href="#icon-calendar"></use>
+            </svg>
+            <span>
+                {{ frappe.utils.format_date(class_info.start_date, "long") }} -
+            </span>
+            <span>
+                {{ frappe.utils.format_date(class_info.end_date, "long") }}
+            </span>
+        </div>
+
+        {% if class_info.start_time and class_info.end_time %}
+        <div class="mt-1">
+            <svg class="icon icon-sm">
+                <use href="#icon-clock"></use>
+            </svg>
+            <span>
+                {{ frappe.utils.format_time(class_info.start_time, "hh:mm a") }} -
+            </span>
+            <span>
+                {{ frappe.utils.format_time(class_info.end_time, "hh:mm a") }}
+            </span>
+        </div>
+        {% endif %}
+    </div>
+{% endmacro %}
+
+{% macro CourseHeaderOverlay(class_info) %}
+<div class="course-overlay-card class-overlay">
+
+    <div class="course-overlay-content">
+        {% if class_info.paid_class %}
+        <div class="bold-heading">
+            {{ frappe.utils.fmt_money(class_info.amount, 0, class_info.currency) }}
+        </div>
+        {% endif %}
+
+        <div class="vertically-center mt-2">
+            <svg class="icon icon-md mr-1">
+                <use href="#icon-education"></use>
+            </svg>
+            {{ class_info.courses | length }} {{ _("Courses") }}
+        </div>
+
+        <div class="vertically-center mt-2">
+            <svg class="icon icon-md mr-1">
+                <use class="" href="#icon-users">
+            </svg>
+            {{ class_info.students | length }} {{ _("Students") }}
+        </div>
+
+        <div class="mt-2">
+            <svg class="icon icon-sm">
+                <use href="#icon-calendar"></use>
+            </svg>
+            <span>
+                {{ frappe.utils.format_date(class_info.start_date, "long") }} -
+            </span>
+            <span>
+                {{ frappe.utils.format_date(class_info.end_date, "long") }}
+            </span>
+        </div>
+
+        {% if class_info.start_time and class_info.end_time %}
+        <div class="mt-2">
+            <svg class="icon icon-sm">
+                <use href="#icon-clock"></use>
+            </svg>
+            <span>
+                {{ frappe.utils.format_time(class_info.start_time, "hh:mm a") }} -
+            </span>
+            <span>
+                {{ frappe.utils.format_time(class_info.end_time, "hh:mm a") }}
+            </span>
+        </div>
+        {% endif %}
+
+        <div class="mt-2">
+            {% if is_moderator or is_evaluator or is_student %}
+            <a class="btn btn-primary wide-button" href="/classes/{{ class_info.name }}">
+                {{ _("Checkout Class") }}
+            </a>
+            {% elif class_info.paid_class %}
+            <a class="btn btn-primary wide-button" href="/billing/class/{{ class_info.name }}">
+                {{ _("Register Now") }}
+            </a>
+            {% else %}
+            <div class="alert alert-info">
+                {{ _("To join this class, please contact the Administrator.") }}
+            </div>
+            {% endif %}
+        </div>
+        {% if is_moderator %}
+        <div class="mt-2">
+            <div class="btn btn-secondary wide-button" id="create-class">
+                {{ _("Edit Class") }}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endmacro %}
+
+
+{% macro Prerequisites(class_info) %}
+<div class="course-description-section w-50">
+    <div class="page-title">
+        {{ _("Prerequisite Knowledge") }}
+    </div>
+    <div class="mt-2">
+        {{ class_info.prerequisite }}
+    </div>
+</div>
+{% endmacro %}
+
+
+{% macro CourseList(class_info) %}
+<div>
+    <div class="page-title">
+        {{ _("Courses") }}
+    </div>
+    {% if class_info.courses | length %}
+	<div class="cards-parent mt-2">
+		{% for course in class_info.courses %}
+		<div class="h-100">
+			{{ widgets.CourseCard(course=course, read_only=False) }}
+            <button class="btn icon-btn btn-default btn-block btn-remove-course" data-course="{{ course.name }}">
+				<svg class="icon icon-sm">
+					<use href="#icon-delete"></use>
+				</svg>
+			</button>
+		</div>
+
+		{% endfor %}
+	</div>
+	{% else %}
+	<div class="">
+		{{ _("No courses") }}
+	</div>
+	{% endif %}
+</div>
+{% endmacro %}
+
+{%- block script %}
+    {{ super() }}
+	{% if is_moderator %}
+    <script>
+        let class_info = {{ class_info | json }};
+    </script>
+    {% endif %}
+{% endblock %}

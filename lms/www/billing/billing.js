@@ -1,6 +1,8 @@
 frappe.ready(() => {
 	if ($("#billing-form").length) {
-		setup_billing();
+		frappe.require("controls.bundle.js", () => {
+			setup_billing();
+		});
 	}
 
 	$(".btn-pay").click((e) => {
@@ -66,19 +68,22 @@ const setup_billing = () => {
 
 const generate_payment_link = (e) => {
 	address = this.billing.get_values();
-	let course = decodeURIComponent($(e.currentTarget).attr("data-course"));
+	let doctype = $(e.currentTarget).attr("data-doctype");
+	let docname = decodeURIComponent($(e.currentTarget).attr("data-name"));
 
 	frappe.call({
-		method: "lms.lms.doctype.lms_course.lms_course.get_payment_options",
+		method: "lms.lms.utils.get_payment_options",
 		args: {
-			course: course,
+			doctype: doctype,
+			docname: docname,
 			phone: address.phone,
 		},
 		callback: (data) => {
 			data.message.handler = (response) => {
 				handle_success(
 					response,
-					course,
+					doctype,
+					docname,
 					address,
 					data.message.order_id
 				);
@@ -89,12 +94,13 @@ const generate_payment_link = (e) => {
 	});
 };
 
-const handle_success = (response, course, address, order_id) => {
+const handle_success = (response, doctype, docname, address, order_id) => {
 	frappe.call({
-		method: "lms.lms.doctype.lms_course.lms_course.verify_payment",
+		method: "lms.lms.utils.verify_payment",
 		args: {
 			response: response,
-			course: course,
+			doctype: doctype,
+			docname: docname,
 			address: address,
 			order_id: order_id,
 		},

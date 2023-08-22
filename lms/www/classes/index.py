@@ -1,11 +1,12 @@
 import frappe
 from frappe.utils import getdate
-from lms.lms.utils import has_course_moderator_role
+from lms.lms.utils import has_course_moderator_role, has_course_evaluator_role
 
 
 def get_context(context):
 	context.no_cache = 1
 	context.is_moderator = has_course_moderator_role()
+	context.is_evaluator = has_course_evaluator_role()
 	classes = frappe.get_all(
 		"LMS Class",
 		fields=[
@@ -15,6 +16,8 @@ def get_context(context):
 			"start_date",
 			"end_date",
 			"paid_class",
+			"amount",
+			"currency",
 			"seat_count",
 		],
 	)

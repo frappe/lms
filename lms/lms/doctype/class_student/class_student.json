@@ -10,10 +10,13 @@
   "student",
   "student_name",
   "username",
-  "column_break_zvlp",
   "address",
+  "column_break_zvlp",
   "amount",
-  "currency"
+  "currency",
+  "order_id",
+  "payment_id",
+  "payment_received"
  ],
  "fields": [
   {
@@ -59,12 +62,28 @@
    "fieldtype": "Link",
    "label": "Currency",
    "options": "Currency"
+  },
+  {
+   "fieldname": "order_id",
+   "fieldtype": "Data",
+   "label": "Order ID"
+  },
+  {
+   "fieldname": "payment_id",
+   "fieldtype": "Data",
+   "label": "Payment ID"
+  },
+  {
+   "default": "0",
+   "fieldname": "payment_received",
+   "fieldtype": "Check",
+   "label": "Payment Received"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-08-18 19:19:34.701473",
+ "modified": "2023-08-22 10:41:40.577437",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Class Student",

@@ -19,11 +19,16 @@
   "category",
   "column_break_flwy",
   "seat_count",
-  "paid_class",
   "section_break_6",
   "description",
+  "prerequisite",
   "students",
   "courses",
+  "section_break_gsac",
+  "paid_class",
+  "column_break_iens",
+  "amount",
+  "currency",
   "section_break_ubxi",
   "custom_component",
   "assessment_tab",
@@ -89,6 +94,7 @@
   },
   {
    "default": "0",
+   "description": "Students will be enrolled in a paid class once they complete the payment",
    "fieldname": "paid_class",
    "fieldtype": "Check",
    "label": "Paid Class"
@@ -158,11 +164,39 @@
    "fieldname": "schedule_tab",
    "fieldtype": "Tab Break",
    "label": "Schedule"
+  },
+  {
+   "fieldname": "section_break_gsac",
+   "fieldtype": "Section Break",
+   "label": "Pricing"
+  },
+  {
+   "fieldname": "column_break_iens",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "paid_class",
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "label": "Amount"
+  },
+  {
+   "depends_on": "paid_class",
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency"
+  },
+  {
+   "fieldname": "prerequisite",
+   "fieldtype": "Small Text",
+   "label": "Prerequisite",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-08-10 12:54:44.351907",
+ "modified": "2023-08-22 11:53:22.248596",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Class",
@@ -190,18 +224,6 @@
    "read": 1,
    "report": 1,
    "role": "Moderator",
-   "share": 1,
-   "write": 1
-  },
-  {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "Class Evaluator",
    "share": 1,
    "write": 1
   }

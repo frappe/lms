@@ -189,8 +189,12 @@ website_route_rules = [
 		"to_route": "quiz_submission/quiz_submission",
 	},
 	{
-		"from_route": "/billing/<course>",
+		"from_route": "/billing/<module>/<modulename>",
 		"to_route": "billing/billing",
+	},
+	{
+		"from_route": "/classes/details/<classname>",
+		"to_route": "classes/class_details",
 	},
 ]
 
@@ -249,6 +253,7 @@ jinja = {
 		"lms.lms.utils.can_create_courses",
 		"lms.lms.utils.get_telemetry_boot_info",
 		"lms.lms.utils.is_onboarding_complete",
+		"lms.www.utils.is_student",
 	],
 	"filters": [],
 }

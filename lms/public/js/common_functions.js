@@ -320,6 +320,41 @@ const open_class_dialog = () => {
 				default: class_info && class_info.description,
 				reqd: 1,
 			},
+			{
+				fieldtype: "Small Text",
+				label: __("Prerequisite"),
+				fieldname: "prerequisite",
+				default: class_info && class_info.prerequisite,
+				reqd: 1,
+			},
+			{
+				fieldtype: "Section Break",
+				label: __("Pricing"),
+				fieldname: "pricing",
+			},
+			{
+				fieldtype: "Check",
+				label: __("Paid Class"),
+				fieldname: "paid_class",
+				default: class_info && class_info.paid_class,
+			},
+			{
+				fieldtype: "Currency",
+				label: __("Amount"),
+				fieldname: "amount",
+				default: class_info && class_info.amount,
+				mandatory_depends_on: "paid_class",
+				depends_on: "paid_class",
+			},
+			{
+				fieldtype: "Link",
+				label: __("Currency"),
+				fieldname: "currency",
+				options: "Currency",
+				default: class_info && class_info.currency,
+				mandatory_depends_on: "paid_class",
+				depends_on: "paid_class",
+			},
 		],
 		primary_action_label: __("Save"),
 		primary_action: (values) => {
@@ -330,19 +365,19 @@ const open_class_dialog = () => {
 };
 
 const save_class = (values) => {
+	let method, args;
+	if (class_info) {
+		method = "frappe.client.save";
+		args = Object.assign(class_info, values);
+	} else {
+		method = "frappe.client.insert";
+		args = values;
+		args.doctype = "LMS Class";
+	}
 	frappe.call({
-		method: "lms.lms.doctype.lms_class.lms_class.create_class",
+		method: method,
 		args: {
-			title: values.title,
-			start_date: values.start_date,
-			end_date: values.end_date,
-			description: values.description,
-			seat_count: values.seat_count,
-			start_time: values.start_time,
-			end_time: values.end_time,
-			medium: values.medium,
-			category: values.category,
-			name: class_info && class_info.name,
+			doc: args,
 		},
 		callback: (r) => {
 			if (r.message) {
@@ -353,7 +388,7 @@ const save_class = (values) => {
 					indicator: "green",
 				});
 				this.class_dialog.hide();
-				window.location.href = `/classes/${r.message.name}`;
+				window.location.href = `/classes/details/${r.message.name}`;
 			}
 		},
 	});

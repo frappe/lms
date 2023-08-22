@@ -186,42 +186,6 @@ def authenticate():
 
 
 @frappe.whitelist()
-def create_class(
-	title,
-	start_date,
-	end_date,
-	description=None,
-	seat_count=0,
-	start_time=None,
-	end_time=None,
-	medium="Online",
-	category=None,
-	name=None,
-):
-	frappe.only_for("Moderator")
-	if name:
-		class_details = frappe.get_doc("LMS Class", name)
-	else:
-		class_details = frappe.get_doc({"doctype": "LMS Class"})
-
-	class_details.update(
-		{
-			"title": title,
-			"start_date": start_date,
-			"end_date": end_date,
-			"description": description,
-			"seat_count": seat_count,
-			"start_time": start_time,
-			"end_time": end_time,
-			"medium": medium,
-			"category": category,
-		}
-	)
-	class_details.save()
-	return class_details
-
-
-@frappe.whitelist()
 def fetch_lessons(courses):
 	lessons = []
 	courses = json.loads(courses)

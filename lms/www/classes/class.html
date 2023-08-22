@@ -85,12 +85,6 @@
 {% macro ClassSections(class_info, class_courses, class_students, flow) %}
 <div class="mt-4">
 
-	{% if is_moderator %}
-	<button class="btn btn-default btn-sm pull-right" id="create-class">
-		{{ _("Edit") }}
-	</button>
-	{% endif %}
-
 	<ul class="nav lms-nav" id="classes-tab">
 
 		{% if is_student %}
@@ -610,17 +604,16 @@
 	<script>
 		frappe.boot.user = {
 			"can_create": [],
-			"can_select": ["User", "LMS Category", "LMS Assignment", "LMS Quiz"],
-			"can_read": ["User", "LMS Category", "LMS Assignment", "LMS Quiz"]
+			"can_select": ["User", "LMS Assignment", "LMS Quiz"],
+			"can_read": ["User", "LMS Assignment", "LMS Quiz"]
 		};
 
 		frappe.boot.single_types = []
 
-		let class_info = {{ class_info | json }};
 	</script>
 	{% else %}
 	<script>
-		frappe.boot.user = {
+		frappe.boot.user= {
 			"can_create": [],
 			"can_select": ["LMS Course"],
 			"can_read": ["LMS Course"]
@@ -629,5 +622,4 @@
 	</script>
 	{% endif %}
 
-	{{ include_script('controls.bundle.js') }}
 {% endblock %}

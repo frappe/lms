@@ -128,3 +128,16 @@ def get_quiz_details(assessment, member):
 		existing_submission[0].name if len(existing_submission) else "new-submission"
 	)
 	assessment.url = f"/quiz-submission/{assessment.assessment_name}/{submission_name}"
+
+
+def is_student(class_name, member=None):
+	if not member:
+		member = frappe.session.user
+
+	return frappe.db.exists(
+		"Class Student",
+		{
+			"student": member,
+			"parent": class_name,
+		},
+	)

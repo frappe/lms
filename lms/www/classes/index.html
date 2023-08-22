@@ -43,7 +43,7 @@
 		{% if is_moderator %}
 		<li class="nav-item">
 			<a class="nav-link" data-toggle="tab" href="#past">
-				{{ _("Past Classes") }}
+				{{ _("Archived") }}
 				<span class="course-list-count">
 					{{ past_classes | length }}
 				</span>
@@ -54,7 +54,7 @@
 		{% if frappe.session.user != "Guest" %}
 		<li class="nav-item">
 			<a class="nav-link" data-toggle="tab" href="#my-class">
-				{{ _("My Classes") }}
+				{{ _("Enrolled") }}
 				<span class="course-list-count">
 					{{ my_classes | length }}
 				</span>
@@ -68,18 +68,18 @@
 
 	<div class="tab-content">
 		<div class="tab-pane active" id="upcoming" role="tabpanel" aria-labelledby="upcoming">
-			{{ ClassCards(upcoming_classes) }}
+			{{ ClassCards(upcoming_classes, show_price=True) }}
 		</div>
 
 		{% if is_moderator %}
 		<div class="tab-pane" id="past" role="tabpanel" aria-labelledby="past">
-			{{ ClassCards(past_classes) }}
+			{{ ClassCards(past_classes, show_price=False) }}
 		</div>
 		{% endif %}
 
 		{% if frappe.session.user != "Guest" %}
 		<div class="tab-pane" id="my-class" role="tabpanel" aria-labelledby="my-classes">
-			{{ ClassCards(my_classes) }}
+			{{ ClassCards(my_classes, show_price=False) }}
 		</div>
 		{% endif %}
 
@@ -87,7 +87,7 @@
 </article>
 {% endmacro %}
 
-{% macro ClassCards(classes) %}
+{% macro ClassCards(classes, show_price=False) %}
 <div class="lms-card-parent">
 	{% for class in classes %}
 	{% set course_count = frappe.db.count("Class Course", {"parent": class.name}) %}
@@ -102,6 +102,12 @@
 		{% if class.description %}
 		<div class="short-introduction">
 			{{ class.description }}
+		</div>
+		{% endif %}
+
+		{% if show_price and class.paid_class %}
+		<div class="bold-heading">
+			{{ frappe.utils.fmt_money(class.amount, 0, class.currency) }}
 		</div>
 		{% endif %}
 
@@ -131,7 +137,11 @@
 				{{ student_count }} {{ _("Students") }}
 		</div>
 
-		<a class="stretched-link" href="/classes/{{ class.name }}"></a>
+		{% if is_student(class.name) %}
+			<a class="stretched-link" href="/classes/{{ class.name }}"></a>
+		{% else %}
+			<a class="stretched-link" href="/classes/details/{{ class.name }}"></a>
+		{% endif %}
 	</div>
 	{% endfor %}
 </div>

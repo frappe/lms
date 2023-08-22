@@ -1,6 +1,11 @@
 frappe.ready(() => {
 	let self = this;
 
+	if ($("#live-class-form").length) {
+		frappe.require("controls.bundle.js", () => {
+			make_live_class_form();
+		});
+	}
 	$(".btn-add-student").click((e) => {
 		show_student_modal(e);
 	});
@@ -8,10 +13,6 @@ frappe.ready(() => {
 	$(".btn-remove-student").click((e) => {
 		remove_student(e);
 	});
-
-	if ($("#live-class-form").length) {
-		make_live_class_form();
-	}
 
 	$("#open-class-modal").click((e) => {
 		e.preventDefault();
@@ -25,7 +26,6 @@ frappe.ready(() => {
 	$(".btn-add-course").click((e) => {
 		show_course_modal(e);
 	});
-
 	$(".btn-remove-course").click((e) => {
 		remove_course(e);
 	});
@@ -308,6 +308,12 @@ const show_course_modal = () => {
 				label: __("Course"),
 				fieldname: "course",
 				reqd: 1,
+			},
+			{
+				fieldtype: "Link",
+				options: "Course Evaluator",
+				label: __("Course Evaluator"),
+				fieldname: "evaluator",
 			},
 		],
 		primary_action_label: __("Add"),
