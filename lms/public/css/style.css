@@ -2302,3 +2302,39 @@ select {
 	padding-right: 1rem !important;
 }
 
+.course-list-menu {
+	display: flex;
+	align-items: center;
+	float: right;
+}
+
+.course-list-buttons {
+	display: flex;
+}
+
+.course-list-buttons .btn {
+	margin-left: 0.5rem;
+}
+
+@media (max-width: 767px) {
+	.course-list-menu {
+		float: none;
+		margin-bottom: 1rem;
+	}
+}
+
+@media (max-width: 576px) {
+	.course-list-menu {
+		flex-direction: column;
+		align-items: unset;
+	}
+
+	.course-list-buttons {
+		margin-top: 1rem;
+		justify-content: space-between;
+	}
+
+	.course-list-buttons .btn {
+		margin-left: 0;
+	}
+}

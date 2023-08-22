@@ -24,7 +24,7 @@
 
             {% include "lms/templates/search_course/search_course.html" %}
 
-			<div class="flex align-center pull-right">
+			<div class="course-list-menu">
 
                 <select class="lms-menu" id="course-filter">
                     <option disabled value="">
@@ -41,21 +41,24 @@
                     </option>
                 </select>
 
-                {% if frappe.session.user != "Guest" %}
-                <a class="btn btn-default btn-sm ml-2" href="/users">
-                    {{ _("My Profile") }}
-                </a>
-                {% endif %}
+                <div class="course-list-buttons">
+                    {% if frappe.session.user != "Guest" %}
+                    <a class="btn btn-default btn-sm" href="/users">
+                        {{ _("My Profile") }}
+                    </a>
+                    {% endif %}
 
-                {% if show_creators_section %}
-                <a class="btn btn-default btn-sm ml-2" href="/courses/new-course/edit">
-                    {{ _("Create a Course") }}
-                </a>
-                {% endif %}
+                    {% if show_creators_section %}
+                    <a class="btn btn-default btn-sm" href="/courses/new-course/edit">
+                        {{ _("Create a Course") }}
+                    </a>
+                    {% endif %}
 
-				<a class="btn btn-default btn-sm ml-2" id="open-search">
-					{{ _("Search") }} (Ctrl + k)
-				</a>
+                    <a class="btn btn-default btn-sm" id="open-search">
+                        {{ _("Search") }} (Ctrl + k)
+                    </a>
+                </div>
+
             </div>
 
             <div class="page-title mb-6">
