@@ -354,6 +354,7 @@ const open_class_dialog = () => {
 				default: class_info && class_info.currency,
 				mandatory_depends_on: "paid_class",
 				depends_on: "paid_class",
+				only_select: 1,
 			},
 		],
 		primary_action_label: __("Save"),
@@ -365,20 +366,15 @@ const open_class_dialog = () => {
 };
 
 const save_class = (values) => {
-	let method, args;
+	let args = {};
 	if (class_info) {
-		method = "frappe.client.save";
 		args = Object.assign(class_info, values);
 	} else {
-		method = "frappe.client.insert";
 		args = values;
-		args.doctype = "LMS Class";
 	}
 	frappe.call({
-		method: method,
-		args: {
-			doc: args,
-		},
+		method: "lms.lms.doctype.lms_class.lms_class.create_class",
+		args: args,
 		callback: (r) => {
 			if (r.message) {
 				frappe.show_alert({

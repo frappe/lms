@@ -987,5 +987,5 @@ def add_student_to_class(address, response, classname, client):
 		return f"/classes/{classname}"
 	except Exception as e:
 		frappe.throw(
-			_("Error during payment: {0}. Please contact the Administrator.").format(e)
+			_("Error during payment: {0} Please contact the Administrator.").format(e)
 		)

@@ -44,6 +44,7 @@ const setup_billing = () => {
 				fieldname: "country",
 				options: "Country",
 				reqd: 1,
+				only_select: 1,
 			},
 			{
 				fieldtype: "Data",
@@ -56,6 +57,18 @@ const setup_billing = () => {
 				label: __("Phone Number"),
 				fieldname: "phone",
 				reqd: 1,
+			},
+			{
+				fieldtype: "Data",
+				fieldname: "gstin",
+				label: __("GSTIN"),
+				depends_on: (doc) => console.log(doc.country),
+			},
+			{
+				fieldtype: "Data",
+				fieldname: "pan",
+				label: __("PAN"),
+				depends_on: (doc) => console.log(doc.country),
 			},
 		],
 		body: $("#billing-form").get(0),

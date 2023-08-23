@@ -8,10 +8,10 @@
 <div class="common-page-style lms-page-style">
     {{ ClassHeader(class_info) }}
 	<div class="container">
-        {{ CourseHeaderOverlay(class_info) }}
+        {{ CourseHeaderOverlay(class_info, courses, students) }}
         <div class="pt-10">
             {{ Prerequisites(class_info) }}
-            {{ CourseList(class_info) }}
+            {{ CourseList(courses) }}
         </div>
 	</div>
 </div>
@@ -22,7 +22,7 @@
     <div class="container">
         <div class="course-card-wide">
             {{ BreadCrumb(class_info) }}
-            {{ ClassHeaderDetails(class_info) }}
+            {{ ClassHeaderDetails(class_info, courses, students) }}
         </div>
     </div>
 </div>
@@ -40,15 +40,15 @@
 </article>
 {% endmacro %}
 
-{% macro ClassHeaderDetails(class_info) %}
+{% macro ClassHeaderDetails(class_info, courses, students) %}
     <div class="class-details" data-class="{{ class_info.name }}">
         <div class="flex align-center">
             <span>
-                {{ class_info.courses | length }} {{ _("Courses") }}
+                {{ courses | length }} {{ _("Courses") }}
             </span>
             <span class="px-2"> · </span>
             <span>
-                {{ class_info.students | length }} {{ _("Students") }}
+                {{ students | length }} {{ _("Students") }}
             </span>
         </div>
 
@@ -88,7 +88,7 @@
     </div>
 {% endmacro %}
 
-{% macro CourseHeaderOverlay(class_info) %}
+{% macro CourseHeaderOverlay(class_info, courses, students) %}
 <div class="course-overlay-card class-overlay">
 
     <div class="course-overlay-content">
@@ -102,14 +102,14 @@
             <svg class="icon icon-md mr-1">
                 <use href="#icon-education"></use>
             </svg>
-            {{ class_info.courses | length }} {{ _("Courses") }}
+            {{ courses | length }} {{ _("Courses") }}
         </div>
 
         <div class="vertically-center mt-2">
             <svg class="icon icon-md mr-1">
                 <use class="" href="#icon-users">
             </svg>
-            {{ class_info.students | length }} {{ _("Students") }}
+            {{ students | length }} {{ _("Students") }}
         </div>
 
         <div class="mt-2">
@@ -177,14 +177,14 @@
 {% endmacro %}
 
 
-{% macro CourseList(class_info) %}
+{% macro CourseList(courses) %}
 <div>
     <div class="page-title">
         {{ _("Courses") }}
     </div>
-    {% if class_info.courses | length %}
+    {% if courses | length %}
 	<div class="cards-parent mt-2">
-		{% for course in class_info.courses %}
+		{% for course in courses %}
 		<div class="h-100">
 			{{ widgets.CourseCard(course=course, read_only=False) }}
             <button class="btn icon-btn btn-default btn-block btn-remove-course" data-course="{{ course.name }}">

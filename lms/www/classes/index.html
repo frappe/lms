@@ -106,12 +106,12 @@
 		{% endif %}
 
 		{% if show_price and class.paid_class %}
-		<div class="bold-heading">
+		<div class="bold-heading mb-2">
 			{{ frappe.utils.fmt_money(class.amount, 0, class.currency) }}
 		</div>
 		{% endif %}
 
-		<div class="mt-auto mb-1">
+		<div class="mt-auto mb-2">
 			<svg class="icon icon-sm">
 				<use href="#icon-calendar"></use>
 			</svg>
@@ -123,14 +123,14 @@
 			</span>
 		</div>
 
-		<div class="mb-1">
+		<div class="mb-2">
 			<svg class="icon icon-md">
 				<use href="#icon-education"></use>
 			</svg>
 				{{ course_count }} {{ _("Courses") }}
 		</div>
 
-		<div class="mb-1">
+		<div class="mb-2">
 			<svg class="icon icon-md">
 				<use href="#icon-users"></use>
 			</svg>

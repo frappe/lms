@@ -20,7 +20,7 @@
         {{ _("Order Details") }}
     </div>
     <div>
-        {{ _("Enter the billing information and complete the payment to purchase this {0}.").format(module) }}
+        {{ _("Enter the billing information to complete the payment.").format(module) }}
     </div>
 </div>
 {% endmacro %}
@@ -59,11 +59,4 @@
 {%- block script %}
 {{ super() }}
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-<script>
-    frappe.boot.user = {
-        "can_create": [],
-        "can_select": ["Country"],
-        "can_read": ["Country"]
-    };
-</script>
 {% endblock %}

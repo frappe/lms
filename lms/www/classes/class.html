@@ -600,26 +600,8 @@
 
 {%- block script %}
 	{{ super() }}
-	{% if is_moderator %}
 	<script>
-		frappe.boot.user = {
-			"can_create": [],
-			"can_select": ["User", "LMS Assignment", "LMS Quiz"],
-			"can_read": ["User", "LMS Assignment", "LMS Quiz"]
-		};
-
 		frappe.boot.single_types = []
-
-	</script>
-	{% else %}
-	<script>
-		frappe.boot.user= {
-			"can_create": [],
-			"can_select": ["LMS Course"],
-			"can_read": ["LMS Course"]
-		};
 		let courses = {{ course_list | json }};
 	</script>
-	{% endif %}
-
 {% endblock %}

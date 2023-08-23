@@ -1,11 +1,13 @@
 frappe.ready(() => {
 	let self = this;
+	frappe.require("controls.bundle.js");
 
 	if ($("#live-class-form").length) {
-		frappe.require("controls.bundle.js", () => {
+		setTimeout(() => {
 			make_live_class_form();
-		});
+		}, 1000);
 	}
+
 	$(".btn-add-student").click((e) => {
 		show_student_modal(e);
 	});
@@ -308,12 +310,14 @@ const show_course_modal = () => {
 				label: __("Course"),
 				fieldname: "course",
 				reqd: 1,
+				only_select: 1,
 			},
 			{
 				fieldtype: "Link",
 				options: "Course Evaluator",
 				label: __("Course Evaluator"),
 				fieldname: "evaluator",
+				only_select: 1,
 			},
 		],
 		primary_action_label: __("Add"),
@@ -385,6 +389,7 @@ const show_student_modal = () => {
 				label: __("Student"),
 				fieldname: "student",
 				reqd: 1,
+				only_select: 1,
 				filters: {
 					ignore_user_type: 1,
 				},
@@ -463,6 +468,7 @@ const show_assessment_modal = (e) => {
 				label: __("Assessment Type"),
 				fieldname: "assessment_type",
 				reqd: 1,
+				only_select: 1,
 				filters: {
 					name: ["in", ["LMS Assignment", "LMS Quiz"]],
 				},
@@ -474,6 +480,7 @@ const show_assessment_modal = (e) => {
 				label: __("Assessment"),
 				fieldname: "assessment_name",
 				reqd: 1,
+				only_select: 1,
 			},
 			{
 				fieldtype: "Section Break",
