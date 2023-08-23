@@ -618,7 +618,7 @@
 
 		let class_info = {{ class_info | json }};
 	</script>
-	{% else %}
+	{% endif %}
 	<script>
 		frappe.boot.user = {
 			"can_create": [],
@@ -627,7 +627,6 @@
 		};
 		let courses = {{ course_list | json }};
 	</script>
-	{% endif %}
 
 	{{ include_script('controls.bundle.js') }}
 {% endblock %}

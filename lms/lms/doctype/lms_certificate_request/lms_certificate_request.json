@@ -8,6 +8,7 @@
  "field_order": [
   "course",
   "evaluator",
+  "class_name",
   "column_break_4",
   "member",
   "member_name",
@@ -97,11 +98,18 @@
    "fieldtype": "Data",
    "label": "Google Meet Link",
    "read_only": 1
+  },
+  {
+   "fieldname": "class_name",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Class Name",
+   "options": "LMS Class"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-07-21 16:00:11.795521",
+ "modified": "2023-08-23 14:50:37.618350",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate Request",

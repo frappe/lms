@@ -162,7 +162,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-08-10 12:54:44.351907",
+ "modified": "2023-08-23 14:23:07.706539",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Class",
@@ -206,6 +206,7 @@
    "write": 1
   }
  ],
+ "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],

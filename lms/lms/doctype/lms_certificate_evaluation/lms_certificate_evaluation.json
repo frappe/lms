@@ -8,16 +8,16 @@
  "field_order": [
   "member",
   "member_name",
-  "column_break_5",
-  "status",
   "course",
-  "class",
-  "section_break_6",
+  "column_break_5",
   "date",
   "start_time",
   "end_time",
-  "column_break_10",
+  "class_name",
+  "section_break_6",
   "rating",
+  "status",
+  "column_break_10",
   "summary"
  ],
  "fields": [
@@ -89,22 +89,24 @@
   },
   {
    "fieldname": "section_break_6",
-   "fieldtype": "Section Break"
+   "fieldtype": "Section Break",
+   "label": "Evaluation Details"
   },
   {
    "fieldname": "column_break_10",
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "class",
+   "fieldname": "class_name",
    "fieldtype": "Link",
-   "label": "Class",
+   "in_standard_filter": 1,
+   "label": "Class Name",
    "options": "LMS Class"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-07-13 11:30:53.432076",
+ "modified": "2023-08-23 14:51:21.947160",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate Evaluation",

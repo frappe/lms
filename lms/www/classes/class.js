@@ -614,21 +614,29 @@ const get_slots = () => {
 
 const display_slots = (slots) => {
 	let slot_html = "";
-	let day = moment(this.eval_form.get_value("date")).format("dddd");
+	let slots_available = false;
+	if (slots.length) {
+		slot_html = `<div>
+			<div class="mb-2"> ${__("Select a Slot")} </div>
+			<div class="slots-parent">`;
+		let day = moment(this.eval_form.get_value("date")).format("dddd");
 
-	slots.forEach((slot) => {
-		if (slot.day == day) {
-			slot_html += `<div class="btn btn-sm btn-default slot" data-day="${
-				slot.day
-			}"
-				data-start="${slot.start_time}" data-end="${slot.end_time}">
-				${moment(slot.start_time, "hh:mm").format("hh:mm a")} -
-				${moment(slot.end_time, "hh:mm").format("hh:mm a")}
-			</div>`;
-		}
-	});
+		slots.forEach((slot) => {
+			if (slot.day == day) {
+				slots_available = true;
+				slot_html += `<div class="btn btn-sm btn-default slot" data-day="${
+					slot.day
+				}"
+					data-start="${slot.start_time}" data-end="${slot.end_time}">
+					${moment(slot.start_time, "hh:mm").format("hh:mm a")} -
+					${moment(slot.end_time, "hh:mm").format("hh:mm a")}
+				</div>`;
+			}
+		});
+		slot_html += "</div> </div>";
+	}
 
-	if (!slot_html) {
+	if (!slots_available) {
 		slot_html = `<div class="alert alert-danger" role="alert">
 			No slots available for this date.
 		</div>`;
