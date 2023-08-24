@@ -9,23 +9,10 @@
  "field_order": [
   "student_details_section",
   "student",
+  "payment",
   "column_break_oduu",
   "student_name",
-  "username",
-  "payment_details_section",
-  "column_break_zvlp",
-  "amount",
-  "currency",
-  "column_break_clem",
-  "order_id",
-  "payment_id",
-  "payment_received",
-  "address_details_section",
-  "address",
-  "pan",
-  "column_break_rqoj",
-  "gstin",
-  "gst_category"
+  "username"
  ],
  "fields": [
   {
@@ -52,43 +39,6 @@
    "read_only": 1
   },
   {
-   "fieldname": "column_break_zvlp",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "address",
-   "fieldtype": "Link",
-   "label": "Address",
-   "options": "Address"
-  },
-  {
-   "fieldname": "amount",
-   "fieldtype": "Currency",
-   "label": "Amount"
-  },
-  {
-   "fieldname": "currency",
-   "fieldtype": "Link",
-   "label": "Currency",
-   "options": "Currency"
-  },
-  {
-   "fieldname": "order_id",
-   "fieldtype": "Data",
-   "label": "Order ID"
-  },
-  {
-   "fieldname": "payment_id",
-   "fieldtype": "Data",
-   "label": "Payment ID"
-  },
-  {
-   "default": "0",
-   "fieldname": "payment_received",
-   "fieldtype": "Check",
-   "label": "Payment Received"
-  },
-  {
    "fieldname": "student_details_section",
    "fieldtype": "Section Break",
    "label": "Student Details"
@@ -98,43 +48,16 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "payment_details_section",
-   "fieldtype": "Section Break",
-   "label": "Payment Details"
-  },
-  {
-   "fieldname": "column_break_clem",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "address_details_section",
-   "fieldtype": "Section Break",
-   "label": "Address Details"
-  },
-  {
-   "fieldname": "pan",
-   "fieldtype": "Data",
-   "label": "PAN"
-  },
-  {
-   "fieldname": "column_break_rqoj",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "gstin",
-   "fieldtype": "Data",
-   "label": "GSTIN"
-  },
-  {
-   "fieldname": "gst_category",
-   "fieldtype": "Select",
-   "label": "GST Category"
+   "fieldname": "payment",
+   "fieldtype": "Link",
+   "label": "Payment",
+   "options": "LMS Payment"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-08-22 21:59:16.678547",
+ "modified": "2023-08-24 17:48:53.045539",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Class Student",

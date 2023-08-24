@@ -14,7 +14,7 @@ def get_context(context):
 			"name",
 			"title",
 			"description",
-			"prerequisite",
+			"class_details",
 			"start_date",
 			"end_date",
 			"paid_class",
@@ -22,6 +22,7 @@ def get_context(context):
 			"currency",
 			"start_time",
 			"end_time",
+			"seat_count",
 		],
 		as_dict=1,
 	)
@@ -40,12 +41,8 @@ def get_context(context):
 			)
 		)
 
-	context.students = frappe.get_all(
-		"Class Student",
-		{"parent": class_name},
-		["name", "student", "student_name", "username"],
-		order_by="creation desc",
-	)
+	context.student_count = frappe.db.count("Class Student", {"parent": class_name})
+	context.seats_left = context.class_info.seat_count - context.student_count
 
 	context.is_moderator = has_course_moderator_role()
 	context.is_evaluator = has_course_evaluator_role()

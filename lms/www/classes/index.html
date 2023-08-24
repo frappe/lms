@@ -90,10 +90,20 @@
 {% macro ClassCards(classes, show_price=False) %}
 <div class="lms-card-parent">
 	{% for class in classes %}
-	{% set course_count = frappe.db.count("Class Course", {"parent": class.name}) %}
-	{% set student_count = frappe.db.count("Class Student", {"parent": class.name}) %}
 
 	<div class="common-card-style column-card" style="min-height: 150px;">
+
+		{% if class.seat_count %}
+			{% if class.seats_left > 0 %}
+			<div class="indicator-pill green align-self-start mb-2">
+				{{ _("Seats Available") }}: {{ class.seats_left }}
+			</div>
+			{% else %}
+			<div class="indicator-pill red align-self-start mb-2">
+				{{ _("No Seats Left") }}
+			</div>
+			{% endif %}
+		{% endif %}
 
 		<div class="bold-heading">
 			{{ class.title }}
@@ -127,15 +137,15 @@
 			<svg class="icon icon-md">
 				<use href="#icon-education"></use>
 			</svg>
-				{{ course_count }} {{ _("Courses") }}
+				{{ class.course_count }} {{ _("Courses") }}
 		</div>
 
-		<div class="mb-2">
+		<!-- <div class="mb-2">
 			<svg class="icon icon-md">
 				<use href="#icon-users"></use>
 			</svg>
 				{{ student_count }} {{ _("Students") }}
-		</div>
+		</div> -->
 
 		{% if is_student(class.name) %}
 			<a class="stretched-link" href="/classes/{{ class.name }}"></a>

@@ -835,24 +835,7 @@ def get_payment_options(doctype, docname, phone):
 		frappe.throw(_("Invalid document provided."))
 
 	validate_phone_number(phone, True)
-	if doctype == "LMS Course":
-		details = frappe.db.get_value(
-			"LMS Course",
-			docname,
-			["name", "title", "paid_course", "currency", "course_price as amount"],
-			as_dict=True,
-		)
-		if not details.paid_course:
-			frappe.throw(_("This course is free."))
-	else:
-		details = frappe.db.get_value(
-			"LMS Class",
-			docname,
-			["name", "title", "paid_class", "currency", "amount"],
-			as_dict=True,
-		)
-		if not details.paid_class:
-			frappe.throw(_("To join this class, please contact the Administrator."))
+	details = get_details(doctype, docname)
 
 	razorpay_key = frappe.db.get_single_value("LMS Settings", "razorpay_key")
 	client = get_client()
@@ -874,8 +857,30 @@ def get_payment_options(doctype, docname, phone):
 	return options
 
 
+def get_details(doctype, docname):
+	if doctype == "LMS Course":
+		details = frappe.db.get_value(
+			"LMS Course",
+			docname,
+			["name", "title", "paid_course", "currency", "course_price as amount"],
+			as_dict=True,
+		)
+		if not details.paid_course:
+			frappe.throw(_("This course is free."))
+	else:
+		details = frappe.db.get_value(
+			"LMS Class",
+			docname,
+			["name", "title", "paid_class", "currency", "amount"],
+			as_dict=True,
+		)
+		if not details.paid_class:
+			frappe.throw(_("To join this class, please contact the Administrator."))
+
+	return details
+
+
 def save_address(address):
-	address = json.loads(address)
 	address.update(
 		{
 			"address_title": frappe.db.get_value("User", frappe.session.user, "full_name"),
@@ -930,62 +935,76 @@ def verify_payment(response, doctype, docname, address, order_id):
 		}
 	)
 
+	payment = record_payment(address, response, client, doctype, docname)
 	if doctype == "LMS Course":
-		return create_membership(address, response, docname, client)
+		return create_membership(docname, payment)
 	else:
-		return add_student_to_class(address, response, docname, client)
+		return add_student_to_class(docname, payment)
 
 
-def create_membership(address, response, course, client):
+def record_payment(address, response, client, doctype, docname):
+	address = frappe._dict(json.loads(address))
+	address_name = save_address(address)
+
+	payment_details = get_payment_details(client, response, doctype, docname)
+	payment_doc = frappe.new_doc("LMS Payment")
+	payment_doc.update(
+		{
+			"member": frappe.session.user,
+			"billing_name": address.billing_name,
+			"address": address_name,
+			"payment_received": 1,
+			"order_id": response["razorpay_order_id"],
+			"payment_id": response["razorpay_payment_id"],
+			"amount": payment_details["amount"],
+			"currency": payment_details["currency"],
+			"gstin": address.gstin,
+			"pan": address.pan,
+		}
+	)
+	payment_doc.save(ignore_permissions=True)
+	return payment_doc.name
+
+
+def get_payment_details(client, response, doctype, docname):
 	try:
-		address_name = save_address(address)
 		payment = client.payment.fetch(response["razorpay_payment_id"])
-		membership = frappe.new_doc("LMS Batch Membership")
-
-		membership.update(
-			{
-				"member": frappe.session.user,
-				"course": course,
-				"address": address_name,
-				"payment_received": 1,
-				"order_id": response["razorpay_order_id"],
-				"payment_id": response["razorpay_payment_id"],
-				"amount": payment["amount"] / 100,
-				"currency": payment["currency"],
-			}
-		)
-		membership.save(ignore_permissions=True)
-
-		return f"/courses/{course}/learn/1.1"
 	except Exception as e:
-		frappe.throw(
-			_("Error during payment: {0}. Please contact the Administrator.").format(e)
-		)
+		frappe.log_error(e, "Error during payment fetch")
+
+	if payment:
+		amount = payment["amount"] / 100
+		currency = payment["currency"]
+	else:
+		amount_field = "course_price" if doctype == "LMS Course" else "amount"
+		amount = frappe.db.get_value(doctype, docname, amount_field)
+		currency = frappe.db.get_value(doctype, docname, "currency")
+
+	return {
+		"amount": amount,
+		"currency": currency,
+	}
 
 
-def add_student_to_class(address, response, classname, client):
-	try:
-		address_name = save_address(address)
-		payment = client.payment.fetch(response["razorpay_payment_id"])
-		student = frappe.new_doc("Class Student")
+def create_membership(course, payment):
+	membership = frappe.new_doc("LMS Batch Membership")
+	membership.update(
+		{"member": frappe.session.user, "course": course, "payment": payment}
+	)
+	membership.save(ignore_permissions=True)
+	return f"/courses/{course}/learn/1.1"
 
-		student.update(
-			{
-				"student": frappe.session.user,
-				"parent": classname,
-				"parenttype": "LMS Class",
-				"parentfield": "students",
-				"address": address_name,
-				"amount": payment["amount"] / 100,
-				"currency": payment["currency"],
-				"payment_received": 1,
-				"order_id": response["razorpay_order_id"],
-				"payment_id": response["razorpay_payment_id"],
-			}
-		)
-		student.save(ignore_permissions=True)
-		return f"/classes/{classname}"
-	except Exception as e:
-		frappe.throw(
-			_("Error during payment: {0} Please contact the Administrator.").format(e)
-		)
+
+def add_student_to_class(classname, payment):
+	student = frappe.new_doc("Class Student")
+	student.update(
+		{
+			"student": frappe.session.user,
+			"payment": payment,
+			"parent": classname,
+			"parenttype": "LMS Class",
+			"parentfield": "students",
+		}
+	)
+	student.save(ignore_permissions=True)
+	return f"/classes/{classname}"

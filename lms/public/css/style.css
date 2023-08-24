@@ -2188,10 +2188,6 @@ select {
 	border-bottom: none;
 }
 
-.awesomplete ul li:last-child {
-	display: none;
-}
-
 .students-parent {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, 150px);

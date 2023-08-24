@@ -10,7 +10,7 @@
 	<div class="container">
         {{ CourseHeaderOverlay(class_info, courses, students) }}
         <div class="pt-10">
-            {{ Prerequisites(class_info) }}
+            {{ ClassDetails(class_info) }}
             {{ CourseList(courses) }}
         </div>
 	</div>
@@ -42,15 +42,6 @@
 
 {% macro ClassHeaderDetails(class_info, courses, students) %}
     <div class="class-details" data-class="{{ class_info.name }}">
-        <div class="flex align-center">
-            <span>
-                {{ courses | length }} {{ _("Courses") }}
-            </span>
-            <span class="px-2"> · </span>
-            <span>
-                {{ students | length }} {{ _("Students") }}
-            </span>
-        </div>
 
         <div class="page-title">
             {{ class_info.title }}
@@ -92,6 +83,19 @@
 <div class="course-overlay-card class-overlay">
 
     <div class="course-overlay-content">
+
+        {% if class_info.seat_count %}
+            {% if seats_left %}
+            <div class="indicator-pill green pull-right">
+                {{ _("Seats Available") }}: {{ seats_left }}
+            </div>
+            {% else %}
+            <div class="indicator-pill red pull-right">
+                {{ _("No seats left") }}
+            </div>
+            {% endif %}
+        {% endif %}
+
         {% if class_info.paid_class %}
         <div class="bold-heading">
             {{ frappe.utils.fmt_money(class_info.amount, 0, class_info.currency) }}
@@ -103,13 +107,6 @@
                 <use href="#icon-education"></use>
             </svg>
             {{ courses | length }} {{ _("Courses") }}
-        </div>
-
-        <div class="vertically-center mt-2">
-            <svg class="icon icon-md mr-1">
-                <use class="" href="#icon-users">
-            </svg>
-            {{ students | length }} {{ _("Students") }}
         </div>
 
         <div class="mt-2">
@@ -144,7 +141,8 @@
                 {{ _("Checkout Class") }}
             </a>
             {% elif class_info.paid_class %}
-            <a class="btn btn-primary wide-button" href="/billing/class/{{ class_info.name }}">
+            <a class="btn btn-primary wide-button {% if class_info.seat_count and not seats_left %} hide {% endif %}"
+                href="/billing/class/{{ class_info.name }}">
                 {{ _("Register Now") }}
             </a>
             {% else %}
@@ -165,13 +163,10 @@
 {% endmacro %}
 
 
-{% macro Prerequisites(class_info) %}
+{% macro ClassDetails(class_info) %}
 <div class="course-description-section w-50">
-    <div class="page-title">
-        {{ _("Prerequisite Knowledge") }}
-    </div>
     <div class="mt-2">
-        {{ class_info.prerequisite }}
+        {{ class_info.class_details }}
     </div>
 </div>
 {% endmacro %}

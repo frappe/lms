@@ -39,7 +39,7 @@ def get_context(context):
 			"paid_class",
 			"amount",
 			"currency",
-			"prerequisite",
+			"class_details",
 		],
 		as_dict=True,
 	)

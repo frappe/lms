@@ -321,10 +321,10 @@ const open_class_dialog = () => {
 				reqd: 1,
 			},
 			{
-				fieldtype: "Small Text",
-				label: __("Prerequisite"),
-				fieldname: "prerequisite",
-				default: class_info && class_info.prerequisite,
+				fieldtype: "Text Editor",
+				label: __("Class Details"),
+				fieldname: "class_details",
+				default: class_info && class_info.class_details,
 				reqd: 1,
 			},
 			{

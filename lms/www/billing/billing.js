@@ -15,6 +15,12 @@ const setup_billing = () => {
 		fields: [
 			{
 				fieldtype: "Data",
+				label: __("Billing Name"),
+				fieldname: "billing_name",
+				reqd: 1,
+			},
+			{
+				fieldtype: "Data",
 				label: __("Address Line 1"),
 				fieldname: "address_line1",
 				reqd: 1,
@@ -31,12 +37,12 @@ const setup_billing = () => {
 				reqd: 1,
 			},
 			{
+				fieldtype: "Column Break",
+			},
+			{
 				fieldtype: "Data",
 				label: __("State/Province"),
 				fieldname: "state",
-			},
-			{
-				fieldtype: "Column Break",
 			},
 			{
 				fieldtype: "Link",
@@ -59,16 +65,24 @@ const setup_billing = () => {
 				reqd: 1,
 			},
 			{
+				fieldtype: "Section Break",
+				label: __("GST Details"),
+				fieldname: "gst_details",
+				depends_on: "eval:doc.country === 'India'",
+			},
+			{
 				fieldtype: "Data",
-				fieldname: "gstin",
 				label: __("GSTIN"),
-				depends_on: (doc) => console.log(doc.country),
+				fieldname: "gstin",
+			},
+			{
+				fieldtype: "Column Break",
+				fieldname: "gst_details_break",
 			},
 			{
 				fieldtype: "Data",
 				fieldname: "pan",
 				label: __("PAN"),
-				depends_on: (doc) => console.log(doc.country),
 			},
 		],
 		body: $("#billing-form").get(0),

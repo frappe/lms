@@ -20,10 +20,17 @@ def get_context(context):
 			"currency",
 			"seat_count",
 		],
+		order_by="start_date",
 	)
 
 	past_classes, upcoming_classes = [], []
 	for class_ in classes:
+		class_.student_count = frappe.db.count("Class Student", {"parent": class_.name})
+		class_.course_count = frappe.db.count("Class Course", {"parent": class_.name})
+		class_.seats_left = (
+			class_.seat_count - class_.student_count if class_.seat_count else None
+		)
+		print(class_.seat_count, class_.student_count, class_.seats_left)
 		if getdate(class_.start_date) < getdate():
 			past_classes.append(class_)
 		else:
@@ -39,13 +46,31 @@ def get_context(context):
 		)
 
 		for class_ in my_classes:
-			my_classes_info.append(
-				frappe.db.get_value(
-					"LMS Class",
-					class_,
-					["name", "title", "start_date", "end_date", "paid_class", "seat_count"],
-					as_dict=True,
-				)
+			class_info = frappe.db.get_value(
+				"LMS Class",
+				class_,
+				[
+					"name",
+					"title",
+					"description",
+					"start_date",
+					"end_date",
+					"paid_class",
+					"amount",
+					"currency",
+					"seat_count",
+				],
+				as_dict=True,
 			)
+
+			class_info.student_count = frappe.db.count(
+				"Class Student", {"parent": class_info.name}
+			)
+			class_info.course_count = frappe.db.count(
+				"Class Course", {"parent": class_info.name}
+			)
+			class_info.seats_left = class_info.seat_count - class_info.student_count
+
+			my_classes_info.append(class_info)
 
 		context.my_classes = my_classes_info

@@ -191,7 +191,7 @@ def create_class(
 	start_date,
 	end_date,
 	description=None,
-	prerequisite=None,
+	class_details=None,
 	seat_count=0,
 	start_time=None,
 	end_time=None,
@@ -204,17 +204,17 @@ def create_class(
 ):
 	frappe.only_for("Moderator")
 	if name:
-		class_details = frappe.get_doc("LMS Class", name)
+		doc = frappe.get_doc("LMS Class", name)
 	else:
-		class_details = frappe.get_doc({"doctype": "LMS Class"})
+		doc = frappe.get_doc({"doctype": "LMS Class"})
 
-	class_details.update(
+	doc.update(
 		{
 			"title": title,
 			"start_date": start_date,
 			"end_date": end_date,
 			"description": description,
-			"prerequisite": prerequisite,
+			"class_details": class_details,
 			"seat_count": seat_count,
 			"start_time": start_time,
 			"end_time": end_time,
@@ -225,8 +225,8 @@ def create_class(
 			"currency": currency,
 		}
 	)
-	class_details.save()
-	return class_details
+	doc.save()
+	return doc
 
 
 @frappe.whitelist()
