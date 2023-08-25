@@ -7,7 +7,7 @@
  "field_order": [
   "exercise",
   "status",
-  "batch",
+  "batch_old",
   "column_break_4",
   "exercise_title",
   "course",

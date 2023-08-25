@@ -7,7 +7,7 @@
  "field_order": [
   "course",
   "member_type",
-  "batch",
+  "batch_old",
   "column_break_3",
   "member",
   "member_name",
