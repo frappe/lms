@@ -46,7 +46,7 @@
 				</button>
 				{% endif %}
 				{% if is_moderator %}
-				<a class="btn btn-primary btn-sm btn-evaluate ml-2" href=/evaluation/new?member={{student.name}}&date={{frappe.utils.getdate()}}&class={{class_info.name}}">
+				<a class="btn btn-primary btn-sm btn-evaluate ml-2" href="/evaluation/new?member={{student.name}}&date={{frappe.utils.getdate()}}&class_name={{class_info.name}}">
 					{{ _("Evaluate") }}
 				</a>
 				{% endif %}

@@ -10,7 +10,8 @@
   "member_name",
   "column_break_3",
   "issue_date",
-  "expiry_date"
+  "expiry_date",
+  "class_name"
  ],
  "fields": [
   {
@@ -52,11 +53,18 @@
    "fieldtype": "Data",
    "label": "Member Name",
    "read_only": 1
+  },
+  {
+   "fieldname": "class_name",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Class Name",
+   "options": "LMS Class"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-04-14 12:33:37.839625",
+ "modified": "2023-08-23 14:48:49.351394",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate",
