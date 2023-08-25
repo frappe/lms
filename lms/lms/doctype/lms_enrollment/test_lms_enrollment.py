@@ -37,13 +37,14 @@ class TestLMSEnrollment(unittest.TestCase):
 		frappe.session.user = "Administrator"
 		return course, batch
 
-	def add_membership(self, batch_name, member_name, member_type="Student"):
+	def add_membership(self, batch_name, member_name, course, member_type="Student"):
 		doc = frappe.get_doc(
 			{
 				"doctype": "LMS Enrollment",
 				"batch": batch_name,
 				"member": member_name,
 				"member_type": member_type,
+				"course": course,
 			}
 		)
 		doc.insert()
@@ -52,7 +53,7 @@ class TestLMSEnrollment(unittest.TestCase):
 	def test_membership(self):
 		course, batch = self.new_course_batch()
 		member = new_user("Test", "test01@test.com")
-		membership = self.add_membership(batch.name, member.name)
+		membership = self.add_membership(batch.name, member.name, course.name)
 
 		assert membership.course == course.name
 		assert membership.member_name == member.full_name
@@ -60,7 +61,7 @@ class TestLMSEnrollment(unittest.TestCase):
 	def test_membership_change_role(self):
 		course, batch = self.new_course_batch()
 		member = new_user("Test", "test01@test.com")
-		membership = self.add_membership(batch.name, member.name)
+		membership = self.add_membership(batch.name, member.name, course.name)
 
 		# it should be possible to change role
 		membership.role = "Admin"

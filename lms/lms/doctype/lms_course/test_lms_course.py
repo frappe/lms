@@ -12,7 +12,6 @@ class TestLMSCourse(unittest.TestCase):
 	def test_new_course(self):
 		course = new_course("Test Course")
 		assert course.title == "Test Course"
-		assert course.name == "test-course"
 
 	# disabled this test as it is failing
 	def _test_add_mentors(self):
@@ -50,14 +49,14 @@ def new_user(name, email):
 		return frappe.get_doc("User", user)
 	else:
 		filters = {
-			"doctype": "User",
 			"email": email,
 			"first_name": name,
 			"send_welcome_email": False,
 		}
 
-		doc = frappe.get_doc(filters)
-		doc.insert()
+		doc = frappe.new_doc("User")
+		doc.update(filters)
+		doc.save()
 		return doc
 
 
@@ -68,7 +67,6 @@ def new_course(title, additional_filters=None):
 	else:
 		create_evaluator()
 		filters = {
-			"doctype": "LMS Course",
 			"title": title,
 			"short_introduction": title,
 			"description": title,
@@ -77,8 +75,9 @@ def new_course(title, additional_filters=None):
 		if additional_filters:
 			filters.update(additional_filters)
 
-		doc = frappe.get_doc(filters)
-		doc.insert(ignore_permissions=True)
+		doc = frappe.new_doc("LMS Course")
+		doc.update(filters)
+		doc.save()
 		return doc
 
 

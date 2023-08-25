@@ -9,7 +9,7 @@ from lms.lms.doctype.lms_enrollment.lms_enrollment import create_membership
 from lms.lms.utils import is_mentor
 
 
-class LMSBatch(Document):
+class LMSBatchOld(Document):
 	def validate(self):
 		pass
 		# self.validate_if_mentor()

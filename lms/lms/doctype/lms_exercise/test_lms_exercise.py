@@ -50,5 +50,5 @@ class TestLMSExercise(unittest.TestCase):
 
 	def tearDown(self):
 		frappe.db.delete("LMS Enrollment")
-		frappe.db.delete("LMS Exercise Submission")
+		frappe.db.delete("Exercise Submission")
 		frappe.db.delete("LMS Exercise")

@@ -13,8 +13,8 @@ class LMSEnrollment(Document):
 
 	def validate_membership_in_same_batch(self):
 		filters = {"member": self.member, "course": self.course, "name": ["!=", self.name]}
-		if self.batch:
-			filters["batch"] = self.batch
+		if self.batch_old:
+			filters["batch"] = self.batch_old
 		previous_membership = frappe.db.get_value(
 			"LMS Enrollment", filters, fieldname=["member_type", "member"], as_dict=1
 		)
@@ -34,7 +34,7 @@ class LMSEnrollment(Document):
 		if self.member_type != "Student":
 			return
 
-		course = frappe.db.get_value("LMS Batch Old", self.batch, "course")
+		course = frappe.db.get_value("LMS Batch Old", self.batch_old, "course")
 		memberships = frappe.get_all(
 			"LMS Enrollment",
 			filters={
