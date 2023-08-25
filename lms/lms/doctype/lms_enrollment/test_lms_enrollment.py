@@ -10,10 +10,10 @@ from lms.lms.doctype.lms_course.test_lms_course import new_course, new_user
 
 class TestLMSEnrollment(unittest.TestCase):
 	def setUp(self):
-		frappe.db.sql("DELETE FROM `tabLMS Batch Membership`")
-		frappe.db.sql("DELETE FROM `tabLMS Batch`")
-		frappe.db.sql("delete from `tabLMS Course Mentor Mapping`")
-		frappe.db.sql("DELETE FROM `tabUser` where email like '%@test.com'")
+		frappe.db.delete("LMS Enrollment")
+		frappe.db.delete("LMS Batch Old")
+		frappe.db.delete("LMS Course Mentor Mapping")
+		frappe.db.delete("User", {"email": ("like", "%@test.com")})
 
 	def new_course_batch(self):
 		course = new_course("Test Course")
