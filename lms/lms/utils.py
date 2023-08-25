@@ -156,7 +156,7 @@ def get_tags(course):
 def get_instructors(course):
 	instructor_details = []
 	instructors = frappe.get_all(
-		"Course Instructor", {"parent": course}, ["instructor"], order_by="idx", pluck="instructor"
+		"Course Instructor", {"parent": course}, order_by="idx", pluck="instructor"
 	)
 	if not instructors:
 		instructors = frappe.db.get_value("LMS Course", course, "owner").split(" ")
