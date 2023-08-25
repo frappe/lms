@@ -123,6 +123,7 @@ def create_certificate_request(
 			"day": day,
 			"start_time": start_time,
 			"end_time": end_time,
+			"class_name": class_name,
 		}
 	)
 	eval.save(ignore_permissions=True)
