@@ -118,14 +118,14 @@
  "links": [
   {
    "group": "Members",
-   "link_doctype": "LMS Batch Membership",
+   "link_doctype": "LMS Enrollment",
    "link_fieldname": "batch"
   }
  ],
  "modified": "2022-09-28 18:43:22.955907",
  "modified_by": "Administrator",
  "module": "LMS",
- "name": "LMS Batch",
+ "name": "LMS Batch Old",
  "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [

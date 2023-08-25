@@ -13,7 +13,7 @@ class TestLMSExercise(unittest.TestCase):
 		course = new_course("Test Course")
 		member = frappe.get_doc(
 			{
-				"doctype": "LMS Batch Membership",
+				"doctype": "LMS Enrollment",
 				"course": course.name,
 				"member": frappe.session.user,
 			}

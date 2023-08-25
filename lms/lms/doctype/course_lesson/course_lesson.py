@@ -89,7 +89,7 @@ class CourseLesson(Document):
 @frappe.whitelist()
 def save_progress(lesson, course, status):
 	membership = frappe.db.exists(
-		"LMS Batch Membership", {"member": frappe.session.user, "course": course}
+		"LMS Enrollment", {"member": frappe.session.user, "course": course}
 	)
 	if not membership:
 		return 0
@@ -120,7 +120,7 @@ def save_progress(lesson, course, status):
 		).save(ignore_permissions=True)
 
 	progress = get_course_progress(course)
-	frappe.db.set_value("LMS Batch Membership", membership, "progress", progress)
+	frappe.db.set_value("LMS Enrollment", membership, "progress", progress)
 	return progress
 
 

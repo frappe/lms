@@ -32,13 +32,13 @@ def submit_solution(exercise, code):
 def save_current_lesson(course_name, lesson_name):
 	"""Saves the current lesson for a student/mentor."""
 	name = frappe.get_value(
-		doctype="LMS Batch Membership",
+		doctype="LMS Enrollment",
 		filters={"course": course_name, "member": frappe.session.user},
 		fieldname="name",
 	)
 	if not name:
 		return
-	doc = frappe.get_doc("LMS Batch Membership", name)
+	doc = frappe.get_doc("LMS Enrollment", name)
 	doc.current_lesson = lesson_name
 	doc.save(ignore_permissions=True)
 	return {"current_lesson": doc.current_lesson}

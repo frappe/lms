@@ -8,7 +8,7 @@ import frappe
 from lms.lms.doctype.lms_course.test_lms_course import new_course, new_user
 
 
-class TestLMSBatchMembership(unittest.TestCase):
+class TestLMSEnrollment(unittest.TestCase):
 	def setUp(self):
 		frappe.db.sql("DELETE FROM `tabLMS Batch Membership`")
 		frappe.db.sql("DELETE FROM `tabLMS Batch`")
@@ -26,7 +26,7 @@ class TestLMSBatchMembership(unittest.TestCase):
 
 		batch = frappe.get_doc(
 			{
-				"doctype": "LMS Batch",
+				"doctype": "LMS Batch Old",
 				"name": "test-batch",
 				"title": "Test Batch",
 				"course": course.name,
@@ -40,7 +40,7 @@ class TestLMSBatchMembership(unittest.TestCase):
 	def add_membership(self, batch_name, member_name, member_type="Student"):
 		doc = frappe.get_doc(
 			{
-				"doctype": "LMS Batch Membership",
+				"doctype": "LMS Enrollment",
 				"batch": batch_name,
 				"member": member_name,
 				"member_type": member_type,

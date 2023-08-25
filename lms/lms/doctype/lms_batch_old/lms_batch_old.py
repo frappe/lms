@@ -5,7 +5,7 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 
-from lms.lms.doctype.lms_batch_membership.lms_batch_membership import create_membership
+from lms.lms.doctype.lms_enrollment.lms_enrollment import create_membership
 from lms.lms.utils import is_mentor
 
 
@@ -31,16 +31,16 @@ class LMSBatch(Document):
 		filters = {"batch": self.name, "member": email}
 		if member_type:
 			filters["member_type"] = member_type
-		return frappe.db.exists("LMS Batch Membership", filters)
+		return frappe.db.exists("LMS Enrollment", filters)
 
 	def get_membership(self, email):
 		"""Returns the membership document of given user."""
 		name = frappe.get_value(
-			doctype="LMS Batch Membership",
+			doctype="LMS Enrollment",
 			filters={"batch": self.name, "member": email},
 			fieldname="name",
 		)
-		return frappe.get_doc("LMS Batch Membership", name)
+		return frappe.get_doc("LMS Enrollment", name)
 
 	def get_current_lesson(self, user):
 		"""Returns the name of the current lesson for the given user."""
@@ -64,10 +64,10 @@ def save_message(message, batch):
 def switch_batch(course_name, email, batch_name):
 	"""Switches the user from the current batch of the course to a new batch."""
 	membership = frappe.get_last_doc(
-		"LMS Batch Membership", filters={"course": course_name, "member": email}
+		"LMS Enrollment", filters={"course": course_name, "member": email}
 	)
 
-	batch = frappe.get_doc("LMS Batch", batch_name)
+	batch = frappe.get_doc("LMS Batch Old", batch_name)
 	if not batch:
 		raise ValueError(f"Invalid Batch: {batch_name}")
 
@@ -78,7 +78,7 @@ def switch_batch(course_name, email, batch_name):
 		print(f"{email} is already a member of {batch.title}")
 		return
 
-	old_batch = frappe.get_doc("LMS Batch", membership.batch)
+	old_batch = frappe.get_doc("LMS Batch Old", membership.batch)
 
 	membership.batch = batch_name
 	membership.save()

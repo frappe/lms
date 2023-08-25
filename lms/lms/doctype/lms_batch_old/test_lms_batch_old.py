@@ -5,5 +5,5 @@
 import unittest
 
 
-class TestLMSBatch(unittest.TestCase):
+class TestLMSBatchOld(unittest.TestCase):
 	pass

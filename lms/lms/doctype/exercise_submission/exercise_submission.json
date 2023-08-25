@@ -44,10 +44,10 @@
    "read_only": 1
   },
   {
-   "fieldname": "batch",
+   "fieldname": "batch_old",
    "fieldtype": "Link",
-   "label": "Batch",
-   "options": "LMS Batch"
+   "label": "Batch Old",
+   "options": "LMS Batch Old"
   },
   {
    "fetch_from": "exercise.lesson",
@@ -96,12 +96,12 @@
    "fieldname": "member",
    "fieldtype": "Link",
    "label": "Member",
-   "options": "LMS Batch Membership"
+   "options": "LMS Enrollment"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-12-08 22:25:05.809376",
+ "modified": "2021-12-08 22:25:05.809377",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Exercise Submission",

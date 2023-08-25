@@ -30,10 +30,10 @@
  ],
  "fields": [
   {
-   "fieldname": "batch",
+   "fieldname": "batch_old",
    "fieldtype": "Link",
-   "label": "Batch",
-   "options": "LMS Batch"
+   "label": "Batch Old",
+   "options": "LMS Batch Old"
   },
   {
    "fieldname": "member",
@@ -167,10 +167,10 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-08-17 13:52:49.450499",
+ "modified": "2023-08-17 13:52:49.450491",
  "modified_by": "Administrator",
  "module": "LMS",
- "name": "LMS Batch Membership",
+ "name": "LMS Enrollment",
  "owner": "Administrator",
  "permissions": [
   {

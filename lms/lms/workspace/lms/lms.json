@@ -144,7 +144,7 @@
    "type": "Link"
   }
  ],
- "modified": "2023-05-11 15:41:25.514442",
+ "modified": "2023-05-11 15:41:25.514443",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS",
@@ -161,7 +161,7 @@
    "doc_view": "List",
    "format": "{} Enrolled",
    "label": "Enrollments",
-   "link_to": "LMS Batch Membership",
+   "link_to": "LMS Enrollment",
    "stats_filter": "{\"member_type\":[\"=\",\"Student\"]}",
    "type": "DocType"
   },
@@ -170,7 +170,7 @@
    "doc_view": "List",
    "format": "{} Completed",
    "label": "Course Completed",
-   "link_to": "LMS Batch Membership",
+   "link_to": "LMS Enrollment",
    "stats_filter": "{\"progress\":[\"like\",\"%100%\"]}",
    "type": "DocType"
   },

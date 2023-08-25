@@ -12,7 +12,7 @@ def get_context(context):
 		raise frappe.PermissionError(_("You are not allowed to access this page."))
 
 	membership = frappe.db.exists(
-		"LMS Batch Membership", {"member": frappe.session.user, "course": course_name}
+		"LMS Enrollment", {"member": frappe.session.user, "course": course_name}
 	)
 
 	if membership:
