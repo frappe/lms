@@ -41,7 +41,7 @@ class TestLMSEnrollment(unittest.TestCase):
 		doc = frappe.get_doc(
 			{
 				"doctype": "LMS Enrollment",
-				"batch": batch_name,
+				"batch_old": batch_name,
 				"member": member_name,
 				"member_type": member_type,
 				"course": course,

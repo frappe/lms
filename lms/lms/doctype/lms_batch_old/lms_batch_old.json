@@ -119,7 +119,7 @@
   {
    "group": "Members",
    "link_doctype": "LMS Enrollment",
-   "link_fieldname": "batch"
+   "link_fieldname": "batch_old"
   }
  ],
  "modified": "2022-09-28 18:43:22.955907",

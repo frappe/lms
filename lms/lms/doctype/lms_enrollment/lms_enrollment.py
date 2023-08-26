@@ -14,7 +14,7 @@ class LMSEnrollment(Document):
 	def validate_membership_in_same_batch(self):
 		filters = {"member": self.member, "course": self.course, "name": ["!=", self.name]}
 		if self.batch_old:
-			filters["batch"] = self.batch_old
+			filters["batch_old"] = self.batch_old
 		previous_membership = frappe.db.get_value(
 			"LMS Enrollment", filters, fieldname=["member_type", "member"], as_dict=1
 		)
@@ -43,7 +43,7 @@ class LMSEnrollment(Document):
 				"member_type": "Student",
 				"course": self.course,
 			},
-			fields=["batch", "member_type", "name"],
+			fields=["batch_old", "member_type", "name"],
 		)
 
 		if memberships:
@@ -63,7 +63,7 @@ def create_membership(
 	frappe.get_doc(
 		{
 			"doctype": "LMS Enrollment",
-			"batch": batch,
+			"batch_old": batch,
 			"course": course,
 			"role": role,
 			"member_type": member_type,
@@ -82,7 +82,7 @@ def update_current_membership(batch, course, member):
 		frappe.db.set_value("LMS Enrollment", membership.name, "is_current", 0)
 
 	current_membership = frappe.get_all(
-		"LMS Enrollment", {"batch": batch, "member": member}
+		"LMS Enrollment", {"batch_old": batch, "member": member}
 	)
 	if len(current_membership):
 		frappe.db.set_value("LMS Enrollment", current_membership[0].name, "is_current", 1)

@@ -63,14 +63,14 @@ def get_membership(course, member=None, batch=None):
 
 	filters = {"member": member, "course": course}
 	if batch:
-		filters["batch"] = batch
+		filters["batch_old"] = batch
 
 	is_member = frappe.db.exists("LMS Enrollment", filters)
 	if is_member:
 		membership = frappe.db.get_value(
 			"LMS Enrollment",
 			filters,
-			["name", "batch", "current_lesson", "member_type", "progress"],
+			["name", "batch_old", "current_lesson", "member_type", "progress"],
 			as_dict=True,
 		)
 
@@ -196,7 +196,7 @@ def get_students(course, batch=None):
 	filters = {"course": course, "member_type": "Student"}
 
 	if batch:
-		filters["batch"] = batch
+		filters["batch_old"] = batch
 
 	return frappe.get_all("LMS Enrollment", filters, ["member"])
 
@@ -650,7 +650,7 @@ def get_all_memberships(member):
 	return frappe.get_all(
 		"LMS Enrollment",
 		{"member": member},
-		["name", "course", "batch", "current_lesson", "member_type", "progress"],
+		["name", "course", "batch_old", "current_lesson", "member_type", "progress"],
 	)
 
 

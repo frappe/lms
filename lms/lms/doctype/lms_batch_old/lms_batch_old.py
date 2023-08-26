@@ -28,7 +28,7 @@ class LMSBatchOld(Document):
 		If member_type is specified, checks if the person is a Student/Mentor.
 		"""
 
-		filters = {"batch": self.name, "member": email}
+		filters = {"batch_old": self.name, "member": email}
 		if member_type:
 			filters["member_type"] = member_type
 		return frappe.db.exists("LMS Enrollment", filters)
@@ -37,7 +37,7 @@ class LMSBatchOld(Document):
 		"""Returns the membership document of given user."""
 		name = frappe.get_value(
 			doctype="LMS Enrollment",
-			filters={"batch": self.name, "member": email},
+			filters={"batch_old": self.name, "member": email},
 			fieldname="name",
 		)
 		return frappe.get_doc("LMS Enrollment", name)
@@ -53,7 +53,7 @@ def save_message(message, batch):
 	doc = frappe.get_doc(
 		{
 			"doctype": "LMS Message",
-			"batch": batch,
+			"batch_old": batch,
 			"author": frappe.session.user,
 			"message": message,
 		}
@@ -84,7 +84,7 @@ def switch_batch(course_name, email, batch_name):
 	membership.save()
 
 	# update exercise submissions
-	filters = {"owner": email, "batch": old_batch.name}
+	filters = {"owner": email, "batch_old": old_batch.name}
 	for name in frappe.db.get_all("Exercise Submission", filters=filters, pluck="name"):
 		doc = frappe.get_doc("Exercise Submission", name)
 		print("updating exercise submission", name)
