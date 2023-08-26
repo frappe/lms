@@ -51,7 +51,7 @@ class LMSEnrollment(Document):
 			member_name = frappe.db.get_value("User", self.member, "full_name")
 			frappe.throw(
 				_("{0} is already a Student of {1} course through {2} batch").format(
-					member_name, course, membership.batch
+					member_name, course, membership.batch_old
 				)
 			)
 

@@ -78,9 +78,9 @@ def switch_batch(course_name, email, batch_name):
 		print(f"{email} is already a member of {batch.title}")
 		return
 
-	old_batch = frappe.get_doc("LMS Batch Old", membership.batch)
+	old_batch = frappe.get_doc("LMS Batch Old", membership.batch_old)
 
-	membership.batch = batch_name
+	membership.batch_old = batch_name
 	membership.save()
 
 	# update exercise submissions
@@ -88,5 +88,5 @@ def switch_batch(course_name, email, batch_name):
 	for name in frappe.db.get_all("Exercise Submission", filters=filters, pluck="name"):
 		doc = frappe.get_doc("Exercise Submission", name)
 		print("updating exercise submission", name)
-		doc.batch = batch_name
+		doc.batch_old = batch_name
 		doc.save()

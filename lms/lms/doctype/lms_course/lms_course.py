@@ -130,7 +130,7 @@ class LMSCourse(Document):
 		if mentor:
 			# TODO: optimize this
 			memberships = frappe.db.get_all("LMS Enrollment", {"member": mentor}, ["batch"])
-			batch_names = {m.batch for m in memberships}
+			batch_names = {m.batch_old for m in memberships}
 			return [b for b in batches if b.name in batch_names]
 
 	def get_cohorts(self):
@@ -164,7 +164,7 @@ class LMSCourse(Document):
 		)
 		for membership in all_memberships:
 			membership.batch_title = frappe.db.get_value(
-				"LMS Batch Old", membership.batch, "title"
+				"LMS Batch Old", membership.batch_old, "title"
 			)
 		return all_memberships
 

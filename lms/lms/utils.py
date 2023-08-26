@@ -74,9 +74,9 @@ def get_membership(course, member=None, batch=None):
 			as_dict=True,
 		)
 
-		if membership and membership.batch:
+		if membership and membership.batch_old:
 			membership.batch_title = frappe.db.get_value(
-				"LMS Batch Old", membership.batch, "title"
+				"LMS Batch Old", membership.batch_old, "title"
 			)
 		return membership
 
