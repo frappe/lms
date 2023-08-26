@@ -56,7 +56,7 @@ def get_courses():
 	live_courses, upcoming_courses = [], []
 	for course in courses:
 		course.enrollment_count = frappe.db.count(
-			"LMS Batch Membership", {"course": course.name, "member_type": "Student"}
+			"LMS Enrollment", {"course": course.name, "member_type": "Student"}
 		)
 		course.avg_rating = get_average_rating(course.name) or 0
 		if course.upcoming:

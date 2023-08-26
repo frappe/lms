@@ -51,7 +51,7 @@ frappe.ready(() => {
         frappe.call({
             "method": "lms.lms.doctype.lms_batch_membership.lms_batch_membership.create_membership",
             "args": {
-                "batch": {{ batch.name }},
+                "batch_old": {{ batch.name }},
                 "course": {{ batch.course }}
             },
             "callback": (data) => {

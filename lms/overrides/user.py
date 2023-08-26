@@ -54,7 +54,7 @@ class CustomUser(User):
 	def get_batch_count(self) -> int:
 		"""Returns the number of batches authored by this user."""
 		return frappe.db.count(
-			"LMS Batch Membership", {"member": self.name, "member_type": "Mentor"}
+			"LMS Enrollment", {"member": self.name, "member_type": "Mentor"}
 		)
 
 	def get_user_reviews(self):
@@ -112,7 +112,7 @@ def get_enrolled_courses():
 		if not course.published:
 			continue
 		course.enrollment_count = frappe.db.count(
-			"LMS Batch Membership", {"course": course.name, "member_type": "Student"}
+			"LMS Enrollment", {"course": course.name, "member_type": "Student"}
 		)
 		course.avg_rating = get_average_rating(course.name) or 0
 		progress = cint(membership.progress)
@@ -134,7 +134,7 @@ def get_course_membership(member=None, member_type=None):
 	if member_type:
 		filters["member_type"] = member_type
 
-	return frappe.get_all("LMS Batch Membership", filters, ["name", "course", "progress"])
+	return frappe.get_all("LMS Enrollment", filters, ["name", "course", "progress"])
 
 
 def get_authored_courses(member=None, only_published=True):
@@ -167,7 +167,7 @@ def get_authored_courses(member=None, only_published=True):
 		if only_published and detail and not detail.published:
 			continue
 		detail.enrollment_count = frappe.db.count(
-			"LMS Batch Membership", {"course": detail.name, "member_type": "Student"}
+			"LMS Enrollment", {"course": detail.name, "member_type": "Student"}
 		)
 		detail.avg_rating = get_average_rating(detail.name) or 0
 		course_details.append(detail)

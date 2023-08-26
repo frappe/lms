@@ -1,75 +1,42 @@
 <div class="stats-parent">
-
-    {% if published_courses %}
-    <div class="common-card-style p-4 flex-column">
-        <div class="stats-label">
-            {{ _("Published Courses") }}
-        </div>
-        <div class="stats-value">
-            {{ frappe.utils.fmt_money(
-				frappe.db.count("LMS Course", {
-					"published": 1,
-					"upcoming": 0
-				})
-				, 0) }}
-        </div>
-    </div>
-    {% endif %}
-
-
-    {% if total_signups %}
-    <div class="common-card-style p-4 flex-column">
-        <div class="stats-label">
-            {{ _("Total Signups") }}
-        </div>
-        <div class="stats-value">
-            {{ frappe.utils.fmt_money(
-				frappe.db.count("User", {
-					"enabled": 1
-				})
-				, 0) }}
-        </div>
-    </div>
-    {% endif %}
-
-
-	{% if enrollment_count %}
+	{% if published_courses %}
 	<div class="common-card-style p-4 flex-column">
-		<div class="stats-label">
-			{{ _("Enrollment Count") }}
-		</div>
+		<div class="stats-label">{{ _("Published Courses") }}</div>
 		<div class="stats-value">
-			{{ frappe.utils.fmt_money(
-				frappe.db.count("LMS Batch Membership")
-				, 0) }}
+			{{ frappe.utils.fmt_money( frappe.db.count("LMS Course", {
+			"published": 1, "upcoming": 0 }) , 0) }}
 		</div>
 	</div>
-	{% endif %}
-
-	{% if course_completion %}
-	{% set course_completion_count = frappe.db.count("LMS Batch Membership", {
-		"progress":["like","%100%"]
-	}) %}
+	{% endif %} {% if total_signups %}
 	<div class="common-card-style p-4 flex-column">
-		<div class="stats-label">
-			{{ _("Courses Completed") }}
+		<div class="stats-label">{{ _("Total Signups") }}</div>
+		<div class="stats-value">
+			{{ frappe.utils.fmt_money( frappe.db.count("User", { "enabled": 1 })
+			, 0) }}
 		</div>
+	</div>
+	{% endif %} {% if enrollment_count %}
+	<div class="common-card-style p-4 flex-column">
+		<div class="stats-label">{{ _("Enrollment Count") }}</div>
+		<div class="stats-value">
+			{{ frappe.utils.fmt_money( frappe.db.count("LMS Enrollment") , 0) }}
+		</div>
+	</div>
+	{% endif %} {% if course_completion %} {% set course_completion_count =
+	frappe.db.count("LMS Enrollment", { "progress":["like","%100%"] }) %}
+	<div class="common-card-style p-4 flex-column">
+		<div class="stats-label">{{ _("Courses Completed") }}</div>
 		<div class="stats-value">
 			{{ frappe.utils.fmt_money(course_completion_count, 0) }}
 		</div>
 	</div>
-	{% endif %}
-
-	{% if lesson_completion %}
-	{% set lesson_completion_count = frappe.db.count("LMS Course Progress") %}
+	{% endif %} {% if lesson_completion %} {% set lesson_completion_count =
+	frappe.db.count("LMS Course Progress") %}
 	<div class="common-card-style p-4 flex-column">
-		<div class="stats-label">
-			{{ _("Lessons Completed") }}
-		</div>
+		<div class="stats-label">{{ _("Lessons Completed") }}</div>
 		<div class="stats-value">
 			{{ frappe.utils.fmt_money(lesson_completion_count, 0) }}
 		</div>
 	</div>
 	{% endif %}
-
 </div>

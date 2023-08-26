@@ -85,7 +85,7 @@ def set_course_context(context, course_name):
 	context.course = course
 	membership = get_membership(course.name, frappe.session.user)
 	context.course.query_parameter = (
-		"?batch=" + membership.batch if membership and membership.batch else ""
+		"?batch=" + membership.batch_old if membership and membership.batch_old else ""
 	)
 	context.membership = membership
 	context.is_instructor = is_instructor(course.name)

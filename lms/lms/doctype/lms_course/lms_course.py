@@ -119,20 +119,18 @@ class LMSCourse(Document):
 			return
 
 		batch_name = frappe.get_value(
-			doctype="LMS Batch Membership",
+			doctype="LMS Enrollment",
 			filters={"course": self.name, "member_type": "Student", "member": email},
-			fieldname="batch",
+			fieldname="batch_old",
 		)
-		return batch_name and frappe.get_doc("LMS Batch", batch_name)
+		return batch_name and frappe.get_doc("LMS Batch Old", batch_name)
 
 	def get_batches(self, mentor=None):
-		batches = frappe.get_all("LMS Batch", {"course": self.name})
+		batches = frappe.get_all("LMS Batch Old", {"course": self.name})
 		if mentor:
 			# TODO: optimize this
-			memberships = frappe.db.get_all(
-				"LMS Batch Membership", {"member": mentor}, ["batch"]
-			)
-			batch_names = {m.batch for m in memberships}
+			memberships = frappe.db.get_all("LMS Enrollment", {"member": mentor}, ["batch_old"])
+			batch_names = {m.batch_old for m in memberships}
 			return [b for b in batches if b.name in batch_names]
 
 	def get_cohorts(self):
@@ -162,10 +160,12 @@ class LMSCourse(Document):
 
 	def get_all_memberships(self, member):
 		all_memberships = frappe.get_all(
-			"LMS Batch Membership", {"member": member, "course": self.name}, ["batch"]
+			"LMS Enrollment", {"member": member, "course": self.name}, ["batch_old"]
 		)
 		for membership in all_memberships:
-			membership.batch_title = frappe.db.get_value("LMS Batch", membership.batch, "title")
+			membership.batch_title = frappe.db.get_value(
+				"LMS Batch Old", membership.batch_old, "title"
+			)
 		return all_memberships
 
 
@@ -452,7 +452,7 @@ def verify_payment(response, course, address, order_id):
 def create_membership(address, response, course, client):
 	try:
 		address_name = save_address(address)
-		membership = frappe.new_doc("LMS Batch Membership")
+		membership = frappe.new_doc("LMS Enrollment")
 		payment = client.payment.fetch(response["razorpay_payment_id"])
 
 		membership.update(

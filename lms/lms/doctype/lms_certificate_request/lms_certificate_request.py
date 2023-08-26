@@ -108,7 +108,7 @@ def create_certificate_request(
 	course, date, day, start_time, end_time, class_name=None
 ):
 	is_member = frappe.db.exists(
-		{"doctype": "LMS Batch Membership", "course": course, "member": frappe.session.user}
+		{"doctype": "LMS Enrollment", "course": course, "member": frappe.session.user}
 	)
 
 	if not is_member:

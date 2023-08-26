@@ -21,7 +21,7 @@ def get_data(filters=None):
 		query_filter = {"course": filters.course}
 
 	memberships = frappe.get_all(
-		"LMS Batch Membership",
+		"LMS Enrollment",
 		query_filter,
 		["name", "course", "member", "member_name", "progress"],
 		order_by="course",

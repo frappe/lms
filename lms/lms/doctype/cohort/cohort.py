@@ -16,7 +16,7 @@ class Cohort(Document):
 
 		if include_counts:
 			mentors = self._get_subgroup_counts("Cohort Mentor")
-			students = self._get_subgroup_counts("LMS Batch Membership")
+			students = self._get_subgroup_counts("LMS Enrollment")
 			join_requests = self._get_subgroup_counts("Cohort Join Request", status="Pending")
 			for s in subgroups:
 				s.num_mentors = mentors.get(s.name, 0)
@@ -56,7 +56,7 @@ class Cohort(Document):
 		return {
 			"subgroups": self._get_count("Cohort Subgroup"),
 			"mentors": self._get_count("Cohort Mentor"),
-			"students": self._get_count("LMS Batch Membership"),
+			"students": self._get_count("LMS Enrollment"),
 			"join_requests": self._get_count("Cohort Join Request", status="Pending"),
 		}
 

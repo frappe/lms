@@ -63,19 +63,21 @@ def get_membership(course, member=None, batch=None):
 
 	filters = {"member": member, "course": course}
 	if batch:
-		filters["batch"] = batch
+		filters["batch_old"] = batch
 
-	is_member = frappe.db.exists("LMS Batch Membership", filters)
+	is_member = frappe.db.exists("LMS Enrollment", filters)
 	if is_member:
 		membership = frappe.db.get_value(
-			"LMS Batch Membership",
+			"LMS Enrollment",
 			filters,
-			["name", "batch", "current_lesson", "member_type", "progress"],
+			["name", "batch_old", "current_lesson", "member_type", "progress"],
 			as_dict=True,
 		)
 
-		if membership and membership.batch:
-			membership.batch_title = frappe.db.get_value("LMS Batch", membership.batch, "title")
+		if membership and membership.batch_old:
+			membership.batch_title = frappe.db.get_value(
+				"LMS Batch Old", membership.batch_old, "title"
+			)
 		return membership
 
 	return False
@@ -194,9 +196,9 @@ def get_students(course, batch=None):
 	filters = {"course": course, "member_type": "Student"}
 
 	if batch:
-		filters["batch"] = batch
+		filters["batch_old"] = batch
 
-	return frappe.get_all("LMS Batch Membership", filters, ["member"])
+	return frappe.get_all("LMS Enrollment", filters, ["member"])
 
 
 def get_average_rating(course):
@@ -275,7 +277,7 @@ def get_lesson_url(course, lesson_number):
 
 
 def get_batch(course, batch_name):
-	return frappe.get_all("LMS Batch", {"name": batch_name, "course": course})
+	return frappe.get_all("LMS Batch Old", {"name": batch_name, "course": course})
 
 
 def get_slugified_chapter_title(chapter):
@@ -337,7 +339,7 @@ def get_mentors(course):
 			"User", mentor.mentor, ["name", "username", "full_name", "user_image"]
 		)
 		member.batch_count = frappe.db.count(
-			"LMS Batch Membership", {"member": member.name, "member_type": "Mentor"}
+			"LMS Enrollment", {"member": member.name, "member_type": "Mentor"}
 		)
 		course_mentors.append(member)
 	return course_mentors
@@ -368,9 +370,7 @@ def get_course_progress(course, member=None):
 
 
 def get_initial_members(course):
-	members = frappe.get_all(
-		"LMS Batch Membership", {"course": course}, ["member"], limit=3
-	)
+	members = frappe.get_all("LMS Enrollment", {"course": course}, ["member"], limit=3)
 
 	member_details = []
 	for member in members:
@@ -423,7 +423,7 @@ def get_popular_courses():
 		course_membership.append(
 			{
 				"course": course.name,
-				"members": cint(frappe.db.count("LMS Batch Membership", {"course": course.name})),
+				"members": cint(frappe.db.count("LMS Enrollment", {"course": course.name})),
 			}
 		)
 
@@ -648,9 +648,9 @@ def get_restriction_details():
 
 def get_all_memberships(member):
 	return frappe.get_all(
-		"LMS Batch Membership",
+		"LMS Enrollment",
 		{"member": member},
-		["name", "course", "batch", "current_lesson", "member_type", "progress"],
+		["name", "course", "batch_old", "current_lesson", "member_type", "progress"],
 	)
 
 
@@ -724,8 +724,8 @@ def get_chart_data(chart_name, timespan, timegrain, from_date, to_date):
 
 @frappe.whitelist()
 def get_course_completion_data():
-	all_membership = frappe.db.count("LMS Batch Membership")
-	completed = frappe.db.count("LMS Batch Membership", {"progress": ["like", "%100%"]})
+	all_membership = frappe.db.count("LMS Enrollment")
+	completed = frappe.db.count("LMS Enrollment", {"progress": ["like", "%100%"]})
 
 	return {
 		"labels": ["Completed", "In Progress"],
