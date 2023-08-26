@@ -13,7 +13,7 @@ class TestLMSExercise(unittest.TestCase):
 		course = new_course("Test Course")
 		member = frappe.get_doc(
 			{
-				"doctype": "LMS Batch Membership",
+				"doctype": "LMS Enrollment",
 				"course": course.name,
 				"member": frappe.session.user,
 			}
@@ -49,6 +49,6 @@ class TestLMSExercise(unittest.TestCase):
 		assert user_submission.name == submission.name
 
 	def tearDown(self):
-		frappe.db.sql("delete from `tabLMS Batch Membership`")
-		frappe.db.sql("delete from `tabExercise Submission`")
-		frappe.db.sql("delete from `tabLMS Exercise`")
+		frappe.db.delete("LMS Enrollment")
+		frappe.db.delete("Exercise Submission")
+		frappe.db.delete("LMS Exercise")

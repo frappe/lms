@@ -2338,3 +2338,10 @@ select {
 		margin-left: 0;
 	}
 }
+
+.slots-parent {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	grid-gap: 0.5rem;
+	margin-bottom: 1rem;
+}

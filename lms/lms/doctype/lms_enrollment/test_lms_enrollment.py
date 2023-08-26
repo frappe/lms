@@ -8,12 +8,12 @@ import frappe
 from lms.lms.doctype.lms_course.test_lms_course import new_course, new_user
 
 
-class TestLMSBatchMembership(unittest.TestCase):
+class TestLMSEnrollment(unittest.TestCase):
 	def setUp(self):
-		frappe.db.sql("DELETE FROM `tabLMS Batch Membership`")
-		frappe.db.sql("DELETE FROM `tabLMS Batch`")
-		frappe.db.sql("delete from `tabLMS Course Mentor Mapping`")
-		frappe.db.sql("DELETE FROM `tabUser` where email like '%@test.com'")
+		frappe.db.delete("LMS Enrollment")
+		frappe.db.delete("LMS Batch Old")
+		frappe.db.delete("LMS Course Mentor Mapping")
+		frappe.db.delete("User", {"email": ("like", "%@test.com")})
 
 	def new_course_batch(self):
 		course = new_course("Test Course")
@@ -26,7 +26,7 @@ class TestLMSBatchMembership(unittest.TestCase):
 
 		batch = frappe.get_doc(
 			{
-				"doctype": "LMS Batch",
+				"doctype": "LMS Batch Old",
 				"name": "test-batch",
 				"title": "Test Batch",
 				"course": course.name,
@@ -37,13 +37,14 @@ class TestLMSBatchMembership(unittest.TestCase):
 		frappe.session.user = "Administrator"
 		return course, batch
 
-	def add_membership(self, batch_name, member_name, member_type="Student"):
+	def add_membership(self, batch_name, member_name, course, member_type="Student"):
 		doc = frappe.get_doc(
 			{
-				"doctype": "LMS Batch Membership",
-				"batch": batch_name,
+				"doctype": "LMS Enrollment",
+				"batch_old": batch_name,
 				"member": member_name,
 				"member_type": member_type,
+				"course": course,
 			}
 		)
 		doc.insert()
@@ -52,7 +53,7 @@ class TestLMSBatchMembership(unittest.TestCase):
 	def test_membership(self):
 		course, batch = self.new_course_batch()
 		member = new_user("Test", "test01@test.com")
-		membership = self.add_membership(batch.name, member.name)
+		membership = self.add_membership(batch.name, member.name, course.name)
 
 		assert membership.course == course.name
 		assert membership.member_name == member.full_name
@@ -60,7 +61,7 @@ class TestLMSBatchMembership(unittest.TestCase):
 	def test_membership_change_role(self):
 		course, batch = self.new_course_batch()
 		member = new_user("Test", "test01@test.com")
-		membership = self.add_membership(batch.name, member.name)
+		membership = self.add_membership(batch.name, member.name, course.name)
 
 		# it should be possible to change role
 		membership.role = "Admin"

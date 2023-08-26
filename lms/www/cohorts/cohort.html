@@ -1,78 +1,69 @@
-{% extends "www/cohorts/base.html" %}
-{% block title %}
-{{ _("Manage") }} {{ course.title  }}
-{% endblock %}
-
-{% block page_content %}
-<div class="course-home-headings">
-    {{ cohort.title }}
-</div>
+{% extends "www/cohorts/base.html" %} {% block title %} {{ _("Manage") }} {{
+course.title }} {% endblock %} {% block page_content %}
+<div class="course-home-headings">{{ cohort.title }}</div>
 
 <p>
-    {{ frappe.db.count("Cohort Subgroup", {"cohort": cohort.name}) }} {{ _("Subgroups") }}
-    | {{ frappe.db.count("Cohort Mentor", {"cohort": cohort.name}) }} {{ _("Mentors") }}
-    | {{ frappe.db.count("LMS Batch Membership", {"cohort": cohort.name}) }} {{ _("Students") }}
-    | {{ frappe.db.count("Cohort Join Request", {"cohort": cohort.name}) }} {{ _("Join Requests") }}
+	{{ frappe.db.count("Cohort Subgroup", {"cohort": cohort.name}) }} {{
+	_("Subgroups") }} | {{ frappe.db.count("Cohort Mentor", {"cohort":
+	cohort.name}) }} {{ _("Mentors") }} | {{ frappe.db.count("LMS Enrollment",
+	{"cohort": cohort.name}) }} {{ _("Students") }} | {{ frappe.db.count("Cohort
+	Join Request", {"cohort": cohort.name}) }} {{ _("Join Requests") }}
 </p>
 
-{% if is_mentor %}
-{% set sg = mentor.get_subgroup() %}
+{% if is_mentor %} {% set sg = mentor.get_subgroup() %}
 <div class="alert alert-info medium">
-    <a href="{{sg.get_url()}}">
-        {{ _("You are a mentor of {0} subgroup.").format(frappe.bold(sg.title)) }}
-    </a>
+	<a href="{{sg.get_url()}}">
+		{{ _("You are a mentor of {0} subgroup.").format(frappe.bold(sg.title))
+		}}
+	</a>
 </div>
 {% endif %}
 
 <ul class="nav nav-tabs">
-    {% set num_subgroups = cohort.get_subgroups() | length %}
-    {{ render_navitem("Subgroups", "", page=page, count=num_subgroups) }}
-    {% for p in cohort.get_pages(scope="Cohort") %}
-        {{ render_navitem(p.title, p.slug, page=page) }}
-    {% endfor %}
+	{% set num_subgroups = cohort.get_subgroups() | length %} {{
+	render_navitem("Subgroups", "", page=page, count=num_subgroups) }} {% for p
+	in cohort.get_pages(scope="Cohort") %} {{ render_navitem(p.title, p.slug,
+	page=page) }} {% endfor %}
 </ul>
 
 <div class="my-5">
-    {% if not page %}
-        {{ render_subgroups() }}
-    {% else %}
-    {{ render_page(page) }}
-    {% endif %}
+	{% if not page %} {{ render_subgroups() }} {% else %} {{ render_page(page)
+	}} {% endif %}
 </div>
 
-{% endblock %}
-
-{% macro render_subgroups() %}
-    <ul class="list-group">
-        {% for sg in cohort.get_subgroups(include_counts=True) %}
-            <li class="list-group-item">
-                <div>
-                    <a class="subgroup-title" style="font-weight: 700; color: inherit;"
-                    href="/courses/{{course.name}}/subgroups/{{cohort.slug}}/{{sg.slug}}">
-                        {{ sg.title }}
-                    </a>
-                </div>
-                <div style="font-size: 0.8em;">
-                    {{ sg.num_mentors }} {{ _("Mentors") }}
-                    |
-                    {{sg.num_students}} {{ _("Students") }}
-                    |
-                    {{sg.num_join_requests}} {{ _("Join Requests") }}
-                </div>
-            </li>
-        {% endfor %}
-    </ul>
-{% endmacro %}
-
-{% macro render_navitem(title, link, page, count=-1) %}
-    <li class="nav-item">
-        <a class="nav-link {{ 'active' if link==page }}" href="/courses/{{course.name}}/cohorts/{{cohort.slug}}/{{link}}">
-            {{ title }}
-            {% if count != -1 %}
-            <span class="badge {{'badge-primary' if link==page else 'badge-secondary'}}">
-                {{ count }}
-            </span>
-            {% endif %}
-        </a>
-    </li>
+{% endblock %} {% macro render_subgroups() %}
+<ul class="list-group">
+	{% for sg in cohort.get_subgroups(include_counts=True) %}
+	<li class="list-group-item">
+		<div>
+			<a
+				class="subgroup-title"
+				style="font-weight: 700; color: inherit"
+				href="/courses/{{course.name}}/subgroups/{{cohort.slug}}/{{sg.slug}}"
+			>
+				{{ sg.title }}
+			</a>
+		</div>
+		<div style="font-size: 0.8em">
+			{{ sg.num_mentors }} {{ _("Mentors") }} | {{sg.num_students}} {{
+			_("Students") }} | {{sg.num_join_requests}} {{ _("Join Requests") }}
+		</div>
+	</li>
+	{% endfor %}
+</ul>
+{% endmacro %} {% macro render_navitem(title, link, page, count=-1) %}
+<li class="nav-item">
+	<a
+		class="nav-link {{ 'active' if link==page }}"
+		href="/courses/{{course.name}}/cohorts/{{cohort.slug}}/{{link}}"
+	>
+		{{ title }} {% if count != -1 %}
+		<span
+			class="badge {{'badge-primary' if link==page else 'badge-secondary'}}"
+		>
+			{{ count }}
+		</span>
+		{% endif %}
+	</a>
+</li>
 {% endmacro %}

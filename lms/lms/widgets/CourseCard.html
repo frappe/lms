@@ -1,7 +1,7 @@
 {% if frappe.session.user != "Guest" %}
-{% set membership = frappe.db.get_value("LMS Batch Membership",
+{% set membership = frappe.db.get_value("LMS Enrollment",
 	{"member": frappe.session.user, "course": course.name},
-	["name", "course", "batch", "current_lesson", "member_type", "progress"], as_dict=1) %}
+	["name", "course", "batch_old", "current_lesson", "member_type", "progress"], as_dict=1) %}
 {% set progress = frappe.utils.cint(membership.progress) %}
 {% else %}
 {% set membership, progress = None, None %}
@@ -123,7 +123,7 @@
 
 				{% set lesson_index = get_lesson_index(membership.current_lesson) or "1.1" %}
 
-				{% set query_parameter = "?batch=" + membership.batch if membership.batch else "" %}
+				{% set query_parameter = "?batch=" + membership.batch_old if membership.batch_old else "" %}
 
 				<a class="stretched-link" href="{{ get_lesson_url(course.name, lesson_index) }}{{ query_parameter }}"></a>
 

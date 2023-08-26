@@ -6,17 +6,17 @@ from frappe import _
 from frappe.model.document import Document
 
 
-class LMSBatchMembership(Document):
+class LMSEnrollment(Document):
 	def validate(self):
 		self.validate_membership_in_same_batch()
 		self.validate_membership_in_different_batch_same_course()
 
 	def validate_membership_in_same_batch(self):
 		filters = {"member": self.member, "course": self.course, "name": ["!=", self.name]}
-		if self.batch:
-			filters["batch"] = self.batch
+		if self.batch_old:
+			filters["batch_old"] = self.batch_old
 		previous_membership = frappe.db.get_value(
-			"LMS Batch Membership", filters, fieldname=["member_type", "member"], as_dict=1
+			"LMS Enrollment", filters, fieldname=["member_type", "member"], as_dict=1
 		)
 
 		if previous_membership:
@@ -34,16 +34,16 @@ class LMSBatchMembership(Document):
 		if self.member_type != "Student":
 			return
 
-		course = frappe.db.get_value("LMS Batch", self.batch, "course")
+		course = frappe.db.get_value("LMS Batch Old", self.batch_old, "course")
 		memberships = frappe.get_all(
-			"LMS Batch Membership",
+			"LMS Enrollment",
 			filters={
 				"member": self.member,
 				"name": ["!=", self.name],
 				"member_type": "Student",
 				"course": self.course,
 			},
-			fields=["batch", "member_type", "name"],
+			fields=["batch_old", "member_type", "name"],
 		)
 
 		if memberships:
@@ -51,7 +51,7 @@ class LMSBatchMembership(Document):
 			member_name = frappe.db.get_value("User", self.member, "full_name")
 			frappe.throw(
 				_("{0} is already a Student of {1} course through {2} batch").format(
-					member_name, course, membership.batch
+					member_name, course, membership.batch_old
 				)
 			)
 
@@ -62,8 +62,8 @@ def create_membership(
 ):
 	frappe.get_doc(
 		{
-			"doctype": "LMS Batch Membership",
-			"batch": batch,
+			"doctype": "LMS Enrollment",
+			"batch_old": batch,
 			"course": course,
 			"role": role,
 			"member_type": member_type,
@@ -76,15 +76,13 @@ def create_membership(
 @frappe.whitelist()
 def update_current_membership(batch, course, member):
 	all_memberships = frappe.get_all(
-		"LMS Batch Membership", {"member": member, "course": course}
+		"LMS Enrollment", {"member": member, "course": course}
 	)
 	for membership in all_memberships:
-		frappe.db.set_value("LMS Batch Membership", membership.name, "is_current", 0)
+		frappe.db.set_value("LMS Enrollment", membership.name, "is_current", 0)
 
 	current_membership = frappe.get_all(
-		"LMS Batch Membership", {"batch": batch, "member": member}
+		"LMS Enrollment", {"batch_old": batch, "member": member}
 	)
 	if len(current_membership):
-		frappe.db.set_value(
-			"LMS Batch Membership", current_membership[0].name, "is_current", 1
-		)
+		frappe.db.set_value("LMS Enrollment", current_membership[0].name, "is_current", 1)

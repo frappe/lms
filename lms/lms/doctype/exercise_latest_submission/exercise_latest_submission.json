@@ -7,7 +7,7 @@
  "field_order": [
   "exercise",
   "status",
-  "batch",
+  "batch_old",
   "column_break_4",
   "exercise_title",
   "course",
@@ -40,10 +40,10 @@
    "options": "Correct\nIncorrect"
   },
   {
-   "fieldname": "batch",
+   "fieldname": "batch_old",
    "fieldtype": "Link",
-   "label": "Batch",
-   "options": "LMS Batch"
+   "label": "Batch Old",
+   "options": "LMS Batch Old"
   },
   {
    "fieldname": "column_break_4",
@@ -110,7 +110,7 @@
    "fieldname": "member",
    "fieldtype": "Link",
    "label": "Member",
-   "options": "LMS Batch Membership"
+   "options": "LMS Enrollment"
   },
   {
    "fetch_from": "member.member",
@@ -141,7 +141,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-12-08 22:58:46.312861",
+ "modified": "2021-12-08 22:58:46.312863",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Exercise Latest Submission",

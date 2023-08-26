@@ -18,12 +18,11 @@ def get_context(context):
 	context.doctype = doctype
 
 	if not frappe.db.exists(doctype, docname):
-		print(doctype, docname)
 		raise ValueError(_("Module Name is incorrect or does not exist."))
 
 	if doctype == "LMS Course":
 		membership = frappe.db.exists(
-			"LMS Batch Membership", {"member": frappe.session.user, "course": docname}
+			"LMS Enrollment", {"member": frappe.session.user, "course": docname}
 		)
 		if membership:
 			raise frappe.PermissionError(_("You are already enrolled for this course"))

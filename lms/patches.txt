@@ -63,3 +63,5 @@ execute:frappe.permissions.reset_perms("LMS Certificate Request")
 execute:frappe.permissions.reset_perms("LMS Certificate Evaluation")
 lms.patches.v1_0.paid_certificate_to_paid_course #18-08-2023
 lms.patches.v1_0.revert_class_registration #18-08-2023
+lms.patches.v1_0.rename_lms_batch_doctype
+lms.patches.v1_0.rename_lms_batch_membership_doctype

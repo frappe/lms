@@ -57,7 +57,7 @@ class LMSClass(Document):
 		for course in self.courses:
 			for student in self.students:
 				filters = {
-					"doctype": "LMS Batch Membership",
+					"doctype": "LMS Enrollment",
 					"member": student.student,
 					"course": course.course,
 				}

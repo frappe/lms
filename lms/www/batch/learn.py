@@ -72,7 +72,7 @@ def get_context(context):
 	context.page_extensions = get_page_extensions(context)
 	context.page_context = {
 		"course": context.course.name,
-		"batch": context.batch,
+		"batch_old": context.batch_old,
 		"lesson": context.lesson.name if context.lesson.name else "New Lesson",
 		"is_member": context.membership is not None,
 	}

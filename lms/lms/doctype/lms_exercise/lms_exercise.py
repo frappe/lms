@@ -43,7 +43,7 @@ class LMSExercise(Document):
 			exercise_title=self.title,
 			course=self.course,
 			lesson=self.lesson,
-			batch=member.batch,
+			batch=member.batch_old,
 			solution=code,
 			member=member.name,
 		)

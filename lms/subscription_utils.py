@@ -47,4 +47,4 @@ def get_add_on_members(plan: str) -> int:
 
 
 def get_members() -> int:
-	return frappe.db.count("LMS Batch Membership")
+	return frappe.db.count("LMS Enrollment")

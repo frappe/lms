@@ -27,9 +27,11 @@ def get_common_context(context):
 	membership = get_membership(course.name, frappe.session.user, batch_name)
 	context.membership = membership
 	context.progress = frappe.utils.cint(membership.progress) if membership else 0
-	context.batch = membership.batch if membership and membership.batch else None
+	context.batch_old = (
+		membership.batch_old if membership and membership.batch_old else None
+	)
 	context.course.query_parameter = (
-		"?batch=" + membership.batch if membership and membership.batch else ""
+		"?batch=" + membership.batch_old if membership and membership.batch_old else ""
 	)
 	context.livecode_url = get_livecode_url()
 
