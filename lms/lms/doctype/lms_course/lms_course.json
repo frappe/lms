@@ -254,12 +254,37 @@
   }
  ],
  "make_attachments_public": 1,
- "modified": "2023-08-02 12:07:26.354111",
+ "modified": "2023-08-28 11:09:11.945066",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",
  "owner": "Administrator",
- "permissions": [],
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Course Creator",
+   "share": 1,
+   "write": 1
+  }
+ ],
  "search_fields": "title",
  "show_title_field_in_link": 1,
  "sort_field": "creation",
