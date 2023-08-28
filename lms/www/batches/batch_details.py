@@ -5,19 +5,19 @@ from lms.www.utils import is_student
 
 def get_context(context):
 	context.no_cache = 1
-	class_name = frappe.form_dict["classname"]
+	batch_name = frappe.form_dict["batchname"]
 
-	context.class_info = frappe.db.get_value(
-		"LMS Class",
-		class_name,
+	context.batch_info = frappe.db.get_value(
+		"LMS Batch",
+		batch_name,
 		[
 			"name",
 			"title",
 			"description",
-			"class_details",
+			"batch_details",
 			"start_date",
 			"end_date",
-			"paid_class",
+			"paid_batch",
 			"amount",
 			"currency",
 			"start_time",
@@ -28,8 +28,8 @@ def get_context(context):
 	)
 
 	context.courses = frappe.get_all(
-		"Class Course",
-		{"parent": class_name},
+		"Batch Course",
+		{"parent": batch_name},
 		["name", "course", "title"],
 		order_by="creation desc",
 	)
@@ -41,9 +41,9 @@ def get_context(context):
 			)
 		)
 
-	context.student_count = frappe.db.count("Class Student", {"parent": class_name})
-	context.seats_left = context.class_info.seat_count - context.student_count
+	context.student_count = frappe.db.count("Batch Student", {"parent": batch_name})
+	context.seats_left = context.batch_info.seat_count - context.student_count
 
 	context.is_moderator = has_course_moderator_role()
 	context.is_evaluator = has_course_evaluator_role()
-	context.is_student = is_student(class_name)
+	context.is_student = is_student(batch_name)

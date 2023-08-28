@@ -12,7 +12,7 @@ def get_context(context):
 	if module not in ["course", "class"]:
 		raise ValueError(_("Module is incorrect."))
 
-	doctype = "LMS Course" if module == "course" else "LMS Class"
+	doctype = "LMS Course" if module == "course" else "LMS Batch"
 	context.module = module
 	context.docname = docname
 	context.doctype = doctype
@@ -29,7 +29,7 @@ def get_context(context):
 
 	else:
 		membership = frappe.db.exists(
-			"Class Student", {"student": frappe.session.user, "parent": docname}
+			"Batch Student", {"student": frappe.session.user, "parent": docname}
 		)
 		if membership:
 			raise frappe.PermissionError(_("You are already enrolled for this class"))
@@ -51,7 +51,7 @@ def get_context(context):
 
 	else:
 		class_info = frappe.db.get_value(
-			"LMS Class",
+			"LMS Batch",
 			docname,
 			["title", "name", "paid_class", "amount", "currency"],
 			as_dict=True,

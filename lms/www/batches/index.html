@@ -1,14 +1,14 @@
 {% extends "lms/templates/lms_base.html" %}
 {% block title %}
-	{{  _("All Classes") }}
+	{{  _("All Batches") }}
 {% endblock %}
 
 {% block page_content %}
 <div class="common-page-style lms-page-style">
 	<div class="container">
 		{{ Header() }}
-		{% if past_classes | length or upcoming_classes | length %}
-		{{ ClassTabs(past_classes, upcoming_classes, my_classes) }}
+		{% if past_batches | length or upcoming_batches | length %}
+		{{ BatchTabs(past_batches, upcoming_batches, my_batches) }}
 		{% else %}
 		{{ EmptyState() }}
 		{% endif %}
@@ -18,16 +18,16 @@
 
 {% macro Header() %}
 <header class="edit-header">
-	<div class="page-title mb-6"> {{ _("All Classes") }} </div>
+	<div class="page-title mb-6"> {{ _("All Batches") }} </div>
 	{% if is_moderator %}
-	<button class="btn btn-default btn-sm pull-right" id="create-class">
-		{{ _("Create Class") }}
+	<button class="btn btn-primary btn-sm pull-right" id="create-batch">
+		{{ _("New Batch") }}
 	</button>
 	{% endif %}
 </header>
 {% endmacro %}
 
-{% macro ClassTabs(past_classes, upcoming_classes, my_classes) %}
+{% macro BatchTabs(past_batches, upcoming_batches, my_batches) %}
 <article>
 	<ul class="nav lms-nav" id="courses-tab">
 
@@ -35,7 +35,7 @@
 			<a class="nav-link active" data-toggle="tab" href="#upcoming">
 				{{ _("Upcoming") }}
 				<span class="course-list-count">
-					{{ upcoming_classes | length }}
+					{{ upcoming_batches | length }}
 				</span>
 			</a>
 		</li>
@@ -45,7 +45,7 @@
 			<a class="nav-link" data-toggle="tab" href="#past">
 				{{ _("Archived") }}
 				<span class="course-list-count">
-					{{ past_classes | length }}
+					{{ past_batches | length }}
 				</span>
 			</a>
 		</li>
@@ -53,10 +53,10 @@
 
 		{% if frappe.session.user != "Guest" %}
 		<li class="nav-item">
-			<a class="nav-link" data-toggle="tab" href="#my-class">
+			<a class="nav-link" data-toggle="tab" href="#my-batch">
 				{{ _("Enrolled") }}
 				<span class="course-list-count">
-					{{ my_classes | length }}
+					{{ my_batches | length }}
 				</span>
 			</a>
 		</li>
@@ -68,18 +68,18 @@
 
 	<div class="tab-content">
 		<div class="tab-pane active" id="upcoming" role="tabpanel" aria-labelledby="upcoming">
-			{{ ClassCards(upcoming_classes, show_price=True) }}
+			{{ BatchCard(upcoming_batches, show_price=True) }}
 		</div>
 
 		{% if is_moderator %}
 		<div class="tab-pane" id="past" role="tabpanel" aria-labelledby="past">
-			{{ ClassCards(past_classes, show_price=False) }}
+			{{ BatchCard(past_batches, show_price=False) }}
 		</div>
 		{% endif %}
 
 		{% if frappe.session.user != "Guest" %}
-		<div class="tab-pane" id="my-class" role="tabpanel" aria-labelledby="my-classes">
-			{{ ClassCards(my_classes, show_price=False) }}
+		<div class="tab-pane" id="my-batch" role="tabpanel" aria-labelledby="my-batches">
+			{{ BatchCard(my_batches, show_price=False) }}
 		</div>
 		{% endif %}
 
@@ -87,16 +87,16 @@
 </article>
 {% endmacro %}
 
-{% macro ClassCards(classes, show_price=False) %}
+{% macro BatchCard(batches, show_price=False) %}
 <div class="lms-card-parent">
-	{% for class in classes %}
+	{% for batch in batches %}
 
 	<div class="common-card-style column-card" style="min-height: 150px;">
 
-		{% if class.seat_count %}
-			{% if class.seats_left > 0 %}
+		{% if batch.seat_count %}
+			{% if batch.seats_left > 0 %}
 			<div class="indicator-pill green align-self-start mb-2">
-				{{ _("Seats Available") }}: {{ class.seats_left }}
+				{{ _("Seats Available") }}: {{ batch.seats_left }}
 			</div>
 			{% else %}
 			<div class="indicator-pill red align-self-start mb-2">
@@ -106,18 +106,18 @@
 		{% endif %}
 
 		<div class="bold-heading">
-			{{ class.title }}
+			{{ batch.title }}
 		</div>
 
-		{% if class.description %}
+		{% if batch.description %}
 		<div class="short-introduction">
-			{{ class.description }}
+			{{ batch.description }}
 		</div>
 		{% endif %}
 
-		{% if show_price and class.paid_class %}
+		{% if show_price and batch.paid_batch %}
 		<div class="bold-heading mb-2">
-			{{ frappe.utils.fmt_money(class.amount, 0, class.currency) }}
+			{{ frappe.utils.fmt_money(batch.amount, 0, batch.currency) }}
 		</div>
 		{% endif %}
 
@@ -126,10 +126,10 @@
 				<use href="#icon-calendar"></use>
 			</svg>
 			<span>
-				{{ frappe.utils.format_date(class.start_date, "medium") }} -
+				{{ frappe.utils.format_date(batch.start_date, "medium") }} -
 			</span>
 			<span>
-				{{ frappe.utils.format_date(class.end_date, "medium") }}
+				{{ frappe.utils.format_date(batch.end_date, "medium") }}
 			</span>
 		</div>
 
@@ -137,20 +137,13 @@
 			<svg class="icon icon-md">
 				<use href="#icon-education"></use>
 			</svg>
-				{{ class.course_count }} {{ _("Courses") }}
+				{{ batch.course_count }} {{ _("Courses") }}
 		</div>
 
-		<!-- <div class="mb-2">
-			<svg class="icon icon-md">
-				<use href="#icon-users"></use>
-			</svg>
-				{{ student_count }} {{ _("Students") }}
-		</div> -->
-
-		{% if is_student(class.name) %}
-			<a class="stretched-link" href="/classes/{{ class.name }}"></a>
+		{% if is_student(batch.name) %}
+			<a class="stretched-link" href="/batches/{{ batch.name }}"></a>
 		{% else %}
-			<a class="stretched-link" href="/classes/details/{{ class.name }}"></a>
+			<a class="stretched-link" href="/batches/details/{{ batch.name }}"></a>
 		{% endif %}
 	</div>
 	{% endfor %}
@@ -161,7 +154,7 @@
 <div class="empty-state">
 	<img class="icon icon-xl" src="/assets/lms/icons/comment.svg">
 	<div class="empty-state-text">
-		<div class="empty-state-heading">{{ _("No Classes") }}</div>
+		<div class="empty-state-heading">{{ _("No Batches") }}</div>
 		<div class="course-meta">{{ _("Nothing to see here.") }}</div>
 	</div>
 </div>
@@ -177,7 +170,7 @@
 			"can_select": ["LMS Category"],
 			"can_read": ["LMS Category"]
 		};
-		let class_info = null;
+		let batch_info = null;
 	</script>
 	{% endif %}
 {% endblock %}

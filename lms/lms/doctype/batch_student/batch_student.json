@@ -60,7 +60,7 @@
  "modified": "2023-08-24 17:48:53.045539",
  "modified_by": "Administrator",
  "module": "LMS",
- "name": "Class Student",
+ "name": "Batch Student",
  "owner": "Administrator",
  "permissions": [],
  "sort_field": "modified",

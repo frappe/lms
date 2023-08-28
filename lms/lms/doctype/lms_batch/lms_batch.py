@@ -11,7 +11,7 @@ from frappe.utils import cint, format_date, format_datetime
 from lms.lms.utils import get_lessons
 
 
-class LMSClass(Document):
+class LMSBatch(Document):
 	def validate(self):
 		if self.seat_count:
 			self.validate_seats_left()
@@ -26,7 +26,7 @@ class LMSClass(Document):
 		duplicates = {student for student in students if students.count(student) > 1}
 		if len(duplicates):
 			frappe.throw(
-				_("Student {0} has already been added to this class.").format(
+				_("Student {0} has already been added to this batch.").format(
 					frappe.bold(next(iter(duplicates)))
 				)
 			)
@@ -37,7 +37,7 @@ class LMSClass(Document):
 		if len(duplicates):
 			title = frappe.db.get_value("LMS Course", next(iter(duplicates)), "title")
 			frappe.throw(
-				_("Course {0} has already been added to this class.").format(frappe.bold(title))
+				_("Course {0} has already been added to this batch.").format(frappe.bold(title))
 			)
 
 	def validate_duplicate_assessments(self):
@@ -48,7 +48,7 @@ class LMSClass(Document):
 					assessment.assessment_type, assessment.assessment_name, "title"
 				)
 				frappe.throw(
-					_("Assessment {0} has already been added to this class.").format(
+					_("Assessment {0} has already been added to this batch.").format(
 						frappe.bold(title)
 					)
 				)
@@ -66,7 +66,7 @@ class LMSClass(Document):
 
 	def validate_seats_left(self):
 		if cint(self.seat_count) < len(self.students):
-			frappe.throw(_("There are no seats available in this class."))
+			frappe.throw(_("There are no seats available in this batch."))
 
 	def validate_schedule(self):
 		for schedule in self.scheduled_flow:
@@ -82,32 +82,32 @@ class LMSClass(Document):
 
 				if schedule.start_time < self.start_time or schedule.start_time > self.end_time:
 					frappe.throw(
-						_("Row #{0} Start time cannot be outside the class duration.").format(
+						_("Row #{0} Start time cannot be outside the batch duration.").format(
 							schedule.idx
 						)
 					)
 
 				if schedule.end_time < self.start_time or schedule.end_time > self.end_time:
 					frappe.throw(
-						_("Row #{0} End time cannot be outside the class duration.").format(schedule.idx)
+						_("Row #{0} End time cannot be outside the batch duration.").format(schedule.idx)
 					)
 
 			if schedule.date < self.start_date or schedule.date > self.end_date:
 				frappe.throw(
-					_("Row #{0} Date cannot be outside the class duration.").format(schedule.idx)
+					_("Row #{0} Date cannot be outside the batch duration.").format(schedule.idx)
 				)
 
 
 @frappe.whitelist()
-def remove_student(student, class_name):
+def remove_student(student, batch_name):
 	frappe.only_for("Moderator")
-	frappe.db.delete("Class Student", {"student": student, "parent": class_name})
+	frappe.db.delete("Batch Student", {"student": student, "parent": batch_name})
 
 
 @frappe.whitelist()
 def remove_course(course, parent):
 	frappe.only_for("Moderator")
-	frappe.db.delete("Class Course", {"course": course, "parent": parent})
+	frappe.db.delete("Batch Course", {"course": course, "parent": parent})
 
 
 @frappe.whitelist()
@@ -118,7 +118,7 @@ def remove_assessment(assessment, parent):
 
 @frappe.whitelist()
 def create_live_class(
-	class_name, title, duration, date, time, timezone, auto_recording, description=None
+	batch_name, title, duration, date, time, timezone, auto_recording, description=None
 ):
 	date = format_date(date, "yyyy-mm-dd", True)
 	frappe.only_for("Moderator")
@@ -152,7 +152,7 @@ def create_live_class(
 				"host": frappe.session.user,
 				"date": date,
 				"time": time,
-				"class_name": class_name,
+				"batch_name": batch_name,
 				"password": data.get("password"),
 				"description": description,
 				"auto_recording": auto_recording,
@@ -186,27 +186,27 @@ def authenticate():
 
 
 @frappe.whitelist()
-def create_class(
+def create_batch(
 	title,
 	start_date,
 	end_date,
 	description=None,
-	class_details=None,
+	batch_details=None,
 	seat_count=0,
 	start_time=None,
 	end_time=None,
 	medium="Online",
 	category=None,
-	paid_class=0,
+	paid_batch=0,
 	amount=0,
 	currency=None,
 	name=None,
 ):
 	frappe.only_for("Moderator")
 	if name:
-		doc = frappe.get_doc("LMS Class", name)
+		doc = frappe.get_doc("LMS Batch", name)
 	else:
-		doc = frappe.get_doc({"doctype": "LMS Class"})
+		doc = frappe.get_doc({"doctype": "LMS Batch"})
 
 	doc.update(
 		{
@@ -214,13 +214,13 @@ def create_class(
 			"start_date": start_date,
 			"end_date": end_date,
 			"description": description,
-			"class_details": class_details,
+			"batch_details": batch_details,
 			"seat_count": seat_count,
 			"start_time": start_time,
 			"end_time": end_time,
 			"medium": medium,
 			"category": category,
-			"paid_class": paid_class,
+			"paid_batch": paid_batch,
 			"amount": amount,
 			"currency": currency,
 		}

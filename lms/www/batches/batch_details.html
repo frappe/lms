@@ -1,54 +1,54 @@
 {% extends "lms/templates/lms_base.html" %}
 {% block title %}
-	{{ _(class_info.title) }}
+	{{ _(batch_info.title) }}
 {% endblock %}
 
 
 {% block page_content %}
 <div class="common-page-style lms-page-style">
-    {{ ClassHeader(class_info) }}
+    {{ BatchHeader(batch_info) }}
 	<div class="container">
-        {{ CourseHeaderOverlay(class_info, courses, students) }}
+        {{ BatchOverlay(batch_info, courses, students) }}
         <div class="pt-10">
-            {{ ClassDetails(class_info) }}
+            {{ BatchDetails(batch_info) }}
             {{ CourseList(courses) }}
         </div>
 	</div>
 </div>
 {% endblock %}
 
-{% macro ClassHeader(class_info) %}
+{% macro BatchHeader(batch_info) %}
 <div class="course-head-container">
     <div class="container">
         <div class="course-card-wide">
-            {{ BreadCrumb(class_info) }}
-            {{ ClassHeaderDetails(class_info, courses, students) }}
+            {{ BreadCrumb(batch_info) }}
+            {{ BatchHeaderDetails(batch_info, courses, students) }}
         </div>
     </div>
 </div>
 {% endmacro %}
 
-{% macro BreadCrumb(class_info) %}
+{% macro BreadCrumb(batch_info) %}
 <article class="mb-8">
-    <a class="dark-links" href="/classes">
-        {{ _("All Classes") }}
+    <a class="dark-links" href="/batches">
+        {{ _("All Batches") }}
     </a>
     <img class="" src="/assets/lms/icons/chevron-right.svg">
     <span class="breadcrumb-destination">
-        {{ _("Class Details") }}
+        {{ _("Batch Details") }}
     </span>
 </article>
 {% endmacro %}
 
-{% macro ClassHeaderDetails(class_info, courses, students) %}
-    <div class="class-details" data-class="{{ class_info.name }}">
+{% macro BatchHeaderDetails(batch_info, courses, students) %}
+    <div class="class-details" data-batch="{{ batch_info.name }}">
 
         <div class="page-title">
-            {{ class_info.title }}
+            {{ batch_info.title }}
         </div>
 
         <div class="">
-            {{ class_info.description }}
+            {{ batch_info.description }}
         </div>
 
         <div class="mt-8">
@@ -56,35 +56,35 @@
                 <use href="#icon-calendar"></use>
             </svg>
             <span>
-                {{ frappe.utils.format_date(class_info.start_date, "long") }} -
+                {{ frappe.utils.format_date(batch_info.start_date, "long") }} -
             </span>
             <span>
-                {{ frappe.utils.format_date(class_info.end_date, "long") }}
+                {{ frappe.utils.format_date(batch_info.end_date, "long") }}
             </span>
         </div>
 
-        {% if class_info.start_time and class_info.end_time %}
+        {% if batch_info.start_time and batch_info.end_time %}
         <div class="mt-1">
             <svg class="icon icon-sm">
                 <use href="#icon-clock"></use>
             </svg>
             <span>
-                {{ frappe.utils.format_time(class_info.start_time, "hh:mm a") }} -
+                {{ frappe.utils.format_time(batch_info.start_time, "hh:mm a") }} -
             </span>
             <span>
-                {{ frappe.utils.format_time(class_info.end_time, "hh:mm a") }}
+                {{ frappe.utils.format_time(batch_info.end_time, "hh:mm a") }}
             </span>
         </div>
         {% endif %}
     </div>
 {% endmacro %}
 
-{% macro CourseHeaderOverlay(class_info, courses, students) %}
+{% macro BatchOverlay(batch_info, courses, students) %}
 <div class="course-overlay-card class-overlay">
 
     <div class="course-overlay-content">
 
-        {% if class_info.seat_count %}
+        {% if batch_info.seat_count %}
             {% if seats_left %}
             <div class="indicator-pill green pull-right">
                 {{ _("Seats Available") }}: {{ seats_left }}
@@ -96,9 +96,9 @@
             {% endif %}
         {% endif %}
 
-        {% if class_info.paid_class %}
+        {% if batch_info.paid_batch %}
         <div class="bold-heading">
-            {{ frappe.utils.fmt_money(class_info.amount, 0, class_info.currency) }}
+            {{ frappe.utils.fmt_money(batch_info.amount, 0, batch_info.currency) }}
         </div>
         {% endif %}
 
@@ -114,47 +114,47 @@
                 <use href="#icon-calendar"></use>
             </svg>
             <span>
-                {{ frappe.utils.format_date(class_info.start_date, "long") }} -
+                {{ frappe.utils.format_date(batch_info.start_date, "long") }} -
             </span>
             <span>
-                {{ frappe.utils.format_date(class_info.end_date, "long") }}
+                {{ frappe.utils.format_date(batch_info.end_date, "long") }}
             </span>
         </div>
 
-        {% if class_info.start_time and class_info.end_time %}
+        {% if batch_info.start_time and batch_info.end_time %}
         <div class="mt-2">
             <svg class="icon icon-sm">
                 <use href="#icon-clock"></use>
             </svg>
             <span>
-                {{ frappe.utils.format_time(class_info.start_time, "hh:mm a") }} -
+                {{ frappe.utils.format_time(batch_info.start_time, "hh:mm a") }} -
             </span>
             <span>
-                {{ frappe.utils.format_time(class_info.end_time, "hh:mm a") }}
+                {{ frappe.utils.format_time(batch_info.end_time, "hh:mm a") }}
             </span>
         </div>
         {% endif %}
 
         <div class="mt-2">
             {% if is_moderator or is_evaluator or is_student %}
-            <a class="btn btn-primary wide-button" href="/classes/{{ class_info.name }}">
-                {{ _("Checkout Class") }}
+            <a class="btn btn-primary wide-button" href="/batches/{{ batch_info.name }}">
+                {{ _("Checkout Batch") }}
             </a>
-            {% elif class_info.paid_class %}
-            <a class="btn btn-primary wide-button {% if class_info.seat_count and not seats_left %} hide {% endif %}"
-                href="/billing/class/{{ class_info.name }}">
+            {% elif batch_info.paid_batch %}
+            <a class="btn btn-primary wide-button {% if batch_info.seat_count and not seats_left %} hide {% endif %}"
+                href="/billing/batch/{{ batch_info.name }}">
                 {{ _("Register Now") }}
             </a>
             {% else %}
             <div class="alert alert-info">
-                {{ _("To join this class, please contact the Administrator.") }}
+                {{ _("To join this batch, please contact the Administrator.") }}
             </div>
             {% endif %}
         </div>
         {% if is_moderator %}
         <div class="mt-2">
-            <div class="btn btn-secondary wide-button" id="create-class">
-                {{ _("Edit Class") }}
+            <div class="btn btn-secondary wide-button" id="create-batch">
+                {{ _("Edit") }}
             </div>
         </div>
         {% endif %}
@@ -163,10 +163,10 @@
 {% endmacro %}
 
 
-{% macro ClassDetails(class_info) %}
+{% macro BatchDetails(batch_info) %}
 <div class="course-description-section w-50">
     <div class="mt-2">
-        {{ class_info.class_details }}
+        {{ batch_info.batch_details }}
     </div>
 </div>
 {% endmacro %}
@@ -203,7 +203,7 @@
     {{ super() }}
 	{% if is_moderator %}
     <script>
-        let class_info = {{ class_info | json }};
+        let batch_info = {{ batch_info | json }};
     </script>
     {% endif %}
 {% endblock %}

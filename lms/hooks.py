@@ -152,7 +152,7 @@ website_route_rules = [
 	},
 	{"from_route": "/quizzes", "to_route": "batch/quiz_list"},
 	{"from_route": "/quizzes/<quizname>", "to_route": "batch/quiz"},
-	{"from_route": "/classes/<classname>", "to_route": "classes/class"},
+	{"from_route": "/batches/<batchname>", "to_route": "batches/batch"},
 	{"from_route": "/courses/<course>/progress", "to_route": "batch/progress"},
 	{"from_route": "/courses/<course>/join", "to_route": "batch/join"},
 	{"from_route": "/courses/<course>/manage", "to_route": "cohorts"},
@@ -176,8 +176,8 @@ website_route_rules = [
 	{"from_route": "/users", "to_route": "profiles/profile"},
 	{"from_route": "/jobs/<job>", "to_route": "jobs/job"},
 	{
-		"from_route": "/classes/<classname>/students/<username>",
-		"to_route": "/classes/progress",
+		"from_route": "/batches/<batchname>/students/<username>",
+		"to_route": "/batches/progress",
 	},
 	{"from_route": "/assignments/<assignment>", "to_route": "assignments/assignment"},
 	{
@@ -193,8 +193,8 @@ website_route_rules = [
 		"to_route": "billing/billing",
 	},
 	{
-		"from_route": "/classes/details/<classname>",
-		"to_route": "classes/class_details",
+		"from_route": "/batches/details/<batchname>",
+		"to_route": "batches/batch_details",
 	},
 ]
 

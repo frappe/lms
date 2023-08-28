@@ -21,11 +21,11 @@
   "seat_count",
   "section_break_6",
   "description",
-  "class_details",
+  "batch_details",
   "students",
   "courses",
   "section_break_gsac",
-  "paid_class",
+  "paid_batch",
   "column_break_iens",
   "amount",
   "currency",
@@ -70,13 +70,13 @@
    "fieldname": "students",
    "fieldtype": "Table",
    "label": "Students",
-   "options": "Class Student"
+   "options": "Batch Student"
   },
   {
    "fieldname": "courses",
    "fieldtype": "Table",
    "label": "Courses",
-   "options": "Class Course"
+   "options": "Batch Course"
   },
   {
    "fieldname": "start_date",
@@ -86,7 +86,7 @@
    "reqd": 1
   },
   {
-   "description": "The HTML code entered here will be displayed on the class details page.",
+   "description": "The HTML code entered here will be displayed on the batch details page.",
    "fieldname": "custom_component",
    "fieldtype": "Code",
    "label": "Custom Component",
@@ -94,10 +94,10 @@
   },
   {
    "default": "0",
-   "description": "Students will be enrolled in a paid class once they complete the payment",
-   "fieldname": "paid_class",
+   "description": "Students will be enrolled in a paid batch once they complete the payment",
+   "fieldname": "paid_batch",
    "fieldtype": "Check",
-   "label": "Paid Class"
+   "label": "Paid Batch"
   },
   {
    "fieldname": "seat_count",
@@ -175,22 +175,22 @@
    "fieldtype": "Column Break"
   },
   {
-   "depends_on": "paid_class",
+   "depends_on": "paid_batch",
    "fieldname": "amount",
    "fieldtype": "Currency",
    "label": "Amount"
   },
   {
-   "depends_on": "paid_class",
+   "depends_on": "paid_batch",
    "fieldname": "currency",
    "fieldtype": "Link",
    "label": "Currency",
    "options": "Currency"
   },
   {
-   "fieldname": "class_details",
+   "fieldname": "batch_details",
    "fieldtype": "Text Editor",
-   "label": "Class Details",
+   "label": "Batch Details",
    "reqd": 1
   }
  ],
@@ -199,7 +199,7 @@
  "modified": "2023-08-23 17:35:42.750754",
  "modified_by": "Administrator",
  "module": "LMS",
- "name": "LMS Class",
+ "name": "LMS Batch",
  "naming_rule": "Expression (old style)",
  "owner": "Administrator",
  "permissions": [

@@ -21,7 +21,7 @@ def get_context(context):
 		context.class_info = frappe._dict(
 			{
 				"name": class_name,
-				"title": frappe.db.get_value("LMS Class", class_name, "title"),
+				"title": frappe.db.get_value("LMS Batch", class_name, "title"),
 			}
 		)
 

@@ -11,7 +11,7 @@
   "column_break_3",
   "issue_date",
   "expiry_date",
-  "class_name"
+  "batch_name"
  ],
  "fields": [
   {
@@ -55,16 +55,16 @@
    "read_only": 1
   },
   {
-   "fieldname": "class_name",
+   "fieldname": "batch_name",
    "fieldtype": "Link",
    "in_standard_filter": 1,
-   "label": "Class Name",
-   "options": "LMS Class"
+   "label": "Batch Name",
+   "options": "LMS Batch"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-08-23 14:48:49.351394",
+ "modified": "2023-08-23 14:48:49.351395",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate",

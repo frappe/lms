@@ -137,7 +137,7 @@ def is_student(class_name, member=None):
 		member = frappe.session.user
 
 	return frappe.db.exists(
-		"Class Student",
+		"Batch Student",
 		{
 			"student": member,
 			"parent": class_name,

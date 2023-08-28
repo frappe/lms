@@ -17,12 +17,12 @@ from lms.lms.utils import (
 
 def get_context(context):
 	context.no_cache = 1
-	class_name = frappe.form_dict["classname"]
+	class_name = frappe.form_dict["batchname"]
 	context.is_moderator = has_course_moderator_role()
 	context.is_evaluator = has_course_evaluator_role()
 
-	context.class_info = frappe.db.get_value(
-		"LMS Class",
+	context.batch_info = frappe.db.get_value(
+		"LMS Batch",
 		class_name,
 		[
 			"name",
@@ -39,37 +39,37 @@ def get_context(context):
 			"paid_class",
 			"amount",
 			"currency",
-			"class_details",
+			"batch_details",
 		],
 		as_dict=True,
 	)
 
-	context.reference_doctype = "LMS Class"
+	context.reference_doctype = "LMS Batch"
 	context.reference_name = class_name
 
-	class_courses = frappe.get_all(
-		"Class Course",
+	batch_courses = frappe.get_all(
+		"Batch Course",
 		{"parent": class_name},
 		["name", "course", "title"],
 		order_by="creation desc",
 	)
 
-	class_students = frappe.get_all(
-		"Class Student",
+	batch_students = frappe.get_all(
+		"Batch Student",
 		{"parent": class_name},
 		["name", "student", "student_name", "username"],
 		order_by="creation desc",
 	)
 
-	context.class_courses = get_class_course_details(class_courses)
-	context.course_list = [course.course for course in context.class_courses]
+	context.batch_courses = get_class_course_details(batch_courses)
+	context.course_list = [course.course for course in context.batch_courses]
 	context.all_courses = frappe.get_all(
 		"LMS Course", fields=["name", "title"], limit_page_length=0
 	)
-	context.course_name_list = [course.course for course in context.class_courses]
+	context.course_name_list = [course.course for course in context.batch_courses]
 	context.assessments = get_assessments(class_name)
-	context.class_students = get_class_student_details(
-		class_students, class_courses, context.assessments
+	context.batch_students = get_class_student_details(
+		batch_students, batch_courses, context.assessments
 	)
 	context.is_student = is_student(class_name)
 
@@ -84,7 +84,7 @@ def get_context(context):
 	)
 
 	context.current_student = (
-		get_current_student_details(class_courses, class_name) if context.is_student else None
+		get_current_student_details(batch_courses, class_name) if context.is_student else None
 	)
 	context.all_assignments = get_all_assignments(class_name)
 	context.all_quizzes = get_all_quizzes(class_name)
@@ -121,8 +121,8 @@ def get_all_assignments(class_name):
 	return all_assignments
 
 
-def get_class_course_details(class_courses):
-	for course in class_courses:
+def get_class_course_details(batch_courses):
+	for course in batch_courses:
 		details = frappe.db.get_value(
 			"LMS Course",
 			course.course,
@@ -141,27 +141,27 @@ def get_class_course_details(class_courses):
 			as_dict=True,
 		)
 		course.update(details)
-	return class_courses
+	return batch_courses
 
 
-def get_class_student_details(class_students, class_courses, assessments):
-	for student in class_students:
+def get_class_student_details(batch_students, batch_courses, assessments):
+	for student in batch_students:
 		student.update(
 			frappe.db.get_value(
 				"User", student.student, ["name", "full_name", "username", "headline"], as_dict=1
 			)
 		)
 		student.update(frappe.db.get_value("User", student.student, "last_active", as_dict=1))
-		get_progress_info(student, class_courses)
+		get_progress_info(student, batch_courses)
 		get_assessment_info(student, assessments)
 
-	return sort_students(class_students)
+	return sort_students(batch_students)
 
 
-def get_progress_info(student, class_courses):
+def get_progress_info(student, batch_courses):
 	courses_completed = 0
 	student["courses"] = frappe._dict()
-	for course in class_courses:
+	for course in batch_courses:
 		membership = get_membership(course.course, student.student)
 		if membership and membership.progress == 100:
 			courses_completed += 1
@@ -193,11 +193,11 @@ def get_assessment_info(student, assessments):
 	return student
 
 
-def sort_students(class_students):
+def sort_students(batch_students):
 	session_user = []
 	remaining_students = []
 
-	for student in class_students:
+	for student in batch_students:
 		if student.student == frappe.session.user:
 			session_user.append(student)
 		else:
@@ -206,7 +206,7 @@ def sort_students(class_students):
 	if len(session_user):
 		return session_user + remaining_students
 	else:
-		return class_students
+		return batch_students
 
 
 def get_scheduled_flow(class_name):
@@ -256,12 +256,12 @@ def get_lesson_details(lesson, class_name):
 	return lesson
 
 
-def get_current_student_details(class_courses, class_name):
+def get_current_student_details(batch_courses, class_name):
 	student_details = frappe._dict()
 	student_details.courses = frappe._dict()
-	course_list = [course.course for course in class_courses]
+	course_list = [course.course for course in batch_courses]
 
-	get_course_progress(class_courses, student_details)
+	get_course_progress(batch_courses, student_details)
 	student_details.name = frappe.session.user
 	student_details.assessments = get_assessments(class_name, frappe.session.user)
 	student_details.upcoming_evals = get_upcoming_evals(frappe.session.user, course_list)
@@ -269,8 +269,8 @@ def get_current_student_details(class_courses, class_name):
 	return student_details
 
 
-def get_course_progress(class_courses, student_details):
-	for course in class_courses:
+def get_course_progress(batch_courses, student_details):
+	for course in batch_courses:
 		membership = get_membership(course.course, frappe.session.user)
 		if membership:
 			student_details.courses[course.course] = membership.progress

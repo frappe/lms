@@ -9,7 +9,7 @@
  "field_order": [
   "title",
   "host",
-  "class_name",
+  "batch_name",
   "password",
   "auto_recording",
   "column_break_astv",
@@ -111,10 +111,10 @@
    "reqd": 1
   },
   {
-   "fieldname": "class_name",
+   "fieldname": "batch_name",
    "fieldtype": "Link",
-   "label": "Class",
-   "options": "LMS Class"
+   "label": "Batch",
+   "options": "LMS Batch"
   },
   {
    "default": "No Recording",
@@ -126,7 +126,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-03-14 18:44:48.813102",
+ "modified": "2023-03-14 18:44:48.813103",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Live Class",

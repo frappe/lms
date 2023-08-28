@@ -800,7 +800,7 @@ def get_evaluator(course, class_name=None):
 
 	if class_name:
 		evaluator = frappe.db.get_value(
-			"Class Course",
+			"Batch Course",
 			{"parent": class_name, "course": course},
 			"evaluator",
 		)
@@ -869,7 +869,7 @@ def get_details(doctype, docname):
 			frappe.throw(_("This course is free."))
 	else:
 		details = frappe.db.get_value(
-			"LMS Class",
+			"LMS Batch",
 			docname,
 			["name", "title", "paid_class", "currency", "amount"],
 			as_dict=True,
@@ -996,13 +996,13 @@ def create_membership(course, payment):
 
 
 def add_student_to_class(classname, payment):
-	student = frappe.new_doc("Class Student")
+	student = frappe.new_doc("Batch Student")
 	student.update(
 		{
 			"student": frappe.session.user,
 			"payment": payment,
 			"parent": classname,
-			"parenttype": "LMS Class",
+			"parenttype": "LMS Batch",
 			"parentfield": "students",
 		}
 	)

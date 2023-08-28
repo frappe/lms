@@ -13,7 +13,7 @@
   "date",
   "start_time",
   "end_time",
-  "class_name",
+  "batch_name",
   "section_break_6",
   "rating",
   "status",
@@ -97,16 +97,16 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "class_name",
+   "fieldname": "batch_name",
    "fieldtype": "Link",
    "in_standard_filter": 1,
-   "label": "Class Name",
-   "options": "LMS Class"
+   "label": "Batch Name",
+   "options": "LMS Batch"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-08-23 14:51:21.947160",
+ "modified": "2023-08-23 14:51:21.947169",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate Evaluation",

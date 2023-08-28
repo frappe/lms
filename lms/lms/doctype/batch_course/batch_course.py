@@ -5,5 +5,5 @@
 from frappe.model.document import Document
 
 
-class ClassStudent(Document):
+class BatchCourse(Document):
 	pass

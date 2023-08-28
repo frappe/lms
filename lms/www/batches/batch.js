@@ -55,7 +55,7 @@ frappe.ready(() => {
 });
 
 const create_live_class = (e) => {
-	let class_name = $(".class-details").data("class");
+	let class_name = $(".class-details").data("batch");
 	frappe.call({
 		method: "lms.lms.doctype.lms_class.lms_class.create_live_class",
 		args: {
@@ -337,11 +337,11 @@ const add_course = (values) => {
 		method: "frappe.client.insert",
 		args: {
 			doc: {
-				doctype: "Class Course",
+				doctype: "Batch Course",
 				course: values.course,
-				parenttype: "LMS Class",
+				parenttype: "LMS Batch",
 				parentfield: "courses",
-				parent: $(".class-details").data("class"),
+				parent: $(".class-details").data("batch"),
 			},
 		},
 		callback(r) {
@@ -363,7 +363,7 @@ const remove_course = (e) => {
 			method: "lms.lms.doctype.lms_class.lms_class.remove_course",
 			args: {
 				course: $(e.currentTarget).data("course"),
-				parent: $(".class-details").data("class"),
+				parent: $(".class-details").data("batch"),
 			},
 			callback(r) {
 				frappe.show_alert(
@@ -413,11 +413,11 @@ const add_student = (values) => {
 		method: "frappe.client.insert",
 		args: {
 			doc: {
-				doctype: "Class Student",
+				doctype: "Batch Student",
 				student: values.student,
-				parenttype: "LMS Class",
+				parenttype: "LMS Batch",
 				parentfield: "students",
-				parent: $(".class-details").data("class"),
+				parent: $(".class-details").data("batch"),
 			},
 		},
 		callback(r) {
@@ -441,7 +441,7 @@ const remove_student = (e) => {
 				method: "lms.lms.doctype.lms_class.lms_class.remove_student",
 				args: {
 					student: $(e.currentTarget).data("student"),
-					class_name: $(".class-details").data("class"),
+					class_name: $(".class-details").data("batch"),
 				},
 				callback: (data) => {
 					frappe.show_alert(
@@ -526,9 +526,9 @@ const add_addessment = (values) => {
 				doctype: "LMS Assessment",
 				assessment_type: values.assessment_type,
 				assessment_name: values.assessment_name,
-				parenttype: "LMS Class",
+				parenttype: "LMS Batch",
 				parentfield: "assessment",
-				parent: $(".class-details").data("class"),
+				parent: $(".class-details").data("batch"),
 			},
 		},
 		callback(r) {
@@ -550,7 +550,7 @@ const remove_assessment = (e) => {
 			method: "lms.lms.doctype.lms_class.lms_class.remove_assessment",
 			args: {
 				assessment: $(e.currentTarget).data("assessment"),
-				parent: $(".class-details").data("class"),
+				parent: $(".class-details").data("batch"),
 			},
 			callback(r) {
 				frappe.show_alert(
@@ -615,7 +615,7 @@ const get_slots = () => {
 		args: {
 			course: this.eval_form.get_value("course"),
 			date: this.eval_form.get_value("date"),
-			class_name: $(".class-details").data("class"),
+			class_name: $(".class-details").data("batch"),
 		},
 		callback: (r) => {
 			if (r.message) {
@@ -677,7 +677,7 @@ const submit_evaluation_form = (values) => {
 			start_time: this.current_slot.data("start"),
 			end_time: this.current_slot.data("end"),
 			day: this.current_slot.data("day"),
-			class_name: $(".class-details").data("class"),
+			class_name: $(".class-details").data("batch"),
 		},
 		callback: (r) => {
 			this.eval_form.hide();
