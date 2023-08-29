@@ -30,7 +30,7 @@ def get_context(context):
 	context.courses = frappe.get_all(
 		"Batch Course",
 		{"parent": batch_name},
-		["name", "course", "title"],
+		["name as batch_course", "course", "title", "evaluator"],
 		order_by="creation desc",
 	)
 

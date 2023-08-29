@@ -8,7 +8,7 @@
 <div class="common-page-style">
 	{{ Header() }}
 	<div class="container">
-		{{ Progress(class_info, student) }}
+		{{ Progress(batch, student) }}
 	</div>
 </div>
 {% endblock %}
@@ -22,12 +22,12 @@
 					{{ _("{0}").format(student.full_name) }}
 				</div>
 				<div class="vertically-center">
-					<a class="dark-links" href="/classes">
-						{{ _("All Classes") }}
+					<a class="dark-links" href="/batches">
+						{{ _("All Batches") }}
 					</a>
 					<img class="icon icon-sm mr-0" src="/assets/lms/icons/chevron-right.svg">
-					<a class="dark-links" href="/classes/{{ class_info.name }}">
-						{{ class_info.name }}
+					<a class="dark-links" href="/batches/{{ batch.name }}">
+						{{ batch.name }}
 					</a>
 					<img class="icon icon-sm mr-0" src="/assets/lms/icons/chevron-right.svg">
 					<span class="breadcrumb-destination">
@@ -46,7 +46,7 @@
 				</button>
 				{% endif %}
 				{% if is_moderator %}
-				<a class="btn btn-primary btn-sm btn-evaluate ml-2" href="/evaluation/new?member={{student.name}}&date={{frappe.utils.getdate()}}&class_name={{class_info.name}}">
+				<a class="btn btn-primary btn-sm btn-evaluate ml-2" href="/evaluation/new?member={{student.name}}&date={{frappe.utils.getdate()}}&class_name={{batch.name}}">
 					{{ _("Evaluate") }}
 				</a>
 				{% endif %}
@@ -57,9 +57,9 @@
 {% endmacro %}
 
 
-{% macro Progress(class_info, student) %}
+{% macro Progress(batch, student) %}
 	{{ UpcomingEvals(upcoming_evals) }}
-	{{ Assessments(class_info, student) }}
+	{{ Assessments(batch, student) }}
 {% endmacro %}
 
 {% macro UpcomingEvals(upcoming_evals) %}
@@ -68,7 +68,7 @@
 </div>
 {% endmacro %}
 
-{% macro Assessments(class_info, student) %}
+{% macro Assessments(batch, student) %}
 <div class="mb-8">
 	{% include "lms/templates/assessments.html" %}
 </div>
@@ -84,7 +84,7 @@
 			"can_read": ["LMS Course"]
 		};
 		let courses = {{ courses | json }};
-		let class_name = "{{ class_info.name }}";
+		let batch_name = "{{ batch.name }}";
 	</script>
 	{{ include_script('controls.bundle.js') }}
 {% endblock %}

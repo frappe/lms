@@ -173,7 +173,12 @@
 
 
 {% macro CourseList(courses) %}
-<div>
+<div class="batch-course-list">
+    {% if is_moderator %}
+    <button class="btn btn-default btn-sm btn-add-course pull-right">
+        {{ _("Add Courses") }}
+    </button>
+    {% endif %}
     <div class="page-title">
         {{ _("Courses") }}
     </div>
@@ -182,13 +187,23 @@
 		{% for course in courses %}
 		<div class="h-100">
 			{{ widgets.CourseCard(course=course, read_only=False) }}
-            <button class="btn icon-btn btn-default btn-block btn-remove-course" data-course="{{ course.name }}">
-				<svg class="icon icon-sm">
-					<use href="#icon-delete"></use>
-				</svg>
-			</button>
+            {% if is_moderator %}
+            <div class="flex my-2 pull-right">
+                <button class="btn icon-btn btn-default btn-edit-course"
+                    data-name="{{ course.batch_course }}" data-course="{{ course.name }}"
+                    {% if course.evaluator %} data-evaluator="{{ course.evaluator }}" {% endif %}>
+                    <svg class="icon icon-sm">
+                        <use href="#icon-edit"></use>
+                    </svg>
+                </button>
+                <button class="btn icon-btn btn-default btn-remove-course ml-2" data-course="{{ course.name }}">
+                    <svg class="icon icon-sm">
+                        <use href="#icon-delete"></use>
+                    </svg>
+                </button>
+            </div>
+            {% endif %}
 		</div>
-
 		{% endfor %}
 	</div>
 	{% else %}

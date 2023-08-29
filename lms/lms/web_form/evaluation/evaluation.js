@@ -3,7 +3,7 @@ frappe.ready(function () {
 		let data = frappe.web_form.get_values();
 		if (data.class) {
 			setTimeout(() => {
-				window.location.href = `/classes/${data.class}`;
+				window.location.href = `/batches/${data.class}`;
 			}, 2000);
 		}
 	};

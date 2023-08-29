@@ -48,15 +48,15 @@
                     </a>
                     {% endif %}
 
-                    {% if show_creators_section %}
-                    <a class="btn btn-default btn-sm" href="/courses/new-course/edit">
-                        {{ _("Create a Course") }}
-                    </a>
-                    {% endif %}
-
                     <a class="btn btn-default btn-sm" id="open-search">
                         {{ _("Search") }} (Ctrl + k)
                     </a>
+
+                    {% if show_creators_section %}
+                    <a class="btn btn-primary btn-sm" href="/courses/new-course/edit">
+                        {{ _("Create a Course") }}
+                    </a>
+                    {% endif %}
                 </div>
 
             </div>

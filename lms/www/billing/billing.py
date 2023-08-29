@@ -9,7 +9,7 @@ def get_context(context):
 	if frappe.session.user == "Guest":
 		raise frappe.PermissionError(_("You are not allowed to access this page."))
 
-	if module not in ["course", "class"]:
+	if module not in ["course", "batch"]:
 		raise ValueError(_("Module is incorrect."))
 
 	doctype = "LMS Course" if module == "course" else "LMS Batch"
@@ -32,7 +32,7 @@ def get_context(context):
 			"Batch Student", {"student": frappe.session.user, "parent": docname}
 		)
 		if membership:
-			raise frappe.PermissionError(_("You are already enrolled for this class"))
+			raise frappe.PermissionError(_("You are already enrolled for this batch."))
 
 	if doctype == "LMS Course":
 		course = frappe.db.get_value(
@@ -50,18 +50,18 @@ def get_context(context):
 		context.currency = course.currency
 
 	else:
-		class_info = frappe.db.get_value(
+		batch = frappe.db.get_value(
 			"LMS Batch",
 			docname,
-			["title", "name", "paid_class", "amount", "currency"],
+			["title", "name", "paid_batch", "amount", "currency"],
 			as_dict=True,
 		)
 
-		if not class_info.paid_class:
+		if not batch.paid_batch:
 			raise frappe.PermissionError(
-				_("To join this class, please contact the Administrator.")
+				_("To join this batch, please contact the Administrator.")
 			)
 
-		context.title = class_info.title
-		context.amount = class_info.amount
-		context.currency = class_info.currency
+		context.title = batch.title
+		context.amount = batch.amount
+		context.currency = batch.currency

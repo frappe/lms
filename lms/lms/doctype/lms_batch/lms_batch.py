@@ -238,3 +238,25 @@ def fetch_lessons(courses):
 		lessons.extend(get_lessons(course.get("course")))
 
 	return lessons
+
+
+@frappe.whitelist()
+def add_course(course, parent, name=None, evaluator=None):
+	frappe.only_for("Moderator")
+	if name:
+		doc = frappe.get_doc("Batch Course", name)
+	else:
+		doc = frappe.new_doc("Batch Course")
+
+	doc.update(
+		{
+			"course": course,
+			"evaluator": evaluator,
+			"parent": parent,
+			"parentfield": "courses",
+			"parenttype": "LMS Batch",
+		}
+	)
+	doc.save()
+
+	return doc.name

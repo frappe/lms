@@ -6,7 +6,7 @@
         {% set course = frappe.db.get_value("LMS Course", certificate.course, ["title", "name", "image"], as_dict=True) %}
 
         <div class="common-card-style column-card medium">
-            <div class="font-weight-bold">
+            <div class="bold-heading">
                 {{ course.title }}
             </div>
             <div>

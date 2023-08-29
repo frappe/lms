@@ -61,13 +61,13 @@ def get_current_lesson_details(lesson_number, context, is_edit=False):
 	return lesson_info
 
 
-def get_assessments(class_name, member=None):
+def get_assessments(batch, member=None):
 	if not member:
 		member = frappe.session.user
 
 	assessments = frappe.get_all(
 		"LMS Assessment",
-		{"parent": class_name},
+		{"parent": batch},
 		["name", "assessment_type", "assessment_name"],
 	)
 
@@ -132,7 +132,7 @@ def get_quiz_details(assessment, member):
 	assessment.url = f"/quiz-submission/{assessment.assessment_name}/{submission_name}"
 
 
-def is_student(class_name, member=None):
+def is_student(batch, member=None):
 	if not member:
 		member = frappe.session.user
 
@@ -140,6 +140,6 @@ def is_student(class_name, member=None):
 		"Batch Student",
 		{
 			"student": member,
-			"parent": class_name,
+			"parent": batch,
 		},
 	)

@@ -48,7 +48,7 @@ You can create courses and lessons through simple forms. Lessons can be in the f
 - Add detailed descriptions and preview videos to the course. 🎬
 - Add videos, quizzes, and assignments to your lessons and make them interesting and interactive 📝
 - Discussions section below each lesson where instructors and students can interact with each other. 💬
-- Create classes to group your students based on courses and track their progress 🏛
+- Create batches to group your students based on courses and track their progress 🏛
 - Statistics dashboard that provides all important numbers at a glimpse. 📈
 - Job Board where users can post and look for jobs. 💼
 - People directory with each person's profile page 👨‍👩‍👧‍👦

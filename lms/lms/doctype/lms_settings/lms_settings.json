@@ -23,6 +23,7 @@
   "default_currency",
   "column_break_cfcv",
   "razorpay_secret",
+  "apply_gst",
   "signup_settings_tab",
   "signup_settings_section",
   "terms_of_use",
@@ -188,6 +189,7 @@
    "default": "0",
    "fieldname": "allow_student_progress",
    "fieldtype": "Check",
+   "hidden": 1,
    "label": "Allow students to see each others progress in class"
   },
   {
@@ -223,12 +225,18 @@
    "fieldname": "razorpay_secret",
    "fieldtype": "Password",
    "label": "Razorpay Secret"
+  },
+  {
+   "default": "0",
+   "fieldname": "apply_gst",
+   "fieldtype": "Check",
+   "label": "Apply GST for India"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2023-08-02 18:59:01.267732",
+ "modified": "2023-08-29 09:54:48.030823",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",

@@ -29,8 +29,8 @@
                     {% endif %}
                 </div>
                 <div class="vertically-center small">
-                    <a class="dark-links" href="/classes">
-                        {{ _("All Classes") }}
+                    <a class="dark-links" href="/batches">
+                        {{ _("All Batches") }}
                     </a>
                     <img class="icon icon-sm mr-0" src="/assets/lms/icons/chevron-right.svg">
                     <span class="breadcrumb-destination">{{ _("Assignment Submission") }}</span>
@@ -51,13 +51,18 @@
 
 {% macro SubmissionForm(assignment) %}
 <article class="field-parent">
-    {% if submission.name and is_moderator %}
-    <div class="field-group">
-        <div class="field-label">
-            {{ _("Student Name") }}
+    {% if submission.name %}
+        <div class="alert alert-info">
+            {{ _("You've successfully submitted the assignment. Once the moderator grades your submission, you'll find the details here. Feel free to make edits to your submission if needed.") }}
         </div>
-        {{ submission.member_name }}
-    </div>
+        {% if is_moderator %}
+        <div class="field-group">
+            <div class="field-label">
+                {{ _("Student Name") }}
+            </div>
+            {{ submission.member_name }}
+        </div>
+        {% endif %}
     {% endif %}
 
     <div class="field-group">
@@ -79,14 +84,15 @@
         <div class="btn btn-default btn-sm btn-upload mt-2 {% if submission.assignment_attachment %} hide {% endif %}" data-type="{{ assignment.type }}">
             {{ _("Browse").format(assignment.type) }}
         </div>
-        <div class="field-input flex justify-between align-center {% if not submission.assignment_attachment %} hide {% endif %}" id="assignment-preview">
+        <div class="field-input flex justify-between align-center overflow-auto
+            {% if not submission.assignment_attachment %} hide {% endif %}" id="assignment-preview">
             <a class="clickable" {% if submission.assignment_attachment %} href="{{ submission.assignment_attachment }}" {% endif %}>
                 {% if submission.assignment_attachment %} {{ submission.assignment_attachment }} {% endif %}
             </a>
-            <span class="btn btn-default btn-sm btn-close {% if not submission %} hide {% endif %}">
-                {{ _("Clear") }}
-            </span>
         </div>
+        <span class="btn btn-default btn-sm btn-close {% if not submission %} hide {% endif %} mt-2">
+            {{ _("Clear") }}
+        </span>
     </div>
 
     {% if is_moderator %}

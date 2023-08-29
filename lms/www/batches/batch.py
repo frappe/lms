@@ -36,7 +36,7 @@ def get_context(context):
 			"start_time",
 			"end_time",
 			"category",
-			"paid_class",
+			"paid_batch",
 			"amount",
 			"currency",
 			"batch_details",

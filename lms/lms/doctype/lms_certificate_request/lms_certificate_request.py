@@ -104,9 +104,7 @@ def update_meeting_details(eval, event, calendar):
 
 
 @frappe.whitelist()
-def create_certificate_request(
-	course, date, day, start_time, end_time, class_name=None
-):
+def create_certificate_request(course, date, day, start_time, end_time, batch=None):
 	is_member = frappe.db.exists(
 		{"doctype": "LMS Enrollment", "course": course, "member": frappe.session.user}
 	)
@@ -117,13 +115,13 @@ def create_certificate_request(
 	eval.update(
 		{
 			"course": course,
-			"evaluator": get_evaluator(course, class_name),
+			"evaluator": get_evaluator(course, batch),
 			"member": frappe.session.user,
 			"date": date,
 			"day": day,
 			"start_time": start_time,
 			"end_time": end_time,
-			"class_name": class_name,
+			"batch": batch,
 		}
 	)
 	eval.save(ignore_permissions=True)

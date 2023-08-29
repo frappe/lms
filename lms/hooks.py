@@ -196,6 +196,10 @@ website_route_rules = [
 		"from_route": "/batches/details/<batchname>",
 		"to_route": "batches/batch_details",
 	},
+	{
+		"from_route": "/certified-participants",
+		"to_route": "certified_participants/certified_participants",
+	},
 ]
 
 website_redirects = [

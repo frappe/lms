@@ -68,18 +68,18 @@
 
 	<div class="tab-content">
 		<div class="tab-pane active" id="upcoming" role="tabpanel" aria-labelledby="upcoming">
-			{{ BatchCard(upcoming_batches, show_price=True) }}
+			{{ BatchCard(upcoming_batches, show_price=True, label="Upcoming") }}
 		</div>
 
 		{% if is_moderator %}
 		<div class="tab-pane" id="past" role="tabpanel" aria-labelledby="past">
-			{{ BatchCard(past_batches, show_price=False) }}
+			{{ BatchCard(past_batches, show_price=False, label="Archived") }}
 		</div>
 		{% endif %}
 
 		{% if frappe.session.user != "Guest" %}
 		<div class="tab-pane" id="my-batch" role="tabpanel" aria-labelledby="my-batches">
-			{{ BatchCard(my_batches, show_price=False) }}
+			{{ BatchCard(my_batches, show_price=False, label="Enrolled") }}
 		</div>
 		{% endif %}
 
@@ -87,7 +87,8 @@
 </article>
 {% endmacro %}
 
-{% macro BatchCard(batches, show_price=False) %}
+{% macro BatchCard(batches, show_price=False, label="") %}
+{% if batches | length %}
 <div class="lms-card-parent">
 	{% for batch in batches %}
 
@@ -148,6 +149,11 @@
 	</div>
 	{% endfor %}
 </div>
+{% else %}
+	<p class="text-muted mt-3">
+		{{ _("No {0} batches").format(label|lower) }}
+	</p>
+{% endif %}
 {% endmacro %}
 
 {% macro EmptyState() %}

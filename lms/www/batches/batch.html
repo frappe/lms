@@ -22,6 +22,8 @@
 <div class="breadcrumb">
 	<a class="dark-links" href="/batches">{{ _("All Batches") }}</a>
 	<img class="ml-1 mr-1" src="/assets/lms/icons/chevron-right.svg">
+	<a class="dark-links" href="/batches/details/{{ batch_info.name }}">{{ _("Batch Details") }}</a>
+	<img class="ml-1 mr-1" src="/assets/lms/icons/chevron-right.svg">
 	<span class="breadcrumb-destination">{{ batch_info.title }}</span>
 </div>
 {% endmacro %}
@@ -239,11 +241,6 @@
 			<div class="bold-heading">
 				{{ _("Courses") }}
 			</div>
-			{% if is_moderator %}
-			<button class="btn btn-default btn-sm btn-add-course">
-				{{ _("Add Courses") }}
-			</button>
-			{% endif %}
 		</div>
 	</header>
 
@@ -252,11 +249,6 @@
 		{% for course in batch_courses %}
 		<div class="h-100">
 			{{ widgets.CourseCard(course=course, read_only=False) }}
-			<button class="btn icon-btn btn-default btn-block btn-remove-course" data-course="{{ course.name }}">
-				<svg class="icon icon-sm">
-					<use href="#icon-delete"></use>
-				</svg>
-			</button>
 		</div>
 
 		{% endfor %}
@@ -320,7 +312,7 @@
 		{% set allow_progress = is_moderator or is_evaluator %}
 		<div class="grid-row">
 			<div class="data-row row">
-				<a class="col grid-static-col button-links {% if allow_progress %} clickable {% endif %}" {% if allow_progress %} href="/classes/{{ batch_info.name }}/students/{{ student.username }}" {% endif %}>
+				<a class="col grid-static-col button-links {% if allow_progress %} clickable {% endif %}" {% if allow_progress %} href="/batches/{{ batch_info.name }}/students/{{ student.username }}" {% endif %}>
 					{{ student.student_name }}
 				</a>
 				<div class="col grid-static-col col-xs-2 text-right">

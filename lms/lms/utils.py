@@ -795,13 +795,13 @@ def has_graded_assessment(submission):
 	return False if status == "Not Graded" else True
 
 
-def get_evaluator(course, class_name=None):
+def get_evaluator(course, batch=None):
 	evaluator = None
 
-	if class_name:
+	if batch:
 		evaluator = frappe.db.get_value(
 			"Batch Course",
-			{"parent": class_name, "course": course},
+			{"parent": batch, "course": course},
 			"evaluator",
 		)
 
@@ -871,11 +871,11 @@ def get_details(doctype, docname):
 		details = frappe.db.get_value(
 			"LMS Batch",
 			docname,
-			["name", "title", "paid_class", "currency", "amount"],
+			["name", "title", "paid_batch", "currency", "amount"],
 			as_dict=True,
 		)
-		if not details.paid_class:
-			frappe.throw(_("To join this class, please contact the Administrator."))
+		if not details.paid_batch:
+			frappe.throw(_("To join this batch, please contact the Administrator."))
 
 	return details
 
@@ -939,7 +939,7 @@ def verify_payment(response, doctype, docname, address, order_id):
 	if doctype == "LMS Course":
 		return create_membership(docname, payment)
 	else:
-		return add_student_to_class(docname, payment)
+		return add_student_to_batch(docname, payment)
 
 
 def record_payment(address, response, client, doctype, docname):
@@ -967,10 +967,7 @@ def record_payment(address, response, client, doctype, docname):
 
 
 def get_payment_details(client, response, doctype, docname):
-	try:
-		payment = client.payment.fetch(response["razorpay_payment_id"])
-	except Exception as e:
-		frappe.log_error(e, "Error during payment fetch")
+	payment = client.payment.fetch(response["razorpay_payment_id"])
 
 	if payment:
 		amount = payment["amount"] / 100
@@ -995,16 +992,16 @@ def create_membership(course, payment):
 	return f"/courses/{course}/learn/1.1"
 
 
-def add_student_to_class(classname, payment):
+def add_student_to_batch(batchname, payment):
 	student = frappe.new_doc("Batch Student")
 	student.update(
 		{
 			"student": frappe.session.user,
 			"payment": payment,
-			"parent": classname,
+			"parent": batchname,
 			"parenttype": "LMS Batch",
 			"parentfield": "students",
 		}
 	)
 	student.save(ignore_permissions=True)
-	return f"/classes/{classname}"
+	return f"/batches/{batchname}"
