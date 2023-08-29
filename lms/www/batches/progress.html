@@ -27,7 +27,7 @@
 					</a>
 					<img class="icon icon-sm mr-0" src="/assets/lms/icons/chevron-right.svg">
 					<a class="dark-links" href="/batches/{{ batch.name }}">
-						{{ batch.name }}
+						{{ batch.title }}
 					</a>
 					<img class="icon icon-sm mr-0" src="/assets/lms/icons/chevron-right.svg">
 					<span class="breadcrumb-destination">
@@ -46,6 +46,9 @@
 				</button>
 				{% endif %}
 				{% if is_moderator %}
+				<button class="btn btn-default btn-sm btn-certification ml-2">
+					{{ _("Grant Certificate") }}
+				</button>
 				<a class="btn btn-primary btn-sm btn-evaluate ml-2" href="/evaluation/new?member={{student.name}}&date={{frappe.utils.getdate()}}&class_name={{batch.name}}">
 					{{ _("Evaluate") }}
 				</a>
@@ -86,5 +89,4 @@
 		let courses = {{ courses | json }};
 		let batch_name = "{{ batch.name }}";
 	</script>
-	{{ include_script('controls.bundle.js') }}
 {% endblock %}

@@ -116,6 +116,7 @@
 		</li>
 		{% endif %}
 
+		{% if is_moderator %}
 		<li class="nav-item">
 			<a class="nav-link" data-toggle="tab" href="#students">
 				{{ _("Students") }}
@@ -125,7 +126,6 @@
 			</a>
 		</li>
 
-		{% if is_moderator %}
 		<li class="nav-item">
 			<a class="nav-link" data-toggle="tab" href="#assessments">
 				{{ _("Assessments") }}
@@ -175,11 +175,11 @@
 		</div>
 		{% endif %}
 
+		{% if is_moderator %}
 		<div class="tab-pane" id="students" role="tabpanel" aria-labelledby="students">
 			{{ StudentsSection(batch_info, batch_students) }}
 		</div>
 
-		{% if is_moderator %}
 		<div class="tab-pane" id="assessments" role="tabpanel" aria-labelledby="assessments">
 			{{ AssessmentsSection(batch_info) }}
 		</div>

@@ -29,7 +29,9 @@ def get_context(context):
 	):
 		raise frappe.PermissionError(_("You don't have permission to access this page."))
 
-	context.batch = frappe.db.get_value("LMS Batch", batch_name, ["name"], as_dict=True)
+	context.batch = frappe.db.get_value(
+		"LMS Batch", batch_name, ["name", "title"], as_dict=True
+	)
 
 	context.courses = frappe.get_all(
 		"Batch Course", {"parent": batch_name}, pluck="course"

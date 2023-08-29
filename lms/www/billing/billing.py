@@ -16,6 +16,7 @@ def get_context(context):
 	context.module = module
 	context.docname = docname
 	context.doctype = doctype
+	context.apply_gst = frappe.db.get_single_value("LMS Settings", "apply_gst")
 
 	if not frappe.db.exists(doctype, docname):
 		raise ValueError(_("Module Name is incorrect or does not exist."))
@@ -65,3 +66,6 @@ def get_context(context):
 		context.title = batch.title
 		context.amount = batch.amount
 		context.currency = batch.currency
+
+	if context.apply_gst:
+		context.gst_amount = context.amount * 1.18
