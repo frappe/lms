@@ -4,6 +4,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
+from frappe.utils import validate_url
 
 
 class LMSAssignmentSubmission(Document):
@@ -40,8 +41,12 @@ def upload_assignment(
 
 	if assignment_type == "URL" and not answer:
 		frappe.throw(_("Please enter the URL for assignment submission."))
+
 	if assignment_type == "File" and not assignment_attachment:
 		frappe.throw(_("Please upload the assignment file."))
+
+	if assignment_type == "URL" and not validate_url(answer):
+		frappe.throw(_("Please enter a valid URL."))
 
 	if submission:
 		doc = frappe.get_doc("LMS Assignment Submission", submission)
