@@ -39,7 +39,8 @@
 
 
             <div class="align-self-center">
-                <button class="btn btn-primary btn-sm btn-save-assignment" {% if assignment.name %} data-assignment="{{ assignment.name }}" {% endif %}
+                <button class="btn btn-primary btn-sm btn-save-assignment"
+                    data-assignment="{{ assignment.name }}" data-type="{{ assignment.type }}"
                     {% if submission.name %} data-submission="{{ submission.name }}" {% endif %}>
                     {{ _("Save") }}
                 </button>
@@ -53,7 +54,7 @@
 <article class="field-parent">
     {% if submission.name and is_moderator %}
     <div class="field-group">
-        <div class="field-label">
+        <div class="bold-heading">
             {{ _("Student Name") }}
         </div>
         {{ submission.member_name }}
@@ -61,14 +62,15 @@
     {% endif %}
 
     <div class="field-group">
-        <div class="field-label">
+        <div class="bold-heading">
             {{ _("Question")}}
         </div>
         {{ assignment.question }}
     </div>
 
+    {% if assignment.type != "URL" %}
     <div class="field-group">
-        <div class="field-label">
+        <div class="bold-heading">
             {{ _("Submit")}}
         </div>
         <div class="field-description">
@@ -88,6 +90,19 @@
             </span>
         </div>
     </div>
+    {% else %}
+    {{ submission }}
+    <div class="field-group">
+        <div class="bold-heading">
+            {{ _("Submit")}}
+        </div>
+        <div class="field-description">
+            {{ _("Enter a URL") }}
+        </div>
+        <input id="assignment-url" type="text" class="field-input" placeholder="https://"
+            {% if submission.answer %} value="{{ submission.answer }}" {% endif %}>
+    </div>
+    {% endif %}
 
     {% if is_moderator %}
         <div class="field-group">

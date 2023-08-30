@@ -25,7 +25,8 @@ class LMSAssignmentSubmission(Document):
 
 @frappe.whitelist()
 def upload_assignment(
-	assignment_attachment,
+	assignment_attachment=None,
+	answer=None,
 	assignment=None,
 	lesson=None,
 	status="Not Graded",
@@ -34,6 +35,13 @@ def upload_assignment(
 ):
 	if frappe.session.user == "Guest":
 		return
+
+	assignment_type = frappe.db.get_value("LMS Assignment", assignment, "type")
+
+	if assignment_type == "URL" and not answer:
+		frappe.throw(_("Please enter the URL for assignment submission."))
+	if assignment_type == "File" and not assignment_attachment:
+		frappe.throw(_("Please upload the assignment file."))
 
 	if submission:
 		doc = frappe.get_doc("LMS Assignment Submission", submission)
@@ -44,6 +52,7 @@ def upload_assignment(
 				"assignment": assignment,
 				"lesson": lesson,
 				"member": frappe.session.user,
+				"type": assignment_type,
 			}
 		)
 
@@ -52,6 +61,7 @@ def upload_assignment(
 			"assignment_attachment": assignment_attachment,
 			"status": status,
 			"comments": comments,
+			"answer": answer,
 		}
 	)
 	doc.save(ignore_permissions=True)

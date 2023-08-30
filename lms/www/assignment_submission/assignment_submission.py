@@ -23,7 +23,15 @@ def get_context(context):
 		context.submission = frappe.db.get_value(
 			"LMS Assignment Submission",
 			submission,
-			["name", "assignment_attachment", "comments", "status", "member", "member_name"],
+			[
+				"name",
+				"assignment_attachment",
+				"answer",
+				"comments",
+				"status",
+				"member",
+				"member_name",
+			],
 			as_dict=True,
 		)
 		if not context.is_moderator and frappe.session.user != context.submission.member:
