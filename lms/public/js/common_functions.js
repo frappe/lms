@@ -83,7 +83,7 @@ const enroll_in_course = (e) => {
 	let batch = $(e.currentTarget).attr("data-batch");
 	batch = batch ? decodeURIComponent(batch) : "";
 	frappe.call({
-		method: "lms.lms.doctype.lms_batch_membership.lms_batch_membership.create_membership",
+		method: "lms.lms.doctype.lms_enrollment.lms_enrollment.create_membership",
 		args: {
 			batch: batch ? batch : "",
 			course: course,

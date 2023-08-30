@@ -47,12 +47,26 @@ const upload_file = (e) => {
 };
 
 const save_assignment = (e) => {
-	let file = $("#assignment-preview a").attr("href");
-	if (!file) {
-		frappe.throw({
-			title: __("No File"),
-			message: __("Please upload a file."),
-		});
+	let data = $(e.currentTarget).data("type");
+	let answer,
+		file = "";
+
+	if (data == "URL") {
+		answer = $("#assignment-url").val();
+		if (!answer) {
+			frappe.throw({
+				title: __("No URL"),
+				message: __("Please enter a URL."),
+			});
+		}
+	} else {
+		file = $("#assignment-preview a").attr("href");
+		if (!file) {
+			frappe.throw({
+				title: __("No File"),
+				message: __("Please upload a file."),
+			});
+		}
 	}
 
 	frappe.call({
@@ -61,6 +75,7 @@ const save_assignment = (e) => {
 			assignment: $(e.currentTarget).data("assignment"),
 			submission: $(e.currentTarget).data("submission") || "",
 			assignment_attachment: file,
+			answer: answer,
 			status: $("#status").val(),
 			comments: $("#comments").val(),
 		},

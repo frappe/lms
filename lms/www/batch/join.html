@@ -49,7 +49,7 @@
 frappe.ready(() => {
     $("#confirm").click((e) => {
         frappe.call({
-            "method": "lms.lms.doctype.lms_batch_membership.lms_batch_membership.create_membership",
+            "method": "lms.lms.doctype.lms_enrollment.lms_enrollment.create_membership",
             "args": {
                 "batch_old": {{ batch.name }},
                 "course": {{ batch.course }}
