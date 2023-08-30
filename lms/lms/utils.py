@@ -946,7 +946,7 @@ def record_payment(address, response, client, doctype, docname):
 	address = frappe._dict(json.loads(address))
 	address_name = save_address(address)
 
-	payment_details = get_payment_details(client, response, doctype, docname)
+	payment_details = get_payment_details(doctype, docname)
 	payment_doc = frappe.new_doc("LMS Payment")
 	payment_doc.update(
 		{
@@ -966,16 +966,10 @@ def record_payment(address, response, client, doctype, docname):
 	return payment_doc.name
 
 
-def get_payment_details(client, response, doctype, docname):
-	payment = client.payment.fetch(response["razorpay_payment_id"])
-
-	if payment:
-		amount = payment["amount"] / 100
-		currency = payment["currency"]
-	else:
-		amount_field = "course_price" if doctype == "LMS Course" else "amount"
-		amount = frappe.db.get_value(doctype, docname, amount_field)
-		currency = frappe.db.get_value(doctype, docname, "currency")
+def get_payment_details(doctype, docname):
+	amount_field = "course_price" if doctype == "LMS Course" else "amount"
+	amount = frappe.db.get_value(doctype, docname, amount_field)
+	currency = frappe.db.get_value(doctype, docname, "currency")
 
 	return {
 		"amount": amount,
@@ -984,7 +978,7 @@ def get_payment_details(client, response, doctype, docname):
 
 
 def create_membership(course, payment):
-	membership = frappe.new_doc("LMS Batch Membership")
+	membership = frappe.new_doc("LMS Enrollment")
 	membership.update(
 		{"member": frappe.session.user, "course": course, "payment": payment}
 	)
