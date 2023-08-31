@@ -66,13 +66,8 @@
 {% macro CreateLesson() %}
 <article class="field-parent">
     <div class="field-group">
-        <div>
-            <div class="field-label">
-                {{ _("Title") }}
-            </div>
-            <div class="field-description">
-                {{ _("Something Short and Concise") }}
-            </div>
+        <div class="field-label">
+            {{ _("Title") }}
         </div>
         <div class="">
             <input id="lesson-title" type="text" class="field-input" data-index="{{ lesson_index }}" data-chapter="{{ chapter }}" data-course="{{ course.name }}" {% if lesson.name %} data-lesson="{{ lesson.name }}"  value="{{ lesson.title }}" {% endif %}>
@@ -91,7 +86,7 @@
             {{ _("Instructor Notes") }}
         </div>
         <div class="field-description">
-            {{ _("This notes will only be visible to the Course Creator, Course Evaluaor and Moderator.") }}
+            {{ _("These notes will only be visible to the Course Creator, Course Evaluaor and Moderator.") }}
         </div>
         <div id="instructor-notes"></div>
         {% if lesson.instructor_notes %}
