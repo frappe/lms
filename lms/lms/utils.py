@@ -313,6 +313,7 @@ def render_html(lesson):
 	if lesson.question:
 		assignment = "{{ Assignment('" + lesson.question + "-" + lesson.file_type + "') }}"
 		text = text + assignment
+
 	return markdown_to_html(text)
 
 
