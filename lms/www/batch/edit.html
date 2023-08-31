@@ -66,13 +66,8 @@
 {% macro CreateLesson() %}
 <article class="field-parent">
     <div class="field-group">
-        <div>
-            <div class="field-label">
-                {{ _("Title") }}
-            </div>
-            <div class="field-description">
-                {{ _("Something Short and Concise") }}
-            </div>
+        <div class="field-label">
+            {{ _("Title") }}
         </div>
         <div class="">
             <input id="lesson-title" type="text" class="field-input" data-index="{{ lesson_index }}" data-chapter="{{ chapter }}" data-course="{{ course.name }}" {% if lesson.name %} data-lesson="{{ lesson.name }}"  value="{{ lesson.title }}" {% endif %}>
@@ -84,6 +79,19 @@
             <input type="checkbox" id="preview" {% if lesson.include_in_preview %} checked {% endif %}>
             <span>{{ _("Show preview of this lesson to Guest users.") }}</span>
         </label>
+    </div>
+
+    <div class="field-group">
+        <div class="field-label">
+            {{ _("Instructor Notes") }}
+        </div>
+        <div class="field-description">
+            {{ _("These notes will only be visible to the Course Creator, Course Evaluaor and Moderator.") }}
+        </div>
+        <div id="instructor-notes"></div>
+        {% if lesson.instructor_notes %}
+        <div id="current-instructor-notes" class="hide">{{ lesson.instructor_notes }}</div>
+        {% endif %}
     </div>
 
     <div class="field-group">
@@ -117,7 +125,6 @@
 		};
 	</script>
 	{% endif %}
-    {{ include_script('controls.bundle.js') }}
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/paragraph@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/header@latest"></script>

@@ -149,9 +149,20 @@
         {% if show_lesson %}
 
             {% if is_instructor and not lesson.include_in_preview %}
-            <div class="medium alert alert-info alert-dismissible mb-4">
+            <div class="alert alert-info alert-dismissible mb-4">
                 {{ _("This lesson is not available for preview. As you are the Instructor of the course only you can see it.") }}
                 <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            </div>
+            {% endif %}
+
+            {% if lesson.instructor_notes and (is_moderator or instructor or is_evaluator) %}
+            <div class="alert alert-info mb-4">
+                <div class="bold-heading">
+                    {{ _("Instructor Notes") }}
+                </div>
+                <div>
+                    {{ lesson.instructor_notes }}
+                </div>
             </div>
             {% endif %}
 
@@ -159,7 +170,7 @@
 
         {% else %}
             {% set course_link = "<a class='enroll-in-course' data-course=" + course.name | urlencode + " href=''>" + _('here') +  "</a>" %}
-            <div class="alert alert-info medium mb-0">
+            <div class="alert alert-info mb-0">
                 {{ _("There is no preview available for this lesson.
                 Please join the course to access it.
                 Click {0} to enroll.").format(course_link) }}

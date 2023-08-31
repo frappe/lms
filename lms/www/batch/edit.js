@@ -1,7 +1,15 @@
 frappe.ready(() => {
-	frappe.telemetry.capture("on_lesson_creation_page", "lms");
 	let self = this;
 	this.quiz_in_lesson = [];
+
+	frappe.telemetry.capture("on_lesson_creation_page", "lms");
+
+	if ($("#instructor-notes").length) {
+		frappe.require("controls.bundle.js", () => {
+			make_instructor_notes_component();
+		});
+	}
+
 	if ($("#current-lesson-content").length) {
 		parse_string_to_lesson();
 	}
@@ -149,6 +157,8 @@ const save = (lesson_content) => {
 			preview: $("#preview").prop("checked") ? 1 : 0,
 			idx: $("#lesson-title").data("index"),
 			lesson: lesson ? lesson : "",
+			instructor_notes:
+				this.instructor_notes.get_values().instructor_notes,
 		},
 		callback: (data) => {
 			frappe.show_alert({
@@ -466,3 +476,20 @@ class Upload {
 		};
 	}
 }
+
+const make_instructor_notes_component = () => {
+	this.instructor_notes = new frappe.ui.FieldGroup({
+		fields: [
+			{
+				fieldname: "instructor_notes",
+				fieldtype: "Text Editor",
+				default: $("#current-instructor-notes").html(),
+			},
+		],
+		body: $("#instructor-notes").get(0),
+	});
+	this.instructor_notes.make();
+	$("#instructor-notes .form-section:last").removeClass("empty-section");
+	$("#instructor-notes .frappe-control").removeClass("hide-control");
+	$("#instructor-notes .form-column").addClass("p-0");
+};
