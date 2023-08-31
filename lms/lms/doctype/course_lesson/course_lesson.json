@@ -23,8 +23,8 @@
   "column_break_15",
   "file_type",
   "section_break_11",
-  "instructor_notes",
   "body",
+  "instructor_notes",
   "help_section",
   "help"
  ],
@@ -135,13 +135,13 @@
   },
   {
    "fieldname": "instructor_notes",
-   "fieldtype": "Text Editor",
+   "fieldtype": "Text",
    "label": "Instructor Notes"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-08-31 11:11:22.034553",
+ "modified": "2023-08-31 21:47:06.314995",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Course Lesson",

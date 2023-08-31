@@ -147,6 +147,8 @@ def get_lesson_details(chapter):
 		)
 		lesson_details.number = flt(f"{chapter.idx}.{row.idx}")
 		lesson_details.icon = get_lesson_icon(lesson_details.body)
+		if lesson_details.instructor_notes:
+			lesson_details.instructor_notes = markdown_to_html(lesson_details.instructor_notes)
 
 		lessons.append(lesson_details)
 	return lessons

@@ -2345,3 +2345,7 @@ select {
 	grid-gap: 0.5rem;
 	margin-bottom: 1rem;
 }
+
+.embed-tool__caption {
+	display: none;
+}
