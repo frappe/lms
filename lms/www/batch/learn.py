@@ -2,7 +2,12 @@ import frappe
 from frappe import _
 from frappe.utils import cstr, flt
 
-from lms.lms.utils import get_lesson_url, has_course_moderator_role, is_instructor
+from lms.lms.utils import (
+	get_lesson_url,
+	has_course_moderator_role,
+	is_instructor,
+	has_course_evaluator_role,
+)
 from lms.www.utils import (
 	get_common_context,
 	redirect_to_lesson,
@@ -37,20 +42,23 @@ def get_context(context):
 		redirect_to_lesson(context.course, index_)
 
 	context.lesson = get_current_lesson_details(lesson_number, context)
-	instructor = is_instructor(context.course.name)
+	context.instructor = is_instructor(context.course.name)
+	context.is_moderator = has_course_moderator_role()
+	context.is_evaluator = has_course_evaluator_role()
 
 	context.show_lesson = (
 		context.membership
 		or (context.lesson and context.lesson.include_in_preview)
-		or instructor
-		or has_course_moderator_role()
+		or context.instructor
+		or context.is_moderator
+		or context.is_evaluator
 	)
 
 	if not context.lesson:
 		context.lesson = frappe._dict()
 
 	if frappe.form_dict.get("edit"):
-		if not instructor and not has_course_moderator_role():
+		if not context.instructor and not context.is_moderator:
 			raise frappe.PermissionError(_("You do not have permission to access this page."))
 		context.lesson.edit_mode = True
 	else:
