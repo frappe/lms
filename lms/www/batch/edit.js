@@ -26,6 +26,22 @@ const setup_editor = () => {
 	self.editor = new EditorJS({
 		holder: "lesson-content",
 		tools: {
+			embed: {
+				class: Embed,
+				config: {
+					services: {
+						youtube: true,
+						vimeo: true,
+						codepen: true,
+						slides: {
+							regex: /https:\/\/docs\.google\.com\/presentation\/d\/e\/([A-Za-z0-9_-]+)\/pub/,
+							embedUrl:
+								"https://docs.google.com/presentation/d/e/<%= remote_id %>/embed",
+							html: "<iframe width='100%' height='300' frameborder='0' allowfullscreen='true'></iframe>",
+						},
+					},
+				},
+			},
 			header: {
 				class: Header,
 				inlineToolbar: ["bold", "italic", "link"],
@@ -84,6 +100,15 @@ const parse_string_to_lesson = () => {
 					file_url: video,
 				},
 			});
+		} else if (block.includes("{{ Embed")) {
+			let embed = block.match(/'([^']+)'/)[1];
+			lesson_blocks.push({
+				type: "embed",
+				data: {
+					service: embed.split("|||")[0],
+					embed: embed.split("|||")[1],
+				},
+			});
 		} else if (block.includes("![]")) {
 			let image = block.match(/\((.*?)\)/)[1];
 			lesson_blocks.push({
@@ -139,6 +164,10 @@ const parse_lesson_to_string = (data) => {
 				"#".repeat(block.data.level) + ` ${block.data.text}\n`;
 		} else if (block.type == "paragraph") {
 			lesson_content += `${block.data.text}\n`;
+		} else if (block.type == "embed") {
+			lesson_content += `{{ Embed("${
+				block.data.service
+			}|||${block.data.embed.replace(/&amp;/g, "&")}") }}\n`;
 		}
 	});
 	save(lesson_content);

@@ -155,6 +155,20 @@ def youtube_video_renderer(video_id):
     """
 
 
+def embed_renderer(details):
+	src = details.split("|||")[1]
+	return f"""
+	<iframe width="100%" height="400"
+		src={src}
+		title="Embedded Content"
+		frameborder="0"
+		style="border-radius: var(--border-radius-lg)"
+		allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+		allowfullscreen>
+	</iframe>
+	"""
+
+
 def video_renderer(src):
 	return (
 		f"<video controls width='100%'><source src={quote(src)} type='video/mp4'></video>"
