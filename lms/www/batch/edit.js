@@ -39,6 +39,11 @@ const setup_editor = () => {
 								"https://docs.google.com/presentation/d/e/<%= remote_id %>/embed",
 							html: "<iframe width='100%' height='300' frameborder='0' allowfullscreen='true'></iframe>",
 						},
+						pdf: {
+							regex: /(https?:\/\/.*\.pdf)/,
+							embedUrl: "<%= remote_id %>",
+							html: "<iframe width='100%' height='600px' frameborder='0'></iframe>",
+						},
 					},
 				},
 			},
@@ -165,6 +170,11 @@ const parse_lesson_to_string = (data) => {
 		} else if (block.type == "paragraph") {
 			lesson_content += `${block.data.text}\n`;
 		} else if (block.type == "embed") {
+			if (block.data.service == "pdf") {
+				if (!block.data.embed.startsWith(window.location.origin)) {
+					frappe.throw(__("Invalid PDF URL"));
+				}
+			}
 			lesson_content += `{{ Embed("${
 				block.data.service
 			}|||${block.data.embed.replace(/&amp;/g, "&")}") }}\n`;
