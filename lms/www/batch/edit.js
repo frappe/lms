@@ -521,7 +521,7 @@ const make_instructor_notes_component = () => {
 		fields: [
 			{
 				fieldname: "instructor_notes",
-				fieldtype: "Text Editor",
+				fieldtype: "Text",
 				default: $("#current-instructor-notes").html(),
 			},
 		],
