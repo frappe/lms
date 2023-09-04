@@ -48,6 +48,9 @@ const show_course_modal = (e) => {
 		},
 	});
 	course_modal.show();
+	setTimeout(() => {
+		$(".modal-body").css("min-height", "300px");
+	}, 1000);
 };
 
 const add_course = (values, course_name) => {
