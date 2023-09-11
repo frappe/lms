@@ -104,6 +104,7 @@ const generate_payment_link = (e) => {
 			doctype: doctype,
 			docname: docname,
 			phone: address.phone,
+			country: address.country,
 		},
 		callback: (data) => {
 			data.message.handler = (response) => {

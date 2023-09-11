@@ -3,6 +3,8 @@ import string
 import frappe
 import json
 import razorpay
+import requests
+import base64
 from frappe import _
 from frappe.desk.doctype.dashboard_chart.dashboard_chart import get_result
 from frappe.desk.doctype.notification_log.notification_log import make_notification_logs
@@ -830,19 +832,20 @@ def get_upcoming_evals(student, courses):
 
 
 @frappe.whitelist()
-def get_payment_options(doctype, docname, phone):
+def get_payment_options(doctype, docname, phone, country):
 	if not frappe.db.exists(doctype, docname):
 		frappe.throw(_("Invalid document provided."))
 
 	validate_phone_number(phone, True)
 	details = get_details(doctype, docname)
+	details.amount, details.currency = check_multicurrency(details)
+	details.amount, details.gst_applied = apply_gst(details, country)
 
-	razorpay_key = frappe.db.get_single_value("LMS Settings", "razorpay_key")
 	client = get_client()
 	order = create_order(client, details.amount, details.currency)
 
 	options = {
-		"key_id": razorpay_key,
+		"key_id": frappe.db.get_single_value("LMS Settings", "razorpay_key"),
 		"name": frappe.db.get_single_value("Website Settings", "app_name"),
 		"description": _("Payment for {0} course").format(details["title"]),
 		"order_id": order["id"],
@@ -855,6 +858,42 @@ def get_payment_options(doctype, docname, phone):
 		},
 	}
 	return options
+
+
+def check_multicurrency(amount, currency):
+	show_usd_equivalent = frappe.db.get_single_value("LMS Settings", "show_usd_equivalent")
+	exception_country = frappe.db.get_single_value("LMS Settings", "exception_country")
+	apply_rounding = frappe.db.get_single_value("LMS Settings", "apply_rounding")
+	country = frappe.db.get_value("User", frappe.session.user, "country")
+
+	if not show_usd_equivalent:
+		return
+
+	if currency == "USD":
+		return
+
+	if exception_country and country in exception_country:
+		return
+
+	exchange_rate = get_current_exchange_rate(currency, "USD")
+	amount = amount * exchange_rate
+	currency = "USD"
+
+	if apply_rounding and amount % 100 != 0:
+		amount = amount + 100 - amount % 100
+
+	return amount, currency
+
+
+def apply_gst(amount, country):
+	gst_applied = False
+	apply_gst = frappe.db.get_single_value("LMS Settings", "apply_gst")
+
+	if apply_gst and country == "India":
+		gst_applied = True
+		amount = amount * 1.18
+
+	return amount, gst_applied
 
 
 def get_details(doctype, docname):
@@ -896,8 +935,9 @@ def save_address(address):
 
 
 def get_client():
-	razorpay_key = frappe.db.get_single_value("LMS Settings", "razorpay_key")
-	razorpay_secret = frappe.db.get_single_value("LMS Settings", "razorpay_secret")
+	settings = frappe.get_single("LMS Settings")
+	razorpay_key = settings.razorpay_key
+	razorpay_secret = settings.get_password("razorpay_secret", raise_exception=True)
 
 	if not razorpay_key and not razorpay_secret:
 		frappe.throw(
@@ -946,7 +986,7 @@ def record_payment(address, response, client, doctype, docname):
 	address = frappe._dict(json.loads(address))
 	address_name = save_address(address)
 
-	payment_details = get_payment_details(doctype, docname)
+	payment_details = get_payment_details(doctype, docname, address)
 	payment_doc = frappe.new_doc("LMS Payment")
 	payment_doc.update(
 		{
@@ -966,10 +1006,13 @@ def record_payment(address, response, client, doctype, docname):
 	return payment_doc.name
 
 
-def get_payment_details(doctype, docname):
+def get_payment_details(doctype, docname, address):
 	amount_field = "course_price" if doctype == "LMS Course" else "amount"
 	amount = frappe.db.get_value(doctype, docname, amount_field)
 	currency = frappe.db.get_value(doctype, docname, "currency")
+	apply_gst = frappe.db.get_single_value("LMS Settings", "apply_gst")
+	if apply_gst and address.country == "India":
+		amount = amount * 1.18
 
 	return {
 		"amount": amount,
@@ -999,3 +1042,11 @@ def add_student_to_batch(batchname, payment):
 	)
 	student.save(ignore_permissions=True)
 	return f"/batches/{batchname}"
+
+
+def get_current_exchange_rate(source, target="USD"):
+	url = f"https://api.frankfurter.app/latest?from={source}&to={target}"
+
+	response = requests.request("GET", url)
+	details = response.json()
+	return details["rates"][target]

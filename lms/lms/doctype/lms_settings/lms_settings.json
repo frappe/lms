@@ -20,10 +20,13 @@
   "allow_student_progress",
   "payment_section",
   "razorpay_key",
-  "default_currency",
-  "column_break_cfcv",
   "razorpay_secret",
   "apply_gst",
+  "column_break_cfcv",
+  "default_currency",
+  "show_usd_equivalent",
+  "apply_rounding",
+  "exception_country",
   "signup_settings_tab",
   "signup_settings_section",
   "terms_of_use",
@@ -231,12 +234,31 @@
    "fieldname": "apply_gst",
    "fieldtype": "Check",
    "label": "Apply GST for India"
+  },
+  {
+   "default": "0",
+   "fieldname": "show_usd_equivalent",
+   "fieldtype": "Check",
+   "label": "Show USD Equivalent"
+  },
+  {
+   "depends_on": "show_usd_equivalent",
+   "fieldname": "exception_country",
+   "fieldtype": "Table MultiSelect",
+   "label": "Maintain Original Currency",
+   "options": "Payment Country"
+  },
+  {
+   "default": "0",
+   "fieldname": "apply_rounding",
+   "fieldtype": "Check",
+   "label": "Apply Rounding on Equivalent"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2023-08-29 09:54:48.030823",
+ "modified": "2023-09-11 21:56:39.996898",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",

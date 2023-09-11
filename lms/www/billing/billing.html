@@ -30,7 +30,7 @@
     <div class="">
         <div class="flex mb-2">
             <div class="field-label">
-                {% set label = "Course Name" if module == "course" else "Batch Name" %}
+                {% set label = "Course" if module == "course" else "Batch" %}
                 {{ _(label) }} : {{ title }}
             </div>
         </div>
@@ -40,6 +40,11 @@
                 {{ _("Total Price: ") }} {{ frappe.utils.fmt_money(amount, 2, currency) }}
             </div>
         </div>
+        {% if gst_applied %}
+        <span class="small mt-2">
+            {{ _("18% GST included") }}
+        </span>
+        {% endif %}
     </div>
 </div>
 {% endmacro %}
