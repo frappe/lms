@@ -838,8 +838,11 @@ def get_payment_options(doctype, docname, phone, country):
 
 	validate_phone_number(phone, True)
 	details = get_details(doctype, docname)
-	details.amount, details.currency = check_multicurrency(details)
-	details.amount, details.gst_applied = apply_gst(details, country)
+	details.amount, details.currency = check_multicurrency(
+		details.amount, details.currency
+	)
+	if details.currency == "INR":
+		details.amount, details.gst_applied = apply_gst(details.amount, country)
 
 	client = get_client()
 	order = create_order(client, details.amount, details.currency)
@@ -862,18 +865,17 @@ def get_payment_options(doctype, docname, phone, country):
 
 def check_multicurrency(amount, currency):
 	show_usd_equivalent = frappe.db.get_single_value("LMS Settings", "show_usd_equivalent")
-	exception_country = frappe.db.get_single_value("LMS Settings", "exception_country")
+	exception_country = frappe.get_all(
+		"Payment Country", filters={"parent": "LMS Settings"}, pluck="country"
+	)
 	apply_rounding = frappe.db.get_single_value("LMS Settings", "apply_rounding")
 	country = frappe.db.get_value("User", frappe.session.user, "country")
 
-	if not show_usd_equivalent:
-		return
-
-	if currency == "USD":
-		return
+	if not show_usd_equivalent or currency == "USD":
+		return amount, currency
 
 	if exception_country and country in exception_country:
-		return
+		return amount, currency
 
 	exchange_rate = get_current_exchange_rate(currency, "USD")
 	amount = amount * exchange_rate
@@ -885,9 +887,12 @@ def check_multicurrency(amount, currency):
 	return amount, currency
 
 
-def apply_gst(amount, country):
+def apply_gst(amount, country=None):
 	gst_applied = False
 	apply_gst = frappe.db.get_single_value("LMS Settings", "apply_gst")
+
+	if not country:
+		country = frappe.db.get_value("User", frappe.session.user, "country")
 
 	if apply_gst and country == "India":
 		gst_applied = True
@@ -998,6 +1003,7 @@ def record_payment(address, response, client, doctype, docname):
 			"payment_id": response["razorpay_payment_id"],
 			"amount": payment_details["amount"],
 			"currency": payment_details["currency"],
+			"amount_with_gst": payment_details["amount_with_gst"],
 			"gstin": address.gstin,
 			"pan": address.pan,
 		}
@@ -1010,13 +1016,16 @@ def get_payment_details(doctype, docname, address):
 	amount_field = "course_price" if doctype == "LMS Course" else "amount"
 	amount = frappe.db.get_value(doctype, docname, amount_field)
 	currency = frappe.db.get_value(doctype, docname, "currency")
-	apply_gst = frappe.db.get_single_value("LMS Settings", "apply_gst")
-	if apply_gst and address.country == "India":
-		amount = amount * 1.18
+	amount_with_gst = 0
+
+	amount, currency = check_multicurrency(amount, currency)
+	if currency == "INR" and address.country == "India":
+		amount_with_gst, gst_applied = apply_gst(amount, address.country)
 
 	return {
 		"amount": amount,
 		"currency": currency,
+		"amount_with_gst": amount_with_gst,
 	}
 
 

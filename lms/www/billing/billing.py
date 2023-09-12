@@ -14,8 +14,12 @@ def get_context(context):
 
 	validate_access(doctype, docname, module)
 	get_billing_details(context)
-	check_multicurrency(context)
-	apply_gst(context)
+	context.amount, context.currency = check_multicurrency(
+		context.amount, context.currency
+	)
+
+	if context.currency == "INR":
+		context.amount, context.gst_applied = apply_gst(context.amount, None)
 
 
 def validate_access(doctype, docname, module):
