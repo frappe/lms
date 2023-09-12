@@ -20,7 +20,6 @@ class LMSCourse(Document):
 		self.image = validate_image(self.image)
 
 	def validate_instructors(self):
-		print(self.is_new(), not self.instructors)
 		if self.is_new() and not self.instructors:
 			frappe.get_doc(
 				{

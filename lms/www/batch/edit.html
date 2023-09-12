@@ -116,15 +116,6 @@
 
 {%- block script %}
     {{ super() }}
-    {% if is_moderator %}
-	<script>
-		frappe.boot.user = {
-			"can_create": [],
-			"can_select": ["LMS Quiz"],
-			"can_read": ["LMS Quiz"]
-		};
-	</script>
-	{% endif %}
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/paragraph@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/header@latest"></script>
