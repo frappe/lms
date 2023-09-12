@@ -2340,3 +2340,7 @@ select {
 .batch-course-list .cards-parent {
 	row-gap: 3rem
 }
+
+.embed-tool__caption {
+	display: none;
+}

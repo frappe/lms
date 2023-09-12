@@ -1,7 +1,15 @@
 frappe.ready(() => {
-	frappe.telemetry.capture("on_lesson_creation_page", "lms");
 	let self = this;
 	this.quiz_in_lesson = [];
+
+	frappe.telemetry.capture("on_lesson_creation_page", "lms");
+
+	if ($("#instructor-notes").length) {
+		frappe.require("controls.bundle.js", () => {
+			make_instructor_notes_component();
+		});
+	}
+
 	if ($("#current-lesson-content").length) {
 		parse_string_to_lesson();
 	}
@@ -18,6 +26,27 @@ const setup_editor = () => {
 	self.editor = new EditorJS({
 		holder: "lesson-content",
 		tools: {
+			embed: {
+				class: Embed,
+				config: {
+					services: {
+						youtube: true,
+						vimeo: true,
+						codepen: true,
+						slides: {
+							regex: /https:\/\/docs\.google\.com\/presentation\/d\/e\/([A-Za-z0-9_-]+)\/pub/,
+							embedUrl:
+								"https://docs.google.com/presentation/d/e/<%= remote_id %>/embed",
+							html: "<iframe width='100%' height='300' frameborder='0' allowfullscreen='true'></iframe>",
+						},
+						pdf: {
+							regex: /(https?:\/\/.*\.pdf)/,
+							embedUrl: "<%= remote_id %>",
+							html: "<iframe width='100%' height='600px' frameborder='0'></iframe>",
+						},
+					},
+				},
+			},
 			header: {
 				class: Header,
 				inlineToolbar: ["bold", "italic", "link"],
@@ -76,6 +105,15 @@ const parse_string_to_lesson = () => {
 					file_url: video,
 				},
 			});
+		} else if (block.includes("{{ Embed")) {
+			let embed = block.match(/'([^']+)'/)[1];
+			lesson_blocks.push({
+				type: "embed",
+				data: {
+					service: embed.split("|||")[0],
+					embed: embed.split("|||")[1],
+				},
+			});
 		} else if (block.includes("![]")) {
 			let image = block.match(/\((.*?)\)/)[1];
 			lesson_blocks.push({
@@ -131,6 +169,15 @@ const parse_lesson_to_string = (data) => {
 				"#".repeat(block.data.level) + ` ${block.data.text}\n`;
 		} else if (block.type == "paragraph") {
 			lesson_content += `${block.data.text}\n`;
+		} else if (block.type == "embed") {
+			if (block.data.service == "pdf") {
+				if (!block.data.embed.startsWith(window.location.origin)) {
+					frappe.throw(__("Invalid PDF URL"));
+				}
+			}
+			lesson_content += `{{ Embed("${
+				block.data.service
+			}|||${block.data.embed.replace(/&amp;/g, "&")}") }}\n`;
 		}
 	});
 	save(lesson_content);
@@ -149,6 +196,8 @@ const save = (lesson_content) => {
 			preview: $("#preview").prop("checked") ? 1 : 0,
 			idx: $("#lesson-title").data("index"),
 			lesson: lesson ? lesson : "",
+			instructor_notes:
+				this.instructor_notes.get_values().instructor_notes,
 		},
 		callback: (data) => {
 			frappe.show_alert({
@@ -466,3 +515,20 @@ class Upload {
 		};
 	}
 }
+
+const make_instructor_notes_component = () => {
+	this.instructor_notes = new frappe.ui.FieldGroup({
+		fields: [
+			{
+				fieldname: "instructor_notes",
+				fieldtype: "Text Editor",
+				default: $("#current-instructor-notes").html(),
+			},
+		],
+		body: $("#instructor-notes").get(0),
+	});
+	this.instructor_notes.make();
+	$("#instructor-notes .form-section:last").removeClass("empty-section");
+	$("#instructor-notes .frappe-control").removeClass("hide-control");
+	$("#instructor-notes .form-column").addClass("p-0");
+};

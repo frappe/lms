@@ -145,11 +145,14 @@ def get_lesson_details(chapter):
 				"quiz_id",
 				"question",
 				"file_type",
+				"instructor_notes",
 			],
 			as_dict=True,
 		)
 		lesson_details.number = flt(f"{chapter.idx}.{row.idx}")
 		lesson_details.icon = get_lesson_icon(lesson_details.body)
+		if lesson_details.instructor_notes:
+			lesson_details.instructor_notes = markdown_to_html(lesson_details.instructor_notes)
 
 		lessons.append(lesson_details)
 	return lessons

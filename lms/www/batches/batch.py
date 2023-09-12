@@ -40,6 +40,7 @@ def get_context(context):
 			"amount",
 			"currency",
 			"batch_details",
+			"published",
 		],
 		as_dict=True,
 	)

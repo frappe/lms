@@ -262,6 +262,24 @@ const open_batch_dialog = () => {
 				default: batch_info && batch_info.title,
 			},
 			{
+				fieldtype: "Check",
+				label: __("Published"),
+				fieldname: "published",
+				default: batch_info && batch_info.published,
+			},
+			{
+				fieldtype: "Column Break",
+			},
+			{
+				fieldtype: "Int",
+				label: __("Seat Count"),
+				fieldname: "seat_count",
+				default: batch_info && batch_info.seat_count,
+			},
+			{
+				fieldtype: "Section Break",
+			},
+			{
 				fieldtype: "Date",
 				label: __("Start Date"),
 				fieldname: "start_date",
@@ -296,12 +314,6 @@ const open_batch_dialog = () => {
 				label: __("End Time"),
 				fieldname: "end_time",
 				default: batch_info && batch_info.end_time,
-			},
-			{
-				fieldtype: "Int",
-				label: __("Seat Count"),
-				fieldname: "seat_count",
-				default: batch_info && batch_info.seat_count,
 			},
 			{
 				fieldtype: "Link",

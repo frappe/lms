@@ -201,6 +201,7 @@ def create_batch(
 	amount=0,
 	currency=None,
 	name=None,
+	published=0,
 ):
 	frappe.only_for("Moderator")
 	if name:
@@ -223,6 +224,7 @@ def create_batch(
 			"paid_batch": paid_batch,
 			"amount": amount,
 			"currency": currency,
+			"published": published,
 		}
 	)
 	doc.save()

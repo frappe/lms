@@ -14,6 +14,7 @@
   "column_break_4",
   "start_time",
   "end_time",
+  "published",
   "section_break_rgfj",
   "medium",
   "category",
@@ -192,11 +193,17 @@
    "fieldtype": "Text Editor",
    "label": "Batch Details",
    "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "published",
+   "fieldtype": "Check",
+   "label": "Published"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-08-23 17:35:42.750754",
+ "modified": "2023-09-12 12:30:06.565104",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch",
