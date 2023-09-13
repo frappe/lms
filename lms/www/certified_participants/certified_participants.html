@@ -1,0 +1,63 @@
+{% extends "lms/templates/lms_base.html" %}
+{% block title %}
+    {{  _("Certified Participants") }}
+{% endblock %}
+
+{% block page_content %}
+<main class="common-page-style">
+    <div class="container">
+        <header>
+            {% if course_filter | length %}
+                <select class="lms-menu pull-right" id="certificate-filter">
+                    <option selected value="">
+                        {{ _("Filter by Certificate") }}
+                    </option>
+                    {% for course in course_filter %}
+                    <option value="{{ course }}">
+                        {{ course }}
+                    </option>
+                    {% endfor %}
+                </select>
+            {% endif %}
+            <div class="page-title mb-5">
+                {{ _("Certified Participants") }}
+            </div>
+        </header>
+        {% if participants | length %}
+            {{ ParticipantsList() }}
+        {% else %}
+            {{ EmptyState() }}
+        {% endif %}
+
+    </div>
+</main>
+{% endblock %}
+
+{% macro ParticipantsList() %}
+<article class="member-parent">
+    {% for participant in participants %}
+    <div class="common-card-style column-card align-center">
+        {{ widgets.Avatar(member=participant, avatar_class="avatar-large") }}
+        <div class="bold-heading text-center">
+            {{ participant.full_name }}
+        </div>
+        {% for course in participant.courses %}
+        <div class="course-name text-center mb-1" data-course="{{ course }}">
+            {{ course }}
+        </div>
+        {% endfor %}
+        <a class="stretched-link" href="/users/{{ participant.username }}"></a>
+    </div>
+    {% endfor %}
+</article>
+{% endmacro %}
+
+{% macro EmptyState() %}
+<div class="empty-state">
+	<img class="icon icon-xl" src="/assets/lms/icons/comment.svg">
+	<div class="empty-state-text">
+		<div class="empty-state-heading">{{ _("No Certified Participants") }}</div>
+		<div class="course-meta">{{ _("Enroll in a batch to get certified.") }}</div>
+	</div>
+</div>
+{% endmacro %}

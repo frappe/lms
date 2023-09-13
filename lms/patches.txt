@@ -65,3 +65,7 @@ lms.patches.v1_0.paid_certificate_to_paid_course #18-08-2023
 lms.patches.v1_0.revert_class_registration #18-08-2023
 lms.patches.v1_0.rename_lms_batch_doctype
 lms.patches.v1_0.rename_lms_batch_membership_doctype
+lms.patches.v1_0.rename_lms_class_to_lms_batch
+lms.patches.v1_0.rename_classes_in_navbar
+lms.patches.v1_0.publish_batches
+lms.patches.v1_0.publish_certificates

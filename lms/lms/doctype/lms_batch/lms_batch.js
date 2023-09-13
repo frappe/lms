@@ -1,12 +1,12 @@
 // Copyright (c) 2022, Frappe and contributors
 // For license information, please see license.txt
 
-frappe.ui.form.on("LMS Class", {
+frappe.ui.form.on("LMS Batch", {
 	onload: function (frm) {
-		frm.set_query("class_student", "students", function (doc) {
+		frm.set_query("student", "students", function (doc) {
 			return {
 				filters: {
-					class_name: doc.name,
+					ignore_user_type: 1,
 				},
 			};
 		});
@@ -15,7 +15,7 @@ frappe.ui.form.on("LMS Class", {
 	fetch_lessons: (frm) => {
 		frm.clear_table("scheduled_flow");
 		frappe.call({
-			method: "lms.lms.doctype.lms_class.lms_class.fetch_lessons",
+			method: "lms.lms.doctype.lms_batch.lms_batch.fetch_lessons",
 			args: {
 				courses: frm.doc.courses,
 			},

@@ -8,7 +8,7 @@
  "field_order": [
   "course",
   "evaluator",
-  "class_name",
+  "batch_name",
   "column_break_4",
   "member",
   "member_name",
@@ -100,16 +100,16 @@
    "read_only": 1
   },
   {
-   "fieldname": "class_name",
+   "fieldname": "batch_name",
    "fieldtype": "Link",
    "in_standard_filter": 1,
-   "label": "Class Name",
-   "options": "LMS Class"
+   "label": "Batch Name",
+   "options": "LMS Batch"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-08-23 14:50:37.618350",
+ "modified": "2023-08-23 14:50:37.618352",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate Request",

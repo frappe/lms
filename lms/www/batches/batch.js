@@ -1,5 +1,12 @@
 frappe.ready(() => {
 	let self = this;
+	frappe.require("controls.bundle.js");
+
+	if ($("#live-class-form").length) {
+		setTimeout(() => {
+			make_live_class_form();
+		}, 1000);
+	}
 
 	$(".btn-add-student").click((e) => {
 		show_student_modal(e);
@@ -9,10 +16,6 @@ frappe.ready(() => {
 		remove_student(e);
 	});
 
-	if ($("#live-class-form").length) {
-		make_live_class_form();
-	}
-
 	$("#open-class-modal").click((e) => {
 		e.preventDefault();
 		$("#live-class-modal").modal("show");
@@ -20,14 +23,6 @@ frappe.ready(() => {
 
 	$("#create-live-class").click((e) => {
 		create_live_class(e);
-	});
-
-	$(".btn-add-course").click((e) => {
-		show_course_modal(e);
-	});
-
-	$(".btn-remove-course").click((e) => {
-		remove_course(e);
 	});
 
 	$(".btn-remove-assessment").click((e) => {
@@ -53,11 +48,11 @@ frappe.ready(() => {
 });
 
 const create_live_class = (e) => {
-	let class_name = $(".class-details").data("class");
+	let batch_name = $(".class-details").data("batch");
 	frappe.call({
-		method: "lms.lms.doctype.lms_class.lms_class.create_live_class",
+		method: "lms.lms.doctype.lms_batch.lms_batch.create_live_class",
 		args: {
-			class_name: class_name,
+			batch_name: batch_name,
 			title: $("input[data-fieldname='meeting_title']").val(),
 			duration: $("input[data-fieldname='meeting_duration']").val(),
 			date: $("input[data-fieldname='meeting_date']").val(),
@@ -298,77 +293,6 @@ const get_timezones = () => {
 	];
 };
 
-const show_course_modal = () => {
-	let course_modal = new frappe.ui.Dialog({
-		title: "Add Course",
-		fields: [
-			{
-				fieldtype: "Link",
-				options: "LMS Course",
-				label: __("Course"),
-				fieldname: "course",
-				reqd: 1,
-			},
-		],
-		primary_action_label: __("Add"),
-		primary_action(values) {
-			add_course(values);
-			course_modal.hide();
-		},
-	});
-	course_modal.show();
-	setTimeout(() => {
-		$(".modal-body").css("min-height", "200px");
-	}, 1000);
-};
-
-const add_course = (values) => {
-	frappe.call({
-		method: "frappe.client.insert",
-		args: {
-			doc: {
-				doctype: "Class Course",
-				course: values.course,
-				parenttype: "LMS Class",
-				parentfield: "courses",
-				parent: $(".class-details").data("class"),
-			},
-		},
-		callback(r) {
-			frappe.show_alert(
-				{
-					message: __("Course Added"),
-					indicator: "green",
-				},
-				2000
-			);
-			window.location.reload();
-		},
-	});
-};
-
-const remove_course = (e) => {
-	frappe.confirm("Are you sure you want to remove this course?", () => {
-		frappe.call({
-			method: "lms.lms.doctype.lms_class.lms_class.remove_course",
-			args: {
-				course: $(e.currentTarget).data("course"),
-				parent: $(".class-details").data("class"),
-			},
-			callback(r) {
-				frappe.show_alert(
-					{
-						message: __("Course Removed"),
-						indicator: "green",
-					},
-					2000
-				);
-				window.location.reload();
-			},
-		});
-	});
-};
-
 const show_student_modal = () => {
 	let student_modal = new frappe.ui.Dialog({
 		title: "Add Student",
@@ -379,6 +303,7 @@ const show_student_modal = () => {
 				label: __("Student"),
 				fieldname: "student",
 				reqd: 1,
+				only_select: 1,
 				filters: {
 					ignore_user_type: 1,
 				},
@@ -402,11 +327,11 @@ const add_student = (values) => {
 		method: "frappe.client.insert",
 		args: {
 			doc: {
-				doctype: "Class Student",
+				doctype: "Batch Student",
 				student: values.student,
-				parenttype: "LMS Class",
+				parenttype: "LMS Batch",
 				parentfield: "students",
-				parent: $(".class-details").data("class"),
+				parent: $(".class-details").data("batch"),
 			},
 		},
 		callback(r) {
@@ -424,13 +349,13 @@ const add_student = (values) => {
 
 const remove_student = (e) => {
 	frappe.confirm(
-		"Are you sure you want to remove this student from the class?",
+		"Are you sure you want to remove this student from the batch?",
 		() => {
 			frappe.call({
-				method: "lms.lms.doctype.lms_class.lms_class.remove_student",
+				method: "lms.lms.doctype.lms_batch.lms_batch.remove_student",
 				args: {
 					student: $(e.currentTarget).data("student"),
-					class_name: $(".class-details").data("class"),
+					batch_name: $(".class-details").data("batch"),
 				},
 				callback: (data) => {
 					frappe.show_alert(
@@ -457,6 +382,7 @@ const show_assessment_modal = (e) => {
 				label: __("Assessment Type"),
 				fieldname: "assessment_type",
 				reqd: 1,
+				only_select: 1,
 				filters: {
 					name: ["in", ["LMS Assignment", "LMS Quiz"]],
 				},
@@ -468,6 +394,7 @@ const show_assessment_modal = (e) => {
 				label: __("Assessment"),
 				fieldname: "assessment_name",
 				reqd: 1,
+				only_select: 1,
 			},
 			{
 				fieldtype: "Section Break",
@@ -513,9 +440,9 @@ const add_addessment = (values) => {
 				doctype: "LMS Assessment",
 				assessment_type: values.assessment_type,
 				assessment_name: values.assessment_name,
-				parenttype: "LMS Class",
+				parenttype: "LMS Batch",
 				parentfield: "assessment",
-				parent: $(".class-details").data("class"),
+				parent: $(".class-details").data("batch"),
 			},
 		},
 		callback(r) {
@@ -534,10 +461,10 @@ const add_addessment = (values) => {
 const remove_assessment = (e) => {
 	frappe.confirm("Are you sure you want to remove this assessment?", () => {
 		frappe.call({
-			method: "lms.lms.doctype.lms_class.lms_class.remove_assessment",
+			method: "lms.lms.doctype.lms_batch.lms_batch.remove_assessment",
 			args: {
 				assessment: $(e.currentTarget).data("assessment"),
-				parent: $(".class-details").data("class"),
+				parent: $(".class-details").data("batch"),
 			},
 			callback(r) {
 				frappe.show_alert(
@@ -567,6 +494,7 @@ const open_evaluation_form = (e) => {
 					name: ["in", courses],
 				},
 				filter_description: " ",
+				only_select: 1,
 			},
 			{
 				fieldtype: "Date",
@@ -602,7 +530,7 @@ const get_slots = () => {
 		args: {
 			course: this.eval_form.get_value("course"),
 			date: this.eval_form.get_value("date"),
-			class_name: $(".class-details").data("class"),
+			batch_name: $(".class-details").data("batch"),
 		},
 		callback: (r) => {
 			if (r.message) {
@@ -664,7 +592,7 @@ const submit_evaluation_form = (values) => {
 			start_time: this.current_slot.data("start"),
 			end_time: this.current_slot.data("end"),
 			day: this.current_slot.data("day"),
-			class_name: $(".class-details").data("class"),
+			batch_name: $(".class-details").data("batch"),
 		},
 		callback: (r) => {
 			this.eval_form.hide();

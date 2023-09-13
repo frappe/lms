@@ -12,7 +12,7 @@ def get_context(context):
 	context.no_cache = 1
 
 	student = frappe.form_dict["username"]
-	class_name = frappe.form_dict["classname"]
+	batch_name = frappe.form_dict["batchname"]
 	context.is_moderator = has_course_moderator_role()
 	context.is_evaluator = has_course_evaluator_role()
 
@@ -29,13 +29,13 @@ def get_context(context):
 	):
 		raise frappe.PermissionError(_("You don't have permission to access this page."))
 
-	context.class_info = frappe.db.get_value(
-		"LMS Class", class_name, ["name"], as_dict=True
+	context.batch = frappe.db.get_value(
+		"LMS Batch", batch_name, ["name", "title"], as_dict=True
 	)
 
 	context.courses = frappe.get_all(
-		"Class Course", {"parent": class_name}, pluck="course"
+		"Batch Course", {"parent": batch_name}, pluck="course"
 	)
 
-	context.assessments = get_assessments(class_name, context.student.name)
+	context.assessments = get_assessments(batch_name, context.student.name)
 	context.upcoming_evals = get_upcoming_evals(context.student.name, context.courses)

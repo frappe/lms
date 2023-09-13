@@ -1,6 +1,8 @@
 frappe.ready(() => {
 	if ($("#billing-form").length) {
-		setup_billing();
+		frappe.require("controls.bundle.js", () => {
+			setup_billing();
+		});
 	}
 
 	$(".btn-pay").click((e) => {
@@ -11,6 +13,12 @@ frappe.ready(() => {
 const setup_billing = () => {
 	this.billing = new frappe.ui.FieldGroup({
 		fields: [
+			{
+				fieldtype: "Data",
+				label: __("Billing Name"),
+				fieldname: "billing_name",
+				reqd: 1,
+			},
 			{
 				fieldtype: "Data",
 				label: __("Address Line 1"),
@@ -29,12 +37,12 @@ const setup_billing = () => {
 				reqd: 1,
 			},
 			{
+				fieldtype: "Column Break",
+			},
+			{
 				fieldtype: "Data",
 				label: __("State/Province"),
 				fieldname: "state",
-			},
-			{
-				fieldtype: "Column Break",
 			},
 			{
 				fieldtype: "Link",
@@ -42,6 +50,7 @@ const setup_billing = () => {
 				fieldname: "country",
 				options: "Country",
 				reqd: 1,
+				only_select: 1,
 			},
 			{
 				fieldtype: "Data",
@@ -55,6 +64,26 @@ const setup_billing = () => {
 				fieldname: "phone",
 				reqd: 1,
 			},
+			{
+				fieldtype: "Section Break",
+				label: __("GST Details"),
+				fieldname: "gst_details",
+				depends_on: "eval:doc.country === 'India'",
+			},
+			{
+				fieldtype: "Data",
+				label: __("GSTIN"),
+				fieldname: "gstin",
+			},
+			{
+				fieldtype: "Column Break",
+				fieldname: "gst_details_break",
+			},
+			{
+				fieldtype: "Data",
+				fieldname: "pan",
+				label: __("PAN"),
+			},
 		],
 		body: $("#billing-form").get(0),
 	});
@@ -66,19 +95,23 @@ const setup_billing = () => {
 
 const generate_payment_link = (e) => {
 	address = this.billing.get_values();
-	let course = decodeURIComponent($(e.currentTarget).attr("data-course"));
+	let doctype = $(e.currentTarget).attr("data-doctype");
+	let docname = decodeURIComponent($(e.currentTarget).attr("data-name"));
 
 	frappe.call({
-		method: "lms.lms.doctype.lms_course.lms_course.get_payment_options",
+		method: "lms.lms.utils.get_payment_options",
 		args: {
-			course: course,
+			doctype: doctype,
+			docname: docname,
 			phone: address.phone,
+			country: address.country,
 		},
 		callback: (data) => {
 			data.message.handler = (response) => {
 				handle_success(
 					response,
-					course,
+					doctype,
+					docname,
 					address,
 					data.message.order_id
 				);
@@ -89,12 +122,13 @@ const generate_payment_link = (e) => {
 	});
 };
 
-const handle_success = (response, course, address, order_id) => {
+const handle_success = (response, doctype, docname, address, order_id) => {
 	frappe.call({
-		method: "lms.lms.doctype.lms_course.lms_course.verify_payment",
+		method: "lms.lms.utils.verify_payment",
 		args: {
 			response: response,
-			course: course,
+			doctype: doctype,
+			docname: docname,
 			address: address,
 			order_id: order_id,
 		},

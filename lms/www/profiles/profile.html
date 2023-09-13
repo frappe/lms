@@ -65,8 +65,8 @@
                 <div class="tab-pane active" id="profile" role="tabpanel" aria-labelledby="profile">
                     <div class="">
                         {{ About(member) }}
-                        {{ EducationDetails(member) }}
                         {{ WorkDetails(member) }}
+                        {{ EducationDetails(member) }}
                         {{ ExternalCertification(member) }}
                         {{ Contact(member) }}
                         {{ Skills(member) }}
@@ -171,7 +171,7 @@
 {% macro CoursesMentored(member, read_only) %}
 {% if member.get_mentored_courses() | length %}
 <div class="profile-courses">
-    <div class="course-home-headings"> {{ _("Courses Mentored") }} </div>
+    <div class="page-title"> {{ _("Courses Mentored") }} </div>
     <div class="cards-parent">
         {% for course in member.get_mentored_courses() %}
         {{ widgets.CourseCard(course=course, read_only=read_only) }}
@@ -202,7 +202,7 @@
     {% if has_course_moderator_role() %}
         <div class="">
             <div class="">
-                <div class="course-home-headings"> {{ _("Role Settings") }} </div>
+                <div class="page-title mb-2"> {{ _("Role Settings") }} </div>
                 <div class="d-flex">
                     <label class="role">
                         <input type="checkbox" id="course-creator" data-role="Course Creator"
@@ -223,7 +223,6 @@
 
 <!-- About Section -->
 {% macro About(member) %}
-    <div class="course-home-headings"> {{ _("About") }} </div>
     <div class="description">
         {% if member.bio  %}
             {{ member.bio }}
@@ -236,7 +235,7 @@
 
 <!-- Work Preference -->
 {% macro WorkPreference(member) %}
-    <div class="course-home-headings mt-10"> {{ _("Work Preference") }} </div>
+    <div class="page-title mt-10"> {{ _("Work Preference") }} </div>
     <div> {{ member.attire }} </div>
     <div> {{ member.collaboration }} </div>
     <div> {{ member.role }} </div>
@@ -249,7 +248,7 @@
 <!-- Career Preference -->
 {% macro CareerPreference(member) %}
     {% if member.preferred_functions or member.preferred_industries or member.preferred_location or member.dream_companies %}
-    <div class="course-home-headings mt-10">
+    <div class="page-title mt-10">
         {{ _("Career Preference") }}
     </div>
     <div class="profile-column-grid">
@@ -294,7 +293,7 @@
 <!-- Contact Section -->
 {% macro Contact(member) %}
     {% if member.linkedin or member.medium or member.github %}
-    <div class="course-home-headings mt-10"> {{ _("Contact") }} </div>
+    <div class="page-title mt-10"> {{ _("Contact") }} </div>
     <div class="profile-column-grid">
     {% if member.linkedin %}
     {% set linkedin = member.linkedin[:-1] if member.linkedin[-1] == "/" else member.linkedin %}
@@ -323,7 +322,7 @@
 <!-- Skills -->
 {% macro Skills(member) %}
     {% if member.skill | length %}
-    <div class="course-home-headings mt-10"> {{ _("Skills")}} </div>
+    <div class="page-title mt-10"> {{ _("Skills")}} </div>
     <div class="profile-column-grid">
         {% for skill in member.skill %}
         <div class="description"> {{ skill.skill_name }} </div>
@@ -336,11 +335,11 @@
 <!-- Education Details -->
 {% macro EducationDetails(member) %}
     {% if member.education %}
-    <div class="course-home-headings mt-10"> {{ _("Education") }} </div>
+    <div class="page-title mt-10 mb-2"> {{ _("Education") }} </div>
     <div class="profile-grid-card">
         {% for edu in member.education %}
         <div class="column-card-row">
-            <div class="bold-title"> {{ edu.institution_name }} </div>
+            <div class="bold-heading"> {{ edu.institution_name }} </div>
             <div class="profile-item"> {{ edu.degree_type }} <span></span> {{ edu.major }}
                 {% if not member.hide_private %}
                 <!-- {% if edu.grade_type %} {{ edu.grade_type }}  {% endif %} -->
@@ -362,17 +361,16 @@
 {% endmacro %}
 
 
-<!-- Work Details -->
 {% macro WorkDetails(member) %}
     {% set work_details = member.work_experience + member.internship %}
 
     {% if work_details | length %}
-    <div class="course-home-headings mt-10"> {{ _("Work Experience") }} </div>
+    <div class="page-title mt-10 mb-2"> {{ _("Work Experience") }} </div>
     <div class="profile-grid-card">
 
         {% for work in work_details %}
         <div class="">
-            <div class="bold-title"> {{ work.title }} </div>
+            <div class="bold-heading"> {{ work.title }} </div>
             <div class="profile-item"> {{ work.company }} </div>
             <div class="description">
                 {{ frappe.utils.format_date(work.from_date, "MMM YYYY") }} -
@@ -398,7 +396,7 @@
 <!-- Certifications -->
 {% macro ExternalCertification(member) %}
     {% if member.certification %}
-    <div class="course-home-headings mt-10"> {{ _("External Certification") }} </div>
+    <div class="page-title mt-10"> {{ _("External Certification") }} </div>
     <div class="profile-grid-card">
         {% for cert in member.certification %}
         <div class="">

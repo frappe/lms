@@ -10,8 +10,8 @@
         {{ CourseHomeHeader(course) }}
         <div class="course-home-page">
             <div class="container">
+                {{ CourseHeaderOverlay(course) }}
                 <div class="course-body-container">
-                    {{ CourseHeaderOverlay(course) }}
                     {{ Description(course) }}
                     {{ widgets.CourseOutline(course=course, membership=membership, is_user_interested=is_user_interested) }}
                     {% if course.status == "Approved" and not frappe.utils.cint(course.upcoming) %}
@@ -41,7 +41,7 @@
 {% macro BreadCrumb(course) %}
 <div class="breadcrumb">
     <a class="dark-links" href="/courses">{{ _("All Courses") }}</a>
-    <img class="ml-1 mr-1" src="/assets/lms/icons/chevron-right.svg">
+    <img class="" src="/assets/lms/icons/chevron-right.svg">
     <span class="breadcrumb-destination">{{ course.title if course.title else _("New Course") }}</span>
 </div>
 {% endmacro %}
@@ -57,8 +57,8 @@
         {% endfor %}
     </div>
 
-    <div id="title" {% if course.name %} data-course="{{ course.name | urlencode }}" {% endif %} class="page-title">
-        {% if course.title %} {{ course.title }} {% endif %}
+    <div id="title" class="page-title">
+        {{ course.title }}
     </div>
 
     <div id="intro">
@@ -228,7 +228,7 @@
         </a>
 
         {% elif course.paid_course and not is_instructor %}
-        <a class="btn btn-primary wide-button" href="/billing/{{ course.name | urlencode }}">
+        <a class="btn btn-primary wide-button" href="/billing/course/{{ course.name | urlencode }}">
             {{ _("Buy This Course") }}
         </a>
 

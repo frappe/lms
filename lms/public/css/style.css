@@ -911,7 +911,7 @@ input[type=checkbox] {
 .profile-name-section {
   display: flex;
   align-items: center;
-  margin: 1rem 0 0.25rem;
+  margin: 0.5rem 0 0.25rem;
 }
 
 @media (max-width: 550px) {
@@ -2188,23 +2188,10 @@ select {
 	border-bottom: none;
 }
 
-.awesomplete ul li:last-child {
-	display: none;
-}
-
 .students-parent {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, 150px);
 	grid-gap: 1rem;
-}
-
-.btn-remove-course {
-	opacity: 0;
-	margin-top: 0.25rem;
-}
-
-.btn-remove-course:hover {
-	opacity: 1;
 }
 
 .rows .grid-row .data-row,
@@ -2302,6 +2289,10 @@ select {
 	padding-right: 1rem !important;
 }
 
+.class-overlay {
+	top: 30%;
+}
+
 .course-list-menu {
 	display: flex;
 	align-items: center;
@@ -2346,6 +2337,19 @@ select {
 	margin-bottom: 1rem;
 }
 
+.batch-course-list .cards-parent {
+	row-gap: 3rem
+}
+
 .embed-tool__caption {
 	display: none;
+}
+
+.card-buttons {
+	display: flex;
+	position: relative;
+	top: 10%;
+	left: 80%;
+	z-index: 10;
+	width: fit-content;
 }

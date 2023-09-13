@@ -34,7 +34,7 @@ class LMSLiveClass(Document):
 
 	def add_event_participants(self, event, calendar):
 		participants = frappe.get_all(
-			"Class Student", {"parent": self.class_name}, pluck="student"
+			"Batch Student", {"parent": self.class_name}, pluck="student"
 		)
 
 		participants.append(frappe.session.user)

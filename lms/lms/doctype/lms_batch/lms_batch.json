@@ -14,16 +14,22 @@
   "column_break_4",
   "start_time",
   "end_time",
+  "published",
   "section_break_rgfj",
   "medium",
   "category",
   "column_break_flwy",
   "seat_count",
-  "paid_class",
   "section_break_6",
   "description",
+  "batch_details",
   "students",
   "courses",
+  "section_break_gsac",
+  "paid_batch",
+  "column_break_iens",
+  "amount",
+  "currency",
   "section_break_ubxi",
   "custom_component",
   "assessment_tab",
@@ -65,13 +71,13 @@
    "fieldname": "students",
    "fieldtype": "Table",
    "label": "Students",
-   "options": "Class Student"
+   "options": "Batch Student"
   },
   {
    "fieldname": "courses",
    "fieldtype": "Table",
    "label": "Courses",
-   "options": "Class Course"
+   "options": "Batch Course"
   },
   {
    "fieldname": "start_date",
@@ -81,7 +87,7 @@
    "reqd": 1
   },
   {
-   "description": "The HTML code entered here will be displayed on the class details page.",
+   "description": "The HTML code entered here will be displayed on the batch details page.",
    "fieldname": "custom_component",
    "fieldtype": "Code",
    "label": "Custom Component",
@@ -89,9 +95,10 @@
   },
   {
    "default": "0",
-   "fieldname": "paid_class",
+   "description": "Students will be enrolled in a paid batch once they complete the payment",
+   "fieldname": "paid_batch",
    "fieldtype": "Check",
-   "label": "Paid Class"
+   "label": "Paid Batch"
   },
   {
    "fieldname": "seat_count",
@@ -158,14 +165,48 @@
    "fieldname": "schedule_tab",
    "fieldtype": "Tab Break",
    "label": "Schedule"
+  },
+  {
+   "fieldname": "section_break_gsac",
+   "fieldtype": "Section Break",
+   "label": "Pricing"
+  },
+  {
+   "fieldname": "column_break_iens",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "paid_batch",
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "label": "Amount"
+  },
+  {
+   "depends_on": "paid_batch",
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency"
+  },
+  {
+   "fieldname": "batch_details",
+   "fieldtype": "Text Editor",
+   "label": "Batch Details",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "published",
+   "fieldtype": "Check",
+   "label": "Published"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-08-23 14:23:07.706539",
+ "modified": "2023-09-12 12:30:06.565104",
  "modified_by": "Administrator",
  "module": "LMS",
- "name": "LMS Class",
+ "name": "LMS Batch",
  "naming_rule": "Expression (old style)",
  "owner": "Administrator",
  "permissions": [
@@ -190,18 +231,6 @@
    "read": 1,
    "report": 1,
    "role": "Moderator",
-   "share": 1,
-   "write": 1
-  },
-  {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "Class Evaluator",
    "share": 1,
    "write": 1
   }

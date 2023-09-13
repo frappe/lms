@@ -1,6 +1,5 @@
 frappe.ready(() => {
 	let self = this;
-	this.quiz_in_lesson = [];
 
 	frappe.telemetry.capture("on_lesson_creation_page", "lms");
 
@@ -15,7 +14,6 @@ frappe.ready(() => {
 	}
 
 	setup_editor();
-	fetch_quiz_list();
 
 	$("#save-lesson").click((e) => {
 		save_lesson(e);
@@ -90,11 +88,10 @@ const parse_string_to_lesson = () => {
 			});
 		} else if (block.includes("{{ Quiz")) {
 			let quiz = block.match(/'([^']+)'/)[1];
-			this.quiz_in_lesson.push(quiz);
 			lesson_blocks.push({
 				type: "quiz",
 				data: {
-					quiz: [quiz],
+					quiz: quiz,
 				},
 			});
 		} else if (block.includes("{{ Video")) {
@@ -156,9 +153,7 @@ const parse_lesson_to_string = (data) => {
 		if (block.type == "youtube") {
 			lesson_content += `{{ YouTubeVideo("${block.data.youtube}") }}\n`;
 		} else if (block.type == "quiz") {
-			block.data.quiz.forEach((quiz) => {
-				lesson_content += `{{ Quiz("${quiz}") }}\n`;
-			});
+			lesson_content += `{{ Quiz("${block.data.quiz}") }}\n`;
 		} else if (block.type == "upload") {
 			let url = block.data.file_url;
 			lesson_content += block.data.is_video
@@ -231,15 +226,6 @@ const validate_mandatory = (lesson_content) => {
 			.scrollIntoView({ block: "start" });
 		throw "Lesson Content is mandatory";
 	}
-};
-
-const fetch_quiz_list = () => {
-	frappe.call({
-		method: "lms.lms.doctype.lms_quiz.lms_quiz.get_user_quizzes",
-		callback: (r) => {
-			self.quiz_list = r.message;
-		},
-	});
 };
 
 const is_video = (url) => {
@@ -339,57 +325,10 @@ class Quiz {
 		this.data = data;
 	}
 
-	get_fields() {
-		let fields = [
-			{
-				fieldname: "start_section",
-				fieldtype: "Section Break",
-				label: __(
-					"To create a new quiz, click on the button below. Once you have created the new quiz you can come back to this lesson and add it from here."
-				),
-			},
-			{
-				fieldname: "create_quiz",
-				fieldtype: "Button",
-				label: __("Create Quiz"),
-				click: () => {
-					window.location.href = "/quizzes";
-				},
-			},
-			{
-				fieldname: "quiz_information",
-				fieldtype: "HTML",
-				options: __("OR"),
-			},
-			{
-				fieldname: "quiz_list_section",
-				fieldtype: "Section Break",
-				label: __("Select a exisitng quiz to add to this lesson."),
-			},
-		];
-		let break_index = Math.ceil(self.quiz_list.length / 2) + 4;
-
-		self.quiz_list.forEach((quiz) => {
-			fields.push({
-				fieldname: quiz.name,
-				fieldtype: "Check",
-				label: quiz.title,
-				default: self.quiz_in_lesson.includes(quiz.name) ? 1 : 0,
-				read_only: self.quiz_in_lesson.includes(quiz.name) ? 1 : 0,
-			});
-		});
-
-		fields.splice(break_index, 0, {
-			fieldname: "column_break",
-			fieldtype: "Column Break",
-		});
-		return fields;
-	}
-
 	render() {
 		this.wrapper = document.createElement("div");
 		if (this.data && this.data.quiz) {
-			$(this.wrapper).html(this.render_quiz());
+			$(this.wrapper).html(this.render_quiz(this.data.quiz));
 		} else {
 			this.render_quiz_dialog();
 		}
@@ -398,16 +337,24 @@ class Quiz {
 
 	render_quiz_dialog() {
 		let me = this;
-		let fields = this.get_fields();
 		let quizdialog = new frappe.ui.Dialog({
 			title: __("Manage Quiz"),
-			fields: fields,
+			fields: [
+				{
+					fieldname: "quiz",
+					fieldtype: "Link",
+					label: __("Quiz"),
+					options: "LMS Quiz",
+					only_select: 1,
+				},
+			],
 			primary_action_label: __("Insert"),
 			primary_action(values) {
-				me.analyze_quiz_list(values);
+				me.quiz = values.quiz;
 				quizdialog.hide();
+				$(me.wrapper).html(me.render_quiz(me.quiz));
 			},
-			secondary_action_label: __("Create New Quiz"),
+			secondary_action_label: __("Create New"),
 			secondary_action: () => {
 				window.location.href = `/quizzes`;
 			},
@@ -419,38 +366,19 @@ class Quiz {
 		}, 1000);
 	}
 
-	analyze_quiz_list(values) {
-		/* If quiz is selected and is not already in the lesson then render it.*/
-
-		this.quiz_to_render = [];
-		Object.keys(values).forEach((key) => {
-			if (values[key] === 1 && !self.quiz_in_lesson.includes(key)) {
-				self.quiz_in_lesson.push(key);
-				this.quiz_to_render.push(key);
-			}
-		});
-
-		$(this.wrapper).html(this.render_quiz());
-	}
-
-	render_quiz() {
-		let html = ``;
-		let quiz_list = this.data.quiz || this.quiz_to_render;
-		quiz_list.forEach((quiz) => {
-			html += `<div class="common-card-style p-2 my-2 bold-heading">
-				Quiz: ${quiz}
-			</div>`;
-		});
-		return html;
+	render_quiz(quiz) {
+		return `<div class="common-card-style p-2 my-2 bold-heading">
+			Quiz: ${quiz}
+		</div>`;
 	}
 
 	validate(savedData) {
-		return !savedData.quiz || !savedData.quiz.length ? false : true;
+		return !savedData.quiz || !savedData.quiz.trim() ? false : true;
 	}
 
 	save(block_content) {
 		return {
-			quiz: this.data.quiz || this.quiz_to_render,
+			quiz: this.data.quiz || this.quiz,
 		};
 	}
 }

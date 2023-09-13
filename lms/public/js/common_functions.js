@@ -37,8 +37,8 @@ frappe.ready(() => {
 		show_no_preview_dialog(e);
 	});
 
-	$("#create-class").click((e) => {
-		open_class_dialog(e);
+	$("#create-batch").click((e) => {
+		open_batch_dialog(e);
 	});
 
 	$("#course-filter").change((e) => {
@@ -250,37 +250,55 @@ const show_no_preview_dialog = (e) => {
 	$("#no-preview-modal").modal("show");
 };
 
-const open_class_dialog = () => {
-	this.class_dialog = new frappe.ui.Dialog({
-		title: __("New Class"),
+const open_batch_dialog = () => {
+	this.batch_dialog = new frappe.ui.Dialog({
+		title: __("New Batch"),
 		fields: [
 			{
 				fieldtype: "Data",
 				label: __("Title"),
 				fieldname: "title",
 				reqd: 1,
-				default: class_info && class_info.title,
+				default: batch_info && batch_info.title,
+			},
+			{
+				fieldtype: "Check",
+				label: __("Published"),
+				fieldname: "published",
+				default: batch_info && batch_info.published,
+			},
+			{
+				fieldtype: "Column Break",
+			},
+			{
+				fieldtype: "Int",
+				label: __("Seat Count"),
+				fieldname: "seat_count",
+				default: batch_info && batch_info.seat_count,
+			},
+			{
+				fieldtype: "Section Break",
 			},
 			{
 				fieldtype: "Date",
 				label: __("Start Date"),
 				fieldname: "start_date",
 				reqd: 1,
-				default: class_info && class_info.start_date,
+				default: batch_info && batch_info.start_date,
 			},
 			{
 				fieldtype: "Date",
 				label: __("End Date"),
 				fieldname: "end_date",
 				reqd: 1,
-				default: class_info && class_info.end_date,
+				default: batch_info && batch_info.end_date,
 			},
 			{
 				fieldtype: "Select",
 				label: __("Medium"),
 				fieldname: "medium",
 				options: ["Online", "Offline"],
-				default: (class_info && class_info.medium) || "Online",
+				default: (batch_info && batch_info.medium) || "Online",
 			},
 			{
 				fieldtype: "Column Break",
@@ -289,26 +307,20 @@ const open_class_dialog = () => {
 				fieldtype: "Time",
 				label: __("Start Time"),
 				fieldname: "start_time",
-				default: class_info && class_info.start_time,
+				default: batch_info && batch_info.start_time,
 			},
 			{
 				fieldtype: "Time",
 				label: __("End Time"),
 				fieldname: "end_time",
-				default: class_info && class_info.end_time,
-			},
-			{
-				fieldtype: "Int",
-				label: __("Seat Count"),
-				fieldname: "seat_count",
-				default: class_info && class_info.seat_count,
+				default: batch_info && batch_info.end_time,
 			},
 			{
 				fieldtype: "Link",
 				label: __("Category"),
 				fieldname: "category",
 				options: "LMS Category",
-				default: class_info && class_info.category,
+				default: batch_info && batch_info.category,
 			},
 			{
 				fieldtype: "Section Break",
@@ -317,43 +329,74 @@ const open_class_dialog = () => {
 				fieldtype: "Small Text",
 				label: __("Description"),
 				fieldname: "description",
-				default: class_info && class_info.description,
+				default: batch_info && batch_info.description,
 				reqd: 1,
+			},
+			{
+				fieldtype: "Text Editor",
+				label: __("Batch Details"),
+				fieldname: "batch_details",
+				default: batch_info && batch_info.batch_details,
+				reqd: 1,
+			},
+			{
+				fieldtype: "Section Break",
+				label: __("Pricing"),
+				fieldname: "pricing",
+			},
+			{
+				fieldtype: "Check",
+				label: __("Paid Batch"),
+				fieldname: "paid_batch",
+				default: batch_info && batch_info.paid_batch,
+			},
+			{
+				fieldtype: "Currency",
+				label: __("Amount"),
+				fieldname: "amount",
+				default: batch_info && batch_info.amount,
+				mandatory_depends_on: "paid_batch",
+				depends_on: "paid_batch",
+			},
+			{
+				fieldtype: "Link",
+				label: __("Currency"),
+				fieldname: "currency",
+				options: "Currency",
+				default: batch_info && batch_info.currency,
+				mandatory_depends_on: "paid_batch",
+				depends_on: "paid_batch",
+				only_select: 1,
 			},
 		],
 		primary_action_label: __("Save"),
 		primary_action: (values) => {
-			save_class(values);
+			save_batch(values);
 		},
 	});
-	this.class_dialog.show();
+	this.batch_dialog.show();
 };
 
-const save_class = (values) => {
+const save_batch = (values) => {
+	let args = {};
+	if (batch_info) {
+		args = Object.assign(batch_info, values);
+	} else {
+		args = values;
+	}
 	frappe.call({
-		method: "lms.lms.doctype.lms_class.lms_class.create_class",
-		args: {
-			title: values.title,
-			start_date: values.start_date,
-			end_date: values.end_date,
-			description: values.description,
-			seat_count: values.seat_count,
-			start_time: values.start_time,
-			end_time: values.end_time,
-			medium: values.medium,
-			category: values.category,
-			name: class_info && class_info.name,
-		},
+		method: "lms.lms.doctype.lms_batch.lms_batch.create_batch",
+		args: args,
 		callback: (r) => {
 			if (r.message) {
 				frappe.show_alert({
-					message: class_info
-						? __("Class Updated")
-						: __("Class Created"),
+					message: batch_info
+						? __("Batch Updated")
+						: __("Batch Created"),
 					indicator: "green",
 				});
-				this.class_dialog.hide();
-				window.location.href = `/classes/${r.message.name}`;
+				this.batch_dialog.hide();
+				window.location.href = `/batches/details/${r.message.name}`;
 			}
 		},
 	});

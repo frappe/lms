@@ -37,8 +37,8 @@ class CourseEvaluator(Document):
 
 
 @frappe.whitelist()
-def get_schedule(course, date, class_name=None):
-	evaluator = get_evaluator(course, class_name)
+def get_schedule(course, date, batch=None):
+	evaluator = get_evaluator(course, batch)
 
 	all_slots = frappe.get_all(
 		"Evaluator Schedule",
