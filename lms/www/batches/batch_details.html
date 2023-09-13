@@ -186,9 +186,8 @@
 	<div class="cards-parent mt-2">
 		{% for course in courses %}
 		<div class="h-100">
-			{{ widgets.CourseCard(course=course, read_only=False) }}
             {% if is_moderator %}
-            <div class="flex my-2 pull-right">
+            <div class="card-buttons">
                 <button class="btn icon-btn btn-default btn-edit-course"
                     data-name="{{ course.batch_course }}" data-course="{{ course.name }}"
                     {% if course.evaluator %} data-evaluator="{{ course.evaluator }}" {% endif %}>
@@ -203,6 +202,7 @@
                 </button>
             </div>
             {% endif %}
+			{{ widgets.CourseCard(course=course, read_only=False) }}
 		</div>
 		{% endfor %}
 	</div>

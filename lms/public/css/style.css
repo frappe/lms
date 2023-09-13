@@ -2344,3 +2344,12 @@ select {
 .embed-tool__caption {
 	display: none;
 }
+
+.card-buttons {
+	display: flex;
+	position: relative;
+	top: 10%;
+	left: 80%;
+	z-index: 10;
+	width: fit-content;
+}
