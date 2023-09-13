@@ -8,6 +8,7 @@
   "course",
   "member",
   "member_name",
+  "published",
   "column_break_3",
   "issue_date",
   "expiry_date",
@@ -60,11 +61,17 @@
    "in_standard_filter": 1,
    "label": "Batch",
    "options": "LMS Batch"
+  },
+  {
+   "default": "0",
+   "fieldname": "published",
+   "fieldtype": "Check",
+   "label": "Publish on Participant Page"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-08-29 15:23:08.637215",
+ "modified": "2023-09-13 11:03:23.479255",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate",
