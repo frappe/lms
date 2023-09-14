@@ -31,6 +31,7 @@ const show_course_modal = (e) => {
 				reqd: 1,
 				only_select: 1,
 				default: course || "",
+				read_only: course ? 1 : 0,
 			},
 			{
 				fieldtype: "Link",

@@ -245,6 +245,10 @@ def fetch_lessons(courses):
 @frappe.whitelist()
 def add_course(course, parent, name=None, evaluator=None):
 	frappe.only_for("Moderator")
+
+	if frappe.db.exists("Batch Course", {"course": course, "parent": parent}):
+		frappe.throw(_("Course already added to the batch."))
+
 	if name:
 		doc = frappe.get_doc("Batch Course", name)
 	else:
