@@ -1,6 +1,6 @@
 from frappe import _
 import frappe
-from frappe.utils import getdate, cint
+from frappe.utils import getdate, get_datetime
 from lms.www.utils import get_assessments, is_student
 from lms.lms.utils import (
 	has_course_moderator_role,
@@ -89,7 +89,20 @@ def get_context(context):
 	)
 	context.all_assignments = get_all_assignments(batch_name)
 	context.all_quizzes = get_all_quizzes(batch_name)
-	context.flow = get_scheduled_flow(batch_name)
+	context.show_timetable = frappe.db.count(
+		"LMS Batch Timetable",
+		{
+			"parent": batch_name,
+		},
+	)
+	print(
+		frappe.db.count(
+			"LMS Batch Timetable",
+			{
+				"parent": batch_name,
+			},
+		)
+	)
 
 
 def get_all_quizzes(batch_name):
@@ -208,38 +221,6 @@ def sort_students(batch_students):
 		return session_user + remaining_students
 	else:
 		return batch_students
-
-
-def get_scheduled_flow(batch_name):
-	chapters = []
-
-	lessons = frappe.get_all(
-		"Scheduled Flow",
-		{"parent": batch_name},
-		["name", "lesson", "date", "start_time", "end_time"],
-		order_by="idx",
-	)
-
-	for lesson in lessons:
-		lesson = get_lesson_details(lesson, batch_name)
-		chapter_exists = [
-			chapter for chapter in chapters if chapter.chapter == lesson.chapter
-		]
-
-		if len(chapter_exists) == 0:
-			chapters.append(
-				frappe._dict(
-					{
-						"chapter": lesson.chapter,
-						"chapter_title": frappe.db.get_value("Course Chapter", lesson.chapter, "title"),
-						"lessons": [lesson],
-					}
-				)
-			)
-		else:
-			chapter_exists[0]["lessons"].append(lesson)
-
-	return chapters
 
 
 def get_lesson_details(lesson, batch_name):

@@ -8,7 +8,8 @@ import json
 from frappe import _
 from frappe.model.document import Document
 from frappe.utils import cint, format_date, format_datetime
-from lms.lms.utils import get_lessons
+from lms.lms.utils import get_lessons, get_lesson_index, get_lesson_url
+from lms.www.utils import get_quiz_details, get_assignment_details
 
 
 class LMSBatch(Document):
@@ -19,7 +20,7 @@ class LMSBatch(Document):
 		self.validate_duplicate_students()
 		self.validate_duplicate_assessments()
 		self.validate_membership()
-		self.validate_schedule()
+		self.validate_timetable()
 
 	def validate_duplicate_students(self):
 		students = [row.student for row in self.students]
@@ -68,8 +69,8 @@ class LMSBatch(Document):
 		if cint(self.seat_count) < len(self.students):
 			frappe.throw(_("There are no seats available in this batch."))
 
-	def validate_schedule(self):
-		for schedule in self.scheduled_flow:
+	def validate_timetable(self):
+		for schedule in self.timetable:
 			if schedule.start_time and schedule.end_time:
 				if (
 					schedule.start_time > schedule.end_time or schedule.start_time == schedule.end_time
@@ -262,3 +263,45 @@ def add_course(course, parent, name=None, evaluator=None):
 	doc.save()
 
 	return doc.name
+
+
+@frappe.whitelist()
+def get_batch_timetable(batch):
+	timetable = frappe.get_all(
+		"LMS Batch Timetable",
+		filters={"parent": batch},
+		fields=["reference_doctype", "reference_docname", "date", "start_time", "end_time"],
+		order_by="date",
+	)
+
+	for entry in timetable:
+		entry.title = frappe.db.get_value(
+			entry.reference_doctype, entry.reference_docname, "title"
+		)
+		assessment = frappe._dict({"assessment_name": entry.reference_docname})
+
+		if entry.reference_doctype == "Course Lesson":
+			entry.icon = "icon-list"
+			course = frappe.db.get_value(
+				entry.reference_doctype, entry.reference_docname, "course"
+			)
+			entry.url = get_lesson_url(course, get_lesson_index(entry.reference_docname))
+
+		elif entry.reference_doctype == "LMS Quiz":
+			entry.icon = "icon-quiz"
+			entry.url = "/quizzes"
+			details = get_quiz_details(assessment, frappe.session.user)
+			entry.update(details)
+
+		elif entry.reference_doctype == "LMS Assignment":
+			entry.icon = "icon-quiz"
+			details = get_assignment_details(assessment, frappe.session.user)
+			entry.update(details)
+
+		elif entry.reference_doctype == "LMS Live Class":
+			entry.icon = "icon-call"
+			entry.url = frappe.db.get_value(
+				entry.reference_doctype, entry.reference_docname, "join_url"
+			)
+
+	return timetable

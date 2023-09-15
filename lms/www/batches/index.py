@@ -31,7 +31,6 @@ def get_context(context):
 		batch.seats_left = (
 			batch.seat_count - batch.student_count if batch.seat_count else None
 		)
-		print(batch.name, batch.published)
 		if not batch.published:
 			private_batches.append(batch)
 		elif getdate(batch.start_date) < getdate():

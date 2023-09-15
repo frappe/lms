@@ -88,7 +88,7 @@
 
 	<ul class="nav lms-nav" id="batches-tab">
 
-		{% if is_student %}
+		{% if is_student or is_moderator %}
 		<li class="nav-item">
 			<a class="nav-link {% if is_student %} active {% endif %}" data-toggle="tab" href="#dashboard">
 				{{ _("Dashboard") }}
@@ -105,13 +105,10 @@
 			</a>
 		</li>
 
-		{% if flow | length %}
+		{% if show_timetable %}
 		<li class="nav-item">
-			<a class="nav-link" data-toggle="tab" href="#schedule">
-				{{ _("Schedule") }}
-				<span class="course-list-count">
-					{{ flow | length }}
-				</span>
+			<a class="nav-link" data-toggle="tab" href="#timetable">
+				{{ _("Timetable") }}
 			</a>
 		</li>
 		{% endif %}
@@ -169,9 +166,9 @@
 			{{ CoursesSection(batch_info, batch_courses) }}
 		</div>
 
-		{% if flow | length %}
-		<div class="tab-pane" id="schedule" role="tabpanel" aria-labelledby="schedule">
-			{{ ScheduleSection(flow) }}
+		{% if show_timetable %}
+		<div class="tab-pane" id="timetable" role="tabpanel" aria-labelledby="timetable">
+			{{ Timetable() }}
 		</div>
 		{% endif %}
 
@@ -513,79 +510,49 @@
 {% endmacro %}
 
 
-{% macro ScheduleSection(flow) %}
+{% macro Timetable() %}
 <article>
 	<header class="edit-header mb-5">
 		<div class="bold-heading">
-			{{ _("Schedule") }}
+			{{ _("Timetable") }}
 		</div>
 	</header>
-
-	<div>
-		{% for chapter in flow %}
-			<div class="chapter-parent">
-				<div class="chapter-title" data-toggle="collapse" data-target="#{{ get_slugified_chapter_title(chapter.chapter_title) }}">
-					<img class="chapter-icon" src="/assets/lms/icons/chevron-right.svg">
-					<div class="chapter-title-main">
-						{{ chapter.chapter_title }}
-					</div>
-				</div>
-				<div class="chapter-content lessons collapse navbar-collapse" id="{{ get_slugified_chapter_title(chapter.chapter_title) }}">
-
-					<div class="schedule-header">
-						<div class="w-50">
-							{{ _("Lesson") }}
-						</div>
-						<div class="w-25">
-							{{ _("Date") }}
-						</div>
-						<div class="w-25 text-center">
-							{{ _("Start Time") }}
-						</div>
-						<div class="w-25 text-center">
-							{{ _("End Time") }}
-						</div>
-					</div>
-
-					{% for lesson in chapter.lessons %}
-						<div class="lesson-info flex align-center">
-							<a class="lesson-links w-50" href="{{ lesson.url }}">
-								<svg class="icon icon-sm mr-2">
-									<use class="" href="#{{ lesson.icon }}">
-								</svg>
-
-								{{ lesson.title }}
-
-								{% if current_student.name and get_membership(lesson.course, current_student.name) %}
-									{% set lesson_progress = get_progress(lesson.course, lesson.name, current_student.name) %}
-									<svg class="icon icon-md lesson-progress-tick ml-3 {% if lesson_progress != 'Complete' %} hide {% endif %}">
-										<use class="" href="#icon-success">
-									</svg>
-								{% endif %}
-							</a>
-							<div class="w-25">
-								{{ frappe.utils.format_date(lesson.date, "medium") }}
-							</div>
-							<div class="w-25 text-center">
-								{% if lesson.start_time %}
-								{{ frappe.utils.format_time(lesson.start_time, "HH:mm a") }}
-								{% else %}
-								-
-								{% endif %}
-							</div>
-							<div class="w-25 text-center">
-								{% if lesson.end_time %}
-								{{ frappe.utils.format_time(lesson.end_time, "HH:mm a") }}
-								{% else %}
-								-
-								{% endif %}
-							</div>
-						</div>
-					{% endfor %}
-				</div>
-			</div>
-		{% endfor %}
+	<div class="calendar-navigation">
+		<button class="btn icon-btn btn-default" id="prev-week">
+			<svg class="icon icon-md">
+				<use href="#icon-left"></use>
+			</svg>
+		</button>
+		<span class="calendar-range"></span>
+		<button class="btn icon-btn btn-default" id="next-week">
+			<svg class="icon icon-md">
+				<use href="#icon-right"></use>
+			</svg>
+		</button>
 	</div>
+	<div id="calendar" class="timetable-calendar" style="height: 700px"
+		data-start="{{ batch_info.start_time }}" data-end="{{ batch_info.end_time }}">
+	</div>
+
+	<!-- <div>
+		{% for week in timetable %}
+		<div>
+			<div class="bold-heading">
+				{{ _("Week ") }} {{ loop.index }}
+			</div>
+			<div>
+				{% for entry in timetable[week] %}
+				<a {% if is_student %} href="{{ entry.url }}" {% endif %}>
+					<svg class="icon icon-md">
+						<use href="#{{ entry.icon }}"></use>
+					</svg>
+					{{ entry.title }}
+				</a>
+				{% endfor %}
+			</div>
+		</div>
+		{% endfor %}
+	</div> -->
 </article>
 {% endmacro %}
 
@@ -595,4 +562,6 @@
 		frappe.boot.single_types = []
 		let courses = {{ course_list | json }};
 	</script>
+	<link rel="stylesheet" href="https://uicdn.toast.com/calendar/latest/toastui-calendar.min.css" />
+	<script src="https://uicdn.toast.com/calendar/latest/toastui-calendar.min.js"></script>
 {% endblock %}

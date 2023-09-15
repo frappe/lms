@@ -2,6 +2,22 @@ frappe.ready(() => {
 	let self = this;
 	frappe.require("controls.bundle.js");
 
+	if ($("#calendar").length) {
+		setup_timetable();
+	}
+
+	if ($("#calendar").length) {
+		$(document).on("click", "#prev-week", (e) => {
+			this.calendar_ && this.calendar_.prev();
+		});
+	}
+
+	if ($("#calendar").length) {
+		$(document).on("click", "#next-week", (e) => {
+			this.calendar_ && this.calendar_.next();
+		});
+	}
+
 	if ($("#live-class-form").length) {
 		setTimeout(() => {
 			make_live_class_form();
@@ -605,4 +621,125 @@ const submit_evaluation_form = (values) => {
 			}, 1000);
 		},
 	});
+};
+
+const setup_timetable = () => {
+	frappe.call({
+		method: "lms.lms.doctype.lms_batch.lms_batch.get_batch_timetable",
+		args: {
+			batch: $(".class-details").data("batch"),
+		},
+		callback: (r) => {
+			if (r.message.length) {
+				setup_calendar(r.message);
+			}
+		},
+	});
+};
+
+const setup_calendar = (events) => {
+	const element = $("#calendar");
+	const Calendar = tui.Calendar;
+	let calendar_events = [];
+	let calendar_id = "calendar1";
+	const container = element[0];
+	const start_time = $(elemet).data("start");
+	const end_time = $(elemet).data("end");
+
+	const options = {
+		defaultView: "week",
+		usageStatistics: false,
+		week: {
+			narrowWeekend: true,
+			hourStart: 7,
+			hourEnd: 18,
+		},
+		month: {
+			narrowWeekend: true,
+		},
+		taskView: false,
+		isReadOnly: true,
+		calendars: [
+			{
+				id: calendar_id,
+				name: "Timetable",
+				backgroundColor: "#ffffff",
+			},
+		],
+		template: {
+			time: function (event) {
+				return `<div class="calendar-event-time">
+						<div> ${frappe.datetime.get_time(event.start.d.d)} -
+						${frappe.datetime.get_time(event.end.d.d)} </div>
+						<div class="calendar-event-title"> ${event.title} </div>
+					</div>`;
+			},
+		},
+	};
+	const calendar = new Calendar(container, options);
+	this.calendar_ = calendar;
+
+	events.forEach((event, idx) => {
+		let colors = get_background_color(event.reference_doctype);
+		calendar_events.push({
+			id: `event${idx}`,
+			calendarId: calendar_id,
+			title: event.title,
+			start: `${event.date}T${event.start_time}`,
+			end: `${event.date}T${event.end_time}`,
+			isAllday: event.start_time ? false : true,
+			borderColor: colors.dark,
+			customStyle: {
+				borderRadius: "var(--border-radius-md)",
+				boxShadow: "var(--shadow-base)",
+				borderWidth: "8px",
+				padding: "1rem",
+			},
+			raw: {
+				url: event.url,
+			},
+		});
+	});
+
+	calendar.createEvents(calendar_events);
+
+	calendar.on("clickEvent", ({ event }) => {
+		const el = document.getElementById("clicked-event");
+		window.open(event.raw.url, "_blank");
+	});
+
+	if (new Date().getMonth() < new Date(events[0].date).getMonth()) {
+		calendar.setDate(new Date(events[0].date));
+	}
+
+	let week_start = frappe.datetime.global_date_format(
+		calendar.getDateRangeStart().d.d
+	);
+	let week_end = frappe.datetime.global_date_format(
+		calendar.getDateRangeEnd().d.d
+	);
+	$(".calendar-range").text(`${week_start} - ${week_end}`);
+};
+
+const get_background_color = (doctype) => {
+	if (doctype == "Course Lesson")
+		return {
+			light: "var(--blue-50)",
+			dark: "var(--blue-400)",
+		};
+	if (doctype == "LMS Quiz")
+		return {
+			light: "var(--green-50)",
+			dark: "var(--green-400)",
+		};
+	if (doctype == "LMS Assignment")
+		return {
+			light: "var(--orange-50)",
+			dark: "var(--orange-400)",
+		};
+	if (doctype == "LMS Live Class")
+		return {
+			light: "var(--red-50)",
+			dark: "var(--red-400)",
+		};
 };

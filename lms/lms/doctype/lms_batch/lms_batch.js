@@ -10,10 +10,23 @@ frappe.ui.form.on("LMS Batch", {
 				},
 			};
 		});
+
+		frm.set_query("reference_doctype", "timetable", function () {
+			let doctypes = [
+				"Course Lesson",
+				"LMS Quiz",
+				"LMS Assignment",
+				"LMS Live Class",
+			];
+			return {
+				filters: {
+					name: ["in", doctypes],
+				},
+			};
+		});
 	},
 
 	fetch_lessons: (frm) => {
-		frm.clear_table("scheduled_flow");
 		frappe.call({
 			method: "lms.lms.doctype.lms_batch.lms_batch.fetch_lessons",
 			args: {
@@ -22,7 +35,7 @@ frappe.ui.form.on("LMS Batch", {
 			callback: (r) => {
 				if (r.message) {
 					r.message.forEach((lesson) => {
-						let row = frm.add_child("scheduled_flow");
+						let row = frm.add_child("timetable");
 						row.lesson = lesson.name;
 						row.lesson_title = lesson.title;
 					});
