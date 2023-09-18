@@ -95,14 +95,7 @@ def get_context(context):
 			"parent": batch_name,
 		},
 	)
-	print(
-		frappe.db.count(
-			"LMS Batch Timetable",
-			{
-				"parent": batch_name,
-			},
-		)
-	)
+	context.legends = get_legends()
 
 
 def get_all_quizzes(batch_name):
@@ -258,3 +251,24 @@ def get_course_progress(batch_courses, student_details):
 			student_details.courses[course.course] = membership.progress
 		else:
 			student_details.courses[course.course] = 0
+
+
+def get_legends():
+	return [
+		{
+			"title": "Lesson",
+			"color": "var(--blue-400)",
+		},
+		{
+			"title": "Quiz",
+			"color": "var(--green-400)",
+		},
+		{
+			"title": "Assignment",
+			"color": "var(--orange-400)",
+		},
+		{
+			"title": "Live Class",
+			"color": "var(--purple-400)",
+		},
+	]

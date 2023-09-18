@@ -2414,7 +2414,32 @@ select {
 }
 
 .calendar-event-title {
-	font-size: var(--text-base);
+	font-size: var(--text-md);
 	font-weight: 500;
-	margin-top: 0.25rem;
+	margin-top: 0.2rem;
+}
+
+.legend-color {
+	width: 50px;
+	height: 20px;
+	border-radius: var(--border-radius-sm);
+	margin-right: 0.25rem;
+}
+
+.legend-item {
+	display: flex;
+	align-items: center;
+}
+
+.legend-text {
+	color: var(--text-color);
+	font-weight: 500;
+}
+
+.calendar-legends {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 50%;
+	margin: 0 auto 1rem;
 }

@@ -88,7 +88,7 @@
 
 	<ul class="nav lms-nav" id="batches-tab">
 
-		{% if is_student or is_moderator %}
+		{% if is_student %}
 		<li class="nav-item">
 			<a class="nav-link {% if is_student %} active {% endif %}" data-toggle="tab" href="#dashboard">
 				{{ _("Dashboard") }}
@@ -530,29 +530,18 @@
 			</svg>
 		</button>
 	</div>
+	<div class="calendar-legends">
+		{% for legend in legends %}
+		<div class="legend-item">
+			<div class="legend-color" style="background-color: {{ legend.color }}"></div>
+			<div class="legend-text">{{ legend.title }}</div>
+		</div>
+		{% endfor %}
+	</div>
 	<div id="calendar" class="timetable-calendar" style="height: 700px"
 		data-start="{{ batch_info.start_time }}" data-end="{{ batch_info.end_time }}">
 	</div>
 
-	<!-- <div>
-		{% for week in timetable %}
-		<div>
-			<div class="bold-heading">
-				{{ _("Week ") }} {{ loop.index }}
-			</div>
-			<div>
-				{% for entry in timetable[week] %}
-				<a {% if is_student %} href="{{ entry.url }}" {% endif %}>
-					<svg class="icon icon-md">
-						<use href="#{{ entry.icon }}"></use>
-					</svg>
-					{{ entry.title }}
-				</a>
-				{% endfor %}
-			</div>
-		</div>
-		{% endfor %}
-	</div> -->
 </article>
 {% endmacro %}
 

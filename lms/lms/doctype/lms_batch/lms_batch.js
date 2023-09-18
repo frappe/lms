@@ -26,22 +26,41 @@ frappe.ui.form.on("LMS Batch", {
 		});
 	},
 
-	fetch_lessons: (frm) => {
-		frappe.call({
-			method: "lms.lms.doctype.lms_batch.lms_batch.fetch_lessons",
-			args: {
-				courses: frm.doc.courses,
-			},
-			callback: (r) => {
-				if (r.message) {
-					r.message.forEach((lesson) => {
-						let row = frm.add_child("timetable");
-						row.lesson = lesson.name;
-						row.lesson_title = lesson.title;
+	timetable_template: function (frm) {
+		if (frm.doc.timetable_template) {
+			frm.clear_table("timetable");
+			frm.refresh_fields();
+
+			frappe.call({
+				method: "frappe.client.get_list",
+				args: {
+					doctype: "LMS Batch Timetable",
+					parent: "LMS Timetable Template",
+					fields: [
+						"reference_doctype",
+						"reference_docname",
+						"date",
+						"start_time",
+						"end_time",
+					],
+					filters: {
+						parent: frm.doc.timetable_template,
+					},
+					order_by: "idx",
+				},
+				callback: (data) => {
+					data.message.forEach((row) => {
+						let child = frm.add_child("timetable");
+						child.reference_doctype = row.reference_doctype;
+						child.reference_docname = row.reference_docname;
+						child.date = row.date;
+						child.start_time = row.start_time;
+						child.end_time = row.end_time;
 					});
-					frm.refresh_field("scheduled_flow");
-				}
-			},
-		});
+					frm.refresh_field("timetable");
+					frm.save();
+				},
+			});
+		}
 	},
 });

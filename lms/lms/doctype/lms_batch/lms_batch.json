@@ -35,7 +35,7 @@
   "assessment_tab",
   "assessment",
   "schedule_tab",
-  "fetch_lessons",
+  "timetable_template",
   "timetable"
  ],
  "fields": [
@@ -151,11 +151,6 @@
    "fieldtype": "Section Break"
   },
   {
-   "fieldname": "fetch_lessons",
-   "fieldtype": "Button",
-   "label": "Fetch Lessons"
-  },
-  {
    "fieldname": "schedule_tab",
    "fieldtype": "Tab Break",
    "label": "Timetable"
@@ -199,11 +194,17 @@
    "fieldtype": "Table",
    "label": "Timetable",
    "options": "LMS Batch Timetable"
+  },
+  {
+   "fieldname": "timetable_template",
+   "fieldtype": "Link",
+   "label": "Timetable Template",
+   "options": "LMS Timetable Template"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-09-14 12:51:11.847853",
+ "modified": "2023-09-18 17:36:03.621651",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch",
