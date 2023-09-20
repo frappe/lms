@@ -136,9 +136,9 @@
         {% endif %}
 
         <div class="mt-2">
-            {% if is_moderator or is_evaluator or is_student %}
+            {% if is_moderator or is_evaluator %}
             <a class="btn btn-primary wide-button" href="/batches/{{ batch_info.name }}">
-                {{ _("Checkout Batch") }}
+                {{ _("Manage Batch") }}
             </a>
             {% elif batch_info.paid_batch %}
             <a class="btn btn-primary wide-button {% if batch_info.seat_count and not seats_left %} hide {% endif %}"

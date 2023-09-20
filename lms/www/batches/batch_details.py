@@ -31,9 +31,14 @@ def get_context(context):
 
 	context.is_moderator = has_course_moderator_role()
 	context.is_evaluator = has_course_evaluator_role()
+	context.is_student = is_student(batch_name)
 
 	if not context.is_moderator and not context.batch_info.published:
 		raise frappe.PermissionError(_("You do not have permission to access this page."))
+
+	if context.is_student:
+		frappe.local.flags.redirect_location = f"/batches/{batch_name}"
+		raise frappe.Redirect
 
 	context.courses = frappe.get_all(
 		"Batch Course",
@@ -51,5 +56,3 @@ def get_context(context):
 
 	context.student_count = frappe.db.count("Batch Student", {"parent": batch_name})
 	context.seats_left = context.batch_info.seat_count - context.student_count
-
-	context.is_student = is_student(batch_name)

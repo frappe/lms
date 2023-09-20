@@ -24,7 +24,7 @@ def get_context(context):
 
 def validate_access(doctype, docname, module):
 	if frappe.session.user == "Guest":
-		raise frappe.PermissionError(_("You are not allowed to access this page."))
+		raise frappe.PermissionError(_("Please login to continue with payment."))
 
 	if module not in ["course", "batch"]:
 		raise ValueError(_("Module is incorrect."))
