@@ -6,6 +6,7 @@ import requests
 import base64
 import json
 from frappe import _
+from datetime import timedelta
 from frappe.model.document import Document
 from frappe.utils import cint, format_date, format_datetime
 from lms.lms.utils import get_lessons, get_lesson_index, get_lesson_url
@@ -274,6 +275,32 @@ def get_batch_timetable(batch):
 		order_by="date",
 	)
 
+	show_live_class = frappe.db.get_value("LMS Batch", batch, "show_live_class")
+	if show_live_class:
+		live_classes = get_live_classes(batch)
+		timetable.extend(live_classes)
+
+	timetable = get_timetable_details(timetable)
+	return timetable
+
+
+def get_live_classes(batch):
+	live_classes = frappe.get_all(
+		"LMS Live Class",
+		{"batch_name": batch},
+		["name", "title", "date", "time as start_time", "duration", "join_url as url"],
+		order_by="date",
+	)
+	for class_ in live_classes:
+		class_.end_time = class_.start_time + timedelta(minutes=class_.duration)
+		class_.reference_doctype = "LMS Live Class"
+		class_.reference_docname = class_.name
+		class_.icon = "icon-call"
+
+	return live_classes
+
+
+def get_timetable_details(timetable):
 	for entry in timetable:
 		entry.title = frappe.db.get_value(
 			entry.reference_doctype, entry.reference_docname, "title"
@@ -298,10 +325,5 @@ def get_batch_timetable(batch):
 			details = get_assignment_details(assessment, frappe.session.user)
 			entry.update(details)
 
-		elif entry.reference_doctype == "LMS Live Class":
-			entry.icon = "icon-call"
-			entry.url = frappe.db.get_value(
-				entry.reference_doctype, entry.reference_docname, "join_url"
-			)
-
+	timetable = sorted(timetable, key=lambda k: k["date"])
 	return timetable
