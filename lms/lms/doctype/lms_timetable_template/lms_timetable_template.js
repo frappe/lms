@@ -4,12 +4,7 @@
 frappe.ui.form.on("LMS Timetable Template", {
 	refresh(frm) {
 		frm.set_query("reference_doctype", "timetable", function () {
-			let doctypes = [
-				"Course Lesson",
-				"LMS Quiz",
-				"LMS Assignment",
-				"LMS Live Class",
-			];
+			let doctypes = ["Course Lesson", "LMS Quiz", "LMS Assignment"];
 			return {
 				filters: {
 					name: ["in", doctypes],

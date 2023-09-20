@@ -44,18 +44,22 @@ frappe.ui.form.on("LMS Batch", {
 					order_by: "idx",
 				},
 				callback: (data) => {
-					data.message.forEach((row) => {
-						let child = frm.add_child("timetable");
-						child.reference_doctype = row.reference_doctype;
-						child.reference_docname = row.reference_docname;
-						child.date = row.date;
-						child.start_time = row.start_time;
-						child.end_time = row.end_time;
-					});
-					frm.refresh_field("timetable");
-					frm.save();
+					add_timetable_rows(frm, data.message);
 				},
 			});
 		}
 	},
 });
+
+const add_timetable_rows = (frm, timetable) => {
+	timetable.forEach((row) => {
+		let child = frm.add_child("timetable");
+		child.reference_doctype = row.reference_doctype;
+		child.reference_docname = row.reference_docname;
+		child.date = row.date;
+		child.start_time = row.start_time;
+		child.end_time = row.end_time;
+	});
+	frm.refresh_field("timetable");
+	frm.save();
+};
