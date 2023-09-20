@@ -2353,3 +2353,93 @@ select {
 	z-index: 10;
 	width: fit-content;
 }
+
+.toastui-calendar-milestone {
+	display: none;
+}
+
+.toastui-calendar-task {
+	display: none;
+}
+
+.toastui-calendar-panel-resizer {
+	display: none;
+}
+
+.toastui-calendar-day-name__date {
+	font-size: var(--text-base) !important;
+}
+
+.toastui-calendar-day-name__name {
+	font-size: var(--text-base) !important;
+}
+
+.toastui-calendar-day-view-day-names, .toastui-calendar-week-view-day-names {
+	border-bottom: none !important;
+}
+
+.toastui-calendar-layout {
+	border: 1px solid var(--gray-200) !important;
+	border-radius: var(--border-radius-md) !important;
+	background-color: var(--gray-100) !important;
+}
+
+.toastui-calendar-panel .toastui-calendar-day-names.toastui-calendar-week {
+	border-top: none !important;
+}
+
+.toastui-calendar-panel.toastui-calendar-time {
+	height: 80% !important;
+}
+
+.toastui-calendar-panel.toastui-calendar-week-view-day-names {
+	background-color: var(--gray-50) !important;
+}
+
+.toastui-calendar-allday {
+	border-bottom: 1px solid var(--gray-200) !important;
+}
+
+.calendar-navigation {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-bottom: 1rem;
+}
+
+.calendar-range {
+	margin: 0 2rem;
+	font-weight: 500;
+	color: var(--text-color);
+}
+
+.calendar-event-title {
+	font-size: var(--text-md);
+	font-weight: 500;
+	margin-top: 0.2rem;
+}
+
+.legend-color {
+	width: 50px;
+	height: 20px;
+	border-radius: var(--border-radius-sm);
+	margin-right: 0.25rem;
+}
+
+.legend-item {
+	display: flex;
+	align-items: center;
+}
+
+.legend-text {
+	color: var(--text-color);
+	font-weight: 500;
+}
+
+.calendar-legends {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 50%;
+	margin: 0 auto 1rem;
+}

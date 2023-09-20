@@ -108,6 +108,8 @@ def get_assignment_details(assessment, member):
 		f"/assignment-submission/{assessment.assessment_name}/{submission_name}"
 	)
 
+	return assessment
+
 
 def get_quiz_details(assessment, member):
 	assessment.title = frappe.db.get_value("LMS Quiz", assessment.assessment_name, "title")
@@ -130,6 +132,8 @@ def get_quiz_details(assessment, member):
 		existing_submission[0].name if len(existing_submission) else "new-submission"
 	)
 	assessment.url = f"/quiz-submission/{assessment.assessment_name}/{submission_name}"
+
+	return assessment
 
 
 def is_student(batch, member=None):

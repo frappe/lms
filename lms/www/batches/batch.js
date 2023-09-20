@@ -2,6 +2,24 @@ frappe.ready(() => {
 	let self = this;
 	frappe.require("controls.bundle.js");
 
+	if ($("#calendar").length) {
+		setup_timetable();
+	}
+
+	if ($("#calendar").length) {
+		$(document).on("click", "#prev-week", (e) => {
+			this.calendar_ && this.calendar_.prev();
+			set_calendar_range(this.calendar_, this.events);
+		});
+	}
+
+	if ($("#calendar").length) {
+		$(document).on("click", "#next-week", (e) => {
+			this.calendar_ && this.calendar_.next();
+			set_calendar_range(this.calendar_, this.events);
+		});
+	}
+
 	if ($("#live-class-form").length) {
 		setTimeout(() => {
 			make_live_class_form();
@@ -605,4 +623,145 @@ const submit_evaluation_form = (values) => {
 			}, 1000);
 		},
 	});
+};
+
+const setup_timetable = () => {
+	let self = this;
+	frappe.call({
+		method: "lms.lms.doctype.lms_batch.lms_batch.get_batch_timetable",
+		args: {
+			batch: $(".class-details").data("batch"),
+		},
+		callback: (r) => {
+			if (r.message.length) {
+				setup_calendar(r.message);
+				self.events = r.message;
+			}
+		},
+	});
+};
+
+const setup_calendar = (events) => {
+	const element = $("#calendar");
+	const Calendar = tui.Calendar;
+	const calendar_id = "calendar1";
+	const container = element[0];
+	const options = get_calendar_options(element, calendar_id);
+	const calendar = new Calendar(container, options);
+	this.calendar_ = calendar;
+	console.log(options);
+	create_events(calendar, events);
+	add_links_to_events(calendar, events);
+	scroll_to_date(calendar, events);
+	set_calendar_range(calendar, events);
+};
+
+const get_calendar_options = (element, calendar_id) => {
+	const start_time = element.data("start");
+	const end_time = element.data("end");
+
+	return {
+		defaultView: "week",
+		usageStatistics: false,
+		week: {
+			narrowWeekend: true,
+			hourStart: parseInt(start_time.split(":")[0]) - 1,
+			/* hourEnd: parseInt(end_time.split(":")[0]) + 1, */
+		},
+		month: {
+			narrowWeekend: true,
+		},
+		taskView: false,
+		isReadOnly: true,
+		calendars: [
+			{
+				id: calendar_id,
+				name: "Timetable",
+				backgroundColor: "var(--fg-color)",
+			},
+		],
+		template: {
+			time: function (event) {
+				return `<div class="calendar-event-time">
+						<div> ${frappe.datetime.get_time(event.start.d.d)} -
+						${frappe.datetime.get_time(event.end.d.d)} </div>
+						<div class="calendar-event-title"> ${event.title} </div>
+					</div>`;
+			},
+		},
+	};
+};
+
+const create_events = (calendar, events, calendar_id) => {
+	let calendar_events = [];
+
+	events.forEach((event, idx) => {
+		calendar_events.push({
+			id: `event${idx}`,
+			calendarId: calendar_id,
+			title: event.title,
+			start: `${event.date}T${event.start_time}`,
+			end: `${event.date}T${event.end_time}`,
+			isAllday: event.start_time ? false : true,
+			borderColor: get_background_color(event.reference_doctype),
+			backgroundColor: "var(--fg-color)",
+			customStyle: {
+				borderRadius: "var(--border-radius-md)",
+				boxShadow: "var(--shadow-base)",
+				borderWidth: "8px",
+				padding: "0.25rem 0.5rem 0.5rem",
+			},
+			raw: {
+				url: event.url,
+			},
+		});
+	});
+
+	calendar.createEvents(calendar_events);
+};
+
+const add_links_to_events = (calendar, events) => {
+	calendar.on("clickEvent", ({ event }) => {
+		const el = document.getElementById("clicked-event");
+		window.open(event.raw.url, "_blank");
+	});
+};
+
+const scroll_to_date = (calendar, events) => {
+	if (
+		new Date() < new Date(events[0].date) ||
+		new Date() > new Date(events.slice(-1).date)
+	) {
+		calendar.setDate(new Date(events[0].date));
+	}
+};
+
+const set_calendar_range = (calendar, events) => {
+	let week_start = moment(calendar.getDateRangeStart().d.d);
+	let week_end = moment(calendar.getDateRangeEnd().d.d);
+
+	$(".calendar-range").text(
+		`${moment(week_start).format("DD MMMM YYYY")} - ${moment(
+			week_end
+		).format("DD MMMM YYYY")}`
+	);
+
+	if (week_start.diff(moment(events[0].date), "days") <= 0) {
+		$("#prev-week").hide();
+	} else {
+		$("#prev-week").show();
+	}
+
+	if (week_end.diff(moment(events.slice(-1)[0].date), "days") > 0) {
+		$("#next-week").hide();
+	} else {
+		$("#next-week").show();
+	}
+};
+
+const get_background_color = (doctype) => {
+	if (doctype == "Course Lesson") return "var(--blue-400)";
+	if (doctype == "LMS Quiz") return "var(--green-400)";
+	if (doctype == "LMS Assignment") return "var(--orange-400)";
+	if (doctype == "LMS Live Class") return "var(--purple-400)";
 };

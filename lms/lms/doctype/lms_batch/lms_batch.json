@@ -35,8 +35,11 @@
   "assessment_tab",
   "assessment",
   "schedule_tab",
-  "fetch_lessons",
-  "scheduled_flow"
+  "timetable_template",
+  "column_break_anya",
+  "show_live_class",
+  "section_break_ontp",
+  "timetable"
  ],
  "fields": [
   {
@@ -147,24 +150,13 @@
    "label": "Category"
   },
   {
-   "fieldname": "scheduled_flow",
-   "fieldtype": "Table",
-   "label": "Scheduled Flow",
-   "options": "Scheduled Flow"
-  },
-  {
    "fieldname": "section_break_ubxi",
    "fieldtype": "Section Break"
   },
   {
-   "fieldname": "fetch_lessons",
-   "fieldtype": "Button",
-   "label": "Fetch Lessons"
-  },
-  {
    "fieldname": "schedule_tab",
    "fieldtype": "Tab Break",
-   "label": "Schedule"
+   "label": "Timetable"
   },
   {
    "fieldname": "section_break_gsac",
@@ -199,11 +191,37 @@
    "fieldname": "published",
    "fieldtype": "Check",
    "label": "Published"
+  },
+  {
+   "fieldname": "timetable",
+   "fieldtype": "Table",
+   "label": "Timetable",
+   "options": "LMS Batch Timetable"
+  },
+  {
+   "fieldname": "timetable_template",
+   "fieldtype": "Link",
+   "label": "Timetable Template",
+   "options": "LMS Timetable Template"
+  },
+  {
+   "fieldname": "column_break_anya",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "show_live_class",
+   "fieldtype": "Check",
+   "label": "Show Live Class"
+  },
+  {
+   "fieldname": "section_break_ontp",
+   "fieldtype": "Section Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-09-12 12:30:06.565104",
+ "modified": "2023-09-20 11:25:10.683688",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch",
