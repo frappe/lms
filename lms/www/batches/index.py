@@ -1,6 +1,10 @@
 import frappe
 from frappe.utils import getdate
-from lms.lms.utils import has_course_moderator_role, has_course_evaluator_role
+from lms.lms.utils import (
+	has_course_moderator_role,
+	has_course_evaluator_role,
+	check_multicurrency,
+)
 
 
 def get_context(context):
@@ -28,6 +32,12 @@ def get_context(context):
 	for batch in batches:
 		batch.student_count = frappe.db.count("Batch Student", {"parent": batch.name})
 		batch.course_count = frappe.db.count("Batch Course", {"parent": batch.name})
+
+		if batch.amount and batch.currency:
+			amount, currency = check_multicurrency(batch.amount, batch.currency)
+			batch.amount = amount
+			batch.currency = currency
+
 		batch.seats_left = (
 			batch.seat_count - batch.student_count if batch.seat_count else None
 		)
