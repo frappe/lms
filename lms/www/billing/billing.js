@@ -18,23 +18,27 @@ const setup_billing = () => {
 				label: __("Billing Name"),
 				fieldname: "billing_name",
 				reqd: 1,
+				default: address && address.billing_name,
 			},
 			{
 				fieldtype: "Data",
 				label: __("Address Line 1"),
 				fieldname: "address_line1",
 				reqd: 1,
+				default: address && address.address_line1,
 			},
 			{
 				fieldtype: "Data",
 				label: __("Address Line 2"),
 				fieldname: "address_line2",
+				default: address && address.address_line2,
 			},
 			{
 				fieldtype: "Data",
 				label: __("City/Town"),
 				fieldname: "city",
 				reqd: 1,
+				default: address && address.city,
 			},
 			{
 				fieldtype: "Column Break",
@@ -43,6 +47,7 @@ const setup_billing = () => {
 				fieldtype: "Data",
 				label: __("State/Province"),
 				fieldname: "state",
+				default: address && address.state,
 			},
 			{
 				fieldtype: "Link",
@@ -51,18 +56,24 @@ const setup_billing = () => {
 				options: "Country",
 				reqd: 1,
 				only_select: 1,
+				default: address && address.country,
+				change: () => {
+					change_currency();
+				},
 			},
 			{
 				fieldtype: "Data",
 				label: __("Postal Code"),
 				fieldname: "pincode",
 				reqd: 1,
+				default: address && address.pincode,
 			},
 			{
 				fieldtype: "Data",
 				label: __("Phone Number"),
 				fieldname: "phone",
 				reqd: 1,
+				default: address && address.phone,
 			},
 			{
 				fieldtype: "Section Break",
@@ -141,5 +152,35 @@ const handle_success = (response, doctype, docname, address, order_id) => {
 				window.location.href = data.message;
 			}, 1000);
 		},
+	});
+};
+
+const change_currency = () => {
+	let country = this.billing.get_value("country");
+	if (exception_country.includes(country)) {
+		update_price(original_price_formatted);
+		return;
+	}
+	frappe.call({
+		method: "lms.lms.utils.change_currency",
+		args: {
+			country: country,
+			amount: amount,
+			currency: currency,
+		},
+		callback: (data) => {
+			let current_price = $(".total-price").text();
+			if (current_price != data.message) {
+				update_price(data.message);
+			}
+		},
+	});
+};
+
+const update_price = (price) => {
+	$(".total-price").text(price);
+	frappe.show_alert({
+		message: "Total Price has been updated.",
+		indicator: "yellow",
 	});
 };

@@ -55,7 +55,7 @@ def get_context(context):
 		"Batch Course",
 		{"parent": batch_name},
 		["name as batch_course", "course", "title", "evaluator"],
-		order_by="creation desc",
+		order_by="idx",
 	)
 
 	for course in context.courses:

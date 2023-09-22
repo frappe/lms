@@ -37,7 +37,8 @@
 
         <div class="flex">
             <div class="field-label">
-                {{ _("Total Price: ") }} {{ frappe.utils.fmt_money(amount, 2, currency) }}
+                {{ _("Total Price: ") }}
+                <span class="total-price">{{ frappe.utils.fmt_money(amount, 2, currency) }}</span>
             </div>
         </div>
         {% if gst_applied %}
@@ -64,4 +65,11 @@
 {%- block script %}
 {{ super() }}
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    const address = {{ address if address else 0 }};
+    const amount = {{ amount }};
+    const currency = "{{ currency }}";
+    const exception_country = {{ exception_country }};
+    const original_price_formatted = "{{ frappe.utils.fmt_money(original_amount, 0, original_currency) }}"
+</script>
 {% endblock %}

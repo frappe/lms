@@ -164,24 +164,26 @@
 
 
 {% macro BatchDetails(batch_info) %}
-<div class="course-description-section w-50">
-    <div class="mt-2">
-        {{ batch_info.batch_details }}
-    </div>
+<div class="batch-details">
+   {{ batch_info.batch_details }}
 </div>
 {% endmacro %}
 
 
 {% macro CourseList(courses) %}
 <div class="batch-course-list">
-    {% if is_moderator %}
-    <button class="btn btn-default btn-sm btn-add-course pull-right">
-        {{ _("Add Courses") }}
-    </button>
-    {% endif %}
-    <div class="page-title">
-        {{ _("Courses") }}
+
+    <div class="flex align-center">
+        <div class="page-title">
+            {{ _("Courses") }}
+        </div>
+        {% if is_moderator %}
+        <button class="btn btn-default btn-sm btn-add-course ml-4">
+            {{ _("Add Course") }}
+        </button>
+        {% endif %}
     </div>
+
     {% if courses | length %}
 	<div class="cards-parent mt-2">
 		{% for course in courses %}
