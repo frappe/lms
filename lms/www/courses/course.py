@@ -10,6 +10,7 @@ from lms.lms.utils import (
 	is_instructor,
 	redirect_to_courses_list,
 	get_average_rating,
+	check_multicurrency,
 )
 
 
@@ -59,6 +60,11 @@ def set_course_context(context, course_name):
 		],
 		as_dict=True,
 	)
+
+	if course.course_price:
+		course.course_price, course.currency = check_multicurrency(
+			course.course_price, course.currency
+		)
 
 	if frappe.form_dict.get("edit"):
 		if not is_instructor(course.name) and not has_course_moderator_role():
