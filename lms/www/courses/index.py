@@ -7,6 +7,7 @@ from lms.lms.utils import (
 	has_course_moderator_role,
 	get_courses_under_review,
 	get_average_rating,
+	check_multicurrency,
 )
 from lms.overrides.user import get_enrolled_courses, get_authored_courses
 
@@ -58,6 +59,12 @@ def get_courses():
 		course.enrollment_count = frappe.db.count(
 			"LMS Enrollment", {"course": course.name, "member_type": "Student"}
 		)
+
+		if course.course_price:
+			course.course_price, course.currency = check_multicurrency(
+				course.course_price, course.currency
+			)
+
 		course.avg_rating = get_average_rating(course.name) or 0
 		if course.upcoming:
 			upcoming_courses.append(course)

@@ -2443,3 +2443,14 @@ select {
 	width: 50%;
 	margin: 0 auto 1rem;
 }
+
+.batch-details {
+	width: 50%;
+	margin: 2rem 0;
+}
+
+@media (max-width: 1000px) {
+	.batch-details {
+		width: 100%;
+	}
+}

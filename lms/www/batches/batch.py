@@ -1,6 +1,6 @@
 from frappe import _
 import frappe
-from frappe.utils import getdate, get_datetime
+from frappe.utils import getdate
 from lms.www.utils import get_assessments, is_student
 from lms.lms.utils import (
 	has_course_moderator_role,
@@ -52,14 +52,14 @@ def get_context(context):
 		"Batch Course",
 		{"parent": batch_name},
 		["name", "course", "title"],
-		order_by="creation desc",
+		order_by="idx",
 	)
 
 	batch_students = frappe.get_all(
 		"Batch Student",
 		{"parent": batch_name},
 		["name", "student", "student_name", "username"],
-		order_by="creation desc",
+		order_by="idx",
 	)
 
 	context.batch_courses = get_class_course_details(batch_courses)

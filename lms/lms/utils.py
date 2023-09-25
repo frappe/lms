@@ -18,6 +18,7 @@ from frappe.utils import (
 	get_datetime,
 	getdate,
 	validate_phone_number,
+	ceil,
 )
 from frappe.utils.dateutils import get_period
 from lms.lms.md import find_macros, markdown_to_html
@@ -844,7 +845,7 @@ def get_payment_options(doctype, docname, phone, country):
 	validate_phone_number(phone, True)
 	details = get_details(doctype, docname)
 	details.amount, details.currency = check_multicurrency(
-		details.amount, details.currency
+		details.amount, details.currency, country
 	)
 	if details.currency == "INR":
 		details.amount, details.gst_applied = apply_gst(details.amount, country)
@@ -868,18 +869,20 @@ def get_payment_options(doctype, docname, phone, country):
 	return options
 
 
-def check_multicurrency(amount, currency):
+def check_multicurrency(amount, currency, country=None):
 	show_usd_equivalent = frappe.db.get_single_value("LMS Settings", "show_usd_equivalent")
 	exception_country = frappe.get_all(
 		"Payment Country", filters={"parent": "LMS Settings"}, pluck="country"
 	)
 	apply_rounding = frappe.db.get_single_value("LMS Settings", "apply_rounding")
-	country = frappe.db.get_value("User", frappe.session.user, "country")
+	country = country or frappe.db.get_value(
+		"Address", {"email_id": frappe.session.user}, "country"
+	)
 
 	if not show_usd_equivalent or currency == "USD":
 		return amount, currency
 
-	if exception_country and country in exception_country:
+	if not country or (exception_country and country in exception_country):
 		return amount, currency
 
 	exchange_rate = get_current_exchange_rate(currency, "USD")
@@ -887,7 +890,7 @@ def check_multicurrency(amount, currency):
 	currency = "USD"
 
 	if apply_rounding and amount % 100 != 0:
-		amount = amount + 100 - amount % 100
+		amount = ceil(amount + 100 - amount % 100)
 
 	return amount, currency
 
@@ -930,7 +933,15 @@ def get_details(doctype, docname):
 
 
 def save_address(address):
-	address.update(
+	filters = {"email_id": frappe.session.user}
+	exists = frappe.db.exists("Address", filters)
+	if exists:
+		address_doc = frappe.get_last_doc("Address", filters=filters)
+	else:
+		address_doc = frappe.new_doc("Address")
+
+	address_doc.update(address)
+	address_doc.update(
 		{
 			"address_title": frappe.db.get_value("User", frappe.session.user, "full_name"),
 			"address_type": "Billing",
@@ -938,10 +949,8 @@ def save_address(address):
 			"email_id": frappe.session.user,
 		}
 	)
-	doc = frappe.new_doc("Address")
-	doc.update(address)
-	doc.save(ignore_permissions=True)
-	return doc.name
+	address_doc.save(ignore_permissions=True)
+	return address_doc.name
 
 
 def get_client():
@@ -1064,3 +1073,10 @@ def get_current_exchange_rate(source, target="USD"):
 	response = requests.request("GET", url)
 	details = response.json()
 	return details["rates"][target]
+
+
+@frappe.whitelist()
+def change_currency(amount, currency, country=None):
+	amount = cint(amount)
+	amount, currency = check_multicurrency(amount, currency, country)
+	return fmt_money(amount, 0, currency)

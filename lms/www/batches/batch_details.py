@@ -1,6 +1,10 @@
 import frappe
 from frappe import _
-from lms.lms.utils import has_course_moderator_role, has_course_evaluator_role
+from lms.lms.utils import (
+	has_course_moderator_role,
+	has_course_evaluator_role,
+	check_multicurrency,
+)
 from lms.www.utils import is_student
 
 
@@ -29,6 +33,13 @@ def get_context(context):
 		as_dict=1,
 	)
 
+	if context.batch_info.amount and context.batch_info.currency:
+		amount, currency = check_multicurrency(
+			context.batch_info.amount, context.batch_info.currency
+		)
+		context.batch_info.amount = amount
+		context.batch_info.currency = currency
+
 	context.is_moderator = has_course_moderator_role()
 	context.is_evaluator = has_course_evaluator_role()
 	context.is_student = is_student(batch_name)
@@ -44,7 +55,7 @@ def get_context(context):
 		"Batch Course",
 		{"parent": batch_name},
 		["name as batch_course", "course", "title", "evaluator"],
-		order_by="creation desc",
+		order_by="idx",
 	)
 
 	for course in context.courses:

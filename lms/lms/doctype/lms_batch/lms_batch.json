@@ -146,8 +146,9 @@
   },
   {
    "fieldname": "category",
-   "fieldtype": "Autocomplete",
-   "label": "Category"
+   "fieldtype": "Link",
+   "label": "Category",
+   "options": "LMS Category"
   },
   {
    "fieldname": "section_break_ubxi",
@@ -221,7 +222,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-09-20 11:25:10.683688",
+ "modified": "2023-09-20 14:40:45.940540",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch",

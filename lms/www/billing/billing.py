@@ -14,10 +14,17 @@ def get_context(context):
 
 	validate_access(doctype, docname, module)
 	get_billing_details(context)
+	context.original_amount = context.amount
+	context.original_currency = context.currency
+	context.exception_country = frappe.get_all(
+		"Payment Country", filters={"parent": "LMS Settings"}, pluck="country"
+	)
+
 	context.amount, context.currency = check_multicurrency(
 		context.amount, context.currency
 	)
 
+	context.address = get_address()
 	if context.currency == "INR":
 		context.amount, context.gst_applied = apply_gst(context.amount, None)
 
@@ -75,3 +82,35 @@ def get_billing_details(context):
 	context.title = details.title
 	context.amount = details.amount
 	context.currency = details.currency
+
+
+def get_address():
+	address = frappe.get_all(
+		"Address",
+		{"email_id": frappe.session.user},
+		[
+			"address_title as billing_name",
+			"address_line1",
+			"address_line2",
+			"city",
+			"state",
+			"country",
+			"pincode",
+			"phone",
+		],
+		order_by="creation desc",
+		limit=1,
+	)
+
+	if not len(address):
+		return None
+	else:
+		address = address[0]
+
+	if not address.address_line2:
+		address.address_line2 = ""
+
+	if not address.state:
+		address.state = ""
+
+	return address
