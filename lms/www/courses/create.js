@@ -51,8 +51,13 @@ const create_tag = (e) => {
 	if ($(e.target).val() == "") {
 		return;
 	}
+
+	let tag_value = $(e.target)
+		.val()
+		.replace(/</g, "&lt;")
+		.replace(/>/g, "&gt;");
 	let tag = `<button class="btn btn-secondary btn-sm mr-2 text-uppercase">
-		${$(e.target).val()}
+		${tag_value}
 		<span class="btn-remove">
 			<svg class="icon  icon-sm">
 				<use class="" href="#icon-close"></use>

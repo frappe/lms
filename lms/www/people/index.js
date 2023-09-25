@@ -36,7 +36,12 @@ const search = (e) => {
 				$("#load-more").removeClass("hide");
 			else $("#search-empty-state").removeClass("hide");
 
-			$(".member-parent").append(data.message.user_details);
+			let user_details = data.message.user_details;
+			user_details
+				.replace(/&/g, "&amp;")
+				.replace(/</g, "&lt;")
+				.replace(/"/g, "&quot;");
+			$(".member-parent").append(user_details);
 			update_load_more_state(data);
 		},
 	});
