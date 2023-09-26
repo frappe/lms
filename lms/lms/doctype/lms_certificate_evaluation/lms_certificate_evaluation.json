@@ -84,7 +84,7 @@
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
-   "options": "Pass\nFail",
+   "options": "Pending\nIn Progress\nPass\nFail",
    "reqd": 1
   },
   {
@@ -106,7 +106,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-08-23 14:51:21.947169",
+ "modified": "2023-09-26 19:44:43.594892",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate Evaluation",
@@ -139,6 +139,23 @@
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": [],
+ "states": [
+  {
+   "color": "Green",
+   "title": "Pass"
+  },
+  {
+   "color": "Red",
+   "title": "Fail"
+  },
+  {
+   "color": "Blue",
+   "title": "Pending"
+  },
+  {
+   "color": "Orange",
+   "title": "In Progress"
+  }
+ ],
  "title_field": "member_name"
 }
