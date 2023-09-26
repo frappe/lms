@@ -66,7 +66,7 @@
 {{ super() }}
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
-    const address = {{ address if address else 0 }};
+    address = {{ address if address else 0 }};
     const amount = {{ amount }};
     const currency = "{{ currency }}";
     const exception_country = {{ exception_country }};
