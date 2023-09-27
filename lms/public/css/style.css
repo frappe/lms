@@ -160,6 +160,10 @@ textarea.field-input {
 	position: unset;
 }
 
+.codex-editor--narrow .ce-toolbar__actions {
+	right: 100%;
+}
+
 .lesson-editor {
 	border: 1px solid var(--gray-300);
 	border-radius: var(--border-radius-md);
@@ -2453,4 +2457,16 @@ select {
 	.batch-details {
 		width: 100%;
 	}
+}
+
+.collapse-section {
+	font-size: var(--text-lg);
+	cursor: pointer;
+}
+
+.collapse-section.collapsed .icon {
+	transition: all 0.5s;
+	-webkit-transform: rotate(180deg);
+	-moz-transform: rotate(180deg);
+	transform: rotate(180deg);
 }

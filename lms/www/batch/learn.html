@@ -156,12 +156,17 @@
             {% endif %}
 
             {% if lesson.instructor_notes and (is_moderator or instructor or is_evaluator) %}
-            <div class="alert alert-info mb-4">
-                <div class="bold-heading mb-2">
-                    {{ _("Instructor Notes") }}
+            <div class="alert alert-secondary mb-4">
+                <div class="bold-heading collapse-section collapsed" data-toggle="collapse" data-target="#instructor-notes">
+                    <svg class="icon icon-md pull-right">
+                        <use href="#icon-up-line"></use>
+                    </svg>
+                    <div>
+                        {{ _("Instructor Notes") }}
+                    </div>
                 </div>
-                <div>
-                    {{ lesson.instructor_notes_html }}
+                <div class="collapse" id="instructor-notes">
+                    {{ instructor_notes }}
                 </div>
             </div>
             {% endif %}
@@ -226,36 +231,6 @@
         <table class="attachments common-card-style collapse hide" id="collapse-attachments"></table>
     </div>
 {% endmacro %}
-
-
-<!-- Help Article -->
-{% macro HelpArticle() %}
-    <div class="medium">
-        <h3> {{ _("Embed Components") }} </h3>
-        <p>
-            {{ _("You can add additional content to the lesson using a special syntax. The table below mentions
-                all types of dynamic content that you can add to the lessons and the syntax for the same.") }}
-        </p>
-        <ol>
-            <li>
-                <b> {{ _("YouTube Video") }} </b>
-                <p> To get the YouTube Video ID, follow the steps mentioned below. </p>
-                <ul class="px-4">
-                    <li>
-                        {{ _("Upload the video on youtube.") }}
-                    </li>
-                    <li>
-                        {{ _("When you share a youtube video, it shows a URL") }}
-                    </li>
-                    <li>
-                        {{ _("Copy the last parameter of the URL and paste it here.") }}
-                    </li>
-                </ul>
-            </li>
-        </ol>
-    </div>
-{% endmacro %}
-
 
 <!-- Discussions Component -->
 {% macro Discussions() %}

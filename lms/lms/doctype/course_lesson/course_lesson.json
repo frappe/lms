@@ -135,13 +135,13 @@
   },
   {
    "fieldname": "instructor_notes",
-   "fieldtype": "Text",
+   "fieldtype": "Markdown Editor",
    "label": "Instructor Notes"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-08-31 21:47:06.314995",
+ "modified": "2023-09-27 15:45:54.738573",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Course Lesson",

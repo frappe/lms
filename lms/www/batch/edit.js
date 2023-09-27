@@ -1,110 +1,129 @@
 frappe.ready(() => {
 	let self = this;
-
+	frappe.require("controls.bundle.js");
 	frappe.telemetry.capture("on_lesson_creation_page", "lms");
 
-	if ($("#instructor-notes").length) {
-		frappe.require("controls.bundle.js", () => {
-			make_instructor_notes_component();
-		});
-	}
-
 	if ($("#current-lesson-content").length) {
-		parse_string_to_lesson();
+		parse_string_to_lesson("lesson");
 	}
 
-	setup_editor();
+	if ($("#current-instructor-notes").length) {
+		parse_string_to_lesson("notes");
+	}
+
+	setup_editor_for_lesson_content();
+	setup_editor_for_instructor_notes();
 
 	$("#save-lesson").click((e) => {
 		save_lesson(e);
 	});
 });
 
-const setup_editor = () => {
+const setup_editor_for_lesson_content = () => {
 	self.editor = new EditorJS({
 		holder: "lesson-content",
-		tools: {
-			embed: {
-				class: Embed,
-				config: {
-					services: {
-						youtube: true,
-						vimeo: true,
-						codepen: true,
-						slides: {
-							regex: /https:\/\/docs\.google\.com\/presentation\/d\/e\/([A-Za-z0-9_-]+)\/pub/,
-							embedUrl:
-								"https://docs.google.com/presentation/d/e/<%= remote_id %>/embed",
-							html: "<iframe width='100%' height='300' frameborder='0' allowfullscreen='true'></iframe>",
-						},
-						pdf: {
-							regex: /(https?:\/\/.*\.pdf)/,
-							embedUrl: "<%= remote_id %>",
-							html: "<iframe width='100%' height='600px' frameborder='0'></iframe>",
-						},
-					},
-				},
-			},
-			header: {
-				class: Header,
-				inlineToolbar: ["bold", "italic", "link"],
-				config: {
-					levels: [4, 5, 6],
-					defaultLevel: 5,
-				},
-				icon: `<svg class="icon  icon-sm" style="">
-					<use class="" href="#icon-header"></use>
-				</svg>`,
-			},
-			paragraph: {
-				class: Paragraph,
-				inlineToolbar: true,
-				config: {
-					preserveBlank: true,
-				},
-			},
-			youtube: YouTubeVideo,
-			quiz: Quiz,
-			upload: Upload,
-		},
+		tools: get_tools(),
 		data: {
-			blocks: self.blocks ? self.blocks : [],
+			blocks: self.lesson_blocks || [],
 		},
 	});
 };
 
-const parse_string_to_lesson = () => {
-	let lesson_content = $("#current-lesson-content").html();
-	let lesson_blocks = [];
+const setup_editor_for_instructor_notes = () => {
+	self.instructor_notes_editor = new EditorJS({
+		holder: "instructor-notes",
+		tools: get_tools(),
+		data: {
+			blocks: self.notes_blocks || [],
+		},
+	});
+};
 
-	lesson_content.split("\n").forEach((block) => {
+const get_tools = () => {
+	return {
+		embed: {
+			class: Embed,
+			config: {
+				services: {
+					youtube: true,
+					vimeo: true,
+					codepen: true,
+					slides: {
+						regex: /https:\/\/docs\.google\.com\/presentation\/d\/e\/([A-Za-z0-9_-]+)\/pub/,
+						embedUrl:
+							"https://docs.google.com/presentation/d/e/<%= remote_id %>/embed",
+						html: "<iframe width='100%' height='300' frameborder='0' allowfullscreen='true'></iframe>",
+					},
+					pdf: {
+						regex: /(https?:\/\/.*\.pdf)/,
+						embedUrl: "<%= remote_id %>",
+						html: "<iframe width='100%' height='600px' frameborder='0'></iframe>",
+					},
+				},
+			},
+		},
+		header: {
+			class: Header,
+			inlineToolbar: ["bold", "italic", "link"],
+			config: {
+				levels: [4, 5, 6],
+				defaultLevel: 5,
+			},
+			icon: `<svg class="icon  icon-sm" style="">
+				<use class="" href="#icon-header"></use>
+			</svg>`,
+		},
+		paragraph: {
+			class: Paragraph,
+			inlineToolbar: true,
+			config: {
+				preserveBlank: true,
+			},
+		},
+		youtube: YouTubeVideo,
+		quiz: Quiz,
+		upload: Upload,
+	};
+};
+
+const parse_string_to_lesson = (type) => {
+	let content;
+	let blocks = [];
+
+	if (type == "lesson") {
+		content = $("#current-lesson-content").html();
+	} else if (type == "notes") {
+		content = $("#current-instructor-notes").html();
+	}
+
+	content.split("\n").forEach((block) => {
 		if (block.includes("{{ YouTubeVideo")) {
-			let youtube_id = block.match(/'([^']+)'/)[1];
-			lesson_blocks.push({
+			let youtube_id = block.match(/\(["']([^"']+?)["']\)/)[1];
+			blocks.push({
 				type: "youtube",
 				data: {
 					youtube: youtube_id,
 				},
 			});
 		} else if (block.includes("{{ Quiz")) {
-			let quiz = block.match(/'([^']+)'/)[1];
-			lesson_blocks.push({
+			let quiz = block.match(/\(["']([^"']+?)["']\)/)[1];
+			blocks.push({
 				type: "quiz",
 				data: {
 					quiz: quiz,
 				},
 			});
 		} else if (block.includes("{{ Video")) {
-			let video = block.match(/'([^']+)'/)[1];
-			lesson_blocks.push({
+			let video = block.match(/\(["']([^"']+?)["']\)/)[1];
+			blocks.push({
 				type: "upload",
 				data: {
 					file_url: video,
 				},
 			});
 		} else if (block.includes("{{ Embed")) {
-			let embed = block.match(/'([^']+)'/)[1];
-			lesson_blocks.push({
+			let embed = block.match(/\(["']([^"']+?)["']\)/)[1];
+			blocks.push({
 				type: "embed",
 				data: {
 					service: embed.split("|||")[0],
@@ -113,7 +132,7 @@ const parse_string_to_lesson = () => {
 			});
 		} else if (block.includes("![]")) {
 			let image = block.match(/\((.*?)\)/)[1];
-			lesson_blocks.push({
+			blocks.push({
 				type: "upload",
 				data: {
 					file_url: image,
@@ -121,7 +140,7 @@ const parse_string_to_lesson = () => {
 			});
 		} else if (block.includes("#")) {
 			let level = (block.match(/#/g) || []).length;
-			lesson_blocks.push({
+			blocks.push({
 				type: "header",
 				data: {
 					text: block.replace(/#/g, "").trim(),
@@ -129,7 +148,7 @@ const parse_string_to_lesson = () => {
 				},
 			});
 		} else {
-			lesson_blocks.push({
+			blocks.push({
 				type: "paragraph",
 				data: {
 					text: block,
@@ -138,16 +157,25 @@ const parse_string_to_lesson = () => {
 		}
 	});
 
-	this.blocks = lesson_blocks;
+	if (type == "lesson") {
+		this.lesson_blocks = blocks;
+	} else if (type == "notes") {
+		this.notes_blocks = blocks;
+	}
 };
 
 const save_lesson = (e) => {
 	self.editor.save().then((outputData) => {
-		parse_lesson_to_string(outputData);
+		parse_content_to_string(outputData, "lesson");
+
+		self.instructor_notes_editor.save().then((outputData) => {
+			parse_content_to_string(outputData, "notes");
+			save();
+		});
 	});
 };
 
-const parse_lesson_to_string = (data) => {
+const parse_content_to_string = (data, type) => {
 	let lesson_content = "";
 	data.blocks.forEach((block) => {
 		if (block.type == "youtube") {
@@ -175,24 +203,28 @@ const parse_lesson_to_string = (data) => {
 			}|||${block.data.embed.replace(/&amp;/g, "&")}") }}\n`;
 		}
 	});
-	save(lesson_content);
+	if (type == "lesson") {
+		this.lesson_content_data = lesson_content;
+	} else if (type == "notes") {
+		this.instructor_notes_data = lesson_content;
+	}
 };
 
-const save = (lesson_content) => {
-	validate_mandatory(lesson_content);
+const save = () => {
+	console.log(this.instructor_notes_data);
+	console.log(this.lesson_content_data);
+	validate_mandatory(this.lesson_content_data);
 	let lesson = $("#lesson-title").data("lesson");
-
 	frappe.call({
 		method: "lms.lms.doctype.lms_course.lms_course.save_lesson",
 		args: {
 			title: $("#lesson-title").val(),
-			body: lesson_content,
+			body: this.lesson_content_data,
 			chapter: $("#lesson-title").data("chapter"),
 			preview: $("#preview").prop("checked") ? 1 : 0,
 			idx: $("#lesson-title").data("index"),
 			lesson: lesson ? lesson : "",
-			instructor_notes:
-				this.instructor_notes.get_values().instructor_notes,
+			instructor_notes: this.instructor_notes_data,
 		},
 		callback: (data) => {
 			frappe.show_alert({
