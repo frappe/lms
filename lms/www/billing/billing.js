@@ -105,7 +105,7 @@ const setup_billing = () => {
 };
 
 const generate_payment_link = (e) => {
-	address = this.billing.get_values();
+	let new_address = this.billing.get_values();
 	let doctype = $(e.currentTarget).attr("data-doctype");
 	let docname = decodeURIComponent($(e.currentTarget).attr("data-name"));
 
@@ -114,8 +114,8 @@ const generate_payment_link = (e) => {
 		args: {
 			doctype: doctype,
 			docname: docname,
-			phone: address.phone,
-			country: address.country,
+			phone: new_address.phone,
+			country: new_address.country,
 		},
 		callback: (data) => {
 			data.message.handler = (response) => {
@@ -123,7 +123,7 @@ const generate_payment_link = (e) => {
 					response,
 					doctype,
 					docname,
-					address,
+					new_address,
 					data.message.order_id
 				);
 			};
@@ -156,6 +156,7 @@ const handle_success = (response, doctype, docname, address, order_id) => {
 };
 
 const change_currency = () => {
+	$("#gst-message").removeClass("hide");
 	let country = this.billing.get_value("country");
 	if (exception_country.includes(country)) {
 		update_price(original_price_formatted);
@@ -172,6 +173,9 @@ const change_currency = () => {
 			let current_price = $(".total-price").text();
 			if (current_price != data.message) {
 				update_price(data.message);
+			}
+			if (!data.message.includes("INR")) {
+				$("#gst-message").addClass("hide");
 			}
 		},
 	});
