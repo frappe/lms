@@ -14,6 +14,7 @@
             {{ CourseList(courses) }}
         </div>
 	</div>
+    {{ BatchDetailsRaw() }}
 </div>
 {% endblock %}
 
@@ -214,6 +215,15 @@
 	</div>
 	{% endif %}
 </div>
+{% endmacro %}
+
+
+{% macro BatchDetailsRaw() %}
+    {% if batch_info.batch_details_raw %}
+        <div class="mt-10 pt-10">
+            {{ batch_info.batch_details_raw }}
+        </div>
+    {% endif %}
 {% endmacro %}
 
 {%- block script %}

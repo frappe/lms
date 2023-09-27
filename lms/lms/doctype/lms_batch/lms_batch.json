@@ -22,7 +22,11 @@
   "seat_count",
   "section_break_6",
   "description",
+  "batch_details_raw",
+  "column_break_hlqw",
   "batch_details",
+  "meta_image",
+  "section_break_jgji",
   "students",
   "courses",
   "section_break_gsac",
@@ -218,11 +222,29 @@
   {
    "fieldname": "section_break_ontp",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "batch_details_raw",
+   "fieldtype": "HTML Editor",
+   "label": "Batch Details Raw"
+  },
+  {
+   "fieldname": "column_break_hlqw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_jgji",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "meta_image",
+   "fieldtype": "Attach Image",
+   "label": "Meta Image"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-09-20 14:40:45.940540",
+ "modified": "2023-09-27 18:42:53.301107",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch",
