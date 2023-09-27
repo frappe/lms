@@ -29,6 +29,8 @@ def get_context(context):
 			"end_time",
 			"seat_count",
 			"published",
+			"meta_image",
+			"batch_details_raw",
 		],
 		as_dict=1,
 	)
@@ -67,3 +69,11 @@ def get_context(context):
 
 	context.student_count = frappe.db.count("Batch Student", {"parent": batch_name})
 	context.seats_left = context.batch_info.seat_count - context.student_count
+
+	context.metatags = {
+		"title": context.batch_info.title,
+		"image": context.batch_info.meta_image,
+		"description": context.batch_info.description,
+		"keywords": context.batch_info.title,
+		"og:type": "website",
+	}

@@ -341,6 +341,18 @@ const open_batch_dialog = () => {
 				reqd: 1,
 			},
 			{
+				fieldtype: "HTML Editor",
+				label: __("Batch Details Raw"),
+				fieldname: "batch_details_raw",
+				default: batch_info && batch_info.batch_details_raw,
+			},
+			{
+				fieldtype: "Attach Image",
+				label: __("Meta Image"),
+				fieldname: "meta_image",
+				default: batch_info && batch_info.image,
+			},
+			{
 				fieldtype: "Section Break",
 				label: __("Pricing"),
 				fieldname: "pricing",
