@@ -172,6 +172,7 @@
 
 
 {% macro CourseList(courses) %}
+{% if courses | length or is_moderator %}
 <div class="batch-course-list">
 
     <div class="flex align-center">
@@ -215,6 +216,7 @@
 	</div>
 	{% endif %}
 </div>
+{% endif %}
 {% endmacro %}
 
 

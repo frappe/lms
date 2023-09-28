@@ -1,6 +1,7 @@
 import frappe
 from frappe import _
 from frappe.utils import cstr, flt
+from lms.lms.md import markdown_to_html
 
 from lms.lms.utils import (
 	get_lesson_url,
@@ -45,6 +46,9 @@ def get_context(context):
 	context.instructor = is_instructor(context.course.name)
 	context.is_moderator = has_course_moderator_role()
 	context.is_evaluator = has_course_evaluator_role()
+
+	if context.lesson.instructor_notes:
+		context.instructor_notes = markdown_to_html(context.lesson.instructor_notes)
 
 	context.show_lesson = (
 		context.membership
