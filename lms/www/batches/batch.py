@@ -32,6 +32,7 @@ def get_context(context):
 			"description",
 			"medium",
 			"custom_component",
+			"custom_script",
 			"seat_count",
 			"start_time",
 			"end_time",
@@ -96,6 +97,13 @@ def get_context(context):
 		},
 	)
 	context.legends = get_legends()
+
+	custom_tabs = frappe.get_hooks("lms_batch_tabs")
+
+	if custom_tabs:
+		context.custom_tabs_header = (custom_tabs.get("header_html")[0],)
+		context.custom_tabs_content = (custom_tabs.get("content_html")[0],)
+		context.update(frappe.get_attr(custom_tabs.get("context")[0])())
 
 
 def get_all_quizzes(batch_name):
