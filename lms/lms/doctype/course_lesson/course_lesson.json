@@ -141,7 +141,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-09-27 15:45:54.738573",
+ "modified": "2023-09-29 17:04:19.252897",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Course Lesson",
@@ -169,7 +169,7 @@
    "print": 1,
    "read": 1,
    "report": 1,
-   "role": "All",
+   "role": "LMS Student",
    "select": 1,
    "share": 1,
    "write": 1
