@@ -59,7 +59,7 @@
    "link_fieldname": "chapter"
   }
  ],
- "modified": "2022-03-14 17:57:00.707416",
+ "modified": "2023-09-29 17:03:58.013819",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Course Chapter",
@@ -86,7 +86,7 @@
    "print": 1,
    "read": 1,
    "report": 1,
-   "role": "All",
+   "role": "LMS Student",
    "select": 1,
    "share": 1,
    "write": 1

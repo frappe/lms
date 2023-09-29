@@ -40,7 +40,7 @@ def save_current_lesson(course_name, lesson_name):
 		return
 	doc = frappe.get_doc("LMS Enrollment", name)
 	doc.current_lesson = lesson_name
-	doc.save(ignore_permissions=True)
+	doc.save()
 	return {"current_lesson": doc.current_lesson}
 
 
@@ -66,7 +66,7 @@ def join_cohort(course, cohort, subgroup, invite_code):
 		return {"ok": True, "status": "record found"}
 	else:
 		doc = frappe.get_doc(data)
-		doc.insert(ignore_permissions=True)
+		doc.insert()
 		return {"ok": True, "status": "record created"}
 
 
@@ -82,7 +82,7 @@ def approve_cohort_join_request(join_request):
 		return {"ok": False, "error": "Permission Deined"}
 
 	r.status = "Accepted"
-	r.save(ignore_permissions=True)
+	r.save()
 	return {"ok": True}
 
 
@@ -98,7 +98,7 @@ def reject_cohort_join_request(join_request):
 		return {"ok": False, "error": "Permission Deined"}
 
 	r.status = "Rejected"
-	r.save(ignore_permissions=True)
+	r.save()
 	return {"ok": True}
 
 
@@ -115,7 +115,7 @@ def undo_reject_cohort_join_request(join_request):
 		return {"ok": False, "error": "Permission Deined"}
 
 	r.status = "Pending"
-	r.save(ignore_permissions=True)
+	r.save()
 	return {"ok": True}
 
 

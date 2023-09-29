@@ -19,7 +19,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-12-21 09:34:35.018280",
+ "modified": "2023-09-29 17:04:58.167481",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Function",
@@ -44,11 +44,12 @@
    "print": 1,
    "read": 1,
    "report": 1,
-   "role": "All",
+   "role": "LMS Student",
    "select": 1,
    "share": 1
   }
  ],
  "sort_field": "modified",
- "sort_order": "DESC"
+ "sort_order": "DESC",
+ "states": []
 }

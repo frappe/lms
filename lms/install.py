@@ -54,6 +54,7 @@ def create_lms_roles():
 	create_course_creator_role()
 	create_moderator_role()
 	create_evaluator_role()
+	create_lms_student_role()
 
 
 def delete_lms_roles():
@@ -99,6 +100,19 @@ def create_evaluator_role():
 		role.update(
 			{
 				"role_name": "Class Evaluator",
+				"home_page": "",
+				"desk_access": 0,
+			}
+		)
+		role.save()
+
+
+def create_lms_student_role():
+	if not frappe.db.exists("Role", "LMS Student"):
+		role = frappe.new_doc("Role")
+		role.update(
+			{
+				"role_name": "LMS Student",
 				"home_page": "",
 				"desk_access": 0,
 			}
