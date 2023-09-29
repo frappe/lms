@@ -29,13 +29,6 @@
   "section_break_jgji",
   "students",
   "courses",
-  "section_break_gsac",
-  "paid_batch",
-  "column_break_iens",
-  "amount",
-  "currency",
-  "section_break_ubxi",
-  "custom_component",
   "assessment_tab",
   "assessment",
   "schedule_tab",
@@ -43,7 +36,18 @@
   "column_break_anya",
   "show_live_class",
   "section_break_ontp",
-  "timetable"
+  "timetable",
+  "pricing_tab",
+  "section_break_gsac",
+  "paid_batch",
+  "column_break_iens",
+  "amount",
+  "currency",
+  "customisations_tab",
+  "section_break_ubxi",
+  "custom_component",
+  "column_break_pxgb",
+  "custom_script"
  ],
  "fields": [
   {
@@ -94,10 +98,9 @@
    "reqd": 1
   },
   {
-   "description": "The HTML code entered here will be displayed on the batch details page.",
    "fieldname": "custom_component",
    "fieldtype": "Code",
-   "label": "Custom Component",
+   "label": "Custom HTML",
    "options": "HTML"
   },
   {
@@ -155,6 +158,7 @@
    "options": "LMS Category"
   },
   {
+   "description": "These customisations will work on the main batch page.",
    "fieldname": "section_break_ubxi",
    "fieldtype": "Section Break"
   },
@@ -165,8 +169,7 @@
   },
   {
    "fieldname": "section_break_gsac",
-   "fieldtype": "Section Break",
-   "label": "Pricing"
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "column_break_iens",
@@ -240,11 +243,31 @@
    "fieldname": "meta_image",
    "fieldtype": "Attach Image",
    "label": "Meta Image"
+  },
+  {
+   "fieldname": "column_break_pxgb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "customisations_tab",
+   "fieldtype": "Tab Break",
+   "label": "Customisations"
+  },
+  {
+   "fieldname": "pricing_tab",
+   "fieldtype": "Tab Break",
+   "label": "Pricing"
+  },
+  {
+   "fieldname": "custom_script",
+   "fieldtype": "Code",
+   "label": "Custom Script (JavaScript)",
+   "options": "Javascript"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-09-27 18:42:53.301107",
+ "modified": "2023-09-28 12:18:34.418812",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch",

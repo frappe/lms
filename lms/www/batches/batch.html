@@ -77,7 +77,9 @@
 
 
 	{% if batch_info.custom_component %}
-		{{ batch_info.custom_component }}
+		<div class="mt-4">
+			{{ batch_info.custom_component }}
+		</div>
 	{% endif %}
 </div>
 {% endmacro %}
@@ -150,6 +152,9 @@
 		</li>
 		{% endif %}
 
+		{% if custom_tabs_header %}
+    		{% include custom_tabs_header %}
+		{% endif %}
 	</ul>
 
 	<div class="border-bottom mb-4"></div>
@@ -192,6 +197,10 @@
 		</div>
 		{% endif %}
 
+		{% if custom_tabs_content %}
+			{% include custom_tabs_content %}
+		{% endif %}
+
 	</div>
 </div>
 {% endmacro %}
@@ -202,17 +211,19 @@
 {% set assessments = current_student.assessments %}
 {% set student = current_student %}
 
-{% if student.name == frappe.session.user %}
-	<button class="btn btn-default btn-sm btn-schedule-eval ml-2 pull-right">
-		{{ _("Schedule Evaluation") }}
-	</button>
-{% endif %}
+<div>
+	{% if student.name == frappe.session.user %}
+		<button class="btn btn-default btn-sm btn-schedule-eval ml-2 pull-right">
+			{{ _("Schedule Evaluation") }}
+		</button>
+	{% endif %}
 
-<div class="mb-8">
-	{% include "lms/templates/upcoming_evals.html" %}
-</div>
-<div class="mb-8">
-	{% include "lms/templates/assessments.html" %}
+	<div class="mb-8">
+		{% include "lms/templates/upcoming_evals.html" %}
+	</div>
+	<div class="mb-8">
+		{% include "lms/templates/assessments.html" %}
+	</div>
 </div>
 {% endmacro %}
 
@@ -421,7 +432,7 @@
 	</header>
 	{{ CreateLiveClass(batch_info) }}
 	{{ LiveClassList(batch_info, live_classes) }}
-</div>
+</article>
 {% endmacro %}
 
 
@@ -547,10 +558,17 @@
 
 {%- block script %}
 	{{ super() }}
+	{% if batch_info.custom_script %}
+	<script>
+		{{ batch_info.custom_script }}
+	</script>
+	{% endif %}
+
 	<script>
 		frappe.boot.single_types = []
 		let courses = {{ course_list | json }};
 	</script>
+
 	<link rel="stylesheet" href="https://uicdn.toast.com/calendar/latest/toastui-calendar.min.css" />
 	<script src="https://uicdn.toast.com/calendar/latest/toastui-calendar.min.js"></script>
 {% endblock %}
