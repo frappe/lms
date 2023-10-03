@@ -119,6 +119,16 @@ const parse_string_to_lesson = (type) => {
 				type: "upload",
 				data: {
 					file_url: video,
+					file_type: "video",
+				},
+			});
+		} else if (block.includes("{{ Audio")) {
+			let audio = block.match(/\(["']([^"']+?)["']\)/)[1];
+			blocks.push({
+				type: "upload",
+				data: {
+					file_url: audio,
+					file_type: "audio",
 				},
 			});
 		} else if (block.includes("{{ Embed")) {
@@ -136,6 +146,7 @@ const parse_string_to_lesson = (type) => {
 				type: "upload",
 				data: {
 					file_url: image,
+					file_type: "image",
 				},
 			});
 		} else if (block.includes("#")) {
@@ -184,9 +195,12 @@ const parse_content_to_string = (data, type) => {
 			lesson_content += `{{ Quiz("${block.data.quiz}") }}\n`;
 		} else if (block.type == "upload") {
 			let url = block.data.file_url;
-			lesson_content += block.data.is_video
-				? `{{ Video("${url}") }}\n`
-				: `![](${url})`;
+			lesson_content +=
+				block.data.file_type == "video"
+					? `{{ Video("${url}") }}\n`
+					: block.data.file_type == "audio"
+					? `{{ Audio("${url}") }}\n`
+					: `![](${url})`;
 		} else if (block.type == "header") {
 			lesson_content +=
 				"#".repeat(block.data.level) + ` ${block.data.text}\n`;
@@ -211,8 +225,6 @@ const parse_content_to_string = (data, type) => {
 };
 
 const save = () => {
-	console.log(this.instructor_notes_data);
-	console.log(this.lesson_content_data);
 	validate_mandatory(this.lesson_content_data);
 	let lesson = $("#lesson-title").data("lesson");
 	frappe.call({
@@ -260,10 +272,22 @@ const validate_mandatory = (lesson_content) => {
 	}
 };
 
-const is_video = (url) => {
+const get_file_type = (url) => {
 	let video_types = ["mov", "mp4", "mkv"];
 	let video_extension = url.split(".").pop();
-	return video_types.indexOf(video_extension) >= 0;
+
+	if (video_types.indexOf(video_extension) >= 0) {
+		return "video";
+	}
+
+	let audio_types = ["mp3", "wav", "ogg"];
+	let audio_extension = url.split(".").pop();
+
+	if (audio_types.indexOf(audio_extension) >= 0) {
+		return "audio";
+	}
+
+	return "image";
 };
 
 class YouTubeVideo {
@@ -444,7 +468,7 @@ class Upload {
 			folder: "Home/Attachments",
 			make_attachments_public: true,
 			restrictions: {
-				allowed_file_types: ["image/*", "video/*"],
+				allowed_file_types: ["image/*", "video/*", "audio/*"],
 			},
 			on_success: (file_doc) => {
 				self.file_url = file_doc.file_url;
@@ -454,11 +478,15 @@ class Upload {
 	}
 
 	render_upload(url) {
-		this.is_video = is_video(url);
-		if (this.is_video) {
-			return `<video controls width='100%'>
+		this.file_type = get_file_type(url);
+		if (this.file_type == "video") {
+			return `<video controls width='100%' controls controlsList='nodownload'>
 				<source src=${encodeURI(url)} type='video/mp4'>
 			</video>`;
+		} else if (this.file_type == "audio") {
+			return `<audio controls width='100%' controls controlsList='nodownload'>
+				<source src=${encodeURI(url)} type='audio/mp3'>
+			</audio>`;
 		} else {
 			return `<img src=${encodeURI(url)} width='100%'>`;
 		}
@@ -471,7 +499,7 @@ class Upload {
 	save(block_content) {
 		return {
 			file_url: this.data.file_url || this.file_url,
-			is_video: this.is_video,
+			file_type: this.file_type,
 		};
 	}
 }
