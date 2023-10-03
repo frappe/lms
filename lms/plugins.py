@@ -178,9 +178,11 @@ def embed_renderer(details):
 
 
 def video_renderer(src):
-	return (
-		f"<video controls width='100%'><source src={quote(src)} type='video/mp4'></video>"
-	)
+	return f"<video controls width='100%' controls controlsList='nodownload'><source src={quote(src)} type='video/mp4'></video>"
+
+
+def audio_renderer(src):
+	return f"<audio width='100%' controls controlsList='nodownload'><source src={quote(src)} type='audio/mp3'></audio>"
 
 
 def assignment_renderer(detail):

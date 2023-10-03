@@ -101,8 +101,8 @@ def get_context(context):
 	custom_tabs = frappe.get_hooks("lms_batch_tabs")
 
 	if custom_tabs:
-		context.custom_tabs_header = (custom_tabs.get("header_html")[0],)
-		context.custom_tabs_content = (custom_tabs.get("content_html")[0],)
+		context.custom_tabs_header = custom_tabs.get("header_html")[0]
+		context.custom_tabs_content = custom_tabs.get("content_html")[0]
 		context.update(frappe.get_attr(custom_tabs.get("context")[0])())
 
 
