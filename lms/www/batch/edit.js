@@ -54,11 +54,6 @@ const get_tools = () => {
 							"https://docs.google.com/presentation/d/e/<%= remote_id %>/embed",
 						html: "<iframe width='100%' height='300' frameborder='0' allowfullscreen='true'></iframe>",
 					},
-					pdf: {
-						regex: /(https?:\/\/.*\.pdf)/,
-						embedUrl: "<%= remote_id %>",
-						html: "<iframe width='100%' height='600px' frameborder='0'></iframe>",
-					},
 				},
 			},
 		},
@@ -131,6 +126,15 @@ const parse_string_to_lesson = (type) => {
 					file_type: "audio",
 				},
 			});
+		} else if (block.includes("{{ PDF")) {
+			let pdf = block.match(/\(["']([^"']+?)["']\)/)[1];
+			blocks.push({
+				type: "upload",
+				data: {
+					file_url: pdf,
+					file_type: "pdf",
+				},
+			});
 		} else if (block.includes("{{ Embed")) {
 			let embed = block.match(/\(["']([^"']+?)["']\)/)[1];
 			blocks.push({
@@ -195,23 +199,21 @@ const parse_content_to_string = (data, type) => {
 			lesson_content += `{{ Quiz("${block.data.quiz}") }}\n`;
 		} else if (block.type == "upload") {
 			let url = block.data.file_url;
-			lesson_content +=
-				block.data.file_type == "video"
-					? `{{ Video("${url}") }}\n`
-					: block.data.file_type == "audio"
-					? `{{ Audio("${url}") }}\n`
-					: `![](${url})`;
+			if (block.data.file_type == "video") {
+				lesson_content += `{{ Video("${url}") }}\n`;
+			} else if (block.data.file_type == "audio") {
+				lesson_content += `{{ Audio("${url}") }}\n`;
+			} else if (block.data.file_type == "pdf") {
+				lesson_content += `{{ PDF("${url}") }}\n`;
+			} else {
+				lesson_content += `![](${url})`;
+			}
 		} else if (block.type == "header") {
 			lesson_content +=
 				"#".repeat(block.data.level) + ` ${block.data.text}\n`;
 		} else if (block.type == "paragraph") {
 			lesson_content += `${block.data.text}\n`;
 		} else if (block.type == "embed") {
-			if (block.data.service == "pdf") {
-				if (!block.data.embed.startsWith(window.location.origin)) {
-					frappe.throw(__("Invalid PDF URL"));
-				}
-			}
 			lesson_content += `{{ Embed("${
 				block.data.service
 			}|||${block.data.embed.replace(/&amp;/g, "&")}") }}\n`;
@@ -285,6 +287,10 @@ const get_file_type = (url) => {
 
 	if (audio_types.indexOf(audio_extension) >= 0) {
 		return "audio";
+	}
+
+	if (url.split(".").pop() == "pdf") {
+		return "pdf";
 	}
 
 	return "image";
@@ -468,7 +474,7 @@ class Upload {
 			folder: "Home/Attachments",
 			make_attachments_public: true,
 			restrictions: {
-				allowed_file_types: ["image/*", "video/*", "audio/*"],
+				allowed_file_types: ["image/*", "video/*", "audio/*", ".pdf"],
 			},
 			on_success: (file_doc) => {
 				self.file_url = file_doc.file_url;
@@ -487,6 +493,10 @@ class Upload {
 			return `<audio controls width='100%' controls controlsList='nodownload'>
 				<source src=${encodeURI(url)} type='audio/mp3'>
 			</audio>`;
+		} else if (this.file_type == "pdf") {
+			return `<iframe src="${encodeURI(
+				url
+			)}#toolbar=0" width='100%' height='700px'></iframe>`;
 		} else {
 			return `<img src=${encodeURI(url)} width='100%'>`;
 		}

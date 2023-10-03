@@ -306,6 +306,7 @@ lms_markdown_macro_renderers = {
 	"Assignment": "lms.plugins.assignment_renderer",
 	"Embed": "lms.plugins.embed_renderer",
 	"Audio": "lms.plugins.audio_renderer",
+	"PDF": "lms.plugins.pdf_renderer",
 }
 
 # page_renderer to manage profile pages
