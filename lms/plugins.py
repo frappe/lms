@@ -185,6 +185,10 @@ def audio_renderer(src):
 	return f"<audio width='100%' controls controlsList='nodownload'><source src={quote(src)} type='audio/mp3'></audio>"
 
 
+def pdf_renderer(src):
+	return f"<iframe src='{quote(src)}#toolbar=0' width='100%' height='700px'></iframe>"
+
+
 def assignment_renderer(detail):
 	supported_types = {
 		"Document": ".doc,.docx,.xml,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document",
