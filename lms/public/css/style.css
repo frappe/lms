@@ -2057,8 +2057,8 @@ select {
 }
 
 .onboarding-parent {
-	background-color: var(--primary-light);
-	padding: 2rem 0;
+	background-color: var(--gray-100);
+	padding: 1rem 0;
 }
 
 .onboarding-steps {
