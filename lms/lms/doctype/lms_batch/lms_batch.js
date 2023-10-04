@@ -39,9 +39,10 @@ frappe.ui.form.on("LMS Batch", {
 					fields: [
 						"reference_doctype",
 						"reference_docname",
-						"date",
+						"day",
 						"start_time",
 						"end_time",
+						"duration",
 					],
 					filters: {
 						parent: frm.doc.timetable_template,
@@ -61,9 +62,17 @@ const add_timetable_rows = (frm, timetable) => {
 		let child = frm.add_child("timetable");
 		child.reference_doctype = row.reference_doctype;
 		child.reference_docname = row.reference_docname;
-		child.date = row.date;
+		child.date = frappe.datetime.add_days(frm.doc.start_date, row.day - 1);
 		child.start_time = row.start_time;
-		child.end_time = row.end_time;
+		child.end_time = row.end_time
+			? row.end_time
+			: row.duration
+			? moment
+					.utc(row.start_time, "HH:mm")
+					.add(row.duration, "hour")
+					.format("HH:mm")
+			: null;
+		child.duration = row.duration;
 	});
 	frm.refresh_field("timetable");
 	frm.save();
