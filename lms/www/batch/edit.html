@@ -82,28 +82,6 @@
     </div>
 
     <div class="field-group">
-        <div class="collapse-section collapsed" data-toggle="collapse" data-target="#lesson-content-section">
-            <svg class="icon icon-sm pull-right">
-                <use href="#icon-up-line"></use>
-            </svg>
-            <div class="field-label">
-                {{ _("Content") }}
-            </div>
-            <div class="field-description mb-2">
-                {{ _("Add your lesson content here") }}
-            </div>
-        </div>
-
-        <div id="lesson-content-section" class="collapse">
-            <div id="lesson-content" class="lesson-editor"></div>
-        </div>
-
-        {% if lesson.body %}
-            <div id="current-lesson-content" class="hide">{{ lesson.body }}</div>
-        {% endif %}
-    </div>
-
-    <div class="field-group">
        <div class="collapse-section collapsed" data-toggle="collapse" data-target="#instructor-notes-section">
             <svg class="icon icon-sm pull-right">
                 <use href="#icon-up-line"></use>
@@ -120,6 +98,25 @@
        </div>
         {% if lesson.instructor_notes %}
             <div id="current-instructor-notes" class="hide">{{ lesson.instructor_notes }}</div>
+        {% endif %}
+    </div>
+
+    <div class="field-group">
+        <div>
+            <div class="field-label">
+                {{ _("Content") }}
+            </div>
+            <div class="field-description mb-2">
+                {{ _("Add your lesson content here") }}
+            </div>
+        </div>
+
+        <div id="lesson-content-section">
+            <div id="lesson-content" class="lesson-editor"></div>
+        </div>
+
+        {% if lesson.body %}
+            <div id="current-lesson-content" class="hide">{{ lesson.body }}</div>
         {% endif %}
     </div>
 
