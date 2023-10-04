@@ -43,7 +43,7 @@ def get_context(context):
 		)
 		if not batch.published:
 			private_batches.append(batch)
-		elif getdate(batch.start_date) < getdate():
+		elif getdate(batch.start_date) <= getdate():
 			past_batches.append(batch)
 		else:
 			upcoming_batches.append(batch)
