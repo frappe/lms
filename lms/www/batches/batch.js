@@ -63,6 +63,10 @@ frappe.ready(() => {
 	$(document).on("click", ".slot", (e) => {
 		mark_active_slot(e);
 	});
+
+	$(".btn-email").click((e) => {
+		email_to_students();
+	});
 });
 
 const create_live_class = (e) => {
@@ -764,4 +768,48 @@ const get_background_color = (doctype) => {
 	if (doctype == "LMS Quiz") return "var(--green-400)";
 	if (doctype == "LMS Assignment") return "var(--orange-400)";
 	if (doctype == "LMS Live Class") return "var(--purple-400)";
+};
+
+const email_to_students = () => {
+	this.email_dialog = new frappe.ui.Dialog({
+		title: __("Email to Students"),
+		fields: [
+			{
+				fieldtype: "Data",
+				fieldname: "subject",
+				label: __("Subject"),
+				reqd: 1,
+			},
+			{
+				fieldtype: "Text Editor",
+				fieldname: "message",
+				label: __("Message"),
+				reqd: 1,
+				max_height: 100,
+				min_lines: 5,
+			},
+		],
+		primary_action: (values) => {
+			send_email(values);
+		},
+	});
+	this.email_dialog.show();
+};
+
+const send_email = (values) => {
+	frappe.call({
+		method: "lms.lms.doctype.lms_batch.lms_batch.send_email_to_students",
+		args: {
+			batch: $(".class-details").data("batch"),
+			subject: values.subject,
+			message: values.message,
+		},
+		callback: (r) => {
+			this.email_dialog.hide();
+			frappe.show_alert({
+				message: __("Email sent successfully"),
+				indicator: "green",
+			});
+		},
+	});
 };

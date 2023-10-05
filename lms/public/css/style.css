@@ -2470,3 +2470,7 @@ select {
 	-moz-transform: rotate(180deg);
 	transform: rotate(180deg);
 }
+
+.modal-body .ql-container {
+	max-height: unset !important;
+}

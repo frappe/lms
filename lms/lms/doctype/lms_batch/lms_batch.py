@@ -335,3 +335,14 @@ def get_timetable_details(timetable):
 
 	timetable = sorted(timetable, key=lambda k: k["date"])
 	return timetable
+
+
+@frappe.whitelist()
+def send_email_to_students(batch, subject, message):
+	frappe.only_for("Moderator")
+	students = frappe.get_all("Batch Student", {"parent": batch}, pluck="student")
+	frappe.sendmail(
+		recipients=students,
+		subject=subject,
+		message=message,
+	)
