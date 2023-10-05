@@ -25,6 +25,8 @@ def get_context(context):
 			"paid_batch",
 			"amount",
 			"currency",
+			"category",
+			"medium",
 			"start_time",
 			"end_time",
 			"seat_count",
