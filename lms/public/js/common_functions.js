@@ -350,7 +350,7 @@ const open_batch_dialog = () => {
 				fieldtype: "Attach Image",
 				label: __("Meta Image"),
 				fieldname: "meta_image",
-				default: batch_info && batch_info.image,
+				default: batch_info && batch_info.meta_image,
 			},
 			{
 				fieldtype: "Section Break",

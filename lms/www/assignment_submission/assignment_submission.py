@@ -14,7 +14,10 @@ def get_context(context):
 	assignment = frappe.form_dict["assignment"]
 
 	context.assignment = frappe.db.get_value(
-		"LMS Assignment", assignment, ["title", "name", "type", "question"], as_dict=1
+		"LMS Assignment",
+		assignment,
+		["title", "name", "type", "question", "show_answer", "answer", "grade_assignment"],
+		as_dict=1,
 	)
 
 	if submission == "new-submission":
@@ -34,6 +37,10 @@ def get_context(context):
 			],
 			as_dict=True,
 		)
+
+		if not context.submission:
+			raise frappe.PermissionError(_("Invalid Submission URL"))
+
 		if not context.is_moderator and frappe.session.user != context.submission.member:
 			raise frappe.PermissionError(_("You don't have permission to access this page."))
 

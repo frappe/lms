@@ -9,10 +9,12 @@
  "engine": "InnoDB",
  "field_order": [
   "title",
+  "grade_assignment",
+  "question",
   "column_break_hmwv",
   "type",
-  "section_break_lwvt",
-  "question"
+  "show_answer",
+  "answer"
  ],
  "fields": [
   {
@@ -26,7 +28,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Type",
-   "options": "Document\nPDF\nURL\nImage"
+   "options": "Document\nPDF\nURL\nImage\nText"
   },
   {
    "fieldname": "title",
@@ -40,13 +42,29 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "section_break_lwvt",
-   "fieldtype": "Section Break"
+   "default": "0",
+   "depends_on": "eval:doc.type == \"Text\"",
+   "fieldname": "show_answer",
+   "fieldtype": "Check",
+   "label": "Show Answer"
+  },
+  {
+   "depends_on": "show_answer",
+   "fieldname": "answer",
+   "fieldtype": "Text Editor",
+   "label": "Answer"
+  },
+  {
+   "default": "1",
+   "depends_on": "eval:doc.type == \"Text\"",
+   "fieldname": "grade_assignment",
+   "fieldtype": "Check",
+   "label": "Grade Assignment"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-06-26 18:09:29.809564",
+ "modified": "2023-10-06 12:08:46.898950",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Assignment",

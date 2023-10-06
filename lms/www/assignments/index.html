@@ -5,7 +5,7 @@
 
 {% block content %}
 <main class="common-page-style">
-    <div class="container form-width">
+    <div class="container">
         {{ Header() }}
         {% if assignments | length %}
         {{ AssignmentList(assignments) }}
@@ -32,7 +32,33 @@
 
 {% macro AssignmentList(assignments) %}
 <div class="mt-5">
-    <ul class="list-unstyled">
+    <div class="form-grid">
+		<div class="grid-heading-row">
+			<div class="grid-row">
+				<div class="data-row row">
+					<div class="col grid-static-col">
+						{{ _("Title") }}
+					</div>
+					<div class="col grid-static-col col-xs-3">
+						{{ _("Type") }}
+					</div>
+				</div>
+			</div>
+		</div>
+		{% for assignment in assignments %}
+		<div class="grid-row">
+			<div class="data-row row">
+				<a class="col grid-static-col button-links clickable" href="/assignments/{{ assignment.name }}">
+					{{ assignment.title }}
+				</a>
+				<div class="col grid-static-col col-xs-3">
+					{{ assignment.type }}
+				</div>
+			</div>
+		</div>
+		{% endfor %}
+	</div>
+    <!-- <ul class="list-unstyled">
        {% for assignment in assignments %}
        <li class="list-row">
             <a class="clickable" href="/assignments/{{ assignment.name }}">
@@ -45,7 +71,7 @@
             </a>
         </li>
     {% endfor %}
-    </ul>
+    </ul> -->
 </div>
 {% endmacro %}
 
