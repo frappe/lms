@@ -21,7 +21,7 @@
                     <div class="page-title">
                         {{ assignment.title }}
                     </div>
-                    {% if submission.status %}
+                    {% if assignment.grade_assignment and submission.status %}
                     {% set color = "green" if submission.status == "Pass" else "red" if submission.status == "Fail" else "orange" %}
                     <div class="indicator-pill {{ color }} ml-2">
                         {{ submission.status }}
@@ -37,7 +37,7 @@
                 </div>
             </div>
 
-
+            {% if not assignment.show_answer or (assignment.show_answer and not submission) %}
             <div class="align-self-center">
                 <button class="btn btn-primary btn-sm btn-save-assignment"
                     data-assignment="{{ assignment.name }}" data-type="{{ assignment.type }}"
@@ -45,6 +45,7 @@
                     {{ _("Save") }}
                 </button>
             </div>
+            {% endif %}
         </div>
     </div>
 </header>
@@ -52,7 +53,7 @@
 
 {% macro SubmissionForm(assignment) %}
 <article class="field-parent">
-    {% if submission.name %}
+    {% if assignment.grade_assignment and submission.name %}
         <div class="alert alert-info">
             {{ _("You've successfully submitted the assignment. Once the moderator grades your submission, you'll find the details here. Feel free to make edits to your submission if needed.") }}
         </div>
@@ -73,7 +74,7 @@
         {{ assignment.question }}
     </div>
 
-    {% if assignment.type != "URL" %}
+    {% if assignment.type not in ["URL", "Text"] %}
     <div class="field-group">
         <div class="bold-heading">
             {{ _("Submit")}}
@@ -100,17 +101,41 @@
 
     <div class="field-group">
         <div class="bold-heading">
-            {{ _("Submit")}}
+            {{ _("Submission")}}
         </div>
         <div class="field-description">
-            {{ _("Enter a URL") }}
+            {% if assignment.type == "URL" %}
+            {{ _("Enter a {0}").format(assignment.type) }}
+            {% else %}
+            {{ _("Enter your response") }}
+            {% endif %}
         </div>
-        <input id="assignment-url" type="text" class="field-input" placeholder="https://"
-            {% if submission.answer %} value="{{ submission.answer }}" {% endif %}>
+        {% if assignment.type == "URL" %}
+            <input type="text" class="field-input assignment-answer" placeholder="https://"
+                {% if submission.answer %} value="{{ submission.answer }}" {% endif %}>
+        {% else %}
+            <div class="assignment-text"></div>
+            {% if submission.answer %}
+            <div class="assignment-text-data hide">
+                {{ submission.answer }}
+            </div>
+            {% endif %}
+        {% endif %}
     </div>
     {% endif %}
 
-    {% if is_moderator %}
+    {% if assignment.show_answer and submission %}
+    <div class="field-group">
+        <div class="bold-heading">
+            {{ _("Response by Instructor:") }}
+        </div>
+        <div>
+            {{ assignment.answer }}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if assignment.grade_assignment and is_moderator %}
         <div class="field-group">
             <div class="field-label">
                 {{ _("Status") }}
