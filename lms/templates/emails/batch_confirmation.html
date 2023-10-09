@@ -1,0 +1,38 @@
+<p>
+    {{ _("Dear ") }} {{ student_name }},
+</p>
+<br>
+<p>
+    {{ _("I am pleased to inform you that your enrollment for the upcoming training batch has been successfully processed. Congratulations!") }}
+</p>
+<br>
+<p>
+    <b>
+        {{ _("Important Details:") }}
+    </b>
+</p>
+
+<p>
+    <b>{{ _("Batch Start Date:") }}</b> {{ frappe.utils.format_date(start_date, "medium") }}
+</p>
+
+<p>
+    <b>{{ _("Medium:") }}</b> {{ medium }}
+</p>
+
+<p>
+    <b>{{ _("Timings:") }}</b> {{ frappe.utils.format_time(start_time, "hh:mm a") }}
+</p>
+<br>
+<p>
+    {{ _("Visit the following link to view your ") }}
+    <a href="/batches/{{ name }}">{{ _("Batch Details") }}</a>
+</p>
+<p>
+    {{ _("If you have any questions or require assistance, feel free to contact us.") }}
+</p>
+<br>
+<p>
+    {{ _("Best Regards") }}
+</p>
+

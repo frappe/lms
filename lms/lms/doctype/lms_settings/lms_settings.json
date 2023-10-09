@@ -16,6 +16,7 @@
   "portal_course_creation",
   "section_break_szgq",
   "send_calendar_invite_for_evaluations",
+  "batch_confirmation_template",
   "column_break_2",
   "allow_student_progress",
   "payment_section",
@@ -176,7 +177,7 @@
   {
    "fieldname": "section_break_szgq",
    "fieldtype": "Section Break",
-   "label": "Class Settings"
+   "label": "Batch Settings"
   },
   {
    "fieldname": "signup_settings_tab",
@@ -186,6 +187,7 @@
   {
    "fieldname": "mentor_request_tab",
    "fieldtype": "Tab Break",
+   "hidden": 1,
    "label": "Mentor Request"
   },
   {
@@ -253,12 +255,18 @@
    "fieldname": "apply_rounding",
    "fieldtype": "Check",
    "label": "Apply Rounding on Equivalent"
+  },
+  {
+   "fieldname": "batch_confirmation_template",
+   "fieldtype": "Link",
+   "label": "Batch Confirmation Template",
+   "options": "Email Template"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2023-09-11 21:56:39.996898",
+ "modified": "2023-10-09 17:27:28.615355",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",

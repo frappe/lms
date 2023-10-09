@@ -8,9 +8,17 @@ import json
 from frappe import _
 from datetime import timedelta
 from frappe.model.document import Document
-from frappe.utils import cint, format_date, format_datetime
+from frappe.utils import (
+	cint,
+	format_date,
+	format_datetime,
+	add_to_date,
+	getdate,
+	get_datetime,
+)
 from lms.lms.utils import get_lessons, get_lesson_index, get_lesson_url
 from lms.www.utils import get_quiz_details, get_assignment_details
+from frappe.email.doctype.email_template.email_template import get_email_template
 
 
 class LMSBatch(Document):
@@ -22,6 +30,7 @@ class LMSBatch(Document):
 		self.validate_duplicate_assessments()
 		self.validate_membership()
 		self.validate_timetable()
+		self.send_confirmation_mail()
 
 	def validate_duplicate_students(self):
 		students = [row.student for row in self.students]
@@ -54,6 +63,43 @@ class LMSBatch(Document):
 						frappe.bold(title)
 					)
 				)
+
+	def send_confirmation_mail(self):
+		for student in self.students:
+
+			if not student.confirmation_email_sent:
+				self.send_mail(student)
+				student.confirmation_email_sent = 1
+
+	def send_mail(self, student):
+		subject = _("Enrollment Confirmation for the Next Training Batch")
+		template = "batch_confirmation"
+		custom_template = frappe.db.get_single_value(
+			"LMS Settings", "batch_confirmation_template"
+		)
+
+		args = {
+			"student_name": student.student_name,
+			"start_time": self.start_time,
+			"start_date": self.start_date,
+			"medium": self.medium,
+			"name": self.name,
+		}
+
+		if custom_template:
+			email_template = get_email_template(custom_template, args)
+			subject = email_template.get("subject")
+			content = email_template.get("message")
+
+		frappe.sendmail(
+			recipients=student.student,
+			subject=subject,
+			template=template if not custom_template else None,
+			content=content if custom_template else None,
+			args=args,
+			header=[subject, "green"],
+			retry=3,
+		)
 
 	def validate_membership(self):
 		for course in self.courses:
