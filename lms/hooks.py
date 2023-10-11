@@ -98,7 +98,6 @@ override_doctype_class = {
 
 doc_events = {
 	"Discussion Reply": {"after_insert": "lms.lms.utils.create_notification_log"},
-	"Course Lesson": {"on_update": "lms.lms.doctype.lms_quiz.lms_quiz.update_lesson_info"},
 }
 
 # Scheduled Tasks

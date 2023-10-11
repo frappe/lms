@@ -72,3 +72,5 @@ lms.patches.v1_0.publish_certificates
 lms.patches.v1_0.change_naming_for_batch_course #14-09-2023
 execute:frappe.permissions.reset_perms("LMS Enrollment")
 lms.patches.v1_0.create_student_role
+lms.patches.v1_0.mark_confirmation_for_batch_students
+lms.patches.v1_0.create_quiz_questions

@@ -7,15 +7,13 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import cstr
 from lms.lms.utils import generate_slug, has_course_moderator_role, can_create_courses
+from lms.lms.doctype.lms_question.lms_question import validate_correct_answers
 
 
 class LMSQuiz(Document):
 	def autoname(self):
 		if not self.name:
 			self.name = generate_slug(self.title, "LMS Quiz")
-
-	def validate(self):
-		validate_correct_answers(self.questions)
 
 	def get_last_submission_details(self):
 		"""Returns the latest submission for this user."""
@@ -33,78 +31,6 @@ class LMSQuiz(Document):
 
 		if result:
 			return result[0]
-
-
-def get_correct_options(question):
-	correct_option_fields = [
-		"is_correct_1",
-		"is_correct_2",
-		"is_correct_3",
-		"is_correct_4",
-	]
-	return list(filter(lambda x: question.get(x) == 1, correct_option_fields))
-
-
-def validate_correct_answers(questions):
-	for question in questions:
-		if question.type == "Choices":
-			validate_duplicate_options(question)
-			validate_correct_options(question)
-		else:
-			validate_possible_answer(question)
-
-
-def validate_duplicate_options(question):
-	options = []
-
-	for num in range(1, 5):
-		if question.get(f"option_{num}"):
-			options.append(question.get(f"option_{num}"))
-
-	if len(set(options)) != len(options):
-		frappe.throw(
-			_("Duplicate options found for this question: {0}").format(
-				frappe.bold(question.question)
-			)
-		)
-
-
-def validate_correct_options(question):
-	correct_options = get_correct_options(question)
-
-	if len(correct_options) > 1:
-		question.multiple = 1
-
-	if not len(correct_options):
-		frappe.throw(
-			_("At least one option must be correct for this question: {0}").format(
-				frappe.bold(question.question)
-			)
-		)
-
-
-def validate_possible_answer(question):
-	possible_answers_fields = [
-		"possibility_1",
-		"possibility_2",
-		"possibility_3",
-		"possibility_4",
-	]
-	possible_answers = list(filter(lambda x: question.get(x), possible_answers_fields))
-
-	if not len(possible_answers):
-		frappe.throw(
-			_("Add at least one possible answer for this question: {0}").format(
-				frappe.bold(question.question)
-			)
-		)
-
-
-def update_lesson_info(doc, method):
-	if doc.quiz_id:
-		frappe.db.set_value(
-			"LMS Quiz", doc.quiz_id, {"lesson": doc.name, "course": doc.course}
-		)
 
 
 @frappe.whitelist()
@@ -171,7 +97,8 @@ def save_quiz(
 @frappe.whitelist()
 def save_question(quiz, values, index):
 	values = frappe._dict(json.loads(values))
-	validate_correct_answers([values])
+	for value in values:
+		validate_correct_answers(value)
 
 	if values.get("name"):
 		doc = frappe.get_doc("LMS Quiz Question", values.get("name"))
