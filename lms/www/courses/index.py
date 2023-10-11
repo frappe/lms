@@ -7,6 +7,7 @@ from lms.lms.utils import (
 	get_courses_under_review,
 	get_average_rating,
 	check_multicurrency,
+	has_course_instructor_role,
 )
 from lms.overrides.user import get_enrolled_courses, get_authored_courses
 
@@ -24,7 +25,13 @@ def get_context(context):
 	portal_course_creation = frappe.db.get_single_value(
 		"LMS Settings", "portal_course_creation"
 	)
-	context.show_creators_section = True if portal_course_creation == "Anyone" else False
+	context.show_creators_section = (
+		True
+		if portal_course_creation == "Anyone"
+		or has_course_moderator_role()
+		or has_course_instructor_role()
+		else False
+	)
 	context.show_review_section = (
 		has_course_moderator_role() and frappe.session.user != "Guest"
 	)
