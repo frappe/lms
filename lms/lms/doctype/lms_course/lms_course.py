@@ -216,7 +216,7 @@ def save_course(
 	course_price=None,
 	currency=None,
 ):
-	if not can_create_courses():
+	if not can_create_courses(course):
 		return
 
 	if course:

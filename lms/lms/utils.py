@@ -521,21 +521,35 @@ def has_course_instructor_role(member=None):
 	)
 
 
-def can_create_courses(member=None):
+def can_create_courses(course, member=None):
 	if not member:
 		member = frappe.session.user
+
+	instructors = frappe.get_all(
+		"Course Instructor",
+		{
+			"parent": course,
+		},
+		pluck="instructor",
+	)
 
 	if frappe.session.user == "Guest":
 		return False
 
-	if has_course_instructor_role(member) or has_course_moderator_role(member):
+	if has_course_moderator_role(member):
+		return True
+
+	if has_course_instructor_role(member) and member in instructors:
 		return True
 
 	portal_course_creation = frappe.db.get_single_value(
 		"LMS Settings", "portal_course_creation"
 	)
 
-	return portal_course_creation == "Anyone"
+	if portal_course_creation == "Anyone" and member in instructors:
+		return True
+
+	return False
 
 
 def has_course_moderator_role(member=None):
@@ -727,7 +741,7 @@ def get_chart_data(chart_name, timespan, timegrain, from_date, to_date):
 	}
 
 
-@frappe.whitelist()
+@frappe.whitelist(allow_guest=True)
 def get_course_completion_data():
 	all_membership = frappe.db.count("LMS Enrollment")
 	completed = frappe.db.count("LMS Enrollment", {"progress": ["like", "%100%"]})
