@@ -11,5 +11,19 @@ frappe.ui.form.on("LMS Timetable Template", {
 				},
 			};
 		});
+
+		frm.set_query("reference_doctype", "timetable_legends", function () {
+			let doctypes = [
+				"Course Lesson",
+				"LMS Quiz",
+				"LMS Assignment",
+				"LMS Live Class",
+			];
+			return {
+				filters: {
+					name: ["in", doctypes],
+				},
+			};
+		});
 	},
 });

@@ -552,7 +552,7 @@
 		{% for legend in legends %}
 		<div class="legend-item">
 			<div class="legend-color" style="background-color: {{ legend.color }}"></div>
-			<div class="legend-text">{{ legend.title }}</div>
+			<div class="legend-text">{{ legend.label }}</div>
 		</div>
 		{% endfor %}
 	</div>
@@ -574,6 +574,8 @@
 	<script>
 		frappe.boot.single_types = []
 		let courses = {{ course_list | json }};
+		const legends = {{ legends | json }};
+		const allow_future = {{ batch_info.allow_future }}
 	</script>
 
 	<link rel="stylesheet" href="https://uicdn.toast.com/calendar/latest/toastui-calendar.min.css" />

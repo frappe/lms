@@ -653,7 +653,6 @@ const setup_calendar = (events) => {
 	const options = get_calendar_options(element, calendar_id);
 	const calendar = new Calendar(container, options);
 	this.calendar_ = calendar;
-	console.log(options);
 	create_events(calendar, events);
 	add_links_to_events(calendar, events);
 	scroll_to_date(calendar, events);
@@ -698,8 +697,8 @@ const get_calendar_options = (element, calendar_id) => {
 
 const create_events = (calendar, events, calendar_id) => {
 	let calendar_events = [];
-
 	events.forEach((event, idx) => {
+		let clr = get_background_color(event.reference_doctype);
 		calendar_events.push({
 			id: `event${idx}`,
 			calendarId: calendar_id,
@@ -707,7 +706,7 @@ const create_events = (calendar, events, calendar_id) => {
 			start: `${event.date}T${event.start_time}`,
 			end: `${event.date}T${event.end_time}`,
 			isAllday: event.start_time ? false : true,
-			borderColor: get_background_color(event.reference_doctype),
+			borderColor: clr,
 			backgroundColor: "var(--fg-color)",
 			customStyle: {
 				borderRadius: "var(--border-radius-md)",
@@ -724,10 +723,21 @@ const create_events = (calendar, events, calendar_id) => {
 	calendar.createEvents(calendar_events);
 };
 
-const add_links_to_events = (calendar, events) => {
+const add_links_to_events = (calendar) => {
 	calendar.on("clickEvent", ({ event }) => {
-		const el = document.getElementById("clicked-event");
-		window.open(event.raw.url, "_blank");
+		let event_date = event.start.d.d;
+		event_date = moment(event_date).format("YYYY-MM-DD");
+
+		let current_date = moment().format("YYYY-MM-DD");
+		console.log(current_date, event_date);
+		console.log(
+			allow_future,
+			moment(event_date).isSameOrBefore(current_date)
+		);
+		if (allow_future || moment(event_date).isSameOrBefore(current_date)) {
+			console.log("in here");
+			window.open(event.raw.url, "_blank");
+		}
 	});
 };
 
@@ -764,10 +774,10 @@ const set_calendar_range = (calendar, events) => {
 };
 
 const get_background_color = (doctype) => {
-	if (doctype == "Course Lesson") return "var(--blue-400)";
-	if (doctype == "LMS Quiz") return "var(--green-400)";
-	if (doctype == "LMS Assignment") return "var(--orange-400)";
-	if (doctype == "LMS Live Class") return "var(--purple-400)";
+	const match = legends.filter((legend) => {
+		return legend.reference_doctype == doctype;
+	});
+	if (match.length) return match[0].color;
 };
 
 const email_to_students = () => {
