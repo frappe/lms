@@ -1,11 +1,9 @@
 name: Server Tests
-
 on:
   push:
     branches:
       - main
   pull_request: {}
-
 jobs:
   tests:
     runs-on: ubuntu-latest
@@ -23,70 +21,60 @@ jobs:
         ports:
           - 12000:6379
       mariadb:
-        image: mariadb:10.6
+        image: anandology/mariadb-utf8mb4:10.3
         ports:
           - 3306:3306
         env:
-          MARIADB_ROOT_PASSWORD: root
+          MYSQL_ROOT_PASSWORD: root
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Set up Python
+    - uses: actions/checkout@v2
+    - name: setup python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.11'
-
-    - name: Set up Node
+        python-version: '3.10'
+    - name: setup node
       uses: actions/setup-node@v2
       with:
-        node-version: 18
+        node-version: '18'
         check-latest: true
-
-    - name: Add to Hosts
-      run: echo "127.0.0.1 lms.test" | sudo tee -a /etc/hosts
-
-    - name: Cache pip
+    - name: setup cache for bench
       uses: actions/cache@v2
       with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/*requirements.txt', '**/pyproject.toml') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
-          ${{ runner.os }}-
-
-    - name: Cache node modules
-      uses: actions/cache@v2
-      env:
-        cache-name: cache-node-modules
-      with:
-        path: ~/.npm
-        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-build-${{ env.cache-name }}-
-          ${{ runner.os }}-build-
-          ${{ runner.os }}-
-
-    - name: Get yarn cache directory path
-      id: yarn-cache-dir-path
-      run: echo "::set-output name=dir::$(yarn cache dir)"
-
-    - uses: actions/cache@v2
-      id: yarn-cache
-      with:
-        path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-        key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-yarn-
-
-    - name: Install
+        path: ~/bench-cache
+        key: ${{ runner.os }}
+    - name: install bench
       run: |
-        bash ${GITHUB_WORKSPACE}/.github/helper/install.sh
-
-    - name: Run Tests
-      run: cd ~/frappe-bench/ && bench --site lms.test run-parallel-tests --app lms --total-builds 2 --build-number ${{ matrix.container }}
-      env:
-        TYPE: server
-        CI_BUILD_ID: ${{ github.run_id }}
-        ORCHESTRATOR_URL: http://test-orchestrator.frappe.io
+        pip3 install frappe-bench
+        which bench
+    - name: bench init
+      run: |
+        if [ -d ~/bench-cache/bench.tgz ]
+        then
+           (cd && tar xzf ~/bench-cache/bench.tgz)
+        else
+          bench init ~/frappe-bench --skip-redis-config-generation --skip-assets --python "$(which python)"
+          mkdir -p ~/bench-cache
+          (cd && tar czf ~/bench-cache/bench.tgz frappe-bench)
+        fi
+    - name: add lms app to bench
+      working-directory: /home/runner/frappe-bench
+      run: bench get-app lms $GITHUB_WORKSPACE
+    - name: create bench site
+      working-directory: /home/runner/frappe-bench
+      run: bench new-site --mariadb-root-password root --admin-password admin frappe.local
+    - name: install lms app
+      working-directory: /home/runner/frappe-bench
+      run: bench --site frappe.local install-app lms
+    - name: setup requirements
+      working-directory: /home/runner/frappe-bench
+      run: bench setup requirements --dev
+    - name: allow tests
+      working-directory: /home/runner/frappe-bench
+      run: bench --site frappe.local set-config allow_tests true
+    - name: bench build
+      working-directory: /home/runner/frappe-bench
+      run: bench --site frappe.local build
+    - name: run tests
+      working-directory: /home/runner/frappe-bench
+      run: bench --site frappe.local run-tests --app lms
