@@ -729,13 +729,7 @@ const add_links_to_events = (calendar) => {
 		event_date = moment(event_date).format("YYYY-MM-DD");
 
 		let current_date = moment().format("YYYY-MM-DD");
-		console.log(current_date, event_date);
-		console.log(
-			allow_future,
-			moment(event_date).isSameOrBefore(current_date)
-		);
 		if (allow_future || moment(event_date).isSameOrBefore(current_date)) {
-			console.log("in here");
 			window.open(event.raw.url, "_blank");
 		}
 	});
