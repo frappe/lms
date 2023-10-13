@@ -31,65 +31,71 @@ jobs:
 
         steps:
             - name: Clone
-              uses: actions/checkout@v2
+              uses: actions/checkout@v4
 
             - name: Setup Python
-              uses: actions/setup-python@v2
+              uses: actions/setup-python@v4
               with:
-                  python-version: "3.10"
+                  python-version: "3.11"
+
+            - name: Check for valid Python & Merge Conflicts
+              run: |
+                python -m compileall -q -f "${GITHUB_WORKSPACE}"
+                if grep -lr --exclude-dir=node_modules "^<<<<<<< " "${GITHUB_WORKSPACE}"
+                    then echo "Found merge conflicts"
+                    exit 1
+                fi
 
             - name: Setup Node
-              uses: actions/setup-node@v2
+              uses: actions/setup-node@v3
               with:
                   node-version: 18
                   check-latest: true
 
-            - name: Setup ache for bench
-              uses: actions/cache@v2
+            - name: Add to Hosts
+              run: |
+                echo "127.0.0.1 lms.test" | sudo tee -a /etc/hosts
+
+            - name: Cache pip
+              uses: actions/cache@v3
               with:
-                  path: ~/bench-cache
-                  key: ${{ runner.os }}
+                path: ~/.cache/pip
+                key: ${{ runner.os }}-pip-${{ hashFiles('**/*requirements.txt', '**/pyproject.toml', '**/setup.py') }}
+                restore-keys: |
+                  ${{ runner.os }}-pip-
+                  ${{ runner.os }}-
 
-            - name: Install Bench
+            - name: Get yarn cache directory path
+              id: yarn-cache-dir-path
+              run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+
+            - uses: actions/cache@v3
+              id: yarn-cache
+              with:
+                path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+                key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+                restore-keys: |
+                  ${{ runner.os }}-yarn-
+
+            - name: Install Dependencies
               run: |
-                  pip3 install frappe-bench
-                  which bench
-
-            - name: Bench Init
-              run: |
-                  if [ -d ~/bench-cache/bench.tgz ]
-                  then
-                     (cd && tar xzf ~/bench-cache/bench.tgz)
-                  else
-                    bench init ~/frappe-bench --skip-redis-config-generation --skip-assets --python "$(which python)"
-                    mkdir -p ~/bench-cache
-                    (cd && tar czf ~/bench-cache/bench.tgz frappe-bench)
-                  fi
-
-            - name: Add LMS app to bench
-              working-directory: /home/runner/frappe-bench
-              run: bench get-app lms $GITHUB_WORKSPACE
-
-            - name: Create bench site
-              working-directory: /home/runner/frappe-bench
-              run: bench new-site --mariadb-root-password root --admin-password admin frappe.local
-
-            - name: Install LMS app
-              working-directory: /home/runner/frappe-bench
-              run: bench --site frappe.local install-app lms
-
-            - name: Setup Requirements
-              working-directory: /home/runner/frappe-bench
-              run: bench setup requirements --dev
-
-            - name: Allow Tests
-              working-directory: /home/runner/frappe-bench
-              run: bench --site frappe.local set-config allow_tests true
-
-            - name: Build
-              working-directory: /home/runner/frappe-bench
-              run: bench --site frappe.local build
+                bash ${GITHUB_WORKSPACE}/.github/helper/install_dependencies.sh
+                bash ${GITHUB_WORKSPACE}/.github/helper/install.sh
+              env:
+                BEFORE: ${{ env.GITHUB_EVENT_PATH.before }}
+                AFTER: ${{ env.GITHUB_EVENT_PATH.after }}
+                TYPE: server
+                DB: ${{ matrix.db }}
 
             - name: Run Tests
-              working-directory: /home/runner/frappe-bench
-              run: bench --site frappe.local run-tests --app lms
+              run: cd ~/frappe-bench/ && bench --site lms.test run-parallel-tests --app lms --total-builds 4 --build-number ${{ matrix.container }}
+              env:
+                SITE: lms.test
+                CI_BUILD_ID: ${{ github.run_id }}
+                BUILD_NUMBER: ${{ matrix.container }}
+                TOTAL_BUILDS: 2
+
+            - name: Show bench output
+              if: ${{ always() }}
+              run: cat ~/frappe-bench/bench_start.log || true
+
