@@ -83,8 +83,6 @@ jobs:
     - name: Install
       run: |
         bash ${GITHUB_WORKSPACE}/.github/helper/install.sh
-      env:
-        BRANCH_TO_CLONE: ${{ env.HR_BRANCH }}
 
     - name: Run Tests
       run: cd ~/frappe-bench/ && bench --site lms.test run-parallel-tests --app lms --total-builds 2 --build-number ${{ matrix.container }}
