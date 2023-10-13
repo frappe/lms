@@ -105,6 +105,57 @@ def get_page_extensions(context):
 		e.set_context(context)
 	return extensions
 
+class LessonBookmark:
+	"""
+	This represents a simple data structure to represent a lesson bookmark.
+	"""
+	def __init__(self, lesson_number: str) -> None:
+		self.__test_param_or_raise_exception(lesson_number)
+		_lesson_number = f"{lesson_number}." if not "." in lesson_number else lesson_number
+		first, second = _lesson_number.split(".")
+
+		self.__value = (int(first), int(second) or 0)	# second would be "" if `lesson_number` is something like "7"
+
+	def __eq__(self, other: object) -> bool:
+		if isinstance(other, self.__class__):
+			return self.__value == other.value
+		return NotImplemented
+	
+	def __gt__(self, other: object) -> bool:
+		if isinstance(other, self.__class__):
+			return self.__value > other.value
+		return False
+
+	def __repr__(self) -> str:
+		return f"{self.__value[0]}.{self.__value[1]}"
+	
+	def __test_param_or_raise_exception(self, string: str) -> None:
+		"""
+		Tests that a given string is in the format "n" or "n.n" where n is a numeric
+		character. If the string does not match the expected format, `TypeError` is
+		raised.
+		"""
+		import re
+		import sys
+		expected_format = r'^\d+\.?\d*$'
+
+		try:
+			if not re.match(expected_format, string):
+				raise TypeError("""Expected a 'str' in the format 'n' or 'n.n' where n 
+				   is a numeric character. Example: '7' or '7.10""")
+		except TypeError as e:
+			tb = sys.exc_info()[2]
+			raise TypeError("""Expected a 'str' in the format 'n' or 'n.n' where n 
+				   is a numeric character. Example: '7' or '7.10""").with_traceback(tb)
+	
+	@property
+	def value(self):
+		return self.__value
+	
+	@property
+	def readable_value(self):
+		return self.__repr__()
+
 
 def get_neighbours(current, lessons):
 	current = flt(current)
