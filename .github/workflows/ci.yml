@@ -28,7 +28,6 @@ jobs:
           - 3306:3306
         env:
           MARIADB_ROOT_PASSWORD: root
-          MARIADB_DATABASE: dbname
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
     steps:
     - name: Checkout code
@@ -45,56 +44,51 @@ jobs:
         node-version: 18
         check-latest: true
 
-    - name: Change MariaDB Collation
-      run: |
-        mysql -h 127.0.0.1 -P 3306 -uroot -proot -e "ALTER DATABASE dbname CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci"
+    - name: Add to Hosts
+      run: echo "127.0.0.1 lms.test" | sudo tee -a /etc/hosts
 
-    - name: Cache Bench
+    - name: Cache pip
       uses: actions/cache@v2
       with:
-        path: ~/bench-cache
-        key: ${{ runner.os }}
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/*requirements.txt', '**/pyproject.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+          ${{ runner.os }}-
 
-    - name: Install Bench
+    - name: Cache node modules
+      uses: actions/cache@v2
+      env:
+        cache-name: cache-node-modules
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-build-${{ env.cache-name }}-
+          ${{ runner.os }}-build-
+          ${{ runner.os }}-
+
+    - name: Get yarn cache directory path
+      id: yarn-cache-dir-path
+      run: echo "::set-output name=dir::$(yarn cache dir)"
+
+    - uses: actions/cache@v2
+      id: yarn-cache
+      with:
+        path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+        key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-yarn-
+
+    - name: Install
       run: |
-        pip3 install frappe-bench
-        which bench
-
-    - name: Initialize Bench
-      run: |
-        if [ -d ~/bench-cache/bench.tgz ]
-        then
-           (cd && tar xzf ~/bench-cache/bench.tgz)
-        else
-          bench init ~/frappe-bench --skip-redis-config-generation --skip-assets --python "$(which python)"
-          mkdir -p ~/bench-cache
-          (cd && tar czf ~/bench-cache/bench.tgz frappe-bench)
-        fi
-
-    - name: Add LMS App
-      working-directory: /home/runner/frappe-bench
-      run: bench get-app lms $GITHUB_WORKSPACE
-
-    - name: Create Bench Site
-      working-directory: /home/runner/frappe-bench
-      run: bench new-site --mariadb-root-password root --admin-password admin frappe.local
-
-    - name: Install LMS App
-      working-directory: /home/runner/frappe-bench
-      run: bench --site frappe.local install-app lms
-
-    - name: Setup Requirements
-      working-directory: /home/runner/frappe-bench
-      run: bench setup requirements --dev
-
-    - name: Allow Tests
-      working-directory: /home/runner/frappe-bench
-      run: bench --site frappe.local set-config allow_tests true
-
-    - name: Build
-      working-directory: /home/runner/frappe-bench
-      run: bench --site frappe.local build
+        bash ${GITHUB_WORKSPACE}/.github/helper/install.sh
+      env:
+        BRANCH_TO_CLONE: ${{ env.HR_BRANCH }}
 
     - name: Run Tests
-      working-directory: /home/runner/frappe-bench
-      run: bench --site frappe.local run-tests --app lms
+      run: cd ~/frappe-bench/ && bench --site lms.test run-parallel-tests --app lms --total-builds 2 --build-number ${{ matrix.container }}
+      env:
+        TYPE: server
+        CI_BUILD_ID: ${{ github.run_id }}
+        ORCHESTRATOR_URL: http://test-orchestrator.frappe.io
