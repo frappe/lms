@@ -24,7 +24,7 @@ jobs:
         image: mariadb:10.6
         ports:
           - 3306:3306
-        collation server: 'utf8mb4_unicode_ci'
+        command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
         env:
           MYSQL_ROOT_PASSWORD: root
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
