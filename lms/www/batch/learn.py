@@ -158,10 +158,10 @@ class LessonBookmark:
 
 
 def get_neighbours(current, lessons):
-	current = flt(current)
-	numbers = sorted(lesson.number for lesson in lessons)
-	index = numbers.index(current)
+	_current = LessonBookmark(current)
+	numbers = sorted([LessonBookmark(lesson.number) for lesson in lessons])
+	index = numbers.index(_current)
 	return {
-		"prev": numbers[index - 1] if index - 1 >= 0 else None,
-		"next": numbers[index + 1] if index + 1 < len(numbers) else None,
+		"prev": numbers[index - 1].readable_value if index - 1 >= 0 else None,
+		"next": numbers[index + 1].readable_value if index + 1 < len(numbers) else None,
 	}
