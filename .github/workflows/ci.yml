@@ -20,17 +20,19 @@ jobs:
         image: redis:alpine
         ports:
           - 12000:6379
-      mariadb:
-        image: mariadb:10.6
-        ports:
-          - 3306:3306
-        command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
-        env:
-          MYSQL_ROOT_PASSWORD: root
-        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
+      
     steps:
     - name: Clone
       uses: actions/checkout@v2
+
+    - name: Start MariaDB
+      uses: getong/mariadb-action@v1.1
+      host port: 3306
+      container port: 3306
+      character set server: 'utf8mb4'
+      collation server: 'utf8_general_ci'
+      mariadb version: '10.6'
+      mysql root password: root
 
     - name: Setup Python
       uses: actions/setup-python@v2
