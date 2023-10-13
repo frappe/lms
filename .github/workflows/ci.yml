@@ -46,6 +46,10 @@ jobs:
         node-version: 18
         check-latest: true
 
+    - name: Change MariaDB Collation
+      run: |
+        mysql -h 127.0.0.1 -P 3306 -uroot -proot -e "ALTER DATABASE dbname CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci"
+
     - name: Cache Bench
       uses: actions/cache@v2
       with:
