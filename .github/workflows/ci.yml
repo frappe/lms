@@ -20,10 +20,11 @@ jobs:
                 image: redis:alpine
                 ports:
                     - 12000:6379
-            mysql:
+            mariadb:
                 image: mariadb:10.6
                 env:
-                    MARIADB_ROOT_PASSWORD: "root"
+                    MYSQL_ROOT_PASSWORD: "root"
+                    COLLATION_SERVER: "utf8mb4_unicode_ci"
                 ports:
                     - 3306:3306
                 options: --health-cmd="mariadb-admin ping" --health-interval=5s --health-timeout=2s --health-retries=3
