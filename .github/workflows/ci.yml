@@ -26,7 +26,7 @@ jobs:
           - 3306:3306
         env:
           MYSQL_ROOT_PASSWORD: root
-        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
+        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3 --character-set-server utf8mb4 --collation-server utf8mb4_unicode_ci
     steps:
     - name: Clone
       uses: actions/checkout@v2
@@ -70,7 +70,7 @@ jobs:
 
     - name: Create bench site
       working-directory: /home/runner/frappe-bench
-      run: bench new-site --mariadb-root-password root --character-set-server utf8mb4 --collation-server utf8mb4_unicode_ci --admin-password admin frappe.local
+      run: bench new-site --mariadb-root-password root --admin-password admin frappe.local
 
     - name: Install LMS app
       working-directory: /home/runner/frappe-bench
