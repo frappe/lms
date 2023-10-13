@@ -1,97 +1,94 @@
 name: Server Tests
 on:
-  push:
-    branches:
-      - main
-  pull_request: {}
+    push:
+        branches:
+            - main
+    pull_request: {}
 jobs:
-  tests:
-    runs-on: ubuntu-latest
-    services:
-      redis-cache:
-        image: redis:alpine
-        ports:
-          - 13000:6379
-      redis-queue:
-        image: redis:alpine
-        ports:
-          - 11000:6379
-      redis-socketio:
-        image: redis:alpine
-        ports:
-          - 12000:6379
-      
-    steps:
-    - name: Clone
-      uses: actions/checkout@v2
+    tests:
+        runs-on: ubuntu-latest
+        services:
+            redis-cache:
+                image: redis:alpine
+                ports:
+                    - 13000:6379
+            redis-queue:
+                image: redis:alpine
+                ports:
+                    - 11000:6379
+            redis-socketio:
+                image: redis:alpine
+                ports:
+                    - 12000:6379
+            mysql:
+                image: mariadb:10.6
+                env:
+                    MARIADB_ROOT_PASSWORD: "root"
+                ports:
+                    - 3306:3306
+                options: --health-cmd="mariadb-admin ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
-    - name: Start MariaDB
-      uses: getong/mariadb-action@v1.1
-      host port: 3306
-      container port: 3306
-      character set server: 'utf8mb4'
-      collation server: 'utf8_general_ci'
-      mariadb version: '10.6'
-      mysql root password: root
+        steps:
+            - name: Clone
+              uses: actions/checkout@v2
 
-    - name: Setup Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.10'
+            - name: Setup Python
+              uses: actions/setup-python@v2
+              with:
+                  python-version: "3.10"
 
-    - name: Setup Node
-      uses: actions/setup-node@v2
-      with:
-        node-version: '18'
-        check-latest: true
+            - name: Setup Node
+              uses: actions/setup-node@v2
+              with:
+                  node-version: 18
+                  check-latest: true
 
-    - name: Setup ache for bench
-      uses: actions/cache@v2
-      with:
-        path: ~/bench-cache
-        key: ${{ runner.os }}
+            - name: Setup ache for bench
+              uses: actions/cache@v2
+              with:
+                  path: ~/bench-cache
+                  key: ${{ runner.os }}
 
-    - name: Install Bench
-      run: |
-        pip3 install frappe-bench
-        which bench
+            - name: Install Bench
+              run: |
+                  pip3 install frappe-bench
+                  which bench
 
-    - name: Bench Init
-      run: |
-        if [ -d ~/bench-cache/bench.tgz ]
-        then
-           (cd && tar xzf ~/bench-cache/bench.tgz)
-        else
-          bench init ~/frappe-bench --skip-redis-config-generation --skip-assets --python "$(which python)"
-          mkdir -p ~/bench-cache
-          (cd && tar czf ~/bench-cache/bench.tgz frappe-bench)
-        fi
+            - name: Bench Init
+              run: |
+                  if [ -d ~/bench-cache/bench.tgz ]
+                  then
+                     (cd && tar xzf ~/bench-cache/bench.tgz)
+                  else
+                    bench init ~/frappe-bench --skip-redis-config-generation --skip-assets --python "$(which python)"
+                    mkdir -p ~/bench-cache
+                    (cd && tar czf ~/bench-cache/bench.tgz frappe-bench)
+                  fi
 
-    - name: Add LMS app to bench
-      working-directory: /home/runner/frappe-bench
-      run: bench get-app lms $GITHUB_WORKSPACE
+            - name: Add LMS app to bench
+              working-directory: /home/runner/frappe-bench
+              run: bench get-app lms $GITHUB_WORKSPACE
 
-    - name: Create bench site
-      working-directory: /home/runner/frappe-bench
-      run: bench new-site --mariadb-root-password root --admin-password admin frappe.local
+            - name: Create bench site
+              working-directory: /home/runner/frappe-bench
+              run: bench new-site --mariadb-root-password root --admin-password admin frappe.local
 
-    - name: Install LMS app
-      working-directory: /home/runner/frappe-bench
-      run: bench --site frappe.local install-app lms
+            - name: Install LMS app
+              working-directory: /home/runner/frappe-bench
+              run: bench --site frappe.local install-app lms
 
-    - name: Setup Requirements
-      working-directory: /home/runner/frappe-bench
-      run: bench setup requirements --dev
+            - name: Setup Requirements
+              working-directory: /home/runner/frappe-bench
+              run: bench setup requirements --dev
 
-    - name: Allow Tests
-      working-directory: /home/runner/frappe-bench
-      run: bench --site frappe.local set-config allow_tests true
+            - name: Allow Tests
+              working-directory: /home/runner/frappe-bench
+              run: bench --site frappe.local set-config allow_tests true
 
-    - name: Build
-      working-directory: /home/runner/frappe-bench
-      run: bench --site frappe.local build
+            - name: Build
+              working-directory: /home/runner/frappe-bench
+              run: bench --site frappe.local build
 
-    - name: Run Tests
-      working-directory: /home/runner/frappe-bench
-      run: bench --site frappe.local run-tests --app lms
-
+            - name: Run Tests
+              working-directory: /home/runner/frappe-bench
+              run: bench --site frappe.local run-tests --app lms
