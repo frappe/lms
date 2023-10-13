@@ -28,26 +28,32 @@ jobs:
           MYSQL_ROOT_PASSWORD: root
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
     steps:
+    - name: Clone
     - uses: actions/checkout@v2
-    - name: setup python
+
+    - name: Setup Python
       uses: actions/setup-python@v2
       with:
         python-version: '3.10'
-    - name: setup node
+
+    - name: Setup Node
       uses: actions/setup-node@v2
       with:
         node-version: '18'
         check-latest: true
-    - name: setup cache for bench
+
+    - name: Setup ache for bench
       uses: actions/cache@v2
       with:
         path: ~/bench-cache
         key: ${{ runner.os }}
-    - name: install bench
+
+    - name: Install Bench
       run: |
         pip3 install frappe-bench
         which bench
-    - name: bench init
+
+    - name: Bench Init
       run: |
         if [ -d ~/bench-cache/bench.tgz ]
         then
@@ -57,25 +63,32 @@ jobs:
           mkdir -p ~/bench-cache
           (cd && tar czf ~/bench-cache/bench.tgz frappe-bench)
         fi
-    - name: add lms app to bench
+
+    - name: Add LMS app to bench
       working-directory: /home/runner/frappe-bench
       run: bench get-app lms $GITHUB_WORKSPACE
-    - name: create bench site
+
+    - name: Create bench site
       working-directory: /home/runner/frappe-bench
-      run: bench new-site --mariadb-root-password root --admin-password admin frappe.local
-    - name: install lms app
+      run: bench new-site --mariadb-root-password root --character-set-server utf8mb4 --collation-server utf8mb4_unicode_ci --admin-password admin frappe.local
+
+    - name: Install LMS app
       working-directory: /home/runner/frappe-bench
       run: bench --site frappe.local install-app lms
-    - name: setup requirements
+
+    - name: Setup Requirements
       working-directory: /home/runner/frappe-bench
       run: bench setup requirements --dev
-    - name: allow tests
+
+    - name: Allow Tests
       working-directory: /home/runner/frappe-bench
       run: bench --site frappe.local set-config allow_tests true
-    - name: bench build
+
+    - name: Build
       working-directory: /home/runner/frappe-bench
       run: bench --site frappe.local build
-    - name: run tests
+
+    - name: Run Tests
       working-directory: /home/runner/frappe-bench
       run: bench --site frappe.local run-tests --app lms
 
