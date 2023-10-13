@@ -28,8 +28,7 @@ jobs:
           - 3306:3306
         env:
           MARIADB_ROOT_PASSWORD: root
-          MARIADB_CHARACTER_SET: utf8mb4
-          MARIADB_COLLATION_SERVER: utf8mb4_unicode_ci
+          MARIADB_DATABASE: dbname
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
     steps:
     - name: Checkout code
