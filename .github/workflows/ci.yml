@@ -78,4 +78,3 @@ jobs:
     - name: run tests
       working-directory: /home/runner/frappe-bench
       run: bench --site frappe.local run-tests --app lms
-

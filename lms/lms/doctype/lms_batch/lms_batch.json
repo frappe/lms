@@ -35,8 +35,10 @@
   "timetable_template",
   "column_break_anya",
   "show_live_class",
+  "allow_future",
   "section_break_ontp",
   "timetable",
+  "timetable_legends",
   "pricing_tab",
   "section_break_gsac",
   "paid_batch",
@@ -220,7 +222,7 @@
    "default": "0",
    "fieldname": "show_live_class",
    "fieldtype": "Check",
-   "label": "Show Live Class"
+   "label": "Show live class"
   },
   {
    "fieldname": "section_break_ontp",
@@ -263,11 +265,23 @@
    "fieldtype": "Code",
    "label": "Custom Script (JavaScript)",
    "options": "Javascript"
+  },
+  {
+   "fieldname": "timetable_legends",
+   "fieldtype": "Table",
+   "label": "Timetable Legends",
+   "options": "LMS Timetable Legend"
+  },
+  {
+   "default": "1",
+   "fieldname": "allow_future",
+   "fieldtype": "Check",
+   "label": "Allow accessing future dates"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-09-28 12:18:34.418812",
+ "modified": "2023-10-12 12:53:37.351989",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch",
