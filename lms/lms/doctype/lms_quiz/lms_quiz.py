@@ -6,8 +6,12 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.utils import cstr
-from lms.lms.utils import generate_slug, has_course_moderator_role, can_create_courses
 from lms.lms.doctype.lms_question.lms_question import validate_correct_answers
+from lms.lms.utils import (
+	generate_slug,
+	has_course_moderator_role,
+	has_course_instructor_role,
+)
 
 
 class LMSQuiz(Document):
@@ -74,7 +78,7 @@ def quiz_summary(quiz, results):
 def save_quiz(
 	quiz_title, max_attempts=1, quiz=None, show_answers=1, show_submission_history=0
 ):
-	if not can_create_courses():
+	if not has_course_moderator_role() or not has_course_instructor_role():
 		return
 
 	values = {

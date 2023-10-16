@@ -42,6 +42,7 @@ def get_context(context):
 			"currency",
 			"batch_details",
 			"published",
+			"allow_future",
 		],
 		as_dict=True,
 	)
@@ -96,7 +97,7 @@ def get_context(context):
 			"parent": batch_name,
 		},
 	)
-	context.legends = get_legends()
+	context.legends = get_legends(batch_name)
 
 	custom_tabs = frappe.get_hooks("lms_batch_tabs")
 
@@ -261,22 +262,9 @@ def get_course_progress(batch_courses, student_details):
 			student_details.courses[course.course] = 0
 
 
-def get_legends():
-	return [
-		{
-			"title": "Lesson",
-			"color": "var(--blue-400)",
-		},
-		{
-			"title": "Quiz",
-			"color": "var(--green-400)",
-		},
-		{
-			"title": "Assignment",
-			"color": "var(--orange-400)",
-		},
-		{
-			"title": "Live Class",
-			"color": "var(--purple-400)",
-		},
-	]
+def get_legends(batch):
+	return frappe.get_all(
+		"LMS Timetable Legend",
+		filters={"parenttype": "LMS Batch", "parent": batch},
+		fields=["reference_doctype", "color", "label"],
+	)

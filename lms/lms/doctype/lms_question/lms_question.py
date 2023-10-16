@@ -8,7 +8,7 @@ from frappe.model.document import Document
 
 class LMSQuestion(Document):
 	def validate(self):
-		self.validate_correct_answers()
+		validate_correct_answers(self)
 
 
 def validate_correct_answers(question):

@@ -15,7 +15,7 @@ def get_context(context):
 	except KeyError:
 		redirect_to_courses_list()
 
-	if not can_create_courses():
+	if not can_create_courses(course_name):
 		message = "You do not have permission to access this page."
 		if frappe.session.user == "Guest":
 			message = "Please login to access this page."

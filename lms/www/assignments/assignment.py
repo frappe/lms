@@ -1,12 +1,12 @@
 import frappe
 from frappe import _
-from lms.lms.utils import can_create_courses
+from lms.lms.utils import has_course_moderator_role, has_course_instructor_role
 
 
 def get_context(context):
 	context.no_cache = 1
 
-	if not can_create_courses():
+	if not has_course_moderator_role() or not has_course_instructor_role():
 		message = "You do not have permission to access this page."
 		if frappe.session.user == "Guest":
 			message = "Please login to access this page."
