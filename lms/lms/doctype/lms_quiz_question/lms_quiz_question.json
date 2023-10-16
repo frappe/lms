@@ -5,22 +5,34 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "question"
+  "question",
+  "marks"
  ],
  "fields": [
   {
    "fieldname": "question",
    "fieldtype": "Link",
    "in_list_view": 1,
+   "in_preview": 1,
    "label": "Question",
    "options": "LMS Question",
+   "reqd": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "marks",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Marks",
+   "non_negative": 1,
    "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-10-10 15:42:51.791902",
+ "modified": "2023-10-16 19:51:03.893143",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz Question",

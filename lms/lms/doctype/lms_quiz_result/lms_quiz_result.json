@@ -6,8 +6,11 @@
  "engine": "InnoDB",
  "field_order": [
   "question",
-  "answer",
-  "is_correct"
+  "section_break_fztv",
+  "question_name",
+  "is_correct",
+  "column_break_flus",
+  "answer"
  ],
  "fields": [
   {
@@ -31,12 +34,26 @@
    "in_list_view": 1,
    "label": "Is Correct",
    "read_only": 1
+  },
+  {
+   "fieldname": "section_break_fztv",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "question_name",
+   "fieldtype": "Link",
+   "label": "Question Name",
+   "options": "LMS Question"
+  },
+  {
+   "fieldname": "column_break_flus",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2022-11-24 11:15:45.931119",
+ "modified": "2023-10-16 15:25:03.380843",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz Result",

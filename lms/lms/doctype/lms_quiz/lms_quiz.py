@@ -5,7 +5,7 @@ import json
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import cstr
+from frappe.utils import cstr, comma_and
 from lms.lms.doctype.lms_question.lms_question import validate_correct_answers
 from lms.lms.utils import (
 	generate_slug,
@@ -15,6 +15,17 @@ from lms.lms.utils import (
 
 
 class LMSQuiz(Document):
+	def validate(self):
+		self.validate_duplicate_questions()
+
+	def validate_duplicate_questions(self):
+		questions = [row.question for row in self.questions]
+		rows = [i + 1 for i, x in enumerate(questions) if questions.count(x) > 1]
+		if len(rows):
+			frappe.throw(
+				_("Rows {0} have the duplicate questions.").format(frappe.bold(comma_and(rows)))
+			)
+
 	def autoname(self):
 		if not self.name:
 			self.name = generate_slug(self.title, "LMS Quiz")
@@ -44,11 +55,13 @@ def quiz_summary(quiz, results):
 
 	for result in results:
 		correct = result["is_correct"][0]
-		result["question"] = frappe.db.get_value(
+		question_name = frappe.db.get_value(
 			"LMS Quiz Question",
 			{"parent": quiz, "idx": result["question_index"] + 1},
 			["question"],
 		)
+		result["question_name"] = question_name
+		result["question"] = frappe.db.get_value("LMS Question", question_name, "question")
 
 		for point in result["is_correct"]:
 			correct = correct and point
@@ -184,9 +197,7 @@ def check_choice_answers(question, answers):
 		fields.append(f"option_{cstr(num)}")
 		fields.append(f"is_correct_{cstr(num)}")
 
-	question_details = frappe.db.get_value(
-		"LMS Quiz Question", question, fields, as_dict=1
-	)
+	question_details = frappe.db.get_value("LMS Question", question, fields, as_dict=1)
 
 	for num in range(1, 5):
 		if question_details[f"option_{num}"] in answers:

@@ -12,6 +12,10 @@
   "column_break_gaac",
   "max_attempts",
   "show_submission_history",
+  "section_break_hsiv",
+  "passing_percentage",
+  "column_break_rocd",
+  "total_marks",
   "section_break_sbjx",
   "questions",
   "section_break_3",
@@ -90,11 +94,30 @@
    "fieldname": "show_submission_history",
    "fieldtype": "Check",
    "label": "Show Submission History"
+  },
+  {
+   "fieldname": "section_break_hsiv",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "passing_percentage",
+   "fieldtype": "Int",
+   "label": "Passing Percentage"
+  },
+  {
+   "fieldname": "column_break_rocd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_marks",
+   "fieldtype": "Int",
+   "label": "Total Marks",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-07-04 15:26:24.457745",
+ "modified": "2023-10-16 17:21:33.932981",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz",

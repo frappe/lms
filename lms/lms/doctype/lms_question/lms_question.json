@@ -32,11 +32,11 @@
   "column_break_lknb",
   "explanation_4",
   "section_break_hkfe",
-  "possible_answer_1",
-  "possible_answer_3",
+  "possibility_1",
+  "possibility_3",
   "column_break_wpjr",
-  "possible_answer_2",
-  "possible_answer_4"
+  "possibility_2",
+  "possibility_4"
  ],
  "fields": [
   {
@@ -167,34 +167,34 @@
    "fieldtype": "Section Break"
   },
   {
-   "fieldname": "possible_answer_1",
+   "fieldname": "column_break_wpjr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "possibility_1",
    "fieldtype": "Small Text",
    "label": "Possible Answer 1",
    "mandatory_depends_on": "eval: doc.type == 'User Input'"
   },
   {
-   "fieldname": "possible_answer_3",
+   "fieldname": "possibility_3",
    "fieldtype": "Small Text",
    "label": "Possible Answer 3"
   },
   {
-   "fieldname": "column_break_wpjr",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "possible_answer_2",
+   "fieldname": "possibility_2",
    "fieldtype": "Small Text",
    "label": "Possible Answer 2"
   },
   {
-   "fieldname": "possible_answer_4",
+   "fieldname": "possibility_4",
    "fieldtype": "Small Text",
    "label": "Possible Answer 4"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-10-10 16:03:38.776125",
+ "modified": "2023-10-16 11:39:39.757008",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Question",

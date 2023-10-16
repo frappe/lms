@@ -3,31 +3,21 @@ import frappe
 
 def execute():
 	frappe.reload_doc("lms", "doctype", "lms_question")
-	frappe.reload_doc("lms", "doctype", "lms_quiz_question")
+
+	fields = ["name", "question", "type", "multiple"]
+	for num in range(1, 5):
+		fields.append(f"option_{num}")
+		fields.append(f"is_correct_{num}")
+		fields.append(f"explanation_{num}")
+		fields.append(f"possibility_{num}")
 
 	questions = frappe.get_all(
 		"LMS Quiz Question",
-		fields=[
-			"name",
-			"question",
-			"type",
-			"multiple",
-			"option_1",
-			"is_correct_1",
-			"explanation_1",
-			"option_2",
-			"is_correct_2",
-			"explanation_2",
-			"option_3",
-			"is_correct_3",
-			"explanation_3",
-			"option_4",
-			"is_correct_4",
-			"explanation_4",
-		],
+		fields=fields,
 	)
 
 	for question in questions:
+		print(question.name)
 		doc = frappe.new_doc("LMS Question")
 		doc.update(
 			{
@@ -44,9 +34,10 @@ def execute():
 						f"option_{num}": question[f"option_{num}"],
 						f"is_correct_{num}": question[f"is_correct_{num}"],
 						f"explanation_{num}": question[f"explanation_{num}"],
+						f"possibility_{num}": question[f"possibility_{num}"],
 					}
 				)
 
 		doc.save()
-
+		print(doc.name)
 		frappe.db.set_value("LMS Quiz Question", question.name, "question", doc.name)
