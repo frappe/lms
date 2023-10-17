@@ -785,6 +785,12 @@ const email_to_students = () => {
 				reqd: 1,
 			},
 			{
+				fieldtype: "Data",
+				fieldname: "reply_to",
+				label: __("Reply To"),
+				reqd: 0,
+			},
+			{
 				fieldtype: "Text Editor",
 				fieldname: "message",
 				label: __("Message"),
@@ -806,6 +812,7 @@ const send_email = (values) => {
 		args: {
 			batch: $(".class-details").data("batch"),
 			subject: values.subject,
+			reply_to: values.reply_to,
 			message: values.message,
 		},
 		callback: (r) => {
