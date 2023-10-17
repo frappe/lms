@@ -21,11 +21,12 @@
             <div class="field-label mb-1">
                 {{ _("Questions") }}
             </div>
-            <div class="common-card-style column-card px-3 py-0">
+            <div class="questions-table"></div>
+            <!-- <div class="common-card-style column-card px-3 py-0">
                 {% for question in quiz.questions %}
                     {{ Question(question, loop.index) }}
                 {% endfor %}
-            </div>
+            </div> -->
             <button class="btn btn-secondary btn-sm btn-add-question mt-4">
                 {{ _("Add Question") }}
             </button>
@@ -109,7 +110,7 @@
             <input type="checkbox" id="show-answers" {% if show_answers %} checked {% endif %}>
             {{ _("Show Answers") }}
         </label>
-        <label for="upcoming" class="vertically-center mb-0 ml-20">
+        <label for="show-submission-history" class="vertically-center mb-0 ml-20">
             <input type="checkbox" id="show-submission-history" {% if quiz.show_submission_history %} checked {% endif %}>
             {{ _("Show Submission History") }}
         </label>
@@ -151,5 +152,9 @@
 
 {%- block script %}
     {{ super() }}
-    {{ include_script('controls.bundle.js') }}
+    {% if has_course_instructor_role() or has_course_moderator_role() %}
+    <script>
+        const quiz_questions = {{ quiz.questions }}
+    </script>
+    {% endif %}
 {% endblock %}

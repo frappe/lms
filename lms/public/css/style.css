@@ -785,12 +785,13 @@ input[type=checkbox] {
 }
 
 .breadcrumb {
-  display: flex;
-  align-items: center;
-  font-size: var(--text-base);
-  line-height: 20px;
-  color: var(--gray-900);
-  padding: 0;
+	display: flex;
+	align-items: center;
+	font-size: var(--text-base);
+	line-height: 20px;
+	color: var(--gray-900);
+	padding: 0;
+	border-radius: 0;
 }
 
 .course-details-outline {

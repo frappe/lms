@@ -17,6 +17,7 @@ from lms.lms.utils import (
 class LMSQuiz(Document):
 	def validate(self):
 		self.validate_duplicate_questions()
+		self.set_total_marks()
 
 	def validate_duplicate_questions(self):
 		questions = [row.question for row in self.questions]
@@ -25,6 +26,13 @@ class LMSQuiz(Document):
 			frappe.throw(
 				_("Rows {0} have the duplicate questions.").format(frappe.bold(comma_and(rows)))
 			)
+
+	def set_total_marks(self):
+		marks = 0
+		for question in self.questions:
+			marks += question.marks
+
+		self.total_marks = marks
 
 	def autoname(self):
 		if not self.name:
@@ -55,20 +63,34 @@ def quiz_summary(quiz, results):
 
 	for result in results:
 		correct = result["is_correct"][0]
-		question_name = frappe.db.get_value(
-			"LMS Quiz Question",
-			{"parent": quiz, "idx": result["question_index"] + 1},
-			["question"],
-		)
-		result["question_name"] = question_name
-		result["question"] = frappe.db.get_value("LMS Question", question_name, "question")
-
 		for point in result["is_correct"]:
 			correct = correct and point
 
 		result["is_correct"] = correct
-		score += correct
+
+		question_details = frappe.db.get_value(
+			"LMS Quiz Question",
+			{"parent": quiz, "idx": result["question_index"] + 1},
+			["question", "marks"],
+			as_dict=1,
+		)
+
+		result["question_name"] = question_details.question
+		result["question"] = frappe.db.get_value(
+			"LMS Question", question_details.question, "question"
+		)
+		marks = question_details.marks if correct else 0
+
+		result["marks"] = marks
+		score += marks
+
 		del result["question_index"]
+
+	quiz_details = frappe.db.get_value(
+		"LMS Quiz", quiz, ["total_marks", "passing_percentage"], as_dict=1
+	)
+	score_out_of = quiz_details.total_marks
+	percentage = (score / score_out_of) * 100
 
 	submission = frappe.get_doc(
 		{
@@ -76,6 +98,7 @@ def quiz_summary(quiz, results):
 			"quiz": quiz,
 			"result": results,
 			"score": score,
+			"score_out_of": score_out_of,
 			"member": frappe.session.user,
 		}
 	)
@@ -83,7 +106,9 @@ def quiz_summary(quiz, results):
 
 	return {
 		"score": score,
+		"score_out_of": score_out_of,
 		"submission": submission.name,
+		"pass": percentage == quiz_details.passing_percentage,
 	}
 
 
@@ -213,9 +238,7 @@ def check_input_answers(question, answer):
 	for num in range(1, 5):
 		fields.append(f"possibility_{cstr(num)}")
 
-	question_details = frappe.db.get_value(
-		"LMS Quiz Question", question, fields, as_dict=1
-	)
+	question_details = frappe.db.get_value("LMS Question", question, fields, as_dict=1)
 	for num in range(1, 5):
 		current_possibility = question_details[f"possibility_{num}"]
 		if current_possibility and current_possibility.lower() == answer.lower():

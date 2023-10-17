@@ -429,9 +429,9 @@ class Quiz {
 	}
 
 	render_quiz(quiz) {
-		return `<div class="common-card-style p-2 my-2 bold-heading">
+		return `<a class="common-card-style p-20 my-2 justify-center bold-heading" target="_blank" href=/quizzes/${quiz}>
 			Quiz: ${quiz}
-		</div>`;
+		</a>`;
 	}
 
 	validate(savedData) {

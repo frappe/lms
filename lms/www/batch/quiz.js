@@ -1,4 +1,10 @@
 frappe.ready(() => {
+	if ($(".questions-table").length) {
+		frappe.require("controls.bundle.js", () => {
+			create_questions_table();
+		});
+	}
+
 	$(".btn-save-quiz").click((e) => {
 		save_quiz({
 			quiz_title: $("#quiz-title").val(),
@@ -176,4 +182,53 @@ const save_question = (values) => {
 			}, 1000);
 		},
 	});
+};
+
+const create_questions_table = () => {
+	this.table = new frappe.ui.FieldGroup({
+		fields: [
+			{
+				fieldname: "questions",
+				fieldtype: "Table",
+				in_place_edit: 1,
+				fields: [
+					{
+						fieldname: "question",
+						fieldtype: "Link",
+						label: "Question",
+						options: "LMS Question",
+						in_list_view: 1,
+						only_select: 1,
+					},
+					{
+						fieldname: "marks",
+						fieldtype: "Int",
+						label: "Marks",
+						in_list_view: 1,
+					},
+				],
+			},
+		],
+		body: $(".questions-table").get(0),
+	});
+	this.table.make();
+	$(".questions-table .form-section:last").removeClass("empty-section");
+	$(".questions-table .frappe-control").removeClass("hide-control");
+	$(".questions-table .form-column").addClass("p-0");
+	add_question_rows();
+};
+
+const add_question_rows = () => {
+	console.log("add rows");
+	/* let questions_rows = []
+	quiz_questions.forEach((question, idx) => {
+		let row = {};
+		this.table.fields_dict["questions"].grid.add_new_row();
+		row["question"] = question.question;
+		row["marks"] = question.marks;
+		questions_rows.push(row)
+	});
+	console.log(questions_rows) */
+	this.table.set_value("questions", quiz_questions);
+	this.table.refresh();
 };

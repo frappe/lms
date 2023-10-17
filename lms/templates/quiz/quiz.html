@@ -6,6 +6,15 @@
 			{{ _("This quiz consists of {0} questions.").format(quiz.questions | length) }}
 		</li>
 
+		{% if quiz.passing_percentage %}
+			<li>
+				{{ _("You will have to get {0}% correct answers in order to pass the quiz.").format(quiz.passing_percentage) }}
+			</li>
+			<li>
+				{{ _("Without passing the quiz you won't be able to complete the lesson.") }}
+			</li>
+		{% endif %}
+
 		{% if quiz.max_attempts %}
 			{% set suffix = "times" if quiz.max_attempts > 1 else "time" %}
 			<li>
@@ -18,8 +27,7 @@
 				{{ _("The quiz has a time limit. For each question you will be given {0} seconds.").format(quiz.time) }}
 			</li>
 		{% endif %}
-		</ul>
-
+	</ul>
 
 	<div id="start-banner" class="common-card-style column-card align-items-center">
 
@@ -50,6 +58,9 @@
 		<div class="question hide" data-name="{{ question.name }}" data-type="{{ question.type }}"
 			data-multi="{{ question.multiple }}" data-qt-index="{{ loop.index }}">
 			<div>
+				<div class="pull-right font-weight-bold">
+					{{ question.marks }} {{ _("Marks") }}
+				</div>
 				<div class="question-number">
 					{{ _("Question ") }}{{ loop.index }}: {{ instruction }}
 				</div>
