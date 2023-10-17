@@ -1028,6 +1028,8 @@ def record_payment(address, response, client, doctype, docname):
 			"amount_with_gst": payment_details["amount_with_gst"],
 			"gstin": address.gstin,
 			"pan": address.pan,
+			"payment_for_document_type": doctype,
+			"payment_for_document": docname,
 		}
 	)
 	payment_doc.save(ignore_permissions=True)
