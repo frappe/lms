@@ -388,8 +388,5 @@ def send_email_to_students(batch, subject, reply_to, message):
 	frappe.only_for("Moderator")
 	students = frappe.get_all("Batch Student", {"parent": batch}, pluck="student")
 	frappe.sendmail(
-		recipients=students,
-		subject=subject,
-		reply_to=reply_to,
-		message=message
+		recipients=students, subject=subject, reply_to=reply_to, message=message
 	)
