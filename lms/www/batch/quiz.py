@@ -22,7 +22,14 @@ def get_context(context):
 		context.quiz = frappe.db.get_value(
 			"LMS Quiz",
 			quizname,
-			["title", "name", "max_attempts", "show_answers", "show_submission_history"],
+			[
+				"title",
+				"name",
+				"max_attempts",
+				"passing_percentage",
+				"show_answers",
+				"show_submission_history",
+			],
 			as_dict=1,
 		)
 

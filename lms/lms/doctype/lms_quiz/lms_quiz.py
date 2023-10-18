@@ -114,13 +114,19 @@ def quiz_summary(quiz, results):
 
 @frappe.whitelist()
 def save_quiz(
-	quiz_title, max_attempts=1, quiz=None, show_answers=1, show_submission_history=0
+	quiz_title,
+	passing_percentage,
+	max_attempts=0,
+	quiz=None,
+	show_answers=1,
+	show_submission_history=0,
 ):
 	if not has_course_moderator_role() or not has_course_instructor_role():
 		return
 
 	values = {
 		"title": quiz_title,
+		"passing_percentage": passing_percentage,
 		"max_attempts": max_attempts,
 		"show_answers": show_answers,
 		"show_submission_history": show_submission_history,
@@ -132,37 +138,26 @@ def save_quiz(
 	else:
 		doc = frappe.new_doc("LMS Quiz")
 		doc.update(values)
-		doc.save(ignore_permissions=True)
+		doc.save()
 		return doc.name
 
 
 @frappe.whitelist()
 def save_question(quiz, values, index):
 	values = frappe._dict(json.loads(values))
-	for value in values:
-		validate_correct_answers(value)
+	validate_correct_answers(values)
 
 	if values.get("name"):
-		doc = frappe.get_doc("LMS Quiz Question", values.get("name"))
+		doc = frappe.get_doc("LMS Question", values.get("name"))
 	else:
-		doc = frappe.new_doc("LMS Quiz Question")
+		doc = frappe.new_doc("LMS Question")
 
 	doc.update(
 		{
-			"question": values["question"],
+			"question": values.question,
 			"type": values["type"],
 		}
 	)
-
-	if not values.get("name"):
-		doc.update(
-			{
-				"parent": quiz,
-				"parenttype": "LMS Quiz",
-				"parentfield": "questions",
-				"idx": index,
-			}
-		)
 
 	for num in range(1, 5):
 		if values.get(f"option_{num}"):
@@ -187,9 +182,9 @@ def save_question(quiz, values, index):
 				}
 			)
 
-		doc.save(ignore_permissions=True)
+		doc.save()
 
-	return quiz
+	return doc.name
 
 
 @frappe.whitelist()

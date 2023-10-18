@@ -6,18 +6,20 @@ frappe.ready(() => {
 	}
 
 	$(".btn-save-quiz").click((e) => {
-		save_quiz({
-			quiz_title: $("#quiz-title").val(),
-			max_attempts: $("#max-attempts").val(),
-		});
+		save_quiz();
 	});
 
 	$(".question-row").click((e) => {
 		edit_question(e);
 	});
 
-	$(".btn-add-question").click((e) => {
+	/* $(".btn-add-question").click((e) => {
 		show_question_modal();
+	}); */
+
+	$(document).on("click", ".questions-table .link-btn", (e) => {
+		e.preventDefault();
+		fetch_question_data(e);
 	});
 });
 
@@ -37,6 +39,8 @@ const show_question_modal = (values = {}) => {
 };
 
 const get_question_fields = (values = {}) => {
+	if (!values.question) values = {};
+
 	let dialog_fields = [
 		{
 			fieldtype: "Text Editor",
@@ -72,6 +76,7 @@ const get_question_fields = (values = {}) => {
 		if (num <= 2) option.mandatory_depends_on = "eval:doc.type=='Choices'";
 
 		dialog_fields.push(option);
+		console.log(dialog_fields);
 
 		dialog_fields.push({
 			fieldtype: "Data",
@@ -129,8 +134,9 @@ const save_quiz = (values) => {
 	frappe.call({
 		method: "lms.lms.doctype.lms_quiz.lms_quiz.save_quiz",
 		args: {
-			quiz_title: values.quiz_title,
-			max_attempts: values.max_attempts,
+			quiz_title: $("#quiz-title").val(),
+			max_attempts: $("#max-attempts").val(),
+			passing_percentage: $("#passing-percentage").val(),
 			quiz: $("#quiz-form").data("name") || "",
 			show_answers: $("#show-answers").is(":checked") ? 1 : 0,
 			show_submission_history: $("#show-submission-history").is(
@@ -152,13 +158,27 @@ const save_quiz = (values) => {
 };
 
 const validate_mandatory = () => {
-	if (!$("#quiz-title").val()) {
-		let error = $("p")
-			.addClass("error-message")
-			.text(__("Please enter a Quiz Title"));
-		$(error).insertAfter("#quiz-title");
-		$("#quiz-title").focus();
-		throw "Title is mandatory";
+	let fields = ["#quiz-title", "#passing-percentage"];
+	fields.forEach((field, idx) => {
+		if (!$(field).val()) {
+			let error = $("p")
+				.addClass("error-message")
+				.text(__("Please enter a value"));
+			$(error).insertAfter(field);
+			scroll_to_element($(field));
+			throw "This field is mandatory";
+		}
+	});
+};
+
+const scroll_to_element = (element) => {
+	if ($(element).length) {
+		$([document.documentElement, document.body]).animate(
+			{
+				scrollTop: $(element).offset().top - 100,
+			},
+			1000
+		);
 	}
 };
 
@@ -173,13 +193,21 @@ const save_question = (values) => {
 		callback: (data) => {
 			if (data.message) this.question_dialog.hide();
 
-			frappe.show_alert({
-				message: __("Saved"),
-				indicator: "green",
-			});
-			setTimeout(() => {
-				window.location.reload();
-			}, 1000);
+			if (values.name) {
+				frappe.show_alert({
+					message: __("Saved"),
+					indicator: "green",
+				});
+				setTimeout(() => {
+					window.location.reload();
+				}, 1000);
+			} else {
+				let details = {
+					question: data.message,
+				};
+				index = this.table.get_value("questions").length;
+				add_question_row(details, index);
+			}
 		},
 	});
 };
@@ -191,6 +219,7 @@ const create_questions_table = () => {
 				fieldname: "questions",
 				fieldtype: "Table",
 				in_place_edit: 1,
+				label: __("Questions"),
 				fields: [
 					{
 						fieldname: "question",
@@ -215,20 +244,39 @@ const create_questions_table = () => {
 	$(".questions-table .form-section:last").removeClass("empty-section");
 	$(".questions-table .frappe-control").removeClass("hide-control");
 	$(".questions-table .form-column").addClass("p-0");
-	add_question_rows();
+
+	quiz_questions.forEach((question, idx) => {
+		add_question_row(question, idx);
+	});
+	this.table.fields_dict["questions"].grid.add_custom_button(
+		"New Question",
+		show_question_modal,
+		"bottom"
+	);
 };
 
-const add_question_rows = () => {
-	console.log("add rows");
-	/* let questions_rows = []
-	quiz_questions.forEach((question, idx) => {
-		let row = {};
-		this.table.fields_dict["questions"].grid.add_new_row();
-		row["question"] = question.question;
-		row["marks"] = question.marks;
-		questions_rows.push(row)
-	});
-	console.log(questions_rows) */
-	this.table.set_value("questions", quiz_questions);
+const add_question_row = (question, idx) => {
+	this.table.fields_dict["questions"].grid.add_new_row();
+	this.table.get_value("questions")[idx] = {
+		question: question.question,
+		marks: question.marks,
+	};
 	this.table.refresh();
+};
+
+const fetch_question_data = (e) => {
+	let question_name = $(e.currentTarget)
+		.find(".btn-open")
+		.attr("href")
+		.split("/")[3];
+
+	frappe.call({
+		method: "lms.lms.doctype.lms_question.lms_question.get_question_details",
+		args: {
+			question: question_name,
+		},
+		callback: (data) => {
+			show_question_modal(data.message);
+		},
+	});
 };

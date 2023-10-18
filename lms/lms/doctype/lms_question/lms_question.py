@@ -4,6 +4,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
+from lms.lms.utils import has_course_instructor_role, has_course_moderator_role
 
 
 class LMSQuestion(Document):
@@ -46,3 +47,18 @@ def get_correct_options(question):
 		"is_correct_4",
 	]
 	return list(filter(lambda x: question.get(x) == 1, correct_option_fields))
+
+
+@frappe.whitelist()
+def get_question_details(question):
+	if not has_course_instructor_role() or not has_course_moderator_role():
+		return
+
+	fields = ["question", "type", "name"]
+	for i in range(1, 5):
+		fields.append(f"option_{i}")
+		fields.append(f"is_correct_{i}")
+		fields.append(f"explanation_{i}")
+		fields.append(f"possibility_{i}")
+
+	return frappe.db.get_value("LMS Question", question, fields, as_dict=1)

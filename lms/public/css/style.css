@@ -2475,3 +2475,7 @@ select {
 .modal-body .ql-container {
 	max-height: unset !important;
 }
+
+.questions-table .row-index {
+	display: none;
+}

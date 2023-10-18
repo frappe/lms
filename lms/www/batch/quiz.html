@@ -18,18 +18,10 @@
     {{ QuizDetails(quiz) }}
     {% if quiz.questions %}
         <div class="field-group">
-            <div class="field-label mb-1">
-                {{ _("Questions") }}
-            </div>
             <div class="questions-table"></div>
-            <!-- <div class="common-card-style column-card px-3 py-0">
-                {% for question in quiz.questions %}
-                    {{ Question(question, loop.index) }}
-                {% endfor %}
-            </div> -->
-            <button class="btn btn-secondary btn-sm btn-add-question mt-4">
-                {{ _("Add Question") }}
-            </button>
+            <!-- <button class="btn btn-secondary btn-sm btn-add-question mt-4">
+                {{ _("New Question") }}
+            </button> -->
         </div>
     {% endif %}
 
@@ -60,11 +52,6 @@
             </div>
 
             <div class="align-self-center">
-                {% if quiz.name %}
-                <button class="btn btn-secondary btn-sm btn-add-question mr-2">
-                    {{ _("Add Question") }}
-                </button>
-                {% endif %}
                 <button class="btn btn-primary btn-sm btn-save-quiz">
                     {{ _("Save") }}
                 </button>
@@ -99,8 +86,20 @@
             {{ _("Enter the maximum number of times a user can attempt this quiz") }}
         </div>
         <div>
-            {% set max_attempts = quiz.max_attempts if quiz.name else 1 %}
+            {% set max_attempts = quiz.max_attempts if quiz.name else 0 %}
             <input type="number" class="field-input" id="max-attempts" value="{{ max_attempts }}">
+        </div>
+    </div>
+
+    <div class="field-group">
+        <div class="field-label reqd">
+            {{ _("Passing Percentage") }}
+        </div>
+        <div class="field-description">
+            {{ _("Minimum percentage required to pass this quiz.") }}
+        </div>
+        <div>
+            <input type="number" class="field-input" id="passing-percentage" value="{{ quiz.passing_percentage }}">
         </div>
     </div>
 
