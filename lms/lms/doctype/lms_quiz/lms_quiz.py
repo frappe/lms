@@ -17,7 +17,7 @@ from lms.lms.utils import (
 class LMSQuiz(Document):
 	def validate(self):
 		self.validate_duplicate_questions()
-		self.set_total_marks()
+		self.total_marks = set_total_marks(self.name, self.questions)
 
 	def validate_duplicate_questions(self):
 		questions = [row.question for row in self.questions]
@@ -26,13 +26,6 @@ class LMSQuiz(Document):
 			frappe.throw(
 				_("Rows {0} have the duplicate questions.").format(frappe.bold(comma_and(rows)))
 			)
-
-	def set_total_marks(self):
-		marks = 0
-		for question in self.questions:
-			marks += question.marks
-
-		self.total_marks = marks
 
 	def autoname(self):
 		if not self.name:
@@ -54,6 +47,13 @@ class LMSQuiz(Document):
 
 		if result:
 			return result[0]
+
+
+def set_total_marks(quiz, questions):
+	marks = 0
+	for question in questions:
+		marks += question.get("marks")
+	return marks
 
 
 @frappe.whitelist()
@@ -116,6 +116,7 @@ def quiz_summary(quiz, results):
 def save_quiz(
 	quiz_title,
 	passing_percentage,
+	questions,
 	max_attempts=0,
 	quiz=None,
 	show_answers=1,
@@ -134,18 +135,64 @@ def save_quiz(
 
 	if quiz:
 		frappe.db.set_value("LMS Quiz", quiz, values)
+		update_questions(quiz, questions)
 		return quiz
 	else:
 		doc = frappe.new_doc("LMS Quiz")
 		doc.update(values)
 		doc.save()
+		update_questions(doc.name, questions)
 		return doc.name
+
+
+def update_questions(quiz, questions):
+	questions = json.loads(questions)
+
+	delete_questions(quiz, questions)
+	add_questions(quiz, questions)
+	frappe.db.set_value("LMS Quiz", quiz, "total_marks", set_total_marks(quiz, questions))
+
+
+def delete_questions(quiz, questions):
+	existing_questions = frappe.get_all(
+		"LMS Quiz Question",
+		{
+			"parent": quiz,
+		},
+		pluck="name",
+	)
+
+	current_questions = [question.get("question_name") for question in questions]
+
+	for question in existing_questions:
+		if question not in current_questions:
+			frappe.db.delete("LMS Quiz Question", question)
+
+
+def add_questions(quiz, questions):
+	for index, question in enumerate(questions):
+		question = frappe._dict(question)
+		if question.question_name:
+			doc = frappe.get_doc("LMS Quiz Question", question.question_name)
+		else:
+			doc = frappe.new_doc("LMS Quiz Question")
+			doc.update(
+				{
+					"parent": quiz,
+					"parenttype": "LMS Quiz",
+					"parentfield": "questions",
+					"idx": index + 1,
+				}
+			)
+
+		doc.update({"question": question.question, "marks": question.marks})
+
+		doc.save()
 
 
 @frappe.whitelist()
 def save_question(quiz, values, index):
 	values = frappe._dict(json.loads(values))
-	validate_correct_answers(values)
 
 	if values.get("name"):
 		doc = frappe.get_doc("LMS Question", values.get("name"))
@@ -182,8 +229,7 @@ def save_question(quiz, values, index):
 				}
 			)
 
-		doc.save()
-
+	doc.save()
 	return doc.name
 
 

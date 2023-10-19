@@ -16,18 +16,9 @@
 {% macro QuizForm(quiz) %}
 <div id="quiz-form" {% if quiz.name %} data-name="{{ quiz.name }}" data-index="{{ quiz.questions | length }}" {% endif %}>
     {{ QuizDetails(quiz) }}
-    {% if quiz.questions %}
-        <div class="field-group">
-            <div class="questions-table"></div>
-            <!-- <button class="btn btn-secondary btn-sm btn-add-question mt-4">
-                {{ _("New Question") }}
-            </button> -->
-        </div>
-    {% endif %}
-
-    {% if quiz.name and not quiz.questions | length %}
-        {{ EmptyState() }}
-    {% endif %}
+    <div class="field-group">
+        <div class="questions-table"></div>
+    </div>
 </div>
 {% endmacro %}
 
@@ -153,7 +144,7 @@
     {{ super() }}
     {% if has_course_instructor_role() or has_course_moderator_role() %}
     <script>
-        const quiz_questions = {{ quiz.questions }}
+        const quiz_questions = {{ quiz.questions or [] }}
     </script>
     {% endif %}
 {% endblock %}

@@ -13,10 +13,6 @@ frappe.ready(() => {
 		edit_question(e);
 	});
 
-	/* $(".btn-add-question").click((e) => {
-		show_question_modal();
-	}); */
-
 	$(document).on("click", ".questions-table .link-btn", (e) => {
 		e.preventDefault();
 		fetch_question_data(e);
@@ -131,6 +127,8 @@ const edit_question = (e) => {
 
 const save_quiz = (values) => {
 	validate_mandatory();
+	validate_questions();
+
 	frappe.call({
 		method: "lms.lms.doctype.lms_quiz.lms_quiz.save_quiz",
 		args: {
@@ -138,6 +136,7 @@ const save_quiz = (values) => {
 			max_attempts: $("#max-attempts").val(),
 			passing_percentage: $("#passing-percentage").val(),
 			quiz: $("#quiz-form").data("name") || "",
+			questions: this.table.get_value("questions"),
 			show_answers: $("#show-answers").is(":checked") ? 1 : 0,
 			show_submission_history: $("#show-submission-history").is(
 				":checked"
@@ -167,6 +166,24 @@ const validate_mandatory = () => {
 			$(error).insertAfter(field);
 			scroll_to_element($(field));
 			throw "This field is mandatory";
+		}
+	});
+};
+
+const validate_questions = () => {
+	let questions = this.table.get_value("questions");
+
+	if (!questions.length) {
+		frappe.throw(__("Please add a question."));
+	}
+
+	questions.forEach((question, index) => {
+		if (!question.question) {
+			frappe.throw(__("Please add question in row ") + (index + 1));
+		}
+
+		if (!question.marks) {
+			frappe.throw(__("Please add marks in row ") + (index + 1));
 		}
 	});
 };
@@ -224,16 +241,24 @@ const create_questions_table = () => {
 					{
 						fieldname: "question",
 						fieldtype: "Link",
-						label: "Question",
+						label: __("Question"),
 						options: "LMS Question",
 						in_list_view: 1,
 						only_select: 1,
+						reqd: 1,
 					},
 					{
 						fieldname: "marks",
 						fieldtype: "Int",
-						label: "Marks",
+						label: __("Marks"),
 						in_list_view: 1,
+						reqd: 1,
+					},
+					{
+						fieldname: "question_name",
+						fieldname: "Link",
+						options: "LMS Quiz Question",
+						label: __("Question Name"),
 					},
 				],
 			},
