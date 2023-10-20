@@ -13,7 +13,6 @@
    "fieldname": "question",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "in_preview": 1,
    "label": "Question",
    "options": "LMS Question",
    "reqd": 1
@@ -23,7 +22,6 @@
    "fieldname": "marks",
    "fieldtype": "Int",
    "in_list_view": 1,
-   "in_preview": 1,
    "label": "Marks",
    "non_negative": 1,
    "reqd": 1
@@ -32,7 +30,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-10-16 19:51:03.893143",
+ "modified": "2023-10-16 19:51:03.893144",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz Question",

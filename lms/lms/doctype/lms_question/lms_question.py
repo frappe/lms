@@ -16,6 +16,8 @@ def validate_correct_answers(question):
 	if question.type == "Choices":
 		validate_duplicate_options(question)
 		validate_correct_options(question)
+	else:
+		validate_possible_answer(question)
 
 
 def validate_duplicate_options(question):
@@ -39,14 +41,40 @@ def validate_correct_options(question):
 		frappe.throw(_("At least one option must be correct for this question."))
 
 
+def validate_possible_answer(question):
+	possible_answers = []
+	possible_answers_fields = [
+		"possibility_1",
+		"possibility_2",
+		"possibility_3",
+		"possibility_4",
+	]
+
+	for field in possible_answers_fields:
+		if question.get(field):
+			possible_answers.append(field)
+
+	if not len(possible_answers):
+		frappe.throw(
+			_("Add at least one possible answer for this question: {0}").format(
+				frappe.bold(question.question)
+			)
+		)
+
+
 def get_correct_options(question):
+	correct_options = []
 	correct_option_fields = [
 		"is_correct_1",
 		"is_correct_2",
 		"is_correct_3",
 		"is_correct_4",
 	]
-	return list(filter(lambda x: question.get(x) == 1, correct_option_fields))
+	for field in correct_option_fields:
+		if question.get(field) == 1:
+			correct_options.append(field)
+
+	return correct_options
 
 
 @frappe.whitelist()
