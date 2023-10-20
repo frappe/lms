@@ -179,11 +179,11 @@ const validate_questions = () => {
 
 	questions.forEach((question, index) => {
 		if (!question.question) {
-			frappe.throw(__("Please add question in row ") + (index + 1));
+			frappe.throw(__("Please add question in row") + " " + (index + 1));
 		}
 
 		if (!question.marks) {
-			frappe.throw(__("Please add marks in row ") + (index + 1));
+			frappe.throw(__("Please add marks in row") + " " + (index + 1));
 		}
 	});
 };
