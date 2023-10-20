@@ -653,6 +653,7 @@ const setup_calendar = (events) => {
 	const options = get_calendar_options(element, calendar_id);
 	const calendar = new Calendar(container, options);
 	this.calendar_ = calendar;
+
 	create_events(calendar, events);
 	add_links_to_events(calendar, events);
 	scroll_to_date(calendar, events);

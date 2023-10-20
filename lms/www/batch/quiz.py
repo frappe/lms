@@ -18,14 +18,22 @@ def get_context(context):
 	if quizname == "new-quiz":
 		context.quiz = frappe._dict()
 	else:
-		fields_arr = ["name", "question", "type"]
 
 		context.quiz = frappe.db.get_value(
 			"LMS Quiz",
 			quizname,
-			["title", "name", "max_attempts", "show_answers", "show_submission_history"],
+			[
+				"title",
+				"name",
+				"max_attempts",
+				"passing_percentage",
+				"show_answers",
+				"show_submission_history",
+			],
 			as_dict=1,
 		)
+
+		fields_arr = ["name", "question", "marks"]
 		context.quiz.questions = frappe.get_all(
 			"LMS Quiz Question", {"parent": quizname}, fields_arr, order_by="idx"
 		)
