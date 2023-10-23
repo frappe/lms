@@ -65,7 +65,6 @@ def quiz_summary(quiz, results):
 		correct = result["is_correct"][0]
 		for point in result["is_correct"]:
 			correct = correct and point
-
 		result["is_correct"] = correct
 
 		question_details = frappe.db.get_value(
@@ -100,6 +99,8 @@ def quiz_summary(quiz, results):
 			"score": score,
 			"score_out_of": score_out_of,
 			"member": frappe.session.user,
+			"percentage": percentage,
+			"passing_percentage": quiz_details.passing_percentage,
 		}
 	)
 	submission.save(ignore_permissions=True)

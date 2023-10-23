@@ -16,7 +16,8 @@
   "column_break_merq",
   "start_time",
   "end_time",
-  "duration"
+  "duration",
+  "milestone"
  ],
  "fields": [
   {
@@ -69,12 +70,17 @@
    "fieldname": "day",
    "fieldtype": "Int",
    "label": "Day"
+  },
+  {
+    "fieldname": "milestone",
+    "fieldtype": "Check",
+    "label": "Milestone"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-10-03 17:40:31.530181",
+ "modified": "2023-10-20 11:58:01.782921",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch Timetable",

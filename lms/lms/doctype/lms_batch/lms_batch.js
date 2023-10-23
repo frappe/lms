@@ -52,6 +52,7 @@ const set_timetable = (frm) => {
 					"start_time",
 					"end_time",
 					"duration",
+					"milestone",
 				],
 				filters: {
 					parent: frm.doc.timetable_template,
@@ -82,6 +83,7 @@ const add_timetable_rows = (frm, timetable) => {
 					.format("HH:mm")
 			: null;
 		child.duration = row.duration;
+		child.milestone = row.milestone;
 	});
 	frm.refresh_field("timetable");
 
