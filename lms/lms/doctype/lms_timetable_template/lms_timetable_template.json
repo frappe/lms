@@ -8,7 +8,8 @@
  "engine": "InnoDB",
  "field_order": [
   "title",
-  "timetable"
+  "timetable",
+  "timetable_legends"
  ],
  "fields": [
   {
@@ -21,11 +22,17 @@
    "fieldtype": "Table",
    "label": "Timetable",
    "options": "LMS Batch Timetable"
+  },
+  {
+   "fieldname": "timetable_legends",
+   "fieldtype": "Table",
+   "label": "Timetable Legends",
+   "options": "LMS Timetable Legend"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-09-18 17:57:15.819072",
+ "modified": "2023-10-11 17:09:05.096243",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Timetable Template",

@@ -12,12 +12,16 @@ frappe.ui.form.on("LMS Batch", {
 		});
 
 		frm.set_query("reference_doctype", "timetable", function () {
-			let doctypes = [
-				"Course Lesson",
-				"LMS Quiz",
-				"LMS Assignment",
-				"LMS Live Class",
-			];
+			let doctypes = ["Course Lesson", "LMS Quiz", "LMS Assignment"];
+			return {
+				filters: {
+					name: ["in", doctypes],
+				},
+			};
+		});
+
+		frm.set_query("reference_doctype", "timetable_legends", function () {
+			let doctypes = ["Course Lesson", "LMS Quiz", "LMS Assignment"];
 			return {
 				filters: {
 					name: ["in", doctypes],
@@ -27,35 +31,40 @@ frappe.ui.form.on("LMS Batch", {
 	},
 
 	timetable_template: function (frm) {
-		if (frm.doc.timetable_template) {
-			frm.clear_table("timetable");
-			frm.refresh_fields();
-
-			frappe.call({
-				method: "frappe.client.get_list",
-				args: {
-					doctype: "LMS Batch Timetable",
-					parent: "LMS Timetable Template",
-					fields: [
-						"reference_doctype",
-						"reference_docname",
-						"day",
-						"start_time",
-						"end_time",
-						"duration",
-					],
-					filters: {
-						parent: frm.doc.timetable_template,
-					},
-					order_by: "idx",
-				},
-				callback: (data) => {
-					add_timetable_rows(frm, data.message);
-				},
-			});
-		}
+		set_timetable(frm);
 	},
 });
+
+const set_timetable = (frm) => {
+	if (frm.doc.timetable_template) {
+		frm.clear_table("timetable");
+		frm.refresh_fields();
+
+		frappe.call({
+			method: "frappe.client.get_list",
+			args: {
+				doctype: "LMS Batch Timetable",
+				parent: "LMS Timetable Template",
+				fields: [
+					"reference_doctype",
+					"reference_docname",
+					"day",
+					"start_time",
+					"end_time",
+					"duration",
+				],
+				filters: {
+					parent: frm.doc.timetable_template,
+					parenttype: "LMS Timetable Template",
+				},
+				order_by: "idx",
+			},
+			callback: (data) => {
+				add_timetable_rows(frm, data.message);
+			},
+		});
+	}
+};
 
 const add_timetable_rows = (frm, timetable) => {
 	timetable.forEach((row) => {
@@ -75,5 +84,40 @@ const add_timetable_rows = (frm, timetable) => {
 		child.duration = row.duration;
 	});
 	frm.refresh_field("timetable");
+
+	set_legends(frm);
+};
+
+const set_legends = (frm) => {
+	if (frm.doc.timetable_template) {
+		frm.clear_table("timetable_legends");
+		frm.refresh_fields();
+		frappe.call({
+			method: "frappe.client.get_list",
+			args: {
+				doctype: "LMS Timetable Legend",
+				parent: "LMS Timetable Template",
+				fields: ["reference_doctype", "label", "color"],
+				filters: {
+					parent: frm.doc.timetable_template,
+					parenttype: "LMS Timetable Template",
+				},
+				order_by: "idx",
+			},
+			callback: (data) => {
+				add_legend_rows(frm, data.message);
+			},
+		});
+	}
+};
+
+const add_legend_rows = (frm, legends) => {
+	legends.forEach((row) => {
+		let child = frm.add_child("timetable_legends");
+		child.reference_doctype = row.reference_doctype;
+		child.label = row.label;
+		child.color = row.color;
+	});
+	frm.refresh_field("timetable_legends");
 	frm.save();
 };

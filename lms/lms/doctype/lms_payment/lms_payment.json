@@ -8,8 +8,10 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "payment_for_document_type",
   "member",
   "column_break_rqkd",
+  "payment_for_document",
   "billing_name",
   "payment_received",
   "payment_details_section",
@@ -115,11 +117,23 @@
    "fieldname": "amount_with_gst",
    "fieldtype": "Currency",
    "label": "Amount with GST"
+  },
+  {
+   "fieldname": "payment_for_document_type",
+   "fieldtype": "Select",
+   "label": "Payment for Document Type",
+   "options": "\nLMS Course\nLMS Batch"
+  },
+  {
+   "fieldname": "payment_for_document",
+   "fieldtype": "Dynamic Link",
+   "label": "Payment for Document",
+   "options": "payment_for_document_type"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-09-12 10:40:22.721371",
+ "modified": "2023-10-17 23:17:50.334975",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Payment",

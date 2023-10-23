@@ -7,7 +7,7 @@ def get_context(context):
 	context.no_cache = 1
 
 	if frappe.session.user == "Guest":
-		raise frappe.PermissionError(_("You don't have permission to access this page."))
+		raise frappe.PermissionError(_("Please login to submit the assignment."))
 
 	context.is_moderator = has_course_moderator_role()
 	submission = frappe.form_dict["submission"]

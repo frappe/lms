@@ -5,17 +5,31 @@ import json
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import cstr
-from lms.lms.utils import generate_slug, has_course_moderator_role, can_create_courses
+from frappe.utils import cstr, comma_and
+from lms.lms.doctype.lms_question.lms_question import validate_correct_answers
+from lms.lms.utils import (
+	generate_slug,
+	has_course_moderator_role,
+	has_course_instructor_role,
+)
 
 
 class LMSQuiz(Document):
+	def validate(self):
+		self.validate_duplicate_questions()
+		self.total_marks = set_total_marks(self.name, self.questions)
+
+	def validate_duplicate_questions(self):
+		questions = [row.question for row in self.questions]
+		rows = [i + 1 for i, x in enumerate(questions) if questions.count(x) > 1]
+		if len(rows):
+			frappe.throw(
+				_("Rows {0} have the duplicate questions.").format(frappe.bold(comma_and(rows)))
+			)
+
 	def autoname(self):
 		if not self.name:
 			self.name = generate_slug(self.title, "LMS Quiz")
-
-	def validate(self):
-		validate_correct_answers(self.questions)
 
 	def get_last_submission_details(self):
 		"""Returns the latest submission for this user."""
@@ -35,76 +49,11 @@ class LMSQuiz(Document):
 			return result[0]
 
 
-def get_correct_options(question):
-	correct_option_fields = [
-		"is_correct_1",
-		"is_correct_2",
-		"is_correct_3",
-		"is_correct_4",
-	]
-	return list(filter(lambda x: question.get(x) == 1, correct_option_fields))
-
-
-def validate_correct_answers(questions):
+def set_total_marks(quiz, questions):
+	marks = 0
 	for question in questions:
-		if question.type == "Choices":
-			validate_duplicate_options(question)
-			validate_correct_options(question)
-		else:
-			validate_possible_answer(question)
-
-
-def validate_duplicate_options(question):
-	options = []
-
-	for num in range(1, 5):
-		if question.get(f"option_{num}"):
-			options.append(question.get(f"option_{num}"))
-
-	if len(set(options)) != len(options):
-		frappe.throw(
-			_("Duplicate options found for this question: {0}").format(
-				frappe.bold(question.question)
-			)
-		)
-
-
-def validate_correct_options(question):
-	correct_options = get_correct_options(question)
-
-	if len(correct_options) > 1:
-		question.multiple = 1
-
-	if not len(correct_options):
-		frappe.throw(
-			_("At least one option must be correct for this question: {0}").format(
-				frappe.bold(question.question)
-			)
-		)
-
-
-def validate_possible_answer(question):
-	possible_answers_fields = [
-		"possibility_1",
-		"possibility_2",
-		"possibility_3",
-		"possibility_4",
-	]
-	possible_answers = list(filter(lambda x: question.get(x), possible_answers_fields))
-
-	if not len(possible_answers):
-		frappe.throw(
-			_("Add at least one possible answer for this question: {0}").format(
-				frappe.bold(question.question)
-			)
-		)
-
-
-def update_lesson_info(doc, method):
-	if doc.quiz_id:
-		frappe.db.set_value(
-			"LMS Quiz", doc.quiz_id, {"lesson": doc.name, "course": doc.course}
-		)
+		marks += question.get("marks")
+	return marks
 
 
 @frappe.whitelist()
@@ -114,18 +63,34 @@ def quiz_summary(quiz, results):
 
 	for result in results:
 		correct = result["is_correct"][0]
-		result["question"] = frappe.db.get_value(
-			"LMS Quiz Question",
-			{"parent": quiz, "idx": result["question_index"] + 1},
-			["question"],
-		)
-
 		for point in result["is_correct"]:
 			correct = correct and point
 
 		result["is_correct"] = correct
-		score += correct
+
+		question_details = frappe.db.get_value(
+			"LMS Quiz Question",
+			{"parent": quiz, "idx": result["question_index"] + 1},
+			["question", "marks"],
+			as_dict=1,
+		)
+
+		result["question_name"] = question_details.question
+		result["question"] = frappe.db.get_value(
+			"LMS Question", question_details.question, "question"
+		)
+		marks = question_details.marks if correct else 0
+
+		result["marks"] = marks
+		score += marks
+
 		del result["question_index"]
+
+	quiz_details = frappe.db.get_value(
+		"LMS Quiz", quiz, ["total_marks", "passing_percentage"], as_dict=1
+	)
+	score_out_of = quiz_details.total_marks
+	percentage = (score / score_out_of) * 100
 
 	submission = frappe.get_doc(
 		{
@@ -133,6 +98,7 @@ def quiz_summary(quiz, results):
 			"quiz": quiz,
 			"result": results,
 			"score": score,
+			"score_out_of": score_out_of,
 			"member": frappe.session.user,
 		}
 	)
@@ -140,19 +106,28 @@ def quiz_summary(quiz, results):
 
 	return {
 		"score": score,
+		"score_out_of": score_out_of,
 		"submission": submission.name,
+		"pass": percentage == quiz_details.passing_percentage,
 	}
 
 
 @frappe.whitelist()
 def save_quiz(
-	quiz_title, max_attempts=1, quiz=None, show_answers=1, show_submission_history=0
+	quiz_title,
+	passing_percentage,
+	questions,
+	max_attempts=0,
+	quiz=None,
+	show_answers=1,
+	show_submission_history=0,
 ):
-	if not can_create_courses():
+	if not has_course_moderator_role() or not has_course_instructor_role():
 		return
 
 	values = {
 		"title": quiz_title,
+		"passing_percentage": passing_percentage,
 		"max_attempts": max_attempts,
 		"show_answers": show_answers,
 		"show_submission_history": show_submission_history,
@@ -160,40 +135,76 @@ def save_quiz(
 
 	if quiz:
 		frappe.db.set_value("LMS Quiz", quiz, values)
+		update_questions(quiz, questions)
 		return quiz
 	else:
 		doc = frappe.new_doc("LMS Quiz")
 		doc.update(values)
-		doc.save(ignore_permissions=True)
+		doc.save()
+		update_questions(doc.name, questions)
 		return doc.name
+
+
+def update_questions(quiz, questions):
+	questions = json.loads(questions)
+
+	delete_questions(quiz, questions)
+	add_questions(quiz, questions)
+	frappe.db.set_value("LMS Quiz", quiz, "total_marks", set_total_marks(quiz, questions))
+
+
+def delete_questions(quiz, questions):
+	existing_questions = frappe.get_all(
+		"LMS Quiz Question",
+		{
+			"parent": quiz,
+		},
+		pluck="name",
+	)
+
+	current_questions = [question.get("question_name") for question in questions]
+
+	for question in existing_questions:
+		if question not in current_questions:
+			frappe.db.delete("LMS Quiz Question", question)
+
+
+def add_questions(quiz, questions):
+	for index, question in enumerate(questions):
+		question = frappe._dict(question)
+		if question.question_name:
+			doc = frappe.get_doc("LMS Quiz Question", question.question_name)
+		else:
+			doc = frappe.new_doc("LMS Quiz Question")
+			doc.update(
+				{
+					"parent": quiz,
+					"parenttype": "LMS Quiz",
+					"parentfield": "questions",
+					"idx": index + 1,
+				}
+			)
+
+		doc.update({"question": question.question, "marks": question.marks})
+
+		doc.save()
 
 
 @frappe.whitelist()
 def save_question(quiz, values, index):
 	values = frappe._dict(json.loads(values))
-	validate_correct_answers([values])
 
 	if values.get("name"):
-		doc = frappe.get_doc("LMS Quiz Question", values.get("name"))
+		doc = frappe.get_doc("LMS Question", values.get("name"))
 	else:
-		doc = frappe.new_doc("LMS Quiz Question")
+		doc = frappe.new_doc("LMS Question")
 
 	doc.update(
 		{
-			"question": values["question"],
+			"question": values.question,
 			"type": values["type"],
 		}
 	)
-
-	if not values.get("name"):
-		doc.update(
-			{
-				"parent": quiz,
-				"parenttype": "LMS Quiz",
-				"parentfield": "questions",
-				"idx": index,
-			}
-		)
 
 	for num in range(1, 5):
 		if values.get(f"option_{num}"):
@@ -218,9 +229,8 @@ def save_question(quiz, values, index):
 				}
 			)
 
-		doc.save(ignore_permissions=True)
-
-	return quiz
+	doc.save()
+	return doc.name
 
 
 @frappe.whitelist()
@@ -253,9 +263,7 @@ def check_choice_answers(question, answers):
 		fields.append(f"option_{cstr(num)}")
 		fields.append(f"is_correct_{cstr(num)}")
 
-	question_details = frappe.db.get_value(
-		"LMS Quiz Question", question, fields, as_dict=1
-	)
+	question_details = frappe.db.get_value("LMS Question", question, fields, as_dict=1)
 
 	for num in range(1, 5):
 		if question_details[f"option_{num}"] in answers:
@@ -271,9 +279,7 @@ def check_input_answers(question, answer):
 	for num in range(1, 5):
 		fields.append(f"possibility_{cstr(num)}")
 
-	question_details = frappe.db.get_value(
-		"LMS Quiz Question", question, fields, as_dict=1
-	)
+	question_details = frappe.db.get_value("LMS Question", question, fields, as_dict=1)
 	for num in range(1, 5):
 		current_possibility = question_details[f"possibility_{num}"]
 		if current_possibility and current_possibility.lower() == answer.lower():
