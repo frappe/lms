@@ -843,6 +843,9 @@ const send_email_to_students = (students, values) => {
 				message: __("Email sent successfully"),
 				indicator: "green",
 			});
+			setTimeout(() => {
+				window.location.reload();
+			}, 2000);
 		},
 	});
 };

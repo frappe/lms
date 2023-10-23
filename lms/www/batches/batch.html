@@ -75,14 +75,6 @@
 		</div>
 	</div>
 
-	{% if is_moderator %}
-	<div class="mt-4">
-		<button class="btn btn-secondary btn-sm btn-email">
-			{{ _("Email to Students") }}
-		</button>
-	</div>
-	{% endif %}
-
 	{% if batch_info.custom_component %}
 		<div class="mt-4">
 			{{ batch_info.custom_component }}
@@ -140,6 +132,15 @@
 				</span>
 			</a>
 		</li>
+
+		<li class="nav-item">
+			<a class="nav-link" data-toggle="tab" href="#emails">
+				{{ _("Emails") }}
+				<span class="course-list-count">
+					{{ batch_emails | length }}
+				</span>
+			</a>
+		</li>
 		{% endif %}
 
 		{% if batch_students | length and (is_moderator or is_student) %}
@@ -191,6 +192,10 @@
 
 		<div class="tab-pane" id="assessments" role="tabpanel" aria-labelledby="assessments">
 			{{ AssessmentsSection(batch_info) }}
+		</div>
+
+		<div class="tab-pane" id="emails" role="tabpanel" aria-labelledby="emails">
+			{{ EmailsSection() }}
 		</div>
 		{% endif %}
 
@@ -375,6 +380,41 @@
 	{{ AssessmentList(assessments) }}
 </article>
 {% endmacro %}
+
+
+{% macro EmailsSection() %}
+<div class="my-4">
+	<button class="btn btn-secondary btn-sm btn-email">
+		{{ _("Email to Students") }}
+	</button>
+</div>
+<div>
+	{% for email in batch_emails %}
+	<div class="frappe-card mb-5">
+		<div class="flex justify-between m-1">
+			<span class="text-color flex">
+				<span class="margin-right">
+					{% set member = frappe.db.get_value("User", email.sender, ["full_name", "username", "name", "user_image"], as_dict=1) %}
+					{{ widgets.Avatar(member=member, avatar_class="avatar-small") }}
+				</span>
+				<span>
+					{{ member.full_name }}
+					<div class="text-muted">
+						<span class="frappe-timestamp" data-timestamp="{{ email.communication_date }}" title="{{ communication_date }}">
+							{{ frappe.utils.pretty_date(email.communication_date) }}
+						</span>
+					</div>
+				</span>
+			</span>
+		</div>
+		<div class="ml-10">
+			{{ email.content }}
+		</div>
+	</div>
+	{% endfor %}
+</div>
+{% endmacro %}
+
 
 {% macro AssessmentList(assessments) %}
 {% if assessments | length %}
