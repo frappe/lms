@@ -16,7 +16,7 @@ def get_context(context):
 	context.doc = frappe.db.get_value(
 		"LMS Certificate",
 		certificate_name,
-		["name", "member", "issue_date", "expiry_date", "course"],
+		["name", "member", "issue_date", "expiry_date", "course", "template"],
 		as_dict=True,
 	)
 
@@ -31,7 +31,10 @@ def get_context(context):
 	)
 	context.url = f"{get_url()}/courses/{context.course.name}/{context.doc.name}"
 
-	print_format = get_print_format()
+	if context.doc.template:
+		print_format = context.doc.template
+	else:
+		print_format = get_print_format()
 
 	template = frappe.db.get_value(
 		"Print Format", print_format, ["html", "css"], as_dict=True
