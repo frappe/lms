@@ -397,15 +397,6 @@ def get_timetable_details(timetable):
 
 
 @frappe.whitelist()
-def send_email_to_students(batch, subject, reply_to, message):
-	frappe.only_for("Moderator")
-	students = frappe.get_all("Batch Student", {"parent": batch}, pluck="student")
-	frappe.sendmail(
-		recipients=students, subject=subject, reply_to=reply_to, message=message
-	)
-
-
-@frappe.whitelist()
 def is_milestone_complete(idx, batch):
 	previous_rows = frappe.get_all(
 		"LMS Batch Timetable",

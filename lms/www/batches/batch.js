@@ -831,12 +831,33 @@ const email_to_students = () => {
 
 const send_email = (values) => {
 	frappe.call({
-		method: "lms.lms.doctype.lms_batch.lms_batch.send_email_to_students",
+		method: "frappe.client.get_list",
 		args: {
-			batch: $(".class-details").data("batch"),
+			doctype: "Batch Student",
+			parent: "LMS Batch",
+			fields: ["student"],
+			filters: {
+				parent: $(".class-details").data("batch"),
+			},
+		},
+		callback: (data) => {
+			send_email_to_students(data.message, values);
+		},
+	});
+};
+
+const send_email_to_students = (students, values) => {
+	students = students.map((row) => row.student);
+	frappe.call({
+		method: "frappe.core.doctype.communication.email.make",
+		args: {
+			recipients: students.join(", "),
+			cc: values.reply_to,
 			subject: values.subject,
-			reply_to: values.reply_to,
-			message: values.message,
+			content: values.message,
+			doctype: "LMS Batch",
+			name: $(".class-details").data("batch"),
+			send_email: 1,
 		},
 		callback: (r) => {
 			this.email_dialog.hide();
@@ -844,6 +865,9 @@ const send_email = (values) => {
 				message: __("Email sent successfully"),
 				indicator: "green",
 			});
+			setTimeout(() => {
+				window.location.reload();
+			}, 2000);
 		},
 	});
 };

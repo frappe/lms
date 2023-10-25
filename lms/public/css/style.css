@@ -2479,3 +2479,7 @@ select {
 .questions-table .row-index {
 	display: none;
 }
+
+.text-color {
+	color: var(--text-color);
+}
