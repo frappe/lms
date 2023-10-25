@@ -12,9 +12,6 @@ from frappe.utils import (
 	cint,
 	format_date,
 	format_datetime,
-	add_to_date,
-	getdate,
-	get_datetime,
 )
 from lms.lms.utils import get_lessons, get_lesson_index, get_lesson_url
 from lms.www.utils import get_quiz_details, get_assignment_details
@@ -325,7 +322,17 @@ def get_batch_timetable(batch):
 	timetable = frappe.get_all(
 		"LMS Batch Timetable",
 		filters={"parent": batch},
-		fields=["reference_doctype", "reference_docname", "date", "start_time", "end_time"],
+		fields=[
+			"reference_doctype",
+			"reference_docname",
+			"date",
+			"start_time",
+			"end_time",
+			"milestone",
+			"name",
+			"idx",
+			"parent",
+		],
 		order_by="date",
 	)
 
@@ -362,22 +369,65 @@ def get_timetable_details(timetable):
 		assessment = frappe._dict({"assessment_name": entry.reference_docname})
 
 		if entry.reference_doctype == "Course Lesson":
-			entry.icon = "icon-list"
 			course = frappe.db.get_value(
 				entry.reference_doctype, entry.reference_docname, "course"
 			)
 			entry.url = get_lesson_url(course, get_lesson_index(entry.reference_docname))
 
+			entry.completed = (
+				True
+				if frappe.db.exists(
+					"LMS Course Progress",
+					{"lesson": entry.reference_docname, "member": frappe.session.user},
+				)
+				else False
+			)
+
 		elif entry.reference_doctype == "LMS Quiz":
-			entry.icon = "icon-quiz"
 			entry.url = "/quizzes"
 			details = get_quiz_details(assessment, frappe.session.user)
 			entry.update(details)
 
 		elif entry.reference_doctype == "LMS Assignment":
-			entry.icon = "icon-quiz"
 			details = get_assignment_details(assessment, frappe.session.user)
 			entry.update(details)
 
 	timetable = sorted(timetable, key=lambda k: k["date"])
 	return timetable
+
+
+@frappe.whitelist()
+def is_milestone_complete(idx, batch):
+	previous_rows = frappe.get_all(
+		"LMS Batch Timetable",
+		filters={"parent": batch, "idx": ["<", cint(idx)]},
+		fields=["reference_doctype", "reference_docname", "idx"],
+		order_by="idx",
+	)
+
+	for row in previous_rows:
+		if row.reference_doctype == "Course Lesson":
+			if not frappe.db.exists(
+				"LMS Course Progress",
+				{"member": frappe.session.user, "lesson": row.reference_docname},
+			):
+				return False
+
+		if row.reference_doctype == "LMS Quiz":
+			passing_percentage = frappe.db.get_value(
+				row.reference_doctype, row.reference_docname, "passing_percentage"
+			)
+			if not frappe.db.exists(
+				"LMS Quiz Submission",
+				{"quiz": row.reference_docname, "member": frappe.session.user},
+			):
+				return False
+
+		if row.reference_doctype == "LMS Assignment":
+			if not frappe.db.exists(
+				"LMS Assignment Submission",
+				{"assignment": row.reference_docname, "member": frappe.session.user},
+			):
+				return False
+
+	return True
