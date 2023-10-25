@@ -8,11 +8,12 @@
   "course",
   "member",
   "member_name",
-  "published",
+  "template",
   "column_break_3",
   "issue_date",
   "expiry_date",
-  "batch_name"
+  "batch_name",
+  "published"
  ],
  "fields": [
   {
@@ -67,11 +68,18 @@
    "fieldname": "published",
    "fieldtype": "Check",
    "label": "Publish on Participant Page"
+  },
+  {
+   "fieldname": "template",
+   "fieldtype": "Link",
+   "label": "Template",
+   "options": "Print Format",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-09-13 11:03:23.479255",
+ "modified": "2023-10-25 12:20:56.091979",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate",
