@@ -517,6 +517,10 @@ const open_evaluation_form = (e) => {
 				},
 				filter_description: " ",
 				only_select: 1,
+				change: () => {
+					this.eval_form.set_value("date", "");
+					$("[data-fieldname='slots']").html("");
+				},
 			},
 			{
 				fieldtype: "Date",
@@ -527,7 +531,7 @@ const open_evaluation_form = (e) => {
 					frappe.datetime.add_days(frappe.datetime.get_today(), 1)
 				),
 				change: () => {
-					get_slots();
+					if (this.eval_form.get_value("date")) get_slots();
 				},
 			},
 			{
@@ -552,7 +556,7 @@ const get_slots = () => {
 		args: {
 			course: this.eval_form.get_value("course"),
 			date: this.eval_form.get_value("date"),
-			batch_name: $(".class-details").data("batch"),
+			batch: $(".class-details").data("batch"),
 		},
 		callback: (r) => {
 			if (r.message) {
