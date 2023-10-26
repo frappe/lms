@@ -653,6 +653,7 @@ const setup_calendar = (events) => {
 	const options = get_calendar_options(element, calendar_id);
 	const calendar = new Calendar(container, options);
 	this.calendar_ = calendar;
+
 	create_events(calendar, events);
 	add_links_to_events(calendar, events);
 	scroll_to_date(calendar, events);
@@ -685,7 +686,9 @@ const get_calendar_options = (element, calendar_id) => {
 		],
 		template: {
 			time: function (event) {
+				let hide = event.raw.completed ? "" : "hide";
 				return `<div class="calendar-event-time">
+						<img class='icon icon-sm pull-right ${hide}' src="/assets/lms/icons/check.svg">
 						<div> ${frappe.datetime.get_time(event.start.d.d)} -
 						${frappe.datetime.get_time(event.end.d.d)} </div>
 						<div class="calendar-event-title"> ${event.title} </div>
@@ -716,6 +719,11 @@ const create_events = (calendar, events, calendar_id) => {
 			},
 			raw: {
 				url: event.url,
+				milestone: event.milestone,
+				name: event.name,
+				idx: event.idx,
+				parent: event.parent,
+				completed: event.completed,
 			},
 		});
 	});
@@ -729,9 +737,28 @@ const add_links_to_events = (calendar) => {
 		event_date = moment(event_date).format("YYYY-MM-DD");
 
 		let current_date = moment().format("YYYY-MM-DD");
-		if (allow_future || moment(event_date).isSameOrBefore(current_date)) {
-			window.open(event.raw.url, "_blank");
-		}
+
+		if (!moment(event_date).isSameOrBefore(current_date) && !allow_future)
+			return;
+
+		if (event.raw.milestone) {
+			frappe.call({
+				method: "lms.lms.doctype.lms_batch.lms_batch.is_milestone_complete",
+				args: {
+					idx: event.raw.idx,
+					batch: event.raw.parent,
+				},
+				callback: (data) => {
+					if (data.message) window.open(event.raw.url, "_blank");
+					else
+						frappe.show_alert({
+							message:
+								"Please complete all previous activities to proceed.",
+							indicator: "red",
+						});
+				},
+			});
+		} else window.open(event.raw.url, "_blank");
 	});
 };
 
@@ -754,17 +781,13 @@ const set_calendar_range = (calendar, events) => {
 		).format("DD MMMM YYYY")}`
 	);
 
-	if (week_start.diff(moment(events[0].date), "days") <= 0) {
+	if (week_start.diff(moment(events[0].date), "days") <= 0)
 		$("#prev-week").hide();
-	} else {
-		$("#prev-week").show();
-	}
+	else $("#prev-week").show();
 
-	if (week_end.diff(moment(events.slice(-1)[0].date), "days") > 0) {
+	if (week_end.diff(moment(events.slice(-1)[0].date), "days") > 0)
 		$("#next-week").hide();
-	} else {
-		$("#next-week").show();
-	}
+	else $("#next-week").show();
 };
 
 const get_background_color = (doctype) => {
@@ -785,6 +808,12 @@ const email_to_students = () => {
 				reqd: 1,
 			},
 			{
+				fieldtype: "Data",
+				fieldname: "reply_to",
+				label: __("Reply To"),
+				reqd: 0,
+			},
+			{
 				fieldtype: "Text Editor",
 				fieldname: "message",
 				label: __("Message"),
@@ -802,11 +831,33 @@ const email_to_students = () => {
 
 const send_email = (values) => {
 	frappe.call({
-		method: "lms.lms.doctype.lms_batch.lms_batch.send_email_to_students",
+		method: "frappe.client.get_list",
 		args: {
-			batch: $(".class-details").data("batch"),
+			doctype: "Batch Student",
+			parent: "LMS Batch",
+			fields: ["student"],
+			filters: {
+				parent: $(".class-details").data("batch"),
+			},
+		},
+		callback: (data) => {
+			send_email_to_students(data.message, values);
+		},
+	});
+};
+
+const send_email_to_students = (students, values) => {
+	students = students.map((row) => row.student);
+	frappe.call({
+		method: "frappe.core.doctype.communication.email.make",
+		args: {
+			recipients: students.join(", "),
+			cc: values.reply_to,
 			subject: values.subject,
-			message: values.message,
+			content: values.message,
+			doctype: "LMS Batch",
+			name: $(".class-details").data("batch"),
+			send_email: 1,
 		},
 		callback: (r) => {
 			this.email_dialog.hide();
@@ -814,6 +865,9 @@ const send_email = (values) => {
 				message: __("Email sent successfully"),
 				indicator: "green",
 			});
+			setTimeout(() => {
+				window.location.reload();
+			}, 2000);
 		},
 	});
 };

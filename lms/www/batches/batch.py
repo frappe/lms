@@ -71,6 +71,13 @@ def get_context(context):
 	)
 	context.course_name_list = [course.course for course in context.batch_courses]
 	context.assessments = get_assessments(batch_name)
+	context.batch_emails = frappe.get_all(
+		"Communication",
+		filters={"reference_doctype": "LMS Batch", "reference_name": batch_name},
+		fields=["subject", "content", "recipients", "cc", "communication_date", "sender"],
+		order_by="communication_date desc",
+	)
+
 	context.batch_students = get_class_student_details(
 		batch_students, batch_courses, context.assessments
 	)

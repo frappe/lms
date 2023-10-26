@@ -4,7 +4,6 @@ import frappe
 import json
 import razorpay
 import requests
-import base64
 from frappe import _
 from frappe.desk.doctype.dashboard_chart.dashboard_chart import get_result
 from frappe.desk.doctype.notification_log.notification_log import make_notification_logs
@@ -1029,6 +1028,8 @@ def record_payment(address, response, client, doctype, docname):
 			"amount_with_gst": payment_details["amount_with_gst"],
 			"gstin": address.gstin,
 			"pan": address.pan,
+			"payment_for_document_type": doctype,
+			"payment_for_document": docname,
 		}
 	)
 	payment_doc.save(ignore_permissions=True)

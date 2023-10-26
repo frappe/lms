@@ -12,6 +12,10 @@
   "column_break_gaac",
   "max_attempts",
   "show_submission_history",
+  "section_break_hsiv",
+  "passing_percentage",
+  "column_break_rocd",
+  "total_marks",
   "section_break_sbjx",
   "questions",
   "section_break_3",
@@ -43,7 +47,7 @@
    "read_only": 1
   },
   {
-   "default": "1",
+   "default": "0",
    "fieldname": "max_attempts",
    "fieldtype": "Int",
    "label": "Max Attempts"
@@ -90,11 +94,34 @@
    "fieldname": "show_submission_history",
    "fieldtype": "Check",
    "label": "Show Submission History"
+  },
+  {
+   "fieldname": "section_break_hsiv",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "passing_percentage",
+   "fieldtype": "Int",
+   "label": "Passing Percentage",
+   "non_negative": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_rocd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_marks",
+   "fieldtype": "Int",
+   "label": "Total Marks",
+   "non_negative": 1,
+   "read_only": 1,
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-07-04 15:26:24.457745",
+ "modified": "2023-10-18 22:50:58.252350",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz",
@@ -121,6 +148,18 @@
    "read": 1,
    "report": 1,
    "role": "Moderator",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Course Creator",
    "share": 1,
    "write": 1
   }

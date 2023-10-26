@@ -48,6 +48,15 @@ def create_certificate(course):
 		if expires_after_yrs:
 			expiry_date = add_years(nowdate(), expires_after_yrs)
 
+		default_certificate_template = frappe.db.get_value(
+			"Property Setter",
+			{
+				"doc_type": "LMS Certificate",
+				"property": "default_print_format",
+			},
+			"value",
+		)
+
 		certificate = frappe.get_doc(
 			{
 				"doctype": "LMS Certificate",
@@ -55,6 +64,7 @@ def create_certificate(course):
 				"course": course,
 				"issue_date": nowdate(),
 				"expiry_date": expiry_date,
+				"template": default_certificate_template,
 			}
 		)
 		certificate.save(ignore_permissions=True)
