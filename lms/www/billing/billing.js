@@ -81,6 +81,7 @@ const setup_billing = () => {
 				fieldname: "source",
 				options: "LMS Source",
 				only_select: 1,
+				reqd: 1,
 			},
 			{
 				fieldtype: "Section Break",
