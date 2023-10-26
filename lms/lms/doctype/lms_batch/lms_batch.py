@@ -12,6 +12,7 @@ from frappe.utils import (
 	cint,
 	format_date,
 	format_datetime,
+	get_time,
 )
 from lms.lms.utils import get_lessons, get_lesson_index, get_lesson_url
 from lms.www.utils import get_quiz_details, get_assignment_details
@@ -117,7 +118,7 @@ class LMSBatch(Document):
 		for schedule in self.timetable:
 			if schedule.start_time and schedule.end_time:
 				if (
-					schedule.start_time > schedule.end_time or schedule.start_time == schedule.end_time
+					get_time(schedule.start_time) > get_time(schedule.end_time) or get_time(schedule.start_time) == get_time(schedule.end_time)
 				):
 					frappe.throw(
 						_("Row #{0} Start time cannot be greater than or equal to end time.").format(
@@ -125,14 +126,14 @@ class LMSBatch(Document):
 						)
 					)
 
-				if schedule.start_time < self.start_time or schedule.start_time > self.end_time:
+				if get_time(schedule.start_time) < get_time(self.start_time) or get_time(schedule.start_time) > get_time(self.end_time):
 					frappe.throw(
 						_("Row #{0} Start time cannot be outside the batch duration.").format(
 							schedule.idx
 						)
 					)
 
-				if schedule.end_time < self.start_time or schedule.end_time > self.end_time:
+				if get_time(schedule.end_time) < get_time(self.start_time) or get_time(schedule.end_time) > get_time(self.end_time):
 					frappe.throw(
 						_("Row #{0} End time cannot be outside the batch duration.").format(schedule.idx)
 					)
