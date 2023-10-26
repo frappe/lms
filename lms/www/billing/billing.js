@@ -41,13 +41,13 @@ const setup_billing = () => {
 				default: address && address.city,
 			},
 			{
-				fieldtype: "Column Break",
-			},
-			{
 				fieldtype: "Data",
 				label: __("State/Province"),
 				fieldname: "state",
 				default: address && address.state,
+			},
+			{
+				fieldtype: "Column Break",
 			},
 			{
 				fieldtype: "Link",
@@ -74,6 +74,14 @@ const setup_billing = () => {
 				fieldname: "phone",
 				reqd: 1,
 				default: address && address.phone,
+			},
+			{
+				fieldtype: "Link",
+				label: __("Where did you hear about this?"),
+				fieldname: "source",
+				options: "LMS Source",
+				only_select: 1,
+				reqd: 1,
 			},
 			{
 				fieldtype: "Section Break",

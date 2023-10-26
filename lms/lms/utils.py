@@ -898,7 +898,7 @@ def check_multicurrency(amount, currency, country=None):
 	currency = "USD"
 
 	if apply_rounding and amount % 100 != 0:
-		amount = ceil(amount + 100 - amount % 100)
+		amount = amount + 100 - amount % 100
 
 	return amount, currency
 
@@ -1028,12 +1028,13 @@ def record_payment(address, response, client, doctype, docname):
 			"amount_with_gst": payment_details["amount_with_gst"],
 			"gstin": address.gstin,
 			"pan": address.pan,
+			"source": address.source,
 			"payment_for_document_type": doctype,
 			"payment_for_document": docname,
 		}
 	)
 	payment_doc.save(ignore_permissions=True)
-	return payment_doc.name
+	return payment_doc
 
 
 def get_payment_details(doctype, docname, address):
@@ -1056,7 +1057,7 @@ def get_payment_details(doctype, docname, address):
 def create_membership(course, payment):
 	membership = frappe.new_doc("LMS Enrollment")
 	membership.update(
-		{"member": frappe.session.user, "course": course, "payment": payment}
+		{"member": frappe.session.user, "course": course, "payment": payment.name}
 	)
 	membership.save(ignore_permissions=True)
 	return f"/courses/{course}/learn/1.1"
@@ -1067,7 +1068,8 @@ def add_student_to_batch(batchname, payment):
 	student.update(
 		{
 			"student": frappe.session.user,
-			"payment": payment,
+			"payment": payment.name,
+			"source": payment.source,
 			"parent": batchname,
 			"parenttype": "LMS Batch",
 			"parentfield": "students",
