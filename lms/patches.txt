@@ -76,3 +76,4 @@ lms.patches.v1_0.mark_confirmation_for_batch_students
 lms.patches.v1_0.create_quiz_questions
 lms.patches.v1_0.add_default_marks #16-10-2023
 lms.patches.v1_0.add_certificate_template #26-10-2023
+lms.patches.v1_0.create_batch_source

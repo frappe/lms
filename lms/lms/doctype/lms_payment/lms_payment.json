@@ -10,6 +10,7 @@
  "field_order": [
   "payment_for_document_type",
   "member",
+  "source",
   "column_break_rqkd",
   "payment_for_document",
   "billing_name",
@@ -129,11 +130,17 @@
    "fieldtype": "Dynamic Link",
    "label": "Payment for Document",
    "options": "payment_for_document_type"
+  },
+  {
+   "fieldname": "source",
+   "fieldtype": "Link",
+   "label": "Source",
+   "options": "LMS Source"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-10-17 23:17:50.334975",
+ "modified": "2023-10-26 16:54:12.408274",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Payment",
