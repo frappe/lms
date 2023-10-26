@@ -191,7 +191,7 @@ def create_batch_source():
 	]
 
 	for source in sources:
-		if not frappe.db.exists("LMS Batch Source", source):
-			doc = frappe.new_doc("LMS Batch Source")
+		if not frappe.db.exists("LMS Source", source):
+			doc = frappe.new_doc("LMS Source")
 			doc.source = source
 			doc.save()
