@@ -48,7 +48,7 @@ def get_context(context):
 		else:
 			upcoming_batches.append(batch)
 
-	context.past_batches = sorted(past_batches, key=lambda d: d.start_date)
+	context.past_batches = sorted(past_batches, key=lambda d: d.start_date, reverse=True)
 	context.upcoming_batches = sorted(upcoming_batches, key=lambda d: d.start_date)
 	context.private_batches = sorted(private_batches, key=lambda d: d.start_date)
 
@@ -83,5 +83,6 @@ def get_context(context):
 			batchinfo.seats_left = batchinfo.seat_count - batchinfo.student_count
 
 			my_batches_info.append(batchinfo)
+			my_batches_info = sorted(my_batches_info, key=lambda d: d.start_date, reverse=True)
 
 		context.my_batches = my_batches_info

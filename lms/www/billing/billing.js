@@ -114,6 +114,7 @@ const setup_billing = () => {
 
 const generate_payment_link = (e) => {
 	let new_address = this.billing.get_values();
+	validate_address(new_address);
 	let doctype = $(e.currentTarget).attr("data-doctype");
 	let docname = decodeURIComponent($(e.currentTarget).attr("data-name"));
 
@@ -182,8 +183,10 @@ const change_currency = () => {
 			if (current_price != data.message) {
 				update_price(data.message);
 			}
-			if (!data.message.includes("INR")) {
-				$("#gst-message").addClass("hide");
+			if (data.message.includes("INR")) {
+				$("#gst-message").removeClass("hide").addClass("show");
+			} else {
+				$("#gst-message").removeClass("show").addClass("hide");
 			}
 		},
 	});
@@ -195,4 +198,49 @@ const update_price = (price) => {
 		message: "Total Price has been updated.",
 		indicator: "yellow",
 	});
+};
+
+const validate_address = (billing_address) => {
+	if (billing_address.country == "India" && !billing_address.state)
+		frappe.throw(__("State is mandatory."));
+
+	const states = [
+		"Andhra Pradesh",
+		"Arunachal Pradesh",
+		"Assam",
+		"Bihar",
+		"Chhattisgarh",
+		"Goa",
+		"Gujarat",
+		"Haryana",
+		"Himachal Pradesh",
+		"Jharkhand",
+		"Karnataka",
+		"Kerala",
+		"Madhya Pradesh",
+		"Maharashtra",
+		"Manipur",
+		"Meghalaya",
+		"Mizoram",
+		"Nagaland",
+		"Odisha",
+		"Punjab",
+		"Rajasthan",
+		"Sikkim",
+		"Tamil Nadu",
+		"Telangana",
+		"Tripura",
+		"Uttar Pradesh",
+		"Uttarakhand",
+		"West Bengal",
+	];
+	if (
+		billing_address.country == "India" &&
+		!states.includes(billing_address.state)
+	)
+		frappe.throw(
+			__(
+				"Please enter a valid state with correct spelling and the first letter capitalized."
+			)
+		);
 };

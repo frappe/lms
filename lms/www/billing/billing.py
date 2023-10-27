@@ -15,6 +15,13 @@ def get_context(context):
 	validate_access(doctype, docname, module)
 	get_billing_details(context)
 
+	context.original_currency = context.currency
+	context.original_amount = (
+		apply_gst(context.amount, None)[0]
+		if context.original_currency == "INR"
+		else context.amount
+	)
+
 	context.exception_country = frappe.get_all(
 		"Payment Country", filters={"parent": "LMS Settings"}, pluck="country"
 	)
@@ -26,9 +33,6 @@ def get_context(context):
 	context.address = get_address()
 	if context.currency == "INR":
 		context.amount, context.gst_applied = apply_gst(context.amount, None)
-
-	context.original_amount = context.amount
-	context.original_currency = context.currency
 
 
 def validate_access(doctype, docname, module):
