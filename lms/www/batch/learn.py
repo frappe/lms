@@ -108,9 +108,9 @@ def get_page_extensions(context):
 
 def get_neighbours(current, lessons):
 	numbers = [lesson.number for lesson in lessons]
-	tuples_list = [tuple(map(int, s.split('.'))) for s in numbers]
+	tuples_list = [tuple(map(int, s.split("."))) for s in numbers]
 	sorted_tuples = sorted(tuples_list)
-	sorted_numbers = ['.'.join(map(str, t)) for t in sorted_tuples]
+	sorted_numbers = [".".join(map(str, t)) for t in sorted_tuples]
 	index = sorted_numbers.index(current)
 
 	return {
