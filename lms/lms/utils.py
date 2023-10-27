@@ -149,7 +149,7 @@ def get_lesson_details(chapter):
 			],
 			as_dict=True,
 		)
-		lesson_details.number = flt(f"{chapter.idx}.{row.idx}")
+		lesson_details.number = f"{chapter.idx}.{row.idx}"
 		lesson_details.icon = get_lesson_icon(lesson_details.body)
 		lessons.append(lesson_details)
 	return lessons

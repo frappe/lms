@@ -107,10 +107,13 @@ def get_page_extensions(context):
 
 
 def get_neighbours(current, lessons):
-	current = flt(current)
-	numbers = sorted(lesson.number for lesson in lessons)
-	index = numbers.index(current)
+	numbers = [lesson.number for lesson in lessons]
+	tuples_list = [tuple(int(x) for x in s.split(".")) for s in numbers]
+	sorted_tuples = sorted(tuples_list)
+	sorted_numbers = [".".join(str(num) for num in t) for t in sorted_tuples]
+	index = sorted_numbers.index(current)
+
 	return {
-		"prev": numbers[index - 1] if index - 1 >= 0 else None,
-		"next": numbers[index + 1] if index + 1 < len(numbers) else None,
+		"prev": sorted_numbers[index - 1] if index - 1 >= 0 else None,
+		"next": sorted_numbers[index + 1] if index + 1 < len(sorted_numbers) else None,
 	}
