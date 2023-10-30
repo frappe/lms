@@ -88,8 +88,7 @@
 <div class="mt-4">
 
 	<ul class="nav lms-nav" id="batches-tab">
-
-		{% if is_student %}
+		{% if settings.show_dashboard and is_student %}
 		<li class="nav-item">
 			<a class="nav-link {% if is_student %} active {% endif %}" data-toggle="tab" href="#dashboard">
 				{{ _("Dashboard") }}
@@ -97,6 +96,7 @@
 		</li>
 		{% endif %}
 
+		{% if settings.show_courses %}
 		<li class="nav-item">
 			<a class="nav-link {% if not is_student %} active {% endif %}" data-toggle="tab" href="#courses">
 				{{ _("Courses") }}
@@ -105,6 +105,7 @@
 				</span>
 			</a>
 		</li>
+		{% endif %}
 
 		{% if show_timetable %}
 		<li class="nav-item">
@@ -115,49 +116,59 @@
 		{% endif %}
 
 		{% if is_moderator %}
-		<li class="nav-item">
-			<a class="nav-link" data-toggle="tab" href="#students">
-				{{ _("Students") }}
-				<span class="course-list-count">
-					{{ batch_students | length }}
-				</span>
-			</a>
-		</li>
+			{% if settings.show_students %}
+				<li class="nav-item">
+					<a class="nav-link" data-toggle="tab" href="#students">
+						{{ _("Students") }}
+						<span class="course-list-count">
+							{{ batch_students | length }}
+						</span>
+					</a>
+				</li>
+			{% endif %}
 
-		<li class="nav-item">
-			<a class="nav-link" data-toggle="tab" href="#assessments">
-				{{ _("Assessments") }}
-				<span class="course-list-count">
-					{{ assessments | length }}
-				</span>
-			</a>
-		</li>
+			{% if settings.show_assessments %}
+				<li class="nav-item">
+					<a class="nav-link" data-toggle="tab" href="#assessments">
+						{{ _("Assessments") }}
+						<span class="course-list-count">
+							{{ assessments | length }}
+						</span>
+					</a>
+				</li>
+			{% endif %}
 
-		<li class="nav-item">
-			<a class="nav-link" data-toggle="tab" href="#emails">
-				{{ _("Emails") }}
-				<span class="course-list-count">
-					{{ batch_emails | length }}
-				</span>
-			</a>
-		</li>
+			{% if settings.show_emails %}
+				<li class="nav-item">
+					<a class="nav-link" data-toggle="tab" href="#emails">
+						{{ _("Emails") }}
+						<span class="course-list-count">
+							{{ batch_emails | length }}
+						</span>
+					</a>
+				</li>
+			{% endif %}
 		{% endif %}
 
 		{% if batch_students | length and (is_moderator or is_student) %}
-		<li class="nav-item">
-			<a class="nav-link" data-toggle="tab" href="#discussions">
-				{{ _("Discussions") }}
-			</a>
-		</li>
+			{% if settings.show_discussions %}
+				<li class="nav-item">
+					<a class="nav-link" data-toggle="tab" href="#discussions">
+						{{ _("Discussions") }}
+					</a>
+				</li>
+			{% endif %}
 
-		<li class="nav-item">
-			<a class="nav-link" data-toggle="tab" href="#live-class">
-				{{ _("Live Class") }}
-				<span class="course-list-count">
-					{{ live_classes | length }}
-				</span>
-			</a>
-		</li>
+			{% if settings.show_live_class %}
+				<li class="nav-item">
+					<a class="nav-link" data-toggle="tab" href="#live-class">
+						{{ _("Live Class") }}
+						<span class="course-list-count">
+							{{ live_classes | length }}
+						</span>
+					</a>
+				</li>
+			{% endif %}
 		{% endif %}
 
 		{% if custom_tabs_header %}
@@ -169,15 +180,17 @@
 
 	<div class="tab-content">
 
-		{% if is_student %}
+		{% if settings.show_dashboard and is_student %}
 		<div class="tab-pane {% if is_student %} active {% endif %}" id="dashboard" role="tabpanel" aria-labelledby="dashboard">
 			{{ Dashboard(batch_info, batch_courses, current_student) }}
 		</div>
 		{% endif %}
 
+		{% if settings.show_courses %}
 		<div class="tab-pane {% if not is_student %} active {% endif %}" id="courses" role="tabpanel" aria-labelledby="courses">
 			{{ CoursesSection(batch_info, batch_courses) }}
 		</div>
+		{% endif %}
 
 		{% if show_timetable %}
 		<div class="tab-pane" id="timetable" role="tabpanel" aria-labelledby="timetable">
@@ -186,27 +199,37 @@
 		{% endif %}
 
 		{% if is_moderator %}
-		<div class="tab-pane" id="students" role="tabpanel" aria-labelledby="students">
-			{{ StudentsSection(batch_info, batch_students) }}
-		</div>
+			{% if settings.show_students %}
+				<div class="tab-pane" id="students" role="tabpanel" aria-labelledby="students">
+					{{ StudentsSection(batch_info, batch_students) }}
+				</div>
+			{% endif %}
 
-		<div class="tab-pane" id="assessments" role="tabpanel" aria-labelledby="assessments">
-			{{ AssessmentsSection(batch_info) }}
-		</div>
+			{% if settings.show_assessments %}
+				<div class="tab-pane" id="assessments" role="tabpanel" aria-labelledby="assessments">
+					{{ AssessmentsSection(batch_info) }}
+				</div>
+			{% endif %}
 
-		<div class="tab-pane" id="emails" role="tabpanel" aria-labelledby="emails">
-			{{ EmailsSection() }}
-		</div>
+			{% if settings.show_emails %}
+				<div class="tab-pane" id="emails" role="tabpanel" aria-labelledby="emails">
+					{{ EmailsSection() }}
+				</div>
+			{% endif %}
 		{% endif %}
 
 		{% if batch_students | length and (is_moderator or is_student or is_evaluator) %}
-		<div class="tab-pane" id="discussions" role="tabpanel" aria-labelledby="discussions">
-			{{ Discussions(batch_info) }}
-		</div>
+			{% if settings.show_discussions %}
+				<div class="tab-pane" id="discussions" role="tabpanel" aria-labelledby="discussions">
+					{{ Discussions(batch_info) }}
+				</div>
+			{% endif %}
 
-		<div class="tab-pane" id="live-class" role="tabpanel" aria-labelledby="live-class">
-			{{ LiveClassSection(batch_info, live_classes) }}
-		</div>
+			{% if settings.show_live_class %}
+				<div class="tab-pane" id="live-class" role="tabpanel" aria-labelledby="live-class">
+					{{ LiveClassSection(batch_info, live_classes) }}
+				</div>
+			{% endif %}
 		{% endif %}
 
 		{% if custom_tabs_content %}
