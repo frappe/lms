@@ -1,3 +1,4 @@
+[pre_model_sync]
 community.patches.set_email_preferences
 community.patches.change_name_for_community_members
 community.patches.save_abbr_for_community_members
@@ -77,3 +78,6 @@ lms.patches.v1_0.create_quiz_questions
 lms.patches.v1_0.add_default_marks #16-10-2023
 lms.patches.v1_0.add_certificate_template #26-10-2023
 lms.patches.v1_0.create_batch_source
+
+[post_model_sync]
+lms.patches.v1_0.batch_tabs_settings

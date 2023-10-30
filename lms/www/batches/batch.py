@@ -105,9 +105,9 @@ def get_context(context):
 		},
 	)
 	context.legends = get_legends(batch_name)
+	context.settings = frappe.get_single("LMS Settings")
 
 	custom_tabs = frappe.get_hooks("lms_batch_tabs")
-
 	if custom_tabs:
 		context.custom_tabs_header = custom_tabs.get("header_html")[0]
 		context.custom_tabs_content = custom_tabs.get("content_html")[0]

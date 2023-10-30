@@ -17,17 +17,15 @@
   "section_break_szgq",
   "send_calendar_invite_for_evaluations",
   "batch_confirmation_template",
-  "column_break_2",
   "allow_student_progress",
-  "payment_section",
-  "razorpay_key",
-  "razorpay_secret",
-  "apply_gst",
-  "column_break_cfcv",
-  "default_currency",
-  "show_usd_equivalent",
-  "apply_rounding",
-  "exception_country",
+  "column_break_2",
+  "show_dashboard",
+  "show_courses",
+  "show_students",
+  "show_assessments",
+  "show_live_class",
+  "show_discussions",
+  "show_emails",
   "signup_settings_tab",
   "signup_settings_section",
   "terms_of_use",
@@ -42,7 +40,17 @@
   "mentor_request_tab",
   "mentor_request_section",
   "mentor_request_creation",
-  "mentor_request_status_update"
+  "mentor_request_status_update",
+  "payment_settings_tab",
+  "payment_section",
+  "razorpay_key",
+  "razorpay_secret",
+  "apply_gst",
+  "column_break_cfcv",
+  "default_currency",
+  "show_usd_equivalent",
+  "apply_rounding",
+  "exception_country"
  ],
  "fields": [
   {
@@ -71,7 +79,8 @@
   },
   {
    "fieldname": "column_break_2",
-   "fieldtype": "Column Break"
+   "fieldtype": "Column Break",
+   "label": "Show Tab in Batch"
   },
   {
    "fieldname": "search_placeholder",
@@ -177,7 +186,7 @@
   {
    "fieldname": "section_break_szgq",
    "fieldtype": "Section Break",
-   "label": "Batch Settings"
+   "label": "Class Settings"
   },
   {
    "fieldname": "signup_settings_tab",
@@ -199,8 +208,7 @@
   },
   {
    "fieldname": "payment_section",
-   "fieldtype": "Section Break",
-   "label": "Payment"
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "default_currency",
@@ -261,12 +269,59 @@
    "fieldtype": "Link",
    "label": "Batch Confirmation Template",
    "options": "Email Template"
+  },
+  {
+   "default": "1",
+   "fieldname": "show_courses",
+   "fieldtype": "Check",
+   "label": "Courses"
+  },
+  {
+   "default": "1",
+   "fieldname": "show_students",
+   "fieldtype": "Check",
+   "label": "Students"
+  },
+  {
+   "default": "1",
+   "fieldname": "show_assessments",
+   "fieldtype": "Check",
+   "label": "Assessments"
+  },
+  {
+   "default": "1",
+   "fieldname": "show_live_class",
+   "fieldtype": "Check",
+   "label": "Live Class"
+  },
+  {
+   "default": "1",
+   "fieldname": "show_discussions",
+   "fieldtype": "Check",
+   "label": "Discussions"
+  },
+  {
+   "default": "1",
+   "fieldname": "show_emails",
+   "fieldtype": "Check",
+   "label": "Emails"
+  },
+  {
+   "fieldname": "payment_settings_tab",
+   "fieldtype": "Tab Break",
+   "label": "Payment Settings"
+  },
+  {
+   "default": "1",
+   "fieldname": "show_dashboard",
+   "fieldtype": "Check",
+   "label": "Dashboard"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2023-10-09 17:27:28.615355",
+ "modified": "2023-10-30 16:42:58.994359",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",
