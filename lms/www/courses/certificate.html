@@ -13,12 +13,11 @@
 
     <div class="certificate-parent">
 
-      <div>
+      <div class="certificate-content">
         {{ final_template }}
       </div>
 
       <div>
-
         {% if doc.member == frappe.session.user or is_moderator %}
         <div class="">
           <a class="btn btn-default btn-sm" target="_blank" href="/api/method/frappe.utils.print_format.download_pdf?doctype=LMS%20Certificate&name={{ doc.name }}&format={{ print_format }}&_lang=en">
