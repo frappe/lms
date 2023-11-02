@@ -6,11 +6,40 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import add_years, nowdate
 from lms.lms.utils import is_certified
+from frappe.email.doctype.email_template.email_template import get_email_template
 
 
 class LMSCertificate(Document):
 	def validate(self):
 		self.validate_duplicate_certificate()
+
+	def after_insert(self):
+		self.send_mail()
+
+	def send_mail(self):
+		subject = _("Congratulations on getting certified!")
+		template = "certification"
+		custom_template = frappe.db.get_single_value("LMS Settings", "certification_template")
+
+		args = {
+			"student_name": self.member_name,
+			"course_name": self.course,
+			"course_title": frappe.db.get_value("LMS Course", self.course, "title"),
+			"certificate_name": self.name,
+		}
+
+		if custom_template:
+			email_template = get_email_template(custom_template, args)
+			subject = email_template.get("subject")
+			content = email_template.get("message")
+		frappe.sendmail(
+			recipients=self.member,
+			subject=subject,
+			template=template if not custom_template else None,
+			content=content if custom_template else None,
+			args=args,
+			header=[subject, "green"],
+		)
 
 	def validate_duplicate_certificate(self):
 		certificates = frappe.get_all(

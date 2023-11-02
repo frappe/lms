@@ -1,0 +1,21 @@
+<p>
+    {{ _("Dear ") }} {{ student_name }},
+</p>
+<br>
+<p>
+    {{ _("I am delighted to inform you that you have successfully earned your certification for the {0} course. Congratulations!").format(frappe.bold(course_title)) }}
+</p>
+<br>
+<p>
+    {{ _("With this certification, you can now showcase your updated skills and share your achievement with your colleagues and on LinkedIn. To access your certificate, please click on the link provided below.") }}
+</p>
+<br>
+<a href="/courses/{{ course_name }}/{{certificate_name}}">{{ _("Certificate Link") }}</a>
+<br>
+<p>
+    {{ _("Once again, congratulations on this significant accomplishment.")}}
+</p>
+<br>
+<p>
+    {{ _("Best Regards") }}
+</p>

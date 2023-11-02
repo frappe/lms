@@ -10,6 +10,7 @@
   "is_onboarding_complete",
   "column_break_zdel",
   "livecode_url",
+  "certification_template",
   "course_settings_section",
   "search_placeholder",
   "column_break_iqxy",
@@ -186,7 +187,7 @@
   {
    "fieldname": "section_break_szgq",
    "fieldtype": "Section Break",
-   "label": "Class Settings"
+   "label": "Batch Settings"
   },
   {
    "fieldname": "signup_settings_tab",
@@ -316,12 +317,18 @@
    "fieldname": "show_dashboard",
    "fieldtype": "Check",
    "label": "Dashboard"
+  },
+  {
+   "fieldname": "certification_template",
+   "fieldtype": "Link",
+   "label": "Certificate Email Template",
+   "options": "Email Template"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2023-10-30 16:42:58.994359",
+ "modified": "2023-11-01 22:38:38.380325",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",
