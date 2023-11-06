@@ -11,7 +11,11 @@ from frappe.utils.password import get_decrypted_password
 
 class InviteRequest(Document):
 	def on_update(self):
-		if self.has_value_changed("status") and self.status == "Approved":
+		if (
+			self.has_value_changed("status")
+			and self.status == "Approved"
+			and not frappe.flags.in_test
+		):
 			self.send_email()
 
 	def create_user(self, password):
