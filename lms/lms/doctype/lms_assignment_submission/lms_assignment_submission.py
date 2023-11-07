@@ -43,7 +43,7 @@ class LMSAssignmentSubmission(Document):
 		}
 
 		moderators = frappe.get_all("Has Role", {"role": "Moderator"}, pluck="parent")
-		print(moderators)
+
 		if custom_template:
 			email_template = get_email_template(custom_template, args)
 			subject = email_template.get("subject")
