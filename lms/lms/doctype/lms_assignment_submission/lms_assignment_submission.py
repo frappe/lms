@@ -49,7 +49,7 @@ class LMSAssignmentSubmission(Document):
 			subject = email_template.get("subject")
 			content = email_template.get("message")
 		frappe.sendmail(
-			recipients="jannat@frappe.io",
+			recipients=moderators,
 			subject=subject,
 			template=template if not custom_template else None,
 			content=content if custom_template else None,
