@@ -1,0 +1,10 @@
+<p>
+    {{ _("{0} has submitted the assignment {1}").format(frappe.bold(member_name), frappe.bold(assignment_title)) }}
+</p>
+<br>
+<p> {{ _(" Please evaluate and grade it.") }} </p>
+<br>`
+<a href="/assignment-submission/{{ assignment_name }}/{{ submission_name }}">
+    {{ _("Open Assignment") }}
+</a>
+

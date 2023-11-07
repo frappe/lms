@@ -81,3 +81,4 @@ lms.patches.v1_0.create_batch_source
 
 [post_model_sync]
 lms.patches.v1_0.batch_tabs_settings
+execute:frappe.delete_doc("Notification", "Assignment Submission Notification")

@@ -10,14 +10,12 @@
   "is_onboarding_complete",
   "column_break_zdel",
   "livecode_url",
-  "certification_template",
   "course_settings_section",
   "search_placeholder",
   "column_break_iqxy",
   "portal_course_creation",
   "section_break_szgq",
   "send_calendar_invite_for_evaluations",
-  "batch_confirmation_template",
   "allow_student_progress",
   "column_break_2",
   "show_dashboard",
@@ -51,7 +49,12 @@
   "default_currency",
   "show_usd_equivalent",
   "apply_rounding",
-  "exception_country"
+  "exception_country",
+  "email_templates_tab",
+  "certification_template",
+  "batch_confirmation_template",
+  "column_break_uwsp",
+  "assignment_submission_template"
  ],
  "fields": [
   {
@@ -323,12 +326,27 @@
    "fieldtype": "Link",
    "label": "Certificate Email Template",
    "options": "Email Template"
+  },
+  {
+   "fieldname": "email_templates_tab",
+   "fieldtype": "Tab Break",
+   "label": "Email Templates"
+  },
+  {
+   "fieldname": "assignment_submission_template",
+   "fieldtype": "Link",
+   "label": "Assignment Submission Template",
+   "options": "Email Template"
+  },
+  {
+   "fieldname": "column_break_uwsp",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2023-11-01 22:38:38.380325",
+ "modified": "2023-11-07 11:23:14.257687",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",
