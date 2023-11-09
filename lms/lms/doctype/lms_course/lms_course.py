@@ -20,7 +20,6 @@ class LMSCourse(Document):
 		self.image = validate_image(self.image)
 
 	def validate_instructors(self):
-		print(self.is_new(), not self.instructors)
 		if self.is_new() and not self.instructors:
 			frappe.get_doc(
 				{
@@ -217,7 +216,7 @@ def save_course(
 	course_price=None,
 	currency=None,
 ):
-	if not can_create_courses():
+	if not can_create_courses(course):
 		return
 
 	if course:
@@ -281,6 +280,7 @@ def save_lesson(
 	preview,
 	idx,
 	lesson,
+	instructor_notes=None,
 	youtube=None,
 	quiz_id=None,
 	question=None,
@@ -296,6 +296,7 @@ def save_lesson(
 			"chapter": chapter,
 			"title": title,
 			"body": body,
+			"instructor_notes": instructor_notes,
 			"include_in_preview": preview,
 			"youtube": youtube,
 			"quiz_id": quiz_id,

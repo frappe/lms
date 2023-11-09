@@ -1,3 +1,4 @@
+[pre_model_sync]
 community.patches.set_email_preferences
 community.patches.change_name_for_community_members
 community.patches.save_abbr_for_community_members
@@ -67,3 +68,17 @@ lms.patches.v1_0.rename_lms_batch_doctype
 lms.patches.v1_0.rename_lms_batch_membership_doctype
 lms.patches.v1_0.rename_lms_class_to_lms_batch
 lms.patches.v1_0.rename_classes_in_navbar
+lms.patches.v1_0.publish_batches
+lms.patches.v1_0.publish_certificates
+lms.patches.v1_0.change_naming_for_batch_course #14-09-2023
+execute:frappe.permissions.reset_perms("LMS Enrollment")
+lms.patches.v1_0.create_student_role
+lms.patches.v1_0.mark_confirmation_for_batch_students
+lms.patches.v1_0.create_quiz_questions
+lms.patches.v1_0.add_default_marks #16-10-2023
+lms.patches.v1_0.add_certificate_template #26-10-2023
+lms.patches.v1_0.create_batch_source
+
+[post_model_sync]
+lms.patches.v1_0.batch_tabs_settings
+execute:frappe.delete_doc("Notification", "Assignment Submission Notification")

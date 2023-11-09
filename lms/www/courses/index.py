@@ -1,12 +1,13 @@
 import frappe
 from frappe import _
 from lms.lms.utils import (
-	can_create_courses,
 	check_profile_restriction,
 	get_restriction_details,
 	has_course_moderator_role,
 	get_courses_under_review,
 	get_average_rating,
+	check_multicurrency,
+	has_course_instructor_role,
 )
 from lms.overrides.user import get_enrolled_courses, get_authored_courses
 
@@ -20,7 +21,17 @@ def get_context(context):
 	context.created_courses = get_authored_courses(None, False)
 	context.review_courses = get_courses_under_review()
 	context.restriction = check_profile_restriction()
-	context.show_creators_section = can_create_courses()
+
+	portal_course_creation = frappe.db.get_single_value(
+		"LMS Settings", "portal_course_creation"
+	)
+	context.show_creators_section = (
+		True
+		if portal_course_creation == "Anyone"
+		or has_course_moderator_role()
+		or has_course_instructor_role()
+		else False
+	)
 	context.show_review_section = (
 		has_course_moderator_role() and frappe.session.user != "Guest"
 	)
@@ -58,6 +69,12 @@ def get_courses():
 		course.enrollment_count = frappe.db.count(
 			"LMS Enrollment", {"course": course.name, "member_type": "Student"}
 		)
+
+		if course.course_price:
+			course.course_price, course.currency = check_multicurrency(
+				course.course_price, course.currency
+			)
+
 		course.avg_rating = get_average_rating(course.name) or 0
 		if course.upcoming:
 			upcoming_courses.append(course)

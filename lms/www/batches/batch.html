@@ -75,9 +75,10 @@
 		</div>
 	</div>
 
-
 	{% if batch_info.custom_component %}
-		{{ batch_info.custom_component }}
+		<div class="mt-4">
+			{{ batch_info.custom_component }}
+		</div>
 	{% endif %}
 </div>
 {% endmacro %}
@@ -87,8 +88,7 @@
 <div class="mt-4">
 
 	<ul class="nav lms-nav" id="batches-tab">
-
-		{% if is_student %}
+		{% if settings.show_dashboard and is_student %}
 		<li class="nav-item">
 			<a class="nav-link {% if is_student %} active {% endif %}" data-toggle="tab" href="#dashboard">
 				{{ _("Dashboard") }}
@@ -96,6 +96,7 @@
 		</li>
 		{% endif %}
 
+		{% if settings.show_courses %}
 		<li class="nav-item">
 			<a class="nav-link {% if not is_student %} active {% endif %}" data-toggle="tab" href="#courses">
 				{{ _("Courses") }}
@@ -104,95 +105,135 @@
 				</span>
 			</a>
 		</li>
+		{% endif %}
 
-		{% if flow | length %}
+		{% if show_timetable %}
 		<li class="nav-item">
-			<a class="nav-link" data-toggle="tab" href="#schedule">
-				{{ _("Schedule") }}
-				<span class="course-list-count">
-					{{ flow | length }}
-				</span>
+			<a class="nav-link" data-toggle="tab" href="#timetable">
+				{{ _("Timetable") }}
 			</a>
 		</li>
 		{% endif %}
 
 		{% if is_moderator %}
-		<li class="nav-item">
-			<a class="nav-link" data-toggle="tab" href="#students">
-				{{ _("Students") }}
-				<span class="course-list-count">
-					{{ batch_students | length }}
-				</span>
-			</a>
-		</li>
+			{% if settings.show_students %}
+				<li class="nav-item">
+					<a class="nav-link" data-toggle="tab" href="#students">
+						{{ _("Students") }}
+						<span class="course-list-count">
+							{{ batch_students | length }}
+						</span>
+					</a>
+				</li>
+			{% endif %}
 
-		<li class="nav-item">
-			<a class="nav-link" data-toggle="tab" href="#assessments">
-				{{ _("Assessments") }}
-				<span class="course-list-count">
-					{{ assessments | length }}
-				</span>
-			</a>
-		</li>
+			{% if settings.show_assessments %}
+				<li class="nav-item">
+					<a class="nav-link" data-toggle="tab" href="#assessments">
+						{{ _("Assessments") }}
+						<span class="course-list-count">
+							{{ assessments | length }}
+						</span>
+					</a>
+				</li>
+			{% endif %}
+
+			{% if settings.show_emails %}
+				<li class="nav-item">
+					<a class="nav-link" data-toggle="tab" href="#emails">
+						{{ _("Emails") }}
+						<span class="course-list-count">
+							{{ batch_emails | length }}
+						</span>
+					</a>
+				</li>
+			{% endif %}
 		{% endif %}
 
 		{% if batch_students | length and (is_moderator or is_student) %}
-		<li class="nav-item">
-			<a class="nav-link" data-toggle="tab" href="#discussions">
-				{{ _("Discussions") }}
-			</a>
-		</li>
+			{% if settings.show_discussions %}
+				<li class="nav-item">
+					<a class="nav-link" data-toggle="tab" href="#discussions">
+						{{ _("Discussions") }}
+					</a>
+				</li>
+			{% endif %}
 
-		<li class="nav-item">
-			<a class="nav-link" data-toggle="tab" href="#live-class">
-				{{ _("Live Class") }}
-				<span class="course-list-count">
-					{{ live_classes | length }}
-				</span>
-			</a>
-		</li>
+			{% if settings.show_live_class %}
+				<li class="nav-item">
+					<a class="nav-link" data-toggle="tab" href="#live-class">
+						{{ _("Live Class") }}
+						<span class="course-list-count">
+							{{ live_classes | length }}
+						</span>
+					</a>
+				</li>
+			{% endif %}
 		{% endif %}
 
+		{% if custom_tabs_header %}
+    		{% include custom_tabs_header %}
+		{% endif %}
 	</ul>
 
 	<div class="border-bottom mb-4"></div>
 
 	<div class="tab-content">
 
-		{% if is_student %}
+		{% if settings.show_dashboard and is_student %}
 		<div class="tab-pane {% if is_student %} active {% endif %}" id="dashboard" role="tabpanel" aria-labelledby="dashboard">
 			{{ Dashboard(batch_info, batch_courses, current_student) }}
 		</div>
 		{% endif %}
 
+		{% if settings.show_courses %}
 		<div class="tab-pane {% if not is_student %} active {% endif %}" id="courses" role="tabpanel" aria-labelledby="courses">
 			{{ CoursesSection(batch_info, batch_courses) }}
 		</div>
+		{% endif %}
 
-		{% if flow | length %}
-		<div class="tab-pane" id="schedule" role="tabpanel" aria-labelledby="schedule">
-			{{ ScheduleSection(flow) }}
+		{% if show_timetable %}
+		<div class="tab-pane" id="timetable" role="tabpanel" aria-labelledby="timetable">
+			{{ Timetable() }}
 		</div>
 		{% endif %}
 
 		{% if is_moderator %}
-		<div class="tab-pane" id="students" role="tabpanel" aria-labelledby="students">
-			{{ StudentsSection(batch_info, batch_students) }}
-		</div>
+			{% if settings.show_students %}
+				<div class="tab-pane" id="students" role="tabpanel" aria-labelledby="students">
+					{{ StudentsSection(batch_info, batch_students) }}
+				</div>
+			{% endif %}
 
-		<div class="tab-pane" id="assessments" role="tabpanel" aria-labelledby="assessments">
-			{{ AssessmentsSection(batch_info) }}
-		</div>
+			{% if settings.show_assessments %}
+				<div class="tab-pane" id="assessments" role="tabpanel" aria-labelledby="assessments">
+					{{ AssessmentsSection(batch_info) }}
+				</div>
+			{% endif %}
+
+			{% if settings.show_emails %}
+				<div class="tab-pane" id="emails" role="tabpanel" aria-labelledby="emails">
+					{{ EmailsSection() }}
+				</div>
+			{% endif %}
 		{% endif %}
 
 		{% if batch_students | length and (is_moderator or is_student or is_evaluator) %}
-		<div class="tab-pane" id="discussions" role="tabpanel" aria-labelledby="discussions">
-			{{ Discussions(batch_info) }}
-		</div>
+			{% if settings.show_discussions %}
+				<div class="tab-pane" id="discussions" role="tabpanel" aria-labelledby="discussions">
+					{{ Discussions(batch_info) }}
+				</div>
+			{% endif %}
 
-		<div class="tab-pane" id="live-class" role="tabpanel" aria-labelledby="live-class">
-			{{ LiveClassSection(batch_info, live_classes) }}
-		</div>
+			{% if settings.show_live_class %}
+				<div class="tab-pane" id="live-class" role="tabpanel" aria-labelledby="live-class">
+					{{ LiveClassSection(batch_info, live_classes) }}
+				</div>
+			{% endif %}
+		{% endif %}
+
+		{% if custom_tabs_content %}
+			{% include custom_tabs_content %}
 		{% endif %}
 
 	</div>
@@ -205,17 +246,19 @@
 {% set assessments = current_student.assessments %}
 {% set student = current_student %}
 
-{% if student.name == frappe.session.user %}
-	<button class="btn btn-default btn-sm btn-schedule-eval ml-2 pull-right">
-		{{ _("Schedule Evaluation") }}
-	</button>
-{% endif %}
+<div>
+	{% if student.name == frappe.session.user %}
+		<button class="btn btn-default btn-sm btn-schedule-eval ml-2 pull-right">
+			{{ _("Schedule Evaluation") }}
+		</button>
+	{% endif %}
 
-<div class="mb-8">
-	{% include "lms/templates/upcoming_evals.html" %}
-</div>
-<div class="mb-8">
-	{% include "lms/templates/assessments.html" %}
+	<div class="mb-8">
+		{% include "lms/templates/upcoming_evals.html" %}
+	</div>
+	<div class="mb-8">
+		{% include "lms/templates/assessments.html" %}
+	</div>
 </div>
 {% endmacro %}
 
@@ -361,6 +404,41 @@
 </article>
 {% endmacro %}
 
+
+{% macro EmailsSection() %}
+<div class="my-4">
+	<button class="btn btn-secondary btn-sm btn-email">
+		{{ _("Email to Students") }}
+	</button>
+</div>
+<div>
+	{% for email in batch_emails %}
+	<div class="frappe-card mb-5">
+		<div class="flex justify-between m-1">
+			<span class="text-color flex">
+				<span class="margin-right">
+					{% set member = frappe.db.get_value("User", email.sender, ["full_name", "username", "name", "user_image"], as_dict=1) %}
+					{{ widgets.Avatar(member=member, avatar_class="avatar-small") }}
+				</span>
+				<span>
+					{{ member.full_name }}
+					<div class="text-muted">
+						<span class="frappe-timestamp" data-timestamp="{{ email.communication_date }}" title="{{ communication_date }}">
+							{{ frappe.utils.pretty_date(email.communication_date) }}
+						</span>
+					</div>
+				</span>
+			</span>
+		</div>
+		<div class="ml-10">
+			{{ email.content }}
+		</div>
+	</div>
+	{% endfor %}
+</div>
+{% endmacro %}
+
+
 {% macro AssessmentList(assessments) %}
 {% if assessments | length %}
 	<div class="form-grid">
@@ -424,7 +502,7 @@
 	</header>
 	{{ CreateLiveClass(batch_info) }}
 	{{ LiveClassList(batch_info, live_classes) }}
-</div>
+</article>
 {% endmacro %}
 
 
@@ -513,86 +591,56 @@
 {% endmacro %}
 
 
-{% macro ScheduleSection(flow) %}
+{% macro Timetable() %}
 <article>
 	<header class="edit-header mb-5">
 		<div class="bold-heading">
-			{{ _("Schedule") }}
+			{{ _("Timetable") }}
 		</div>
 	</header>
-
-	<div>
-		{% for chapter in flow %}
-			<div class="chapter-parent">
-				<div class="chapter-title" data-toggle="collapse" data-target="#{{ get_slugified_chapter_title(chapter.chapter_title) }}">
-					<img class="chapter-icon" src="/assets/lms/icons/chevron-right.svg">
-					<div class="chapter-title-main">
-						{{ chapter.chapter_title }}
-					</div>
-				</div>
-				<div class="chapter-content lessons collapse navbar-collapse" id="{{ get_slugified_chapter_title(chapter.chapter_title) }}">
-
-					<div class="schedule-header">
-						<div class="w-50">
-							{{ _("Lesson") }}
-						</div>
-						<div class="w-25">
-							{{ _("Date") }}
-						</div>
-						<div class="w-25 text-center">
-							{{ _("Start Time") }}
-						</div>
-						<div class="w-25 text-center">
-							{{ _("End Time") }}
-						</div>
-					</div>
-
-					{% for lesson in chapter.lessons %}
-						<div class="lesson-info flex align-center">
-							<a class="lesson-links w-50" href="{{ lesson.url }}">
-								<svg class="icon icon-sm mr-2">
-									<use class="" href="#{{ lesson.icon }}">
-								</svg>
-
-								{{ lesson.title }}
-
-								{% if current_student.name and get_membership(lesson.course, current_student.name) %}
-									{% set lesson_progress = get_progress(lesson.course, lesson.name, current_student.name) %}
-									<svg class="icon icon-md lesson-progress-tick ml-3 {% if lesson_progress != 'Complete' %} hide {% endif %}">
-										<use class="" href="#icon-success">
-									</svg>
-								{% endif %}
-							</a>
-							<div class="w-25">
-								{{ frappe.utils.format_date(lesson.date, "medium") }}
-							</div>
-							<div class="w-25 text-center">
-								{% if lesson.start_time %}
-								{{ frappe.utils.format_time(lesson.start_time, "HH:mm a") }}
-								{% else %}
-								-
-								{% endif %}
-							</div>
-							<div class="w-25 text-center">
-								{% if lesson.end_time %}
-								{{ frappe.utils.format_time(lesson.end_time, "HH:mm a") }}
-								{% else %}
-								-
-								{% endif %}
-							</div>
-						</div>
-					{% endfor %}
-				</div>
-			</div>
+	<div class="calendar-navigation">
+		<button class="btn icon-btn btn-default" id="prev-week">
+			<svg class="icon icon-md">
+				<use href="#icon-left"></use>
+			</svg>
+		</button>
+		<span class="calendar-range"></span>
+		<button class="btn icon-btn btn-default" id="next-week">
+			<svg class="icon icon-md">
+				<use href="#icon-right"></use>
+			</svg>
+		</button>
+	</div>
+	<div class="calendar-legends">
+		{% for legend in legends %}
+		<div class="legend-item">
+			<div class="legend-color" style="background-color: {{ legend.color }}"></div>
+			<div class="legend-text">{{ legend.label }}</div>
+		</div>
 		{% endfor %}
 	</div>
+	<div id="calendar" class="timetable-calendar" style="height: 700px"
+		data-start="{{ batch_info.start_time }}" data-end="{{ batch_info.end_time }}">
+	</div>
+
 </article>
 {% endmacro %}
 
 {%- block script %}
 	{{ super() }}
+	{% if batch_info.custom_script %}
+	<script>
+		{{ batch_info.custom_script }}
+	</script>
+	{% endif %}
+
 	<script>
 		frappe.boot.single_types = []
 		let courses = {{ course_list | json }};
+		const legends = {{ legends | json }};
+		const allow_future = {{ batch_info.allow_future }}
 	</script>
+
+	<link rel="stylesheet" href="https://uicdn.toast.com/calendar/latest/toastui-calendar.min.css" />
+	<script src="https://uicdn.toast.com/calendar/latest/toastui-calendar.min.js"></script>
 {% endblock %}

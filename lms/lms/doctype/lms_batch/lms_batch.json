@@ -14,6 +14,7 @@
   "column_break_4",
   "start_time",
   "end_time",
+  "published",
   "section_break_rgfj",
   "medium",
   "category",
@@ -21,21 +22,34 @@
   "seat_count",
   "section_break_6",
   "description",
+  "batch_details_raw",
+  "column_break_hlqw",
   "batch_details",
+  "meta_image",
+  "section_break_jgji",
   "students",
   "courses",
+  "assessment_tab",
+  "assessment",
+  "schedule_tab",
+  "timetable_template",
+  "column_break_anya",
+  "show_live_class",
+  "allow_future",
+  "section_break_ontp",
+  "timetable",
+  "timetable_legends",
+  "pricing_tab",
   "section_break_gsac",
   "paid_batch",
   "column_break_iens",
   "amount",
   "currency",
+  "customisations_tab",
   "section_break_ubxi",
   "custom_component",
-  "assessment_tab",
-  "assessment",
-  "schedule_tab",
-  "fetch_lessons",
-  "scheduled_flow"
+  "column_break_pxgb",
+  "custom_script"
  ],
  "fields": [
   {
@@ -86,10 +100,9 @@
    "reqd": 1
   },
   {
-   "description": "The HTML code entered here will be displayed on the batch details page.",
    "fieldname": "custom_component",
    "fieldtype": "Code",
-   "label": "Custom Component",
+   "label": "Custom HTML",
    "options": "HTML"
   },
   {
@@ -142,33 +155,23 @@
   },
   {
    "fieldname": "category",
-   "fieldtype": "Autocomplete",
-   "label": "Category"
+   "fieldtype": "Link",
+   "label": "Category",
+   "options": "LMS Category"
   },
   {
-   "fieldname": "scheduled_flow",
-   "fieldtype": "Table",
-   "label": "Scheduled Flow",
-   "options": "Scheduled Flow"
-  },
-  {
+   "description": "These customisations will work on the main batch page.",
    "fieldname": "section_break_ubxi",
    "fieldtype": "Section Break"
   },
   {
-   "fieldname": "fetch_lessons",
-   "fieldtype": "Button",
-   "label": "Fetch Lessons"
-  },
-  {
    "fieldname": "schedule_tab",
    "fieldtype": "Tab Break",
-   "label": "Schedule"
+   "label": "Timetable"
   },
   {
    "fieldname": "section_break_gsac",
-   "fieldtype": "Section Break",
-   "label": "Pricing"
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "column_break_iens",
@@ -192,11 +195,93 @@
    "fieldtype": "Text Editor",
    "label": "Batch Details",
    "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "published",
+   "fieldtype": "Check",
+   "label": "Published"
+  },
+  {
+   "fieldname": "timetable",
+   "fieldtype": "Table",
+   "label": "Timetable",
+   "options": "LMS Batch Timetable"
+  },
+  {
+   "fieldname": "timetable_template",
+   "fieldtype": "Link",
+   "label": "Timetable Template",
+   "options": "LMS Timetable Template"
+  },
+  {
+   "fieldname": "column_break_anya",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "show_live_class",
+   "fieldtype": "Check",
+   "label": "Show live class"
+  },
+  {
+   "fieldname": "section_break_ontp",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "batch_details_raw",
+   "fieldtype": "HTML Editor",
+   "label": "Batch Details Raw"
+  },
+  {
+   "fieldname": "column_break_hlqw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_jgji",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "meta_image",
+   "fieldtype": "Attach Image",
+   "label": "Meta Image"
+  },
+  {
+   "fieldname": "column_break_pxgb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "customisations_tab",
+   "fieldtype": "Tab Break",
+   "label": "Customisations"
+  },
+  {
+   "fieldname": "pricing_tab",
+   "fieldtype": "Tab Break",
+   "label": "Pricing"
+  },
+  {
+   "fieldname": "custom_script",
+   "fieldtype": "Code",
+   "label": "Custom Script (JavaScript)",
+   "options": "Javascript"
+  },
+  {
+   "fieldname": "timetable_legends",
+   "fieldtype": "Table",
+   "label": "Timetable Legends",
+   "options": "LMS Timetable Legend"
+  },
+  {
+   "default": "1",
+   "fieldname": "allow_future",
+   "fieldtype": "Check",
+   "label": "Allow accessing future dates"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-08-23 17:35:42.750754",
+ "modified": "2023-10-12 12:53:37.351989",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch",

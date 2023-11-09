@@ -262,6 +262,24 @@ const open_batch_dialog = () => {
 				default: batch_info && batch_info.title,
 			},
 			{
+				fieldtype: "Check",
+				label: __("Published"),
+				fieldname: "published",
+				default: batch_info && batch_info.published,
+			},
+			{
+				fieldtype: "Column Break",
+			},
+			{
+				fieldtype: "Int",
+				label: __("Seat Count"),
+				fieldname: "seat_count",
+				default: batch_info && batch_info.seat_count,
+			},
+			{
+				fieldtype: "Section Break",
+			},
+			{
 				fieldtype: "Date",
 				label: __("Start Date"),
 				fieldname: "start_date",
@@ -298,16 +316,11 @@ const open_batch_dialog = () => {
 				default: batch_info && batch_info.end_time,
 			},
 			{
-				fieldtype: "Int",
-				label: __("Seat Count"),
-				fieldname: "seat_count",
-				default: batch_info && batch_info.seat_count,
-			},
-			{
 				fieldtype: "Link",
 				label: __("Category"),
 				fieldname: "category",
 				options: "LMS Category",
+				only_select: 1,
 				default: batch_info && batch_info.category,
 			},
 			{
@@ -326,6 +339,18 @@ const open_batch_dialog = () => {
 				fieldname: "batch_details",
 				default: batch_info && batch_info.batch_details,
 				reqd: 1,
+			},
+			{
+				fieldtype: "HTML Editor",
+				label: __("Batch Details Raw"),
+				fieldname: "batch_details_raw",
+				default: batch_info && batch_info.batch_details_raw,
+			},
+			{
+				fieldtype: "Attach Image",
+				label: __("Meta Image"),
+				fieldname: "meta_image",
+				default: batch_info && batch_info.meta_image,
 			},
 			{
 				fieldtype: "Section Break",

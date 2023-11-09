@@ -3,20 +3,40 @@ import frappe
 
 def get_context(context):
 	context.no_cache = 1
-	context.members = frappe.get_all(
-		"LMS Certificate", pluck="member", order_by="creation desc", distinct=1
+	members = frappe.get_all(
+		"LMS Certificate",
+		filters={"published": 1},
+		pluck="member",
+		order_by="issue_date desc",
+		distinct=1,
 	)
 
 	participants = []
-	for member in context.members:
+	course_filter = []
+	for member in members:
 		details = frappe.db.get_value(
 			"User", member, ["name", "full_name", "user_image", "username", "enabled"], as_dict=1
 		)
-		courses = frappe.get_all("LMS Certificate", {"member": member}, pluck="course")
+		courses = frappe.get_all(
+			"LMS Certificate",
+			filters={"member": member, "published": 1},
+			fields=["course", "issue_date"],
+		)
 		details.courses = []
 		for course in courses:
-			details.courses.append(frappe.db.get_value("LMS Course", course, "title"))
+
+			if not details.issue_date:
+				details.issue_date = course.issue_date
+
+			title = frappe.db.get_value("LMS Course", course.course, "title")
+			details.courses.append(title)
+
+			if title not in course_filter:
+				course_filter.append(title)
+
 		if details.enabled:
 			participants.append(details)
 
+	participants = sorted(participants, key=lambda d: d.issue_date, reverse=True)
 	context.participants = participants
+	context.course_filter = course_filter

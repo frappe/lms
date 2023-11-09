@@ -98,7 +98,6 @@ override_doctype_class = {
 
 doc_events = {
 	"Discussion Reply": {"after_insert": "lms.lms.utils.create_notification_log"},
-	"Course Lesson": {"on_update": "lms.lms.doctype.lms_quiz.lms_quiz.update_lesson_info"},
 }
 
 # Scheduled Tasks
@@ -304,6 +303,9 @@ lms_markdown_macro_renderers = {
 	"YouTubeVideo": "lms.plugins.youtube_video_renderer",
 	"Video": "lms.plugins.video_renderer",
 	"Assignment": "lms.plugins.assignment_renderer",
+	"Embed": "lms.plugins.embed_renderer",
+	"Audio": "lms.plugins.audio_renderer",
+	"PDF": "lms.plugins.pdf_renderer",
 }
 
 # page_renderer to manage profile pages

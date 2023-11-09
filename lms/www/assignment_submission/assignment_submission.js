@@ -1,4 +1,10 @@
 frappe.ready(() => {
+	if ($(".assignment-text").length) {
+		frappe.require("controls.bundle.js", () => {
+			make_text_editor();
+		});
+	}
+
 	$(".btn-upload").click((e) => {
 		upload_file(e);
 	});
@@ -52,11 +58,19 @@ const save_assignment = (e) => {
 		file = "";
 
 	if (data == "URL") {
-		answer = $("#assignment-url").val();
+		answer = $(".assignment-answer").val();
 		if (!answer) {
 			frappe.throw({
-				title: __("No URL"),
-				message: __("Please enter a URL."),
+				title: __("No Submission"),
+				message: __("Please enter a response."),
+			});
+		}
+	} else if (data == "Text") {
+		answer = this.text_editor.get_value("assignment_text");
+		if (!answer) {
+			frappe.throw({
+				title: __("No Submission"),
+				message: __("Please enter a response."),
 			});
 		}
 	} else {
@@ -98,4 +112,21 @@ const clear_preview = (e) => {
 	$("#assignment-preview").addClass("hide");
 	$("#assignment-preview a").attr("href", "");
 	$("#assignment-preview .btn-close").addClass("hide");
+};
+
+const make_text_editor = () => {
+	this.text_editor = new frappe.ui.FieldGroup({
+		fields: [
+			{
+				fieldname: "assignment_text",
+				fieldtype: "Text Editor",
+				default: $(".assignment-text-data").html(),
+			},
+		],
+		body: $(".assignment-text").get(0),
+	});
+	this.text_editor.make();
+	$(".assignment-text .form-section:last").removeClass("empty-section");
+	$(".assignment-text .frappe-control").removeClass("hide-control");
+	$(".assignment-text .form-column").addClass("p-0");
 };

@@ -1,0 +1,93 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "hash",
+ "creation": "2023-09-14 12:44:51.098956",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "column_break_htdc",
+  "reference_doctype",
+  "reference_docname",
+  "date",
+  "day",
+  "column_break_merq",
+  "start_time",
+  "end_time",
+  "duration",
+  "milestone"
+ ],
+ "fields": [
+  {
+   "fieldname": "reference_doctype",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Reference DocType",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "reference_docname",
+   "fieldtype": "Dynamic Link",
+   "in_list_view": 1,
+   "label": "Reference DocName",
+   "options": "reference_doctype"
+  },
+  {
+   "fieldname": "column_break_merq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.parenttype == \"LMS Batch\";",
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "label": "Date"
+  },
+  {
+   "fieldname": "start_time",
+   "fieldtype": "Time",
+   "in_list_view": 1,
+   "label": "Start Time"
+  },
+  {
+   "fieldname": "duration",
+   "fieldtype": "Data",
+   "label": "Duration"
+  },
+  {
+   "fieldname": "column_break_htdc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "end_time",
+   "fieldtype": "Time",
+   "in_list_view": 1,
+   "label": "End Time"
+  },
+  {
+   "depends_on": "eval: doc.parenttype == \"LMS Timetable Template\";",
+   "fieldname": "day",
+   "fieldtype": "Int",
+   "label": "Day"
+  },
+  {
+    "fieldname": "milestone",
+    "fieldtype": "Check",
+    "label": "Milestone"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2023-10-20 11:58:01.782921",
+ "modified_by": "Administrator",
+ "module": "LMS",
+ "name": "LMS Batch Timetable",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

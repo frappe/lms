@@ -109,7 +109,39 @@ def quiz_renderer(quiz_name):
 		)
 		+"</div>"
 
-	quiz = frappe.get_doc("LMS Quiz", quiz_name)
+	quiz = frappe.db.get_value(
+		"LMS Quiz",
+		quiz_name,
+		[
+			"name",
+			"title",
+			"max_attempts",
+			"show_answers",
+			"show_submission_history",
+			"passing_percentage",
+		],
+		as_dict=True,
+	)
+	quiz.questions = []
+	fields = ["name", "question", "type", "multiple"]
+	for num in range(1, 5):
+		fields.append(f"option_{num}")
+		fields.append(f"is_correct_{num}")
+		fields.append(f"explanation_{num}")
+		fields.append(f"possibility_{num}")
+
+	questions = frappe.get_all(
+		"LMS Quiz Question",
+		filters={"parent": quiz.name},
+		fields=["question", "marks"],
+		order_by="idx",
+	)
+
+	for question in questions:
+		details = frappe.db.get_value("LMS Question", question.question, fields, as_dict=1)
+		details["marks"] = question.marks
+		quiz.questions.append(details)
+
 	no_of_attempts = frappe.db.count(
 		"LMS Quiz Submission", {"owner": frappe.session.user, "quiz": quiz_name}
 	)
@@ -155,10 +187,38 @@ def youtube_video_renderer(video_id):
     """
 
 
+def embed_renderer(details):
+	type = details.split("|||")[0]
+	src = details.split("|||")[1]
+	width = "100%"
+	height = "400"
+
+	if type == "pdf":
+		width = "75%"
+		height = "600"
+
+	return f"""
+	<iframe width={width} height={height}
+		src={src}
+		title="Embedded Content"
+		frameborder="0"
+		style="border-radius: var(--border-radius-lg)"
+		allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+		allowfullscreen>
+	</iframe>
+	"""
+
+
 def video_renderer(src):
-	return (
-		f"<video controls width='100%'><source src={quote(src)} type='video/mp4'></video>"
-	)
+	return f"<video controls width='100%' controls controlsList='nodownload'><source src={quote(src)} type='video/mp4'></video>"
+
+
+def audio_renderer(src):
+	return f"<audio width='100%' controls controlsList='nodownload'><source src={quote(src)} type='audio/mp3'></audio>"
+
+
+def pdf_renderer(src):
+	return f"<iframe src='{quote(src)}#toolbar=0' width='100%' height='700px'></iframe>"
 
 
 def assignment_renderer(detail):

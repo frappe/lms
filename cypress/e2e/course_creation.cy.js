@@ -33,19 +33,17 @@ describe("Course Creation", () => {
 		cy.get("#lesson-title").type("Test Lesson");
 
 		// Content
-		cy.get(".ce-block").click().type("{enter}");
-		cy.get(".ce-toolbar__plus").click();
-		cy.get('[data-item-name="youtube"]').click();
+		cy.get(".collapse-section.collapsed:first").click();
+		cy.get("#lesson-content .ce-block")
+			.click()
+			.type(
+				"This is an extremely big paragraph that is meant to test the UI. This is a very long paragraph. It contains more than once sentence. Its meant to be this long as this is a UI test. Its unbearably long and I'm not sure why I'm typing this much. I'm just going to keep typing until I feel like its long enough. I think its long enough now. I'm going to stop typing now. {enter}"
+			);
+		cy.get("#lesson-content .ce-toolbar__plus").click();
+		cy.get('#lesson-content [data-item-name="youtube"]').click();
 		cy.get('input[data-fieldname="youtube"]').type("GoDtyItReto");
 		cy.button("Insert").click();
 		cy.wait(1000);
-
-		cy.get(".ce-block:last").click().type("{enter}");
-		cy.get(".ce-block:last")
-			.click()
-			.type(
-				"This is an extremely big paragraph that is meant to test the UI. This is a very long paragraph. It contains more than once sentence. Its meant to be this long as this is a UI test. Its unbearably long and I'm not sure why I'm typing this much. I'm just going to keep typing until I feel like its long enough. I think its long enough now. I'm going to stop typing now."
-			);
 		cy.button("Save").click();
 
 		// View Course

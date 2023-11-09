@@ -8,13 +8,17 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "payment_for_document_type",
   "member",
+  "source",
   "column_break_rqkd",
+  "payment_for_document",
   "billing_name",
   "payment_received",
   "payment_details_section",
-  "amount",
   "currency",
+  "amount",
+  "amount_with_gst",
   "column_break_yxpl",
   "order_id",
   "payment_id",
@@ -39,7 +43,8 @@
    "fieldname": "amount",
    "fieldtype": "Currency",
    "in_list_view": 1,
-   "label": "Amount"
+   "label": "Amount",
+   "options": "currency"
   },
   {
    "fieldname": "currency",
@@ -107,11 +112,35 @@
    "label": "Member",
    "options": "User",
    "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.currency == \"INR\";",
+   "fieldname": "amount_with_gst",
+   "fieldtype": "Currency",
+   "label": "Amount with GST"
+  },
+  {
+   "fieldname": "payment_for_document_type",
+   "fieldtype": "Select",
+   "label": "Payment for Document Type",
+   "options": "\nLMS Course\nLMS Batch"
+  },
+  {
+   "fieldname": "payment_for_document",
+   "fieldtype": "Dynamic Link",
+   "label": "Payment for Document",
+   "options": "payment_for_document_type"
+  },
+  {
+   "fieldname": "source",
+   "fieldtype": "Link",
+   "label": "Source",
+   "options": "LMS Source"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-08-24 22:08:12.294960",
+ "modified": "2023-10-26 16:54:12.408274",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Payment",

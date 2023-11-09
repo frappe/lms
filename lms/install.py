@@ -4,11 +4,11 @@ from frappe.desk.page.setup_wizard.setup_wizard import add_all_roles_to
 
 def after_install():
 	add_pages_to_nav()
+	create_batch_source()
 
 
 def after_sync():
 	create_lms_roles()
-	set_default_home()
 	set_default_certificate_print_format()
 	add_all_roles_to("Administrator")
 
@@ -54,6 +54,7 @@ def create_lms_roles():
 	create_course_creator_role()
 	create_moderator_role()
 	create_evaluator_role()
+	create_lms_student_role()
 
 
 def delete_lms_roles():
@@ -61,10 +62,6 @@ def delete_lms_roles():
 	for role in roles:
 		if frappe.db.exists("Role", role):
 			frappe.db.delete("Role", role)
-
-
-def set_default_home():
-	frappe.db.set_single_value("Portal Settings", "default_portal_home", "/courses")
 
 
 def create_course_creator_role():
@@ -99,6 +96,19 @@ def create_evaluator_role():
 		role.update(
 			{
 				"role_name": "Class Evaluator",
+				"home_page": "",
+				"desk_access": 0,
+			}
+		)
+		role.save()
+
+
+def create_lms_student_role():
+	if not frappe.db.exists("Role", "LMS Student"):
+		role = frappe.new_doc("Role")
+		role.update(
+			{
+				"role_name": "LMS Student",
 				"home_page": "",
 				"desk_access": 0,
 			}
@@ -168,3 +178,20 @@ def delete_custom_fields():
 
 	for field in fields:
 		frappe.db.delete("Custom Field", {"fieldname": field})
+
+
+def create_batch_source():
+	sources = [
+		"Newsletter",
+		"LinkedIn",
+		"Twitter",
+		"Website",
+		"Friend/Colleague/Connection",
+		"Google Search",
+	]
+
+	for source in sources:
+		if not frappe.db.exists("LMS Source", source):
+			doc = frappe.new_doc("LMS Source")
+			doc.source = source
+			doc.save()

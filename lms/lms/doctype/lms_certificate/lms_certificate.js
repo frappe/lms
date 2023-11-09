@@ -10,6 +10,14 @@ frappe.ui.form.on("LMS Certificate", {
 				},
 			};
 		});
+
+		frm.set_query("template", function (doc) {
+			return {
+				filters: {
+					doc_type: "LMS Certificate",
+				},
+			};
+		});
 	},
 	refresh: (frm) => {
 		if (frm.doc.name)

@@ -66,13 +66,8 @@
 {% macro CreateLesson() %}
 <article class="field-parent">
     <div class="field-group">
-        <div>
-            <div class="field-label">
-                {{ _("Title") }}
-            </div>
-            <div class="field-description">
-                {{ _("Something Short and Concise") }}
-            </div>
+        <div class="field-label">
+            {{ _("Title") }}
         </div>
         <div class="">
             <input id="lesson-title" type="text" class="field-input" data-index="{{ lesson_index }}" data-chapter="{{ chapter }}" data-course="{{ course.name }}" {% if lesson.name %} data-lesson="{{ lesson.name }}"  value="{{ lesson.title }}" {% endif %}>
@@ -80,10 +75,30 @@
     </div>
 
     <div class="field-group">
-        <label for="published" class="vertically-center">
+        <label for="preview" class="vertically-center">
             <input type="checkbox" id="preview" {% if lesson.include_in_preview %} checked {% endif %}>
             <span>{{ _("Show preview of this lesson to Guest users.") }}</span>
         </label>
+    </div>
+
+    <div class="field-group">
+       <div class="collapse-section collapsed" data-toggle="collapse" data-target="#instructor-notes-section">
+            <svg class="icon icon-sm pull-right">
+                <use href="#icon-up-line"></use>
+            </svg>
+            <div class="field-label">
+                {{ _("Instructor Notes") }}
+            </div>
+            <div class="field-description mb-2">
+                {{ _("These notes will only be visible to the Course Creator, Course Evaluaor and Moderator.") }}
+            </div>
+       </div>
+       <div id="instructor-notes-section" class="collapse">
+            <div id="instructor-notes" class="lesson-editor"></div>
+       </div>
+        {% if lesson.instructor_notes %}
+            <div id="current-instructor-notes" class="hide">{{ lesson.instructor_notes }}</div>
+        {% endif %}
     </div>
 
     <div class="field-group">
@@ -91,16 +106,19 @@
             <div class="field-label">
                 {{ _("Content") }}
             </div>
-            <div class="field-description">
+            <div class="field-description mb-2">
                 {{ _("Add your lesson content here") }}
             </div>
         </div>
-        <div id="lesson-content" class="lesson-editor"></div>
+
+        <div id="lesson-content-section">
+            <div id="lesson-content" class="lesson-editor"></div>
+        </div>
+
         {% if lesson.body %}
-        <div id="current-lesson-content" class="hide">{{ lesson.body }}</div>
+            <div id="current-lesson-content" class="hide">{{ lesson.body }}</div>
         {% endif %}
     </div>
-
 
 </article>
 {% endmacro %}
@@ -108,18 +126,9 @@
 
 {%- block script %}
     {{ super() }}
-    {% if is_moderator %}
-	<script>
-		frappe.boot.user = {
-			"can_create": [],
-			"can_select": ["LMS Quiz"],
-			"can_read": ["LMS Quiz"]
-		};
-	</script>
-	{% endif %}
-    {{ include_script('controls.bundle.js') }}
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/paragraph@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/paragraph@2.10.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/header@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/embed@latest"></script>
 {% endblock %}
 

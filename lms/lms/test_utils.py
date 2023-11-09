@@ -72,4 +72,4 @@ def create_evaluation(user, course, date, rating, status):
 			"status": status,
 		}
 	)
-	evaluation.save(ignore_permissions=True)
+	evaluation.save()

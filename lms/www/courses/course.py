@@ -10,6 +10,7 @@ from lms.lms.utils import (
 	is_instructor,
 	redirect_to_courses_list,
 	get_average_rating,
+	check_multicurrency,
 )
 
 
@@ -22,7 +23,7 @@ def get_context(context):
 		redirect_to_courses_list()
 
 	if course_name == "new-course":
-		if not can_create_courses():
+		if not can_create_courses(course_name):
 			message = "You do not have permission to access this page."
 			if frappe.session.user == "Guest":
 				message = "Please login to access this page."
@@ -55,10 +56,16 @@ def set_course_context(context, course_name):
 			"paid_course",
 			"course_price",
 			"currency",
+			"enable_certification",
 			"grant_certificate_after",
 		],
 		as_dict=True,
 	)
+
+	if course.course_price:
+		course.course_price, course.currency = check_multicurrency(
+			course.course_price, course.currency
+		)
 
 	if frappe.form_dict.get("edit"):
 		if not is_instructor(course.name) and not has_course_moderator_role():

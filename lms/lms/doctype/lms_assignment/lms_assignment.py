@@ -3,7 +3,7 @@
 
 import frappe
 from frappe.model.document import Document
-from lms.lms.utils import can_create_courses
+from lms.lms.utils import has_course_moderator_role, has_course_instructor_role
 
 
 class LMSAssignment(Document):
@@ -12,7 +12,7 @@ class LMSAssignment(Document):
 
 @frappe.whitelist()
 def save_assignment(assignment, title, type, question):
-	if not can_create_courses():
+	if not has_course_moderator_role() or not has_course_instructor_role():
 		return
 
 	if assignment:

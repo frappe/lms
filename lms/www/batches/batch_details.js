@@ -31,6 +31,7 @@ const show_course_modal = (e) => {
 				reqd: 1,
 				only_select: 1,
 				default: course || "",
+				read_only: course ? 1 : 0,
 			},
 			{
 				fieldtype: "Link",
@@ -48,6 +49,9 @@ const show_course_modal = (e) => {
 		},
 	});
 	course_modal.show();
+	setTimeout(() => {
+		$(".modal-body").css("min-height", "300px");
+	}, 1000);
 };
 
 const add_course = (values, course_name) => {

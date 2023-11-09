@@ -1,6 +1,6 @@
 from frappe import _
 import frappe
-from frappe.utils import getdate, cint
+from frappe.utils import getdate
 from lms.www.utils import get_assessments, is_student
 from lms.lms.utils import (
 	has_course_moderator_role,
@@ -17,13 +17,13 @@ from lms.lms.utils import (
 
 def get_context(context):
 	context.no_cache = 1
-	class_name = frappe.form_dict["batchname"]
+	batch_name = frappe.form_dict["batchname"]
 	context.is_moderator = has_course_moderator_role()
 	context.is_evaluator = has_course_evaluator_role()
 
 	context.batch_info = frappe.db.get_value(
 		"LMS Batch",
-		class_name,
+		batch_name,
 		[
 			"name",
 			"title",
@@ -32,6 +32,7 @@ def get_context(context):
 			"description",
 			"medium",
 			"custom_component",
+			"custom_script",
 			"seat_count",
 			"start_time",
 			"end_time",
@@ -40,25 +41,27 @@ def get_context(context):
 			"amount",
 			"currency",
 			"batch_details",
+			"published",
+			"allow_future",
 		],
 		as_dict=True,
 	)
 
 	context.reference_doctype = "LMS Batch"
-	context.reference_name = class_name
+	context.reference_name = batch_name
 
 	batch_courses = frappe.get_all(
 		"Batch Course",
-		{"parent": class_name},
+		{"parent": batch_name},
 		["name", "course", "title"],
-		order_by="creation desc",
+		order_by="idx",
 	)
 
 	batch_students = frappe.get_all(
 		"Batch Student",
-		{"parent": class_name},
+		{"parent": batch_name},
 		["name", "student", "student_name", "username"],
-		order_by="creation desc",
+		order_by="idx",
 	)
 
 	context.batch_courses = get_class_course_details(batch_courses)
@@ -67,31 +70,51 @@ def get_context(context):
 		"LMS Course", fields=["name", "title"], limit_page_length=0
 	)
 	context.course_name_list = [course.course for course in context.batch_courses]
-	context.assessments = get_assessments(class_name)
+	context.assessments = get_assessments(batch_name)
+	context.batch_emails = frappe.get_all(
+		"Communication",
+		filters={"reference_doctype": "LMS Batch", "reference_name": batch_name},
+		fields=["subject", "content", "recipients", "cc", "communication_date", "sender"],
+		order_by="communication_date desc",
+	)
+
 	context.batch_students = get_class_student_details(
 		batch_students, batch_courses, context.assessments
 	)
-	context.is_student = is_student(class_name)
+	context.is_student = is_student(batch_name)
 
 	if not context.is_student and not context.is_moderator and not context.is_evaluator:
 		raise frappe.PermissionError(_("You don't have permission to access this page."))
 
 	context.live_classes = frappe.get_all(
 		"LMS Live Class",
-		{"class_name": class_name, "date": [">=", getdate()]},
+		{"batch_name": batch_name, "date": [">=", getdate()]},
 		["title", "description", "time", "date", "start_url", "join_url", "owner"],
 		order_by="date",
 	)
 
 	context.current_student = (
-		get_current_student_details(batch_courses, class_name) if context.is_student else None
+		get_current_student_details(batch_courses, batch_name) if context.is_student else None
 	)
-	context.all_assignments = get_all_assignments(class_name)
-	context.all_quizzes = get_all_quizzes(class_name)
-	context.flow = get_scheduled_flow(class_name)
+	context.all_assignments = get_all_assignments(batch_name)
+	context.all_quizzes = get_all_quizzes(batch_name)
+	context.show_timetable = frappe.db.count(
+		"LMS Batch Timetable",
+		{
+			"parent": batch_name,
+		},
+	)
+	context.legends = get_legends(batch_name)
+	context.settings = frappe.get_single("LMS Settings")
+
+	custom_tabs = frappe.get_hooks("lms_batch_tabs")
+	if custom_tabs:
+		context.custom_tabs_header = custom_tabs.get("header_html")[0]
+		context.custom_tabs_content = custom_tabs.get("content_html")[0]
+		context.update(frappe.get_attr(custom_tabs.get("context")[0])())
 
 
-def get_all_quizzes(class_name):
+def get_all_quizzes(batch_name):
 	filters = {} if has_course_moderator_role() else {"owner": frappe.session.user}
 	all_quizzes = frappe.get_all("LMS Quiz", filters, ["name", "title"])
 	for quiz in all_quizzes:
@@ -100,13 +123,13 @@ def get_all_quizzes(class_name):
 				"doctype": "LMS Assessment",
 				"assessment_type": "LMS Quiz",
 				"assessment_name": quiz.name,
-				"parent": class_name,
+				"parent": batch_name,
 			}
 		)
 	return all_quizzes
 
 
-def get_all_assignments(class_name):
+def get_all_assignments(batch_name):
 	filters = {} if has_course_moderator_role() else {"owner": frappe.session.user}
 	all_assignments = frappe.get_all("LMS Assignment", filters, ["name", "title"])
 	for assignment in all_assignments:
@@ -115,7 +138,7 @@ def get_all_assignments(class_name):
 				"doctype": "LMS Assessment",
 				"assessment_type": "LMS Assignment",
 				"assessment_name": assignment.name,
-				"parent": class_name,
+				"parent": batch_name,
 			}
 		)
 	return all_assignments
@@ -209,39 +232,7 @@ def sort_students(batch_students):
 		return batch_students
 
 
-def get_scheduled_flow(class_name):
-	chapters = []
-
-	lessons = frappe.get_all(
-		"Scheduled Flow",
-		{"parent": class_name},
-		["name", "lesson", "date", "start_time", "end_time"],
-		order_by="idx",
-	)
-
-	for lesson in lessons:
-		lesson = get_lesson_details(lesson, class_name)
-		chapter_exists = [
-			chapter for chapter in chapters if chapter.chapter == lesson.chapter
-		]
-
-		if len(chapter_exists) == 0:
-			chapters.append(
-				frappe._dict(
-					{
-						"chapter": lesson.chapter,
-						"chapter_title": frappe.db.get_value("Course Chapter", lesson.chapter, "title"),
-						"lessons": [lesson],
-					}
-				)
-			)
-		else:
-			chapter_exists[0]["lessons"].append(lesson)
-
-	return chapters
-
-
-def get_lesson_details(lesson, class_name):
+def get_lesson_details(lesson, batch_name):
 	lesson.update(
 		frappe.db.get_value(
 			"Course Lesson",
@@ -251,19 +242,19 @@ def get_lesson_details(lesson, class_name):
 		)
 	)
 	lesson.index = get_lesson_index(lesson.lesson)
-	lesson.url = get_lesson_url(lesson.course, lesson.index) + "?class=" + class_name
+	lesson.url = get_lesson_url(lesson.course, lesson.index) + "?class=" + batch_name
 	lesson.icon = get_lesson_icon(lesson.body)
 	return lesson
 
 
-def get_current_student_details(batch_courses, class_name):
+def get_current_student_details(batch_courses, batch_name):
 	student_details = frappe._dict()
 	student_details.courses = frappe._dict()
 	course_list = [course.course for course in batch_courses]
 
 	get_course_progress(batch_courses, student_details)
 	student_details.name = frappe.session.user
-	student_details.assessments = get_assessments(class_name, frappe.session.user)
+	student_details.assessments = get_assessments(batch_name, frappe.session.user)
 	student_details.upcoming_evals = get_upcoming_evals(frappe.session.user, course_list)
 
 	return student_details
@@ -276,3 +267,11 @@ def get_course_progress(batch_courses, student_details):
 			student_details.courses[course.course] = membership.progress
 		else:
 			student_details.courses[course.course] = 0
+
+
+def get_legends(batch):
+	return frappe.get_all(
+		"LMS Timetable Legend",
+		filters={"parenttype": "LMS Batch", "parent": batch},
+		fields=["reference_doctype", "color", "label"],
+	)

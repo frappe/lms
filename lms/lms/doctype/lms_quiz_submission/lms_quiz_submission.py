@@ -6,4 +6,10 @@ from frappe.model.document import Document
 
 
 class LMSQuizSubmission(Document):
-	pass
+	def before_insert(self):
+		if not self.percentage:
+			self.set_percentage()
+
+	def set_percentage(self):
+		if self.score and self.score_out_of:
+			self.percentage = (self.score / self.score_out_of) * 100

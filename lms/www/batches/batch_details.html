@@ -14,6 +14,7 @@
             {{ CourseList(courses) }}
         </div>
 	</div>
+    {{ BatchDetailsRaw() }}
 </div>
 {% endblock %}
 
@@ -136,9 +137,9 @@
         {% endif %}
 
         <div class="mt-2">
-            {% if is_moderator or is_evaluator or is_student %}
+            {% if is_moderator or is_evaluator %}
             <a class="btn btn-primary wide-button" href="/batches/{{ batch_info.name }}">
-                {{ _("Checkout Batch") }}
+                {{ _("Manage Batch") }}
             </a>
             {% elif batch_info.paid_batch %}
             <a class="btn btn-primary wide-button {% if batch_info.seat_count and not seats_left %} hide {% endif %}"
@@ -164,31 +165,33 @@
 
 
 {% macro BatchDetails(batch_info) %}
-<div class="course-description-section w-50">
-    <div class="mt-2">
-        {{ batch_info.batch_details }}
-    </div>
+<div class="batch-details">
+   {{ batch_info.batch_details }}
 </div>
 {% endmacro %}
 
 
 {% macro CourseList(courses) %}
+{% if courses | length or is_moderator %}
 <div class="batch-course-list">
-    {% if is_moderator %}
-    <button class="btn btn-default btn-sm btn-add-course pull-right">
-        {{ _("Add Courses") }}
-    </button>
-    {% endif %}
-    <div class="page-title">
-        {{ _("Courses") }}
+
+    <div class="flex align-center">
+        <div class="page-title">
+            {{ _("Courses") }}
+        </div>
+        {% if is_moderator %}
+        <button class="btn btn-default btn-sm btn-add-course ml-4">
+            {{ _("Add Course") }}
+        </button>
+        {% endif %}
     </div>
+
     {% if courses | length %}
 	<div class="cards-parent mt-2">
 		{% for course in courses %}
 		<div class="h-100">
-			{{ widgets.CourseCard(course=course, read_only=False) }}
             {% if is_moderator %}
-            <div class="flex my-2 pull-right">
+            <div class="card-buttons">
                 <button class="btn icon-btn btn-default btn-edit-course"
                     data-name="{{ course.batch_course }}" data-course="{{ course.name }}"
                     {% if course.evaluator %} data-evaluator="{{ course.evaluator }}" {% endif %}>
@@ -203,6 +206,7 @@
                 </button>
             </div>
             {% endif %}
+			{{ widgets.CourseCard(course=course, read_only=False) }}
 		</div>
 		{% endfor %}
 	</div>
@@ -212,6 +216,16 @@
 	</div>
 	{% endif %}
 </div>
+{% endif %}
+{% endmacro %}
+
+
+{% macro BatchDetailsRaw() %}
+    {% if batch_info.batch_details_raw %}
+        <div class="mt-10 pt-10">
+            {{ batch_info.batch_details_raw }}
+        </div>
+    {% endif %}
 {% endmacro %}
 
 {%- block script %}

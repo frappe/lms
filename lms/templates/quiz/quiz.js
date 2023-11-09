@@ -120,7 +120,6 @@ const enable_check = (e) => {
 const quiz_summary = (e = undefined) => {
 	e && e.preventDefault();
 	let quiz_name = $("#quiz-title").data("name");
-	let total_questions = $(".question").length;
 	let self = this;
 
 	frappe.call({
@@ -136,13 +135,16 @@ const quiz_summary = (e = undefined) => {
 			$("#quiz-form").prepend(
 				`<div class="summary bold-heading text-center">
 					${__("Your score is")} ${data.message.score}
-					${__("out of")} ${total_questions}
+					${__("out of")} ${data.message.score_out_of}
 				</div>`
 			);
 			$("#try-again").attr("data-submission", data.message.submission);
 			$("#try-again").removeClass("hide");
 			self.quiz_submitted = true;
-			if (this.hasOwnProperty("marked_as_complete")) {
+			if (
+				this.hasOwnProperty("marked_as_complete") &&
+				data.message.pass
+			) {
 				mark_progress();
 			}
 		},

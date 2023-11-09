@@ -6,11 +6,16 @@
  "engine": "InnoDB",
  "field_order": [
   "quiz",
-  "score",
   "course",
   "column_break_3",
   "member",
   "member_name",
+  "section_break_dkpn",
+  "score",
+  "score_out_of",
+  "column_break_gkip",
+  "percentage",
+  "passing_percentage",
   "section_break_6",
   "result"
  ],
@@ -31,9 +36,11 @@
   },
   {
    "fieldname": "score",
-   "fieldtype": "Data",
+   "fieldtype": "Int",
    "in_list_view": 1,
-   "label": "Score"
+   "label": "Score",
+   "read_only": 1,
+   "reqd": 1
   },
   {
    "fieldname": "member",
@@ -65,12 +72,45 @@
    "label": "Course",
    "options": "LMS Course",
    "read_only": 1
+  },
+  {
+   "fetch_from": "quiz.total_marks",
+   "fieldname": "score_out_of",
+   "fieldtype": "Int",
+   "label": "Score Out Of",
+   "non_negative": 1,
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_dkpn",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_gkip",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "percentage",
+   "fieldtype": "Int",
+   "label": "Percentage",
+   "non_negative": 1,
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+    "fieldname": "passing_percentage",
+    "fieldtype": "Int",
+    "label": "Passing Percentage",
+    "non_negative": 1,
+    "read_only": 1,
+    "reqd": 1
   }
  ],
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-11-15 15:27:07.770945",
+ "modified": "2023-10-17 13:07:27.979975",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz Submission",

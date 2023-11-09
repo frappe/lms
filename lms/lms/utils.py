@@ -3,6 +3,7 @@ import string
 import frappe
 import json
 import razorpay
+import requests
 from frappe import _
 from frappe.desk.doctype.dashboard_chart.dashboard_chart import get_result
 from frappe.desk.doctype.notification_log.notification_log import make_notification_logs
@@ -16,6 +17,7 @@ from frappe.utils import (
 	get_datetime,
 	getdate,
 	validate_phone_number,
+	ceil,
 )
 from frappe.utils.dateutils import get_period
 from lms.lms.md import find_macros, markdown_to_html
@@ -143,12 +145,12 @@ def get_lesson_details(chapter):
 				"quiz_id",
 				"question",
 				"file_type",
+				"instructor_notes",
 			],
 			as_dict=True,
 		)
-		lesson_details.number = flt(f"{chapter.idx}.{row.idx}")
+		lesson_details.number = f"{chapter.idx}.{row.idx}"
 		lesson_details.icon = get_lesson_icon(lesson_details.body)
-
 		lessons.append(lesson_details)
 	return lessons
 
@@ -518,21 +520,35 @@ def has_course_instructor_role(member=None):
 	)
 
 
-def can_create_courses(member=None):
+def can_create_courses(course, member=None):
 	if not member:
 		member = frappe.session.user
+
+	instructors = frappe.get_all(
+		"Course Instructor",
+		{
+			"parent": course,
+		},
+		pluck="instructor",
+	)
 
 	if frappe.session.user == "Guest":
 		return False
 
-	if has_course_instructor_role(member) or has_course_moderator_role(member):
+	if has_course_moderator_role(member):
+		return True
+
+	if has_course_instructor_role(member) and member in instructors:
 		return True
 
 	portal_course_creation = frappe.db.get_single_value(
 		"LMS Settings", "portal_course_creation"
 	)
 
-	return portal_course_creation == "Anyone"
+	if portal_course_creation == "Anyone" and member in instructors:
+		return True
+
+	return False
 
 
 def has_course_moderator_role(member=None):
@@ -582,7 +598,7 @@ def validate_image(path):
 	if path and "/private" in path:
 		file = frappe.get_doc("File", {"file_url": path})
 		file.is_private = 0
-		file.save(ignore_permissions=True)
+		file.save()
 		return file.file_url
 	return path
 
@@ -724,7 +740,7 @@ def get_chart_data(chart_name, timespan, timegrain, from_date, to_date):
 	}
 
 
-@frappe.whitelist()
+@frappe.whitelist(allow_guest=True)
 def get_course_completion_data():
 	all_membership = frappe.db.count("LMS Enrollment")
 	completed = frappe.db.count("LMS Enrollment", {"progress": ["like", "%100%"]})
@@ -830,19 +846,23 @@ def get_upcoming_evals(student, courses):
 
 
 @frappe.whitelist()
-def get_payment_options(doctype, docname, phone):
+def get_payment_options(doctype, docname, phone, country):
 	if not frappe.db.exists(doctype, docname):
 		frappe.throw(_("Invalid document provided."))
 
 	validate_phone_number(phone, True)
 	details = get_details(doctype, docname)
+	details.amount, details.currency = check_multicurrency(
+		details.amount, details.currency, country
+	)
+	if details.currency == "INR":
+		details.amount, details.gst_applied = apply_gst(details.amount, country)
 
-	razorpay_key = frappe.db.get_single_value("LMS Settings", "razorpay_key")
 	client = get_client()
 	order = create_order(client, details.amount, details.currency)
 
 	options = {
-		"key_id": razorpay_key,
+		"key_id": frappe.db.get_single_value("LMS Settings", "razorpay_key"),
 		"name": frappe.db.get_single_value("Website Settings", "app_name"),
 		"description": _("Payment for {0} course").format(details["title"]),
 		"order_id": order["id"],
@@ -855,6 +875,46 @@ def get_payment_options(doctype, docname, phone):
 		},
 	}
 	return options
+
+
+def check_multicurrency(amount, currency, country=None):
+	show_usd_equivalent = frappe.db.get_single_value("LMS Settings", "show_usd_equivalent")
+	exception_country = frappe.get_all(
+		"Payment Country", filters={"parent": "LMS Settings"}, pluck="country"
+	)
+	apply_rounding = frappe.db.get_single_value("LMS Settings", "apply_rounding")
+	country = country or frappe.db.get_value(
+		"Address", {"email_id": frappe.session.user}, "country"
+	)
+
+	if not show_usd_equivalent or currency == "USD":
+		return amount, currency
+
+	if not country or (exception_country and country in exception_country):
+		return amount, currency
+
+	exchange_rate = get_current_exchange_rate(currency, "USD")
+	amount = amount * exchange_rate
+	currency = "USD"
+
+	if apply_rounding and amount % 100 != 0:
+		amount = amount + 100 - amount % 100
+
+	return amount, currency
+
+
+def apply_gst(amount, country=None):
+	gst_applied = False
+	apply_gst = frappe.db.get_single_value("LMS Settings", "apply_gst")
+
+	if not country:
+		country = frappe.db.get_value("User", frappe.session.user, "country")
+
+	if apply_gst and country == "India":
+		gst_applied = True
+		amount = amount * 1.18
+
+	return amount, gst_applied
 
 
 def get_details(doctype, docname):
@@ -881,7 +941,15 @@ def get_details(doctype, docname):
 
 
 def save_address(address):
-	address.update(
+	filters = {"email_id": frappe.session.user}
+	exists = frappe.db.exists("Address", filters)
+	if exists:
+		address_doc = frappe.get_last_doc("Address", filters=filters)
+	else:
+		address_doc = frappe.new_doc("Address")
+
+	address_doc.update(address)
+	address_doc.update(
 		{
 			"address_title": frappe.db.get_value("User", frappe.session.user, "full_name"),
 			"address_type": "Billing",
@@ -889,15 +957,14 @@ def save_address(address):
 			"email_id": frappe.session.user,
 		}
 	)
-	doc = frappe.new_doc("Address")
-	doc.update(address)
-	doc.save(ignore_permissions=True)
-	return doc.name
+	address_doc.save(ignore_permissions=True)
+	return address_doc.name
 
 
 def get_client():
-	razorpay_key = frappe.db.get_single_value("LMS Settings", "razorpay_key")
-	razorpay_secret = frappe.db.get_single_value("LMS Settings", "razorpay_secret")
+	settings = frappe.get_single("LMS Settings")
+	razorpay_key = settings.razorpay_key
+	razorpay_secret = settings.get_password("razorpay_secret", raise_exception=True)
 
 	if not razorpay_key and not razorpay_secret:
 		frappe.throw(
@@ -946,7 +1013,7 @@ def record_payment(address, response, client, doctype, docname):
 	address = frappe._dict(json.loads(address))
 	address_name = save_address(address)
 
-	payment_details = get_payment_details(doctype, docname)
+	payment_details = get_payment_details(doctype, docname, address)
 	payment_doc = frappe.new_doc("LMS Payment")
 	payment_doc.update(
 		{
@@ -958,29 +1025,39 @@ def record_payment(address, response, client, doctype, docname):
 			"payment_id": response["razorpay_payment_id"],
 			"amount": payment_details["amount"],
 			"currency": payment_details["currency"],
+			"amount_with_gst": payment_details["amount_with_gst"],
 			"gstin": address.gstin,
 			"pan": address.pan,
+			"source": address.source,
+			"payment_for_document_type": doctype,
+			"payment_for_document": docname,
 		}
 	)
 	payment_doc.save(ignore_permissions=True)
-	return payment_doc.name
+	return payment_doc
 
 
-def get_payment_details(doctype, docname):
+def get_payment_details(doctype, docname, address):
 	amount_field = "course_price" if doctype == "LMS Course" else "amount"
 	amount = frappe.db.get_value(doctype, docname, amount_field)
 	currency = frappe.db.get_value(doctype, docname, "currency")
+	amount_with_gst = 0
+
+	amount, currency = check_multicurrency(amount, currency)
+	if currency == "INR" and address.country == "India":
+		amount_with_gst, gst_applied = apply_gst(amount, address.country)
 
 	return {
 		"amount": amount,
 		"currency": currency,
+		"amount_with_gst": amount_with_gst,
 	}
 
 
 def create_membership(course, payment):
 	membership = frappe.new_doc("LMS Enrollment")
 	membership.update(
-		{"member": frappe.session.user, "course": course, "payment": payment}
+		{"member": frappe.session.user, "course": course, "payment": payment.name}
 	)
 	membership.save(ignore_permissions=True)
 	return f"/courses/{course}/learn/1.1"
@@ -991,7 +1068,8 @@ def add_student_to_batch(batchname, payment):
 	student.update(
 		{
 			"student": frappe.session.user,
-			"payment": payment,
+			"payment": payment.name,
+			"source": payment.source,
 			"parent": batchname,
 			"parenttype": "LMS Batch",
 			"parentfield": "students",
@@ -999,3 +1077,18 @@ def add_student_to_batch(batchname, payment):
 	)
 	student.save(ignore_permissions=True)
 	return f"/batches/{batchname}"
+
+
+def get_current_exchange_rate(source, target="USD"):
+	url = f"https://api.frankfurter.app/latest?from={source}&to={target}"
+
+	response = requests.request("GET", url)
+	details = response.json()
+	return details["rates"][target]
+
+
+@frappe.whitelist()
+def change_currency(amount, currency, country=None):
+	amount = cint(amount)
+	amount, currency = check_multicurrency(amount, currency, country)
+	return fmt_money(amount, 0, currency)

@@ -1,8 +1,14 @@
 import frappe
 from frappe import _
 from frappe.utils import cstr, flt
+from lms.lms.md import markdown_to_html
 
-from lms.lms.utils import get_lesson_url, has_course_moderator_role, is_instructor
+from lms.lms.utils import (
+	get_lesson_url,
+	has_course_moderator_role,
+	is_instructor,
+	has_course_evaluator_role,
+)
 from lms.www.utils import (
 	get_common_context,
 	redirect_to_lesson,
@@ -37,20 +43,26 @@ def get_context(context):
 		redirect_to_lesson(context.course, index_)
 
 	context.lesson = get_current_lesson_details(lesson_number, context)
-	instructor = is_instructor(context.course.name)
+	context.instructor = is_instructor(context.course.name)
+	context.is_moderator = has_course_moderator_role()
+	context.is_evaluator = has_course_evaluator_role()
+
+	if context.lesson.instructor_notes:
+		context.instructor_notes = markdown_to_html(context.lesson.instructor_notes)
 
 	context.show_lesson = (
 		context.membership
 		or (context.lesson and context.lesson.include_in_preview)
-		or instructor
-		or has_course_moderator_role()
+		or context.instructor
+		or context.is_moderator
+		or context.is_evaluator
 	)
 
 	if not context.lesson:
 		context.lesson = frappe._dict()
 
 	if frappe.form_dict.get("edit"):
-		if not instructor and not has_course_moderator_role():
+		if not context.instructor and not context.is_moderator:
 			raise frappe.PermissionError(_("You do not have permission to access this page."))
 		context.lesson.edit_mode = True
 	else:
@@ -95,10 +107,13 @@ def get_page_extensions(context):
 
 
 def get_neighbours(current, lessons):
-	current = flt(current)
-	numbers = sorted(lesson.number for lesson in lessons)
-	index = numbers.index(current)
+	numbers = [lesson.number for lesson in lessons]
+	tuples_list = [tuple(int(x) for x in s.split(".")) for s in numbers]
+	sorted_tuples = sorted(tuples_list)
+	sorted_numbers = [".".join(str(num) for num in t) for t in sorted_tuples]
+	index = sorted_numbers.index(current)
+
 	return {
-		"prev": numbers[index - 1] if index - 1 >= 0 else None,
-		"next": numbers[index + 1] if index + 1 < len(numbers) else None,
+		"prev": sorted_numbers[index - 1] if index - 1 >= 0 else None,
+		"next": sorted_numbers[index + 1] if index + 1 < len(sorted_numbers) else None,
 	}

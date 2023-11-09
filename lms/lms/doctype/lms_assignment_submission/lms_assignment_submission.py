@@ -5,11 +5,16 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.utils import validate_url
+from frappe.email.doctype.email_template.email_template import get_email_template
 
 
 class LMSAssignmentSubmission(Document):
 	def validate(self):
 		self.validate_duplicates()
+
+	def after_insert(self):
+		if not frappe.flags.in_test:
+			self.send_mail()
 
 	def validate_duplicates(self):
 		if frappe.db.exists(
@@ -22,6 +27,35 @@ class LMSAssignmentSubmission(Document):
 					lesson_title, self.member_name
 				)
 			)
+
+	def send_mail(self):
+		subject = _("New Assignment Submission")
+		template = "assignment_submission"
+		custom_template = frappe.db.get_single_value(
+			"LMS Settings", "assignment_submission_template"
+		)
+
+		args = {
+			"member_name": self.member_name,
+			"assignment_name": self.assignment,
+			"assignment_title": self.assignment_title,
+			"submission_name": self.name,
+		}
+
+		moderators = frappe.get_all("Has Role", {"role": "Moderator"}, pluck="parent")
+
+		if custom_template:
+			email_template = get_email_template(custom_template, args)
+			subject = email_template.get("subject")
+			content = email_template.get("message")
+		frappe.sendmail(
+			recipients=moderators,
+			subject=subject,
+			template=template if not custom_template else None,
+			content=content if custom_template else None,
+			args=args,
+			header=[subject, "green"],
+		)
 
 
 @frappe.whitelist()
@@ -37,9 +71,12 @@ def upload_assignment(
 	if frappe.session.user == "Guest":
 		return
 
-	assignment_type = frappe.db.get_value("LMS Assignment", assignment, "type")
+	assignment_details = frappe.db.get_value(
+		"LMS Assignment", assignment, ["type", "grade_assignment"], as_dict=1
+	)
+	assignment_type = assignment_details.type
 
-	if assignment_type == "URL" and not answer:
+	if assignment_type in ["URL", "Text"] and not answer:
 		frappe.throw(_("Please enter the URL for assignment submission."))
 
 	if assignment_type == "File" and not assignment_attachment:
@@ -64,7 +101,9 @@ def upload_assignment(
 	doc.update(
 		{
 			"assignment_attachment": assignment_attachment,
-			"status": status,
+			"status": "Not Applicable"
+			if assignment_type == "Text" and not assignment_details.grade_assignment
+			else status,
 			"comments": comments,
 			"answer": answer,
 		}

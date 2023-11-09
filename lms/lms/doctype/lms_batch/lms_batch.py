@@ -6,9 +6,17 @@ import requests
 import base64
 import json
 from frappe import _
+from datetime import timedelta
 from frappe.model.document import Document
-from frappe.utils import cint, format_date, format_datetime
-from lms.lms.utils import get_lessons
+from frappe.utils import (
+	cint,
+	format_date,
+	format_datetime,
+	get_time,
+)
+from lms.lms.utils import get_lessons, get_lesson_index, get_lesson_url
+from lms.www.utils import get_quiz_details, get_assignment_details
+from frappe.email.doctype.email_template.email_template import get_email_template
 
 
 class LMSBatch(Document):
@@ -19,7 +27,8 @@ class LMSBatch(Document):
 		self.validate_duplicate_students()
 		self.validate_duplicate_assessments()
 		self.validate_membership()
-		self.validate_schedule()
+		self.validate_timetable()
+		self.send_confirmation_mail()
 
 	def validate_duplicate_students(self):
 		students = [row.student for row in self.students]
@@ -53,6 +62,43 @@ class LMSBatch(Document):
 					)
 				)
 
+	def send_confirmation_mail(self):
+		for student in self.students:
+
+			if not student.confirmation_email_sent:
+				self.send_mail(student)
+				student.confirmation_email_sent = 1
+
+	def send_mail(self, student):
+		subject = _("Enrollment Confirmation for the Next Training Batch")
+		template = "batch_confirmation"
+		custom_template = frappe.db.get_single_value(
+			"LMS Settings", "batch_confirmation_template"
+		)
+
+		args = {
+			"student_name": student.student_name,
+			"start_time": self.start_time,
+			"start_date": self.start_date,
+			"medium": self.medium,
+			"name": self.name,
+		}
+
+		if custom_template:
+			email_template = get_email_template(custom_template, args)
+			subject = email_template.get("subject")
+			content = email_template.get("message")
+
+		frappe.sendmail(
+			recipients=student.student,
+			subject=subject,
+			template=template if not custom_template else None,
+			content=content if custom_template else None,
+			args=args,
+			header=[subject, "green"],
+			retry=3,
+		)
+
 	def validate_membership(self):
 		for course in self.courses:
 			for student in self.students:
@@ -68,26 +114,30 @@ class LMSBatch(Document):
 		if cint(self.seat_count) < len(self.students):
 			frappe.throw(_("There are no seats available in this batch."))
 
-	def validate_schedule(self):
-		for schedule in self.scheduled_flow:
+	def validate_timetable(self):
+		for schedule in self.timetable:
 			if schedule.start_time and schedule.end_time:
-				if (
-					schedule.start_time > schedule.end_time or schedule.start_time == schedule.end_time
-				):
+				if get_time(schedule.start_time) > get_time(schedule.end_time) or get_time(
+					schedule.start_time
+				) == get_time(schedule.end_time):
 					frappe.throw(
 						_("Row #{0} Start time cannot be greater than or equal to end time.").format(
 							schedule.idx
 						)
 					)
 
-				if schedule.start_time < self.start_time or schedule.start_time > self.end_time:
+				if get_time(schedule.start_time) < get_time(self.start_time) or get_time(
+					schedule.start_time
+				) > get_time(self.end_time):
 					frappe.throw(
 						_("Row #{0} Start time cannot be outside the batch duration.").format(
 							schedule.idx
 						)
 					)
 
-				if schedule.end_time < self.start_time or schedule.end_time > self.end_time:
+				if get_time(schedule.end_time) < get_time(self.start_time) or get_time(
+					schedule.end_time
+				) > get_time(self.end_time):
 					frappe.throw(
 						_("Row #{0} End time cannot be outside the batch duration.").format(schedule.idx)
 					)
@@ -192,6 +242,8 @@ def create_batch(
 	end_date,
 	description=None,
 	batch_details=None,
+	batch_details_raw=None,
+	meta_image=None,
 	seat_count=0,
 	start_time=None,
 	end_time=None,
@@ -201,6 +253,7 @@ def create_batch(
 	amount=0,
 	currency=None,
 	name=None,
+	published=0,
 ):
 	frappe.only_for("Moderator")
 	if name:
@@ -215,6 +268,8 @@ def create_batch(
 			"end_date": end_date,
 			"description": description,
 			"batch_details": batch_details,
+			"batch_details_raw": batch_details_raw,
+			"image": meta_image,
 			"seat_count": seat_count,
 			"start_time": start_time,
 			"end_time": end_time,
@@ -223,6 +278,7 @@ def create_batch(
 			"paid_batch": paid_batch,
 			"amount": amount,
 			"currency": currency,
+			"published": published,
 		}
 	)
 	doc.save()
@@ -243,6 +299,10 @@ def fetch_lessons(courses):
 @frappe.whitelist()
 def add_course(course, parent, name=None, evaluator=None):
 	frappe.only_for("Moderator")
+
+	if frappe.db.exists("Batch Course", {"course": course, "parent": parent}):
+		frappe.throw(_("Course already added to the batch."))
+
 	if name:
 		doc = frappe.get_doc("Batch Course", name)
 	else:
@@ -260,3 +320,119 @@ def add_course(course, parent, name=None, evaluator=None):
 	doc.save()
 
 	return doc.name
+
+
+@frappe.whitelist()
+def get_batch_timetable(batch):
+	timetable = frappe.get_all(
+		"LMS Batch Timetable",
+		filters={"parent": batch},
+		fields=[
+			"reference_doctype",
+			"reference_docname",
+			"date",
+			"start_time",
+			"end_time",
+			"milestone",
+			"name",
+			"idx",
+			"parent",
+		],
+		order_by="date",
+	)
+
+	show_live_class = frappe.db.get_value("LMS Batch", batch, "show_live_class")
+	if show_live_class:
+		live_classes = get_live_classes(batch)
+		timetable.extend(live_classes)
+
+	timetable = get_timetable_details(timetable)
+	return timetable
+
+
+def get_live_classes(batch):
+	live_classes = frappe.get_all(
+		"LMS Live Class",
+		{"batch_name": batch},
+		["name", "title", "date", "time as start_time", "duration", "join_url as url"],
+		order_by="date",
+	)
+	for class_ in live_classes:
+		class_.end_time = class_.start_time + timedelta(minutes=class_.duration)
+		class_.reference_doctype = "LMS Live Class"
+		class_.reference_docname = class_.name
+		class_.icon = "icon-call"
+
+	return live_classes
+
+
+def get_timetable_details(timetable):
+	for entry in timetable:
+		entry.title = frappe.db.get_value(
+			entry.reference_doctype, entry.reference_docname, "title"
+		)
+		assessment = frappe._dict({"assessment_name": entry.reference_docname})
+
+		if entry.reference_doctype == "Course Lesson":
+			course = frappe.db.get_value(
+				entry.reference_doctype, entry.reference_docname, "course"
+			)
+			entry.url = get_lesson_url(course, get_lesson_index(entry.reference_docname))
+
+			entry.completed = (
+				True
+				if frappe.db.exists(
+					"LMS Course Progress",
+					{"lesson": entry.reference_docname, "member": frappe.session.user},
+				)
+				else False
+			)
+
+		elif entry.reference_doctype == "LMS Quiz":
+			entry.url = "/quizzes"
+			details = get_quiz_details(assessment, frappe.session.user)
+			entry.update(details)
+
+		elif entry.reference_doctype == "LMS Assignment":
+			details = get_assignment_details(assessment, frappe.session.user)
+			entry.update(details)
+
+	timetable = sorted(timetable, key=lambda k: k["date"])
+	return timetable
+
+
+@frappe.whitelist()
+def is_milestone_complete(idx, batch):
+	previous_rows = frappe.get_all(
+		"LMS Batch Timetable",
+		filters={"parent": batch, "idx": ["<", cint(idx)]},
+		fields=["reference_doctype", "reference_docname", "idx"],
+		order_by="idx",
+	)
+
+	for row in previous_rows:
+		if row.reference_doctype == "Course Lesson":
+			if not frappe.db.exists(
+				"LMS Course Progress",
+				{"member": frappe.session.user, "lesson": row.reference_docname},
+			):
+				return False
+
+		if row.reference_doctype == "LMS Quiz":
+			passing_percentage = frappe.db.get_value(
+				row.reference_doctype, row.reference_docname, "passing_percentage"
+			)
+			if not frappe.db.exists(
+				"LMS Quiz Submission",
+				{"quiz": row.reference_docname, "member": frappe.session.user},
+			):
+				return False
+
+		if row.reference_doctype == "LMS Assignment":
+			if not frappe.db.exists(
+				"LMS Assignment Submission",
+				{"assignment": row.reference_docname, "member": frappe.session.user},
+			):
+				return False
+
+	return True

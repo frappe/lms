@@ -2,6 +2,24 @@ frappe.ready(() => {
 	let self = this;
 	frappe.require("controls.bundle.js");
 
+	if ($("#calendar").length) {
+		setup_timetable();
+	}
+
+	if ($("#calendar").length) {
+		$(document).on("click", "#prev-week", (e) => {
+			this.calendar_ && this.calendar_.prev();
+			set_calendar_range(this.calendar_, this.events);
+		});
+	}
+
+	if ($("#calendar").length) {
+		$(document).on("click", "#next-week", (e) => {
+			this.calendar_ && this.calendar_.next();
+			set_calendar_range(this.calendar_, this.events);
+		});
+	}
+
 	if ($("#live-class-form").length) {
 		setTimeout(() => {
 			make_live_class_form();
@@ -44,6 +62,10 @@ frappe.ready(() => {
 
 	$(document).on("click", ".slot", (e) => {
 		mark_active_slot(e);
+	});
+
+	$(".btn-email").click((e) => {
+		email_to_students();
 	});
 });
 
@@ -495,6 +517,10 @@ const open_evaluation_form = (e) => {
 				},
 				filter_description: " ",
 				only_select: 1,
+				change: () => {
+					this.eval_form.set_value("date", "");
+					$("[data-fieldname='slots']").html("");
+				},
 			},
 			{
 				fieldtype: "Date",
@@ -505,7 +531,7 @@ const open_evaluation_form = (e) => {
 					frappe.datetime.add_days(frappe.datetime.get_today(), 1)
 				),
 				change: () => {
-					get_slots();
+					if (this.eval_form.get_value("date")) get_slots();
 				},
 			},
 			{
@@ -530,7 +556,7 @@ const get_slots = () => {
 		args: {
 			course: this.eval_form.get_value("course"),
 			date: this.eval_form.get_value("date"),
-			batch_name: $(".class-details").data("batch"),
+			batch: $(".class-details").data("batch"),
 		},
 		callback: (r) => {
 			if (r.message) {
@@ -603,6 +629,249 @@ const submit_evaluation_form = (values) => {
 			setTimeout(() => {
 				window.location.reload();
 			}, 1000);
+		},
+	});
+};
+
+const setup_timetable = () => {
+	let self = this;
+	frappe.call({
+		method: "lms.lms.doctype.lms_batch.lms_batch.get_batch_timetable",
+		args: {
+			batch: $(".class-details").data("batch"),
+		},
+		callback: (r) => {
+			if (r.message.length) {
+				setup_calendar(r.message);
+				self.events = r.message;
+			}
+		},
+	});
+};
+
+const setup_calendar = (events) => {
+	const element = $("#calendar");
+	const Calendar = tui.Calendar;
+	const calendar_id = "calendar1";
+	const container = element[0];
+	const options = get_calendar_options(element, calendar_id);
+	const calendar = new Calendar(container, options);
+	this.calendar_ = calendar;
+
+	create_events(calendar, events);
+	add_links_to_events(calendar, events);
+	scroll_to_date(calendar, events);
+	set_calendar_range(calendar, events);
+};
+
+const get_calendar_options = (element, calendar_id) => {
+	const start_time = element.data("start");
+	const end_time = element.data("end");
+
+	return {
+		defaultView: "week",
+		usageStatistics: false,
+		week: {
+			narrowWeekend: true,
+			hourStart: parseInt(start_time.split(":")[0]) - 1,
+			/* hourEnd: parseInt(end_time.split(":")[0]) + 1, */
+		},
+		month: {
+			narrowWeekend: true,
+		},
+		taskView: false,
+		isReadOnly: true,
+		calendars: [
+			{
+				id: calendar_id,
+				name: "Timetable",
+				backgroundColor: "var(--fg-color)",
+			},
+		],
+		template: {
+			time: function (event) {
+				let hide = event.raw.completed ? "" : "hide";
+				return `<div class="calendar-event-time">
+						<img class='icon icon-sm pull-right ${hide}' src="/assets/lms/icons/check.svg">
+						<div> ${frappe.datetime.get_time(event.start.d.d)} -
+						${frappe.datetime.get_time(event.end.d.d)} </div>
+						<div class="calendar-event-title"> ${event.title} </div>
+					</div>`;
+			},
+		},
+	};
+};
+
+const create_events = (calendar, events, calendar_id) => {
+	let calendar_events = [];
+	events.forEach((event, idx) => {
+		let clr = get_background_color(event.reference_doctype);
+		calendar_events.push({
+			id: `event${idx}`,
+			calendarId: calendar_id,
+			title: event.title,
+			start: `${event.date}T${event.start_time}`,
+			end: `${event.date}T${event.end_time}`,
+			isAllday: event.start_time ? false : true,
+			borderColor: clr,
+			backgroundColor: "var(--fg-color)",
+			customStyle: {
+				borderRadius: "var(--border-radius-md)",
+				boxShadow: "var(--shadow-base)",
+				borderWidth: "8px",
+				padding: "0.25rem 0.5rem 0.5rem",
+			},
+			raw: {
+				url: event.url,
+				milestone: event.milestone,
+				name: event.name,
+				idx: event.idx,
+				parent: event.parent,
+				completed: event.completed,
+			},
+		});
+	});
+
+	calendar.createEvents(calendar_events);
+};
+
+const add_links_to_events = (calendar) => {
+	calendar.on("clickEvent", ({ event }) => {
+		let event_date = event.start.d.d;
+		event_date = moment(event_date).format("YYYY-MM-DD");
+
+		let current_date = moment().format("YYYY-MM-DD");
+
+		if (!moment(event_date).isSameOrBefore(current_date) && !allow_future)
+			return;
+
+		if (event.raw.milestone) {
+			frappe.call({
+				method: "lms.lms.doctype.lms_batch.lms_batch.is_milestone_complete",
+				args: {
+					idx: event.raw.idx,
+					batch: event.raw.parent,
+				},
+				callback: (data) => {
+					if (data.message) window.open(event.raw.url, "_blank");
+					else
+						frappe.show_alert({
+							message:
+								"Please complete all previous activities to proceed.",
+							indicator: "red",
+						});
+				},
+			});
+		} else window.open(event.raw.url, "_blank");
+	});
+};
+
+const scroll_to_date = (calendar, events) => {
+	if (
+		new Date() < new Date(events[0].date) ||
+		new Date() > new Date(events.slice(-1).date)
+	) {
+		calendar.setDate(new Date(events[0].date));
+	}
+};
+
+const set_calendar_range = (calendar, events) => {
+	let week_start = moment(calendar.getDateRangeStart().d.d);
+	let week_end = moment(calendar.getDateRangeEnd().d.d);
+
+	$(".calendar-range").text(
+		`${moment(week_start).format("DD MMMM YYYY")} - ${moment(
+			week_end
+		).format("DD MMMM YYYY")}`
+	);
+
+	if (week_start.diff(moment(events[0].date), "days") <= 0)
+		$("#prev-week").hide();
+	else $("#prev-week").show();
+
+	if (week_end.diff(moment(events.slice(-1)[0].date), "days") > 0)
+		$("#next-week").hide();
+	else $("#next-week").show();
+};
+
+const get_background_color = (doctype) => {
+	const match = legends.filter((legend) => {
+		return legend.reference_doctype == doctype;
+	});
+	if (match.length) return match[0].color;
+};
+
+const email_to_students = () => {
+	this.email_dialog = new frappe.ui.Dialog({
+		title: __("Email to Students"),
+		fields: [
+			{
+				fieldtype: "Data",
+				fieldname: "subject",
+				label: __("Subject"),
+				reqd: 1,
+			},
+			{
+				fieldtype: "Data",
+				fieldname: "reply_to",
+				label: __("Reply To"),
+				reqd: 0,
+			},
+			{
+				fieldtype: "Text Editor",
+				fieldname: "message",
+				label: __("Message"),
+				reqd: 1,
+				max_height: 100,
+				min_lines: 5,
+			},
+		],
+		primary_action: (values) => {
+			send_email(values);
+		},
+	});
+	this.email_dialog.show();
+};
+
+const send_email = (values) => {
+	frappe.call({
+		method: "frappe.client.get_list",
+		args: {
+			doctype: "Batch Student",
+			parent: "LMS Batch",
+			fields: ["student"],
+			filters: {
+				parent: $(".class-details").data("batch"),
+			},
+		},
+		callback: (data) => {
+			send_email_to_students(data.message, values);
+		},
+	});
+};
+
+const send_email_to_students = (students, values) => {
+	students = students.map((row) => row.student);
+	frappe.call({
+		method: "frappe.core.doctype.communication.email.make",
+		args: {
+			recipients: students.join(", "),
+			cc: values.reply_to,
+			subject: values.subject,
+			content: values.message,
+			doctype: "LMS Batch",
+			name: $(".class-details").data("batch"),
+			send_email: 1,
+		},
+		callback: (r) => {
+			this.email_dialog.hide();
+			frappe.show_alert({
+				message: __("Email sent successfully"),
+				indicator: "green",
+			});
+			setTimeout(() => {
+				window.location.reload();
+			}, 2000);
 		},
 	});
 };

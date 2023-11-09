@@ -235,12 +235,14 @@ def sign_up(email, full_name, verify_terms, user_category):
 	user.flags.ignore_permissions = True
 	user.flags.ignore_password_policy = True
 	user.insert()
-	set_country_from_ip(None, user.name)
 
 	# set default signup role as per Portal Settings
 	default_role = frappe.db.get_value("Portal Settings", None, "default_role")
 	if default_role:
 		user.add_roles(default_role)
+
+	user.add_roles("LMS Student")
+	set_country_from_ip(None, user.name)
 
 	if user.flags.email_sent:
 		return 1, _("Please check your email for verification")
