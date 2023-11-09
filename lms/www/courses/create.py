@@ -3,6 +3,7 @@ from lms.lms.utils import (
 	redirect_to_courses_list,
 	can_create_courses,
 	has_course_moderator_role,
+	has_course_instructor_role,
 )
 from frappe import _
 
@@ -15,14 +16,14 @@ def get_context(context):
 	except KeyError:
 		redirect_to_courses_list()
 
-	if not can_create_courses(course_name):
+	if not can_create_courses(course_name) and course_name != "new-course":
 		message = "You do not have permission to access this page."
 		if frappe.session.user == "Guest":
 			message = "Please login to access this page."
 
 		raise frappe.PermissionError(_(message))
 
-	if course_name == "new-course":
+	if course_name == "new-course" and has_course_instructor_role():
 		context.course = frappe._dict()
 		context.course.edit_mode = True
 		context.membership = None
