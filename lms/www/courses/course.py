@@ -56,6 +56,7 @@ def set_course_context(context, course_name):
 			"paid_course",
 			"course_price",
 			"currency",
+			"enable_certification",
 			"grant_certificate_after",
 		],
 		as_dict=True,
