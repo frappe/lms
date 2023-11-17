@@ -308,12 +308,14 @@ const open_batch_dialog = () => {
 				label: __("Start Time"),
 				fieldname: "start_time",
 				default: batch_info && batch_info.start_time,
+				reqd: 1,
 			},
 			{
 				fieldtype: "Time",
 				label: __("End Time"),
 				fieldname: "end_time",
 				default: batch_info && batch_info.end_time,
+				reqd: 1,
 			},
 			{
 				fieldtype: "Link",

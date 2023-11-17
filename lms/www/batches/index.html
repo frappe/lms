@@ -147,6 +147,18 @@
 			</span>
 		</div>
 
+		<div class="mt-auto mb-2">
+			<svg class="icon icon-sm">
+				<use href="#icon-clock"></use>
+			</svg>
+			<span>
+				{{ frappe.utils.format_time(batch.start_time, "HH:mm a") }} -
+			</span>
+			<span>
+				{{ frappe.utils.format_time(batch.end_time, "HH:mm a") }}
+			</span>
+		</div>
+
 		<div class="mb-2">
 			<svg class="icon icon-md">
 				<use href="#icon-education"></use>

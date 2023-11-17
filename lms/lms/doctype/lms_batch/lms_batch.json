@@ -120,12 +120,14 @@
   {
    "fieldname": "start_time",
    "fieldtype": "Time",
-   "label": "Start Time"
+   "label": "Start Time",
+   "reqd": 1
   },
   {
    "fieldname": "end_time",
    "fieldtype": "Time",
-   "label": "End Time"
+   "label": "End Time",
+   "reqd": 1
   },
   {
    "fieldname": "assessment_tab",
@@ -281,7 +283,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-10-12 12:53:37.351989",
+ "modified": "2023-11-17 10:41:00.340418",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch",
