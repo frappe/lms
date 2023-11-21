@@ -234,7 +234,7 @@ const save = () => {
 		args: {
 			title: $("#lesson-title").val(),
 			body: this.lesson_content_data,
-			chapter: $("#lesson-title").data("chapter"),
+			chapter: decodeURIComponent($("#lesson-title").data("chapter")),
 			preview: $("#preview").prop("checked") ? 1 : 0,
 			idx: $("#lesson-title").data("index"),
 			lesson: lesson ? lesson : "",
