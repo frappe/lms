@@ -548,6 +548,9 @@ def can_create_courses(course, member=None):
 	if portal_course_creation == "Anyone" and member in instructors:
 		return True
 
+	if not course and has_course_instructor_role(member):
+		return True
+
 	return False
 
 
