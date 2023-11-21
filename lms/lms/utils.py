@@ -6,7 +6,14 @@ import razorpay
 import requests
 from frappe import _
 from frappe.desk.doctype.dashboard_chart.dashboard_chart import get_result
-from frappe.desk.doctype.notification_log.notification_log import make_notification_logs
+from frappe.desk.doctype.notification_log.notification_log import (
+	make_notification_logs,
+	enqueue_create_notification,
+	get_title,
+)
+from frappe.utils import get_fullname
+from frappe.desk.search import get_user_groups
+from frappe.desk.notifications import extract_mentions
 from frappe.utils import (
 	add_months,
 	cint,
@@ -603,17 +610,20 @@ def validate_image(path):
 	return path
 
 
-def create_notification_log(doc, method):
+def handle_notifications(doc, method):
 	topic = frappe.db.get_value(
 		"Discussion Topic",
 		doc.topic,
 		["reference_doctype", "reference_docname", "owner", "title"],
 		as_dict=1,
 	)
-
 	if topic.reference_doctype != "Course Lesson":
 		return
+	create_notification_log(doc, topic)
+	notify_mentions(doc, topic)
 
+
+def create_notification_log(doc, topic):
 	course = frappe.db.get_value("Course Lesson", topic.reference_docname, "course")
 	instructors = frappe.db.get_all(
 		"Course Instructor", {"parent": course}, pluck="instructor"
@@ -638,6 +648,40 @@ def create_notification_log(doc, method):
 	if doc.owner not in instructors:
 		users += instructors
 	make_notification_logs(notification, users)
+
+
+def notify_mentions(doc, topic):
+	mentions = extract_mentions(doc.reply)
+	print(mentions)
+	if not mentions:
+		return
+
+	sender_fullname = get_fullname(doc.owner)
+	recipients = [
+		frappe.db.get_value(
+			"User",
+			{"enabled": 1, "name": name},
+			"email",
+		)
+		for name in mentions
+	]
+	subject = _("{0} mentioned you in a comment").format(sender_fullname)
+	template = "mention_template"
+
+	args = {
+		"sender": sender_fullname,
+		"content": doc.reply,
+		"batch_link": "/batches/" + topic.reference_docname,
+	}
+	for recipient in recipients:
+		frappe.sendmail(
+			recipients=recipient,
+			subject=subject,
+			template=template,
+			args=args,
+			header=[subject, "green"],
+			retry=3,
+		)
 
 
 def get_lesson_count(course):
@@ -1092,3 +1136,44 @@ def change_currency(amount, currency, country=None):
 	amount = cint(amount)
 	amount, currency = check_multicurrency(amount, currency, country)
 	return fmt_money(amount, 0, currency)
+
+
+@frappe.whitelist()
+def get_names_for_mentions(search_term):
+	print(search_term)
+	users_for_mentions = frappe.cache.get_value(
+		"users_for_mentions", get_users_for_mentions
+	)
+	print(users_for_mentions)
+	user_groups = frappe.cache.get_value("user_groups", get_user_groups)
+
+	filtered_mentions = []
+	for mention_data in users_for_mentions + user_groups:
+		if search_term.lower() not in mention_data.value.lower():
+			continue
+
+		mention_data["link"] = frappe.utils.get_url_to_form(
+			"User Group" if mention_data.get("is_group") else "User Profile", mention_data["id"]
+		)
+
+		filtered_mentions.append(mention_data)
+
+	return sorted(filtered_mentions, key=lambda d: d["value"])
+
+
+def get_users_for_mentions():
+	print("this.is.users")
+	filters = (
+		{
+			"name": ["not in", ("Administrator", "Guest")],
+			"allowed_in_mentions": True,
+			"enabled": True,
+		},
+	)
+	print(frappe.utils.get_url())
+	print("this.is.url")
+	return frappe.get_all(
+		"User",
+		filters=filters,
+		fields=["name as id", "full_name as value", "user_type"],
+	)
