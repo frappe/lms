@@ -1,0 +1,11 @@
+<p>
+    {{ _("{0} mentioned you in a comment in your batch.").format(sender) }}
+</p>
+<p>
+    <blockquote>
+        {{ content | markdown }}
+    </blockquote>
+</p>
+<div class="more-info">
+	<a href="{{ link }}">{{ _("Check Discussion") }}</a>
+</div>

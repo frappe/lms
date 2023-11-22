@@ -64,7 +64,6 @@ class LMSBatch(Document):
 
 	def send_confirmation_mail(self):
 		for student in self.students:
-
 			if not student.confirmation_email_sent:
 				self.send_mail(student)
 				student.confirmation_email_sent = 1
