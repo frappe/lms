@@ -617,7 +617,7 @@ def handle_notifications(doc, method):
 		["reference_doctype", "reference_docname", "owner", "title"],
 		as_dict=1,
 	)
-	if topic.reference_doctype != "Course Lesson":
+	if topic.reference_doctype not in ["Course Lesson", "LMS Batch"]:
 		return
 	create_notification_log(doc, topic)
 	notify_mentions(doc, topic)
@@ -652,7 +652,6 @@ def create_notification_log(doc, topic):
 
 def notify_mentions(doc, topic):
 	mentions = extract_mentions(doc.reply)
-	print(mentions)
 	if not mentions:
 		return
 
@@ -671,8 +670,9 @@ def notify_mentions(doc, topic):
 	args = {
 		"sender": sender_fullname,
 		"content": doc.reply,
-		"batch_link": "/batches/" + topic.reference_docname,
+		"batch_link": "/batches/" + topic.reference_docname + "#discussions",
 	}
+
 	for recipient in recipients:
 		frappe.sendmail(
 			recipients=recipient,
@@ -1136,44 +1136,3 @@ def change_currency(amount, currency, country=None):
 	amount = cint(amount)
 	amount, currency = check_multicurrency(amount, currency, country)
 	return fmt_money(amount, 0, currency)
-
-
-@frappe.whitelist()
-def get_names_for_mentions(search_term):
-	print(search_term)
-	users_for_mentions = frappe.cache.get_value(
-		"users_for_mentions", get_users_for_mentions
-	)
-	print(users_for_mentions)
-	user_groups = frappe.cache.get_value("user_groups", get_user_groups)
-
-	filtered_mentions = []
-	for mention_data in users_for_mentions + user_groups:
-		if search_term.lower() not in mention_data.value.lower():
-			continue
-
-		mention_data["link"] = frappe.utils.get_url_to_form(
-			"User Group" if mention_data.get("is_group") else "User Profile", mention_data["id"]
-		)
-
-		filtered_mentions.append(mention_data)
-
-	return sorted(filtered_mentions, key=lambda d: d["value"])
-
-
-def get_users_for_mentions():
-	print("this.is.users")
-	filters = (
-		{
-			"name": ["not in", ("Administrator", "Guest")],
-			"allowed_in_mentions": True,
-			"enabled": True,
-		},
-	)
-	print(frappe.utils.get_url())
-	print("this.is.url")
-	return frappe.get_all(
-		"User",
-		filters=filters,
-		fields=["name as id", "full_name as value", "user_type"],
-	)
