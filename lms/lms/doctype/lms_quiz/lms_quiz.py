@@ -110,6 +110,7 @@ def quiz_summary(quiz, results):
 		"score_out_of": score_out_of,
 		"submission": submission.name,
 		"pass": percentage == quiz_details.passing_percentage,
+		"percentage": percentage,
 	}
 
 

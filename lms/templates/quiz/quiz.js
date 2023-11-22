@@ -134,6 +134,9 @@ const quiz_summary = (e = undefined) => {
 			$(".quiz-footer span").addClass("hide");
 			$("#quiz-form").prepend(
 				`<div class="summary bold-heading text-center">
+					${__("You got")} ${data.message.percentage}% ${__("correct answers")}
+				</div>
+				<div class="summary bold-heading text-center mt-2">
 					${__("Your score is")} ${data.message.score}
 					${__("out of")} ${data.message.score_out_of}
 				</div>`

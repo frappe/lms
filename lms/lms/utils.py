@@ -667,10 +667,17 @@ def notify_mentions(doc, topic):
 	subject = _("{0} mentioned you in a comment").format(sender_fullname)
 	template = "mention_template"
 
+	if topic.reference_doctype == "LMS Batch":
+		link = f"/batches/{topic.reference_docname}#discussions"
+	if topic.reference_doctype == "Course Lesson":
+		course = frappe.db.get_value("Course Lesson", topic.reference_docname, "course")
+		lesson_index = get_lesson_index(topic.reference_docname)
+		link = get_lesson_url(course, lesson_index)
+
 	args = {
 		"sender": sender_fullname,
 		"content": doc.reply,
-		"batch_link": "/batches/" + topic.reference_docname + "#discussions",
+		"link": link,
 	}
 
 	for recipient in recipients:
