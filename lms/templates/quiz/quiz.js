@@ -4,6 +4,7 @@ frappe.ready(() => {
 	this.answer = [];
 	this.is_correct = [];
 	this.show_answers = $("#quiz-title").data("show-answers");
+	this.current_index = 0;
 	localStorage.removeItem($("#quiz-title").data("name"));
 
 	$(".btn-start-quiz").click((e) => {
@@ -37,7 +38,6 @@ frappe.ready(() => {
 	$("#next").click((e) => {
 		e.preventDefault();
 		if (!this.show_answers) check_answer();
-
 		mark_active_question(e);
 	});
 
@@ -48,7 +48,7 @@ frappe.ready(() => {
 
 const mark_active_question = (e = undefined) => {
 	let total_questions = $(".question").length;
-	let current_index = $(".active-question").attr("data-qt-index") || 0;
+	let current_index = this.current_index;
 	let next_index = parseInt(current_index) + 1;
 
 	if (this.show_answers) {
@@ -170,7 +170,7 @@ const check_answer = (e = undefined) => {
 	e && e.preventDefault();
 	let answer = $(".active-question textarea");
 	let total_questions = $(".question").length;
-	let current_index = $(".active-question").attr("data-qt-index");
+	let current_index = this.current_index;
 
 	if (answer.length && !answer.val().trim()) {
 		frappe.throw(__("Please enter your answer"));
@@ -188,6 +188,7 @@ const check_answer = (e = undefined) => {
 		$("#next").removeClass("hide");
 	}
 	parse_options();
+	this.current_index += 1;
 };
 
 const parse_options = () => {
@@ -277,12 +278,10 @@ const add_icon = (element, icon) => {
 };
 
 const add_to_local_storage = () => {
-	let current_index = $(".active-question").attr("data-qt-index");
 	let quiz_name = $("#quiz-title").data("name");
 	let quiz_stored = JSON.parse(localStorage.getItem(quiz_name));
-
 	let quiz_obj = {
-		question_index: current_index - 1,
+		question_index: this.current_index,
 		answer: self.answer.join(),
 		is_correct: self.is_correct,
 	};

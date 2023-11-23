@@ -69,7 +69,7 @@ def quiz_summary(quiz, results):
 
 		question_details = frappe.db.get_value(
 			"LMS Quiz Question",
-			{"parent": quiz, "idx": result["question_index"] + 1},
+			{"parent": quiz, "idx": result["question_index"]},
 			["question", "marks"],
 			as_dict=1,
 		)
