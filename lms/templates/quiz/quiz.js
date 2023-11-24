@@ -182,7 +182,7 @@ const check_answer = (e = undefined) => {
 	$(".explanation").removeClass("hide");
 	$("#check").addClass("hide");
 
-	if (current_index == total_questions) {
+	if (current_index == total_questions - 1) {
 		$("#summary").removeClass("hide");
 	} else if (this.show_answers) {
 		$("#next").removeClass("hide");

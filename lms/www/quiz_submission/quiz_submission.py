@@ -47,9 +47,20 @@ def get_context(context):
 		quiz.questions.append(details)
 	context.quiz = quiz
 
+	context.all_submissions = frappe.get_all(
+		"LMS Quiz Submission",
+		{
+			"quiz": context.quiz.name,
+			"member": frappe.session.user,
+		},
+		["name", "score", "creation"],
+		order_by="creation desc",
+	)
+
+	context.no_of_attempts = len(context.all_submissions) or 0
+
 	if submission == "new-submission":
 		context.submission = frappe._dict()
-		context.no_of_attempts = 0
 		context.hide_quiz = False
 	else:
 		context.submission = frappe.db.get_value(
@@ -65,17 +76,6 @@ def get_context(context):
 		if not context.quiz or not context.submission:
 			raise frappe.PermissionError(_("Invalid Submission URL"))
 
-		context.all_submissions = frappe.get_all(
-			"LMS Quiz Submission",
-			{
-				"quiz": context.quiz.name,
-				"member": context.submission.member,
-			},
-			["name", "score", "creation"],
-			order_by="creation desc",
-		)
-
-		context.no_of_attempts = len(context.all_submissions) or 0
 		context.hide_quiz = (
-			context.is_moderator and context.submission.member != frappe.session.user
+			context.is_moderator or context.submission.member != frappe.session.user
 		)

@@ -658,7 +658,7 @@ const setup_calendar = (events) => {
 	const calendar = new Calendar(container, options);
 	this.calendar_ = calendar;
 
-	create_events(calendar, events);
+	create_events(calendar, events, calendar_id);
 	add_links_to_events(calendar, events);
 	scroll_to_date(calendar, events);
 	set_calendar_range(calendar, events);
@@ -710,8 +710,8 @@ const create_events = (calendar, events, calendar_id) => {
 			id: `event${idx}`,
 			calendarId: calendar_id,
 			title: event.title,
-			start: `${event.date}T${event.start_time}`,
-			end: `${event.date}T${event.end_time}`,
+			start: `${event.date}T${format_time(event.start_time)}`,
+			end: `${event.date}T${format_time(event.end_time)}`,
 			isAllday: event.start_time ? false : true,
 			borderColor: clr,
 			backgroundColor: "var(--fg-color)",
@@ -733,6 +733,12 @@ const create_events = (calendar, events, calendar_id) => {
 	});
 
 	calendar.createEvents(calendar_events);
+};
+
+const format_time = (time) => {
+	let time_arr = time.split(":");
+	if (time_arr[0] < 10) time_arr[0] = "0" + time_arr[0];
+	return time_arr.join(":");
 };
 
 const add_links_to_events = (calendar) => {
