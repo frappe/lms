@@ -69,7 +69,7 @@ def quiz_summary(quiz, results):
 
 		question_details = frappe.db.get_value(
 			"LMS Quiz Question",
-			{"parent": quiz, "idx": result["question_index"] + 1},
+			{"parent": quiz, "idx": result["question_index"]},
 			["question", "marks"],
 			as_dict=1,
 		)
@@ -110,6 +110,7 @@ def quiz_summary(quiz, results):
 		"score_out_of": score_out_of,
 		"submission": submission.name,
 		"pass": percentage == quiz_details.passing_percentage,
+		"percentage": percentage,
 	}
 
 

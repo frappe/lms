@@ -1,5 +1,5 @@
 import frappe
-from frappe.utils import getdate
+from frappe.utils import getdate, get_time_str, nowtime
 from lms.lms.utils import (
 	has_course_moderator_role,
 	has_course_evaluator_role,
@@ -19,6 +19,8 @@ def get_context(context):
 			"description",
 			"start_date",
 			"end_date",
+			"start_time",
+			"end_time",
 			"paid_batch",
 			"amount",
 			"currency",
@@ -43,7 +45,11 @@ def get_context(context):
 		)
 		if not batch.published:
 			private_batches.append(batch)
-		elif getdate(batch.start_date) <= getdate():
+		elif getdate(batch.start_date) < getdate():
+			past_batches.append(batch)
+		elif (
+			getdate(batch.start_date) == getdate() and get_time_str(batch.start_time) < nowtime()
+		):
 			past_batches.append(batch)
 		else:
 			upcoming_batches.append(batch)

@@ -97,7 +97,7 @@ override_doctype_class = {
 # Hook on document methods and events
 
 doc_events = {
-	"Discussion Reply": {"after_insert": "lms.lms.utils.create_notification_log"},
+	"Discussion Reply": {"after_insert": "lms.lms.utils.handle_notifications"},
 }
 
 # Scheduled Tasks
@@ -118,9 +118,9 @@ fixtures = ["Custom Field", "Function", "Industry"]
 # Overriding Methods
 # ------------------------------
 #
-# override_whitelisted_methods = {
-# 	"frappe.desk.doctype.event.event.get_events": "lms.event.get_events"
-# }
+override_whitelisted_methods = {
+	# "frappe.desk.search.get_names_for_mentions": "lms.lms.utils.get_names_for_mentions",
+}
 #
 # each overriding function accepts a `data` argument;
 # generated from the base implementation of the doctype dashboard,

@@ -6,7 +6,14 @@ import razorpay
 import requests
 from frappe import _
 from frappe.desk.doctype.dashboard_chart.dashboard_chart import get_result
-from frappe.desk.doctype.notification_log.notification_log import make_notification_logs
+from frappe.desk.doctype.notification_log.notification_log import (
+	make_notification_logs,
+	enqueue_create_notification,
+	get_title,
+)
+from frappe.utils import get_fullname
+from frappe.desk.search import get_user_groups
+from frappe.desk.notifications import extract_mentions
 from frappe.utils import (
 	add_months,
 	cint,
@@ -548,6 +555,9 @@ def can_create_courses(course, member=None):
 	if portal_course_creation == "Anyone" and member in instructors:
 		return True
 
+	if not course and has_course_instructor_role(member):
+		return True
+
 	return False
 
 
@@ -603,17 +613,20 @@ def validate_image(path):
 	return path
 
 
-def create_notification_log(doc, method):
+def handle_notifications(doc, method):
 	topic = frappe.db.get_value(
 		"Discussion Topic",
 		doc.topic,
 		["reference_doctype", "reference_docname", "owner", "title"],
 		as_dict=1,
 	)
-
-	if topic.reference_doctype != "Course Lesson":
+	if topic.reference_doctype not in ["Course Lesson", "LMS Batch"]:
 		return
+	create_notification_log(doc, topic)
+	notify_mentions(doc, topic)
 
+
+def create_notification_log(doc, topic):
 	course = frappe.db.get_value("Course Lesson", topic.reference_docname, "course")
 	instructors = frappe.db.get_all(
 		"Course Instructor", {"parent": course}, pluck="instructor"
@@ -638,6 +651,47 @@ def create_notification_log(doc, method):
 	if doc.owner not in instructors:
 		users += instructors
 	make_notification_logs(notification, users)
+
+
+def notify_mentions(doc, topic):
+	mentions = extract_mentions(doc.reply)
+	if not mentions:
+		return
+
+	sender_fullname = get_fullname(doc.owner)
+	recipients = [
+		frappe.db.get_value(
+			"User",
+			{"enabled": 1, "name": name},
+			"email",
+		)
+		for name in mentions
+	]
+	subject = _("{0} mentioned you in a comment").format(sender_fullname)
+	template = "mention_template"
+
+	if topic.reference_doctype == "LMS Batch":
+		link = f"/batches/{topic.reference_docname}#discussions"
+	if topic.reference_doctype == "Course Lesson":
+		course = frappe.db.get_value("Course Lesson", topic.reference_docname, "course")
+		lesson_index = get_lesson_index(topic.reference_docname)
+		link = get_lesson_url(course, lesson_index)
+
+	args = {
+		"sender": sender_fullname,
+		"content": doc.reply,
+		"link": link,
+	}
+
+	for recipient in recipients:
+		frappe.sendmail(
+			recipients=recipient,
+			subject=subject,
+			template=template,
+			args=args,
+			header=[subject, "green"],
+			retry=3,
+		)
 
 
 def get_lesson_count(course):

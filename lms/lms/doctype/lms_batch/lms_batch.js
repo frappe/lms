@@ -33,6 +33,10 @@ frappe.ui.form.on("LMS Batch", {
 	timetable_template: function (frm) {
 		set_timetable(frm);
 	},
+
+	refresh: (frm) => {
+		frm.add_web_link(`/batches/details/${frm.doc.name}`, "See on website");
+	},
 });
 
 const set_timetable = (frm) => {

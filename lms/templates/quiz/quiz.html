@@ -10,9 +10,6 @@
 			<li>
 				{{ _("You will have to get {0}% correct answers in order to pass the quiz.").format(quiz.passing_percentage) }}
 			</li>
-			<li>
-				{{ _("Without passing the quiz you won't be able to complete the lesson.") }}
-			</li>
 		{% endif %}
 
 		{% if quiz.max_attempts %}
