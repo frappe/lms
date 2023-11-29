@@ -14,5 +14,8 @@
   "bugs": {
     "url": "https://github.com/frappe/lms/issues"
   },
-  "homepage": "https://github.com/frappe/lms#readme"
+  "homepage": "https://github.com/frappe/lms#readme",
+  "dependencies": {
+    "frappe-ui": "^0.1.16"
+  }
 }

@@ -178,6 +178,7 @@ def get_lesson_icon(content):
 	return icon
 
 
+@frappe.whitelist(allow_guest=True)
 def get_tags(course):
 	tags = frappe.db.get_value("LMS Course", course, "tags")
 	return tags.split(",") if tags else []

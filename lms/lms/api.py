@@ -139,3 +139,13 @@ def add_mentor_to_subgroup(subgroup, email):
 
 	sg.add_mentor(email)
 	return {"ok": True}
+
+
+@frappe.whitelist(allow_guest=True)
+def get_courses():
+	"""Returns the list of courses."""
+	return frappe.get_all(
+		"LMS Course",
+		fields=["name", "title", "short_introduction", "image"],
+		filters={"published": True},
+	)

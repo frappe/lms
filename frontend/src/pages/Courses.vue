@@ -1,40 +1,26 @@
 <template>
    <div class="container">
-        <div class="text-xl font-semibold">
-                All Courses
+        <div class="text-2xl font-semibold">
+            All Courses
+        </div>
+        <div class="grid grid-cols-3 gap-8">
+            <div v-for="course in courses.data">
+                <CourseCard :course="course" />
             </div>
-            <div>
-                {{ courses }}
-            </div>
+        </div>
    </div>
 </template>
 
-<script>
-export default {
-    name: "Courses",
-    resources: {
-        courses() {
-            return {
-                type: "list",
-                doctype: "LMS Course",
-                fields: ["name", "title", "short_introduction", "image"],
-                orderBy: "creation desc",
-                filters: {
-                    published: 1
-                },
-                transform(data) {
-                    return data.map((course) => {
-                        course.data = JSON.parse(course.data)
-                        return course
-                    })
-                },
-            }
-        }
-    },
-    computed: {
-        courses() {
-            console.log(this.courses)
-        }
-    }
-}
+<script setup>
+import { createListResource } from 'frappe-ui';
+import { ref, computed } from 'vue';
+import CourseCard from '@/components/CourseCard.vue'
+
+const courses = createListResource({
+    type: 'list',
+    doctype: 'LMS Course',
+    url: "lms.lms.api.get_courses",
+    auto: true,
+})
+
 </script>
