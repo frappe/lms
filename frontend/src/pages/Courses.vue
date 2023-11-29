@@ -12,7 +12,7 @@
 </template>
 
 <script setup>
-import { createListResource } from 'frappe-ui';
+import { createListResource, Tabs } from 'frappe-ui';
 import { ref, computed } from 'vue';
 import CourseCard from '@/components/CourseCard.vue'
 
