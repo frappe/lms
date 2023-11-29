@@ -268,15 +268,6 @@ const open_batch_dialog = () => {
 				default: batch_info && batch_info.published,
 			},
 			{
-				fieldtype: "Column Break",
-			},
-			{
-				fieldtype: "Int",
-				label: __("Seat Count"),
-				fieldname: "seat_count",
-				default: batch_info && batch_info.seat_count,
-			},
-			{
 				fieldtype: "Section Break",
 			},
 			{
@@ -292,13 +283,6 @@ const open_batch_dialog = () => {
 				fieldname: "end_date",
 				reqd: 1,
 				default: batch_info && batch_info.end_date,
-			},
-			{
-				fieldtype: "Select",
-				label: __("Medium"),
-				fieldname: "medium",
-				options: ["Online", "Offline"],
-				default: (batch_info && batch_info.medium) || "Online",
 			},
 			{
 				fieldtype: "Column Break",
@@ -318,12 +302,37 @@ const open_batch_dialog = () => {
 				reqd: 1,
 			},
 			{
+				fieldtype: "Section Break",
+			},
+			{
+				fieldtype: "Select",
+				label: __("Medium"),
+				fieldname: "medium",
+				options: ["Online", "Offline"],
+				default: (batch_info && batch_info.medium) || "Online",
+			},
+			{
 				fieldtype: "Link",
 				label: __("Category"),
 				fieldname: "category",
 				options: "LMS Category",
 				only_select: 1,
 				default: batch_info && batch_info.category,
+			},
+			{
+				fieldtype: "Column Break",
+			},
+			{
+				fieldtype: "Int",
+				label: __("Seat Count"),
+				fieldname: "seat_count",
+				default: batch_info && batch_info.seat_count,
+			},
+			{
+				fieldtype: "Date",
+				label: __("Evaluation End Date"),
+				fieldname: "evaluation_end_date",
+				default: batch_info && batch_info.evaluation_end_date,
 			},
 			{
 				fieldtype: "Section Break",

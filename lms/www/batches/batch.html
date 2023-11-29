@@ -639,6 +639,7 @@
 		let courses = {{ course_list | json }};
 		const legends = {{ legends | json }};
 		const allow_future = {{ batch_info.allow_future }}
+		const evaluation_end_date = "{{ batch_info.evaluation_end_date if batch_info.evaluation_end_date else '' }}"
 	</script>
 
 	<link rel="stylesheet" href="https://uicdn.toast.com/calendar/latest/toastui-calendar.min.css" />

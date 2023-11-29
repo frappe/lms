@@ -103,13 +103,13 @@
    "fieldname": "batch_name",
    "fieldtype": "Link",
    "in_standard_filter": 1,
-   "label": "Batch Name",
+   "label": "Batch",
    "options": "LMS Batch"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-08-23 14:50:37.618352",
+ "modified": "2023-11-29 15:00:30.617298",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate Request",
