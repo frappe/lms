@@ -503,7 +503,6 @@ const remove_assessment = (e) => {
 };
 
 const open_evaluation_form = (e) => {
-	console.log(evaluation_end_date);
 	this.eval_form = new frappe.ui.Dialog({
 		title: __("Schedule Evaluation"),
 		fields: [

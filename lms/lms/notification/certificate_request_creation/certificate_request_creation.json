@@ -23,9 +23,6 @@
   },
   {
    "receiver_by_document_field": "evaluator"
-  },
-  {
-   "receiver_by_role": "Frappe School Admin"
   }
  ],
  "send_system_notification": 0,
