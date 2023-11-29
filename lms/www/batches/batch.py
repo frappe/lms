@@ -43,6 +43,7 @@ def get_context(context):
 			"batch_details",
 			"published",
 			"allow_future",
+			"evaluation_end_date",
 		],
 		as_dict=True,
 	)

@@ -503,6 +503,7 @@ const remove_assessment = (e) => {
 };
 
 const open_evaluation_form = (e) => {
+	console.log(evaluation_end_date);
 	this.eval_form = new frappe.ui.Dialog({
 		title: __("Schedule Evaluation"),
 		fields: [
@@ -530,6 +531,9 @@ const open_evaluation_form = (e) => {
 				min_date: new Date(
 					frappe.datetime.add_days(frappe.datetime.get_today(), 1)
 				),
+				max_date: evaluation_end_date
+					? new Date(evaluation_end_date)
+					: "",
 				change: () => {
 					if (this.eval_form.get_value("date")) get_slots();
 				},

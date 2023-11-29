@@ -12,6 +12,7 @@ from lms.lms.utils import get_evaluator
 class LMSCertificateRequest(Document):
 	def validate(self):
 		self.validate_if_existing_requests()
+		self.validate_evaluation_date()
 
 	def validate_if_existing_requests(self):
 		existing_requests = frappe.get_all(
@@ -29,6 +30,20 @@ class LMSCertificateRequest(Document):
 						format_date(req.date, "medium"),
 						format_time(req.start_time, "short"),
 						course_title,
+					)
+				)
+
+	def validate_evaluation_date(self):
+		if self.batch_name:
+			evaluation_end_date = frappe.db.get_value(
+				"LMS Batch", self.batch_name, "evaluation_end_date"
+			)
+
+		if evaluation_end_date:
+			if getdate(self.date) > getdate(evaluation_end_date):
+				frappe.throw(
+					_("You cannot schedule evaluations after {0}.").format(
+						format_date(evaluation_end_date, "medium")
 					)
 				)
 
@@ -104,7 +119,9 @@ def update_meeting_details(eval, event, calendar):
 
 
 @frappe.whitelist()
-def create_certificate_request(course, date, day, start_time, end_time, batch=None):
+def create_certificate_request(
+	course, date, day, start_time, end_time, batch_name=None
+):
 	is_member = frappe.db.exists(
 		{"doctype": "LMS Enrollment", "course": course, "member": frappe.session.user}
 	)
@@ -115,13 +132,13 @@ def create_certificate_request(course, date, day, start_time, end_time, batch=No
 	eval.update(
 		{
 			"course": course,
-			"evaluator": get_evaluator(course, batch),
+			"evaluator": get_evaluator(course, batch_name),
 			"member": frappe.session.user,
 			"date": date,
 			"day": day,
 			"start_time": start_time,
 			"end_time": end_time,
-			"batch": batch,
+			"batch_name": batch_name,
 		}
 	)
 	eval.save(ignore_permissions=True)
