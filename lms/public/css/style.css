@@ -2483,3 +2483,7 @@ select {
 .text-color {
 	color: var(--text-color);
 }
+
+.toastui-calendar-weekday-event-block {
+	box-shadow: none !important;
+}

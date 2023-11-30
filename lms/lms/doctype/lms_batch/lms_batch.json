@@ -20,6 +20,7 @@
   "category",
   "column_break_flwy",
   "seat_count",
+  "evaluation_end_date",
   "section_break_6",
   "description",
   "batch_details_raw",
@@ -279,11 +280,16 @@
    "fieldname": "allow_future",
    "fieldtype": "Check",
    "label": "Allow accessing future dates"
+  },
+  {
+   "fieldname": "evaluation_end_date",
+   "fieldtype": "Date",
+   "label": "Evaluation End Date"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-11-17 10:41:00.340418",
+ "modified": "2023-11-29 12:06:58.776479",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch",

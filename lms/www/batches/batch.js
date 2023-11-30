@@ -530,6 +530,9 @@ const open_evaluation_form = (e) => {
 				min_date: new Date(
 					frappe.datetime.add_days(frappe.datetime.get_today(), 1)
 				),
+				max_date: evaluation_end_date
+					? new Date(evaluation_end_date)
+					: "",
 				change: () => {
 					if (this.eval_form.get_value("date")) get_slots();
 				},
@@ -691,7 +694,11 @@ const get_calendar_options = (element, calendar_id) => {
 		template: {
 			time: function (event) {
 				let hide = event.raw.completed ? "" : "hide";
-				return `<div class="calendar-event-time">
+				return `<div class="calendar-event-time" title="${
+					event.title
+				} - ${frappe.datetime.get_time(
+					event.start.d.d
+				)} - ${frappe.datetime.get_time(event.end.d.d)}">
 						<img class='icon icon-sm pull-right ${hide}' src="/assets/lms/icons/check.svg">
 						<div> ${frappe.datetime.get_time(event.start.d.d)} -
 						${frappe.datetime.get_time(event.end.d.d)} </div>
@@ -736,6 +743,7 @@ const create_events = (calendar, events, calendar_id) => {
 };
 
 const format_time = (time) => {
+	if (!time) return "00:00:00";
 	let time_arr = time.split(":");
 	if (time_arr[0] < 10) time_arr[0] = "0" + time_arr[0];
 	return time_arr.join(":");

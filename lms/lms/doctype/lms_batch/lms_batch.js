@@ -28,6 +28,10 @@ frappe.ui.form.on("LMS Batch", {
 				},
 			};
 		});
+
+		if (frm.doc.timetable.length && !frm.doc.timetable_legends.length) {
+			set_default_legends(frm);
+		}
 	},
 
 	timetable_template: function (frm) {
@@ -123,6 +127,40 @@ const add_legend_rows = (frm, legends) => {
 		child.reference_doctype = row.reference_doctype;
 		child.label = row.label;
 		child.color = row.color;
+	});
+	frm.refresh_field("timetable_legends");
+	frm.save();
+};
+
+const set_default_legends = (frm) => {
+	const data = [
+		{
+			reference_doctype: "Course Lesson",
+			label: "Lesson",
+			color: "#449CF0",
+		},
+		{
+			reference_doctype: "LMS Quiz",
+			label: "LMS Quiz",
+			color: "#39E4A5",
+		},
+		{
+			reference_doctype: "LMS Assignment",
+			label: "LMS Assignment",
+			color: "#ECAD4B",
+		},
+		{
+			reference_doctype: "LMS Live Class",
+			label: "LMS Live Class",
+			color: "#bb8be8",
+		},
+	];
+
+	data.forEach((detail) => {
+		let child = frm.add_child("timetable_legends");
+		child.reference_doctype = detail.reference_doctype;
+		child.label = detail.label;
+		child.color = detail.color;
 	});
 	frm.refresh_field("timetable_legends");
 	frm.save();

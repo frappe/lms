@@ -29,6 +29,7 @@ class LMSBatch(Document):
 		self.validate_membership()
 		self.validate_timetable()
 		self.send_confirmation_mail()
+		self.validate_evaluation_end_date()
 
 	def validate_duplicate_students(self):
 		students = [row.student for row in self.students]
@@ -67,6 +68,10 @@ class LMSBatch(Document):
 			if not student.confirmation_email_sent:
 				self.send_mail(student)
 				student.confirmation_email_sent = 1
+
+	def validate_evaluation_end_date(self):
+		if self.evaluation_end_date and self.evaluation_end_date < self.end_date:
+			frappe.throw(_("Evaluation end date cannot be less than the batch end date."))
 
 	def send_mail(self, student):
 		subject = _("Enrollment Confirmation for the Next Training Batch")
@@ -253,6 +258,7 @@ def create_batch(
 	currency=None,
 	name=None,
 	published=0,
+	evaluation_end_date=None,
 ):
 	frappe.only_for("Moderator")
 	if name:
@@ -278,6 +284,7 @@ def create_batch(
 			"amount": amount,
 			"currency": currency,
 			"published": published,
+			"evaluation_end_date": evaluation_end_date,
 		}
 	)
 	doc.save()
