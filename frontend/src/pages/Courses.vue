@@ -13,7 +13,6 @@
 
 <script setup>
 import { createListResource, Tabs } from 'frappe-ui';
-import { ref, computed } from 'vue';
 import CourseCard from '@/components/CourseCard.vue'
 
 const courses = createListResource({
