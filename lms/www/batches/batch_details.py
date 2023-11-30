@@ -33,6 +33,7 @@ def get_context(context):
 			"published",
 			"meta_image",
 			"batch_details_raw",
+			"evaluation_end_date",
 		],
 		as_dict=1,
 	)
