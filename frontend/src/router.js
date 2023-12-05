@@ -1,4 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { usersStore } from '@/stores/user'
+import { sessionStore } from '@/stores/session'
 
 const routes = [
 	{
@@ -14,8 +16,13 @@ const routes = [
 ]
 
 let router = createRouter({
-	history: createWebHistory('/lms'),
+	history: createWebHistory('/'),
 	routes,
+})
+
+router.beforeEach(async (to, from) => {
+	const { users } = usersStore()
+	await users.promise
 })
 
 export default router

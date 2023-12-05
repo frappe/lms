@@ -1,45 +1,94 @@
 <template>
-<div class="flex flex-col h-full border border-gray-200 rounded-md shadow-sm mt-5">
-    <div class="course-image" :class="{'default-image': !course.image}" :style="{ backgroundImage: 'url(' + course.image + ')' }">
+<div class="flex flex-col border border-gray-200 h-full rounded-md shadow-sm" style="min-height: 320px;">
+    <div class="course-image" :class="{'default-image': !course.image}" :style="{ backgroundImage: 'url(' + encodeURI(course.image) + ')' }">
         <div class="flex relative top-4 left-4">
-            <div class="course-card-pills rounded-md border border-gray-200" v-for="tag in tags.data">
+            <div class="course-card-pills rounded-md border border-gray-200" v-for="tag in course.tags">
                 {{ tag }}
             </div>
         </div>
-        <div v-if="!course.image" class="flex flex-1 text-8xl font-bold">{{ course.title[0] }}</div>
+        <div v-if="!course.image" class="image-placeholder">{{ course.title[0] }}</div>
     </div>
-    <div class="p-4">
-        <div class="text-2xl font-semibold">
+    <div class="flex flex-col flex-auto p-4">
+        <div class="flex text-base items-center justify-between mb-2">
+            <div v-if="course.lesson_count" class="flex items-center space-x-1 py-1">
+                <BookOpen class="h-4 w-4 text-gray-700" />
+                <span> {{ course.lesson_count }} </span>
+            </div>
+
+            <div v-if="course.enrollment_count" class="flex items-center space-x-1 py-1">
+                <Users class="h-4 w-4 text-gray-700" />
+                <span> {{ course.enrollment_count }} </span>
+            </div>
+
+            <div v-if="course.avg_rating" class="flex items-center space-x-1 py-1">
+                <Star class="h-4 w-4 text-gray-700" />
+                <span> {{ course.avg_rating }} </span>
+            </div>
+        </div>
+        
+        <div class="text-xl font-semibold">
             {{ course.title }}
         </div>
-        <div>
+
+        <div class="short-introduction text-base">
             {{ course.short_introduction }}
+        </div>
+        <div v-if="user && course.membership" class="w-full bg-gray-200 rounded-full h-1 mb-2">
+            <div class="bg-gray-900 h-1 rounded-full" :style="{ width: Math.ceil(course.membership.progress) + '%' }"></div>
+        </div>
+        <div v-if="user && course.membership" class="text-sm mb-4">
+            {{ Math.ceil(course.membership.progress) }}% completed
+        </div>
+
+        <div class="flex items-center justify-between text-base mt-auto">
+            <div class="flex avatar-group overlap">
+                <div class="mr-1" :class="{'avatar-group overlap': course.instructors.length > 1}">
+                    <UserAvatar v-for="instructor in course.instructors" :user="instructor"/>
+                </div>
+                <span v-if="course.instructors.length == 1">
+                    {{ course.instructors[0].full_name }}
+                </span>
+                <span v-if="course.instructors.length == 2">
+                    {{ course.instructors[0].first_name }} and {{ course.instructors[1].first_name }}
+                </span>
+                <span v-if="course.instructors.length > 2">
+                    {{ course.instructors[0].first_name }} and {{ course.instructors.length - 1 }} others
+                </span>
+            </div>
+
+            <div class="text-base font-semibold">
+                {{ course.price }}
+            </div>
         </div>
     </div>
 </div>
 </template>
 <script setup>
-import { createResource } from 'frappe-ui';
+import { BookOpen, Users, Star } from 'lucide-vue-next'
+import { computed } from 'vue'
+import UserAvatar from '@/components/UserAvatar.vue'
+import { sessionStore } from '@/stores/session'
+import { usersStore } from '@/stores/user'
+
+const { isLoggedIn } = sessionStore()
+const { getUser } = usersStore()
+const user = computed(() => isLoggedIn && getUser())
+
 const props = defineProps({
     course: {
         type: Object,
         default: null,
     },
-})
-const tags = createResource({
-    url: "lms.lms.utils.get_tags",
-    params: { course: props.course.name },
-    auto: true,
-})
+});
 
 </script>
 <style>
 .course-image {
-  height: 168px;
-  width: 100%;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+    height: 168px;
+    width: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .course-card-pills {
@@ -56,10 +105,40 @@ const tags = createResource({
 }
 
 .default-image {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background-color: theme('colors.gray.200');
-  color: theme('colors.gray.700');
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: theme('colors.gray.200');
+    color: theme('colors.gray.700');
+}
+
+.avatar-group {
+    display: inline-flex;
+    align-items: center;
+}
+
+.avatar-group .avatar {
+	transition: margin 0.1s ease-in-out;
+}
+.image-placeholder {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    font-size: 5rem;
+    color: theme('colors.gray.700');
+    font-weight: 600;
+}
+.avatar-group.overlap .avatar + .avatar {
+    margin-left: calc(-8px);
+}
+
+.short-introduction {
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	text-overflow: ellipsis;
+	width: 100%;
+	overflow: hidden;
+	margin-bottom: 1.25rem;
 }
 </style>

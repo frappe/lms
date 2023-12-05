@@ -142,10 +142,20 @@ def add_mentor_to_subgroup(subgroup, email):
 
 
 @frappe.whitelist(allow_guest=True)
-def get_courses():
-	"""Returns the list of courses."""
-	return frappe.get_all(
-		"LMS Course",
-		fields=["name", "title", "short_introduction", "image"],
-		filters={"published": True},
-	)
+def get_user_info(user=None):
+	print(user)
+	if frappe.session.user == "Guest":
+		frappe.throw("Authentication failed", exc=frappe.AuthenticationError)
+	filters = {}
+	if user:
+		filters["name"] = user
+
+	users = frappe.qb.get_query(
+		"User",
+		filters=filters,
+		fields=["name", "email", "enabled", "user_image", "full_name", "user_type"],
+		order_by="full_name asc",
+		distinct=True,
+	).run(as_dict=1)
+	print(users)
+	return users

@@ -196,7 +196,7 @@ def get_instructors(course):
 			frappe.db.get_value(
 				"User",
 				instructor,
-				["name", "username", "full_name", "user_image"],
+				["name", "username", "full_name", "user_image", "first_name"],
 				as_dict=True,
 			)
 		)
@@ -1147,3 +1147,86 @@ def change_currency(amount, currency, country=None):
 	amount = cint(amount)
 	amount, currency = check_multicurrency(amount, currency, country)
 	return fmt_money(amount, 0, currency)
+
+
+@frappe.whitelist(allow_guest=True)
+def get_courses():
+	"""Returns the list of courses."""
+	courses = frappe.get_all(
+		"LMS Course",
+		fields=[
+			"name",
+			"title",
+			"short_introduction",
+			"image",
+			"published",
+			"upcoming",
+			"status",
+			"paid_course",
+			"course_price",
+			"currency",
+		],
+		filters={"published": True},
+	)
+
+	courses = get_course_details(courses)
+	courses = get_categorized_courses(courses)
+	return courses
+
+
+def get_course_details(courses):
+	for course in courses:
+		course.tags = get_tags(course.name)
+		course.lesson_count = get_lesson_count(course.name)
+
+		course.enrollment_count = frappe.db.count(
+			"LMS Enrollment", {"course": course.name, "member_type": "Student"}
+		)
+
+		avg_rating = get_average_rating(course.name) or 0
+		course.avg_rating = frappe.utils.flt(
+			avg_rating, frappe.get_system_settings("float_precision") or 3
+		)
+
+		course.instructors = get_instructors(course.name)
+		if course.paid_course:
+			course.price = frappe.utils.fmt_money(course.course_price, 0, course.currency)
+		else:
+			course.price = _("Free")
+
+		if frappe.session.user == "Guest":
+			course.membership = None
+			course.is_instructor = False
+		else:
+			course.membership = frappe.db.get_value(
+				"LMS Enrollment",
+				{"member": frappe.session.user, "course": course.name},
+				["name", "course", "current_lesson", "progress"],
+				as_dict=1,
+			)
+			course.is_instructor = is_instructor(course.name)
+	return courses
+
+
+def get_categorized_courses(courses):
+	live, upcoming, enrolled, created, under_review = [], [], [], [], []
+
+	for course in courses:
+		if course.upcoming:
+			upcoming.append(course)
+		elif course.published:
+			live.append(course)
+		elif course.membership:
+			enrolled.append(course)
+		elif course.is_instructor:
+			created.append(course)
+		elif course.status == "Under Review":
+			under_review.append(course)
+
+	return {
+		"live": live,
+		"upcoming": upcoming,
+		"enrolled": enrolled,
+		"created": created,
+		"under_review": under_review,
+	}

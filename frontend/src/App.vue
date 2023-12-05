@@ -1,5 +1,11 @@
 <template>
-  <div>
+  <DesktopLayout>
     <router-view />
-  </div>
+  </DesktopLayout>
+  <Toasts />
 </template>
+
+<script setup>
+  import DesktopLayout from '@/components/DesktopLayout.vue'
+  import { Toasts } from 'frappe-ui'
+</script>
