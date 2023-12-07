@@ -692,6 +692,17 @@ const get_calendar_options = (element, calendar_id) => {
 			},
 		],
 		template: {
+			allday: function (event) {
+				let hide = event.raw.completed ? "" : "hide";
+				return `<div class="calendar-event-time" title="${
+					event.title
+				} - ${frappe.datetime.get_time(
+					event.start.d.d
+				)} - ${frappe.datetime.get_time(event.end.d.d)}">
+						<img class='icon icon-sm pull-right ${hide}' src="/assets/lms/icons/check.svg">
+						<div class="calendar-event-title"> ${event.title} </div>
+					</div>`;
+			},
 			time: function (event) {
 				let hide = event.raw.completed ? "" : "hide";
 				return `<div class="calendar-event-time" title="${
@@ -720,6 +731,7 @@ const create_events = (calendar, events, calendar_id) => {
 			start: `${event.date}T${format_time(event.start_time)}`,
 			end: `${event.date}T${format_time(event.end_time)}`,
 			isAllday: event.start_time ? false : true,
+			category: event.start_time ? "time" : "allday",
 			borderColor: clr,
 			backgroundColor: "var(--fg-color)",
 			customStyle: {
@@ -783,7 +795,7 @@ const add_links_to_events = (calendar) => {
 const scroll_to_date = (calendar, events) => {
 	if (
 		new Date() < new Date(events[0].date) ||
-		new Date() > new Date(events.slice(-1).date)
+		new Date() > new Date(events.slice(-1)[0].date)
 	) {
 		calendar.setDate(new Date(events[0].date));
 	}

@@ -2387,6 +2387,7 @@ select {
 	border: 1px solid var(--gray-200) !important;
 	border-radius: var(--border-radius-md) !important;
 	background-color: var(--gray-100) !important;
+	overflow: auto;
 }
 
 .toastui-calendar-panel .toastui-calendar-day-names.toastui-calendar-week {
