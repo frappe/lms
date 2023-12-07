@@ -13,6 +13,12 @@ const routes = [
 		name: 'Courses',
 		component: () => import('@/pages/Courses.vue'),
 	},
+	{
+		path: '/courses/:course',
+		name: 'CourseDetail',
+		component: () => import('@/pages/CourseDetail.vue'),
+		props: true,
+	},
 ]
 
 let router = createRouter({

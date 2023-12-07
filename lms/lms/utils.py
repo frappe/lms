@@ -1166,7 +1166,6 @@ def get_courses():
 			"course_price",
 			"currency",
 		],
-		filters={"published": True},
 	)
 
 	courses = get_course_details(courses)
@@ -1212,16 +1211,21 @@ def get_categorized_courses(courses):
 	live, upcoming, enrolled, created, under_review = [], [], [], [], []
 
 	for course in courses:
-		if course.upcoming:
+		if course.status == "Under Review":
+			under_review.append(course)
+		elif course.published and course.upcoming:
 			upcoming.append(course)
 		elif course.published:
 			live.append(course)
-		elif course.membership:
+
+		if course.membership and course.published:
 			enrolled.append(course)
 		elif course.is_instructor:
 			created.append(course)
-		elif course.status == "Under Review":
-			under_review.append(course)
+
+		categories = [live, upcoming, enrolled, created, under_review]
+		for category in categories:
+			category.sort(key=lambda x: x.enrollment_count, reverse=True)
 
 	return {
 		"live": live,

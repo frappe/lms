@@ -1,67 +1,67 @@
 <template>
-<div class="flex flex-col border border-gray-200 h-full rounded-md shadow-sm" style="min-height: 320px;">
-    <div class="course-image" :class="{'default-image': !course.image}" :style="{ backgroundImage: 'url(' + encodeURI(course.image) + ')' }">
-        <div class="flex relative top-4 left-4">
-            <div class="course-card-pills rounded-md border border-gray-200" v-for="tag in course.tags">
-                {{ tag }}
-            </div>
-        </div>
-        <div v-if="!course.image" class="image-placeholder">{{ course.title[0] }}</div>
-    </div>
-    <div class="flex flex-col flex-auto p-4">
-        <div class="flex text-base items-center justify-between mb-2">
-            <div v-if="course.lesson_count" class="flex items-center space-x-1 py-1">
-                <BookOpen class="h-4 w-4 text-gray-700" />
-                <span> {{ course.lesson_count }} </span>
-            </div>
-
-            <div v-if="course.enrollment_count" class="flex items-center space-x-1 py-1">
-                <Users class="h-4 w-4 text-gray-700" />
-                <span> {{ course.enrollment_count }} </span>
-            </div>
-
-            <div v-if="course.avg_rating" class="flex items-center space-x-1 py-1">
-                <Star class="h-4 w-4 text-gray-700" />
-                <span> {{ course.avg_rating }} </span>
-            </div>
-        </div>
-        
-        <div class="text-xl font-semibold">
-            {{ course.title }}
-        </div>
-
-        <div class="short-introduction text-base">
-            {{ course.short_introduction }}
-        </div>
-        <div v-if="user && course.membership" class="w-full bg-gray-200 rounded-full h-1 mb-2">
-            <div class="bg-gray-900 h-1 rounded-full" :style="{ width: Math.ceil(course.membership.progress) + '%' }"></div>
-        </div>
-        <div v-if="user && course.membership" class="text-sm mb-4">
-            {{ Math.ceil(course.membership.progress) }}% completed
-        </div>
-
-        <div class="flex items-center justify-between text-base mt-auto">
-            <div class="flex avatar-group overlap">
-                <div class="mr-1" :class="{'avatar-group overlap': course.instructors.length > 1}">
-                    <UserAvatar v-for="instructor in course.instructors" :user="instructor"/>
+    <div class="flex flex-col border border-gray-200 h-full rounded-md shadow-sm text-base overflow-auto" style="min-height: 320px;">
+        <div class="course-image" :class="{ 'default-image': !course.image }" :style="{ backgroundImage: 'url(' + encodeURI(course.image) + ')' }">
+            <div class="flex relative top-4 left-4 w-fit">
+                <div class="course-card-pills rounded-md border border-gray-200" v-for="tag in course.tags">
+                    {{ tag }}
                 </div>
-                <span v-if="course.instructors.length == 1">
-                    {{ course.instructors[0].full_name }}
-                </span>
-                <span v-if="course.instructors.length == 2">
-                    {{ course.instructors[0].first_name }} and {{ course.instructors[1].first_name }}
-                </span>
-                <span v-if="course.instructors.length > 2">
-                    {{ course.instructors[0].first_name }} and {{ course.instructors.length - 1 }} others
-                </span>
+            </div>
+            <div v-if="!course.image" class="image-placeholder">{{ course.title[0] }}</div>
+        </div>
+        <div class="flex flex-col flex-auto p-4">
+            <div class="flex items-center justify-between mb-2">
+                <div v-if="course.lesson_count" class="flex items-center space-x-1 py-1">
+                    <BookOpen class="h-4 w-4 text-gray-700" />
+                    <span> {{ course.lesson_count }} </span>
+                </div>
+
+                <div v-if="course.enrollment_count" class="flex items-center space-x-1 py-1">
+                    <Users class="h-4 w-4 text-gray-700" />
+                    <span> {{ course.enrollment_count }} </span>
+                </div>
+
+                <div v-if="course.avg_rating" class="flex items-center space-x-1 py-1">
+                    <Star class="h-4 w-4 text-gray-700" />
+                    <span> {{ course.avg_rating }} </span>
+                </div>
+            </div>
+        
+            <div class="text-xl font-semibold">
+                {{ course.title }}
             </div>
 
-            <div class="text-base font-semibold">
-                {{ course.price }}
+            <div class="short-introduction">
+                {{ course.short_introduction }}
+            </div>
+            <div v-if="user && course.membership" class="w-full bg-gray-200 rounded-full h-1 mb-2">
+                <div class="bg-gray-900 h-1 rounded-full" :style="{ width: Math.ceil(course.membership.progress) + '%' }"></div>
+            </div>
+            <div v-if="user && course.membership" class="text-sm mb-4">
+                {{ Math.ceil(course.membership.progress) }}% completed
+            </div>
+
+            <div class="flex items-center justify-between mt-auto">
+                <div class="flex avatar-group overlap">
+                    <div class="mr-1" :class="{ 'avatar-group overlap': course.instructors.length > 1 }">
+                        <UserAvatar v-for="instructor in course.instructors" :user="instructor"/>
+                    </div>
+                    <span v-if="course.instructors.length == 1">
+                        {{ course.instructors[0].full_name }}
+                    </span>
+                    <span v-if="course.instructors.length == 2">
+                        {{ course.instructors[0].first_name }} and {{ course.instructors[1].first_name }}
+                    </span>
+                    <span v-if="course.instructors.length > 2">
+                        {{ course.instructors[0].first_name }} and {{ course.instructors.length - 1 }} others
+                    </span>
+                </div>
+
+                <div class="font-semibold">
+                    {{ course.price }}
+                </div>
             </div>
         </div>
     </div>
-</div>
 </template>
 <script setup>
 import { BookOpen, Users, Star } from 'lucide-vue-next'
@@ -139,6 +139,7 @@ const props = defineProps({
 	text-overflow: ellipsis;
 	width: 100%;
 	overflow: hidden;
-	margin-bottom: 1.25rem;
+	margin: 0.25rem 0 1.25rem;
+    line-height: 1.5;
 }
 </style>

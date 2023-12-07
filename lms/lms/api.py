@@ -2,6 +2,7 @@
 """
 
 import frappe
+from frappe.translate import get_all_translations
 
 
 @frappe.whitelist()
@@ -143,7 +144,6 @@ def add_mentor_to_subgroup(subgroup, email):
 
 @frappe.whitelist(allow_guest=True)
 def get_user_info(user=None):
-	print(user)
 	if frappe.session.user == "Guest":
 		frappe.throw("Authentication failed", exc=frappe.AuthenticationError)
 	filters = {}
@@ -157,5 +157,16 @@ def get_user_info(user=None):
 		order_by="full_name asc",
 		distinct=True,
 	).run(as_dict=1)
-	print(users)
+	user["roles"] = frappe.get_roles(user.name)
 	return users
+
+
+@frappe.whitelist()
+def get_translations():
+	if frappe.session.user != "Guest":
+		language = frappe.db.get_value("User", frappe.session.user, "language")
+	else:
+		language = frappe.db.get_single_value("System Settings", "language")
+	print("language", language)
+	print(get_all_translations(language))
+	return get_all_translations(language)

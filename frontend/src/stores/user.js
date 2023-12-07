@@ -38,6 +38,7 @@ export const usersStore = defineStore('lms-users', () => {
 				email: email,
 				full_name: email.split('@')[0],
 				user_image: null,
+				roles: ['LMS Student'],
 			}
 		}
 		return usersByName[email]
