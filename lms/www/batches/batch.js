@@ -765,13 +765,16 @@ const add_links_to_events = (calendar) => {
 	calendar.on("clickEvent", ({ event }) => {
 		let event_date = event.start.d.d;
 		event_date = moment(event_date).format("YYYY-MM-DD");
-
 		let current_date = moment().format("YYYY-MM-DD");
 
-		if (!moment(event_date).isSameOrBefore(current_date) && !allow_future)
+		if (
+			is_student &&
+			!moment(event_date).isSameOrBefore(current_date) &&
+			!allow_future
+		)
 			return;
 
-		if (event.raw.milestone) {
+		if (is_student && event.raw.milestone) {
 			frappe.call({
 				method: "lms.lms.doctype.lms_batch.lms_batch.is_milestone_complete",
 				args: {
