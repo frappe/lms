@@ -16,7 +16,7 @@
               <template #prefix>
                 <Plus class="h-4 w-4" />
               </template>
-              New Course
+              {{  __("New Course") }}
             </Button>
           </div>
         </header>
@@ -29,7 +29,7 @@
               :class="{ 'text-gray-900': selected }"
             >
               <component v-if="tab.icon" :is="tab.icon" class="h-5" />
-              {{ tab.label }}
+              {{ __(tab.label) }}
               <Badge
                 :class="{ 'text-gray-900 border border-gray-900': selected }"
                 variant="subtle"
@@ -42,14 +42,16 @@
           </div>
         </template>
         <template #default="{ tab }">
-          <div class="grid grid-cols-3 gap-8 mt-5" v-if="tab.courses && tab.courses.value.length">
+          <div v-if="tab.courses && tab.courses.value.length" class="grid grid-cols-3 gap-8 mt-5" >
             <router-link v-for="course in tab.courses.value" :to="{ name: 'CourseDetail', params: { course: course.name } }">
               <CourseCard :course="course" />
             </router-link>
           </div>
           <div v-else class="grid flex-1 place-items-center text-xl font-medium text-gray-500">
             <div class="flex flex-col items-center justify-center mt-4">
-              <div>No {{ tab.label.toLowerCase() }} courses found</div>
+              <div>
+                {{ __("No {0} courses found").format(tab.label.toLowerCase()) }}
+              </div>
             </div>
           </div>
         </template>
@@ -136,7 +138,6 @@ const orderBy = 'enrollment';
 function sort_courses(order) {
   const categories = ['live', 'upcoming', 'enrolled', 'created', 'under_review'];
   categories.forEach(category => {
-    console.log(courses.data)
     courses.data[category] = courses.data[category].sort((a, b) => {
       if (order === 'enrollment') {
         return b.enrollment_count - a.enrollment_count;
