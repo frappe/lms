@@ -4,6 +4,7 @@ import { createApp } from 'vue'
 import router from './router'
 import App from './App.vue'
 import { createPinia } from 'pinia'
+import translationPlugin from './translation'
 
 import {
 	FrappeUI,
@@ -12,7 +13,6 @@ import {
 	frappeRequest,
 	resourcesPlugin,
 } from 'frappe-ui'
-import translationPlugin from './translation'
 
 // create a pinia instance
 let pinia = createPinia()
