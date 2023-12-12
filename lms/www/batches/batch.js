@@ -672,7 +672,7 @@ const get_calendar_options = (element, calendar_id) => {
 	const end_time = element.data("end");
 
 	return {
-		defaultView: "week",
+		defaultView: $(window).width() < 768 || show_day_view ? "day" : "week",
 		usageStatistics: false,
 		week: {
 			narrowWeekend: true,
@@ -805,22 +805,42 @@ const scroll_to_date = (calendar, events) => {
 };
 
 const set_calendar_range = (calendar, events) => {
-	let week_start = moment(calendar.getDateRangeStart().d.d);
-	let week_end = moment(calendar.getDateRangeEnd().d.d);
+	let day_view = $(window).width() < 768 || show_day_view ? true : false;
+	if (day_view) {
+		let calendar_date = moment(calendar.getDate().d.d).format(
+			"DD MMMM YYYY"
+		);
+		$(".calendar-range").text(`${calendar_date}`);
 
-	$(".calendar-range").text(
-		`${moment(week_start).format("DD MMMM YYYY")} - ${moment(
-			week_end
-		).format("DD MMMM YYYY")}`
-	);
+		if (moment(events[0].date).isSameOrBefore(moment(calendar)))
+			$("#prev-week").hide();
+		else $("#prev-week").show();
 
-	if (week_start.diff(moment(events[0].date), "days") <= 0)
-		$("#prev-week").hide();
-	else $("#prev-week").show();
+		if (
+			moment(calendar_date).isSameOrAfter(
+				moment(events.slice(-1)[0].date)
+			)
+		)
+			$("#next-week").hide();
+		else $("#next-week").show();
+	} else {
+		let week_start = moment(calendar.getDateRangeStart().d.d);
+		let week_end = moment(calendar.getDateRangeEnd().d.d);
 
-	if (week_end.diff(moment(events.slice(-1)[0].date), "days") > 0)
-		$("#next-week").hide();
-	else $("#next-week").show();
+		$(".calendar-range").text(
+			`${moment(week_start).format("DD MMMM YYYY")} - ${moment(
+				week_end
+			).format("DD MMMM YYYY")}`
+		);
+
+		if (week_start.diff(moment(events[0].date), "days") <= 0)
+			$("#prev-week").hide();
+		else $("#prev-week").show();
+
+		if (week_end.diff(moment(events.slice(-1)[0].date), "days") > 0)
+			$("#next-week").hide();
+		else $("#next-week").show();
+	}
 };
 
 const get_background_color = (doctype) => {
