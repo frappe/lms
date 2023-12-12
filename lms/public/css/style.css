@@ -2443,11 +2443,21 @@ select {
 }
 
 .calendar-legends {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	width: 50%;
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	width: 75%;
 	margin: 0 auto 1rem;
+}
+
+@media (max-width: 767px) {
+	.calendar-legends {
+		grid-template-columns: repeat(2, 1fr);
+		width: 100%;
+	}
+
+	.legend-item {
+		margin-bottom: 0.5rem;
+	}
 }
 
 .batch-details {
