@@ -1,7 +1,90 @@
 <template>
-    <div>
-        Course Detail
+    <div v-if="course.data" class="h-screen text-base">
+        <header class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5">
+            <Breadcrumbs
+                class="h-7"
+                :items="breadcrumbs"
+            />
+        </header>
+        <div class="m-5">
+            <div>
+                <div class="text-3xl font-semibold">
+                    {{ course.data.title }}
+                </div>
+                 <div class="mt-1">
+                    {{ course.data.short_introduction }}
+                </div>
+                <div class="flex items-center justify-between mt-3 w-1/3">
+                    <div class="flex items-center">
+                        <Star class="h-5 w-5 text-gray-100 fill-orange-500"/>
+                        <span class="ml-1">
+                            {{ course.data.avg_rating }}
+                        </span>
+                    </div>
+                    &middot;
+                    <div class="flex items-center">
+                        <Users class="h-4 w-4 text-gray-700"/>
+                        <span class="ml-1">
+                            {{ course.data.enrollment_count }}
+                        </span>
+                    </div>
+                    &middot;
+                    <div class="flex items-center">
+                        <BookOpen class="h-4 w-4 text-gray-700 mr-1"/>
+                        <span v-if="course.data.instructors.length == 1">
+                            {{ course.data.instructors[0].full_name }}
+                        </span>
+                        <span v-if="course.data.instructors.length == 2">
+                            {{ course.data.instructors[0].first_name }} and {{ course.data.instructors[1].first_name }}
+                        </span>
+                        <span v-if="course.data.instructors.length > 2">
+                            {{ course.data.instructors[0].first_name }} and {{ course.data.instructors.length - 1 }} others
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-[70%,20%] gap-10">
+                <div>
+                    <div v-html="course.data.description"></div>
+                    <CourseOutline :courseName="course.data.name"/>
+                </div>
+                <div>
+                    <CourseCardOverlay :course="course"/>
+                </div>
+            </div>
+        </div>
+        
     </div>
 </template>
 <script setup>
+import { createResource, Breadcrumbs } from "frappe-ui";
+import { computed } from "vue";
+import { BookOpen, Users, Star } from 'lucide-vue-next'
+import CourseCardOverlay from '@/components/CourseCardOverlay.vue';
+import CourseOutline from '@/components/CourseOutline.vue';
+
+const props = defineProps({
+    courseName: {
+        type: String,
+        required: true,
+    },
+})
+console.log(props.courseName)
+const course = createResource({
+    url: "lms.lms.utils.get_course_details",
+    cache: ["course", props.courseName],
+    params: {
+        course: props.courseName
+    },
+    auto: true,
+});
+console.log(course)
+const breadcrumbs = computed(() => {
+    let items = [{ label: "All Courses", route: { name: "Courses" } }]
+    items.push({
+        label: course?.data?.title,
+        route: { name: "CourseDetail", params: { course: course?.data?.name } },
+    })
+    return items
+})
 </script>

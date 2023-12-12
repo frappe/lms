@@ -5,9 +5,9 @@ import router from '@/router'
 import { ref, computed } from 'vue'
 
 export const sessionStore = defineStore('lms-session', () => {
-	const { users } = usersStore()
+	const { user, usersByName } = usersStore()
 
-	function sessionUser() {
+	function currentUser() {
 		let cookies = new URLSearchParams(document.cookie.split('; ').join('&'))
 		let _sessionUser = cookies.get('user_id')
 		if (_sessionUser === 'Guest') {
@@ -16,9 +16,18 @@ export const sessionStore = defineStore('lms-session', () => {
 		return _sessionUser
 	}
 
-	let user = ref(sessionUser())
+	let sessionUser = ref(currentUser())
+	const isLoggedIn = ref(!!sessionUser.value)
 
-	const isLoggedIn = computed(() => !!user.value)
+	function getUser() {
+		if (!sessionUser.value) {
+			return null
+		}
+		if (usersByName[sessionUser.value]) {
+			return usersByName[sessionUser.value]
+		}
+		return user.value
+	}
 
 	const login = createResource({
 		url: 'login',
@@ -26,8 +35,8 @@ export const sessionStore = defineStore('lms-session', () => {
 			throw new Error('Invalid email or password')
 		},
 		onSuccess() {
-			users.reload()
-			user.value = sessionUser()
+			user.reload()
+			sessionUser.value = currentUser()
 			login.reset()
 			router.replace({ path: '/' })
 		},
@@ -36,15 +45,16 @@ export const sessionStore = defineStore('lms-session', () => {
 	const logout = createResource({
 		url: 'logout',
 		onSuccess() {
-			users.reset()
-			user.value = null
+			user.reset()
+			sessionUser.value = null
 		},
 	})
 
 	return {
-		user,
+		sessionUser,
 		isLoggedIn,
 		login,
 		logout,
+		getUser,
 	}
 })

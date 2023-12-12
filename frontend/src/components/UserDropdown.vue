@@ -33,7 +33,6 @@
 <script setup>
 import LMSLogo from '@/components/Icons/LMSLogo.vue'
 import { sessionStore } from '@/stores/session'
-import { usersStore } from '@/stores/user'
 import { Dropdown } from 'frappe-ui'
 import { ChevronDown } from 'lucide-vue-next'
 import { computed } from 'vue'
@@ -45,16 +44,17 @@ const props = defineProps({
     },
 })
 
-const { logout, isLoggedIn } = sessionStore()
-const { getUser } = usersStore()
-
+const { getUser, logout } = sessionStore()
+let { isLoggedIn } = sessionStore();
 const user = computed(() => isLoggedIn && getUser())
 const userDropdownOptions = [
     {
         icon: 'log-out',
         label: 'Log out',
         onClick: () => {
-            logout.submit()
+            logout.submit().then(() => {
+                isLoggedIn = false;
+            });
         },
         condition: () => {
             return isLoggedIn

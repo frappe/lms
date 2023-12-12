@@ -68,10 +68,8 @@ import { BookOpen, Users, Star } from 'lucide-vue-next'
 import { computed } from 'vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { sessionStore } from '@/stores/session'
-import { usersStore } from '@/stores/user'
 
-const { isLoggedIn } = sessionStore()
-const { getUser } = usersStore()
+const { isLoggedIn, getUser } = sessionStore()
 const user = computed(() => isLoggedIn && getUser())
 
 const props = defineProps({

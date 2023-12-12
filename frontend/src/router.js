@@ -1,6 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { usersStore } from '@/stores/user'
-import { sessionStore } from '@/stores/session'
 
 const routes = [
 	{
@@ -14,7 +12,7 @@ const routes = [
 		component: () => import('@/pages/Courses.vue'),
 	},
 	{
-		path: '/courses/:course',
+		path: '/courses/:courseName',
 		name: 'CourseDetail',
 		component: () => import('@/pages/CourseDetail.vue'),
 		props: true,
@@ -24,11 +22,6 @@ const routes = [
 let router = createRouter({
 	history: createWebHistory('/'),
 	routes,
-})
-
-router.beforeEach(async (to, from) => {
-	const { users } = usersStore()
-	await users.promise
 })
 
 export default router

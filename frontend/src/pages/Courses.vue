@@ -42,8 +42,8 @@
           </div>
         </template>
         <template #default="{ tab }">
-          <div v-if="tab.courses && tab.courses.value.length" class="grid grid-cols-3 gap-8 mt-5" >
-            <router-link v-for="course in tab.courses.value" :to="{ name: 'CourseDetail', params: { course: course.name } }">
+          <div v-if="tab.courses && tab.courses.value.length" class="grid grid-cols-3 gap-8 mt-5">
+            <router-link v-for="course in tab.courses.value" :to="{ name: 'CourseDetail', params: { courseName: course.name } }">
               <CourseCard :course="course" />
             </router-link>
           </div>
@@ -62,17 +62,14 @@
 </template>
 
 <script setup>
+import { sessionStore } from '@/stores/session'
 import { createListResource, Breadcrumbs, Tabs, Badge, Select } from 'frappe-ui';
 import CourseCard from '@/components/CourseCard.vue';
 import { Plus } from 'lucide-vue-next'
 import { ref, computed } from 'vue'
-import { usersStore } from '@/stores/user'
-import { sessionStore } from '@/stores/session'
 
-const { isLoggedIn } = sessionStore()
-const { getUser } = usersStore()
+const { isLoggedIn, getUser } = sessionStore()
 const user = computed(() => isLoggedIn && getUser())
-
 const courses = createListResource({
   type: 'list',
   cache: "courses",
@@ -81,39 +78,58 @@ const courses = createListResource({
   auto: true,
 });
 
+const is_moderator = computed(() => {
+  if (user && user.value?.roles?.includes('Moderator')) {
+    return true;
+  }
+  return false;
+});
+
+const is_instructor = computed(() => {
+  if (user && user.value?.roles?.includes('Course Creator')) {
+    return true;
+  }
+  return false;
+});
+
 const tabIndex = ref(0)
 const tabs = [
   {
     label: 'Live',
     courses: computed(() => courses.data?.live || []),
     count: computed(() => courses.data?.live?.length),
-    show: true
   },
   {
     label: 'Upcoming',
     courses: computed(() => courses.data?.upcoming),
     count: computed(() => courses.data?.upcoming?.length),
-    show: true
-  },
-  {
+  }
+];
+
+if (user.value) {
+  tabs.push({
     label: 'Enrolled',
     courses: computed(() => courses.data?.enrolled),
     count: computed(() => courses.data?.enrolled?.length),
-    show: user
-  },
-  {
-    label: 'Created',
-    courses: computed(() => courses.data?.created),
-    count: computed(() => courses.data?.created?.length),
-    show: computed(() => user && (user.roles.includes('Course Creator') || user.roles.includes('Moderator')))
-  },
-  {
-    label: 'Under Review',
-    courses: computed(() => courses.data?.under_review),
-    count: computed(() => courses.data?.under_review?.length),
-    show: computed(() => user && user.roles.includes('Moderator'))
-  },
-];
+  });
+
+  if (is_moderator.value || is_instructor.value || courses.data?.created?.length) {
+    tabs.push({
+      label: 'Created',
+      courses: computed(() => courses.data?.created),
+      count: computed(() => courses.data?.created?.length),
+    });
+  };
+
+  if (is_moderator.value) {
+    tabs.push({
+      label: 'Under Review',
+      courses: computed(() => courses.data?.under_review),
+      count: computed(() => courses.data?.under_review?.length),
+    });
+  }
+};
+
 
 const orderOptions = [
   {
