@@ -638,8 +638,10 @@
 		frappe.boot.single_types = []
 		let courses = {{ course_list | json }};
 		const legends = {{ legends | json }};
-		const allow_future = {{ batch_info.allow_future }}
+		const allow_future = {{ batch_info.allow_future }};
+		const is_student = "{{ is_student or '' }}";
 		const evaluation_end_date = "{{ batch_info.evaluation_end_date if batch_info.evaluation_end_date else '' }}"
+		const show_day_view = {{ settings.show_day_view }};
 	</script>
 
 	<link rel="stylesheet" href="https://uicdn.toast.com/calendar/latest/toastui-calendar.min.css" />

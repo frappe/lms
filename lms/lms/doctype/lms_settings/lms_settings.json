@@ -16,6 +16,7 @@
   "portal_course_creation",
   "section_break_szgq",
   "send_calendar_invite_for_evaluations",
+  "show_day_view",
   "allow_student_progress",
   "column_break_2",
   "show_dashboard",
@@ -341,12 +342,18 @@
   {
    "fieldname": "column_break_uwsp",
    "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "show_day_view",
+   "fieldtype": "Check",
+   "label": "Show Day View in Timetable"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2023-11-07 11:23:14.257687",
+ "modified": "2023-12-12 10:32:13.638368",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",

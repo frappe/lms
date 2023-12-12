@@ -672,7 +672,7 @@ const get_calendar_options = (element, calendar_id) => {
 	const end_time = element.data("end");
 
 	return {
-		defaultView: "week",
+		defaultView: $(window).width() < 768 || show_day_view ? "day" : "week",
 		usageStatistics: false,
 		week: {
 			narrowWeekend: true,
@@ -692,6 +692,17 @@ const get_calendar_options = (element, calendar_id) => {
 			},
 		],
 		template: {
+			allday: function (event) {
+				let hide = event.raw.completed ? "" : "hide";
+				return `<div class="calendar-event-time" title="${
+					event.title
+				} - ${frappe.datetime.get_time(
+					event.start.d.d
+				)} - ${frappe.datetime.get_time(event.end.d.d)}">
+						<img class='icon icon-sm pull-right ${hide}' src="/assets/lms/icons/check.svg">
+						<div class="calendar-event-title"> ${event.title} </div>
+					</div>`;
+			},
 			time: function (event) {
 				let hide = event.raw.completed ? "" : "hide";
 				return `<div class="calendar-event-time" title="${
@@ -720,6 +731,7 @@ const create_events = (calendar, events, calendar_id) => {
 			start: `${event.date}T${format_time(event.start_time)}`,
 			end: `${event.date}T${format_time(event.end_time)}`,
 			isAllday: event.start_time ? false : true,
+			category: event.start_time ? "time" : "allday",
 			borderColor: clr,
 			backgroundColor: "var(--fg-color)",
 			customStyle: {
@@ -753,13 +765,16 @@ const add_links_to_events = (calendar) => {
 	calendar.on("clickEvent", ({ event }) => {
 		let event_date = event.start.d.d;
 		event_date = moment(event_date).format("YYYY-MM-DD");
-
 		let current_date = moment().format("YYYY-MM-DD");
 
-		if (!moment(event_date).isSameOrBefore(current_date) && !allow_future)
+		if (
+			is_student &&
+			!moment(event_date).isSameOrBefore(current_date) &&
+			!allow_future
+		)
 			return;
 
-		if (event.raw.milestone) {
+		if (is_student && event.raw.milestone) {
 			frappe.call({
 				method: "lms.lms.doctype.lms_batch.lms_batch.is_milestone_complete",
 				args: {
@@ -783,29 +798,49 @@ const add_links_to_events = (calendar) => {
 const scroll_to_date = (calendar, events) => {
 	if (
 		new Date() < new Date(events[0].date) ||
-		new Date() > new Date(events.slice(-1).date)
+		new Date() > new Date(events.slice(-1)[0].date)
 	) {
 		calendar.setDate(new Date(events[0].date));
 	}
 };
 
 const set_calendar_range = (calendar, events) => {
-	let week_start = moment(calendar.getDateRangeStart().d.d);
-	let week_end = moment(calendar.getDateRangeEnd().d.d);
+	let day_view = $(window).width() < 768 || show_day_view ? true : false;
+	if (day_view) {
+		let calendar_date = moment(calendar.getDate().d.d).format(
+			"DD MMMM YYYY"
+		);
+		$(".calendar-range").text(`${calendar_date}`);
 
-	$(".calendar-range").text(
-		`${moment(week_start).format("DD MMMM YYYY")} - ${moment(
-			week_end
-		).format("DD MMMM YYYY")}`
-	);
+		if (moment(events[0].date).isSameOrBefore(moment(calendar)))
+			$("#prev-week").hide();
+		else $("#prev-week").show();
 
-	if (week_start.diff(moment(events[0].date), "days") <= 0)
-		$("#prev-week").hide();
-	else $("#prev-week").show();
+		if (
+			moment(calendar_date).isSameOrAfter(
+				moment(events.slice(-1)[0].date)
+			)
+		)
+			$("#next-week").hide();
+		else $("#next-week").show();
+	} else {
+		let week_start = moment(calendar.getDateRangeStart().d.d);
+		let week_end = moment(calendar.getDateRangeEnd().d.d);
 
-	if (week_end.diff(moment(events.slice(-1)[0].date), "days") > 0)
-		$("#next-week").hide();
-	else $("#next-week").show();
+		$(".calendar-range").text(
+			`${moment(week_start).format("DD MMMM YYYY")} - ${moment(
+				week_end
+			).format("DD MMMM YYYY")}`
+		);
+
+		if (week_start.diff(moment(events[0].date), "days") <= 0)
+			$("#prev-week").hide();
+		else $("#prev-week").show();
+
+		if (week_end.diff(moment(events.slice(-1)[0].date), "days") > 0)
+			$("#next-week").hide();
+		else $("#next-week").show();
+	}
 };
 
 const get_background_color = (doctype) => {
