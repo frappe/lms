@@ -1187,7 +1187,7 @@ def get_course_details(course):
 	course.enrollment_count = frappe.db.count(
 		"LMS Enrollment", {"course": course.name, "member_type": "Student"}
 	)
-	course.enrollment_count = format_number(course.enrollment_count)
+	course.enrollment_count_formatted = format_number(course.enrollment_count)
 
 	avg_rating = get_average_rating(course.name) or 0
 	course.avg_rating = flt(avg_rating, frappe.get_system_settings("float_precision") or 3)
@@ -1226,12 +1226,15 @@ def get_categorized_courses(courses):
 		if course.membership and course.published:
 			enrolled.append(course)
 		elif course.is_instructor:
+			print(course.name)
+			print(course.enrollment_count)
 			created.append(course)
 
-		categories = [live, upcoming, enrolled, created, under_review]
+		categories = [live, enrolled, created]
 		for category in categories:
 			category.sort(key=lambda x: x.enrollment_count, reverse=True)
 
+	print(created)
 	return {
 		"live": live,
 		"upcoming": upcoming,
