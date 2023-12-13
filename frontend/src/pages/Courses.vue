@@ -1,5 +1,5 @@
 <template>
-  <div class="h-screen">
+    <div class="h-screen">
     <header
           class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
         >

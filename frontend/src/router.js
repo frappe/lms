@@ -17,6 +17,18 @@ const routes = [
 		component: () => import('@/pages/CourseDetail.vue'),
 		props: true,
 	},
+	{
+		// Create a route for path /courses/inventory-management/learn/1.1
+		path: '/courses/:courseName/learn/:chapterId',
+		name: 'Lesson',
+		component: () => import('@/pages/Lesson.vue'),
+		props: true,
+	},
+	{
+		path: '/batches',
+		name: 'Batches',
+		component: () => import('@/pages/Batches.vue'),
+	},
 ]
 
 let router = createRouter({

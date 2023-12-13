@@ -1,30 +1,30 @@
 <template>
-    <div class="border border-gray-200"  style="width: 300px;">
-        <iframe v-if="course.data.video_link" :src="video_link" />
-        <div>
-            <Button variant="solid" class="w-full">
+    <div class="shadow rounded-md"  style="width: 300px;">
+        <iframe v-if="course.data.video_link" :src="video_link" class="rounded-t-md" />
+        <div class="p-5">
+            <Button variant="solid" class="w-full mb-3">
                 <span>
                     {{ __("Start Learning") }}
                 </span>
             </Button>
-            <div class="flex items-center">
+            <div class="flex items-center mb-3">
                 <Users class="h-4 w-4 text-gray-700"/>
                 <span class="ml-1">
-                    {{ course.data.enrollment_count }}
+                    {{ course.data.enrollment_count }} {{ __("Enrolled") }}
                 </span>
             </div>
-            <div class="flex items-center">
-                <Star class="h-5 w-5 fill-orange-500 text-gray-100"/>
-                <span class="ml-1">
-                    {{ course.data.avg_rating }}
-                </span>
-            </div>
-            <div class="flex items-center">
+            <div class="flex items-center mb-3">
                 <BookOpen class="h-4 w-4 text-gray-700"/>
                 <span class="ml-1">
-                    {{ course.data.lesson_count }}
+                    {{ course.data.lesson_count }} {{ __("Lessons") }}
                 </span>
             </div>
+            <div class="flex items-center">
+                    <Star class="h-4 w-4 fill-orange-500 text-gray-100"/>
+                    <span class="ml-1">
+                        {{ course.data.avg_rating }} {{ __("Rating") }}
+                    </span>
+                </div>
         </div>
     </div>
 </template>

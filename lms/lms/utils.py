@@ -11,7 +11,6 @@ from frappe.desk.doctype.notification_log.notification_log import (
 	enqueue_create_notification,
 	get_title,
 )
-from frappe.utils import get_fullname
 from frappe.desk.search import get_user_groups
 from frappe.desk.notifications import extract_mentions
 from frappe.utils import (
@@ -24,7 +23,8 @@ from frappe.utils import (
 	get_datetime,
 	getdate,
 	validate_phone_number,
-	ceil,
+	get_fullname,
+	pretty_date,
 )
 from frappe.utils.dateutils import get_period
 from lms.lms.md import find_macros, markdown_to_html
@@ -137,7 +137,6 @@ def get_lesson_details(chapter):
 	lesson_list = frappe.get_all(
 		"Lesson Reference", {"parent": chapter.name}, ["lesson", "idx"], order_by="idx"
 	)
-
 	for row in lesson_list:
 		lesson_details = frappe.db.get_value(
 			"Course Lesson",
@@ -220,6 +219,7 @@ def get_average_rating(course):
 	return sum(ratings) / len(ratings)
 
 
+@frappe.whitelist(allow_guest=True)
 def get_reviews(course):
 	reviews = frappe.get_all(
 		"LMS Course Review",
@@ -227,6 +227,7 @@ def get_reviews(course):
 		["review", "rating", "owner", "creation"],
 		order_by="creation desc",
 	)
+
 	out_of_ratings = frappe.db.get_all(
 		"DocField", {"parent": "LMS Course Review", "fieldtype": "Rating"}, ["options"]
 	)
@@ -236,6 +237,7 @@ def get_reviews(course):
 		review.owner_details = frappe.db.get_value(
 			"User", review.owner, ["name", "username", "full_name", "user_image"], as_dict=True
 		)
+		review.creation = pretty_date(review.creation)
 
 	return reviews
 
@@ -1163,7 +1165,6 @@ def get_courses():
 
 @frappe.whitelist(allow_guest=True)
 def get_course_details(course):
-	print(course)
 	course = frappe.db.get_value(
 		"LMS Course",
 		course,
@@ -1180,22 +1181,20 @@ def get_course_details(course):
 		],
 		as_dict=1,
 	)
-	print(course)
 	course.tags = get_tags(course.name)
 	course.lesson_count = get_lesson_count(course.name)
 
 	course.enrollment_count = frappe.db.count(
 		"LMS Enrollment", {"course": course.name, "member_type": "Student"}
 	)
+	course.enrollment_count = format_number(course.enrollment_count)
 
 	avg_rating = get_average_rating(course.name) or 0
-	course.avg_rating = frappe.utils.flt(
-		avg_rating, frappe.get_system_settings("float_precision") or 3
-	)
+	course.avg_rating = flt(avg_rating, frappe.get_system_settings("float_precision") or 3)
 
 	course.instructors = get_instructors(course.name)
 	if course.paid_course:
-		course.price = frappe.utils.fmt_money(course.course_price, 0, course.currency)
+		course.price = fmt_money(course.course_price, 0, course.currency)
 	else:
 		course.price = _("Free")
 
@@ -1256,6 +1255,46 @@ def get_course_outline(course):
 			["name", "title", "description", "idx"],
 			as_dict=True,
 		)
-		chapter_details.lessons = get_lessons(chapter.chapter)
+		chapter_details.lessons = get_lessons(course, chapter_details)
 		outline.append(chapter_details)
 	return outline
+
+
+@frappe.whitelist()
+def get_lesson(lesson):
+	lesson = frappe.db.get_value(
+		"Course Lesson",
+		lesson,
+		[
+			"name",
+			"title",
+			"description",
+			"idx",
+			"video_link",
+			"body",
+			"youtube",
+			"quiz_id",
+			"question",
+			"file_type",
+		],
+		as_dict=True,
+	)
+	return lesson
+
+
+@frappe.whitelist(allow_guest=True)
+def get_batches():
+	batches = frappe.get_all(
+		"LMS Batch",
+		fields=[
+			"title",
+			"description",
+			"start_date",
+			"end_date",
+			"start_time",
+			"end_time",
+			"seat_count",
+		],
+	)
+
+	return batches

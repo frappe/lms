@@ -43,17 +43,17 @@
                     </div>
                 </div>
             </div>
-            <div class="grid grid-cols-[70%,20%] gap-10">
-                <div>
-                    <div v-html="course.data.description"></div>
+            <div class="grid grid-cols-[60%,20%] gap-20 mt-10">
+                <div class="">
+                    <div v-html="course.data.description" class="course-description"></div>
                     <CourseOutline :courseName="course.data.name"/>
+                    <CourseReviews :courseName="course.data.name" :avg_rating="course.data.avg_rating"/>
                 </div>
                 <div>
                     <CourseCardOverlay :course="course"/>
                 </div>
             </div>
         </div>
-        
     </div>
 </template>
 <script setup>
@@ -62,6 +62,7 @@ import { computed } from "vue";
 import { BookOpen, Users, Star } from 'lucide-vue-next'
 import CourseCardOverlay from '@/components/CourseCardOverlay.vue';
 import CourseOutline from '@/components/CourseOutline.vue';
+import CourseReviews from '@/components/CourseReviews.vue';
 
 const props = defineProps({
     courseName: {
@@ -69,7 +70,7 @@ const props = defineProps({
         required: true,
     },
 })
-console.log(props.courseName)
+
 const course = createResource({
     url: "lms.lms.utils.get_course_details",
     cache: ["course", props.courseName],
@@ -78,7 +79,7 @@ const course = createResource({
     },
     auto: true,
 });
-console.log(course)
+
 const breadcrumbs = computed(() => {
     let items = [{ label: "All Courses", route: { name: "Courses" } }]
     items.push({
@@ -88,3 +89,18 @@ const breadcrumbs = computed(() => {
     return items
 })
 </script>
+<style>
+.course-description p {
+    margin-bottom: 1rem;
+    line-height: 1.7;
+}
+.course-description li {
+    line-height: 1.7;
+}
+
+.course-description ol {
+    list-style: auto;
+    margin: revert;
+    padding: revert;
+}
+</style>
