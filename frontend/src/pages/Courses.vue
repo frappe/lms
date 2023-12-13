@@ -70,9 +70,10 @@ import { ref, computed } from 'vue'
 
 const { isLoggedIn, getUser } = sessionStore()
 const user = computed(() => isLoggedIn && getUser())
+console.log(user)
 const courses = createListResource({
   type: 'list',
-  cache: "courses",
+  cache: ["courses", user.email],
   doctype: 'LMS Course',
   url: "lms.lms.utils.get_courses",
   auto: true,

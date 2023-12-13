@@ -10,7 +10,7 @@
             <div class="flex items-center mb-3">
                 <Users class="h-4 w-4 text-gray-700"/>
                 <span class="ml-1">
-                    {{ course.data.enrollment_count }} {{ __("Enrolled") }}
+                    {{ course.data.enrollment_count_formatted }} {{ __("Enrolled") }}
                 </span>
             </div>
             <div class="flex items-center mb-3">

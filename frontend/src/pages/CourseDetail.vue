@@ -25,7 +25,7 @@
                     <div class="flex items-center">
                         <Users class="h-4 w-4 text-gray-700"/>
                         <span class="ml-1">
-                            {{ course.data.enrollment_count }}
+                            {{ course.data.enrollment_count_formatted }}
                         </span>
                     </div>
                     &middot;
