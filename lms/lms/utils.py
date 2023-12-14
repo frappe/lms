@@ -920,7 +920,7 @@ def get_payment_options(doctype, docname, phone, country):
 		"name": frappe.db.get_single_value("Website Settings", "app_name"),
 		"description": _("Payment for {0} course").format(details["title"]),
 		"order_id": order["id"],
-		"amount": order["amount"],
+		"amount": order["amount"] * 100,
 		"currency": order["currency"],
 		"prefill": {
 			"name": frappe.db.get_value("User", frappe.session.user, "full_name"),
@@ -1034,13 +1034,15 @@ def create_order(client, amount, currency):
 	try:
 		return client.order.create(
 			{
-				"amount": amount * 100,
+				"amount": amount,
 				"currency": currency,
 			}
 		)
 	except Exception as e:
 		frappe.throw(
-			_("Error during payment: {0}. Please contact the Administrator.").format(e)
+			_(
+				"Error during payment: {0} Please contact the Administrator. Amount {1} Currency {2}"
+			).format(e, amount, currency)
 		)
 
 
