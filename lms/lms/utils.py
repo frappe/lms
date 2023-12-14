@@ -920,7 +920,7 @@ def get_payment_options(doctype, docname, phone, country):
 		"name": frappe.db.get_single_value("Website Settings", "app_name"),
 		"description": _("Payment for {0} course").format(details["title"]),
 		"order_id": order["id"],
-		"amount": order["amount"] * 100,
+		"amount": order["amount"],
 		"currency": order["currency"],
 		"prefill": {
 			"name": frappe.db.get_value("User", frappe.session.user, "full_name"),
