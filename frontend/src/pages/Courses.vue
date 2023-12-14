@@ -1,41 +1,28 @@
 <template>
-    <div class="h-screen">
-    <header
-          class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
-        >
-          <Breadcrumbs
-            class="h-7"
-            :items="[{ label: __('All Courses'), route: { name: 'Courses' } }]"
-          />
-          <div class="flex">
-            <Select class="mr-2"
-              :options="orderOptions"
-              v-model="orderBy"
-            />
-            <Button variant="solid">
-              <template #prefix>
-                <Plus class="h-4 w-4" />
-              </template>
-              {{  __("New Course") }}
-            </Button>
-          </div>
-        </header>
-     <div class="mx-5 my-10">
+  <div v-if="courses.data" class="h-screen">
+    <header class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5">
+      <Breadcrumbs class="h-7" :items="[{ label: __('All Courses'), route: { name: 'Courses' } }]" />
+      <div class="flex">
+        <Select class="mr-2" :options="orderOptions" v-model="orderBy" />
+        <Button variant="solid">
+          <template #prefix>
+            <Plus class="h-4 w-4" />
+          </template>
+          {{ __("New Course") }}
+        </Button>
+      </div>
+    </header>
+    <div class="mx-5 py-5">
       <Tabs class="overflow-hidden" v-model="tabIndex" :tabs="tabs">
         <template #tab="{ tab, selected }">
           <div>
             <button
               class="group -mb-px flex items-center gap-2 border-b border-transparent py-2.5 text-base text-gray-600 duration-300 ease-in-out hover:border-gray-400 hover:text-gray-900"
-              :class="{ 'text-gray-900': selected }"
-            >
+              :class="{ 'text-gray-900': selected }">
               <component v-if="tab.icon" :is="tab.icon" class="h-5" />
               {{ __(tab.label) }}
-              <Badge
-                :class="{ 'text-gray-900 border border-gray-900': selected }"
-                variant="subtle"
-                theme="gray"
-                size="sm"
-              >
+              <Badge :class="{ 'text-gray-900 border border-gray-900': selected }" variant="subtle" theme="gray"
+                size="sm">
                 {{ tab.count }}
               </Badge>
             </button>
@@ -43,7 +30,8 @@
         </template>
         <template #default="{ tab }">
           <div v-if="tab.courses && tab.courses.value.length" class="grid grid-cols-3 gap-8 mt-5">
-            <router-link v-for="course in tab.courses.value" :to="{ name: 'CourseDetail', params: { courseName: course.name } }">
+            <router-link v-for="course in tab.courses.value"
+              :to="{ name: 'CourseDetail', params: { courseName: course.name } }">
               <CourseCard :course="course" />
             </router-link>
           </div>
@@ -58,39 +46,34 @@
       </Tabs>
     </div>
   </div>
-    
 </template>
 
 <script setup>
 import { sessionStore } from '@/stores/session'
-import { createListResource, Breadcrumbs, Tabs, Badge, Select } from 'frappe-ui';
+import { createListResource, Breadcrumbs, Tabs, Badge, Select, Button } from 'frappe-ui';
 import CourseCard from '@/components/CourseCard.vue';
 import { Plus } from 'lucide-vue-next'
-import { ref, computed } from 'vue'
+import { ref, computed, inject } from 'vue'
 
-const { isLoggedIn, getUser } = sessionStore()
-const user = computed(() => isLoggedIn && getUser())
-console.log(user)
+const user = inject("$user")
+
 const courses = createListResource({
   type: 'list',
-  cache: ["courses", user.email],
   doctype: 'LMS Course',
+  cache: ["courses", user?.data?.email],
   url: "lms.lms.utils.get_courses",
   auto: true,
 });
 
 const is_moderator = computed(() => {
-  if (user && user.value?.roles?.includes('Moderator')) {
+  if (user.data?.roles?.includes('Moderator')) {
     return true;
   }
   return false;
 });
 
 const is_instructor = computed(() => {
-  if (user && user.value?.roles?.includes('Course Creator')) {
-    return true;
-  }
-  return false;
+  return user.data.roles.includes("Course Creator") ? true : false;
 });
 
 const tabIndex = ref(0)
@@ -106,8 +89,8 @@ const tabs = [
     count: computed(() => courses.data?.upcoming?.length),
   }
 ];
-
-if (user.value) {
+console.log(user.data)
+if (user.data) {
   tabs.push({
     label: 'Enrolled',
     courses: computed(() => courses.data?.enrolled),
@@ -151,19 +134,4 @@ const orderOptions = [
   },
 ];
 const orderBy = 'enrollment';
-
-function sort_courses(order) {
-  const categories = ['live', 'upcoming', 'enrolled', 'created', 'under_review'];
-  categories.forEach(category => {
-    courses.data[category] = courses.data[category].sort((a, b) => {
-      if (order === 'enrollment') {
-        return b.enrollment_count - a.enrollment_count;
-      } else if (order === 'rating') {
-        return b.avg_rating - a.avg_rating;
-      } else if (order === 'newest') {
-        return new Date(b.creation).getTime() - new Date(a.creation).getTime();
-      }
-    });
-  });
-}
 </script>

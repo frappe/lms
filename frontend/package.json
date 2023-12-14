@@ -15,6 +15,7 @@
     "qalendar": "^3.6.1",
     "tailwindcss": "^3.2.7",
     "vue": "^3.2.25",
+		"dayjs": "^1.11.6",
     "vue-router": "^4.0.12"
   },
   "devDependencies": {

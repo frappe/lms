@@ -16,7 +16,7 @@
                         LMS
                     </div>
                     <div v-if="user" class="mt-1 text-sm text-gray-700 leading-none">
-                        {{ user.full_name }}
+                        {{ convertToTitleCase(user.split('@')[0]) }}
                     </div>
                 </div>
                 <div class="duration-300 ease-in-out" :class="isCollapsed
@@ -35,7 +35,6 @@ import LMSLogo from '@/components/Icons/LMSLogo.vue'
 import { sessionStore } from '@/stores/session'
 import { Dropdown } from 'frappe-ui'
 import { ChevronDown } from 'lucide-vue-next'
-import { computed } from 'vue'
 
 const props = defineProps({
     isCollapsed: {
@@ -44,9 +43,9 @@ const props = defineProps({
     },
 })
 
-const { getUser, logout } = sessionStore()
+const { logout, user } = sessionStore()
 let { isLoggedIn } = sessionStore();
-const user = computed(() => isLoggedIn && getUser())
+
 const userDropdownOptions = [
     {
         icon: 'log-out',
@@ -70,5 +69,15 @@ const userDropdownOptions = [
             return !isLoggedIn
         }
     }
-]
+];
+
+function convertToTitleCase(str) {
+    if (!str) {
+        return ""
+    }
+
+    return str.toLowerCase().split(' ').map(function (word) {
+        return word.charAt(0).toUpperCase().concat(word.substr(1));
+    }).join(' ');
+}
 </script>

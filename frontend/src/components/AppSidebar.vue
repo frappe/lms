@@ -22,7 +22,6 @@
 
 <script setup>
 import UserDropdown from '@/components/UserDropdown.vue'
-import LMSLogo from '@/components/Icons/LMSLogo.vue'
 import CollapseSidebar from '@/components/Icons/CollapseSidebar.vue'
 import SidebarLink from '@/components/SidebarLink.vue'
 import { useStorage } from '@vueuse/core'

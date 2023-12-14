@@ -69,8 +69,7 @@ import { computed } from 'vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { sessionStore } from '@/stores/session'
 
-const { isLoggedIn, getUser } = sessionStore()
-const user = computed(() => isLoggedIn && getUser())
+const { isLoggedIn, user } = sessionStore()
 
 const props = defineProps({
     course: {

@@ -6,7 +6,7 @@
         <div class="mt-4">
             <Disclosure v-slot="{ open }" v-for="chapter in outline.data" :key="chapter.name">
                 <DisclosureButton
-                    class="flex w-full px-2 py-4"
+                    class="flex w-full px-2 pt-2 pb-2"
                     >
                     <ChevronUp
                         :class="open ? 'rotate-180 transform' : ''"
@@ -16,9 +16,9 @@
                         {{ chapter.title }}
                     </div>
                 </DisclosureButton>
-                <DisclosurePanel class="px-10 pb-4">
+                <DisclosurePanel class="px-10 pb-2">
                     <div v-for="lesson in chapter.lessons" :key="lesson.name">
-                        <div class="flex items-center text-lg mb-2">
+                        <div class="flex items-center text-lg mb-4">
                             <MonitorPlay v-if="lesson.icon === 'icon-youtube'" class="h-4 w-4 text-gray-900 stroke-1 mr-2"/>
                             <HelpCircle v-else-if="lesson.icon === 'icon-quiz'" class="h-4 w-4 text-gray-900 stroke-1 mr-2"/>
                             <FileText v-else-if="lesson.icon === 'icon-list'" class="h-4 w-4 text-gray-900 stroke-1 mr-2"/>

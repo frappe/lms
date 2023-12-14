@@ -1,5 +1,5 @@
 <template>
-    <div class="h-screen">
+    <div class="h-screen text-base">
         <header
             class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
         >
@@ -14,7 +14,7 @@
             </div>
         </header>
         <div class="mx-5 my-10">
-            <div class="grid grid-cols-3 gap-8 mt-5">
+            <div class="grid grid-cols-4 gap-8 mt-5">
                 <BatchCard v-for="batch in batches.data" :batch="batch" />
             </div>
         </div>
