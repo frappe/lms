@@ -6,8 +6,8 @@ course.title }} {% endblock %} {% block page_content %}
 	{{ frappe.db.count("Cohort Subgroup", {"cohort": cohort.name}) }} {{
 	_("Subgroups") }} | {{ frappe.db.count("Cohort Mentor", {"cohort":
 	cohort.name}) }} {{ _("Mentors") }} | {{ frappe.db.count("LMS Enrollment",
-	{"cohort": cohort.name}) }} {{ _("Students") }} | {{ frappe.db.count("Cohort
-	Join Request", {"cohort": cohort.name}) }} {{ _("Join Requests") }}
+	{"cohort": cohort.name}) }} {{ _("Students") }}
+	| {{ frappe.db.count("Cohort Join Request", {"cohort": cohort.name}) }} {{ _("Join Requests") }}
 </p>
 
 {% if is_mentor %} {% set sg = mentor.get_subgroup() %}
