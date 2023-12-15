@@ -154,6 +154,8 @@ def get_user_info():
 		as_dict=1,
 	)
 	user["roles"] = frappe.get_roles(user.name)
+	user.is_instructor = "Course Creator" in user.roles
+	user.is_moderator = "Moderator" in user.roles
 	return user
 
 

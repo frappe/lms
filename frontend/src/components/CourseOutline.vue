@@ -1,24 +1,19 @@
 <template>
-    <div class="text-base mt-10">
-        <div class="text-2xl font-semibold">
-            {{ __("Course Content") }}
-        </div>
+    <div class="text-base">
         <div class="mt-4">
-            <Disclosure v-slot="{ open }" v-for="chapter in outline.data" :key="chapter.name">
-                <DisclosureButton
-                    class="flex w-full px-2 pt-2 pb-2"
-                    >
-                    <ChevronUp
-                        :class="open ? 'rotate-180 transform' : ''"
+            <Disclosure v-slot="{ open }" v-for="(chapter, index) in outline.data" :key="chapter.name">
+                <DisclosureButton class="flex w-full px-2 pt-2 pb-3">
+                    <ChevronRight
+                        :class="{'rotate-90 transform duration-200' : open, 'duration-200' : !open, 'open': index == 1}"
                         class="h-5 w-5 text-gray-900 stroke-1 mr-2"
                     />
                     <div class="text-lg font-medium">
                         {{ chapter.title }}
                     </div>
                 </DisclosureButton>
-                <DisclosurePanel class="px-10 pb-2">
+                <DisclosurePanel class="px-10 pb-4" :static="index == 0">
                     <div v-for="lesson in chapter.lessons" :key="lesson.name">
-                        <div class="flex items-center text-lg mb-4">
+                        <div class="flex items-center text-base mb-2">
                             <MonitorPlay v-if="lesson.icon === 'icon-youtube'" class="h-4 w-4 text-gray-900 stroke-1 mr-2"/>
                             <HelpCircle v-else-if="lesson.icon === 'icon-quiz'" class="h-4 w-4 text-gray-900 stroke-1 mr-2"/>
                             <FileText v-else-if="lesson.icon === 'icon-list'" class="h-4 w-4 text-gray-900 stroke-1 mr-2"/>
@@ -33,7 +28,7 @@
 <script setup>
 import { createResource } from "frappe-ui";
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue';
-import { ChevronUp, MonitorPlay, HelpCircle, FileText } from 'lucide-vue-next';
+import { ChevronRight, MonitorPlay, HelpCircle, FileText } from 'lucide-vue-next';
 
 const props = defineProps({
     courseName: {

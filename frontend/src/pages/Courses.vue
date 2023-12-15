@@ -3,7 +3,6 @@
     <header class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5">
       <Breadcrumbs class="h-7" :items="[{ label: __('All Courses'), route: { name: 'Courses' } }]" />
       <div class="flex">
-        <Select class="mr-2" :options="orderOptions" v-model="orderBy" />
         <Button variant="solid">
           <template #prefix>
             <Plus class="h-4 w-4" />
@@ -29,7 +28,7 @@
           </div>
         </template>
         <template #default="{ tab }">
-          <div v-if="tab.courses && tab.courses.value.length" class="grid grid-cols-3 gap-8 mt-5">
+          <div v-if="tab.courses && tab.courses.value.length" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mt-5">
             <router-link v-for="course in tab.courses.value"
               :to="{ name: 'CourseDetail', params: { courseName: course.name } }">
               <CourseCard :course="course" />
@@ -50,30 +49,18 @@
 
 <script setup>
 import { sessionStore } from '@/stores/session'
-import { createListResource, Breadcrumbs, Tabs, Badge, Select, Button } from 'frappe-ui';
+import { createListResource, Breadcrumbs, Tabs, Badge, Button } from 'frappe-ui';
 import CourseCard from '@/components/CourseCard.vue';
 import { Plus } from 'lucide-vue-next'
 import { ref, computed, inject } from 'vue'
 
 const user = inject("$user")
-
 const courses = createListResource({
   type: 'list',
   doctype: 'LMS Course',
   cache: ["courses", user?.data?.email],
   url: "lms.lms.utils.get_courses",
   auto: true,
-});
-
-const is_moderator = computed(() => {
-  if (user.data?.roles?.includes('Moderator')) {
-    return true;
-  }
-  return false;
-});
-
-const is_instructor = computed(() => {
-  return user.data.roles.includes("Course Creator") ? true : false;
 });
 
 const tabIndex = ref(0)
@@ -89,7 +76,7 @@ const tabs = [
     count: computed(() => courses.data?.upcoming?.length),
   }
 ];
-console.log(user.data)
+
 if (user.data) {
   tabs.push({
     label: 'Enrolled',
@@ -97,7 +84,7 @@ if (user.data) {
     count: computed(() => courses.data?.enrolled?.length),
   });
 
-  if (is_moderator.value || is_instructor.value || courses.data?.created?.length) {
+  if (user.data.is_moderator || user.data.is_instructor || courses.data?.created?.length) {
     tabs.push({
       label: 'Created',
       courses: computed(() => courses.data?.created),
@@ -105,7 +92,7 @@ if (user.data) {
     });
   };
 
-  if (is_moderator.value) {
+  if (user.data.is_moderator) {
     tabs.push({
       label: 'Under Review',
       courses: computed(() => courses.data?.under_review),
@@ -113,25 +100,4 @@ if (user.data) {
     });
   }
 };
-
-
-const orderOptions = [
-  {
-    label: "Sort By",
-    disabled: 1
-  },
-  {
-    label: "Most Popular",
-    value: "enrollment"
-  },
-  {
-    label: "Highest Rated",
-    value: "rating"
-  },
-  {
-    label: "Newest",
-    value: "creation"
-  },
-];
-const orderBy = 'enrollment';
 </script>

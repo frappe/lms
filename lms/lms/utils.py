@@ -25,6 +25,8 @@ from frappe.utils import (
 	validate_phone_number,
 	get_fullname,
 	pretty_date,
+	get_time_str,
+	nowtime,
 )
 from frappe.utils.dateutils import get_period
 from lms.lms.md import find_macros, markdown_to_html
@@ -1226,15 +1228,12 @@ def get_categorized_courses(courses):
 		if course.membership and course.published:
 			enrolled.append(course)
 		elif course.is_instructor:
-			print(course.name)
-			print(course.enrollment_count)
 			created.append(course)
 
 		categories = [live, enrolled, created]
 		for category in categories:
 			category.sort(key=lambda x: x.enrollment_count, reverse=True)
 
-	print(created)
 	return {
 		"live": live,
 		"upcoming": upcoming,
@@ -1264,24 +1263,32 @@ def get_course_outline(course):
 
 
 @frappe.whitelist()
-def get_lesson(lesson):
+def get_lesson(course, chapter, lesson):
+	chapter_name = frappe.db.get_value(
+		"Chapter Reference", {"parent": course, "idx": chapter}, "chapter"
+	)
+	lesson_name = frappe.db.get_value(
+		"Lesson Reference", {"parent": chapter_name, "idx": lesson}, "lesson"
+	)
 	lesson = frappe.db.get_value(
 		"Course Lesson",
-		lesson,
+		lesson_name,
 		[
 			"name",
 			"title",
-			"description",
-			"idx",
-			"video_link",
+			"include_in_preview",
 			"body",
+			"creation",
 			"youtube",
 			"quiz_id",
 			"question",
 			"file_type",
+			"instructor_notes",
+			"course",
 		],
 		as_dict=True,
 	)
+	lesson.rendered_content = render_html(lesson)
 	return lesson
 
 
@@ -1290,6 +1297,7 @@ def get_batches():
 	batches = frappe.get_all(
 		"LMS Batch",
 		fields=[
+			"name",
 			"title",
 			"description",
 			"start_date",
@@ -1297,7 +1305,42 @@ def get_batches():
 			"start_time",
 			"end_time",
 			"seat_count",
+			"published",
 		],
 	)
-
+	batches = categorize_batches(batches)
 	return batches
+
+
+def categorize_batches(batches):
+	upcoming, archived, private, enrolled = [], [], [], []
+
+	for batch in batches:
+		if not batch.published:
+			private.append(batch)
+		elif getdate(batch.start_date) < getdate():
+			archived.append(batch)
+		elif (
+			getdate(batch.start_date) == getdate() and get_time_str(batch.start_time) < nowtime()
+		):
+			archived.append(batch)
+		else:
+			upcoming.append(batch)
+
+		if frappe.session.user != "Guest":
+			if frappe.db.exists(
+				"Batch Student", {"student": frappe.session.user, "parent": batch.name}
+			):
+				enrolled.append(batch)
+
+	categories = [archived, private, enrolled]
+	for category in categories:
+		category.sort(key=lambda x: x.start_date, reverse=True)
+
+	upcoming.sort(key=lambda x: x.start_date)
+	return {
+		"upcoming": upcoming,
+		"archived": archived,
+		"private": private,
+		"enrolled": enrolled,
+	}

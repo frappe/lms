@@ -30,7 +30,9 @@
                     </div>
                     &middot;
                     <div class="flex items-center">
-                        <BookOpen class="h-4 w-4 text-gray-700 mr-1"/>
+                        <span class="mr-1" :class="{ 'avatar-group overlap': course.data.instructors.length > 1 }">
+                            <UserAvatar v-for="instructor in course.data.instructors" :user="instructor"/>
+                        </span>
                         <span v-if="course.data.instructors.length == 1">
                             {{ course.data.instructors[0].full_name }}
                         </span>
@@ -46,7 +48,12 @@
             <div class="grid grid-cols-[60%,20%] gap-20 mt-10">
                 <div class="">
                     <div v-html="course.data.description" class="course-description"></div>
-                    <CourseOutline :courseName="course.data.name"/>
+                    <div class="mt-10">
+                         <div class="text-2xl font-semibold">
+                            {{ __("Course Content") }}
+                        </div>
+                        <CourseOutline :courseName="course.data.name"/>
+                    </div>
                     <CourseReviews :courseName="course.data.name" :avg_rating="course.data.avg_rating"/>
                 </div>
                 <div>
@@ -59,10 +66,11 @@
 <script setup>
 import { createResource, Breadcrumbs } from "frappe-ui";
 import { computed } from "vue";
-import { BookOpen, Users, Star } from 'lucide-vue-next'
+import { Users, Star } from 'lucide-vue-next'
 import CourseCardOverlay from '@/components/CourseCardOverlay.vue';
 import CourseOutline from '@/components/CourseOutline.vue';
 import CourseReviews from '@/components/CourseReviews.vue';
+import UserAvatar from '@/components/UserAvatar.vue'
 
 const props = defineProps({
     courseName: {
@@ -102,5 +110,14 @@ const breadcrumbs = computed(() => {
     list-style: auto;
     margin: revert;
     padding: revert;
+}
+
+.avatar-group {
+    display: inline-flex;
+    align-items: center;
+}
+
+.avatar-group .avatar {
+	transition: margin 0.1s ease-in-out;
 }
 </style>

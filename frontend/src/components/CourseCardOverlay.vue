@@ -2,7 +2,12 @@
     <div class="shadow rounded-md"  style="width: 300px;">
         <iframe v-if="course.data.video_link" :src="video_link" class="rounded-t-md" />
         <div class="p-5">
-            <Button variant="solid" class="w-full mb-3">
+            <Button v-if="course.data.membership" variant="solid" class="w-full mb-3">
+                <span>
+                    {{ __("Continue Learning") }}
+                </span>
+            </Button>
+            <Button v-else variant="solid" class="w-full mb-3" >
                 <span>
                     {{ __("Start Learning") }}
                 </span>
@@ -31,6 +36,7 @@
 <script setup>
 import { BookOpen, Users, Star } from 'lucide-vue-next'
 import { computed } from 'vue'
+import { Button } from "frappe-ui"
 const props = defineProps({
     course: {
         type: Object,

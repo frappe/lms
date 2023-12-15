@@ -25,7 +25,8 @@ import UserDropdown from '@/components/UserDropdown.vue'
 import CollapseSidebar from '@/components/Icons/CollapseSidebar.vue'
 import SidebarLink from '@/components/SidebarLink.vue'
 import { useStorage } from '@vueuse/core'
-import { BookOpen, Users, TrendingUp, Search, Bell, Briefcase, Settings } from 'lucide-vue-next'
+import { BookOpen, Users, TrendingUp, Briefcase } from 'lucide-vue-next'
+import { ref } from 'vue'
 
 const links = [
     {
@@ -50,5 +51,5 @@ const links = [
     },
 ]
 
-const isSidebarCollapsed = useStorage('sidebar_is_collapsed', false)
+let isSidebarCollapsed = ref(useStorage("sidebar_is_collapsed", false))
 </script>

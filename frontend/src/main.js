@@ -8,8 +8,13 @@ import dayjs from '@/utils/dayjs'
 import translationPlugin from './translation'
 import { usersStore } from './stores/user'
 import { sessionStore } from './stores/session'
-
-import { FrappeUI, setConfig, frappeRequest, resourcesPlugin } from 'frappe-ui'
+import {
+	FrappeUI,
+	setConfig,
+	frappeRequest,
+	resourcesPlugin,
+	pageMetaPlugin,
+} from 'frappe-ui'
 
 let pinia = createPinia()
 let app = createApp(App)
@@ -20,8 +25,8 @@ app.use(pinia)
 app.use(router)
 app.use(resourcesPlugin)
 app.use(translationPlugin)
+app.use(pageMetaPlugin)
 app.provide('$dayjs', dayjs)
-
 app.mount('#app')
 
 const { userResource } = usersStore()
