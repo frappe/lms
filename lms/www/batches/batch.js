@@ -812,7 +812,7 @@ const set_calendar_range = (calendar, events) => {
 		);
 		$(".calendar-range").text(`${calendar_date}`);
 
-		if (moment(events[0].date).isSameOrBefore(moment(calendar)))
+		if (moment(calendar_date).isSameOrBefore(moment(events[0].date)))
 			$("#prev-week").hide();
 		else $("#prev-week").show();
 
