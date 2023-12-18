@@ -1213,6 +1213,9 @@ def get_course_details(course):
 			as_dict=1,
 		)
 		course.is_instructor = is_instructor(course.name)
+
+	if course.membership and course.membership.current_lesson:
+		course.current_lesson = get_lesson_index(course.membership.current_lesson)
 	return course
 
 
@@ -1272,7 +1275,7 @@ def get_lesson(course, chapter, lesson):
 	lesson_name = frappe.db.get_value(
 		"Lesson Reference", {"parent": chapter_name, "idx": lesson}, "lesson"
 	)
-	lesson = frappe.db.get_value(
+	lesson_details = frappe.db.get_value(
 		"Course Lesson",
 		lesson_name,
 		[
@@ -1290,8 +1293,31 @@ def get_lesson(course, chapter, lesson):
 		],
 		as_dict=True,
 	)
-	lesson.rendered_content = render_html(lesson)
-	return lesson
+	lesson_details.rendered_content = render_html(lesson_details)
+	neighbours = get_neighbour_lesson(course, chapter, lesson)
+	lesson_details.next = neighbours["next"]
+	lesson_details.prev = neighbours["prev"]
+	return lesson_details
+
+
+def get_neighbour_lesson(course, chapter, lesson):
+	numbers = []
+	current = f"{chapter}.{lesson}"
+	chapters = frappe.get_all("Chapter Reference", {"parent": course}, ["idx", "chapter"])
+	for chapter in chapters:
+		lessons = frappe.get_all("Lesson Reference", {"parent": chapter.chapter}, pluck="idx")
+		for lesson in lessons:
+			numbers.append(f"{chapter.idx}.{lesson}")
+
+	tuples_list = [tuple(int(x) for x in s.split(".")) for s in numbers]
+	sorted_tuples = sorted(tuples_list)
+	sorted_numbers = [".".join(str(num) for num in t) for t in sorted_tuples]
+	index = sorted_numbers.index(current)
+
+	return {
+		"prev": sorted_numbers[index - 1] if index - 1 >= 0 else None,
+		"next": sorted_numbers[index + 1] if index + 1 < len(sorted_numbers) else None,
+	}
 
 
 @frappe.whitelist(allow_guest=True)
