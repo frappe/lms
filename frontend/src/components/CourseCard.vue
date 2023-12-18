@@ -24,6 +24,12 @@
                     <Star class="h-4 w-4 text-gray-700" />
                     <span> {{ course.avg_rating }} </span>
                 </div>
+
+                <div v-if="course.status != 'Approved'">
+                    <Badge variant="solid" :theme="course.status === 'Under Review' ? 'orange' : 'blue'" size="sm">
+                        {{ course.status }}
+                    </Badge>
+                </div>
             </div>
         
             <div class="text-xl font-semibold">
@@ -65,9 +71,9 @@
 </template>
 <script setup>
 import { BookOpen, Users, Star } from 'lucide-vue-next'
-import { computed } from 'vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { sessionStore } from '@/stores/session'
+import { Badge } from "frappe-ui"
 
 const { isLoggedIn, user } = sessionStore()
 

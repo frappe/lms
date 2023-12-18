@@ -107,7 +107,6 @@ const rating_percent = computed(() => {
     }
 
     [1,2,3,4,5].forEach((key) => {
-        console.log(key, rating_count[key], reviews.data.length);
         rating_percent[key] = (rating_count[key] / reviews.data.length * 100).toFixed(2);
     });
     return rating_percent;

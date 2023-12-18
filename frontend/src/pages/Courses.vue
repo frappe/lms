@@ -30,7 +30,17 @@
         <template #default="{ tab }">
           <div v-if="tab.courses && tab.courses.value.length" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mt-5">
             <router-link v-for="course in tab.courses.value"
-              :to="{ name: 'CourseDetail', params: { courseName: course.name } }">
+              :to="
+							course.membership && course.current_lesson 
+								? {name: 'Lesson', params: { 
+										courseName: course.name, 
+										chapterNumber: course.current_lesson.split('.')[0], 
+										lessonNumber: course.current_lesson.split('.')[1] }} 
+								: course.membership ? { name: 'Lesson', params: { 
+										courseName: course.name, 
+										chapterNumber: 1, 
+										lessonNumber: 1 } 
+								} : { name: 'CourseDetail', params: { courseName: course.name } }">
               <CourseCard :course="course" />
             </router-link>
           </div>

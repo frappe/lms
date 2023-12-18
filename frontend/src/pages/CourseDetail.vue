@@ -15,20 +15,20 @@
                     {{ course.data.short_introduction }}
                 </div>
                 <div class="flex items-center justify-between mt-3 w-1/3">
-                    <div class="flex items-center">
+                    <div v-if="course.data.avg_rating" class="flex items-center">
                         <Star class="h-5 w-5 text-gray-100 fill-orange-500"/>
                         <span class="ml-1">
                             {{ course.data.avg_rating }}
                         </span>
                     </div>
-                    &middot;
-                    <div class="flex items-center">
+                    <span v-if="course.data.avg_rating">&middot;</span>
+                    <div v-if="course.data.enrollment_count" class="flex items-center">
                         <Users class="h-4 w-4 text-gray-700"/>
                         <span class="ml-1">
                             {{ course.data.enrollment_count_formatted }}
                         </span>
                     </div>
-                    &middot;
+                    <span v-if="course.data.enrollment_count">&middot;</span>
                     <div class="flex items-center">
                         <span class="mr-1" :class="{ 'avatar-group overlap': course.data.instructors.length > 1 }">
                             <UserAvatar v-for="instructor in course.data.instructors" :user="instructor"/>
@@ -54,7 +54,7 @@
                         </div>
                         <CourseOutline :courseName="course.data.name"/>
                     </div>
-                    <CourseReviews :courseName="course.data.name" :avg_rating="course.data.avg_rating"/>
+                    <CourseReviews v-if="course.data.avg_rating" :courseName="course.data.name" :avg_rating="course.data.avg_rating"/>
                 </div>
                 <div>
                     <CourseCardOverlay :course="course"/>

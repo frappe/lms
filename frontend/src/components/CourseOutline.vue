@@ -13,7 +13,7 @@
                 </DisclosureButton>
                 <DisclosurePanel class="px-10 pb-4" :static="index == 0">
                     <div v-for="lesson in chapter.lessons" :key="lesson.name">
-                        <div class="flex items-center text-base mb-2">
+                        <div class="flex items-center text-base mb-3">
                             <MonitorPlay v-if="lesson.icon === 'icon-youtube'" class="h-4 w-4 text-gray-900 stroke-1 mr-2"/>
                             <HelpCircle v-else-if="lesson.icon === 'icon-quiz'" class="h-4 w-4 text-gray-900 stroke-1 mr-2"/>
                             <FileText v-else-if="lesson.icon === 'icon-list'" class="h-4 w-4 text-gray-900 stroke-1 mr-2"/>

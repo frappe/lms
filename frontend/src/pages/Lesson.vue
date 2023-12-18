@@ -1,7 +1,7 @@
 <template>
     <div v-if="lesson.data && course.data" class="h-screen text-base">
         <header class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5">
-            <Breadcrumbs class="h-7" :items="breadcrumbs"/>
+            <Breadcrumbs class="h-7" :items="breadcrumbs" />
         </header>
         <div class="grid grid-cols-[70%,30%] h-full">
             <div class="border-r-2 container pt-5 pb-10">
@@ -10,7 +10,7 @@
                 </div>
                 <div class="flex items-center mt-2">
                     <span class="mr-1" :class="{ 'avatar-group overlap': course.data.instructors.length > 1 }">
-                        <UserAvatar v-for="instructor in course.data.instructors" :user="instructor"/>
+                        <UserAvatar v-for="instructor in course.data.instructors" :user="instructor" />
                     </span>
                     <span v-if="course.data.instructors.length == 1">
                         {{ course.data.instructors[0].full_name }}
@@ -33,10 +33,11 @@
                         {{ Math.ceil(course.data.membership.progress) }}% completed
                     </div>
                     <div v-if="user && course.data.membership" class="w-full bg-gray-200 rounded-full h-1 my-2">
-                        <div class="bg-gray-900 h-1 rounded-full" :style="{ width: Math.ceil(course.data.membership.progress) + '%' }"></div>
+                        <div class="bg-gray-900 h-1 rounded-full"
+                            :style="{ width: Math.ceil(course.data.membership.progress) + '%' }"></div>
                     </div>
                 </div>
-                <CourseOutline :courseName="lesson.data.course"/>
+                <CourseOutline :courseName="lesson.data.course" />
             </div>
         </div>
     </div>
@@ -111,13 +112,14 @@ onUnmounted(() => {
 .youtube-video {
     border: 1px solid #ddd;
 }
+
 .avatar-group {
     display: inline-flex;
     align-items: center;
 }
 
 .avatar-group .avatar {
-	transition: margin 0.1s ease-in-out;
+    transition: margin 0.1s ease-in-out;
 }
 
 iframe {
