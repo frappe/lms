@@ -2,13 +2,19 @@
 # For license information, please see license.txt
 
 import frappe
+from frappe import _
 from frappe.model.document import Document
 from frappe.model.mapper import get_mapped_doc
 from lms.lms.utils import has_course_moderator_role
 
 
 class LMSCertificateEvaluation(Document):
-	pass
+	def validate(self):
+		self.validate_rating()
+
+	def validate_rating(self):
+		if self.status not in ["Pending", "In Progress"] and self.rating == 0:
+			frappe.throw(_("Rating cannot be 0"))
 
 
 def has_website_permission(doc, ptype, user, verbose=False):
