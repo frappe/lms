@@ -4,7 +4,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import validate_url
+from frappe.utils import validate_url, validate_email_address
 from frappe.email.doctype.email_template.email_template import get_email_template
 
 
@@ -43,6 +43,9 @@ class LMSAssignmentSubmission(Document):
 		}
 
 		moderators = frappe.get_all("Has Role", {"role": "Moderator"}, pluck="parent")
+		for moderator in moderators:
+			if not validate_email_address(moderator):
+				moderators.remove(moderator)
 
 		if custom_template:
 			email_template = get_email_template(custom_template, args)
