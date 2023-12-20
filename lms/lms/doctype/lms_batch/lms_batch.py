@@ -274,7 +274,7 @@ def create_batch(
 			"description": description,
 			"batch_details": batch_details,
 			"batch_details_raw": batch_details_raw,
-			"image": meta_image,
+			"meta_image": meta_image,
 			"seat_count": seat_count,
 			"start_time": start_time,
 			"end_time": end_time,
