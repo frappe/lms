@@ -14,7 +14,7 @@
                 <div class="mb-2">
                     {{ reviews.data.length }} {{ __("reviews") }}
                 </div>
-                <Button>
+                <Button @click="openReviewModal()">
                     <span>
                         {{ __("Write a review") }}
                     </span>
@@ -53,11 +53,8 @@
                                 <Star v-for="index in 5" class="h-5 w-5 text-gray-100 bg-gray-200 rounded-sm mr-2" :class="(index <= Math.ceil(review.rating)) ? 'fill-orange-500' : 'fill-gray-600'"/>
                             </div>
                         </div>
-                        <div>
-                            
-                        </div>
                     </div>
-                    <div class="mt-4">
+                    <div class="mt-4 leading-5">
                         {{ review.review }}
                     </div>
                 </div>
@@ -65,12 +62,15 @@
             </div>
         </div>
     </div>
+    {{ showReviewModal }}
+    <ReviewModal v-model="showReviewModal"/>
 </template>
 <script setup>
 import { Star } from 'lucide-vue-next'
 import { createResource, Button } from "frappe-ui";
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import UserAvatar from '@/components/UserAvatar.vue';
+import ReviewModal from '@/components/ReviewModal.vue';
 
 const props = defineProps({
     courseName: {
@@ -111,4 +111,10 @@ const rating_percent = computed(() => {
     });
     return rating_percent;
 });
+const showReviewModal = ref(false)
+
+function openReviewModal() {
+    console.log("called")
+    showReviewModal.value = true;
+}
 </script>

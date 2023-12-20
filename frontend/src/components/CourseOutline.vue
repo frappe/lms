@@ -1,7 +1,7 @@
 <template>
     <div class="text-base">
         <div class="mt-4">
-            <Disclosure v-slot="{ open }" v-for="(chapter, index) in outline.data" :key="chapter.name">
+            <Disclosure v-slot="{ open }" v-for="(chapter, index) in outline.data" :key="chapter.name" :defaultOpen="index == 0">
                 <DisclosureButton class="flex w-full px-2 pt-2 pb-3">
                     <ChevronRight
                         :class="{'rotate-90 transform duration-200' : open, 'duration-200' : !open, 'open': index == 1}"
@@ -11,7 +11,7 @@
                         {{ chapter.title }}
                     </div>
                 </DisclosureButton>
-                <DisclosurePanel class="px-10 pb-4" :static="index == 0">
+                <DisclosurePanel class="px-10 pb-4">
                     <div v-for="lesson in chapter.lessons" :key="lesson.name">
                         <div class="flex items-center text-base mb-3">
                             <MonitorPlay v-if="lesson.icon === 'icon-youtube'" class="h-4 w-4 text-gray-900 stroke-1 mr-2"/>

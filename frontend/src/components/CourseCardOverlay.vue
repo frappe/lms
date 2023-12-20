@@ -2,14 +2,26 @@
     <div class="shadow rounded-md"  style="width: 300px;">
         <iframe v-if="course.data.video_link" :src="video_link" class="rounded-t-md" />
         <div class="p-5">
-            <Button v-if="course.data.membership" variant="solid" class="w-full mb-3">
-                <span>
-                    {{ __("Continue Learning") }}
-                </span>
-            </Button>
-            <Button v-else variant="solid" class="w-full mb-3" >
+            <router-link v-if="course.data.membership && course.data.current_lesson"
+                :to="{name: 'Lesson', params: {
+                    courseName: course.name,
+                    chapterNumber: course.data.current_lesson.split('.')[0],
+                    lessonNumber: course.data.current_lesson.split('.')[1]
+                }}">
+                <Button variant="solid" class="w-full mb-3">
+                    <span>
+                        {{ __("Continue Learning") }}
+                    </span>
+                </Button>
+            </router-link>
+            <Button v-else @click="enrollStudent()" variant="solid" class="w-full mb-3">
                 <span>
                     {{ __("Start Learning") }}
+                </span>
+            </Button>
+            <Button v-if="user?.data?.is_moderator" variant="subtle" class="w-full mb-3">
+                <span>
+                    {{ __("Edit") }}
                 </span>
             </Button>
             <div class="flex items-center mb-3">
@@ -35,8 +47,14 @@
 </template>
 <script setup>
 import { BookOpen, Users, Star } from 'lucide-vue-next'
-import { computed } from 'vue'
-import { Button } from "frappe-ui"
+import { computed, inject } from 'vue'
+import { Button, createResource } from "frappe-ui"
+import { createToast } from "@/utils/"
+import { useRouter } from 'vue-router'
+const router = useRouter()
+
+const user = inject("$user");
+
 const props = defineProps({
     course: {
         type: Object,
@@ -50,4 +68,34 @@ const video_link = computed(() => {
     }
     return null;
 });
+
+function enrollStudent() {
+    if (!user.data) {
+        createToast({
+            title: "Please Login",
+            icon: 'alert-circle',
+            iconClasses: 'text-yellow-600 bg-yellow-100',
+        })
+        setTimeout(() => {
+            window.location.href = `/login?redirect-to=${window.location.pathname}`
+        }, 3000)
+    } else {
+        const enrollStudentResource = createResource({
+            url: "lms.lms.doctype.lms_enrollment.lms_enrollment.create_membership"
+        })
+        console.log(props.course)
+        enrollStudentResource.submit({
+            course: props.course.data.name
+        }).then(() => {
+            createToast({
+                title: "Enrolled Successfully",
+                icon: 'check',
+                iconClasses: 'text-green-600 bg-green-100',
+            })
+            setTimeout(() => {
+                router.push({ name: 'Lesson', params: { courseName: props.course.data.name, chapterNumber: 1, lessonNumber: 1 } })
+            }, 3000)
+        })
+    }
+}
 </script>

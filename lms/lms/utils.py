@@ -1169,7 +1169,7 @@ def get_courses():
 
 @frappe.whitelist(allow_guest=True)
 def get_course_details(course):
-	course = frappe.db.get_value(
+	course_details = frappe.db.get_value(
 		"LMS Course",
 		course,
 		[
@@ -1185,38 +1185,46 @@ def get_course_details(course):
 		],
 		as_dict=1,
 	)
-	course.tags = get_tags(course.name)
-	course.lesson_count = get_lesson_count(course.name)
+	course_details.tags = get_tags(course_details.name)
+	course_details.lesson_count = get_lesson_count(course_details.name)
 
-	course.enrollment_count = frappe.db.count(
-		"LMS Enrollment", {"course": course.name, "member_type": "Student"}
+	course_details.enrollment_count = frappe.db.count(
+		"LMS Enrollment", {"course": course_details.name, "member_type": "Student"}
 	)
-	course.enrollment_count_formatted = format_number(course.enrollment_count)
+	course_details.enrollment_count_formatted = format_number(
+		course_details.enrollment_count
+	)
 
-	avg_rating = get_average_rating(course.name) or 0
-	course.avg_rating = flt(avg_rating, frappe.get_system_settings("float_precision") or 3)
+	avg_rating = get_average_rating(course_details.name) or 0
+	course_details.avg_rating = flt(
+		avg_rating, frappe.get_system_settings("float_precision") or 3
+	)
 
-	course.instructors = get_instructors(course.name)
-	if course.paid_course:
-		course.price = fmt_money(course.course_price, 0, course.currency)
+	course_details.instructors = get_instructors(course_details.name)
+	if course_details.paid_course:
+		course_details.price = fmt_money(
+			course_details.course_price, 0, course_details.currency
+		)
 	else:
-		course.price = _("Free")
+		course_details.price = _("Free")
 
 	if frappe.session.user == "Guest":
-		course.membership = None
-		course.is_instructor = False
+		course_details.membership = None
+		course_details.is_instructor = False
 	else:
-		course.membership = frappe.db.get_value(
+		course_details.membership = frappe.db.get_value(
 			"LMS Enrollment",
-			{"member": frappe.session.user, "course": course.name},
+			{"member": frappe.session.user, "course": course_details.name},
 			["name", "course", "current_lesson", "progress"],
 			as_dict=1,
 		)
-		course.is_instructor = is_instructor(course.name)
+		course_details.is_instructor = is_instructor(course_details.name)
 
-	if course.membership and course.membership.current_lesson:
-		course.current_lesson = get_lesson_index(course.membership.current_lesson)
-	return course
+	if course_details.membership and course_details.membership.current_lesson:
+		course_details.current_lesson = get_lesson_index(
+			course_details.membership.current_lesson
+		)
+	return course_details
 
 
 def get_categorized_courses(courses):
