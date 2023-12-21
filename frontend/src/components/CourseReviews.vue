@@ -62,8 +62,7 @@
             </div>
         </div>
     </div>
-    {{ showReviewModal }}
-    <ReviewModal v-model="showReviewModal"/>
+    <ReviewModal v-model="showReviewModal" v-model:reloadReviews="reviews"/>
 </template>
 <script setup>
 import { Star } from 'lucide-vue-next'
@@ -82,6 +81,8 @@ const props = defineProps({
         required: true,
     },
 });
+
+
 
 const reversedRange = (count) => Array.from({ length: count }, (_, index) => count - index);
 
