@@ -256,6 +256,7 @@ def create_batch(
 	paid_batch=0,
 	amount=0,
 	currency=None,
+	amount_usd=0,
 	name=None,
 	published=0,
 	evaluation_end_date=None,
@@ -283,6 +284,7 @@ def create_batch(
 			"paid_batch": paid_batch,
 			"amount": amount,
 			"currency": currency,
+			"amount_usd": amount_usd,
 			"published": published,
 			"evaluation_end_date": evaluation_end_date,
 		}

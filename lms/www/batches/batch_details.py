@@ -34,13 +34,17 @@ def get_context(context):
 			"meta_image",
 			"batch_details_raw",
 			"evaluation_end_date",
+			"amount_usd",
 		],
 		as_dict=1,
 	)
 
 	if context.batch_info.amount and context.batch_info.currency:
 		amount, currency = check_multicurrency(
-			context.batch_info.amount, context.batch_info.currency
+			context.batch_info.amount,
+			context.batch_info.currency,
+			None,
+			context.batch_info.amount_usd,
 		)
 		context.batch_info.amount = amount
 		context.batch_info.currency = currency

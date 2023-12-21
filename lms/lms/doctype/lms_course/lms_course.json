@@ -34,8 +34,10 @@
   "related_courses",
   "pricing_section",
   "paid_course",
-  "currency",
+  "column_break_acoj",
   "course_price",
+  "currency",
+  "amount_usd",
   "certification_section",
   "enable_certification",
   "expiry",
@@ -222,12 +224,22 @@
    "fieldname": "course_price",
    "fieldtype": "Currency",
    "label": "Course Price",
-   "option": "currency",
    "mandatory_depends_on": "paid_course"
   },
   {
    "fieldname": "column_break_rxww",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_acoj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "paid_course",
+   "description": "If you set an amount here, then the USD equivalent setting will not get applied.",
+   "fieldname": "amount_usd",
+   "fieldtype": "Currency",
+   "label": "Amount (USD)"
   }
  ],
  "is_published_field": "published",
@@ -254,7 +266,7 @@
   }
  ],
  "make_attachments_public": 1,
- "modified": "2023-08-28 11:09:11.945066",
+ "modified": "2023-12-21 12:27:32.559901",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",
