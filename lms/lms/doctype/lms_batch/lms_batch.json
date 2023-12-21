@@ -46,6 +46,7 @@
   "column_break_iens",
   "amount",
   "currency",
+  "amount_usd",
   "customisations_tab",
   "section_break_ubxi",
   "custom_component",
@@ -285,11 +286,18 @@
    "fieldname": "evaluation_end_date",
    "fieldtype": "Date",
    "label": "Evaluation End Date"
+  },
+  {
+   "depends_on": "paid_batch",
+   "description": "If you set an amount here, then the USD equivalent setting will not get applied.",
+   "fieldname": "amount_usd",
+   "fieldtype": "Currency",
+   "label": "Amount (USD)"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-11-29 12:06:58.776479",
+ "modified": "2023-12-21 12:27:16.849362",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch",

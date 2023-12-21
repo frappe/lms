@@ -392,6 +392,15 @@ const open_batch_dialog = () => {
 				depends_on: "paid_batch",
 				only_select: 1,
 			},
+			{
+				fieldtype: "Currency",
+				label: __("Amount (USD)"),
+				fieldname: "amount_usd",
+				depends_on: "paid_batch",
+				description: __(
+					"If you set an amount here, then the USD equivalent setting will not get applied."
+				),
+			},
 		],
 		primary_action_label: __("Save"),
 		primary_action: (values) => {

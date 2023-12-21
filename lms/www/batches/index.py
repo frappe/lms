@@ -26,6 +26,7 @@ def get_context(context):
 			"currency",
 			"seat_count",
 			"published",
+			"amount_usd",
 		],
 		order_by="start_date",
 	)
@@ -36,7 +37,9 @@ def get_context(context):
 		batch.course_count = frappe.db.count("Batch Course", {"parent": batch.name})
 
 		if batch.amount and batch.currency:
-			amount, currency = check_multicurrency(batch.amount, batch.currency)
+			amount, currency = check_multicurrency(
+				batch.amount, batch.currency, None, batch.amount_usd
+			)
 			batch.amount = amount
 			batch.currency = currency
 

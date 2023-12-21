@@ -906,8 +906,9 @@ def get_payment_options(doctype, docname, phone, country):
 
 	validate_phone_number(phone, True)
 	details = get_details(doctype, docname)
+
 	details.amount, details.currency = check_multicurrency(
-		details.amount, details.currency, country
+		details.amount, details.currency, country, details.amount_usd
 	)
 	if details.currency == "INR":
 		details.amount, details.gst_applied = apply_gst(details.amount, country)
@@ -931,15 +932,19 @@ def get_payment_options(doctype, docname, phone, country):
 	return options
 
 
-def check_multicurrency(amount, currency, country=None):
+def check_multicurrency(amount, currency, country=None, amount_usd=None):
 	show_usd_equivalent = frappe.db.get_single_value("LMS Settings", "show_usd_equivalent")
 	exception_country = frappe.get_all(
 		"Payment Country", filters={"parent": "LMS Settings"}, pluck="country"
 	)
-	apply_rounding = frappe.db.get_single_value("LMS Settings", "apply_rounding")
-	country = country or frappe.db.get_value(
-		"Address", {"email_id": frappe.session.user}, "country"
+	country = (
+		country
+		or frappe.db.get_value("Address", {"email_id": frappe.session.user}, "country")
+		or frappe.db.get_value("User", frappe.session.user, "country")
 	)
+
+	if amount_usd and country not in exception_country:
+		return amount_usd, "USD"
 
 	if not show_usd_equivalent or currency == "USD":
 		return amount, currency
@@ -951,6 +956,7 @@ def check_multicurrency(amount, currency, country=None):
 	amount = amount * exchange_rate
 	currency = "USD"
 
+	apply_rounding = frappe.db.get_single_value("LMS Settings", "apply_rounding")
 	if apply_rounding and amount % 100 != 0:
 		amount = amount + 100 - amount % 100
 
@@ -976,7 +982,7 @@ def get_details(doctype, docname):
 		details = frappe.db.get_value(
 			"LMS Course",
 			docname,
-			["name", "title", "paid_course", "currency", "course_price as amount"],
+			["name", "title", "paid_course", "currency", "course_price as amount", "amount_usd"],
 			as_dict=True,
 		)
 		if not details.paid_course:
@@ -985,7 +991,7 @@ def get_details(doctype, docname):
 		details = frappe.db.get_value(
 			"LMS Batch",
 			docname,
-			["name", "title", "paid_batch", "currency", "amount"],
+			["name", "title", "paid_batch", "currency", "amount", "amount_usd"],
 			as_dict=True,
 		)
 		if not details.paid_batch:
@@ -1097,9 +1103,10 @@ def get_payment_details(doctype, docname, address):
 	amount_field = "course_price" if doctype == "LMS Course" else "amount"
 	amount = frappe.db.get_value(doctype, docname, amount_field)
 	currency = frappe.db.get_value(doctype, docname, "currency")
+	amount_usd = frappe.db.get_value(doctype, docname, "amount_usd")
 	amount_with_gst = 0
 
-	amount, currency = check_multicurrency(amount, currency)
+	amount, currency = check_multicurrency(amount, currency, None, amount_usd)
 	if currency == "INR" and address.country == "India":
 		amount_with_gst, gst_applied = apply_gst(amount, address.country)
 
