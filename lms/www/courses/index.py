@@ -61,6 +61,7 @@ def get_courses():
 			"course_price",
 			"currency",
 			"creation",
+			"amount_usd",
 		],
 	)
 
@@ -72,7 +73,7 @@ def get_courses():
 
 		if course.course_price:
 			course.course_price, course.currency = check_multicurrency(
-				course.course_price, course.currency
+				course.course_price, course.currency, None, course.amount_usd
 			)
 
 		course.avg_rating = get_average_rating(course.name) or 0

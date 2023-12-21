@@ -47,12 +47,13 @@
    "fieldtype": "Rating",
    "in_list_view": 1,
    "label": "Rating",
-   "reqd": 1
+   "mandatory_depends_on": "eval:doc.status != 'Pending' && doc.status != 'In Progress'"
   },
   {
    "fieldname": "summary",
    "fieldtype": "Small Text",
-   "label": "Summary"
+   "label": "Summary",
+   "mandatory_depends_on": "eval:doc.status != 'Pending' && doc.status != 'In Progress'"
   },
   {
    "fieldname": "date",
@@ -106,7 +107,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-09-26 19:44:43.594892",
+ "modified": "2023-12-18 20:03:27.040073",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate Evaluation",

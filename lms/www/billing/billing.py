@@ -27,7 +27,7 @@ def get_context(context):
 	)
 
 	context.amount, context.currency = check_multicurrency(
-		context.amount, context.currency
+		context.amount, context.currency, None, context.amount_usd
 	)
 
 	context.address = get_address()
@@ -65,7 +65,7 @@ def get_billing_details(context):
 		details = frappe.db.get_value(
 			"LMS Course",
 			context.docname,
-			["title", "name", "paid_course", "course_price as amount", "currency"],
+			["title", "name", "paid_course", "course_price as amount", "currency", "amount_usd"],
 			as_dict=True,
 		)
 
@@ -76,7 +76,7 @@ def get_billing_details(context):
 		details = frappe.db.get_value(
 			"LMS Batch",
 			context.docname,
-			["title", "name", "paid_batch", "amount", "currency"],
+			["title", "name", "paid_batch", "amount", "currency", "amount_usd"],
 			as_dict=True,
 		)
 
@@ -88,6 +88,7 @@ def get_billing_details(context):
 	context.title = details.title
 	context.amount = details.amount
 	context.currency = details.currency
+	context.amount_usd = details.amount_usd
 
 
 def get_address():

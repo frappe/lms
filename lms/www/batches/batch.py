@@ -44,6 +44,7 @@ def get_context(context):
 			"published",
 			"allow_future",
 			"evaluation_end_date",
+			"meta_image",
 		],
 		as_dict=True,
 	)
@@ -156,7 +157,6 @@ def get_class_course_details(batch_courses):
 				"image",
 				"upcoming",
 				"short_introduction",
-				"image",
 				"paid_course",
 				"course_price",
 				"enable_certification",

@@ -56,6 +56,7 @@ def set_course_context(context, course_name):
 			"paid_course",
 			"course_price",
 			"currency",
+			"amount_usd",
 			"enable_certification",
 			"grant_certificate_after",
 		],
@@ -64,7 +65,7 @@ def set_course_context(context, course_name):
 
 	if course.course_price:
 		course.course_price, course.currency = check_multicurrency(
-			course.course_price, course.currency
+			course.course_price, course.currency, None, course.amount_usd
 		)
 
 	if frappe.form_dict.get("edit"):
