@@ -941,9 +941,10 @@ def check_multicurrency(amount, currency, country=None, amount_usd=None):
 		country
 		or frappe.db.get_value("Address", {"email_id": frappe.session.user}, "country")
 		or frappe.db.get_value("User", frappe.session.user, "country")
+		or get_country_code()
 	)
 
-	if amount_usd and country not in exception_country:
+	if amount_usd and country and country not in exception_country:
 		return amount_usd, "USD"
 
 	if not show_usd_equivalent or currency == "USD":
@@ -1155,3 +1156,16 @@ def change_currency(amount, currency, country=None):
 	amount = cint(amount)
 	amount, currency = check_multicurrency(amount, currency, country)
 	return fmt_money(amount, 0, currency)
+
+
+def get_country_code():
+	ip = frappe.local.request_ip
+	res = requests.get(f"http://ip-api.com/json/{ip}")
+
+	try:
+		data = res.json()
+		if data.get("status") != "fail":
+			return frappe.db.get_value("Country", {"code": data.get("countryCode")}, "name")
+	except Exception:
+		pass
+	return
