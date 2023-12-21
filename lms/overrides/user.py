@@ -5,7 +5,7 @@ from frappe import _
 from frappe.core.doctype.user.user import User
 from frappe.utils import cint, escape_html, random_string
 from frappe.website.utils import is_signup_disabled
-from lms.lms.utils import get_average_rating
+from lms.lms.utils import get_average_rating, get_country_code
 from frappe.website.utils import cleanup_page_name
 from frappe.model.naming import append_number_if_name_exists
 from lms.widgets import Widgets
@@ -257,19 +257,6 @@ def set_country_from_ip(login_manager=None, user=None):
 	# if user_country:
 	#    return
 	frappe.db.set_value("User", user, "country", get_country_code())
-	return
-
-
-def get_country_code():
-	ip = frappe.local.request_ip
-	res = requests.get(f"http://ip-api.com/json/{ip}")
-
-	try:
-		data = res.json()
-		if data.get("status") != "fail":
-			return frappe.db.get_value("Country", {"code": data.get("countryCode")}, "name")
-	except Exception:
-		pass
 	return
 
 
