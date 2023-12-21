@@ -14,7 +14,7 @@
                 <div class="mb-2">
                     {{ reviews.data.length }} {{ __("reviews") }}
                 </div>
-                <Button @click="openReviewModal()">
+                <Button v-if="membership" @click="openReviewModal()">
                     <span>
                         {{ __("Write a review") }}
                     </span>
@@ -62,7 +62,7 @@
             </div>
         </div>
     </div>
-    <ReviewModal v-model="showReviewModal" v-model:reloadReviews="reviews"/>
+    <ReviewModal v-model="showReviewModal" v-model:reloadReviews="reviews" :courseName="courseName"/>
 </template>
 <script setup>
 import { Star } from 'lucide-vue-next'
@@ -80,6 +80,10 @@ const props = defineProps({
         type: Number,
         required: true,
     },
+    membership: {
+        type: Object,
+        required: true,
+    },
 });
 
 
@@ -94,7 +98,7 @@ const reviews = createResource({
     },
     auto: true,
 });
-
+console.log(reviews)
 const rating_percent = computed(() => {
     let rating_count = {};
     let rating_percent = {};

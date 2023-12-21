@@ -6,7 +6,7 @@
             {
                 label: "Submit",
                 variant: "solid",
-                onClick: ({ close }) => submitReview(close)
+                onClick: (close) => submitReview(close)
             }
         ]
     }'>
@@ -30,12 +30,23 @@
 </template>
 <script setup>
 import { Dialog, Textarea, createResource } from 'frappe-ui'
-import { defineModel, ref } from "vue"
+import { defineModel, reactive } from "vue"
 import Rating from '@/components/Rating.vue';
+import { createToast } from "@/utils/"
 
 const show = defineModel()
 const reviews = defineModel("reloadReviews")
-let review = ref({})
+let review = reactive({
+    review: "",
+    rating: 0,
+})
+
+const props = defineProps({
+    courseName: {
+        type: String,
+        required: true,
+    },
+})
 
 const createReview = createResource({
     url: "frappe.client.insert",
@@ -43,22 +54,28 @@ const createReview = createResource({
         return {
             doc: {
                 doctype: "LMS Course Review",
+                course: props.courseName,
                 ...values,
             }
         }
     }
 })
 function submitReview(close) {
+    review.rating = (review.rating)/5;
     createReview.submit(review, {
         validate() {
-            /* if (!review.value.rating) {
-                return __("Please select a rating")
+            if (!review.rating) {
+                return "Please enter a rating."
             }
-            if (!review.value.review) {
-                return __("Please write a review")
-            } */
         }, onSuccess() {
-            reviews.reload()
+            reviews.value.reload()
+        },
+        onError(err) {
+            createToast({
+                text: err.messages?.[0] || err,
+                icon: 'x',
+                iconClasses: 'text-red-600 bg-red-300',
+            })
         }
     })
     close();
