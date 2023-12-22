@@ -11,8 +11,20 @@ from lms.lms.utils import get_evaluator
 
 class LMSCertificateRequest(Document):
 	def validate(self):
+		self.validate_slot()
 		self.validate_if_existing_requests()
-		self.validate_evaluation_date()
+		self.validate_evaluation_end_date()
+
+	def validate_slot(self):
+		if frappe.db.exists(
+			"LMS Certificate Request",
+			{
+				"evaluator": self.evaluator,
+				"date": self.date,
+				"start_time": self.start_time,
+			},
+		):
+			frappe.throw(_("The slot is already booked by another participant."))
 
 	def validate_if_existing_requests(self):
 		existing_requests = frappe.get_all(
@@ -33,19 +45,19 @@ class LMSCertificateRequest(Document):
 					)
 				)
 
-	def validate_evaluation_date(self):
+	def validate_evaluation_end_date(self):
 		if self.batch_name:
 			evaluation_end_date = frappe.db.get_value(
 				"LMS Batch", self.batch_name, "evaluation_end_date"
 			)
 
-		if evaluation_end_date:
-			if getdate(self.date) > getdate(evaluation_end_date):
-				frappe.throw(
-					_("You cannot schedule evaluations after {0}.").format(
-						format_date(evaluation_end_date, "medium")
+			if evaluation_end_date:
+				if getdate(self.date) > getdate(evaluation_end_date):
+					frappe.throw(
+						_("You cannot schedule evaluations after {0}.").format(
+							format_date(evaluation_end_date, "medium")
+						)
 					)
-				)
 
 
 def schedule_evals():
