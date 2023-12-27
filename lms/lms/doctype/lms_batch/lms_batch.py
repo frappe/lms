@@ -23,7 +23,7 @@ class LMSBatch(Document):
 	def validate(self):
 		if self.seat_count:
 			self.validate_seats_left()
-		self.validate_batch_end_date():
+		self.validate_batch_end_date()
 		self.validate_duplicate_courses()
 		self.validate_duplicate_students()
 		self.validate_duplicate_assessments()
