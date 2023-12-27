@@ -34,7 +34,7 @@ class LMSBatch(Document):
 
 	def validate_batch_end_date(self):
 		if(self.end_date < self.start_date):
-			frappe.throw("Batch end date cannot be before the batch start date")
+			frappe.throw(_("Batch end date cannot be before the batch start date"))
 
 	def validate_duplicate_students(self):
 		students = [row.student for row in self.students]
