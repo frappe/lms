@@ -4,10 +4,43 @@
             <Breadcrumbs class="h-7" :items="breadcrumbs" />
         </header>
         <div class="grid grid-cols-[70%,30%] h-full">
-            <div class="border-r-2 container pt-5 pb-10">
-                <div class="text-3xl font-semibold">
-                    {{ lesson.data.title }}
+            <div v-if="lesson.data.no_preview" class="border-r-2 text-center pt-10">
+                <p class="mb-4">
+                    {{ __("This lesson is not available for preview. Please enroll in the course to access it.") }}
+                </p>
+                <router-link :to='{ name: "CourseDetail", params: { courseName: courseName } }'>
+                    <Button variant="solid">
+                        {{ __("Start Learning") }}
+                    </Button>
+                </router-link>
+            </div>
+            <div v-else class="border-r-2 container pt-5 pb-10">
+                <div class="flex items-center justify-between">
+                     <div class="text-3xl font-semibold">
+                        {{ lesson.data.title }}
+                    </div>
+                    <div>
+                        <router-link v-if="lesson.data.prev" :to='{name: "Lesson", params: {
+                            courseName: courseName,
+                            chapterNumber: lesson.data.prev.split(".")[0],
+                            lessonNumber: lesson.data.prev.split(".")[1]
+                        }}'>
+                            <Button class="mr-2">
+                                <ChevronLeft class="w-4 h-4 stroke-1"/>
+                            </Button>
+                        </router-link>
+                        <router-link v-if="lesson.data.next" :to='{name: "Lesson", params: {
+                            courseName: courseName,
+                            chapterNumber: lesson.data.next.split(".")[0],
+                            lessonNumber: lesson.data.next.split(".")[1]
+                        }}'>
+                            <Button>
+                                <ChevronRight class="w-4 h-4 stroke-1"/>
+                            </Button>
+                        </router-link>
+                    </div>
                 </div>
+               
                 <div class="flex items-center mt-2">
                     <span class="mr-1" :class="{ 'avatar-group overlap': course.data.instructors.length > 1 }">
                         <UserAvatar v-for="instructor in course.data.instructors" :user="instructor" />
@@ -22,7 +55,46 @@
                         {{ course.data.instructors[0].first_name }} and {{ course.data.instructors.length - 1 }} others
                     </span>
                 </div>
-                <div v-html="lesson.data.rendered_content" class="lesson-content mt-6"></div>
+                <!-- <div v-html="lesson.data.rendered_content" class="lesson-content mt-6"></div> -->
+                <div class="lesson-content mt-6">
+                    <div v-for="block in lesson.data.body.split('\n\n')">
+                        <div v-if='block.includes("{{ YouTubeVideo")'>
+                            <iframe class="youtube-video" :src="getYouTubeVideoSource(block)" width="100%" height="400" frameborder="0" allowfullscreen></iframe>
+                        </div>
+                        <div v-else-if='block.includes("{{ Quiz")'>
+                            <Quiz v-if="user" :quizName="getId(block)"/>
+                            <div v-else>
+                                <div>
+                                    {{ __("Please login to access this quiz.") }}
+                                </div>
+                                <Button @click="window.location.href = `/login?redirect-to=/courses/${courseName}`">
+                                    <span>
+                                        {{ __("Login") }}
+                                    </span>
+                                </Button>
+                            </div>
+                        </div>
+                        <div v-else-if='block.includes("{{ Video")'>
+                            <video controls width='100%' controlsList='nodownload'>
+                                <source :src="getId(block)" type='video/mp4'>
+                            </video>
+                        </div>
+                        <div v-else-if='block.includes("{{ PDF")'>
+                            <iframe :src="getPDFSource(block)" width="100%" height="400" frameborder="0" allowfullscreen></iframe>
+                        </div>
+                        <div v-else-if='block.includes("{{ Audio")'>
+                            <audio width='100%' controls controlsList='nodownload'>
+                                <source :src="getId(block)" type='audio/mp3'>
+                            </audio>
+                        </div>
+                        <div v-else-if='block.includes("{{ Embed")'>
+                            <iframe width="100%" height="400" :src="getId(block)" frameborder="0" allowfullscreen>
+                            </iframe>
+                        </div>
+                        <div v-else v-html="markdown.render(block)">
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="sticky top-10">
                 <div class="bg-gray-50 p-5 border-b-2">
@@ -37,22 +109,30 @@
                             :style="{ width: Math.ceil(course.data.membership.progress) + '%' }"></div>
                     </div>
                 </div>
-                <CourseOutline :courseName="lesson.data.course" />
+                <CourseOutline :courseName="courseName" :key="chapterNumber" />
             </div>
         </div>
     </div>
 </template>
 <script setup>
-import { createResource, Breadcrumbs } from "frappe-ui";
-import { computed, onMounted, onBeforeMount, onUnmounted, inject } from "vue";
+import { createResource, Breadcrumbs, Button } from "frappe-ui";
+import { computed, watch, onBeforeMount, onUnmounted, inject } from "vue";
 import { useStorage } from '@vueuse/core'
 import CourseOutline from '@/components/CourseOutline.vue';
 import UserAvatar from '@/components/UserAvatar.vue';
+import { useRoute } from "vue-router";
+import MarkdownIt from "markdown-it";
+import { ChevronLeft, ChevronRight } from "lucide-vue-next";
+import Quiz from '@/components/Quiz.vue';
 
 const user = inject("$user");
+const route = useRoute();
+const markdown = new MarkdownIt({
+    html: true,
+    linkify: true,
+});
 
 onBeforeMount(() => {
-    console.log("before mount");
     localStorage.setItem("sidebar_is_collapsed", true);
 })
 
@@ -73,11 +153,13 @@ const props = defineProps({
 
 const lesson = createResource({
     url: "lms.lms.utils.get_lesson",
-    cache: ["lesson", props.courseName, props.lessonNumber],
-    params: {
-        course: props.courseName,
-        chapter: props.chapterNumber,
-        lesson: props.lessonNumber,
+    cache: ["lesson", props.courseName, props.chapterNumber, props.lessonNumber],
+    makeParams(values) {
+        return {
+            course: props.courseName,
+            chapter: values ? values.chapter : props.chapterNumber,
+            lesson: values ? values.lesson : props.lessonNumber,
+        }
     },
     auto: true,
 });
@@ -104,14 +186,32 @@ const breadcrumbs = computed(() => {
     return items
 });
 onUnmounted(() => {
-    console.log("unmounted");
     useStorage("sidebar_is_collapsed", false);
 });
+console.log(route.params)
+watch(
+    [() => route.params.chapterNumber, () => route.params.lessonNumber],
+    ([newChapterNumber, newLessonNumber], [oldChapterNumber, oldLessonNumber]) => {
+       lesson.submit({
+            chapter: newChapterNumber,
+            lesson: newLessonNumber,
+       })
+    }
+);
+
+const getYouTubeVideoSource = (block) => {
+    return `https://www.youtube.com/embed/${getId(block)}`;
+}
+
+const getPDFSource = (block) => {
+    return `${getId(block)}#toolbar=0`;
+}
+
+const getId = (block) => {
+    return block.match(/\(["']([^"']+?)["']\)/)[1];
+}
 </script>
 <style>
-.youtube-video {
-    border: 1px solid #ddd;
-}
 
 .avatar-group {
     display: inline-flex;
@@ -123,15 +223,50 @@ onUnmounted(() => {
 }
 
 iframe {
+    border: 1px solid #ddd;
     border-radius: 0.5rem;
-}
-
-.lesson-content div {
-    margin-bottom: 1rem;
 }
 
 .lesson-content p {
     margin-bottom: 1rem;
     line-height: 1.7;
 }
+
+.lesson-content li {
+    line-height: 1.7;
+}
+
+.lesson-content ol {
+    list-style: auto;
+    margin: revert;
+    padding: 1rem;
+}
+
+.lesson-content ul {
+    list-style: auto;
+    padding: 1rem;
+    margin: revert;
+}
+
+.lesson-content img {
+    border: 1px solid theme("colors.gray.200");
+    border-radius: 0.5rem;
+}
+
+.lesson-content code {
+    display: block;
+    overflow-x: auto;
+    padding: 1rem 1.25rem;
+    background: #011627;
+    color: #d6deeb;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.lesson-content a {
+    color: theme("colors.gray.900");
+    text-decoration: underline;
+    font-weight: 500;
+}
+
 </style>

@@ -32,9 +32,5 @@ app.mount('#app')
 const { userResource } = usersStore()
 let { isLoggedIn } = sessionStore()
 
-if (isLoggedIn) {
-	await userResource.reload()
-}
-
 app.provide('$user', userResource)
 app.config.globalProperties.$user = userResource

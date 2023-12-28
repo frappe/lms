@@ -1269,21 +1269,22 @@ def get_course_outline(course):
 	"""Returns the course outline."""
 	outline = []
 	chapters = frappe.get_all(
-		"Chapter Reference", {"parent": course}, ["chapter"], order_by="idx"
+		"Chapter Reference", {"parent": course}, ["chapter", "idx"], order_by="idx"
 	)
 	for chapter in chapters:
 		chapter_details = frappe.db.get_value(
 			"Course Chapter",
 			chapter.chapter,
-			["name", "title", "description", "idx"],
+			["name", "title", "description"],
 			as_dict=True,
 		)
+		chapter_details["idx"] = chapter.idx
 		chapter_details.lessons = get_lessons(course, chapter_details)
 		outline.append(chapter_details)
 	return outline
 
 
-@frappe.whitelist()
+@frappe.whitelist(allow_guest=True)
 def get_lesson(course, chapter, lesson):
 	chapter_name = frappe.db.get_value(
 		"Chapter Reference", {"parent": course, "idx": chapter}, "chapter"
@@ -1291,6 +1292,16 @@ def get_lesson(course, chapter, lesson):
 	lesson_name = frappe.db.get_value(
 		"Lesson Reference", {"parent": chapter_name, "idx": lesson}, "lesson"
 	)
+	lesson_details = frappe.db.get_value(
+		"Course Lesson", lesson_name, ["include_in_preview", "title"], as_dict=1
+	)
+	membership = get_membership(course)
+	if not lesson_details.include_in_preview and not membership:
+		return {
+			"no_preview": 1,
+			"title": lesson_details.title,
+		}
+
 	lesson_details = frappe.db.get_value(
 		"Course Lesson",
 		lesson_name,

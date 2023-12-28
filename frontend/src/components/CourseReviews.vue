@@ -82,7 +82,7 @@ const props = defineProps({
     },
     membership: {
         type: Object,
-        required: true,
+        required: false,
     },
 });
 
@@ -98,7 +98,7 @@ const reviews = createResource({
     },
     auto: true,
 });
-console.log(reviews)
+
 const rating_percent = computed(() => {
     let rating_count = {};
     let rating_percent = {};
