@@ -62,12 +62,12 @@
                             <iframe class="youtube-video" :src="getYouTubeVideoSource(block)" width="100%" height="400" frameborder="0" allowfullscreen></iframe>
                         </div>
                         <div v-else-if='block.includes("{{ Quiz")'>
-                            <Quiz v-if="user" :quizName="getId(block)"/>
-                            <div v-else>
+                            <Quiz v-if="user.data" :quizName="getId(block)"></Quiz>
+                            <div v-else class="border rounded-md text-center py-20">
                                 <div>
-                                    {{ __("Please login to access this quiz.") }}
+                                    {{ __("Please login to access the quiz.") }}
                                 </div>
-                                <Button @click="window.location.href = `/login?redirect-to=/courses/${courseName}`">
+                                <Button @click="redirectToLogin()" class="mt-2">
                                     <span>
                                         {{ __("Login") }}
                                     </span>
@@ -188,7 +188,7 @@ const breadcrumbs = computed(() => {
 onUnmounted(() => {
     useStorage("sidebar_is_collapsed", false);
 });
-console.log(route.params)
+
 watch(
     [() => route.params.chapterNumber, () => route.params.lessonNumber],
     ([newChapterNumber, newLessonNumber], [oldChapterNumber, oldLessonNumber]) => {
@@ -209,6 +209,10 @@ const getPDFSource = (block) => {
 
 const getId = (block) => {
     return block.match(/\(["']([^"']+?)["']\)/)[1];
+}
+
+const redirectToLogin = () => {
+    window.location.href = `/login?redirect_to=/courses/${props.courseName}/learn/${route.params.chapterNumber}-${route.params.lessonNumber}`;
 }
 </script>
 <style>

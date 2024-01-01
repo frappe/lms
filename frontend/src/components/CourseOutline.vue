@@ -7,13 +7,13 @@
                         :class="{'rotate-90 transform duration-200' : open, 'duration-200' : !open, 'open': index == 1}"
                         class="h-5 w-5 text-gray-900 stroke-1 mr-2"
                     />
-                    <div class="text-lg font-medium">
+                    <div class="text-base font-medium">
                         {{ chapter.title }}
                     </div>
                 </DisclosureButton>
                 <DisclosurePanel class="pb-2">
                     <div v-for="lesson in chapter.lessons" :key="lesson.name">
-                        <div class="outline-lesson mb-2 px-8">
+                        <div class="outline-lesson mb-2 pl-9">
                             <router-link :to='{
                                 name: "Lesson",
                                 params: {
@@ -22,7 +22,7 @@
                                     lessonNumber: lesson.number.split(".")[1],
                                 }
                             }'>
-                                <div class="flex items-center text-base">
+                                <div class="flex items-center text-sm">
                                     <MonitorPlay v-if="lesson.icon === 'icon-youtube'" class="h-4 w-4 text-gray-900 stroke-1 mr-2"/>
                                     <HelpCircle v-else-if="lesson.icon === 'icon-quiz'" class="h-4 w-4 text-gray-900 stroke-1 mr-2"/>
                                     <FileText v-else-if="lesson.icon === 'icon-list'" class="h-4 w-4 text-gray-900 stroke-1 mr-2"/>

@@ -1412,3 +1412,15 @@ def get_country_code():
 	except Exception:
 		pass
 	return
+
+
+@frappe.whitelist()
+def get_question_details(question):
+	fields = ["question", "type", "multiple"]
+	for i in range(1, 5):
+		fields.append(f"option_{i}")
+		fields.append(f"explanation_{i}")
+		fields.append(f"is_correct_{i}")
+
+	question_details = frappe.db.get_value("LMS Question", question, fields, as_dict=1)
+	return question_details

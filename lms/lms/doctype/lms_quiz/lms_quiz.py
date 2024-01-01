@@ -259,7 +259,7 @@ def check_answer(question, type, answers):
 
 
 def check_choice_answers(question, answers):
-	fields = []
+	fields = ["multiple"]
 	is_correct = []
 	for num in range(1, 5):
 		fields.append(f"option_{cstr(num)}")
@@ -267,6 +267,15 @@ def check_choice_answers(question, answers):
 
 	question_details = frappe.db.get_value("LMS Question", question, fields, as_dict=1)
 
+	""" if question_details.multiple:
+		correct_answers = [ question_details[f"option_{num}"] for num in range(1,5) if question_details[f"is_correct_{num}"]]
+		print(answers)
+		for ans in correct_answers:
+			if ans not in answers:
+				is_correct.append(0)
+			else:
+				is_correct.append(1)
+	else: """
 	for num in range(1, 5):
 		if question_details[f"option_{num}"] in answers:
 			is_correct.append(question_details[f"is_correct_{num}"])
