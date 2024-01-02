@@ -1213,8 +1213,6 @@ def get_course_details(course):
 		course_details.price = fmt_money(
 			course_details.course_price, 0, course_details.currency
 		)
-	else:
-		course_details.price = _("Free")
 
 	if frappe.session.user == "Guest":
 		course_details.membership = None
@@ -1361,8 +1359,19 @@ def get_batches():
 			"end_time",
 			"seat_count",
 			"published",
+			"amount",
+			"currency",
 		],
 	)
+	for batch in batches:
+		batch.courses = frappe.db.count("Batch Course", {"parent": batch.name})
+		batch.price = fmt_money(batch.amount, 0, batch.currency)
+		if batch.seat_count:
+			students_enrolled = frappe.db.count(
+				"Batch Student",
+				{"parent": batch.name},
+			)
+			batch.seats_left = batch.seat_count - students_enrolled
 	batches = categorize_batches(batches)
 	return batches
 
