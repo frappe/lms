@@ -19,7 +19,7 @@
                 <div class="font-semibold text-lg">
                     {{ quiz.doc.title }}
                 </div>
-                <Button v-if="!quiz.doc.max_attempts || noOfAttempts.data.length < quiz.doc.max_attempts" @click="startQuiz" class="mt-2">
+                <Button v-if="!quiz.doc.max_attempts || attempts.data?.length < quiz.doc.max_attempts" @click="startQuiz" class="mt-2">
                     <span>
                         {{ __("Start") }}
                     </span>
@@ -110,15 +110,15 @@
                 {{ __("You got {0}% correct answers with a score of {1} out of {2}").format(Math.ceil(quizSubmission.data.percentage), quizSubmission.data.score, quizSubmission.data.score_out_of) }}
             </div>
             <Button @click="resetQuiz()" class="mt-2"
-                v-if="!quiz.doc.max_attempts || noOfAttempts.data.length < quiz.doc.max_attempts">
+                v-if="!quiz.doc.max_attempts || attempts?.data.length < quiz.doc.max_attempts">
                 <span>
                     {{ __("Try Again") }}
                 </span>
             </Button>
         </div>
-        {{ noOfAttempts.data  }}
-        <div v-if="quiz.doc.show_submission_history && noOfAttempts.data" class="mt-10">
-            <ListView :columns="getSubmissionColumns()" :rows="noOfAttempts.data" row-key="name">
+        <div v-if="quiz.doc.show_submission_history && attempts?.data" class="mt-10">
+            <ListView :columns="getSubmissionColumns()" :rows="attempts?.data" row-key="name"
+                :options="{selectable: false, showTooltip: false}">
             </ListView>
         </div>
         
@@ -129,6 +129,7 @@ import { createDocumentResource, Button, createResource, ListView } from 'frappe
 import { ref, watch, reactive, inject } from 'vue';
 import { createToast } from "@/utils/"
 import { CheckCircle, XCircle, MinusCircle } from "lucide-vue-next"
+import { timeAgo } from "@/utils"
 const user = inject("$user");
 
 const activeQuestion = ref(0);
@@ -150,7 +151,7 @@ const quiz = createDocumentResource({
     auto: true,
 });
 
-const noOfAttempts = createResource({
+const attempts = createResource({
     url: "frappe.client.get_list",
     makeParams(values) {
         return {
@@ -159,10 +160,17 @@ const noOfAttempts = createResource({
                 member: user.data?.name,
                 quiz: quiz.doc?.name,
             },
-            fields: ["name", "creation", "score"]
+            fields: ["name", "creation", "score", "score_out_of", "percentage", "passing_percentage"],
+            order_by: "creation desc",
         }
     },
     auto: true,
+    transform(data) {
+        data.forEach((submission, index) => {
+            submission.creation = timeAgo(submission.creation);
+            submission.idx = index + 1;
+        });
+    }
 })
 
 const quizSubmission = createResource({
@@ -290,7 +298,7 @@ const submitQuiz = () => {
 
 const createSubmission = () => {
     quizSubmission.reload().then(() => {
-        noOfAttempts.reload();
+        attempts.reload();
     });
 }
 
@@ -304,14 +312,29 @@ const resetQuiz = () => {
 const getSubmissionColumns = () => {
     return [
         {
-            label: "No."
+            label: "No.",
+            key: "idx",
+            
         },
         {
-            label: "Score"
+            label: "Date",
+            key: "creation",
         },
         {
-            label: "Date"
-        }
+            label: "Score",
+            key: "score",
+            align: "center"
+        },
+        {
+            label: "Score out of",
+            key: "score_out_of",
+            align: "center"
+        },
+        {
+            label: "Percentage",
+            key: "percentage",
+            align: "center"
+        },
     ]
 }
 </script>
