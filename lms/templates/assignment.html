@@ -7,7 +7,7 @@
 		</div>
 		{% if (file_type == "URL") or (file_type == "Text") %}
 			<input class="input-with-feedback form-control" />
-		{% endif %}
+		{% else %}
 			<input class="btn btn-default btn-sm border attach-file" type="file" accept="{{ accept }}" />
 		{% endif %}
 		<div class="btn btn-secondary ml-2 submit-work">{{ _("Submit") }}</div>
