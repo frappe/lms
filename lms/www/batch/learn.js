@@ -118,7 +118,7 @@ const attach_work = (e) => {
 				assignment: $(".assignment").attr("data-assignment"),
 			},
 			callback: (data) => {
-				target.siblings(".attach-file").addClass("hide");
+				target.siblings(".attach-value").addClass("hide");
 				target.siblings(".preview-work").removeClass("hide");
 				target
 					.siblings(".preview-work")
