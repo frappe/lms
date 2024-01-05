@@ -112,7 +112,7 @@ const attach_work = (e) => {
 		frappe.call({
 			method: "lms.lms.doctype.lms_assignment_submission.lms_assignment_submission.upload_assignment",
 			args: {
-				assignment_attachment: values,
+				answer: values,
 				lesson: $(".title").attr("data-lesson"),
 				submission: $(".preview-work").data("submission") || "",
 				assignment: $(".assignment").attr("data-assignment"),
