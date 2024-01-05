@@ -233,7 +233,8 @@ const clear_work = (e) => {
 };
 
 const fetch_assignments = () => {
-	if ($(".attach-file").length <= 0) return;
+	// if ($(".attach-value").length <= 0) return;
+	// if ($(".attach-file").length <= 0) return;
 	frappe.call({
 		method: "lms.lms.doctype.lms_assignment_submission.lms_assignment_submission.get_assignment",
 		args: {
