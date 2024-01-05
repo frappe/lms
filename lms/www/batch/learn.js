@@ -260,12 +260,19 @@ const fetch_assignments = () => {
 						$(".comment").text(assignment.comments);
 					}
 				}
-				target
+				if (assignment.assignment_attachment){
+					target
 					.siblings(".preview-work")
 					.find("a")
 					.attr("href", assignment.assignment_attachment)
 					.text(assignment.file_name);
-
+				}
+				if (assignment.answer){
+					target
+					.siblings(".preview-work")
+					.find("a")
+					.text(answer);
+				}
 				target
 					.siblings(".preview-work")
 					.attr("data-submission", assignment.name);

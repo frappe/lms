@@ -121,7 +121,7 @@ def get_assignment(lesson):
 	assignment = frappe.db.get_value(
 		"LMS Assignment Submission",
 		{"lesson": lesson, "member": frappe.session.user},
-		["name", "lesson", "member", "assignment_attachment", "comments", "status"],
+		["name", "lesson", "member", "assignment_attachment", "comments", "status", "answer"],
 		as_dict=True,
 	)
 	assignment.file_name = frappe.db.get_value(

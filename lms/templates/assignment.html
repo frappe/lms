@@ -7,10 +7,15 @@
 		</div>
 		{% if (file_type == "URL") or (file_type == "Text") %}
 			<input class="input-with-feedback form-control border attach-value" />
+			<div class="input-group mb-3">
+				<input type="text" class="form-control attach-value">
+				<button class="btn btn-outline-secondary submit-work" type="button">{{ _("Submit") }}</button>
+			</div>  
 		{% else %}
 			<input class="btn btn-default btn-sm border attach-file" type="file" accept="{{ accept }}" />
+			<div class="btn btn-secondary ml-2 submit-work">{{ _("Submit") }}</div>
 		{% endif %}
-		<div class="btn btn-secondary ml-2 submit-work">{{ _("Submit") }}</div>
+		
 		<div class="preview-work hide">
 			<a target="_blank"></a>
 			<div class="assignment-status indicator-pill ml-3"></div>
