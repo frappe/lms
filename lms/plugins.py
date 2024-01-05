@@ -234,16 +234,15 @@ def assignment_renderer(assignment_string):
 	}
 	assignment = assignment_string.split("-")[0]
 	assignment_details = frappe.db.get_value(
-		"LMS Assignment", assignment, ["type", "grade_assignment"], as_dict=1
+		"LMS Assignment", assignment, ["type", "grade_assignment", "question"], as_dict=1
 	)
-	question = assignment_string.split("-")[1]
 	if assignment_details.type in ["Text", "URL"]:
 		accept = True
 	else:
 		accept = supported_types[assignment_details.type] if assignment_details.type else ""
 	return frappe.render_template(
 		"templates/assignment.html",
-		{"question": question, "accept": accept, "file_type": assignment_details.type, "assignment": assignment},
+		{"question": assignment_details.question, "accept": accept, "file_type": assignment_details.type, "assignment": assignment},
 	)
 
 
