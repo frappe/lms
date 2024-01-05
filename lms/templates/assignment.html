@@ -5,7 +5,7 @@
 		<div class="alert alert-info small">
 			{{ _("Only files of type {0} will be accepted.").format(file_type) }}
 		</div>
-		{% if file_type == "URL" OR file_type == "Text"  %}
+		{% if (file_type == "URL") or (file_type == "Text") %}
 			<input class="input-with-feedback form-control" />
 		{% endif %}
 			<input class="btn btn-default btn-sm border attach-file" type="file" accept="{{ accept }}" />
