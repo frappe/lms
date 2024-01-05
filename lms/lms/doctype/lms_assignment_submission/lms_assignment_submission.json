@@ -106,7 +106,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Type",
-   "options": "Document\nPDF\nURL\nImage\nText"
+   "options": "Document\nPDF\nURL\nImage\nText\nPower Point\nPython\nJupyter Notebook"
   },
   {
    "fetch_from": "assignment.question",
