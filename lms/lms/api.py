@@ -39,10 +39,7 @@ def save_current_lesson(course_name, lesson_name):
 	)
 	if not name:
 		return
-	doc = frappe.get_doc("LMS Enrollment", name)
-	doc.current_lesson = lesson_name
-	doc.save()
-	return {"current_lesson": doc.current_lesson}
+	frappe.db.set_value("LMS Enrollment", name, "current_lesson", lesson_name)
 
 
 @frappe.whitelist()

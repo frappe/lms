@@ -1322,6 +1322,7 @@ def get_lesson(course, chapter, lesson):
 	neighbours = get_neighbour_lesson(course, chapter, lesson)
 	lesson_details.next = neighbours["next"]
 	lesson_details.prev = neighbours["prev"]
+	lesson_details.membership = membership
 	return lesson_details
 
 

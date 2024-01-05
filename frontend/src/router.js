@@ -32,9 +32,16 @@ const routes = [
 		component: () => import('@/pages/Batches.vue'),
 	},
 	{
-		path: '/batches/:batchName',
+		path: '/batches/details/:batchName',
 		name: 'BatchDetail',
 		component: () => import('@/pages/BatchDetail.vue'),
+		props: true,
+	},
+	{
+		path: '/batches/:batchName',
+		name: 'Batch',
+		component: () => import('@/pages/Batch.vue'),
+		props: true,
 	},
 ]
 
