@@ -107,6 +107,27 @@ const attach_work = (e) => {
 			upload_file(file, target);
 		});
 	}
+	let values = target.siblings(".attach-value").prop("value");
+	if (values){
+		frappe.call({
+			method: "lms.lms.doctype.lms_assignment_submission.lms_assignment_submission.upload_assignment",
+			args: {
+				assignment_attachment: values,
+				lesson: $(".title").attr("data-lesson"),
+				submission: $(".preview-work").data("submission") || "",
+				assignment: $(".assignment").attr("data-assignment"),
+			},
+			callback: (data) => {
+				target.siblings(".attach-file").addClass("hide");
+				target.siblings(".preview-work").removeClass("hide");
+				target
+					.siblings(".preview-work")
+					.find("a")
+					.text(values);
+				target.addClass("hide");
+			},
+		});
+	}
 };
 
 const upload_file = (file, target) => {
