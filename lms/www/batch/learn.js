@@ -156,6 +156,7 @@ const create_lesson_work = (file, target) => {
 			assignment_attachment: file.file_url,
 			lesson: $(".title").attr("data-lesson"),
 			submission: $(".preview-work").data("submission") || "",
+			assignment: $(".assignment").attr("data-assignment"),
 		},
 		callback: (data) => {
 			target.siblings(".attach-file").addClass("hide");
