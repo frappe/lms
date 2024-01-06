@@ -248,15 +248,7 @@ const fetch_assignments = () => {
 				const assignment = data.message;
 				const status = assignment.status;
 				
-				const attachFile = $(".attach-file");
-				const answerForm = $(".answer-form");
-				let target = $(".attach-file");
-				if (attachFile.length <= 0 ){
-					target = attachFile;
-				} 
-				else{
-					target = answerForm;
-				}
+				const target = $(".attach-file").length > 0 ? $(".attach-file") : $(".answer-form");
 				target.addClass("hide");
 				target.siblings(".info-type-allert").addClass("hide");
 				target.siblings(".submit-work").addClass("hide");
