@@ -118,8 +118,9 @@ const attach_work = (e) => {
 				assignment: $(".assignment").attr("data-assignment"),
 			},
 			callback: (data) => {
-				target.siblings(".attach-value").addClass("hide");
-				target.siblings(".preview-work").removeClass("hide");
+				target.siblings(".answer-form").addClass("hide");
+				$(".preview-work").removeClass("hide");
+				parent.siblings(".info-type-allert").addClass("hide");
 				target
 					.siblings(".preview-work")
 					.find("a")
