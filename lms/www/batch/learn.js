@@ -118,12 +118,10 @@ const attach_work = (e) => {
 				assignment: $(".assignment").attr("data-assignment"),
 			},
 			callback: (data) => {
-				target.siblings(".answer-form").addClass("hide");
-				$(".preview-work").removeClass("hide");
-				$(".info-type-allert").addClass("hide");
-				$(".preview-work")
-					.find("a")
-					.text(value);
+				target.parent(".answer-form").addClass("hide");
+				target.parent(".answer-form").siblings(".preview-work").removeClass("hide");
+				target.parent(".answer-form").siblings(".info-type-allert").addClass("hide");
+				target.parent(".answer-form").siblings(".preview-work").find("a").text(value);
 				target.addClass("hide");
 			},
 		});
@@ -176,8 +174,8 @@ const create_lesson_work = (file, target) => {
 		args: {
 			assignment_attachment: file.file_url,
 			lesson: $(".title").attr("data-lesson"),
-			submission: $(".preview-work").data("submission") || "",
-			assignment: $(".assignment").attr("data-assignment"),
+			submission: target.siblings.data("submission") || "",
+			assignment: target.siblings(".assignment").attr("data-assignment"),
 		},
 		callback: (data) => {
 			target.siblings(".attach-file").addClass("hide");
@@ -255,12 +253,12 @@ const fetch_assignments = () => {
 				target.siblings(".preview-work").removeClass("hide");
 				if (status != "Not Graded") {
 					let color = status == "Pass" ? "green" : "red";
-					$(".assignment-status")
+					target.siblings(".preview-work").children(".assignment-status")
 						.removeClass("hide")
 						.addClass(color)
 						.text(data.message.status);
 					target.siblings(".alert").addClass("hide");
-					$(".clear-work").addClass("hide");
+					target.siblings(".preview-work").children(".clear-work").addClass("hide");
 					if (assignment.comments) {
 						$(".comments").removeClass("hide");
 						$(".comment").text(assignment.comments);
