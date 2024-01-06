@@ -122,7 +122,6 @@ const attach_work = (e) => {
 				target.parent(".answer-form").siblings(".preview-work").removeClass("hide");
 				target.parent(".answer-form").siblings(".info-type-allert").addClass("hide");
 				target.parent(".answer-form").siblings(".preview-work").find("a").text(value);
-				target.addClass("hide");
 			},
 		});
 	}
@@ -174,8 +173,8 @@ const create_lesson_work = (file, target) => {
 		args: {
 			assignment_attachment: file.file_url,
 			lesson: $(".title").attr("data-lesson"),
-			submission: target.siblings.data("submission") || "",
-			assignment: target.siblings(".assignment").attr("data-assignment"),
+			submission: $(".preview-work").data("submission") || "",
+			assignment: $(".assignment").attr("data-assignment"),
 		},
 		callback: (data) => {
 			target.siblings(".attach-file").addClass("hide");
