@@ -231,6 +231,8 @@ const clear_work = (e) => {
 	parent.siblings(".attach-file").removeClass("hide").val(null);
 	parent.siblings(".submit-work").removeClass("hide");
 	parent.siblings(".answer-form").removeClass("hide");
+	parent.siblings(".info-type-allert").removeClass("hide");
+
 };
 
 const fetch_assignments = () => {
@@ -248,9 +250,13 @@ const fetch_assignments = () => {
 				
 				let target = $(".attach-file");
 				target.addClass("hide");
+				target.siblings(".info-type-allert").addClass("hide");
 				
 				let target_form = $(".answer-form");
 				target_form.addClass("hide");
+				target_form.siblings(".info-type-allert").addClass("hide");
+
+				
 
 				target.siblings(".submit-work").addClass("hide");
 				target.siblings(".preview-work").removeClass("hide");
@@ -270,7 +276,7 @@ const fetch_assignments = () => {
 				if (assignment.answer !== null &&
 					 assignment.answer.length > 0){
 					console.log(assignment.answer);
-					target
+					target_form
 					.siblings(".preview-work")
 					.find("a")
 					.text(assignment.answer);
