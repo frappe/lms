@@ -230,6 +230,7 @@ const clear_work = (e) => {
 	parent.addClass("hide");
 	parent.siblings(".attach-file").removeClass("hide").val(null);
 	parent.siblings(".submit-work").removeClass("hide");
+	parent.siblings(".answer-form").removeClass("hide");
 };
 
 const fetch_assignments = () => {
@@ -244,8 +245,13 @@ const fetch_assignments = () => {
 			if (data.message) {
 				const assignment = data.message;
 				const status = assignment.status;
+				
 				let target = $(".attach-file");
 				target.addClass("hide");
+				
+				let target_form = $(".answer-form");
+				target_form.addClass("hide");
+
 				target.siblings(".submit-work").addClass("hide");
 				target.siblings(".preview-work").removeClass("hide");
 				if (status != "Not Graded") {
@@ -261,14 +267,16 @@ const fetch_assignments = () => {
 						$(".comment").text(assignment.comments);
 					}
 				}
-				if (assignment.answer.length > 0){
+				if (assignment.answer !== null &&
+					 assignment.answer.length > 0){
 					console.log(assignment.answer);
 					target
 					.siblings(".preview-work")
 					.find("a")
 					.text(assignment.answer);
 				}
-				if(assignment.assignment_attachment.length > 0){
+				if(assignment.assignment_attachment !== null &&  
+					assignment.assignment_attachment.length > 0){
 					console.log(assignment.assignment_attachment);
 					target
 					.siblings(".preview-work")
@@ -276,12 +284,6 @@ const fetch_assignments = () => {
 					.attr("href", assignment.assignment_attachment)
 					.text(assignment.file_name);
 				}
-				target
-					.siblings(".preview-work")
-					.find("a")
-					.attr("href", assignment.assignment_attachment)
-					.text(assignment.file_name);
-
 				target
 					.siblings(".preview-work")
 					.attr("data-submission", assignment.name);
