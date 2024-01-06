@@ -233,8 +233,7 @@ const clear_work = (e) => {
 };
 
 const fetch_assignments = () => {
-	// if ($(".attach-value").length <= 0) return;
-	// if ($(".attach-file").length <= 0) return;
+	if ($(".attach-file").length <= 0) return;
 	frappe.call({
 		method: "lms.lms.doctype.lms_assignment_submission.lms_assignment_submission.get_assignment",
 		args: {
@@ -244,8 +243,6 @@ const fetch_assignments = () => {
 			if (data.message) {
 				const assignment = data.message;
 				const status = assignment.status;
-				const answer = assignment.answer;
-				const attach = assignment.assignment_attachment
 				let target = $(".attach-file");
 				target.addClass("hide");
 				target.siblings(".submit-work").addClass("hide");
@@ -263,19 +260,12 @@ const fetch_assignments = () => {
 						$(".comment").text(assignment.comments);
 					}
 				}
-				if (attach){
-					target
+				target
 					.siblings(".preview-work")
 					.find("a")
 					.attr("href", assignment.assignment_attachment)
 					.text(assignment.file_name);
-				}
-				if (answer){
-					target
-					.siblings(".preview-work")
-					.find("a")
-					.text(answer);
-				}
+
 				target
 					.siblings(".preview-work")
 					.attr("data-submission", assignment.name);

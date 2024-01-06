@@ -125,7 +125,7 @@ def get_assignment(lesson):
 		as_dict=True,
 	)
 	assignment.file_name = frappe.db.get_value(
-		"File", {"file_url": assignment.assignment_attachment}, "file_name", "type"
+		"File", {"file_url": assignment.assignment_attachment}, "file_name",
 	)
 	return assignment
 
