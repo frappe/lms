@@ -120,9 +120,8 @@ const attach_work = (e) => {
 			callback: (data) => {
 				target.siblings(".answer-form").addClass("hide");
 				$(".preview-work").removeClass("hide");
-				parent.siblings(".info-type-allert").addClass("hide");
-				target
-					.siblings(".preview-work")
+				$(".info-type-allert").addClass("hide");
+				$(".preview-work")
 					.find("a")
 					.text(value);
 				target.addClass("hide");
