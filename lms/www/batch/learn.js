@@ -244,6 +244,8 @@ const fetch_assignments = () => {
 			if (data.message) {
 				const assignment = data.message;
 				const status = assignment.status;
+				const answer = assignment.answer;
+				const attach = assignment.assignment_attachment
 				let target = $(".attach-file");
 				target.addClass("hide");
 				target.siblings(".submit-work").addClass("hide");
@@ -261,14 +263,14 @@ const fetch_assignments = () => {
 						$(".comment").text(assignment.comments);
 					}
 				}
-				if (assignment.assignment_attachment){
+				if (attach){
 					target
 					.siblings(".preview-work")
 					.find("a")
 					.attr("href", assignment.assignment_attachment)
 					.text(assignment.file_name);
 				}
-				if (assignment.answer){
+				if (answer){
 					target
 					.siblings(".preview-work")
 					.find("a")
