@@ -240,8 +240,8 @@ const fetch_assignments = () => {
 			lesson: $(".title").attr("data-lesson"),
 		},
 		callback: (data) => {
+			console.log(data.message);
 			if (data.message) {
-				console.log(data.message);
 				const assignment = data.message;
 				const status = assignment.status;
 				let target = $(".attach-file");
@@ -261,14 +261,14 @@ const fetch_assignments = () => {
 						$(".comment").text(assignment.comments);
 					}
 				}
-				if (assignment.answer){
+				if (assignment.answer.length > 0){
 					console.log(assignment.answer);
 					target
 					.siblings(".preview-work")
 					.find("a")
 					.text(assignment.answer);
 				}
-				if(assignment.assignment_attachment){
+				if(assignment.assignment_attachment.length > 0){
 					console.log(assignment.assignment_attachment);
 					target
 					.siblings(".preview-work")
