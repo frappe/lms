@@ -107,8 +107,8 @@ const attach_work = (e) => {
 			upload_file(file, target);
 		});
 	}
-	let values = target.siblings(".attach-value").prop("value");
-	if (values){
+	let value = target.siblings(".attach-value").prop("value");
+	if (value){
 		frappe.call({
 			method: "lms.lms.doctype.lms_assignment_submission.lms_assignment_submission.upload_assignment",
 			args: {
@@ -124,7 +124,7 @@ const attach_work = (e) => {
 				target
 					.siblings(".preview-work")
 					.find("a")
-					.text(values);
+					.text(value);
 				target.addClass("hide");
 			},
 		});
