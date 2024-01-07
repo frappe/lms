@@ -12,6 +12,7 @@ frappe.ui.form.on("Course Lesson", {
 		)} </a>`;
 		let file_link = `<a href="/app/file"> ${__("File DocType")} </a>`;
 
+        
 		frm.get_field("help").html(`
             <p>${__(
 				"You can add some more additional content to the lesson using a special syntax. The table below mentions all types of dynamic content that you can add to the lessons and the syntax for the same."
