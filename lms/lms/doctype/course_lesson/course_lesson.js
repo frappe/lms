@@ -105,44 +105,18 @@ frappe.ui.form.on("Course Lesson", {
                         ${__("Assignment")}
                     </td>
                     <td>
-                        {{ Assignment("id-filetype") }}
+                        {{ Assignment("assigment_id") }}
+                    </td>
+                    <td>
+                        ${__(
+							"Copy and paste the syntax in the editor. Replace 'assigment_id' with the ID of the Assignment you want to add.",
+							
+						)}
                     </td>
                 </tr>
             </table>
             <hr>
-            <table class="table">
-                <tr style="background-color: var(--fg-hover-color); font-weight: bold">
-                    <th style="width: 90%">
-                        ${__("Supported File Types for Assignment")}
-                    </th>
-                    <th>
-                        ${__("Syntax")}
-                    </th>
-                </tr>
-                <tr>
-                    <td>
-                        .doc, .docx, .xml
-                    <td>
-                        ${__("Document")}
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        .pdf
-                    </td>
-                    <td>
-                        ${__("PDF")}
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        .png, .jpg, .jpeg
-                    </td>
-                    <td>
-                        ${__("Image")}
-                    </td>
-                </tr>
-            </table>
+            
         `);
 	},
 });

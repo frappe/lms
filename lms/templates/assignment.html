@@ -7,8 +7,8 @@
 		</div>
 		{% if (file_type == "URL") or (file_type == "Text") %}
 			<div class="input-group mb-3 answer-form">
-				<input type="text" class="form-control attach-value">
-				<button class="btn btn-outline-secondary submit-work" type="button">{{ _("Submit") }}</button>
+				<input type="text" class="form-control mr-2 attach-value">
+				<button class="btn btn-secondary btn-sm ml-2 submit-work" type="button">{{ _("Submit") }}</button>
 			</div>  
 		{% else %}
 			<input class="btn btn-default btn-sm border attach-file" type="file" accept="{{ accept }}" />

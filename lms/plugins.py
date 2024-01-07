@@ -221,7 +221,7 @@ def pdf_renderer(src):
 	return f"<iframe src='{quote(src)}#toolbar=0' width='100%' height='700px'></iframe>"
 
 
-def assignment_renderer(assignment_string):
+def assignment_renderer(assignment):
 	supported_types = {
 		"Document": ".doc,.docx,.xml,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 		"PDF": ".pdf",
@@ -232,7 +232,6 @@ def assignment_renderer(assignment_string):
 		"Power Point": ".pptx, .pptm, .ppt, .pdf",
 		"DrawIO": ".pptx, .pptm, .ppt, .pdf",
 	}
-	assignment = assignment_string.split("-")[0]
 	assignment_details = frappe.db.get_value(
 		"LMS Assignment", assignment, ["type", "grade_assignment", "question"], as_dict=1
 	)
