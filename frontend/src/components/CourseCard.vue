@@ -114,35 +114,13 @@ import { Badge, createResource } from 'frappe-ui'
 import { ref, watchEffect } from 'vue'
 
 const { user } = sessionStore()
-let course = ref({})
 
 const props = defineProps({
 	course: {
-		type: [Object, String],
+		type: Object,
 		default: null,
 	},
 })
-
-const courseDetails = createResource({
-	url: 'lms.lms.utils.get_course_details',
-	cache: ['course', props.courseName],
-	makeParams() {
-		return {
-			course: props.course,
-		}
-	},
-	transform(data) {
-		course.value = data
-	},
-})
-
-/* watchEffect(() => {
-    if (props.course && typeof props.course === "object") {
-        course.value = props.course;
-    } else {
-        courseDetails.reload();
-    }
-}); */
 </script>
 <style>
 .course-image {

@@ -29,7 +29,7 @@
 			</div>
 			<div class="flex items-center mb-3">
 				<BookOpen class="h-4 w-4 stroke-1.5 mr-2 text-gray-700" />
-				<span> {{ batch.courses }} {{ __('Courses') }} </span>
+				<span> {{ batch.courses.length }} {{ __('Courses') }} </span>
 			</div>
 			<div class="flex items-center mb-3">
 				<Calendar class="h-4 w-4 stroke-1.5 mr-2 text-gray-700" />

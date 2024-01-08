@@ -1,38 +1,38 @@
 <template>
-	<div class="shadow rounded-md p-5" style="width: 300px">
+	<div v-if="batch.data" class="shadow rounded-md p-5" style="width: 300px">
 		<Badge
-			v-if="batch.doc.seat_count && seats_left > 0"
+			v-if="batch.data.seat_count && seats_left > 0"
 			theme="green"
 			class="self-start mb-2 float-right"
 		>
 			{{ seats_left }} {{ __('Seat Left') }}
 		</Badge>
 		<Badge
-			v-else-if="batch.doc.seat_count && seats_left <= 0"
+			v-else-if="batch.data.seat_count && seats_left <= 0"
 			theme="red"
 			class="self-start mb-2 float-right"
 		>
 			{{ __('Sold Out') }}
 		</Badge>
-		<div v-if="batch.doc.amount" class="text-lg font-semibold mb-3">
-			{{ formatNumberIntoCurrency(batch.doc.amount, batch.doc.currency) }}
+		<div v-if="batch.data.amount" class="text-lg font-semibold mb-3">
+			{{ formatNumberIntoCurrency(batch.data.amount, batch.data.currency) }}
 		</div>
 		<div class="flex items-center mb-3">
 			<BookOpen class="h-4 w-4 stroke-1.5 mr-2 text-gray-700" />
-			<span> {{ batch.doc.courses.length }} {{ __('Courses') }} </span>
+			<span> {{ batch.data.courses.length }} {{ __('Courses') }} </span>
 		</div>
 		<div class="flex items-center mb-3">
 			<Calendar class="h-4 w-4 stroke-1.5 mr-2 text-gray-700" />
 			<span>
-				{{ dayjs(batch.doc.start_date).format('DD MMM YYYY') }} -
-				{{ dayjs(batch.doc.end_date).format('DD MMM YYYY') }}
+				{{ dayjs(batch.data.start_date).format('DD MMM YYYY') }} -
+				{{ dayjs(batch.data.end_date).format('DD MMM YYYY') }}
 			</span>
 		</div>
 		<div class="flex items-center">
 			<Clock class="h-4 w-4 stroke-1.5 mr-2 text-gray-700" />
 			<span>
-				{{ formatTime(batch.doc.start_time) }} -
-				{{ formatTime(batch.doc.end_time) }}
+				{{ formatTime(batch.data.start_time) }} -
+				{{ formatTime(batch.data.end_time) }}
 			</span>
 		</div>
 		<Button v-if="user?.data?.is_moderator" class="w-full mt-4">
@@ -41,7 +41,7 @@
 			</span>
 		</Button>
 		<Button
-			v-else-if="batch.doc.paid_batch"
+			v-else-if="batch.data.paid_batch"
 			class="w-full mt-4"
 			variant="solid"
 		>
@@ -73,8 +73,8 @@ const props = defineProps({
 })
 
 const seats_left = computed(() => {
-	if (props.batch.doc.seat_count) {
-		return props.batch.doc.seat_count - props.batch.doc.students.length
+	if (props.batch.data?.seat_count) {
+		return props.batch.data?.seat_count - props.batch.data?.students?.length
 	}
 	return null
 })

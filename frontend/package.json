@@ -12,7 +12,6 @@
     "frappe-ui": "^0.1.16",
     "lucide-vue-next": "^0.259.0",
     "pinia": "^2.0.33",
-    "qalendar": "^3.6.1",
     "tailwindcss": "^3.2.7",
     "vue": "^3.2.25",
 		"dayjs": "^1.11.6",

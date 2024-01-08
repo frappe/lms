@@ -1,15 +1,15 @@
 import {
-	b as d,
-	D as g,
-	r,
-	o as m,
-	d as f,
-	e as t,
-	w as s,
-	j as l,
-	k as p,
-	t as u,
-} from "./frappe-ui.8966d601.js";
+	q as d,
+	O as g,
+	P as r,
+	s as m,
+	u as f,
+	C as s,
+	z as t,
+	X as l,
+	A as u,
+	E as p,
+} from "./frappe-ui.f2211ca2.js";
 const D = {
 		name: "Home",
 		data() {
@@ -19,13 +19,13 @@ const D = {
 		components: { Dialog: g },
 	},
 	_ = { class: "max-w-3xl py-12 mx-auto" };
-function k(e, o, w, C, n, V) {
+function C(e, o, k, w, n, V) {
 	const a = r("Button"),
 		c = r("Dialog");
 	return (
 		m(),
 		f("div", _, [
-			t(
+			s(
 				a,
 				{
 					"icon-left": "code",
@@ -33,20 +33,20 @@ function k(e, o, w, C, n, V) {
 					loading: e.$resources.ping.loading,
 				},
 				{
-					default: s(() => [l(" Click to send 'ping' request ")]),
+					default: t(() => [l(" Click to send 'ping' request ")]),
 					_: 1,
 				},
 				8,
 				["onClick", "loading"]
 			),
-			p("div", null, u(e.$resources.ping.data), 1),
-			p("pre", null, u(e.$resources.ping), 1),
-			t(
+			u("div", null, p(e.$resources.ping.data), 1),
+			u("pre", null, p(e.$resources.ping), 1),
+			s(
 				a,
 				{ onClick: o[0] || (o[0] = (i) => (n.showDialog = !0)) },
-				{ default: s(() => [l("Open Dialog")]), _: 1 }
+				{ default: t(() => [l("Open Dialog")]), _: 1 }
 			),
-			t(
+			s(
 				c,
 				{
 					title: "Title",
@@ -54,12 +54,12 @@ function k(e, o, w, C, n, V) {
 					"onUpdate:modelValue":
 						o[1] || (o[1] = (i) => (n.showDialog = i)),
 				},
-				{ default: s(() => [l(" Dialog content ")]), _: 1 },
+				{ default: t(() => [l(" Dialog content ")]), _: 1 },
 				8,
 				["modelValue"]
 			),
 		])
 	);
 }
-const B = d(D, [["render", k]]);
+const B = d(D, [["render", C]]);
 export { B as default };

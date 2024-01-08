@@ -1,20 +1,20 @@
 import {
-	b as d,
-	h as g,
-	I as L,
-	D as m,
-	r as i,
-	o as p,
-	d as f,
-	A as D,
-	B as h,
-	C as c,
-	e as l,
-	w as a,
-	E as w,
-	j as _,
-	F as v,
-} from "./frappe-ui.8966d601.js";
+	q as d,
+	$ as g,
+	al as L,
+	O as m,
+	P as i,
+	s as p,
+	u as f,
+	I as D,
+	aj as c,
+	ak as h,
+	C as l,
+	z as a,
+	am as _,
+	X as v,
+	K as w,
+} from "./frappe-ui.f2211ca2.js";
 const x = {
 	name: "InsertLink",
 	props: ["editor"],
@@ -56,10 +56,10 @@ function V(t, e, C, B, n, s) {
 	return (
 		p(),
 		f(
-			v,
+			w,
 			null,
 			[
-				D(t.$slots, "default", h(c({ onClick: s.openDialog }))),
+				D(t.$slots, "default", c(h({ onClick: s.openDialog }))),
 				l(
 					k,
 					{
@@ -83,7 +83,7 @@ function V(t, e, C, B, n, s) {
 											(n.setLinkDialog.url = o)),
 									onKeydown:
 										e[1] ||
-										(e[1] = w(
+										(e[1] = _(
 											(o) => s.setLink(o.target.value),
 											["enter"]
 										)),
@@ -103,7 +103,7 @@ function V(t, e, C, B, n, s) {
 										(e[2] = (o) =>
 											s.setLink(n.setLinkDialog.url)),
 								},
-								{ default: a(() => [_(" Save ")]), _: 1 }
+								{ default: a(() => [v(" Save ")]), _: 1 }
 							),
 						]),
 						_: 1,
@@ -116,5 +116,5 @@ function V(t, e, C, B, n, s) {
 		)
 	);
 }
-const b = d(x, [["render", V]]);
-export { b as default };
+const y = d(x, [["render", V]]);
+export { y as default };

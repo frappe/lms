@@ -1,24 +1,24 @@
 import {
-	b as _,
-	h as C,
-	D as k,
-	H as v,
-	r,
-	o as u,
-	d as c,
-	A as h,
-	B,
-	C as w,
-	e as t,
-	w as l,
-	k as x,
-	j as n,
-	t as y,
-	v as U,
-	n as p,
-	F,
-} from "./frappe-ui.8966d601.js";
-const A = {
+	q as _,
+	$ as C,
+	O as k,
+	ao as v,
+	P as r,
+	s as u,
+	u as c,
+	I as h,
+	aj as x,
+	ak as y,
+	C as a,
+	z as l,
+	A as B,
+	X as n,
+	E as w,
+	y as U,
+	F as p,
+	K as F,
+} from "./frappe-ui.f2211ca2.js";
+const I = {
 		name: "InsertImage",
 		props: ["editor"],
 		expose: ["openDialog"],
@@ -47,9 +47,9 @@ const A = {
 			},
 		},
 	},
-	I = { class: "flex items-center space-x-2" },
+	A = { class: "flex items-center space-x-2" },
 	N = ["src"];
-function S(i, o, b, L, e, a) {
+function S(i, o, P, z, e, t) {
 	const s = r("Button"),
 		V = r("FileUploader"),
 		g = r("Dialog");
@@ -59,19 +59,19 @@ function S(i, o, b, L, e, a) {
 			F,
 			null,
 			[
-				h(i.$slots, "default", B(w({ onClick: a.openDialog }))),
-				t(
+				h(i.$slots, "default", x(y({ onClick: t.openDialog }))),
+				a(
 					g,
 					{
 						options: { title: "Add Video" },
 						modelValue: e.addVideoDialog.show,
 						"onUpdate:modelValue":
 							o[2] || (o[2] = (d) => (e.addVideoDialog.show = d)),
-						onAfterLeave: a.reset,
+						onAfterLeave: t.reset,
 					},
 					{
 						"body-content": l(() => [
-							t(
+							a(
 								V,
 								{
 									"file-types": "video/*",
@@ -89,14 +89,14 @@ function S(i, o, b, L, e, a) {
 											uploading: m,
 											openFileSelector: D,
 										}) => [
-											x("div", I, [
-												t(
+											B("div", A, [
+												a(
 													s,
 													{ onClick: D },
 													{
 														default: l(() => [
 															n(
-																y(
+																w(
 																	m
 																		? `Uploading ${f}%`
 																		: e
@@ -164,23 +164,23 @@ function S(i, o, b, L, e, a) {
 								: p("", !0),
 						]),
 						actions: l(() => [
-							t(
+							a(
 								s,
 								{
 									variant: "solid",
 									onClick:
 										o[1] ||
 										(o[1] = (d) =>
-											a.addVideo(e.addVideoDialog.url)),
+											t.addVideo(e.addVideoDialog.url)),
 								},
 								{
 									default: l(() => [n(" Insert Video ")]),
 									_: 1,
 								}
 							),
-							t(
+							a(
 								s,
-								{ onClick: a.reset },
+								{ onClick: t.reset },
 								{ default: l(() => [n("Cancel")]), _: 1 },
 								8,
 								["onClick"]
@@ -196,5 +196,5 @@ function S(i, o, b, L, e, a) {
 		)
 	);
 }
-const R = _(A, [["render", S]]);
-export { R as default };
+const L = _(I, [["render", S]]);
+export { L as default };

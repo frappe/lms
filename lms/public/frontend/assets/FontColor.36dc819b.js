@@ -1,21 +1,21 @@
 import {
-	b as f,
-	P as g,
+	q as f,
+	ai as g,
 	T as _,
-	r as d,
-	o,
-	v as l,
-	w as r,
-	A as p,
-	B as C,
-	C as k,
-	k as a,
-	d as c,
-	F as u,
-	m,
-	q as h,
-	p as b,
-} from "./frappe-ui.8966d601.js";
+	P as c,
+	s as o,
+	y as l,
+	z as r,
+	I as p,
+	aj as C,
+	ak as k,
+	A as a,
+	u as d,
+	K as u,
+	L as m,
+	a2 as h,
+	B as b,
+} from "./frappe-ui.f2211ca2.js";
 const v = {
 		name: "FontColor",
 		props: ["editor"],
@@ -67,17 +67,17 @@ const v = {
 	B = a("div", { class: "text-sm text-gray-700" }, "Text Color", -1),
 	P = { class: "mt-1 grid grid-cols-8 gap-1" },
 	F = ["aria-label", "onClick"],
-	w = a(
+	D = a(
 		"div",
 		{ class: "mt-2 text-sm text-gray-700" },
 		"Background Color",
 		-1
 	),
-	D = { class: "mt-1 grid grid-cols-8 gap-1" },
+	w = { class: "mt-1 grid grid-cols-8 gap-1" },
 	T = ["aria-label", "onClick"];
-function A(t, z, E, R, $, n) {
-	const i = d("Tooltip"),
-		x = d("Popover");
+function z(t, A, j, E, R, n) {
+	const i = c("Tooltip"),
+		x = c("Popover");
 	return (
 		o(),
 		l(
@@ -96,7 +96,7 @@ function A(t, z, E, R, $, n) {
 						B,
 						a("div", P, [
 							(o(!0),
-							c(
+							d(
 								u,
 								null,
 								m(
@@ -141,10 +141,10 @@ function A(t, z, E, R, $, n) {
 								128
 							)),
 						]),
-						w,
-						a("div", D, [
+						D,
+						a("div", w, [
 							(o(!0),
-							c(
+							d(
 								u,
 								null,
 								m(
@@ -202,5 +202,5 @@ function A(t, z, E, R, $, n) {
 		)
 	);
 }
-const G = f(v, [["render", A]]);
+const G = f(v, [["render", z]]);
 export { G as default };

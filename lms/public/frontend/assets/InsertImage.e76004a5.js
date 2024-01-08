@@ -1,30 +1,30 @@
 import {
-	b as f,
-	h as I,
-	D,
-	G as h,
-	r as d,
-	o as m,
-	d as c,
-	A as _,
-	B as y,
-	C,
-	e as n,
-	w as s,
-	k as r,
-	t as w,
-	n as b,
-	j as u,
-	F as k,
-} from "./frappe-ui.8966d601.js";
-const v = {
+	q as I,
+	$ as f,
+	O as D,
+	an as h,
+	P as d,
+	s as m,
+	u as c,
+	I as _,
+	aj as y,
+	ak as C,
+	C as n,
+	z as s,
+	A as i,
+	E as k,
+	F as v,
+	X as u,
+	K as w,
+} from "./frappe-ui.f2211ca2.js";
+const b = {
 		name: "InsertImage",
 		props: ["editor"],
 		expose: ["openDialog"],
 		data() {
 			return { addImageDialog: { url: "", file: null, show: !1 } };
 		},
-		components: { Button: I, Dialog: D },
+		components: { Button: f, Dialog: D },
 		methods: {
 			openDialog() {
 				this.addImageDialog.show = !0;
@@ -33,8 +33,8 @@ const v = {
 				let e = t.target.files[0];
 				!e ||
 					((this.addImageDialog.file = e),
-					h(e).then((i) => {
-						this.addImageDialog.url = i;
+					h(e).then((r) => {
+						this.addImageDialog.url = r;
 					}));
 			},
 			addImage(t) {
@@ -46,18 +46,18 @@ const v = {
 			},
 		},
 	},
-	B = {
+	x = {
 		class: "relative cursor-pointer rounded-lg bg-gray-100 py-1 focus-within:bg-gray-200 hover:bg-gray-200",
 	},
-	x = { class: "absolute inset-0 select-none px-2 py-1 text-base" },
+	B = { class: "absolute inset-0 select-none px-2 py-1 text-base" },
 	S = ["src"];
-function V(t, e, i, A, a, o) {
+function V(t, e, r, A, a, o) {
 	const g = d("Button"),
 		p = d("Dialog");
 	return (
 		m(),
 		c(
-			k,
+			w,
 			null,
 			[
 				_(t.$slots, "default", y(C({ onClick: o.openDialog }))),
@@ -72,8 +72,8 @@ function V(t, e, i, A, a, o) {
 					},
 					{
 						"body-content": s(() => [
-							r("label", B, [
-								r(
+							i("label", x, [
+								i(
 									"input",
 									{
 										type: "file",
@@ -88,10 +88,10 @@ function V(t, e, i, A, a, o) {
 									null,
 									32
 								),
-								r(
+								i(
 									"span",
-									x,
-									w(
+									B,
+									k(
 										a.addImageDialog.file
 											? "Select another image"
 											: "Select an image"
@@ -112,7 +112,7 @@ function V(t, e, i, A, a, o) {
 										8,
 										S
 								  ))
-								: b("", !0),
+								: v("", !0),
 						]),
 						actions: s(() => [
 							n(
@@ -147,5 +147,5 @@ function V(t, e, i, A, a, o) {
 		)
 	);
 }
-const F = f(v, [["render", V]]);
-export { F as default };
+const P = I(b, [["render", V]]);
+export { P as default };

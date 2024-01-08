@@ -1348,12 +1348,27 @@ def get_neighbour_lesson(course, chapter, lesson):
 
 @frappe.whitelist(allow_guest=True)
 def get_batches():
-	batches = frappe.get_all(
+	batches = []
+	batch_list = frappe.get_all("LMS Batch", pluck="name")
+
+	for batch in batch_list:
+		batches.append(get_batch_details(batch))
+
+	batches = categorize_batches(batches)
+	return batches
+
+
+@frappe.whitelist(allow_guest=True)
+def get_batch_details(batch):
+	batch_details = frappe.db.get_value(
 		"LMS Batch",
-		fields=[
+		batch,
+		[
 			"name",
 			"title",
 			"description",
+			"batch_details",
+			"batch_details_raw",
 			"start_date",
 			"end_date",
 			"start_time",
@@ -1362,19 +1377,36 @@ def get_batches():
 			"published",
 			"amount",
 			"currency",
+			"paid_batch",
 		],
+		as_dict=True,
 	)
-	for batch in batches:
-		batch.courses = frappe.db.count("Batch Course", {"parent": batch.name})
-		batch.price = fmt_money(batch.amount, 0, batch.currency)
-		if batch.seat_count:
-			students_enrolled = frappe.db.count(
-				"Batch Student",
-				{"parent": batch.name},
+
+	batch_details.courses = frappe.get_all(
+		"Batch Course", {"parent": batch}, pluck="course"
+	)
+	batch_details.students = frappe.get_all(
+		"Batch Student", {"parent": batch}, pluck="student"
+	)
+	batch_details.price = fmt_money(batch_details.amount, 0, batch_details.currency)
+
+	is_student = frappe.session.user in batch_details.students
+	if frappe.session.user != "Guest":
+		if is_student:
+			batch_details.upcoming_evals = get_upcoming_evals(
+				frappe.session.user, batch_details.courses
 			)
-			batch.seats_left = batch.seat_count - students_enrolled
-	batches = categorize_batches(batches)
-	return batches
+		if is_student or has_course_moderator_role():
+			batch_details.assessments = get_assessments(batch, frappe.session.user)
+
+	if batch_details.seat_count:
+		students_enrolled = frappe.db.count(
+			"Batch Student",
+			{"parent": batch},
+		)
+		batch_details.seats_left = batch_details.seat_count - students_enrolled
+
+	return batch_details
 
 
 def categorize_batches(batches):
@@ -1434,3 +1466,97 @@ def get_question_details(question):
 
 	question_details = frappe.db.get_value("LMS Question", question, fields, as_dict=1)
 	return question_details
+
+
+@frappe.whitelist(allow_guest=True)
+def get_batch_courses(batch):
+	courses = []
+	course_list = frappe.get_all("Batch Course", {"parent": batch}, pluck="course")
+
+	for course in course_list:
+		courses.append(get_course_details(course))
+
+	return courses
+
+
+def get_assessments(batch, member=None):
+	if not member:
+		member = frappe.session.user
+
+	assessments = frappe.get_all(
+		"LMS Assessment",
+		{"parent": batch},
+		["name", "assessment_type", "assessment_name"],
+	)
+
+	for assessment in assessments:
+		if assessment.assessment_type == "LMS Assignment":
+			assessment = get_assignment_details(assessment, member)
+
+		elif assessment.assessment_type == "LMS Quiz":
+			assessment = get_quiz_details(assessment, member)
+
+	return assessments
+
+
+def get_assignment_details(assessment, member):
+	assessment.title = frappe.db.get_value(
+		"LMS Assignment", assessment.assessment_name, "title"
+	)
+
+	existing_submission = frappe.db.exists(
+		{
+			"doctype": "LMS Assignment Submission",
+			"member": member,
+			"assignment": assessment.assessment_name,
+		}
+	)
+	assessment.completed = False
+	if existing_submission:
+		assessment.submission = frappe.db.get_value(
+			"LMS Assignment Submission",
+			existing_submission,
+			["name", "status", "comments"],
+			as_dict=True,
+		)
+		assessment.completed = True
+
+	assessment.edit_url = f"/assignments/{assessment.assessment_name}"
+	submission_name = existing_submission if existing_submission else "new-submission"
+	assessment.url = (
+		f"/assignment-submission/{assessment.assessment_name}/{submission_name}"
+	)
+
+	return assessment
+
+
+def get_quiz_details(assessment, member):
+	assessment_details = frappe.db.get_value(
+		"LMS Quiz", assessment.assessment_name, ["title", "passing_percentage"], as_dict=1
+	)
+	assessment.title = assessment_details.title
+
+	existing_submission = frappe.get_all(
+		"LMS Quiz Submission",
+		{
+			"member": member,
+			"quiz": assessment.assessment_name,
+		},
+		["name", "score", "percentage"],
+		order_by="percentage desc",
+	)
+
+	if len(existing_submission):
+		assessment.submission = existing_submission[0]
+
+	assessment.completed = False
+	if assessment.submission:
+		assessment.completed = True
+
+	assessment.edit_url = f"/quizzes/{assessment.assessment_name}"
+	submission_name = (
+		existing_submission[0].name if len(existing_submission) else "new-submission"
+	)
+	assessment.url = f"/quiz-submission/{assessment.assessment_name}/{submission_name}"
+
+	return assessment
