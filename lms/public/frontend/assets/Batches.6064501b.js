@@ -22,11 +22,11 @@ import {
 	Z as z,
 	$ as L,
 	a1 as P,
-} from "./frappe-ui.f2211ca2.js";
-import { f as B } from "./index.05189aed.js";
-import { B as A } from "./index.43e529db.js";
-import { C as E, a as O } from "./clock.4d13ba48.js";
-import { P as S } from "./plus.8f4bce9f.js";
+} from "./frappe-ui.a747cf9c.js";
+import { f as B } from "./index.6f049c1a.js";
+import { B as A } from "./index.51e5b051.js";
+import { C as E, a as O } from "./clock.b36d19aa.js";
+import { P as S } from "./plus.d245902e.js";
 const F = {
 		class: "flex flex-col border border-gray-200 rounded-md p-4 h-full",
 		style: { "min-height": "150px" },

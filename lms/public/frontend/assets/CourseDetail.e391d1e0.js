@@ -44,12 +44,12 @@ import {
 	a2 as K,
 	c as Z,
 	Z as G,
-} from "./frappe-ui.f2211ca2.js";
-import { c as N } from "./index.05189aed.js";
-import { U as B, B as I } from "./index.43e529db.js";
-import { S as x } from "./star.d3e8ecca.js";
-import { _ as J } from "./CourseOutline.df6c648a.js";
-import { _ as E } from "./UserAvatar.b64a03ac.js";
+} from "./frappe-ui.a747cf9c.js";
+import { c as N } from "./index.6f049c1a.js";
+import { U as B, B as I } from "./index.51e5b051.js";
+import { S as x } from "./star.d358f014.js";
+import { _ as J } from "./CourseOutline.2110618a.js";
+import { _ as E } from "./UserAvatar.3cd4adb4.js";
 const Q = { class: "shadow rounded-md", style: { width: "300px" } },
 	X = ["src"],
 	Y = { class: "p-5" },

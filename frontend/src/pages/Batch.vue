@@ -1,5 +1,5 @@
 <template>
-	<div v-if="user.data?.is_moderator || is_student" class="h-screen text-base">
+	<div v-if="user.data?.is_moderator || isStudent" class="h-screen text-base">
 		<header
 			class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
 		>
@@ -36,7 +36,7 @@
 							</div>
 						</template>
 						<template #default="{ tab }">
-							<div class="p-10">
+							<div class="pt-5 px-10 pb-10">
 								<div v-if="tab.label == 'Courses'">
 									<div class="text-xl font-semibold">
 										{{ __('Courses') }}
@@ -59,7 +59,16 @@
 									</div>
 								</div>
 								<div v-else-if="tab.label == 'Dashboard'">
-									<BatchDashboard :batch="batch" />
+									<BatchDashboard :batch="batch" :isStudent="isStudent" />
+								</div>
+								<div v-else-if="tab.label == 'Live Class'">
+									<LiveClass :batch="batch.data.name" />
+								</div>
+								<div v-else-if="tab.label == 'Students'">
+									<BatchStudents :batch="batch.data.name" />
+								</div>
+								<div v-else-if="tab.label == 'Assessments'">
+									<Assessments :batch="batch.data.name" />
 								</div>
 							</div>
 						</template>
@@ -72,8 +81,8 @@
 					<div class="flex items-center mb-3">
 						<Calendar class="h-4 w-4 stroke-1.5 mr-2 text-gray-700" />
 						<span>
-							{{ dayjs(batch.data.start_date).format('DD MMM YYYY') }} -
-							{{ dayjs(batch.data.end_date).format('DD MMM YYYY') }}
+							{{ dayjs(batch.data.start_date).format('DD MMMM YYYY') }} -
+							{{ dayjs(batch.data.end_date).format('DD MMMM YYYY') }}
 						</span>
 					</div>
 					<div class="flex items-center mb-6">
@@ -97,14 +106,18 @@
 				{{ __('Not Permitted') }}
 			</div>
 			<div class="px-5 py-3">
-				<div class="mb-4 leading-6">
+				<div v-if="user.data" class="mb-4 leading-6">
 					{{
 						__(
 							'You are not a member of this batch. Please checkout our upcoming batches.'
 						)
 					}}
 				</div>
+				<div v-else class="mb-4 leading-6">
+					{{ __('Please login to access this page.') }}
+				</div>
 				<router-link
+					v-if="user.data"
 					:to="{
 						name: 'Batches',
 						params: {
@@ -116,6 +129,14 @@
 						{{ __('Upcoming Batches') }}
 					</Button>
 				</router-link>
+				<Button
+					v-else
+					variant="solid"
+					class="w-full"
+					@click="redirectToLogin()"
+				>
+					{{ __('Login') }}
+				</Button>
 			</div>
 		</div>
 	</div>
@@ -123,10 +144,21 @@
 <script setup>
 import { Breadcrumbs, Button, createResource, Tabs, Badge } from 'frappe-ui'
 import { computed, inject, ref } from 'vue'
-import { Calendar, Clock, LayoutDashboard, BookOpen } from 'lucide-vue-next'
+import {
+	Calendar,
+	Clock,
+	LayoutDashboard,
+	BookOpen,
+	Laptop,
+	BookOpenCheck,
+	Contact2,
+} from 'lucide-vue-next'
 import { formatTime } from '@/utils'
 import CourseCard from '@/components/CourseCard.vue'
 import BatchDashboard from '@/components/BatchDashboard.vue'
+import LiveClass from '@/components/LiveClass.vue'
+import BatchStudents from '@/components/BatchStudents.vue'
+import Assessments from '@/components/Assessments.vue'
 
 const dayjs = inject('$dayjs')
 const user = inject('$user')
@@ -161,7 +193,7 @@ const breadcrumbs = computed(() => {
 	]
 })
 
-const is_student = computed(() => {
+const isStudent = computed(() => {
 	return (
 		user?.data &&
 		batch.data?.students.length &&
@@ -172,16 +204,31 @@ const is_student = computed(() => {
 const tabIndex = ref(0)
 const tabs = []
 
-if (is_student) {
+if (isStudent.value) {
 	tabs.push({
 		label: 'Dashboard',
 		icon: LayoutDashboard,
 	})
 }
 
+if (user.data?.is_moderator) {
+	tabs.push({
+		label: 'Students',
+		icon: Contact2,
+	})
+	tabs.push({
+		label: 'Assessments',
+		icon: BookOpenCheck,
+	})
+}
+
+tabs.push({
+	label: 'Live Class',
+	icon: Laptop,
+})
+
 tabs.push({
 	label: 'Courses',
-	count: computed(() => courses?.data?.length),
 	icon: BookOpen,
 })
 
@@ -193,4 +240,8 @@ const courses = createResource({
 	cache: ['batchCourses', props.batchName],
 	auto: true,
 })
+
+const redirectToLogin = () => {
+	window.location.href = `/login?redirect-to=/batches`
+}
 </script>

@@ -16,7 +16,7 @@ var n = (t, e, r) =>
 		if (o) for (var r of o(e)) c.call(e, r) && n(t, r, e[r]);
 		return t;
 	};
-import { ac as s, ad as f } from "./frappe-ui.f2211ca2.js";
+import { ac as s, ad as f } from "./frappe-ui.a747cf9c.js";
 function y(t) {
 	s(a({ position: "bottom-right" }, t));
 }

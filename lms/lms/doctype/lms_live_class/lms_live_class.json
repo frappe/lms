@@ -126,7 +126,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-09-20 11:29:20.899897",
+ "modified": "2024-01-09 11:22:33.272341",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Live Class",
@@ -155,6 +155,15 @@
    "role": "Moderator",
    "share": 1,
    "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "LMS Student",
+   "share": 1
   }
  ],
  "show_title_field_in_link": 1,

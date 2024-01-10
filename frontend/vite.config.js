@@ -20,8 +20,12 @@ export default defineConfig({
 		},
 	},
 	build: {
-		outDir: `../${path.basename(path.resolve('..'))}/public/frontend`,
+		outDir: `../lms/public/frontend`,
 		emptyOutDir: true,
+		commonjsOptions: {
+			include: [/tailwind.config.js/, /node_modules/],
+		},
+		sourcemap: true,
 		target: 'es2015',
 		rollupOptions: {
 			output: {

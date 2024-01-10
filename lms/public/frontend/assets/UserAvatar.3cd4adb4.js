@@ -5,7 +5,7 @@ import {
 	D as l,
 	a4 as u,
 	F as n,
-} from "./frappe-ui.f2211ca2.js";
+} from "./frappe-ui.a747cf9c.js";
 const i = {
 	__name: "UserAvatar",
 	props: { user: { type: Object, default: null }, size: { type: String } },

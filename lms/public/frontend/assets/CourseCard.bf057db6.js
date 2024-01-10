@@ -1,5 +1,5 @@
-import { _ as f } from "./UserAvatar.b64a03ac.js";
-import { s as g, B as v, U as y } from "./index.43e529db.js";
+import { _ as f } from "./UserAvatar.3cd4adb4.js";
+import { s as g, B as v, U as y } from "./index.51e5b051.js";
 import {
 	s,
 	u as r,
@@ -16,8 +16,8 @@ import {
 	X as b,
 	a0 as k,
 	y as w,
-} from "./frappe-ui.f2211ca2.js";
-import { S as _ } from "./star.d3e8ecca.js";
+} from "./frappe-ui.a747cf9c.js";
+import { S as _ } from "./star.d358f014.js";
 const C = {
 		key: 0,
 		class: "flex flex-col border border-gray-200 h-full rounded-md shadow-sm text-base overflow-auto",

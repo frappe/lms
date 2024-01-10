@@ -9,7 +9,7 @@ import {
 	X as l,
 	A as u,
 	E as p,
-} from "./frappe-ui.f2211ca2.js";
+} from "./frappe-ui.a747cf9c.js";
 const D = {
 		name: "Home",
 		data() {

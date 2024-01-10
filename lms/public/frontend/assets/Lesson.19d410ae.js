@@ -27,11 +27,11 @@ import {
 	B as V0,
 	a2 as G0,
 	Z as Q0,
-} from "./frappe-ui.f2211ca2.js";
-import { C as W0, _ as J0 } from "./CourseOutline.df6c648a.js";
-import { _ as Y0 } from "./UserAvatar.b64a03ac.js";
-import { t as X0, c as K0 } from "./index.05189aed.js";
-import { c as Cu } from "./index.43e529db.js";
+} from "./frappe-ui.a747cf9c.js";
+import { C as W0, _ as J0 } from "./CourseOutline.2110618a.js";
+import { _ as Y0 } from "./UserAvatar.3cd4adb4.js";
+import { t as X0, c as K0 } from "./index.6f049c1a.js";
+import { c as Cu } from "./index.51e5b051.js";
 const ue = Cu("CheckCircleIcon", [
 		["path", { d: "M22 11.08V12a10 10 0 1 1-5.93-9.14", key: "g774vq" }],
 		["polyline", { points: "22 4 12 14.01 9 11.01", key: "6xbx8j" }],

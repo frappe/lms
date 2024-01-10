@@ -18,8 +18,8 @@ import {
 	F as z,
 	X as B,
 	ab as I,
-} from "./frappe-ui.f2211ca2.js";
-import { c as i } from "./index.43e529db.js";
+} from "./frappe-ui.a747cf9c.js";
+import { c as i } from "./index.51e5b051.js";
 const L = i("ChevronRightIcon", [
 		["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }],
 	]),

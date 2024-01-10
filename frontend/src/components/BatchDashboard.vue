@@ -1,17 +1,26 @@
 <template>
 	<div>
-		<UpcomingEvaluations :upcoming_evals="batch.data.upcoming_evals" />
-		<Assessments :assessments="batch.data.assessments" />
+		<UpcomingEvaluations
+			:batch="batch.data.name"
+			:endDate="batch.data.evaluation_end_date"
+			:courses="batch.data.courses"
+			:isStudent="isStudent"
+		/>
+		<Assessments :batch="batch.data.name" />
 	</div>
 </template>
 <script setup>
-import UpcomingEvaluations from './UpcomingEvaluations.vue'
-import Assessments from './Assessments.vue'
+import UpcomingEvaluations from '@/components/UpcomingEvaluations.vue'
+import Assessments from '@/components/Assessments.vue'
 
 const props = defineProps({
 	batch: {
 		type: Object,
 		default: null,
+	},
+	isStudent: {
+		type: Boolean,
+		default: false,
 	},
 })
 </script>

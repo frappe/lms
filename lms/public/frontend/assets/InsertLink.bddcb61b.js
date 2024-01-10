@@ -14,7 +14,7 @@ import {
 	am as _,
 	X as v,
 	K as w,
-} from "./frappe-ui.f2211ca2.js";
+} from "./frappe-ui.a747cf9c.js";
 const x = {
 	name: "InsertLink",
 	props: ["editor"],

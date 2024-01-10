@@ -16,7 +16,7 @@ import {
 	F as v,
 	X as u,
 	K as w,
-} from "./frappe-ui.f2211ca2.js";
+} from "./frappe-ui.a747cf9c.js";
 const b = {
 		name: "InsertImage",
 		props: ["editor"],

@@ -97,7 +97,7 @@ import {
 	U as It,
 	V as At,
 	W as Tt,
-} from "./frappe-ui.f2211ca2.js";
+} from "./frappe-ui.a747cf9c.js";
 (function () {
 	const n = document.createElement("link").relList;
 	if (n && n.supports && n.supports("modulepreload")) return;
@@ -438,10 +438,10 @@ const we = We("lms-users", () => ({
 			name: "Home",
 			component: () =>
 				F(
-					() => import("./Home.6f16d409.js"),
+					() => import("./Home.28a136f6.js"),
 					[
-						"assets/Home.6f16d409.js",
-						"assets/frappe-ui.f2211ca2.js",
+						"assets/Home.28a136f6.js",
+						"assets/frappe-ui.a747cf9c.js",
 						"assets/frappe-ui.7692ed2d.css",
 					]
 				),
@@ -451,16 +451,16 @@ const we = We("lms-users", () => ({
 			name: "Courses",
 			component: () =>
 				F(
-					() => import("./Courses.3f5a0719.js"),
+					() => import("./Courses.52ce2794.js"),
 					[
-						"assets/Courses.3f5a0719.js",
-						"assets/frappe-ui.f2211ca2.js",
+						"assets/Courses.52ce2794.js",
+						"assets/frappe-ui.a747cf9c.js",
 						"assets/frappe-ui.7692ed2d.css",
-						"assets/CourseCard.6a41330a.js",
-						"assets/UserAvatar.b64a03ac.js",
-						"assets/star.d3e8ecca.js",
+						"assets/CourseCard.bf057db6.js",
+						"assets/UserAvatar.3cd4adb4.js",
+						"assets/star.d358f014.js",
 						"assets/CourseCard.04c5bb55.css",
-						"assets/plus.8f4bce9f.js",
+						"assets/plus.d245902e.js",
 					]
 				),
 		},
@@ -469,16 +469,16 @@ const we = We("lms-users", () => ({
 			name: "CourseDetail",
 			component: () =>
 				F(
-					() => import("./CourseDetail.f6fd1d68.js"),
+					() => import("./CourseDetail.e391d1e0.js"),
 					[
-						"assets/CourseDetail.f6fd1d68.js",
-						"assets/frappe-ui.f2211ca2.js",
+						"assets/CourseDetail.e391d1e0.js",
+						"assets/frappe-ui.a747cf9c.js",
 						"assets/frappe-ui.7692ed2d.css",
-						"assets/index.05189aed.js",
-						"assets/star.d3e8ecca.js",
-						"assets/CourseOutline.df6c648a.js",
+						"assets/index.6f049c1a.js",
+						"assets/star.d358f014.js",
+						"assets/CourseOutline.2110618a.js",
 						"assets/CourseOutline.6dd858fb.css",
-						"assets/UserAvatar.b64a03ac.js",
+						"assets/UserAvatar.3cd4adb4.js",
 						"assets/CourseDetail.6888eccf.css",
 					]
 				),
@@ -489,15 +489,15 @@ const we = We("lms-users", () => ({
 			name: "Lesson",
 			component: () =>
 				F(
-					() => import("./Lesson.c80fc3b7.js"),
+					() => import("./Lesson.19d410ae.js"),
 					[
-						"assets/Lesson.c80fc3b7.js",
-						"assets/frappe-ui.f2211ca2.js",
+						"assets/Lesson.19d410ae.js",
+						"assets/frappe-ui.a747cf9c.js",
 						"assets/frappe-ui.7692ed2d.css",
-						"assets/CourseOutline.df6c648a.js",
+						"assets/CourseOutline.2110618a.js",
 						"assets/CourseOutline.6dd858fb.css",
-						"assets/UserAvatar.b64a03ac.js",
-						"assets/index.05189aed.js",
+						"assets/UserAvatar.3cd4adb4.js",
+						"assets/index.6f049c1a.js",
 						"assets/Lesson.3532a62c.css",
 					]
 				),
@@ -508,14 +508,14 @@ const we = We("lms-users", () => ({
 			name: "Batches",
 			component: () =>
 				F(
-					() => import("./Batches.f9864378.js"),
+					() => import("./Batches.6064501b.js"),
 					[
-						"assets/Batches.f9864378.js",
-						"assets/frappe-ui.f2211ca2.js",
+						"assets/Batches.6064501b.js",
+						"assets/frappe-ui.a747cf9c.js",
 						"assets/frappe-ui.7692ed2d.css",
-						"assets/index.05189aed.js",
-						"assets/clock.4d13ba48.js",
-						"assets/plus.8f4bce9f.js",
+						"assets/index.6f049c1a.js",
+						"assets/clock.b36d19aa.js",
+						"assets/plus.d245902e.js",
 						"assets/Batches.70c9cf07.css",
 					]
 				),
@@ -525,16 +525,16 @@ const we = We("lms-users", () => ({
 			name: "BatchDetail",
 			component: () =>
 				F(
-					() => import("./BatchDetail.c5dd0840.js"),
+					() => import("./BatchDetail.9bef2d15.js"),
 					[
-						"assets/BatchDetail.c5dd0840.js",
-						"assets/frappe-ui.f2211ca2.js",
+						"assets/BatchDetail.9bef2d15.js",
+						"assets/frappe-ui.a747cf9c.js",
 						"assets/frappe-ui.7692ed2d.css",
-						"assets/index.05189aed.js",
-						"assets/clock.4d13ba48.js",
-						"assets/CourseCard.6a41330a.js",
-						"assets/UserAvatar.b64a03ac.js",
-						"assets/star.d3e8ecca.js",
+						"assets/index.6f049c1a.js",
+						"assets/clock.b36d19aa.js",
+						"assets/CourseCard.bf057db6.js",
+						"assets/UserAvatar.3cd4adb4.js",
+						"assets/star.d358f014.js",
 						"assets/CourseCard.04c5bb55.css",
 						"assets/BatchDetail.f109aa14.css",
 					]
@@ -546,17 +546,17 @@ const we = We("lms-users", () => ({
 			name: "Batch",
 			component: () =>
 				F(
-					() => import("./Batch.6cc6d79c.js"),
+					() => import("./Batch.3bb9da4e.js"),
 					[
-						"assets/Batch.6cc6d79c.js",
-						"assets/frappe-ui.f2211ca2.js",
+						"assets/Batch.3bb9da4e.js",
+						"assets/frappe-ui.a747cf9c.js",
 						"assets/frappe-ui.7692ed2d.css",
-						"assets/index.05189aed.js",
-						"assets/CourseCard.6a41330a.js",
-						"assets/UserAvatar.b64a03ac.js",
-						"assets/star.d3e8ecca.js",
+						"assets/index.6f049c1a.js",
+						"assets/CourseCard.bf057db6.js",
+						"assets/UserAvatar.3cd4adb4.js",
+						"assets/star.d358f014.js",
 						"assets/CourseCard.04c5bb55.css",
-						"assets/clock.4d13ba48.js",
+						"assets/clock.b36d19aa.js",
 					]
 				),
 			props: !0,

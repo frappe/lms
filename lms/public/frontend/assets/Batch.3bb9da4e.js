@@ -23,13 +23,13 @@ import {
 	a0 as H,
 	a1 as O,
 	$ as S,
-} from "./frappe-ui.f2211ca2.js";
-import { f as $ } from "./index.05189aed.js";
-import { _ as q } from "./CourseCard.6a41330a.js";
-import { C as L, a as V } from "./clock.4d13ba48.js";
-import { c as U, B as J } from "./index.43e529db.js";
-import "./UserAvatar.b64a03ac.js";
-import "./star.d3e8ecca.js";
+} from "./frappe-ui.a747cf9c.js";
+import { f as $ } from "./index.6f049c1a.js";
+import { _ as q } from "./CourseCard.bf057db6.js";
+import { C as L, a as V } from "./clock.b36d19aa.js";
+import { c as U, B as J } from "./index.51e5b051.js";
+import "./UserAvatar.3cd4adb4.js";
+import "./star.d358f014.js";
 const K = U("LayoutDashboardIcon", [
 		[
 			"rect",

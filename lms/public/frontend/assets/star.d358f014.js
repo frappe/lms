@@ -1,4 +1,4 @@
-import { c as o } from "./index.43e529db.js";
+import { c as o } from "./index.51e5b051.js";
 const c = o("StarIcon", [
 	[
 		"polygon",

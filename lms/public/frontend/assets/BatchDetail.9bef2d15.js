@@ -18,13 +18,13 @@ import {
 	K as j,
 	L,
 	Z as T,
-} from "./frappe-ui.f2211ca2.js";
-import { a as H, f as p } from "./index.05189aed.js";
-import { B as $ } from "./index.43e529db.js";
-import { C as B, a as C } from "./clock.4d13ba48.js";
-import { _ as O } from "./CourseCard.6a41330a.js";
-import "./UserAvatar.b64a03ac.js";
-import "./star.d3e8ecca.js";
+} from "./frappe-ui.a747cf9c.js";
+import { a as H, f as p } from "./index.6f049c1a.js";
+import { B as $ } from "./index.51e5b051.js";
+import { C as B, a as C } from "./clock.b36d19aa.js";
+import { _ as O } from "./CourseCard.bf057db6.js";
+import "./UserAvatar.3cd4adb4.js";
+import "./star.d358f014.js";
 const S = { key: 0, class: "shadow rounded-md p-5", style: { width: "300px" } },
 	V = { key: 2, class: "text-lg font-semibold mb-3" },
 	E = { class: "flex items-center mb-3" },

@@ -377,7 +377,7 @@ iframe {
 	background: #011627;
 	color: #d6deeb;
 	border-radius: 0.5rem;
-	margin-bottom: 1rem;
+	margin: 1rem 0;
 }
 
 .lesson-content a {

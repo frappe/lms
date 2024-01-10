@@ -27,6 +27,7 @@ from frappe.utils import (
 	pretty_date,
 	get_time_str,
 	nowtime,
+	format_datetime,
 )
 from frappe.utils.dateutils import get_period
 from lms.lms.md import find_macros, markdown_to_html
@@ -886,6 +887,7 @@ def get_evaluator(course, batch=None):
 	return evaluator
 
 
+@frappe.whitelist()
 def get_upcoming_evals(student, courses):
 	upcoming_evals = frappe.get_all(
 		"LMS Certificate Request",
@@ -1378,26 +1380,18 @@ def get_batch_details(batch):
 			"amount",
 			"currency",
 			"paid_batch",
+			"evaluation_end_date",
 		],
 		as_dict=True,
 	)
 
 	batch_details.courses = frappe.get_all(
-		"Batch Course", {"parent": batch}, pluck="course"
+		"Batch Course", filters={"parent": batch}, fields=["course", "title"]
 	)
 	batch_details.students = frappe.get_all(
 		"Batch Student", {"parent": batch}, pluck="student"
 	)
 	batch_details.price = fmt_money(batch_details.amount, 0, batch_details.currency)
-
-	is_student = frappe.session.user in batch_details.students
-	if frappe.session.user != "Guest":
-		if is_student:
-			batch_details.upcoming_evals = get_upcoming_evals(
-				frappe.session.user, batch_details.courses
-			)
-		if is_student or has_course_moderator_role():
-			batch_details.assessments = get_assessments(batch, frappe.session.user)
 
 	if batch_details.seat_count:
 		students_enrolled = frappe.db.count(
@@ -1479,6 +1473,7 @@ def get_batch_courses(batch):
 	return courses
 
 
+@frappe.whitelist()
 def get_assessments(batch, member=None):
 	if not member:
 		member = frappe.session.user
@@ -1520,6 +1515,10 @@ def get_assignment_details(assessment, member):
 			as_dict=True,
 		)
 		assessment.completed = True
+		assessment.status = assessment.submission.status
+	else:
+		assessment.status = "Not Attempted"
+		assessment.color = "red"
 
 	assessment.edit_url = f"/assignments/{assessment.assessment_name}"
 	submission_name = existing_submission if existing_submission else "new-submission"
@@ -1548,10 +1547,12 @@ def get_quiz_details(assessment, member):
 
 	if len(existing_submission):
 		assessment.submission = existing_submission[0]
-
-	assessment.completed = False
-	if assessment.submission:
 		assessment.completed = True
+		assessment.status = assessment.submission.score
+	else:
+		assessment.status = "Not Attempted"
+		assessment.color = "red"
+		assessment.completed = False
 
 	assessment.edit_url = f"/quizzes/{assessment.assessment_name}"
 	submission_name = (
@@ -1560,3 +1561,58 @@ def get_quiz_details(assessment, member):
 	assessment.url = f"/quiz-submission/{assessment.assessment_name}/{submission_name}"
 
 	return assessment
+
+
+@frappe.whitelist()
+def get_batch_students(batch):
+	students = []
+
+	students_list = frappe.get_all(
+		"Batch Student", filters={"parent": batch}, fields=["student", "name"]
+	)
+
+	batch_courses = frappe.get_all("Batch Course", {"parent": batch}, pluck="course")
+
+	assessments = frappe.get_all(
+		"LMS Assessment",
+		filters={"parent": batch},
+		fields=["name", "assessment_type", "assessment_name"],
+	)
+
+	for student in students_list:
+		courses_completed = 0
+		assessments_completed = 0
+		detail = frappe.db.get_value(
+			"User",
+			student.student,
+			["full_name", "email", "username", "last_active", "user_image"],
+			as_dict=True,
+		)
+		detail.last_active = format_datetime(detail.last_active, "dd MMM YY")
+		detail.name = student.name
+		students.append(detail)
+
+		for course in batch_courses:
+			progress = frappe.db.get_value(
+				"LMS Enrollment", {"course": course, "member": student.student}, "progress"
+			)
+
+			if progress == 100:
+				courses_completed += 1
+
+		detail.courses_completed = courses_completed
+
+		for assessment in assessments:
+			if has_submitted_assessment(
+				assessment.assessment_name, assessment.assessment_type, student.student
+			):
+				assessments_completed += 1
+
+		detail.assessments_completed = assessments_completed
+
+	return students
+
+
+@frappe.whitelist()
+def get_users():
+	return frappe.get_all("User", {"enabled": 1}, pluck="name")

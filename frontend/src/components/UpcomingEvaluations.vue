@@ -1,11 +1,14 @@
 <template>
 	<div class="mb-10">
+		<Button v-if="isStudent" @click="openEvalModal" class="float-right">
+			{{ __('Schedule Evaluation') }}
+		</Button>
 		<div class="text-lg font-semibold mb-4">
 			{{ __('Upcoming Evaluations') }}
 		</div>
-		<div v-if="upcoming_evals.length">
-			<div class="grid grid-cols-2">
-				<div v-for="evl in upcoming_evals">
+		<div v-if="upcoming_evals.data">
+			<div class="grid grid-cols-2 gap-4">
+				<div v-for="evl in upcoming_evals.data">
 					<div class="border rounded-md p-3">
 						<div class="font-medium mb-3">
 							{{ evl.course_title }}
@@ -24,7 +27,7 @@
 						</div>
 						<div class="flex items-center">
 							<UserCog2 class="w-4 h-4 stroke-1.5" />
-							<span class="ml-2">
+							<span class="ml-2 font-medium">
 								{{ evl.evaluator_name }}
 							</span>
 						</div>
@@ -36,18 +39,55 @@
 			{{ __('No upcoming evaluations.') }}
 		</div>
 	</div>
+	<EvaluationModal
+		:batch="batch"
+		:endDate="endDate"
+		:courses="courses"
+		v-model="showEvalModal"
+		v-model:reloadEvals="upcoming_evals"
+	/>
 </template>
 <script setup>
 import { Calendar, Clock, UserCog2 } from 'lucide-vue-next'
-import { inject } from 'vue'
+import { inject, ref } from 'vue'
 import { formatTime } from '../utils'
+import { Button, createResource } from 'frappe-ui'
+import EvaluationModal from '@/components/EvaluationModal.vue'
 
 const dayjs = inject('$dayjs')
+const user = inject('$user')
+const showEvalModal = ref(false)
 
 const props = defineProps({
-	upcoming_evals: {
+	batch: {
+		type: String,
+		default: null,
+	},
+	courses: {
 		type: Array,
 		default: [],
 	},
+	isStudent: {
+		type: Boolean,
+		default: false,
+	},
+	endDate: {
+		type: String,
+		default: null,
+	},
 })
+
+const upcoming_evals = createResource({
+	url: 'lms.lms.utils.get_upcoming_evals',
+	cache: ['upcoming_evals', user.data.name],
+	params: {
+		student: user.data.name,
+		courses: props.courses.map((course) => course.course),
+	},
+	auto: true,
+})
+
+function openEvalModal() {
+	showEvalModal.value = true
+}
 </script>

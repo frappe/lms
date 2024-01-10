@@ -15,7 +15,7 @@ import {
 	L as m,
 	a2 as h,
 	B as b,
-} from "./frappe-ui.f2211ca2.js";
+} from "./frappe-ui.a747cf9c.js";
 const v = {
 		name: "FontColor",
 		props: ["editor"],

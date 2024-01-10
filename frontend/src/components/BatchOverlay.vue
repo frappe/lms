@@ -35,11 +35,21 @@
 				{{ formatTime(batch.data.end_time) }}
 			</span>
 		</div>
-		<Button v-if="user?.data?.is_moderator" class="w-full mt-4">
-			<span>
-				{{ __('Manage Batch') }}
-			</span>
-		</Button>
+		<router-link
+			v-if="user?.data?.is_moderator"
+			:to="{
+				name: 'Batch',
+				params: {
+					batchName: batch.data.name,
+				},
+			}"
+		>
+			<Button variant="solid" class="w-full mt-4">
+				<span>
+					{{ __('Manage Batch') }}
+				</span>
+			</Button>
+		</router-link>
 		<Button
 			v-else-if="batch.data.paid_batch"
 			class="w-full mt-4"

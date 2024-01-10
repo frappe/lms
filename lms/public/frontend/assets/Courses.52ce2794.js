@@ -22,12 +22,12 @@ import {
 	$ as D,
 	a0 as E,
 	a1 as P,
-} from "./frappe-ui.f2211ca2.js";
-import { _ as U } from "./CourseCard.6a41330a.js";
-import { P as A } from "./plus.8f4bce9f.js";
-import "./UserAvatar.b64a03ac.js";
-import "./index.43e529db.js";
-import "./star.d3e8ecca.js";
+} from "./frappe-ui.a747cf9c.js";
+import { _ as U } from "./CourseCard.bf057db6.js";
+import { P as A } from "./plus.d245902e.js";
+import "./UserAvatar.3cd4adb4.js";
+import "./index.51e5b051.js";
+import "./star.d358f014.js";
 const F = { class: "h-screen" },
 	R = { key: 0 },
 	S = {
