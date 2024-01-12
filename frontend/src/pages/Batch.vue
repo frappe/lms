@@ -4,97 +4,111 @@
 			class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
 		>
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
+			<Button @click="openAnnouncementModal()">
+				<span>
+					{{ __('Make an Announcement') }}
+				</span>
+				<template #suffix>
+					<SendIcon class="h-4 stroke-1.5" />
+				</template>
+			</Button>
 		</header>
-		<div v-if="batch.data">
-			<div class="grid grid-cols-[70%,30%] h-full">
-				<div class="border-r-2">
-					<Tabs class="overflow-hidden" v-model="tabIndex" :tabs="tabs">
-						<template #tab="{ tab, selected }">
-							<div>
-								<button
-									class="group -mb-px flex items-center gap-1 border-b border-transparent py-2.5 text-base text-gray-600 duration-300 ease-in-out hover:border-gray-400 hover:text-gray-900"
-									:class="{ 'text-gray-900': selected }"
+		<div v-if="batch.data" class="grid grid-cols-[70%,30%] h-full">
+			<div class="border-r-2">
+				<Tabs class="overflow-hidden" v-model="tabIndex" :tabs="tabs">
+					<template #tab="{ tab, selected }">
+						<div>
+							<button
+								class="group -mb-px flex items-center gap-1 border-b border-transparent py-2.5 text-base text-gray-600 duration-300 ease-in-out hover:border-gray-400 hover:text-gray-900"
+								:class="{ 'text-gray-900': selected }"
+							>
+								<component
+									v-if="tab.icon"
+									:is="tab.icon"
+									class="h-4 stroke-1.5"
+								/>
+								{{ __(tab.label) }}
+								<Badge
+									v-if="tab.count"
+									:class="{
+										'text-gray-900 border border-gray-900': selected,
+									}"
+									variant="subtle"
+									theme="gray"
+									size="sm"
 								>
-									<component
-										v-if="tab.icon"
-										:is="tab.icon"
-										class="h-4 stroke-1.5"
-									/>
-									{{ __(tab.label) }}
-									<Badge
-										v-if="tab.count"
-										:class="{
-											'text-gray-900 border border-gray-900': selected,
-										}"
-										variant="subtle"
-										theme="gray"
-										size="sm"
-									>
-										{{ tab.count }}
-									</Badge>
-								</button>
-							</div>
-						</template>
-						<template #default="{ tab }">
-							<div class="pt-5 px-10 pb-10">
-								<div v-if="tab.label == 'Courses'">
-									<div class="text-xl font-semibold">
-										{{ __('Courses') }}
-									</div>
-									<div
-										class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-8 mt-5"
-									>
-										<div v-for="course in courses.data">
-											<router-link
-												:to="{
-													name: 'CourseDetail',
-													params: {
-														courseName: course.name,
-													},
-												}"
-											>
-												<CourseCard :key="course.name" :course="course" />
-											</router-link>
-										</div>
+									{{ tab.count }}
+								</Badge>
+							</button>
+						</div>
+					</template>
+					<template #default="{ tab }">
+						<div class="pt-5 px-10 pb-10">
+							<div v-if="tab.label == 'Courses'">
+								<div class="text-xl font-semibold">
+									{{ __('Courses') }}
+								</div>
+								<div
+									class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-8 mt-5"
+								>
+									<div v-for="course in courses.data">
+										<router-link
+											:to="{
+												name: 'CourseDetail',
+												params: {
+													courseName: course.name,
+												},
+											}"
+										>
+											<CourseCard :key="course.name" :course="course" />
+										</router-link>
 									</div>
 								</div>
-								<div v-else-if="tab.label == 'Dashboard'">
-									<BatchDashboard :batch="batch" :isStudent="isStudent" />
-								</div>
-								<div v-else-if="tab.label == 'Live Class'">
-									<LiveClass :batch="batch.data.name" />
-								</div>
-								<div v-else-if="tab.label == 'Students'">
-									<BatchStudents :batch="batch.data.name" />
-								</div>
-								<div v-else-if="tab.label == 'Assessments'">
-									<Assessments :batch="batch.data.name" />
-								</div>
 							</div>
-						</template>
-					</Tabs>
-				</div>
-				<div class="p-5">
-					<div class="text-2xl font-semibold mb-3">
-						{{ batch.data.title }}
-					</div>
-					<div class="flex items-center mb-3">
-						<Calendar class="h-4 w-4 stroke-1.5 mr-2 text-gray-700" />
-						<span>
-							{{ dayjs(batch.data.start_date).format('DD MMMM YYYY') }} -
-							{{ dayjs(batch.data.end_date).format('DD MMMM YYYY') }}
-						</span>
-					</div>
-					<div class="flex items-center mb-6">
-						<Clock class="h-4 w-4 stroke-1.5 mr-2 text-gray-700" />
-						<span>
-							{{ formatTime(batch.data.start_time) }} -
-							{{ formatTime(batch.data.end_time) }}
-						</span>
-					</div>
-					<div v-html="batch.data.description"></div>
-				</div>
+							<div v-else-if="tab.label == 'Dashboard'">
+								<BatchDashboard :batch="batch" :isStudent="isStudent" />
+							</div>
+							<div v-else-if="tab.label == 'Live Class'">
+								<LiveClass :batch="batch.data.name" />
+							</div>
+							<div v-else-if="tab.label == 'Students'">
+								<BatchStudents :batch="batch.data.name" />
+							</div>
+							<div v-else-if="tab.label == 'Assessments'">
+								<Assessments :batch="batch.data.name" />
+							</div>
+							<div v-else-if="tab.label == 'Announcements'">
+								<Announcements :batch="batch.data.name" />
+							</div>
+						</div>
+					</template>
+				</Tabs>
 			</div>
+			<div class="p-5">
+				<div class="text-2xl font-semibold mb-3">
+					{{ batch.data.title }}
+				</div>
+				<div class="flex items-center mb-3">
+					<Calendar class="h-4 w-4 stroke-1.5 mr-2 text-gray-700" />
+					<span>
+						{{ dayjs(batch.data.start_date).format('DD MMMM YYYY') }} -
+						{{ dayjs(batch.data.end_date).format('DD MMMM YYYY') }}
+					</span>
+				</div>
+				<div class="flex items-center mb-6">
+					<Clock class="h-4 w-4 stroke-1.5 mr-2 text-gray-700" />
+					<span>
+						{{ formatTime(batch.data.start_time) }} -
+						{{ formatTime(batch.data.end_time) }}
+					</span>
+				</div>
+				<div v-html="batch.data.description"></div>
+			</div>
+			<AnnouncementModal
+				v-model="showAnnouncementModal"
+				:batch="batch.data.name"
+				:students="batch.data.students"
+			/>
 		</div>
 	</div>
 	<div v-else class="h-screen">
@@ -152,6 +166,8 @@ import {
 	Laptop,
 	BookOpenCheck,
 	Contact2,
+	Mail,
+	SendIcon,
 } from 'lucide-vue-next'
 import { formatTime } from '@/utils'
 import CourseCard from '@/components/CourseCard.vue'
@@ -159,9 +175,12 @@ import BatchDashboard from '@/components/BatchDashboard.vue'
 import LiveClass from '@/components/LiveClass.vue'
 import BatchStudents from '@/components/BatchStudents.vue'
 import Assessments from '@/components/Assessments.vue'
+import Announcements from '@/components/Annoucements.vue'
+import AnnouncementModal from '@/components/Modals/AnnouncementModal.vue'
 
 const dayjs = inject('$dayjs')
 const user = inject('$user')
+const showAnnouncementModal = ref(false)
 
 const props = defineProps({
 	batchName: {
@@ -232,6 +251,11 @@ tabs.push({
 	icon: BookOpen,
 })
 
+tabs.push({
+	label: 'Announcements',
+	icon: Mail,
+})
+
 const courses = createResource({
 	url: 'lms.lms.utils.get_batch_courses',
 	params: {
@@ -243,5 +267,9 @@ const courses = createResource({
 
 const redirectToLogin = () => {
 	window.location.href = `/login?redirect-to=/batches`
+}
+
+const openAnnouncementModal = () => {
+	showAnnouncementModal.value = true
 }
 </script>

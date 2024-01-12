@@ -70,7 +70,7 @@
 import { createListResource, Button } from 'frappe-ui'
 import { Plus, Clock, Calendar, Video, Monitor } from 'lucide-vue-next'
 import { inject } from 'vue'
-import LiveClassModal from '@/components/LiveClassModal.vue'
+import LiveClassModal from '@/components/Modals/LiveClassModal.vue'
 import { ref } from 'vue'
 import { formatTime } from '@/utils/'
 

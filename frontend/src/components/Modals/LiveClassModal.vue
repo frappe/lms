@@ -130,7 +130,6 @@ let liveClass = reactive({
 	batch: props.batch,
 	host: user.data.name,
 })
-console.log(liveClass)
 
 const getTimezoneOptions = () => {
 	return getTimezones().map((timezone) => {

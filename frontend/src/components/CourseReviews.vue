@@ -89,7 +89,7 @@ import { Star } from 'lucide-vue-next'
 import { createResource, Button } from 'frappe-ui'
 import { computed, ref } from 'vue'
 import UserAvatar from '@/components/UserAvatar.vue'
-import ReviewModal from '@/components/ReviewModal.vue'
+import ReviewModal from '@/components/Modals/ReviewModal.vue'
 
 const props = defineProps({
 	courseName: {

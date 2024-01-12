@@ -52,7 +52,7 @@ import { Calendar, Clock, UserCog2 } from 'lucide-vue-next'
 import { inject, ref } from 'vue'
 import { formatTime } from '../utils'
 import { Button, createResource } from 'frappe-ui'
-import EvaluationModal from '@/components/EvaluationModal.vue'
+import EvaluationModal from '@/components/Modals/EvaluationModal.vue'
 
 const dayjs = inject('$dayjs')
 const user = inject('$user')

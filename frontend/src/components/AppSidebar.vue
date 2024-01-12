@@ -39,31 +39,11 @@ import UserDropdown from '@/components/UserDropdown.vue'
 import CollapseSidebar from '@/components/Icons/CollapseSidebar.vue'
 import SidebarLink from '@/components/SidebarLink.vue'
 import { useStorage } from '@vueuse/core'
-import { BookOpen, Users, TrendingUp, Briefcase } from 'lucide-vue-next'
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
+import { getSidebarLinks } from '../utils'
 
-const links = [
-	{
-		label: 'Courses',
-		icon: BookOpen,
-		to: 'Courses',
-	},
-	{
-		label: 'Batches',
-		icon: Users,
-		to: 'Batches',
-	},
-	{
-		label: 'Statistics',
-		icon: TrendingUp,
-		to: 'Statistics',
-	},
-	{
-		label: 'Jobs',
-		icon: Briefcase,
-		to: 'Jobs',
-	},
-]
+const links = getSidebarLinks()
+
 const getSidebarFromStorage = () => {
 	return useStorage('sidebar_is_collapsed', false)
 }

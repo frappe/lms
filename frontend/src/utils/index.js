@@ -1,5 +1,6 @@
 import { toast } from 'frappe-ui'
 import { useDateFormat, useTimeAgo } from '@vueuse/core'
+import { BookOpen, Users, TrendingUp, Briefcase } from 'lucide-vue-next'
 
 export function createToast(options) {
 	toast({
@@ -177,5 +178,30 @@ export function getTimezones() {
 		'Europe/Kiev',
 		'America/Tegucigalpa',
 		'Pacific/Apia',
+	]
+}
+
+export function getSidebarLinks() {
+	return [
+		{
+			label: 'Courses',
+			icon: BookOpen,
+			to: 'Courses',
+		},
+		{
+			label: 'Batches',
+			icon: Users,
+			to: 'Batches',
+		},
+		{
+			label: 'Statistics',
+			icon: TrendingUp,
+			to: 'Statistics',
+		},
+		{
+			label: 'Jobs',
+			icon: Briefcase,
+			to: 'Jobs',
+		},
 	]
 }

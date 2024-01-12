@@ -84,9 +84,9 @@ import {
 	Avatar,
 	Button,
 } from 'frappe-ui'
-import { Settings, Trash2, Plus } from 'lucide-vue-next'
+import { Trash2, Plus } from 'lucide-vue-next'
 import { ref } from 'vue'
-import StudentModal from '@/components/StudentModal.vue'
+import StudentModal from '@/components/Modals/StudentModal.vue'
 
 const showStudentModal = ref(false)
 
