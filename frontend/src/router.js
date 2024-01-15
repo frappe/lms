@@ -43,6 +43,11 @@ const routes = [
 		component: () => import('@/pages/Batch.vue'),
 		props: true,
 	},
+	{
+		path: '/statistics',
+		name: 'Statistics',
+		component: () => import('@/pages/Statistics.vue'),
+	},
 ]
 
 let router = createRouter({

@@ -165,6 +165,14 @@
 						</div>
 					</div>
 				</div>
+				<div class="mt-20">
+					<Discussions
+						v-if="allowDiscussions()"
+						:title="'Questions'"
+						:doctype="'Course Lesson'"
+						:docname="lesson.data.name"
+					/>
+				</div>
 			</div>
 			<div class="sticky top-10">
 				<div class="bg-gray-50 p-5 border-b-2">
@@ -194,13 +202,13 @@
 <script setup>
 import { createResource, Breadcrumbs, Button } from 'frappe-ui'
 import { computed, watch, onBeforeMount, onUnmounted, inject } from 'vue'
-import { useStorage } from '@vueuse/core'
 import CourseOutline from '@/components/CourseOutline.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { useRoute } from 'vue-router'
 import MarkdownIt from 'markdown-it'
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import Quiz from '@/components/Quiz.vue'
+import Discussions from '@/components/Discussions.vue'
 
 const user = inject('$user')
 const route = useRoute()
@@ -326,6 +334,14 @@ const getId = (block) => {
 
 const redirectToLogin = () => {
 	window.location.href = `/login?redirect_to=/courses/${props.courseName}/learn/${route.params.chapterNumber}-${route.params.lessonNumber}`
+}
+
+const allowDiscussions = () => {
+	return (
+		course.data?.membership ||
+		user.data?.is_moderator ||
+		user.data?.is_instructor
+	)
 }
 </script>
 <style>

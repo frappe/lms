@@ -10,14 +10,10 @@ import { Toasts } from 'frappe-ui'
 import { Dialogs } from '@/utils/dialogs'
 import { computed, defineAsyncComponent } from 'vue'
 import { useScreenSize } from './utils/composables'
+import DesktopLayout from './components/DesktopLayout.vue'
+import MobileLayout from './components/MobileLayout.vue'
 
 const screenSize = useScreenSize()
-const MobileLayout = defineAsyncComponent(() =>
-	import('@/components/MobileLayout.vue')
-)
-const DesktopLayout = defineAsyncComponent(() =>
-	import('@/components/DesktopLayout.vue')
-)
 
 const Layout = computed(() => {
 	if (screenSize.width < 640) {

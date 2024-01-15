@@ -15,6 +15,7 @@
     "markdown-it": "^14.0.0",
     "pinia": "^2.0.33",
     "tailwindcss": "^3.2.7",
+    "socket.io-client": "^4.7.2",
     "vue": "^3.2.25",
     "vue-router": "^4.0.12"
   },

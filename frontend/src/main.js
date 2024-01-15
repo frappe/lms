@@ -8,6 +8,7 @@ import dayjs from '@/utils/dayjs'
 import translationPlugin from './translation'
 import { usersStore } from './stores/user'
 import { sessionStore } from './stores/session'
+import { initSocket } from './socket'
 import {
 	FrappeUI,
 	setConfig,
@@ -26,6 +27,7 @@ app.use(router)
 app.use(translationPlugin)
 app.use(pageMetaPlugin)
 app.provide('$dayjs', dayjs)
+app.provide('$socket', initSocket())
 app.mount('#app')
 
 const { userResource } = usersStore()

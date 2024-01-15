@@ -1614,5 +1614,39 @@ def get_batch_students(batch):
 
 
 @frappe.whitelist()
-def get_users():
-	return frappe.get_all("User", {"enabled": 1}, pluck="name")
+def get_discussion_topics(doctype, docname):
+	topics = frappe.get_all(
+		"Discussion Topic",
+		{
+			"reference_doctype": doctype,
+			"reference_docname": docname,
+		},
+		["name", "title", "owner", "creation", "modified"],
+		order_by="creation desc",
+	)
+
+	for topic in topics:
+		topic.user = frappe.db.get_value(
+			"User", topic.owner, ["full_name", "user_image"], as_dict=True
+		)
+
+	return topics
+
+
+@frappe.whitelist()
+def get_discussion_replies(topic):
+	replies = frappe.get_all(
+		"Discussion Reply",
+		{
+			"topic": topic,
+		},
+		["name", "owner", "creation", "modified", "reply"],
+		order_by="creation",
+	)
+
+	for reply in replies:
+		reply.user = frappe.db.get_value(
+			"User", reply.owner, ["full_name", "user_image"], as_dict=True
+		)
+
+	return replies
