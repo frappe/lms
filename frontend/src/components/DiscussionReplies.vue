@@ -70,6 +70,7 @@
 			</div>
 		</div>
 		<TextEditor
+			class="mt-5"
 			:content="newReply"
 			@change="(val) => (newReply = val)"
 			placeholder="Type your reply here..."
@@ -92,6 +93,7 @@ import { timeAgo } from '../utils'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { ChevronLeft, MoreHorizontal } from 'lucide-vue-next'
 import { ref, inject, onMounted } from 'vue'
+import { createToast } from '../utils'
 
 const showTopics = defineModel('showTopics')
 const newReply = ref('')
@@ -147,12 +149,22 @@ const postReply = () => {
 		{
 			validate() {
 				if (!newReply.value) {
-					return __('Reply cannot be empty')
+					return 'Reply cannot be empty'
 				}
 			},
 			onSuccess() {
 				newReply.value = ''
 				replies.reload()
+			},
+			onError() {
+				createToast({
+					title: 'Error',
+					text: err.messages?.[0] || err,
+					icon: 'x',
+					iconClasses: 'bg-red-600 text-white rounded-md p-px',
+					position: 'top-center',
+					timeout: 10,
+				})
 			},
 		}
 	)

@@ -1259,10 +1259,10 @@ lodash.merge@^4.6.2:
   resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-10.1.0.tgz#2098d41c2dc56500e6c88584aa656c84de7d0484"
   integrity sha512-/1clY/ui8CzjKFyjdvwPWJUYKiFVXG2I2cY0ssG7h4+hwk+XOIX7ZSG9Q7TW8TW3Kp3BUSqgFWBLgL4PJ+Blag==
 
-lucide-vue-next@^0.259.0:
-  version "0.259.0"
-  resolved "https://registry.yarnpkg.com/lucide-vue-next/-/lucide-vue-next-0.259.0.tgz#3e1bbe57ccbb0704dc854efd5e2221c65099d0f6"
-  integrity sha512-LOUmg73Sw7v1si8y/JpYv6KJFc8Rp3d8OwCO0jE/qixiOcJpg5PvKs7xvvtRSO3E4sWwJAQQaL1re5zGJirONg==
+lucide-vue-next@^0.309.0:
+  version "0.309.0"
+  resolved "https://registry.yarnpkg.com/lucide-vue-next/-/lucide-vue-next-0.309.0.tgz#53a1a347764260adc23fe0163ca94d98bb1d5cf6"
+  integrity sha512-MRrJOV1uyAxHaCqqgwRcLN/8CwlKCwuz7MNdWo2OG/jjrGI+7wLJeJOYJ8lp/61Fps3Mat/k7+0WIskwbGhqTA==
 
 magic-string@^0.30.5:
   version "0.30.5"
@@ -1767,6 +1767,7 @@ source-map-js@^1.0.2:
   integrity sha512-R0XvVJ9WusLiqTCEiGCmICCMplcCkIwwR11mOSD9CR5u+IXYdiseeEuXCVAjS54zqwkLcPNnmU4OeJ6tUrWhDw==
 
 "string-width-cjs@npm:string-width@^4.2.0", string-width@^4.1.0:
+  name string-width-cjs
   version "4.2.3"
   resolved "https://registry.yarnpkg.com/string-width/-/string-width-4.2.3.tgz#269c7117d27b05ad2e536830a8ec895ef9c6d010"
   integrity sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==
@@ -1785,6 +1786,7 @@ string-width@^5.0.1, string-width@^5.1.2:
     strip-ansi "^7.0.1"
 
 "strip-ansi-cjs@npm:strip-ansi@^6.0.1", strip-ansi@^6.0.0, strip-ansi@^6.0.1:
+  name strip-ansi-cjs
   version "6.0.1"
   resolved "https://registry.yarnpkg.com/strip-ansi/-/strip-ansi-6.0.1.tgz#9e26c63d30f53443e9489495b2105d37b67a85d9"
   integrity sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A==

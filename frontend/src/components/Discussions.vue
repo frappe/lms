@@ -1,13 +1,13 @@
 <template>
-	<div v-if="topics.data">
-		<div>
-			<Button class="float-right" @click="openQuestionModal()">
-				{{ __('Ask a Question') }}
-			</Button>
-			<div class="text-xl font-semibold">
-				{{ __(title) }}
-			</div>
+	<div>
+		<Button class="float-right" @click="openTopicModal()">
+			{{ __('New {0}').format(title) }}
+		</Button>
+		<div class="text-xl font-semibold">
+			{{ __(title) }}
 		</div>
+	</div>
+	<div v-if="topics.data?.length">
 		<div v-if="showTopics" v-for="(topic, index) in topics.data">
 			<div
 				@click="showReplies(topic)"
@@ -37,6 +37,24 @@
 			/>
 		</div>
 	</div>
+	<div v-else class="flex justify-center border mt-5 p-5 rounded-md">
+		<MessageSquareIcon class="w-10 h-10 stroke-1.5 text-gray-800 mr-2" />
+		<div>
+			<div class="text-xl font-semibold mb-2">
+				{{ __(emptyStateTitle) }}
+			</div>
+			<div>
+				{{ __(emptyStateText) }}
+			</div>
+		</div>
+	</div>
+	<DiscussionModal
+		v-model="showTopicModal"
+		:title="__('New {0}').format(title)"
+		:doctype="props.doctype"
+		:docname="props.docname"
+		v-model:reloadTopics="topics"
+	/>
 </template>
 <script setup>
 import { createResource, Button } from 'frappe-ui'
@@ -44,11 +62,13 @@ import UserAvatar from '@/components/UserAvatar.vue'
 import { timeAgo } from '../utils'
 import { ref, onMounted, inject } from 'vue'
 import DiscussionReplies from '@/components/DiscussionReplies.vue'
+import DiscussionModal from '@/components/Modals/DiscussionModal.vue'
+import { MessageSquareIcon, MessagesSquare } from 'lucide-vue-next'
 
 const showTopics = ref(true)
 const currentTopic = ref(null)
 const socket = inject('$socket')
-const showQuestionModal = ref(false)
+const showTopicModal = ref(false)
 
 const props = defineProps({
 	title: {
@@ -63,6 +83,14 @@ const props = defineProps({
 		type: String,
 		required: true,
 	},
+	emptyStateTitle: {
+		type: String,
+		default: 'No topics yet',
+	},
+	emptyStateText: {
+		type: String,
+		default: 'Be the first to start a discussion',
+	},
 })
 
 onMounted(() => {
@@ -74,9 +102,11 @@ onMounted(() => {
 const topics = createResource({
 	url: 'lms.lms.utils.get_discussion_topics',
 	cache: ['topics', props.doctype, props.docname],
-	params: {
-		doctype: props.doctype,
-		docname: props.docname,
+	makeParams() {
+		return {
+			doctype: props.doctype,
+			docname: props.docname,
+		}
 	},
 	auto: true,
 })
@@ -86,7 +116,7 @@ const showReplies = (topic) => {
 	currentTopic.value = topic
 }
 
-const openQuestionModal = () => {
-	showQuestionModal.value = true
+const openTopicModal = () => {
+	showTopicModal.value = true
 }
 </script>

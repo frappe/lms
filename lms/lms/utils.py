@@ -1296,7 +1296,12 @@ def get_lesson(course, chapter, lesson):
 		"Course Lesson", lesson_name, ["include_in_preview", "title"], as_dict=1
 	)
 	membership = get_membership(course)
-	if not lesson_details.include_in_preview and not membership:
+	if (
+		not lesson_details.include_in_preview
+		and not membership
+		and not has_course_moderator_role()
+		and not is_instructor(course.name)
+	):
 		return {
 			"no_preview": 1,
 			"title": lesson_details.title,

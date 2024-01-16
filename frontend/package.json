@@ -11,7 +11,7 @@
     "dayjs": "^1.11.6",
     "feather-icons": "^4.28.0",
     "frappe-ui": "^0.1.22",
-    "lucide-vue-next": "^0.259.0",
+    "lucide-vue-next": "^0.309.0",
     "markdown-it": "^14.0.0",
     "pinia": "^2.0.33",
     "tailwindcss": "^3.2.7",

@@ -171,6 +171,7 @@
 						:title="'Questions'"
 						:doctype="'Course Lesson'"
 						:docname="lesson.data.name"
+						:key="lesson.data.name"
 					/>
 				</div>
 			</div>
@@ -342,6 +343,10 @@ const allowDiscussions = () => {
 		user.data?.is_moderator ||
 		user.data?.is_instructor
 	)
+}
+
+const hideLesson = () => {
+	return false
 }
 </script>
 <style>
