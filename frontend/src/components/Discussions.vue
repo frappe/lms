@@ -1,6 +1,9 @@
 <template>
 	<div v-if="topics.data">
 		<div>
+			<Button class="float-right" @click="openQuestionModal()">
+				{{ __('Ask a Question') }}
+			</Button>
 			<div class="text-xl font-semibold">
 				{{ __(title) }}
 			</div>
@@ -36,7 +39,7 @@
 	</div>
 </template>
 <script setup>
-import { createResource } from 'frappe-ui'
+import { createResource, Button } from 'frappe-ui'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { timeAgo } from '../utils'
 import { ref, onMounted, inject } from 'vue'
@@ -45,6 +48,7 @@ import DiscussionReplies from '@/components/DiscussionReplies.vue'
 const showTopics = ref(true)
 const currentTopic = ref(null)
 const socket = inject('$socket')
+const showQuestionModal = ref(false)
 
 const props = defineProps({
 	title: {
@@ -80,5 +84,9 @@ const topics = createResource({
 const showReplies = (topic) => {
 	showTopics.value = false
 	currentTopic.value = topic
+}
+
+const openQuestionModal = () => {
+	showQuestionModal.value = true
 }
 </script>

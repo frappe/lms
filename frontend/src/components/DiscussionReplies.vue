@@ -1,8 +1,10 @@
 <template>
 	<div class="mt-6">
 		<div class="flex items-center mb-5">
-			<Button variant="subtle" @click="showTopics = true">
-				<ChevronLeft class="w-4 h-4 stroke-1.5" />
+			<Button variant="outline" @click="showTopics = true">
+				<template #icon>
+					<ChevronLeft class="w-5 h-5 stroke-1.5 text-gray-700" />
+				</template>
 			</Button>
 			<span class="text-lg font-semibold ml-2">
 				{{ topic.title }}
@@ -14,23 +16,65 @@
 				class="py-3"
 				:class="{ 'border-b': index + 1 != replies.data.length }"
 			>
-				<div class="flex items-center mb-2">
-					<UserAvatar :user="reply.user" class="mr-2" />
-					<span>
-						{{ reply.user.full_name }}
-					</span>
-					<span class="text-sm ml-2">
-						{{ timeAgo(reply.creation) }}
-					</span>
+				<div class="flex items-center justify-between mb-2">
+					<div class="flex items-center">
+						<UserAvatar :user="reply.user" class="mr-2" />
+						<span>
+							{{ reply.user.full_name }}
+						</span>
+						<span class="text-sm ml-2">
+							{{ timeAgo(reply.creation) }}
+						</span>
+					</div>
+					<Dropdown
+						v-if="user.data.name == reply.owner && !reply.editable"
+						:options="[
+							{
+								label: 'Edit',
+								onClick() {
+									reply.editable = true
+								},
+							},
+							{
+								label: 'Delete',
+								onClick() {
+									deleteReply(reply)
+								},
+							},
+						]"
+					>
+						<template v-slot="{ open }">
+							<MoreHorizontal class="w-4 h-4 stroke-1.5 cursor-pointer" />
+						</template>
+					</Dropdown>
+					<div v-if="reply.editable">
+						<Button variant="ghost" @click="postEdited(reply)">
+							{{ __('Post') }}
+						</Button>
+						<Button variant="ghost" @click="reply.editable = false">
+							{{ __('Discard') }}
+						</Button>
+					</div>
 				</div>
-				<div v-html="reply.reply"></div>
+				<TextEditor
+					:content="reply.reply"
+					@change="(val) => (reply.reply = val)"
+					:editable="reply.editable || false"
+					:fixedMenu="reply.editable || false"
+					:editorClass="
+						reply.editable
+							? 'prose-sm max-w-none border-b border-x rounded-b-md py-1 px-2 min-h-[4rem]'
+							: 'prose-sm'
+					"
+				/>
 			</div>
 		</div>
 		<TextEditor
 			:content="newReply"
 			@change="(val) => (newReply = val)"
 			placeholder="Type your reply here..."
-			editorClass="prose-sm py-2 px-2 min-h-[100px] border-gray-300 hover:border-gray-400 rounded-md bg-gray-200 w-full mt-5"
+			:fixedMenu="true"
+			editorClass="prose-sm max-w-none min-h-[7rem] border-b border-x rounded-b-md py-1 px-2"
 		/>
 		<div class="flex justify-between mt-2">
 			<span> </span>
@@ -43,15 +87,16 @@
 	</div>
 </template>
 <script setup>
-import { createResource, TextEditor, Button } from 'frappe-ui'
+import { createResource, TextEditor, Button, Dropdown } from 'frappe-ui'
 import { timeAgo } from '../utils'
 import UserAvatar from '@/components/UserAvatar.vue'
-import { ChevronLeft } from 'lucide-vue-next'
+import { ChevronLeft, MoreHorizontal } from 'lucide-vue-next'
 import { ref, inject, onMounted } from 'vue'
 
 const showTopics = defineModel('showTopics')
 const newReply = ref('')
 const socket = inject('$socket')
+const user = inject('$user')
 
 const props = defineProps({
 	topic: {
@@ -60,11 +105,16 @@ const props = defineProps({
 	},
 })
 
-console.log(socket)
-socket.on('publish_message', (data) => {
-	console.log('publish')
-	console.log(data)
-	replies.reload()
+onMounted(() => {
+	socket.on('publish_message', (data) => {
+		replies.reload()
+	})
+	socket.on('update_message', (data) => {
+		replies.reload()
+	})
+	socket.on('delete_message', (data) => {
+		replies.reload()
+	})
 })
 
 const replies = createResource({
@@ -102,6 +152,61 @@ const postReply = () => {
 			},
 			onSuccess() {
 				newReply.value = ''
+				replies.reload()
+			},
+		}
+	)
+}
+
+const editReplyResource = createResource({
+	url: 'frappe.client.set_value',
+	makeParams(values) {
+		return {
+			doctype: 'Discussion Reply',
+			name: values.name,
+			fieldname: 'reply',
+			value: values.reply,
+		}
+	},
+})
+
+const postEdited = (reply) => {
+	editReplyResource.submit(
+		{
+			name: reply.name,
+			reply: reply.reply,
+		},
+		{
+			validate() {
+				if (!reply.reply) {
+					return 'Reply cannot be empty'
+				}
+			},
+			onSuccess() {
+				reply.editable = false
+				replies.reload()
+			},
+		}
+	)
+}
+
+const deleteReplyResource = createResource({
+	url: 'frappe.client.delete',
+	makeParams(values) {
+		return {
+			doctype: 'Discussion Reply',
+			name: values.name,
+		}
+	},
+})
+
+const deleteReply = (reply) => {
+	deleteReplyResource.submit(
+		{
+			name: reply.name,
+		},
+		{
+			onSuccess() {
 				replies.reload()
 			},
 		}

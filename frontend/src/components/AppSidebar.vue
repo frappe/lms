@@ -1,9 +1,12 @@
 <template>
 	<div
 		class="flex h-full flex-col justify-between transition-all duration-300 ease-in-out bg-gray-50"
-		:class="isSidebarCollapsed ? 'w-12' : 'w-56'"
+		:class="isSidebarCollapsed ? 'w-14' : 'w-56'"
 	>
-		<div class="flex flex-col overflow-hidden">
+		<div
+			class="flex flex-col overflow-hidden"
+			:class="isSidebarCollapsed ? 'items-center' : ''"
+		>
 			<UserDropdown class="p-2" :isCollapsed="isSidebarCollapsed" />
 			<div class="flex flex-col overflow-y-auto">
 				<SidebarLink
