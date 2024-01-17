@@ -11,7 +11,7 @@ frappe.ready(() => {
 const open_report_dialog = (e) => {
 	e.preventDefault();
 	if (frappe.session.user == "Guest") {
-		window.location.href = `/login?redirect-to=/jobs/${$(
+		window.location.href = `/login?redirect-to=/job-openings/${$(
 			e.currentTarget
 		).data("job")}`;
 		return;

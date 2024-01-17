@@ -5,7 +5,7 @@ def get_context(context):
 	try:
 		job = frappe.form_dict["job"]
 	except KeyError:
-		frappe.local.flags.redirect_location = "/jobs"
+		frappe.local.flags.redirect_location = "/job-openings"
 		raise frappe.Redirect
 
 	context.job = frappe.get_doc("Job Opportunity", job)

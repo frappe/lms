@@ -33,7 +33,7 @@
                         </div>
                     </div>
 
-                    {% set application_link = job.application_link if frappe.session.user != 'Guest' else '/login?redirect-to=/jobs/' + job.name %}
+                    {% set application_link = job.application_link if frappe.session.user != 'Guest' else '/login?redirect-to=/job-openings/' + job.name %}
                     <div class="job-actions">
                         <a class="btn btn-primary btn-sm mr-2" href="{{ application_link }}"> {{ _("Apply") }} </a>
                         <div class="btn btn-default btn-sm mr-2" id="report" data-job="{{ job.name }}"> {{ _("Report") }} </div>
@@ -94,7 +94,7 @@
 
 {% macro BreadCrumb(job) %}
 <div class="breadcrumb">
-  <a class="dark-links" href="/jobs">{{ _("Job Openings") }}</a>
+  <a class="dark-links" href="/job-openings">{{ _("Job Openings") }}</a>
   <img class="ml-1 mr-1" src="/assets/lms/icons/chevron-right.svg">
   <span class="breadcrumb-destination">{{ job.job_title }}</span>
 </div>
