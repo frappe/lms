@@ -20,7 +20,7 @@
  "list_columns": [],
  "login_required": 1,
  "max_attachment_size": 0,
- "modified": "2022-09-15 17:22:43.957184",
+ "modified": "2022-09-15 17:22:43.957185",
  "modified_by": "Administrator",
  "module": "Job",
  "name": "job-opportunity",
@@ -32,7 +32,7 @@
  "show_list": 1,
  "show_sidebar": 0,
  "success_message": "",
- "success_url": "/jobs",
+ "success_url": "/job-openings",
  "title": "Job Opportunity",
  "web_form_fields": [
   {
