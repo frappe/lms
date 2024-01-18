@@ -11,7 +11,8 @@
         <div class="common-card-style job-detail-card">
 
                 <div class="job-detail-header">
-                    <span title="{{ job.company_name}}" style="background-image: url( {{ job.company_logo | urlencode }} );"
+                    {% set company_logo = job.company_logo.replace(' ', '%20') %}
+                    <span title="{{ job.company_name}}" style="background-image: url( {{ company_logo }} );"
                     class="company-logo"></span>
 
                     <div class="job-card-info">
