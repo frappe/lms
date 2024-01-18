@@ -173,7 +173,8 @@ website_route_rules = [
 		"to_route": "cohorts/join",
 	},
 	{"from_route": "/users", "to_route": "profiles/profile"},
-	{"from_route": "/jobs/<job>", "to_route": "jobs/job"},
+	{"from_route": "/job-openings", "to_route": "jobs_openings/index"},
+	{"from_route": "/job-openings/<job>", "to_route": "jobs_openings/job"},
 	{
 		"from_route": "/batches/<batchname>/students/<username>",
 		"to_route": "/batches/progress",
