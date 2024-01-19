@@ -146,6 +146,10 @@
                 href="/billing/batch/{{ batch_info.name }}">
                 {{ _("Register Now") }}
             </a>
+            {% elif batch_info.allow_self_enrollment %}
+            <button class="btn btn-primary wide-button enroll-batch">
+                {{ _("Enroll Now") }}
+            </button>
             {% else %}
             <div class="alert alert-info">
                 {{ _("To join this batch, please contact the Administrator.") }}

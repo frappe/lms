@@ -15,6 +15,7 @@
   "start_time",
   "end_time",
   "published",
+  "allow_self_enrollment",
   "section_break_rgfj",
   "medium",
   "category",
@@ -293,11 +294,17 @@
    "fieldname": "amount_usd",
    "fieldtype": "Currency",
    "label": "Amount (USD)"
+  },
+  {
+   "default": "0",
+   "fieldname": "allow_self_enrollment",
+   "fieldtype": "Check",
+   "label": "Allow Self Enrollment"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-12-21 12:27:16.849362",
+ "modified": "2024-01-19 23:36:17.351413",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch",
@@ -327,6 +334,15 @@
    "role": "Moderator",
    "share": 1,
    "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "LMS Student",
+   "share": 1
   }
  ],
  "show_title_field_in_link": 1,
