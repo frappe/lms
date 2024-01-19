@@ -3,6 +3,7 @@
 
 import frappe
 from frappe.translate import get_all_translations
+from frappe import _
 
 
 @frappe.whitelist()
@@ -163,3 +164,39 @@ def get_translations():
 	else:
 		language = frappe.db.get_single_value("System Settings", "language")
 	return get_all_translations(language)
+
+
+@frappe.whitelist()
+def validate_billing_access(type, name):
+	access = True
+	message = ""
+
+	if frappe.session.user == "Guest":
+		access = False
+		message = _("Please login to continue with payment.")
+
+	if type not in ["course", "batch"]:
+		access = False
+		message = _("Module is incorrect.")
+
+	if not frappe.db.exists(type, name):
+		access = False
+		message = _("Module Name is incorrect or does not exist.")
+
+	if type == "course":
+		membership = frappe.db.exists(
+			"LMS Enrollment", {"member": frappe.session.user, "course": name}
+		)
+		if membership:
+			access = False
+			message = _("You are already enrolled for this course.")
+
+	else:
+		membership = frappe.db.exists(
+			"Batch Student", {"student": frappe.session.user, "parent": name}
+		)
+		if membership:
+			access = False
+			message = _("You are already enrolled for this batch.")
+
+	return {"access": access, "message": message}

@@ -44,6 +44,12 @@ const routes = [
 		props: true,
 	},
 	{
+		path: '/billing/:type/:name',
+		name: 'Billing',
+		component: () => import('@/pages/Billing.vue'),
+		props: true,
+	},
+	{
 		path: '/statistics',
 		name: 'Statistics',
 		component: () => import('@/pages/Statistics.vue'),

@@ -1192,6 +1192,9 @@ def get_course_details(course):
 			"published",
 			"upcoming",
 			"status",
+			"paid_course",
+			"course_price",
+			"currency",
 		],
 		as_dict=1,
 	)
