@@ -1,13 +1,13 @@
 <template>
 	<div>
-		<Button class="float-right" @click="openTopicModal()">
+		<Button v-if="!singleThread" class="float-right" @click="openTopicModal()">
 			{{ __('New {0}').format(title) }}
 		</Button>
 		<div class="text-xl font-semibold">
 			{{ __(title) }}
 		</div>
 	</div>
-	<div v-if="topics.data?.length">
+	<div v-if="topics.data?.length && !singleThread">
 		<div v-if="showTopics" v-for="(topic, index) in topics.data">
 			<div
 				@click="showReplies(topic)"
@@ -37,6 +37,9 @@
 			/>
 		</div>
 	</div>
+	<div v-else-if="singleThread && topics.data">
+		<DiscussionReplies :topic="topics.data" :singleThread="singleThread" />
+	</div>
 	<div v-else class="flex justify-center border mt-5 p-5 rounded-md">
 		<MessageSquareIcon class="w-10 h-10 stroke-1.5 text-gray-800 mr-2" />
 		<div>
@@ -57,13 +60,13 @@
 	/>
 </template>
 <script setup>
-import { createResource, Button } from 'frappe-ui'
+import { createResource, Button, TextEditor } from 'frappe-ui'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { timeAgo } from '../utils'
 import { ref, onMounted, inject } from 'vue'
 import DiscussionReplies from '@/components/DiscussionReplies.vue'
 import DiscussionModal from '@/components/Modals/DiscussionModal.vue'
-import { MessageSquareIcon, MessagesSquare } from 'lucide-vue-next'
+import { MessageSquareIcon } from 'lucide-vue-next'
 
 const showTopics = ref(true)
 const currentTopic = ref(null)
@@ -91,6 +94,10 @@ const props = defineProps({
 		type: String,
 		default: 'Be the first to start a discussion',
 	},
+	singleThread: {
+		type: Boolean,
+		default: false,
+	},
 })
 
 onMounted(() => {
@@ -106,6 +113,7 @@ const topics = createResource({
 		return {
 			doctype: props.doctype,
 			docname: props.docname,
+			single_thread: props.singleThread,
 		}
 	},
 	auto: true,

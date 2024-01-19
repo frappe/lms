@@ -1,6 +1,6 @@
 <template>
 	<div class="mt-6">
-		<div class="flex items-center mb-5">
+		<div v-if="!singleThread" class="flex items-center mb-5">
 			<Button variant="outline" @click="showTopics = true">
 				<template #icon>
 					<ChevronLeft class="w-5 h-5 stroke-1.5 text-gray-700" />
@@ -63,7 +63,7 @@
 					:fixedMenu="reply.editable || false"
 					:editorClass="
 						reply.editable
-							? 'prose-sm max-w-none border-b border-x rounded-b-md py-1 px-2 min-h-[4rem]'
+							? 'ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-gray-300 prose-th:border-gray-300 prose-td:relative prose-th:relative prose-th:bg-gray-100 prose-sm max-w-none'
 							: 'prose-sm'
 					"
 				/>
@@ -75,7 +75,7 @@
 			@change="(val) => (newReply = val)"
 			placeholder="Type your reply here..."
 			:fixedMenu="true"
-			editorClass="prose-sm max-w-none min-h-[7rem] border-b border-x rounded-b-md py-1 px-2"
+			editorClass="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-gray-300 prose-th:border-gray-300 prose-td:relative prose-th:relative prose-th:bg-gray-100 prose-sm max-w-none border border-gray-300 rounded-b-md min-h-[7rem] py-1 px-2"
 		/>
 		<div class="flex justify-between mt-2">
 			<span> </span>
@@ -104,6 +104,10 @@ const props = defineProps({
 	topic: {
 		type: Object,
 		required: true,
+	},
+	singleThread: {
+		type: Boolean,
+		default: false,
 	},
 })
 
@@ -156,7 +160,7 @@ const postReply = () => {
 				newReply.value = ''
 				replies.reload()
 			},
-			onError() {
+			onError(err) {
 				createToast({
 					title: 'Error',
 					text: err.messages?.[0] || err,

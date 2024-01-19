@@ -79,7 +79,6 @@
 <script setup>
 import { createResource, Breadcrumbs } from 'frappe-ui'
 import { computed, inject } from 'vue'
-import { Line } from 'vue-chartjs'
 import {
 	BookOpen,
 	LogIn,

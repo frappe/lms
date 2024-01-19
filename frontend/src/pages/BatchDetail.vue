@@ -89,8 +89,11 @@ import { formatTime } from '../utils'
 import { computed, inject } from 'vue'
 import BatchOverlay from '@/components/BatchOverlay.vue'
 import CourseCard from '@/components/CourseCard.vue'
+import { useRouter } from 'vue-router'
 
 const dayjs = inject('$dayjs')
+const user = inject('$user')
+const router = useRouter()
 
 const props = defineProps({
 	batchName: {
@@ -106,6 +109,16 @@ const batch = createResource({
 		batch: props.batchName,
 	},
 	auto: true,
+	onSuccess(data) {
+		if (data.students?.includes(user.data.name)) {
+			router.push({
+				name: 'Batch',
+				params: {
+					batchName: props.batchName,
+				},
+			})
+		}
+	},
 })
 
 const courses = createResource({

@@ -1619,7 +1619,17 @@ def get_batch_students(batch):
 
 
 @frappe.whitelist()
-def get_discussion_topics(doctype, docname):
+def get_discussion_topics(doctype, docname, single_thread):
+	if single_thread:
+		filters = {
+			"reference_doctype": doctype,
+			"reference_docname": docname,
+		}
+		topic = frappe.db.exists("Discussion Topic", filters)
+		if topic:
+			return frappe.db.get_value("Discussion Topic", topic, ["name"], as_dict=1)
+		else:
+			return create_discussion_topic(doctype, docname)
 	topics = frappe.get_all(
 		"Discussion Topic",
 		{
@@ -1636,6 +1646,18 @@ def get_discussion_topics(doctype, docname):
 		)
 
 	return topics
+
+
+def create_discussion_topic(doctype, docname):
+	doc = frappe.new_doc("Discussion Topic")
+	doc.update(
+		{
+			"reference_doctype": doctype,
+			"reference_docname": docname,
+		}
+	)
+	doc.insert()
+	return doc
 
 
 @frappe.whitelist()

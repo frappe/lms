@@ -16,7 +16,7 @@
 		<div v-if="batch.data" class="grid grid-cols-[70%,30%] h-full">
 			<div class="border-r-2">
 				<Tabs class="overflow-hidden" v-model="tabIndex" :tabs="tabs">
-					<template #tab="{ tab, selected }">
+					<template #tab="{ tab, selected }" class="overflow-x-hidden">
 						<div>
 							<button
 								class="group -mb-px flex items-center gap-1 border-b border-transparent py-2.5 text-base text-gray-600 duration-300 ease-in-out hover:border-gray-400 hover:text-gray-900"
@@ -79,6 +79,15 @@
 							</div>
 							<div v-else-if="tab.label == 'Announcements'">
 								<Announcements :batch="batch.data.name" />
+							</div>
+							<div v-else-if="tab.label == 'Discussions'">
+								<Discussions
+									doctype="LMS Batch"
+									:docname="batch.data.name"
+									title="Discussions"
+									:key="batch.data.name"
+									:singleThread="true"
+								/>
 							</div>
 						</div>
 					</template>
@@ -168,6 +177,7 @@ import {
 	Contact2,
 	Mail,
 	SendIcon,
+	MessageCircle,
 } from 'lucide-vue-next'
 import { formatTime } from '@/utils'
 import CourseCard from '@/components/CourseCard.vue'
@@ -177,6 +187,7 @@ import BatchStudents from '@/components/BatchStudents.vue'
 import Assessments from '@/components/Assessments.vue'
 import Announcements from '@/components/Annoucements.vue'
 import AnnouncementModal from '@/components/Modals/AnnouncementModal.vue'
+import Discussions from '@/components/Discussions.vue'
 
 const dayjs = inject('$dayjs')
 const user = inject('$user')
@@ -199,17 +210,23 @@ const batch = createResource({
 })
 
 const breadcrumbs = computed(() => {
-	return [
-		{ label: 'All Batches', route: { name: 'Batches' } },
-		{
-			label: 'Batch Details',
-			route: { name: 'BatchDetail', params: { batchName: props.batchName } },
-		},
-		{
-			label: batch?.data?.title,
-			route: { name: 'Batch', params: { batchName: props.batchName } },
-		},
-	]
+	let crumbs = [{ label: 'All Batches', route: { name: 'Batches' } }]
+	if (!isStudent.value) {
+		crumbs.push({
+			label: batch.data?.title,
+			route: {
+				name: 'BatchDetail',
+				params: {
+					batchName: batch.data?.name,
+				},
+			},
+		})
+	}
+	crumbs.push({
+		label: batch?.data?.title,
+		route: { name: 'Batch', params: { batchName: props.batchName } },
+	})
+	return crumbs
 })
 
 const isStudent = computed(() => {
@@ -254,6 +271,11 @@ tabs.push({
 tabs.push({
 	label: 'Announcements',
 	icon: Mail,
+})
+
+tabs.push({
+	label: 'Discussions',
+	icon: MessageCircle,
 })
 
 const courses = createResource({
