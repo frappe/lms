@@ -12,6 +12,10 @@ frappe.ready(() => {
 	$(".btn-remove-course").click((e) => {
 		remove_course(e);
 	});
+
+	$(".enroll-batch").click((e) => {
+		enroll_batch(e);
+	});
 });
 
 const show_course_modal = (e) => {
@@ -52,6 +56,26 @@ const show_course_modal = (e) => {
 	setTimeout(() => {
 		$(".modal-body").css("min-height", "300px");
 	}, 1000);
+};
+
+const enroll_batch = (e) => {
+	let batch_name = $(".class-details").data("batch");
+	frappe.call({
+		method: "lms.lms.doctype.batch_student.batch_student.enroll_batch",
+		args: {
+			batch_name: batch_name,
+		},
+		callback(r) {
+			frappe.show_alert(
+				{
+					message: __("Successfully Enrolled"),
+					indicator: "green",
+				},
+				2000
+			);
+			window.location.href = `/batches/${batch_name}`;
+		},
+	});
 };
 
 const add_course = (values, course_name) => {
