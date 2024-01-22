@@ -304,7 +304,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-01-19 23:36:17.351413",
+ "modified": "2024-01-22 10:42:42.872995",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch",
@@ -334,15 +334,6 @@
    "role": "Moderator",
    "share": 1,
    "write": 1
-  },
-  {
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "LMS Student",
-   "share": 1
   }
  ],
  "show_title_field_in_link": 1,
