@@ -140,11 +140,13 @@
 				<use href="#icon-calendar"></use>
 			</svg>
 			<span>
-				{{ frappe.utils.format_date(batch.start_date, "medium") }} -
+				{{ frappe.utils.format_date(batch.start_date, "medium") }}
 			</span>
+			{% if batch.start_date != batch.end_date %}
 			<span>
-				{{ frappe.utils.format_date(batch.end_date, "medium") }}
+				- {{ frappe.utils.format_date(batch.end_date, "long") }}
 			</span>
+			{% endif %}
 		</div>
 
 		<div class="mb-2">
