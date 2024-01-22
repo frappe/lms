@@ -60,6 +60,10 @@ const show_course_modal = (e) => {
 
 const enroll_batch = (e) => {
 	let batch_name = $(".class-details").data("batch");
+	if (frappe.session.user == "Guest") {
+		window.location.href =
+			"/login?redirect-to=/batches/details/" + batch_name;
+	}
 	frappe.call({
 		method: "lms.lms.doctype.batch_student.batch_student.enroll_batch",
 		args: {
