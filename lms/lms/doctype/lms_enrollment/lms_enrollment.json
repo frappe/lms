@@ -19,7 +19,8 @@
   "column_break_12",
   "current_lesson",
   "progress",
-  "role"
+  "role",
+  "instructor_notified_completion"
  ],
  "fields": [
   {
@@ -119,11 +120,19 @@
    "fieldtype": "Link",
    "label": "Payment",
    "options": "LMS Payment"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.progress==100",
+   "fieldname": "instructor_notified_completion",
+   "fieldtype": "Check",
+   "label": "Instructor Notified Completion",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-10-02 12:41:25.139734",
+ "modified": "2024-01-23 08:49:36.295557",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Enrollment",

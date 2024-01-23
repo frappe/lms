@@ -1,0 +1,13 @@
+<p>
+    {{ _("The under-listed learners have completed the course {0}").format(frappe.bold(course_name)) }}
+</p>
+<br>
+<p> {{ _("Members are:") }} </p>
+<ul>
+{% for member in members %}
+<li> {{ member }} </li>
+{% endfor %}
+</ul>
+<a href="/lms-course/{{ course }}">
+    {{ _("Open Course") }}
+</a>

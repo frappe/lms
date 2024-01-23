@@ -55,7 +55,10 @@
   "certification_template",
   "batch_confirmation_template",
   "column_break_uwsp",
-  "assignment_submission_template"
+  "assignment_submission_template",
+  "course_completion_notification_template",
+  "notification_settings_tab",
+  "notify_instructor_course_completion_eod"
  ],
  "fields": [
   {
@@ -348,12 +351,30 @@
    "fieldname": "show_day_view",
    "fieldtype": "Check",
    "label": "Show Day View in Timetable"
+  },
+  {
+   "fieldname": "course_completion_notification_template",
+   "fieldtype": "Link",
+   "label": "Course Completion Notification Template",
+   "options": "Email Template"
+  },
+  {
+   "fieldname": "notification_settings_tab",
+   "fieldtype": "Tab Break",
+   "label": "Notification Settings"
+  },
+  {
+   "default": "0",
+   "description": "Check it true to send the course completion notification to the instructors assigned in the corse by end of the day(at 11:50 pm)\nYou can configure custom 'Course Completion Notification Template' from the Email Templates tab.",
+   "fieldname": "notify_instructor_course_completion_eod",
+   "fieldtype": "Check",
+   "label": "Notify Instructor on Course Completion by EOD"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2023-12-12 10:32:13.638368",
+ "modified": "2024-01-22 22:15:40.193605",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",
