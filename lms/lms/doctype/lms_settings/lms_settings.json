@@ -58,7 +58,8 @@
   "assignment_submission_template",
   "course_completion_notification_template",
   "notification_settings_tab",
-  "notify_instructor_course_completion_eod"
+  "notify_instructor_course_completion_eod",
+  "notify_instructor_assignment_submission_eod"
  ],
  "fields": [
   {
@@ -369,12 +370,19 @@
    "fieldname": "notify_instructor_course_completion_eod",
    "fieldtype": "Check",
    "label": "Notify Instructor on Course Completion by EOD"
+  },
+  {
+   "default": "0",
+   "description": "Check it true to send the assignment submission notification to the instructors assigned in the corse by end of the day(at 11:50 pm)\nYou can configure custom 'Assignment Submission Template' from the Email Templates tab.\n\nCheck it false will send the assignment submission notification right after the creation",
+   "fieldname": "notify_instructor_assignment_submission_eod",
+   "fieldtype": "Check",
+   "label": "Notify Instructor on Assignment Submission by EOD"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-01-22 22:15:40.193605",
+ "modified": "2024-01-23 10:09:49.378121",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",

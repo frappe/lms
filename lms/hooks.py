@@ -108,7 +108,8 @@ scheduler_events = {
 	],
 	"cron": {
 		"50 23 * * *": [# Runs everyday at 11:50 pm
-			'lms.lms.notification.notifications.notify_course_completion'
+			'lms.lms.notification.notifications.notify_course_completion',
+			'lms.lms.notification.notifications.notify_assignment_submission'
 		]
 	}
 }

@@ -29,6 +29,9 @@ class LMSAssignmentSubmission(Document):
 			)
 
 	def send_mail(self):
+		if frappe.db.get_single_value("LMS Settings", "notify_instructor_assignment_submission_eod"):
+			return
+
 		subject = _("New Assignment Submission")
 		template = "assignment_submission"
 		custom_template = frappe.db.get_single_value(
