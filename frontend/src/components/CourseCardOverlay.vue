@@ -27,6 +27,22 @@
 					</span>
 				</Button>
 			</router-link>
+			<router-link
+				v-else-if="course.data.paid_course"
+				:to="{
+					name: 'Billing',
+					params: {
+						type: 'course',
+						name: course.data.name,
+					},
+				}"
+			>
+				<Button variant="solid" class="w-full mb-3">
+					<span>
+						{{ __('Buy this course') }}
+					</span>
+				</Button>
+			</router-link>
 			<Button
 				v-else
 				@click="enrollStudent()"

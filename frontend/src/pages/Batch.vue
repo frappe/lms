@@ -120,7 +120,7 @@
 			/>
 		</div>
 	</div>
-	<div v-else class="h-screen">
+	<div v-else-if="!user.data?.name" class="h-screen">
 		<div class="text-base border rounded-md w-1/3 mx-auto my-32">
 			<div class="border-b px-5 py-3 font-medium">
 				<span
@@ -238,44 +238,41 @@ const isStudent = computed(() => {
 })
 
 const tabIndex = ref(0)
-const tabs = []
-
-if (isStudent.value) {
-	tabs.push({
-		label: 'Dashboard',
-		icon: LayoutDashboard,
+const tabs = computed(() => {
+	let batchTabs = []
+	if (isStudent.value) {
+		batchTabs.push({
+			label: 'Dashboard',
+			icon: LayoutDashboard,
+		})
+	}
+	if (user.data?.is_moderator) {
+		batchTabs.push({
+			label: 'Students',
+			icon: Contact2,
+		})
+		batchTabs.push({
+			label: 'Assessments',
+			icon: BookOpenCheck,
+		})
+	}
+	batchTabs.push({
+		label: 'Live Class',
+		icon: Laptop,
 	})
-}
-
-if (user.data?.is_moderator) {
-	tabs.push({
-		label: 'Students',
-		icon: Contact2,
+	batchTabs.push({
+		label: 'Courses',
+		icon: BookOpen,
 	})
-	tabs.push({
-		label: 'Assessments',
-		icon: BookOpenCheck,
+	batchTabs.push({
+		label: 'Announcements',
+		icon: Mail,
 	})
-}
-
-tabs.push({
-	label: 'Live Class',
-	icon: Laptop,
-})
-
-tabs.push({
-	label: 'Courses',
-	icon: BookOpen,
-})
-
-tabs.push({
-	label: 'Announcements',
-	icon: Mail,
-})
-
-tabs.push({
-	label: 'Discussions',
-	icon: MessageCircle,
+	batchTabs.push({
+		label: 'Discussions',
+		icon: MessageCircle,
+	})
+	return batchTabs
 })
 
 const courses = createResource({

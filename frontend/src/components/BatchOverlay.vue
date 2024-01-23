@@ -50,15 +50,23 @@
 				</span>
 			</Button>
 		</router-link>
-		<Button
+		<router-link
+			:to="{
+				name: 'Billing',
+				params: {
+					type: 'batch',
+					name: batch.data.name,
+				},
+			}"
 			v-else-if="batch.data.paid_batch"
-			class="w-full mt-4"
-			variant="solid"
 		>
-			<span>
-				{{ __('Register Now') }}
-			</span>
-		</Button>
+			<Button class="w-full mt-4" variant="solid">
+				<span>
+					{{ __('Register Now') }}
+				</span>
+			</Button>
+		</router-link>
+
 		<Button v-if="user?.data?.is_moderator" class="w-full mt-2">
 			<span>
 				{{ __('Edit') }}

@@ -972,15 +972,15 @@ def check_multicurrency(amount, currency, country=None, amount_usd=None):
 
 
 def apply_gst(amount, country=None):
-	gst_applied = False
+	gst_applied = 0
 	apply_gst = frappe.db.get_single_value("LMS Settings", "apply_gst")
 
 	if not country:
 		country = frappe.db.get_value("User", frappe.session.user, "country")
 
 	if apply_gst and country == "India":
-		gst_applied = True
-		amount = amount * 1.18
+		gst_applied = amount * 0.18
+		amount += gst_applied
 
 	return amount, gst_applied
 
@@ -1062,7 +1062,6 @@ def create_order(client, amount, currency):
 
 @frappe.whitelist()
 def verify_payment(response, doctype, docname, address, order_id):
-	response = json.loads(response)
 	client = get_client()
 	client.utility.verify_payment_signature(
 		{
@@ -1080,7 +1079,7 @@ def verify_payment(response, doctype, docname, address, order_id):
 
 
 def record_payment(address, response, client, doctype, docname):
-	address = frappe._dict(json.loads(address))
+	address = frappe._dict(address)
 	address_name = save_address(address)
 
 	payment_details = get_payment_details(doctype, docname, address)
@@ -1131,7 +1130,7 @@ def create_membership(course, payment):
 		{"member": frappe.session.user, "course": course, "payment": payment.name}
 	)
 	membership.save(ignore_permissions=True)
-	return f"/courses/{course}/learn/1.1"
+	return f"/courses/{course}/learn/1-1"
 
 
 def add_student_to_batch(batchname, payment):
@@ -1680,3 +1679,40 @@ def get_discussion_replies(topic):
 		)
 
 	return replies
+
+
+@frappe.whitelist()
+def get_order_summary(doctype, docname, country=None):
+	if doctype == "LMS Course":
+		details = frappe.db.get_value(
+			"LMS Course",
+			docname,
+			["title", "name", "paid_course", "course_price as amount", "currency", "amount_usd"],
+			as_dict=True,
+		)
+
+		if not details.paid_course:
+			raise frappe.throw(_("This course is free."))
+
+	else:
+		details = frappe.db.get_value(
+			"LMS Batch",
+			docname,
+			["title", "name", "paid_batch", "amount", "currency", "amount_usd"],
+			as_dict=True,
+		)
+
+		if not details.paid_batch:
+			raise frappe.throw(_("To join this batch, please contact the Administrator."))
+
+	details.amount, details.currency = check_multicurrency(
+		details.amount, details.currency, country, details.amount_usd
+	)
+	details.original_amount_formatted = fmt_money(details.amount, 0, details.currency)
+
+	if details.currency == "INR":
+		details.amount, details.gst_applied = apply_gst(details.amount)
+		details.gst_amount_formatted = fmt_money(details.gst_applied, 0, details.currency)
+
+	details.total_amount_formatted = fmt_money(details.amount, 0, details.currency)
+	return details

@@ -78,12 +78,7 @@
 	</div>
 </template>
 <script setup>
-import {
-	Breadcrumbs,
-	createDocumentResource,
-	createListResource,
-	createResource,
-} from 'frappe-ui'
+import { Breadcrumbs, createResource } from 'frappe-ui'
 import { BookOpen, Calendar, Clock } from 'lucide-vue-next'
 import { formatTime } from '../utils'
 import { computed, inject } from 'vue'
@@ -110,7 +105,7 @@ const batch = createResource({
 	},
 	auto: true,
 	onSuccess(data) {
-		if (data.students?.includes(user.data.name)) {
+		if (data.students?.includes(user.data?.name)) {
 			router.push({
 				name: 'Batch',
 				params: {

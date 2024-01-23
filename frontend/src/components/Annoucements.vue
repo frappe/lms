@@ -1,5 +1,5 @@
 <template>
-	<div v-if="communications.data">
+	<div v-if="communications.data?.length">
 		<div v-for="comm in communications.data">
 			<div class="mb-8">
 				<div class="flex items-center justify-between mb-2">
@@ -19,6 +19,9 @@
 				></div>
 			</div>
 		</div>
+	</div>
+	<div v-else class="text-sm italic text-gray-600">
+		{{ __('No announcements') }}
 	</div>
 </template>
 <script setup>

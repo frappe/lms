@@ -170,6 +170,7 @@ def get_translations():
 def validate_billing_access(type, name):
 	access = True
 	message = ""
+	doctype = "LMS Course" if type == "course" else "LMS Batch"
 
 	if frappe.session.user == "Guest":
 		access = False
@@ -179,7 +180,7 @@ def validate_billing_access(type, name):
 		access = False
 		message = _("Module is incorrect.")
 
-	if not frappe.db.exists(type, name):
+	if not frappe.db.exists(doctype, name):
 		access = False
 		message = _("Module Name is incorrect or does not exist.")
 
@@ -199,4 +200,21 @@ def validate_billing_access(type, name):
 			access = False
 			message = _("You are already enrolled for this batch.")
 
-	return {"access": access, "message": message}
+	address = frappe.db.get_value(
+		"Address",
+		{"email_id": frappe.session.user},
+		[
+			"name",
+			"address_title as billing_name",
+			"address_line1",
+			"address_line2",
+			"city",
+			"state",
+			"country",
+			"pincode",
+			"phone",
+		],
+		as_dict=1,
+	)
+
+	return {"access": access, "message": message, "address": address}
