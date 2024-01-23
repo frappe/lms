@@ -66,7 +66,13 @@
 				</span>
 			</Button>
 		</router-link>
-
+		<Button
+			variant="solid"
+			class="w-full mt-2"
+			v-else-if="batch.data.allow_self_enrollment"
+		>
+			{{ __('Enroll Now') }}
+		</Button>
 		<Button v-if="user?.data?.is_moderator" class="w-full mt-2">
 			<span>
 				{{ __('Edit') }}

@@ -4,6 +4,8 @@
 $ git clone https://github.com/frappe/lms.git
 
 $ cd lms
+
+$ cd docker
 ```
 
 **Step 2:** Run docker-compose

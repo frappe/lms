@@ -14,7 +14,7 @@
 				<div class="flex items-center justify-between w-1/2">
 					<div class="flex items-center">
 						<BookOpen class="h-4 w-4 text-gray-700 mr-2" />
-						<span> {{ batch.data.courses.length }} {{ __('Courses') }} </span>
+						<span> {{ batch.data?.courses?.length }} {{ __('Courses') }} </span>
 					</div>
 					<span v-if="batch.data.courses">&middot;</span>
 					<div class="flex items-center">

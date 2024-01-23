@@ -49,11 +49,14 @@
 				<use href="#icon-calendar"></use>
 			</svg>
 			<span>
-				{{ frappe.utils.format_date(batch_info.start_date, "long") }} -
+				{{ frappe.utils.format_date(batch_info.start_date, "long") }}
 			</span>
+
+			{% if batch_info.start_date != batch_info.end_date %}
 			<span>
-				{{ frappe.utils.format_date(batch_info.end_date, "long") }}
+				- {{ frappe.utils.format_date(batch_info.end_date, "long") }}
 			</span>
+			{% endif %}
 		</div>
 
 		<span class="seperator"></span>

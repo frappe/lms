@@ -1194,6 +1194,7 @@ def get_course_details(course):
 			"paid_course",
 			"course_price",
 			"currency",
+			"amount_usd",
 		],
 		as_dict=1,
 	)
@@ -1214,6 +1215,9 @@ def get_course_details(course):
 
 	course_details.instructors = get_instructors(course_details.name)
 	if course_details.paid_course:
+		course_details.course_price, course_details.currency = check_multicurrency(
+			course_details.course_price, course_details.currency, None, course_details.amount_usd
+		)
 		course_details.price = fmt_money(
 			course_details.course_price, 0, course_details.currency
 		)
@@ -1385,9 +1389,11 @@ def get_batch_details(batch):
 			"seat_count",
 			"published",
 			"amount",
+			"amount_usd",
 			"currency",
 			"paid_batch",
 			"evaluation_end_date",
+			"allow_self_enrollment",
 		],
 		as_dict=True,
 	)
@@ -1398,7 +1404,11 @@ def get_batch_details(batch):
 	batch_details.students = frappe.get_all(
 		"Batch Student", {"parent": batch}, pluck="student"
 	)
-	batch_details.price = fmt_money(batch_details.amount, 0, batch_details.currency)
+	if batch_details.paid_batch:
+		batch_details.amount, batch_details.currency = check_multicurrency(
+			batch_details.amount, batch_details.currency, None, batch_details.amount_usd
+		)
+		batch_details.price = fmt_money(batch_details.amount, 0, batch_details.currency)
 
 	if batch_details.seat_count:
 		students_enrolled = frappe.db.count(

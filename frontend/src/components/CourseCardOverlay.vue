@@ -62,6 +62,9 @@
 					{{ __('Edit') }}
 				</span>
 			</Button>
+			<div class="text-lg font-semibold mb-3">
+				{{ course.data.price }}
+			</div>
 			<div class="flex items-center mb-3">
 				<Users class="h-4 w-4 text-gray-700" />
 				<span class="ml-1">
