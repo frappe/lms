@@ -5,6 +5,6 @@
 <p> {{ _("Members (Assignment Link):") }} </p>
 <ul>
 {% for member in members %}
-<li> {{ member['member'] }} (<a href="/lms-assignment-submission/{{ member['assignment_submission'] }}">{{ assignment_title }}</a>)</li>
+<li> {{ member['member'] }} (<a href="app/lms-assignment-submission/{{ member['assignment_submission'] }}">{{ assignment_title }}</a>)</li>
 {% endfor %}
 </ul>

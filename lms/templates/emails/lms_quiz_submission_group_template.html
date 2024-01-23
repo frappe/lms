@@ -1,0 +1,10 @@
+<p>
+    {{ _("The under-listed learners have submitted the quiz {0}").format(frappe.bold(quiz)) }}
+</p>
+<br>
+<p> {{ _("Members (Assignment Link):") }} </p>
+<ul>
+{% for member in members %}
+<li> {{ member['member'] }} (<a href="/app/lms-quiz-submission/{{ member['quiz_submission'] }}">{{ quiz }}</a>)</li>
+{% endfor %}
+</ul>

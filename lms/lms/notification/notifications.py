@@ -176,3 +176,91 @@ def notify_assignment_submission():
                 query += "where name in {0}".format(tuple(submission['names']))
             frappe.db.sql(query)
             frappe.db.commit()
+
+
+def notify_quiz_submission():
+    '''
+        Method to notify the quiz submission on daily basis
+    '''
+    # Check settings Notify Instructor on Quiz Submission by EOD is checked true
+    if not frappe.db.get_single_value("LMS Settings", "notify_instructor_quiz_submission_eod"):
+        return
+
+    # Get all Quiz Submission that not send the notification to instructor
+    query = '''
+        select
+            quiz, course, member_name, name
+        from
+            `tabLMS Quiz Submission`
+        where
+            instructor_notified_submission!=1 and course is NOT NULL
+        order by
+            course
+    '''
+    submission_details = frappe.db.sql(query, as_dict=True)
+
+    submissions = {}
+    for item in submission_details:
+        if item.course not in submissions:
+            submissions[item.course] = {'course': item.course,  'quiz': frappe.db.get_value('LMS Quiz', item.quiz, 'title'), 'members': [], 'names': []}
+        member_details = {'member': item.member_name, 'quiz_submission': item.name}
+        submissions[item.course]['members'].append(member_details)
+        submissions[item.course]['names'].append(item.name)
+    submissions = list(submissions.values())
+
+    subject = _("Quiz Submission for Today")
+    # Default template configured in lms/templates/emails
+    template = "lms_quiz_submission_group_template"
+
+    # Get template for the notification from the settings
+    custom_template = frappe.db.get_single_value("LMS Settings", "quiz_submission_template")
+
+    # Itrate each course in the list and send email to the instructor with students details and course link
+    for submission in submissions:
+        # Get the instructor(s) of the course, they are the recipient(s) of the notification
+        instructors_data = frappe.db.get_all(
+            'Course Instructor',
+            fields=['instructor'],
+            filters={
+                "parent": submission['course'], "parenttype": "LMS Course"
+            }
+        )
+        instructors = [item['instructor'] for item in instructors_data]
+        for instructor in instructors:
+            if not validate_email_address(instructor):
+                instructors.remove(instructor)
+
+        if instructors and len(instructors) > 0:
+            args = {
+    			"quiz": submission['quiz'],
+                "members": submission['members']
+    		}
+
+            if custom_template:
+                email_template = get_email_template(custom_template, args)
+                subject = email_template.get("subject")
+                content = email_template.get("message")
+
+            # Send the notification to the instructors
+            frappe.sendmail(
+    			recipients=instructors,
+    			subject=subject,
+    			template=template if not custom_template else None,
+    			content=content if custom_template else None,
+    			args=args,
+    			header=["Quiz Submission on LMS", "green"],
+    		)
+
+            # Update LMS Enrollment instructor_notified_completion
+            query = '''
+                update
+                    `tabLMS Quiz Submission`
+                set
+                    instructor_notified_submission=1
+            '''
+            if len(submission['names']) == 1:
+                query += "where name = '{0}'".format(submission['names'][0])
+            else:
+                query += "where name in {0}".format(tuple(submission['names']))
+            frappe.db.sql(query)
+            frappe.db.commit()

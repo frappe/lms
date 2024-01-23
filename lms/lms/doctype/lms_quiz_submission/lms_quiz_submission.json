@@ -17,7 +17,8 @@
   "percentage",
   "passing_percentage",
   "section_break_6",
-  "result"
+  "result",
+  "instructor_notified_submission"
  ],
  "fields": [
   {
@@ -99,18 +100,25 @@
    "reqd": 1
   },
   {
-    "fieldname": "passing_percentage",
-    "fieldtype": "Int",
-    "label": "Passing Percentage",
-    "non_negative": 1,
-    "read_only": 1,
-    "reqd": 1
+   "fieldname": "passing_percentage",
+   "fieldtype": "Int",
+   "label": "Passing Percentage",
+   "non_negative": 1,
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "instructor_notified_submission",
+   "fieldtype": "Check",
+   "label": "Instructor Notified Submission",
+   "read_only": 1
   }
  ],
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-10-17 13:07:27.979975",
+ "modified": "2024-01-23 12:57:35.545284",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz Submission",
