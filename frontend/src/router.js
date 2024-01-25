@@ -54,6 +54,17 @@ const routes = [
 		name: 'Statistics',
 		component: () => import('@/pages/Statistics.vue'),
 	},
+	{
+		path: '/job-openings',
+		name: 'Jobs',
+		component: () => import('@/pages/Jobs.vue'),
+	},
+	{
+		path: '/job-openings/:job',
+		name: 'JobDetail',
+		component: () => import('@/pages/JobDetail.vue'),
+		props: true,
+	},
 ]
 
 let router = createRouter({

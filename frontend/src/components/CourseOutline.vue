@@ -16,13 +16,13 @@
 						}"
 						class="h-5 w-5 text-gray-900 stroke-1 mr-2"
 					/>
-					<div class="text-base">
+					<div class="text-base font-medium">
 						{{ chapter.title }}
 					</div>
 				</DisclosureButton>
 				<DisclosurePanel class="pb-2">
 					<div v-for="lesson in chapter.lessons" :key="lesson.name">
-						<div class="outline-lesson mb-2 pl-9">
+						<div class="outline-lesson my-2 pl-9">
 							<router-link
 								:to="{
 									name: 'Lesson',
@@ -91,6 +91,6 @@ const openChapter = (index) => {
 <style>
 .outline-lesson:has(.router-link-active) {
 	background-color: theme('colors.gray.100');
-	padding: 0.5rem 0 0.5rem 2rem;
+	padding: 0.5rem 0 0.5rem 2.25rem;
 }
 </style>

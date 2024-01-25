@@ -4,7 +4,7 @@
 			class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
 		>
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
-			<Button @click="openAnnouncementModal()">
+			<Button v-if="user.data?.is_moderator" @click="openAnnouncementModal()">
 				<span>
 					{{ __('Make an Announcement') }}
 				</span>

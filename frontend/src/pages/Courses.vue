@@ -9,7 +9,7 @@
 					:items="[{ label: __('All Courses'), route: { name: 'Courses' } }]"
 				/>
 				<div class="flex">
-					<Button variant="solid">
+					<Button v-if="user.data.is_moderator" variant="solid">
 						<template #prefix>
 							<Plus class="h-4 w-4" />
 						</template>
@@ -17,8 +17,8 @@
 					</Button>
 				</div>
 			</header>
-			<div class="mx-5 py-5">
-				<Tabs class="overflow-hidden" v-model="tabIndex" :tabs="tabs">
+			<div class="pb-5">
+				<Tabs v-model="tabIndex" :tabs="tabs" tablistClass="overflow-x-visible">
 					<template #tab="{ tab, selected }">
 						<div>
 							<button
@@ -28,7 +28,11 @@
 								<component v-if="tab.icon" :is="tab.icon" class="h-5" />
 								{{ __(tab.label) }}
 								<Badge
-									:class="{ 'text-gray-900 border border-gray-900': selected }"
+									:class="
+										selected
+											? 'text-gray-800 border border-gray-800'
+											: 'border border-gray-500'
+									"
 									variant="subtle"
 									theme="gray"
 									size="sm"
@@ -41,7 +45,7 @@
 					<template #default="{ tab }">
 						<div
 							v-if="tab.courses && tab.courses.value.length"
-							class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mt-5"
+							class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mt-5 mx-5"
 						>
 							<router-link
 								v-for="course in tab.courses.value"

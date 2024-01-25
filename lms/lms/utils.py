@@ -1726,3 +1726,14 @@ def get_order_summary(doctype, docname, country=None):
 
 	details.total_amount_formatted = fmt_money(details.amount, 0, details.currency)
 	return details
+
+
+@frappe.whitelist(allow_guest=True)
+def get_job_opportunities():
+	jobs = frappe.get_all(
+		"Job Opportunity",
+		{"status": "Open", "disabled": False},
+		["job_title", "location", "type", "company_name", "company_logo", "name", "creation"],
+		order_by="creation desc",
+	)
+	return jobs
