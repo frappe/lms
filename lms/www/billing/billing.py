@@ -17,9 +17,7 @@ def get_context(context):
 
 	context.original_currency = context.currency
 	context.original_amount = (
-		apply_gst(context.amount, None)[0]
-		if context.original_currency == "INR"
-		else context.amount
+		(context.amount * 1.18) if context.original_currency == "INR" else context.amount
 	)
 
 	context.exception_country = frappe.get_all(
@@ -32,7 +30,7 @@ def get_context(context):
 
 	context.address = get_address()
 	if context.currency == "INR":
-		context.amount, context.gst_applied = apply_gst(context.amount, None)
+		context.amount_with_gst, context.gst_applied = apply_gst(context.amount, None)
 
 
 def validate_access(doctype, docname, module):
