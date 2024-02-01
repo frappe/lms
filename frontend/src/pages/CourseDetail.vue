@@ -6,65 +6,84 @@
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
 		</header>
 		<div class="m-5">
-			<div>
-				<div class="text-3xl font-semibold">
-					{{ course.data.title }}
-				</div>
-				<div class="my-3">
-					{{ course.data.short_introduction }}
-				</div>
-				<div class="flex items-center justify-between w-1/3">
-					<div v-if="course.data.avg_rating" class="flex items-center">
-						<Star class="h-5 w-5 text-gray-100 fill-orange-500" />
-						<span class="ml-1">
-							{{ course.data.avg_rating }}
-						</span>
+			<div class="flex justify-between w-full">
+				<div class="w-2/3">
+					<div class="text-3xl font-semibold">
+						{{ course.data.title }}
 					</div>
-					<span v-if="course.data.avg_rating">&middot;</span>
-					<div v-if="course.data.enrollment_count" class="flex items-center">
-						<Users class="h-4 w-4 text-gray-700" />
-						<span class="ml-1">
-							{{ course.data.enrollment_count_formatted }}
-						</span>
+					<div class="my-3">
+						{{ course.data.short_introduction }}
 					</div>
-					<span v-if="course.data.enrollment_count">&middot;</span>
 					<div class="flex items-center">
-						<span
-							class="mr-1"
-							:class="{
-								'avatar-group overlap': course.data.instructors.length > 1,
-							}"
+						<Tooltip
+							v-if="course.data.avg_rating"
+							:text="__('Average Rating')"
+							class="flex items-center"
 						>
-							<UserAvatar
-								v-for="instructor in course.data.instructors"
-								:user="instructor"
-							/>
-						</span>
-						<span v-if="course.data.instructors.length == 1">
-							{{ course.data.instructors[0].full_name }}
-						</span>
-						<span v-if="course.data.instructors.length == 2">
-							{{ course.data.instructors[0].first_name }} and
-							{{ course.data.instructors[1].first_name }}
-						</span>
-						<span v-if="course.data.instructors.length > 2">
-							{{ course.data.instructors[0].first_name }} and
-							{{ course.data.instructors.length - 1 }} others
-						</span>
+							<Star class="h-5 w-5 text-gray-100 fill-orange-500" />
+							<span class="ml-1">
+								{{ course.data.avg_rating }}
+							</span>
+						</Tooltip>
+						<span v-if="course.data.avg_rating" class="mx-3">&middot;</span>
+						<Tooltip
+							v-if="course.data.enrollment_count"
+							:text="__('Enrolled Students')"
+							class="flex items-center"
+						>
+							<Users class="h-4 w-4 text-gray-700" />
+							<span class="ml-1">
+								{{ course.data.enrollment_count_formatted }}
+							</span>
+						</Tooltip>
+						<span v-if="course.data.enrollment_count" class="mx-3"
+							>&middot;</span
+						>
+						<div class="flex items-center">
+							<span
+								class="mr-1"
+								:class="{
+									'avatar-group overlap': course.data.instructors.length > 1,
+								}"
+							>
+								<UserAvatar
+									v-for="instructor in course.data.instructors"
+									:user="instructor"
+								/>
+							</span>
+							<span v-if="course.data.instructors.length == 1">
+								{{ course.data.instructors[0].full_name }}
+							</span>
+							<span v-if="course.data.instructors.length == 2">
+								{{ course.data.instructors[0].first_name }} and
+								{{ course.data.instructors[1].first_name }}
+							</span>
+							<span v-if="course.data.instructors.length > 2">
+								{{ course.data.instructors[0].first_name }} and
+								{{ course.data.instructors.length - 1 }} others
+							</span>
+						</div>
 					</div>
-				</div>
-			</div>
-			<div class="grid grid-cols-[60%,20%] gap-20 mt-10">
-				<div class="">
+					<div class="flex mt-3 mb-4 w-fit">
+						<Badge
+							theme="gray"
+							size="lg"
+							class="mr-2"
+							v-for="tag in course.data.tags"
+						>
+							{{ tag }}
+						</Badge>
+					</div>
 					<div
 						v-html="course.data.description"
 						class="course-description"
 					></div>
 					<div class="mt-10">
-						<div class="text-2xl font-semibold">
-							{{ __('Course Content') }}
-						</div>
-						<CourseOutline :courseName="course.data.name" />
+						<CourseOutline
+							:courseName="course.data.name"
+							:showOutline="true"
+							:showHeader="true"
+						/>
 					</div>
 					<CourseReviews
 						v-if="course.data.avg_rating"
@@ -73,7 +92,7 @@
 						:membership="course.data.membership"
 					/>
 				</div>
-				<div>
+				<div class="">
 					<CourseCardOverlay :course="course" />
 				</div>
 			</div>
@@ -81,7 +100,7 @@
 	</div>
 </template>
 <script setup>
-import { createResource, Breadcrumbs } from 'frappe-ui'
+import { createResource, Breadcrumbs, Badge, Tooltip } from 'frappe-ui'
 import { computed } from 'vue'
 import { Users, Star } from 'lucide-vue-next'
 import CourseCardOverlay from '@/components/CourseCardOverlay.vue'

@@ -39,6 +39,8 @@ import { createToast } from '@/utils/'
 
 const show = defineModel()
 const reviews = defineModel('reloadReviews')
+const hasReviewed = defineModel('hasReviewed')
+
 let review = reactive({
 	review: '',
 	rating: 0,
@@ -73,6 +75,7 @@ function submitReview(close) {
 		},
 		onSuccess() {
 			reviews.value.reload()
+			hasReviewed.value.reload()
 		},
 		onError(err) {
 			createToast({

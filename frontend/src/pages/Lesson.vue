@@ -98,7 +98,7 @@
 							allowfullscreen
 						></iframe>
 					</div>
-					<div v-for="block in lesson.data.body.split('\n\n')">
+					<div v-for="block in lesson.data.body.split('\n\n\n')">
 						<div v-if="block.includes('{{ YouTubeVideo')">
 							<iframe
 								class="youtube-video"

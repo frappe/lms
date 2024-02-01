@@ -1,28 +1,40 @@
 <template>
-	<div class="course-outline text-base">
-		<div class="mt-4">
+	<div class="text-base">
+		<div v-if="showHeader" class="flex justify-between mb-4">
+			<div class="text-2xl font-semibold">
+				{{ __('Course Content') }}
+			</div>
+			<!-- <span class="font-medium cursor-pointer" @click="expandAllChapters()">
+				{{ expandAll ? __("Collapse all chapters") : __("Expand all chapters") }}
+			</span> -->
+		</div>
+		<div :class="{ 'shadow rounded-md pt-2 px-2': showOutline }">
 			<Disclosure
 				v-slot="{ open }"
 				v-for="(chapter, index) in outline.data"
 				:key="chapter.name"
 				:defaultOpen="openChapter(chapter.idx)"
 			>
-				<DisclosureButton class="flex w-full px-2 pt-2 pb-3">
+				<DisclosureButton ref="" class="flex w-full px-2 py-4">
 					<ChevronRight
 						:class="{
 							'rotate-90 transform duration-200': open,
 							'duration-200': !open,
 							open: index == 1,
 						}"
-						class="h-5 w-5 text-gray-900 stroke-1 mr-2"
+						class="h-4 w-4 text-gray-900 stroke-1 mr-2"
 					/>
-					<div class="text-base font-medium">
+					<div class="text-base text-left font-medium">
 						{{ chapter.title }}
+					</div>
+					<div class="ml-auto text-sm">
+						{{ chapter.lessons.length }}
+						{{ chapter.lessons.length == 1 ? __('lesson') : __('lessons') }}
 					</div>
 				</DisclosureButton>
 				<DisclosurePanel class="pb-2">
 					<div v-for="lesson in chapter.lessons" :key="lesson.name">
-						<div class="outline-lesson my-2 pl-9">
+						<div class="outline-lesson py-2 pl-8">
 							<router-link
 								:to="{
 									name: 'Lesson',
@@ -58,6 +70,7 @@
 </template>
 <script setup>
 import { createResource } from 'frappe-ui'
+import { ref } from 'vue'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import {
 	ChevronRight,
@@ -68,10 +81,19 @@ import {
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
+const expandAll = ref(true)
 const props = defineProps({
 	courseName: {
 		type: String,
 		required: true,
+	},
+	showOutline: {
+		type: Boolean,
+		default: false,
+	},
+	showHeader: {
+		type: Boolean,
+		default: false,
 	},
 })
 
@@ -87,10 +109,13 @@ const outline = createResource({
 const openChapter = (index) => {
 	return index == route.params.chapterNumber || index == 1
 }
+
+const expandAllChapters = () => {
+	expandAll.value = !expandAll.value
+}
 </script>
 <style>
 .outline-lesson:has(.router-link-active) {
 	background-color: theme('colors.gray.100');
-	padding: 0.5rem 0 0.5rem 2.25rem;
 }
 </style>

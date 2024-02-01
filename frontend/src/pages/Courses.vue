@@ -9,7 +9,7 @@
 					:items="[{ label: __('All Courses'), route: { name: 'Courses' } }]"
 				/>
 				<div class="flex">
-					<Button v-if="user.data.is_moderator" variant="solid">
+					<Button v-if="user.data?.is_moderator" variant="solid">
 						<template #prefix>
 							<Plus class="h-4 w-4" />
 						</template>
@@ -17,8 +17,19 @@
 					</Button>
 				</div>
 			</header>
-			<div class="pb-5">
-				<Tabs v-model="tabIndex" :tabs="tabs" tablistClass="overflow-x-visible">
+			<div class="">
+				<div
+					v-if="courses.data.length == 0 && courses.list.loading"
+					class="p-5 text-base text-gray-700"
+				>
+					Loading Courses...
+				</div>
+				<Tabs
+					v-else
+					v-model="tabIndex"
+					:tabs="tabs"
+					tablistClass="overflow-x-visible"
+				>
 					<template #tab="{ tab, selected }">
 						<div>
 							<button
@@ -27,16 +38,7 @@
 							>
 								<component v-if="tab.icon" :is="tab.icon" class="h-5" />
 								{{ __(tab.label) }}
-								<Badge
-									:class="
-										selected
-											? 'text-gray-800 border border-gray-800'
-											: 'border border-gray-500'
-									"
-									variant="subtle"
-									theme="gray"
-									size="sm"
-								>
+								<Badge theme="gray">
 									{{ tab.count }}
 								</Badge>
 							</button>
@@ -45,7 +47,7 @@
 					<template #default="{ tab }">
 						<div
 							v-if="tab.courses && tab.courses.value.length"
-							class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mt-5 mx-5"
+							class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 my-5 mx-5"
 						>
 							<router-link
 								v-for="course in tab.courses.value"

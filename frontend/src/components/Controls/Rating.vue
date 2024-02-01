@@ -2,8 +2,8 @@
 	<div class="flex text-center">
 		<div v-for="index in 5">
 			<Star
-				:class="{ 'fill-orange-500': index <= rating }"
-				class="h-5 w-5 fill-gray-400 text-gray-200 mr-1 cursor-pointer"
+				:class="index <= rating ? 'fill-orange-500' : ''"
+				class="h-6 w-6 fill-gray-400 text-gray-50 mr-1 cursor-pointer"
 				@click="markRating(index)"
 			/>
 		</div>

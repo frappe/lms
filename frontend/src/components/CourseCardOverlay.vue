@@ -1,11 +1,14 @@
 <template>
-	<div class="shadow rounded-md" style="width: 300px">
+	<div class="border border-gray-200 rounded-md min-w-80">
 		<iframe
 			v-if="course.data.video_link"
 			:src="video_link"
-			class="rounded-t-md"
+			class="rounded-t-md min-h-56 min-w-80"
 		/>
 		<div class="p-5">
+			<div v-if="course.data.price" class="text-2xl font-semibold mb-3">
+				{{ course.data.price }}
+			</div>
 			<router-link
 				v-if="course.data.membership"
 				:to="{
@@ -21,7 +24,7 @@
 					},
 				}"
 			>
-				<Button variant="solid" class="w-full mb-3">
+				<Button variant="solid" size="md" class="w-full">
 					<span>
 						{{ __('Continue Learning') }}
 					</span>
@@ -37,7 +40,7 @@
 					},
 				}"
 			>
-				<Button variant="solid" class="w-full mb-3">
+				<Button variant="solid" size="md" class="w-full">
 					<span>
 						{{ __('Buy this course') }}
 					</span>
@@ -47,7 +50,8 @@
 				v-else
 				@click="enrollStudent()"
 				variant="solid"
-				class="w-full mb-3"
+				class="w-full"
+				size="md"
 			>
 				<span>
 					{{ __('Start Learning') }}
@@ -56,30 +60,32 @@
 			<Button
 				v-if="user?.data?.is_moderator"
 				variant="subtle"
-				class="w-full mb-3"
+				class="w-full"
+				size="md"
 			>
 				<span>
 					{{ __('Edit') }}
 				</span>
 			</Button>
-			<div class="text-lg font-semibold mb-3">
-				{{ course.data.price }}
+			<div class="mt-8 mb-4 font-medium">
+				{{ __('This course has:') }}
 			</div>
-			<div class="flex items-center mb-3">
-				<Users class="h-4 w-4 text-gray-700" />
-				<span class="ml-1">
-					{{ course.data.enrollment_count_formatted }} {{ __('Enrolled') }}
-				</span>
-			</div>
-			<div class="flex items-center mb-3">
-				<BookOpen class="h-4 w-4 text-gray-700" />
-				<span class="ml-1">
+			<div class="flex items-center mb-4">
+				<BookOpen class="h-5 w-5 stroke-1.5 text-gray-600" />
+				<span class="ml-2">
 					{{ course.data.lesson_count }} {{ __('Lessons') }}
 				</span>
 			</div>
+			<div class="flex items-center mb-4">
+				<Users class="h-5 w-5 stroke-1.5 text-gray-600" />
+				<span class="ml-2">
+					{{ course.data.enrollment_count_formatted }}
+					{{ __('Enrolled Students') }}
+				</span>
+			</div>
 			<div class="flex items-center">
-				<Star class="h-4 w-4 fill-orange-500 text-gray-100" />
-				<span class="ml-1">
+				<Star class="h-5 w-5 stroke-1.5 fill-orange-500 text-gray-50" />
+				<span class="ml-2">
 					{{ course.data.avg_rating }} {{ __('Rating') }}
 				</span>
 			</div>

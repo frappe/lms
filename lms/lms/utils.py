@@ -84,7 +84,7 @@ def get_membership(course, member=None, batch=None):
 		membership = frappe.db.get_value(
 			"LMS Enrollment",
 			filters,
-			["name", "batch_old", "current_lesson", "member_type", "progress"],
+			["name", "batch_old", "current_lesson", "member_type", "progress", "member"],
 			as_dict=True,
 		)
 
@@ -362,10 +362,8 @@ def get_mentors(course):
 	return course_mentors
 
 
-def is_eligible_to_review(course, membership):
+def is_eligible_to_review(course):
 	"""Checks if user is eligible to review the course"""
-	if not membership:
-		return False
 	if frappe.db.count(
 		"LMS Course Review", {"course": course, "owner": frappe.session.user}
 	):
@@ -1184,6 +1182,7 @@ def get_course_details(course):
 		[
 			"name",
 			"title",
+			"tags",
 			"description",
 			"image",
 			"video_link",
@@ -1198,7 +1197,7 @@ def get_course_details(course):
 		],
 		as_dict=1,
 	)
-	course_details.tags = get_tags(course_details.name)
+	course_details.tags = course_details.tags.split(",") if course_details.tags else []
 	course_details.lesson_count = get_lesson_count(course_details.name)
 
 	course_details.enrollment_count = frappe.db.count(
@@ -1215,9 +1214,9 @@ def get_course_details(course):
 
 	course_details.instructors = get_instructors(course_details.name)
 	if course_details.paid_course:
-		course_details.course_price, course_details.currency = check_multicurrency(
-			course_details.course_price, course_details.currency, None, course_details.amount_usd
-		)
+		"""course_details.course_price, course_details.currency = check_multicurrency(
+		        course_details.course_price, course_details.currency, None, course_details.amount_usd
+		)"""
 		course_details.price = fmt_money(
 			course_details.course_price, 0, course_details.currency
 		)
@@ -1229,7 +1228,7 @@ def get_course_details(course):
 		course_details.membership = frappe.db.get_value(
 			"LMS Enrollment",
 			{"member": frappe.session.user, "course": course_details.name},
-			["name", "course", "current_lesson", "progress"],
+			["name", "course", "current_lesson", "progress", "member"],
 			as_dict=1,
 		)
 		course_details.is_instructor = is_instructor(course_details.name)
@@ -1238,6 +1237,7 @@ def get_course_details(course):
 		course_details.current_lesson = get_lesson_index(
 			course_details.membership.current_lesson
 		)
+
 	return course_details
 
 
@@ -1306,7 +1306,7 @@ def get_lesson(course, chapter, lesson):
 		not lesson_details.include_in_preview
 		and not membership
 		and not has_course_moderator_role()
-		and not is_instructor(course.name)
+		and not is_instructor(course)
 	):
 		return {
 			"no_preview": 1,

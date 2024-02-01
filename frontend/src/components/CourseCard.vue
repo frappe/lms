@@ -1,7 +1,7 @@
 <template>
 	<div
 		v-if="course.title"
-		class="flex flex-col border border-gray-200 h-full rounded-md shadow-sm text-base overflow-auto"
+		class="flex flex-col h-full rounded-md shadow-md text-base overflow-auto"
 		style="min-height: 320px"
 	>
 		<div
@@ -10,12 +10,9 @@
 			:style="{ backgroundImage: 'url(' + encodeURI(course.image) + ')' }"
 		>
 			<div class="flex relative top-4 left-4 w-fit">
-				<div
-					class="course-card-pills rounded-md border border-gray-200"
-					v-for="tag in course.tags"
-				>
+				<Badge theme="gray" size="lg" class="mr-2" v-for="tag in course.tags">
 					{{ tag }}
-				</div>
+				</Badge>
 			</div>
 			<div v-if="!course.image" class="image-placeholder">
 				{{ course.title[0] }}
@@ -23,25 +20,34 @@
 		</div>
 		<div class="flex flex-col flex-auto p-4">
 			<div class="flex items-center justify-between mb-2">
-				<div
-					v-if="course.lesson_count"
-					class="flex items-center space-x-1 py-1"
-				>
-					<BookOpen class="h-4 w-4 stroke-1.5 text-gray-700" />
-					<span> {{ course.lesson_count }} </span>
+				<div v-if="course.lesson_count">
+					<Tooltip
+						:text="__('Lessons')"
+						class="flex items-center space-x-1 py-1"
+					>
+						<BookOpen class="h-4 w-4 stroke-1.5 text-gray-700" />
+						<span> {{ course.lesson_count }} </span>
+					</Tooltip>
 				</div>
 
-				<div
-					v-if="course.enrollment_count"
-					class="flex items-center space-x-1 py-1"
-				>
-					<Users class="h-4 w-4 stroke-1.5 text-gray-700" />
-					<span> {{ course.enrollment_count }} </span>
+				<div v-if="course.enrollment_count">
+					<Tooltip
+						:text="__('Enrolled Students')"
+						class="flex items-center space-x-1 py-1"
+					>
+						<Users class="h-4 w-4 stroke-1.5 text-gray-700" />
+						<span> {{ course.enrollment_count }} </span>
+					</Tooltip>
 				</div>
 
-				<div v-if="course.avg_rating" class="flex items-center space-x-1 py-1">
-					<Star class="h-4 w-4 stroke-1.5 text-gray-700" />
-					<span> {{ course.avg_rating }} </span>
+				<div v-if="course.avg_rating">
+					<Tooltip
+						:text="__('Average Rating')"
+						class="flex items-center space-x-1 py-1"
+					>
+						<Star class="h-4 w-4 stroke-1.5 text-gray-700" />
+						<span> {{ course.avg_rating }} </span>
+					</Tooltip>
 				</div>
 
 				<div v-if="course.status != 'Approved'">
@@ -110,8 +116,7 @@
 import { BookOpen, Users, Star } from 'lucide-vue-next'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { sessionStore } from '@/stores/session'
-import { Badge, createResource } from 'frappe-ui'
-import { ref, watchEffect } from 'vue'
+import { Badge, Tooltip } from 'frappe-ui'
 
 const { user } = sessionStore()
 
