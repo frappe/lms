@@ -11,7 +11,7 @@
 					<div class="text-3xl font-semibold">
 						{{ course.data.title }}
 					</div>
-					<div class="my-3">
+					<div class="my-3 leading-6">
 						{{ course.data.short_introduction }}
 					</div>
 					<div class="flex items-center">

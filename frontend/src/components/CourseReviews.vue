@@ -73,12 +73,12 @@ const props = defineProps({
 
 const hasReviewed = createResource({
 	url: 'frappe.client.get_count',
-	cache: ['eligible_to_review', props.courseName, props.membership.member],
+	cache: ['eligible_to_review', props.courseName, props.membership?.member],
 	params: {
 		doctype: 'LMS Course Review',
 		filters: {
 			course: props.courseName,
-			owner: props.membership.member,
+			owner: props.membership?.member,
 		},
 	},
 	auto: true,
