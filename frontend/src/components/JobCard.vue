@@ -1,34 +1,69 @@
 <template>
-	<div class="flex border rounded-md p-2 mb-4 h-full">
-		<div class="mr-4">
-			<img
-				:src="job.company_logo"
-				class="w-11 h-11 rounded-lg object-contain"
-			/>
-		</div>
+	<div class="flex shadow rounded-md p-4 h-full">
+		<img
+			:src="job.company_logo"
+			class="w-12 h-12 rounded-lg object-contain mr-4"
+		/>
 		<div>
-			<div class="text-lg font-semibold mb-2">
+			<div class="text-xl font-semibold mb-2">
 				{{ job.job_title }}
 			</div>
-			<div class="flex items-center mb-2 text-gray-700">
-				<div class="mr-5">
+			<div>
+				{{ __('posted by') }}
+				<span class="font-medium">
 					{{ job.company_name }}
-				</div>
-				<div class="flex items-center">
-					<MapPin class="h-4 w-4 mr-1 stroke-1.5" />
-					<span class="text-gray-700">
-						{{ job.location }}
-					</span>
-				</div>
+				</span>
 			</div>
-			<div class="flex items-center">
-				<Badge :label="job.type" theme="green" />
-				<div class="ml-5">
+			<div class="flex items-center my-4">
+				<Badge :label="job.type" theme="green" size="lg" class="mr-4" />
+				<Badge :label="job.location" theme="gray" size="lg">
+					<template #prefix>
+						<MapPin class="h-4 w-4 stroke-1.5" />
+					</template>
+				</Badge>
+			</div>
+			<div>
+				{{ __('posted on') }}
+				<span class="font-medium">
 					{{ dayjs(job.creation).format('DD MMM YYYY') }}
-				</div>
+				</span>
 			</div>
 		</div>
 	</div>
+	<!-- <div class="flex flex-col shadow rounded-md p-4 h-full">
+		<div class="flex justify-between">
+			<div>
+				<div class="text-xl font-semibold mb-2">
+					{{ job.job_title }}
+				</div>
+				<div>
+					{{ __("posted by") }}
+					<span class="font-medium">
+						{{ job.company_name }}
+					</span>
+				</div>
+			</div>
+			<img
+				:src="job.company_logo"
+				class="w-12 h-12 rounded-lg object-contain"
+			/>
+		</div>
+		<div class="flex justify-between mt-8">
+			<div class="flex items-center">
+				<Badge :label="job.type" theme="green" size="lg" class="mr-4"/>
+				<Badge :label="job.location" theme="gray" size="lg">
+					<template #prefix>
+						<MapPin class="h-4 w-4 stroke-1.5" />
+					</template>
+				</Badge>
+			</div>
+			<div>
+				<span class="font-medium">
+					{{ dayjs(job.creation).format('DD MMM YYYY') }}
+				</span>
+			</div>
+		</div>
+	</div> -->
 </template>
 <script setup>
 import { MapPin } from 'lucide-vue-next'

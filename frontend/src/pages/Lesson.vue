@@ -361,12 +361,6 @@ const hideLesson = () => {
 	transition: margin 0.1s ease-in-out;
 }
 
-iframe {
-	border: 1px solid #ddd;
-	border-radius: 0.5rem;
-	margin-bottom: 1rem;
-}
-
 .lesson-content p {
 	margin-bottom: 1rem;
 	line-height: 1.7;

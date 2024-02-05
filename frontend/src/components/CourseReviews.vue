@@ -52,9 +52,11 @@
 <script setup>
 import { Star } from 'lucide-vue-next'
 import { createResource, Button } from 'frappe-ui'
-import { computed, ref } from 'vue'
+import { computed, ref, inject } from 'vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import ReviewModal from '@/components/Modals/ReviewModal.vue'
+
+const user = inject('$user')
 
 const props = defineProps({
 	courseName: {
@@ -81,11 +83,8 @@ const hasReviewed = createResource({
 			owner: props.membership?.member,
 		},
 	},
-	auto: true,
+	auto: user.data?.name ? true : false,
 })
-
-const reversedRange = (count) =>
-	Array.from({ length: count }, (_, index) => count - index)
 
 const reviews = createResource({
 	url: 'lms.lms.utils.get_reviews',
@@ -96,26 +95,6 @@ const reviews = createResource({
 	auto: true,
 })
 
-const rating_percent = computed(() => {
-	let rating_count = {}
-	let rating_percent = {}
-
-	for (const key of [1, 2, 3, 4, 5]) {
-		rating_count[key] = 0
-	}
-
-	for (const review of reviews?.data) {
-		rating_count[review.rating] += 1
-	}
-
-	;[1, 2, 3, 4, 5].forEach((key) => {
-		rating_percent[key] = (
-			(rating_count[key] / reviews.data.length) *
-			100
-		).toFixed(2)
-	})
-	return rating_percent
-})
 const showReviewModal = ref(false)
 
 function openReviewModal() {

@@ -1,5 +1,5 @@
 <template>
-	<div class="border border-gray-200 rounded-md min-w-80">
+	<div class="shadow rounded-md min-w-80">
 		<iframe
 			v-if="course.data.video_link"
 			:src="video_link"
@@ -70,13 +70,13 @@
 			<div class="mt-8 mb-4 font-medium">
 				{{ __('This course has:') }}
 			</div>
-			<div class="flex items-center mb-4">
+			<div class="flex items-center mb-3">
 				<BookOpen class="h-5 w-5 stroke-1.5 text-gray-600" />
 				<span class="ml-2">
 					{{ course.data.lesson_count }} {{ __('Lessons') }}
 				</span>
 			</div>
-			<div class="flex items-center mb-4">
+			<div class="flex items-center mb-3">
 				<Users class="h-5 w-5 stroke-1.5 text-gray-600" />
 				<span class="ml-2">
 					{{ course.data.enrollment_count_formatted }}

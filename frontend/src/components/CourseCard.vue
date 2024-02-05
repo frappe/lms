@@ -153,8 +153,8 @@ const props = defineProps({
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	background-color: theme('colors.gray.200');
-	color: theme('colors.gray.700');
+	background-color: theme('colors.orange.100');
+	color: theme('colors.orange.600');
 }
 
 .avatar-group {

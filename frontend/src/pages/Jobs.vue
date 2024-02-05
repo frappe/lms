@@ -41,7 +41,7 @@ import JobCard from '@/components/JobCard.vue'
 const user = inject('$user')
 
 const jobs = createResource({
-	url: 'lms.lms.utils.get_job_opportunities',
+	url: 'lms.lms.api.get_job_opportunities',
 	cache: ['jobs'],
 	auto: true,
 })
