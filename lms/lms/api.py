@@ -218,3 +218,24 @@ def validate_billing_access(type, name):
 	)
 
 	return {"access": access, "message": message, "address": address}
+
+
+@frappe.whitelist(allow_guest=True)
+def get_job_details(job):
+	return frappe.db.get_value(
+		"Job Opportunity",
+		job,
+		["job_title", "location", "type", "company_name", "company_logo", "name", "creation"],
+		as_dict=1,
+	)
+
+
+@frappe.whitelist(allow_guest=True)
+def get_job_opportunities():
+	jobs = frappe.get_all(
+		"Job Opportunity",
+		{"status": "Open", "disabled": False},
+		["job_title", "location", "type", "company_name", "company_logo", "name", "creation"],
+		order_by="creation desc",
+	)
+	return jobs
