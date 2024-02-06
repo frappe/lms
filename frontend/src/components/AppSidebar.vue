@@ -14,6 +14,7 @@
 					:icon="link.icon"
 					:label="link.label"
 					:to="link.to"
+					:activeFor="link.activeFor"
 					:isCollapsed="isSidebarCollapsed"
 					class="mx-2 my-0.5"
 				/>

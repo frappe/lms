@@ -48,6 +48,10 @@ const props = defineProps({
 		type: String,
 		default: '',
 	},
+	activeFor: {
+		type: Array,
+		default: [],
+	},
 	isCollapsed: {
 		type: Boolean,
 		default: false,
@@ -59,6 +63,6 @@ function handleClick() {
 }
 
 let isActive = computed(() => {
-	return router.currentRoute.value.name === props.to
+	return props.activeFor.includes(router.currentRoute.value.name)
 })
 </script>

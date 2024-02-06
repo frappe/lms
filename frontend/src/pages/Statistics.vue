@@ -5,72 +5,102 @@
 		>
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
 		</header>
-		<div class="p-5">
-			<div class="grid grid-cols-5 gap-5">
-				<div class="flex items-center border py-2 px-3 rounded-md">
+		<div v-if="chartDetails.data" class="p-5">
+			<div class="grid grid-cols-5 gap-4">
+				<div class="flex items-center shadow py-2 px-3 rounded-md">
 					<div class="p-2 rounded-md bg-gray-100 mr-3">
 						<BookOpen class="w-18 h-18 stroke-1.5 text-gray-700" />
 					</div>
 					<div>
 						<div class="text-xl font-semibold mb-1">
-							{{ courseCount.data?.toLocaleString() }}
+							{{ chartDetails.data.courses }}
 						</div>
 						<div class="text-gray-700">
 							{{ __('Published Courses') }}
 						</div>
 					</div>
 				</div>
-				<div class="flex items-center border py-2 px-3 rounded-md">
+				<div class="flex items-center shadow py-2 px-3 rounded-md">
 					<div class="p-2 rounded-md bg-gray-100 mr-3">
 						<LogIn class="w-18 h-18 stroke-1.5 text-gray-700" />
 					</div>
 					<div>
 						<div class="text-xl font-semibold mb-1">
-							{{ userCount.data?.toLocaleString() }}
+							{{ chartDetails.data.users }}
 						</div>
 						<div class="text-gray-700">
 							{{ __('Total Signups') }}
 						</div>
 					</div>
 				</div>
-				<div class="flex items-center border py-2 px-3 rounded-md">
+				<div class="flex items-center shadow py-2 px-3 rounded-md">
 					<div class="p-2 rounded-md bg-gray-100 mr-3">
 						<BookOpenCheck class="w-18 h-18 stroke-1.5 text-gray-700" />
 					</div>
 					<div>
 						<div class="text-xl font-semibold mb-1">
-							{{ enrollmentCount.data?.toLocaleString() }}
+							{{ chartDetails.data.enrollments }}
 						</div>
 						<div class="text-gray-700">
 							{{ __('Enrolled Users') }}
 						</div>
 					</div>
 				</div>
-				<div class="flex items-center border py-2 px-3 rounded-md">
+				<div class="flex items-center shadow py-2 px-3 rounded-md">
 					<div class="p-2 rounded-md bg-gray-100 mr-3">
 						<FileCheck class="w-18 h-18 stroke-1.5 text-gray-700" />
 					</div>
 					<div>
 						<div class="text-xl font-semibold mb-1">
-							{{ coursesCompleted.data?.toLocaleString() }}
+							{{ chartDetails.data.completions }}
 						</div>
 						<div class="text-gray-700">
 							{{ __('Courses Completed') }}
 						</div>
 					</div>
 				</div>
-				<div class="flex items-center border py-2 px-3 rounded-md">
+				<div class="flex items-center shadow py-2 px-3 rounded-md">
 					<div class="p-2 rounded-md bg-gray-100 mr-3">
 						<FileCheck2 class="w-18 h-18 stroke-1.5 text-gray-700" />
 					</div>
 					<div>
 						<div class="text-xl font-semibold mb-1">
-							{{ lessonsCompleted.data?.toLocaleString() }}
+							{{ chartDetails.data.lesson_completions }}
 						</div>
 						<div class="text-gray-700">
 							{{ __('Lessons Completed') }}
 						</div>
 					</div>
+				</div>
+			</div>
+			<div class="grid grid-cols-2 gap-4 mt-4">
+				<div class="shadow rounded-md p-5 min-h-72">
+					<Line
+						v-if="signupsChart.data"
+						:data="signupsChart.data"
+						:options="signupChartOptions()"
+					/>
+				</div>
+				<div class="shadow rounded-md p-5 min-h-72">
+					<Line
+						v-if="enrollmentChart.data"
+						:data="enrollmentChart.data"
+						:options="enrollmentChartOptions()"
+					/>
+				</div>
+				<div class="shadow rounded-md p-5">
+					<Line
+						v-if="lessonCompletion.data"
+						:data="lessonCompletion.data"
+						:options="lessonChartOptions()"
+					/>
+				</div>
+				<div class="shadow rounded-md p-5">
+					<Pie
+						v-if="courseCompletion.data"
+						:data="courseCompletion.data"
+						:options="courseChartOptions()"
+					/>
 				</div>
 			</div>
 		</div>
@@ -79,6 +109,31 @@
 <script setup>
 import { createResource, Breadcrumbs } from 'frappe-ui'
 import { computed, inject } from 'vue'
+import { Line, Pie } from 'vue-chartjs'
+import {
+	Chart as ChartJS,
+	Title,
+	Tooltip,
+	Legend,
+	LineElement,
+	CategoryScale,
+	LinearScale,
+	PointElement,
+	ArcElement,
+	Filler,
+} from 'chart.js'
+
+ChartJS.register(
+	Title,
+	Tooltip,
+	Legend,
+	LineElement,
+	CategoryScale,
+	LinearScale,
+	PointElement,
+	ArcElement,
+	Filler
+)
 import {
 	BookOpen,
 	LogIn,
@@ -87,7 +142,7 @@ import {
 	BookOpenCheck,
 } from 'lucide-vue-next'
 
-const dayjs = inject('dayjs')
+const dayjs = inject('$dayjs')
 
 const breadcrumbs = computed(() => {
 	return [
@@ -100,74 +155,153 @@ const breadcrumbs = computed(() => {
 	]
 })
 
-const enrollmentCount = createResource({
-	url: 'frappe.client.get_count',
-	params: {
-		doctype: 'LMS Enrollment',
-	},
+const chartDetails = createResource({
+	url: 'lms.lms.api.get_chart_details',
+	cache: ['statistics'],
 	auto: true,
-	cache: ['enrollment_count'],
 })
 
-const courseCount = createResource({
-	url: 'frappe.client.get_count',
+const signupsChart = createResource({
+	url: 'lms.lms.utils.get_chart_data',
+	cache: ['signups'],
 	params: {
-		doctype: 'LMS Course',
-		filters: {
-			published: 1,
-			upcoming: 0,
-		},
+		chart_name: 'New Signups',
 	},
 	auto: true,
-	cache: ['course_count'],
 })
 
-const userCount = createResource({
-	url: 'frappe.client.get_count',
+const enrollmentChart = createResource({
+	url: 'lms.lms.utils.get_chart_data',
+	cache: ['enrollments'],
 	params: {
-		doctype: 'User',
-		filters: {
-			enabled: 1,
-		},
+		chart_name: 'Course Enrollments',
 	},
 	auto: true,
-	cache: ['user_count'],
 })
 
-const coursesCompleted = createResource({
-	url: 'frappe.client.get_count',
+const lessonCompletion = createResource({
+	url: 'lms.lms.utils.get_chart_data',
+	cache: ['lessonCompletion'],
 	params: {
-		doctype: 'LMS Enrollment',
-		filters: {
-			progress: ['like', '%100%'],
-		},
+		chart_name: 'Lesson Completion',
 	},
 	auto: true,
-	cache: ['courses_completed'],
 })
 
-const lessonsCompleted = createResource({
-	url: 'frappe.client.get_count',
-	params: {
-		doctype: 'LMS Course Progress',
-	},
+const courseCompletion = createResource({
+	url: 'lms.lms.utils.get_course_completion_data',
 	auto: true,
-	cache: ['lessons_completed'],
+	cache: ['courseCompletion'],
 })
 
-const generateGraph = () => {
-	createResource({
-		url: 'lms.lms.utils.get_chart_data',
-		params: {
-			chart_name: chartName,
-			timespan: 'Select Date Range',
-			timegrain: 'Daily',
-			from_date: dayjs().subtract(30, 'day').format('YYYY-MM-DD'),
-			to_date: dayjs().format('YYYY-MM-DD'),
+const signupChartOptions = () => {
+	let options = chartOptions(false)
+	options.plugins.title.text = 'New Signups'
+	options.borderColor = '#278F5E'
+	options.backgroundColor = (ctx) => {
+		const canvas = ctx.chart.ctx
+		const gradient = canvas.createLinearGradient(0, 0, 0, 160)
+		gradient.addColorStop(0, '#B6DEC5')
+		gradient.addColorStop(0.5, '#E4F5E9')
+		gradient.addColorStop(1, '#F3FCF5')
+
+		return gradient
+	}
+	return options
+}
+
+const enrollmentChartOptions = () => {
+	let options = chartOptions(false)
+	options.plugins.title.text = 'Course Enrollments'
+	options.borderColor = '#B52A2A'
+	options.backgroundColor = (ctx) => {
+		const canvas = ctx.chart.ctx
+		const gradient = canvas.createLinearGradient(0, 0, 0, 160)
+		gradient.addColorStop(0, '#FFC6A5')
+		gradient.addColorStop(0.5, '#FFD8C5')
+		gradient.addColorStop(1, '#FFE9E5')
+
+		return gradient
+	}
+	return options
+}
+
+const lessonChartOptions = () => {
+	let options = chartOptions(false)
+	options.plugins.title.text = 'Lesson Completion'
+	options.borderColor = '#0070CC'
+	options.backgroundColor = (ctx) => {
+		const canvas = ctx.chart.ctx
+		const gradient = canvas.createLinearGradient(0, 0, 0, 160)
+		gradient.addColorStop(0, '#B6DEC5')
+		gradient.addColorStop(0.5, '#E4F5E9')
+		gradient.addColorStop(1, '#F3FCF5')
+
+		return gradient
+	}
+	return options
+}
+
+const courseChartOptions = () => {
+	let options = chartOptions(true)
+	options.plugins.title.text = 'Course Completion'
+	options.backgroundColor = ['#E4521B', '#FEEB65']
+	return options
+}
+
+const chartOptions = (isPie) => {
+	return {
+		responsive: true,
+		maintainAspectRatio: false,
+		fill: true,
+		borderWidth: 2,
+		pointRadius: 2,
+		pointStyle: 'cross',
+		ticks: {
+			autoSkip: true,
+			maxTicksLimit: 5,
 		},
-		onSuccess(data) {
-			renderChart(data.message, chartName, chartElement, chartType)
+		plugins: {
+			legend: {
+				display: isPie ? true : false,
+			},
+			title: {
+				display: true,
+				align: 'start',
+				font: {
+					size: 14,
+					weight: '500',
+				},
+				color: '#171717',
+				padding: {
+					bottom: 20,
+				},
+			},
+			tooltip: {
+				backgroundColor: '#000',
+			},
 		},
-	})
+		scales: {
+			x: {
+				display: isPie ? false : true,
+				grid: {
+					display: false,
+				},
+				border: {
+					display: isPie ? false : true,
+				},
+			},
+			y: {
+				beginAtZero: true,
+				display: isPie ? false : true,
+				grid: {
+					display: false,
+				},
+				border: {
+					display: isPie ? false : true,
+				},
+			},
+		},
+	}
 }
 </script>

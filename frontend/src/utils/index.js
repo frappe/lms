@@ -187,21 +187,24 @@ export function getSidebarLinks() {
 			label: 'Courses',
 			icon: BookOpen,
 			to: 'Courses',
+			activeFor: ['Courses', 'CourseDetail', 'Lesson'],
 		},
 		{
 			label: 'Batches',
 			icon: Users,
 			to: 'Batches',
-		},
-		{
-			label: 'Statistics',
-			icon: TrendingUp,
-			to: 'Statistics',
+			activeFor: ['Batches', 'BatchDetail', 'Batch'],
 		},
 		{
 			label: 'Jobs',
 			icon: Briefcase,
 			to: 'Jobs',
+			activeFor: ['Jobs', 'JobDetail'],
+		},
+		{
+			label: 'Statistics',
+			icon: TrendingUp,
+			to: 'Statistics',
 		},
 	]
 }

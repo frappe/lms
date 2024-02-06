@@ -764,7 +764,17 @@ def has_lessons(course):
 
 
 @frappe.whitelist(allow_guest=True)
-def get_chart_data(chart_name, timespan, timegrain, from_date, to_date):
+def get_chart_data(
+	chart_name,
+	timespan="Select Date Range",
+	timegrain="Daily",
+	from_date=None,
+	to_date=None,
+):
+	if not from_date:
+		from_date = add_months(getdate(), -1)
+	if not to_date:
+		to_date = getdate()
 	chart = frappe.get_doc("Dashboard Chart", chart_name)
 	filters = [([chart.document_type, "docstatus", "<", 2, False])]
 	doctype = chart.document_type
@@ -794,7 +804,7 @@ def get_chart_data(chart_name, timespan, timegrain, from_date, to_date):
 			else get_period(r[0], timegrain)
 			for r in result
 		],
-		"datasets": [{"name": chart.name, "values": [r[1] for r in result]}],
+		"datasets": [{"name": chart.name, "data": [r[1] for r in result]}],
 	}
 
 
@@ -808,7 +818,7 @@ def get_course_completion_data():
 		"datasets": [
 			{
 				"name": "Course Completion",
-				"values": [completed, all_membership - completed],
+				"data": [completed, all_membership - completed],
 			}
 		],
 	}

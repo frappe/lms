@@ -239,3 +239,22 @@ def get_job_opportunities():
 		order_by="creation desc",
 	)
 	return jobs
+
+
+@frappe.whitelist(allow_guest=True)
+def get_chart_details():
+	details = frappe._dict()
+	details.enrollments = frappe.db.count("LMS Enrollment")
+	details.courses = frappe.db.count(
+		"LMS Course",
+		{
+			"published": 1,
+			"upcoming": 0,
+		},
+	)
+	details.users = frappe.db.count("User", {"enabled": 1})
+	details.completions = frappe.db.count(
+		"LMS Enrollment", {"progress": ["like", "%100%"]}
+	)
+	details.lesson_completions = frappe.db.count("LMS Course Progress")
+	return details
