@@ -150,7 +150,7 @@
                 href="/billing/batch/{{ batch_info.name }}">
                 {{ _("Register Now") }}
             </a>
-            {% elif batch_info.allow_self_enrollment %}
+            {% elif batch_info.allow_self_enrollment and batch_info.seat_count and seats_left %}
             <button class="btn btn-primary wide-button enroll-batch">
                 {{ _("Enroll Now") }}
             </button>

@@ -11,6 +11,10 @@ class BatchStudent(Document):
 
 @frappe.whitelist()
 def enroll_batch(batch_name):
+	if frappe.db.exists(
+		"Batch Student", {"student": frappe.session.user, "parent": batch_name}
+	):
+		frappe.throw("You are already enrolled in this batch")
 	enrollment = frappe.new_doc("Batch Student")
 	enrollment.student = frappe.session.user
 	enrollment.parent = batch_name
