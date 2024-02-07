@@ -24,6 +24,7 @@
 							name: 'JobDetail',
 							params: { job: job.name },
 						}"
+						:key="job.name"
 					>
 						<JobCard :job="job" />
 					</router-link>

@@ -225,7 +225,16 @@ def get_job_details(job):
 	return frappe.db.get_value(
 		"Job Opportunity",
 		job,
-		["job_title", "location", "type", "company_name", "company_logo", "name", "creation"],
+		[
+			"job_title",
+			"location",
+			"type",
+			"company_name",
+			"company_logo",
+			"name",
+			"creation",
+			"description",
+		],
 		as_dict=1,
 	)
 

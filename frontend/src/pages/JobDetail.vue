@@ -5,31 +5,81 @@
 		>
 			<Breadcrumbs
 				class="h-7"
-				:items="[{ label: __('Jobs'), route: { name: 'Jobs' } }]"
+				:items="[
+					{
+						label: __('Jobs'),
+						route: { name: 'Jobs' },
+					},
+					{
+						label: job.data?.job_title,
+						route: { name: 'JobDetail', params: { job: job.data?.name } },
+					},
+				]"
 			/>
-			<div class="flex">
-				<Button v-if="user.data?.name" variant="solid">
+			<div v-if="user.data?.name" class="flex">
+				<Button class="mr-2">
 					<template #prefix>
-						<Plus class="h-4 w-4" />
+						<Flag class="h-4 w-4" />
 					</template>
-					{{ __('New Job') }}
+					{{ __('Report') }}
+				</Button>
+				<Button variant="solid">
+					<template #prefix>
+						<SendHorizonal class="h-4 w-4" />
+					</template>
+					{{ __('Apply') }}
 				</Button>
 			</div>
 		</header>
-		<div></div>
+		<div v-if="job.data">
+			<div class="p-5 sm:p-5">
+				<div class="flex mb-4">
+					<img
+						:src="job.data.company_logo"
+						class="w-16 h-16 rounded-lg object-contain mr-4"
+					/>
+					<div>
+						<div class="text-2xl font-semibold mb-2">
+							{{ job.data.job_title }}
+						</div>
+						<div>
+							{{ __('posted by') }}
+							<span class="font-medium">{{ job.data.company_name }}</span>
+							{{ __('on') }}
+							<span class="font-medium">{{
+								dayjs(job.data.creation).format('DD MMM YYYY')
+							}}</span>
+						</div>
+						<div class="flex items-center mt-2">
+							<Badge :label="job.data.type" theme="green" size="lg" />
+							<Badge
+								:label="job.data.location"
+								theme="gray"
+								size="lg"
+								class="ml-4"
+							>
+								<template #prefix>
+									<MapPin class="h-4 w-4 stroke-1.5" />
+								</template>
+							</Badge>
+						</div>
+					</div>
+				</div>
+				<p
+					v-html="job.data.description"
+					class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-gray-300 prose-th:border-gray-300 prose-td:relative prose-th:relative prose-th:bg-gray-100 prose-sm max-w-none !whitespace-normal mt-6"
+				></p>
+			</div>
+		</div>
 	</div>
 </template>
 <script setup>
-import {
-	createDocumentResource,
-	Button,
-	Breadcrumbs,
-	createResource,
-} from 'frappe-ui'
-import { inject } from 'vue'
-import { Plus } from 'lucide-vue-next'
+import { Badge, Button, Breadcrumbs, createResource } from 'frappe-ui'
+import { inject, computed } from 'vue'
+import { Plus, MapPin, SendHorizonal, Flag } from 'lucide-vue-next'
 
 const user = inject('$user')
+const dayjs = inject('$dayjs')
 
 const props = defineProps({
 	job: {
@@ -37,12 +87,13 @@ const props = defineProps({
 		required: true,
 	},
 })
+
 const job = createResource({
 	url: 'lms.lms.api.get_job_details',
 	params: {
 		job: props.job,
 	},
-	cache: ['job'],
+	cache: ['job', props.job],
 	auto: true,
 })
 </script>
