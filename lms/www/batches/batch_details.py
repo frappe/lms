@@ -35,6 +35,7 @@ def get_context(context):
 			"batch_details_raw",
 			"evaluation_end_date",
 			"amount_usd",
+			"allow_self_enrollment",
 		],
 		as_dict=1,
 	)

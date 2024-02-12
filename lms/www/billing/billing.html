@@ -38,7 +38,7 @@
         <div class="flex">
             <div class="field-label">
                 {{ _("Total Price: ") }}
-                <span class="total-price">{{ frappe.utils.fmt_money(amount, 2, currency) }}</span>
+                <span class="total-price">{{ frappe.utils.fmt_money(amount_with_gst, 2, currency) if gst_applied else frappe.utils.fmt_money(amount, 2, currency) }}</span>
             </div>
         </div>
         {% if gst_applied %}

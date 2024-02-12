@@ -57,11 +57,13 @@
                 <use href="#icon-calendar"></use>
             </svg>
             <span>
-                {{ frappe.utils.format_date(batch_info.start_date, "long") }} -
+                {{ frappe.utils.format_date(batch_info.start_date, "long") }}
             </span>
-            <span>
-                {{ frappe.utils.format_date(batch_info.end_date, "long") }}
-            </span>
+			{% if batch_info.start_date != batch_info.end_date %}
+			<span>
+				- {{ frappe.utils.format_date(batch_info.end_date, "long") }}
+			</span>
+			{% endif %}
         </div>
 
         {% if batch_info.start_time and batch_info.end_time %}
@@ -115,11 +117,13 @@
                 <use href="#icon-calendar"></use>
             </svg>
             <span>
-                {{ frappe.utils.format_date(batch_info.start_date, "long") }} -
+                {{ frappe.utils.format_date(batch_info.start_date, "long") }}
             </span>
-            <span>
-                {{ frappe.utils.format_date(batch_info.end_date, "long") }}
-            </span>
+			{% if batch_info.start_date != batch_info.end_date %}
+			<span>
+				- {{ frappe.utils.format_date(batch_info.end_date, "long") }}
+			</span>
+			{% endif %}
         </div>
 
         {% if batch_info.start_time and batch_info.end_time %}
@@ -146,6 +150,10 @@
                 href="/billing/batch/{{ batch_info.name }}">
                 {{ _("Register Now") }}
             </a>
+            {% elif batch_info.allow_self_enrollment and batch_info.seat_count and seats_left %}
+            <button class="btn btn-primary wide-button enroll-batch">
+                {{ _("Enroll Now") }}
+            </button>
             {% else %}
             <div class="alert alert-info">
                 {{ _("To join this batch, please contact the Administrator.") }}

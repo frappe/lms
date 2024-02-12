@@ -10,9 +10,11 @@ from lms.lms.utils import (
 	has_course_instructor_role,
 )
 from lms.overrides.user import get_enrolled_courses, get_authored_courses
+from frappe.utils.telemetry import capture
 
 
 def get_context(context):
+	capture("active_site", "lms")
 	context.no_cache = 1
 	context.live_courses, context.upcoming_courses = get_courses()
 	context.enrolled_courses = (

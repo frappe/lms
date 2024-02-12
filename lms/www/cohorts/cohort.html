@@ -1,6 +1,11 @@
 {% extends "www/cohorts/base.html" %} {% block title %} {{ _("Manage") }} {{
 course.title }} {% endblock %} {% block page_content %}
 <div class="course-home-headings">{{ cohort.title }}</div>
+{% if cohort.description %}
+<div>
+	{{ frappe.utils.md_to_html(cohort.description) }}
+</div>
+{% endif %}
 
 <p>
 	{{ frappe.db.count("Cohort Subgroup", {"cohort": cohort.name}) }} {{

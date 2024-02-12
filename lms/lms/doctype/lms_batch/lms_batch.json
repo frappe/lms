@@ -15,6 +15,7 @@
   "start_time",
   "end_time",
   "published",
+  "allow_self_enrollment",
   "section_break_rgfj",
   "medium",
   "category",
@@ -293,11 +294,17 @@
    "fieldname": "amount_usd",
    "fieldtype": "Currency",
    "label": "Amount (USD)"
+  },
+  {
+   "default": "0",
+   "fieldname": "allow_self_enrollment",
+   "fieldtype": "Check",
+   "label": "Allow Self Enrollment"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-12-21 12:27:16.849362",
+ "modified": "2024-01-22 10:42:42.872995",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch",

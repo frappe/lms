@@ -17,7 +17,8 @@
         <div class="job-cards-parent">
         {% for job in jobs %}
             <div class="common-card-style job-card">
-                <span title="{{ job.company_name}}" style="background-image: url( {{ job.company_logo | urlencode }} );"
+                {% set company_logo = job.company_logo.replace(' ', '%20') %}
+                <span title="{{ job.company_name}}" style="background-image: url( {{ company_logo }} );"
                 class="company-logo"></span>
                 <div class="job-card-info">
                     <div class="card-heading">{{ _(job.job_title) }}</div>
@@ -37,7 +38,7 @@
                         <div class="text-muted">{{ frappe.utils.format_date(job.creation, "medium") }}</div>
                     </div>
                 </div>
-                <a class="stretched-link" href="/jobs/{{ job.name }}"></a>
+                <a class="stretched-link" href="/job-openings/{{ job.name }}"></a>
             </div>
         {% endfor %}
         </div>

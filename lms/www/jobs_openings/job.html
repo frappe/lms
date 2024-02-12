@@ -11,7 +11,8 @@
         <div class="common-card-style job-detail-card">
 
                 <div class="job-detail-header">
-                    <span title="{{ job.company_name}}" style="background-image: url( {{ job.company_logo | urlencode }} );"
+                    {% set company_logo = job.company_logo.replace(' ', '%20') %}
+                    <span title="{{ job.company_name}}" style="background-image: url( {{ company_logo }} );"
                     class="company-logo"></span>
 
                     <div class="job-card-info">
@@ -33,7 +34,7 @@
                         </div>
                     </div>
 
-                    {% set application_link = job.application_link if frappe.session.user != 'Guest' else '/login?redirect-to=/jobs/' + job.name %}
+                    {% set application_link = job.application_link if frappe.session.user != 'Guest' else '/login?redirect-to=/job-openings/' + job.name %}
                     <div class="job-actions">
                         <a class="btn btn-primary btn-sm mr-2" href="{{ application_link }}"> {{ _("Apply") }} </a>
                         <div class="btn btn-default btn-sm mr-2" id="report" data-job="{{ job.name }}"> {{ _("Report") }} </div>
@@ -94,7 +95,7 @@
 
 {% macro BreadCrumb(job) %}
 <div class="breadcrumb">
-  <a class="dark-links" href="/jobs">{{ _("Job Openings") }}</a>
+  <a class="dark-links" href="/job-openings">{{ _("Job Openings") }}</a>
   <img class="ml-1 mr-1" src="/assets/lms/icons/chevron-right.svg">
   <span class="breadcrumb-destination">{{ job.job_title }}</span>
 </div>
