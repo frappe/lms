@@ -10,7 +10,7 @@
 			<div class="grid grid-cols-2 gap-4">
 				<div v-for="evl in upcoming_evals.data">
 					<div class="border rounded-md p-3">
-						<div class="font-medium mb-3">
+						<div class="font-semibold mb-3">
 							{{ evl.course_title }}
 						</div>
 						<div class="flex items-center mb-2">

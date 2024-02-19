@@ -23,7 +23,7 @@
 					</template>
 					{{ __('Report') }}
 				</Button>
-				<Button variant="solid">
+				<Button variant="solid" @click="openApplicationModal()">
 					<template #prefix>
 						<SendHorizonal class="h-4 w-4" />
 					</template>
@@ -96,4 +96,8 @@ const job = createResource({
 	cache: ['job', props.job],
 	auto: true,
 })
+
+const openApplicationModal = () => {
+	console.log('openApplicationModal')
+}
 </script>
