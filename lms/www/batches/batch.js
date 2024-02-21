@@ -711,9 +711,14 @@ const get_calendar_options = (element, calendar_id) => {
 					event.start.d.d
 				)} - ${frappe.datetime.get_time(event.end.d.d)}">
 						<img class='icon icon-sm pull-right ${hide}' src="/assets/lms/icons/check.svg">
-						<div> ${frappe.datetime.get_time(event.start.d.d)} -
-						${frappe.datetime.get_time(event.end.d.d)} </div>
-						<div class="calendar-event-title"> ${event.title} </div>
+						<div>
+							<span class="calendar-event-title"> ${event.title} </span>
+							<span>
+								${frappe.datetime.get_time(event.start.d.d)} - ${frappe.datetime.get_time(
+					event.end.d.d
+				)}
+							</span>
+						</div>
 					</div>`;
 			},
 		},
