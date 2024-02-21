@@ -23,11 +23,22 @@
 					</template>
 					{{ __('Report') }}
 				</Button>
-				<Button variant="solid" @click="openApplicationModal()">
+				<Button
+					v-if="!jobApplication.data?.length"
+					variant="solid"
+					@click="openApplicationModal()"
+				>
 					<template #prefix>
 						<SendHorizonal class="h-4 w-4" />
 					</template>
 					{{ __('Apply') }}
+				</Button>
+			</div>
+			<div v-else>
+				<Button @click="redirectToLogin(job.data?.name)">
+					<span>
+						{{ __('Login to apply') }}
+					</span>
 				</Button>
 			</div>
 		</header>
@@ -70,16 +81,22 @@
 					class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-gray-300 prose-th:border-gray-300 prose-td:relative prose-th:relative prose-th:bg-gray-100 prose-sm max-w-none !whitespace-normal mt-6"
 				></p>
 			</div>
+			<JobApplicationModal
+				v-model="showApplicationModal"
+				:job="job.data.name"
+			/>
 		</div>
 	</div>
 </template>
 <script setup>
 import { Badge, Button, Breadcrumbs, createResource } from 'frappe-ui'
-import { inject, computed } from 'vue'
-import { Plus, MapPin, SendHorizonal, Flag } from 'lucide-vue-next'
+import { inject, ref, onMounted } from 'vue'
+import { MapPin, SendHorizonal, Flag } from 'lucide-vue-next'
+import JobApplicationModal from '@/components/Modals/JobApplicationModal.vue'
 
 const user = inject('$user')
 const dayjs = inject('$dayjs')
+const showApplicationModal = ref(false)
 
 const props = defineProps({
 	job: {
@@ -97,7 +114,26 @@ const job = createResource({
 	auto: true,
 })
 
+const jobApplication = createResource({
+	url: 'frappe.client.get_list',
+	params: {
+		doctype: 'LMS Job Application',
+		filters: {
+			job: job.data?.name,
+			user: user.data?.name,
+		},
+	},
+})
+
+onMounted(() => {
+	jobApplication.submit()
+})
+
 const openApplicationModal = () => {
-	console.log('openApplicationModal')
+	showApplicationModal.value = true
+}
+
+const redirectToLogin = (job) => {
+	window.location.href = `/login?redirect-to=/job-openings/${job}`
 }
 </script>
