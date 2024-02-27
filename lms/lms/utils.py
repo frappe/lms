@@ -1341,11 +1341,20 @@ def get_lesson(course, chapter, lesson):
 		],
 		as_dict=True,
 	)
+
+	if frappe.session.user == "Guest":
+		progress = 0
+	else:
+		progress = get_progress(course, lesson_details.name)
+
 	lesson_details.rendered_content = render_html(lesson_details)
 	neighbours = get_neighbour_lesson(course, chapter, lesson)
 	lesson_details.next = neighbours["next"]
+	lesson_details.progress = progress
 	lesson_details.prev = neighbours["prev"]
 	lesson_details.membership = membership
+	lesson_details.instructors = get_instructors(course)
+	lesson_details.course_title = frappe.db.get_value("LMS Course", course, "title")
 	return lesson_details
 
 

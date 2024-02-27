@@ -55,6 +55,12 @@ const routes = [
 		component: () => import('@/pages/Statistics.vue'),
 	},
 	{
+		path: '/user/:userName',
+		name: 'Profile',
+		component: () => import('@/pages/Profile.vue'),
+		props: true,
+	},
+	{
 		path: '/job-openings',
 		name: 'Jobs',
 		component: () => import('@/pages/Jobs.vue'),
@@ -63,6 +69,18 @@ const routes = [
 		path: '/job-openings/:job',
 		name: 'JobDetail',
 		component: () => import('@/pages/JobDetail.vue'),
+		props: true,
+	},
+	{
+		path: '/courses/:courseName/edit',
+		name: 'CreateCourse',
+		component: () => import('@/pages/CreateCourse.vue'),
+		props: true,
+	},
+	{
+		path: '/courses/:courseName/outline',
+		name: 'CourseOutline',
+		component: () => import('@/pages/CreateOutline.vue'),
 		props: true,
 	},
 ]

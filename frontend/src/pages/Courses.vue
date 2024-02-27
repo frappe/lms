@@ -9,12 +9,21 @@
 					:items="[{ label: __('All Courses'), route: { name: 'Courses' } }]"
 				/>
 				<div class="flex">
-					<Button v-if="user.data?.is_moderator" variant="solid">
-						<template #prefix>
-							<Plus class="h-4 w-4" />
-						</template>
-						{{ __('New Course') }}
-					</Button>
+					<router-link
+						:to="{
+							name: 'CreateCourse',
+							params: {
+								courseName: 'new',
+							},
+						}"
+					>
+						<Button v-if="user.data?.is_moderator" variant="solid">
+							<template #prefix>
+								<Plus class="h-4 w-4" />
+							</template>
+							{{ __('New Course') }}
+						</Button>
+					</router-link>
 				</div>
 			</header>
 			<div class="">

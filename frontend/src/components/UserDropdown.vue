@@ -46,8 +46,10 @@
 import LMSLogo from '@/components/Icons/LMSLogo.vue'
 import { sessionStore } from '@/stores/session'
 import { Dropdown } from 'frappe-ui'
-import { ChevronDown } from 'lucide-vue-next'
+import { ChevronDown, LogIn, LogOut, User } from 'lucide-vue-next'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const props = defineProps({
 	isCollapsed: {
 		type: Boolean,
@@ -57,10 +59,20 @@ const props = defineProps({
 
 const { logout, user } = sessionStore()
 let { isLoggedIn } = sessionStore()
-
+console.log(user)
 const userDropdownOptions = [
 	{
-		icon: 'log-out',
+		icon: User,
+		label: 'My Profile',
+		onClick: () => {
+			router.push(`/user/${user.data?.username}`)
+		},
+		condition: () => {
+			return isLoggedIn
+		},
+	},
+	{
+		icon: LogOut,
 		label: 'Log out',
 		onClick: () => {
 			logout.submit().then(() => {
@@ -72,7 +84,7 @@ const userDropdownOptions = [
 		},
 	},
 	{
-		icon: 'log-in',
+		icon: LogIn,
 		label: 'Log in',
 		onClick: () => {
 			window.location.href = '/login'

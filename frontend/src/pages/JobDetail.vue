@@ -126,7 +126,9 @@ const jobApplication = createResource({
 })
 
 onMounted(() => {
-	jobApplication.submit()
+	if (user.data?.name) {
+		jobApplication.submit()
+	}
 })
 
 const openApplicationModal = () => {

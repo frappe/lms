@@ -1,5 +1,5 @@
 <template>
-	<div v-if="lesson.data && course.data" class="h-screen text-base">
+	<div v-if="lesson.data" class="h-screen text-base">
 		<header
 			class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
 		>
@@ -65,24 +65,24 @@
 					<span
 						class="mr-1"
 						:class="{
-							'avatar-group overlap': course.data.instructors.length > 1,
+							'avatar-group overlap': lesson.data.instructors.length > 1,
 						}"
 					>
 						<UserAvatar
-							v-for="instructor in course.data.instructors"
+							v-for="instructor in lesson.data.instructors"
 							:user="instructor"
 						/>
 					</span>
-					<span v-if="course.data.instructors.length == 1">
-						{{ course.data.instructors[0].full_name }}
+					<span v-if="lesson.data.instructors.length == 1">
+						{{ lesson.data.instructors[0].full_name }}
 					</span>
-					<span v-if="course.data.instructors.length == 2">
-						{{ course.data.instructors[0].first_name }} and
-						{{ course.data.instructors[1].first_name }}
+					<span v-if="lesson.data.instructors.length == 2">
+						{{ lesson.data.instructors[0].first_name }} and
+						{{ lesson.data.instructors[1].first_name }}
 					</span>
-					<span v-if="course.data.instructors.length > 2">
-						{{ course.data.instructors[0].first_name }} and
-						{{ course.data.instructors.length - 1 }} others
+					<span v-if="lesson.data.instructors.length > 2">
+						{{ lesson.data.instructors[0].first_name }} and
+						{{ lesson.data.instructors.length - 1 }} others
 					</span>
 				</div>
 				<div
@@ -180,19 +180,19 @@
 			<div class="sticky top-10">
 				<div class="bg-gray-50 p-5 border-b-2">
 					<div class="text-lg font-semibold">
-						{{ course.data.title }}
+						{{ lesson.data.course_title }}
 					</div>
-					<div v-if="user && course.data.membership" class="text-sm mt-3">
-						{{ Math.ceil(course.data.membership.progress) }}% completed
+					<div v-if="user && lesson.data.membership" class="text-sm mt-3">
+						{{ Math.ceil(lesson.data.membership.progress) }}% completed
 					</div>
 					<div
-						v-if="user && course.data.membership"
+						v-if="user && lesson.data.membership"
 						class="w-full bg-gray-200 rounded-full h-1 my-2"
 					>
 						<div
 							class="bg-gray-900 h-1 rounded-full"
 							:style="{
-								width: Math.ceil(course.data.membership.progress) + '%',
+								width: Math.ceil(lesson.data.membership.progress) + '%',
 							}"
 						></div>
 					</div>
@@ -204,7 +204,7 @@
 </template>
 <script setup>
 import { createResource, Breadcrumbs, Button } from 'frappe-ui'
-import { computed, watch, onBeforeMount, onUnmounted, inject } from 'vue'
+import { computed, watch, ref, inject } from 'vue'
 import CourseOutline from '@/components/CourseOutline.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { useRoute } from 'vue-router'
@@ -215,6 +215,7 @@ import Discussions from '@/components/Discussions.vue'
 
 const user = inject('$user')
 const route = useRoute()
+
 const markdown = new MarkdownIt({
 	html: true,
 	linkify: true,
@@ -247,14 +248,20 @@ const lesson = createResource({
 	},
 	auto: true,
 	onSuccess(data) {
-		if (data.membership) {
+		if (data.membership)
 			current_lesson.submit({
 				name: data.membership.name,
 				lesson_name: data.name,
 			})
-		}
+		markProgress(data)
 	},
 })
+
+const markProgress = (data) => {
+	setTimeout(() => {
+		if (!data.progress) progress.submit()
+	}, 60000)
+}
 
 const current_lesson = createResource({
 	url: 'frappe.client.set_value',
@@ -268,19 +275,20 @@ const current_lesson = createResource({
 	},
 })
 
-const course = createResource({
-	url: 'lms.lms.utils.get_course_details',
-	cache: ['course', props.courseName],
-	params: {
-		course: props.courseName,
+const progress = createResource({
+	url: 'lms.lms.doctype.course_lesson.course_lesson.save_progress',
+	makeParams() {
+		return {
+			lesson: lesson.data.name,
+			course: props.courseName,
+		}
 	},
-	auto: true,
 })
 
 const breadcrumbs = computed(() => {
 	let items = [{ label: 'All Courses', route: { name: 'Courses' } }]
 	items.push({
-		label: course?.data?.title,
+		label: lesson?.data?.course_title,
 		route: { name: 'CourseDetail', params: { course: props.courseName } },
 	})
 	items.push({
@@ -295,14 +303,6 @@ const breadcrumbs = computed(() => {
 		},
 	})
 	return items
-})
-
-onBeforeMount(() => {
-	localStorage.setItem('sidebar_is_collapsed', true)
-})
-
-onUnmounted(() => {
-	localStorage.setItem('sidebar_is_collapsed', false)
 })
 
 watch(
@@ -341,14 +341,10 @@ const redirectToLogin = () => {
 
 const allowDiscussions = () => {
 	return (
-		course.data?.membership ||
+		lesson.data?.membership ||
 		user.data?.is_moderator ||
 		user.data?.is_instructor
 	)
-}
-
-const hideLesson = () => {
-	return false
 }
 </script>
 <style>
