@@ -75,7 +75,8 @@
   {
    "fieldname": "video_link",
    "fieldtype": "Data",
-   "label": "Video Embed Link"
+   "label": "Video Embed Link",
+   "reqd": 1
   },
   {
    "fieldname": "short_introduction",
@@ -92,7 +93,8 @@
   {
    "fieldname": "image",
    "fieldtype": "Attach Image",
-   "label": "Preview Image"
+   "label": "Preview Image",
+   "reqd": 1
   },
   {
    "fieldname": "tags",
@@ -266,7 +268,7 @@
   }
  ],
  "make_attachments_public": 1,
- "modified": "2023-12-21 12:27:32.559901",
+ "modified": "2024-02-28 11:20:47.700649",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",

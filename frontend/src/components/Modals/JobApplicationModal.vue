@@ -55,7 +55,7 @@
 							{{ resume.file_name }}
 						</span>
 						<span class="text-sm text-gray-500 mt-1">
-							{{ getFileSize() }}
+							{{ getFileSize(resume.file_size) }}
 						</span>
 					</div>
 				</div>
@@ -67,7 +67,7 @@
 import { Dialog, FileUploader, Button, createResource } from 'frappe-ui'
 import { FileText } from 'lucide-vue-next'
 import { ref, inject, defineModel } from 'vue'
-import { createToast } from '@/utils/'
+import { createToast, getFileSize } from '@/utils/'
 
 const resume = ref(null)
 const show = defineModel()
@@ -85,16 +85,6 @@ const validateFile = (file) => {
 	if (extension != 'pdf') {
 		return 'Only PDF file is allowed'
 	}
-}
-
-const getFileSize = () => {
-	let value = parseInt(resume.value.file_size)
-	if (value > 1048576) {
-		return (value / 1048576).toFixed(2) + 'M'
-	} else if (value > 1024) {
-		return (value / 1024).toFixed(2) + 'K'
-	}
-	return value
 }
 
 const jobApplication = createResource({

@@ -25,11 +25,15 @@
 					</Button>
 				</header>
 				<div class="container mt-5">
-					<Input v-model="course.title" :label="__('Title')" class="mb-2" />
-					<Input
+					<FormControl
+						v-model="course.title"
+						:label="__('Title')"
+						class="mb-4"
+					/>
+					<FormControl
 						v-model="course.short_introduction"
 						:label="__('Short Introduction')"
-						class="mb-2"
+						class="mb-4"
 					/>
 					<div class="mb-4">
 						<div class="mb-1.5 text-sm text-gray-700">
@@ -37,35 +41,81 @@
 						</div>
 						<TextEditor
 							:content="course.description"
-							@change="(val) => (topic.reply = val)"
+							@change="(val) => (course.description = val)"
 							:editable="true"
 							:fixedMenu="true"
 							editorClass="prose-sm max-w-none border-b border-x bg-gray-100 rounded-b-md py-1 px-2 min-h-[7rem]"
 						/>
 					</div>
-					<Input
+					<FormControl
 						v-model="course.video_link"
 						:label="__('Preview Video')"
-						class="mb-2"
+						class="mb-4"
 					/>
-					<Input v-model="course.tags" :label="__('Tags')" class="mb-2" />
+					<FileUploader
+						v-if="!course.image"
+						:fileTypes="['image/*']"
+						:validateFile="validateFile"
+						@success="
+							(file) => {
+								console.log(file)
+								course.image = file
+								console.log(course.image)
+							}
+						"
+					>
+						<template v-slot="{ file, progress, uploading, openFileSelector }">
+							<div class="mb-4">
+								<Button @click="openFileSelector" :loading="uploading">
+									{{ uploading ? `Uploading ${progress}%` : 'Upload an image' }}
+								</Button>
+							</div>
+						</template>
+					</FileUploader>
+					<div v-else class="flex items-center">
+						<div class="border rounded-md p-2 mr-2">
+							<FileText class="h-5 w-5 stroke-1.5 text-gray-700" />
+						</div>
+						<div class="flex flex-col">
+							<span>
+								{{ course.image }}
+							</span>
+							<span class="text-sm text-gray-500 mt-1">
+								{{ getFileSize(course.image) }}
+							</span>
+						</div>
+					</div>
+					<FormControl v-model="course.tags" :label="__('Tags')" class="mb-4" />
 					<div class="flex items-center mb-4">
-						<Checkbox v-model="course.published" :label="__('Published')" />
-						<Checkbox
+						<FormControl
+							type="checkbox"
+							v-model="course.published"
+							:label="__('Published')"
+						/>
+						<FormControl
+							type="checkbox"
 							v-model="course.upcoming"
 							:label="__('Upcoming')"
 							class="ml-20"
 						/>
 					</div>
-					<Checkbox
-						v-model="course.paid_course"
-						:label="__('Paid Course')"
-						class="mb-2"
-					/>
-					<Input
+					<div class="mb-4">
+						<FormControl
+							type="checkbox"
+							v-model="course.paid_course"
+							:label="__('Paid Course')"
+						/>
+					</div>
+					<FormControl
 						v-model="course.course_price"
 						:label="__('Course Price')"
-						class="mb-2"
+						class="mb-4"
+					/>
+					<Link
+						doctype="Currency"
+						v-model="course.currency"
+						:filters="{ enabled: 1 }"
+						:label="__('Currency')"
 					/>
 				</div>
 			</div>
@@ -76,14 +126,16 @@
 <script setup>
 import {
 	Breadcrumbs,
-	Input,
 	TextEditor,
-	Checkbox,
 	Button,
-	createDocumentResource,
 	createResource,
+	FormControl,
+	FileUploader,
 } from 'frappe-ui'
 import { reactive, inject, onMounted } from 'vue'
+import { convertToTitleCase, createToast, getFileSize } from '../utils'
+import Link from '@/components/Controls/Link.vue'
+import { FileText } from 'lucide-vue-next'
 
 const user = inject('$user')
 
@@ -103,7 +155,7 @@ const course = reactive({
 	upcoming: false,
 	image: null,
 	paid_course: false,
-	course_price: 0,
+	course_price: null,
 	currency: '',
 })
 
@@ -118,14 +170,48 @@ const courseResource = createResource({
 		}
 	},
 })
-console.log(courseResource)
 
 const submitCourse = () => {
 	courseResource.submit(
 		{},
 		{
-			validate() {},
+			validate() {
+				const mandatory_fields = [
+					'title',
+					'short_introduction',
+					'description',
+					'video_link',
+					'image',
+				]
+				for (const field of mandatory_fields) {
+					if (!course[field]) {
+						let fieldLabel = convertToTitleCase(field.split('_').join(' '))
+						return `${fieldLabel} is mandatory`
+					}
+				}
+				if (course.paid_course && (!course.course_price || !course.currency)) {
+					return 'Course price and currency are mandatory for paid courses'
+				}
+			},
+			onError(err) {
+				createToast({
+					title: 'Error',
+					text: err.messages?.[0] || err,
+					icon: 'x',
+					iconClasses: 'bg-red-600 text-white rounded-md p-px',
+					position: 'top-center',
+					timeout: 10,
+				})
+			},
 		}
 	)
+}
+
+const validateFile = (file) => {
+	console.log(file)
+	let extension = file.name.split('.').pop().toLowerCase()
+	if (!['jpg', 'jpeg', 'png'].includes(extension)) {
+		return 'Only image file is allowed.'
+	}
 }
 </script>

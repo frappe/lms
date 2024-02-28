@@ -41,6 +41,29 @@ export function formatNumberIntoCurrency(number, currency) {
 	return ''
 }
 
+export function convertToTitleCase(str) {
+	if (!str) {
+		return ''
+	}
+
+	return str
+		.toLowerCase()
+		.split(' ')
+		.map(function (word) {
+			return word.charAt(0).toUpperCase().concat(word.substr(1))
+		})
+		.join(' ')
+}
+export function getFileSize(file_size) {
+	let value = parseInt(file_size)
+	if (value > 1048576) {
+		return (value / 1048576).toFixed(2) + 'M'
+	} else if (value > 1024) {
+		return (value / 1024).toFixed(2) + 'K'
+	}
+	return value
+}
+
 export function getTimezones() {
 	return [
 		'Pacific/Midway',

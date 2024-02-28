@@ -48,6 +48,7 @@ import { sessionStore } from '@/stores/session'
 import { Dropdown } from 'frappe-ui'
 import { ChevronDown, LogIn, LogOut, User } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
+import { convertToTitleCase } from '../utils'
 
 const router = useRouter()
 const props = defineProps({
@@ -94,18 +95,4 @@ const userDropdownOptions = [
 		},
 	},
 ]
-
-function convertToTitleCase(str) {
-	if (!str) {
-		return ''
-	}
-
-	return str
-		.toLowerCase()
-		.split(' ')
-		.map(function (word) {
-			return word.charAt(0).toUpperCase().concat(word.substr(1))
-		})
-		.join(' ')
-}
 </script>
