@@ -60,7 +60,6 @@ const props = defineProps({
 
 const { logout, user } = sessionStore()
 let { isLoggedIn } = sessionStore()
-console.log(user)
 const userDropdownOptions = [
 	{
 		icon: User,

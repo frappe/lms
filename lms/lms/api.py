@@ -267,3 +267,12 @@ def get_chart_details():
 	)
 	details.lesson_completions = frappe.db.count("LMS Course Progress")
 	return details
+
+
+@frappe.whitelist()
+def get_file_info(file_url):
+	"""Get file info for the given file URL."""
+	file_info = frappe.db.get_value(
+		"File", {"file_url": file_url}, ["file_name", "file_size", "file_url"], as_dict=1
+	)
+	return file_info

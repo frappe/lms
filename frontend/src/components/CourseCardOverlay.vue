@@ -57,16 +57,21 @@
 					{{ __('Start Learning') }}
 				</span>
 			</Button>
-			<Button
-				v-if="user?.data?.is_moderator"
-				variant="subtle"
-				class="w-full"
-				size="md"
+			<router-link
+				v-if="user?.data?.is_moderator || is_instructor()"
+				:to="{
+					name: 'CreateCourse',
+					params: {
+						courseName: course.data.name,
+					},
+				}"
 			>
-				<span>
-					{{ __('Edit') }}
-				</span>
-			</Button>
+				<Button variant="subtle" class="w-full mt-2" size="md">
+					<span>
+						{{ __('Edit') }}
+					</span>
+				</Button>
+			</router-link>
 			<div class="mt-8 mb-4 font-medium">
 				{{ __('This course has:') }}
 			</div>
@@ -154,4 +159,6 @@ function enrollStudent() {
 			})
 	}
 }
+
+const is_instructor = () => {}
 </script>

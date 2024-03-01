@@ -1,6 +1,9 @@
 <template>
 	<div class="text-base">
-		<div v-if="showHeader" class="flex justify-between mb-4">
+		<div
+			v-if="showHeader && outline.data?.length"
+			class="flex justify-between mb-4"
+		>
 			<div class="text-2xl font-semibold">
 				{{ __('Course Content') }}
 			</div>
@@ -8,7 +11,11 @@
 				{{ expandAll ? __("Collapse all chapters") : __("Expand all chapters") }}
 			</span> -->
 		</div>
-		<div :class="{ 'shadow rounded-md pt-2 px-2': showOutline }">
+		<div
+			:class="{
+				'shadow rounded-md pt-2 px-2': showOutline && outline.data?.length,
+			}"
+		>
 			<Disclosure
 				v-slot="{ open }"
 				v-for="(chapter, index) in outline.data"

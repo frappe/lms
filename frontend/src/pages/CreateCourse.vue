@@ -5,121 +5,193 @@
 				<header
 					class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
 				>
-					<Breadcrumbs
-						class="h-7"
-						:items="[
-							{
-								label: __('Courses'),
-								route: { name: 'Courses' },
-							},
-							{
-								label: __('New Course'),
-								route: { name: 'CreateCourse', params: { courseName: 'new' } },
-							},
-						]"
-					/>
-					<Button variant="solid" @click="submitCourse()">
-						<span>
-							{{ __('Save') }}
-						</span>
-					</Button>
-				</header>
-				<div class="container mt-5">
-					<FormControl
-						v-model="course.title"
-						:label="__('Title')"
-						class="mb-4"
-					/>
-					<FormControl
-						v-model="course.short_introduction"
-						:label="__('Short Introduction')"
-						class="mb-4"
-					/>
-					<div class="mb-4">
-						<div class="mb-1.5 text-sm text-gray-700">
-							{{ __('Course Description') }}
-						</div>
-						<TextEditor
-							:content="course.description"
-							@change="(val) => (course.description = val)"
-							:editable="true"
-							:fixedMenu="true"
-							editorClass="prose-sm max-w-none border-b border-x bg-gray-100 rounded-b-md py-1 px-2 min-h-[7rem]"
-						/>
-					</div>
-					<FormControl
-						v-model="course.video_link"
-						:label="__('Preview Video')"
-						class="mb-4"
-					/>
-					<FileUploader
-						v-if="!course.image"
-						:fileTypes="['image/*']"
-						:validateFile="validateFile"
-						@success="
-							(file) => {
-								console.log(file)
-								course.image = file
-								console.log(course.image)
-							}
-						"
-					>
-						<template v-slot="{ file, progress, uploading, openFileSelector }">
-							<div class="mb-4">
-								<Button @click="openFileSelector" :loading="uploading">
-									{{ uploading ? `Uploading ${progress}%` : 'Upload an image' }}
-								</Button>
-							</div>
-						</template>
-					</FileUploader>
-					<div v-else class="flex items-center">
-						<div class="border rounded-md p-2 mr-2">
-							<FileText class="h-5 w-5 stroke-1.5 text-gray-700" />
-						</div>
-						<div class="flex flex-col">
+					<Breadcrumbs class="h-7" :items="breadcrumbs" />
+					<div class="flex items-center">
+						<router-link
+							v-if="courseResource.doc"
+							:to="{
+								name: 'CourseDetail',
+								params: { courseName: courseResource.doc.name },
+							}"
+						>
+							<Button>
+								<span>
+									{{ __('View Course') }}
+								</span>
+							</Button>
+						</router-link>
+						<Button variant="solid" @click="submitCourse()" class="ml-2">
 							<span>
-								{{ course.image }}
+								{{ __('Save') }}
 							</span>
-							<span class="text-sm text-gray-500 mt-1">
-								{{ getFileSize(course.image) }}
-							</span>
+						</Button>
+					</div>
+				</header>
+				<div class="mt-5 mb-10">
+					<div class="container mb-5">
+						<div class="text-lg font-semibold mb-4">
+							{{ __('Course Details') }}
+						</div>
+						<FormControl
+							v-model="course.title"
+							:label="__('Title')"
+							class="mb-4"
+						/>
+						<FormControl
+							v-model="course.short_introduction"
+							:label="__('Short Introduction')"
+							class="mb-4"
+						/>
+						<div class="mb-4">
+							<div class="mb-1.5 text-sm text-gray-700">
+								{{ __('Course Description') }}
+							</div>
+							<TextEditor
+								:content="course.description"
+								@change="(val) => (course.description = val)"
+								:editable="true"
+								:fixedMenu="true"
+								editorClass="prose-sm max-w-none border-b border-x bg-gray-100 rounded-b-md py-1 px-2 min-h-[7rem]"
+							/>
+						</div>
+						<FileUploader
+							v-if="!image"
+							:fileTypes="['image/*']"
+							:validateFile="validateFile"
+							@success="
+								(file) => {
+									image = file
+								}
+							"
+						>
+							<template
+								v-slot="{ file, progress, uploading, openFileSelector }"
+							>
+								<div class="mb-4">
+									<Button @click="openFileSelector" :loading="uploading">
+										{{
+											uploading ? `Uploading ${progress}%` : 'Upload an image'
+										}}
+									</Button>
+								</div>
+							</template>
+						</FileUploader>
+						<div v-else class="mb-4">
+							<div class="text-xs text-gray-600 mb-1">
+								{{ __('Course Image') }}
+							</div>
+							<div class="flex items-center">
+								<div class="border rounded-md p-2 mr-2">
+									<FileText class="h-5 w-5 stroke-1.5 text-gray-700" />
+								</div>
+								<div class="flex flex-col">
+									<span>
+										{{ image.file_name }}
+									</span>
+									<span class="text-sm text-gray-500 mt-1">
+										{{ getFileSize(image.file_size) }}
+									</span>
+								</div>
+								<X
+									@click="removeImage()"
+									class="bg-gray-200 rounded-md cursor-pointer stroke-1.5 w-5 h-5 p-1 ml-4"
+								/>
+							</div>
+						</div>
+						<FormControl
+							v-model="course.video_link"
+							:label="__('Preview Video')"
+							class="mb-4"
+						/>
+						<div>
+							<div class="mb-1.5 text-sm text-gray-700">
+								{{ __('Tags') }}
+							</div>
+							<div class="flex items-center">
+								<div
+									v-if="tags"
+									v-for="tag in tags?.split(', ')"
+									class="flex items-center bg-gray-100 p-2 rounded-md mr-2"
+								>
+									{{ tag }}
+									<X
+										class="stroke-1.5 w-3 h-3 ml-2 cursor-pointer"
+										@click="removeTag(tag)"
+									/>
+								</div>
+								<FormControl v-model="newTag" @keyup.enter="updateTags()" />
+							</div>
 						</div>
 					</div>
-					<FormControl v-model="course.tags" :label="__('Tags')" class="mb-4" />
-					<div class="flex items-center mb-4">
+					<div class="container border-t">
+						<div class="text-lg font-semibold mt-5 mb-4">
+							{{ __('Course Settings') }}
+						</div>
+						<div class="flex items-center justify-between mb-5">
+							<FormControl
+								type="checkbox"
+								v-model="course.published"
+								:label="__('Published')"
+							/>
+							<FormControl
+								type="checkbox"
+								v-model="course.upcoming"
+								:label="__('Upcoming')"
+							/>
+							<FormControl
+								type="checkbox"
+								v-model="course.disable_self_learning"
+								:label="__('Disable Self Enrollment')"
+							/>
+						</div>
+					</div>
+					<div class="container border-t">
+						<div class="text-lg font-semibold mt-5 mb-4">
+							{{ __('Course Pricing') }}
+						</div>
+						<div class="mb-4">
+							<FormControl
+								type="checkbox"
+								v-model="course.paid_course"
+								:label="__('Paid Course')"
+							/>
+						</div>
 						<FormControl
-							type="checkbox"
-							v-model="course.published"
-							:label="__('Published')"
+							v-model="course.course_price"
+							:label="__('Course Price')"
+							class="mb-4"
 						/>
-						<FormControl
-							type="checkbox"
-							v-model="course.upcoming"
-							:label="__('Upcoming')"
-							class="ml-20"
+						<Link
+							doctype="Currency"
+							v-model="course.currency"
+							:filters="{ enabled: 1 }"
+							:label="__('Currency')"
 						/>
 					</div>
-					<div class="mb-4">
-						<FormControl
-							type="checkbox"
-							v-model="course.paid_course"
-							:label="__('Paid Course')"
-						/>
-					</div>
-					<FormControl
-						v-model="course.course_price"
-						:label="__('Course Price')"
-						class="mb-4"
-					/>
-					<Link
-						doctype="Currency"
-						v-model="course.currency"
-						:filters="{ enabled: 1 }"
-						:label="__('Currency')"
-					/>
 				</div>
 			</div>
-			<div class="bg-gray-50"></div>
+			<div class="bg-gray-50 px-5 pt-5">
+				<div v-if="courseResource.doc">
+					<div class="text-xl font-semibold">
+						{{ course.title }}
+					</div>
+					<div v-if="courseResource.doc.chapters.length">
+						{{ courseResource.chapters }}
+					</div>
+					<div v-else class="border bg-white rounded-md p-5 text-center mt-4">
+						<div>
+							{{
+								__(
+									'There are no chapters in this course. Create and manage chapters from here.'
+								)
+							}}
+						</div>
+						<Button class="mt-4">
+							{{ __('Add Chapter') }}
+						</Button>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 </template>
@@ -129,89 +201,196 @@ import {
 	TextEditor,
 	Button,
 	createResource,
+	createDocumentResource,
 	FormControl,
 	FileUploader,
 } from 'frappe-ui'
-import { reactive, inject, onMounted } from 'vue'
+import { inject, onMounted, computed, ref } from 'vue'
 import { convertToTitleCase, createToast, getFileSize } from '../utils'
 import Link from '@/components/Controls/Link.vue'
-import { FileText } from 'lucide-vue-next'
+import { FileText, X } from 'lucide-vue-next'
 
 const user = inject('$user')
+const tags = ref('')
+const newTag = ref('')
+const image = ref(null)
+
+const props = defineProps({
+	courseName: {
+		type: String,
+	},
+})
+
+const breadcrumbs = computed(() => {
+	let crumbs = [
+		{
+			label: 'Courses',
+			route: { name: 'Courses' },
+		},
+	]
+	if (courseResource.doc) {
+		crumbs.push({
+			label: courseResource.doc?.title,
+			route: { name: 'CourseDetail', params: { courseName: props.courseName } },
+		})
+	}
+	crumbs.push({
+		label: props.courseName == 'new' ? 'New Course' : 'Edit Course',
+		route: { name: 'CreateCourse', params: { courseName: props.courseName } },
+	})
+	return crumbs
+})
+
+const courseResource = createDocumentResource({
+	doctype: 'LMS Course',
+	name: props.courseName,
+	auto: false,
+	onSuccess(data) {
+		imageResource.reload({ image: data.image })
+		tags.value = data.tags
+	},
+})
+
+const imageResource = createResource({
+	url: 'lms.lms.api.get_file_info',
+	makeParams(values) {
+		return {
+			file_url: values.image,
+		}
+	},
+	auto: false,
+	onSuccess(data) {
+		image.value = data
+	},
+})
 
 onMounted(() => {
 	if (!user.data?.is_moderator || !user.data?.is_instructor) {
 		window.location.href = '/login'
 	}
+	if (props.courseName !== 'new') {
+		courseResource.reload()
+	}
 })
 
-const course = reactive({
-	title: '',
-	short_introduction: '',
-	description: '',
-	video_link: '',
-	tags: '',
-	published: false,
-	upcoming: false,
-	image: null,
-	paid_course: false,
-	course_price: null,
-	currency: '',
+const course = computed(() => {
+	return {
+		title: courseResource.doc?.title || '',
+		short_introduction: courseResource.doc?.short_introduction || '',
+		description: courseResource.doc?.description || '',
+		video_link: courseResource.doc?.video_link || '',
+		course_image: courseResource.doc?.image || null,
+		tags: tags.value,
+		published: courseResource.doc?.published ? true : false,
+		upcoming: courseResource.doc?.upcoming ? true : false,
+		disable_self_learning: courseResource.doc?.disable_self_learning
+			? true
+			: false,
+		course_image: image.value,
+		paid_course: courseResource.doc?.paid_course ? true : false,
+		course_price: courseResource.doc?.course_price || '',
+		currency: courseResource.doc?.currency || '',
+	}
 })
 
-const courseResource = createResource({
+const courseCreationResource = createResource({
 	url: 'frappe.client.insert',
-	makeParams() {
+	makeParams(values) {
 		return {
 			doc: {
 				doctype: 'LMS Course',
-				...course,
+				image: image.value.file_url,
+				...values,
 			},
 		}
 	},
 })
 
 const submitCourse = () => {
-	courseResource.submit(
-		{},
-		{
+	if (courseResource.doc) {
+		courseResource.setValue.submit(
+			{
+				image: image.value?.file_url || null,
+				...course.value,
+			},
+			{
+				validate() {
+					return validateMandatoryFields()
+				},
+				onError(err) {
+					showToast(err)
+				},
+			}
+		)
+	} else {
+		courseCreationResource.submit(course.value, {
 			validate() {
-				const mandatory_fields = [
-					'title',
-					'short_introduction',
-					'description',
-					'video_link',
-					'image',
-				]
-				for (const field of mandatory_fields) {
-					if (!course[field]) {
-						let fieldLabel = convertToTitleCase(field.split('_').join(' '))
-						return `${fieldLabel} is mandatory`
-					}
-				}
-				if (course.paid_course && (!course.course_price || !course.currency)) {
-					return 'Course price and currency are mandatory for paid courses'
-				}
+				return validateMandatoryFields()
 			},
 			onError(err) {
-				createToast({
-					title: 'Error',
-					text: err.messages?.[0] || err,
-					icon: 'x',
-					iconClasses: 'bg-red-600 text-white rounded-md p-px',
-					position: 'top-center',
-					timeout: 10,
-				})
+				showToast(err)
 			},
+		})
+	}
+}
+
+const validateMandatoryFields = () => {
+	const mandatory_fields = [
+		'title',
+		'short_introduction',
+		'description',
+		'video_link',
+		'course_image',
+	]
+	for (const field of mandatory_fields) {
+		if (!course.value[field]) {
+			let fieldLabel = convertToTitleCase(field.split('_').join(' '))
+			return `${fieldLabel} is mandatory`
 		}
-	)
+	}
+	if (
+		course.value.paid_course &&
+		(!course.value.course_price || !course.value.currency)
+	) {
+		return 'Course price and currency are mandatory for paid courses'
+	}
 }
 
 const validateFile = (file) => {
-	console.log(file)
 	let extension = file.name.split('.').pop().toLowerCase()
 	if (!['jpg', 'jpeg', 'png'].includes(extension)) {
 		return 'Only image file is allowed.'
 	}
+}
+
+const updateTags = () => {
+	if (newTag.value) {
+		tags.value = tags.value ? `${tags.value}, ${newTag.value}` : newTag.value
+		newTag.value = ''
+	}
+}
+
+const removeTag = (tag) => {
+	tags.value = tags.value
+		?.split(', ')
+		.filter((t) => t !== tag)
+		.join(', ')
+	newTag.value = ''
+}
+
+const showToast = (err) => {
+	createToast({
+		title: 'Error',
+		text: err.messages?.[0] || err,
+		icon: 'x',
+		iconClasses: 'bg-red-600 text-white rounded-md p-px',
+		position: 'top-center',
+		timeout: 10,
+	})
+}
+
+const removeImage = () => {
+	image.value = null
+	course.value.course_image = null
 }
 </script>
