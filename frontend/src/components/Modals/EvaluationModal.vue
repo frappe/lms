@@ -6,7 +6,7 @@
 			size: 'xl',
 			actions: [
 				{
-					label: 'Submit',
+					label: __('Submit'),
 					variant: 'solid',
 					onClick: (close) => submitEvaluation(close),
 				},

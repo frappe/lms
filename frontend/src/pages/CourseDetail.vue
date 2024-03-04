@@ -82,7 +82,7 @@
 						<CourseOutline
 							:courseName="course.data.name"
 							:showOutline="true"
-							:showHeader="true"
+							title="Course Outline"
 						/>
 					</div>
 					<CourseReviews

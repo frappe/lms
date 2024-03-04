@@ -3,7 +3,6 @@
 		<div class="h-full overflow-auto" id="scrollContainer">
 			<slot />
 		</div>
-		{{ tabs }}
 		<div
 			v-if="tabs"
 			class="grid grid-cols-5 border-t border-gray-300 standalone:pb-4"
@@ -15,8 +14,7 @@
 				class="flex flex-col items-center justify-center py-3 transition active:scale-95"
 				@click="handleClick(tab)"
 			>
-				{{ tab.label }}
-				<component :is="tab.icon" class="h-6 w-6" />
+				<component :is="tab.icon" class="h-6 w-6 stroke-1.5 text-gray-700" />
 			</button>
 		</div>
 	</div>
@@ -30,8 +28,6 @@ const router = useRouter()
 const tabs = computed(() => {
 	return getSidebarLinks()
 })
-
-console.log(tabs.value)
 
 /* let isActive = computed((tab) => {
 	console.log(tab);

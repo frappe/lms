@@ -1,12 +1,15 @@
 <template>
 	<div class="text-base">
 		<div
-			v-if="showHeader && outline.data?.length"
-			class="flex justify-between mb-4"
+			v-if="title && (outline.data?.length || allowEdit)"
+			class="flex items-center justify-between mb-4"
 		>
-			<div class="text-2xl font-semibold">
-				{{ __('Course Content') }}
+			<div class="text-lg font-semibold">
+				{{ __(title) }}
 			</div>
+			<Button @click="openChapterModal()">
+				{{ __('Add Chapter') }}
+			</Button>
 			<!-- <span class="font-medium cursor-pointer" @click="expandAllChapters()">
 				{{ expandAll ? __("Collapse all chapters") : __("Expand all chapters") }}
 			</span> -->
@@ -20,7 +23,7 @@
 				v-slot="{ open }"
 				v-for="(chapter, index) in outline.data"
 				:key="chapter.name"
-				:defaultOpen="openChapter(chapter.idx)"
+				:defaultOpen="openChapterDetail(chapter.idx)"
 			>
 				<DisclosureButton ref="" class="flex w-full px-2 py-4">
 					<ChevronRight
@@ -41,7 +44,7 @@
 				</DisclosureButton>
 				<DisclosurePanel class="pb-2">
 					<div v-for="lesson in chapter.lessons" :key="lesson.name">
-						<div class="outline-lesson py-2 pl-8">
+						<div class="outline-lesson pl-8 py-2">
 							<router-link
 								:to="{
 									name: 'Lesson',
@@ -70,13 +73,38 @@
 							</router-link>
 						</div>
 					</div>
+					<div v-if="allowEdit" class="flex mt-2 pl-8">
+						<router-link
+							:to="{
+								name: 'CreateLesson',
+								params: {
+									courseName: courseName,
+									chapterNumber: chapter.idx,
+									lessonNumber: chapter.lessons.length + 1,
+								},
+							}"
+						>
+							<Button>
+								{{ __('Add Lesson') }}
+							</Button>
+						</router-link>
+						<Button class="ml-2" @click="openChapterModal(chapter)">
+							{{ __('Edit Chapter') }}
+						</Button>
+					</div>
 				</DisclosurePanel>
 			</Disclosure>
 		</div>
 	</div>
+	<ChapterModal
+		v-model="showChapterModal"
+		v-model:outline="outline"
+		:course="courseName"
+		:chapterDetail="getCurrentChapter()"
+	/>
 </template>
 <script setup>
-import { createResource } from 'frappe-ui'
+import { Button, createResource } from 'frappe-ui'
 import { ref } from 'vue'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import {
@@ -86,9 +114,13 @@ import {
 	FileText,
 } from 'lucide-vue-next'
 import { useRoute } from 'vue-router'
+import ChapterModal from '@/components/Modals/ChapterModal.vue'
 
 const route = useRoute()
 const expandAll = ref(true)
+const showChapterModal = ref(false)
+const currentChapter = ref(null)
+
 const props = defineProps({
 	courseName: {
 		type: String,
@@ -98,7 +130,11 @@ const props = defineProps({
 		type: Boolean,
 		default: false,
 	},
-	showHeader: {
+	title: {
+		type: String,
+		default: '',
+	},
+	allowEdit: {
 		type: Boolean,
 		default: false,
 	},
@@ -113,12 +149,17 @@ const outline = createResource({
 	auto: true,
 })
 
-const openChapter = (index) => {
+const openChapterDetail = (index) => {
 	return index == route.params.chapterNumber || index == 1
 }
 
-const expandAllChapters = () => {
-	expandAll.value = !expandAll.value
+const openChapterModal = (chapter = null) => {
+	currentChapter.value = chapter
+	showChapterModal.value = true
+}
+
+const getCurrentChapter = () => {
+	return currentChapter.value
 }
 </script>
 <style>

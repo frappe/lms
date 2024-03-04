@@ -78,9 +78,9 @@ const routes = [
 		props: true,
 	},
 	{
-		path: '/courses/:courseName/outline',
-		name: 'CourseOutline',
-		component: () => import('@/pages/CreateOutline.vue'),
+		path: '/courses/:courseName/learn/:chapterNumber-:lessonNumber/edit',
+		name: 'CreateLesson',
+		component: () => import('@/pages/CreateLesson.vue'),
 		props: true,
 	},
 ]

@@ -109,8 +109,7 @@
 							</div>
 							<div class="flex items-center">
 								<div
-									v-if="tags"
-									v-for="tag in tags?.split(', ')"
+									v-for="tag in getTags"
 									class="flex items-center bg-gray-100 p-2 rounded-md mr-2"
 								>
 									{{ tag }}
@@ -170,27 +169,14 @@
 					</div>
 				</div>
 			</div>
-			<div class="bg-gray-50 px-5 pt-5">
-				<div v-if="courseResource.doc">
-					<div class="text-xl font-semibold">
-						{{ course.title }}
-					</div>
-					<div v-if="courseResource.doc.chapters.length">
-						{{ courseResource.chapters }}
-					</div>
-					<div v-else class="border bg-white rounded-md p-5 text-center mt-4">
-						<div>
-							{{
-								__(
-									'There are no chapters in this course. Create and manage chapters from here.'
-								)
-							}}
-						</div>
-						<Button class="mt-4">
-							{{ __('Add Chapter') }}
-						</Button>
-					</div>
-				</div>
+			<div class="border-l px-5 pt-5">
+				<!-- <CreateOutline v-if="courseResource.doc" :course="courseResource.doc"/> -->
+				<CourseOutline
+					v-if="courseResource.doc"
+					:courseName="courseResource.doc.name"
+					:title="courseResource.doc.title"
+					:allowEdit="true"
+				/>
 			</div>
 		</div>
 	</div>
@@ -205,10 +191,11 @@ import {
 	FormControl,
 	FileUploader,
 } from 'frappe-ui'
-import { inject, onMounted, computed, ref } from 'vue'
+import { inject, onMounted, computed, ref, reactive } from 'vue'
 import { convertToTitleCase, createToast, getFileSize } from '../utils'
 import Link from '@/components/Controls/Link.vue'
 import { FileText, X } from 'lucide-vue-next'
+import CourseOutline from '@/components/CourseOutline.vue'
 
 const user = inject('$user')
 const tags = ref('')
@@ -246,8 +233,13 @@ const courseResource = createDocumentResource({
 	name: props.courseName,
 	auto: false,
 	onSuccess(data) {
-		imageResource.reload({ image: data.image })
 		tags.value = data.tags
+		imageResource.reload({ image: data.image })
+		Object.assign(course, data)
+		course.published = data.published ? true : false
+		course.upcoming = data.upcoming ? true : false
+		course.disable_self_learning = data.disable_self_learning ? true : false
+		course.paid_course = data.paid_course ? true : false
 	},
 })
 
@@ -280,7 +272,7 @@ const course = computed(() => {
 		description: courseResource.doc?.description || '',
 		video_link: courseResource.doc?.video_link || '',
 		course_image: courseResource.doc?.image || null,
-		tags: tags.value,
+		tags: courseResource.doc?.tags || '',
 		published: courseResource.doc?.published ? true : false,
 		upcoming: courseResource.doc?.upcoming ? true : false,
 		disable_self_learning: courseResource.doc?.disable_self_learning
@@ -290,8 +282,30 @@ const course = computed(() => {
 		paid_course: courseResource.doc?.paid_course ? true : false,
 		course_price: courseResource.doc?.course_price || '',
 		currency: courseResource.doc?.currency || '',
+		image: courseResource.doc?.image || null,
 	}
 })
+
+const getTags = computed(() => {
+	return courseResource.doc?.tags
+		? courseResource.doc.tags.split(', ')
+		: tags.value?.split(', ')
+})
+/* 
+const course = reactive({
+	title: '',
+	short_introduction: '',
+	description: '',
+	video_link: '',
+	course_image: null,
+	tags: "",
+	published: false,
+	upcoming: false,
+	disable_self_learning: false,
+	paid_course: false,
+	course_price: '',
+	currency: '',
+}) */
 
 const courseCreationResource = createResource({
 	url: 'frappe.client.insert',

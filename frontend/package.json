@@ -8,10 +8,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@editorjs/checklist": "^1.6.0",
+    "@editorjs/editorjs": "^2.29.0",
+    "@editorjs/embed": "^2.7.0",
+    "@editorjs/header": "^2.8.1",
+    "@editorjs/list": "^1.9.0",
+    "@editorjs/paragraph": "^2.11.3",
     "chart.js": "^4.4.1",
     "dayjs": "^1.11.6",
     "feather-icons": "^4.28.0",
-    "frappe-ui": "^0.1.22",
+    "frappe-ui": "^0.1.31",
     "lucide-vue-next": "^0.309.0",
     "markdown-it": "^14.0.0",
     "pinia": "^2.0.33",
