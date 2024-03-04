@@ -25,6 +25,7 @@
   "section_break_11",
   "body",
   "instructor_notes",
+  "content",
   "help_section",
   "help"
  ],
@@ -137,11 +138,16 @@
    "fieldname": "instructor_notes",
    "fieldtype": "Markdown Editor",
    "label": "Instructor Notes"
+  },
+  {
+   "fieldname": "content",
+   "fieldtype": "Text",
+   "label": "Content"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-09-29 17:04:19.252897",
+ "modified": "2024-03-04 19:40:57.359033",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Course Lesson",
