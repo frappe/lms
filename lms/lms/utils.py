@@ -1338,6 +1338,7 @@ def get_lesson(course, chapter, lesson):
 			"file_type",
 			"instructor_notes",
 			"course",
+			"content",
 		],
 		as_dict=True,
 	)
@@ -1756,16 +1757,10 @@ def get_lesson_creation_details(course, chapter, lesson):
 		"Lesson Reference", {"parent": chapter_name, "idx": lesson}, "lesson"
 	)
 
-	if lesson_name:
-		lesson_details = frappe.db.get_value(
-			"Course Lesson",
-			lesson_name,
-			["name", "title", "body", "instructor_notes", "include_in_preview"],
-			as_dict=True,
-		)
-
 	return {
 		"course_title": frappe.db.get_value("LMS Course", course, "title"),
-		"chapter_title": frappe.db.get_value("Course Chapter", chapter_name, "title"),
-		"lesson_title": lesson_details if lesson_name else None,
+		"chapter": frappe.db.get_value(
+			"Course Chapter", chapter_name, ["title", "name"], as_dict=True
+		),
+		"lesson": lesson_name if lesson_name else None,
 	}

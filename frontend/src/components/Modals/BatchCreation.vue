@@ -3,7 +3,7 @@
 		v-model="show"
 		:options="{
 			title: __('Create a Batch'),
-			size: 'xl',
+			size: '3xl',
 			actions: [
 				{
 					label: __('Save'),
@@ -15,14 +15,19 @@
 	>
 		<template #body-content>
 			<div>
-				<FormControl v-model="batch.title" :label="__('Title')" class="mb-4" />
-				<FormControl
-					v-model="batch.published"
-					type="checkbox"
-					:label="__('Published')"
-					class="mb-4"
-				/>
-				<div class="grid grid-cols-2 gap-4">
+				<div class="grid grid-cols-3 gap-4">
+					<div>
+						<FormControl
+							v-model="batch.title"
+							:label="__('Title')"
+							class="mb-4"
+						/>
+						<FormControl
+							v-model="batch.published"
+							type="checkbox"
+							:label="__('Published')"
+						/>
+					</div>
 					<div>
 						<FormControl
 							v-model="batch.start_date"
@@ -52,19 +57,7 @@
 						/>
 					</div>
 				</div>
-				<div class="grid grid-cols-2">
-					<div>
-						<FormControl
-							v-model="batch.medium"
-							:label="__('Medium')"
-							class="mb-4"
-						/>
-						<FormControl
-							v-model="batch.category"
-							:label="__('Category')"
-							class="mb-4"
-						/>
-					</div>
+				<div class="grid grid-cols-3 gap-4 mt-4 border-t pt-4">
 					<div>
 						<FormControl
 							v-model="batch.seat_count"
@@ -79,68 +72,103 @@
 							class="mb-4"
 						/>
 					</div>
+					<div>
+						<FormControl
+							v-model="batch.medium"
+							:label="__('Medium')"
+							class="mb-4"
+						/>
+						<FormControl
+							v-model="batch.category"
+							:label="__('Category')"
+							class="mb-4"
+						/>
+					</div>
+					<div>
+						<FileUploader
+							v-if="!batch.meta_image"
+							:fileTypes="['image/*']"
+							:validateFile="validateFile"
+							@success="
+								(file) => {
+									batch.meta_image.value = file
+								}
+							"
+						>
+							<template
+								v-slot="{ file, progress, uploading, openFileSelector }"
+							>
+								<div class="mb-4">
+									<Button @click="openFileSelector" :loading="uploading">
+										{{
+											uploading ? `Uploading ${progress}%` : 'Upload an image'
+										}}
+									</Button>
+								</div>
+							</template>
+						</FileUploader>
+					</div>
 				</div>
+				<div class="border-t pt-4 mb-4">
+					<FormControl
+						v-model="batch.paid_batch"
+						type="checkbox"
+						:label="__('Paid Batch')"
+					/>
+					<FormControl
+						v-model="batch.amount"
+						:label="__('Amount')"
+						type="number"
+						class="my-4"
+					/>
+					<Link
+						doctype="Currency"
+						v-model="batch.currency"
+						:filters="{ enabled: 1 }"
+						:label="__('Currency')"
+					/>
+				</div>
+				<div class="grid grid-cols-2 gap-4 border-y pt-4 mb-4"></div>
 				<FormControl
 					v-model="batch.description"
 					:label="__('Description')"
 					type="textarea"
 					class="mb-4"
 				/>
-				<TextEditor
-					v-model="batch.batch_details"
-					:label="__('Batch Details')"
-					class="mb-4"
-				/>
+				<div>
+					<label class="block text-sm text-gray-600 mb-1">
+						{{ __('Batch Details') }}
+					</label>
+					<TextEditor
+						:content="batch.batch_details"
+						@change="(val) => (batch.batch_details = val)"
+						:editable="true"
+						:fixedMenu="true"
+						editorClass="prose-sm max-w-none border-b border-x bg-gray-100 rounded-b-md py-1 px-2 min-h-[7rem] mb-4"
+					/>
+				</div>
 				<FormControl
-					v-model="batch_details.raw"
-					:label="__('Batch Details')"
+					v-model="batch.batch_details_raw"
+					:label="__('Batch Details Raw')"
 					type="textarea"
 					class="mb-4"
 				/>
-				<FileUploader
-					v-if="!image"
-					:fileTypes="['image/*']"
-					:validateFile="validateFile"
-					@success="
-						(file) => {
-							image = file
-						}
-					"
-				>
-					<template v-slot="{ file, progress, uploading, openFileSelector }">
-						<div class="mb-4">
-							<Button @click="openFileSelector" :loading="uploading">
-								{{ uploading ? `Uploading ${progress}%` : 'Upload an image' }}
-							</Button>
-						</div>
-					</template>
-				</FileUploader>
-				<div>
-					<FormControl
-						v-model="batch.paid_batch"
-						type="checkbox"
-						:label="__('Paid Batch')"
-						class="mb-4"
-					/>
-					<FormControl
-						v-model="batch.amount"
-						:label="__('Amount')"
-						type="number"
-						class="mb-4"
-					/>
-					<Link
-						doctype="Currency"
-						v-model="course.currency"
-						:filters="{ enabled: 1 }"
-						:label="__('Currency')"
-					/>
-				</div>
 			</div>
 		</template>
 	</Dialog>
 </template>
 <script setup>
-import { Dialog, FormControl, TextEditor, FileUploader, Link } from 'frappe-ui'
+import {
+	Dialog,
+	FormControl,
+	TextEditor,
+	FileUploader,
+	Button,
+} from 'frappe-ui'
+import { reactive, defineModel } from 'vue'
+import Link from '@/components/Controls/Link.vue'
+
+const show = defineModel()
 
 const batch = reactive({
 	title: '',

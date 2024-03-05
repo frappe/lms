@@ -20,7 +20,6 @@ const routes = [
 		props: true,
 	},
 	{
-		// Create a route for path /courses/inventory-management/learn/1.1
 		path: '/courses/:courseName/learn/:chapterNumber-:lessonNumber',
 		name: 'Lesson',
 		component: () => import('@/pages/Lesson.vue'),

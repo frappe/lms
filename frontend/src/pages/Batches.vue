@@ -8,7 +8,7 @@
 				:items="[{ label: __('All Batches'), route: { name: 'Batches' } }]"
 			/>
 			<div class="flex">
-				<Button variant="solid">
+				<Button variant="solid" @click="openBatchModal()">
 					<template #prefix>
 						<Plus class="h-4 w-4" />
 					</template>
@@ -73,14 +73,18 @@
 			</Tabs>
 		</div>
 	</div>
+	<BatchCreation v-model="showBatchModal" />
 </template>
 <script setup>
 import { createListResource, Breadcrumbs, Button, Tabs, Badge } from 'frappe-ui'
 import { Plus } from 'lucide-vue-next'
 import BatchCard from '@/components/BatchCard.vue'
 import { inject, ref, computed } from 'vue'
+import BatchCreation from '@/components/Modals/BatchCreation.vue'
 
 const user = inject('$user')
+const showBatchModal = ref(false)
+
 const batches = createListResource({
 	doctype: 'LMS Batch',
 	url: 'lms.lms.utils.get_batches',
@@ -115,5 +119,9 @@ if (user.data) {
 		batches: computed(() => batches.data?.enrolled),
 		count: computed(() => batches.data?.enrolled?.length),
 	})
+}
+
+const openBatchModal = () => {
+	showBatchModal.value = true
 }
 </script>

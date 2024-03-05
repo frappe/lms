@@ -7,7 +7,7 @@
 			<div class="text-lg font-semibold">
 				{{ __(title) }}
 			</div>
-			<Button @click="openChapterModal()">
+			<Button v-if="allowEdit" @click="openChapterModal()">
 				{{ __('Add Chapter') }}
 			</Button>
 			<!-- <span class="font-medium cursor-pointer" @click="expandAllChapters()">
@@ -25,7 +25,7 @@
 				:key="chapter.name"
 				:defaultOpen="openChapterDetail(chapter.idx)"
 			>
-				<DisclosureButton ref="" class="flex w-full px-2 py-4">
+				<DisclosureButton ref="" class="flex w-full px-2 py-3">
 					<ChevronRight
 						:class="{
 							'rotate-90 transform duration-200': open,
@@ -34,12 +34,8 @@
 						}"
 						class="h-4 w-4 text-gray-900 stroke-1 mr-2"
 					/>
-					<div class="text-base text-left font-medium">
+					<div class="text-base text-left font-medium leading-5">
 						{{ chapter.title }}
-					</div>
-					<div class="ml-auto text-sm">
-						{{ chapter.lessons.length }}
-						{{ chapter.lessons.length == 1 ? __('lesson') : __('lessons') }}
 					</div>
 				</DisclosureButton>
 				<DisclosurePanel class="pb-2">
@@ -47,7 +43,7 @@
 						<div class="outline-lesson pl-8 py-2">
 							<router-link
 								:to="{
-									name: 'Lesson',
+									name: allowEdit ? 'CreateLesson' : 'Lesson',
 									params: {
 										courseName: courseName,
 										chapterNumber: lesson.number.split('.')[0],
@@ -55,7 +51,7 @@
 									},
 								}"
 							>
-								<div class="flex items-center text-sm">
+								<div class="flex items-center text-sm leading-5">
 									<MonitorPlay
 										v-if="lesson.icon === 'icon-youtube'"
 										class="h-4 w-4 text-gray-900 stroke-1 mr-2"

@@ -27,7 +27,7 @@
 					<div class="text-3xl font-semibold">
 						{{ lesson.data.title }}
 					</div>
-					<div>
+					<div class="flex items-center">
 						<router-link
 							v-if="lesson.data.prev"
 							:to="{
@@ -40,7 +40,27 @@
 							}"
 						>
 							<Button class="mr-2">
-								<ChevronLeft class="w-4 h-4 stroke-1" />
+								<template #prefix>
+									<ChevronLeft class="w-4 h-4 stroke-1" />
+								</template>
+								<span>
+									{{ __('Previous') }}
+								</span>
+							</Button>
+						</router-link>
+						<router-link
+							v-if="allowEdit()"
+							:to="{
+								name: 'CreateLesson',
+								params: {
+									courseName: courseName,
+									chapterNumber: props.chapterNumber,
+									lessonNumber: props.lessonNumber,
+								},
+							}"
+						>
+							<Button class="mr-2">
+								{{ __('Edit') }}
 							</Button>
 						</router-link>
 						<router-link
@@ -55,7 +75,12 @@
 							}"
 						>
 							<Button>
-								<ChevronRight class="w-4 h-4 stroke-1" />
+								<template #suffix>
+									<ChevronRight class="w-4 h-4 stroke-1" />
+								</template>
+								<span>
+									{{ __('Next') }}
+								</span>
 							</Button>
 						</router-link>
 					</div>
@@ -86,6 +111,18 @@
 					</span>
 				</div>
 				<div
+					v-if="lesson.data.content"
+					v-for="content in JSON.parse(lesson.data.content).blocks"
+					class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-gray-300 prose-th:border-gray-300 prose-td:relative prose-th:relative prose-th:bg-gray-100 prose-sm max-w-none !whitespace-normal mt-6"
+				>
+					<div v-if="content.type == 'paragraph'">
+						<div>
+							{{ content.data.text }}
+						</div>
+					</div>
+				</div>
+				<div
+					v-else
 					class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-gray-300 prose-th:border-gray-300 prose-td:relative prose-th:relative prose-th:bg-gray-100 prose-sm max-w-none !whitespace-normal mt-6"
 				>
 					<div v-if="lesson.data.youtube">
@@ -345,6 +382,16 @@ const allowDiscussions = () => {
 		user.data?.is_moderator ||
 		user.data?.is_instructor
 	)
+}
+
+const allowEdit = () => {
+	if (user.data?.is_instructor) {
+		return true
+	}
+	if (lesson.data?.instructor.includes(user.data?.name)) {
+		return true
+	}
+	return false
 }
 </script>
 <style>

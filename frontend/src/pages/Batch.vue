@@ -15,7 +15,7 @@
 		</header>
 		<div v-if="batch.data" class="grid grid-cols-[70%,30%] h-full">
 			<div class="border-r-2">
-				<Tabs class="overflow-hidden" v-model="tabIndex" :tabs="tabs">
+				<Tabs v-model="tabIndex" :tabs="tabs" tablistClass="overflow-x-visible">
 					<template #tab="{ tab, selected }" class="overflow-x-hidden">
 						<div>
 							<button

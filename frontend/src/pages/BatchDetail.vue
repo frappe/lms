@@ -37,8 +37,8 @@
 			<div class="grid grid-cols-[60%,20%] gap-20 mt-10">
 				<div class="">
 					<div
+						class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-gray-300 prose-th:border-gray-300 prose-td:relative prose-th:relative prose-th:bg-gray-100 prose-sm max-w-none !whitespace-normal mt-6"
 						v-html="batch.data.batch_details"
-						class="batch-description"
 					></div>
 				</div>
 				<div>
@@ -46,7 +46,7 @@
 				</div>
 			</div>
 			<div>
-				<div class="text-2xl font-semibold">
+				<div class="text-2xl font-semibold mt-10">
 					{{ __('Courses') }}
 				</div>
 				<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mt-5">

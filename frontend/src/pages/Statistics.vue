@@ -197,13 +197,13 @@ const courseCompletion = createResource({
 const signupChartOptions = () => {
 	let options = chartOptions(false)
 	options.plugins.title.text = 'New Signups'
-	options.borderColor = '#278F5E'
+	options.borderColor = '#4563f0'
 	options.backgroundColor = (ctx) => {
 		const canvas = ctx.chart.ctx
 		const gradient = canvas.createLinearGradient(0, 0, 0, 160)
-		gradient.addColorStop(0, '#B6DEC5')
-		gradient.addColorStop(0.5, '#E4F5E9')
-		gradient.addColorStop(1, '#F3FCF5')
+		gradient.addColorStop(0, '#4563f0')
+		gradient.addColorStop(0.5, '#e8ecfe')
+		gradient.addColorStop(1, '#f6f7ff')
 
 		return gradient
 	}
@@ -213,13 +213,13 @@ const signupChartOptions = () => {
 const enrollmentChartOptions = () => {
 	let options = chartOptions(false)
 	options.plugins.title.text = 'Course Enrollments'
-	options.borderColor = '#B52A2A'
+	options.borderColor = '#4563f0'
 	options.backgroundColor = (ctx) => {
 		const canvas = ctx.chart.ctx
 		const gradient = canvas.createLinearGradient(0, 0, 0, 160)
-		gradient.addColorStop(0, '#FFC6A5')
-		gradient.addColorStop(0.5, '#FFD8C5')
-		gradient.addColorStop(1, '#FFE9E5')
+		gradient.addColorStop(0, '#4563f0')
+		gradient.addColorStop(0.5, '#e8ecfe')
+		gradient.addColorStop(1, '#f6f7ff')
 
 		return gradient
 	}
@@ -229,13 +229,13 @@ const enrollmentChartOptions = () => {
 const lessonChartOptions = () => {
 	let options = chartOptions(false)
 	options.plugins.title.text = 'Lesson Completion'
-	options.borderColor = '#0070CC'
+	options.borderColor = '#4563f0'
 	options.backgroundColor = (ctx) => {
 		const canvas = ctx.chart.ctx
 		const gradient = canvas.createLinearGradient(0, 0, 0, 160)
 		gradient.addColorStop(0, '#B6DEC5')
-		gradient.addColorStop(0.5, '#E4F5E9')
-		gradient.addColorStop(1, '#F3FCF5')
+		gradient.addColorStop(0.5, '#e8ecfe')
+		gradient.addColorStop(1, '#f6f7ff')
 
 		return gradient
 	}
@@ -245,7 +245,7 @@ const lessonChartOptions = () => {
 const courseChartOptions = () => {
 	let options = chartOptions(true)
 	options.plugins.title.text = 'Course Completion'
-	options.backgroundColor = ['#E4521B', '#FEEB65']
+	options.backgroundColor = ['#4563f0', '#f683ae']
 	return options
 }
 

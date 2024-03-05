@@ -321,6 +321,7 @@ const courseCreationResource = createResource({
 })
 
 const submitCourse = () => {
+	console.log(courseResource.doc?.modified)
 	if (courseResource.doc) {
 		courseResource.setValue.submit(
 			{
@@ -331,8 +332,11 @@ const submitCourse = () => {
 				validate() {
 					return validateMandatoryFields()
 				},
+				onSuccess() {
+					showToast('Success', 'Course updated successfully', 'check')
+				},
 				onError(err) {
-					showToast(err)
+					showToast('Error', err.messages?.[0] || err, 'x')
 				},
 			}
 		)
@@ -340,6 +344,9 @@ const submitCourse = () => {
 		courseCreationResource.submit(course.value, {
 			validate() {
 				return validateMandatoryFields()
+			},
+			onSuccess() {
+				showToast('Success', 'Course created successfully', 'check')
 			},
 			onError(err) {
 				showToast(err)
@@ -392,14 +399,17 @@ const removeTag = (tag) => {
 	newTag.value = ''
 }
 
-const showToast = (err) => {
+const showToast = (title, text, icon) => {
 	createToast({
-		title: 'Error',
-		text: err.messages?.[0] || err,
-		icon: 'x',
-		iconClasses: 'bg-red-600 text-white rounded-md p-px',
-		position: 'top-center',
-		timeout: 10,
+		title: title,
+		text: text,
+		icon: icon,
+		iconClasses:
+			icon == 'check'
+				? 'bg-green-600 text-white rounded-md p-px'
+				: 'bg-red-600 text-white rounded-md p-px',
+		position: icon == 'check' ? 'bottom-right' : 'top-center',
+		timeout: icon == 'check' ? 5 : 10,
 	})
 }
 
