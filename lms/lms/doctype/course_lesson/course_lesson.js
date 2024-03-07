@@ -12,6 +12,7 @@ frappe.ui.form.on("Course Lesson", {
 		)} </a>`;
 		let file_link = `<a href="/app/file"> ${__("File DocType")} </a>`;
 
+        
 		frm.get_field("help").html(`
             <p>${__(
 				"You can add some more additional content to the lesson using a special syntax. The table below mentions all types of dynamic content that you can add to the lessons and the syntax for the same."
@@ -105,44 +106,18 @@ frappe.ui.form.on("Course Lesson", {
                         ${__("Assignment")}
                     </td>
                     <td>
-                        {{ Assignment("id-filetype") }}
+                        {{ Assignment("assigment_id") }}
+                    </td>
+                    <td>
+                        ${__(
+							"Copy and paste the syntax in the editor. Replace 'assigment_id' with the ID of the Assignment you want to add.",
+							
+						)}
                     </td>
                 </tr>
             </table>
             <hr>
-            <table class="table">
-                <tr style="background-color: var(--fg-hover-color); font-weight: bold">
-                    <th style="width: 90%">
-                        ${__("Supported File Types for Assignment")}
-                    </th>
-                    <th>
-                        ${__("Syntax")}
-                    </th>
-                </tr>
-                <tr>
-                    <td>
-                        .doc, .docx, .xml
-                    <td>
-                        ${__("Document")}
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        .pdf
-                    </td>
-                    <td>
-                        ${__("PDF")}
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        .png, .jpg, .jpeg
-                    </td>
-                    <td>
-                        ${__("Image")}
-                    </td>
-                </tr>
-            </table>
+            
         `);
 	},
 });

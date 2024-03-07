@@ -80,7 +80,7 @@ def upload_assignment(
 	assignment_type = assignment_details.type
 
 	if assignment_type in ["URL", "Text"] and not answer:
-		frappe.throw(_("Please enter the URL for assignment submission."))
+		frappe.throw(_("Please enter the URL or Text for assignment submission."))
 
 	if assignment_type == "File" and not assignment_attachment:
 		frappe.throw(_("Please upload the assignment file."))
@@ -95,6 +95,7 @@ def upload_assignment(
 			{
 				"doctype": "LMS Assignment Submission",
 				"assignment": assignment,
+				"answer": answer,
 				"lesson": lesson,
 				"member": frappe.session.user,
 				"type": assignment_type,
@@ -120,11 +121,11 @@ def get_assignment(lesson):
 	assignment = frappe.db.get_value(
 		"LMS Assignment Submission",
 		{"lesson": lesson, "member": frappe.session.user},
-		["name", "lesson", "member", "assignment_attachment", "comments", "status"],
+		["name", "lesson", "member", "assignment_attachment", "comments", "status", "answer", "type"],
 		as_dict=True,
 	)
 	assignment.file_name = frappe.db.get_value(
-		"File", {"file_url": assignment.assignment_attachment}, "file_name"
+		"File", {"file_url": assignment.assignment_attachment}, "file_name",
 	)
 	return assignment
 

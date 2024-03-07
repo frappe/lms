@@ -107,6 +107,24 @@ const attach_work = (e) => {
 			upload_file(file, target);
 		});
 	}
+	let value = target.siblings(".attach-value").prop("value");
+	if (value){
+		frappe.call({
+			method: "lms.lms.doctype.lms_assignment_submission.lms_assignment_submission.upload_assignment",
+			args: {
+				answer: value,
+				lesson: $(".title").attr("data-lesson"),
+				submission: $(".preview-work").data("submission") || "",
+				assignment: $(".assignment").attr("data-assignment"),
+			},
+			callback: (data) => {
+				target.parent(".answer-form").addClass("hide");
+				target.parent(".answer-form").siblings(".preview-work").removeClass("hide");
+				target.parent(".answer-form").siblings(".info-type-allert").addClass("hide");
+				target.parent(".answer-form").siblings(".preview-work").find("a").text(value);
+			},
+		});
+	}
 };
 
 const upload_file = (file, target) => {
@@ -156,6 +174,7 @@ const create_lesson_work = (file, target) => {
 			assignment_attachment: file.file_url,
 			lesson: $(".title").attr("data-lesson"),
 			submission: $(".preview-work").data("submission") || "",
+			assignment: $(".assignment").attr("data-assignment"),
 		},
 		callback: (data) => {
 			target.siblings(".attach-file").addClass("hide");
@@ -208,42 +227,59 @@ const clear_work = (e) => {
 	parent.addClass("hide");
 	parent.siblings(".attach-file").removeClass("hide").val(null);
 	parent.siblings(".submit-work").removeClass("hide");
+	parent.siblings(".answer-form").removeClass("hide");
+	parent.siblings(".info-type-allert").removeClass("hide");
+
 };
 
 const fetch_assignments = () => {
-	if ($(".attach-file").length <= 0) return;
+	// if ($(".attach-file").length <= 0) return;
 	frappe.call({
 		method: "lms.lms.doctype.lms_assignment_submission.lms_assignment_submission.get_assignment",
 		args: {
 			lesson: $(".title").attr("data-lesson"),
 		},
 		callback: (data) => {
+			console.log(data.message);
 			if (data.message) {
 				const assignment = data.message;
 				const status = assignment.status;
-				let target = $(".attach-file");
+				
+				const target = $(".attach-file").length > 0 ? $(".attach-file") : $(".answer-form");
 				target.addClass("hide");
+				target.siblings(".info-type-allert").addClass("hide");
 				target.siblings(".submit-work").addClass("hide");
 				target.siblings(".preview-work").removeClass("hide");
 				if (status != "Not Graded") {
 					let color = status == "Pass" ? "green" : "red";
-					$(".assignment-status")
+					target.siblings(".preview-work").children(".assignment-status")
 						.removeClass("hide")
 						.addClass(color)
 						.text(data.message.status);
 					target.siblings(".alert").addClass("hide");
-					$(".clear-work").addClass("hide");
+					target.siblings(".preview-work").children(".clear-work").addClass("hide");
 					if (assignment.comments) {
 						$(".comments").removeClass("hide");
 						$(".comment").text(assignment.comments);
 					}
 				}
-				target
+				if (assignment.answer !== null &&
+					 assignment.answer.length > 0){
+					console.log(assignment.answer);
+					target
+					.siblings(".preview-work")
+					.find("a")
+					.text(assignment.answer);
+				}
+				if(assignment.assignment_attachment !== null &&  
+					assignment.assignment_attachment.length > 0){
+					console.log(assignment.assignment_attachment);
+					target
 					.siblings(".preview-work")
 					.find("a")
 					.attr("href", assignment.assignment_attachment)
 					.text(assignment.file_name);
-
+				}
 				target
 					.siblings(".preview-work")
 					.attr("data-submission", assignment.name);

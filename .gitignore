@@ -10,3 +10,4 @@ __pycache__/
 *$py.class
 node_modules
 package-lock.json
+frappe-bench

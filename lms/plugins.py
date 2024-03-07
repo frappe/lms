@@ -221,19 +221,27 @@ def pdf_renderer(src):
 	return f"<iframe src='{quote(src)}#toolbar=0' width='100%' height='700px'></iframe>"
 
 
-def assignment_renderer(detail):
+def assignment_renderer(assignment):
 	supported_types = {
 		"Document": ".doc,.docx,.xml,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 		"PDF": ".pdf",
 		"Image": ".png, .jpg, .jpeg",
 		"Video": "video/*",
+		"Python": ".py",
+		"Jupyter Notebook": ".ipynb",
+		"Power Point": ".pptx, .pptm, .ppt, .pdf",
+		"DrawIO": ".pptx, .pptm, .ppt, .pdf",
 	}
-	question = detail.split("-")[0]
-	file_type = detail.split("-")[1]
-	accept = supported_types[file_type] if file_type else ""
+	assignment_details = frappe.db.get_value(
+		"LMS Assignment", assignment, ["type", "grade_assignment", "question"], as_dict=1
+	)
+	if assignment_details.type in ["Text", "URL"]:
+		accept = True
+	else:
+		accept = supported_types[assignment_details.type] if assignment_details.type else ""
 	return frappe.render_template(
 		"templates/assignment.html",
-		{"question": question, "accept": accept, "file_type": file_type},
+		{"question": assignment_details.question, "accept": accept, "file_type": assignment_details.type, "assignment": assignment},
 	)
 
 
