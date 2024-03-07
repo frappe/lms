@@ -82,6 +82,12 @@ const routes = [
 		component: () => import('@/pages/CreateLesson.vue'),
 		props: true,
 	},
+	{
+		path: '/batches/:batchName/edit',
+		name: 'CreateBatch',
+		component: () => import('@/pages/CreateBatch.vue'),
+		props: true,
+	},
 ]
 
 let router = createRouter({

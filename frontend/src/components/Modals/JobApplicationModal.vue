@@ -72,6 +72,7 @@ import { createToast, getFileSize } from '@/utils/'
 const resume = ref(null)
 const show = defineModel()
 const user = inject('$user')
+const application = defineModel('application')
 
 const props = defineProps({
 	job: {
@@ -117,6 +118,8 @@ const submitResume = (close) => {
 					icon: 'check',
 					iconClasses: 'bg-green-600 text-white rounded-md p-px',
 				})
+				application.value.reload()
+				close()
 			},
 			onError(err) {
 				createToast({

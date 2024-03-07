@@ -1757,6 +1757,9 @@ def get_lesson_creation_details(course, chapter, lesson):
 		"Lesson Reference", {"parent": chapter_name, "idx": lesson}, "lesson"
 	)
 
+	if lesson_name:
+		lesson_details = frappe.db.get_value("Course Lesson", lesson_name, [""])
+
 	return {
 		"course_title": frappe.db.get_value("LMS Course", course, "title"),
 		"chapter": frappe.db.get_value(

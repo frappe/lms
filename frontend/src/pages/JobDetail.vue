@@ -83,6 +83,7 @@
 			</div>
 			<JobApplicationModal
 				v-model="showApplicationModal"
+				v-model:application="jobApplication"
 				:job="job.data.name"
 			/>
 		</div>
@@ -112,23 +113,24 @@ const job = createResource({
 	},
 	cache: ['job', props.job],
 	auto: true,
+	onSuccess: (data) => {
+		if (user.data?.name) {
+			jobApplication.submit()
+		}
+	},
 })
 
 const jobApplication = createResource({
 	url: 'frappe.client.get_list',
-	params: {
-		doctype: 'LMS Job Application',
-		filters: {
-			job: job.data?.name,
-			user: user.data?.name,
-		},
+	makeParams(values) {
+		return {
+			doctype: 'LMS Job Application',
+			filters: {
+				job: job.data?.name,
+				user: user.data?.name,
+			},
+		}
 	},
-})
-
-onMounted(() => {
-	if (user.data?.name) {
-		jobApplication.submit()
-	}
 })
 
 const openApplicationModal = () => {

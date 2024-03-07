@@ -43,7 +43,7 @@ import {
 	Button,
 	createDocumentResource,
 } from 'frappe-ui'
-import { computed, reactive, onMounted, onBeforeMount } from 'vue'
+import { computed, reactive, onMounted, inject } from 'vue'
 import EditorJS from '@editorjs/editorjs'
 import Header from '@editorjs/header'
 import Paragraph from '@editorjs/paragraph'
@@ -54,6 +54,7 @@ import { createToast } from '../utils'
 
 let editor
 let editLessonResource
+const user = inject('$user')
 
 const props = defineProps({
 	courseName: {
@@ -71,8 +72,10 @@ const props = defineProps({
 })
 
 onMounted(() => {
+	if (!user.data?.is_moderator || !user.data?.is_instructor) {
+		window.location.href = '/login'
+	}
 	editor = renderEditor('content')
-	/* renderEditor('instructor-notes') */
 })
 
 const renderEditor = (holder) => {

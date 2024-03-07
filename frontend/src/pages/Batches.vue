@@ -8,12 +8,19 @@
 				:items="[{ label: __('All Batches'), route: { name: 'Batches' } }]"
 			/>
 			<div class="flex">
-				<Button variant="solid" @click="openBatchModal()">
-					<template #prefix>
-						<Plus class="h-4 w-4" />
-					</template>
-					{{ __('New Batch') }}
-				</Button>
+				<router-link
+					:to="{
+						name: 'CreateBatch',
+						params: { batchName: 'new' },
+					}"
+				>
+					<Button variant="solid">
+						<template #prefix>
+							<Plus class="h-4 w-4" />
+						</template>
+						{{ __('New Batch') }}
+					</Button>
+				</router-link>
 			</div>
 		</header>
 		<div v-if="batches.data" class="pb-5">
@@ -73,14 +80,12 @@
 			</Tabs>
 		</div>
 	</div>
-	<BatchCreation v-model="showBatchModal" />
 </template>
 <script setup>
 import { createListResource, Breadcrumbs, Button, Tabs, Badge } from 'frappe-ui'
 import { Plus } from 'lucide-vue-next'
 import BatchCard from '@/components/BatchCard.vue'
 import { inject, ref, computed } from 'vue'
-import BatchCreation from '@/components/Modals/BatchCreation.vue'
 
 const user = inject('$user')
 const showBatchModal = ref(false)
@@ -119,9 +124,5 @@ if (user.data) {
 		batches: computed(() => batches.data?.enrolled),
 		count: computed(() => batches.data?.enrolled?.length),
 	})
-}
-
-const openBatchModal = () => {
-	showBatchModal.value = true
 }
 </script>

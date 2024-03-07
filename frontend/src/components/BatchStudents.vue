@@ -145,9 +145,9 @@ const removeStudent = createResource({
 
 const removeStudents = (selections) => {
 	selections.forEach(async (student) => {
-		console.log(student)
 		removeStudent.submit({ student })
 		await setTimeout(1000)
 	})
+	students.reload()
 }
 </script>
