@@ -265,7 +265,7 @@ onMounted(() => {
 	}
 })
 
-const course = computed(() => {
+/* const course = computed(() => {
 	return {
 		title: courseResource.doc?.title || '',
 		short_introduction: courseResource.doc?.short_introduction || '',
@@ -284,6 +284,21 @@ const course = computed(() => {
 		currency: courseResource.doc?.currency || '',
 		image: courseResource.doc?.image || null,
 	}
+}) */
+
+const course = reactive({
+	title: '',
+	short_introduction: '',
+	description: '',
+	video_link: '',
+	course_image: null,
+	tags: '',
+	published: false,
+	upcoming: false,
+	disable_self_learning: false,
+	paid_course: false,
+	course_price: '',
+	currency: '',
 })
 
 const getTags = computed(() => {
@@ -291,21 +306,6 @@ const getTags = computed(() => {
 		? courseResource.doc.tags.split(', ')
 		: tags.value?.split(', ')
 })
-/* 
-const course = reactive({
-	title: '',
-	short_introduction: '',
-	description: '',
-	video_link: '',
-	course_image: null,
-	tags: "",
-	published: false,
-	upcoming: false,
-	disable_self_learning: false,
-	paid_course: false,
-	course_price: '',
-	currency: '',
-}) */
 
 const courseCreationResource = createResource({
 	url: 'frappe.client.insert',
@@ -321,7 +321,6 @@ const courseCreationResource = createResource({
 })
 
 const submitCourse = () => {
-	console.log(courseResource.doc?.modified)
 	if (courseResource.doc) {
 		courseResource.setValue.submit(
 			{

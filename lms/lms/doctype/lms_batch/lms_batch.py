@@ -70,7 +70,10 @@ class LMSBatch(Document):
 
 	def send_confirmation_mail(self):
 		for student in self.students:
-			if not student.confirmation_email_sent:
+			outgoing_email_account = frappe.get_cached_value(
+				"Email Account", {"default_outgoing": 1, "enable_outgoing": 1}, "name"
+			)
+			if not student.confirmation_email_sent and outgoing_email_account:
 				self.send_mail(student)
 				student.confirmation_email_sent = 1
 

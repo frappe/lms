@@ -1758,12 +1758,17 @@ def get_lesson_creation_details(course, chapter, lesson):
 	)
 
 	if lesson_name:
-		lesson_details = frappe.db.get_value("Course Lesson", lesson_name, [""])
+		lesson_details = frappe.db.get_value(
+			"Course Lesson",
+			lesson_name,
+			["name", "title", "include_in_preview", "body", "content", "instructor_notes"],
+			as_dict=1,
+		)
 
 	return {
 		"course_title": frappe.db.get_value("LMS Course", course, "title"),
 		"chapter": frappe.db.get_value(
 			"Course Chapter", chapter_name, ["title", "name"], as_dict=True
 		),
-		"lesson": lesson_name if lesson_name else None,
+		"lesson": lesson_details if lesson_name else None,
 	}

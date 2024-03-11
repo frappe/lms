@@ -1,36 +1,63 @@
 <template>
 	<div class="h-screen text-base">
-		<header
-			class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
-		>
-			<Breadcrumbs :items="breadcrumbs" />
-		</header>
-		<div class="w-7/12 mx-auto py-5">
-			<div class="flex items-center justify-between mb-5">
-				<div class="text-lg font-semibold">
-					{{ __('Lesson Details') }}
+		<div class="grid grid-cols-[75%,25%] h-full">
+			<div>
+				<header
+					class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
+				>
+					<Breadcrumbs :items="breadcrumbs" />
+					<Button variant="solid" @click="saveLesson()">
+						{{ __('Save') }}
+					</Button>
+				</header>
+				<div class="w-5/6 mx-auto py-5">
+					<div class="flex items-center justify-between mb-5">
+						<div class="text-lg font-semibold">
+							{{ __('Lesson Details') }}
+						</div>
+					</div>
+					<FormControl v-model="lesson.title" label="Title" class="mb-4" />
+					<FormControl
+						v-model="lesson.include_in_preview"
+						type="checkbox"
+						label="Include in Preview"
+					/>
+					<div class="mt-4">
+						<label class="block text-xs text-gray-600 mb-1">
+							{{ __('Instructor Notes') }}
+						</label>
+						<div
+							id="instructor-notes"
+							class="border rounded-md px-10 py-3"
+						></div>
+					</div>
+					<div class="mt-4">
+						<label class="block text-xs text-gray-600 mb-1">
+							{{ __('Content') }}
+						</label>
+						<div id="content" class="border rounded-md py-3"></div>
+					</div>
 				</div>
-				<Button variant="solid" @click="saveLesson()">
-					{{ __('Save') }}
-				</Button>
 			</div>
-			<FormControl v-model="lesson.title" label="Title" class="mb-4" />
-			<FormControl
-				v-model="lesson.include_in_preview"
-				type="checkbox"
-				label="Include in Preview"
-			/>
-			<div class="mt-4">
-				<label class="block text-xs text-gray-600 mb-1">
-					{{ __('Instructor Notes') }}
-				</label>
-				<div id="instructor-notes" class="border rounded-md px-10 py-3"></div>
-			</div>
-			<div class="mt-4">
-				<label class="block text-xs text-gray-600 mb-1">
-					{{ __('Content') }}
-				</label>
-				<div id="content" class="border rounded-md py-3"></div>
+			<div class="border-l px-5 pt-5">
+				<div class="text-lg font-semibold">
+					{{ __('Components') }}
+				</div>
+				<div class="mt-5">
+					<div class="flex">
+						<Link
+							v-model="quiz"
+							class="flex-1"
+							doctype="LMS Quiz"
+							:label="__('Select a Quiz')"
+						/>
+						<Button @click="addQuiz()" class="self-end ml-2">
+							<template #icon>
+								<Plus class="h-4 w-4 stroke-1.5" />
+							</template>
+						</Button>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -43,18 +70,16 @@ import {
 	Button,
 	createDocumentResource,
 } from 'frappe-ui'
-import { computed, reactive, onMounted, inject } from 'vue'
+import { computed, reactive, onMounted, inject, ref } from 'vue'
 import EditorJS from '@editorjs/editorjs'
-import Header from '@editorjs/header'
-import Paragraph from '@editorjs/paragraph'
-import List from '@editorjs/list'
-import Embed from '@editorjs/embed'
-import YouTubeVideo from '../utils/youtube.js'
 import { createToast } from '../utils'
+import Link from '@/components/Controls/Link.vue'
+import { Plus } from 'lucide-vue-next'
+import { getEditorTools } from '../utils'
 
 let editor
-let editLessonResource
 const user = inject('$user')
+const quiz = ref(null)
 
 const props = defineProps({
 	courseName: {
@@ -85,38 +110,6 @@ const renderEditor = (holder) => {
 	})
 }
 
-const getEditorTools = () => {
-	return {
-		header: Header,
-		youtube: YouTubeVideo,
-		paragraph: {
-			class: Paragraph,
-			inlineToolbar: true,
-			config: {
-				preserveBlank: true,
-			},
-		},
-		list: List,
-		embed: {
-			class: Embed,
-			config: {
-				services: {
-					youtube: true,
-					vimeo: true,
-					codepen: true,
-					slides: {
-						regex:
-							/https:\/\/docs\.google\.com\/presentation\/d\/e\/([A-Za-z0-9_-]+)\/pub/,
-						embedUrl:
-							'https://docs.google.com/presentation/d/e/<%= remote_id %>/embed',
-						html: "<iframe width='100%' height='300' frameborder='0' allowfullscreen='true'></iframe>",
-					},
-				},
-			},
-		},
-	}
-}
-
 const lesson = reactive({
 	title: '',
 	include_in_preview: false,
@@ -135,7 +128,13 @@ const lessonDetails = createResource({
 	auto: true,
 	onSuccess(data) {
 		if (data.lesson) {
-			createEditResource(data)
+			Object.keys(data.lesson).forEach((key) => {
+				lesson[key] = data.lesson[key]
+			})
+			lesson.include_in_preview = data.include_in_preview ? true : false
+			editor.isReady.then(() => {
+				editor.render(JSON.parse(data.lesson.content))
+			})
 		}
 	},
 })
@@ -154,24 +153,16 @@ const newLessonResource = createResource({
 	},
 })
 
-const createEditResource = (data) => {
-	editLessonResource = createDocumentResource({
-		doctype: 'Course Lesson',
-		name: data.lesson,
-		auto: true,
-		onSuccess(data) {
-			Object.keys(data).forEach((key) => {
-				lesson[key] = data[key]
-			})
-			lesson.include_in_preview = data.include_in_preview ? true : false
-			console.log(editor)
-			console.log(editor.isReady)
-			editor.isReady.then(() => {
-				editor.render(JSON.parse(data.content))
-			})
-		},
-	})
-}
+const editLesson = createResource({
+	url: 'frappe.client.set_value',
+	makeParams(values) {
+		return {
+			doctype: 'Course Lesson',
+			name: values.lesson,
+			fieldname: lesson,
+		}
+	},
+})
 
 const lessonReference = createResource({
 	url: 'frappe.client.insert',
@@ -192,11 +183,10 @@ const lessonReference = createResource({
 const saveLesson = () => {
 	editor.save().then((outputData) => {
 		lesson.content = JSON.stringify(outputData)
-		console.log(editLessonResource?.doc?.modified)
-		if (editLessonResource?.doc) {
-			editLessonResource.setValue.submit(
+		if (lessonDetails.data?.lesson) {
+			editLesson.submit(
 				{
-					...lesson,
+					lesson: lessonDetails.data.lesson.name,
 				},
 				{
 					validate() {
@@ -249,6 +239,20 @@ const validateLesson = () => {
 	}
 }
 
+const addQuiz = () => {
+	if (quiz.value) {
+		editor.blocks.insert(
+			'quiz',
+			{
+				quiz: quiz.value,
+			},
+			{},
+			editor.blocks.getBlocksCount()
+		)
+		quiz.value = null
+	}
+}
+
 const showToast = (title, text, icon) => {
 	createToast({
 		title: title,
@@ -275,9 +279,9 @@ const breadcrumbs = computed(() => {
 		},
 	]
 
-	if (editLessonResource?.doc) {
+	if (lessonDetails?.data?.lesson) {
 		crumbs.push({
-			label: editLessonResource.doc.title,
+			label: lessonDetails.data.lesson.title,
 			route: {
 				name: 'Lesson',
 				params: {
@@ -289,7 +293,7 @@ const breadcrumbs = computed(() => {
 		})
 	}
 	crumbs.push({
-		label: editLessonResource?.doc ? 'Edit Lesson' : 'Create Lesson',
+		label: lessonDetails?.data?.lesson ? 'Edit Lesson' : 'Create Lesson',
 		route: {
 			name: 'CreateLesson',
 			params: {

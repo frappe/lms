@@ -115,11 +115,7 @@
 					v-for="content in JSON.parse(lesson.data.content).blocks"
 					class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-gray-300 prose-th:border-gray-300 prose-td:relative prose-th:relative prose-th:bg-gray-100 prose-sm max-w-none !whitespace-normal mt-6"
 				>
-					<div v-if="content.type == 'paragraph'">
-						<div>
-							{{ content.data.text }}
-						</div>
-					</div>
+					<div id="editor"></div>
 				</div>
 				<div
 					v-else
@@ -147,17 +143,7 @@
 							></iframe>
 						</div>
 						<div v-else-if="block.includes('{{ Quiz')">
-							<Quiz v-if="user.data" :quizName="getId(block)"></Quiz>
-							<div v-else class="border rounded-md text-center py-20">
-								<div>
-									{{ __('Please login to access the quiz.') }}
-								</div>
-								<Button @click="redirectToLogin()" class="mt-2">
-									<span>
-										{{ __('Login') }}
-									</span>
-								</Button>
-							</div>
+							<Quiz :quiz="getId(block)" />
 						</div>
 						<div v-else-if="block.includes('{{ Video')">
 							<video controls width="100%" controlsList="nodownload">
@@ -191,17 +177,7 @@
 						<div v-else v-html="markdown.render(block)"></div>
 					</div>
 					<div v-if="lesson.data.quiz_id">
-						<Quiz v-if="user.data" :quizName="getId(block)"></Quiz>
-						<div v-else class="border rounded-md text-center py-20">
-							<div>
-								{{ __('Please login to access the quiz.') }}
-							</div>
-							<Button @click="redirectToLogin()" class="mt-2">
-								<span>
-									{{ __('Login') }}
-								</span>
-							</Button>
-						</div>
+						<Quiz :quiz="lesson.data.quiz_id" />
 					</div>
 				</div>
 				<div class="mt-20">
@@ -241,17 +217,20 @@
 </template>
 <script setup>
 import { createResource, Breadcrumbs, Button } from 'frappe-ui'
-import { computed, watch, ref, inject } from 'vue'
+import { computed, watch, ref, inject, createApp } from 'vue'
 import CourseOutline from '@/components/CourseOutline.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { useRoute } from 'vue-router'
 import MarkdownIt from 'markdown-it'
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
-import Quiz from '@/components/Quiz.vue'
 import Discussions from '@/components/Discussions.vue'
+import Quiz from '@/components/QuizBlock.vue'
+import { getEditorTools } from '../utils'
+import EditorJS from '@editorjs/editorjs'
 
 const user = inject('$user')
 const route = useRoute()
+let editor
 
 const markdown = new MarkdownIt({
 	html: true,
@@ -285,14 +264,27 @@ const lesson = createResource({
 	},
 	auto: true,
 	onSuccess(data) {
+		console.log(data)
 		if (data.membership)
 			current_lesson.submit({
 				name: data.membership.name,
 				lesson_name: data.name,
 			})
+		renderEditor()
 		markProgress(data)
 	},
 })
+
+const renderEditor = () => {
+	if (lesson.data?.content) {
+		editor = new EditorJS({
+			holder: 'editor',
+			tools: getEditorTools(),
+			data: JSON.parse(lesson.data.content),
+			readOnly: true,
+		})
+	}
+}
 
 const markProgress = (data) => {
 	setTimeout(() => {

@@ -1,6 +1,11 @@
 import { toast } from 'frappe-ui'
 import { useDateFormat, useTimeAgo } from '@vueuse/core'
 import { BookOpen, Users, TrendingUp, Briefcase } from 'lucide-vue-next'
+import { Quiz } from '@/utils/quiz'
+import Header from '@editorjs/header'
+import Paragraph from '@editorjs/paragraph'
+import List from '@editorjs/list'
+import Embed from '@editorjs/embed'
 
 export function createToast(options) {
 	toast({
@@ -62,6 +67,37 @@ export function getFileSize(file_size) {
 		return (value / 1024).toFixed(2) + 'K'
 	}
 	return value
+}
+
+export function getEditorTools() {
+	return {
+		header: Header,
+		quiz: Quiz,
+		paragraph: {
+			class: Paragraph,
+			inlineToolbar: true,
+			config: {
+				preserveBlank: true,
+			},
+		},
+		list: List,
+		embed: {
+			class: Embed,
+			config: {
+				services: {
+					youtube: true,
+					vimeo: true,
+					codepen: true,
+					slides: {
+						regex: /https:\/\/docs\.google\.com\/presentation\/d\/e\/([A-Za-z0-9_-]+)\/pub/,
+						embedUrl:
+							'https://docs.google.com/presentation/d/e/<%= remote_id %>/embed',
+						html: "<iframe width='100%' height='300' frameborder='0' allowfullscreen='true'></iframe>",
+					},
+				},
+			},
+		},
+	}
 }
 
 export function getTimezones() {
