@@ -8,12 +8,14 @@
 				:items="[{ label: __('Jobs'), route: { name: 'Jobs' } }]"
 			/>
 			<div class="flex">
-				<Button v-if="user.data?.name" variant="solid">
-					<template #prefix>
-						<Plus class="h-4 w-4" />
-					</template>
-					{{ __('New Job') }}
-				</Button>
+				<router-link v-if="user.data?.name">
+					<Button variant="solid">
+						<template #prefix>
+							<Plus class="h-4 w-4" />
+						</template>
+						{{ __('New Job') }}
+					</Button>
+				</router-link>
 			</div>
 		</header>
 		<div v-if="jobs.data">

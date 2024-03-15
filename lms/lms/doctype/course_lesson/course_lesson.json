@@ -23,9 +23,11 @@
   "column_break_15",
   "file_type",
   "section_break_11",
-  "body",
-  "instructor_notes",
   "content",
+  "body",
+  "column_break_cjmf",
+  "instructor_content",
+  "instructor_notes",
   "help_section",
   "help"
  ],
@@ -143,11 +145,20 @@
    "fieldname": "content",
    "fieldtype": "Text",
    "label": "Content"
+  },
+  {
+   "fieldname": "column_break_cjmf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "instructor_content",
+   "fieldtype": "Text",
+   "label": "Instructor Content"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-03-04 19:40:57.359033",
+ "modified": "2024-03-14 14:25:22.464111",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Course Lesson",

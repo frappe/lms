@@ -84,3 +84,4 @@ lms.patches.v1_0.batch_tabs_settings
 execute:frappe.delete_doc("Notification", "Assignment Submission Notification")
 lms.patches.v1_0.change_jobs_url #19-01-2024
 lms.patches.v1_0.custom_perm_for_discussions #14-01-2024
+lms.patches.v1_0.rename_evaluator_role

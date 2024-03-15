@@ -4,10 +4,10 @@
 			v-if="title && (outline.data?.length || allowEdit)"
 			class="flex items-center justify-between mb-4"
 		>
-			<div class="text-lg font-semibold">
+			<div class="font-semibold" :class="allowEdit ? 'text-base' : 'text-lg'">
 				{{ __(title) }}
 			</div>
-			<Button v-if="allowEdit" @click="openChapterModal()">
+			<Button size="sm" v-if="allowEdit" @click="openChapterModal()">
 				{{ __('Add Chapter') }}
 			</Button>
 			<!-- <span class="font-medium cursor-pointer" @click="expandAllChapters()">

@@ -1339,6 +1339,7 @@ def get_lesson(course, chapter, lesson):
 			"instructor_notes",
 			"course",
 			"content",
+			"instructor_content",
 		],
 		as_dict=True,
 	)
@@ -1761,7 +1762,15 @@ def get_lesson_creation_details(course, chapter, lesson):
 		lesson_details = frappe.db.get_value(
 			"Course Lesson",
 			lesson_name,
-			["name", "title", "include_in_preview", "body", "content", "instructor_notes"],
+			[
+				"name",
+				"title",
+				"include_in_preview",
+				"body",
+				"content",
+				"instructor_notes",
+				"instructor_content",
+			],
 			as_dict=1,
 		)
 

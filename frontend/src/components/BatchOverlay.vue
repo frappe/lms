@@ -73,11 +73,21 @@
 		>
 			{{ __('Enroll Now') }}
 		</Button>
-		<Button v-if="user?.data?.is_moderator" class="w-full mt-2">
-			<span>
-				{{ __('Edit') }}
-			</span>
-		</Button>
+		<router-link
+			v-if="user?.data?.is_moderator"
+			:to="{
+				name: 'BatchCreation',
+				params: {
+					batchName: batch.data.name,
+				},
+			}"
+		>
+			<Button class="w-full mt-2">
+				<span>
+					{{ __('Edit') }}
+				</span>
+			</Button>
+		</router-link>
 	</div>
 </template>
 <script setup>

@@ -31,7 +31,7 @@
 					v-if="courses.data.length == 0 && courses.list.loading"
 					class="p-5 text-base text-gray-700"
 				>
-					Loading Courses...
+					{{ __('Loading Courses...') }}
 				</div>
 				<Tabs
 					v-else

@@ -2,10 +2,11 @@ import { toast } from 'frappe-ui'
 import { useDateFormat, useTimeAgo } from '@vueuse/core'
 import { BookOpen, Users, TrendingUp, Briefcase } from 'lucide-vue-next'
 import { Quiz } from '@/utils/quiz'
+import { Upload } from '@/utils/upload'
 import Header from '@editorjs/header'
 import Paragraph from '@editorjs/paragraph'
-import List from '@editorjs/list'
 import Embed from '@editorjs/embed'
+import NestedList from '@editorjs/nested-list'
 
 export function createToast(options) {
 	toast({
@@ -69,10 +70,25 @@ export function getFileSize(file_size) {
 	return value
 }
 
+export function showToast(title, text, icon) {
+	createToast({
+		title: title,
+		text: text,
+		icon: icon,
+		iconClasses:
+			icon == 'check'
+				? 'bg-green-600 text-white rounded-md p-px'
+				: 'bg-red-600 text-white rounded-md p-px',
+		position: icon == 'check' ? 'bottom-right' : 'top-center',
+		timeout: icon == 'check' ? 5 : 10,
+	})
+}
+
 export function getEditorTools() {
 	return {
 		header: Header,
 		quiz: Quiz,
+		upload: Upload,
 		paragraph: {
 			class: Paragraph,
 			inlineToolbar: true,
@@ -80,9 +96,15 @@ export function getEditorTools() {
 				preserveBlank: true,
 			},
 		},
-		list: List,
+		list: {
+			class: NestedList,
+			config: {
+				defaultStyle: 'ordered',
+			},
+		},
 		embed: {
 			class: Embed,
+			inlineToolbar: false,
 			config: {
 				services: {
 					youtube: true,

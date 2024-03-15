@@ -6,7 +6,7 @@
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
 		</header>
 		<div class="grid grid-cols-[70%,30%] h-full">
-			<div v-if="lesson.data.no_preview" class="border-r-2 text-center pt-10">
+			<div v-if="lesson.data.no_preview" class="border-r-1 text-center pt-10">
 				<p class="mb-4">
 					{{
 						__(
@@ -111,74 +111,38 @@
 					</span>
 				</div>
 				<div
-					v-if="lesson.data.content"
-					v-for="content in JSON.parse(lesson.data.content).blocks"
+					v-if="lesson.data.instructor_content && allowInstructorContent()"
+					class="bg-gray-100 p-3 rounded-md mt-6"
+				>
+					<div class="text-gray-600 font-medium">
+						{{ __('Instructor Notes') }}
+					</div>
+					<div
+						id="instructor-content"
+						class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-gray-300 prose-th:border-gray-300 prose-td:relative prose-th:relative prose-th:bg-gray-100 prose-sm max-w-none !whitespace-normal"
+					></div>
+				</div>
+				<div
+					v-else-if="lesson.data.instructor_notes"
 					class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-gray-300 prose-th:border-gray-300 prose-td:relative prose-th:relative prose-th:bg-gray-100 prose-sm max-w-none !whitespace-normal mt-6"
+				>
+					<LessonContent :data="lesson.data.instructor_notes" />
+				</div>
+				<div
+					v-if="lesson.data.content"
+					class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-gray-300 prose-th:border-gray-300 prose-td:relative prose-th:relative prose-th:bg-gray-100 prose-sm max-w-none !whitespace-normal mt-5"
 				>
 					<div id="editor"></div>
 				</div>
 				<div
 					v-else
-					class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-gray-300 prose-th:border-gray-300 prose-td:relative prose-th:relative prose-th:bg-gray-100 prose-sm max-w-none !whitespace-normal mt-6"
+					class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-gray-300 prose-th:border-gray-300 prose-td:relative prose-th:relative prose-th:bg-gray-100 prose-sm max-w-none !whitespace-normal mt-5"
 				>
-					<div v-if="lesson.data.youtube">
-						<iframe
-							class="youtube-video"
-							:src="getYouTubeVideoSource(lesson.data.youtube)"
-							width="100%"
-							height="400"
-							frameborder="0"
-							allowfullscreen
-						></iframe>
-					</div>
-					<div v-for="block in lesson.data.body.split('\n\n\n')">
-						<div v-if="block.includes('{{ YouTubeVideo')">
-							<iframe
-								class="youtube-video"
-								:src="getYouTubeVideoSource(block)"
-								width="100%"
-								height="400"
-								frameborder="0"
-								allowfullscreen
-							></iframe>
-						</div>
-						<div v-else-if="block.includes('{{ Quiz')">
-							<Quiz :quiz="getId(block)" />
-						</div>
-						<div v-else-if="block.includes('{{ Video')">
-							<video controls width="100%" controlsList="nodownload">
-								<source :src="getId(block)" type="video/mp4" />
-							</video>
-						</div>
-						<div v-else-if="block.includes('{{ PDF')">
-							<iframe
-								:src="getPDFSource(block)"
-								width="100%"
-								height="400"
-								frameborder="0"
-								allowfullscreen
-							></iframe>
-						</div>
-						<div v-else-if="block.includes('{{ Audio')">
-							<audio width="100%" controls controlsList="nodownload">
-								<source :src="getId(block)" type="audio/mp3" />
-							</audio>
-						</div>
-						<div v-else-if="block.includes('{{ Embed')">
-							<iframe
-								width="100%"
-								height="400"
-								:src="getId(block)"
-								frameborder="0"
-								allowfullscreen
-							>
-							</iframe>
-						</div>
-						<div v-else v-html="markdown.render(block)"></div>
-					</div>
-					<div v-if="lesson.data.quiz_id">
-						<Quiz :quiz="lesson.data.quiz_id" />
-					</div>
+					<LessonContent
+						:content="lesson.data.body"
+						:youtube="lesson.data.youtube"
+						:quizId="lesson.data.quiz_id"
+					/>
 				</div>
 				<div class="mt-20">
 					<Discussions
@@ -221,21 +185,15 @@ import { computed, watch, ref, inject, createApp } from 'vue'
 import CourseOutline from '@/components/CourseOutline.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { useRoute } from 'vue-router'
-import MarkdownIt from 'markdown-it'
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import Discussions from '@/components/Discussions.vue'
-import Quiz from '@/components/QuizBlock.vue'
 import { getEditorTools } from '../utils'
 import EditorJS from '@editorjs/editorjs'
+import LessonContent from '@/components/LessonContent.vue'
 
 const user = inject('$user')
 const route = useRoute()
-let editor
-
-const markdown = new MarkdownIt({
-	html: true,
-	linkify: true,
-})
+let editor, instructorEditor
 
 const props = defineProps({
 	courseName: {
@@ -264,26 +222,31 @@ const lesson = createResource({
 	},
 	auto: true,
 	onSuccess(data) {
-		console.log(data)
 		if (data.membership)
 			current_lesson.submit({
 				name: data.membership.name,
 				lesson_name: data.name,
 			})
-		renderEditor()
+		if (data.content) editor = renderEditor('editor', data.content)
+
+		if (data.instructor_content)
+			instructorEditor = renderEditor(
+				'instructor-content',
+				data.instructor_content
+			)
+
 		markProgress(data)
 	},
 })
 
-const renderEditor = () => {
-	if (lesson.data?.content) {
-		editor = new EditorJS({
-			holder: 'editor',
-			tools: getEditorTools(),
-			data: JSON.parse(lesson.data.content),
-			readOnly: true,
-		})
-	}
+const renderEditor = (holder, content) => {
+	return new EditorJS({
+		holder: holder,
+		tools: getEditorTools(),
+		data: JSON.parse(content),
+		readOnly: true,
+		defaultBlock: 'embed', // editor adds an empty block at the top, so to avoid that added default block as embed
+	})
 }
 
 const markProgress = (data) => {
@@ -349,21 +312,6 @@ watch(
 	}
 )
 
-const getYouTubeVideoSource = (block) => {
-	if (block.includes('{{')) {
-		block = getId(block)
-	}
-	return `https://www.youtube.com/embed/${block}`
-}
-
-const getPDFSource = (block) => {
-	return `${getId(block)}#toolbar=0`
-}
-
-const getId = (block) => {
-	return block.match(/\(["']([^"']+?)["']\)/)[1]
-}
-
 const redirectToLogin = () => {
 	window.location.href = `/login?redirect_to=/courses/${props.courseName}/learn/${route.params.chapterNumber}-${route.params.lessonNumber}`
 }
@@ -377,12 +325,14 @@ const allowDiscussions = () => {
 }
 
 const allowEdit = () => {
-	if (user.data?.is_instructor) {
-		return true
-	}
-	if (lesson.data?.instructor.includes(user.data?.name)) {
-		return true
-	}
+	if (user.data?.is_moderator) return true
+	if (lesson.data?.instructors.includes(user.data?.name)) return true
+	return false
+}
+
+const allowInstructorContent = () => {
+	if (user.data?.is_moderator) return true
+	if (lesson.data?.instructors.includes(user.data?.name)) return true
 	return false
 }
 </script>
@@ -436,5 +386,13 @@ const allowEdit = () => {
 	color: theme('colors.gray.900');
 	text-decoration: underline;
 	font-weight: 500;
+}
+
+.codex-editor__redactor {
+	padding-bottom: 0 !important;
+}
+
+.embed-tool__caption {
+	display: none;
 }
 </style>

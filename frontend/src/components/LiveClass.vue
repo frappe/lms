@@ -9,7 +9,7 @@
 			<Plus class="h-4 w-4" />
 		</template>
 		<span>
-			{{ __('Create') }}
+			{{ __('Add Live Class') }}
 		</span>
 	</Button>
 	<div class="text-lg font-semibold mb-4">
@@ -88,7 +88,7 @@ const props = defineProps({
 const liveClasses = createListResource({
 	doctype: 'LMS Live Class',
 	filters: {
-		batch: props.batchName,
+		batch_name: props.batch,
 		date: ['>=', new Date()],
 	},
 	fields: [

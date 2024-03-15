@@ -4,13 +4,6 @@ import { usersStore } from '../stores/user'
 import translationPlugin from '../translation'
 
 export class Quiz {
-	static get toolbox() {
-		return {
-			title: 'Quiz',
-			icon: `<img src="/assets/lms/icons/quiz.svg" width="15" height="15">`,
-		}
-	}
-
 	constructor({ data, api, readOnly }) {
 		this.data = data
 		this.readOnly = readOnly
@@ -42,7 +35,7 @@ export class Quiz {
 			app.mount(this.wrapper)
 			return
 		}
-		return `<div class='border rounded-md p-10 text-center'>
+		return `<div class='border rounded-md p-10 text-center mb-2'>
             <span class="font-medium">
                 Quiz: ${quiz}
             </span>

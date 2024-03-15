@@ -2,36 +2,31 @@
 	<Dialog
 		v-model="show"
 		:options="{
-			title: __('Add a Student'),
+			title: __('Add a course'),
 			size: 'sm',
 			actions: [
 				{
-					label: 'Submit',
+					label: __('Submit'),
 					variant: 'solid',
-					onClick: (close) => addStudent(close),
+					onClick: (close) => addCourse(close),
 				},
 			],
 		}"
 	>
 		<template #body-content>
-			<div class="flex flex-col gap-4">
-				<Link
-					doctype="User"
-					v-model="student"
-					:filters="{ ignore_user_type: 1 }"
-				/>
-			</div>
+			<Link doctype="LMS Course" v-model="course" />
 		</template>
 	</Dialog>
 </template>
 <script setup>
 import { Dialog, createResource } from 'frappe-ui'
-import { ref } from 'vue'
+import { ref, defineModel } from 'vue'
 import Link from '@/components/Controls/Link.vue'
+import { showToast } from '@/utils'
 
-const students = defineModel('reloadStudents')
-const student = ref()
 const show = defineModel()
+const course = ref(null)
+const courses = defineModel('courses')
 
 const props = defineProps({
 	batch: {
@@ -40,29 +35,32 @@ const props = defineProps({
 	},
 })
 
-const studentResource = createResource({
+const createBatchCourse = createResource({
 	url: 'frappe.client.insert',
 	makeParams(values) {
 		return {
 			doc: {
-				doctype: 'Batch Student',
+				doctype: 'Batch Course',
 				parent: props.batch,
 				parenttype: 'LMS Batch',
-				parentfield: 'students',
-				student: student.value,
+				parentfield: 'courses',
+				course: course.value,
 			},
 		}
 	},
 })
 
-const addStudent = (close) => {
-	studentResource.submit(
+const addCourse = (close) => {
+	createBatchCourse.submit(
 		{},
 		{
 			onSuccess() {
-				students.value.reload()
+				courses.value.reload()
 				close()
-				student.value = null
+				course.value = null
+			},
+			onError(err) {
+				showToast('Error', err.message[0] || err, 'x')
 			},
 		}
 	)

@@ -55,15 +55,13 @@
 						<Button variant="ghost" @click="removeStudents(selections)">
 							<Trash2 class="h-4 w-4 stroke-1.5" />
 						</Button>
-						<Button
-							variant="ghost"
-							label="Unselect all"
-							@click="unselectAll.toString()"
-						/>
 					</div>
 				</template>
 			</ListSelectBanner>
 		</ListView>
+	</div>
+	<div v-else class="text-sm italic text-gray-600">
+		{{ __('There are no students in this batch.') }}
 	</div>
 	<StudentModal
 		:batch="props.batch"

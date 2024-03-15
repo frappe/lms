@@ -45,25 +45,7 @@
 					<template #default="{ tab }">
 						<div class="pt-5 px-10 pb-10">
 							<div v-if="tab.label == 'Courses'">
-								<div class="text-xl font-semibold">
-									{{ __('Courses') }}
-								</div>
-								<div
-									class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-8 mt-5"
-								>
-									<div v-for="course in courses.data">
-										<router-link
-											:to="{
-												name: 'CourseDetail',
-												params: {
-													courseName: course.name,
-												},
-											}"
-										>
-											<CourseCard :key="course.name" :course="course" />
-										</router-link>
-									</div>
-								</div>
+								<BatchCourses :batch="batch.data.name" />
 							</div>
 							<div v-else-if="tab.label == 'Dashboard'">
 								<BatchDashboard :batch="batch" :isStudent="isStudent" />
@@ -94,9 +76,10 @@
 				</Tabs>
 			</div>
 			<div class="p-5">
-				<div class="text-2xl font-semibold mb-3">
+				<div class="text-2xl font-semibold mb-2">
 					{{ batch.data.title }}
 				</div>
+				<div v-html="batch.data.description" class="leading-5 mb-4"></div>
 				<div class="flex items-center mb-3">
 					<Calendar class="h-4 w-4 stroke-1.5 mr-2 text-gray-700" />
 					<span>
@@ -111,7 +94,6 @@
 						{{ formatTime(batch.data.end_time) }}
 					</span>
 				</div>
-				<div v-html="batch.data.description"></div>
 			</div>
 			<AnnouncementModal
 				v-model="showAnnouncementModal"
@@ -180,8 +162,8 @@ import {
 	MessageCircle,
 } from 'lucide-vue-next'
 import { formatTime } from '@/utils'
-import CourseCard from '@/components/CourseCard.vue'
 import BatchDashboard from '@/components/BatchDashboard.vue'
+import BatchCourses from '@/components/BatchCourses.vue'
 import LiveClass from '@/components/LiveClass.vue'
 import BatchStudents from '@/components/BatchStudents.vue'
 import Assessments from '@/components/Assessments.vue'
@@ -213,7 +195,7 @@ const breadcrumbs = computed(() => {
 	let crumbs = [{ label: 'All Batches', route: { name: 'Batches' } }]
 	if (!isStudent.value) {
 		crumbs.push({
-			label: batch.data?.title,
+			label: 'Details',
 			route: {
 				name: 'BatchDetail',
 				params: {
@@ -273,15 +255,6 @@ const tabs = computed(() => {
 		icon: MessageCircle,
 	})
 	return batchTabs
-})
-
-const courses = createResource({
-	url: 'lms.lms.utils.get_batch_courses',
-	params: {
-		batch: props.batchName,
-	},
-	cache: ['batchCourses', props.batchName],
-	auto: true,
 })
 
 const redirectToLogin = () => {

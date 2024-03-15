@@ -103,8 +103,8 @@ import { computed, inject } from 'vue'
 import { Button, createResource } from 'frappe-ui'
 import { createToast } from '@/utils/'
 import { useRouter } from 'vue-router'
-const router = useRouter()
 
+const router = useRouter()
 const user = inject('$user')
 
 const props = defineProps({

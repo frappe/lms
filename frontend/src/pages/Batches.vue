@@ -9,8 +9,9 @@
 			/>
 			<div class="flex">
 				<router-link
+					v-if="user.data"
 					:to="{
-						name: 'CreateBatch',
+						name: 'BatchCreation',
 						params: { batchName: 'new' },
 					}"
 				>
@@ -88,7 +89,6 @@ import BatchCard from '@/components/BatchCard.vue'
 import { inject, ref, computed } from 'vue'
 
 const user = inject('$user')
-const showBatchModal = ref(false)
 
 const batches = createListResource({
 	doctype: 'LMS Batch',

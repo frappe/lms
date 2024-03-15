@@ -84,8 +84,14 @@ const routes = [
 	},
 	{
 		path: '/batches/:batchName/edit',
-		name: 'CreateBatch',
-		component: () => import('@/pages/CreateBatch.vue'),
+		name: 'BatchCreation',
+		component: () => import('@/pages/BatchCreation.vue'),
+		props: true,
+	},
+	{
+		path: '/batches/:batchName/edit',
+		name: 'JobCreation',
+		component: () => import('@/pages/JobCreation.vue'),
 		props: true,
 	},
 ]
