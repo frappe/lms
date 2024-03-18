@@ -126,7 +126,7 @@
 					v-else-if="lesson.data.instructor_notes"
 					class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-gray-300 prose-th:border-gray-300 prose-td:relative prose-th:relative prose-th:bg-gray-100 prose-sm max-w-none !whitespace-normal mt-6"
 				>
-					<LessonContent :data="lesson.data.instructor_notes" />
+					<LessonContent :content="lesson.data.instructor_notes" />
 				</div>
 				<div
 					v-if="lesson.data.content"

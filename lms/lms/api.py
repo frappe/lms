@@ -235,6 +235,7 @@ def get_job_details(job):
 			"name",
 			"creation",
 			"description",
+			"owner",
 		],
 		as_dict=1,
 	)

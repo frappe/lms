@@ -89,7 +89,7 @@ const routes = [
 		props: true,
 	},
 	{
-		path: '/batches/:batchName/edit',
+		path: '/job-opening/:jobName/edit',
 		name: 'JobCreation',
 		component: () => import('@/pages/JobCreation.vue'),
 		props: true,

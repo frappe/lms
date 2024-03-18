@@ -17,12 +17,20 @@
 				]"
 			/>
 			<div v-if="user.data?.name" class="flex">
-				<Button class="mr-2">
-					<template #prefix>
-						<Flag class="h-4 w-4" />
-					</template>
-					{{ __('Report') }}
-				</Button>
+				<router-link
+					v-if="user.data.name == job.data?.owner"
+					:to="{
+						name: 'JobCreation',
+						params: { jobName: job.data?.name },
+					}"
+				>
+					<Button class="mr-2">
+						<template #prefix>
+							<Pencil class="h-4 w-4 stroke-1.5" />
+						</template>
+						{{ __('Edit') }}
+					</Button>
+				</router-link>
 				<Button
 					v-if="!jobApplication.data?.length"
 					variant="solid"
@@ -92,7 +100,7 @@
 <script setup>
 import { Badge, Button, Breadcrumbs, createResource } from 'frappe-ui'
 import { inject, ref, onMounted } from 'vue'
-import { MapPin, SendHorizonal, Flag } from 'lucide-vue-next'
+import { MapPin, SendHorizonal, Pencil } from 'lucide-vue-next'
 import JobApplicationModal from '@/components/Modals/JobApplicationModal.vue'
 
 const user = inject('$user')

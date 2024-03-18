@@ -199,9 +199,8 @@ import {
 } from 'frappe-ui'
 import Link from '@/components/Controls/Link.vue'
 import { useRouter } from 'vue-router'
-import { getFileSize } from '../utils'
+import { getFileSize, showToast } from '../utils'
 import { X, FileText } from 'lucide-vue-next'
-import { showToast } from '../utils'
 
 const router = useRouter()
 const user = inject('$user')

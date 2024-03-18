@@ -73,7 +73,7 @@ export function getFileSize(file_size) {
 export function showToast(title, text, icon) {
 	createToast({
 		title: title,
-		text: text,
+		text: htmlToText(text),
 		icon: icon,
 		iconClasses:
 			icon == 'check'
@@ -82,6 +82,12 @@ export function showToast(title, text, icon) {
 		position: icon == 'check' ? 'bottom-right' : 'top-center',
 		timeout: icon == 'check' ? 5 : 10,
 	})
+}
+
+export function htmlToText(html) {
+	const div = document.createElement('div')
+	div.innerHTML = html
+	return div.textContent || div.innerText || ''
 }
 
 export function getEditorTools() {

@@ -8,7 +8,15 @@
 				:items="[{ label: __('Jobs'), route: { name: 'Jobs' } }]"
 			/>
 			<div class="flex">
-				<router-link v-if="user.data?.name">
+				<router-link
+					v-if="user.data?.name"
+					:to="{
+						name: 'JobCreation',
+						params: {
+							jobName: 'new',
+						},
+					}"
+				>
 					<Button variant="solid">
 						<template #prefix>
 							<Plus class="h-4 w-4" />
