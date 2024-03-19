@@ -107,6 +107,7 @@ import CourseCardOverlay from '@/components/CourseCardOverlay.vue'
 import CourseOutline from '@/components/CourseOutline.vue'
 import CourseReviews from '@/components/CourseReviews.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
+import { updateDocumentTitle } from '@/utils'
 
 const props = defineProps({
 	courseName: {
@@ -132,6 +133,15 @@ const breadcrumbs = computed(() => {
 	})
 	return items
 })
+
+const pageMeta = computed(() => {
+	return {
+		title: course?.data?.title,
+		description: course?.data?.short_introduction,
+	}
+})
+
+updateDocumentTitle(pageMeta)
 </script>
 <style>
 .course-description p {

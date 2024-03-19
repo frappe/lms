@@ -1,5 +1,5 @@
 import { toast } from 'frappe-ui'
-import { useDateFormat, useTimeAgo } from '@vueuse/core'
+import { useTimeAgo } from '@vueuse/core'
 import { BookOpen, Users, TrendingUp, Briefcase } from 'lucide-vue-next'
 import { Quiz } from '@/utils/quiz'
 import { Upload } from '@/utils/upload'
@@ -7,6 +7,7 @@ import Header from '@editorjs/header'
 import Paragraph from '@editorjs/paragraph'
 import Embed from '@editorjs/embed'
 import NestedList from '@editorjs/nested-list'
+import { watch } from 'vue'
 
 export function createToast(options) {
 	toast({
@@ -82,6 +83,24 @@ export function showToast(title, text, icon) {
 		position: icon == 'check' ? 'bottom-right' : 'top-center',
 		timeout: icon == 'check' ? 5 : 10,
 	})
+}
+
+export function updateDocumentTitle(meta) {
+	watch(
+		() => meta,
+		(meta) => {
+			if (!meta.value.title) return
+			if (meta.value.title && meta.value.subtitle) {
+				document.title = `${meta.value.title} | ${meta.value.subtitle}`
+				return
+			}
+			if (meta.value.title) {
+				document.title = `${meta.value.title}`
+				return
+			}
+		},
+		{ immediate: true, deep: true }
+	)
 }
 
 export function htmlToText(html) {

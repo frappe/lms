@@ -112,6 +112,7 @@ import { createListResource, Breadcrumbs, Tabs, Badge, Button } from 'frappe-ui'
 import CourseCard from '@/components/CourseCard.vue'
 import { Plus } from 'lucide-vue-next'
 import { ref, computed, inject } from 'vue'
+import { updateDocumentTitle } from '@/utils'
 
 const user = inject('$user')
 const courses = createListResource({
@@ -163,4 +164,13 @@ if (user.data) {
 		})
 	}
 }
+
+const pageMeta = computed(() => {
+	return {
+		title: 'Courses',
+		description: 'All Courses divided by categories',
+	}
+})
+
+updateDocumentTitle(pageMeta)
 </script>
