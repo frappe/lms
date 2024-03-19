@@ -3,9 +3,10 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "dev": "vite --host",
-    "build": "vite build",
-    "preview": "vite preview"
+    "dev": "vite",
+    "serve": "vite preview",
+    "build": "vite build --base=/assets/lms/frontend/ && yarn copy-html-entry",
+    "copy-html-entry": "cp ../lms/public/frontend/index.html ../lms/www/learning.html"
   },
   "dependencies": {
     "@editorjs/checklist": "^1.6.0",

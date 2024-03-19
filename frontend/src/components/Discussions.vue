@@ -71,6 +71,7 @@ import { MessageSquareIcon } from 'lucide-vue-next'
 const showTopics = ref(true)
 const currentTopic = ref(null)
 const socket = inject('$socket')
+const user = inject('$user')
 const showTopicModal = ref(false)
 
 const props = defineProps({
@@ -101,6 +102,8 @@ const props = defineProps({
 })
 
 onMounted(() => {
+	if (user.data) topics.reload()
+
 	socket.on('new_discussion_topic', (data) => {
 		topics.refresh()
 	})
@@ -116,7 +119,6 @@ const topics = createResource({
 			single_thread: props.singleThread,
 		}
 	},
-	auto: true,
 })
 
 const showReplies = (topic) => {
