@@ -67,7 +67,7 @@ frappe.ui.form.on("Course Lesson", {
                     </td>
                     <td>
                         ${__(
-							"Copy and paste the syntax in the editor. Replace 'lms_quiz_id' with the ID of the Quiz you want to add. You can get the ID of the quiz from the {0}.",
+							"Copy and paste the syntax in the editor. Replace 'lms_quiz_id' with the ID of the Quiz you want to add. You can get the ID of the quiz from the {0}. There can only be one Quiz macro in the markdown content on the page, else the quiz won't render correctly.",
 							[quiz_link]
 						)}
                     </td>
