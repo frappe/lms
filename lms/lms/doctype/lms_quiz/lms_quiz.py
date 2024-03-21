@@ -270,6 +270,8 @@ def check_choice_answers(question, answers):
 	for num in range(1, 5):
 		if question_details[f"option_{num}"] in answers:
 			is_correct.append(question_details[f"is_correct_{num}"])
+		elif question_details[f"is_correct_{num}"]:
+			is_correct.append(2)
 		else:
 			is_correct.append(0)
 
