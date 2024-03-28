@@ -11,10 +11,7 @@
 			<div class="flex flex-col overflow-y-auto">
 				<SidebarLink
 					v-for="link in links"
-					:icon="link.icon"
-					:label="link.label"
-					:to="link.to"
-					:activeFor="link.activeFor"
+					:link="link"
 					:isCollapsed="isSidebarCollapsed"
 					class="mx-2 my-0.5"
 				/>

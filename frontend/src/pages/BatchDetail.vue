@@ -1,5 +1,5 @@
 <template>
-	<div v-if="batch.data" class="h-screen text-base">
+	<div v-if="batch.data" class="">
 		<header class="sticky top-0 z-10 border-b bg-white px-3 py-2.5 sm:px-5">
 			<Breadcrumbs :items="breadcrumbs" />
 		</header>
@@ -136,7 +136,7 @@ const breadcrumbs = computed(() => {
 	return items
 })
 </script>
-<style>
+<style scoped>
 .batch-description p {
 	margin-bottom: 1rem;
 	line-height: 1.7;

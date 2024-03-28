@@ -1312,16 +1312,14 @@ def get_lesson(course, chapter, lesson):
 		"Course Lesson", lesson_name, ["include_in_preview", "title"], as_dict=1
 	)
 	membership = get_membership(course)
+	course_title = frappe.db.get_value("LMS Course", course, "title")
 	if (
 		not lesson_details.include_in_preview
 		and not membership
 		and not has_course_moderator_role()
 		and not is_instructor(course)
 	):
-		return {
-			"no_preview": 1,
-			"title": lesson_details.title,
-		}
+		return {"no_preview": 1, "title": lesson_details.title, "course_title": course_title}
 
 	lesson_details = frappe.db.get_value(
 		"Course Lesson",
@@ -1356,7 +1354,7 @@ def get_lesson(course, chapter, lesson):
 	lesson_details.prev = neighbours["prev"]
 	lesson_details.membership = membership
 	lesson_details.instructors = get_instructors(course)
-	lesson_details.course_title = frappe.db.get_value("LMS Course", course, "title")
+	lesson_details.course_title = course_title
 	return lesson_details
 
 

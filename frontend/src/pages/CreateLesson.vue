@@ -1,5 +1,5 @@
 <template>
-	<div class="h-screen text-base">
+	<div class="">
 		<div class="grid grid-cols-[75%,25%] h-full">
 			<div class="border-r">
 				<header
@@ -411,7 +411,7 @@ const breadcrumbs = computed(() => {
 	return crumbs
 })
 </script>
-<style>
+<style scoped>
 .embed-tool__caption {
 	display: none;
 }

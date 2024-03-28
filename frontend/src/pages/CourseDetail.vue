@@ -1,5 +1,5 @@
 <template>
-	<div v-if="course.data" class="h-screen text-base">
+	<div v-if="course.data">
 		<header
 			class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
 		>
@@ -7,7 +7,7 @@
 		</header>
 		<div class="m-5">
 			<div class="flex justify-between w-full">
-				<div class="w-2/3">
+				<div class="md:w-2/3">
 					<div class="text-3xl font-semibold">
 						{{ course.data.title }}
 					</div>
@@ -74,6 +74,7 @@
 							{{ tag }}
 						</Badge>
 					</div>
+					<CourseCardOverlay :course="course" class="md:hidden mb-4" />
 					<div
 						v-html="course.data.description"
 						class="course-description"
@@ -92,7 +93,7 @@
 						:membership="course.data.membership"
 					/>
 				</div>
-				<div class="">
+				<div class="hidden md:block">
 					<CourseCardOverlay :course="course" />
 				</div>
 			</div>
@@ -143,7 +144,7 @@ const pageMeta = computed(() => {
 
 updateDocumentTitle(pageMeta)
 </script>
-<style>
+<style scoped>
 .course-description p {
 	margin-bottom: 1rem;
 	line-height: 1.7;

@@ -55,7 +55,7 @@ const communications = createListResource({
 	cache: ['batch', props.batch],
 })
 </script>
-<style>
+<style scoped>
 .prose-sm p {
 	margin: 0 0 0.5rem;
 }

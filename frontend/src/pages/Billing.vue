@@ -1,5 +1,5 @@
 <template>
-	<div class="text-base h-screen">
+	<div class="">
 		<div
 			v-if="access.data?.access && orderSummary.data"
 			class="mt-10 w-1/2 mx-auto"

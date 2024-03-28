@@ -9,8 +9,8 @@
 			:class="{ 'default-image': !course.image }"
 			:style="{ backgroundImage: 'url(' + encodeURI(course.image) + ')' }"
 		>
-			<div class="flex relative top-4 left-4 w-fit">
-				<Badge theme="gray" size="lg" class="mr-2" v-for="tag in course.tags">
+			<div class="flex relative top-4 left-4 w-fit flex-wrap">
+				<Badge theme="gray" size="md" class="mr-2" v-for="tag in course.tags">
 					{{ tag }}
 				</Badge>
 			</div>
@@ -127,7 +127,7 @@ const props = defineProps({
 	},
 })
 </script>
-<style>
+<style scoped>
 .course-image {
 	height: 168px;
 	width: 100%;

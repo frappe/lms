@@ -158,7 +158,7 @@ const getCurrentChapter = () => {
 	return currentChapter.value
 }
 </script>
-<style>
+<style scoped>
 .outline-lesson:has(.router-link-active) {
 	background-color: theme('colors.gray.100');
 }

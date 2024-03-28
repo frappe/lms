@@ -61,7 +61,7 @@ const props = defineProps({
 	},
 })
 </script>
-<style>
+<style scoped>
 .short-introduction {
 	display: -webkit-box;
 	-webkit-line-clamp: 2;

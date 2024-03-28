@@ -1,5 +1,5 @@
 <template>
-	<div class="h-screen text-base">
+	<div class="">
 		<header
 			class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
 		>
@@ -27,7 +27,7 @@
 			</div>
 		</header>
 		<div v-if="jobs.data">
-			<div class="grid grid-cols-2 gap-5 p-5">
+			<div class="grid grid-cols-1 lg:grid-cols-2 gap-5 p-5">
 				<div v-if="jobs.data.length" v-for="job in jobs.data">
 					<router-link
 						:to="{

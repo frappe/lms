@@ -1,5 +1,5 @@
 <template>
-	<div v-if="user.data?.is_moderator || isStudent" class="h-screen text-base">
+	<div v-if="user.data?.is_moderator || isStudent" class="">
 		<header
 			class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
 		>
@@ -102,7 +102,7 @@
 			/>
 		</div>
 	</div>
-	<div v-else-if="!user.data?.name" class="h-screen">
+	<div v-else-if="!user.data?.name" class="">
 		<div class="text-base border rounded-md w-1/3 mx-auto my-32">
 			<div class="border-b px-5 py-3 font-medium">
 				<span

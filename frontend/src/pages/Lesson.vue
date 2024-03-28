@@ -1,12 +1,15 @@
 <template>
-	<div v-if="lesson.data" class="h-screen text-base">
+	<div v-if="lesson.data" class="">
 		<header
 			class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
 		>
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
 		</header>
-		<div class="grid grid-cols-[70%,30%] h-full">
-			<div v-if="lesson.data.no_preview" class="border-r-1 text-center pt-10">
+		<div class="grid md:grid-cols-[70%,30%] h-full">
+			<div
+				v-if="lesson.data.no_preview"
+				class="border-r-2 text-center pt-10 px-5 md:px-0 pb-10"
+			>
 				<p class="mb-4">
 					{{
 						__(
@@ -22,12 +25,12 @@
 					</Button>
 				</router-link>
 			</div>
-			<div v-else class="border-r-2 container pt-5 pb-10">
-				<div class="flex items-center justify-between">
+			<div v-else class="border-r-2 container pt-5 pb-10 px-5">
+				<div class="flex flex-col md:flex-row md:items-center justify-between">
 					<div class="text-3xl font-semibold">
 						{{ lesson.data.title }}
 					</div>
-					<div class="flex items-center">
+					<div class="flex items-center mt-2 md:mt-0">
 						<router-link
 							v-if="lesson.data.prev"
 							:to="{
@@ -336,7 +339,7 @@ const allowInstructorContent = () => {
 	return false
 }
 </script>
-<style>
+<style scoped>
 .avatar-group {
 	display: inline-flex;
 	align-items: center;

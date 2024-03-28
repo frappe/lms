@@ -16,7 +16,7 @@
 			</div>
 			<div class="flex items-center my-4">
 				<Badge :label="job.type" theme="green" size="lg" class="mr-4" />
-				<Badge :label="job.location" theme="gray" size="lg">
+				<Badge :label="job.location.split(' ')[0]" theme="gray" size="lg">
 					<template #prefix>
 						<MapPin class="h-4 w-4 stroke-1.5" />
 					</template>

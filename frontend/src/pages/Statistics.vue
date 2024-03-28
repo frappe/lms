@@ -1,12 +1,12 @@
 <template>
-	<div class="h-screen text-base">
+	<div class="">
 		<header
 			class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
 		>
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
 		</header>
 		<div v-if="chartDetails.data" class="p-5">
-			<div class="grid grid-cols-5 gap-4">
+			<div class="grid grid-cols-2 lg:gridc-cols-5 gap-4">
 				<div class="flex items-center shadow py-2 px-3 rounded-md">
 					<div class="p-2 rounded-md bg-gray-100 mr-3">
 						<BookOpen class="w-18 h-18 stroke-1.5 text-gray-700" />
@@ -73,7 +73,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="grid grid-cols-2 gap-4 mt-4">
+			<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
 				<div class="shadow rounded-md p-5 min-h-72">
 					<Line
 						v-if="signupsChart.data"
