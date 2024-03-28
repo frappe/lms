@@ -7,7 +7,10 @@
     "frontend"
   ],
   "scripts": {
-    "test-local": "cypress open --e2e --browser chrome"
+    "test-local": "cypress open --e2e --browser chrome",
+    "postinstall": "cd frontend && yarn install --check-files",
+    "dev": "cd frontend && yarn dev",
+    "build": "cd frontend && yarn build"
   },
   "private": true,
   "repository": {
