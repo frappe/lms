@@ -35,7 +35,8 @@
    "in_standard_filter": 1,
    "label": "Member",
    "options": "User",
-   "reqd": 1
+   "reqd": 1,
+   "search_index": 1
   },
   {
    "default": "Student",
@@ -123,7 +124,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-10-02 12:41:25.139734",
+ "modified": "2024-03-18 17:32:30.182301",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Enrollment",

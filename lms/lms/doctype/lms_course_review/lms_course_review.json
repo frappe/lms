@@ -5,9 +5,10 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "review",
   "rating",
-  "course"
+  "course",
+  "column_break_lrtk",
+  "review"
  ],
  "fields": [
   {
@@ -20,7 +21,8 @@
    "fieldname": "rating",
    "fieldtype": "Rating",
    "in_list_view": 1,
-   "label": "Rating"
+   "label": "Rating",
+   "reqd": 1
   },
   {
    "fieldname": "course",
@@ -28,12 +30,17 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Course",
-   "options": "LMS Course"
+   "options": "LMS Course",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_lrtk",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-11-16 17:23:50.697891",
+ "modified": "2023-12-21 15:25:16.744558",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course Review",
@@ -50,11 +57,24 @@
    "role": "System Manager",
    "share": 1,
    "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "LMS Student",
+   "share": 1,
+   "write": 1
   }
  ],
  "search_fields": "course",
  "sort_field": "modified",
  "sort_order": "DESC",
+ "states": [],
  "title_field": "course",
  "track_changes": 1
 }

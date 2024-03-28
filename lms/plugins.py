@@ -180,7 +180,7 @@ def youtube_video_renderer(video_id):
         src="https://www.youtube.com/embed/{video_id}"
         title="YouTube video player"
         frameborder="0"
-        style="border-radius: var(--border-radius-lg)"
+        class="youtube-video
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         allowfullscreen>
     </iframe>

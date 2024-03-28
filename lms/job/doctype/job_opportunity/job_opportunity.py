@@ -17,7 +17,6 @@ class JobOpportunity(Document):
 
 	def validate_urls(self):
 		frappe.utils.validate_url(self.company_website, True)
-		frappe.utils.validate_url(self.application_link, True)
 
 
 @frappe.whitelist()

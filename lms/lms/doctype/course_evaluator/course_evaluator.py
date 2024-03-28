@@ -5,6 +5,7 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 from lms.lms.utils import get_evaluator
+from datetime import datetime
 
 
 class CourseEvaluator(Document):
@@ -39,10 +40,14 @@ class CourseEvaluator(Document):
 @frappe.whitelist()
 def get_schedule(course, date, batch=None):
 	evaluator = get_evaluator(course, batch)
+	day = datetime.strptime(date, "%Y-%m-%d").strftime("%A")
 
 	all_slots = frappe.get_all(
 		"Evaluator Schedule",
-		filters={"parent": evaluator},
+		filters={
+			"parent": evaluator,
+			"day": day,
+		},
 		fields=["day", "start_time", "end_time"],
 		order_by="start_time",
 	)

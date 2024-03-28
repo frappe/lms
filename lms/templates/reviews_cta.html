@@ -1,4 +1,4 @@
-{% if is_eligible_to_review(course.name, membership) %}
+{% if membership and is_eligible_to_review(course.name) %}
     <span class="btn btn-secondary btn-sm review-link">
         {{ _("Write a review") }}
     </span>

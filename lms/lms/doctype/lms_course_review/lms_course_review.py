@@ -7,7 +7,14 @@ from frappe.utils import cint
 
 
 class LMSCourseReview(Document):
-	pass
+	def validate(self):
+		self.validate_if_already_reviewed()
+
+	def validate_if_already_reviewed(self):
+		if frappe.db.exists(
+			"LMS Course Review", {"course": self.course, "owner": self.owner}
+		):
+			frappe.throw(frappe._("You have already reviewed this course"))
 
 
 @frappe.whitelist()

@@ -1,7 +1,7 @@
 from frappe import _
 import frappe
 from frappe.utils import getdate
-from lms.www.utils import get_assessments, is_student
+from lms.www.utils import is_student
 from lms.lms.utils import (
 	has_course_moderator_role,
 	has_course_evaluator_role,
@@ -12,6 +12,7 @@ from lms.lms.utils import (
 	get_lesson_url,
 	get_lesson_icon,
 	get_membership,
+	get_assessments,
 )
 
 

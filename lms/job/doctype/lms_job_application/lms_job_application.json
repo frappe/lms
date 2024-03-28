@@ -1,0 +1,97 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-02-20 12:15:08.957843",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "user",
+  "resume",
+  "column_break_deax",
+  "job",
+  "job_title",
+  "company"
+ ],
+ "fields": [
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "User",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "resume",
+   "fieldtype": "Attach",
+   "label": "Resume",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_deax",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "job",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Job",
+   "options": "Job Opportunity",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "job.job_title",
+   "fieldname": "job_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Job Title",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "job.company_name",
+   "fieldname": "company",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Company",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2024-02-20 20:10:46.943871",
+ "modified_by": "Administrator",
+ "module": "Job",
+ "name": "LMS Job Application",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "LMS Student",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "user"
+}

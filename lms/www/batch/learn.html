@@ -238,7 +238,7 @@
         "reference_doctype": "Course Lesson",
         "reference_docname": lesson.name
     }) %}
-    {% set condition = is_instructor(course.name) or membership %}
+    {% set condition = is_instructor(course.name) or membership or has_course_moderator_role() %}
     {% set doctype, docname = _("Course Lesson"), lesson.name %}
     {% set title = "Questions" if topics_count else "" %}
     {% set cta_title = "Ask a Question" %}
