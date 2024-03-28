@@ -144,7 +144,7 @@ const pageMeta = computed(() => {
 
 updateDocumentTitle(pageMeta)
 </script>
-<style scoped>
+<style>
 .course-description p {
 	margin-bottom: 1rem;
 	line-height: 1.7;

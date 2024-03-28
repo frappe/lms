@@ -264,7 +264,7 @@ def on_session_creation(login_manager):
 	if frappe.db.get_single_value(
 		"System Settings", "setup_complete"
 	) and frappe.db.get_single_value("LMS Settings", "default_home"):
-		frappe.local.response["home_page"] = "/courses"
+		frappe.local.response["home_page"] = "/lms"
 
 
 @frappe.whitelist()

@@ -127,7 +127,7 @@ const props = defineProps({
 	},
 })
 </script>
-<style scoped>
+<style>
 .course-image {
 	height: 168px;
 	width: 100%;

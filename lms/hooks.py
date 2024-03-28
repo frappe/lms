@@ -17,7 +17,7 @@ app_license = "AGPL"
 # app_include_js = "/assets/lms/js/lms.js"
 
 # include js, css files in header of web template
-web_include_css = "lms.bundle.css"
+# web_include_css = "lms.bundle.css"
 # web_include_css = "/assets/lms/css/lms.css"
 web_include_js = ["website.bundle.js"]
 
@@ -135,71 +135,7 @@ override_whitelisted_methods = {
 
 # Add all simple route rules here
 website_route_rules = [
-	{"from_route": "/sketches/<sketch>", "to_route": "sketches/sketch"},
-	{"from_route": "/courses/<course>", "to_route": "courses/course"},
-	{"from_route": "/courses/<course>/edit", "to_route": "courses/create"},
-	{"from_route": "/courses/<course>/outline", "to_route": "courses/outline"},
-	{"from_route": "/courses/<course>/<certificate>", "to_route": "courses/certificate"},
-	{"from_route": "/courses/<course>/learn", "to_route": "batch/learn"},
-	{
-		"from_route": "/courses/<course>/learn/<int:chapter>.<int:lesson>",
-		"to_route": "batch/learn",
-	},
-	{
-		"from_route": "/courses/<course>/learn/<int:chapter>.<int:lesson>/edit",
-		"to_route": "batch/edit",
-	},
-	{"from_route": "/quizzes", "to_route": "batch/quiz_list"},
-	{"from_route": "/quizzes/<quizname>", "to_route": "batch/quiz"},
-	{"from_route": "/batches/<batchname>", "to_route": "batches/batch"},
-	{"from_route": "/courses/<course>/progress", "to_route": "batch/progress"},
-	{"from_route": "/courses/<course>/join", "to_route": "batch/join"},
-	{"from_route": "/courses/<course>/manage", "to_route": "cohorts"},
-	{"from_route": "/courses/<course>/cohorts/<cohort>", "to_route": "cohorts/cohort"},
-	{
-		"from_route": "/courses/<course>/cohorts/<cohort>/<page>",
-		"to_route": "cohorts/cohort",
-	},
-	{
-		"from_route": "/courses/<course>/subgroups/<cohort>/<subgroup>",
-		"to_route": "cohorts/subgroup",
-	},
-	{
-		"from_route": "/courses/<course>/subgroups/<cohort>/<subgroup>/<page>",
-		"to_route": "cohorts/subgroup",
-	},
-	{
-		"from_route": "/courses/<course>/join/<cohort>/<subgroup>/<invite_code>",
-		"to_route": "cohorts/join",
-	},
-	{"from_route": "/users", "to_route": "profiles/profile"},
-	{"from_route": "/job-openings", "to_route": "jobs_openings/index"},
-	{"from_route": "/job-openings/<job>", "to_route": "jobs_openings/job"},
-	{
-		"from_route": "/batches/<batchname>/students/<username>",
-		"to_route": "/batches/progress",
-	},
-	{"from_route": "/assignments/<assignment>", "to_route": "assignments/assignment"},
-	{
-		"from_route": "/assignment-submission/<assignment>/<submission>",
-		"to_route": "assignment_submission/assignment_submission",
-	},
-	{
-		"from_route": "/quiz-submission/<quiz>/<submission>",
-		"to_route": "quiz_submission/quiz_submission",
-	},
-	{
-		"from_route": "/billing/<module>/<modulename>",
-		"to_route": "billing/billing",
-	},
-	{
-		"from_route": "/batches/details/<batchname>",
-		"to_route": "batches/batch_details",
-	},
-	{
-		"from_route": "/certified-participants",
-		"to_route": "certified_participants/certified_participants",
-	},
+	{"from_route": "/lms/<path:app_path>", "to_route": "lms"},
 ]
 
 website_redirects = [

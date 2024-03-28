@@ -6,7 +6,7 @@
     "dev": "vite",
     "serve": "vite preview",
     "build": "vite build --base=/assets/lms/frontend/ && yarn copy-html-entry",
-    "copy-html-entry": "cp ../lms/public/frontend/index.html ../lms/www/learning.html"
+    "copy-html-entry": "cp ../lms/public/frontend/index.html ../lms/www/lms.html"
   },
   "dependencies": {
     "@editorjs/checklist": "^1.6.0",

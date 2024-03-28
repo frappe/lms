@@ -3,6 +3,7 @@
 		<img
 			:src="job.company_logo"
 			class="w-12 h-12 rounded-lg object-contain mr-4"
+			:alt="job.company_name"
 		/>
 		<div>
 			<div class="text-xl font-semibold mb-2">

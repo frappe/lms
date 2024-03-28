@@ -1,20 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" href="/favicon.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Learning</title>
-    <script type="module" crossorigin src="/assets/index-xt-hKVBz.js"></script>
-    <link rel="modulepreload" crossorigin href="/assets/frappe-ui-n1bXVQkV.js">
-    <link rel="stylesheet" crossorigin href="/assets/frappe-ui-dYBF8eAq.css">
-    <link rel="stylesheet" crossorigin href="/assets/index-KTmXOKI7.css">
-  </head>
-  <body>
-    <div id="app"></div>
-    <div id="modals"></div>
-    <div id="popovers"></div>
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" href="/assets/lms/frontend/favicon.png" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Frappe UI App</title>
+		<meta name="title" content="{{ meta.title }}" />
+		<meta name="image" content="{{ meta.image }}" />
+		<meta name="description" content="{{ meta.description }}" />
+		<meta name="keywords" content="{{ meta.keywords }}" />
+		<meta property="og:title" content="{{ meta.title }}" />
+		<meta property="og:image" content="{{ meta.image }}" />
+		<meta property="og:description" content="{{ meta.description }}" />
+		<meta name="twitter:title" content="{{ meta.title }}" />
+    <meta name="twitter:image" content="{{ meta.image }}" />
+    <meta name="twitter:description" content="{{ meta.description }}" />
+		<script type="module" crossorigin src="/assets/lms/frontend/assets/index-KcWNdjif.js"></script>
+		<link rel="modulepreload" crossorigin href="/assets/lms/frontend/assets/frappe-ui-K4nTYoB-.js">
+		<link rel="stylesheet" crossorigin href="/assets/lms/frontend/assets/frappe-ui-DzKBfka9.css">
+		<link rel="stylesheet" crossorigin href="/assets/lms/frontend/assets/index-vSljmvbG.css">
+	</head>
+	<body>
+		<div id="app"></div>
+		<div id="modals"></div>
+		<div id="popovers"></div>
 
-    <script> window.csrf_token = '{{ csrf_token }}'; </script>
-  </body>
+		<script>
+			window.csrf_token = '{{ csrf_token }}'
+		</script>
+	</body>
 </html>

@@ -339,7 +339,7 @@ const allowInstructorContent = () => {
 	return false
 }
 </script>
-<style scoped>
+<style>
 .avatar-group {
 	display: inline-flex;
 	align-items: center;

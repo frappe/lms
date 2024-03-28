@@ -2,11 +2,13 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { usersStore } from './stores/user'
 import { sessionStore } from './stores/session'
 
+let defaultRoute = '/courses'
 const routes = [
 	{
 		path: '/',
-		name: 'Home',
-		component: () => import('@/pages/Home.vue'),
+		redirect: {
+			name: 'Courses',
+		},
 	},
 	{
 		path: '/courses',
@@ -97,7 +99,7 @@ const routes = [
 ]
 
 let router = createRouter({
-	history: createWebHistory('/learning'),
+	history: createWebHistory('/lms'),
 	routes,
 })
 

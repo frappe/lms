@@ -56,6 +56,7 @@
 					<img
 						:src="job.data.company_logo"
 						class="w-16 h-16 rounded-lg object-contain mr-4"
+						:alt="job.data.company_name"
 					/>
 					<div>
 						<div class="text-2xl font-semibold mb-2">

@@ -136,7 +136,7 @@ const breadcrumbs = computed(() => {
 	return items
 })
 </script>
-<style scoped>
+<style>
 .batch-description p {
 	margin-bottom: 1rem;
 	line-height: 1.7;

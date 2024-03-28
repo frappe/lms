@@ -411,7 +411,7 @@ const breadcrumbs = computed(() => {
 	return crumbs
 })
 </script>
-<style scoped>
+<style>
 .embed-tool__caption {
 	display: none;
 }

@@ -1,17 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" href="/favicon.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Frappe UI App</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <div id="modals"></div>
-    <div id="popovers"></div>
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" href="/favicon.png" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Frappe UI App</title>
+		<meta name="title" content="{{ meta.title }}" />
+		<meta name="image" content="{{ meta.image }}" />
+		<meta name="description" content="{{ meta.description }}" />
+		<meta name="keywords" content="{{ meta.keywords }}" />
+		<meta property="og:title" content="{{ meta.title }}" />
+		<meta property="og:image" content="{{ meta.image }}" />
+		<meta property="og:description" content="{{ meta.description }}" />
+		<meta name="twitter:title" content="{{ meta.title }}" />
+    <meta name="twitter:image" content="{{ meta.image }}" />
+    <meta name="twitter:description" content="{{ meta.description }}" />
+	</head>
+	<body>
+		<div id="app"></div>
+		<div id="modals"></div>
+		<div id="popovers"></div>
 
-    <script> window.csrf_token = '{{ csrf_token }}'; </script>
-    <script type="module" src="/src/main.js"></script>
-  </body>
+		<script>
+			window.csrf_token = '{{ csrf_token }}'
+		</script>
+		<script type="module" src="/src/main.js"></script>
+	</body>
 </html>
