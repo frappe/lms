@@ -22,7 +22,7 @@ frappe.ui.form.on("LMS Certificate", {
 	refresh: (frm) => {
 		if (frm.doc.name)
 			frm.add_web_link(
-				`/courses/${frm.doc.course}/${frm.doc.name}`,
+				`/lms/courses/${frm.doc.course}/${frm.doc.name}`,
 				"See on Website"
 			);
 	},

@@ -140,8 +140,25 @@ website_route_rules = [
 
 website_redirects = [
 	{"source": "/update-profile", "target": "/edit-profile"},
-	{"source": "/dashboard", "target": "/courses"},
-	{"source": "/community", "target": "/people"},
+	{"source": "/courses", "target": "/lms/courses"},
+	{
+		"source": r"/courses/(.*)",
+		"target": "/lms/courses",
+		"match_with_query_string": True,
+	},
+	{"source": "/batches", "target": "/lms/batches"},
+	{
+		"source": r"/batches/(.*)",
+		"target": "/lms/batches",
+		"match_with_query_string": True,
+	},
+	{"source": "/job-openings", "target": "/lms/job-openings"},
+	{
+		"source": r"/job-openings/(.*)",
+		"target": "/lms/job-openings",
+		"match_with_query_string": True,
+	},
+	{"source": "/statistics", "target": "/lms/statistics"},
 ]
 
 update_website_context = [

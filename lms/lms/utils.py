@@ -290,7 +290,7 @@ def get_lesson_index(lesson_name):
 def get_lesson_url(course, lesson_number):
 	if not lesson_number:
 		return
-	return f"/courses/{course}/learn/{lesson_number}"
+	return f"/lms/courses/{course}/learn/{lesson_number}"
 
 
 def get_batch(course, batch_name):
@@ -519,7 +519,7 @@ def first_lesson_exists(course):
 
 
 def redirect_to_courses_list():
-	frappe.local.flags.redirect_location = "/courses"
+	frappe.local.flags.redirect_location = "/lms/courses"
 	raise frappe.Redirect
 
 
@@ -1138,7 +1138,7 @@ def create_membership(course, payment):
 		{"member": frappe.session.user, "course": course, "payment": payment.name}
 	)
 	membership.save(ignore_permissions=True)
-	return f"/courses/{course}/learn/1-1"
+	return f"/lms/courses/{course}/learn/1-1"
 
 
 def add_student_to_batch(batchname, payment):

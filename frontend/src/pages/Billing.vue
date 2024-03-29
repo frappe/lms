@@ -155,7 +155,7 @@
 				:buttonLabel="
 					type == 'course' ? 'Checkout Courses' : 'Checkout Batches'
 				"
-				:buttonLink="type == 'course' ? '/courses' : '/batches'"
+				:buttonLink="type == 'course' ? '/lms/courses' : '/lms/batches'"
 			/>
 		</div>
 		<div v-else-if="!user.data?.name">

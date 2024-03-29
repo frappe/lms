@@ -61,7 +61,7 @@ const props = defineProps({
 const { logout, user } = sessionStore()
 let { isLoggedIn } = sessionStore()
 const userDropdownOptions = [
-	{
+	/* {
 		icon: User,
 		label: 'My Profile',
 		onClick: () => {
@@ -70,7 +70,7 @@ const userDropdownOptions = [
 		condition: () => {
 			return isLoggedIn
 		},
-	},
+	}, */
 	{
 		icon: LogOut,
 		label: 'Log out',

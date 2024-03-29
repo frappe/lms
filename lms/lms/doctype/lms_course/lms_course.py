@@ -53,7 +53,7 @@ class LMSCourse(Document):
 		subject = self.title + " is available!"
 		args = {
 			"title": self.title,
-			"course_link": f"/courses/{self.name}",
+			"course_link": f"/lms/courses/{self.name}",
 			"app_name": frappe.db.get_single_value("System Settings", "app_name"),
 			"site_url": frappe.utils.get_url(),
 		}

@@ -315,10 +315,6 @@ watch(
 	}
 )
 
-const redirectToLogin = () => {
-	window.location.href = `/login?redirect_to=/courses/${props.courseName}/learn/${route.params.chapterNumber}-${route.params.lessonNumber}`
-}
-
 const allowDiscussions = () => {
 	return (
 		lesson.data?.membership ||
