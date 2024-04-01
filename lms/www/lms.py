@@ -28,6 +28,7 @@ def get_meta(app_path):
 			"image": frappe.db.get_single_value("Website Settings", "banner_image"),
 			"description": "This page lists all the courses published on our website",
 			"keywords": "All Courses, Courses, Learn",
+			"link": "/courses",
 		}
 
 	if re.match(r"^courses/.*$", app_path):
@@ -43,6 +44,7 @@ def get_meta(app_path):
 			"image": course.image,
 			"description": course.short_introduction,
 			"keywords": course.tags,
+			"link": f"/courses/{course_name}",
 		}
 
 	if app_path == "batches":
@@ -51,6 +53,7 @@ def get_meta(app_path):
 			"image": frappe.db.get_single_value("Website Settings", "banner_image"),
 			"description": "This page lists all the batches published on our website",
 			"keywords": "All Batches, Batches, Learn",
+			"link": "/batches",
 		}
 
 	if re.match(r"^batches/.*$", app_path):
@@ -66,6 +69,7 @@ def get_meta(app_path):
 			"image": batch.meta_image,
 			"description": batch.description,
 			"keywords": f"{batch.category} {batch.medium}",
+			"link": f"/batches/details/{batch_name}",
 		}
 
 	if app_path == "job-openings":
@@ -74,6 +78,7 @@ def get_meta(app_path):
 			"image": frappe.db.get_single_value("Website Settings", "banner_image"),
 			"description": "This page lists all the job openings published on our website",
 			"keywords": "Job Openings, Jobs, Vacancies",
+			"link": "/job-openings",
 		}
 
 	if re.match(r"^job-openings/.*$", app_path):
@@ -88,6 +93,8 @@ def get_meta(app_path):
 			"title": job_opening.title,
 			"image": job_opening.company_logo,
 			"description": job_opening.company_name,
+			"keywords": "Job Openings, Jobs, Vacancies",
+			"link": f"/job-openings/{job_opening_name}",
 		}
 
 	if app_path == "statistics":
@@ -96,4 +103,5 @@ def get_meta(app_path):
 			"image": frappe.db.get_single_value("Website Settings", "banner_image"),
 			"description": "This page lists all the statistics of this platform",
 			"keywords": "Enrollment Count, Completion, Signups",
+			"link": "/statistics",
 		}
