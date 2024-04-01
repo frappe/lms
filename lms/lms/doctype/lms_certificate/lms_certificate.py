@@ -27,6 +27,7 @@ class LMSCertificate(Document):
 			"course_name": self.course,
 			"course_title": frappe.db.get_value("LMS Course", self.course, "title"),
 			"certificate_name": self.name,
+			"template": self.template,
 		}
 
 		if custom_template:
