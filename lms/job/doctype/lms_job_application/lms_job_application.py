@@ -23,7 +23,6 @@ class LMSJobApplication(Document):
 
 	def send_email_to_employer(self):
 		company_email = frappe.get_value("Job Opportunity", self.job, "company_email_address")
-		print(company_email)
 		if company_email:
 			subject = _("New Job Applicant")
 

@@ -17,7 +17,6 @@ def execute():
 	)
 
 	for question in questions:
-		print(question.name)
 		doc = frappe.new_doc("LMS Question")
 		doc.update(
 			{
@@ -39,5 +38,4 @@ def execute():
 				)
 
 		doc.save()
-		print(doc.name)
 		frappe.db.set_value("LMS Quiz Question", question.name, "question", doc.name)
