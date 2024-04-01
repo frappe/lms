@@ -239,7 +239,9 @@ const parse_choices = (element, is_correct) => {
 					? add_icon(elem, "check")
 					: add_icon(elem, "wrong");
 		} else {
-			add_icon(elem, "minus-circle");
+			if (this.show_answers && is_correct[i] == 2)
+				add_icon(elem, "minus-circle-green");
+			else add_icon(elem, "minus-circle");
 		}
 	});
 };
