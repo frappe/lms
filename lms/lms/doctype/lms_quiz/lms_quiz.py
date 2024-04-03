@@ -6,7 +6,7 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.utils import cstr, comma_and
-from lms.lms.doctype.lms_question.lms_question import validate_correct_answers
+from lms.lms.doctype.course_lesson.course_lesson import save_progress
 from lms.lms.utils import (
 	generate_slug,
 	has_course_moderator_role,
@@ -86,7 +86,7 @@ def quiz_summary(quiz, results):
 		del result["question_index"]
 
 	quiz_details = frappe.db.get_value(
-		"LMS Quiz", quiz, ["total_marks", "passing_percentage"], as_dict=1
+		"LMS Quiz", quiz, ["total_marks", "passing_percentage", "lesson", "course"], as_dict=1
 	)
 	score_out_of = quiz_details.total_marks
 	percentage = (score / score_out_of) * 100
@@ -103,6 +103,16 @@ def quiz_summary(quiz, results):
 			"passing_percentage": quiz_details.passing_percentage,
 		}
 	)
+	print(
+		percentage, quiz_details.passing_percentage, quiz_details.lesson, quiz_details.course
+	)
+	if (
+		percentage >= quiz_details.passing_percentage
+		and quiz_details.lesson
+		and quiz_details.course
+	):
+		save_progress(quiz_details.lesson, quiz_details.course)
+
 	submission.save(ignore_permissions=True)
 
 	return {

@@ -155,11 +155,13 @@ def get_lesson_details(chapter):
 				"question",
 				"file_type",
 				"instructor_notes",
+				"course",
 			],
 			as_dict=True,
 		)
 		lesson_details.number = f"{chapter.idx}.{row.idx}"
 		lesson_details.icon = get_lesson_icon(lesson_details.body)
+		lesson_details.is_complete = get_progress(lesson_details.course, lesson_details.name)
 		lessons.append(lesson_details)
 	return lessons
 
@@ -307,7 +309,7 @@ def get_progress(course, lesson, member=None):
 
 	return frappe.db.get_value(
 		"LMS Course Progress",
-		{"course": course, "owner": member, "lesson": lesson},
+		{"course": course, "member": member, "lesson": lesson},
 		["status"],
 	)
 

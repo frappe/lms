@@ -21,32 +21,29 @@
 		<div class="flex flex-col flex-auto p-4">
 			<div class="flex items-center justify-between mb-2">
 				<div v-if="course.lesson_count">
-					<Tooltip
-						:text="__('Lessons')"
-						class="flex items-center space-x-1 py-1"
-					>
-						<BookOpen class="h-4 w-4 stroke-1.5 text-gray-700" />
-						<span> {{ course.lesson_count }} </span>
+					<Tooltip :text="__('Lessons')">
+						<span class="flex items-center">
+							<BookOpen class="h-4 w-4 stroke-1.5 text-gray-700 mr-1" />
+							{{ course.lesson_count }}
+						</span>
 					</Tooltip>
 				</div>
 
 				<div v-if="course.enrollment_count">
-					<Tooltip
-						:text="__('Enrolled Students')"
-						class="flex items-center space-x-1 py-1"
-					>
-						<Users class="h-4 w-4 stroke-1.5 text-gray-700" />
-						<span> {{ course.enrollment_count }} </span>
+					<Tooltip :text="__('Enrolled Students')">
+						<span class="flex items-center">
+							<Users class="h-4 w-4 stroke-1.5 text-gray-700 mr-1" />
+							{{ course.enrollment_count }}
+						</span>
 					</Tooltip>
 				</div>
 
 				<div v-if="course.avg_rating">
-					<Tooltip
-						:text="__('Average Rating')"
-						class="flex items-center space-x-1 py-1"
-					>
-						<Star class="h-4 w-4 stroke-1.5 text-gray-700" />
-						<span> {{ course.avg_rating }} </span>
+					<Tooltip :text="__('Average Rating')">
+						<span class="flex items-center">
+							<Star class="h-4 w-4 stroke-1.5 text-gray-700 mr-1" />
+							{{ course.avg_rating }}
+						</span>
 					</Tooltip>
 				</div>
 

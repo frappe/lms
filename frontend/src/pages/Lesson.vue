@@ -230,6 +230,8 @@ const lesson = createResource({
 				name: data.membership.name,
 				lesson_name: data.name,
 			})
+		markProgress(data)
+
 		if (data.content) editor = renderEditor('editor', data.content)
 
 		if (data.instructor_content)
@@ -237,8 +239,6 @@ const lesson = createResource({
 				'instructor-content',
 				data.instructor_content
 			)
-
-		markProgress(data)
 	},
 })
 
@@ -253,9 +253,7 @@ const renderEditor = (holder, content) => {
 }
 
 const markProgress = (data) => {
-	setTimeout(() => {
-		if (!data.progress) progress.submit()
-	}, 60000)
+	if (!data.progress) progress.submit()
 }
 
 const current_lesson = createResource({

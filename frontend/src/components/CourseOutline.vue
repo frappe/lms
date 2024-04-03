@@ -65,6 +65,10 @@
 										class="h-4 w-4 text-gray-900 stroke-1 mr-2"
 									/>
 									{{ lesson.title }}
+									<Check
+										v-if="lesson.is_complete"
+										class="h-4 w-4 text-green-500 stroke-1.5 ml-2"
+									/>
 								</div>
 							</router-link>
 						</div>
@@ -108,6 +112,7 @@ import {
 	MonitorPlay,
 	HelpCircle,
 	FileText,
+	Check,
 } from 'lucide-vue-next'
 import { useRoute } from 'vue-router'
 import ChapterModal from '@/components/Modals/ChapterModal.vue'
