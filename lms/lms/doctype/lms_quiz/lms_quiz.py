@@ -103,9 +103,7 @@ def quiz_summary(quiz, results):
 			"passing_percentage": quiz_details.passing_percentage,
 		}
 	)
-	print(
-		percentage, quiz_details.passing_percentage, quiz_details.lesson, quiz_details.course
-	)
+
 	if (
 		percentage >= quiz_details.passing_percentage
 		and quiz_details.lesson
