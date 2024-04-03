@@ -14,8 +14,13 @@ from frappe.utils import (
 	format_datetime,
 	get_time,
 )
-from lms.lms.utils import get_lessons, get_lesson_index, get_lesson_url
-from lms.www.utils import get_quiz_details, get_assignment_details
+from lms.lms.utils import (
+	get_lessons,
+	get_lesson_index,
+	get_lesson_url,
+	get_quiz_details,
+	get_assignment_details,
+)
 from frappe.email.doctype.email_template.email_template import get_email_template
 
 
@@ -65,7 +70,10 @@ class LMSBatch(Document):
 
 	def send_confirmation_mail(self):
 		for student in self.students:
-			if not student.confirmation_email_sent:
+			outgoing_email_account = frappe.get_cached_value(
+				"Email Account", {"default_outgoing": 1, "enable_outgoing": 1}, "name"
+			)
+			if not student.confirmation_email_sent and outgoing_email_account:
 				self.send_mail(student)
 				student.confirmation_email_sent = 1
 

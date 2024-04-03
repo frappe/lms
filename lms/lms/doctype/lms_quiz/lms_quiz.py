@@ -6,7 +6,7 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.utils import cstr, comma_and
-from lms.lms.doctype.lms_question.lms_question import validate_correct_answers
+from lms.lms.doctype.course_lesson.course_lesson import save_progress
 from lms.lms.utils import (
 	generate_slug,
 	has_course_moderator_role,
@@ -86,7 +86,7 @@ def quiz_summary(quiz, results):
 		del result["question_index"]
 
 	quiz_details = frappe.db.get_value(
-		"LMS Quiz", quiz, ["total_marks", "passing_percentage"], as_dict=1
+		"LMS Quiz", quiz, ["total_marks", "passing_percentage", "lesson", "course"], as_dict=1
 	)
 	score_out_of = quiz_details.total_marks
 	percentage = (score / score_out_of) * 100
@@ -103,6 +103,14 @@ def quiz_summary(quiz, results):
 			"passing_percentage": quiz_details.passing_percentage,
 		}
 	)
+
+	if (
+		percentage >= quiz_details.passing_percentage
+		and quiz_details.lesson
+		and quiz_details.course
+	):
+		save_progress(quiz_details.lesson, quiz_details.course)
+
 	submission.save(ignore_permissions=True)
 
 	return {
@@ -259,7 +267,7 @@ def check_answer(question, type, answers):
 
 
 def check_choice_answers(question, answers):
-	fields = []
+	fields = ["multiple"]
 	is_correct = []
 	for num in range(1, 5):
 		fields.append(f"option_{cstr(num)}")
@@ -267,6 +275,15 @@ def check_choice_answers(question, answers):
 
 	question_details = frappe.db.get_value("LMS Question", question, fields, as_dict=1)
 
+	""" if question_details.multiple:
+		correct_answers = [ question_details[f"option_{num}"] for num in range(1,5) if question_details[f"is_correct_{num}"]]
+		print(answers)
+		for ans in correct_answers:
+			if ans not in answers:
+				is_correct.append(0)
+			else:
+				is_correct.append(1)
+	else: """
 	for num in range(1, 5):
 		if question_details[f"option_{num}"] in answers:
 			is_correct.append(question_details[f"is_correct_{num}"])

@@ -1,0 +1,38 @@
+{
+  "name": "frappe-ui-frontend",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "serve": "vite preview",
+    "build": "vite build --base=/assets/lms/frontend/ && yarn copy-html-entry",
+    "copy-html-entry": "cp ../lms/public/frontend/index.html ../lms/www/lms.html"
+  },
+  "dependencies": {
+    "@editorjs/checklist": "^1.6.0",
+    "@editorjs/editorjs": "^2.29.0",
+    "@editorjs/embed": "^2.7.0",
+    "@editorjs/header": "^2.8.1",
+    "@editorjs/image": "^2.9.0",
+    "@editorjs/nested-list": "^1.4.2",
+    "@editorjs/paragraph": "^2.11.3",
+    "chart.js": "^4.4.1",
+    "dayjs": "^1.11.6",
+    "feather-icons": "^4.28.0",
+    "frappe-ui": "^0.1.50",
+    "lucide-vue-next": "^0.309.0",
+    "markdown-it": "^14.0.0",
+    "pinia": "^2.0.33",
+    "socket.io-client": "^4.7.2",
+    "tailwindcss": "^3.3.3",
+    "vue": "^3.2.25",
+    "vue-chartjs": "^5.3.0",
+    "vue-router": "^4.0.12"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.3",
+    "autoprefixer": "^10.4.2",
+    "postcss": "^8.4.5",
+    "vite": "^5.0.11"
+  }
+}

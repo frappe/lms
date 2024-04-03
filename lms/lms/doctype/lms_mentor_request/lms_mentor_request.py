@@ -38,7 +38,7 @@ class LMSMentorRequest(Document):
 			email_template.response,
 			{
 				"member_name": frappe.db.get_value("User", frappe.session.user, "full_name"),
-				"course_url": "/courses/" + course_details.slug,
+				"course_url": "/lms/courses/" + course_details.slug,
 				"course": course_details.title,
 			},
 		)

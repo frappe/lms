@@ -87,17 +87,40 @@ class CourseLesson(Document):
 
 
 @frappe.whitelist()
-def save_progress(lesson, course, status):
+def save_progress(lesson, course):
 	membership = frappe.db.exists(
 		"LMS Enrollment", {"member": frappe.session.user, "course": course}
 	)
 	if not membership:
 		return 0
 
+	quiz_completed = get_quiz_progress(lesson)
+	if not quiz_completed:
+		return 0
+
+	if frappe.db.exists(
+		"LMS Course Progress", {"lesson": lesson, "member": frappe.session.user}
+	):
+		return 0
+
+	frappe.get_doc(
+		{
+			"doctype": "LMS Course Progress",
+			"lesson": lesson,
+			"status": "Complete",
+			"member": frappe.session.user,
+		}
+	).save(ignore_permissions=True)
+
+	progress = get_course_progress(course)
+	frappe.db.set_value("LMS Enrollment", membership, "progress", progress)
+	return progress
+
+
+def get_quiz_progress(lesson):
 	body = frappe.db.get_value("Course Lesson", lesson, "body")
 	macros = find_macros(body)
 	quizzes = [value for name, value in macros if name == "Quiz"]
-
 	for quiz in quizzes:
 		passing_percentage = frappe.db.get_value("LMS Quiz", quiz, "passing_percentage")
 		if not frappe.db.exists(
@@ -108,26 +131,8 @@ def save_progress(lesson, course, status):
 				"percentage": [">=", passing_percentage],
 			},
 		):
-			return 0
-
-	filters = {"lesson": lesson, "owner": frappe.session.user, "course": course}
-	if frappe.db.exists("LMS Course Progress", filters):
-		doc = frappe.get_doc("LMS Course Progress", filters)
-		doc.status = status
-		doc.save(ignore_permissions=True)
-	else:
-		frappe.get_doc(
-			{
-				"doctype": "LMS Course Progress",
-				"lesson": lesson,
-				"status": status,
-				"member": frappe.session.user,
-			}
-		).save(ignore_permissions=True)
-
-	progress = get_course_progress(course)
-	frappe.db.set_value("LMS Enrollment", membership, "progress", progress)
-	return progress
+			return False
+	return True
 
 
 @frappe.whitelist()

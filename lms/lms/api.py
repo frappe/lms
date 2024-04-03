@@ -2,6 +2,8 @@
 """
 
 import frappe
+from frappe.translate import get_all_translations
+from frappe import _
 
 
 @frappe.whitelist()
@@ -38,10 +40,7 @@ def save_current_lesson(course_name, lesson_name):
 	)
 	if not name:
 		return
-	doc = frappe.get_doc("LMS Enrollment", name)
-	doc.current_lesson = lesson_name
-	doc.save()
-	return {"current_lesson": doc.current_lesson}
+	frappe.db.set_value("LMS Enrollment", name, "current_lesson", lesson_name)
 
 
 @frappe.whitelist()
@@ -139,3 +138,143 @@ def add_mentor_to_subgroup(subgroup, email):
 
 	sg.add_mentor(email)
 	return {"ok": True}
+
+
+@frappe.whitelist(allow_guest=True)
+def get_user_info():
+	if frappe.session.user == "Guest":
+		return None
+
+	user = frappe.db.get_value(
+		"User",
+		frappe.session.user,
+		["name", "email", "enabled", "user_image", "full_name", "user_type"],
+		as_dict=1,
+	)
+	user["roles"] = frappe.get_roles(user.name)
+	user.is_instructor = "Course Creator" in user.roles
+	user.is_moderator = "Moderator" in user.roles
+	user.is_evaluator = "Batch Evaluator" in user.roles
+	return user
+
+
+@frappe.whitelist(allow_guest=True)
+def get_translations():
+	if frappe.session.user != "Guest":
+		language = frappe.db.get_value("User", frappe.session.user, "language")
+	else:
+		language = frappe.db.get_single_value("System Settings", "language")
+	return get_all_translations(language)
+
+
+@frappe.whitelist()
+def validate_billing_access(type, name):
+	access = True
+	message = ""
+	doctype = "LMS Course" if type == "course" else "LMS Batch"
+
+	if frappe.session.user == "Guest":
+		access = False
+		message = _("Please login to continue with payment.")
+
+	if type not in ["course", "batch"]:
+		access = False
+		message = _("Module is incorrect.")
+
+	if not frappe.db.exists(doctype, name):
+		access = False
+		message = _("Module Name is incorrect or does not exist.")
+
+	if type == "course":
+		membership = frappe.db.exists(
+			"LMS Enrollment", {"member": frappe.session.user, "course": name}
+		)
+		if membership:
+			access = False
+			message = _("You are already enrolled for this course.")
+
+	else:
+		membership = frappe.db.exists(
+			"Batch Student", {"student": frappe.session.user, "parent": name}
+		)
+		if membership:
+			access = False
+			message = _("You are already enrolled for this batch.")
+
+	address = frappe.db.get_value(
+		"Address",
+		{"email_id": frappe.session.user},
+		[
+			"name",
+			"address_title as billing_name",
+			"address_line1",
+			"address_line2",
+			"city",
+			"state",
+			"country",
+			"pincode",
+			"phone",
+		],
+		as_dict=1,
+	)
+
+	return {"access": access, "message": message, "address": address}
+
+
+@frappe.whitelist(allow_guest=True)
+def get_job_details(job):
+	return frappe.db.get_value(
+		"Job Opportunity",
+		job,
+		[
+			"job_title",
+			"location",
+			"type",
+			"company_name",
+			"company_logo",
+			"name",
+			"creation",
+			"description",
+			"owner",
+		],
+		as_dict=1,
+	)
+
+
+@frappe.whitelist(allow_guest=True)
+def get_job_opportunities():
+	jobs = frappe.get_all(
+		"Job Opportunity",
+		{"status": "Open", "disabled": False},
+		["job_title", "location", "type", "company_name", "company_logo", "name", "creation"],
+		order_by="creation desc",
+	)
+	return jobs
+
+
+@frappe.whitelist(allow_guest=True)
+def get_chart_details():
+	details = frappe._dict()
+	details.enrollments = frappe.db.count("LMS Enrollment")
+	details.courses = frappe.db.count(
+		"LMS Course",
+		{
+			"published": 1,
+			"upcoming": 0,
+		},
+	)
+	details.users = frappe.db.count("User", {"enabled": 1})
+	details.completions = frappe.db.count(
+		"LMS Enrollment", {"progress": ["like", "%100%"]}
+	)
+	details.lesson_completions = frappe.db.count("LMS Course Progress")
+	return details
+
+
+@frappe.whitelist()
+def get_file_info(file_url):
+	"""Get file info for the given file URL."""
+	file_info = frappe.db.get_value(
+		"File", {"file_url": file_url}, ["file_name", "file_size", "file_url"], as_dict=1
+	)
+	return file_info
