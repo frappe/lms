@@ -11,7 +11,12 @@
 						: 'hover:bg-gray-200 px-2 w-52'
 				"
 			>
-				<LMSLogo class="w-8 h-8 rounded flex-shrink-0" />
+				<span
+					v-if="branding.data?.brand_html"
+					v-html="branding.data?.brand_html"
+					class="w-8 h-8 rounded flex-shrink-0"
+				></span>
+				<LMSLogo v-else class="w-8 h-8 rounded flex-shrink-0" />
 				<div
 					class="flex flex-1 flex-col text-left duration-300 ease-in-out"
 					:class="
@@ -21,7 +26,10 @@
 					"
 				>
 					<div class="text-base font-medium text-gray-900 leading-none">
-						Learning
+						<span v-if="branding.data?.brand_name">
+							{{ branding.data?.brand_name }}
+						</span>
+						<span v-else> Learning </span>
 					</div>
 					<div v-if="user" class="mt-1 text-sm text-gray-700 leading-none">
 						{{ convertToTitleCase(user.split('@')[0]) }}
@@ -49,6 +57,7 @@ import { Dropdown } from 'frappe-ui'
 import { ChevronDown, LogIn, LogOut, User } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { convertToTitleCase } from '../utils'
+import { onMounted } from 'vue'
 
 const router = useRouter()
 const props = defineProps({
@@ -58,8 +67,9 @@ const props = defineProps({
 	},
 })
 
-const { logout, user } = sessionStore()
+const { logout, user, branding } = sessionStore()
 let { isLoggedIn } = sessionStore()
+
 const userDropdownOptions = [
 	/* {
 		icon: User,

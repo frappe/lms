@@ -114,7 +114,10 @@
 					</span>
 				</div>
 				<div
-					v-if="lesson.data.instructor_content && allowInstructorContent()"
+					v-if="
+						lesson.data.instructor_content.blocks?.length &&
+						allowInstructorContent()
+					"
 					class="bg-gray-100 p-3 rounded-md mt-6"
 				>
 					<div class="text-gray-600 font-medium">
@@ -233,8 +236,7 @@ const lesson = createResource({
 		markProgress(data)
 
 		if (data.content) editor = renderEditor('editor', data.content)
-
-		if (data.instructor_content)
+		if (data.instructor_content?.blocks?.length)
 			instructorEditor = renderEditor(
 				'instructor-content',
 				data.instructor_content
@@ -253,7 +255,8 @@ const renderEditor = (holder, content) => {
 }
 
 const markProgress = (data) => {
-	if (!data.progress) progress.submit()
+	console.log(user.data)
+	if (user.data && !data.progress) progress.submit()
 }
 
 const current_lesson = createResource({

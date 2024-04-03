@@ -15,11 +15,11 @@ export class Upload {
 	}
 
 	renderUpload(file) {
-		if (file.file_type == 'video') {
+		if (this.isVideo(file.file_type)) {
 			return `<video controls width='100%' controls controlsList='nodownload' class="mb-4">
 				<source src=${encodeURI(file.file_url)} type='video/mp4'>
 			</video>`
-		} else if (file.file_type == 'audio') {
+		} else if (this.isAudio(file.file_type)) {
 			return `<audio controls width='100%' controls controlsList='nodownload' class="mb-4">
 				<source src=${encodeURI(file.file_url)} type='audio/mp3'>
 			</audio>`
@@ -39,5 +39,13 @@ export class Upload {
 			file_url: this.data.file_url,
 			file_type: this.data.file_type,
 		}
+	}
+
+	isVideo(type) {
+		return ['mov', 'mp4', 'avi', 'mkv', 'webm'].includes(type.toLowerCase())
+	}
+
+	isAudio(type) {
+		return ['mp3', 'wav', 'ogg'].includes(type.toLowerCase())
 	}
 }

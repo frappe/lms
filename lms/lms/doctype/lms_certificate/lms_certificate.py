@@ -15,7 +15,11 @@ class LMSCertificate(Document):
 
 	def after_insert(self):
 		if not frappe.flags.in_test:
-			self.send_mail()
+			outgoing_email_account = frappe.get_cached_value(
+				"Email Account", {"default_outgoing": 1, "enable_outgoing": 1}, "name"
+			)
+			if outgoing_email_account:
+				self.send_mail()
 
 	def send_mail(self):
 		subject = _("Congratulations on getting certified!")
