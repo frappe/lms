@@ -187,14 +187,16 @@ import {
 	FormControl,
 	FileUploader,
 } from 'frappe-ui'
-import { inject, onMounted, computed, ref, reactive } from 'vue'
+import { inject, onMounted, computed, ref, reactive, watch } from 'vue'
 import { convertToTitleCase, showToast, getFileSize } from '../utils'
 import Link from '@/components/Controls/Link.vue'
 import { FileText, X } from 'lucide-vue-next'
+import { useRouter } from 'vue-router'
 import CourseOutline from '@/components/CourseOutline.vue'
 
 const user = inject('$user')
 const newTag = ref('')
+const router = useRouter()
 
 const props = defineProps({
 	courseName: {
@@ -318,8 +320,12 @@ const submitCourse = () => {
 		)
 	} else {
 		courseCreationResource.submit(course, {
-			onSuccess() {
+			onSuccess(data) {
 				showToast('Success', 'Course created successfully', 'check')
+				router.push({
+					name: 'CreateCourse',
+					params: { courseName: data.name },
+				})
 			},
 			onError(err) {
 				showToast(err)
@@ -346,6 +352,15 @@ const validateMandatoryFields = () => {
 		return 'Course price and currency are mandatory for paid courses'
 	}
 }
+
+watch(
+	() => props.courseName !== 'new',
+	(newVal) => {
+		if (newVal) {
+			courseResource.reload()
+		}
+	}
+)
 
 const validateFile = (file) => {
 	let extension = file.name.split('.').pop().toLowerCase()

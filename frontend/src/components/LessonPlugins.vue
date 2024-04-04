@@ -97,10 +97,6 @@ const addFile = (data) => {
 	getCurrentEditor().blocks.insert('upload', data)
 }
 
-const getBlocksCount = () => {
-	return getCurrentEditor().blocks.getBlocksCount
-}
-
 const validateFile = (file) => {
 	let extension = file.name.split('.').pop().toLowerCase()
 	if (!['jpg', 'jpeg', 'png', 'mp4', 'mov', 'mp3'].includes(extension)) {

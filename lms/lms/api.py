@@ -278,3 +278,13 @@ def get_file_info(file_url):
 		"File", {"file_url": file_url}, ["file_name", "file_size", "file_url"], as_dict=1
 	)
 	return file_info
+
+
+@frappe.whitelist(allow_guest=True)
+def get_branding():
+	"""Get branding details."""
+	return {
+		"brand_name": frappe.db.get_single_value("Website Settings", "app_name"),
+		"brand_html": frappe.db.get_single_value("Website Settings", "brand_html"),
+		"favicon": frappe.db.get_single_value("Website Settings", "favicon"),
+	}

@@ -18,7 +18,9 @@
 			</div>
 		</div>
 		<SidebarLink
-			:label="isSidebarCollapsed ? 'Expand' : 'Collapse'"
+			:link="{
+				label: isSidebarCollapsed ? 'Expand' : 'Collapse',
+			}"
 			:isCollapsed="isSidebarCollapsed"
 			@click="isSidebarCollapsed = !isSidebarCollapsed"
 			class="m-2"
