@@ -17,7 +17,7 @@ app_license = "AGPL"
 # app_include_js = "/assets/lms/js/lms.js"
 
 # include js, css files in header of web template
-# web_include_css = "lms.bundle.css"
+web_include_css = "lms.bundle.css"
 # web_include_css = "/assets/lms/css/lms.css"
 web_include_js = ["website.bundle.js"]
 
