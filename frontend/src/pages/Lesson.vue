@@ -115,7 +115,7 @@
 				</div>
 				<div
 					v-if="
-						lesson.data.instructor_content.blocks?.length &&
+						lesson.data.instructor_content?.blocks?.length &&
 						allowInstructorContent()
 					"
 					class="bg-gray-100 p-3 rounded-md mt-6"
@@ -255,7 +255,6 @@ const renderEditor = (holder, content) => {
 }
 
 const markProgress = (data) => {
-	console.log(user.data)
 	if (user.data && !data.progress) progress.submit()
 }
 
