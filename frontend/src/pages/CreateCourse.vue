@@ -3,10 +3,10 @@
 		<div class="grid md:grid-cols-[70%,30%] h-full">
 			<div>
 				<header
-					class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
+					class="sticky top-0 z-10 flex flex-col md:flex-row md:items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
 				>
 					<Breadcrumbs class="h-7" :items="breadcrumbs" />
-					<div class="flex items-center">
+					<div class="flex items-center mt-3 md:mt-0">
 						<router-link
 							v-if="courseResource.data"
 							:to="{
