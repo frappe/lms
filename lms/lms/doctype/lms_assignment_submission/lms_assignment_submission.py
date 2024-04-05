@@ -11,10 +11,15 @@ from frappe.email.doctype.email_template.email_template import get_email_templat
 class LMSAssignmentSubmission(Document):
 	def validate(self):
 		self.validate_duplicates()
+		self.validate_url()
 
 	def after_insert(self):
 		if not frappe.flags.in_test:
-			self.send_mail()
+			outgoing_email_account = frappe.get_cached_value(
+				"Email Account", {"default_outgoing": 1, "enable_outgoing": 1}, "name"
+			)
+			if outgoing_email_account:
+				self.send_mail()
 
 	def validate_duplicates(self):
 		if frappe.db.exists(
@@ -27,6 +32,10 @@ class LMSAssignmentSubmission(Document):
 					lesson_title, self.member_name
 				)
 			)
+
+	def validate_url(self):
+		if self.type == "URL" and not validate_url(self.answer):
+			frappe.throw(_("Please enter a valid URL."))
 
 	def send_mail(self):
 		subject = _("New Assignment Submission")

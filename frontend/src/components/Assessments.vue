@@ -8,7 +8,29 @@
 				:columns="getAssessmentColumns()"
 				:rows="assessments.data"
 				row-key="name"
-				:options="{ selectable: false, showTooltip: false }"
+				:options="{
+					selectable: false,
+					showTooltip: false,
+					getRowRoute: (row) => {
+						if (row.submission) {
+							return {
+								name: 'AssignmentSubmission',
+								params: {
+									assignmentName: row.assessment_name,
+									submissionName: row.submission.name,
+								},
+							}
+						} else {
+							return {
+								name: 'AssignmentSubmission',
+								params: {
+									assignmentName: row.assessment_name,
+									submissionName: 'new',
+								},
+							}
+						}
+					},
+				}"
 			>
 			</ListView>
 		</div>

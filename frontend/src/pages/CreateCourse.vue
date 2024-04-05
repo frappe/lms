@@ -221,7 +221,7 @@ const course = reactive({
 
 onMounted(() => {
 	if (!user.data?.is_moderator || !user.data?.is_instructor) {
-		window.location.href = '/login'
+		router.push({ name: 'Courses' })
 	}
 	if (props.courseName !== 'new') {
 		courseResource.reload()
