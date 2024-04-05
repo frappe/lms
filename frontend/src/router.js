@@ -96,6 +96,12 @@ const routes = [
 		component: () => import('@/pages/JobCreation.vue'),
 		props: true,
 	},
+	{
+		path: '/assignment-submission/:assignmentName/:submissionName',
+		name: 'AssignmentSubmission',
+		component: () => import('@/pages/AssignmentSubmission.vue'),
+		props: true,
+	},
 ]
 
 let router = createRouter({
