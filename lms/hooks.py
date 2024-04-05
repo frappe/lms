@@ -136,13 +136,17 @@ override_whitelisted_methods = {
 # Add all simple route rules here
 website_route_rules = [
 	{"from_route": "/lms/<path:app_path>", "to_route": "lms"},
+	{
+		"from_route": "/courses/<course_name>/<certificate_id>",
+		"to_route": "certificate",
+	},
 ]
 
 website_redirects = [
 	{"source": "/update-profile", "target": "/edit-profile"},
 	{"source": "/courses", "target": "/lms/courses"},
 	{
-		"source": r"/courses/(.*)",
+		"source": r"/courses/([^/]*)",
 		"target": "/lms/courses",
 		"match_with_query_string": True,
 	},

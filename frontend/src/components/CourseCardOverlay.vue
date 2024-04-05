@@ -3,7 +3,7 @@
 		<iframe
 			v-if="course.data.video_link"
 			:src="video_link"
-			class="rounded-t-md min-h-56 min-w-80"
+			class="rounded-t-md min-h-56 w-full"
 		/>
 		<div class="p-5">
 			<div v-if="course.data.price" class="text-2xl font-semibold mb-3">

@@ -11,7 +11,7 @@
 		<div v-if="showTopics" v-for="(topic, index) in topics.data">
 			<div
 				@click="showReplies(topic)"
-				class="flex items-center cursor-pointer py-5"
+				class="flex items-center cursor-pointer py-5 w-full"
 				:class="{ 'border-b': index + 1 != topics.data.length }"
 			>
 				<UserAvatar :user="topic.user" size="2xl" class="mr-4" />
@@ -23,7 +23,7 @@
 						<span>
 							{{ topic.user.full_name }}
 						</span>
-						<span class="text-sm ml-2">
+						<span class="text-sm ml-3">
 							{{ timeAgo(topic.creation) }}
 						</span>
 					</div>

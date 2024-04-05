@@ -31,7 +31,11 @@
 			>
 				{{ __('Loading Batches...') }}
 			</div>
-			<Tabs v-model="tabIndex" :tabs="tabs" tablistClass="overflow-x-visible">
+			<Tabs
+				v-model="tabIndex"
+				:tabs="tabs"
+				tablistClass="overflow-x-visible flex-wrap !gap-3 md:flex-nowrap"
+			>
 				<template #tab="{ tab, selected }">
 					<div>
 						<button

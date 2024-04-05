@@ -1,12 +1,12 @@
 <template>
 	<div class="">
-		<div class="grid grid-cols-[75%,25%] h-full">
+		<div class="grid md:grid-cols-[75%,25%] h-full">
 			<div class="border-r">
 				<header
-					class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
+					class="sticky top-0 z-10 flex flex-col md:flex-row md:items-center justify-between border-b overflow-hidden bg-white px-3 py-2.5 sm:px-5"
 				>
-					<Breadcrumbs :items="breadcrumbs" />
-					<Button variant="solid" @click="saveLesson()">
+					<Breadcrumbs class="text-ellipsis" :items="breadcrumbs" />
+					<Button variant="solid" @click="saveLesson()" class="mt-3 md:mt-0">
 						{{ __('Save') }}
 					</Button>
 				</header>

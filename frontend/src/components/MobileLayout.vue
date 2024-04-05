@@ -1,13 +1,13 @@
 <template>
 	<div class="flex h-full flex-col">
-		<div class="h-full" id="scrollContainer">
+		<div class="h-full pb-10" id="scrollContainer">
 			<slot />
 		</div>
 		<div
 			v-if="tabs"
-			class="grid grid-cols-5 border-t border-gray-300 sticky bottom-0 z-10 bg-white standalone:pb-4"
+			class="fixed flex justify-around border-t border-gray-300 bottom-0 z-10 w-full bg-white standalone:pb-4"
 			:style="{
-				gridTemplateColumns: `repeat(${tabs.length - 1}, minmax(0, 1fr))`,
+				gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))`,
 			}"
 		>
 			<button
@@ -19,7 +19,7 @@
 			>
 				<component
 					:is="tab.icon"
-					class="h-7 w-7 stroke-1.5"
+					class="h-6 w-6 stroke-1.5"
 					:class="[isActive(tab) ? 'text-gray-900' : 'text-gray-600']"
 				/>
 			</button>
