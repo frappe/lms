@@ -56,7 +56,7 @@ def get_meta(app_path):
 			"link": "/batches",
 		}
 
-	if re.match(r"^batches/.*$", app_path):
+	if re.match(r"^/batches/details/.*$", app_path):
 		batch_name = app_path.split("/")[2]
 		batch = frappe.db.get_value(
 			"LMS Batch",
