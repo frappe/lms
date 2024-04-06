@@ -27,7 +27,7 @@
 					</div>
 					<DatePicker v-model="evaluation.date" />
 				</div>
-				<div v-if="slots.data.length">
+				<div v-if="slots.data?.length">
 					<div class="mb-1.5 text-sm text-gray-600">
 						{{ __('Select a slot') }}
 					</div>
