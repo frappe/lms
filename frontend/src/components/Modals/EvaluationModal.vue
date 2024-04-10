@@ -46,7 +46,10 @@
 						</div>
 					</div>
 				</div>
-				<div v-else class="text-sm italic text-red-600">
+				<div
+					v-else-if="evaluation.course && evaluation.date"
+					class="text-sm italic text-red-600"
+				>
 					{{ __('No slots available for this date.') }}
 				</div>
 			</div>

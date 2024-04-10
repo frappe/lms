@@ -56,10 +56,28 @@ const routes = [
 		component: () => import('@/pages/Statistics.vue'),
 	},
 	{
-		path: '/user/:userName',
+		path: '/user/:username',
 		name: 'Profile',
 		component: () => import('@/pages/Profile.vue'),
 		props: true,
+		redirect: { name: 'ProfileAbout' },
+		children: [
+			{
+				name: 'ProfileAbout',
+				path: '',
+				component: () => import('@/pages/ProfileAbout.vue'),
+			},
+			{
+				name: 'ProfileCertificates',
+				path: 'certificates',
+				component: () => import('@/pages/ProfileCertificates.vue'),
+			},
+			{
+				name: 'ProfileSettings',
+				path: 'settings',
+				component: () => import('@/pages/ProfileSettings.vue'),
+			},
+		],
 	},
 	{
 		path: '/job-openings',

@@ -85,6 +85,17 @@ export function showToast(title, text, icon) {
 	})
 }
 
+export function getImgDimensions(imgSrc) {
+	return new Promise((resolve) => {
+		let img = new Image()
+		img.onload = function () {
+			let { width, height } = img
+			resolve({ width, height, ratio: width / height })
+		}
+		img.src = imgSrc
+	})
+}
+
 export function updateDocumentTitle(meta) {
 	watch(
 		() => meta,
