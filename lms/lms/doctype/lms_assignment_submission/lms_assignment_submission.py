@@ -18,7 +18,7 @@ class LMSAssignmentSubmission(Document):
 			outgoing_email_account = frappe.get_cached_value(
 				"Email Account", {"default_outgoing": 1, "enable_outgoing": 1}, "name"
 			)
-			if outgoing_email_account:
+			if outgoing_email_account or frappe.conf.get("mail_login"):
 				self.send_mail()
 
 	def validate_duplicates(self):
