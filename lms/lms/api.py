@@ -148,7 +148,7 @@ def get_user_info():
 	user = frappe.db.get_value(
 		"User",
 		frappe.session.user,
-		["name", "email", "enabled", "user_image", "full_name", "user_type"],
+		["name", "email", "enabled", "user_image", "full_name", "user_type", "username"],
 		as_dict=1,
 	)
 	user["roles"] = frappe.get_roles(user.name)
@@ -288,3 +288,13 @@ def get_branding():
 		"brand_html": frappe.db.get_single_value("Website Settings", "brand_html"),
 		"favicon": frappe.db.get_single_value("Website Settings", "favicon"),
 	}
+
+
+@frappe.whitelist()
+def get_unsplash_photos(keyword=None):
+	from lms.unsplash import get_list, get_by_keyword
+
+	if keyword:
+		return get_by_keyword(keyword)
+
+	return frappe.cache().get_value("unsplash_photos", generator=get_list)
