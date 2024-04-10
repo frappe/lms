@@ -3,12 +3,21 @@
 		{{ __('Components') }}
 	</div>
 	<div class="mt-5">
-		<div class="">
-			<div class="text-xs text-gray-600 mb-1">
-				{{ __('Select an Editor') }}
+		<Tooltip
+			:text="
+				__(
+					'Content such as quiz, video and image will be added in the editor you select.'
+				)
+			"
+			placement="bottom"
+		>
+			<div class="">
+				<div class="text-xs text-gray-600 mb-1">
+					{{ __('Select an Editor') }}
+				</div>
+				<Select v-model="currentEditor" :options="getEditorOptions()" />
 			</div>
-			<Select v-model="currentEditor" :options="getEditorOptions()" />
-		</div>
+		</Tooltip>
 		<div class="flex mt-4">
 			<Link
 				v-model="quiz"
@@ -63,7 +72,7 @@
 </template>
 <script setup>
 import Link from '@/components/Controls/Link.vue'
-import { FileUploader, Button, Select } from 'frappe-ui'
+import { FileUploader, Button, Select, Tooltip } from 'frappe-ui'
 import { Plus, FileText } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
 
