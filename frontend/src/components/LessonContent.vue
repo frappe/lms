@@ -54,7 +54,6 @@
 		</div>
 		<div v-else v-html="markdown.render(block)"></div>
 	</div>
-	{{ quizId }}
 	<div v-if="quizId">
 		<Quiz :quiz="quizId" />
 	</div>
