@@ -27,7 +27,7 @@
 			<div v-if="quiz.doc.time" class="leading-relaxed">
 				{{
 					__(
-						'The quiz has a time limit.For each question you will be given { 0} seconds.'
+						'The quiz has a time limit.For each question you will be given {0} seconds.'
 					).format(quiz.doc.time)
 				}}
 			</div>

@@ -2,7 +2,7 @@
 	<div v-if="youtube">
 		<iframe
 			class="youtube-video"
-			:src="getYouTubeVideoSource(youtube)"
+			:src="getYouTubeVideoSource(youtube.split('/').pop())"
 			width="100%"
 			height="400"
 			frameborder="0"
@@ -54,6 +54,7 @@
 		</div>
 		<div v-else v-html="markdown.render(block)"></div>
 	</div>
+	{{ quizId }}
 	<div v-if="quizId">
 		<Quiz :quiz="quizId" />
 	</div>

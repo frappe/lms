@@ -1769,6 +1769,8 @@ def get_lesson_creation_details(course, chapter, lesson):
 				"content",
 				"instructor_notes",
 				"instructor_content",
+				"youtube",
+				"quiz_id",
 			],
 			as_dict=1,
 		)
