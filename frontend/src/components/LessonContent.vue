@@ -2,7 +2,7 @@
 	<div v-if="youtube">
 		<iframe
 			class="youtube-video"
-			:src="getYouTubeVideoSource(youtube)"
+			:src="getYouTubeVideoSource(youtube.split('/').pop())"
 			width="100%"
 			height="400"
 			frameborder="0"

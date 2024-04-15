@@ -58,7 +58,7 @@
 				</div>
 			</div>
 
-			<div class="text-xl font-semibold">
+			<div class="text-xl font-semibold leading-6">
 				{{ course.title }}
 			</div>
 
