@@ -245,6 +245,8 @@ const lesson = createResource({
 })
 
 const renderEditor = (holder, content) => {
+	// empty the holder
+	document.getElementById(holder).innerHTML = ''
 	return new EditorJS({
 		holder: holder,
 		tools: getEditorTools(),
