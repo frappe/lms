@@ -1,46 +1,46 @@
 <template>
-	<div v-if="quiz.doc">
+	<div v-if="quiz.data">
 		<div class="bg-blue-100 py-2 px-2 mb-4 rounded-md text-sm text-blue-800">
 			<div class="leading-relaxed">
 				{{
 					__('This quiz consists of {0} questions.').format(
-						quiz.doc.questions.length
+						quiz.data.questions.length
 					)
 				}}
 			</div>
-			<div v-if="quiz.doc.passing_percentage" class="leading-relaxed">
+			<div v-if="quiz.data.passing_percentage" class="leading-relaxed">
 				{{
 					__(
 						'You will have to get {0}% correct answers in order to pass the quiz.'
-					).format(quiz.doc.passing_percentage)
+					).format(quiz.data.passing_percentage)
 				}}
 			</div>
-			<div v-if="quiz.doc.max_attempts" class="leading-relaxed">
+			<div v-if="quiz.data.max_attempts" class="leading-relaxed">
 				{{
 					__('You can attempt this quiz {0}.').format(
-						quiz.doc.max_attempts == 1
+						quiz.data.max_attempts == 1
 							? '1 time'
-							: `${quiz.doc.max_attempts} times`
+							: `${quiz.data.max_attempts} times`
 					)
 				}}
 			</div>
-			<div v-if="quiz.doc.time" class="leading-relaxed">
+			<div v-if="quiz.data.time" class="leading-relaxed">
 				{{
 					__(
-						'The quiz has a time limit.For each question you will be given { 0} seconds.'
-					).format(quiz.doc.time)
+						'The quiz has a time limit. For each question you will be given {0} seconds.'
+					).format(quiz.data.time)
 				}}
 			</div>
 		</div>
 		<div v-if="activeQuestion == 0">
 			<div class="border text-center p-20 rounded-md">
 				<div class="font-semibold text-lg">
-					{{ quiz.doc.title }}
+					{{ quiz.data.title }}
 				</div>
 				<Button
 					v-if="
-						!quiz.doc.max_attempts ||
-						attempts.data?.length < quiz.doc.max_attempts
+						!quiz.data.max_attempts ||
+						attempts.data?.length < quiz.data.max_attempts
 					"
 					@click="startQuiz"
 					class="mt-2"
@@ -59,7 +59,7 @@
 			</div>
 		</div>
 		<div v-else-if="!quizSubmission.data">
-			<div v-for="(question, qtidx) in quiz.doc.questions">
+			<div v-for="(question, qtidx) in quiz.data.questions">
 				<div
 					v-if="qtidx == activeQuestion - 1 && questionDetails.data"
 					class="border rounded-md p-5"
@@ -107,7 +107,7 @@
 							/>
 
 							<div
-								v-else-if="quiz.doc.show_answers"
+								v-else-if="quiz.data.show_answers"
 								v-for="(answer, idx) in showAnswers"
 							>
 								<div v-if="index - 1 == idx">
@@ -139,12 +139,12 @@
 							{{
 								__('Question {0} of {1}').format(
 									activeQuestion,
-									quiz.doc.questions.length
+									quiz.data.questions.length
 								)
 							}}
 						</div>
 						<Button
-							v-if="quiz.doc.show_answers && !showAnswers.length"
+							v-if="quiz.data.show_answers && !showAnswers.length"
 							@click="checkAnswer()"
 						>
 							<span>
@@ -152,7 +152,7 @@
 							</span>
 						</Button>
 						<Button
-							v-else-if="activeQuestion != quiz.doc.questions.length"
+							v-else-if="activeQuestion != quiz.data.questions.length"
 							@click="nextQuetion()"
 						>
 							<span>
@@ -187,8 +187,8 @@
 				@click="resetQuiz()"
 				class="mt-2"
 				v-if="
-					!quiz.doc.max_attempts ||
-					attempts?.data.length < quiz.doc.max_attempts
+					!quiz.data.max_attempts ||
+					attempts?.data.length < quiz.data.max_attempts
 				"
 			>
 				<span>
@@ -197,7 +197,7 @@
 			</Button>
 		</div>
 		<div
-			v-if="quiz.doc.show_submission_history && attempts?.data"
+			v-if="quiz.data.show_submission_history && attempts?.data"
 			class="mt-10"
 		>
 			<ListView
@@ -235,11 +235,20 @@ const props = defineProps({
 	},
 })
 
-const quiz = createDocumentResource({
-	doctype: 'LMS Quiz',
-	name: props.quizName,
+const quiz = createResource({
+	url: 'frappe.client.get',
+	makeParams(values) {
+		return {
+			doctype: 'LMS Quiz',
+			name: props.quizName,
+		}
+	},
 	cache: ['quiz', props.quizName],
 	auto: true,
+	onSuccess(data) {
+		attempts.reload()
+		resetQuiz()
+	},
 })
 
 const attempts = createResource({
@@ -249,7 +258,7 @@ const attempts = createResource({
 			doctype: 'LMS Quiz Submission',
 			filters: {
 				member: user.data?.name,
-				quiz: quiz.doc?.name,
+				quiz: quiz.data?.name,
 			},
 			fields: [
 				'name',
@@ -262,7 +271,6 @@ const attempts = createResource({
 			order_by: 'creation desc',
 		}
 	},
-	auto: true,
 	transform(data) {
 		data.forEach((submission, index) => {
 			submission.creation = timeAgo(submission.creation)
@@ -275,8 +283,8 @@ const quizSubmission = createResource({
 	url: 'lms.lms.doctype.lms_quiz.lms_quiz.quiz_summary',
 	makeParams(values) {
 		return {
-			quiz: quiz.doc.name,
-			results: localStorage.getItem(quiz.doc.title),
+			quiz: quiz.data.name,
+			results: localStorage.getItem(quiz.data.title),
 		}
 	},
 })
@@ -292,14 +300,24 @@ const questionDetails = createResource({
 
 watch(activeQuestion, (value) => {
 	if (value > 0) {
-		currentQuestion.value = quiz.doc.questions[value - 1].question
+		currentQuestion.value = quiz.data.questions[value - 1].question
 		questionDetails.reload()
 	}
 })
 
+watch(
+	() => props.quizName,
+	(newName) => {
+		console.log(newName)
+		if (newName) {
+			quiz.reload()
+		}
+	}
+)
+
 const startQuiz = () => {
 	activeQuestion.value = 1
-	localStorage.removeItem(quiz.doc.title)
+	localStorage.removeItem(quiz.data.title)
 }
 
 const markAnswer = (index) => {
@@ -347,7 +365,7 @@ const checkAnswer = () => {
 				}
 			})
 			addToLocalStorage()
-			if (!quiz.doc.show_answers) {
+			if (!quiz.data.show_answers) {
 				resetQuestion()
 			}
 		},
@@ -355,7 +373,7 @@ const checkAnswer = () => {
 }
 
 const addToLocalStorage = () => {
-	let quizData = JSON.parse(localStorage.getItem(quiz.doc.title))
+	let quizData = JSON.parse(localStorage.getItem(quiz.data.title))
 	let questionData = {
 		question_index: activeQuestion.value,
 		answers: getAnswers().join(),
@@ -364,11 +382,11 @@ const addToLocalStorage = () => {
 		}),
 	}
 	quizData ? quizData.push(questionData) : (quizData = [questionData])
-	localStorage.setItem(quiz.doc.title, JSON.stringify(quizData))
+	localStorage.setItem(quiz.data.title, JSON.stringify(quizData))
 }
 
 const nextQuetion = () => {
-	if (!quiz.doc.show_answers) {
+	if (!quiz.data.show_answers) {
 		checkAnswer()
 	} else {
 		resetQuestion()
@@ -376,14 +394,14 @@ const nextQuetion = () => {
 }
 
 const resetQuestion = () => {
-	if (activeQuestion.value == quiz.doc.questions.length) return
+	if (activeQuestion.value == quiz.data.questions.length) return
 	activeQuestion.value = activeQuestion.value + 1
 	selectedOptions.splice(0, selectedOptions.length, ...[0, 0, 0, 0])
 	showAnswers.length = 0
 }
 
 const submitQuiz = () => {
-	if (!quiz.doc.show_answers) {
+	if (!quiz.data.show_answers) {
 		checkAnswer()
 		setTimeout(() => {
 			createSubmission()

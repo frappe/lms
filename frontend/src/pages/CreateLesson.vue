@@ -208,6 +208,16 @@ const lessonReference = createResource({
 
 const convertToJSON = (lessonData) => {
 	let blocks = []
+	if (lessonData.youtube) {
+		let youtubeID = lessonData.youtube.split('/').pop()
+		blocks.push({
+			type: 'embed',
+			data: {
+				service: 'youtube',
+				embed: `https://www.youtube.com/embed/${youtubeID}`,
+			},
+		})
+	}
 	lessonData.body.split('\n').forEach((block) => {
 		if (block.includes('{{ YouTubeVideo')) {
 			let youtubeID = block.match(/\(["']([^"']+?)["']\)/)[1]
@@ -291,6 +301,16 @@ const convertToJSON = (lessonData) => {
 			})
 		}
 	})
+
+	if (lessonData.quizId) {
+		blocks.push({
+			type: 'quiz',
+			data: {
+				quiz: lessonData.quizId,
+			},
+		})
+	}
+
 	return blocks
 }
 
