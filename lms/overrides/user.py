@@ -356,6 +356,7 @@ def get_users(or_filters, start, page_length):
 
 @frappe.whitelist()
 def save_role(user, role, value):
+	frappe.only_for("Moderator")
 	if cint(value):
 		doc = frappe.get_doc(
 			{

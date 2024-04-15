@@ -77,6 +77,11 @@ const routes = [
 				path: 'settings',
 				component: () => import('@/pages/ProfileSettings.vue'),
 			},
+			{
+				name: 'ProfileEvaluator',
+				path: 'evaluator',
+				component: () => import('@/pages/ProfileEvaluator.vue'),
+			},
 		],
 	},
 	{

@@ -27,7 +27,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-07-13 11:30:22.641076",
+ "modified": "2024-04-15 11:21:52.182338",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Course Evaluator",
@@ -66,7 +66,7 @@
    "print": 1,
    "read": 1,
    "report": 1,
-   "role": "Class Evaluator",
+   "role": "Batch Evaluator",
    "share": 1,
    "write": 1
   }

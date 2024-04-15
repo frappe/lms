@@ -577,7 +577,15 @@ def has_course_moderator_role(member=None):
 def has_course_evaluator_role(member=None):
 	return frappe.db.get_value(
 		"Has Role",
-		{"parent": member or frappe.session.user, "role": "Class Evaluator"},
+		{"parent": member or frappe.session.user, "role": "Batch Evaluator"},
+		"name",
+	)
+
+
+def has_student_role(member=None):
+	return frappe.db.get_value(
+		"Has Role",
+		{"parent": member or frappe.session.user, "role": "LMS Student"},
 		"name",
 	)
 
@@ -1779,4 +1787,15 @@ def get_lesson_creation_details(course, chapter, lesson):
 			"Course Chapter", chapter_name, ["title", "name"], as_dict=True
 		),
 		"lesson": lesson_details if lesson_name else None,
+	}
+
+
+@frappe.whitelist()
+def get_roles(name):
+	frappe.only_for("Moderator")
+	return {
+		"moderator": has_course_moderator_role(name),
+		"course_creator": has_course_instructor_role(name),
+		"class_evaluator": has_course_evaluator_role(name),
+		"lms_student": has_student_role(name),
 	}
