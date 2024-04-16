@@ -8,7 +8,11 @@
  "engine": "InnoDB",
  "field_order": [
   "evaluator",
-  "schedule"
+  "schedule",
+  "unavailability_section",
+  "unavailable_from",
+  "column_break_ahzi",
+  "unavailable_to"
  ],
  "fields": [
   {
@@ -23,11 +27,30 @@
    "fieldtype": "Table",
    "label": "Schedule",
    "options": "Evaluator Schedule"
+  },
+  {
+   "fieldname": "unavailability_section",
+   "fieldtype": "Section Break",
+   "label": "Unavailability"
+  },
+  {
+   "fieldname": "column_break_ahzi",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "unavailable_from",
+   "fieldtype": "Date",
+   "label": "From"
+  },
+  {
+   "fieldname": "unavailable_to",
+   "fieldtype": "Date",
+   "label": "To"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-04-15 11:21:52.182338",
+ "modified": "2024-04-15 18:45:08.614466",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Course Evaluator",

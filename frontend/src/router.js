@@ -73,13 +73,13 @@ const routes = [
 				component: () => import('@/pages/ProfileCertificates.vue'),
 			},
 			{
-				name: 'ProfileSettings',
-				path: 'settings',
-				component: () => import('@/pages/ProfileSettings.vue'),
+				name: 'ProfileRoles',
+				path: 'roles',
+				component: () => import('@/pages/ProfileRoles.vue'),
 			},
 			{
 				name: 'ProfileEvaluator',
-				path: 'evaluator',
+				path: 'evaluations',
 				component: () => import('@/pages/ProfileEvaluator.vue'),
 			},
 		],

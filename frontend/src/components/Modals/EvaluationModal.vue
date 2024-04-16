@@ -25,7 +25,7 @@
 					<div class="mb-1.5 text-sm text-gray-600">
 						{{ __('Date') }}
 					</div>
-					<DatePicker v-model="evaluation.date" />
+					<FormControl type="date" v-model="evaluation.date" />
 				</div>
 				<div v-if="slots.data?.length">
 					<div class="mb-1.5 text-sm text-gray-600">
@@ -57,7 +57,7 @@
 	</Dialog>
 </template>
 <script setup>
-import { Dialog, createResource, Select, DatePicker } from 'frappe-ui'
+import { Dialog, createResource, Select, FormControl } from 'frappe-ui'
 import { defineModel, reactive, watch, inject } from 'vue'
 import { createToast, formatTime } from '@/utils/'
 
@@ -168,7 +168,7 @@ watch(
 	() => evaluation.date,
 	(date) => {
 		evaluation.start_time = ''
-		if (date) {
+		if (date && evaluation.course) {
 			slots.submit(evaluation)
 		}
 	}

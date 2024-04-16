@@ -116,7 +116,7 @@ const profile = createResource({
 
 const setActiveTab = () => {
 	let fragments = route.path.split('/')
-	let sections = ['certificates', 'settings', 'evaluator']
+	let sections = ['certificates', 'roles', 'evaluations']
 	sections.forEach((section) => {
 		if (fragments.includes(section)) {
 			activeTab.value = convertToTitleCase(section)
@@ -130,8 +130,8 @@ watchEffect(() => {
 		let route = {
 			About: { name: 'ProfileAbout' },
 			Certificates: { name: 'ProfileCertificates' },
-			Settings: { name: 'ProfileSettings' },
-			Evaluato: { name: 'ProfileEvaluator' },
+			Roles: { name: 'ProfileRoles' },
+			Evaluations: { name: 'ProfileEvaluator' },
 		}[activeTab.value]
 		router.push(route)
 	}
@@ -147,9 +147,9 @@ const isSessionUser = () => {
 
 const getTabButtons = () => {
 	let buttons = [{ label: 'About' }, { label: 'Certificates' }]
-	if ($user.data?.is_moderator) buttons.push({ label: 'Settings' })
+	if ($user.data?.is_moderator) buttons.push({ label: 'Roles' })
 	if (isSessionUser() && $user.data?.is_evaluator)
-		buttons.push({ label: 'Evaluation Slots' })
+		buttons.push({ label: 'Evaluations' })
 
 	return buttons
 }

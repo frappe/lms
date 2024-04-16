@@ -9,7 +9,7 @@
 				:key="certificate.name"
 				class="bg-white shadow rounded-lg p-3 cursor-pointer"
 			>
-				<div class="font-medium">
+				<div class="font-medium leading-5">
 					{{ certificate.course_title }}
 				</div>
 				<div class="mt-2">

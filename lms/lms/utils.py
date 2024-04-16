@@ -1798,6 +1798,6 @@ def get_roles(name):
 	return {
 		"moderator": has_course_moderator_role(name),
 		"course_creator": has_course_instructor_role(name),
-		"class_evaluator": has_course_evaluator_role(name),
+		"batch_evaluator": has_course_evaluator_role(name),
 		"lms_student": has_student_role(name),
 	}

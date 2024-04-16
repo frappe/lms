@@ -39,8 +39,6 @@
    "reqd": 1
   },
   {
-   "fetch_from": "course.evaluator",
-   "fetch_if_empty": 1,
    "fieldname": "evaluator",
    "fieldtype": "Link",
    "label": "Evaluator",
@@ -109,7 +107,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-04-15 11:23:03.933035",
+ "modified": "2024-04-16 11:01:28.336807",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate Request",

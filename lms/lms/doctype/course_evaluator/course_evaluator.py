@@ -6,6 +6,7 @@ from frappe import _
 from frappe.model.document import Document
 from lms.lms.utils import get_evaluator
 from datetime import datetime
+from frappe.utils import get_time
 
 
 class CourseEvaluator(Document):
@@ -14,7 +15,7 @@ class CourseEvaluator(Document):
 
 	def validate_time_slots(self):
 		for schedule in self.schedule:
-			if schedule.start_time >= schedule.end_time:
+			if get_time(schedule.start_time) >= get_time(schedule.end_time):
 				frappe.throw(_("Start Time cannot be greater than End Time"))
 
 			self.validate_overlaps(schedule)
@@ -26,11 +27,21 @@ class CourseEvaluator(Document):
 		overlap = False
 
 		for slot in same_day_slots:
-			if schedule.start_time <= slot.start_time < schedule.end_time:
+			if (
+				get_time(schedule.start_time)
+				<= get_time(slot.start_time)
+				< get_time(schedule.end_time)
+			):
 				overlap = True
-			if schedule.start_time < slot.end_time <= schedule.end_time:
+			if (
+				get_time(schedule.start_time)
+				< get_time(slot.end_time)
+				<= get_time(schedule.end_time)
+			):
 				overlap = True
-			if slot.start_time < schedule.start_time and schedule.end_time < slot.end_time:
+			if get_time(slot.start_time) < get_time(schedule.start_time) and get_time(
+				schedule.end_time
+			) < get_time(slot.end_time):
 				overlap = True
 
 			if overlap:

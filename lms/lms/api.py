@@ -298,3 +298,16 @@ def get_unsplash_photos(keyword=None):
 		return get_by_keyword(keyword)
 
 	return frappe.cache().get_value("unsplash_photos", generator=get_list)
+
+
+@frappe.whitelist()
+def get_evaluator_details(evaluator):
+	frappe.only_for("Batch Evaluator")
+
+	if frappe.db.exists("Course Evaluator", {"evaluator": evaluator}):
+		return frappe.get_doc("Course Evaluator", evaluator, as_dict=1)
+	else:
+		doc = frappe.new_doc("Course Evaluator")
+		doc.evaluator = evaluator
+		doc.insert()
+		return doc.as_dict()
