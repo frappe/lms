@@ -83,8 +83,9 @@
 				<div class="flex items-center mb-3">
 					<Calendar class="h-4 w-4 stroke-1.5 mr-2 text-gray-700" />
 					<span>
-						{{ dayjs(batch.data.start_date).format('DD MMMM YYYY') }} -
-						{{ dayjs(batch.data.end_date).format('DD MMMM YYYY') }}
+						{{
+							getFormattedDateRange(batch.data.start_date, batch.data.end_date)
+						}}
 					</span>
 				</div>
 				<div class="flex items-center mb-6">
@@ -161,7 +162,7 @@ import {
 	SendIcon,
 	MessageCircle,
 } from 'lucide-vue-next'
-import { formatTime } from '@/utils'
+import { formatTime, getFormattedDateRange } from '@/utils'
 import BatchDashboard from '@/components/BatchDashboard.vue'
 import BatchCourses from '@/components/BatchCourses.vue'
 import LiveClass from '@/components/LiveClass.vue'
@@ -171,7 +172,6 @@ import Announcements from '@/components/Annoucements.vue'
 import AnnouncementModal from '@/components/Modals/AnnouncementModal.vue'
 import Discussions from '@/components/Discussions.vue'
 
-const dayjs = inject('$dayjs')
 const user = inject('$user')
 const showAnnouncementModal = ref(false)
 

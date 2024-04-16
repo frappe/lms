@@ -34,8 +34,7 @@
 			<div class="flex items-center mb-3">
 				<Calendar class="h-4 w-4 stroke-1.5 mr-2 text-gray-700" />
 				<span>
-					{{ dayjs(batch.start_date).format('DD MMM YYYY') }} -
-					{{ dayjs(batch.end_date).format('DD MMM YYYY') }}
+					{{ getFormattedDateRange(batch.start_date, batch.end_date) }}
 				</span>
 			</div>
 			<div class="flex items-center">
@@ -48,12 +47,10 @@
 	</div>
 </template>
 <script setup>
-import { Calendar, Clock, BookOpen } from 'lucide-vue-next'
-import { inject } from 'vue'
 import { Badge } from 'frappe-ui'
-import { formatTime } from '../utils'
+import { Calendar, Clock, BookOpen } from 'lucide-vue-next'
+import { formatTime, getFormattedDateRange } from '../utils'
 
-const dayjs = inject('$dayjs')
 const props = defineProps({
 	batch: {
 		type: Object,

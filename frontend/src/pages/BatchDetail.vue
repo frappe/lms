@@ -20,8 +20,12 @@
 					<div class="flex items-center">
 						<Calendar class="h-4 w-4 text-gray-700 mr-2" />
 						<span>
-							{{ dayjs(batch.data.start_date).format('DD MMM YYYY') }} -
-							{{ dayjs(batch.data.end_date).format('DD MMM YYYY') }}
+							{{
+								getFormattedDateRange(
+									batch.data.start_date,
+									batch.data.end_date
+								)
+							}}
 						</span>
 					</div>
 					<span v-if="batch.data.start_date">&middot;</span>
@@ -80,15 +84,14 @@
 	</div>
 </template>
 <script setup>
-import { Breadcrumbs, createResource, Button } from 'frappe-ui'
-import { BookOpen, Calendar, Clock } from 'lucide-vue-next'
-import { formatTime } from '../utils'
-import { computed, inject, ref } from 'vue'
-import BatchOverlay from '@/components/BatchOverlay.vue'
-import CourseCard from '@/components/CourseCard.vue'
+import { computed, inject } from 'vue'
 import { useRouter } from 'vue-router'
+import { BookOpen, Calendar, Clock } from 'lucide-vue-next'
+import { formatTime, getFormattedDateRange } from '@/utils'
+import { Breadcrumbs, createResource } from 'frappe-ui'
+import CourseCard from '@/components/CourseCard.vue'
+import BatchOverlay from '@/components/BatchOverlay.vue'
 
-const dayjs = inject('$dayjs')
 const user = inject('$user')
 const router = useRouter()
 
