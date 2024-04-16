@@ -107,7 +107,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-12-18 20:03:27.040073",
+ "modified": "2024-04-15 11:22:43.189908",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate Evaluation",
@@ -133,7 +133,7 @@
    "print": 1,
    "read": 1,
    "report": 1,
-   "role": "Class Evaluator",
+   "role": "Batch Evaluator",
    "share": 1,
    "write": 1
   }

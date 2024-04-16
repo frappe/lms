@@ -9,6 +9,7 @@
   "force_profile_completion",
   "is_onboarding_complete",
   "column_break_zdel",
+  "unsplash_access_key",
   "livecode_url",
   "course_settings_section",
   "search_placeholder",
@@ -96,6 +97,7 @@
    "default": "0",
    "fieldname": "force_profile_completion",
    "fieldtype": "Check",
+   "hidden": 1,
    "label": "Force users to complete their Profile"
   },
   {
@@ -348,12 +350,17 @@
    "fieldname": "show_day_view",
    "fieldtype": "Check",
    "label": "Show Day View in Timetable"
+  },
+  {
+   "fieldname": "unsplash_access_key",
+   "fieldtype": "Data",
+   "label": "Unsplash Access Key"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2023-12-12 10:32:13.638368",
+ "modified": "2024-04-16 12:18:14.670978",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",

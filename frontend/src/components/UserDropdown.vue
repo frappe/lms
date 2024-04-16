@@ -31,8 +31,11 @@
 						</span>
 						<span v-else> Learning </span>
 					</div>
-					<div v-if="user" class="mt-1 text-sm text-gray-700 leading-none">
-						{{ convertToTitleCase(user.split('@')[0]) }}
+					<div
+						v-if="userResource"
+						class="mt-1 text-sm text-gray-700 leading-none"
+					>
+						{{ convertToTitleCase(userResource.data?.email.split('@')[0]) }}
 					</div>
 				</div>
 				<div
@@ -57,7 +60,8 @@ import { Dropdown, createResource } from 'frappe-ui'
 import { ChevronDown, LogIn, LogOut, User } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { convertToTitleCase } from '../utils'
-import { onMounted } from 'vue'
+import { onMounted, inject } from 'vue'
+import { usersStore } from '@/stores/user'
 
 const router = useRouter()
 const props = defineProps({
@@ -76,19 +80,21 @@ const branding = createResource({
 	},
 })
 
-const { logout, user } = sessionStore()
+const { logout } = sessionStore()
+let { userResource } = usersStore()
+
 let { isLoggedIn } = sessionStore()
 const userDropdownOptions = [
-	/* {
+	{
 		icon: User,
 		label: 'My Profile',
 		onClick: () => {
-			router.push(`/user/${user.data?.username}`)
+			router.push(`/user/${userResource.data?.username}`)
 		},
 		condition: () => {
 			return isLoggedIn
 		},
-	}, */
+	},
 	{
 		icon: LogOut,
 		label: 'Log out',

@@ -148,7 +148,7 @@ def get_user_info():
 	user = frappe.db.get_value(
 		"User",
 		frappe.session.user,
-		["name", "email", "enabled", "user_image", "full_name", "user_type"],
+		["name", "email", "enabled", "user_image", "full_name", "user_type", "username"],
 		as_dict=1,
 	)
 	user["roles"] = frappe.get_roles(user.name)
@@ -287,4 +287,41 @@ def get_branding():
 		"brand_name": frappe.db.get_single_value("Website Settings", "app_name"),
 		"brand_html": frappe.db.get_single_value("Website Settings", "brand_html"),
 		"favicon": frappe.db.get_single_value("Website Settings", "favicon"),
+	}
+
+
+@frappe.whitelist()
+def get_unsplash_photos(keyword=None):
+	from lms.unsplash import get_list, get_by_keyword
+
+	if keyword:
+		return get_by_keyword(keyword)
+
+	return frappe.cache().get_value("unsplash_photos", generator=get_list)
+
+
+@frappe.whitelist()
+def get_evaluator_details(evaluator):
+	frappe.only_for("Batch Evaluator")
+
+	if not frappe.db.exists("Google Calendar", {"user": evaluator}):
+		calendar = frappe.new_doc("Google Calendar")
+		calendar.update({"user": evaluator, "calendar_name": evaluator})
+		calendar.insert()
+	else:
+		calendar = frappe.db.get_value(
+			"Google Calendar", {"user": evaluator}, ["name", "authorization_code"], as_dict=1
+		)
+
+	if frappe.db.exists("Course Evaluator", {"evaluator": evaluator}):
+		doc = frappe.get_doc("Course Evaluator", evaluator, as_dict=1)
+	else:
+		doc = frappe.new_doc("Course Evaluator")
+		doc.evaluator = evaluator
+		doc.insert()
+
+	return {
+		"slots": doc.as_dict(),
+		"calendar": calendar.name,
+		"is_authorised": calendar.authorization_code,
 	}

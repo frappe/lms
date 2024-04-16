@@ -6,15 +6,27 @@ from frappe import _
 from frappe.model.document import Document
 from lms.lms.utils import get_evaluator
 from datetime import datetime
+from frappe.utils import get_time
 
 
 class CourseEvaluator(Document):
 	def validate(self):
 		self.validate_time_slots()
+		self.validate_unavailability()
+
+	def validate_unavailability(self):
+		if self.unavailable_from and not self.unavailable_to:
+			frappe.throw(_("Unavailable To Date is mandatory if Unavailable From Date is set"))
+
+		if self.unavailable_to and not self.unavailable_from:
+			frappe.throw(_("Unavailable From Date is mandatory if Unavailable To Date is set"))
+
+		if self.unavailable_from >= self.unavailable_to:
+			frappe.throw(_("Unavailable From Date cannot be greater than Unavailable To Date"))
 
 	def validate_time_slots(self):
 		for schedule in self.schedule:
-			if schedule.start_time >= schedule.end_time:
+			if get_time(schedule.start_time) >= get_time(schedule.end_time):
 				frappe.throw(_("Start Time cannot be greater than End Time"))
 
 			self.validate_overlaps(schedule)
@@ -26,11 +38,21 @@ class CourseEvaluator(Document):
 		overlap = False
 
 		for slot in same_day_slots:
-			if schedule.start_time <= slot.start_time < schedule.end_time:
+			if (
+				get_time(schedule.start_time)
+				<= get_time(slot.start_time)
+				< get_time(schedule.end_time)
+			):
 				overlap = True
-			if schedule.start_time < slot.end_time <= schedule.end_time:
+			if (
+				get_time(schedule.start_time)
+				< get_time(slot.end_time)
+				<= get_time(schedule.end_time)
+			):
 				overlap = True
-			if slot.start_time < schedule.start_time and schedule.end_time < slot.end_time:
+			if get_time(slot.start_time) < get_time(schedule.start_time) and get_time(
+				schedule.end_time
+			) < get_time(slot.end_time):
 				overlap = True
 
 			if overlap:

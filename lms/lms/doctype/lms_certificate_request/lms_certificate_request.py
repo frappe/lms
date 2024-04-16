@@ -11,9 +11,34 @@ from lms.lms.utils import get_evaluator
 
 class LMSCertificateRequest(Document):
 	def validate(self):
+		self.set_evaluator()
+		self.validate_unavailability()
 		self.validate_slot()
 		self.validate_if_existing_requests()
 		self.validate_evaluation_end_date()
+
+	def set_evaluator(self):
+		if not self.evaluator:
+			self.evaluator = get_evaluator(self.course, self.batch_name)
+
+	def validate_unavailability(self):
+		unavailable = frappe.db.get_value(
+			"Course Evaluator", self.evaluator, ["unavailable_from", "unavailable_to"], as_dict=1
+		)
+		if (
+			unavailable.unavailable_from
+			and unavailable.unavailable_to
+			and getdate(self.date) >= unavailable.unavailable_from
+			and getdate(self.date) <= unavailable.unavailable_to
+		):
+			frappe.throw(
+				_(
+					"Evaluator is unavailable from {0} to {1}. Please select a date after {1}"
+				).format(
+					format_date(unavailable.unavailable_from, "medium"),
+					format_date(unavailable.unavailable_to, "medium"),
+				)
+			)
 
 	def validate_slot(self):
 		if frappe.db.exists(

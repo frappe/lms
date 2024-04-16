@@ -90,11 +90,11 @@ def create_moderator_role():
 
 
 def create_evaluator_role():
-	if not frappe.db.exists("Role", "Class Evaluator"):
+	if not frappe.db.exists("Role", "Batch Evaluator"):
 		role = frappe.new_doc("Role")
 		role.update(
 			{
-				"role_name": "Class Evaluator",
+				"role_name": "Batch Evaluator",
 				"home_page": "",
 				"desk_access": 0,
 			}
