@@ -80,14 +80,12 @@
 					{{ batch.data.title }}
 				</div>
 				<div v-html="batch.data.description" class="leading-5 mb-4"></div>
-				<div class="flex items-center mb-3">
-					<Calendar class="h-4 w-4 stroke-1.5 mr-2 text-gray-700" />
-					<span>
-						{{
-							getFormattedDateRange(batch.data.start_date, batch.data.end_date)
-						}}
-					</span>
-				</div>
+
+				<DateRange
+					:startDate="batch.data.start_date"
+					:endDate="batch.data.end_date"
+					class="mb-3"
+				/>
 				<div class="flex items-center mb-6">
 					<Clock class="h-4 w-4 stroke-1.5 mr-2 text-gray-700" />
 					<span>
@@ -151,7 +149,6 @@
 import { Breadcrumbs, Button, createResource, Tabs, Badge } from 'frappe-ui'
 import { computed, inject, ref } from 'vue'
 import {
-	Calendar,
 	Clock,
 	LayoutDashboard,
 	BookOpen,
@@ -162,7 +159,7 @@ import {
 	SendIcon,
 	MessageCircle,
 } from 'lucide-vue-next'
-import { formatTime, getFormattedDateRange } from '@/utils'
+import { formatTime } from '@/utils'
 import BatchDashboard from '@/components/BatchDashboard.vue'
 import BatchCourses from '@/components/BatchCourses.vue'
 import LiveClass from '@/components/LiveClass.vue'
@@ -171,6 +168,7 @@ import Assessments from '@/components/Assessments.vue'
 import Announcements from '@/components/Annoucements.vue'
 import AnnouncementModal from '@/components/Modals/AnnouncementModal.vue'
 import Discussions from '@/components/Discussions.vue'
+import DateRange from '@/components/Common/DateRange.vue'
 
 const user = inject('$user')
 const showAnnouncementModal = ref(false)

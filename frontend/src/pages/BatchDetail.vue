@@ -17,17 +17,10 @@
 						<span> {{ batch.data?.courses?.length }} {{ __('Courses') }} </span>
 					</div>
 					<span v-if="batch.data.courses">&middot;</span>
-					<div class="flex items-center">
-						<Calendar class="h-4 w-4 text-gray-700 mr-2" />
-						<span>
-							{{
-								getFormattedDateRange(
-									batch.data.start_date,
-									batch.data.end_date
-								)
-							}}
-						</span>
-					</div>
+					<DateRange
+						:startDate="batch.data.start_date"
+						:endDate="batch.data.end_date"
+					/>
 					<span v-if="batch.data.start_date">&middot;</span>
 					<div class="flex items-center">
 						<Clock class="h-4 w-4 text-gray-700 mr-2" />
@@ -87,10 +80,11 @@
 import { computed, inject } from 'vue'
 import { useRouter } from 'vue-router'
 import { BookOpen, Calendar, Clock } from 'lucide-vue-next'
-import { formatTime, getFormattedDateRange } from '@/utils'
+import { formatTime } from '@/utils'
 import { Breadcrumbs, createResource } from 'frappe-ui'
 import CourseCard from '@/components/CourseCard.vue'
 import BatchOverlay from '@/components/BatchOverlay.vue'
+import DateRange from '../components/Common/DateRange.vue'
 
 const user = inject('$user')
 const router = useRouter()

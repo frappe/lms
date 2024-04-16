@@ -21,12 +21,11 @@
 			<BookOpen class="h-4 w-4 stroke-1.5 mr-2 text-gray-700" />
 			<span> {{ batch.data.courses.length }} {{ __('Courses') }} </span>
 		</div>
-		<div class="flex items-center mb-3">
-			<Calendar class="h-4 w-4 stroke-1.5 mr-2 text-gray-700" />
-			<span>
-				{{ getFormattedDateRange(batch.data.start_date, batch.data.end_date) }}
-			</span>
-		</div>
+		<DateRange
+			:startDate="batch.data.start_date"
+			:endDate="batch.data.end_date"
+			class="mb-3"
+		/>
 		<div class="flex items-center">
 			<Clock class="h-4 w-4 stroke-1.5 mr-2 text-gray-700" />
 			<span>
@@ -92,12 +91,9 @@
 <script setup>
 import { inject, computed } from 'vue'
 import { Badge, Button } from 'frappe-ui'
-import { BookOpen, Calendar, Clock } from 'lucide-vue-next'
-import {
-	formatNumberIntoCurrency,
-	formatTime,
-	getFormattedDateRange,
-} from '@/utils'
+import { BookOpen, Clock } from 'lucide-vue-next'
+import { formatNumberIntoCurrency, formatTime } from '@/utils'
+import DateRange from '@/components/Common/DateRange.vue'
 
 const user = inject('$user')
 

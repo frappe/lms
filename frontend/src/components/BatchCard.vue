@@ -31,12 +31,11 @@
 				<BookOpen class="h-4 w-4 stroke-1.5 mr-2 text-gray-700" />
 				<span> {{ batch.courses.length }} {{ __('Courses') }} </span>
 			</div>
-			<div class="flex items-center mb-3">
-				<Calendar class="h-4 w-4 stroke-1.5 mr-2 text-gray-700" />
-				<span>
-					{{ getFormattedDateRange(batch.start_date, batch.end_date) }}
-				</span>
-			</div>
+			<DateRange
+				:startDate="batch.start_date"
+				:endDate="batch.end_date"
+				class="mb-3"
+			/>
 			<div class="flex items-center">
 				<Clock class="h-4 w-4 stroke-1.5 mr-2 text-gray-700" />
 				<span>
@@ -48,8 +47,9 @@
 </template>
 <script setup>
 import { Badge } from 'frappe-ui'
-import { Calendar, Clock, BookOpen } from 'lucide-vue-next'
-import { formatTime, getFormattedDateRange } from '../utils'
+import { formatTime } from '../utils'
+import { Clock, BookOpen } from 'lucide-vue-next'
+import DateRange from '@/components/Common/DateRange.vue'
 
 const props = defineProps({
 	batch: {
