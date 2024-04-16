@@ -324,11 +324,15 @@ export function getSidebarLinks() {
 	]
 }
 
-export function getFormattedDateRange(startDate, endDate) {
+export function getFormattedDateRange(
+	startDate,
+	endDate,
+	format = 'DD MMM YYYY'
+) {
 	if (startDate === endDate) {
-		return dayjs(startDate).format('DD MMM YYYY')
+		return dayjs(startDate).format(format)
 	}
-	return `${dayjs(startDate).format('DD MMM YYYY')} - ${dayjs(endDate).format(
-		'DD MMM YYYY'
+	return `${dayjs(startDate).format(format)} - ${dayjs(endDate).format(
+		format
 	)}`
 }
