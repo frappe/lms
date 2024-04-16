@@ -304,10 +304,24 @@ def get_unsplash_photos(keyword=None):
 def get_evaluator_details(evaluator):
 	frappe.only_for("Batch Evaluator")
 
+	if not frappe.db.exists("Google Calendar", {"user": evaluator}):
+		calendar = frappe.new_doc("Google Calendar")
+		calendar.update({"user": evaluator, "calendar_name": evaluator})
+		calendar.insert()
+	else:
+		calendar = frappe.db.get_value(
+			"Google Calendar", {"user": evaluator}, ["name", "authorization_code"], as_dict=1
+		)
+
 	if frappe.db.exists("Course Evaluator", {"evaluator": evaluator}):
-		return frappe.get_doc("Course Evaluator", evaluator, as_dict=1)
+		doc = frappe.get_doc("Course Evaluator", evaluator, as_dict=1)
 	else:
 		doc = frappe.new_doc("Course Evaluator")
 		doc.evaluator = evaluator
 		doc.insert()
-		return doc.as_dict()
+
+	return {
+		"slots": doc.as_dict(),
+		"calendar": calendar.name,
+		"is_authorised": calendar.authorization_code,
+	}

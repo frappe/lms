@@ -4,7 +4,7 @@
 			{{ __('My availability') }}
 		</h2>
 
-		<div class="w-3/4">
+		<div class="">
 			<div class="grid grid-cols-4 gap-4 text-sm text-gray-700 mb-4">
 				<div>
 					{{ __('Day') }}
@@ -18,8 +18,8 @@
 			</div>
 
 			<div
-				v-if="slots.data"
-				v-for="slot in slots.data.schedule"
+				v-if="evaluator.data"
+				v-for="slot in evaluator.data.slots.schedule"
 				class="grid grid-cols-4 gap-4 mb-4 group"
 			>
 				<FormControl
@@ -70,7 +70,7 @@
 				{{ __('Add Slot') }}
 			</Button>
 		</div>
-		<div class="mt-10 w-3/4">
+		<div class="my-10">
 			<h2 class="mb-4 text-lg font-semibold text-gray-900">
 				{{ __('I am unavailable') }}
 			</h2>
@@ -103,13 +103,28 @@
 				/>
 			</div>
 		</div>
+		<div>
+			<h2 class="mb-4 text-lg font-semibold text-gray-900">
+				{{ __('My calendar') }}
+			</h2>
+			<div
+				v-if="evaluator.data?.calendar && evaluator.data?.is_authorized"
+				class="flex items-center bg-green-100 text-green-900 text-sm p-1 rounded-md mb-4 w-fit"
+			>
+				<Check class="h-4 w-4 stroke-1.5 mr-2" />
+				{{ __('Your calendar is set.') }}
+			</div>
+			<Button @click="() => authorizeCalendar.submit()">
+				{{ __('Authorize Google Calendar Access') }}
+			</Button>
+		</div>
 	</div>
 </template>
 <script setup>
 import { createResource, FormControl, Button } from 'frappe-ui'
 import { computed, reactive, ref } from 'vue'
 import { showToast, convertToTitleCase } from '@/utils'
-import { Plus, X } from 'lucide-vue-next'
+import { Plus, X, Check } from 'lucide-vue-next'
 
 const props = defineProps({
 	profile: {
@@ -128,12 +143,16 @@ const newSlot = reactive({
 	end_time: '',
 })
 
-const slots = createResource({
+const evaluator = createResource({
 	url: 'lms.lms.api.get_evaluator_details',
 	params: {
 		evaluator: props.profile.data?.name,
 	},
 	auto: true,
+	onSuccess(data) {
+		if (data.slots.unavailable_from) from.value = data.slots.unavailable_from
+		if (data.slots.unavailable_to) to.value = data.slots.unavailable_to
+	},
 })
 
 const createSlot = createResource({
@@ -142,7 +161,7 @@ const createSlot = createResource({
 		return {
 			doc: {
 				doctype: 'Evaluator Schedule',
-				parent: slots.data?.name,
+				parent: evaluator.data?.slots.name,
 				parentfield: 'schedule',
 				parenttype: 'Course Evaluator',
 				...newSlot,
@@ -151,7 +170,7 @@ const createSlot = createResource({
 	},
 	onSuccess() {
 		showToast('Success', 'Slot added successfully', 'check')
-		slots.reload()
+		evaluator.reload()
 		showSlotsTemplate.value = 0
 		newSlot.day = ''
 		newSlot.start_time = ''
@@ -190,7 +209,7 @@ const deleteSlot = createResource({
 	},
 	onSuccess() {
 		showToast('Success', 'Slot deleted successfully', 'check')
-		slots.reload()
+		evaluator.reload()
 	},
 	onError(err) {
 		showToast('Error', err.messages?.[0] || err, 'x')
@@ -202,7 +221,7 @@ const updateUnavailability = createResource({
 	makeParams(values) {
 		return {
 			doctype: 'Course Evaluator',
-			name: slots.data?.name,
+			name: evaluator.data?.slots.name,
 			fieldname: values.field,
 			value: values.value,
 		}
@@ -242,6 +261,19 @@ const add = () => {
 const deleteRow = (name) => {
 	deleteSlot.submit({ name })
 }
+
+const authorizeCalendar = createResource({
+	url: 'frappe.integrations.doctype.google_calendar.google_calendar.authorize_access',
+	makeParams() {
+		return {
+			g_calendar: evaluator.data?.calendar,
+			reauthorize: 1,
+		}
+	},
+	onSuccess(data) {
+		window.open(data.url)
+	},
+})
 
 const days = computed(() => {
 	return [

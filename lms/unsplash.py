@@ -23,8 +23,9 @@ def get_random(params=None):
 
 
 def make_unsplash_request(path):
-	if not "unsplash_access_key" in frappe.conf:
-		frappe.throw("Please set unsplash_access_key in site_config.json")
+	unsplash_access_key = frappe.db.get_single_value("LMS Settings", "unsplash_access_key")
+	if not unsplash_access_key:
+		return
 
 	import requests
 
@@ -34,7 +35,7 @@ def make_unsplash_request(path):
 		url,
 		headers={
 			"Accept-Version": "v1",
-			"Authorization": f"Client-ID {frappe.conf.unsplash_access_key}",
+			"Authorization": f"Client-ID {unsplash_access_key}",
 		},
 	)
 	res.raise_for_status()

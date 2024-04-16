@@ -6,63 +6,73 @@
 		>
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
 		</header>
-		<div class="relative">
+		<div class="group relative h-[130px] w-full">
 			<img
 				v-if="profile.data.cover_image"
 				:src="profile.data.cover_image"
-				class="h-[130px] w-full"
+				class="h-[130px] w-full object-cover object-center"
 			/>
 			<div
 				v-else
-				:class="{ 'bg-gray-50': !profile.data.cover_image }"
+				:class="{ 'bg-gray-100': !profile.data.cover_image }"
 				class="h-[130px] w-full"
 			></div>
-			<div class="absolute top-0 right-0" v-if="isSessionUser()">
-				<Button variant="outline">
-					<template #icon>
-						<Edit class="w-4 h-4 stroke-1.5 text-gray-700" />
+			<div
+				class="absolute bottom-0 left-1/2 mb-4 flex -translate-x-1/2 space-x-2 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100"
+				v-if="isSessionUser()"
+			>
+				<EditCoverImage
+					@select="(imageUrl) => coverImage.submit({ url: imageUrl })"
+				>
+					<template v-slot="{ togglePopover }">
+						<Button variant="outline" @click="togglePopover()">
+							<template #prefix>
+								<Edit class="w-4 h-4 stroke-1.5 text-gray-700" />
+							</template>
+							{{ __('Edit') }}
+						</Button>
 					</template>
-				</Button>
+				</EditCoverImage>
 			</div>
-			<div class="mx-auto -mt-4 max-w-4xl translate-x-0 sm:px-5">
-				<div class="flex items-center">
-					<div>
-						<img
-							v-if="profile.data.user_image"
-							:src="profile.data.user_image"
-							class="object-cover h-[100px] w-[100px] rounded-full border-4 border-white object-cover"
-						/>
-						<UserAvatar
-							v-else
-							:user="profile.data"
-							class="object-cover h-[100px] w-[100px] rounded-full border-4 border-white object-cover"
-						/>
-					</div>
-					<div class="ml-6">
-						<h2 class="mt-2 text-3xl font-semibold text-gray-900">
-							{{ profile.data.full_name }}
-						</h2>
-						<div class="mt-2 text-base text-gray-700">
-							{{ profile.data.headline }}
-						</div>
-					</div>
-					<Button v-if="isSessionUser()" class="ml-auto" @click="editProfile()">
-						<template #prefix>
-							<Edit class="w-4 h-4 stroke-1.5 text-gray-700" />
-						</template>
-						{{ __('Edit Profile') }}
-					</Button>
-				</div>
-
-				<div class="mb-4 mt-6">
-					<TabButtons
-						class="inline-block"
-						:buttons="getTabButtons()"
-						v-model="activeTab"
+		</div>
+		<div class="mx-auto -mt-4 max-w-4xl translate-x-0 sm:px-5">
+			<div class="flex items-center">
+				<div>
+					<img
+						v-if="profile.data.user_image"
+						:src="profile.data.user_image"
+						class="object-cover h-[100px] w-[100px] rounded-full border-4 border-white object-cover"
+					/>
+					<UserAvatar
+						v-else
+						:user="profile.data"
+						class="object-cover h-[100px] w-[100px] rounded-full border-4 border-white object-cover"
 					/>
 				</div>
-				<router-view :profile="profile" />
+				<div class="ml-6">
+					<h2 class="mt-2 text-3xl font-semibold text-gray-900">
+						{{ profile.data.full_name }}
+					</h2>
+					<div class="mt-2 text-base text-gray-700">
+						{{ profile.data.headline }}
+					</div>
+				</div>
+				<Button v-if="isSessionUser()" class="ml-auto" @click="editProfile()">
+					<template #prefix>
+						<Edit class="w-4 h-4 stroke-1.5 text-gray-700" />
+					</template>
+					{{ __('Edit Profile') }}
+				</Button>
 			</div>
+
+			<div class="mb-4 mt-6">
+				<TabButtons
+					class="inline-block"
+					:buttons="getTabButtons()"
+					v-model="activeTab"
+				/>
+			</div>
+			<router-view :profile="profile" />
 		</div>
 	</div>
 	<EditProfile
@@ -70,7 +80,6 @@
 		v-model:reloadProfile="profile"
 		:profile="profile"
 	/>
-	<EditCoverImage />
 </template>
 <script setup>
 import { Breadcrumbs, createResource, Button, TabButtons } from 'frappe-ui'
@@ -111,6 +120,21 @@ const profile = createResource({
 		filters: {
 			username: props.username,
 		},
+	},
+})
+
+const coverImage = createResource({
+	url: 'frappe.client.set_value',
+	makeParams(values) {
+		return {
+			doctype: 'User',
+			name: profile.data?.name,
+			fieldname: 'cover_image',
+			value: values.url,
+		}
+	},
+	onSuccess() {
+		profile.reload()
 	},
 })
 

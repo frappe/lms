@@ -81,7 +81,7 @@ export function showToast(title, text, icon) {
 				? 'bg-green-600 text-white rounded-md p-px'
 				: 'bg-red-600 text-white rounded-md p-px',
 		position: icon == 'check' ? 'bottom-right' : 'top-center',
-		timeout: icon == 'check' ? 5 : 10,
+		timeout: 5,
 	})
 }
 
