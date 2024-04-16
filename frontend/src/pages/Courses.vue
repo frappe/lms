@@ -5,7 +5,7 @@
 		>
 			<Breadcrumbs
 				class="h-7"
-				:items="[{ label: __('All Courses'), route: { name: 'Courses' } }]"
+				:items="[{ label: __('Courses'), route: { name: 'Courses' } }]"
 			/>
 			<div class="flex">
 				<router-link
@@ -122,7 +122,7 @@ const courses = createListResource({
 const tabIndex = ref(0)
 const tabs = [
 	{
-		label: 'Live',
+		label: 'All',
 		courses: computed(() => courses.data?.live || []),
 		count: computed(() => courses.data?.live?.length),
 	},
