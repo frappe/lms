@@ -122,15 +122,23 @@
 </template>
 <script setup>
 import { createResource, FormControl, Button } from 'frappe-ui'
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive, ref, onMounted, inject } from 'vue'
 import { showToast, convertToTitleCase } from '@/utils'
 import { Plus, X, Check } from 'lucide-vue-next'
+
+const user = inject('$user')
 
 const props = defineProps({
 	profile: {
 		type: Object,
 		required: true,
 	},
+})
+
+onMounted(() => {
+	if (user.data?.name !== props.profile.data?.name) {
+		window.location.href = `/user/${props.profile.data?.username}`
+	}
 })
 
 const showSlotsTemplate = ref(0)

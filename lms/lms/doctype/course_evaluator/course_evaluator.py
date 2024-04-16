@@ -12,6 +12,17 @@ from frappe.utils import get_time
 class CourseEvaluator(Document):
 	def validate(self):
 		self.validate_time_slots()
+		self.validate_unavailability()
+
+	def validate_unavailability(self):
+		if self.unavailable_from and not self.unavailable_to:
+			frappe.throw(_("Unavailable To Date is mandatory if Unavailable From Date is set"))
+
+		if self.unavailable_to and not self.unavailable_from:
+			frappe.throw(_("Unavailable From Date is mandatory if Unavailable To Date is set"))
+
+		if self.unavailable_from >= self.unavailable_to:
+			frappe.throw(_("Unavailable From Date cannot be greater than Unavailable To Date"))
 
 	def validate_time_slots(self):
 		for schedule in self.schedule:
