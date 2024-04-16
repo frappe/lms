@@ -31,13 +31,11 @@
 				<BookOpen class="h-4 w-4 stroke-1.5 mr-2 text-gray-700" />
 				<span> {{ batch.courses.length }} {{ __('Courses') }} </span>
 			</div>
-			<div class="flex items-center mb-3">
-				<Calendar class="h-4 w-4 stroke-1.5 mr-2 text-gray-700" />
-				<span>
-					{{ dayjs(batch.start_date).format('DD MMM YYYY') }} -
-					{{ dayjs(batch.end_date).format('DD MMM YYYY') }}
-				</span>
-			</div>
+			<DateRange
+				:startDate="batch.start_date"
+				:endDate="batch.end_date"
+				class="mb-3"
+			/>
 			<div class="flex items-center">
 				<Clock class="h-4 w-4 stroke-1.5 mr-2 text-gray-700" />
 				<span>
@@ -48,12 +46,11 @@
 	</div>
 </template>
 <script setup>
-import { Calendar, Clock, BookOpen } from 'lucide-vue-next'
-import { inject } from 'vue'
 import { Badge } from 'frappe-ui'
 import { formatTime } from '../utils'
+import { Clock, BookOpen } from 'lucide-vue-next'
+import DateRange from '@/components/Common/DateRange.vue'
 
-const dayjs = inject('$dayjs')
 const props = defineProps({
 	batch: {
 		type: Object,

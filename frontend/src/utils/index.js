@@ -8,6 +8,7 @@ import Paragraph from '@editorjs/paragraph'
 import Embed from '@editorjs/embed'
 import NestedList from '@editorjs/nested-list'
 import { watch } from 'vue'
+import dayjs from '@/utils/dayjs'
 
 export function createToast(options) {
 	toast({
@@ -321,4 +322,17 @@ export function getSidebarLinks() {
 			to: 'Statistics',
 		},
 	]
+}
+
+export function getFormattedDateRange(
+	startDate,
+	endDate,
+	format = 'DD MMM YYYY'
+) {
+	if (startDate === endDate) {
+		return dayjs(startDate).format(format)
+	}
+	return `${dayjs(startDate).format(format)} - ${dayjs(endDate).format(
+		format
+	)}`
 }
