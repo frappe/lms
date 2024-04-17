@@ -1,6 +1,6 @@
 <template>
 	<div class="">
-		<div class="grid md:grid-cols-[75%,25%] h-full">
+		<div class="grid md:grid-cols-[75%,25%] h-screen">
 			<div class="border-r">
 				<header
 					class="sticky top-0 z-10 flex flex-col md:flex-row md:items-center justify-between border-b overflow-hidden bg-white px-3 py-2.5 sm:px-5"

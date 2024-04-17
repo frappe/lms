@@ -5,10 +5,10 @@
 		>
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
 		</header>
-		<div class="grid md:grid-cols-[70%,30%] h-full">
+		<div class="grid md:grid-cols-[70%,30%] h-screen">
 			<div
 				v-if="lesson.data.no_preview"
-				class="border-r-2 text-center pt-10 px-5 md:px-0 pb-10"
+				class="border-r text-center pt-10 px-5 md:px-0 pb-10"
 			>
 				<p class="mb-4">
 					{{
@@ -25,7 +25,7 @@
 					</Button>
 				</router-link>
 			</div>
-			<div v-else class="border-r-2 container pt-5 pb-10 px-5">
+			<div v-else class="border-r container pt-5 pb-10 px-5">
 				<div class="flex flex-col md:flex-row md:items-center justify-between">
 					<div class="text-3xl font-semibold">
 						{{ lesson.data.title }}
@@ -161,7 +161,7 @@
 				</div>
 			</div>
 			<div class="sticky top-10">
-				<div class="bg-gray-50 p-5 border-b-2">
+				<div class="bg-gray-50 p-5 border-b">
 					<div class="text-lg font-semibold">
 						{{ lesson.data.course_title }}
 					</div>
@@ -246,7 +246,6 @@ const lesson = createResource({
 
 const renderEditor = (holder, content) => {
 	// empty the holder
-	document.getElementById(holder).innerHTML = ''
 	return new EditorJS({
 		holder: holder,
 		tools: getEditorTools(),
@@ -395,5 +394,9 @@ const allowInstructorContent = () => {
 
 .embed-tool__caption {
 	display: none;
+}
+
+.ce-block__content {
+	max-width: unset;
 }
 </style>
