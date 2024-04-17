@@ -23,6 +23,7 @@
   "status",
   "section_break_7",
   "published",
+  "published_on",
   "column_break_10",
   "upcoming",
   "column_break_12",
@@ -242,6 +243,11 @@
    "fieldname": "amount_usd",
    "fieldtype": "Currency",
    "label": "Amount (USD)"
+  },
+  {
+   "fieldname": "published_on",
+   "fieldtype": "Date",
+   "label": "Published On"
   }
  ],
  "is_published_field": "published",
@@ -268,7 +274,7 @@
   }
  ],
  "make_attachments_public": 1,
- "modified": "2024-02-28 11:20:47.700649",
+ "modified": "2024-04-16 17:40:50.899368",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",

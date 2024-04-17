@@ -127,6 +127,11 @@ const tabs = [
 		count: computed(() => courses.data?.live?.length),
 	},
 	{
+		label: 'New',
+		courses: computed(() => courses.data?.new),
+		count: computed(() => courses.data?.new?.length),
+	},
+	{
 		label: 'Upcoming',
 		courses: computed(() => courses.data?.upcoming),
 		count: computed(() => courses.data?.upcoming?.length),
