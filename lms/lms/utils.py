@@ -1208,6 +1208,7 @@ def get_course_details(course):
 			"short_introduction",
 			"published",
 			"upcoming",
+			"published_on",
 			"status",
 			"paid_course",
 			"course_price",
@@ -1261,7 +1262,7 @@ def get_course_details(course):
 
 
 def get_categorized_courses(courses):
-	live, upcoming, enrolled, created, under_review = [], [], [], [], []
+	live, upcoming, new, enrolled, created, under_review = [], [], [], [], [], []
 
 	for course in courses:
 		if course.status == "Under Review":
@@ -1270,6 +1271,13 @@ def get_categorized_courses(courses):
 			upcoming.append(course)
 		elif course.published:
 			live.append(course)
+
+		if (
+			course.published
+			and not course.upcoming
+			and course.published_on > add_months(getdate(), -3)
+		):
+			new.append(course)
 
 		if course.membership and course.published:
 			enrolled.append(course)
@@ -1282,6 +1290,7 @@ def get_categorized_courses(courses):
 
 	return {
 		"live": live,
+		"new": new,
 		"upcoming": upcoming,
 		"enrolled": enrolled,
 		"created": created,

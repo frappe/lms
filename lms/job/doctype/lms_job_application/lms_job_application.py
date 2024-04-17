@@ -30,13 +30,23 @@ class LMSJobApplication(Document):
 				"full_name": frappe.db.get_value("User", self.user, "full_name"),
 				"job_title": self.job_title,
 			}
-
+			resume = frappe.get_doc(
+				"File",
+				{
+					"file_name": self.resume,
+				},
+			)
 			frappe.sendmail(
 				recipients=company_email,
 				subject=subject,
 				template="job_application",
 				args=args,
-				attachments=[self.resume],
+				attachments=[
+					{
+						"fname": resume.file_name,
+						"fcontent": resume.get_content(),
+					}
+				],
 				header=[subject, "green"],
 				retry=3,
 			)

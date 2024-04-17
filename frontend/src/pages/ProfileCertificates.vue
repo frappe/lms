@@ -8,6 +8,7 @@
 				v-for="certificate in certificates.data"
 				:key="certificate.name"
 				class="bg-white shadow rounded-lg p-3 cursor-pointer"
+				@click="openCertificate(certificate)"
 			>
 				<div class="font-medium leading-5">
 					{{ certificate.course_title }}
@@ -36,11 +37,19 @@ const certificates = createResource({
 	url: 'frappe.client.get_list',
 	params: {
 		doctype: 'LMS Certificate',
-		fields: ['name', 'course', 'course_title', 'issue_date'],
+		fields: ['name', 'course', 'course_title', 'issue_date', 'template'],
 		filters: {
 			member: props.profile.data.name,
 		},
 	},
 	auto: true,
 })
+
+const openCertificate = (certificate) => {
+	window.open(
+		`/api/method/frappe.utils.print_format.download_pdf?doctype=LMS+Certificate&name=${
+			certificate.name
+		}&format=${encodeURIComponent(certificate.template)}`
+	)
+}
 </script>
