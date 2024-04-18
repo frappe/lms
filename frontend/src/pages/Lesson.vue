@@ -101,17 +101,7 @@
 							:user="instructor"
 						/>
 					</span>
-					<span v-if="lesson.data.instructors.length == 1">
-						{{ lesson.data.instructors[0].full_name }}
-					</span>
-					<span v-if="lesson.data.instructors.length == 2">
-						{{ lesson.data.instructors[0].first_name }} and
-						{{ lesson.data.instructors[1].first_name }}
-					</span>
-					<span v-if="lesson.data.instructors.length > 2">
-						{{ lesson.data.instructors[0].first_name }} and
-						{{ lesson.data.instructors.length - 1 }} others
-					</span>
+					<CourseInstructors :instructors="lesson.data.instructors" />
 				</div>
 				<div
 					v-if="
@@ -196,6 +186,7 @@ import Discussions from '@/components/Discussions.vue'
 import { getEditorTools } from '../utils'
 import EditorJS from '@editorjs/editorjs'
 import LessonContent from '@/components/LessonContent.vue'
+import CourseInstructors from '@/components/CourseInstructors.vue'
 
 const user = inject('$user')
 const route = useRoute()
@@ -398,5 +389,20 @@ const allowInstructorContent = () => {
 
 .ce-block__content {
 	max-width: unset;
+}
+
+.ce-code__textarea {
+	min-height: 200px;
+	font-family: Menlo, Monaco, Consolas, Courier New, monospace;
+	color: #41314e;
+	line-height: 1.6em;
+	font-size: 12px;
+	background: #f8f7fa;
+	border: 1px solid #f1f1f4;
+	box-shadow: none;
+	white-space: pre;
+	word-wrap: normal;
+	overflow-x: auto;
+	resize: vertical;
 }
 </style>

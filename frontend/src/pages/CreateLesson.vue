@@ -446,4 +446,19 @@ const breadcrumbs = computed(() => {
 .ce-block__content {
 	max-width: none;
 }
+
+.ce-code__textarea {
+	min-height: 200px;
+	font-family: Menlo, Monaco, Consolas, Courier New, monospace;
+	color: #41314e;
+	line-height: 1.6em;
+	font-size: 12px;
+	background: #f8f7fa;
+	border: 1px solid #f1f1f4;
+	box-shadow: none;
+	white-space: pre;
+	word-wrap: normal;
+	overflow-x: auto;
+	resize: vertical;
+}
 </style>

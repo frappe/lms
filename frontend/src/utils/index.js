@@ -7,6 +7,7 @@ import Header from '@editorjs/header'
 import Paragraph from '@editorjs/paragraph'
 import Embed from '@editorjs/embed'
 import NestedList from '@editorjs/nested-list'
+import InlineCode from '@editorjs/inline-code'
 import { watch } from 'vue'
 import dayjs from '@/utils/dayjs'
 
@@ -135,6 +136,10 @@ export function getEditorTools() {
 			config: {
 				defaultStyle: 'ordered',
 			},
+		},
+		inlineCode: {
+			class: InlineCode,
+			shortcut: 'CMD+SHIFT+M',
 		},
 		embed: {
 			class: Embed,
@@ -335,4 +340,20 @@ export function getFormattedDateRange(
 	return `${dayjs(startDate).format(format)} - ${dayjs(endDate).format(
 		format
 	)}`
+}
+
+export function getLineStartPosition(string, position) {
+	const charLength = 1
+	let char = ''
+
+	while (char !== '\n' && position > 0) {
+		position = position - charLength
+		char = string.substr(position, charLength)
+	}
+
+	if (char === '\n') {
+		position += 1
+	}
+
+	return position
 }
