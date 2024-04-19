@@ -6,6 +6,7 @@ import { Upload } from '@/utils/upload'
 import Header from '@editorjs/header'
 import Paragraph from '@editorjs/paragraph'
 import Embed from '@editorjs/embed'
+import { CodeBox } from '@/utils/code'
 import NestedList from '@editorjs/nested-list'
 import InlineCode from '@editorjs/inline-code'
 import { watch } from 'vue'
@@ -130,6 +131,15 @@ export function getEditorTools() {
 		paragraph: {
 			class: Paragraph,
 			inlineToolbar: true,
+		},
+		codeBox: {
+			class: CodeBox,
+			config: {
+				themeURL:
+					'https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.1/build/styles/dracula.min.css', // Optional
+				themeName: 'atom-one-dark', // Optional
+				useDefaultTheme: 'dark', // Optional. This also determines the background color of the language select drop-down
+			},
 		},
 		list: {
 			class: NestedList,

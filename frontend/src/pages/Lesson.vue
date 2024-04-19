@@ -391,18 +391,93 @@ const allowInstructorContent = () => {
 	max-width: unset;
 }
 
-.ce-code__textarea {
-	min-height: 200px;
-	font-family: Menlo, Monaco, Consolas, Courier New, monospace;
-	color: #41314e;
-	line-height: 1.6em;
-	font-size: 12px;
-	background: #f8f7fa;
-	border: 1px solid #f1f1f4;
-	box-shadow: none;
-	white-space: pre;
-	word-wrap: normal;
-	overflow-x: auto;
-	resize: vertical;
+.codeBoxHolder {
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: flex-start;
+}
+
+.codeBoxTextArea {
+	width: 100%;
+	min-height: 30px;
+	padding: 10px;
+	border-radius: 2px 2px 2px 0;
+	border: none !important;
+	outline: none !important;
+	font: 14px monospace;
+}
+
+.codeBoxSelectDiv {
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: flex-start;
+	position: relative;
+}
+
+.codeBoxSelectInput {
+	border-radius: 0 0 20px 2px;
+	padding: 2px 26px;
+	padding-top: 0;
+	padding-right: 0;
+	text-align: left;
+	cursor: pointer;
+	border: none !important;
+	outline: none !important;
+}
+
+.codeBoxSelectDropIcon {
+	position: absolute !important;
+	left: 10px !important;
+	bottom: 0 !important;
+	width: unset !important;
+	height: unset !important;
+	font-size: 16px !important;
+}
+
+.codeBoxSelectPreview {
+	display: none;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: flex-start;
+	border-radius: 2px;
+	box-shadow: 0 3px 15px -3px rgba(13, 20, 33, 0.13);
+	position: absolute;
+	top: 100%;
+	margin: 5px 0;
+	max-height: 30vh;
+	overflow-x: hidden;
+	overflow-y: auto;
+	z-index: 10000;
+}
+
+.codeBoxSelectItem {
+	width: 100%;
+	padding: 5px 20px;
+	margin: 0;
+	cursor: pointer;
+}
+
+.codeBoxSelectItem:hover {
+	opacity: 0.7;
+}
+
+.codeBoxSelectedItem {
+	background-color: lightblue !important;
+}
+
+.codeBoxShow {
+	display: flex !important;
+}
+
+.dark {
+	color: #abb2bf;
+	background-color: #282c34;
+}
+
+.light {
+	color: #383a42;
+	background-color: #fafafa;
 }
 </style>
