@@ -298,7 +298,7 @@ watch(
 		[newChapterNumber, newLessonNumber],
 		[oldChapterNumber, oldLessonNumber]
 	) => {
-		if (newChapterNumber && newLessonNumber) {
+		if (newChapterNumber || newLessonNumber) {
 			lesson.submit({
 				chapter: newChapterNumber,
 				lesson: newLessonNumber,
