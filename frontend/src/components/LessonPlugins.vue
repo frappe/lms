@@ -68,13 +68,34 @@
 				</div>
 			</div>
 		</div>
+		<div class="mt-4">
+			<div class="text-xs text-gray-600 mb-1">
+				{{
+					__(
+						'To add a YouTube video, paste the URL of the video in the editor.'
+					)
+				}}
+			</div>
+			<YouTubeExplanation>
+				<template v-slot="{ togglePopover }">
+					<div
+						@click="togglePopover()"
+						class="flex items-center text-sm underline cursor-pointer"
+					>
+						<Info class="w-3 h-3 stroke-1.5 text-gray-700 mr-1" />
+						{{ __('Learn More') }}
+					</div>
+				</template>
+			</YouTubeExplanation>
+		</div>
 	</div>
 </template>
 <script setup>
 import Link from '@/components/Controls/Link.vue'
 import { FileUploader, Button, Select, Tooltip } from 'frappe-ui'
-import { Plus, FileText } from 'lucide-vue-next'
+import { Plus, FileText, Info } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
+import YouTubeExplanation from '@/components/Modals/YouTubeExplanation.vue'
 
 const quiz = ref(null)
 const file = ref(null)

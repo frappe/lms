@@ -25,7 +25,7 @@
 				:key="chapter.name"
 				:defaultOpen="openChapterDetail(chapter.idx)"
 			>
-				<DisclosureButton ref="" class="flex w-full px-2 py-3">
+				<DisclosureButton ref="" class="flex w-full p-2">
 					<ChevronRight
 						:class="{
 							'rotate-90 transform duration-200': open,
@@ -38,7 +38,7 @@
 						{{ chapter.title }}
 					</div>
 				</DisclosureButton>
-				<DisclosurePanel class="pb-2">
+				<DisclosurePanel>
 					<div v-for="lesson in chapter.lessons" :key="lesson.name">
 						<div class="outline-lesson pl-8 py-2">
 							<router-link

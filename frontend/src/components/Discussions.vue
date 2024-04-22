@@ -40,13 +40,16 @@
 	<div v-else-if="singleThread && topics.data">
 		<DiscussionReplies :topic="topics.data" :singleThread="singleThread" />
 	</div>
-	<div v-else class="flex justify-center border mt-5 p-5 rounded-md">
-		<MessageSquareIcon class="w-10 h-10 stroke-1.5 text-gray-800 mr-2" />
+	<div
+		v-else
+		class="flex items-center justify-center border mt-5 p-5 rounded-md"
+	>
+		<MessageSquareIcon class="w-5 h-5 stroke-1.5 mr-2" />
 		<div>
-			<div class="text-xl font-semibold mb-2">
+			<div v-if="emptyStateTitle" class="font-medium mb-2">
 				{{ __(emptyStateTitle) }}
 			</div>
-			<div>
+			<div class="">
 				{{ __(emptyStateText) }}
 			</div>
 		</div>
@@ -89,7 +92,7 @@ const props = defineProps({
 	},
 	emptyStateTitle: {
 		type: String,
-		default: 'No topics yet',
+		default: '',
 	},
 	emptyStateText: {
 		type: String,

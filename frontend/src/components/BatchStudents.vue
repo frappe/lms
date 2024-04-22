@@ -109,6 +109,7 @@ const getStudentColumns = () => {
 		{
 			label: 'Full Name',
 			key: 'full_name',
+			width: 2,
 		},
 		{
 			label: 'Courses Done',

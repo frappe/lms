@@ -1,6 +1,6 @@
 <template>
 	<div class="">
-		<div class="grid md:grid-cols-[75%,25%] h-full">
+		<div class="grid md:grid-cols-[75%,25%] h-screen">
 			<div class="border-r">
 				<header
 					class="sticky top-0 z-10 flex flex-col md:flex-row md:items-center justify-between border-b overflow-hidden bg-white px-3 py-2.5 sm:px-5"
@@ -103,7 +103,7 @@ const props = defineProps({
 })
 
 onMounted(() => {
-	if (!user.data?.is_moderator || !user.data?.is_instructor) {
+	if (!user.data?.is_moderator && !user.data?.is_instructor) {
 		window.location.href = '/login'
 	}
 	editor.value = renderEditor('content')
@@ -440,10 +440,100 @@ const breadcrumbs = computed(() => {
 }
 
 .ce-toolbar__actions {
-	right: 108%;
+	right: 108% !important;
 }
 
 .ce-block__content {
 	max-width: none;
+}
+
+.codeBoxHolder {
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: flex-start;
+}
+
+.codeBoxTextArea {
+	width: 100%;
+	min-height: 30px;
+	padding: 10px;
+	border-radius: 2px 2px 2px 0;
+	border: none !important;
+	outline: none !important;
+	font: 14px monospace;
+}
+
+.codeBoxSelectDiv {
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: flex-start;
+	position: relative;
+}
+
+.codeBoxSelectInput {
+	border-radius: 0 0 20px 2px;
+	padding: 2px 26px;
+	padding-top: 0;
+	padding-right: 0;
+	text-align: left;
+	cursor: pointer;
+	border: none !important;
+	outline: none !important;
+}
+
+.codeBoxSelectDropIcon {
+	position: absolute !important;
+	left: 10px !important;
+	bottom: 0 !important;
+	width: unset !important;
+	height: unset !important;
+	font-size: 16px !important;
+}
+
+.codeBoxSelectPreview {
+	display: none;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: flex-start;
+	border-radius: 2px;
+	box-shadow: 0 3px 15px -3px rgba(13, 20, 33, 0.13);
+	position: absolute;
+	top: 100%;
+	margin: 5px 0;
+	max-height: 30vh;
+	overflow-x: hidden;
+	overflow-y: auto;
+	z-index: 10000;
+}
+
+.codeBoxSelectItem {
+	width: 100%;
+	padding: 5px 20px;
+	margin: 0;
+	cursor: pointer;
+}
+
+.codeBoxSelectItem:hover {
+	opacity: 0.7;
+}
+
+.codeBoxSelectedItem {
+	background-color: lightblue !important;
+}
+
+.codeBoxShow {
+	display: flex !important;
+}
+
+.dark {
+	color: #abb2bf;
+	background-color: #282c34;
+}
+
+.light {
+	color: #383a42;
+	background-color: #fafafa;
 }
 </style>
