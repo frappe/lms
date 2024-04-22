@@ -77,7 +77,6 @@
 						/>
 					</div>
 					<CourseReviews
-						v-if="course.data.avg_rating"
 						:courseName="course.data.name"
 						:avg_rating="course.data.avg_rating"
 						:membership="course.data.membership"

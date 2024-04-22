@@ -440,7 +440,7 @@ const breadcrumbs = computed(() => {
 }
 
 .ce-toolbar__actions {
-	right: 108%;
+	right: 108% !important;
 }
 
 .ce-block__content {

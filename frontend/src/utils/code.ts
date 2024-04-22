@@ -1,3 +1,6 @@
+import { Code } from "lucide-vue-next"
+import { h, createApp } from "vue"
+
 const DEFAULT_THEMES = ['light', 'dark'];
 const COMMON_LANGUAGES = {
 	none: 'Auto-detect', apache: 'Apache', bash: 'Bash', cs: 'C#', cpp: 'C++', css: 'CSS', coffeescript: 'CoffeeScript', diff: 'Diff',
@@ -58,9 +61,16 @@ export class CodeBox {
 	}
 
 	static get toolbox() {
+		const app = createApp({
+			render: () => h(Code, { size: 24, strokeWidth: 2, color: 'black' }),
+		});
+
+		const div = document.createElement('div');
+		app.mount(div);
+
 		return {
 			title: 'CodeBox',
-			icon: '<svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.71,6.29a1,1,0,0,0-1.42,0l-5,5a1,1,0,0,0,0,1.42l5,5a1,1,0,0,0,1.42,0,1,1,0,0,0,0-1.42L5.41,12l4.3-4.29A1,1,0,0,0,9.71,6.29Zm11,5-5-5a1,1,0,0,0-1.42,1.42L18.59,12l-4.3,4.29a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l5-5A1,1,0,0,0,20.71,11.29Z"/></svg>'
+			icon: div.innerHTML
 		};
 	}
 

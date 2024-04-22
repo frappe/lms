@@ -14,7 +14,13 @@
 		}"
 	>
 		<template #body-content>
-			<Link doctype="LMS Course" v-model="course" />
+			<Link doctype="LMS Course" v-model="course" :label="__('Course')" />
+			<Link
+				doctype="Course Evaluator"
+				v-model="evaluator"
+				:label="__('Evaluator')"
+				class="mt-4"
+			/>
 		</template>
 	</Dialog>
 </template>
@@ -26,6 +32,7 @@ import { showToast } from '@/utils'
 
 const show = defineModel()
 const course = ref(null)
+const evaluator = ref(null)
 const courses = defineModel('courses')
 
 const props = defineProps({
@@ -45,6 +52,7 @@ const createBatchCourse = createResource({
 				parenttype: 'LMS Batch',
 				parentfield: 'courses',
 				course: course.value,
+				evaluator: evaluator.value,
 			},
 		}
 	},
@@ -58,6 +66,7 @@ const addCourse = (close) => {
 				courses.value.reload()
 				close()
 				course.value = null
+				evaluator.value = null
 			},
 			onError(err) {
 				showToast('Error', err.message[0] || err, 'x')

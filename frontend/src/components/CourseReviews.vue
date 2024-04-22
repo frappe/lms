@@ -15,7 +15,14 @@
 		<div class="grid gap-8 mt-10">
 			<div v-for="(review, index) in reviews.data">
 				<div class="flex items-center">
-					<UserAvatar :user="review.owner_details" :size="'2xl'" />
+					<router-link
+						:to="{
+							name: 'Profile',
+							params: { username: review.owner_details.username },
+						}"
+					>
+						<UserAvatar :user="review.owner_details" :size="'2xl'" />
+					</router-link>
 					<div class="mx-4">
 						<router-link
 							:to="{
