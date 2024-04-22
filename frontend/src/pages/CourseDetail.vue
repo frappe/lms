@@ -51,17 +51,7 @@
 									:user="instructor"
 								/>
 							</span>
-							<span v-if="course.data.instructors.length == 1">
-								{{ course.data.instructors[0].full_name }}
-							</span>
-							<span v-if="course.data.instructors.length == 2">
-								{{ course.data.instructors[0].first_name }} and
-								{{ course.data.instructors[1].first_name }}
-							</span>
-							<span v-if="course.data.instructors.length > 2">
-								{{ course.data.instructors[0].first_name }} and
-								{{ course.data.instructors.length - 1 }} others
-							</span>
+							<CourseInstructors :instructors="course.data.instructors" />
 						</div>
 					</div>
 					<div class="flex mt-3 mb-4 w-fit">
@@ -87,7 +77,6 @@
 						/>
 					</div>
 					<CourseReviews
-						v-if="course.data.avg_rating"
 						:courseName="course.data.name"
 						:avg_rating="course.data.avg_rating"
 						:membership="course.data.membership"
@@ -109,6 +98,7 @@ import CourseOutline from '@/components/CourseOutline.vue'
 import CourseReviews from '@/components/CourseReviews.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { updateDocumentTitle } from '@/utils'
+import CourseInstructors from '@/components/CourseInstructors.vue'
 
 const props = defineProps({
 	courseName: {

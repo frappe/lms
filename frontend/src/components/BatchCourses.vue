@@ -108,13 +108,16 @@ const getCoursesColumns = () => {
 		{
 			label: 'Title',
 			key: 'title',
+			width: 2,
 		},
 		{
 			label: 'Lessons',
 			key: 'lesson_count',
+			align: 'right',
 		},
 		{
 			label: 'Enrollments',
+			align: 'right',
 			key: 'enrollment_count',
 		},
 	]
@@ -131,7 +134,6 @@ const removeCourse = createResource({
 })
 
 const removeCourses = (selections) => {
-	console.log(selections)
 	selections.forEach(async (course) => {
 		removeCourse.submit({ course })
 		await setTimeout(1000)

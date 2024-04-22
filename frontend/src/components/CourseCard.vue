@@ -10,7 +10,13 @@
 			:style="{ backgroundImage: 'url(' + encodeURI(course.image) + ')' }"
 		>
 			<div class="flex relative top-4 left-4 w-fit flex-wrap">
-				<Badge theme="gray" size="md" class="mr-2" v-for="tag in course.tags">
+				<Badge
+					variant="outline"
+					theme="gray"
+					size="md"
+					class="mr-2"
+					v-for="tag in course.tags"
+				>
 					{{ tag }}
 				</Badge>
 			</div>
@@ -89,17 +95,7 @@
 							:user="instructor"
 						/>
 					</div>
-					<span v-if="course.instructors.length == 1">
-						{{ course.instructors[0].full_name }}
-					</span>
-					<span v-if="course.instructors.length == 2">
-						{{ course.instructors[0].first_name }} and
-						{{ course.instructors[1].first_name }}
-					</span>
-					<span v-if="course.instructors.length > 2">
-						{{ course.instructors[0].first_name }} and
-						{{ course.instructors.length - 1 }} others
-					</span>
+					<CourseInstructors :instructors="course.instructors" />
 				</div>
 
 				<div class="font-semibold">
@@ -114,6 +110,7 @@ import { BookOpen, Users, Star } from 'lucide-vue-next'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { sessionStore } from '@/stores/session'
 import { Badge, Tooltip } from 'frappe-ui'
+import CourseInstructors from '@/components/CourseInstructors.vue'
 
 const { user } = sessionStore()
 

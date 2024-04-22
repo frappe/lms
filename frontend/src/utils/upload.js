@@ -16,7 +16,7 @@ export class Upload {
 
 	renderUpload(file) {
 		if (this.isVideo(file.file_type)) {
-			return `<video controls width='100%' controls controlsList='nodownload' class="mb-4">
+			return `<video controls width='100%' controlsList='nodownload' class="mb-4">
 				<source src=${encodeURI(file.file_url)} type='video/mp4'>
 			</video>`
 		} else if (this.isAudio(file.file_type)) {

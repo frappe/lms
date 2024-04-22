@@ -6,7 +6,9 @@ import { Upload } from '@/utils/upload'
 import Header from '@editorjs/header'
 import Paragraph from '@editorjs/paragraph'
 import Embed from '@editorjs/embed'
+import { CodeBox } from '@/utils/code'
 import NestedList from '@editorjs/nested-list'
+import InlineCode from '@editorjs/inline-code'
 import { watch } from 'vue'
 import dayjs from '@/utils/dayjs'
 
@@ -130,11 +132,24 @@ export function getEditorTools() {
 			class: Paragraph,
 			inlineToolbar: true,
 		},
+		codeBox: {
+			class: CodeBox,
+			config: {
+				themeURL:
+					'https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.1/build/styles/dracula.min.css', // Optional
+				themeName: 'atom-one-dark', // Optional
+				useDefaultTheme: 'dark', // Optional. This also determines the background color of the language select drop-down
+			},
+		},
 		list: {
 			class: NestedList,
 			config: {
 				defaultStyle: 'ordered',
 			},
+		},
+		inlineCode: {
+			class: InlineCode,
+			shortcut: 'CMD+SHIFT+M',
 		},
 		embed: {
 			class: Embed,
@@ -335,4 +350,20 @@ export function getFormattedDateRange(
 	return `${dayjs(startDate).format(format)} - ${dayjs(endDate).format(
 		format
 	)}`
+}
+
+export function getLineStartPosition(string, position) {
+	const charLength = 1
+	let char = ''
+
+	while (char !== '\n' && position > 0) {
+		position = position - charLength
+		char = string.substr(position, charLength)
+	}
+
+	if (char === '\n') {
+		position += 1
+	}
+
+	return position
 }

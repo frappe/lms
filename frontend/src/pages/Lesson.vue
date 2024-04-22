@@ -5,10 +5,10 @@
 		>
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
 		</header>
-		<div class="grid md:grid-cols-[70%,30%] h-full">
+		<div class="grid md:grid-cols-[70%,30%] h-screen">
 			<div
 				v-if="lesson.data.no_preview"
-				class="border-r-2 text-center pt-10 px-5 md:px-0 pb-10"
+				class="border-r text-center pt-10 px-5 md:px-0 pb-10"
 			>
 				<p class="mb-4">
 					{{
@@ -25,7 +25,7 @@
 					</Button>
 				</router-link>
 			</div>
-			<div v-else class="border-r-2 container pt-5 pb-10 px-5">
+			<div v-else class="border-r container pt-5 pb-10 px-5">
 				<div class="flex flex-col md:flex-row md:items-center justify-between">
 					<div class="text-3xl font-semibold">
 						{{ lesson.data.title }}
@@ -101,17 +101,7 @@
 							:user="instructor"
 						/>
 					</span>
-					<span v-if="lesson.data.instructors.length == 1">
-						{{ lesson.data.instructors[0].full_name }}
-					</span>
-					<span v-if="lesson.data.instructors.length == 2">
-						{{ lesson.data.instructors[0].first_name }} and
-						{{ lesson.data.instructors[1].first_name }}
-					</span>
-					<span v-if="lesson.data.instructors.length > 2">
-						{{ lesson.data.instructors[0].first_name }} and
-						{{ lesson.data.instructors.length - 1 }} others
-					</span>
+					<CourseInstructors :instructors="lesson.data.instructors" />
 				</div>
 				<div
 					v-if="
@@ -161,7 +151,7 @@
 				</div>
 			</div>
 			<div class="sticky top-10">
-				<div class="bg-gray-50 p-5 border-b-2">
+				<div class="bg-gray-50 p-5 border-b">
 					<div class="text-lg font-semibold">
 						{{ lesson.data.course_title }}
 					</div>
@@ -196,6 +186,7 @@ import Discussions from '@/components/Discussions.vue'
 import { getEditorTools } from '../utils'
 import EditorJS from '@editorjs/editorjs'
 import LessonContent from '@/components/LessonContent.vue'
+import CourseInstructors from '@/components/CourseInstructors.vue'
 
 const user = inject('$user')
 const route = useRoute()
@@ -246,7 +237,6 @@ const lesson = createResource({
 
 const renderEditor = (holder, content) => {
 	// empty the holder
-	document.getElementById(holder).innerHTML = ''
 	return new EditorJS({
 		holder: holder,
 		tools: getEditorTools(),
@@ -395,5 +385,99 @@ const allowInstructorContent = () => {
 
 .embed-tool__caption {
 	display: none;
+}
+
+.ce-block__content {
+	max-width: unset;
+}
+
+.codeBoxHolder {
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: flex-start;
+}
+
+.codeBoxTextArea {
+	width: 100%;
+	min-height: 30px;
+	padding: 10px;
+	border-radius: 2px 2px 2px 0;
+	border: none !important;
+	outline: none !important;
+	font: 14px monospace;
+}
+
+.codeBoxSelectDiv {
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: flex-start;
+	position: relative;
+}
+
+.codeBoxSelectInput {
+	border-radius: 0 0 20px 2px;
+	padding: 2px 26px;
+	padding-top: 0;
+	padding-right: 0;
+	text-align: left;
+	cursor: pointer;
+	border: none !important;
+	outline: none !important;
+}
+
+.codeBoxSelectDropIcon {
+	position: absolute !important;
+	left: 10px !important;
+	bottom: 0 !important;
+	width: unset !important;
+	height: unset !important;
+	font-size: 16px !important;
+}
+
+.codeBoxSelectPreview {
+	display: none;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: flex-start;
+	border-radius: 2px;
+	box-shadow: 0 3px 15px -3px rgba(13, 20, 33, 0.13);
+	position: absolute;
+	top: 100%;
+	margin: 5px 0;
+	max-height: 30vh;
+	overflow-x: hidden;
+	overflow-y: auto;
+	z-index: 10000;
+}
+
+.codeBoxSelectItem {
+	width: 100%;
+	padding: 5px 20px;
+	margin: 0;
+	cursor: pointer;
+}
+
+.codeBoxSelectItem:hover {
+	opacity: 0.7;
+}
+
+.codeBoxSelectedItem {
+	background-color: lightblue !important;
+}
+
+.codeBoxShow {
+	display: flex !important;
+}
+
+.dark {
+	color: #abb2bf;
+	background-color: #282c34;
+}
+
+.light {
+	color: #383a42;
+	background-color: #fafafa;
 }
 </style>
