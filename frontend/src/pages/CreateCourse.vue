@@ -105,7 +105,7 @@
 							</div>
 							<div class="flex items-center">
 								<div
-									v-for="tag in course.tags.split(', ')"
+									v-for="tag in course.tags?.split(', ')"
 									class="flex items-center bg-gray-100 p-2 rounded-md mr-2"
 								>
 									{{ tag }}
@@ -295,12 +295,6 @@ const imageResource = createResource({
 	onSuccess(data) {
 		course.course_image = data
 	},
-})
-
-const getTags = computed(() => {
-	return courseResource.doc?.tags
-		? courseResource.doc.tags.split(', ')
-		: tags.value?.split(', ')
 })
 
 const submitCourse = () => {
