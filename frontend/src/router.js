@@ -125,6 +125,11 @@ const routes = [
 		component: () => import('@/pages/AssignmentSubmission.vue'),
 		props: true,
 	},
+	{
+		path: '/certified-participants',
+		name: 'CertifiedParticipants',
+		component: () => import('@/pages/CertifiedParticipants.vue'),
+	},
 ]
 
 let router = createRouter({

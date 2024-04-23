@@ -325,3 +325,35 @@ def get_evaluator_details(evaluator):
 		"calendar": calendar.name,
 		"is_authorised": calendar.authorization_code,
 	}
+
+
+@frappe.whitelist(allow_guest=True)
+def get_certified_participants():
+	participants = frappe.db.sql(
+		"""
+		SELECT DISTINCT lc.member
+		FROM `tabLMS Certificate` lc
+		WHERE lc.published = 1
+		ORDER BY lc.creation desc
+		""",
+		as_dict=1,
+	)
+
+	participant_details = []
+	for participant in participants:
+		details = frappe.db.get_value(
+			"User",
+			participant.member,
+			["name", "full_name", "username", "user_image"],
+			as_dict=True,
+		)
+		course_names = frappe.get_all(
+			"LMS Certificate", {"member": participant.member}, pluck="course"
+		)
+		courses = []
+		for course in course_names:
+			courses.append(frappe.db.get_value("LMS Course", course, "title"))
+		details.courses = courses
+		participant_details.append(details)
+
+	return participant_details
