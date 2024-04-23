@@ -4,6 +4,8 @@
 import frappe
 from frappe.translate import get_all_translations
 from frappe import _
+from frappe.query_builder import DocType
+from frappe.query_builder.functions import Count
 
 
 @frappe.whitelist()
@@ -325,3 +327,34 @@ def get_evaluator_details(evaluator):
 		"calendar": calendar.name,
 		"is_authorised": calendar.authorization_code,
 	}
+
+
+@frappe.whitelist(allow_guest=True)
+def get_certified_participants():
+	LMSCertificate = DocType("LMS Certificate")
+	participants = (
+		frappe.qb.from_(LMSCertificate)
+		.select("DISTINCT member")
+		.where(LMSCertificate.published == 1)
+		.order_by("creation desc")
+		.run()
+	)
+
+	participant_details = []
+	for participant in participants:
+		details = frappe.db.get_value(
+			"User",
+			participant.member,
+			["name", "full_name", "username", "user_image"],
+			as_dict=True,
+		)
+		course_names = frappe.get_all(
+			"LMS Certificate", {"member": participant.member}, pluck="course"
+		)
+		courses = []
+		for course in course_names:
+			courses.append(frappe.db.get_value("LMS Course", course, "title"))
+		details.courses = courses
+		participant_details.append(details)
+
+	return participant_details
