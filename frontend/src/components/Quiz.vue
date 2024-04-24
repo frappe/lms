@@ -82,9 +82,10 @@
 							{{ question.marks == 1 ? __('Mark') : __('Marks') }}
 						</div>
 					</div>
-					<div class="text-gray-900 font-semibold mt-2">
-						{{ questionDetails.data.question }}
-					</div>
+					<div
+						class="text-gray-900 font-semibold mt-2"
+						v-html="questionDetails.data.question"
+					></div>
 					<div v-if="questionDetails.data.type == 'Choices'" v-for="index in 4">
 						<label
 							v-if="questionDetails.data[`option_${index}`]"
