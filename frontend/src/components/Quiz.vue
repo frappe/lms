@@ -247,6 +247,9 @@ const quiz = createResource({
 	cache: ['quiz', props.quizName],
 	auto: true,
 	onSuccess(data) {
+		if (data.shuffle_questions) {
+			data.questions = data.questions.sort(() => Math.random() - 0.5)
+		}
 		attempts.reload()
 		resetQuiz()
 	},
