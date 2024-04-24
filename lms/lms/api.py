@@ -334,10 +334,11 @@ def get_certified_participants():
 	LMSCertificate = DocType("LMS Certificate")
 	participants = (
 		frappe.qb.from_(LMSCertificate)
-		.select("DISTINCT member")
+		.select(LMSCertificate.member)
+		.distinct()
 		.where(LMSCertificate.published == 1)
-		.order_by("creation desc")
-		.run()
+		.orderby(LMSCertificate.creation, order=frappe.qb.desc)
+		.run(as_dict=1)
 	)
 
 	participant_details = []
