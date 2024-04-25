@@ -124,13 +124,16 @@
 									<MinusCircle v-else class="w-4 h-4" />
 								</div>
 							</div>
-							<span class="ml-2">
-								{{ questionDetails.data[`option_${index}`] }}
+							<span
+								class="ml-2"
+								v-html="questionDetails.data[`option_${index}`]"
+							>
 							</span>
 						</label>
 						<div
 							v-if="questionDetails.data[`explanation_${index}`]"
-							class="mt-2 text-sm hidden"
+							class="mt-2 text-xs"
+							v-show="showAnswers.length"
 						>
 							{{ questionDetails.data[`explanation_${index}`] }}
 						</div>
@@ -345,7 +348,8 @@ const checkAnswer = () => {
 		createToast({
 			title: 'Please select an option',
 			icon: 'alert-circle',
-			iconClasses: 'text-yellow-600 bg-yellow-100',
+			iconClasses: 'text-yellow-600 bg-yellow-100 rounded-full',
+			position: 'top-center',
 		})
 		return
 	}

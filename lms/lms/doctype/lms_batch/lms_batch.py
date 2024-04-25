@@ -184,7 +184,6 @@ def remove_assessment(assessment, parent):
 def create_live_class(
 	batch_name, title, duration, date, time, timezone, auto_recording, description=None
 ):
-	date = format_date(date, "yyyy-mm-dd", True)
 	frappe.only_for("Moderator")
 	payload = {
 		"topic": title,
