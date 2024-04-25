@@ -24,7 +24,12 @@
 			<Quiz :quiz="getId(block)" />
 		</div>
 		<div v-else-if="block.includes('{{ Video')">
-			<video controls width="100%" controlsList="nodownload">
+			<video
+				controls
+				width="100%"
+				controlsList="nodownload"
+				oncontextmenu="return false;"
+			>
 				<source :src="getId(block)" type="video/mp4" />
 			</video>
 		</div>

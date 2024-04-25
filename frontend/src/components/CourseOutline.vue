@@ -2,9 +2,9 @@
 	<div class="text-base">
 		<div
 			v-if="title && (outline.data?.length || allowEdit)"
-			class="flex items-center justify-between mb-4"
+			class="flex items-center justify-between mb-4 pl-2"
 		>
-			<div class="font-semibold" :class="allowEdit ? 'text-base' : 'text-lg'">
+			<div class="font-semibold text-lg">
 				{{ __(title) }}
 			</div>
 			<Button size="sm" v-if="allowEdit" @click="openChapterModal()">
@@ -73,7 +73,7 @@
 							</router-link>
 						</div>
 					</div>
-					<div v-if="allowEdit" class="flex mt-2 pl-8">
+					<div v-if="allowEdit" class="flex mt-2 mb-4 pl-8">
 						<router-link
 							:to="{
 								name: 'CreateLesson',
