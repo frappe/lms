@@ -17,78 +17,61 @@
 			<div class="flex flex-col gap-4">
 				<div class="grid grid-cols-2 gap-4">
 					<div>
-						<div class="mb-4">
-							<div class="mb-1.5 text-sm text-gray-600">
-								{{ __('Title') }}
-							</div>
-							<Input type="text" v-model="liveClass.title" />
-						</div>
-						<div class="mb-4">
-							<div class="mb-1.5 text-sm text-gray-600">
-								<Tooltip
-									class="flex items-center"
-									:text="
-										__(
-											'Time must be in 24 hour format (HH:mm). Example 11:30 or 22:00'
-										)
-									"
-								>
-									<span>
-										{{ __('Time') }}
-									</span>
-									<Info class="stroke-2 w-3 h-3 ml-1" />
-								</Tooltip>
-							</div>
-							<Input v-model="liveClass.time" />
-						</div>
-						<div>
-							<div class="mb-1.5 text-sm text-gray-600">
-								{{ __('Timezone') }}
-							</div>
-							<Select
-								v-model="liveClass.timezone"
-								:options="getTimezoneOptions()"
+						<FormControl
+							type="text"
+							v-model="liveClass.title"
+							:label="__('Title')"
+							class="mb-4"
+						/>
+						<Tooltip
+							:text="
+								__(
+									'Time must be in 24 hour format (HH:mm). Example 11:30 or 22:00'
+								)
+							"
+						>
+							<FormControl
+								v-model="liveClass.time"
+								type="time"
+								:label="__('Time')"
+								class="mb-4"
 							/>
-						</div>
+						</Tooltip>
+						<FormControl
+							v-model="liveClass.timezone"
+							type="select"
+							:options="getTimezoneOptions()"
+							:label="__('Timezone')"
+						/>
 					</div>
 					<div>
-						<div class="mb-4">
-							<div class="mb-1.5 text-sm text-gray-600">
-								{{ __('Date') }}
-							</div>
-							<DatePicker v-model="liveClass.date" inputClass="w-full" />
-						</div>
-						<div class="mb-4">
-							<div class="mb-1.5 text-sm text-gray-600">
-								<Tooltip
-									class="flex items-center"
-									:text="__('Duration of the live class in minutes')"
-								>
-									<span>
-										{{ __('Duration') }}
-									</span>
-									<Info class="stroke-2 w-3 h-3 ml-1" />
-								</Tooltip>
-							</div>
-							<Input type="number" v-model="liveClass.duration" />
-						</div>
-						<div>
-							<div class="mb-1.5 text-sm text-gray-600">
-								{{ __('Auto Recording') }}
-							</div>
-							<Select
-								v-model="liveClass.auto_recording"
-								:options="getRecordingOptions()"
+						<FormControl
+							v-model="liveClass.date"
+							type="date"
+							class="mb-4"
+							:label="__('Date')"
+						/>
+						<Tooltip :text="__('Duration of the live class in minutes')">
+							<FormControl
+								type="number"
+								v-model="liveClass.duration"
+								:label="__('Duration')"
+								class="mb-4"
 							/>
-						</div>
+						</Tooltip>
+						<FormControl
+							v-model="liveClass.auto_recording"
+							type="select"
+							:options="getRecordingOptions()"
+							:label="__('Auto Recording')"
+						/>
 					</div>
 				</div>
-				<div>
-					<div class="mb-1.5 text-sm text-gray-600">
-						{{ __('Description') }}
-					</div>
-					<Textarea v-model="liveClass.description" />
-				</div>
+				<FormControl
+					v-model="liveClass.description"
+					type="textarea"
+					:label="__('Description')"
+				/>
 			</div>
 		</template>
 	</Dialog>
@@ -102,6 +85,7 @@ import {
 	Dialog,
 	createResource,
 	Tooltip,
+	FormControl,
 } from 'frappe-ui'
 import { reactive, inject } from 'vue'
 import { getTimezones, createToast } from '@/utils/'

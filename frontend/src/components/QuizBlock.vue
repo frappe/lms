@@ -23,4 +23,8 @@ const props = defineProps({
 		required: true,
 	},
 })
+
+const redirectToLogin = () => {
+	window.location.href = `/login`
+}
 </script>
