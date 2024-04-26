@@ -70,6 +70,12 @@ class LMSCertificate(Document):
 		)
 
 
+def has_website_permission(doc, ptype, user, verbose=False):
+	if ptype in ["read", "print"]:
+		return True
+	return False
+
+
 @frappe.whitelist()
 def create_certificate(course):
 	certificate = is_certified(course)
