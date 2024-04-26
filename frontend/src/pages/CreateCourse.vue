@@ -165,7 +165,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="border-l px-5 pt-5">
+			<div class="border-l pt-5">
 				<!-- <CreateOutline v-if="courseResource.doc" :course="courseResource.doc"/> -->
 				<CourseOutline
 					v-if="courseResource.data"
@@ -220,7 +220,7 @@ const course = reactive({
 })
 
 onMounted(() => {
-	if (!user.data?.is_moderator || !user.data?.is_instructor) {
+	if (!user.data?.is_moderator && !user.data?.is_instructor) {
 		router.push({ name: 'Courses' })
 	}
 	if (props.courseName !== 'new') {

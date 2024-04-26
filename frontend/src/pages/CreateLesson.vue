@@ -114,6 +114,7 @@ const renderEditor = (holder) => {
 	return new EditorJS({
 		holder: holder,
 		tools: getEditorTools(),
+		autofocus: true,
 	})
 }
 

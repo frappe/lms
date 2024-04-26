@@ -137,6 +137,9 @@ export function getEditorTools() {
 		paragraph: {
 			class: Paragraph,
 			inlineToolbar: true,
+			config: {
+				preserveBlank: true,
+			},
 		},
 		codeBox: {
 			class: CodeBox,

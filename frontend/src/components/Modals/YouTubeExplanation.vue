@@ -16,6 +16,7 @@
 						muted
 						width="100%"
 						controlsList="nodownload"
+						oncontextmenu="return false;"
 						class="rounded-sm"
 					>
 						<source src="/Youtube.mov" type="video/mp4" />

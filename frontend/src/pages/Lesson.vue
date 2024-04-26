@@ -151,7 +151,7 @@
 				</div>
 			</div>
 			<div class="sticky top-10">
-				<div class="bg-gray-50 p-5 border-b">
+				<div class="bg-gray-50 py-5 pl-2 border-b">
 					<div class="text-lg font-semibold">
 						{{ lesson.data.course_title }}
 					</div>
@@ -379,10 +379,6 @@ const allowInstructorContent = () => {
 	color: theme('colors.gray.900');
 	text-decoration: underline;
 	font-weight: 500;
-}
-
-.codex-editor__redactor {
-	padding-bottom: 0 !important;
 }
 
 .embed-tool__caption {
