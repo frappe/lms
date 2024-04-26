@@ -75,7 +75,13 @@ cd apps/lms/docker
 docker-compose up
 ```
 
-Wait for some time until the setup script creates a site. After that, you can access `http://localhost:8000` in your browser and the app's login screen should show up.
+Wait for some time until the setup script creates a site. After that, you can access `http://localhost:8000` in your browser and the app's login screen should appear.
+You'll have to go through the setup wizard to set up the website the first time you access it. Log in using the following credentials to complete the setup wizard.
+
+```
+Username: Administrator
+password: admin
+```
 
 ### Frappe Bench
 
