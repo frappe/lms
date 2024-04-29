@@ -15,12 +15,6 @@ class CourseEvaluator(Document):
 		self.validate_unavailability()
 
 	def validate_unavailability(self):
-		if self.unavailable_from and not self.unavailable_to:
-			frappe.throw(_("Unavailable To Date is mandatory if Unavailable From Date is set"))
-
-		if self.unavailable_to and not self.unavailable_from:
-			frappe.throw(_("Unavailable From Date is mandatory if Unavailable To Date is set"))
-
 		if (
 			self.unavailable_from
 			and self.unavailable_to
