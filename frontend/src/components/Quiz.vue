@@ -253,8 +253,6 @@ const quiz = createResource({
 		if (data.shuffle_questions) {
 			data.questions = data.questions.sort(() => Math.random() - 0.5)
 		}
-		attempts.reload()
-		resetQuiz()
 	},
 })
 
@@ -285,6 +283,16 @@ const attempts = createResource({
 		})
 	},
 })
+
+watch(
+	() => quiz.data,
+	() => {
+		if (quiz.data) {
+			attempts.reload()
+			resetQuiz()
+		}
+	}
+)
 
 const quizSubmission = createResource({
 	url: 'lms.lms.doctype.lms_quiz.lms_quiz.quiz_summary',
