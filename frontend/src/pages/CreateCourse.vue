@@ -122,7 +122,7 @@
 						<div class="text-lg font-semibold mt-5 mb-4">
 							{{ __('Settings') }}
 						</div>
-						<div class="flex items-center justify-between mb-5">
+						<div class="flex items-center justify-between mb-4">
 							<FormControl
 								type="checkbox"
 								v-model="course.published"
@@ -139,6 +139,12 @@
 								:label="__('Disable Self Enrollment')"
 							/>
 						</div>
+						<FormControl
+							v-model="course.published_on"
+							:label="__('Published On')"
+							type="date"
+							class="mb-5"
+						/>
 					</div>
 					<div class="container border-t">
 						<div class="text-lg font-semibold mt-5 mb-4">
@@ -212,6 +218,7 @@ const course = reactive({
 	course_image: null,
 	tags: '',
 	published: false,
+	published_on: '',
 	upcoming: false,
 	disable_self_learning: false,
 	paid_course: false,
@@ -358,7 +365,7 @@ watch(
 
 const validateFile = (file) => {
 	let extension = file.name.split('.').pop().toLowerCase()
-	if (!['jpg', 'jpeg', 'png'].includes(extension)) {
+	if (!['jpg', 'jpeg', 'png', 'webp'].includes(extension)) {
 		return 'Only image file is allowed.'
 	}
 }

@@ -97,7 +97,13 @@ def create_certificate(course):
 			},
 			"value",
 		)
-
+		if not default_certificate_template:
+			default_certificate_template = frappe.db.get_value(
+				"Print Format",
+				{
+					"doc_type": "LMS Certificate",
+				},
+			)
 		certificate = frappe.get_doc(
 			{
 				"doctype": "LMS Certificate",
