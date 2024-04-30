@@ -73,6 +73,11 @@ const routes = [
 				component: () => import('@/pages/ProfileCertificates.vue'),
 			},
 			{
+				name: 'ProfileAchievements',
+				path: 'achievements',
+				component: () => import('@/pages/ProfileAchievements.vue'),
+			},
+			{
 				name: 'ProfileRoles',
 				path: 'roles',
 				component: () => import('@/pages/ProfileRoles.vue'),
