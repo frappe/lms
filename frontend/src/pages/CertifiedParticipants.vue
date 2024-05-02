@@ -4,6 +4,20 @@
 	>
 		<Breadcrumbs :items="breadcrumbs" />
 	</header>
+
+	<div class="m-5">
+		<FormControl
+			type="text"
+			placeholder="Search Participants"
+			v-model="searchQuery"
+			@input="participants.reload()"
+			size="md"
+		>
+			<template #prefix>
+				<FeatherIcon class="w-4" name="search" />
+			</template>
+		</FormControl>
+	</div>
 	<div class="grid grid-cols-3 gap-4 m-5">
 		<div v-for="participant in participants.data">
 			<router-link
@@ -38,14 +52,26 @@
 	</div>
 </template>
 <script setup>
-import { Breadcrumbs, createResource } from 'frappe-ui'
-import { computed } from 'vue'
+import {
+	Breadcrumbs,
+	FormControl,
+	FeatherIcon,
+	createResource,
+} from 'frappe-ui'
+import { ref, computed } from 'vue'
 import UserAvatar from '@/components/UserAvatar.vue'
+
+const searchQuery = ref('')
 
 const participants = createResource({
 	url: 'lms.lms.api.get_certified_participants',
+	method: 'GET',
+	makeParams() {
+		return {
+			search_query: searchQuery.value,
+		}
+	},
 	auto: true,
-	cache: ['certified-participants'],
 })
 
 const breadcrumbs = computed(() => {
