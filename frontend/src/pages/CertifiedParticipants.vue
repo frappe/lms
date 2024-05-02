@@ -14,7 +14,7 @@
 			size="md"
 		>
 			<template #prefix>
-				<FeatherIcon class="w-4" name="search" />
+				<Search class="w-4" name="search" />
 			</template>
 		</FormControl>
 	</div>
@@ -52,14 +52,10 @@
 	</div>
 </template>
 <script setup>
-import {
-	Breadcrumbs,
-	FormControl,
-	FeatherIcon,
-	createResource,
-} from 'frappe-ui'
+import { Breadcrumbs, FormControl, createResource } from 'frappe-ui'
 import { ref, computed } from 'vue'
 import UserAvatar from '@/components/UserAvatar.vue'
+import { Search } from 'lucide-vue-next'
 
 const searchQuery = ref('')
 
