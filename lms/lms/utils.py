@@ -161,6 +161,7 @@ def get_lesson_details(chapter):
 		)
 		lesson_details.number = f"{chapter.idx}.{row.idx}"
 		lesson_details.icon = get_lesson_icon(lesson_details.body)
+		lesson_details.is_complete = get_progress(lesson_details.course, lesson_details.name)
 		lessons.append(lesson_details)
 	return lessons
 

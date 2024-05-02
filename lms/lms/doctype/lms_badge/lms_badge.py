@@ -36,7 +36,7 @@ class LMSBadge(Document):
 		if self.grant_only_once:
 			if frappe.db.exists(
 				"LMS Badge Assignment",
-				{"badge": self.name, "user": frappe.session.user},
+				{"badge": self.name, "member": frappe.session.user},
 			):
 				return
 
@@ -44,7 +44,7 @@ class LMSBadge(Document):
 		assignment.update(
 			{
 				"badge": self.name,
-				"user": frappe.session.user,
+				"member": frappe.session.user,
 				"issued_on": frappe.utils.now(),
 			}
 		)

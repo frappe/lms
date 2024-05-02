@@ -85,8 +85,13 @@
   }
  ],
  "index_web_pages_for_search": 1,
- "links": [],
- "modified": "2024-04-30 17:16:17.725459",
+ "links": [
+  {
+   "link_doctype": "LMS Badge Assignment",
+   "link_fieldname": "badge"
+  }
+ ],
+ "modified": "2024-05-02 14:23:32.198858",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Badge",

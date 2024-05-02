@@ -5,9 +5,23 @@
 		</h2>
 		<div class="grid grid-cols-5 gap-4">
 			<div v-if="badges.data" v-for="badge in badges.data">
-				<Popover trigger="hover" hoverDelay="0.0">
+				<Popover trigger="hover">
 					<template #target>
-						<img :src="badge.badge_image" :alt="badge.badge" class="h-[80px]" />
+						<div class="relative">
+							<img
+								:src="badge.badge_image"
+								:alt="badge.badge"
+								class="h-[80px]"
+							/>
+							<div
+								class="flex items-end bg-gray-100 p-2 text-xs font-semibold rounded-full absolute right-0 bottom-0"
+							>
+								<span>
+									<X class="w-3 h-3" />
+								</span>
+								{{ badge.count }}
+							</div>
+						</div>
 					</template>
 					<template #body-main>
 						<div class="w-[250px] text-base">
@@ -20,7 +34,7 @@
 								<div class="text-2xl font-semibold mb-2">
 									{{ badge.badge }}
 								</div>
-								<div class="mb-4">
+								<div class="leading-5 mb-4">
 									{{ badge.badge_description }}
 								</div>
 								<div class="flex flex-col">
@@ -39,8 +53,8 @@
 </template>
 <script setup>
 import { createResource, Popover } from 'frappe-ui'
-import BadgePopover from '@/components/BadgePopover.vue'
 import { inject } from 'vue'
+import { X } from 'lucide-vue-next'
 
 const dayjs = inject('$dayjs')
 
@@ -61,5 +75,15 @@ const badges = createResource({
 		},
 	},
 	auto: true,
+	transform(data) {
+		let finalBadges = []
+		let groupedBadges = Object.groupBy(data, ({ badge }) => badge)
+		for (let badge in groupedBadges) {
+			let badgeData = groupedBadges[badge][0]
+			badgeData.count = groupedBadges[badge].length
+			finalBadges.push(badgeData)
+		}
+		return finalBadges
+	},
 })
 </script>
