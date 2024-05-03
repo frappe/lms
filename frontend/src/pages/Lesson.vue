@@ -170,7 +170,11 @@
 						></div>
 					</div>
 				</div>
-				<CourseOutline :courseName="courseName" :key="chapterNumber" />
+				<CourseOutline
+					:courseName="courseName"
+					:key="chapterNumber"
+					:membership="lesson.data.membership"
+				/>
 			</div>
 		</div>
 	</div>

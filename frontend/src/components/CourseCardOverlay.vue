@@ -46,6 +46,12 @@
 					</span>
 				</Button>
 			</router-link>
+			<div
+				v-else-if="course.data.disable_self_learning"
+				class="bg-blue-100 text-blue-900 text-sm rounded-md py-1 px-3"
+			>
+				{{ __('Contact the Administrator to enroll for this course.') }}
+			</div>
 			<Button
 				v-else
 				@click="enrollStudent()"

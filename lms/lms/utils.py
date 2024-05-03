@@ -135,7 +135,7 @@ def get_lessons(course, chapter=None, get_details=True):
 	return lessons if get_details else lesson_count
 
 
-def get_lesson_details(chapter):
+def get_lesson_details(chapter, get_progress=False):
 	lessons = []
 	lesson_list = frappe.get_all(
 		"Lesson Reference", {"parent": chapter.name}, ["lesson", "idx"], order_by="idx"
@@ -161,7 +161,7 @@ def get_lesson_details(chapter):
 		)
 		lesson_details.number = f"{chapter.idx}.{row.idx}"
 		lesson_details.icon = get_lesson_icon(lesson_details.body)
-		lesson_details.is_complete = get_progress(lesson_details.course, lesson_details.name)
+
 		lessons.append(lesson_details)
 	return lessons
 
@@ -307,7 +307,7 @@ def get_progress(course, lesson, member=None):
 	if not member:
 		member = frappe.session.user
 
-	return frappe.db.get_value(
+	return frappe.db.exists(
 		"LMS Course Progress",
 		{"course": course, "member": member, "lesson": lesson},
 		["status"],
@@ -1209,6 +1209,7 @@ def get_course_details(course):
 			"short_introduction",
 			"published",
 			"upcoming",
+			"disable_self_learning",
 			"published_on",
 			"status",
 			"paid_course",

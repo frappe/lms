@@ -2,7 +2,7 @@
 	<div class="text-base">
 		<div
 			v-if="title && (outline.data?.length || allowEdit)"
-			class="grid grid-cols-[70%,30%] mb-4 px-3"
+			class="grid grid-cols-[70%,30%] mb-4"
 		>
 			<div class="font-semibold text-lg">
 				{{ __(title) }}
@@ -105,7 +105,7 @@
 </template>
 <script setup>
 import { Button, createResource } from 'frappe-ui'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import {
 	ChevronRight,
@@ -139,6 +139,10 @@ const props = defineProps({
 		type: Boolean,
 		default: false,
 	},
+	membership: {
+		type: Object,
+		default: () => ({}),
+	},
 })
 
 const outline = createResource({
@@ -149,6 +153,23 @@ const outline = createResource({
 	},
 	auto: true,
 })
+
+/* const isComplete = (lesson) => {
+	createResource({
+		url: 'lms.lms.utils.get_progress',
+		makeParams() {
+			console.log(lesson)
+			return {
+				course: lesson.course,
+				lesson: lesson.name,
+			}
+		},
+		auto: true,
+		onSuccess(data) {
+			console.log(data)
+		}
+	})
+} */
 
 const openChapterDetail = (index) => {
 	return index == route.params.chapterNumber || index == 1
