@@ -7,6 +7,7 @@ from frappe.model.document import Document
 from frappe.utils.telemetry import capture
 from lms.lms.utils import get_course_progress
 from ...md import find_macros
+import json
 
 
 class CourseLesson(Document):
@@ -95,6 +96,7 @@ def save_progress(lesson, course):
 		return 0
 
 	quiz_completed = get_quiz_progress(lesson)
+	print(quiz_completed)
 	if not quiz_completed:
 		return 0
 
@@ -118,19 +120,46 @@ def save_progress(lesson, course):
 
 
 def get_quiz_progress(lesson):
-	body = frappe.db.get_value("Course Lesson", lesson, "body")
-	macros = find_macros(body)
-	quizzes = [value for name, value in macros if name == "Quiz"]
+	lesson_details = frappe.db.get_value(
+		"Course Lesson", lesson, ["body", "content"], as_dict=1
+	)
+	quizzes = []
+
+	if lesson_details.content:
+		content = json.loads(lesson_details.content)
+
+		for block in content.get("blocks"):
+			if block.get("type") == "quiz":
+				quizzes.append(block.get("data").get("quiz"))
+
+	elif lesson_details.body:
+		macros = find_macros(lesson_details.body)
+		quizzes = [value for name, value in macros if name == "Quiz"]
+
 	for quiz in quizzes:
+		print(quiz)
 		passing_percentage = frappe.db.get_value("LMS Quiz", quiz, "passing_percentage")
+		print(frappe.session.user)
+		print(passing_percentage)
+		print(
+			frappe.db.exists(
+				"LMS Quiz Submission",
+				{
+					"quiz": quiz,
+					"member": frappe.session.user,
+					"percentage": [">=", passing_percentage],
+				},
+			)
+		)
 		if not frappe.db.exists(
 			"LMS Quiz Submission",
 			{
 				"quiz": quiz,
-				"owner": frappe.session.user,
+				"member": frappe.session.user,
 				"percentage": [">=", passing_percentage],
 			},
 		):
+			print("no submission")
 			return False
 	return True
 

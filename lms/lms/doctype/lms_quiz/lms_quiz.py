@@ -103,15 +103,21 @@ def quiz_summary(quiz, results):
 			"passing_percentage": quiz_details.passing_percentage,
 		}
 	)
+	submission.save(ignore_permissions=True)
 
+	print(
+		percentage, quiz_details.passing_percentage, quiz_details.lesson, quiz_details.course
+	)
 	if (
 		percentage >= quiz_details.passing_percentage
 		and quiz_details.lesson
 		and quiz_details.course
 	):
+		print("if")
 		save_progress(quiz_details.lesson, quiz_details.course)
-
-	submission.save(ignore_permissions=True)
+	elif not quiz_details.passing_percentage:
+		print("elif")
+		save_progress(quiz_details.lesson, quiz_details.course)
 
 	return {
 		"score": score,

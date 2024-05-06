@@ -115,27 +115,27 @@ def get_chapters(course):
 	return chapters
 
 
-def get_lessons(course, chapter=None, get_details=True):
+def get_lessons(course, chapter=None, get_details=True, progress=False):
 	"""If chapter is passed, returns lessons of only that chapter.
 	Else returns lessons of all chapters of the course"""
 	lessons = []
 	lesson_count = 0
 	if chapter:
 		if get_details:
-			return get_lesson_details(chapter)
+			return get_lesson_details(chapter, progress=progress)
 		else:
 			return frappe.db.count("Lesson Reference", {"parent": chapter.name})
 
 	for chapter in get_chapters(course):
 		if get_details:
-			lessons += get_lesson_details(chapter)
+			lessons += get_lesson_details(chapter, progress=progress)
 		else:
 			lesson_count += frappe.db.count("Lesson Reference", {"parent": chapter.name})
 
 	return lessons if get_details else lesson_count
 
 
-def get_lesson_details(chapter, get_progress=False):
+def get_lesson_details(chapter, progress=False):
 	lessons = []
 	lesson_list = frappe.get_all(
 		"Lesson Reference", {"parent": chapter.name}, ["lesson", "idx"], order_by="idx"
@@ -161,6 +161,9 @@ def get_lesson_details(chapter, get_progress=False):
 		)
 		lesson_details.number = f"{chapter.idx}.{row.idx}"
 		lesson_details.icon = get_lesson_icon(lesson_details.body)
+
+		if progress:
+			lesson_details.is_complete = get_progress(lesson_details.course, lesson_details.name)
 
 		lessons.append(lesson_details)
 	return lessons
@@ -1301,7 +1304,7 @@ def get_categorized_courses(courses):
 
 
 @frappe.whitelist(allow_guest=True)
-def get_course_outline(course):
+def get_course_outline(course, progress=False):
 	"""Returns the course outline."""
 	outline = []
 	chapters = frappe.get_all(
@@ -1315,7 +1318,7 @@ def get_course_outline(course):
 			as_dict=True,
 		)
 		chapter_details["idx"] = chapter.idx
-		chapter_details.lessons = get_lessons(course, chapter_details)
+		chapter_details.lessons = get_lessons(course, chapter_details, progress=progress)
 		outline.append(chapter_details)
 	return outline
 

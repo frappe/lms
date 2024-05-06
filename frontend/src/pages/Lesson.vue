@@ -173,7 +173,7 @@
 				<CourseOutline
 					:courseName="courseName"
 					:key="chapterNumber"
-					:membership="lesson.data.membership"
+					:getProgress="lesson.data.membership ? true : false"
 				/>
 			</div>
 		</div>

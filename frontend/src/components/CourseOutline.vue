@@ -67,7 +67,7 @@
 									{{ lesson.title }}
 									<Check
 										v-if="lesson.is_complete"
-										class="h-4 w-4 text-green-500 stroke-1.5 ml-2"
+										class="h-4 w-4 text-green-700 ml-2"
 									/>
 								</div>
 							</router-link>
@@ -139,9 +139,9 @@ const props = defineProps({
 		type: Boolean,
 		default: false,
 	},
-	membership: {
-		type: Object,
-		default: () => ({}),
+	getProgress: {
+		type: Boolean,
+		default: false,
 	},
 })
 
@@ -150,26 +150,10 @@ const outline = createResource({
 	cache: ['course_outline', props.courseName],
 	params: {
 		course: props.courseName,
+		progress: props.getProgress,
 	},
 	auto: true,
 })
-
-/* const isComplete = (lesson) => {
-	createResource({
-		url: 'lms.lms.utils.get_progress',
-		makeParams() {
-			console.log(lesson)
-			return {
-				course: lesson.course,
-				lesson: lesson.name,
-			}
-		},
-		auto: true,
-		onSuccess(data) {
-			console.log(data)
-		}
-	})
-} */
 
 const openChapterDetail = (index) => {
 	return index == route.params.chapterNumber || index == 1
