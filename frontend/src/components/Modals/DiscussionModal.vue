@@ -38,7 +38,8 @@
 </template>
 <script setup>
 import { Dialog, Input, TextEditor, createResource } from 'frappe-ui'
-import { reactive, defineModel } from 'vue'
+import { reactive, defineModel, computed } from 'vue'
+import { showToast } from '@/utils'
 
 const topics = defineModel('reloadTopics')
 
@@ -93,6 +94,14 @@ const submitTopic = (close) => {
 	topicResource.submit(
 		{},
 		{
+			validate() {
+				if (!topic.title) {
+					return 'Title cannot be empty.'
+				}
+				if (!topic.reply) {
+					return 'Reply cannot be empty.'
+				}
+			},
 			onSuccess(data) {
 				replyResource.submit(
 					{
@@ -107,6 +116,9 @@ const submitTopic = (close) => {
 						},
 					}
 				)
+			},
+			onError(err) {
+				showToast('Error', err.message, 'x')
 			},
 		}
 	)
