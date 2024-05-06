@@ -1208,6 +1208,7 @@ def get_course_details(course):
 			"short_introduction",
 			"published",
 			"upcoming",
+			"disable_self_learning",
 			"published_on",
 			"status",
 			"paid_course",

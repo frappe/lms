@@ -244,7 +244,7 @@ const newBatch = createResource({
 		return {
 			doc: {
 				doctype: 'LMS Batch',
-				meta_image: batch.image.file_url,
+				meta_image: batch.image?.file_url,
 				...batch,
 			},
 		}
@@ -279,7 +279,7 @@ const editBatch = createResource({
 			doctype: 'LMS Batch',
 			name: props.batchName,
 			fieldname: {
-				meta_image: batch.image.file_url,
+				meta_image: batch.image?.file_url,
 				...batch,
 			},
 		}
