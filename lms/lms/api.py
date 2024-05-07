@@ -359,3 +359,14 @@ def get_certified_participants(search_query=""):
 		details["courses"] = courses
 		participant_details.append(details)
 	return participant_details
+
+
+@frappe.whitelist()
+def get_certificates(member):
+	"""Get certificates for a member."""
+	return frappe.get_all(
+		"LMS Certificate",
+		filters={"member": member},
+		fields=["name", "course", "course_title", "issue_date", "template"],
+		order_by="creation desc",
+	)

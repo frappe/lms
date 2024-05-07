@@ -34,13 +34,9 @@ const props = defineProps({
 })
 
 const certificates = createResource({
-	url: 'frappe.client.get_list',
+	url: 'lms.lms.api.get_certificates',
 	params: {
-		doctype: 'LMS Certificate',
-		fields: ['name', 'course', 'course_title', 'issue_date', 'template'],
-		filters: {
-			member: props.profile.data.name,
-		},
+		member: props.profile.data.name,
 	},
 	auto: true,
 })
