@@ -1520,10 +1520,12 @@ def get_question_details(question):
 @frappe.whitelist(allow_guest=True)
 def get_batch_courses(batch):
 	courses = []
-	course_list = frappe.get_all("Batch Course", {"parent": batch}, pluck="course")
+	course_list = frappe.get_all("Batch Course", {"parent": batch}, ["name", "course"])
 
 	for course in course_list:
-		courses.append(get_course_details(course))
+		details = get_course_details(course.course)
+		details.batch_course = course.name
+		courses.append(details)
 
 	return courses
 
