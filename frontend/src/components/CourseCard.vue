@@ -7,7 +7,7 @@
 		<div
 			class="course-image"
 			:class="{ 'default-image': !course.image }"
-			:style="{ backgroundImage: 'url(' + encodeURI(course.image) + ')' }"
+			:style="{ backgroundImage: 'url(\'' + encodeURI(course.image) + '\')' }"
 		>
 			<div class="flex relative top-4 left-4 w-fit flex-wrap">
 				<Badge
