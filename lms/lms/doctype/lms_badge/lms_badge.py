@@ -13,13 +13,18 @@ class LMSBadge(Document):
 
 	def rule_condition_satisfied(self, doc):
 		doc_before_save = doc.get_doc_before_save()
+		print(doc_before_save.as_dict())
+		print(doc.as_dict())
 		if self.event == "New" and doc_before_save != None:
 			return False
 		print("its new")
 		if self.event == "Value Change":
 			field_to_check = self.field_to_check
-			if not self.field_to_check:
+			print(field_to_check)
+			if not field_to_check:
 				return False
+			print(doc_before_save.get(field_to_check))
+			print(doc.get(field_to_check))
 			if doc_before_save and doc_before_save.get(field_to_check) == doc.get(
 				field_to_check
 			):

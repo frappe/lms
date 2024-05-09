@@ -96,7 +96,7 @@ def save_progress(lesson, course):
 		return 0
 
 	quiz_completed = get_quiz_progress(lesson)
-	print(quiz_completed)
+
 	if not quiz_completed:
 		return 0
 

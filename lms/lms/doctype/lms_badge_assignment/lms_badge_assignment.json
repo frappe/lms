@@ -61,7 +61,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-04-30 17:19:39.554248",
+ "modified": "2024-05-08 14:18:39.455213",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Badge Assignment",
@@ -103,6 +103,15 @@
    "role": "LMS Student",
    "share": 1,
    "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "LMS Student",
+   "share": 1
   }
  ],
  "show_title_field_in_link": 1,

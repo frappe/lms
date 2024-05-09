@@ -383,7 +383,7 @@ def get_course_progress(course, member=None):
 		return 0
 	completed_lessons = frappe.db.count(
 		"LMS Course Progress",
-		{"course": course, "owner": member or frappe.session.user, "status": "Complete"},
+		{"course": course, "member": member or frappe.session.user, "status": "Complete"},
 	)
 	precision = cint(frappe.db.get_default("float_precision")) or 3
 	return flt(((completed_lessons / lesson_count) * 100), precision)

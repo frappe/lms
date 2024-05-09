@@ -2,6 +2,9 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on("LMS Badge", {
+	refresh: (frm) => {
+		frm.events.set_fields_to_check(frm);
+	},
 	reference_doctype: (frm) => {
 		frm.events.set_fields_to_check(frm);
 	},
