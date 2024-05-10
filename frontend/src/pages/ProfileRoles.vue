@@ -3,7 +3,9 @@
 		<h2 class="mb-3 text-lg font-semibold text-gray-900">
 			{{ __('Settings') }}
 		</h2>
-		<div class="flex justify-between w-3/4 mt-5">
+		<div
+			class="flex flex-col md:flex-row gap-4 md:gap-0 justify-between w-3/4 mt-5"
+		>
 			<FormControl
 				:label="__('Moderator')"
 				v-model="moderator"

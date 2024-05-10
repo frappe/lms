@@ -17,6 +17,7 @@ export const sessionStore = defineStore('lms-session', () => {
 	}
 
 	let user = ref(sessionUser())
+	let username = ref(null)
 	const isLoggedIn = computed(() => !!user.value)
 
 	const login = createResource({
@@ -43,6 +44,7 @@ export const sessionStore = defineStore('lms-session', () => {
 
 	return {
 		user,
+		username,
 		isLoggedIn,
 		login,
 		logout,
