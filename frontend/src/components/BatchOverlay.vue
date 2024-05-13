@@ -1,5 +1,5 @@
 <template>
-	<div v-if="batch.data" class="shadow rounded-md p-5" style="width: 300px">
+	<div v-if="batch.data" class="shadow rounded-md p-5 lg:w-72">
 		<Badge
 			v-if="batch.data.seat_count && seats_left > 0"
 			theme="green"
