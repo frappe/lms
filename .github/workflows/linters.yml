@@ -6,9 +6,6 @@ on:
   push:
     branches: [ main, develop ]
 
-permissions:
-  contents: read
-
 jobs:
   linters:
     name: Semantic Commits
