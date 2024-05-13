@@ -89,14 +89,14 @@ class CourseLesson(Document):
 
 @frappe.whitelist()
 def save_progress(lesson, course):
+	print("save progress")
 	membership = frappe.db.exists(
-		"LMS Enrollment", {"member": frappe.session.user, "course": course}
+		"LMS Enrollment", {"course": course, "member": frappe.session.user}
 	)
 	if not membership:
 		return 0
 
 	quiz_completed = get_quiz_progress(lesson)
-
 	if not quiz_completed:
 		return 0
 
@@ -115,7 +115,12 @@ def save_progress(lesson, course):
 	).save(ignore_permissions=True)
 
 	progress = get_course_progress(course)
-	frappe.db.set_value("LMS Enrollment", membership, "progress", progress)
+	print(membership)
+	enrollment = frappe.get_doc("LMS Enrollment", membership)
+	print(enrollment.progress)
+	print(progress)
+	enrollment.progress = progress
+	enrollment.save(ignore_permissions=True)
 	return progress
 
 

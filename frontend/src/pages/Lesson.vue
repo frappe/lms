@@ -151,7 +151,7 @@
 				</div>
 			</div>
 			<div class="sticky top-10">
-				<div class="bg-gray-50 py-5 pl-2 border-b">
+				<div class="bg-gray-50 py-5 px-2 border-b">
 					<div class="text-lg font-semibold">
 						{{ lesson.data.course_title }}
 					</div>

@@ -97,11 +97,6 @@ override_doctype_class = {
 # Hook on document methods and events
 
 doc_events = {
-	"*": {
-		"on_change": [
-			"lms.lms.doctype.lms_badge.lms_badge.process_badges",
-		]
-	},
 	"Discussion Reply": {"after_insert": "lms.lms.utils.handle_notifications"},
 }
 
