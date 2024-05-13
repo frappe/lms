@@ -35,8 +35,8 @@
 				</EditCoverImage>
 			</div>
 		</div>
-		<div class="mx-auto -mt-4 max-w-4xl translate-x-0 sm:px-5">
-			<div class="flex items-center">
+		<div class="mx-auto -mt-10 md:-mt-4 max-w-4xl translate-x-0 px-5">
+			<div class="flex flex-col md:flex-row items-center">
 				<div>
 					<img
 						v-if="profile.data.user_image"
@@ -57,7 +57,11 @@
 						{{ profile.data.headline }}
 					</div>
 				</div>
-				<Button v-if="isSessionUser()" class="ml-auto" @click="editProfile()">
+				<Button
+					v-if="isSessionUser()"
+					class="mt-3 sm:mt-0 md:ml-auto"
+					@click="editProfile()"
+				>
 					<template #prefix>
 						<Edit class="w-4 h-4 stroke-1.5 text-gray-700" />
 					</template>

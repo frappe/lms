@@ -97,7 +97,7 @@ def get_meta(app_path):
 			as_dict=True,
 		)
 		return {
-			"title": job_opening.title,
+			"title": job_opening.job_title,
 			"image": job_opening.company_logo,
 			"description": job_opening.company_name,
 			"keywords": "Job Openings, Jobs, Vacancies",

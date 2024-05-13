@@ -76,8 +76,7 @@
   {
    "fieldname": "video_link",
    "fieldtype": "Data",
-   "label": "Video Embed Link",
-   "reqd": 1
+   "label": "Video Embed Link"
   },
   {
    "fieldname": "short_introduction",
@@ -305,7 +304,6 @@
    "write": 1
   }
  ],
- "search_fields": "title, tags",
  "show_title_field_in_link": 1,
  "sort_field": "creation",
  "sort_order": "DESC",

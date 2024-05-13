@@ -52,7 +52,10 @@
 			<ListSelectBanner>
 				<template #actions="{ unselectAll, selections }">
 					<div class="flex gap-2">
-						<Button variant="ghost" @click="removeStudents(selections)">
+						<Button
+							variant="ghost"
+							@click="removeStudents(selections, unselectAll)"
+						>
 							<Trash2 class="h-4 w-4 stroke-1.5" />
 						</Button>
 					</div>
@@ -142,11 +145,13 @@ const removeStudent = createResource({
 	},
 })
 
-const removeStudents = (selections) => {
+const removeStudents = (selections, unselectAll) => {
 	selections.forEach(async (student) => {
 		removeStudent.submit({ student })
-		await setTimeout(1000)
 	})
-	students.reload()
+	setTimeout(() => {
+		students.reload()
+		unselectAll()
+	}, 500)
 }
 </script>

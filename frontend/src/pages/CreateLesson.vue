@@ -43,7 +43,7 @@
 							<div
 								v-show="openInstructorEditor"
 								id="instructor-notes"
-								class="py-3"
+								class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-gray-300 prose-th:border-gray-300 prose-td:relative prose-th:relative prose-th:bg-gray-100 prose-sm max-w-none !whitespace-normal mt-6 py-3"
 							></div>
 						</div>
 					</div>
@@ -52,7 +52,10 @@
 							<label class="block font-medium text-gray-600 mb-1">
 								{{ __('Content') }}
 							</label>
-							<div id="content" class="py-3"></div>
+							<div
+								id="content"
+								class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-gray-300 prose-th:border-gray-300 prose-td:relative prose-th:relative prose-th:bg-gray-100 prose-sm max-w-none !whitespace-normal mt-6 py-3"
+							></div>
 						</div>
 					</div>
 				</div>

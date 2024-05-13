@@ -19,7 +19,7 @@
 			<ListView
 				:columns="getCoursesColumns()"
 				:rows="courses.data"
-				row-key="name"
+				row-key="batch_course"
 				:options="{ showTooltip: false }"
 			>
 				<ListHeader
@@ -49,7 +49,10 @@
 				<ListSelectBanner>
 					<template #actions="{ unselectAll, selections }">
 						<div class="flex gap-2">
-							<Button variant="ghost" @click="removeCourses(selections)">
+							<Button
+								variant="ghost"
+								@click="removeCourses(selections, unselectAll)"
+							>
 								<Trash2 class="h-4 w-4 stroke-1.5" />
 							</Button>
 						</div>
@@ -133,11 +136,13 @@ const removeCourse = createResource({
 	},
 })
 
-const removeCourses = (selections) => {
+const removeCourses = (selections, unselectAll) => {
 	selections.forEach(async (course) => {
 		removeCourse.submit({ course })
-		await setTimeout(1000)
 	})
-	courses.reload()
+	setTimeout(() => {
+		courses.reload()
+		unselectAll()
+	}, 1000)
 }
 </script>
