@@ -3,6 +3,8 @@ name: Linters
 on:
   pull_request:
   workflow_dispatch:
+  push:
+    branches: [ main, develop ]
 
 permissions:
   contents: read
