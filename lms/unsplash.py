@@ -30,7 +30,6 @@ def make_unsplash_request(path):
 	import requests
 
 	url = f"{base_url}{path}"
-	print(url)
 	res = requests.get(
 		url,
 		headers={
