@@ -2,16 +2,32 @@
 # For license information, please see license.txt
 
 import frappe
+import json
 from frappe.model.document import Document
 
 
 class LMSBadge(Document):
+	def on_update(self):
+		if self.event == "Auto Assign" and self.condition:
+			try:
+				json.loads(self.condition)
+			except ValueError:
+				frappe.throw("Condition must be in valid JSON format.")
+		elif self.condition:
+			try:
+				compile(self.condition, "<string>", "eval")
+			except Exception:
+				frappe.throw("Condition must be valid python code.")
+
 	def apply(self, doc):
 		if self.rule_condition_satisfied(doc):
-			self.award(doc)
+			award(self, doc.get(self.user_field))
 
 	def rule_condition_satisfied(self, doc):
 		doc_before_save = doc.get_doc_before_save()
+
+		if self.event == "Manual Assignment":
+			return False
 
 		if self.event == "New" and doc_before_save != None:
 			return False
@@ -20,39 +36,49 @@ class LMSBadge(Document):
 			field_to_check = self.field_to_check
 			if not field_to_check:
 				return False
-			print(doc_before_save.get(field_to_check), doc.get(field_to_check))
-			if doc_before_save and doc_before_save.get(field_to_check) == doc.get(
-				field_to_check
-			):
-				return False
 
 		if self.condition:
-			return self.eval_condition(doc)
+			return eval_condition(doc, self.condition)
 
 		return False
 
-	def award(self, doc):
-		if self.grant_only_once:
-			if frappe.db.exists(
-				"LMS Badge Assignment",
-				{"badge": self.name, "member": frappe.session.user},
-			):
-				return
 
-		assignment = frappe.new_doc("LMS Badge Assignment")
-		assignment.update(
-			{
-				"badge": self.name,
-				"member": frappe.session.user,
-				"issued_on": frappe.utils.now(),
-			}
-		)
-		assignment.save()
+def award(doc, member):
+	if doc.grant_only_once:
+		if frappe.db.exists(
+			"LMS Badge Assignment",
+			{"badge": doc.name, "member": member},
+		):
+			return
 
-	def eval_condition(self, doc):
-		return self.condition and frappe.safe_eval(
-			self.condition, None, {"doc": doc.as_dict()}
-		)
+	assignment = frappe.new_doc("LMS Badge Assignment")
+	assignment.update(
+		{
+			"badge": doc.name,
+			"member": member,
+			"issued_on": frappe.utils.now(),
+		}
+	)
+	assignment.save()
+
+
+def eval_condition(doc, condition):
+	return condition and frappe.safe_eval(condition, None, {"doc": doc.as_dict()})
+
+
+@frappe.whitelist()
+def assign_badge(badge):
+	badge = frappe._dict(json.loads(badge))
+	if not badge.event == "Auto Assign":
+		return
+
+	fields = ["name"]
+	print(badge.user_field)
+	fields.append(badge.user_field)
+	list = frappe.get_all(badge.reference_doctype, filters=badge.condition, fields=fields)
+	print(list)
+	for doc in list:
+		award(badge, doc.get(badge.user_field))
 
 
 def process_badges(doc, state):

@@ -115,12 +115,9 @@ def save_progress(lesson, course):
 	).save(ignore_permissions=True)
 
 	progress = get_course_progress(course)
-	print(membership)
+	frappe.db.set_value("LMS Enrollment", membership, "progress", progress)
 	enrollment = frappe.get_doc("LMS Enrollment", membership)
-	print(enrollment.progress)
-	print(progress)
-	enrollment.progress = progress
-	enrollment.save(ignore_permissions=True)
+	enrollment.run_method("on_change")
 	return progress
 
 

@@ -1,0 +1,50 @@
+[
+ {
+  "condition": "{\n    \"parent\": \"CLS-03050\"\n}",
+  "description": "You have successfully completed the VueJs + Frappe UI training.",
+  "docstatus": 0,
+  "doctype": "LMS Badge",
+  "enabled": 0,
+  "event": "Auto Assign",
+  "field_to_check": null,
+  "grant_only_once": 1,
+  "image": "/files/images.jpeg",
+  "modified": "2024-05-14 12:56:05.031313",
+  "name": "Batch Completion",
+  "reference_doctype": "Batch Student",
+  "title": "Batch Completion",
+  "user_field": "student"
+ },
+ {
+  "condition": "doc.progress == float(\"100.0\")",
+  "description": "You have completed your first course 👏",
+  "docstatus": 0,
+  "doctype": "LMS Badge",
+  "enabled": 0,
+  "event": "Value Change",
+  "field_to_check": "progress",
+  "grant_only_once": 1,
+  "image": "/files/icon_badge-04.png",
+  "modified": "2024-05-14 12:56:15.469656",
+  "name": "Course Completion",
+  "reference_doctype": "LMS Enrollment",
+  "title": "Course Completion",
+  "user_field": "member"
+ },
+ {
+  "condition": "doc.percentage == 100",
+  "description": "Congratulations on getting a 100% score on a quiz.",
+  "docstatus": 0,
+  "doctype": "LMS Badge",
+  "enabled": 0,
+  "event": "New",
+  "field_to_check": null,
+  "grant_only_once": 1,
+  "image": "/files/curiosity-badge-removebg-preview.png",
+  "modified": "2024-05-14 12:56:22.907584",
+  "name": "Quiz Completion",
+  "reference_doctype": "LMS Quiz Submission",
+  "title": "Quiz Completion",
+  "user_field": "member"
+ }
+]

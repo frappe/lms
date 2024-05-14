@@ -10,10 +10,11 @@
   "title",
   "description",
   "image",
-  "reference_doctype",
   "column_break_wgum",
   "grant_only_once",
   "event",
+  "reference_doctype",
+  "user_field",
   "field_to_check",
   "condition"
  ],
@@ -50,13 +51,14 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Event",
-   "options": "New\nValue Change",
+   "options": "New\nValue Change\nAuto Assign",
    "reqd": 1
   },
   {
    "fieldname": "condition",
    "fieldtype": "Code",
-   "label": "Condition"
+   "label": "Condition",
+   "mandatory_depends_on": "eval:doc.event == \"Auto Assign\""
   },
   {
    "depends_on": "eval:doc.event == 'Value Change'",
@@ -71,16 +73,21 @@
    "label": "Grant only once"
   },
   {
-   "default": "0",
+   "default": "1",
    "fieldname": "enabled",
    "fieldtype": "Check",
-   "label": "Enabled",
-   "options": "1"
+   "label": "Enabled"
   },
   {
    "fieldname": "description",
    "fieldtype": "Small Text",
    "label": "Description",
+   "reqd": 1
+  },
+  {
+   "fieldname": "user_field",
+   "fieldtype": "Select",
+   "label": "User Field",
    "reqd": 1
   }
  ],
@@ -91,7 +98,7 @@
    "link_fieldname": "badge"
   }
  ],
- "modified": "2024-05-02 14:23:32.198858",
+ "modified": "2024-05-14 14:46:13.644382",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Badge",
@@ -114,5 +121,6 @@
  "sort_field": "creation",
  "sort_order": "DESC",
  "states": [],
- "title_field": "title"
+ "title_field": "title",
+ "track_changes": 1
 }

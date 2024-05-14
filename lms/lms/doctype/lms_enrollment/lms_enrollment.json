@@ -1,13 +1,15 @@
 {
  "actions": [],
+ "allow_import": 1,
  "creation": "2022-02-07 12:01:40.929633",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
   "course",
-  "member_type",
+  "progress",
   "payment",
+  "current_lesson",
   "column_break_3",
   "member",
   "member_name",
@@ -17,8 +19,7 @@
   "subgroup",
   "batch_old",
   "column_break_12",
-  "current_lesson",
-  "progress",
+  "member_type",
   "role"
  ],
  "fields": [
@@ -113,7 +114,8 @@
   },
   {
    "fieldname": "section_break_8",
-   "fieldtype": "Section Break"
+   "fieldtype": "Section Break",
+   "hidden": 1
   },
   {
    "fieldname": "payment",
@@ -124,7 +126,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-03-18 17:32:30.182301",
+ "modified": "2024-05-14 14:50:08.405033",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Enrollment",
@@ -173,5 +175,6 @@
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
- "title_field": "member_name"
+ "title_field": "member_name",
+ "track_changes": 1
 }
