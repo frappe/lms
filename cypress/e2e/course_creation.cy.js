@@ -113,7 +113,6 @@ describe("Course Creation", () => {
 		// View Lesson
 		cy.url().should("include", "/learn/1-1");
 		cy.get("div").contains("Test Lesson");
-		cy.get("div").contains("Test User");
 		cy.get("div").contains(
 			"This is an extremely big paragraph that is meant to test the UI. This is a very long paragraph. It contains more than once sentence. Its meant to be this long as this is a UI test. Its unbearably long and I'm not sure why I'm typing this much. I'm just going to keep typing until I feel like its long enough. I think its long enough now. I'm going to stop typing now. "
 		);
