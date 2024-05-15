@@ -7,6 +7,7 @@ from frappe.model.document import Document
 from frappe.utils.telemetry import capture
 from lms.lms.utils import get_course_progress
 from ...md import find_macros
+import json
 
 
 class CourseLesson(Document):
@@ -88,8 +89,9 @@ class CourseLesson(Document):
 
 @frappe.whitelist()
 def save_progress(lesson, course):
+	print("save progress")
 	membership = frappe.db.exists(
-		"LMS Enrollment", {"member": frappe.session.user, "course": course}
+		"LMS Enrollment", {"course": course, "member": frappe.session.user}
 	)
 	if not membership:
 		return 0
@@ -114,23 +116,52 @@ def save_progress(lesson, course):
 
 	progress = get_course_progress(course)
 	frappe.db.set_value("LMS Enrollment", membership, "progress", progress)
+	enrollment = frappe.get_doc("LMS Enrollment", membership)
+	enrollment.run_method("on_change")
 	return progress
 
 
 def get_quiz_progress(lesson):
-	body = frappe.db.get_value("Course Lesson", lesson, "body")
-	macros = find_macros(body)
-	quizzes = [value for name, value in macros if name == "Quiz"]
+	lesson_details = frappe.db.get_value(
+		"Course Lesson", lesson, ["body", "content"], as_dict=1
+	)
+	quizzes = []
+
+	if lesson_details.content:
+		content = json.loads(lesson_details.content)
+
+		for block in content.get("blocks"):
+			if block.get("type") == "quiz":
+				quizzes.append(block.get("data").get("quiz"))
+
+	elif lesson_details.body:
+		macros = find_macros(lesson_details.body)
+		quizzes = [value for name, value in macros if name == "Quiz"]
+
 	for quiz in quizzes:
+		print(quiz)
 		passing_percentage = frappe.db.get_value("LMS Quiz", quiz, "passing_percentage")
+		print(frappe.session.user)
+		print(passing_percentage)
+		print(
+			frappe.db.exists(
+				"LMS Quiz Submission",
+				{
+					"quiz": quiz,
+					"member": frappe.session.user,
+					"percentage": [">=", passing_percentage],
+				},
+			)
+		)
 		if not frappe.db.exists(
 			"LMS Quiz Submission",
 			{
 				"quiz": quiz,
-				"owner": frappe.session.user,
+				"member": frappe.session.user,
 				"percentage": [">=", passing_percentage],
 			},
 		):
+			print("no submission")
 			return False
 	return True
 

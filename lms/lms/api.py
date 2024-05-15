@@ -362,6 +362,21 @@ def get_certified_participants(search_query=""):
 
 
 @frappe.whitelist()
+def get_assigned_badges(member):
+	assigned_badges = frappe.get_all(
+		"LMS Badge Assignment",
+		{"member": member},
+		["badge"],
+		as_dict=1,
+	)
+
+	for badge in assigned_badges:
+		badge.update(
+			frappe.db.get_value("LMS Badge", badge.badge, ["name", "title", "image"])
+		)
+	return assigned_badges
+
+
 def get_certificates(member):
 	"""Get certificates for a member."""
 	return frappe.get_all(

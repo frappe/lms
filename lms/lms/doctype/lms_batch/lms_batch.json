@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_import": 1,
  "allow_rename": 1,
  "autoname": "format: CLS-{#####}",
  "creation": "2022-11-09 16:14:05.876933",
@@ -304,7 +305,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-04-17 10:35:21.957961",
+ "modified": "2024-05-14 14:47:48.839162",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch",
@@ -352,5 +353,6 @@
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
- "title_field": "title"
+ "title_field": "title",
+ "track_changes": 1
 }
