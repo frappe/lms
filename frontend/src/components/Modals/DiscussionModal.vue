@@ -15,10 +15,7 @@
 		<template #body-content>
 			<div class="flex flex-col gap-4">
 				<div>
-					<div class="mb-1.5 text-sm text-gray-600">
-						{{ __('Title') }}
-					</div>
-					<Input type="text" v-model="topic.title" />
+					<FormControl v-model="topic.title" :label="__('Title')" type="text" />
 				</div>
 				<div>
 					<div class="mb-1.5 text-sm text-gray-600">
@@ -37,7 +34,7 @@
 	</Dialog>
 </template>
 <script setup>
-import { Dialog, Input, TextEditor, createResource } from 'frappe-ui'
+import { Dialog, FormControl, TextEditor, createResource } from 'frappe-ui'
 import { reactive, defineModel, computed } from 'vue'
 import { showToast } from '@/utils'
 

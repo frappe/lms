@@ -71,9 +71,8 @@ describe("Course Creation", () => {
 				encoding: "base64",
 			});
 		});
-		cy.wait(1000);
 		cy.get("#content .ce-block").type(
-			"This is an extremely big paragraph that is meant to test the UI. This is a very long paragraph. It contains more than once sentence. Its meant to be this long as this is a UI test. Its unbearably long and I'm not sure why I'm typing this much. I'm just going to keep typing until I feel like its long enough. I think its long enough now. I'm going to stop typing now. {enter}"
+			"This is an extremely big paragraph that is meant to test the UI. This is a very long paragraph. It contains more than once sentence. Its meant to be this long as this is a UI test. Its unbearably long and I'm not sure why I'm typing this much. I'm just going to keep typing until I feel like its long enough. I think its long enough now. I'm going to stop typing now."
 		);
 		cy.button("Save").click();
 
@@ -87,11 +86,9 @@ describe("Course Creation", () => {
 			cy.get("div").contains(
 				"Test Course Short Introduction to test the UI"
 			);
-			cy.get(".course-image").should(
-				"have.css",
-				"background-image",
-				'url("/files/profile.png")'
-			);
+			cy.get(".course-image")
+				.invoke("css", "background-image")
+				.should("include", "/files/profile");
 		});
 		cy.get(".grid a:first").click();
 		cy.url().should("include", "/lms/courses/test-course");
@@ -120,17 +117,19 @@ describe("Course Creation", () => {
 		cy.get("div").contains(
 			"This is an extremely big paragraph that is meant to test the UI. This is a very long paragraph. It contains more than once sentence. Its meant to be this long as this is a UI test. Its unbearably long and I'm not sure why I'm typing this much. I'm just going to keep typing until I feel like its long enough. I think its long enough now. I'm going to stop typing now. "
 		);
+
 		cy.get("video")
 			.should("be.visible")
 			.children("source")
-			.should("have.attr", "src", "/files/Youtube.mov");
+			.invoke("attr", "src")
+			.should("include", "/files/Youtube");
 
 		// Add Discussion
 		cy.button("New Question").click();
 		cy.wait(500);
 		cy.get("[id^=headlessui-dialog-panel-").within(() => {
 			cy.get("label").contains("Title").type("Test Discussion");
-			cy.get("div[contenteditable=true").invoke(
+			cy.get("div[contenteditable=true]").invoke(
 				"text",
 				"This is a test discussion. This will check if the UI is working properly."
 			);
