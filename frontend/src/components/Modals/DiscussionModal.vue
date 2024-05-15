@@ -5,7 +5,7 @@
 			size: '2xl',
 			actions: [
 				{
-					label: 'Submit',
+					label: 'Post',
 					variant: 'solid',
 					onClick: (close) => submitTopic(close),
 				},

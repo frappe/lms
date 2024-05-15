@@ -114,7 +114,11 @@
 										@click="removeTag(tag)"
 									/>
 								</div>
-								<FormControl v-model="newTag" @keyup.enter="updateTags()" />
+								<FormControl
+									v-model="newTag"
+									@keyup.enter="updateTags()"
+									id="tags"
+								/>
 							</div>
 						</div>
 					</div>
