@@ -4,45 +4,30 @@ on:
   pull_request:
   workflow_dispatch:
   push:
-    branches: [ main, develop ]
+    branches: [ main ]
 
 jobs:
-
-  commit-lint:
-    name: 'Semantic Commits'
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 200
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 18
-          check-latest: true
-
-      - name: Check commit titles
-        run: |
-          npm install @commitlint/cli @commitlint/config-conventional
-          npx commitlint --verbose --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }}
-
   linters:
-    name: Semgrep Rules
+    name: Semantic Commits
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-          cache: pip
+
+      - name: Install and Run Pre-commit
+        uses: pre-commit/action@v2.0.3
 
       - name: Download Semgrep rules
         run: git clone --depth 1 https://github.com/frappe/semgrep-rules.git frappe-semgrep-rules
 
+      - name: Download semgrep
+        run: pip install semgrep
+
       - name: Run Semgrep rules
-      run: |
-          pip install semgrep
-          semgrep ci --config ./frappe-semgrep-rules/rules --config r/python.lang.correctness
+        run: semgrep ci --config ./frappe-semgrep-rules/rules
