@@ -20,7 +20,13 @@
 				:columns="getCoursesColumns()"
 				:rows="courses.data"
 				row-key="batch_course"
-				:options="{ showTooltip: false }"
+				:options="{
+					showTooltip: false,
+					getRowRoute: (row) => ({
+						name: 'CourseDetail',
+						params: { courseName: row.name },
+					}),
+				}"
 			>
 				<ListHeader
 					class="mb-2 grid items-center space-x-4 rounded bg-gray-100 p-2"

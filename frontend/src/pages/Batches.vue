@@ -9,7 +9,7 @@
 			/>
 			<div class="flex">
 				<router-link
-					v-if="user.data"
+					v-if="user.data?.is_moderator"
 					:to="{
 						name: 'BatchCreation',
 						params: { batchName: 'new' },
