@@ -323,7 +323,6 @@ watch(activeQuestion, (value) => {
 watch(
 	() => props.quizName,
 	(newName) => {
-		console.log(newName)
 		if (newName) {
 			quiz.reload()
 		}
@@ -392,7 +391,7 @@ const addToLocalStorage = () => {
 	let quizData = JSON.parse(localStorage.getItem(quiz.data.title))
 	let questionData = {
 		question_index: activeQuestion.value,
-		answers: getAnswers().join(),
+		answer: getAnswers().join(),
 		is_correct: showAnswers.filter((answer) => {
 			return answer != undefined
 		}),

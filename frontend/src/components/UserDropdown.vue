@@ -26,7 +26,12 @@
 					"
 				>
 					<div class="text-base font-medium text-gray-900 leading-none">
-						<span v-if="branding.data?.brand_name">
+						<span
+							v-if="
+								branding.data?.brand_name &&
+								branding.data?.brand_name != 'Frappe'
+							"
+						>
 							{{ branding.data?.brand_name }}
 						</span>
 						<span v-else> Learning </span>

@@ -166,5 +166,13 @@ function enrollStudent() {
 	}
 }
 
-const is_instructor = () => {}
+const is_instructor = () => {
+	let user_is_instructor = false
+	props.course.data.instructors.forEach((instructor) => {
+		if (!user_is_instructor && instructor.name == user.data?.name) {
+			user_is_instructor = true
+		}
+	})
+	return user_is_instructor
+}
 </script>
