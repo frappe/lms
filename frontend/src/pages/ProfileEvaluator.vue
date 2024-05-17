@@ -47,7 +47,7 @@
 			</div>
 
 			<div
-				class="grid grid-cols-3 md:grod-cols-4 gap-4 mb-4"
+				class="grid grid-cols-3 md:grid-cols-4 gap-4 mb-4"
 				v-show="showSlotsTemplate"
 			>
 				<FormControl
