@@ -385,3 +385,16 @@ def get_certificates(member):
 		fields=["name", "course", "course_title", "issue_date", "template"],
 		order_by="creation desc",
 	)
+
+
+@frappe.whitelist()
+def get_all_users():
+	users = frappe.get_all(
+		"User",
+		{
+			"enabled": 1,
+		},
+		["name", "full_name", "user_image"],
+	)
+
+	return {user.name: user for user in users}

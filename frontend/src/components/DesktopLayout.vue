@@ -5,7 +5,6 @@
 				<div
 					class="relative block min-h-0 flex-shrink-0 overflow-hidden hover:overflow-auto"
 				>
-					<slot name="sidebar" />
 					<AppSidebar />
 				</div>
 				<div class="w-full overflow-auto" id="scrollContainer">

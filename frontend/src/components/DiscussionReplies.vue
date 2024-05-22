@@ -69,9 +69,11 @@
 				/>
 			</div>
 		</div>
+
 		<TextEditor
 			class="mt-5"
 			:content="newReply"
+			:mentions="mentionUsers"
 			@change="(val) => (newReply = val)"
 			placeholder="Type your reply here..."
 			:fixedMenu="true"
@@ -92,13 +94,14 @@ import { createResource, TextEditor, Button, Dropdown } from 'frappe-ui'
 import { timeAgo } from '../utils'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { ChevronLeft, MoreHorizontal } from 'lucide-vue-next'
-import { ref, inject, onMounted } from 'vue'
+import { ref, inject, onMounted, computed } from 'vue'
 import { createToast } from '../utils'
 
 const showTopics = defineModel('showTopics')
 const newReply = ref('')
 const socket = inject('$socket')
 const user = inject('$user')
+const allUsers = inject('$allUsers')
 
 const props = defineProps({
 	topic: {
@@ -145,6 +148,16 @@ const newReplyResource = createResource({
 			},
 		}
 	},
+})
+
+const mentionUsers = computed(() => {
+	return allUsers.data /* [{
+		label: "jannat",
+		value: "jannat"
+	}, {
+		label: "samreen",
+		value: "samreen"
+	}] */
 })
 
 const postReply = () => {

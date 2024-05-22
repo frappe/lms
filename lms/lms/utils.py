@@ -281,21 +281,21 @@ def get_lesson_index(lesson_name):
 		"Lesson Reference", {"lesson": lesson_name}, ["idx", "parent"], as_dict=True
 	)
 	if not lesson:
-		return "1.1"
+		return "1-1"
 
 	chapter = frappe.db.get_value(
 		"Chapter Reference", {"chapter": lesson.parent}, ["idx"], as_dict=True
 	)
 	if not chapter:
-		return "1.1"
+		return "1-1"
 
-	return f"{chapter.idx}.{lesson.idx}"
+	return f"{chapter.idx}-{lesson.idx}"
 
 
 def get_lesson_url(course, lesson_number):
 	if not lesson_number:
 		return
-	return f"/lms/courses/{course}/learn/{lesson_number}"
+	return f"/courses/{course}/learn/{lesson_number}"
 
 
 def get_batch(course, batch_name):
@@ -645,19 +645,23 @@ def handle_notifications(doc, method):
 
 def create_notification_log(doc, topic):
 	course = frappe.db.get_value("Course Lesson", topic.reference_docname, "course")
+	course_title = frappe.db.get_value("LMS Course", course, "title")
 	instructors = frappe.db.get_all(
 		"Course Instructor", {"parent": course}, pluck="instructor"
 	)
 
 	notification = frappe._dict(
 		{
-			"subject": _("New reply on the topic {0}").format(topic.title),
+			"subject": _("New reply on the topic {0} in course {1}").format(
+				topic.title, course_title
+			),
 			"email_content": doc.reply,
 			"document_type": topic.reference_doctype,
 			"document_name": topic.reference_docname,
 			"for_user": topic.owner,
 			"from_user": doc.owner,
 			"type": "Alert",
+			"link": get_lesson_url(course, get_lesson_index(topic.reference_docname)),
 		}
 	)
 
@@ -671,6 +675,12 @@ def create_notification_log(doc, topic):
 
 
 def notify_mentions(doc, topic):
+	outgoing_email_account = frappe.get_cached_value(
+		"Email Account", {"default_outgoing": 1, "enable_outgoing": 1}, "name"
+	)
+	if not outgoing_email_account or not frappe.conf.get("mail_login"):
+		return
+
 	mentions = extract_mentions(doc.reply)
 	if not mentions:
 		return
@@ -1708,6 +1718,7 @@ def create_discussion_topic(doctype, docname):
 	doc = frappe.new_doc("Discussion Topic")
 	doc.update(
 		{
+			"title": docname,
 			"reference_doctype": doctype,
 			"reference_docname": docname,
 		}

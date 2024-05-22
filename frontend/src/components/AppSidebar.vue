@@ -44,8 +44,20 @@ import SidebarLink from '@/components/SidebarLink.vue'
 import { useStorage } from '@vueuse/core'
 import { ref } from 'vue'
 import { getSidebarLinks } from '../utils'
+import { sessionStore } from '@/stores/session'
+import { Bell } from 'lucide-vue-next'
 
+const { user } = sessionStore()
 const links = getSidebarLinks()
+
+if (user) {
+	links.push({
+		label: 'Notifications',
+		icon: Bell,
+		to: 'Notifications',
+		activeFor: ['Notifications'],
+	})
+}
 
 const getSidebarFromStorage = () => {
 	return useStorage('sidebar_is_collapsed', false)
