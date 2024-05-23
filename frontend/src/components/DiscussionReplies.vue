@@ -151,7 +151,16 @@ const newReplyResource = createResource({
 })
 
 const mentionUsers = computed(() => {
-	return allUsers.data /* [{
+	console.log(allUsers.data['jannat@frappe.io'])
+	let users = Object.values(allUsers.data).map((user) => {
+		return {
+			value: user.name,
+			label: user.full_name,
+		}
+	})
+	return users
+
+	/* [{
 		label: "jannat",
 		value: "jannat"
 	}, {

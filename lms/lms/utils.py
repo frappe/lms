@@ -640,7 +640,8 @@ def handle_notifications(doc, method):
 	if topic.reference_doctype not in ["Course Lesson", "LMS Batch"]:
 		return
 	create_notification_log(doc, topic)
-	notify_mentions(doc, topic)
+	notify_mentions_on_portal(doc, topic)
+	notify_mentions_via_email(doc, topic)
 
 
 def create_notification_log(doc, topic):
@@ -674,7 +675,33 @@ def create_notification_log(doc, topic):
 	make_notification_logs(notification, users)
 
 
-def notify_mentions(doc, topic):
+def notify_mentions_on_portal(doc, topic):
+	mentions = extract_mentions(doc.reply)
+	if not mentions:
+		return
+
+	from_user_name = get_fullname(doc.owner)
+	course = frappe.db.get_value("Course Lesson", topic.reference_docname, "course")
+
+	for user in mentions:
+		notification = frappe._dict(
+			{
+				"subject": _("{0} mentioned you in a comment in {1}").format(
+					from_user_name, topic.title
+				),
+				"email_content": doc.reply,
+				"document_type": topic.reference_doctype,
+				"document_name": topic.reference_docname,
+				"for_user": user,
+				"from_user": doc.owner,
+				"type": "Alert",
+				"link": get_lesson_url(course, get_lesson_index(topic.reference_docname)),
+			}
+		)
+		make_notification_logs(notification, user)
+
+
+def notify_mentions_via_email(doc, topic):
 	outgoing_email_account = frappe.get_cached_value(
 		"Email Account", {"default_outgoing": 1, "enable_outgoing": 1}, "name"
 	)
@@ -1828,3 +1855,9 @@ def get_roles(name):
 		"batch_evaluator": has_course_evaluator_role(name),
 		"lms_student": has_student_role(name),
 	}
+
+
+def publish_notifications(doc, method):
+	frappe.publish_realtime(
+		"publish_lms_notifications", user=doc.for_user, after_commit=True
+	)

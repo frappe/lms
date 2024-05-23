@@ -89,7 +89,6 @@ class CourseLesson(Document):
 
 @frappe.whitelist()
 def save_progress(lesson, course):
-	print("save progress")
 	membership = frappe.db.exists(
 		"LMS Enrollment", {"course": course, "member": frappe.session.user}
 	)
