@@ -51,7 +51,7 @@
 	</div>
 </template>
 <script setup>
-import { Breadcrumbs, FormControl, createResource } from 'frappe-ui'
+import { Breadcrumbs, FormControl, createResource, debounce } from 'frappe-ui'
 import { ref, computed } from 'vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { Search } from 'lucide-vue-next'
@@ -61,7 +61,8 @@ const searchQuery = ref('')
 const participants = createResource({
 	url: 'lms.lms.api.get_certified_participants',
 	method: 'GET',
-	cache: ['certified_participants'],
+	debounce: 300,
+	cache: ['certified_participants', searchQuery.value],
 	makeParams() {
 		return {
 			search_query: searchQuery.value,

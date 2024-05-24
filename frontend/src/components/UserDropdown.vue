@@ -40,7 +40,7 @@
 						v-if="userResource"
 						class="mt-1 text-sm text-gray-700 leading-none"
 					>
-						{{ convertToTitleCase(userResource.data?.email.split('@')[0]) }}
+						{{ convertToTitleCase(userResource.data?.full_name) }}
 					</div>
 				</div>
 				<div
