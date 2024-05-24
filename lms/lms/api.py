@@ -398,3 +398,20 @@ def get_all_users():
 	)
 
 	return {user.name: user for user in users}
+
+
+@frappe.whitelist()
+def mark_as_read(name):
+	doc = frappe.get_doc("Notification Log", name)
+	doc.read = 1
+	doc.save(ignore_permissions=True)
+
+
+@frappe.whitelist()
+def mark_all_as_read():
+	notifications = frappe.get_all(
+		"Notification Log", {"for_user": frappe.session.user, "read": 0}, pluck="name"
+	)
+
+	for notification in notifications:
+		mark_as_read(notification)

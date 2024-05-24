@@ -115,10 +115,10 @@ const readNotifications = createListResource({
 })
 
 const markAsRead = createResource({
-	url: 'frappe.desk.doctype.notification_log.notification_log.mark_as_read',
+	url: 'lms.lms.api.mark_as_read',
 	makeParams(values) {
 		return {
-			docname: values.name,
+			name: values.name,
 		}
 	},
 	onSuccess(data) {
@@ -128,7 +128,7 @@ const markAsRead = createResource({
 })
 
 const markAllAsRead = createResource({
-	url: 'frappe.desk.doctype.notification_log.notification_log.mark_all_as_read',
+	url: 'lms.lms.api.mark_all_as_read',
 	onSuccess(data) {
 		unReadNotifications.reload()
 		readNotifications.reload()

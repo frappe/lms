@@ -71,7 +71,7 @@
 		</div>
 
 		<TextEditor
-			class="mt-5"
+			class="mt-5 reply-editor"
 			:content="newReply"
 			:mentions="mentionUsers"
 			@change="(val) => (newReply = val)"
@@ -151,7 +151,6 @@ const newReplyResource = createResource({
 })
 
 const mentionUsers = computed(() => {
-	console.log(allUsers.data['jannat@frappe.io'])
 	let users = Object.values(allUsers.data).map((user) => {
 		return {
 			value: user.name,

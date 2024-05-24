@@ -85,7 +85,7 @@
 <script setup>
 import { computed, inject } from 'vue'
 import { useRouter } from 'vue-router'
-import { BookOpen, Calendar, Clock } from 'lucide-vue-next'
+import { BookOpen, Clock } from 'lucide-vue-next'
 import { formatTime } from '@/utils'
 import { Breadcrumbs, createResource } from 'frappe-ui'
 import CourseCard from '@/components/CourseCard.vue'

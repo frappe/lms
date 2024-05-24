@@ -103,7 +103,7 @@ doc_events = {
 		]
 	},
 	"Discussion Reply": {"after_insert": "lms.lms.utils.handle_notifications"},
-	"Notification Log": {"after_insert": "lms.lms.utils.publish_notifications"},
+	"Notification Log": {"on_change": "lms.lms.utils.publish_notifications"},
 }
 
 # Scheduled Tasks

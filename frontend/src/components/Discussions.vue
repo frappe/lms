@@ -63,13 +63,14 @@
 	/>
 </template>
 <script setup>
-import { createResource, Button, TextEditor } from 'frappe-ui'
+import { createResource, Button } from 'frappe-ui'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { timeAgo } from '../utils'
 import { ref, onMounted, inject } from 'vue'
 import DiscussionReplies from '@/components/DiscussionReplies.vue'
 import DiscussionModal from '@/components/Modals/DiscussionModal.vue'
 import { MessageSquareText } from 'lucide-vue-next'
+import { getScrollContainer } from '@/utils/scrollContainer'
 
 const showTopics = ref(true)
 const currentTopic = ref(null)
@@ -102,6 +103,10 @@ const props = defineProps({
 		type: Boolean,
 		default: false,
 	},
+	scrollToBottom: {
+		type: Boolean,
+		default: false,
+	},
 })
 
 onMounted(() => {
@@ -110,7 +115,18 @@ onMounted(() => {
 	socket.on('new_discussion_topic', (data) => {
 		topics.refresh()
 	})
+
+	if (props.scrollToBottom) {
+		setTimeout(() => {
+			scrollToEnd()
+		}, 0)
+	}
 })
+
+const scrollToEnd = () => {
+	let scrollContainer = getScrollContainer()
+	scrollContainer.scrollTop = scrollContainer.scrollHeight
+}
 
 const topics = createResource({
 	url: 'lms.lms.utils.get_discussion_topics',
