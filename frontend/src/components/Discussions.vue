@@ -119,7 +119,7 @@ onMounted(() => {
 	if (props.scrollToBottom) {
 		setTimeout(() => {
 			scrollToEnd()
-		}, 0)
+		}, 100)
 	}
 })
 

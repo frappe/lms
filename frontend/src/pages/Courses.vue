@@ -57,14 +57,6 @@
 						v-if="tab.courses && tab.courses.value.length"
 						class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 my-5 mx-5"
 					>
-						<!-- <div v-for="course in tab.courses.value">
-							{{ course.membership }}
-							{{ course.current_lesson }}
-							<div v-if="course.current_lesson">
-								{{ course.current_lesson.split('-')[0] }}
-								{{ course.current_lesson.split('-')[1] }}
-							</div>
-						</div> -->
 						<router-link
 							v-for="course in tab.courses.value"
 							:to="

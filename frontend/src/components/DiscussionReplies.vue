@@ -71,7 +71,7 @@
 		</div>
 
 		<TextEditor
-			class="mt-5 reply-editor"
+			class="mt-5"
 			:content="newReply"
 			:mentions="mentionUsers"
 			@change="(val) => (newReply = val)"
@@ -158,14 +158,6 @@ const mentionUsers = computed(() => {
 		}
 	})
 	return users
-
-	/* [{
-		label: "jannat",
-		value: "jannat"
-	}, {
-		label: "samreen",
-		value: "samreen"
-	}] */
 })
 
 const postReply = () => {
