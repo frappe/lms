@@ -141,7 +141,6 @@ function enrollStudent() {
 		const enrollStudentResource = createResource({
 			url: 'lms.lms.doctype.lms_enrollment.lms_enrollment.create_membership',
 		})
-		console.log(props.course)
 		enrollStudentResource
 			.submit({
 				course: props.course.data.name,

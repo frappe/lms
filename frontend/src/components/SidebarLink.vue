@@ -6,7 +6,7 @@
 		@click="handleClick"
 	>
 		<div
-			class="flex items-center duration-300 ease-in-out"
+			class="flex items-center w-full duration-300 ease-in-out"
 			:class="isCollapsed ? 'p-1' : 'px-2 py-1'"
 		>
 			<Tooltip :text="link.label" placement="right">
@@ -28,6 +28,9 @@
 				"
 			>
 				{{ link.label }}
+			</span>
+			<span v-if="link.count" class="!ml-auto block text-xs text-gray-600">
+				{{ link.count }}
 			</span>
 		</div>
 	</button>

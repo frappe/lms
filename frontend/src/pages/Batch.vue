@@ -66,9 +66,10 @@
 								<Discussions
 									doctype="LMS Batch"
 									:docname="batch.data.name"
-									title="Discussions"
+									:title="__('Discussions')"
 									:key="batch.data.name"
 									:singleThread="true"
+									:scrollToBottom="true"
 								/>
 							</div>
 						</div>

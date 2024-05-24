@@ -30,8 +30,9 @@ app.provide('$dayjs', dayjs)
 app.provide('$socket', initSocket())
 app.mount('#app')
 
-const { userResource } = usersStore()
+const { userResource, allUsers } = usersStore()
 let { isLoggedIn } = sessionStore()
 
 app.provide('$user', userResource)
+app.provide('$allUsers', allUsers)
 app.config.globalProperties.$user = userResource

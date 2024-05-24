@@ -42,14 +42,14 @@
 	</div>
 	<div
 		v-else
-		class="flex items-center justify-center border mt-5 p-5 rounded-md"
+		class="flex flex-col items-center justify-center border-2 border-dashed mt-5 py-8 rounded-md"
 	>
-		<MessageSquareIcon class="w-5 h-5 stroke-1.5 mr-2" />
-		<div>
+		<MessageSquareText class="w-7 h-7 text-gray-500 stroke-1.5 mr-2" />
+		<div class="">
 			<div v-if="emptyStateTitle" class="font-medium mb-2">
 				{{ __(emptyStateTitle) }}
 			</div>
-			<div class="">
+			<div class="text-gray-600">
 				{{ __(emptyStateText) }}
 			</div>
 		</div>
@@ -63,13 +63,14 @@
 	/>
 </template>
 <script setup>
-import { createResource, Button, TextEditor } from 'frappe-ui'
+import { createResource, Button } from 'frappe-ui'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { timeAgo } from '../utils'
 import { ref, onMounted, inject } from 'vue'
 import DiscussionReplies from '@/components/DiscussionReplies.vue'
 import DiscussionModal from '@/components/Modals/DiscussionModal.vue'
-import { MessageSquareIcon } from 'lucide-vue-next'
+import { MessageSquareText } from 'lucide-vue-next'
+import { getScrollContainer } from '@/utils/scrollContainer'
 
 const showTopics = ref(true)
 const currentTopic = ref(null)
@@ -96,9 +97,13 @@ const props = defineProps({
 	},
 	emptyStateText: {
 		type: String,
-		default: 'Be the first to start a discussion',
+		default: 'Start a discussion',
 	},
 	singleThread: {
+		type: Boolean,
+		default: false,
+	},
+	scrollToBottom: {
 		type: Boolean,
 		default: false,
 	},
@@ -110,7 +115,18 @@ onMounted(() => {
 	socket.on('new_discussion_topic', (data) => {
 		topics.refresh()
 	})
+
+	if (props.scrollToBottom) {
+		setTimeout(() => {
+			scrollToEnd()
+		}, 100)
+	}
 })
+
+const scrollToEnd = () => {
+	let scrollContainer = getScrollContainer()
+	scrollContainer.scrollTop = scrollContainer.scrollHeight
+}
 
 const topics = createResource({
 	url: 'lms.lms.utils.get_discussion_topics',

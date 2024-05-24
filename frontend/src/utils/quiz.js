@@ -43,7 +43,6 @@ export class Quiz {
 	}
 
 	save(blockContent) {
-		console.log(blockContent)
 		return {
 			quiz: this.data.quiz,
 		}

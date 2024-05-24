@@ -34,7 +34,7 @@ import { sessionStore } from '@/stores/session'
 import { usersStore } from '@/stores/user'
 import { LogOut, LogIn, UserRound } from 'lucide-vue-next'
 
-const { logout, user, username } = sessionStore()
+const { logout, user } = sessionStore()
 let { isLoggedIn } = sessionStore()
 const router = useRouter()
 let { userResource } = usersStore()

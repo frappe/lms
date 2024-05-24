@@ -385,3 +385,33 @@ def get_certificates(member):
 		fields=["name", "course", "course_title", "issue_date", "template"],
 		order_by="creation desc",
 	)
+
+
+@frappe.whitelist()
+def get_all_users():
+	users = frappe.get_all(
+		"User",
+		{
+			"enabled": 1,
+		},
+		["name", "full_name", "user_image"],
+	)
+
+	return {user.name: user for user in users}
+
+
+@frappe.whitelist()
+def mark_as_read(name):
+	doc = frappe.get_doc("Notification Log", name)
+	doc.read = 1
+	doc.save(ignore_permissions=True)
+
+
+@frappe.whitelist()
+def mark_all_as_read():
+	notifications = frappe.get_all(
+		"Notification Log", {"for_user": frappe.session.user, "read": 0}, pluck="name"
+	)
+
+	for notification in notifications:
+		mark_as_read(notification)
