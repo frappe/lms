@@ -330,12 +330,13 @@ def get_evaluator_details(evaluator):
 
 
 @frappe.whitelist(allow_guest=True)
-def get_certified_participants():
+def get_certified_participants(search_query=""):
 	LMSCertificate = DocType("LMS Certificate")
 	participants = (
 		frappe.qb.from_(LMSCertificate)
 		.select(LMSCertificate.member)
 		.distinct()
+		.where(LMSCertificate.member_name.like(f"%{search_query}%"))
 		.where(LMSCertificate.published == 1)
 		.orderby(LMSCertificate.creation, order=frappe.qb.desc)
 		.run(as_dict=1)
@@ -355,7 +356,62 @@ def get_certified_participants():
 		courses = []
 		for course in course_names:
 			courses.append(frappe.db.get_value("LMS Course", course, "title"))
-		details.courses = courses
+		details["courses"] = courses
 		participant_details.append(details)
-
 	return participant_details
+
+
+@frappe.whitelist()
+def get_assigned_badges(member):
+	assigned_badges = frappe.get_all(
+		"LMS Badge Assignment",
+		{"member": member},
+		["badge"],
+		as_dict=1,
+	)
+
+	for badge in assigned_badges:
+		badge.update(
+			frappe.db.get_value("LMS Badge", badge.badge, ["name", "title", "image"])
+		)
+	return assigned_badges
+
+
+def get_certificates(member):
+	"""Get certificates for a member."""
+	return frappe.get_all(
+		"LMS Certificate",
+		filters={"member": member},
+		fields=["name", "course", "course_title", "issue_date", "template"],
+		order_by="creation desc",
+	)
+
+
+@frappe.whitelist()
+def get_all_users():
+	users = frappe.get_all(
+		"User",
+		{
+			"enabled": 1,
+		},
+		["name", "full_name", "user_image"],
+	)
+
+	return {user.name: user for user in users}
+
+
+@frappe.whitelist()
+def mark_as_read(name):
+	doc = frappe.get_doc("Notification Log", name)
+	doc.read = 1
+	doc.save(ignore_permissions=True)
+
+
+@frappe.whitelist()
+def mark_all_as_read():
+	notifications = frappe.get_all(
+		"Notification Log", {"for_user": frappe.session.user, "read": 0}, pluck="name"
+	)
+
+	for notification in notifications:
+		mark_as_read(notification)

@@ -5,7 +5,9 @@
 		</h2>
 
 		<div class="">
-			<div class="grid grid-cols-4 gap-4 text-sm text-gray-700 mb-4">
+			<div
+				class="grid grid-cols-3 md:grid-cols-4 gap-4 text-sm text-gray-700 mb-4"
+			>
 				<div>
 					{{ __('Day') }}
 				</div>
@@ -20,7 +22,7 @@
 			<div
 				v-if="evaluator.data"
 				v-for="slot in evaluator.data.slots.schedule"
-				class="grid grid-cols-4 gap-4 mb-4 group"
+				class="grid grid-cols-3 md:grid-cols-4 gap-4 mb-4 group"
 			>
 				<FormControl
 					type="select"
@@ -44,7 +46,10 @@
 				/>
 			</div>
 
-			<div class="grid grid-cols-4 gap-4 mb-4" v-show="showSlotsTemplate">
+			<div
+				class="grid grid-cols-3 md:grid-cols-4 gap-4 mb-4"
+				v-show="showSlotsTemplate"
+			>
 				<FormControl
 					type="select"
 					:options="days"
@@ -74,7 +79,7 @@
 			<h2 class="mb-4 text-lg font-semibold text-gray-900">
 				{{ __('I am unavailable') }}
 			</h2>
-			<div class="grid grid-cols-4 gap-4">
+			<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
 				<FormControl
 					type="date"
 					:label="__('From')"

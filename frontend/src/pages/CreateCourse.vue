@@ -114,7 +114,11 @@
 										@click="removeTag(tag)"
 									/>
 								</div>
-								<FormControl v-model="newTag" @keyup.enter="updateTags()" />
+								<FormControl
+									v-model="newTag"
+									@keyup.enter="updateTags()"
+									id="tags"
+								/>
 							</div>
 						</div>
 					</div>
@@ -122,7 +126,10 @@
 						<div class="text-lg font-semibold mt-5 mb-4">
 							{{ __('Settings') }}
 						</div>
-						<div class="flex items-center justify-between mb-5">
+						<div
+							v-if="user.data?.is_moderator"
+							class="flex items-center justify-between mb-4"
+						>
 							<FormControl
 								type="checkbox"
 								v-model="course.published"
@@ -139,6 +146,12 @@
 								:label="__('Disable Self Enrollment')"
 							/>
 						</div>
+						<FormControl
+							v-model="course.published_on"
+							:label="__('Published On')"
+							type="date"
+							class="mb-5"
+						/>
 					</div>
 					<div class="container border-t">
 						<div class="text-lg font-semibold mt-5 mb-4">
@@ -197,6 +210,7 @@ import CourseOutline from '@/components/CourseOutline.vue'
 const user = inject('$user')
 const newTag = ref('')
 const router = useRouter()
+const instructors = ref([])
 
 const props = defineProps({
 	courseName: {
@@ -212,6 +226,7 @@ const course = reactive({
 	course_image: null,
 	tags: '',
 	published: false,
+	published_on: '',
 	upcoming: false,
 	disable_self_learning: false,
 	paid_course: false,
@@ -220,9 +235,14 @@ const course = reactive({
 })
 
 onMounted(() => {
-	if (!user.data?.is_moderator && !user.data?.is_instructor) {
+	if (
+		props.courseName == 'new' &&
+		!user.data?.is_moderator &&
+		!user.data?.is_instructor
+	) {
 		router.push({ name: 'Courses' })
 	}
+
 	if (props.courseName !== 'new') {
 		courseResource.reload()
 	}
@@ -234,7 +254,7 @@ const courseCreationResource = createResource({
 		return {
 			doc: {
 				doctype: 'LMS Course',
-				image: course.course_image.file_url,
+				image: course.course_image?.file_url || '',
 				...values,
 			},
 		}
@@ -249,7 +269,7 @@ const courseEditResource = createResource({
 			doctype: 'LMS Course',
 			name: values.course,
 			fieldname: {
-				image: course.course_image.file_url,
+				image: course.course_image?.file_url || '',
 				...course,
 			},
 		}
@@ -281,6 +301,8 @@ const courseResource = createResource({
 		}
 
 		if (data.image) imageResource.reload({ image: data.image })
+		instructors.value = data.instructors
+		check_permission()
 	},
 })
 
@@ -358,7 +380,7 @@ watch(
 
 const validateFile = (file) => {
 	let extension = file.name.split('.').pop().toLowerCase()
-	if (!['jpg', 'jpeg', 'png'].includes(extension)) {
+	if (!['jpg', 'jpeg', 'png', 'webp'].includes(extension)) {
 		return 'Only image file is allowed.'
 	}
 }
@@ -384,6 +406,21 @@ const saveImage = (file) => {
 
 const removeImage = () => {
 	course.course_image = null
+}
+
+const check_permission = () => {
+	let user_is_instructor = false
+	if (user.data?.is_moderator) return
+
+	instructors.value.forEach((instructor) => {
+		if (!user_is_instructor && instructor.instructor == user.data?.name) {
+			user_is_instructor = true
+		}
+	})
+
+	if (!user_is_instructor) {
+		router.push({ name: 'Courses' })
+	}
 }
 
 const breadcrumbs = computed(() => {

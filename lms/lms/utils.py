@@ -115,27 +115,27 @@ def get_chapters(course):
 	return chapters
 
 
-def get_lessons(course, chapter=None, get_details=True):
+def get_lessons(course, chapter=None, get_details=True, progress=False):
 	"""If chapter is passed, returns lessons of only that chapter.
 	Else returns lessons of all chapters of the course"""
 	lessons = []
 	lesson_count = 0
 	if chapter:
 		if get_details:
-			return get_lesson_details(chapter)
+			return get_lesson_details(chapter, progress=progress)
 		else:
 			return frappe.db.count("Lesson Reference", {"parent": chapter.name})
 
 	for chapter in get_chapters(course):
 		if get_details:
-			lessons += get_lesson_details(chapter)
+			lessons += get_lesson_details(chapter, progress=progress)
 		else:
 			lesson_count += frappe.db.count("Lesson Reference", {"parent": chapter.name})
 
 	return lessons if get_details else lesson_count
 
 
-def get_lesson_details(chapter):
+def get_lesson_details(chapter, progress=False):
 	lessons = []
 	lesson_list = frappe.get_all(
 		"Lesson Reference", {"parent": chapter.name}, ["lesson", "idx"], order_by="idx"
@@ -161,6 +161,10 @@ def get_lesson_details(chapter):
 		)
 		lesson_details.number = f"{chapter.idx}.{row.idx}"
 		lesson_details.icon = get_lesson_icon(lesson_details.body)
+
+		if progress:
+			lesson_details.is_complete = get_progress(lesson_details.course, lesson_details.name)
+
 		lessons.append(lesson_details)
 	return lessons
 
@@ -277,21 +281,21 @@ def get_lesson_index(lesson_name):
 		"Lesson Reference", {"lesson": lesson_name}, ["idx", "parent"], as_dict=True
 	)
 	if not lesson:
-		return "1.1"
+		return "1-1"
 
 	chapter = frappe.db.get_value(
 		"Chapter Reference", {"chapter": lesson.parent}, ["idx"], as_dict=True
 	)
 	if not chapter:
-		return "1.1"
+		return "1-1"
 
-	return f"{chapter.idx}.{lesson.idx}"
+	return f"{chapter.idx}-{lesson.idx}"
 
 
 def get_lesson_url(course, lesson_number):
 	if not lesson_number:
 		return
-	return f"/lms/courses/{course}/learn/{lesson_number}"
+	return f"/courses/{course}/learn/{lesson_number}"
 
 
 def get_batch(course, batch_name):
@@ -306,7 +310,7 @@ def get_progress(course, lesson, member=None):
 	if not member:
 		member = frappe.session.user
 
-	return frappe.db.get_value(
+	return frappe.db.exists(
 		"LMS Course Progress",
 		{"course": course, "member": member, "lesson": lesson},
 		["status"],
@@ -379,7 +383,7 @@ def get_course_progress(course, member=None):
 		return 0
 	completed_lessons = frappe.db.count(
 		"LMS Course Progress",
-		{"course": course, "owner": member or frappe.session.user, "status": "Complete"},
+		{"course": course, "member": member or frappe.session.user, "status": "Complete"},
 	)
 	precision = cint(frappe.db.get_default("float_precision")) or 3
 	return flt(((completed_lessons / lesson_count) * 100), precision)
@@ -636,37 +640,91 @@ def handle_notifications(doc, method):
 	if topic.reference_doctype not in ["Course Lesson", "LMS Batch"]:
 		return
 	create_notification_log(doc, topic)
-	notify_mentions(doc, topic)
+	notify_mentions_on_portal(doc, topic)
+	notify_mentions_via_email(doc, topic)
 
 
 def create_notification_log(doc, topic):
-	course = frappe.db.get_value("Course Lesson", topic.reference_docname, "course")
-	instructors = frappe.db.get_all(
-		"Course Instructor", {"parent": course}, pluck="instructor"
-	)
+	users = []
+	if topic.reference_doctype == "LMS Course":
+		course = frappe.db.get_value("Course Lesson", topic.reference_docname, "course")
+		course_title = frappe.db.get_value("LMS Course", course, "title")
+		instructors = frappe.db.get_all(
+			"Course Instructor", {"parent": course}, pluck="instructor"
+		)
+		users.append(topic.owner)
+		users += instructors
+		subject = _("New reply on the topic {0} in course {1}").format(
+			topic.title, course_title
+		)
+		link = get_lesson_url(course, get_lesson_index(topic.reference_docname))
+
+	else:
+		batch_title = frappe.db.get_value("LMS Batch", topic.reference_docname, "title")
+		subject = _("New comment in batch {0}").format(batch_title)
+		link = f"/batches/{topic.reference_docname}"
+		moderators = frappe.get_all("Has Role", {"role": "Moderator"}, pluck="parent")
+		users += moderators
 
 	notification = frappe._dict(
 		{
-			"subject": _("New reply on the topic {0}").format(topic.title),
+			"subject": subject,
 			"email_content": doc.reply,
 			"document_type": topic.reference_doctype,
 			"document_name": topic.reference_docname,
 			"for_user": topic.owner,
 			"from_user": doc.owner,
 			"type": "Alert",
+			"link": link,
 		}
 	)
 
-	users = []
-	if doc.owner != topic.owner:
-		users.append(topic.owner)
-
-	if doc.owner not in instructors:
-		users += instructors
 	make_notification_logs(notification, users)
 
 
-def notify_mentions(doc, topic):
+def notify_mentions_on_portal(doc, topic):
+	mentions = extract_mentions(doc.reply)
+	if not mentions:
+		return
+
+	from_user_name = get_fullname(doc.owner)
+
+	if topic.reference_doctype == "LMS Course":
+		course = frappe.db.get_value("Course Lesson", topic.reference_docname, "course")
+		subject = _("{0} mentioned you in a comment in {1}").format(
+			from_user_name, topic.title
+		)
+		link = get_lesson_url(course, get_lesson_index(topic.reference_docname))
+	else:
+		batch_title = frappe.db.get_value("LMS Batch", topic.reference_docname, "title")
+		subject = _("{0} mentioned you in a comment in {1}").format(
+			from_user_name, batch_title
+		)
+		link = f"/batches/{topic.reference_docname}"
+
+	for user in mentions:
+		notification = frappe._dict(
+			{
+				"subject": subject,
+				"email_content": doc.reply,
+				"document_type": topic.reference_doctype,
+				"document_name": topic.reference_docname,
+				"for_user": user,
+				"from_user": doc.owner,
+				"type": "Alert",
+				"link": link,
+			}
+		)
+		make_notification_logs(notification, user)
+
+
+def notify_mentions_via_email(doc, topic):
+	outgoing_email_account = frappe.get_cached_value(
+		"Email Account", {"default_outgoing": 1, "enable_outgoing": 1}, "name"
+	)
+	if not outgoing_email_account or not frappe.conf.get("mail_login"):
+		return
+
 	mentions = extract_mentions(doc.reply)
 	if not mentions:
 		return
@@ -1208,6 +1266,7 @@ def get_course_details(course):
 			"short_introduction",
 			"published",
 			"upcoming",
+			"disable_self_learning",
 			"published_on",
 			"status",
 			"paid_course",
@@ -1299,7 +1358,7 @@ def get_categorized_courses(courses):
 
 
 @frappe.whitelist(allow_guest=True)
-def get_course_outline(course):
+def get_course_outline(course, progress=False):
 	"""Returns the course outline."""
 	outline = []
 	chapters = frappe.get_all(
@@ -1313,7 +1372,7 @@ def get_course_outline(course):
 			as_dict=True,
 		)
 		chapter_details["idx"] = chapter.idx
-		chapter_details.lessons = get_lessons(course, chapter_details)
+		chapter_details.lessons = get_lessons(course, chapter_details, progress=progress)
 		outline.append(chapter_details)
 	return outline
 
@@ -1519,10 +1578,12 @@ def get_question_details(question):
 @frappe.whitelist(allow_guest=True)
 def get_batch_courses(batch):
 	courses = []
-	course_list = frappe.get_all("Batch Course", {"parent": batch}, pluck="course")
+	course_list = frappe.get_all("Batch Course", {"parent": batch}, ["name", "course"])
 
 	for course in course_list:
-		courses.append(get_course_details(course))
+		details = get_course_details(course.course)
+		details.batch_course = course.name
+		courses.append(details)
 
 	return courses
 
@@ -1701,6 +1762,7 @@ def create_discussion_topic(doctype, docname):
 	doc = frappe.new_doc("Discussion Topic")
 	doc.update(
 		{
+			"title": docname,
 			"reference_doctype": doctype,
 			"reference_docname": docname,
 		}
@@ -1810,3 +1872,9 @@ def get_roles(name):
 		"batch_evaluator": has_course_evaluator_role(name),
 		"lms_student": has_student_role(name),
 	}
+
+
+def publish_notifications(doc, method):
+	frappe.publish_realtime(
+		"publish_lms_notifications", user=doc.for_user, after_commit=True
+	)

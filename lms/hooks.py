@@ -97,7 +97,13 @@ override_doctype_class = {
 # Hook on document methods and events
 
 doc_events = {
+	"*": {
+		"on_change": [
+			"lms.lms.doctype.lms_badge.lms_badge.process_badges",
+		]
+	},
 	"Discussion Reply": {"after_insert": "lms.lms.utils.handle_notifications"},
+	"Notification Log": {"on_change": "lms.lms.utils.publish_notifications"},
 }
 
 # Scheduled Tasks
@@ -108,7 +114,7 @@ scheduler_events = {
 	]
 }
 
-fixtures = ["Custom Field", "Function", "Industry"]
+fixtures = ["Custom Field", "Function", "Industry", "LMS Badge"]
 
 # Testing
 # -------
@@ -146,9 +152,8 @@ website_redirects = [
 	{"source": "/update-profile", "target": "/edit-profile"},
 	{"source": "/courses", "target": "/lms/courses"},
 	{
-		"source": r"/courses/([^/]*)",
+		"source": r"^/courses/.*$",
 		"target": "/lms/courses",
-		"match_with_query_string": True,
 	},
 	{"source": "/batches", "target": "/lms/batches"},
 	{
@@ -232,7 +237,8 @@ jinja = {
 # ]
 
 has_website_permission = {
-	"LMS Certificate Evaluation": "lms.lms.doctype.lms_certificate_evaluation.lms_certificate_evaluation.has_website_permission"
+	"LMS Certificate Evaluation": "lms.lms.doctype.lms_certificate_evaluation.lms_certificate_evaluation.has_website_permission",
+	"LMS Certificate": "lms.lms.doctype.lms_certificate.lms_certificate.has_website_permission",
 }
 
 profile_mandatory_fields = [
@@ -270,6 +276,7 @@ lms_markdown_macro_renderers = {
 page_renderer = [
 	"lms.page_renderers.ProfileRedirectPage",
 	"lms.page_renderers.ProfilePage",
+	"lms.page_renderers.CoursePage",
 ]
 
 # set this to "/" to have profiles on the top-level

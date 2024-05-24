@@ -130,6 +130,11 @@ const routes = [
 		name: 'CertifiedParticipants',
 		component: () => import('@/pages/CertifiedParticipants.vue'),
 	},
+	{
+		path: '/notifications',
+		name: 'Notifications',
+		component: () => import('@/pages/Notifications.vue'),
+	},
 ]
 
 let router = createRouter({
@@ -138,12 +143,20 @@ let router = createRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
-	const { userResource } = usersStore()
+	const { userResource, allUsers } = usersStore()
 	let { isLoggedIn } = sessionStore()
 
 	try {
 		if (isLoggedIn) {
 			await userResource.reload()
+		}
+		if (
+			isLoggedIn &&
+			(to.name == 'Lesson' ||
+				to.name == 'Batch' ||
+				to.name == 'Notifications')
+		) {
+			await allUsers.reload()
 		}
 	} catch (error) {
 		isLoggedIn = false

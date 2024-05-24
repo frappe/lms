@@ -32,6 +32,14 @@ def get_meta(app_path):
 		}
 
 	if re.match(r"^courses/.*$", app_path):
+		if "new/edit" in app_path:
+			return {
+				"title": _("New Course"),
+				"image": frappe.db.get_single_value("Website Settings", "banner_image"),
+				"description": "Create a new course",
+				"keywords": "New Course, Create Course",
+				"link": "/lms/courses/new/edit",
+			}
 		course_name = app_path.split("/")[1]
 		course = frappe.db.get_value(
 			"LMS Course",
@@ -56,7 +64,6 @@ def get_meta(app_path):
 			"link": "/batches",
 		}
 	if re.match(r"^batches/details/.*$", app_path):
-		print(app_path, "app_path")
 		batch_name = app_path.split("/")[2]
 		batch = frappe.db.get_value(
 			"LMS Batch",
@@ -90,7 +97,7 @@ def get_meta(app_path):
 			as_dict=True,
 		)
 		return {
-			"title": job_opening.title,
+			"title": job_opening.job_title,
 			"image": job_opening.company_logo,
 			"description": job_opening.company_name,
 			"keywords": "Job Openings, Jobs, Vacancies",

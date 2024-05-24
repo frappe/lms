@@ -2,7 +2,7 @@
 	<div class="text-base">
 		<div
 			v-if="title && (outline.data?.length || allowEdit)"
-			class="flex items-center justify-between mb-4 pl-2"
+			class="grid grid-cols-[70%,30%] mb-4"
 		>
 			<div class="font-semibold text-lg">
 				{{ __(title) }}
@@ -67,7 +67,7 @@
 									{{ lesson.title }}
 									<Check
 										v-if="lesson.is_complete"
-										class="h-4 w-4 text-green-500 stroke-1.5 ml-2"
+										class="h-4 w-4 text-green-700 ml-2"
 									/>
 								</div>
 							</router-link>
@@ -105,7 +105,7 @@
 </template>
 <script setup>
 import { Button, createResource } from 'frappe-ui'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import {
 	ChevronRight,
@@ -139,6 +139,10 @@ const props = defineProps({
 		type: Boolean,
 		default: false,
 	},
+	getProgress: {
+		type: Boolean,
+		default: false,
+	},
 })
 
 const outline = createResource({
@@ -146,6 +150,7 @@ const outline = createResource({
 	cache: ['course_outline', props.courseName],
 	params: {
 		course: props.courseName,
+		progress: props.getProgress,
 	},
 	auto: true,
 })

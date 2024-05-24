@@ -18,12 +18,16 @@
 					}}
 				</p>
 				<router-link
+					v-if="user.data"
 					:to="{ name: 'CourseDetail', params: { courseName: courseName } }"
 				>
 					<Button variant="solid">
 						{{ __('Start Learning') }}
 					</Button>
 				</router-link>
+				<Button v-else @click="redirectToLogin()">
+					{{ __('Login') }}
+				</Button>
 			</div>
 			<div v-else class="border-r container pt-5 pb-10 px-5">
 				<div class="flex flex-col md:flex-row md:items-center justify-between">
@@ -151,7 +155,7 @@
 				</div>
 			</div>
 			<div class="sticky top-10">
-				<div class="bg-gray-50 py-5 pl-2 border-b">
+				<div class="bg-gray-50 py-5 px-2 border-b">
 					<div class="text-lg font-semibold">
 						{{ lesson.data.course_title }}
 					</div>
@@ -170,7 +174,11 @@
 						></div>
 					</div>
 				</div>
-				<CourseOutline :courseName="courseName" :key="chapterNumber" />
+				<CourseOutline
+					:courseName="courseName"
+					:key="chapterNumber"
+					:getProgress="lesson.data.membership ? true : false"
+				/>
 			</div>
 		</div>
 	</div>
@@ -327,6 +335,10 @@ const allowInstructorContent = () => {
 	if (user.data?.is_moderator) return true
 	if (lesson.data?.instructors.includes(user.data?.name)) return true
 	return false
+}
+
+const redirectToLogin = () => {
+	window.location.href = `/login?redirect-to=/lms/courses/${props.courseName}`
 }
 </script>
 <style>

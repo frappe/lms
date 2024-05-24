@@ -253,8 +253,6 @@ const quiz = createResource({
 		if (data.shuffle_questions) {
 			data.questions = data.questions.sort(() => Math.random() - 0.5)
 		}
-		attempts.reload()
-		resetQuiz()
 	},
 })
 
@@ -286,6 +284,16 @@ const attempts = createResource({
 	},
 })
 
+watch(
+	() => quiz.data,
+	() => {
+		if (quiz.data) {
+			attempts.reload()
+			resetQuiz()
+		}
+	}
+)
+
 const quizSubmission = createResource({
 	url: 'lms.lms.doctype.lms_quiz.lms_quiz.quiz_summary',
 	makeParams(values) {
@@ -315,7 +323,6 @@ watch(activeQuestion, (value) => {
 watch(
 	() => props.quizName,
 	(newName) => {
-		console.log(newName)
 		if (newName) {
 			quiz.reload()
 		}
@@ -384,7 +391,7 @@ const addToLocalStorage = () => {
 	let quizData = JSON.parse(localStorage.getItem(quiz.data.title))
 	let questionData = {
 		question_index: activeQuestion.value,
-		answers: getAnswers().join(),
+		answer: getAnswers().join(),
 		is_correct: showAnswers.filter((answer) => {
 			return answer != undefined
 		}),

@@ -149,6 +149,12 @@ updateDocumentTitle(pageMeta)
 	padding: revert;
 }
 
+.course-description ul {
+	list-style: disc;
+	margin: revert;
+	padding: revert;
+}
+
 .avatar-group {
 	display: inline-flex;
 	align-items: center;

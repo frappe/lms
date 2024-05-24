@@ -26,7 +26,12 @@
 					"
 				>
 					<div class="text-base font-medium text-gray-900 leading-none">
-						<span v-if="branding.data?.brand_name">
+						<span
+							v-if="
+								branding.data?.brand_name &&
+								branding.data?.brand_name != 'Frappe'
+							"
+						>
 							{{ branding.data?.brand_name }}
 						</span>
 						<span v-else> Learning </span>
@@ -57,13 +62,23 @@
 import LMSLogo from '@/components/Icons/LMSLogo.vue'
 import { sessionStore } from '@/stores/session'
 import { Dropdown, createResource } from 'frappe-ui'
-import { ChevronDown, LogIn, LogOut, User } from 'lucide-vue-next'
+import {
+	ChevronDown,
+	LogIn,
+	LogOut,
+	User,
+	ArrowRightLeft,
+} from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { convertToTitleCase } from '../utils'
 import { onMounted, inject } from 'vue'
 import { usersStore } from '@/stores/user'
 
 const router = useRouter()
+const { logout } = sessionStore()
+let { userResource } = usersStore()
+let { isLoggedIn } = sessionStore()
+
 const props = defineProps({
 	isCollapsed: {
 		type: Boolean,
@@ -80,10 +95,6 @@ const branding = createResource({
 	},
 })
 
-const { logout } = sessionStore()
-let { userResource } = usersStore()
-
-let { isLoggedIn } = sessionStore()
 const userDropdownOptions = [
 	{
 		icon: User,
@@ -93,6 +104,19 @@ const userDropdownOptions = [
 		},
 		condition: () => {
 			return isLoggedIn
+		},
+	},
+	{
+		icon: ArrowRightLeft,
+		label: 'Switch to Desk',
+		onClick: () => {
+			window.location.href = '/app'
+		},
+		condition: () => {
+			let cookies = new URLSearchParams(document.cookie.split('; ').join('&'))
+			let system_user = cookies.get('system_user')
+			if (system_user === 'yes') return true
+			else return false
 		},
 	},
 	{

@@ -6,7 +6,7 @@
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
 		</header>
 		<div v-if="chartDetails.data" class="p-5">
-			<div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
 				<div class="flex items-center shadow py-2 px-3 rounded-md">
 					<div class="p-2 rounded-md bg-gray-100 mr-3">
 						<BookOpen class="w-18 h-18 stroke-1.5 text-gray-700" />

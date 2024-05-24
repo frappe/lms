@@ -76,8 +76,7 @@
   {
    "fieldname": "video_link",
    "fieldtype": "Data",
-   "label": "Video Embed Link",
-   "reqd": 1
+   "label": "Video Embed Link"
   },
   {
    "fieldname": "short_introduction",
@@ -274,7 +273,7 @@
   }
  ],
  "make_attachments_public": 1,
- "modified": "2024-04-16 17:40:50.899368",
+ "modified": "2024-05-08 15:11:07.833094",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",
@@ -305,7 +304,6 @@
    "write": 1
   }
  ],
- "search_fields": "title",
  "show_title_field_in_link": 1,
  "sort_field": "creation",
  "sort_order": "DESC",

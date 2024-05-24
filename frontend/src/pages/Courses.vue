@@ -65,8 +65,8 @@
 											name: 'Lesson',
 											params: {
 												courseName: course.name,
-												chapterNumber: course.current_lesson.split('.')[0],
-												lessonNumber: course.current_lesson.split('.')[1],
+												chapterNumber: course.current_lesson.split('-')[0],
+												lessonNumber: course.current_lesson.split('-')[1],
 											},
 									  }
 									: course.membership

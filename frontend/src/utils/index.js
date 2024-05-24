@@ -6,6 +6,7 @@ import {
 	TrendingUp,
 	Briefcase,
 	GraduationCap,
+	Bell,
 } from 'lucide-vue-next'
 import { Quiz } from '@/utils/quiz'
 import { Upload } from '@/utils/upload'
@@ -350,6 +351,7 @@ export function getSidebarLinks() {
 			label: 'Statistics',
 			icon: TrendingUp,
 			to: 'Statistics',
+			activeFor: ['Statistics'],
 		},
 	]
 }

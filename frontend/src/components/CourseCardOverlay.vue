@@ -46,6 +46,12 @@
 					</span>
 				</Button>
 			</router-link>
+			<div
+				v-else-if="course.data.disable_self_learning"
+				class="bg-blue-100 text-blue-900 text-sm rounded-md py-1 px-3"
+			>
+				{{ __('Contact the Administrator to enroll for this course.') }}
+			</div>
 			<Button
 				v-else
 				@click="enrollStudent()"
@@ -135,7 +141,6 @@ function enrollStudent() {
 		const enrollStudentResource = createResource({
 			url: 'lms.lms.doctype.lms_enrollment.lms_enrollment.create_membership',
 		})
-		console.log(props.course)
 		enrollStudentResource
 			.submit({
 				course: props.course.data.name,
@@ -160,5 +165,13 @@ function enrollStudent() {
 	}
 }
 
-const is_instructor = () => {}
+const is_instructor = () => {
+	let user_is_instructor = false
+	props.course.data.instructors.forEach((instructor) => {
+		if (!user_is_instructor && instructor.name == user.data?.name) {
+			user_is_instructor = true
+		}
+	})
+	return user_is_instructor
+}
 </script>

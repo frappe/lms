@@ -72,6 +72,8 @@ def new_course(title, additional_filters=None):
 			"title": title,
 			"short_introduction": title,
 			"description": title,
+			"video_link": "https://youtu.be/pEbIhUySqbk",
+			"image": "/assets/lms/images/course-home.png",
 		}
 
 		if additional_filters:

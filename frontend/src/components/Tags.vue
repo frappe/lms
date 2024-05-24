@@ -34,9 +34,7 @@ const props = defineProps({
 		default: 'Tags',
 	},
 })
-console.log(props.modelValue)
 let tags = ref(props.modelValue)
-console.log(tags.value)
 const emit = defineEmits(['update:modelValue'])
 let newTag = ref('')
 

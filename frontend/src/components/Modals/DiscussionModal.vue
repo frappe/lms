@@ -5,7 +5,7 @@
 			size: '2xl',
 			actions: [
 				{
-					label: 'Submit',
+					label: 'Post',
 					variant: 'solid',
 					onClick: (close) => submitTopic(close),
 				},
@@ -15,10 +15,7 @@
 		<template #body-content>
 			<div class="flex flex-col gap-4">
 				<div>
-					<div class="mb-1.5 text-sm text-gray-600">
-						{{ __('Title') }}
-					</div>
-					<Input type="text" v-model="topic.title" />
+					<FormControl v-model="topic.title" :label="__('Title')" type="text" />
 				</div>
 				<div>
 					<div class="mb-1.5 text-sm text-gray-600">
@@ -37,8 +34,9 @@
 	</Dialog>
 </template>
 <script setup>
-import { Dialog, Input, TextEditor, createResource } from 'frappe-ui'
-import { reactive, defineModel } from 'vue'
+import { Dialog, FormControl, TextEditor, createResource } from 'frappe-ui'
+import { reactive, defineModel, computed } from 'vue'
+import { showToast } from '@/utils'
 
 const topics = defineModel('reloadTopics')
 
@@ -93,6 +91,14 @@ const submitTopic = (close) => {
 	topicResource.submit(
 		{},
 		{
+			validate() {
+				if (!topic.title) {
+					return 'Title cannot be empty.'
+				}
+				if (!topic.reply) {
+					return 'Reply cannot be empty.'
+				}
+			},
 			onSuccess(data) {
 				replyResource.submit(
 					{
@@ -107,6 +113,9 @@ const submitTopic = (close) => {
 						},
 					}
 				)
+			},
+			onError(err) {
+				showToast('Error', err.message, 'x')
 			},
 		}
 	)

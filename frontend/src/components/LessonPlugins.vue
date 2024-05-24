@@ -48,7 +48,7 @@
 								{{
 									uploading
 										? __('Uploading {0}%').format(progress)
-										: __('Upload an File')
+										: __('Upload a File')
 								}}
 							</Button>
 						</div>

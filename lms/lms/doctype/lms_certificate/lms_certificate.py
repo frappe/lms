@@ -70,6 +70,12 @@ class LMSCertificate(Document):
 		)
 
 
+def has_website_permission(doc, ptype, user, verbose=False):
+	if ptype in ["read", "print"]:
+		return True
+	return False
+
+
 @frappe.whitelist()
 def create_certificate(course):
 	certificate = is_certified(course)
@@ -91,7 +97,13 @@ def create_certificate(course):
 			},
 			"value",
 		)
-
+		if not default_certificate_template:
+			default_certificate_template = frappe.db.get_value(
+				"Print Format",
+				{
+					"doc_type": "LMS Certificate",
+				},
+			)
 		certificate = frappe.get_doc(
 			{
 				"doctype": "LMS Certificate",

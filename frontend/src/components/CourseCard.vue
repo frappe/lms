@@ -7,7 +7,7 @@
 		<div
 			class="course-image"
 			:class="{ 'default-image': !course.image }"
-			:style="{ backgroundImage: 'url(' + encodeURI(course.image) + ')' }"
+			:style="{ backgroundImage: 'url(\'' + encodeURI(course.image) + '\')' }"
 		>
 			<div class="flex relative top-4 left-4 w-fit flex-wrap">
 				<Badge
@@ -147,8 +147,8 @@ const props = defineProps({
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	background-color: theme('colors.orange.100');
-	color: theme('colors.orange.600');
+	background-color: theme('colors.green.100');
+	color: theme('colors.green.600');
 }
 
 .avatar-group {

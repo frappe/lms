@@ -22,5 +22,9 @@
   "bugs": {
     "url": "https://github.com/frappe/lms/issues"
   },
-  "homepage": "https://github.com/frappe/lms#readme"
+  "homepage": "https://github.com/frappe/lms#readme",
+  "devDependencies": {
+    "cypress": "^13.9.0",
+    "cypress-file-upload": "^5.0.8"
+  }
 }

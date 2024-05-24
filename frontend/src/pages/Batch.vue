@@ -13,7 +13,7 @@
 				</template>
 			</Button>
 		</header>
-		<div v-if="batch.data" class="grid grid-cols-[70%,30%] h-full">
+		<div v-if="batch.data" class="grid grid-cols-[70%,30%] h-screen">
 			<div class="border-r-2">
 				<Tabs v-model="tabIndex" :tabs="tabs" tablistClass="overflow-x-visible">
 					<template #tab="{ tab, selected }" class="overflow-x-hidden">
@@ -66,9 +66,10 @@
 								<Discussions
 									doctype="LMS Batch"
 									:docname="batch.data.name"
-									title="Discussions"
+									:title="__('Discussions')"
 									:key="batch.data.name"
 									:singleThread="true"
+									:scrollToBottom="true"
 								/>
 							</div>
 						</div>

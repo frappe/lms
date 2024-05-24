@@ -29,15 +29,42 @@
 <script setup>
 import { getSidebarLinks } from '../utils'
 import { useRouter } from 'vue-router'
-import { computed, inject } from 'vue'
+import { computed } from 'vue'
 import { sessionStore } from '@/stores/session'
+import { usersStore } from '@/stores/user'
+import { LogOut, LogIn, UserRound } from 'lucide-vue-next'
 
 const { logout, user } = sessionStore()
 let { isLoggedIn } = sessionStore()
-
 const router = useRouter()
+let { userResource } = usersStore()
+
 const tabs = computed(() => {
-	return getSidebarLinks()
+	let links = getSidebarLinks()
+
+	if (user) {
+		links.push({
+			label: 'Profile',
+			icon: UserRound,
+			activeFor: [
+				'Profile',
+				'ProfileAbout',
+				'ProfileCertification',
+				'ProfileEvaluator',
+				'ProfileRoles',
+			],
+		})
+		links.push({
+			label: 'Log out',
+			icon: LogOut,
+		})
+	} else {
+		links.push({
+			label: 'Log in',
+			icon: LogIn,
+		})
+	}
+	return links
 })
 
 let isActive = (tab) => {
@@ -49,6 +76,13 @@ const handleClick = (tab) => {
 	else if (tab.label == 'Log out')
 		logout.submit().then(() => {
 			isLoggedIn = false
+		})
+	else if (tab.label == 'Profile')
+		router.push({
+			name: 'Profile',
+			params: {
+				username: userResource.data?.username,
+			},
 		})
 	else router.push({ name: tab.to })
 }
