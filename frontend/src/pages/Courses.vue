@@ -26,14 +26,7 @@
 			</div>
 		</header>
 		<div class="">
-			<div
-				v-if="courses.data.length == 0 && courses.list.loading"
-				class="p-5 text-base text-gray-700"
-			>
-				{{ __('Loading Courses...') }}
-			</div>
 			<Tabs
-				v-else
 				v-model="tabIndex"
 				tablistClass="overflow-x-visible flex-wrap !gap-3 md:flex-nowrap"
 				:tabs="tabs"

@@ -13,7 +13,7 @@
 					</div>
 					<div>
 						<div class="text-xl font-semibold mb-1">
-							{{ chartDetails.data.courses }}
+							{{ formatNumber(chartDetails.data.courses) }}
 						</div>
 						<div class="text-gray-700">
 							{{ __('Published Courses') }}
@@ -26,7 +26,7 @@
 					</div>
 					<div>
 						<div class="text-xl font-semibold mb-1">
-							{{ chartDetails.data.users }}
+							{{ formatNumber(chartDetails.data.users) }}
 						</div>
 						<div class="text-gray-700">
 							{{ __('Total Signups') }}
@@ -39,7 +39,7 @@
 					</div>
 					<div>
 						<div class="text-xl font-semibold mb-1">
-							{{ chartDetails.data.enrollments }}
+							{{ formatNumber(chartDetails.data.enrollments) }}
 						</div>
 						<div class="text-gray-700">
 							{{ __('Enrolled Users') }}
@@ -52,7 +52,7 @@
 					</div>
 					<div>
 						<div class="text-xl font-semibold mb-1">
-							{{ chartDetails.data.completions }}
+							{{ formatNumber(chartDetails.data.completions) }}
 						</div>
 						<div class="text-gray-700">
 							{{ __('Courses Completed') }}
@@ -65,7 +65,7 @@
 					</div>
 					<div>
 						<div class="text-xl font-semibold mb-1">
-							{{ chartDetails.data.lesson_completions }}
+							{{ formatNumber(chartDetails.data.lesson_completions) }}
 						</div>
 						<div class="text-gray-700">
 							{{ __('Lessons Completed') }}
@@ -109,6 +109,7 @@
 <script setup>
 import { createResource, Breadcrumbs } from 'frappe-ui'
 import { computed, inject } from 'vue'
+import { formatNumber } from '@/utils'
 import { Line, Pie } from 'vue-chartjs'
 import {
 	Chart as ChartJS,

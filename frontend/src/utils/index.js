@@ -47,6 +47,12 @@ export function formatTime(timeString) {
 	return formattedTime
 }
 
+export function formatNumber(number) {
+	return number.toLocaleString('en-IN', {
+		maximumFractionDigits: 0,
+	})
+}
+
 export function formatNumberIntoCurrency(number, currency) {
 	if (number) {
 		return number.toLocaleString('en-IN', {

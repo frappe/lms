@@ -126,32 +126,41 @@
 						<div class="text-lg font-semibold mt-5 mb-4">
 							{{ __('Settings') }}
 						</div>
-						<div
-							v-if="user.data?.is_moderator"
-							class="flex items-center justify-between mb-4"
-						>
-							<FormControl
-								type="checkbox"
-								v-model="course.published"
-								:label="__('Published')"
-							/>
-							<FormControl
-								type="checkbox"
-								v-model="course.upcoming"
-								:label="__('Upcoming')"
-							/>
-							<FormControl
-								type="checkbox"
-								v-model="course.disable_self_learning"
-								:label="__('Disable Self Enrollment')"
-							/>
+						<div class="grid grid-cols-2 gap-10 mb-4">
+							<div
+								v-if="user.data?.is_moderator"
+								class="flex flex-col space-y-3"
+							>
+								<FormControl
+									type="checkbox"
+									v-model="course.published"
+									:label="__('Published')"
+								/>
+								<FormControl
+									v-model="course.published_on"
+									:label="__('Published On')"
+									type="date"
+									class="mb-5"
+								/>
+							</div>
+							<div class="flex flex-col space-y-3">
+								<FormControl
+									type="checkbox"
+									v-model="course.upcoming"
+									:label="__('Upcoming')"
+								/>
+								<FormControl
+									type="checkbox"
+									v-model="course.featured"
+									:label="__('Featured')"
+								/>
+								<FormControl
+									type="checkbox"
+									v-model="course.disable_self_learning"
+									:label="__('Disable Self Enrollment')"
+								/>
+							</div>
 						</div>
-						<FormControl
-							v-model="course.published_on"
-							:label="__('Published On')"
-							type="date"
-							class="mb-5"
-						/>
 					</div>
 					<div class="container border-t">
 						<div class="text-lg font-semibold mt-5 mb-4">
@@ -196,11 +205,18 @@ import {
 	TextEditor,
 	Button,
 	createResource,
-	createDocumentResource,
 	FormControl,
 	FileUploader,
 } from 'frappe-ui'
-import { inject, onMounted, computed, ref, reactive, watch } from 'vue'
+import {
+	inject,
+	onMounted,
+	onBeforeUnmount,
+	computed,
+	ref,
+	reactive,
+	watch,
+} from 'vue'
 import { convertToTitleCase, showToast, getFileSize } from '../utils'
 import Link from '@/components/Controls/Link.vue'
 import { FileText, X } from 'lucide-vue-next'
@@ -227,6 +243,7 @@ const course = reactive({
 	tags: '',
 	published: false,
 	published_on: '',
+	featured: false,
 	upcoming: false,
 	disable_self_learning: false,
 	paid_course: false,
@@ -246,6 +263,22 @@ onMounted(() => {
 	if (props.courseName !== 'new') {
 		courseResource.reload()
 	}
+	window.addEventListener('keydown', keyboardShortcut)
+})
+
+const keyboardShortcut = (e) => {
+	if (
+		e.key === 's' &&
+		(e.ctrlKey || e.metaKey) &&
+		!e.target.classList.contains('ProseMirror')
+	) {
+		submitCourse()
+		e.preventDefault()
+	}
+}
+
+onBeforeUnmount(() => {
+	window.removeEventListener('keydown', keyboardShortcut)
 })
 
 const courseCreationResource = createResource({

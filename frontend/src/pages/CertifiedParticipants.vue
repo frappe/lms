@@ -38,9 +38,6 @@
 								{{ participant.full_name }}
 							</div>
 						</router-link>
-						<div class="font-medium text-gray-700 text-xs mb-1">
-							{{ __('is certified for') }}
-						</div>
 						<div class="leading-5" v-for="course in participant.courses">
 							{{ course }}
 						</div>
