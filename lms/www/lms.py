@@ -112,3 +112,21 @@ def get_meta(app_path):
 			"keywords": "Enrollment Count, Completion, Signups",
 			"link": "/statistics",
 		}
+
+	if re.match(r"^user/.*$", app_path):
+		username = app_path.split("/")[1]
+		user = frappe.db.get_value(
+			"User",
+			{
+				"username": username,
+			},
+			["full_name", "user_image", "bio"],
+			as_dict=True,
+		)
+		return {
+			"title": user.full_name,
+			"image": user.user_image,
+			"description": user.bio,
+			"keywords": f"{user.full_name}, {user.bio}",
+			"link": f"/user/{username}",
+		}

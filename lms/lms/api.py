@@ -377,6 +377,7 @@ def get_assigned_badges(member):
 	return assigned_badges
 
 
+@frappe.whitelist()
 def get_certificates(member):
 	"""Get certificates for a member."""
 	return frappe.get_all(

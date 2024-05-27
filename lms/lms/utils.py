@@ -1266,6 +1266,7 @@ def get_course_details(course):
 			"short_introduction",
 			"published",
 			"upcoming",
+			"featured",
 			"disable_self_learning",
 			"published_on",
 			"status",
@@ -1346,6 +1347,8 @@ def get_categorized_courses(courses):
 		categories = [live, enrolled, created]
 		for category in categories:
 			category.sort(key=lambda x: x.enrollment_count, reverse=True)
+
+		live.sort(key=lambda x: x.featured, reverse=True)
 
 	return {
 		"live": live,

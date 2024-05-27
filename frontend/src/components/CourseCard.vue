@@ -11,6 +11,15 @@
 		>
 			<div class="flex relative top-4 left-4 w-fit flex-wrap">
 				<Badge
+					v-if="course.featured"
+					variant="subtle"
+					theme="green"
+					size="md"
+					class="mr-2"
+				>
+					{{ __('Featured') }}
+				</Badge>
+				<Badge
 					variant="outline"
 					theme="gray"
 					size="md"
