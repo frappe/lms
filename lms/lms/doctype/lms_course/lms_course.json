@@ -26,7 +26,7 @@
   "published_on",
   "column_break_10",
   "upcoming",
-  "column_break_12",
+  "featured",
   "disable_self_learning",
   "section_break_18",
   "short_introduction",
@@ -170,10 +170,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "column_break_12",
-   "fieldtype": "Column Break"
-  },
-  {
    "depends_on": "enable_certification",
    "fieldname": "grant_certificate_after",
    "fieldtype": "Select",
@@ -247,6 +243,12 @@
    "fieldname": "published_on",
    "fieldtype": "Date",
    "label": "Published On"
+  },
+  {
+   "default": "0",
+   "fieldname": "featured",
+   "fieldtype": "Check",
+   "label": "Featured"
   }
  ],
  "is_published_field": "published",
@@ -273,7 +275,7 @@
   }
  ],
  "make_attachments_public": 1,
- "modified": "2024-05-08 15:11:07.833094",
+ "modified": "2024-05-24 18:03:38.330443",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",

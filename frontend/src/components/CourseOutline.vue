@@ -2,7 +2,7 @@
 	<div class="text-base">
 		<div
 			v-if="title && (outline.data?.length || allowEdit)"
-			class="grid grid-cols-[70%,30%] mb-4"
+			class="grid grid-cols-[70%,30%] mb-4 px-2"
 		>
 			<div class="font-semibold text-lg">
 				{{ __(title) }}
