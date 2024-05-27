@@ -18,7 +18,7 @@
 		</h2>
 		<div class="grid grid-cols-5 gap-4">
 			<div v-if="badges.data" v-for="badge in badges.data">
-				<Popover trigger="hover">
+				<Popover trigger="hover" leaveDelay="0.01">
 					<template #target>
 						<div class="relative">
 							<img
@@ -51,11 +51,25 @@
 								<div class="leading-5 mb-4">
 									{{ badge.badge_description }}
 								</div>
-								<div class="flex flex-col">
+								<div class="flex flex-col mb-4">
 									<span class="text-xs text-gray-700 font-medium mb-1">
 										{{ __('Issued on') }}:
 									</span>
 									{{ dayjs(badge.issued_on).format('DD MMM YYYY') }}
+								</div>
+								<div class="flex flex-col">
+									<span class="text-xs text-gray-700 font-medium mb-1">
+										{{ __('Share on') }}:
+									</span>
+									<Button
+										variant="outline"
+										size="sm"
+										@click="shareOnLinkedIn(badge)"
+									>
+										<template #icon>
+											<LinkedinIcon class="h-3 w-3 stroke-1.5" />
+										</template>
+									</Button>
 								</div>
 							</div>
 						</div>
@@ -67,10 +81,12 @@
 </template>
 <script setup>
 import { inject } from 'vue'
-import { createResource, Popover } from 'frappe-ui'
-import { X } from 'lucide-vue-next'
+import { createResource, Popover, Button } from 'frappe-ui'
+import { X, LinkedinIcon } from 'lucide-vue-next'
+import { sessionStore } from '@/stores/session'
 
 const dayjs = inject('$dayjs')
+const { branding } = sessionStore()
 
 const props = defineProps({
 	profile: {
@@ -100,4 +116,17 @@ const badges = createResource({
 		return finalBadges
 	},
 })
+
+const shareOnLinkedIn = (badge) => {
+	const url = encodeURIComponent(window.location.href)
+	const image = url.split('/lms')[0] + badge.badge_image
+	console.log(image)
+	const summary = `I am happy to announce that I earned the ${
+		badge.badge
+	} badge on ${dayjs(badge.issued_on).format('DD MMM YYYY')} at ${
+		branding.data?.brand_name
+	}. Here's the badge I earned: ${image}`
+	const shareUrl = `https://www.linkedin.com/shareArticle/?url=${url}&text=${summary}&submitted-image-url=${badge.badge_image}`
+	window.open(shareUrl, '_blank')
+}
 </script>

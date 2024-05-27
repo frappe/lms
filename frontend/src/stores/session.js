@@ -41,10 +41,20 @@ export const sessionStore = defineStore('lms-session', () => {
 		},
 	})
 
+	const branding = createResource({
+		url: 'lms.lms.api.get_branding',
+		cache: 'brand',
+		auto: true,
+		onSuccess(data) {
+			document.querySelector("link[rel='icon']").href = data.favicon
+		},
+	})
+
 	return {
 		user,
 		isLoggedIn,
 		login,
 		logout,
+		branding,
 	}
 })
