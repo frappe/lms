@@ -18,7 +18,7 @@
 		</h2>
 		<div class="grid grid-cols-5 gap-4">
 			<div v-if="badges.data" v-for="badge in badges.data">
-				<Popover trigger="hover" leaveDelay="0.01">
+				<Popover trigger="hover" :leaveDelay="Number(0.01)">
 					<template #target>
 						<div class="relative">
 							<img
@@ -61,15 +61,26 @@
 									<span class="text-xs text-gray-700 font-medium mb-1">
 										{{ __('Share on') }}:
 									</span>
-									<Button
-										variant="outline"
-										size="sm"
-										@click="shareOnLinkedIn(badge)"
-									>
-										<template #icon>
-											<LinkedinIcon class="h-3 w-3 stroke-1.5" />
-										</template>
-									</Button>
+									<div class="flex items-center space-x-2">
+										<Button
+											variant="outline"
+											size="sm"
+											@click="shareOnSocial(badge, 'LinkedIn')"
+										>
+											<template #icon>
+												<LinkedinIcon
+													class="h-3 w-3 stroke-1.5 text-gray-700"
+												/>
+											</template>
+										</Button>
+										<Button
+											variant="outline"
+											size="sm"
+											@click="shareOnSocial(badge, 'Twitter')"
+										>
+											<Twitter class="h-3 w-3 stroke-1.5 text-gray-700" />
+										</Button>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -82,7 +93,7 @@
 <script setup>
 import { inject } from 'vue'
 import { createResource, Popover, Button } from 'frappe-ui'
-import { X, LinkedinIcon } from 'lucide-vue-next'
+import { X, LinkedinIcon, Twitter } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 
 const dayjs = inject('$dayjs')
@@ -117,16 +128,22 @@ const badges = createResource({
 	},
 })
 
-const shareOnLinkedIn = (badge) => {
-	const url = encodeURIComponent(window.location.href)
-	const image = url.split('/lms')[0] + badge.badge_image
-	console.log(image)
+const shareOnSocial = (badge, medium) => {
+	let shareUrl
+	const url = encodeURIComponent(
+		`${window.location.origin}/badges/${badge.badge}/${props.profile.data?.email}`
+	)
 	const summary = `I am happy to announce that I earned the ${
 		badge.badge
 	} badge on ${dayjs(badge.issued_on).format('DD MMM YYYY')} at ${
 		branding.data?.brand_name
-	}. Here's the badge I earned: ${image}`
-	const shareUrl = `https://www.linkedin.com/shareArticle/?url=${url}&text=${summary}&submitted-image-url=${badge.badge_image}`
+	}.`
+
+	if (medium == 'LinkedIn')
+		shareUrl = `https://www.linkedin.com/shareArticle?mini=true&url=${url}&text=${summary}`
+	else if (medium == 'Twitter')
+		shareUrl = `https://twitter.com/intent/tweet?text=${summary}&url=${url}`
+
 	window.open(shareUrl, '_blank')
 }
 </script>
