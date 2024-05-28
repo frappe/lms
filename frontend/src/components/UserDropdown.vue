@@ -61,7 +61,7 @@
 <script setup>
 import LMSLogo from '@/components/Icons/LMSLogo.vue'
 import { sessionStore } from '@/stores/session'
-import { Dropdown, createResource } from 'frappe-ui'
+import { Dropdown } from 'frappe-ui'
 import {
 	ChevronDown,
 	LogIn,
@@ -71,11 +71,10 @@ import {
 } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { convertToTitleCase } from '../utils'
-import { onMounted, inject } from 'vue'
 import { usersStore } from '@/stores/user'
 
 const router = useRouter()
-const { logout } = sessionStore()
+const { logout, branding } = sessionStore()
 let { userResource } = usersStore()
 let { isLoggedIn } = sessionStore()
 
@@ -83,15 +82,6 @@ const props = defineProps({
 	isCollapsed: {
 		type: Boolean,
 		default: false,
-	},
-})
-
-const branding = createResource({
-	url: 'lms.lms.api.get_branding',
-	cache: true,
-	auto: true,
-	onSuccess(data) {
-		document.querySelector("link[rel='icon']").href = data.favicon
 	},
 })
 

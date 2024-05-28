@@ -130,3 +130,20 @@ def get_meta(app_path):
 			"keywords": f"{user.full_name}, {user.bio}",
 			"link": f"/user/{username}",
 		}
+
+	if re.match(r"^badges/.*/.*$", app_path):
+		badgeName = app_path.split("/")[1]
+		email = app_path.split("/")[2]
+		badge = frappe.db.get_value(
+			"LMS Badge",
+			badgeName,
+			["title", "image", "description"],
+			as_dict=True,
+		)
+		return {
+			"title": badge.title,
+			"image": badge.image,
+			"description": badge.description,
+			"keywords": f"{badge.title}, {badge.description}",
+			"link": f"/badges/{badgeName}/{email}",
+		}

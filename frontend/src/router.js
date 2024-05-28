@@ -135,6 +135,12 @@ const routes = [
 		name: 'Notifications',
 		component: () => import('@/pages/Notifications.vue'),
 	},
+	{
+		path: '/badges/:badgeName/:email',
+		name: 'Badge',
+		component: () => import('@/pages/Badge.vue'),
+		props: true,
+	},
 ]
 
 let router = createRouter({
@@ -154,7 +160,8 @@ router.beforeEach(async (to, from, next) => {
 			isLoggedIn &&
 			(to.name == 'Lesson' ||
 				to.name == 'Batch' ||
-				to.name == 'Notifications')
+				to.name == 'Notifications' ||
+				to.name == 'Badge')
 		) {
 			await allUsers.reload()
 		}

@@ -18,7 +18,7 @@
 		</h2>
 		<div class="grid grid-cols-5 gap-4">
 			<div v-if="badges.data" v-for="badge in badges.data">
-				<Popover trigger="hover">
+				<Popover trigger="hover" :leaveDelay="Number(0.01)">
 					<template #target>
 						<div class="relative">
 							<img
@@ -51,11 +51,36 @@
 								<div class="leading-5 mb-4">
 									{{ badge.badge_description }}
 								</div>
-								<div class="flex flex-col">
+								<div class="flex flex-col mb-4">
 									<span class="text-xs text-gray-700 font-medium mb-1">
 										{{ __('Issued on') }}:
 									</span>
 									{{ dayjs(badge.issued_on).format('DD MMM YYYY') }}
+								</div>
+								<div class="flex flex-col">
+									<span class="text-xs text-gray-700 font-medium mb-1">
+										{{ __('Share on') }}:
+									</span>
+									<div class="flex items-center space-x-2">
+										<Button
+											variant="outline"
+											size="sm"
+											@click="shareOnSocial(badge, 'LinkedIn')"
+										>
+											<template #icon>
+												<LinkedinIcon
+													class="h-3 w-3 stroke-1.5 text-gray-700"
+												/>
+											</template>
+										</Button>
+										<Button
+											variant="outline"
+											size="sm"
+											@click="shareOnSocial(badge, 'Twitter')"
+										>
+											<Twitter class="h-3 w-3 stroke-1.5 text-gray-700" />
+										</Button>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -67,10 +92,12 @@
 </template>
 <script setup>
 import { inject } from 'vue'
-import { createResource, Popover } from 'frappe-ui'
-import { X } from 'lucide-vue-next'
+import { createResource, Popover, Button } from 'frappe-ui'
+import { X, LinkedinIcon, Twitter } from 'lucide-vue-next'
+import { sessionStore } from '@/stores/session'
 
 const dayjs = inject('$dayjs')
+const { branding } = sessionStore()
 
 const props = defineProps({
 	profile: {
@@ -100,4 +127,23 @@ const badges = createResource({
 		return finalBadges
 	},
 })
+
+const shareOnSocial = (badge, medium) => {
+	let shareUrl
+	const url = encodeURIComponent(
+		`${window.location.origin}/badges/${badge.badge}/${props.profile.data?.email}`
+	)
+	const summary = `I am happy to announce that I earned the ${
+		badge.badge
+	} badge on ${dayjs(badge.issued_on).format('DD MMM YYYY')} at ${
+		branding.data?.brand_name
+	}.`
+
+	if (medium == 'LinkedIn')
+		shareUrl = `https://www.linkedin.com/shareArticle?mini=true&url=${url}&text=${summary}`
+	else if (medium == 'Twitter')
+		shareUrl = `https://twitter.com/intent/tweet?text=${summary}&url=${url}`
+
+	window.open(shareUrl, '_blank')
+}
 </script>
