@@ -38,6 +38,17 @@
   "column_break_12",
   "cookie_policy",
   "cookie_policy_page",
+  "sidebar_tab",
+  "items_in_sidebar_section",
+  "courses",
+  "batches",
+  "certified_participants",
+  "column_break_exdz",
+  "jobs",
+  "statistics",
+  "notifications",
+  "section_break_qlss",
+  "show_navbar_items",
   "mentor_request_tab",
   "mentor_request_section",
   "mentor_request_creation",
@@ -349,18 +360,78 @@
    "default": "0",
    "fieldname": "show_day_view",
    "fieldtype": "Check",
-   "label": "Show Day View in Timetable"
+   "label": "Show day view in timetable"
   },
   {
    "fieldname": "unsplash_access_key",
    "fieldtype": "Data",
    "label": "Unsplash Access Key"
+  },
+  {
+   "fieldname": "sidebar_tab",
+   "fieldtype": "Tab Break",
+   "label": "Sidebar"
+  },
+  {
+   "default": "1",
+   "fieldname": "courses",
+   "fieldtype": "Check",
+   "label": "Courses"
+  },
+  {
+   "default": "1",
+   "fieldname": "batches",
+   "fieldtype": "Check",
+   "label": "Batches"
+  },
+  {
+   "default": "1",
+   "fieldname": "certified_participants",
+   "fieldtype": "Check",
+   "label": "Certified Participants"
+  },
+  {
+   "default": "1",
+   "fieldname": "jobs",
+   "fieldtype": "Check",
+   "label": "Jobs"
+  },
+  {
+   "default": "1",
+   "fieldname": "statistics",
+   "fieldtype": "Check",
+   "label": "Statistics"
+  },
+  {
+   "default": "1",
+   "fieldname": "notifications",
+   "fieldtype": "Check",
+   "label": "Notifications"
+  },
+  {
+   "fieldname": "items_in_sidebar_section",
+   "fieldtype": "Section Break",
+   "label": "Items in Sidebar"
+  },
+  {
+   "fieldname": "column_break_exdz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_qlss",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "show_navbar_items",
+   "fieldtype": "Check",
+   "label": "Show Navbar Items"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-04-16 12:18:14.670978",
+ "modified": "2024-05-28 18:29:31.609637",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",

@@ -8,7 +8,7 @@
 			:class="isSidebarCollapsed ? 'items-center' : ''"
 		>
 			<UserDropdown class="p-2" :isCollapsed="isSidebarCollapsed" />
-			<div class="flex flex-col overflow-y-auto">
+			<div class="flex flex-col overflow-y-auto" v-if="sidebarSettings.data">
 				<SidebarLink
 					v-for="link in sidebarLinks"
 					:link="link"
@@ -42,20 +42,31 @@ import UserDropdown from '@/components/UserDropdown.vue'
 import CollapseSidebar from '@/components/Icons/CollapseSidebar.vue'
 import SidebarLink from '@/components/SidebarLink.vue'
 import { useStorage } from '@vueuse/core'
-import { ref, onMounted, inject, computed } from 'vue'
+import { ref, onMounted, inject } from 'vue'
 import { getSidebarLinks } from '../utils'
 import { sessionStore } from '@/stores/session'
-import { Bell } from 'lucide-vue-next'
+import { Bell, File } from 'lucide-vue-next'
 import { createResource } from 'frappe-ui'
 
 const { user } = sessionStore()
 const socket = inject('$socket')
 const unreadCount = ref(0)
+const sidebarLinks = ref(getSidebarLinks())
 
 onMounted(() => {
 	socket.on('publish_lms_notifications', (data) => {
 		unreadNotifications.reload()
 	})
+
+	if (user) {
+		sidebarLinks.value.push({
+			label: 'Notifications',
+			icon: Bell,
+			to: 'Notifications',
+			activeFor: ['Notifications'],
+			count: unreadCount.value,
+		})
+	}
 })
 
 const unreadNotifications = createResource({
@@ -72,22 +83,40 @@ const unreadNotifications = createResource({
 	},
 	onSuccess(data) {
 		unreadCount.value = data
+		sidebarLinks.value = sidebarLinks.value.map((link) => {
+			if (link.label === 'Notifications') {
+				link.count = data
+			}
+			return link
+		})
 	},
-	auto: true,
+	auto: user ? true : false,
 })
 
-const sidebarLinks = computed(() => {
-	const links = getSidebarLinks()
-	if (user) {
-		links.push({
-			label: 'Notifications',
-			icon: Bell,
-			to: 'Notifications',
-			activeFor: ['Notifications'],
-			count: unreadCount.value,
+const sidebarSettings = createResource({
+	url: 'lms.lms.api.get_sidebar_settings',
+	cache: 'Sidebar Settings',
+	auto: true,
+	onSuccess(data) {
+		Object.keys(data).forEach((key) => {
+			if (!parseInt(data[key])) {
+				sidebarLinks.value = sidebarLinks.value.filter(
+					(link) => link.label.toLowerCase() !== key
+				)
+			}
 		})
-	}
-	return links
+		if (data.nav_items) {
+			data.nav_items.forEach((item) => {
+				sidebarLinks.value.push({
+					label: item.label,
+					icon: File,
+					to: item.url,
+					activeFor: [item.label],
+				})
+			})
+		}
+		console.log(data)
+	},
 })
 
 const getSidebarFromStorage = () => {

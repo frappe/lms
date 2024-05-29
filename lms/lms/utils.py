@@ -646,7 +646,8 @@ def handle_notifications(doc, method):
 
 def create_notification_log(doc, topic):
 	users = []
-	if topic.reference_doctype == "LMS Course":
+	print(topic.reference_doctype == "Course Lesson")
+	if topic.reference_doctype == "Course Lesson":
 		course = frappe.db.get_value("Course Lesson", topic.reference_docname, "course")
 		course_title = frappe.db.get_value("LMS Course", course, "title")
 		instructors = frappe.db.get_all(
@@ -689,7 +690,7 @@ def notify_mentions_on_portal(doc, topic):
 
 	from_user_name = get_fullname(doc.owner)
 
-	if topic.reference_doctype == "LMS Course":
+	if topic.reference_doctype == "Course Lesson":
 		course = frappe.db.get_value("Course Lesson", topic.reference_docname, "course")
 		subject = _("{0} mentioned you in a comment in {1}").format(
 			from_user_name, topic.title

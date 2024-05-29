@@ -416,3 +416,30 @@ def mark_all_as_read():
 
 	for notification in notifications:
 		mark_as_read(notification)
+
+
+@frappe.whitelist(allow_guest=True)
+def get_sidebar_settings():
+	lms_settings = frappe.get_single("LMS Settings")
+	sidebar_items = frappe._dict()
+
+	items = [
+		"courses",
+		"batches",
+		"certified_participants",
+		"jobs",
+		"statistics",
+		"notifications",
+	]
+	for item in items:
+		sidebar_items[item] = lms_settings.get(item)
+
+	if lms_settings.show_navbar_items:
+		nav_items = frappe.get_all(
+			"Top Bar Item",
+			["label", "url"],
+			{"parenttype": "Website Settings", "parentfield": "top_bar_items"},
+		)
+		sidebar_items.nav_items = nav_items
+
+	return sidebar_items

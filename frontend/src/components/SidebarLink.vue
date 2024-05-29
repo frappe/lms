@@ -14,7 +14,7 @@
 					<span class="grid h-5 w-6 flex-shrink-0 place-items-center">
 						<component
 							:is="link.icon"
-							class="h-5 w-5 stroke-1.5 text-gray-800"
+							class="h-4 w-4 stroke-1.5 text-gray-800"
 						/>
 					</span>
 				</slot>
@@ -55,7 +55,11 @@ const props = defineProps({
 })
 
 function handleClick() {
-	router.push({ name: props.link.to })
+	if (props.link.to.includes('/')) {
+		window.location.href = props.link.to
+	} else {
+		router.push({ name: props.link.to })
+	}
 }
 
 let isActive = computed(() => {
