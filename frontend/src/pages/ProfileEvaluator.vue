@@ -84,7 +84,7 @@
 					type="date"
 					:label="__('From')"
 					v-model="from"
-					@change.stop="
+					@blur="
 						() => {
 							updateUnavailability.submit({
 								field: 'unavailable_from',
@@ -97,7 +97,7 @@
 					type="date"
 					:label="__('To')"
 					v-model="to"
-					@change.stop="
+					@blur="
 						() => {
 							updateUnavailability.submit({
 								field: 'unavailable_to',

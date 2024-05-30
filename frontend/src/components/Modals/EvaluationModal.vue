@@ -116,7 +116,7 @@ function submitEvaluation(close) {
 			if (!evaluation.start_time) {
 				return 'Please select a slot.'
 			}
-			if (dayjs(evaluation.date).isSameOrBefore(dayjs(), 'day')) {
+			if (dayjs(evaluation.date).isBefore(dayjs(), 'day')) {
 				return 'Please select a future date.'
 			}
 			if (dayjs(evaluation.date).isAfter(dayjs(props.endDate), 'day')) {
