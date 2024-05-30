@@ -5,7 +5,15 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.model.mapper import get_mapped_doc
-from frappe.utils import format_date, format_time, getdate, add_to_date, get_datetime
+from frappe.utils import (
+	format_date,
+	format_time,
+	getdate,
+	add_to_date,
+	get_datetime,
+	nowtime,
+	get_time,
+)
 from lms.lms.utils import get_evaluator
 
 
@@ -54,13 +62,23 @@ class LMSCertificateRequest(Document):
 	def validate_if_existing_requests(self):
 		existing_requests = frappe.get_all(
 			"LMS Certificate Request",
-			{"member": self.member, "course": self.course, "name": ["!=", self.name]},
+			{
+				"member": self.member,
+				"course": self.course,
+				"name": ["!=", self.name],
+			},
 			["date", "start_time", "course"],
 		)
 
 		for req in existing_requests:
-
-			if req.date == getdate(self.date) or getdate() <= getdate(req.date):
+			if (
+				req.date == getdate(self.date)
+				or getdate() < getdate(req.date)
+				or (
+					getdate() == getdate(req.date)
+					and getdate(self.start_time) < getdate(req.start_time)
+				)
+			):
 				course_title = frappe.db.get_value("LMS Course", req.course, "title")
 				frappe.throw(
 					_("You already have an evaluation on {0} at {1} for the course {2}.").format(
@@ -69,6 +87,10 @@ class LMSCertificateRequest(Document):
 						course_title,
 					)
 				)
+		if getdate() == getdate(self.date) and get_time(self.start_time) < get_time(
+			nowtime()
+		):
+			frappe.throw(_("You cannot schedule evaluations for past slots."))
 
 	def validate_evaluation_end_date(self):
 		if self.batch_name:
