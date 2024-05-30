@@ -6,7 +6,7 @@ from frappe import _
 from frappe.model.document import Document
 from lms.lms.utils import get_evaluator
 from datetime import datetime
-from frappe.utils import get_time
+from frappe.utils import get_time, getdate
 
 
 class CourseEvaluator(Document):
@@ -18,7 +18,7 @@ class CourseEvaluator(Document):
 		if (
 			self.unavailable_from
 			and self.unavailable_to
-			and self.unavailable_from >= self.unavailable_to
+			and getdate(self.unavailable_from) >= getdate(self.unavailable_to)
 		):
 			frappe.throw(_("Unavailable From Date cannot be greater than Unavailable To Date"))
 
