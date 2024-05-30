@@ -16,6 +16,18 @@
 					class="mx-2 my-0.5"
 				/>
 			</div>
+			<div class="mt-4 mx-2 pt-1 border-t border-gray-200">
+				<div class="flex items-center justify-between">
+					<span class="text-sm font-medium text-gray-600">
+						{{ __('Web Pages') }}
+					</span>
+					<Button variant="ghost" @click="openPageModal()">
+						<template #icon>
+							<Plus class="h-4 w-4 text-gray-700 stroke-1.5" />
+						</template>
+					</Button>
+				</div>
+			</div>
 		</div>
 		<SidebarLink
 			:link="{
@@ -44,29 +56,25 @@ import SidebarLink from '@/components/SidebarLink.vue'
 import { useStorage } from '@vueuse/core'
 import { ref, onMounted, inject } from 'vue'
 import { getSidebarLinks } from '../utils'
-import { sessionStore } from '@/stores/session'
-import { Bell, File } from 'lucide-vue-next'
-import { createResource } from 'frappe-ui'
+import { usersStore } from '@/stores/user'
+import { Bell, Plus } from 'lucide-vue-next'
+import { createResource, Button } from 'frappe-ui'
 
-const { user } = sessionStore()
+const { userResource } = usersStore()
+console.log(userResource)
 const socket = inject('$socket')
 const unreadCount = ref(0)
 const sidebarLinks = ref(getSidebarLinks())
+const showPageModal = ref(false)
 
 onMounted(() => {
 	socket.on('publish_lms_notifications', (data) => {
 		unreadNotifications.reload()
 	})
-
-	if (user) {
-		sidebarLinks.value.push({
-			label: 'Notifications',
-			icon: Bell,
-			to: 'Notifications',
-			activeFor: ['Notifications'],
-			count: unreadCount.value,
-		})
-	}
+	console.log(userResource.data)
+	setTimeout(() => {
+		addNotifications()
+	}, 500)
 })
 
 const unreadNotifications = createResource({
@@ -76,7 +84,7 @@ const unreadNotifications = createResource({
 		return {
 			doctype: 'Notification Log',
 			filters: {
-				for_user: user,
+				for_user: userResource.data?.email,
 				read: 0,
 			},
 		}
@@ -90,8 +98,20 @@ const unreadNotifications = createResource({
 			return link
 		})
 	},
-	auto: user ? true : false,
+	auto: userResource.data ? true : false,
 })
+
+const addNotifications = () => {
+	if (userResource.data) {
+		sidebarLinks.value.push({
+			label: 'Notifications',
+			icon: Bell,
+			to: 'Notifications',
+			activeFor: ['Notifications'],
+			count: unreadCount.value,
+		})
+	}
+}
 
 const sidebarSettings = createResource({
 	url: 'lms.lms.api.get_sidebar_settings',
@@ -105,7 +125,7 @@ const sidebarSettings = createResource({
 				)
 			}
 		})
-		if (data.nav_items) {
+		/* if (data.nav_items) {
 			data.nav_items.forEach((item) => {
 				sidebarLinks.value.push({
 					label: item.label,
@@ -114,10 +134,14 @@ const sidebarSettings = createResource({
 					activeFor: [item.label],
 				})
 			})
-		}
+		} */
 		console.log(data)
 	},
 })
+
+const openPageModal = () => {
+	showPageModal.value = true
+}
 
 const getSidebarFromStorage = () => {
 	return useStorage('sidebar_is_collapsed', false)
