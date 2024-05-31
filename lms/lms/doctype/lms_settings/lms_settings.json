@@ -48,7 +48,7 @@
   "statistics",
   "notifications",
   "section_break_qlss",
-  "show_navbar_items",
+  "sidebar_items",
   "mentor_request_tab",
   "mentor_request_section",
   "mentor_request_creation",
@@ -422,16 +422,16 @@
    "fieldtype": "Section Break"
   },
   {
-   "default": "0",
-   "fieldname": "show_navbar_items",
-   "fieldtype": "Check",
-   "label": "Show Navbar Items"
+   "fieldname": "sidebar_items",
+   "fieldtype": "Table",
+   "label": "Sidebar Items",
+   "options": "LMS Sidebar Item"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-05-28 18:29:31.609637",
+ "modified": "2024-05-31 20:17:07.362088",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",

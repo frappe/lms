@@ -6,10 +6,10 @@
  "engine": "InnoDB",
  "field_order": [
   "web_page",
-  "route",
-  "column_break_glmh",
   "title",
-  "icon"
+  "column_break_glmh",
+  "icon",
+  "route"
  ],
  "fields": [
   {
@@ -19,48 +19,43 @@
   {
    "fieldname": "icon",
    "fieldtype": "Data",
-   "label": "Icon"
+   "in_list_view": 1,
+   "label": "Icon",
+   "read_only": 1,
+   "reqd": 1
   },
   {
    "fieldname": "web_page",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Web Page",
-   "options": "Web Page"
+   "options": "Web Page",
+   "reqd": 1
   },
   {
    "fetch_from": "web_page.route",
    "fieldname": "route",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Route"
   },
   {
    "fetch_from": "web_page.title",
    "fieldname": "title",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Title"
   }
  ],
  "index_web_pages_for_search": 1,
+ "istable": 1,
  "links": [],
- "modified": "2024-05-29 17:14:30.525055",
+ "modified": "2024-05-31 20:19:14.629097",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Sidebar Item",
  "owner": "Administrator",
- "permissions": [
-  {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "System Manager",
-   "share": 1,
-   "write": 1
-  }
- ],
+ "permissions": [],
  "sort_field": "creation",
  "sort_order": "DESC",
  "states": []

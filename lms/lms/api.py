@@ -434,12 +434,12 @@ def get_sidebar_settings():
 	for item in items:
 		sidebar_items[item] = lms_settings.get(item)
 
-	if lms_settings.show_navbar_items:
-		nav_items = frappe.get_all(
-			"Top Bar Item",
-			["label", "url"],
-			{"parenttype": "Website Settings", "parentfield": "top_bar_items"},
+	if len(lms_settings.sidebar_items):
+		web_pages = frappe.get_all(
+			"LMS Sidebar Item",
+			{"parenttype": "LMS Settings", "parentfield": "sidebar_items"},
+			["web_page", "route", "title", "icon"],
 		)
-		sidebar_items.nav_items = nav_items
+		sidebar_items.web_pages = web_pages
 
 	return sidebar_items

@@ -16,8 +16,8 @@
 					class="mx-2 my-0.5"
 				/>
 			</div>
-			<div class="mt-4 mx-2 pt-1 border-t border-gray-200">
-				<div class="flex items-center justify-between">
+			<div class="mt-4 px-2 pt-1 border-t border-gray-200">
+				<div v-if="isModerator" class="flex items-center justify-between pl-2">
 					<span class="text-sm font-medium text-gray-600">
 						{{ __('Web Pages') }}
 					</span>
@@ -26,6 +26,14 @@
 							<Plus class="h-4 w-4 text-gray-700 stroke-1.5" />
 						</template>
 					</Button>
+				</div>
+				<div v-if="sidebarSettings.data?.web_pages.length">
+					<SidebarLink
+						v-for="link in sidebarSettings.data.web_pages"
+						:link="link"
+						:isCollapsed="isSidebarCollapsed"
+						class="mx-2 my-0.5"
+					/>
 				</div>
 			</div>
 		</div>
@@ -47,6 +55,7 @@
 			</template>
 		</SidebarLink>
 	</div>
+	<PageModal v-model="showPageModal" v-model:reloadSidebar="sidebarSettings" />
 </template>
 
 <script setup>
@@ -54,27 +63,27 @@ import UserDropdown from '@/components/UserDropdown.vue'
 import CollapseSidebar from '@/components/Icons/CollapseSidebar.vue'
 import SidebarLink from '@/components/SidebarLink.vue'
 import { useStorage } from '@vueuse/core'
-import { ref, onMounted, inject } from 'vue'
+import { ref, onMounted, inject, watch } from 'vue'
 import { getSidebarLinks } from '../utils'
 import { usersStore } from '@/stores/user'
+import { sessionStore } from '@/stores/session'
 import { Bell, Plus } from 'lucide-vue-next'
 import { createResource, Button } from 'frappe-ui'
+import PageModal from '@/components/Modals/PageModal.vue'
 
+const { user } = sessionStore()
 const { userResource } = usersStore()
-console.log(userResource)
 const socket = inject('$socket')
 const unreadCount = ref(0)
 const sidebarLinks = ref(getSidebarLinks())
 const showPageModal = ref(false)
+const isModerator = ref(false)
 
 onMounted(() => {
 	socket.on('publish_lms_notifications', (data) => {
 		unreadNotifications.reload()
 	})
-	console.log(userResource.data)
-	setTimeout(() => {
-		addNotifications()
-	}, 500)
+	addNotifications()
 })
 
 const unreadNotifications = createResource({
@@ -84,7 +93,7 @@ const unreadNotifications = createResource({
 		return {
 			doctype: 'Notification Log',
 			filters: {
-				for_user: userResource.data?.email,
+				for_user: user,
 				read: 0,
 			},
 		}
@@ -98,11 +107,11 @@ const unreadNotifications = createResource({
 			return link
 		})
 	},
-	auto: userResource.data ? true : false,
+	auto: user ? true : false,
 })
 
 const addNotifications = () => {
-	if (userResource.data) {
+	if (user) {
 		sidebarLinks.value.push({
 			label: 'Notifications',
 			icon: Bell,
@@ -125,17 +134,6 @@ const sidebarSettings = createResource({
 				)
 			}
 		})
-		/* if (data.nav_items) {
-			data.nav_items.forEach((item) => {
-				sidebarLinks.value.push({
-					label: item.label,
-					icon: File,
-					to: item.url,
-					activeFor: [item.label],
-				})
-			})
-		} */
-		console.log(data)
 	},
 })
 
@@ -146,6 +144,12 @@ const openPageModal = () => {
 const getSidebarFromStorage = () => {
 	return useStorage('sidebar_is_collapsed', false)
 }
+
+watch(userResource, () => {
+	if (userResource.data) {
+		isModerator.value = userResource.data.is_moderator
+	}
+})
 
 let isSidebarCollapsed = ref(getSidebarFromStorage())
 </script>

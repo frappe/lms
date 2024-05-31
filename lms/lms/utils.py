@@ -646,14 +646,16 @@ def handle_notifications(doc, method):
 
 def create_notification_log(doc, topic):
 	users = []
-	print(topic.reference_doctype == "Course Lesson")
 	if topic.reference_doctype == "Course Lesson":
 		course = frappe.db.get_value("Course Lesson", topic.reference_docname, "course")
 		course_title = frappe.db.get_value("LMS Course", course, "title")
 		instructors = frappe.db.get_all(
 			"Course Instructor", {"parent": course}, pluck="instructor"
 		)
-		users.append(topic.owner)
+
+		if doc.owner != topic.owner:
+			users.append(topic.owner)
+
 		users += instructors
 		subject = _("New reply on the topic {0} in course {1}").format(
 			topic.title, course_title
