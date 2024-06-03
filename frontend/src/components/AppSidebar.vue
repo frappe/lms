@@ -16,8 +16,14 @@
 					class="mx-2 my-0.5"
 				/>
 			</div>
-			<div class="mt-4 px-2 pt-1 border-t border-gray-200">
-				<div v-if="isModerator" class="flex items-center justify-between pl-2">
+			<div
+				v-if="sidebarSettings.data?.web_pages?.length || isModerator"
+				class="mt-4 pt-1 border-t border-gray-200"
+			>
+				<div
+					v-if="isModerator"
+					class="flex items-center justify-between pl-4 pr-2"
+				>
 					<span class="text-sm font-medium text-gray-600">
 						{{ __('Web Pages') }}
 					</span>
@@ -27,12 +33,18 @@
 						</template>
 					</Button>
 				</div>
-				<div v-if="sidebarSettings.data?.web_pages.length">
+				<div
+					v-if="sidebarSettings.data?.web_pages?.length"
+					class="flex flex-col overflow-y-auto"
+				>
 					<SidebarLink
 						v-for="link in sidebarSettings.data.web_pages"
 						:link="link"
 						:isCollapsed="isSidebarCollapsed"
 						class="mx-2 my-0.5"
+						:showControls="isModerator ? true : false"
+						@openModal="openPageModal"
+						@deletePage="deletePage"
 					/>
 				</div>
 			</div>
@@ -55,7 +67,11 @@
 			</template>
 		</SidebarLink>
 	</div>
-	<PageModal v-model="showPageModal" v-model:reloadSidebar="sidebarSettings" />
+	<PageModal
+		v-model="showPageModal"
+		v-model:reloadSidebar="sidebarSettings"
+		:page="pageToEdit"
+	/>
 </template>
 
 <script setup>
@@ -67,7 +83,7 @@ import { ref, onMounted, inject, watch } from 'vue'
 import { getSidebarLinks } from '../utils'
 import { usersStore } from '@/stores/user'
 import { sessionStore } from '@/stores/session'
-import { Bell, Plus } from 'lucide-vue-next'
+import { Plus } from 'lucide-vue-next'
 import { createResource, Button } from 'frappe-ui'
 import PageModal from '@/components/Modals/PageModal.vue'
 
@@ -78,6 +94,7 @@ const unreadCount = ref(0)
 const sidebarLinks = ref(getSidebarLinks())
 const showPageModal = ref(false)
 const isModerator = ref(false)
+const pageToEdit = ref(null)
 
 onMounted(() => {
 	socket.on('publish_lms_notifications', (data) => {
@@ -114,7 +131,7 @@ const addNotifications = () => {
 	if (user) {
 		sidebarLinks.value.push({
 			label: 'Notifications',
-			icon: Bell,
+			icon: 'Bell',
 			to: 'Notifications',
 			activeFor: ['Notifications'],
 			count: unreadCount.value,
@@ -137,8 +154,27 @@ const sidebarSettings = createResource({
 	},
 })
 
-const openPageModal = () => {
+const openPageModal = (link) => {
 	showPageModal.value = true
+	pageToEdit.value = link
+}
+
+const deletePage = (link) => {
+	createResource({
+		url: 'lms.lms.api.delete_sidebar_item',
+		makeParams(values) {
+			return {
+				webpage: link.web_page,
+			}
+		},
+	}).submit(
+		{},
+		{
+			onSuccess() {
+				sidebarSettings.reload()
+			},
+		}
+	)
 }
 
 const getSidebarFromStorage = () => {

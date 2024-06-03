@@ -30,40 +30,53 @@
 	</Dialog>
 </template>
 <script setup>
-import { Dialog, FormControl, createResource } from 'frappe-ui'
+import { Dialog, createResource } from 'frappe-ui'
 import Link from '@/components/Controls/Link.vue'
-import { reactive } from 'vue'
+import { reactive, watch } from 'vue'
 import IconPicker from '@/components/Controls/IconPicker.vue'
 import { showToast } from '@/utils'
 
-const topics = defineModel('reloadSidebar')
+const sidebar = defineModel('reloadSidebar')
 const show = defineModel()
 const page = reactive({
 	icon: '',
 	webpage: '',
 })
 
+const props = defineProps({
+	page: {
+		type: Object,
+		default: null,
+	},
+})
+
 const webPage = createResource({
-	url: 'frappe.client.insert',
+	url: 'lms.lms.api.update_sidebar_item',
 	makeParams(values) {
 		return {
-			doc: {
-				doctype: 'LMS Sidebar Item',
-				web_page: page.webpage,
-				icon: page.icon,
-				parent: 'LMS Settings',
-				parentfield: 'sidebar_items',
-				parenttype: 'LMS Settings',
-			},
+			webpage: page.webpage,
+			icon: page.icon,
 		}
 	},
 })
+
+watch(
+	() => props.page,
+	(newPage) => {
+		if (newPage) {
+			page.icon = newPage.icon
+			page.webpage = newPage.web_page
+		}
+	},
+	{ immediate: true }
+)
 
 const addWebPage = (close) => {
 	webPage.submit(
 		{},
 		{
 			onSuccess() {
+				sidebar.value.reload()
 				close()
 				showToast('Success', 'Web page added to sidebar', 'check')
 			},
