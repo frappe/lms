@@ -6,15 +6,15 @@
 		@click="handleClick"
 	>
 		<div
-			class="flex items-center w-full duration-300 ease-in-out"
+			class="flex items-center w-full duration-300 ease-in-out group"
 			:class="isCollapsed ? 'p-1' : 'px-2 py-1'"
 		>
 			<Tooltip :text="link.label" placement="right">
 				<slot name="icon">
 					<span class="grid h-5 w-6 flex-shrink-0 place-items-center">
 						<component
-							:is="link.icon"
-							class="h-5 w-5 stroke-1.5 text-gray-800"
+							:is="icons[link.icon]"
+							class="h-4 w-4 stroke-1.5 text-gray-800"
 						/>
 					</span>
 				</slot>
@@ -32,16 +32,32 @@
 			<span v-if="link.count" class="!ml-auto block text-xs text-gray-600">
 				{{ link.count }}
 			</span>
+			<div
+				v-if="showControls"
+				class="flex items-center space-x-2 !ml-auto block text-xs text-gray-600 group-hover:visible invisible"
+			>
+				<component
+					:is="icons['Edit']"
+					class="h-3 w-3 stroke-1.5 text-gray-800"
+					@click.stop="openModal(link)"
+				/>
+				<component
+					:is="icons['X']"
+					class="h-3 w-3 stroke-1.5 text-gray-800"
+					@click.stop="deletePage(link)"
+				/>
+			</div>
 		</div>
 	</button>
 </template>
-
 <script setup>
-import { Tooltip } from 'frappe-ui'
+import { Tooltip, Button } from 'frappe-ui'
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
+import * as icons from 'lucide-vue-next'
 
 const router = useRouter()
+const emit = defineEmits(['openModal', 'deletePage'])
 
 const props = defineProps({
 	link: {
@@ -52,13 +68,29 @@ const props = defineProps({
 		type: Boolean,
 		default: false,
 	},
+	showControls: {
+		type: Boolean,
+		default: false,
+	},
 })
 
 function handleClick() {
-	router.push({ name: props.link.to })
+	if (router.hasRoute(props.link.to)) {
+		router.push({ name: props.link.to })
+	} else {
+		window.location.href = `/${props.link.to}`
+	}
 }
 
-let isActive = computed(() => {
+const isActive = computed(() => {
 	return props.link?.activeFor?.includes(router.currentRoute.value.name)
 })
+
+const openModal = (link) => {
+	emit('openModal', link)
+}
+
+const deletePage = (link) => {
+	emit('deletePage', link)
+}
 </script>

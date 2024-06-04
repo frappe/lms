@@ -416,3 +416,64 @@ def mark_all_as_read():
 
 	for notification in notifications:
 		mark_as_read(notification)
+
+
+@frappe.whitelist(allow_guest=True)
+def get_sidebar_settings():
+	lms_settings = frappe.get_single("LMS Settings")
+	sidebar_items = frappe._dict()
+
+	items = [
+		"courses",
+		"batches",
+		"certified_participants",
+		"jobs",
+		"statistics",
+		"notifications",
+	]
+	for item in items:
+		sidebar_items[item] = lms_settings.get(item)
+
+	if len(lms_settings.sidebar_items):
+		web_pages = frappe.get_all(
+			"LMS Sidebar Item",
+			{"parenttype": "LMS Settings", "parentfield": "sidebar_items"},
+			["web_page", "route", "title as label", "icon"],
+		)
+		for page in web_pages:
+			page.to = page.route
+
+		sidebar_items.web_pages = web_pages
+
+	return sidebar_items
+
+
+@frappe.whitelist()
+def update_sidebar_item(webpage, icon):
+	filters = {
+		"web_page": webpage,
+		"parenttype": "LMS Settings",
+		"parentfield": "sidebar_items",
+		"parent": "LMS Settings",
+	}
+
+	if frappe.db.exists("LMS Sidebar Item", filters):
+		frappe.db.set_value("LMS Sidebar Item", filters, "icon", icon)
+	else:
+		doc = frappe.new_doc("LMS Sidebar Item")
+		doc.update(filters)
+		doc.icon = icon
+		doc.insert()
+
+
+@frappe.whitelist()
+def delete_sidebar_item(webpage):
+	return frappe.db.delete(
+		"LMS Sidebar Item",
+		{
+			"web_page": webpage,
+			"parenttype": "LMS Settings",
+			"parentfield": "sidebar_items",
+			"parent": "LMS Settings",
+		},
+	)

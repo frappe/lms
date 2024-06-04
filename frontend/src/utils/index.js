@@ -1,13 +1,5 @@
 import { toast } from 'frappe-ui'
 import { useTimeAgo } from '@vueuse/core'
-import {
-	BookOpen,
-	Users,
-	TrendingUp,
-	Briefcase,
-	GraduationCap,
-	Bell,
-} from 'lucide-vue-next'
 import { Quiz } from '@/utils/quiz'
 import { Upload } from '@/utils/upload'
 import Header from '@editorjs/header'
@@ -331,31 +323,31 @@ export function getSidebarLinks() {
 	return [
 		{
 			label: 'Courses',
-			icon: BookOpen,
+			icon: 'BookOpen',
 			to: 'Courses',
 			activeFor: ['Courses', 'CourseDetail', 'Lesson'],
 		},
 		{
 			label: 'Batches',
-			icon: Users,
+			icon: 'Users',
 			to: 'Batches',
 			activeFor: ['Batches', 'BatchDetail', 'Batch'],
 		},
 		{
 			label: 'Certified Participants',
-			icon: GraduationCap,
+			icon: 'GraduationCap',
 			to: 'CertifiedParticipants',
 			activeFor: ['CertifiedParticipants'],
 		},
 		{
 			label: 'Jobs',
-			icon: Briefcase,
+			icon: 'Briefcase',
 			to: 'Jobs',
 			activeFor: ['Jobs', 'JobDetail'],
 		},
 		{
 			label: 'Statistics',
-			icon: TrendingUp,
+			icon: 'TrendingUp',
 			to: 'Statistics',
 			activeFor: ['Statistics'],
 		},
