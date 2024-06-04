@@ -52,7 +52,7 @@
 </template>
 <script setup>
 import { Tooltip, Button } from 'frappe-ui'
-import { computed, defineEmits } from 'vue'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import * as icons from 'lucide-vue-next'
 
