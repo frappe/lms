@@ -79,19 +79,22 @@
 									<span>{{ job.data.type }}</span>
 								</div>
 								<div class="flex items-center space-x-2">
+									<CalendarDays class="h-4 w-4 stroke-1.5" />
+									<span>{{
+										dayjs(job.data.creation).format('DD MMM YYYY')
+									}}</span>
+								</div>
+							</div>
+							<div class="grid grid-cols-1 h-fit">
+								<div
+									v-if="applicationCount.data"
+									class="flex items-center space-x-2"
+								>
 									<SquareUserRound class="h-4 w-4 stroke-1.5" />
 									<span
 										>{{ applicationCount.data }}
 										{{ __('applications received') }}</span
 									>
-								</div>
-							</div>
-							<div class="grid grid-cols-1 h-fit">
-								<div class="flex items-center space-x-2">
-									<CalendarDays class="h-4 w-4 stroke-1.5" />
-									<span>{{
-										dayjs(job.data.creation).format('DD MMM YYYY')
-									}}</span>
 								</div>
 							</div>
 						</div>
@@ -146,6 +149,7 @@ const job = createResource({
 		if (user.data?.name) {
 			jobApplication.submit()
 		}
+		applicationCount.submit()
 	},
 })
 
@@ -172,7 +176,6 @@ const applicationCount = createResource({
 			},
 		}
 	},
-	auto: true,
 })
 
 const openApplicationModal = () => {
