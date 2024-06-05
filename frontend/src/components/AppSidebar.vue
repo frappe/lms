@@ -147,7 +147,7 @@ const sidebarSettings = createResource({
 		Object.keys(data).forEach((key) => {
 			if (!parseInt(data[key])) {
 				sidebarLinks.value = sidebarLinks.value.filter(
-					(link) => link.label.toLowerCase() !== key
+					(link) => link.label.toLowerCase().split(' ').join('_') !== key
 				)
 			}
 		})
