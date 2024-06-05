@@ -111,7 +111,8 @@ doc_events = {
 scheduler_events = {
 	"hourly": [
 		"lms.lms.doctype.lms_certificate_request.lms_certificate_request.schedule_evals"
-	]
+	],
+	"daily": ["lms.job.doctype.job_opportunity.job_opportunity.update_job_openings"],
 }
 
 fixtures = ["Custom Field", "Function", "Industry", "LMS Badge"]

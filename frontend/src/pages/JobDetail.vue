@@ -59,29 +59,41 @@
 						:alt="job.data.company_name"
 					/>
 					<div>
-						<div class="text-2xl font-semibold mb-2">
+						<div class="text-2xl font-semibold mb-4">
 							{{ job.data.job_title }}
 						</div>
-						<div>
-							{{ __('posted by') }}
-							<span class="font-medium">{{ job.data.company_name }}</span>
-							{{ __('on') }}
-							<span class="font-medium">{{
-								dayjs(job.data.creation).format('DD MMM YYYY')
-							}}</span>
-						</div>
-						<div class="flex items-center mt-2">
-							<Badge :label="job.data.type" theme="green" size="lg" />
-							<Badge
-								:label="job.data.location"
-								theme="gray"
-								size="lg"
-								class="ml-4"
-							>
-								<template #prefix>
+						<div class="grid grid-cols-3 gap-8">
+							<div class="grid grid-cols-1 gap-2">
+								<div class="flex items-center space-x-2">
+									<Building2 class="h-4 w-4 stroke-1.5" />
+									<span>{{ job.data.company_name }}</span>
+								</div>
+								<div class="flex items-center space-x-2">
 									<MapPin class="h-4 w-4 stroke-1.5" />
-								</template>
-							</Badge>
+									<span>{{ job.data.location }}</span>
+								</div>
+							</div>
+							<div class="grid grid-cols-1 gap-2">
+								<div class="flex items-center space-x-2">
+									<ClipboardType class="h-4 w-4 stroke-1.5" />
+									<span>{{ job.data.type }}</span>
+								</div>
+								<div class="flex items-center space-x-2">
+									<SquareUserRound class="h-4 w-4 stroke-1.5" />
+									<span
+										>{{ applicationCount.data }}
+										{{ __('applications received') }}</span
+									>
+								</div>
+							</div>
+							<div class="grid grid-cols-1 h-fit">
+								<div class="flex items-center space-x-2">
+									<CalendarDays class="h-4 w-4 stroke-1.5" />
+									<span>{{
+										dayjs(job.data.creation).format('DD MMM YYYY')
+									}}</span>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -101,7 +113,15 @@
 <script setup>
 import { Badge, Button, Breadcrumbs, createResource } from 'frappe-ui'
 import { inject, ref, onMounted } from 'vue'
-import { MapPin, SendHorizonal, Pencil } from 'lucide-vue-next'
+import {
+	MapPin,
+	SendHorizonal,
+	Pencil,
+	Building2,
+	CalendarDays,
+	ClipboardType,
+	SquareUserRound,
+} from 'lucide-vue-next'
 import JobApplicationModal from '@/components/Modals/JobApplicationModal.vue'
 
 const user = inject('$user')
@@ -140,6 +160,19 @@ const jobApplication = createResource({
 			},
 		}
 	},
+})
+
+const applicationCount = createResource({
+	url: 'frappe.client.get_count',
+	makeParams(values) {
+		return {
+			doctype: 'LMS Job Application',
+			filters: {
+				job: job.data?.name,
+			},
+		}
+	},
+	auto: true,
 })
 
 const openApplicationModal = () => {
