@@ -153,7 +153,7 @@ const createLiveClass = createResource({
 })
 
 const submitLiveClass = (close) => {
-	createLiveClass.submit(liveClass, {
+	return createLiveClass.submit(liveClass, {
 		validate() {
 			if (!liveClass.title) {
 				return 'Please enter a title.'
