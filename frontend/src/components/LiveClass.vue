@@ -16,44 +16,42 @@
 		{{ __('Live Class') }}
 	</div>
 	<div v-if="liveClasses.data?.length" class="grid grid-cols-2 gap-5">
-		<div v-for="cls in liveClasses.data">
-			<div class="border rounded-md p-3">
-				<div class="font-semibold text-lg mb-4">
-					{{ cls.title }}
-				</div>
-				<div class="flex items-center mb-2">
-					<Calendar class="w-4 h-4 stroke-1.5" />
-					<span class="ml-2">
-						{{ dayjs(cls.date).format('DD MMMM YYYY') }}
-					</span>
-				</div>
-				<div class="flex items-center mb-5">
-					<Clock class="w-4 h-4 stroke-1.5" />
-					<span class="ml-2">
-						{{ formatTime(cls.time) }}
-					</span>
-				</div>
-				<div class="mb-5">
-					{{ cls.description }}
-				</div>
-				<div class="flex items-center gap-2">
-					<a
-						:href="cls.start_url"
-						target="_blank"
-						class="w-1/2 cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-gray-800 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 focus-visible:ring focus-visible:ring-gray-400 h-7 text-base px-2 rounded"
-					>
-						<Monitor class="h-4 w-4 stroke-1.5" />
-						{{ __('Start') }}
-					</a>
-					<a
-						:href="cls.join_url"
-						target="_blank"
-						class="w-1/2 cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-gray-800 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 focus-visible:ring focus-visible:ring-gray-400 h-7 text-base px-2 rounded"
-					>
-						<Video class="h-4 w-4 stroke-1.5" />
-						{{ __('Join') }}
-					</a>
-				</div>
+		<div v-for="cls in liveClasses.data" class="border rounded-md h-full p-3">
+			<div class="font-semibold text-lg mb-4">
+				{{ cls.title }}
+			</div>
+			<div class="flex items-center mb-2">
+				<Calendar class="w-4 h-4 stroke-1.5" />
+				<span class="ml-2">
+					{{ dayjs(cls.date).format('DD MMMM YYYY') }}
+				</span>
+			</div>
+			<div class="flex items-center mb-5">
+				<Clock class="w-4 h-4 stroke-1.5" />
+				<span class="ml-2">
+					{{ formatTime(cls.time) }}
+				</span>
+			</div>
+			<div class="mb-5">
+				{{ cls.description }}
+			</div>
+			<div class="flex items-center gap-2">
+				<a
+					:href="cls.start_url"
+					target="_blank"
+					class="w-1/2 cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-gray-800 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 focus-visible:ring focus-visible:ring-gray-400 h-7 text-base px-2 rounded"
+				>
+					<Monitor class="h-4 w-4 stroke-1.5" />
+					{{ __('Start') }}
+				</a>
+				<a
+					:href="cls.join_url"
+					target="_blank"
+					class="w-1/2 cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-gray-800 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 focus-visible:ring focus-visible:ring-gray-400 h-7 text-base px-2 rounded"
+				>
+					<Video class="h-4 w-4 stroke-1.5" />
+					{{ __('Join') }}
+				</a>
 			</div>
 		</div>
 	</div>

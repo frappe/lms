@@ -138,7 +138,27 @@
 							{{ questionDetails.data[`explanation_${index}`] }}
 						</div>
 					</div>
-					<div class="flex items-center justify-between mt-8">
+					<div v-else>
+						<FormControl
+							v-model="possibleAnswer"
+							type="textarea"
+							:disabled="showAnswers.length ? true : false"
+							class="my-2"
+						/>
+						<div v-if="showAnswers.length">
+							<Badge v-if="showAnswers[0]" :label="__('Correct')" theme="green">
+								<template #prefix>
+									<CheckCircle class="w-4 h-4 text-green-500 mr-1" />
+								</template>
+							</Badge>
+							<Badge v-else theme="red" :label="__('Incorrect')">
+								<template #prefix>
+									<XCircle class="w-4 h-4 text-red-500 mr-1" />
+								</template>
+							</Badge>
+						</div>
+					</div>
+					<div class="flex items-center justify-between mt-5">
 						<div>
 							{{
 								__('Question {0} of {1}').format(
@@ -215,22 +235,19 @@
 	</div>
 </template>
 <script setup>
-import {
-	createDocumentResource,
-	Button,
-	createResource,
-	ListView,
-} from 'frappe-ui'
+import { Badge, Button, createResource, ListView } from 'frappe-ui'
 import { ref, watch, reactive, inject } from 'vue'
 import { createToast } from '@/utils/'
 import { CheckCircle, XCircle, MinusCircle } from 'lucide-vue-next'
 import { timeAgo } from '@/utils'
+import FormControl from 'frappe-ui/src/components/FormControl.vue'
 const user = inject('$user')
 
 const activeQuestion = ref(0)
 const currentQuestion = ref('')
 const selectedOptions = reactive([0, 0, 0, 0])
 const showAnswers = reactive([])
+const possibleAnswer = ref(null)
 
 const props = defineProps({
 	quizName: {
@@ -342,10 +359,17 @@ const markAnswer = (index) => {
 
 const getAnswers = () => {
 	let answers = []
-	selectedOptions.forEach((value, index) => {
-		if (selectedOptions[index])
-			answers.push(questionDetails.data[`option_${index + 1}`])
-	})
+	const type = questionDetails.data.type
+
+	if (type == 'Choices') {
+		selectedOptions.forEach((value, index) => {
+			if (selectedOptions[index])
+				answers.push(questionDetails.data[`option_${index + 1}`])
+		})
+	} else {
+		answers.push(possibleAnswer.value)
+	}
+
 	return answers
 }
 
@@ -370,15 +394,20 @@ const checkAnswer = () => {
 		},
 		auto: true,
 		onSuccess(data) {
-			selectedOptions.forEach((option, index) => {
-				if (option) {
-					showAnswers[index] = option && data[index]
-				} else if (questionDetails.data[`is_correct_${index + 1}`]) {
-					showAnswers[index] = 0
-				} else {
-					showAnswers[index] = undefined
-				}
-			})
+			let type = questionDetails.data.type
+			if (type == 'Choices') {
+				selectedOptions.forEach((option, index) => {
+					if (option) {
+						showAnswers[index] = option && data[index]
+					} else if (questionDetails.data[`is_correct_${index + 1}`]) {
+						showAnswers[index] = 0
+					} else {
+						showAnswers[index] = undefined
+					}
+				})
+			} else {
+				showAnswers.push(data)
+			}
 			addToLocalStorage()
 			if (!quiz.data.show_answers) {
 				resetQuestion()
@@ -413,6 +442,7 @@ const resetQuestion = () => {
 	activeQuestion.value = activeQuestion.value + 1
 	selectedOptions.splice(0, selectedOptions.length, ...[0, 0, 0, 0])
 	showAnswers.length = 0
+	possibleAnswer.value = null
 }
 
 const submitQuiz = () => {
