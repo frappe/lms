@@ -33,7 +33,7 @@
 				{{ link.count }}
 			</span>
 			<div
-				v-if="showControls"
+				v-if="showControls && !isCollapsed"
 				class="flex items-center space-x-2 !ml-auto block text-xs text-gray-600 group-hover:visible invisible"
 			>
 				<component
@@ -77,7 +77,7 @@ const props = defineProps({
 function handleClick() {
 	if (router.hasRoute(props.link.to)) {
 		router.push({ name: props.link.to })
-	} else {
+	} else if (props.link.to) {
 		window.location.href = `/${props.link.to}`
 	}
 }

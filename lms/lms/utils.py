@@ -1213,6 +1213,7 @@ def create_membership(course, payment):
 
 def add_student_to_batch(batchname, payment):
 	student = frappe.new_doc("Batch Student")
+	current_count = frappe.db.count("Batch Student", {"parent": batchname})
 	student.update(
 		{
 			"student": frappe.session.user,
@@ -1221,6 +1222,7 @@ def add_student_to_batch(batchname, payment):
 			"parent": batchname,
 			"parenttype": "LMS Batch",
 			"parentfield": "students",
+			"idx": current_count + 1,
 		}
 	)
 	student.save(ignore_permissions=True)

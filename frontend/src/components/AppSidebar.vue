@@ -8,7 +8,7 @@
 			:class="isSidebarCollapsed ? 'items-center' : ''"
 		>
 			<UserDropdown class="p-2" :isCollapsed="isSidebarCollapsed" />
-			<div class="flex flex-col overflow-y-auto" v-if="sidebarSettings.data">
+			<div class="flex flex-col" v-if="sidebarSettings.data">
 				<SidebarLink
 					v-for="link in sidebarLinks"
 					:link="link"
@@ -22,9 +22,13 @@
 			>
 				<div
 					v-if="isModerator"
-					class="flex items-center justify-between pl-4 pr-2"
+					class="flex items-center justify-between pr-2"
+					:class="isSidebarCollapsed ? 'pl-3' : 'pl-5'"
 				>
-					<span class="text-sm font-medium text-gray-600">
+					<span
+						v-if="!isSidebarCollapsed"
+						class="text-sm font-medium text-gray-600"
+					>
 						{{ __('Web Pages') }}
 					</span>
 					<Button variant="ghost" @click="openPageModal()">
@@ -35,7 +39,7 @@
 				</div>
 				<div
 					v-if="sidebarSettings.data?.web_pages?.length"
-					class="flex flex-col overflow-y-auto"
+					class="flex flex-col"
 				>
 					<SidebarLink
 						v-for="link in sidebarSettings.data.web_pages"

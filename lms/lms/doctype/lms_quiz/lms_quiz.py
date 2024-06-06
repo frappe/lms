@@ -6,6 +6,7 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.utils import cstr, comma_and
+from fuzzywuzzy import fuzz
 from lms.lms.doctype.course_lesson.course_lesson import save_progress
 from lms.lms.utils import (
 	generate_slug,
@@ -304,7 +305,7 @@ def check_input_answers(question, answer):
 	question_details = frappe.db.get_value("LMS Question", question, fields, as_dict=1)
 	for num in range(1, 5):
 		current_possibility = question_details[f"possibility_{num}"]
-		if current_possibility and current_possibility.lower() == answer.lower():
+		if current_possibility and fuzz.token_sort_ratio(current_possibility, answer) > 85:
 			return 1
 
 	return 0
