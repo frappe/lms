@@ -56,7 +56,7 @@
 					name: batch.data.name,
 				},
 			}"
-			v-else-if="batch.data.paid_batch"
+			v-else-if="batch.data.paid_batch && batch.data.seats_left"
 		>
 			<Button class="w-full mt-4" variant="solid">
 				<span>
@@ -67,7 +67,7 @@
 		<Button
 			variant="solid"
 			class="w-full mt-2"
-			v-else-if="batch.data.allow_self_enrollment"
+			v-else-if="batch.data.allow_self_enrollment && batch.data.seats_left"
 		>
 			{{ __('Enroll Now') }}
 		</Button>
