@@ -1018,31 +1018,42 @@ def get_payment_options(doctype, docname, phone, country):
 
 
 def check_multicurrency(amount, currency, country=None, amount_usd=None):
-	show_usd_equivalent = frappe.db.get_single_value("LMS Settings", "show_usd_equivalent")
-	exception_country = frappe.get_all(
-		"Payment Country", filters={"parent": "LMS Settings"}, pluck="country"
-	)
-	country = (
-		country
-		or frappe.db.get_value("Address", {"email_id": frappe.session.user}, "country")
-		or frappe.db.get_value("User", frappe.session.user, "country")
-		or get_country_code()
-	)
+	settings = frappe.get_single("LMS Settings")
+	show_usd_equivalent = settings.show_usd_equivalent
 
-	if amount_usd and country and country not in exception_country:
-		return amount_usd, "USD"
+	# Countries for which currency should not be converted
+	exception_country = settings.exception_country
+	exception_country = [country.country for country in exception_country]
 
-	if not show_usd_equivalent or currency == "USD":
-		return amount, currency
+	# Get users country
+	if not country:
+		country = frappe.db.get_value("Address", {"email_id": frappe.session.user}, "country")
 
+	if not country:
+		country = frappe.db.get_value("User", frappe.session.user, "country")
+
+	if not country:
+		country = get_country_code()
+
+	# If the country is the one for which conversion is not needed then return as is
 	if not country or (exception_country and country in exception_country):
 		return amount, currency
 
+	# If conversion is disabled from settings or the currency is already USD then return as is
+	if not show_usd_equivalent or currency == "USD":
+		return amount, currency
+
+	# If Explicit USD price is given then return that without conversion
+	if amount_usd and country and country not in exception_country:
+		return amount_usd, "USD"
+
+	# Conversion logic starts here. Exchange rate is fetched and amount is converted.
 	exchange_rate = get_current_exchange_rate(currency, "USD")
 	amount = amount * exchange_rate
 	currency = "USD"
 
-	apply_rounding = frappe.db.get_single_value("LMS Settings", "apply_rounding")
+	# Check if the amount should be rounded and then apply rounding
+	apply_rounding = settings.apply_rounding
 	if apply_rounding and amount % 100 != 0:
 		amount = amount + 100 - amount % 100
 
@@ -1466,10 +1477,13 @@ def get_neighbour_lesson(course, chapter, lesson):
 @frappe.whitelist(allow_guest=True)
 def get_batches():
 	batches = []
-	batch_list = frappe.get_all("LMS Batch", pluck="name")
+	filters = {}
+	if frappe.session.user == "Guest":
+		filters.update({"start_date": [">=", getdate()], "published": 1})
+	batch_list = frappe.get_all("LMS Batch", filters)
 
 	for batch in batch_list:
-		batches.append(get_batch_details(batch))
+		batches.append(get_batch_details(batch.name))
 
 	batches = categorize_batches(batches)
 	return batches
@@ -1508,18 +1522,14 @@ def get_batch_details(batch):
 	batch_details.students = frappe.get_all(
 		"Batch Student", {"parent": batch}, pluck="student"
 	)
-	if batch_details.paid_batch:
+	if batch_details.paid_batch and batch_details.start_date >= getdate():
 		batch_details.amount, batch_details.currency = check_multicurrency(
 			batch_details.amount, batch_details.currency, None, batch_details.amount_usd
 		)
 		batch_details.price = fmt_money(batch_details.amount, 0, batch_details.currency)
 
 	if batch_details.seat_count:
-		students_enrolled = frappe.db.count(
-			"Batch Student",
-			{"parent": batch},
-		)
-		batch_details.seats_left = batch_details.seat_count - students_enrolled
+		batch_details.seats_left = batch_details.seat_count - len(batch_details.students)
 
 	return batch_details
 
