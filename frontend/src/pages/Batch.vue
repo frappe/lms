@@ -43,7 +43,7 @@
 						</div>
 					</template>
 					<template #default="{ tab }">
-						<div class="pt-5 px-10 pb-10">
+						<div class="pt-5 px-5 pb-10">
 							<div v-if="tab.label == 'Courses'">
 								<BatchCourses :batch="batch.data.name" />
 							</div>

@@ -2,7 +2,7 @@
 	<Button
 		v-if="user.data.is_moderator"
 		variant="solid"
-		class="float-right mb-3"
+		class="float-right mb-5"
 		@click="openLiveClassModal"
 	>
 		<template #prefix>
@@ -12,13 +12,19 @@
 			{{ __('Add Live Class') }}
 		</span>
 	</Button>
-	<div class="text-lg font-semibold mb-4">
+	<div class="text-lg font-semibold mb-5">
 		{{ __('Live Class') }}
 	</div>
 	<div v-if="liveClasses.data?.length" class="grid grid-cols-2 gap-5">
-		<div v-for="cls in liveClasses.data" class="border rounded-md h-full p-3">
+		<div
+			v-for="cls in liveClasses.data"
+			class="flex flex-col border rounded-md h-full p-3"
+		>
 			<div class="font-semibold text-lg mb-4">
 				{{ cls.title }}
+			</div>
+			<div class="mb-4">
+				{{ cls.description }}
 			</div>
 			<div class="flex items-center mb-2">
 				<Calendar class="w-4 h-4 stroke-1.5" />
@@ -32,10 +38,7 @@
 					{{ formatTime(cls.time) }}
 				</span>
 			</div>
-			<div class="mb-5">
-				{{ cls.description }}
-			</div>
-			<div class="flex items-center gap-2">
+			<div class="flex items-center space-x-2 mt-auto">
 				<a
 					:href="cls.start_url"
 					target="_blank"

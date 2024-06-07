@@ -9,6 +9,7 @@ export const usersStore = defineStore('lms-users', () => {
 				router.push('/login')
 			}
 		},
+		auto: true,
 	})
 
 	const allUsers = createResource({

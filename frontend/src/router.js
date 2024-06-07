@@ -154,7 +154,7 @@ router.beforeEach(async (to, from, next) => {
 
 	try {
 		if (isLoggedIn) {
-			await userResource.reload()
+			await userResource.promise
 		}
 		if (
 			isLoggedIn &&
@@ -163,7 +163,7 @@ router.beforeEach(async (to, from, next) => {
 				to.name == 'Notifications' ||
 				to.name == 'Badge')
 		) {
-			await allUsers.reload()
+			await allUsers.promise
 		}
 	} catch (error) {
 		isLoggedIn = false

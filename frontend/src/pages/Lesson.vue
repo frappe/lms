@@ -227,11 +227,6 @@ const lesson = createResource({
 	},
 	auto: true,
 	onSuccess(data) {
-		if (data.membership)
-			current_lesson.submit({
-				name: data.membership.name,
-				lesson_name: data.name,
-			})
 		markProgress(data)
 
 		if (data.content) editor = renderEditor('editor', data.content)
@@ -259,18 +254,6 @@ const renderEditor = (holder, content) => {
 const markProgress = (data) => {
 	if (user.data && !data.progress) progress.submit()
 }
-
-const current_lesson = createResource({
-	url: 'frappe.client.set_value',
-	makeParams(values) {
-		return {
-			doctype: 'LMS Enrollment',
-			name: values.name,
-			fieldname: 'current_lesson',
-			value: values.lesson_name,
-		}
-	},
-})
 
 const progress = createResource({
 	url: 'lms.lms.doctype.course_lesson.course_lesson.save_progress',
