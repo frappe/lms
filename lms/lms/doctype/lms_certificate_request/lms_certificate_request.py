@@ -15,6 +15,7 @@ from frappe.utils import (
 	get_time,
 )
 from lms.lms.utils import get_evaluator
+import json
 
 
 class LMSCertificateRequest(Document):
@@ -109,17 +110,21 @@ class LMSCertificateRequest(Document):
 
 def schedule_evals():
 	if frappe.db.get_single_value("LMS Settings", "send_calendar_invite_for_evaluations"):
-		one_hour_ago = add_to_date(get_datetime(), hours=-1)
+		timelapse = add_to_date(get_datetime(), hours=-5)
 		evals = frappe.get_all(
 			"LMS Certificate Request",
-			{"creation": [">=", one_hour_ago], "google_meet_link": ["is", "not set"]},
+			{"creation": [">=", timelapse], "google_meet_link": ["is", "not set"]},
 			["name", "member", "member_name", "evaluator", "date", "start_time", "end_time"],
 		)
 		for eval in evals:
 			setup_calendar_event(eval)
 
 
+@frappe.whitelist()
 def setup_calendar_event(eval):
+	if isinstance(eval, str):
+		eval = frappe._dict(json.loads(eval))
+
 	calendar = frappe.db.get_value(
 		"Google Calendar", {"user": eval.evaluator, "enable": 1}, "name"
 	)
