@@ -377,7 +377,7 @@ const submitCourse = () => {
 				})
 			},
 			onError(err) {
-				showToast(err)
+				showToast('Error', err.messages?.[0] || err, 'x')
 			},
 		})
 	}
