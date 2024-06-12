@@ -15,6 +15,7 @@ from frappe.utils import (
 	get_time,
 )
 from lms.lms.utils import get_evaluator
+import json
 
 
 class LMSCertificateRequest(Document):
@@ -121,6 +122,9 @@ def schedule_evals():
 
 @frappe.whitelist()
 def setup_calendar_event(eval):
+	if isinstance(eval, str):
+		eval = frappe._dict(json.loads(eval))
+
 	calendar = frappe.db.get_value(
 		"Google Calendar", {"user": eval.evaluator, "enable": 1}, "name"
 	)
