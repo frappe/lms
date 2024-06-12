@@ -1,3 +1,7 @@
+import AudioBlock from '@/components/AudioBlock.vue'
+import VideoBlock from '@/components/VideoBlock.vue'
+import { createApp } from 'vue'
+
 export class Upload {
 	constructor({ data, api, readOnly }) {
 		this.data = data
@@ -10,19 +14,23 @@ export class Upload {
 
 	render() {
 		this.wrapper = document.createElement('div')
-		this.wrapper.innerHTML = this.renderUpload(this.data)
+		this.renderUpload(this.data)
 		return this.wrapper
 	}
 
 	renderUpload(file) {
 		if (this.isVideo(file.file_type)) {
-			return `<video controls width='100%' controlsList='nodownload' class="mb-4" oncontextmenu="return false;">
-				<source src=${encodeURI(file.file_url)} type='video/mp4'>
-			</video>`
+			const app = createApp(VideoBlock, {
+				file: file.file_url,
+			})
+			app.mount(this.wrapper)
+			return
 		} else if (this.isAudio(file.file_type)) {
-			return `<audio controls width='100%' controls controlsList='nodownload' class="mb-4">
-				<source src=${encodeURI(file.file_url)} type='audio/mp3'>
-			</audio>`
+			const app = createApp(AudioBlock, {
+				file: file.file_url,
+			})
+			app.mount(this.wrapper)
+			return
 		} else if (file.file_type == 'pdf') {
 			return `<iframe src="${encodeURI(
 				file.file_url
