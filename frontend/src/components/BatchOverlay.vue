@@ -8,7 +8,7 @@
 			{{ seats_left }} {{ __('Seats Left') }}
 		</Badge>
 		<Badge
-			v-if="batch.data.seat_count && seats_left == 1"
+			v-else-if="batch.data.seat_count && seats_left == 1"
 			theme="green"
 			class="self-start mb-2 float-right"
 		>
