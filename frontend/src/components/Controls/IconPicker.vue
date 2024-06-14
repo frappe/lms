@@ -60,7 +60,7 @@ const iconQuery = ref('')
 const selectedIcon = ref('')
 const search = ref(null)
 const emit = defineEmits(['update:modelValue', 'change'])
-console.log(icons)
+
 const iconArray = ref(
 	Object.keys(icons)
 		.sort(() => 0.5 - Math.random())
@@ -84,7 +84,6 @@ const props = defineProps({
 
 onMounted(() => {
 	selectedIcon.value = props.modelValue
-	console.log(search.value)
 })
 
 const setIcon = (icon, close) => {
@@ -111,9 +110,5 @@ const filteredIcons = computed(() => {
 
 const openPopover = (togglePopover) => {
 	togglePopover()
-	nextTick(() => {
-		/* search.value.focus() */
-		console.log(search.value.children)
-	})
 }
 </script>

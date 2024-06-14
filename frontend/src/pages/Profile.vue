@@ -87,7 +87,7 @@
 </template>
 <script setup>
 import { Breadcrumbs, createResource, Button, TabButtons } from 'frappe-ui'
-import { computed, inject, reactive, ref, onMounted, watchEffect } from 'vue'
+import { computed, inject, watch, ref, onMounted, watchEffect } from 'vue'
 import { sessionStore } from '@/stores/session'
 import { Edit } from 'lucide-vue-next'
 import UserAvatar from '@/components/UserAvatar.vue'
@@ -119,11 +119,13 @@ onMounted(() => {
 
 const profile = createResource({
 	url: 'frappe.client.get',
-	params: {
-		doctype: 'User',
-		filters: {
-			username: props.username,
-		},
+	makeParams(values) {
+		return {
+			doctype: 'User',
+			filters: {
+				username: props.username,
+			},
+		}
 	},
 })
 
@@ -164,6 +166,13 @@ watchEffect(() => {
 		router.push(route)
 	}
 })
+
+watch(
+	() => props.username,
+	() => {
+		profile.reload()
+	}
+)
 
 const editProfile = () => {
 	showProfileModal.value = true
