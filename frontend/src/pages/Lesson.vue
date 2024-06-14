@@ -145,7 +145,6 @@
 					/>
 				</div>
 				<div class="mt-20">
-					{{ allowDiscussions }}
 					<Discussions
 						v-if="allowDiscussions"
 						:title="'Questions'"
@@ -231,7 +230,6 @@ const lesson = createResource({
 	auto: true,
 	onSuccess(data) {
 		markProgress(data)
-		console.log('success')
 		if (data.content) editor.value = renderEditor('editor', data.content)
 		if (data.instructor_content?.blocks?.length)
 			instructorEditor.value = renderEditor(
@@ -241,12 +239,10 @@ const lesson = createResource({
 		editor.value?.isReady.then(() => {
 			checkIfDiscussionsAllowed()
 		})
-		console.log(editor.value)
-		console.log(data.body)
+
 		if (!editor.value && data.body) {
 			const quizRegex = /\{\{ Quiz\(".*"\) \}\}/
 			const hasQuiz = quizRegex.test(data.body)
-			console.log(hasQuiz)
 			if (!hasQuiz) allowDiscussions.value = true
 		}
 	},
@@ -308,6 +304,7 @@ watch(
 		if (newChapterNumber || newLessonNumber) {
 			editor.value = null
 			instructorEditor.value = null
+			allowDiscussions.value = false
 			lesson.submit({
 				chapter: newChapterNumber,
 				lesson: newLessonNumber,
@@ -318,7 +315,6 @@ watch(
 
 const checkIfDiscussionsAllowed = () => {
 	let quizPresent = false
-	console.log(lesson.data?.content)
 	JSON.parse(lesson.data?.content)?.blocks?.forEach((block) => {
 		if (block.type === 'quiz') quizPresent = true
 	})
@@ -330,7 +326,6 @@ const checkIfDiscussionsAllowed = () => {
 			user.data?.is_instructor)
 	)
 		allowDiscussions.value = true
-	else allowDiscussions.value = false
 }
 
 const allowEdit = () => {
