@@ -69,26 +69,18 @@
 	</div>
 </template>
 <script setup>
-import {
-	Breadcrumbs,
-	FormControl,
-	createResource,
-	Button,
-	createDocumentResource,
-} from 'frappe-ui'
+import { Breadcrumbs, FormControl, createResource, Button } from 'frappe-ui'
 import { computed, reactive, onMounted, inject, ref, watch } from 'vue'
 import EditorJS from '@editorjs/editorjs'
 import { createToast } from '../utils'
 import LessonPlugins from '@/components/LessonPlugins.vue'
 import { getEditorTools } from '../utils'
 import { ChevronRight } from 'lucide-vue-next'
-import { useRouter } from 'vue-router'
 
 const editor = ref(null)
 const instructorEditor = ref(null)
 const user = inject('$user')
 const openInstructorEditor = ref(false)
-const router = useRouter()
 
 const props = defineProps({
 	courseName: {

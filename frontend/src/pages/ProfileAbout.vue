@@ -12,12 +12,12 @@
 			{{ __('No introduction') }}
 		</div>
 	</div>
-	<div class="mt-7 mb-10">
+	<div class="mt-7 mb-10" v-if="badges.data">
 		<h2 class="mb-3 text-lg font-semibold text-gray-900">
 			{{ __('Achievements') }}
 		</h2>
 		<div class="grid grid-cols-5 gap-4">
-			<div v-if="badges.data" v-for="badge in badges.data">
+			<div v-for="badge in badges.data">
 				<Popover trigger="hover" :leaveDelay="Number(0.01)">
 					<template #target>
 						<div class="relative">
@@ -67,18 +67,24 @@
 											size="sm"
 											@click="shareOnSocial(badge, 'LinkedIn')"
 										>
-											<template #icon>
-												<LinkedinIcon
-													class="h-3 w-3 stroke-1.5 text-gray-700"
-												/>
+											<template #prefix>
+												<LinkedinIcon class="h-3 w-3 text-gray-700" />
 											</template>
+											<span class="text-xs">
+												{{ __('LinkedIn') }}
+											</span>
 										</Button>
 										<Button
 											variant="outline"
 											size="sm"
 											@click="shareOnSocial(badge, 'Twitter')"
 										>
-											<Twitter class="h-3 w-3 stroke-1.5 text-gray-700" />
+											<template #prefix>
+												<Twitter class="h-3 w-3 text-gray-700" />
+											</template>
+											<span class="text-xs">
+												{{ __('Twitter') }}
+											</span>
 										</Button>
 									</div>
 								</div>

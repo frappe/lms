@@ -146,7 +146,7 @@
 				</div>
 				<div class="mt-20">
 					<Discussions
-						v-if="allowDiscussions()"
+						v-if="allowDiscussions"
 						:title="'Questions'"
 						:doctype="'Course Lesson'"
 						:docname="lesson.data.name"
@@ -185,7 +185,7 @@
 </template>
 <script setup>
 import { createResource, Breadcrumbs, Button } from 'frappe-ui'
-import { computed, watch, ref, inject, createApp } from 'vue'
+import { computed, watch, inject, ref } from 'vue'
 import CourseOutline from '@/components/CourseOutline.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { useRoute } from 'vue-router'
@@ -198,7 +198,9 @@ import CourseInstructors from '@/components/CourseInstructors.vue'
 
 const user = inject('$user')
 const route = useRoute()
-let editor, instructorEditor
+const allowDiscussions = ref(false)
+const editor = ref(null)
+const instructorEditor = ref(null)
 
 const props = defineProps({
 	courseName: {
@@ -228,13 +230,21 @@ const lesson = createResource({
 	auto: true,
 	onSuccess(data) {
 		markProgress(data)
-
-		if (data.content) editor = renderEditor('editor', data.content)
+		if (data.content) editor.value = renderEditor('editor', data.content)
 		if (data.instructor_content?.blocks?.length)
-			instructorEditor = renderEditor(
+			instructorEditor.value = renderEditor(
 				'instructor-content',
 				data.instructor_content
 			)
+		editor.value?.isReady.then(() => {
+			checkIfDiscussionsAllowed()
+		})
+
+		if (!editor.value && data.body) {
+			const quizRegex = /\{\{ Quiz\(".*"\) \}\}/
+			const hasQuiz = quizRegex.test(data.body)
+			if (!hasQuiz) allowDiscussions.value = true
+		}
 	},
 })
 
@@ -292,6 +302,9 @@ watch(
 		[oldChapterNumber, oldLessonNumber]
 	) => {
 		if (newChapterNumber || newLessonNumber) {
+			editor.value = null
+			instructorEditor.value = null
+			allowDiscussions.value = false
 			lesson.submit({
 				chapter: newChapterNumber,
 				lesson: newLessonNumber,
@@ -300,12 +313,19 @@ watch(
 	}
 )
 
-const allowDiscussions = () => {
-	return (
-		lesson.data?.membership ||
-		user.data?.is_moderator ||
-		user.data?.is_instructor
+const checkIfDiscussionsAllowed = () => {
+	let quizPresent = false
+	JSON.parse(lesson.data?.content)?.blocks?.forEach((block) => {
+		if (block.type === 'quiz') quizPresent = true
+	})
+
+	if (
+		!quizPresent &&
+		(lesson.data?.membership ||
+			user.data?.is_moderator ||
+			user.data?.is_instructor)
 	)
+		allowDiscussions.value = true
 }
 
 const allowEdit = () => {
