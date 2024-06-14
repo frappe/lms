@@ -1,7 +1,14 @@
 <template>
 	<div v-if="batch.data" class="shadow rounded-md p-5 lg:w-72">
 		<Badge
-			v-if="batch.data.seat_count && seats_left > 0"
+			v-if="batch.data.seat_count && seats_left > 1"
+			theme="green"
+			class="self-start mb-2 float-right"
+		>
+			{{ seats_left }} {{ __('Seats Left') }}
+		</Badge>
+		<Badge
+			v-if="batch.data.seat_count && seats_left == 1"
 			theme="green"
 			class="self-start mb-2 float-right"
 		>
