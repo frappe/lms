@@ -1,6 +1,7 @@
 import frappe
 from frappe.utils.telemetry import capture
 from frappe import _
+from bs4 import BeautifulSoup
 import re
 
 no_cache = 1
@@ -79,6 +80,22 @@ def get_meta(app_path):
 			"link": f"/batches/details/{batch_name}",
 		}
 
+	if re.match(r"^batches/.*$", app_path):
+		batch_name = app_path.split("/")[1]
+		batch = frappe.db.get_value(
+			"LMS Batch",
+			batch_name,
+			["title", "meta_image", "description", "category", "medium"],
+			as_dict=True,
+		)
+		return {
+			"title": batch.title,
+			"image": batch.meta_image,
+			"description": batch.description,
+			"keywords": f"{batch.category} {batch.medium}",
+			"link": f"/batches/{batch_name}",
+		}
+
 	if app_path == "job-openings":
 		return {
 			"title": _("Job Openings"),
@@ -123,6 +140,10 @@ def get_meta(app_path):
 			["full_name", "user_image", "bio"],
 			as_dict=True,
 		)
+
+		soup = BeautifulSoup(user.bio, "html.parser")
+		user.bio = soup.get_text()
+
 		return {
 			"title": user.full_name,
 			"image": user.user_image,
