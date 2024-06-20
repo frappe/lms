@@ -4,12 +4,12 @@ import { Quiz } from '@/utils/quiz'
 import { Upload } from '@/utils/upload'
 import Header from '@editorjs/header'
 import Paragraph from '@editorjs/paragraph'
-import Embed from '@editorjs/embed'
 import { CodeBox } from '@/utils/code'
 import NestedList from '@editorjs/nested-list'
 import InlineCode from '@editorjs/inline-code'
-import { watch } from 'vue'
+import { watch, createApp } from 'vue'
 import dayjs from '@/utils/dayjs'
+import Embed from '@editorjs/embed'
 
 export function createToast(options) {
 	toast({
@@ -177,6 +177,20 @@ export function getEditorTools() {
 			},
 		},
 	}
+}
+
+function getVideoBlockHtml(medium) {
+	let regex
+	if (medium === 'youtube') {
+		regex =
+			/(?:https?:\/\/)?(?:www\.)?(?:(?:youtu\.be\/)|(?:youtube\.com)\/(?:v\/|u\/\w\/|embed\/|watch))(?:(?:\?v=)?([^#&?=]*))?((?:[?&]\w*=\w*)*)/
+		regex.exec(url)?.slice(1)
+	}
+	const wrapper = document.createElement('div')
+	const app = createApp(VideoBlock, {
+		file: file.file_url,
+	})
+	app.mount(wrapper)
 }
 
 export function getTimezones() {

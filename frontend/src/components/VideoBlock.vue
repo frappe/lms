@@ -1,49 +1,49 @@
 <template>
 	<div ref="videoContainer" class="video-block group relative">
-		<video @ended="videoEnded" class="rounded-lg">
-			<source :src="file" type="video/mp4" />
+		<video @timeupdate="updateTime" @ended="videoEnded" class="rounded-lg">
+			<source :src="fileURL" :type="type" />
 		</video>
 		<div
-			class="flex items-center space-x-4 bg-gray-200 rounded-2xl p-0.5 absolute bottom-3 w-[98%] invisible group-hover:visible left-0 right-0 mx-auto"
+			class="flex items-center space-x-2 bg-gray-200 rounded-lg p-0.5 absolute bottom-3 w-[98%] left-0 right-0 mx-auto"
 		>
 			<Button variant="ghost">
 				<template #icon>
 					<Play
 						v-if="!playing"
 						@click="playVideo"
-						class="w-4 h-4 fill-gray-900"
+						class="w-4 h-4 text-gray-900"
 					/>
-					<Pause v-else @click="pauseVideo" class="w-4 h-4 fill-gray-900" />
+					<Pause v-else @click="pauseVideo" class="w-4 h-4 text-gray-900" />
 				</template>
 			</Button>
-			<span class="text-xs font-medium">
-				{{ formatTime(currentTime) }} / {{ formatTime(duration) }}
-			</span>
+			<Button variant="ghost" @click="toggleMute">
+				<template #icon>
+					<Volume2 v-if="!muted" class="w-4 h-4 text-gray-900" />
+					<VolumeX v-else class="w-4 h-4 text-gray-900" />
+				</template>
+			</Button>
 			<input
 				type="range"
 				min="0"
 				:max="duration"
 				step="0.1"
 				v-model="currentTime"
-				@input="changeTime"
-				class="duration-slider"
+				@input="changeCurrentTime"
+				class="duration-slider w-full h-1"
 			/>
-			<Button variant="ghost" @click="toggleMute">
-				<template #icon>
-					<Volume2 v-if="!muted" class="w-4 h-4 fill-gray-900" />
-					<VolumeX v-else class="w-4 h-4 fill-gray-900" />
-				</template>
-			</Button>
+			<span class="text-xs font-medium">
+				{{ formatTime(currentTime) }} / {{ formatTime(duration) }}
+			</span>
 			<Button variant="ghost" @click="toggleFullscreen">
 				<template #icon>
-					<Maximize class="w-4 h-4 fill-gray-900" />
+					<Maximize class="w-4 h-4 text-gray-900" />
 				</template>
 			</Button>
 		</div>
 	</div>
 </template>
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { Play, Pause, Maximize, Volume2, VolumeX } from 'lucide-vue-next'
 import { Button } from 'frappe-ui'
 
@@ -59,14 +59,37 @@ const props = defineProps({
 		type: String,
 		required: true,
 	},
+	type: {
+		type: String,
+		default: 'video/mp4',
+	},
 })
 
 onMounted(() => {
 	setTimeout(() => {
 		videoRef.value = document.querySelector('video')
-		videoRef.value.onloadedmetadata = loadedMetaData
-		videoRef.value.ontimeupdate = updateTime
+		videoRef.value.onloadedmetadata = () => {
+			duration.value = videoRef.value.duration
+		}
+		videoRef.value.ontimeupdate = () => {
+			currentTime.value = videoRef.value.currentTime
+		}
 	}, 0)
+})
+
+const fileURL = computed(() => {
+	if (isYoutube) {
+		let url = props.file
+		if (url.includes('watch?v=')) {
+			url = url.replace('watch?v=', 'embed/')
+		}
+		return `${url}?autoplay=0&controls=0&disablekb=1&playsinline=1&cc_load_policy=1&cc_lang_pref=auto`
+	}
+	return props.file
+})
+
+const isYoutube = computed(() => {
+	return props.type == 'video/youtube'
 })
 
 const playVideo = () => {
@@ -88,16 +111,8 @@ const toggleMute = () => {
 	muted.value = videoRef.value.muted
 }
 
-const changeTime = () => {
+const changeCurrentTime = () => {
 	videoRef.value.currentTime = currentTime.value
-}
-
-const loadedMetaData = () => {
-	duration.value = videoRef.value.duration
-}
-
-const updateTime = () => {
-	currentTime.value = videoRef.value.currentTime
 }
 
 const formatTime = (time) => {
@@ -127,11 +142,37 @@ const toggleFullscreen = () => {
 	height: auto;
 }
 
+iframe {
+	width: 100%;
+	min-height: 500px;
+}
+
 .duration-slider {
 	flex: 1;
-	height: 0.25rem;
 	-webkit-appearance: none;
 	appearance: none;
 	background-color: theme('colors.gray.400');
+	cursor: pointer;
+}
+
+.duration-slider::-webkit-slider-thumb {
+	height: 10px;
+	width: 10px;
+	-webkit-appearance: none;
+	background-color: theme('colors.gray.900');
+}
+
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+	input[type='range'] {
+		overflow: hidden;
+		width: 150px;
+		-webkit-appearance: none;
+	}
+
+	input[type='range']::-webkit-slider-thumb {
+		-webkit-appearance: none;
+		cursor: pointer;
+		box-shadow: -500px 0 0 500px theme('colors.gray.900');
+	}
 }
 </style>
