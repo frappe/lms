@@ -167,6 +167,7 @@ export function getEditorTools() {
 					youtube: true,
 					vimeo: true,
 					codepen: true,
+					aparat: true,
 					slides: {
 						regex: /https:\/\/docs\.google\.com\/presentation\/d\/e\/([A-Za-z0-9_-]+)\/pub/,
 						embedUrl:
@@ -177,20 +178,6 @@ export function getEditorTools() {
 			},
 		},
 	}
-}
-
-function getVideoBlockHtml(medium) {
-	let regex
-	if (medium === 'youtube') {
-		regex =
-			/(?:https?:\/\/)?(?:www\.)?(?:(?:youtu\.be\/)|(?:youtube\.com)\/(?:v\/|u\/\w\/|embed\/|watch))(?:(?:\?v=)?([^#&?=]*))?((?:[?&]\w*=\w*)*)/
-		regex.exec(url)?.slice(1)
-	}
-	const wrapper = document.createElement('div')
-	const app = createApp(VideoBlock, {
-		file: file.file_url,
-	})
-	app.mount(wrapper)
 }
 
 export function getTimezones() {
