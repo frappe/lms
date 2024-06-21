@@ -13,6 +13,6 @@ module.exports = defineConfig({
 		openMode: 0,
 	},
 	e2e: {
-		baseUrl: "http://pyp:8000",
+		baseUrl: "http://test_site_ui:8000",
 	},
 });
