@@ -1512,6 +1512,7 @@ def get_batch_details(batch):
 			"paid_batch",
 			"evaluation_end_date",
 			"allow_self_enrollment",
+			"timezone",
 		],
 		as_dict=True,
 	)
