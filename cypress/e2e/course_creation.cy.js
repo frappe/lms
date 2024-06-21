@@ -108,20 +108,21 @@ describe("Course Creation", () => {
 		cy.get("[id^=headlessui-disclosure-panel-").within(() => {
 			cy.get("div").contains("Test Lesson").click();
 		});
-		cy.wait(1000);
+		cy.wait(3000);
 
 		// View Lesson
 		cy.url().should("include", "/learn/1-1");
 		cy.get("div").contains("Test Lesson");
-		cy.get("div").contains(
-			"This is an extremely big paragraph that is meant to test the UI. This is a very long paragraph. It contains more than once sentence. Its meant to be this long as this is a UI test. Its unbearably long and I'm not sure why I'm typing this much. I'm just going to keep typing until I feel like its long enough. I think its long enough now. I'm going to stop typing now. "
-		);
 
 		cy.get("video")
 			.should("be.visible")
 			.children("source")
 			.invoke("attr", "src")
 			.should("include", "/files/Youtube");
+
+		cy.get("div").contains(
+			"This is an extremely big paragraph that is meant to test the UI. This is a very long paragraph. It contains more than once sentence. Its meant to be this long as this is a UI test. Its unbearably long and I'm not sure why I'm typing this much. I'm just going to keep typing until I feel like its long enough. I think its long enough now. I'm going to stop typing now."
+		);
 
 		// Add Discussion
 		cy.button("New Question").click();
