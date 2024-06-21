@@ -9,11 +9,11 @@
 			</Button>
 		</header>
 		<div class="py-5">
-			<div class="container">
+			<div class="container border-b">
 				<div class="text-lg font-semibold mb-4">
 					{{ __('Details') }}
 				</div>
-				<div class="grid grid-cols-2 gap-10">
+				<div class="grid grid-cols-2 gap-10 mb-4">
 					<div>
 						<FormControl
 							v-model="batch.title"
@@ -21,18 +21,12 @@
 							class="mb-4"
 						/>
 						<FormControl
-							v-model="batch.description"
-							:label="__('Description')"
-							type="textarea"
-							class="mb-4"
-						/>
-					</div>
-					<div>
-						<FormControl
 							v-model="batch.published"
 							type="checkbox"
 							:label="__('Published')"
 						/>
+					</div>
+					<div class="flex flex-col">
 						<FileUploader
 							v-if="!batch.image"
 							class="mt-4"
@@ -52,7 +46,7 @@
 								</div>
 							</template>
 						</FileUploader>
-						<div v-else class="mt-4">
+						<div v-else class="my-4">
 							<div class="text-xs text-gray-600 mb-1">
 								{{ __('Meta Image') }}
 							</div>
@@ -74,10 +68,21 @@
 								/>
 							</div>
 						</div>
+						<FormControl
+							v-model="batch.allow_self_enrollment"
+							type="checkbox"
+							:label="__('Allow self enrollment')"
+						/>
 					</div>
 				</div>
 			</div>
-			<div class="container border-b mb-5">
+			<div class="container border-b mb-4">
+				<FormControl
+					v-model="batch.description"
+					:label="__('Description')"
+					type="textarea"
+					class="my-4"
+				/>
 				<div>
 					<label class="block text-sm text-gray-600 mb-1">
 						{{ __('Batch Details') }}
@@ -91,9 +96,9 @@
 					/>
 				</div>
 			</div>
-			<div class="container border-b mb-5">
+			<div class="container border-b mb-4">
 				<div class="text-lg font-semibold mb-4">
-					{{ __('Settings') }}
+					{{ __('Date and Time') }}
 				</div>
 				<div class="grid grid-cols-2 gap-10">
 					<div>
@@ -109,6 +114,8 @@
 							type="date"
 							class="mb-4"
 						/>
+					</div>
+					<div>
 						<FormControl
 							v-model="batch.start_time"
 							:label="__('Start Time')"
@@ -121,7 +128,20 @@
 							type="time"
 							class="mb-4"
 						/>
+						<FormControl
+							v-model="batch.timezone"
+							:label="__('Timezone')"
+							type="text"
+							class="mb-4"
+						/>
 					</div>
+				</div>
+			</div>
+			<div class="container border-b mb-4">
+				<div class="text-lg font-semibold mb-4">
+					{{ __('Settings') }}
+				</div>
+				<div class="grid grid-cols-2 gap-10">
 					<div>
 						<FormControl
 							v-model="batch.seat_count"
@@ -135,6 +155,8 @@
 							type="date"
 							class="mb-4"
 						/>
+					</div>
+					<div>
 						<FormControl
 							v-model="batch.medium"
 							type="select"
@@ -188,7 +210,7 @@
 	</div>
 </template>
 <script setup>
-import { computed, onMounted, inject, reactive } from 'vue'
+import { computed, onMounted, inject, reactive, onBeforeUnmount } from 'vue'
 import {
 	Breadcrumbs,
 	FormControl,
@@ -221,10 +243,12 @@ const batch = reactive({
 	end_date: '',
 	start_time: '',
 	end_time: '',
+	timezone: '',
 	evaluation_end_date: '',
 	seat_count: '',
 	medium: '',
 	category: '',
+	allow_self_enrollment: false,
 	image: null,
 	paid_batch: false,
 	currency: '',
@@ -236,6 +260,22 @@ onMounted(() => {
 	if (props.batchName != 'new') {
 		batchDetail.reload()
 	}
+	window.addEventListener('keydown', keyboardShortcut)
+})
+
+const keyboardShortcut = (e) => {
+	if (
+		e.key === 's' &&
+		(e.ctrlKey || e.metaKey) &&
+		!e.target.classList.contains('ProseMirror')
+	) {
+		saveBatch()
+		e.preventDefault()
+	}
+}
+
+onBeforeUnmount(() => {
+	window.removeEventListener('keydown', keyboardShortcut)
 })
 
 const newBatch = createResource({

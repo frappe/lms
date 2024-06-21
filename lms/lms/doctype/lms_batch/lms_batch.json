@@ -9,14 +9,15 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "published",
   "title",
   "start_date",
   "end_date",
   "column_break_4",
+  "allow_self_enrollment",
   "start_time",
   "end_time",
-  "published",
-  "allow_self_enrollment",
+  "timezone",
   "section_break_rgfj",
   "medium",
   "category",
@@ -301,11 +302,17 @@
    "fieldname": "allow_self_enrollment",
    "fieldtype": "Check",
    "label": "Allow Self Enrollment"
+  },
+  {
+   "fieldname": "timezone",
+   "fieldtype": "Data",
+   "label": "Timezone",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-05-14 14:47:48.839162",
+ "modified": "2024-06-21 11:49:32.582832",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch",
