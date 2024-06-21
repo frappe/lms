@@ -4,18 +4,11 @@
 		style="min-height: 150px"
 	>
 		<Badge
-			v-if="batch.seat_count && batch.seats_left > 1"
+			v-if="batch.seat_count && batch.seats_left > 0"
 			theme="green"
 			class="self-start mb-2"
 		>
-			{{ batch.seats_left }} {{ __('Seats Left') }}
-		</Badge>
-		<Badge
-			v-else-if="batch.seat_count && batch.seats_left == 1"
-			theme="green"
-			class="self-start mb-2"
-		>
-			{{ batch.seats_left }} {{ __('Seat Left') }}
+			{{ batch.seats_left }} <span v-if="batch.seats_left > 1">{{ __('Seats Left') }}</span><span v-else-if="batch.seats_left == 1">{{ __('Seat Left') }}</span>
 		</Badge>
 		<Badge
 			v-else-if="batch.seat_count && batch.seats_left <= 0"

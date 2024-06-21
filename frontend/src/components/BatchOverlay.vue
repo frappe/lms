@@ -1,18 +1,11 @@
 <template>
 	<div v-if="batch.data" class="shadow rounded-md p-5 lg:w-72">
 		<Badge
-			v-if="batch.data.seat_count && seats_left > 1"
+			v-if="batch.data.seat_count && seats_left > 0"
 			theme="green"
 			class="self-start mb-2 float-right"
 		>
-			{{ seats_left }} {{ __('Seats Left') }}
-		</Badge>
-		<Badge
-			v-else-if="batch.data.seat_count && seats_left == 1"
-			theme="green"
-			class="self-start mb-2 float-right"
-		>
-			{{ seats_left }} {{ __('Seat Left') }}
+			{{ seats_left }} <span v-if="batch.seats_left > 1">{{ __('Seats Left') }}</span><span v-else-if="batch.seats_left == 1">{{ __('Seat Left') }}</span>
 		</Badge>
 		<Badge
 			v-else-if="batch.data.seat_count && seats_left <= 0"
