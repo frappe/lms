@@ -13,14 +13,12 @@ export class Upload {
 	}
 
 	render() {
-		console.log('render')
 		this.wrapper = document.createElement('div')
 		this.renderUpload(this.data)
 		return this.wrapper
 	}
 
 	renderUpload(file) {
-		console.log(file.file_type)
 		if (this.isVideo(file.file_type)) {
 			const app = createApp(VideoBlock, {
 				file: file.file_url,
@@ -39,7 +37,6 @@ export class Upload {
 			)}#toolbar=0" width='100%' height='700px' class="mb-4"></iframe>`
 			return
 		} else {
-			console.log('in else')
 			this.wrapper.innerHTML = `<img class="mb-4" src=${encodeURI(
 				file.file_url
 			)} width='100%'>`
