@@ -108,7 +108,7 @@ describe("Course Creation", () => {
 		cy.get("[id^=headlessui-disclosure-panel-").within(() => {
 			cy.get("div").contains("Test Lesson").click();
 		});
-		cy.wait(1000);
+		cy.wait(3000);
 
 		// View Lesson
 		cy.url().should("include", "/learn/1-1");
