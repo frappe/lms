@@ -26,9 +26,9 @@
 				</router-link>
 			</div>
 		</header>
-		<div v-if="jobs.data">
-			<div class="grid grid-cols-1 lg:grid-cols-2 gap-5 p-5">
-				<div v-if="jobs.data.length" v-for="job in jobs.data">
+		<div v-if="jobs.data?.length">
+			<div class="divide-y w-3/4 mx-auto p-5">
+				<div v-for="job in jobs.data">
 					<router-link
 						:to="{
 							name: 'JobDetail',
@@ -41,13 +41,17 @@
 				</div>
 			</div>
 		</div>
+		<div v-else class="text-gray-700 italic p-5 w-fit mx-auto">
+			{{ __('No jobs posted') }}
+		</div>
 	</div>
 </template>
 <script setup>
 import { Button, Breadcrumbs, createResource } from 'frappe-ui'
 import { Plus } from 'lucide-vue-next'
-import { inject } from 'vue'
+import { inject, computed } from 'vue'
 import JobCard from '@/components/JobCard.vue'
+import { updateDocumentTitle } from '@/utils'
 
 const user = inject('$user')
 
@@ -56,4 +60,13 @@ const jobs = createResource({
 	cache: ['jobs'],
 	auto: true,
 })
+
+const pageMeta = computed(() => {
+	return {
+		title: 'Jobs',
+		description: 'An open job board for the community',
+	}
+})
+
+updateDocumentTitle(pageMeta)
 </script>

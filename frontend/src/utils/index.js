@@ -172,7 +172,7 @@ export function getEditorTools() {
 						regex: /https:\/\/docs\.google\.com\/presentation\/d\/e\/([A-Za-z0-9_-]+)\/pub/,
 						embedUrl:
 							'https://docs.google.com/presentation/d/e/<%= remote_id %>/embed',
-						html: "<iframe width='100%' height='300' frameborder='0' allowfullscreen='true'></iframe>",
+						html: "<iframe style='width: 100%; height: 28rem;' frameborder='0' allowfullscreen='true'></iframe>",
 					},
 				},
 			},

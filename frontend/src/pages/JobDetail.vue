@@ -50,8 +50,8 @@
 				</Button>
 			</div>
 		</header>
-		<div v-if="job.data">
-			<div class="p-5 sm:p-5">
+		<div v-if="job.data" class="w-3/4 mx-auto">
+			<div class="p-4">
 				<div class="flex mb-4">
 					<img
 						:src="job.data.company_logo"
@@ -114,8 +114,10 @@
 	</div>
 </template>
 <script setup>
-import { Badge, Button, Breadcrumbs, createResource } from 'frappe-ui'
-import { inject, ref, onMounted } from 'vue'
+import { Button, Breadcrumbs, createResource } from 'frappe-ui'
+import { inject, ref, computed } from 'vue'
+import { updateDocumentTitle } from '@/utils'
+import JobApplicationModal from '@/components/Modals/JobApplicationModal.vue'
 import {
 	MapPin,
 	SendHorizonal,
@@ -125,7 +127,6 @@ import {
 	ClipboardType,
 	SquareUserRound,
 } from 'lucide-vue-next'
-import JobApplicationModal from '@/components/Modals/JobApplicationModal.vue'
 
 const user = inject('$user')
 const dayjs = inject('$dayjs')
@@ -185,4 +186,13 @@ const openApplicationModal = () => {
 const redirectToLogin = (job) => {
 	window.location.href = `/login?redirect-to=/job-openings/${job}`
 }
+
+const pageMeta = computed(() => {
+	return {
+		title: job.data?.job_title,
+		description: job.data?.description,
+	}
+})
+
+updateDocumentTitle(pageMeta)
 </script>
