@@ -3,7 +3,7 @@
     {% if subtitle %}
       <p> {{ _(subtitle) }} </p>
     {% endif %}
-    
+
     <div class="cards-parent mt-10">
       {% set courses = frappe.db.get_list('LMS Course',
       fields=["name", "short_introduction", "upcoming", "title", "image", "currency", "enable_certification", "paid_course"], order_by="published_on desc", page_length=courses_count) %}
@@ -11,7 +11,7 @@
       {{ widgets.CourseCard(course=course, read_only=False) }}
       {% endfor %}
     </div>
-    
+
     <a class="d-flex justify-content-center align-items-center mt-12" href="/lms/courses">
         <span>{{ _("Explore More") }}</span>
     </a>
