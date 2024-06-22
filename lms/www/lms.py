@@ -82,6 +82,14 @@ def get_meta(app_path):
 
 	if re.match(r"^batches/.*$", app_path):
 		batch_name = app_path.split("/")[1]
+		if "new/edit" in app_path:
+			return {
+				"title": _("New Batch"),
+				"image": frappe.db.get_single_value("Website Settings", "banner_image"),
+				"description": "Create a new batch",
+				"keywords": "New Batch, Create Batch",
+				"link": "/lms/batches/new/edit",
+			}
 		batch = frappe.db.get_value(
 			"LMS Batch",
 			batch_name,

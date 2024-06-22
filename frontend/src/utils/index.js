@@ -4,12 +4,12 @@ import { Quiz } from '@/utils/quiz'
 import { Upload } from '@/utils/upload'
 import Header from '@editorjs/header'
 import Paragraph from '@editorjs/paragraph'
-import Embed from '@editorjs/embed'
 import { CodeBox } from '@/utils/code'
 import NestedList from '@editorjs/nested-list'
 import InlineCode from '@editorjs/inline-code'
-import { watch } from 'vue'
+import { watch, createApp } from 'vue'
 import dayjs from '@/utils/dayjs'
+import Embed from '@editorjs/embed'
 
 export function createToast(options) {
 	toast({
@@ -167,6 +167,7 @@ export function getEditorTools() {
 					youtube: true,
 					vimeo: true,
 					codepen: true,
+					aparat: true,
 					slides: {
 						regex: /https:\/\/docs\.google\.com\/presentation\/d\/e\/([A-Za-z0-9_-]+)\/pub/,
 						embedUrl:
