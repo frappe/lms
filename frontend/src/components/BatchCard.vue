@@ -36,10 +36,16 @@
 				:endDate="batch.end_date"
 				class="mb-3"
 			/>
-			<div class="flex items-center">
+			<div class="flex items-center mb-3">
 				<Clock class="h-4 w-4 stroke-1.5 mr-2 text-gray-700" />
 				<span>
 					{{ formatTime(batch.start_time) }} - {{ formatTime(batch.end_time) }}
+				</span>
+			</div>
+			<div v-if="batch.timezone" class="flex items-center">
+				<Globe class="h-4 w-4 stroke-1.5 mr-2 text-gray-700" />
+				<span>
+					{{ batch.timezone }}
 				</span>
 			</div>
 		</div>
@@ -48,7 +54,7 @@
 <script setup>
 import { Badge } from 'frappe-ui'
 import { formatTime } from '../utils'
-import { Clock, BookOpen } from 'lucide-vue-next'
+import { Clock, BookOpen, Globe } from 'lucide-vue-next'
 import DateRange from '@/components/Common/DateRange.vue'
 
 const props = defineProps({
