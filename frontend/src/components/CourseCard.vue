@@ -84,10 +84,7 @@
 				v-if="user && course.membership"
 				class="w-full bg-gray-200 rounded-full h-1 mb-2"
 			>
-				<div
-					class="bg-gray-900 h-1 rounded-full"
-					:style="{ width: Math.ceil(course.membership.progress) + '%' }"
-				></div>
+				<ProgressBar :progress="course.membership.progress" />
 			</div>
 			<div v-if="user && course.membership" class="text-sm mb-4">
 				{{ Math.ceil(course.membership.progress) }}% completed
@@ -120,6 +117,7 @@ import UserAvatar from '@/components/UserAvatar.vue'
 import { sessionStore } from '@/stores/session'
 import { Badge, Tooltip } from 'frappe-ui'
 import CourseInstructors from '@/components/CourseInstructors.vue'
+import ProgressBar from '@/components/ProgressBar.vue'
 
 const { user } = sessionStore()
 

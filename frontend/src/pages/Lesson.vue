@@ -166,12 +166,7 @@
 						v-if="user && lesson.data.membership"
 						class="w-full bg-gray-200 rounded-full h-1 my-2"
 					>
-						<div
-							class="bg-gray-900 h-1 rounded-full"
-							:style="{
-								width: Math.ceil(lesson.data.membership.progress) + '%',
-							}"
-						></div>
+						<ProgressBar :progress="lesson.data.membership.progress" />
 					</div>
 				</div>
 				<CourseOutline
@@ -195,6 +190,7 @@ import { getEditorTools } from '../utils'
 import EditorJS from '@editorjs/editorjs'
 import LessonContent from '@/components/LessonContent.vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
+import ProgressBar from '@/components/ProgressBar.vue'
 
 const user = inject('$user')
 const route = useRoute()
