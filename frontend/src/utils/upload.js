@@ -31,14 +31,16 @@ export class Upload {
 			})
 			app.mount(this.wrapper)
 			return
-		} else if (file.file_type == 'pdf') {
-			return `<iframe src="${encodeURI(
+		} else if (file.file_type == 'PDF') {
+			this.wrapper.innerHTML = `<iframe src="${encodeURI(
 				file.file_url
 			)}#toolbar=0" width='100%' height='700px' class="mb-4"></iframe>`
+			return
 		} else {
-			return `<img class="mb-4" src=${encodeURI(
+			this.wrapper.innerHTML = `<img class="mb-4" src=${encodeURI(
 				file.file_url
 			)} width='100%'>`
+			return
 		}
 	}
 

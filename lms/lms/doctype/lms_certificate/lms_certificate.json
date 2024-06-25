@@ -19,6 +19,7 @@
  ],
  "fields": [
   {
+   "default": "Today",
    "fieldname": "issue_date",
    "fieldtype": "Date",
    "label": "Issue Date",
@@ -88,7 +89,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-05-14 14:48:31.650107",
+ "modified": "2024-06-21 18:14:30.491841",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate",

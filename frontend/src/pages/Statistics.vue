@@ -16,7 +16,7 @@
 							{{ formatNumber(chartDetails.data.courses) }}
 						</div>
 						<div class="text-gray-700">
-							{{ __('Published Courses') }}
+							{{ __('Courses') }}
 						</div>
 					</div>
 				</div>
@@ -29,7 +29,7 @@
 							{{ formatNumber(chartDetails.data.users) }}
 						</div>
 						<div class="text-gray-700">
-							{{ __('Total Signups') }}
+							{{ __('Signups') }}
 						</div>
 					</div>
 				</div>
@@ -42,7 +42,7 @@
 							{{ formatNumber(chartDetails.data.enrollments) }}
 						</div>
 						<div class="text-gray-700">
-							{{ __('Enrolled Users') }}
+							{{ __('Enrollments') }}
 						</div>
 					</div>
 				</div>
@@ -55,7 +55,7 @@
 							{{ formatNumber(chartDetails.data.completions) }}
 						</div>
 						<div class="text-gray-700">
-							{{ __('Courses Completed') }}
+							{{ __('Completions') }}
 						</div>
 					</div>
 				</div>
@@ -68,7 +68,7 @@
 							{{ formatNumber(chartDetails.data.lesson_completions) }}
 						</div>
 						<div class="text-gray-700">
-							{{ __('Lessons Completed') }}
+							{{ __('Milestones') }}
 						</div>
 					</div>
 				</div>
@@ -109,6 +109,7 @@
 <script setup>
 import { createResource, Breadcrumbs } from 'frappe-ui'
 import { computed, inject } from 'vue'
+import { updateDocumentTitle } from '@/utils'
 import { formatNumber } from '@/utils'
 import { Line, Pie } from 'vue-chartjs'
 import {
@@ -197,7 +198,7 @@ const courseCompletion = createResource({
 
 const signupChartOptions = () => {
 	let options = chartOptions(false)
-	options.plugins.title.text = 'New Signups'
+	options.plugins.title.text = 'Signups'
 	options.borderColor = '#4563f0'
 	options.backgroundColor = (ctx) => {
 		const canvas = ctx.chart.ctx
@@ -213,7 +214,7 @@ const signupChartOptions = () => {
 
 const enrollmentChartOptions = () => {
 	let options = chartOptions(false)
-	options.plugins.title.text = 'Course Enrollments'
+	options.plugins.title.text = 'Enrollments'
 	options.borderColor = '#4563f0'
 	options.backgroundColor = (ctx) => {
 		const canvas = ctx.chart.ctx
@@ -229,7 +230,7 @@ const enrollmentChartOptions = () => {
 
 const lessonChartOptions = () => {
 	let options = chartOptions(false)
-	options.plugins.title.text = 'Lesson Completion'
+	options.plugins.title.text = 'Milestones'
 	options.borderColor = '#4563f0'
 	options.backgroundColor = (ctx) => {
 		const canvas = ctx.chart.ctx
@@ -245,7 +246,7 @@ const lessonChartOptions = () => {
 
 const courseChartOptions = () => {
 	let options = chartOptions(true)
-	options.plugins.title.text = 'Course Completion'
+	options.plugins.title.text = 'Completions'
 	options.backgroundColor = ['#4563f0', '#f683ae']
 	return options
 }
@@ -305,4 +306,13 @@ const chartOptions = (isPie) => {
 		},
 	}
 }
+
+const pageMeta = computed(() => {
+	return {
+		title: 'Statistics',
+		description: 'Statistics of the platform',
+	}
+})
+
+updateDocumentTitle(pageMeta)
 </script>

@@ -6,9 +6,7 @@
 		<audio @ended="handleAudioEnd" controlsList="nodownload" class="mb-4">
 			<source :src="encodeURI(file)" type="audio/mp3" />
 		</audio>
-		<div
-			class="flex items-center space-x-2 shadow rounded-lg p-1 w-1/2 mx-auto"
-		>
+		<div class="flex items-center space-x-2 shadow rounded-lg p-1 w-1/2">
 			<Button variant="ghost" @click="togglePlay">
 				<template #icon>
 					<Play v-if="!isPlaying" class="w-4 h-4 text-gray-900" />
