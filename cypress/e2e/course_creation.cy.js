@@ -32,6 +32,8 @@ describe("Course Creation", () => {
 			.contains("Preview Video")
 			.type("https://www.youtube.com/embed/-LPmw2Znl2c");
 		cy.get("[id=tags]").type("Learning{enter}Frappe{enter}ERPNext{enter}");
+		cy.get(".search-input").click();
+		cy.get("[id^=headlessui-combobox-option-").first().click();
 		cy.get("label").contains("Published").click();
 		cy.get("label").contains("Published On").type("2021-01-01");
 		cy.button("Save").click();
