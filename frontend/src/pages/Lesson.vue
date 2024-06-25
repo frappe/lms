@@ -162,12 +162,11 @@
 					<div v-if="user && lesson.data.membership" class="text-sm mt-3">
 						{{ Math.ceil(lesson.data.membership.progress) }}% completed
 					</div>
-					<div
+
+					<ProgressBar
 						v-if="user && lesson.data.membership"
-						class="w-full bg-gray-200 rounded-full h-1 my-2"
-					>
-						<ProgressBar :progress="lesson.data.membership.progress" />
-					</div>
+						:progress="lesson.data.membership.progress"
+					/>
 				</div>
 				<CourseOutline
 					:courseName="courseName"

@@ -80,12 +80,12 @@
 			<div class="short-introduction">
 				{{ course.short_introduction }}
 			</div>
-			<div
+
+			<ProgressBar
 				v-if="user && course.membership"
-				class="w-full bg-gray-200 rounded-full h-1 mb-2"
-			>
-				<ProgressBar :progress="course.membership.progress" />
-			</div>
+				:progress="course.membership.progress"
+			/>
+
 			<div v-if="user && course.membership" class="text-sm mb-4">
 				{{ Math.ceil(course.membership.progress) }}% completed
 			</div>
