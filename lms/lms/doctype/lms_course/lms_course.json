@@ -119,7 +119,8 @@
    "in_standard_filter": 1,
    "label": "Instructors",
    "max_height": "50px",
-   "options": "Course Instructor"
+   "options": "Course Instructor",
+   "reqd": 1
   },
   {
    "fieldname": "section_break_7",
@@ -275,7 +276,7 @@
   }
  ],
  "make_attachments_public": 1,
- "modified": "2024-05-24 18:03:38.330443",
+ "modified": "2024-06-24 17:44:45.903164",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",

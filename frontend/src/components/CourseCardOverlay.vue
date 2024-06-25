@@ -16,10 +16,10 @@
 					params: {
 						courseName: course.name,
 						chapterNumber: course.data.current_lesson
-							? course.data.current_lesson.split('.')[0]
+							? course.data.current_lesson.split('-')[0]
 							: 1,
 						lessonNumber: course.data.current_lesson
-							? course.data.current_lesson.split('.')[1]
+							? course.data.current_lesson.split('-')[1]
 							: 1,
 					},
 				}"

@@ -5,7 +5,9 @@
 			theme="green"
 			class="self-start mb-2 float-right"
 		>
-			{{ seats_left }} <span v-if="batch.seats_left > 1">{{ __('Seats Left') }}</span><span v-else-if="batch.seats_left == 1">{{ __('Seat Left') }}</span>
+			{{ seats_left }}
+			<span v-if="batch.data.seats_left > 1">{{ __('Seats Left') }}</span>
+			<span v-else-if="batch.data.seats_left == 1">{{ __('Seat Left') }}</span>
 		</Badge>
 		<Badge
 			v-else-if="batch.data.seat_count && seats_left <= 0"

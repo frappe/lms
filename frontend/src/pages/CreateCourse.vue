@@ -99,12 +99,13 @@
 							:label="__('Preview Video')"
 							class="mb-4"
 						/>
-						<div>
+						<div class="mb-4">
 							<div class="mb-1.5 text-xs text-gray-600">
 								{{ __('Tags') }}
 							</div>
 							<div class="flex items-center">
 								<div
+									v-if="course.tags"
 									v-for="tag in course.tags?.split(', ')"
 									class="flex items-center bg-gray-100 p-2 rounded-md mr-2"
 								>
@@ -121,6 +122,11 @@
 								/>
 							</div>
 						</div>
+						<MultiSelect
+							v-model="instructors"
+							doctype="User"
+							:label="__('Instructors')"
+						/>
 					</div>
 					<div class="container border-t">
 						<div class="text-lg font-semibold mt-5 mb-4">
@@ -188,7 +194,6 @@
 				</div>
 			</div>
 			<div class="border-l pt-5">
-				<!-- <CreateOutline v-if="courseResource.doc" :course="courseResource.doc"/> -->
 				<CourseOutline
 					v-if="courseResource.data"
 					:courseName="courseResource.data.name"
@@ -222,6 +227,7 @@ import Link from '@/components/Controls/Link.vue'
 import { FileText, X } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import CourseOutline from '@/components/CourseOutline.vue'
+import MultiSelect from '@/components/Controls/MultiSelect.vue'
 
 const user = inject('$user')
 const newTag = ref('')
@@ -288,6 +294,9 @@ const courseCreationResource = createResource({
 			doc: {
 				doctype: 'LMS Course',
 				image: course.course_image?.file_url || '',
+				instructors: instructors.value.map((instructor) => ({
+					instructor: instructor,
+				})),
 				...values,
 			},
 		}
@@ -303,6 +312,9 @@ const courseEditResource = createResource({
 			name: values.course,
 			fieldname: {
 				image: course.course_image?.file_url || '',
+				instructors: instructors.value.map((instructor) => ({
+					instructor: instructor,
+				})),
 				...course,
 			},
 		}
@@ -320,7 +332,12 @@ const courseResource = createResource({
 	auto: false,
 	onSuccess(data) {
 		Object.keys(data).forEach((key) => {
-			if (Object.hasOwn(course, key)) course[key] = data[key]
+			if (key == 'instructors') {
+				instructors.value = []
+				data.instructors.forEach((instructor) => {
+					instructors.value.push(instructor.instructor)
+				})
+			} else if (Object.hasOwn(course, key)) course[key] = data[key]
 		})
 		let checkboxes = [
 			'published',
@@ -334,7 +351,6 @@ const courseResource = createResource({
 		}
 
 		if (data.image) imageResource.reload({ image: data.image })
-		instructors.value = data.instructors
 		check_permission()
 	},
 })
@@ -446,7 +462,7 @@ const check_permission = () => {
 	if (user.data?.is_moderator) return
 
 	instructors.value.forEach((instructor) => {
-		if (!user_is_instructor && instructor.instructor == user.data?.name) {
+		if (!user_is_instructor && instructor == user.data?.name) {
 			user_is_instructor = true
 		}
 	})

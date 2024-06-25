@@ -196,8 +196,7 @@ def get_instructors(course):
 	instructors = frappe.get_all(
 		"Course Instructor", {"parent": course}, order_by="idx", pluck="instructor"
 	)
-	if not instructors:
-		instructors = frappe.db.get_value("LMS Course", course, "owner").split(" ")
+
 	for instructor in instructors:
 		instructor_details.append(
 			frappe.db.get_value(
@@ -1516,6 +1515,8 @@ def get_batch_details(batch):
 		],
 		as_dict=True,
 	)
+
+	batch_details.instructors = get_instructors(batch)
 
 	batch_details.courses = frappe.get_all(
 		"Batch Course", filters={"parent": batch}, fields=["course", "title"]

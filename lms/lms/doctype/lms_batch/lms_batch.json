@@ -26,10 +26,12 @@
   "evaluation_end_date",
   "section_break_6",
   "description",
-  "batch_details_raw",
   "column_break_hlqw",
-  "batch_details",
+  "instructors",
   "meta_image",
+  "section_break_khcn",
+  "batch_details",
+  "batch_details_raw",
   "section_break_jgji",
   "students",
   "courses",
@@ -308,11 +310,22 @@
    "fieldtype": "Data",
    "label": "Timezone",
    "reqd": 1
+  },
+  {
+   "fieldname": "instructors",
+   "fieldtype": "Table MultiSelect",
+   "label": "Instructors",
+   "options": "Course Instructor",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_khcn",
+   "fieldtype": "Section Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-06-21 11:49:32.582832",
+ "modified": "2024-06-24 16:24:45.536453",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch",
