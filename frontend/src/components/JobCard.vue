@@ -1,6 +1,6 @@
 <template>
-	<div class="flex rounded px-2 py-2.5 hover:bg-gray-100">
-		<div class="flex w-2/5">
+	<div class="flex rounded p-1 lg:px-2 lg:py-2.5 hover:bg-gray-100">
+		<div class="flex w-3/5 md:w-2/5">
 			<img
 				:src="job.company_logo"
 				class="w-12 h-12 rounded-lg object-contain mr-4"
@@ -18,7 +18,9 @@
 		<div class="flex justify-end w-1/5 text-gray-700">
 			{{ job.location.replace(',', '').split(' ')[0] }}
 		</div>
-		<div class="flex justify-end w-1/5 text-gray-700">
+		<div
+			class="flex justify-end w-1/5 text-gray-700 text-right hidden md:block"
+		>
 			{{ job.type }}
 		</div>
 		<div class="flex justify-end w-1/5 text-sm text-gray-700 text-right">

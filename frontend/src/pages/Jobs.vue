@@ -27,7 +27,7 @@
 			</div>
 		</header>
 		<div v-if="jobs.data?.length">
-			<div class="divide-y w-3/4 mx-auto p-5">
+			<div class="divide-y lg:w-3/4 mx-auto p-5">
 				<div v-for="job in jobs.data">
 					<router-link
 						:to="{
