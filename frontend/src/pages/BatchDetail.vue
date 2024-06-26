@@ -38,7 +38,7 @@
 				</div>
 				<div class="flex avatar-group overlap mt-3">
 					<div
-						class="mr-1"
+						class="h-6 mr-1"
 						:class="{
 							'avatar-group overlap': batch.data.instructors.length > 1,
 						}"

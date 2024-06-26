@@ -50,9 +50,9 @@
 					{{ batch.timezone }}
 				</span>
 			</div>
-			<div v-if="batch.instructors.length" class="flex avatar-group overlap">
+			<div v-if="batch.instructors?.length" class="flex avatar-group overlap">
 				<div
-					class="mr-1"
+					class="h-6 mr-1"
 					:class="{ 'avatar-group overlap': batch.instructors.length > 1 }"
 				>
 					<UserAvatar

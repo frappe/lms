@@ -95,7 +95,7 @@
 
 				<div class="flex items-center mt-2">
 					<span
-						class="mr-1"
+						class="h-6 mr-1"
 						:class="{
 							'avatar-group overlap': lesson.data.instructors.length > 1,
 						}"
