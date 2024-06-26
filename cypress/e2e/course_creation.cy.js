@@ -2,7 +2,6 @@ describe("Course Creation", () => {
 	it("creates a new course", () => {
 		cy.login();
 		cy.wait(1000);
-
 		cy.visit("/lms/courses");
 
 		// Create a course
@@ -33,7 +32,11 @@ describe("Course Creation", () => {
 			.type("https://www.youtube.com/embed/-LPmw2Znl2c");
 		cy.get("[id=tags]").type("Learning{enter}Frappe{enter}ERPNext{enter}");
 		cy.get(".search-input").click();
-		cy.get("[id^=headlessui-combobox-option-").first().click();
+		cy.wait(1000);
+		cy.get("[id^=headlessui-combobox-option-")
+			.should("be.visible")
+			.first()
+			.click();
 		cy.get("label").contains("Published").click();
 		cy.get("label").contains("Published On").type("2021-01-01");
 		cy.button("Save").click();
