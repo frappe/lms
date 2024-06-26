@@ -40,15 +40,6 @@ Cypress.Commands.add("login", (email, password) => {
 	});
 });
 
-Cypress.Commands.add("get_logged_user", () => {
-	cy.request({
-		url: "/api/method/frappe.auth.get_logged_user",
-	}).then((resp) => {
-		alert(resp);
-		return resp.message;
-	});
-});
-
 Cypress.Commands.add("button", (text) => {
 	return cy.get(`button:contains("${text}")`);
 });
