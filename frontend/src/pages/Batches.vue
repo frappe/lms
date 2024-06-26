@@ -62,7 +62,7 @@
 				<template #default="{ tab }">
 					<div
 						v-if="tab.batches && tab.batches.value.length"
-						class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mt-5 mx-5"
+						class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 m-5"
 					>
 						<router-link
 							v-for="batch in tab.batches.value"

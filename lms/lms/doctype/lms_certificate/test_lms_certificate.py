@@ -12,7 +12,13 @@ from lms.lms.doctype.lms_course.test_lms_course import new_course
 
 class TestLMSCertificate(unittest.TestCase):
 	def test_certificate_creation(self):
-		course = new_course("Test Certificate", {"enable_certification": 1, "expiry": 2})
+		course = new_course(
+			"Test Certificate",
+			{
+				"enable_certification": 1,
+				"expiry": 2,
+			},
+		)
 		certificate = create_certificate(course.name)
 
 		self.assertEqual(certificate.member, "Administrator")

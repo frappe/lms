@@ -22,6 +22,8 @@ class TestUtils(unittest.TestCase):
 		)
 
 	def test_evaluation_details(self):
+		user = new_user("Eval", "eval@test.com")
+
 		course = new_course(
 			"Test Evaluation Details",
 			{
@@ -30,9 +32,9 @@ class TestUtils(unittest.TestCase):
 				"evaluator": "evaluator@example.com",
 				"max_attempts": 3,
 				"duration": 2,
+				"instructors": [{"instructor": user.name}],
 			},
 		)
-		user = new_user("Eval", "eval@test.com")
 
 		# Two evaluations failed within max attempts. Check eligibility for a third evaluation
 		create_evaluation(user.name, course.name, getdate("21-03-2022"), 0.4, "Fail")

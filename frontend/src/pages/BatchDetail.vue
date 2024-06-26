@@ -36,6 +36,20 @@
 						</span>
 					</div>
 				</div>
+				<div class="flex avatar-group overlap mt-3">
+					<div
+						class="mr-1"
+						:class="{
+							'avatar-group overlap': batch.data.instructors.length > 1,
+						}"
+					>
+						<UserAvatar
+							v-for="instructor in batch.data.instructors"
+							:user="instructor"
+						/>
+					</div>
+					<CourseInstructors :instructors="batch.data.instructors" />
+				</div>
 			</div>
 			<div class="grid lg:grid-cols-[60%,20%] gap-4 lg:gap-20 mt-10">
 				<div class="order-2 lg:order-none">
@@ -91,6 +105,8 @@ import { Breadcrumbs, createResource } from 'frappe-ui'
 import CourseCard from '@/components/CourseCard.vue'
 import BatchOverlay from '@/components/BatchOverlay.vue'
 import DateRange from '../components/Common/DateRange.vue'
+import CourseInstructors from '@/components/CourseInstructors.vue'
+import UserAvatar from '@/components/UserAvatar.vue'
 
 const user = inject('$user')
 const router = useRouter()

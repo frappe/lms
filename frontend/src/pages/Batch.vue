@@ -80,8 +80,22 @@
 				<div class="text-2xl font-semibold mb-2">
 					{{ batch.data.title }}
 				</div>
-				<div v-html="batch.data.description" class="leading-5 mb-4"></div>
+				<div v-html="batch.data.description" class="leading-5 mb-2"></div>
 
+				<div class="flex avatar-group overlap mb-5">
+					<div
+						class="mr-1"
+						:class="{
+							'avatar-group overlap': batch.data.instructors.length > 1,
+						}"
+					>
+						<UserAvatar
+							v-for="instructor in batch.data.instructors"
+							:user="instructor"
+						/>
+					</div>
+					<CourseInstructors :instructors="batch.data.instructors" />
+				</div>
 				<DateRange
 					:startDate="batch.data.start_date"
 					:endDate="batch.data.end_date"
@@ -155,6 +169,8 @@
 <script setup>
 import { Breadcrumbs, Button, createResource, Tabs, Badge } from 'frappe-ui'
 import { computed, inject, ref } from 'vue'
+import CourseInstructors from '@/components/CourseInstructors.vue'
+import UserAvatar from '@/components/UserAvatar.vue'
 import {
 	Clock,
 	LayoutDashboard,

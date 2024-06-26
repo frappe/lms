@@ -8,8 +8,8 @@
 				{{ __('Save') }}
 			</Button>
 		</header>
-		<div class="py-5">
-			<div class="container border-b">
+		<div class="w-1/2 mx-auto py-5">
+			<div class="">
 				<div class="text-lg font-semibold mb-4">
 					{{ __('Details') }}
 				</div>
@@ -20,54 +20,13 @@
 							:label="__('Title')"
 							class="mb-4"
 						/>
+					</div>
+					<div class="flex flex-col space-y-2">
 						<FormControl
 							v-model="batch.published"
 							type="checkbox"
 							:label="__('Published')"
 						/>
-					</div>
-					<div class="flex flex-col">
-						<FileUploader
-							v-if="!batch.image"
-							class="mt-4"
-							:fileTypes="['image/*']"
-							:validateFile="validateFile"
-							@success="(file) => saveImage(file)"
-						>
-							<template
-								v-slot="{ file, progress, uploading, openFileSelector }"
-							>
-								<div class="mb-4">
-									<Button @click="openFileSelector" :loading="uploading">
-										{{
-											uploading ? `Uploading ${progress}%` : 'Upload an image'
-										}}
-									</Button>
-								</div>
-							</template>
-						</FileUploader>
-						<div v-else class="my-4">
-							<div class="text-xs text-gray-600 mb-1">
-								{{ __('Meta Image') }}
-							</div>
-							<div class="flex items-center">
-								<div class="border rounded-md p-2 mr-2">
-									<FileText class="h-5 w-5 stroke-1.5 text-gray-700" />
-								</div>
-								<div class="flex flex-col">
-									<span>
-										{{ batch.image.file_name }}
-									</span>
-									<span class="text-sm text-gray-500 mt-1">
-										{{ getFileSize(batch.image.file_size) }}
-									</span>
-								</div>
-								<X
-									@click="removeImage()"
-									class="bg-gray-200 rounded-md cursor-pointer stroke-1.5 w-5 h-5 p-1 ml-4"
-								/>
-							</div>
-						</div>
 						<FormControl
 							v-model="batch.allow_self_enrollment"
 							type="checkbox"
@@ -76,7 +35,53 @@
 					</div>
 				</div>
 			</div>
-			<div class="container border-b mb-4">
+			<div class="mb-4">
+				<div>
+					<FileUploader
+						v-if="!batch.image"
+						class="mt-4"
+						:fileTypes="['image/*']"
+						:validateFile="validateFile"
+						@success="(file) => saveImage(file)"
+					>
+						<template v-slot="{ file, progress, uploading, openFileSelector }">
+							<div class="mb-4">
+								<Button @click="openFileSelector" :loading="uploading">
+									{{ uploading ? `Uploading ${progress}%` : 'Upload an image' }}
+								</Button>
+							</div>
+						</template>
+					</FileUploader>
+					<div v-else class="mb-4">
+						<div class="text-xs text-gray-600 mb-1">
+							{{ __('Meta Image') }}
+						</div>
+						<div class="flex items-center">
+							<div class="border rounded-md p-2 mr-2">
+								<FileText class="h-5 w-5 stroke-1.5 text-gray-700" />
+							</div>
+							<div class="flex flex-col">
+								<span>
+									{{ batch.image.file_name }}
+								</span>
+								<span class="text-sm text-gray-500 mt-1">
+									{{ getFileSize(batch.image.file_size) }}
+								</span>
+							</div>
+							<X
+								@click="removeImage()"
+								class="bg-gray-200 rounded-md cursor-pointer stroke-1.5 w-5 h-5 p-1 ml-4"
+							/>
+						</div>
+					</div>
+				</div>
+				<MultiSelect
+					v-model="instructors"
+					doctype="User"
+					:label="__('Instructors')"
+				/>
+			</div>
+			<div class="mb-4">
 				<FormControl
 					v-model="batch.description"
 					:label="__('Description')"
@@ -96,7 +101,7 @@
 					/>
 				</div>
 			</div>
-			<div class="container border-b mb-4">
+			<div class="mb-4">
 				<div class="text-lg font-semibold mb-4">
 					{{ __('Date and Time') }}
 				</div>
@@ -137,7 +142,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="container border-b mb-4">
+			<div class="mb-4">
 				<div class="text-lg font-semibold mb-4">
 					{{ __('Settings') }}
 				</div>
@@ -182,7 +187,7 @@
 				</div>
 			</div>
 
-			<div class="container">
+			<div class="">
 				<div class="text-lg font-semibold mb-4">
 					{{ __('Payment') }}
 				</div>
@@ -210,7 +215,14 @@
 	</div>
 </template>
 <script setup>
-import { computed, onMounted, inject, reactive, onBeforeUnmount } from 'vue'
+import {
+	computed,
+	onMounted,
+	inject,
+	reactive,
+	onBeforeUnmount,
+	ref,
+} from 'vue'
 import {
 	Breadcrumbs,
 	FormControl,
@@ -220,6 +232,7 @@ import {
 	createResource,
 } from 'frappe-ui'
 import Link from '@/components/Controls/Link.vue'
+import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import { useRouter } from 'vue-router'
 import { getFileSize, showToast } from '../utils'
 import { X, FileText } from 'lucide-vue-next'
@@ -255,6 +268,8 @@ const batch = reactive({
 	amount: 0,
 })
 
+const instructors = ref([])
+
 onMounted(() => {
 	if (!user.data) window.location.href = '/login'
 	if (props.batchName != 'new') {
@@ -285,6 +300,9 @@ const newBatch = createResource({
 			doc: {
 				doctype: 'LMS Batch',
 				meta_image: batch.image?.file_url,
+				instructors: instructors.value.map((instructor) => ({
+					instructor: instructor,
+				})),
 				...batch,
 			},
 		}
@@ -301,9 +319,13 @@ const batchDetail = createResource({
 	},
 	onSuccess(data) {
 		Object.keys(data).forEach((key) => {
-			if (Object.hasOwn(batch, key)) batch[key] = data[key]
+			if (key == 'instructors') {
+				data.instructors.forEach((instructor) => {
+					instructors.value.push(instructor.instructor)
+				})
+			} else if (Object.hasOwn(batch, key)) batch[key] = data[key]
 		})
-		let checkboxes = ['published', 'paid_batch']
+		let checkboxes = ['published', 'paid_batch', 'allow_self_enrollment']
 		for (let idx in checkboxes) {
 			let key = checkboxes[idx]
 			batch[key] = batch[key] ? true : false
@@ -320,6 +342,9 @@ const editBatch = createResource({
 			name: props.batchName,
 			fieldname: {
 				meta_image: batch.image?.file_url,
+				instructors: instructors.value.map((instructor) => ({
+					instructor: instructor,
+				})),
 				...batch,
 			},
 		}
