@@ -93,7 +93,7 @@
 			<div class="flex items-center justify-between mt-auto">
 				<div class="flex avatar-group overlap">
 					<div
-						class="mr-1"
+						class="h-6 mr-1"
 						:class="{ 'avatar-group overlap': course.instructors.length > 1 }"
 					>
 						<UserAvatar

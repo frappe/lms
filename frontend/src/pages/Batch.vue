@@ -15,7 +15,7 @@
 		</header>
 		<div v-if="batch.data" class="grid grid-cols-[70%,30%] h-screen">
 			<div class="border-r-2">
-				<Tabs v-model="tabIndex" :tabs="tabs" tablistClass="overflow-x-visible">
+				<Tabs v-model="tabIndex" :tabs="tabs" tablistClass="overflow-y-hidden">
 					<template #tab="{ tab, selected }" class="overflow-x-hidden">
 						<div>
 							<button
@@ -84,7 +84,7 @@
 
 				<div class="flex avatar-group overlap mb-5">
 					<div
-						class="mr-1"
+						class="h-6 mr-1"
 						:class="{
 							'avatar-group overlap': batch.data.instructors.length > 1,
 						}"

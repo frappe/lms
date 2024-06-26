@@ -41,7 +41,7 @@
 						>
 						<div class="flex items-center">
 							<span
-								class="mr-1"
+								class="h-6 mr-1"
 								:class="{
 									'avatar-group overlap': course.data.instructors.length > 1,
 								}"
