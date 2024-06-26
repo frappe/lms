@@ -33,7 +33,6 @@ import { computed } from 'vue'
 import { sessionStore } from '@/stores/session'
 import { usersStore } from '@/stores/user'
 import * as icons from 'lucide-vue-next'
-import { LogOut, LogIn, UserRound } from 'lucide-vue-next'
 
 const { logout, user } = sessionStore()
 let { isLoggedIn } = sessionStore()
