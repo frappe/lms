@@ -8,9 +8,7 @@
 			{{ __('Write a Review') }}
 		</Button>
 		<div class="flex items-center font-semibold text-2xl">
-			<Star class="h-6 w-6 stroke-1 text-gray-50 fill-orange-500 mr-1" />
-			{{ avg_rating }} {{ __('ratings and ') }} {{ reviews.data.length }}
-			{{ __('reviews') }}
+			{{ __('Student Reviews') }}
 		</div>
 		<div class="grid gap-8 mt-10">
 			<div v-for="(review, index) in reviews.data">

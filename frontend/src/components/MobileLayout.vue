@@ -18,7 +18,7 @@
 				@click="handleClick(tab)"
 			>
 				<component
-					:is="tab.icon"
+					:is="icons[tab.icon]"
 					class="h-6 w-6 stroke-1.5"
 					:class="[isActive(tab) ? 'text-gray-900' : 'text-gray-600']"
 				/>
@@ -32,7 +32,7 @@ import { useRouter } from 'vue-router'
 import { computed } from 'vue'
 import { sessionStore } from '@/stores/session'
 import { usersStore } from '@/stores/user'
-import { LogOut, LogIn, UserRound } from 'lucide-vue-next'
+import * as icons from 'lucide-vue-next'
 
 const { logout, user } = sessionStore()
 let { isLoggedIn } = sessionStore()
@@ -45,7 +45,7 @@ const tabs = computed(() => {
 	if (user) {
 		links.push({
 			label: 'Profile',
-			icon: UserRound,
+			icon: 'UserRound',
 			activeFor: [
 				'Profile',
 				'ProfileAbout',
@@ -56,12 +56,12 @@ const tabs = computed(() => {
 		})
 		links.push({
 			label: 'Log out',
-			icon: LogOut,
+			icon: 'LogOut',
 		})
 	} else {
 		links.push({
 			label: 'Log in',
-			icon: LogIn,
+			icon: 'LogIn',
 		})
 	}
 	return links

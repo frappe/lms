@@ -70,11 +70,7 @@
 						class="course-description"
 					></div>
 					<div class="mt-10">
-						<CourseOutline
-							:courseName="course.data.name"
-							:showOutline="true"
-							title="Course Outline"
-						/>
+						<CourseOutline :courseName="course.data.name" :showOutline="true" />
 					</div>
 					<CourseReviews
 						:courseName="course.data.name"
