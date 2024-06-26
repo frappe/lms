@@ -31,7 +31,7 @@ describe("Course Creation", () => {
 			.contains("Preview Video")
 			.type("https://www.youtube.com/embed/-LPmw2Znl2c");
 		cy.get("[id=tags]").type("Learning{enter}Frappe{enter}ERPNext{enter}");
-		cy.get(".search-input").click();
+		cy.get(".search-input").click().type("frappe");
 		cy.wait(1000);
 		cy.get("[id^=headlessui-combobox-option-")
 			.should("be.visible")
