@@ -443,11 +443,11 @@ updateDocumentTitle(pageMeta)
 	display: none;
 }
 
-.ce-toolbar__actions {
-	right: 108% !important;
+.ce-block__content {
+	max-width: none;
 }
 
-.ce-block__content {
+.ce-toolbar__content {
 	max-width: none;
 }
 
