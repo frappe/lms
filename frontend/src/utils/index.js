@@ -168,11 +168,42 @@ export function getEditorTools() {
 					vimeo: true,
 					codepen: true,
 					aparat: true,
+					github: true,
 					slides: {
 						regex: /https:\/\/docs\.google\.com\/presentation\/d\/e\/([A-Za-z0-9_-]+)\/pub/,
 						embedUrl:
 							'https://docs.google.com/presentation/d/e/<%= remote_id %>/embed',
-						html: "<iframe style='width: 100%; height: 28rem;' frameborder='0' allowfullscreen='true'></iframe>",
+						html: "<iframe style='width: 100%; height: 30rem; border: 1px solid #D3D3D3; border-radius: 12px;' frameborder='0' allowfullscreen='true'></iframe>",
+					},
+					drive: {
+						regex: /https:\/\/drive\.google\.com\/file\/d\/([A-Za-z0-9_-]+)\/view(\?.+)?/,
+						embedUrl:
+							'https://drive.google.com/file/d/<%= remote_id %>/preview',
+						html: "<iframe style='width: 100%; height: 25rem; border: 1px solid #D3D3D3; border-radius: 12px;' frameborder='0' allowfullscreen='true'></iframe>",
+					},
+					docsPublic: {
+						regex: /https:\/\/docs\.google\.com\/document\/d\/([A-Za-z0-9_-]+)\/edit(\?.+)?/,
+						embedUrl:
+							'https://docs.google.com/document/d/<%= remote_id %>/preview',
+						html: "<iframe style='width: 100%; height: 40rem; border: 1px solid #D3D3D3; border-radius: 12px;' frameborder='0' allowfullscreen='true'></iframe>",
+					},
+					sheetsPublic: {
+						regex: /https:\/\/docs\.google\.com\/spreadsheets\/d\/([A-Za-z0-9_-]+)\/edit(\?.+)?/,
+						embedUrl:
+							'https://docs.google.com/spreadsheets/d/<%= remote_id %>/preview',
+						html: "<iframe style='width: 100%; height: 40rem; border: 1px solid #D3D3D3; border-radius: 12px;' frameborder='0' allowfullscreen='true'></iframe>",
+					},
+					slidesPublic: {
+						regex: /https:\/\/docs\.google\.com\/presentation\/d\/([A-Za-z0-9_-]+)\/edit(\?.+)?/,
+						embedUrl:
+							'https://docs.google.com/presentation/d/<%= remote_id %>/embed',
+						html: "<iframe style='width: 100%; height: 30rem; border: 1px solid #D3D3D3; border-radius: 12px;' frameborder='0' allowfullscreen='true'></iframe>",
+					},
+					codesandbox: {
+						regex: /^https:\/\/codesandbox\.io\/(?:embed\/)?([A-Za-z0-9_-]+)(?:\?[^\/]*)?$/,
+						embedUrl:
+							'https://codesandbox.io/embed/<%= remote_id %>?view=editor+%2B+preview&module=%2Findex.html',
+						html: "<iframe style='width: 100%; height: 500px; border: 0; border-radius: 4px; overflow: hidden;' sandbox='allow-mods allow-forms allow-popups allow-scripts allow-same-origin' frameborder='0' allowfullscreen='true'></iframe>",
 					},
 				},
 			},
