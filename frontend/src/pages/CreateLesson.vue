@@ -72,10 +72,9 @@
 import { Breadcrumbs, FormControl, createResource, Button } from 'frappe-ui'
 import { computed, reactive, onMounted, inject, ref, watch } from 'vue'
 import EditorJS from '@editorjs/editorjs'
-import { createToast } from '../utils'
 import LessonPlugins from '@/components/LessonPlugins.vue'
-import { getEditorTools } from '../utils'
 import { ChevronRight } from 'lucide-vue-next'
+import { updateDocumentTitle, createToast, getEditorTools } from '@/utils'
 
 const editor = ref(null)
 const instructorEditor = ref(null)
@@ -429,6 +428,15 @@ const breadcrumbs = computed(() => {
 	})
 	return crumbs
 })
+
+const pageMeta = computed(() => {
+	return {
+		title: 'Lesson Editor',
+		description: 'Create and edit lessons for your course',
+	}
+})
+
+updateDocumentTitle(pageMeta)
 </script>
 <style>
 .embed-tool__caption {
