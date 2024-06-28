@@ -6,7 +6,6 @@
  "engine": "InnoDB",
  "field_order": [
   "default_home",
-  "force_profile_completion",
   "is_onboarding_complete",
   "column_break_zdel",
   "unsplash_access_key",
@@ -103,13 +102,6 @@
    "fieldname": "search_placeholder",
    "fieldtype": "Data",
    "label": "Course List Search Bar Placeholder"
-  },
-  {
-   "default": "0",
-   "fieldname": "force_profile_completion",
-   "fieldtype": "Check",
-   "hidden": 1,
-   "label": "Force users to complete their Profile"
   },
   {
    "default": "0",
@@ -431,7 +423,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-05-31 20:17:07.362088",
+ "modified": "2024-06-27 21:57:02.193336",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",

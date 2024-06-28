@@ -270,6 +270,9 @@ const quiz = createResource({
 		if (data.shuffle_questions) {
 			data.questions = data.questions.sort(() => Math.random() - 0.5)
 		}
+		if (data.limit_questions_to) {
+			data.questions = data.questions.slice(0, data.limit_questions_to)
+		}
 	},
 })
 
