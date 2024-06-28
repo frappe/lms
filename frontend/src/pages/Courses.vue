@@ -125,12 +125,11 @@ const searchQuery = ref('')
 
 const courses = createResource({
 	debounce: 300,
-	makeParams() {
+	makeParams(values) {
 		return {
 			search_query: searchQuery.value,
 		}
 	},
-	cache: ['courses', searchQuery.value, user?.data?.email],
 	url: 'lms.lms.utils.get_courses',
 	auto: true,
 })
