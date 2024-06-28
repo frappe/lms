@@ -1251,10 +1251,12 @@ def change_currency(amount, currency, country=None):
 
 
 @frappe.whitelist(allow_guest=True)
-def get_courses():
+def get_courses(search_query=""):
 	"""Returns the list of courses."""
 	courses = []
-	course_list = frappe.get_all("LMS Course", pluck="name")
+	course_list = frappe.get_all(
+		"LMS Course", {"title": ["like", f"%{search_query}%"]}, pluck="name"
+	)
 	for course in course_list:
 		courses.append(get_course_details(course))
 
