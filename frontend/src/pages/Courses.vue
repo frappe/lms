@@ -7,7 +7,17 @@
 				class="h-7"
 				:items="[{ label: __('All Courses'), route: { name: 'Courses' } }]"
 			/>
-			<div class="flex">
+			<div class="flex space-x-2">
+				<FormControl
+					type="text"
+					placeholder="Search Course"
+					v-model="searchQuery"
+					@input="courses.reload()"
+				>
+					<template #prefix>
+						<Search class="w-4 stroke-1.5 text-gray-600" name="search" />
+					</template>
+				</FormControl>
 				<router-link
 					:to="{
 						name: 'CreateCourse',
@@ -97,17 +107,29 @@
 </template>
 
 <script setup>
-import { createListResource, Breadcrumbs, Tabs, Badge, Button } from 'frappe-ui'
+import {
+	Breadcrumbs,
+	Tabs,
+	Badge,
+	Button,
+	FormControl,
+	createResource,
+} from 'frappe-ui'
 import CourseCard from '@/components/CourseCard.vue'
-import { Plus } from 'lucide-vue-next'
+import { Plus, Search } from 'lucide-vue-next'
 import { ref, computed, inject } from 'vue'
 import { updateDocumentTitle } from '@/utils'
 
 const user = inject('$user')
-const courses = createListResource({
-	type: 'list',
-	doctype: 'LMS Course',
-	cache: ['courses', user?.data?.email],
+const searchQuery = ref('')
+
+const courses = createResource({
+	debounce: 300,
+	makeParams(values) {
+		return {
+			search_query: searchQuery.value,
+		}
+	},
 	url: 'lms.lms.utils.get_courses',
 	auto: true,
 })

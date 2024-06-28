@@ -1,5 +1,5 @@
 <template>
-	<div v-if="reviews.data" class="mt-20 mb-10">
+	<div v-if="reviews.data?.length || membership" class="mt-20 mb-10">
 		<Button
 			v-if="membership && !hasReviewed.data"
 			@click="openReviewModal()"
