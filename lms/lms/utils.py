@@ -776,10 +776,6 @@ def get_lesson_count(course):
 	return lesson_count
 
 
-def check_profile_restriction():
-	return frappe.db.get_single_value("LMS Settings", "force_profile_completion")
-
-
 def get_restriction_details():
 	user = frappe.db.get_value(
 		"User", frappe.session.user, ["profile_complete", "username"], as_dict=True

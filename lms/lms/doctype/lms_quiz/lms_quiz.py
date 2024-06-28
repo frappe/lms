@@ -18,7 +18,8 @@ from lms.lms.utils import (
 class LMSQuiz(Document):
 	def validate(self):
 		self.validate_duplicate_questions()
-		self.total_marks = set_total_marks(self.name, self.questions)
+		self.validate_limit()
+		self.calculate_total_marks()
 
 	def validate_duplicate_questions(self):
 		questions = [row.question for row in self.questions]
@@ -27,6 +28,25 @@ class LMSQuiz(Document):
 			frappe.throw(
 				_("Rows {0} have the duplicate questions.").format(frappe.bold(comma_and(rows)))
 			)
+
+	def validate_limit(self):
+		if self.limit_questions_to and self.limit_questions_to >= len(self.questions):
+			frappe.throw(
+				_("Limit cannot be greater than or equal to the number of questions in the quiz.")
+			)
+
+		if self.limit_questions_to and self.limit_questions_to < len(self.questions):
+			marks = [question.marks for question in self.questions]
+			if len(set(marks)) > 1:
+				frappe.throw(_("All questions should have the same marks if the limit is set."))
+
+	def calculate_total_marks(self):
+		if self.limit_questions_to:
+			self.total_marks = sum(
+				question.marks for question in self.questions[: self.limit_questions_to]
+			)
+		else:
+			self.total_marks = sum(question.marks for question in self.questions)
 
 	def autoname(self):
 		if not self.name:
@@ -50,7 +70,7 @@ class LMSQuiz(Document):
 			return result[0]
 
 
-def set_total_marks(quiz, questions):
+def set_total_marks(questions):
 	marks = 0
 	for question in questions:
 		marks += question.get("marks")

@@ -242,25 +242,6 @@ has_website_permission = {
 	"LMS Certificate": "lms.lms.doctype.lms_certificate.lms_certificate.has_website_permission",
 }
 
-profile_mandatory_fields = [
-	"first_name",
-	"last_name",
-	"user_image",
-	"bio",
-	"linkedin",
-	"education",
-	"skill",
-	"preferred_functions",
-	"preferred_industries",
-	"dream_companies",
-	"attire",
-	"collaboration",
-	"role",
-	"location_preference",
-	"time",
-	"company_type",
-]
-
 ## Markdown Macros for Lessons
 lms_markdown_macro_renderers = {
 	"Exercise": "lms.plugins.exercise_renderer",

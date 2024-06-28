@@ -15,7 +15,6 @@ class CustomUser(User):
 	def validate(self):
 		super().validate()
 		self.validate_username_duplicates()
-		self.validate_completion()
 
 	def validate_username_duplicates(self):
 		while not self.username or self.username_exists():
@@ -37,19 +36,6 @@ class CustomUser(User):
 				unique_skills.append(skill.skill_name)
 			else:
 				frappe.throw(_("Skills must be unique"))
-
-	def validate_completion(self):
-		if frappe.db.get_single_value("LMS Settings", "force_profile_completion"):
-			all_fields_have_value = True
-			profile_mandatory_fields = frappe.get_hooks("profile_mandatory_fields")
-			docfields = frappe.get_meta(self.doctype).fields
-
-			for field in profile_mandatory_fields:
-				if not self.get(field):
-					all_fields_have_value = False
-					break
-
-			self.profile_complete = all_fields_have_value
 
 	def get_batch_count(self) -> int:
 		"""Returns the number of batches authored by this user."""
