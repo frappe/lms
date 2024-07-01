@@ -1,0 +1,6300 @@
+# Translations template for Frappe LMS.
+# Copyright (C) 2024 Frappe
+# This file is distributed under the same license as the Frappe LMS project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Frappe LMS VERSION\n"
+"Report-Msgid-Bugs-To: school@frappe.io\n"
+"POT-Creation-Date: 2024-06-28 19:27+0553\n"
+"PO-Revision-Date: 2024-06-28 19:27+0553\n"
+"Last-Translator: school@frappe.io\n"
+"Language-Team: school@frappe.io\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.13.1\n"
+
+#: templates/emails/assignment_submission.html:5
+msgid " Please evaluate and grade it."
+msgstr ""
+
+#: public/frontend/assets/ProfileAbout-M7A4DT21.js:1
+msgid "About"
+msgstr "Información"
+
+#. Option for the 'Status' (Select) field in DocType 'Cohort Join Request'
+#: lms/doctype/cohort_join_request/cohort_join_request.json
+msgctxt "Cohort Join Request"
+msgid "Accepted"
+msgstr ""
+
+#. Label of a Data field in DocType 'Zoom Settings'
+#: lms/doctype/zoom_settings/zoom_settings.json
+msgctxt "Zoom Settings"
+msgid "Account ID"
+msgstr ""
+
+#: public/frontend/assets/ProfileAbout-M7A4DT21.js:1
+msgid "Achievements"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'LMS Batch Old'
+#: lms/doctype/lms_batch_old/lms_batch_old.json
+msgctxt "LMS Batch Old"
+msgid "Active"
+msgstr ""
+
+#: public/frontend/assets/CourseOutline-BVkxGD_M.js:1
+msgid "Add Chapter"
+msgstr "Añadir Capítulo"
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1
+msgid "Add Course"
+msgstr ""
+
+#: public/frontend/assets/CourseOutline-BVkxGD_M.js:1
+msgid "Add Lesson"
+msgstr "Añadir Lección"
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1
+msgid "Add Live Class"
+msgstr ""
+
+#: public/frontend/assets/ProfileEvaluator-bug1MVAq.js:1
+msgid "Add Slot"
+msgstr ""
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1
+msgid "Add Student"
+msgstr ""
+
+#: templates/onboarding_header.html:26
+msgid "Add a Chapter"
+msgstr ""
+
+#: templates/onboarding_header.html:33
+msgid "Add a Lesson"
+msgstr ""
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1
+msgid "Add a Student"
+msgstr ""
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1
+msgid "Add a course"
+msgstr ""
+
+#: public/frontend/assets/CreateLesson-7ZGJlo2v.js:1
+msgid "Add an image, video, pdf or audio."
+msgstr ""
+
+#: lms/doctype/lms_question/lms_question.py:59
+msgid "Add at least one possible answer for this question: {0}"
+msgstr ""
+
+#: public/frontend/assets/index-D1f05dS8.js:7369
+msgid "Add web page to sidebar"
+msgstr ""
+
+#: public/frontend/assets/AssignmentSubmission-D1b-IhRa.js:1
+msgid "Add your assignment as {0}"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Payment'
+#: lms/doctype/lms_payment/lms_payment.json
+msgctxt "LMS Payment"
+msgid "Address"
+msgstr ""
+
+#. Option for the 'Role' (Select) field in DocType 'Cohort Staff'
+#: lms/doctype/cohort_staff/cohort_staff.json
+msgctxt "Cohort Staff"
+msgid "Admin"
+msgstr ""
+
+#. Option for the 'Required Role' (Select) field in DocType 'Cohort Web Page'
+#: lms/doctype/cohort_web_page/cohort_web_page.json
+msgctxt "Cohort Web Page"
+msgid "Admin"
+msgstr ""
+
+#. Option for the 'Role' (Select) field in DocType 'LMS Enrollment'
+#: lms/doctype/lms_enrollment/lms_enrollment.json
+msgctxt "LMS Enrollment"
+msgid "Admin"
+msgstr ""
+
+#. Name of a role
+#: lms/doctype/lms_badge/lms_badge.json
+msgid "All"
+msgstr ""
+
+#: lms/widgets/BreadCrumb.html:3 public/frontend/assets/Courses-C42D3lfQ.js:1
+msgid "All Courses"
+msgstr "Todos los Cursos"
+
+#: templates/quiz/quiz.html:141
+msgid "All Submissions"
+msgstr ""
+
+#: lms/doctype/lms_quiz/lms_quiz.py:41
+msgid "All questions should have the same marks if the limit is set."
+msgstr ""
+
+#. Label of a Check field in DocType 'Job Settings'
+#: job/doctype/job_settings/job_settings.json
+msgctxt "Job Settings"
+msgid "Allow Job Posting From Website"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Batch'
+#: lms/doctype/lms_batch/lms_batch.json
+msgctxt "LMS Batch"
+msgid "Allow Self Enrollment"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Batch'
+#: lms/doctype/lms_batch/lms_batch.json
+msgctxt "LMS Batch"
+msgid "Allow accessing future dates"
+msgstr ""
+
+#: public/frontend/assets/BatchCreation-9JuqnhbY.js:1
+msgid "Allow self enrollment"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Allow students to see each others progress in class"
+msgstr ""
+
+#: overrides/user.py:195
+msgid "Already Registered"
+msgstr ""
+
+#: public/frontend/assets/BatchCreation-9JuqnhbY.js:1
+#: public/js/common_functions.js:379
+msgid "Amount"
+msgstr ""
+
+#. Label of a Currency field in DocType 'LMS Batch'
+#: lms/doctype/lms_batch/lms_batch.json
+msgctxt "LMS Batch"
+msgid "Amount"
+msgstr ""
+
+#. Label of a Currency field in DocType 'LMS Payment'
+#: lms/doctype/lms_payment/lms_payment.json
+msgctxt "LMS Payment"
+msgid "Amount"
+msgstr ""
+
+#: public/js/common_functions.js:397
+msgid "Amount (USD)"
+msgstr ""
+
+#. Label of a Currency field in DocType 'LMS Batch'
+#: lms/doctype/lms_batch/lms_batch.json
+msgctxt "LMS Batch"
+msgid "Amount (USD)"
+msgstr ""
+
+#. Label of a Currency field in DocType 'LMS Course'
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "Amount (USD)"
+msgstr ""
+
+#. Label of a Currency field in DocType 'LMS Payment'
+#: lms/doctype/lms_payment/lms_payment.json
+msgctxt "LMS Payment"
+msgid "Amount with GST"
+msgstr ""
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1
+msgid "Announcement"
+msgstr ""
+
+#. Label of a Text Editor field in DocType 'LMS Assignment'
+#: lms/doctype/lms_assignment/lms_assignment.json
+msgctxt "LMS Assignment"
+msgid "Answer"
+msgstr ""
+
+#. Label of a Text Editor field in DocType 'LMS Assignment Submission'
+#: lms/doctype/lms_assignment_submission/lms_assignment_submission.json
+msgctxt "LMS Assignment Submission"
+msgid "Answer"
+msgstr ""
+
+#. Label of a Code field in DocType 'LMS Exercise'
+#: lms/doctype/lms_exercise/lms_exercise.json
+msgctxt "LMS Exercise"
+msgid "Answer"
+msgstr ""
+
+#. Option for the 'Course Creation Access Through Website To' (Select) field in
+#. DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Anyone"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Apply GST for India"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Apply Rounding on Equivalent"
+msgstr ""
+
+#: public/frontend/assets/JobDetail-CBHvk1ll.js:1
+msgid "Apply for this job"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'Invite Request'
+#: lms/doctype/invite_request/invite_request.json
+msgctxt "Invite Request"
+msgid "Approved"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'LMS Course'
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "Approved"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'LMS Mentor Request'
+#: lms/doctype/lms_mentor_request/lms_mentor_request.json
+msgctxt "LMS Mentor Request"
+msgid "Approved"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Ask User Category during Signup"
+msgstr ""
+
+#: templates/assessments.html:11
+msgid "Assessment"
+msgstr ""
+
+#. Label of a Tab Break field in DocType 'LMS Batch'
+#. Label of a Table field in DocType 'LMS Batch'
+#: lms/doctype/lms_batch/lms_batch.json
+msgctxt "LMS Batch"
+msgid "Assessment"
+msgstr ""
+
+#. Label of a Dynamic Link field in DocType 'LMS Assessment'
+#: lms/doctype/lms_assessment/lms_assessment.json
+msgctxt "LMS Assessment"
+msgid "Assessment Name"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Assessment'
+#: lms/doctype/lms_assessment/lms_assessment.json
+msgctxt "LMS Assessment"
+msgid "Assessment Type"
+msgstr ""
+
+#: lms/doctype/lms_batch/lms_batch.py:66
+msgid "Assessment {0} has already been added to this batch."
+msgstr ""
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1 templates/assessments.html:3
+msgid "Assessments"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Assessments"
+msgstr ""
+
+#: lms/doctype/lms_badge/lms_badge.js:50
+msgid "Assign"
+msgstr ""
+
+#: lms/doctype/course_lesson/course_lesson.js:32 templates/assignment.html:3
+msgid "Assignment"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'Course Lesson'
+#: lms/doctype/course_lesson/course_lesson.json
+msgctxt "Course Lesson"
+msgid "Assignment"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Assignment Submission'
+#: lms/doctype/lms_assignment_submission/lms_assignment_submission.json
+msgctxt "LMS Assignment Submission"
+msgid "Assignment"
+msgstr ""
+
+#. Label of a Attach field in DocType 'LMS Assignment Submission'
+#: lms/doctype/lms_assignment_submission/lms_assignment_submission.json
+msgctxt "LMS Assignment Submission"
+msgid "Assignment Attachment"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Assignment Submission Template"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Assignment Submission'
+#: lms/doctype/lms_assignment_submission/lms_assignment_submission.json
+msgctxt "LMS Assignment Submission"
+msgid "Assignment Title"
+msgstr ""
+
+#: lms/doctype/lms_assignment_submission/lms_assignment_submission.py:31
+msgid "Assignment for Lesson {0} by {1} already exists."
+msgstr ""
+
+#. Description of the 'Question' (Small Text) field in DocType 'Course Lesson'
+#: lms/doctype/course_lesson/course_lesson.json
+msgctxt "Course Lesson"
+msgid "Assignment will appear at the bottom of the lesson."
+msgstr ""
+
+#: lms/doctype/lms_question/lms_question.py:41
+msgid "At least one option must be correct for this question."
+msgstr ""
+
+#: public/frontend/assets/ProfileEvaluator-bug1MVAq.js:1
+msgid "Authorize Google Calendar Access"
+msgstr ""
+
+#. Option for the 'Event' (Select) field in DocType 'LMS Badge'
+#: lms/doctype/lms_badge/lms_badge.json
+msgctxt "LMS Badge"
+msgid "Auto Assign"
+msgstr ""
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1
+msgid "Auto Recording"
+msgstr ""
+
+#. Label of a Select field in DocType 'LMS Live Class'
+#: lms/doctype/lms_live_class/lms_live_class.json
+msgctxt "LMS Live Class"
+msgid "Auto Recording"
+msgstr ""
+
+#: public/frontend/assets/CourseCard-BK77fFq6.js:1
+msgid "Average Rating"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Badge Assignment'
+#: lms/doctype/lms_badge_assignment/lms_badge_assignment.json
+msgctxt "LMS Badge Assignment"
+msgid "Badge"
+msgstr ""
+
+#. Label of a Small Text field in DocType 'LMS Badge Assignment'
+#: lms/doctype/lms_badge_assignment/lms_badge_assignment.json
+msgctxt "LMS Badge Assignment"
+msgid "Badge Description"
+msgstr ""
+
+#. Label of a Attach field in DocType 'LMS Badge Assignment'
+#: lms/doctype/lms_badge_assignment/lms_badge_assignment.json
+msgctxt "LMS Badge Assignment"
+msgid "Badge Image"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Certificate'
+#: lms/doctype/lms_certificate/lms_certificate.json
+msgctxt "LMS Certificate"
+msgid "Batch"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Certificate Request'
+#: lms/doctype/lms_certificate_request/lms_certificate_request.json
+msgctxt "LMS Certificate Request"
+msgid "Batch"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Live Class'
+#: lms/doctype/lms_live_class/lms_live_class.json
+msgctxt "LMS Live Class"
+msgid "Batch"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Batch Confirmation Template"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/batch_course/batch_course.json
+msgid "Batch Course"
+msgstr ""
+
+#: public/js/common_functions.js:428
+msgid "Batch Created"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'LMS Batch Old'
+#: lms/doctype/lms_batch_old/lms_batch_old.json
+msgctxt "LMS Batch Old"
+msgid "Batch Description"
+msgstr ""
+
+#: public/frontend/assets/BatchCreation-9JuqnhbY.js:1
+#: public/js/common_functions.js:349
+#: templates/emails/batch_confirmation.html:29
+msgid "Batch Details"
+msgstr ""
+
+#. Label of a Text Editor field in DocType 'LMS Batch'
+#: lms/doctype/lms_batch/lms_batch.json
+msgctxt "LMS Batch"
+msgid "Batch Details"
+msgstr ""
+
+#: public/js/common_functions.js:356
+msgid "Batch Details Raw"
+msgstr ""
+
+#. Label of a HTML Editor field in DocType 'LMS Batch'
+#: lms/doctype/lms_batch/lms_batch.json
+msgctxt "LMS Batch"
+msgid "Batch Details Raw"
+msgstr ""
+
+#. Name of a role
+#: lms/doctype/course_evaluator/course_evaluator.json
+#: lms/doctype/lms_batch/lms_batch.json
+#: lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
+#: lms/doctype/lms_certificate_request/lms_certificate_request.json
+msgid "Batch Evaluator"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Certificate Evaluation'
+#: lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
+msgctxt "LMS Certificate Evaluation"
+msgid "Batch Name"
+msgstr ""
+
+#. Label of a Link field in DocType 'Exercise Latest Submission'
+#: lms/doctype/exercise_latest_submission/exercise_latest_submission.json
+msgctxt "Exercise Latest Submission"
+msgid "Batch Old"
+msgstr ""
+
+#. Label of a Link field in DocType 'Exercise Submission'
+#: lms/doctype/exercise_submission/exercise_submission.json
+msgctxt "Exercise Submission"
+msgid "Batch Old"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Enrollment'
+#: lms/doctype/lms_enrollment/lms_enrollment.json
+msgctxt "LMS Enrollment"
+msgid "Batch Old"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'LMS Batch Old'
+#: lms/doctype/lms_batch_old/lms_batch_old.json
+msgctxt "LMS Batch Old"
+msgid "Batch Settings"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Batch Settings"
+msgstr ""
+
+#: templates/emails/batch_confirmation.html:16
+msgid "Batch Start Date:"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/batch_student/batch_student.json
+msgid "Batch Student"
+msgstr ""
+
+#: public/js/common_functions.js:427
+msgid "Batch Updated"
+msgstr ""
+
+#: lms/web_form/add_a_new_batch/add_a_new_batch.js:6
+msgid "Batch {0} has been successfully created!"
+msgstr ""
+
+#: www/lms.py:61
+msgid "Batches"
+msgstr ""
+
+#. Group in LMS Course's connections
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "Batches"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Batches"
+msgstr ""
+
+#. Label of a Date field in DocType 'Cohort'
+#: lms/doctype/cohort/cohort.json
+msgctxt "Cohort"
+msgid "Begin Date"
+msgstr ""
+
+#: templates/emails/batch_confirmation.html:36
+#: templates/emails/certification.html:20
+msgid "Best Regards"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'LMS Payment'
+#: lms/doctype/lms_payment/lms_payment.json
+msgctxt "LMS Payment"
+msgid "Billing Details"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Payment'
+#: lms/doctype/lms_payment/lms_payment.json
+msgctxt "LMS Payment"
+msgid "Billing Name"
+msgstr ""
+
+#: public/frontend/assets/Profile-CcZj7_FE.js:1
+msgid "Bio"
+msgstr ""
+
+#. Label of a Markdown Editor field in DocType 'Course Lesson'
+#: lms/doctype/course_lesson/course_lesson.json
+msgctxt "Course Lesson"
+msgid "Body"
+msgstr ""
+
+#: templates/signup-form.html:22
+msgid "Business Owner"
+msgstr ""
+
+#: templates/emails/lms_message.html:11
+msgid "By"
+msgstr ""
+
+#. Option for the 'Grade Type' (Select) field in DocType 'Education Detail'
+#: lms/doctype/education_detail/education_detail.json
+msgctxt "Education Detail"
+msgid "CGPA/4"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'Cohort'
+#: lms/doctype/cohort/cohort.json
+msgctxt "Cohort"
+msgid "Cancelled"
+msgstr ""
+
+#. Option for the 'Stage' (Select) field in DocType 'LMS Batch Old'
+#: lms/doctype/lms_batch_old/lms_batch_old.json
+msgctxt "LMS Batch Old"
+msgid "Cancelled"
+msgstr ""
+
+#: public/frontend/assets/BatchCreation-9JuqnhbY.js:1
+#: public/js/common_functions.js:316 templates/signup-form.html:21
+msgid "Category"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Batch'
+#: lms/doctype/lms_batch/lms_batch.json
+msgctxt "LMS Batch"
+msgid "Category"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Category'
+#: lms/doctype/lms_category/lms_category.json
+msgctxt "LMS Category"
+msgid "Category"
+msgstr ""
+
+#. Label of a shortcut in the LMS Workspace
+#: lms/workspace/lms/lms.json
+msgctxt "LMS Certificate"
+msgid "Certificate"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Certificate Email Template"
+msgstr ""
+
+#: templates/emails/certification.html:13
+msgid "Certificate Link"
+msgstr ""
+
+#: public/frontend/assets/ProfileCertificates-QrJyNc6L.js:1
+msgid "Certificates"
+msgstr ""
+
+#. Name of a DocType
+#. Label of a Card Break in the LMS Workspace
+#: lms/doctype/certification/certification.json lms/workspace/lms/lms.json
+msgid "Certification"
+msgstr ""
+
+#. Label of a Link in the LMS Workspace
+#: lms/workspace/lms/lms.json
+msgctxt "LMS Certificate"
+msgid "Certification"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'LMS Course'
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "Certification"
+msgstr ""
+
+#. Label of a Int field in DocType 'LMS Course'
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "Certification Expires After (Years)"
+msgstr ""
+
+#. Label of a Data field in DocType 'Certification'
+#: lms/doctype/certification/certification.json
+msgctxt "Certification"
+msgid "Certification Name"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Certified Participants"
+msgstr ""
+
+#: templates/assignment.html:13
+msgid "Change"
+msgstr ""
+
+#. Label of a Link field in DocType 'Chapter Reference'
+#: lms/doctype/chapter_reference/chapter_reference.json
+msgctxt "Chapter Reference"
+msgid "Chapter"
+msgstr "Capítulo"
+
+#. Label of a Link in the LMS Workspace
+#: lms/workspace/lms/lms.json
+msgctxt "Course Chapter"
+msgid "Chapter"
+msgstr "Capítulo"
+
+#. Label of a Link field in DocType 'LMS Course Progress'
+#: lms/doctype/lms_course_progress/lms_course_progress.json
+msgctxt "LMS Course Progress"
+msgid "Chapter"
+msgstr "Capítulo"
+
+#. Name of a DocType
+#: lms/doctype/chapter_reference/chapter_reference.json
+msgid "Chapter Reference"
+msgstr ""
+
+#. Label of a Table field in DocType 'LMS Course'
+#. Group in LMS Course's connections
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "Chapters"
+msgstr ""
+
+#: public/frontend/assets/index-D1f05dS8.js:7351 templates/quiz/quiz.html:120
+msgid "Check"
+msgstr ""
+
+#: templates/emails/mention_template.html:10
+msgid "Check Discussion"
+msgstr ""
+
+#: templates/certificates_section.html:24
+msgid "Check out the {0} to know more about certification."
+msgstr ""
+
+#: public/frontend/assets/Profile-CcZj7_FE.js:1
+msgid "Checkout Courses"
+msgstr ""
+
+#. Option for the 'Type' (Select) field in DocType 'LMS Question'
+#: lms/doctype/lms_question/lms_question.json
+msgctxt "LMS Question"
+msgid "Choices"
+msgstr ""
+
+#: public/frontend/assets/index-D1f05dS8.js:7351 templates/quiz/quiz.html:53
+msgid "Choose all answers that apply"
+msgstr ""
+
+#: public/frontend/assets/index-D1f05dS8.js:7369
+msgid "Choose an icon"
+msgstr ""
+
+#: public/frontend/assets/index-D1f05dS8.js:7351 templates/quiz/quiz.html:53
+msgid "Choose one answer"
+msgstr ""
+
+#. Label of a Data field in DocType 'Zoom Settings'
+#: lms/doctype/zoom_settings/zoom_settings.json
+msgctxt "Zoom Settings"
+msgid "Client ID"
+msgstr ""
+
+#. Label of a Password field in DocType 'Zoom Settings'
+#: lms/doctype/zoom_settings/zoom_settings.json
+msgctxt "Zoom Settings"
+msgid "Client Secret"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'Job Opportunity'
+#: job/doctype/job_opportunity/job_opportunity.json
+msgctxt "Job Opportunity"
+msgid "Closed"
+msgstr ""
+
+#. Option for the 'Membership' (Select) field in DocType 'LMS Batch Old'
+#: lms/doctype/lms_batch_old/lms_batch_old.json
+msgctxt "LMS Batch Old"
+msgid "Closed"
+msgstr ""
+
+#. Option for the 'Auto Recording' (Select) field in DocType 'LMS Live Class'
+#: lms/doctype/lms_live_class/lms_live_class.json
+msgctxt "LMS Live Class"
+msgid "Cloud"
+msgstr ""
+
+#. Label of a Code field in DocType 'LMS Exercise'
+#: lms/doctype/lms_exercise/lms_exercise.json
+msgctxt "LMS Exercise"
+msgid "Code"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/cohort/cohort.json
+msgid "Cohort"
+msgstr ""
+
+#. Label of a Link field in DocType 'Cohort Join Request'
+#: lms/doctype/cohort_join_request/cohort_join_request.json
+msgctxt "Cohort Join Request"
+msgid "Cohort"
+msgstr ""
+
+#. Label of a Link field in DocType 'Cohort Mentor'
+#: lms/doctype/cohort_mentor/cohort_mentor.json
+msgctxt "Cohort Mentor"
+msgid "Cohort"
+msgstr ""
+
+#. Label of a Link field in DocType 'Cohort Staff'
+#: lms/doctype/cohort_staff/cohort_staff.json
+msgctxt "Cohort Staff"
+msgid "Cohort"
+msgstr ""
+
+#. Label of a Link field in DocType 'Cohort Subgroup'
+#: lms/doctype/cohort_subgroup/cohort_subgroup.json
+msgctxt "Cohort Subgroup"
+msgid "Cohort"
+msgstr ""
+
+#. Option for the 'Scope' (Select) field in DocType 'Cohort Web Page'
+#: lms/doctype/cohort_web_page/cohort_web_page.json
+msgctxt "Cohort Web Page"
+msgid "Cohort"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Enrollment'
+#: lms/doctype/lms_enrollment/lms_enrollment.json
+msgctxt "LMS Enrollment"
+msgid "Cohort"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/cohort_join_request/cohort_join_request.json
+msgid "Cohort Join Request"
+msgstr ""
+
+#. Linked DocType in Cohort Subgroup's connections
+#: lms/doctype/cohort_subgroup/cohort_subgroup.json
+msgctxt "Cohort Subgroup"
+msgid "Cohort Join Request"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/cohort_mentor/cohort_mentor.json
+msgid "Cohort Mentor"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/cohort_staff/cohort_staff.json
+msgid "Cohort Staff"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/cohort_subgroup/cohort_subgroup.json
+msgid "Cohort Subgroup"
+msgstr ""
+
+#. Linked DocType in Cohort's connections
+#: lms/doctype/cohort/cohort.json
+msgctxt "Cohort"
+msgid "Cohort Subgroup"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/cohort_web_page/cohort_web_page.json
+msgid "Cohort Web Page"
+msgstr ""
+
+#. Label of a Color field in DocType 'LMS Timetable Legend'
+#: lms/doctype/lms_timetable_legend/lms_timetable_legend.json
+msgctxt "LMS Timetable Legend"
+msgid "Color"
+msgstr ""
+
+#. Label of a Small Text field in DocType 'Exercise Latest Submission'
+#: lms/doctype/exercise_latest_submission/exercise_latest_submission.json
+msgctxt "Exercise Latest Submission"
+msgid "Comments"
+msgstr ""
+
+#. Label of a Small Text field in DocType 'Exercise Submission'
+#: lms/doctype/exercise_submission/exercise_submission.json
+msgctxt "Exercise Submission"
+msgid "Comments"
+msgstr ""
+
+#. Label of a Small Text field in DocType 'LMS Assignment Submission'
+#: lms/doctype/lms_assignment_submission/lms_assignment_submission.json
+msgctxt "LMS Assignment Submission"
+msgid "Comments"
+msgstr ""
+
+#. Label of a Small Text field in DocType 'LMS Mentor Request'
+#: lms/doctype/lms_mentor_request/lms_mentor_request.json
+msgctxt "LMS Mentor Request"
+msgid "Comments"
+msgstr ""
+
+#: config/desktop.py:11
+msgid "Community"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Job Application'
+#: job/doctype/lms_job_application/lms_job_application.json
+msgctxt "LMS Job Application"
+msgid "Company"
+msgstr ""
+
+#. Label of a Data field in DocType 'Work Experience'
+#: lms/doctype/work_experience/work_experience.json
+msgctxt "Work Experience"
+msgid "Company"
+msgstr ""
+
+#: public/frontend/assets/JobCreation-CU_0h0cz.js:1
+msgid "Company Details"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'Job Opportunity'
+#: job/doctype/job_opportunity/job_opportunity.json
+msgctxt "Job Opportunity"
+msgid "Company Details"
+msgstr ""
+
+#: public/frontend/assets/JobCreation-CU_0h0cz.js:1
+msgid "Company Email Address"
+msgstr ""
+
+#. Label of a Data field in DocType 'Job Opportunity'
+#: job/doctype/job_opportunity/job_opportunity.json
+msgctxt "Job Opportunity"
+msgid "Company Email Address"
+msgstr ""
+
+#: public/frontend/assets/JobCreation-CU_0h0cz.js:1
+msgid "Company Logo"
+msgstr ""
+
+#. Label of a Attach Image field in DocType 'Job Opportunity'
+#: job/doctype/job_opportunity/job_opportunity.json
+msgctxt "Job Opportunity"
+msgid "Company Logo"
+msgstr ""
+
+#: public/frontend/assets/JobCreation-CU_0h0cz.js:1
+msgid "Company Name"
+msgstr ""
+
+#. Label of a Data field in DocType 'Job Opportunity'
+#: job/doctype/job_opportunity/job_opportunity.json
+msgctxt "Job Opportunity"
+msgid "Company Name"
+msgstr ""
+
+#: public/frontend/assets/JobCreation-CU_0h0cz.js:1
+msgid "Company Website"
+msgstr ""
+
+#. Label of a Data field in DocType 'Job Opportunity'
+#: job/doctype/job_opportunity/job_opportunity.json
+msgctxt "Job Opportunity"
+msgid "Company Website"
+msgstr ""
+
+#: lms/widgets/CourseCard.html:75 templates/reviews.html:48
+msgid "Complete"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'LMS Course Progress'
+#: lms/doctype/lms_course_progress/lms_course_progress.json
+msgctxt "LMS Course Progress"
+msgid "Complete"
+msgstr ""
+
+#: templates/emails/lms_invite_request_approved.html:7
+msgid "Complete Sign Up"
+msgstr ""
+
+#: lms/widgets/CourseCard.html:78
+msgid "Completed"
+msgstr "Completado"
+
+#. Option for the 'Status' (Select) field in DocType 'Cohort'
+#: lms/doctype/cohort/cohort.json
+msgctxt "Cohort"
+msgid "Completed"
+msgstr "Completado"
+
+#. Option for the 'Stage' (Select) field in DocType 'LMS Batch Old'
+#: lms/doctype/lms_batch_old/lms_batch_old.json
+msgctxt "LMS Batch Old"
+msgid "Completed"
+msgstr "Completado"
+
+#. Option for the 'Grant Certificate After' (Select) field in DocType 'LMS
+#. Course'
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "Completion"
+msgstr ""
+
+#: public/frontend/assets/Statistics-Df9qvpz5.js:18
+msgid "Completions"
+msgstr ""
+
+#: public/frontend/assets/CreateLesson-7ZGJlo2v.js:1
+msgid "Components"
+msgstr ""
+
+#. Label of a Code field in DocType 'LMS Badge'
+#: lms/doctype/lms_badge/lms_badge.json
+msgctxt "LMS Badge"
+msgid "Condition"
+msgstr ""
+
+#. Label of a Check field in DocType 'Batch Student'
+#: lms/doctype/batch_student/batch_student.json
+msgctxt "Batch Student"
+msgid "Confirmation Email Sent"
+msgstr ""
+
+#: lms/doctype/lms_certificate/lms_certificate.py:25
+msgid "Congratulations on getting certified!"
+msgstr ""
+
+#: public/frontend/assets/CreateLesson-7ZGJlo2v.js:2
+msgid "Content"
+msgstr ""
+
+#. Label of a Text field in DocType 'Course Lesson'
+#: lms/doctype/course_lesson/course_lesson.json
+msgctxt "Course Lesson"
+msgid "Content"
+msgstr ""
+
+#: lms/doctype/course_lesson/course_lesson.js:17
+msgid "Content Type"
+msgstr ""
+
+#: public/frontend/assets/CreateLesson-7ZGJlo2v.js:1
+msgid "Content such as quiz, video and image will be added in the editor you select."
+msgstr ""
+
+#. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
+#: job/doctype/job_opportunity/job_opportunity.json
+msgctxt "Job Opportunity"
+msgid "Contract"
+msgstr ""
+
+#: lms/utils.py:422
+msgid "Cookie Policy"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Cookie Policy Page"
+msgstr ""
+
+#: lms/doctype/course_lesson/course_lesson.js:17
+msgid "Copy and paste the syntax in the editor. Replace 'embed_src' with the embed source that YouTube provides. To get the source, follow the steps mentioned below."
+msgstr ""
+
+#: lms/doctype/course_lesson/course_lesson.js:29
+msgid "Copy and paste the syntax in the editor. Replace 'exercise_id' with the ID of the Exercise you want to add. You can get the ID of the exercise from the {0}."
+msgstr ""
+
+#: lms/doctype/course_lesson/course_lesson.js:23
+msgid "Copy and paste the syntax in the editor. Replace 'lms_quiz_id' with the ID of the Quiz you want to add. You can get the ID of the quiz from the {0}."
+msgstr ""
+
+#: public/frontend/assets/index-D1f05dS8.js:7351
+msgid "Correct"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'Exercise Latest
+#. Submission'
+#: lms/doctype/exercise_latest_submission/exercise_latest_submission.json
+msgctxt "Exercise Latest Submission"
+msgid "Correct"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'Exercise Submission'
+#: lms/doctype/exercise_submission/exercise_submission.json
+msgctxt "Exercise Submission"
+msgid "Correct"
+msgstr ""
+
+#. Label of a Link field in DocType 'Payment Country'
+#: lms/doctype/payment_country/payment_country.json
+msgctxt "Payment Country"
+msgid "Country"
+msgstr ""
+
+#: lms/report/course_progress_summary/course_progress_summary.js:9
+#: lms/report/course_progress_summary/course_progress_summary.py:51
+#: public/frontend/assets/Batch-BYfbr7eo.js:1
+msgid "Course"
+msgstr "Curso"
+
+#. Label of a Link field in DocType 'Batch Course'
+#: lms/doctype/batch_course/batch_course.json
+msgctxt "Batch Course"
+msgid "Course"
+msgstr "Curso"
+
+#. Label of a Link field in DocType 'Cohort'
+#: lms/doctype/cohort/cohort.json
+msgctxt "Cohort"
+msgid "Course"
+msgstr "Curso"
+
+#. Label of a Link field in DocType 'Cohort Mentor'
+#: lms/doctype/cohort_mentor/cohort_mentor.json
+msgctxt "Cohort Mentor"
+msgid "Course"
+msgstr "Curso"
+
+#. Label of a Link field in DocType 'Cohort Staff'
+#: lms/doctype/cohort_staff/cohort_staff.json
+msgctxt "Cohort Staff"
+msgid "Course"
+msgstr "Curso"
+
+#. Label of a Link field in DocType 'Cohort Subgroup'
+#: lms/doctype/cohort_subgroup/cohort_subgroup.json
+msgctxt "Cohort Subgroup"
+msgid "Course"
+msgstr "Curso"
+
+#. Label of a Link field in DocType 'Course Chapter'
+#: lms/doctype/course_chapter/course_chapter.json
+msgctxt "Course Chapter"
+msgid "Course"
+msgstr "Curso"
+
+#. Label of a Link field in DocType 'Course Lesson'
+#: lms/doctype/course_lesson/course_lesson.json
+msgctxt "Course Lesson"
+msgid "Course"
+msgstr "Curso"
+
+#. Label of a Link field in DocType 'Exercise Latest Submission'
+#: lms/doctype/exercise_latest_submission/exercise_latest_submission.json
+msgctxt "Exercise Latest Submission"
+msgid "Course"
+msgstr "Curso"
+
+#. Label of a Link field in DocType 'Exercise Submission'
+#: lms/doctype/exercise_submission/exercise_submission.json
+msgctxt "Exercise Submission"
+msgid "Course"
+msgstr "Curso"
+
+#. Label of a Link field in DocType 'LMS Assignment Submission'
+#: lms/doctype/lms_assignment_submission/lms_assignment_submission.json
+msgctxt "LMS Assignment Submission"
+msgid "Course"
+msgstr "Curso"
+
+#. Label of a Link field in DocType 'LMS Batch Old'
+#: lms/doctype/lms_batch_old/lms_batch_old.json
+msgctxt "LMS Batch Old"
+msgid "Course"
+msgstr "Curso"
+
+#. Label of a Link field in DocType 'LMS Certificate'
+#: lms/doctype/lms_certificate/lms_certificate.json
+msgctxt "LMS Certificate"
+msgid "Course"
+msgstr "Curso"
+
+#. Label of a Link field in DocType 'LMS Certificate Evaluation'
+#: lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
+msgctxt "LMS Certificate Evaluation"
+msgid "Course"
+msgstr "Curso"
+
+#. Label of a Link field in DocType 'LMS Certificate Request'
+#: lms/doctype/lms_certificate_request/lms_certificate_request.json
+msgctxt "LMS Certificate Request"
+msgid "Course"
+msgstr "Curso"
+
+#. Label of a Link in the LMS Workspace
+#. Label of a shortcut in the LMS Workspace
+#: lms/workspace/lms/lms.json
+msgctxt "LMS Course"
+msgid "Course"
+msgstr "Curso"
+
+#. Label of a Link field in DocType 'LMS Course Interest'
+#: lms/doctype/lms_course_interest/lms_course_interest.json
+msgctxt "LMS Course Interest"
+msgid "Course"
+msgstr "Curso"
+
+#. Label of a Link field in DocType 'LMS Course Mentor Mapping'
+#: lms/doctype/lms_course_mentor_mapping/lms_course_mentor_mapping.json
+msgctxt "LMS Course Mentor Mapping"
+msgid "Course"
+msgstr "Curso"
+
+#. Label of a Link field in DocType 'LMS Course Progress'
+#: lms/doctype/lms_course_progress/lms_course_progress.json
+msgctxt "LMS Course Progress"
+msgid "Course"
+msgstr "Curso"
+
+#. Label of a Link field in DocType 'LMS Course Review'
+#: lms/doctype/lms_course_review/lms_course_review.json
+msgctxt "LMS Course Review"
+msgid "Course"
+msgstr "Curso"
+
+#. Label of a Link field in DocType 'LMS Enrollment'
+#: lms/doctype/lms_enrollment/lms_enrollment.json
+msgctxt "LMS Enrollment"
+msgid "Course"
+msgstr "Curso"
+
+#. Label of a Link field in DocType 'LMS Exercise'
+#: lms/doctype/lms_exercise/lms_exercise.json
+msgctxt "LMS Exercise"
+msgid "Course"
+msgstr "Curso"
+
+#. Label of a Link field in DocType 'LMS Mentor Request'
+#: lms/doctype/lms_mentor_request/lms_mentor_request.json
+msgctxt "LMS Mentor Request"
+msgid "Course"
+msgstr "Curso"
+
+#. Label of a Link field in DocType 'LMS Quiz'
+#: lms/doctype/lms_quiz/lms_quiz.json
+msgctxt "LMS Quiz"
+msgid "Course"
+msgstr "Curso"
+
+#. Label of a Link field in DocType 'LMS Quiz Submission'
+#: lms/doctype/lms_quiz_submission/lms_quiz_submission.json
+msgctxt "LMS Quiz Submission"
+msgid "Course"
+msgstr "Curso"
+
+#. Label of a Link field in DocType 'Related Courses'
+#: lms/doctype/related_courses/related_courses.json
+msgctxt "Related Courses"
+msgid "Course"
+msgstr "Curso"
+
+#. Name of a DocType
+#: lms/doctype/course_chapter/course_chapter.json
+msgid "Course Chapter"
+msgstr ""
+
+#. Label of a Link field in DocType 'Course Lesson'
+#: lms/doctype/course_lesson/course_lesson.json
+msgctxt "Course Lesson"
+msgid "Course Chapter"
+msgstr ""
+
+#. Linked DocType in LMS Course's connections
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "Course Chapter"
+msgstr ""
+
+#. Label of a shortcut in the LMS Workspace
+#: lms/workspace/lms/lms.json
+msgctxt "LMS Enrollment"
+msgid "Course Completed"
+msgstr ""
+
+#: lms/widgets/CourseOutline.html:9
+msgid "Course Content"
+msgstr ""
+
+#. Label of a Select field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Course Creation Access Through Website To"
+msgstr ""
+
+#. Name of a role
+#: lms/doctype/lms_course/lms_course.json
+#: lms/doctype/lms_question/lms_question.json
+#: lms/doctype/lms_quiz/lms_quiz.json
+#: public/frontend/assets/ProfileRoles-CVq7nQGs.js:1
+msgid "Course Creator"
+msgstr ""
+
+#. Option for the 'Course Creation Access Through Website To' (Select) field in
+#. DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Course Creator Role"
+msgstr ""
+
+#. Label of a Card Break in the LMS Workspace
+#: lms/workspace/lms/lms.json
+msgid "Course Data"
+msgstr ""
+
+#: public/frontend/assets/CreateCourse-2snz_azq.js:1
+msgid "Course Description"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/course_evaluator/course_evaluator.json
+msgid "Course Evaluator"
+msgstr ""
+
+#: public/frontend/assets/CreateCourse-2snz_azq.js:1
+msgid "Course Image"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/course_instructor/course_instructor.json
+msgid "Course Instructor"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/course_lesson/course_lesson.json
+msgid "Course Lesson"
+msgstr ""
+
+#. Linked DocType in Course Chapter's connections
+#: lms/doctype/course_chapter/course_chapter.json
+msgctxt "Course Chapter"
+msgid "Course Lesson"
+msgstr ""
+
+#: www/lms.py:28
+msgid "Course List"
+msgstr "Lista de cursos"
+
+#. Label of a Data field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Course List Search Bar Placeholder"
+msgstr ""
+
+#: lms/report/course_progress_summary/course_progress_summary.py:58
+msgid "Course Name"
+msgstr ""
+
+#: public/frontend/assets/CreateCourse-2snz_azq.js:1
+msgid "Course Price"
+msgstr ""
+
+#. Label of a Currency field in DocType 'LMS Course'
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "Course Price"
+msgstr ""
+
+#. Name of a report
+#: lms/report/course_progress_summary/course_progress_summary.json
+msgid "Course Progress Summary"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'LMS Course'
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "Course Settings"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Course Settings"
+msgstr ""
+
+#. Label of a Card Break in the LMS Workspace
+#: lms/workspace/lms/lms.json
+msgid "Course Stats"
+msgstr ""
+
+#. Label of a Data field in DocType 'Batch Course'
+#: lms/doctype/batch_course/batch_course.json
+msgctxt "Batch Course"
+msgid "Course Title"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Certificate'
+#: lms/doctype/lms_certificate/lms_certificate.json
+msgctxt "LMS Certificate"
+msgid "Course Title"
+msgstr ""
+
+#: lms/doctype/lms_batch/lms_batch.py:321
+msgid "Course already added to the batch."
+msgstr ""
+
+#: lms/doctype/lms_batch/lms_batch.py:55
+msgid "Course {0} has already been added to this batch."
+msgstr ""
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1
+#: public/frontend/assets/Statistics-Df9qvpz5.js:18
+msgid "Courses"
+msgstr ""
+
+#. Label of a Table field in DocType 'LMS Batch'
+#: lms/doctype/lms_batch/lms_batch.json
+msgctxt "LMS Batch"
+msgid "Courses"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Courses"
+msgstr ""
+
+#: lms/web_template/lms_statistics/lms_statistics.html:14
+#: templates/statistics.html:28
+msgid "Courses Completed"
+msgstr ""
+
+#: lms/web_template/courses_mentored/courses_mentored.html:4
+msgid "Courses Mentored"
+msgstr "Cursos con tutoría"
+
+#: lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.js:7
+msgid "Create LMS Certificate"
+msgstr ""
+
+#: lms/doctype/lms_certificate_request/lms_certificate_request.js:8
+msgid "Create LMS Certificate Evaluation"
+msgstr ""
+
+#: templates/onboarding_header.html:19
+msgid "Create a Course"
+msgstr ""
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1
+msgid "Create a Live Class"
+msgstr ""
+
+#: public/frontend/assets/BatchCreation-9JuqnhbY.js:1
+#: public/frontend/assets/CreateCourse-2snz_azq.js:1
+#: public/js/common_functions.js:387
+msgid "Currency"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Batch'
+#: lms/doctype/lms_batch/lms_batch.json
+msgctxt "LMS Batch"
+msgid "Currency"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Course'
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "Currency"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Payment'
+#: lms/doctype/lms_payment/lms_payment.json
+msgctxt "LMS Payment"
+msgid "Currency"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Enrollment'
+#: lms/doctype/lms_enrollment/lms_enrollment.json
+msgctxt "LMS Enrollment"
+msgid "Current Lesson"
+msgstr ""
+
+#. Label of a Code field in DocType 'LMS Batch'
+#: lms/doctype/lms_batch/lms_batch.json
+msgctxt "LMS Batch"
+msgid "Custom HTML"
+msgstr ""
+
+#. Label of a Code field in DocType 'LMS Batch'
+#: lms/doctype/lms_batch/lms_batch.json
+msgctxt "LMS Batch"
+msgid "Custom Script (JavaScript)"
+msgstr ""
+
+#. Label of a Tab Break field in DocType 'LMS Batch'
+#: lms/doctype/lms_batch/lms_batch.json
+msgctxt "LMS Batch"
+msgid "Customisations"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Dashboard"
+msgstr ""
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1 templates/quiz/quiz.html:149
+msgid "Date"
+msgstr ""
+
+#. Label of a Date field in DocType 'LMS Batch Timetable'
+#: lms/doctype/lms_batch_timetable/lms_batch_timetable.json
+msgctxt "LMS Batch Timetable"
+msgid "Date"
+msgstr ""
+
+#. Label of a Date field in DocType 'LMS Certificate Evaluation'
+#: lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
+msgctxt "LMS Certificate Evaluation"
+msgid "Date"
+msgstr ""
+
+#. Label of a Date field in DocType 'LMS Certificate Request'
+#: lms/doctype/lms_certificate_request/lms_certificate_request.json
+msgctxt "LMS Certificate Request"
+msgid "Date"
+msgstr ""
+
+#. Label of a Date field in DocType 'LMS Live Class'
+#: lms/doctype/lms_live_class/lms_live_class.json
+msgctxt "LMS Live Class"
+msgid "Date"
+msgstr ""
+
+#. Label of a Date field in DocType 'Scheduled Flow'
+#: lms/doctype/scheduled_flow/scheduled_flow.json
+msgctxt "Scheduled Flow"
+msgid "Date"
+msgstr ""
+
+#: public/frontend/assets/BatchCreation-9JuqnhbY.js:1
+msgid "Date and Time"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'LMS Live Class'
+#: lms/doctype/lms_live_class/lms_live_class.json
+msgctxt "LMS Live Class"
+msgid "Date and Time"
+msgstr ""
+
+#: public/frontend/assets/ProfileEvaluator-bug1MVAq.js:1
+msgid "Day"
+msgstr ""
+
+#. Label of a Select field in DocType 'Evaluator Schedule'
+#: lms/doctype/evaluator_schedule/evaluator_schedule.json
+msgctxt "Evaluator Schedule"
+msgid "Day"
+msgstr ""
+
+#. Label of a Int field in DocType 'LMS Batch Timetable'
+#: lms/doctype/lms_batch_timetable/lms_batch_timetable.json
+msgctxt "LMS Batch Timetable"
+msgid "Day"
+msgstr ""
+
+#. Label of a Select field in DocType 'LMS Certificate Request'
+#: lms/doctype/lms_certificate_request/lms_certificate_request.json
+msgctxt "LMS Certificate Request"
+msgid "Day"
+msgstr ""
+
+#: templates/emails/mentor_request_creation_email.html:2
+#: templates/emails/mentor_request_status_update_email.html:2
+msgid "Dear"
+msgstr ""
+
+#: templates/emails/batch_confirmation.html:2
+#: templates/emails/certification.html:2
+msgid "Dear "
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Default Currency"
+msgstr ""
+
+#. Label of a Data field in DocType 'Education Detail'
+#: lms/doctype/education_detail/education_detail.json
+msgctxt "Education Detail"
+msgid "Degree Type"
+msgstr ""
+
+#: lms/doctype/course_lesson/course_lesson.js:17
+#: public/frontend/assets/Batch-BYfbr7eo.js:1
+#: public/frontend/assets/BatchCreation-9JuqnhbY.js:1
+#: public/frontend/assets/JobCreation-CU_0h0cz.js:1
+#: public/js/common_functions.js:342
+msgid "Description"
+msgstr ""
+
+#. Label of a Small Text field in DocType 'Certification'
+#: lms/doctype/certification/certification.json
+msgctxt "Certification"
+msgid "Description"
+msgstr ""
+
+#. Label of a Markdown Editor field in DocType 'Cohort'
+#: lms/doctype/cohort/cohort.json
+msgctxt "Cohort"
+msgid "Description"
+msgstr ""
+
+#. Label of a Markdown Editor field in DocType 'Cohort Subgroup'
+#: lms/doctype/cohort_subgroup/cohort_subgroup.json
+msgctxt "Cohort Subgroup"
+msgid "Description"
+msgstr ""
+
+#. Label of a Small Text field in DocType 'Course Chapter'
+#: lms/doctype/course_chapter/course_chapter.json
+msgctxt "Course Chapter"
+msgid "Description"
+msgstr ""
+
+#. Label of a Text Editor field in DocType 'Job Opportunity'
+#: job/doctype/job_opportunity/job_opportunity.json
+msgctxt "Job Opportunity"
+msgid "Description"
+msgstr ""
+
+#. Label of a Small Text field in DocType 'LMS Badge'
+#: lms/doctype/lms_badge/lms_badge.json
+msgctxt "LMS Badge"
+msgid "Description"
+msgstr ""
+
+#. Label of a Small Text field in DocType 'LMS Batch'
+#: lms/doctype/lms_batch/lms_batch.json
+msgctxt "LMS Batch"
+msgid "Description"
+msgstr ""
+
+#. Label of a Markdown Editor field in DocType 'LMS Batch Old'
+#: lms/doctype/lms_batch_old/lms_batch_old.json
+msgctxt "LMS Batch Old"
+msgid "Description"
+msgstr ""
+
+#. Label of a Text Editor field in DocType 'LMS Course'
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "Description"
+msgstr ""
+
+#. Label of a Small Text field in DocType 'LMS Exercise'
+#: lms/doctype/lms_exercise/lms_exercise.json
+msgctxt "LMS Exercise"
+msgid "Description"
+msgstr ""
+
+#. Label of a Text field in DocType 'LMS Live Class'
+#: lms/doctype/lms_live_class/lms_live_class.json
+msgctxt "LMS Live Class"
+msgid "Description"
+msgstr ""
+
+#. Label of a Small Text field in DocType 'Work Experience'
+#: lms/doctype/work_experience/work_experience.json
+msgctxt "Work Experience"
+msgid "Description"
+msgstr ""
+
+#: public/frontend/assets/BatchCreation-9JuqnhbY.js:1
+#: public/frontend/assets/CreateCourse-2snz_azq.js:1
+#: public/frontend/assets/Discussions-BUeR4n3G.js:1
+msgid "Details"
+msgstr ""
+
+#: public/frontend/assets/CreateCourse-2snz_azq.js:1
+msgid "Disable Self Enrollment"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Course'
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "Disable Self Learning"
+msgstr ""
+
+#. Label of a Check field in DocType 'Job Opportunity'
+#: job/doctype/job_opportunity/job_opportunity.json
+msgctxt "Job Opportunity"
+msgid "Disabled"
+msgstr ""
+
+#: lms/widgets/NoPreviewModal.html:25
+#: public/frontend/assets/Discussions-BUeR4n3G.js:1 templates/reviews.html:159
+msgid "Discard"
+msgstr ""
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1
+msgid "Discussions"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Discussions"
+msgstr ""
+
+#: lms/doctype/course_lesson/course_lesson.js:32
+msgid "Document"
+msgstr ""
+
+#. Option for the 'File Type' (Select) field in DocType 'Course Lesson'
+#: lms/doctype/course_lesson/course_lesson.json
+msgctxt "Course Lesson"
+msgid "Document"
+msgstr ""
+
+#. Option for the 'Type' (Select) field in DocType 'LMS Assignment'
+#: lms/doctype/lms_assignment/lms_assignment.json
+msgctxt "LMS Assignment"
+msgid "Document"
+msgstr ""
+
+#. Option for the 'Type' (Select) field in DocType 'LMS Assignment Submission'
+#: lms/doctype/lms_assignment_submission/lms_assignment_submission.json
+msgctxt "LMS Assignment Submission"
+msgid "Document"
+msgstr ""
+
+#: lms/doctype/lms_question/lms_question.py:31
+msgid "Duplicate options found for this question."
+msgstr ""
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1
+msgid "Duration"
+msgstr ""
+
+#. Label of a Data field in DocType 'Cohort'
+#: lms/doctype/cohort/cohort.json
+msgctxt "Cohort"
+msgid "Duration"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Batch Timetable'
+#: lms/doctype/lms_batch_timetable/lms_batch_timetable.json
+msgctxt "LMS Batch Timetable"
+msgid "Duration"
+msgstr ""
+
+#. Label of a Int field in DocType 'LMS Live Class'
+#: lms/doctype/lms_live_class/lms_live_class.json
+msgctxt "LMS Live Class"
+msgid "Duration"
+msgstr ""
+
+#. Label of a Select field in DocType 'LMS Course'
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "Duration for Attempts"
+msgstr ""
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1
+msgid "Duration of the live class in minutes"
+msgstr ""
+
+#. Label of a Link field in DocType 'Cohort Join Request'
+#: lms/doctype/cohort_join_request/cohort_join_request.json
+msgctxt "Cohort Join Request"
+msgid "E-Mail"
+msgstr ""
+
+#. Label of a Link field in DocType 'Cohort Mentor'
+#: lms/doctype/cohort_mentor/cohort_mentor.json
+msgctxt "Cohort Mentor"
+msgid "E-mail"
+msgstr ""
+
+#: public/frontend/assets/Lesson-59XvRJIg.js:18
+#: public/frontend/assets/Profile-CcZj7_FE.js:1
+msgid "Edit"
+msgstr "Editar"
+
+#: public/frontend/assets/CourseOutline-BVkxGD_M.js:1
+msgid "Edit Chapter"
+msgstr ""
+
+#: public/frontend/assets/Profile-CcZj7_FE.js:1
+msgid "Edit Profile"
+msgstr "Editar Perfil"
+
+#. Name of a DocType
+#: lms/doctype/education_detail/education_detail.json
+msgid "Education Detail"
+msgstr ""
+
+#: templates/signup-form.html:9
+msgid "Email"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Course Interest'
+#: lms/doctype/lms_course_interest/lms_course_interest.json
+msgctxt "LMS Course Interest"
+msgid "Email Sent"
+msgstr ""
+
+#. Label of a Tab Break field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Email Templates"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Emails"
+msgstr ""
+
+#: templates/signup-form.html:24
+msgid "Employee"
+msgstr ""
+
+#. Label of a Check field in DocType 'Zoom Settings'
+#: lms/doctype/zoom_settings/zoom_settings.json
+msgctxt "Zoom Settings"
+msgid "Enable"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Course'
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "Enable Certification"
+msgstr ""
+
+#: lms/doctype/lms_settings/lms_settings.py:20
+msgid "Enable Google API in Google Settings to send calendar invites for evaluations."
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Badge'
+#: lms/doctype/lms_badge/lms_badge.json
+msgctxt "LMS Badge"
+msgid "Enabled"
+msgstr ""
+
+#: public/frontend/assets/BatchCreation-9JuqnhbY.js:1
+#: public/js/common_functions.js:282
+msgid "End Date"
+msgstr ""
+
+#. Label of a Date field in DocType 'Cohort'
+#: lms/doctype/cohort/cohort.json
+msgctxt "Cohort"
+msgid "End Date"
+msgstr ""
+
+#. Label of a Date field in DocType 'LMS Batch'
+#: lms/doctype/lms_batch/lms_batch.json
+msgctxt "LMS Batch"
+msgid "End Date"
+msgstr ""
+
+#. Label of a Date field in DocType 'Education Detail'
+#: lms/doctype/education_detail/education_detail.json
+msgctxt "Education Detail"
+msgid "End Date (or expected)"
+msgstr ""
+
+#: public/frontend/assets/BatchCreation-9JuqnhbY.js:1
+#: public/frontend/assets/ProfileEvaluator-bug1MVAq.js:1
+#: public/js/common_functions.js:299
+msgid "End Time"
+msgstr ""
+
+#. Label of a Time field in DocType 'Evaluator Schedule'
+#: lms/doctype/evaluator_schedule/evaluator_schedule.json
+msgctxt "Evaluator Schedule"
+msgid "End Time"
+msgstr ""
+
+#. Label of a Time field in DocType 'LMS Batch'
+#: lms/doctype/lms_batch/lms_batch.json
+msgctxt "LMS Batch"
+msgid "End Time"
+msgstr ""
+
+#. Label of a Time field in DocType 'LMS Batch Old'
+#: lms/doctype/lms_batch_old/lms_batch_old.json
+msgctxt "LMS Batch Old"
+msgid "End Time"
+msgstr ""
+
+#. Label of a Time field in DocType 'LMS Batch Timetable'
+#: lms/doctype/lms_batch_timetable/lms_batch_timetable.json
+msgctxt "LMS Batch Timetable"
+msgid "End Time"
+msgstr ""
+
+#. Label of a Time field in DocType 'LMS Certificate Evaluation'
+#: lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
+msgctxt "LMS Certificate Evaluation"
+msgid "End Time"
+msgstr ""
+
+#. Label of a Time field in DocType 'LMS Certificate Request'
+#: lms/doctype/lms_certificate_request/lms_certificate_request.json
+msgctxt "LMS Certificate Request"
+msgid "End Time"
+msgstr ""
+
+#. Label of a Time field in DocType 'Scheduled Flow'
+#: lms/doctype/scheduled_flow/scheduled_flow.json
+msgctxt "Scheduled Flow"
+msgid "End Time"
+msgstr ""
+
+#: public/frontend/assets/CourseCard-BK77fFq6.js:1
+msgid "Enrolled Students"
+msgstr ""
+
+#: public/js/common_functions.js:96
+msgid "Enrolled successfully"
+msgstr ""
+
+#: lms/doctype/lms_batch/lms_batch.py:87
+msgid "Enrollment Confirmation for the Next Training Batch"
+msgstr ""
+
+#: lms/web_template/lms_statistics/lms_statistics.html:14
+#: templates/statistics.html:20
+msgid "Enrollment Count"
+msgstr ""
+
+#. Label of a chart in the LMS Workspace
+#: lms/workspace/lms/lms.json public/frontend/assets/Statistics-Df9qvpz5.js:18
+msgid "Enrollments"
+msgstr ""
+
+#. Label of a shortcut in the LMS Workspace
+#: lms/workspace/lms/lms.json
+msgctxt "LMS Enrollment"
+msgid "Enrollments"
+msgstr ""
+
+#: lms/doctype/lms_settings/lms_settings.py:25
+msgid "Enter Client Id and Client Secret in Google Settings to send calendar invites for evaluations."
+msgstr ""
+
+#: public/frontend/assets/AssignmentSubmission-D1b-IhRa.js:1
+msgid "Enter a URL"
+msgstr ""
+
+#: templates/quiz/quiz.html:53
+msgid "Enter the correct answer"
+msgstr ""
+
+#: lms/utils.py:1141
+msgid "Error during payment: {0} Please contact the Administrator. Amount {1} Currency {2} Formatted {3}"
+msgstr ""
+
+#. Label of a Link in the LMS Workspace
+#. Label of a shortcut in the LMS Workspace
+#: lms/workspace/lms/lms.json
+msgctxt "LMS Certificate Evaluation"
+msgid "Evaluation"
+msgstr ""
+
+#. Option for the 'Grant Certificate After' (Select) field in DocType 'LMS
+#. Course'
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "Evaluation"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'LMS Certificate Evaluation'
+#: lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
+msgctxt "LMS Certificate Evaluation"
+msgid "Evaluation Details"
+msgstr ""
+
+#: public/frontend/assets/BatchCreation-9JuqnhbY.js:1
+#: public/js/common_functions.js:333
+msgid "Evaluation End Date"
+msgstr ""
+
+#. Label of a Date field in DocType 'LMS Batch'
+#: lms/doctype/lms_batch/lms_batch.json
+msgctxt "LMS Batch"
+msgid "Evaluation End Date"
+msgstr ""
+
+#. Label of a Link in the LMS Workspace
+#: lms/workspace/lms/lms.json
+msgctxt "LMS Certificate Request"
+msgid "Evaluation Request"
+msgstr ""
+
+#: lms/doctype/lms_batch/lms_batch.py:84
+msgid "Evaluation end date cannot be less than the batch end date."
+msgstr ""
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1
+#: public/frontend/assets/ProfileRoles-CVq7nQGs.js:1
+#: templates/upcoming_evals.html:33
+msgid "Evaluator"
+msgstr ""
+
+#. Label of a Link field in DocType 'Batch Course'
+#: lms/doctype/batch_course/batch_course.json
+msgctxt "Batch Course"
+msgid "Evaluator"
+msgstr ""
+
+#. Label of a Link field in DocType 'Course Evaluator'
+#: lms/doctype/course_evaluator/course_evaluator.json
+msgctxt "Course Evaluator"
+msgid "Evaluator"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Assignment Submission'
+#: lms/doctype/lms_assignment_submission/lms_assignment_submission.json
+msgctxt "LMS Assignment Submission"
+msgid "Evaluator"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Certificate Request'
+#: lms/doctype/lms_certificate_request/lms_certificate_request.json
+msgctxt "LMS Certificate Request"
+msgid "Evaluator"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Course'
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "Evaluator"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/evaluator_schedule/evaluator_schedule.json
+msgid "Evaluator Schedule"
+msgstr ""
+
+#: lms/doctype/lms_certificate_request/lms_certificate_request.py:44
+msgid "Evaluator is unavailable from {0} to {1}. Please select a date after {1}"
+msgstr ""
+
+#. Label of a Select field in DocType 'LMS Badge'
+#: lms/doctype/lms_badge/lms_badge.json
+msgctxt "LMS Badge"
+msgid "Event"
+msgstr ""
+
+#. Label of a Link field in DocType 'Exercise Latest Submission'
+#: lms/doctype/exercise_latest_submission/exercise_latest_submission.json
+msgctxt "Exercise Latest Submission"
+msgid "Exercise"
+msgstr ""
+
+#. Label of a Link field in DocType 'Exercise Submission'
+#: lms/doctype/exercise_submission/exercise_submission.json
+msgctxt "Exercise Submission"
+msgid "Exercise"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/exercise_latest_submission/exercise_latest_submission.json
+msgid "Exercise Latest Submission"
+msgstr ""
+
+#: lms/doctype/course_lesson/course_lesson.js:10
+msgid "Exercise List"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/exercise_submission/exercise_submission.json
+msgid "Exercise Submission"
+msgstr ""
+
+#. Label of a Data field in DocType 'Exercise Latest Submission'
+#: lms/doctype/exercise_latest_submission/exercise_latest_submission.json
+msgctxt "Exercise Latest Submission"
+msgid "Exercise Title"
+msgstr ""
+
+#. Label of a Data field in DocType 'Exercise Submission'
+#: lms/doctype/exercise_submission/exercise_submission.json
+msgctxt "Exercise Submission"
+msgid "Exercise Title"
+msgstr ""
+
+#. Label of a Data field in DocType 'Certification'
+#: lms/doctype/certification/certification.json
+msgctxt "Certification"
+msgid "Expiration Date"
+msgstr ""
+
+#. Label of a Date field in DocType 'LMS Certificate'
+#: lms/doctype/lms_certificate/lms_certificate.json
+msgctxt "LMS Certificate"
+msgid "Expiry Date"
+msgstr ""
+
+#. Label of a Small Text field in DocType 'LMS Question'
+#: lms/doctype/lms_question/lms_question.json
+msgctxt "LMS Question"
+msgid "Explanation"
+msgstr ""
+
+#. Label of a Small Text field in DocType 'LMS Question'
+#: lms/doctype/lms_question/lms_question.json
+msgctxt "LMS Question"
+msgid "Explanation "
+msgstr ""
+
+#: lms/web_template/course_cards/course_cards.html:15
+#: lms/web_template/recently_published_courses/recently_published_courses.html:16
+msgid "Explore More"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'LMS Assignment
+#. Submission'
+#: lms/doctype/lms_assignment_submission/lms_assignment_submission.json
+msgctxt "LMS Assignment Submission"
+msgid "Fail"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'LMS Certificate
+#. Evaluation'
+#: lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
+msgctxt "LMS Certificate Evaluation"
+msgid "Fail"
+msgstr ""
+
+#: public/frontend/assets/CourseCard-BK77fFq6.js:1
+#: public/frontend/assets/CreateCourse-2snz_azq.js:1
+msgid "Featured"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Course'
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "Featured"
+msgstr ""
+
+#: public/frontend/assets/AssignmentSubmission-D1b-IhRa.js:1
+msgid "Feel free to make edits to your submission if needed."
+msgstr ""
+
+#. Label of a Select field in DocType 'LMS Badge'
+#: lms/doctype/lms_badge/lms_badge.json
+msgctxt "LMS Badge"
+msgid "Field To Check"
+msgstr ""
+
+#. Label of a Data field in DocType 'Education Detail'
+#: lms/doctype/education_detail/education_detail.json
+msgctxt "Education Detail"
+msgid "Field of Major/Study"
+msgstr ""
+
+#: lms/doctype/course_lesson/course_lesson.js:13
+msgid "File DocType"
+msgstr ""
+
+#. Label of a Select field in DocType 'Course Lesson'
+#: lms/doctype/course_lesson/course_lesson.json
+msgctxt "Course Lesson"
+msgid "File Type"
+msgstr ""
+
+#: public/frontend/assets/Profile-CcZj7_FE.js:1
+msgid "First Name"
+msgstr ""
+
+#: lms/widgets/CourseCard.html:114
+msgid "Free"
+msgstr ""
+
+#. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
+#: job/doctype/job_opportunity/job_opportunity.json
+msgctxt "Job Opportunity"
+msgid "Freelance"
+msgstr ""
+
+#: templates/signup-form.html:26
+msgid "Freelancer/Just looking"
+msgstr ""
+
+#. Option for the 'Grade Type' (Select) field in DocType 'Education Detail'
+#: lms/doctype/education_detail/education_detail.json
+msgctxt "Education Detail"
+msgid "French (e.g. Distinction)"
+msgstr ""
+
+#. Option for the 'Day' (Select) field in DocType 'Evaluator Schedule'
+#: lms/doctype/evaluator_schedule/evaluator_schedule.json
+msgctxt "Evaluator Schedule"
+msgid "Friday"
+msgstr ""
+
+#. Option for the 'Day' (Select) field in DocType 'LMS Certificate Request'
+#: lms/doctype/lms_certificate_request/lms_certificate_request.json
+msgctxt "LMS Certificate Request"
+msgid "Friday"
+msgstr ""
+
+#: public/frontend/assets/ProfileEvaluator-bug1MVAq.js:1
+msgid "From"
+msgstr ""
+
+#. Label of a Date field in DocType 'Course Evaluator'
+#: lms/doctype/course_evaluator/course_evaluator.json
+msgctxt "Course Evaluator"
+msgid "From"
+msgstr ""
+
+#. Label of a Date field in DocType 'Work Experience'
+#: lms/doctype/work_experience/work_experience.json
+msgctxt "Work Experience"
+msgid "From Date"
+msgstr ""
+
+#: templates/signup-form.html:4
+msgid "Full Name"
+msgstr ""
+
+#. Label of a Data field in DocType 'Invite Request'
+#: lms/doctype/invite_request/invite_request.json
+msgctxt "Invite Request"
+msgid "Full Name"
+msgstr ""
+
+#. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
+#: job/doctype/job_opportunity/job_opportunity.json
+msgctxt "Job Opportunity"
+msgid "Full Time"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/function/function.json
+msgid "Function"
+msgstr ""
+
+#. Label of a Data field in DocType 'Function'
+#: lms/doctype/function/function.json
+msgctxt "Function"
+msgid "Function"
+msgstr ""
+
+#. Label of a Link field in DocType 'Preferred Function'
+#: lms/doctype/preferred_function/preferred_function.json
+msgctxt "Preferred Function"
+msgid "Function"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Payment'
+#: lms/doctype/lms_payment/lms_payment.json
+msgctxt "LMS Payment"
+msgid "GSTIN"
+msgstr ""
+
+#: lms/doctype/lms_certificate_request/lms_certificate_request.js:18
+msgid "Generate Google Meet Link"
+msgstr ""
+
+#: templates/onboarding_header.html:8
+msgid "Get Started"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Certificate Request'
+#: lms/doctype/lms_certificate_request/lms_certificate_request.json
+msgctxt "LMS Certificate Request"
+msgid "Google Meet Link"
+msgstr ""
+
+#. Label of a Data field in DocType 'Education Detail'
+#: lms/doctype/education_detail/education_detail.json
+msgctxt "Education Detail"
+msgid "Grade"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Assignment'
+#: lms/doctype/lms_assignment/lms_assignment.json
+msgctxt "LMS Assignment"
+msgid "Grade Assignment"
+msgstr ""
+
+#. Label of a Select field in DocType 'Education Detail'
+#: lms/doctype/education_detail/education_detail.json
+msgctxt "Education Detail"
+msgid "Grade Type"
+msgstr ""
+
+#. Label of a Select field in DocType 'LMS Course'
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "Grant Certificate After"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Badge'
+#: lms/doctype/lms_badge/lms_badge.json
+msgctxt "LMS Badge"
+msgid "Grant only once"
+msgstr ""
+
+#: templates/signup-form.html:53
+msgid "Have an account? Login"
+msgstr ""
+
+#: public/frontend/assets/Profile-CcZj7_FE.js:1
+msgid "Headline"
+msgstr "Encabezado"
+
+#: lms/widgets/HelloWorld.html:13
+msgid "Hello"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'Course Lesson'
+#: lms/doctype/course_lesson/course_lesson.json
+msgctxt "Course Lesson"
+msgid "Help"
+msgstr ""
+
+#: templates/courses_created.html:15
+msgid "Help others learn something new by creating a course."
+msgstr ""
+
+#: templates/reviews.html:101
+msgid "Help us improve our course material."
+msgstr "Ayúdenos a mejorar el material del curso."
+
+#: lms/web_template/courses_enrolled/courses_enrolled.html:18
+msgid "Here are a few courses we recommend for you to get started with {0}"
+msgstr ""
+
+#: lms/notification/certificate_request_creation/certificate_request_creation.html:5
+msgid "Hey {0}"
+msgstr ""
+
+#: templates/emails/job_report.html:3
+msgid "Hey,"
+msgstr ""
+
+#: templates/emails/lms_course_interest.html:3
+msgid "Hi {0},"
+msgstr ""
+
+#: templates/emails/lms_invite_request_approved.html:3
+msgid "Hi,"
+msgstr ""
+
+#. Label of a Small Text field in DocType 'LMS Exercise'
+#: lms/doctype/lms_exercise/lms_exercise.json
+msgctxt "LMS Exercise"
+msgid "Hints"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Live Class'
+#: lms/doctype/lms_live_class/lms_live_class.json
+msgctxt "LMS Live Class"
+msgid "Host"
+msgstr ""
+
+#. Label of a Check field in DocType 'Work Experience'
+#: lms/doctype/work_experience/work_experience.json
+msgctxt "Work Experience"
+msgid "I am currently working here"
+msgstr ""
+
+#: templates/emails/certification.html:6
+msgid "I am delighted to inform you that you have successfully earned your certification for the {0} course. Congratulations!"
+msgstr ""
+
+#: public/frontend/assets/ProfileEvaluator-bug1MVAq.js:1
+msgid "I am unavailable"
+msgstr ""
+
+#: templates/signup-form.html:42
+msgid "I have read and agree to your {0}"
+msgstr ""
+
+#: public/frontend/assets/index-D1f05dS8.js:7369
+msgid "Icon"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Sidebar Item'
+#: lms/doctype/lms_sidebar_item/lms_sidebar_item.json
+msgctxt "LMS Sidebar Item"
+msgid "Icon"
+msgstr ""
+
+#: templates/emails/mentor_request_creation_email.html:5
+msgid "If you are not any more interested to mentor the course"
+msgstr ""
+
+#: templates/emails/batch_confirmation.html:32
+msgid "If you have any questions or require assistance, feel free to contact us."
+msgstr ""
+
+#: public/js/common_functions.js:400
+msgid "If you set an amount here, then the USD equivalent setting will not get applied."
+msgstr ""
+
+#. Description of the 'Amount (USD)' (Currency) field in DocType 'LMS Batch'
+#: lms/doctype/lms_batch/lms_batch.json
+msgctxt "LMS Batch"
+msgid "If you set an amount here, then the USD equivalent setting will not get applied."
+msgstr ""
+
+#. Description of the 'Amount (USD)' (Currency) field in DocType 'LMS Course'
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "If you set an amount here, then the USD equivalent setting will not get applied."
+msgstr ""
+
+#: lms/doctype/course_lesson/course_lesson.js:32
+msgid "Image"
+msgstr ""
+
+#. Option for the 'File Type' (Select) field in DocType 'Course Lesson'
+#: lms/doctype/course_lesson/course_lesson.json
+msgctxt "Course Lesson"
+msgid "Image"
+msgstr ""
+
+#. Label of a Code field in DocType 'Exercise Latest Submission'
+#: lms/doctype/exercise_latest_submission/exercise_latest_submission.json
+msgctxt "Exercise Latest Submission"
+msgid "Image"
+msgstr ""
+
+#. Label of a Code field in DocType 'Exercise Submission'
+#: lms/doctype/exercise_submission/exercise_submission.json
+msgctxt "Exercise Submission"
+msgid "Image"
+msgstr ""
+
+#. Option for the 'Type' (Select) field in DocType 'LMS Assignment'
+#: lms/doctype/lms_assignment/lms_assignment.json
+msgctxt "LMS Assignment"
+msgid "Image"
+msgstr ""
+
+#. Option for the 'Type' (Select) field in DocType 'LMS Assignment Submission'
+#: lms/doctype/lms_assignment_submission/lms_assignment_submission.json
+msgctxt "LMS Assignment Submission"
+msgid "Image"
+msgstr ""
+
+#. Label of a Attach Image field in DocType 'LMS Badge'
+#: lms/doctype/lms_badge/lms_badge.json
+msgctxt "LMS Badge"
+msgid "Image"
+msgstr ""
+
+#. Label of a Code field in DocType 'LMS Exercise'
+#: lms/doctype/lms_exercise/lms_exercise.json
+msgctxt "LMS Exercise"
+msgid "Image"
+msgstr ""
+
+#: public/frontend/assets/Profile-CcZj7_FE.js:1
+msgid "Image search powered by"
+msgstr ""
+
+#: templates/emails/batch_confirmation.html:11
+msgid "Important Details:"
+msgstr ""
+
+#. Option for the 'Stage' (Select) field in DocType 'LMS Batch Old'
+#: lms/doctype/lms_batch_old/lms_batch_old.json
+msgctxt "LMS Batch Old"
+msgid "In Progress"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'LMS Certificate
+#. Evaluation'
+#: lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
+msgctxt "LMS Certificate Evaluation"
+msgid "In Progress"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'LMS Course'
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "In Progress"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'LMS Batch Old'
+#: lms/doctype/lms_batch_old/lms_batch_old.json
+msgctxt "LMS Batch Old"
+msgid "Inactive"
+msgstr ""
+
+#. Label of a Check field in DocType 'Course Lesson'
+#: lms/doctype/course_lesson/course_lesson.json
+msgctxt "Course Lesson"
+msgid "Include In Preview"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'LMS Course Progress'
+#: lms/doctype/lms_course_progress/lms_course_progress.json
+msgctxt "LMS Course Progress"
+msgid "Incomplete"
+msgstr ""
+
+#: public/frontend/assets/index-D1f05dS8.js:7351
+msgid "Incorrect"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'Exercise Latest
+#. Submission'
+#: lms/doctype/exercise_latest_submission/exercise_latest_submission.json
+msgctxt "Exercise Latest Submission"
+msgid "Incorrect"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'Exercise Submission'
+#: lms/doctype/exercise_submission/exercise_submission.json
+msgctxt "Exercise Submission"
+msgid "Incorrect"
+msgstr ""
+
+#. Label of a Int field in DocType 'LMS Exercise'
+#: lms/doctype/lms_exercise/lms_exercise.json
+msgctxt "LMS Exercise"
+msgid "Index"
+msgstr ""
+
+#. Label of a Data field in DocType 'Course Lesson'
+#: lms/doctype/course_lesson/course_lesson.json
+msgctxt "Course Lesson"
+msgid "Index Label"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Exercise'
+#: lms/doctype/lms_exercise/lms_exercise.json
+msgctxt "LMS Exercise"
+msgid "Index Label"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/industry/industry.json
+msgid "Industry"
+msgstr ""
+
+#. Label of a Data field in DocType 'Industry'
+#: lms/doctype/industry/industry.json
+msgctxt "Industry"
+msgid "Industry"
+msgstr ""
+
+#. Label of a Link field in DocType 'Preferred Industry'
+#: lms/doctype/preferred_industry/preferred_industry.json
+msgctxt "Preferred Industry"
+msgid "Industry"
+msgstr ""
+
+#. Label of a Data field in DocType 'Education Detail'
+#: lms/doctype/education_detail/education_detail.json
+msgctxt "Education Detail"
+msgid "Institution Name"
+msgstr ""
+
+#. Label of a Link field in DocType 'Cohort'
+#: lms/doctype/cohort/cohort.json
+msgctxt "Cohort"
+msgid "Instructor"
+msgstr ""
+
+#. Label of a Link field in DocType 'Course Instructor'
+#: lms/doctype/course_instructor/course_instructor.json
+msgctxt "Course Instructor"
+msgid "Instructor"
+msgstr ""
+
+#. Label of a Text field in DocType 'Course Lesson'
+#: lms/doctype/course_lesson/course_lesson.json
+msgctxt "Course Lesson"
+msgid "Instructor Content"
+msgstr ""
+
+#: public/frontend/assets/CreateLesson-7ZGJlo2v.js:2
+#: public/frontend/assets/Lesson-59XvRJIg.js:18
+msgid "Instructor Notes"
+msgstr ""
+
+#. Label of a Markdown Editor field in DocType 'Course Lesson'
+#: lms/doctype/course_lesson/course_lesson.json
+msgctxt "Course Lesson"
+msgid "Instructor Notes"
+msgstr ""
+
+#: public/frontend/assets/BatchCreation-9JuqnhbY.js:1
+#: public/frontend/assets/CreateCourse-2snz_azq.js:1
+msgid "Instructors"
+msgstr "Instructores"
+
+#. Label of a Table MultiSelect field in DocType 'LMS Batch'
+#: lms/doctype/lms_batch/lms_batch.json
+msgctxt "LMS Batch"
+msgid "Instructors"
+msgstr "Instructores"
+
+#. Label of a Table MultiSelect field in DocType 'LMS Course'
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "Instructors"
+msgstr "Instructores"
+
+#: templates/assignment.html:17
+msgid "Instructors Comments"
+msgstr ""
+
+#. Label of a Link in the LMS Workspace
+#: lms/workspace/lms/lms.json
+msgctxt "LMS Course Interest"
+msgid "Interest"
+msgstr "Interés"
+
+#. Group in LMS Course's connections
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "Interests"
+msgstr ""
+
+#: lms/doctype/invite_request/invite_request.py:83
+msgid "Invalid Invite Code."
+msgstr ""
+
+#: lms/doctype/course_lesson/course_lesson.py:20
+msgid "Invalid Quiz ID"
+msgstr ""
+
+#: lms/web_form/add_a_new_batch/add_a_new_batch.js:38
+msgid "Invalid Start or End Time."
+msgstr ""
+
+#: lms/utils.py:985
+msgid "Invalid document provided."
+msgstr ""
+
+#. Label of a Data field in DocType 'Cohort Subgroup'
+#: lms/doctype/cohort_subgroup/cohort_subgroup.json
+msgctxt "Cohort Subgroup"
+msgid "Invite Code"
+msgstr ""
+
+#. Label of a Data field in DocType 'Invite Request'
+#: lms/doctype/invite_request/invite_request.json
+msgctxt "Invite Request"
+msgid "Invite Code"
+msgstr ""
+
+#. Label of a Data field in DocType 'Invite Request'
+#: lms/doctype/invite_request/invite_request.json
+msgctxt "Invite Request"
+msgid "Invite Email"
+msgstr ""
+
+#. Option for the 'Membership' (Select) field in DocType 'LMS Batch Old'
+#: lms/doctype/lms_batch_old/lms_batch_old.json
+msgctxt "LMS Batch Old"
+msgid "Invite Only"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/invite_request/invite_request.json
+msgid "Invite Request"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Option'
+#: lms/doctype/lms_option/lms_option.json
+msgctxt "LMS Option"
+msgid "Is Correct"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Question'
+#: lms/doctype/lms_question/lms_question.json
+msgctxt "LMS Question"
+msgid "Is Correct"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Quiz Result'
+#: lms/doctype/lms_quiz_result/lms_quiz_result.json
+msgctxt "LMS Quiz Result"
+msgid "Is Correct"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Is Onboarding Complete"
+msgstr ""
+
+#. Label of a Date field in DocType 'Certification'
+#: lms/doctype/certification/certification.json
+msgctxt "Certification"
+msgid "Issue Date"
+msgstr ""
+
+#. Label of a Date field in DocType 'LMS Certificate'
+#: lms/doctype/lms_certificate/lms_certificate.json
+msgctxt "LMS Certificate"
+msgid "Issue Date"
+msgstr ""
+
+#. Label of a Date field in DocType 'LMS Badge Assignment'
+#: lms/doctype/lms_badge_assignment/lms_badge_assignment.json
+msgctxt "LMS Badge Assignment"
+msgid "Issued On"
+msgstr ""
+
+#: public/frontend/assets/ProfileAbout-M7A4DT21.js:1
+#: templates/certificates_section.html:11
+msgid "Issued on"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Items in Sidebar"
+msgstr ""
+
+#: templates/signup-form.html:5
+msgid "Jane Doe"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Job Application'
+#: job/doctype/lms_job_application/lms_job_application.json
+msgctxt "LMS Job Application"
+msgid "Job"
+msgstr ""
+
+#. Label of a Data field in DocType 'Job Settings'
+#: job/doctype/job_settings/job_settings.json
+msgctxt "Job Settings"
+msgid "Job Board Subtitle"
+msgstr ""
+
+#. Label of a Data field in DocType 'Job Settings'
+#: job/doctype/job_settings/job_settings.json
+msgctxt "Job Settings"
+msgid "Job Board Title"
+msgstr ""
+
+#: public/frontend/assets/JobCreation-CU_0h0cz.js:1
+msgid "Job Details"
+msgstr ""
+
+#: www/lms.py:109
+msgid "Job Openings"
+msgstr ""
+
+#. Name of a DocType
+#: job/doctype/job_opportunity/job_opportunity.json
+msgid "Job Opportunity"
+msgstr ""
+
+#. Name of a DocType
+#: job/doctype/job_settings/job_settings.json
+msgid "Job Settings"
+msgstr ""
+
+#. Label of a Data field in DocType 'Job Opportunity'
+#: job/doctype/job_opportunity/job_opportunity.json
+msgctxt "Job Opportunity"
+msgid "Job Title"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Job Application'
+#: job/doctype/lms_job_application/lms_job_application.json
+msgctxt "LMS Job Application"
+msgid "Job Title"
+msgstr ""
+
+#: public/frontend/assets/Jobs-CBReeD0M.js:1
+msgid "Jobs"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Jobs"
+msgstr ""
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1 templates/upcoming_evals.html:15
+msgid "Join"
+msgstr ""
+
+#. Label of a Small Text field in DocType 'LMS Live Class'
+#: lms/doctype/lms_live_class/lms_live_class.json
+msgctxt "LMS Live Class"
+msgid "Join URL"
+msgstr ""
+
+#. Name of a Workspace
+#: lms/workspace/lms/lms.json
+msgid "LMS"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/lms_assessment/lms_assessment.json
+msgid "LMS Assessment"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/lms_assignment/lms_assignment.json
+msgid "LMS Assignment"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/lms_assignment_submission/lms_assignment_submission.json
+msgid "LMS Assignment Submission"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/lms_badge/lms_badge.json
+msgid "LMS Badge"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/lms_badge_assignment/lms_badge_assignment.json
+msgid "LMS Badge Assignment"
+msgstr ""
+
+#. Linked DocType in LMS Badge's connections
+#: lms/doctype/lms_badge/lms_badge.json
+msgctxt "LMS Badge"
+msgid "LMS Badge Assignment"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/lms_batch/lms_batch.json
+msgid "LMS Batch"
+msgstr ""
+
+#. Option for the 'Payment for Document Type' (Select) field in DocType 'LMS
+#. Payment'
+#: lms/doctype/lms_payment/lms_payment.json
+msgctxt "LMS Payment"
+msgid "LMS Batch"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/lms_batch_old/lms_batch_old.json
+msgid "LMS Batch Old"
+msgstr ""
+
+#. Linked DocType in LMS Course's connections
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "LMS Batch Old"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/lms_batch_timetable/lms_batch_timetable.json
+msgid "LMS Batch Timetable"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/lms_category/lms_category.json
+msgid "LMS Category"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/lms_certificate/lms_certificate.json
+msgid "LMS Certificate"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
+msgid "LMS Certificate Evaluation"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/lms_certificate_request/lms_certificate_request.json
+msgid "LMS Certificate Request"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/lms_course/lms_course.json
+msgid "LMS Course"
+msgstr ""
+
+#. Option for the 'Payment for Document Type' (Select) field in DocType 'LMS
+#. Payment'
+#: lms/doctype/lms_payment/lms_payment.json
+msgctxt "LMS Payment"
+msgid "LMS Course"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/lms_course_interest/lms_course_interest.json
+msgid "LMS Course Interest"
+msgstr ""
+
+#. Linked DocType in LMS Course's connections
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "LMS Course Interest"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/lms_course_mentor_mapping/lms_course_mentor_mapping.json
+msgid "LMS Course Mentor Mapping"
+msgstr ""
+
+#. Linked DocType in LMS Course's connections
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "LMS Course Mentor Mapping"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/lms_course_progress/lms_course_progress.json
+msgid "LMS Course Progress"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/lms_course_review/lms_course_review.json
+msgid "LMS Course Review"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/lms_enrollment/lms_enrollment.json
+msgid "LMS Enrollment"
+msgstr ""
+
+#. Linked DocType in LMS Batch Old's connections
+#: lms/doctype/lms_batch_old/lms_batch_old.json
+msgctxt "LMS Batch Old"
+msgid "LMS Enrollment"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/lms_exercise/lms_exercise.json
+msgid "LMS Exercise"
+msgstr ""
+
+#. Name of a DocType
+#: job/doctype/lms_job_application/lms_job_application.json
+msgid "LMS Job Application"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/lms_live_class/lms_live_class.json
+msgid "LMS Live Class"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/lms_mentor_request/lms_mentor_request.json
+msgid "LMS Mentor Request"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/lms_option/lms_option.json
+msgid "LMS Option"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/lms_payment/lms_payment.json
+msgid "LMS Payment"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/lms_question/lms_question.json
+msgid "LMS Question"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/lms_quiz/lms_quiz.json
+msgid "LMS Quiz"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/lms_quiz_question/lms_quiz_question.json
+msgid "LMS Quiz Question"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/lms_quiz_result/lms_quiz_result.json
+msgid "LMS Quiz Result"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/lms_quiz_submission/lms_quiz_submission.json
+msgid "LMS Quiz Submission"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/lms_settings/lms_settings.json
+msgid "LMS Settings"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/lms_sidebar_item/lms_sidebar_item.json
+msgid "LMS Sidebar Item"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/lms_source/lms_source.json
+msgid "LMS Source"
+msgstr ""
+
+#. Name of a role
+#: job/doctype/job_opportunity/job_opportunity.json
+#: job/doctype/lms_job_application/lms_job_application.json
+#: lms/doctype/cohort_join_request/cohort_join_request.json
+#: lms/doctype/course_chapter/course_chapter.json
+#: lms/doctype/course_lesson/course_lesson.json
+#: lms/doctype/function/function.json lms/doctype/industry/industry.json
+#: lms/doctype/lms_assignment/lms_assignment.json
+#: lms/doctype/lms_assignment_submission/lms_assignment_submission.json
+#: lms/doctype/lms_badge_assignment/lms_badge_assignment.json
+#: lms/doctype/lms_certificate/lms_certificate.json
+#: lms/doctype/lms_certificate_request/lms_certificate_request.json
+#: lms/doctype/lms_course_progress/lms_course_progress.json
+#: lms/doctype/lms_course_review/lms_course_review.json
+#: lms/doctype/lms_enrollment/lms_enrollment.json
+#: lms/doctype/lms_live_class/lms_live_class.json
+#: lms/doctype/lms_quiz/lms_quiz.json
+#: lms/doctype/lms_quiz_submission/lms_quiz_submission.json
+#: lms/doctype/lms_source/lms_source.json
+#: lms/doctype/user_skill/user_skill.json
+msgid "LMS Student"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/lms_timetable_legend/lms_timetable_legend.json
+msgid "LMS Timetable Legend"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/lms_timetable_template/lms_timetable_template.json
+msgid "LMS Timetable Template"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Timetable Legend'
+#: lms/doctype/lms_timetable_legend/lms_timetable_legend.json
+msgctxt "LMS Timetable Legend"
+msgid "Label"
+msgstr ""
+
+#: public/frontend/assets/Profile-CcZj7_FE.js:1
+msgid "Last Name"
+msgstr ""
+
+#. Label of a Link field in DocType 'Exercise Latest Submission'
+#: lms/doctype/exercise_latest_submission/exercise_latest_submission.json
+msgctxt "Exercise Latest Submission"
+msgid "Latest Submission"
+msgstr ""
+
+#: public/frontend/assets/CreateLesson-7ZGJlo2v.js:1
+msgid "Learn More"
+msgstr ""
+
+#. Label of a Link in the LMS Workspace
+#: lms/workspace/lms/lms.json
+msgctxt "Course Lesson"
+msgid "Lesson"
+msgstr "Lección"
+
+#. Label of a Link field in DocType 'Exercise Latest Submission'
+#: lms/doctype/exercise_latest_submission/exercise_latest_submission.json
+msgctxt "Exercise Latest Submission"
+msgid "Lesson"
+msgstr "Lección"
+
+#. Label of a Link field in DocType 'Exercise Submission'
+#: lms/doctype/exercise_submission/exercise_submission.json
+msgctxt "Exercise Submission"
+msgid "Lesson"
+msgstr "Lección"
+
+#. Label of a Link field in DocType 'LMS Assignment Submission'
+#: lms/doctype/lms_assignment_submission/lms_assignment_submission.json
+msgctxt "LMS Assignment Submission"
+msgid "Lesson"
+msgstr "Lección"
+
+#. Label of a Link field in DocType 'LMS Course Progress'
+#: lms/doctype/lms_course_progress/lms_course_progress.json
+msgctxt "LMS Course Progress"
+msgid "Lesson"
+msgstr "Lección"
+
+#. Label of a Link field in DocType 'LMS Exercise'
+#: lms/doctype/lms_exercise/lms_exercise.json
+msgctxt "LMS Exercise"
+msgid "Lesson"
+msgstr "Lección"
+
+#. Label of a Link field in DocType 'LMS Quiz'
+#: lms/doctype/lms_quiz/lms_quiz.json
+msgctxt "LMS Quiz"
+msgid "Lesson"
+msgstr "Lección"
+
+#. Label of a Link field in DocType 'Lesson Reference'
+#: lms/doctype/lesson_reference/lesson_reference.json
+msgctxt "Lesson Reference"
+msgid "Lesson"
+msgstr "Lección"
+
+#. Label of a Link field in DocType 'Scheduled Flow'
+#: lms/doctype/scheduled_flow/scheduled_flow.json
+msgctxt "Scheduled Flow"
+msgid "Lesson"
+msgstr "Lección"
+
+#. Name of a DocType
+#: lms/doctype/lesson_reference/lesson_reference.json
+msgid "Lesson Reference"
+msgstr ""
+
+#. Label of a Data field in DocType 'Scheduled Flow'
+#: lms/doctype/scheduled_flow/scheduled_flow.json
+msgctxt "Scheduled Flow"
+msgid "Lesson Title"
+msgstr ""
+
+#: public/frontend/assets/CourseCard-BK77fFq6.js:1
+msgid "Lessons"
+msgstr "Lecciones"
+
+#. Label of a Table field in DocType 'Course Chapter'
+#. Group in Course Chapter's connections
+#: lms/doctype/course_chapter/course_chapter.json
+msgctxt "Course Chapter"
+msgid "Lessons"
+msgstr "Lecciones"
+
+#: lms/web_template/lms_statistics/lms_statistics.html:14
+#: templates/statistics.html:36
+msgid "Lessons Completed"
+msgstr ""
+
+#: templates/onboarding_header.html:11
+msgid "Lets start setting up your content on the LMS so that you can reclaim time and focus on growth."
+msgstr ""
+
+#. Option for the 'Grade Type' (Select) field in DocType 'Education Detail'
+#: lms/doctype/education_detail/education_detail.json
+msgctxt "Education Detail"
+msgid "Letter Grade (e.g. A, B-)"
+msgstr ""
+
+#. Label of a Int field in DocType 'LMS Quiz'
+#: lms/doctype/lms_quiz/lms_quiz.json
+msgctxt "LMS Quiz"
+msgid "Limit Questions To"
+msgstr ""
+
+#: lms/doctype/lms_quiz/lms_quiz.py:35
+msgid "Limit cannot be greater than or equal to the number of questions in the quiz."
+msgstr ""
+
+#: public/frontend/assets/ProfileAbout-M7A4DT21.js:1
+msgid "LinkedIn"
+msgstr ""
+
+#. Group in Cohort's connections
+#: lms/doctype/cohort/cohort.json
+msgctxt "Cohort"
+msgid "Links"
+msgstr ""
+
+#. Group in Cohort Subgroup's connections
+#: lms/doctype/cohort_subgroup/cohort_subgroup.json
+msgctxt "Cohort Subgroup"
+msgid "Links"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'Cohort'
+#: lms/doctype/cohort/cohort.json
+msgctxt "Cohort"
+msgid "Live"
+msgstr "Activos"
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1
+msgid "Live Class"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Live Class"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "LiveCode URL"
+msgstr ""
+
+#. Option for the 'Auto Recording' (Select) field in DocType 'LMS Live Class'
+#: lms/doctype/lms_live_class/lms_live_class.json
+msgctxt "LMS Live Class"
+msgid "Local"
+msgstr ""
+
+#: public/frontend/assets/JobCreation-CU_0h0cz.js:1
+msgid "Location"
+msgstr ""
+
+#. Label of a Data field in DocType 'Education Detail'
+#: lms/doctype/education_detail/education_detail.json
+msgctxt "Education Detail"
+msgid "Location"
+msgstr ""
+
+#. Label of a Data field in DocType 'Job Opportunity'
+#: job/doctype/job_opportunity/job_opportunity.json
+msgctxt "Job Opportunity"
+msgid "Location"
+msgstr ""
+
+#. Label of a Data field in DocType 'Work Experience'
+#: lms/doctype/work_experience/work_experience.json
+msgctxt "Work Experience"
+msgid "Location"
+msgstr ""
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1
+#: public/frontend/assets/Lesson-59XvRJIg.js:18
+#: public/frontend/assets/Profile-CcZj7_FE.js:1
+#: public/frontend/assets/index-D1f05dS8.js:7351
+msgid "Login"
+msgstr ""
+
+#. Label of a Table MultiSelect field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Maintain Original Currency"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Make LMS the default home"
+msgstr ""
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1
+msgid "Make an Announcement"
+msgstr ""
+
+#. Option for the 'Role' (Select) field in DocType 'Cohort Staff'
+#: lms/doctype/cohort_staff/cohort_staff.json
+msgctxt "Cohort Staff"
+msgid "Manager"
+msgstr ""
+
+#: templates/signup-form.html:23
+msgid "Manager (Sales/Marketing/Customer)"
+msgstr ""
+
+#: public/frontend/assets/index-D1f05dS8.js:7351
+msgid "Mark"
+msgstr ""
+
+#: public/frontend/assets/Notifications-YFJ-Ay-J.js:1
+msgid "Mark all as read"
+msgstr ""
+
+#: public/frontend/assets/Notifications-YFJ-Ay-J.js:1
+msgid "Mark as read"
+msgstr ""
+
+#: public/frontend/assets/index-D1f05dS8.js:7351 templates/quiz/quiz.html:59
+msgid "Marks"
+msgstr ""
+
+#. Label of a Int field in DocType 'LMS Quiz Question'
+#: lms/doctype/lms_quiz_question/lms_quiz_question.json
+msgctxt "LMS Quiz Question"
+msgid "Marks"
+msgstr ""
+
+#. Label of a Int field in DocType 'LMS Quiz Result'
+#: lms/doctype/lms_quiz_result/lms_quiz_result.json
+msgctxt "LMS Quiz Result"
+msgid "Marks"
+msgstr ""
+
+#. Label of a Int field in DocType 'LMS Quiz'
+#: lms/doctype/lms_quiz/lms_quiz.json
+msgctxt "LMS Quiz"
+msgid "Max Attempts"
+msgstr ""
+
+#. Label of a Int field in DocType 'LMS Course'
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "Max Attempts for Evaluations"
+msgstr ""
+
+#: public/frontend/assets/BatchCreation-9JuqnhbY.js:1
+#: public/js/common_functions.js:309
+msgid "Medium"
+msgstr ""
+
+#. Label of a Select field in DocType 'LMS Batch'
+#: lms/doctype/lms_batch/lms_batch.json
+msgctxt "LMS Batch"
+msgid "Medium"
+msgstr ""
+
+#: templates/emails/batch_confirmation.html:20
+msgid "Medium:"
+msgstr ""
+
+#: lms/report/course_progress_summary/course_progress_summary.py:64
+msgid "Member"
+msgstr ""
+
+#. Label of a Link field in DocType 'Exercise Latest Submission'
+#: lms/doctype/exercise_latest_submission/exercise_latest_submission.json
+msgctxt "Exercise Latest Submission"
+msgid "Member"
+msgstr ""
+
+#. Label of a Link field in DocType 'Exercise Submission'
+#: lms/doctype/exercise_submission/exercise_submission.json
+msgctxt "Exercise Submission"
+msgid "Member"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Assignment Submission'
+#: lms/doctype/lms_assignment_submission/lms_assignment_submission.json
+msgctxt "LMS Assignment Submission"
+msgid "Member"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Badge Assignment'
+#: lms/doctype/lms_badge_assignment/lms_badge_assignment.json
+msgctxt "LMS Badge Assignment"
+msgid "Member"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Certificate'
+#: lms/doctype/lms_certificate/lms_certificate.json
+msgctxt "LMS Certificate"
+msgid "Member"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Certificate Evaluation'
+#: lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
+msgctxt "LMS Certificate Evaluation"
+msgid "Member"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Certificate Request'
+#: lms/doctype/lms_certificate_request/lms_certificate_request.json
+msgctxt "LMS Certificate Request"
+msgid "Member"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Course Progress'
+#: lms/doctype/lms_course_progress/lms_course_progress.json
+msgctxt "LMS Course Progress"
+msgid "Member"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Enrollment'
+#. Option for the 'Role' (Select) field in DocType 'LMS Enrollment'
+#: lms/doctype/lms_enrollment/lms_enrollment.json
+msgctxt "LMS Enrollment"
+msgid "Member"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Mentor Request'
+#: lms/doctype/lms_mentor_request/lms_mentor_request.json
+msgctxt "LMS Mentor Request"
+msgid "Member"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Payment'
+#: lms/doctype/lms_payment/lms_payment.json
+msgctxt "LMS Payment"
+msgid "Member"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Quiz Submission'
+#: lms/doctype/lms_quiz_submission/lms_quiz_submission.json
+msgctxt "LMS Quiz Submission"
+msgid "Member"
+msgstr ""
+
+#. Label of a Link field in DocType 'Exercise Latest Submission'
+#: lms/doctype/exercise_latest_submission/exercise_latest_submission.json
+msgctxt "Exercise Latest Submission"
+msgid "Member Cohort"
+msgstr ""
+
+#. Label of a Link field in DocType 'Exercise Latest Submission'
+#: lms/doctype/exercise_latest_submission/exercise_latest_submission.json
+msgctxt "Exercise Latest Submission"
+msgid "Member Email"
+msgstr ""
+
+#: lms/report/course_progress_summary/course_progress_summary.py:71
+msgid "Member Name"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Assignment Submission'
+#: lms/doctype/lms_assignment_submission/lms_assignment_submission.json
+msgctxt "LMS Assignment Submission"
+msgid "Member Name"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Certificate'
+#: lms/doctype/lms_certificate/lms_certificate.json
+msgctxt "LMS Certificate"
+msgid "Member Name"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Certificate Evaluation'
+#: lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
+msgctxt "LMS Certificate Evaluation"
+msgid "Member Name"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Certificate Request'
+#: lms/doctype/lms_certificate_request/lms_certificate_request.json
+msgctxt "LMS Certificate Request"
+msgid "Member Name"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Course Progress'
+#: lms/doctype/lms_course_progress/lms_course_progress.json
+msgctxt "LMS Course Progress"
+msgid "Member Name"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Enrollment'
+#: lms/doctype/lms_enrollment/lms_enrollment.json
+msgctxt "LMS Enrollment"
+msgid "Member Name"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Mentor Request'
+#: lms/doctype/lms_mentor_request/lms_mentor_request.json
+msgctxt "LMS Mentor Request"
+msgid "Member Name"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Quiz Submission'
+#: lms/doctype/lms_quiz_submission/lms_quiz_submission.json
+msgctxt "LMS Quiz Submission"
+msgid "Member Name"
+msgstr ""
+
+#. Label of a Link field in DocType 'Exercise Latest Submission'
+#: lms/doctype/exercise_latest_submission/exercise_latest_submission.json
+msgctxt "Exercise Latest Submission"
+msgid "Member Subgroup"
+msgstr ""
+
+#. Label of a Select field in DocType 'LMS Enrollment'
+#: lms/doctype/lms_enrollment/lms_enrollment.json
+msgctxt "LMS Enrollment"
+msgid "Member Type"
+msgstr ""
+
+#. Group in LMS Batch Old's connections
+#: lms/doctype/lms_batch_old/lms_batch_old.json
+msgctxt "LMS Batch Old"
+msgid "Members"
+msgstr ""
+
+#. Label of a Select field in DocType 'LMS Batch Old'
+#: lms/doctype/lms_batch_old/lms_batch_old.json
+msgctxt "LMS Batch Old"
+msgid "Membership"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Enrollment'
+#: lms/doctype/lms_enrollment/lms_enrollment.json
+msgctxt "LMS Enrollment"
+msgid "Memeber Username"
+msgstr ""
+
+#. Option for the 'Required Role' (Select) field in DocType 'Cohort Web Page'
+#: lms/doctype/cohort_web_page/cohort_web_page.json
+msgctxt "Cohort Web Page"
+msgid "Mentor"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Course Mentor Mapping'
+#: lms/doctype/lms_course_mentor_mapping/lms_course_mentor_mapping.json
+msgctxt "LMS Course Mentor Mapping"
+msgid "Mentor"
+msgstr ""
+
+#. Option for the 'Member Type' (Select) field in DocType 'LMS Enrollment'
+#: lms/doctype/lms_enrollment/lms_enrollment.json
+msgctxt "LMS Enrollment"
+msgid "Mentor"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Course Mentor Mapping'
+#: lms/doctype/lms_course_mentor_mapping/lms_course_mentor_mapping.json
+msgctxt "LMS Course Mentor Mapping"
+msgid "Mentor Name"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'LMS Settings'
+#. Label of a Tab Break field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Mentor Request"
+msgstr ""
+
+#: patches/create_mentor_request_email_templates.py:11
+#: patches/create_mentor_request_email_templates.py:18
+#: patches/create_mentor_request_email_templates.py:28
+msgid "Mentor Request Creation Template"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Mentor Request Creation Template"
+msgstr ""
+
+#: patches/create_mentor_request_email_templates.py:31
+#: patches/create_mentor_request_email_templates.py:38
+#: patches/create_mentor_request_email_templates.py:48
+msgid "Mentor Request Status Update Template"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Mentor Request Status Update Template"
+msgstr ""
+
+#. Group in LMS Course's connections
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "Mentors"
+msgstr ""
+
+#: public/frontend/assets/BatchCreation-9JuqnhbY.js:1
+#: public/js/common_functions.js:362
+msgid "Meta Image"
+msgstr ""
+
+#. Label of a Attach Image field in DocType 'LMS Batch'
+#: lms/doctype/lms_batch/lms_batch.json
+msgctxt "LMS Batch"
+msgid "Meta Image"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Batch Timetable'
+#: lms/doctype/lms_batch_timetable/lms_batch_timetable.json
+msgctxt "LMS Batch Timetable"
+msgid "Milestone"
+msgstr ""
+
+#: public/frontend/assets/Statistics-Df9qvpz5.js:18
+msgid "Milestones"
+msgstr ""
+
+#. Name of a role
+#: lms/doctype/course_evaluator/course_evaluator.json
+#: lms/doctype/lms_assignment/lms_assignment.json
+#: lms/doctype/lms_badge_assignment/lms_badge_assignment.json
+#: lms/doctype/lms_batch/lms_batch.json
+#: lms/doctype/lms_category/lms_category.json
+#: lms/doctype/lms_certificate/lms_certificate.json
+#: lms/doctype/lms_certificate_request/lms_certificate_request.json
+#: lms/doctype/lms_enrollment/lms_enrollment.json
+#: lms/doctype/lms_live_class/lms_live_class.json
+#: lms/doctype/lms_question/lms_question.json
+#: lms/doctype/lms_quiz/lms_quiz.json lms/doctype/lms_source/lms_source.json
+#: lms/doctype/lms_timetable_template/lms_timetable_template.json
+#: public/frontend/assets/ProfileRoles-CVq7nQGs.js:1
+msgid "Moderator"
+msgstr ""
+
+#: lms/doctype/lms_badge/lms_badge.js:40
+msgid "Modified By"
+msgstr ""
+
+#: lms/api.py:188
+msgid "Module Name is incorrect or does not exist."
+msgstr ""
+
+#: lms/api.py:184
+msgid "Module is incorrect."
+msgstr ""
+
+#. Option for the 'Day' (Select) field in DocType 'Evaluator Schedule'
+#: lms/doctype/evaluator_schedule/evaluator_schedule.json
+msgctxt "Evaluator Schedule"
+msgid "Monday"
+msgstr ""
+
+#. Option for the 'Day' (Select) field in DocType 'LMS Certificate Request'
+#: lms/doctype/lms_certificate_request/lms_certificate_request.json
+msgctxt "LMS Certificate Request"
+msgid "Monday"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Question'
+#: lms/doctype/lms_question/lms_question.json
+msgctxt "LMS Question"
+msgid "Multiple Correct Answers"
+msgstr ""
+
+#: public/frontend/assets/ProfileEvaluator-bug1MVAq.js:1
+msgid "My availability"
+msgstr ""
+
+#: public/frontend/assets/ProfileEvaluator-bug1MVAq.js:1
+msgid "My calendar"
+msgstr ""
+
+#. Option for the 'Event' (Select) field in DocType 'LMS Badge'
+#: lms/doctype/lms_badge/lms_badge.json
+msgctxt "LMS Badge"
+msgid "New"
+msgstr ""
+
+#: lms/doctype/lms_assignment_submission/lms_assignment_submission.py:41
+msgid "New Assignment Submission"
+msgstr ""
+
+#: public/js/common_functions.js:255 www/lms.py:87
+msgid "New Batch"
+msgstr ""
+
+#: www/lms.py:38
+msgid "New Course"
+msgstr ""
+
+#: public/frontend/assets/Jobs-CBReeD0M.js:1
+msgid "New Job"
+msgstr ""
+
+#: job/doctype/lms_job_application/lms_job_application.py:27
+msgid "New Job Applicant"
+msgstr ""
+
+#: www/new-sign-up.html:3
+msgid "New Sign Up"
+msgstr ""
+
+#: lms/utils.py:666
+msgid "New comment in batch {0}"
+msgstr ""
+
+#: lms/utils.py:659
+msgid "New reply on the topic {0} in course {1}"
+msgstr ""
+
+#: public/frontend/assets/Discussions-BUeR4n3G.js:1
+msgid "New {0}"
+msgstr ""
+
+#: public/frontend/assets/Lesson-59XvRJIg.js:18
+#: public/frontend/assets/index-D1f05dS8.js:7351
+msgid "Next"
+msgstr ""
+
+#: templates/quiz/quiz.html:125
+msgid "Next Question"
+msgstr ""
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1 templates/assessments.html:58
+msgid "No Assessments"
+msgstr ""
+
+#: templates/notifications.html:26
+msgid "No Notifications"
+msgstr ""
+
+#. Option for the 'Auto Recording' (Select) field in DocType 'LMS Live Class'
+#: lms/doctype/lms_live_class/lms_live_class.json
+msgctxt "LMS Live Class"
+msgid "No Recording"
+msgstr ""
+
+#: templates/upcoming_evals.html:43
+msgid "No Upcoming Evaluations"
+msgstr ""
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1
+msgid "No announcements"
+msgstr ""
+
+#: templates/certificates_section.html:23
+msgid "No certificates"
+msgstr ""
+
+#: templates/courses_created.html:14
+msgid "No courses created"
+msgstr ""
+
+#: templates/courses_under_review.html:14
+msgid "No courses under review"
+msgstr ""
+
+#: public/frontend/assets/ProfileAbout-M7A4DT21.js:1
+msgid "No introduction"
+msgstr ""
+
+#: public/frontend/assets/Jobs-CBReeD0M.js:1
+msgid "No jobs posted"
+msgstr ""
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1
+msgid "No live classes scheduled"
+msgstr ""
+
+#: templates/search_course/search_course.html:61
+#: templates/search_course/search_course.js:47
+msgid "No result found"
+msgstr ""
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1
+msgid "No slots available for this date."
+msgstr ""
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1
+msgid "No upcoming evaluations."
+msgstr ""
+
+#: templates/course_list.html:13
+msgid "No {0}"
+msgstr ""
+
+#: templates/quiz/quiz.html:147
+msgid "No."
+msgstr ""
+
+#: overrides/user.py:190
+msgid "Not Allowed"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'LMS Assignment
+#. Submission'
+#: lms/doctype/lms_assignment_submission/lms_assignment_submission.json
+msgctxt "LMS Assignment Submission"
+msgid "Not Applicable"
+msgstr ""
+
+#: templates/assessments.html:48
+msgid "Not Attempted"
+msgstr ""
+
+#: lms/widgets/NoPreviewModal.html:6
+msgid "Not Available for Preview"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'LMS Assignment
+#. Submission'
+#: lms/doctype/lms_assignment_submission/lms_assignment_submission.json
+msgctxt "LMS Assignment Submission"
+msgid "Not Graded"
+msgstr ""
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1
+#: public/frontend/assets/Profile-CcZj7_FE.js:1
+msgid "Not Permitted"
+msgstr ""
+
+#: public/frontend/assets/Notifications-YFJ-Ay-J.js:1
+msgid "Nothing to see here."
+msgstr "No hay nada para ver."
+
+#. Label of a Check field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Notifications"
+msgstr ""
+
+#: lms/widgets/NoPreviewModal.html:30
+msgid "Notify me when available"
+msgstr "Avísame cuando esté disponible"
+
+#. Label of a Section Break field in DocType 'Zoom Settings'
+#: lms/doctype/zoom_settings/zoom_settings.json
+msgctxt "Zoom Settings"
+msgid "OAuth Client ID"
+msgstr ""
+
+#. Option for the 'Medium' (Select) field in DocType 'LMS Batch'
+#: lms/doctype/lms_batch/lms_batch.json
+msgctxt "LMS Batch"
+msgid "Offline"
+msgstr ""
+
+#: lms/doctype/course_lesson/course_lesson.js:21
+msgid "On clicking it, it provides an iframe. Copy the source (src) of the iframe and paste it here."
+msgstr ""
+
+#: templates/emails/certification.html:16
+msgid "Once again, congratulations on this significant accomplishment."
+msgstr ""
+
+#: public/frontend/assets/AssignmentSubmission-D1b-IhRa.js:1
+msgid "Once the moderator grades your submission, you'll find the details here."
+msgstr ""
+
+#. Option for the 'Medium' (Select) field in DocType 'LMS Batch'
+#: lms/doctype/lms_batch/lms_batch.json
+msgctxt "LMS Batch"
+msgid "Online"
+msgstr ""
+
+#: templates/assignment.html:6
+msgid "Only files of type {0} will be accepted."
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'Job Opportunity'
+#: job/doctype/job_opportunity/job_opportunity.json
+msgctxt "Job Opportunity"
+msgid "Open"
+msgstr ""
+
+#. Option for the 'Membership' (Select) field in DocType 'LMS Batch Old'
+#: lms/doctype/lms_batch_old/lms_batch_old.json
+msgctxt "LMS Batch Old"
+msgid "Open"
+msgstr ""
+
+#: templates/emails/assignment_submission.html:8
+msgid "Open Assignment"
+msgstr ""
+
+#: templates/emails/lms_message.html:13
+msgid "Open Course"
+msgstr ""
+
+#: lms/widgets/MemberCard.html:16
+msgid "Open Network"
+msgstr "Red abierta"
+
+#. Label of a Data field in DocType 'LMS Option'
+#: lms/doctype/lms_option/lms_option.json
+msgctxt "LMS Option"
+msgid "Option"
+msgstr ""
+
+#. Label of a Small Text field in DocType 'LMS Question'
+#: lms/doctype/lms_question/lms_question.json
+msgctxt "LMS Question"
+msgid "Option 1"
+msgstr ""
+
+#. Label of a Small Text field in DocType 'LMS Question'
+#: lms/doctype/lms_question/lms_question.json
+msgctxt "LMS Question"
+msgid "Option 2"
+msgstr ""
+
+#. Label of a Small Text field in DocType 'LMS Question'
+#: lms/doctype/lms_question/lms_question.json
+msgctxt "LMS Question"
+msgid "Option 3"
+msgstr ""
+
+#. Label of a Small Text field in DocType 'LMS Question'
+#: lms/doctype/lms_question/lms_question.json
+msgctxt "LMS Question"
+msgid "Option 4"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Payment'
+#: lms/doctype/lms_payment/lms_payment.json
+msgctxt "LMS Payment"
+msgid "Order ID"
+msgstr ""
+
+#. Label of a Data field in DocType 'Certification'
+#: lms/doctype/certification/certification.json
+msgctxt "Certification"
+msgid "Organization"
+msgstr ""
+
+#: templates/signup-form.html:27
+msgid "Others"
+msgstr ""
+
+#: lms/doctype/lms_badge/lms_badge.js:39
+msgid "Owner"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Payment'
+#: lms/doctype/lms_payment/lms_payment.json
+msgctxt "LMS Payment"
+msgid "PAN"
+msgstr ""
+
+#: lms/doctype/course_lesson/course_lesson.js:32
+msgid "PDF"
+msgstr ""
+
+#. Option for the 'File Type' (Select) field in DocType 'Course Lesson'
+#: lms/doctype/course_lesson/course_lesson.json
+msgctxt "Course Lesson"
+msgid "PDF"
+msgstr ""
+
+#. Option for the 'Type' (Select) field in DocType 'LMS Assignment'
+#: lms/doctype/lms_assignment/lms_assignment.json
+msgctxt "LMS Assignment"
+msgid "PDF"
+msgstr ""
+
+#. Option for the 'Type' (Select) field in DocType 'LMS Assignment Submission'
+#: lms/doctype/lms_assignment_submission/lms_assignment_submission.json
+msgctxt "LMS Assignment Submission"
+msgid "PDF"
+msgstr ""
+
+#. Label of a Table field in DocType 'Cohort'
+#: lms/doctype/cohort/cohort.json
+msgctxt "Cohort"
+msgid "Pages"
+msgstr ""
+
+#: public/frontend/assets/BatchCreation-9JuqnhbY.js:1
+#: public/js/common_functions.js:373
+msgid "Paid Batch"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Batch'
+#: lms/doctype/lms_batch/lms_batch.json
+msgctxt "LMS Batch"
+msgid "Paid Batch"
+msgstr ""
+
+#: public/frontend/assets/CreateCourse-2snz_azq.js:1
+msgid "Paid Course"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Course'
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "Paid Course"
+msgstr ""
+
+#. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
+#: job/doctype/job_opportunity/job_opportunity.json
+msgctxt "Job Opportunity"
+msgid "Part Time"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'LMS Course Progress'
+#: lms/doctype/lms_course_progress/lms_course_progress.json
+msgctxt "LMS Course Progress"
+msgid "Partially Complete"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'LMS Assignment
+#. Submission'
+#: lms/doctype/lms_assignment_submission/lms_assignment_submission.json
+msgctxt "LMS Assignment Submission"
+msgid "Pass"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'LMS Certificate
+#. Evaluation'
+#: lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
+msgctxt "LMS Certificate Evaluation"
+msgid "Pass"
+msgstr ""
+
+#. Label of a Int field in DocType 'LMS Quiz'
+#: lms/doctype/lms_quiz/lms_quiz.json
+msgctxt "LMS Quiz"
+msgid "Passing Percentage"
+msgstr ""
+
+#. Label of a Int field in DocType 'LMS Quiz Submission'
+#: lms/doctype/lms_quiz_submission/lms_quiz_submission.json
+msgctxt "LMS Quiz Submission"
+msgid "Passing Percentage"
+msgstr ""
+
+#. Label of a Password field in DocType 'LMS Live Class'
+#: lms/doctype/lms_live_class/lms_live_class.json
+msgctxt "LMS Live Class"
+msgid "Password"
+msgstr ""
+
+#: public/frontend/assets/BatchCreation-9JuqnhbY.js:1
+msgid "Payment"
+msgstr ""
+
+#. Label of a Link field in DocType 'Batch Student'
+#: lms/doctype/batch_student/batch_student.json
+msgctxt "Batch Student"
+msgid "Payment"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Enrollment'
+#: lms/doctype/lms_enrollment/lms_enrollment.json
+msgctxt "LMS Enrollment"
+msgid "Payment"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/payment_country/payment_country.json
+msgid "Payment Country"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'LMS Payment'
+#: lms/doctype/lms_payment/lms_payment.json
+msgctxt "LMS Payment"
+msgid "Payment Details"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Payment'
+#: lms/doctype/lms_payment/lms_payment.json
+msgctxt "LMS Payment"
+msgid "Payment ID"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Payment'
+#: lms/doctype/lms_payment/lms_payment.json
+msgctxt "LMS Payment"
+msgid "Payment Received"
+msgstr ""
+
+#. Label of a Tab Break field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Payment Settings"
+msgstr ""
+
+#. Label of a Dynamic Link field in DocType 'LMS Payment'
+#: lms/doctype/lms_payment/lms_payment.json
+msgctxt "LMS Payment"
+msgid "Payment for Document"
+msgstr ""
+
+#. Label of a Select field in DocType 'LMS Payment'
+#: lms/doctype/lms_payment/lms_payment.json
+msgctxt "LMS Payment"
+msgid "Payment for Document Type"
+msgstr ""
+
+#: lms/utils.py:1002
+msgid "Payment for {0} course"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'Cohort Join Request'
+#: lms/doctype/cohort_join_request/cohort_join_request.json
+msgctxt "Cohort Join Request"
+msgid "Pending"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'Invite Request'
+#: lms/doctype/invite_request/invite_request.json
+msgctxt "Invite Request"
+msgid "Pending"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'LMS Certificate
+#. Evaluation'
+#: lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
+msgctxt "LMS Certificate Evaluation"
+msgid "Pending"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'LMS Mentor Request'
+#: lms/doctype/lms_mentor_request/lms_mentor_request.json
+msgctxt "LMS Mentor Request"
+msgid "Pending"
+msgstr ""
+
+#. Label of a Int field in DocType 'LMS Quiz Submission'
+#: lms/doctype/lms_quiz_submission/lms_quiz_submission.json
+msgctxt "LMS Quiz Submission"
+msgid "Percentage"
+msgstr ""
+
+#. Option for the 'Grade Type' (Select) field in DocType 'Education Detail'
+#: lms/doctype/education_detail/education_detail.json
+msgctxt "Education Detail"
+msgid "Percentage (e.g. 70%)"
+msgstr ""
+
+#: lms/doctype/lms_settings/lms_settings.py:33
+msgid "Please add <a href='{0}'>{1}</a> for <a href='{2}'>{3}</a> to send calendar invites for evaluations."
+msgstr ""
+
+#: overrides/user.py:236
+msgid "Please ask your administrator to verify your sign-up"
+msgstr ""
+
+#: overrides/user.py:234
+msgid "Please check your email for verification"
+msgstr ""
+
+#: templates/emails/community_course_membership.html:7
+msgid "Please click on the following button to set your new password"
+msgstr ""
+
+#: lms/doctype/lms_batch/lms_batch.py:232
+msgid "Please enable Zoom Settings to use this feature."
+msgstr ""
+
+#: lms/doctype/lms_assignment_submission/lms_assignment_submission.py:38
+#: lms/doctype/lms_assignment_submission/lms_assignment_submission.py:98
+msgid "Please enter a valid URL."
+msgstr ""
+
+#: lms/doctype/lms_assignment_submission/lms_assignment_submission.py:92
+msgid "Please enter the URL for assignment submission."
+msgstr ""
+
+#: templates/quiz/quiz.js:176
+msgid "Please enter your answer"
+msgstr ""
+
+#: public/frontend/assets/index-D1f05dS8.js:7351
+msgid "Please login to access the quiz."
+msgstr ""
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1
+#: public/frontend/assets/Profile-CcZj7_FE.js:1
+msgid "Please login to access this page."
+msgstr ""
+
+#: lms/api.py:180
+msgid "Please login to continue with payment."
+msgstr ""
+
+#: lms/notification/certificate_request_creation/certificate_request_creation.html:7
+#: lms/notification/certificate_request_reminder/certificate_request_reminder.html:7
+msgid "Please prepare well and be on time for the evaluations."
+msgstr ""
+
+#: templates/emails/job_report.html:6
+msgid "Please take appropriate action at {0}"
+msgstr ""
+
+#: lms/doctype/lms_assignment_submission/lms_assignment_submission.py:95
+msgid "Please upload the assignment file."
+msgstr ""
+
+#. Option for the 'Grade Type' (Select) field in DocType 'Education Detail'
+#: lms/doctype/education_detail/education_detail.json
+msgctxt "Education Detail"
+msgid "Point of Score (e.g. 70)"
+msgstr ""
+
+#. Label of a Small Text field in DocType 'LMS Question'
+#: lms/doctype/lms_question/lms_question.json
+msgctxt "LMS Question"
+msgid "Possible Answer 1"
+msgstr ""
+
+#. Label of a Small Text field in DocType 'LMS Question'
+#: lms/doctype/lms_question/lms_question.json
+msgctxt "LMS Question"
+msgid "Possible Answer 2"
+msgstr ""
+
+#. Label of a Small Text field in DocType 'LMS Question'
+#: lms/doctype/lms_question/lms_question.json
+msgctxt "LMS Question"
+msgid "Possible Answer 3"
+msgstr ""
+
+#. Label of a Small Text field in DocType 'LMS Question'
+#: lms/doctype/lms_question/lms_question.json
+msgctxt "LMS Question"
+msgid "Possible Answer 4"
+msgstr ""
+
+#: public/frontend/assets/Discussions-BUeR4n3G.js:1
+msgid "Post"
+msgstr "Publicar"
+
+#. Name of a DocType
+#: lms/doctype/preferred_function/preferred_function.json
+msgid "Preferred Function"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/preferred_industry/preferred_industry.json
+msgid "Preferred Industry"
+msgstr ""
+
+#. Label of a Attach Image field in DocType 'LMS Course'
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "Preview Image"
+msgstr ""
+
+#: public/frontend/assets/CreateCourse-2snz_azq.js:1
+msgid "Preview Video"
+msgstr ""
+
+#: public/frontend/assets/Lesson-59XvRJIg.js:18
+msgid "Previous"
+msgstr ""
+
+#: public/frontend/assets/CreateCourse-2snz_azq.js:1
+#: public/js/common_functions.js:368
+msgid "Pricing"
+msgstr ""
+
+#. Label of a Tab Break field in DocType 'LMS Batch'
+#: lms/doctype/lms_batch/lms_batch.json
+msgctxt "LMS Batch"
+msgid "Pricing"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'LMS Course'
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "Pricing"
+msgstr ""
+
+#. Label of a Link field in DocType 'Cohort Mentor'
+#: lms/doctype/cohort_mentor/cohort_mentor.json
+msgctxt "Cohort Mentor"
+msgid "Primary Subgroup"
+msgstr ""
+
+#: lms/utils.py:421
+msgid "Privacy Policy"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Privacy Policy Page"
+msgstr ""
+
+#. Option for the 'Visibility' (Select) field in DocType 'LMS Batch Old'
+#: lms/doctype/lms_batch_old/lms_batch_old.json
+msgctxt "LMS Batch Old"
+msgid "Private"
+msgstr ""
+
+#: public/frontend/assets/Profile-CcZj7_FE.js:1
+msgid "Profile Image"
+msgstr ""
+
+#. Label of a Float field in DocType 'LMS Enrollment'
+#: lms/doctype/lms_enrollment/lms_enrollment.json
+msgctxt "LMS Enrollment"
+msgid "Progress"
+msgstr ""
+
+#: lms/report/course_progress_summary/course_progress_summary.py:77
+msgid "Progress (%)"
+msgstr ""
+
+#. Option for the 'Required Role' (Select) field in DocType 'Cohort Web Page'
+#: lms/doctype/cohort_web_page/cohort_web_page.json
+msgctxt "Cohort Web Page"
+msgid "Public"
+msgstr ""
+
+#. Option for the 'Visibility' (Select) field in DocType 'LMS Batch Old'
+#: lms/doctype/lms_batch_old/lms_batch_old.json
+msgctxt "LMS Batch Old"
+msgid "Public"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Certificate'
+#: lms/doctype/lms_certificate/lms_certificate.json
+msgctxt "LMS Certificate"
+msgid "Publish on Participant Page"
+msgstr ""
+
+#: public/frontend/assets/BatchCreation-9JuqnhbY.js:1
+#: public/frontend/assets/CreateCourse-2snz_azq.js:1
+#: public/js/common_functions.js:266
+msgid "Published"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Batch'
+#: lms/doctype/lms_batch/lms_batch.json
+msgctxt "LMS Batch"
+msgid "Published"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Course'
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "Published"
+msgstr ""
+
+#: lms/web_template/lms_statistics/lms_statistics.html:14
+#: templates/statistics.html:4
+msgid "Published Courses"
+msgstr ""
+
+#: public/frontend/assets/CreateCourse-2snz_azq.js:1
+msgid "Published On"
+msgstr ""
+
+#. Label of a Date field in DocType 'LMS Course'
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "Published On"
+msgstr ""
+
+#: public/frontend/assets/AssignmentSubmission-D1b-IhRa.js:1
+#: templates/quiz/quiz.html:104
+msgid "Question"
+msgstr ""
+
+#. Label of a Small Text field in DocType 'Course Lesson'
+#: lms/doctype/course_lesson/course_lesson.json
+msgctxt "Course Lesson"
+msgid "Question"
+msgstr ""
+
+#. Label of a Text Editor field in DocType 'LMS Assignment'
+#: lms/doctype/lms_assignment/lms_assignment.json
+msgctxt "LMS Assignment"
+msgid "Question"
+msgstr ""
+
+#. Label of a Text Editor field in DocType 'LMS Assignment Submission'
+#: lms/doctype/lms_assignment_submission/lms_assignment_submission.json
+msgctxt "LMS Assignment Submission"
+msgid "Question"
+msgstr ""
+
+#. Label of a Text Editor field in DocType 'LMS Question'
+#: lms/doctype/lms_question/lms_question.json
+msgctxt "LMS Question"
+msgid "Question"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Quiz Question'
+#: lms/doctype/lms_quiz_question/lms_quiz_question.json
+msgctxt "LMS Quiz Question"
+msgid "Question"
+msgstr ""
+
+#. Label of a Text field in DocType 'LMS Quiz Result'
+#: lms/doctype/lms_quiz_result/lms_quiz_result.json
+msgctxt "LMS Quiz Result"
+msgid "Question"
+msgstr ""
+
+#: templates/quiz/quiz.html:62
+msgid "Question "
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Quiz Result'
+#: lms/doctype/lms_quiz_result/lms_quiz_result.json
+msgctxt "LMS Quiz Result"
+msgid "Question Name"
+msgstr ""
+
+#: public/frontend/assets/index-D1f05dS8.js:7351
+msgid "Question {0}"
+msgstr ""
+
+#: public/frontend/assets/index-D1f05dS8.js:7351
+msgid "Question {0} of {1}"
+msgstr ""
+
+#. Label of a Table field in DocType 'LMS Quiz'
+#: lms/doctype/lms_quiz/lms_quiz.json
+msgctxt "LMS Quiz"
+msgid "Questions"
+msgstr "Preguntas"
+
+#: lms/doctype/course_lesson/course_lesson.js:23
+msgid "Quiz"
+msgstr "Cuestionario"
+
+#. Label of a Link in the LMS Workspace
+#: lms/workspace/lms/lms.json
+msgctxt "LMS Quiz"
+msgid "Quiz"
+msgstr "Cuestionario"
+
+#. Label of a Link field in DocType 'LMS Quiz Submission'
+#: lms/doctype/lms_quiz_submission/lms_quiz_submission.json
+msgctxt "LMS Quiz Submission"
+msgid "Quiz"
+msgstr "Cuestionario"
+
+#. Label of a Data field in DocType 'Course Lesson'
+#: lms/doctype/course_lesson/course_lesson.json
+msgctxt "Course Lesson"
+msgid "Quiz ID"
+msgstr ""
+
+#: lms/doctype/course_lesson/course_lesson.js:9
+msgid "Quiz List"
+msgstr ""
+
+#. Label of a Link in the LMS Workspace
+#: lms/workspace/lms/lms.json
+msgctxt "LMS Quiz Submission"
+msgid "Quiz Submission"
+msgstr ""
+
+#: public/frontend/assets/index-D1f05dS8.js:7351
+msgid "Quiz Summary"
+msgstr ""
+
+#: plugins.py:96
+msgid "Quiz is not available to Guest users. Please login to continue."
+msgstr ""
+
+#. Description of the 'Quiz ID' (Data) field in DocType 'Course Lesson'
+#: lms/doctype/course_lesson/course_lesson.json
+msgctxt "Course Lesson"
+msgid "Quiz will appear at the bottom of the lesson."
+msgstr ""
+
+#: templates/reviews.html:125
+msgid "Rating"
+msgstr ""
+
+#. Label of a Rating field in DocType 'LMS Certificate Evaluation'
+#: lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
+msgctxt "LMS Certificate Evaluation"
+msgid "Rating"
+msgstr ""
+
+#. Label of a Rating field in DocType 'LMS Course Review'
+#: lms/doctype/lms_course_review/lms_course_review.json
+msgctxt "LMS Course Review"
+msgid "Rating"
+msgstr ""
+
+#: lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.py:17
+msgid "Rating cannot be 0"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Razorpay Key"
+msgstr ""
+
+#. Label of a Password field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Razorpay Secret"
+msgstr ""
+
+#: public/frontend/assets/AssignmentSubmission-D1b-IhRa.js:1
+msgid "Read the question carefully before attempting the assignment."
+msgstr ""
+
+#. Option for the 'Stage' (Select) field in DocType 'LMS Batch Old'
+#: lms/doctype/lms_batch_old/lms_batch_old.json
+msgctxt "LMS Batch Old"
+msgid "Ready"
+msgstr ""
+
+#. Label of a Dynamic Link field in DocType 'LMS Batch Timetable'
+#: lms/doctype/lms_batch_timetable/lms_batch_timetable.json
+msgctxt "LMS Batch Timetable"
+msgid "Reference DocName"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Batch Timetable'
+#: lms/doctype/lms_batch_timetable/lms_batch_timetable.json
+msgctxt "LMS Batch Timetable"
+msgid "Reference DocType"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Timetable Legend'
+#: lms/doctype/lms_timetable_legend/lms_timetable_legend.json
+msgctxt "LMS Timetable Legend"
+msgid "Reference DocType"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Badge'
+#: lms/doctype/lms_badge/lms_badge.json
+msgctxt "LMS Badge"
+msgid "Reference Document Type"
+msgstr ""
+
+#: templates/emails/community_course_membership.html:17
+msgid "Regards"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'Invite Request'
+#: lms/doctype/invite_request/invite_request.json
+msgctxt "Invite Request"
+msgid "Registered"
+msgstr ""
+
+#: overrides/user.py:197
+msgid "Registered but disabled"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'Cohort Join Request'
+#: lms/doctype/cohort_join_request/cohort_join_request.json
+msgctxt "Cohort Join Request"
+msgid "Rejected"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'Invite Request'
+#: lms/doctype/invite_request/invite_request.json
+msgctxt "Invite Request"
+msgid "Rejected"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'LMS Mentor Request'
+#: lms/doctype/lms_mentor_request/lms_mentor_request.json
+msgctxt "LMS Mentor Request"
+msgid "Rejected"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/related_courses/related_courses.json
+msgid "Related Courses"
+msgstr ""
+
+#. Label of a Table field in DocType 'LMS Course'
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "Related Courses"
+msgstr ""
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1
+msgid "Reply To"
+msgstr ""
+
+#: lms/widgets/RequestInvite.html:7
+msgid "Request Invite"
+msgstr ""
+
+#: patches/create_mentor_request_email_templates.py:20
+msgid "Request for Mentorship"
+msgstr ""
+
+#. Label of a Select field in DocType 'Cohort Web Page'
+#: lms/doctype/cohort_web_page/cohort_web_page.json
+msgctxt "Cohort Web Page"
+msgid "Required Role"
+msgstr ""
+
+#. Option for the 'Membership' (Select) field in DocType 'LMS Batch Old'
+#: lms/doctype/lms_batch_old/lms_batch_old.json
+msgctxt "LMS Batch Old"
+msgid "Restricted"
+msgstr ""
+
+#. Label of a Table field in DocType 'LMS Quiz Submission'
+#: lms/doctype/lms_quiz_submission/lms_quiz_submission.json
+msgctxt "LMS Quiz Submission"
+msgid "Result"
+msgstr ""
+
+#. Label of a Attach field in DocType 'LMS Job Application'
+#: job/doctype/lms_job_application/lms_job_application.json
+msgctxt "LMS Job Application"
+msgid "Resume"
+msgstr ""
+
+#: templates/reviews.html:143
+msgid "Review"
+msgstr ""
+
+#. Label of a Small Text field in DocType 'LMS Course Review'
+#. Label of a Link in the LMS Workspace
+#: lms/doctype/lms_course_review/lms_course_review.json
+#: lms/workspace/lms/lms.json
+msgctxt "LMS Course Review"
+msgid "Review"
+msgstr ""
+
+#: templates/reviews.html:100
+msgid "Review the course"
+msgstr "Reseña el curso"
+
+#. Label of a Link field in DocType 'LMS Mentor Request'
+#: lms/doctype/lms_mentor_request/lms_mentor_request.json
+msgctxt "LMS Mentor Request"
+msgid "Reviewed By"
+msgstr ""
+
+#: templates/reviews.html:4
+msgid "Reviews"
+msgstr "Reseñas"
+
+#. Label of a Select field in DocType 'Cohort Staff'
+#: lms/doctype/cohort_staff/cohort_staff.json
+msgctxt "Cohort Staff"
+msgid "Role"
+msgstr ""
+
+#. Label of a Select field in DocType 'LMS Enrollment'
+#: lms/doctype/lms_enrollment/lms_enrollment.json
+msgctxt "LMS Enrollment"
+msgid "Role"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Sidebar Item'
+#: lms/doctype/lms_sidebar_item/lms_sidebar_item.json
+msgctxt "LMS Sidebar Item"
+msgid "Route"
+msgstr ""
+
+#: lms/doctype/lms_batch/lms_batch.py:161
+msgid "Row #{0} Date cannot be outside the batch duration."
+msgstr ""
+
+#: lms/doctype/lms_batch/lms_batch.py:156
+msgid "Row #{0} End time cannot be outside the batch duration."
+msgstr ""
+
+#: lms/doctype/lms_batch/lms_batch.py:138
+msgid "Row #{0} Start time cannot be greater than or equal to end time."
+msgstr ""
+
+#: lms/doctype/lms_batch/lms_batch.py:147
+msgid "Row #{0} Start time cannot be outside the batch duration."
+msgstr ""
+
+#: lms/doctype/lms_quiz/lms_quiz.py:29
+msgid "Rows {0} have the duplicate questions."
+msgstr ""
+
+#: templates/livecode/extension_footer.html:21
+msgid "Run"
+msgstr ""
+
+#. Option for the 'Day' (Select) field in DocType 'Evaluator Schedule'
+#: lms/doctype/evaluator_schedule/evaluator_schedule.json
+msgctxt "Evaluator Schedule"
+msgid "Saturday"
+msgstr ""
+
+#. Option for the 'Day' (Select) field in DocType 'LMS Certificate Request'
+#: lms/doctype/lms_certificate_request/lms_certificate_request.json
+msgctxt "LMS Certificate Request"
+msgid "Saturday"
+msgstr ""
+
+#: public/frontend/assets/AssignmentSubmission-D1b-IhRa.js:1
+#: public/frontend/assets/BatchCreation-9JuqnhbY.js:1
+#: public/frontend/assets/CreateCourse-2snz_azq.js:1
+#: public/frontend/assets/CreateLesson-7ZGJlo2v.js:2
+#: public/frontend/assets/JobCreation-CU_0h0cz.js:1
+#: public/js/common_functions.js:405
+msgid "Save"
+msgstr "Guardar"
+
+#. Label of a Table field in DocType 'Course Evaluator'
+#: lms/doctype/course_evaluator/course_evaluator.json
+msgctxt "Course Evaluator"
+msgid "Schedule"
+msgstr ""
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1
+msgid "Schedule Evaluation"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/scheduled_flow/scheduled_flow.json
+msgid "Scheduled Flow"
+msgstr ""
+
+#. Label of a Select field in DocType 'Cohort Web Page'
+#: lms/doctype/cohort_web_page/cohort_web_page.json
+msgctxt "Cohort Web Page"
+msgid "Scope"
+msgstr ""
+
+#: templates/quiz/quiz.html:148
+msgid "Score"
+msgstr ""
+
+#. Label of a Int field in DocType 'LMS Quiz Submission'
+#: lms/doctype/lms_quiz_submission/lms_quiz_submission.json
+msgctxt "LMS Quiz Submission"
+msgid "Score"
+msgstr ""
+
+#. Label of a Int field in DocType 'LMS Quiz Submission'
+#: lms/doctype/lms_quiz_submission/lms_quiz_submission.json
+msgctxt "LMS Quiz Submission"
+msgid "Score Out Of"
+msgstr ""
+
+#: public/frontend/assets/index-D1f05dS8.js:7369
+msgid "Search for an icon"
+msgstr ""
+
+#: public/frontend/assets/BatchCreation-9JuqnhbY.js:1
+#: public/js/common_functions.js:327
+msgid "Seat Count"
+msgstr ""
+
+#. Label of a Int field in DocType 'LMS Batch'
+#: lms/doctype/lms_batch/lms_batch.json
+msgctxt "LMS Batch"
+msgid "Seat Count"
+msgstr ""
+
+#: public/frontend/assets/BatchDetail-DSYJhLlb.js:1
+#: public/frontend/assets/Batches-8-67VJiw.js:1
+msgid "Seat Left"
+msgstr ""
+
+#: public/frontend/assets/BatchDetail-DSYJhLlb.js:1
+#: public/frontend/assets/Batches-8-67VJiw.js:1
+msgid "Seats Left"
+msgstr ""
+
+#: public/frontend/assets/CreateLesson-7ZGJlo2v.js:1
+msgid "Select a Quiz"
+msgstr ""
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1
+msgid "Select a slot"
+msgstr ""
+
+#: public/frontend/assets/CreateLesson-7ZGJlo2v.js:1
+msgid "Select an Editor"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Send calendar invite for evaluations"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Batch Old'
+#: lms/doctype/lms_batch_old/lms_batch_old.json
+msgctxt "LMS Batch Old"
+msgid "Sessions On Days"
+msgstr ""
+
+#: templates/emails/community_course_membership.html:1
+msgid "Set your Password"
+msgstr ""
+
+#: public/frontend/assets/BatchCreation-9JuqnhbY.js:1
+#: public/frontend/assets/CreateCourse-2snz_azq.js:1
+#: public/frontend/assets/ProfileRoles-CVq7nQGs.js:1
+msgid "Settings"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'LMS Quiz'
+#: lms/doctype/lms_quiz/lms_quiz.json
+msgctxt "LMS Quiz"
+msgid "Settings"
+msgstr ""
+
+#: public/frontend/assets/ProfileAbout-M7A4DT21.js:1
+msgid "Share on"
+msgstr ""
+
+#: public/frontend/assets/CreateCourse-2snz_azq.js:1
+msgid "Short Introduction"
+msgstr ""
+
+#. Label of a Small Text field in DocType 'LMS Course'
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "Short Introduction"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Assignment'
+#: lms/doctype/lms_assignment/lms_assignment.json
+msgctxt "LMS Assignment"
+msgid "Show Answer"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Quiz'
+#: lms/doctype/lms_quiz/lms_quiz.json
+msgctxt "LMS Quiz"
+msgid "Show Answers"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Show Cookie Policy on Signup"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Show Privacy Policy on Signup"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Quiz'
+#: lms/doctype/lms_quiz/lms_quiz.json
+msgctxt "LMS Quiz"
+msgid "Show Submission History"
+msgstr ""
+
+#. Label of a Column Break field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Show Tab in Batch"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Show Terms of Use on Signup"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Show USD Equivalent"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Show day view in timetable"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Batch'
+#: lms/doctype/lms_batch/lms_batch.json
+msgctxt "LMS Batch"
+msgid "Show live class"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Quiz'
+#: lms/doctype/lms_quiz/lms_quiz.json
+msgctxt "LMS Quiz"
+msgid "Shuffle Questions"
+msgstr ""
+
+#. Label of a Tab Break field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Sidebar"
+msgstr ""
+
+#. Label of a Table field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Sidebar Items"
+msgstr ""
+
+#: overrides/user.py:190
+msgid "Sign Up is disabled"
+msgstr ""
+
+#: templates/signup-form.html:50
+msgid "Sign up"
+msgstr ""
+
+#. Label of a Data field in DocType 'Invite Request'
+#: lms/doctype/invite_request/invite_request.json
+msgctxt "Invite Request"
+msgid "Signup Email"
+msgstr ""
+
+#. Label of a Tab Break field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Signup Settings"
+msgstr ""
+
+#. Label of a chart in the LMS Workspace
+#: lms/workspace/lms/lms.json public/frontend/assets/Statistics-Df9qvpz5.js:18
+msgid "Signups"
+msgstr ""
+
+#. Label of a Data field in DocType 'User Skill'
+#: lms/doctype/user_skill/user_skill.json
+msgctxt "User Skill"
+msgid "Skill"
+msgstr ""
+
+#. Label of a Link field in DocType 'Skills'
+#: lms/doctype/skills/skills.json
+msgctxt "Skills"
+msgid "Skill Name"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/skills/skills.json
+msgid "Skills"
+msgstr ""
+
+#: overrides/user.py:38
+msgid "Skills must be unique"
+msgstr ""
+
+#: templates/onboarding_header.html:6
+msgid "Skip"
+msgstr ""
+
+#: lms/doctype/course_evaluator/course_evaluator.py:57
+msgid "Slot Times are overlapping for some schedules."
+msgstr ""
+
+#. Label of a Data field in DocType 'Cohort'
+#: lms/doctype/cohort/cohort.json
+msgctxt "Cohort"
+msgid "Slug"
+msgstr ""
+
+#. Label of a Data field in DocType 'Cohort Subgroup'
+#: lms/doctype/cohort_subgroup/cohort_subgroup.json
+msgctxt "Cohort Subgroup"
+msgid "Slug"
+msgstr ""
+
+#. Label of a Data field in DocType 'Cohort Web Page'
+#: lms/doctype/cohort_web_page/cohort_web_page.json
+msgctxt "Cohort Web Page"
+msgid "Slug"
+msgstr ""
+
+#. Label of a Code field in DocType 'Exercise Latest Submission'
+#: lms/doctype/exercise_latest_submission/exercise_latest_submission.json
+msgctxt "Exercise Latest Submission"
+msgid "Solution"
+msgstr ""
+
+#. Label of a Code field in DocType 'Exercise Submission'
+#: lms/doctype/exercise_submission/exercise_submission.json
+msgctxt "Exercise Submission"
+msgid "Solution"
+msgstr ""
+
+#. Label of a Link field in DocType 'Batch Student'
+#: lms/doctype/batch_student/batch_student.json
+msgctxt "Batch Student"
+msgid "Source"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Payment'
+#: lms/doctype/lms_payment/lms_payment.json
+msgctxt "LMS Payment"
+msgid "Source"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Source'
+#: lms/doctype/lms_source/lms_source.json
+msgctxt "LMS Source"
+msgid "Source"
+msgstr ""
+
+#. Option for the 'Role' (Select) field in DocType 'Cohort Staff'
+#: lms/doctype/cohort_staff/cohort_staff.json
+msgctxt "Cohort Staff"
+msgid "Staff"
+msgstr ""
+
+#. Option for the 'Member Type' (Select) field in DocType 'LMS Enrollment'
+#: lms/doctype/lms_enrollment/lms_enrollment.json
+msgctxt "LMS Enrollment"
+msgid "Staff"
+msgstr ""
+
+#. Label of a Select field in DocType 'LMS Batch Old'
+#: lms/doctype/lms_batch_old/lms_batch_old.json
+msgctxt "LMS Batch Old"
+msgid "Stage"
+msgstr ""
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1
+#: public/frontend/assets/index-D1f05dS8.js:7351 templates/quiz/quiz.html:39
+msgid "Start"
+msgstr ""
+
+#: public/frontend/assets/BatchCreation-9JuqnhbY.js:1
+#: public/js/common_functions.js:275
+msgid "Start Date"
+msgstr ""
+
+#. Label of a Date field in DocType 'Education Detail'
+#: lms/doctype/education_detail/education_detail.json
+msgctxt "Education Detail"
+msgid "Start Date"
+msgstr ""
+
+#. Label of a Date field in DocType 'LMS Batch'
+#: lms/doctype/lms_batch/lms_batch.json
+msgctxt "LMS Batch"
+msgid "Start Date"
+msgstr ""
+
+#. Label of a Date field in DocType 'LMS Batch Old'
+#: lms/doctype/lms_batch_old/lms_batch_old.json
+msgctxt "LMS Batch Old"
+msgid "Start Date"
+msgstr ""
+
+#: public/frontend/assets/Lesson-59XvRJIg.js:18
+#: templates/emails/lms_course_interest.html:9
+msgid "Start Learning"
+msgstr "Comenzar a Aprender"
+
+#: public/frontend/assets/BatchCreation-9JuqnhbY.js:1
+#: public/frontend/assets/ProfileEvaluator-bug1MVAq.js:1
+#: public/js/common_functions.js:292
+msgid "Start Time"
+msgstr ""
+
+#. Label of a Time field in DocType 'Evaluator Schedule'
+#: lms/doctype/evaluator_schedule/evaluator_schedule.json
+msgctxt "Evaluator Schedule"
+msgid "Start Time"
+msgstr ""
+
+#. Label of a Time field in DocType 'LMS Batch'
+#: lms/doctype/lms_batch/lms_batch.json
+msgctxt "LMS Batch"
+msgid "Start Time"
+msgstr ""
+
+#. Label of a Time field in DocType 'LMS Batch Old'
+#: lms/doctype/lms_batch_old/lms_batch_old.json
+msgctxt "LMS Batch Old"
+msgid "Start Time"
+msgstr ""
+
+#. Label of a Time field in DocType 'LMS Batch Timetable'
+#: lms/doctype/lms_batch_timetable/lms_batch_timetable.json
+msgctxt "LMS Batch Timetable"
+msgid "Start Time"
+msgstr ""
+
+#. Label of a Time field in DocType 'LMS Certificate Evaluation'
+#: lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
+msgctxt "LMS Certificate Evaluation"
+msgid "Start Time"
+msgstr ""
+
+#. Label of a Time field in DocType 'LMS Certificate Request'
+#: lms/doctype/lms_certificate_request/lms_certificate_request.json
+msgctxt "LMS Certificate Request"
+msgid "Start Time"
+msgstr ""
+
+#. Label of a Time field in DocType 'Scheduled Flow'
+#: lms/doctype/scheduled_flow/scheduled_flow.json
+msgctxt "Scheduled Flow"
+msgid "Start Time"
+msgstr ""
+
+#: lms/doctype/course_evaluator/course_evaluator.py:28
+msgid "Start Time cannot be greater than End Time"
+msgstr ""
+
+#: lms/web_form/add_a_new_batch/add_a_new_batch.js:43
+msgid "Start Time should be less than End Time."
+msgstr ""
+
+#. Label of a Small Text field in DocType 'LMS Live Class'
+#: lms/doctype/lms_live_class/lms_live_class.json
+msgctxt "LMS Live Class"
+msgid "Start URL"
+msgstr ""
+
+#: lms/web_form/add_a_new_batch/add_a_new_batch.js:30
+msgid "Start date cannot be a past date."
+msgstr ""
+
+#: www/lms.py:134
+msgid "Statistics"
+msgstr "Estadísticas"
+
+#. Label of a Check field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Statistics"
+msgstr "Estadísticas"
+
+#: public/frontend/assets/JobCreation-CU_0h0cz.js:1
+msgid "Status"
+msgstr ""
+
+#. Label of a Select field in DocType 'Cohort'
+#: lms/doctype/cohort/cohort.json
+msgctxt "Cohort"
+msgid "Status"
+msgstr ""
+
+#. Label of a Select field in DocType 'Cohort Join Request'
+#: lms/doctype/cohort_join_request/cohort_join_request.json
+msgctxt "Cohort Join Request"
+msgid "Status"
+msgstr ""
+
+#. Label of a Select field in DocType 'Exercise Latest Submission'
+#: lms/doctype/exercise_latest_submission/exercise_latest_submission.json
+msgctxt "Exercise Latest Submission"
+msgid "Status"
+msgstr ""
+
+#. Label of a Select field in DocType 'Exercise Submission'
+#: lms/doctype/exercise_submission/exercise_submission.json
+msgctxt "Exercise Submission"
+msgid "Status"
+msgstr ""
+
+#. Label of a Select field in DocType 'Invite Request'
+#: lms/doctype/invite_request/invite_request.json
+msgctxt "Invite Request"
+msgid "Status"
+msgstr ""
+
+#. Label of a Select field in DocType 'Job Opportunity'
+#: job/doctype/job_opportunity/job_opportunity.json
+msgctxt "Job Opportunity"
+msgid "Status"
+msgstr ""
+
+#. Label of a Select field in DocType 'LMS Assignment Submission'
+#: lms/doctype/lms_assignment_submission/lms_assignment_submission.json
+msgctxt "LMS Assignment Submission"
+msgid "Status"
+msgstr ""
+
+#. Label of a Select field in DocType 'LMS Batch Old'
+#: lms/doctype/lms_batch_old/lms_batch_old.json
+msgctxt "LMS Batch Old"
+msgid "Status"
+msgstr ""
+
+#. Label of a Select field in DocType 'LMS Certificate Evaluation'
+#: lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
+msgctxt "LMS Certificate Evaluation"
+msgid "Status"
+msgstr ""
+
+#. Label of a Select field in DocType 'LMS Course'
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "Status"
+msgstr ""
+
+#. Label of a Select field in DocType 'LMS Course Progress'
+#: lms/doctype/lms_course_progress/lms_course_progress.json
+msgctxt "LMS Course Progress"
+msgid "Status"
+msgstr ""
+
+#. Label of a Select field in DocType 'LMS Mentor Request'
+#: lms/doctype/lms_mentor_request/lms_mentor_request.json
+msgctxt "LMS Mentor Request"
+msgid "Status"
+msgstr ""
+
+#: templates/assessments.html:17
+msgid "Status/Score"
+msgstr ""
+
+#: public/frontend/assets/ProfileRoles-CVq7nQGs.js:1
+#: templates/signup-form.html:25
+msgid "Student"
+msgstr ""
+
+#. Label of a Link field in DocType 'Batch Student'
+#: lms/doctype/batch_student/batch_student.json
+msgctxt "Batch Student"
+msgid "Student"
+msgstr ""
+
+#. Option for the 'Required Role' (Select) field in DocType 'Cohort Web Page'
+#: lms/doctype/cohort_web_page/cohort_web_page.json
+msgctxt "Cohort Web Page"
+msgid "Student"
+msgstr ""
+
+#. Option for the 'Member Type' (Select) field in DocType 'LMS Enrollment'
+#: lms/doctype/lms_enrollment/lms_enrollment.json
+msgctxt "LMS Enrollment"
+msgid "Student"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'Batch Student'
+#: lms/doctype/batch_student/batch_student.json
+msgctxt "Batch Student"
+msgid "Student Details"
+msgstr ""
+
+#. Label of a Data field in DocType 'Batch Student'
+#: lms/doctype/batch_student/batch_student.json
+msgctxt "Batch Student"
+msgid "Student Name"
+msgstr ""
+
+#: lms/doctype/lms_batch/lms_batch.py:44
+msgid "Student {0} has already been added to this batch."
+msgstr ""
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1
+msgid "Students"
+msgstr ""
+
+#. Label of a Table field in DocType 'LMS Batch'
+#: lms/doctype/lms_batch/lms_batch.json
+msgctxt "LMS Batch"
+msgid "Students"
+msgstr ""
+
+#. Label of a Check field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Students"
+msgstr ""
+
+#. Description of the 'Paid Batch' (Check) field in DocType 'LMS Batch'
+#: lms/doctype/lms_batch/lms_batch.json
+msgctxt "LMS Batch"
+msgid "Students will be enrolled in a paid batch once they complete the payment"
+msgstr ""
+
+#. Label of a Link field in DocType 'Cohort Join Request'
+#: lms/doctype/cohort_join_request/cohort_join_request.json
+msgctxt "Cohort Join Request"
+msgid "Subgroup"
+msgstr ""
+
+#. Option for the 'Scope' (Select) field in DocType 'Cohort Web Page'
+#: lms/doctype/cohort_web_page/cohort_web_page.json
+msgctxt "Cohort Web Page"
+msgid "Subgroup"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Enrollment'
+#: lms/doctype/lms_enrollment/lms_enrollment.json
+msgctxt "LMS Enrollment"
+msgid "Subgroup"
+msgstr ""
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1
+msgid "Subject"
+msgstr ""
+
+#: public/frontend/assets/AssignmentSubmission-D1b-IhRa.js:1
+msgid "Submission"
+msgstr ""
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1
+#: public/frontend/assets/index-D1f05dS8.js:7351 templates/assignment.html:9
+#: templates/livecode/extension_footer.html:25 templates/quiz/quiz.html:128
+#: templates/reviews.html:163 www/new-sign-up.html:32
+msgid "Submit"
+msgstr "Enviar"
+
+#: public/frontend/assets/JobDetail-CBHvk1ll.js:1
+msgid "Submit your resume to proceed with your application for this position. Upon submission, it will be shared with the job poster."
+msgstr ""
+
+#: templates/livecode/extension_footer.html:85
+#: templates/livecode/extension_footer.html:115
+msgid "Submitted {0}"
+msgstr ""
+
+#. Label of a Small Text field in DocType 'LMS Certificate Evaluation'
+#: lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
+msgctxt "LMS Certificate Evaluation"
+msgid "Summary"
+msgstr ""
+
+#. Option for the 'Day' (Select) field in DocType 'Evaluator Schedule'
+#: lms/doctype/evaluator_schedule/evaluator_schedule.json
+msgctxt "Evaluator Schedule"
+msgid "Sunday"
+msgstr ""
+
+#. Option for the 'Day' (Select) field in DocType 'LMS Certificate Request'
+#: lms/doctype/lms_certificate_request/lms_certificate_request.json
+msgctxt "LMS Certificate Request"
+msgid "Sunday"
+msgstr ""
+
+#: lms/doctype/course_lesson/course_lesson.js:32
+msgid "Supported File Types for Assignment"
+msgstr ""
+
+#: lms/doctype/course_lesson/course_lesson.js:17
+#: lms/doctype/course_lesson/course_lesson.js:32
+msgid "Syntax"
+msgstr ""
+
+#. Name of a role
+#: job/doctype/job_opportunity/job_opportunity.json
+#: job/doctype/job_settings/job_settings.json
+#: job/doctype/lms_job_application/lms_job_application.json
+#: lms/doctype/cohort/cohort.json
+#: lms/doctype/cohort_join_request/cohort_join_request.json
+#: lms/doctype/cohort_mentor/cohort_mentor.json
+#: lms/doctype/cohort_staff/cohort_staff.json
+#: lms/doctype/cohort_subgroup/cohort_subgroup.json
+#: lms/doctype/course_chapter/course_chapter.json
+#: lms/doctype/course_evaluator/course_evaluator.json
+#: lms/doctype/course_lesson/course_lesson.json
+#: lms/doctype/exercise_latest_submission/exercise_latest_submission.json
+#: lms/doctype/exercise_submission/exercise_submission.json
+#: lms/doctype/function/function.json lms/doctype/industry/industry.json
+#: lms/doctype/invite_request/invite_request.json
+#: lms/doctype/lms_assignment/lms_assignment.json
+#: lms/doctype/lms_assignment_submission/lms_assignment_submission.json
+#: lms/doctype/lms_badge/lms_badge.json
+#: lms/doctype/lms_badge_assignment/lms_badge_assignment.json
+#: lms/doctype/lms_batch/lms_batch.json
+#: lms/doctype/lms_batch_old/lms_batch_old.json
+#: lms/doctype/lms_category/lms_category.json
+#: lms/doctype/lms_certificate/lms_certificate.json
+#: lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
+#: lms/doctype/lms_certificate_request/lms_certificate_request.json
+#: lms/doctype/lms_course/lms_course.json
+#: lms/doctype/lms_course_interest/lms_course_interest.json
+#: lms/doctype/lms_course_mentor_mapping/lms_course_mentor_mapping.json
+#: lms/doctype/lms_course_progress/lms_course_progress.json
+#: lms/doctype/lms_course_review/lms_course_review.json
+#: lms/doctype/lms_enrollment/lms_enrollment.json
+#: lms/doctype/lms_exercise/lms_exercise.json
+#: lms/doctype/lms_live_class/lms_live_class.json
+#: lms/doctype/lms_mentor_request/lms_mentor_request.json
+#: lms/doctype/lms_payment/lms_payment.json
+#: lms/doctype/lms_question/lms_question.json
+#: lms/doctype/lms_quiz/lms_quiz.json
+#: lms/doctype/lms_quiz_submission/lms_quiz_submission.json
+#: lms/doctype/lms_settings/lms_settings.json
+#: lms/doctype/lms_source/lms_source.json
+#: lms/doctype/lms_timetable_template/lms_timetable_template.json
+#: lms/doctype/user_skill/user_skill.json
+#: lms/doctype/zoom_settings/zoom_settings.json
+msgid "System Manager"
+msgstr ""
+
+#: public/frontend/assets/CreateCourse-2snz_azq.js:1
+msgid "Tags"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Course'
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "Tags"
+msgstr ""
+
+#: templates/emails/community_course_membership.html:18
+#: templates/emails/mentor_request_creation_email.html:8
+#: templates/emails/mentor_request_status_update_email.html:7
+msgid "Team School"
+msgstr ""
+
+#. Label of a Link field in DocType 'Cohort Web Page'
+#: lms/doctype/cohort_web_page/cohort_web_page.json
+msgctxt "Cohort Web Page"
+msgid "Template"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Certificate'
+#: lms/doctype/lms_certificate/lms_certificate.json
+msgctxt "LMS Certificate"
+msgid "Template"
+msgstr ""
+
+#: overrides/user.py:201
+msgid "Temporarily Disabled"
+msgstr ""
+
+#: lms/utils.py:420
+msgid "Terms of Use"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Terms of Use Page"
+msgstr ""
+
+#. Label of a Small Text field in DocType 'Exercise Latest Submission'
+#: lms/doctype/exercise_latest_submission/exercise_latest_submission.json
+msgctxt "Exercise Latest Submission"
+msgid "Test Results"
+msgstr ""
+
+#. Label of a Small Text field in DocType 'Exercise Submission'
+#: lms/doctype/exercise_submission/exercise_submission.json
+msgctxt "Exercise Submission"
+msgid "Test Results"
+msgstr ""
+
+#. Label of a Code field in DocType 'LMS Exercise'
+#: lms/doctype/lms_exercise/lms_exercise.json
+msgctxt "LMS Exercise"
+msgid "Tests"
+msgstr ""
+
+#. Option for the 'Type' (Select) field in DocType 'LMS Assignment'
+#: lms/doctype/lms_assignment/lms_assignment.json
+msgctxt "LMS Assignment"
+msgid "Text"
+msgstr ""
+
+#. Option for the 'Type' (Select) field in DocType 'LMS Assignment Submission'
+#: lms/doctype/lms_assignment_submission/lms_assignment_submission.json
+msgctxt "LMS Assignment Submission"
+msgid "Text"
+msgstr ""
+
+#: templates/emails/lms_course_interest.html:17
+#: templates/emails/lms_invite_request_approved.html:15
+#: templates/emails/mentor_request_creation_email.html:7
+#: templates/emails/mentor_request_status_update_email.html:6
+msgid "Thanks and Regards"
+msgstr ""
+
+#: templates/emails/lms_course_interest.html:5
+msgid "The course {0} is now available on {1}."
+msgstr ""
+
+#: public/frontend/assets/index-D1f05dS8.js:7351 templates/quiz/quiz.html:24
+msgid "The quiz has a time limit. For each question you will be given {0} seconds."
+msgstr ""
+
+#: lms/doctype/lms_certificate_request/lms_certificate_request.py:61
+msgid "The slot is already booked by another participant."
+msgstr ""
+
+#: patches/create_mentor_request_email_templates.py:40
+msgid "The status of your application has changed."
+msgstr ""
+
+#: lms/doctype/lms_batch/lms_batch.py:129
+msgid "There are no seats available in this batch."
+msgstr ""
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1
+msgid "There are no students in this batch."
+msgstr ""
+
+#: templates/course_list.html:14
+msgid "There are no {0} on this site."
+msgstr ""
+
+#: lms/utils.py:1123
+msgid "There is a problem with the payment gateway. Please contact the Administrator to proceed."
+msgstr ""
+
+#. Description of the 'section_break_ubxi' (Section Break) field in DocType
+#. 'LMS Batch'
+#: lms/doctype/lms_batch/lms_batch.json
+msgctxt "LMS Batch"
+msgid "These customisations will work on the main batch page."
+msgstr ""
+
+#: public/frontend/assets/Badge-DYL399Ho.js:1
+msgid "This badge has been awarded to {0} on {1}."
+msgstr ""
+
+#. Label of a Check field in DocType 'Certification'
+#: lms/doctype/certification/certification.json
+msgctxt "Certification"
+msgid "This certificate does no expire"
+msgstr ""
+
+#: lms/utils.py:1081 lms/utils.py:1822
+msgid "This course is free."
+msgstr ""
+
+#: lms/widgets/CourseOutline.html:62
+msgid "This lesson is not available for preview. As you are the Instructor of the course only you can see it."
+msgstr "Esta lección no está disponible para la vista previa. Como usted es el instructor del curso, sólo usted puede verla."
+
+#: public/frontend/assets/Lesson-59XvRJIg.js:18
+msgid "This lesson is not available for preview. Please enroll in the course to access it."
+msgstr ""
+
+#: lms/widgets/NoPreviewModal.html:16
+msgid "This lesson is not available for preview. Please join the course to access it."
+msgstr "Esta lección no está disponible para la vista previa. Por favor, únase al curso para acceder a ella."
+
+#: public/frontend/assets/index-D1f05dS8.js:7351 templates/quiz/quiz.html:6
+msgid "This quiz consists of {0} questions."
+msgstr ""
+
+#. Option for the 'Day' (Select) field in DocType 'Evaluator Schedule'
+#: lms/doctype/evaluator_schedule/evaluator_schedule.json
+msgctxt "Evaluator Schedule"
+msgid "Thursday"
+msgstr ""
+
+#. Option for the 'Day' (Select) field in DocType 'LMS Certificate Request'
+#: lms/doctype/lms_certificate_request/lms_certificate_request.json
+msgctxt "LMS Certificate Request"
+msgid "Thursday"
+msgstr ""
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1
+msgid "Time"
+msgstr ""
+
+#. Label of a Time field in DocType 'LMS Live Class'
+#: lms/doctype/lms_live_class/lms_live_class.json
+msgctxt "LMS Live Class"
+msgid "Time"
+msgstr ""
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1
+msgid "Time must be in 24 hour format (HH:mm). Example 11:30 or 22:00"
+msgstr ""
+
+#. Label of a Tab Break field in DocType 'LMS Batch'
+#. Label of a Table field in DocType 'LMS Batch'
+#: lms/doctype/lms_batch/lms_batch.json
+msgctxt "LMS Batch"
+msgid "Timetable"
+msgstr ""
+
+#. Label of a Table field in DocType 'LMS Timetable Template'
+#: lms/doctype/lms_timetable_template/lms_timetable_template.json
+msgctxt "LMS Timetable Template"
+msgid "Timetable"
+msgstr ""
+
+#. Label of a Table field in DocType 'LMS Batch'
+#: lms/doctype/lms_batch/lms_batch.json
+msgctxt "LMS Batch"
+msgid "Timetable Legends"
+msgstr ""
+
+#. Label of a Table field in DocType 'LMS Timetable Template'
+#: lms/doctype/lms_timetable_template/lms_timetable_template.json
+msgctxt "LMS Timetable Template"
+msgid "Timetable Legends"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Batch'
+#: lms/doctype/lms_batch/lms_batch.json
+msgctxt "LMS Batch"
+msgid "Timetable Template"
+msgstr ""
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1
+#: public/frontend/assets/BatchCreation-9JuqnhbY.js:1
+msgid "Timezone"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Batch'
+#: lms/doctype/lms_batch/lms_batch.json
+msgctxt "LMS Batch"
+msgid "Timezone"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Live Class'
+#: lms/doctype/lms_live_class/lms_live_class.json
+msgctxt "LMS Live Class"
+msgid "Timezone"
+msgstr ""
+
+#: templates/emails/batch_confirmation.html:24
+msgid "Timings:"
+msgstr ""
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1
+#: public/frontend/assets/BatchCreation-9JuqnhbY.js:1
+#: public/frontend/assets/CreateCourse-2snz_azq.js:1
+#: public/frontend/assets/Discussions-BUeR4n3G.js:1
+#: public/frontend/assets/JobCreation-CU_0h0cz.js:1
+#: public/js/common_functions.js:259
+msgid "Title"
+msgstr ""
+
+#. Label of a Data field in DocType 'Cohort'
+#: lms/doctype/cohort/cohort.json
+msgctxt "Cohort"
+msgid "Title"
+msgstr ""
+
+#. Label of a Data field in DocType 'Cohort Subgroup'
+#: lms/doctype/cohort_subgroup/cohort_subgroup.json
+msgctxt "Cohort Subgroup"
+msgid "Title"
+msgstr ""
+
+#. Label of a Data field in DocType 'Cohort Web Page'
+#: lms/doctype/cohort_web_page/cohort_web_page.json
+msgctxt "Cohort Web Page"
+msgid "Title"
+msgstr ""
+
+#. Label of a Data field in DocType 'Course Chapter'
+#: lms/doctype/course_chapter/course_chapter.json
+msgctxt "Course Chapter"
+msgid "Title"
+msgstr ""
+
+#. Label of a Data field in DocType 'Course Lesson'
+#: lms/doctype/course_lesson/course_lesson.json
+msgctxt "Course Lesson"
+msgid "Title"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Assignment'
+#: lms/doctype/lms_assignment/lms_assignment.json
+msgctxt "LMS Assignment"
+msgid "Title"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Badge'
+#: lms/doctype/lms_badge/lms_badge.json
+msgctxt "LMS Badge"
+msgid "Title"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Batch'
+#: lms/doctype/lms_batch/lms_batch.json
+msgctxt "LMS Batch"
+msgid "Title"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Batch Old'
+#: lms/doctype/lms_batch_old/lms_batch_old.json
+msgctxt "LMS Batch Old"
+msgid "Title"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Course'
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "Title"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Exercise'
+#: lms/doctype/lms_exercise/lms_exercise.json
+msgctxt "LMS Exercise"
+msgid "Title"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Live Class'
+#: lms/doctype/lms_live_class/lms_live_class.json
+msgctxt "LMS Live Class"
+msgid "Title"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Quiz'
+#: lms/doctype/lms_quiz/lms_quiz.json
+msgctxt "LMS Quiz"
+msgid "Title"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Sidebar Item'
+#: lms/doctype/lms_sidebar_item/lms_sidebar_item.json
+msgctxt "LMS Sidebar Item"
+msgid "Title"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Timetable Template'
+#: lms/doctype/lms_timetable_template/lms_timetable_template.json
+msgctxt "LMS Timetable Template"
+msgid "Title"
+msgstr ""
+
+#. Label of a Data field in DocType 'Work Experience'
+#: lms/doctype/work_experience/work_experience.json
+msgctxt "Work Experience"
+msgid "Title"
+msgstr ""
+
+#: public/frontend/assets/ProfileEvaluator-bug1MVAq.js:1
+msgid "To"
+msgstr ""
+
+#. Label of a Date field in DocType 'Course Evaluator'
+#: lms/doctype/course_evaluator/course_evaluator.json
+msgctxt "Course Evaluator"
+msgid "To"
+msgstr ""
+
+#. Label of a Date field in DocType 'Work Experience'
+#: lms/doctype/work_experience/work_experience.json
+msgctxt "Work Experience"
+msgid "To Date"
+msgstr ""
+
+#: lms/web_form/profile/profile.js:19
+msgid "To Date is mandatory in Work Experience."
+msgstr ""
+
+#: public/frontend/assets/CreateLesson-7ZGJlo2v.js:1
+msgid "To add a YouTube video, paste the URL of the video in the editor."
+msgstr ""
+
+#: lms/utils.py:1090 lms/utils.py:1833
+msgid "To join this batch, please contact the Administrator."
+msgstr ""
+
+#: overrides/user.py:202
+msgid "Too many users signed up recently, so the registration is disabled. Please try back in an hour"
+msgstr ""
+
+#. Label of a Int field in DocType 'LMS Quiz'
+#: lms/doctype/lms_quiz/lms_quiz.json
+msgctxt "LMS Quiz"
+msgid "Total Marks"
+msgstr ""
+
+#: lms/web_template/lms_statistics/lms_statistics.html:14
+#: templates/statistics.html:12
+msgid "Total Signups"
+msgstr ""
+
+#: public/frontend/assets/index-D1f05dS8.js:7351 templates/quiz/quiz.html:131
+msgid "Try Again"
+msgstr ""
+
+#. Option for the 'Day' (Select) field in DocType 'Evaluator Schedule'
+#: lms/doctype/evaluator_schedule/evaluator_schedule.json
+msgctxt "Evaluator Schedule"
+msgid "Tuesday"
+msgstr ""
+
+#. Option for the 'Day' (Select) field in DocType 'LMS Certificate Request'
+#: lms/doctype/lms_certificate_request/lms_certificate_request.json
+msgctxt "LMS Certificate Request"
+msgid "Tuesday"
+msgstr ""
+
+#: public/frontend/assets/ProfileAbout-M7A4DT21.js:1
+msgid "Twitter"
+msgstr ""
+
+#: public/frontend/assets/JobCreation-CU_0h0cz.js:1
+#: templates/assessments.html:14
+msgid "Type"
+msgstr ""
+
+#. Label of a Select field in DocType 'Job Opportunity'
+#: job/doctype/job_opportunity/job_opportunity.json
+msgctxt "Job Opportunity"
+msgid "Type"
+msgstr ""
+
+#. Label of a Select field in DocType 'LMS Assignment'
+#: lms/doctype/lms_assignment/lms_assignment.json
+msgctxt "LMS Assignment"
+msgid "Type"
+msgstr ""
+
+#. Label of a Select field in DocType 'LMS Assignment Submission'
+#: lms/doctype/lms_assignment_submission/lms_assignment_submission.json
+msgctxt "LMS Assignment Submission"
+msgid "Type"
+msgstr ""
+
+#. Label of a Select field in DocType 'LMS Question'
+#: lms/doctype/lms_question/lms_question.json
+msgctxt "LMS Question"
+msgid "Type"
+msgstr ""
+
+#. Option for the 'Grade Type' (Select) field in DocType 'Education Detail'
+#: lms/doctype/education_detail/education_detail.json
+msgctxt "Education Detail"
+msgid "UK Grading  (e.g. 1st, 2:2)"
+msgstr ""
+
+#. Option for the 'Type' (Select) field in DocType 'LMS Assignment'
+#: lms/doctype/lms_assignment/lms_assignment.json
+msgctxt "LMS Assignment"
+msgid "URL"
+msgstr ""
+
+#. Option for the 'Type' (Select) field in DocType 'LMS Assignment Submission'
+#: lms/doctype/lms_assignment_submission/lms_assignment_submission.json
+msgctxt "LMS Assignment Submission"
+msgid "URL"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'Course Evaluator'
+#: lms/doctype/course_evaluator/course_evaluator.json
+msgctxt "Course Evaluator"
+msgid "Unavailability"
+msgstr ""
+
+#: lms/doctype/course_evaluator/course_evaluator.py:23
+msgid "Unavailable From Date cannot be greater than Unavailable To Date"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'LMS Course'
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "Under Review"
+msgstr "Bajo Revisión"
+
+#. Option for the 'Visibility' (Select) field in DocType 'LMS Batch Old'
+#: lms/doctype/lms_batch_old/lms_batch_old.json
+msgctxt "LMS Batch Old"
+msgid "Unlisted"
+msgstr ""
+
+#: public/frontend/assets/Profile-CcZj7_FE.js:1
+msgid "Unsplash"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Settings'
+#: lms/doctype/lms_settings/lms_settings.json
+msgctxt "LMS Settings"
+msgid "Unsplash Access Key"
+msgstr ""
+
+#: public/frontend/assets/CreateCourse-2snz_azq.js:1
+msgid "Upcoming"
+msgstr "Por venir"
+
+#. Option for the 'Status' (Select) field in DocType 'Cohort'
+#: lms/doctype/cohort/cohort.json
+msgctxt "Cohort"
+msgid "Upcoming"
+msgstr "Por venir"
+
+#. Label of a Check field in DocType 'LMS Course'
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "Upcoming"
+msgstr "Por venir"
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1
+msgid "Upcoming Batches"
+msgstr ""
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1 templates/upcoming_evals.html:3
+msgid "Upcoming Evaluations"
+msgstr ""
+
+#: templates/emails/community_course_membership.html:11
+msgid "Update Password"
+msgstr ""
+
+#: public/frontend/assets/AssignmentSubmission-D1b-IhRa.js:1
+msgid "Upload File"
+msgstr ""
+
+#: public/frontend/assets/CreateLesson-7ZGJlo2v.js:1
+msgid "Upload a File"
+msgstr ""
+
+#: lms/doctype/course_lesson/course_lesson.js:26
+msgid "Upload a video from your local machine to the {0}. Copy and paste this syntax in the editor. Replace 'url_of_source' with the File URL field of the document you created in the File DocType."
+msgstr ""
+
+#: lms/doctype/course_lesson/course_lesson.js:19
+msgid "Upload the video on youtube."
+msgstr ""
+
+#: public/frontend/assets/JobDetail-CBHvk1ll.js:1
+msgid "Uploading ${s}%"
+msgstr ""
+
+#: public/frontend/assets/AssignmentSubmission-D1b-IhRa.js:1
+#: public/frontend/assets/CreateLesson-7ZGJlo2v.js:1
+msgid "Uploading {0}%"
+msgstr ""
+
+#. Label of a Link field in DocType 'Cohort Staff'
+#: lms/doctype/cohort_staff/cohort_staff.json
+msgctxt "Cohort Staff"
+msgid "User"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Course Interest'
+#: lms/doctype/lms_course_interest/lms_course_interest.json
+msgctxt "LMS Course Interest"
+msgid "User"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Job Application'
+#: job/doctype/lms_job_application/lms_job_application.json
+msgctxt "LMS Job Application"
+msgid "User"
+msgstr ""
+
+#: templates/signup-form.html:16
+msgid "User Category"
+msgstr ""
+
+#. Label of a Select field in DocType 'LMS Badge'
+#: lms/doctype/lms_badge/lms_badge.json
+msgctxt "LMS Badge"
+msgid "User Field"
+msgstr ""
+
+#. Option for the 'Type' (Select) field in DocType 'LMS Question'
+#: lms/doctype/lms_question/lms_question.json
+msgctxt "LMS Question"
+msgid "User Input"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/user_skill/user_skill.json
+msgid "User Skill"
+msgstr ""
+
+#: job/doctype/job_opportunity/job_opportunity.py:37
+msgid "User {0} has reported the job post {1}"
+msgstr ""
+
+#. Label of a Data field in DocType 'Batch Student'
+#: lms/doctype/batch_student/batch_student.json
+msgctxt "Batch Student"
+msgid "Username"
+msgstr ""
+
+#. Label of a Data field in DocType 'Invite Request'
+#: lms/doctype/invite_request/invite_request.json
+msgctxt "Invite Request"
+msgid "Username"
+msgstr ""
+
+#. Label of a shortcut in the LMS Workspace
+#: lms/workspace/lms/lms.json
+msgctxt "User"
+msgid "Users"
+msgstr ""
+
+#. Label of a Small Text field in DocType 'LMS Quiz Result'
+#: lms/doctype/lms_quiz_result/lms_quiz_result.json
+msgctxt "LMS Quiz Result"
+msgid "Users Response"
+msgstr ""
+
+#: templates/signup-form.html:80
+msgid "Valid email and name required"
+msgstr ""
+
+#. Option for the 'Event' (Select) field in DocType 'LMS Badge'
+#: lms/doctype/lms_badge/lms_badge.json
+msgctxt "LMS Badge"
+msgid "Value Change"
+msgstr ""
+
+#: lms/doctype/course_lesson/course_lesson.js:26
+msgid "Video"
+msgstr ""
+
+#. Label of a Data field in DocType 'LMS Course'
+#: lms/doctype/lms_course/lms_course.json
+msgctxt "LMS Course"
+msgid "Video Embed Link"
+msgstr ""
+
+#: public/frontend/assets/Notifications-YFJ-Ay-J.js:1
+msgid "View"
+msgstr ""
+
+#: public/frontend/assets/CreateCourse-2snz_azq.js:1
+msgid "View Course"
+msgstr ""
+
+#. Label of a Select field in DocType 'LMS Batch Old'
+#: lms/doctype/lms_batch_old/lms_batch_old.json
+msgctxt "LMS Batch Old"
+msgid "Visibility"
+msgstr ""
+
+#: templates/emails/batch_confirmation.html:28
+msgid "Visit the following link to view your "
+msgstr ""
+
+#: templates/emails/batch_confirmation.html:6
+msgid "We are pleased to inform you that you have been enrolled in our upcoming batch. Congratulations!"
+msgstr ""
+
+#: public/frontend/assets/index-D1f05dS8.js:7369
+msgid "Web Page"
+msgstr ""
+
+#. Label of a Link field in DocType 'LMS Sidebar Item'
+#: lms/doctype/lms_sidebar_item/lms_sidebar_item.json
+msgctxt "LMS Sidebar Item"
+msgid "Web Page"
+msgstr ""
+
+#: public/frontend/assets/index-D1f05dS8.js:7369
+msgid "Web Pages"
+msgstr ""
+
+#. Option for the 'Day' (Select) field in DocType 'Evaluator Schedule'
+#: lms/doctype/evaluator_schedule/evaluator_schedule.json
+msgctxt "Evaluator Schedule"
+msgid "Wednesday"
+msgstr ""
+
+#. Option for the 'Day' (Select) field in DocType 'LMS Certificate Request'
+#: lms/doctype/lms_certificate_request/lms_certificate_request.json
+msgctxt "LMS Certificate Request"
+msgid "Wednesday"
+msgstr ""
+
+#: lms/doctype/invite_request/invite_request.py:40
+#: templates/emails/lms_invite_request_approved.html:4
+msgid "Welcome to {0}!"
+msgstr ""
+
+#: templates/courses_under_review.html:15
+msgid "When a course gets submitted for review, it will be listed here."
+msgstr ""
+
+#: lms/doctype/course_lesson/course_lesson.js:19
+msgid "When you share a youtube video, it shows an option called Embed."
+msgstr ""
+
+#: templates/emails/certification.html:10
+msgid "With this certification, you can now showcase your updated skills and share your achievement with your colleagues and on LinkedIn. To access your certificate, please click on the link provided below. Make sure you are logged in to the portal."
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'LMS Mentor Request'
+#: lms/doctype/lms_mentor_request/lms_mentor_request.json
+msgctxt "LMS Mentor Request"
+msgid "Withdrawn"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/work_experience/work_experience.json
+msgid "Work Experience"
+msgstr ""
+
+#: templates/reviews.html:117
+msgid "Write a Review"
+msgstr ""
+
+#: templates/reviews.html:31 templates/reviews.html:103
+#: templates/reviews_cta.html:3 templates/reviews_cta.html:7
+msgid "Write a review"
+msgstr "Escribe una reseña"
+
+#: public/frontend/assets/AssignmentSubmission-D1b-IhRa.js:1
+msgid "Write your answer here"
+msgstr ""
+
+#: lms/doctype/lms_certificate_request/lms_certificate_request.py:85
+msgid "You already have an evaluation on {0} at {1} for the course {2}."
+msgstr ""
+
+#: lms/api.py:204
+msgid "You are already enrolled for this batch."
+msgstr ""
+
+#: lms/api.py:196
+msgid "You are already enrolled for this course."
+msgstr ""
+
+#: public/frontend/assets/Batch-BYfbr7eo.js:1
+msgid "You are not a member of this batch. Please checkout our upcoming batches."
+msgstr ""
+
+#: lms/doctype/lms_batch_old/lms_batch_old.py:20
+msgid "You are not a mentor of the course {0}"
+msgstr ""
+
+#: lms/doctype/course_lesson/course_lesson.js:15
+msgid "You can add some more additional content to the lesson using a special syntax. The table below mentions all types of dynamic content that you can add to the lessons and the syntax for the same."
+msgstr ""
+
+#: templates/emails/lms_course_interest.html:13
+#: templates/emails/lms_invite_request_approved.html:11
+msgid "You can also copy-paste following link in your browser"
+msgstr ""
+
+#: templates/quiz/quiz.html:18
+msgid "You can attempt this quiz only {0} {1}"
+msgstr ""
+
+#: public/frontend/assets/index-D1f05dS8.js:7351
+msgid "You can attempt this quiz {0}."
+msgstr ""
+
+#: templates/emails/job_application.html:6
+msgid "You can find their resume attached to this email."
+msgstr ""
+
+#: lms/doctype/lms_certificate_request/lms_certificate_request.py:105
+msgid "You cannot schedule evaluations after {0}."
+msgstr ""
+
+#: lms/doctype/lms_certificate_request/lms_certificate_request.py:94
+msgid "You cannot schedule evaluations for past slots."
+msgstr ""
+
+#: public/frontend/assets/Profile-CcZj7_FE.js:1
+msgid "You do not have permission to access this page."
+msgstr ""
+
+#: templates/notifications.html:27
+msgid "You don't have any notifications."
+msgstr ""
+
+#: templates/quiz/quiz.js:136
+msgid "You got"
+msgstr ""
+
+#: public/frontend/assets/index-D1f05dS8.js:7351
+#, python-format
+msgid "You got {0}% correct answers with a score of {1} out of {2}"
+msgstr ""
+
+#: job/doctype/lms_job_application/lms_job_application.py:22
+msgid "You have already applied for this job."
+msgstr ""
+
+#: public/frontend/assets/index-D1f05dS8.js:7351 templates/quiz/quiz.html:43
+msgid "You have already exceeded the maximum number of attempts allowed for this quiz."
+msgstr ""
+
+#: lms/doctype/lms_course_review/lms_course_review.py:17
+msgid "You have already reviewed this course"
+msgstr ""
+
+#: lms/widgets/NoPreviewModal.html:12 public/js/common_functions.js:126
+msgid "You have opted to be notified for this course. You will receive an email when the course becomes available."
+msgstr ""
+
+#: lms/web_template/courses_enrolled/courses_enrolled.html:17
+msgid "You haven't enrolled for any courses"
+msgstr ""
+
+#: public/frontend/assets/index-D1f05dS8.js:7351 templates/quiz/quiz.html:11
+#, python-format
+msgid "You will have to get {0}% correct answers in order to pass the quiz."
+msgstr ""
+
+#: templates/emails/mentor_request_creation_email.html:4
+msgid "You've applied to become a mentor for this course. Your request is currently under review."
+msgstr ""
+
+#: public/frontend/assets/AssignmentSubmission-D1b-IhRa.js:1
+msgid "You've successfully submitted the assignment."
+msgstr ""
+
+#: lms/doctype/course_lesson/course_lesson.js:17
+msgid "YouTube Video"
+msgstr ""
+
+#. Label of a Data field in DocType 'Course Lesson'
+#: lms/doctype/course_lesson/course_lesson.json
+msgctxt "Course Lesson"
+msgid "YouTube Video URL"
+msgstr ""
+
+#. Description of the 'YouTube Video URL' (Data) field in DocType 'Course
+#. Lesson'
+#: lms/doctype/course_lesson/course_lesson.json
+msgctxt "Course Lesson"
+msgid "YouTube Video will appear at the top of the lesson."
+msgstr ""
+
+#: www/new-sign-up.html:56
+msgid "Your Account has been successfully created!"
+msgstr ""
+
+#: public/frontend/assets/ProfileEvaluator-bug1MVAq.js:1
+msgid "Your calendar is set."
+msgstr ""
+
+#: lms/notification/certificate_request_creation/certificate_request_creation.html:6
+#: lms/notification/certificate_request_reminder/certificate_request_reminder.html:5
+msgid "Your evaluation for the course {0} has been scheduled on {1} at {2} {3}."
+msgstr ""
+
+#: templates/emails/mentor_request_status_update_email.html:4
+msgid "Your request to join us as a mentor for the course"
+msgstr ""
+
+#: templates/quiz/quiz.js:136
+msgid "Your score is"
+msgstr ""
+
+#. Name of a DocType
+#: lms/doctype/zoom_settings/zoom_settings.json
+msgid "Zoom Settings"
+msgstr ""
+
+#: templates/emails/mentor_request_creation_email.html:5
+msgid "cancel your application"
+msgstr ""
+
+#: templates/quiz/quiz.js:136
+msgid "correct answers"
+msgstr ""
+
+#: public/frontend/assets/Billing-CGToWkz4.js:1
+#: public/frontend/assets/CourseDetail-CwRZRbF1.js:1
+#: public/frontend/assets/JobDetail-CBHvk1ll.js:1
+msgid "div"
+msgstr ""
+
+#: templates/emails/mentor_request_status_update_email.html:4
+msgid "has been"
+msgstr ""
+
+#: templates/signup-form.html:11
+msgid "jane@example.com"
+msgstr ""
+
+#: templates/quiz/quiz.html:106
+msgid "of"
+msgstr ""
+
+#: templates/quiz/quiz.js:136
+msgid "out of"
+msgstr ""
+
+#: templates/reviews.html:25
+msgid "ratings"
+msgstr ""
+
+#: templates/reviews.html:43
+msgid "stars"
+msgstr ""
+
+#: templates/emails/mentor_request_creation_email.html:5
+msgid "you can"
+msgstr ""
+
+#: templates/emails/job_application.html:2
+msgid "{0} has applied for the job position {1}"
+msgstr ""
+
+#: templates/emails/job_report.html:4
+msgid "{0} has reported a job post for the following reason."
+msgstr ""
+
+#: templates/emails/assignment_submission.html:2
+msgid "{0} has submitted the assignment {1}"
+msgstr ""
+
+#: lms/doctype/lms_enrollment/lms_enrollment.py:53
+msgid "{0} is already a Student of {1} course through {2} batch"
+msgstr ""
+
+#: lms/doctype/lms_course_mentor_mapping/lms_course_mentor_mapping.py:16
+msgid "{0} is already a mentor for course {1}"
+msgstr ""
+
+#: lms/doctype/lms_enrollment/lms_enrollment.py:26
+msgid "{0} is already a {1} of the course {2}"
+msgstr ""
+
+#: lms/doctype/lms_certificate/lms_certificate.py:59
+msgid "{0} is already certified for the course {1}"
+msgstr ""
+
+#: lms/utils.py:743
+msgid "{0} mentioned you in a comment"
+msgstr ""
+
+#: templates/emails/mention_template.html:2
+msgid "{0} mentioned you in a comment in your batch."
+msgstr ""
+
+#: lms/utils.py:696 lms/utils.py:702
+msgid "{0} mentioned you in a comment in {1}"
+msgstr ""
+
+#: lms/utils.py:499
+msgid "{0}k"
+msgstr ""
+
+#: public/frontend/assets/frappe-ui-0rNYcqgR.js:137
+msgid "{|}~.]+@[-a-z0-9]+(.[-a-z0-9]+)*.[a-z]+)(?=$|s)/gmi,b=/<()(?:mailto:)?([-.w]+@[-a-z0-9]+(.[-a-z0-9]+)*.[a-z]+)>/gi,w=function(h){return function(y,g,x,S,E,C,M){x=x.replace(r.helper.regexes.asteriskDashAndColon,r.helper.escapeCharactersCallback);var O=x,P=\"\",j=\"\",$=g||\"\",T=M||\"\";return/^www./i.test(x)&&(x=x.replace(/^www./i,\"http://www.\")),h.excludeTrailingPunctuationFromURLs&&C&&(P=C),h.openLinksInNewWindow&&(j=' rel=\"noopener noreferrer\" target=\"¨E95Eblank\"'),$+'<a href=\"'+x+'\"'+j+\">\"+O+\"</a>\"+P+T}},k=function(h,y){return function(g,x,S){var E=\"mailto:\";return x=x||\"\",S=r.subParser(\"unescapeSpecialChars\")(S,h,y),h.encodeEmails?(E=r.helper.encodeEmailAddress(E+S),S=r.helper.encodeEmailAddress(S)):E=E+S,x+'<a href=\"'+E+'\">'+S+\"</a>\"}};r.subParser(\"autoLinks\",function(h,y,g){return h=g.converter._dispatch(\"autoLinks.before\",h,y,g),h=h.replace(m,w(y)),h=h.replace(b,k(y,g)),h=g.converter._dispatch(\"autoLinks.after\",h,y,g),h}),r.subParser(\"simplifiedAutoLinks\",function(h,y,g){return y.simplifiedAutoLink&&(h=g.converter._dispatch(\"simplifiedAutoLinks.before\",h,y,g),y.excludeTrailingPunctuationFromURLs?h=h.replace(p,w(y)):h=h.replace(f,w(y)),h=h.replace(v,k(y,g)),h=g.converter._dispatch(\"simplifiedAutoLinks.after\",h,y,g)),h}),r.subParser(\"blockGamut\",function(h,y,g){return h=g.converter._dispatch(\"blockGamut.before\",h,y,g),h=r.subParser(\"blockQuotes\")(h,y,g),h=r.subParser(\"headers\")(h,y,g),h=r.subParser(\"horizontalRule\")(h,y,g),h=r.subParser(\"lists\")(h,y,g),h=r.subParser(\"codeBlocks\")(h,y,g),h=r.subParser(\"tables\")(h,y,g),h=r.subParser(\"hashHTMLBlocks\")(h,y,g),h=r.subParser(\"paragraphs\")(h,y,g),h=g.converter._dispatch(\"blockGamut.after\",h,y,g),h}),r.subParser(\"blockQuotes\",function(h,y,g){h=g.converter._dispatch(\"blockQuotes.before\",h,y,g),h=h+"
+msgstr ""
+
+#: public/frontend/assets/Lesson-59XvRJIg.js:2
+msgid "{|}~])/g,Se=/&([a-z#][a-z0-9]{1,31});/gi,Be=new RegExp(m0.source+\"|\"+Se.source,\"gi\"),ze=/^#((?:x[a-f0-9]{1,8}|[0-9]{1,8}))$/i;function Te(u,e){if(e.charCodeAt(0)===35&&ze.test(e)){const n=e[1].toLowerCase()===\"x\"?parseInt(e.slice(2),16):parseInt(e.slice(1),10);return Lu(n)?bu(n):u}const t=x0(u);return t!==u?t:u}function qe(u){return u.indexOf(\"\\\")<0?u:u.replace(m0,\"$1\")}function uu(u){return u.indexOf(\"\\\")<0&&u.indexOf(\"&\")<0?u:u.replace(Be,function(e,t,n){return t||Te(e,n)})}const Ie=/[&<>\"]/,Me=/[&<>\"]/g,Ne={\"&\":\"&amp;\",\"<\":\"&lt;\",\">\":\"&gt;\",'\"':\"&quot;\"};function Re(u){return Ne[u]}function Q(u){return Ie.test(u)?u.replace(Me,Re):u}const Le=/[.?*+^$[]\\(){}|-]/g;function Pe(u){return u.replace(Le,\"\\$&\")}function F(u){switch(u){case 9:case 32:return!0}return!1}function nu(u){if(u>=8192&&u<=8202)return!0;switch(u){case 9:case 10:case 11:case 12:case 13:case 32:case 160:case 5760:case 8239:case 8287:case 12288:return!0}return!1}function cu(u){return Nu.test(u)||h0.test(u)}function ou(u){switch(u){case 33:case 34:case 35:case 36:case 37:case 38:case 39:case 40:case 41:case 42:case 43:case 44:case 45:case 46:case 47:case 58:case 59:case 60:case 61:case 62:case 63:case 64:case 91:case 92:case 93:case 94:case 95:case 96:case 123:case 124:case 125:case 126:return!0;default:return!1}}function _u(u){return u=u.trim().replace(/s+/g,\" \"),\"ẞ\".toLowerCase()===\"Ṿ\"&&(u=u.replace(/ẞ/g,\"ß\")),u.toLowerCase().toUpperCase()}const Oe={mdurl:fe,ucmicro:he},$e=Object.freeze(Object.defineProperty({__proto__:null,arrayReplaceAt:_0,assign:xu,escapeHtml:Q,escapeRE:Pe,fromCodePoint:bu,has:ve,isMdAsciiPunct:ou,isPunctChar:cu,isSpace:F,isString:Ru,isValidEntityCode:Lu,isWhiteSpace:nu,lib:Oe,normalizeReference:_u,unescapeAll:uu,unescapeMd:qe},Symbol.toStringTag,{value:\"Module\"}));function je(u,e,t){let n,r,c,i;const o=u.posMax,a=u.pos;for(u.pos=e+1,n=1;u.pos<o;){if(c=u.src.charCodeAt(u.pos),c===93&&(n--,n===0)){r=!0;break}if(i=u.pos,u.md.inline.skipToken(u),c===91){if(i===u.pos-1)n++;else if(t)return u.pos=a,-1}}let s=-1;return r&&(s=u.pos),u.pos=a,s}function Ue(u,e,t){let n,r=e;const c={ok:!1,pos:0,str:\"\"};if(u.charCodeAt(r)===60){for(r++;r<t;){if(n=u.charCodeAt(r),n===10||n===60)return c;if(n===62)return c.pos=r+1,c.str=uu(u.slice(e+1,r)),c.ok=!0,c;if(n===92&&r+1<t){r+=2;continue}r++}return c}let i=0;for(;r<t&&(n=u.charCodeAt(r),!(n===32||n<32||n===127));){if(n===92&&r+1<t){if(u.charCodeAt(r+1)===32)break;r+=2;continue}if(n===40&&(i++,i>32))return c;if(n===41){if(i===0)break;i--}r++}return e===r||i!==0||(c.str=uu(u.slice(e,r)),c.pos=r,c.ok=!0),c}function He(u,e,t,n){let r,c=e;const i={ok:!1,can_continue:!1,pos:0,str:\"\",marker:0};if(n)i.str=n.str,i.marker=n.marker;else{if(c>=t)return i;let o=u.charCodeAt(c);if(o!==34&&o!==39&&o!==40)return i;e++,c++,o===40&&(o=41),i.marker=o}for(;c<t;){if(r=u.charCodeAt(c),r===i.marker)return i.pos=c+1,i.str+=uu(u.slice(e,c)),i.ok=!0,i;if(r===40&&i.marker===41)return i;r===92&&c+1<t&&c++,c++}return i.can_continue=!0,i.str+=uu(u.slice(e,c)),i}const Ze=Object.freeze(Object.defineProperty({__proto__:null,parseLinkDestination:Ue,parseLinkLabel:je,parseLinkTitle:He},Symbol.toStringTag,{value:\"Module\"})),j={};j.code_inline=function(u,e,t,n,r){const c=u[e];return\"<code\"+r.renderAttrs(c)+\">\"+Q(c.content)+\"</code>\"};j.code_block=function(u,e,t,n,r){const c=u[e];return\"<pre\"+r.renderAttrs(c)+\"><code>\"+Q(u[e].content)+"
+msgstr ""
+
+#. Count format of shortcut in the LMS Workspace
+#: lms/workspace/lms/lms.json
+msgctxt "User"
+msgid "{} Active"
+msgstr ""
+
+#. Count format of shortcut in the LMS Workspace
+#: lms/workspace/lms/lms.json
+msgctxt "LMS Enrollment"
+msgid "{} Completed"
+msgstr ""
+
+#. Count format of shortcut in the LMS Workspace
+#: lms/workspace/lms/lms.json
+msgctxt "LMS Enrollment"
+msgid "{} Enrolled"
+msgstr ""
+
+#. Count format of shortcut in the LMS Workspace
+#: lms/workspace/lms/lms.json
+msgctxt "LMS Certificate"
+msgid "{} Granted"
+msgstr ""
+
+#. Count format of shortcut in the LMS Workspace
+#: lms/workspace/lms/lms.json
+msgctxt "LMS Certificate Evaluation"
+msgid "{} Passed"
+msgstr ""
+
+#. Count format of shortcut in the LMS Workspace
+#: lms/workspace/lms/lms.json
+msgctxt "LMS Course"
+msgid "{} Published"
+msgstr ""
+
