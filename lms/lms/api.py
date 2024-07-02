@@ -291,6 +291,7 @@ def get_branding():
 		"favicon": frappe.db.get_single_value("Website Settings", "favicon"),
 	}
 
+
 @frappe.whitelist(allow_guest=True)
 def get_direction():
 	"""Get direction (ltr/rtl)."""
