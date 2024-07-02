@@ -1,8 +1,8 @@
 name: Regenerate POT file (translatable strings)
 on:
   schedule:
-    # 9:30 UTC => 3 PM IST Sunday
-    - cron: "30 9 * * 0"
+    # Midnight Wednesday
+    - cron: "0 0 * * 3"
   workflow_dispatch:
 
 jobs:
