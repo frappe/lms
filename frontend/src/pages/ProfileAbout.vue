@@ -137,7 +137,7 @@ const badges = createResource({
 const shareOnSocial = (badge, medium) => {
 	let shareUrl
 	const url = encodeURIComponent(
-		`${window.location.origin}/badges/${badge.badge}/${props.profile.data?.email}`
+		`${window.location.origin}/lms/badges/${badge.badge}/${props.profile.data?.email}`
 	)
 	const summary = `I am happy to announce that I earned the ${
 		badge.badge
