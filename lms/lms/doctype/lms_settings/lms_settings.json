@@ -8,6 +8,7 @@
   "default_home",
   "is_onboarding_complete",
   "column_break_zdel",
+  "direction",
   "unsplash_access_key",
   "livecode_url",
   "course_settings_section",
@@ -418,12 +419,19 @@
    "fieldtype": "Table",
    "label": "Sidebar Items",
    "options": "LMS Sidebar Item"
+  },
+  {
+   "default": "Left-to-right (LTR)",
+   "fieldname": "direction",
+   "fieldtype": "Select",
+   "label": "Direction",
+   "options": "Left-to-right (LTR)\nRight-to-left (RTL)"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-06-27 21:57:02.193336",
+ "modified": "2024-07-01 21:00:26.887859",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",
