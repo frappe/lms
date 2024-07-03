@@ -265,6 +265,18 @@ def get_sorted_reviews(course):
 	return rating_percent
 
 
+@frappe.whitelist(allow_guest=True)
+def get_related_courses(course):
+	related_course_details = []
+	related_courses = frappe.get_all(
+		"Related Courses", {"parent": course}, order_by="idx", pluck="course"
+	)
+
+	for related_course in related_courses:
+		related_course_details.append(get_course_details(related_course, False))
+	return related_course_details
+
+
 def is_certified(course):
 	certificate = frappe.get_all(
 		"LMS Certificate", {"member": frappe.session.user, "course": course}
@@ -1265,7 +1277,7 @@ def get_courses(search_query=""):
 
 
 @frappe.whitelist(allow_guest=True)
-def get_course_details(course):
+def get_course_details(course, fetch_related_courses=True):
 	course_details = frappe.db.get_value(
 		"LMS Course",
 		course,
@@ -1330,6 +1342,9 @@ def get_course_details(course):
 		course_details.current_lesson = get_lesson_index(
 			course_details.membership.current_lesson
 		)
+
+	if fetch_related_courses:
+		course_details.related_courses = get_related_courses(course_details.name)
 
 	return course_details
 
