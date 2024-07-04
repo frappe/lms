@@ -69,7 +69,10 @@
 							<span class="mr-2">
 								{{ __('Question {0}').format(activeQuestion) }}:
 							</span>
-							<span>
+							<span v-if="questionDetails.data.type == 'User Input'">
+								{{ __('Type your answer') }}
+							</span>
+							<span v-else>
 								{{
 									questionDetails.data.multiple
 										? __('Choose all answers that apply')
