@@ -340,6 +340,7 @@ const validateAddress = () => {
 		'Assam',
 		'Bihar',
 		'Chhattisgarh',
+		'Delhi',
 		'Goa',
 		'Gujarat',
 		'Haryana',
