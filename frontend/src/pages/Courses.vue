@@ -39,7 +39,7 @@
 			<Tabs
 				v-model="tabIndex"
 				tablistClass="overflow-x-visible flex-wrap !gap-3 md:flex-nowrap"
-				:tabs="tabs"
+				:tabs="makeTabs"
 			>
 				<template #tab="{ tab, selected }">
 					<div>
@@ -124,61 +124,53 @@ const user = inject('$user')
 const searchQuery = ref('')
 
 const courses = createResource({
-	debounce: 300,
-	makeParams(values) {
-		return {
-			search_query: searchQuery.value,
-		}
-	},
 	url: 'lms.lms.utils.get_courses',
+	cache: ['courses', user.data?.email],
 	auto: true,
 })
 
 const tabIndex = ref(0)
-const tabs = [
-	{
-		label: 'Live',
-		courses: computed(() => courses.data?.live || []),
-		count: computed(() => courses.data?.live?.length),
-	},
-	{
-		label: 'New',
-		courses: computed(() => courses.data?.new),
-		count: computed(() => courses.data?.new?.length),
-	},
-	{
-		label: 'Upcoming',
-		courses: computed(() => courses.data?.upcoming),
-		count: computed(() => courses.data?.upcoming?.length),
-	},
-]
+let tabs
 
-if (user.data) {
+const makeTabs = computed(() => {
+	tabs = []
+	addToTabs('Live', getCourses('live'))
+	addToTabs('New', getCourses('new'))
+	addToTabs('Upcoming', getCourses('upcoming'))
+
+	if (user.data) {
+		addToTabs('Enrolled', getCourses('enrolled'))
+
+		if (
+			user.data.is_moderator ||
+			user.data.is_instructor ||
+			courses.data?.created?.length
+		) {
+			addToTabs('Created', getCourses('created'))
+		}
+
+		if (user.data.is_moderator) {
+			addToTabs('Under Review', getCourses('under_review'))
+		}
+	}
+	return tabs
+})
+
+const addToTabs = (label, courses) => {
 	tabs.push({
-		label: 'Enrolled',
-		courses: computed(() => courses.data?.enrolled),
-		count: computed(() => courses.data?.enrolled?.length),
+		label,
+		courses: computed(() => courses),
+		count: computed(() => courses.length),
 	})
+}
 
-	if (
-		user.data.is_moderator ||
-		user.data.is_instructor ||
-		courses.data?.created?.length
-	) {
-		tabs.push({
-			label: 'Created',
-			courses: computed(() => courses.data?.created),
-			count: computed(() => courses.data?.created?.length),
-		})
+const getCourses = (type) => {
+	if (searchQuery.value) {
+		return courses.data[type].filter((course) =>
+			course.title.toLowerCase().includes(searchQuery.value.toLowerCase())
+		)
 	}
-
-	if (user.data.is_moderator) {
-		tabs.push({
-			label: 'Under Review',
-			courses: computed(() => courses.data?.under_review),
-			count: computed(() => courses.data?.under_review?.length),
-		})
-	}
+	return courses.data[type]
 }
 
 const pageMeta = computed(() => {
