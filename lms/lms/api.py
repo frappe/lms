@@ -477,3 +477,9 @@ def delete_sidebar_item(webpage):
 			"parent": "LMS Settings",
 		},
 	)
+
+
+@frappe.whitelist()
+def delete_lesson(lesson, chapter):
+	frappe.db.delete("Lesson Reference", {"parent": chapter, "lesson": lesson})
+	frappe.db.delete("Course Lesson", lesson)

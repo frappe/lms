@@ -344,6 +344,7 @@ const courseResource = createResource({
 			'upcoming',
 			'disable_self_learning',
 			'paid_course',
+			'featured',
 		]
 		for (let idx in checkboxes) {
 			let key = checkboxes[idx]

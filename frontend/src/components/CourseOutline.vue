@@ -40,7 +40,7 @@
 				</DisclosureButton>
 				<DisclosurePanel>
 					<div v-for="lesson in chapter.lessons" :key="lesson.name">
-						<div class="outline-lesson pl-8 py-2">
+						<div class="outline-lesson pl-8 py-2 pr-4">
 							<router-link
 								:to="{
 									name: allowEdit ? 'CreateLesson' : 'Lesson',
@@ -51,7 +51,7 @@
 									},
 								}"
 							>
-								<div class="flex items-center text-sm leading-5">
+								<div class="flex items-center text-sm leading-5 group">
 									<MonitorPlay
 										v-if="lesson.icon === 'icon-youtube'"
 										class="h-4 w-4 text-gray-900 stroke-1 mr-2"
@@ -65,6 +65,11 @@
 										class="h-4 w-4 text-gray-900 stroke-1 mr-2"
 									/>
 									{{ lesson.title }}
+									<Trash2
+										v-if="allowEdit"
+										@click.prevent="trashLesson(lesson.name, chapter.name)"
+										class="h-4 w-4 stroke-1.5 text-gray-700 ml-auto invisible group-hover:visible"
+									/>
 									<Check
 										v-if="lesson.is_complete"
 										class="h-4 w-4 text-green-700 ml-2"
@@ -105,7 +110,7 @@
 </template>
 <script setup>
 import { Button, createResource } from 'frappe-ui'
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import {
 	ChevronRight,
@@ -113,9 +118,11 @@ import {
 	HelpCircle,
 	FileText,
 	Check,
+	Trash2,
 } from 'lucide-vue-next'
 import { useRoute } from 'vue-router'
 import ChapterModal from '@/components/Modals/ChapterModal.vue'
+import { showToast } from '@/utils'
 
 const route = useRoute()
 const expandAll = ref(true)
@@ -154,6 +161,27 @@ const outline = createResource({
 	},
 	auto: true,
 })
+
+const deleteLesson = createResource({
+	url: 'lms.lms.api.delete_lesson',
+	makeParams(values) {
+		return {
+			lesson: values.lesson,
+			chapter: values.chapter,
+		}
+	},
+	onSuccess() {
+		outline.reload()
+		showToast('Success', 'Lesson deleted', 'check')
+	},
+})
+
+const trashLesson = (lessonName, chapterName) => {
+	deleteLesson.submit({
+		lesson: lessonName,
+		chapter: chapterName,
+	})
+}
 
 const openChapterDetail = (index) => {
 	return index == route.params.chapterNumber || index == 1
