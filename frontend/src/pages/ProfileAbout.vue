@@ -12,7 +12,7 @@
 			{{ __('No introduction') }}
 		</div>
 	</div>
-	<div class="mt-7 mb-10" v-if="badges.data">
+	<div class="mt-7 mb-10" v-if="badges.data?.length">
 		<h2 class="mb-3 text-lg font-semibold text-gray-900">
 			{{ __('Achievements') }}
 		</h2>
