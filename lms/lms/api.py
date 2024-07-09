@@ -483,3 +483,23 @@ def delete_sidebar_item(webpage):
 def delete_lesson(lesson, chapter):
 	frappe.db.delete("Lesson Reference", {"parent": chapter, "lesson": lesson})
 	frappe.db.delete("Course Lesson", lesson)
+
+
+@frappe.whitelist()
+def update_lesson_index(lesson, chapter, idx):
+	name = frappe.db.get_value(
+		"Lesson Reference",
+		{"lesson": lesson, "parent": chapter},
+		["name", "idx", "parent", "lesson"],
+	)
+	print(name)
+	frappe.db.set_value(
+		"Lesson Reference",
+		{
+			"lesson": lesson,
+			"parent": chapter,
+		},
+		"idx",
+		idx,
+	)
+	frappe.db.commit()
