@@ -538,8 +538,6 @@ def update_target_chapter(lesson, chapter, idx):
 
 
 def update_index(lessons, chapter):
-	print("final")
-	print(lessons)
 	for row in lessons:
 		frappe.db.set_value(
 			"Lesson Reference", {"lesson": row, "parent": chapter}, "idx", lessons.index(row) + 1
