@@ -542,4 +542,3 @@ def update_index(lessons, chapter):
 		frappe.db.set_value(
 			"Lesson Reference", {"lesson": row, "parent": chapter}, "idx", lessons.index(row) + 1
 		)
-	frappe.db.commit()
