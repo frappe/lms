@@ -4,6 +4,7 @@
 import frappe
 import json
 from frappe.model.document import Document
+from frappe import _
 
 
 class LMSBadge(Document):
@@ -12,12 +13,12 @@ class LMSBadge(Document):
 			try:
 				json.loads(self.condition)
 			except ValueError:
-				frappe.throw("Condition must be in valid JSON format.")
+				frappe.throw(_("Condition must be in valid JSON format."))
 		elif self.condition:
 			try:
 				compile(self.condition, "<string>", "eval")
 			except Exception:
-				frappe.throw("Condition must be valid python code.")
+				frappe.throw(_("Condition must be valid python code."))
 
 	def apply(self, doc):
 		if self.rule_condition_satisfied(doc):
@@ -73,10 +74,8 @@ def assign_badge(badge):
 		return
 
 	fields = ["name"]
-	print(badge.user_field)
 	fields.append(badge.user_field)
 	list = frappe.get_all(badge.reference_doctype, filters=badge.condition, fields=fields)
-	print(list)
 	for doc in list:
 		award(badge, doc.get(badge.user_field))
 

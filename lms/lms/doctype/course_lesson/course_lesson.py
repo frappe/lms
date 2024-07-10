@@ -140,20 +140,7 @@ def get_quiz_progress(lesson):
 		quizzes = [value for name, value in macros if name == "Quiz"]
 
 	for quiz in quizzes:
-		print(quiz)
 		passing_percentage = frappe.db.get_value("LMS Quiz", quiz, "passing_percentage")
-		print(frappe.session.user)
-		print(passing_percentage)
-		print(
-			frappe.db.exists(
-				"LMS Quiz Submission",
-				{
-					"quiz": quiz,
-					"member": frappe.session.user,
-					"percentage": [">=", passing_percentage],
-				},
-			)
-		)
 		if not frappe.db.exists(
 			"LMS Quiz Submission",
 			{
@@ -162,7 +149,6 @@ def get_quiz_progress(lesson):
 				"percentage": [">=", passing_percentage],
 			},
 		):
-			print("no submission")
 			return False
 	return True
 
