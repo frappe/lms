@@ -39,45 +39,53 @@
 					</div>
 				</DisclosureButton>
 				<DisclosurePanel>
-					<div v-for="lesson in chapter.lessons" :key="lesson.name">
-						<div class="outline-lesson pl-8 py-2 pr-4">
-							<router-link
-								:to="{
-									name: allowEdit ? 'CreateLesson' : 'Lesson',
-									params: {
-										courseName: courseName,
-										chapterNumber: lesson.number.split('.')[0],
-										lessonNumber: lesson.number.split('.')[1],
-									},
-								}"
-							>
-								<div class="flex items-center text-sm leading-5 group">
-									<MonitorPlay
-										v-if="lesson.icon === 'icon-youtube'"
-										class="h-4 w-4 text-gray-900 stroke-1 mr-2"
-									/>
-									<HelpCircle
-										v-else-if="lesson.icon === 'icon-quiz'"
-										class="h-4 w-4 text-gray-900 stroke-1 mr-2"
-									/>
-									<FileText
-										v-else-if="lesson.icon === 'icon-list'"
-										class="h-4 w-4 text-gray-900 stroke-1 mr-2"
-									/>
-									{{ lesson.title }}
-									<Trash2
-										v-if="allowEdit"
-										@click.prevent="trashLesson(lesson.name, chapter.name)"
-										class="h-4 w-4 stroke-1.5 text-gray-700 ml-auto invisible group-hover:visible"
-									/>
-									<Check
-										v-if="lesson.is_complete"
-										class="h-4 w-4 text-green-700 ml-2"
-									/>
-								</div>
-							</router-link>
-						</div>
-					</div>
+					<Draggable
+						:list="chapter.lessons"
+						item-key="name"
+						group="items"
+						@end="updateOutline"
+						:data-chapter="chapter.name"
+					>
+						<template #item="{ element: lesson }">
+							<div class="outline-lesson pl-8 py-2 pr-4">
+								<router-link
+									:to="{
+										name: allowEdit ? 'CreateLesson' : 'Lesson',
+										params: {
+											courseName: courseName,
+											chapterNumber: lesson.number.split('.')[0],
+											lessonNumber: lesson.number.split('.')[1],
+										},
+									}"
+								>
+									<div class="flex items-center text-sm leading-5 group">
+										<MonitorPlay
+											v-if="lesson.icon === 'icon-youtube'"
+											class="h-4 w-4 text-gray-900 stroke-1 mr-2"
+										/>
+										<HelpCircle
+											v-else-if="lesson.icon === 'icon-quiz'"
+											class="h-4 w-4 text-gray-900 stroke-1 mr-2"
+										/>
+										<FileText
+											v-else-if="lesson.icon === 'icon-list'"
+											class="h-4 w-4 text-gray-900 stroke-1 mr-2"
+										/>
+										{{ lesson.title }}
+										<Trash2
+											v-if="allowEdit"
+											@click.prevent="trashLesson(lesson.name, chapter.name)"
+											class="h-4 w-4 stroke-1.5 text-gray-700 ml-auto invisible group-hover:visible"
+										/>
+										<Check
+											v-if="lesson.is_complete"
+											class="h-4 w-4 text-green-700 ml-2"
+										/>
+									</div>
+								</router-link>
+							</div>
+						</template>
+					</Draggable>
 					<div v-if="allowEdit" class="flex mt-2 mb-4 pl-8">
 						<router-link
 							:to="{
@@ -111,6 +119,7 @@
 <script setup>
 import { Button, createResource } from 'frappe-ui'
 import { ref } from 'vue'
+import Draggable from 'vuedraggable'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import {
 	ChevronRight,
@@ -172,7 +181,22 @@ const deleteLesson = createResource({
 	},
 	onSuccess() {
 		outline.reload()
-		showToast('Success', 'Lesson deleted', 'check')
+		showToast('Success', 'Lesson deleted successfully', 'check')
+	},
+})
+
+const updateLessonIndex = createResource({
+	url: 'lms.lms.api.update_lesson_index',
+	makeParams(values) {
+		return {
+			lesson: values.lesson,
+			sourceChapter: values.sourceChapter,
+			targetChapter: values.targetChapter,
+			idx: values.idx,
+		}
+	},
+	onSuccess() {
+		showToast('Success', 'Lesson moved successfully', 'check')
 	},
 })
 
@@ -194,6 +218,15 @@ const openChapterModal = (chapter = null) => {
 
 const getCurrentChapter = () => {
 	return currentChapter.value
+}
+
+const updateOutline = (e) => {
+	updateLessonIndex.submit({
+		lesson: e.item.__draggable_context.element.name,
+		sourceChapter: e.from.dataset.chapter,
+		targetChapter: e.to.dataset.chapter,
+		idx: e.newIndex,
+	})
 }
 </script>
 <style>

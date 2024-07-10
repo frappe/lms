@@ -7,19 +7,6 @@
 				>
 					<Breadcrumbs class="h-7" :items="breadcrumbs" />
 					<div class="flex items-center mt-3 md:mt-0">
-						<router-link
-							v-if="courseResource.data"
-							:to="{
-								name: 'CourseDetail',
-								params: { courseName: courseResource.data.name },
-							}"
-						>
-							<Button>
-								<span>
-									{{ __('View Course') }}
-								</span>
-							</Button>
-						</router-link>
 						<Button variant="solid" @click="submitCourse()" class="ml-2">
 							<span>
 								{{ __('Save') }}
@@ -222,7 +209,12 @@ import {
 	reactive,
 	watch,
 } from 'vue'
-import { convertToTitleCase, showToast, getFileSize } from '../utils'
+import {
+	convertToTitleCase,
+	showToast,
+	getFileSize,
+	updateDocumentTitle,
+} from '../utils'
 import Link from '@/components/Controls/Link.vue'
 import { FileText, X } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
@@ -492,4 +484,13 @@ const breadcrumbs = computed(() => {
 	})
 	return crumbs
 })
+
+const pageMeta = computed(() => {
+	return {
+		title: 'Create a Course',
+		description: 'Create or edit a course for your learning system.',
+	}
+})
+
+updateDocumentTitle(pageMeta)
 </script>

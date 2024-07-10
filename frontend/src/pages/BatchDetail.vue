@@ -100,7 +100,7 @@
 import { computed, inject } from 'vue'
 import { useRouter } from 'vue-router'
 import { BookOpen, Clock } from 'lucide-vue-next'
-import { formatTime } from '@/utils'
+import { formatTime, updateDocumentTitle } from '@/utils'
 import { Breadcrumbs, createResource } from 'frappe-ui'
 import CourseCard from '@/components/CourseCard.vue'
 import BatchOverlay from '@/components/BatchOverlay.vue'
@@ -125,16 +125,6 @@ const batch = createResource({
 		batch: props.batchName,
 	},
 	auto: true,
-	onSuccess(data) {
-		if (data.students?.includes(user.data?.name)) {
-			router.push({
-				name: 'Batch',
-				params: {
-					batchName: props.batchName,
-				},
-			})
-		}
-	},
 })
 
 const courses = createResource({
@@ -154,6 +144,15 @@ const breadcrumbs = computed(() => {
 	})
 	return items
 })
+
+const pageMeta = computed(() => {
+	return {
+		title: batch.data?.title,
+		description: batch.data?.description,
+	}
+})
+
+updateDocumentTitle(pageMeta)
 </script>
 <style>
 .batch-description p {

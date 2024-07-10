@@ -93,7 +93,7 @@ import { Edit } from 'lucide-vue-next'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { useRoute, useRouter } from 'vue-router'
 import NoPermission from '@/components/NoPermission.vue'
-import { convertToTitleCase } from '@/utils'
+import { convertToTitleCase, updateDocumentTitle } from '@/utils'
 import EditProfile from '@/components/Modals/EditProfile.vue'
 import EditCoverImage from '@/components/Modals/EditCoverImage.vue'
 
@@ -208,4 +208,13 @@ const breadcrumbs = computed(() => {
 	]
 	return crumbs
 })
+
+const pageMeta = computed(() => {
+	return {
+		title: profile.data?.full_name,
+		description: profile.data?.headline,
+	}
+})
+
+updateDocumentTitle(pageMeta)
 </script>

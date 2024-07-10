@@ -41,7 +41,7 @@
 			</span>
 		</div>
 		<router-link
-			v-if="user?.data?.is_moderator"
+			v-if="isModerator || isStudent"
 			:to="{
 				name: 'Batch',
 				params: {
@@ -51,7 +51,7 @@
 		>
 			<Button variant="solid" class="w-full mt-4">
 				<span>
-					{{ __('Manage Batch') }}
+					{{ isModerator ? __('Manage Batch') : __('Visit Batch') }}
 				</span>
 			</Button>
 		</router-link>
@@ -65,7 +65,7 @@
 			}"
 			v-else-if="batch.data.paid_batch && batch.data.seats_left"
 		>
-			<Button class="w-full mt-4" variant="solid">
+			<Button v-if="!isStudent" class="w-full mt-4" variant="solid">
 				<span>
 					{{ __('Register Now') }}
 				</span>
@@ -79,7 +79,7 @@
 			{{ __('Enroll Now') }}
 		</Button>
 		<router-link
-			v-if="user?.data?.is_moderator"
+			v-if="isModerator"
 			:to="{
 				name: 'BatchCreation',
 				params: {
@@ -116,5 +116,13 @@ const seats_left = computed(() => {
 		return props.batch.data?.seat_count - props.batch.data?.students?.length
 	}
 	return null
+})
+
+const isStudent = computed(() => {
+	return props.batch.data?.students?.includes(user.data?.name)
+})
+
+const isModerator = computed(() => {
+	return user.data?.is_moderator
 })
 </script>

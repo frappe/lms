@@ -357,13 +357,19 @@ export function getSidebarLinks() {
 			label: 'Courses',
 			icon: 'BookOpen',
 			to: 'Courses',
-			activeFor: ['Courses', 'CourseDetail', 'Lesson'],
+			activeFor: [
+				'Courses',
+				'CourseDetail',
+				'Lesson',
+				'CreateCourse',
+				'CreateLesson',
+			],
 		},
 		{
 			label: 'Batches',
 			icon: 'Users',
 			to: 'Batches',
-			activeFor: ['Batches', 'BatchDetail', 'Batch'],
+			activeFor: ['Batches', 'BatchDetail', 'Batch', 'BatchCreation'],
 		},
 		{
 			label: 'Certified Participants',
