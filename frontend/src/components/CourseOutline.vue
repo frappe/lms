@@ -181,7 +181,7 @@ const deleteLesson = createResource({
 	},
 	onSuccess() {
 		outline.reload()
-		showToast('Success', 'Lesson deleted', 'check')
+		showToast('Success', 'Lesson deleted successfully', 'check')
 	},
 })
 
@@ -194,6 +194,9 @@ const updateLessonIndex = createResource({
 			targetChapter: values.targetChapter,
 			idx: values.idx,
 		}
+	},
+	onSuccess() {
+		showToast('Success', 'Lesson moved successfully', 'check')
 	},
 })
 
