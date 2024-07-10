@@ -18,20 +18,28 @@
 			</div>
 			<div
 				v-if="sidebarSettings.data?.web_pages?.length || isModerator"
-				class="mt-4 pt-1 border-t border-gray-200"
+				class="pt-1"
 			>
 				<div
-					v-if="isModerator"
-					class="flex items-center justify-between pr-2"
-					:class="isSidebarCollapsed ? 'pl-3' : 'pl-5'"
+					class="flex items-center justify-between pr-2 cursor-pointer"
+					:class="isSidebarCollapsed ? 'pl-3' : 'pl-4'"
+					@click="showWebPages = !showWebPages"
 				>
-					<span
+					<div
 						v-if="!isSidebarCollapsed"
-						class="text-sm font-medium text-gray-600"
+						class="flex items-center text-sm font-medium text-gray-600"
 					>
-						{{ __('Web Pages') }}
-					</span>
-					<Button variant="ghost" @click="openPageModal()">
+						<span class="grid h-5 w-6 flex-shrink-0 place-items-center">
+							<ChevronRight
+								class="h-4 w-4 stroke-1.5 text-gray-900 transition-all duration-300 ease-in-out"
+								:class="{ 'rotate-90': showWebPages }"
+							/>
+						</span>
+						<span class="ml-2">
+							{{ __('Web Pages') }}
+						</span>
+					</div>
+					<Button v-if="isModerator" variant="ghost" @click="openPageModal()">
 						<template #icon>
 							<Plus class="h-4 w-4 text-gray-700 stroke-1.5" />
 						</template>
@@ -39,7 +47,8 @@
 				</div>
 				<div
 					v-if="sidebarSettings.data?.web_pages?.length"
-					class="flex flex-col"
+					class="flex flex-col transition-all duration-300 ease-in-out"
+					:class="showWebPages ? 'block' : 'hidden'"
 				>
 					<SidebarLink
 						v-for="link in sidebarSettings.data.web_pages"
@@ -87,7 +96,7 @@ import { ref, onMounted, inject, watch } from 'vue'
 import { getSidebarLinks } from '../utils'
 import { usersStore } from '@/stores/user'
 import { sessionStore } from '@/stores/session'
-import { Plus } from 'lucide-vue-next'
+import { ChevronRight, Plus } from 'lucide-vue-next'
 import { createResource, Button } from 'frappe-ui'
 import PageModal from '@/components/Modals/PageModal.vue'
 
@@ -99,6 +108,7 @@ const sidebarLinks = ref(getSidebarLinks())
 const showPageModal = ref(false)
 const isModerator = ref(false)
 const pageToEdit = ref(null)
+const showWebPages = ref(false)
 
 onMounted(() => {
 	socket.on('publish_lms_notifications', (data) => {

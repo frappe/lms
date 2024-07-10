@@ -183,7 +183,7 @@ import {
 	MessageCircle,
 	Globe,
 } from 'lucide-vue-next'
-import { formatTime } from '@/utils'
+import { formatTime, updateDocumentTitle } from '@/utils'
 import BatchDashboard from '@/components/BatchDashboard.vue'
 import BatchCourses from '@/components/BatchCourses.vue'
 import LiveClass from '@/components/LiveClass.vue'
@@ -286,4 +286,13 @@ const redirectToLogin = () => {
 const openAnnouncementModal = () => {
 	showAnnouncementModal.value = true
 }
+
+const pageMeta = computed(() => {
+	return {
+		title: batch.data?.title,
+		description: batch.data?.description,
+	}
+})
+
+updateDocumentTitle(pageMeta)
 </script>

@@ -486,20 +486,62 @@ def delete_lesson(lesson, chapter):
 
 
 @frappe.whitelist()
-def update_lesson_index(lesson, chapter, idx):
-	name = frappe.db.get_value(
+def update_lesson_index(lesson, sourceChapter, targetChapter, idx):
+	hasMoved = sourceChapter == targetChapter
+
+	update_source_chapter(lesson, sourceChapter, idx, hasMoved)
+	if not hasMoved:
+		update_target_chapter(lesson, targetChapter, idx)
+
+
+def update_source_chapter(lesson, chapter, idx, hasMoved=False):
+	lessons = frappe.get_all(
 		"Lesson Reference",
-		{"lesson": lesson, "parent": chapter},
-		["name", "idx", "parent", "lesson"],
+		{
+			"parent": chapter,
+		},
+		pluck="lesson",
+		order_by="idx",
 	)
-	print(name)
-	frappe.db.set_value(
+
+	lessons.remove(lesson)
+	if not hasMoved:
+		frappe.db.delete("Lesson Reference", {"parent": chapter, "lesson": lesson})
+	else:
+		lessons.insert(idx, lesson)
+
+	update_index(lessons, chapter)
+
+
+def update_target_chapter(lesson, chapter, idx):
+	lessons = frappe.get_all(
 		"Lesson Reference",
+		{
+			"parent": chapter,
+		},
+		pluck="lesson",
+		order_by="idx",
+	)
+
+	lessons.insert(idx, lesson)
+	new_lesson_reference = frappe.new_doc("Lesson Reference")
+	new_lesson_reference.update(
 		{
 			"lesson": lesson,
 			"parent": chapter,
-		},
-		"idx",
-		idx,
+			"parenttype": "Course Chapter",
+			"parentfield": "lessons",
+		}
 	)
+	new_lesson_reference.insert()
+	update_index(lessons, chapter)
+
+
+def update_index(lessons, chapter):
+	print("final")
+	print(lessons)
+	for row in lessons:
+		frappe.db.set_value(
+			"Lesson Reference", {"lesson": row, "parent": chapter}, "idx", lessons.index(row) + 1
+		)
 	frappe.db.commit()

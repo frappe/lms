@@ -185,7 +185,7 @@ import UserAvatar from '@/components/UserAvatar.vue'
 import { useRoute } from 'vue-router'
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import Discussions from '@/components/Discussions.vue'
-import { getEditorTools } from '../utils'
+import { getEditorTools, updateDocumentTitle } from '../utils'
 import EditorJS from '@editorjs/editorjs'
 import LessonContent from '@/components/LessonContent.vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
@@ -338,6 +338,15 @@ const allowInstructorContent = () => {
 const redirectToLogin = () => {
 	window.location.href = `/login?redirect-to=/lms/courses/${props.courseName}`
 }
+
+const pageMeta = computed(() => {
+	return {
+		title: lesson.data?.title,
+		description: lesson.data?.course,
+	}
+})
+
+updateDocumentTitle(pageMeta)
 </script>
 <style>
 .avatar-group {

@@ -190,7 +190,8 @@ const updateLessonIndex = createResource({
 	makeParams(values) {
 		return {
 			lesson: values.lesson,
-			chapter: values.chapter,
+			sourceChapter: values.sourceChapter,
+			targetChapter: values.targetChapter,
 			idx: values.idx,
 		}
 	},
@@ -217,13 +218,10 @@ const getCurrentChapter = () => {
 }
 
 const updateOutline = (e) => {
-	console.log(e)
-	const sourceChapter = e.from.dataset.chapter
-	const targetChapter = e.to.dataset.chapter
-	const lesson = e.item.__draggable_context.element.name
 	updateLessonIndex.submit({
-		lesson: lesson,
-		chapter: sourceChapter,
+		lesson: e.item.__draggable_context.element.name,
+		sourceChapter: e.from.dataset.chapter,
+		targetChapter: e.to.dataset.chapter,
 		idx: e.newIndex,
 	})
 }

@@ -91,6 +91,7 @@ import { createListResource, Breadcrumbs, Button, Tabs, Badge } from 'frappe-ui'
 import { Plus } from 'lucide-vue-next'
 import BatchCard from '@/components/BatchCard.vue'
 import { inject, ref, computed } from 'vue'
+import { updateDocumentTitle } from '@/utils'
 
 const user = inject('$user')
 
@@ -129,4 +130,13 @@ if (user.data) {
 		count: computed(() => batches.data?.enrolled?.length),
 	})
 }
+
+const pageMeta = computed(() => {
+	return {
+		title: 'Batches',
+		description: 'All batches divided by categories',
+	}
+})
+
+updateDocumentTitle(pageMeta)
 </script>

@@ -52,6 +52,7 @@ import { Breadcrumbs, FormControl, createResource } from 'frappe-ui'
 import { ref, computed } from 'vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { Search } from 'lucide-vue-next'
+import { updateDocumentTitle } from '@/utils'
 
 const searchQuery = ref('')
 
@@ -70,4 +71,13 @@ const participants = createResource({
 const breadcrumbs = computed(() => {
 	return [{ label: 'Certified Participants', to: '/certified-participants' }]
 })
+
+const pageMeta = computed(() => {
+	return {
+		title: 'Certified Participants',
+		description: 'All participants that have been certified.',
+	}
+})
+
+updateDocumentTitle(pageMeta)
 </script>

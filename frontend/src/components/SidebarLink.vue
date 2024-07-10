@@ -20,7 +20,7 @@
 				</slot>
 			</Tooltip>
 			<span
-				class="flex-shrink-0 text-base duration-300 ease-in-out"
+				class="flex-shrink-0 text-sm duration-300 ease-in-out"
 				:class="
 					isCollapsed
 						? 'ml-0 w-0 overflow-hidden opacity-0'
@@ -38,12 +38,12 @@
 			>
 				<component
 					:is="icons['Edit']"
-					class="h-3 w-3 stroke-1.5 text-gray-800"
+					class="h-3 w-3 stroke-1.5 text-gray-700"
 					@click.stop="openModal(link)"
 				/>
 				<component
 					:is="icons['X']"
-					class="h-3 w-3 stroke-1.5 text-gray-800"
+					class="h-3 w-3 stroke-1.5 text-gray-700"
 					@click.stop="deletePage(link)"
 				/>
 			</div>

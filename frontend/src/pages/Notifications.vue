@@ -69,6 +69,7 @@ import { computed, inject, ref, onMounted } from 'vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { useRouter } from 'vue-router'
 import { X } from 'lucide-vue-next'
+import { updateDocumentTitle } from '@/utils'
 
 const user = inject('$user')
 const socket = inject('$socket')
@@ -146,6 +147,15 @@ const breadcrumbs = computed(() => {
 	]
 	return crumbs
 })
+
+const pageMeta = computed(() => {
+	return {
+		title: 'Notifications',
+		description: 'All your notifications in one place.',
+	}
+})
+
+updateDocumentTitle(pageMeta)
 </script>
 <style>
 .notification strong {
