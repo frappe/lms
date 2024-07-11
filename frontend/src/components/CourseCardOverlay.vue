@@ -63,6 +63,9 @@
 					{{ __('Start Learning') }}
 				</span>
 			</Button>
+			<Button v-if="canGetCertificate">
+				{{ __('Get Certificate') }}
+			</Button>
 			<router-link
 				v-if="user?.data?.is_moderator || is_instructor()"
 				:to="{
@@ -174,4 +177,8 @@ const is_instructor = () => {
 	})
 	return user_is_instructor
 }
+
+const canGetCertificate = computed(() => {
+	console.log(props.course)
+})
 </script>

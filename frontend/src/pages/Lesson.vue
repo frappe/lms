@@ -90,6 +90,17 @@
 								</span>
 							</Button>
 						</router-link>
+						<router-link
+							v-else
+							:to="{
+								name: 'CourseDetail',
+								params: { courseName: courseName },
+							}"
+						>
+							<Button>
+								{{ __('Back to Course') }}
+							</Button>
+						</router-link>
 					</div>
 				</div>
 
@@ -160,12 +171,12 @@
 						{{ lesson.data.course_title }}
 					</div>
 					<div v-if="user && lesson.data.membership" class="text-sm mt-3">
-						{{ Math.ceil(lesson.data.membership.progress) }}% completed
+						{{ Math.ceil(lessonProgress) }}% completed
 					</div>
 
 					<ProgressBar
 						v-if="user && lesson.data.membership"
-						:progress="lesson.data.membership.progress"
+						:progress="lessonProgress"
 					/>
 				</div>
 				<CourseOutline
@@ -196,6 +207,7 @@ const route = useRoute()
 const allowDiscussions = ref(false)
 const editor = ref(null)
 const instructorEditor = ref(null)
+const lessonProgress = ref(0)
 
 const props = defineProps({
 	courseName: {
@@ -224,6 +236,7 @@ const lesson = createResource({
 	},
 	auto: true,
 	onSuccess(data) {
+		lessonProgress.value = data.membership?.progress
 		markProgress(data)
 		if (data.content) editor.value = renderEditor('editor', data.content)
 		if (data.instructor_content?.blocks?.length)
@@ -257,7 +270,11 @@ const renderEditor = (holder, content) => {
 }
 
 const markProgress = (data) => {
-	if (user.data && !data.progress) progress.submit()
+	if (user.data && !data.progress) {
+		setTimeout(() => {
+			progress.submit()
+		}, 30000)
+	}
 }
 
 const progress = createResource({
@@ -267,6 +284,10 @@ const progress = createResource({
 			lesson: lesson.data.name,
 			course: props.courseName,
 		}
+	},
+	onSuccess(data) {
+		console.log(data)
+		lessonProgress.value = data
 	},
 })
 
