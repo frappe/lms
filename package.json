@@ -2,9 +2,17 @@
   "name": "frappe_lms",
   "version": "1.0.0",
   "description": "Easy to use, open-source, Learning Management System",
+  "workspaces1": [
+    "frappe-ui",
+    "frontend"
+  ],
   "scripts": {
-    "test-local": "cypress open --e2e --browser chrome"
+    "test-local": "cypress open --e2e --browser chrome",
+    "postinstall": "cd frontend && yarn install --check-files",
+    "dev": "cd frontend && yarn dev",
+    "build": "cd frontend && yarn build"
   },
+  "private": true,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/frappe/lms.git"
@@ -14,5 +22,9 @@
   "bugs": {
     "url": "https://github.com/frappe/lms/issues"
   },
-  "homepage": "https://github.com/frappe/lms#readme"
+  "homepage": "https://github.com/frappe/lms#readme",
+  "devDependencies": {
+    "cypress": "^13.9.0",
+    "cypress-file-upload": "^5.0.8"
+  }
 }

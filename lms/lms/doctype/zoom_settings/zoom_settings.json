@@ -25,12 +25,10 @@
    "label": "OAuth Client ID"
   },
   {
-   "description": "The Client ID obtained from the Google Cloud Console under <a href=\"https://console.cloud.google.com/apis/credentials\">\n\"APIs &amp; Services\" &gt; \"Credentials\"\n</a>",
    "fieldname": "client_id",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Client ID",
-   "mandatory_depends_on": "google_drive_picker_enabled"
+   "label": "Client ID"
   },
   {
    "fieldname": "client_secret",
@@ -46,7 +44,7 @@
  ],
  "issingle": 1,
  "links": [],
- "modified": "2023-03-01 17:15:59.722497",
+ "modified": "2024-04-22 21:04:30.488799",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Zoom Settings",

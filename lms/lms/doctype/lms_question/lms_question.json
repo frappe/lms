@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_import": 1,
  "allow_rename": 1,
  "autoname": "format:QTS-{YYYY}-{#####}",
  "creation": "2023-10-10 10:24:14.035772",
@@ -194,7 +195,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-10-18 21:58:42.653317",
+ "modified": "2024-05-24 16:12:26.331351",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Question",

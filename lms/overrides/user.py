@@ -15,7 +15,6 @@ class CustomUser(User):
 	def validate(self):
 		super().validate()
 		self.validate_username_duplicates()
-		self.validate_completion()
 
 	def validate_username_duplicates(self):
 		while not self.username or self.username_exists():
@@ -37,19 +36,6 @@ class CustomUser(User):
 				unique_skills.append(skill.skill_name)
 			else:
 				frappe.throw(_("Skills must be unique"))
-
-	def validate_completion(self):
-		if frappe.db.get_single_value("LMS Settings", "force_profile_completion"):
-			all_fields_have_value = True
-			profile_mandatory_fields = frappe.get_hooks("profile_mandatory_fields")
-			docfields = frappe.get_meta(self.doctype).fields
-
-			for field in profile_mandatory_fields:
-				if not self.get(field):
-					all_fields_have_value = False
-					break
-
-			self.profile_complete = all_fields_have_value
 
 	def get_batch_count(self) -> int:
 		"""Returns the number of batches authored by this user."""
@@ -264,7 +250,7 @@ def on_session_creation(login_manager):
 	if frappe.db.get_single_value(
 		"System Settings", "setup_complete"
 	) and frappe.db.get_single_value("LMS Settings", "default_home"):
-		frappe.local.response["home_page"] = "/courses"
+		frappe.local.response["home_page"] = "/lms"
 
 
 @frappe.whitelist()
@@ -356,6 +342,7 @@ def get_users(or_filters, start, page_length):
 
 @frappe.whitelist()
 def save_role(user, role, value):
+	frappe.only_for("Moderator")
 	if cint(value):
 		doc = frappe.get_doc(
 			{

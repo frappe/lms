@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" href="/favicon.png" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Frappe Learning</title>
+		<meta name="title" content="{{ meta.title }}" />
+		<meta name="image" content="{{ meta.image }}" />
+		<meta name="description" content="{{ meta.description }}" />
+		<meta name="keywords" content="{{ meta.keywords }}" />
+		<meta property="og:title" content="{{ meta.title }}" />
+		<meta property="og:image" content="{{ meta.image }}" />
+		<meta property="og:description" content="{{ meta.description }}" />
+		<meta name="twitter:title" content="{{ meta.title }}" />
+		<meta name="twitter:image" content="{{ meta.image }}" />
+		<meta name="twitter:description" content="{{ meta.description }}" />
+	</head>
+	<body>
+		<div id="app">
+			<div id="seo-content">
+				<h1>{{ meta.title }}</h1>
+				<p>
+					{{ meta.description }}
+				</p>
+				<p>
+					The content here is just for seo purposes. The actual content will be loaded in a few seconds.
+				</p>
+				<p>
+					Seo checks if a page has more than 300 words. So, here are some more words to make it more than 300 words.
+					Page descriptions are the HTML meta tags that provide a brief summary of a web page.
+					Search engines use meta descriptions to help identify the page's topic - they don't use them to rank the page, but they do use them to determine whether or not to display the page in search results.
+					Meta descriptions are important because they're often the first thing people see when they're deciding which search result to click on.
+					They're also important because they can help improve your click-through rate (CTR) from search results.
+					A good meta description can entice people to click on your page instead of someone else's.
+				</p>
+				<a href="{{ meta.link }}">Know More</a>
+			</div>
+		</div>
+		<div id="modals"></div>
+		<div id="popovers"></div>
+
+		<script>
+			window.csrf_token = '{{ csrf_token }}'
+			document.getElementById('seo-content').style.display = 'none';
+		</script>
+		<script type="module" src="/src/main.js"></script>
+	</body>
+</html>

@@ -6,9 +6,9 @@
  "engine": "InnoDB",
  "field_order": [
   "default_home",
-  "force_profile_completion",
   "is_onboarding_complete",
   "column_break_zdel",
+  "unsplash_access_key",
   "livecode_url",
   "course_settings_section",
   "search_placeholder",
@@ -37,6 +37,17 @@
   "column_break_12",
   "cookie_policy",
   "cookie_policy_page",
+  "sidebar_tab",
+  "items_in_sidebar_section",
+  "courses",
+  "batches",
+  "certified_participants",
+  "column_break_exdz",
+  "jobs",
+  "statistics",
+  "notifications",
+  "section_break_qlss",
+  "sidebar_items",
   "mentor_request_tab",
   "mentor_request_section",
   "mentor_request_creation",
@@ -91,12 +102,6 @@
    "fieldname": "search_placeholder",
    "fieldtype": "Data",
    "label": "Course List Search Bar Placeholder"
-  },
-  {
-   "default": "0",
-   "fieldname": "force_profile_completion",
-   "fieldtype": "Check",
-   "label": "Force users to complete their Profile"
   },
   {
    "default": "0",
@@ -347,13 +352,78 @@
    "default": "0",
    "fieldname": "show_day_view",
    "fieldtype": "Check",
-   "label": "Show Day View in Timetable"
+   "label": "Show day view in timetable"
+  },
+  {
+   "fieldname": "unsplash_access_key",
+   "fieldtype": "Data",
+   "label": "Unsplash Access Key"
+  },
+  {
+   "fieldname": "sidebar_tab",
+   "fieldtype": "Tab Break",
+   "label": "Sidebar"
+  },
+  {
+   "default": "1",
+   "fieldname": "courses",
+   "fieldtype": "Check",
+   "label": "Courses"
+  },
+  {
+   "default": "1",
+   "fieldname": "batches",
+   "fieldtype": "Check",
+   "label": "Batches"
+  },
+  {
+   "default": "1",
+   "fieldname": "certified_participants",
+   "fieldtype": "Check",
+   "label": "Certified Participants"
+  },
+  {
+   "default": "1",
+   "fieldname": "jobs",
+   "fieldtype": "Check",
+   "label": "Jobs"
+  },
+  {
+   "default": "1",
+   "fieldname": "statistics",
+   "fieldtype": "Check",
+   "label": "Statistics"
+  },
+  {
+   "default": "1",
+   "fieldname": "notifications",
+   "fieldtype": "Check",
+   "label": "Notifications"
+  },
+  {
+   "fieldname": "items_in_sidebar_section",
+   "fieldtype": "Section Break",
+   "label": "Items in Sidebar"
+  },
+  {
+   "fieldname": "column_break_exdz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_qlss",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "sidebar_items",
+   "fieldtype": "Table",
+   "label": "Sidebar Items",
+   "options": "LMS Sidebar Item"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2023-12-12 10:32:13.638368",
+ "modified": "2024-06-27 21:57:02.193336",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",

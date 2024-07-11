@@ -1,0 +1,454 @@
+<template>
+	<div class="">
+		<header
+			class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
+		>
+			<Breadcrumbs class="h-7" :items="breadcrumbs" />
+			<Button variant="solid" @click="saveBatch()">
+				{{ __('Save') }}
+			</Button>
+		</header>
+		<div class="w-1/2 mx-auto py-5">
+			<div class="">
+				<div class="text-lg font-semibold mb-4">
+					{{ __('Details') }}
+				</div>
+				<div class="grid grid-cols-2 gap-10 mb-4">
+					<div>
+						<FormControl
+							v-model="batch.title"
+							:label="__('Title')"
+							class="mb-4"
+						/>
+					</div>
+					<div class="flex flex-col space-y-2">
+						<FormControl
+							v-model="batch.published"
+							type="checkbox"
+							:label="__('Published')"
+						/>
+						<FormControl
+							v-model="batch.allow_self_enrollment"
+							type="checkbox"
+							:label="__('Allow self enrollment')"
+						/>
+					</div>
+				</div>
+			</div>
+			<div class="mb-4">
+				<div>
+					<FileUploader
+						v-if="!batch.image"
+						class="mt-4"
+						:fileTypes="['image/*']"
+						:validateFile="validateFile"
+						@success="(file) => saveImage(file)"
+					>
+						<template v-slot="{ file, progress, uploading, openFileSelector }">
+							<div class="mb-4">
+								<Button @click="openFileSelector" :loading="uploading">
+									{{ uploading ? `Uploading ${progress}%` : 'Upload an image' }}
+								</Button>
+							</div>
+						</template>
+					</FileUploader>
+					<div v-else class="mb-4">
+						<div class="text-xs text-gray-600 mb-1">
+							{{ __('Meta Image') }}
+						</div>
+						<div class="flex items-center">
+							<div class="border rounded-md p-2 mr-2">
+								<FileText class="h-5 w-5 stroke-1.5 text-gray-700" />
+							</div>
+							<div class="flex flex-col">
+								<span>
+									{{ batch.image.file_name }}
+								</span>
+								<span class="text-sm text-gray-500 mt-1">
+									{{ getFileSize(batch.image.file_size) }}
+								</span>
+							</div>
+							<X
+								@click="removeImage()"
+								class="bg-gray-200 rounded-md cursor-pointer stroke-1.5 w-5 h-5 p-1 ml-4"
+							/>
+						</div>
+					</div>
+				</div>
+				<MultiSelect
+					v-model="instructors"
+					doctype="User"
+					:label="__('Instructors')"
+				/>
+			</div>
+			<div class="mb-4">
+				<FormControl
+					v-model="batch.description"
+					:label="__('Description')"
+					type="textarea"
+					class="my-4"
+				/>
+				<div>
+					<label class="block text-sm text-gray-600 mb-1">
+						{{ __('Batch Details') }}
+					</label>
+					<TextEditor
+						:content="batch.batch_details"
+						@change="(val) => (batch.batch_details = val)"
+						:editable="true"
+						:fixedMenu="true"
+						editorClass="prose-sm max-w-none border-b border-x bg-gray-100 rounded-b-md py-1 px-2 min-h-[7rem] mb-4"
+					/>
+				</div>
+			</div>
+			<div class="mb-4">
+				<div class="text-lg font-semibold mb-4">
+					{{ __('Date and Time') }}
+				</div>
+				<div class="grid grid-cols-2 gap-10">
+					<div>
+						<FormControl
+							v-model="batch.start_date"
+							:label="__('Start Date')"
+							type="date"
+							class="mb-4"
+						/>
+						<FormControl
+							v-model="batch.end_date"
+							:label="__('End Date')"
+							type="date"
+							class="mb-4"
+						/>
+					</div>
+					<div>
+						<FormControl
+							v-model="batch.start_time"
+							:label="__('Start Time')"
+							type="time"
+							class="mb-4"
+						/>
+						<FormControl
+							v-model="batch.end_time"
+							:label="__('End Time')"
+							type="time"
+							class="mb-4"
+						/>
+						<FormControl
+							v-model="batch.timezone"
+							:label="__('Timezone')"
+							type="text"
+							class="mb-4"
+						/>
+					</div>
+				</div>
+			</div>
+			<div class="mb-4">
+				<div class="text-lg font-semibold mb-4">
+					{{ __('Settings') }}
+				</div>
+				<div class="grid grid-cols-2 gap-10">
+					<div>
+						<FormControl
+							v-model="batch.seat_count"
+							:label="__('Seat Count')"
+							type="number"
+							class="mb-4"
+						/>
+						<FormControl
+							v-model="batch.evaluation_end_date"
+							:label="__('Evaluation End Date')"
+							type="date"
+							class="mb-4"
+						/>
+					</div>
+					<div>
+						<FormControl
+							v-model="batch.medium"
+							type="select"
+							:options="[
+								{
+									label: 'Online',
+									value: 'Online',
+								},
+								{
+									label: 'Offline',
+									value: 'Offline',
+								},
+							]"
+							:label="__('Medium')"
+							class="mb-4"
+						/>
+						<Link
+							doctype="LMS Category"
+							:label="__('Category')"
+							v-model="batch.category"
+						/>
+					</div>
+				</div>
+			</div>
+
+			<div class="">
+				<div class="text-lg font-semibold mb-4">
+					{{ __('Payment') }}
+				</div>
+				<div>
+					<FormControl
+						v-model="batch.paid_batch"
+						type="checkbox"
+						:label="__('Paid Batch')"
+					/>
+					<FormControl
+						v-model="batch.amount"
+						:label="__('Amount')"
+						type="number"
+						class="my-4"
+					/>
+					<Link
+						doctype="Currency"
+						v-model="batch.currency"
+						:filters="{ enabled: 1 }"
+						:label="__('Currency')"
+					/>
+				</div>
+			</div>
+		</div>
+	</div>
+</template>
+<script setup>
+import {
+	computed,
+	onMounted,
+	inject,
+	reactive,
+	onBeforeUnmount,
+	ref,
+} from 'vue'
+import {
+	Breadcrumbs,
+	FormControl,
+	FileUploader,
+	Button,
+	TextEditor,
+	createResource,
+} from 'frappe-ui'
+import Link from '@/components/Controls/Link.vue'
+import MultiSelect from '@/components/Controls/MultiSelect.vue'
+import { useRouter } from 'vue-router'
+import { getFileSize, showToast } from '../utils'
+import { X, FileText } from 'lucide-vue-next'
+
+const router = useRouter()
+const user = inject('$user')
+
+const props = defineProps({
+	batchName: {
+		type: String,
+		required: true,
+	},
+})
+
+const batch = reactive({
+	title: '',
+	published: false,
+	description: '',
+	batch_details: '',
+	start_date: '',
+	end_date: '',
+	start_time: '',
+	end_time: '',
+	timezone: '',
+	evaluation_end_date: '',
+	seat_count: '',
+	medium: '',
+	category: '',
+	allow_self_enrollment: false,
+	image: null,
+	paid_batch: false,
+	currency: '',
+	amount: 0,
+})
+
+const instructors = ref([])
+
+onMounted(() => {
+	if (!user.data) window.location.href = '/login'
+	if (props.batchName != 'new') {
+		batchDetail.reload()
+	}
+	window.addEventListener('keydown', keyboardShortcut)
+})
+
+const keyboardShortcut = (e) => {
+	if (
+		e.key === 's' &&
+		(e.ctrlKey || e.metaKey) &&
+		!e.target.classList.contains('ProseMirror')
+	) {
+		saveBatch()
+		e.preventDefault()
+	}
+}
+
+onBeforeUnmount(() => {
+	window.removeEventListener('keydown', keyboardShortcut)
+})
+
+const newBatch = createResource({
+	url: 'frappe.client.insert',
+	makeParams(values) {
+		return {
+			doc: {
+				doctype: 'LMS Batch',
+				meta_image: batch.image?.file_url,
+				instructors: instructors.value.map((instructor) => ({
+					instructor: instructor,
+				})),
+				...batch,
+			},
+		}
+	},
+})
+
+const batchDetail = createResource({
+	url: 'frappe.client.get',
+	makeParams(values) {
+		return {
+			doctype: 'LMS Batch',
+			name: props.batchName,
+		}
+	},
+	onSuccess(data) {
+		Object.keys(data).forEach((key) => {
+			if (key == 'instructors') {
+				data.instructors.forEach((instructor) => {
+					instructors.value.push(instructor.instructor)
+				})
+			} else if (Object.hasOwn(batch, key)) batch[key] = data[key]
+		})
+		let checkboxes = ['published', 'paid_batch', 'allow_self_enrollment']
+		for (let idx in checkboxes) {
+			let key = checkboxes[idx]
+			batch[key] = batch[key] ? true : false
+		}
+		if (data.meta_image) imageResource.reload({ image: data.meta_image })
+	},
+})
+
+const editBatch = createResource({
+	url: 'frappe.client.set_value',
+	makeParams(values) {
+		return {
+			doctype: 'LMS Batch',
+			name: props.batchName,
+			fieldname: {
+				meta_image: batch.image?.file_url,
+				instructors: instructors.value.map((instructor) => ({
+					instructor: instructor,
+				})),
+				...batch,
+			},
+		}
+	},
+})
+
+const imageResource = createResource({
+	url: 'lms.lms.api.get_file_info',
+	makeParams(values) {
+		return {
+			file_url: values.image,
+		}
+	},
+	auto: false,
+	onSuccess(data) {
+		batch.image = data
+	},
+})
+
+const saveBatch = () => {
+	if (batchDetail.data) {
+		editBatchDetails()
+	} else {
+		createNewBatch()
+	}
+}
+
+const createNewBatch = () => {
+	newBatch.submit(
+		{},
+		{
+			onSuccess(data) {
+				router.push({
+					name: 'BatchDetail',
+					params: {
+						batchName: data.name,
+					},
+				})
+			},
+			onError(err) {
+				showToast('Error', err.messages?.[0] || err, 'x')
+			},
+		}
+	)
+}
+
+const editBatchDetails = () => {
+	editBatch.submit(
+		{},
+		{
+			onSuccess(data) {
+				router.push({
+					name: 'BatchDetail',
+					params: {
+						batchName: data.name,
+					},
+				})
+			},
+			onError(err) {
+				showToast('Error', err.messages?.[0] || err, 'x')
+			},
+		}
+	)
+}
+
+const saveImage = (file) => {
+	batch.image = file
+}
+
+const removeImage = () => {
+	batch.image = null
+}
+
+const validateFile = (file) => {
+	let extension = file.name.split('.').pop().toLowerCase()
+	if (!['jpg', 'jpeg', 'png'].includes(extension)) {
+		return 'Only image file is allowed.'
+	}
+}
+
+const breadcrumbs = computed(() => {
+	let crumbs = [
+		{
+			label: 'Batches',
+			route: {
+				name: 'Batches',
+			},
+		},
+	]
+	if (batchDetail.data) {
+		crumbs.push({
+			label: batchDetail.data.title,
+			route: {
+				name: 'BatchDetail',
+				params: {
+					batchName: props.batchName,
+				},
+			},
+		})
+	}
+	crumbs.push({
+		label: props.batchName == 'new' ? 'New Batch' : 'Edit Batch',
+		route: { name: 'BatchCreation', params: { batchName: props.batchName } },
+	})
+	return crumbs
+})
+</script>

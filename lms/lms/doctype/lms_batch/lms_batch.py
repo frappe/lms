@@ -14,8 +14,13 @@ from frappe.utils import (
 	format_datetime,
 	get_time,
 )
-from lms.lms.utils import get_lessons, get_lesson_index, get_lesson_url
-from lms.www.utils import get_quiz_details, get_assignment_details
+from lms.lms.utils import (
+	get_lessons,
+	get_lesson_index,
+	get_lesson_url,
+	get_quiz_details,
+	get_assignment_details,
+)
 from frappe.email.doctype.email_template.email_template import get_email_template
 
 
@@ -33,7 +38,7 @@ class LMSBatch(Document):
 		self.validate_evaluation_end_date()
 
 	def validate_batch_end_date(self):
-		if(self.end_date < self.start_date):
+		if self.end_date < self.start_date:
 			frappe.throw(_("Batch end date cannot be before the batch start date"))
 
 	def validate_duplicate_students(self):
@@ -70,7 +75,12 @@ class LMSBatch(Document):
 
 	def send_confirmation_mail(self):
 		for student in self.students:
-			if not student.confirmation_email_sent:
+			outgoing_email_account = frappe.get_cached_value(
+				"Email Account", {"default_outgoing": 1, "enable_outgoing": 1}, "name"
+			)
+			if not student.confirmation_email_sent and (
+				outgoing_email_account or frappe.conf.get("mail_login")
+			):
 				self.send_mail(student)
 				student.confirmation_email_sent = 1
 
@@ -179,7 +189,6 @@ def remove_assessment(assessment, parent):
 def create_live_class(
 	batch_name, title, duration, date, time, timezone, auto_recording, description=None
 ):
-	date = format_date(date, "yyyy-mm-dd", True)
 	frappe.only_for("Moderator")
 	payload = {
 		"topic": title,

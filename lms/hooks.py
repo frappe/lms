@@ -97,7 +97,13 @@ override_doctype_class = {
 # Hook on document methods and events
 
 doc_events = {
+	"*": {
+		"on_change": [
+			"lms.lms.doctype.lms_badge.lms_badge.process_badges",
+		]
+	},
 	"Discussion Reply": {"after_insert": "lms.lms.utils.handle_notifications"},
+	"Notification Log": {"on_change": "lms.lms.utils.publish_notifications"},
 }
 
 # Scheduled Tasks
@@ -105,7 +111,8 @@ doc_events = {
 scheduler_events = {
 	"hourly": [
 		"lms.lms.doctype.lms_certificate_request.lms_certificate_request.schedule_evals"
-	]
+	],
+	"daily": ["lms.job.doctype.job_opportunity.job_opportunity.update_job_openings"],
 }
 
 fixtures = ["Custom Field", "Function", "Industry"]
@@ -135,77 +142,33 @@ override_whitelisted_methods = {
 
 # Add all simple route rules here
 website_route_rules = [
-	{"from_route": "/sketches/<sketch>", "to_route": "sketches/sketch"},
-	{"from_route": "/courses/<course>", "to_route": "courses/course"},
-	{"from_route": "/courses/<course>/edit", "to_route": "courses/create"},
-	{"from_route": "/courses/<course>/outline", "to_route": "courses/outline"},
-	{"from_route": "/courses/<course>/<certificate>", "to_route": "courses/certificate"},
-	{"from_route": "/courses/<course>/learn", "to_route": "batch/learn"},
+	{"from_route": "/lms/<path:app_path>", "to_route": "lms"},
 	{
-		"from_route": "/courses/<course>/learn/<int:chapter>.<int:lesson>",
-		"to_route": "batch/learn",
-	},
-	{
-		"from_route": "/courses/<course>/learn/<int:chapter>.<int:lesson>/edit",
-		"to_route": "batch/edit",
-	},
-	{"from_route": "/quizzes", "to_route": "batch/quiz_list"},
-	{"from_route": "/quizzes/<quizname>", "to_route": "batch/quiz"},
-	{"from_route": "/batches/<batchname>", "to_route": "batches/batch"},
-	{"from_route": "/courses/<course>/progress", "to_route": "batch/progress"},
-	{"from_route": "/courses/<course>/join", "to_route": "batch/join"},
-	{"from_route": "/courses/<course>/manage", "to_route": "cohorts"},
-	{"from_route": "/courses/<course>/cohorts/<cohort>", "to_route": "cohorts/cohort"},
-	{
-		"from_route": "/courses/<course>/cohorts/<cohort>/<page>",
-		"to_route": "cohorts/cohort",
-	},
-	{
-		"from_route": "/courses/<course>/subgroups/<cohort>/<subgroup>",
-		"to_route": "cohorts/subgroup",
-	},
-	{
-		"from_route": "/courses/<course>/subgroups/<cohort>/<subgroup>/<page>",
-		"to_route": "cohorts/subgroup",
-	},
-	{
-		"from_route": "/courses/<course>/join/<cohort>/<subgroup>/<invite_code>",
-		"to_route": "cohorts/join",
-	},
-	{"from_route": "/users", "to_route": "profiles/profile"},
-	{"from_route": "/job-openings", "to_route": "jobs_openings/index"},
-	{"from_route": "/job-openings/<job>", "to_route": "jobs_openings/job"},
-	{
-		"from_route": "/batches/<batchname>/students/<username>",
-		"to_route": "/batches/progress",
-	},
-	{"from_route": "/assignments/<assignment>", "to_route": "assignments/assignment"},
-	{
-		"from_route": "/assignment-submission/<assignment>/<submission>",
-		"to_route": "assignment_submission/assignment_submission",
-	},
-	{
-		"from_route": "/quiz-submission/<quiz>/<submission>",
-		"to_route": "quiz_submission/quiz_submission",
-	},
-	{
-		"from_route": "/billing/<module>/<modulename>",
-		"to_route": "billing/billing",
-	},
-	{
-		"from_route": "/batches/details/<batchname>",
-		"to_route": "batches/batch_details",
-	},
-	{
-		"from_route": "/certified-participants",
-		"to_route": "certified_participants/certified_participants",
+		"from_route": "/courses/<course_name>/<certificate_id>",
+		"to_route": "certificate",
 	},
 ]
 
 website_redirects = [
 	{"source": "/update-profile", "target": "/edit-profile"},
-	{"source": "/dashboard", "target": "/courses"},
-	{"source": "/community", "target": "/people"},
+	{"source": "/courses", "target": "/lms/courses"},
+	{
+		"source": r"^/courses/.*$",
+		"target": "/lms/courses",
+	},
+	{"source": "/batches", "target": "/lms/batches"},
+	{
+		"source": r"/batches/(.*)",
+		"target": "/lms/batches",
+		"match_with_query_string": True,
+	},
+	{"source": "/job-openings", "target": "/lms/job-openings"},
+	{
+		"source": r"/job-openings/(.*)",
+		"target": "/lms/job-openings",
+		"match_with_query_string": True,
+	},
+	{"source": "/statistics", "target": "/lms/statistics"},
 ]
 
 update_website_context = [
@@ -275,27 +238,9 @@ jinja = {
 # ]
 
 has_website_permission = {
-	"LMS Certificate Evaluation": "lms.lms.doctype.lms_certificate_evaluation.lms_certificate_evaluation.has_website_permission"
+	"LMS Certificate Evaluation": "lms.lms.doctype.lms_certificate_evaluation.lms_certificate_evaluation.has_website_permission",
+	"LMS Certificate": "lms.lms.doctype.lms_certificate.lms_certificate.has_website_permission",
 }
-
-profile_mandatory_fields = [
-	"first_name",
-	"last_name",
-	"user_image",
-	"bio",
-	"linkedin",
-	"education",
-	"skill",
-	"preferred_functions",
-	"preferred_industries",
-	"dream_companies",
-	"attire",
-	"collaboration",
-	"role",
-	"location_preference",
-	"time",
-	"company_type",
-]
 
 ## Markdown Macros for Lessons
 lms_markdown_macro_renderers = {
@@ -313,6 +258,7 @@ lms_markdown_macro_renderers = {
 page_renderer = [
 	"lms.page_renderers.ProfileRedirectPage",
 	"lms.page_renderers.ProfilePage",
+	"lms.page_renderers.CoursePage",
 ]
 
 # set this to "/" to have profiles on the top-level

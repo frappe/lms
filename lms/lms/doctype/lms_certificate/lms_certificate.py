@@ -15,7 +15,11 @@ class LMSCertificate(Document):
 
 	def after_insert(self):
 		if not frappe.flags.in_test:
-			self.send_mail()
+			outgoing_email_account = frappe.get_cached_value(
+				"Email Account", {"default_outgoing": 1, "enable_outgoing": 1}, "name"
+			)
+			if outgoing_email_account or frappe.conf.get("mail_login"):
+				self.send_mail()
 
 	def send_mail(self):
 		subject = _("Congratulations on getting certified!")
@@ -27,6 +31,7 @@ class LMSCertificate(Document):
 			"course_name": self.course,
 			"course_title": frappe.db.get_value("LMS Course", self.course, "title"),
 			"certificate_name": self.name,
+			"template": self.template,
 		}
 
 		if custom_template:
@@ -65,6 +70,12 @@ class LMSCertificate(Document):
 		)
 
 
+def has_website_permission(doc, ptype, user, verbose=False):
+	if ptype in ["read", "print"]:
+		return True
+	return False
+
+
 @frappe.whitelist()
 def create_certificate(course):
 	certificate = is_certified(course)
@@ -86,7 +97,13 @@ def create_certificate(course):
 			},
 			"value",
 		)
-
+		if not default_certificate_template:
+			default_certificate_template = frappe.db.get_value(
+				"Print Format",
+				{
+					"doc_type": "LMS Certificate",
+				},
+			)
 		certificate = frappe.get_doc(
 			{
 				"doctype": "LMS Certificate",

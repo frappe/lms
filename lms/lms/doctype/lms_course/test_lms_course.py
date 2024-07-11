@@ -68,10 +68,19 @@ def new_course(title, additional_filters=None):
 		return frappe.get_doc("LMS Course", course)
 	else:
 		create_evaluator()
+		user = frappe.db.get_value(
+			"User",
+			{
+				"user_type": "System User",
+			},
+		)
 		filters = {
 			"title": title,
 			"short_introduction": title,
 			"description": title,
+			"video_link": "https://youtu.be/pEbIhUySqbk",
+			"image": "/assets/lms/images/course-home.png",
+			"instructors": [{"instructor": user}],
 		}
 
 		if additional_filters:

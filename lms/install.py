@@ -16,11 +16,10 @@ def after_sync():
 def add_pages_to_nav():
 	pages = [
 		{"label": "Explore", "idx": 1},
-		{"label": "Courses", "url": "/courses", "parent": "Explore", "idx": 2},
-		{"label": "Batches", "url": "/batches", "parent": "Explore", "idx": 3},
-		{"label": "Statistics", "url": "/statistics", "parent": "Explore", "idx": 4},
-		{"label": "Jobs", "url": "/job-openings", "parent": "Explore", "idx": 5},
-		{"label": "People", "url": "/community", "parent": "Explore", "idx": 6},
+		{"label": "Courses", "url": "/lms/courses", "parent": "Explore", "idx": 2},
+		{"label": "Batches", "url": "/lms/batches", "parent": "Explore", "idx": 3},
+		{"label": "Statistics", "url": "/lms/statistics", "parent": "Explore", "idx": 4},
+		{"label": "Jobs", "url": "/lms/job-openings", "parent": "Explore", "idx": 5},
 	]
 
 	for page in pages:
@@ -91,11 +90,11 @@ def create_moderator_role():
 
 
 def create_evaluator_role():
-	if not frappe.db.exists("Role", "Class Evaluator"):
+	if not frappe.db.exists("Role", "Batch Evaluator"):
 		role = frappe.new_doc("Role")
 		role.update(
 			{
-				"role_name": "Class Evaluator",
+				"role_name": "Batch Evaluator",
 				"home_page": "",
 				"desk_access": 0,
 			}

@@ -24,6 +24,8 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
+import "cypress-file-upload";
+
 Cypress.Commands.add("login", (email, password) => {
 	if (!email) {
 		email = Cypress.config("testUser") || "Administrator";
@@ -52,4 +54,14 @@ Cypress.Commands.add("iconButton", (text) => {
 
 Cypress.Commands.add("dialog", (selector) => {
 	return cy.get(`[role=dialog] ${selector}`);
+});
+
+Cypress.Commands.add("paste", { prevSubject: true }, (subject, text) => {
+	cy.wrap(subject).then(($element) => {
+		const element = $element[0];
+		element.focus();
+		element.textContent = text;
+		const event = new Event("paste", { bubbles: true });
+		element.dispatchEvent(event);
+	});
 });

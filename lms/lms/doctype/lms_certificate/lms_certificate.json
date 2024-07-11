@@ -1,15 +1,17 @@
 {
  "actions": [],
+ "allow_import": 1,
  "creation": "2021-08-16 15:47:19.494055",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
   "course",
+  "course_title",
   "member",
   "member_name",
-  "template",
   "column_break_3",
+  "template",
   "issue_date",
   "expiry_date",
   "batch_name",
@@ -17,6 +19,7 @@
  ],
  "fields": [
   {
+   "default": "Today",
    "fieldname": "issue_date",
    "fieldtype": "Date",
    "label": "Issue Date",
@@ -75,11 +78,18 @@
    "label": "Template",
    "options": "Print Format",
    "reqd": 1
+  },
+  {
+   "fetch_from": "course.title",
+   "fieldname": "course_title",
+   "fieldtype": "Data",
+   "label": "Course Title",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-10-25 12:20:56.091979",
+ "modified": "2024-06-21 18:14:30.491841",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate",
@@ -108,6 +118,15 @@
    "role": "Moderator",
    "share": 1,
    "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "LMS Student",
+   "share": 1
   }
  ],
  "sort_field": "modified",

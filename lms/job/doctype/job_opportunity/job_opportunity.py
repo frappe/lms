@@ -4,7 +4,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import get_link_to_form
+from frappe.utils import get_link_to_form, add_months, getdate
 from frappe.utils.user import get_system_managers
 
 from lms.lms.utils import validate_image
@@ -17,7 +17,17 @@ class JobOpportunity(Document):
 
 	def validate_urls(self):
 		frappe.utils.validate_url(self.company_website, True)
-		frappe.utils.validate_url(self.application_link, True)
+
+
+def update_job_openings():
+	old_jobs = frappe.get_all(
+		"Job Opportunity",
+		filters={"status": "Open", "creation": ["<=", add_months(getdate(), -3)]},
+		pluck="name",
+	)
+
+	for job in old_jobs:
+		frappe.db.set_value("Job Opportunity", job, "status", "Closed")
 
 
 @frappe.whitelist()

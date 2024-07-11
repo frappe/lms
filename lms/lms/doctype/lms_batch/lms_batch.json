@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_import": 1,
  "allow_rename": 1,
  "autoname": "format: CLS-{#####}",
  "creation": "2022-11-09 16:14:05.876933",
@@ -8,14 +9,15 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "published",
   "title",
   "start_date",
   "end_date",
   "column_break_4",
+  "allow_self_enrollment",
   "start_time",
   "end_time",
-  "published",
-  "allow_self_enrollment",
+  "timezone",
   "section_break_rgfj",
   "medium",
   "category",
@@ -24,10 +26,12 @@
   "evaluation_end_date",
   "section_break_6",
   "description",
-  "batch_details_raw",
   "column_break_hlqw",
-  "batch_details",
+  "instructors",
   "meta_image",
+  "section_break_khcn",
+  "batch_details",
+  "batch_details_raw",
   "section_break_jgji",
   "students",
   "courses",
@@ -300,11 +304,28 @@
    "fieldname": "allow_self_enrollment",
    "fieldtype": "Check",
    "label": "Allow Self Enrollment"
+  },
+  {
+   "fieldname": "timezone",
+   "fieldtype": "Data",
+   "label": "Timezone",
+   "reqd": 1
+  },
+  {
+   "fieldname": "instructors",
+   "fieldtype": "Table MultiSelect",
+   "label": "Instructors",
+   "options": "Course Instructor",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_khcn",
+   "fieldtype": "Section Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-01-22 10:42:42.872995",
+ "modified": "2024-06-24 16:24:45.536453",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch",
@@ -334,11 +355,24 @@
    "role": "Moderator",
    "share": 1,
    "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Batch Evaluator",
+   "share": 1,
+   "write": 1
   }
  ],
  "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
- "title_field": "title"
+ "title_field": "title",
+ "track_changes": 1
 }

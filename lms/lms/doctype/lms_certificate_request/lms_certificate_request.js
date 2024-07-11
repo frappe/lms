@@ -14,6 +14,16 @@ frappe.ui.form.on("LMS Certificate Request", {
 				}
 			);
 		}
+		if (!frm.doc.google_meet_link) {
+			frm.add_custom_button(__("Generate Google Meet Link"), () => {
+				frappe.call({
+					method: "lms.lms.doctype.lms_certificate_request.lms_certificate_request.setup_calendar_event",
+					args: {
+						eval: frm.doc,
+					},
+				});
+			});
+		}
 	},
 
 	onload: function (frm) {

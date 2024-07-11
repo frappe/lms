@@ -91,17 +91,6 @@ class LiveCodeExtension(PageExtension):
 		return frappe.render_template("templates/livecode/extension_footer.html", context)
 
 
-def set_mandatory_fields_for_profile():
-	profile_form = frappe.get_doc("Web Form", "profile")
-	profile_mandatory_fields = frappe.get_hooks("profile_mandatory_fields")
-	for field in profile_form.web_form_fields:
-		field.reqd = 0
-		if field.fieldname in profile_mandatory_fields:
-			field.reqd = 1
-
-	profile_form.save()
-
-
 def quiz_renderer(quiz_name):
 	if frappe.session.user == "Guest":
 		return " <div class='alert alert-info'>" + _(
@@ -180,7 +169,7 @@ def youtube_video_renderer(video_id):
         src="https://www.youtube.com/embed/{video_id}"
         title="YouTube video player"
         frameborder="0"
-        style="border-radius: var(--border-radius-lg)"
+        class="youtube-video
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         allowfullscreen>
     </iframe>

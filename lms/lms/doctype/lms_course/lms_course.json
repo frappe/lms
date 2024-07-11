@@ -23,9 +23,10 @@
   "status",
   "section_break_7",
   "published",
+  "published_on",
   "column_break_10",
   "upcoming",
-  "column_break_12",
+  "featured",
   "disable_self_learning",
   "section_break_18",
   "short_introduction",
@@ -92,7 +93,8 @@
   {
    "fieldname": "image",
    "fieldtype": "Attach Image",
-   "label": "Preview Image"
+   "label": "Preview Image",
+   "reqd": 1
   },
   {
    "fieldname": "tags",
@@ -117,7 +119,8 @@
    "in_standard_filter": 1,
    "label": "Instructors",
    "max_height": "50px",
-   "options": "Course Instructor"
+   "options": "Course Instructor",
+   "reqd": 1
   },
   {
    "fieldname": "section_break_7",
@@ -165,10 +168,6 @@
   },
   {
    "fieldname": "column_break_10",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "column_break_12",
    "fieldtype": "Column Break"
   },
   {
@@ -240,6 +239,17 @@
    "fieldname": "amount_usd",
    "fieldtype": "Currency",
    "label": "Amount (USD)"
+  },
+  {
+   "fieldname": "published_on",
+   "fieldtype": "Date",
+   "label": "Published On"
+  },
+  {
+   "default": "0",
+   "fieldname": "featured",
+   "fieldtype": "Check",
+   "label": "Featured"
   }
  ],
  "is_published_field": "published",
@@ -266,7 +276,7 @@
   }
  ],
  "make_attachments_public": 1,
- "modified": "2023-12-21 12:27:32.559901",
+ "modified": "2024-06-24 17:44:45.903164",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",
@@ -297,7 +307,6 @@
    "write": 1
   }
  ],
- "search_fields": "title",
  "show_title_field_in_link": 1,
  "sort_field": "creation",
  "sort_order": "DESC",

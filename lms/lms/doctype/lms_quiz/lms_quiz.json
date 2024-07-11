@@ -8,21 +8,23 @@
  "engine": "InnoDB",
  "field_order": [
   "title",
-  "show_answers",
-  "column_break_gaac",
   "max_attempts",
-  "show_submission_history",
-  "section_break_hsiv",
-  "passing_percentage",
-  "column_break_rocd",
+  "limit_questions_to",
+  "column_break_gaac",
   "total_marks",
+  "passing_percentage",
+  "section_break_hsiv",
+  "show_answers",
+  "column_break_rocd",
+  "show_submission_history",
+  "column_break_dsup",
+  "shuffle_questions",
   "section_break_sbjx",
   "questions",
   "section_break_3",
   "lesson",
   "column_break_5",
-  "course",
-  "time"
+  "course"
  ],
  "fields": [
   {
@@ -51,13 +53,6 @@
    "fieldname": "max_attempts",
    "fieldtype": "Int",
    "label": "Max Attempts"
-  },
-  {
-   "default": "0",
-   "fieldname": "time",
-   "fieldtype": "Int",
-   "hidden": 1,
-   "label": "Time Per Question (in Seconds)"
   },
   {
    "fetch_from": "lesson.course",
@@ -97,7 +92,8 @@
   },
   {
    "fieldname": "section_break_hsiv",
-   "fieldtype": "Section Break"
+   "fieldtype": "Section Break",
+   "label": "Settings"
   },
   {
    "fieldname": "passing_percentage",
@@ -118,11 +114,26 @@
    "non_negative": 1,
    "read_only": 1,
    "reqd": 1
+  },
+  {
+   "fieldname": "column_break_dsup",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "shuffle_questions",
+   "fieldtype": "Check",
+   "label": "Shuffle Questions"
+  },
+  {
+   "fieldname": "limit_questions_to",
+   "fieldtype": "Int",
+   "label": "Limit Questions To"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-11-07 10:11:49.126789",
+ "modified": "2024-06-27 22:03:48.576489",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz",
@@ -163,6 +174,15 @@
    "role": "Course Creator",
    "share": 1,
    "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "LMS Student",
+   "share": 1
   }
  ],
  "show_title_field_in_link": 1,

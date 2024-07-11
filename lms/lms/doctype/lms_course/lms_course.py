@@ -5,7 +5,7 @@ import json
 import random
 import frappe
 from frappe.model.document import Document
-from frappe.utils import cint
+from frappe.utils import cint, today
 from frappe.utils.telemetry import capture
 from lms.lms.utils import get_chapters, can_create_courses
 from ...utils import generate_slug, validate_image
@@ -14,10 +14,15 @@ from frappe import _
 
 class LMSCourse(Document):
 	def validate(self):
+		self.validate_published()
 		self.validate_instructors()
 		self.validate_video_link()
 		self.validate_status()
 		self.image = validate_image(self.image)
+
+	def validate_published(self):
+		if self.published and not self.published_on:
+			self.published_on = today()
 
 	def validate_instructors(self):
 		if self.is_new() and not self.instructors:
@@ -53,7 +58,7 @@ class LMSCourse(Document):
 		subject = self.title + " is available!"
 		args = {
 			"title": self.title,
-			"course_link": f"/courses/{self.name}",
+			"course_link": f"/lms/courses/{self.name}",
 			"app_name": frappe.db.get_single_value("System Settings", "app_name"),
 			"site_url": frappe.utils.get_url(),
 		}
