@@ -71,7 +71,6 @@ class LMSCertificate(Document):
 
 
 def has_website_permission(doc, ptype, user, verbose=False):
-	print(doc.member, user, ptype)
 	if ptype in ["read", "print"]:
 		return True
 	if doc.member == user and ptype == "create":
