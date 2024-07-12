@@ -289,7 +289,6 @@ const progress = createResource({
 		}
 	},
 	onSuccess(data) {
-		console.log(data)
 		lessonProgress.value = data
 	},
 })
@@ -336,13 +335,9 @@ watch(
 )
 
 const startTimer = () => {
-	console.log('starting timer')
 	timerInterval = setInterval(() => {
 		timer.value++
-		console.log(timer.value)
 		if (timer.value == 30) {
-			console.log('30 seconds passed')
-			console.log(lesson.data?.title)
 			clearInterval(timerInterval)
 			markProgress()
 		}
@@ -350,7 +345,6 @@ const startTimer = () => {
 }
 
 onBeforeUnmount(() => {
-	console.log('clearing interval')
 	clearInterval(timerInterval)
 })
 
