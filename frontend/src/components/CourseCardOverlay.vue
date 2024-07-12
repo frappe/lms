@@ -63,7 +63,13 @@
 					{{ __('Start Learning') }}
 				</span>
 			</Button>
-			<Button v-if="canGetCertificate">
+			<Button
+				v-if="canGetCertificate"
+				@click="fetchCertificate()"
+				variant="subtle"
+				class="w-full mt-2"
+				size="md"
+			>
 				{{ __('Get Certificate') }}
 			</Button>
 			<router-link
@@ -139,7 +145,7 @@ function enrollStudent() {
 		})
 		setTimeout(() => {
 			window.location.href = `/login?redirect-to=${window.location.pathname}`
-		}, 3000)
+		}, 2000)
 	} else {
 		const enrollStudentResource = createResource({
 			url: 'lms.lms.doctype.lms_enrollment.lms_enrollment.create_membership',
@@ -179,6 +185,37 @@ const is_instructor = () => {
 }
 
 const canGetCertificate = computed(() => {
-	console.log(props.course)
+	if (
+		props.course.data?.enable_certification &&
+		props.course.data?.membership?.progress == 100
+	) {
+		return true
+	}
+	return false
 })
+
+const certificate = createResource({
+	url: 'lms.lms.doctype.lms_certificate.lms_certificate.create_certificate',
+	makeParams(values) {
+		return {
+			course: values.course,
+		}
+	},
+	onSuccess(data) {
+		console.log(data)
+		window.open(
+			`/api/method/frappe.utils.print_format.download_pdf?doctype=LMS+Certificate&name=${
+				data.name
+			}&format=${encodeURIComponent(data.template)}`,
+			'_blank'
+		)
+	},
+})
+
+const fetchCertificate = () => {
+	certificate.submit({
+		course: props.course.data?.name,
+		member: user.data?.name,
+	})
+}
 </script>

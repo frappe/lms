@@ -171,7 +171,7 @@
 						{{ lesson.data.course_title }}
 					</div>
 					<div v-if="user && lesson.data.membership" class="text-sm mt-3">
-						{{ Math.ceil(lessonProgress) }}% completed
+						{{ Math.ceil(lessonProgress) }}% {{ __('completed') }}
 					</div>
 
 					<ProgressBar
@@ -190,7 +190,7 @@
 </template>
 <script setup>
 import { createResource, Breadcrumbs, Button } from 'frappe-ui'
-import { computed, watch, inject, ref } from 'vue'
+import { computed, watch, inject, ref, onMounted, onBeforeUnmount } from 'vue'
 import CourseOutline from '@/components/CourseOutline.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { useRoute } from 'vue-router'
@@ -208,6 +208,8 @@ const allowDiscussions = ref(false)
 const editor = ref(null)
 const instructorEditor = ref(null)
 const lessonProgress = ref(0)
+const timer = ref(0)
+let timerInterval
 
 const props = defineProps({
 	courseName: {
@@ -224,6 +226,10 @@ const props = defineProps({
 	},
 })
 
+onMounted(() => {
+	startTimer()
+})
+
 const lesson = createResource({
 	url: 'lms.lms.utils.get_lesson',
 	cache: ['lesson', props.courseName, props.chapterNumber, props.lessonNumber],
@@ -237,7 +243,6 @@ const lesson = createResource({
 	auto: true,
 	onSuccess(data) {
 		lessonProgress.value = data.membership?.progress
-		markProgress(data)
 		if (data.content) editor.value = renderEditor('editor', data.content)
 		if (data.instructor_content?.blocks?.length)
 			instructorEditor.value = renderEditor(
@@ -269,11 +274,9 @@ const renderEditor = (holder, content) => {
 	})
 }
 
-const markProgress = (data) => {
-	if (user.data && !data.progress) {
-		setTimeout(() => {
-			progress.submit()
-		}, 30000)
+const markProgress = () => {
+	if (user.data && !lesson.data?.progress) {
+		progress.submit()
 	}
 }
 
@@ -325,9 +328,31 @@ watch(
 				chapter: newChapterNumber,
 				lesson: newLessonNumber,
 			})
+			clearInterval(timerInterval)
+			timer.value = 0
+			startTimer()
 		}
 	}
 )
+
+const startTimer = () => {
+	console.log('starting timer')
+	timerInterval = setInterval(() => {
+		timer.value++
+		console.log(timer.value)
+		if (timer.value == 30) {
+			console.log('30 seconds passed')
+			console.log(lesson.data?.title)
+			clearInterval(timerInterval)
+			markProgress()
+		}
+	}, 1000)
+}
+
+onBeforeUnmount(() => {
+	console.log('clearing interval')
+	clearInterval(timerInterval)
+})
 
 const checkIfDiscussionsAllowed = () => {
 	let quizPresent = false
