@@ -30,23 +30,23 @@
   "disable_self_learning",
   "section_break_18",
   "short_introduction",
+  "column_break_viqw",
   "description",
+  "section_break_gglp",
   "chapters",
   "related_courses",
+  "pricing_tab",
   "pricing_section",
   "paid_course",
   "column_break_acoj",
   "course_price",
   "currency",
   "amount_usd",
+  "certification_tab",
   "certification_section",
   "enable_certification",
-  "expiry",
-  "max_attempts",
   "column_break_rxww",
-  "grant_certificate_after",
-  "evaluator",
-  "duration"
+  "expiry"
  ],
  "fields": [
   {
@@ -129,8 +129,7 @@
   },
   {
    "fieldname": "certification_section",
-   "fieldtype": "Section Break",
-   "label": "Certification"
+   "fieldtype": "Section Break"
   },
   {
    "default": "0",
@@ -171,24 +170,8 @@
    "fieldtype": "Column Break"
   },
   {
-   "depends_on": "enable_certification",
-   "fieldname": "grant_certificate_after",
-   "fieldtype": "Select",
-   "label": "Grant Certificate After",
-   "options": "Completion\nEvaluation"
-  },
-  {
-   "depends_on": "eval: doc.grant_certificate_after == \"Evaluation\"",
-   "fieldname": "evaluator",
-   "fieldtype": "Link",
-   "label": "Evaluator",
-   "mandatory_depends_on": "eval: doc.grant_certificate_after == \"Evaluation\"",
-   "options": "Course Evaluator"
-  },
-  {
    "fieldname": "pricing_section",
-   "fieldtype": "Section Break",
-   "label": "Pricing"
+   "fieldtype": "Section Break"
   },
   {
    "depends_on": "paid_course",
@@ -197,20 +180,6 @@
    "label": "Currency",
    "mandatory_depends_on": "paid_course",
    "options": "Currency"
-  },
-  {
-   "default": "1",
-   "depends_on": "eval: doc.grant_certificate_after == \"Evaluation\"",
-   "fieldname": "max_attempts",
-   "fieldtype": "Int",
-   "label": "Max Attempts for Evaluations"
-  },
-  {
-   "depends_on": "eval: doc.grant_certificate_after == \"Evaluation\"",
-   "fieldname": "duration",
-   "fieldtype": "Select",
-   "label": "Duration for Attempts",
-   "options": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12"
   },
   {
    "default": "0",
@@ -250,6 +219,24 @@
    "fieldname": "featured",
    "fieldtype": "Check",
    "label": "Featured"
+  },
+  {
+   "fieldname": "column_break_viqw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_gglp",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "pricing_tab",
+   "fieldtype": "Tab Break",
+   "label": "Pricing"
+  },
+  {
+   "fieldname": "certification_tab",
+   "fieldtype": "Tab Break",
+   "label": "Certification"
   }
  ],
  "is_published_field": "published",
@@ -276,7 +263,7 @@
   }
  ],
  "make_attachments_public": 1,
- "modified": "2024-06-24 17:44:45.903164",
+ "modified": "2024-07-12 13:54:40.474097",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",
