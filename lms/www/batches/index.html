@@ -28,81 +28,111 @@
 {% endmacro %}
 
 {% macro BatchTabs(past_batches, upcoming_batches, private_batches, my_batches) %}
+<link rel="stylesheet" href="/filters.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <article>
-	<ul class="nav lms-nav" id="courses-tab">
-
-		<li class="nav-item">
-			<a class="nav-link active" data-toggle="tab" href="#upcoming">
-				{{ _("Upcoming") }}
-				<span class="course-list-count">
-					{{ upcoming_batches | length }}
-				</span>
-			</a>
-		</li>
-
-		{% if is_moderator %}
-		<li class="nav-item">
-			<a class="nav-link" data-toggle="tab" href="#past">
-				{{ _("Archived") }}
-				<span class="course-list-count">
-					{{ past_batches | length }}
-				</span>
-			</a>
-		</li>
-
-		<li class="nav-item">
-			<a class="nav-link" data-toggle="tab" href="#private">
-				{{ _("Private") }}
-				<span class="course-list-count">
-					{{ private_batches | length }}
-				</span>
-			</a>
-		</li>
-		{% endif %}
-
-		{% if frappe.session.user != "Guest" %}
-		<li class="nav-item">
-			<a class="nav-link" data-toggle="tab" href="#my-batch">
-				{{ _("Enrolled") }}
-				<span class="course-list-count">
-					{{ my_batches | length }}
-				</span>
-			</a>
-		</li>
-		{% endif %}
-
-	</ul>
-
-	<div class="border-bottom mb-4"></div>
-
-	<div class="tab-content">
-		<div class="tab-pane active" id="upcoming" role="tabpanel" aria-labelledby="upcoming">
-			{{ BatchCard(upcoming_batches, show_price=True, label="Upcoming") }}
+	<div class="row">
+		{% if filters %}
+		<div class="col-xl-2">
+			<button id="toggle-filters" class="btn btn-primary d-md-none" style=" margin-bottom: 10px;">Show Filters</button>
+			<div id="filters-container" class="d-none d-md-block">               
+				<h4>Filters</h4>
+				{% for key, value in filters.items() %}
+				<div class="filter-group">
+					<h6 id="toggle-button-{{ loop.index }}" class="toggle-button">{{ key }}<i class="arrow fas fa-chevron-down"></i></h6>
+					<div id="content-{{ loop.index }}" class="toggle-content">
+						{% if key %}
+							{% for dep in value %}
+								{% if dep != value[0] %}
+									<label>
+										<input type="checkbox" class="filter1" data-filter="{{ value[0] }}" value="{{ dep }}"> {{ dep }}
+									</label>
+								{% endif %}
+							{% endfor %}
+						{% endif %}
+					</div>
+				</div>
+				{% endfor %}
+			</div>
 		</div>
-
-		{% if is_moderator %}
-		<div class="tab-pane" id="past" role="tabpanel" aria-labelledby="past">
-			{{ BatchCard(past_batches, show_price=False, label="Archived") }}
-		</div>
-
-		<div class="tab-pane" id="private" role="tabpanel" aria-labelledby="private">
-			{{ BatchCard(private_batches, show_price=False, label="Private") }}
-		</div>
+		<div class="col-xl-10">
+		{% else %}
+			<div class="col-xl-12">
 		{% endif %}
+		<ul class="nav lms-nav" id="courses-tab">
 
-		{% if frappe.session.user != "Guest" %}
-		<div class="tab-pane" id="my-batch" role="tabpanel" aria-labelledby="my-batches">
-			{{ BatchCard(my_batches, show_price=False, label="Enrolled") }}
+			<li class="nav-item">
+				<a class="nav-link active" data-toggle="tab" href="#upcoming">
+					{{ _("Upcoming") }}
+					<span class="course-list-count" id="upcoming-batch">
+						{{ upcoming_batches | length }}
+					</span>
+				</a>
+			</li>
+
+			{% if is_moderator %}
+			<li class="nav-item">
+				<a class="nav-link" data-toggle="tab" href="#past">
+					{{ _("Archived") }}
+					<span class="course-list-count" id="past-batch">
+						{{ past_batches | length }}
+					</span>
+				</a>
+			</li>
+
+			<li class="nav-item">
+				<a class="nav-link" data-toggle="tab" href="#private">
+					{{ _("Private") }}
+					<span class="course-list-count" id="private-batch">
+						{{ private_batches | length }}
+					</span>
+				</a>
+			</li>
+			{% endif %}
+
+			{% if frappe.session.user != "Guest" %}
+			<li class="nav-item">
+				<a class="nav-link" data-toggle="tab" href="#my-batch">
+					{{ _("Enrolled") }}
+					<span class="course-list-count" id="batch-count">
+						{{ my_batches | length }}
+					</span>
+				</a>
+			</li>
+			{% endif %}
+
+		</ul>
+
+		<div class="border-bottom mb-4"></div>
+
+		<div class="tab-content">
+			<div class="tab-pane active" id="upcoming" role="tabpanel" aria-labelledby="upcoming">
+				{{ BatchCard(upcoming_batches, show_price=True, label="Upcoming") }}
+			</div>
+
+			{% if is_moderator %}
+			<div class="tab-pane" id="past" role="tabpanel" aria-labelledby="past">
+				{{ BatchCard(past_batches, show_price=False, label="Archived") }}
+			</div>
+
+			<div class="tab-pane" id="private" role="tabpanel" aria-labelledby="private">
+				{{ BatchCard(private_batches, show_price=False, label="Private") }}
+			</div>
+			{% endif %}
+
+			{% if frappe.session.user != "Guest" %}
+			<div class="tab-pane" id="my-batch" role="tabpanel" aria-labelledby="my-batches">
+				{{ BatchCard(my_batches, show_price=False, label="Enrolled") }}
+			</div>
+			{% endif %}
+
 		</div>
-		{% endif %}
-
-	</div>
 </article>
 {% endmacro %}
 
 {% macro BatchCard(batches, show_price=False, label="") %}
 {% if batches | length %}
-<div class="lms-card-parent">
+<div class="lms-card-parent" id="batch-container">
 	{% for batch in batches %}
 
 	<div class="common-card-style column-card" style="min-height: 150px;">

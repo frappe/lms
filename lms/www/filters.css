@@ -1,0 +1,66 @@
+h3, h4 {
+    margin: 0 0 10px 0;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+}
+.col-xl-2 {
+    max-height: 600px;
+    overflow-y: auto;
+    padding-right: 15px;
+}
+@media (min-width: 768px) {
+    #filters-container {
+        display: block !important;
+    }
+    #toggle-filters {
+        margin-bottom: 10px !important;
+    }
+}
+.filter-options {
+        display: none;
+}
+.toggle-button {
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    font-size: 16px;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+.toggle-button:hover {
+    background-color: #0d0e0d;
+    color:#f0f0f0
+}
+
+.arrow {
+    margin-left: 10px;
+    transition: transform 0.3s ease;
+}
+
+.toggle-button.open .arrow {
+    transform: rotate(180deg);
+}
+
+.toggle-content {
+    display: none;
+    padding: 10px 15px;
+    background-color: #ffffff;
+    border-top: 1px solid #f0f0f0;
+}
+
+.toggle-content label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #333333;
+}
+
+.toggle-content input[type="checkbox"] {
+    margin-right: 8px;
+}
