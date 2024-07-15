@@ -542,3 +542,21 @@ def update_index(lessons, chapter):
 		frappe.db.set_value(
 			"Lesson Reference", {"lesson": row, "parent": chapter}, "idx", lessons.index(row) + 1
 		)
+
+
+@frappe.whitelist(allow_guest=True)
+def get_categories(doctype, filters):
+	categoryOptions = []
+
+	categories = frappe.get_all(
+		doctype,
+		filters,
+		pluck="category",
+	)
+	categories = list(set(categories))
+
+	for category in categories:
+		if category:
+			categoryOptions.append({"label": category, "value": category})
+
+	return categoryOptions
