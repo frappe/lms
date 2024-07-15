@@ -7,7 +7,15 @@
 				class="h-7"
 				:items="[{ label: __('All Batches'), route: { name: 'Batches' } }]"
 			/>
-			<div class="flex">
+			<div class="flex space-x-2">
+				<div class="w-40">
+					<Select
+						v-if="categories.data?.length"
+						v-model="currentCategory"
+						:options="categories.data"
+						:placeholder="__('Filter')"
+					/>
+				</div>
 				<router-link
 					v-if="user.data?.is_moderator"
 					:to="{
@@ -33,7 +41,7 @@
 			</div>
 			<Tabs
 				v-model="tabIndex"
-				:tabs="tabs"
+				:tabs="makeTabs"
 				tablistClass="overflow-x-visible flex-wrap !gap-3 md:flex-nowrap"
 			>
 				<template #tab="{ tab, selected }">
@@ -87,13 +95,29 @@
 	</div>
 </template>
 <script setup>
-import { createListResource, Breadcrumbs, Button, Tabs, Badge } from 'frappe-ui'
+import {
+	createListResource,
+	createResource,
+	Breadcrumbs,
+	Button,
+	Tabs,
+	Badge,
+	Select,
+} from 'frappe-ui'
 import { Plus } from 'lucide-vue-next'
 import BatchCard from '@/components/BatchCard.vue'
-import { inject, ref, computed } from 'vue'
+import { inject, ref, computed, onMounted, watch } from 'vue'
 import { updateDocumentTitle } from '@/utils'
 
 const user = inject('$user')
+const currentCategory = ref(null)
+
+onMounted(() => {
+	let queries = new URLSearchParams(location.search)
+	if (queries.has('category')) {
+		currentCategory.value = queries.get('category')
+	}
+})
 
 const batches = createListResource({
 	doctype: 'LMS Batch',
@@ -102,34 +126,75 @@ const batches = createListResource({
 	auto: true,
 })
 
-const tabIndex = ref(0)
-const tabs = [
-	{
-		label: 'Upcoming',
-		batches: computed(() => batches.data?.upcoming || []),
-		count: computed(() => batches.data?.upcoming?.length),
+const categories = createResource({
+	url: 'lms.lms.api.get_categories',
+	makeParams() {
+		return {
+			doctype: 'LMS Batch',
+			filters: {
+				published: 1,
+			},
+		}
 	},
-]
+	cache: ['batchCategories'],
+	auto: true,
+	transform(data) {
+		data.unshift({
+			label: '',
+			value: null,
+		})
+	},
+})
 
-if (user.data?.is_moderator) {
+const tabIndex = ref(0)
+let tabs
+
+const makeTabs = computed(() => {
+	tabs = []
+	addToTabs('Upcoming')
+
+	if (user.data?.is_moderator) {
+		addToTabs('Archived')
+		addToTabs('Private')
+	}
+
+	if (user.data) {
+		addToTabs('Enrolled')
+	}
+
+	return tabs
+})
+
+const getBatches = (type) => {
+	if (currentCategory.value && currentCategory.value != '') {
+		return batches.data[type].filter(
+			(batch) => batch.category == currentCategory.value
+		)
+	}
+	return batches.data[type]
+}
+
+const addToTabs = (label) => {
+	let batches = getBatches(label.toLowerCase().split(' ').join('_'))
 	tabs.push({
-		label: 'Archived',
-		batches: computed(() => batches.data?.archived),
-		count: computed(() => batches.data?.archived?.length),
-	})
-	tabs.push({
-		label: 'Private',
-		batches: computed(() => batches.data?.private),
-		count: computed(() => batches.data?.private?.length),
+		label,
+		batches: computed(() => batches),
+		count: computed(() => batches.length),
 	})
 }
-if (user.data) {
-	tabs.push({
-		label: 'Enrolled',
-		batches: computed(() => batches.data?.enrolled),
-		count: computed(() => batches.data?.enrolled?.length),
-	})
-}
+
+watch(
+	() => currentCategory.value,
+	() => {
+		let queries = new URLSearchParams(location.search)
+		if (currentCategory.value) {
+			queries.set('category', currentCategory.value)
+		} else {
+			queries.delete('category')
+		}
+		history.pushState(null, '', `${location.pathname}?${queries.toString()}`)
+	}
+)
 
 const pageMeta = computed(() => {
 	return {

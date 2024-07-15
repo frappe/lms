@@ -1456,6 +1456,7 @@ def get_batch_details(batch):
 			"evaluation_end_date",
 			"allow_self_enrollment",
 			"timezone",
+			"category",
 		],
 		as_dict=True,
 	)
