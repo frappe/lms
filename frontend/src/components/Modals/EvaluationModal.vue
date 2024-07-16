@@ -130,11 +130,14 @@ function submitEvaluation(close) {
 			close()
 		},
 		onError(err) {
+			let message = err.messages?.[0] || err
+			let unavailabilityMessage = message.includes('unavailable')
+
 			createToast({
-				title: 'Error',
-				text: err.messages?.[0] || err,
-				icon: 'x',
-				iconClasses: 'bg-red-600 text-white rounded-md p-px',
+				title: unavailabilityMessage ? 'Evaluator is Unavailable' : 'Error',
+				text: message,
+				icon: unavailabilityMessage ? 'alert-circle' : 'x',
+				iconClasses: 'bg-yellow-600 text-white rounded-md p-px',
 				position: 'top-center',
 				timeout: 10,
 			})

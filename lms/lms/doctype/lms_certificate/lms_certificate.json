@@ -8,16 +8,16 @@
  "field_order": [
   "course",
   "course_title",
-  "column_break_3",
   "member",
   "member_name",
-  "published",
-  "section_break_tnnm",
-  "template",
-  "batch_name",
-  "column_break_qtzo",
+  "column_break_vwbn",
   "issue_date",
-  "expiry_date"
+  "template",
+  "published",
+  "section_break_scyf",
+  "expiry_date",
+  "column_break_slaw",
+  "batch_name"
  ],
  "fields": [
   {
@@ -26,10 +26,6 @@
    "fieldtype": "Date",
    "label": "Issue Date",
    "reqd": 1
-  },
-  {
-   "fieldname": "column_break_3",
-   "fieldtype": "Column Break"
   },
   {
    "fieldname": "course",
@@ -89,17 +85,21 @@
    "read_only": 1
   },
   {
-   "fieldname": "section_break_tnnm",
+   "fieldname": "column_break_vwbn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_scyf",
    "fieldtype": "Section Break"
   },
   {
-   "fieldname": "column_break_qtzo",
+   "fieldname": "column_break_slaw",
    "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-07-12 12:39:50.076937",
+ "modified": "2024-07-16 15:29:19.708888",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate",

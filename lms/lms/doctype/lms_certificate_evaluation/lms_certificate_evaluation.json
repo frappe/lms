@@ -47,7 +47,7 @@
    "fieldtype": "Rating",
    "in_list_view": 1,
    "label": "Rating",
-   "mandatory_depends_on": "eval:doc.status != 'Pending' && doc.status != 'In Progress'"
+   "mandatory_depends_on": "eval:doc.status == 'Pass'"
   },
   {
    "fieldname": "summary",
@@ -107,7 +107,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-04-15 11:22:43.189908",
+ "modified": "2024-07-16 14:06:11.977666",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate Evaluation",
