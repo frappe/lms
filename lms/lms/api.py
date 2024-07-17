@@ -330,13 +330,12 @@ def get_evaluator_details(evaluator):
 
 
 @frappe.whitelist(allow_guest=True)
-def get_certified_participants(search_query=""):
+def get_certified_participants():
 	LMSCertificate = DocType("LMS Certificate")
 	participants = (
 		frappe.qb.from_(LMSCertificate)
 		.select(LMSCertificate.member)
 		.distinct()
-		.where(LMSCertificate.member_name.like(f"%{search_query}%"))
 		.where(LMSCertificate.published == 1)
 		.orderby(LMSCertificate.creation, order=frappe.qb.desc)
 		.run(as_dict=1)

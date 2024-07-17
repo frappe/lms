@@ -2,28 +2,23 @@
 	<div
 		v-if="course.title"
 		class="flex flex-col h-full rounded-md shadow-md text-base overflow-auto"
-		style="min-height: 320px"
+		style="min-height: 350px"
 	>
 		<div
 			class="course-image"
 			:class="{ 'default-image': !course.image }"
 			:style="{ backgroundImage: 'url(\'' + encodeURI(course.image) + '\')' }"
 		>
-			<div class="flex relative top-4 left-4 w-fit flex-wrap">
-				<Badge
-					v-if="course.featured"
-					variant="subtle"
-					theme="green"
-					size="md"
-					class="mr-2"
-				>
+			<div
+				class="flex items-center flex-wrap space-y-1 space-x-1 relative top-4 px-2 w-fit"
+			>
+				<Badge v-if="course.featured" variant="subtle" theme="green" size="md">
 					{{ __('Featured') }}
 				</Badge>
 				<Badge
 					variant="outline"
 					theme="gray"
 					size="md"
-					class="mr-2"
 					v-for="tag in course.tags"
 				>
 					{{ tag }}

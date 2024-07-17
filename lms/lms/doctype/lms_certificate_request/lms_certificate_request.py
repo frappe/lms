@@ -42,7 +42,7 @@ class LMSCertificateRequest(Document):
 		):
 			frappe.throw(
 				_(
-					"Evaluator is unavailable from {0} to {1}. Please select a date after {1}"
+					"The evaluator of this course is unavailable from {0} to {1}. Please select a date after {1}"
 				).format(
 					format_date(unavailable.unavailable_from, "medium"),
 					format_date(unavailable.unavailable_to, "medium"),
