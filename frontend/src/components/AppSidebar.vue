@@ -27,7 +27,7 @@
 				>
 					<div
 						v-if="!isSidebarCollapsed"
-						class="flex items-center text-sm font-medium text-gray-600"
+						class="flex items-center text-sm text-gray-600 my-1"
 					>
 						<span class="grid h-5 w-6 flex-shrink-0 place-items-center">
 							<ChevronRight
