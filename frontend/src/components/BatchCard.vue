@@ -29,10 +29,7 @@
 			<div v-if="batch.amount" class="font-semibold text-lg">
 				{{ batch.price }}
 			</div>
-			<!-- <div class="flex items-center text-sm text-gray-700">
-				<BookOpen class="h-3 w-3 stroke-1.5 mr-2 text-gray-700" />
-				<span> {{ batch.courses.length }} {{ __('Courses') }} </span>
-			</div> -->
+
 			<DateRange
 				:startDate="batch.start_date"
 				:endDate="batch.end_date"
