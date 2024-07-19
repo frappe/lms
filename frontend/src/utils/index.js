@@ -10,6 +10,7 @@ import InlineCode from '@editorjs/inline-code'
 import { watch } from 'vue'
 import dayjs from '@/utils/dayjs'
 import Embed from '@editorjs/embed'
+import SimpleImage from '@editorjs/simple-image'
 
 export function createToast(options) {
 	toast({
@@ -136,6 +137,7 @@ export function getEditorTools() {
 		header: Header,
 		quiz: Quiz,
 		upload: Upload,
+		image: SimpleImage,
 		paragraph: {
 			class: Paragraph,
 			inlineToolbar: true,
@@ -167,10 +169,68 @@ export function getEditorTools() {
 			inlineToolbar: false,
 			config: {
 				services: {
-					youtube: true,
+					youtube: {
+						regex: /(?:https?:\/\/)?(?:www\.)?(?:(?:youtu\.be\/)|(?:youtube\.com)\/(?:v\/|u\/\w\/|embed\/|watch))(?:(?:\?v=)?([^#&?=]*))?((?:[?&]\w*=\w*)*)/,
+						embedUrl:
+							'https://www.youtube.com/embed/<%= remote_id %>',
+						html: '<iframe style="width:100%; height: 30rem;" frameborder="0" allowfullscreen></iframe>',
+						height: 320,
+						width: 580,
+						id: ([id, params]) => {
+							if (!params && id) {
+								return id
+							}
+
+							const paramsMap = {
+								start: 'start',
+								end: 'end',
+								t: 'start',
+								// eslint-disable-next-line camelcase
+								time_continue: 'start',
+								list: 'list',
+							}
+
+							let newParams = params
+								.slice(1)
+								.split('&')
+								.map((param) => {
+									const [name, value] = param.split('=')
+
+									if (!id && name === 'v') {
+										id = value
+
+										return null
+									}
+
+									if (!paramsMap[name]) {
+										return null
+									}
+
+									if (
+										value === 'LL' ||
+										value.startsWith('RDMM') ||
+										value.startsWith('FL')
+									) {
+										return null
+									}
+
+									return `${paramsMap[name]}=${value}`
+								})
+								.filter((param) => !!param)
+
+							return id + '?' + newParams.join('&')
+						},
+					},
 					vimeo: true,
 					codepen: true,
-					aparat: true,
+					aparat: {
+						regex: /(?:http[s]?:\/\/)?(?:www.)?aparat\.com\/v\/([^\/\?\&]+)\/?/,
+						embedUrl:
+							'https://www.aparat.com/video/video/embed/videohash/<%= remote_id %>/vt/frame',
+						html: '<iframe style="margin: 0 auto; width: 100%; height: 25rem;" frameborder="0" scrolling="no" allowtransparency="true"></iframe>',
+						height: 300,
+						width: 600,
+					},
 					github: true,
 					slides: {
 						regex: /https:\/\/docs\.google\.com\/presentation\/d\/e\/([A-Za-z0-9_-]+)\/pub/,
