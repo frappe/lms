@@ -4,13 +4,13 @@ import { Quiz } from '@/utils/quiz'
 import { Upload } from '@/utils/upload'
 import Header from '@editorjs/header'
 import Paragraph from '@editorjs/paragraph'
-import Image from '@editorjs/image'
 import { CodeBox } from '@/utils/code'
 import NestedList from '@editorjs/nested-list'
 import InlineCode from '@editorjs/inline-code'
 import { watch } from 'vue'
 import dayjs from '@/utils/dayjs'
 import Embed from '@editorjs/embed'
+import SimpleImage from '@editorjs/simple-image'
 
 export function createToast(options) {
 	toast({
@@ -137,7 +137,7 @@ export function getEditorTools() {
 		header: Header,
 		quiz: Quiz,
 		upload: Upload,
-		image: Image,
+		image: SimpleImage,
 		paragraph: {
 			class: Paragraph,
 			inlineToolbar: true,
@@ -173,7 +173,7 @@ export function getEditorTools() {
 						regex: /(?:https?:\/\/)?(?:www\.)?(?:(?:youtu\.be\/)|(?:youtube\.com)\/(?:v\/|u\/\w\/|embed\/|watch))(?:(?:\?v=)?([^#&?=]*))?((?:[?&]\w*=\w*)*)/,
 						embedUrl:
 							'https://www.youtube.com/embed/<%= remote_id %>',
-						html: '<iframe style="width:100%;" height="320" frameborder="0" allowfullscreen></iframe>',
+						html: '<iframe style="width:100%; height: 30rem;" frameborder="0" allowfullscreen></iframe>',
 						height: 320,
 						width: 580,
 						id: ([id, params]) => {
@@ -181,7 +181,7 @@ export function getEditorTools() {
 								return id
 							}
 
-							const paramsMap: Record<string, string> = {
+							const paramsMap = {
 								start: 'start',
 								end: 'end',
 								t: 'start',
@@ -227,7 +227,7 @@ export function getEditorTools() {
 						regex: /(?:http[s]?:\/\/)?(?:www.)?aparat\.com\/v\/([^\/\?\&]+)\/?/,
 						embedUrl:
 							'https://www.aparat.com/video/video/embed/videohash/<%= remote_id %>/vt/frame',
-						html: '<iframe width="600" height="300" style="margin: 0 auto;" frameborder="0" scrolling="no" allowtransparency="true"></iframe>',
+						html: '<iframe style="margin: 0 auto; width: 100%; height: 25rem;" frameborder="0" scrolling="no" allowtransparency="true"></iframe>',
 						height: 300,
 						width: 600,
 					},

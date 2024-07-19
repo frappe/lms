@@ -103,6 +103,7 @@
    "fieldname": "start_date",
    "fieldtype": "Date",
    "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Start Date",
    "reqd": 1
   },
@@ -127,6 +128,7 @@
   {
    "fieldname": "start_time",
    "fieldtype": "Time",
+   "in_list_view": 1,
    "label": "Start Time",
    "reqd": 1
   },
@@ -165,6 +167,7 @@
   {
    "fieldname": "category",
    "fieldtype": "Link",
+   "in_standard_filter": 1,
    "label": "Category",
    "options": "LMS Category"
   },
@@ -325,7 +328,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-06-24 16:24:45.536453",
+ "modified": "2024-07-18 18:06:37.229885",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch",
