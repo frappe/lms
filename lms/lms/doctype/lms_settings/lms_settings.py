@@ -39,3 +39,7 @@ class LMSSettings(Document):
 						frappe.bold("Course Evaluator"),
 					)
 				)
+
+	# Method to get vietqr_code
+	def get_vietqr_code(self):
+		return self.vietqr_code

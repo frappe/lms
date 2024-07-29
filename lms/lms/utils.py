@@ -1894,3 +1894,7 @@ def publish_notifications(doc, method):
 	frappe.publish_realtime(
 		"publish_lms_notifications", user=doc.for_user, after_commit=True
 	)
+	
+@frappe.whitelist()
+def get_vietqr_code():
+	return frappe.db.get_single_value("LMS Settings", "vietqr_code")
