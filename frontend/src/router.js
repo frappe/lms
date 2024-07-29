@@ -47,7 +47,7 @@ const routes = [
 	{
 		path: '/billing/:type/:name',
 		name: 'Billing',
-		component: () => import('@/pages/Billing.vue'),
+		component: () => import('@/pages/BillingVietQR.vue'),
 		props: true,
 	},
 	{

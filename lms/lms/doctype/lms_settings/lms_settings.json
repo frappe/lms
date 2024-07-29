@@ -57,6 +57,7 @@
   "razorpay_key",
   "razorpay_secret",
   "apply_gst",
+  "vietqr_code",
   "column_break_cfcv",
   "default_currency",
   "show_usd_equivalent",
