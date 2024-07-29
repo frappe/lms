@@ -3,13 +3,19 @@
 		class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs :items="breadcrumbs" />
+		<Button variant="solid">
+			<template #prefix>
+				<Plus class="w-4 h-4"/>
+			</template>
+			{{ __('New Quiz') }}
+		</Button>
 	</header>
 	<div v-if="quizzes.data?.length" class="w-3/4 mx-auto py-5">
 		<ListView
 			:columns="quizColumns"
 			:rows="quizzes.data"
 			row-key="name"
-			:options="{ showTooltip: false }"
+			:options="{ showTooltip: false, selectable: false }"
 		>
 			<ListHeader
 				class="mb-2 grid items-center space-x-4 rounded bg-gray-100 p-2"
@@ -30,18 +36,6 @@
 					<ListRow :row="row" />
 				</router-link>
 			</ListRows>
-			<ListSelectBanner>
-				<template #actions="{ unselectAll, selections }">
-					<div class="flex gap-2">
-						<Button
-							variant="ghost"
-							@click="removeQuiz(selections, unselectAll)"
-						>
-							<Trash2 class="h-4 w-4 stroke-1.5" />
-						</Button>
-					</div>
-				</template>
-			</ListSelectBanner>
 		</ListView>
 	</div>
 </template>
@@ -49,18 +43,15 @@
 import {
 	Breadcrumbs,
 	createListResource,
-	FormControl,
 	ListView,
 	ListRows,
 	ListRow,
-	ListRowItem,
 	ListHeader,
 	ListHeaderItem,
-	ListSelectBanner,
 	Button,
 } from 'frappe-ui'
 import { computed, inject } from 'vue'
-import { Trash2 } from 'lucide-vue-next'
+import { Plus } from 'lucide-vue-next'
 
 const user = inject('$user')
 
