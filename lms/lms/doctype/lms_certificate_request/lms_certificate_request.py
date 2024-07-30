@@ -72,14 +72,13 @@ class LMSCertificateRequest(Document):
 		)
 
 		for req in existing_requests:
-			if (
-				req.name != self.name and (
+			if req.name != self.name and (
 				req.date == getdate(self.date)
 				or getdate() < getdate(req.date)
 				or (
 					getdate() == getdate(req.date)
 					and getdate(self.start_time) < getdate(req.start_time)
-				))
+				)
 			):
 				course_title = frappe.db.get_value("LMS Course", req.course, "title")
 				frappe.throw(
