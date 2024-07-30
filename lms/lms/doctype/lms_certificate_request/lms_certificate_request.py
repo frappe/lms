@@ -72,7 +72,7 @@ class LMSCertificateRequest(Document):
 		)
 
 		for req in existing_requests:
-			if (
+			if req.name != self.name and (
 				req.date == getdate(self.date)
 				or getdate() < getdate(req.date)
 				or (
