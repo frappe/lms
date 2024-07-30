@@ -56,6 +56,7 @@ class LMSCertificateRequest(Document):
 				"evaluator": self.evaluator,
 				"date": self.date,
 				"start_time": self.start_time,
+				"member": ["!=", self.member],
 			},
 		):
 			frappe.throw(_("The slot is already booked by another participant."))
@@ -72,7 +73,7 @@ class LMSCertificateRequest(Document):
 		)
 
 		for req in existing_requests:
-			if req.name != self.name and (
+			if (
 				req.date == getdate(self.date)
 				or getdate() < getdate(req.date)
 				or (
