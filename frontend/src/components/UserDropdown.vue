@@ -68,6 +68,7 @@ import {
 	LogOut,
 	User,
 	ArrowRightLeft,
+	HardDriveDownload,
 } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { convertToTitleCase } from '../utils'
@@ -107,6 +108,16 @@ const userDropdownOptions = [
 			let system_user = cookies.get('system_user')
 			if (system_user === 'yes') return true
 			else return false
+		},
+	},
+	{
+		icon: HardDriveDownload,
+		label: 'Drive',
+		onClick: () => {
+			window.location.href = '/drive/home'
+		},
+		condition: () => {
+			return isLoggedIn
 		},
 	},
 	{
