@@ -7,9 +7,6 @@
 			<div class="text-3xl font-bold">
 				{{ __('Billing Details') }}
 			</div>
-			<div class="text-gray-600 mt-1">
-				{{ __('Enter the billing information to complete the payment.') }}
-			</div>
 			<div class="border rounded-md p-5 mt-5">
 				<div class="text-xl font-semibold">
 					{{ __('Summary') }}

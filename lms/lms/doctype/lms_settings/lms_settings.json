@@ -258,6 +258,12 @@
   },
   {
    "default": "0",
+   "fieldname": "vietqr_code",
+   "fieldtype": "Attach Image",
+   "label": "VietQR Payment"
+  },
+  {
+   "default": "0",
    "fieldname": "show_usd_equivalent",
    "fieldtype": "Check",
    "label": "Show USD Equivalent"
