@@ -10,7 +10,9 @@
   "column_break_deax",
   "job",
   "job_title",
-  "company"
+  "company",
+  "preview_section",
+  "preview_html"
  ],
  "fields": [
   {
@@ -56,11 +58,21 @@
    "in_list_view": 1,
    "label": "Company",
    "read_only": 1
+  },
+  {
+   "fieldname": "preview_html",
+   "fieldtype": "HTML",
+   "label": "Preview HTML"
+  },
+  {
+   "fieldname": "preview_section",
+   "fieldtype": "Section Break",
+   "label": "Preview"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-02-20 20:10:46.943871",
+ "modified": "2024-07-31 15:48:07.653837",
  "modified_by": "Administrator",
  "module": "Job",
  "name": "LMS Job Application",

@@ -10,5 +10,31 @@ frappe.ui.form.on("LMS Job Application", {
 				},
 			};
 		});
+
+		frm.toggle_display("preview", false);
+
+		// preview different file types
+		frm.trigger("preview_file");
+	},
+
+	preview_file: function (frm) {
+		let $preview = "";
+		const file_url = '/files/' + frm.doc.resume; 
+
+		$preview = $(`<div class="img_preview">
+			<object style="background:#323639;" width="100%">
+				<embed
+					style="background:#323639;"
+					width="100%"
+					height="1190"
+					src="${frappe.utils.escape_html(file_url)}" type="application/pdf"
+				>
+			</object>
+		</div>`);
+
+		if ($preview) {
+			frm.toggle_display("preview", true);
+			frm.get_field("preview_html").$wrapper.html($preview);
+		}
 	},
 });
