@@ -12,3 +12,4 @@ node_modules
 package-lock.json
 lms/public/frontend
 lms/www/lms.html
+frappe-ui

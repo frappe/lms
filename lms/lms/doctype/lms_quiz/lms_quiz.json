@@ -74,6 +74,7 @@
    "default": "1",
    "fieldname": "show_answers",
    "fieldtype": "Check",
+   "in_standard_filter": 1,
    "label": "Show Answers"
   },
   {
@@ -98,6 +99,8 @@
   {
    "fieldname": "passing_percentage",
    "fieldtype": "Int",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Passing Percentage",
    "non_negative": 1,
    "reqd": 1
@@ -110,6 +113,7 @@
    "default": "0",
    "fieldname": "total_marks",
    "fieldtype": "Int",
+   "in_list_view": 1,
    "label": "Total Marks",
    "non_negative": 1,
    "read_only": 1,
@@ -133,7 +137,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-06-27 22:03:48.576489",
+ "modified": "2024-07-19 18:21:26.681501",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz",
