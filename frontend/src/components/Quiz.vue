@@ -269,17 +269,19 @@ const quiz = createResource({
 	cache: ['quiz', props.quizName],
 	auto: true,
 	onSuccess(data) {
-		shuffleQuiz()
+		populateQuestions()
 	},
 })
 
-const shuffleQuiz = () => {
+const populateQuestions = () => {
 	let data = quiz.data
 	if (data.shuffle_questions) {
 		questions = shuffleArray(data.questions)
-	}
-	if (data.limit_questions_to) {
-		questions = questions.slice(0, data.limit_questions_to)
+		if (data.limit_questions_to) {
+			questions = questions.slice(0, data.limit_questions_to)
+		}
+	} else {
+		questions = data.questions
 	}
 }
 
@@ -322,7 +324,7 @@ const attempts = createResource({
 watch(
 	() => quiz.data,
 	() => {
-		if (quiz.data) {
+		if (quiz.data && quiz.data.max_attempts) {
 			attempts.reload()
 			resetQuiz()
 		}
@@ -476,7 +478,7 @@ const submitQuiz = () => {
 
 const createSubmission = () => {
 	quizSubmission.reload().then(() => {
-		attempts.reload()
+		if (quiz.data && quiz.data.max_attempts) attempts.reload()
 	})
 }
 
@@ -485,7 +487,7 @@ const resetQuiz = () => {
 	selectedOptions.splice(0, selectedOptions.length, ...[0, 0, 0, 0])
 	showAnswers.length = 0
 	quizSubmission.reset()
-	shuffleQuiz()
+	populateQuestions()
 }
 
 const getSubmissionColumns = () => {
