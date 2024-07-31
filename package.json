@@ -26,5 +26,8 @@
   "devDependencies": {
     "cypress": "^13.9.0",
     "cypress-file-upload": "^5.0.8"
+  },
+  "dependencies": {
+    "pre-commit": "^1.2.2"
   }
 }

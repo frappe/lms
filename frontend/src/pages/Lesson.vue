@@ -90,6 +90,17 @@
 								</span>
 							</Button>
 						</router-link>
+						<router-link
+							v-else
+							:to="{
+								name: 'CourseDetail',
+								params: { courseName: courseName },
+							}"
+						>
+							<Button>
+								{{ __('Back to Course') }}
+							</Button>
+						</router-link>
 					</div>
 				</div>
 
@@ -160,12 +171,12 @@
 						{{ lesson.data.course_title }}
 					</div>
 					<div v-if="user && lesson.data.membership" class="text-sm mt-3">
-						{{ Math.ceil(lesson.data.membership.progress) }}% completed
+						{{ Math.ceil(lessonProgress) }}% {{ __('completed') }}
 					</div>
 
 					<ProgressBar
 						v-if="user && lesson.data.membership"
-						:progress="lesson.data.membership.progress"
+						:progress="lessonProgress"
 					/>
 				</div>
 				<CourseOutline
@@ -179,7 +190,7 @@
 </template>
 <script setup>
 import { createResource, Breadcrumbs, Button } from 'frappe-ui'
-import { computed, watch, inject, ref } from 'vue'
+import { computed, watch, inject, ref, onMounted, onBeforeUnmount } from 'vue'
 import CourseOutline from '@/components/CourseOutline.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { useRoute } from 'vue-router'
@@ -196,6 +207,9 @@ const route = useRoute()
 const allowDiscussions = ref(false)
 const editor = ref(null)
 const instructorEditor = ref(null)
+const lessonProgress = ref(0)
+const timer = ref(0)
+let timerInterval
 
 const props = defineProps({
 	courseName: {
@@ -212,6 +226,10 @@ const props = defineProps({
 	},
 })
 
+onMounted(() => {
+	startTimer()
+})
+
 const lesson = createResource({
 	url: 'lms.lms.utils.get_lesson',
 	cache: ['lesson', props.courseName, props.chapterNumber, props.lessonNumber],
@@ -224,7 +242,7 @@ const lesson = createResource({
 	},
 	auto: true,
 	onSuccess(data) {
-		markProgress(data)
+		lessonProgress.value = data.membership?.progress
 		if (data.content) editor.value = renderEditor('editor', data.content)
 		if (data.instructor_content?.blocks?.length)
 			instructorEditor.value = renderEditor(
@@ -256,8 +274,10 @@ const renderEditor = (holder, content) => {
 	})
 }
 
-const markProgress = (data) => {
-	if (user.data && !data.progress) progress.submit()
+const markProgress = () => {
+	if (user.data && !lesson.data?.progress) {
+		progress.submit()
+	}
 }
 
 const progress = createResource({
@@ -267,6 +287,9 @@ const progress = createResource({
 			lesson: lesson.data.name,
 			course: props.courseName,
 		}
+	},
+	onSuccess(data) {
+		lessonProgress.value = data
 	},
 })
 
@@ -304,9 +327,26 @@ watch(
 				chapter: newChapterNumber,
 				lesson: newLessonNumber,
 			})
+			clearInterval(timerInterval)
+			timer.value = 0
+			startTimer()
 		}
 	}
 )
+
+const startTimer = () => {
+	timerInterval = setInterval(() => {
+		timer.value++
+		if (timer.value == 30) {
+			clearInterval(timerInterval)
+			markProgress()
+		}
+	}, 1000)
+}
+
+onBeforeUnmount(() => {
+	clearInterval(timerInterval)
+})
 
 const checkIfDiscussionsAllowed = () => {
 	let quizPresent = false

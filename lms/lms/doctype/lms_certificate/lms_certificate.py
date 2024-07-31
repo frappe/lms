@@ -73,6 +73,8 @@ class LMSCertificate(Document):
 def has_website_permission(doc, ptype, user, verbose=False):
 	if ptype in ["read", "print"]:
 		return True
+	if doc.member == user and ptype == "create":
+		return True
 	return False
 
 
@@ -81,7 +83,9 @@ def create_certificate(course):
 	certificate = is_certified(course)
 
 	if certificate:
-		return certificate
+		return frappe.db.get_value(
+			"LMS Certificate", certificate, ["name", "course", "template"], as_dict=True
+		)
 
 	else:
 		expires_after_yrs = int(frappe.db.get_value("LMS Course", course, "expiry"))
