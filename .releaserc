@@ -1,5 +1,5 @@
 {
-	"branches": ["main"],
+	"branches": ["develop"],
 	"plugins": [
 		"@semantic-release/commit-analyzer", {
 			"preset": "angular"
