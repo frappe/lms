@@ -18,7 +18,7 @@
 			</div>
 			<div
 				v-if="sidebarSettings.data?.web_pages?.length || isModerator"
-				class="pt-1"
+				class="mt-4"
 			>
 				<div
 					class="flex items-center justify-between pr-2 cursor-pointer"
@@ -27,7 +27,7 @@
 				>
 					<div
 						v-if="!isSidebarCollapsed"
-						class="flex items-center text-sm font-medium text-gray-600"
+						class="flex items-center text-sm text-gray-600 my-1"
 					>
 						<span class="grid h-5 w-6 flex-shrink-0 place-items-center">
 							<ChevronRight
@@ -36,7 +36,7 @@
 							/>
 						</span>
 						<span class="ml-2">
-							{{ __('Web Pages') }}
+							{{ __('More') }}
 						</span>
 					</div>
 					<Button v-if="isModerator" variant="ghost" @click="openPageModal()">

@@ -452,45 +452,6 @@ def get_popular_courses():
 	return course_membership[:3]
 
 
-def get_evaluation_details(course, member=None):
-	info = frappe.db.get_value(
-		"LMS Course",
-		course,
-		["grant_certificate_after", "max_attempts", "duration"],
-		as_dict=True,
-	)
-	request = frappe.db.get_value(
-		"LMS Certificate Request",
-		{
-			"course": course,
-			"member": member or frappe.session.user,
-			"date": [">=", getdate()],
-		},
-		["date", "start_time", "end_time"],
-		as_dict=True,
-	)
-
-	no_of_attempts = frappe.db.count(
-		"LMS Certificate Evaluation",
-		{
-			"course": course,
-			"member": member or frappe.session.user,
-			"status": ["!=", "Pass"],
-			"creation": [">=", add_months(getdate(), -abs(cint(info.duration)))],
-		},
-	)
-
-	return frappe._dict(
-		{
-			"eligible": info.grant_certificate_after == "Evaluation"
-			and not request
-			and no_of_attempts < info.max_attempts,
-			"request": request,
-			"no_of_attempts": no_of_attempts,
-		}
-	)
-
-
 def format_amount(amount, currency):
 	amount_reduced = amount / 1000
 	if amount_reduced < 1:
@@ -609,14 +570,6 @@ def get_courses_under_review():
 			"status",
 			"published",
 		],
-	)
-
-
-def get_certificates(member=None):
-	return frappe.get_all(
-		"LMS Certificate",
-		{"member": member or frappe.session.user},
-		["course", "member", "issue_date", "expiry_date", "name"],
 	)
 
 
@@ -944,19 +897,13 @@ def has_graded_assessment(submission):
 	return False if status == "Not Graded" else True
 
 
-def get_evaluator(course, batch=None):
+def get_evaluator(course, batch):
 	evaluator = None
-
-	if batch:
-		evaluator = frappe.db.get_value(
-			"Batch Course",
-			{"parent": batch, "course": course},
-			"evaluator",
-		)
-
-	if not evaluator:
-		evaluator = frappe.db.get_value("LMS Course", course, "evaluator")
-
+	evaluator = frappe.db.get_value(
+		"Batch Course",
+		{"parent": batch, "course": course},
+		"evaluator",
+	)
 	return evaluator
 
 
@@ -1285,6 +1232,7 @@ def get_course_details(course):
 			"course_price",
 			"currency",
 			"amount_usd",
+			"enable_certification",
 		],
 		as_dict=1,
 	)
@@ -1508,6 +1456,7 @@ def get_batch_details(batch):
 			"evaluation_end_date",
 			"allow_self_enrollment",
 			"timezone",
+			"category",
 		],
 		as_dict=True,
 	)

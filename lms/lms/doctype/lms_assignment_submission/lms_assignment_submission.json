@@ -86,7 +86,6 @@
    "label": "Comments"
   },
   {
-   "fetch_from": "course.evaluator",
    "fieldname": "evaluator",
    "fieldtype": "Link",
    "label": "Evaluator",

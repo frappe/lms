@@ -330,13 +330,12 @@ def get_evaluator_details(evaluator):
 
 
 @frappe.whitelist(allow_guest=True)
-def get_certified_participants(search_query=""):
+def get_certified_participants():
 	LMSCertificate = DocType("LMS Certificate")
 	participants = (
 		frappe.qb.from_(LMSCertificate)
 		.select(LMSCertificate.member)
 		.distinct()
-		.where(LMSCertificate.member_name.like(f"%{search_query}%"))
 		.where(LMSCertificate.published == 1)
 		.orderby(LMSCertificate.creation, order=frappe.qb.desc)
 		.run(as_dict=1)
@@ -542,3 +541,21 @@ def update_index(lessons, chapter):
 		frappe.db.set_value(
 			"Lesson Reference", {"lesson": row, "parent": chapter}, "idx", lessons.index(row) + 1
 		)
+
+
+@frappe.whitelist(allow_guest=True)
+def get_categories(doctype, filters):
+	categoryOptions = []
+
+	categories = frappe.get_all(
+		doctype,
+		filters,
+		pluck="category",
+	)
+	categories = list(set(categories))
+
+	for category in categories:
+		if category:
+			categoryOptions.append({"label": category, "value": category})
+
+	return categoryOptions

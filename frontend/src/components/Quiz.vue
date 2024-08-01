@@ -3,9 +3,7 @@
 		<div class="bg-blue-100 py-2 px-2 mb-4 rounded-md text-sm text-blue-800">
 			<div class="leading-relaxed">
 				{{
-					__('This quiz consists of {0} questions.').format(
-						quiz.data.questions.length
-					)
+					__('This quiz consists of {0} questions.').format(questions.length)
 				}}
 			</div>
 			<div v-if="quiz.data.passing_percentage" class="leading-relaxed">
@@ -59,7 +57,7 @@
 			</div>
 		</div>
 		<div v-else-if="!quizSubmission.data">
-			<div v-for="(question, qtidx) in quiz.data.questions">
+			<div v-for="(question, qtidx) in questions">
 				<div
 					v-if="qtidx == activeQuestion - 1 && questionDetails.data"
 					class="border rounded-md p-5"
@@ -166,7 +164,7 @@
 							{{
 								__('Question {0} of {1}').format(
 									activeQuestion,
-									quiz.data.questions.length
+									questions.length
 								)
 							}}
 						</div>
@@ -179,7 +177,7 @@
 							</span>
 						</Button>
 						<Button
-							v-else-if="activeQuestion != quiz.data.questions.length"
+							v-else-if="activeQuestion != questions.length"
 							@click="nextQuetion()"
 						>
 							<span>
@@ -250,6 +248,7 @@ const activeQuestion = ref(0)
 const currentQuestion = ref('')
 const selectedOptions = reactive([0, 0, 0, 0])
 const showAnswers = reactive([])
+let questions = reactive([])
 const possibleAnswer = ref(null)
 
 const props = defineProps({
@@ -270,14 +269,27 @@ const quiz = createResource({
 	cache: ['quiz', props.quizName],
 	auto: true,
 	onSuccess(data) {
-		if (data.shuffle_questions) {
-			data.questions = data.questions.sort(() => Math.random() - 0.5)
-		}
-		if (data.limit_questions_to) {
-			data.questions = data.questions.slice(0, data.limit_questions_to)
-		}
+		shuffleQuiz()
 	},
 })
+
+const shuffleQuiz = () => {
+	let data = quiz.data
+	if (data.shuffle_questions) {
+		questions = shuffleArray(data.questions)
+	}
+	if (data.limit_questions_to) {
+		questions = questions.slice(0, data.limit_questions_to)
+	}
+}
+
+const shuffleArray = (array) => {
+	for (let i = array.length - 1; i > 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1))
+		;[array[i], array[j]] = [array[j], array[i]]
+	}
+	return array
+}
 
 const attempts = createResource({
 	url: 'frappe.client.get_list',
@@ -473,6 +485,7 @@ const resetQuiz = () => {
 	selectedOptions.splice(0, selectedOptions.length, ...[0, 0, 0, 0])
 	showAnswers.length = 0
 	quizSubmission.reset()
+	shuffleQuiz()
 }
 
 const getSubmissionColumns = () => {

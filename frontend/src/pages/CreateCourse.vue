@@ -119,7 +119,7 @@
 						<div class="text-lg font-semibold mt-5 mb-4">
 							{{ __('Settings') }}
 						</div>
-						<div class="grid grid-cols-2 gap-10 mb-4">
+						<div class="grid grid-cols-3 gap-10 mb-4">
 							<div
 								v-if="user.data?.is_moderator"
 								class="flex flex-col space-y-3"
@@ -147,10 +147,17 @@
 									v-model="course.featured"
 									:label="__('Featured')"
 								/>
+							</div>
+							<div class="flex flex-col space-y-3">
 								<FormControl
 									type="checkbox"
 									v-model="course.disable_self_learning"
 									:label="__('Disable Self Enrollment')"
+								/>
+								<FormControl
+									type="checkbox"
+									v-model="course.enable_certification"
+									:label="__('Completion Certificate')"
 								/>
 							</div>
 						</div>
@@ -244,6 +251,7 @@ const course = reactive({
 	featured: false,
 	upcoming: false,
 	disable_self_learning: false,
+	enable_certification: false,
 	paid_course: false,
 	course_price: '',
 	currency: '',
@@ -337,6 +345,7 @@ const courseResource = createResource({
 			'disable_self_learning',
 			'paid_course',
 			'featured',
+			'enable_certification',
 		]
 		for (let idx in checkboxes) {
 			let key = checkboxes[idx]

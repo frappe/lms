@@ -93,7 +93,7 @@ def save_progress(lesson, course):
 		"LMS Enrollment", {"course": course, "member": frappe.session.user}
 	)
 	if not membership:
-		return 0
+		return
 
 	frappe.db.set_value("LMS Enrollment", membership, "current_lesson", lesson)
 
@@ -104,7 +104,7 @@ def save_progress(lesson, course):
 	if frappe.db.exists(
 		"LMS Course Progress", {"lesson": lesson, "member": frappe.session.user}
 	):
-		return 0
+		return
 
 	frappe.get_doc(
 		{
@@ -116,9 +116,12 @@ def save_progress(lesson, course):
 	).save(ignore_permissions=True)
 
 	progress = get_course_progress(course)
-	frappe.db.set_value("LMS Enrollment", membership, "progress", progress)
+	# Had to get doc, as on_change doesn't trigger when you use set_value. The trigger is necesary for badge to get assigned.
 	enrollment = frappe.get_doc("LMS Enrollment", membership)
+	enrollment.progress = progress
+	enrollment.save()
 	enrollment.run_method("on_change")
+
 	return progress
 
 

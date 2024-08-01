@@ -10,12 +10,14 @@
   "course_title",
   "member",
   "member_name",
-  "column_break_3",
-  "template",
+  "column_break_vwbn",
   "issue_date",
+  "template",
+  "published",
+  "section_break_scyf",
   "expiry_date",
-  "batch_name",
-  "published"
+  "column_break_slaw",
+  "batch_name"
  ],
  "fields": [
   {
@@ -24,10 +26,6 @@
    "fieldtype": "Date",
    "label": "Issue Date",
    "reqd": 1
-  },
-  {
-   "fieldname": "column_break_3",
-   "fieldtype": "Column Break"
   },
   {
    "fieldname": "course",
@@ -85,11 +83,23 @@
    "fieldtype": "Data",
    "label": "Course Title",
    "read_only": 1
+  },
+  {
+   "fieldname": "column_break_vwbn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_scyf",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_slaw",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-06-21 18:14:30.491841",
+ "modified": "2024-07-16 15:29:19.708888",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate",
@@ -120,13 +130,15 @@
    "write": 1
   },
   {
+   "create": 1,
    "email": 1,
    "export": 1,
    "print": 1,
    "read": 1,
    "report": 1,
    "role": "LMS Student",
-   "share": 1
+   "share": 1,
+   "write": 1
   }
  ],
  "sort_field": "modified",

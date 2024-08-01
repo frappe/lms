@@ -96,6 +96,7 @@ class LMSBatch(Document):
 		)
 
 		args = {
+			"title": self.title,
 			"student_name": student.student_name,
 			"start_time": self.start_time,
 			"start_date": self.start_date,

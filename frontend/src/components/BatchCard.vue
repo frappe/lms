@@ -3,6 +3,9 @@
 		class="flex flex-col shadow hover:bg-gray-100 rounded-md p-4 h-full"
 		style="min-height: 150px"
 	>
+		<div class="text-xl font-semibold mb-2">
+			{{ batch.title }}
+		</div>
 		<Badge
 			v-if="batch.seat_count && batch.seats_left > 0"
 			theme="green"
@@ -19,9 +22,6 @@
 		>
 			{{ __('Sold Out') }}
 		</Badge>
-		<div class="text-xl font-semibold mb-1">
-			{{ batch.title }}
-		</div>
 		<div class="short-introduction">
 			{{ batch.description }}
 		</div>
@@ -29,23 +29,23 @@
 			<div v-if="batch.amount" class="font-semibold text-lg">
 				{{ batch.price }}
 			</div>
-			<div class="flex items-center">
-				<BookOpen class="h-4 w-4 stroke-1.5 mr-2 text-gray-700" />
-				<span> {{ batch.courses.length }} {{ __('Courses') }} </span>
-			</div>
+
 			<DateRange
 				:startDate="batch.start_date"
 				:endDate="batch.end_date"
-				class="mb-3"
+				class="text-sm text-gray-700 mb-3"
 			/>
-			<div class="flex items-center">
+			<div class="flex items-center text-sm text-gray-700">
 				<Clock class="h-4 w-4 stroke-1.5 mr-2 text-gray-700" />
 				<span>
 					{{ formatTime(batch.start_time) }} - {{ formatTime(batch.end_time) }}
 				</span>
 			</div>
-			<div v-if="batch.timezone" class="flex items-center">
-				<Globe class="h-4 w-4 stroke-1.5 mr-2 text-gray-700" />
+			<div
+				v-if="batch.timezone"
+				class="flex items-center text-sm text-gray-700"
+			>
+				<Globe class="h-4 w-4 stroke-1.5 mr-2 text-gray-600" />
 				<span>
 					{{ batch.timezone }}
 				</span>
