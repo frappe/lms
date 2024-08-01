@@ -49,10 +49,11 @@
 	</Dialog>
 </template>
 <script setup>
-import { Dialog, FormControl, TextEditor } from 'frappe-ui'
-import { computed, onMounted, reactive } from 'vue'
+import { Dialog, FormControl, TextEditor, createResource } from 'frappe-ui'
+import { computed, onMounted, reactive, inject } from 'vue'
 
 const show = defineModel()
+const user = inject('$user')
 const question = reactive({
 	question: '',
 	type: 'Choices',
@@ -60,7 +61,19 @@ const question = reactive({
 
 onMounted(() => {
 	populateFields()
-	populateQuestionDetail()
+	console.log(props.questionName)
+	if (
+		props.questionName == 'new' &&
+		!user.data?.is_moderator &&
+		!user.data?.is_instructor
+	) {
+		router.push({ name: 'Courses' })
+	}
+
+	if (props.courseName !== 'new') {
+		questionDoc.reload()
+	}
+	window.addEventListener('keydown', keyboardShortcut)
 })
 
 const props = defineProps({
@@ -68,9 +81,29 @@ const props = defineProps({
 		type: String,
 		default: __('Add a Question'),
 	},
-	questionDetail: {
-		type: Object,
-		default: {},
+	questionName: {
+		type: String,
+	},
+})
+
+const questionDoc = createResource({
+	url: 'frappe.client.get',
+	makeParams: (values) => {
+		return {
+			doctype: 'LMS Question',
+			name: props.questionName,
+		}
+	},
+	onSuccess(data) {
+		let counter = 1
+		Object.keys(data).forEach((key) => {
+			if (Object.hasOwn(question, key)) question[key] = data[key]
+		})
+		while (counter <= 4) {
+			question[`is_correct_${counter}`] = question[`is_correct_${counter}`]
+				? true
+				: false
+		}
 	},
 })
 
@@ -85,13 +118,14 @@ const populateFields = () => {
 	})
 }
 
-const populateQuestionDetail = () => {
-	if (Object.keys(props.questionDetail).length) {
-		Object.keys(props.questionDetail).forEach((key) => {
-			if (Object.hasOwn(question, key)) {
-				question[key] = props.questionDetail[key]
-			}
-		})
+const keyboardShortcut = (e) => {
+	if (
+		e.key === 's' &&
+		(e.ctrlKey || e.metaKey) &&
+		!e.target.classList.contains('ProseMirror')
+	) {
+		submitQuestion()
+		e.preventDefault()
 	}
 }
 

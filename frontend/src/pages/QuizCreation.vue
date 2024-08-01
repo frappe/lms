@@ -75,7 +75,6 @@
 				row-key="name"
 				:options="{
 					showTooltip: false,
-					onRowClick: (row) => emit('openQuestionModal', row.name),
 				}"
 			>
 				<ListHeader
@@ -88,9 +87,16 @@
 						:row="row"
 						v-slot="{ idx, column, item }"
 						v-for="row in quiz.questions"
+						@click="openQuestionModal(row.question)"
 					>
 						<ListRowItem :item="item">
-							<div class="text-xs">
+							<div
+								v-if="column.key == 'question_detail'"
+								class="text-xs truncate"
+							>
+								{{ item }}
+							</div>
+							<div v-else class="text-xs">
 								{{ item }}
 							</div>
 						</ListRowItem>
@@ -99,7 +105,7 @@
 			</ListView>
 		</div>
 	</div>
-	<Question v-model="showQuestionModal" :question="currentQuestion" />
+	<Question v-model="showQuestionModal" :questionName="currentQuestion" />
 </template>
 <script setup>
 import {
@@ -144,7 +150,7 @@ const quizDetails = createDocumentResource({
 	doctype: 'LMS Quiz',
 	name: props.quizID,
 	auto: true,
-	cache: ['quiz', props.quiz],
+	cache: ['quiz', props.quizID],
 	onSuccess(data) {
 		Object.keys(data).forEach((key) => {
 			if (Object.hasOwn(quiz, key)) quiz[key] = data[key]
@@ -162,29 +168,29 @@ const quizDetails = createDocumentResource({
 	},
 })
 
-console.log(quizDetails)
-
 const questionColumns = computed(() => {
 	return [
 		{
 			label: __('ID'),
 			key: 'question',
-			width: 1,
+			width: '25%',
 		},
 		{
 			label: __('Question'),
 			key: __('question_detail'),
-			width: 3,
+			width: '60%',
 		},
 		{
 			label: __('Marks'),
 			key: 'marks',
-			width: 0.5,
+			width: '10%',
 		},
 	]
 })
 
-const openQuestionModal = (question = {}) => {
+const openQuestionModal = (question = null) => {
+	console.log('called')
+	console.log(question)
 	currentQuestion.value = question
 	showQuestionModal.value = true
 }
