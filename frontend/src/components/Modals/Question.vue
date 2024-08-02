@@ -2,46 +2,92 @@
 	<Dialog v-model="show" :options="dialogOptions">
 		<template #body-content>
 			<div class="space-y-4">
-				<div>
-					<label class="block text-xs text-gray-600 mb-1">
-						{{ __('Question') }}
-					</label>
-					<TextEditor
-						:content="question.question"
-						@change="(val) => (question.question = val)"
-						:editable="true"
-						:fixedMenu="true"
-						editorClass="prose-sm max-w-none border-b border-x bg-gray-100 rounded-b-md py-1 px-2 min-h-[7rem]"
-					/>
+				<div class="flex items-center text-xs text-gray-700 space-x-5">
+					<div class="flex items-center space-x-2">
+						<input
+							type="radio"
+							id="existing"
+							value="existing"
+							v-model="questionType"
+							class="w-3 h-3 accent-gray-900"
+						/>
+						<label for="existing">
+							{{ __('Add an existing question') }}
+						</label>
+					</div>
+
+					<div class="flex items-center space-x-2">
+						<input
+							type="radio"
+							id="new"
+							value="new"
+							v-model="questionType"
+							class="w-3 h-3"
+						/>
+						<label for="new">
+							{{ __('Create a new question') }}
+						</label>
+					</div>
 				</div>
-				<FormControl
-					:label="__('Type')"
-					v-model="question.type"
-					type="select"
-					:options="['Choices', 'User Input']"
-					class="pb-2"
-				/>
-				<div v-if="question.type == 'Choices'" class="divide-y">
-					<div v-for="n in 4" class="space-y-4 py-2">
-						<FormControl
-							:label="__('Option') + ' ' + n"
-							v-model="question[`option_${n}`]"
+				<div v-if="questionType == 'new'" class="space-y-2">
+					<div>
+						<label class="block text-xs text-gray-600 mb-1">
+							{{ __('Question') }}
+						</label>
+						<TextEditor
+							:content="question.question"
+							@change="(val) => (question.question = val)"
+							:editable="true"
+							:fixedMenu="true"
+							editorClass="prose-sm max-w-none border-b border-x bg-gray-100 rounded-b-md py-1 px-2 min-h-[7rem]"
 						/>
+					</div>
+					<FormControl
+						v-model="question.marks"
+						:label="__('Marks')"
+						type="number"
+					/>
+					<FormControl
+						:label="__('Type')"
+						v-model="question.type"
+						type="select"
+						:options="['Choices', 'User Input']"
+						class="pb-2"
+					/>
+					<div v-if="question.type == 'Choices'" class="divide-y border-t">
+						<div v-for="n in 4" class="space-y-4 py-2">
+							<FormControl
+								:label="__('Option') + ' ' + n"
+								v-model="question[`option_${n}`]"
+							/>
+							<FormControl
+								:label="__('Explanation')"
+								v-model="question[`explanation_${n}`]"
+							/>
+							<FormControl
+								:label="__('Correct Answer')"
+								v-model="question[`is_correct_${n}`]"
+								type="checkbox"
+							/>
+						</div>
+					</div>
+					<div v-else v-for="n in 4" class="space-y-2">
 						<FormControl
-							:label="__('Explanation')"
-							v-model="question[`explanation_${n}`]"
-						/>
-						<FormControl
-							:label="__('Correct Answer')"
-							v-model="question[`correct_answer_${n}`]"
-							type="checkbox"
+							:label="__('Possibility') + ' ' + n"
+							v-model="question[`possibility_${n}`]"
 						/>
 					</div>
 				</div>
-				<div v-else v-for="n in 4" class="space-y-2">
+				<div v-else-if="questionType == 'existing'" class="space-y-2">
+					<Link
+						v-model="existingQuestion.question"
+						:label="__('Select a question')"
+						doctype="LMS Question"
+					/>
 					<FormControl
-						:label="__('Possibility') + ' ' + n"
-						v-model="question[`possibility_${n}`]"
+						v-model="existingQuestion.marks"
+						:label="__('Marks')"
+						type="number"
 					/>
 				</div>
 			</div>
@@ -49,51 +95,62 @@
 	</Dialog>
 </template>
 <script setup>
-import { Dialog, FormControl, TextEditor, createResource } from 'frappe-ui'
-import { computed, onMounted, reactive, inject } from 'vue'
+import {
+	Dialog,
+	FormControl,
+	TextEditor,
+	createResource,
+	createDocumentResource,
+} from 'frappe-ui'
+import { computed, watch, reactive, ref } from 'vue'
+import Link from '@/components/Controls/Link.vue'
+import { showToast } from '@/utils'
 
 const show = defineModel()
-const user = inject('$user')
+const quiz = defineModel('quiz')
+const questionType = ref(null)
+const existingQuestion = reactive({
+	question: '',
+	marks: 0,
+})
+
 const question = reactive({
 	question: '',
 	type: 'Choices',
-})
-
-onMounted(() => {
-	populateFields()
-	console.log(props.questionName)
-	if (
-		props.questionName == 'new' &&
-		!user.data?.is_moderator &&
-		!user.data?.is_instructor
-	) {
-		router.push({ name: 'Courses' })
-	}
-
-	if (props.courseName !== 'new') {
-		questionDoc.reload()
-	}
-	window.addEventListener('keydown', keyboardShortcut)
+	marks: 0,
 })
 
 const props = defineProps({
 	title: {
 		type: String,
-		default: __('Add a Question'),
+		default: __('Add a new question'),
 	},
 	questionName: {
 		type: String,
 	},
 })
 
-const questionDoc = createResource({
+const populateFields = () => {
+	let fields = ['option', 'is_correct', 'explanation', 'possibility']
+	let counter = 1
+	fields.forEach((field) => {
+		while (counter <= 4) {
+			question[`${field}_${counter}`] = field === 'is_correct' ? false : ''
+			counter++
+		}
+	})
+}
+
+const questionData = createResource({
 	url: 'frappe.client.get',
-	makeParams: (values) => {
+	makeParams(values) {
 		return {
 			doctype: 'LMS Question',
 			name: props.questionName,
 		}
 	},
+	auto: false,
+	cache: ['question', props.questionName],
 	onSuccess(data) {
 		let counter = 1
 		Object.keys(data).forEach((key) => {
@@ -107,27 +164,99 @@ const questionDoc = createResource({
 	},
 })
 
-const populateFields = () => {
-	let fields = ['option', 'correct_answer', 'explanation', 'possibility']
-	let counter = 1
-	fields.forEach((field) => {
-		while (counter <= 4) {
-			question[`${field}_${counter}`] = field === 'correct_answer' ? false : ''
-			counter++
+const questionRow = createResource({
+	url: 'frappe.client.insert',
+	makeParams(values) {
+		console.log(values)
+		return {
+			doc: {
+				doctype: 'LMS Quiz Question',
+				parent: quiz.value.data.name,
+				parentfield: 'questions',
+				parenttype: 'LMS Quiz',
+				...values,
+			},
 		}
-	})
+	},
+})
+
+const questionCreation = createResource({
+	url: 'frappe.client.insert',
+	makeParams(values) {
+		return {
+			doc: {
+				doctype: 'LMS Question',
+				...question,
+			},
+		}
+	},
+})
+
+const submitQuestion = (close) => {
+	if (questionData.data?.name) updateQuestion()
+	else addQuestion(close)
 }
 
-const keyboardShortcut = (e) => {
-	if (
-		e.key === 's' &&
-		(e.ctrlKey || e.metaKey) &&
-		!e.target.classList.contains('ProseMirror')
-	) {
-		submitQuestion()
-		e.preventDefault()
+const addQuestion = (close) => {
+	if (questionType.value == 'existing') {
+		addQuestionRow(
+			{
+				question: existingQuestion.question,
+				marks: existingQuestion.marks,
+			},
+			close
+		)
+	} else {
+		questionCreation.submit(
+			{},
+			{
+				onSuccess(data) {
+					addQuestionRow(
+						{
+							question: data.name,
+							marks: question.marks,
+						},
+						close
+					)
+				},
+				onError(err) {
+					showToast(__('Error'), __(err.message?.[0] || err), 'x')
+				},
+			}
+		)
 	}
 }
+
+const addQuestionRow = (question, close) => {
+	questionRow.submit(
+		{
+			...question,
+		},
+		{
+			onSuccess() {
+				show.value = false
+				showToast(__('Success'), __('Question added successfully'), 'check')
+				quiz.value.reload()
+				close()
+			},
+			onError(err) {
+				showToast(__('Error'), __(err.message?.[0] || err), 'x')
+				close()
+			},
+		}
+	)
+}
+
+watch(
+	() => props.questionName,
+	async (name) => {
+		console.log('name', name)
+		populateFields()
+		if (name != 'new') {
+			questionData.reload()
+		}
+	}
+)
 
 const dialogOptions = computed(() => {
 	return {
@@ -145,3 +274,10 @@ const dialogOptions = computed(() => {
 	}
 })
 </script>
+<style>
+input[type='radio']:checked {
+	background-color: theme('colors.gray.900') !important;
+	border-color: theme('colors.gray.900') !important;
+	--tw-ring-color: theme('colors.gray.900') !important;
+}
+</style>

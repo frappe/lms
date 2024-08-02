@@ -3,12 +3,21 @@
 		class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs :items="breadcrumbs" />
-		<Button variant="solid">
-			<template #prefix>
-				<Plus class="w-4 h-4"/>
-			</template>
-			{{ __('New Quiz') }}
-		</Button>
+		<router-link
+			:to="{
+				name: 'QuizCreation',
+				params: {
+					quizID: 'new',
+				},
+			}"
+		>
+			<Button variant="solid">
+				<template #prefix>
+					<Plus class="w-4 h-4" />
+				</template>
+				{{ __('New Quiz') }}
+			</Button>
+		</router-link>
 	</header>
 	<div v-if="quizzes.data?.length" class="w-3/4 mx-auto py-5">
 		<ListView
@@ -50,10 +59,18 @@ import {
 	ListHeaderItem,
 	Button,
 } from 'frappe-ui'
-import { computed, inject } from 'vue'
+import { useRouter } from 'vue-router'
+import { computed, inject, onMounted } from 'vue'
 import { Plus } from 'lucide-vue-next'
 
 const user = inject('$user')
+const router = useRouter()
+
+onMounted(() => {
+	if (!user.data?.is_moderator && !user.data?.is_instructor) {
+		router.push({ name: 'Courses' })
+	}
+})
 
 const quizFilter = computed(() => {
 	if (user.data?.is_moderator) return {}
@@ -68,6 +85,7 @@ const quizzes = createListResource({
 	fields: ['name', 'title', 'passing_percentage', 'total_marks'],
 	auto: true,
 	cache: ['quizzes', user.data?.name],
+	orderBy: 'modified desc',
 	onSuccess(data) {
 		data.forEach((row) => {})
 	},

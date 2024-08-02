@@ -5,7 +5,7 @@ import json
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import cstr, comma_and
+from frappe.utils import cstr, comma_and, cint
 from fuzzywuzzy import fuzz
 from lms.lms.doctype.course_lesson.course_lesson import save_progress
 from lms.lms.utils import (
@@ -30,12 +30,12 @@ class LMSQuiz(Document):
 			)
 
 	def validate_limit(self):
-		if self.limit_questions_to and self.limit_questions_to >= len(self.questions):
+		if self.limit_questions_to and cint(self.limit_questions_to) >= len(self.questions):
 			frappe.throw(
 				_("Limit cannot be greater than or equal to the number of questions in the quiz.")
 			)
 
-		if self.limit_questions_to and self.limit_questions_to < len(self.questions):
+		if self.limit_questions_to and cint(self.limit_questions_to) < len(self.questions):
 			marks = [question.marks for question in self.questions]
 			if len(set(marks)) > 1:
 				frappe.throw(_("All questions should have the same marks if the limit is set."))
@@ -43,10 +43,10 @@ class LMSQuiz(Document):
 	def calculate_total_marks(self):
 		if self.limit_questions_to:
 			self.total_marks = sum(
-				question.marks for question in self.questions[: self.limit_questions_to]
+				question.marks for question in self.questions[: cint(self.limit_questions_to)]
 			)
 		else:
-			self.total_marks = sum(question.marks for question in self.questions)
+			self.total_marks = sum(cint(question.marks) for question in self.questions)
 
 	def autoname(self):
 		if not self.name:

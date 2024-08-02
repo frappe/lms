@@ -118,6 +118,7 @@ const options = createResource({
 			return {
 				label: option.value,
 				value: option.value,
+				description: option.description,
 			}
 		})
 	},
