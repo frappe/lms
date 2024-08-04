@@ -292,6 +292,14 @@ def get_branding():
 	}
 
 
+@frappe.whitelist(allow_guest=True)
+def get_direction():
+	"""Get direction (ltr/rtl)."""
+	return {
+		"direction": frappe.db.get_single_value("LMS Settings", "direction"),
+	}
+
+
 @frappe.whitelist()
 def get_unsplash_photos(keyword=None):
 	from lms.unsplash import get_list, get_by_keyword
