@@ -56,6 +56,7 @@
 			</button>
 		</template>
 	</Dropdown>
+	<SettingsModal v-model="showSettingsModal" />
 </template>
 
 <script setup>
@@ -68,12 +69,16 @@ import {
 	LogOut,
 	User,
 	ArrowRightLeft,
+	Settings,
 } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { convertToTitleCase } from '../utils'
 import { usersStore } from '@/stores/user'
+import { ref } from 'vue'
+import SettingsModal from '@/components/Modals/Settings.vue'
 
 const router = useRouter()
+const showSettingsModal = ref(false)
 const { logout, branding } = sessionStore()
 let { userResource } = usersStore()
 let { isLoggedIn } = sessionStore()
@@ -107,6 +112,17 @@ const userDropdownOptions = [
 			let system_user = cookies.get('system_user')
 			if (system_user === 'yes') return true
 			else return false
+		},
+	},
+	{
+		icon: Settings,
+		label: 'Settings',
+		onClick: () => {
+			showSettingsModal.value = true
+		},
+		condition: () => {
+			console.log(userResource)
+			return userResource.data?.is_moderator
 		},
 	},
 	{
