@@ -113,21 +113,10 @@ const existingQuestion = reactive({
 	question: '',
 	marks: 0,
 })
-
 const question = reactive({
 	question: '',
 	type: 'Choices',
 	marks: 0,
-})
-
-const props = defineProps({
-	title: {
-		type: String,
-		default: __('Add a new question'),
-	},
-	questionName: {
-		type: String,
-	},
 })
 
 const populateFields = () => {
@@ -141,17 +130,22 @@ const populateFields = () => {
 	})
 }
 
-const questionData = createResource({
-	url: 'frappe.client.get',
-	makeParams(values) {
-		return {
-			doctype: 'LMS Question',
-			name: props.questionName,
-		}
+populateFields()
+
+const props = defineProps({
+	title: {
+		type: String,
+		default: __('Add a new question'),
 	},
-	auto: false,
-	cache: ['question', props.questionName],
-	onSuccess(data) {
+	questionData: {
+		type: [Object, null],
+		required: true,
+	},
+})
+
+watch(show, () => {
+	let data = props.questionData
+	if (show.value && data) {
 		let counter = 1
 		Object.keys(data).forEach((key) => {
 			if (Object.hasOwn(question, key)) question[key] = data[key]
@@ -161,7 +155,7 @@ const questionData = createResource({
 				? true
 				: false
 		}
-	},
+	}
 })
 
 const questionRow = createResource({
@@ -246,17 +240,6 @@ const addQuestionRow = (question, close) => {
 		}
 	)
 }
-
-watch(
-	() => props.questionName,
-	async (name) => {
-		console.log('name', name)
-		populateFields()
-		if (name != 'new') {
-			questionData.reload()
-		}
-	}
-)
 
 const dialogOptions = computed(() => {
 	return {

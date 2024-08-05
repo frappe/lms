@@ -123,7 +123,7 @@
 	</div>
 	<Question
 		v-model="showQuestionModal"
-		:questionName="currentQuestion"
+		:questionData="currentQuestion"
 		v-model:quiz="quizDetails"
 		:title="
 			currentQuestion ? __('Edit the question') : __('Add a new question')
@@ -343,10 +343,32 @@ watch(
 	}
 )
 
+const questionData = createResource({
+	url: 'lms.lms.utils.get_question_details',
+	makeParams(values) {
+		return {
+			question: values.question,
+		}
+	},
+	auto: false,
+	cache: ['question', props.questionName],
+})
+
 const openQuestionModal = (question = null) => {
-	currentQuestion.value = question
-	showQuestionModal.value = true
-	console.log(currentQuestion.value)
+	if (question) {
+		questionData.reload(
+			{ question },
+			{
+				onSuccess(data) {
+					currentQuestion.value = data
+					showQuestionModal.value = true
+				},
+			}
+		)
+	} else {
+		currentQuestion.value = null
+		showQuestionModal.value = true
+	}
 }
 
 const breadcrumbs = computed(() => {
