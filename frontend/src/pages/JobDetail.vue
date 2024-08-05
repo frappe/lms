@@ -50,9 +50,9 @@
 				</Button>
 			</div>
 		</header>
-		<div v-if="job.data" class="w-3/4 mx-auto">
+		<div v-if="job.data" class="max-w-3xl mx-auto">
 			<div class="p-4">
-				<div class="flex mb-4">
+				<div class="flex mb-10">
 					<img
 						:src="job.data.company_logo"
 						class="w-16 h-16 rounded-lg object-contain mr-4"
@@ -62,40 +62,36 @@
 						<div class="text-2xl font-semibold mb-4">
 							{{ job.data.job_title }}
 						</div>
-						<div class="grid grid-cols-3 gap-8">
-							<div class="grid grid-cols-1 gap-2">
-								<div class="flex items-center space-x-2">
-									<Building2 class="h-4 w-4 stroke-1.5" />
-									<span>{{ job.data.company_name }}</span>
-								</div>
-								<div class="flex items-center space-x-2">
-									<MapPin class="h-4 w-4 stroke-1.5" />
-									<span>{{ job.data.location }}</span>
-								</div>
+						<div
+							class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-2 md:gap-y-4"
+						>
+							<div class="flex items-center space-x-2">
+								<Building2 class="h-4 w-4 stroke-1.5" />
+								<span>{{ job.data.company_name }}</span>
 							</div>
-							<div class="grid grid-cols-1 gap-2">
-								<div class="flex items-center space-x-2">
-									<ClipboardType class="h-4 w-4 stroke-1.5" />
-									<span>{{ job.data.type }}</span>
-								</div>
-								<div class="flex items-center space-x-2">
-									<CalendarDays class="h-4 w-4 stroke-1.5" />
-									<span>{{
-										dayjs(job.data.creation).format('DD MMM YYYY')
-									}}</span>
-								</div>
+							<div class="flex items-center space-x-2">
+								<MapPin class="h-4 w-4 stroke-1.5" />
+								<span>{{ job.data.location }}</span>
 							</div>
-							<div class="grid grid-cols-1 h-fit">
-								<div
-									v-if="applicationCount.data"
-									class="flex items-center space-x-2"
+							<div class="flex items-center space-x-2">
+								<ClipboardType class="h-4 w-4 stroke-1.5" />
+								<span>{{ job.data.type }}</span>
+							</div>
+							<div class="flex items-center space-x-2">
+								<CalendarDays class="h-4 w-4 stroke-1.5" />
+								<span>
+									{{ dayjs(job.data.creation).format('DD MMM YYYY') }}
+								</span>
+							</div>
+							<div
+								v-if="applicationCount.data"
+								class="flex items-center space-x-2"
+							>
+								<SquareUserRound class="h-4 w-4 stroke-1.5" />
+								<span
+									>{{ applicationCount.data }}
+									{{ __('applications received') }}</span
 								>
-									<SquareUserRound class="h-4 w-4 stroke-1.5" />
-									<span
-										>{{ applicationCount.data }}
-										{{ __('applications received') }}</span
-									>
-								</div>
 							</div>
 						</div>
 					</div>

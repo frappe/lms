@@ -176,7 +176,10 @@ update_website_context = [
 ]
 
 jinja = {
-	"methods": ["lms.lms.utils.get_signup_optin_checks"],
+	"methods": [
+		"lms.lms.utils.get_signup_optin_checks",
+		"lms.lms.utils.get_tags",
+	],
 	"filters": [],
 }
 ## Specify the additional tabs to be included in the user profile page.
