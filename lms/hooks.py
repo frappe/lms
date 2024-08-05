@@ -184,6 +184,7 @@ jinja = {
 		"lms.lms.utils.get_lesson_index",
 		"lms.lms.utils.get_lesson_url",
 		"lms.page_renderers.get_profile_url",
+		"lms.overrides.user.get_palette",
 	],
 	"filters": [],
 }
