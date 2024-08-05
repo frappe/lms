@@ -72,7 +72,7 @@
 				{{ course.title }}
 			</div>
 
-			<div class="short-introduction">
+			<div class="short-introduction text-gray-700 text-sm">
 				{{ course.short_introduction }}
 			</div>
 
