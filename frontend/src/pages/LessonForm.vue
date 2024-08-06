@@ -80,6 +80,7 @@ const editor = ref(null)
 const instructorEditor = ref(null)
 const user = inject('$user')
 const openInstructorEditor = ref(false)
+let autoSaveInterval
 
 const props = defineProps({
 	courseName: {
@@ -134,31 +135,44 @@ const lessonDetails = createResource({
 				lesson[key] = data.lesson[key]
 			})
 			lesson.include_in_preview = data.include_in_preview ? true : false
-			editor.value.isReady.then(() => {
-				if (data.lesson.content) {
-					editor.value.render(JSON.parse(data.lesson.content))
-				} else if (data.lesson.body) {
-					let blocks = convertToJSON(data.lesson)
-					editor.value.render({
-						blocks: blocks,
-					})
-				}
-			})
-			instructorEditor.value.isReady.then(() => {
-				if (data.lesson.instructor_content) {
-					instructorEditor.value.render(
-						JSON.parse(data.lesson.instructor_content)
-					)
-				} else if (data.lesson.instructor_notes) {
-					let blocks = convertToJSON(data.lesson)
-					instructorEditor.value.render({
-						blocks: blocks,
-					})
-				}
-			})
+			addLessonContent(data)
+			addInstructorNotes(data)
+			enableAutoSave()
 		}
 	},
 })
+
+const addLessonContent = (data) => {
+	editor.value.isReady.then(() => {
+		if (data.lesson.content) {
+			editor.value.render(JSON.parse(data.lesson.content))
+		} else if (data.lesson.body) {
+			let blocks = convertToJSON(data.lesson)
+			editor.value.render({
+				blocks: blocks,
+			})
+		}
+	})
+}
+
+const addInstructorNotes = (data) => {
+	instructorEditor.value.isReady.then(() => {
+		if (data.lesson.instructor_content) {
+			instructorEditor.value.render(JSON.parse(data.lesson.instructor_content))
+		} else if (data.lesson.instructor_notes) {
+			let blocks = convertToJSON(data.lesson)
+			instructorEditor.value.render({
+				blocks: blocks,
+			})
+		}
+	})
+}
+
+const enableAutoSave = () => {
+	autoSaveInterval = setInterval(() => {
+		saveLesson()
+	}, 10000)
+}
 
 const newLessonResource = createResource({
 	url: 'frappe.client.insert',
@@ -357,9 +371,6 @@ const editCurrentLesson = () => {
 			validate() {
 				return validateLesson()
 			},
-			onSuccess() {
-				showToast('Success', 'Lesson updated successfully', 'check')
-			},
 			onError(err) {
 				showToast('Error', err.message, 'x')
 			},
@@ -418,7 +429,7 @@ const breadcrumbs = computed(() => {
 	crumbs.push({
 		label: lessonDetails?.data?.lesson ? 'Edit Lesson' : 'Create Lesson',
 		route: {
-			name: 'CreateLesson',
+			name: 'LessonForm',
 			params: {
 				courseName: props.courseName,
 				chapterNumber: props.chapterNumber,
