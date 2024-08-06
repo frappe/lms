@@ -58,7 +58,7 @@
 						<router-link
 							v-if="allowEdit()"
 							:to="{
-								name: 'CreateLesson',
+								name: 'LessonForm',
 								params: {
 									courseName: courseName,
 									chapterNumber: props.chapterNumber,
