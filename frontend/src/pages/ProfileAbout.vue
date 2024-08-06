@@ -16,7 +16,7 @@
 		<h2 class="mb-3 text-lg font-semibold text-gray-900">
 			{{ __('Achievements') }}
 		</h2>
-		<div class="grid grid-cols-5 gap-4">
+		<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
 			<div v-for="badge in badges.data">
 				<Popover trigger="hover" :leaveDelay="Number(0.01)">
 					<template #target>

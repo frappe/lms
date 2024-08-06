@@ -6,9 +6,10 @@
 		<div>
 			<FormControl
 				type="text"
-				placeholder="Search Participants"
+				placeholder="Search"
 				v-model="searchQuery"
 				@input="participants.reload()"
+				class="w-40"
 			>
 				<template #prefix>
 					<Search class="w-4 stroke-1.5 text-gray-600" name="search" />
