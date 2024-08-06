@@ -5,19 +5,21 @@
 		>
 			<Breadcrumbs
 				class="h-7"
-				:items="[{ label: __('All Courses'), route: { name: 'Courses' } }]"
+				:items="[{ label: __('Courses'), route: { name: 'Courses' } }]"
 			/>
-			<div class="flex space-x-2">
-				<FormControl
-					type="text"
-					placeholder="Search Course"
-					v-model="searchQuery"
-					@input="courses.reload()"
-				>
-					<template #prefix>
-						<Search class="w-4 stroke-1.5 text-gray-600" name="search" />
-					</template>
-				</FormControl>
+			<div class="flex space-x-2 justify-end">
+				<div class="w-36">
+					<FormControl
+						type="text"
+						placeholder="Search"
+						v-model="searchQuery"
+						@input="courses.reload()"
+					>
+						<template #prefix>
+							<Search class="w-4 h-4 stroke-1.5" name="search" />
+						</template>
+					</FormControl>
+				</div>
 				<router-link
 					:to="{
 						name: 'CreateCourse',

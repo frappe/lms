@@ -425,7 +425,7 @@ export function getSidebarLinks() {
 				'CourseDetail',
 				'Lesson',
 				'CreateCourse',
-				'CreateLesson',
+				'LessonForm',
 			],
 		},
 		{
