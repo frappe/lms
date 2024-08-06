@@ -77,6 +77,9 @@
 						:avg_rating="course.data.avg_rating"
 						:membership="course.data.membership"
 					/>
+					<RelatedCourses
+						:courses="course.data.related_courses"
+					></RelatedCourses>
 				</div>
 				<div class="hidden md:block">
 					<CourseCardOverlay :course="course" />
@@ -95,6 +98,7 @@ import CourseReviews from '@/components/CourseReviews.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { updateDocumentTitle } from '@/utils'
 import CourseInstructors from '@/components/CourseInstructors.vue'
+import RelatedCourses from '@/components/RelatedCourses.vue'
 
 const props = defineProps({
 	courseName: {
