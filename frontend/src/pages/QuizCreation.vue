@@ -123,7 +123,7 @@
 	</div>
 	<Question
 		v-model="showQuestionModal"
-		:questionData="currentQuestion"
+		:questionName="currentQuestion"
 		v-model:quiz="quizDetails"
 		:title="
 			currentQuestion ? __('Edit the question') : __('Add a new question')
@@ -172,7 +172,6 @@ onMounted(() => {
 		router.push({ name: 'Courses' })
 	}
 	if (props.quizID !== 'new') {
-		console.log('here')
 		quizDetails.reload()
 	}
 	window.addEventListener('keydown', keyboardShortcut)
@@ -343,32 +342,9 @@ watch(
 	}
 )
 
-const questionData = createResource({
-	url: 'lms.lms.utils.get_question_details',
-	makeParams(values) {
-		return {
-			question: values.question,
-		}
-	},
-	auto: false,
-	cache: ['question', props.questionName],
-})
-
 const openQuestionModal = (question = null) => {
-	if (question) {
-		questionData.reload(
-			{ question },
-			{
-				onSuccess(data) {
-					currentQuestion.value = data
-					showQuestionModal.value = true
-				},
-			}
-		)
-	} else {
-		currentQuestion.value = null
-		showQuestionModal.value = true
-	}
+	currentQuestion.value = question
+	showQuestionModal.value = true
 }
 
 const breadcrumbs = computed(() => {

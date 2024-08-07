@@ -11,7 +11,6 @@ class LMSQuestion(Document):
 	def validate(self):
 		validate_correct_answers(self)
 
-
 def validate_correct_answers(question):
 	if question.type == "Choices":
 		validate_duplicate_options(question)

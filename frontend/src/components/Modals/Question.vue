@@ -2,7 +2,7 @@
 	<Dialog v-model="show" :options="dialogOptions">
 		<template #body-content>
 			<div class="space-y-4">
-				<div class="flex items-center text-xs text-gray-700 space-x-5">
+				<div v-if="!editMode" class="flex items-center text-xs text-gray-700 space-x-5">
 					<div class="flex items-center space-x-2">
 						<input
 							type="radio"
@@ -29,7 +29,7 @@
 						</label>
 					</div>
 				</div>
-				<div v-if="questionType == 'new'" class="space-y-2">
+				<div v-if="questionType == 'new' || editMode" class="space-y-2">
 					<div>
 						<label class="block text-xs text-gray-600 mb-1">
 							{{ __('Question') }}
@@ -100,7 +100,6 @@ import {
 	FormControl,
 	TextEditor,
 	createResource,
-	createDocumentResource,
 } from 'frappe-ui'
 import { computed, watch, reactive, ref } from 'vue'
 import Link from '@/components/Controls/Link.vue'
@@ -109,6 +108,8 @@ import { showToast } from '@/utils'
 const show = defineModel()
 const quiz = defineModel('quiz')
 const questionType = ref(null)
+const editMode = ref(false)
+
 const existingQuestion = reactive({
 	question: '',
 	marks: 0,
@@ -137,25 +138,39 @@ const props = defineProps({
 		type: String,
 		default: __('Add a new question'),
 	},
-	questionData: {
-		type: [Object, null],
+	questionName: {
+		type: [String, null],
 		required: true,
 	},
 })
 
-watch(show, () => {
-	let data = props.questionData
-	if (show.value && data) {
+const questionData = createResource({
+	url: 'frappe.client.get',
+	makeParams() {
+		return {
+			doctype: 'LMS Question',
+			name: props.questionName,
+		}
+	},
+	auto: false,
+	cache: ['question', props.questionName],
+	onSuccess(data) {
 		let counter = 1
+		editMode.value = true
 		Object.keys(data).forEach((key) => {
 			if (Object.hasOwn(question, key)) question[key] = data[key]
 		})
 		while (counter <= 4) {
-			question[`is_correct_${counter}`] = question[`is_correct_${counter}`]
+			question[`is_correct_${counter}`] = data[`is_correct_${counter}`]
 				? true
 				: false
+			counter++;
 		}
-	}
+	},
+});
+
+watch(show, () => {
+	if (show.value && props.questionName) questionData.fetch()
 })
 
 const questionRow = createResource({
@@ -187,7 +202,7 @@ const questionCreation = createResource({
 })
 
 const submitQuestion = (close) => {
-	if (questionData.data?.name) updateQuestion()
+	if (questionData.data?.name) updateQuestion(close)
 	else addQuestion(close)
 }
 
@@ -230,6 +245,38 @@ const addQuestionRow = (question, close) => {
 			onSuccess() {
 				show.value = false
 				showToast(__('Success'), __('Question added successfully'), 'check')
+				quiz.value.reload()
+				close()
+			},
+			onError(err) {
+				showToast(__('Error'), __(err.message?.[0] || err), 'x')
+				close()
+			},
+		}
+	)
+}
+
+const questionUpdate = createResource({
+	url: 'frappe.client.set_value',
+	auto: false,
+	makeParams(values) {
+		return {
+			doctype: 'LMS Question',
+			name: questionData.data?.name,
+			fieldname: {
+				...question,
+			},
+		}
+	}
+})
+
+const updateQuestion = (close) => {
+	questionUpdate.submit(
+		{},
+		{
+			onSuccess() {
+				show.value = false
+				showToast(__('Success'), __('Question updated successfully'), 'check')
 				quiz.value.reload()
 				close()
 			},
