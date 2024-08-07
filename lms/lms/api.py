@@ -6,6 +6,7 @@ from frappe.translate import get_all_translations
 from frappe import _
 from frappe.query_builder import DocType
 from frappe.query_builder.functions import Count
+from frappe.utils import time_diff, now_datetime, get_datetime
 
 
 @frappe.whitelist()
@@ -559,3 +560,23 @@ def get_categories(doctype, filters):
 			categoryOptions.append({"label": category, "value": category})
 
 	return categoryOptions
+
+@frappe.whitelist(allow_guest=True)
+def get_posthog_api_key():
+	should_record_session
+	return {
+		"project_id": frappe.conf.get(POSTHOG_PROJECT_FIELD),
+		"posthog_host": frappe.conf.get(POSTHOG_HOST_FIELD),
+		"enable_telemetry": frappe.get_system_settings("enable_telemetry"),
+		"should_record_session": should_record_session(),
+	}
+
+def should_record_session():
+	start_datetime = frappe.boot.sysdefaults.session_recording_start
+	start_datetime = get_datetime(start_datetime)
+	if not start_datetime:
+		return False
+	
+	now = now_datetime()
+	# if user allowed recording only record for first 2 hours, never again.
+	return time_diff(now, start_datetime) < 120;

@@ -6,6 +6,7 @@ import App from './App.vue'
 import { createPinia } from 'pinia'
 import dayjs from '@/utils/dayjs'
 import translationPlugin from './translation'
+import posthog from './posthog'
 import { usersStore } from './stores/user'
 import { sessionStore } from './stores/session'
 import { initSocket } from './socket'
@@ -25,6 +26,7 @@ app.use(FrappeUI)
 app.use(pinia)
 app.use(router)
 app.use(translationPlugin)
+app.use(posthog)
 app.use(pageMetaPlugin)
 app.provide('$dayjs', dayjs)
 app.provide('$socket', initSocket())
