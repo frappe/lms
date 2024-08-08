@@ -13,6 +13,7 @@
 			<div class="text-sm font-semibold mb-4">
 				{{ __('Details') }}
 			</div>
+			{{ quiz }}
 			<FormControl
 				v-model="quiz.title"
 				:label="
@@ -106,9 +107,8 @@
 								<ListRowItem :item="item">
 									<div
 										v-if="column.key == 'question_detail'"
-										class="text-xs truncate"
+										class="text-xs truncate" v-html="item"
 									>
-										{{ item }}
 									</div>
 									<div v-else class="text-xs">
 										{{ item }}
@@ -133,7 +133,6 @@
 <script setup>
 import {
 	Breadcrumbs,
-	createDocumentResource,
 	createResource,
 	FormControl,
 	ListView,
@@ -172,6 +171,7 @@ onMounted(() => {
 		router.push({ name: 'Courses' })
 	}
 	if (props.quizID !== 'new') {
+		console.log("mounted")
 		quizDetails.reload()
 	}
 	window.addEventListener('keydown', keyboardShortcut)
@@ -220,6 +220,7 @@ const quizDetails = createResource({
 	auto: false,
 
 	onSuccess(data) {
+		console.log(data)
 		Object.keys(data).forEach((key) => {
 			if (Object.hasOwn(quiz, key)) quiz[key] = data[key]
 		})
@@ -233,6 +234,7 @@ const quizDetails = createResource({
 			let key = checkboxes[idx]
 			quiz[key] = quiz[key] ? true : false
 		}
+		console.log(quiz)
 	},
 })
 
@@ -337,6 +339,7 @@ watch(
 	(newVal) => {
 		console.log(props.quizID)
 		if (newVal) {
+			console.log("in watch")
 			quizDetails.reload()
 		}
 	}
