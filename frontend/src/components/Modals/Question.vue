@@ -138,8 +138,8 @@ const props = defineProps({
 		type: String,
 		default: __('Add a new question'),
 	},
-	questionName: {
-		type: [String, null],
+	questionDetail: {
+		type: [Object, null],
 		required: true,
 	},
 })
@@ -149,11 +149,10 @@ const questionData = createResource({
 	makeParams() {
 		return {
 			doctype: 'LMS Question',
-			name: props.questionName,
+			name: props.questionDetail.question,
 		}
 	},
 	auto: false,
-	cache: ['question', props.questionName],
 	onSuccess(data) {
 		let counter = 1
 		editMode.value = true
@@ -166,17 +165,35 @@ const questionData = createResource({
 				: false
 			counter++;
 		}
+		question.marks = props.questionDetail.marks
 	},
 });
 
 watch(show, () => {
-	if (show.value && props.questionName) questionData.fetch()
+	if (show.value) {
+		editMode.value = false
+		if (props.questionDetail.question)
+			questionData.fetch()
+
+		else {
+			question.question = "",
+			question.marks = 0
+			question.type = "Choices"
+			existingQuestion.question = ""
+			existingQuestion.marks = 0
+			questionType.value = null
+			populateFields()
+		}
+
+		if (props.questionDetail.marks)
+			question.marks = props.questionDetail.marks
+		
+	}
 })
 
 const questionRow = createResource({
 	url: 'frappe.client.insert',
 	makeParams(values) {
-		console.log(values)
 		return {
 			doc: {
 				doctype: 'LMS Quiz Question',
@@ -270,20 +287,38 @@ const questionUpdate = createResource({
 	}
 })
 
+const marksUpdate = createResource({
+	url: 'frappe.client.set_value',
+	auto: false,
+	makeParams(values) {
+		return {
+			doctype: 'LMS Quiz Question',
+			name: props.questionDetail.name,
+			fieldname: {
+				marks: question.marks,
+			},
+		}
+	}
+})
+
 const updateQuestion = (close) => {
 	questionUpdate.submit(
 		{},
 		{
 			onSuccess() {
-				show.value = false
-				showToast(__('Success'), __('Question updated successfully'), 'check')
-				quiz.value.reload()
-				close()
-			},
-			onError(err) {
-				showToast(__('Error'), __(err.message?.[0] || err), 'x')
-				close()
-			},
+				marksUpdate.submit({}, {
+					onSuccess() {
+						show.value = false
+						showToast(__('Success'), __('Question updated successfully'), 'check')
+						quiz.value.reload()
+						close()
+					},
+					onError(err) {
+						showToast(__('Error'), __(err.message?.[0] || err), 'x')
+						close()
+					},
+				})
+			}
 		}
 	)
 }

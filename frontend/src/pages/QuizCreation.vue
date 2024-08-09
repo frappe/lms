@@ -13,7 +13,6 @@
 			<div class="text-sm font-semibold mb-4">
 				{{ __('Details') }}
 			</div>
-			{{ quiz }}
 			<FormControl
 				v-model="quiz.title"
 				:label="
@@ -23,28 +22,20 @@
 				"
 			/>
 			<div v-if="quizDetails.data?.name">
-				<div class="grid grid-cols-2 gap-5 mt-2 mb-8">
-					<div class="space-y-2">
-						<FormControl
-							v-model="quiz.max_attempts"
-							:label="__('Maximun Attempts')"
-						/>
-						<FormControl
-							v-model="quiz.limit_questions_to"
-							:label="__('Limit Questions To')"
-						/>
-					</div>
-					<div class="space-y-2">
-						<FormControl
-							v-model="quiz.total_marks"
-							:label="__('Total Marks')"
-							disabled
-						/>
-						<FormControl
-							v-model="quiz.passing_percentage"
-							:label="__('Passing Percentage')"
-						/>
-					</div>
+				<div class="grid grid-cols-3 gap-5 mt-2 mb-8">
+					<FormControl
+						v-model="quiz.max_attempts"
+						:label="__('Maximun Attempts')"
+					/>
+					<FormControl
+						v-model="quiz.total_marks"
+						:label="__('Total Marks')"
+						disabled
+					/>
+					<FormControl
+						v-model="quiz.passing_percentage"
+						:label="__('Passing Percentage')"
+					/>
 				</div>
 
 				<!-- Settings -->
@@ -63,13 +54,28 @@
 							type="checkbox"
 							:label="__('Show Submission History')"
 						/>
+						
+					</div>
+				</div>
+
+				<div class="mb-8">
+					<div class="text-sm font-semibold mb-4">
+						{{ __('Shuffle Settings') }}
+					</div>
+					<div class="grid grid-cols-3">
 						<FormControl
 							v-model="quiz.shuffle_questions"
 							type="checkbox"
 							:label="__('Shuffle Questions')"
 						/>
+						<FormControl v-if="quiz.shuffle_questions"
+							v-model="quiz.limit_questions_to"
+							:label="__('Limit Questions To')"
+						/>
 					</div>
 				</div>
+
+				
 
 				<!-- Questions -->
 				<div>
@@ -102,12 +108,12 @@
 								:row="row"
 								v-slot="{ idx, column, item }"
 								v-for="row in quiz.questions"
-								@click="openQuestionModal(row.question)"
+								@click="openQuestionModal(row)"
 							>
 								<ListRowItem :item="item">
 									<div
 										v-if="column.key == 'question_detail'"
-										class="text-xs truncate" v-html="item"
+										class="text-xs truncate h-4" v-html="item"
 									>
 									</div>
 									<div v-else class="text-xs">
@@ -116,6 +122,18 @@
 								</ListRowItem>
 							</ListRow>
 						</ListRows>
+						<ListSelectBanner>
+							<template #actions="{ unselectAll, selections }">
+								<div class="flex gap-2">
+									<Button
+										variant="ghost"
+										@click="deleteQuizzes(selections, unselectAll)"
+									>
+										<Trash2 class="h-4 w-4 stroke-1.5" />
+									</Button>
+								</div>
+							</template>
+						</ListSelectBanner>
 					</ListView>
 				</div>
 			</div>
@@ -123,10 +141,10 @@
 	</div>
 	<Question
 		v-model="showQuestionModal"
-		:questionName="currentQuestion"
+		:questionDetail="currentQuestion"
 		v-model:quiz="quizDetails"
 		:title="
-			currentQuestion ? __('Edit the question') : __('Add a new question')
+			currentQuestion.question ? __('Edit the question') : __('Add a new question')
 		"
 	/>
 </template>
@@ -141,6 +159,7 @@ import {
 	ListRows,
 	ListRow,
 	ListRowItem,
+	ListSelectBanner,
 	Button,
 } from 'frappe-ui'
 import {
@@ -151,46 +170,21 @@ import {
 	inject,
 	onBeforeUnmount,
 	watch,
+	isReactive,
 } from 'vue'
-import { Plus } from 'lucide-vue-next'
+import { Plus, Trash2 } from 'lucide-vue-next'
 import Question from '@/components/Modals/Question.vue'
 import { showToast } from '../utils'
 import { useRouter } from 'vue-router'
 
 const showQuestionModal = ref(false)
-const currentQuestion = ref(null)
+const currentQuestion = reactive({
+	question: '',
+	marks: 0,
+	name: ''
+})
 const user = inject('$user')
 const router = useRouter()
-
-onMounted(() => {
-	if (
-		props.quizID == 'new' &&
-		!user.data?.is_moderator &&
-		!user.data?.is_instructor
-	) {
-		router.push({ name: 'Courses' })
-	}
-	if (props.quizID !== 'new') {
-		console.log("mounted")
-		quizDetails.reload()
-	}
-	window.addEventListener('keydown', keyboardShortcut)
-})
-
-const keyboardShortcut = (e) => {
-	if (
-		e.key === 's' &&
-		(e.ctrlKey || e.metaKey) &&
-		!e.target.classList.contains('ProseMirror')
-	) {
-		submitQuiz()
-		e.preventDefault()
-	}
-}
-
-onBeforeUnmount(() => {
-	window.removeEventListener('keydown', keyboardShortcut)
-})
 
 const props = defineProps({
 	quizID: {
@@ -211,16 +205,51 @@ const quiz = reactive({
 	questions: [],
 })
 
+onMounted(() => {
+	if (
+		props.quizID == 'new' &&
+		!user.data?.is_moderator &&
+		!user.data?.is_instructor
+	) {
+		router.push({ name: 'Courses' })
+	}
+	if (props.quizID !== 'new') {
+		quizDetails.reload()
+	}
+	window.addEventListener('keydown', keyboardShortcut)
+})
+
+const keyboardShortcut = (e) => {
+	if (
+		e.key === 's' &&
+		(e.ctrlKey || e.metaKey) &&
+		!e.target.classList.contains('ProseMirror')
+	) {
+		submitQuiz()
+		e.preventDefault()
+	}
+}
+
+onBeforeUnmount(() => {
+	window.removeEventListener('keydown', keyboardShortcut)
+})
+
+watch(
+	() => props.quizID !== 'new',
+	(newVal) => {
+		if (newVal) {
+			quizDetails.reload()
+		}
+	}
+)
+
 const quizDetails = createResource({
 	url: 'frappe.client.get',
 	makeParams(values) {
 		return { doctype: 'LMS Quiz', name: props.quizID }
 	},
-	cache: ['quiz', props.quizID],
 	auto: false,
-
 	onSuccess(data) {
-		console.log(data)
 		Object.keys(data).forEach((key) => {
 			if (Object.hasOwn(quiz, key)) quiz[key] = data[key]
 		})
@@ -234,7 +263,6 @@ const quizDetails = createResource({
 			let key = checkboxes[idx]
 			quiz[key] = quiz[key] ? true : false
 		}
-		console.log(quiz)
 	},
 })
 
@@ -276,7 +304,7 @@ const createQuiz = () => {
 		{},
 		{
 			onSuccess(data) {
-				showToast(__('Success'), __('Quiz created successfully', 'check'))
+				showToast(__('Success'), __('Quiz created successfully'), 'check')
 				router.push({
 					name: 'QuizCreation',
 					params: { quizID: data.name },
@@ -334,20 +362,38 @@ const questionColumns = computed(() => {
 	]
 })
 
-watch(
-	() => props.quizID !== 'new',
-	(newVal) => {
-		console.log(props.quizID)
-		if (newVal) {
-			console.log("in watch")
-			quizDetails.reload()
-		}
-	}
-)
-
 const openQuestionModal = (question = null) => {
-	currentQuestion.value = question
+	if (question) {
+		currentQuestion.question = question.question
+		currentQuestion.marks = question.marks
+		currentQuestion.name = question.name
+	} else {
+		currentQuestion.question = ''
+		currentQuestion.marks = 0
+		currentQuestion.name = ''
+	}
 	showQuestionModal.value = true
+}
+
+const deleteQuiz = createResource({
+	url: 'frappe.client.delete',
+	makeParams(values) {
+		return {
+			doctype: 'LMS Quiz Question',
+			name: values.quiz,
+		}
+	},
+})
+
+
+const deleteQuizzes = (selections, unselectAll) => {
+	selections.forEach(async (quiz) => {
+		deleteQuiz.submit({ quiz })
+	})
+	setTimeout(() => {
+		quizDetails.reload()
+		unselectAll()
+	}, 500)
 }
 
 const breadcrumbs = computed(() => {

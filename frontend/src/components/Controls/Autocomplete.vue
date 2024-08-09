@@ -91,8 +91,7 @@
 												<div>
 													{{ option.label }}
 												</div>
-												<div class="text-xs text-gray-700">
-													{{ option.description }}
+												<div class="text-xs text-gray-700" v-html="option.description">
 												</div>
 											</div>
 										</slot>
