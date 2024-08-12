@@ -227,7 +227,7 @@ import { FileText, X } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import CourseOutline from '@/components/CourseOutline.vue'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
-import { capture } from "@/telemetry";
+import { capture } from '@/telemetry'
 
 const user = inject('$user')
 const newTag = ref('')
@@ -270,7 +270,7 @@ onMounted(() => {
 	if (props.courseName !== 'new') {
 		courseResource.reload()
 	} else {
-		capture("course_form_opened")
+		capture('course_form_opened')
 	}
 	window.addEventListener('keydown', keyboardShortcut)
 })
@@ -391,7 +391,7 @@ const submitCourse = () => {
 	} else {
 		courseCreationResource.submit(course, {
 			onSuccess(data) {
-				capture("course_created")
+				capture('course_created')
 				showToast('Success', 'Course created successfully', 'check')
 				router.push({
 					name: 'CourseForm',
