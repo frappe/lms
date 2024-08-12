@@ -28,7 +28,6 @@
     "cypress-file-upload": "^5.0.8"
   },
   "dependencies": {
-    "posthog-js": "^1.154.4",
     "pre-commit": "^1.2.2"
   }
 }

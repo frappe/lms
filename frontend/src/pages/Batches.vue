@@ -19,7 +19,7 @@
 				<router-link
 					v-if="user.data?.is_moderator"
 					:to="{
-						name: 'BatchCreation',
+						name: 'BatchForm',
 						params: { batchName: 'new' },
 					}"
 				>
