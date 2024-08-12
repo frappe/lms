@@ -91,7 +91,8 @@
 												<div>
 													{{ option.label }}
 												</div>
-												<div v-if="option.label != option.description"
+												<div
+													v-if="option.label != option.description"
 													class="text-xs text-gray-700"
 													v-html="option.description"
 												></div>

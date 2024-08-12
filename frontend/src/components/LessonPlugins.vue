@@ -26,12 +26,15 @@
 				:label="__('Add an existing quiz')"
 				@change="(option) => addQuiz(option)"
 			/>
-			<router-link :to="{
-				name: 'QuizCreation',
-				params: {
-					quizID: 'new',
-				}
-			}" class="self-end ml-2">
+			<router-link
+				:to="{
+					name: 'QuizCreation',
+					params: {
+						quizID: 'new',
+					},
+				}"
+				class="self-end ml-2"
+			>
 				<Button>
 					<template #icon>
 						<Plus class="h-4 w-4 stroke-1.5" />
@@ -121,7 +124,7 @@ const props = defineProps({
 })
 
 const addQuiz = (value) => {
-	console.log("here")
+	console.log('here')
 	console.log(value)
 	getCurrentEditor().caret.setToLastBlock('end', 0)
 	if (value) {

@@ -70,7 +70,14 @@
 </template>
 <script setup>
 import { Breadcrumbs, FormControl, createResource, Button } from 'frappe-ui'
-import { computed, reactive, onMounted, inject, ref, onBeforeUnmount } from 'vue'
+import {
+	computed,
+	reactive,
+	onMounted,
+	inject,
+	ref,
+	onBeforeUnmount,
+} from 'vue'
 import EditorJS from '@editorjs/editorjs'
 import LessonPlugins from '@/components/LessonPlugins.vue'
 import { ChevronRight } from 'lucide-vue-next'
