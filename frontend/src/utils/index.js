@@ -424,7 +424,7 @@ export function getSidebarLinks() {
 				'Courses',
 				'CourseDetail',
 				'Lesson',
-				'CreateCourse',
+				'CourseForm',
 				'LessonForm',
 			],
 		},
@@ -432,7 +432,7 @@ export function getSidebarLinks() {
 			label: 'Batches',
 			icon: 'Users',
 			to: 'Batches',
-			activeFor: ['Batches', 'BatchDetail', 'Batch', 'BatchCreation'],
+			activeFor: ['Batches', 'BatchDetail', 'Batch', 'BatchForm'],
 		},
 		{
 			label: 'Certified Participants',

@@ -22,7 +22,7 @@
 				</div>
 				<router-link
 					:to="{
-						name: 'CreateCourse',
+						name: 'CourseForm',
 						params: {
 							courseName: 'new',
 						},

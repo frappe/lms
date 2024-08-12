@@ -124,8 +124,6 @@ const props = defineProps({
 })
 
 const addQuiz = (value) => {
-	console.log('here')
-	console.log(value)
 	getCurrentEditor().caret.setToLastBlock('end', 0)
 	if (value) {
 		getCurrentEditor().blocks.insert('quiz', {

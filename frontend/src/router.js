@@ -97,8 +97,8 @@ const routes = [
 	},
 	{
 		path: '/courses/:courseName/edit',
-		name: 'CreateCourse',
-		component: () => import('@/pages/CreateCourse.vue'),
+		name: 'CourseForm',
+		component: () => import('@/pages/CourseForm.vue'),
 		props: true,
 	},
 	{
@@ -109,8 +109,8 @@ const routes = [
 	},
 	{
 		path: '/batches/:batchName/edit',
-		name: 'BatchCreation',
-		component: () => import('@/pages/BatchCreation.vue'),
+		name: 'BatchForm',
+		component: () => import('@/pages/BatchForm.vue'),
 		props: true,
 	},
 	{
