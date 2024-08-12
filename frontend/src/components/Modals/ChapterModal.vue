@@ -21,8 +21,8 @@
 </template>
 <script setup>
 import { Dialog, FormControl, createResource } from 'frappe-ui'
-import { defineModel, reactive, watch, inject } from 'vue'
-import { createToast, formatTime } from '@/utils/'
+import { defineModel, reactive, watch } from 'vue'
+import { createToast } from '@/utils/'
 
 const show = defineModel()
 const outline = defineModel('outline')

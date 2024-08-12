@@ -10,6 +10,7 @@ from lms.lms.utils import has_course_instructor_role, has_course_moderator_role
 class LMSQuestion(Document):
 	def validate(self):
 		validate_correct_answers(self)
+		update_question_title(self)
 
 
 def validate_correct_answers(question):
@@ -60,6 +61,16 @@ def validate_possible_answer(question):
 				frappe.bold(question.question)
 			)
 		)
+
+
+def update_question_title(question):
+	if not question.is_new():
+		question_rows = frappe.get_all(
+			"LMS Quiz Question", {"question": question.name}, pluck="name"
+		)
+
+		for row in question_rows:
+			frappe.db.set_value("LMS Quiz Question", row, "question_detail", question.question)
 
 
 def get_correct_options(question):
