@@ -2,7 +2,10 @@
 	<Dialog v-model="show" :options="dialogOptions">
 		<template #body-content>
 			<div class="space-y-4">
-				<div v-if="!editMode" class="flex items-center text-xs text-gray-700 space-x-5">
+				<div
+					v-if="!editMode"
+					class="flex items-center text-xs text-gray-700 space-x-5"
+				>
 					<div class="flex items-center space-x-2">
 						<input
 							type="radio"
@@ -95,12 +98,7 @@
 	</Dialog>
 </template>
 <script setup>
-import {
-	Dialog,
-	FormControl,
-	TextEditor,
-	createResource,
-} from 'frappe-ui'
+import { Dialog, FormControl, TextEditor, createResource } from 'frappe-ui'
 import { computed, watch, reactive, ref } from 'vue'
 import Link from '@/components/Controls/Link.vue'
 import { showToast } from '@/utils'
@@ -163,31 +161,26 @@ const questionData = createResource({
 			question[`is_correct_${counter}`] = data[`is_correct_${counter}`]
 				? true
 				: false
-			counter++;
+			counter++
 		}
 		question.marks = props.questionDetail.marks
 	},
-});
+})
 
 watch(show, () => {
 	if (show.value) {
 		editMode.value = false
-		if (props.questionDetail.question)
-			questionData.fetch()
-
+		if (props.questionDetail.question) questionData.fetch()
 		else {
-			question.question = "",
-			question.marks = 0
-			question.type = "Choices"
-			existingQuestion.question = ""
+			;(question.question = ''), (question.marks = 0)
+			question.type = 'Choices'
+			existingQuestion.question = ''
 			existingQuestion.marks = 0
 			questionType.value = null
 			populateFields()
 		}
 
-		if (props.questionDetail.marks)
-			question.marks = props.questionDetail.marks
-		
+		if (props.questionDetail.marks) question.marks = props.questionDetail.marks
 	}
 })
 
@@ -284,7 +277,7 @@ const questionUpdate = createResource({
 				...question,
 			},
 		}
-	}
+	},
 })
 
 const marksUpdate = createResource({
@@ -298,7 +291,7 @@ const marksUpdate = createResource({
 				marks: question.marks,
 			},
 		}
-	}
+	},
 })
 
 const updateQuestion = (close) => {
@@ -306,19 +299,26 @@ const updateQuestion = (close) => {
 		{},
 		{
 			onSuccess() {
-				marksUpdate.submit({}, {
-					onSuccess() {
-						show.value = false
-						showToast(__('Success'), __('Question updated successfully'), 'check')
-						quiz.value.reload()
-						close()
-					},
-					onError(err) {
-						showToast(__('Error'), __(err.message?.[0] || err), 'x')
-						close()
-					},
-				})
-			}
+				marksUpdate.submit(
+					{},
+					{
+						onSuccess() {
+							show.value = false
+							showToast(
+								__('Success'),
+								__('Question updated successfully'),
+								'check'
+							)
+							quiz.value.reload()
+							close()
+						},
+						onError(err) {
+							showToast(__('Error'), __(err.message?.[0] || err), 'x')
+							close()
+						},
+					}
+				)
+			},
 		}
 	)
 }

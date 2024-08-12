@@ -12,6 +12,7 @@ class LMSQuestion(Document):
 		validate_correct_answers(self)
 		update_question_title(self)
 
+
 def validate_correct_answers(question):
 	if question.type == "Choices":
 		validate_duplicate_options(question)
@@ -61,14 +62,16 @@ def validate_possible_answer(question):
 			)
 		)
 
+
 def update_question_title(question):
 	if not question.is_new():
-		question_rows = frappe.get_all("LMS Quiz Question", {
-			"question": question.name
-		}, pluck="name")
+		question_rows = frappe.get_all(
+			"LMS Quiz Question", {"question": question.name}, pluck="name"
+		)
 
 		for row in question_rows:
 			frappe.db.set_value("LMS Quiz Question", row, "question_detail", question.question)
+
 
 def get_correct_options(question):
 	correct_options = []

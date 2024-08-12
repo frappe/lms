@@ -54,7 +54,6 @@
 							type="checkbox"
 							:label="__('Show Submission History')"
 						/>
-						
 					</div>
 				</div>
 
@@ -68,14 +67,13 @@
 							type="checkbox"
 							:label="__('Shuffle Questions')"
 						/>
-						<FormControl v-if="quiz.shuffle_questions"
+						<FormControl
+							v-if="quiz.shuffle_questions"
 							v-model="quiz.limit_questions_to"
 							:label="__('Limit Questions To')"
 						/>
 					</div>
 				</div>
-
-				
 
 				<!-- Questions -->
 				<div>
@@ -113,9 +111,9 @@
 								<ListRowItem :item="item">
 									<div
 										v-if="column.key == 'question_detail'"
-										class="text-xs truncate h-4" v-html="item"
-									>
-									</div>
+										class="text-xs truncate h-4"
+										v-html="item"
+									></div>
 									<div v-else class="text-xs">
 										{{ item }}
 									</div>
@@ -144,7 +142,9 @@
 		:questionDetail="currentQuestion"
 		v-model:quiz="quizDetails"
 		:title="
-			currentQuestion.question ? __('Edit the question') : __('Add a new question')
+			currentQuestion.question
+				? __('Edit the question')
+				: __('Add a new question')
 		"
 	/>
 </template>
@@ -181,7 +181,7 @@ const showQuestionModal = ref(false)
 const currentQuestion = reactive({
 	question: '',
 	marks: 0,
-	name: ''
+	name: '',
 })
 const user = inject('$user')
 const router = useRouter()
@@ -384,7 +384,6 @@ const deleteQuiz = createResource({
 		}
 	},
 })
-
 
 const deleteQuizzes = (selections, unselectAll) => {
 	selections.forEach(async (quiz) => {
