@@ -70,7 +70,7 @@
 </template>
 <script setup>
 import { Breadcrumbs, FormControl, createResource, Button } from 'frappe-ui'
-import { computed, reactive, onMounted, inject, ref, watch } from 'vue'
+import { computed, reactive, onMounted, inject, ref, onBeforeUnmount } from 'vue'
 import EditorJS from '@editorjs/editorjs'
 import LessonPlugins from '@/components/LessonPlugins.vue'
 import { ChevronRight } from 'lucide-vue-next'
@@ -171,8 +171,12 @@ const addInstructorNotes = (data) => {
 const enableAutoSave = () => {
 	autoSaveInterval = setInterval(() => {
 		saveLesson()
-	}, 10000)
+	}, 5000)
 }
+
+onBeforeUnmount(() => {
+	clearInterval(autoSaveInterval)
+})
 
 const newLessonResource = createResource({
 	url: 'frappe.client.insert',

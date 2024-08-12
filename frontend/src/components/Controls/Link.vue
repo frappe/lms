@@ -77,6 +77,7 @@ const valuePropPassed = computed(() => 'value' in attrs)
 const value = computed({
 	get: () => (valuePropPassed.value ? attrs.value : props.modelValue),
 	set: (val) => {
+		console.log(valuePropPassed.value)
 		return (
 			val?.value &&
 			emit(valuePropPassed.value ? 'change' : 'update:modelValue', val?.value)
