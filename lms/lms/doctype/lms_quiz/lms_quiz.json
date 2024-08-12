@@ -9,16 +9,15 @@
  "field_order": [
   "title",
   "max_attempts",
-  "limit_questions_to",
+  "show_answers",
   "column_break_gaac",
   "total_marks",
   "passing_percentage",
-  "section_break_hsiv",
-  "show_answers",
-  "column_break_rocd",
   "show_submission_history",
-  "column_break_dsup",
+  "section_break_tzbu",
   "shuffle_questions",
+  "column_break_clsh",
+  "limit_questions_to",
   "section_break_sbjx",
   "questions",
   "section_break_3",
@@ -74,6 +73,7 @@
    "default": "1",
    "fieldname": "show_answers",
    "fieldtype": "Check",
+   "in_standard_filter": 1,
    "label": "Show Answers"
   },
   {
@@ -91,33 +91,23 @@
    "label": "Show Submission History"
   },
   {
-   "fieldname": "section_break_hsiv",
-   "fieldtype": "Section Break",
-   "label": "Settings"
-  },
-  {
    "fieldname": "passing_percentage",
    "fieldtype": "Int",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Passing Percentage",
    "non_negative": 1,
    "reqd": 1
   },
   {
-   "fieldname": "column_break_rocd",
-   "fieldtype": "Column Break"
-  },
-  {
    "default": "0",
    "fieldname": "total_marks",
    "fieldtype": "Int",
+   "in_list_view": 1,
    "label": "Total Marks",
    "non_negative": 1,
    "read_only": 1,
    "reqd": 1
-  },
-  {
-   "fieldname": "column_break_dsup",
-   "fieldtype": "Column Break"
   },
   {
    "default": "0",
@@ -126,14 +116,23 @@
    "label": "Shuffle Questions"
   },
   {
+   "depends_on": "shuffle_questions",
    "fieldname": "limit_questions_to",
    "fieldtype": "Int",
    "label": "Limit Questions To"
+  },
+  {
+   "fieldname": "section_break_tzbu",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_clsh",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-06-27 22:03:48.576489",
+ "modified": "2024-08-09 12:21:36.256522",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz",

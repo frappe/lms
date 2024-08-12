@@ -141,6 +141,17 @@ const routes = [
 		component: () => import('@/pages/Badge.vue'),
 		props: true,
 	},
+	{
+		path: '/quizzes',
+		name: 'Quizzes',
+		component: () => import('@/pages/Quizzes.vue'),
+	},
+	{
+		path: '/quizzes/:quizID',
+		name: 'QuizCreation',
+		component: () => import('@/pages/QuizCreation.vue'),
+		props: true,
+	},
 ]
 
 let router = createRouter({
