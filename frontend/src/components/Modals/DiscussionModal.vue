@@ -1,7 +1,7 @@
 <template>
 	<Dialog
 		:options="{
-			title: props.title,
+			title: singularize(props.title),
 			size: '2xl',
 			actions: [
 				{
@@ -36,7 +36,7 @@
 <script setup>
 import { Dialog, FormControl, TextEditor, createResource } from 'frappe-ui'
 import { reactive, defineModel, computed } from 'vue'
-import { showToast } from '@/utils'
+import { showToast, singularize } from '@/utils'
 
 const topics = defineModel('reloadTopics')
 
