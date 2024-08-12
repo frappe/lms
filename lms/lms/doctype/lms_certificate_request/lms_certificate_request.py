@@ -59,6 +59,7 @@ class LMSCertificateRequest(Document):
 				"evaluator": self.evaluator,
 				"date": self.date,
 				"start_time": self.start_time,
+				"member": ["!=", self.member],
 			},
 		):
 			frappe.throw(_("The slot is already booked by another participant."))

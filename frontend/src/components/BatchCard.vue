@@ -3,7 +3,7 @@
 		class="flex flex-col shadow hover:bg-gray-100 rounded-md p-4 h-full"
 		style="min-height: 150px"
 	>
-		<div class="text-xl font-semibold mb-2">
+		<div class="text-lg leading-5 font-semibold mb-2">
 			{{ batch.title }}
 		</div>
 		<Badge
@@ -22,18 +22,17 @@
 		>
 			{{ __('Sold Out') }}
 		</Badge>
-		<div class="short-introduction">
+		<div class="short-introduction text-sm text-gray-700">
 			{{ batch.description }}
 		</div>
+		<div v-if="batch.amount" class="font-semibold mb-4">
+			{{ batch.price }}
+		</div>
 		<div class="flex flex-col space-y-2 mt-auto">
-			<div v-if="batch.amount" class="font-semibold text-lg">
-				{{ batch.price }}
-			</div>
-
 			<DateRange
 				:startDate="batch.start_date"
 				:endDate="batch.end_date"
-				class="text-sm text-gray-700 mb-3"
+				class="text-sm text-gray-700"
 			/>
 			<div class="flex items-center text-sm text-gray-700">
 				<Clock class="h-4 w-4 stroke-1.5 mr-2 text-gray-700" />
@@ -50,18 +49,21 @@
 					{{ batch.timezone }}
 				</span>
 			</div>
-			<div v-if="batch.instructors?.length" class="flex avatar-group overlap">
-				<div
-					class="h-6 mr-1"
-					:class="{ 'avatar-group overlap': batch.instructors.length > 1 }"
-				>
-					<UserAvatar
-						v-for="instructor in batch.instructors"
-						:user="instructor"
-					/>
-				</div>
-				<CourseInstructors :instructors="batch.instructors" />
+		</div>
+		<div
+			v-if="batch.instructors?.length"
+			class="flex avatar-group overlap mt-4"
+		>
+			<div
+				class="h-6 mr-1"
+				:class="{ 'avatar-group overlap': batch.instructors.length > 1 }"
+			>
+				<UserAvatar
+					v-for="instructor in batch.instructors"
+					:user="instructor"
+				/>
 			</div>
+			<CourseInstructors :instructors="batch.instructors" />
 		</div>
 	</div>
 </template>
@@ -88,7 +90,7 @@ const props = defineProps({
 	text-overflow: ellipsis;
 	width: 100%;
 	overflow: hidden;
-	margin: 0.25rem 0 1.25rem;
+	margin: 0.25rem 0 1rem;
 	line-height: 1.5;
 }
 

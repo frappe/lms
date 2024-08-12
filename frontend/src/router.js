@@ -103,8 +103,8 @@ const routes = [
 	},
 	{
 		path: '/courses/:courseName/learn/:chapterNumber-:lessonNumber/edit',
-		name: 'CreateLesson',
-		component: () => import('@/pages/CreateLesson.vue'),
+		name: 'LessonForm',
+		component: () => import('@/pages/LessonForm.vue'),
 		props: true,
 	},
 	{
