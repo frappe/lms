@@ -1,5 +1,5 @@
 <template>
-	<Dropdown :options="userDropdownOptions">
+	<Dropdown class="p-2" :options="userDropdownOptions">
 		<template v-slot="{ open }">
 			<button
 				class="flex h-12 py-2 items-center rounded-md duration-300 ease-in-out"
@@ -56,7 +56,10 @@
 			</button>
 		</template>
 	</Dropdown>
-	<SettingsModal v-model="showSettingsModal" />
+	<SettingsModal
+		v-if="userResource.data?.is_moderator"
+		v-model="showSettingsModal"
+	/>
 </template>
 
 <script setup>
@@ -121,7 +124,6 @@ const userDropdownOptions = [
 			showSettingsModal.value = true
 		},
 		condition: () => {
-			console.log(userResource)
 			return userResource.data?.is_moderator
 		},
 	},
