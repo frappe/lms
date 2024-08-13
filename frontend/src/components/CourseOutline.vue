@@ -41,6 +41,7 @@
 				<DisclosurePanel>
 					<Draggable
 						:list="chapter.lessons"
+						:disabled="!allowEdit"
 						item-key="name"
 						group="items"
 						@end="updateOutline"
