@@ -10,14 +10,9 @@
   "column_break_zdel",
   "unsplash_access_key",
   "livecode_url",
-  "course_settings_section",
-  "search_placeholder",
-  "column_break_iqxy",
-  "portal_course_creation",
   "section_break_szgq",
   "send_calendar_invite_for_evaluations",
   "show_day_view",
-  "allow_student_progress",
   "column_break_2",
   "show_dashboard",
   "show_courses",
@@ -48,7 +43,6 @@
   "notifications",
   "section_break_qlss",
   "sidebar_items",
-  "mentor_request_tab",
   "mentor_request_section",
   "mentor_request_creation",
   "mentor_request_status_update",
@@ -99,11 +93,6 @@
    "label": "Show Tab in Batch"
   },
   {
-   "fieldname": "search_placeholder",
-   "fieldtype": "Data",
-   "label": "Course List Search Bar Placeholder"
-  },
-  {
    "default": "0",
    "fieldname": "terms_of_use",
    "fieldtype": "Check",
@@ -138,13 +127,6 @@
   {
    "fieldname": "column_break_12",
    "fieldtype": "Column Break"
-  },
-  {
-   "default": "Course Creator Role",
-   "fieldname": "portal_course_creation",
-   "fieldtype": "Select",
-   "label": "Course Creation Access Through Website To",
-   "options": "Course Creator Role\nAnyone"
   },
   {
    "fieldname": "column_break_9",
@@ -204,19 +186,6 @@
    "label": "Signup Settings"
   },
   {
-   "fieldname": "mentor_request_tab",
-   "fieldtype": "Tab Break",
-   "hidden": 1,
-   "label": "Mentor Request"
-  },
-  {
-   "default": "0",
-   "fieldname": "allow_student_progress",
-   "fieldtype": "Check",
-   "hidden": 1,
-   "label": "Allow students to see each others progress in class"
-  },
-  {
    "fieldname": "payment_section",
    "fieldtype": "Section Break"
   },
@@ -228,15 +197,6 @@
   },
   {
    "fieldname": "column_break_cfcv",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "course_settings_section",
-   "fieldtype": "Section Break",
-   "label": "Course Settings"
-  },
-  {
-   "fieldname": "column_break_iqxy",
    "fieldtype": "Column Break"
   },
   {
@@ -423,7 +383,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-06-27 21:57:02.193336",
+ "modified": "2024-08-13 19:02:58.714080",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",

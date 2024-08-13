@@ -562,29 +562,3 @@ def get_categories(doctype, filters):
 			categoryOptions.append({"label": category, "value": category})
 
 	return categoryOptions
-
-
-@frappe.whitelist()
-def get_fields(doctype: str, allow_all_fieldtypes: bool = False):
-	not_allowed_fieldtypes = list(frappe.model.no_value_fields) + ["Read Only"]
-	if allow_all_fieldtypes:
-		not_allowed_fieldtypes = []
-	fields = frappe.get_meta(doctype).fields
-
-	_fields = []
-
-	for field in fields:
-		if field.fieldtype not in not_allowed_fieldtypes and field.fieldname:
-			_fields.append(
-				{
-					"label": field.label,
-					"type": field.fieldtype,
-					"value": field.fieldname,
-					"options": field.options,
-					"mandatory": field.reqd,
-					"read_only": field.read_only,
-					"hidden": field.hidden,
-				}
-			)
-
-	return _fields
