@@ -26,6 +26,9 @@ class LMSCertificateRequest(Document):
 		self.validate_if_existing_requests()
 		self.validate_evaluation_end_date()
 
+	def after_insert(self):
+		self.send_notification()
+
 	def set_evaluator(self):
 		if not self.evaluator:
 			self.evaluator = get_evaluator(self.course, self.batch_name)
@@ -107,6 +110,35 @@ class LMSCertificateRequest(Document):
 							format_date(evaluation_end_date, "medium")
 						)
 					)
+
+	def send_notification(self):
+		outgoing_email_account = frappe.get_cached_value(
+			"Email Account", {"default_outgoing": 1, "enable_outgoing": 1}, "name"
+		)
+		if outgoing_email_account or frappe.conf.get("mail_login"):
+			subject = _("Your evaluation slot has been booked")
+			template = "certificate_request_notification"
+
+			args = {
+				"course": frappe.db.get_value("LMS Course", self.course, "title"),
+				"timezone": frappe.db.get_value("LMS Batch", self.batch_name, "timezone")
+				if self.batch_name
+				else "",
+				"date": format_date(self.date, "medium"),
+				"member_name": self.member_name,
+				"start_time": format_time(self.start_time, "short"),
+				"evaluator": frappe.db.get_value("User", self.evaluator, "full_name"),
+			}
+
+			frappe.sendmail(
+				recipients=[self.member],
+				cc=[self.evaluator],
+				subject=subject,
+				template=template,
+				args=args,
+				header=[subject, "green"],
+				retry=3,
+			)
 
 
 def schedule_evals():

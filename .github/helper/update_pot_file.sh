@@ -22,7 +22,7 @@ git config user.name "frappe-pr-bot"
 
 echo "Setting the correct git remote..."
 # Here, the git remote is a local file path by default. Let's change it to the upstream repo.
-git remote add upstream https://github.com/frappe/lms.git
+git remote set-url upstream https://github.com/frappe/lms.git
 
 echo "Creating a new branch..."
 isodate=$(date -u +"%Y-%m-%d")

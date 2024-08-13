@@ -2,7 +2,7 @@
 	<div class="text-lg font-semibold">
 		{{ __('Components') }}
 	</div>
-	<div class="mt-5">
+	<div class="mt-5 space-y-4">
 		<Tooltip
 			:text="
 				__(
@@ -18,20 +18,31 @@
 				<Select v-model="currentEditor" :options="getEditorOptions()" />
 			</div>
 		</Tooltip>
-		<div class="flex mt-4">
+		<div class="flex">
 			<Link
-				v-model="quiz"
+				:value="quiz"
 				class="flex-1"
 				doctype="LMS Quiz"
-				:label="__('Select a Quiz')"
+				:label="__('Add an existing quiz')"
+				@change="(option) => addQuiz(option)"
 			/>
-			<Button @click="addQuiz()" class="self-end ml-2">
-				<template #icon>
-					<Plus class="h-4 w-4 stroke-1.5" />
-				</template>
-			</Button>
+			<router-link
+				:to="{
+					name: 'QuizCreation',
+					params: {
+						quizID: 'new',
+					},
+				}"
+				class="self-end ml-2"
+			>
+				<Button>
+					<template #icon>
+						<Plus class="h-4 w-4 stroke-1.5" />
+					</template>
+				</Button>
+			</router-link>
 		</div>
-		<div class="mt-4">
+		<div class="">
 			<div class="text-xs text-gray-600 mb-1">
 				{{ __('Add an image, video, pdf or audio.') }}
 			</div>
@@ -68,7 +79,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="mt-4">
+		<div class="">
 			<div class="text-xs text-gray-600 mb-1">
 				{{
 					__(
@@ -112,11 +123,11 @@ const props = defineProps({
 	},
 })
 
-const addQuiz = () => {
+const addQuiz = (value) => {
 	getCurrentEditor().caret.setToLastBlock('end', 0)
-	if (quiz.value) {
+	if (value) {
 		getCurrentEditor().blocks.insert('quiz', {
-			quiz: quiz.value,
+			quiz: value,
 		})
 		quiz.value = null
 	}

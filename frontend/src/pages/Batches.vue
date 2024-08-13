@@ -5,7 +5,7 @@
 		>
 			<Breadcrumbs
 				class="h-7"
-				:items="[{ label: __('All Batches'), route: { name: 'Batches' } }]"
+				:items="[{ label: __('Batches'), route: { name: 'Batches' } }]"
 			/>
 			<div class="flex space-x-2">
 				<div class="w-40">
@@ -19,13 +19,13 @@
 				<router-link
 					v-if="user.data?.is_moderator"
 					:to="{
-						name: 'BatchCreation',
+						name: 'BatchForm',
 						params: { batchName: 'new' },
 					}"
 				>
 					<Button variant="solid">
 						<template #prefix>
-							<Plus class="h-4 w-4" />
+							<Plus class="h-4 w-4 stroke-1.5" />
 						</template>
 						{{ __('New Batch') }}
 					</Button>

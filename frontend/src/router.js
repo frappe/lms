@@ -97,20 +97,20 @@ const routes = [
 	},
 	{
 		path: '/courses/:courseName/edit',
-		name: 'CreateCourse',
-		component: () => import('@/pages/CreateCourse.vue'),
+		name: 'CourseForm',
+		component: () => import('@/pages/CourseForm.vue'),
 		props: true,
 	},
 	{
 		path: '/courses/:courseName/learn/:chapterNumber-:lessonNumber/edit',
-		name: 'CreateLesson',
-		component: () => import('@/pages/CreateLesson.vue'),
+		name: 'LessonForm',
+		component: () => import('@/pages/LessonForm.vue'),
 		props: true,
 	},
 	{
 		path: '/batches/:batchName/edit',
-		name: 'BatchCreation',
-		component: () => import('@/pages/BatchCreation.vue'),
+		name: 'BatchForm',
+		component: () => import('@/pages/BatchForm.vue'),
 		props: true,
 	},
 	{
@@ -139,6 +139,17 @@ const routes = [
 		path: '/badges/:badgeName/:email',
 		name: 'Badge',
 		component: () => import('@/pages/Badge.vue'),
+		props: true,
+	},
+	{
+		path: '/quizzes',
+		name: 'Quizzes',
+		component: () => import('@/pages/Quizzes.vue'),
+	},
+	{
+		path: '/quizzes/:quizID',
+		name: 'QuizCreation',
+		component: () => import('@/pages/QuizCreation.vue'),
 		props: true,
 	},
 ]

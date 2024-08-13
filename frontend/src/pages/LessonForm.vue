@@ -70,16 +70,25 @@
 </template>
 <script setup>
 import { Breadcrumbs, FormControl, createResource, Button } from 'frappe-ui'
-import { computed, reactive, onMounted, inject, ref, watch } from 'vue'
+import {
+	computed,
+	reactive,
+	onMounted,
+	inject,
+	ref,
+	onBeforeUnmount,
+} from 'vue'
 import EditorJS from '@editorjs/editorjs'
 import LessonPlugins from '@/components/LessonPlugins.vue'
 import { ChevronRight } from 'lucide-vue-next'
 import { updateDocumentTitle, createToast, getEditorTools } from '@/utils'
+import { capture } from '@/telemetry'
 
 const editor = ref(null)
 const instructorEditor = ref(null)
 const user = inject('$user')
 const openInstructorEditor = ref(false)
+let autoSaveInterval
 
 const props = defineProps({
 	courseName: {
@@ -100,6 +109,7 @@ onMounted(() => {
 	if (!user.data?.is_moderator && !user.data?.is_instructor) {
 		window.location.href = '/login'
 	}
+	capture('lesson_form_opened')
 	editor.value = renderEditor('content')
 	instructorEditor.value = renderEditor('instructor-notes')
 })
@@ -134,30 +144,47 @@ const lessonDetails = createResource({
 				lesson[key] = data.lesson[key]
 			})
 			lesson.include_in_preview = data.include_in_preview ? true : false
-			editor.value.isReady.then(() => {
-				if (data.lesson.content) {
-					editor.value.render(JSON.parse(data.lesson.content))
-				} else if (data.lesson.body) {
-					let blocks = convertToJSON(data.lesson)
-					editor.value.render({
-						blocks: blocks,
-					})
-				}
-			})
-			instructorEditor.value.isReady.then(() => {
-				if (data.lesson.instructor_content) {
-					instructorEditor.value.render(
-						JSON.parse(data.lesson.instructor_content)
-					)
-				} else if (data.lesson.instructor_notes) {
-					let blocks = convertToJSON(data.lesson)
-					instructorEditor.value.render({
-						blocks: blocks,
-					})
-				}
-			})
+			addLessonContent(data)
+			addInstructorNotes(data)
+			enableAutoSave()
 		}
 	},
+})
+
+const addLessonContent = (data) => {
+	editor.value.isReady.then(() => {
+		if (data.lesson.content) {
+			editor.value.render(JSON.parse(data.lesson.content))
+		} else if (data.lesson.body) {
+			let blocks = convertToJSON(data.lesson)
+			editor.value.render({
+				blocks: blocks,
+			})
+		}
+	})
+}
+
+const addInstructorNotes = (data) => {
+	instructorEditor.value.isReady.then(() => {
+		if (data.lesson.instructor_content) {
+			instructorEditor.value.render(JSON.parse(data.lesson.instructor_content))
+		} else if (data.lesson.instructor_notes) {
+			let blocks = convertToJSON(data.lesson)
+			instructorEditor.value.render({
+				blocks: blocks,
+			})
+		}
+	})
+}
+
+const enableAutoSave = () => {
+	autoSaveInterval = setInterval(() => {
+		saveLesson()
+	}, 5000)
+}
+
+onBeforeUnmount(() => {
+	clearInterval(autoSaveInterval)
 })
 
 const newLessonResource = createResource({
@@ -335,6 +362,7 @@ const createNewLesson = () => {
 					{ lesson: data.name },
 					{
 						onSuccess() {
+							capture('lesson_created')
 							showToast('Success', 'Lesson created successfully', 'check')
 							lessonDetails.reload()
 						},
@@ -356,9 +384,6 @@ const editCurrentLesson = () => {
 		{
 			validate() {
 				return validateLesson()
-			},
-			onSuccess() {
-				showToast('Success', 'Lesson updated successfully', 'check')
 			},
 			onError(err) {
 				showToast('Error', err.message, 'x')
@@ -418,7 +443,7 @@ const breadcrumbs = computed(() => {
 	crumbs.push({
 		label: lessonDetails?.data?.lesson ? 'Edit Lesson' : 'Create Lesson',
 		route: {
-			name: 'CreateLesson',
+			name: 'LessonForm',
 			params: {
 				courseName: props.courseName,
 				chapterNumber: props.chapterNumber,

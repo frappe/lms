@@ -100,7 +100,7 @@ import { ChevronRight, Plus } from 'lucide-vue-next'
 import { createResource, Button } from 'frappe-ui'
 import PageModal from '@/components/Modals/PageModal.vue'
 
-const { user } = sessionStore()
+const { user, sidebarSettings } = sessionStore()
 const { userResource } = usersStore()
 const socket = inject('$socket')
 const unreadCount = ref(0)
@@ -115,6 +115,20 @@ onMounted(() => {
 		unreadNotifications.reload()
 	})
 	addNotifications()
+	sidebarSettings.reload(
+		{},
+		{
+			onSuccess(data) {
+				Object.keys(data).forEach((key) => {
+					if (!parseInt(data[key])) {
+						sidebarLinks.value = sidebarLinks.value.filter(
+							(link) => link.label.toLowerCase().split(' ').join('_') !== key
+						)
+					}
+				})
+			},
+		}
+	)
 })
 
 const unreadNotifications = createResource({
@@ -152,21 +166,6 @@ const addNotifications = () => {
 		})
 	}
 }
-
-const sidebarSettings = createResource({
-	url: 'lms.lms.api.get_sidebar_settings',
-	cache: 'Sidebar Settings',
-	auto: true,
-	onSuccess(data) {
-		Object.keys(data).forEach((key) => {
-			if (!parseInt(data[key])) {
-				sidebarLinks.value = sidebarLinks.value.filter(
-					(link) => link.label.toLowerCase().split(' ').join('_') !== key
-				)
-			}
-		})
-	},
-})
 
 const openPageModal = (link) => {
 	showPageModal.value = true

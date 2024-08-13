@@ -75,7 +75,7 @@
 								>
 									<li
 										:class="[
-											'flex items-center rounded px-2.5 py-1.5 text-base',
+											'flex items-center rounded px-2.5 py-2 text-base',
 											{ 'bg-gray-100': active },
 										]"
 									>
@@ -87,7 +87,16 @@
 											name="item-label"
 											v-bind="{ active, selected, option }"
 										>
-											{{ option.label }}
+											<div class="flex flex-col space-y-1">
+												<div>
+													{{ option.label }}
+												</div>
+												<div
+													v-if="option.label != option.description"
+													class="text-xs text-gray-700"
+													v-html="option.description"
+												></div>
+											</div>
 										</slot>
 									</li>
 								</ComboboxOption>

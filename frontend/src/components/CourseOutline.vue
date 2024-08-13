@@ -41,6 +41,7 @@
 				<DisclosurePanel>
 					<Draggable
 						:list="chapter.lessons"
+						:disabled="!allowEdit"
 						item-key="name"
 						group="items"
 						@end="updateOutline"
@@ -50,7 +51,7 @@
 							<div class="outline-lesson pl-8 py-2 pr-4">
 								<router-link
 									:to="{
-										name: allowEdit ? 'CreateLesson' : 'Lesson',
+										name: allowEdit ? 'LessonForm' : 'Lesson',
 										params: {
 											courseName: courseName,
 											chapterNumber: lesson.number.split('.')[0],
@@ -89,7 +90,7 @@
 					<div v-if="allowEdit" class="flex mt-2 mb-4 pl-8">
 						<router-link
 							:to="{
-								name: 'CreateLesson',
+								name: 'LessonForm',
 								params: {
 									courseName: courseName,
 									chapterNumber: chapter.idx,
