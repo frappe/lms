@@ -16,7 +16,7 @@
 						@input="courses.reload()"
 					>
 						<template #prefix>
-							<Search class="w-4 h-4 stroke-1.5" name="search" />
+							<Search class="w-4 h-4 stroke-1.5 text-gray-600" name="search" />
 						</template>
 					</FormControl>
 				</div>
