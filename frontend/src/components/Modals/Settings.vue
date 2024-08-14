@@ -210,12 +210,11 @@ const tabs = computed(() => {
 							type: 'Link',
 							doctype: 'Web Page',
 						},
-						
-						
+
 						{
 							type: 'Column Break',
 						},
-						
+
 						{
 							label: 'Show cookie policy on signup',
 							name: 'cookie_policy',
