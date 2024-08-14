@@ -6,6 +6,7 @@ from frappe.translate import get_all_translations
 from frappe import _
 from frappe.query_builder import DocType
 from frappe.query_builder.functions import Count
+from frappe.utils import time_diff, now_datetime, get_datetime
 
 
 @frappe.whitelist()
@@ -265,7 +266,9 @@ def get_chart_details():
 			"upcoming": 0,
 		},
 	)
-	details.users = frappe.db.count("User", {"enabled": 1})
+	details.users = frappe.db.count(
+		"User", {"enabled": 1, "name": ["not in", ("Administrator", "Guest")]}
+	)
 	details.completions = frappe.db.count(
 		"LMS Enrollment", {"progress": ["like", "%100%"]}
 	)

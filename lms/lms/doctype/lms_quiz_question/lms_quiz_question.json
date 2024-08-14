@@ -6,7 +6,10 @@
  "engine": "InnoDB",
  "field_order": [
   "question",
-  "marks"
+  "column_break_qcpo",
+  "marks",
+  "section_break_huup",
+  "question_detail"
  ],
  "fields": [
   {
@@ -25,12 +28,28 @@
    "label": "Marks",
    "non_negative": 1,
    "reqd": 1
+  },
+  {
+   "fetch_from": "question.question",
+   "fieldname": "question_detail",
+   "fieldtype": "Text",
+   "in_list_view": 1,
+   "label": "Question Detail",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_qcpo",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_huup",
+   "fieldtype": "Section Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-10-16 19:51:03.893144",
+ "modified": "2024-07-29 15:10:09.662715",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz Question",

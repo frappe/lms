@@ -21,8 +21,9 @@
 </template>
 <script setup>
 import { Dialog, FormControl, createResource } from 'frappe-ui'
-import { defineModel, reactive, watch, inject } from 'vue'
-import { createToast, formatTime } from '@/utils/'
+import { defineModel, reactive, watch } from 'vue'
+import { createToast } from '@/utils/'
+import { capture } from '@/telemetry'
 
 const show = defineModel()
 const outline = defineModel('outline')
@@ -91,6 +92,7 @@ const addChapter = (close) => {
 				}
 			},
 			onSuccess: (data) => {
+				capture('chapter_created')
 				chapterReference.submit(
 					{ name: data.name },
 					{

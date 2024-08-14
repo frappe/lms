@@ -70,11 +70,19 @@
 </template>
 <script setup>
 import { Breadcrumbs, FormControl, createResource, Button } from 'frappe-ui'
-import { computed, reactive, onMounted, inject, ref, watch } from 'vue'
+import {
+	computed,
+	reactive,
+	onMounted,
+	inject,
+	ref,
+	onBeforeUnmount,
+} from 'vue'
 import EditorJS from '@editorjs/editorjs'
 import LessonPlugins from '@/components/LessonPlugins.vue'
 import { ChevronRight } from 'lucide-vue-next'
 import { updateDocumentTitle, createToast, getEditorTools } from '@/utils'
+import { capture } from '@/telemetry'
 
 const editor = ref(null)
 const instructorEditor = ref(null)
@@ -101,6 +109,7 @@ onMounted(() => {
 	if (!user.data?.is_moderator && !user.data?.is_instructor) {
 		window.location.href = '/login'
 	}
+	capture('lesson_form_opened')
 	editor.value = renderEditor('content')
 	instructorEditor.value = renderEditor('instructor-notes')
 })
@@ -171,8 +180,12 @@ const addInstructorNotes = (data) => {
 const enableAutoSave = () => {
 	autoSaveInterval = setInterval(() => {
 		saveLesson()
-	}, 10000)
+	}, 5000)
 }
+
+onBeforeUnmount(() => {
+	clearInterval(autoSaveInterval)
+})
 
 const newLessonResource = createResource({
 	url: 'frappe.client.insert',
@@ -349,6 +362,7 @@ const createNewLesson = () => {
 					{ lesson: data.name },
 					{
 						onSuccess() {
+							capture('lesson_created')
 							showToast('Success', 'Lesson created successfully', 'check')
 							lessonDetails.reload()
 						},

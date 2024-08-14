@@ -1,0 +1,27 @@
+name: Create weekly release
+on:
+  schedule:
+    # 13:00 UTC -> 7pm IST on every Wednesday
+    - cron: '30 4 * * 3'
+  workflow_dispatch:
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+
+    steps:
+      - uses: octokit/request-action@v2.x
+        with:
+          route: POST /repos/{owner}/{repo}/pulls
+          owner: frappe
+          repo: lms
+          title: |-
+            "chore: merge 'develop' into 'main'"
+          body: "Automated weekly release"
+          base: main
+          head: develop
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}

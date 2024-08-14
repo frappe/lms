@@ -75,7 +75,7 @@
 			<router-link
 				v-if="user?.data?.is_moderator || is_instructor()"
 				:to="{
-					name: 'CreateCourse',
+					name: 'CourseForm',
 					params: {
 						courseName: course.data.name,
 					},

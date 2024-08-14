@@ -236,6 +236,7 @@ import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import { useRouter } from 'vue-router'
 import { getFileSize, showToast } from '../utils'
 import { X, FileText } from 'lucide-vue-next'
+import { capture } from '@/telemetry'
 
 const router = useRouter()
 const user = inject('$user')
@@ -274,6 +275,8 @@ onMounted(() => {
 	if (!user.data) window.location.href = '/login'
 	if (props.batchName != 'new') {
 		batchDetail.reload()
+	} else {
+		capture('batch_form_opened')
 	}
 	window.addEventListener('keydown', keyboardShortcut)
 })
@@ -377,6 +380,7 @@ const createNewBatch = () => {
 		{},
 		{
 			onSuccess(data) {
+				capture('batch_created')
 				router.push({
 					name: 'BatchDetail',
 					params: {
@@ -447,7 +451,7 @@ const breadcrumbs = computed(() => {
 	}
 	crumbs.push({
 		label: props.batchName == 'new' ? 'New Batch' : 'Edit Batch',
-		route: { name: 'BatchCreation', params: { batchName: props.batchName } },
+		route: { name: 'BatchForm', params: { batchName: props.batchName } },
 	})
 	return crumbs
 })
