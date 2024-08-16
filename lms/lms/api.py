@@ -562,3 +562,27 @@ def get_categories(doctype, filters):
 			categoryOptions.append({"label": category, "value": category})
 
 	return categoryOptions
+
+@frappe.whitelist()
+def get_members(start=0):
+	members = frappe.get_all("User", filters={
+		"enabled": 1,
+		"name": ["not in", ["Administrator", "Guest"]]
+	}, fields=["name", "full_name", "user_image"],
+	page_length=20, start=start)
+
+	for member in members:
+		roles = frappe.get_roles(member.name)
+		if "Moderator" in roles:
+			member.role = "Moderator"
+		elif "Course Creator" in roles:
+			member.role = "Course Creator"
+		elif "Batch Evaluator" in roles:
+			member.role = "Batch Evaluator"
+		elif "LMS Student" in roles:
+			member.role = "LMS Student"
+
+	return members
+		
+
+	

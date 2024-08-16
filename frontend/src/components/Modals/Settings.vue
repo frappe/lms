@@ -28,11 +28,13 @@
 						</nav>
 					</div>
 				</div>
-				<div class="flex flex-1 flex-col overflow-y-auto">
+				<div v-if="activeTab && data.doc" class="flex flex-1 flex-col overflow-y-auto">
+					<Members v-if="activeTab.label === 'Members'" :label="activeTab.label" :description="activeTab.description"/>
 					<SettingDetails
-						v-if="activeTab && data.doc"
+						v-else
 						:fields="activeTab.fields"
 						:data="data"
+						:label="activeTab.label"
 					/>
 				</div>
 			</div>
@@ -44,6 +46,7 @@ import { Dialog, createDocumentResource } from 'frappe-ui'
 import { ref, computed, watch } from 'vue'
 import SettingDetails from '../SettingDetails.vue'
 import SidebarLink from '@/components/SidebarLink.vue'
+import Members from '@/components/Members.vue'
 
 const show = defineModel()
 const doctype = ref('LMS Settings')
@@ -236,17 +239,17 @@ const tabs = computed(() => {
 				},
 			],
 		},
-		/* {
-		label: 'Settings',
-		hideLabel: true,
-		items: [
 		{
-			label: 'Members',
-			icon: "UserRoundPlus",
-			component: markRaw(MemberSettings),
+			label: 'Settings',
+			hideLabel: true,
+			items: [
+			{
+				label: 'Members',
+				description: 'Manage the members of your learning system',
+				icon: "UserRoundPlus",
+			},
+			],
 		},
-		],
-	}, */
 	]
 
 	return _tabs.map((tab) => {

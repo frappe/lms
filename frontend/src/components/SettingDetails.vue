@@ -1,5 +1,5 @@
 <template>
-	<div class="flex flex-col justify-between h-full p-8">
+	<div class="flex flex-col justify-between h-full p-10">
 		<div class="flex space-x-10">
 			<div v-for="(column, index) in columns" :key="index">
 				<div class="flex flex-col space-y-4">
