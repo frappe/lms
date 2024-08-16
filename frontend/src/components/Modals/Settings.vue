@@ -1,6 +1,6 @@
 <template>
-	<Dialog v-model="show" :options="{ size: '6xl' }">
-		<template #body>
+	<Dialog v-model="show" :options="{ size: '3xl' }">
+		<template #body="{ close }">
 			<div class="flex h-[calc(100vh_-_8rem)]">
 				<div class="flex w-52 shrink-0 flex-col bg-gray-50 p-2">
 					<h1 class="mb-3 px-2 pt-2 text-lg font-semibold">
@@ -29,7 +29,7 @@
 					</div>
 				</div>
 				<div v-if="activeTab && data.doc" class="flex flex-1 flex-col overflow-y-auto">
-					<Members v-if="activeTab.label === 'Members'" :label="activeTab.label" :description="activeTab.description"/>
+					<Members v-if="activeTab.label === 'Members'" :label="activeTab.label" :description="activeTab.description" v-model:show="show"/>
 					<SettingDetails
 						v-else
 						:fields="activeTab.fields"
@@ -100,65 +100,9 @@ const tabs = computed(() => {
 							type: 'checkbox',
 						},
 						{
-							label: 'Apply rounding on equivalent amount',
+							label: 'Apply rounding on equivalent',
 							name: 'apply_rounding',
 							type: 'checkbox',
-						},
-					],
-				},
-			],
-		},
-		{
-			label: 'Settings',
-			hideLabel: true,
-			items: [
-				{
-					label: 'Signup',
-					icon: 'LogIn',
-					fields: [
-						{
-							label: 'Show terms of use on signup page',
-							name: 'terms_of_use',
-							type: 'checkbox',
-						},
-						{
-							label: 'Terms of Use Page',
-							name: 'terms_page',
-							type: 'Link',
-							doctype: 'Web Page',
-						},
-						{
-							label: 'Ask user category during signup',
-							name: 'user_category',
-							type: 'checkbox',
-						},
-						{
-							type: 'Column Break',
-						},
-						{
-							label: 'Show privacy policy on signup page',
-							name: 'privacy_policy',
-							type: 'checkbox',
-						},
-						{
-							label: 'Privacy Policy Page',
-							name: 'privacy_policy_page',
-							type: 'Link',
-							doctype: 'Web Page',
-						},
-						{
-							type: 'Column Break',
-						},
-						{
-							label: 'Show cookie policy on signup page',
-							name: 'cookie_policy',
-							type: 'checkbox',
-						},
-						{
-							label: 'Cookie Policy Page',
-							name: 'cookie_policy_page',
-							type: 'Link',
-							doctype: 'Web Page',
 						},
 					],
 				},
@@ -234,6 +178,62 @@ const tabs = computed(() => {
 							name: 'assignment_submission_template',
 							doctype: 'Email Template',
 							type: 'Link',
+						},
+					],
+				},
+			],
+		},
+		{
+			label: 'Settings',
+			hideLabel: true,
+			items: [
+				{
+					label: 'Signup',
+					icon: 'LogIn',
+					fields: [
+						{
+							label: 'Show terms of use on signup page',
+							name: 'terms_of_use',
+							type: 'checkbox',
+						},
+						{
+							label: 'Terms of Use Page',
+							name: 'terms_page',
+							type: 'Link',
+							doctype: 'Web Page',
+						},
+						{
+							label: 'Ask user category during signup',
+							name: 'user_category',
+							type: 'checkbox',
+						},
+						{
+							type: 'Column Break',
+						},
+						{
+							label: 'Show privacy policy on signup page',
+							name: 'privacy_policy',
+							type: 'checkbox',
+						},
+						{
+							label: 'Privacy Policy Page',
+							name: 'privacy_policy_page',
+							type: 'Link',
+							doctype: 'Web Page',
+						},
+						{
+							type: 'Column Break',
+						},
+						{
+							label: 'Show cookie policy on signup page',
+							name: 'cookie_policy',
+							type: 'checkbox',
+						},
+						{
+							label: 'Cookie Policy Page',
+							name: 'cookie_policy_page',
+							type: 'Link',
+							doctype: 'Web Page',
 						},
 					],
 				},

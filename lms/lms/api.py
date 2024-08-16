@@ -564,11 +564,17 @@ def get_categories(doctype, filters):
 	return categoryOptions
 
 @frappe.whitelist()
-def get_members(start=0):
-	members = frappe.get_all("User", filters={
-		"enabled": 1,
-		"name": ["not in", ["Administrator", "Guest"]]
-	}, fields=["name", "full_name", "user_image"],
+def get_members(start=0, search=""):
+	filters = {
+			"enabled": 1,
+			"name": ["not in", ["Administrator", "Guest"]]
+		}
+	
+	if search:
+		filters["full_name"] = ["like", f"%{search}%"]
+
+	print(filters)
+	members = frappe.get_all("User", filters=filters, fields=["name", "full_name", "user_image", "username"],
 	page_length=20, start=start)
 
 	for member in members:

@@ -1,14 +1,30 @@
 <template>
     <div class="text-base p-4">
-        <div class="font-semibold mb-1">
-            {{ __(label) }}
-        </div>
-        <div class="text-xs text-gray-600">
-            {{ __(description) }}
+        <div class="flex items-center justify-between">
+            <div>
+                <div class="font-semibold mb-1">
+                    {{ __(label) }}
+                </div>
+                <div class="text-xs text-gray-600">
+                    {{ __(description) }}
+                </div>
+            </div>
+            <FormControl v-model="search" :placeholder="__('Search')" type="text" :debounce="300"/>
         </div>
         <div class="my-4">
-            <div v-for="member in members.data" class="grid grid-cols-5 grid-flow-row py-2">
-                <div class="flex items-center space-x-2 col-span-2">
+
+            <!-- Form to add new member -->
+            <div v-if="showForm" class="flex items-center space-x-2 mb-4">
+                <FormControl v-model="member.email" :placeholder="__('Email')" type="email" class="w-full"/>
+                <FormControl v-model="member.first_name" :placeholder="__('First Name')" type="test" class="w-full"/>
+                <Button @click="addMember" variant="subtle">
+                    {{ __('Add') }}
+                </Button>
+            </div>
+
+            <!-- Member list -->
+            <div v-for="member in memberList" class="grid grid-cols-5 grid-flow-row py-2 cursor-pointer">
+                <div @click="openProfile(member.username)" class="flex items-center space-x-2 col-span-2">
                     <Avatar :image="member.user_image" :label="member.full_name" size="sm" />
                     <div>
                        {{ member.full_name }}
@@ -22,8 +38,8 @@
                 </div>
             </div>
         </div>
-        <div v-if="members.hasNextPage" class="flex justify-center">
-                <Button variant="solid" @click="members.next">
+        <div v-if="hasNextPage" class="flex justify-center">
+                <Button variant="solid" @click="members.reload()">
                     <template #prefix>
                         <component
                             :is="icons['RefreshCw']"
@@ -36,9 +52,22 @@
     </div>
 </template>
 <script setup lang="ts">
-import { createListResource, Avatar, Button, FormControl } from 'frappe-ui'
+import { createResource, Avatar, Button, FormControl } from 'frappe-ui'
 import * as icons from 'lucide-vue-next'
-import { computed } from "vue"
+import { useRouter } from 'vue-router'
+import { ref, watch, reactive } from 'vue'
+
+const router = useRouter()
+const show = defineModel("show")
+const search = ref('')
+const start = ref(0)
+const memberList = ref([])
+const hasNextPage = ref(false)
+const showForm = ref(true)
+const member = reactive({
+    email: '',
+    first_name: '',
+})
 
 const props = defineProps({
     label: {
@@ -49,18 +78,48 @@ const props = defineProps({
         type: String,
         default: '',
     },
+    show: {
+        type: Boolean,
+    },
 })
 
-const members = createListResource({
+const members = createResource({
     url: "lms.lms.api.get_members",
-    doctype: "User",
+    makeParams: () => {
+        return {
+            search: search.value,
+            start: start.value
+        }
+    },
+    onSuccess(data) {
+        memberList.value = memberList.value.concat(data)
+        start.value = start.value + 20
+        hasNextPage.value = data.length === 20
+    },
     auto: true,
+})
+
+const openProfile = (username) => {
+    show.value = false
+    router.push({
+        name: 'Profile',
+        params: {
+            username: username,
+        },
+    })
+}
+
+
+watch(search, () => {
+    memberList.value = []
+    start.value = 0
+    members.reload()
 })
 
 const getRole = (role) => {
    const map = {
        'LMS Student': 'Student',
-       'Course Creator': 'Course Instructor',
+       'Course Creator': 'Instructor',
        'Moderator': 'Moderator',
        'Batch Evaluator': 'Evaluator'
    }
