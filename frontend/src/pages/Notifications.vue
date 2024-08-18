@@ -5,8 +5,8 @@
 		<Breadcrumbs :items="breadcrumbs" />
 		<div class="flex items-center space-x-2">
 			<Button
-				@click="markAllAsRead.submit"
-				:loading="markAllAsRead.loading"
+				@click="markAllAsRead"
+				:loading="markAllAsReadLoading"
 				v-if="activeTab === 'Unread' && unReadNotifications.data?.length > 0"
 			>
 				{{ __('Mark all as read') }}
@@ -32,7 +32,7 @@
 				<Link
 					v-if="log.link"
 					:to="log.link"
-					@click="markAsRead.submit({ name: log.name })"
+					@click="markAsRead(log.name)"
 					class="text-gray-600 font-medium text-sm hover:text-gray-700"
 				>
 					{{ __('View') }}
@@ -41,7 +41,7 @@
 					<Button
 						variant="ghost"
 						v-if="!log.read"
-						@click="markAsRead.submit({ name: log.name })"
+						@click="markAsRead(log.name)"
 					>
 						<template #icon>
 							<X class="h-4 w-4 text-gray-700 stroke-1.5" />
@@ -70,12 +70,14 @@ import UserAvatar from '@/components/UserAvatar.vue'
 import { useRouter } from 'vue-router'
 import { X } from 'lucide-vue-next'
 import { updateDocumentTitle } from '@/utils'
+import { useNotificationStore } from '@/stores/notificationStore'
 
 const user = inject('$user')
 const socket = inject('$socket')
 const allUsers = inject('$allUsers')
 const activeTab = ref('Unread')
 const router = useRouter()
+const notificationStore = useNotificationStore()
 
 onMounted(() => {
 	if (!user.data) router.push({ name: 'Courses' })
