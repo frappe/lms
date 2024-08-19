@@ -1,6 +1,6 @@
 <template>
 	<Dialog v-model="show" :options="{ size: '3xl' }">
-		<template #body="{ close }">
+		<template #body>
 			<div class="flex h-[calc(100vh_-_8rem)]">
 				<div class="flex w-52 shrink-0 flex-col bg-gray-50 p-2">
 					<h1 class="mb-3 px-2 pt-2 text-lg font-semibold">

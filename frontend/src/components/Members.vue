@@ -18,7 +18,7 @@
 				/>
 				<Button @click="() => (showForm = true)">
 					<template #icon>
-						<component :is="icons['Plus']" class="h-3 w-3 stroke-1.5" />
+                        <Plus class="h-3 w-3 stroke-1.5" />
 					</template>
 				</Button>
 			</div>
@@ -72,7 +72,7 @@
 		<div v-if="hasNextPage" class="flex justify-center">
 			<Button variant="solid" @click="members.reload()">
 				<template #prefix>
-					<component :is="icons['RefreshCw']" class="h-3 w-3 stroke-1.5" />
+                    <RefreshCw class="h-3 w-3 stroke-1.5" />
 				</template>
 				{{ __('Load More') }}
 			</Button>
@@ -81,9 +81,9 @@
 </template>
 <script setup lang="ts">
 import { createResource, Avatar, Button, FormControl } from 'frappe-ui'
-import * as icons from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { ref, watch, reactive } from 'vue'
+import { RefreshCw, Plus } from "lucide-vue-next"
 
 const router = useRouter()
 const show = defineModel('show')
