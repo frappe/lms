@@ -13,6 +13,7 @@
 <script setup>
 import { Star } from 'lucide-vue-next'
 import { ref } from 'vue'
+
 const props = defineProps({
 	id: {
 		type: String,

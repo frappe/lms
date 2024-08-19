@@ -517,13 +517,6 @@ def can_create_courses(course, member=None):
 	if has_course_instructor_role(member) and member in instructors:
 		return True
 
-	portal_course_creation = frappe.db.get_single_value(
-		"LMS Settings", "portal_course_creation"
-	)
-
-	if portal_course_creation == "Anyone" and member in instructors:
-		return True
-
 	if not course and has_course_instructor_role(member):
 		return True
 

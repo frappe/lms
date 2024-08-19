@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<Button v-if="!singleThread" class="float-right" @click="openTopicModal()">
-			{{ __('New {0}').format(title) }}
+			{{ __('New {0}').format(singularize(title)) }}
 		</Button>
 		<div class="text-xl font-semibold">
 			{{ __(title) }}
@@ -65,7 +65,7 @@
 <script setup>
 import { createResource, Button } from 'frappe-ui'
 import UserAvatar from '@/components/UserAvatar.vue'
-import { timeAgo } from '../utils'
+import { singularize, timeAgo } from '../utils'
 import { ref, onMounted, inject } from 'vue'
 import DiscussionReplies from '@/components/DiscussionReplies.vue'
 import DiscussionModal from '@/components/Modals/DiscussionModal.vue'

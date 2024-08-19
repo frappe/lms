@@ -1,5 +1,5 @@
 <template>
-	<Dropdown :options="userDropdownOptions">
+	<Dropdown class="p-2" :options="userDropdownOptions">
 		<template v-slot="{ open }">
 			<button
 				class="flex h-12 py-2 items-center rounded-md duration-300 ease-in-out"
@@ -56,6 +56,10 @@
 			</button>
 		</template>
 	</Dropdown>
+	<SettingsModal
+		v-if="userResource.data?.is_moderator"
+		v-model="showSettingsModal"
+	/>
 </template>
 
 <script setup>
@@ -69,12 +73,16 @@ import {
 	User,
 	ArrowRightLeft,
 	HardDriveDownload,
+	Settings,
 } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { convertToTitleCase } from '../utils'
 import { usersStore } from '@/stores/user'
+import { ref } from 'vue'
+import SettingsModal from '@/components/Modals/Settings.vue'
 
 const router = useRouter()
+const showSettingsModal = ref(false)
 const { logout, branding } = sessionStore()
 let { userResource } = usersStore()
 let { isLoggedIn } = sessionStore()
@@ -118,6 +126,16 @@ const userDropdownOptions = [
 		},
 		condition: () => {
 			return isLoggedIn
+		}
+	},
+	{
+		icon: Settings,
+		label: 'Settings',
+		onClick: () => {
+			showSettingsModal.value = true
+		},
+		condition: () => {
+			return userResource.data?.is_moderator
 		},
 	},
 	{

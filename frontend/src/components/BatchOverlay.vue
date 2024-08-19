@@ -81,7 +81,7 @@
 		<router-link
 			v-if="isModerator"
 			:to="{
-				name: 'BatchCreation',
+				name: 'BatchForm',
 				params: {
 					batchName: batch.data.name,
 				},

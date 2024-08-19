@@ -236,7 +236,7 @@ export function getEditorTools() {
 						regex: /https:\/\/docs\.google\.com\/presentation\/d\/e\/([A-Za-z0-9_-]+)\/pub/,
 						embedUrl:
 							'https://docs.google.com/presentation/d/e/<%= remote_id %>/embed',
-						html: "<iframe style='width: 100%; height: 30rem; border: 1px solid #D3D3D3; border-radius: 12px;' frameborder='0' allowfullscreen='true'></iframe>",
+						html: "<iframe style='width: 100%; height: 30rem; border: 1px solid #D3D3D3; border-radius: 12px; margin: 1rem 0' frameborder='0' allowfullscreen='true'></iframe>",
 					},
 					drive: {
 						regex: /https:\/\/drive\.google\.com\/file\/d\/([A-Za-z0-9_-]+)\/view(\?.+)?/,
@@ -260,7 +260,7 @@ export function getEditorTools() {
 						regex: /https:\/\/docs\.google\.com\/presentation\/d\/([A-Za-z0-9_-]+)\/edit(\?.+)?/,
 						embedUrl:
 							'https://docs.google.com/presentation/d/<%= remote_id %>/embed',
-						html: "<iframe style='width: 100%; height: 30rem; border: 1px solid #D3D3D3; border-radius: 12px;' frameborder='0' allowfullscreen='true'></iframe>",
+						html: "<iframe style='width: 100%; height: 30rem; border: 1px solid #D3D3D3; border-radius: 12px; margin: 1rem 0;' frameborder='0' allowfullscreen='true'></iframe>",
 					},
 					codesandbox: {
 						regex: /^https:\/\/codesandbox\.io\/(?:embed\/)?([A-Za-z0-9_-]+)(?:\?[^\/]*)?$/,
@@ -424,7 +424,7 @@ export function getSidebarLinks() {
 				'Courses',
 				'CourseDetail',
 				'Lesson',
-				'CreateCourse',
+				'CourseForm',
 				'LessonForm',
 			],
 		},
@@ -432,7 +432,7 @@ export function getSidebarLinks() {
 			label: 'Batches',
 			icon: 'Users',
 			to: 'Batches',
-			activeFor: ['Batches', 'BatchDetail', 'Batch', 'BatchCreation'],
+			activeFor: ['Batches', 'BatchDetail', 'Batch', 'BatchForm'],
 		},
 		{
 			label: 'Certified Participants',
@@ -482,4 +482,20 @@ export function getLineStartPosition(string, position) {
 	}
 
 	return position
+}
+
+export function singularize(word) {
+	const endings = {
+		ves: 'fe',
+		ies: 'y',
+		i: 'us',
+		zes: 'ze',
+		ses: 's',
+		es: 'e',
+		s: '',
+	}
+	return word.replace(
+		new RegExp(`(${Object.keys(endings).join('|')})$`),
+		(r) => endings[r]
+	)
 }

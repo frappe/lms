@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  regeneratee-pot-file:
+  regenerate-pot-file:
     name: Release
     runs-on: ubuntu-latest
     strategy:
