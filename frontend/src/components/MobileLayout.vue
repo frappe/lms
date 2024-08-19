@@ -71,6 +71,14 @@ const addAccessLinks = () => {
 				'ProfileRoles',
 			],
 		})
+		
+		if (userResource.data?.is_moderator) {
+			sidebarLinks.value.push({
+				label: 'Switch To Desk',
+				icon: 'CornerUpLeft',
+			})
+		}
+
 		sidebarLinks.value.push({
 			label: 'Log out',
 			icon: 'LogOut',
@@ -88,6 +96,7 @@ let isActive = (tab) => {
 }
 
 const handleClick = (tab) => {
+	if (tab.label == 'Switch To Desk') window.location.href = '/app/lms'
 	if (tab.label == 'Log in') window.location.href = '/login'
 	else if (tab.label == 'Log out')
 		logout.submit().then(() => {
