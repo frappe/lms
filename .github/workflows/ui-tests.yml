@@ -99,6 +99,7 @@ jobs:
           cd ~/frappe-bench/
           bench --site lms.test execute frappe.utils.install.complete_setup_wizard
           bench --site lms.test execute frappe.tests.ui_test_helpers.create_test_user
+          bench --site lms.test set-password frappe@example.com admin
 
       - name: cypress pre-requisites
         run: |
