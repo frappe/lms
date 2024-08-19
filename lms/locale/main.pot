@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Frappe LMS VERSION\n"
 "Report-Msgid-Bugs-To: school@frappe.io\n"
-"POT-Creation-Date: 2024-08-09 16:04+0000\n"
-"PO-Revision-Date: 2024-08-09 16:04+0000\n"
+"POT-Creation-Date: 2024-08-16 16:04+0000\n"
+"PO-Revision-Date: 2024-08-16 16:04+0000\n"
 "Last-Translator: school@frappe.io\n"
 "Language-Team: school@frappe.io\n"
 "MIME-Version: 1.0\n"
@@ -48,7 +48,7 @@ msgstr ""
 msgid "Add a Lesson"
 msgstr ""
 
-#: lms/doctype/lms_question/lms_question.py:59
+#: lms/doctype/lms_question/lms_question.py:60
 msgid "Add at least one possible answer for this question: {0}"
 msgstr ""
 
@@ -98,11 +98,6 @@ msgstr ""
 msgid "Allow accessing future dates"
 msgstr ""
 
-#. Label of the allow_student_progress (Check) field in DocType 'LMS Settings'
-#: lms/doctype/lms_settings/lms_settings.json
-msgid "Allow students to see each others progress in class"
-msgstr ""
-
 #: overrides/user.py:195
 msgid "Already Registered"
 msgstr ""
@@ -134,12 +129,6 @@ msgstr ""
 #: lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 #: lms/doctype/lms_exercise/lms_exercise.json
 msgid "Answer"
-msgstr ""
-
-#. Option for the 'Course Creation Access Through Website To' (Select) field in
-#. DocType 'LMS Settings'
-#: lms/doctype/lms_settings/lms_settings.json
-msgid "Anyone"
 msgstr ""
 
 #. Label of the apply_gst (Check) field in DocType 'LMS Settings'
@@ -233,7 +222,7 @@ msgstr ""
 msgid "Assignment will appear at the bottom of the lesson."
 msgstr ""
 
-#: lms/doctype/lms_question/lms_question.py:41
+#: lms/doctype/lms_question/lms_question.py:42
 msgid "At least one option must be correct for this question."
 msgstr ""
 
@@ -850,22 +839,11 @@ msgstr ""
 msgid "Course Content"
 msgstr ""
 
-#. Label of the portal_course_creation (Select) field in DocType 'LMS Settings'
-#: lms/doctype/lms_settings/lms_settings.json
-msgid "Course Creation Access Through Website To"
-msgstr ""
-
 #. Name of a role
 #: lms/doctype/lms_course/lms_course.json
 #: lms/doctype/lms_question/lms_question.json
 #: lms/doctype/lms_quiz/lms_quiz.json
 msgid "Course Creator"
-msgstr ""
-
-#. Option for the 'Course Creation Access Through Website To' (Select) field in
-#. DocType 'LMS Settings'
-#: lms/doctype/lms_settings/lms_settings.json
-msgid "Course Creator Role"
 msgstr ""
 
 #. Label of a Card Break in the LMS Workspace
@@ -892,11 +870,6 @@ msgstr ""
 msgid "Course List"
 msgstr ""
 
-#. Label of the search_placeholder (Data) field in DocType 'LMS Settings'
-#: lms/doctype/lms_settings/lms_settings.json
-msgid "Course List Search Bar Placeholder"
-msgstr ""
-
 #: lms/report/course_progress_summary/course_progress_summary.py:58
 msgid "Course Name"
 msgstr ""
@@ -912,10 +885,7 @@ msgid "Course Progress Summary"
 msgstr ""
 
 #. Label of the section_break_7 (Section Break) field in DocType 'LMS Course'
-#. Label of the course_settings_section (Section Break) field in DocType 'LMS
-#. Settings'
 #: lms/doctype/lms_course/lms_course.json
-#: lms/doctype/lms_settings/lms_settings.json
 msgid "Course Settings"
 msgstr ""
 
@@ -1116,7 +1086,7 @@ msgstr ""
 msgid "Dream Companies"
 msgstr ""
 
-#: lms/doctype/lms_question/lms_question.py:31
+#: lms/doctype/lms_question/lms_question.py:32
 msgid "Duplicate options found for this question."
 msgstr ""
 
@@ -1254,7 +1224,7 @@ msgstr ""
 msgid "Enter the correct answer"
 msgstr ""
 
-#: lms/utils.py:1088
+#: lms/utils.py:1081
 msgid "Error during payment: {0} Please contact the Administrator. Amount {1} Currency {2} Formatted {3}"
 msgstr ""
 
@@ -1539,6 +1509,7 @@ msgid "Here are a few courses we recommend for you to get started with {0}"
 msgstr ""
 
 #: lms/notification/certificate_request_creation/certificate_request_creation.html:6
+#: templates/emails/certificate_request_notification.html:1
 msgid "Hey {0}"
 msgstr ""
 
@@ -1738,7 +1709,7 @@ msgstr ""
 msgid "Invalid Start or End Time."
 msgstr ""
 
-#: lms/utils.py:932
+#: lms/utils.py:925
 msgid "Invalid document provided."
 msgstr ""
 
@@ -2328,7 +2299,6 @@ msgstr ""
 
 #. Label of the mentor_request_section (Section Break) field in DocType 'LMS
 #. Settings'
-#. Label of the mentor_request_tab (Tab Break) field in DocType 'LMS Settings'
 #: lms/doctype/lms_settings/lms_settings.json
 msgid "Mentor Request"
 msgstr ""
@@ -2385,11 +2355,11 @@ msgstr ""
 msgid "Modified By"
 msgstr ""
 
-#: lms/api.py:188
+#: lms/api.py:189
 msgid "Module Name is incorrect or does not exist."
 msgstr ""
 
-#: lms/api.py:184
+#: lms/api.py:185
 msgid "Module is incorrect."
 msgstr ""
 
@@ -2430,11 +2400,11 @@ msgstr ""
 msgid "New Sign Up"
 msgstr ""
 
-#: lms/utils.py:619
+#: lms/utils.py:612
 msgid "New comment in batch {0}"
 msgstr ""
 
-#: lms/utils.py:612
+#: lms/utils.py:605
 msgid "New reply on the topic {0} in course {1}"
 msgstr ""
 
@@ -2469,11 +2439,6 @@ msgstr ""
 
 #: templates/courses_under_review.html:14
 msgid "No courses under review"
-msgstr ""
-
-#: templates/search_course/search_course.html:61
-#: templates/search_course/search_course.js:47
-msgid "No result found"
 msgstr ""
 
 #: templates/course_list.html:13
@@ -2719,7 +2684,7 @@ msgstr ""
 msgid "Payment for Document Type"
 msgstr ""
 
-#: lms/utils.py:949
+#: lms/utils.py:942
 msgid "Payment for {0} course"
 msgstr ""
 
@@ -2778,12 +2743,13 @@ msgstr ""
 msgid "Please enter your answer"
 msgstr ""
 
-#: lms/api.py:180
+#: lms/api.py:181
 msgid "Please login to continue with payment."
 msgstr ""
 
 #: lms/notification/certificate_request_creation/certificate_request_creation.html:9
 #: lms/notification/certificate_request_reminder/certificate_request_reminder.html:8
+#: templates/emails/certificate_request_notification.html:4
 msgid "Please prepare well and be on time for the evaluations."
 msgstr ""
 
@@ -2950,6 +2916,11 @@ msgstr ""
 
 #: templates/quiz/quiz.html:62
 msgid "Question "
+msgstr ""
+
+#. Label of the question_detail (Text) field in DocType 'LMS Quiz Question'
+#: lms/doctype/lms_quiz_question/lms_quiz_question.json
+msgid "Question Detail"
 msgstr ""
 
 #. Label of the question_name (Link) field in DocType 'LMS Quiz Result'
@@ -3212,11 +3183,6 @@ msgstr ""
 
 #: templates/emails/community_course_membership.html:1
 msgid "Set your Password"
-msgstr ""
-
-#. Label of the section_break_hsiv (Section Break) field in DocType 'LMS Quiz'
-#: lms/doctype/lms_quiz/lms_quiz.json
-msgid "Settings"
 msgstr ""
 
 #. Label of the short_introduction (Small Text) field in DocType 'LMS Course'
@@ -3670,7 +3636,7 @@ msgstr ""
 msgid "The course {0} is now available on {1}."
 msgstr ""
 
-#: lms/doctype/lms_certificate_request/lms_certificate_request.py:44
+#: lms/doctype/lms_certificate_request/lms_certificate_request.py:47
 msgid "The evaluator of this course is unavailable from {0} to {1}. Please select a date after {1}"
 msgstr ""
 
@@ -3678,7 +3644,7 @@ msgstr ""
 msgid "The quiz has a time limit. For each question you will be given {0} seconds."
 msgstr ""
 
-#: lms/doctype/lms_certificate_request/lms_certificate_request.py:62
+#: lms/doctype/lms_certificate_request/lms_certificate_request.py:65
 msgid "The slot is already booked by another participant."
 msgstr ""
 
@@ -3694,7 +3660,7 @@ msgstr ""
 msgid "There are no {0} on this site."
 msgstr ""
 
-#: lms/utils.py:1070
+#: lms/utils.py:1063
 msgid "There is a problem with the payment gateway. Please contact the Administrator to proceed."
 msgstr ""
 
@@ -3709,7 +3675,7 @@ msgstr ""
 msgid "This certificate does no expire"
 msgstr ""
 
-#: lms/utils.py:1028 lms/utils.py:1769
+#: lms/utils.py:1021 lms/utils.py:1762
 msgid "This course is free."
 msgstr ""
 
@@ -3823,7 +3789,7 @@ msgstr ""
 msgid "To Date is mandatory in Work Experience."
 msgstr ""
 
-#: lms/utils.py:1037 lms/utils.py:1780
+#: lms/utils.py:1030 lms/utils.py:1773
 msgid "To join this batch, please contact the Administrator."
 msgstr ""
 
@@ -4077,15 +4043,15 @@ msgstr ""
 msgid "Write a review"
 msgstr ""
 
-#: lms/doctype/lms_certificate_request/lms_certificate_request.py:86
+#: lms/doctype/lms_certificate_request/lms_certificate_request.py:89
 msgid "You already have an evaluation on {0} at {1} for the course {2}."
 msgstr ""
 
-#: lms/api.py:204
+#: lms/api.py:205
 msgid "You are already enrolled for this batch."
 msgstr ""
 
-#: lms/api.py:196
+#: lms/api.py:197
 msgid "You are already enrolled for this course."
 msgstr ""
 
@@ -4110,11 +4076,11 @@ msgstr ""
 msgid "You can find their resume attached to this email."
 msgstr ""
 
-#: lms/doctype/lms_certificate_request/lms_certificate_request.py:106
+#: lms/doctype/lms_certificate_request/lms_certificate_request.py:109
 msgid "You cannot schedule evaluations after {0}."
 msgstr ""
 
-#: lms/doctype/lms_certificate_request/lms_certificate_request.py:95
+#: lms/doctype/lms_certificate_request/lms_certificate_request.py:98
 msgid "You cannot schedule evaluations for past slots."
 msgstr ""
 
@@ -4122,7 +4088,7 @@ msgstr ""
 msgid "You don't have any notifications."
 msgstr ""
 
-#: templates/quiz/quiz.js:136
+#: templates/quiz/quiz.js:137
 msgid "You got"
 msgstr ""
 
@@ -4176,11 +4142,17 @@ msgstr ""
 
 #: lms/notification/certificate_request_creation/certificate_request_creation.html:7
 #: lms/notification/certificate_request_reminder/certificate_request_reminder.html:6
+#: templates/emails/certificate_request_notification.html:2
 msgid "Your evaluation for the course {0} has been scheduled on {1} at {2} {3}."
+msgstr ""
+
+#: lms/doctype/lms_certificate_request/lms_certificate_request.py:119
+msgid "Your evaluation slot has been booked"
 msgstr ""
 
 #: lms/notification/certificate_request_creation/certificate_request_creation.html:8
 #: lms/notification/certificate_request_reminder/certificate_request_reminder.html:7
+#: templates/emails/certificate_request_notification.html:3
 msgid "Your evaluator is {0}"
 msgstr ""
 
@@ -4188,7 +4160,7 @@ msgstr ""
 msgid "Your request to join us as a mentor for the course"
 msgstr ""
 
-#: templates/quiz/quiz.js:136
+#: templates/quiz/quiz.js:140
 msgid "Your score is"
 msgstr ""
 
@@ -4201,7 +4173,7 @@ msgstr ""
 msgid "cancel your application"
 msgstr ""
 
-#: templates/quiz/quiz.js:136
+#: templates/quiz/quiz.js:137
 msgid "correct answers"
 msgstr ""
 
@@ -4217,7 +4189,7 @@ msgstr ""
 msgid "of"
 msgstr ""
 
-#: templates/quiz/quiz.js:136
+#: templates/quiz/quiz.js:141
 msgid "out of"
 msgstr ""
 
@@ -4261,7 +4233,7 @@ msgstr ""
 msgid "{0} is already certified for the course {1}"
 msgstr ""
 
-#: lms/utils.py:696
+#: lms/utils.py:689
 msgid "{0} mentioned you in a comment"
 msgstr ""
 
@@ -4269,7 +4241,7 @@ msgstr ""
 msgid "{0} mentioned you in a comment in your batch."
 msgstr ""
 
-#: lms/utils.py:649 lms/utils.py:655
+#: lms/utils.py:642 lms/utils.py:648
 msgid "{0} mentioned you in a comment in {1}"
 msgstr ""
 
