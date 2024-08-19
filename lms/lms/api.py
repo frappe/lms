@@ -562,3 +562,38 @@ def get_categories(doctype, filters):
 			categoryOptions.append({"label": category, "value": category})
 
 	return categoryOptions
+
+
+@frappe.whitelist()
+def get_members(start=0, search=""):
+	"""Get members for the given search term and start index.
+	Args: start (int): Start index for the query.
+	    search (str): Search term to filter the results.
+	Returns: List of members.
+	"""
+
+	filters = {"enabled": 1, "name": ["not in", ["Administrator", "Guest"]]}
+
+	if search:
+		filters["full_name"] = ["like", f"%{search}%"]
+
+	members = frappe.get_all(
+		"User",
+		filters=filters,
+		fields=["name", "full_name", "user_image", "username"],
+		page_length=20,
+		start=start,
+	)
+
+	for member in members:
+		roles = frappe.get_roles(member.name)
+		if "Moderator" in roles:
+			member.role = "Moderator"
+		elif "Course Creator" in roles:
+			member.role = "Course Creator"
+		elif "Batch Evaluator" in roles:
+			member.role = "Batch Evaluator"
+		elif "LMS Student" in roles:
+			member.role = "LMS Student"
+
+	return members

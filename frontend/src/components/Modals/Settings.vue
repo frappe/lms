@@ -28,10 +28,21 @@
 						</nav>
 					</div>
 				</div>
-				<div class="flex flex-1 flex-col overflow-y-auto">
+				<div
+					v-if="activeTab && data.doc"
+					class="flex flex-1 flex-col overflow-y-auto"
+				>
+					<Members
+						v-if="activeTab.label === 'Members'"
+						:label="activeTab.label"
+						:description="activeTab.description"
+						v-model:show="show"
+					/>
 					<SettingDetails
-						v-if="activeTab && data.doc"
+						v-else
 						:fields="activeTab.fields"
+						:label="activeTab.label"
+						:description="activeTab.description"
 						:data="data"
 					/>
 				</div>
@@ -44,6 +55,7 @@ import { Dialog, createDocumentResource } from 'frappe-ui'
 import { ref, computed, watch } from 'vue'
 import SettingDetails from '../SettingDetails.vue'
 import SidebarLink from '@/components/SidebarLink.vue'
+import Members from '@/components/Members.vue'
 
 const show = defineModel()
 const doctype = ref('LMS Settings')
@@ -64,8 +76,15 @@ const tabs = computed(() => {
 			hideLabel: true,
 			items: [
 				{
+					label: 'Members',
+					description: 'Manage the members of your learning system',
+					icon: 'UserRoundPlus',
+				},
+				{
 					label: 'Payment Gateway',
 					icon: 'DollarSign',
+					description:
+						'Configure the payment gateway and other payment related settings',
 					fields: [
 						{
 							label: 'Razorpay Key',
@@ -112,6 +131,7 @@ const tabs = computed(() => {
 				{
 					label: 'Sidebar',
 					icon: 'PanelLeftIcon',
+					description: 'Customize the sidebar as per your needs',
 					fields: [
 						{
 							label: 'Courses',
@@ -157,6 +177,7 @@ const tabs = computed(() => {
 				{
 					label: 'Email Templates',
 					icon: 'MailPlus',
+					description: 'Create email templates with the content you want',
 					fields: [
 						{
 							label: 'Batch Confirmation Template',
@@ -187,6 +208,8 @@ const tabs = computed(() => {
 				{
 					label: 'Signup',
 					icon: 'LogIn',
+					description:
+						'Customize the signup page to inform users about your terms and policies',
 					fields: [
 						{
 							label: 'Show terms of use on signup',
@@ -210,11 +233,9 @@ const tabs = computed(() => {
 							type: 'Link',
 							doctype: 'Web Page',
 						},
-
 						{
 							type: 'Column Break',
 						},
-
 						{
 							label: 'Show cookie policy on signup',
 							name: 'cookie_policy',
@@ -235,17 +256,6 @@ const tabs = computed(() => {
 				},
 			],
 		},
-		/* {
-		label: 'Settings',
-		hideLabel: true,
-		items: [
-		{
-			label: 'Members',
-			icon: "UserRoundPlus",
-			component: markRaw(MemberSettings),
-		},
-		],
-	}, */
 	]
 
 	return _tabs.map((tab) => {

@@ -1,6 +1,14 @@
 <template>
-	<div class="flex flex-col justify-between h-full p-8">
-		<div class="flex space-x-8">
+	<div class="flex flex-col justify-between h-full p-4">
+		<div>
+			<div class="font-semibold mb-1">
+				{{ __(label) }}
+			</div>
+			<div class="text-xs text-gray-600">
+				{{ __(description) }}
+			</div>
+		</div>
+		<div class="flex space-x-8 my-5">
 			<div v-for="(column, index) in columns" :key="index">
 				<div class="flex flex-col space-y-4 w-60">
 					<div v-for="field in column">
@@ -42,6 +50,13 @@ const props = defineProps({
 	data: {
 		type: Object,
 		required: true,
+	},
+	label: {
+		type: String,
+		required: true,
+	},
+	description: {
+		type: String,
 	},
 })
 
