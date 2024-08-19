@@ -28,13 +28,22 @@
 						</nav>
 					</div>
 				</div>
-				<div v-if="activeTab && data.doc" class="flex flex-1 flex-col overflow-y-auto">
-					<Members v-if="activeTab.label === 'Members'" :label="activeTab.label" :description="activeTab.description" v-model:show="show"/>
+				<div
+					v-if="activeTab && data.doc"
+					class="flex flex-1 flex-col overflow-y-auto"
+				>
+					<Members
+						v-if="activeTab.label === 'Members'"
+						:label="activeTab.label"
+						:description="activeTab.description"
+						v-model:show="show"
+					/>
 					<SettingDetails
 						v-else
 						:fields="activeTab.fields"
-						:data="data"
 						:label="activeTab.label"
+						:description="activeTab.description"
+						:data="data"
 					/>
 				</div>
 			</div>
@@ -67,8 +76,15 @@ const tabs = computed(() => {
 			hideLabel: true,
 			items: [
 				{
+					label: 'Members',
+					description: 'Manage the members of your learning system',
+					icon: 'UserRoundPlus',
+				},
+				{
 					label: 'Payment Gateway',
 					icon: 'DollarSign',
+					description:
+						'Configure the payment gateway and other payment related settings',
 					fields: [
 						{
 							label: 'Razorpay Key',
@@ -115,6 +131,7 @@ const tabs = computed(() => {
 				{
 					label: 'Sidebar',
 					icon: 'PanelLeftIcon',
+					description: 'Customize the sidebar as per your needs',
 					fields: [
 						{
 							label: 'Courses',
@@ -160,6 +177,7 @@ const tabs = computed(() => {
 				{
 					label: 'Email Templates',
 					icon: 'MailPlus',
+					description: 'Create email templates with the content you want',
 					fields: [
 						{
 							label: 'Batch Confirmation Template',
@@ -190,9 +208,11 @@ const tabs = computed(() => {
 				{
 					label: 'Signup',
 					icon: 'LogIn',
+					description:
+						'Customize the signup page to inform users about your terms and policies',
 					fields: [
 						{
-							label: 'Show terms of use on signup page',
+							label: 'Show terms of use on signup',
 							name: 'terms_of_use',
 							type: 'checkbox',
 						},
@@ -203,15 +223,7 @@ const tabs = computed(() => {
 							doctype: 'Web Page',
 						},
 						{
-							label: 'Ask user category during signup',
-							name: 'user_category',
-							type: 'checkbox',
-						},
-						{
-							type: 'Column Break',
-						},
-						{
-							label: 'Show privacy policy on signup page',
+							label: 'Show privacy policy on signup',
 							name: 'privacy_policy',
 							type: 'checkbox',
 						},
@@ -225,7 +237,7 @@ const tabs = computed(() => {
 							type: 'Column Break',
 						},
 						{
-							label: 'Show cookie policy on signup page',
+							label: 'Show cookie policy on signup',
 							name: 'cookie_policy',
 							type: 'checkbox',
 						},
@@ -235,19 +247,13 @@ const tabs = computed(() => {
 							type: 'Link',
 							doctype: 'Web Page',
 						},
+						{
+							label: 'Ask user category during signup',
+							name: 'user_category',
+							type: 'checkbox',
+						},
 					],
 				},
-			],
-		},
-		{
-			label: 'Settings',
-			hideLabel: true,
-			items: [
-			{
-				label: 'Members',
-				description: 'Manage the members of your learning system',
-				icon: "UserRoundPlus",
-			},
 			],
 		},
 	]
