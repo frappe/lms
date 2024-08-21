@@ -1,5 +1,5 @@
 <template>
-	<Dialog v-model="show" :options="{ size: '6xl' }">
+	<Dialog v-model="show" :options="{ size: '3xl' }">
 		<template #body>
 			<div class="flex h-[calc(100vh_-_8rem)]">
 				<div class="flex w-52 shrink-0 flex-col bg-gray-50 p-2">
@@ -28,10 +28,21 @@
 						</nav>
 					</div>
 				</div>
-				<div class="flex flex-1 flex-col overflow-y-auto">
+				<div
+					v-if="activeTab && data.doc"
+					class="flex flex-1 flex-col overflow-y-auto"
+				>
+					<Members
+						v-if="activeTab.label === 'Members'"
+						:label="activeTab.label"
+						:description="activeTab.description"
+						v-model:show="show"
+					/>
 					<SettingDetails
-						v-if="activeTab && data.doc"
+						v-else
 						:fields="activeTab.fields"
+						:label="activeTab.label"
+						:description="activeTab.description"
 						:data="data"
 					/>
 				</div>
@@ -44,6 +55,7 @@ import { Dialog, createDocumentResource } from 'frappe-ui'
 import { ref, computed, watch } from 'vue'
 import SettingDetails from '../SettingDetails.vue'
 import SidebarLink from '@/components/SidebarLink.vue'
+import Members from '@/components/Members.vue'
 
 const show = defineModel()
 const doctype = ref('LMS Settings')
@@ -64,8 +76,15 @@ const tabs = computed(() => {
 			hideLabel: true,
 			items: [
 				{
+					label: 'Members',
+					description: 'Manage the members of your learning system',
+					icon: 'UserRoundPlus',
+				},
+				{
 					label: 'Payment Gateway',
 					icon: 'DollarSign',
+					description:
+						'Configure the payment gateway and other payment related settings',
 					fields: [
 						{
 							label: 'Razorpay Key',
@@ -97,7 +116,7 @@ const tabs = computed(() => {
 							type: 'checkbox',
 						},
 						{
-							label: 'Apply rounding on equivalent amount',
+							label: 'Apply rounding on equivalent',
 							name: 'apply_rounding',
 							type: 'checkbox',
 						},
@@ -110,64 +129,9 @@ const tabs = computed(() => {
 			hideLabel: true,
 			items: [
 				{
-					label: 'Signup',
-					icon: 'LogIn',
-					fields: [
-						{
-							label: 'Show terms of use on signup page',
-							name: 'terms_of_use',
-							type: 'checkbox',
-						},
-						{
-							label: 'Terms of Use Page',
-							name: 'terms_page',
-							type: 'Link',
-							doctype: 'Web Page',
-						},
-						{
-							label: 'Ask user category during signup',
-							name: 'user_category',
-							type: 'checkbox',
-						},
-						{
-							type: 'Column Break',
-						},
-						{
-							label: 'Show privacy policy on signup page',
-							name: 'privacy_policy',
-							type: 'checkbox',
-						},
-						{
-							label: 'Privacy Policy Page',
-							name: 'privacy_policy_page',
-							type: 'Link',
-							doctype: 'Web Page',
-						},
-						{
-							type: 'Column Break',
-						},
-						{
-							label: 'Show cookie policy on signup page',
-							name: 'cookie_policy',
-							type: 'checkbox',
-						},
-						{
-							label: 'Cookie Policy Page',
-							name: 'cookie_policy_page',
-							type: 'Link',
-							doctype: 'Web Page',
-						},
-					],
-				},
-			],
-		},
-		{
-			label: 'Settings',
-			hideLabel: true,
-			items: [
-				{
 					label: 'Sidebar',
 					icon: 'PanelLeftIcon',
+					description: 'Customize the sidebar as per your needs',
 					fields: [
 						{
 							label: 'Courses',
@@ -213,6 +177,7 @@ const tabs = computed(() => {
 				{
 					label: 'Email Templates',
 					icon: 'MailPlus',
+					description: 'Create email templates with the content you want',
 					fields: [
 						{
 							label: 'Batch Confirmation Template',
@@ -236,17 +201,61 @@ const tabs = computed(() => {
 				},
 			],
 		},
-		/* {
-		label: 'Settings',
-		hideLabel: true,
-		items: [
 		{
-			label: 'Members',
-			icon: "UserRoundPlus",
-			component: markRaw(MemberSettings),
+			label: 'Settings',
+			hideLabel: true,
+			items: [
+				{
+					label: 'Signup',
+					icon: 'LogIn',
+					description:
+						'Customize the signup page to inform users about your terms and policies',
+					fields: [
+						{
+							label: 'Show terms of use on signup',
+							name: 'terms_of_use',
+							type: 'checkbox',
+						},
+						{
+							label: 'Terms of Use Page',
+							name: 'terms_page',
+							type: 'Link',
+							doctype: 'Web Page',
+						},
+						{
+							label: 'Show privacy policy on signup',
+							name: 'privacy_policy',
+							type: 'checkbox',
+						},
+						{
+							label: 'Privacy Policy Page',
+							name: 'privacy_policy_page',
+							type: 'Link',
+							doctype: 'Web Page',
+						},
+						{
+							type: 'Column Break',
+						},
+						{
+							label: 'Show cookie policy on signup',
+							name: 'cookie_policy',
+							type: 'checkbox',
+						},
+						{
+							label: 'Cookie Policy Page',
+							name: 'cookie_policy_page',
+							type: 'Link',
+							doctype: 'Web Page',
+						},
+						{
+							label: 'Ask user category during signup',
+							name: 'user_category',
+							type: 'checkbox',
+						},
+					],
+				},
+			],
 		},
-		],
-	}, */
 	]
 
 	return _tabs.map((tab) => {
