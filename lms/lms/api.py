@@ -598,6 +598,7 @@ def get_members(start=0, search=""):
 
 	return members
 
+
 def check_app_permission():
 	"""Check if the user has permission to access the app."""
 	if frappe.session.user == "Administrator":
