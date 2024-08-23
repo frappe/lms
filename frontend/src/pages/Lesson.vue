@@ -290,6 +290,9 @@ const progress = createResource({
 	},
 	onSuccess(data) {
 		lessonProgress.value = data
+		if (data) {
+			clearInterval(timerInterval);
+		}
 	},
 })
 
@@ -335,14 +338,14 @@ watch(
 )
 
 const startTimer = () => {
-	timerInterval = setInterval(() => {
-		timer.value++
-		if (timer.value == 30) {
-			clearInterval(timerInterval)
-			markProgress()
-		}
-	}, 1000)
-}
+    timerInterval = setInterval(() => {
+        timer.value++
+		if (timer.value % 30 === 0) { // Check every 30 seconds
+            markProgress(); // Attempt to mark progress
+        }
+    }, 1000); // Timer increments every second
+};
+
 
 onBeforeUnmount(() => {
 	clearInterval(timerInterval)
