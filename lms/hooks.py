@@ -4,9 +4,11 @@ app_name = "frappe_lms"
 app_title = "Frappe LMS"
 app_publisher = "Frappe"
 app_description = "Frappe LMS App"
-app_icon = "octicon octicon-file-directory"
+app_icon_url = "/assets/lms/images/lms-logo.png"
+app_icon_title = "Learning"
+app_icon_route = "/lms"
 app_color = "grey"
-app_email = "school@frappe.io"
+app_email = "jannat@frappe.io"
 app_license = "AGPL"
 
 # Includes in <head>
@@ -61,8 +63,6 @@ web_include_js = ["website.bundle.js"]
 after_install = "lms.install.after_install"
 after_sync = "lms.install.after_sync"
 before_uninstall = "lms.install.before_uninstall"
-
-
 setup_wizard_requires = "assets/lms/js/setup_wizard.js"
 
 # Desk Notifications
@@ -231,3 +231,13 @@ profile_url_prefix = "/users/"
 signup_form_template = "lms.plugins.show_custom_signup"
 
 on_session_creation = "lms.overrides.user.on_session_creation"
+
+add_to_apps_screen = [
+	{
+		"name": "lms",
+		"logo": "/assets/lms/images/lms-logo.png",
+		"title": "Learning",
+		"route": "/lms",
+		"has_permission": "lms.lms.api.check_app_permission",
+	}
+]

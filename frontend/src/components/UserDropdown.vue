@@ -66,6 +66,7 @@
 import LMSLogo from '@/components/Icons/LMSLogo.vue'
 import { sessionStore } from '@/stores/session'
 import { Dropdown } from 'frappe-ui'
+import Apps from '@/components/Apps.vue'
 import {
 	ChevronDown,
 	LogIn,
@@ -77,7 +78,7 @@ import {
 import { useRouter } from 'vue-router'
 import { convertToTitleCase } from '../utils'
 import { usersStore } from '@/stores/user'
-import { ref } from 'vue'
+import { ref, markRaw } from 'vue'
 import SettingsModal from '@/components/Modals/Settings.vue'
 
 const router = useRouter()
@@ -105,11 +106,7 @@ const userDropdownOptions = [
 		},
 	},
 	{
-		icon: ArrowRightLeft,
-		label: 'Switch to Desk',
-		onClick: () => {
-			window.location.href = '/app'
-		},
+		component: markRaw(Apps),
 		condition: () => {
 			let cookies = new URLSearchParams(document.cookie.split('; ').join('&'))
 			let system_user = cookies.get('system_user')

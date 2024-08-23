@@ -597,3 +597,16 @@ def get_members(start=0, search=""):
 			member.role = "LMS Student"
 
 	return members
+
+
+def check_app_permission():
+	"""Check if the user has permission to access the app."""
+	if frappe.session.user == "Administrator":
+		return True
+
+	roles = frappe.get_roles()
+	lms_roles = ["Moderator", "Course Creator", "Batch Evaluator", "LMS Student"]
+	if any(role in roles for role in lms_roles):
+		return True
+
+	return False
