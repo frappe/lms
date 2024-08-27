@@ -17,6 +17,7 @@ class CustomUser(User):
 		self.validate_username_duplicates()
 
 	def after_insert(self):
+		super().after_insert()
 		self.add_roles("LMS Student")
 
 	def validate_username_duplicates(self):
