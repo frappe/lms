@@ -439,7 +439,7 @@ const checkAnswer = () => {
 const addToLocalStorage = () => {
 	let quizData = JSON.parse(localStorage.getItem(quiz.data.title))
 	let questionData = {
-		question_index: activeQuestion.value,
+		question_name: currentQuestion.value,
 		answer: getAnswers().join(),
 		is_correct: showAnswers.filter((answer) => {
 			return answer != undefined
