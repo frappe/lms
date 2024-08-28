@@ -6,11 +6,11 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Frappe LMS VERSION\n"
-"Report-Msgid-Bugs-To: school@frappe.io\n"
-"POT-Creation-Date: 2024-08-16 16:04+0000\n"
-"PO-Revision-Date: 2024-08-16 16:04+0000\n"
-"Last-Translator: school@frappe.io\n"
-"Language-Team: school@frappe.io\n"
+"Report-Msgid-Bugs-To: jannat@frappe.io\n"
+"POT-Creation-Date: 2024-08-23 16:04+0000\n"
+"PO-Revision-Date: 2024-08-23 16:04+0000\n"
+"Last-Translator: jannat@frappe.io\n"
+"Language-Team: jannat@frappe.io\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -18,6 +18,46 @@ msgstr ""
 
 #: templates/emails/assignment_submission.html:5
 msgid " Please evaluate and grade it."
+msgstr ""
+
+#. Paragraph text in the LMS Workspace
+#: lms/workspace/lms/lms.json
+msgid "<a href=\"/app/lms-settings/LMS%20Settings\">LMS Settings</a>"
+msgstr ""
+
+#. Paragraph text in the LMS Workspace
+#: lms/workspace/lms/lms.json
+msgid "<a href=\"/app/web-page/new-web-page-1\">Setup a Home Page</a>"
+msgstr ""
+
+#. Paragraph text in the LMS Workspace
+#: lms/workspace/lms/lms.json
+msgid "<a href=\"/lms/courses\">Visit LMS Portal</a>"
+msgstr ""
+
+#. Paragraph text in the LMS Workspace
+#: lms/workspace/lms/lms.json
+msgid "<a href=\"/lms/courses/new/edit\">Create a Course</a>"
+msgstr ""
+
+#. Paragraph text in the LMS Workspace
+#: lms/workspace/lms/lms.json
+msgid "<a href=\"https://docs.frappe.io/learning\">Documentation</a>"
+msgstr ""
+
+#. Header text in the LMS Workspace
+#: lms/workspace/lms/lms.json
+msgid "<span class=\"h4\"><b>Get Started</b></span>"
+msgstr ""
+
+#. Header text in the LMS Workspace
+#: lms/workspace/lms/lms.json
+msgid "<span class=\"h4\"><b>Master</b></span>"
+msgstr ""
+
+#. Header text in the LMS Workspace
+#: lms/workspace/lms/lms.json
+msgid "<span style=\"font-size: 18px;\"><b>Statistics</b></span>"
 msgstr ""
 
 #. Label of the verify_terms (Check) field in DocType 'User'
@@ -98,7 +138,7 @@ msgstr ""
 msgid "Allow accessing future dates"
 msgstr ""
 
-#: overrides/user.py:195
+#: overrides/user.py:198
 msgid "Already Registered"
 msgstr ""
 
@@ -2449,7 +2489,7 @@ msgstr ""
 msgid "No."
 msgstr ""
 
-#: overrides/user.py:190
+#: overrides/user.py:193
 msgid "Not Allowed"
 msgstr ""
 
@@ -2714,11 +2754,11 @@ msgstr ""
 msgid "Please add <a href='{0}'>{1}</a> for <a href='{2}'>{3}</a> to send calendar invites for evaluations."
 msgstr ""
 
-#: overrides/user.py:236
+#: overrides/user.py:239
 msgid "Please ask your administrator to verify your sign-up"
 msgstr ""
 
-#: overrides/user.py:234
+#: overrides/user.py:237
 msgid "Please check your email for verification"
 msgstr ""
 
@@ -3019,7 +3059,7 @@ msgstr ""
 msgid "Registered"
 msgstr ""
 
-#: overrides/user.py:197
+#: overrides/user.py:200
 msgid "Registered but disabled"
 msgstr ""
 
@@ -3255,7 +3295,7 @@ msgstr ""
 msgid "Sidebar Items"
 msgstr ""
 
-#: overrides/user.py:190
+#: overrides/user.py:193
 msgid "Sign Up is disabled"
 msgstr ""
 
@@ -3299,7 +3339,7 @@ msgstr ""
 msgid "Skills"
 msgstr ""
 
-#: overrides/user.py:38
+#: overrides/user.py:41
 msgid "Skills must be unique"
 msgstr ""
 
@@ -3591,7 +3631,7 @@ msgstr ""
 msgid "Template"
 msgstr ""
 
-#: overrides/user.py:201
+#: overrides/user.py:204
 msgid "Temporarily Disabled"
 msgstr ""
 
@@ -3793,7 +3833,7 @@ msgstr ""
 msgid "To join this batch, please contact the Administrator."
 msgstr ""
 
-#: overrides/user.py:202
+#: overrides/user.py:205
 msgid "Too many users signed up recently, so the registration is disabled. Please try back in an hour"
 msgstr ""
 

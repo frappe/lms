@@ -90,21 +90,19 @@ def quiz_summary(quiz, results):
 
 		question_details = frappe.db.get_value(
 			"LMS Quiz Question",
-			{"parent": quiz, "idx": result["question_index"]},
-			["question", "marks"],
+			{"parent": quiz, "question": result["question_name"]},
+			["question", "marks", "question_detail"],
 			as_dict=1,
 		)
 
 		result["question_name"] = question_details.question
-		result["question"] = frappe.db.get_value(
-			"LMS Question", question_details.question, "question"
-		)
+		result["question"] = question_details.question_detail
 		marks = question_details.marks if correct else 0
 
 		result["marks"] = marks
 		score += marks
 
-		del result["question_index"]
+		del result["question_name"]
 
 	quiz_details = frappe.db.get_value(
 		"LMS Quiz", quiz, ["total_marks", "passing_percentage", "lesson", "course"], as_dict=1
@@ -297,15 +295,6 @@ def check_choice_answers(question, answers):
 
 	question_details = frappe.db.get_value("LMS Question", question, fields, as_dict=1)
 
-	""" if question_details.multiple:
-		correct_answers = [ question_details[f"option_{num}"] for num in range(1,5) if question_details[f"is_correct_{num}"]]
-		print(answers)
-		for ans in correct_answers:
-			if ans not in answers:
-				is_correct.append(0)
-			else:
-				is_correct.append(1)
-	else: """
 	for num in range(1, 5):
 		if question_details[f"option_{num}"] in answers:
 			is_correct.append(question_details[f"is_correct_{num}"])
