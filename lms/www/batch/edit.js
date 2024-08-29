@@ -49,9 +49,9 @@ const get_tools = () => {
 					vimeo: true,
 					codepen: true,
 					slides: {
-						regex: /https:\/\/docs\.google\.com\/presentation\/d\/e\/([A-Za-z0-9_-]+)\/pub/,
+						regex: /https:\/\/docs\.google\.com\/presentation\/d\/([A-Za-z0-9_-]+)\/pub/,
 						embedUrl:
-							"https://docs.google.com/presentation/d/e/<%= remote_id %>/embed",
+							"https://docs.google.com/presentation/d/<%= remote_id %>/embed",
 						html: "<iframe width='100%' height='300' frameborder='0' allowfullscreen='true'></iframe>",
 					},
 				},
