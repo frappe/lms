@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Frappe LMS VERSION\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2024-08-23 16:04+0000\n"
-"PO-Revision-Date: 2024-08-23 16:04+0000\n"
+"POT-Creation-Date: 2024-08-30 16:04+0000\n"
+"PO-Revision-Date: 2024-08-30 16:04+0000\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: jannat@frappe.io\n"
 "MIME-Version: 1.0\n"
@@ -138,7 +138,7 @@ msgstr ""
 msgid "Allow accessing future dates"
 msgstr ""
 
-#: overrides/user.py:198
+#: overrides/user.py:199
 msgid "Already Registered"
 msgstr ""
 
@@ -2489,7 +2489,7 @@ msgstr ""
 msgid "No."
 msgstr ""
 
-#: overrides/user.py:193
+#: overrides/user.py:194
 msgid "Not Allowed"
 msgstr ""
 
@@ -2754,11 +2754,11 @@ msgstr ""
 msgid "Please add <a href='{0}'>{1}</a> for <a href='{2}'>{3}</a> to send calendar invites for evaluations."
 msgstr ""
 
-#: overrides/user.py:239
+#: overrides/user.py:240
 msgid "Please ask your administrator to verify your sign-up"
 msgstr ""
 
-#: overrides/user.py:237
+#: overrides/user.py:238
 msgid "Please check your email for verification"
 msgstr ""
 
@@ -3059,7 +3059,7 @@ msgstr ""
 msgid "Registered"
 msgstr ""
 
-#: overrides/user.py:200
+#: overrides/user.py:201
 msgid "Registered but disabled"
 msgstr ""
 
@@ -3295,7 +3295,7 @@ msgstr ""
 msgid "Sidebar Items"
 msgstr ""
 
-#: overrides/user.py:193
+#: overrides/user.py:194
 msgid "Sign Up is disabled"
 msgstr ""
 
@@ -3339,7 +3339,7 @@ msgstr ""
 msgid "Skills"
 msgstr ""
 
-#: overrides/user.py:41
+#: overrides/user.py:42
 msgid "Skills must be unique"
 msgstr ""
 
@@ -3631,7 +3631,7 @@ msgstr ""
 msgid "Template"
 msgstr ""
 
-#: overrides/user.py:204
+#: overrides/user.py:205
 msgid "Temporarily Disabled"
 msgstr ""
 
@@ -3833,7 +3833,7 @@ msgstr ""
 msgid "To join this batch, please contact the Administrator."
 msgstr ""
 
-#: overrides/user.py:205
+#: overrides/user.py:206
 msgid "Too many users signed up recently, so the registration is disabled. Please try back in an hour"
 msgstr ""
 
