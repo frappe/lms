@@ -2202,7 +2202,7 @@ select {
 .rows .grid-row .data-row,
 .rows .grid-row .grid-footer-toolbar,
 .grid-form-heading {
-	cursor: none;
+	cursor: pointer;
 }
 
 .schedule-header {
