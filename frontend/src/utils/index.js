@@ -233,9 +233,9 @@ export function getEditorTools() {
 					},
 					github: true,
 					slides: {
-						regex: /https:\/\/docs\.google\.com\/presentation\/d\/e\/([A-Za-z0-9_-]+)\/pub/,
+						regex: /https:\/\/docs\.google\.com\/presentation\/d\/([A-Za-z0-9_-]+)\/pub/,
 						embedUrl:
-							'https://docs.google.com/presentation/d/e/<%= remote_id %>/embed',
+							'https://docs.google.com/presentation/d/<%= remote_id %>/embed',
 						html: "<iframe style='width: 100%; height: 30rem; border: 1px solid #D3D3D3; border-radius: 12px; margin: 1rem 0' frameborder='0' allowfullscreen='true'></iframe>",
 					},
 					drive: {
