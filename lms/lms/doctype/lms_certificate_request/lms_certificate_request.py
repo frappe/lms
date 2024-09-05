@@ -36,7 +36,10 @@ class LMSCertificateRequest(Document):
 	def validate_unavailability(self):
 		if self.evaluator:
 			unavailable = frappe.db.get_value(
-				"Course Evaluator", self.evaluator, ["unavailable_from", "unavailable_to"], as_dict=1
+				"Course Evaluator",
+				self.evaluator,
+				["unavailable_from", "unavailable_to"],
+				as_dict=1,
 			)
 			if (
 				unavailable.unavailable_from

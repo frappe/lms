@@ -43,7 +43,7 @@
 				{{ __('Add') }}
 			</Button>
 		</div>
-		
+
 		<div class="mt-2 pb-10 overflow-auto">
 			<!-- Member list -->
 			<div class="overflow-y-scroll">
@@ -79,14 +79,15 @@
 							<div v-if="member.last_active">
 								{{ dayjs(member.last_active).format('DD MMM, YYYY HH:mm a') }}
 							</div>
-							<div v-else>
-								-
-							</div>
+							<div v-else>-</div>
 						</div>
 					</li>
 				</ul>
 			</div>
-			<div v-if="memberList.length && hasNextPage" class="flex justify-center mt-4">
+			<div
+				v-if="memberList.length && hasNextPage"
+				class="flex justify-center mt-4"
+			>
 				<Button @click="members.reload()">
 					<template #prefix>
 						<RefreshCw class="h-3 w-3 stroke-1.5" />
