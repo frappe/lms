@@ -1,5 +1,5 @@
 <template>
-	<div class="flex flex-col justify-between h-full p-4">
+	<div class="flex flex-col justify-between h-full">
 		<div>
 			<div class="font-semibold mb-1">
 				{{ __(label) }}
@@ -8,9 +8,9 @@
 				{{ __(description) }}
 			</div>
 		</div>
-		<div class="flex space-x-8 my-5">
+		<div class="flex justify-between my-5">
 			<div v-for="(column, index) in columns" :key="index">
-				<div class="flex flex-col space-y-4 w-60">
+				<div class="flex flex-col space-y-5 w-72">
 					<div v-for="field in column">
 						<Link
 							v-if="field.type == 'Link'"

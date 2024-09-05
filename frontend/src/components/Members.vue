@@ -1,13 +1,13 @@
 <template>
-	<div class="text-base p-4">
+	<div class="flex min-h-0 flex-col text-base">
 		<div class="flex items-center justify-between">
 			<div>
-				<div class="font-semibold mb-1">
+				<div class="text-xl font-semibold mb-1">
 					{{ __(label) }}
 				</div>
-				<div class="text-xs text-gray-600">
+				<!-- <div class="text-xs text-gray-600">
 					{{ __(description) }}
-				</div>
+				</div> -->
 			</div>
 			<div class="flex item-center space-x-2">
 				<FormControl
@@ -16,74 +16,93 @@
 					type="text"
 					:debounce="300"
 				/>
-				<Button @click="() => (showForm = true)">
+				<Button @click="() => (showForm = !showForm)">
 					<template #icon>
-						<Plus class="h-3 w-3 stroke-1.5" />
+						<Plus v-if="!showForm" class="h-3 w-3 stroke-1.5" />
+						<X v-else class="h-3 w-3 stroke-1.5" />
 					</template>
 				</Button>
 			</div>
 		</div>
-		<div class="my-4">
-			<!-- Form to add new member -->
-			<div v-if="showForm" class="flex items-center space-x-2 mb-4">
-				<FormControl
-					v-model="member.email"
-					:placeholder="__('Email')"
-					type="email"
-					class="w-full"
-				/>
-				<FormControl
-					v-model="member.first_name"
-					:placeholder="__('First Name')"
-					type="test"
-					class="w-full"
-				/>
-				<Button @click="addMember()" variant="subtle">
-					{{ __('Add') }}
+
+		<!-- Form to add new member -->
+		<div v-if="showForm" class="flex items-center space-x-2 my-4">
+			<FormControl
+				v-model="member.email"
+				:placeholder="__('Email')"
+				type="email"
+				class="w-full"
+			/>
+			<FormControl
+				v-model="member.first_name"
+				:placeholder="__('First Name')"
+				type="test"
+				class="w-full"
+			/>
+			<Button @click="addMember()" variant="subtle">
+				{{ __('Add') }}
+			</Button>
+		</div>
+
+		<div class="mt-2 pb-10 overflow-auto">
+			<!-- Member list -->
+			<div class="overflow-y-scroll">
+				<ul class="divide-y">
+					<li
+						v-for="member in memberList"
+						class="grid grid-cols-3 gap-10 py-2 cursor-pointer"
+					>
+						<div
+							@click="openProfile(member.username)"
+							class="flex items-center space-x-3 col-span-2"
+						>
+							<Avatar
+								:image="member.user_image"
+								:label="member.full_name"
+								size="lg"
+							/>
+							<div class="space-y-1">
+								<div class="flex">
+									<div class="text-gray-900">
+										{{ member.full_name }}
+									</div>
+									<div v-if="getRole(member)">
+										{{ getRole(member) }}
+									</div>
+								</div>
+								<div class="text-sm text-gray-700">
+									{{ member.name }}
+								</div>
+							</div>
+						</div>
+						<div class="flex items-center justify-center text-gray-700 text-sm">
+							<div v-if="member.last_active">
+								{{ dayjs(member.last_active).format('DD MMM, YYYY HH:mm a') }}
+							</div>
+							<div v-else>-</div>
+						</div>
+					</li>
+				</ul>
+			</div>
+			<div
+				v-if="memberList.length && hasNextPage"
+				class="flex justify-center mt-4"
+			>
+				<Button @click="members.reload()">
+					<template #prefix>
+						<RefreshCw class="h-3 w-3 stroke-1.5" />
+					</template>
+					{{ __('Load More') }}
 				</Button>
 			</div>
-
-			<!-- Member list -->
-			<div
-				v-for="member in memberList"
-				class="grid grid-cols-5 grid-flow-row py-2 cursor-pointer"
-			>
-				<div
-					@click="openProfile(member.username)"
-					class="flex items-center space-x-2 col-span-2"
-				>
-					<Avatar
-						:image="member.user_image"
-						:label="member.full_name"
-						size="sm"
-					/>
-					<div>
-						{{ member.full_name }}
-					</div>
-				</div>
-				<div class="text-sm text-gray-700 col-span-2">
-					{{ member.name }}
-				</div>
-				<div class="text-sm text-gray-700 justify-self-end">
-					{{ getRole(member.role) }}
-				</div>
-			</div>
-		</div>
-		<div v-if="hasNextPage" class="flex justify-center">
-			<Button variant="solid" @click="members.reload()">
-				<template #prefix>
-					<RefreshCw class="h-3 w-3 stroke-1.5" />
-				</template>
-				{{ __('Load More') }}
-			</Button>
 		</div>
 	</div>
 </template>
 <script setup lang="ts">
 import { createResource, Avatar, Button, FormControl } from 'frappe-ui'
 import { useRouter } from 'vue-router'
-import { ref, watch, reactive } from 'vue'
-import { RefreshCw, Plus } from 'lucide-vue-next'
+import { ref, watch, reactive, inject } from 'vue'
+import { RefreshCw, Plus, X } from 'lucide-vue-next'
 
 const router = useRouter()
 const show = defineModel('show')
@@ -92,6 +111,7 @@ const start = ref(0)
 const memberList = ref([])
 const hasNextPage = ref(false)
 const showForm = ref(false)
+const dayjs = inject('$dayjs')
 
 const member = reactive({
 	email: '',

@@ -1,5 +1,5 @@
 <template>
-	<Dialog v-model="show" :options="{ size: '3xl' }">
+	<Dialog v-model="show" :options="{ size: '4xl' }">
 		<template #body>
 			<div class="flex h-[calc(100vh_-_8rem)]">
 				<div class="flex w-52 shrink-0 flex-col bg-gray-50 p-2">
@@ -30,7 +30,7 @@
 				</div>
 				<div
 					v-if="activeTab && data.doc"
-					class="flex flex-1 flex-col overflow-y-auto"
+					class="flex flex-1 flex-col px-10 pt-8"
 				>
 					<Members
 						v-if="activeTab.label === 'Members'"
@@ -131,7 +131,7 @@ const tabs = computed(() => {
 				{
 					label: 'Sidebar',
 					icon: 'PanelLeftIcon',
-					description: 'Customize the sidebar as per your needs',
+					description: 'Choose the items you want to show in the sidebar',
 					fields: [
 						{
 							label: 'Courses',
