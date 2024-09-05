@@ -7,11 +7,16 @@
  "engine": "InnoDB",
  "field_order": [
   "course",
-  "evaluator",
-  "batch_name",
+  "course_title",
   "column_break_4",
   "member",
   "member_name",
+  "section_break_ikne",
+  "evaluator",
+  "evaluator_name",
+  "column_break_sjco",
+  "batch_name",
+  "timezone",
   "section_break_lifi",
   "date",
   "day",
@@ -103,11 +108,40 @@
    "in_standard_filter": 1,
    "label": "Batch",
    "options": "LMS Batch"
+  },
+  {
+   "fieldname": "section_break_ikne",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_sjco",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "course.title",
+   "fieldname": "course_title",
+   "fieldtype": "Data",
+   "label": "Course Title",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "evaluator.full_name",
+   "fieldname": "evaluator_name",
+   "fieldtype": "Data",
+   "label": "Evaluator Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "batch_name.timezone",
+   "fieldname": "timezone",
+   "fieldtype": "Data",
+   "label": "Timezone",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-04-16 11:01:28.336807",
+ "modified": "2024-09-05 16:28:54.043488",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate Request",

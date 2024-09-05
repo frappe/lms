@@ -34,23 +34,24 @@ class LMSCertificateRequest(Document):
 			self.evaluator = get_evaluator(self.course, self.batch_name)
 
 	def validate_unavailability(self):
-		unavailable = frappe.db.get_value(
-			"Course Evaluator", self.evaluator, ["unavailable_from", "unavailable_to"], as_dict=1
-		)
-		if (
-			unavailable.unavailable_from
-			and unavailable.unavailable_to
-			and getdate(self.date) >= unavailable.unavailable_from
-			and getdate(self.date) <= unavailable.unavailable_to
-		):
-			frappe.throw(
-				_(
-					"The evaluator of this course is unavailable from {0} to {1}. Please select a date after {1}"
-				).format(
-					format_date(unavailable.unavailable_from, "medium"),
-					format_date(unavailable.unavailable_to, "medium"),
-				)
+		if self.evaluator:
+			unavailable = frappe.db.get_value(
+				"Course Evaluator", self.evaluator, ["unavailable_from", "unavailable_to"], as_dict=1
 			)
+			if (
+				unavailable.unavailable_from
+				and unavailable.unavailable_to
+				and getdate(self.date) >= unavailable.unavailable_from
+				and getdate(self.date) <= unavailable.unavailable_to
+			):
+				frappe.throw(
+					_(
+						"The evaluator of this course is unavailable from {0} to {1}. Please select a date after {1}"
+					).format(
+						format_date(unavailable.unavailable_from, "medium"),
+						format_date(unavailable.unavailable_to, "medium"),
+					)
+				)
 
 	def validate_slot(self):
 		if frappe.db.exists(
