@@ -162,10 +162,13 @@ class LMSBatch(Document):
 						_("Row #{0} End time cannot be outside the batch duration.").format(schedule.idx)
 					)
 
-			if schedule.date < self.start_date or schedule.date > self.end_date:
-				frappe.throw(
-					_("Row #{0} Date cannot be outside the batch duration.").format(schedule.idx)
-				)
+			if schedule.date is not None:
+				if schedule.date < self.start_date or schedule.date > self.end_date:
+					frappe.throw(
+						_("Row #{0} Date cannot be outside the batch duration.").format(schedule.idx)
+					)
+			else:
+				frappe.throw(_("Row #{0} Date is missing and cannot be validated.").format(schedule.idx))
 
 
 @frappe.whitelist()
