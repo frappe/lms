@@ -124,14 +124,12 @@ class LMSCertificateRequest(Document):
 			template = "certificate_request_notification"
 
 			args = {
-				"course": frappe.db.get_value("LMS Course", self.course, "title"),
-				"timezone": frappe.db.get_value("LMS Batch", self.batch_name, "timezone")
-				if self.batch_name
-				else "",
+				"course": self.course_title,
+				"timezone": self.timezone if self.batch_name else "",
 				"date": format_date(self.date, "medium"),
 				"member_name": self.member_name,
 				"start_time": format_time(self.start_time, "short"),
-				"evaluator": frappe.db.get_value("User", self.evaluator, "full_name"),
+				"evaluator": self.evaluator_name,
 			}
 
 			frappe.sendmail(
