@@ -610,3 +610,42 @@ def check_app_permission():
 		return True
 
 	return False
+
+
+@frappe.whitelist()
+def save_evaluation_details(
+	member: str,
+	course: str,
+	date: str,
+	start_time: str,
+	end_time: str,
+	status: str,
+	rating: int,
+	summary: str) -> None:
+	"""
+	Save evaluation details for a member against a course.
+	"""
+	evaluation = frappe.db.exists("LMS Certificate Evaluation", {
+		"member": member,
+		"course": course
+	})
+
+	details = {
+		"date": date,
+		"start_time": start_time,
+		"end_time": end_time,
+		"status": status,
+		"rating": rating,
+		"summary": summary
+	}
+
+	if evaluation:
+		doc = frappe.db.set_value("LMS Certificate Evaluation", evaluation, details)
+	else:
+		doc = frappe.new_doc("LMS Certificate Evaluation")
+		details.update({
+			"member": member,
+			"course": course
+		})
+		doc.update(details)
+		doc.insert()

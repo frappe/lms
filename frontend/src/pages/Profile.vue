@@ -146,7 +146,7 @@ const coverImage = createResource({
 
 const setActiveTab = () => {
 	let fragments = route.path.split('/')
-	let sections = ['certificates', 'roles', 'evaluations']
+	let sections = ['certificates', 'roles', 'slots', 'schedule']
 	sections.forEach((section) => {
 		if (fragments.includes(section)) {
 			activeTab.value = convertToTitleCase(section)
@@ -158,10 +158,11 @@ const setActiveTab = () => {
 watchEffect(() => {
 	if (activeTab.value) {
 		let route = {
-			About: { name: 'ProfileAbout' },
-			Certificates: { name: 'ProfileCertificates' },
-			Roles: { name: 'ProfileRoles' },
-			Evaluations: { name: 'ProfileEvaluator' },
+			"About": { name: 'ProfileAbout' },
+			"Certificates": { name: 'ProfileCertificates' },
+			"Roles": { name: 'ProfileRoles' },
+			"Slots": { name: 'ProfileEvaluator' },
+			"Schedule": { name: 'ProfileEvaluationSchedule' },
 		}[activeTab.value]
 		router.push(route)
 	}
@@ -185,8 +186,10 @@ const isSessionUser = () => {
 const getTabButtons = () => {
 	let buttons = [{ label: 'About' }, { label: 'Certificates' }]
 	if ($user.data?.is_moderator) buttons.push({ label: 'Roles' })
-	if (isSessionUser() && $user.data?.is_evaluator)
-		buttons.push({ label: 'Evaluations' })
+	if (isSessionUser() && ($user.data?.is_evaluator || $user.data?.is_moderator)) {
+		buttons.push({ label: 'Slots' })
+		buttons.push({ label: 'Schedule' })
+	}
 
 	return buttons
 }

@@ -79,9 +79,14 @@ const routes = [
 			},
 			{
 				name: 'ProfileEvaluator',
-				path: 'evaluations',
+				path: 'slots',
 				component: () => import('@/pages/ProfileEvaluator.vue'),
 			},
+			{
+				name: 'ProfileEvaluationSchedule',
+				path: 'schedule',
+				component: () => import('@/pages/ProfileEvaluationSchedule.vue'),
+			}
 		],
 	},
 	{
