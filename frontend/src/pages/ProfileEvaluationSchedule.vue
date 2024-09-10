@@ -7,7 +7,7 @@
                     defaultMode: 'Month',
                     disableModes: ['Day', 'Week'],
                     redundantCellHeight: 100,
-                    enableShortcuts: true,
+                    enableShortcuts: false,
                 }"
                 :events="evaluations.data"
                 @click="(event) => openEvent(event)"
@@ -62,7 +62,7 @@ const evaluations = createListResource({
     filters: {
         "evaluator": user.data?.name
     },
-    fields: ["name", "member_name", "member", "course", "course_title", "date", "start_time", "end_time", "google_meet_link"],
+    fields: ["name", "member_name", "member", "course", "course_title", "batch_name", "batch_title", "date", "start_time", "end_time", "google_meet_link"],
     auto: true,
     cache: ["schedule", user.data?.name],
     transform(data) {
@@ -80,6 +80,8 @@ const evaluations = createListResource({
                 course: d.course,
                 course_title: d.course_title,
                 member: d.member,
+                batch_name: d.batch_name,
+                batch_title: d.batch_title
             }
         })
     },

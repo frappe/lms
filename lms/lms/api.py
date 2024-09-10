@@ -7,7 +7,7 @@ from frappe import _
 from frappe.query_builder import DocType
 from frappe.query_builder.functions import Count
 from frappe.utils import time_diff, now_datetime, get_datetime
-
+from typing import Optional
 
 @frappe.whitelist()
 def autosave_section(section, code):
@@ -616,6 +616,7 @@ def check_app_permission():
 def save_evaluation_details(
 	member: str,
 	course: str,
+	batch_name: str,
 	date: str,
 	start_time: str,
 	end_time: str,
@@ -635,17 +636,60 @@ def save_evaluation_details(
 		"start_time": start_time,
 		"end_time": end_time,
 		"status": status,
-		"rating": rating,
-		"summary": summary
+		"rating": rating / 5,
+		"summary": summary,
+		"batch_name": batch_name
 	}
 
 	if evaluation:
-		doc = frappe.db.set_value("LMS Certificate Evaluation", evaluation, details)
+		frappe.db.set_value("LMS Certificate Evaluation", evaluation, details)
+		return evaluation
 	else:
 		doc = frappe.new_doc("LMS Certificate Evaluation")
 		details.update({
 			"member": member,
-			"course": course
+			"course": course,
 		})
 		doc.update(details)
 		doc.insert()
+		return doc.name
+
+
+@frappe.whitelist()
+def save_certificate_details(
+	member: str,
+	course: str,
+	batch_name: str,
+	issue_date,
+	expiry_date,
+	template,
+	published=True,
+	) -> None:
+	"""
+	Save certificate details for a member against a course.
+	"""
+	certificate = frappe.db.exists("LMS Certificate", {
+		"member": member,
+		"course": course
+	})
+
+	details = {
+		"published": published,
+		"issue_date": issue_date,
+		"expiry_date": expiry_date,
+		"template": template,
+		"batch_name": batch_name
+	}
+	
+	if certificate:
+		frappe.db.set_value("LMS Certificate", certificate, details)
+		return certificate
+	else:
+		doc = frappe.new_doc("LMS Certificate")
+		details.update({
+			"member": member,
+			"course": course,
+		})
+		doc.update(details)
+		doc.insert()
+		return doc.name

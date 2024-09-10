@@ -4,11 +4,10 @@
 			{{ props.label }}
 		</label>
 		<div class="flex text-center">
-			<div v-for="index in 5">
-				{{ rating }}
+			<div v-for="index in 5" @mouseover="hoveredRating = index" @mouseleave="hoveredRating = 0">
 				<Star
-					:class="index <= rating ? 'fill-orange-500' : ''"
-					class="h-6 w-6 fill-gray-400 text-gray-50 mr-1 cursor-pointer"
+					class="h-6 w-6 fill-gray-400 text-gray-50 stroke-1 mr-1 cursor-pointer"
+					:class="{ 'fill-yellow-200': (index <= hoveredRating && index > rating), 'fill-yellow-500': index <= rating }"
 					@click="markRating(index)"
 				/>
 			</div>
@@ -18,7 +17,7 @@
 
 <script setup>
 import { Star } from 'lucide-vue-next'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 const props = defineProps({
 	id: {
@@ -36,8 +35,9 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['update:modelValue'])
-let rating = ref(props.modelValue)
-console.log(props.modelValue)
+const rating = ref(props.modelValue)
+const hoveredRating = ref(0)
+
 let emitChange = (value) => {
 	emit('update:modelValue', value)
 }
@@ -46,4 +46,8 @@ function markRating(index) {
 	emitChange(index)
 	rating.value = index
 }
+
+watch(() => props.modelValue, (newVal) => {
+  rating.value = newVal
+})
 </script>

@@ -16,6 +16,7 @@
   "evaluator_name",
   "column_break_sjco",
   "batch_name",
+  "batch_title",
   "timezone",
   "section_break_lifi",
   "date",
@@ -137,11 +138,18 @@
    "fieldtype": "Data",
    "label": "Timezone",
    "read_only": 1
+  },
+  {
+   "fetch_from": "batch_name.title",
+   "fieldname": "batch_title",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Batch Title"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-09-06 18:39:53.551920",
+ "modified": "2024-09-10 13:13:48.282623",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate Request",
