@@ -119,9 +119,9 @@
   {
    "fieldname": "evaluator",
    "fieldtype": "Link",
+   "in_standard_filter": 1,
    "label": "Evaluator",
-   "options": "User",
-   "reqd": 1
+   "options": "User"
   },
   {
    "fetch_from": "evaluator.full_name",
@@ -133,7 +133,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-09-10 20:17:49.908093",
+ "modified": "2024-09-11 11:20:06.233491",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate Evaluation",

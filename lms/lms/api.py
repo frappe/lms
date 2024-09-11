@@ -9,6 +9,7 @@ from frappe.query_builder.functions import Count
 from frappe.utils import time_diff, now_datetime, get_datetime
 from typing import Optional
 
+
 @frappe.whitelist()
 def autosave_section(section, code):
 	"""Saves the code edited in one of the sections."""
@@ -614,22 +615,23 @@ def check_app_permission():
 
 @frappe.whitelist()
 def save_evaluation_details(
-	member: str,
-	course: str,
-	batch_name: str,
-	date: str,
-	start_time: str,
-	end_time: str,
-	status: str,
-	rating: int,
-	summary: str) -> None:
+	member,
+	course,
+	batch_name,
+	evaluator,
+	date,
+	start_time,
+	end_time,
+	status,
+	rating,
+	summary,
+):
 	"""
 	Save evaluation details for a member against a course.
 	"""
-	evaluation = frappe.db.exists("LMS Certificate Evaluation", {
-		"member": member,
-		"course": course
-	})
+	evaluation = frappe.db.exists(
+		"LMS Certificate Evaluation", {"member": member, "course": course}
+	)
 
 	details = {
 		"date": date,
@@ -638,7 +640,7 @@ def save_evaluation_details(
 		"status": status,
 		"rating": rating / 5,
 		"summary": summary,
-		"batch_name": batch_name
+		"batch_name": batch_name,
 	}
 
 	if evaluation:
@@ -646,10 +648,13 @@ def save_evaluation_details(
 		return evaluation
 	else:
 		doc = frappe.new_doc("LMS Certificate Evaluation")
-		details.update({
-			"member": member,
-			"course": course,
-		})
+		details.update(
+			{
+				"member": member,
+				"course": course,
+				"evaluator": evaluator,
+			}
+		)
 		doc.update(details)
 		doc.insert()
 		return doc.name
@@ -657,39 +662,40 @@ def save_evaluation_details(
 
 @frappe.whitelist()
 def save_certificate_details(
-	member: str,
-	course: str,
-	batch_name: str,
+	member,
+	course,
+	batch_name,
+	evaluator,
 	issue_date,
 	expiry_date,
 	template,
 	published=True,
-	) -> None:
+):
 	"""
 	Save certificate details for a member against a course.
 	"""
-	certificate = frappe.db.exists("LMS Certificate", {
-		"member": member,
-		"course": course
-	})
+	certificate = frappe.db.exists("LMS Certificate", {"member": member, "course": course})
 
 	details = {
 		"published": published,
 		"issue_date": issue_date,
 		"expiry_date": expiry_date,
 		"template": template,
-		"batch_name": batch_name
+		"batch_name": batch_name,
 	}
-	
+
 	if certificate:
 		frappe.db.set_value("LMS Certificate", certificate, details)
 		return certificate
 	else:
 		doc = frappe.new_doc("LMS Certificate")
-		details.update({
-			"member": member,
-			"course": course,
-		})
+		details.update(
+			{
+				"member": member,
+				"course": course,
+				"evaluator": evaluator,
+			}
+		)
 		doc.update(details)
 		doc.insert()
 		return doc.name

@@ -158,11 +158,11 @@ const setActiveTab = () => {
 watchEffect(() => {
 	if (activeTab.value) {
 		let route = {
-			"About": { name: 'ProfileAbout' },
-			"Certificates": { name: 'ProfileCertificates' },
-			"Roles": { name: 'ProfileRoles' },
-			"Slots": { name: 'ProfileEvaluator' },
-			"Schedule": { name: 'ProfileEvaluationSchedule' },
+			About: { name: 'ProfileAbout' },
+			Certificates: { name: 'ProfileCertificates' },
+			Roles: { name: 'ProfileRoles' },
+			Slots: { name: 'ProfileEvaluator' },
+			Schedule: { name: 'ProfileEvaluationSchedule' },
 		}[activeTab.value]
 		router.push(route)
 	}
@@ -186,7 +186,10 @@ const isSessionUser = () => {
 const getTabButtons = () => {
 	let buttons = [{ label: 'About' }, { label: 'Certificates' }]
 	if ($user.data?.is_moderator) buttons.push({ label: 'Roles' })
-	if (isSessionUser() && ($user.data?.is_evaluator || $user.data?.is_moderator)) {
+	if (
+		isSessionUser() &&
+		($user.data?.is_evaluator || $user.data?.is_moderator)
+	) {
 		buttons.push({ label: 'Slots' })
 		buttons.push({ label: 'Schedule' })
 	}

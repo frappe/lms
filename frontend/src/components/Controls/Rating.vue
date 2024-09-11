@@ -4,10 +4,14 @@
 			{{ props.label }}
 		</label>
 		<div class="flex text-center">
-			<div v-for="index in 5" @mouseover="hoveredRating = index" @mouseleave="hoveredRating = 0">
+			<div
+				v-for="index in 5"
+				@mouseover="hoveredRating = index"
+				@mouseleave="hoveredRating = 0"
+			>
 				<Star
-					class="h-6 w-6 fill-gray-400 text-gray-50 stroke-1 mr-1 cursor-pointer"
-					:class="{ 'fill-yellow-200': (index <= hoveredRating && index > rating), 'fill-yellow-500': index <= rating }"
+					class="fill-gray-400 text-gray-50 stroke-1 mr-1 cursor-pointer"
+					:class="iconClasses(index)"
 					@click="markRating(index)"
 				/>
 			</div>
@@ -17,7 +21,7 @@
 
 <script setup>
 import { Star } from 'lucide-vue-next'
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 const props = defineProps({
 	id: {
@@ -32,7 +36,28 @@ const props = defineProps({
 		type: String,
 		default: '',
 	},
+	size: {
+		type: String,
+		default: 'md',
+	},
 })
+
+const iconClasses = (index) => {
+	let classes = [
+		{
+			sm: 'size-4',
+			md: 'size-5',
+			lg: 'size-6',
+			xl: 'size-7',
+		}[props.size],
+	]
+	if (index <= hoveredRating.value && index > rating.value) {
+		classes.push('fill-yellow-200')
+	} else if (index <= rating.value) {
+		classes.push('fill-yellow-500')
+	}
+	return classes.join(' ')
+}
 
 const emit = defineEmits(['update:modelValue'])
 const rating = ref(props.modelValue)
@@ -47,7 +72,10 @@ function markRating(index) {
 	rating.value = index
 }
 
-watch(() => props.modelValue, (newVal) => {
-  rating.value = newVal
-})
+watch(
+	() => props.modelValue,
+	(newVal) => {
+		rating.value = newVal
+	}
+)
 </script>

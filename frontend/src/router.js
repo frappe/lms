@@ -85,8 +85,9 @@ const routes = [
 			{
 				name: 'ProfileEvaluationSchedule',
 				path: 'schedule',
-				component: () => import('@/pages/ProfileEvaluationSchedule.vue'),
-			}
+				component: () =>
+					import('@/pages/ProfileEvaluationSchedule.vue'),
+			},
 		],
 	},
 	{

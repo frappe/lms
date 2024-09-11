@@ -48,8 +48,7 @@
    "fieldtype": "Link",
    "in_standard_filter": 1,
    "label": "Evaluator",
-   "options": "User",
-   "read_only": 1
+   "options": "User"
   },
   {
    "fieldname": "date",
@@ -149,7 +148,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-09-10 13:13:48.282623",
+ "modified": "2024-09-11 11:19:44.669132",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate Request",
