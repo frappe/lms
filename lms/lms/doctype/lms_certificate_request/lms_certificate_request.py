@@ -34,27 +34,23 @@ class LMSCertificateRequest(Document):
 			self.evaluator = get_evaluator(self.course, self.batch_name)
 
 	def validate_unavailability(self):
-		if self.evaluator:
-			unavailable = frappe.db.get_value(
-				"Course Evaluator",
-				self.evaluator,
-				["unavailable_from", "unavailable_to"],
-				as_dict=1,
-			)
-			if (
-				unavailable.unavailable_from
-				and unavailable.unavailable_to
-				and getdate(self.date) >= unavailable.unavailable_from
-				and getdate(self.date) <= unavailable.unavailable_to
-			):
-				frappe.throw(
-					_(
-						"The evaluator of this course is unavailable from {0} to {1}. Please select a date after {1}"
-					).format(
-						format_date(unavailable.unavailable_from, "medium"),
-						format_date(unavailable.unavailable_to, "medium"),
-					)
+		unavailable = frappe.db.get_value(
+			"Course Evaluator", self.evaluator, ["unavailable_from", "unavailable_to"], as_dict=1
+		)
+		if (
+			unavailable.unavailable_from
+			and unavailable.unavailable_to
+			and getdate(self.date) >= unavailable.unavailable_from
+			and getdate(self.date) <= unavailable.unavailable_to
+		):
+			frappe.throw(
+				_(
+					"The evaluator of this course is unavailable from {0} to {1}. Please select a date after {1}"
+				).format(
+					format_date(unavailable.unavailable_from, "medium"),
+					format_date(unavailable.unavailable_to, "medium"),
 				)
+			)
 
 	def validate_slot(self):
 		if frappe.db.exists(
@@ -124,12 +120,14 @@ class LMSCertificateRequest(Document):
 			template = "certificate_request_notification"
 
 			args = {
-				"course": self.course_title,
-				"timezone": self.timezone if self.batch_name else "",
+				"course": frappe.db.get_value("LMS Course", self.course, "title"),
+				"timezone": frappe.db.get_value("LMS Batch", self.batch_name, "timezone")
+				if self.batch_name
+				else "",
 				"date": format_date(self.date, "medium"),
 				"member_name": self.member_name,
 				"start_time": format_time(self.start_time, "short"),
-				"evaluator": self.evaluator_name,
+				"evaluator": frappe.db.get_value("User", self.evaluator, "full_name"),
 			}
 
 			frappe.sendmail(
