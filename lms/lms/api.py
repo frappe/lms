@@ -580,7 +580,7 @@ def get_members(start=0, search=""):
 	members = frappe.get_all(
 		"User",
 		filters=filters,
-		fields=["name", "full_name", "user_image", "username"],
+		fields=["name", "full_name", "user_image", "username", "last_active"],
 		page_length=20,
 		start=start,
 	)

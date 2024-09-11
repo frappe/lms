@@ -90,3 +90,4 @@ lms.patches.v1_0.set_published_on
 lms.patches.v2_0.fix_progress_percentage
 lms.patches.v2_0.add_discussion_topic_titles
 lms.patches.v2_0.sidebar_settings
+lms.patches.v2_0.delete_certificate_request_notification
