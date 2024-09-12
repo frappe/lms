@@ -8,12 +8,16 @@
  "field_order": [
   "member",
   "member_name",
+  "column_break_ueht",
   "course",
+  "batch_name",
+  "section_break_zwfi",
+  "evaluator",
+  "evaluator_name",
   "column_break_5",
   "date",
   "start_time",
   "end_time",
-  "batch_name",
   "section_break_6",
   "rating",
   "status",
@@ -103,11 +107,33 @@
    "in_standard_filter": 1,
    "label": "Batch Name",
    "options": "LMS Batch"
+  },
+  {
+   "fieldname": "column_break_ueht",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_zwfi",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "evaluator",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Evaluator",
+   "options": "User"
+  },
+  {
+   "fetch_from": "evaluator.full_name",
+   "fieldname": "evaluator_name",
+   "fieldtype": "Data",
+   "label": "Evaluator Name",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-07-16 14:06:11.977666",
+ "modified": "2024-09-11 11:20:06.233491",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate Evaluation",

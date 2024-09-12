@@ -108,6 +108,7 @@ const options = createResource({
 	url: 'frappe.desk.search.search_link',
 	cache: [props.doctype, text.value],
 	method: 'POST',
+	auto: true,
 	params: {
 		txt: text.value,
 		doctype: props.doctype,
