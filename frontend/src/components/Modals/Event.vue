@@ -368,7 +368,7 @@ const tabs = computed(() => {
 
 	if (showCertification.value) {
 		tabsArray.push({
-			label: __('Certificate'),
+			label: __('Certification'),
 			icon: GraduationCap,
 		})
 	}
