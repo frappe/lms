@@ -117,6 +117,7 @@ import { BookOpen, Users, Star } from 'lucide-vue-next'
 import { computed, inject } from 'vue'
 import { Button, createResource } from 'frappe-ui'
 import { createToast } from '@/utils/'
+import { capture } from '@/telemetry'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -155,6 +156,9 @@ function enrollStudent() {
 				course: props.course.data.name,
 			})
 			.then(() => {
+				capture('enrolled_in_course', {
+					course: props.course.data.name,
+				})
 				createToast({
 					title: 'Enrolled Successfully',
 					icon: 'check',
