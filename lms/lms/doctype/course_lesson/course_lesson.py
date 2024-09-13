@@ -24,9 +24,6 @@ class CourseLesson(Document):
 		for section in dynamic_documents:
 			self.update_lesson_name_in_document(section)
 
-	def after_insert(self):
-		capture("lesson_created", "lms")
-
 	def update_lesson_name_in_document(self, section):
 		doctype_map = {"Exercise": "LMS Exercise", "Quiz": "LMS Quiz"}
 		macros = find_macros(self.body)
@@ -116,6 +113,8 @@ def save_progress(lesson, course):
 	).save(ignore_permissions=True)
 
 	progress = get_course_progress(course)
+	capture_progress_for_analytics(progress, course)
+
 	# Had to get doc, as on_change doesn't trigger when you use set_value. The trigger is necesary for badge to get assigned.
 	enrollment = frappe.get_doc("LMS Enrollment", membership)
 	enrollment.progress = progress
@@ -123,6 +122,11 @@ def save_progress(lesson, course):
 	enrollment.run_method("on_change")
 
 	return progress
+
+
+def capture_progress_for_analytics(progress, course):
+	if progress in [25, 50, 75, 100]:
+		capture("lesson_progress", "lms", {"course": course, "progress": progress})
 
 
 def get_quiz_progress(lesson):

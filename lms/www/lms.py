@@ -17,8 +17,7 @@ def get_context():
 	csrf_token = frappe.sessions.get_csrf_token()
 	frappe.db.commit()  # nosemgrep
 	context.csrf_token = csrf_token
-	if frappe.session.user != "Guest":
-		capture("active_site", "lms")
+	capture("active_site", "lms")
 	return context
 
 
