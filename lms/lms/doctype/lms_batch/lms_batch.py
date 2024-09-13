@@ -8,14 +8,7 @@ import json
 from frappe import _
 from datetime import timedelta
 from frappe.model.document import Document
-from frappe.utils import (
-	cint,
-	format_date,
-	format_datetime,
-	get_time,
-	getdate,
-	add_days
-)
+from frappe.utils import cint, format_date, format_datetime, get_time, getdate, add_days
 from lms.lms.utils import (
 	get_lessons,
 	get_lesson_index,
@@ -84,8 +77,10 @@ class LMSBatch(Document):
 			outgoing_email_account = frappe.get_cached_value(
 				"Email Account", {"default_outgoing": 1, "enable_outgoing": 1}, "name"
 			)
-			if not student.confirmation_email_sent and getdate(student.creation) >= add_days(getdate(), -2) and (
-				outgoing_email_account or frappe.conf.get("mail_login")
+			if (
+				not student.confirmation_email_sent
+				and getdate(student.creation) >= add_days(getdate(), -2)
+				and (outgoing_email_account or frappe.conf.get("mail_login"))
 			):
 				self.send_mail(student)
 				student.confirmation_email_sent = 1
