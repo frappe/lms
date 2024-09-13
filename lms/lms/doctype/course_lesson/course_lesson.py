@@ -126,7 +126,7 @@ def save_progress(lesson, course):
 
 def capture_progress_for_analytics(progress, course):
 	if progress in [25, 50, 75, 100]:
-		capture("lesson_progress", "lms", {"course": course, "progress": progress})
+		capture("course_progress", "lms", {"course": course, "progress": progress})
 
 
 def get_quiz_progress(lesson):
