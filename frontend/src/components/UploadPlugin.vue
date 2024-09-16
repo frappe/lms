@@ -15,10 +15,6 @@ const fileUploader = ref(null)
 const emit = defineEmits(['fileUploaded'])
 
 const props = defineProps({
-	wrapper: {
-		type: Object,
-		required: true,
-	},
 	onFileUploaded: {
 		type: Function,
 		required: true,

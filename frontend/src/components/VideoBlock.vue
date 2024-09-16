@@ -4,6 +4,7 @@
 			@timeupdate="updateTime"
 			@ended="videoEnded"
 			class="rounded-lg border border-gray-100"
+			ref="videoRef"
 		>
 			<source :src="fileURL" :type="type" />
 		</video>
@@ -71,7 +72,6 @@ const props = defineProps({
 
 onMounted(() => {
 	setTimeout(() => {
-		videoRef.value = document.querySelector('video')
 		videoRef.value.onloadedmetadata = () => {
 			duration.value = videoRef.value.duration
 		}

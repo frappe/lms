@@ -1,7 +1,7 @@
 import AudioBlock from '@/components/AudioBlock.vue'
 import VideoBlock from '@/components/VideoBlock.vue'
 import UploadPlugin from '@/components/UploadPlugin.vue'
-import { h, createApp, inject } from 'vue'
+import { h, createApp } from 'vue'
 import { Upload as UploadIcon } from 'lucide-vue-next'
 import translationPlugin from '../translation'
 
@@ -70,7 +70,6 @@ export class Upload {
 
 	renderFileUploader() {
 		const app = createApp(UploadPlugin, {
-			wrapper: this.wrapper,
 			onFileUploaded: (file) => {
 				this.data.file_url = file.file_url
 				this.data.file_type = file.file_type

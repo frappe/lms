@@ -62,7 +62,7 @@
 			</div>
 			<div class="">
 				<div class="sticky top-0 p-5">
-					<LessonPlugins :editor="editor" :notesEditor="instructorEditor" />
+					<LessonHelp />
 				</div>
 			</div>
 		</div>
@@ -79,7 +79,7 @@ import {
 	onBeforeUnmount,
 } from 'vue'
 import EditorJS from '@editorjs/editorjs'
-import LessonPlugins from '@/components/LessonPlugins.vue'
+import LessonHelp from '@/components/LessonHelp.vue'
 import { ChevronRight } from 'lucide-vue-next'
 import { updateDocumentTitle, createToast, getEditorTools } from '@/utils'
 import { capture } from '@/telemetry'
@@ -471,6 +471,10 @@ updateDocumentTitle(pageMeta)
 
 .ce-block__content {
 	max-width: none;
+}
+
+.codex-editor--narrow .ce-toolbar__actions {
+	right: 100%;
 }
 
 .ce-toolbar__content {
