@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Frappe LMS VERSION\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2024-09-06 16:03+0000\n"
-"PO-Revision-Date: 2024-09-06 16:03+0000\n"
+"POT-Creation-Date: 2024-09-13 16:04+0000\n"
+"PO-Revision-Date: 2024-09-13 16:04+0000\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: jannat@frappe.io\n"
 "MIME-Version: 1.0\n"
@@ -378,6 +378,11 @@ msgstr ""
 msgid "Batch Student"
 msgstr ""
 
+#. Label of the batch_title (Data) field in DocType 'LMS Certificate Request'
+#: lms/doctype/lms_certificate_request/lms_certificate_request.json
+msgid "Batch Title"
+msgstr ""
+
 #: public/js/common_functions.js:427
 msgid "Batch Updated"
 msgstr ""
@@ -393,7 +398,7 @@ msgstr ""
 #. Group in LMS Course's connections
 #. Label of the batches (Check) field in DocType 'LMS Settings'
 #: lms/doctype/lms_course/lms_course.json
-#: lms/doctype/lms_settings/lms_settings.json www/lms.py:61
+#: lms/doctype/lms_settings/lms_settings.json www/lms.py:60
 msgid "Batches"
 msgstr ""
 
@@ -906,7 +911,7 @@ msgstr ""
 msgid "Course Lesson"
 msgstr ""
 
-#: www/lms.py:28
+#: www/lms.py:27
 msgid "Course List"
 msgstr ""
 
@@ -1299,17 +1304,26 @@ msgstr ""
 #. Label of the evaluator (Link) field in DocType 'Batch Course'
 #. Label of the evaluator (Link) field in DocType 'Course Evaluator'
 #. Label of the evaluator (Link) field in DocType 'LMS Assignment Submission'
+#. Label of the evaluator (Link) field in DocType 'LMS Certificate'
+#. Label of the evaluator (Link) field in DocType 'LMS Certificate Evaluation'
 #. Label of the evaluator (Link) field in DocType 'LMS Certificate Request'
 #: lms/doctype/batch_course/batch_course.json
 #: lms/doctype/course_evaluator/course_evaluator.json
 #: lms/doctype/lms_assignment_submission/lms_assignment_submission.json
+#: lms/doctype/lms_certificate/lms_certificate.json
+#: lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 #: lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: templates/upcoming_evals.html:33
 msgid "Evaluator"
 msgstr ""
 
+#. Label of the evaluator_name (Data) field in DocType 'LMS Certificate'
+#. Label of the evaluator_name (Data) field in DocType 'LMS Certificate
+#. Evaluation'
 #. Label of the evaluator_name (Data) field in DocType 'LMS Certificate
 #. Request'
+#: lms/doctype/lms_certificate/lms_certificate.json
+#: lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 #: lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Evaluator Name"
 msgstr ""
@@ -1841,7 +1855,7 @@ msgstr ""
 msgid "Job Board Title"
 msgstr ""
 
-#: www/lms.py:109
+#: www/lms.py:108
 msgid "Job Openings"
 msgstr ""
 
@@ -2403,11 +2417,11 @@ msgstr ""
 msgid "Modified By"
 msgstr ""
 
-#: lms/api.py:189
+#: lms/api.py:190
 msgid "Module Name is incorrect or does not exist."
 msgstr ""
 
-#: lms/api.py:185
+#: lms/api.py:186
 msgid "Module is incorrect."
 msgstr ""
 
@@ -2432,11 +2446,11 @@ msgstr ""
 msgid "New Assignment Submission"
 msgstr ""
 
-#: public/js/common_functions.js:255 www/lms.py:87
+#: public/js/common_functions.js:255 www/lms.py:86
 msgid "New Batch"
 msgstr ""
 
-#: www/lms.py:38
+#: www/lms.py:37
 msgid "New Course"
 msgstr ""
 
@@ -2791,7 +2805,7 @@ msgstr ""
 msgid "Please enter your answer"
 msgstr ""
 
-#: lms/api.py:181
+#: lms/api.py:182
 msgid "Please login to continue with payment."
 msgstr ""
 
@@ -3454,7 +3468,7 @@ msgid "Startup Organization"
 msgstr ""
 
 #. Label of the statistics (Check) field in DocType 'LMS Settings'
-#: lms/doctype/lms_settings/lms_settings.json www/lms.py:134
+#: lms/doctype/lms_settings/lms_settings.json www/lms.py:133
 msgid "Statistics"
 msgstr ""
 
@@ -4096,11 +4110,11 @@ msgstr ""
 msgid "You already have an evaluation on {0} at {1} for the course {2}."
 msgstr ""
 
-#: lms/api.py:205
+#: lms/api.py:206
 msgid "You are already enrolled for this batch."
 msgstr ""
 
-#: lms/api.py:197
+#: lms/api.py:198
 msgid "You are already enrolled for this course."
 msgstr ""
 
