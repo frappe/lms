@@ -134,6 +134,7 @@ const addQuiz = (value) => {
 }
 
 const addFile = (data) => {
+	console.log(data)
 	getCurrentEditor().caret.setToLastBlock('end', 0)
 	getCurrentEditor().blocks.insert('upload', data)
 }
