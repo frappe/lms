@@ -244,7 +244,7 @@ const lesson = createResource({
 	onSuccess(data) {
 		lessonProgress.value = data.membership?.progress
 		if (data.content) editor.value = renderEditor('editor', data.content)
-		if (JSON.parse(data.instructor_content)?.blocks?.length)
+		if (JSON.parse(data.instructor_content)?.blocks?.length > 1)
 			instructorEditor.value = renderEditor(
 				'instructor-content',
 				data.instructor_content
