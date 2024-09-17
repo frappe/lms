@@ -148,8 +148,9 @@ def get_meta(app_path):
 			as_dict=True,
 		)
 
-		soup = BeautifulSoup(user.bio, "html.parser")
-		user.bio = soup.get_text()
+		if user.bio:
+			soup = BeautifulSoup(user.bio, "html.parser")
+			user.bio = soup.get_text()
 
 		return {
 			"title": user.full_name,
