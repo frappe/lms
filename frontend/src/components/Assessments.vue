@@ -11,25 +11,7 @@
 				:options="{
 					selectable: false,
 					showTooltip: false,
-					getRowRoute: (row) => {
-						if (row.submission) {
-							return {
-								name: 'AssignmentSubmission',
-								params: {
-									assignmentName: row.assessment_name,
-									submissionName: row.submission.name,
-								},
-							}
-						} else {
-							return {
-								name: 'AssignmentSubmission',
-								params: {
-									assignmentName: row.assessment_name,
-									submissionName: 'new',
-								},
-							}
-						}
-					},
+					getRowRoute: (row) => getRowRoute(row),
 				}"
 			>
 			</ListView>
@@ -73,6 +55,35 @@ const assessments = createResource({
 	},
 	auto: true,
 })
+
+const getRowRoute = (row) => {
+	if (row.assessment_type == 'LMS Assignment') {
+		if (row.submission) {
+			return {
+				name: 'AssignmentSubmission',
+				params: {
+					assignmentName: row.assessment_name,
+					submissionName: row.submission.name,
+				},
+			}
+		} else {
+			return {
+				name: 'AssignmentSubmission',
+				params: {
+					assignmentName: row.assessment_name,
+					submissionName: 'new',
+				},
+			}
+		}
+	} else {
+		return {
+			name: 'Quiz',
+			params: {
+				quizID: row.assessment_name,
+			},
+		}
+	}
+}
 
 const getAssessmentColumns = () => {
 	let columns = [
