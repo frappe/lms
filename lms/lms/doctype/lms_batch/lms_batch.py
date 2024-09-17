@@ -8,12 +8,7 @@ import json
 from frappe import _
 from datetime import timedelta
 from frappe.model.document import Document
-from frappe.utils import (
-	cint,
-	format_date,
-	format_datetime,
-	get_time,
-)
+from frappe.utils import cint, format_date, format_datetime, get_time, getdate, add_days
 from lms.lms.utils import (
 	get_lessons,
 	get_lesson_index,
@@ -73,20 +68,22 @@ class LMSBatch(Document):
 					)
 				)
 
+	def validate_evaluation_end_date(self):
+		if self.evaluation_end_date and self.evaluation_end_date < self.end_date:
+			frappe.throw(_("Evaluation end date cannot be less than the batch end date."))
+
 	def send_confirmation_mail(self):
 		for student in self.students:
 			outgoing_email_account = frappe.get_cached_value(
 				"Email Account", {"default_outgoing": 1, "enable_outgoing": 1}, "name"
 			)
-			if not student.confirmation_email_sent and (
-				outgoing_email_account or frappe.conf.get("mail_login")
+			if (
+				not student.confirmation_email_sent
+				and getdate(student.creation) >= add_days(getdate(), -2)
+				and (outgoing_email_account or frappe.conf.get("mail_login"))
 			):
 				self.send_mail(student)
 				student.confirmation_email_sent = 1
-
-	def validate_evaluation_end_date(self):
-		if self.evaluation_end_date and self.evaluation_end_date < self.end_date:
-			frappe.throw(_("Evaluation end date cannot be less than the batch end date."))
 
 	def send_mail(self, student):
 		subject = _("Enrollment Confirmation for the Next Training Batch")
