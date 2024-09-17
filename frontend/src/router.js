@@ -158,6 +158,12 @@ const routes = [
 		component: () => import('@/pages/QuizCreation.vue'),
 		props: true,
 	},
+	{
+		path: '/quiz/:quizID',
+		name: 'Quiz',
+		component: () => import('@/pages/QuizSubmission.vue'),
+		props: true,
+	},
 ]
 
 let router = createRouter({
