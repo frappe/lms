@@ -30,7 +30,7 @@
 				</div>
 				<div
 					v-if="activeTab && data.doc"
-					class="flex flex-1 flex-col px-10 pt-8"
+					class="flex flex-1 flex-col px-10 py-8"
 				>
 					<Members
 						v-if="activeTab.label === 'Members'"
