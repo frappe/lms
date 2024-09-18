@@ -4,7 +4,7 @@
 			<div class="text-xl font-semibold">
 				{{ __('Courses') }}
 			</div>
-			<Button v-if="user.data?.is_moderator" @click="openCourseModal()">
+			<Button v-if="canSeeAddButton()" @click="openCourseModal()">
 				<template #prefix>
 					<Plus class="h-4 w-4" />
 				</template>
@@ -152,5 +152,9 @@ const removeCourses = (selections, unselectAll) => {
 			},
 		}
 	)
+}
+
+const canSeeAddButton = () => {
+	return user.data?.is_moderator || user.data?.is_evaluator
 }
 </script>

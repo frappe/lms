@@ -212,7 +212,6 @@ const questionCreation = createResource({
 })
 
 const submitQuestion = (close) => {
-	console.log(questionData.data?.name)
 	if (props.questionDetail?.question) updateQuestion(close)
 	else addQuestion(close)
 }
