@@ -27,8 +27,8 @@ const props = defineProps({
 })
 
 const file = computed(() => {
-	if (props.type == 'youtube') return '/Youtube.mp4'
-	if (props.type == 'quiz') return '/Quiz.mp4'
-	if (props.type == 'upload') return '/Upload.mp4'
+	if (props.type == 'youtube') return '/assets/lms/frontend/Youtube.mp4'
+	if (props.type == 'quiz') return '/assets/lms/frontend/Quiz.mp4'
+	if (props.type == 'upload') return '/assets/lms/frontend/Upload.mp4'
 })
 </script>
