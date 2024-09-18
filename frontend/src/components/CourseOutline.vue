@@ -4,7 +4,7 @@
 			v-if="title && (outline.data?.length || allowEdit)"
 			class="grid grid-cols-[70%,30%] mb-4 px-2"
 		>
-			<div class="font-semibold text-lg">
+			<div class="font-semibold text-lg leading-5">
 				{{ __(title) }}
 			</div>
 			<Button size="sm" v-if="allowEdit" @click="openChapterModal()">

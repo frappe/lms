@@ -117,7 +117,7 @@ onMounted(() => {
 const renderEditor = (holder) => {
 	return new EditorJS({
 		holder: holder,
-		tools: getEditorTools(),
+		tools: getEditorTools(true),
 		autofocus: true,
 	})
 }
@@ -143,7 +143,9 @@ const lessonDetails = createResource({
 			Object.keys(data.lesson).forEach((key) => {
 				lesson[key] = data.lesson[key]
 			})
-			lesson.include_in_preview = data.include_in_preview ? true : false
+			lesson.include_in_preview = data?.lesson?.include_in_preview
+				? true
+				: false
 			addLessonContent(data)
 			addInstructorNotes(data)
 			enableAutoSave()
@@ -180,7 +182,7 @@ const addInstructorNotes = (data) => {
 const enableAutoSave = () => {
 	autoSaveInterval = setInterval(() => {
 		saveLesson()
-	}, 5000)
+	}, 10000)
 }
 
 onBeforeUnmount(() => {
@@ -423,7 +425,7 @@ const breadcrumbs = computed(() => {
 		},
 		{
 			label: lessonDetails.data?.course_title,
-			route: { name: 'CourseDetail', params: { courseName: props.courseName } },
+			route: { name: 'CourseForm', params: { courseName: props.courseName } },
 		},
 	]
 
@@ -549,10 +551,6 @@ updateDocumentTitle(pageMeta)
 	cursor: pointer;
 }
 
-.codeBoxSelectItem:hover {
-	opacity: 0.7;
-}
-
 .codeBoxSelectedItem {
 	background-color: lightblue !important;
 }
@@ -569,5 +567,18 @@ updateDocumentTitle(pageMeta)
 .light {
 	color: #383a42;
 	background-color: #fafafa;
+}
+
+.codeBoxTextArea {
+	line-height: 1.7;
+}
+
+.prose :where(pre):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
+	overflow-x: unset;
+}
+
+iframe {
+	border-top: 3px solid theme('colors.gray.700');
+	border-bottom: 3px solid theme('colors.gray.700');
 }
 </style>

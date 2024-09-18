@@ -699,3 +699,10 @@ def save_certificate_details(
 		doc.update(details)
 		doc.insert()
 		return doc.name
+
+
+@frappe.whitelist()
+def delete_documents(doctype, documents):
+	frappe.only_for("Moderator")
+	for doc in documents:
+		frappe.delete_doc(doctype, doc)

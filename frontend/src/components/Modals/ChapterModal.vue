@@ -15,18 +15,24 @@
 		}"
 	>
 		<template #body-content>
-			<FormControl label="Title" v-model="chapter.title" class="mb-4" />
+			<FormControl
+				ref="chapterInput"
+				label="Title"
+				v-model="chapter.title"
+				class="mb-4"
+			/>
 		</template>
 	</Dialog>
 </template>
 <script setup>
 import { Dialog, FormControl, createResource } from 'frappe-ui'
-import { defineModel, reactive, watch } from 'vue'
+import { defineModel, reactive, watch, ref } from 'vue'
 import { createToast } from '@/utils/'
 import { capture } from '@/telemetry'
 
 const show = defineModel()
 const outline = defineModel('outline')
+const chapterInput = ref(null)
 
 const props = defineProps({
 	course: {
@@ -37,6 +43,7 @@ const props = defineProps({
 		type: Object,
 	},
 })
+
 const chapter = reactive({
 	title: '',
 })
@@ -97,6 +104,7 @@ const addChapter = (close) => {
 					{ name: data.name },
 					{
 						onSuccess(data) {
+							chapter.title = ''
 							outline.value.reload()
 							createToast({
 								text: 'Chapter added successfully',
@@ -160,4 +168,12 @@ watch(
 		chapter.title = newChapter?.title
 	}
 )
+
+watch(show, () => {
+	if (show.value) {
+		setTimeout(() => {
+			chapterInput.value.$el.querySelector('input').focus()
+		}, 100)
+	}
+})
 </script>

@@ -1,9 +1,9 @@
 <template>
-	<Button class="float-right mb-3" variant="solid" @click="openStudentModal()">
+	<Button class="float-right mb-3" @click="openStudentModal()">
 		<template #prefix>
 			<Plus class="h-4 w-4" />
 		</template>
-		{{ __('Add Student') }}
+		{{ __('Add') }}
 	</Button>
 	<div class="text-lg font-semibold mb-4">
 		{{ __('Students') }}
@@ -88,6 +88,7 @@ import {
 import { Trash2, Plus } from 'lucide-vue-next'
 import { ref } from 'vue'
 import StudentModal from '@/components/Modals/StudentModal.vue'
+import { showToast } from '@/utils'
 
 const showStudentModal = ref(false)
 
@@ -135,23 +136,28 @@ const openStudentModal = () => {
 	showStudentModal.value = true
 }
 
-const removeStudent = createResource({
-	url: 'frappe.client.delete',
+const deleteStudents = createResource({
+	url: 'lms.lms.api.delete_documents',
 	makeParams(values) {
 		return {
 			doctype: 'Batch Student',
-			name: values.student,
+			documents: values.students,
 		}
 	},
 })
 
 const removeStudents = (selections, unselectAll) => {
-	selections.forEach(async (student) => {
-		removeStudent.submit({ student })
-	})
-	setTimeout(() => {
-		students.reload()
-		unselectAll()
-	}, 500)
+	deleteStudents.submit(
+		{
+			students: Array.from(selections),
+		},
+		{
+			onSuccess(data) {
+				students.reload()
+				showToast(__('Success'), __('Students deleted successfully'), 'check')
+				unselectAll()
+			},
+		}
+	)
 }
 </script>

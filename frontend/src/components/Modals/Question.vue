@@ -212,7 +212,7 @@ const questionCreation = createResource({
 })
 
 const submitQuestion = (close) => {
-	if (questionData.data?.name) updateQuestion(close)
+	if (props.questionDetail?.question) updateQuestion(close)
 	else addQuestion(close)
 }
 
@@ -239,7 +239,7 @@ const addQuestion = (close) => {
 					)
 				},
 				onError(err) {
-					showToast(__('Error'), __(err.message?.[0] || err), 'x')
+					showToast(__('Error'), __(err.messages?.[0] || err), 'x')
 				},
 			}
 		)
@@ -259,7 +259,7 @@ const addQuestionRow = (question, close) => {
 				close()
 			},
 			onError(err) {
-				showToast(__('Error'), __(err.message?.[0] || err), 'x')
+				showToast(__('Error'), __(err.messages?.[0] || err), 'x')
 				close()
 			},
 		}
@@ -312,12 +312,11 @@ const updateQuestion = (close) => {
 							quiz.value.reload()
 							close()
 						},
-						onError(err) {
-							showToast(__('Error'), __(err.message?.[0] || err), 'x')
-							close()
-						},
 					}
 				)
+			},
+			onError(err) {
+				showToast(__('Error'), __(err.messages?.[0] || err), 'x')
 			},
 		}
 	)
