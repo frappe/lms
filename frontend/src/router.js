@@ -154,8 +154,8 @@ const routes = [
 	},
 	{
 		path: '/quizzes/:quizID',
-		name: 'QuizCreation',
-		component: () => import('@/pages/QuizCreation.vue'),
+		name: 'QuizForm',
+		component: () => import('@/pages/QuizForm.vue'),
 		props: true,
 	},
 	{

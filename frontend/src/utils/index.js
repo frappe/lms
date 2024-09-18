@@ -149,9 +149,9 @@ export function getEditorTools() {
 			class: CodeBox,
 			config: {
 				themeURL:
-					'https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.1/build/styles/dracula.min.css', // Optional
-				themeName: 'atom-one-dark', // Optional
-				useDefaultTheme: 'dark', // Optional. This also determines the background color of the language select drop-down
+					'https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.1/build/styles/atom-one-dark.min.css',
+				themeName: 'atom-one-dark',
+				useDefaultTheme: 'dark',
 			},
 		},
 		list: {

@@ -541,4 +541,13 @@ updateDocumentTitle(pageMeta)
 	color: #383a42;
 	background-color: #fafafa;
 }
+
+.codeBoxTextArea {
+	line-height: 1.7;
+}
+
+iframe {
+	border-top: 3px solid theme('colors.gray.700');
+	border-bottom: 3px solid theme('colors.gray.700');
+}
 </style>

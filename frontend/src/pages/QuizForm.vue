@@ -22,7 +22,7 @@
 				"
 			/>
 			<div v-if="quizDetails.data?.name">
-				<div class="grid grid-cols-3 gap-5 mt-2 mb-8">
+				<div class="grid grid-cols-3 gap-5 mt-4 mb-8">
 					<FormControl
 						v-model="quiz.max_attempts"
 						:label="__('Maximun Attempts')"
@@ -125,7 +125,7 @@
 								<div class="flex gap-2">
 									<Button
 										variant="ghost"
-										@click="deleteQuizzes(selections, unselectAll)"
+										@click="deleteQuestions(selections, unselectAll)"
 									>
 										<Trash2 class="h-4 w-4 stroke-1.5" />
 									</Button>
@@ -174,7 +174,7 @@ import {
 } from 'vue'
 import { Plus, Trash2 } from 'lucide-vue-next'
 import Question from '@/components/Modals/Question.vue'
-import { showToast } from '../utils'
+import { showToast, updateDocumentTitle } from '@/utils'
 import { useRouter } from 'vue-router'
 
 const showQuestionModal = ref(false)
@@ -306,7 +306,7 @@ const createQuiz = () => {
 			onSuccess(data) {
 				showToast(__('Success'), __('Quiz created successfully'), 'check')
 				router.push({
-					name: 'QuizCreation',
+					name: 'QuizForm',
 					params: { quizID: data.name },
 				})
 			},
@@ -375,24 +375,29 @@ const openQuestionModal = (question = null) => {
 	showQuestionModal.value = true
 }
 
-const deleteQuiz = createResource({
-	url: 'frappe.client.delete',
+const deleteQuestionResource = createResource({
+	url: 'lms.lms.api.delete_documents',
 	makeParams(values) {
 		return {
 			doctype: 'LMS Quiz Question',
-			name: values.quiz,
+			documents: values.questions,
 		}
 	},
 })
 
-const deleteQuizzes = (selections, unselectAll) => {
-	selections.forEach(async (quiz) => {
-		deleteQuiz.submit({ quiz })
-	})
-	setTimeout(() => {
-		quizDetails.reload()
-		unselectAll()
-	}, 500)
+const deleteQuestions = (selections, unselectAll) => {
+	deleteQuestionResource.submit(
+		{
+			questions: Array.from(selections),
+		},
+		{
+			onSuccess() {
+				showToast(__('Success'), __('Questions deleted successfully'), 'check')
+				quizDetails.reload()
+				unselectAll()
+			},
+		}
+	)
 }
 
 const breadcrumbs = computed(() => {
@@ -410,9 +415,18 @@ const breadcrumbs = computed(() => {
 		})
 	} */
 	crumbs.push({
-		label: props.quizID == 'new' ? 'New Quiz' : quizDetails.data?.title,
-		route: { name: 'QuizCreation', params: { quizID: props.quizID } },
+		label: props.quizID == 'new' ? __('New Quiz') : quizDetails.data?.title,
+		route: { name: 'QuizForm', params: { quizID: props.quizID } },
 	})
 	return crumbs
 })
+
+const pageMeta = computed(() => {
+	return {
+		title: props.quizID == 'new' ? __('New Quiz') : quizDetails.data?.title,
+		description: __('Form to create and edit quizzes'),
+	}
+})
+
+updateDocumentTitle(pageMeta)
 </script>
