@@ -84,7 +84,7 @@
 						</div>
 					</div>
 					<div
-						class="text-gray-900 font-semibold mt-2"
+						class="text-gray-900 font-semibold mt-2 leading-5"
 						v-html="questionDetails.data.question"
 					></div>
 					<div v-if="questionDetails.data.type == 'Choices'" v-for="index in 4">

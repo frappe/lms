@@ -120,7 +120,7 @@
 				</div>
 				<div
 					v-if="
-						lesson.data.instructor_content?.blocks?.length &&
+						JSON.parse(lesson.data.instructor_content)?.blocks?.length > 1 &&
 						allowInstructorContent()
 					"
 					class="bg-gray-100 p-3 rounded-md mt-6"
@@ -244,7 +244,7 @@ const lesson = createResource({
 	onSuccess(data) {
 		lessonProgress.value = data.membership?.progress
 		if (data.content) editor.value = renderEditor('editor', data.content)
-		if (data.instructor_content?.blocks?.length)
+		if (JSON.parse(data.instructor_content)?.blocks?.length > 1)
 			instructorEditor.value = renderEditor(
 				'instructor-content',
 				data.instructor_content
@@ -448,6 +448,10 @@ updateDocumentTitle(pageMeta)
 	max-width: unset;
 }
 
+.codex-editor__redactor {
+	padding-bottom: 0px !important;
+}
+
 .codeBoxHolder {
 	display: flex;
 	flex-direction: column;
@@ -536,5 +540,14 @@ updateDocumentTitle(pageMeta)
 .light {
 	color: #383a42;
 	background-color: #fafafa;
+}
+
+.codeBoxTextArea {
+	line-height: 1.7;
+}
+
+iframe {
+	border-top: 3px solid theme('colors.gray.700');
+	border-bottom: 3px solid theme('colors.gray.700');
 }
 </style>

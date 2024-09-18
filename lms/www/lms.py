@@ -17,8 +17,7 @@ def get_context():
 	csrf_token = frappe.sessions.get_csrf_token()
 	frappe.db.commit()  # nosemgrep
 	context.csrf_token = csrf_token
-	if frappe.session.user != "Guest":
-		capture("active_site", "lms")
+	capture("active_site", "lms")
 	return context
 
 
@@ -149,8 +148,9 @@ def get_meta(app_path):
 			as_dict=True,
 		)
 
-		soup = BeautifulSoup(user.bio, "html.parser")
-		user.bio = soup.get_text()
+		if user.bio:
+			soup = BeautifulSoup(user.bio, "html.parser")
+			user.bio = soup.get_text()
 
 		return {
 			"title": user.full_name,

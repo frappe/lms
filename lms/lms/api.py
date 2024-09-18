@@ -7,6 +7,7 @@ from frappe import _
 from frappe.query_builder import DocType
 from frappe.query_builder.functions import Count
 from frappe.utils import time_diff, now_datetime, get_datetime
+from typing import Optional
 
 
 @frappe.whitelist()
@@ -610,3 +611,98 @@ def check_app_permission():
 		return True
 
 	return False
+
+
+@frappe.whitelist()
+def save_evaluation_details(
+	member,
+	course,
+	batch_name,
+	evaluator,
+	date,
+	start_time,
+	end_time,
+	status,
+	rating,
+	summary,
+):
+	"""
+	Save evaluation details for a member against a course.
+	"""
+	evaluation = frappe.db.exists(
+		"LMS Certificate Evaluation", {"member": member, "course": course}
+	)
+
+	details = {
+		"date": date,
+		"start_time": start_time,
+		"end_time": end_time,
+		"status": status,
+		"rating": rating / 5,
+		"summary": summary,
+		"batch_name": batch_name,
+	}
+
+	if evaluation:
+		frappe.db.set_value("LMS Certificate Evaluation", evaluation, details)
+		return evaluation
+	else:
+		doc = frappe.new_doc("LMS Certificate Evaluation")
+		details.update(
+			{
+				"member": member,
+				"course": course,
+				"evaluator": evaluator,
+			}
+		)
+		doc.update(details)
+		doc.insert()
+		return doc.name
+
+
+@frappe.whitelist()
+def save_certificate_details(
+	member,
+	course,
+	batch_name,
+	evaluator,
+	issue_date,
+	expiry_date,
+	template,
+	published=True,
+):
+	"""
+	Save certificate details for a member against a course.
+	"""
+	certificate = frappe.db.exists("LMS Certificate", {"member": member, "course": course})
+
+	details = {
+		"published": published,
+		"issue_date": issue_date,
+		"expiry_date": expiry_date,
+		"template": template,
+		"batch_name": batch_name,
+	}
+
+	if certificate:
+		frappe.db.set_value("LMS Certificate", certificate, details)
+		return certificate
+	else:
+		doc = frappe.new_doc("LMS Certificate")
+		details.update(
+			{
+				"member": member,
+				"course": course,
+				"evaluator": evaluator,
+			}
+		)
+		doc.update(details)
+		doc.insert()
+		return doc.name
+
+
+@frappe.whitelist()
+def delete_documents(doctype, documents):
+	frappe.only_for("Moderator")
+	for doc in documents:
+		frappe.delete_doc(doctype, doc)

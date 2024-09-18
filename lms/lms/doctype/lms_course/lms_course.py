@@ -48,9 +48,6 @@ class LMSCourse(Document):
 		if not self.upcoming and self.has_value_changed("upcoming"):
 			self.send_email_to_interested_users()
 
-	def after_insert(self):
-		capture("course_created", "lms")
-
 	def send_email_to_interested_users(self):
 		interested_users = frappe.get_all(
 			"LMS Course Interest", {"course": self.name}, ["name", "user"]

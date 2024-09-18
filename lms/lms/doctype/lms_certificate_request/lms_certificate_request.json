@@ -16,6 +16,7 @@
   "evaluator_name",
   "column_break_sjco",
   "batch_name",
+  "batch_title",
   "timezone",
   "section_break_lifi",
   "date",
@@ -38,7 +39,6 @@
   {
    "fieldname": "member",
    "fieldtype": "Link",
-   "in_standard_filter": 1,
    "label": "Member",
    "options": "User",
    "reqd": 1
@@ -46,9 +46,9 @@
   {
    "fieldname": "evaluator",
    "fieldtype": "Link",
+   "in_standard_filter": 1,
    "label": "Evaluator",
-   "options": "User",
-   "read_only": 1
+   "options": "User"
   },
   {
    "fieldname": "date",
@@ -137,11 +137,18 @@
    "fieldtype": "Data",
    "label": "Timezone",
    "read_only": 1
+  },
+  {
+   "fetch_from": "batch_name.title",
+   "fieldname": "batch_title",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Batch Title"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-09-05 16:28:54.043488",
+ "modified": "2024-09-11 11:19:44.669132",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate Request",

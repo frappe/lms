@@ -15,8 +15,10 @@
   "template",
   "published",
   "section_break_scyf",
-  "expiry_date",
+  "evaluator",
+  "evaluator_name",
   "column_break_slaw",
+  "expiry_date",
   "batch_name"
  ],
  "fields": [
@@ -95,11 +97,24 @@
   {
    "fieldname": "column_break_slaw",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "evaluator",
+   "fieldtype": "Link",
+   "label": "Evaluator",
+   "options": "User"
+  },
+  {
+   "fetch_from": "evaluator.full_name",
+   "fieldname": "evaluator_name",
+   "fieldtype": "Data",
+   "label": "Evaluator Name",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-07-16 15:29:19.708888",
+ "modified": "2024-09-11 11:37:20.419955",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate",

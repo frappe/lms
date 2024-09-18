@@ -420,7 +420,7 @@ const validateMandatoryFields = () => {
 		}
 	}
 	if (course.paid_course && (!course.course_price || !course.currency)) {
-		return 'Course price and currency are mandatory for paid courses'
+		return __('Course price and currency are mandatory for paid courses')
 	}
 }
 
@@ -436,7 +436,7 @@ watch(
 const validateFile = (file) => {
 	let extension = file.name.split('.').pop().toLowerCase()
 	if (!['jpg', 'jpeg', 'png', 'webp'].includes(extension)) {
-		return 'Only image file is allowed.'
+		return __('Only image file is allowed.')
 	}
 }
 

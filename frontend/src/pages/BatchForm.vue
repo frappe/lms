@@ -13,13 +13,9 @@
 				<div class="text-lg font-semibold mb-4">
 					{{ __('Details') }}
 				</div>
-				<div class="grid grid-cols-2 gap-10 mb-4">
+				<div class="grid grid-cols-2 gap-10 mb-4 space-y-2">
 					<div>
-						<FormControl
-							v-model="batch.title"
-							:label="__('Title')"
-							class="mb-4"
-						/>
+						<FormControl v-model="batch.title" :label="__('Title')" />
 					</div>
 					<div class="flex flex-col space-y-2">
 						<FormControl

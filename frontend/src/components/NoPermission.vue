@@ -24,7 +24,7 @@
 			<div>
 				{{ __('Please login to access this page.') }}
 			</div>
-			<Button variant="solid" @click="redirectToLogin()" class="mt-2">
+			<Button @click="redirectToLogin()" class="mt-4">
 				{{ __('Login') }}
 			</Button>
 		</div>

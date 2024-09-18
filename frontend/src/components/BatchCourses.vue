@@ -4,15 +4,11 @@
 			<div class="text-xl font-semibold">
 				{{ __('Courses') }}
 			</div>
-			<Button
-				v-if="user.data?.is_moderator"
-				variant="solid"
-				@click="openCourseModal()"
-			>
+			<Button v-if="canSeeAddButton()" @click="openCourseModal()">
 				<template #prefix>
 					<Plus class="h-4 w-4" />
 				</template>
-				{{ __('Add Course') }}
+				{{ __('Add') }}
 			</Button>
 		</div>
 		<div v-if="courses.data?.length">
@@ -88,6 +84,7 @@ import {
 	ListRowItem,
 } from 'frappe-ui'
 import { Plus, Trash2 } from 'lucide-vue-next'
+import { showToast } from '@/utils'
 
 const showCourseModal = ref(false)
 const user = inject('$user')
@@ -132,23 +129,32 @@ const getCoursesColumns = () => {
 	]
 }
 
-const removeCourse = createResource({
-	url: 'frappe.client.delete',
+const deleteCourses = createResource({
+	url: 'lms.lms.api.delete_documents',
 	makeParams(values) {
 		return {
 			doctype: 'Batch Course',
-			name: values.course,
+			documents: values.courses,
 		}
 	},
 })
 
 const removeCourses = (selections, unselectAll) => {
-	selections.forEach(async (course) => {
-		removeCourse.submit({ course })
-	})
-	setTimeout(() => {
-		courses.reload()
-		unselectAll()
-	}, 1000)
+	deleteCourses.submit(
+		{
+			courses: Array.from(selections),
+		},
+		{
+			onSuccess(data) {
+				courses.reload()
+				showToast(__('Success'), __('Courses deleted successfully'), 'check')
+				unselectAll()
+			},
+		}
+	)
+}
+
+const canSeeAddButton = () => {
+	return user.data?.is_moderator || user.data?.is_evaluator
 }
 </script>
