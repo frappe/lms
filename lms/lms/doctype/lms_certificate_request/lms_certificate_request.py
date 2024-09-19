@@ -13,6 +13,7 @@ from frappe.utils import (
 	get_datetime,
 	nowtime,
 	get_time,
+	get_fullname,
 )
 from lms.lms.utils import get_evaluator
 import json
@@ -32,6 +33,7 @@ class LMSCertificateRequest(Document):
 	def set_evaluator(self):
 		if not self.evaluator:
 			self.evaluator = get_evaluator(self.course, self.batch_name)
+			self.evaluator_name = get_fullname(self.evaluator)
 
 	def validate_unavailability(self):
 		if self.evaluator:
