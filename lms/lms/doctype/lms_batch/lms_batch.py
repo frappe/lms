@@ -164,6 +164,9 @@ class LMSBatch(Document):
 					_("Row #{0} Date cannot be outside the batch duration.").format(schedule.idx)
 				)
 
+	def on_payment_authorized(self, payment_status):
+		print(payment_status)
+
 
 @frappe.whitelist()
 def remove_student(student, batch_name):

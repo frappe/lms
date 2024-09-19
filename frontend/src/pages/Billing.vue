@@ -167,7 +167,7 @@
 	</div>
 </template>
 <script setup>
-import { Input, Button, createResource } from 'frappe-ui'
+import { Input, Button, createResource, call } from 'frappe-ui'
 import { reactive, inject, onMounted, ref } from 'vue'
 import Link from '@/components/Controls/Link.vue'
 import NotPermitted from '@/components/NotPermitted.vue'
@@ -250,26 +250,15 @@ const paymentOptions = createResource({
 })
 
 const generatePaymentLink = () => {
-	paymentOptions.submit(
-		{},
-		{
-			validate(params) {
-				return validateAddress()
-			},
-			onSuccess(data) {
-				data.handler = (response) => {
-					let doctype = props.type == 'course' ? 'LMS Course' : 'LMS Batch'
-					let docname = props.name
-					handleSuccess(response, doctype, docname, data.order_id)
-				}
-				let rzp1 = new Razorpay(data)
-				rzp1.open()
-			},
-			onError(err) {
-				showError(err)
-			},
-		}
-	)
+	call('lms.lms.payments.get_payment_link', {
+		doctype: props.type == 'course' ? 'LMS Course' : 'LMS Batch',
+		docname: props.name,
+		amount: orderSummary.data.amount,
+		currency: orderSummary.data.currency,
+		billing_name: billingDetails.billing_name,
+	}).then((data) => {
+		window.location.href = data
+	})
 }
 
 const paymentResource = createResource({
