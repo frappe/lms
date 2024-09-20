@@ -8,12 +8,12 @@
 				:items="[{ label: __('Batches'), route: { name: 'Batches' } }]"
 			/>
 			<div class="flex space-x-2">
-				<div class="w-40">
+				<div class="w-44">
 					<Select
 						v-if="categories.data?.length"
 						v-model="currentCategory"
 						:options="categories.data"
-						:placeholder="__('Filter')"
+						:placeholder="__('Category')"
 					/>
 				</div>
 				<router-link

@@ -38,6 +38,11 @@
 						:description="activeTab.description"
 						v-model:show="show"
 					/>
+					<Categories
+						v-else-if="activeTab.label === 'Categories'"
+						:label="activeTab.label"
+						:description="activeTab.description"
+					/>
 					<SettingDetails
 						v-else
 						:fields="activeTab.fields"
@@ -56,6 +61,7 @@ import { ref, computed, watch } from 'vue'
 import SettingDetails from '../SettingDetails.vue'
 import SidebarLink from '@/components/SidebarLink.vue'
 import Members from '@/components/Members.vue'
+import Categories from '../Categories.vue'
 
 const show = defineModel()
 const doctype = ref('LMS Settings')
@@ -79,6 +85,11 @@ const tabs = computed(() => {
 					label: 'Members',
 					description: 'Manage the members of your learning system',
 					icon: 'UserRoundPlus',
+				},
+				{
+					label: 'Categories',
+					description: 'Manage the members of your learning system',
+					icon: 'Network',
 				},
 				{
 					label: 'Payment Gateway',
