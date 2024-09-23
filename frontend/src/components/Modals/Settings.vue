@@ -208,47 +208,16 @@ const tabs = computed(() => {
 				{
 					label: 'Signup',
 					icon: 'LogIn',
-					description:
-						'Customize the signup page to inform users about your terms and policies',
 					fields: [
 						{
-							label: 'Show terms of use on signup',
-							name: 'terms_of_use',
-							type: 'checkbox',
+							label: 'Custom Content',
+							name: 'custom_signup_content',
+							type: 'Code',
+							mode: 'htmlmixed',
+							rows: 10,
 						},
 						{
-							label: 'Terms of Use Page',
-							name: 'terms_page',
-							type: 'Link',
-							doctype: 'Web Page',
-						},
-						{
-							label: 'Show privacy policy on signup',
-							name: 'privacy_policy',
-							type: 'checkbox',
-						},
-						{
-							label: 'Privacy Policy Page',
-							name: 'privacy_policy_page',
-							type: 'Link',
-							doctype: 'Web Page',
-						},
-						{
-							type: 'Column Break',
-						},
-						{
-							label: 'Show cookie policy on signup',
-							name: 'cookie_policy',
-							type: 'checkbox',
-						},
-						{
-							label: 'Cookie Policy Page',
-							name: 'cookie_policy_page',
-							type: 'Link',
-							doctype: 'Web Page',
-						},
-						{
-							label: 'Ask user category during signup',
+							label: 'Ask user category',
 							name: 'user_category',
 							type: 'checkbox',
 						},
