@@ -30,9 +30,11 @@
 		<div class="overflow-y-scroll">
 			<div class="text-base divide-y">
 				<FormControl
-					:value="cat.name"
+					:value="cat.category"
+					type="text"
 					v-for="cat in categories.data"
-					class="py-3"
+					class="form-control"
+					@change.stop="(e) => update(cat.name, e.target.value)"
 				/>
 			</div>
 		</div>
@@ -44,6 +46,7 @@ import {
 	FormControl,
 	createListResource,
 	createResource,
+	debounce,
 } from 'frappe-ui'
 import { Plus, X } from 'lucide-vue-next'
 import { ref } from 'vue'
@@ -99,4 +102,52 @@ const showCategoryForm = () => {
 		categoryInput.value.$el.querySelector('input').focus()
 	}, 0)
 }
+
+const updateCategory = createResource({
+	url: 'frappe.client.set_value',
+	makeParams(values) {
+		return {
+			doctype: 'LMS Category',
+			name: values.name,
+			fieldname: {
+				category: values.value,
+			},
+		}
+	},
+})
+
+const update = debounce((name, value) => {
+	updateCategory.submit(
+		{
+			name: name,
+			value: value,
+		},
+		{
+			onSuccess() {
+				categories.reload()
+			},
+		}
+	)
+}, 500)
 </script>
+<style>
+.form-control input {
+	padding: 1.25rem 0;
+	border-color: transparent;
+	background: white;
+}
+
+.form-control input:focus {
+	outline: transparent;
+	background: white;
+	box-shadow: none;
+	border-color: transparent;
+}
+
+.form-control input:hover {
+	outline: transparent;
+	background: white;
+	box-shadow: none;
+	border-color: transparent;
+}
+</style>

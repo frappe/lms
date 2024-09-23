@@ -16,10 +16,12 @@
  "field_order": [
   "title",
   "video_link",
-  "image",
   "column_break_3",
   "instructors",
   "tags",
+  "column_break_htgn",
+  "image",
+  "category",
   "status",
   "section_break_7",
   "published",
@@ -237,6 +239,16 @@
    "fieldname": "certification_tab",
    "fieldtype": "Tab Break",
    "label": "Certification"
+  },
+  {
+   "fieldname": "column_break_htgn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "category",
+   "fieldtype": "Link",
+   "label": "Category",
+   "options": "LMS Category"
   }
  ],
  "is_published_field": "published",
@@ -263,7 +275,7 @@
   }
  ],
  "make_attachments_public": 1,
- "modified": "2024-07-12 13:54:40.474097",
+ "modified": "2024-09-21 10:23:58.633912",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",

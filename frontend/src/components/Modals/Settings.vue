@@ -6,7 +6,7 @@
 					<h1 class="mb-3 px-2 pt-2 text-lg font-semibold">
 						{{ __('Settings') }}
 					</h1>
-					<div v-for="tab in tabs">
+					<div v-for="tab in tabs" :key="tab.label">
 						<div
 							v-if="!tab.hideLabel"
 							class="mb-2 mt-3 flex cursor-pointer gap-1.5 px-1 text-base font-medium text-gray-600 transition-all duration-300 ease-in-out"
@@ -17,6 +17,7 @@
 							<SidebarLink
 								v-for="item in tab.items"
 								:link="item"
+								:key="item.label"
 								class="w-full"
 								:class="
 									activeTab?.label == item.label
@@ -30,6 +31,7 @@
 				</div>
 				<div
 					v-if="activeTab && data.doc"
+					:key="activeTab.label"
 					class="flex flex-1 flex-col px-10 py-8"
 				>
 					<Members
@@ -58,14 +60,16 @@
 <script setup>
 import { Dialog, createDocumentResource } from 'frappe-ui'
 import { ref, computed, watch } from 'vue'
+import { useSettings } from '@/stores/settings'
 import SettingDetails from '../SettingDetails.vue'
 import SidebarLink from '@/components/SidebarLink.vue'
 import Members from '@/components/Members.vue'
-import Categories from '../Categories.vue'
+import Categories from '@/components/Categories.vue'
 
 const show = defineModel()
 const doctype = ref('LMS Settings')
 const activeTab = ref(null)
+const settingsStore = useSettings()
 
 const data = createDocumentResource({
 	doctype: doctype.value,
@@ -75,8 +79,8 @@ const data = createDocumentResource({
 	auto: true,
 })
 
-const tabs = computed(() => {
-	let _tabs = [
+const tabsStructure = computed(() => {
+	return [
 		{
 			label: 'Settings',
 			hideLabel: true,
@@ -86,11 +90,23 @@ const tabs = computed(() => {
 					description: 'Manage the members of your learning system',
 					icon: 'UserRoundPlus',
 				},
+			],
+		},
+		{
+			label: 'Settings',
+			hideLabel: true,
+			items: [
 				{
 					label: 'Categories',
 					description: 'Manage the members of your learning system',
 					icon: 'Network',
 				},
+			],
+		},
+		{
+			label: 'Settings',
+			hideLabel: true,
+			items: [
 				{
 					label: 'Payment Gateway',
 					icon: 'DollarSign',
@@ -136,8 +152,8 @@ const tabs = computed(() => {
 			],
 		},
 		{
-			label: 'Settings',
-			hideLabel: true,
+			label: 'Customise',
+			hideLabel: false,
 			items: [
 				{
 					label: 'Sidebar',
@@ -179,12 +195,6 @@ const tabs = computed(() => {
 						},
 					],
 				},
-			],
-		},
-		{
-			label: 'Settings',
-			hideLabel: true,
-			items: [
 				{
 					label: 'Email Templates',
 					icon: 'MailPlus',
@@ -210,12 +220,6 @@ const tabs = computed(() => {
 						},
 					],
 				},
-			],
-		},
-		{
-			label: 'Settings',
-			hideLabel: true,
-			items: [
 				{
 					label: 'Signup',
 					icon: 'LogIn',
@@ -268,23 +272,36 @@ const tabs = computed(() => {
 			],
 		},
 	]
+})
 
-	return _tabs.map((tab) => {
-		tab.items = tab.items.filter((item) => {
-			if (item.condition) {
-				return item.condition()
-			}
-			return true
-		})
-		return tab
+const tabs = computed(() => {
+	return tabsStructure.value.map((tab) => {
+		return {
+			...tab,
+			items: tab.items.filter((item) => {
+				return !item.condition || item.condition()
+			}),
+		}
 	})
 })
 
-watch(show, () => {
+watch(
+	() => activeTab.value,
+	(value) => {
+		console.log('Tab watcher', value)
+	}
+)
+
+watch(show, async () => {
 	if (show.value) {
-		activeTab.value = tabs.value[0].items[0]
+		const currentTab = await tabs.value
+			.flatMap((tab) => tab.items)
+			.find((item) => item.label === settingsStore.activeTab)
+		activeTab.value = currentTab || tabs.value[0].items[0]
 	} else {
+		console.log('else')
 		activeTab.value = null
+		settingsStore.isSettingsOpen = false
 	}
 })
 </script>

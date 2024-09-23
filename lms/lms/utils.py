@@ -1220,6 +1220,7 @@ def get_course_details(course):
 			"featured",
 			"disable_self_learning",
 			"published_on",
+			"category",
 			"status",
 			"paid_course",
 			"course_price",
