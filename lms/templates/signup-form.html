@@ -1,3 +1,4 @@
+{% set custom_signup_content = frappe.db.get_single_value("LMS Settings", "custom_signup_content") %}
 <form class="signup-form" role="form">
     <div class="page-card-body">
         <div class="form-group">
@@ -31,6 +32,7 @@
         </div>
         {% endif %}
 
+        {% if custom_signup_content %}
         <div class="form-group">
             <div class="checkbox">
                 <label>
@@ -39,11 +41,12 @@
                         data-fieldtype="Check" data-fieldname="terms" id="signup-terms" required>
                     </span>
                     <span class="label-area">
-                    {{ _("I have read and agree to your {0}").format(get_signup_optin_checks()) }}
+                    {{ custom_signup_content }}
                     </span>
                 </label>
             </div>
         </div>
+        {% endif %}
     </div>
     <div class="page-card-actions">
         <button class="btn btn-sm btn-primary btn-block btn-signup"
