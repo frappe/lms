@@ -254,13 +254,6 @@ const tabs = computed(() => {
 	})
 })
 
-watch(
-	() => activeTab.value,
-	(value) => {
-		console.log('Tab watcher', value)
-	}
-)
-
 watch(show, async () => {
 	if (show.value) {
 		const currentTab = await tabs.value
@@ -268,7 +261,6 @@ watch(show, async () => {
 			.find((item) => item.label === settingsStore.activeTab)
 		activeTab.value = currentTab || tabs.value[0].items[0]
 	} else {
-		console.log('else')
 		activeTab.value = null
 		settingsStore.isSettingsOpen = false
 	}

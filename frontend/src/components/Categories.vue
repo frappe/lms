@@ -104,23 +104,21 @@ const showCategoryForm = () => {
 }
 
 const updateCategory = createResource({
-	url: 'frappe.client.set_value',
+	url: 'frappe.client.rename_doc',
 	makeParams(values) {
 		return {
 			doctype: 'LMS Category',
-			name: values.name,
-			fieldname: {
-				category: values.value,
-			},
+			old_name: values.name,
+			new_name: values.category,
 		}
 	},
 })
 
-const update = debounce((name, value) => {
+const update = (name, value) => {
 	updateCategory.submit(
 		{
 			name: name,
-			value: value,
+			category: value,
 		},
 		{
 			onSuccess() {
@@ -128,7 +126,7 @@ const update = debounce((name, value) => {
 			},
 		}
 	)
-}, 500)
+}
 </script>
 <style>
 .form-control input {
