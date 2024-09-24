@@ -47,7 +47,7 @@ describe("Course Creation", () => {
 			.contains("Instructors")
 			.parent()
 			.within(() => {
-				cy.get("input").click();
+				cy.get("input").click().type("frappe");
 				cy.get("input")
 					.invoke("attr", "aria-controls")
 					.as("instructor_list_id");
