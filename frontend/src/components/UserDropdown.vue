@@ -67,25 +67,20 @@ import LMSLogo from '@/components/Icons/LMSLogo.vue'
 import { sessionStore } from '@/stores/session'
 import { Dropdown } from 'frappe-ui'
 import Apps from '@/components/Apps.vue'
-import {
-	ChevronDown,
-	LogIn,
-	LogOut,
-	User,
-	ArrowRightLeft,
-	Settings,
-} from 'lucide-vue-next'
+import { ChevronDown, LogIn, LogOut, User, Settings } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { convertToTitleCase } from '../utils'
 import { usersStore } from '@/stores/user'
-import { ref, markRaw } from 'vue'
+import { useSettings } from '@/stores/settings'
+import { markRaw, watch, ref } from 'vue'
 import SettingsModal from '@/components/Modals/Settings.vue'
 
 const router = useRouter()
-const showSettingsModal = ref(false)
 const { logout, branding } = sessionStore()
 let { userResource } = usersStore()
+const settingsStore = useSettings()
 let { isLoggedIn } = sessionStore()
+const showSettingsModal = ref(false)
 
 const props = defineProps({
 	isCollapsed: {
@@ -93,6 +88,13 @@ const props = defineProps({
 		default: false,
 	},
 })
+
+watch(
+	() => settingsStore.isSettingsOpen,
+	(value) => {
+		showSettingsModal.value = value
+	}
+)
 
 const userDropdownOptions = [
 	{
@@ -118,7 +120,7 @@ const userDropdownOptions = [
 		icon: Settings,
 		label: 'Settings',
 		onClick: () => {
-			showSettingsModal.value = true
+			settingsStore.isSettingsOpen = true
 		},
 		condition: () => {
 			return userResource.data?.is_moderator

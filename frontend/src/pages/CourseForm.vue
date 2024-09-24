@@ -109,6 +109,14 @@
 								/>
 							</div>
 						</div>
+						<div class="w-1/2 mb-4">
+							<Link
+								doctype="LMS Category"
+								v-model="course.category"
+								:label="__('Category')"
+								:onCreate="(value, close) => openSettings(close)"
+							/>
+						</div>
 						<MultiSelect
 							v-model="instructors"
 							doctype="User"
@@ -221,18 +229,20 @@ import {
 	showToast,
 	getFileSize,
 	updateDocumentTitle,
-} from '../utils'
+} from '@/utils'
 import Link from '@/components/Controls/Link.vue'
 import { FileText, X } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import CourseOutline from '@/components/CourseOutline.vue'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import { capture } from '@/telemetry'
+import { useSettings } from '@/stores/settings'
 
 const user = inject('$user')
 const newTag = ref('')
 const router = useRouter()
 const instructors = ref([])
+const settingsStore = useSettings()
 
 const props = defineProps({
 	courseName: {
@@ -461,6 +471,12 @@ const saveImage = (file) => {
 
 const removeImage = () => {
 	course.course_image = null
+}
+
+const openSettings = (close) => {
+	close()
+	settingsStore.activeTab = 'Categories'
+	settingsStore.isSettingsOpen = true
 }
 
 const check_permission = () => {

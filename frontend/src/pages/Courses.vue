@@ -8,6 +8,15 @@
 				:items="[{ label: __('Courses'), route: { name: 'Courses' } }]"
 			/>
 			<div class="flex space-x-2 justify-end">
+				<div class="w-44">
+					<FormControl
+						v-if="categories.data?.length"
+						type="select"
+						v-model="currentCategory"
+						:options="categories.data"
+						:placeholder="__('Category')"
+					/>
+				</div>
 				<div class="w-36">
 					<FormControl
 						type="text"
@@ -119,11 +128,19 @@ import {
 } from 'frappe-ui'
 import CourseCard from '@/components/CourseCard.vue'
 import { Plus, Search } from 'lucide-vue-next'
-import { ref, computed, inject } from 'vue'
+import { ref, computed, inject, onMounted, watch } from 'vue'
 import { updateDocumentTitle } from '@/utils'
 
 const user = inject('$user')
 const searchQuery = ref('')
+const currentCategory = ref(null)
+
+onMounted(() => {
+	let queries = new URLSearchParams(location.search)
+	if (queries.has('category')) {
+		currentCategory.value = queries.get('category')
+	}
+})
 
 const courses = createResource({
 	url: 'lms.lms.utils.get_courses',
@@ -168,17 +185,56 @@ const addToTabs = (label) => {
 }
 
 const getCourses = (type) => {
+	let courseList = courses.data[type]
 	if (searchQuery.value) {
 		let query = searchQuery.value.toLowerCase()
-		return courses.data[type].filter(
+		courseList = courseList.filter(
 			(course) =>
 				course.title.toLowerCase().includes(query) ||
 				course.short_introduction.toLowerCase().includes(query) ||
 				course.tags.filter((tag) => tag.toLowerCase().includes(query)).length
 		)
 	}
-	return courses.data[type]
+	if (currentCategory.value && currentCategory.value != '') {
+		courseList = courseList.filter(
+			(course) => course.category == currentCategory.value
+		)
+	}
+	return courseList
 }
+
+const categories = createResource({
+	url: 'lms.lms.api.get_categories',
+	makeParams() {
+		return {
+			doctype: 'LMS Course',
+			filters: {
+				published: 1,
+			},
+		}
+	},
+	cache: ['courseCategories'],
+	auto: true,
+	transform(data) {
+		data.unshift({
+			label: '',
+			value: null,
+		})
+	},
+})
+
+watch(
+	() => currentCategory.value,
+	() => {
+		let queries = new URLSearchParams(location.search)
+		if (currentCategory.value) {
+			queries.set('category', currentCategory.value)
+		} else {
+			queries.delete('category')
+		}
+		history.pushState(null, '', `${location.pathname}?${queries.toString()}`)
+	}
+)
 
 const pageMeta = computed(() => {
 	return {
