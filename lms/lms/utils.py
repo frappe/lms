@@ -722,17 +722,6 @@ def get_lesson_count(course):
 	return lesson_count
 
 
-def get_restriction_details():
-	user = frappe.db.get_value(
-		"User", frappe.session.user, ["profile_complete", "username"], as_dict=True
-	)
-	return {
-		"restrict": not user.profile_complete,
-		"username": user.username,
-		"prefix": frappe.get_hooks("profile_url_prefix")[0] or "/users/",
-	}
-
-
 def get_all_memberships(member):
 	return frappe.get_all(
 		"LMS Enrollment",
@@ -1220,6 +1209,7 @@ def get_course_details(course):
 			"featured",
 			"disable_self_learning",
 			"published_on",
+			"category",
 			"status",
 			"paid_course",
 			"course_price",

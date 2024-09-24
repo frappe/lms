@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Frappe LMS VERSION\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2024-09-13 16:04+0000\n"
-"PO-Revision-Date: 2024-09-13 16:04+0000\n"
+"POT-Creation-Date: 2024-09-20 16:04+0000\n"
+"PO-Revision-Date: 2024-09-20 16:04+0000\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: jannat@frappe.io\n"
 "MIME-Version: 1.0\n"
@@ -212,7 +212,7 @@ msgstr ""
 msgid "Assessment Type"
 msgstr ""
 
-#: lms/doctype/lms_batch/lms_batch.py:71
+#: lms/doctype/lms_batch/lms_batch.py:66
 msgid "Assessment {0} has already been added to this batch."
 msgstr ""
 
@@ -387,7 +387,7 @@ msgstr ""
 msgid "Batch Updated"
 msgstr ""
 
-#: lms/doctype/lms_batch/lms_batch.py:42
+#: lms/doctype/lms_batch/lms_batch.py:37
 msgid "Batch end date cannot be before the batch start date"
 msgstr ""
 
@@ -948,11 +948,11 @@ msgstr ""
 msgid "Course Title"
 msgstr ""
 
-#: lms/doctype/lms_batch/lms_batch.py:327
+#: lms/doctype/lms_batch/lms_batch.py:324
 msgid "Course already added to the batch."
 msgstr ""
 
-#: lms/doctype/lms_batch/lms_batch.py:60
+#: lms/doctype/lms_batch/lms_batch.py:55
 msgid "Course {0} has already been added to this batch."
 msgstr ""
 
@@ -1248,7 +1248,7 @@ msgstr ""
 msgid "Enrolled successfully"
 msgstr ""
 
-#: lms/doctype/lms_batch/lms_batch.py:92
+#: lms/doctype/lms_batch/lms_batch.py:89
 msgid "Enrollment Confirmation for the Next Training Batch"
 msgstr ""
 
@@ -1297,7 +1297,7 @@ msgstr ""
 msgid "Evaluation Request"
 msgstr ""
 
-#: lms/doctype/lms_batch/lms_batch.py:89
+#: lms/doctype/lms_batch/lms_batch.py:73
 msgid "Evaluation end date cannot be less than the batch end date."
 msgstr ""
 
@@ -2788,7 +2788,7 @@ msgstr ""
 msgid "Please click on the following button to set your new password"
 msgstr ""
 
-#: lms/doctype/lms_batch/lms_batch.py:238
+#: lms/doctype/lms_batch/lms_batch.py:235
 msgid "Please enable Zoom Settings to use this feature."
 msgstr ""
 
@@ -3165,19 +3165,19 @@ msgstr ""
 msgid "Route"
 msgstr ""
 
-#: lms/doctype/lms_batch/lms_batch.py:167
+#: lms/doctype/lms_batch/lms_batch.py:164
 msgid "Row #{0} Date cannot be outside the batch duration."
 msgstr ""
 
-#: lms/doctype/lms_batch/lms_batch.py:162
+#: lms/doctype/lms_batch/lms_batch.py:159
 msgid "Row #{0} End time cannot be outside the batch duration."
 msgstr ""
 
-#: lms/doctype/lms_batch/lms_batch.py:144
+#: lms/doctype/lms_batch/lms_batch.py:141
 msgid "Row #{0} Start time cannot be greater than or equal to end time."
 msgstr ""
 
-#: lms/doctype/lms_batch/lms_batch.py:153
+#: lms/doctype/lms_batch/lms_batch.py:150
 msgid "Row #{0} Start time cannot be outside the batch duration."
 msgstr ""
 
@@ -3524,7 +3524,7 @@ msgstr ""
 msgid "Student Name"
 msgstr ""
 
-#: lms/doctype/lms_batch/lms_batch.py:49
+#: lms/doctype/lms_batch/lms_batch.py:44
 msgid "Student {0} has already been added to this batch."
 msgstr ""
 
@@ -3697,7 +3697,7 @@ msgstr ""
 msgid "The course {0} is now available on {1}."
 msgstr ""
 
-#: lms/doctype/lms_certificate_request/lms_certificate_request.py:51
+#: lms/doctype/lms_certificate_request/lms_certificate_request.py:53
 msgid "The evaluator of this course is unavailable from {0} to {1}. Please select a date after {1}"
 msgstr ""
 
@@ -3705,7 +3705,7 @@ msgstr ""
 msgid "The quiz has a time limit. For each question you will be given {0} seconds."
 msgstr ""
 
-#: lms/doctype/lms_certificate_request/lms_certificate_request.py:69
+#: lms/doctype/lms_certificate_request/lms_certificate_request.py:71
 msgid "The slot is already booked by another participant."
 msgstr ""
 
@@ -3713,7 +3713,7 @@ msgstr ""
 msgid "The status of your application has changed."
 msgstr ""
 
-#: lms/doctype/lms_batch/lms_batch.py:135
+#: lms/doctype/lms_batch/lms_batch.py:132
 msgid "There are no seats available in this batch."
 msgstr ""
 
@@ -4106,7 +4106,7 @@ msgstr ""
 msgid "Write a review"
 msgstr ""
 
-#: lms/doctype/lms_certificate_request/lms_certificate_request.py:93
+#: lms/doctype/lms_certificate_request/lms_certificate_request.py:95
 msgid "You already have an evaluation on {0} at {1} for the course {2}."
 msgstr ""
 
@@ -4139,11 +4139,11 @@ msgstr ""
 msgid "You can find their resume attached to this email."
 msgstr ""
 
-#: lms/doctype/lms_certificate_request/lms_certificate_request.py:113
+#: lms/doctype/lms_certificate_request/lms_certificate_request.py:115
 msgid "You cannot schedule evaluations after {0}."
 msgstr ""
 
-#: lms/doctype/lms_certificate_request/lms_certificate_request.py:102
+#: lms/doctype/lms_certificate_request/lms_certificate_request.py:104
 msgid "You cannot schedule evaluations for past slots."
 msgstr ""
 
@@ -4208,7 +4208,7 @@ msgstr ""
 msgid "Your evaluation for the course {0} has been scheduled on {1} at {2} {3}."
 msgstr ""
 
-#: lms/doctype/lms_certificate_request/lms_certificate_request.py:123
+#: lms/doctype/lms_certificate_request/lms_certificate_request.py:125
 msgid "Your evaluation slot has been booked"
 msgstr ""
 

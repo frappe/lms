@@ -31,12 +31,35 @@ describe("Course Creation", () => {
 			.contains("Preview Video")
 			.type("https://www.youtube.com/embed/-LPmw2Znl2c");
 		cy.get("[id=tags]").type("Learning{enter}Frappe{enter}ERPNext{enter}");
-		cy.get(".search-input").click().type("frappe");
-		cy.wait(1000);
+		cy.get("label")
+			.contains("Category")
+			.parent()
+			.within(() => {
+				cy.get("button").click();
+			});
 		cy.get("[id^=headlessui-combobox-option-")
 			.should("be.visible")
 			.first()
 			.click();
+
+		/* Instructor */
+		cy.get("label")
+			.contains("Instructors")
+			.parent()
+			.within(() => {
+				cy.get("input").click().type("frappe");
+				cy.get("input")
+					.invoke("attr", "aria-controls")
+					.as("instructor_list_id");
+			});
+		cy.get("@instructor_list_id").then((instructor_list_id) => {
+			cy.get(`[id^=${instructor_list_id}`)
+				.should("be.visible")
+				.within(() => {
+					cy.get("[id^=headlessui-combobox-option-").first().click();
+				});
+		});
+
 		cy.get("label").contains("Published").click();
 		cy.get("label").contains("Published On").type("2021-01-01");
 		cy.button("Save").click();

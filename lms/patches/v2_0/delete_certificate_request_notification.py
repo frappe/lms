@@ -2,4 +2,10 @@ import frappe
 
 
 def execute():
-	frappe.db.delete("Notification", "Certificate Request Creation")
+	delete_notification("Certificate Request Creation")
+	delete_notification("Certificate Request Reminder")
+
+
+def delete_notification(notification_name):
+	if frappe.db.exists("Notification", notification_name):
+		frappe.db.delete("Notification", notification_name)

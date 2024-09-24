@@ -1,0 +1,51 @@
+[
+ {
+  "category": "Web Development",
+  "docstatus": 0,
+  "doctype": "LMS Category",
+  "modified": "2024-09-20 12:58:16.841571",
+  "name": "Web Development"
+ },
+ {
+  "category": "Business",
+  "docstatus": 0,
+  "doctype": "LMS Category",
+  "modified": "2024-09-20 12:58:32.304850",
+  "name": "Business"
+ },
+ {
+  "category": "Design",
+  "docstatus": 0,
+  "doctype": "LMS Category",
+  "modified": "2024-09-20 12:59:12.621022",
+  "name": "Design"
+ },
+ {
+  "category": "Personal Development",
+  "docstatus": 0,
+  "doctype": "LMS Category",
+  "modified": "2024-09-20 12:59:19.287404",
+  "name": "Personal Development"
+ },
+ {
+  "category": "Finance",
+  "docstatus": 0,
+  "doctype": "LMS Category",
+  "modified": "2024-09-20 12:58:28.579714",
+  "name": "Finance"
+ },
+ {
+  "category": "Frontend",
+  "docstatus": 0,
+  "doctype": "LMS Category",
+  "modified": "2024-05-08 14:05:16.979275",
+  "name": "Frontend"
+ },
+ {
+  "category": "Framework",
+  "docstatus": 0,
+  "doctype": "LMS Category",
+  "modified": "2023-06-15 18:01:41.598282",
+  "name": "Framework"
+ }
+]
