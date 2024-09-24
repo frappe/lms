@@ -38,7 +38,7 @@
 						v-if="orderSummary.data.gst_applied"
 						class="flex items-center justify-between mt-2"
 					>
-						<div>
+						<div class="text-sm text-gray-600 font-medium">
 							{{ __('GST Amount') }}
 						</div>
 						<div>
@@ -171,7 +171,7 @@ import { Input, Button, createResource, call } from 'frappe-ui'
 import { reactive, inject, onMounted, ref } from 'vue'
 import Link from '@/components/Controls/Link.vue'
 import NotPermitted from '@/components/NotPermitted.vue'
-import { createToast } from '@/utils/'
+import { showToast } from '@/utils/'
 
 const user = inject('$user')
 
@@ -224,73 +224,45 @@ const orderSummary = createResource({
 const billingDetails = reactive({})
 
 const setBillingDetails = (data) => {
-	billingDetails.billing_name = data.billing_name || ''
-	billingDetails.address_line1 = data.address_line1 || ''
-	billingDetails.address_line2 = data.address_line2 || ''
-	billingDetails.city = data.city || ''
-	billingDetails.state = data.state || ''
-	billingDetails.country = data.country || ''
-	billingDetails.pincode = data.pincode || ''
-	billingDetails.phone = data.phone || ''
-	billingDetails.source = data.source || ''
-	billingDetails.gstin = data.gstin || ''
-	billingDetails.pan = data.pan || ''
+	billingDetails.billing_name = data?.billing_name || ''
+	billingDetails.address_line1 = data?.address_line1 || ''
+	billingDetails.address_line2 = data?.address_line2 || ''
+	billingDetails.city = data?.city || ''
+	billingDetails.state = data?.state || ''
+	billingDetails.country = data?.country || ''
+	billingDetails.pincode = data?.pincode || ''
+	billingDetails.phone = data?.phone || ''
+	billingDetails.source = data?.source || ''
+	billingDetails.gstin = data?.gstin || ''
+	billingDetails.pan = data?.pan || ''
 }
 
-const paymentOptions = createResource({
-	url: 'lms.lms.utils.get_payment_options',
+const paymentLink = createResource({
+	url: 'lms.lms.payments.get_payment_link',
 	makeParams(values) {
 		return {
 			doctype: props.type == 'course' ? 'LMS Course' : 'LMS Batch',
 			docname: props.name,
-			phone: billingDetails.phone,
-			country: billingDetails.country,
+			amount: orderSummary.data.original_amount,
+			total_amount: orderSummary.data.amount,
+			currency: orderSummary.data.currency,
+			address: billingDetails,
 		}
 	},
 })
 
 const generatePaymentLink = () => {
-	call('lms.lms.payments.get_payment_link', {
-		doctype: props.type == 'course' ? 'LMS Course' : 'LMS Batch',
-		docname: props.name,
-		amount: orderSummary.data.amount,
-		currency: orderSummary.data.currency,
-		billing_name: billingDetails.billing_name,
-	}).then((data) => {
-		window.location.href = data
-	})
-}
-
-const paymentResource = createResource({
-	url: 'lms.lms.utils.verify_payment',
-	makeParams(values) {
-		return {
-			response: values.response,
-			doctype: props.type == 'course' ? 'LMS Course' : 'LMS Batch',
-			docname: props.name,
-			address: billingDetails,
-			order_id: values.orderId,
-		}
-	},
-})
-
-const handleSuccess = (response, doctype, docname, orderId) => {
-	paymentResource.submit(
+	paymentLink.submit(
+		{},
 		{
-			response: response,
-			orderId: orderId,
-		},
-		{
+			validate() {
+				return validateAddress()
+			},
 			onSuccess(data) {
-				createToast({
-					title: 'Success',
-					text: 'Payment Successful',
-					icon: 'check',
-					iconClasses: 'bg-green-600 text-white rounded-md p-px',
-				})
-				setTimeout(() => {
-					window.location.href = data
-				}, 3000)
+				window.location.href = data
+			},
+			onError(err) {
+				showToast(__('Error'), err.messages?.[0] || err, 'x')
 			},
 		}
 	)

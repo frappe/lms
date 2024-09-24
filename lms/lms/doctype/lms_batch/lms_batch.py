@@ -165,25 +165,64 @@ class LMSBatch(Document):
 				)
 
 	def on_payment_authorized(self, payment_status):
-		print(payment_status)
+		if payment_status == "Authorized":
+			self.update_payment_record()
+
+	def update_payment_record(self):
+		request = frappe.get_all(
+			"Integration Request",
+			{
+				"reference_doctype": self.doctype,
+				"reference_docname": self.name,
+				"owner": frappe.session.user,
+			},
+			order_by="creation desc",
+			limit=1,
+		)
+
+		if len(request):
+			data = frappe.db.get_value("Integration Request", request[0].name, "data")
+			data = frappe._dict(json.loads(data))
+
+			payment_gateway = data.get("payment_gateway")
+			frappe.db.set_value(
+				"LMS Payment",
+				data.payment,
+				{
+					"payment_received": 1,
+					"payment_id": data[f"{payment_gateway.lower()}_payment_id"],
+					"order_id": data["order_id"],
+				},
+			)
+
+			try:
+				enroll_in_batch(data.payment, self)
+			except Exception as e:
+				frappe.log_error(frappe.get_traceback(), _("Enrollment Failed"))
 
 
-@frappe.whitelist()
-def remove_student(student, batch_name):
-	frappe.only_for("Moderator")
-	frappe.db.delete("Batch Student", {"student": student, "parent": batch_name})
+def enroll_in_batch(payment_name, batch):
+	if not frappe.db.exists(
+		"Batch Student", {"parent": batch.name, "student": frappe.session.user}
+	):
+		student = frappe.new_doc("Batch Student")
+		current_count = frappe.db.count("Batch Student", {"parent": batch.name})
+		payment = frappe.db.get_value(
+			"LMS Payment", payment_name, ["name", "source"], as_dict=True
+		)
 
-
-@frappe.whitelist()
-def remove_course(course, parent):
-	frappe.only_for("Moderator")
-	frappe.db.delete("Batch Course", {"course": course, "parent": parent})
-
-
-@frappe.whitelist()
-def remove_assessment(assessment, parent):
-	frappe.only_for("Moderator")
-	frappe.db.delete("LMS Assessment", {"assessment_name": assessment, "parent": parent})
+		student.update(
+			{
+				"student": frappe.session.user,
+				"payment": payment.name,
+				"source": payment.source,
+				"parent": batch.name,
+				"parenttype": "LMS Batch",
+				"parentfield": "students",
+				"idx": current_count + 1,
+			}
+		)
+		student.save(ignore_permissions=True)
 
 
 @frappe.whitelist()

@@ -1021,27 +1021,6 @@ def get_details(doctype, docname):
 	return details
 
 
-def save_address(address):
-	filters = {"email_id": frappe.session.user}
-	exists = frappe.db.exists("Address", filters)
-	if exists:
-		address_doc = frappe.get_last_doc("Address", filters=filters)
-	else:
-		address_doc = frappe.new_doc("Address")
-
-	address_doc.update(address)
-	address_doc.update(
-		{
-			"address_title": frappe.db.get_value("User", frappe.session.user, "full_name"),
-			"address_type": "Billing",
-			"is_primary_address": 1,
-			"email_id": frappe.session.user,
-		}
-	)
-	address_doc.save(ignore_permissions=True)
-	return address_doc.name
-
-
 def get_client():
 	settings = frappe.get_single("LMS Settings")
 	razorpay_key = settings.razorpay_key
@@ -1073,52 +1052,6 @@ def create_order(client, amount, currency):
 		)
 
 
-@frappe.whitelist()
-def verify_payment(response, doctype, docname, address, order_id):
-	client = get_client()
-	client.utility.verify_payment_signature(
-		{
-			"razorpay_order_id": order_id,
-			"razorpay_payment_id": response["razorpay_payment_id"],
-			"razorpay_signature": response["razorpay_signature"],
-		}
-	)
-
-	payment = record_payment(address, response, client, doctype, docname)
-	if doctype == "LMS Course":
-		return create_membership(docname, payment)
-	else:
-		return add_student_to_batch(docname, payment)
-
-
-def record_payment(address, response, client, doctype, docname):
-	address = frappe._dict(address)
-	address_name = save_address(address)
-
-	payment_details = get_payment_details(doctype, docname, address)
-	payment_doc = frappe.new_doc("LMS Payment")
-	payment_doc.update(
-		{
-			"member": frappe.session.user,
-			"billing_name": address.billing_name,
-			"address": address_name,
-			"payment_received": 1,
-			"order_id": response["razorpay_order_id"],
-			"payment_id": response["razorpay_payment_id"],
-			"amount": payment_details["amount"],
-			"currency": payment_details["currency"],
-			"amount_with_gst": payment_details["amount_with_gst"],
-			"gstin": address.gstin,
-			"pan": address.pan,
-			"source": address.source,
-			"payment_for_document_type": doctype,
-			"payment_for_document": docname,
-		}
-	)
-	payment_doc.save(ignore_permissions=True)
-	return payment_doc
-
-
 def get_payment_details(doctype, docname, address):
 	amount_field = "course_price" if doctype == "LMS Course" else "amount"
 	amount = frappe.db.get_value(doctype, docname, amount_field)
@@ -1144,24 +1077,6 @@ def create_membership(course, payment):
 	)
 	membership.save(ignore_permissions=True)
 	return f"/lms/courses/{course}/learn/1-1"
-
-
-def add_student_to_batch(batchname, payment):
-	student = frappe.new_doc("Batch Student")
-	current_count = frappe.db.count("Batch Student", {"parent": batchname})
-	student.update(
-		{
-			"student": frappe.session.user,
-			"payment": payment.name,
-			"source": payment.source,
-			"parent": batchname,
-			"parenttype": "LMS Batch",
-			"parentfield": "students",
-			"idx": current_count + 1,
-		}
-	)
-	student.save(ignore_permissions=True)
-	return f"/batches/{batchname}"
 
 
 def get_current_exchange_rate(source, target="USD"):
@@ -1765,6 +1680,7 @@ def get_order_summary(doctype, docname, country=None):
 	details.amount, details.currency = check_multicurrency(
 		details.amount, details.currency, country, details.amount_usd
 	)
+	details.original_amount = details.amount
 	details.original_amount_formatted = fmt_money(details.amount, 0, details.currency)
 
 	if details.currency == "INR":

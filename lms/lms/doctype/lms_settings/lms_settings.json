@@ -42,6 +42,7 @@
   "mentor_request_status_update",
   "payment_settings_tab",
   "payment_section",
+  "payment_gateway",
   "razorpay_key",
   "razorpay_secret",
   "apply_gst",
@@ -331,12 +332,18 @@
    "fieldname": "custom_signup_content",
    "fieldtype": "HTML Editor",
    "label": "Custom Signup Content"
+  },
+  {
+   "fieldname": "payment_gateway",
+   "fieldtype": "Select",
+   "label": "Payment Gateway",
+   "options": "Razorpay\nMpesa\nPaytm\nBraintree\nStripe\nPaypal\nGoCardless"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-09-23 17:57:01.350020",
+ "modified": "2024-09-24 18:09:25.366651",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",
