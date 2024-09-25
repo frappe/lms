@@ -15,12 +15,13 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Category",
+   "reqd": 1,
    "unique": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-06-15 15:14:11.341961",
+ "modified": "2024-09-23 19:33:49.593950",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Category",
@@ -55,5 +56,6 @@
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
- "title_field": "category"
+ "title_field": "category",
+ "track_changes": 1
 }

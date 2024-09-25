@@ -8,9 +8,15 @@
 				{{ __(description) }}
 			</div>
 		</div>
-		<div class="flex justify-between my-5">
+		<div
+			class="my-5"
+			:class="{ 'flex justify-between w-full': columns.length > 1 }"
+		>
 			<div v-for="(column, index) in columns" :key="index">
-				<div class="flex flex-col space-y-5 w-72">
+				<div
+					class="flex flex-col space-y-5"
+					:class="columns.length > 1 ? 'w-72' : 'w-full'"
+				>
 					<div v-for="field in column">
 						<Link
 							v-if="field.type == 'Link'"
@@ -18,12 +24,25 @@
 							:doctype="field.doctype"
 							:label="field.label"
 						/>
+
+						<Codemirror
+							v-else-if="field.type == 'Code'"
+							v-model:value="field.value"
+							:label="field.label"
+							:height="200"
+							:options="{
+								mode: field.mode,
+								theme: 'seti',
+							}"
+						/>
+
 						<FormControl
 							v-else
 							:key="field.name"
 							v-model="field.value"
 							:label="field.label"
 							:type="field.type"
+							:rows="field.rows"
 						/>
 					</div>
 				</div>
@@ -41,6 +60,9 @@
 import { FormControl, Button } from 'frappe-ui'
 import { computed } from 'vue'
 import Link from '@/components/Controls/Link.vue'
+import Codemirror from 'codemirror-editor-vue3'
+import 'codemirror/theme/seti.css'
+import 'codemirror/mode/htmlmixed/htmlmixed.js'
 
 const props = defineProps({
 	fields: {
@@ -94,3 +116,13 @@ const update = () => {
 	props.data.save.submit()
 }
 </script>
+<style>
+.CodeMirror pre.CodeMirror-line,
+.CodeMirror pre.CodeMirror-line-like {
+	font-family: revert;
+}
+
+.CodeMirror {
+	border-radius: 12px;
+}
+</style>
