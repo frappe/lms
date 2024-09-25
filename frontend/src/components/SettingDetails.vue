@@ -22,13 +22,13 @@
 							v-if="field.type == 'Link'"
 							v-model="field.value"
 							:doctype="field.doctype"
-							:label="field.label"
+							:label="__(field.label)"
 						/>
 
 						<Codemirror
 							v-else-if="field.type == 'Code'"
 							v-model:value="field.value"
-							:label="field.label"
+							:label="__(field.label)"
 							:height="200"
 							:options="{
 								mode: field.mode,
@@ -40,9 +40,10 @@
 							v-else
 							:key="field.name"
 							v-model="field.value"
-							:label="field.label"
+							:label="__(field.label)"
 							:type="field.type"
 							:rows="field.rows"
+							:options="field.options"
 						/>
 					</div>
 				</div>

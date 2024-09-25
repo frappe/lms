@@ -22,6 +22,12 @@ def get_payment_link(doctype, docname, amount, total_amount, currency, address):
 	amount_with_gst = total_amount if total_amount != amount else 0
 
 	payment = record_payment(address, doctype, docname, amount, currency, amount_with_gst)
+	controller = get_controller(payment_gateway)
+
+	if controller.doctype == "Stripe Settings":
+		print(controller.as_dict())
+		doctype = "Stripe Settings"
+		docname = controller.name
 
 	payment_details = {
 		"amount": total_amount,
@@ -37,7 +43,7 @@ def get_payment_link(doctype, docname, amount, total_amount, currency, address):
 		"redirect_to": f"/lms/batches/{docname}",
 		"payment": payment.name,
 	}
-	controller = get_controller(payment_gateway)
+	print(controller)
 	url = controller.get_payment_url(**payment_details)
 
 	return url

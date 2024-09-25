@@ -114,6 +114,12 @@ const tabsStructure = computed(() => {
 						'Configure the payment gateway and other payment related settings',
 					fields: [
 						{
+							label: 'Payment Gateway',
+							name: 'payment_gateway',
+							type: 'Link',
+							doctype: 'Payment Gateway',
+						},
+						{
 							label: 'Razorpay Key',
 							name: 'razorpay_key',
 							type: 'text',
@@ -250,6 +256,24 @@ const tabs = computed(() => {
 			items: tab.items.filter((item) => {
 				return !item.condition || item.condition()
 			}),
+		}
+	})
+})
+
+const paymentGateways = computed(() => {
+	const gateways = [
+		'Razorpay',
+		'Stripe',
+		'Mpesa',
+		'Patym',
+		'Paypal',
+		'Braintree',
+		'GoCardless',
+	]
+	return gateways.map((gateway) => {
+		return {
+			label: gateway,
+			value: gateway,
 		}
 	})
 })

@@ -335,15 +335,15 @@
   },
   {
    "fieldname": "payment_gateway",
-   "fieldtype": "Select",
+   "fieldtype": "Link",
    "label": "Payment Gateway",
-   "options": "Razorpay\nMpesa\nPaytm\nBraintree\nStripe\nPaypal\nGoCardless"
+   "options": "Payment Gateway"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-09-24 18:09:25.366651",
+ "modified": "2024-09-24 19:55:47.914930",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",
