@@ -499,3 +499,10 @@ export function singularize(word) {
 		(r) => endings[r]
 	)
 }
+
+export const validateFile = (file) => {
+	let extension = file.name.split('.').pop().toLowerCase()
+	if (!['jpg', 'jpeg', 'png', 'webp'].includes(extension)) {
+		return __('Only image file is allowed.')
+	}
+}

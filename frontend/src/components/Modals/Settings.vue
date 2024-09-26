@@ -45,6 +45,13 @@
 						:label="activeTab.label"
 						:description="activeTab.description"
 					/>
+					<BrandSettings
+						v-else-if="activeTab.label === 'Branding'"
+						:label="activeTab.label"
+						:description="activeTab.description"
+						:fields="activeTab.fields"
+						:data="branding"
+					/>
 					<SettingDetails
 						v-else
 						:fields="activeTab.fields"
@@ -58,13 +65,14 @@
 	</Dialog>
 </template>
 <script setup>
-import { Dialog, createDocumentResource } from 'frappe-ui'
+import { Dialog, createDocumentResource, createResource } from 'frappe-ui'
 import { ref, computed, watch } from 'vue'
 import { useSettings } from '@/stores/settings'
 import SettingDetails from '../SettingDetails.vue'
 import SidebarLink from '@/components/SidebarLink.vue'
 import Members from '@/components/Members.vue'
 import Categories from '@/components/Categories.vue'
+import BrandSettings from '@/components/BrandSettings.vue'
 
 const show = defineModel()
 const doctype = ref('LMS Settings')
@@ -77,6 +85,12 @@ const data = createDocumentResource({
 	fields: ['*'],
 	cache: doctype.value,
 	auto: true,
+})
+
+const branding = createResource({
+	url: 'lms.lms.api.get_branding',
+	auto: true,
+	cache: 'brand',
 })
 
 const tabsStructure = computed(() => {
@@ -155,6 +169,54 @@ const tabsStructure = computed(() => {
 			label: 'Customise',
 			hideLabel: false,
 			items: [
+				{
+					label: 'Branding',
+					icon: 'Blocks',
+					description:
+						'Customize the brand information of your learning system',
+					fields: [
+						{
+							label: 'Brand Name',
+							name: 'app_name',
+							type: 'text',
+						},
+						{
+							label: 'Copyright',
+							name: 'copyright',
+							type: 'text',
+						},
+						{
+							label: 'Address',
+							name: 'address',
+							type: 'textarea',
+							rows: 4,
+						},
+						{
+							label: 'Footer "Powered By"',
+							name: 'footer_powered',
+							type: 'textarea',
+							rows: 4,
+						},
+						{
+							type: 'Column Break',
+						},
+						{
+							label: 'Logo',
+							name: 'banner_image',
+							type: 'Upload',
+						},
+						{
+							label: 'Favicon',
+							name: 'favicon',
+							type: 'Upload',
+						},
+						{
+							label: 'Footer Logo',
+							name: 'footer_logo',
+							type: 'Upload',
+						},
+					],
+				},
 				{
 					label: 'Sidebar',
 					icon: 'PanelLeftIcon',
