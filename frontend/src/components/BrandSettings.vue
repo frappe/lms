@@ -1,8 +1,16 @@
 <template>
 	<div class="flex flex-col justify-between h-full">
 		<div>
-			<div class="font-semibold mb-1">
-				{{ __(label) }}
+			<div class="flex items-center justify-between">
+				<div class="font-semibold mb-1">
+					{{ __(label) }}
+				</div>
+				<Badge
+					v-if="isDirty"
+					:label="__('Not Saved')"
+					variant="subtle"
+					theme="orange"
+				/>
 			</div>
 			<div class="text-xs text-gray-600">
 				{{ __(description) }}
@@ -17,8 +25,11 @@
 	</div>
 </template>
 <script setup>
-import { createResource, Button } from 'frappe-ui'
+import { createResource, Button, Badge } from 'frappe-ui'
 import SettingFields from '@/components/SettingFields.vue'
+import { watch, ref } from 'vue'
+
+const isDirty = ref(false)
 
 const props = defineProps({
 	fields: {
@@ -64,4 +75,11 @@ const update = () => {
 		fields: fieldsToSave,
 	})
 }
+
+watch(props.data, (newData) => {
+	console.log(newData)
+	if (newData && !isDirty.value) {
+		isDirty.value = true
+	}
+})
 </script>
