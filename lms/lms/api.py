@@ -289,11 +289,13 @@ def get_file_info(file_url):
 @frappe.whitelist(allow_guest=True)
 def get_branding():
 	"""Get branding details."""
-	return {
-		"brand_name": frappe.db.get_single_value("Website Settings", "app_name"),
-		"brand_html": frappe.db.get_single_value("Website Settings", "brand_html"),
-		"favicon": frappe.db.get_single_value("Website Settings", "favicon"),
-	}
+	website_settings = frappe.get_single("Website Settings")
+	image_fields = ["banner_image", "footer_logo", "favicon"]
+
+	for field in image_fields:
+		website_settings.update({field: get_file_info(website_settings.get(field))})
+
+	return website_settings
 
 
 @frappe.whitelist()
