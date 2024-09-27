@@ -172,8 +172,6 @@ const tabsStructure = computed(() => {
 				{
 					label: 'Branding',
 					icon: 'Blocks',
-					description:
-						'Customize the brand information of your learning system',
 					fields: [
 						{
 							label: 'Brand Name',
@@ -260,7 +258,6 @@ const tabsStructure = computed(() => {
 				{
 					label: 'Email Templates',
 					icon: 'MailPlus',
-					description: 'Create email templates with the content you want',
 					fields: [
 						{
 							label: 'Batch Confirmation Template',
