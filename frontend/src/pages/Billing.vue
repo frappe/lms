@@ -1,37 +1,44 @@
 <template>
 	<div class="">
+		<header
+			class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
+		>
+			<Breadcrumbs
+				class="h-7"
+				:items="[{ label: __('Billing Details'), route: { name: 'Billing' } }]"
+			/>
+		</header>
 		<div
 			v-if="access.data?.access && orderSummary.data"
-			class="mt-10 w-1/2 mx-auto"
+			class="pt-5 pb-10 mx-5"
 		>
-			<div class="text-3xl font-bold">
-				{{ __('Billing Details') }}
-			</div>
-			<div class="text-gray-600 mt-1">
-				{{ __('Enter the billing information to complete the payment.') }}
-			</div>
-			<div class="border rounded-md p-5 mt-5">
-				<div class="text-xl font-semibold">
-					{{ __('Summary') }}
+			<div class="mb-5">
+				<div class="text-lg font-semibold">
+					{{ __('Address') }}
 				</div>
-				<div class="text-gray-600 mt-1">
-					{{ __('Review the details of your purchase.') }}
-				</div>
-				<div class="mt-5">
+				<!-- <div class="text-sm text-gray-600 mt-1">
+					{{ __('Specify your billing address correctly.') }}
+				</div> -->
+			</div>
+			<div class="grid grid-cols-[65%,30%] gap-10">
+				<div class="h-fit bg-gray-100 rounded-md p-5 space-y-4 order-last">
 					<div class="flex items-center justify-between">
-						<div>
+						<div class="text-gray-700">
+							{{ __('Ordered Item') }}
+						</div>
+						<div class="font-medium">
 							{{ orderSummary.data.title }}
 						</div>
-						<div
-							:class="{
-								'font-semibold text-xl': !orderSummary.data.gst_applied,
-							}"
-						>
-							{{
-								orderSummary.data.gst_applied
-									? orderSummary.data.original_amount_formatted
-									: orderSummary.data.total_amount_formatted
-							}}
+					</div>
+					<div
+						v-if="orderSummary.data.gst_applied"
+						class="flex items-center justify-between"
+					>
+						<div class="text-gray-700">
+							{{ __('Original Amount') }}
+						</div>
+						<div>
+							{{ orderSummary.data.original_amount_formatted }}
 						</div>
 					</div>
 					<div
@@ -46,107 +53,83 @@
 						</div>
 					</div>
 					<div
-						v-if="orderSummary.data.gst_applied"
-						class="flex items-center justify-between mt-2"
+						class="flex items-center justify-between font-semibold border-t border-gray-400 pt-4 mt-2"
 					>
 						<div>
-							{{ __('Total Amount') }}
+							{{ __('Total') }}
 						</div>
-						<div class="font-semibold text-2xl">
+						<div class="text-lg font-semibold">
 							{{ orderSummary.data.total_amount_formatted }}
 						</div>
 					</div>
 				</div>
 
-				<div class="text-xl font-semibold mt-10">
-					{{ __('Address') }}
-				</div>
-				<div class="text-gray-600 mt-1">
-					{{ __('Specify your billing address correctly.') }}
-				</div>
-				<div class="grid grid-cols-2 gap-5 mt-4">
-					<div>
-						<div class="mt-4">
-							<div class="mb-1.5 text-sm text-gray-700">
-								{{ __('Billing Name') }}
-							</div>
-							<Input type="text" v-model="billingDetails.billing_name" />
+				<div>
+					<!-- <div class="mb-5">
+						<div class="text-lg font-semibold">
+							{{ __('Address') }}
 						</div>
-						<div class="mt-4">
-							<div class="mb-1.5 text-sm text-gray-700">
-								{{ __('Address Line 1') }}
-							</div>
-							<Input type="text" v-model="billingDetails.address_line1" />
+						<div class="text-sm text-gray-600 mt-1">
+							{{ __('Specify your billing address correctly.') }}
 						</div>
-						<div class="mt-4">
-							<div class="mb-1.5 text-sm text-gray-700">
-								{{ __('Address Line 2') }}
-							</div>
-							<Input type="text" v-model="billingDetails.address_line2" />
-						</div>
-						<div class="mt-4">
-							<div class="mb-1.5 text-sm text-gray-700">
-								{{ __('City') }}
-							</div>
-							<Input type="text" v-model="billingDetails.city" />
-						</div>
-						<div class="mt-4">
-							<div class="mb-1.5 text-sm text-gray-700">
-								{{ __('State') }}
-							</div>
-							<Input type="text" v-model="billingDetails.state" />
-						</div>
-					</div>
-					<div>
-						<div class="mt-4">
-							<div class="mb-1.5 text-sm text-gray-700">
-								{{ __('Country') }}
-							</div>
+					</div> -->
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+						<div class="space-y-4">
+							<FormControl
+								:label="__('Billing Name')"
+								v-model="billingDetails.billing_name"
+							/>
+							<FormControl
+								:label="__('Address Line 1')"
+								v-model="billingDetails.address_line1"
+							/>
+							<FormControl
+								:label="__('Address Line 2')"
+								v-model="billingDetails.address_line2"
+							/>
+							<FormControl :label="__('City')" v-model="billingDetails.city" />
+							<FormControl
+								:label="__('State')"
+								v-model="billingDetails.state"
+							/>
 							<Link
 								doctype="Country"
 								:value="billingDetails.country"
 								@change="(option) => changeCurrency(option)"
+								:label="__('Country')"
 							/>
 						</div>
-						<div class="mt-4">
-							<div class="mb-1.5 text-sm text-gray-700">
-								{{ __('Postal Code') }}
-							</div>
-							<Input type="text" v-model="billingDetails.pincode" />
-						</div>
-						<div class="mt-4">
-							<div class="mb-1.5 text-sm text-gray-700">
-								{{ __('Phone Number') }}
-							</div>
-							<Input type="text" v-model="billingDetails.phone" />
-						</div>
-						<div class="mt-4">
-							<div class="mb-1.5 text-sm text-gray-700">
-								{{ __('Source') }}
-							</div>
+						<div class="space-y-4">
+							<FormControl
+								:label="__('Postal Code')"
+								v-model="billingDetails.pincode"
+							/>
+							<FormControl
+								:label="__('Phone Number')"
+								v-model="billingDetails.phone"
+							/>
 							<Link
 								doctype="LMS Source"
 								:value="billingDetails.source"
 								@change="(option) => (billingDetails.source = option)"
+								:label="__('Where did you hear about us?')"
+							/>
+							<FormControl
+								v-if="billingDetails.country == 'India'"
+								:label="__('GST Number')"
+								v-model="billingDetails.gstin"
+							/>
+							<FormControl
+								v-if="billingDetails.country == 'India'"
+								:label="__('Pan Number')"
+								v-model="billingDetails.pan"
 							/>
 						</div>
-						<div v-if="billingDetails.country == 'India'" class="mt-4">
-							<div class="mb-1.5 text-sm text-gray-700">
-								{{ __('GST Number') }}
-							</div>
-							<Input type="text" v-model="billingDetails.gstin" />
-						</div>
-						<div v-if="billingDetails.country == 'India'" class="mt-4">
-							<div class="mb-1.5 text-sm text-gray-700">
-								{{ __('Pan Number') }}
-							</div>
-							<Input type="text" v-model="billingDetails.pan" />
-						</div>
 					</div>
+					<Button variant="solid" class="mt-8" @click="generatePaymentLink()">
+						{{ __('Proceed to Payment') }}
+					</Button>
 				</div>
-				<Button variant="solid" class="mt-8" @click="generatePaymentLink()">
-					{{ __('Proceed to Payment') }}
-				</Button>
 			</div>
 		</div>
 		<div v-else-if="access.data?.message">
@@ -167,7 +150,14 @@
 	</div>
 </template>
 <script setup>
-import { Input, Button, createResource, call } from 'frappe-ui'
+import {
+	Input,
+	Button,
+	createResource,
+	FormControl,
+	Breadcrumbs,
+	Tooltip,
+} from 'frappe-ui'
 import { reactive, inject, onMounted, ref } from 'vue'
 import Link from '@/components/Controls/Link.vue'
 import NotPermitted from '@/components/NotPermitted.vue'
@@ -202,14 +192,15 @@ const access = createResource({
 		name: props.name,
 	},
 	onSuccess(data) {
-		orderSummary.submit()
 		setBillingDetails(data.address)
+		orderSummary.submit()
 	},
 })
 
 const orderSummary = createResource({
 	url: 'lms.lms.utils.get_order_summary',
 	makeParams(values) {
+		console.log(billingDetails.country)
 		return {
 			doctype: props.type == 'course' ? 'LMS Course' : 'LMS Batch',
 			docname: props.name,

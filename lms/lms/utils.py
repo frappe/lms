@@ -1682,10 +1682,12 @@ def get_order_summary(doctype, docname, country=None):
 	)
 	details.original_amount = details.amount
 	details.original_amount_formatted = fmt_money(details.amount, 0, details.currency)
-
+	print(details.currency)
 	if details.currency == "INR":
+		print("inside")
 		details.amount, details.gst_applied = apply_gst(details.amount)
 		details.gst_amount_formatted = fmt_money(details.gst_applied, 0, details.currency)
+		print(details.amount, details.gst_applied, details.gst_amount_formatted)
 
 	details.total_amount_formatted = fmt_money(details.amount, 0, details.currency)
 	return details
