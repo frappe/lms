@@ -80,6 +80,7 @@
 						:label="__(field.label)"
 						:type="field.type"
 						:rows="field.rows"
+						:options="field.options"
 					/>
 				</div>
 			</div>
