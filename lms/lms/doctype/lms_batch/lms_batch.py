@@ -133,6 +133,8 @@ class LMSBatch(Document):
 
 	def validate_timetable(self):
 		for schedule in self.timetable:
+			if schedule.date == None:
+				schedule.date = self.start_date
 			if schedule.start_time and schedule.end_time:
 				if get_time(schedule.start_time) > get_time(schedule.end_time) or get_time(
 					schedule.start_time
