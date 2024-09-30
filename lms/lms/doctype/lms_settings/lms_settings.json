@@ -43,14 +43,12 @@
   "payment_settings_tab",
   "payment_section",
   "payment_gateway",
-  "razorpay_key",
-  "razorpay_secret",
-  "apply_gst",
-  "column_break_cfcv",
   "default_currency",
+  "exception_country",
+  "column_break_cfcv",
+  "apply_gst",
   "show_usd_equivalent",
   "apply_rounding",
-  "exception_country",
   "email_templates_tab",
   "certification_template",
   "batch_confirmation_template",
@@ -149,16 +147,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "razorpay_key",
-   "fieldtype": "Data",
-   "label": "Razorpay Key"
-  },
-  {
-   "fieldname": "razorpay_secret",
-   "fieldtype": "Password",
-   "label": "Razorpay Secret"
-  },
-  {
    "default": "0",
    "fieldname": "apply_gst",
    "fieldtype": "Check",
@@ -174,7 +162,7 @@
    "depends_on": "show_usd_equivalent",
    "fieldname": "exception_country",
    "fieldtype": "Table MultiSelect",
-   "label": "Maintain Original Currency",
+   "label": "Primary Countries",
    "options": "Payment Country"
   },
   {
@@ -343,7 +331,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-09-24 19:55:47.914930",
+ "modified": "2024-09-30 18:30:28.689084",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",

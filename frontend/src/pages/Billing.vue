@@ -12,21 +12,20 @@
 			v-if="access.data?.access && orderSummary.data"
 			class="pt-5 pb-10 mx-5"
 		>
-			<div class="mb-5">
+			<!-- <div class="mb-5">
 				<div class="text-lg font-semibold">
 					{{ __('Address') }}
 				</div>
-				<!-- <div class="text-sm text-gray-600 mt-1">
-					{{ __('Specify your billing address correctly.') }}
-				</div> -->
-			</div>
-			<div class="grid grid-cols-[65%,30%] gap-10">
-				<div class="h-fit bg-gray-100 rounded-md p-5 space-y-4 order-last">
-					<div class="flex items-center justify-between">
-						<div class="text-gray-700">
+			</div> -->
+			<div class="flex flex-col lg:flex-row justify-between">
+				<div
+					class="h-fit bg-gray-100 rounded-md p-5 space-y-4 lg:order-last mb-10 lg:mt-10 text-sm font-medium lg:w-1/4"
+				>
+					<div class="flex items-center justify-between space-x-2">
+						<div class="text-gray-600">
 							{{ __('Ordered Item') }}
 						</div>
-						<div class="font-medium">
+						<div class="">
 							{{ orderSummary.data.title }}
 						</div>
 					</div>
@@ -34,10 +33,10 @@
 						v-if="orderSummary.data.gst_applied"
 						class="flex items-center justify-between"
 					>
-						<div class="text-gray-700">
+						<div class="text-gray-600">
 							{{ __('Original Amount') }}
 						</div>
-						<div>
+						<div class="">
 							{{ orderSummary.data.original_amount_formatted }}
 						</div>
 					</div>
@@ -45,7 +44,7 @@
 						v-if="orderSummary.data.gst_applied"
 						class="flex items-center justify-between mt-2"
 					>
-						<div class="text-sm text-gray-600 font-medium">
+						<div class="text-gray-600">
 							{{ __('GST Amount') }}
 						</div>
 						<div>
@@ -53,9 +52,9 @@
 						</div>
 					</div>
 					<div
-						class="flex items-center justify-between font-semibold border-t border-gray-400 pt-4 mt-2"
+						class="flex items-center justify-between border-t border-gray-400 pt-4 mt-2"
 					>
-						<div>
+						<div class="text-lg font-semibold">
 							{{ __('Total') }}
 						</div>
 						<div class="text-lg font-semibold">
@@ -64,15 +63,12 @@
 					</div>
 				</div>
 
-				<div>
-					<!-- <div class="mb-5">
+				<div class="flex-1 lg:mr-10">
+					<div class="mb-5">
 						<div class="text-lg font-semibold">
 							{{ __('Address') }}
 						</div>
-						<div class="text-sm text-gray-600 mt-1">
-							{{ __('Specify your billing address correctly.') }}
-						</div>
-					</div> -->
+					</div>
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 						<div class="space-y-4">
 							<FormControl
@@ -92,14 +88,14 @@
 								:label="__('State')"
 								v-model="billingDetails.state"
 							/>
+						</div>
+						<div class="space-y-4">
 							<Link
 								doctype="Country"
 								:value="billingDetails.country"
 								@change="(option) => changeCurrency(option)"
 								:label="__('Country')"
 							/>
-						</div>
-						<div class="space-y-4">
 							<FormControl
 								:label="__('Postal Code')"
 								v-model="billingDetails.pincode"
@@ -200,7 +196,6 @@ const access = createResource({
 const orderSummary = createResource({
 	url: 'lms.lms.utils.get_order_summary',
 	makeParams(values) {
-		console.log(billingDetails.country)
 		return {
 			doctype: props.type == 'course' ? 'LMS Course' : 'LMS Batch',
 			docname: props.name,
@@ -234,6 +229,7 @@ const paymentLink = createResource({
 		return {
 			doctype: props.type == 'course' ? 'LMS Course' : 'LMS Batch',
 			docname: props.name,
+			title: orderSummary.data.title,
 			amount: orderSummary.data.original_amount,
 			total_amount: orderSummary.data.amount,
 			currency: orderSummary.data.currency,
@@ -247,6 +243,9 @@ const generatePaymentLink = () => {
 		{},
 		{
 			validate() {
+				if (!billingDetails.source) {
+					return __('Please let us know where you heard about us from.')
+				}
 				return validateAddress()
 			},
 			onSuccess(data) {

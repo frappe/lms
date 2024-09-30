@@ -16,7 +16,7 @@ def validate_currency(payment_gateway, currency):
 
 
 @frappe.whitelist()
-def get_payment_link(doctype, docname, amount, total_amount, currency, address):
+def get_payment_link(doctype, docname, title, amount, total_amount, currency, address):
 	payment_gateway = get_payment_gateway()
 	address = frappe._dict(address)
 	amount_with_gst = total_amount if total_amount != amount else 0
@@ -24,26 +24,24 @@ def get_payment_link(doctype, docname, amount, total_amount, currency, address):
 	payment = record_payment(address, doctype, docname, amount, currency, amount_with_gst)
 	controller = get_controller(payment_gateway)
 
-	if controller.doctype == "Stripe Settings":
-		print(controller.as_dict())
-		doctype = "Stripe Settings"
-		docname = controller.name
+	if doctype == "LMS Course":
+		redirect_to = f"/lms/courses/{docname}/learn/1-1"
+	elif doctype == "LMS Batch":
+		redirect_to = f"/lms/batches/{docname}"
 
 	payment_details = {
 		"amount": total_amount,
-		"title": f"Payment for {doctype} {docname}",
-		"description": f"{address.billing_name}'s payment for {doctype} {docname}",
+		"title": f"Payment for {doctype} {title} {docname}",
+		"description": f"{address.billing_name}'s payment for {title}",
 		"reference_doctype": doctype,
 		"reference_docname": docname,
 		"payer_email": frappe.session.user,
 		"payer_name": address.billing_name,
-		"order_id": docname,
 		"currency": currency,
 		"payment_gateway": payment_gateway,
-		"redirect_to": f"/lms/batches/{docname}",
+		"redirect_to": redirect_to,
 		"payment": payment.name,
 	}
-	print(controller)
 	url = controller.get_payment_url(**payment_details)
 
 	return url

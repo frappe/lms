@@ -8,7 +8,7 @@ from frappe.model.document import Document
 from frappe.utils import cint, today
 from frappe.utils.telemetry import capture
 from lms.lms.utils import get_chapters, can_create_courses
-from ...utils import generate_slug, validate_image
+from ...utils import generate_slug, validate_image, update_payment_record
 from frappe import _
 
 
@@ -18,6 +18,7 @@ class LMSCourse(Document):
 		self.validate_instructors()
 		self.validate_video_link()
 		self.validate_status()
+		self.validate_payments_app()
 		self.image = validate_image(self.image)
 
 	def validate_published(self):
@@ -44,9 +45,19 @@ class LMSCourse(Document):
 		if self.published:
 			self.status = "Approved"
 
+	def validate_payments_app(self):
+		if self.paid_course:
+			installed_apps = frappe.get_installed_apps()
+			if "payments" not in installed_apps:
+				frappe.throw(_("Please install the Payments app to create a paid courses."))
+
 	def on_update(self):
 		if not self.upcoming and self.has_value_changed("upcoming"):
 			self.send_email_to_interested_users()
+
+	def on_payment_authorized(self, payment_status):
+		if payment_status in ["Authorized", "Completed"]:
+			update_payment_record("LMS Course", self.name)
 
 	def send_email_to_interested_users(self):
 		interested_users = frappe.get_all(

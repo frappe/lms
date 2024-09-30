@@ -45,6 +45,13 @@
 						:label="activeTab.label"
 						:description="activeTab.description"
 					/>
+					<PaymentSettings
+						v-else-if="activeTab.label === 'Payment Gateway'"
+						:label="activeTab.label"
+						:description="activeTab.description"
+						:data="data"
+						:fields="activeTab.fields"
+					/>
 					<BrandSettings
 						v-else-if="activeTab.label === 'Branding'"
 						:label="activeTab.label"
@@ -73,6 +80,7 @@ import SidebarLink from '@/components/SidebarLink.vue'
 import Members from '@/components/Members.vue'
 import Categories from '@/components/Categories.vue'
 import BrandSettings from '@/components/BrandSettings.vue'
+import PaymentSettings from '@/components/PaymentSettings.vue'
 
 const show = defineModel()
 const doctype = ref('LMS Settings')
@@ -134,23 +142,10 @@ const tabsStructure = computed(() => {
 							doctype: 'Payment Gateway',
 						},
 						{
-							label: 'Razorpay Key',
-							name: 'razorpay_key',
-							type: 'text',
-						},
-						{
-							label: 'Razorpay Secret',
-							name: 'razorpay_secret',
-							type: 'password',
-						},
-						{
 							label: 'Default Currency',
 							name: 'default_currency',
 							type: 'Link',
 							doctype: 'Currency',
-						},
-						{
-							type: 'Column Break',
 						},
 						{
 							label: 'Apply GST for India',
@@ -315,24 +310,6 @@ const tabs = computed(() => {
 			items: tab.items.filter((item) => {
 				return !item.condition || item.condition()
 			}),
-		}
-	})
-})
-
-const paymentGateways = computed(() => {
-	const gateways = [
-		'Razorpay',
-		'Stripe',
-		'Mpesa',
-		'Patym',
-		'Paypal',
-		'Braintree',
-		'GoCardless',
-	]
-	return gateways.map((gateway) => {
-		return {
-			label: gateway,
-			value: gateway,
 		}
 	})
 })

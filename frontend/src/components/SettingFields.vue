@@ -90,7 +90,7 @@
 <script setup>
 import { FormControl, FileUploader, Button } from 'frappe-ui'
 import { computed } from 'vue'
-import { getFileSize } from '@/utils'
+import { getFileSize, validateFile } from '@/utils'
 import { X, FileText } from 'lucide-vue-next'
 import Link from '@/components/Controls/Link.vue'
 import Codemirror from 'codemirror-editor-vue3'

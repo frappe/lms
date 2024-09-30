@@ -15,6 +15,7 @@ from lms.lms.utils import (
 	get_lesson_url,
 	get_quiz_details,
 	get_assignment_details,
+	update_payment_record,
 )
 from frappe.email.doctype.email_template.email_template import get_email_template
 
@@ -26,6 +27,7 @@ class LMSBatch(Document):
 		self.validate_batch_end_date()
 		self.validate_duplicate_courses()
 		self.validate_duplicate_students()
+		self.validate_payments_app()
 		self.validate_duplicate_assessments()
 		self.validate_membership()
 		self.validate_timetable()
@@ -54,6 +56,12 @@ class LMSBatch(Document):
 			frappe.throw(
 				_("Course {0} has already been added to this batch.").format(frappe.bold(title))
 			)
+
+	def validate_payments_app(self):
+		if self.paid_batch:
+			installed_apps = frappe.get_installed_apps()
+			if "payments" not in installed_apps:
+				frappe.throw(_("Please install the Payments app to create a paid batches."))
 
 	def validate_duplicate_assessments(self):
 		assessments = [row.assessment_name for row in self.assessment]
@@ -165,64 +173,8 @@ class LMSBatch(Document):
 				)
 
 	def on_payment_authorized(self, payment_status):
-		if payment_status == "Authorized":
-			self.update_payment_record()
-
-	def update_payment_record(self):
-		request = frappe.get_all(
-			"Integration Request",
-			{
-				"reference_doctype": self.doctype,
-				"reference_docname": self.name,
-				"owner": frappe.session.user,
-			},
-			order_by="creation desc",
-			limit=1,
-		)
-
-		if len(request):
-			data = frappe.db.get_value("Integration Request", request[0].name, "data")
-			data = frappe._dict(json.loads(data))
-
-			payment_gateway = data.get("payment_gateway")
-			frappe.db.set_value(
-				"LMS Payment",
-				data.payment,
-				{
-					"payment_received": 1,
-					"payment_id": data[f"{payment_gateway.lower()}_payment_id"],
-					"order_id": data["order_id"],
-				},
-			)
-
-			try:
-				enroll_in_batch(data.payment, self)
-			except Exception as e:
-				frappe.log_error(frappe.get_traceback(), _("Enrollment Failed"))
-
-
-def enroll_in_batch(payment_name, batch):
-	if not frappe.db.exists(
-		"Batch Student", {"parent": batch.name, "student": frappe.session.user}
-	):
-		student = frappe.new_doc("Batch Student")
-		current_count = frappe.db.count("Batch Student", {"parent": batch.name})
-		payment = frappe.db.get_value(
-			"LMS Payment", payment_name, ["name", "source"], as_dict=True
-		)
-
-		student.update(
-			{
-				"student": frappe.session.user,
-				"payment": payment.name,
-				"source": payment.source,
-				"parent": batch.name,
-				"parenttype": "LMS Batch",
-				"parentfield": "students",
-				"idx": current_count + 1,
-			}
-		)
-		student.save(ignore_permissions=True)
+		if payment_status in ["Authorized", "Completed"]:
+			update_payment_record("LMS Batch", self.name)
 
 
 @frappe.whitelist()
