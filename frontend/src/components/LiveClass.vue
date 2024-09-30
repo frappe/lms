@@ -1,33 +1,30 @@
 <template>
-	<Button
-		v-if="user.data.is_moderator"
-		variant="solid"
-		class="float-right mb-5"
-		@click="openLiveClassModal"
-	>
-		<template #prefix>
-			<Plus class="h-4 w-4" />
-		</template>
-		<span>
-			{{ __('Add Live Class') }}
-		</span>
-	</Button>
-	<div class="text-lg font-semibold mb-5">
-		{{ __('Live Class') }}
+	<div class="flex items-center justify-between mb-5">
+		<div class="text-lg font-semibold">
+			{{ __('Live Class') }}
+		</div>
+		<Button v-if="user.data.is_moderator" @click="openLiveClassModal">
+			<template #prefix>
+				<Plus class="h-4 w-4" />
+			</template>
+			<span>
+				{{ __('Add') }}
+			</span>
+		</Button>
 	</div>
 	<div v-if="liveClasses.data?.length" class="grid grid-cols-2 gap-5">
 		<div
 			v-for="cls in liveClasses.data"
-			class="flex flex-col border rounded-md h-full p-3"
+			class="flex flex-col border rounded-md h-full text-sm text-gray-700 p-3"
 		>
-			<div class="font-semibold text-lg mb-4">
+			<div class="font-semibold text-gray-900 text-lg mb-4">
 				{{ cls.title }}
 			</div>
-			<div class="mb-4">
+			<div class="leading-5 text-gray-700 text-sm mb-4">
 				{{ cls.description }}
 			</div>
 			<div class="flex items-center mb-2">
-				<Calendar class="w-4 h-4 stroke-1.5" />
+				<Calendar class="w-4 h-4 stroke-1.5 text-gray-700" />
 				<span class="ml-2">
 					{{ dayjs(cls.date).format('DD MMMM YYYY') }}
 				</span>
@@ -38,7 +35,7 @@
 					{{ formatTime(cls.time) }}
 				</span>
 			</div>
-			<div class="flex items-center space-x-2 mt-auto">
+			<div class="flex items-center space-x-2 text-gray-900 mt-auto">
 				<a
 					:href="cls.start_url"
 					target="_blank"
@@ -90,7 +87,6 @@ const liveClasses = createListResource({
 	doctype: 'LMS Live Class',
 	filters: {
 		batch_name: props.batch,
-		date: ['>=', new Date()],
 	},
 	fields: [
 		'title',

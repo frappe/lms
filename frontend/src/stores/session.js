@@ -17,7 +17,7 @@ export const sessionStore = defineStore('lms-session', () => {
 	}
 
 	let user = ref(sessionUser())
-	if (user) {
+	if (user.value) {
 		allUsers.reload()
 	}
 	const isLoggedIn = computed(() => !!user.value)
