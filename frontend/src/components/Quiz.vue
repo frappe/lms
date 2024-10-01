@@ -29,6 +29,11 @@
 					).format(quiz.data.time)
 				}}
 			</div>
+			<div class="leading-relaxed">
+				{{
+					__('After Submit a Quiz, please await 30 seconds to update a progress percentage!')
+				}}
+			</div>
 		</div>
 		<div v-if="activeQuestion == 0">
 			<div class="border text-center p-20 rounded-md">
