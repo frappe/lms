@@ -44,7 +44,6 @@ class LMSSettings(Document):
 @frappe.whitelist()
 def check_payments_app():
 	installed_apps = frappe.get_installed_apps()
-	print("payments" not in installed_apps)
 	if "payments" not in installed_apps:
 		return False
 	else:
