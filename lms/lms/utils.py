@@ -908,39 +908,6 @@ def get_upcoming_evals(student, courses):
 	return upcoming_evals
 
 
-@frappe.whitelist()
-def get_payment_options(doctype, docname, phone, country):
-	if not frappe.db.exists(doctype, docname):
-		frappe.throw(_("Invalid document provided."))
-
-	validate_phone_number(phone, True)
-	details = get_details(doctype, docname)
-
-	details.amount, details.currency = check_multicurrency(
-		details.amount, details.currency, country, details.amount_usd
-	)
-	if details.currency == "INR":
-		details.amount, details.gst_applied = apply_gst(details.amount, country)
-
-	client = get_client()
-	order = create_order(client, details.amount, details.currency)
-
-	options = {
-		"key_id": frappe.db.get_single_value("LMS Settings", "razorpay_key"),
-		"name": frappe.db.get_single_value("Website Settings", "app_name"),
-		"description": _("Payment for {0} course").format(details["title"]),
-		"order_id": order["id"],
-		"amount": cint(order["amount"]) * 100,
-		"currency": order["currency"],
-		"prefill": {
-			"name": frappe.db.get_value("User", frappe.session.user, "full_name"),
-			"email": frappe.session.user,
-			"contact": phone,
-		},
-	}
-	return options
-
-
 def check_multicurrency(amount, currency, country=None, amount_usd=None):
 	settings = frappe.get_single("LMS Settings")
 	show_usd_equivalent = settings.show_usd_equivalent
@@ -996,78 +963,6 @@ def apply_gst(amount, country=None):
 		amount += gst_applied
 
 	return amount, gst_applied
-
-
-def get_details(doctype, docname):
-	if doctype == "LMS Course":
-		details = frappe.db.get_value(
-			"LMS Course",
-			docname,
-			["name", "title", "paid_course", "currency", "course_price as amount", "amount_usd"],
-			as_dict=True,
-		)
-		if not details.paid_course:
-			frappe.throw(_("This course is free."))
-	else:
-		details = frappe.db.get_value(
-			"LMS Batch",
-			docname,
-			["name", "title", "paid_batch", "currency", "amount", "amount_usd"],
-			as_dict=True,
-		)
-		if not details.paid_batch:
-			frappe.throw(_("To join this batch, please contact the Administrator."))
-
-	return details
-
-
-def get_client():
-	settings = frappe.get_single("LMS Settings")
-	razorpay_key = settings.razorpay_key
-	razorpay_secret = settings.get_password("razorpay_secret", raise_exception=True)
-
-	if not razorpay_key and not razorpay_secret:
-		frappe.throw(
-			_(
-				"There is a problem with the payment gateway. Please contact the Administrator to proceed."
-			)
-		)
-
-	return razorpay.Client(auth=(razorpay_key, razorpay_secret))
-
-
-def create_order(client, amount, currency):
-	try:
-		return client.order.create(
-			{
-				"amount": cint(amount) * 100,
-				"currency": currency,
-			}
-		)
-	except Exception as e:
-		frappe.throw(
-			_(
-				"Error during payment: {0} Please contact the Administrator. Amount {1} Currency {2} Formatted {3}"
-			).format(e, amount, currency, cint(amount))
-		)
-
-
-def get_payment_details(doctype, docname, address):
-	amount_field = "course_price" if doctype == "LMS Course" else "amount"
-	amount = frappe.db.get_value(doctype, docname, amount_field)
-	currency = frappe.db.get_value(doctype, docname, "currency")
-	amount_usd = frappe.db.get_value(doctype, docname, "amount_usd")
-	amount_with_gst = 0
-
-	amount, currency = check_multicurrency(amount, currency, None, amount_usd)
-	if currency == "INR" and address.country == "India":
-		amount_with_gst, gst_applied = apply_gst(amount, address.country)
-
-	return {
-		"amount": amount,
-		"currency": currency,
-		"amount_with_gst": amount_with_gst,
-	}
 
 
 def create_membership(course, payment):

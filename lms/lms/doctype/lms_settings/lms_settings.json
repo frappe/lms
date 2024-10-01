@@ -49,6 +49,8 @@
   "apply_gst",
   "show_usd_equivalent",
   "apply_rounding",
+  "no_payments_app",
+  "payments_app_is_not_installed",
   "email_templates_tab",
   "certification_template",
   "batch_confirmation_template",
@@ -323,15 +325,23 @@
   },
   {
    "fieldname": "payment_gateway",
-   "fieldtype": "Link",
-   "label": "Payment Gateway",
-   "options": "Payment Gateway"
+   "fieldtype": "Data",
+   "label": "Payment Gateway"
+  },
+  {
+   "fieldname": "no_payments_app",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "payments_app_is_not_installed",
+   "fieldtype": "HTML",
+   "label": "Payments app is not installed"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-09-30 18:30:28.689084",
+ "modified": "2024-10-01 12:15:49.800242",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",
