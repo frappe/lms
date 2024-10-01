@@ -1,5 +1,5 @@
 <template>
-	<div class="flex flex-col min-h-0">
+	<div class="flex flex-col h-full">
 		<div class="flex items-center justify-between">
 			<div class="text-xl font-semibold mb-1">
 				{{ label }}
@@ -21,11 +21,11 @@
 					class="w-1/2"
 				/>
 			</div>
-			<div class="flex flex-row-reverse mt-auto">
-				<Button variant="solid" @click="update">
-					{{ __('Update') }}
-				</Button>
-			</div>
+		</div>
+		<div class="flex flex-row-reverse mt-auto">
+			<Button variant="solid" @click="update">
+				{{ __('Update') }}
+			</Button>
 		</div>
 	</div>
 </template>

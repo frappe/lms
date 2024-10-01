@@ -119,17 +119,6 @@ const tabsStructure = computed(() => {
 			hideLabel: true,
 			items: [
 				{
-					label: 'Categories',
-					description: 'Manage the members of your learning system',
-					icon: 'Network',
-				},
-			],
-		},
-		{
-			label: 'Settings',
-			hideLabel: true,
-			items: [
-				{
 					label: 'Payment Gateway',
 					icon: 'DollarSign',
 					description:
@@ -163,6 +152,17 @@ const tabsStructure = computed(() => {
 							type: 'checkbox',
 						},
 					],
+				},
+			],
+		},
+		{
+			label: 'Settings',
+			hideLabel: true,
+			items: [
+				{
+					label: 'Categories',
+					description: 'Manage the members of your learning system',
+					icon: 'Network',
 				},
 			],
 		},
