@@ -52,7 +52,6 @@ const props = defineProps({
 const saveSettings = createResource({
 	url: 'frappe.client.set_value',
 	makeParams(values) {
-		console.log(values)
 		return {
 			doctype: 'Website Settings',
 			name: 'Website Settings',
@@ -77,7 +76,6 @@ const update = () => {
 }
 
 watch(props.data, (newData) => {
-	console.log(newData)
 	if (newData && !isDirty.value) {
 		isDirty.value = true
 	}

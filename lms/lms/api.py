@@ -708,3 +708,49 @@ def delete_documents(doctype, documents):
 	frappe.only_for("Moderator")
 	for doc in documents:
 		frappe.delete_doc(doctype, doc)
+
+
+@frappe.whitelist()
+def get_payment_gateway_details(payment_gateway):
+	fields = []
+	gateway = frappe.get_doc("Payment Gateway", payment_gateway)
+
+	if gateway.gateway_controller is None:
+		try:
+			data = frappe.get_doc(f"{payment_gateway} Settings").as_dict()
+			meta = frappe.get_meta(f"{payment_gateway} Settings").fields
+			doctype = f"{payment_gateway} Settings"
+			docname = f"{payment_gateway} Settings"
+		except Exception:
+			frappe.throw(_("{0} Settings not found").format(payment_gateway))
+	else:
+		try:
+			data = frappe.get_doc(gateway.gateway_settings, gateway.gateway_controller).as_dict()
+			meta = frappe.get_meta(gateway.gateway_settings).fields
+			doctype = gateway.gateway_settings
+			docname = gateway.gateway_controller
+		except Exception:
+			frappe.throw(_("{0} Settings not found").format(payment_gateway))
+
+	for row in meta:
+		if row.fieldtype not in ["Column Break", "Section Break"]:
+			if row.fieldtype in ["Attach", "Attach Image"]:
+				fieldtype = "Upload"
+				data[row.fieldname] = get_file_info(data.get(row.fieldname))
+			else:
+				fieldtype = row.fieldtype
+
+			fields.append(
+				{
+					"label": row.label,
+					"name": row.fieldname,
+					"type": fieldtype,
+				}
+			)
+
+	return {
+		"fields": fields,
+		"data": data,
+		"doctype": doctype,
+		"docname": docname,
+	}

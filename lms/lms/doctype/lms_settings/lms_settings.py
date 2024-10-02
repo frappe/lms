@@ -39,3 +39,32 @@ class LMSSettings(Document):
 						frappe.bold("Course Evaluator"),
 					)
 				)
+
+
+@frappe.whitelist()
+def check_payments_app():
+	installed_apps = frappe.get_installed_apps()
+	if "payments" not in installed_apps:
+		return False
+	else:
+		filters = {
+			"doctype_or_field": "DocField",
+			"doc_type": "LMS Settings",
+			"field_name": "payment_gateway",
+		}
+		if frappe.db.exists("Property Setter", filters):
+			return True
+
+		link_property = frappe.new_doc("Property Setter")
+		link_property.update(filters)
+		link_property.property = "fieldtype"
+		link_property.value = "Link"
+		link_property.save()
+
+		options_property = frappe.new_doc("Property Setter")
+		options_property.update(filters)
+		options_property.property = "options"
+		options_property.value = "Payment Gateway"
+		options_property.save()
+
+		return True
