@@ -42,14 +42,15 @@
   "mentor_request_status_update",
   "payment_settings_tab",
   "payment_section",
-  "razorpay_key",
-  "razorpay_secret",
-  "apply_gst",
-  "column_break_cfcv",
+  "payment_gateway",
   "default_currency",
+  "exception_country",
+  "column_break_cfcv",
+  "apply_gst",
   "show_usd_equivalent",
   "apply_rounding",
-  "exception_country",
+  "no_payments_app",
+  "payments_app_is_not_installed",
   "email_templates_tab",
   "certification_template",
   "batch_confirmation_template",
@@ -148,16 +149,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "razorpay_key",
-   "fieldtype": "Data",
-   "label": "Razorpay Key"
-  },
-  {
-   "fieldname": "razorpay_secret",
-   "fieldtype": "Password",
-   "label": "Razorpay Secret"
-  },
-  {
    "default": "0",
    "fieldname": "apply_gst",
    "fieldtype": "Check",
@@ -173,7 +164,7 @@
    "depends_on": "show_usd_equivalent",
    "fieldname": "exception_country",
    "fieldtype": "Table MultiSelect",
-   "label": "Maintain Original Currency",
+   "label": "Primary Countries",
    "options": "Payment Country"
   },
   {
@@ -331,12 +322,26 @@
    "fieldname": "custom_signup_content",
    "fieldtype": "HTML Editor",
    "label": "Custom Signup Content"
+  },
+  {
+   "fieldname": "payment_gateway",
+   "fieldtype": "Data",
+   "label": "Payment Gateway"
+  },
+  {
+   "fieldname": "no_payments_app",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "payments_app_is_not_installed",
+   "fieldtype": "HTML",
+   "label": "Payments app is not installed"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-09-23 17:57:01.350020",
+ "modified": "2024-10-01 12:15:49.800242",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",

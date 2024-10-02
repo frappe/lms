@@ -15,6 +15,7 @@ from lms.lms.utils import (
 	get_lesson_url,
 	get_quiz_details,
 	get_assignment_details,
+	update_payment_record,
 )
 from frappe.email.doctype.email_template.email_template import get_email_template
 
@@ -26,6 +27,7 @@ class LMSBatch(Document):
 		self.validate_batch_end_date()
 		self.validate_duplicate_courses()
 		self.validate_duplicate_students()
+		self.validate_payments_app()
 		self.validate_duplicate_assessments()
 		self.validate_membership()
 		self.validate_timetable()
@@ -54,6 +56,12 @@ class LMSBatch(Document):
 			frappe.throw(
 				_("Course {0} has already been added to this batch.").format(frappe.bold(title))
 			)
+
+	def validate_payments_app(self):
+		if self.paid_batch:
+			installed_apps = frappe.get_installed_apps()
+			if "payments" not in installed_apps:
+				frappe.throw(_("Please install the Payments app to create a paid batches."))
 
 	def validate_duplicate_assessments(self):
 		assessments = [row.assessment_name for row in self.assessment]
@@ -164,23 +172,9 @@ class LMSBatch(Document):
 					_("Row #{0} Date cannot be outside the batch duration.").format(schedule.idx)
 				)
 
-
-@frappe.whitelist()
-def remove_student(student, batch_name):
-	frappe.only_for("Moderator")
-	frappe.db.delete("Batch Student", {"student": student, "parent": batch_name})
-
-
-@frappe.whitelist()
-def remove_course(course, parent):
-	frappe.only_for("Moderator")
-	frappe.db.delete("Batch Course", {"course": course, "parent": parent})
-
-
-@frappe.whitelist()
-def remove_assessment(assessment, parent):
-	frappe.only_for("Moderator")
-	frappe.db.delete("LMS Assessment", {"assessment_name": assessment, "parent": parent})
+	def on_payment_authorized(self, payment_status):
+		if payment_status in ["Authorized", "Completed"]:
+			update_payment_record("LMS Batch", self.name)
 
 
 @frappe.whitelist()

@@ -11,11 +11,11 @@
 						: 'hover:bg-gray-200 px-2 w-52'
 				"
 			>
-				<span
-					v-if="branding.data?.brand_html"
-					v-html="branding.data?.brand_html"
+				<img
+					v-if="branding.data?.banner_image"
+					:src="branding.data?.banner_image.file_url"
 					class="w-8 h-8 rounded flex-shrink-0"
-				></span>
+				/>
 				<LMSLogo v-else class="w-8 h-8 rounded flex-shrink-0" />
 				<div
 					class="flex flex-1 flex-col text-left duration-300 ease-in-out"
@@ -28,11 +28,10 @@
 					<div class="text-base font-medium text-gray-900 leading-none">
 						<span
 							v-if="
-								branding.data?.brand_name &&
-								branding.data?.brand_name != 'Frappe'
+								branding.data?.app_name && branding.data?.app_name != 'Frappe'
 							"
 						>
-							{{ branding.data?.brand_name }}
+							{{ branding.data?.app_name }}
 						</span>
 						<span v-else> Learning </span>
 					</div>
