@@ -42,7 +42,7 @@
 							<img
 								:src="badge.badge_image"
 								:alt="badge.badge"
-								class="bg-gray-100 rounded-t-md"
+								class="bg-gray-100 rounded-t-md h-[200px] mx-auto"
 							/>
 							<div class="p-5">
 								<div class="text-2xl font-semibold mb-2">

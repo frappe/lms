@@ -5,9 +5,11 @@
 		</div>
 		<div
 			v-if="sidebarSettings.data"
-			class="fixed flex justify-around border-t border-gray-300 bottom-0 z-10 w-full bg-white standalone:pb-4"
+			class="fixed flex items-center justify-around border-t border-gray-300 bottom-0 z-10 w-full bg-white standalone:pb-4"
 			:style="{
-				gridTemplateColumns: `repeat(${sidebarLinks.length}, minmax(0, 1fr))`,
+				gridTemplateColumns: `repeat(${
+					sidebarLinks.length + 1
+				}, minmax(0, 1fr))`,
 			}"
 		>
 			<button
@@ -23,15 +25,46 @@
 					:class="[isActive(tab) ? 'text-gray-900' : 'text-gray-600']"
 				/>
 			</button>
+			<Popover
+				trigger="hover"
+				popoverClass="bottom-28 mx-2"
+				placement="top-start"
+			>
+				<template #target>
+					<component
+						:is="icons['List']"
+						class="h-6 w-6 stroke-1.5 text-gray-600"
+					/>
+				</template>
+				<template #body-main>
+					<div class="text-base p-5 space-y-4">
+						<div
+							v-for="link in otherLinks"
+							:key="link.label"
+							class="flex items-center space-x-2"
+							@click="handleClick(link)"
+						>
+							<component
+								:is="icons[link.icon]"
+								class="h-4 w-4 stroke-1.5 text-gray-600"
+							/>
+							<div>
+								{{ link.label }}
+							</div>
+						</div>
+					</div>
+				</template>
+			</Popover>
 		</div>
 	</div>
 </template>
 <script setup>
 import { getSidebarLinks } from '../utils'
 import { useRouter } from 'vue-router'
-import { computed, ref, onMounted } from 'vue'
+import { watch, ref, onMounted } from 'vue'
 import { sessionStore } from '@/stores/session'
 import { usersStore } from '@/stores/user'
+import { Popover } from 'frappe-ui'
 import * as icons from 'lucide-vue-next'
 
 const { logout, user, sidebarSettings } = sessionStore()
@@ -39,6 +72,7 @@ let { isLoggedIn } = sessionStore()
 const router = useRouter()
 let { userResource } = usersStore()
 const sidebarLinks = ref(getSidebarLinks())
+const otherLinks = ref([])
 
 onMounted(() => {
 	sidebarSettings.reload(
@@ -52,35 +86,51 @@ onMounted(() => {
 						)
 					}
 				})
-				addAccessLinks()
+
+				addOtherLinks()
 			},
 		}
 	)
 })
 
-const addAccessLinks = () => {
+const addOtherLinks = () => {
 	if (user) {
-		sidebarLinks.value.push({
+		otherLinks.value.push({
+			label: 'Notifications',
+			icon: 'Bell',
+			to: 'Notifications',
+		})
+		otherLinks.value.push({
 			label: 'Profile',
 			icon: 'UserRound',
-			activeFor: [
-				'Profile',
-				'ProfileAbout',
-				'ProfileCertification',
-				'ProfileEvaluator',
-				'ProfileRoles',
-			],
 		})
-		sidebarLinks.value.push({
+		otherLinks.value.push({
 			label: 'Log out',
 			icon: 'LogOut',
 		})
 	} else {
-		sidebarLinks.value.push({
+		otherLinks.value.push({
 			label: 'Log in',
 			icon: 'LogIn',
 		})
 	}
+}
+
+watch(userResource, () => {
+	if (
+		userResource.data &&
+		(userResource.data.is_moderator || userResource.data.is_instructor)
+	) {
+		addQuizzes()
+	}
+})
+
+const addQuizzes = () => {
+	otherLinks.value.push({
+		label: 'Quizzes',
+		icon: 'CircleHelp',
+		to: 'Quizzes',
+	})
 }
 
 let isActive = (tab) => {

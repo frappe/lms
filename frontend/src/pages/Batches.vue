@@ -27,7 +27,7 @@
 						<template #prefix>
 							<Plus class="h-4 w-4 stroke-1.5" />
 						</template>
-						{{ __('New Batch') }}
+						{{ __('New') }}
 					</Button>
 				</router-link>
 			</div>

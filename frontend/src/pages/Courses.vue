@@ -8,7 +8,7 @@
 				:items="[{ label: __('Courses'), route: { name: 'Courses' } }]"
 			/>
 			<div class="flex space-x-2 justify-end">
-				<div class="w-44">
+				<div class="w-46 md:w-44">
 					<FormControl
 						v-if="categories.data?.length"
 						type="select"
@@ -17,7 +17,7 @@
 						:placeholder="__('Category')"
 					/>
 				</div>
-				<div class="w-36">
+				<div class="w-28 md:w-36">
 					<FormControl
 						type="text"
 						placeholder="Search"
@@ -41,7 +41,7 @@
 						<template #prefix>
 							<Plus class="h-4 w-4" />
 						</template>
-						{{ __('New Course') }}
+						{{ __('New') }}
 					</Button>
 				</router-link>
 			</div>

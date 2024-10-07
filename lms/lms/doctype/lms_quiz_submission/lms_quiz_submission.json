@@ -6,6 +6,7 @@
  "engine": "InnoDB",
  "field_order": [
   "quiz",
+  "quiz_title",
   "course",
   "column_break_3",
   "member",
@@ -39,7 +40,6 @@
    "fieldtype": "Int",
    "in_list_view": 1,
    "label": "Score",
-   "read_only": 1,
    "reqd": 1
   },
   {
@@ -95,7 +95,6 @@
    "fieldtype": "Int",
    "label": "Percentage",
    "non_negative": 1,
-   "read_only": 1,
    "reqd": 1
   },
   {
@@ -105,12 +104,19 @@
    "non_negative": 1,
    "read_only": 1,
    "reqd": 1
+  },
+  {
+   "fetch_from": "quiz.title",
+   "fieldname": "quiz_title",
+   "fieldtype": "Data",
+   "label": "Quiz Title",
+   "read_only": 1
   }
  ],
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-02-27 13:01:53.611726",
+ "modified": "2024-10-07 16:52:04.162521",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz Submission",

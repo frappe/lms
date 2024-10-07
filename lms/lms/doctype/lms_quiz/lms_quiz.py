@@ -3,7 +3,8 @@
 
 import json
 import frappe
-from frappe import _
+import re
+from frappe import _, safe_decode
 from frappe.model.document import Document
 from frappe.utils import cstr, comma_and, cint
 from fuzzywuzzy import fuzz
@@ -13,6 +14,9 @@ from lms.lms.utils import (
 	has_course_moderator_role,
 	has_course_instructor_role,
 )
+from binascii import Error as BinasciiError
+from frappe.utils.file_manager import safe_b64decode
+from frappe.core.doctype.file.utils import get_random_filename
 
 
 class LMSQuiz(Document):
@@ -20,6 +24,7 @@ class LMSQuiz(Document):
 		self.validate_duplicate_questions()
 		self.validate_limit()
 		self.calculate_total_marks()
+		self.validate_open_ended_questions()
 
 	def validate_duplicate_questions(self):
 		questions = [row.question for row in self.questions]
@@ -47,6 +52,19 @@ class LMSQuiz(Document):
 			)
 		else:
 			self.total_marks = sum(cint(question.marks) for question in self.questions)
+
+	def validate_open_ended_questions(self):
+		types = [question.type for question in self.questions]
+		types = set(types)
+
+		if "Open Ended" in types and len(types) > 1:
+			frappe.throw(
+				_(
+					"If you want open ended questions then make sure each question in the quiz is of open ended type."
+				)
+			)
+		else:
+			self.show_answers = 0
 
 	def autoname(self):
 		if not self.name:
@@ -81,34 +99,50 @@ def set_total_marks(questions):
 def quiz_summary(quiz, results):
 	score = 0
 	results = results and json.loads(results)
+	is_open_ended = False
 
 	for result in results:
-		correct = result["is_correct"][0]
-		for point in result["is_correct"]:
-			correct = correct and point
-		result["is_correct"] = correct
-
 		question_details = frappe.db.get_value(
 			"LMS Quiz Question",
 			{"parent": quiz, "question": result["question_name"]},
-			["question", "marks", "question_detail"],
+			["question", "marks", "question_detail", "type"],
 			as_dict=1,
 		)
 
 		result["question_name"] = question_details.question
 		result["question"] = question_details.question_detail
-		marks = question_details.marks if correct else 0
+		result["marks_out_of"] = question_details.marks
 
-		result["marks"] = marks
-		score += marks
+		quiz_details = frappe.get_doc(
+			"LMS Quiz",
+			quiz,
+			["total_marks", "passing_percentage", "lesson", "course"],
+			as_dict=1,
+		)
 
-		del result["question_name"]
+		score = 0
+		percentage = 0
+		score_out_of = quiz_details.total_marks
 
-	quiz_details = frappe.db.get_value(
-		"LMS Quiz", quiz, ["total_marks", "passing_percentage", "lesson", "course"], as_dict=1
-	)
-	score_out_of = quiz_details.total_marks
-	percentage = (score / score_out_of) * 100
+		if question_details.type != "Open Ended":
+			correct = result["is_correct"][0]
+			for point in result["is_correct"]:
+				correct = correct and point
+			result["is_correct"] = correct
+
+			marks = question_details.marks if correct else 0
+			result["marks"] = marks
+			score += marks
+
+			del result["question_name"]
+			percentage = (score / score_out_of) * 100
+		else:
+			result["is_correct"] = 0
+			is_open_ended = True
+
+		result["answer"] = re.sub(
+			r'<img[^>]*src\s*=\s*["\'](?=data:)(.*?)["\']', _save_file, result["answer"]
+		)
 
 	submission = frappe.get_doc(
 		{
@@ -139,128 +173,51 @@ def quiz_summary(quiz, results):
 		"submission": submission.name,
 		"pass": percentage == quiz_details.passing_percentage,
 		"percentage": percentage,
+		"is_open_ended": is_open_ended,
 	}
 
 
-@frappe.whitelist()
-def save_quiz(
-	quiz_title,
-	passing_percentage,
-	questions,
-	max_attempts=0,
-	quiz=None,
-	show_answers=1,
-	show_submission_history=0,
-):
-	if not has_course_moderator_role() or not has_course_instructor_role():
-		return
+def _save_file(match):
+	data = match.group(1).split("data:")[1]
+	headers, content = data.split(",")
+	mtype = headers.split(";", 1)[0]
 
-	values = {
-		"title": quiz_title,
-		"passing_percentage": passing_percentage,
-		"max_attempts": max_attempts,
-		"show_answers": show_answers,
-		"show_submission_history": show_submission_history,
-	}
+	if isinstance(content, str):
+		content = content.encode("utf-8")
+	if b"," in content:
+		content = content.split(b",")[1]
 
-	if quiz:
-		frappe.db.set_value("LMS Quiz", quiz, values)
-		update_questions(quiz, questions)
-		return quiz
+	try:
+		content = safe_b64decode(content)
+	except BinasciiError:
+		frappe.flags.has_dataurl = True
+		return f'<img src="#broken-image" alt="{get_corrupted_image_msg()}"'
+
+	if "filename=" in headers:
+		filename = headers.split("filename=")[-1]
+		filename = safe_decode(filename).split(";", 1)[0]
+
 	else:
-		doc = frappe.new_doc("LMS Quiz")
-		doc.update(values)
-		doc.save()
-		update_questions(doc.name, questions)
-		return doc.name
+		filename = get_random_filename(content_type=mtype)
 
-
-def update_questions(quiz, questions):
-	questions = json.loads(questions)
-
-	delete_questions(quiz, questions)
-	add_questions(quiz, questions)
-	frappe.db.set_value("LMS Quiz", quiz, "total_marks", set_total_marks(quiz, questions))
-
-
-def delete_questions(quiz, questions):
-	existing_questions = frappe.get_all(
-		"LMS Quiz Question",
+	_file = frappe.get_doc(
 		{
-			"parent": quiz,
-		},
-		pluck="name",
-	)
-
-	current_questions = [question.get("question_name") for question in questions]
-
-	for question in existing_questions:
-		if question not in current_questions:
-			frappe.db.delete("LMS Quiz Question", question)
-
-
-def add_questions(quiz, questions):
-	for index, question in enumerate(questions):
-		question = frappe._dict(question)
-		if question.question_name:
-			doc = frappe.get_doc("LMS Quiz Question", question.question_name)
-		else:
-			doc = frappe.new_doc("LMS Quiz Question")
-			doc.update(
-				{
-					"parent": quiz,
-					"parenttype": "LMS Quiz",
-					"parentfield": "questions",
-					"idx": index + 1,
-				}
-			)
-
-		doc.update({"question": question.question, "marks": question.marks})
-
-		doc.save()
-
-
-@frappe.whitelist()
-def save_question(quiz, values, index):
-	values = frappe._dict(json.loads(values))
-
-	if values.get("name"):
-		doc = frappe.get_doc("LMS Question", values.get("name"))
-	else:
-		doc = frappe.new_doc("LMS Question")
-
-	doc.update(
-		{
-			"question": values.question,
-			"type": values["type"],
+			"doctype": "File",
+			"file_name": filename,
+			"content": content,
+			"decode": False,
+			"is_private": False,
 		}
 	)
+	_file.save(ignore_permissions=True)
+	file_url = _file.unique_url
+	frappe.flags.has_dataurl = True
 
-	for num in range(1, 5):
-		if values.get(f"option_{num}"):
-			doc.update(
-				{
-					f"option_{num}": values[f"option_{num}"],
-					f"is_correct_{num}": values[f"is_correct_{num}"],
-				}
-			)
+	return f'<img src="{file_url}"'
 
-		if values.get(f"explanation_{num}"):
-			doc.update(
-				{
-					f"explanation_{num}": values[f"explanation_{num}"],
-				}
-			)
 
-		if values.get(f"possibility_{num}"):
-			doc.update(
-				{
-					f"possibility_{num}": values[f"possibility_{num}"],
-				}
-			)
-
-	doc.save()
-	return doc.name
+def get_corrupted_image_msg():
+	return _("Image: Corrupted Data Stream")
 
 
 @frappe.whitelist()
@@ -318,9 +275,3 @@ def check_input_answers(question, answer):
 			return 1
 
 	return 0
-
-
-@frappe.whitelist()
-def get_user_quizzes():
-	filters = {} if has_course_moderator_role() else {"owner": frappe.session.user}
-	return frappe.get_all("LMS Quiz", filters=filters, fields=["name", "title"])
