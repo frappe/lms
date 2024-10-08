@@ -55,6 +55,7 @@
    "fieldname": "title",
    "fieldtype": "Data",
    "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Title",
    "reqd": 1
   },
@@ -161,7 +162,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-04-03 10:48:17.525859",
+ "modified": "2024-10-08 11:04:54.748773",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Course Lesson",
