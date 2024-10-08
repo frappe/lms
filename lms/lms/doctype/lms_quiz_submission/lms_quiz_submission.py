@@ -17,8 +17,8 @@ class LMSQuizSubmission(Document):
 			if cint(row.marks) > cint(row.marks_out_of):
 				frappe.throw(
 					_(
-						f"Marks for question number {row.idx} cannot be greater than the marks allotted for that question."
-					)
+						"Marks for question number {0} cannot be greater than the marks allotted for that question."
+					).format(row.idx)
 				)
 			else:
 				self.score += cint(row.marks)
