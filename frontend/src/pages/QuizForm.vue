@@ -372,7 +372,7 @@ const questionColumns = computed(() => {
 		{
 			label: __('Marks'),
 			key: 'marks',
-			width: '10rem',
+			width: '5rem',
 		},
 	]
 })
