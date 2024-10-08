@@ -67,8 +67,17 @@ import {
 	Button,
 	Badge,
 } from 'frappe-ui'
-import { computed } from 'vue'
+import { computed, onMounted, inject } from 'vue'
+import { useRouter } from 'vue-router'
 import { showToast } from '@/utils'
+
+const router = useRouter()
+const user = inject('$user')
+
+onMounted(() => {
+	if (!user.data?.is_instructor && !user.data?.is_moderator)
+		router.push({ name: 'Courses' })
+})
 
 const props = defineProps({
 	submission: {
