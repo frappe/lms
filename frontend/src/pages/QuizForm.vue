@@ -362,17 +362,17 @@ const questionColumns = computed(() => {
 		{
 			label: __('ID'),
 			key: 'question',
-			width: '25%',
+			width: '10rem',
 		},
 		{
 			label: __('Question'),
 			key: __('question_detail'),
-			width: '60%',
+			width: '40rem',
 		},
 		{
 			label: __('Marks'),
 			key: 'marks',
-			width: '10%',
+			width: '10rem',
 		},
 	]
 })
