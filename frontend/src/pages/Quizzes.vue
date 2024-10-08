@@ -19,7 +19,7 @@
 			</Button>
 		</router-link>
 	</header>
-	<div v-if="quizzes.data?.length" class="w-3/4 mx-auto py-5">
+	<div v-if="quizzes.data?.length" class="md:w-3/4 md:mx-auto py-5 mx-5">
 		<ListView
 			:columns="quizColumns"
 			:rows="quizzes.data"

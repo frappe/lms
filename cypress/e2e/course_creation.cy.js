@@ -5,7 +5,7 @@ describe("Course Creation", () => {
 		cy.visit("/lms/courses");
 
 		// Create a course
-		cy.get("a").contains("New Course").click();
+		cy.get("a").contains("New").click();
 		cy.wait(1000);
 		cy.url().should("include", "/courses/new/edit");
 

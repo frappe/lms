@@ -3,9 +3,24 @@
 		class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs :items="breadcrumbs" />
-		<Button variant="solid" @click="submitQuiz()">
-			{{ __('Save') }}
-		</Button>
+		<div class="space-x-2">
+			<router-link
+				v-if="quizDetails.data?.name"
+				:to="{
+					name: 'QuizSubmissionList',
+					params: {
+						quizID: quizDetails.data.name,
+					},
+				}"
+			>
+				<Button>
+					{{ __('Submission List') }}
+				</Button>
+			</router-link>
+			<Button variant="solid" @click="submitQuiz()">
+				{{ __('Save') }}
+			</Button>
+		</div>
 	</header>
 	<div class="w-3/4 mx-auto py-5">
 		<!-- Details -->

@@ -122,9 +122,18 @@
 							/>
 						</div>
 					</div>
-					<Button variant="solid" class="mt-8" @click="generatePaymentLink()">
-						{{ __('Proceed to Payment') }}
-					</Button>
+					<div class="flex items-center justify-between border-t pt-4 mt-8">
+						<p class="text-gray-600">
+							{{
+								__(
+									'Make sure to enter the right billing name as the same will be used in your invoice.'
+								)
+							}}
+						</p>
+						<Button variant="solid" size="md" @click="generatePaymentLink()">
+							{{ __('Proceed to Payment') }}
+						</Button>
+					</div>
 				</div>
 			</div>
 		</div>

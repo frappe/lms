@@ -107,6 +107,7 @@ const unreadCount = ref(0)
 const sidebarLinks = ref(getSidebarLinks())
 const showPageModal = ref(false)
 const isModerator = ref(false)
+const isInstructor = ref(false)
 const pageToEdit = ref(null)
 const showWebPages = ref(false)
 
@@ -167,6 +168,17 @@ const addNotifications = () => {
 	}
 }
 
+const addQuizzes = () => {
+	if (isInstructor.value || isModerator.value) {
+		sidebarLinks.value.push({
+			label: 'Quizzes',
+			icon: 'CircleHelp',
+			to: 'Quizzes',
+			activeFor: ['Quizzes', 'QuizForm'],
+		})
+	}
+}
+
 const openPageModal = (link) => {
 	showPageModal.value = true
 	pageToEdit.value = link
@@ -197,6 +209,8 @@ const getSidebarFromStorage = () => {
 watch(userResource, () => {
 	if (userResource.data) {
 		isModerator.value = userResource.data.is_moderator
+		isInstructor.value = userResource.data.is_instructor
+		addQuizzes()
 	}
 })
 

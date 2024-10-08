@@ -54,7 +54,7 @@
 						:label="__('Type')"
 						v-model="question.type"
 						type="select"
-						:options="['Choices', 'User Input']"
+						:options="['Choices', 'User Input', 'Open Ended']"
 						class="pb-2"
 					/>
 					<div v-if="question.type == 'Choices'" class="divide-y border-t">
@@ -74,7 +74,11 @@
 							/>
 						</div>
 					</div>
-					<div v-else v-for="n in 4" class="space-y-2">
+					<div
+						v-else-if="question.type == 'User Input'"
+						v-for="n in 4"
+						class="space-y-2"
+					>
 						<FormControl
 							:label="__('Possibility') + ' ' + n"
 							v-model="question[`possibility_${n}`]"
