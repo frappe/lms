@@ -120,6 +120,7 @@
 				</div>
 				<div
 					v-if="
+						lesson.data.instructor_content &&
 						JSON.parse(lesson.data.instructor_content)?.blocks?.length > 1 &&
 						allowInstructorContent()
 					"

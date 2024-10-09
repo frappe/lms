@@ -7,6 +7,19 @@
 			<router-link
 				v-if="quizDetails.data?.name"
 				:to="{
+					name: 'QuizPage',
+					params: {
+						quizID: quizDetails.data.name,
+					},
+				}"
+			>
+				<Button>
+					{{ __('Open') }}
+				</Button>
+			</router-link>
+			<router-link
+				v-if="quizDetails.data?.name"
+				:to="{
 					name: 'QuizSubmissionList',
 					params: {
 						quizID: quizDetails.data.name,
