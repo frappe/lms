@@ -160,7 +160,7 @@ const getRowRoute = (row) => {
 		}
 	} else {
 		return {
-			name: 'Quiz',
+			name: 'QuizPage',
 			params: {
 				quizID: row.assessment_name,
 			},

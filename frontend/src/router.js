@@ -160,7 +160,19 @@ const routes = [
 	},
 	{
 		path: '/quiz/:quizID',
-		name: 'Quiz',
+		name: 'QuizPage',
+		component: () => import('@/pages/QuizPage.vue'),
+		props: true,
+	},
+	{
+		path: '/quiz-submissions/:quizID',
+		name: 'QuizSubmissionList',
+		component: () => import('@/pages/QuizSubmissionList.vue'),
+		props: true,
+	},
+	{
+		path: '/quiz-submission/:submission',
+		name: 'QuizSubmission',
 		component: () => import('@/pages/QuizSubmission.vue'),
 		props: true,
 	},

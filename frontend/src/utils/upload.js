@@ -56,9 +56,11 @@ export class Upload {
 			app.mount(this.wrapper)
 			return
 		} else if (file.file_type == 'PDF') {
-			this.wrapper.innerHTML = `<iframe src="${encodeURI(
+			this.wrapper.innerHTML = `<iframe src="https://docs.google.com/viewer?url=${
+				window.location.origin
+			}${encodeURI(
 				file.file_url
-			)}#toolbar=0" width='100%' height='700px' class="mb-4"></iframe>`
+			)}&embedded=true" width='100%' height='700px' class="mb-4" type="application/pdf"></iframe>`
 			return
 		} else {
 			this.wrapper.innerHTML = `<img class="mb-4" src=${encodeURI(

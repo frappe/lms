@@ -17,6 +17,7 @@ from frappe.utils import (
 	add_months,
 	cint,
 	cstr,
+	ceil,
 	flt,
 	fmt_money,
 	format_date,
@@ -948,7 +949,7 @@ def check_multicurrency(amount, currency, country=None, amount_usd=None):
 	if apply_rounding and amount % 100 != 0:
 		amount = amount + 100 - amount % 100
 
-	return amount, currency
+	return ceil(amount), currency
 
 
 def apply_gst(amount, country=None):

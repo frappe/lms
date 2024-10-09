@@ -67,15 +67,8 @@
 							<span class="mr-2">
 								{{ __('Question {0}').format(activeQuestion) }}:
 							</span>
-							<span v-if="questionDetails.data.type == 'User Input'">
-								{{ __('Type your answer') }}
-							</span>
-							<span v-else>
-								{{
-									questionDetails.data.multiple
-										? __('Choose all answers that apply')
-										: __('Choose one answer')
-								}}
+							<span>
+								{{ getInstructions(questionDetails.data) }}
 							</span>
 						</div>
 						<div class="text-gray-900 text-sm font-semibold item-left">
@@ -139,7 +132,7 @@
 							{{ questionDetails.data[`explanation_${index}`] }}
 						</div>
 					</div>
-					<div v-else>
+					<div v-else-if="questionDetails.data.type == 'User Input'">
 						<FormControl
 							v-model="possibleAnswer"
 							type="textarea"
@@ -159,6 +152,16 @@
 							</Badge>
 						</div>
 					</div>
+					<div v-else>
+						<TextEditor
+							class="mt-4"
+							:content="possibleAnswer"
+							@change="(val) => (possibleAnswer = val)"
+							:editable="true"
+							:fixedMenu="true"
+							editorClass="prose-sm max-w-none border-b border-x bg-gray-100 rounded-b-md py-1 px-2 min-h-[7rem]"
+						/>
+					</div>
 					<div class="flex items-center justify-between mt-5">
 						<div>
 							{{
@@ -169,7 +172,11 @@
 							}}
 						</div>
 						<Button
-							v-if="quiz.data.show_answers && !showAnswers.length"
+							v-if="
+								quiz.data.show_answers &&
+								!showAnswers.length &&
+								questionDetails.data.type != 'Open Ended'
+							"
 							@click="checkAnswer()"
 						>
 							<span>
@@ -193,11 +200,18 @@
 				</div>
 			</div>
 		</div>
-		<div v-else class="border rounded-md p-20 text-center">
+		<div v-else class="border rounded-md p-20 text-center space-y-4">
 			<div class="text-lg font-semibold">
 				{{ __('Quiz Summary') }}
 			</div>
-			<div>
+			<div v-if="quizSubmission.data.is_open_ended">
+				{{
+					__(
+						"Your submission has been successfully saved. The instructor will review and grade it shortly, and you'll be notified of your final result."
+					)
+				}}
+			</div>
+			<div v-else>
 				{{
 					__(
 						'You got {0}% correct answers with a score of {1} out of {2}'
@@ -236,7 +250,7 @@
 	</div>
 </template>
 <script setup>
-import { Badge, Button, createResource, ListView } from 'frappe-ui'
+import { Badge, Button, createResource, ListView, TextEditor } from 'frappe-ui'
 import { ref, watch, reactive, inject } from 'vue'
 import { createToast } from '@/utils/'
 import { CheckCircle, XCircle, MinusCircle } from 'lucide-vue-next'
@@ -450,9 +464,10 @@ const addToLocalStorage = () => {
 }
 
 const nextQuetion = () => {
-	if (!quiz.data.show_answers) {
+	if (!quiz.data.show_answers && questionDetails.data?.type != 'Open Ended') {
 		checkAnswer()
 	} else {
+		if (questionDetails.data?.type == 'Open Ended') addToLocalStorage()
 		resetQuestion()
 	}
 }
@@ -467,7 +482,8 @@ const resetQuestion = () => {
 
 const submitQuiz = () => {
 	if (!quiz.data.show_answers) {
-		checkAnswer()
+		if (questionDetails.data.type == 'Open Ended') addToLocalStorage()
+		else checkAnswer()
 		setTimeout(() => {
 			createSubmission()
 		}, 500)
@@ -488,6 +504,13 @@ const resetQuiz = () => {
 	showAnswers.length = 0
 	quizSubmission.reset()
 	populateQuestions()
+}
+
+const getInstructions = (question) => {
+	if (question.type == 'Choices')
+		if (question.multiple) return __('Choose all answers that apply')
+		else return __('Choose one answer')
+	else return __('Type your answer')
 }
 
 const getSubmissionColumns = () => {

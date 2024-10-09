@@ -3,9 +3,37 @@
 		class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs :items="breadcrumbs" />
-		<Button variant="solid" @click="submitQuiz()">
-			{{ __('Save') }}
-		</Button>
+		<div class="space-x-2">
+			<router-link
+				v-if="quizDetails.data?.name"
+				:to="{
+					name: 'QuizPage',
+					params: {
+						quizID: quizDetails.data.name,
+					},
+				}"
+			>
+				<Button>
+					{{ __('Open') }}
+				</Button>
+			</router-link>
+			<router-link
+				v-if="quizDetails.data?.name"
+				:to="{
+					name: 'QuizSubmissionList',
+					params: {
+						quizID: quizDetails.data.name,
+					},
+				}"
+			>
+				<Button>
+					{{ __('Submission List') }}
+				</Button>
+			</router-link>
+			<Button variant="solid" @click="submitQuiz()">
+				{{ __('Save') }}
+			</Button>
+		</div>
 	</header>
 	<div class="w-3/4 mx-auto py-5">
 		<!-- Details -->
@@ -347,17 +375,17 @@ const questionColumns = computed(() => {
 		{
 			label: __('ID'),
 			key: 'question',
-			width: '25%',
+			width: '10rem',
 		},
 		{
 			label: __('Question'),
 			key: __('question_detail'),
-			width: '60%',
+			width: '40rem',
 		},
 		{
 			label: __('Marks'),
 			key: 'marks',
-			width: '10%',
+			width: '5rem',
 		},
 	]
 })

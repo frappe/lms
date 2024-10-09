@@ -17,7 +17,7 @@ def validate_correct_answers(question):
 	if question.type == "Choices":
 		validate_duplicate_options(question)
 		validate_correct_options(question)
-	else:
+	elif question.type == "User Input":
 		validate_possible_answer(question)
 
 
