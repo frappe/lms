@@ -52,46 +52,88 @@
 		</header>
 		<div v-if="job.data" class="max-w-3xl mx-auto">
 			<div class="p-4">
-				<div class="flex mb-10">
-					<img
-						:src="job.data.company_logo"
-						class="w-16 h-16 rounded-lg object-contain mr-4"
-						:alt="job.data.company_name"
-					/>
-					<div>
+				<div class="space-y-5 mb-10">
+					<div class="flex items-center">
+						<img
+							:src="job.data.company_logo"
+							class="w-16 h-16 rounded-lg object-contain mr-4"
+							:alt="job.data.company_name"
+						/>
 						<div class="text-2xl font-semibold mb-4">
 							{{ job.data.job_title }}
 						</div>
+					</div>
+					<div>
 						<div
-							class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-2 md:gap-y-4"
+							class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-5 md:gap-y-5"
 						>
 							<div class="flex items-center space-x-2">
-								<Building2 class="h-4 w-4 stroke-1.5" />
-								<span>{{ job.data.company_name }}</span>
-							</div>
-							<div class="flex items-center space-x-2">
-								<MapPin class="h-4 w-4 stroke-1.5" />
-								<span>{{ job.data.location }}</span>
-							</div>
-							<div class="flex items-center space-x-2">
-								<ClipboardType class="h-4 w-4 stroke-1.5" />
-								<span>{{ job.data.type }}</span>
-							</div>
-							<div class="flex items-center space-x-2">
-								<CalendarDays class="h-4 w-4 stroke-1.5" />
-								<span>
-									{{ dayjs(job.data.creation).format('DD MMM YYYY') }}
+								<span class="p-4 bg-green-50 rounded-full">
+									<Building2 class="h-4 w-4 text-green-500" />
 								</span>
+								<div class="flex flex-col space-y-2">
+									<span class="text-xs text-gray-600 font-medium uppercase">
+										{{ __('Organisation') }}
+									</span>
+									<span class="text-sm font-semibold">
+										{{ job.data.company_name }}
+									</span>
+								</div>
+							</div>
+							<div class="flex items-center space-x-2">
+								<span class="p-4 bg-red-50 rounded-full">
+									<MapPin class="h-4 w-4 text-red-500" />
+								</span>
+								<div class="flex flex-col space-y-2">
+									<span class="text-xs text-gray-600 font-medium uppercase">
+										{{ __('Location') }}
+									</span>
+									<span class="text-sm font-semibold">
+										{{ job.data.location }}
+									</span>
+								</div>
+							</div>
+							<div class="flex items-center space-x-2">
+								<span class="p-4 bg-yellow-50 rounded-full">
+									<ClipboardType class="h-4 w-4 text-yellow-500" />
+								</span>
+								<div class="flex flex-col space-y-2">
+									<span class="text-xs font-medium text-gray-600 uppercase">
+										{{ __('Category') }}
+									</span>
+									<span class="text-sm font-semibold">
+										{{ job.data.type }}
+									</span>
+								</div>
+							</div>
+							<div class="flex items-center space-x-2">
+								<span class="p-4 bg-blue-50 rounded-full">
+									<CalendarDays class="h-4 w-4 text-blue-500" />
+								</span>
+								<div class="flex flex-col space-y-2">
+									<span class="text-xs text-gray-600 font-medium uppercase">
+										{{ __('Posted on') }}
+									</span>
+									<span class="text-sm font-semibold">
+										{{ dayjs(job.data.creation).format('DD MMM YYYY') }}
+									</span>
+								</div>
 							</div>
 							<div
 								v-if="applicationCount.data"
 								class="flex items-center space-x-2"
 							>
-								<SquareUserRound class="h-4 w-4 stroke-1.5" />
-								<span
-									>{{ applicationCount.data }}
-									{{ __('applications received') }}</span
-								>
+								<span class="p-4 bg-purple-50 rounded-full">
+									<SquareUserRound class="h-4 w-4 text-purple-500" />
+								</span>
+								<div class="flex flex-col space-y-2">
+									<span class="text-xs text-gray-600 font-medium uppercase">
+										{{ __('Applications Received') }}
+									</span>
+									<span class="text-sm font-semibold">
+										{{ applicationCount.data }}
+									</span>
+								</div>
 							</div>
 						</div>
 					</div>

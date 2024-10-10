@@ -5,6 +5,7 @@ import router from './router'
 import App from './App.vue'
 import { createPinia } from 'pinia'
 import dayjs from '@/utils/dayjs'
+import { createDialog } from '@/utils/dialogs'
 import translationPlugin from './translation'
 import { usersStore } from './stores/user'
 import { sessionStore } from './stores/session'
@@ -36,3 +37,4 @@ let { isLoggedIn } = sessionStore()
 app.provide('$user', userResource)
 app.provide('$allUsers', allUsers)
 app.config.globalProperties.$user = userResource
+app.config.globalProperties.$dialog = createDialog

@@ -113,7 +113,7 @@ def quiz_summary(quiz, results):
 		result["question"] = question_details.question_detail
 		result["marks_out_of"] = question_details.marks
 
-		quiz_details = frappe.get_doc(
+		quiz_details = frappe.db.get_value(
 			"LMS Quiz",
 			quiz,
 			["total_marks", "passing_percentage", "lesson", "course"],
