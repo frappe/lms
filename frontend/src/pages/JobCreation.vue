@@ -149,7 +149,7 @@ const newJob = createResource({
 		return {
 			doc: {
 				doctype: 'Job Opportunity',
-				company_logo: job.image.file_url,
+				company_logo: job.image?.file_url,
 				...job,
 			},
 		}

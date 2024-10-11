@@ -180,26 +180,6 @@ const tabsStructure = computed(() => {
 							type: 'text',
 						},
 						{
-							label: 'Copyright',
-							name: 'copyright',
-							type: 'text',
-						},
-						{
-							label: 'Address',
-							name: 'address',
-							type: 'textarea',
-							rows: 4,
-						},
-						{
-							label: 'Footer "Powered By"',
-							name: 'footer_powered',
-							type: 'textarea',
-							rows: 4,
-						},
-						{
-							type: 'Column Break',
-						},
-						{
 							label: 'Logo',
 							name: 'banner_image',
 							type: 'Upload',
@@ -213,6 +193,23 @@ const tabsStructure = computed(() => {
 							label: 'Footer Logo',
 							name: 'footer_logo',
 							type: 'Upload',
+						},
+						{
+							label: 'Address',
+							name: 'address',
+							type: 'textarea',
+							rows: 2,
+						},
+						{
+							label: 'Footer "Powered By"',
+							name: 'footer_powered',
+							type: 'textarea',
+							rows: 4,
+						},
+						{
+							label: 'Copyright',
+							name: 'copyright',
+							type: 'text',
 						},
 					],
 				},
@@ -292,9 +289,11 @@ const tabsStructure = computed(() => {
 							rows: 10,
 						},
 						{
-							label: 'Ask user category',
+							label: 'Ask for Occupation',
 							name: 'user_category',
 							type: 'checkbox',
+							description:
+								'Enable this option to ask users to select their occupation during the signup process.',
 						},
 					],
 				},
