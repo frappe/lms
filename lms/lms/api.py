@@ -293,7 +293,10 @@ def get_branding():
 	image_fields = ["banner_image", "footer_logo", "favicon"]
 
 	for field in image_fields:
-		website_settings.update({field: get_file_info(website_settings.get(field))})
+		if website_settings.get(field):
+			website_settings.update({field: get_file_info(website_settings.get(field))})
+		else:
+			website_settings.update({field: None})
 
 	return website_settings
 
@@ -322,7 +325,7 @@ def get_evaluator_details(evaluator):
 		)
 
 	if frappe.db.exists("Course Evaluator", {"evaluator": evaluator}):
-		doc = frappe.get_doc("Course Evaluator", evaluator, as_dict=1)
+		doc = frappe.get_doc("Course Evaluator", evaluator)
 	else:
 		doc = frappe.new_doc("Course Evaluator")
 		doc.evaluator = evaluator
@@ -576,14 +579,17 @@ def get_members(start=0, search=""):
 	"""
 
 	filters = {"enabled": 1, "name": ["not in", ["Administrator", "Guest"]]}
+	or_filters = {}
 
 	if search:
-		filters["full_name"] = ["like", f"%{search}%"]
+		or_filters["full_name"] = ["like", f"%{search}%"]
+		or_filters["email"] = ["like", f"%{search}%"]
 
 	members = frappe.get_all(
 		"User",
 		filters=filters,
 		fields=["name", "full_name", "user_image", "username", "last_active"],
+		or_filters=or_filters,
 		page_length=20,
 		start=start,
 	)

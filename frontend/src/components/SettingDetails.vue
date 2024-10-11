@@ -2,7 +2,7 @@
 	<div class="flex flex-col justify-between h-full">
 		<div>
 			<div class="flex itemsc-center justify-between">
-				<div class="font-semibold mb-1">
+				<div class="text-xl font-semibold leading-none mb-1">
 					{{ __(label) }}
 				</div>
 				<Badge
