@@ -15,20 +15,22 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Assessment Type",
-   "options": "DocType"
+   "options": "DocType",
+   "reqd": 1
   },
   {
    "fieldname": "assessment_name",
    "fieldtype": "Dynamic Link",
    "in_list_view": 1,
    "label": "Assessment Name",
-   "options": "assessment_type"
+   "options": "assessment_type",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-05-29 14:56:36.602399",
+ "modified": "2024-10-11 19:16:01.630524",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Assessment",

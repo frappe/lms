@@ -85,7 +85,6 @@ const update = () => {
 }
 
 watch(props.data, (newData) => {
-	console.log(newData)
 	if (newData && !isDirty.value) {
 		isDirty.value = true
 	}
