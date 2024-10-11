@@ -140,6 +140,7 @@ const removeAssessments = (selections, unselectAll) => {
 }
 
 const getRowRoute = (row) => {
+	console.log(row)
 	if (row.assessment_type == 'LMS Assignment') {
 		if (row.submission) {
 			return {
