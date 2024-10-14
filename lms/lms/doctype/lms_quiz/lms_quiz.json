@@ -10,10 +10,11 @@
   "title",
   "max_attempts",
   "show_answers",
+  "show_submission_history",
   "column_break_gaac",
   "total_marks",
   "passing_percentage",
-  "show_submission_history",
+  "duration",
   "section_break_tzbu",
   "shuffle_questions",
   "column_break_clsh",
@@ -128,11 +129,16 @@
   {
    "fieldname": "column_break_clsh",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "duration",
+   "fieldtype": "Duration",
+   "label": "Duration"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-08-09 12:21:36.256522",
+ "modified": "2024-10-11 22:39:40.381183",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz",
