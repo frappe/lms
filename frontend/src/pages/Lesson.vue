@@ -279,7 +279,7 @@ const renderEditor = (holder, content) => {
 }
 
 const markProgress = () => {
-	if (user.data && !lesson.data?.progress) {
+	if (user.data && lesson.data && !lesson.data.progress) {
 		progress.submit()
 	}
 }
