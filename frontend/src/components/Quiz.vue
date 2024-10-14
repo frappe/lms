@@ -1,21 +1,21 @@
 <template>
 	<div v-if="quiz.data">
 		<div
-			class="bg-blue-100 space-y-2 py-2 px-2 rounded-md text-sm text-blue-800"
+			class="bg-blue-100 space-y-1 py-2 px-2 rounded-md text-sm text-blue-800"
 		>
 			<div class="leading-5">
 				{{
 					__('This quiz consists of {0} questions.').format(questions.length)
 				}}
 			</div>
-			<div class="leading-5">
+			<div v-if="quiz.data?.duration" class="leading-5">
 				{{
 					__(
 						'Please ensure that you complete all the questions in {0} minutes.'
 					).format(quiz.data.duration)
 				}}
 			</div>
-			<div class="leading-5">
+			<div v-if="quiz.data?.duration" class="leading-5">
 				{{
 					__(
 						'If you fail to do so, the quiz will be automatically submitted when the timer ends.'
