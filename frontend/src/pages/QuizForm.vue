@@ -38,7 +38,7 @@
 	<div class="w-3/4 mx-auto py-5">
 		<!-- Details -->
 		<div class="mb-8">
-			<div class="text-sm font-semibold mb-4">
+			<div class="font-semibold mb-4">
 				{{ __('Details') }}
 			</div>
 			<FormControl
@@ -50,10 +50,16 @@
 				"
 			/>
 			<div v-if="quizDetails.data?.name">
-				<div class="grid grid-cols-3 gap-5 mt-4 mb-8">
+				<div class="grid grid-cols-2 gap-5 mt-4 mb-8">
 					<FormControl
+						type="number"
 						v-model="quiz.max_attempts"
 						:label="__('Maximun Attempts')"
+					/>
+					<FormControl
+						type="number"
+						v-model="quiz.duration"
+						:label="__('Duration (in minutes)')"
 					/>
 					<FormControl
 						v-model="quiz.total_marks"
@@ -68,7 +74,7 @@
 
 				<!-- Settings -->
 				<div class="mb-8">
-					<div class="text-sm font-semibold mb-4">
+					<div class="font-semibold mb-4">
 						{{ __('Settings') }}
 					</div>
 					<div class="grid grid-cols-3 gap-5 my-4">
@@ -86,7 +92,7 @@
 				</div>
 
 				<div class="mb-8">
-					<div class="text-sm font-semibold mb-4">
+					<div class="font-semibold mb-4">
 						{{ __('Shuffle Settings') }}
 					</div>
 					<div class="grid grid-cols-3">
@@ -106,7 +112,7 @@
 				<!-- Questions -->
 				<div>
 					<div class="flex items-center justify-between mb-4">
-						<div class="text-sm font-semibold">
+						<div class="font-semibold">
 							{{ __('Questions') }}
 						</div>
 						<Button @click="openQuestionModal()">
@@ -226,6 +232,7 @@ const quiz = reactive({
 	total_marks: 0,
 	passing_percentage: 0,
 	max_attempts: 0,
+	duration: 0,
 	limit_questions_to: 0,
 	show_answers: true,
 	show_submission_history: false,

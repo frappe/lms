@@ -21,7 +21,7 @@
 
 <script setup>
 import { Star } from 'lucide-vue-next'
-import { computed, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 
 const props = defineProps({
 	id: {
