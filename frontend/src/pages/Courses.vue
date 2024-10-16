@@ -29,21 +29,16 @@
 						</template>
 					</FormControl>
 				</div>
-				<router-link
-					:to="{
-						name: 'CourseForm',
-						params: {
-							courseName: 'new',
-						},
-					}"
+				<Button
+					v-if="user.data?.is_moderator"
+					variant="solid"
+					@click="openCourseModal = true"
 				>
-					<Button v-if="user.data?.is_moderator" variant="solid">
-						<template #prefix>
-							<Plus class="h-4 w-4" />
-						</template>
-						{{ __('New') }}
-					</Button>
-				</router-link>
+					<template #prefix>
+						<Plus class="h-4 w-4" />
+					</template>
+					{{ __('New') }}
+				</Button>
 			</div>
 		</header>
 		<div class="">
@@ -115,6 +110,7 @@
 			</Tabs>
 		</div>
 	</div>
+	<CourseModal v-model="openCourseModal" />
 </template>
 
 <script setup>
@@ -130,10 +126,12 @@ import CourseCard from '@/components/CourseCard.vue'
 import { Plus, Search } from 'lucide-vue-next'
 import { ref, computed, inject, onMounted, watch } from 'vue'
 import { updateDocumentTitle } from '@/utils'
+import CourseModal from '@/components/Modals/CourseModal.vue'
 
 const user = inject('$user')
 const searchQuery = ref('')
 const currentCategory = ref(null)
+const openCourseModal = ref(false)
 
 onMounted(() => {
 	let queries = new URLSearchParams(location.search)

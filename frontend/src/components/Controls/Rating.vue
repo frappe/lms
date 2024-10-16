@@ -42,6 +42,10 @@ const props = defineProps({
 	},
 })
 
+const emit = defineEmits(['update:modelValue'])
+const rating = ref(props.modelValue)
+const hoveredRating = ref(0)
+
 const iconClasses = (index) => {
 	let classes = [
 		{
@@ -58,10 +62,6 @@ const iconClasses = (index) => {
 	}
 	return classes.join(' ')
 }
-
-const emit = defineEmits(['update:modelValue'])
-const rating = ref(props.modelValue)
-const hoveredRating = ref(0)
 
 let emitChange = (value) => {
 	emit('update:modelValue', value)
