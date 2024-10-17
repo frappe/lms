@@ -1709,7 +1709,7 @@ def enroll_in_batch(batch, payment_name=None):
 	):
 		student = frappe.new_doc("Batch Student")
 		current_count = frappe.db.count("Batch Student", {"parent": batch})
-		
+
 		student.update(
 			{
 				"student": frappe.session.user,
@@ -1724,10 +1724,11 @@ def enroll_in_batch(batch, payment_name=None):
 			payment = frappe.db.get_value(
 				"LMS Payment", payment_name, ["name", "source"], as_dict=True
 			)
-			student.update({
-				"payment": payment.name,
-				"source": payment.source,
-			})
-			
+			student.update(
+				{
+					"payment": payment.name,
+					"source": payment.source,
+				}
+			)
 
 		student.save(ignore_permissions=True)
