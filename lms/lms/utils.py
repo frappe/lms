@@ -1678,7 +1678,7 @@ def update_payment_record(doctype, docname):
 			if doctype == "LMS Course":
 				enroll_in_course(data.payment, docname)
 			else:
-				enroll_in_batch(data.payment, docname)
+				enroll_in_batch(docname, data.payment)
 		except Exception as e:
 			frappe.log_error(frappe.get_traceback(), _("Enrollment Failed"))
 
@@ -1709,20 +1709,26 @@ def enroll_in_batch(batch, payment_name=None):
 	):
 		student = frappe.new_doc("Batch Student")
 		current_count = frappe.db.count("Batch Student", {"parent": batch})
-		if payment_name:
-			payment = frappe.db.get_value(
-				"LMS Payment", payment_name, ["name", "source"], as_dict=True
-			)
 
 		student.update(
 			{
 				"student": frappe.session.user,
-				"payment": payment.name if payment_name else None,
-				"source": payment.source if payment_name else None,
 				"parent": batch,
 				"parenttype": "LMS Batch",
 				"parentfield": "students",
 				"idx": current_count + 1,
 			}
 		)
+
+		if payment_name:
+			payment = frappe.db.get_value(
+				"LMS Payment", payment_name, ["name", "source"], as_dict=True
+			)
+			student.update(
+				{
+					"payment": payment.name,
+					"source": payment.source,
+				}
+			)
+
 		student.save(ignore_permissions=True)
