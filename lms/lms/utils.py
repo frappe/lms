@@ -1728,5 +1728,6 @@ def enroll_in_batch(batch, payment_name=None):
 				"payment": payment.name,
 				"source": payment.source,
 			})
+			
 
 		student.save(ignore_permissions=True)
