@@ -1,5 +1,5 @@
 <template>
-	<div class="flex flex-col justify-between h-full">
+	<div class="flex flex-col justify-between min-h-0">
 		<div>
 			<div class="flex items-center justify-between">
 				<div class="font-semibold mb-1">
@@ -16,11 +16,13 @@
 				{{ __(description) }}
 			</div>
 		</div>
-		<SettingFields :fields="fields" :data="data.data" />
-		<div class="flex flex-row-reverse mt-auto">
-			<Button variant="solid" :loading="saveSettings.loading" @click="update">
-				{{ __('Update') }}
-			</Button>
+		<div class="overflow-y-auto">
+			<SettingFields :fields="fields" :data="data.data" />
+			<div class="flex flex-row-reverse mt-auto">
+				<Button variant="solid" :loading="saveSettings.loading" @click="update">
+					{{ __('Update') }}
+				</Button>
+			</div>
 		</div>
 	</div>
 </template>
@@ -70,9 +72,16 @@ const update = () => {
 			fieldsToSave[f.name] = f.value
 		}
 	})
-	saveSettings.submit({
-		fields: fieldsToSave,
-	})
+	saveSettings.submit(
+		{
+			fields: fieldsToSave,
+		},
+		{
+			onSuccess(data) {
+				isDirty.value = false
+			},
+		}
+	)
 }
 
 watch(props.data, (newData) => {

@@ -17,17 +17,16 @@
 					/>
 
 					<div v-else-if="field.type == 'Code'">
-						<div>
-							{{ __(field.label) }}
-						</div>
-						<Codemirror
-							v-model:value="data[field.name]"
-							:height="200"
-							:options="{
-								mode: field.mode,
-								theme: 'seti',
-							}"
-						/>
+						<CodeEditor
+							:label="__(field.label)"
+							type="HTML"
+							description="The HTML you add here will be shown on your sign up page."
+							v-model="data[field.name]"
+							height="250px"
+							class="shrink-0"
+							:showLineNumbers="true"
+						>
+						</CodeEditor>
 					</div>
 
 					<div v-else-if="field.type == 'Upload'">
@@ -53,9 +52,11 @@
 							</template>
 						</FileUploader>
 						<div v-else>
-							<div class="flex items-center text-sm">
-								<div class="border rounded-md p-2 mr-2">
-									<FileText class="h-5 w-5 stroke-1.5 text-gray-700" />
+							<div class="flex items-center text-sm space-x-2">
+								<div
+									class="flex items-center justify-center rounded border border-outline-gray-1 w-[15rem] py-5"
+								>
+									<img :src="data[field.name]?.file_url" class="h-6 rounded" />
 								</div>
 								<div class="flex flex-col flex-wrap">
 									<span class="break-all">
@@ -73,6 +74,14 @@
 						</div>
 					</div>
 
+					<Switch
+						v-else-if="field.type == 'checkbox'"
+						size="sm"
+						:label="__(field.label)"
+						:description="__(field.description)"
+						v-model="data[field.name]"
+					/>
+
 					<FormControl
 						v-else
 						:key="field.name"
@@ -88,14 +97,12 @@
 	</div>
 </template>
 <script setup>
-import { FormControl, FileUploader, Button } from 'frappe-ui'
+import { FormControl, FileUploader, Button, Switch } from 'frappe-ui'
 import { computed } from 'vue'
 import { getFileSize, validateFile } from '@/utils'
 import { X, FileText } from 'lucide-vue-next'
 import Link from '@/components/Controls/Link.vue'
-import Codemirror from 'codemirror-editor-vue3'
-import 'codemirror/theme/seti.css'
-import 'codemirror/mode/htmlmixed/htmlmixed.js'
+import CodeEditor from '@/components/Controls/CodeEditor.vue'
 
 const props = defineProps({
 	fields: {

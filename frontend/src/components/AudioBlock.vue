@@ -56,7 +56,6 @@ const props = defineProps({
 onMounted(() => {
 	setTimeout(() => {
 		audio.value = document.querySelector('audio')
-		console.log(audio.value)
 		audio.value.onloadedmetadata = () => {
 			duration.value = audio.value.duration
 		}

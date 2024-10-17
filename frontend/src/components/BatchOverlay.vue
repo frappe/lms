@@ -75,6 +75,7 @@
 			variant="solid"
 			class="w-full mt-2"
 			v-else-if="batch.data.allow_self_enrollment && batch.data.seats_left"
+			@click="enrollInBatch()"
 		>
 			{{ __('Enroll Now') }}
 		</Button>
@@ -97,11 +98,13 @@
 </template>
 <script setup>
 import { inject, computed } from 'vue'
-import { Badge, Button } from 'frappe-ui'
+import { Badge, Button, createResource } from 'frappe-ui'
 import { BookOpen, Clock, Globe } from 'lucide-vue-next'
-import { formatNumberIntoCurrency, formatTime } from '@/utils'
+import { formatNumberIntoCurrency, formatTime, showToast } from '@/utils'
 import DateRange from '@/components/Common/DateRange.vue'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const user = inject('$user')
 
 const props = defineProps({
@@ -110,6 +113,39 @@ const props = defineProps({
 		default: null,
 	},
 })
+
+const enroll = createResource({
+	url: 'lms.lms.utils.enroll_in_batch',
+	makeParams(values) {
+		return {
+			batch: props.batch.data.name,
+		}
+	},
+})
+
+const enrollInBatch = () => {
+	if (!user.data) {
+		window.location.href = `/login?redirect-to=/batches/details/${props.batch.data.name}`
+	}
+	enroll.submit(
+		{},
+		{
+			onSuccess(data) {
+				showToast(
+					__('Success'),
+					__('You have been enrolled in this batch'),
+					'check'
+				)
+				router.push({
+					name: 'Batch',
+					params: {
+						batchName: props.batch.data.name,
+					},
+				})
+			},
+		}
+	)
+}
 
 const seats_left = computed(() => {
 	if (props.batch.data?.seat_count) {

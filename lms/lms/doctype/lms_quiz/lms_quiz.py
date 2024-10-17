@@ -100,6 +100,16 @@ def quiz_summary(quiz, results):
 	score = 0
 	results = results and json.loads(results)
 	is_open_ended = False
+	percentage = 0
+
+	quiz_details = frappe.db.get_value(
+		"LMS Quiz",
+		quiz,
+		["total_marks", "passing_percentage", "lesson", "course"],
+		as_dict=1,
+	)
+
+	score_out_of = quiz_details.total_marks
 
 	for result in results:
 		question_details = frappe.db.get_value(
@@ -113,17 +123,6 @@ def quiz_summary(quiz, results):
 		result["question"] = question_details.question_detail
 		result["marks_out_of"] = question_details.marks
 
-		quiz_details = frappe.get_doc(
-			"LMS Quiz",
-			quiz,
-			["total_marks", "passing_percentage", "lesson", "course"],
-			as_dict=1,
-		)
-
-		score = 0
-		percentage = 0
-		score_out_of = quiz_details.total_marks
-
 		if question_details.type != "Open Ended":
 			correct = result["is_correct"][0]
 			for point in result["is_correct"]:
@@ -135,24 +134,26 @@ def quiz_summary(quiz, results):
 			score += marks
 
 			del result["question_name"]
-			percentage = (score / score_out_of) * 100
 		else:
 			result["is_correct"] = 0
 			is_open_ended = True
 
+		percentage = (score / score_out_of) * 100
 		result["answer"] = re.sub(
 			r'<img[^>]*src\s*=\s*["\'](?=data:)(.*?)["\']', _save_file, result["answer"]
 		)
 
-	submission = frappe.get_doc(
+	submission = frappe.new_doc("LMS Quiz Submission")
+	# Score and percentage are calculated by the controller function
+	submission.update(
 		{
 			"doctype": "LMS Quiz Submission",
 			"quiz": quiz,
 			"result": results,
-			"score": score,
+			"score": 0,
 			"score_out_of": score_out_of,
 			"member": frappe.session.user,
-			"percentage": percentage,
+			"percentage": 0,
 			"passing_percentage": quiz_details.passing_percentage,
 		}
 	)

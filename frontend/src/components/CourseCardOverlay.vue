@@ -116,7 +116,7 @@
 import { BookOpen, Users, Star } from 'lucide-vue-next'
 import { computed, inject } from 'vue'
 import { Button, createResource } from 'frappe-ui'
-import { createToast } from '@/utils/'
+import { showToast } from '@/utils/'
 import { capture } from '@/telemetry'
 import { useRouter } from 'vue-router'
 
@@ -139,11 +139,11 @@ const video_link = computed(() => {
 
 function enrollStudent() {
 	if (!user.data) {
-		createToast({
-			title: 'Please Login',
-			icon: 'alert-circle',
-			iconClasses: 'text-yellow-600 bg-yellow-100',
-		})
+		showToast(
+			__('Please Login'),
+			__('You need to login first to enroll for this course'),
+			'circle-warn'
+		)
 		setTimeout(() => {
 			window.location.href = `/login?redirect-to=${window.location.pathname}`
 		}, 2000)
@@ -159,11 +159,11 @@ function enrollStudent() {
 				capture('enrolled_in_course', {
 					course: props.course.data.name,
 				})
-				createToast({
-					title: 'Enrolled Successfully',
-					icon: 'check',
-					iconClasses: 'text-green-600 bg-green-100',
-				})
+				showToast(
+					__('Success'),
+					__('You have been enrolled in this course'),
+					'check'
+				)
 				setTimeout(() => {
 					router.push({
 						name: 'Lesson',
@@ -173,7 +173,7 @@ function enrollStudent() {
 							lessonNumber: 1,
 						},
 					})
-				}, 3000)
+				}, 2000)
 			})
 	}
 }
@@ -206,7 +206,6 @@ const certificate = createResource({
 		}
 	},
 	onSuccess(data) {
-		console.log(data)
 		window.open(
 			`/api/method/frappe.utils.print_format.download_pdf?doctype=LMS+Certificate&name=${
 				data.name

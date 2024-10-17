@@ -82,10 +82,13 @@ export function getFileSize(file_size) {
 
 export function showToast(title, text, icon, iconClasses = null) {
 	if (!iconClasses) {
-		iconClasses =
-			icon == 'check'
-				? 'bg-green-600 text-white rounded-md p-px'
-				: 'bg-red-600 text-white rounded-md p-px'
+		if (icon == 'check') {
+			iconClasses = 'bg-green-600 text-white rounded-md p-px'
+		} else if (icon == 'circle-warn') {
+			iconClasses = 'bg-yellow-600 text-white rounded-md p-px'
+		} else {
+			iconClasses = 'bg-red-600 text-white rounded-md p-px'
+		}
 	}
 	createToast({
 		title: title,
