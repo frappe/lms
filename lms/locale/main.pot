@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Frappe LMS VERSION\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2024-10-11 16:04+0000\n"
-"PO-Revision-Date: 2024-10-11 16:04+0000\n"
+"POT-Creation-Date: 2024-10-18 16:04+0000\n"
+"PO-Revision-Date: 2024-10-18 16:04+0000\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: jannat@frappe.io\n"
 "MIME-Version: 1.0\n"
@@ -129,7 +129,7 @@ msgid "Add a course"
 msgstr ""
 
 #: frontend/src/components/Modals/Question.vue:141
-#: frontend/src/pages/QuizForm.vue:175
+#: frontend/src/pages/QuizForm.vue:181
 msgid "Add a new question"
 msgstr ""
 
@@ -723,7 +723,7 @@ msgstr ""
 msgid "Chapters"
 msgstr ""
 
-#: frontend/src/components/Quiz.vue:183 lms/templates/quiz/quiz.html:120
+#: frontend/src/components/Quiz.vue:201 lms/templates/quiz/quiz.html:120
 msgid "Check"
 msgstr ""
 
@@ -746,7 +746,7 @@ msgstr ""
 msgid "Choices"
 msgstr ""
 
-#: frontend/src/components/Quiz.vue:511 lms/templates/quiz/quiz.html:53
+#: frontend/src/components/Quiz.vue:578 lms/templates/quiz/quiz.html:53
 msgid "Choose all answers that apply"
 msgstr ""
 
@@ -754,7 +754,7 @@ msgstr ""
 msgid "Choose an icon"
 msgstr ""
 
-#: frontend/src/components/Quiz.vue:512 lms/templates/quiz/quiz.html:53
+#: frontend/src/components/Quiz.vue:579 lms/templates/quiz/quiz.html:53
 msgid "Choose one answer"
 msgstr ""
 
@@ -1000,7 +1000,7 @@ msgstr ""
 #. Option for the 'Status' (Select) field in DocType 'Exercise Latest
 #. Submission'
 #. Option for the 'Status' (Select) field in DocType 'Exercise Submission'
-#: frontend/src/components/Quiz.vue:143
+#: frontend/src/components/Quiz.vue:161
 #: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
 #: lms/lms/doctype/exercise_submission/exercise_submission.json
 msgid "Correct"
@@ -1420,11 +1420,17 @@ msgstr ""
 #. Label of the duration (Data) field in DocType 'Cohort'
 #. Label of the duration (Data) field in DocType 'LMS Batch Timetable'
 #. Label of the duration (Int) field in DocType 'LMS Live Class'
+#. Label of the duration (Duration) field in DocType 'LMS Quiz'
 #: frontend/src/components/Modals/LiveClassModal.vue:58
 #: lms/lms/doctype/cohort/cohort.json
 #: lms/lms/doctype/lms_batch_timetable/lms_batch_timetable.json
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
+#: lms/lms/doctype/lms_quiz/lms_quiz.json
 msgid "Duration"
+msgstr ""
+
+#: frontend/src/pages/QuizForm.vue:62
+msgid "Duration (in minutes)"
 msgstr ""
 
 #: frontend/src/components/Modals/LiveClassModal.vue:54
@@ -1457,7 +1463,7 @@ msgstr ""
 msgid "Edit Profile"
 msgstr ""
 
-#: frontend/src/pages/QuizForm.vue:174
+#: frontend/src/pages/QuizForm.vue:180
 msgid "Edit the question"
 msgstr ""
 
@@ -1608,8 +1614,8 @@ msgstr ""
 #: frontend/src/components/Modals/Question.vue:246
 #: frontend/src/components/Modals/Question.vue:266
 #: frontend/src/components/Modals/Question.vue:323
-#: frontend/src/pages/Billing.vue:264 frontend/src/pages/QuizForm.vue:342
-#: frontend/src/pages/QuizForm.vue:357
+#: frontend/src/pages/Billing.vue:264 frontend/src/pages/QuizForm.vue:349
+#: frontend/src/pages/QuizForm.vue:364
 #: frontend/src/pages/QuizSubmission.vue:117
 msgid "Error"
 msgstr ""
@@ -1798,7 +1804,7 @@ msgstr ""
 msgid "Flexible Time"
 msgstr ""
 
-#: frontend/src/pages/QuizForm.vue:455
+#: frontend/src/pages/QuizForm.vue:462
 msgid "Form to create and edit quizzes"
 msgstr ""
 
@@ -2012,7 +2018,7 @@ msgstr ""
 msgid "I am unavailable"
 msgstr ""
 
-#: frontend/src/pages/QuizForm.vue:376
+#: frontend/src/pages/QuizForm.vue:383
 msgid "ID"
 msgstr ""
 
@@ -2024,6 +2030,10 @@ msgstr ""
 
 #: lms/templates/emails/mentor_request_creation_email.html:5
 msgid "If you are not any more interested to mentor the course"
+msgstr ""
+
+#: frontend/src/components/Quiz.vue:20
+msgid "If you fail to do so, the quiz will be automatically submitted when the timer ends."
 msgstr ""
 
 #: lms/templates/emails/batch_confirmation.html:33
@@ -2064,7 +2074,7 @@ msgstr ""
 msgid "Image search powered by"
 msgstr ""
 
-#: lms/lms/doctype/lms_quiz/lms_quiz.py:220
+#: lms/lms/doctype/lms_quiz/lms_quiz.py:221
 msgid "Image: Corrupted Data Stream"
 msgstr ""
 
@@ -2097,7 +2107,7 @@ msgstr ""
 #. Option for the 'Status' (Select) field in DocType 'Exercise Latest
 #. Submission'
 #. Option for the 'Status' (Select) field in DocType 'Exercise Submission'
-#: frontend/src/components/Quiz.vue:148
+#: frontend/src/components/Quiz.vue:166
 #: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
 #: lms/lms/doctype/exercise_submission/exercise_submission.json
 msgid "Incorrect"
@@ -2587,7 +2597,7 @@ msgid "Letter Grade (e.g. A, B-)"
 msgstr ""
 
 #. Label of the limit_questions_to (Int) field in DocType 'LMS Quiz'
-#: frontend/src/pages/QuizForm.vue:101 lms/lms/doctype/lms_quiz/lms_quiz.json
+#: frontend/src/pages/QuizForm.vue:107 lms/lms/doctype/lms_quiz/lms_quiz.json
 msgid "Limit Questions To"
 msgstr ""
 
@@ -2697,7 +2707,7 @@ msgstr ""
 msgid "Manager (Sales/Marketing/Customer)"
 msgstr ""
 
-#: frontend/src/components/Quiz.vue:76
+#: frontend/src/components/Quiz.vue:94
 msgid "Mark"
 msgstr ""
 
@@ -2713,7 +2723,7 @@ msgstr ""
 #. Label of the marks (Int) field in DocType 'LMS Quiz Result'
 #: frontend/src/components/Modals/Question.vue:50
 #: frontend/src/components/Modals/Question.vue:96
-#: frontend/src/components/Quiz.vue:76 frontend/src/pages/QuizForm.vue:386
+#: frontend/src/components/Quiz.vue:94 frontend/src/pages/QuizForm.vue:393
 #: frontend/src/pages/QuizSubmission.vue:52
 #: lms/lms/doctype/lms_quiz_question/lms_quiz_question.json
 #: lms/lms/doctype/lms_quiz_result/lms_quiz_result.json
@@ -2736,7 +2746,7 @@ msgstr ""
 msgid "Max Attempts"
 msgstr ""
 
-#: frontend/src/pages/QuizForm.vue:56
+#: frontend/src/pages/QuizForm.vue:57
 msgid "Maximun Attempts"
 msgstr ""
 
@@ -2983,11 +2993,11 @@ msgstr ""
 msgid "New Job Applicant"
 msgstr ""
 
-#: frontend/src/pages/QuizForm.vue:116
+#: frontend/src/pages/QuizForm.vue:122
 msgid "New Question"
 msgstr ""
 
-#: frontend/src/pages/QuizForm.vue:446 frontend/src/pages/QuizForm.vue:454
+#: frontend/src/pages/QuizForm.vue:453 frontend/src/pages/QuizForm.vue:461
 #: frontend/src/pages/Quizzes.vue:18
 msgid "New Quiz"
 msgstr ""
@@ -3009,7 +3019,7 @@ msgstr ""
 msgid "New {0}"
 msgstr ""
 
-#: frontend/src/components/Quiz.vue:191 frontend/src/pages/Lesson.vue:89
+#: frontend/src/components/Quiz.vue:209 frontend/src/pages/Lesson.vue:89
 msgid "Next"
 msgstr ""
 
@@ -3312,7 +3322,7 @@ msgstr ""
 
 #. Label of the passing_percentage (Int) field in DocType 'LMS Quiz'
 #. Label of the passing_percentage (Int) field in DocType 'LMS Quiz Submission'
-#: frontend/src/pages/QuizForm.vue:65 frontend/src/pages/Quizzes.vue:109
+#: frontend/src/pages/QuizForm.vue:71 frontend/src/pages/Quizzes.vue:109
 #: lms/lms/doctype/lms_quiz/lms_quiz.json
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.json
 msgid "Passing Percentage"
@@ -3439,6 +3449,10 @@ msgstr ""
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:229
 msgid "Please enable Zoom Settings to use this feature."
+msgstr ""
+
+#: frontend/src/components/Quiz.vue:13
+msgid "Please ensure that you complete all the questions in {0} minutes."
 msgstr ""
 
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.py:38
@@ -3671,7 +3685,7 @@ msgstr ""
 #. Label of the question (Text) field in DocType 'LMS Quiz Result'
 #: frontend/src/components/Modals/Question.vue:38
 #: frontend/src/pages/AssignmentSubmission.vue:26
-#: frontend/src/pages/QuizForm.vue:381
+#: frontend/src/pages/QuizForm.vue:388
 #: lms/lms/doctype/course_lesson/course_lesson.json
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
@@ -3704,20 +3718,20 @@ msgstr ""
 msgid "Question updated successfully"
 msgstr ""
 
-#: frontend/src/components/Quiz.vue:68
+#: frontend/src/components/Quiz.vue:86
 msgid "Question {0}"
 msgstr ""
 
-#: frontend/src/components/Quiz.vue:168
+#: frontend/src/components/Quiz.vue:186
 msgid "Question {0} of {1}"
 msgstr ""
 
 #. Label of the questions (Table) field in DocType 'LMS Quiz'
-#: frontend/src/pages/QuizForm.vue:110 lms/lms/doctype/lms_quiz/lms_quiz.json
+#: frontend/src/pages/QuizForm.vue:116 lms/lms/doctype/lms_quiz/lms_quiz.json
 msgid "Questions"
 msgstr ""
 
-#: frontend/src/pages/QuizForm.vue:423
+#: frontend/src/pages/QuizForm.vue:430
 msgid "Questions deleted successfully"
 msgstr ""
 
@@ -3746,7 +3760,7 @@ msgstr ""
 msgid "Quiz Submissions"
 msgstr ""
 
-#: frontend/src/components/Quiz.vue:205
+#: frontend/src/components/Quiz.vue:223
 msgid "Quiz Summary"
 msgstr ""
 
@@ -3755,7 +3769,7 @@ msgstr ""
 msgid "Quiz Title"
 msgstr ""
 
-#: frontend/src/pages/QuizForm.vue:335
+#: frontend/src/pages/QuizForm.vue:342
 msgid "Quiz created successfully"
 msgstr ""
 
@@ -3763,7 +3777,7 @@ msgstr ""
 msgid "Quiz is not available to Guest users. Please login to continue."
 msgstr ""
 
-#: frontend/src/pages/QuizForm.vue:354
+#: frontend/src/pages/QuizForm.vue:361
 msgid "Quiz updated successfully"
 msgstr ""
 
@@ -3772,7 +3786,7 @@ msgstr ""
 msgid "Quiz will appear at the bottom of the lesson."
 msgstr ""
 
-#: frontend/src/pages/QuizForm.vue:434 frontend/src/pages/Quizzes.vue:120
+#: frontend/src/pages/QuizForm.vue:441 frontend/src/pages/Quizzes.vue:120
 #: frontend/src/pages/Quizzes.vue:130
 msgid "Quizzes"
 msgstr ""
@@ -4053,7 +4067,7 @@ msgstr ""
 
 #: frontend/src/components/Modals/Settings.vue:7
 #: frontend/src/pages/BatchForm.vue:143 frontend/src/pages/CourseForm.vue:128
-#: frontend/src/pages/ProfileRoles.vue:4 frontend/src/pages/QuizForm.vue:72
+#: frontend/src/pages/ProfileRoles.vue:4 frontend/src/pages/QuizForm.vue:78
 msgid "Settings"
 msgstr ""
 
@@ -4073,12 +4087,12 @@ msgid "Show Answer"
 msgstr ""
 
 #. Label of the show_answers (Check) field in DocType 'LMS Quiz'
-#: frontend/src/pages/QuizForm.vue:78 lms/lms/doctype/lms_quiz/lms_quiz.json
+#: frontend/src/pages/QuizForm.vue:84 lms/lms/doctype/lms_quiz/lms_quiz.json
 msgid "Show Answers"
 msgstr ""
 
 #. Label of the show_submission_history (Check) field in DocType 'LMS Quiz'
-#: frontend/src/pages/QuizForm.vue:83 lms/lms/doctype/lms_quiz/lms_quiz.json
+#: frontend/src/pages/QuizForm.vue:89 lms/lms/doctype/lms_quiz/lms_quiz.json
 msgid "Show Submission History"
 msgstr ""
 
@@ -4103,11 +4117,11 @@ msgid "Show live class"
 msgstr ""
 
 #. Label of the shuffle_questions (Check) field in DocType 'LMS Quiz'
-#: frontend/src/pages/QuizForm.vue:96 lms/lms/doctype/lms_quiz/lms_quiz.json
+#: frontend/src/pages/QuizForm.vue:102 lms/lms/doctype/lms_quiz/lms_quiz.json
 msgid "Shuffle Questions"
 msgstr ""
 
-#: frontend/src/pages/QuizForm.vue:90
+#: frontend/src/pages/QuizForm.vue:96
 msgid "Shuffle Settings"
 msgstr ""
 
@@ -4219,7 +4233,7 @@ msgstr ""
 msgid "Stage"
 msgstr ""
 
-#: frontend/src/components/LiveClass.vue:45 frontend/src/components/Quiz.vue:47
+#: frontend/src/components/LiveClass.vue:45 frontend/src/components/Quiz.vue:65
 #: lms/templates/quiz/quiz.html:39
 msgid "Start"
 msgstr ""
@@ -4398,7 +4412,7 @@ msgstr ""
 #: frontend/src/components/Modals/BatchCourseModal.vue:9
 #: frontend/src/components/Modals/EvaluationModal.vue:9
 #: frontend/src/components/Modals/Question.vue:335
-#: frontend/src/components/Quiz.vue:196 lms/templates/assignment.html:9
+#: frontend/src/components/Quiz.vue:214 lms/templates/assignment.html:9
 #: lms/templates/livecode/extension_footer.html:25
 #: lms/templates/quiz/quiz.html:128 lms/templates/reviews.html:163
 #: lms/www/new-sign-up.html:32
@@ -4415,7 +4429,7 @@ msgid "Submitted {0}"
 msgstr ""
 
 #: frontend/src/components/BatchCourses.vue:150
-#: frontend/src/components/BatchOverlay.vue:132
+#: frontend/src/components/BatchOverlay.vue:135
 #: frontend/src/components/BatchStudents.vue:157
 #: frontend/src/components/CourseCardOverlay.vue:163
 #: frontend/src/components/Modals/AssessmentModal.vue:73
@@ -4423,8 +4437,8 @@ msgstr ""
 #: frontend/src/components/Modals/Event.vue:310
 #: frontend/src/components/Modals/Question.vue:261
 #: frontend/src/components/Modals/Question.vue:312
-#: frontend/src/pages/QuizForm.vue:335 frontend/src/pages/QuizForm.vue:354
-#: frontend/src/pages/QuizForm.vue:423
+#: frontend/src/pages/QuizForm.vue:342 frontend/src/pages/QuizForm.vue:361
+#: frontend/src/pages/QuizForm.vue:430
 msgid "Success"
 msgstr ""
 
@@ -4559,7 +4573,7 @@ msgstr ""
 msgid "The evaluator of this course is unavailable from {0} to {1}. Please select a date after {1}"
 msgstr ""
 
-#: frontend/src/components/Quiz.vue:27 lms/templates/quiz/quiz.html:24
+#: lms/templates/quiz/quiz.html:24
 msgid "The quiz has a time limit. For each question you will be given {0} seconds."
 msgstr ""
 
@@ -4622,7 +4636,7 @@ msgstr ""
 msgid "This lesson is not available for preview. Please join the course to access it."
 msgstr ""
 
-#: frontend/src/components/Quiz.vue:6 lms/templates/quiz/quiz.html:6
+#: frontend/src/components/Quiz.vue:8 lms/templates/quiz/quiz.html:6
 msgid "This quiz consists of {0} questions."
 msgstr ""
 
@@ -4636,6 +4650,7 @@ msgstr ""
 #. Label of the time (Time) field in DocType 'LMS Live Class'
 #: frontend/src/components/Modals/Event.vue:48
 #: frontend/src/components/Modals/LiveClassModal.vue:36
+#: frontend/src/components/Quiz.vue:44
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Time"
 msgstr ""
@@ -4757,7 +4772,7 @@ msgid "Total"
 msgstr ""
 
 #. Label of the total_marks (Int) field in DocType 'LMS Quiz'
-#: frontend/src/pages/QuizForm.vue:60 frontend/src/pages/Quizzes.vue:103
+#: frontend/src/pages/QuizForm.vue:66 frontend/src/pages/Quizzes.vue:103
 #: lms/lms/doctype/lms_quiz/lms_quiz.json
 msgid "Total Marks"
 msgstr ""
@@ -4772,7 +4787,7 @@ msgstr ""
 msgid "Travel"
 msgstr ""
 
-#: frontend/src/components/Quiz.vue:234 lms/templates/quiz/quiz.html:131
+#: frontend/src/components/Quiz.vue:252 lms/templates/quiz/quiz.html:131
 msgid "Try Again"
 msgstr ""
 
@@ -4804,7 +4819,7 @@ msgstr ""
 msgid "Type"
 msgstr ""
 
-#: frontend/src/components/Quiz.vue:513
+#: frontend/src/components/Quiz.vue:580
 msgid "Type your answer"
 msgstr ""
 
@@ -5081,7 +5096,7 @@ msgstr ""
 msgid "You can attempt this quiz only {0} {1}"
 msgstr ""
 
-#: frontend/src/components/Quiz.vue:18
+#: frontend/src/components/Quiz.vue:34
 msgid "You can attempt this quiz {0}."
 msgstr ""
 
@@ -5109,7 +5124,7 @@ msgstr ""
 msgid "You got"
 msgstr ""
 
-#: frontend/src/components/Quiz.vue:216
+#: frontend/src/components/Quiz.vue:234
 #, python-format
 msgid "You got {0}% correct answers with a score of {1} out of {2}"
 msgstr ""
@@ -5118,7 +5133,7 @@ msgstr ""
 msgid "You have already applied for this job."
 msgstr ""
 
-#: frontend/src/components/Quiz.vue:52 lms/templates/quiz/quiz.html:43
+#: frontend/src/components/Quiz.vue:70 lms/templates/quiz/quiz.html:43
 msgid "You have already exceeded the maximum number of attempts allowed for this quiz."
 msgstr ""
 
@@ -5126,7 +5141,7 @@ msgstr ""
 msgid "You have already reviewed this course"
 msgstr ""
 
-#: frontend/src/components/BatchOverlay.vue:133
+#: frontend/src/components/BatchOverlay.vue:136
 msgid "You have been enrolled in this batch"
 msgstr ""
 
@@ -5146,7 +5161,7 @@ msgstr ""
 msgid "You need to login first to enroll for this course"
 msgstr ""
 
-#: frontend/src/components/Quiz.vue:11 lms/templates/quiz/quiz.html:11
+#: frontend/src/components/Quiz.vue:27 lms/templates/quiz/quiz.html:11
 #, python-format
 msgid "You will have to get {0}% correct answers in order to pass the quiz."
 msgstr ""
@@ -5199,7 +5214,7 @@ msgstr ""
 msgid "Your score is"
 msgstr ""
 
-#: frontend/src/components/Quiz.vue:209
+#: frontend/src/components/Quiz.vue:227
 msgid "Your submission has been successfully saved. The instructor will review and grade it shortly, and you'll be notified of your final result."
 msgstr ""
 
@@ -5244,7 +5259,7 @@ msgstr ""
 msgid "posted by"
 msgstr ""
 
-#: frontend/src/pages/QuizForm.vue:382
+#: frontend/src/pages/QuizForm.vue:389
 msgid "question_detail"
 msgstr ""
 
