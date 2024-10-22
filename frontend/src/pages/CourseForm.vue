@@ -391,10 +391,10 @@ const submitCourse = () => {
 			},
 			{
 				onSuccess() {
-					showToast('Success', 'Course updated successfully', 'check')
+					showToast(__('Success'), __('Course updated successfully'), 'check')
 				},
 				onError(err) {
-					showToast('Error', err.messages?.[0] || err, 'x')
+					showToast(__('Error'), err.messages?.[0] || err, 'x')
 				},
 			}
 		)
@@ -402,35 +402,16 @@ const submitCourse = () => {
 		courseCreationResource.submit(course, {
 			onSuccess(data) {
 				capture('course_created')
-				showToast('Success', 'Course created successfully', 'check')
+				showToast(__('Success'), __('Course created successfully'), 'check')
 				router.push({
 					name: 'CourseForm',
 					params: { courseName: data.name },
 				})
 			},
 			onError(err) {
-				showToast('Error', err.messages?.[0] || err, 'x')
+				showToast(__('Error'), err.messages?.[0] || err, 'x')
 			},
 		})
-	}
-}
-
-const validateMandatoryFields = () => {
-	const mandatory_fields = [
-		'title',
-		'short_introduction',
-		'description',
-		'video_link',
-		'course_image',
-	]
-	for (const field of mandatory_fields) {
-		if (!course[field]) {
-			let fieldLabel = convertToTitleCase(field.split('_').join(' '))
-			return `${fieldLabel} is mandatory`
-		}
-	}
-	if (course.paid_course && (!course.course_price || !course.currency)) {
-		return __('Course price and currency are mandatory for paid courses')
 	}
 }
 

@@ -8,6 +8,7 @@ from frappe.query_builder import DocType
 from frappe.query_builder.functions import Count
 from frappe.utils import time_diff, now_datetime, get_datetime
 from typing import Optional
+import json
 
 
 @frappe.whitelist()
@@ -760,3 +761,134 @@ def get_payment_gateway_details(payment_gateway):
 		"doctype": doctype,
 		"docname": docname,
 	}
+
+
+@frappe.whitelist()
+def create_scorm_course(course, chapters):
+	course = frappe._dict(course)
+	course_doc = frappe.new_doc("LMS Course")
+	course_doc.update(
+		{
+			"title": course.title,
+			"description": course.description,
+			"short_introduction": course.description,
+			"image": course.image,
+			"instructors": [
+				{
+					"instructor": frappe.session.user,
+				}
+			],
+		}
+	)
+	course_doc.insert()
+
+	add_chapters(course_doc, chapters)
+	return course_doc
+
+
+def add_chapters(course_doc, chapters):
+	for idx, chapter in enumerate(chapters):
+		chapter_doc = frappe.new_doc("Course Chapter")
+		chapter_doc.update(
+			{
+				"course": course_doc.name,
+				"title": chapter.get("title"),
+			}
+		)
+		chapter_doc.insert()
+
+		chapter_reference = frappe.new_doc("Chapter Reference")
+		chapter_reference.update(
+			{
+				"parent": course_doc.name,
+				"parenttype": "LMS Course",
+				"parentfield": "chapters",
+				"chapter": chapter_doc.name,
+				"idx": idx + 1,
+			}
+		)
+		chapter_reference.insert()
+
+		add_lessons(chapter_doc, chapter.get("lessons"))
+
+
+def add_lessons(chapter, lessons):
+	for idx, lesson in enumerate(lessons):
+		if lesson.get("type") == "html":
+			lesson = create_lesson(lesson, chapter)
+			create_lesson_reference(lesson, idx, chapter)
+		elif lesson.get("type") == "quiz":
+			quiz = create_quiz(lesson)
+			lesson.update({"content": {"blocks": [{type: "quiz", quiz: quiz.name}]}})
+			lesson = create_lesson(lesson, chapter)
+			create_lesson_reference(lesson, idx)
+
+
+def create_lesson(lesson, chapter):
+	lesson_doc = frappe.new_doc("Course Lesson")
+	lesson_doc.update(
+		{
+			"chapter": chapter.name,
+			"title": lesson.get("title"),
+			"content": lesson.get("content"),
+		}
+	)
+	return lesson_doc.insert()
+
+
+def create_lesson_reference(lesson, idx, chapter):
+	lesson_reference = frappe.new_doc("Lesson Reference")
+	lesson_reference.update(
+		{
+			"parent": chapter.name,
+			"parenttype": "Course Chapter",
+			"parentfield": "lessons",
+			"lesson": lesson.name,
+			"idx": idx + 1,
+		}
+	)
+	lesson_reference.insert()
+
+
+def create_quiz(lesson):
+	print(lesson)
+	print(type(lesson))
+	questions = lesson.get("content")
+
+	quiz = frappe.new_doc("LMS Quiz")
+	quiz.title = lesson.get("title")
+	quiz.passing_percentage = 80
+	quiz.insert()
+
+	for question in questions:
+		doc = create_question(question)
+		link_question_to_quiz(doc, quiz)
+
+	return quiz
+
+
+def create_question(question):
+	print(question)
+	print(type(question))
+	question = json.loads(question)
+	question_doc = frappe.new_doc("LMS Question")
+	question_doc.update(
+		{
+			"question": question.get("question"),
+			"type": question.get("type"),
+		}
+	)
+	for idx, option in enumerate(question.get("options")):
+		question_doc.update(
+			{
+				f"option_{idx + 1}": option.get("option"),
+				f"is_correct_{idx + 1}": option.get("correct"),
+			}
+		)
+	question_doc.insert()
+
+
+def link_question_to_quiz(question, quiz):
+	link = frappe.new_doc("LMS Quiz Question")
+	link.update({"question": question.name, "marks": 1})
+	link.insert()
