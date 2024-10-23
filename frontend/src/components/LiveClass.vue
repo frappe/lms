@@ -37,6 +37,7 @@
 			</div>
 			<div class="flex items-center space-x-2 text-gray-900 mt-auto">
 				<a
+					v-if="user.data?.is_moderator || user.data?.is_evaluator"
 					:href="cls.start_url"
 					target="_blank"
 					class="w-1/2 cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-gray-800 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 focus-visible:ring focus-visible:ring-gray-400 h-7 text-base px-2 rounded"
