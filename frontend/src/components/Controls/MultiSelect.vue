@@ -152,24 +152,11 @@ const filterOptions = createResource({
 	url: 'frappe.desk.search.search_link',
 	method: 'POST',
 	cache: [text.value, props.doctype],
+	auto: true,
 	params: {
 		txt: text.value,
 		doctype: props.doctype,
 	},
-	/* transform: (data) => {
-        let allData = data
-            .filter((c) => {
-                return c.description.split(', ')[1]
-            })
-            .map((option) => {
-                let email = option.description.split(', ')[1]
-                return {
-                    label: option.label || email,
-                    value: email,
-                }
-            })
-        return allData
-    }, */
 })
 
 const options = computed(() => {
