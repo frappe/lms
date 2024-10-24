@@ -1,7 +1,7 @@
 <template>
 	<div v-if="quiz.data">
 		<div
-			class="bg-blue-100 space-y-1 py-2 px-2 rounded-md text-sm text-blue-800"
+			class="bg-blue-100 space-y-1 py-2 px-2 mb-4 rounded-md text-sm text-blue-800"
 		>
 			<div class="leading-5">
 				{{
@@ -40,7 +40,7 @@
 			</div>
 		</div>
 
-		<div v-if="quiz.data.duration" class="flex items-center space-x-2 my-4">
+		<div v-if="quiz.data.duration" class="flex items-center space-x-2 mb-4">
 			<span class="text-gray-600 text-xs"> {{ __('Time') }}: </span>
 			<ProgressBar :progress="timerProgress" />
 			<span class="font-semibold">

@@ -43,6 +43,7 @@ export class Upload {
 	}
 
 	renderFile(file) {
+		console.log(file)
 		if (this.isVideo(file.file_type)) {
 			const app = createApp(VideoBlock, {
 				file: file.file_url,
@@ -63,6 +64,7 @@ export class Upload {
 			)}&embedded=true" width='100%' height='700px' class="mb-4" type="application/pdf"></iframe>`
 			return
 		} else {
+			console.log(file.file_url)
 			this.wrapper.innerHTML = `<img class="mb-4" src=${encodeURI(
 				file.file_url
 			)} width='100%'>`

@@ -770,8 +770,8 @@ def create_scorm_course(course, chapters):
 	course_doc.update(
 		{
 			"title": course.title,
-			"description": course.description,
-			"short_introduction": course.description,
+			"description": course.description or course.title,
+			"short_introduction": course.description or course.title,
 			"image": course.image,
 			"instructors": [
 				{
@@ -814,15 +814,21 @@ def add_chapters(course_doc, chapters):
 
 def add_lessons(chapter, lessons):
 	for idx, lesson in enumerate(lessons):
-		if lesson.get("type") == "html":
-			lesson = create_lesson(lesson, chapter)
-			create_lesson_reference(lesson, idx, chapter)
-		elif lesson.get("type") == "quiz":
+		if lesson.get("type") == "quiz":
 			quiz = create_quiz(lesson)
-			lesson.update({"content": {"blocks": [{type: "quiz", quiz: quiz.name}]}})
-			lesson = create_lesson(lesson, chapter)
-			create_lesson_reference(lesson, idx)
+			lesson.update({
+				"content": {
+					"blocks": [{
+						"type": "quiz",
+						"data": {
+							"quiz": quiz.name
+						}
+					}]
+				}
+			})
 
+		lesson = create_lesson(lesson, chapter)
+		create_lesson_reference(lesson, idx, chapter)
 
 def create_lesson(lesson, chapter):
 	lesson_doc = frappe.new_doc("Course Lesson")
@@ -851,8 +857,6 @@ def create_lesson_reference(lesson, idx, chapter):
 
 
 def create_quiz(lesson):
-	print(lesson)
-	print(type(lesson))
 	questions = lesson.get("content")
 
 	quiz = frappe.new_doc("LMS Quiz")
@@ -860,17 +864,14 @@ def create_quiz(lesson):
 	quiz.passing_percentage = 80
 	quiz.insert()
 
-	for question in questions:
+	for idx, question in enumerate(questions):
 		doc = create_question(question)
-		link_question_to_quiz(doc, quiz)
+		link_question_to_quiz(doc, quiz, idx)
 
 	return quiz
 
 
 def create_question(question):
-	print(question)
-	print(type(question))
-	question = json.loads(question)
 	question_doc = frappe.new_doc("LMS Question")
 	question_doc.update(
 		{
@@ -882,13 +883,56 @@ def create_question(question):
 		question_doc.update(
 			{
 				f"option_{idx + 1}": option.get("option"),
-				f"is_correct_{idx + 1}": option.get("correct"),
+				f"is_correct_{idx + 1}": option.get("is_correct"),
 			}
 		)
 	question_doc.insert()
+	return question_doc
 
 
-def link_question_to_quiz(question, quiz):
+def link_question_to_quiz(question, quiz, idx):
 	link = frappe.new_doc("LMS Quiz Question")
-	link.update({"question": question.name, "marks": 1})
+	link.update({
+		"question": question.name,
+		"marks": 1,
+		"parent": quiz.name,
+		"parenttype": "LMS Quiz",
+		"parentfield": "questions",
+		"idx": idx + 1,
+	})
 	link.insert()
+
+@frappe.whitelist()
+def delete_course(course):
+	frappe.only_for("Moderator")
+
+	chapters = frappe.get_all("Course Chapter", {
+		"course": course
+	}, pluck="name")
+
+	chapter_references = frappe.get_all("Chapter Reference", {
+		"parent": course
+	}, pluck="name")
+
+	for chapter in chapters:
+		lessons = frappe.get_all("Course Lesson", {
+			"chapter": chapter
+		}, pluck="name")
+
+		lesson_references = frappe.get_all("Lesson Reference", {
+			"parent": chapter
+		}, pluck="name")
+
+		for lesson in lesson_references:
+			frappe.delete_doc("Lesson Reference", lesson)
+
+		for lesson in lessons:
+			frappe.delete_doc("Course Lesson", lesson)
+		
+	for chapter in chapter_references:
+		frappe.delete_doc("Chapter Reference", chapter)
+
+	for chapter in chapters:
+		frappe.delete_doc("Course Chapter", chapter)
+
+	frappe.delete_doc("LMS Course", course)

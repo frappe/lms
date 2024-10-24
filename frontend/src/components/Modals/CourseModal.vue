@@ -17,8 +17,8 @@
 							}"
 							class="flex flex-col items-center space-y-2"
 						>
-							<FileText class="size-10 stroke-1.5 text-blue-500" />
-							<div class="text-sm text-gray-600">
+							<FileText class="size-10 stroke-1.5 text-gray-600" />
+							<div class="font-medium text-gray-600">
 								{{ __('Course Form') }}
 							</div>
 						</router-link>
@@ -27,14 +27,14 @@
 						@click="renderScormForm()"
 						class="flex flex-col items-center space-y-2 shadow rounded-md cursor-pointer hover:bg-gray-50 w-full p-4"
 					>
-						<FolderCog class="size-10 stroke-1.5 text-orange-500" />
-						<div class="text-sm text-gray-600">
+						<FolderCog class="size-10 stroke-1.5 text-gray-600" />
+						<div class="font-medium text-gray-600">
 							{{ __('SCORM Package') }}
 						</div>
 					</div>
 				</div>
 
-				<div v-else>
+				<div v-else class="border rounded-md text-center py-10">
 					<input
 						ref="folderInput"
 						type="file"
@@ -53,16 +53,16 @@
 <script setup>
 import { Dialog, Button, createResource, FileUploadHandler } from 'frappe-ui'
 import { FileText, FolderCog } from 'lucide-vue-next'
-import { ref, reactive, inject } from 'vue'
+import { ref, reactive } from 'vue'
 import { showToast } from '@/utils'
 import { useRouter } from 'vue-router'
+import { f } from 'feather-icons'
 
 const router = useRouter()
 const show = defineModel()
 const title = ref(__('Select a method'))
 const scormSelected = ref(false)
 const folderInput = ref(null)
-const user = inject('$user')
 const chapters = ref([])
 const uploader = new FileUploadHandler()
 const files = ref([])
@@ -76,7 +76,10 @@ const course = reactive({
 
 const renderScormForm = () => {
 	scormSelected.value = true
-	title.value = __('Select SCORM Package')
+	title.value = __('Select a SCORM Package')
+	setTimeout(() => {
+		openFileSelector()
+	}, 0)
 }
 
 const openFileSelector = () => {
@@ -115,7 +118,7 @@ const readFile = (file) => {
 	})
 }
 
-const parseManifest = (result) => {
+const parseManifest = async(result) => {
 	const xmlString = result
 	const parser = new DOMParser()
 	const xml = parser.parseFromString(xmlString, 'text/xml')
@@ -131,24 +134,18 @@ const parseManifest = (result) => {
 			.getElementsByTagName('string')[0].textContent
 	}
 
-	// Extract course items (SCOs and titles)
-	const items = organization.getElementsByTagName('item')
-	for (let i = 0; i < items.length; i++) {
-		const itemTitle = items[i].getElementsByTagName('title')[0].textContent
-	}
-
 	// Extract resources
 	const resources = xml.getElementsByTagName('resource')
-	formOutline(resources)
+	await formOutline(resources)
 	//createCourse()
 }
 
-const formOutline = (resources) => {
+const formOutline = async (resources) => {
 	const chaptersMap = []
-	Array.from(resources).forEach((resource) => {
+	for (const resource of Array.from(resources)) {
 		const resourceFiles = resource.getElementsByTagName('file')
 
-		Array.from(resourceFiles).forEach(async (file) => {
+		for (const [index, file] of Array.from(resourceFiles).entries()) {
 			const href = file.getAttribute('href')
 
 			const folder = href.split('/')[0]
@@ -176,6 +173,7 @@ const formOutline = (resources) => {
 					type: 'html',
 					path: href,
 					content: json,
+					index: index,
 				})
 			} else if (href.endsWith('.js')) {
 				const json = await getLessonJSON(fileData, 'quiz')
@@ -184,17 +182,26 @@ const formOutline = (resources) => {
 					type: 'quiz',
 					path: href,
 					content: json,
+					index: index,
 				})
 			}
-		})
-	})
-	chapters.value = Array.from(chaptersMap.values())
+		}
+	}
+	chaptersMap.forEach((chapter) => {
+        console.log("Before sort:", chapter.lessons);  // Debug log to check lessons before sorting
+        chapter.lessons.sort((a, b) => a.index - b.index);
+        console.log("After sort:", chapter.lessons);  // Debug log to check lessons after sorting
+    });
+
+    // Assign chapters to reactive chapters array
+    chapters.value = [...chaptersMap];
 	console.log('Chapters created from resources:', chapters.value)
 }
 
 const newCourse = createResource({
 	url: 'lms.lms.api.create_scorm_course',
 	makeParams(values) {
+		console.log("params", chapters.value)
 		return {
 			course: course,
 			chapters: chapters.value,
@@ -250,14 +257,15 @@ const isHtmlFile = (file) => {
 	return file.endsWith('.html')
 }
 
-const convertHTMLToJSON = (htmlContent) => {
-	const parser = new DOMParser()
-	const doc = parser.parseFromString(htmlContent, 'text/html')
-	const blocks = []
-	let blockId = 1
+const convertHTMLToJSON = async (htmlContent) => {
+	const parser = new DOMParser();
+	const doc = parser.parseFromString(htmlContent, 'text/html');
+	const blocks = [];
+	let blockId = 1;
 
-	doc.body.childNodes.forEach((node) => {
-		if (node.nodeType === 1) {
+	// Iterate through all nodes in the body in the correct order
+	for (let node of doc.body.childNodes) {
+		if (node.nodeType === 1) {  // Element node
 			switch (node.tagName.toLowerCase()) {
 				case 'h1':
 				case 'h2':
@@ -272,8 +280,9 @@ const convertHTMLToJSON = (htmlContent) => {
 							level: parseInt(node.tagName[1]),
 							text: node.textContent.trim(),
 						},
-					})
-					break
+					});
+					break;
+
 				case 'p':
 					blocks.push({
 						id: `p_${blockId++}`,
@@ -281,16 +290,17 @@ const convertHTMLToJSON = (htmlContent) => {
 						data: {
 							text: node.textContent.trim(),
 						},
-					})
-					break
+					});
+					break;
+
 				case 'ol':
-					const orderedListItems = []
+					const orderedListItems = [];
 					node.querySelectorAll('li').forEach((listItem) => {
 						orderedListItems.push({
 							content: listItem.textContent.trim(),
 							items: [],
-						})
-					})
+						});
+					});
 					blocks.push({
 						id: `l_${blockId++}`,
 						type: 'list',
@@ -298,39 +308,42 @@ const convertHTMLToJSON = (htmlContent) => {
 							style: 'ordered',
 							items: orderedListItems,
 						},
-					})
-					break
-				case 'img':
-					let image = node.src.split('/').pop()
-					let imageFile = Array.from(files.value).find((file) => {
-						return file.webkitRelativePath.split('/').pop() == image
-					})
+					});
+					break;
 
-					uploader
-						.upload(imageFile, {
-							private: false,
-							folder: 'Home',
-							optimize: true,
-						})
-						.then((data) => {
-							blocks.push({
-								id: `i_${blockId++}`,
-								type: 'upload',
-								data: {
-									file_url: data.file_url,
-								},
-							})
-						})
-					break
+				case 'img':
+					let image = node.src.split('/').pop();
+					let imageFile = Array.from(files.value).find((file) => {
+						return file.webkitRelativePath.split('/').pop() == image;
+					});
+
+					// Await the upload to maintain the correct order
+					const data = await uploader.upload(imageFile, {
+						private: false,
+						folder: 'Home',
+						optimize: true,
+					});
+
+					// Push the image block after upload completes
+					blocks.push({
+						id: `i_${blockId++}`,
+						type: 'upload',
+						data: {
+							file_url: data.file_url,
+							file_type: data.file_type,
+						},
+					});
+					break;
 			}
 		}
-	})
+	}
 
 	return {
 		time: Date.now(),
 		blocks: blocks,
-	}
-}
+	};
+};
+
 // quizContent is a js file with questions in this format
 /* test.AddQuestion( new Question ("com.scorm.golfsamples.interactions.etiquette_1",
                                 "When another player is attempting a shot, it is best to stand:", 
@@ -373,20 +386,35 @@ const convertQuizToJSON = (quizContent) => {
 		}
 
 		if (question.Type === 'TrueFalse') {
-			console.log(questionJSON.question)
-			questionJSON.Answers = ['True', 'False']
-			question.type = 'Choices'
+			question.Answers = [true, false]
+			questionJSON.type = 'Choices'
 		}
 
-		if (question.type === 'Choices' && question.Answers?.length) {
-			console.log(questionJSON.question)
+		if (question.Type === "Numeric") {
+			question.Answers = [question.CorrectAnswer]
+
+			// Adding 2 random wrong answers
+			for (let key in Array.from({ length: 2 })) {
+				let randomOption = question.correctAnswer
+				while (randomOption == question.CorrectAnswer || question.Answers.includes(randomOption)) {
+					randomOption = question.CorrectAnswer + Math.floor(Math.random() * 10)
+				}
+				question.Answers.push(randomOption)
+			}
+
+			// Shuffling the answers
+			question.Answers.sort(() => Math.random() - 0.5)
+
+			questionJSON.type = "Choices"
+		}
+
+		if (questionJSON.type === 'Choices' && question.Answers?.length) {
 			questionJSON.options = question.Answers.map((answer) => ({
 				option: answer,
 				is_correct: answer === question.CorrectAnswer,
 			}))
 		}
 
-		console.log(questionJSON)
 		return questionJSON
 	})
 }
@@ -394,8 +422,9 @@ const convertQuizToJSON = (quizContent) => {
 const getLessonJSON = async (file, type) => {
 	try {
 		const result = await readFile(file)
-		if (type == 'html') return convertHTMLToJSON(result)
-		else if (type == 'quiz') {
+		if (type == 'html') {
+			return await convertHTMLToJSON(result)
+		} else if (type == 'quiz') {
 			return convertQuizToJSON(result)
 		}
 	} catch (error) {

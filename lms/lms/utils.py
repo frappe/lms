@@ -327,6 +327,7 @@ def render_html(lesson):
 
 	quiz_id = "{{ Quiz('" + quiz_id + "') }}" if quiz_id else ""
 	youtube = "{{ YouTubeVideo('" + youtube + "') }}" if youtube else ""
+	print(body)
 	text = youtube + body + quiz_id
 
 	if lesson.question:
@@ -1180,7 +1181,6 @@ def get_lesson(course, chapter, lesson):
 	else:
 		progress = get_progress(course, lesson_details.name)
 
-	lesson_details.rendered_content = render_html(lesson_details)
 	neighbours = get_neighbour_lesson(course, chapter, lesson)
 	lesson_details.next = neighbours["next"]
 	lesson_details.progress = progress

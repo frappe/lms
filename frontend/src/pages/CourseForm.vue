@@ -7,6 +7,14 @@
 				>
 					<Breadcrumbs class="h-7" :items="breadcrumbs" />
 					<div class="flex items-center mt-3 md:mt-0">
+						<Button v-if="courseResource.data?.name" @click="trashCourse()" class="ml-2">
+							<template #prefix>
+								<Trash2 class="h-4 w-4 stroke-1.5" />
+							</template>
+							<span>
+								{{ __('Delete') }}
+							</span>
+						</Button>
 						<Button variant="solid" @click="submitCourse()" class="ml-2">
 							<span>
 								{{ __('Save') }}
@@ -223,6 +231,7 @@ import {
 	ref,
 	reactive,
 	watch,
+	getCurrentInstance
 } from 'vue'
 import {
 	convertToTitleCase,
@@ -231,18 +240,21 @@ import {
 	updateDocumentTitle,
 } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
-import { FileText, X } from 'lucide-vue-next'
+import { FileText, Trash2, X } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import CourseOutline from '@/components/CourseOutline.vue'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import { capture } from '@/telemetry'
 import { useSettings } from '@/stores/settings'
 
+
 const user = inject('$user')
 const newTag = ref('')
 const router = useRouter()
 const instructors = ref([])
 const settingsStore = useSettings()
+const app = getCurrentInstance()
+const { $dialog } = app.appContext.config.globalProperties
 
 const props = defineProps({
 	courseName: {
@@ -458,6 +470,39 @@ const openSettings = (close) => {
 	close()
 	settingsStore.activeTab = 'Categories'
 	settingsStore.isSettingsOpen = true
+}
+
+const deleteCourse = createResource({
+	url: "lms.lms.api.delete_course",
+	makeParams(values) {
+		return {
+			course: props.courseName,
+		}
+	},
+	onSuccess() {
+		showToast(__('Success'), __('Course deleted successfully'), 'check')
+		router.push({ name: 'Courses' })
+	},
+})
+
+
+
+const trashCourse = () => {
+	$dialog({
+		title: __('Delete Course'),
+		message: __('Deleting the course will also delete all its chapters and lessons. Are you sure you want to delete this course?'),
+		actions: [
+			{
+				label: __('Delete'),
+				theme: 'red',
+				variant: 'solid',
+				onClick(close) {
+					deleteCourse.submit()
+					close()
+				},
+			},
+		],
+	})
 }
 
 const check_permission = () => {
