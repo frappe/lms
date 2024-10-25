@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Frappe LMS VERSION\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2024-10-18 16:04+0000\n"
-"PO-Revision-Date: 2024-10-18 16:04+0000\n"
+"POT-Creation-Date: 2024-10-25 10:37+0000\n"
+"PO-Revision-Date: 2024-10-25 10:37+0000\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: jannat@frappe.io\n"
 "MIME-Version: 1.0\n"
@@ -2309,7 +2309,7 @@ msgstr ""
 msgid "Jobs"
 msgstr ""
 
-#: frontend/src/components/LiveClass.vue:53
+#: frontend/src/components/LiveClass.vue:54
 #: lms/templates/upcoming_evals.html:15
 msgid "Join"
 msgstr ""
@@ -3068,7 +3068,7 @@ msgstr ""
 msgid "No jobs posted"
 msgstr ""
 
-#: frontend/src/components/LiveClass.vue:59
+#: frontend/src/components/LiveClass.vue:60
 msgid "No live classes scheduled"
 msgstr ""
 
@@ -4233,7 +4233,7 @@ msgstr ""
 msgid "Stage"
 msgstr ""
 
-#: frontend/src/components/LiveClass.vue:45 frontend/src/components/Quiz.vue:65
+#: frontend/src/components/LiveClass.vue:46 frontend/src/components/Quiz.vue:65
 #: lms/templates/quiz/quiz.html:39
 msgid "Start"
 msgstr ""
