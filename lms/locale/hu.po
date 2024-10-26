@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2024-10-18 16:04+0000\n"
-"PO-Revision-Date: 2024-10-25 11:05\n"
+"PO-Revision-Date: 2024-10-26 11:24\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Hungarian\n"
 "MIME-Version: 1.0\n"
@@ -74,7 +74,7 @@ msgstr ""
 #. Option for the 'Status' (Select) field in DocType 'Cohort Join Request'
 #: lms/lms/doctype/cohort_join_request/cohort_join_request.json
 msgid "Accepted"
-msgstr ""
+msgstr "Elfogadva"
 
 #. Label of the account_id (Data) field in DocType 'Zoom Settings'
 #: lms/lms/doctype/zoom_settings/zoom_settings.json
@@ -220,7 +220,7 @@ msgstr ""
 
 #: lms/overrides/user.py:199
 msgid "Already Registered"
-msgstr ""
+msgstr "Már regisztrált"
 
 #. Label of the amount (Currency) field in DocType 'Web Form'
 #. Label of the amount (Currency) field in DocType 'LMS Batch'
@@ -275,7 +275,7 @@ msgstr ""
 
 #: frontend/src/pages/JobDetail.vue:42
 msgid "Apply"
-msgstr ""
+msgstr "Alkalmaz"
 
 #. Label of the apply_gst (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -357,7 +357,7 @@ msgstr ""
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 #: lms/templates/assignment.html:3
 msgid "Assignment"
-msgstr ""
+msgstr "Hozzárendelés"
 
 #. Label of the assignment_attachment (Attach) field in DocType 'LMS Assignment
 #. Submission'
@@ -573,7 +573,7 @@ msgstr ""
 #. Label of the body (Markdown Editor) field in DocType 'Course Lesson'
 #: lms/lms/doctype/course_lesson/course_lesson.json
 msgid "Body"
-msgstr ""
+msgstr "Test"
 
 #. Option for the 'Collaboration Preference' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -642,7 +642,7 @@ msgstr ""
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/public/js/common_functions.js:316 lms/templates/signup-form.html:22
 msgid "Category"
-msgstr ""
+msgstr "Kategória"
 
 #: frontend/src/components/Categories.vue:22
 msgid "Category Name"
@@ -860,7 +860,7 @@ msgstr ""
 #. Label of the color (Color) field in DocType 'LMS Timetable Legend'
 #: lms/lms/doctype/lms_timetable_legend/lms_timetable_legend.json
 msgid "Color"
-msgstr ""
+msgstr "Szín"
 
 #. Label of the comments (Small Text) field in DocType 'Exercise Latest
 #. Submission'
@@ -887,13 +887,13 @@ msgstr ""
 #: frontend/src/pages/JobCreation.vue:56
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Company Details"
-msgstr ""
+msgstr "Cégadatok"
 
 #. Label of the company_email_address (Data) field in DocType 'Job Opportunity'
 #: frontend/src/pages/JobCreation.vue:73
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Company Email Address"
-msgstr ""
+msgstr "Cég e-mail címe"
 
 #. Label of the company_logo (Attach Image) field in DocType 'Job Opportunity'
 #: frontend/src/pages/JobCreation.vue:77
@@ -916,7 +916,7 @@ msgstr ""
 #: frontend/src/pages/JobCreation.vue:67
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Company Website"
-msgstr ""
+msgstr "Cég honlapja"
 
 #. Option for the 'Status' (Select) field in DocType 'LMS Course Progress'
 #: lms/lms/doctype/lms_course_progress/lms_course_progress.json
@@ -947,7 +947,7 @@ msgstr ""
 #. Label of the condition (Code) field in DocType 'LMS Badge'
 #: lms/lms/doctype/lms_badge/lms_badge.json
 msgid "Condition"
-msgstr ""
+msgstr "Feltétel"
 
 #: lms/lms/doctype/lms_badge/lms_badge.py:16
 msgid "Condition must be in valid JSON format."
@@ -975,7 +975,7 @@ msgstr ""
 #: frontend/src/pages/LessonForm.vue:53
 #: lms/lms/doctype/course_lesson/course_lesson.json
 msgid "Content"
-msgstr ""
+msgstr "Tartalom"
 
 #: frontend/src/components/CourseCardOverlay.vue:29
 msgid "Continue Learning"
@@ -1250,7 +1250,7 @@ msgstr ""
 #. Label of the custom_component (Code) field in DocType 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json
 msgid "Custom HTML"
-msgstr ""
+msgstr "Egyedi HTML"
 
 #. Label of the custom_script (Code) field in DocType 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json
@@ -1271,7 +1271,7 @@ msgstr ""
 #. Label of the show_dashboard (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Dashboard"
-msgstr ""
+msgstr "Irányítópult"
 
 #. Label of the date (Date) field in DocType 'LMS Batch Timetable'
 #. Label of the date (Date) field in DocType 'LMS Certificate Evaluation'
@@ -1305,7 +1305,7 @@ msgstr ""
 #: lms/lms/doctype/lms_batch_timetable/lms_batch_timetable.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Day"
-msgstr ""
+msgstr "Nap"
 
 #: lms/templates/emails/mentor_request_creation_email.html:2
 #: lms/templates/emails/mentor_request_status_update_email.html:2
@@ -1315,7 +1315,7 @@ msgstr ""
 #: lms/templates/emails/batch_confirmation.html:2
 #: lms/templates/emails/certification.html:2
 msgid "Dear "
-msgstr ""
+msgstr "Tisztelt "
 
 #. Label of the default_currency (Link) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -1374,7 +1374,7 @@ msgstr ""
 #: frontend/src/pages/BatchForm.vue:14 frontend/src/pages/CourseForm.vue:20
 #: frontend/src/pages/QuizForm.vue:42
 msgid "Details"
-msgstr ""
+msgstr "Részletek"
 
 #: frontend/src/pages/CourseForm.vue:163
 msgid "Disable Self Enrollment"
@@ -1393,7 +1393,7 @@ msgstr ""
 #: frontend/src/components/DiscussionReplies.vue:55
 #: lms/lms/widgets/NoPreviewModal.html:25 lms/templates/reviews.html:159
 msgid "Discard"
-msgstr ""
+msgstr "Elvet"
 
 #. Label of the show_discussions (Check) field in DocType 'LMS Settings'
 #: frontend/src/pages/Batch.vue:69
@@ -1463,7 +1463,7 @@ msgstr ""
 
 #: frontend/src/pages/Profile.vue:68
 msgid "Edit Profile"
-msgstr ""
+msgstr "Profil szerkesztése"
 
 #: frontend/src/pages/QuizForm.vue:180
 msgid "Edit the question"
@@ -1490,7 +1490,7 @@ msgstr ""
 
 #: frontend/src/components/Modals/Event.vue:16
 msgid "Email ID"
-msgstr ""
+msgstr "Email azonosító"
 
 #. Label of the email_sent (Check) field in DocType 'LMS Course Interest'
 #: lms/lms/doctype/lms_course_interest/lms_course_interest.json
@@ -1529,7 +1529,7 @@ msgstr ""
 #. Label of the enabled (Check) field in DocType 'LMS Badge'
 #: lms/lms/doctype/lms_badge/lms_badge.json
 msgid "Enabled"
-msgstr ""
+msgstr "Engedélyezve"
 
 #. Label of the end_date (Date) field in DocType 'Cohort'
 #. Label of the end_date (Date) field in DocType 'LMS Batch'
@@ -1562,7 +1562,7 @@ msgstr ""
 #: lms/lms/doctype/scheduled_flow/scheduled_flow.json
 #: lms/public/js/common_functions.js:299
 msgid "End Time"
-msgstr ""
+msgstr "Befejezés dátuma"
 
 #: frontend/src/components/BatchOverlay.vue:80
 msgid "Enroll Now"
@@ -1695,7 +1695,7 @@ msgstr ""
 #. Label of the event (Select) field in DocType 'LMS Badge'
 #: lms/lms/doctype/lms_badge/lms_badge.json
 msgid "Event"
-msgstr ""
+msgstr "Esemény"
 
 #. Label of the exercise (Link) field in DocType 'Exercise Latest Submission'
 #. Label of the exercise (Link) field in DocType 'Exercise Submission'
@@ -1763,14 +1763,14 @@ msgstr ""
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 msgid "Fail"
-msgstr ""
+msgstr "Nem sikerül"
 
 #. Label of the featured (Check) field in DocType 'LMS Course'
 #: frontend/src/components/CourseCard.vue:16
 #: frontend/src/pages/CourseForm.vue:156
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Featured"
-msgstr ""
+msgstr "Kiemelt"
 
 #: frontend/src/pages/AssignmentSubmission.vue:21
 msgid "Feel free to make edits to your submission if needed."
@@ -1789,12 +1789,12 @@ msgstr ""
 #. Label of the file_type (Select) field in DocType 'Course Lesson'
 #: lms/lms/doctype/course_lesson/course_lesson.json
 msgid "File Type"
-msgstr ""
+msgstr "Fájl típusa"
 
 #: frontend/src/components/Members.vue:38
 #: frontend/src/components/Modals/EditProfile.vue:59
 msgid "First Name"
-msgstr ""
+msgstr "Vezetéknév"
 
 #. Option for the 'Time Preference' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -1822,7 +1822,7 @@ msgstr ""
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Freelance"
-msgstr ""
+msgstr "Szabadúszó"
 
 #. Option for the 'User Category' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json lms/templates/signup-form.html:27
@@ -1839,7 +1839,7 @@ msgstr ""
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Friday"
-msgstr ""
+msgstr "Péntek"
 
 #. Label of the unavailable_from (Date) field in DocType 'Course Evaluator'
 #: frontend/src/pages/ProfileEvaluator.vue:85
@@ -1856,12 +1856,12 @@ msgstr ""
 #: lms/lms/doctype/invite_request/invite_request.json
 #: lms/templates/signup-form.html:5
 msgid "Full Name"
-msgstr ""
+msgstr "Teljes név"
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Full Time"
-msgstr ""
+msgstr "Teljes munkaidőben"
 
 #. Name of a DocType
 #. Label of the function (Data) field in DocType 'Function'
@@ -1869,7 +1869,7 @@ msgstr ""
 #: lms/lms/doctype/function/function.json
 #: lms/lms/doctype/preferred_function/preferred_function.json
 msgid "Function"
-msgstr ""
+msgstr "Funkció"
 
 #: frontend/src/pages/Billing.vue:48
 msgid "GST Amount"
@@ -1929,7 +1929,7 @@ msgstr ""
 
 #: lms/templates/signup-form.html:56
 msgid "Have an account? Login"
-msgstr ""
+msgstr "Rrendelkezik fiókkal?  Bejelentkezés"
 
 #. Label of the headline (Data) field in DocType 'User'
 #: frontend/src/components/Modals/EditProfile.vue:69
@@ -1969,7 +1969,7 @@ msgstr ""
 
 #: lms/templates/emails/lms_course_interest.html:3
 msgid "Hi {0},"
-msgstr ""
+msgstr "Hello {0},"
 
 #: lms/templates/emails/lms_invite_request_approved.html:3
 msgid "Hi,"
@@ -2028,7 +2028,7 @@ msgstr ""
 #: frontend/src/components/Modals/PageModal.vue:28
 #: lms/lms/doctype/lms_sidebar_item/lms_sidebar_item.json
 msgid "Icon"
-msgstr ""
+msgstr "Ikon"
 
 #: lms/templates/emails/mentor_request_creation_email.html:5
 msgid "If you are not any more interested to mentor the course"
@@ -2094,7 +2094,7 @@ msgstr ""
 #. Option for the 'Status' (Select) field in DocType 'LMS Batch Old'
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 msgid "Inactive"
-msgstr ""
+msgstr "Inaktív"
 
 #. Label of the include_in_preview (Check) field in DocType 'Course Lesson'
 #: lms/lms/doctype/course_lesson/course_lesson.json
@@ -2179,12 +2179,12 @@ msgstr ""
 #. Label of a Link in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "Interest"
-msgstr ""
+msgstr "Érdek"
 
 #. Group in LMS Course's connections
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Interests"
-msgstr ""
+msgstr "Érdekek"
 
 #: lms/lms/doctype/invite_request/invite_request.py:83
 msgid "Invalid Invite Code."
@@ -2291,7 +2291,7 @@ msgstr ""
 #. Name of a DocType
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Job Opportunity"
-msgstr ""
+msgstr "Álláslehetőség"
 
 #. Name of a DocType
 #: lms/job/doctype/job_settings/job_settings.json
@@ -2303,7 +2303,7 @@ msgstr ""
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/job/doctype/lms_job_application/lms_job_application.json
 msgid "Job Title"
-msgstr ""
+msgstr "Beosztás"
 
 #. Label of the jobs (Check) field in DocType 'LMS Settings'
 #: frontend/src/pages/JobDetail.vue:10 frontend/src/pages/Jobs.vue:8
@@ -2518,7 +2518,7 @@ msgstr ""
 #: lms/lms/doctype/lms_source/lms_source.json
 #: lms/lms/doctype/user_skill/user_skill.json
 msgid "LMS Student"
-msgstr ""
+msgstr "LMS diák"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_timetable_legend/lms_timetable_legend.json
@@ -2533,11 +2533,11 @@ msgstr ""
 #. Label of the label (Data) field in DocType 'LMS Timetable Legend'
 #: lms/lms/doctype/lms_timetable_legend/lms_timetable_legend.json
 msgid "Label"
-msgstr ""
+msgstr "Felirat"
 
 #: frontend/src/components/Modals/EditProfile.vue:64
 msgid "Last Name"
-msgstr ""
+msgstr "Keresztnév"
 
 #. Label of the latest_submission (Link) field in DocType 'Exercise Latest
 #. Submission'
@@ -2621,7 +2621,7 @@ msgstr ""
 #: lms/lms/doctype/cohort/cohort.json
 #: lms/lms/doctype/cohort_subgroup/cohort_subgroup.json
 msgid "Links"
-msgstr ""
+msgstr "Összekapcsolások"
 
 #: frontend/src/pages/Quizzes.vue:131
 msgid "List of quizzes"
@@ -2645,7 +2645,7 @@ msgstr ""
 
 #: frontend/src/components/Members.vue:95
 msgid "Load More"
-msgstr ""
+msgstr "Töltsön be többet"
 
 #: frontend/src/pages/Batches.vue:40
 msgid "Loading Batches..."
@@ -2675,7 +2675,7 @@ msgstr ""
 #: frontend/src/components/QuizBlock.vue:9 frontend/src/pages/Batch.vue:163
 #: frontend/src/pages/Lesson.vue:29
 msgid "Login"
-msgstr ""
+msgstr "Bejelentkezés"
 
 #: frontend/src/pages/JobDetail.vue:48
 msgid "Login to apply"
@@ -2766,7 +2766,7 @@ msgstr ""
 
 #: lms/templates/emails/batch_confirmation.html:21
 msgid "Medium:"
-msgstr ""
+msgstr "Közepes:"
 
 #. Label of the member (Link) field in DocType 'Exercise Latest Submission'
 #. Label of the member (Link) field in DocType 'Exercise Submission'
@@ -2904,12 +2904,12 @@ msgstr ""
 #: frontend/src/pages/BatchForm.vue:53 lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/public/js/common_functions.js:362
 msgid "Meta Image"
-msgstr ""
+msgstr "Meta kép"
 
 #. Label of the milestone (Check) field in DocType 'LMS Batch Timetable'
 #: lms/lms/doctype/lms_batch_timetable/lms_batch_timetable.json
 msgid "Milestone"
-msgstr ""
+msgstr "Mérföldkő"
 
 #: frontend/src/pages/Statistics.vue:71
 msgid "Milestones"
@@ -2935,7 +2935,7 @@ msgstr ""
 
 #: lms/lms/doctype/lms_badge/lms_badge.js:40
 msgid "Modified By"
-msgstr ""
+msgstr "Módosította"
 
 #: lms/lms/api.py:190
 msgid "Module Name is incorrect or does not exist."
@@ -2950,11 +2950,11 @@ msgstr ""
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Monday"
-msgstr ""
+msgstr "Hétfő"
 
 #: frontend/src/components/AppSidebar.vue:39
 msgid "More"
-msgstr ""
+msgstr "Tovább"
 
 #. Label of the multiple (Check) field in DocType 'LMS Question'
 #: lms/lms/doctype/lms_question/lms_question.json
@@ -3019,7 +3019,7 @@ msgstr ""
 #: frontend/src/components/Discussions.vue:4
 #: frontend/src/components/Discussions.vue:59
 msgid "New {0}"
-msgstr ""
+msgstr "Új {0}"
 
 #: frontend/src/components/Quiz.vue:209 frontend/src/pages/Lesson.vue:89
 msgid "Next"
@@ -3096,7 +3096,7 @@ msgstr ""
 
 #: lms/templates/quiz/quiz.html:147
 msgid "No."
-msgstr ""
+msgstr "Nem."
 
 #: lms/overrides/user.py:194
 msgid "Not Allowed"
@@ -3131,7 +3131,7 @@ msgstr ""
 #: frontend/src/components/SettingDetails.vue:10
 #: frontend/src/pages/QuizSubmission.vue:9
 msgid "Not Saved"
-msgstr ""
+msgstr "Nincs mentve"
 
 #: frontend/src/pages/Notifications.vue:54
 msgid "Nothing to see here."
@@ -3140,7 +3140,7 @@ msgstr ""
 #. Label of the notifications (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Notifications"
-msgstr ""
+msgstr "Értesítések"
 
 #: lms/lms/widgets/NoPreviewModal.html:30
 msgid "Notify me when available"
@@ -3218,22 +3218,22 @@ msgstr ""
 #. Label of the option_1 (Small Text) field in DocType 'LMS Question'
 #: lms/lms/doctype/lms_question/lms_question.json
 msgid "Option 1"
-msgstr ""
+msgstr "1. lehetőség"
 
 #. Label of the option_2 (Small Text) field in DocType 'LMS Question'
 #: lms/lms/doctype/lms_question/lms_question.json
 msgid "Option 2"
-msgstr ""
+msgstr "2. lehetőség"
 
 #. Label of the option_3 (Small Text) field in DocType 'LMS Question'
 #: lms/lms/doctype/lms_question/lms_question.json
 msgid "Option 3"
-msgstr ""
+msgstr "3. lehetőség"
 
 #. Label of the option_4 (Small Text) field in DocType 'LMS Question'
 #: lms/lms/doctype/lms_question/lms_question.json
 msgid "Option 4"
-msgstr ""
+msgstr "4. lehetőség"
 
 #. Label of the order_id (Data) field in DocType 'LMS Payment'
 #: lms/lms/doctype/lms_payment/lms_payment.json
@@ -3305,7 +3305,7 @@ msgstr ""
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Part Time"
-msgstr ""
+msgstr "Részmunkaidő"
 
 #. Option for the 'Status' (Select) field in DocType 'LMS Course Progress'
 #: lms/lms/doctype/lms_course_progress/lms_course_progress.json
@@ -3333,7 +3333,7 @@ msgstr ""
 #. Label of the password (Password) field in DocType 'LMS Live Class'
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Password"
-msgstr ""
+msgstr "Jelszó"
 
 #. Label of the payment (Link) field in DocType 'Batch Student'
 #. Label of the payment (Link) field in DocType 'LMS Enrollment'
@@ -3439,11 +3439,11 @@ msgstr ""
 
 #: lms/overrides/user.py:240
 msgid "Please ask your administrator to verify your sign-up"
-msgstr ""
+msgstr "Kérje meg a rendszergazdát, hogy ellenőrizze a regisztrációját"
 
 #: lms/overrides/user.py:238
 msgid "Please check your email for verification"
-msgstr ""
+msgstr "Kérjük, ellenőrizze e-mail a vizsgálathoz"
 
 #: lms/templates/emails/community_course_membership.html:7
 msgid "Please click on the following button to set your new password"
@@ -3539,7 +3539,7 @@ msgstr ""
 #: frontend/src/components/DiscussionReplies.vue:52
 #: frontend/src/components/DiscussionReplies.vue:86
 msgid "Post"
-msgstr ""
+msgstr "Hozzászólás"
 
 #: frontend/src/pages/Billing.vue:100
 msgid "Postal Code"
@@ -3586,7 +3586,7 @@ msgstr ""
 
 #: frontend/src/pages/Lesson.vue:54
 msgid "Previous"
-msgstr ""
+msgstr "Előző"
 
 #. Label of the pricing_tab (Tab Break) field in DocType 'LMS Batch'
 #. Label of the pricing_tab (Tab Break) field in DocType 'LMS Course'
@@ -3615,7 +3615,7 @@ msgstr ""
 #. Option for the 'Visibility' (Select) field in DocType 'LMS Batch Old'
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 msgid "Private"
-msgstr ""
+msgstr "Magán"
 
 #. Description of the 'Hide my Private Information from others' (Check) field
 #. in DocType 'User'
@@ -3639,18 +3639,18 @@ msgstr ""
 #. Label of the progress (Float) field in DocType 'LMS Enrollment'
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 msgid "Progress"
-msgstr ""
+msgstr "Előrehaladás"
 
 #: lms/lms/report/course_progress_summary/course_progress_summary.py:77
 msgid "Progress (%)"
-msgstr ""
+msgstr "Haladás (%)"
 
 #. Option for the 'Required Role' (Select) field in DocType 'Cohort Web Page'
 #. Option for the 'Visibility' (Select) field in DocType 'LMS Batch Old'
 #: lms/lms/doctype/cohort_web_page/cohort_web_page.json
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 msgid "Public"
-msgstr ""
+msgstr "Nyilvános"
 
 #. Label of the published (Check) field in DocType 'LMS Certificate'
 #: lms/lms/doctype/lms_certificate/lms_certificate.json
@@ -3665,7 +3665,7 @@ msgstr ""
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/public/js/common_functions.js:266
 msgid "Published"
-msgstr ""
+msgstr "Közzétett"
 
 #: lms/lms/web_template/lms_statistics/lms_statistics.html:14
 #: lms/templates/statistics.html:4
@@ -3802,7 +3802,7 @@ msgstr ""
 #: lms/lms/doctype/lms_course_review/lms_course_review.json
 #: lms/templates/reviews.html:125
 msgid "Rating"
-msgstr ""
+msgstr "Értékelés"
 
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.py:17
 msgid "Rating cannot be 0"
@@ -3838,7 +3838,7 @@ msgstr ""
 
 #: lms/templates/emails/community_course_membership.html:17
 msgid "Regards"
-msgstr ""
+msgstr "Üdvözlettel"
 
 #: frontend/src/components/BatchOverlay.vue:70
 msgid "Register Now"
@@ -3851,7 +3851,7 @@ msgstr ""
 
 #: lms/overrides/user.py:201
 msgid "Registered but disabled"
-msgstr ""
+msgstr "Regisztráltam, de kiiktatva"
 
 #. Option for the 'Status' (Select) field in DocType 'Cohort Join Request'
 #. Option for the 'Status' (Select) field in DocType 'Invite Request'
@@ -3860,7 +3860,7 @@ msgstr ""
 #: lms/lms/doctype/invite_request/invite_request.json
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
 msgid "Rejected"
-msgstr ""
+msgstr "Elutasítva"
 
 #. Label of the related_courses (Table) field in DocType 'LMS Course'
 #. Name of a DocType
@@ -3920,14 +3920,14 @@ msgstr ""
 
 #: lms/templates/reviews.html:4
 msgid "Reviews"
-msgstr ""
+msgstr "Vélemények"
 
 #. Label of the role (Select) field in DocType 'Cohort Staff'
 #. Label of the role (Select) field in DocType 'LMS Enrollment'
 #: lms/lms/doctype/cohort_staff/cohort_staff.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 msgid "Role"
-msgstr ""
+msgstr "Beosztás"
 
 #. Label of the role (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -3937,7 +3937,7 @@ msgstr ""
 #. Label of the route (Data) field in DocType 'LMS Sidebar Item'
 #: lms/lms/doctype/lms_sidebar_item/lms_sidebar_item.json
 msgid "Route"
-msgstr ""
+msgstr "Útvonal"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:172
 msgid "Row #{0} Date cannot be outside the batch duration."
@@ -3968,7 +3968,7 @@ msgstr ""
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Saturday"
-msgstr ""
+msgstr "Szombat"
 
 #: frontend/src/components/Controls/CodeEditor.vue:25
 #: frontend/src/components/Modals/Event.vue:101
@@ -3985,7 +3985,7 @@ msgstr ""
 #. Label of the schedule (Table) field in DocType 'Course Evaluator'
 #: lms/lms/doctype/course_evaluator/course_evaluator.json
 msgid "Schedule"
-msgstr ""
+msgstr "Ütemezés"
 
 #: frontend/src/components/Modals/EvaluationModal.vue:5
 #: frontend/src/components/UpcomingEvaluations.vue:4
@@ -4000,7 +4000,7 @@ msgstr ""
 #. Label of the scope (Select) field in DocType 'Cohort Web Page'
 #: lms/lms/doctype/cohort_web_page/cohort_web_page.json
 msgid "Scope"
-msgstr ""
+msgstr "terület"
 
 #. Label of the score (Int) field in DocType 'LMS Quiz Submission'
 #: frontend/src/pages/QuizSubmission.vue:35
@@ -4139,11 +4139,11 @@ msgstr ""
 
 #: lms/overrides/user.py:194
 msgid "Sign Up is disabled"
-msgstr ""
+msgstr "Regisztráció letiltott"
 
 #: lms/templates/signup-form.html:53
 msgid "Sign up"
-msgstr ""
+msgstr "Regisztráljon"
 
 #. Label of the signup_email (Data) field in DocType 'Invite Request'
 #: lms/lms/doctype/invite_request/invite_request.json
@@ -4187,7 +4187,7 @@ msgstr ""
 
 #: lms/templates/onboarding_header.html:6
 msgid "Skip"
-msgstr ""
+msgstr "Ugrás"
 
 #: lms/lms/doctype/course_evaluator/course_evaluator.py:57
 msgid "Slot Times are overlapping for some schedules."
@@ -4275,7 +4275,7 @@ msgstr ""
 #: lms/lms/doctype/scheduled_flow/scheduled_flow.json
 #: lms/public/js/common_functions.js:292
 msgid "Start Time"
-msgstr ""
+msgstr "Kezdés ideje"
 
 #: lms/lms/doctype/course_evaluator/course_evaluator.py:28
 msgid "Start Time cannot be greater than End Time"
@@ -4449,14 +4449,14 @@ msgstr ""
 #: frontend/src/components/Modals/Event.vue:97
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 msgid "Summary"
-msgstr ""
+msgstr "Összefoglalás"
 
 #. Option for the 'Day' (Select) field in DocType 'Evaluator Schedule'
 #. Option for the 'Day' (Select) field in DocType 'LMS Certificate Request'
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Sunday"
-msgstr ""
+msgstr "Vasárnap"
 
 #. Name of a role
 #: lms/job/doctype/job_opportunity/job_opportunity.json
@@ -4510,7 +4510,7 @@ msgstr ""
 #: frontend/src/pages/CourseForm.vue:91
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Tags"
-msgstr ""
+msgstr "Címkék"
 
 #: lms/templates/emails/community_course_membership.html:18
 #: lms/templates/emails/mentor_request_creation_email.html:8
@@ -4533,7 +4533,7 @@ msgstr ""
 
 #: lms/overrides/user.py:205
 msgid "Temporarily Disabled"
-msgstr ""
+msgstr "Átmenetileg letiltva"
 
 #: lms/lms/utils.py:421
 msgid "Terms of Use"
@@ -4647,7 +4647,7 @@ msgstr ""
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Thursday"
-msgstr ""
+msgstr "Csütörtök"
 
 #. Label of the time (Time) field in DocType 'LMS Live Class'
 #: frontend/src/components/Modals/Event.vue:48
@@ -4655,7 +4655,7 @@ msgstr ""
 #: frontend/src/components/Quiz.vue:44
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Time"
-msgstr ""
+msgstr "Idő"
 
 #. Label of the time (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -4767,7 +4767,7 @@ msgstr ""
 
 #: lms/overrides/user.py:206
 msgid "Too many users signed up recently, so the registration is disabled. Please try back in an hour"
-msgstr ""
+msgstr "Túl sok felhasználó regisztrált a közelmúltban, így a regisztrációt letiltotta. Kérjük, próbálja meg újra egy óra múlva"
 
 #: frontend/src/pages/Billing.vue:58
 msgid "Total"
@@ -4798,7 +4798,7 @@ msgstr ""
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Tuesday"
-msgstr ""
+msgstr "Kedd"
 
 #: frontend/src/pages/ProfileAbout.vue:86
 msgid "Twitter"
@@ -4939,19 +4939,19 @@ msgstr ""
 
 #: lms/job/doctype/job_opportunity/job_opportunity.py:37
 msgid "User {0} has reported the job post {1}"
-msgstr ""
+msgstr "{0} felhasználó jelentette az álláshirdetést {1}"
 
 #. Label of the username (Data) field in DocType 'Batch Student'
 #. Label of the username (Data) field in DocType 'Invite Request'
 #: lms/lms/doctype/batch_student/batch_student.json
 #: lms/lms/doctype/invite_request/invite_request.json
 msgid "Username"
-msgstr ""
+msgstr "Felhasználói név"
 
 #. Label of a shortcut in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "Users"
-msgstr ""
+msgstr "Felhasználók"
 
 #. Label of the answer (Small Text) field in DocType 'LMS Quiz Result'
 #: lms/lms/doctype/lms_quiz_result/lms_quiz_result.json
@@ -4960,12 +4960,12 @@ msgstr ""
 
 #: lms/templates/signup-form.html:83
 msgid "Valid email and name required"
-msgstr ""
+msgstr "Érvényes e-mail és név szükséges"
 
 #. Option for the 'Event' (Select) field in DocType 'LMS Badge'
 #: lms/lms/doctype/lms_badge/lms_badge.json
 msgid "Value Change"
-msgstr ""
+msgstr "Érték Változás"
 
 #. Label of the video_link (Data) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
@@ -5006,19 +5006,19 @@ msgstr ""
 #: frontend/src/components/Modals/PageModal.vue:23
 #: lms/lms/doctype/lms_sidebar_item/lms_sidebar_item.json
 msgid "Web Page"
-msgstr ""
+msgstr "Weboldal"
 
 #. Option for the 'Day' (Select) field in DocType 'Evaluator Schedule'
 #. Option for the 'Day' (Select) field in DocType 'LMS Certificate Request'
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Wednesday"
-msgstr ""
+msgstr "Szerda"
 
 #: lms/lms/doctype/invite_request/invite_request.py:40
 #: lms/templates/emails/lms_invite_request_approved.html:4
 msgid "Welcome to {0}!"
-msgstr ""
+msgstr "Üdvözöljük itt {0}!"
 
 #: lms/templates/courses_under_review.html:15
 msgid "When a course gets submitted for review, it will be listed here."
@@ -5231,7 +5231,7 @@ msgstr ""
 
 #: frontend/src/pages/Lesson.vue:175
 msgid "completed"
-msgstr ""
+msgstr "befejezve"
 
 #: lms/templates/quiz/quiz.js:137
 msgid "correct answers"
@@ -5251,7 +5251,7 @@ msgstr ""
 
 #: lms/templates/quiz/quiz.html:106
 msgid "of"
-msgstr ""
+msgstr "nak,-nek"
 
 #: lms/templates/quiz/quiz.js:141
 msgid "out of"
@@ -5337,7 +5337,7 @@ msgstr ""
 #. Count format of shortcut in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "{} Completed"
-msgstr ""
+msgstr "{} Befejezve"
 
 #. Count format of shortcut in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
@@ -5357,5 +5357,5 @@ msgstr ""
 #. Count format of shortcut in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "{} Published"
-msgstr ""
+msgstr "{} Közzétett"
 
