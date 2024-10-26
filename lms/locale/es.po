@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2024-10-18 16:04+0000\n"
-"PO-Revision-Date: 2024-10-25 11:05\n"
+"PO-Revision-Date: 2024-10-26 11:24\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
@@ -79,11 +79,11 @@ msgstr "Aceptado"
 #. Label of the account_id (Data) field in DocType 'Zoom Settings'
 #: lms/lms/doctype/zoom_settings/zoom_settings.json
 msgid "Account ID"
-msgstr ""
+msgstr "ID de la cuenta"
 
 #: frontend/src/pages/ProfileAbout.vue:17
 msgid "Achievements"
-msgstr ""
+msgstr "Logros"
 
 #. Option for the 'Status' (Select) field in DocType 'LMS Batch Old'
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
@@ -116,7 +116,7 @@ msgstr "Agregar espacio"
 
 #: lms/templates/onboarding_header.html:26
 msgid "Add a Chapter"
-msgstr ""
+msgstr "Añadir un capítulo"
 
 #: lms/templates/onboarding_header.html:33
 msgid "Add a Lesson"
@@ -124,11 +124,11 @@ msgstr "Añadir una lección"
 
 #: frontend/src/components/Modals/StudentModal.vue:5
 msgid "Add a Student"
-msgstr ""
+msgstr "Añadir a un estudiante"
 
 #: frontend/src/components/Modals/BatchCourseModal.vue:5
 msgid "Add a course"
-msgstr ""
+msgstr "Añadir un curso"
 
 #: frontend/src/components/Modals/Question.vue:141
 #: frontend/src/pages/QuizForm.vue:181
@@ -149,15 +149,15 @@ msgstr ""
 
 #: lms/lms/doctype/lms_question/lms_question.py:60
 msgid "Add at least one possible answer for this question: {0}"
-msgstr ""
+msgstr "Añadir al menos una respuesta posible para esta pregunta: {0}"
 
 #: frontend/src/components/Modals/PageModal.vue:6
 msgid "Add web page to sidebar"
-msgstr ""
+msgstr "Agregar página web a la barra lateral"
 
 #: frontend/src/pages/AssignmentSubmission.vue:44
 msgid "Add your assignment as {0}"
-msgstr ""
+msgstr "Añadir su tarea como {0}"
 
 #. Label of the address (Link) field in DocType 'LMS Payment'
 #: frontend/src/pages/Billing.vue:17 frontend/src/pages/Billing.vue:69
@@ -180,7 +180,7 @@ msgstr "Dirección línea 2"
 #: lms/lms/doctype/cohort_web_page/cohort_web_page.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 msgid "Admin"
-msgstr ""
+msgstr "Admin"
 
 #. Name of a role
 #: lms/lms/doctype/lms_badge/lms_badge.json
@@ -189,7 +189,7 @@ msgstr "Todos"
 
 #: lms/lms/widgets/BreadCrumb.html:3
 msgid "All Courses"
-msgstr ""
+msgstr "Todos los Cursos"
 
 #: lms/templates/quiz/quiz.html:141
 msgid "All Submissions"
@@ -197,26 +197,26 @@ msgstr ""
 
 #: lms/lms/doctype/lms_quiz/lms_quiz.py:46
 msgid "All questions should have the same marks if the limit is set."
-msgstr ""
+msgstr "Todas las preguntas deberían tener las mismas marcas si el límite está establecido."
 
 #. Label of the allow_posting (Check) field in DocType 'Job Settings'
 #: lms/job/doctype/job_settings/job_settings.json
 msgid "Allow Job Posting From Website"
-msgstr ""
+msgstr "Permitir publicación de empleo desde el sitio web"
 
 #. Label of the allow_self_enrollment (Check) field in DocType 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json
 msgid "Allow Self Enrollment"
-msgstr ""
+msgstr "Permitir la autoinscripción"
 
 #. Label of the allow_future (Check) field in DocType 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json
 msgid "Allow accessing future dates"
-msgstr ""
+msgstr "Permitir acceder a fechas futuras"
 
 #: frontend/src/pages/BatchForm.vue:29
 msgid "Allow self enrollment"
-msgstr ""
+msgstr "Permitir autoinscripción"
 
 #: lms/overrides/user.py:199
 msgid "Already Registered"
@@ -238,7 +238,7 @@ msgstr "Importe"
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/public/js/common_functions.js:397
 msgid "Amount (USD)"
-msgstr ""
+msgstr "Importe (USD)"
 
 #. Label of the amount_based_on_field (Check) field in DocType 'Web Form'
 #: lms/fixtures/custom_field.json
@@ -253,11 +253,11 @@ msgstr ""
 #. Label of the amount_with_gst (Currency) field in DocType 'LMS Payment'
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Amount with GST"
-msgstr ""
+msgstr "Importe con GST"
 
 #: frontend/src/components/Modals/AnnouncementModal.vue:32
 msgid "Announcement"
-msgstr ""
+msgstr "Anuncio"
 
 #. Label of the answer (Text Editor) field in DocType 'LMS Assignment'
 #. Label of the answer (Text Editor) field in DocType 'LMS Assignment
@@ -267,7 +267,7 @@ msgstr ""
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 #: lms/lms/doctype/lms_exercise/lms_exercise.json
 msgid "Answer"
-msgstr ""
+msgstr "Respuesta"
 
 #: frontend/src/pages/JobDetail.vue:131
 msgid "Applications Received"
@@ -280,16 +280,16 @@ msgstr ""
 #. Label of the apply_gst (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Apply GST for India"
-msgstr ""
+msgstr "Aplicar GST para India"
 
 #. Label of the apply_rounding (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Apply Rounding on Equivalent"
-msgstr ""
+msgstr "Aplicar redondeo al equivalente"
 
 #: frontend/src/components/Modals/JobApplicationModal.vue:6
 msgid "Apply for this job"
-msgstr ""
+msgstr "Aplica para este trabajo"
 
 #. Option for the 'Status' (Select) field in DocType 'Invite Request'
 #. Option for the 'Status' (Select) field in DocType 'LMS Course'
@@ -311,25 +311,25 @@ msgstr ""
 #. Label of the user_category (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Ask User Category during Signup"
-msgstr ""
+msgstr "Preguntar categoría de usuario durante el registro"
 
 #. Label of the assessment_tab (Tab Break) field in DocType 'LMS Batch'
 #. Label of the assessment (Table) field in DocType 'LMS Batch'
 #: frontend/src/components/Modals/AssessmentModal.vue:27
 #: lms/lms/doctype/lms_batch/lms_batch.json lms/templates/assessments.html:11
 msgid "Assessment"
-msgstr ""
+msgstr "Evaluación"
 
 #. Label of the assessment_name (Dynamic Link) field in DocType 'LMS
 #. Assessment'
 #: lms/lms/doctype/lms_assessment/lms_assessment.json
 msgid "Assessment Name"
-msgstr ""
+msgstr "Nombre de la Evaluación"
 
 #. Label of the assessment_type (Link) field in DocType 'LMS Assessment'
 #: lms/lms/doctype/lms_assessment/lms_assessment.json
 msgid "Assessment Type"
-msgstr ""
+msgstr "Tipo de evaluación"
 
 #: frontend/src/components/Modals/AssessmentModal.vue:73
 msgid "Assessment added successfully"
@@ -337,18 +337,18 @@ msgstr ""
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:74
 msgid "Assessment {0} has already been added to this batch."
-msgstr ""
+msgstr "La evaluación {0} ya se ha agregado a este lote."
 
 #. Label of the show_assessments (Check) field in DocType 'LMS Settings'
 #: frontend/src/components/Assessments.vue:5
 #: lms/lms/doctype/lms_settings/lms_settings.json
 #: lms/templates/assessments.html:3
 msgid "Assessments"
-msgstr ""
+msgstr "Evaluaciones"
 
 #: lms/lms/doctype/lms_badge/lms_badge.js:50
 msgid "Assign"
-msgstr ""
+msgstr "Asignar"
 
 #. Label of the section_break_16 (Section Break) field in DocType 'Course
 #. Lesson'
@@ -363,32 +363,32 @@ msgstr "Asignación"
 #. Submission'
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 msgid "Assignment Attachment"
-msgstr ""
+msgstr "Adjunto de la asignación"
 
 #. Label of the assignment_submission_template (Link) field in DocType 'LMS
 #. Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Assignment Submission Template"
-msgstr ""
+msgstr "Plantilla de entrega de tareas"
 
 #. Label of the assignment_title (Data) field in DocType 'LMS Assignment
 #. Submission'
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 msgid "Assignment Title"
-msgstr ""
+msgstr "Título de la tarea"
 
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.py:31
 msgid "Assignment for Lesson {0} by {1} already exists."
-msgstr ""
+msgstr "Ya existe una asignación para la lección {0} por {1}."
 
 #. Description of the 'Question' (Small Text) field in DocType 'Course Lesson'
 #: lms/lms/doctype/course_lesson/course_lesson.json
 msgid "Assignment will appear at the bottom of the lesson."
-msgstr ""
+msgstr "La tarea aparecerá al final de la lección."
 
 #: lms/lms/doctype/lms_question/lms_question.py:42
 msgid "At least one option must be correct for this question."
-msgstr ""
+msgstr "Al menos una opción debe ser correcta para esta pregunta."
 
 #. Label of the attire (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -402,13 +402,13 @@ msgstr "Autorizar acceso a Google Calendar"
 #. Option for the 'Event' (Select) field in DocType 'LMS Badge'
 #: lms/lms/doctype/lms_badge/lms_badge.json
 msgid "Auto Assign"
-msgstr ""
+msgstr "Autoasignar"
 
 #. Label of the auto_recording (Select) field in DocType 'LMS Live Class'
 #: frontend/src/components/Modals/LiveClassModal.vue:66
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Auto Recording"
-msgstr ""
+msgstr "Grabación Automática"
 
 #: frontend/src/components/CourseCard.vue:52
 #: frontend/src/pages/CourseDetail.vue:20
@@ -422,18 +422,18 @@ msgstr ""
 #. Label of the badge (Link) field in DocType 'LMS Badge Assignment'
 #: lms/lms/doctype/lms_badge_assignment/lms_badge_assignment.json
 msgid "Badge"
-msgstr ""
+msgstr "Insignia"
 
 #. Label of the badge_description (Small Text) field in DocType 'LMS Badge
 #. Assignment'
 #: lms/lms/doctype/lms_badge_assignment/lms_badge_assignment.json
 msgid "Badge Description"
-msgstr ""
+msgstr "Descripción de la Insignia"
 
 #. Label of the badge_image (Attach) field in DocType 'LMS Badge Assignment'
 #: lms/lms/doctype/lms_badge_assignment/lms_badge_assignment.json
 msgid "Badge Image"
-msgstr ""
+msgstr "Imagen de la Insignia"
 
 #. Label of the batch_name (Link) field in DocType 'LMS Certificate'
 #. Label of the batch_name (Link) field in DocType 'LMS Certificate Request'
@@ -449,16 +449,16 @@ msgstr "Lote"
 #. Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Batch Confirmation Template"
-msgstr ""
+msgstr "Plantilla de confirmación de lote"
 
 #. Name of a DocType
 #: lms/lms/doctype/batch_course/batch_course.json
 msgid "Batch Course"
-msgstr ""
+msgstr "Curso por lotes"
 
 #: lms/public/js/common_functions.js:428
 msgid "Batch Created"
-msgstr ""
+msgstr "Lote creado"
 
 #. Label of the section_break_5 (Section Break) field in DocType 'LMS Batch
 #. Old'
@@ -477,7 +477,7 @@ msgstr "Detalles del lote"
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/public/js/common_functions.js:356
 msgid "Batch Details Raw"
-msgstr ""
+msgstr "Detalles del lote en bruto"
 
 #. Name of a role
 #: lms/lms/doctype/course_evaluator/course_evaluator.json
@@ -485,12 +485,12 @@ msgstr ""
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Batch Evaluator"
-msgstr ""
+msgstr "Evaluador de Lote"
 
 #. Label of the batch_name (Link) field in DocType 'LMS Certificate Evaluation'
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 msgid "Batch Name"
-msgstr ""
+msgstr "Nombre del lote"
 
 #. Label of the batch_old (Link) field in DocType 'Exercise Latest Submission'
 #. Label of the batch_old (Link) field in DocType 'Exercise Submission'
@@ -499,7 +499,7 @@ msgstr ""
 #: lms/lms/doctype/exercise_submission/exercise_submission.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 msgid "Batch Old"
-msgstr ""
+msgstr "Lote Antiguo"
 
 #. Label of the section_break_7 (Section Break) field in DocType 'LMS Batch
 #. Old'
@@ -508,16 +508,16 @@ msgstr ""
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Batch Settings"
-msgstr ""
+msgstr "Configuración de lotes"
 
 #: lms/templates/emails/batch_confirmation.html:17
 msgid "Batch Start Date:"
-msgstr ""
+msgstr "Fecha de inicio del lote:"
 
 #. Name of a DocType
 #: lms/lms/doctype/batch_student/batch_student.json
 msgid "Batch Student"
-msgstr ""
+msgstr "Estudiante por lotes"
 
 #. Label of the batch_title (Data) field in DocType 'LMS Certificate Request'
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
@@ -526,7 +526,7 @@ msgstr ""
 
 #: lms/public/js/common_functions.js:427
 msgid "Batch Updated"
-msgstr ""
+msgstr "Lote actualizado"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:39
 msgid "Batch end date cannot be before the batch start date"
@@ -534,24 +534,24 @@ msgstr ""
 
 #: lms/lms/web_form/add_a_new_batch/add_a_new_batch.js:6
 msgid "Batch {0} has been successfully created!"
-msgstr ""
+msgstr "¡El lote {0} se ha creado correctamente!"
 
 #. Group in LMS Course's connections
 #. Label of the batches (Check) field in DocType 'LMS Settings'
 #: frontend/src/pages/Batches.vue:8 lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_settings/lms_settings.json lms/www/lms.py:60
 msgid "Batches"
-msgstr ""
+msgstr "Lotes"
 
 #. Label of the begin_date (Date) field in DocType 'Cohort'
 #: lms/lms/doctype/cohort/cohort.json
 msgid "Begin Date"
-msgstr ""
+msgstr "Fecha de comienzo"
 
 #: lms/templates/emails/batch_confirmation.html:37
 #: lms/templates/emails/certification.html:20
 msgid "Best Regards"
-msgstr ""
+msgstr "Atentamente,"
 
 #. Label of the billing_details_section (Section Break) field in DocType 'LMS
 #. Payment'
@@ -564,7 +564,7 @@ msgstr "Detalles de facturación"
 #: frontend/src/pages/Billing.vue:75
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Billing Name"
-msgstr ""
+msgstr "Nombre de Facturación"
 
 #: frontend/src/components/Modals/EditProfile.vue:72
 msgid "Bio"
@@ -588,7 +588,7 @@ msgstr "Sucursal"
 #. Option for the 'User Category' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json lms/templates/signup-form.html:23
 msgid "Business Owner"
-msgstr ""
+msgstr "Propietario de la Empresa"
 
 #. Label of the payment_button_help (Text) field in DocType 'Web Form'
 #: lms/fixtures/custom_field.json
@@ -606,12 +606,12 @@ msgstr ""
 
 #: lms/templates/emails/lms_message.html:11
 msgid "By"
-msgstr ""
+msgstr "Por"
 
 #. Option for the 'Grade Type' (Select) field in DocType 'Education Detail'
 #: lms/lms/doctype/education_detail/education_detail.json
 msgid "CGPA/4"
-msgstr ""
+msgstr "CGPA/4"
 
 #. Option for the 'Status' (Select) field in DocType 'Cohort'
 #. Option for the 'Stage' (Select) field in DocType 'LMS Batch Old'
@@ -656,11 +656,11 @@ msgstr "Certificado"
 #. Label of the certification_template (Link) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Certificate Email Template"
-msgstr ""
+msgstr "Plantilla de correo electrónico de certificado"
 
 #: lms/templates/emails/certification.html:13
 msgid "Certificate Link"
-msgstr ""
+msgstr "Enlace de certificado"
 
 #: frontend/src/components/Modals/Event.vue:310
 msgid "Certificate saved successfully"
@@ -668,7 +668,7 @@ msgstr ""
 
 #: frontend/src/pages/ProfileCertificates.vue:4
 msgid "Certificates"
-msgstr ""
+msgstr "Certificados"
 
 #. Label of the certification (Table) field in DocType 'User'
 #. Name of a DocType
@@ -679,7 +679,7 @@ msgstr ""
 #: lms/lms/doctype/certification/certification.json
 #: lms/lms/doctype/lms_course/lms_course.json lms/lms/workspace/lms/lms.json
 msgid "Certification"
-msgstr ""
+msgstr "Certificación"
 
 #. Label of the certification_details (Section Break) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -689,17 +689,17 @@ msgstr ""
 #. Label of the expiry (Int) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Certification Expires After (Years)"
-msgstr ""
+msgstr "La certificación vence después de (años)"
 
 #. Label of the certification_name (Data) field in DocType 'Certification'
 #: lms/lms/doctype/certification/certification.json
 msgid "Certification Name"
-msgstr ""
+msgstr "Nombre de la certificación"
 
 #. Label of the certified_participants (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Certified Participants"
-msgstr ""
+msgstr "Participantes certificados"
 
 #: lms/templates/assignment.html:13
 msgid "Change"
@@ -712,18 +712,18 @@ msgstr "Cambio"
 #: lms/lms/doctype/lms_course_progress/lms_course_progress.json
 #: lms/lms/workspace/lms/lms.json
 msgid "Chapter"
-msgstr ""
+msgstr "Capítulo"
 
 #. Name of a DocType
 #: lms/lms/doctype/chapter_reference/chapter_reference.json
 msgid "Chapter Reference"
-msgstr ""
+msgstr "Referencia del capítulo"
 
 #. Label of the chapters (Table) field in DocType 'LMS Course'
 #. Group in LMS Course's connections
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Chapters"
-msgstr ""
+msgstr "Capítulos"
 
 #: frontend/src/components/Quiz.vue:201 lms/templates/quiz/quiz.html:120
 msgid "Check"
@@ -731,26 +731,26 @@ msgstr "Marcar"
 
 #: lms/templates/emails/mention_template.html:10
 msgid "Check Discussion"
-msgstr ""
+msgstr "Comprobar el debate"
 
 #: lms/templates/certificates_section.html:24
 msgid "Check out the {0} to know more about certification."
-msgstr ""
+msgstr "Visite {0} para saber más sobre la certificación."
 
 #: frontend/src/components/NoPermission.vue:19
 msgid "Checkout Courses"
-msgstr ""
+msgstr "Comprobar cursos"
 
 #. Option for the 'Type' (Select) field in DocType 'LMS Question'
 #. Option for the 'Type' (Select) field in DocType 'LMS Quiz Question'
 #: lms/lms/doctype/lms_question/lms_question.json
 #: lms/lms/doctype/lms_quiz_question/lms_quiz_question.json
 msgid "Choices"
-msgstr ""
+msgstr "Opciones"
 
 #: frontend/src/components/Quiz.vue:578 lms/templates/quiz/quiz.html:53
 msgid "Choose all answers that apply"
-msgstr ""
+msgstr "Elegir todas las respuestas que apliquen"
 
 #: frontend/src/components/Controls/IconPicker.vue:27
 msgid "Choose an icon"
@@ -758,7 +758,7 @@ msgstr "Elegir icono"
 
 #: frontend/src/components/Quiz.vue:579 lms/templates/quiz/quiz.html:53
 msgid "Choose one answer"
-msgstr ""
+msgstr "Elige una respuesta"
 
 #. Label of the city (Data) field in DocType 'User'
 #: frontend/src/pages/Billing.vue:86 lms/fixtures/custom_field.json
@@ -794,7 +794,7 @@ msgstr "Cerrado"
 #. Option for the 'Auto Recording' (Select) field in DocType 'LMS Live Class'
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Cloud"
-msgstr ""
+msgstr "Nube"
 
 #. Label of the code (Code) field in DocType 'LMS Exercise'
 #: lms/lms/doctype/lms_exercise/lms_exercise.json
@@ -816,32 +816,32 @@ msgstr "Código"
 #: lms/lms/doctype/cohort_web_page/cohort_web_page.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 msgid "Cohort"
-msgstr ""
+msgstr "Cohorte"
 
 #. Name of a DocType
 #: lms/lms/doctype/cohort_join_request/cohort_join_request.json
 msgid "Cohort Join Request"
-msgstr ""
+msgstr "Solicitud de ingreso de Cohort"
 
 #. Name of a DocType
 #: lms/lms/doctype/cohort_mentor/cohort_mentor.json
 msgid "Cohort Mentor"
-msgstr ""
+msgstr "Mentor de Cohorte"
 
 #. Name of a DocType
 #: lms/lms/doctype/cohort_staff/cohort_staff.json
 msgid "Cohort Staff"
-msgstr ""
+msgstr "Personal de Cohort"
 
 #. Name of a DocType
 #: lms/lms/doctype/cohort_subgroup/cohort_subgroup.json
 msgid "Cohort Subgroup"
-msgstr ""
+msgstr "Subgrupo de Cohort"
 
 #. Name of a DocType
 #: lms/lms/doctype/cohort_web_page/cohort_web_page.json
 msgid "Cohort Web Page"
-msgstr ""
+msgstr "Página web de Cohorte"
 
 #. Label of the collaboration (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -893,7 +893,7 @@ msgstr "Detalles de la Compañía"
 #: frontend/src/pages/JobCreation.vue:73
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Company Email Address"
-msgstr ""
+msgstr "Dirección de correo de la Empresa"
 
 #. Label of the company_logo (Attach Image) field in DocType 'Job Opportunity'
 #: frontend/src/pages/JobCreation.vue:77
@@ -916,7 +916,7 @@ msgstr ""
 #: frontend/src/pages/JobCreation.vue:67
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Company Website"
-msgstr ""
+msgstr "Página Web de la empresa"
 
 #. Option for the 'Status' (Select) field in DocType 'LMS Course Progress'
 #: lms/lms/doctype/lms_course_progress/lms_course_progress.json
@@ -926,7 +926,7 @@ msgstr "Completar"
 
 #: lms/templates/emails/lms_invite_request_approved.html:7
 msgid "Complete Sign Up"
-msgstr ""
+msgstr "Completar registro"
 
 #. Option for the 'Status' (Select) field in DocType 'Cohort'
 #. Option for the 'Stage' (Select) field in DocType 'LMS Batch Old'
@@ -942,7 +942,7 @@ msgstr ""
 
 #: frontend/src/pages/Statistics.vue:58
 msgid "Completions"
-msgstr ""
+msgstr "Completados"
 
 #. Label of the condition (Code) field in DocType 'LMS Badge'
 #: lms/lms/doctype/lms_badge/lms_badge.json
@@ -961,11 +961,11 @@ msgstr ""
 #. Student'
 #: lms/lms/doctype/batch_student/batch_student.json
 msgid "Confirmation Email Sent"
-msgstr ""
+msgstr "Correo de confirmación enviado"
 
 #: lms/lms/doctype/lms_certificate/lms_certificate.py:25
 msgid "Congratulations on getting certified!"
-msgstr ""
+msgstr "¡Felicidades por obtener la certificación!"
 
 #: frontend/src/components/CourseCardOverlay.vue:53
 msgid "Contact the Administrator to enroll for this course."
@@ -988,7 +988,7 @@ msgstr "Contrato"
 
 #: lms/lms/utils.py:423
 msgid "Cookie Policy"
-msgstr ""
+msgstr "Política de cookies"
 
 #: frontend/src/components/LessonHelp.vue:53
 msgid "Copy the URL of the video from YouTube and paste it in the editor."
@@ -1006,7 +1006,7 @@ msgstr ""
 #: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
 #: lms/lms/doctype/exercise_submission/exercise_submission.json
 msgid "Correct"
-msgstr ""
+msgstr "Correcto"
 
 #: frontend/src/components/Modals/Question.vue:71
 msgid "Correct Answer"
@@ -1083,16 +1083,16 @@ msgstr "Curso"
 #: lms/lms/doctype/course_chapter/course_chapter.json
 #: lms/lms/doctype/course_lesson/course_lesson.json
 msgid "Course Chapter"
-msgstr ""
+msgstr "Capítulo del curso"
 
 #. Label of a shortcut in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "Course Completed"
-msgstr ""
+msgstr "Curso Completado"
 
 #: lms/lms/widgets/CourseOutline.html:9
 msgid "Course Content"
-msgstr ""
+msgstr "Contenido del curso"
 
 #. Name of a role
 #: frontend/src/pages/ProfileRoles.vue:16
@@ -1100,64 +1100,64 @@ msgstr ""
 #: lms/lms/doctype/lms_question/lms_question.json
 #: lms/lms/doctype/lms_quiz/lms_quiz.json
 msgid "Course Creator"
-msgstr ""
+msgstr "Creador del curso"
 
 #. Label of a Card Break in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "Course Data"
-msgstr ""
+msgstr "Datos del Curso"
 
 #: frontend/src/pages/CourseForm.vue:34
 msgid "Course Description"
-msgstr ""
+msgstr "Descripción del curso"
 
 #. Name of a DocType
 #: lms/lms/doctype/course_evaluator/course_evaluator.json
 msgid "Course Evaluator"
-msgstr ""
+msgstr "Evaluador del curso"
 
 #: frontend/src/pages/CourseForm.vue:64
 msgid "Course Image"
-msgstr ""
+msgstr "Imagen del curso"
 
 #. Name of a DocType
 #: lms/lms/doctype/course_instructor/course_instructor.json
 msgid "Course Instructor"
-msgstr ""
+msgstr "Instructor del curso"
 
 #. Name of a DocType
 #: lms/lms/doctype/course_lesson/course_lesson.json
 msgid "Course Lesson"
-msgstr ""
+msgstr "Lección del curso"
 
 #: lms/www/lms.py:27
 msgid "Course List"
-msgstr ""
+msgstr "Lista de Cursos"
 
 #: lms/lms/report/course_progress_summary/course_progress_summary.py:58
 msgid "Course Name"
-msgstr ""
+msgstr "Nombre del Curso"
 
 #. Label of the course_price (Currency) field in DocType 'LMS Course'
 #: frontend/src/pages/CourseForm.vue:186
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Course Price"
-msgstr ""
+msgstr "Precio del curso"
 
 #. Name of a report
 #: lms/lms/report/course_progress_summary/course_progress_summary.json
 msgid "Course Progress Summary"
-msgstr ""
+msgstr "Resumen del progreso del curso"
 
 #. Label of the section_break_7 (Section Break) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Course Settings"
-msgstr ""
+msgstr "Configuración del curso"
 
 #. Label of a Card Break in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "Course Stats"
-msgstr ""
+msgstr "Estadísticas del curso"
 
 #. Label of the title (Data) field in DocType 'Batch Course'
 #. Label of the course_title (Data) field in DocType 'LMS Certificate'
@@ -1166,11 +1166,11 @@ msgstr ""
 #: lms/lms/doctype/lms_certificate/lms_certificate.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Course Title"
-msgstr ""
+msgstr "Título del curso"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:318
 msgid "Course already added to the batch."
-msgstr ""
+msgstr "Curso ya agregado al lote."
 
 #: frontend/src/pages/CourseForm.vue:433
 msgid "Course price and currency are mandatory for paid courses"
@@ -1178,7 +1178,7 @@ msgstr ""
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:57
 msgid "Course {0} has already been added to this batch."
-msgstr ""
+msgstr "El curso {0} ya se ha agregado a este lote."
 
 #. Label of the courses (Table) field in DocType 'LMS Batch'
 #. Label of the show_courses (Check) field in DocType 'LMS Settings'
@@ -1190,16 +1190,16 @@ msgstr ""
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Courses"
-msgstr ""
+msgstr "Cursos"
 
 #: lms/lms/web_template/lms_statistics/lms_statistics.html:14
 #: lms/templates/statistics.html:28
 msgid "Courses Completed"
-msgstr ""
+msgstr "Cursos completados"
 
 #: lms/lms/web_template/courses_mentored/courses_mentored.html:4
 msgid "Courses Mentored"
-msgstr ""
+msgstr "Cursos Mentorados"
 
 #: frontend/src/components/BatchCourses.vue:150
 msgid "Courses deleted successfully"
@@ -1212,19 +1212,19 @@ msgstr ""
 
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.js:7
 msgid "Create LMS Certificate"
-msgstr ""
+msgstr "Crear certificado LMS"
 
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.js:8
 msgid "Create LMS Certificate Evaluation"
-msgstr ""
+msgstr "Crear evaluación de certificados LMS"
 
 #: lms/templates/onboarding_header.html:19
 msgid "Create a Course"
-msgstr ""
+msgstr "Crear un curso"
 
 #: frontend/src/components/Modals/LiveClassModal.vue:5
 msgid "Create a Live Class"
-msgstr ""
+msgstr "Crear una clase en vivo"
 
 #: frontend/src/components/Modals/Question.vue:31
 msgid "Create a new question"
@@ -1245,7 +1245,7 @@ msgstr "Divisa / Moneda"
 #. Label of the current_lesson (Link) field in DocType 'LMS Enrollment'
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 msgid "Current Lesson"
-msgstr ""
+msgstr "Lección actual"
 
 #. Label of the custom_component (Code) field in DocType 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json
@@ -1255,7 +1255,7 @@ msgstr "HTML Personalizado"
 #. Label of the custom_script (Code) field in DocType 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json
 msgid "Custom Script (JavaScript)"
-msgstr ""
+msgstr "Script personalizado (JavaScript)"
 
 #. Label of the custom_signup_content (HTML Editor) field in DocType 'LMS
 #. Settings'
@@ -1266,7 +1266,7 @@ msgstr ""
 #. Label of the customisations_tab (Tab Break) field in DocType 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json
 msgid "Customisations"
-msgstr ""
+msgstr "Personalizaciones"
 
 #. Label of the show_dashboard (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -1295,7 +1295,7 @@ msgstr "Fecha"
 #: frontend/src/pages/BatchForm.vue:102
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Date and Time"
-msgstr ""
+msgstr "Fecha y hora"
 
 #. Label of the day (Select) field in DocType 'Evaluator Schedule'
 #. Label of the day (Int) field in DocType 'LMS Batch Timetable'
@@ -1315,7 +1315,7 @@ msgstr "Estimado"
 #: lms/templates/emails/batch_confirmation.html:2
 #: lms/templates/emails/certification.html:2
 msgid "Dear "
-msgstr ""
+msgstr "Estimado "
 
 #. Label of the default_currency (Link) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -1325,7 +1325,7 @@ msgstr "Divisa / modena predeterminada"
 #. Label of the degree_type (Data) field in DocType 'Education Detail'
 #: lms/lms/doctype/education_detail/education_detail.json
 msgid "Degree Type"
-msgstr ""
+msgstr "Tipo de Grado"
 
 #: frontend/src/components/CourseOutline.vue:212
 msgid "Delete"
@@ -1378,12 +1378,12 @@ msgstr "Detalles"
 
 #: frontend/src/pages/CourseForm.vue:163
 msgid "Disable Self Enrollment"
-msgstr ""
+msgstr "Deshabilitar la autoinscripción"
 
 #. Label of the disable_self_learning (Check) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Disable Self Learning"
-msgstr ""
+msgstr "Desactivar autoaprendizaje"
 
 #. Label of the disabled (Check) field in DocType 'Job Opportunity'
 #: lms/job/doctype/job_opportunity/job_opportunity.json
@@ -1399,7 +1399,7 @@ msgstr "Descartar"
 #: frontend/src/pages/Batch.vue:69
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Discussions"
-msgstr ""
+msgstr "Discusiones"
 
 #. Option for the 'File Type' (Select) field in DocType 'Course Lesson'
 #. Option for the 'Type' (Select) field in DocType 'LMS Assignment'
@@ -1417,7 +1417,7 @@ msgstr ""
 
 #: lms/lms/doctype/lms_question/lms_question.py:32
 msgid "Duplicate options found for this question."
-msgstr ""
+msgstr "Se encontraron opciones duplicadas para esta pregunta."
 
 #. Label of the duration (Data) field in DocType 'Cohort'
 #. Label of the duration (Data) field in DocType 'LMS Batch Timetable'
@@ -1437,17 +1437,17 @@ msgstr ""
 
 #: frontend/src/components/Modals/LiveClassModal.vue:54
 msgid "Duration of the live class in minutes"
-msgstr ""
+msgstr "Duración de la clase en vivo en minutos"
 
 #. Label of the email (Link) field in DocType 'Cohort Join Request'
 #: lms/lms/doctype/cohort_join_request/cohort_join_request.json
 msgid "E-Mail"
-msgstr ""
+msgstr "Correo Electrónico"
 
 #. Label of the email (Link) field in DocType 'Cohort Mentor'
 #: lms/lms/doctype/cohort_mentor/cohort_mentor.json
 msgid "E-mail"
-msgstr ""
+msgstr "Correo Electrónico"
 
 #: frontend/src/components/BatchOverlay.vue:93
 #: frontend/src/components/CourseCardOverlay.vue:86
@@ -1459,7 +1459,7 @@ msgstr "Editar"
 #: frontend/src/components/CourseOutline.vue:106
 #: frontend/src/components/Modals/ChapterModal.vue:9
 msgid "Edit Chapter"
-msgstr ""
+msgstr "Editar capítulo"
 
 #: frontend/src/pages/Profile.vue:68
 msgid "Edit Profile"
@@ -1477,7 +1477,7 @@ msgstr "Educación"
 #. Name of a DocType
 #: lms/lms/doctype/education_detail/education_detail.json
 msgid "Education Detail"
-msgstr ""
+msgstr "Detalle de la Educación"
 
 #. Label of the education_details (Section Break) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -1500,7 +1500,7 @@ msgstr "Correo Electrónico Enviado"
 #. Label of the email_templates_tab (Tab Break) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Email Templates"
-msgstr ""
+msgstr "Plantillas de correo"
 
 #. Label of the show_emails (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -1520,11 +1520,11 @@ msgstr "Habilitar"
 #. Label of the enable_certification (Check) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Enable Certification"
-msgstr ""
+msgstr "Habilitar certificación"
 
 #: lms/lms/doctype/lms_settings/lms_settings.py:20
 msgid "Enable Google API in Google Settings to send calendar invites for evaluations."
-msgstr ""
+msgstr "Habilite la API de Google en la configuración de Google para enviar invitaciones de calendario para evaluaciones."
 
 #. Label of the enabled (Check) field in DocType 'LMS Badge'
 #: lms/lms/doctype/lms_badge/lms_badge.json
@@ -1542,7 +1542,7 @@ msgstr "Fecha Final"
 #. Label of the end_date (Date) field in DocType 'Education Detail'
 #: lms/lms/doctype/education_detail/education_detail.json
 msgid "End Date (or expected)"
-msgstr ""
+msgstr "Fecha de finalización (o esperado)"
 
 #. Label of the end_time (Time) field in DocType 'Evaluator Schedule'
 #. Label of the end_time (Time) field in DocType 'LMS Batch'
@@ -1572,20 +1572,20 @@ msgstr ""
 #: frontend/src/components/CourseCardOverlay.vue:103
 #: frontend/src/pages/CourseDetail.vue:31
 msgid "Enrolled Students"
-msgstr ""
+msgstr "Estudiantes inscritos"
 
 #: lms/public/js/common_functions.js:96
 msgid "Enrolled successfully"
-msgstr ""
+msgstr "Inscrito exitosamente"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:97
 msgid "Enrollment Confirmation for the Next Training Batch"
-msgstr ""
+msgstr "Confirmación de inscripción para el próximo Lote de Entrenamiento"
 
 #: lms/lms/web_template/lms_statistics/lms_statistics.html:14
 #: lms/templates/statistics.html:20
 msgid "Enrollment Count"
-msgstr ""
+msgstr "Recuento de inscripciones"
 
 #: lms/lms/utils.py:1683
 msgid "Enrollment Failed"
@@ -1595,15 +1595,15 @@ msgstr ""
 #. Label of a shortcut in the LMS Workspace
 #: frontend/src/pages/Statistics.vue:45 lms/lms/workspace/lms/lms.json
 msgid "Enrollments"
-msgstr ""
+msgstr "Inscripciones"
 
 #: lms/lms/doctype/lms_settings/lms_settings.py:25
 msgid "Enter Client Id and Client Secret in Google Settings to send calendar invites for evaluations."
-msgstr ""
+msgstr "Ingrese el ID del cliente y el secreto del cliente en la configuración de Google para enviar invitaciones al calendario para evaluaciones."
 
 #: frontend/src/pages/AssignmentSubmission.vue:96
 msgid "Enter a URL"
-msgstr ""
+msgstr "Introduce una URL"
 
 #: frontend/src/pages/QuizForm.vue:49
 msgid "Enter a title and save the quiz to proceed"
@@ -1611,7 +1611,7 @@ msgstr ""
 
 #: lms/templates/quiz/quiz.html:53
 msgid "Enter the correct answer"
-msgstr ""
+msgstr "Ingrese la respuesta correcta"
 
 #: frontend/src/components/Modals/Question.vue:246
 #: frontend/src/components/Modals/Question.vue:266
@@ -1632,23 +1632,23 @@ msgstr "Evaluación"
 #. Certificate Evaluation'
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 msgid "Evaluation Details"
-msgstr ""
+msgstr "Detalles de evaluación"
 
 #. Label of the evaluation_end_date (Date) field in DocType 'LMS Batch'
 #: frontend/src/pages/BatchForm.vue:155
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/public/js/common_functions.js:333
 msgid "Evaluation End Date"
-msgstr ""
+msgstr "Fecha de finalización de la evaluación"
 
 #. Label of a Link in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "Evaluation Request"
-msgstr ""
+msgstr "Solicitud de evaluación"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:81
 msgid "Evaluation end date cannot be less than the batch end date."
-msgstr ""
+msgstr "La fecha de finalización de la evaluación no puede ser inferior a la fecha de finalización"
 
 #: frontend/src/components/Modals/Event.vue:255
 msgid "Evaluation saved successfully"
@@ -1670,7 +1670,7 @@ msgstr ""
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/templates/upcoming_evals.html:33
 msgid "Evaluator"
-msgstr ""
+msgstr "Evaluador"
 
 #. Label of the evaluator_name (Data) field in DocType 'LMS Certificate'
 #. Label of the evaluator_name (Data) field in DocType 'LMS Certificate
@@ -1686,7 +1686,7 @@ msgstr ""
 #. Name of a DocType
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 msgid "Evaluator Schedule"
-msgstr ""
+msgstr "Horario del evaluador"
 
 #: frontend/src/components/Modals/EvaluationModal.vue:143
 msgid "Evaluator is Unavailable"
@@ -1702,17 +1702,17 @@ msgstr "Evento"
 #: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
 #: lms/lms/doctype/exercise_submission/exercise_submission.json
 msgid "Exercise"
-msgstr ""
+msgstr "Ejercicio"
 
 #. Name of a DocType
 #: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
 msgid "Exercise Latest Submission"
-msgstr ""
+msgstr "Último envío de ejercicios"
 
 #. Name of a DocType
 #: lms/lms/doctype/exercise_submission/exercise_submission.json
 msgid "Exercise Submission"
-msgstr ""
+msgstr "Entregas de ejercicios"
 
 #. Label of the exercise_title (Data) field in DocType 'Exercise Latest
 #. Submission'
@@ -1720,7 +1720,7 @@ msgstr ""
 #: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
 #: lms/lms/doctype/exercise_submission/exercise_submission.json
 msgid "Exercise Title"
-msgstr ""
+msgstr "Título del ejercicio"
 
 #: frontend/src/components/CourseOutline.vue:14
 msgid "Expand all chapters"
@@ -1729,7 +1729,7 @@ msgstr ""
 #. Label of the expiration_date (Data) field in DocType 'Certification'
 #: lms/lms/doctype/certification/certification.json
 msgid "Expiration Date"
-msgstr ""
+msgstr "Fecha de caducidad"
 
 #. Label of the expiry_date (Date) field in DocType 'LMS Certificate'
 #: frontend/src/components/Modals/Event.vue:126
@@ -1748,12 +1748,12 @@ msgstr "Explicación"
 #. Label of the explanation_2 (Small Text) field in DocType 'LMS Question'
 #: lms/lms/doctype/lms_question/lms_question.json
 msgid "Explanation "
-msgstr ""
+msgstr "Explicación "
 
 #: lms/lms/web_template/course_cards/course_cards.html:15
 #: lms/lms/web_template/recently_published_courses/recently_published_courses.html:16
 msgid "Explore More"
-msgstr ""
+msgstr "Explorar más"
 
 #. Option for the 'Status' (Select) field in DocType 'LMS Assignment
 #. Submission'
@@ -1774,7 +1774,7 @@ msgstr "Destacados"
 
 #: frontend/src/pages/AssignmentSubmission.vue:21
 msgid "Feel free to make edits to your submission if needed."
-msgstr ""
+msgstr "Siéntase libre de realizar modificaciones en su envío si es necesario."
 
 #. Label of the field_to_check (Select) field in DocType 'LMS Badge'
 #: lms/lms/doctype/lms_badge/lms_badge.json
@@ -1784,7 +1784,7 @@ msgstr "Campo para verificar"
 #. Label of the major (Data) field in DocType 'Education Detail'
 #: lms/lms/doctype/education_detail/education_detail.json
 msgid "Field of Major/Study"
-msgstr ""
+msgstr "Campo de especialización/estudio"
 
 #. Label of the file_type (Select) field in DocType 'Course Lesson'
 #: lms/lms/doctype/course_lesson/course_lesson.json
@@ -1822,17 +1822,17 @@ msgstr "Gratis"
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Freelance"
-msgstr ""
+msgstr "Freelance"
 
 #. Option for the 'User Category' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json lms/templates/signup-form.html:27
 msgid "Freelancer/Just looking"
-msgstr ""
+msgstr "Freelancer/Solo estoy mirando"
 
 #. Option for the 'Grade Type' (Select) field in DocType 'Education Detail'
 #: lms/lms/doctype/education_detail/education_detail.json
 msgid "French (e.g. Distinction)"
-msgstr ""
+msgstr "Francés (por ejemplo, Distinción)"
 
 #. Option for the 'Day' (Select) field in DocType 'Evaluator Schedule'
 #. Option for the 'Day' (Select) field in DocType 'LMS Certificate Request'
@@ -1861,7 +1861,7 @@ msgstr "Nombre completo"
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Full Time"
-msgstr ""
+msgstr "Tiempo completo"
 
 #. Name of a DocType
 #. Label of the function (Data) field in DocType 'Function'
@@ -1882,11 +1882,11 @@ msgstr ""
 #. Label of the gstin (Data) field in DocType 'LMS Payment'
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "GSTIN"
-msgstr ""
+msgstr "GSTIN"
 
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.js:18
 msgid "Generate Google Meet Link"
-msgstr ""
+msgstr "Generar enlace de Google Meet"
 
 #: frontend/src/components/CourseCardOverlay.vue:73
 msgid "Get Certificate"
@@ -1894,7 +1894,7 @@ msgstr ""
 
 #: lms/templates/onboarding_header.html:8
 msgid "Get Started"
-msgstr ""
+msgstr "Empezar"
 
 #. Label of the github (Data) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -1915,17 +1915,17 @@ msgstr ""
 #. Label of the grade_assignment (Check) field in DocType 'LMS Assignment'
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
 msgid "Grade Assignment"
-msgstr ""
+msgstr "Calificar asignación"
 
 #. Label of the grade_type (Select) field in DocType 'Education Detail'
 #: lms/lms/doctype/education_detail/education_detail.json
 msgid "Grade Type"
-msgstr ""
+msgstr "Tipo de grado"
 
 #. Label of the grant_only_once (Check) field in DocType 'LMS Badge'
 #: lms/lms/doctype/lms_badge/lms_badge.json
 msgid "Grant only once"
-msgstr ""
+msgstr "Conceder sólo una vez"
 
 #: lms/templates/signup-form.html:56
 msgid "Have an account? Login"
@@ -1935,7 +1935,7 @@ msgstr "¿Tiene una cuenta? Iniciar sesión"
 #: frontend/src/components/Modals/EditProfile.vue:69
 #: lms/fixtures/custom_field.json
 msgid "Headline"
-msgstr ""
+msgstr "Titular"
 
 #: lms/lms/widgets/HelloWorld.html:13
 msgid "Hello"
@@ -1948,28 +1948,28 @@ msgstr "Ayuda"
 
 #: lms/templates/courses_created.html:15
 msgid "Help others learn something new by creating a course."
-msgstr ""
+msgstr "Ayude a otros a aprender algo nuevo creando un curso."
 
 #: lms/templates/reviews.html:101
 msgid "Help us improve our course material."
-msgstr ""
+msgstr "Ayúdanos a mejorar el material de nuestro curso."
 
 #: lms/lms/web_template/courses_enrolled/courses_enrolled.html:18
 msgid "Here are a few courses we recommend for you to get started with {0}"
-msgstr ""
+msgstr "Aquí hay algunos cursos que le recomendamos para comenzar {0}"
 
 #: lms/lms/notification/certificate_request_reminder/certificate_request_reminder.html:1
 #: lms/templates/emails/certificate_request_notification.html:1
 msgid "Hey {0}"
-msgstr ""
+msgstr "Hola {0}"
 
 #: lms/templates/emails/job_report.html:3
 msgid "Hey,"
-msgstr ""
+msgstr "Hola,"
 
 #: lms/templates/emails/lms_course_interest.html:3
 msgid "Hi {0},"
-msgstr ""
+msgstr "Hola {0},"
 
 #: lms/templates/emails/lms_invite_request_approved.html:3
 msgid "Hi,"
@@ -1983,12 +1983,12 @@ msgstr ""
 #. Label of the hints (Small Text) field in DocType 'LMS Exercise'
 #: lms/lms/doctype/lms_exercise/lms_exercise.json
 msgid "Hints"
-msgstr ""
+msgstr "Consejos"
 
 #. Label of the host (Link) field in DocType 'LMS Live Class'
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Host"
-msgstr ""
+msgstr "Anfitrión"
 
 #: frontend/src/components/LessonHelp.vue:9
 msgid "How to add a Quiz?"
@@ -2005,11 +2005,11 @@ msgstr ""
 #. Label of the current (Check) field in DocType 'Work Experience'
 #: lms/lms/doctype/work_experience/work_experience.json
 msgid "I am currently working here"
-msgstr ""
+msgstr "Actualmente trabajo aquí"
 
 #: lms/templates/emails/certification.html:6
 msgid "I am delighted to inform you that you have successfully earned your certification for the {0} course. Congratulations!"
-msgstr ""
+msgstr "Me complace informarle que ha obtenido con éxito su certificación para el curso {0}. ¡Felicidades!"
 
 #. Label of the looking_for_job (Check) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -2018,7 +2018,7 @@ msgstr ""
 
 #: frontend/src/pages/ProfileEvaluator.vue:80
 msgid "I am unavailable"
-msgstr ""
+msgstr "No estoy disponible"
 
 #: frontend/src/pages/QuizForm.vue:383
 msgid "ID"
@@ -2032,7 +2032,7 @@ msgstr "Icono"
 
 #: lms/templates/emails/mentor_request_creation_email.html:5
 msgid "If you are not any more interested to mentor the course"
-msgstr ""
+msgstr "Si no estás más interesado en mentorar el curso"
 
 #: frontend/src/components/Quiz.vue:20
 msgid "If you fail to do so, the quiz will be automatically submitted when the timer ends."
@@ -2040,7 +2040,7 @@ msgstr ""
 
 #: lms/templates/emails/batch_confirmation.html:33
 msgid "If you have any questions or require assistance, feel free to contact us."
-msgstr ""
+msgstr "Si tiene alguna pregunta o necesita ayuda, no dude en ponerse en contacto con nosotros."
 
 #. Description of the 'Amount (USD)' (Currency) field in DocType 'LMS Batch'
 #. Description of the 'Amount (USD)' (Currency) field in DocType 'LMS Course'
@@ -2048,7 +2048,7 @@ msgstr ""
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/public/js/common_functions.js:400
 msgid "If you set an amount here, then the USD equivalent setting will not get applied."
-msgstr ""
+msgstr "Si establece una cantidad aquí, entonces no se aplicará el ajuste equivalente en USD."
 
 #: lms/lms/doctype/lms_quiz/lms_quiz.py:62
 msgid "If you want open ended questions then make sure each question in the quiz is of open ended type."
@@ -2074,7 +2074,7 @@ msgstr "Imagen"
 #: frontend/src/components/Modals/EditCoverImage.vue:58
 #: frontend/src/components/UnsplashImageBrowser.vue:52
 msgid "Image search powered by"
-msgstr ""
+msgstr "Búsqueda de imágenes con tecnología"
 
 #: lms/lms/doctype/lms_quiz/lms_quiz.py:221
 msgid "Image: Corrupted Data Stream"
@@ -2099,12 +2099,12 @@ msgstr "Inactivo"
 #. Label of the include_in_preview (Check) field in DocType 'Course Lesson'
 #: lms/lms/doctype/course_lesson/course_lesson.json
 msgid "Include In Preview"
-msgstr ""
+msgstr "Incluir en vista previa"
 
 #. Option for the 'Status' (Select) field in DocType 'LMS Course Progress'
 #: lms/lms/doctype/lms_course_progress/lms_course_progress.json
 msgid "Incomplete"
-msgstr ""
+msgstr "Incompleto"
 
 #. Option for the 'Status' (Select) field in DocType 'Exercise Latest
 #. Submission'
@@ -2113,7 +2113,7 @@ msgstr ""
 #: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
 #: lms/lms/doctype/exercise_submission/exercise_submission.json
 msgid "Incorrect"
-msgstr ""
+msgstr "Incorrecto"
 
 #. Label of the index_ (Int) field in DocType 'LMS Exercise'
 #: lms/lms/doctype/lms_exercise/lms_exercise.json
@@ -2125,7 +2125,7 @@ msgstr "Índice"
 #: lms/lms/doctype/course_lesson/course_lesson.json
 #: lms/lms/doctype/lms_exercise/lms_exercise.json
 msgid "Index Label"
-msgstr ""
+msgstr "Etiqueta índice"
 
 #. Option for the 'Collaboration Preference' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -2143,26 +2143,26 @@ msgstr "Industria"
 #. Label of the institution_name (Data) field in DocType 'Education Detail'
 #: lms/lms/doctype/education_detail/education_detail.json
 msgid "Institution Name"
-msgstr ""
+msgstr "Nombre de Institución"
 
 #. Label of the instructor (Link) field in DocType 'Cohort'
 #. Label of the instructor (Link) field in DocType 'Course Instructor'
 #: lms/lms/doctype/cohort/cohort.json
 #: lms/lms/doctype/course_instructor/course_instructor.json
 msgid "Instructor"
-msgstr ""
+msgstr "Instructor"
 
 #. Label of the instructor_content (Text) field in DocType 'Course Lesson'
 #: lms/lms/doctype/course_lesson/course_lesson.json
 msgid "Instructor Content"
-msgstr ""
+msgstr "Contenido del instructor"
 
 #. Label of the instructor_notes (Markdown Editor) field in DocType 'Course
 #. Lesson'
 #: frontend/src/pages/Lesson.vue:130 frontend/src/pages/LessonForm.vue:33
 #: lms/lms/doctype/course_lesson/course_lesson.json
 msgid "Instructor Notes"
-msgstr ""
+msgstr "Notas del instructor"
 
 #. Label of the instructors (Table MultiSelect) field in DocType 'LMS Batch'
 #. Label of the instructors (Table MultiSelect) field in DocType 'LMS Course'
@@ -2170,11 +2170,11 @@ msgstr ""
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Instructors"
-msgstr ""
+msgstr "Instructores"
 
 #: lms/templates/assignment.html:17
 msgid "Instructors Comments"
-msgstr ""
+msgstr "Comentarios del instructor"
 
 #. Label of a Link in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
@@ -2188,37 +2188,37 @@ msgstr "Intereses"
 
 #: lms/lms/doctype/invite_request/invite_request.py:83
 msgid "Invalid Invite Code."
-msgstr ""
+msgstr "Código de invitación inválido."
 
 #: lms/lms/doctype/course_lesson/course_lesson.py:20
 msgid "Invalid Quiz ID"
-msgstr ""
+msgstr "ID de cuestionario no válido"
 
 #: lms/lms/web_form/add_a_new_batch/add_a_new_batch.js:38
 msgid "Invalid Start or End Time."
-msgstr ""
+msgstr "Hora de inicio o finalización inválida."
 
 #. Label of the invite_code (Data) field in DocType 'Cohort Subgroup'
 #. Label of the invite_code (Data) field in DocType 'Invite Request'
 #: lms/lms/doctype/cohort_subgroup/cohort_subgroup.json
 #: lms/lms/doctype/invite_request/invite_request.json
 msgid "Invite Code"
-msgstr ""
+msgstr "Código de Invitación"
 
 #. Label of the invite_email (Data) field in DocType 'Invite Request'
 #: lms/lms/doctype/invite_request/invite_request.json
 msgid "Invite Email"
-msgstr ""
+msgstr "Correo de invitación"
 
 #. Option for the 'Membership' (Select) field in DocType 'LMS Batch Old'
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 msgid "Invite Only"
-msgstr ""
+msgstr "Solo por invitación"
 
 #. Name of a DocType
 #: lms/lms/doctype/invite_request/invite_request.json
 msgid "Invite Request"
-msgstr ""
+msgstr "Solicitudes de invitación"
 
 #. Label of the is_correct (Check) field in DocType 'LMS Option'
 #. Label of the is_correct_1 (Check) field in DocType 'LMS Question'
@@ -2230,12 +2230,12 @@ msgstr ""
 #: lms/lms/doctype/lms_question/lms_question.json
 #: lms/lms/doctype/lms_quiz_result/lms_quiz_result.json
 msgid "Is Correct"
-msgstr ""
+msgstr "Es correcto"
 
 #. Label of the is_onboarding_complete (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Is Onboarding Complete"
-msgstr ""
+msgstr "¿Se ha completado la incorporación?"
 
 #. Label of the issue_date (Date) field in DocType 'Certification'
 #. Label of the issue_date (Date) field in DocType 'LMS Certificate'
@@ -2248,18 +2248,18 @@ msgstr "Fecha de emisión"
 #. Label of the issued_on (Date) field in DocType 'LMS Badge Assignment'
 #: lms/lms/doctype/lms_badge_assignment/lms_badge_assignment.json
 msgid "Issued On"
-msgstr ""
+msgstr "Emitido el"
 
 #: frontend/src/pages/ProfileAbout.vue:56
 #: lms/templates/certificates_section.html:11
 msgid "Issued on"
-msgstr ""
+msgstr "Emitido el"
 
 #. Label of the items_in_sidebar_section (Section Break) field in DocType 'LMS
 #. Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Items in Sidebar"
-msgstr ""
+msgstr "Elementos en la barra lateral"
 
 #: lms/templates/signup-form.html:6
 msgid "Jane Doe"
@@ -2268,21 +2268,21 @@ msgstr "María Pérez"
 #. Label of the job (Link) field in DocType 'LMS Job Application'
 #: lms/job/doctype/lms_job_application/lms_job_application.json
 msgid "Job"
-msgstr ""
+msgstr "Empleo"
 
 #. Label of the subtitle (Data) field in DocType 'Job Settings'
 #: lms/job/doctype/job_settings/job_settings.json
 msgid "Job Board Subtitle"
-msgstr ""
+msgstr "Subtítulo de la bolsa de trabajo"
 
 #. Label of the title (Data) field in DocType 'Job Settings'
 #: lms/job/doctype/job_settings/job_settings.json
 msgid "Job Board Title"
-msgstr ""
+msgstr "Título de la bolsa de trabajo"
 
 #: frontend/src/pages/JobCreation.vue:14
 msgid "Job Details"
-msgstr ""
+msgstr "Detalles del Puesto"
 
 #: lms/www/lms.py:108
 msgid "Job Openings"
@@ -2291,12 +2291,12 @@ msgstr ""
 #. Name of a DocType
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Job Opportunity"
-msgstr ""
+msgstr "Oportunidad de empleo"
 
 #. Name of a DocType
 #: lms/job/doctype/job_settings/job_settings.json
 msgid "Job Settings"
-msgstr ""
+msgstr "Configuración de trabajo"
 
 #. Label of the job_title (Data) field in DocType 'Job Opportunity'
 #. Label of the job_title (Data) field in DocType 'LMS Job Application'
@@ -2323,37 +2323,37 @@ msgstr ""
 #. Label of the join_url (Small Text) field in DocType 'LMS Live Class'
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Join URL"
-msgstr ""
+msgstr "Unirse a URL"
 
 #. Name of a Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "LMS"
-msgstr ""
+msgstr "LMS"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_assessment/lms_assessment.json
 msgid "LMS Assessment"
-msgstr ""
+msgstr "Evaluación LMS"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
 msgid "LMS Assignment"
-msgstr ""
+msgstr "Asignación de LMS"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 msgid "LMS Assignment Submission"
-msgstr ""
+msgstr "Envío de asignación LMS"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_badge/lms_badge.json
 msgid "LMS Badge"
-msgstr ""
+msgstr "Insignia LMS"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_badge_assignment/lms_badge_assignment.json
 msgid "LMS Badge Assignment"
-msgstr ""
+msgstr "Asignación de insignias de LMS"
 
 #. Name of a DocType
 #. Option for the 'Payment for Document Type' (Select) field in DocType 'LMS
@@ -2361,37 +2361,37 @@ msgstr ""
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "LMS Batch"
-msgstr ""
+msgstr "Lote LMS"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 msgid "LMS Batch Old"
-msgstr ""
+msgstr "Lote LMS antiguo"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_batch_timetable/lms_batch_timetable.json
 msgid "LMS Batch Timetable"
-msgstr ""
+msgstr "Horario de lotes LMS"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_category/lms_category.json
 msgid "LMS Category"
-msgstr ""
+msgstr "Categoría LMS"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_certificate/lms_certificate.json
 msgid "LMS Certificate"
-msgstr ""
+msgstr "Certificado LMS"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 msgid "LMS Certificate Evaluation"
-msgstr ""
+msgstr "Evaluación del certificado LMS"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "LMS Certificate Request"
-msgstr ""
+msgstr "Solicitud de certificado LMS"
 
 #. Name of a DocType
 #. Option for the 'Payment for Document Type' (Select) field in DocType 'LMS
@@ -2399,102 +2399,102 @@ msgstr ""
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "LMS Course"
-msgstr ""
+msgstr "Curso LMS"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_course_interest/lms_course_interest.json
 msgid "LMS Course Interest"
-msgstr ""
+msgstr "Interés del curso LMS"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_course_mentor_mapping/lms_course_mentor_mapping.json
 msgid "LMS Course Mentor Mapping"
-msgstr ""
+msgstr "Mapeo de mentores del curso LMS"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_course_progress/lms_course_progress.json
 msgid "LMS Course Progress"
-msgstr ""
+msgstr "Progreso del Curso LMS"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_course_review/lms_course_review.json
 msgid "LMS Course Review"
-msgstr ""
+msgstr "Revisión del Curso LMS"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 msgid "LMS Enrollment"
-msgstr ""
+msgstr "Inscripción LMS"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_exercise/lms_exercise.json
 msgid "LMS Exercise"
-msgstr ""
+msgstr "Ejercicio LMS"
 
 #. Name of a DocType
 #: lms/job/doctype/lms_job_application/lms_job_application.json
 msgid "LMS Job Application"
-msgstr ""
+msgstr "Aplicación de empleo LMS"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "LMS Live Class"
-msgstr ""
+msgstr "Clase en vivo LMS"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
 msgid "LMS Mentor Request"
-msgstr ""
+msgstr "Solicitud de mentor LMS"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_option/lms_option.json
 msgid "LMS Option"
-msgstr ""
+msgstr "Opción LMS"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "LMS Payment"
-msgstr ""
+msgstr "Pago LMS"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_question/lms_question.json
 msgid "LMS Question"
-msgstr ""
+msgstr "Pregunta LMS"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_quiz/lms_quiz.json
 msgid "LMS Quiz"
-msgstr ""
+msgstr "Cuestionario LMS"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_quiz_question/lms_quiz_question.json
 msgid "LMS Quiz Question"
-msgstr ""
+msgstr "Pregunta del cuestionario LMS"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_quiz_result/lms_quiz_result.json
 msgid "LMS Quiz Result"
-msgstr ""
+msgstr "Resultado del cuestionario LMS"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.json
 msgid "LMS Quiz Submission"
-msgstr ""
+msgstr "Envío de cuestionarios LMS"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "LMS Settings"
-msgstr ""
+msgstr "Configuración de LMS"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_sidebar_item/lms_sidebar_item.json
 msgid "LMS Sidebar Item"
-msgstr ""
+msgstr "Elemento de la barra lateral de LMS"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_source/lms_source.json
 msgid "LMS Source"
-msgstr ""
+msgstr "Fuente LMS"
 
 #. Name of a role
 #: lms/job/doctype/job_opportunity/job_opportunity.json
@@ -2518,17 +2518,17 @@ msgstr ""
 #: lms/lms/doctype/lms_source/lms_source.json
 #: lms/lms/doctype/user_skill/user_skill.json
 msgid "LMS Student"
-msgstr ""
+msgstr "Estudiante LMS"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_timetable_legend/lms_timetable_legend.json
 msgid "LMS Timetable Legend"
-msgstr ""
+msgstr "Leyenda del horario del LMS"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_timetable_template/lms_timetable_template.json
 msgid "LMS Timetable Template"
-msgstr ""
+msgstr "Plantilla de horario LMS"
 
 #. Label of the label (Data) field in DocType 'LMS Timetable Legend'
 #: lms/lms/doctype/lms_timetable_legend/lms_timetable_legend.json
@@ -2543,7 +2543,7 @@ msgstr "Apellido"
 #. Submission'
 #: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
 msgid "Latest Submission"
-msgstr ""
+msgstr "Última presentación"
 
 #. Label of the lesson (Link) field in DocType 'Exercise Latest Submission'
 #. Label of the lesson (Link) field in DocType 'Exercise Submission'
@@ -2564,17 +2564,17 @@ msgstr ""
 #: lms/lms/doctype/scheduled_flow/scheduled_flow.json
 #: lms/lms/workspace/lms/lms.json
 msgid "Lesson"
-msgstr ""
+msgstr "Lección"
 
 #. Name of a DocType
 #: lms/lms/doctype/lesson_reference/lesson_reference.json
 msgid "Lesson Reference"
-msgstr ""
+msgstr "Referencia de la lección"
 
 #. Label of the lesson_title (Data) field in DocType 'Scheduled Flow'
 #: lms/lms/doctype/scheduled_flow/scheduled_flow.json
 msgid "Lesson Title"
-msgstr ""
+msgstr "Título de la lección"
 
 #. Label of the lessons (Table) field in DocType 'Course Chapter'
 #. Group in Course Chapter's connections
@@ -2582,34 +2582,34 @@ msgstr ""
 #: frontend/src/components/CourseCardOverlay.vue:96
 #: lms/lms/doctype/course_chapter/course_chapter.json
 msgid "Lessons"
-msgstr ""
+msgstr "Lecciones"
 
 #: lms/lms/web_template/lms_statistics/lms_statistics.html:14
 #: lms/templates/statistics.html:36
 msgid "Lessons Completed"
-msgstr ""
+msgstr "Lecciones Completadas"
 
 #: lms/templates/onboarding_header.html:11
 msgid "Lets start setting up your content on the LMS so that you can reclaim time and focus on growth."
-msgstr ""
+msgstr "Comencemos a configurar su contenido en el LMS para que pueda recuperar tiempo y concentrarse en el crecimiento."
 
 #. Option for the 'Grade Type' (Select) field in DocType 'Education Detail'
 #: lms/lms/doctype/education_detail/education_detail.json
 msgid "Letter Grade (e.g. A, B-)"
-msgstr ""
+msgstr "Calificación con letras (por ejemplo, A, B-)"
 
 #. Label of the limit_questions_to (Int) field in DocType 'LMS Quiz'
 #: frontend/src/pages/QuizForm.vue:107 lms/lms/doctype/lms_quiz/lms_quiz.json
 msgid "Limit Questions To"
-msgstr ""
+msgstr "Limitar preguntas a"
 
 #: lms/lms/doctype/lms_quiz/lms_quiz.py:40
 msgid "Limit cannot be greater than or equal to the number of questions in the quiz."
-msgstr ""
+msgstr "El límite no puede ser mayor o igual al número de preguntas del cuestionario."
 
 #: frontend/src/pages/ProfileAbout.vue:74
 msgid "LinkedIn"
-msgstr ""
+msgstr "Linkedin"
 
 #. Label of the linkedin (Data) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -2630,18 +2630,18 @@ msgstr ""
 #. Option for the 'Status' (Select) field in DocType 'Cohort'
 #: lms/lms/doctype/cohort/cohort.json
 msgid "Live"
-msgstr ""
+msgstr "En vivo"
 
 #. Label of the show_live_class (Check) field in DocType 'LMS Settings'
 #: frontend/src/components/LiveClass.vue:4
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Live Class"
-msgstr ""
+msgstr "Clase en vivo"
 
 #. Label of the livecode_url (Data) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "LiveCode URL"
-msgstr ""
+msgstr "URL LiveCode"
 
 #: frontend/src/components/Members.vue:95
 msgid "Load More"
@@ -2684,12 +2684,12 @@ msgstr ""
 #. Label of the default_home (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Make LMS the default home"
-msgstr ""
+msgstr "Convertir LMS en la página de inicio por defecto"
 
 #: frontend/src/components/Modals/AnnouncementModal.vue:5
 #: frontend/src/pages/Batch.vue:9
 msgid "Make an Announcement"
-msgstr ""
+msgstr "Publicar un anuncio"
 
 #: frontend/src/pages/Billing.vue:128
 msgid "Make sure to enter the right billing name as the same will be used in your invoice."
@@ -2707,11 +2707,11 @@ msgstr "Administrador"
 #. Option for the 'User Category' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json lms/templates/signup-form.html:24
 msgid "Manager (Sales/Marketing/Customer)"
-msgstr ""
+msgstr "Gerente (Ventas/Marketing/Cliente)"
 
 #: frontend/src/components/Quiz.vue:94
 msgid "Mark"
-msgstr ""
+msgstr "Marcar"
 
 #: frontend/src/pages/Notifications.vue:12
 msgid "Mark all as read"
@@ -2719,7 +2719,7 @@ msgstr "Marcar todo como leídas"
 
 #: frontend/src/pages/Notifications.vue:40
 msgid "Mark as read"
-msgstr ""
+msgstr "Marcar como leído"
 
 #. Label of the marks (Int) field in DocType 'LMS Quiz Question'
 #. Label of the marks (Int) field in DocType 'LMS Quiz Result'
@@ -2731,7 +2731,7 @@ msgstr ""
 #: lms/lms/doctype/lms_quiz_result/lms_quiz_result.json
 #: lms/templates/quiz/quiz.html:59
 msgid "Marks"
-msgstr ""
+msgstr "Marcas"
 
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.py:19
 msgid "Marks for question number {0} cannot be greater than the marks allotted for that question."
@@ -2746,7 +2746,7 @@ msgstr ""
 #. Label of the max_attempts (Int) field in DocType 'LMS Quiz'
 #: lms/lms/doctype/lms_quiz/lms_quiz.json
 msgid "Max Attempts"
-msgstr ""
+msgstr "Intentos máximos"
 
 #: frontend/src/pages/QuizForm.vue:57
 msgid "Maximun Attempts"
@@ -2766,7 +2766,7 @@ msgstr ""
 
 #: lms/templates/emails/batch_confirmation.html:21
 msgid "Medium:"
-msgstr ""
+msgstr "Medio:"
 
 #. Label of the member (Link) field in DocType 'Exercise Latest Submission'
 #. Label of the member (Link) field in DocType 'Exercise Submission'
@@ -2797,19 +2797,19 @@ msgstr ""
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.json
 #: lms/lms/report/course_progress_summary/course_progress_summary.py:64
 msgid "Member"
-msgstr ""
+msgstr "Miembro"
 
 #. Label of the member_cohort (Link) field in DocType 'Exercise Latest
 #. Submission'
 #: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
 msgid "Member Cohort"
-msgstr ""
+msgstr "Miembro Cohorte"
 
 #. Label of the member_email (Link) field in DocType 'Exercise Latest
 #. Submission'
 #: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
 msgid "Member Email"
-msgstr ""
+msgstr "Correo electrónico del miembro"
 
 #. Label of the member_name (Data) field in DocType 'LMS Assignment Submission'
 #. Label of the member_name (Data) field in DocType 'LMS Certificate'
@@ -2830,18 +2830,18 @@ msgstr ""
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.json
 #: lms/lms/report/course_progress_summary/course_progress_summary.py:71
 msgid "Member Name"
-msgstr ""
+msgstr "Nombre del Miembro"
 
 #. Label of the member_subgroup (Link) field in DocType 'Exercise Latest
 #. Submission'
 #: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
 msgid "Member Subgroup"
-msgstr ""
+msgstr "Subgrupo de miembros"
 
 #. Label of the member_type (Select) field in DocType 'LMS Enrollment'
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 msgid "Member Type"
-msgstr ""
+msgstr "Tipo de miembro"
 
 #. Group in LMS Batch Old's connections
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
@@ -2851,12 +2851,12 @@ msgstr "Miembros"
 #. Label of the membership (Select) field in DocType 'LMS Batch Old'
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 msgid "Membership"
-msgstr ""
+msgstr "Membresía"
 
 #. Label of the member_username (Data) field in DocType 'LMS Enrollment'
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 msgid "Memeber Username"
-msgstr ""
+msgstr "Nombre de usuario del miembro"
 
 #. Option for the 'Required Role' (Select) field in DocType 'Cohort Web Page'
 #. Label of the mentor (Link) field in DocType 'LMS Course Mentor Mapping'
@@ -2865,18 +2865,18 @@ msgstr ""
 #: lms/lms/doctype/lms_course_mentor_mapping/lms_course_mentor_mapping.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 msgid "Mentor"
-msgstr ""
+msgstr "Mentor"
 
 #. Label of the mentor_name (Data) field in DocType 'LMS Course Mentor Mapping'
 #: lms/lms/doctype/lms_course_mentor_mapping/lms_course_mentor_mapping.json
 msgid "Mentor Name"
-msgstr ""
+msgstr "Nombre del mentor"
 
 #. Label of the mentor_request_section (Section Break) field in DocType 'LMS
 #. Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Mentor Request"
-msgstr ""
+msgstr "Solicitud de mentor"
 
 #. Label of the mentor_request_creation (Link) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -2884,7 +2884,7 @@ msgstr ""
 #: lms/patches/create_mentor_request_email_templates.py:18
 #: lms/patches/create_mentor_request_email_templates.py:28
 msgid "Mentor Request Creation Template"
-msgstr ""
+msgstr "Plantilla de creación de solicitud de mentor"
 
 #. Label of the mentor_request_status_update (Link) field in DocType 'LMS
 #. Settings'
@@ -2893,12 +2893,12 @@ msgstr ""
 #: lms/patches/create_mentor_request_email_templates.py:38
 #: lms/patches/create_mentor_request_email_templates.py:48
 msgid "Mentor Request Status Update Template"
-msgstr ""
+msgstr "Plantilla de actualización del estado de la solicitud de mentor"
 
 #. Group in LMS Course's connections
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Mentors"
-msgstr ""
+msgstr "Mentores"
 
 #. Label of the meta_image (Attach Image) field in DocType 'LMS Batch'
 #: frontend/src/pages/BatchForm.vue:53 lms/lms/doctype/lms_batch/lms_batch.json
@@ -2913,7 +2913,7 @@ msgstr "Evento importante"
 
 #: frontend/src/pages/Statistics.vue:71
 msgid "Milestones"
-msgstr ""
+msgstr "Hitos"
 
 #. Name of a role
 #: frontend/src/pages/ProfileRoles.vue:10
@@ -2931,7 +2931,7 @@ msgstr ""
 #: lms/lms/doctype/lms_source/lms_source.json
 #: lms/lms/doctype/lms_timetable_template/lms_timetable_template.json
 msgid "Moderator"
-msgstr ""
+msgstr "Moderador"
 
 #: lms/lms/doctype/lms_badge/lms_badge.js:40
 msgid "Modified By"
@@ -2939,11 +2939,11 @@ msgstr "Modificado por"
 
 #: lms/lms/api.py:190
 msgid "Module Name is incorrect or does not exist."
-msgstr ""
+msgstr "El nombre del módulo es incorrecto o no existe."
 
 #: lms/lms/api.py:186
 msgid "Module is incorrect."
-msgstr ""
+msgstr "Módulo incorrecto."
 
 #. Option for the 'Day' (Select) field in DocType 'Evaluator Schedule'
 #. Option for the 'Day' (Select) field in DocType 'LMS Certificate Request'
@@ -2959,15 +2959,15 @@ msgstr "Más"
 #. Label of the multiple (Check) field in DocType 'LMS Question'
 #: lms/lms/doctype/lms_question/lms_question.json
 msgid "Multiple Correct Answers"
-msgstr ""
+msgstr "Múltiples respuestas correctas"
 
 #: frontend/src/pages/ProfileEvaluator.vue:4
 msgid "My availability"
-msgstr ""
+msgstr "Mi disponibilidad"
 
 #: frontend/src/pages/ProfileEvaluator.vue:113
 msgid "My calendar"
-msgstr ""
+msgstr "Mi calendario"
 
 #. Option for the 'Event' (Select) field in DocType 'LMS Badge'
 #: frontend/src/pages/Batches.vue:30 frontend/src/pages/Courses.vue:44
@@ -2977,23 +2977,23 @@ msgstr "Nuevo"
 
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.py:41
 msgid "New Assignment Submission"
-msgstr ""
+msgstr "Nuevo envío de la tarea"
 
 #: lms/public/js/common_functions.js:255 lms/www/lms.py:86
 msgid "New Batch"
-msgstr ""
+msgstr "Nuevo lote"
 
 #: lms/www/lms.py:37
 msgid "New Course"
-msgstr ""
+msgstr "Nuevo curso"
 
 #: frontend/src/pages/Jobs.vue:24
 msgid "New Job"
-msgstr ""
+msgstr "Nuevo trabajo"
 
 #: lms/job/doctype/lms_job_application/lms_job_application.py:27
 msgid "New Job Applicant"
-msgstr ""
+msgstr "Nuevo solicitante de trabajo"
 
 #: frontend/src/pages/QuizForm.vue:122
 msgid "New Question"
@@ -3006,15 +3006,15 @@ msgstr ""
 
 #: lms/www/new-sign-up.html:3
 msgid "New Sign Up"
-msgstr ""
+msgstr "Nueva inscripción"
 
 #: lms/lms/utils.py:613
 msgid "New comment in batch {0}"
-msgstr ""
+msgstr "Nuevo comentario en lote {0}"
 
 #: lms/lms/utils.py:606
 msgid "New reply on the topic {0} in course {1}"
-msgstr ""
+msgstr "Nueva respuesta sobre el tema {0} en curso {1}"
 
 #: frontend/src/components/Discussions.vue:4
 #: frontend/src/components/Discussions.vue:59
@@ -3027,60 +3027,60 @@ msgstr "Siguiente"
 
 #: lms/templates/quiz/quiz.html:125
 msgid "Next Question"
-msgstr ""
+msgstr "Siguiente pregunta"
 
 #: frontend/src/components/Assessments.vue:63 lms/templates/assessments.html:58
 msgid "No Assessments"
-msgstr ""
+msgstr "Sin evaluaciones"
 
 #: lms/templates/notifications.html:26
 msgid "No Notifications"
-msgstr ""
+msgstr "No hay notificaciones"
 
 #. Option for the 'Auto Recording' (Select) field in DocType 'LMS Live Class'
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "No Recording"
-msgstr ""
+msgstr "Sin grabación"
 
 #: lms/templates/upcoming_evals.html:43
 msgid "No Upcoming Evaluations"
-msgstr ""
+msgstr "No hay próximas evaluaciones"
 
 #: frontend/src/components/Annoucements.vue:24
 msgid "No announcements"
-msgstr ""
+msgstr "Sin anuncios"
 
 #: lms/templates/certificates_section.html:23
 msgid "No certificates"
-msgstr ""
+msgstr "No hay certificados"
 
 #: lms/templates/courses_created.html:14
 msgid "No courses created"
-msgstr ""
+msgstr "No hay cursos creados"
 
 #: lms/templates/courses_under_review.html:14
 msgid "No courses under review"
-msgstr ""
+msgstr "No hay cursos en revisión"
 
 #: frontend/src/pages/ProfileAbout.vue:12
 msgid "No introduction"
-msgstr ""
+msgstr "No hay introducción"
 
 #: frontend/src/pages/Jobs.vue:45
 msgid "No jobs posted"
-msgstr ""
+msgstr "No hay trabajos publicados"
 
 #: frontend/src/components/LiveClass.vue:59
 msgid "No live classes scheduled"
-msgstr ""
+msgstr "No hay clases en vivo programadas"
 
 #: frontend/src/components/Modals/EvaluationModal.vue:53
 msgid "No slots available for this date."
-msgstr ""
+msgstr "No hay cupos disponibles para esta fecha."
 
 #: frontend/src/components/UpcomingEvaluations.vue:39
 msgid "No upcoming evaluations."
-msgstr ""
+msgstr "No hay próximas evaluaciones."
 
 #: lms/templates/course_list.html:13
 msgid "No {0}"
@@ -3110,17 +3110,17 @@ msgstr "No aplicable"
 
 #: lms/templates/assessments.html:48
 msgid "Not Attempted"
-msgstr ""
+msgstr "No Intentado"
 
 #: lms/lms/widgets/NoPreviewModal.html:6
 msgid "Not Available for Preview"
-msgstr ""
+msgstr "No disponible para vista previa"
 
 #. Option for the 'Status' (Select) field in DocType 'LMS Assignment
 #. Submission'
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 msgid "Not Graded"
-msgstr ""
+msgstr "Sin calificar"
 
 #: frontend/src/components/NoPermission.vue:7 frontend/src/pages/Batch.vue:131
 msgid "Not Permitted"
@@ -3135,7 +3135,7 @@ msgstr "No guardado"
 
 #: frontend/src/pages/Notifications.vue:54
 msgid "Nothing to see here."
-msgstr ""
+msgstr "Nada que ver aquí."
 
 #. Label of the notifications (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -3144,7 +3144,7 @@ msgstr "Notificaciones"
 
 #: lms/lms/widgets/NoPreviewModal.html:30
 msgid "Notify me when available"
-msgstr ""
+msgstr "Avísame cuando esté disponible"
 
 #. Label of the sb_00 (Section Break) field in DocType 'Zoom Settings'
 #: lms/lms/doctype/zoom_settings/zoom_settings.json
@@ -3159,24 +3159,24 @@ msgstr ""
 #. Option for the 'Medium' (Select) field in DocType 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json
 msgid "Offline"
-msgstr ""
+msgstr "Desconectado"
 
 #: lms/templates/emails/certification.html:16
 msgid "Once again, congratulations on this significant accomplishment."
-msgstr ""
+msgstr "Una vez más, felicidades por este importante logro."
 
 #: frontend/src/pages/AssignmentSubmission.vue:17
 msgid "Once the moderator grades your submission, you'll find the details here."
-msgstr ""
+msgstr "Una vez que el moderador califique su envío, encontrará los detalles aquí."
 
 #. Option for the 'Medium' (Select) field in DocType 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json
 msgid "Online"
-msgstr ""
+msgstr "En línea"
 
 #: lms/templates/assignment.html:6
 msgid "Only files of type {0} will be accepted."
-msgstr ""
+msgstr "Sólo se aceptarán archivos del tipo {0}."
 
 #: frontend/src/pages/CourseForm.vue:449 frontend/src/utils/index.js:509
 msgid "Only image file is allowed."
@@ -3192,11 +3192,11 @@ msgstr "Abrir/Abierto"
 
 #: lms/templates/emails/assignment_submission.html:8
 msgid "Open Assignment"
-msgstr ""
+msgstr "Abrir tareas"
 
 #: lms/templates/emails/lms_message.html:13
 msgid "Open Course"
-msgstr ""
+msgstr "Curso abierto"
 
 #. Option for the 'Type' (Select) field in DocType 'LMS Question'
 #. Option for the 'Type' (Select) field in DocType 'LMS Quiz Question'
@@ -3207,13 +3207,13 @@ msgstr ""
 
 #: lms/lms/widgets/MemberCard.html:16
 msgid "Open Network"
-msgstr ""
+msgstr "Red abierta"
 
 #. Label of the option (Data) field in DocType 'LMS Option'
 #: frontend/src/components/Modals/Question.vue:63
 #: lms/lms/doctype/lms_option/lms_option.json
 msgid "Option"
-msgstr ""
+msgstr "Opción"
 
 #. Label of the option_1 (Small Text) field in DocType 'LMS Question'
 #: lms/lms/doctype/lms_question/lms_question.json
@@ -3233,12 +3233,12 @@ msgstr "Opción 3"
 #. Label of the option_4 (Small Text) field in DocType 'LMS Question'
 #: lms/lms/doctype/lms_question/lms_question.json
 msgid "Option 4"
-msgstr ""
+msgstr "Opción 4"
 
 #. Label of the order_id (Data) field in DocType 'LMS Payment'
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Order ID"
-msgstr ""
+msgstr "ID de pedido"
 
 #: frontend/src/pages/Billing.vue:26
 msgid "Ordered Item"
@@ -3269,7 +3269,7 @@ msgstr "Propietario"
 #. Label of the pan (Data) field in DocType 'LMS Payment'
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "PAN"
-msgstr ""
+msgstr "PAN"
 
 #. Option for the 'File Type' (Select) field in DocType 'Course Lesson'
 #. Option for the 'Type' (Select) field in DocType 'LMS Assignment'
@@ -3283,20 +3283,20 @@ msgstr "PDF"
 #. Label of the pages (Table) field in DocType 'Cohort'
 #: lms/lms/doctype/cohort/cohort.json
 msgid "Pages"
-msgstr ""
+msgstr "Páginas"
 
 #. Label of the paid_batch (Check) field in DocType 'LMS Batch'
 #: frontend/src/pages/BatchForm.vue:194
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/public/js/common_functions.js:373
 msgid "Paid Batch"
-msgstr ""
+msgstr "Lote pagó"
 
 #. Label of the paid_course (Check) field in DocType 'LMS Course'
 #: frontend/src/pages/CourseForm.vue:181
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Paid Course"
-msgstr ""
+msgstr "Cursos Pagos"
 
 #: frontend/src/pages/Billing.vue:120
 msgid "Pan Number"
@@ -3305,12 +3305,12 @@ msgstr ""
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Part Time"
-msgstr ""
+msgstr "Tiempo parcial"
 
 #. Option for the 'Status' (Select) field in DocType 'LMS Course Progress'
 #: lms/lms/doctype/lms_course_progress/lms_course_progress.json
 msgid "Partially Complete"
-msgstr ""
+msgstr "Parcialmente completo"
 
 #. Option for the 'Status' (Select) field in DocType 'LMS Assignment
 #. Submission'
@@ -3328,7 +3328,7 @@ msgstr ""
 #: lms/lms/doctype/lms_quiz/lms_quiz.json
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.json
 msgid "Passing Percentage"
-msgstr ""
+msgstr "Porcentaje de aprobación"
 
 #. Label of the password (Password) field in DocType 'LMS Live Class'
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
@@ -3346,13 +3346,13 @@ msgstr "Pago"
 #. Name of a DocType
 #: lms/lms/doctype/payment_country/payment_country.json
 msgid "Payment Country"
-msgstr ""
+msgstr "País de pago"
 
 #. Label of the payment_details_section (Section Break) field in DocType 'LMS
 #. Payment'
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Payment Details"
-msgstr ""
+msgstr "Detalles de pago"
 
 #. Label of the payment_gateway (Link) field in DocType 'Web Form'
 #. Label of the payment_gateway (Data) field in DocType 'LMS Settings'
@@ -3364,7 +3364,7 @@ msgstr "Pasarela de Pago"
 #. Label of the payment_id (Data) field in DocType 'LMS Payment'
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Payment ID"
-msgstr ""
+msgstr "ID del pago"
 
 #. Label of the payment_received (Check) field in DocType 'LMS Payment'
 #: lms/lms/doctype/lms_payment/lms_payment.json
@@ -3375,19 +3375,19 @@ msgstr "Pago recibido"
 #. Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Payment Settings"
-msgstr ""
+msgstr "Opciones de Pago"
 
 #. Label of the payment_for_document (Dynamic Link) field in DocType 'LMS
 #. Payment'
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Payment for Document"
-msgstr ""
+msgstr "Pago del documento"
 
 #. Label of the payment_for_document_type (Select) field in DocType 'LMS
 #. Payment'
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Payment for Document Type"
-msgstr ""
+msgstr "Tipo de documento de pago"
 
 #. Label of the payments_tab (Tab Break) field in DocType 'Web Form'
 #: lms/fixtures/custom_field.json
@@ -3423,7 +3423,7 @@ msgstr "Porcentaje"
 #. Option for the 'Grade Type' (Select) field in DocType 'Education Detail'
 #: lms/lms/doctype/education_detail/education_detail.json
 msgid "Percentage (e.g. 70%)"
-msgstr ""
+msgstr "Porcentaje (por ejemplo, 70%)"
 
 #: frontend/src/pages/Billing.vue:104
 msgid "Phone Number"
@@ -3435,7 +3435,7 @@ msgstr ""
 
 #: lms/lms/doctype/lms_settings/lms_settings.py:33
 msgid "Please add <a href='{0}'>{1}</a> for <a href='{2}'>{3}</a> to send calendar invites for evaluations."
-msgstr ""
+msgstr "Agregue <a href='{0}'>{1}</a> para <a href='{2}'>{3}</a> para enviar invitaciones de calendario para evaluaciones."
 
 #: lms/overrides/user.py:240
 msgid "Please ask your administrator to verify your sign-up"
@@ -3447,11 +3447,11 @@ msgstr "Por favor, consultar su correo electrónico para la verificación"
 
 #: lms/templates/emails/community_course_membership.html:7
 msgid "Please click on the following button to set your new password"
-msgstr ""
+msgstr "Haga clic en el siguiente botón para establecer su nueva contraseña"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:229
 msgid "Please enable Zoom Settings to use this feature."
-msgstr ""
+msgstr "Habilite la configuración de Zoom para utilizar esta funcionalidad."
 
 #: frontend/src/components/Quiz.vue:13
 msgid "Please ensure that you complete all the questions in {0} minutes."
@@ -3460,15 +3460,15 @@ msgstr ""
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.py:38
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.py:98
 msgid "Please enter a valid URL."
-msgstr ""
+msgstr "Introduce una URL válida."
 
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.py:92
 msgid "Please enter the URL for assignment submission."
-msgstr ""
+msgstr "Por favor, introduzca la URL para el envío de la tarea."
 
 #: lms/templates/quiz/quiz.js:176
 msgid "Please enter your answer"
-msgstr ""
+msgstr "Por favor escriba su respuesta"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:64
 msgid "Please install the Payments app to create a paid batches."
@@ -3484,33 +3484,33 @@ msgstr ""
 
 #: frontend/src/components/QuizBlock.vue:5
 msgid "Please login to access the quiz."
-msgstr ""
+msgstr "Inicie sesión para acceder al cuestionario."
 
 #: frontend/src/components/NoPermission.vue:25 frontend/src/pages/Batch.vue:142
 msgid "Please login to access this page."
-msgstr ""
+msgstr "Por favor inicie sesión para acceder a esta página."
 
 #: lms/lms/api.py:182
 msgid "Please login to continue with payment."
-msgstr ""
+msgstr "Por favor inicie sesión para continuar con el pago."
 
 #: lms/lms/notification/certificate_request_reminder/certificate_request_reminder.html:7
 #: lms/templates/emails/certificate_request_notification.html:7
 msgid "Please prepare well and be on time for the evaluations."
-msgstr ""
+msgstr "Por favor, prepárese bien y llegue a tiempo a las evaluaciones."
 
 #: lms/templates/emails/job_report.html:6
 msgid "Please take appropriate action at {0}"
-msgstr ""
+msgstr "Tome las medidas adecuadas en {0}"
 
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.py:95
 msgid "Please upload the assignment file."
-msgstr ""
+msgstr "Por favor, suba el archivo de la tarea."
 
 #. Option for the 'Grade Type' (Select) field in DocType 'Education Detail'
 #: lms/lms/doctype/education_detail/education_detail.json
 msgid "Point of Score (e.g. 70)"
-msgstr ""
+msgstr "Punto de puntuación (por ejemplo, 70)"
 
 #: frontend/src/components/Modals/Question.vue:83
 msgid "Possibility"
@@ -3519,22 +3519,22 @@ msgstr ""
 #. Label of the possibility_1 (Small Text) field in DocType 'LMS Question'
 #: lms/lms/doctype/lms_question/lms_question.json
 msgid "Possible Answer 1"
-msgstr ""
+msgstr "Posible respuesta 1"
 
 #. Label of the possibility_2 (Small Text) field in DocType 'LMS Question'
 #: lms/lms/doctype/lms_question/lms_question.json
 msgid "Possible Answer 2"
-msgstr ""
+msgstr "Posible respuesta 2"
 
 #. Label of the possibility_3 (Small Text) field in DocType 'LMS Question'
 #: lms/lms/doctype/lms_question/lms_question.json
 msgid "Possible Answer 3"
-msgstr ""
+msgstr "Posible respuesta 3"
 
 #. Label of the possibility_4 (Small Text) field in DocType 'LMS Question'
 #: lms/lms/doctype/lms_question/lms_question.json
 msgid "Possible Answer 4"
-msgstr ""
+msgstr "Posible respuesta 4"
 
 #: frontend/src/components/DiscussionReplies.vue:52
 #: frontend/src/components/DiscussionReplies.vue:86
@@ -3552,7 +3552,7 @@ msgstr ""
 #. Name of a DocType
 #: lms/lms/doctype/preferred_function/preferred_function.json
 msgid "Preferred Function"
-msgstr ""
+msgstr "Función preferida"
 
 #. Label of the preferred_functions (Table MultiSelect) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -3568,7 +3568,7 @@ msgstr ""
 #. Name of a DocType
 #: lms/lms/doctype/preferred_industry/preferred_industry.json
 msgid "Preferred Industry"
-msgstr ""
+msgstr "Industria preferida"
 
 #. Label of the preferred_location (Data) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -3582,7 +3582,7 @@ msgstr "Previsualizar imagen"
 
 #: frontend/src/pages/CourseForm.vue:86
 msgid "Preview Video"
-msgstr ""
+msgstr "Vista previa del video"
 
 #: frontend/src/pages/Lesson.vue:54
 msgid "Previous"
@@ -3606,11 +3606,11 @@ msgstr ""
 #. Label of the subgroup (Link) field in DocType 'Cohort Mentor'
 #: lms/lms/doctype/cohort_mentor/cohort_mentor.json
 msgid "Primary Subgroup"
-msgstr ""
+msgstr "Subgrupo primario"
 
 #: lms/lms/utils.py:422
 msgid "Privacy Policy"
-msgstr ""
+msgstr "Política de privacidad"
 
 #. Option for the 'Visibility' (Select) field in DocType 'LMS Batch Old'
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
@@ -3634,7 +3634,7 @@ msgstr ""
 
 #: frontend/src/components/Modals/EditProfile.vue:37
 msgid "Profile Image"
-msgstr ""
+msgstr "Imagen del Perfil"
 
 #. Label of the progress (Float) field in DocType 'LMS Enrollment'
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
@@ -3655,7 +3655,7 @@ msgstr "Público"
 #. Label of the published (Check) field in DocType 'LMS Certificate'
 #: lms/lms/doctype/lms_certificate/lms_certificate.json
 msgid "Publish on Participant Page"
-msgstr ""
+msgstr "Publicar en la página del participante"
 
 #. Label of the published (Check) field in DocType 'LMS Batch'
 #. Label of the published (Check) field in DocType 'LMS Course'
@@ -3670,7 +3670,7 @@ msgstr "Publicado"
 #: lms/lms/web_template/lms_statistics/lms_statistics.html:14
 #: lms/templates/statistics.html:4
 msgid "Published Courses"
-msgstr ""
+msgstr "Cursos Publicados"
 
 #. Label of the published_on (Date) field in DocType 'LMS Course'
 #: frontend/src/pages/CourseForm.vue:142
@@ -3696,11 +3696,11 @@ msgstr "Publicado el"
 #: lms/lms/doctype/lms_quiz_result/lms_quiz_result.json
 #: lms/templates/quiz/quiz.html:104
 msgid "Question"
-msgstr ""
+msgstr "Pregunta"
 
 #: lms/templates/quiz/quiz.html:62
 msgid "Question "
-msgstr ""
+msgstr "Pregunta "
 
 #. Label of the question_detail (Text) field in DocType 'LMS Quiz Question'
 #: lms/lms/doctype/lms_quiz_question/lms_quiz_question.json
@@ -3710,7 +3710,7 @@ msgstr ""
 #. Label of the question_name (Link) field in DocType 'LMS Quiz Result'
 #: lms/lms/doctype/lms_quiz_result/lms_quiz_result.json
 msgid "Question Name"
-msgstr ""
+msgstr "Nombre de la Pregunta"
 
 #: frontend/src/components/Modals/Question.vue:261
 msgid "Question added successfully"
@@ -3722,16 +3722,16 @@ msgstr ""
 
 #: frontend/src/components/Quiz.vue:86
 msgid "Question {0}"
-msgstr ""
+msgstr "Pregunta {0}"
 
 #: frontend/src/components/Quiz.vue:186
 msgid "Question {0} of {1}"
-msgstr ""
+msgstr "Pregunta {0} de {1}"
 
 #. Label of the questions (Table) field in DocType 'LMS Quiz'
 #: frontend/src/pages/QuizForm.vue:116 lms/lms/doctype/lms_quiz/lms_quiz.json
 msgid "Questions"
-msgstr ""
+msgstr "Preguntas"
 
 #: frontend/src/pages/QuizForm.vue:430
 msgid "Questions deleted successfully"
@@ -3744,18 +3744,18 @@ msgstr ""
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.json
 #: lms/lms/workspace/lms/lms.json
 msgid "Quiz"
-msgstr ""
+msgstr "Cuestionario"
 
 #. Label of the quiz_id (Data) field in DocType 'Course Lesson'
 #: lms/lms/doctype/course_lesson/course_lesson.json
 msgid "Quiz ID"
-msgstr ""
+msgstr "ID del cuestionario"
 
 #. Label of a Link in the LMS Workspace
 #: frontend/src/pages/QuizPage.vue:47 frontend/src/pages/QuizPage.vue:53
 #: lms/lms/workspace/lms/lms.json
 msgid "Quiz Submission"
-msgstr ""
+msgstr "Envíos de cuestionarios"
 
 #: frontend/src/pages/QuizSubmission.vue:98
 #: frontend/src/pages/QuizSubmissionList.vue:102
@@ -3764,7 +3764,7 @@ msgstr ""
 
 #: frontend/src/components/Quiz.vue:223
 msgid "Quiz Summary"
-msgstr ""
+msgstr "Resumen del cuestionario"
 
 #. Label of the quiz_title (Data) field in DocType 'LMS Quiz Submission'
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.json
@@ -3777,7 +3777,7 @@ msgstr ""
 
 #: lms/plugins.py:96
 msgid "Quiz is not available to Guest users. Please login to continue."
-msgstr ""
+msgstr "El cuestionario no está disponible para usuarios invitados. Por favor inicie sesión para continuar."
 
 #: frontend/src/pages/QuizForm.vue:361
 msgid "Quiz updated successfully"
@@ -3786,7 +3786,7 @@ msgstr ""
 #. Description of the 'Quiz ID' (Data) field in DocType 'Course Lesson'
 #: lms/lms/doctype/course_lesson/course_lesson.json
 msgid "Quiz will appear at the bottom of the lesson."
-msgstr ""
+msgstr "El cuestionario aparecerá al final de la lección."
 
 #: frontend/src/pages/QuizForm.vue:441 frontend/src/pages/Quizzes.vue:120
 #: frontend/src/pages/Quizzes.vue:130
@@ -3806,16 +3806,16 @@ msgstr "Clasificación"
 
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.py:17
 msgid "Rating cannot be 0"
-msgstr ""
+msgstr "La calificación no puede ser 0"
 
 #: frontend/src/pages/AssignmentSubmission.vue:30
 msgid "Read the question carefully before attempting the assignment."
-msgstr ""
+msgstr "Lea la pregunta detenidamente antes de intentar la asignación."
 
 #. Option for the 'Stage' (Select) field in DocType 'LMS Batch Old'
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 msgid "Ready"
-msgstr ""
+msgstr "Listo"
 
 #. Label of the reference_docname (Dynamic Link) field in DocType 'LMS Batch
 #. Timetable'
@@ -3838,7 +3838,7 @@ msgstr "Tipo de Documento de Referencia"
 
 #: lms/templates/emails/community_course_membership.html:17
 msgid "Regards"
-msgstr ""
+msgstr "Saludos"
 
 #: frontend/src/components/BatchOverlay.vue:70
 msgid "Register Now"
@@ -3847,7 +3847,7 @@ msgstr ""
 #. Option for the 'Status' (Select) field in DocType 'Invite Request'
 #: lms/lms/doctype/invite_request/invite_request.json
 msgid "Registered"
-msgstr ""
+msgstr "Registrado"
 
 #: lms/overrides/user.py:201
 msgid "Registered but disabled"
@@ -3867,29 +3867,29 @@ msgstr "Rechazado"
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/related_courses/related_courses.json
 msgid "Related Courses"
-msgstr ""
+msgstr "Cursos relacionados"
 
 #: frontend/src/components/Modals/AnnouncementModal.vue:26
 msgid "Reply To"
-msgstr ""
+msgstr "Responder a"
 
 #: lms/lms/widgets/RequestInvite.html:7
 msgid "Request Invite"
-msgstr ""
+msgstr "Solicitar invitación"
 
 #: lms/patches/create_mentor_request_email_templates.py:20
 msgid "Request for Mentorship"
-msgstr ""
+msgstr "Solicitud de mentoría"
 
 #. Label of the required_role (Select) field in DocType 'Cohort Web Page'
 #: lms/lms/doctype/cohort_web_page/cohort_web_page.json
 msgid "Required Role"
-msgstr ""
+msgstr "Rol Requerido"
 
 #. Option for the 'Membership' (Select) field in DocType 'LMS Batch Old'
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 msgid "Restricted"
-msgstr ""
+msgstr "Restringido"
 
 #. Label of the result (Table) field in DocType 'LMS Quiz Submission'
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.json
@@ -3911,12 +3911,12 @@ msgstr "revisión"
 
 #: lms/templates/reviews.html:100
 msgid "Review the course"
-msgstr ""
+msgstr "Revisar el curso"
 
 #. Label of the reviewed_by (Link) field in DocType 'LMS Mentor Request'
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
 msgid "Reviewed By"
-msgstr ""
+msgstr "Revisado por"
 
 #: lms/templates/reviews.html:4
 msgid "Reviews"
@@ -3941,27 +3941,27 @@ msgstr "Ruta"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:172
 msgid "Row #{0} Date cannot be outside the batch duration."
-msgstr ""
+msgstr "Fila #{0} La fecha no puede estar fuera de la duración del lote."
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:167
 msgid "Row #{0} End time cannot be outside the batch duration."
-msgstr ""
+msgstr "Fila #{0} La hora de finalización no puede estar fuera de la duración del lote."
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:149
 msgid "Row #{0} Start time cannot be greater than or equal to end time."
-msgstr ""
+msgstr "Fila #{0} La hora de inicio no puede ser mayor o igual que la hora final."
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:158
 msgid "Row #{0} Start time cannot be outside the batch duration."
-msgstr ""
+msgstr "Fila #{0} La hora de inicio no puede estar fuera de la duración del lote."
 
 #: lms/lms/doctype/lms_quiz/lms_quiz.py:34
 msgid "Rows {0} have the duplicate questions."
-msgstr ""
+msgstr "Las filas {0} tienen preguntas duplicadas."
 
 #: lms/templates/livecode/extension_footer.html:21
 msgid "Run"
-msgstr ""
+msgstr "Ejecutar"
 
 #. Option for the 'Day' (Select) field in DocType 'Evaluator Schedule'
 #. Option for the 'Day' (Select) field in DocType 'LMS Certificate Request'
@@ -3990,12 +3990,12 @@ msgstr ""
 #: frontend/src/components/Modals/EvaluationModal.vue:5
 #: frontend/src/components/UpcomingEvaluations.vue:4
 msgid "Schedule Evaluation"
-msgstr ""
+msgstr "Programar evaluación"
 
 #. Name of a DocType
 #: lms/lms/doctype/scheduled_flow/scheduled_flow.json
 msgid "Scheduled Flow"
-msgstr ""
+msgstr "Flujo programado"
 
 #. Label of the scope (Select) field in DocType 'Cohort Web Page'
 #: lms/lms/doctype/cohort_web_page/cohort_web_page.json
@@ -4013,7 +4013,7 @@ msgstr "Puntuación"
 #. Label of the score_out_of (Int) field in DocType 'LMS Quiz Submission'
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.json
 msgid "Score Out Of"
-msgstr ""
+msgstr "Puntuación fuera de"
 
 #: frontend/src/components/Members.vue:15
 msgid "Search"
@@ -4021,24 +4021,24 @@ msgstr "Buscar"
 
 #: frontend/src/components/Controls/IconPicker.vue:36
 msgid "Search for an icon"
-msgstr ""
+msgstr "Buscar un icono"
 
 #. Label of the seat_count (Int) field in DocType 'LMS Batch'
 #: frontend/src/pages/BatchForm.vue:149
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/public/js/common_functions.js:327
 msgid "Seat Count"
-msgstr ""
+msgstr "Número de asientos"
 
 #: frontend/src/components/BatchCard.vue:16
 #: frontend/src/components/BatchOverlay.vue:9
 msgid "Seat Left"
-msgstr ""
+msgstr "Asiento restante"
 
 #: frontend/src/components/BatchCard.vue:15
 #: frontend/src/components/BatchOverlay.vue:8
 msgid "Seats Left"
-msgstr ""
+msgstr "Asiento restantea"
 
 #: frontend/src/components/Modals/Question.vue:91
 msgid "Select a question"
@@ -4050,22 +4050,22 @@ msgstr ""
 
 #: frontend/src/components/Modals/EvaluationModal.vue:32
 msgid "Select a slot"
-msgstr ""
+msgstr "Selecciona un Espacio"
 
 #. Label of the send_calendar_invite_for_evaluations (Check) field in DocType
 #. 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Send calendar invite for evaluations"
-msgstr ""
+msgstr "Enviar invitación al calendario para las evaluaciones"
 
 #. Label of the sessions_on (Data) field in DocType 'LMS Batch Old'
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 msgid "Sessions On Days"
-msgstr ""
+msgstr "Sesiones los días"
 
 #: lms/templates/emails/community_course_membership.html:1
 msgid "Set your Password"
-msgstr ""
+msgstr "Establecer Contraseña"
 
 #: frontend/src/components/Modals/Settings.vue:7
 #: frontend/src/pages/BatchForm.vue:143 frontend/src/pages/CourseForm.vue:128
@@ -4075,53 +4075,53 @@ msgstr "Configuración"
 
 #: frontend/src/pages/ProfileAbout.vue:62
 msgid "Share on"
-msgstr ""
+msgstr "Compartir en"
 
 #. Label of the short_introduction (Small Text) field in DocType 'LMS Course'
 #: frontend/src/pages/CourseForm.vue:29
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Short Introduction"
-msgstr ""
+msgstr "Breve introducción"
 
 #. Label of the show_answer (Check) field in DocType 'LMS Assignment'
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
 msgid "Show Answer"
-msgstr ""
+msgstr "Mostrar respuesta"
 
 #. Label of the show_answers (Check) field in DocType 'LMS Quiz'
 #: frontend/src/pages/QuizForm.vue:84 lms/lms/doctype/lms_quiz/lms_quiz.json
 msgid "Show Answers"
-msgstr ""
+msgstr "Mostrar respuestas"
 
 #. Label of the show_submission_history (Check) field in DocType 'LMS Quiz'
 #: frontend/src/pages/QuizForm.vue:89 lms/lms/doctype/lms_quiz/lms_quiz.json
 msgid "Show Submission History"
-msgstr ""
+msgstr "Mostrar historial de envíos"
 
 #. Label of the column_break_2 (Column Break) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Show Tab in Batch"
-msgstr ""
+msgstr "Mostrar pestaña en lote"
 
 #. Label of the show_usd_equivalent (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Show USD Equivalent"
-msgstr ""
+msgstr "Mostrar equivalente en USD"
 
 #. Label of the show_day_view (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Show day view in timetable"
-msgstr ""
+msgstr "Mostrar vista del día en el horario"
 
 #. Label of the show_live_class (Check) field in DocType 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json
 msgid "Show live class"
-msgstr ""
+msgstr "Mostrar clase en vivo"
 
 #. Label of the shuffle_questions (Check) field in DocType 'LMS Quiz'
 #: frontend/src/pages/QuizForm.vue:102 lms/lms/doctype/lms_quiz/lms_quiz.json
 msgid "Shuffle Questions"
-msgstr ""
+msgstr "Preguntas aleatorias"
 
 #: frontend/src/pages/QuizForm.vue:96
 msgid "Shuffle Settings"
@@ -4148,17 +4148,17 @@ msgstr "Regístrate"
 #. Label of the signup_email (Data) field in DocType 'Invite Request'
 #: lms/lms/doctype/invite_request/invite_request.json
 msgid "Signup Email"
-msgstr ""
+msgstr "Correo electrónico de registro"
 
 #. Label of the signup_settings_tab (Tab Break) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Signup Settings"
-msgstr ""
+msgstr "Configuración de registro"
 
 #. Label of a chart in the LMS Workspace
 #: frontend/src/pages/Statistics.vue:32 lms/lms/workspace/lms/lms.json
 msgid "Signups"
-msgstr ""
+msgstr "Inscripciones"
 
 #. Label of the skill (Table MultiSelect) field in DocType 'User'
 #. Label of the skill (Data) field in DocType 'User Skill'
@@ -4183,7 +4183,7 @@ msgstr ""
 
 #: lms/overrides/user.py:42
 msgid "Skills must be unique"
-msgstr ""
+msgstr "Las aptitudes deben ser únicas"
 
 #: lms/templates/onboarding_header.html:6
 msgid "Skip"
@@ -4191,7 +4191,7 @@ msgstr "Omitir"
 
 #: lms/lms/doctype/course_evaluator/course_evaluator.py:57
 msgid "Slot Times are overlapping for some schedules."
-msgstr ""
+msgstr "Los horarios de las franjas horarias se superponen."
 
 #. Label of the slug (Data) field in DocType 'Cohort'
 #. Label of the slug (Data) field in DocType 'Cohort Subgroup'
@@ -4200,7 +4200,7 @@ msgstr ""
 #: lms/lms/doctype/cohort_subgroup/cohort_subgroup.json
 #: lms/lms/doctype/cohort_web_page/cohort_web_page.json
 msgid "Slug"
-msgstr ""
+msgstr "Slug"
 
 #: frontend/src/components/BatchCard.vue:23
 #: frontend/src/components/BatchOverlay.vue:16
@@ -4212,7 +4212,7 @@ msgstr ""
 #: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
 #: lms/lms/doctype/exercise_submission/exercise_submission.json
 msgid "Solution"
-msgstr ""
+msgstr "Solución"
 
 #. Label of the source (Link) field in DocType 'Batch Student'
 #. Label of the source (Link) field in DocType 'LMS Payment'
@@ -4228,12 +4228,12 @@ msgstr "Referencia"
 #: lms/lms/doctype/cohort_staff/cohort_staff.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 msgid "Staff"
-msgstr ""
+msgstr "Personal"
 
 #. Label of the stage (Select) field in DocType 'LMS Batch Old'
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 msgid "Stage"
-msgstr ""
+msgstr "Etapa"
 
 #: frontend/src/components/LiveClass.vue:45 frontend/src/components/Quiz.vue:65
 #: lms/templates/quiz/quiz.html:39
@@ -4255,7 +4255,7 @@ msgstr "Fecha de inicio"
 #: frontend/src/pages/Lesson.vue:25
 #: lms/templates/emails/lms_course_interest.html:9
 msgid "Start Learning"
-msgstr ""
+msgstr "Comienza a aprender"
 
 #. Label of the start_time (Time) field in DocType 'Evaluator Schedule'
 #. Label of the start_time (Time) field in DocType 'LMS Batch'
@@ -4279,20 +4279,20 @@ msgstr "Hora de inicio"
 
 #: lms/lms/doctype/course_evaluator/course_evaluator.py:28
 msgid "Start Time cannot be greater than End Time"
-msgstr ""
+msgstr "La hora de inicio no puede ser mayor que la hora de finalización"
 
 #: lms/lms/web_form/add_a_new_batch/add_a_new_batch.js:43
 msgid "Start Time should be less than End Time."
-msgstr ""
+msgstr "Hora de comienzo debe ser menor que la Hora de finalización."
 
 #. Label of the start_url (Small Text) field in DocType 'LMS Live Class'
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Start URL"
-msgstr ""
+msgstr "URL de inicio"
 
 #: lms/lms/web_form/add_a_new_batch/add_a_new_batch.js:30
 msgid "Start date cannot be a past date."
-msgstr ""
+msgstr "La fecha de inicio no puede ser una fecha pasada."
 
 #. Option for the 'Company Type' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -4339,7 +4339,7 @@ msgstr "Estado"
 
 #: lms/templates/assessments.html:17
 msgid "Status/Score"
-msgstr ""
+msgstr "Estado/Puntuación"
 
 #. Option for the 'User Category' (Select) field in DocType 'User'
 #. Label of the student (Link) field in DocType 'Batch Student'
@@ -4351,18 +4351,18 @@ msgstr ""
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 #: lms/templates/signup-form.html:26
 msgid "Student"
-msgstr ""
+msgstr "Estudiante"
 
 #. Label of the student_details_section (Section Break) field in DocType 'Batch
 #. Student'
 #: lms/lms/doctype/batch_student/batch_student.json
 msgid "Student Details"
-msgstr ""
+msgstr "Detalles del Estudiante"
 
 #. Label of the student_name (Data) field in DocType 'Batch Student'
 #: lms/lms/doctype/batch_student/batch_student.json
 msgid "Student Name"
-msgstr ""
+msgstr "Nombre del Estudiante"
 
 #: frontend/src/components/CourseReviews.vue:11
 msgid "Student Reviews"
@@ -4370,7 +4370,7 @@ msgstr ""
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:46
 msgid "Student {0} has already been added to this batch."
-msgstr ""
+msgstr "El estudiante {0} ya ha sido añadido a este lote."
 
 #. Label of the students (Table) field in DocType 'LMS Batch'
 #. Label of the show_students (Check) field in DocType 'LMS Settings'
@@ -4378,7 +4378,7 @@ msgstr ""
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Students"
-msgstr ""
+msgstr "Estudiantes"
 
 #: frontend/src/components/BatchStudents.vue:157
 msgid "Students deleted successfully"
@@ -4387,7 +4387,7 @@ msgstr ""
 #. Description of the 'Paid Batch' (Check) field in DocType 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json
 msgid "Students will be enrolled in a paid batch once they complete the payment"
-msgstr ""
+msgstr "Los estudiantes serán inscritos en un lote pago una vez que completen el pago"
 
 #. Label of the subgroup (Link) field in DocType 'Cohort Join Request'
 #. Option for the 'Scope' (Select) field in DocType 'Cohort Web Page'
@@ -4396,7 +4396,7 @@ msgstr ""
 #: lms/lms/doctype/cohort_web_page/cohort_web_page.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 msgid "Subgroup"
-msgstr ""
+msgstr "Subgrupo"
 
 #: frontend/src/components/Modals/AnnouncementModal.vue:20
 msgid "Subject"
@@ -4404,7 +4404,7 @@ msgstr "Asunto"
 
 #: frontend/src/pages/AssignmentSubmission.vue:40
 msgid "Submission"
-msgstr ""
+msgstr "Envío"
 
 #: frontend/src/pages/QuizForm.vue:30
 msgid "Submission List"
@@ -4423,12 +4423,12 @@ msgstr "Validar"
 
 #: frontend/src/components/Modals/JobApplicationModal.vue:23
 msgid "Submit your resume to proceed with your application for this position. Upon submission, it will be shared with the job poster."
-msgstr ""
+msgstr "Envíe su currículum para proceder con su solicitud para este puesto. Una vez enviado, será compartido con el anunciante del puesto."
 
 #: lms/templates/livecode/extension_footer.html:85
 #: lms/templates/livecode/extension_footer.html:115
 msgid "Submitted {0}"
-msgstr ""
+msgstr "Enviado {0}"
 
 #: frontend/src/components/BatchCourses.vue:150
 #: frontend/src/components/BatchOverlay.vue:135
@@ -4516,7 +4516,7 @@ msgstr "Etiquetas"
 #: lms/templates/emails/mentor_request_creation_email.html:8
 #: lms/templates/emails/mentor_request_status_update_email.html:7
 msgid "Team School"
-msgstr ""
+msgstr "Equipo de la Escuela"
 
 #. Option for the 'Collaboration Preference' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -4537,7 +4537,7 @@ msgstr "Desactivado temporalmente"
 
 #: lms/lms/utils.py:421
 msgid "Terms of Use"
-msgstr ""
+msgstr "Términos de Uso"
 
 #. Label of the test_results (Small Text) field in DocType 'Exercise Latest
 #. Submission'
@@ -4546,12 +4546,12 @@ msgstr ""
 #: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
 #: lms/lms/doctype/exercise_submission/exercise_submission.json
 msgid "Test Results"
-msgstr ""
+msgstr "Resultados de la prueba"
 
 #. Label of the tests (Code) field in DocType 'LMS Exercise'
 #: lms/lms/doctype/lms_exercise/lms_exercise.json
 msgid "Tests"
-msgstr ""
+msgstr "Pruebas"
 
 #. Option for the 'Type' (Select) field in DocType 'LMS Assignment'
 #. Option for the 'Type' (Select) field in DocType 'LMS Assignment Submission'
@@ -4565,11 +4565,11 @@ msgstr "Texto"
 #: lms/templates/emails/mentor_request_creation_email.html:7
 #: lms/templates/emails/mentor_request_status_update_email.html:6
 msgid "Thanks and Regards"
-msgstr ""
+msgstr "Gracias y saludos"
 
 #: lms/templates/emails/lms_course_interest.html:5
 msgid "The course {0} is now available on {1}."
-msgstr ""
+msgstr "El curso {0} ya está disponible en {1}."
 
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.py:53
 msgid "The evaluator of this course is unavailable from {0} to {1}. Please select a date after {1}"
@@ -4577,15 +4577,15 @@ msgstr ""
 
 #: lms/templates/quiz/quiz.html:24
 msgid "The quiz has a time limit. For each question you will be given {0} seconds."
-msgstr ""
+msgstr "El cuestionario tiene un límite de tiempo. Por cada pregunta se le darán {0} segundos."
 
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.py:71
 msgid "The slot is already booked by another participant."
-msgstr ""
+msgstr "La plaza ya está reservada por otro participante."
 
 #: lms/patches/create_mentor_request_email_templates.py:40
 msgid "The status of your application has changed."
-msgstr ""
+msgstr "El estado de su solicitud ha cambiado."
 
 #: frontend/src/components/CreateOutline.vue:12
 msgid "There are no chapters in this course. Create and manage chapters from here."
@@ -4593,30 +4593,30 @@ msgstr ""
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:140
 msgid "There are no seats available in this batch."
-msgstr ""
+msgstr "No hay asientos disponibles en este lote."
 
 #: frontend/src/components/BatchStudents.vue:67
 msgid "There are no students in this batch."
-msgstr ""
+msgstr "No hay estudiantes en este lote."
 
 #: lms/templates/course_list.html:14
 msgid "There are no {0} on this site."
-msgstr ""
+msgstr "No hay {0} en este sitio."
 
 #. Description of the 'section_break_ubxi' (Section Break) field in DocType
 #. 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json
 msgid "These customisations will work on the main batch page."
-msgstr ""
+msgstr "Estas personalizaciones funcionarán en la página principal de lotes."
 
 #: frontend/src/pages/Badge.vue:10
 msgid "This badge has been awarded to {0} on {1}."
-msgstr ""
+msgstr "Esta insignia se otorgó a {0} el {1}."
 
 #. Label of the expire (Check) field in DocType 'Certification'
 #: lms/lms/doctype/certification/certification.json
 msgid "This certificate does no expire"
-msgstr ""
+msgstr "Este certificado no caduca"
 
 #: frontend/src/components/CourseCardOverlay.vue:91
 msgid "This course has:"
@@ -4624,23 +4624,23 @@ msgstr ""
 
 #: lms/lms/utils.py:1563
 msgid "This course is free."
-msgstr ""
+msgstr "Este curso es gratuito."
 
 #: lms/lms/widgets/CourseOutline.html:62
 msgid "This lesson is not available for preview. As you are the Instructor of the course only you can see it."
-msgstr ""
+msgstr "Esta lección no está disponible para la vista previa. Como usted es el Instructor del curso sólo usted puede verla."
 
 #: frontend/src/pages/Lesson.vue:15
 msgid "This lesson is not available for preview. Please enroll in the course to access it."
-msgstr ""
+msgstr "Esta lección no está disponible para la vista previa. Por favor, inscríbase en el curso para acceder a ella."
 
 #: lms/lms/widgets/NoPreviewModal.html:16
 msgid "This lesson is not available for preview. Please join the course to access it."
-msgstr ""
+msgstr "Esta lección no está disponible para vista previa. Por favor, únase al curso para acceder a ella."
 
 #: frontend/src/components/Quiz.vue:8 lms/templates/quiz/quiz.html:6
 msgid "This quiz consists of {0} questions."
-msgstr ""
+msgstr "Este cuestionario consta de {0} preguntas."
 
 #. Option for the 'Day' (Select) field in DocType 'Evaluator Schedule'
 #. Option for the 'Day' (Select) field in DocType 'LMS Certificate Request'
@@ -4664,7 +4664,7 @@ msgstr ""
 
 #: frontend/src/components/Modals/LiveClassModal.vue:28
 msgid "Time must be in 24 hour format (HH:mm). Example 11:30 or 22:00"
-msgstr ""
+msgstr "La hora debe estar en formato de 24 horas (HH:mm). Ejemplo 11:30 o 22:00"
 
 #. Label of the schedule_tab (Tab Break) field in DocType 'LMS Batch'
 #. Label of the timetable (Table) field in DocType 'LMS Batch'
@@ -4672,7 +4672,7 @@ msgstr ""
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_timetable_template/lms_timetable_template.json
 msgid "Timetable"
-msgstr ""
+msgstr "Horario"
 
 #. Label of the timetable_legends (Table) field in DocType 'LMS Batch'
 #. Label of the timetable_legends (Table) field in DocType 'LMS Timetable
@@ -4680,12 +4680,12 @@ msgstr ""
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_timetable_template/lms_timetable_template.json
 msgid "Timetable Legends"
-msgstr ""
+msgstr "Leyendas de horarios"
 
 #. Label of the timetable_template (Link) field in DocType 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json
 msgid "Timetable Template"
-msgstr ""
+msgstr "Plantilla de horario"
 
 #. Label of the timezone (Data) field in DocType 'LMS Batch'
 #. Label of the timezone (Data) field in DocType 'LMS Certificate Request'
@@ -4696,11 +4696,11 @@ msgstr ""
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Timezone"
-msgstr ""
+msgstr "Zona Horaria"
 
 #: lms/templates/emails/batch_confirmation.html:25
 msgid "Timings:"
-msgstr ""
+msgstr "Horarios:"
 
 #. Label of the title (Data) field in DocType 'Cohort'
 #. Label of the title (Data) field in DocType 'Cohort Subgroup'
@@ -4755,11 +4755,11 @@ msgstr "Hasta la fecha"
 
 #: lms/lms/web_form/profile/profile.js:19
 msgid "To Date is mandatory in Work Experience."
-msgstr ""
+msgstr "Hasta la fecha es obligatorio en Experiencia laboral."
 
 #: lms/lms/utils.py:1574
 msgid "To join this batch, please contact the Administrator."
-msgstr ""
+msgstr "Para unirse a este lote, comuníquese con el Administrador."
 
 #: frontend/src/components/LessonHelp.vue:34
 msgid "To upload Image, Video, Audio or PDF from your system, click on the add icon and select upload from the menu. Then choose the file you want to add to the lesson and it gets added to your lesson."
@@ -4777,12 +4777,12 @@ msgstr "Total"
 #: frontend/src/pages/QuizForm.vue:66 frontend/src/pages/Quizzes.vue:103
 #: lms/lms/doctype/lms_quiz/lms_quiz.json
 msgid "Total Marks"
-msgstr ""
+msgstr "Marcas totales"
 
 #: lms/lms/web_template/lms_statistics/lms_statistics.html:14
 #: lms/templates/statistics.html:12
 msgid "Total Signups"
-msgstr ""
+msgstr "Registros totales"
 
 #. Option for the 'Location Preference' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -4802,7 +4802,7 @@ msgstr "Martes"
 
 #: frontend/src/pages/ProfileAbout.vue:86
 msgid "Twitter"
-msgstr ""
+msgstr "Twitter"
 
 #. Label of the type (Select) field in DocType 'Job Opportunity'
 #. Label of the type (Select) field in DocType 'LMS Assignment'
@@ -4828,7 +4828,7 @@ msgstr ""
 #. Option for the 'Grade Type' (Select) field in DocType 'Education Detail'
 #: lms/lms/doctype/education_detail/education_detail.json
 msgid "UK Grading  (e.g. 1st, 2:2)"
-msgstr ""
+msgstr "Calificación de Reino Unido (ej., 1º, 2:2)"
 
 #. Option for the 'Type' (Select) field in DocType 'LMS Assignment'
 #. Option for the 'Type' (Select) field in DocType 'LMS Assignment Submission'
@@ -4841,31 +4841,31 @@ msgstr "URL"
 #. Evaluator'
 #: lms/lms/doctype/course_evaluator/course_evaluator.json
 msgid "Unavailability"
-msgstr ""
+msgstr "Indisponibilidad"
 
 #: lms/lms/doctype/course_evaluator/course_evaluator.py:23
 msgid "Unavailable From Date cannot be greater than Unavailable To Date"
-msgstr ""
+msgstr "No disponible Desde Fecha no puede ser mayor que No disponible Hasta Fecha"
 
 #. Option for the 'Status' (Select) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Under Review"
-msgstr ""
+msgstr "En Revisión"
 
 #. Option for the 'Visibility' (Select) field in DocType 'LMS Batch Old'
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 msgid "Unlisted"
-msgstr ""
+msgstr "No listado"
 
 #: frontend/src/components/Modals/EditCoverImage.vue:60
 #: frontend/src/components/UnsplashImageBrowser.vue:54
 msgid "Unsplash"
-msgstr ""
+msgstr "Unsplash"
 
 #. Label of the unsplash_access_key (Data) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Unsplash Access Key"
-msgstr ""
+msgstr "Clave de acceso a Unsplash"
 
 #. Option for the 'Role Preference' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -4877,16 +4877,16 @@ msgstr ""
 #: frontend/src/pages/CourseForm.vue:151 lms/lms/doctype/cohort/cohort.json
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Upcoming"
-msgstr ""
+msgstr "Próximamente"
 
 #: frontend/src/pages/Batch.vue:154
 msgid "Upcoming Batches"
-msgstr ""
+msgstr "Próximos lotes"
 
 #: frontend/src/components/UpcomingEvaluations.vue:7
 #: lms/templates/upcoming_evals.html:3
 msgid "Upcoming Evaluations"
-msgstr ""
+msgstr "Próximas evaluaciones"
 
 #: frontend/src/components/BrandSettings.vue:23
 #: frontend/src/components/PaymentSettings.vue:27
@@ -4900,11 +4900,11 @@ msgstr "Actualizar contraseña"
 
 #: frontend/src/pages/AssignmentSubmission.vue:69
 msgid "Upload File"
-msgstr ""
+msgstr "Subir archivo"
 
 #: frontend/src/pages/AssignmentSubmission.vue:68
 msgid "Uploading {0}%"
-msgstr ""
+msgstr "Subiendo {0}%"
 
 #. Label of the user (Link) field in DocType 'LMS Job Application'
 #. Label of the email (Link) field in DocType 'Cohort Staff'
@@ -4918,7 +4918,7 @@ msgstr "Usuario"
 #. Label of the user_category (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json lms/templates/signup-form.html:17
 msgid "User Category"
-msgstr ""
+msgstr "Categoría de usuario"
 
 #. Label of the user_field (Select) field in DocType 'LMS Badge'
 #: lms/lms/doctype/lms_badge/lms_badge.json
@@ -4930,16 +4930,16 @@ msgstr "Campo de usuario"
 #: lms/lms/doctype/lms_question/lms_question.json
 #: lms/lms/doctype/lms_quiz_question/lms_quiz_question.json
 msgid "User Input"
-msgstr ""
+msgstr "Entrada del usuario"
 
 #. Name of a DocType
 #: lms/lms/doctype/user_skill/user_skill.json
 msgid "User Skill"
-msgstr ""
+msgstr "Habilidad del usuario"
 
 #: lms/job/doctype/job_opportunity/job_opportunity.py:37
 msgid "User {0} has reported the job post {1}"
-msgstr ""
+msgstr "El usuario {0} ha reportado el puesto de trabajo {1}"
 
 #. Label of the username (Data) field in DocType 'Batch Student'
 #. Label of the username (Data) field in DocType 'Invite Request'
@@ -4956,7 +4956,7 @@ msgstr "Usuarios"
 #. Label of the answer (Small Text) field in DocType 'LMS Quiz Result'
 #: lms/lms/doctype/lms_quiz_result/lms_quiz_result.json
 msgid "Users Response"
-msgstr ""
+msgstr "Respuesta del usuario"
 
 #: lms/templates/signup-form.html:83
 msgid "Valid email and name required"
@@ -4970,7 +4970,7 @@ msgstr "Cambio de Valor"
 #. Label of the video_link (Data) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Video Embed Link"
-msgstr ""
+msgstr "Enlace de incrustación de vídeo"
 
 #: frontend/src/pages/Notifications.vue:38
 msgid "View"
@@ -4991,7 +4991,7 @@ msgstr ""
 
 #: lms/templates/emails/batch_confirmation.html:29
 msgid "Visit the following link to view your "
-msgstr ""
+msgstr "Visita el siguiente enlace para ver tu "
 
 #. Label of the internship (Table) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -5000,7 +5000,7 @@ msgstr ""
 
 #: lms/templates/emails/batch_confirmation.html:6
 msgid "We are pleased to inform you that you have been enrolled in our upcoming batch. Congratulations!"
-msgstr ""
+msgstr "Nos complace informarle que ha sido inscrito en nuestro próximo lote. ¡Felicidades!"
 
 #. Label of the web_page (Link) field in DocType 'LMS Sidebar Item'
 #: frontend/src/components/Modals/PageModal.vue:23
@@ -5018,11 +5018,11 @@ msgstr "Miércoles"
 #: lms/lms/doctype/invite_request/invite_request.py:40
 #: lms/templates/emails/lms_invite_request_approved.html:4
 msgid "Welcome to {0}!"
-msgstr ""
+msgstr "Bienvenido a {0}!"
 
 #: lms/templates/courses_under_review.html:15
 msgid "When a course gets submitted for review, it will be listed here."
-msgstr ""
+msgstr "Cuando un curso se someta a revisión, aparecerá en esta lista."
 
 #: frontend/src/pages/Billing.vue:111
 msgid "Where did you hear about us?"
@@ -5030,12 +5030,12 @@ msgstr ""
 
 #: lms/templates/emails/certification.html:10
 msgid "With this certification, you can now showcase your updated skills and share your achievement with your colleagues and on LinkedIn. To access your certificate, please click on the link provided below. Make sure you are logged in to the portal."
-msgstr ""
+msgstr "Con esta certificación, ahora puede mostrar sus habilidades actualizadas y compartir sus logros con sus colegas y en LinkedIn. Para acceder a su certificado, haga clic en el enlace que se proporciona a continuación. Asegúrese de haber iniciado sesión en el portal."
 
 #. Option for the 'Status' (Select) field in DocType 'LMS Mentor Request'
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
 msgid "Withdrawn"
-msgstr ""
+msgstr "Retirado"
 
 #. Label of the work_environment (Section Break) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -5047,7 +5047,7 @@ msgstr ""
 #: lms/fixtures/custom_field.json
 #: lms/lms/doctype/work_experience/work_experience.json
 msgid "Work Experience"
-msgstr ""
+msgstr "Experiencia laboral"
 
 #. Label of the work_experience_details (Section Break) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -5058,36 +5058,36 @@ msgstr ""
 #: frontend/src/components/Modals/ReviewModal.vue:5
 #: lms/templates/reviews.html:117
 msgid "Write a Review"
-msgstr ""
+msgstr "Escribe una reseña"
 
 #: lms/templates/reviews.html:31 lms/templates/reviews.html:103
 #: lms/templates/reviews_cta.html:3 lms/templates/reviews_cta.html:7
 msgid "Write a review"
-msgstr ""
+msgstr "Escribir una reseña"
 
 #: frontend/src/pages/AssignmentSubmission.vue:102
 msgid "Write your answer here"
-msgstr ""
+msgstr "Escriba su respuesta aquí"
 
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.py:95
 msgid "You already have an evaluation on {0} at {1} for the course {2}."
-msgstr ""
+msgstr "Ya tiene una evaluación en {0} en {1} para el curso {2}."
 
 #: lms/lms/api.py:206
 msgid "You are already enrolled for this batch."
-msgstr ""
+msgstr "Ya estás inscrito en este lote."
 
 #: lms/lms/api.py:198
 msgid "You are already enrolled for this course."
-msgstr ""
+msgstr "Ya estás inscrito en este curso."
 
 #: frontend/src/pages/Batch.vue:136
 msgid "You are not a member of this batch. Please checkout our upcoming batches."
-msgstr ""
+msgstr "No eres miembro de este lote. Consulte nuestros próximos lotes."
 
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.py:20
 msgid "You are not a mentor of the course {0}"
-msgstr ""
+msgstr "No eres mentor del curso {0}"
 
 #: lms/templates/emails/lms_course_interest.html:13
 #: lms/templates/emails/lms_invite_request_approved.html:11
@@ -5096,52 +5096,52 @@ msgstr ""
 
 #: lms/templates/quiz/quiz.html:18
 msgid "You can attempt this quiz only {0} {1}"
-msgstr ""
+msgstr "Puedes intentar este cuestionario solo {0} {1}"
 
 #: frontend/src/components/Quiz.vue:34
 msgid "You can attempt this quiz {0}."
-msgstr ""
+msgstr "Puedes intentar este cuestionario {0}."
 
 #: lms/templates/emails/job_application.html:6
 msgid "You can find their resume attached to this email."
-msgstr ""
+msgstr "Puede encontrar su currículum vitae adjunto a este correo electrónico."
 
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.py:115
 msgid "You cannot schedule evaluations after {0}."
-msgstr ""
+msgstr "No puede programar evaluaciones después de {0}."
 
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.py:104
 msgid "You cannot schedule evaluations for past slots."
-msgstr ""
+msgstr "No puede programar evaluaciones para espacios anteriores."
 
 #: frontend/src/components/NoPermission.vue:11
 msgid "You do not have permission to access this page."
-msgstr ""
+msgstr "No tienes permiso para acceder a esta página."
 
 #: lms/templates/notifications.html:27
 msgid "You don't have any notifications."
-msgstr ""
+msgstr "No tienes ninguna notificación."
 
 #: lms/templates/quiz/quiz.js:137
 msgid "You got"
-msgstr ""
+msgstr "Has conseguido"
 
 #: frontend/src/components/Quiz.vue:234
 #, python-format
 msgid "You got {0}% correct answers with a score of {1} out of {2}"
-msgstr ""
+msgstr "Obtuviste {0}% de respuestas correctas con una puntuación de {1} de {2}"
 
 #: lms/job/doctype/lms_job_application/lms_job_application.py:22
 msgid "You have already applied for this job."
-msgstr ""
+msgstr "Ya has solicitado este trabajo."
 
 #: frontend/src/components/Quiz.vue:70 lms/templates/quiz/quiz.html:43
 msgid "You have already exceeded the maximum number of attempts allowed for this quiz."
-msgstr ""
+msgstr "Ya superaste el número máximo de intentos permitidos para esta prueba."
 
 #: lms/lms/doctype/lms_course_review/lms_course_review.py:17
 msgid "You have already reviewed this course"
-msgstr ""
+msgstr "Ya has revisado este curso"
 
 #: frontend/src/components/BatchOverlay.vue:136
 msgid "You have been enrolled in this batch"
@@ -5153,11 +5153,11 @@ msgstr ""
 
 #: lms/lms/widgets/NoPreviewModal.html:12 lms/public/js/common_functions.js:126
 msgid "You have opted to be notified for this course. You will receive an email when the course becomes available."
-msgstr ""
+msgstr "Has optado por recibir notificaciones sobre este curso. Recibirás un correo electrónico cuando el curso esté disponible."
 
 #: lms/lms/web_template/courses_enrolled/courses_enrolled.html:17
 msgid "You haven't enrolled for any courses"
-msgstr ""
+msgstr "No te has inscrito en ningún curso"
 
 #: frontend/src/components/CourseCardOverlay.vue:144
 msgid "You need to login first to enroll for this course"
@@ -5166,39 +5166,39 @@ msgstr ""
 #: frontend/src/components/Quiz.vue:27 lms/templates/quiz/quiz.html:11
 #, python-format
 msgid "You will have to get {0}% correct answers in order to pass the quiz."
-msgstr ""
+msgstr "Tendrás que obtener {0}% de respuestas correctas para poder aprobar el cuestionario."
 
 #: lms/templates/emails/mentor_request_creation_email.html:4
 msgid "You've applied to become a mentor for this course. Your request is currently under review."
-msgstr ""
+msgstr "Has solicitado ser mentor para este curso. Tu solicitud está siendo revisada."
 
 #: frontend/src/pages/AssignmentSubmission.vue:15
 msgid "You've successfully submitted the assignment."
-msgstr ""
+msgstr "Ha enviado correctamente la tarea."
 
 #. Label of the youtube (Data) field in DocType 'Course Lesson'
 #: lms/lms/doctype/course_lesson/course_lesson.json
 msgid "YouTube Video URL"
-msgstr ""
+msgstr "URL del Video de YouTube"
 
 #. Description of the 'YouTube Video URL' (Data) field in DocType 'Course
 #. Lesson'
 #: lms/lms/doctype/course_lesson/course_lesson.json
 msgid "YouTube Video will appear at the top of the lesson."
-msgstr ""
+msgstr "El vídeo de YouTube aparecerá en la parte superior de la lección."
 
 #: lms/www/new-sign-up.html:56
 msgid "Your Account has been successfully created!"
-msgstr ""
+msgstr "¡Su cuenta ha sido creada satisfactoriamente!"
 
 #: frontend/src/pages/ProfileEvaluator.vue:120
 msgid "Your calendar is set."
-msgstr ""
+msgstr "Su calendario está configurado."
 
 #: lms/lms/notification/certificate_request_reminder/certificate_request_reminder.html:3
 #: lms/templates/emails/certificate_request_notification.html:3
 msgid "Your evaluation for the course {0} has been scheduled on {1} at {2} {3}."
-msgstr ""
+msgstr "Su evaluación para el curso {0} ha sido programada para el {1} a las {2} {3}."
 
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.py:125
 msgid "Your evaluation slot has been booked"
@@ -5210,11 +5210,11 @@ msgstr ""
 
 #: lms/templates/emails/mentor_request_status_update_email.html:4
 msgid "Your request to join us as a mentor for the course"
-msgstr ""
+msgstr "Su solicitud para unirse a nosotros como mentor del curso"
 
 #: lms/templates/quiz/quiz.js:140
 msgid "Your score is"
-msgstr ""
+msgstr "Tu puntuación es"
 
 #: frontend/src/components/Quiz.vue:227
 msgid "Your submission has been successfully saved. The instructor will review and grade it shortly, and you'll be notified of your final result."
@@ -5223,27 +5223,27 @@ msgstr ""
 #. Name of a DocType
 #: lms/lms/doctype/zoom_settings/zoom_settings.json
 msgid "Zoom Settings"
-msgstr ""
+msgstr "Configuración de Zoom"
 
 #: lms/templates/emails/mentor_request_creation_email.html:5
 msgid "cancel your application"
-msgstr ""
+msgstr "cancelar su solicitud"
 
 #: frontend/src/pages/Lesson.vue:175
 msgid "completed"
-msgstr ""
+msgstr "completado"
 
 #: lms/templates/quiz/quiz.js:137
 msgid "correct answers"
-msgstr ""
+msgstr "respuestas correctas"
 
 #: lms/templates/emails/mentor_request_status_update_email.html:4
 msgid "has been"
-msgstr ""
+msgstr "ha sido"
 
 #: frontend/src/pages/ProfileCertificates.vue:17
 msgid "issued on"
-msgstr ""
+msgstr "emitido el"
 
 #: lms/templates/signup-form.html:12
 msgid "jane@example.com"
@@ -5255,7 +5255,7 @@ msgstr "de"
 
 #: lms/templates/quiz/quiz.js:141
 msgid "out of"
-msgstr ""
+msgstr "fuera de"
 
 #: frontend/src/components/JobCard.vue:37
 msgid "posted by"
@@ -5267,15 +5267,15 @@ msgstr ""
 
 #: lms/templates/reviews.html:25
 msgid "ratings"
-msgstr ""
+msgstr "calificaciones"
 
 #: lms/templates/reviews.html:43
 msgid "stars"
-msgstr ""
+msgstr "estrellas"
 
 #: lms/templates/emails/mentor_request_creation_email.html:5
 msgid "you can"
-msgstr ""
+msgstr "puedes"
 
 #: lms/lms/api.py:731 lms/lms/api.py:739
 msgid "{0} Settings not found"
@@ -5283,31 +5283,31 @@ msgstr ""
 
 #: lms/templates/emails/job_application.html:2
 msgid "{0} has applied for the job position {1}"
-msgstr ""
+msgstr "{0} ha solicitado el puesto {1}"
 
 #: lms/templates/emails/job_report.html:4
 msgid "{0} has reported a job post for the following reason."
-msgstr ""
+msgstr "{0} ha reportado una publicación de trabajo por el siguiente motivo."
 
 #: lms/templates/emails/assignment_submission.html:2
 msgid "{0} has submitted the assignment {1}"
-msgstr ""
+msgstr "{0} ha enviado la tarea {1}"
 
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.py:53
 msgid "{0} is already a Student of {1} course through {2} batch"
-msgstr ""
+msgstr "{0} ya es alumno del curso {1} a través del lote {2}"
 
 #: lms/lms/doctype/lms_course_mentor_mapping/lms_course_mentor_mapping.py:16
 msgid "{0} is already a mentor for course {1}"
-msgstr ""
+msgstr "{0} ya es mentor del curso {1}"
 
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.py:26
 msgid "{0} is already a {1} of the course {2}"
-msgstr ""
+msgstr "{0} ya es un {1} del curso {2}"
 
 #: lms/lms/doctype/lms_certificate/lms_certificate.py:59
 msgid "{0} is already certified for the course {1}"
-msgstr ""
+msgstr "{0} ya está certificado para el curso {1}"
 
 #: lms/lms/notification/certificate_request_reminder/certificate_request_reminder.html:5
 msgid "{0} is your evaluator"
@@ -5315,19 +5315,19 @@ msgstr ""
 
 #: lms/lms/utils.py:690
 msgid "{0} mentioned you in a comment"
-msgstr ""
+msgstr "{0} te mencionó en un comentario"
 
 #: lms/templates/emails/mention_template.html:2
 msgid "{0} mentioned you in a comment in your batch."
-msgstr ""
+msgstr "{0} te mencionó en un comentario en tu lote."
 
 #: lms/lms/utils.py:643 lms/lms/utils.py:649
 msgid "{0} mentioned you in a comment in {1}"
-msgstr ""
+msgstr "{0} te mencionó en un comentario en {1}"
 
 #: lms/lms/utils.py:461
 msgid "{0}k"
-msgstr ""
+msgstr "{0}k"
 
 #. Count format of shortcut in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
@@ -5337,22 +5337,22 @@ msgstr ""
 #. Count format of shortcut in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "{} Completed"
-msgstr ""
+msgstr "{} Completado"
 
 #. Count format of shortcut in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "{} Enrolled"
-msgstr ""
+msgstr "{} Inscritos"
 
 #. Count format of shortcut in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "{} Granted"
-msgstr ""
+msgstr "{} Concedido"
 
 #. Count format of shortcut in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "{} Passed"
-msgstr ""
+msgstr "{} Aprobado"
 
 #. Count format of shortcut in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
