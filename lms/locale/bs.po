@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2024-10-18 16:04+0000\n"
-"PO-Revision-Date: 2024-10-25 11:05\n"
+"PO-Revision-Date: 2024-10-26 11:24\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Bosnian\n"
 "MIME-Version: 1.0\n"
@@ -1315,7 +1315,7 @@ msgstr "Poštovani"
 #: lms/templates/emails/batch_confirmation.html:2
 #: lms/templates/emails/certification.html:2
 msgid "Dear "
-msgstr ""
+msgstr "Poštovani "
 
 #. Label of the default_currency (Link) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -1969,7 +1969,7 @@ msgstr ""
 
 #: lms/templates/emails/lms_course_interest.html:3
 msgid "Hi {0},"
-msgstr ""
+msgstr "Zdravo {0},"
 
 #: lms/templates/emails/lms_invite_request_approved.html:3
 msgid "Hi,"
@@ -2766,7 +2766,7 @@ msgstr ""
 
 #: lms/templates/emails/batch_confirmation.html:21
 msgid "Medium:"
-msgstr ""
+msgstr "Srednje:"
 
 #. Label of the member (Link) field in DocType 'Exercise Latest Submission'
 #. Label of the member (Link) field in DocType 'Exercise Submission'
@@ -3213,7 +3213,7 @@ msgstr ""
 #: frontend/src/components/Modals/Question.vue:63
 #: lms/lms/doctype/lms_option/lms_option.json
 msgid "Option"
-msgstr ""
+msgstr "Opcija"
 
 #. Label of the option_1 (Small Text) field in DocType 'LMS Question'
 #: lms/lms/doctype/lms_question/lms_question.json
@@ -3233,7 +3233,7 @@ msgstr "Opcija 3"
 #. Label of the option_4 (Small Text) field in DocType 'LMS Question'
 #: lms/lms/doctype/lms_question/lms_question.json
 msgid "Option 4"
-msgstr ""
+msgstr "Opcija 4"
 
 #. Label of the order_id (Data) field in DocType 'LMS Payment'
 #: lms/lms/doctype/lms_payment/lms_payment.json
@@ -5231,7 +5231,7 @@ msgstr ""
 
 #: frontend/src/pages/Lesson.vue:175
 msgid "completed"
-msgstr ""
+msgstr "završeno"
 
 #: lms/templates/quiz/quiz.js:137
 msgid "correct answers"
@@ -5323,7 +5323,7 @@ msgstr ""
 
 #: lms/lms/utils.py:643 lms/lms/utils.py:649
 msgid "{0} mentioned you in a comment in {1}"
-msgstr ""
+msgstr "{0} vas je spomenuo u komentaru u {1}"
 
 #: lms/lms/utils.py:461
 msgid "{0}k"
@@ -5337,7 +5337,7 @@ msgstr ""
 #. Count format of shortcut in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "{} Completed"
-msgstr ""
+msgstr "{} Završeno"
 
 #. Count format of shortcut in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
