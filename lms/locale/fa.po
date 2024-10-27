@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2024-10-18 16:04+0000\n"
-"PO-Revision-Date: 2024-10-26 11:24\n"
+"PO-Revision-Date: 2024-10-27 11:40\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Persian\n"
 "MIME-Version: 1.0\n"
@@ -3505,7 +3505,7 @@ msgstr ""
 
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.py:95
 msgid "Please upload the assignment file."
-msgstr ""
+msgstr "لطفا فایل تکلیف را آپلود کنید."
 
 #. Option for the 'Grade Type' (Select) field in DocType 'Education Detail'
 #: lms/lms/doctype/education_detail/education_detail.json
@@ -4900,7 +4900,7 @@ msgstr "به‌روزرسانی گذرواژه"
 
 #: frontend/src/pages/AssignmentSubmission.vue:69
 msgid "Upload File"
-msgstr ""
+msgstr "آپلود فایل"
 
 #: frontend/src/pages/AssignmentSubmission.vue:68
 msgid "Uploading {0}%"
