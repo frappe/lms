@@ -56,6 +56,23 @@
 				}}
 			</div>
 		</div>
+
+		<div class="space-y-2">
+			<div
+				class="flex items-center text-sm font-medium space-x-2 cursor-pointer"
+			>
+				<span>
+					{{ __('What does include in preview mean?') }}
+				</span>
+			</div>
+			<div class="text-xs text-gray-600 mb-1 leading-5">
+				{{
+					__(
+						'If Include in Preview is enabled for a lesson then the lesson will also be accessible to non logged in users.'
+					)
+				}}
+			</div>
+		</div>
 	</div>
 	<ExplanationVideos v-model="showExplanation" :type="type" />
 </template>

@@ -157,11 +157,12 @@ def get_lesson_details(chapter, progress=False):
 				"file_type",
 				"instructor_notes",
 				"course",
+				"content"
 			],
 			as_dict=True,
 		)
 		lesson_details.number = f"{chapter.idx}.{row.idx}"
-		lesson_details.icon = get_lesson_icon(lesson_details.body)
+		lesson_details.icon = get_lesson_icon(lesson_details.body, lesson_details.content)
 
 		if progress:
 			lesson_details.is_complete = get_progress(lesson_details.course, lesson_details.name)
@@ -170,20 +171,31 @@ def get_lesson_details(chapter, progress=False):
 	return lessons
 
 
-def get_lesson_icon(content):
-	icon = None
-	macros = find_macros(content)
+def get_lesson_icon(body, content):
+	if content:
+		content = json.loads(content)
 
+		for block in content.get("blocks"):
+			if block.get("type") == "upload" and block.get("data").get("file_type").lower() in ["mp4", "webm", "ogg", "mov"]:
+				return "icon-youtube"
+
+			if block.get("type") == "embed" and block.get("data").get("service") in ["youtube", "vimeo"]:
+				return "icon-youtube"
+
+			if block.get("type") == "quiz":
+				return "icon-quiz"
+
+		return "icon-list"
+		
+	macros = find_macros(body)
 	for macro in macros:
 		if macro[0] == "YouTubeVideo" or macro[0] == "Video":
-			icon = "icon-youtube"
+			return "icon-youtube"
 		elif macro[0] == "Quiz":
-			icon = "icon-quiz"
+			return "icon-quiz"
 
-	if not icon:
-		icon = "icon-list"
+	return "icon-list"
 
-	return icon
 
 
 @frappe.whitelist(allow_guest=True)
