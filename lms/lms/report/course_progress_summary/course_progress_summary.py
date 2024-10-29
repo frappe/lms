@@ -104,7 +104,7 @@ def get_charts(data):
 
 	charts = {
 		"data": {
-			"labels": ["0-10", "10-40", "40-70", "70-99", "100"],
+			"labels": ["0-9", "10-39", "40-69", "70-99", "100"],
 			"datasets": [
 				{
 					"name": "Progress (%)",
