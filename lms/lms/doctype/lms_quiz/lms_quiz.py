@@ -52,6 +52,7 @@ class LMSQuiz(Document):
 			)
 		else:
 			self.total_marks = sum(cint(question.marks) for question in self.questions)
+			print(self.total_marks)
 
 	def validate_open_ended_questions(self):
 		types = [question.type for question in self.questions]

@@ -862,6 +862,8 @@ def create_quiz(lesson):
 	quiz = frappe.new_doc("LMS Quiz")
 	quiz.title = lesson.get("title")
 	quiz.passing_percentage = 80
+	quiz.total_marks = len(questions)
+
 	quiz.insert()
 
 	for idx, question in enumerate(questions):
