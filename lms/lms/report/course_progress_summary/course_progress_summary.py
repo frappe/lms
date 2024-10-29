@@ -93,11 +93,11 @@ def get_charts(data):
 	for row in data:
 		if row.progress == 100:
 			completed += 1
-		elif row.progress < 100 and row.progress > 70:
+		elif row.progress < 100 and row.progress >= 70:
 			less_than_hundred += 1
-		elif row.progress < 70 and row.progress > 40:
+		elif row.progress < 70 and row.progress >= 40:
 			less_than_seventy += 1
-		elif row.progress < 40 and row.progress > 10:
+		elif row.progress < 40 and row.progress >= 10:
 			less_than_forty += 1
 		elif row.progress < 10:
 			less_than_ten += 1
