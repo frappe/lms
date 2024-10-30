@@ -265,18 +265,21 @@
    "fieldtype": "Section Break"
   },
   {
+   "default": "0",
    "fieldname": "enrollments",
    "fieldtype": "Data",
    "label": "Enrollments",
    "read_only": 1
   },
   {
+   "default": "0",
    "fieldname": "lessons",
    "fieldtype": "Data",
    "label": "Lessons",
    "read_only": 1
   },
   {
+   "default": "0",
    "fieldname": "rating",
    "fieldtype": "Data",
    "label": "Rating",
@@ -307,7 +310,7 @@
   }
  ],
  "make_attachments_public": 1,
- "modified": "2024-10-30 12:48:41.184763",
+ "modified": "2024-10-30 23:08:31.842860",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",

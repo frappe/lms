@@ -5,7 +5,7 @@ describe("Course Creation", () => {
 		cy.visit("/lms/courses");
 
 		// Create a course
-		cy.get("a").contains("New").click();
+		cy.get("header").children().last().children().last().click();
 		cy.wait(1000);
 		cy.url().should("include", "/courses/new/edit");
 
@@ -73,7 +73,7 @@ describe("Course Creation", () => {
 			.should("be.visible")
 			.within(() => {
 				cy.get("label").contains("Title").type("Test Chapter");
-				cy.button("Add Chapter").click();
+				cy.button("Create").click();
 			});
 
 		// Add Lesson
