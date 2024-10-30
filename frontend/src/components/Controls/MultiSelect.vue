@@ -117,7 +117,7 @@ const props = defineProps({
 		default: (value) => `${value} is an Invalid value`,
 	},
 	required: {
-		type: Boolean
+		type: Boolean,
 	},
 })
 
