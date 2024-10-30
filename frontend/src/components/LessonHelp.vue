@@ -21,7 +21,7 @@
 
 		<div class="space-y-2">
 			<div
-				class="flex items-center text-sm font-medium space-x-2 cursor-pointer"
+				class="flex text-sm font-medium space-x-2 cursor-pointer"
 				@click="openHelpDialog('upload')"
 			>
 				<span class="leading-5">
@@ -58,9 +58,7 @@
 		</div>
 
 		<div class="space-y-2">
-			<div
-				class="flex items-center text-sm font-medium space-x-2 cursor-pointer"
-			>
+			<div class="flex items-center text-sm font-medium space-x-2">
 				<span>
 					{{ __('What does include in preview mean?') }}
 				</span>

@@ -93,21 +93,19 @@
 			<div class="flex items-center mb-3">
 				<BookOpen class="h-5 w-5 stroke-1.5 text-gray-600" />
 				<span class="ml-2">
-					{{ course.data.lesson_count }} {{ __('Lessons') }}
+					{{ course.data.lessons }} {{ __('Lessons') }}
 				</span>
 			</div>
 			<div class="flex items-center mb-3">
 				<Users class="h-5 w-5 stroke-1.5 text-gray-600" />
 				<span class="ml-2">
-					{{ course.data.enrollment_count_formatted }}
+					{{ formatAmount(course.data.enrollments) }}
 					{{ __('Enrolled Students') }}
 				</span>
 			</div>
 			<div class="flex items-center">
 				<Star class="h-5 w-5 stroke-1.5 fill-orange-500 text-gray-50" />
-				<span class="ml-2">
-					{{ course.data.avg_rating }} {{ __('Rating') }}
-				</span>
+				<span class="ml-2"> {{ course.data.rating }} {{ __('Rating') }} </span>
 			</div>
 		</div>
 	</div>
@@ -116,7 +114,7 @@
 import { BookOpen, Users, Star } from 'lucide-vue-next'
 import { computed, inject } from 'vue'
 import { Button, createResource } from 'frappe-ui'
-import { showToast } from '@/utils/'
+import { showToast, formatAmount } from '@/utils/'
 import { capture } from '@/telemetry'
 import { useRouter } from 'vue-router'
 

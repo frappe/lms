@@ -157,7 +157,7 @@ def get_lesson_details(chapter, progress=False):
 				"file_type",
 				"instructor_notes",
 				"course",
-				"content"
+				"content",
 			],
 			as_dict=True,
 		)
@@ -176,17 +176,25 @@ def get_lesson_icon(body, content):
 		content = json.loads(content)
 
 		for block in content.get("blocks"):
-			if block.get("type") == "upload" and block.get("data").get("file_type").lower() in ["mp4", "webm", "ogg", "mov"]:
+			if block.get("type") == "upload" and block.get("data").get("file_type").lower() in [
+				"mp4",
+				"webm",
+				"ogg",
+				"mov",
+			]:
 				return "icon-youtube"
 
-			if block.get("type") == "embed" and block.get("data").get("service") in ["youtube", "vimeo"]:
+			if block.get("type") == "embed" and block.get("data").get("service") in [
+				"youtube",
+				"vimeo",
+			]:
 				return "icon-youtube"
 
 			if block.get("type") == "quiz":
 				return "icon-quiz"
 
 		return "icon-list"
-		
+
 	macros = find_macros(body)
 	for macro in macros:
 		if macro[0] == "YouTubeVideo" or macro[0] == "Video":
@@ -195,7 +203,6 @@ def get_lesson_icon(body, content):
 			return "icon-quiz"
 
 	return "icon-list"
-
 
 
 @frappe.whitelist(allow_guest=True)
@@ -1039,23 +1046,13 @@ def get_course_details(course):
 			"currency",
 			"amount_usd",
 			"enable_certification",
+			"lessons",
+			"enrollments",
+			"rating",
 		],
 		as_dict=1,
 	)
 	course_details.tags = course_details.tags.split(",") if course_details.tags else []
-	course_details.lesson_count = get_lesson_count(course_details.name)
-
-	course_details.enrollment_count = frappe.db.count(
-		"LMS Enrollment", {"course": course_details.name, "member_type": "Student"}
-	)
-	course_details.enrollment_count_formatted = format_number(
-		course_details.enrollment_count
-	)
-
-	avg_rating = get_average_rating(course_details.name) or 0
-	course_details.avg_rating = flt(
-		avg_rating, frappe.get_system_settings("float_precision") or 3
-	)
 
 	course_details.instructors = get_instructors(course_details.name)
 	if course_details.paid_course:
@@ -1111,7 +1108,7 @@ def get_categorized_courses(courses):
 
 		categories = [live, enrolled, created]
 		for category in categories:
-			category.sort(key=lambda x: x.enrollment_count, reverse=True)
+			category.sort(key=lambda x: x.enrollments, reverse=True)
 
 		live.sort(key=lambda x: x.featured, reverse=True)
 

@@ -30,29 +30,29 @@
 		</div>
 		<div class="flex flex-col flex-auto p-4">
 			<div class="flex items-center justify-between mb-2">
-				<div v-if="course.lesson_count">
+				<div v-if="course.lessons">
 					<Tooltip :text="__('Lessons')">
 						<span class="flex items-center">
 							<BookOpen class="h-4 w-4 stroke-1.5 text-gray-700 mr-1" />
-							{{ course.lesson_count }}
+							{{ course.lessons }}
 						</span>
 					</Tooltip>
 				</div>
 
-				<div v-if="course.enrollment_count">
+				<div v-if="course.enrollments">
 					<Tooltip :text="__('Enrolled Students')">
 						<span class="flex items-center">
 							<Users class="h-4 w-4 stroke-1.5 text-gray-700 mr-1" />
-							{{ course.enrollment_count }}
+							{{ course.enrollments }}
 						</span>
 					</Tooltip>
 				</div>
 
-				<div v-if="course.avg_rating">
+				<div v-if="course.rating">
 					<Tooltip :text="__('Average Rating')">
 						<span class="flex items-center">
 							<Star class="h-4 w-4 stroke-1.5 text-gray-700 mr-1" />
-							{{ course.avg_rating }}
+							{{ course.rating }}
 						</span>
 					</Tooltip>
 				</div>

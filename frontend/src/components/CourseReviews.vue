@@ -76,7 +76,7 @@ const props = defineProps({
 		required: true,
 	},
 	avg_rating: {
-		type: Number,
+		type: String,
 		required: true,
 	},
 	membership: {

@@ -57,6 +57,15 @@ export function formatNumberIntoCurrency(number, currency) {
 	return ''
 }
 
+// create a function that formats numbers in thousands to k
+
+export function formatAmount(amount) {
+	if (amount > 999) {
+		return (amount / 1000).toFixed(1) + 'k'
+	}
+	return amount
+}
+
 export function convertToTitleCase(str) {
 	if (!str) {
 		return ''

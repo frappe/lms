@@ -27,7 +27,11 @@
 						<FormControl
 							v-model="course.short_introduction"
 							:label="__('Short Introduction')"
-							:placeholder="__('A one line introduction to the course that appears on the course card')"
+							:placeholder="
+								__(
+									'A one line introduction to the course that appears on the course card'
+								)
+							"
 							class="mb-4"
 						/>
 						<div class="mb-4">
@@ -61,10 +65,12 @@
 										</div>
 										<div class="ml-4">
 											<Button @click="openFileSelector">
-												{{ __("Upload") }}
+												{{ __('Upload') }}
 											</Button>
 											<div class="mt-2 text-gray-600 text-sm">
-												{{ __("Appears on the course card in the course list") }}
+												{{
+													__('Appears on the course card in the course list')
+												}}
 											</div>
 										</div>
 									</div>
@@ -72,39 +78,29 @@
 							</FileUploader>
 							<div v-else class="mb-4">
 								<div class="flex items-center">
-									<img :src="course.course_image.file_url" class="border rounded-md w-40" />
+									<img
+										:src="course.course_image.file_url"
+										class="border rounded-md w-40"
+									/>
 									<div class="ml-4">
 										<Button @click="removeImage()">
-											{{ __("Remove") }}
+											{{ __('Remove') }}
 										</Button>
 										<div class="mt-2 text-gray-600 text-sm">
-											{{ __("Appears on the course card in the course list") }}
+											{{ __('Appears on the course card in the course list') }}
 										</div>
 									</div>
 								</div>
-								<!-- <div class="flex items-center">
-									<div class="border rounded-md p-2 mr-2">
-										<img :src="course.course_image.file_url" class="border rounded-md" />
-									</div>
-									<div class="flex flex-col">
-										<span>
-											{{ course.course_image.file_name }}
-										</span>
-										<span class="text-sm text-gray-500 mt-1">
-											{{ getFileSize(course.course_image.file_size) }}
-										</span>
-									</div>
-									<X
-										@click="removeImage()"
-										class="bg-gray-200 rounded-md cursor-pointer stroke-1.5 w-5 h-5 p-1 ml-4"
-									/>
-								</div> -->
 							</div>
 						</div>
 						<FormControl
 							v-model="course.video_link"
 							:label="__('Preview Video')"
-							:placeholder="__('Paste the youtube link of a short video introducing the course')"
+							:placeholder="
+								__(
+									'Paste the youtube link of a short video introducing the course'
+								)
+							"
 							class="mb-4"
 						/>
 						<div class="mb-4">
