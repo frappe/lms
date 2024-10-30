@@ -23,15 +23,18 @@
 							v-model="course.title"
 							:label="__('Title')"
 							class="mb-4"
+							:required="true"
 						/>
 						<FormControl
 							v-model="course.short_introduction"
 							:label="__('Short Introduction')"
 							class="mb-4"
+							:required="true"
 						/>
 						<div class="mb-4">
 							<div class="mb-1.5 text-sm text-gray-700">
 								{{ __('Course Description') }}
+								<span class="text-red-500">*</span>
 							</div>
 							<TextEditor
 								:content="course.description"
@@ -62,6 +65,7 @@
 						<div v-else class="mb-4">
 							<div class="text-xs text-gray-600 mb-1">
 								{{ __('Course Image') }}
+								<span class="text-red-500">*</span>
 							</div>
 							<div class="flex items-center">
 								<div class="border rounded-md p-2 mr-2">
@@ -121,6 +125,7 @@
 							v-model="instructors"
 							doctype="User"
 							:label="__('Instructors')"
+							:required="true"
 						/>
 					</div>
 					<div class="container border-t">
