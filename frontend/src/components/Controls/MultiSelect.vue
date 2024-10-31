@@ -2,6 +2,7 @@
 	<div>
 		<label class="block mb-1" :class="labelClasses" v-if="label">
 			{{ label }}
+			<span class="text-red-500" v-if="required">*</span>
 		</label>
 		<div class="grid grid-cols-3 gap-1">
 			<Button
@@ -114,6 +115,9 @@ const props = defineProps({
 	errorMessage: {
 		type: Function,
 		default: (value) => `${value} is an Invalid value`,
+	},
+	required: {
+		type: Boolean,
 	},
 })
 

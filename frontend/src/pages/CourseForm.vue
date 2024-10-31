@@ -23,6 +23,7 @@
 							v-model="course.title"
 							:label="__('Title')"
 							class="mb-4"
+							:required="true"
 						/>
 						<FormControl
 							v-model="course.short_introduction"
@@ -33,10 +34,12 @@
 								)
 							"
 							class="mb-4"
+							:required="true"
 						/>
 						<div class="mb-4">
 							<div class="mb-1.5 text-sm text-gray-600">
 								{{ __('Course Description') }}
+								<span class="text-red-500">*</span>
 							</div>
 							<TextEditor
 								:content="course.description"
@@ -49,6 +52,7 @@
 						<div class="mb-4">
 							<div class="text-xs text-gray-600 mb-2">
 								{{ __('Course Image') }}
+								<span class="text-red-500">*</span>
 							</div>
 							<FileUploader
 								v-if="!course.course_image"
@@ -140,6 +144,7 @@
 							v-model="instructors"
 							doctype="User"
 							:label="__('Instructors')"
+							:required="true"
 						/>
 					</div>
 					<div class="container border-t">
