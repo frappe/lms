@@ -109,7 +109,7 @@ def get_chapters(course):
 		chapter_details = frappe.db.get_value(
 			"Course Chapter",
 			{"name": chapter.chapter},
-			["name", "title", "description"],
+			["name", "title"],
 			as_dict=True,
 		)
 		chapter.update(chapter_details)
@@ -157,11 +157,12 @@ def get_lesson_details(chapter, progress=False):
 				"file_type",
 				"instructor_notes",
 				"course",
+				"content",
 			],
 			as_dict=True,
 		)
 		lesson_details.number = f"{chapter.idx}.{row.idx}"
-		lesson_details.icon = get_lesson_icon(lesson_details.body)
+		lesson_details.icon = get_lesson_icon(lesson_details.body, lesson_details.content)
 
 		if progress:
 			lesson_details.is_complete = get_progress(lesson_details.course, lesson_details.name)
@@ -170,20 +171,38 @@ def get_lesson_details(chapter, progress=False):
 	return lessons
 
 
-def get_lesson_icon(content):
-	icon = None
-	macros = find_macros(content)
+def get_lesson_icon(body, content):
+	if content:
+		content = json.loads(content)
 
+		for block in content.get("blocks"):
+			if block.get("type") == "upload" and block.get("data").get("file_type").lower() in [
+				"mp4",
+				"webm",
+				"ogg",
+				"mov",
+			]:
+				return "icon-youtube"
+
+			if block.get("type") == "embed" and block.get("data").get("service") in [
+				"youtube",
+				"vimeo",
+			]:
+				return "icon-youtube"
+
+			if block.get("type") == "quiz":
+				return "icon-quiz"
+
+		return "icon-list"
+
+	macros = find_macros(body)
 	for macro in macros:
 		if macro[0] == "YouTubeVideo" or macro[0] == "Video":
-			icon = "icon-youtube"
+			return "icon-youtube"
 		elif macro[0] == "Quiz":
-			icon = "icon-quiz"
+			return "icon-quiz"
 
-	if not icon:
-		icon = "icon-list"
-
-	return icon
+	return "icon-list"
 
 
 @frappe.whitelist(allow_guest=True)
@@ -1027,23 +1046,13 @@ def get_course_details(course):
 			"currency",
 			"amount_usd",
 			"enable_certification",
+			"lessons",
+			"enrollments",
+			"rating",
 		],
 		as_dict=1,
 	)
 	course_details.tags = course_details.tags.split(",") if course_details.tags else []
-	course_details.lesson_count = get_lesson_count(course_details.name)
-
-	course_details.enrollment_count = frappe.db.count(
-		"LMS Enrollment", {"course": course_details.name, "member_type": "Student"}
-	)
-	course_details.enrollment_count_formatted = format_number(
-		course_details.enrollment_count
-	)
-
-	avg_rating = get_average_rating(course_details.name) or 0
-	course_details.avg_rating = flt(
-		avg_rating, frappe.get_system_settings("float_precision") or 3
-	)
 
 	course_details.instructors = get_instructors(course_details.name)
 	if course_details.paid_course:
@@ -1092,14 +1101,14 @@ def get_categorized_courses(courses):
 		):
 			new.append(course)
 
-		if course.membership and course.published:
+		if course.membership:
 			enrolled.append(course)
 		elif course.is_instructor:
 			created.append(course)
 
 		categories = [live, enrolled, created]
 		for category in categories:
-			category.sort(key=lambda x: x.enrollment_count, reverse=True)
+			category.sort(key=lambda x: x.enrollments, reverse=True)
 
 		live.sort(key=lambda x: x.featured, reverse=True)
 
@@ -1124,7 +1133,7 @@ def get_course_outline(course, progress=False):
 		chapter_details = frappe.db.get_value(
 			"Course Chapter",
 			chapter.chapter,
-			["name", "title", "description"],
+			["name", "title"],
 			as_dict=True,
 		)
 		chapter_details["idx"] = chapter.idx

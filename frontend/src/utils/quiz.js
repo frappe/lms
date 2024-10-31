@@ -51,7 +51,7 @@ export class Quiz {
 			app.mount(this.wrapper)
 			return
 		}
-		this.wrapper.innerHTML = `<div class='border rounded-md p-10 text-center mb-2'>
+		this.wrapper.innerHTML = `<div class='border rounded-md p-10 text-center bg-gray-50 mb-2'>
             <span class="font-medium">
                 Quiz: ${quiz}
             </span>

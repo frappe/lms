@@ -9,9 +9,8 @@
  "engine": "InnoDB",
  "field_order": [
   "course",
-  "title",
   "column_break_3",
-  "description",
+  "title",
   "section_break_5",
   "lessons"
  ],
@@ -36,11 +35,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "description",
-   "fieldtype": "Small Text",
-   "label": "Description"
-  },
-  {
    "fieldname": "section_break_5",
    "fieldtype": "Section Break"
   },
@@ -59,7 +53,7 @@
    "link_fieldname": "chapter"
   }
  ],
- "modified": "2023-09-29 17:03:58.013819",
+ "modified": "2024-10-29 16:54:20.904683",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Course Chapter",

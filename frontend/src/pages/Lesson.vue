@@ -301,14 +301,14 @@ const breadcrumbs = computed(() => {
 	let items = [{ label: 'All Courses', route: { name: 'Courses' } }]
 	items.push({
 		label: lesson?.data?.course_title,
-		route: { name: 'CourseDetail', params: { course: props.courseName } },
+		route: { name: 'CourseDetail', params: { courseName: props.courseName } },
 	})
 	items.push({
 		label: lesson?.data?.title,
 		route: {
 			name: 'Lesson',
 			params: {
-				course: props.courseName,
+				courseName: props.courseName,
 				chapterNumber: props.chapterNumber,
 				lessonNumber: props.lessonNumber,
 			},

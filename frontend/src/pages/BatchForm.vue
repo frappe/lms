@@ -32,57 +32,65 @@
 				</div>
 			</div>
 			<div class="mb-4">
-				<div>
-					<FileUploader
-						v-if="!batch.image"
-						class="mt-4"
-						:fileTypes="['image/*']"
-						:validateFile="validateFile"
-						@success="(file) => saveImage(file)"
-					>
-						<template v-slot="{ file, progress, uploading, openFileSelector }">
-							<div class="mb-4">
-								<Button @click="openFileSelector" :loading="uploading">
-									{{ uploading ? `Uploading ${progress}%` : 'Upload an image' }}
-								</Button>
-							</div>
-						</template>
-					</FileUploader>
-					<div v-else class="mb-4">
-						<div class="text-xs text-gray-600 mb-1">
-							{{ __('Meta Image') }}
-						</div>
+				<div class="text-xs text-gray-600 mb-2">
+					{{ __('Meta Image') }}
+				</div>
+				<FileUploader
+					v-if="!batch.image"
+					:fileTypes="['image/*']"
+					:validateFile="validateFile"
+					@success="(file) => saveImage(file)"
+				>
+					<template v-slot="{ file, progress, uploading, openFileSelector }">
 						<div class="flex items-center">
-							<div class="border rounded-md p-2 mr-2">
-								<FileText class="h-5 w-5 stroke-1.5 text-gray-700" />
+							<div class="border rounded-md w-fit py-5 px-20">
+								<Image class="size-5 stroke-1 text-gray-700" />
 							</div>
-							<div class="flex flex-col">
-								<span>
-									{{ batch.image.file_name }}
-								</span>
-								<span class="text-sm text-gray-500 mt-1">
-									{{ getFileSize(batch.image.file_size) }}
-								</span>
+							<div class="ml-4">
+								<Button @click="openFileSelector">
+									{{ __('Upload') }}
+								</Button>
+								<div class="mt-2 text-gray-600 text-sm">
+									{{
+										__(
+											'Appears when the batch URL is shared on any online platform'
+										)
+									}}
+								</div>
 							</div>
-							<X
-								@click="removeImage()"
-								class="bg-gray-200 rounded-md cursor-pointer stroke-1.5 w-5 h-5 p-1 ml-4"
-							/>
+						</div>
+					</template>
+				</FileUploader>
+				<div v-else class="mb-4">
+					<div class="flex items-center">
+						<img :src="batch.image.file_url" class="border rounded-md w-40" />
+						<div class="ml-4">
+							<Button @click="removeImage()">
+								{{ __('Remove') }}
+							</Button>
+							<div class="mt-2 text-gray-600 text-sm">
+								{{
+									__(
+										'Appears when the batch URL is shared on any online platform'
+									)
+								}}
+							</div>
 						</div>
 					</div>
 				</div>
-				<MultiSelect
-					v-model="instructors"
-					doctype="User"
-					:label="__('Instructors')"
-				/>
 			</div>
+			<MultiSelect
+				v-model="instructors"
+				doctype="User"
+				:label="__('Instructors')"
+			/>
 			<div class="mb-4">
 				<FormControl
 					v-model="batch.description"
 					:label="__('Description')"
 					type="textarea"
 					class="my-4"
+					:placeholder="__('Short description of the batch')"
 				/>
 				<div>
 					<label class="block text-sm text-gray-600 mb-1">
@@ -133,6 +141,7 @@
 							v-model="batch.timezone"
 							:label="__('Timezone')"
 							type="text"
+							:placeholder="__('Example: IST (+5:30)')"
 							class="mb-4"
 						/>
 					</div>
@@ -149,6 +158,7 @@
 							:label="__('Seat Count')"
 							type="number"
 							class="mb-4"
+							:placeholder="__('Number of seats available')"
 						/>
 						<FormControl
 							v-model="batch.evaluation_end_date"
@@ -228,11 +238,11 @@ import {
 	createResource,
 } from 'frappe-ui'
 import Link from '@/components/Controls/Link.vue'
-import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import { useRouter } from 'vue-router'
-import { getFileSize, showToast } from '../utils'
-import { X, FileText } from 'lucide-vue-next'
+import { showToast } from '../utils'
+import { Image } from 'lucide-vue-next'
 import { capture } from '@/telemetry'
+import MultiSelect from '@/components/Controls/MultiSelect.vue'
 
 const router = useRouter()
 const user = inject('$user')
