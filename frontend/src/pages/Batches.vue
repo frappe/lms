@@ -87,7 +87,7 @@
 			</Tabs>
 			<div
 				v-else-if="
-					batches.fetched &&
+					!batches.loading &&
 					!hasBatches &&
 					(user.data?.is_instructor || user.data?.is_moderator)
 				"
@@ -117,7 +117,7 @@
 				</router-link>
 			</div>
 			<div
-				v-else-if="batches.fetched && !hasBatches"
+				v-else-if="!batches.loading && !hasBatches"
 				class="text-center p-5 text-gray-600 mt-52 w-3/4 md:w-1/2 mx-auto space-y-2"
 			>
 				<BookOpen class="size-10 mx-auto stroke-1 text-gray-500" />
@@ -165,13 +165,6 @@ const batches = createResource({
 	url: 'lms.lms.utils.get_batches',
 	cache: ['batches', user.data?.email],
 	auto: true,
-	onSuccess(data) {
-		Object.keys(data).forEach((section) => {
-			if (data[section].length) {
-				hasBatches.value = true
-			}
-		})
-	},
 })
 
 const categories = createResource({
@@ -230,6 +223,14 @@ const addToTabs = (label) => {
 		count: computed(() => batches.length),
 	})
 }
+
+watch(batches, () => {
+	Object.keys(batches.data).forEach((key) => {
+		if (batches.data[key].length) {
+			hasBatches.value = true
+		}
+	})
+})
 
 watch(
 	() => currentCategory.value,

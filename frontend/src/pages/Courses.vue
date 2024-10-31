@@ -109,7 +109,7 @@
 			</Tabs>
 			<div
 				v-else-if="
-					courses.fetched &&
+					!courses.loading &&
 					(user.data?.is_moderator || user.data?.is_instructor)
 				"
 				class="grid grid-cols-3 p-5"
@@ -138,7 +138,7 @@
 				</router-link>
 			</div>
 			<div
-				v-else-if="courses.fetched && !hasCourses"
+				v-else-if="!courses.loading && !hasCourses"
 				class="text-center p-5 text-gray-600 mt-52 w-3/4 md:w-1/2 mx-auto space-y-2"
 			>
 				<BookOpen class="size-10 mx-auto stroke-1 text-gray-500" />
@@ -187,13 +187,6 @@ const courses = createResource({
 	url: 'lms.lms.utils.get_courses',
 	cache: ['courses', user.data?.email],
 	auto: true,
-	onSuccess(data) {
-		Object.keys(data).forEach((section) => {
-			if (data[section].length) {
-				hasCourses.value = true
-			}
-		})
-	},
 })
 
 const tabIndex = ref(0)
@@ -269,6 +262,16 @@ const categories = createResource({
 			value: null,
 		})
 	},
+})
+
+watch(courses, () => {
+	if (courses.data) {
+		Object.keys(courses.data).forEach((section) => {
+			if (courses.data[section].length) {
+				hasCourses.value = true
+			}
+		})
+	}
 })
 
 watch(

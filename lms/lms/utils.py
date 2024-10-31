@@ -1101,7 +1101,7 @@ def get_categorized_courses(courses):
 		):
 			new.append(course)
 
-		if course.membership and course.published:
+		if course.membership:
 			enrolled.append(course)
 		elif course.is_instructor:
 			created.append(course)

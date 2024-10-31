@@ -79,6 +79,11 @@
 					</div>
 				</div>
 			</div>
+			<MultiSelect
+				v-model="instructors"
+				doctype="User"
+				:label="__('Instructors')"
+			/>
 			<div class="mb-4">
 				<FormControl
 					v-model="batch.description"
@@ -237,6 +242,7 @@ import { useRouter } from 'vue-router'
 import { showToast } from '../utils'
 import { Image } from 'lucide-vue-next'
 import { capture } from '@/telemetry'
+import MultiSelect from '@/components/Controls/MultiSelect.vue'
 
 const router = useRouter()
 const user = inject('$user')
