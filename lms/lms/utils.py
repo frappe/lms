@@ -109,7 +109,7 @@ def get_chapters(course):
 		chapter_details = frappe.db.get_value(
 			"Course Chapter",
 			{"name": chapter.chapter},
-			["name", "title", "description"],
+			["name", "title"],
 			as_dict=True,
 		)
 		chapter.update(chapter_details)
@@ -1133,7 +1133,7 @@ def get_course_outline(course, progress=False):
 		chapter_details = frappe.db.get_value(
 			"Course Chapter",
 			chapter.chapter,
-			["name", "title", "description"],
+			["name", "title"],
 			as_dict=True,
 		)
 		chapter_details["idx"] = chapter.idx
