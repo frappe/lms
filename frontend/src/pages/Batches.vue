@@ -40,6 +40,7 @@
 				{{ __('Loading Batches...') }}
 			</div>
 			<Tabs
+				v-if="hasBatches"
 				v-model="tabIndex"
 				:tabs="makeTabs"
 				tablistClass="overflow-x-visible flex-wrap !gap-3 md:flex-nowrap"
@@ -79,24 +80,63 @@
 							<BatchCard :batch="batch" />
 						</router-link>
 					</div>
-					<div
-						v-else
-						class="grid flex-1 place-items-center text-xl font-medium text-gray-500"
-					>
-						<div class="flex flex-col items-center justify-center mt-4">
-							<div>
-								{{ __('No {0} batches found').format(tab.label.toLowerCase()) }}
-							</div>
-						</div>
+					<div v-else class="p-5 italic text-gray-500">
+						{{ __('No {0} batches').format(tab.label.toLowerCase()) }}
 					</div>
 				</template>
 			</Tabs>
+			<div
+				v-else-if="
+					!batches.loading &&
+					!hasBatches &&
+					(user.data?.is_instructor || user.data?.is_moderator)
+				"
+				class="grid grid-cols-3 p-5"
+			>
+				<router-link
+					:to="{
+						name: 'BatchForm',
+						params: {
+							batchName: 'new',
+						},
+					}"
+				>
+					<div class="bg-gray-50 py-32 px-5 rounded-md">
+						<div class="flex flex-col items-center text-center space-y-2">
+							<Plus
+								class="size-10 stroke-1 text-gray-800 p-1 rounded-full border bg-white"
+							/>
+							<div class="font-medium">
+								{{ __('Create a Batch') }}
+							</div>
+							<span class="text-gray-700 text-sm leading-4">
+								{{ __('You can link courses and assessments to it.') }}
+							</span>
+						</div>
+					</div>
+				</router-link>
+			</div>
+			<div
+				v-else-if="!batches.loading && !hasBatches"
+				class="text-center p-5 text-gray-600 mt-52 w-3/4 md:w-1/2 mx-auto space-y-2"
+			>
+				<BookOpen class="size-10 mx-auto stroke-1 text-gray-500" />
+				<div class="text-xl font-medium">
+					{{ __('No batches found') }}
+				</div>
+				<div>
+					{{
+						__(
+							'There are no batches available at the moment. Keep an eye out, fresh learning experiences are on the way soon!'
+						)
+					}}
+				</div>
+			</div>
 		</div>
 	</div>
 </template>
 <script setup>
 import {
-	createListResource,
 	createResource,
 	Breadcrumbs,
 	Button,
@@ -104,13 +144,14 @@ import {
 	Badge,
 	Select,
 } from 'frappe-ui'
-import { Plus } from 'lucide-vue-next'
+import { BookOpen, Plus } from 'lucide-vue-next'
 import BatchCard from '@/components/BatchCard.vue'
 import { inject, ref, computed, onMounted, watch } from 'vue'
 import { updateDocumentTitle } from '@/utils'
 
 const user = inject('$user')
 const currentCategory = ref(null)
+const hasBatches = ref(false)
 
 onMounted(() => {
 	let queries = new URLSearchParams(location.search)
@@ -119,10 +160,10 @@ onMounted(() => {
 	}
 })
 
-const batches = createListResource({
+const batches = createResource({
 	doctype: 'LMS Batch',
 	url: 'lms.lms.utils.get_batches',
-	cache: ['batches', user?.data?.email],
+	cache: ['batches', user.data?.email],
 	auto: true,
 })
 
@@ -182,6 +223,14 @@ const addToTabs = (label) => {
 		count: computed(() => batches.length),
 	})
 }
+
+watch(batches, () => {
+	Object.keys(batches.data).forEach((key) => {
+		if (batches.data[key].length) {
+			hasBatches.value = true
+		}
+	})
+})
 
 watch(
 	() => currentCategory.value,

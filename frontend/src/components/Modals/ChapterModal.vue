@@ -2,11 +2,11 @@
 	<Dialog
 		v-model="show"
 		:options="{
-			title: __('Add Chapter'),
+			title: chapterDetail ? __('Edit Chapter') : __('Add Chapter'),
 			size: 'lg',
 			actions: [
 				{
-					label: chapterDetail ? __('Edit Chapter') : __('Add Chapter'),
+					label: chapterDetail ? __('Edit') : __('Create'),
 					variant: 'solid',
 					onClick: (close) =>
 						chapterDetail ? editChapter(close) : addChapter(close),

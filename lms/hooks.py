@@ -110,7 +110,8 @@ doc_events = {
 # ---------------
 scheduler_events = {
 	"hourly": [
-		"lms.lms.doctype.lms_certificate_request.lms_certificate_request.schedule_evals"
+		"lms.lms.doctype.lms_certificate_request.lms_certificate_request.schedule_evals",
+		"lms.lms.api.update_course_statistics",
 	],
 	"daily": ["lms.job.doctype.job_opportunity.job_opportunity.update_job_openings"],
 }

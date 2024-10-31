@@ -69,7 +69,7 @@
 	</div>
 </template>
 <script setup>
-import { Breadcrumbs, FormControl, createResource, Button } from 'frappe-ui'
+import { Breadcrumbs, Button, createResource, FormControl } from 'frappe-ui'
 import {
 	computed,
 	reactive,

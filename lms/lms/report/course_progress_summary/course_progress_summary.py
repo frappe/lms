@@ -86,32 +86,32 @@ def get_charts(data):
 
 	completed = 0
 	less_than_hundred = 0
-	less_than_seventy = 0
-	less_than_forty = 0
-	less_than_ten = 0
+	less_than_seventy_one = 0
+	less_than_forty_one = 0
+	less_than_eleven = 0
 
 	for row in data:
 		if row.progress == 100:
 			completed += 1
 		elif row.progress < 100 and row.progress > 70:
 			less_than_hundred += 1
-		elif row.progress < 70 and row.progress > 40:
-			less_than_seventy += 1
-		elif row.progress < 40 and row.progress > 10:
-			less_than_forty += 1
-		elif row.progress < 10:
-			less_than_ten += 1
+		elif row.progress < 71 and row.progress > 40:
+			less_than_seventy_one += 1
+		elif row.progress < 41 and row.progress > 10:
+			less_than_forty_one += 1
+		elif row.progress < 11:
+			less_than_eleven += 1
 
 	charts = {
 		"data": {
-			"labels": ["0-10", "10-40", "40-70", "70-99", "100"],
+			"labels": ["0-10", "11-40", "41-70", "71-99", "100"],
 			"datasets": [
 				{
 					"name": "Progress (%)",
 					"values": [
-						less_than_ten,
-						less_than_forty,
-						less_than_seventy,
+						less_than_eleven,
+						less_than_forty_one,
+						less_than_seventy_one,
 						less_than_hundred,
 						completed,
 					],

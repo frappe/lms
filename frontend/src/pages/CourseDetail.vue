@@ -16,16 +16,16 @@
 					</div>
 					<div class="flex items-center">
 						<Tooltip
-							v-if="course.data.avg_rating"
+							v-if="course.data.rating"
 							:text="__('Average Rating')"
 							class="flex items-center"
 						>
 							<Star class="h-5 w-5 text-gray-100 fill-orange-500" />
 							<span class="ml-1">
-								{{ course.data.avg_rating }}
+								{{ course.data.rating }}
 							</span>
 						</Tooltip>
-						<span v-if="course.data.avg_rating" class="mx-3">&middot;</span>
+						<span v-if="course.data.rating" class="mx-3">&middot;</span>
 						<Tooltip
 							v-if="course.data.enrollment_count"
 							:text="__('Enrolled Students')"
@@ -74,7 +74,7 @@
 					</div>
 					<CourseReviews
 						:courseName="course.data.name"
-						:avg_rating="course.data.avg_rating"
+						:avg_rating="course.data.rating"
 						:membership="course.data.membership"
 					/>
 				</div>
@@ -116,7 +116,7 @@ const breadcrumbs = computed(() => {
 	let items = [{ label: 'All Courses', route: { name: 'Courses' } }]
 	items.push({
 		label: course?.data?.title,
-		route: { name: 'CourseDetail', params: { course: course?.data?.name } },
+		route: { name: 'CourseDetail', params: { courseName: course?.data?.name } },
 	})
 	return items
 })

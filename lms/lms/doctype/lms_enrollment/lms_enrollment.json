@@ -75,7 +75,8 @@
    "in_standard_filter": 1,
    "label": "Course",
    "options": "LMS Course",
-   "reqd": 1
+   "reqd": 1,
+   "search_index": 1
   },
   {
    "fieldname": "current_lesson",
@@ -126,7 +127,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-05-14 14:50:08.405033",
+ "modified": "2024-10-30 12:44:16.103598",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Enrollment",
