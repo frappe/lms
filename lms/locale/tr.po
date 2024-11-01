@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2024-10-18 16:04+0000\n"
-"PO-Revision-Date: 2024-10-31 13:29\n"
+"PO-Revision-Date: 2024-11-01 13:30\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Turkish\n"
 "MIME-Version: 1.0\n"
@@ -2679,7 +2679,7 @@ msgstr "Giriş"
 
 #: frontend/src/pages/JobDetail.vue:48
 msgid "Login to apply"
-msgstr ""
+msgstr "Başvurmak için giriş yapın"
 
 #. Label of the default_home (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
