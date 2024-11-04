@@ -76,6 +76,7 @@
    "default": "0",
    "fieldname": "payment_received",
    "fieldtype": "Check",
+   "in_standard_filter": 1,
    "label": "Payment Received"
   },
   {
@@ -140,7 +141,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-10-26 16:54:12.408274",
+ "modified": "2024-10-31 15:33:39.420366",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Payment",

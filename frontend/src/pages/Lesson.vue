@@ -17,14 +17,9 @@
 						)
 					}}
 				</p>
-				<router-link
-					v-if="user.data"
-					:to="{ name: 'CourseDetail', params: { courseName: courseName } }"
-				>
-					<Button variant="solid">
-						{{ __('Start Learning') }}
-					</Button>
-				</router-link>
+				<Button v-if="user.data" @click="enrollStudent()" variant="solid">
+					{{ __('Start Learning') }}
+				</Button>
 				<Button v-else @click="redirectToLogin()">
 					{{ __('Login') }}
 				</Button>
@@ -194,7 +189,7 @@ import { createResource, Breadcrumbs, Button } from 'frappe-ui'
 import { computed, watch, inject, ref, onMounted, onBeforeUnmount } from 'vue'
 import CourseOutline from '@/components/CourseOutline.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
-import { useRoute } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import Discussions from '@/components/Discussions.vue'
 import { getEditorTools, updateDocumentTitle } from '../utils'
@@ -204,6 +199,7 @@ import CourseInstructors from '@/components/CourseInstructors.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
 
 const user = inject('$user')
+const router = useRouter()
 const route = useRoute()
 const allowDiscussions = ref(false)
 const editor = ref(null)
@@ -377,6 +373,30 @@ const allowInstructorContent = () => {
 	if (user.data?.is_moderator) return true
 	if (lesson.data?.instructors.includes(user.data?.name)) return true
 	return false
+}
+
+const enrollment = createResource({
+	url: 'frappe.client.insert',
+	makeParams() {
+		return {
+			doc: {
+				doctype: 'LMS Enrollment',
+				course: props.courseName,
+				member: user.data?.name,
+			},
+		}
+	},
+})
+
+const enrollStudent = () => {
+	enrollment.submit(
+		{},
+		{
+			onSuccess() {
+				window.location.reload()
+			},
+		}
+	)
 }
 
 const redirectToLogin = () => {

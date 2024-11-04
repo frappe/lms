@@ -236,7 +236,7 @@ const breadcrumbs = computed(() => {
 const isStudent = computed(() => {
 	return (
 		user?.data &&
-		batch.data?.students.length &&
+		batch.data?.students?.length &&
 		batch.data?.students.includes(user.data.name)
 	)
 })

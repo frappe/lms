@@ -781,3 +781,24 @@ def update_course_statistics():
 			course.name,
 			{"lessons": lessons, "enrollments": enrollments, "rating": avg_rating},
 		)
+
+
+@frappe.whitelist()
+def get_announcements(batch):
+	return frappe.get_all(
+		"Communication",
+		filters={
+			"reference_doctype": "LMS Batch",
+			"reference_name": batch,
+		},
+		fields=[
+			"subject",
+			"content",
+			"recipients",
+			"cc",
+			"communication_date",
+			"sender",
+			"sender_full_name",
+		],
+		order_by="communication_date desc",
+	)
