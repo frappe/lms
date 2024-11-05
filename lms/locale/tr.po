@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2024-10-18 16:04+0000\n"
-"PO-Revision-Date: 2024-10-26 11:24\n"
+"PO-Revision-Date: 2024-11-01 13:30\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Turkish\n"
 "MIME-Version: 1.0\n"
@@ -464,14 +464,14 @@ msgstr "Toplu İş Oluşturuldu"
 #. Old'
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 msgid "Batch Description"
-msgstr "Bölüm Açıklaması"
+msgstr ""
 
 #. Label of the batch_details (Text Editor) field in DocType 'LMS Batch'
 #: frontend/src/pages/BatchForm.vue:89 lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/public/js/common_functions.js:349
 #: lms/templates/emails/batch_confirmation.html:30
 msgid "Batch Details"
-msgstr "Batch Ayrıntıları"
+msgstr ""
 
 #. Label of the batch_details_raw (HTML Editor) field in DocType 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json
@@ -2089,7 +2089,7 @@ msgstr "Resim: Bozuk Veri Akışı"
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "In Progress"
-msgstr "Devam Ediyor"
+msgstr "İşlemde"
 
 #. Option for the 'Status' (Select) field in DocType 'LMS Batch Old'
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
@@ -2679,7 +2679,7 @@ msgstr "Giriş"
 
 #: frontend/src/pages/JobDetail.vue:48
 msgid "Login to apply"
-msgstr ""
+msgstr "Başvurmak için giriş yapın"
 
 #. Label of the default_home (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
