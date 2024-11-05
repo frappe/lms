@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2024-10-18 16:04+0000\n"
-"PO-Revision-Date: 2024-10-26 11:24\n"
+"PO-Revision-Date: 2024-11-03 14:38\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Swedish\n"
 "MIME-Version: 1.0\n"
@@ -167,11 +167,11 @@ msgstr "Adress"
 
 #: frontend/src/pages/Billing.vue:79
 msgid "Address Line 1"
-msgstr "Co/Box"
+msgstr "Adress Linje 1"
 
 #: frontend/src/pages/Billing.vue:83
 msgid "Address Line 2"
-msgstr "Gata och Nummer"
+msgstr "Adress Linje 2"
 
 #. Option for the 'Role' (Select) field in DocType 'Cohort Staff'
 #. Option for the 'Required Role' (Select) field in DocType 'Cohort Web Page'
