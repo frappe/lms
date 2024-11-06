@@ -13,10 +13,12 @@ class CourseChapter(Document):
 		update_course_statistics()
 
 	def recalculate_course_progress(self):
-		previous_lessons = self.get_doc_before_save().as_dict().lessons
+		previous_lessons = (
+			self.get_doc_before_save() and self.get_doc_before_save().as_dict().lessons
+		)
 		current_lessons = self.lessons
 
-		if previous_lessons != current_lessons:
+		if previous_lessons and previous_lessons != current_lessons:
 			enrolled_members = frappe.get_all(
 				"LMS Enrollment", {"course": self.course}, ["member", "name"]
 			)
