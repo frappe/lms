@@ -2625,12 +2625,12 @@ msgstr "Verknüpfungen"
 
 #: frontend/src/pages/Quizzes.vue:131
 msgid "List of quizzes"
-msgstr ""
+msgstr "Quizliste"
 
 #. Option for the 'Status' (Select) field in DocType 'Cohort'
 #: lms/lms/doctype/cohort/cohort.json
 msgid "Live"
-msgstr ""
+msgstr "Live"
 
 #. Label of the show_live_class (Check) field in DocType 'LMS Settings'
 #: frontend/src/components/LiveClass.vue:4
@@ -2731,7 +2731,7 @@ msgstr "Als gelesen markieren"
 #: lms/lms/doctype/lms_quiz_result/lms_quiz_result.json
 #: lms/templates/quiz/quiz.html:59
 msgid "Marks"
-msgstr ""
+msgstr "Markierungen"
 
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.py:19
 msgid "Marks for question number {0} cannot be greater than the marks allotted for that question."
@@ -2750,7 +2750,7 @@ msgstr "Max. Versuche"
 
 #: frontend/src/pages/QuizForm.vue:57
 msgid "Maximun Attempts"
-msgstr ""
+msgstr "Maximale Versuche"
 
 #. Label of the medium (Select) field in DocType 'LMS Batch'
 #: frontend/src/pages/BatchForm.vue:174
@@ -2841,7 +2841,7 @@ msgstr ""
 #. Label of the member_type (Select) field in DocType 'LMS Enrollment'
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 msgid "Member Type"
-msgstr ""
+msgstr "Mitgliedstyp"
 
 #. Group in LMS Batch Old's connections
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
@@ -2851,12 +2851,12 @@ msgstr "Mitglieder"
 #. Label of the membership (Select) field in DocType 'LMS Batch Old'
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 msgid "Membership"
-msgstr ""
+msgstr "Mitgliedschaft"
 
 #. Label of the member_username (Data) field in DocType 'LMS Enrollment'
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 msgid "Memeber Username"
-msgstr ""
+msgstr "Benutzername des Mitglieds"
 
 #. Option for the 'Required Role' (Select) field in DocType 'Cohort Web Page'
 #. Label of the mentor (Link) field in DocType 'LMS Course Mentor Mapping'
@@ -2898,7 +2898,7 @@ msgstr ""
 #. Group in LMS Course's connections
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Mentors"
-msgstr ""
+msgstr "Mentoren"
 
 #. Label of the meta_image (Attach Image) field in DocType 'LMS Batch'
 #: frontend/src/pages/BatchForm.vue:53 lms/lms/doctype/lms_batch/lms_batch.json
@@ -2913,7 +2913,7 @@ msgstr "Ecktermin"
 
 #: frontend/src/pages/Statistics.vue:71
 msgid "Milestones"
-msgstr ""
+msgstr "Meilensteine"
 
 #. Name of a role
 #: frontend/src/pages/ProfileRoles.vue:10
@@ -2931,7 +2931,7 @@ msgstr ""
 #: lms/lms/doctype/lms_source/lms_source.json
 #: lms/lms/doctype/lms_timetable_template/lms_timetable_template.json
 msgid "Moderator"
-msgstr ""
+msgstr "Moderator"
 
 #: lms/lms/doctype/lms_badge/lms_badge.js:40
 msgid "Modified By"
@@ -2939,11 +2939,11 @@ msgstr "Geändert von"
 
 #: lms/lms/api.py:190
 msgid "Module Name is incorrect or does not exist."
-msgstr ""
+msgstr "Modulname ist inkorrekt oder existiert nicht."
 
 #: lms/lms/api.py:186
 msgid "Module is incorrect."
-msgstr ""
+msgstr "Modul ist inkorrekt."
 
 #. Option for the 'Day' (Select) field in DocType 'Evaluator Schedule'
 #. Option for the 'Day' (Select) field in DocType 'LMS Certificate Request'
@@ -2959,7 +2959,7 @@ msgstr "Weiter"
 #. Label of the multiple (Check) field in DocType 'LMS Question'
 #: lms/lms/doctype/lms_question/lms_question.json
 msgid "Multiple Correct Answers"
-msgstr ""
+msgstr "Mehrere richtige Antworten"
 
 #: frontend/src/pages/ProfileEvaluator.vue:4
 msgid "My availability"
@@ -2997,12 +2997,12 @@ msgstr ""
 
 #: frontend/src/pages/QuizForm.vue:122
 msgid "New Question"
-msgstr ""
+msgstr "Neue Frage"
 
 #: frontend/src/pages/QuizForm.vue:453 frontend/src/pages/QuizForm.vue:461
 #: frontend/src/pages/Quizzes.vue:18
 msgid "New Quiz"
-msgstr ""
+msgstr "Neues Quiz"
 
 #: lms/www/new-sign-up.html:3
 msgid "New Sign Up"
@@ -3031,7 +3031,7 @@ msgstr "Nächste Frage"
 
 #: frontend/src/components/Assessments.vue:63 lms/templates/assessments.html:58
 msgid "No Assessments"
-msgstr ""
+msgstr "Keine Prüfungen"
 
 #: lms/templates/notifications.html:26
 msgid "No Notifications"
@@ -3180,7 +3180,7 @@ msgstr "Es werden nur Dateien vom Typ {0} akzeptiert."
 
 #: frontend/src/pages/CourseForm.vue:449 frontend/src/utils/index.js:509
 msgid "Only image file is allowed."
-msgstr ""
+msgstr "Nur Bilddateien erlaubt."
 
 #. Option for the 'Status' (Select) field in DocType 'Job Opportunity'
 #. Option for the 'Membership' (Select) field in DocType 'LMS Batch Old'
@@ -3246,7 +3246,7 @@ msgstr ""
 
 #: frontend/src/pages/JobDetail.vue:76
 msgid "Organisation"
-msgstr ""
+msgstr "Organisation"
 
 #. Label of the organization (Data) field in DocType 'Certification'
 #: lms/lms/doctype/certification/certification.json
@@ -4033,20 +4033,20 @@ msgstr ""
 #: frontend/src/components/BatchCard.vue:16
 #: frontend/src/components/BatchOverlay.vue:9
 msgid "Seat Left"
-msgstr ""
+msgstr "Platz übrig"
 
 #: frontend/src/components/BatchCard.vue:15
 #: frontend/src/components/BatchOverlay.vue:8
 msgid "Seats Left"
-msgstr ""
+msgstr "Plätze übrig"
 
 #: frontend/src/components/Modals/Question.vue:91
 msgid "Select a question"
-msgstr ""
+msgstr "Wähle eine Frage"
 
 #: frontend/src/components/QuizPlugin.vue:17
 msgid "Select a quiz"
-msgstr ""
+msgstr "Wähle ein Quiz"
 
 #: frontend/src/components/Modals/EvaluationModal.vue:32
 msgid "Select a slot"
@@ -4075,7 +4075,7 @@ msgstr "Einstellungen"
 
 #: frontend/src/pages/ProfileAbout.vue:62
 msgid "Share on"
-msgstr ""
+msgstr "Teilen auf"
 
 #. Label of the short_introduction (Small Text) field in DocType 'LMS Course'
 #: frontend/src/pages/CourseForm.vue:29
