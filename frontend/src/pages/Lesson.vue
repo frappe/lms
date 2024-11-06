@@ -239,6 +239,10 @@ const lesson = createResource({
 	},
 	auto: true,
 	onSuccess(data) {
+		if (Object.keys(data).length === 0) {
+			router.push({ name: 'Courses' })
+			return
+		}
 		lessonProgress.value = data.membership?.progress
 		if (data.content) editor.value = renderEditor('editor', data.content)
 		if (
