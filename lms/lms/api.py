@@ -811,25 +811,22 @@ def get_announcements(batch):
 		order_by="communication_date desc",
 	)
 
+
 @frappe.whitelist()
 def delete_course(course):
 
-	chapters = frappe.get_all("Course Chapter", {
-		"course": course
-	}, pluck="name")
+	chapters = frappe.get_all("Course Chapter", {"course": course}, pluck="name")
 
-	chapter_references = frappe.get_all("Chapter Reference", {
-		"parent": course
-	}, pluck="name")
+	chapter_references = frappe.get_all(
+		"Chapter Reference", {"parent": course}, pluck="name"
+	)
 
 	for chapter in chapters:
-		lessons = frappe.get_all("Course Lesson", {
-			"chapter": chapter
-		}, pluck="name")
+		lessons = frappe.get_all("Course Lesson", {"chapter": chapter}, pluck="name")
 
-		lesson_references = frappe.get_all("Lesson Reference", {
-			"parent": chapter
-		}, pluck="name")
+		lesson_references = frappe.get_all(
+			"Lesson Reference", {"parent": chapter}, pluck="name"
+		)
 
 		for lesson in lesson_references:
 			frappe.delete_doc("Lesson Reference", lesson)
@@ -837,18 +834,17 @@ def delete_course(course):
 		for lesson in lessons:
 			frappe.db.delete("LMS Course Progress", {"lesson": lesson})
 
-			topics = frappe.get_all("Discussion Topic", {
-				"reference_doctype": "Course Lesson",
-				"reference_docname": lesson
-			}, pluck="name")
+			topics = frappe.get_all(
+				"Discussion Topic",
+				{"reference_doctype": "Course Lesson", "reference_docname": lesson},
+				pluck="name",
+			)
 
 			for topic in topics:
-				frappe.db.delete("Discussion Reply", {
-					"topic": topic
-				})
+				frappe.db.delete("Discussion Reply", {"topic": topic})
 
 				frappe.db.delete("Discussion Topic", topic)
-				
+
 			frappe.delete_doc("Course Lesson", lesson)
 
 	for chapter in chapter_references:
@@ -862,19 +858,19 @@ def delete_course(course):
 
 
 def give_dicussions_permission():
-    doctypes = ["Discussion Topic", "Discussion Reply"]
-    roles = ["LMS Student", "Course Creator", "Moderator", "Batch Evaluator"]
-    for doctype in doctypes:
-        for role in roles:
-            if not frappe.db.exists("Custom DocPerm", {"parent": doctype, "role": role}):
-                frappe.get_doc(
-                    {
-                        "doctype": "Custom DocPerm",
-                        "parent": doctype,
-                        "role": role,
-                        "read": 1,
-                        "write": 1,
-                        "create": 1,
-                        "delete": 1,
-                    }
-                ).save(ignore_permissions=True)
+	doctypes = ["Discussion Topic", "Discussion Reply"]
+	roles = ["LMS Student", "Course Creator", "Moderator", "Batch Evaluator"]
+	for doctype in doctypes:
+		for role in roles:
+			if not frappe.db.exists("Custom DocPerm", {"parent": doctype, "role": role}):
+				frappe.get_doc(
+					{
+						"doctype": "Custom DocPerm",
+						"parent": doctype,
+						"role": role,
+						"read": 1,
+						"write": 1,
+						"create": 1,
+						"delete": 1,
+					}
+				).save(ignore_permissions=True)

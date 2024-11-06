@@ -2,6 +2,7 @@ import frappe
 from frappe.desk.page.setup_wizard.setup_wizard import add_all_roles_to
 from lms.lms.api import give_dicussions_permission
 
+
 def after_install():
 	add_pages_to_nav()
 	create_batch_source()

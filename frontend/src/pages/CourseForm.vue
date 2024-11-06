@@ -446,7 +446,7 @@ const submitCourse = () => {
 }
 
 const deleteCourse = createResource({
-	url: "lms.lms.api.delete_course",
+	url: 'lms.lms.api.delete_course',
 	makeParams(values) {
 		return {
 			course: props.courseName,
@@ -461,7 +461,9 @@ const deleteCourse = createResource({
 const trashCourse = () => {
 	$dialog({
 		title: __('Delete Course'),
-		message: __('Deleting the course will also delete all its chapters and lessons. Are you sure you want to delete this course?'),
+		message: __(
+			'Deleting the course will also delete all its chapters and lessons. Are you sure you want to delete this course?'
+		),
 		actions: [
 			{
 				label: __('Delete'),
