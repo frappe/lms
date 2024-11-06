@@ -63,8 +63,6 @@ class LMSQuiz(Document):
 					"If you want open ended questions then make sure each question in the quiz is of open ended type."
 				)
 			)
-		else:
-			self.show_answers = 0
 
 	def autoname(self):
 		if not self.name:
