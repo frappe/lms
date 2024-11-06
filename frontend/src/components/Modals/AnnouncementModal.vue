@@ -44,7 +44,7 @@
 <script setup>
 import { Dialog, Input, TextEditor, createResource } from 'frappe-ui'
 import { reactive } from 'vue'
-import { createToast } from '@/utils/'
+import { showToast } from '@/utils/'
 
 const show = defineModel()
 
@@ -94,22 +94,14 @@ const makeAnnouncement = (close) => {
 			},
 			onSuccess() {
 				close()
-				createToast({
-					title: 'Success',
-					text: 'Announcement has been sent successfully',
-					icon: 'Check',
-					iconClasses: 'bg-green-600 text-white rounded-md p-px',
-				})
+				showToast(
+					__('Success'),
+					__('Announcement has been sent successfully'),
+					'check'
+				)
 			},
 			onError(err) {
-				createToast({
-					title: 'Error',
-					text: err.messages?.[0] || err,
-					icon: 'x',
-					iconClasses: 'bg-red-600 text-white rounded-md p-px',
-					position: 'top-center',
-					timeout: 10,
-				})
+				showToast(__('Error'), __(err.messages?.[0] || err), 'check')
 			},
 		}
 	)

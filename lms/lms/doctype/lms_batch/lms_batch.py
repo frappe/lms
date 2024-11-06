@@ -33,6 +33,7 @@ class LMSBatch(Document):
 		self.validate_timetable()
 		self.send_confirmation_mail()
 		self.validate_evaluation_end_date()
+		self.add_students_to_live_class()
 
 	def validate_batch_end_date(self):
 		if self.end_date < self.start_date:
@@ -138,6 +139,27 @@ class LMSBatch(Document):
 	def validate_seats_left(self):
 		if cint(self.seat_count) < len(self.students):
 			frappe.throw(_("There are no seats available in this batch."))
+
+	def add_students_to_live_class(self):
+		for student in self.students:
+			if student.is_new():
+				live_classes = frappe.get_all(
+					"LMS Live Class", {"batch_name": self.name}, ["name", "event"]
+				)
+
+				for live_class in live_classes:
+					if live_class.event:
+						frappe.get_doc(
+							{
+								"doctype": "Event Participants",
+								"reference_doctype": "User",
+								"reference_docname": student.student,
+								"email": student.student,
+								"parent": live_class.event,
+								"parenttype": "Event",
+								"parentfield": "event_participants",
+							}
+						).save()
 
 	def validate_timetable(self):
 		for schedule in self.timetable:

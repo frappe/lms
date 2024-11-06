@@ -248,12 +248,7 @@ import {
 	reactive,
 	watch,
 } from 'vue'
-import {
-	convertToTitleCase,
-	showToast,
-	getFileSize,
-	updateDocumentTitle,
-} from '@/utils'
+import { convertToTitleCase, showToast, updateDocumentTitle } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
 import { FileText, Image, X } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
