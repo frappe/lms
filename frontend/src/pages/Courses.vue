@@ -145,7 +145,7 @@
 				<div class="text-xl font-medium">
 					{{ __('No courses found') }}
 				</div>
-				<div>
+				<div class="leading-5">
 					{{
 						__(
 							'There are no courses available at the moment. Keep an eye out, fresh learning experiences are on the way soon!'
