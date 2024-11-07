@@ -22,6 +22,7 @@
 							v-model="liveClass.title"
 							:label="__('Title')"
 							class="mb-4"
+							:required="true"
 						/>
 						<Tooltip
 							:text="
@@ -35,6 +36,7 @@
 								type="time"
 								:label="__('Time')"
 								class="mb-4"
+								:required="true"
 							/>
 						</Tooltip>
 						<FormControl
@@ -42,6 +44,7 @@
 							type="select"
 							:options="getTimezoneOptions()"
 							:label="__('Timezone')"
+							:required="true"
 						/>
 					</div>
 					<div>
@@ -50,6 +53,7 @@
 							type="date"
 							class="mb-4"
 							:label="__('Date')"
+							:required="true"
 						/>
 						<Tooltip :text="__('Duration of the live class in minutes')">
 							<FormControl
@@ -57,6 +61,7 @@
 								v-model="liveClass.duration"
 								:label="__('Duration')"
 								class="mb-4"
+								:required="true"
 							/>
 						</Tooltip>
 						<FormControl
