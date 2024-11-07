@@ -25,7 +25,7 @@
 	</div>
 </template>
 <script setup>
-import { createListResource, Avatar } from 'frappe-ui'
+import { createResource, Avatar } from 'frappe-ui'
 import { timeAgo } from '@/utils'
 
 const props = defineProps({
@@ -35,24 +35,15 @@ const props = defineProps({
 	},
 })
 
-const communications = createListResource({
-	doctype: 'Communication',
-	fields: [
-		'subject',
-		'content',
-		'recipients',
-		'cc',
-		'communication_date',
-		'sender',
-		'sender_full_name',
-	],
-	filters: {
-		reference_doctype: 'LMS Batch',
-		reference_name: props.batch,
+const communications = createResource({
+	url: 'lms.lms.api.get_announcements',
+	makeParams(value) {
+		return {
+			batch: props.batch,
+		}
 	},
-	orderBy: 'communication_date desc',
 	auto: true,
-	cache: ['batch', props.batch],
+	cache: ['announcement', props.batch],
 })
 </script>
 <style>

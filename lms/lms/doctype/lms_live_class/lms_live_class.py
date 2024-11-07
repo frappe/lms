@@ -16,6 +16,7 @@ class LMSLiveClass(Document):
 		if calendar:
 			event = self.create_event()
 			self.add_event_participants(event, calendar)
+			frappe.db.set_value(self.doctype, self.name, "event", event.name)
 
 	def create_event(self):
 		start = f"{self.date} {self.time}"

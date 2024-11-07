@@ -92,3 +92,4 @@ lms.patches.v2_0.add_discussion_topic_titles
 lms.patches.v2_0.sidebar_settings
 lms.patches.v2_0.delete_certificate_request_notification #18-09-2024
 lms.patches.v2_0.add_course_statistics #21-10-2024
+lms.patches.v2_0.give_discussions_permissions
