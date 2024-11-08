@@ -88,6 +88,7 @@
 				doctype="User"
 				:label="__('Instructors')"
 				:required="true"
+				:filters="{ ignore_user_type: 1 }"
 			/>
 			<div class="mb-4">
 				<FormControl
