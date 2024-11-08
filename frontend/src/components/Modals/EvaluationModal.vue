@@ -154,10 +154,12 @@ function submitEvaluation(close) {
 const getCourses = () => {
 	let courses = []
 	for (const course of props.courses) {
-		courses.push({
-			label: course.title,
-			value: course.course,
-		})
+		if (course.evaluator) {
+			courses.push({
+				label: course.title,
+				value: course.course,
+			})
+		}
 	}
 	return courses
 }
