@@ -1103,7 +1103,7 @@ def get_categorized_courses(courses):
 
 		categories = [live, enrolled, created]
 		for category in categories:
-			category.sort(key=lambda x: x.enrollments, reverse=True)
+			category.sort(key=lambda x: cint(x.enrollments), reverse=True)
 
 		live.sort(key=lambda x: x.featured, reverse=True)
 
@@ -1265,7 +1265,7 @@ def get_batch_details(batch):
 	batch_details.instructors = get_instructors(batch)
 
 	batch_details.courses = frappe.get_all(
-		"Batch Course", filters={"parent": batch}, fields=["course", "title"]
+		"Batch Course", filters={"parent": batch}, fields=["course", "title", "evaluator"]
 	)
 	batch_details.students = frappe.get_all(
 		"Batch Student", {"parent": batch}, pluck="student"
