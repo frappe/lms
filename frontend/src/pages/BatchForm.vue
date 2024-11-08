@@ -339,6 +339,13 @@ const batchDetail = createResource({
 			let key = checkboxes[idx]
 			batch[key] = batch[key] ? true : false
 		}
+		let timeFields = ['start_time', 'end_time']
+		for (let timeField of timeFields) {
+			const [hours, minutes] = batch[timeField].split(':')
+			batch[timeField] = `${String(hours).padStart(2, '0')}:${String(
+				minutes
+			).padStart(2, '0')}`
+		}
 		if (data.meta_image) imageResource.reload({ image: data.meta_image })
 	},
 })
