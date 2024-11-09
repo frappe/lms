@@ -18,6 +18,7 @@
     "@editorjs/nested-list": "^1.4.2",
     "@editorjs/paragraph": "^2.11.3",
     "@editorjs/simple-image": "^1.6.0",
+    "@editorjs/table": "^2.4.2",
     "ace-builds": "^1.36.2",
     "chart.js": "^4.4.1",
     "codemirror-editor-vue3": "^2.8.0",
