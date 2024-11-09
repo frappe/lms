@@ -503,11 +503,6 @@ def first_lesson_exists(course):
 	return True
 
 
-def redirect_to_courses_list():
-	frappe.local.flags.redirect_location = "/lms/courses"
-	raise frappe.Redirect
-
-
 def has_course_instructor_role(member=None):
 	return frappe.db.get_value(
 		"Has Role",
@@ -1108,7 +1103,7 @@ def get_categorized_courses(courses):
 
 		categories = [live, enrolled, created]
 		for category in categories:
-			category.sort(key=lambda x: x.enrollments, reverse=True)
+			category.sort(key=lambda x: cint(x.enrollments), reverse=True)
 
 		live.sort(key=lambda x: x.featured, reverse=True)
 
@@ -1153,6 +1148,9 @@ def get_lesson(course, chapter, lesson):
 	lesson_details = frappe.db.get_value(
 		"Course Lesson", lesson_name, ["include_in_preview", "title"], as_dict=1
 	)
+	if not lesson_details:
+		return {}
+
 	membership = get_membership(course)
 	course_title = frappe.db.get_value("LMS Course", course, "title")
 	if (
@@ -1267,7 +1265,7 @@ def get_batch_details(batch):
 	batch_details.instructors = get_instructors(batch)
 
 	batch_details.courses = frappe.get_all(
-		"Batch Course", filters={"parent": batch}, fields=["course", "title"]
+		"Batch Course", filters={"parent": batch}, fields=["course", "title", "evaluator"]
 	)
 	batch_details.students = frappe.get_all(
 		"Batch Student", {"parent": batch}, pluck="student"

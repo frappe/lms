@@ -490,7 +490,15 @@ def delete_sidebar_item(webpage):
 
 @frappe.whitelist()
 def delete_lesson(lesson, chapter):
-	frappe.db.delete("Lesson Reference", {"parent": chapter, "lesson": lesson})
+	# Delete Reference
+	chapter = frappe.get_doc("Course Chapter", chapter)
+	chapter.lessons = [row for row in chapter.lessons if row.lesson != lesson]
+	chapter.save()
+
+	# Delete progress
+	frappe.db.delete("LMS Course Progress", {"lesson": lesson})
+
+	# Delete Lesson
 	frappe.db.delete("Course Lesson", lesson)
 
 
@@ -781,3 +789,88 @@ def update_course_statistics():
 			course.name,
 			{"lessons": lessons, "enrollments": enrollments, "rating": avg_rating},
 		)
+
+
+@frappe.whitelist()
+def get_announcements(batch):
+	return frappe.get_all(
+		"Communication",
+		filters={
+			"reference_doctype": "LMS Batch",
+			"reference_name": batch,
+		},
+		fields=[
+			"subject",
+			"content",
+			"recipients",
+			"cc",
+			"communication_date",
+			"sender",
+			"sender_full_name",
+		],
+		order_by="communication_date desc",
+	)
+
+
+@frappe.whitelist()
+def delete_course(course):
+
+	chapters = frappe.get_all("Course Chapter", {"course": course}, pluck="name")
+
+	chapter_references = frappe.get_all(
+		"Chapter Reference", {"parent": course}, pluck="name"
+	)
+
+	for chapter in chapters:
+		lessons = frappe.get_all("Course Lesson", {"chapter": chapter}, pluck="name")
+
+		lesson_references = frappe.get_all(
+			"Lesson Reference", {"parent": chapter}, pluck="name"
+		)
+
+		for lesson in lesson_references:
+			frappe.delete_doc("Lesson Reference", lesson)
+
+		for lesson in lessons:
+			frappe.db.delete("LMS Course Progress", {"lesson": lesson})
+
+			topics = frappe.get_all(
+				"Discussion Topic",
+				{"reference_doctype": "Course Lesson", "reference_docname": lesson},
+				pluck="name",
+			)
+
+			for topic in topics:
+				frappe.db.delete("Discussion Reply", {"topic": topic})
+
+				frappe.db.delete("Discussion Topic", topic)
+
+			frappe.delete_doc("Course Lesson", lesson)
+
+	for chapter in chapter_references:
+		frappe.delete_doc("Chapter Reference", chapter)
+
+	for chapter in chapters:
+		frappe.delete_doc("Course Chapter", chapter)
+
+	frappe.db.delete("LMS Enrollment", {"course": course})
+	frappe.delete_doc("LMS Course", course)
+
+
+def give_dicussions_permission():
+	doctypes = ["Discussion Topic", "Discussion Reply"]
+	roles = ["LMS Student", "Course Creator", "Moderator", "Batch Evaluator"]
+	for doctype in doctypes:
+		for role in roles:
+			if not frappe.db.exists("Custom DocPerm", {"parent": doctype, "role": role}):
+				frappe.get_doc(
+					{
+						"doctype": "Custom DocPerm",
+						"parent": doctype,
+						"role": role,
+						"read": 1,
+						"write": 1,
+						"create": 1,
+						"delete": 1,
+					}
+				).save(ignore_permissions=True)
