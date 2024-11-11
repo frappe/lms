@@ -1,6 +1,7 @@
 """API methods for the LMS.
 """
 
+import json
 import frappe
 from frappe.translate import get_all_translations
 from frappe import _
@@ -295,7 +296,8 @@ def get_branding():
 
 	for field in image_fields:
 		if website_settings.get(field):
-			website_settings.update({field: get_file_info(website_settings.get(field))})
+			file_info = get_file_info(website_settings.get(field))
+			website_settings.update({field: json.loads(json.dumps(file_info))})
 		else:
 			website_settings.update({field: None})
 
