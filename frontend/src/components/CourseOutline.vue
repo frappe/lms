@@ -89,6 +89,7 @@
 					</Draggable>
 					<div v-if="allowEdit" class="flex mt-2 mb-4 pl-8">
 						<router-link
+							v-if="!chapter.is_scorm_package"
 							:to="{
 								name: 'LessonForm',
 								params: {

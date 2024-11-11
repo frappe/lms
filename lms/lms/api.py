@@ -3,6 +3,9 @@
 
 import json
 import frappe
+import zipfile
+import os
+import xml.etree.ElementTree as ET
 from frappe.translate import get_all_translations
 from frappe import _
 from frappe.query_builder import DocType
@@ -10,6 +13,7 @@ from frappe.query_builder.functions import Count
 from frappe.utils import time_diff, now_datetime, get_datetime, flt
 from typing import Optional
 from lms.lms.utils import get_average_rating, get_lesson_count
+from xml.dom.minidom import parseString
 
 
 @frappe.whitelist()
@@ -876,3 +880,70 @@ def give_dicussions_permission():
 						"delete": 1,
 					}
 				).save(ignore_permissions=True)
+
+
+@frappe.whitelist()
+def add_chapter(title, course, is_scorm_package, scorm_package):
+	values = frappe._dict(
+		{"title": title, "course": course, "is_scorm_package": is_scorm_package}
+	)
+
+	scorm_package = frappe._dict(scorm_package)
+	if is_scorm_package:
+		package = frappe.get_doc("File", scorm_package.name)
+		zip_path = package.get_full_path()
+
+		# Extract the zip file
+		extract_path = frappe.get_site_path("public", "files", "scorm", course, title)
+		zipfile.ZipFile(zip_path).extractall(extract_path)
+
+		values.update(
+			{
+				"scorm_package": scorm_package.name,
+				"scorm_package_path": extract_path,
+				"manifest_file": get_manifest_file(extract_path),
+				"launch_file": get_launch_file(extract_path),
+			}
+		)
+
+	chapter = frappe.new_doc("Course Chapter")
+	print(values.title)
+	chapter.update(values)
+	print(chapter.title)
+	chapter.insert()
+
+	return chapter
+
+
+def get_manifest_file(extract_path):
+	manifest_file = None
+	for root, dirs, files in os.walk(extract_path):
+		for file in files:
+			if file == "imsmanifest.xml":
+				manifest_file = os.path.join(root, file)
+				break
+		if manifest_file:
+			break
+	return manifest_file
+
+
+def get_launch_file(extract_path):
+	launch_file = None
+	manifest_file = get_manifest_file(extract_path)
+	print(extract_path)
+
+	if manifest_file:
+		with open(manifest_file) as file:
+			data = file.read()
+			print(data)
+			dom = parseString(data)
+			resource = dom.getElementsByTagName("resource")
+			for res in resource:
+				if res.getAttribute("adlcp:scormtype") == "sco":
+					launch_file = res.getAttribute("href")
+					break
+
+		if launch_file:
+			launch_file = os.path.join(os.path.dirname(manifest_file), launch_file)
+
+	return launch_file

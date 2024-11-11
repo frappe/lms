@@ -1128,7 +1128,7 @@ def get_course_outline(course, progress=False):
 		chapter_details = frappe.db.get_value(
 			"Course Chapter",
 			chapter.chapter,
-			["name", "title"],
+			["name", "title", "is_scorm_package", "launch_file"],
 			as_dict=True,
 		)
 		chapter_details["idx"] = chapter.idx

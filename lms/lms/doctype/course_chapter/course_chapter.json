@@ -8,9 +8,16 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "course",
-  "column_break_3",
   "title",
+  "column_break_3",
+  "course",
+  "scorm_section",
+  "is_scorm_package",
+  "scorm_package",
+  "scorm_package_path",
+  "column_break_dlnw",
+  "manifest_file",
+  "launch_file",
   "section_break_5",
   "lessons"
  ],
@@ -43,6 +50,49 @@
    "fieldtype": "Table",
    "label": "Lessons",
    "options": "Lesson Reference"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_scorm_package",
+   "fieldtype": "Check",
+   "label": "Is SCORM Package"
+  },
+  {
+   "depends_on": "is_scorm_package",
+   "fieldname": "manifest_file",
+   "fieldtype": "Code",
+   "label": "Manifest File",
+   "read_only": 1
+  },
+  {
+   "depends_on": "is_scorm_package",
+   "fieldname": "launch_file",
+   "fieldtype": "Code",
+   "label": "Launch File",
+   "read_only": 1
+  },
+  {
+   "fieldname": "scorm_section",
+   "fieldtype": "Section Break",
+   "label": "SCORM"
+  },
+  {
+   "fieldname": "scorm_package",
+   "fieldtype": "Link",
+   "label": "SCORM Package",
+   "options": "File",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_dlnw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "is_scorm_package",
+   "fieldname": "scorm_package_path",
+   "fieldtype": "Code",
+   "label": "SCORM Package Path",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -53,7 +103,7 @@
    "link_fieldname": "chapter"
   }
  ],
- "modified": "2024-10-29 16:54:20.904683",
+ "modified": "2024-11-11 16:25:45.586160",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Course Chapter",
