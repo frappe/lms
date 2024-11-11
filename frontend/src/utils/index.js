@@ -11,7 +11,7 @@ import { watch } from 'vue'
 import dayjs from '@/utils/dayjs'
 import Embed from '@editorjs/embed'
 import SimpleImage from '@editorjs/simple-image'
-import Table from '@editorjs/table';
+import Table from '@editorjs/table'
 
 export function createToast(options) {
 	toast({
