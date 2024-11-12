@@ -156,19 +156,19 @@ const submitLiveClass = (close) => {
 	return createLiveClass.submit(liveClass, {
 		validate() {
 			if (!liveClass.title) {
-				return 'Please enter a title.'
+				return __('Please enter a title.')
 			}
 			if (!liveClass.date) {
-				return 'Please select a date.'
+				return __('Please select a date.')
 			}
 			if (!liveClass.time) {
-				return 'Please select a time.'
+				return __('Please select a time.')
 			}
 			if (!liveClass.timezone) {
-				return 'Please select a timezone.'
+				return __('Please select a timezone.')
 			}
 			if (!valideTime()) {
-				return 'Please enter a valid time in the format HH:mm.'
+				return __('Please enter a valid time in the format HH:mm.')
 			}
 			const liveClassDateTime = dayjs(`${liveClass.date}T${liveClass.time}`).tz(
 				liveClass.timezone,
@@ -180,10 +180,10 @@ const submitLiveClass = (close) => {
 					'minute'
 				)
 			) {
-				return 'Please select a future date and time.'
+				return __('Please select a future date and time.')
 			}
 			if (!liveClass.duration) {
-				return 'Please select a duration.'
+				return __('Please select a duration.')
 			}
 		},
 		onSuccess() {
