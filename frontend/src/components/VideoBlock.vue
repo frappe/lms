@@ -4,6 +4,7 @@
 			@timeupdate="updateTime"
 			@ended="videoEnded"
 			@click="togglePlay"
+			oncontextmenu="return false"
 			class="rounded-lg border border-gray-100 group cursor-pointer"
 			ref="videoRef"
 		>

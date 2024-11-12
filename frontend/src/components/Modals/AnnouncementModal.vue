@@ -18,6 +18,7 @@
 				<div class="">
 					<div class="mb-1.5 text-sm text-gray-600">
 						{{ __('Subject') }}
+						<span class="text-red-500">*</span>
 					</div>
 					<Input type="text" v-model="announcement.subject" />
 				</div>

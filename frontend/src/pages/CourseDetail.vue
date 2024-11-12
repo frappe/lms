@@ -67,7 +67,7 @@
 					<CourseCardOverlay :course="course" class="md:hidden mb-4" />
 					<div
 						v-html="course.data.description"
-						class="course-description"
+						class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-gray-300 prose-th:border-gray-300 prose-td:relative prose-th:relative prose-th:bg-gray-100 prose-sm max-w-none !whitespace-normal"
 					></div>
 					<div class="mt-10">
 						<CourseOutline :courseName="course.data.name" :showOutline="true" />
@@ -131,26 +131,6 @@ const pageMeta = computed(() => {
 updateDocumentTitle(pageMeta)
 </script>
 <style>
-.course-description p {
-	margin-bottom: 1rem;
-	line-height: 1.7;
-}
-.course-description li {
-	line-height: 1.7;
-}
-
-.course-description ol {
-	list-style: auto;
-	margin: revert;
-	padding: revert;
-}
-
-.course-description ul {
-	list-style: disc;
-	margin: revert;
-	padding: revert;
-}
-
 .avatar-group {
 	display: inline-flex;
 	align-items: center;
