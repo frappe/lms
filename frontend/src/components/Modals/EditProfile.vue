@@ -69,7 +69,18 @@
 					:label="__('Headline')"
 					class="mb-4"
 				/>
-				<FormControl type="textarea" v-model="profile.bio" :label="__('Bio')" />
+
+				<div class="mb-4">
+					<div class="mb-1.5 text-sm text-gray-600">
+						{{ __('Bio') }}
+					</div>
+					<TextEditor
+						:fixedMenu="true"
+						@change="(val) => (profile.bio = val)"
+						:content="profile.bio"
+						editorClass="prose-sm py-2 px-2 min-h-[200px] border-gray-300 hover:border-gray-400 rounded-md bg-gray-200"
+					/>
+				</div>
 			</div>
 		</template>
 	</Dialog>
@@ -81,6 +92,7 @@ import {
 	FileUploader,
 	Button,
 	createResource,
+	TextEditor,
 } from 'frappe-ui'
 import { reactive, watch, defineModel } from 'vue'
 import { FileText, X } from 'lucide-vue-next'
