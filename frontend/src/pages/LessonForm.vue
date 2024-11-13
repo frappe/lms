@@ -12,7 +12,12 @@
 				</header>
 				<div class="py-5">
 					<div class="w-5/6 mx-auto">
-						<FormControl v-model="lesson.title" label="Title" class="mb-4" />
+						<FormControl
+							v-model="lesson.title"
+							label="Title"
+							class="mb-4"
+							:required="true"
+						/>
 						<FormControl
 							v-model="lesson.include_in_preview"
 							type="checkbox"
