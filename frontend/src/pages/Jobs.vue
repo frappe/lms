@@ -93,29 +93,29 @@ const pageMeta = computed(() => {
 })
 
 const jobsList = computed(() => {
-	let JobData = jobs.data
+	let jobData = jobs.data
 	if (jobType.value && jobType.value != '') {
-		JobData = JobData.filter((job) => job.type == jobType.value)
+		jobData = jobData.filter((job) => job.type == jobType.value)
 	}
 	if (searchQuery.value) {
 		let query = searchQuery.value.toLowerCase()
-		JobData = JobData.filter(
+		jobData = jobData.filter(
 			(job) =>
 				job.job_title.toLowerCase().includes(query) ||
 				job.company_name.toLowerCase().includes(query) ||
 				job.location.toLowerCase().includes(query)
 		)
 	}
-	return JobData
+	return jobData
 })
 
 const jobTypes = computed(() => {
 	return [
 		'',
-		{ label: 'Full Time', value: 'Full Time' },
-		{ label: 'Part Time', value: 'Part Time' },
-		{ label: 'Contract', value: 'Contract' },
-		{ label: 'Freelance', value: 'Freelance' },
+		{ label: __('Full Time'), value: 'Full Time' },
+		{ label: __('Part Time'), value: 'Part Time' },
+		{ label: __('Contract'), value: 'Contract' },
+		{ label: __('Freelance'), value: 'Freelance' },
 	]
 })
 
