@@ -132,9 +132,10 @@
    "read_only": 1
   }
  ],
+ "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-10-31 15:41:35.540856",
+ "modified": "2024-11-11 18:59:26.396111",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Live Class",

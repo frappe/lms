@@ -2,6 +2,7 @@
 	<div class="space-y-1.5">
 		<label class="block" :class="labelClasses" v-if="attrs.label">
 			{{ attrs.label }}
+			<span class="text-red-500" v-if="attrs.required">*</span>
 		</label>
 		<Autocomplete
 			ref="autocomplete"

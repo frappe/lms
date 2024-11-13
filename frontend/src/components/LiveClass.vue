@@ -46,6 +46,7 @@
 					{{ __('Start') }}
 				</a>
 				<a
+					v-if="cls.date <= dayjs().format('YYYY-MM-DD')"
 					:href="cls.join_url"
 					target="_blank"
 					class="w-full cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-gray-800 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 focus-visible:ring focus-visible:ring-gray-400 h-7 text-base px-2 rounded"

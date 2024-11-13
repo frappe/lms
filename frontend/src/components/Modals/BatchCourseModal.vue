@@ -14,7 +14,12 @@
 		}"
 	>
 		<template #body-content>
-			<Link doctype="LMS Course" v-model="course" :label="__('Course')" />
+			<Link
+				doctype="LMS Course"
+				v-model="course"
+				:label="__('Course')"
+				:required="true"
+			/>
 			<Link
 				doctype="Course Evaluator"
 				v-model="evaluator"

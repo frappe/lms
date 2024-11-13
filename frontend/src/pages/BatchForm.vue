@@ -15,7 +15,11 @@
 				</div>
 				<div class="grid grid-cols-2 gap-10 mb-4 space-y-2">
 					<div>
-						<FormControl v-model="batch.title" :label="__('Title')" />
+						<FormControl
+							v-model="batch.title"
+							:label="__('Title')"
+							:required="true"
+						/>
 					</div>
 					<div class="flex flex-col space-y-2">
 						<FormControl
@@ -83,6 +87,7 @@
 				v-model="instructors"
 				doctype="User"
 				:label="__('Instructors')"
+				:required="true"
 				:filters="{ ignore_user_type: 1 }"
 			/>
 			<div class="mb-4">
@@ -92,10 +97,12 @@
 					type="textarea"
 					class="my-4"
 					:placeholder="__('Short description of the batch')"
+					:required="true"
 				/>
 				<div>
 					<label class="block text-sm text-gray-600 mb-1">
 						{{ __('Batch Details') }}
+						<span class="text-red-500">*</span>
 					</label>
 					<TextEditor
 						:content="batch.batch_details"
@@ -117,12 +124,14 @@
 							:label="__('Start Date')"
 							type="date"
 							class="mb-4"
+							:required="true"
 						/>
 						<FormControl
 							v-model="batch.end_date"
 							:label="__('End Date')"
 							type="date"
 							class="mb-4"
+							:required="true"
 						/>
 					</div>
 					<div>
@@ -131,12 +140,14 @@
 							:label="__('Start Time')"
 							type="time"
 							class="mb-4"
+							:required="true"
 						/>
 						<FormControl
 							v-model="batch.end_time"
 							:label="__('End Time')"
 							type="time"
 							class="mb-4"
+							:required="true"
 						/>
 						<FormControl
 							v-model="batch.timezone"
@@ -144,6 +155,7 @@
 							type="text"
 							:placeholder="__('Example: IST (+5:30)')"
 							class="mb-4"
+							:required="true"
 						/>
 					</div>
 				</div>
