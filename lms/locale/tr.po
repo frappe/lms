@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2024-11-08 16:04+0000\n"
-"PO-Revision-Date: 2024-11-12 15:48\n"
+"PO-Revision-Date: 2024-11-13 15:54\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Turkish\n"
 "MIME-Version: 1.0\n"
@@ -957,7 +957,7 @@ msgstr ""
 
 #: frontend/src/pages/Statistics.vue:58
 msgid "Completions"
-msgstr "Tamamlamalar"
+msgstr "Tamamlama"
 
 #. Label of the condition (Code) field in DocType 'LMS Badge'
 #: lms/lms/doctype/lms_badge/lms_badge.json
@@ -1603,7 +1603,7 @@ msgstr "Hemen Kaydol"
 #: frontend/src/components/CourseCardOverlay.vue:103
 #: frontend/src/pages/CourseDetail.vue:31
 msgid "Enrolled Students"
-msgstr "Kayıtlı Öğrenciler"
+msgstr "Kayıtlı Öğrenci"
 
 #: lms/public/js/common_functions.js:96
 msgid "Enrolled successfully"
@@ -2632,12 +2632,12 @@ msgstr "Ders Başlığı"
 #: lms/lms/doctype/course_chapter/course_chapter.json
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Lessons"
-msgstr "Dersler"
+msgstr "Ders"
 
 #: lms/lms/web_template/lms_statistics/lms_statistics.html:14
 #: lms/templates/statistics.html:36
 msgid "Lessons Completed"
-msgstr "Dersler Tamamlandı"
+msgstr "Ders Tamamlandı"
 
 #: lms/templates/onboarding_header.html:11
 msgid "Lets start setting up your content on the LMS so that you can reclaim time and focus on growth."
@@ -4238,7 +4238,7 @@ msgstr "Kayıt Ayarları"
 #. Label of a chart in the LMS Workspace
 #: frontend/src/pages/Statistics.vue:32 lms/lms/workspace/lms/lms.json
 msgid "Signups"
-msgstr "Kaydolanlar"
+msgstr "Kayıtlar"
 
 #. Label of the skill (Table MultiSelect) field in DocType 'User'
 #. Label of the skill (Data) field in DocType 'User Skill'
@@ -4448,7 +4448,7 @@ msgstr "Öğrenci Adı"
 
 #: frontend/src/components/CourseReviews.vue:11
 msgid "Student Reviews"
-msgstr ""
+msgstr "Öğrenci İncelemeleri"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:47
 msgid "Student {0} has already been added to this batch."
@@ -4711,7 +4711,7 @@ msgstr ""
 
 #: frontend/src/components/CourseCardOverlay.vue:91
 msgid "This course has:"
-msgstr ""
+msgstr "Bu kursta:"
 
 #: lms/lms/utils.py:1570
 msgid "This course is free."
@@ -4854,7 +4854,7 @@ msgstr ""
 
 #: frontend/src/components/LessonHelp.vue:34
 msgid "To upload Image, Video, Audio or PDF from your system, click on the add icon and select upload from the menu. Then choose the file you want to add to the lesson and it gets added to your lesson."
-msgstr ""
+msgstr "Sisteminizden Resim, Video, Ses veya PDF yüklemek için ekle simgesine tıklayın ve menüden yüklemeyi seçin. Ardından derse eklemek istediğiniz dosyayı seçin ve dersinize eklensin."
 
 #: lms/overrides/user.py:206
 msgid "Too many users signed up recently, so the registration is disabled. Please try back in an hour"
