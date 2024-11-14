@@ -136,7 +136,7 @@ msgstr "添加课程"
 #: frontend/src/components/Modals/Question.vue:141
 #: frontend/src/pages/QuizForm.vue:181
 msgid "Add a new question"
-msgstr "添加新问题"
+msgstr "添加新题目"
 
 #: frontend/src/components/QuizPlugin.vue:11
 msgid "Add a quiz to your lesson"
@@ -148,11 +148,11 @@ msgstr "添加测验"
 
 #: frontend/src/components/Modals/Question.vue:18
 msgid "Add an existing question"
-msgstr "添加现有问题"
+msgstr "添加现有题目"
 
 #: lms/lms/doctype/lms_question/lms_question.py:60
 msgid "Add at least one possible answer for this question: {0}"
-msgstr "为这个问题添加至少一个可能的答案：{0}"
+msgstr "为这个题目添加至少一个可能的答案：{0}"
 
 #: frontend/src/components/Modals/PageModal.vue:6
 msgid "Add web page to sidebar"
@@ -200,7 +200,7 @@ msgstr "所有提交"
 
 #: lms/lms/doctype/lms_quiz/lms_quiz.py:46
 msgid "All questions should have the same marks if the limit is set."
-msgstr "如果设置了限制，所有问题应该有相同的分数。"
+msgstr "如果设置了限制，所有题目应该有相同的分数。"
 
 #. Label of the allow_posting (Check) field in DocType 'Job Settings'
 #: lms/job/doctype/job_settings/job_settings.json
@@ -738,11 +738,11 @@ msgstr "章节"
 
 #: frontend/src/components/Quiz.vue:201 lms/templates/quiz/quiz.html:120
 msgid "Check"
-msgstr "检查"
+msgstr "确定"
 
 #: lms/templates/emails/mention_template.html:10
 msgid "Check Discussion"
-msgstr "检查讨论"
+msgstr "查看讨论"
 
 #: lms/templates/certificates_section.html:24
 msgid "Check out the {0} to know more about certification."
@@ -1247,7 +1247,7 @@ msgstr "创建直播课程"
 
 #: frontend/src/components/Modals/Question.vue:31
 msgid "Create a new question"
-msgstr "创建新问题"
+msgstr "创建新题目"
 
 #. Label of the currency (Link) field in DocType 'Web Form'
 #. Label of the currency (Link) field in DocType 'LMS Batch'
@@ -1439,7 +1439,7 @@ msgstr ""
 
 #: lms/lms/doctype/lms_question/lms_question.py:32
 msgid "Duplicate options found for this question."
-msgstr "此问题中存在重复选项。"
+msgstr "此题目中存在重复选项。"
 
 #. Label of the duration (Data) field in DocType 'Cohort'
 #. Label of the duration (Data) field in DocType 'LMS Batch Timetable'
@@ -1490,7 +1490,7 @@ msgstr "编辑个人资料"
 
 #: frontend/src/pages/QuizForm.vue:180
 msgid "Edit the question"
-msgstr "编辑问题"
+msgstr "编辑题目"
 
 #. Label of the education (Table) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -2072,7 +2072,7 @@ msgstr "如果您不再对指导课程感兴趣"
 
 #: frontend/src/components/Quiz.vue:20
 msgid "If you fail to do so, the quiz will be automatically submitted when the timer ends."
-msgstr "如果您未能这样做，测验将在计时器结束时自动提交。"
+msgstr "如果您未能及时完成测验，测验将在计时结束时自动提交。"
 
 #: lms/templates/emails/batch_confirmation.html:33
 msgid "If you have any questions or require assistance, feel free to contact us."
@@ -2088,7 +2088,7 @@ msgstr "如果您在此处设置金额，则不会应用美元等值设置。"
 
 #: lms/lms/doctype/lms_quiz/lms_quiz.py:62
 msgid "If you want open ended questions then make sure each question in the quiz is of open ended type."
-msgstr "如果您希望开放式问题，请确保测验中的每个问题都是开放式问题。"
+msgstr "如果您希望使用开放式题目，请确保测验中的每个题目都是开放式题目。"
 
 #. Option for the 'File Type' (Select) field in DocType 'Course Lesson'
 #. Label of the image (Code) field in DocType 'Exercise Latest Submission'
@@ -2499,7 +2499,7 @@ msgstr "LMS 支付"
 #. Name of a DocType
 #: lms/lms/doctype/lms_question/lms_question.json
 msgid "LMS Question"
-msgstr "LMS 问题"
+msgstr "LMS 题目"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_quiz/lms_quiz.json
@@ -2509,7 +2509,7 @@ msgstr "LMS 测验"
 #. Name of a DocType
 #: lms/lms/doctype/lms_quiz_question/lms_quiz_question.json
 msgid "LMS Quiz Question"
-msgstr "LMS 测验问题"
+msgstr "LMS 测验题目"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_quiz_result/lms_quiz_result.json
@@ -2643,11 +2643,11 @@ msgstr "字母等级（例如A、B-）"
 #. Label of the limit_questions_to (Int) field in DocType 'LMS Quiz'
 #: frontend/src/pages/QuizForm.vue:107 lms/lms/doctype/lms_quiz/lms_quiz.json
 msgid "Limit Questions To"
-msgstr "限制问题数量"
+msgstr "限制题目数量"
 
 #: lms/lms/doctype/lms_quiz/lms_quiz.py:40
 msgid "Limit cannot be greater than or equal to the number of questions in the quiz."
-msgstr "限制不能大于或等于测验中的问题数量。"
+msgstr "限制不能大于或等于测验中的题目数量。"
 
 #: frontend/src/pages/ProfileAbout.vue:74
 msgid "LinkedIn"
@@ -2753,7 +2753,7 @@ msgstr "经理（销售/营销/客户）"
 
 #: frontend/src/components/Quiz.vue:94
 msgid "Mark"
-msgstr "标记"
+msgstr "分"
 
 #: frontend/src/pages/Notifications.vue:12
 msgid "Mark all as read"
@@ -2773,17 +2773,17 @@ msgstr "标记为已读"
 #: lms/lms/doctype/lms_quiz_result/lms_quiz_result.json
 #: lms/templates/quiz/quiz.html:59
 msgid "Marks"
-msgstr "标记"
+msgstr "分"
 
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.py:19
 msgid "Marks for question number {0} cannot be greater than the marks allotted for that question."
-msgstr "问题编号 {0} 的标记不能大于为该问题分配的标记。"
+msgstr "题目编号 {0} 的标记不能大于为该题目分配的标记。"
 
 #. Label of the marks_out_of (Int) field in DocType 'LMS Quiz Result'
 #: frontend/src/pages/QuizSubmission.vue:55
 #: lms/lms/doctype/lms_quiz_result/lms_quiz_result.json
 msgid "Marks out of"
-msgstr "标记"
+msgstr "分"
 
 #. Label of the max_attempts (Int) field in DocType 'LMS Quiz'
 #: lms/lms/doctype/lms_quiz/lms_quiz.json
@@ -3042,7 +3042,7 @@ msgstr "新工作申请者"
 
 #: frontend/src/pages/QuizForm.vue:122
 msgid "New Question"
-msgstr "新问题"
+msgstr "新题目"
 
 #: frontend/src/pages/QuizForm.vue:453 frontend/src/pages/QuizForm.vue:461
 #: frontend/src/pages/Quizzes.vue:18
@@ -3072,7 +3072,7 @@ msgstr "下一页"
 
 #: lms/templates/quiz/quiz.html:125
 msgid "Next Question"
-msgstr "下一个问题"
+msgstr "下一个题目"
 
 #: frontend/src/components/Assessments.vue:63 lms/templates/assessments.html:58
 msgid "No Assessments"
@@ -3260,7 +3260,7 @@ msgstr "打开课程"
 #: lms/lms/doctype/lms_question/lms_question.json
 #: lms/lms/doctype/lms_quiz_question/lms_quiz_question.json
 msgid "Open Ended"
-msgstr "开放式问题"
+msgstr "开放式题目"
 
 #: lms/lms/widgets/MemberCard.html:16
 msgid "Open Network"
@@ -3516,7 +3516,7 @@ msgstr "请启用 Zoom 设置以使用此功能。"
 
 #: frontend/src/components/Quiz.vue:13
 msgid "Please ensure that you complete all the questions in {0} minutes."
-msgstr "请确保在 {0} 分钟内完成所有问题。"
+msgstr "请确保在 {0} 分钟内完成所有题目。"
 
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.py:38
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.py:98
@@ -3757,46 +3757,46 @@ msgstr "发布于"
 #: lms/lms/doctype/lms_quiz_result/lms_quiz_result.json
 #: lms/templates/quiz/quiz.html:104
 msgid "Question"
-msgstr "问题"
+msgstr "题目"
 
 #: lms/templates/quiz/quiz.html:62
 msgid "Question "
-msgstr "问题"
+msgstr "题目"
 
 #. Label of the question_detail (Text) field in DocType 'LMS Quiz Question'
 #: lms/lms/doctype/lms_quiz_question/lms_quiz_question.json
 msgid "Question Detail"
-msgstr "问题详情"
+msgstr "题目详情"
 
 #. Label of the question_name (Link) field in DocType 'LMS Quiz Result'
 #: lms/lms/doctype/lms_quiz_result/lms_quiz_result.json
 msgid "Question Name"
-msgstr "问题名称"
+msgstr "题目名称"
 
 #: frontend/src/components/Modals/Question.vue:261
 msgid "Question added successfully"
-msgstr "问题添加成功"
+msgstr "题目添加成功"
 
 #: frontend/src/components/Modals/Question.vue:313
 msgid "Question updated successfully"
-msgstr "问题更新成功"
+msgstr "题目更新成功"
 
 #: frontend/src/components/Quiz.vue:86
 msgid "Question {0}"
-msgstr "问题 {0}"
+msgstr "题目 {0}"
 
 #: frontend/src/components/Quiz.vue:186
 msgid "Question {0} of {1}"
-msgstr "问题 {0} 的 {1}"
+msgstr "题目 {0} / {1}"
 
 #. Label of the questions (Table) field in DocType 'LMS Quiz'
 #: frontend/src/pages/QuizForm.vue:116 lms/lms/doctype/lms_quiz/lms_quiz.json
 msgid "Questions"
-msgstr "问题"
+msgstr "题目"
 
 #: frontend/src/pages/QuizForm.vue:430
 msgid "Questions deleted successfully"
-msgstr "问题删除成功"
+msgstr "题目删除成功"
 
 #. Label of the quiz (Link) field in DocType 'LMS Quiz Submission'
 #. Label of a Link in the LMS Workspace
@@ -3873,7 +3873,7 @@ msgstr "评分不能为 0"
 
 #: frontend/src/pages/AssignmentSubmission.vue:30
 msgid "Read the question carefully before attempting the assignment."
-msgstr "请仔细阅读问题，然后再尝试作业。"
+msgstr "请仔细阅读题目，然后再尝试作业。"
 
 #. Option for the 'Stage' (Select) field in DocType 'LMS Batch Old'
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
@@ -4024,7 +4024,7 @@ msgstr "第 {0} 行的开始时间不能超出培训课的持续时间。"
 
 #: lms/lms/doctype/lms_quiz/lms_quiz.py:34
 msgid "Rows {0} have the duplicate questions."
-msgstr "第 {0} 行包含重复的问题。"
+msgstr "第 {0} 行包含重复的题目。"
 
 #: lms/templates/livecode/extension_footer.html:21
 msgid "Run"
@@ -4109,7 +4109,7 @@ msgstr "可添加人数"
 
 #: frontend/src/components/Modals/Question.vue:91
 msgid "Select a question"
-msgstr "选择一个问题"
+msgstr "选择一个题目"
 
 #: frontend/src/components/QuizPlugin.vue:17
 msgid "Select a quiz"
@@ -4192,7 +4192,7 @@ msgstr "在日程表中显示日程"
 #. Label of the shuffle_questions (Check) field in DocType 'LMS Quiz'
 #: frontend/src/pages/QuizForm.vue:102 lms/lms/doctype/lms_quiz/lms_quiz.json
 msgid "Shuffle Questions"
-msgstr "随机问题"
+msgstr "随机题目"
 
 #: frontend/src/pages/QuizForm.vue:96
 msgid "Shuffle Settings"
@@ -4651,7 +4651,7 @@ msgstr "此课程的测验者从 {0} 到 {1} 不可用。请选择 {1} 之后的
 
 #: lms/templates/quiz/quiz.html:24
 msgid "The quiz has a time limit. For each question you will be given {0} seconds."
-msgstr "测验有时间限制。对于每个问题，您将获得 {0} 秒的时间。"
+msgstr "此测验有时间限制。对于每个题目，您将获得 {0} 秒的时间。"
 
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.py:71
 msgid "The slot is already booked by another participant."
@@ -4722,7 +4722,7 @@ msgstr "此课程不提供预览。请报名课程以访问它。"
 
 #: frontend/src/components/Quiz.vue:8 lms/templates/quiz/quiz.html:6
 msgid "This quiz consists of {0} questions."
-msgstr "此测验包含 {0} 个问题。"
+msgstr "此测验包含 {0} 个题目。"
 
 #. Option for the 'Day' (Select) field in DocType 'Evaluator Schedule'
 #. Option for the 'Day' (Select) field in DocType 'LMS Certificate Request'
@@ -4782,7 +4782,7 @@ msgstr "时区"
 
 #: lms/templates/emails/batch_confirmation.html:25
 msgid "Timings:"
-msgstr "时间："
+msgstr "计时"
 
 #. Label of the title (Data) field in DocType 'Cohort'
 #. Label of the title (Data) field in DocType 'Cohort Subgroup'
@@ -5190,11 +5190,11 @@ msgstr "您也可以将以下链接复制粘贴到浏览器中"
 
 #: lms/templates/quiz/quiz.html:18
 msgid "You can attempt this quiz only {0} {1}"
-msgstr "您只能尝试此测验 {0} {1}"
+msgstr "您只能重考 {0} {1}"
 
 #: frontend/src/components/Quiz.vue:34
 msgid "You can attempt this quiz {0}."
-msgstr "您可以尝试此测验 {0}."
+msgstr "您最多可以重考 {0}."
 
 #: lms/templates/emails/job_application.html:6
 msgid "You can find their resume attached to this email."
@@ -5222,12 +5222,12 @@ msgstr "您没有任何通知。"
 
 #: lms/templates/quiz/quiz.js:137
 msgid "You got"
-msgstr "您得到了"
+msgstr "您答对了"
 
 #: frontend/src/components/Quiz.vue:234
 #, python-format
 msgid "You got {0}% correct answers with a score of {1} out of {2}"
-msgstr "您得到了 {0}% 的正确答案，得分为 {1} 分，共 {2} 分"
+msgstr "您答对了 {0}% 的正确答案，得分为 {1} 分，共 {2} 分"
 
 #: lms/job/doctype/lms_job_application/lms_job_application.py:22
 msgid "You have already applied for this job."
@@ -5361,7 +5361,7 @@ msgstr "由"
 
 #: frontend/src/pages/QuizForm.vue:389
 msgid "question_detail"
-msgstr "问题详情"
+msgstr "题目详情"
 
 #: lms/templates/reviews.html:25
 msgid "ratings"
