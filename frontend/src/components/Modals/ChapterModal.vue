@@ -20,6 +20,7 @@
 				label="Title"
 				v-model="chapter.title"
 				class="mb-4"
+				:required="true"
 			/>
 		</template>
 	</Dialog>

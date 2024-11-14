@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2024-11-01 16:04+0000\n"
-"PO-Revision-Date: 2024-11-05 14:33\n"
+"POT-Creation-Date: 2024-11-08 16:04+0000\n"
+"PO-Revision-Date: 2024-11-11 15:23\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: French\n"
 "MIME-Version: 1.0\n"
@@ -62,7 +62,7 @@ msgstr ""
 msgid "<span style=\"font-size: 18px;\"><b>Statistics</b></span>"
 msgstr ""
 
-#: frontend/src/pages/CourseForm.vue:32
+#: frontend/src/pages/CourseForm.vue:40
 msgid "A one line introduction to the course that appears on the course card"
 msgstr ""
 
@@ -228,7 +228,7 @@ msgstr "Déjà Inscrit"
 #. Label of the amount (Currency) field in DocType 'Web Form'
 #. Label of the amount (Currency) field in DocType 'LMS Batch'
 #. Label of the amount (Currency) field in DocType 'LMS Payment'
-#: frontend/src/pages/BatchForm.vue:208 lms/fixtures/custom_field.json
+#: frontend/src/pages/BatchForm.vue:209 lms/fixtures/custom_field.json
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_payment/lms_payment.json
 #: lms/public/js/common_functions.js:379
@@ -262,6 +262,10 @@ msgstr "Montant avec taxe"
 msgid "Announcement"
 msgstr "Information"
 
+#: frontend/src/components/Modals/AnnouncementModal.vue:99
+msgid "Announcement has been sent successfully"
+msgstr ""
+
 #. Label of the answer (Text Editor) field in DocType 'LMS Assignment'
 #. Label of the answer (Text Editor) field in DocType 'LMS Assignment
 #. Submission'
@@ -272,7 +276,7 @@ msgstr "Information"
 msgid "Answer"
 msgstr "Réponse"
 
-#: frontend/src/pages/CourseForm.vue:76 frontend/src/pages/CourseForm.vue:94
+#: frontend/src/pages/CourseForm.vue:84 frontend/src/pages/CourseForm.vue:102
 msgid "Appears on the course card in the course list"
 msgstr ""
 
@@ -346,7 +350,7 @@ msgstr "Type d'évaluation"
 msgid "Assessment added successfully"
 msgstr ""
 
-#: lms/lms/doctype/lms_batch/lms_batch.py:74
+#: lms/lms/doctype/lms_batch/lms_batch.py:75
 msgid "Assessment {0} has already been added to this batch."
 msgstr "L'évaluation {0} a déjà été ajoutée à ce lot."
 
@@ -426,7 +430,7 @@ msgstr "Enregistrement automatique"
 msgid "Average Rating"
 msgstr "Notation moyenne"
 
-#: frontend/src/pages/Lesson.vue:101
+#: frontend/src/pages/Lesson.vue:96
 msgid "Back to Course"
 msgstr ""
 
@@ -478,7 +482,7 @@ msgid "Batch Description"
 msgstr "Description du Lot"
 
 #. Label of the batch_details (Text Editor) field in DocType 'LMS Batch'
-#: frontend/src/pages/BatchForm.vue:97 lms/lms/doctype/lms_batch/lms_batch.json
+#: frontend/src/pages/BatchForm.vue:98 lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/public/js/common_functions.js:349
 #: lms/templates/emails/batch_confirmation.html:30
 msgid "Batch Details"
@@ -539,7 +543,7 @@ msgstr ""
 msgid "Batch Updated"
 msgstr "Lot mis à jour"
 
-#: lms/lms/doctype/lms_batch/lms_batch.py:39
+#: lms/lms/doctype/lms_batch/lms_batch.py:40
 msgid "Batch end date cannot be before the batch start date"
 msgstr ""
 
@@ -645,8 +649,8 @@ msgstr ""
 #. Label of the category (Link) field in DocType 'LMS Batch'
 #. Label of the category (Data) field in DocType 'LMS Category'
 #. Label of the category (Link) field in DocType 'LMS Course'
-#: frontend/src/pages/BatchForm.vue:189 frontend/src/pages/Batches.vue:16
-#: frontend/src/pages/CourseForm.vue:139 frontend/src/pages/Courses.vue:17
+#: frontend/src/pages/BatchForm.vue:190 frontend/src/pages/Batches.vue:16
+#: frontend/src/pages/CourseForm.vue:147 frontend/src/pages/Courses.vue:17
 #: frontend/src/pages/JobDetail.vue:102
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_category/lms_category.json
@@ -947,7 +951,7 @@ msgstr "Terminer l'inscription"
 msgid "Completed"
 msgstr "Terminé"
 
-#: frontend/src/pages/CourseForm.vue:192
+#: frontend/src/pages/CourseForm.vue:201
 msgid "Completion Certificate"
 msgstr ""
 
@@ -1118,7 +1122,7 @@ msgstr "Créateur de cours"
 msgid "Course Data"
 msgstr "Données du cours"
 
-#: frontend/src/pages/CourseForm.vue:41
+#: frontend/src/pages/CourseForm.vue:49
 msgid "Course Description"
 msgstr "Description du cours"
 
@@ -1127,7 +1131,7 @@ msgstr "Description du cours"
 msgid "Course Evaluator"
 msgstr "Évaluateur de cours"
 
-#: frontend/src/pages/CourseForm.vue:54
+#: frontend/src/pages/CourseForm.vue:62
 msgid "Course Image"
 msgstr "Image du cours"
 
@@ -1150,7 +1154,7 @@ msgid "Course Name"
 msgstr "Nom du cours"
 
 #. Label of the course_price (Currency) field in DocType 'LMS Course'
-#: frontend/src/pages/CourseForm.vue:210
+#: frontend/src/pages/CourseForm.vue:219
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Course Price"
 msgstr "Prix du cours"
@@ -1179,15 +1183,15 @@ msgstr "Statistiques du cours"
 msgid "Course Title"
 msgstr "Titre du cours"
 
-#: lms/lms/doctype/lms_batch/lms_batch.py:318
+#: lms/lms/doctype/lms_batch/lms_batch.py:340
 msgid "Course already added to the batch."
 msgstr "Cours déjà ajouté au lot."
 
 #: frontend/src/pages/CourseForm.vue:457
-msgid "Course price and currency are mandatory for paid courses"
+msgid "Course deleted successfully"
 msgstr ""
 
-#: lms/lms/doctype/lms_batch/lms_batch.py:57
+#: lms/lms/doctype/lms_batch/lms_batch.py:58
 msgid "Course {0} has already been added to this batch."
 msgstr "Le cours {0} a déjà été ajouté à ce lot."
 
@@ -1253,7 +1257,7 @@ msgstr ""
 #. Label of the currency (Link) field in DocType 'LMS Batch'
 #. Label of the currency (Link) field in DocType 'LMS Course'
 #. Label of the currency (Link) field in DocType 'LMS Payment'
-#: frontend/src/pages/BatchForm.vue:216 frontend/src/pages/CourseForm.vue:217
+#: frontend/src/pages/BatchForm.vue:217 frontend/src/pages/CourseForm.vue:226
 #: lms/fixtures/custom_field.json lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_payment/lms_payment.json
@@ -1311,7 +1315,7 @@ msgstr ""
 
 #. Label of the section_break_glxh (Section Break) field in DocType 'LMS Live
 #. Class'
-#: frontend/src/pages/BatchForm.vue:110
+#: frontend/src/pages/BatchForm.vue:111
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Date and Time"
 msgstr "Date et heure"
@@ -1347,11 +1351,20 @@ msgid "Degree Type"
 msgstr "Type de diplôme"
 
 #: frontend/src/components/CourseOutline.vue:212
+#: frontend/src/pages/CourseForm.vue:15 frontend/src/pages/CourseForm.vue:470
 msgid "Delete"
 msgstr "Supprimer"
 
+#: frontend/src/pages/CourseForm.vue:464
+msgid "Delete Course"
+msgstr ""
+
 #: frontend/src/components/CourseOutline.vue:208
 msgid "Delete Lesson"
+msgstr ""
+
+#: frontend/src/pages/CourseForm.vue:465
+msgid "Deleting the course will also delete all its chapters and lessons. Are you sure you want to delete this course?"
 msgstr ""
 
 #. Label of the description (Text Editor) field in DocType 'Job Opportunity'
@@ -1367,7 +1380,7 @@ msgstr ""
 #. Label of the description (Text) field in DocType 'LMS Live Class'
 #. Label of the description (Small Text) field in DocType 'Work Experience'
 #: frontend/src/components/Modals/LiveClassModal.vue:73
-#: frontend/src/pages/BatchForm.vue:90 frontend/src/pages/JobCreation.vue:43
+#: frontend/src/pages/BatchForm.vue:91 frontend/src/pages/JobCreation.vue:43
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/lms/doctype/certification/certification.json
 #: lms/lms/doctype/cohort/cohort.json
@@ -1388,12 +1401,12 @@ msgid "Desk"
 msgstr ""
 
 #: frontend/src/components/Modals/DiscussionModal.vue:22
-#: frontend/src/pages/BatchForm.vue:14 frontend/src/pages/CourseForm.vue:20
+#: frontend/src/pages/BatchForm.vue:14 frontend/src/pages/CourseForm.vue:28
 #: frontend/src/pages/QuizForm.vue:42
 msgid "Details"
 msgstr "Détails"
 
-#: frontend/src/pages/CourseForm.vue:187
+#: frontend/src/pages/CourseForm.vue:196
 msgid "Disable Self Enrollment"
 msgstr "Désactiver l'auto-inscription"
 
@@ -1469,7 +1482,7 @@ msgstr ""
 #: frontend/src/components/BatchOverlay.vue:93
 #: frontend/src/components/CourseCardOverlay.vue:86
 #: frontend/src/components/Modals/ChapterModal.vue:9
-#: frontend/src/pages/JobDetail.vue:31 frontend/src/pages/Lesson.vue:70
+#: frontend/src/pages/JobDetail.vue:31 frontend/src/pages/Lesson.vue:65
 #: frontend/src/pages/Profile.vue:32
 msgid "Edit"
 msgstr "modifier"
@@ -1551,7 +1564,7 @@ msgstr "Activé"
 
 #. Label of the end_date (Date) field in DocType 'Cohort'
 #. Label of the end_date (Date) field in DocType 'LMS Batch'
-#: frontend/src/pages/BatchForm.vue:122 lms/lms/doctype/cohort/cohort.json
+#: frontend/src/pages/BatchForm.vue:123 lms/lms/doctype/cohort/cohort.json
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/public/js/common_functions.js:282
 msgid "End Date"
@@ -1569,7 +1582,7 @@ msgstr ""
 #. Label of the end_time (Time) field in DocType 'LMS Certificate Evaluation'
 #. Label of the end_time (Time) field in DocType 'LMS Certificate Request'
 #. Label of the end_time (Time) field in DocType 'Scheduled Flow'
-#: frontend/src/pages/BatchForm.vue:136
+#: frontend/src/pages/BatchForm.vue:137
 #: frontend/src/pages/ProfileEvaluator.vue:18
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_batch/lms_batch.json
@@ -1596,7 +1609,7 @@ msgstr ""
 msgid "Enrolled successfully"
 msgstr ""
 
-#: lms/lms/doctype/lms_batch/lms_batch.py:97
+#: lms/lms/doctype/lms_batch/lms_batch.py:98
 msgid "Enrollment Confirmation for the Next Training Batch"
 msgstr ""
 
@@ -1605,7 +1618,7 @@ msgstr ""
 msgid "Enrollment Count"
 msgstr ""
 
-#: lms/lms/utils.py:1692
+#: lms/lms/utils.py:1690
 msgid "Enrollment Failed"
 msgstr ""
 
@@ -1633,6 +1646,7 @@ msgstr ""
 msgid "Enter the correct answer"
 msgstr ""
 
+#: frontend/src/components/Modals/AnnouncementModal.vue:104
 #: frontend/src/components/Modals/Question.vue:246
 #: frontend/src/components/Modals/Question.vue:266
 #: frontend/src/components/Modals/Question.vue:323
@@ -1655,7 +1669,7 @@ msgid "Evaluation Details"
 msgstr ""
 
 #. Label of the evaluation_end_date (Date) field in DocType 'LMS Batch'
-#: frontend/src/pages/BatchForm.vue:165
+#: frontend/src/pages/BatchForm.vue:166
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/public/js/common_functions.js:333
 msgid "Evaluation End Date"
@@ -1666,7 +1680,7 @@ msgstr ""
 msgid "Evaluation Request"
 msgstr ""
 
-#: lms/lms/doctype/lms_batch/lms_batch.py:81
+#: lms/lms/doctype/lms_batch/lms_batch.py:82
 msgid "Evaluation end date cannot be less than the batch end date."
 msgstr ""
 
@@ -1713,11 +1727,13 @@ msgid "Evaluator is Unavailable"
 msgstr ""
 
 #. Label of the event (Select) field in DocType 'LMS Badge'
+#. Label of the event (Link) field in DocType 'LMS Live Class'
 #: lms/lms/doctype/lms_badge/lms_badge.json
+#: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Event"
 msgstr "Événement"
 
-#: frontend/src/pages/BatchForm.vue:144
+#: frontend/src/pages/BatchForm.vue:145
 msgid "Example: IST (+5:30)"
 msgstr ""
 
@@ -1791,7 +1807,7 @@ msgstr ""
 
 #. Label of the featured (Check) field in DocType 'LMS Course'
 #: frontend/src/components/CourseCard.vue:16
-#: frontend/src/pages/CourseForm.vue:180
+#: frontend/src/pages/CourseForm.vue:189
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Featured"
 msgstr "En vedette"
@@ -2078,7 +2094,7 @@ msgstr ""
 msgid "If you set an amount here, then the USD equivalent setting will not get applied."
 msgstr ""
 
-#: lms/lms/doctype/lms_quiz/lms_quiz.py:62
+#: lms/lms/doctype/lms_quiz/lms_quiz.py:63
 msgid "If you want open ended questions then make sure each question in the quiz is of open ended type."
 msgstr ""
 
@@ -2104,7 +2120,7 @@ msgstr "Image"
 msgid "Image search powered by"
 msgstr ""
 
-#: lms/lms/doctype/lms_quiz/lms_quiz.py:221
+#: lms/lms/doctype/lms_quiz/lms_quiz.py:222
 msgid "Image: Corrupted Data Stream"
 msgstr ""
 
@@ -2187,14 +2203,14 @@ msgstr ""
 
 #. Label of the instructor_notes (Markdown Editor) field in DocType 'Course
 #. Lesson'
-#: frontend/src/pages/Lesson.vue:130 frontend/src/pages/LessonForm.vue:33
+#: frontend/src/pages/Lesson.vue:125 frontend/src/pages/LessonForm.vue:33
 #: lms/lms/doctype/course_lesson/course_lesson.json
 msgid "Instructor Notes"
 msgstr ""
 
 #. Label of the instructors (Table MultiSelect) field in DocType 'LMS Batch'
 #. Label of the instructors (Table MultiSelect) field in DocType 'LMS Course'
-#: frontend/src/pages/BatchForm.vue:85 frontend/src/pages/CourseForm.vue:146
+#: frontend/src/pages/BatchForm.vue:85 frontend/src/pages/CourseForm.vue:154
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Instructors"
@@ -2353,7 +2369,7 @@ msgstr ""
 msgid "Join URL"
 msgstr ""
 
-#: frontend/src/pages/CourseForm.vue:128
+#: frontend/src/pages/CourseForm.vue:136
 msgid "Keywords for the course"
 msgstr ""
 
@@ -2657,7 +2673,7 @@ msgstr ""
 msgid "Links"
 msgstr "Liens"
 
-#: frontend/src/pages/Quizzes.vue:131
+#: frontend/src/pages/Quizzes.vue:147
 msgid "List of quizzes"
 msgstr ""
 
@@ -2707,7 +2723,7 @@ msgstr ""
 
 #: frontend/src/components/NoPermission.vue:28
 #: frontend/src/components/QuizBlock.vue:9 frontend/src/pages/Batch.vue:163
-#: frontend/src/pages/Lesson.vue:29
+#: frontend/src/pages/Lesson.vue:24
 msgid "Login"
 msgstr "Connexion"
 
@@ -2787,7 +2803,7 @@ msgid "Maximun Attempts"
 msgstr ""
 
 #. Label of the medium (Select) field in DocType 'LMS Batch'
-#: frontend/src/pages/BatchForm.vue:184
+#: frontend/src/pages/BatchForm.vue:185
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/public/js/common_functions.js:309
 msgid "Medium"
@@ -3042,11 +3058,11 @@ msgstr ""
 msgid "New Sign Up"
 msgstr ""
 
-#: lms/lms/utils.py:632
+#: lms/lms/utils.py:627
 msgid "New comment in batch {0}"
 msgstr ""
 
-#: lms/lms/utils.py:625
+#: lms/lms/utils.py:620
 msgid "New reply on the topic {0} in course {1}"
 msgstr ""
 
@@ -3055,7 +3071,7 @@ msgstr ""
 msgid "New {0}"
 msgstr "Nouveau(elle) {0}"
 
-#: frontend/src/components/Quiz.vue:209 frontend/src/pages/Lesson.vue:89
+#: frontend/src/components/Quiz.vue:209 frontend/src/pages/Lesson.vue:84
 msgid "Next"
 msgstr "Suivant"
 
@@ -3114,6 +3130,10 @@ msgstr ""
 
 #: frontend/src/components/LiveClass.vue:60
 msgid "No live classes scheduled"
+msgstr ""
+
+#: frontend/src/pages/Quizzes.vue:56
+msgid "No quizzes found"
 msgstr ""
 
 #: frontend/src/components/Modals/EvaluationModal.vue:53
@@ -3188,7 +3208,7 @@ msgstr ""
 msgid "Notify me when available"
 msgstr "M'avertir si disponible"
 
-#: frontend/src/pages/BatchForm.vue:161
+#: frontend/src/pages/BatchForm.vue:162
 msgid "Number of seats available"
 msgstr ""
 
@@ -3224,7 +3244,7 @@ msgstr ""
 msgid "Only files of type {0} will be accepted."
 msgstr ""
 
-#: frontend/src/pages/CourseForm.vue:473 frontend/src/utils/index.js:518
+#: frontend/src/pages/CourseForm.vue:494 frontend/src/utils/index.js:518
 msgid "Only image file is allowed."
 msgstr ""
 
@@ -3332,14 +3352,14 @@ msgid "Pages"
 msgstr ""
 
 #. Label of the paid_batch (Check) field in DocType 'LMS Batch'
-#: frontend/src/pages/BatchForm.vue:204
+#: frontend/src/pages/BatchForm.vue:205
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/public/js/common_functions.js:373
 msgid "Paid Batch"
 msgstr ""
 
 #. Label of the paid_course (Check) field in DocType 'LMS Course'
-#: frontend/src/pages/CourseForm.vue:205
+#: frontend/src/pages/CourseForm.vue:214
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Paid Course"
 msgstr ""
@@ -3370,7 +3390,7 @@ msgstr ""
 
 #. Label of the passing_percentage (Int) field in DocType 'LMS Quiz'
 #. Label of the passing_percentage (Int) field in DocType 'LMS Quiz Submission'
-#: frontend/src/pages/QuizForm.vue:71 frontend/src/pages/Quizzes.vue:109
+#: frontend/src/pages/QuizForm.vue:71 frontend/src/pages/Quizzes.vue:125
 #: lms/lms/doctype/lms_quiz/lms_quiz.json
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.json
 msgid "Passing Percentage"
@@ -3381,13 +3401,13 @@ msgstr ""
 msgid "Password"
 msgstr "Mot de Passe"
 
-#: frontend/src/pages/CourseForm.vue:104
+#: frontend/src/pages/CourseForm.vue:112
 msgid "Paste the youtube link of a short video introducing the course"
 msgstr ""
 
 #. Label of the payment (Link) field in DocType 'Batch Student'
 #. Label of the payment (Link) field in DocType 'LMS Enrollment'
-#: frontend/src/pages/BatchForm.vue:198
+#: frontend/src/pages/BatchForm.vue:199
 #: lms/lms/doctype/batch_student/batch_student.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 msgid "Payment"
@@ -3499,7 +3519,7 @@ msgstr "Veuillez vérifier votre email pour validation"
 msgid "Please click on the following button to set your new password"
 msgstr ""
 
-#: lms/lms/doctype/lms_batch/lms_batch.py:229
+#: lms/lms/doctype/lms_batch/lms_batch.py:251
 msgid "Please enable Zoom Settings to use this feature."
 msgstr ""
 
@@ -3520,7 +3540,7 @@ msgstr ""
 msgid "Please enter your answer"
 msgstr ""
 
-#: lms/lms/doctype/lms_batch/lms_batch.py:64
+#: lms/lms/doctype/lms_batch/lms_batch.py:65
 msgid "Please install the Payments app to create a paid batches."
 msgstr ""
 
@@ -3630,17 +3650,17 @@ msgstr ""
 msgid "Preview Image"
 msgstr ""
 
-#: frontend/src/pages/CourseForm.vue:102
+#: frontend/src/pages/CourseForm.vue:110
 msgid "Preview Video"
 msgstr ""
 
-#: frontend/src/pages/Lesson.vue:54
+#: frontend/src/pages/Lesson.vue:49
 msgid "Previous"
 msgstr "Précedent"
 
 #. Label of the pricing_tab (Tab Break) field in DocType 'LMS Batch'
 #. Label of the pricing_tab (Tab Break) field in DocType 'LMS Course'
-#: frontend/src/pages/CourseForm.vue:199
+#: frontend/src/pages/CourseForm.vue:208
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/public/js/common_functions.js:368
@@ -3710,7 +3730,7 @@ msgstr ""
 #. Label of the published (Check) field in DocType 'LMS Batch'
 #. Label of the published (Check) field in DocType 'LMS Course'
 #: frontend/src/components/Modals/Event.vue:108
-#: frontend/src/pages/BatchForm.vue:24 frontend/src/pages/CourseForm.vue:162
+#: frontend/src/pages/BatchForm.vue:24 frontend/src/pages/CourseForm.vue:171
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/public/js/common_functions.js:266
@@ -3723,7 +3743,7 @@ msgid "Published Courses"
 msgstr ""
 
 #. Label of the published_on (Date) field in DocType 'LMS Course'
-#: frontend/src/pages/CourseForm.vue:166
+#: frontend/src/pages/CourseForm.vue:175
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Published On"
 msgstr "Publié le"
@@ -3838,8 +3858,8 @@ msgstr ""
 msgid "Quiz will appear at the bottom of the lesson."
 msgstr ""
 
-#: frontend/src/pages/QuizForm.vue:441 frontend/src/pages/Quizzes.vue:120
-#: frontend/src/pages/Quizzes.vue:130
+#: frontend/src/pages/QuizForm.vue:441 frontend/src/pages/Quizzes.vue:136
+#: frontend/src/pages/Quizzes.vue:146
 msgid "Quizzes"
 msgstr ""
 
@@ -3921,7 +3941,7 @@ msgstr "Rejeté"
 msgid "Related Courses"
 msgstr ""
 
-#: frontend/src/pages/BatchForm.vue:69 frontend/src/pages/CourseForm.vue:91
+#: frontend/src/pages/BatchForm.vue:69 frontend/src/pages/CourseForm.vue:99
 msgid "Remove"
 msgstr ""
 
@@ -3995,19 +4015,19 @@ msgstr ""
 msgid "Route"
 msgstr ""
 
-#: lms/lms/doctype/lms_batch/lms_batch.py:172
+#: lms/lms/doctype/lms_batch/lms_batch.py:194
 msgid "Row #{0} Date cannot be outside the batch duration."
 msgstr ""
 
-#: lms/lms/doctype/lms_batch/lms_batch.py:167
+#: lms/lms/doctype/lms_batch/lms_batch.py:189
 msgid "Row #{0} End time cannot be outside the batch duration."
 msgstr ""
 
-#: lms/lms/doctype/lms_batch/lms_batch.py:149
+#: lms/lms/doctype/lms_batch/lms_batch.py:171
 msgid "Row #{0} Start time cannot be greater than or equal to end time."
 msgstr ""
 
-#: lms/lms/doctype/lms_batch/lms_batch.py:158
+#: lms/lms/doctype/lms_batch/lms_batch.py:180
 msgid "Row #{0} Start time cannot be outside the batch duration."
 msgstr ""
 
@@ -4031,7 +4051,7 @@ msgstr "Samedi"
 #: frontend/src/components/Modals/Event.vue:129
 #: frontend/src/components/QuizPlugin.vue:23
 #: frontend/src/pages/AssignmentSubmission.vue:7
-#: frontend/src/pages/BatchForm.vue:8 frontend/src/pages/CourseForm.vue:12
+#: frontend/src/pages/BatchForm.vue:8 frontend/src/pages/CourseForm.vue:20
 #: frontend/src/pages/JobCreation.vue:8 frontend/src/pages/LessonForm.vue:10
 #: frontend/src/pages/QuizForm.vue:34 frontend/src/pages/QuizSubmission.vue:14
 #: lms/public/js/common_functions.js:405
@@ -4080,7 +4100,7 @@ msgid "Search for an icon"
 msgstr ""
 
 #. Label of the seat_count (Int) field in DocType 'LMS Batch'
-#: frontend/src/pages/BatchForm.vue:158
+#: frontend/src/pages/BatchForm.vue:159
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/public/js/common_functions.js:327
 msgid "Seat Count"
@@ -4124,7 +4144,7 @@ msgid "Set your Password"
 msgstr ""
 
 #: frontend/src/components/Modals/Settings.vue:7
-#: frontend/src/pages/BatchForm.vue:152 frontend/src/pages/CourseForm.vue:152
+#: frontend/src/pages/BatchForm.vue:153 frontend/src/pages/CourseForm.vue:161
 #: frontend/src/pages/ProfileRoles.vue:4 frontend/src/pages/QuizForm.vue:78
 msgid "Settings"
 msgstr "Paramètres"
@@ -4134,12 +4154,12 @@ msgid "Share on"
 msgstr ""
 
 #. Label of the short_introduction (Small Text) field in DocType 'LMS Course'
-#: frontend/src/pages/CourseForm.vue:30
+#: frontend/src/pages/CourseForm.vue:38
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Short Introduction"
 msgstr ""
 
-#: frontend/src/pages/BatchForm.vue:93
+#: frontend/src/pages/BatchForm.vue:94
 msgid "Short description of the batch"
 msgstr ""
 
@@ -4303,7 +4323,7 @@ msgstr "Démarrer"
 #. Label of the start_date (Date) field in DocType 'Education Detail'
 #. Label of the start_date (Date) field in DocType 'LMS Batch'
 #. Label of the start_date (Date) field in DocType 'LMS Batch Old'
-#: frontend/src/pages/BatchForm.vue:116
+#: frontend/src/pages/BatchForm.vue:117
 #: lms/lms/doctype/education_detail/education_detail.json
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
@@ -4312,7 +4332,7 @@ msgid "Start Date"
 msgstr "Date de Début"
 
 #: frontend/src/components/CourseCardOverlay.vue:63
-#: frontend/src/pages/Lesson.vue:25
+#: frontend/src/pages/Lesson.vue:21
 #: lms/templates/emails/lms_course_interest.html:9
 msgid "Start Learning"
 msgstr ""
@@ -4324,7 +4344,7 @@ msgstr ""
 #. Label of the start_time (Time) field in DocType 'LMS Certificate Evaluation'
 #. Label of the start_time (Time) field in DocType 'LMS Certificate Request'
 #. Label of the start_time (Time) field in DocType 'Scheduled Flow'
-#: frontend/src/pages/BatchForm.vue:130
+#: frontend/src/pages/BatchForm.vue:131
 #: frontend/src/pages/ProfileEvaluator.vue:15
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_batch/lms_batch.json
@@ -4430,7 +4450,7 @@ msgstr ""
 msgid "Student Reviews"
 msgstr ""
 
-#: lms/lms/doctype/lms_batch/lms_batch.py:46
+#: lms/lms/doctype/lms_batch/lms_batch.py:47
 msgid "Student {0} has already been added to this batch."
 msgstr ""
 
@@ -4496,13 +4516,14 @@ msgstr ""
 #: frontend/src/components/BatchOverlay.vue:135
 #: frontend/src/components/BatchStudents.vue:157
 #: frontend/src/components/CourseCardOverlay.vue:161
+#: frontend/src/components/Modals/AnnouncementModal.vue:98
 #: frontend/src/components/Modals/AssessmentModal.vue:73
 #: frontend/src/components/Modals/Event.vue:255
 #: frontend/src/components/Modals/Event.vue:310
 #: frontend/src/components/Modals/Question.vue:261
 #: frontend/src/components/Modals/Question.vue:312
-#: frontend/src/pages/QuizForm.vue:342 frontend/src/pages/QuizForm.vue:361
-#: frontend/src/pages/QuizForm.vue:430
+#: frontend/src/pages/CourseForm.vue:457 frontend/src/pages/QuizForm.vue:342
+#: frontend/src/pages/QuizForm.vue:361 frontend/src/pages/QuizForm.vue:430
 msgid "Success"
 msgstr "Succès"
 
@@ -4569,7 +4590,7 @@ msgid "System Manager"
 msgstr "Responsable Système"
 
 #. Label of the tags (Data) field in DocType 'LMS Course'
-#: frontend/src/pages/CourseForm.vue:112
+#: frontend/src/pages/CourseForm.vue:120
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Tags"
 msgstr "Balises"
@@ -4661,7 +4682,7 @@ msgstr ""
 msgid "There are no courses available at the moment. Keep an eye out, fresh learning experiences are on the way soon!"
 msgstr ""
 
-#: lms/lms/doctype/lms_batch/lms_batch.py:140
+#: lms/lms/doctype/lms_batch/lms_batch.py:141
 msgid "There are no seats available in this batch."
 msgstr ""
 
@@ -4692,7 +4713,7 @@ msgstr ""
 msgid "This course has:"
 msgstr ""
 
-#: lms/lms/utils.py:1572
+#: lms/lms/utils.py:1570
 msgid "This course is free."
 msgstr ""
 
@@ -4761,7 +4782,7 @@ msgstr ""
 #. Label of the timezone (Data) field in DocType 'LMS Certificate Request'
 #. Label of the timezone (Data) field in DocType 'LMS Live Class'
 #: frontend/src/components/Modals/LiveClassModal.vue:44
-#: frontend/src/pages/BatchForm.vue:142
+#: frontend/src/pages/BatchForm.vue:143
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
@@ -4790,9 +4811,9 @@ msgstr ""
 #. Label of the title (Data) field in DocType 'Work Experience'
 #: frontend/src/components/Modals/DiscussionModal.vue:18
 #: frontend/src/components/Modals/LiveClassModal.vue:23
-#: frontend/src/pages/BatchForm.vue:18 frontend/src/pages/CourseForm.vue:24
+#: frontend/src/pages/BatchForm.vue:18 frontend/src/pages/CourseForm.vue:32
 #: frontend/src/pages/JobCreation.vue:20 frontend/src/pages/QuizForm.vue:48
-#: frontend/src/pages/Quizzes.vue:98 lms/lms/doctype/cohort/cohort.json
+#: frontend/src/pages/Quizzes.vue:114 lms/lms/doctype/cohort/cohort.json
 #: lms/lms/doctype/cohort_subgroup/cohort_subgroup.json
 #: lms/lms/doctype/cohort_web_page/cohort_web_page.json
 #: lms/lms/doctype/course_chapter/course_chapter.json
@@ -4827,7 +4848,7 @@ msgstr "Jusqu'au"
 msgid "To Date is mandatory in Work Experience."
 msgstr ""
 
-#: lms/lms/utils.py:1583
+#: lms/lms/utils.py:1581
 msgid "To join this batch, please contact the Administrator."
 msgstr ""
 
@@ -4844,7 +4865,7 @@ msgid "Total"
 msgstr ""
 
 #. Label of the total_marks (Int) field in DocType 'LMS Quiz'
-#: frontend/src/pages/QuizForm.vue:66 frontend/src/pages/Quizzes.vue:103
+#: frontend/src/pages/QuizForm.vue:66 frontend/src/pages/Quizzes.vue:119
 #: lms/lms/doctype/lms_quiz/lms_quiz.json
 msgid "Total Marks"
 msgstr ""
@@ -4944,7 +4965,7 @@ msgstr ""
 
 #. Option for the 'Status' (Select) field in DocType 'Cohort'
 #. Label of the upcoming (Check) field in DocType 'LMS Course'
-#: frontend/src/pages/CourseForm.vue:175 lms/lms/doctype/cohort/cohort.json
+#: frontend/src/pages/CourseForm.vue:184 lms/lms/doctype/cohort/cohort.json
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Upcoming"
 msgstr ""
@@ -4968,7 +4989,7 @@ msgstr "Mettre à Jour"
 msgid "Update Password"
 msgstr ""
 
-#: frontend/src/pages/BatchForm.vue:51 frontend/src/pages/CourseForm.vue:72
+#: frontend/src/pages/BatchForm.vue:51 frontend/src/pages/CourseForm.vue:80
 msgid "Upload"
 msgstr "Charger"
 
@@ -5237,6 +5258,10 @@ msgstr ""
 msgid "You have been enrolled in this course"
 msgstr ""
 
+#: frontend/src/pages/Quizzes.vue:60
+msgid "You have not created any quizzes yet. To create a new quiz, click on the \"New Quiz\" button above."
+msgstr ""
+
 #: lms/lms/widgets/NoPreviewModal.html:12 lms/public/js/common_functions.js:126
 msgid "You have opted to be notified for this course. You will receive an email when the course becomes available."
 msgstr "Vous avez choisi d'être notifié pour ce cours. Vous recevrez un courriel lorsque le cours sera disponible."
@@ -5315,7 +5340,7 @@ msgstr ""
 msgid "cancel your application"
 msgstr ""
 
-#: frontend/src/pages/Lesson.vue:175
+#: frontend/src/pages/Lesson.vue:170
 msgid "completed"
 msgstr "complété"
 
@@ -5363,7 +5388,7 @@ msgstr ""
 msgid "you can"
 msgstr ""
 
-#: lms/lms/api.py:732 lms/lms/api.py:740
+#: lms/lms/api.py:740 lms/lms/api.py:748
 msgid "{0} Settings not found"
 msgstr ""
 
@@ -5399,7 +5424,7 @@ msgstr ""
 msgid "{0} is your evaluator"
 msgstr ""
 
-#: lms/lms/utils.py:709
+#: lms/lms/utils.py:704
 msgid "{0} mentioned you in a comment"
 msgstr ""
 
@@ -5407,7 +5432,7 @@ msgstr ""
 msgid "{0} mentioned you in a comment in your batch."
 msgstr ""
 
-#: lms/lms/utils.py:662 lms/lms/utils.py:668
+#: lms/lms/utils.py:657 lms/lms/utils.py:663
 msgid "{0} mentioned you in a comment in {1}"
 msgstr "{0} vous a mentionné dans un commentaire dans {1}"
 
