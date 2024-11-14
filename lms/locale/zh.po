@@ -20,7 +20,7 @@ msgstr ""
 
 #: lms/templates/emails/assignment_submission.html:5
 msgid " Please evaluate and grade it."
-msgstr "请评估并评分。"
+msgstr "请测验并评分。"
 
 #. Paragraph text in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
@@ -278,7 +278,7 @@ msgstr "在课程列表中显示在课程卡片上"
 
 #: frontend/src/pages/BatchForm.vue:55 frontend/src/pages/BatchForm.vue:73
 msgid "Appears when the batch URL is shared on any online platform"
-msgstr "当批次 URL 在任何在线平台上共享时显示"
+msgstr "当培训课 URL 在任何在线平台上共享时显示"
 
 #: frontend/src/pages/JobDetail.vue:131
 msgid "Applications Received"
@@ -348,7 +348,7 @@ msgstr "测验添加成功"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:74
 msgid "Assessment {0} has already been added to this batch."
-msgstr "测验 {0} 已经添加到这个批次中。"
+msgstr "测验 {0} 已经添加到这个培训课中。"
 
 #. Label of the show_assessments (Check) field in DocType 'LMS Settings'
 #: frontend/src/components/Assessments.vue:5
@@ -454,41 +454,41 @@ msgstr "徽章图片"
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Batch"
-msgstr "批次"
+msgstr "培训课"
 
 #. Label of the batch_confirmation_template (Link) field in DocType 'LMS
 #. Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Batch Confirmation Template"
-msgstr "批次确认模板"
+msgstr "培训课确认模板"
 
 #. Name of a DocType
 #: lms/lms/doctype/batch_course/batch_course.json
 msgid "Batch Course"
-msgstr "批次课程"
+msgstr "培训课课程"
 
 #: lms/public/js/common_functions.js:428
 msgid "Batch Created"
-msgstr "批次创建"
+msgstr "培训课创建"
 
 #. Label of the section_break_5 (Section Break) field in DocType 'LMS Batch
 #. Old'
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 msgid "Batch Description"
-msgstr "批次描述"
+msgstr "培训课描述"
 
 #. Label of the batch_details (Text Editor) field in DocType 'LMS Batch'
 #: frontend/src/pages/BatchForm.vue:97 lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/public/js/common_functions.js:349
 #: lms/templates/emails/batch_confirmation.html:30
 msgid "Batch Details"
-msgstr "批次详情"
+msgstr "培训课详情"
 
 #. Label of the batch_details_raw (HTML Editor) field in DocType 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/public/js/common_functions.js:356
 msgid "Batch Details Raw"
-msgstr "原始批次详情"
+msgstr "原始培训课详情"
 
 #. Name of a role
 #: lms/lms/doctype/course_evaluator/course_evaluator.json
@@ -496,12 +496,12 @@ msgstr "原始批次详情"
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Batch Evaluator"
-msgstr "批次评估者"
+msgstr "培训课测验者"
 
 #. Label of the batch_name (Link) field in DocType 'LMS Certificate Evaluation'
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 msgid "Batch Name"
-msgstr "批次名称"
+msgstr "培训课名称"
 
 #. Label of the batch_old (Link) field in DocType 'Exercise Latest Submission'
 #. Label of the batch_old (Link) field in DocType 'Exercise Submission'
@@ -510,7 +510,7 @@ msgstr "批次名称"
 #: lms/lms/doctype/exercise_submission/exercise_submission.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 msgid "Batch Old"
-msgstr "旧批次"
+msgstr "旧培训课"
 
 #. Label of the section_break_7 (Section Break) field in DocType 'LMS Batch
 #. Old'
@@ -519,40 +519,40 @@ msgstr "旧批次"
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Batch Settings"
-msgstr "批次设置"
+msgstr "培训课设置"
 
 #: lms/templates/emails/batch_confirmation.html:17
 msgid "Batch Start Date:"
-msgstr "批次开始日期："
+msgstr "培训课开始日期："
 
 #. Name of a DocType
 #: lms/lms/doctype/batch_student/batch_student.json
 msgid "Batch Student"
-msgstr "批次学生"
+msgstr "培训课学生"
 
 #. Label of the batch_title (Data) field in DocType 'LMS Certificate Request'
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Batch Title"
-msgstr "批次标题"
+msgstr "培训课标题"
 
 #: lms/public/js/common_functions.js:427
 msgid "Batch Updated"
-msgstr "批次更新"
+msgstr "培训课更新"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:39
 msgid "Batch end date cannot be before the batch start date"
-msgstr "批次结束日期不能早于批次开始日期"
+msgstr "培训课结束日期不能早于培训课开始日期"
 
 #: lms/lms/web_form/add_a_new_batch/add_a_new_batch.js:6
 msgid "Batch {0} has been successfully created!"
-msgstr "批次 {0} 已成功创建！"
+msgstr "培训课 {0} 已成功创建！"
 
 #. Group in LMS Course's connections
 #. Label of the batches (Check) field in DocType 'LMS Settings'
 #: frontend/src/pages/Batches.vue:8 lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_settings/lms_settings.json lms/www/lms.py:60
 msgid "Batches"
-msgstr "批次"
+msgstr "培训课"
 
 #. Label of the begin_date (Date) field in DocType 'Cohort'
 #: lms/lms/doctype/cohort/cohort.json
@@ -1125,7 +1125,7 @@ msgstr "课程描述"
 #. Name of a DocType
 #: lms/lms/doctype/course_evaluator/course_evaluator.json
 msgid "Course Evaluator"
-msgstr "课程评估者"
+msgstr "课程测验者"
 
 #: frontend/src/pages/CourseForm.vue:54
 msgid "Course Image"
@@ -1181,7 +1181,7 @@ msgstr "课程标题"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:318
 msgid "Course already added to the batch."
-msgstr "课程已添加到批次中。"
+msgstr "课程已添加到培训课中。"
 
 #: frontend/src/pages/CourseForm.vue:457
 msgid "Course price and currency are mandatory for paid courses"
@@ -1189,7 +1189,7 @@ msgstr "课程价格和货币是付费课程的必填项"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:57
 msgid "Course {0} has already been added to this batch."
-msgstr "课程 {0} 已添加到此批次中。"
+msgstr "课程 {0} 已添加到此培训课中。"
 
 #. Label of the courses (Table) field in DocType 'LMS Batch'
 #. Label of the show_courses (Check) field in DocType 'LMS Settings'
@@ -1231,11 +1231,11 @@ msgstr "创建 LMS 证书"
 
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.js:8
 msgid "Create LMS Certificate Evaluation"
-msgstr "创建 LMS 证书评估"
+msgstr "创建 LMS 证书测验"
 
 #: frontend/src/pages/Batches.vue:110
 msgid "Create a Batch"
-msgstr "创建批次"
+msgstr "创建培训课"
 
 #: frontend/src/pages/Courses.vue:131 lms/templates/onboarding_header.html:19
 msgid "Create a Course"
@@ -1243,7 +1243,7 @@ msgstr "创建课程"
 
 #: frontend/src/components/Modals/LiveClassModal.vue:5
 msgid "Create a Live Class"
-msgstr "创建直播课程"
+msgstr "创建在线课程"
 
 #: frontend/src/components/Modals/Question.vue:31
 msgid "Create a new question"
@@ -1347,8 +1347,13 @@ msgid "Degree Type"
 msgstr "学位类型"
 
 #: frontend/src/components/CourseOutline.vue:212
+#: frontend/src/pages/CourseForm.vue:15 frontend/src/pages/CourseForm.vue:470
 msgid "Delete"
 msgstr "删除"
+
+#: frontend/src/pages/CourseForm.vue:464
+msgid "Delete Course"
+msgstr ""
 
 #: frontend/src/components/CourseOutline.vue:208
 msgid "Delete Lesson"
@@ -1454,7 +1459,7 @@ msgstr "持续时间 (分钟)"
 
 #: frontend/src/components/Modals/LiveClassModal.vue:54
 msgid "Duration of the live class in minutes"
-msgstr "直播课程的持续时间 (分钟)"
+msgstr "在线课程的持续时间 (分钟)"
 
 #. Label of the email (Link) field in DocType 'Cohort Join Request'
 #: lms/lms/doctype/cohort_join_request/cohort_join_request.json
@@ -1542,7 +1547,7 @@ msgstr "启用证书"
 
 #: lms/lms/doctype/lms_settings/lms_settings.py:20
 msgid "Enable Google API in Google Settings to send calendar invites for evaluations."
-msgstr "在 Google 设置中启用 Google API 以发送评估邀请。"
+msgstr "在 Google 设置中启用 Google API 以发送测验邀请。"
 
 #. Label of the enabled (Check) field in DocType 'LMS Badge'
 #: lms/lms/doctype/lms_badge/lms_badge.json
@@ -1598,7 +1603,7 @@ msgstr "注册成功"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:97
 msgid "Enrollment Confirmation for the Next Training Batch"
-msgstr "下一个培训批次的注册确认"
+msgstr "下一个培训培训课的注册确认"
 
 #: lms/lms/web_template/lms_statistics/lms_statistics.html:14
 #: lms/templates/statistics.html:20
@@ -1619,7 +1624,7 @@ msgstr "注册人数"
 
 #: lms/lms/doctype/lms_settings/lms_settings.py:25
 msgid "Enter Client Id and Client Secret in Google Settings to send calendar invites for evaluations."
-msgstr "在 Google 设置中输入客户端 ID 和客户端密钥以发送评估邀请。"
+msgstr "在 Google 设置中输入客户端 ID 和客户端密钥以发送测验邀请。"
 
 #: frontend/src/pages/AssignmentSubmission.vue:96
 msgid "Enter a URL"
@@ -1633,6 +1638,7 @@ msgstr "输入标题并保存测验以继续"
 msgid "Enter the correct answer"
 msgstr "输入正确答案"
 
+#: frontend/src/components/Modals/AnnouncementModal.vue:104
 #: frontend/src/components/Modals/Question.vue:246
 #: frontend/src/components/Modals/Question.vue:266
 #: frontend/src/components/Modals/Question.vue:323
@@ -1646,33 +1652,33 @@ msgstr "错误"
 #. Label of a shortcut in the LMS Workspace
 #: frontend/src/components/Modals/Event.vue:364 lms/lms/workspace/lms/lms.json
 msgid "Evaluation"
-msgstr "评估"
+msgstr "测验"
 
 #. Label of the section_break_6 (Section Break) field in DocType 'LMS
 #. Certificate Evaluation'
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 msgid "Evaluation Details"
-msgstr "评估详情"
+msgstr "测验详情"
 
 #. Label of the evaluation_end_date (Date) field in DocType 'LMS Batch'
 #: frontend/src/pages/BatchForm.vue:165
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/public/js/common_functions.js:333
 msgid "Evaluation End Date"
-msgstr "评估结束日期"
+msgstr "测验结束日期"
 
 #. Label of a Link in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "Evaluation Request"
-msgstr "评估请求"
+msgstr "测验请求"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:81
 msgid "Evaluation end date cannot be less than the batch end date."
-msgstr "评估结束日期不能早于批次结束日期。"
+msgstr "测验结束日期不能早于培训课结束日期。"
 
 #: frontend/src/components/Modals/Event.vue:255
 msgid "Evaluation saved successfully"
-msgstr "评估保存成功"
+msgstr "测验保存成功"
 
 #. Label of the evaluator (Link) field in DocType 'Batch Course'
 #. Label of the evaluator (Link) field in DocType 'Course Evaluator'
@@ -1690,7 +1696,7 @@ msgstr "评估保存成功"
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/templates/upcoming_evals.html:33
 msgid "Evaluator"
-msgstr "评估人"
+msgstr "测验人"
 
 #. Label of the evaluator_name (Data) field in DocType 'LMS Certificate'
 #. Label of the evaluator_name (Data) field in DocType 'LMS Certificate
@@ -1701,19 +1707,21 @@ msgstr "评估人"
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Evaluator Name"
-msgstr "评估人姓名"
+msgstr "测验人姓名"
 
 #. Name of a DocType
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 msgid "Evaluator Schedule"
-msgstr "评估人日程"
+msgstr "测验人日程"
 
 #: frontend/src/components/Modals/EvaluationModal.vue:143
 msgid "Evaluator is Unavailable"
-msgstr "评估人不可用"
+msgstr "测验人不可用"
 
 #. Label of the event (Select) field in DocType 'LMS Badge'
+#. Label of the event (Link) field in DocType 'LMS Live Class'
 #: lms/lms/doctype/lms_badge/lms_badge.json
+#: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Event"
 msgstr "事件"
 
@@ -2365,7 +2373,7 @@ msgstr "LMS"
 #. Name of a DocType
 #: lms/lms/doctype/lms_assessment/lms_assessment.json
 msgid "LMS Assessment"
-msgstr "LMS 评估"
+msgstr "LMS 测验"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
@@ -2393,17 +2401,17 @@ msgstr "LMS 徽章分配"
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "LMS Batch"
-msgstr "LMS 批次"
+msgstr "LMS 培训课"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 msgid "LMS Batch Old"
-msgstr "LMS 旧批次"
+msgstr "LMS 旧培训课"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_batch_timetable/lms_batch_timetable.json
 msgid "LMS Batch Timetable"
-msgstr "LMS 批次时间表"
+msgstr "LMS 培训课时间表"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_category/lms_category.json
@@ -2418,7 +2426,7 @@ msgstr "LMS 证书"
 #. Name of a DocType
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 msgid "LMS Certificate Evaluation"
-msgstr "LMS 证书评估"
+msgstr "LMS 证书测验"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
@@ -2664,18 +2672,18 @@ msgstr "测验列表"
 #. Option for the 'Status' (Select) field in DocType 'Cohort'
 #: lms/lms/doctype/cohort/cohort.json
 msgid "Live"
-msgstr "直播"
+msgstr "在线"
 
 #. Label of the show_live_class (Check) field in DocType 'LMS Settings'
 #: frontend/src/components/LiveClass.vue:4
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Live Class"
-msgstr "直播"
+msgstr "在线"
 
 #. Label of the livecode_url (Data) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "LiveCode URL"
-msgstr "直播代码 URL"
+msgstr "在线代码 URL"
 
 #: frontend/src/components/Members.vue:95
 msgid "Load More"
@@ -2683,7 +2691,7 @@ msgstr "装载更多"
 
 #: frontend/src/pages/Batches.vue:40
 msgid "Loading Batches..."
-msgstr "装载批次..."
+msgstr "装载培训课..."
 
 #. Option for the 'Auto Recording' (Select) field in DocType 'LMS Live Class'
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
@@ -2731,7 +2739,7 @@ msgstr "请确保输入正确的账单名称，因为这将用于您的账单。
 
 #: frontend/src/components/BatchOverlay.vue:54
 msgid "Manage Batch"
-msgstr "管理批次"
+msgstr "管理培训课"
 
 #. Option for the 'Role' (Select) field in DocType 'Cohort Staff'
 #: lms/lms/doctype/cohort_staff/cohort_staff.json
@@ -3007,7 +3015,7 @@ msgstr "我的日历"
 #: frontend/src/pages/Batches.vue:30 frontend/src/pages/Courses.vue:44
 #: lms/lms/doctype/lms_badge/lms_badge.json
 msgid "New"
-msgstr "新"
+msgstr "最新"
 
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.py:41
 msgid "New Assignment Submission"
@@ -3015,7 +3023,7 @@ msgstr "新作业提交"
 
 #: lms/public/js/common_functions.js:255 lms/www/lms.py:86
 msgid "New Batch"
-msgstr "新批次"
+msgstr "新培训课"
 
 #: lms/www/lms.py:37
 msgid "New Course"
@@ -3044,7 +3052,7 @@ msgstr "新注册"
 
 #: lms/lms/utils.py:632
 msgid "New comment in batch {0}"
-msgstr "批次 {0} 中的新评论"
+msgstr "培训课 {0} 中的新评论"
 
 #: lms/lms/utils.py:625
 msgid "New reply on the topic {0} in course {1}"
@@ -3065,7 +3073,7 @@ msgstr "下一个问题"
 
 #: frontend/src/components/Assessments.vue:63 lms/templates/assessments.html:58
 msgid "No Assessments"
-msgstr "没有评估"
+msgstr "没有测验"
 
 #: lms/templates/notifications.html:26
 msgid "No Notifications"
@@ -3078,7 +3086,7 @@ msgstr "没有录制"
 
 #: lms/templates/upcoming_evals.html:43
 msgid "No Upcoming Evaluations"
-msgstr "没有即将到来的评估"
+msgstr "没有预定的测验"
 
 #: frontend/src/components/Annoucements.vue:24
 msgid "No announcements"
@@ -3086,7 +3094,7 @@ msgstr "没有公告"
 
 #: frontend/src/pages/Batches.vue:125
 msgid "No batches found"
-msgstr "没有批次"
+msgstr "没有培训课"
 
 #: lms/templates/certificates_section.html:23
 msgid "No certificates"
@@ -3114,7 +3122,7 @@ msgstr "没有发布的工作"
 
 #: frontend/src/components/LiveClass.vue:60
 msgid "No live classes scheduled"
-msgstr "没有安排的直播课程"
+msgstr "没有安排的在线课程"
 
 #: frontend/src/components/Modals/EvaluationModal.vue:53
 msgid "No slots available for this date."
@@ -3122,7 +3130,7 @@ msgstr "没有可用的时间段"
 
 #: frontend/src/components/UpcomingEvaluations.vue:39
 msgid "No upcoming evaluations."
-msgstr "没有即将到来的评估"
+msgstr "没有预定的测验"
 
 #: lms/templates/course_list.html:13
 msgid "No {0}"
@@ -3130,7 +3138,7 @@ msgstr "没有 {0}"
 
 #: frontend/src/pages/Batches.vue:84
 msgid "No {0} batches"
-msgstr "没有 {0} 批次"
+msgstr "没有 {0} 培训课"
 
 #: frontend/src/pages/Courses.vue:106
 msgid "No {0} courses"
@@ -3336,7 +3344,7 @@ msgstr "页数"
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/public/js/common_functions.js:373
 msgid "Paid Batch"
-msgstr "付费批次"
+msgstr "付费培训课"
 
 #. Label of the paid_course (Check) field in DocType 'LMS Course'
 #: frontend/src/pages/CourseForm.vue:205
@@ -3485,7 +3493,7 @@ msgstr "请登录"
 
 #: lms/lms/doctype/lms_settings/lms_settings.py:33
 msgid "Please add <a href='{0}'>{1}</a> for <a href='{2}'>{3}</a> to send calendar invites for evaluations."
-msgstr "请为 <a href='{2}'>{3}</a> 添加 <a href='{0}'>{1}</a>，以发送评估邀请。"
+msgstr "请为 <a href='{2}'>{3}</a> 添加 <a href='{0}'>{1}</a>，以发送测验邀请。"
 
 #: lms/overrides/user.py:240
 msgid "Please ask your administrator to verify your sign-up"
@@ -3522,7 +3530,7 @@ msgstr "请输入您的答案"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:64
 msgid "Please install the Payments app to create a paid batches."
-msgstr "请安装付款应用以创建付费批次。"
+msgstr "请安装付款应用以创建付费培训课。"
 
 #: lms/lms/doctype/lms_course/lms_course.py:52
 msgid "Please install the Payments app to create a paid courses."
@@ -3547,7 +3555,7 @@ msgstr "请登录以继续付款。"
 #: lms/lms/notification/certificate_request_reminder/certificate_request_reminder.html:7
 #: lms/templates/emails/certificate_request_notification.html:7
 msgid "Please prepare well and be on time for the evaluations."
-msgstr "请做好准备，准时参加评估。"
+msgstr "请做好准备，准时参加测验。"
 
 #: lms/templates/emails/job_report.html:6
 msgid "Please take appropriate action at {0}"
@@ -3997,23 +4005,23 @@ msgstr "路线"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:172
 msgid "Row #{0} Date cannot be outside the batch duration."
-msgstr "行 {0} 的日期不能在批次持续时间之外。"
+msgstr "第 {0} 行的日期不能超出培训课的持续时间。"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:167
 msgid "Row #{0} End time cannot be outside the batch duration."
-msgstr "行 {0} 的结束时间不能在批次持续时间之外。"
+msgstr "第 {0} 行的结束时间不能超出培训课的持续时间。"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:149
 msgid "Row #{0} Start time cannot be greater than or equal to end time."
-msgstr "行 {0} 的开始时间不能大于或等于结束时间。"
+msgstr "第 {0} 行的开始时间不能大于或等于结束时间。"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:158
 msgid "Row #{0} Start time cannot be outside the batch duration."
-msgstr "行 {0} 的开始时间不能在批次持续时间之外。"
+msgstr "第 {0} 行的开始时间不能超出培训课的持续时间。"
 
 #: lms/lms/doctype/lms_quiz/lms_quiz.py:34
 msgid "Rows {0} have the duplicate questions."
-msgstr "行 {0} 有重复的问题。"
+msgstr "第 {0} 行包含重复的问题。"
 
 #: lms/templates/livecode/extension_footer.html:21
 msgid "Run"
@@ -4046,7 +4054,7 @@ msgstr "日程"
 #: frontend/src/components/Modals/EvaluationModal.vue:5
 #: frontend/src/components/UpcomingEvaluations.vue:4
 msgid "Schedule Evaluation"
-msgstr "日程评估"
+msgstr "日程测验"
 
 #. Name of a DocType
 #: lms/lms/doctype/scheduled_flow/scheduled_flow.json
@@ -4141,7 +4149,7 @@ msgstr "简短介绍"
 
 #: frontend/src/pages/BatchForm.vue:93
 msgid "Short description of the batch"
-msgstr "批次简短描述"
+msgstr "培训课简短描述"
 
 #. Label of the show_answer (Check) field in DocType 'LMS Assignment'
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
@@ -4161,7 +4169,7 @@ msgstr "显示提交历史"
 #. Label of the column_break_2 (Column Break) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Show Tab in Batch"
-msgstr "在批次中显示标签"
+msgstr "在培训课中显示标签"
 
 #. Label of the show_usd_equivalent (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -4432,7 +4440,7 @@ msgstr "学生评论"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:46
 msgid "Student {0} has already been added to this batch."
-msgstr "学生 {0} 已经添加到这个批次。"
+msgstr "学生 {0} 已经添加到这个培训课。"
 
 #. Label of the students (Table) field in DocType 'LMS Batch'
 #. Label of the show_students (Check) field in DocType 'LMS Settings'
@@ -4449,7 +4457,7 @@ msgstr "学生删除成功"
 #. Description of the 'Paid Batch' (Check) field in DocType 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json
 msgid "Students will be enrolled in a paid batch once they complete the payment"
-msgstr "学生将在完成付款后被注册到付费批次中"
+msgstr "学生将在完成付款后被注册到付费培训课中"
 
 #. Label of the subgroup (Link) field in DocType 'Cohort Join Request'
 #. Option for the 'Scope' (Select) field in DocType 'Cohort Web Page'
@@ -4496,6 +4504,7 @@ msgstr "已提交 {0}"
 #: frontend/src/components/BatchOverlay.vue:135
 #: frontend/src/components/BatchStudents.vue:157
 #: frontend/src/components/CourseCardOverlay.vue:161
+#: frontend/src/components/Modals/AnnouncementModal.vue:98
 #: frontend/src/components/Modals/AssessmentModal.vue:73
 #: frontend/src/components/Modals/Event.vue:255
 #: frontend/src/components/Modals/Event.vue:310
@@ -4635,7 +4644,7 @@ msgstr "课程 {0} 现在在 {1} 上可用。"
 
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.py:53
 msgid "The evaluator of this course is unavailable from {0} to {1}. Please select a date after {1}"
-msgstr "此课程的评估者从 {0} 到 {1} 不可用。请选择 {1} 之后的日期。"
+msgstr "此课程的测验者从 {0} 到 {1} 不可用。请选择 {1} 之后的日期。"
 
 #: lms/templates/quiz/quiz.html:24
 msgid "The quiz has a time limit. For each question you will be given {0} seconds."
@@ -4651,7 +4660,7 @@ msgstr "您的申请状态已更改。"
 
 #: frontend/src/pages/Batches.vue:129
 msgid "There are no batches available at the moment. Keep an eye out, fresh learning experiences are on the way soon!"
-msgstr "目前没有批次可用。请密切关注，新鲜的学习体验即将到来！"
+msgstr "目前没有培训课可用。请密切关注，新鲜的学习体验即将到来！"
 
 #: frontend/src/components/CreateOutline.vue:12
 msgid "There are no chapters in this course. Create and manage chapters from here."
@@ -4663,11 +4672,11 @@ msgstr "目前没有课程可用。请密切关注，新鲜的学习体验即将
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:140
 msgid "There are no seats available in this batch."
-msgstr "此批次中没有座位。"
+msgstr "此培训课中没有座位。"
 
 #: frontend/src/components/BatchStudents.vue:67
 msgid "There are no students in this batch."
-msgstr "此批次中没有学生。"
+msgstr "此培训课中没有学生。"
 
 #: lms/templates/course_list.html:14
 msgid "There are no {0} on this site."
@@ -4677,7 +4686,7 @@ msgstr "此网站上没有 {0}。"
 #. 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json
 msgid "These customisations will work on the main batch page."
-msgstr "这些自定义将在主批次页面上生效。"
+msgstr "这些自定义将在主培训课页面上生效。"
 
 #: frontend/src/pages/Badge.vue:10
 msgid "This badge has been awarded to {0} on {1}."
@@ -4829,7 +4838,7 @@ msgstr "工作经历中必须填写结束日期。"
 
 #: lms/lms/utils.py:1583
 msgid "To join this batch, please contact the Administrator."
-msgstr "要加入此批次，请联系管理员。"
+msgstr "要加入此培训课，请联系管理员。"
 
 #: frontend/src/components/LessonHelp.vue:34
 msgid "To upload Image, Video, Audio or PDF from your system, click on the add icon and select upload from the menu. Then choose the file you want to add to the lesson and it gets added to your lesson."
@@ -4947,16 +4956,16 @@ msgstr "非结构化角色"
 #: frontend/src/pages/CourseForm.vue:175 lms/lms/doctype/cohort/cohort.json
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Upcoming"
-msgstr "即将到来"
+msgstr "预定"
 
 #: frontend/src/pages/Batch.vue:154
 msgid "Upcoming Batches"
-msgstr "即将到来的批次"
+msgstr "预定的培训课"
 
 #: frontend/src/components/UpcomingEvaluations.vue:7
 #: lms/templates/upcoming_evals.html:3
 msgid "Upcoming Evaluations"
-msgstr "即将到来的评估"
+msgstr "预定的测验"
 
 #: frontend/src/components/BrandSettings.vue:23
 #: frontend/src/components/PaymentSettings.vue:27
@@ -5061,7 +5070,7 @@ msgstr "可见性"
 
 #: frontend/src/components/BatchOverlay.vue:54
 msgid "Visit Batch"
-msgstr "访问批次"
+msgstr "访问培训课"
 
 #: lms/templates/emails/batch_confirmation.html:29
 msgid "Visit the following link to view your "
@@ -5074,7 +5083,7 @@ msgstr "志愿服务或实习"
 
 #: lms/templates/emails/batch_confirmation.html:6
 msgid "We are pleased to inform you that you have been enrolled in our upcoming batch. Congratulations!"
-msgstr "我们很高兴通知您，您已被录取到我们即将到来的批次。祝贺！"
+msgstr "我们很高兴通知您，您已被录取到我们预定的培训课。祝贺！"
 
 #. Label of the web_page (Link) field in DocType 'LMS Sidebar Item'
 #: frontend/src/components/Modals/PageModal.vue:23
@@ -5149,11 +5158,11 @@ msgstr "在这里输入您的答案"
 
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.py:95
 msgid "You already have an evaluation on {0} at {1} for the course {2}."
-msgstr "您已经在 {0} 的 {1} 为课程 {2} 安排了评估。"
+msgstr "您已经在 {0} 的 {1} 为课程 {2} 安排了测验。"
 
 #: lms/lms/api.py:207
 msgid "You are already enrolled for this batch."
-msgstr "您已经在批次中注册。"
+msgstr "您已经在培训课中注册。"
 
 #: lms/lms/api.py:199
 msgid "You are already enrolled for this course."
@@ -5161,7 +5170,7 @@ msgstr "您已经在课程中注册。"
 
 #: frontend/src/pages/Batch.vue:136
 msgid "You are not a member of this batch. Please checkout our upcoming batches."
-msgstr "您不是此批次的成员。请查看我们即将到来的批次。"
+msgstr "您不是此培训课的成员。请查看我们预定的培训课。"
 
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.py:20
 msgid "You are not a mentor of the course {0}"
@@ -5190,15 +5199,15 @@ msgstr "您可以在此电子邮件中找到他们的简历。"
 
 #: frontend/src/pages/Batches.vue:113
 msgid "You can link courses and assessments to it."
-msgstr "您可以将其与课程和评估链接。"
+msgstr "您可以将其与课程和测验链接。"
 
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.py:115
 msgid "You cannot schedule evaluations after {0}."
-msgstr "您不能在 {0} 之后安排评估。"
+msgstr "您不能在 {0} 之后安排测验。"
 
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.py:104
 msgid "You cannot schedule evaluations for past slots."
-msgstr "您不能安排过去时段的评估。"
+msgstr "您不能安排过去时段的测验。"
 
 #: frontend/src/components/NoPermission.vue:11
 msgid "You do not have permission to access this page."
@@ -5231,7 +5240,7 @@ msgstr "您已经评论了此课程"
 
 #: frontend/src/components/BatchOverlay.vue:136
 msgid "You have been enrolled in this batch"
-msgstr "您已注册此批次"
+msgstr "您已注册此培训课"
 
 #: frontend/src/components/CourseCardOverlay.vue:162
 msgid "You have been enrolled in this course"
@@ -5284,15 +5293,15 @@ msgstr "您的日历已设置。"
 #: lms/lms/notification/certificate_request_reminder/certificate_request_reminder.html:3
 #: lms/templates/emails/certificate_request_notification.html:3
 msgid "Your evaluation for the course {0} has been scheduled on {1} at {2} {3}."
-msgstr "您的课程 {0} 评估已安排在 {1} 的 {2} {3}。"
+msgstr "您的课程 {0} 测验已安排在 {1} 的 {2} {3}。"
 
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.py:125
 msgid "Your evaluation slot has been booked"
-msgstr "您的评估时段已预订"
+msgstr "您的测验时段已预订"
 
 #: lms/templates/emails/certificate_request_notification.html:5
 msgid "Your evaluator is {0}"
-msgstr "您的评估者是 {0}"
+msgstr "您的测验者是 {0}"
 
 #: lms/templates/emails/mentor_request_status_update_email.html:4
 msgid "Your request to join us as a mentor for the course"
@@ -5381,7 +5390,7 @@ msgstr "{0} 已提交作业 {1}"
 
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.py:53
 msgid "{0} is already a Student of {1} course through {2} batch"
-msgstr "{0} 已经是 {1} 课程的 {2} 批次的学员"
+msgstr "{0} 已经是 {1} 课程的 {2} 培训课的学员"
 
 #: lms/lms/doctype/lms_course_mentor_mapping/lms_course_mentor_mapping.py:16
 msgid "{0} is already a mentor for course {1}"
@@ -5397,7 +5406,7 @@ msgstr "{0} 已经是课程 {1} 的认证者"
 
 #: lms/lms/notification/certificate_request_reminder/certificate_request_reminder.html:5
 msgid "{0} is your evaluator"
-msgstr "{0} 是您的评估者"
+msgstr "{0} 是您的测验者"
 
 #: lms/lms/utils.py:709
 msgid "{0} mentioned you in a comment"
@@ -5405,7 +5414,7 @@ msgstr "{0} 在评论中提到了您"
 
 #: lms/templates/emails/mention_template.html:2
 msgid "{0} mentioned you in a comment in your batch."
-msgstr "{0} 在您的批次中评论中提到了您"
+msgstr "{0} 在您的培训课中评论中提到了您"
 
 #: lms/lms/utils.py:662 lms/lms/utils.py:668
 msgid "{0} mentioned you in a comment in {1}"
