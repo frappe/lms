@@ -244,7 +244,10 @@ const lesson = createResource({
 	auto: true,
 	onSuccess(data) {
 		if (Object.keys(data).length === 0) {
-			router.push({ name: 'Courses' })
+			router.push({
+				name: 'CourseDetail',
+				params: { courseName: props.courseName },
+			})
 			return
 		}
 		lessonProgress.value = data.membership?.progress

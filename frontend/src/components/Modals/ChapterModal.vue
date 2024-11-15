@@ -15,8 +15,13 @@
 		}"
 	>
 		<template #body-content>
-			<div class="space-y-4">
-				<FormControl ref="chapterInput" label="Title" v-model="chapter.title" />
+			<div class="space-y-4 text-base">
+				<FormControl
+					ref="chapterInput"
+					label="Title"
+					v-model="chapter.title"
+					:required="true"
+				/>
 				<FormControl
 					:label="__('Is SCORM Package')"
 					v-model="chapter.is_scorm_package"
@@ -97,25 +102,14 @@ const chapter = reactive({
 })
 
 const chapterResource = createResource({
-	url: 'lms.lms.api.add_chapter',
+	url: 'lms.lms.api.upsert_chapter',
 	makeParams(values) {
 		return {
 			title: chapter.title,
 			course: props.course,
 			is_scorm_package: chapter.is_scorm_package,
 			scorm_package: chapter.scorm_package,
-		}
-	},
-})
-
-const chapterEditResource = createResource({
-	url: 'frappe.client.set_value',
-	makeParams(values) {
-		return {
-			doctype: 'Course Chapter',
 			name: props.chapterDetail?.name,
-			fieldname: 'title',
-			value: chapter.title,
 		}
 	},
 })
@@ -140,12 +134,7 @@ const addChapter = async (close) => {
 		{},
 		{
 			validate() {
-				if (!chapter.title) {
-					return __('Title is required')
-				}
-				if (chapter.is_scorm_package && !chapter.scorm_package) {
-					return __('Please upload a SCORM package')
-				}
+				return validateChapter()
 			},
 			onSuccess: (data) => {
 				capture('chapter_created')
@@ -175,6 +164,15 @@ const addChapter = async (close) => {
 	)
 }
 
+const validateChapter = () => {
+	if (!chapter.title) {
+		return __('Title is required')
+	}
+	if (chapter.is_scorm_package && !chapter.scorm_package) {
+		return __('Please upload a SCORM package')
+	}
+}
+
 const cleanChapter = () => {
 	chapter.title = ''
 	chapter.is_scorm_package = 0
@@ -182,7 +180,7 @@ const cleanChapter = () => {
 }
 
 const editChapter = (close) => {
-	chapterEditResource.submit(
+	chapterResource.submit(
 		{},
 		{
 			validate() {
@@ -206,6 +204,8 @@ watch(
 	() => props.chapterDetail,
 	(newChapter) => {
 		chapter.title = newChapter?.title
+		chapter.is_scorm_package = newChapter?.is_scorm_package
+		chapter.scorm_package = newChapter?.scorm_package
 	}
 )
 

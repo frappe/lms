@@ -93,7 +93,7 @@ export function showToast(title, text, icon, iconClasses = null) {
 	if (!iconClasses) {
 		if (icon == 'check') {
 			iconClasses = 'bg-green-600 text-white rounded-md p-px'
-		} else if (icon == 'circle-warn') {
+		} else if (icon == 'alert-circle') {
 			iconClasses = 'bg-yellow-600 text-white rounded-md p-px'
 		} else {
 			iconClasses = 'bg-red-600 text-white rounded-md p-px'

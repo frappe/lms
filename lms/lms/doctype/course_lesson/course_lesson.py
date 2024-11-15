@@ -52,7 +52,6 @@ class CourseLesson(Document):
 			ex.lesson = None
 			ex.course = None
 			ex.index_ = 0
-			ex.index_label = ""
 			ex.save(ignore_permissions=True)
 
 	def check_and_create_folder(self):
