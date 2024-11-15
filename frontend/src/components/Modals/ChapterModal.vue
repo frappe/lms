@@ -16,12 +16,7 @@
 	>
 		<template #body-content>
 			<div class="space-y-4 text-base">
-				<FormControl
-					ref="chapterInput"
-					label="Title"
-					v-model="chapter.title"
-					:required="true"
-				/>
+				<FormControl label="Title" v-model="chapter.title" :required="true" />
 				<FormControl
 					:label="__('Is SCORM Package')"
 					v-model="chapter.is_scorm_package"
@@ -83,7 +78,6 @@ import { FileText, X } from 'lucide-vue-next'
 
 const show = defineModel()
 const outline = defineModel('outline')
-const chapterInput = ref(null)
 
 const props = defineProps({
 	course: {
@@ -208,14 +202,6 @@ watch(
 		chapter.scorm_package = newChapter?.scorm_package
 	}
 )
-
-/* watch(show, () => {
-	if (show.value) {
-		setTimeout(() => {
-			chapterInput.value.$el.querySelector('input').focus()
-		}, 100)
-	}
-}) */
 
 const validateFile = (file) => {
 	let extension = file.name.split('.').pop().toLowerCase()
