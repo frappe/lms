@@ -13,6 +13,6 @@ module.exports = defineConfig({
 		openMode: 0,
 	},
 	e2e: {
-		baseUrl: "http://test:8000",
+		baseUrl: "http://lms1:8000",
 	},
 });

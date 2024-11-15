@@ -28,6 +28,12 @@ const routes = [
 		props: true,
 	},
 	{
+		path: '/courses/:courseName/learn/:chapterName',
+		name: 'SCORMChapter',
+		component: () => import('@/pages/SCORMChapter.vue'),
+		props: true,
+	},
+	{
 		path: '/batches',
 		name: 'Batches',
 		component: () => import('@/pages/Batches.vue'),

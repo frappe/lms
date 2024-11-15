@@ -1,5 +1,5 @@
 <template>
-	<span v-if="instructors.length == 1">
+	<span v-if="instructors?.length == 1">
 		<router-link
 			:to="{
 				name: 'Profile',
@@ -9,7 +9,7 @@
 			{{ instructors[0].full_name }}
 		</router-link>
 	</span>
-	<span v-if="instructors.length == 2">
+	<span v-if="instructors?.length == 2">
 		<router-link
 			:to="{
 				name: 'Profile',
@@ -28,7 +28,7 @@
 			{{ instructors[1].first_name }}
 		</router-link>
 	</span>
-	<span v-if="instructors.length > 2">
+	<span v-if="instructors?.length > 2">
 		<router-link
 			:to="{
 				name: 'Profile',
@@ -37,7 +37,7 @@
 		>
 			{{ instructors[0].first_name }}
 		</router-link>
-		and {{ instructors.length - 1 }} others
+		and {{ instructors?.length - 1 }} others
 	</span>
 </template>
 <script setup>
