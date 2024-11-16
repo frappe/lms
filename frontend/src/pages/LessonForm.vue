@@ -6,7 +6,11 @@
 					class="sticky top-0 z-10 flex flex-col md:flex-row md:items-center justify-between border-b overflow-hidden bg-white px-3 py-2.5 sm:px-5"
 				>
 					<Breadcrumbs class="text-ellipsis" :items="breadcrumbs" />
-					<Button variant="solid" @click="saveLesson()" class="mt-3 md:mt-0">
+					<Button
+						variant="solid"
+						@click="saveLesson({ showSuccessMessage: true })"
+						class="mt-3 md:mt-0"
+					>
 						{{ __('Save') }}
 					</Button>
 				</header>
@@ -94,6 +98,7 @@ const instructorEditor = ref(null)
 const user = inject('$user')
 const openInstructorEditor = ref(false)
 let autoSaveInterval
+let showSuccessMessage = false
 
 const props = defineProps({
 	courseName: {
@@ -117,6 +122,7 @@ onMounted(() => {
 	capture('lesson_form_opened')
 	editor.value = renderEditor('content')
 	instructorEditor.value = renderEditor('instructor-notes')
+	window.addEventListener('keydown', keyboardShortcut)
 })
 
 const renderEditor = (holder) => {
@@ -186,12 +192,24 @@ const addInstructorNotes = (data) => {
 
 const enableAutoSave = () => {
 	autoSaveInterval = setInterval(() => {
-		saveLesson()
+		saveLesson({ showSuccessMessage: false })
 	}, 10000)
+}
+
+const keyboardShortcut = (e) => {
+	if (
+		e.key === 's' &&
+		(e.ctrlKey || e.metaKey) &&
+		!e.target.classList.contains('ProseMirror')
+	) {
+		saveLesson({ showSuccessMessage: true })
+		e.preventDefault()
+	}
 }
 
 onBeforeUnmount(() => {
 	clearInterval(autoSaveInterval)
+	window.removeEventListener('keydown', keyboardShortcut)
 })
 
 const newLessonResource = createResource({
@@ -343,7 +361,11 @@ const convertToJSON = (lessonData) => {
 	return blocks
 }
 
-const saveLesson = () => {
+const saveLesson = (e) => {
+	showSuccessMessage = false
+	if (typeof e != 'undefined' && e.showSuccessMessage) {
+		showSuccessMessage = true
+	}
 	editor.value.save().then((outputData) => {
 		lesson.content = JSON.stringify(outputData)
 		instructorEditor.value.save().then((outputData) => {
@@ -391,6 +413,11 @@ const editCurrentLesson = () => {
 		{
 			validate() {
 				return validateLesson()
+			},
+			onSuccess() {
+				showSuccessMessage
+					? showToast('Success', 'Lesson updated successfully', 'check')
+					: ''
 			},
 			onError(err) {
 				showToast('Error', err.message, 'x')
