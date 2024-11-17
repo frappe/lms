@@ -16,7 +16,7 @@
 		</div>
 		<div
 			:class="{
-				'shadow rounded-md pt-2 px-2': showOutline && outline.data?.length,
+				'shadow rounded-md py-2 px-2': showOutline && outline.data?.length,
 			}"
 		>
 			<Disclosure
@@ -25,21 +25,42 @@
 				:key="chapter.name"
 				:defaultOpen="openChapterDetail(chapter.idx)"
 			>
-				<DisclosureButton ref="" class="flex w-full p-2">
+				<DisclosureButton ref="" class="flex items-center w-full p-2 group">
 					<ChevronRight
 						:class="{
 							'rotate-90 transform duration-200': open,
 							'duration-200': !open,
+							hidden: chapter.is_scorm_package,
 							open: index == 1,
 						}"
-						class="h-4 w-4 text-gray-900 stroke-1 mr-2"
+						class="h-4 w-4 text-gray-900 stroke-1"
 					/>
-					<div class="text-base text-left font-medium leading-5">
+					<div
+						class="text-base text-left font-medium leading-5 ml-2"
+						@click="redirectToChapter(chapter)"
+					>
 						{{ chapter.title }}
 					</div>
+					<div class="flex ml-auto space-x-4">
+						<Tooltip :text="__('Edit Chapter')" placement="bottom">
+							<FilePenLine
+								v-if="allowEdit"
+								@click.prevent="openChapterModal(chapter)"
+								class="h-4 w-4 text-gray-900 invisible group-hover:visible"
+							/>
+						</Tooltip>
+						<Tooltip :text="__('Delete Chapter')" placement="bottom">
+							<Trash2
+								v-if="allowEdit"
+								@click.prevent="trashChapter(chapter.name)"
+								class="h-4 w-4 text-red-500 invisible group-hover:visible"
+							/>
+						</Tooltip>
+					</div>
 				</DisclosureButton>
-				<DisclosurePanel>
+				<DisclosurePanel v-if="!chapter.is_scorm_package">
 					<Draggable
+						v-if="!chapter.is_scorm_package"
 						:list="chapter.lessons"
 						:disabled="!allowEdit"
 						item-key="name"
@@ -89,6 +110,7 @@
 					</Draggable>
 					<div v-if="allowEdit" class="flex mt-2 mb-4 pl-8">
 						<router-link
+							v-if="!chapter.is_scorm_package"
 							:to="{
 								name: 'LessonForm',
 								params: {
@@ -102,9 +124,6 @@
 								{{ __('Add Lesson') }}
 							</Button>
 						</router-link>
-						<Button class="ml-2" @click="openChapterModal(chapter)">
-							{{ __('Edit Chapter') }}
-						</Button>
 					</div>
 				</DisclosurePanel>
 			</Disclosure>
@@ -118,24 +137,26 @@
 	/>
 </template>
 <script setup>
-import { Button, createResource } from 'frappe-ui'
-import { ref, getCurrentInstance } from 'vue'
+import { Button, createResource, Tooltip } from 'frappe-ui'
+import { getCurrentInstance, inject, ref } from 'vue'
 import Draggable from 'vuedraggable'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import {
-	ChevronRight,
-	MonitorPlay,
-	HelpCircle,
-	FileText,
 	Check,
+	ChevronRight,
+	FileText,
+	FilePenLine,
+	HelpCircle,
+	MonitorPlay,
 	Trash2,
 } from 'lucide-vue-next'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import ChapterModal from '@/components/Modals/ChapterModal.vue'
 import { showToast } from '@/utils'
 
 const route = useRoute()
-const expandAll = ref(true)
+const router = useRouter()
+const user = inject('$user')
 const showChapterModal = ref(false)
 const currentChapter = ref(null)
 const app = getCurrentInstance()
@@ -205,8 +226,10 @@ const updateLessonIndex = createResource({
 
 const trashLesson = (lessonName, chapterName) => {
 	$dialog({
-		title: __('Delete Lesson'),
-		message: __('Are you sure you want to delete this lesson?'),
+		title: __('Delete this lesson?'),
+		message: __(
+			'Deleting this lesson will permanently remove it from the course. This action cannot be undone. Are you sure you want to continue?'
+		),
 		actions: [
 			{
 				label: __('Delete'),
@@ -243,6 +266,61 @@ const updateOutline = (e) => {
 		sourceChapter: e.from.dataset.chapter,
 		targetChapter: e.to.dataset.chapter,
 		idx: e.newIndex,
+	})
+}
+
+const deleteChapter = createResource({
+	url: 'lms.lms.api.delete_chapter',
+	makeParams(values) {
+		return {
+			chapter: values.chapter,
+		}
+	},
+	onSuccess() {
+		outline.reload()
+		showToast('Success', 'Chapter deleted successfully', 'check')
+	},
+})
+
+const trashChapter = (chapterName) => {
+	$dialog({
+		title: __('Delete this chapter?'),
+		message: __(
+			'Deleting this chapter will also delete all its lessons and permanently remove it from the course. This action cannot be undone. Are you sure you want to continue?'
+		),
+		actions: [
+			{
+				label: __('Delete'),
+				theme: 'red',
+				variant: 'solid',
+				onClick(close) {
+					deleteChapter.submit({ chapter: chapterName })
+					close()
+				},
+			},
+		],
+	})
+}
+
+const redirectToChapter = (chapter) => {
+	event.preventDefault()
+	if (props.allowEdit) return
+	if (!chapter.is_scorm_package) return
+	if (!user.data) {
+		showToast(
+			__('You are not enrolled'),
+			__('Please enroll for this course to view this lesson'),
+			'alert-circle'
+		)
+		return
+	}
+
+	router.push({
+		name: 'SCORMChapter',
+		params: {
+			courseName: props.courseName,
+			chapterName: chapter.name,
+		},
 	})
 }
 </script>

@@ -140,7 +140,7 @@ function enrollStudent() {
 		showToast(
 			__('Please Login'),
 			__('You need to login first to enroll for this course'),
-			'circle-warn'
+			'alert-circle'
 		)
 		setTimeout(() => {
 			window.location.href = `/login?redirect-to=${window.location.pathname}`

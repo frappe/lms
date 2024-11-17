@@ -8,12 +8,18 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "chapter",
-  "course",
-  "column_break_4",
   "title",
   "include_in_preview",
-  "index_label",
+  "column_break_4",
+  "chapter",
+  "is_scorm_package",
+  "course",
+  "section_break_11",
+  "content",
+  "body",
+  "column_break_cjmf",
+  "instructor_content",
+  "instructor_notes",
   "section_break_6",
   "youtube",
   "column_break_9",
@@ -22,13 +28,7 @@
   "question",
   "column_break_15",
   "file_type",
-  "section_break_11",
-  "content",
-  "body",
-  "column_break_cjmf",
-  "instructor_content",
-  "instructor_notes",
-  "help_section",
+  "column_break_syza",
   "help"
  ],
  "fields": [
@@ -60,12 +60,6 @@
    "reqd": 1
   },
   {
-   "fieldname": "index_label",
-   "fieldtype": "Data",
-   "label": "Index Label",
-   "read_only": 1
-  },
-  {
    "fieldname": "section_break_6",
    "fieldtype": "Section Break",
    "hidden": 1
@@ -74,14 +68,7 @@
    "fieldname": "body",
    "fieldtype": "Markdown Editor",
    "ignore_xss_filter": 1,
-   "label": "Body",
-   "reqd": 1
-  },
-  {
-   "fieldname": "help_section",
-   "fieldtype": "Section Break",
-   "hidden": 1,
-   "label": "Help"
+   "label": "Body"
   },
   {
    "fieldname": "help",
@@ -158,11 +145,23 @@
    "fieldname": "instructor_content",
    "fieldtype": "Text",
    "label": "Instructor Content"
+  },
+  {
+   "fieldname": "column_break_syza",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fetch_from": "chapter.is_scorm_package",
+   "fieldname": "is_scorm_package",
+   "fieldtype": "Check",
+   "label": "Is SCORM Package",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-10-08 11:04:54.748773",
+ "modified": "2024-11-14 13:46:56.838659",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Course Lesson",
