@@ -19,6 +19,7 @@ class LMSCourse(Document):
 		self.validate_video_link()
 		self.validate_status()
 		self.validate_payments_app()
+		self.validate_amount_and_currency()
 		self.image = validate_image(self.image)
 
 	def validate_published(self):
@@ -50,6 +51,10 @@ class LMSCourse(Document):
 			installed_apps = frappe.get_installed_apps()
 			if "payments" not in installed_apps:
 				frappe.throw(_("Please install the Payments app to create a paid courses."))
+
+	def validate_amount_and_currency(self):
+		if self.paid_course and (not self.amount and not self.currency):
+			frappe.throw(_("Amount and currency are required for paid courses."))
 
 	def on_update(self):
 		if not self.upcoming and self.has_value_changed("upcoming"):

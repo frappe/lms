@@ -28,6 +28,7 @@ class LMSBatch(Document):
 		self.validate_duplicate_courses()
 		self.validate_duplicate_students()
 		self.validate_payments_app()
+		self.validate_amount_and_currency()
 		self.validate_duplicate_assessments()
 		self.validate_membership()
 		self.validate_timetable()
@@ -63,6 +64,10 @@ class LMSBatch(Document):
 			installed_apps = frappe.get_installed_apps()
 			if "payments" not in installed_apps:
 				frappe.throw(_("Please install the Payments app to create a paid batches."))
+
+	def validate_amount_and_currency(self):
+		if self.paid_batch and (not self.amount or not self.currency):
+			frappe.throw(_("Amount and currency are required for paid batches."))
 
 	def validate_duplicate_assessments(self):
 		assessments = [row.assessment_name for row in self.assessment]
