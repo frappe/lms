@@ -182,6 +182,17 @@ const routes = [
 		component: () => import('@/pages/QuizSubmission.vue'),
 		props: true,
 	},
+	{
+		path: '/programs',
+		name: 'Programs',
+		component: () => import('@/pages/Programs.vue'),
+	},
+	{
+		path: '/programs/:programName',
+		name: 'ProgramForm',
+		component: () => import('@/pages/ProgramForm.vue'),
+		props: true,
+	},
 ]
 
 let router = createRouter({

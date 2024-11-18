@@ -183,6 +183,17 @@ const addQuizzes = () => {
 	}
 }
 
+const addPrograms = () => {
+	if (isInstructor.value || isModerator.value) {
+		sidebarLinks.value.push({
+			label: 'Programs',
+			icon: 'Route',
+			to: 'Programs',
+			activeFor: ['Programs', 'ProgramForm'],
+		})
+	}
+}
+
 const openPageModal = (link) => {
 	showPageModal.value = true
 	pageToEdit.value = link
@@ -215,6 +226,7 @@ watch(userResource, () => {
 		isModerator.value = userResource.data.is_moderator
 		isInstructor.value = userResource.data.is_instructor
 		addQuizzes()
+		addPrograms()
 	}
 })
 
