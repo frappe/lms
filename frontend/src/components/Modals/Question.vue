@@ -63,7 +63,7 @@
 							<FormControl
 								:label="__('Option') + ' ' + n"
 								v-model="question[`option_${n}`]"
-								:required="n == 1 ? true : false"
+								:required="n <= 2 ? true : false"
 							/>
 							<FormControl
 								:label="__('Explanation')"
@@ -84,7 +84,7 @@
 						<FormControl
 							:label="__('Possibility') + ' ' + n"
 							v-model="question[`possibility_${n}`]"
-							:required="n == 1 ? true : false"
+							:required="n <= 2 ? true : false"
 						/>
 					</div>
 				</div>
