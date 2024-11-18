@@ -193,13 +193,15 @@
    "depends_on": "paid_batch",
    "fieldname": "amount",
    "fieldtype": "Currency",
-   "label": "Amount"
+   "label": "Amount",
+   "mandatory_depends_on": "paid_batch"
   },
   {
    "depends_on": "paid_batch",
    "fieldname": "currency",
    "fieldtype": "Link",
    "label": "Currency",
+   "mandatory_depends_on": "paid_batch",
    "options": "Currency"
   },
   {
@@ -328,7 +330,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-07-18 18:06:37.229885",
+ "modified": "2024-11-18 16:28:41.336928",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch",
