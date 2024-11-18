@@ -219,7 +219,6 @@ watch(userResource, () => {
 })
 
 const toggleSidebar = () => {
-	console.log(sidebarStore.isSidebarCollapsed)
 	sidebarStore.isSidebarCollapsed = !sidebarStore.isSidebarCollapsed
 }
 </script>

@@ -141,6 +141,7 @@
 								v-slot="{ idx, column, item }"
 								v-for="row in quiz.questions"
 								@click="openQuestionModal(row)"
+								class="cursor-pointer"
 							>
 								<ListRowItem :item="item">
 									<div

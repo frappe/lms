@@ -30,6 +30,7 @@
 					</FormControl>
 				</div>
 				<router-link
+					v-if="user.data?.is_moderator || user.data?.is_instructor"
 					:to="{
 						name: 'CourseForm',
 						params: {
@@ -37,7 +38,7 @@
 						},
 					}"
 				>
-					<Button v-if="user.data?.is_moderator" variant="solid">
+					<Button variant="solid">
 						<template #prefix>
 							<Plus class="h-4 w-4" />
 						</template>
