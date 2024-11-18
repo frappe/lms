@@ -12,9 +12,9 @@
 							id="existing"
 							value="existing"
 							v-model="questionType"
-							class="w-3 h-3 accent-gray-900"
+							class="w-3 h-3 cursor-pointer"
 						/>
-						<label for="existing">
+						<label for="existing" class="cursor-pointer">
 							{{ __('Add an existing question') }}
 						</label>
 					</div>
@@ -25,9 +25,9 @@
 							id="new"
 							value="new"
 							v-model="questionType"
-							class="w-3 h-3"
+							class="w-3 h-3 cursor-pointer"
 						/>
-						<label for="new">
+						<label for="new" class="cursor-pointer">
 							{{ __('Create a new question') }}
 						</label>
 					</div>
@@ -127,7 +127,7 @@ const populateFields = () => {
 	let counter = 1
 	fields.forEach((field) => {
 		while (counter <= 4) {
-			question[`${field}_${counter}`] = field === 'is_correct' ? false : ''
+			question[`${field}_${counter}`] = field === 'is_correct' ? false : null
 			counter++
 		}
 	})
