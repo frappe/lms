@@ -84,7 +84,7 @@
 						<FormControl
 							:label="__('Possibility') + ' ' + n"
 							v-model="question[`possibility_${n}`]"
-							:required="n <= 2 ? true : false"
+							:required="n == 1 ? true : false"
 						/>
 					</div>
 				</div>
