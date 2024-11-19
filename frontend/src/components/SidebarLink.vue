@@ -7,7 +7,7 @@
 	>
 		<div
 			class="flex items-center w-full duration-300 ease-in-out group"
-			:class="isCollapsed ? 'p-1' : 'px-2 py-1'"
+			:class="isCollapsed ? 'p-1 relative' : 'px-2 py-1'"
 		>
 			<Tooltip :text="link.label" placement="right">
 				<slot name="icon">
@@ -29,7 +29,15 @@
 			>
 				{{ __(link.label) }}
 			</span>
-			<span v-if="link.count" class="!ml-auto block text-xs text-gray-600">
+			<span
+				v-if="link.count"
+				class="!ml-auto block text-xs text-gray-600"
+				:class="
+					isCollapsed && link.count > 9
+						? 'absolute top-[2px] right-0 bg-white'
+						: ''
+				"
+			>
 				{{ link.count }}
 			</span>
 			<div
