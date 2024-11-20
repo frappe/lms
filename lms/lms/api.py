@@ -3,6 +3,10 @@
 
 import json
 import frappe
+import zipfile
+import os
+import shutil
+import xml.etree.ElementTree as ET
 from frappe.translate import get_all_translations
 from frappe import _
 from frappe.query_builder import DocType
@@ -10,6 +14,7 @@ from frappe.query_builder.functions import Count
 from frappe.utils import time_diff, now_datetime, get_datetime, flt
 from typing import Optional
 from lms.lms.utils import get_average_rating, get_lesson_count
+from xml.dom.minidom import parseString
 
 
 @frappe.whitelist()
@@ -876,3 +881,124 @@ def give_dicussions_permission():
 						"delete": 1,
 					}
 				).save(ignore_permissions=True)
+
+
+@frappe.whitelist()
+def upsert_chapter(title, course, is_scorm_package, scorm_package, name=None):
+	values = frappe._dict(
+		{"title": title, "course": course, "is_scorm_package": is_scorm_package}
+	)
+
+	if is_scorm_package:
+		scorm_package = frappe._dict(scorm_package)
+		extract_path = extract_package(course, title, scorm_package)
+
+		values.update(
+			{
+				"scorm_package": scorm_package.name,
+				"scorm_package_path": extract_path.split("public")[1],
+				"manifest_file": get_manifest_file(extract_path).split("public")[1],
+				"launch_file": get_launch_file(extract_path).split("public")[1],
+			}
+		)
+
+	if name:
+		chapter = frappe.get_doc("Course Chapter", name)
+	else:
+		chapter = frappe.new_doc("Course Chapter")
+
+	chapter.update(values)
+	chapter.save()
+
+	if is_scorm_package and not len(chapter.lessons):
+		add_lesson(title, chapter.name, course)
+
+	return chapter
+
+
+def extract_package(course, title, scorm_package):
+	package = frappe.get_doc("File", scorm_package.name)
+	zip_path = package.get_full_path()
+
+	extract_path = frappe.get_site_path("public", "files", "scorm", course, title)
+	zipfile.ZipFile(zip_path).extractall(extract_path)
+	return extract_path
+
+
+def get_manifest_file(extract_path):
+	manifest_file = None
+	for root, dirs, files in os.walk(extract_path):
+		for file in files:
+			if file == "imsmanifest.xml":
+				manifest_file = os.path.join(root, file)
+				break
+		if manifest_file:
+			break
+	return manifest_file
+
+
+def get_launch_file(extract_path):
+	launch_file = None
+	manifest_file = get_manifest_file(extract_path)
+
+	if manifest_file:
+		with open(manifest_file) as file:
+			data = file.read()
+			dom = parseString(data)
+			resource = dom.getElementsByTagName("resource")
+			for res in resource:
+				if (
+					res.getAttribute("adlcp:scormtype") == "sco"
+					or res.getAttribute("adlcp:scormType") == "sco"
+				):
+					launch_file = res.getAttribute("href")
+					break
+
+		if launch_file:
+			launch_file = os.path.join(os.path.dirname(manifest_file), launch_file)
+
+	return launch_file
+
+
+def add_lesson(title, chapter, course):
+	lesson = frappe.new_doc("Course Lesson")
+	lesson.update(
+		{
+			"title": title,
+			"chapter": chapter,
+			"course": course,
+		}
+	)
+	lesson.insert()
+
+	lesson_reference = frappe.new_doc("Lesson Reference")
+	lesson_reference.update(
+		{
+			"lesson": lesson.name,
+			"parent": chapter,
+			"parenttype": "Course Chapter",
+			"parentfield": "lessons",
+		}
+	)
+	lesson_reference.insert()
+
+
+@frappe.whitelist()
+def delete_chapter(chapter):
+	chapterInfo = frappe.db.get_value(
+		"Course Chapter", chapter, ["is_scorm_package", "scorm_package_path"], as_dict=True
+	)
+
+	if chapterInfo.is_scorm_package:
+		delete_scorm_package(chapterInfo.scorm_package_path)
+
+	frappe.db.delete("Chapter Reference", {"chapter": chapter})
+	frappe.db.delete("Lesson Reference", {"parent": chapter})
+	frappe.db.delete("Course Lesson", {"chapter": chapter})
+	frappe.db.delete("Course Chapter", chapter)
+
+
+def delete_scorm_package(scorm_package_path):
+	scorm_package_path = frappe.get_site_path("public", scorm_package_path)
+	if os.path.exists(scorm_package_path):
+		shutil.rmtree(scorm_package_path)

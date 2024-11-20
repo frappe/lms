@@ -103,7 +103,7 @@
 					<span
 						class="h-6 mr-1"
 						:class="{
-							'avatar-group overlap': lesson.data.instructors.length > 1,
+							'avatar-group overlap': lesson.data.instructors?.length > 1,
 						}"
 					>
 						<UserAvatar
@@ -111,7 +111,10 @@
 							:user="instructor"
 						/>
 					</span>
-					<CourseInstructors :instructors="lesson.data.instructors" />
+					<CourseInstructors
+						v-if="lesson.data?.instructors"
+						:instructors="lesson.data.instructors"
+					/>
 				</div>
 				<div
 					v-if="
@@ -146,6 +149,7 @@
 					class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-gray-300 prose-th:border-gray-300 prose-td:relative prose-th:relative prose-th:bg-gray-100 prose-sm max-w-none !whitespace-normal mt-5"
 				>
 					<LessonContent
+						v-if="lesson.data?.body"
 						:content="lesson.data.body"
 						:youtube="lesson.data.youtube"
 						:quizId="lesson.data.quiz_id"
@@ -240,7 +244,10 @@ const lesson = createResource({
 	auto: true,
 	onSuccess(data) {
 		if (Object.keys(data).length === 0) {
-			router.push({ name: 'Courses' })
+			router.push({
+				name: 'CourseDetail',
+				params: { courseName: props.courseName },
+			})
 			return
 		}
 		lessonProgress.value = data.membership?.progress
@@ -369,13 +376,13 @@ const checkIfDiscussionsAllowed = () => {
 
 const allowEdit = () => {
 	if (user.data?.is_moderator) return true
-	if (lesson.data?.instructors.includes(user.data?.name)) return true
+	if (lesson.data?.instructors?.includes(user.data?.name)) return true
 	return false
 }
 
 const allowInstructorContent = () => {
 	if (user.data?.is_moderator) return true
-	if (lesson.data?.instructors.includes(user.data?.name)) return true
+	if (lesson.data?.instructors?.includes(user.data?.name)) return true
 	return false
 }
 
