@@ -17,10 +17,15 @@
 		<template #body-content>
 			<div class="space-y-4 text-base">
 				<FormControl label="Title" v-model="chapter.title" :required="true" />
-				<FormControl
-					:label="__('Is SCORM Package')"
+				<Switch
+					size="sm"
+					:label="__('SCORM Package')"
+					:description="
+						__(
+							'Enable this only if you want to upload a SCORM package as a chapter.'
+						)
+					"
 					v-model="chapter.is_scorm_package"
-					type="checkbox"
 				/>
 				<div v-if="chapter.is_scorm_package">
 					<FileUploader
@@ -70,8 +75,9 @@ import {
 	Dialog,
 	FileUploader,
 	FormControl,
+	Switch,
 } from 'frappe-ui'
-import { defineModel, reactive, watch, ref } from 'vue'
+import { defineModel, reactive, watch } from 'vue'
 import { showToast, getFileSize } from '@/utils/'
 import { capture } from '@/telemetry'
 import { FileText, X } from 'lucide-vue-next'
