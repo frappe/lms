@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2024-11-15 16:04+0000\n"
-"PO-Revision-Date: 2024-11-18 17:32\n"
+"PO-Revision-Date: 2024-11-20 17:38\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Persian\n"
 "MIME-Version: 1.0\n"
@@ -183,7 +183,7 @@ msgstr "آدرس خط 2"
 #: lms/lms/doctype/cohort_web_page/cohort_web_page.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 msgid "Admin"
-msgstr "اَدمین"
+msgstr "ادمین"
 
 #. Name of a role
 #: lms/lms/doctype/lms_badge/lms_badge.json
@@ -3551,7 +3551,7 @@ msgstr ""
 
 #: lms/overrides/user.py:240
 msgid "Please ask your administrator to verify your sign-up"
-msgstr "لطفاً از سرپرست خود بخواهید ثبت نام شما را تأیید کند"
+msgstr "لطفاً از ادمین خود بخواهید ثبت نام شما را تأیید کند"
 
 #: lms/overrides/user.py:238
 msgid "Please check your email for verification"
