@@ -1,59 +1,98 @@
 <template>
 	<header
-		class="sticky top-0 z-10 flex flex-col md:flex-row md:items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
+		class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs :items="breadbrumbs" />
-		<Button variant="solid" @click="showDialog = true">
+		<Button
+			v-if="user.data?.is_moderator || user.data?.is_instructor"
+			@click="showDialog = true"
+			variant="solid"
+		>
 			<template #prefix>
-				<Plus class="w-4 h-4" />
+				<Plus class="h-4 w-4 stroke-1.5" />
 			</template>
-			{{ __('New Program') }}
+			{{ __('New') }}
 		</Button>
 	</header>
-	<div class="pt-5 px-5">
-		<div v-if="programs.data?.length">
-			<ListView
-				:columns="programColumns"
-				:rows="programs.data"
-				row-key="name"
-				:options="{ showTooltip: false, selectable: false }"
-			>
-				<ListHeader
-					class="mb-2 grid items-center space-x-4 rounded bg-gray-100 p-2"
-				>
-					<ListHeaderItem :item="item" v-for="item in programColumns">
-					</ListHeaderItem>
-				</ListHeader>
-				<ListRows>
+	<div v-if="programs.data?.length" class="pt-5 px-5">
+		<div v-for="program in programs.data" class="mb-10">
+			<div class="flex items-center justify-between">
+				<div class="text-xl font-semibold">
+					{{ program.name }}
+				</div>
+				<div class="flex items-center space-x-2">
+					<Badge v-if="program.members" variant="subtle" theme="green">
+						{{ program.members }} {{ __('Members') }}
+					</Badge>
 					<router-link
-						v-for="row in programs.data"
+						v-if="user.data?.is_moderator || user.data?.is_instructor"
 						:to="{
 							name: 'ProgramForm',
-							params: {
-								programName: row.name,
-							},
+							params: { programName: program.name },
 						}"
 					>
-						<ListRow :row="row" />
+						<Button>
+							<template #prefix>
+								<Edit class="h-4 w-4 stroke-1.5" />
+							</template>
+							{{ __('Edit') }}
+						</Button>
 					</router-link>
-				</ListRows>
-			</ListView>
+				</div>
+			</div>
+			<div
+				v-if="program.courses?.length"
+				class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-5"
+			>
+				<router-link
+					v-for="course in program.courses"
+					:to="
+						course.membership && course.current_lesson
+							? {
+									name: 'Lesson',
+									params: {
+										courseName: course.name,
+										chapterNumber: course.current_lesson.split('-')[0],
+										lessonNumber: course.current_lesson.split('-')[1],
+									},
+							  }
+							: course.membership
+							? {
+									name: 'Lesson',
+									params: {
+										courseName: course.name,
+										chapterNumber: 1,
+										lessonNumber: 1,
+									},
+							  }
+							: {
+									name: 'CourseDetail',
+									params: { courseName: course.name },
+							  }
+					"
+				>
+					<CourseCard :course="course" />
+				</router-link>
+			</div>
+			<div v-else class="text-sm italic text-gray-600 mt-4">
+				{{ __('No courses in this program') }}
+			</div>
 		</div>
-		<div
-			v-else
-			class="text-center p-5 text-gray-600 mt-52 w-3/4 md:w-1/2 mx-auto space-y-2"
-		>
-			<Route class="size-10 mx-auto stroke-1 text-gray-500" />
-			<div class="text-xl font-medium">
-				{{ __('No programs found') }}
-			</div>
-			<div class="leading-5">
-				{{
-					__(
-						'Program lets you create learning paths and assign them to your students. To create one, click on the "New Program" button above.'
-					)
-				}}
-			</div>
+	</div>
+	<div
+		v-else
+		class="text-center p-5 text-gray-600 mt-52 w-3/4 md:w-1/2 mx-auto space-y-2"
+	>
+		<BookOpen class="size-10 mx-auto stroke-1 text-gray-500" />
+		<div class="text-xl font-medium">
+			{{ __('No programs found') }}
+		</div>
+		<div class="leading-5">
+			{{
+				__(
+					'There are no programs available at the moment. Keep an eye out, fresh learning experiences are on the way soon!'
+				)
+			}}
 		</div>
 	</div>
 
@@ -77,88 +116,46 @@
 </template>
 <script setup>
 import {
+	Badge,
 	Breadcrumbs,
 	Button,
-	createListResource,
+	call,
+	createResource,
 	Dialog,
 	FormControl,
-	ListView,
-	ListRows,
-	ListRow,
-	ListHeader,
-	ListHeaderItem,
 } from 'frappe-ui'
-import { computed, inject, onMounted, ref } from 'vue'
-import { Plus, Route } from 'lucide-vue-next'
+import { computed, inject, ref } from 'vue'
+import { BookOpen, Edit, Plus } from 'lucide-vue-next'
+import CourseCard from '@/components/CourseCard.vue'
 import { useRouter } from 'vue-router'
 
 const user = inject('$user')
-const router = useRouter()
 const showDialog = ref(false)
+const router = useRouter()
 const title = ref('')
 
-onMounted(() => {
-	if (!user.data?.is_moderator) {
-		router.push({ name: 'Courses' })
-	}
-})
-
-const programs = createListResource({
-	doctype: 'LMS Program',
-	fields: ['title', 'name', 'program_courses'],
+const programs = createResource({
+	url: 'lms.lms.utils.get_programs',
 	auto: true,
 	cache: 'programs',
-	transform(data) {
-		return data.map((program) => {
-			console.log(program)
-			program.program_courses = program.program_courses?.length
-			return program
-		})
-	},
 })
 
-const createProgram = async (close) => {
-	programs.insert.submit(
-		{
+console.log(programs)
+
+const createProgram = (close) => {
+	call('frappe.client.insert', {
+		doc: {
+			doctype: 'LMS Program',
 			title: title.value,
 		},
-		{
-			onSuccess(data) {
-				showDialog.value = false
-				router.push({ name: 'ProgramForm', params: { programName: data.name } })
-			},
-		}
-	)
+	}).then((res) => {
+		router.push({ name: 'ProgramForm', params: { programName: res.name } })
+	})
 }
 
 const breadbrumbs = computed(() => [
 	{
 		label: 'Programs',
-		route: {
-			name: 'Programs',
-		},
 	},
 ])
-
-const programColumns = computed(() => {
-	return [
-		{
-			label: __('Title'),
-			key: 'title',
-			width: 2,
-		},
-		{
-			label: __('Courses'),
-			key: 'program_courses',
-			width: 1,
-			align: 'center',
-		},
-		{
-			label: __('Members'),
-			key: 'program_members',
-			width: 1,
-			align: 'center',
-		},
-	]
-})
 </script>

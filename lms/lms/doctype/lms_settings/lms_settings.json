@@ -356,7 +356,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-11-18 12:52:41.236252",
+ "modified": "2024-11-20 11:55:05.358421",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",
@@ -371,6 +371,13 @@
    "role": "System Manager",
    "share": 1,
    "write": 1
+  },
+  {
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "LMS Student",
+   "share": 1
   }
  ],
  "sort_field": "modified",

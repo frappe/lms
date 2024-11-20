@@ -1751,3 +1751,29 @@ def enroll_in_batch(batch, payment_name=None):
 			)
 
 		student.save(ignore_permissions=True)
+
+
+@frappe.whitelist()
+def get_programs():
+	if (
+		has_course_moderator_role()
+		or has_course_instructor_role()
+		or has_course_evaluator_role()
+	):
+		programs = frappe.get_all("LMS Program", fields=["name"])
+	else:
+		programs = frappe.get_all(
+			"LMS Program Member", {"member": frappe.session.user}, ["parent as name"]
+		)
+
+	for program in programs:
+		program_courses = frappe.get_all(
+			"LMS Program Course", {"parent": program.name}, ["course"]
+		)
+		program.courses = []
+		for course in program_courses:
+			program.courses.append(get_course_details(course.course))
+
+		program.members = frappe.db.count("LMS Program Member", {"parent": program.name})
+
+	return programs
