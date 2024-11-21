@@ -438,8 +438,6 @@ export function getSidebarLinks() {
 				'Lesson',
 				'CourseForm',
 				'LessonForm',
-				'Programs',
-				'ProgramForm',
 			],
 		},
 		{

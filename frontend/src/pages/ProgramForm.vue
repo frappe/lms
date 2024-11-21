@@ -211,8 +211,6 @@ const program = createDocumentResource({
 	cache: ['program', props.programName],
 })
 
-console.log(program)
-
 const addProgramCourse = () => {
 	program.setValue.submit(
 		{
@@ -288,7 +286,6 @@ const updateOrder = (e) => {
 		course.idx = index + 1
 	})
 
-	console.log(courses)
 	program.setValue.submit(
 		{
 			program_courses: courses,

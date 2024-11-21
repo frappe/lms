@@ -173,12 +173,14 @@ import { BookOpen, Plus, Search } from 'lucide-vue-next'
 import { ref, computed, inject, onMounted, watch } from 'vue'
 import { updateDocumentTitle } from '@/utils'
 import { useRouter } from 'vue-router'
+import { useSettings } from '@/stores/settings'
 
 const user = inject('$user')
 const searchQuery = ref('')
 const currentCategory = ref(null)
 const hasCourses = ref(false)
 const router = useRouter()
+const settings = useSettings()
 
 onMounted(() => {
 	checkLearningPath()
@@ -189,14 +191,12 @@ onMounted(() => {
 })
 
 const checkLearningPath = () => {
-	call('frappe.client.get_single_value', {
-		doctype: 'LMS Settings',
-		field: 'enable_learning_paths',
-	}).then((res) => {
-		if (res && !user.data?.is_moderator && !user.data?.is_instructor) {
-			router.push({ name: 'Programs' })
-		}
-	})
+	if (
+		settings.learningPaths.data &&
+		(!user.data?.is_moderator || !user.data?.is_instructor)
+	) {
+		router.push({ name: 'Programs' })
+	}
 }
 
 const courses = createResource({

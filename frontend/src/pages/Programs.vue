@@ -15,15 +15,27 @@
 		</Button>
 	</header>
 	<div v-if="programs.data?.length" class="pt-5 px-5">
-		<div v-for="program in programs.data" class="mb-10">
+		<div v-for="program in programs.data" class="mb-20">
 			<div class="flex items-center justify-between">
 				<div class="text-xl font-semibold">
 					{{ program.name }}
 				</div>
 				<div class="flex items-center space-x-2">
-					<Badge v-if="program.members" variant="subtle" theme="green">
-						{{ program.members }} {{ __('Members') }}
+					<Badge
+						v-if="program.members"
+						variant="subtle"
+						theme="green"
+						size="lg"
+					>
+						{{ program.members }}
+						{{
+							program.members == 1 ? __(singularize('members')) : __('members')
+						}}
 					</Badge>
+					<Badge variant="subtle" theme="blue" size="lg">
+						{{ program.progress }}{{ __('% completed') }}
+					</Badge>
+
 					<router-link
 						v-if="user.data?.is_moderator || user.data?.is_instructor"
 						:to="{
@@ -44,35 +56,12 @@
 				v-if="program.courses?.length"
 				class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-5"
 			>
-				<router-link
+				<CourseCard
 					v-for="course in program.courses"
-					:to="
-						course.membership && course.current_lesson
-							? {
-									name: 'Lesson',
-									params: {
-										courseName: course.name,
-										chapterNumber: course.current_lesson.split('-')[0],
-										lessonNumber: course.current_lesson.split('-')[1],
-									},
-							  }
-							: course.membership
-							? {
-									name: 'Lesson',
-									params: {
-										courseName: course.name,
-										chapterNumber: 1,
-										lessonNumber: 1,
-									},
-							  }
-							: {
-									name: 'CourseDetail',
-									params: { courseName: course.name },
-							  }
-					"
-				>
-					<CourseCard :course="course" />
-				</router-link>
+					:course="course"
+					@click="enrollMember(program.name, course.name)"
+					class="cursor-pointer"
+				/>
 			</div>
 			<div v-else class="text-sm italic text-gray-600 mt-4">
 				{{ __('No courses in this program') }}
@@ -128,6 +117,7 @@ import { computed, inject, ref } from 'vue'
 import { BookOpen, Edit, Plus } from 'lucide-vue-next'
 import CourseCard from '@/components/CourseCard.vue'
 import { useRouter } from 'vue-router'
+import { showToast, singularize } from '@/utils'
 
 const user = inject('$user')
 const showDialog = ref(false)
@@ -140,8 +130,6 @@ const programs = createResource({
 	cache: 'programs',
 })
 
-console.log(programs)
-
 const createProgram = (close) => {
 	call('frappe.client.insert', {
 		doc: {
@@ -151,6 +139,37 @@ const createProgram = (close) => {
 	}).then((res) => {
 		router.push({ name: 'ProgramForm', params: { programName: res.name } })
 	})
+}
+
+const enrollMember = (program, course) => {
+	call('lms.lms.utils.enroll_in_program_course', {
+		program: program,
+		course: course,
+	})
+		.then((data) => {
+			if (data.current_lesson) {
+				router.push({
+					name: 'Lesson',
+					params: {
+						courseName: course,
+						chapterNumber: data.current_lesson.split('-')[0],
+						lessonNumber: data.current_lesson.split('-')[1],
+					},
+				})
+			} else if (data) {
+				router.push({
+					name: 'Lesson',
+					params: {
+						courseName: course,
+						chapterNumber: 1,
+						lessonNumber: 1,
+					},
+				})
+			}
+		})
+		.catch((err) => {
+			showToast('Error', err.messages?.[0] || err, 'x')
+		})
 }
 
 const breadbrumbs = computed(() => [
