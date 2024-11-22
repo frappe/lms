@@ -16,6 +16,7 @@ class LMSQuestion(Document):
 def validate_correct_answers(question):
 	if question.type == "Choices":
 		validate_duplicate_options(question)
+		validate_minimum_options(question)
 		validate_correct_options(question)
 	elif question.type == "User Input":
 		validate_possible_answer(question)
@@ -40,6 +41,11 @@ def validate_correct_options(question):
 
 	if not len(correct_options):
 		frappe.throw(_("At least one option must be correct for this question."))
+
+
+def validate_minimum_options(question):
+	if question.type == "Choices" and (not question.option_1 or not question.option_2):
+		frappe.throw(_("Minimum two options are required for multiple choice questions."))
 
 
 def validate_possible_answer(question):

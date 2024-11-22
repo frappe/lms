@@ -108,9 +108,31 @@ const tabsStructure = computed(() => {
 			hideLabel: true,
 			items: [
 				{
-					label: 'Members',
-					description: 'Manage the members of your learning system',
-					icon: 'UserRoundPlus',
+					label: 'General',
+					icon: 'Wrench',
+					fields: [
+						{
+							label: 'Enable Learning Paths',
+							name: 'enable_learning_paths',
+							description:
+								'This will enforce students to go through programs assigned to them in the correct order.',
+							type: 'checkbox',
+						},
+						{
+							label: 'Send calendar invite for evaluations',
+							name: 'send_calendar_invite_for_evaluations',
+							description:
+								'If enabled, it sends google calendar invite to the student for evaluations.',
+							type: 'checkbox',
+						},
+						{
+							label: 'Unsplash Access Key',
+							name: 'unsplash_access_key',
+							description:
+								'Optional. If this is set, students can pick a cover image from the unsplash library for their profile page. https://unsplash.com/documentation#getting-started.',
+							type: 'text',
+						},
+					],
 				},
 			],
 		},
@@ -156,9 +178,14 @@ const tabsStructure = computed(() => {
 			],
 		},
 		{
-			label: 'Settings',
-			hideLabel: true,
+			label: 'Lists',
+			hideLabel: false,
 			items: [
+				{
+					label: 'Members',
+					description: 'Manage the members of your learning system',
+					icon: 'UserRoundPlus',
+				},
 				{
 					label: 'Categories',
 					description: 'Manage the members of your learning system',

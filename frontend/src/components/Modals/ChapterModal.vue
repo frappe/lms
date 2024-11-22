@@ -16,16 +16,16 @@
 	>
 		<template #body-content>
 			<div class="space-y-4 text-base">
-				<FormControl
-					ref="chapterInput"
-					label="Title"
-					v-model="chapter.title"
-					:required="true"
-				/>
-				<FormControl
-					:label="__('Is SCORM Package')"
+				<FormControl label="Title" v-model="chapter.title" :required="true" />
+				<Switch
+					size="sm"
+					:label="__('SCORM Package')"
+					:description="
+						__(
+							'Enable this only if you want to upload a SCORM package as a chapter.'
+						)
+					"
 					v-model="chapter.is_scorm_package"
-					type="checkbox"
 				/>
 				<div v-if="chapter.is_scorm_package">
 					<FileUploader
@@ -75,15 +75,15 @@ import {
 	Dialog,
 	FileUploader,
 	FormControl,
+	Switch,
 } from 'frappe-ui'
-import { defineModel, reactive, watch, ref } from 'vue'
+import { defineModel, reactive, watch } from 'vue'
 import { showToast, getFileSize } from '@/utils/'
 import { capture } from '@/telemetry'
 import { FileText, X } from 'lucide-vue-next'
 
 const show = defineModel()
 const outline = defineModel('outline')
-const chapterInput = ref(null)
 
 const props = defineProps({
 	course: {
@@ -208,14 +208,6 @@ watch(
 		chapter.scorm_package = newChapter?.scorm_package
 	}
 )
-
-/* watch(show, () => {
-	if (show.value) {
-		setTimeout(() => {
-			chapterInput.value.$el.querySelector('input').focus()
-		}, 100)
-	}
-}) */
 
 const validateFile = (file) => {
 	let extension = file.name.split('.').pop().toLowerCase()

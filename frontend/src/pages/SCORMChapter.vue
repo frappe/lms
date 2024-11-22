@@ -65,11 +65,11 @@ onBeforeMount(() => {
 		Initialize: () => 'true',
 		Terminate: () => 'true',
 		GetValue: (key) => {
-			console.log(`GetValue called for key: ${key}`)
+			console.log(`GET: ${key}`)
 			return getDataFromLMS(key)
 		},
 		SetValue: (key, value) => {
-			console.log(`SetValue called for key: ${key} to value: ${value}`)
+			console.log(`SET: ${key} to value: ${value}`)
 
 			saveDataToLMS(key, value)
 			return 'true'
@@ -96,7 +96,6 @@ onBeforeMount(() => {
 		LMSGetErrorString: () => '',
 		LMSGetDiagnostic: () => '',
 	}
-	console.log(window.API_1484_11)
 })
 
 const getDataFromLMS = (key) => {

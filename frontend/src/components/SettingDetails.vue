@@ -29,6 +29,7 @@
 <script setup>
 import { Button, Badge } from 'frappe-ui'
 import SettingFields from '@/components/SettingFields.vue'
+import { showToast } from '@/utils'
 
 const props = defineProps({
 	fields: {
@@ -54,7 +55,14 @@ const update = () => {
 			props.data.doc[f.name] = f.value
 		}
 	})
-	props.data.save.submit()
+	props.data.save.submit(
+		{},
+		{
+			onError(err) {
+				showToast('Error', err.messages?.[0] || err, 'x')
+			},
+		}
+	)
 }
 </script>
 
