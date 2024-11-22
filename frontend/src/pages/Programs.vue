@@ -32,7 +32,12 @@
 							program.members == 1 ? __(singularize('members')) : __('members')
 						}}
 					</Badge>
-					<Badge variant="subtle" theme="blue" size="lg">
+					<Badge
+						v-if="program.progress"
+						variant="subtle"
+						theme="blue"
+						size="lg"
+					>
 						{{ program.progress }}{{ __('% completed') }}
 					</Badge>
 
