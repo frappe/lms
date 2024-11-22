@@ -17,9 +17,16 @@ export const useSettings = defineStore('settings', () => {
 		cache: ['learningPaths'],
 	})
 
+	const onboardingDetails = createResource({
+		url: 'lms.lms.utils.is_onboarding_complete',
+		auto: true,
+		cache: ['onboardingDetails'],
+	})
+
 	return {
 		isSettingsOpen,
 		activeTab,
 		learningPaths,
+		onboardingDetails,
 	}
 })
