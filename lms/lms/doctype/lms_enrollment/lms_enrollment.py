@@ -4,12 +4,16 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
+from frappe.utils import ceil
 
 
 class LMSEnrollment(Document):
 	def validate(self):
 		self.validate_membership_in_same_batch()
 		self.validate_membership_in_different_batch_same_course()
+
+	def on_update(self):
+		self.update_program_progress()
 
 	def validate_membership_in_same_batch(self):
 		filters = {"member": self.member, "course": self.course, "name": ["!=", self.name]}
@@ -54,6 +58,26 @@ class LMSEnrollment(Document):
 					member_name, course, membership.batch_old
 				)
 			)
+
+	def update_program_progress(self):
+		programs = frappe.get_all(
+			"LMS Program Member", {"member": self.member}, ["parent", "name"]
+		)
+
+		for program in programs:
+			total_progress = 0
+			courses = frappe.get_all(
+				"LMS Program Course", {"parent": program.parent}, pluck="course"
+			)
+			for course in courses:
+				progress = frappe.db.get_value(
+					"LMS Enrollment", {"course": course, "member": self.member}, "progress"
+				)
+				progress = progress or 0
+				total_progress += progress
+
+			average_progress = ceil(total_progress / len(courses))
+			frappe.db.set_value("LMS Program Member", program.name, "progress", average_progress)
 
 
 @frappe.whitelist()

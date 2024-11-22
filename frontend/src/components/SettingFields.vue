@@ -90,6 +90,7 @@
 						:type="field.type"
 						:rows="field.rows"
 						:options="field.options"
+						:description="field.description"
 					/>
 				</div>
 			</div>
@@ -100,7 +101,7 @@
 import { FormControl, FileUploader, Button, Switch } from 'frappe-ui'
 import { computed } from 'vue'
 import { getFileSize, validateFile } from '@/utils'
-import { X, FileText } from 'lucide-vue-next'
+import { X } from 'lucide-vue-next'
 import Link from '@/components/Controls/Link.vue'
 import CodeEditor from '@/components/Controls/CodeEditor.vue'
 

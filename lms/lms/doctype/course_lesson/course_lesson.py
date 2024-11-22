@@ -93,14 +93,14 @@ def save_progress(lesson, course):
 
 	frappe.db.set_value("LMS Enrollment", membership, "current_lesson", lesson)
 
-	quiz_completed = get_quiz_progress(lesson)
-	if not quiz_completed:
-		return 0
-
 	if frappe.db.exists(
 		"LMS Course Progress", {"lesson": lesson, "member": frappe.session.user}
 	):
 		return
+
+	quiz_completed = get_quiz_progress(lesson)
+	if not quiz_completed:
+		return 0
 
 	frappe.get_doc(
 		{

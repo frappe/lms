@@ -160,29 +160,44 @@
 
 <script setup>
 import {
-	Breadcrumbs,
-	Tabs,
 	Badge,
+	Breadcrumbs,
 	Button,
-	FormControl,
+	call,
 	createResource,
+	FormControl,
+	Tabs,
 } from 'frappe-ui'
 import CourseCard from '@/components/CourseCard.vue'
 import { BookOpen, Plus, Search } from 'lucide-vue-next'
 import { ref, computed, inject, onMounted, watch } from 'vue'
 import { updateDocumentTitle } from '@/utils'
+import { useRouter } from 'vue-router'
+import { useSettings } from '@/stores/settings'
 
 const user = inject('$user')
 const searchQuery = ref('')
 const currentCategory = ref(null)
 const hasCourses = ref(false)
+const router = useRouter()
+const settings = useSettings()
 
 onMounted(() => {
+	checkLearningPath()
 	let queries = new URLSearchParams(location.search)
 	if (queries.has('category')) {
 		currentCategory.value = queries.get('category')
 	}
 })
+
+const checkLearningPath = () => {
+	if (
+		settings.learningPaths.data &&
+		(!user.data?.is_moderator || !user.data?.is_instructor)
+	) {
+		router.push({ name: 'Programs' })
+	}
+}
 
 const courses = createResource({
 	url: 'lms.lms.utils.get_courses',

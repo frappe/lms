@@ -397,6 +397,9 @@ const attempts = createResource({
 watch(
 	() => quiz.data,
 	() => {
+		if (quiz.data) {
+			populateQuestions()
+		}
 		if (quiz.data && quiz.data.max_attempts) {
 			attempts.reload()
 			resetQuiz()
