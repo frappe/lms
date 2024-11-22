@@ -855,7 +855,10 @@ def get_telemetry_boot_info():
 	}
 
 
+@frappe.whitelist()
 def is_onboarding_complete():
+	if not has_course_moderator_role():
+		return {"is_onboarded": False}
 	course_created = frappe.db.a_row_exists("LMS Course")
 	chapter_created = frappe.db.a_row_exists("Course Chapter")
 	lesson_created = frappe.db.a_row_exists("Course Lesson")

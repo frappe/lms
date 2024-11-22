@@ -92,11 +92,13 @@ import LessonHelp from '@/components/LessonHelp.vue'
 import { ChevronRight } from 'lucide-vue-next'
 import { updateDocumentTitle, createToast, getEditorTools } from '@/utils'
 import { capture } from '@/telemetry'
+import { useSettings } from '@/stores/settings'
 
 const editor = ref(null)
 const instructorEditor = ref(null)
 const user = inject('$user')
 const openInstructorEditor = ref(false)
+const settingsStore = useSettings()
 let autoSaveInterval
 let showSuccessMessage = false
 
@@ -393,6 +395,9 @@ const createNewLesson = () => {
 						onSuccess() {
 							capture('lesson_created')
 							showToast('Success', 'Lesson created successfully', 'check')
+							if (!settingsStore.onboardingDetails.data?.is_onboarded) {
+								settingsStore.onboardingDetails.reload()
+							}
 							lessonDetails.reload()
 						},
 					}

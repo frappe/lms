@@ -434,6 +434,9 @@ const submitCourse = () => {
 			onSuccess(data) {
 				capture('course_created')
 				showToast('Success', 'Course created successfully', 'check')
+				if (!settingsStore.onboardingDetails.data?.is_onboarded) {
+					settingsStore.onboardingDetails.reload()
+				}
 				router.push({
 					name: 'CourseForm',
 					params: { courseName: data.name },
