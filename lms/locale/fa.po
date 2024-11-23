@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2024-11-15 16:04+0000\n"
-"PO-Revision-Date: 2024-11-20 17:38\n"
+"PO-Revision-Date: 2024-11-23 18:16\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Persian\n"
 "MIME-Version: 1.0\n"
@@ -729,11 +729,11 @@ msgstr ""
 
 #: frontend/src/components/Modals/ChapterModal.vue:149
 msgid "Chapter added successfully"
-msgstr ""
+msgstr "فصل با موفقیت اضافه شد"
 
 #: frontend/src/components/Modals/ChapterModal.vue:193
 msgid "Chapter updated successfully"
-msgstr ""
+msgstr "فصل با موفقیت به روز شد"
 
 #. Label of the chapters (Table) field in DocType 'LMS Course'
 #. Group in LMS Course's connections
@@ -1157,7 +1157,7 @@ msgstr "اسم دوره"
 
 #: frontend/src/pages/CourseDetail.vue:74
 msgid "Course Outline"
-msgstr ""
+msgstr "طرح کلی دوره"
 
 #. Label of the course_price (Currency) field in DocType 'LMS Course'
 #: frontend/src/pages/CourseForm.vue:219
@@ -1197,7 +1197,7 @@ msgstr "دوره قبلاً به دسته اضافه شده است."
 
 #: frontend/src/pages/CourseForm.vue:457
 msgid "Course deleted successfully"
-msgstr ""
+msgstr "دوره با موفقیت حذف شد"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:58
 msgid "Course {0} has already been added to this batch."
@@ -1366,19 +1366,19 @@ msgstr "حذف"
 
 #: frontend/src/components/CourseOutline.vue:52
 msgid "Delete Chapter"
-msgstr ""
+msgstr "حذف فصل"
 
 #: frontend/src/pages/CourseForm.vue:464
 msgid "Delete Course"
-msgstr ""
+msgstr "حذف دوره"
 
 #: frontend/src/components/CourseOutline.vue:287
 msgid "Delete this chapter?"
-msgstr ""
+msgstr "این فصل حذف شود؟"
 
 #: frontend/src/components/CourseOutline.vue:229
 msgid "Delete this lesson?"
-msgstr ""
+msgstr "این درس حذف شود؟"
 
 #: frontend/src/pages/CourseForm.vue:465
 msgid "Deleting the course will also delete all its chapters and lessons. Are you sure you want to delete this course?"
@@ -1386,11 +1386,11 @@ msgstr ""
 
 #: frontend/src/components/CourseOutline.vue:288
 msgid "Deleting this chapter will also delete all its lessons and permanently remove it from the course. This action cannot be undone. Are you sure you want to continue?"
-msgstr ""
+msgstr "با حذف این فصل، تمام دروس آن نیز حذف می شود و برای همیشه از دوره حذف می شود. این عمل قابل بازگشت نیست. آیا مطمئن هستید که می خواهید ادامه دهید؟"
 
 #: frontend/src/components/CourseOutline.vue:230
 msgid "Deleting this lesson will permanently remove it from the course. This action cannot be undone. Are you sure you want to continue?"
-msgstr ""
+msgstr "حذف این درس آن را برای همیشه از دوره حذف می کند. این عمل قابل بازگشت نیست. آیا مطمئن هستید که می خواهید ادامه دهید؟"
 
 #. Label of the description (Text Editor) field in DocType 'Job Opportunity'
 #. Label of the description (Small Text) field in DocType 'Certification'
@@ -1763,7 +1763,7 @@ msgstr "رویداد"
 
 #: frontend/src/pages/BatchForm.vue:156
 msgid "Example: IST (+5:30)"
-msgstr ""
+msgstr "مثال: IST (+5:30)"
 
 #. Label of the exercise (Link) field in DocType 'Exercise Latest Submission'
 #. Label of the exercise (Link) field in DocType 'Exercise Submission'
@@ -3287,7 +3287,7 @@ msgstr ""
 
 #: frontend/src/components/Modals/ChapterModal.vue:223
 msgid "Only zip files are allowed"
-msgstr ""
+msgstr "فقط فایل های zip مجاز هستند"
 
 #. Option for the 'Status' (Select) field in DocType 'Job Opportunity'
 #. Option for the 'Membership' (Select) field in DocType 'LMS Batch Old'
@@ -3567,7 +3567,7 @@ msgstr ""
 
 #: frontend/src/components/CourseOutline.vue:312
 msgid "Please enroll for this course to view this lesson"
-msgstr ""
+msgstr "لطفا برای مشاهده این درس در این دوره ثبت نام کنید"
 
 #: frontend/src/components/Quiz.vue:13
 msgid "Please ensure that you complete all the questions in {0} minutes."
@@ -4778,7 +4778,7 @@ msgstr ""
 
 #: frontend/src/pages/SCORMChapter.vue:198
 msgid "This is a chapter in the course {0}"
-msgstr ""
+msgstr "این یک فصل از دوره {0} است"
 
 #: lms/lms/widgets/CourseOutline.html:62
 msgid "This lesson is not available for preview. As you are the Instructor of the course only you can see it."
@@ -4898,7 +4898,7 @@ msgstr "عنوان"
 
 #: frontend/src/components/Modals/ChapterModal.vue:169
 msgid "Title is required"
-msgstr ""
+msgstr "عنوان الزامی است"
 
 #. Label of the unavailable_to (Date) field in DocType 'Course Evaluator'
 #: frontend/src/pages/ProfileEvaluator.vue:98
@@ -5253,11 +5253,11 @@ msgstr ""
 
 #: frontend/src/components/CourseOutline.vue:311
 msgid "You are not enrolled"
-msgstr ""
+msgstr "شما ثبت نام نکرده اید"
 
 #: frontend/src/pages/SCORMChapter.vue:22
 msgid "You are not enrolled in this course. Please enroll to access this lesson."
-msgstr ""
+msgstr "شما در این دوره ثبت نام نکرده اید. لطفا برای دسترسی به این دوره ثبت نام کنید."
 
 #: frontend/src/pages/Courses.vue:134
 msgid "You can add chapters and lessons to it."
@@ -5489,7 +5489,7 @@ msgstr ""
 
 #: lms/lms/doctype/lms_certificate/lms_certificate.py:59
 msgid "{0} is already certified for the course {1}"
-msgstr ""
+msgstr "{0} قبلاً برای دوره {1} تایید شده است"
 
 #: lms/lms/notification/certificate_request_reminder/certificate_request_reminder.html:5
 msgid "{0} is your evaluator"
