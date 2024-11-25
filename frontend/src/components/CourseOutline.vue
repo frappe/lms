@@ -303,9 +303,9 @@ const trashChapter = (chapterName) => {
 }
 
 const redirectToChapter = (chapter) => {
+	if (!chapter.is_scorm_package) return
 	event.preventDefault()
 	if (props.allowEdit) return
-	if (!chapter.is_scorm_package) return
 	if (!user.data) {
 		showToast(
 			__('You are not enrolled'),

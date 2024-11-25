@@ -99,6 +99,7 @@ import { getSidebarLinks } from '../utils'
 import { usersStore } from '@/stores/user'
 import { sessionStore } from '@/stores/session'
 import { useSidebar } from '@/stores/sidebar'
+import { useSettings } from '@/stores/settings'
 import { ChevronRight, Plus } from 'lucide-vue-next'
 import { createResource, Button } from 'frappe-ui'
 import PageModal from '@/components/Modals/PageModal.vue'
@@ -114,6 +115,7 @@ const isModerator = ref(false)
 const isInstructor = ref(false)
 const pageToEdit = ref(null)
 const showWebPages = ref(false)
+const settingsStore = useSettings()
 
 onMounted(() => {
 	socket.on('publish_lms_notifications', (data) => {
@@ -183,6 +185,28 @@ const addQuizzes = () => {
 	}
 }
 
+const addPrograms = () => {
+	if (settingsStore.learningPaths.data) {
+		let activeFor = ['Programs', 'ProgramForm']
+		let index = 1
+		if (!isInstructor.value && !isModerator.value) {
+			sidebarLinks.value = sidebarLinks.value.filter(
+				(link) => link.label !== 'Courses'
+			)
+			activeFor.push('CourseDetail')
+			activeFor.push('Lesson')
+			index = 0
+		}
+
+		sidebarLinks.value.splice(index, 0, {
+			label: 'Programs',
+			icon: 'Route',
+			to: 'Programs',
+			activeFor: activeFor,
+		})
+	}
+}
+
 const openPageModal = (link) => {
 	showPageModal.value = true
 	pageToEdit.value = link
@@ -215,6 +239,7 @@ watch(userResource, () => {
 		isModerator.value = userResource.data.is_moderator
 		isInstructor.value = userResource.data.is_instructor
 		addQuizzes()
+		addPrograms()
 	}
 })
 

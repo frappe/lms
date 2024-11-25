@@ -855,7 +855,10 @@ def get_telemetry_boot_info():
 	}
 
 
+@frappe.whitelist()
 def is_onboarding_complete():
+	if not has_course_moderator_role():
+		return {"is_onboarded": False}
 	course_created = frappe.db.a_row_exists("LMS Course")
 	chapter_created = frappe.db.a_row_exists("Course Chapter")
 	lesson_created = frappe.db.a_row_exists("Course Lesson")
@@ -1751,3 +1754,81 @@ def enroll_in_batch(batch, payment_name=None):
 			)
 
 		student.save(ignore_permissions=True)
+
+
+@frappe.whitelist()
+def get_programs():
+	if (
+		has_course_moderator_role()
+		or has_course_instructor_role()
+		or has_course_evaluator_role()
+	):
+		programs = frappe.get_all("LMS Program", fields=["name"])
+	else:
+		programs = frappe.get_all(
+			"LMS Program Member", {"member": frappe.session.user}, ["parent as name", "progress"]
+		)
+
+	for program in programs:
+		program_courses = frappe.get_all(
+			"LMS Program Course", {"parent": program.name}, ["course"], order_by="idx"
+		)
+		program.courses = []
+		for course in program_courses:
+			program.courses.append(get_course_details(course.course))
+
+		program.members = frappe.db.count("LMS Program Member", {"parent": program.name})
+
+	return programs
+
+
+@frappe.whitelist()
+def enroll_in_program_course(program, course):
+	enrollment = frappe.db.exists(
+		"LMS Enrollment", {"member": frappe.session.user, "course": course}
+	)
+
+	if enrollment:
+		enrollment = frappe.db.get_value(
+			"LMS Enrollment", enrollment, ["name", "current_lesson"], as_dict=1
+		)
+		enrollment.current_lesson = get_lesson_index(enrollment.current_lesson)
+		return enrollment
+
+	program_courses = frappe.get_all(
+		"LMS Program Course", {"parent": program}, ["course", "idx"], order_by="idx"
+	)
+	current_course_idx = [
+		program_course.idx
+		for program_course in program_courses
+		if program_course.course == course
+	][0]
+
+	for program_course in program_courses:
+		if program_course.idx < current_course_idx:
+			enrollment = frappe.db.get_value(
+				"LMS Enrollment",
+				{"member": frappe.session.user, "course": program_course.course},
+				["name", "progress"],
+				as_dict=1,
+			)
+			if enrollment and enrollment.progress != 100:
+				frappe.throw(
+					_("Please complete the previous courses in the program to enroll in this course.")
+				)
+			elif not enrollment:
+				frappe.throw(
+					_("Please complete the previous courses in the program to enroll in this course.")
+				)
+			else:
+				continue
+
+	enrollment = frappe.new_doc("LMS Enrollment")
+	enrollment.update(
+		{
+			"member": frappe.session.user,
+			"course": course,
+		}
+	)
+	enrollment.save()
+	return enrollment

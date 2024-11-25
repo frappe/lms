@@ -5,13 +5,15 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "general_tab",
   "default_home",
+  "send_calendar_invite_for_evaluations",
   "is_onboarding_complete",
   "column_break_zdel",
+  "enable_learning_paths",
   "unsplash_access_key",
   "livecode_url",
   "section_break_szgq",
-  "send_calendar_invite_for_evaluations",
   "show_day_view",
   "column_break_2",
   "show_dashboard",
@@ -80,6 +82,7 @@
   {
    "fieldname": "mentor_request_section",
    "fieldtype": "Section Break",
+   "hidden": 1,
    "label": "Mentor Request"
   },
   {
@@ -127,6 +130,7 @@
   {
    "fieldname": "section_break_szgq",
    "fieldtype": "Section Break",
+   "hidden": 1,
    "label": "Batch Settings"
   },
   {
@@ -336,12 +340,23 @@
    "fieldname": "payments_app_is_not_installed",
    "fieldtype": "HTML",
    "label": "Payments app is not installed"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_learning_paths",
+   "fieldtype": "Check",
+   "label": "Enable Learning Paths"
+  },
+  {
+   "fieldname": "general_tab",
+   "fieldtype": "Tab Break",
+   "label": "General"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-10-01 12:15:49.800242",
+ "modified": "2024-11-20 11:55:05.358421",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",
@@ -356,6 +371,13 @@
    "role": "System Manager",
    "share": 1,
    "write": 1
+  },
+  {
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "LMS Student",
+   "share": 1
   }
  ],
  "sort_field": "modified",

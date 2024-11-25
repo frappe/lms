@@ -8,6 +8,7 @@
 					<AppSidebar />
 				</div>
 				<div class="w-full overflow-auto" id="scrollContainer">
+					<OnboardingBanner />
 					<slot />
 				</div>
 			</div>
@@ -16,4 +17,5 @@
 </template>
 <script setup>
 import AppSidebar from './AppSidebar.vue'
+import OnboardingBanner from '@/components/OnboardingBanner.vue'
 </script>
