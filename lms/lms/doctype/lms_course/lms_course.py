@@ -53,7 +53,7 @@ class LMSCourse(Document):
 				frappe.throw(_("Please install the Payments app to create a paid courses."))
 
 	def validate_amount_and_currency(self):
-		if self.paid_course and (not self.amount and not self.currency):
+		if self.paid_course and (not self.course_price and not self.currency):
 			frappe.throw(_("Amount and currency are required for paid courses."))
 
 	def on_update(self):
