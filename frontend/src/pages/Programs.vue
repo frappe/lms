@@ -118,16 +118,28 @@ import {
 	Dialog,
 	FormControl,
 } from 'frappe-ui'
-import { computed, inject, ref } from 'vue'
+import { computed, inject, onMounted, ref } from 'vue'
 import { BookOpen, Edit, Plus } from 'lucide-vue-next'
 import CourseCard from '@/components/CourseCard.vue'
 import { useRouter } from 'vue-router'
 import { showToast, singularize } from '@/utils'
+import { useSettings } from '@/stores/settings'
 
 const user = inject('$user')
 const showDialog = ref(false)
 const router = useRouter()
 const title = ref('')
+const settings = useSettings()
+
+onMounted(() => {
+	if (
+		!settings.learningPaths.data &&
+		!user.data?.is_moderator &&
+		!user.data?.is_instructor
+	) {
+		router.push({ name: 'Courses' })
+	}
+})
 
 const programs = createResource({
 	url: 'lms.lms.utils.get_programs',
