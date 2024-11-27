@@ -25,7 +25,7 @@
 				@click="openHelpDialog('upload')"
 			>
 				<span class="leading-5">
-					{{ __('How to upload content from your system?') }}
+					{{ __(contentMap['upload']) }}
 				</span>
 				<Info class="w-3 h-3 text-gray-700" />
 			</div>
@@ -44,7 +44,7 @@
 				@click="openHelpDialog('youtube')"
 			>
 				<span>
-					{{ __('How to add a YouTube Video?') }}
+					{{ __(contentMap['youtube']) }}
 				</span>
 				<Info class="w-3 h-3 text-gray-700" />
 			</div>
@@ -72,7 +72,7 @@
 			</div>
 		</div>
 	</div>
-	<ExplanationVideos v-model="showExplanation" :type="type" />
+	<ExplanationVideos v-model="showExplanation" :title="title" :type="type" />
 </template>
 <script setup>
 import { Info } from 'lucide-vue-next'
@@ -81,9 +81,16 @@ import ExplanationVideos from '@/components/Modals/ExplanationVideos.vue'
 
 const showExplanation = ref(false)
 const type = ref(null)
+const title = ref(null)
+const contentMap = {
+	quiz: 'How to add a Quiz?',
+	upload: 'How to upload content from your system?',
+	youtube: 'How to add a YouTube Video?',
+}
 
 const openHelpDialog = (contentType) => {
 	type.value = contentType
+	title.value = contentMap[contentType]
 	showExplanation.value = true
 }
 </script>

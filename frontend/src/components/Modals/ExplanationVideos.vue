@@ -3,10 +3,11 @@
 		v-model="show"
 		:options="{
 			size: '4xl',
+			title: title,
 		}"
 	>
-		<template #body>
-			<div class="p-4">
+		<template #body-content>
+			<div>
 				<VideoBlock :file="file" />
 			</div>
 		</template>
@@ -24,7 +25,13 @@ const props = defineProps({
 		type: [String, null],
 		required: true,
 	},
+	title: {
+		type: String,
+		required: true,
+	},
 })
+
+console.log(props.title)
 
 const file = computed(() => {
 	if (props.type == 'youtube') return '/assets/lms/frontend/Youtube.mp4'

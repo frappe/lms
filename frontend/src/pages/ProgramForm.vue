@@ -332,10 +332,10 @@ const memberColumns = computed(() => {
 			align: 'left',
 		},
 		{
-			label: 'Progress',
+			label: 'Progress (%)',
 			key: 'progress',
 			width: 3,
-			align: 'left',
+			align: 'right',
 		},
 	]
 })

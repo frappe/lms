@@ -15,7 +15,7 @@
 		</Button>
 	</header>
 	<div v-if="programs.data?.length" class="pt-5 px-5">
-		<div v-for="program in programs.data" class="mb-20">
+		<div v-for="program in programs.data" class="mb-10">
 			<div class="flex items-center justify-between">
 				<div class="text-xl font-semibold">
 					{{ program.name }}
