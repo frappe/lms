@@ -56,12 +56,14 @@
 						type="select"
 						:options="['Choices', 'User Input', 'Open Ended']"
 						class="pb-2"
+						:required="true"
 					/>
 					<div v-if="question.type == 'Choices'" class="divide-y border-t">
 						<div v-for="n in 4" class="space-y-4 py-2">
 							<FormControl
 								:label="__('Option') + ' ' + n"
 								v-model="question[`option_${n}`]"
+								:required="n <= 2 ? true : false"
 							/>
 							<FormControl
 								:label="__('Explanation')"
@@ -82,6 +84,7 @@
 						<FormControl
 							:label="__('Possibility') + ' ' + n"
 							v-model="question[`possibility_${n}`]"
+							:required="n == 1 ? true : false"
 						/>
 					</div>
 				</div>

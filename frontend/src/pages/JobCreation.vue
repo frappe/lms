@@ -19,8 +19,13 @@
 							v-model="job.job_title"
 							:label="__('Title')"
 							class="mb-4"
+							:required="true"
 						/>
-						<FormControl v-model="job.location" :label="__('Location')" />
+						<FormControl
+							v-model="job.location"
+							:label="__('Location')"
+							:required="true"
+						/>
 					</div>
 					<div>
 						<FormControl
@@ -29,18 +34,21 @@
 							type="select"
 							:options="jobTypes"
 							class="mb-4"
+							:required="true"
 						/>
 						<FormControl
 							v-model="job.status"
 							:label="__('Status')"
 							type="select"
 							:options="jobStatuses"
+							:required="true"
 						/>
 					</div>
 				</div>
 				<div class="mt-4">
 					<label class="block text-gray-600 text-xs mb-1">
 						{{ __('Description') }}
+						<span class="text-red-500">*</span>
 					</label>
 					<TextEditor
 						:content="job.description"
@@ -61,10 +69,12 @@
 							v-model="job.company_name"
 							:label="__('Company Name')"
 							class="mb-4"
+							:required="true"
 						/>
 						<FormControl
 							v-model="job.company_website"
 							:label="__('Company Website')"
+							:required="true"
 						/>
 					</div>
 					<div>
@@ -72,9 +82,11 @@
 							v-model="job.company_email_address"
 							:label="__('Company Email Address')"
 							class="mb-4"
+							:required="true"
 						/>
 						<label class="block text-gray-600 text-xs mb-1 mt-4">
 							{{ __('Company Logo') }}
+							<span class="text-red-500">*</span>
 						</label>
 						<FileUploader
 							v-if="!job.image"
