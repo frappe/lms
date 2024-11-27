@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2024-11-22 16:05+0000\n"
-"PO-Revision-Date: 2024-11-25 19:29\n"
+"PO-Revision-Date: 2024-11-26 19:27\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Swedish\n"
 "MIME-Version: 1.0\n"
@@ -2842,7 +2842,7 @@ msgstr "Logga in för att ansöka"
 #. Label of the default_home (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Make LMS the default home"
-msgstr "Gör LMS till Standard Sida"
+msgstr "LMS som Standard Sida"
 
 #: frontend/src/components/Modals/AnnouncementModal.vue:5
 #: frontend/src/pages/Batch.vue:9
