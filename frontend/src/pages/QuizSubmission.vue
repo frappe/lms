@@ -15,7 +15,7 @@
 			</Button>
 		</div>
 	</header>
-	<div v-if="submisisonDetails.doc" class="w-1/2 mx-auto py-5 space-y-7">
+	<div v-if="submisisonDetails.doc" class="w-1/2 mx-auto py-5 space-y-5">
 		<div class="text-xl font-semibold">
 			{{ submisisonDetails.doc.member_name }}
 		</div>
@@ -74,7 +74,7 @@ import {
 	Button,
 	Badge,
 } from 'frappe-ui'
-import { computed, onMounted, inject } from 'vue'
+import { computed, onBeforeUnmount, onMounted, inject } from 'vue'
 import { useRouter } from 'vue-router'
 import { showToast } from '@/utils'
 
@@ -84,7 +84,24 @@ const user = inject('$user')
 onMounted(() => {
 	if (!user.data?.is_instructor && !user.data?.is_moderator)
 		router.push({ name: 'Courses' })
+
+	window.addEventListener('keydown', keyboardShortcut)
 })
+
+onBeforeUnmount(() => {
+	window.removeEventListener('keydown', keyboardShortcut)
+})
+
+const keyboardShortcut = (e) => {
+	if (
+		e.key === 's' &&
+		(e.ctrlKey || e.metaKey) &&
+		!e.target.classList.contains('ProseMirror')
+	) {
+		saveSubmission()
+		e.preventDefault()
+	}
+}
 
 const props = defineProps({
 	submission: {

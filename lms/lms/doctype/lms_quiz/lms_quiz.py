@@ -145,7 +145,6 @@ def quiz_summary(quiz, results):
 
 	submission = frappe.new_doc("LMS Quiz Submission")
 	# Score and percentage are calculated by the controller function
-	print(results)
 	submission.update(
 		{
 			"doctype": "LMS Quiz Submission",

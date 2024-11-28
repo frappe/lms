@@ -3,7 +3,7 @@
 		class="sticky top-0 z-10 flex flex-col md:flex-row md:items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs :items="breadbrumbs" />
-		<Button variant="solid">
+		<Button variant="solid" @click="saveProgram()">
 			{{ __('Save') }}
 		</Button>
 	</header>
@@ -50,6 +50,7 @@
 						item-key="name"
 						group="items"
 						@end="updateOrder"
+						class="cursor-move"
 					>
 						<template #item="{ element: row }">
 							<ListRow :row="row" />
@@ -175,7 +176,6 @@
 import {
 	Breadcrumbs,
 	Button,
-	call,
 	createDocumentResource,
 	Dialog,
 	FormControl,
@@ -191,11 +191,13 @@ import { Plus, Trash2 } from 'lucide-vue-next'
 import Link from '@/components/Controls/Link.vue'
 import { showToast } from '@/utils/'
 import Draggable from 'vuedraggable'
+import { useRouter } from 'vue-router'
 
 const showDialog = ref(false)
 const currentForm = ref(null)
 const course = ref(null)
 const member = ref(null)
+const router = useRouter()
 
 const props = defineProps({
 	programName: {
@@ -294,6 +296,28 @@ const updateOrder = (e) => {
 			onSuccess(data) {
 				showToast(__('Success'), __('Course moved successfully'), 'check')
 				program.reload()
+			},
+			onError(err) {
+				showToast('Error', err.messages?.[0] || err, 'x')
+			},
+		}
+	)
+}
+
+const saveProgram = () => {
+	program.setValue.submit(
+		{
+			title: program.doc.title,
+			program_courses: program.doc.program_courses,
+			program_members: program.doc.program_members,
+		},
+		{
+			onSuccess(data) {
+				router.push({
+					name: 'ProgramsForm',
+					params: { programName: data.name },
+				})
+				showToast(__('Success'), __('Program saved successfully'), 'check')
 			},
 			onError(err) {
 				showToast('Error', err.messages?.[0] || err, 'x')
