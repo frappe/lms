@@ -311,7 +311,6 @@ const saveProgram = () => {
 		docname: program.doc.name,
 		name: program.doc.title,
 	}).then((data) => {
-		console.log(data)
 		router.push({ name: 'ProgramForm', params: { programName: data } })
 	})
 }

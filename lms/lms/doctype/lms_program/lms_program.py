@@ -4,7 +4,6 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.model.rename_doc import update_document_title
 
 
 class LMSProgram(Document):

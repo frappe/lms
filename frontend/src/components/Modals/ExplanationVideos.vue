@@ -31,8 +31,6 @@ const props = defineProps({
 	},
 })
 
-console.log(props.title)
-
 const file = computed(() => {
 	if (props.type == 'youtube') return '/assets/lms/frontend/Youtube.mp4'
 	if (props.type == 'quiz') return '/assets/lms/frontend/Quiz.mp4'

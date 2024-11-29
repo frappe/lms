@@ -32,7 +32,6 @@ class LMSQuizSubmission(Document):
 			self.percentage = (self.score / self.score_out_of) * 100
 
 	def notify_member(self):
-		print(self.is_new())
 		if self.score != 0 and self.has_value_changed("score"):
 			notification = frappe._dict(
 				{
