@@ -4,13 +4,13 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
+from frappe.model.rename_doc import update_document_title
 
 
 class LMSProgram(Document):
 	def validate(self):
 		self.validate_program_courses()
 		self.validate_program_members()
-		self.validate_title()
 
 	def validate_program_courses(self):
 		courses = [row.course for row in self.program_courses]
@@ -31,7 +31,3 @@ class LMSProgram(Document):
 					frappe.bold(next(iter(duplicates)))
 				)
 			)
-
-	def validate_title(self):
-		if self.has_value_changed("title"):
-			frappe.rename_doc(self.doctype, self.name, self.title)

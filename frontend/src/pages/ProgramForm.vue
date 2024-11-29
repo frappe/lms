@@ -176,6 +176,7 @@
 import {
 	Breadcrumbs,
 	Button,
+	call,
 	createDocumentResource,
 	Dialog,
 	FormControl,
@@ -305,25 +306,14 @@ const updateOrder = (e) => {
 }
 
 const saveProgram = () => {
-	program.setValue.submit(
-		{
-			title: program.doc.title,
-			program_courses: program.doc.program_courses,
-			program_members: program.doc.program_members,
-		},
-		{
-			onSuccess(data) {
-				router.push({
-					name: 'ProgramsForm',
-					params: { programName: data.name },
-				})
-				showToast(__('Success'), __('Program saved successfully'), 'check')
-			},
-			onError(err) {
-				showToast('Error', err.messages?.[0] || err, 'x')
-			},
-		}
-	)
+	call('frappe.model.rename_doc.update_document_title', {
+		doctype: 'LMS Program',
+		docname: program.doc.name,
+		name: program.doc.title,
+	}).then((data) => {
+		console.log(data)
+		router.push({ name: 'ProgramForm', params: { programName: data } })
+	})
 }
 
 const courseColumns = computed(() => {

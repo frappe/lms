@@ -1771,8 +1771,18 @@ def get_programs():
 			"LMS Program Course", {"parent": program.name}, ["course"], order_by="idx"
 		)
 		program.courses = []
-		for course in program_courses:
-			program.courses.append(get_course_details(course.course))
+		previous_progress = 0
+		for i, course in enumerate(program_courses):
+			details = get_course_details(course.course)
+			if i == 0:
+				details.eligible = True
+			elif previous_progress == 100:
+				details.eligible = True
+			else:
+				details.eligible = False
+
+			previous_progress = details.membership.progress if details.membership else 0
+			program.courses.append(details)
 
 		program.members = frappe.db.count("LMS Program Member", {"parent": program.name})
 
