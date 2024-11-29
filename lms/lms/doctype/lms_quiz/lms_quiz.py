@@ -134,7 +134,6 @@ def quiz_summary(quiz, results):
 			result["marks"] = marks
 			score += marks
 
-			del result["question_name"]
 		else:
 			result["is_correct"] = 0
 			is_open_ended = True

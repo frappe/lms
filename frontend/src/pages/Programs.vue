@@ -15,7 +15,7 @@
 		</Button>
 	</header>
 	<div v-if="programs.data?.length" class="pt-5 px-5">
-		<div v-for="program in programs.data" class="mb-20">
+		<div v-for="program in programs.data" class="mb-10">
 			<div class="flex items-center justify-between">
 				<div class="text-xl font-semibold">
 					{{ program.name }}
@@ -61,12 +61,23 @@
 				v-if="program.courses?.length"
 				class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-5"
 			>
-				<CourseCard
-					v-for="course in program.courses"
-					:course="course"
-					@click="enrollMember(program.name, course.name)"
-					class="cursor-pointer"
-				/>
+				<div v-for="course in program.courses" class="relative group">
+					<CourseCard
+						:course="course"
+						@click="enrollMember(program.name, course.name)"
+						class="cursor-pointer"
+					/>
+					<div
+						v-if="lockCourse(course)"
+						class="absolute inset-0 bg-black-overlay-500 opacity-60 rounded-md"
+					></div>
+					<div
+						v-if="lockCourse(course)"
+						class="absolute inset-0 flex items-center justify-center"
+					>
+						<LockKeyhole class="size-10 text-white" />
+					</div>
+				</div>
 			</div>
 			<div v-else class="text-sm italic text-gray-600 mt-4">
 				{{ __('No courses in this program') }}
@@ -118,16 +129,28 @@ import {
 	Dialog,
 	FormControl,
 } from 'frappe-ui'
-import { computed, inject, ref } from 'vue'
-import { BookOpen, Edit, Plus } from 'lucide-vue-next'
+import { computed, inject, onMounted, ref } from 'vue'
+import { BookOpen, Edit, Plus, LockKeyhole } from 'lucide-vue-next'
 import CourseCard from '@/components/CourseCard.vue'
 import { useRouter } from 'vue-router'
 import { showToast, singularize } from '@/utils'
+import { useSettings } from '@/stores/settings'
 
 const user = inject('$user')
 const showDialog = ref(false)
 const router = useRouter()
 const title = ref('')
+const settings = useSettings()
+
+onMounted(() => {
+	if (
+		!settings.learningPaths.data &&
+		!user.data?.is_moderator &&
+		!user.data?.is_instructor
+	) {
+		router.push({ name: 'Courses' })
+	}
+})
 
 const programs = createResource({
 	url: 'lms.lms.utils.get_programs',
@@ -175,6 +198,13 @@ const enrollMember = (program, course) => {
 		.catch((err) => {
 			showToast('Error', err.messages?.[0] || err, 'x')
 		})
+}
+
+const lockCourse = (course) => {
+	if (user.data?.is_moderator || user.data?.is_instructor) return false
+	if (course.membership) return false
+	if (course.eligible) return false
+	return true
 }
 
 const breadbrumbs = computed(() => [
