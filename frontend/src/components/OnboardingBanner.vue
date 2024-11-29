@@ -11,11 +11,11 @@
 				@click="redirectToCourseForm()"
 				class="flex items-center space-x-2"
 				:class="{
-					'cursor-pointer': !onboardingDetails.data.course_created.length,
+					'cursor-pointer': !onboardingDetails.data.course_created?.length,
 				}"
 			>
 				<span
-					v-if="onboardingDetails.data.course_created.length"
+					v-if="onboardingDetails.data.course_created?.length"
 					class="py-1 px-1 bg-white rounded-full"
 				>
 					<Check class="h-4 w-4 stroke-2 text-green-600" />
@@ -32,13 +32,13 @@
 				class="flex items-center space-x-2"
 				:class="{
 					'cursor-pointer':
-						onboardingDetails.data.course_created.length &&
-						!onboardingDetails.data.chapter_created.length,
-					'text-gray-400': !onboardingDetails.data.course_created.length,
+						onboardingDetails.data.course_created?.length &&
+						!onboardingDetails.data.chapter_created?.length,
+					'text-gray-400': !onboardingDetails.data.course_created?.length,
 				}"
 			>
 				<span
-					v-if="onboardingDetails.data.chapter_created.length"
+					v-if="onboardingDetails.data.chapter_created?.length"
 					class="py-1 px-1 bg-white rounded-full"
 				>
 					<Check class="h-4 w-4 stroke-2 text-green-600" />
@@ -55,15 +55,15 @@
 				class="flex items-center space-x-2"
 				:class="{
 					'cursor-pointer':
-						onboardingDetails.data.course_created.length &&
-						onboardingDetails.data.chapter_created.length,
+						onboardingDetails.data.course_created?.length &&
+						onboardingDetails.data.chapter_created?.length,
 					'text-gray-400':
-						!onboardingDetails.data.course_created.length ||
-						!onboardingDetails.data.chapter_created.length,
+						!onboardingDetails.data.course_created?.length ||
+						!onboardingDetails.data.chapter_created?.length,
 				}"
 			>
 				<span
-					v-if="onboardingDetails.data.lesson_created.length"
+					v-if="onboardingDetails.data.lesson_created?.length"
 					class="py-1 px-1 bg-white rounded-full"
 				>
 					<Check class="h-4 w-4 stroke-2 text-green-600" />

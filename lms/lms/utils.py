@@ -6,11 +6,7 @@ import razorpay
 import requests
 from frappe import _
 from frappe.desk.doctype.dashboard_chart.dashboard_chart import get_result
-from frappe.desk.doctype.notification_log.notification_log import (
-	make_notification_logs,
-	enqueue_create_notification,
-	get_title,
-)
+from frappe.desk.doctype.notification_log.notification_log import make_notification_logs
 from frappe.desk.search import get_user_groups
 from frappe.desk.notifications import extract_mentions
 from frappe.utils import (
@@ -858,7 +854,8 @@ def get_telemetry_boot_info():
 @frappe.whitelist()
 def is_onboarding_complete():
 	if not has_course_moderator_role():
-		return {"is_onboarded": False}
+		return {"is_onboarded": True}
+
 	course_created = frappe.db.a_row_exists("LMS Course")
 	chapter_created = frappe.db.a_row_exists("Course Chapter")
 	lesson_created = frappe.db.a_row_exists("Course Lesson")
@@ -1774,8 +1771,18 @@ def get_programs():
 			"LMS Program Course", {"parent": program.name}, ["course"], order_by="idx"
 		)
 		program.courses = []
-		for course in program_courses:
-			program.courses.append(get_course_details(course.course))
+		previous_progress = 0
+		for i, course in enumerate(program_courses):
+			details = get_course_details(course.course)
+			if i == 0:
+				details.eligible = True
+			elif previous_progress == 100:
+				details.eligible = True
+			else:
+				details.eligible = False
+
+			previous_progress = details.membership.progress if details.membership else 0
+			program.courses.append(details)
 
 		program.members = frappe.db.count("LMS Program Member", {"parent": program.name})
 

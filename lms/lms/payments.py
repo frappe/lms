@@ -1,13 +1,16 @@
 import frappe
-from payments.utils import get_payment_gateway_controller
 
 
 def get_payment_gateway():
+
 	return frappe.db.get_single_value("LMS Settings", "payment_gateway")
 
 
 def get_controller(payment_gateway):
-	return get_payment_gateway_controller(payment_gateway)
+	if "payments" in frappe.get_installed_apps():
+		from payments.utils import get_payment_gateway_controller
+
+		return get_payment_gateway_controller(payment_gateway)
 
 
 def validate_currency(payment_gateway, currency):

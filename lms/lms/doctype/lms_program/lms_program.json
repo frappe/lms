@@ -34,7 +34,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-11-20 12:26:02.214628",
+ "modified": "2024-11-28 22:06:16.742867",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Program",
@@ -80,5 +80,6 @@
  ],
  "sort_field": "creation",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "track_changes": 1
 }

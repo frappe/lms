@@ -3,7 +3,7 @@
 		class="sticky top-0 z-10 flex flex-col md:flex-row md:items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs :items="breadbrumbs" />
-		<Button variant="solid">
+		<Button variant="solid" @click="saveProgram()">
 			{{ __('Save') }}
 		</Button>
 	</header>
@@ -50,6 +50,7 @@
 						item-key="name"
 						group="items"
 						@end="updateOrder"
+						class="cursor-move"
 					>
 						<template #item="{ element: row }">
 							<ListRow :row="row" />
@@ -191,11 +192,13 @@ import { Plus, Trash2 } from 'lucide-vue-next'
 import Link from '@/components/Controls/Link.vue'
 import { showToast } from '@/utils/'
 import Draggable from 'vuedraggable'
+import { useRouter } from 'vue-router'
 
 const showDialog = ref(false)
 const currentForm = ref(null)
 const course = ref(null)
 const member = ref(null)
+const router = useRouter()
 
 const props = defineProps({
 	programName: {
@@ -302,6 +305,16 @@ const updateOrder = (e) => {
 	)
 }
 
+const saveProgram = () => {
+	call('frappe.model.rename_doc.update_document_title', {
+		doctype: 'LMS Program',
+		docname: program.doc.name,
+		name: program.doc.title,
+	}).then((data) => {
+		router.push({ name: 'ProgramForm', params: { programName: data } })
+	})
+}
+
 const courseColumns = computed(() => {
 	return [
 		{
@@ -332,10 +345,10 @@ const memberColumns = computed(() => {
 			align: 'left',
 		},
 		{
-			label: 'Progress',
+			label: 'Progress (%)',
 			key: 'progress',
 			width: 3,
-			align: 'left',
+			align: 'right',
 		},
 	]
 })

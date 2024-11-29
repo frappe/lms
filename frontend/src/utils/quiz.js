@@ -60,6 +60,9 @@ export class Quiz {
 	}
 
 	renderQuizModal() {
+		if (this.readOnly) {
+			return
+		}
 		const app = createApp(QuizPlugin, {
 			onQuizAddition: (quiz) => {
 				this.data.quiz = quiz

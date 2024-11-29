@@ -95,3 +95,4 @@ lms.patches.v2_0.add_course_statistics #21-10-2024
 lms.patches.v2_0.give_discussions_permissions
 lms.patches.v2_0.delete_web_forms
 lms.patches.v2_0.update_desk_access_for_lms_roles
+lms.patches.v2_0.update_quiz_submission_data
