@@ -240,6 +240,7 @@ watch(userResource, () => {
 		isInstructor.value = userResource.data.is_instructor
 		addQuizzes()
 		addPrograms()
+		addCalendar()
 	}
 })
 

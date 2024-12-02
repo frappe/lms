@@ -455,11 +455,17 @@ export function getSidebarLinks() {
 			activeFor: ['CertifiedParticipants'],
 		},
 		{
-			label: 'Jobs',
-			icon: 'Briefcase',
-			to: 'Jobs',
-			activeFor: ['Jobs', 'JobDetail'],
+			label: 'Calendar',
+			icon: 'Calendar',
+			to: 'Calendar',
+			activeFor: ['Calendar'],
 		},
+		// {
+		// 	label: 'Jobs',
+		// 	icon: 'Briefcase',
+		// 	to: 'Jobs',
+		// 	activeFor: ['Jobs', 'JobDetail'],
+		// },
 		{
 			label: 'Statistics',
 			icon: 'TrendingUp',
