@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2024-11-22 16:05+0000\n"
-"PO-Revision-Date: 2024-11-25 19:29\n"
+"PO-Revision-Date: 2024-11-29 20:19\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Turkish\n"
 "MIME-Version: 1.0\n"
@@ -269,7 +269,7 @@ msgstr ""
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:70
 msgid "Amount and currency are required for paid batches."
-msgstr ""
+msgstr "Ödenen partiler için tutar ve para birimi gereklidir."
 
 #: lms/lms/doctype/lms_course/lms_course.py:57
 msgid "Amount and currency are required for paid courses."
@@ -304,7 +304,7 @@ msgstr ""
 
 #: frontend/src/pages/BatchForm.vue:59 frontend/src/pages/BatchForm.vue:77
 msgid "Appears when the batch URL is shared on any online platform"
-msgstr ""
+msgstr "Parti URL’si herhangi bir çevrimiçi platformda paylaşıldığında görünür."
 
 #: frontend/src/pages/JobDetail.vue:131
 msgid "Applications Received"
@@ -497,7 +497,7 @@ msgstr "Toplu İş Oluşturuldu"
 #. Old'
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 msgid "Batch Description"
-msgstr ""
+msgstr "Parti Açıklaması"
 
 #. Label of the batch_details (Text Editor) field in DocType 'LMS Batch'
 #: frontend/src/pages/BatchForm.vue:104
@@ -505,7 +505,7 @@ msgstr ""
 #: lms/public/js/common_functions.js:349
 #: lms/templates/emails/batch_confirmation.html:30
 msgid "Batch Details"
-msgstr ""
+msgstr "Parti Detayları"
 
 #. Label of the batch_details_raw (HTML Editor) field in DocType 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json
@@ -4525,7 +4525,7 @@ msgstr "Kısaltma"
 #: frontend/src/components/BatchCard.vue:23
 #: frontend/src/components/BatchOverlay.vue:16
 msgid "Sold Out"
-msgstr ""
+msgstr "Tükendi"
 
 #. Label of the solution (Code) field in DocType 'Exercise Latest Submission'
 #. Label of the solution (Code) field in DocType 'Exercise Submission'
@@ -4684,7 +4684,7 @@ msgstr "Öğrenci İncelemeleri"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:48
 msgid "Student {0} has already been added to this batch."
-msgstr ""
+msgstr "Öğrenci {0} zaten bu gruba eklendi."
 
 #. Label of the students (Table) field in DocType 'LMS Batch'
 #. Label of the show_students (Check) field in DocType 'LMS Settings'
@@ -5509,7 +5509,7 @@ msgstr "Bu kursa zaten yorum eklediniz"
 
 #: frontend/src/components/BatchOverlay.vue:136
 msgid "You have been enrolled in this batch"
-msgstr ""
+msgstr "Bu gruba kayıt oldunuz"
 
 #: frontend/src/components/CourseCardOverlay.vue:162
 msgid "You have been enrolled in this course"
@@ -5667,7 +5667,7 @@ msgstr ""
 
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.py:57
 msgid "{0} is already a Student of {1} course through {2} batch"
-msgstr ""
+msgstr "{0} halihazırda {2} grubu aracılığıyla {1} kursu öğrencisidir"
 
 #: lms/lms/doctype/lms_course_mentor_mapping/lms_course_mentor_mapping.py:16
 msgid "{0} is already a mentor for course {1}"
