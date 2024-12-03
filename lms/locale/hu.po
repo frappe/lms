@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2024-11-22 16:05+0000\n"
-"PO-Revision-Date: 2024-11-25 19:29\n"
+"POT-Creation-Date: 2024-11-29 16:04+0000\n"
+"PO-Revision-Date: 2024-12-02 22:10\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Hungarian\n"
 "MIME-Version: 1.0\n"
@@ -105,7 +105,7 @@ msgstr ""
 #: frontend/src/components/Categories.vue:26
 #: frontend/src/components/LiveClass.vue:11
 #: frontend/src/components/Members.vue:43 frontend/src/pages/ProgramForm.vue:30
-#: frontend/src/pages/ProgramForm.vue:91 frontend/src/pages/ProgramForm.vue:136
+#: frontend/src/pages/ProgramForm.vue:92 frontend/src/pages/ProgramForm.vue:137
 msgid "Add"
 msgstr ""
 
@@ -147,8 +147,8 @@ msgstr ""
 msgid "Add a lesson"
 msgstr ""
 
-#: frontend/src/components/Modals/Question.vue:141
-#: frontend/src/pages/QuizForm.vue:182
+#: frontend/src/components/Modals/Question.vue:144
+#: frontend/src/pages/QuizForm.vue:183
 msgid "Add a new question"
 msgstr ""
 
@@ -922,25 +922,25 @@ msgstr ""
 
 #. Label of the company_details_section (Section Break) field in DocType 'Job
 #. Opportunity'
-#: frontend/src/pages/JobCreation.vue:56
+#: frontend/src/pages/JobCreation.vue:64
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Company Details"
 msgstr "Cégadatok"
 
 #. Label of the company_email_address (Data) field in DocType 'Job Opportunity'
-#: frontend/src/pages/JobCreation.vue:73
+#: frontend/src/pages/JobCreation.vue:83
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Company Email Address"
 msgstr "Cég e-mail címe"
 
 #. Label of the company_logo (Attach Image) field in DocType 'Job Opportunity'
-#: frontend/src/pages/JobCreation.vue:77
+#: frontend/src/pages/JobCreation.vue:88
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Company Logo"
 msgstr ""
 
 #. Label of the company_name (Data) field in DocType 'Job Opportunity'
-#: frontend/src/pages/JobCreation.vue:62
+#: frontend/src/pages/JobCreation.vue:70
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Company Name"
 msgstr ""
@@ -951,7 +951,7 @@ msgid "Company Type"
 msgstr ""
 
 #. Label of the company_website (Data) field in DocType 'Job Opportunity'
-#: frontend/src/pages/JobCreation.vue:67
+#: frontend/src/pages/JobCreation.vue:76
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Company Website"
 msgstr "Cég honlapja"
@@ -1025,7 +1025,7 @@ msgstr ""
 msgid "Contract"
 msgstr ""
 
-#: lms/lms/utils.py:442
+#: lms/lms/utils.py:438
 msgid "Cookie Policy"
 msgstr ""
 
@@ -1047,7 +1047,7 @@ msgstr ""
 msgid "Correct"
 msgstr ""
 
-#: frontend/src/components/Modals/Question.vue:71
+#: frontend/src/components/Modals/Question.vue:73
 msgid "Correct Answer"
 msgstr ""
 
@@ -1218,7 +1218,7 @@ msgstr ""
 msgid "Course Title"
 msgstr ""
 
-#: frontend/src/pages/ProgramForm.vue:226
+#: frontend/src/pages/ProgramForm.vue:229
 msgid "Course added to program"
 msgstr ""
 
@@ -1230,7 +1230,7 @@ msgstr ""
 msgid "Course deleted successfully"
 msgstr ""
 
-#: frontend/src/pages/ProgramForm.vue:295
+#: frontend/src/pages/ProgramForm.vue:298
 msgid "Course moved successfully"
 msgstr ""
 
@@ -1270,7 +1270,7 @@ msgid "Cover Image"
 msgstr ""
 
 #: frontend/src/components/Modals/ChapterModal.vue:9
-#: frontend/src/pages/Programs.vue:99
+#: frontend/src/pages/Programs.vue:110
 msgid "Create"
 msgstr ""
 
@@ -1446,7 +1446,7 @@ msgstr ""
 #. Label of the description (Text) field in DocType 'LMS Live Class'
 #. Label of the description (Small Text) field in DocType 'Work Experience'
 #: frontend/src/components/Modals/LiveClassModal.vue:78
-#: frontend/src/pages/BatchForm.vue:96 frontend/src/pages/JobCreation.vue:43
+#: frontend/src/pages/BatchForm.vue:96 frontend/src/pages/JobCreation.vue:50
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/lms/doctype/certification/certification.json
 #: lms/lms/doctype/cohort/cohort.json
@@ -1527,7 +1527,7 @@ msgstr ""
 msgid "Duration"
 msgstr ""
 
-#: frontend/src/pages/QuizForm.vue:62
+#: frontend/src/pages/QuizForm.vue:63
 msgid "Duration (in minutes)"
 msgstr ""
 
@@ -1562,7 +1562,7 @@ msgstr ""
 msgid "Edit Profile"
 msgstr "Profil szerkesztése"
 
-#: frontend/src/pages/QuizForm.vue:181
+#: frontend/src/pages/QuizForm.vue:182
 msgid "Edit the question"
 msgstr ""
 
@@ -1693,7 +1693,7 @@ msgstr ""
 msgid "Enrollment Count"
 msgstr ""
 
-#: lms/lms/utils.py:1705
+#: lms/lms/utils.py:1702
 msgid "Enrollment Failed"
 msgstr ""
 
@@ -1725,12 +1725,12 @@ msgstr ""
 #: frontend/src/components/Modals/ChapterModal.vue:159
 #: frontend/src/components/Modals/ChapterModal.vue:166
 #: frontend/src/components/Modals/ChapterModal.vue:202
-#: frontend/src/components/Modals/Question.vue:246
-#: frontend/src/components/Modals/Question.vue:266
-#: frontend/src/components/Modals/Question.vue:323
+#: frontend/src/components/Modals/Question.vue:249
+#: frontend/src/components/Modals/Question.vue:269
+#: frontend/src/components/Modals/Question.vue:326
 #: frontend/src/pages/Billing.vue:264 frontend/src/pages/QuizForm.vue:350
 #: frontend/src/pages/QuizForm.vue:365
-#: frontend/src/pages/QuizSubmission.vue:117
+#: frontend/src/pages/QuizSubmission.vue:141
 msgid "Error"
 msgstr ""
 
@@ -1858,7 +1858,7 @@ msgstr ""
 #. Label of the explanation_1 (Small Text) field in DocType 'LMS Question'
 #. Label of the explanation_3 (Small Text) field in DocType 'LMS Question'
 #. Label of the explanation_4 (Small Text) field in DocType 'LMS Question'
-#: frontend/src/components/Modals/Question.vue:67
+#: frontend/src/components/Modals/Question.vue:69
 #: lms/lms/doctype/lms_question/lms_question.json
 msgid "Explanation"
 msgstr ""
@@ -2116,14 +2116,6 @@ msgstr ""
 msgid "How to add a Quiz?"
 msgstr ""
 
-#: frontend/src/components/LessonHelp.vue:47
-msgid "How to add a YouTube Video?"
-msgstr ""
-
-#: frontend/src/components/LessonHelp.vue:28
-msgid "How to upload content from your system?"
-msgstr ""
-
 #. Label of the current (Check) field in DocType 'Work Experience'
 #: lms/lms/doctype/work_experience/work_experience.json
 msgid "I am currently working here"
@@ -2202,7 +2194,7 @@ msgstr ""
 msgid "Image search powered by"
 msgstr ""
 
-#: lms/lms/doctype/lms_quiz/lms_quiz.py:222
+#: lms/lms/doctype/lms_quiz/lms_quiz.py:221
 msgid "Image: Corrupted Data Stream"
 msgstr ""
 
@@ -2388,7 +2380,7 @@ msgstr ""
 msgid "Items in Sidebar"
 msgstr ""
 
-#: frontend/src/pages/ProgramForm.vue:269
+#: frontend/src/pages/ProgramForm.vue:272
 msgid "Items removed successfully"
 msgstr ""
 
@@ -2757,7 +2749,7 @@ msgid "Letter Grade (e.g. A, B-)"
 msgstr ""
 
 #. Label of the limit_questions_to (Int) field in DocType 'LMS Quiz'
-#: frontend/src/pages/QuizForm.vue:107 lms/lms/doctype/lms_quiz/lms_quiz.json
+#: frontend/src/pages/QuizForm.vue:108 lms/lms/doctype/lms_quiz/lms_quiz.json
 msgid "Limit Questions To"
 msgstr ""
 
@@ -2817,7 +2809,7 @@ msgstr ""
 #. Label of the location (Data) field in DocType 'Job Opportunity'
 #. Label of the location (Data) field in DocType 'Education Detail'
 #. Label of the location (Data) field in DocType 'Work Experience'
-#: frontend/src/pages/JobCreation.vue:23 frontend/src/pages/JobDetail.vue:89
+#: frontend/src/pages/JobCreation.vue:26 frontend/src/pages/JobDetail.vue:89
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/lms/doctype/education_detail/education_detail.json
 #: lms/lms/doctype/work_experience/work_experience.json
@@ -2887,21 +2879,21 @@ msgstr ""
 #. Label of the marks (Int) field in DocType 'LMS Quiz Question'
 #. Label of the marks (Int) field in DocType 'LMS Quiz Result'
 #: frontend/src/components/Modals/Question.vue:50
-#: frontend/src/components/Modals/Question.vue:96
+#: frontend/src/components/Modals/Question.vue:99
 #: frontend/src/components/Quiz.vue:94 frontend/src/pages/QuizForm.vue:394
-#: frontend/src/pages/QuizSubmission.vue:52
+#: frontend/src/pages/QuizSubmission.vue:59
 #: lms/lms/doctype/lms_quiz_question/lms_quiz_question.json
 #: lms/lms/doctype/lms_quiz_result/lms_quiz_result.json
 #: lms/templates/quiz/quiz.html:59
 msgid "Marks"
 msgstr ""
 
-#: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.py:19
+#: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.py:23
 msgid "Marks for question number {0} cannot be greater than the marks allotted for that question."
 msgstr ""
 
 #. Label of the marks_out_of (Int) field in DocType 'LMS Quiz Result'
-#: frontend/src/pages/QuizSubmission.vue:55
+#: frontend/src/pages/QuizSubmission.vue:62
 #: lms/lms/doctype/lms_quiz_result/lms_quiz_result.json
 msgid "Marks out of"
 msgstr ""
@@ -2911,7 +2903,7 @@ msgstr ""
 msgid "Max Attempts"
 msgstr ""
 
-#: frontend/src/pages/QuizForm.vue:57
+#: frontend/src/pages/QuizForm.vue:58
 msgid "Maximun Attempts"
 msgstr ""
 
@@ -2945,7 +2937,7 @@ msgstr "Közepes:"
 #. Label of the member (Link) field in DocType 'LMS Payment'
 #. Label of the member (Link) field in DocType 'LMS Program Member'
 #. Label of the member (Link) field in DocType 'LMS Quiz Submission'
-#: frontend/src/pages/QuizSubmission.vue:27
+#: frontend/src/pages/QuizSubmission.vue:31
 #: frontend/src/pages/QuizSubmissionList.vue:77
 #: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
 #: lms/lms/doctype/exercise_submission/exercise_submission.json
@@ -3008,7 +3000,7 @@ msgstr ""
 msgid "Member Type"
 msgstr ""
 
-#: frontend/src/pages/ProgramForm.vue:248
+#: frontend/src/pages/ProgramForm.vue:251
 msgid "Member added to program"
 msgstr ""
 
@@ -3173,19 +3165,19 @@ msgstr ""
 msgid "New Job Applicant"
 msgstr ""
 
-#: frontend/src/pages/Programs.vue:96
+#: frontend/src/pages/Programs.vue:107
 msgid "New Program"
 msgstr ""
 
-#: frontend/src/pages/ProgramForm.vue:132
+#: frontend/src/pages/ProgramForm.vue:133
 msgid "New Program Course"
 msgstr ""
 
-#: frontend/src/pages/ProgramForm.vue:133
+#: frontend/src/pages/ProgramForm.vue:134
 msgid "New Program Member"
 msgstr ""
 
-#: frontend/src/pages/QuizForm.vue:122
+#: frontend/src/pages/QuizForm.vue:123
 msgid "New Question"
 msgstr ""
 
@@ -3198,11 +3190,11 @@ msgstr ""
 msgid "New Sign Up"
 msgstr ""
 
-#: lms/lms/utils.py:627
+#: lms/lms/utils.py:623
 msgid "New comment in batch {0}"
 msgstr ""
 
-#: lms/lms/utils.py:620
+#: lms/lms/utils.py:616
 msgid "New reply on the topic {0} in course {1}"
 msgstr ""
 
@@ -3256,7 +3248,7 @@ msgstr ""
 msgid "No courses found"
 msgstr ""
 
-#: frontend/src/pages/Programs.vue:72
+#: frontend/src/pages/Programs.vue:83
 msgid "No courses in this program"
 msgstr ""
 
@@ -3276,7 +3268,7 @@ msgstr ""
 msgid "No live classes scheduled"
 msgstr ""
 
-#: frontend/src/pages/Programs.vue:82
+#: frontend/src/pages/Programs.vue:93
 msgid "No programs found"
 msgstr ""
 
@@ -3388,7 +3380,7 @@ msgstr ""
 msgid "Online"
 msgstr ""
 
-#: frontend/src/pages/ProgramForm.vue:156
+#: frontend/src/pages/ProgramForm.vue:157
 msgid "Only courses for which self learning is disabled can be added to program."
 msgstr ""
 
@@ -3396,7 +3388,7 @@ msgstr ""
 msgid "Only files of type {0} will be accepted."
 msgstr ""
 
-#: frontend/src/pages/CourseForm.vue:497 frontend/src/utils/index.js:518
+#: frontend/src/pages/CourseForm.vue:497 frontend/src/utils/index.js:520
 msgid "Only image file is allowed."
 msgstr ""
 
@@ -3432,7 +3424,7 @@ msgid "Open Network"
 msgstr ""
 
 #. Label of the option (Data) field in DocType 'LMS Option'
-#: frontend/src/components/Modals/Question.vue:63
+#: frontend/src/components/Modals/Question.vue:64
 #: lms/lms/doctype/lms_option/lms_option.json
 msgid "Option"
 msgstr ""
@@ -3547,7 +3539,7 @@ msgstr ""
 
 #. Label of the passing_percentage (Int) field in DocType 'LMS Quiz'
 #. Label of the passing_percentage (Int) field in DocType 'LMS Quiz Submission'
-#: frontend/src/pages/QuizForm.vue:71 frontend/src/pages/Quizzes.vue:125
+#: frontend/src/pages/QuizForm.vue:72 frontend/src/pages/Quizzes.vue:125
 #: lms/lms/doctype/lms_quiz/lms_quiz.json
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.json
 msgid "Passing Percentage"
@@ -3641,7 +3633,7 @@ msgid "Pending"
 msgstr ""
 
 #. Label of the percentage (Int) field in DocType 'LMS Quiz Submission'
-#: frontend/src/pages/QuizSubmission.vue:40
+#: frontend/src/pages/QuizSubmission.vue:44
 #: frontend/src/pages/QuizSubmissionList.vue:93
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.json
 msgid "Percentage"
@@ -3676,7 +3668,7 @@ msgstr "Kérjük, ellenőrizze e-mail a vizsgálathoz"
 msgid "Please click on the following button to set your new password"
 msgstr ""
 
-#: lms/lms/utils.py:1817 lms/lms/utils.py:1821
+#: lms/lms/utils.py:1824 lms/lms/utils.py:1828
 msgid "Please complete the previous courses in the program to enroll in this course."
 msgstr ""
 
@@ -3779,7 +3771,7 @@ msgstr ""
 msgid "Point of Score (e.g. 70)"
 msgstr ""
 
-#: frontend/src/components/Modals/Question.vue:83
+#: frontend/src/components/Modals/Question.vue:85
 msgid "Possibility"
 msgstr ""
 
@@ -3875,7 +3867,7 @@ msgstr ""
 msgid "Primary Subgroup"
 msgstr ""
 
-#: lms/lms/utils.py:441
+#: lms/lms/utils.py:437
 msgid "Privacy Policy"
 msgstr ""
 
@@ -3903,7 +3895,7 @@ msgstr ""
 msgid "Profile Image"
 msgstr ""
 
-#: frontend/src/pages/ProgramForm.vue:154
+#: frontend/src/pages/ProgramForm.vue:155
 msgid "Program Course"
 msgstr ""
 
@@ -3913,12 +3905,12 @@ msgstr ""
 msgid "Program Courses"
 msgstr ""
 
-#: frontend/src/pages/ProgramForm.vue:169
+#: frontend/src/pages/ProgramForm.vue:170
 msgid "Program Member"
 msgstr ""
 
 #. Label of the program_members (Table) field in DocType 'LMS Program'
-#: frontend/src/pages/ProgramForm.vue:78
+#: frontend/src/pages/ProgramForm.vue:79
 #: lms/lms/doctype/lms_program/lms_program.json
 msgid "Program Members"
 msgstr ""
@@ -4001,11 +3993,11 @@ msgstr ""
 msgid "Question Name"
 msgstr ""
 
-#: frontend/src/components/Modals/Question.vue:261
+#: frontend/src/components/Modals/Question.vue:264
 msgid "Question added successfully"
 msgstr ""
 
-#: frontend/src/components/Modals/Question.vue:313
+#: frontend/src/components/Modals/Question.vue:316
 msgid "Question updated successfully"
 msgstr ""
 
@@ -4018,7 +4010,7 @@ msgid "Question {0} of {1}"
 msgstr ""
 
 #. Label of the questions (Table) field in DocType 'LMS Quiz'
-#: frontend/src/pages/QuizForm.vue:116 lms/lms/doctype/lms_quiz/lms_quiz.json
+#: frontend/src/pages/QuizForm.vue:117 lms/lms/doctype/lms_quiz/lms_quiz.json
 msgid "Questions"
 msgstr ""
 
@@ -4028,7 +4020,7 @@ msgstr ""
 
 #. Label of the quiz (Link) field in DocType 'LMS Quiz Submission'
 #. Label of a Link in the LMS Workspace
-#: frontend/src/pages/QuizSubmission.vue:22
+#: frontend/src/pages/QuizSubmission.vue:26
 #: frontend/src/pages/QuizSubmissionList.vue:82 frontend/src/utils/quiz.js:24
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.json
 #: lms/lms/workspace/lms/lms.json
@@ -4046,7 +4038,7 @@ msgstr ""
 msgid "Quiz Submission"
 msgstr ""
 
-#: frontend/src/pages/QuizSubmission.vue:98
+#: frontend/src/pages/QuizSubmission.vue:122
 #: frontend/src/pages/QuizSubmissionList.vue:102
 msgid "Quiz Submissions"
 msgstr ""
@@ -4315,7 +4307,7 @@ msgid "Scope"
 msgstr "terület"
 
 #. Label of the score (Int) field in DocType 'LMS Quiz Submission'
-#: frontend/src/pages/QuizSubmission.vue:35
+#: frontend/src/pages/QuizSubmission.vue:39
 #: frontend/src/pages/QuizSubmissionList.vue:87
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.json
 #: lms/templates/quiz/quiz.html:148
@@ -4352,7 +4344,7 @@ msgstr ""
 msgid "Seats Left"
 msgstr ""
 
-#: frontend/src/components/Modals/Question.vue:91
+#: frontend/src/components/Modals/Question.vue:94
 msgid "Select a question"
 msgstr ""
 
@@ -4381,7 +4373,7 @@ msgstr ""
 
 #: frontend/src/components/Modals/Settings.vue:7
 #: frontend/src/pages/BatchForm.vue:165 frontend/src/pages/CourseForm.vue:161
-#: frontend/src/pages/ProfileRoles.vue:4 frontend/src/pages/QuizForm.vue:78
+#: frontend/src/pages/ProfileRoles.vue:4 frontend/src/pages/QuizForm.vue:79
 msgid "Settings"
 msgstr ""
 
@@ -4405,12 +4397,12 @@ msgid "Show Answer"
 msgstr ""
 
 #. Label of the show_answers (Check) field in DocType 'LMS Quiz'
-#: frontend/src/pages/QuizForm.vue:84 lms/lms/doctype/lms_quiz/lms_quiz.json
+#: frontend/src/pages/QuizForm.vue:85 lms/lms/doctype/lms_quiz/lms_quiz.json
 msgid "Show Answers"
 msgstr ""
 
 #. Label of the show_submission_history (Check) field in DocType 'LMS Quiz'
-#: frontend/src/pages/QuizForm.vue:89 lms/lms/doctype/lms_quiz/lms_quiz.json
+#: frontend/src/pages/QuizForm.vue:90 lms/lms/doctype/lms_quiz/lms_quiz.json
 msgid "Show Submission History"
 msgstr ""
 
@@ -4435,11 +4427,11 @@ msgid "Show live class"
 msgstr ""
 
 #. Label of the shuffle_questions (Check) field in DocType 'LMS Quiz'
-#: frontend/src/pages/QuizForm.vue:102 lms/lms/doctype/lms_quiz/lms_quiz.json
+#: frontend/src/pages/QuizForm.vue:103 lms/lms/doctype/lms_quiz/lms_quiz.json
 msgid "Shuffle Questions"
 msgstr ""
 
-#: frontend/src/pages/QuizForm.vue:96
+#: frontend/src/pages/QuizForm.vue:97
 msgid "Shuffle Settings"
 msgstr ""
 
@@ -4635,7 +4627,7 @@ msgstr ""
 #. Label of the status (Select) field in DocType 'LMS Course Progress'
 #. Label of the status (Select) field in DocType 'LMS Mentor Request'
 #: frontend/src/components/Modals/Event.vue:91
-#: frontend/src/pages/JobCreation.vue:35
+#: frontend/src/pages/JobCreation.vue:41
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/lms/doctype/cohort/cohort.json
 #: lms/lms/doctype/cohort_join_request/cohort_join_request.json
@@ -4727,7 +4719,7 @@ msgstr ""
 #: frontend/src/components/Modals/AssessmentModal.vue:9
 #: frontend/src/components/Modals/BatchCourseModal.vue:9
 #: frontend/src/components/Modals/EvaluationModal.vue:9
-#: frontend/src/components/Modals/Question.vue:335
+#: frontend/src/components/Modals/Question.vue:338
 #: frontend/src/components/Quiz.vue:214 lms/templates/assignment.html:9
 #: lms/templates/livecode/extension_footer.html:25
 #: lms/templates/quiz/quiz.html:128 lms/templates/reviews.html:163
@@ -4754,12 +4746,12 @@ msgstr ""
 #: frontend/src/components/Modals/ChapterModal.vue:198
 #: frontend/src/components/Modals/Event.vue:255
 #: frontend/src/components/Modals/Event.vue:310
-#: frontend/src/components/Modals/Question.vue:261
-#: frontend/src/components/Modals/Question.vue:312
-#: frontend/src/pages/CourseForm.vue:460 frontend/src/pages/ProgramForm.vue:226
-#: frontend/src/pages/ProgramForm.vue:248
-#: frontend/src/pages/ProgramForm.vue:269
-#: frontend/src/pages/ProgramForm.vue:295 frontend/src/pages/QuizForm.vue:343
+#: frontend/src/components/Modals/Question.vue:264
+#: frontend/src/components/Modals/Question.vue:315
+#: frontend/src/pages/CourseForm.vue:460 frontend/src/pages/ProgramForm.vue:229
+#: frontend/src/pages/ProgramForm.vue:251
+#: frontend/src/pages/ProgramForm.vue:272
+#: frontend/src/pages/ProgramForm.vue:298 frontend/src/pages/QuizForm.vue:343
 #: frontend/src/pages/QuizForm.vue:362 frontend/src/pages/QuizForm.vue:431
 msgid "Success"
 msgstr ""
@@ -4856,7 +4848,7 @@ msgstr ""
 msgid "Temporarily Disabled"
 msgstr "Átmenetileg letiltva"
 
-#: lms/lms/utils.py:440
+#: lms/lms/utils.py:436
 msgid "Terms of Use"
 msgstr ""
 
@@ -4920,7 +4912,7 @@ msgstr ""
 msgid "There are no courses available at the moment. Keep an eye out, fresh learning experiences are on the way soon!"
 msgstr ""
 
-#: frontend/src/pages/Programs.vue:86
+#: frontend/src/pages/Programs.vue:97
 msgid "There are no programs available at the moment. Keep an eye out, fresh learning experiences are on the way soon!"
 msgstr ""
 
@@ -4934,6 +4926,10 @@ msgstr ""
 
 #: lms/templates/course_list.html:14
 msgid "There are no {0} on this site."
+msgstr ""
+
+#: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.py:41
+msgid "There has been an update on your submission. You have got a score of {0} for the quiz {1}"
 msgstr ""
 
 #. Description of the 'section_break_ubxi' (Section Break) field in DocType
@@ -4955,7 +4951,7 @@ msgstr ""
 msgid "This course has:"
 msgstr ""
 
-#: lms/lms/utils.py:1585
+#: lms/lms/utils.py:1582
 msgid "This course is free."
 msgstr ""
 
@@ -5060,7 +5056,7 @@ msgstr ""
 #: frontend/src/components/Modals/LiveClassModal.vue:23
 #: frontend/src/pages/BatchForm.vue:20 frontend/src/pages/CourseForm.vue:32
 #: frontend/src/pages/JobCreation.vue:20 frontend/src/pages/ProgramForm.vue:11
-#: frontend/src/pages/Programs.vue:107 frontend/src/pages/QuizForm.vue:48
+#: frontend/src/pages/Programs.vue:118 frontend/src/pages/QuizForm.vue:48
 #: frontend/src/pages/Quizzes.vue:114 lms/lms/doctype/cohort/cohort.json
 #: lms/lms/doctype/cohort_subgroup/cohort_subgroup.json
 #: lms/lms/doctype/cohort_web_page/cohort_web_page.json
@@ -5097,7 +5093,7 @@ msgstr ""
 msgid "To Date"
 msgstr ""
 
-#: lms/lms/utils.py:1596
+#: lms/lms/utils.py:1593
 msgid "To join this batch, please contact the Administrator."
 msgstr ""
 
@@ -5114,7 +5110,7 @@ msgid "Total"
 msgstr ""
 
 #. Label of the total_marks (Int) field in DocType 'LMS Quiz'
-#: frontend/src/pages/QuizForm.vue:66 frontend/src/pages/Quizzes.vue:119
+#: frontend/src/pages/QuizForm.vue:67 frontend/src/pages/Quizzes.vue:119
 #: lms/lms/doctype/lms_quiz/lms_quiz.json
 msgid "Total Marks"
 msgstr ""
@@ -5151,7 +5147,7 @@ msgstr ""
 #. Label of the type (Select) field in DocType 'LMS Quiz Question'
 #: frontend/src/components/Modals/AssessmentModal.vue:22
 #: frontend/src/components/Modals/Question.vue:54
-#: frontend/src/pages/JobCreation.vue:28 frontend/src/pages/Jobs.vue:16
+#: frontend/src/pages/JobCreation.vue:33 frontend/src/pages/Jobs.vue:16
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
@@ -5515,6 +5511,10 @@ msgstr ""
 msgid "You have been enrolled in this course"
 msgstr ""
 
+#: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.py:38
+msgid "You have got a score of {0} for the quiz {1}"
+msgstr ""
+
 #: frontend/src/pages/Quizzes.vue:60
 msgid "You have not created any quizzes yet. To create a new quiz, click on the \"New Quiz\" button above."
 msgstr ""
@@ -5685,7 +5685,7 @@ msgstr ""
 msgid "{0} is your evaluator"
 msgstr ""
 
-#: lms/lms/utils.py:704
+#: lms/lms/utils.py:700
 msgid "{0} mentioned you in a comment"
 msgstr ""
 
@@ -5693,11 +5693,11 @@ msgstr ""
 msgid "{0} mentioned you in a comment in your batch."
 msgstr ""
 
-#: lms/lms/utils.py:657 lms/lms/utils.py:663
+#: lms/lms/utils.py:653 lms/lms/utils.py:659
 msgid "{0} mentioned you in a comment in {1}"
 msgstr ""
 
-#: lms/lms/utils.py:480
+#: lms/lms/utils.py:476
 msgid "{0}k"
 msgstr ""
 
