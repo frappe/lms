@@ -4,21 +4,29 @@
 			class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
 		>
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
-			<Button v-if="user.data?.is_moderator" @click="openAnnouncementModal()">
-				<span>
-					{{ __('Make an Announcement') }}
-				</span>
-				<template #suffix>
-					<SendIcon class="h-4 stroke-1.5" />
-				</template>
-			</Button>
+			<div class="flex items-center space-x-2">
+				<Button
+					v-if="user.data?.is_moderator"
+					@click="openCertificateDialog = true"
+				>
+					{{ __('Generate Certificates') }}
+				</Button>
+				<Button v-if="user.data?.is_moderator" @click="openAnnouncementModal()">
+					<span>
+						{{ __('Make an Announcement') }}
+					</span>
+					<template #suffix>
+						<SendIcon class="h-4 stroke-1.5" />
+					</template>
+				</Button>
+			</div>
 		</header>
 		<div v-if="batch.data" class="grid grid-cols-[70%,30%] h-screen">
 			<div class="border-r-2">
 				<Tabs
 					v-model="tabIndex"
 					:tabs="tabs"
-					tablistClass="overflow-y-hidden sticky top-11 bg-white z-10"
+					tablistClass="overflow-y-hidden bg-white"
 				>
 					<template #tab="{ tab, selected }" class="overflow-x-hidden">
 						<div>
@@ -169,6 +177,7 @@
 			</div>
 		</div>
 	</div>
+	<BulkCertificates v-model="openCertificateDialog" :batch="batch.data" />
 </template>
 <script setup>
 import { Breadcrumbs, Button, createResource, Tabs, Badge } from 'frappe-ui'
@@ -197,9 +206,11 @@ import Announcements from '@/components/Annoucements.vue'
 import AnnouncementModal from '@/components/Modals/AnnouncementModal.vue'
 import Discussions from '@/components/Discussions.vue'
 import DateRange from '@/components/Common/DateRange.vue'
+import BulkCertificates from '@/components/Modals/BulkCertificates.vue'
 
 const user = inject('$user')
 const showAnnouncementModal = ref(false)
+const openCertificateDialog = ref(false)
 
 const props = defineProps({
 	batchName: {
