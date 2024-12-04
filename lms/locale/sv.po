@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2024-11-29 16:04+0000\n"
-"PO-Revision-Date: 2024-12-02 22:10\n"
+"PO-Revision-Date: 2024-12-04 22:13\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Swedish\n"
 "MIME-Version: 1.0\n"
@@ -2295,7 +2295,7 @@ msgstr "Lärare Kommentarer"
 #. Label of a Link in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "Interest"
-msgstr "Ränta"
+msgstr "Intresse"
 
 #. Group in LMS Course's connections
 #: lms/lms/doctype/lms_course/lms_course.json
@@ -5391,12 +5391,12 @@ msgstr "Arbetsmiljö"
 #: lms/fixtures/custom_field.json
 #: lms/lms/doctype/work_experience/work_experience.json
 msgid "Work Experience"
-msgstr "Arbetslivserfarenhet"
+msgstr "Arbetsliv Erfarenhet"
 
 #. Label of the work_experience_details (Section Break) field in DocType 'User'
 #: lms/fixtures/custom_field.json
 msgid "Work Experience Details"
-msgstr "Arbetslivserfarenhet Detaljer"
+msgstr "Arbetsliv Erfarenhet Detaljer"
 
 #: frontend/src/components/CourseReviews.vue:8
 #: frontend/src/components/Modals/ReviewModal.vue:5
@@ -5615,7 +5615,7 @@ msgstr "utfärdad"
 
 #: lms/templates/signup-form.html:12
 msgid "jane@example.com"
-msgstr "användare@bolag.se"
+msgstr "användare@bolag"
 
 #: frontend/src/pages/Programs.vue:32
 msgid "members"
