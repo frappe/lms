@@ -5,7 +5,9 @@ import json
 import frappe
 import zipfile
 import os
+import re
 import shutil
+import requests
 import xml.etree.ElementTree as ET
 from frappe.translate import get_all_translations
 from frappe import _
@@ -15,6 +17,7 @@ from frappe.utils import time_diff, now_datetime, get_datetime, flt
 from typing import Optional
 from lms.lms.utils import get_average_rating, get_lesson_count
 from xml.dom.minidom import parseString
+from frappe.website.path_resolver import resolve_path as original_resolve_path
 
 
 @frappe.whitelist()
@@ -590,7 +593,7 @@ def get_categories(doctype, filters):
 def get_members(start=0, search=""):
 	"""Get members for the given search term and start index.
 	Args: start (int): Start index for the query.
-	    search (str): Search term to filter the results.
+	        search (str): Search term to filter the results.
 	Returns: List of members.
 	"""
 
@@ -919,10 +922,35 @@ def upsert_chapter(title, course, is_scorm_package, scorm_package, name=None):
 def extract_package(course, title, scorm_package):
 	package = frappe.get_doc("File", scorm_package.name)
 	zip_path = package.get_full_path()
-
-	extract_path = frappe.get_site_path("public", "files", "scorm", course, title)
+	# check_for_malicious_code(zip_path)
+	extract_path = frappe.get_site_path("public", "scorm", course, title)
 	zipfile.ZipFile(zip_path).extractall(extract_path)
 	return extract_path
+
+
+def check_for_malicious_code(zip_path):
+	suspicious_patterns = [
+		# Unsafe inline JavaScript
+		r'on(click|load|mouseover|error|submit|focus|blur|change|keyup|keydown|keypress|resize)=".*?"',  # Inline event handlers (e.g., onerror, onclick)
+		r'<script.*?src=["\']http',  # External script tags
+		r"eval\(",  # Usage of eval()
+		r"Function\(",  # Usage of Function constructor
+		r"(btoa|atob)\(",  # Base64 encoding/decoding
+		# Dangerous XML patterns
+		r"<!ENTITY",  # XXE-related
+		r"<\?xml-stylesheet .*?>",  # External stylesheets in XML
+	]
+
+	with zipfile.ZipFile(zip_path, "r") as zf:
+		for file_name in zf.namelist():
+			if file_name.endswith((".html", ".js", ".xml")):
+				with zf.open(file_name) as file:
+					content = file.read().decode("utf-8", errors="ignore")
+					for pattern in suspicious_patterns:
+						if re.search(pattern, content):
+							frappe.throw(
+								_("Suspicious pattern found in {0}: {1}").format(file_name, pattern)
+							)
 
 
 def get_manifest_file(extract_path):
@@ -999,6 +1027,16 @@ def delete_chapter(chapter):
 
 
 def delete_scorm_package(scorm_package_path):
-	scorm_package_path = frappe.get_site_path("public", scorm_package_path)
+	scorm_package_path = frappe.get_site_path("public", scorm_package_path[1:])
 	if os.path.exists(scorm_package_path):
 		shutil.rmtree(scorm_package_path)
+
+
+def resolve_scorm_path(path):
+	try:
+		if "scorm/" in path and path.endswith(".html"):
+			return path
+	except Exception:
+		pass
+
+	return original_resolve_path(path)
