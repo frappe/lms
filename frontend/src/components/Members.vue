@@ -66,7 +66,10 @@
 									<div class="text-gray-900">
 										{{ member.full_name }}
 									</div>
-									<div class="px-1" v-if="getRole(member.role)">
+									<div
+										class="px-1"
+										v-if="member.role && getRole(member.role) !== 'Student'"
+									>
 										<Badge
 											:variant="'subtle'"
 											:ref_for="true"
