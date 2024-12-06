@@ -154,9 +154,11 @@ class SCORMRenderer(BaseRenderer):
 		if not extension:
 			path = f"{path}.html"
 
-		f = open(path, "rb")
-		response = Response(
-			wrap_file(frappe.local.request.environ, f), direct_passthrough=True
-		)
-		response.mimetype = mimetypes.guess_type(path)[0]
-		return response
+		# check if path exists and is actually a file and not a folder
+		if os.path.exists(path) and os.path.isfile(path):
+			f = open(path, "rb")
+			response = Response(
+				wrap_file(frappe.local.request.environ, f), direct_passthrough=True
+			)
+			response.mimetype = mimetypes.guess_type(path)[0]
+			return response
