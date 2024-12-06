@@ -3,7 +3,8 @@
 Handles rendering of profile pages.
 """
 import re
-
+import os
+import mimetypes
 import frappe
 from frappe.website.page_renderers.base_renderer import BaseRenderer
 from frappe.website.page_renderers.document_page import DocumentPage
@@ -14,6 +15,8 @@ from frappe.website.page_renderers.redirect_page import RedirectPage
 from frappe.website.page_renderers.static_page import StaticPage
 from frappe.website.page_renderers.template_page import TemplatePage
 from frappe.website.page_renderers.web_form import WebFormPage
+from werkzeug.wrappers import Response
+from werkzeug.wsgi import wrap_file
 
 
 def get_profile_url(username):
@@ -138,3 +141,17 @@ class CoursePage(BaseRenderer):
 		else:
 			frappe.flags.redirect_location = "/lms/courses"
 			return RedirectPage(self.path).render()
+
+
+class SCORMRenderer(BaseRenderer):
+	def can_render(self):
+		return "scorm/" in self.path
+
+	def render(self):
+		path = os.path.join(frappe.local.site_path, "public", self.path.lstrip("/"))
+		f = open(path, "rb")
+		response = Response(
+			wrap_file(frappe.local.request.environ, f), direct_passthrough=True
+		)
+		response.mimetype = mimetypes.guess_type(path)[0]
+		return response
