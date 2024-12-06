@@ -66,8 +66,19 @@
 									<div class="text-gray-900">
 										{{ member.full_name }}
 									</div>
-									<div v-if="getRole(member)">
-										{{ getRole(member) }}
+									<div
+										class="px-1"
+										v-if="member.role && getRole(member.role) !== 'Student'"
+									>
+										<Badge
+											:variant="'subtle'"
+											:ref_for="true"
+											theme="blue"
+											size="sm"
+											label="Badge"
+										>
+											{{ getRole(member.role) }}
+										</Badge>
 									</div>
 								</div>
 								<div class="text-sm text-gray-700">
@@ -99,7 +110,7 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { createResource, Avatar, Button, FormControl } from 'frappe-ui'
+import { createResource, Avatar, Button, FormControl, Badge } from 'frappe-ui'
 import { useRouter } from 'vue-router'
 import { ref, watch, reactive, inject } from 'vue'
 import { RefreshCw, Plus, X } from 'lucide-vue-next'
