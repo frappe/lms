@@ -61,41 +61,28 @@ const props = defineProps({
 
 onBeforeMount(() => {
 	sidebarStore.isSidebarCollapsed = true
-	window.API_1484_11 = {
-		Initialize: () => 'true',
-		Terminate: () => 'true',
-		GetValue: (key) => {
-			console.log(`GET: ${key}`)
-			return getDataFromLMS(key)
-		},
-		SetValue: (key, value) => {
-			console.log(`SET: ${key} to value: ${value}`)
+	setupSCORMAPI()
+})
 
-			saveDataToLMS(key, value)
-			return 'true'
-		},
-		Commit: () => 'true',
-		GetLastError: () => '0',
-		GetErrorString: () => '',
-		GetDiagnostic: () => '',
-	}
-	window.API = {
-		LMSInitialize: () => 'true',
-		LMSFinish: () => 'true',
-		LMSGetValue: (key) => {
-			console.log(`GET: ${key}`)
-			return getDataFromLMS(key)
-		},
-		LMSSetValue: (key, value) => {
-			console.log(`SET: ${key} to value: ${value}`)
-			saveDataToLMS(key, value)
-			return 'true'
-		},
-		LMSCommit: () => 'true',
-		LMSGetLastError: () => '0',
-		LMSGetErrorString: () => '',
-		LMSGetDiagnostic: () => '',
-	}
+const chapter = createDocumentResource({
+	doctype: 'Course Chapter',
+	name: props.chapterName,
+	auto: true,
+	cache: ['chapter', props.chapterName],
+	onSuccess(data) {
+		progress.submit()
+	},
+})
+
+const enrollment = createListResource({
+	doctype: 'LMS Enrollment',
+	fields: ['member', 'course'],
+	filters: {
+		course: props.courseName,
+		member: user.data?.name,
+	},
+	auto: true,
+	cache: ['enrollments', props.courseName, user.data?.name],
 })
 
 const getDataFromLMS = (key) => {
@@ -113,27 +100,6 @@ const saveDataToLMS = (key, value) => {
 		saveProgress()
 	}
 }
-
-const enrollment = createListResource({
-	doctype: 'LMS Enrollment',
-	fields: ['member', 'course'],
-	filters: {
-		course: props.courseName,
-		member: user.data?.name,
-	},
-	auto: true,
-	cache: ['enrollments', props.courseName, user.data?.name],
-})
-
-const chapter = createDocumentResource({
-	doctype: 'Course Chapter',
-	name: props.chapterName,
-	auto: true,
-	cache: ['chapter', props.chapterName],
-	onSuccess(data) {
-		progress.submit()
-	},
-})
 
 const saveProgress = () => {
 	call('lms.lms.doctype.course_lesson.course_lesson.save_progress', {
@@ -173,6 +139,44 @@ const enrollStudent = () => {
 			},
 		}
 	)
+}
+
+const setupSCORMAPI = () => {
+	window.API_1484_11 = {
+		Initialize: () => 'true',
+		Terminate: () => 'true',
+		GetValue: (key) => {
+			console.log(`GET: ${key}`)
+			return getDataFromLMS(key)
+		},
+		SetValue: (key, value) => {
+			console.log(`SET: ${key} to value: ${value}`)
+
+			saveDataToLMS(key, value)
+			return 'true'
+		},
+		Commit: () => 'true',
+		GetLastError: () => '0',
+		GetErrorString: () => '',
+		GetDiagnostic: () => '',
+	}
+	window.API = {
+		LMSInitialize: () => 'true',
+		LMSFinish: () => 'true',
+		LMSGetValue: (key) => {
+			console.log(`GET: ${key}`)
+			return getDataFromLMS(key)
+		},
+		LMSSetValue: (key, value) => {
+			console.log(`SET: ${key} to value: ${value}`)
+			saveDataToLMS(key, value)
+			return 'true'
+		},
+		LMSCommit: () => 'true',
+		LMSGetLastError: () => '0',
+		LMSGetErrorString: () => '',
+		LMSGetDiagnostic: () => '',
+	}
 }
 
 const breadcrumbs = computed(() => {

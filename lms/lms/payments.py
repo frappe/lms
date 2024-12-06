@@ -2,7 +2,6 @@ import frappe
 
 
 def get_payment_gateway():
-
 	return frappe.db.get_single_value("LMS Settings", "payment_gateway")
 
 
