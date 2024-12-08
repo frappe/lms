@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2024-11-29 16:04+0000\n"
-"PO-Revision-Date: 2024-12-02 22:10\n"
+"PO-Revision-Date: 2024-12-08 22:51\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: French\n"
 "MIME-Version: 1.0\n"
@@ -733,7 +733,7 @@ msgstr "Participants certifiés"
 
 #: lms/templates/assignment.html:13
 msgid "Change"
-msgstr "Changement"
+msgstr ""
 
 #. Label of the chapter (Link) field in DocType 'Chapter Reference'
 #. Label of the chapter (Link) field in DocType 'LMS Course Progress'
