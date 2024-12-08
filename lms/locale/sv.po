@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2024-11-29 16:04+0000\n"
-"PO-Revision-Date: 2024-12-04 22:13\n"
+"PO-Revision-Date: 2024-12-08 22:51\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Swedish\n"
 "MIME-Version: 1.0\n"
@@ -733,7 +733,7 @@ msgstr "Certifierade Deltagare"
 
 #: lms/templates/assignment.html:13
 msgid "Change"
-msgstr "Växel"
+msgstr "Ändra"
 
 #. Label of the chapter (Link) field in DocType 'Chapter Reference'
 #. Label of the chapter (Link) field in DocType 'LMS Course Progress'
@@ -4545,7 +4545,7 @@ msgstr "Personal"
 #. Label of the stage (Select) field in DocType 'LMS Batch Old'
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 msgid "Stage"
-msgstr "Stadie"
+msgstr "Steg"
 
 #: frontend/src/components/LiveClass.vue:46 frontend/src/components/Quiz.vue:65
 #: lms/templates/quiz/quiz.html:39
