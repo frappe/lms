@@ -144,7 +144,7 @@ To setup the repository locally follow the steps mentioned below:
 - [Telegram Public Group](https://t.me/frappelms)
 - [Discuss Forum](https://discuss.frappe.io/c/lms/70)
 - [Documentation](https://docs.frappe.io/learning)
-- [YouTube](https://frappe.io)
+- [YouTube](https://www.youtube.com/channel/UCn3bV5kx77HsVwtnlCeEi_A)
 
 <h2></h2>
 <div align="center" style="padding-top: 0.75rem;">
