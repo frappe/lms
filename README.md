@@ -3,7 +3,7 @@
 <img src=".github/lms-logo.png" alt="Frappe Learning logo" width="100"/>
 <h1>Frappe Learning</h1>
 
-**Easy to use, open source Learning Management System**
+**Easy to use, open source, Learning Management System**
 
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/frappe/lms)
 ![Tests](https://img.shields.io/endpoint?url=https://dashboard.cypress.io/badge/simple/vandxn/main&style=flat&logo=cypress)
@@ -38,10 +38,14 @@ In 2021, we were looking for a Learning Management System to launch [Mon.School]
 - **Getting Certified**: Once a learner has completed the course or batch, you can grant them a certificate. The app provides an inbuilt certificate template. You can use this or else create a template of your own and use that instead.
 
 <details>
-<summary>Screenshots</summary>
+<summary>
+Screenshots
+</summary>
 
 ![Batch](.github/batches.png)
+
 ![Quiz](.github/quiz.png)
+
 ![Cerficicate](.github/certificate.png)
 </details>
 
