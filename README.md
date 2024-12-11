@@ -37,18 +37,17 @@ In 2021, we were looking for a Learning Management System to launch [Mon.School]
 
 - **Getting Certified**: Once a learner has completed the course or batch, you can grant them a certificate. The app provides an inbuilt certificate template. You can use this or else create a template of your own and use that instead.
 
-<details>
-<summary>
-Screenshots
-</summary>
+### Batches to group learners
 
 ![Batch](.github/batches.png)
 
+### Quiz to evaluate them
+
 ![Quiz](.github/quiz.png)
 
-![Cerficicate](.github/certificate.png)
-</details>
+### Certificate to authenticate their knowledge
 
+![Cerficicate](.github/certificate.png)
 
 ## Under the Hood
 
