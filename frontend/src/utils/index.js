@@ -2,6 +2,7 @@ import { toast } from 'frappe-ui'
 import { useTimeAgo } from '@vueuse/core'
 import { Quiz } from '@/utils/quiz'
 import { Upload } from '@/utils/upload'
+import { MarkdownParser } from '@/utils/markdownParser'
 import Header from '@editorjs/header'
 import Paragraph from '@editorjs/paragraph'
 import { CodeBox } from '@/utils/code'
@@ -12,6 +13,8 @@ import dayjs from '@/utils/dayjs'
 import Embed from '@editorjs/embed'
 import SimpleImage from '@editorjs/simple-image'
 import Table from '@editorjs/table'
+import MDParser from 'editorjs-md-parser'
+import MDImporter from 'editorjs-md-parser'
 
 export function createToast(options) {
 	toast({
@@ -150,6 +153,7 @@ export function getEditorTools() {
 		header: Header,
 		quiz: Quiz,
 		upload: Upload,
+		markdownParser: MarkdownParser,
 		image: SimpleImage,
 		table: Table,
 		paragraph: {
