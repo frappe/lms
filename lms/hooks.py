@@ -220,8 +220,6 @@ lms_markdown_macro_renderers = {
 	"PDF": "lms.plugins.pdf_renderer",
 }
 
-website_path_resolver = "lms.lms.api.resolve_scorm_path"
-
 # page_renderer to manage profile pages
 page_renderer = [
 	"lms.page_renderers.ProfileRedirectPage",

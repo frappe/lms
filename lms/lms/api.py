@@ -17,7 +17,6 @@ from frappe.utils import time_diff, now_datetime, get_datetime, flt
 from typing import Optional
 from lms.lms.utils import get_average_rating, get_lesson_count
 from xml.dom.minidom import parseString
-from frappe.website.path_resolver import resolve_path as original_resolve_path
 
 
 @frappe.whitelist()
@@ -1030,13 +1029,3 @@ def delete_scorm_package(scorm_package_path):
 	scorm_package_path = frappe.get_site_path("public", scorm_package_path[1:])
 	if os.path.exists(scorm_package_path):
 		shutil.rmtree(scorm_package_path)
-
-
-def resolve_scorm_path(path):
-	try:
-		if "scorm/" in path and path.endswith(".html"):
-			return path
-	except Exception:
-		pass
-
-	return original_resolve_path(path)

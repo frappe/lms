@@ -149,9 +149,16 @@ class SCORMRenderer(BaseRenderer):
 
 	def render(self):
 		path = os.path.join(frappe.local.site_path, "public", self.path.lstrip("/"))
-		f = open(path, "rb")
-		response = Response(
-			wrap_file(frappe.local.request.environ, f), direct_passthrough=True
-		)
-		response.mimetype = mimetypes.guess_type(path)[0]
-		return response
+
+		extension = os.path.splitext(path)[1]
+		if not extension:
+			path = f"{path}.html"
+
+		# check if path exists and is actually a file and not a folder
+		if os.path.exists(path) and os.path.isfile(path):
+			f = open(path, "rb")
+			response = Response(
+				wrap_file(frappe.local.request.environ, f), direct_passthrough=True
+			)
+			response.mimetype = mimetypes.guess_type(path)[0]
+			return response
