@@ -1,11 +1,10 @@
 <div align="center" markdown="1">
 
-<img src=".github/lms-logo.png" alt="Frappe Learning logo" width="100"/>
+<img src=".github/lms-logo.png" alt="Frappe Learning logo" width="80" height="80"/>
 <h1>Frappe Learning</h1>
 
 **Easy to use, open source, Learning Management System**
 
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/frappe/lms)
 ![Tests](https://img.shields.io/endpoint?url=https://dashboard.cypress.io/badge/simple/vandxn/main&style=flat&logo=cypress)
 
 </div>
@@ -37,24 +36,42 @@ In 2021, we were looking for a Learning Management System to launch [Mon.School]
 
 - **Getting Certified**: Once a learner has completed the course or batch, you can grant them a certificate. The app provides an inbuilt certificate template. You can use this or else create a template of your own and use that instead.
 
-### Batches to group learners
+<details>
+<summary>View Screenshots</summary>
 
-![Batch](.github/batches.png)
 
-### Quiz to evaluate them
+![Batch](.github/batch.png)
+<div align="center">
+	<sub>
+		Create batches to group your learners
+	</sub>
+</div>
+<br>
+
 
 ![Quiz](.github/quiz.png)
+<div align="center">
+	<sub>
+		Evaluate their knowledge by quizzes
+	</sub>
+</div>
+<br>
 
-### Certificate to authenticate their knowledge
 
 ![Cerficicate](.github/certificate.png)
+<div align="center">
+	<sub>
+		Autenticate their work with certification
+	</sub>
+</div>
+</details>
+
 
 ## Under the Hood
 
-- [**Frappe Framework**](https://github.com/frappe/frappe): A full-stack web application framework written in Python and Javascript. The framework provides a robust foundation for building web applications, including a database abstraction layer, user authentication, and a REST API.
+- [**Frappe Framework**](https://github.com/frappe/frappe): A full-stack web application framework.
 
-- [**Frappe UI**](https://github.com/frappe/frappe-ui): A Vue-based UI library, to provide a modern user interface. The Frappe UI library provides a variety of components that can be used to build single-page applications on top of the Frappe Framework.
-
+- [**Frappe UI**](https://github.com/frappe/frappe-ui): A Vue-based UI library, to provide a modern user interface.
 
 ## Production Setup
 
@@ -145,7 +162,8 @@ To setup the repository locally follow the steps mentioned below:
 - [Documentation](https://docs.frappe.io/learning)
 - [YouTube](https://www.youtube.com/channel/UCn3bV5kx77HsVwtnlCeEi_A)
 
-<h2></h2>
+<br>
+<br>
 <div align="center" style="padding-top: 0.75rem;">
 	<a href="https://frappe.io" target="_blank">
 		<picture>
