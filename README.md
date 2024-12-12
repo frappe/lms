@@ -39,16 +39,31 @@ In 2021, we were looking for a Learning Management System to launch [Mon.School]
 <details>
 <summary>View Screenshots</summary>
 
+
 ![Batch](.github/batch.png)
-*<small>Form batches to group your learners</small>*
+<div align="center">
+	<sub>
+		Create batches to group your learners
+	</sub>
+</div>
 <br>
+
 
 ![Quiz](.github/quiz.png)
-*<small>Evaluate their knowledge by quizzes</small>*
+<div align="center">
+	<sub>
+		Evaluate their knowledge by quizzes
+	</sub>
+</div>
 <br>
 
+
 ![Cerficicate](.github/certificate.png)
-*<small>Autenticate their work with certification</small>*
+<div align="center">
+	<sub>
+		Autenticate their work with certification
+	</sub>
+</div>
 </details>
 
 
