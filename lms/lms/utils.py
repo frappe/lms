@@ -1475,7 +1475,9 @@ def get_batch_students(batch):
 
 		""" Iterate through assessments and track their progress """
 		for assessment in assessments:
-			title = frappe.db.get_value("LMS Assignment", assessment.assessment_name, "title")
+			title = frappe.db.get_value(
+				assessment.assessment_type, assessment.assessment_name, "title"
+			)
 			status = has_submitted_assessment(
 				assessment.assessment_name, assessment.assessment_type, student.student
 			)
@@ -1502,7 +1504,7 @@ def has_submitted_assessment(assessment, assessment_type, member=None):
 	elif assessment_type == "LMS Quiz":
 		doctype = "LMS Quiz Submission"
 		docfield = "quiz"
-		fields = ["score"]
+		fields = ["percentage"]
 		not_attempted = 0
 
 	filters = {}

@@ -18,7 +18,11 @@
 			<ListHeader
 				class="mb-2 grid items-center space-x-4 rounded bg-gray-100 p-2"
 			>
-				<ListHeaderItem :item="item" v-for="item in getStudentColumns()">
+				<ListHeaderItem
+					:item="item"
+					v-for="item in getStudentColumns()"
+					:title="item.label"
+				>
 					<template #prefix="{ item }">
 						<FeatherIcon
 							v-if="item.icon"
@@ -46,15 +50,18 @@
 								{{ row[column.key] }}
 							</div>
 							<div v-else-if="column.icon == 'book-open'">
-								{{ Math.ceil(row.courses[column.key]) }}
+								{{ Math.ceil(row.courses[column.key]) }}%
 							</div>
-							<Badge
-								v-else-if="column.icon == 'help-circle'"
-								:theme="getStatusTheme(row.assessments[column.key])"
-								class="text-xs"
-							>
-								{{ row.assessments[column.key] }}
-							</Badge>
+							<div v-else-if="column.icon == 'help-circle'">
+								<Badge
+									v-if="isAssignment(row.assessments[column.key])"
+									:theme="getStatusTheme(row.assessments[column.key])"
+									class="text-xs"
+								>
+									{{ row.assessments[column.key] }}
+								</Badge>
+								<div v-else>{{ parseInt(row.assessments[column.key]) }}%</div>
+							</div>
 						</ListRowItem>
 					</template>
 				</ListRow>
@@ -125,30 +132,32 @@ const getStudentColumns = () => {
 		{
 			label: 'Full Name',
 			key: 'full_name',
-			width: 1,
+			width: '10rem',
 		},
 	]
 
 	if (students.data?.[0].courses) {
 		Object.keys(students.data?.[0].courses).forEach((course) => {
 			columns.push({
-				label: `${course} (%)`,
+				label: course,
 				key: course,
-				width: 1,
+				width: '10rem',
 				icon: 'book-open',
 				align: 'center',
 			})
 		})
 	}
-
+	console.log(students.data?.[0].assessments)
 	if (students.data?.[0].assessments) {
 		Object.keys(students.data?.[0].assessments).forEach((assessment) => {
 			columns.push({
 				label: assessment,
 				key: assessment,
-				width: 1,
+				width: '10rem',
 				icon: 'help-circle',
-				align: 'left',
+				align: isAssignment(students.data?.[0].assessments[assessment])
+					? 'left'
+					: 'center',
 			})
 		})
 	}
@@ -192,5 +201,9 @@ const getStatusTheme = (status) => {
 	} else {
 		return 'red'
 	}
+}
+
+const isAssignment = (value) => {
+	return isNaN(value)
 }
 </script>
