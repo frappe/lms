@@ -1,12 +1,14 @@
 <template>
-	<Button class="float-right mb-3" @click="openStudentModal()">
-		<template #prefix>
-			<Plus class="h-4 w-4" />
-		</template>
-		{{ __('Add') }}
-	</Button>
-	<div class="text-lg font-semibold mb-4">
-		{{ __('Students') }}
+	<div class="flex items-center justify-between mb-4">
+		<div class="text-lg font-semibold">
+			{{ __('Students') }}
+		</div>
+		<Button @click="openStudentModal()">
+			<template #prefix>
+				<Plus class="h-4 w-4" />
+			</template>
+			{{ __('Add') }}
+		</Button>
 	</div>
 	<div v-if="students.data?.length">
 		<ListView
@@ -147,7 +149,7 @@ const getStudentColumns = () => {
 			})
 		})
 	}
-	console.log(students.data?.[0].assessments)
+
 	if (students.data?.[0].assessments) {
 		Object.keys(students.data?.[0].assessments).forEach((assessment) => {
 			columns.push({

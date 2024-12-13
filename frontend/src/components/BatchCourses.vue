@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<div class="flex items-center justify-between mb-4">
-			<div class="text-xl font-semibold">
+			<div class="text-lg font-semibold">
 				{{ __('Courses') }}
 			</div>
 			<Button v-if="canSeeAddButton()" @click="openCourseModal()">
@@ -110,7 +110,6 @@ const openCourseModal = () => {
 }
 
 const getCoursesColumns = () => {
-	console.log(courses.data)
 	return [
 		{
 			label: 'Title',
