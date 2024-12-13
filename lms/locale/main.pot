@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Frappe LMS VERSION\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2024-12-06 16:04+0000\n"
-"PO-Revision-Date: 2024-12-06 16:04+0000\n"
+"POT-Creation-Date: 2024-12-13 16:04+0000\n"
+"PO-Revision-Date: 2024-12-13 16:04+0000\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: jannat@frappe.io\n"
 "MIME-Version: 1.0\n"
@@ -99,7 +99,7 @@ msgstr ""
 
 #: frontend/src/components/Assessments.vue:11
 #: frontend/src/components/BatchCourses.vue:11
-#: frontend/src/components/BatchStudents.vue:6
+#: frontend/src/components/BatchStudents.vue:10
 #: frontend/src/components/Categories.vue:26
 #: frontend/src/components/LiveClass.vue:11
 #: frontend/src/components/Members.vue:43 frontend/src/pages/ProgramForm.vue:30
@@ -1700,7 +1700,7 @@ msgstr ""
 msgid "Enrollment Count"
 msgstr ""
 
-#: lms/lms/utils.py:1702
+#: lms/lms/utils.py:1715
 msgid "Enrollment Failed"
 msgstr ""
 
@@ -1736,6 +1736,7 @@ msgstr ""
 #: frontend/src/components/Modals/Question.vue:249
 #: frontend/src/components/Modals/Question.vue:269
 #: frontend/src/components/Modals/Question.vue:326
+#: frontend/src/components/Modals/StudentModal.vue:69
 #: frontend/src/components/SettingDetails.vue:62
 #: frontend/src/pages/Billing.vue:264 frontend/src/pages/QuizForm.vue:350
 #: frontend/src/pages/QuizForm.vue:365
@@ -2810,7 +2811,7 @@ msgstr ""
 msgid "LiveCode URL"
 msgstr ""
 
-#: frontend/src/components/Members.vue:95
+#: frontend/src/components/Members.vue:106
 msgid "Load More"
 msgstr ""
 
@@ -3228,7 +3229,7 @@ msgstr ""
 msgid "Next Question"
 msgstr ""
 
-#: frontend/src/components/Assessments.vue:63 lms/templates/assessments.html:58
+#: frontend/src/components/Assessments.vue:66 lms/templates/assessments.html:58
 msgid "No Assessments"
 msgstr ""
 
@@ -3685,7 +3686,7 @@ msgstr ""
 msgid "Please click on the following button to set your new password"
 msgstr ""
 
-#: lms/lms/utils.py:1824 lms/lms/utils.py:1828
+#: lms/lms/utils.py:1837 lms/lms/utils.py:1841
 msgid "Please complete the previous courses in the program to enroll in this course."
 msgstr ""
 
@@ -4698,13 +4699,13 @@ msgstr ""
 
 #. Label of the students (Table) field in DocType 'LMS Batch'
 #. Label of the show_students (Check) field in DocType 'LMS Settings'
-#: frontend/src/components/BatchStudents.vue:9
+#: frontend/src/components/BatchStudents.vue:4
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Students"
 msgstr ""
 
-#: frontend/src/components/BatchStudents.vue:157
+#: frontend/src/components/BatchStudents.vue:191
 msgid "Students deleted successfully"
 msgstr ""
 
@@ -4756,7 +4757,7 @@ msgstr ""
 
 #: frontend/src/components/BatchCourses.vue:150
 #: frontend/src/components/BatchOverlay.vue:135
-#: frontend/src/components/BatchStudents.vue:157
+#: frontend/src/components/BatchStudents.vue:191
 #: frontend/src/components/CourseCardOverlay.vue:161
 #: frontend/src/components/Modals/AnnouncementModal.vue:99
 #: frontend/src/components/Modals/AssessmentModal.vue:73
@@ -4944,7 +4945,7 @@ msgstr ""
 msgid "There are no seats available in this batch."
 msgstr ""
 
-#: frontend/src/components/BatchStudents.vue:67
+#: frontend/src/components/BatchStudents.vue:86
 msgid "There are no students in this batch."
 msgstr ""
 
@@ -4975,7 +4976,7 @@ msgstr ""
 msgid "This course has:"
 msgstr ""
 
-#: lms/lms/utils.py:1582
+#: lms/lms/utils.py:1595
 msgid "This course is free."
 msgstr ""
 
@@ -5117,7 +5118,7 @@ msgstr ""
 msgid "To Date"
 msgstr ""
 
-#: lms/lms/utils.py:1593
+#: lms/lms/utils.py:1606
 msgid "To join this batch, please contact the Administrator."
 msgstr ""
 
