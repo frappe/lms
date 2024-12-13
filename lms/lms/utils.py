@@ -874,26 +874,6 @@ def is_onboarding_complete():
 	}
 
 
-def has_submitted_assessment(assessment, type, member=None):
-	if not member:
-		member = frappe.session.user
-
-	doctype = (
-		"LMS Assignment Submission" if type == "LMS Assignment" else "LMS Quiz Submission"
-	)
-	docfield = "assignment" if type == "LMS Assignment" else "quiz"
-
-	filters = {}
-	filters[docfield] = assessment
-	filters["member"] = member
-	return frappe.db.exists(doctype, filters)
-
-
-def has_graded_assessment(submission):
-	status = frappe.db.get_value("LMS Assignment Submission", submission, "status")
-	return False if status == "Not Graded" else True
-
-
 def get_evaluator(course, batch):
 	evaluator = None
 	evaluator = frappe.db.get_value(
@@ -1459,13 +1439,11 @@ def get_quiz_details(assessment, member):
 @frappe.whitelist()
 def get_batch_students(batch):
 	students = []
-
 	students_list = frappe.get_all(
 		"Batch Student", filters={"parent": batch}, fields=["student", "name"]
 	)
 
-	batch_courses = frappe.get_all("Batch Course", {"parent": batch}, pluck="course")
-
+	batch_courses = frappe.get_all("Batch Course", {"parent": batch}, ["course", "title"])
 	assessments = frappe.get_all(
 		"LMS Assessment",
 		filters={"parent": batch},
@@ -1483,27 +1461,60 @@ def get_batch_students(batch):
 		)
 		detail.last_active = format_datetime(detail.last_active, "dd MMM YY")
 		detail.name = student.name
-		students.append(detail)
+		detail.courses = frappe._dict()
+		detail.assessments = frappe._dict()
 
+		""" Iterate through courses and track their progress """
 		for course in batch_courses:
 			progress = frappe.db.get_value(
-				"LMS Enrollment", {"course": course, "member": student.student}, "progress"
+				"LMS Enrollment", {"course": course.course, "member": student.student}, "progress"
 			)
-
+			detail.courses[course.title] = progress
 			if progress == 100:
 				courses_completed += 1
 
-		detail.courses_completed = courses_completed
-
+		""" Iterate through assessments and track their progress """
 		for assessment in assessments:
-			if has_submitted_assessment(
+			title = frappe.db.get_value("LMS Assignment", assessment.assessment_name, "title")
+			status = has_submitted_assessment(
 				assessment.assessment_name, assessment.assessment_type, student.student
-			):
+			)
+			detail.assessments[title] = status
+			if status not in ["Not Attempted", 0]:
 				assessments_completed += 1
 
+		detail.courses_completed = courses_completed
 		detail.assessments_completed = assessments_completed
+		students.append(detail)
 
 	return students
+
+
+def has_submitted_assessment(assessment, assessment_type, member=None):
+	if not member:
+		member = frappe.session.user
+
+	if assessment_type == "LMS Assignment":
+		doctype = "LMS Assignment Submission"
+		docfield = "assignment"
+		fields = ["status"]
+		not_attempted = "Not Attempted"
+	elif assessment_type == "LMS Quiz":
+		doctype = "LMS Quiz Submission"
+		docfield = "quiz"
+		fields = ["score"]
+		not_attempted = 0
+
+	filters = {}
+	filters[docfield] = assessment
+	filters["member"] = member
+
+	attempt = frappe.db.exists(doctype, filters)
+	if attempt:
+		attempt_details = frappe.db.get_value(doctype, filters, fields)
+		return attempt_details
+	else:
+		return not_attempted
 
 
 @frappe.whitelist()

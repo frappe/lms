@@ -20,10 +20,10 @@
 			>
 				<ListHeaderItem :item="item" v-for="item in getStudentColumns()">
 					<template #prefix="{ item }">
-						<component
+						<FeatherIcon
 							v-if="item.icon"
-							:is="item.icon"
-							class="h-4 w-4 stroke-1.5 ml-4"
+							:name="item.icon"
+							class="h-4 w-4 stroke-1.5"
 						/>
 					</template>
 				</ListHeaderItem>
@@ -42,9 +42,19 @@
 									/>
 								</div>
 							</template>
-							<div>
+							<div v-if="column.key == 'courses'">
 								{{ row[column.key] }}
 							</div>
+							<div v-else-if="column.icon == 'book-open'">
+								{{ Math.ceil(row.courses[column.key]) }}
+							</div>
+							<Badge
+								v-else-if="column.icon == 'help-circle'"
+								:theme="getStatusTheme(row.assessments[column.key])"
+								class="text-xs"
+							>
+								{{ row.assessments[column.key] }}
+							</Badge>
 						</ListRowItem>
 					</template>
 				</ListRow>
@@ -74,7 +84,11 @@
 </template>
 <script setup>
 import {
+	Avatar,
+	Badge,
+	Button,
 	createResource,
+	FeatherIcon,
 	ListHeader,
 	ListHeaderItem,
 	ListSelectBanner,
@@ -82,8 +96,6 @@ import {
 	ListRows,
 	ListView,
 	ListRowItem,
-	Avatar,
-	Button,
 } from 'frappe-ui'
 import { Trash2, Plus } from 'lucide-vue-next'
 import { ref } from 'vue'
@@ -109,27 +121,38 @@ const students = createResource({
 })
 
 const getStudentColumns = () => {
-	return [
+	let columns = [
 		{
 			label: 'Full Name',
 			key: 'full_name',
-			width: 2,
-		},
-		{
-			label: 'Courses Done',
-			key: 'courses_completed',
-			align: 'center',
-		},
-		{
-			label: 'Assessments Done',
-			key: 'assessments_completed',
-			align: 'center',
-		},
-		{
-			label: 'Last Active',
-			key: 'last_active',
+			width: 1,
 		},
 	]
+
+	if (students.data?.[0].courses) {
+		Object.keys(students.data?.[0].courses).forEach((course) => {
+			columns.push({
+				label: `${course} (%)`,
+				key: course,
+				width: 1,
+				icon: 'book-open',
+				align: 'center',
+			})
+		})
+	}
+
+	if (students.data?.[0].assessments) {
+		Object.keys(students.data?.[0].assessments).forEach((assessment) => {
+			columns.push({
+				label: assessment,
+				key: assessment,
+				width: 1,
+				icon: 'help-circle',
+				align: 'left',
+			})
+		})
+	}
+	return columns
 }
 
 const openStudentModal = () => {
@@ -159,5 +182,15 @@ const removeStudents = (selections, unselectAll) => {
 			},
 		}
 	)
+}
+
+const getStatusTheme = (status) => {
+	if (status === 'Pass') {
+		return 'green'
+	} else if (status == 'Not Graded') {
+		return 'orange'
+	} else {
+		return 'red'
+	}
 }
 </script>

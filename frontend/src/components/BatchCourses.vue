@@ -110,6 +110,7 @@ const openCourseModal = () => {
 }
 
 const getCoursesColumns = () => {
+	console.log(courses.data)
 	return [
 		{
 			label: 'Title',
@@ -118,13 +119,13 @@ const getCoursesColumns = () => {
 		},
 		{
 			label: 'Lessons',
-			key: 'lesson_count',
+			key: 'lessons',
 			align: 'right',
 		},
 		{
 			label: 'Enrollments',
 			align: 'right',
-			key: 'enrollment_count',
+			key: 'enrollments',
 		},
 	]
 }
