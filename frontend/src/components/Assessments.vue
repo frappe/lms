@@ -1,7 +1,7 @@
 <template>
 	<div>
-		<div class="flex items-center justify-between">
-			<div class="text-lg font-semibold mb-4">
+		<div class="flex items-center justify-between mb-4">
+			<div class="text-lg font-semibold">
 				{{ __('Assessments') }}
 			</div>
 			<Button v-if="canSeeAddButton()" @click="showModal = true">
@@ -38,7 +38,10 @@
 					<ListRow :row="row" v-for="row in assessments.data">
 						<template #default="{ column, item }">
 							<ListRowItem :item="row[column.key]" :align="column.align">
-								<div>
+								<div v-if="column.key == 'assessment_type'">
+									{{ row[column.key] == 'LMS Quiz' ? 'Quiz' : 'Assignment' }}
+								</div>
+								<div v-else>
 									{{ row[column.key] }}
 								</div>
 							</ListRowItem>
@@ -177,10 +180,12 @@ const getAssessmentColumns = () => {
 		{
 			label: 'Assessment',
 			key: 'title',
+			width: '30rem',
 		},
 		{
 			label: 'Type',
 			key: 'assessment_type',
+			width: '10rem',
 		},
 	]
 
@@ -189,6 +194,7 @@ const getAssessmentColumns = () => {
 			label: 'Status/Score',
 			key: 'status',
 			align: 'center',
+			width: '10rem',
 		})
 	}
 	return columns

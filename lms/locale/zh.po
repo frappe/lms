@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2024-11-29 16:04+0000\n"
-"PO-Revision-Date: 2024-12-02 22:11\n"
+"POT-Creation-Date: 2024-12-06 16:04+0000\n"
+"PO-Revision-Date: 2024-12-09 23:31\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Chinese Simplified\n"
 "MIME-Version: 1.0\n"
@@ -700,6 +700,10 @@ msgstr ""
 msgid "Certificates"
 msgstr ""
 
+#: frontend/src/components/Modals/BulkCertificates.vue:121
+msgid "Certificates generated successfully"
+msgstr ""
+
 #. Label of the certification (Table) field in DocType 'User'
 #. Name of a DocType
 #. Label of the certification_tab (Tab Break) field in DocType 'LMS Course'
@@ -1086,6 +1090,7 @@ msgstr "国家"
 #. Label of a Link in the LMS Workspace
 #. Label of a shortcut in the LMS Workspace
 #: frontend/src/components/Modals/BatchCourseModal.vue:20
+#: frontend/src/components/Modals/BulkCertificates.vue:23
 #: frontend/src/components/Modals/EvaluationModal.vue:20
 #: frontend/src/components/Modals/Event.vue:24
 #: lms/lms/doctype/batch_course/batch_course.json
@@ -1492,7 +1497,7 @@ msgid "Discard"
 msgstr "丢弃"
 
 #. Label of the show_discussions (Check) field in DocType 'LMS Settings'
-#: frontend/src/pages/Batch.vue:73
+#: frontend/src/pages/Batch.vue:81
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Discussions"
 msgstr ""
@@ -1637,6 +1642,10 @@ msgstr ""
 msgid "Enabled"
 msgstr "已启用"
 
+#: frontend/src/components/Modals/BulkCertificates.vue:53
+msgid "Enabling this will publish the certificate on the certified participants page."
+msgstr ""
+
 #. Label of the end_date (Date) field in DocType 'Cohort'
 #. Label of the end_date (Date) field in DocType 'LMS Batch'
 #: frontend/src/pages/BatchForm.vue:131 lms/lms/doctype/cohort/cohort.json
@@ -1722,12 +1731,14 @@ msgid "Enter the correct answer"
 msgstr ""
 
 #: frontend/src/components/Modals/AnnouncementModal.vue:105
+#: frontend/src/components/Modals/BulkCertificates.vue:115
 #: frontend/src/components/Modals/ChapterModal.vue:159
 #: frontend/src/components/Modals/ChapterModal.vue:166
 #: frontend/src/components/Modals/ChapterModal.vue:202
 #: frontend/src/components/Modals/Question.vue:249
 #: frontend/src/components/Modals/Question.vue:269
 #: frontend/src/components/Modals/Question.vue:326
+#: frontend/src/components/SettingDetails.vue:62
 #: frontend/src/pages/Billing.vue:264 frontend/src/pages/QuizForm.vue:350
 #: frontend/src/pages/QuizForm.vue:365
 #: frontend/src/pages/QuizSubmission.vue:141
@@ -1773,6 +1784,7 @@ msgstr ""
 #. Label of the evaluator (Link) field in DocType 'LMS Certificate Evaluation'
 #. Label of the evaluator (Link) field in DocType 'LMS Certificate Request'
 #: frontend/src/components/Modals/BatchCourseModal.vue:26
+#: frontend/src/components/Modals/BulkCertificates.vue:28
 #: frontend/src/pages/ProfileRoles.vue:22
 #: lms/lms/doctype/batch_course/batch_course.json
 #: lms/lms/doctype/course_evaluator/course_evaluator.json
@@ -1850,6 +1862,7 @@ msgid "Expiration Date"
 msgstr ""
 
 #. Label of the expiry_date (Date) field in DocType 'LMS Certificate'
+#: frontend/src/components/Modals/BulkCertificates.vue:39
 #: frontend/src/components/Modals/Event.vue:126
 #: lms/lms/doctype/lms_certificate/lms_certificate.json
 msgid "Expiry Date"
@@ -2009,6 +2022,11 @@ msgstr ""
 #. Label of the general_tab (Tab Break) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "General"
+msgstr ""
+
+#: frontend/src/components/Modals/BulkCertificates.vue:5
+#: frontend/src/pages/Batch.vue:12
+msgid "Generate Certificates"
 msgstr ""
 
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.js:18
@@ -2358,6 +2376,7 @@ msgstr ""
 
 #. Label of the issue_date (Date) field in DocType 'Certification'
 #. Label of the issue_date (Date) field in DocType 'LMS Certificate'
+#: frontend/src/components/Modals/BulkCertificates.vue:34
 #: frontend/src/components/Modals/Event.vue:121
 #: lms/lms/doctype/certification/certification.json
 #: lms/lms/doctype/lms_certificate/lms_certificate.json
@@ -2822,7 +2841,7 @@ msgid "Location Preference"
 msgstr ""
 
 #: frontend/src/components/NoPermission.vue:28
-#: frontend/src/components/QuizBlock.vue:9 frontend/src/pages/Batch.vue:167
+#: frontend/src/components/QuizBlock.vue:9 frontend/src/pages/Batch.vue:175
 #: frontend/src/pages/Lesson.vue:24
 msgid "Login"
 msgstr "登录"
@@ -2837,7 +2856,7 @@ msgid "Make LMS the default home"
 msgstr ""
 
 #: frontend/src/components/Modals/AnnouncementModal.vue:5
-#: frontend/src/pages/Batch.vue:9
+#: frontend/src/pages/Batch.vue:16
 msgid "Make an Announcement"
 msgstr ""
 
@@ -3107,11 +3126,11 @@ msgstr ""
 msgid "Modified By"
 msgstr "修改者"
 
-#: lms/lms/api.py:197
+#: lms/lms/api.py:199
 msgid "Module Name is incorrect or does not exist."
 msgstr ""
 
-#: lms/lms/api.py:193
+#: lms/lms/api.py:195
 msgid "Module is incorrect."
 msgstr ""
 
@@ -3324,7 +3343,7 @@ msgstr ""
 msgid "Not Graded"
 msgstr ""
 
-#: frontend/src/components/NoPermission.vue:7 frontend/src/pages/Batch.vue:135
+#: frontend/src/components/NoPermission.vue:7 frontend/src/pages/Batch.vue:143
 msgid "Not Permitted"
 msgstr "不允许"
 
@@ -3721,11 +3740,11 @@ msgstr ""
 msgid "Please login to access the quiz."
 msgstr ""
 
-#: frontend/src/components/NoPermission.vue:25 frontend/src/pages/Batch.vue:146
+#: frontend/src/components/NoPermission.vue:25 frontend/src/pages/Batch.vue:154
 msgid "Please login to access this page."
 msgstr ""
 
-#: lms/lms/api.py:189
+#: lms/lms/api.py:191
 msgid "Please login to continue with payment."
 msgstr ""
 
@@ -3940,6 +3959,7 @@ msgstr ""
 
 #. Label of the published (Check) field in DocType 'LMS Batch'
 #. Label of the published (Check) field in DocType 'LMS Course'
+#: frontend/src/components/Modals/BulkCertificates.vue:51
 #: frontend/src/components/Modals/Event.vue:108
 #: frontend/src/pages/BatchForm.vue:28 frontend/src/pages/CourseForm.vue:171
 #: lms/lms/doctype/lms_batch/lms_batch.json
@@ -4742,6 +4762,7 @@ msgstr ""
 #: frontend/src/components/CourseCardOverlay.vue:161
 #: frontend/src/components/Modals/AnnouncementModal.vue:99
 #: frontend/src/components/Modals/AssessmentModal.vue:73
+#: frontend/src/components/Modals/BulkCertificates.vue:121
 #: frontend/src/components/Modals/ChapterModal.vue:153
 #: frontend/src/components/Modals/ChapterModal.vue:198
 #: frontend/src/components/Modals/Event.vue:255
@@ -4768,6 +4789,10 @@ msgstr "概要"
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Sunday"
+msgstr ""
+
+#: lms/lms/api.py:951
+msgid "Suspicious pattern found in {0}: {1}"
 msgstr ""
 
 #. Name of a role
@@ -4838,6 +4863,7 @@ msgstr ""
 
 #. Label of the template (Link) field in DocType 'Cohort Web Page'
 #. Label of the template (Link) field in DocType 'LMS Certificate'
+#: frontend/src/components/Modals/BulkCertificates.vue:43
 #: frontend/src/components/Modals/Event.vue:112
 #: lms/lms/doctype/cohort_web_page/cohort_web_page.json
 #: lms/lms/doctype/lms_certificate/lms_certificate.json
@@ -4955,7 +4981,7 @@ msgstr ""
 msgid "This course is free."
 msgstr ""
 
-#: frontend/src/pages/SCORMChapter.vue:197
+#: frontend/src/pages/SCORMChapter.vue:201
 msgid "This is a chapter in the course {0}"
 msgstr ""
 
@@ -5215,7 +5241,7 @@ msgstr ""
 msgid "Upcoming"
 msgstr ""
 
-#: frontend/src/pages/Batch.vue:158
+#: frontend/src/pages/Batch.vue:166
 msgid "Upcoming Batches"
 msgstr ""
 
@@ -5417,15 +5443,15 @@ msgstr ""
 msgid "You already have an evaluation on {0} at {1} for the course {2}."
 msgstr ""
 
-#: lms/lms/api.py:213
+#: lms/lms/api.py:215
 msgid "You are already enrolled for this batch."
 msgstr ""
 
-#: lms/lms/api.py:205
+#: lms/lms/api.py:207
 msgid "You are already enrolled for this course."
 msgstr ""
 
-#: frontend/src/pages/Batch.vue:140
+#: frontend/src/pages/Batch.vue:148
 msgid "You are not a member of this batch. Please checkout our upcoming batches."
 msgstr ""
 
@@ -5649,7 +5675,7 @@ msgstr ""
 msgid "you can"
 msgstr ""
 
-#: lms/lms/api.py:747 lms/lms/api.py:755
+#: lms/lms/api.py:749 lms/lms/api.py:757
 msgid "{0} Settings not found"
 msgstr ""
 
