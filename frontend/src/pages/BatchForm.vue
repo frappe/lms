@@ -252,7 +252,7 @@ import {
 } from 'frappe-ui'
 import Link from '@/components/Controls/Link.vue'
 import { useRouter } from 'vue-router'
-import { showToast } from '../utils'
+import { showToast } from '@/utils'
 import { Image } from 'lucide-vue-next'
 import { capture } from '@/telemetry'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
@@ -345,6 +345,10 @@ const batchDetail = createResource({
 				data.instructors.forEach((instructor) => {
 					instructors.value.push(instructor.instructor)
 				})
+			} else if (['start_time', 'end_time'].includes(key)) {
+				let [hours, minutes, seconds] = data[key].split(':')
+				hours = hours.length == 1 ? '0' + hours : hours
+				batch[key] = `${hours}:${minutes}`
 			} else if (Object.hasOwn(batch, key)) batch[key] = data[key]
 		})
 		let checkboxes = ['published', 'paid_batch', 'allow_self_enrollment']

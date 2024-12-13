@@ -28,6 +28,7 @@
 import { Dialog, createResource } from 'frappe-ui'
 import { ref } from 'vue'
 import Link from '@/components/Controls/Link.vue'
+import { showToast } from '@/utils'
 
 const students = defineModel('reloadStudents')
 const student = ref()
@@ -61,8 +62,11 @@ const addStudent = (close) => {
 		{
 			onSuccess() {
 				students.value.reload()
-				close()
 				student.value = null
+				close()
+			},
+			onError(err) {
+				showToast(__('Error'), __(err.messages?.[0] || err), 'x')
 			},
 		}
 	)
