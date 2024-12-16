@@ -161,7 +161,7 @@ export function getEditorTools() {
 		table: Table,
 		paragraph: {
 			class: Paragraph,
-			inlineToolbar: true,
+			inlineToolbar: false,
 			config: {
 				preserveBlank: true,
 			},
