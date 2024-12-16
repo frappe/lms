@@ -59,7 +59,7 @@
 
 				<div v-if="course.status != 'Approved'">
 					<Badge
-						variant="solid"
+						variant="subtle"
 						:theme="course.status === 'Under Review' ? 'orange' : 'blue'"
 						size="sm"
 					>
