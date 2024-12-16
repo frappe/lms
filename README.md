@@ -1,115 +1,174 @@
-<p align="center">
-  <a href="https://www.frappelms.com/">
-    <img src="https://frappe.io/files/lms.png" alt="Frappe LMS" width="50px" height="50px">
-  </a>
-  <p align="center">Easy to use, open source, learning management system.</p>
-</p>
+<div align="center" markdown="1">
 
+<img src=".github/lms-logo.png" alt="Frappe Learning logo" width="80" height="80"/>
+<h1>Frappe Learning</h1>
 
-&nbsp;
+**Easy to use, open source, Learning Management System**
 
-<p align="center">
-    <a href="https://www.producthunt.com/posts/frappe-lms?utm_source=badge-top-post-topic-badge&utm_medium=badge&utm_souce=badge-frappe&#0045;lms" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/top-post-topic-badge.svg?post_id=396079&theme=dark&period=weekly&topic_id=204" alt="Frappe&#0032;LMS - Easy&#0032;to&#0032;use&#0044;&#0032;100&#0037;&#0032;open&#0032;source&#0032;learning&#0032;management&#0032;system | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
-</p>
+![Tests](https://img.shields.io/endpoint?url=https://dashboard.cypress.io/badge/simple/vandxn/main&style=flat&logo=cypress)
 
-
-<div align="center" style="max-height: 40px;">
-    <a href="https://frappecloud.com/lms/signup">
-        <img src=".github/try-on-f-cloud.svg" height="40">
-    </a>
 </div>
 
-&nbsp;
 
-<p align="center">
-	<a href="https://dashboard.cypress.io/projects/vandxn/runs">
-    <img alt="cypress" src="https://img.shields.io/endpoint?url=https://dashboard.cypress.io/badge/simple/vandxn/main&style=flat&logo=cypress">
-  </a>
-  <a href="https://github.com/frappe/lms/blob/main/LICENSE">
-    <img alt="license" src="https://img.shields.io/badge/license-AGPLv3-blue">
-  </a>
-</p>
+<div align="center">
+	<img src=".github/hero.png?v=5" alt="Hero Image" width="72%" />
+</div>
+<br />
+<div align="center">
+	<a href="https://frappe.io/learning">Website</a>
+	-
+	<a href="https://docs.frappe.io/learning">Documentation</a>
+</div>
 
-<img width="1402" alt="Lesson" src="https://frappelms.com/files/banner.png">
+## Frappe Learning
+Frappe Learning is an easy-to-use learning system that helps you bring structure to your content.
+
+## Motivation
+In 2021, we were looking for a Learning Management System to launch [Mon.School](https://mon.school) for FOSS United. We checked out Moodle, but it didn’t feel right. The forms were unnecessarily lengthy and the UI was confusing. It shouldn't be this hard to create a course right? So I started making a learning system for Mon.School which soon became a product in itself. The aim is to have a simple platform that anyone can use to launch a course of their own and make knowledge sharing easier.
+
+## Key Features
+
+- **Structured Learning**: Design a course with a 3-level hierarchy, where your courses have chapters and you can group your lessons within these chapters. This ensures that the context of the lesson is set by the chapter.
+
+- **Live Classes**: Group learners into batches based on courses and duration. You can then create Zoom live class for these batches right from the app. Learners get to see the list of live classes they have to take as a part of this batch.
+
+- **Quizzes and Assignments**: Create quizzes where questions can have single-choice, multiple-choice options, or can be open ended. Instructors can also add assignments which learners can submit as PDF's or Documents.
+
+- **Getting Certified**: Once a learner has completed the course or batch, you can grant them a certificate. The app provides an inbuilt certificate template. You can use this or else create a template of your own and use that instead.
 
 <details>
-	<summary>Show more screenshots</summary>
-	<img width="1520" alt="ss1" src="https://user-images.githubusercontent.com/31363128/210056046-584bc8aa-d28c-4514-b031-73817012837d.png">
-	<img width="830" alt="ss2" src="https://user-images.githubusercontent.com/31363128/210056097-36849182-6db0-43a2-8c62-5333cd2aedf4.png">
-	<img width="941" alt="ss3" src="https://user-images.githubusercontent.com/31363128/210056134-01a7c429-1ef4-434e-9d43-128dda35d7e5.png">
+<summary>View Screenshots</summary>
+
+
+![Batch](.github/batch.png)
+<div align="center">
+	<sub>
+		Create batches to group your learners
+	</sub>
+</div>
+<br>
+
+
+![Quiz](.github/quiz.png)
+<div align="center">
+	<sub>
+		Evaluate their knowledge by quizzes
+	</sub>
+</div>
+<br>
+
+
+![Cerficicate](.github/certificate.png)
+<div align="center">
+	<sub>
+		Autenticate their work with certification
+	</sub>
+</div>
 </details>
 
-Frappe LMS is an easy-to-use, open-source learning management system. You can use it to create and share online courses. The app has a clear UI that helps students focus only on what's important and assists in distraction-free learning.
 
-You can create courses and lessons through simple forms. Lessons can be in the form of text, videos, quizzes or a combination of all these. You can keep your students engaged with quizzes to help revise and test the concepts learned. Course Instructors and Students can reach out to each other through the discussions section available for each lesson and get queries resolved.
+## Under the Hood
 
-## Features
-- Create online courses. 📚
-- Add detailed descriptions and preview videos to the course. 🎬
-- Add videos, quizzes, and assignments to your lessons and make them interesting and interactive 📝
-- Discussions section below each lesson where instructors and students can interact with each other. 💬
-- Create batches to group your students based on courses and track their progress 🏛
-- Statistics dashboard that provides all important numbers at a glimpse. 📈
-- Job Board where users can post and look for jobs. 💼
-- People directory with each person's profile page 👨‍👩‍👧‍👦
-- Set cover image, profile photo, short bio, and other professional information. 🦹🏼‍♀️
-- Simple layout that optimizes readability 🤓
-- Delightful user experience in overall usage ✨
+- [**Frappe Framework**](https://github.com/frappe/frappe): A full-stack web application framework.
 
-## Tech Stack
+- [**Frappe UI**](https://github.com/frappe/frappe-ui): A Vue-based UI library, to provide a modern user interface.
 
-Frappe LMS is built on [Frappe Framework](https://frappeframework.com) which is a batteries-included python web framework.
-These are some of the tools it's built on:
-- [Python](https://www.python.org)
-- [Redis](https://redis.io/)
-- [MariaDB](https://mariadb.org/)
-- [Socket.io](https://socket.io/)
-
-## Local Setup
-
-### Docker
-You need Docker, docker-compose, and git setup on your machine. Refer to [Docker documentation](https://docs.docker.com/). After that, run the following commands:
-```
-git clone https://github.com/frappe/lms
-cd apps/lms/docker
-docker-compose up
-```
-
-Wait for some time until the setup script creates a site. After that, you can access `http://localhost:8000` in your browser and the app's login screen should appear.
-You'll have to go through the setup wizard to set up the website the first time you access it. Log in using the following credentials to complete the setup wizard.
-
-```
-Username: Administrator
-password: admin
-```
-
-### Frappe Bench
-
-Currently, this app depends on the `develop` branch of [frappe](https://github.com/frappe/frappe).
-
-1. Setup frappe-bench by following [this guide](https://frappeframework.com/docs/v14/user/en/installation)
-1. In the frappe-bench directory, run `bench start` and keep it running. Open a new terminal session and cd into the `frappe-bench` directory.
-1. Run the following commands:
-    ```sh
-    bench new-site lms.test
-    bench get-app lms
-    bench --site lms.test install-app lms
-    bench --site lms.test add-to-hosts
-
- 1. Now, you can access the site at `http://lms.test:8000`
-
-
-## Deployment
-Frappe LMS is an app built on top of the Frappe Framework. So, you can follow any deployment guide for hosting a Frappe Framework-based site.
+## Production Setup
 
 ### Managed Hosting
-Frappe LMS can be deployed in a few clicks on [Frappe Cloud](https://frappecloud.com/marketplace/apps/lms).
 
-### Self-hosting
-If you want to self-host, you can follow official [Frappe Bench Installation](https://github.com/frappe/bench#installation) instructions.
+You can try [Frappe Cloud](https://frappecloud.com), a simple, user-friendly and sophisticated [open-source](https://github.com/frappe/press) platform to host Frappe applications with peace of mind.
 
-## Bugs and Feature Requests
-If you find any bugs or have a feature idea for the app, feel free to report them here on [GitHub Issues](https://github.com/frappe/lms/issues). Make sure you share enough information (app screenshots, browser console screenshots, stack traces, etc) for project maintainers.
+It takes care of installation, setup, upgrades, monitoring, maintenance and support of your Frappe deployments. It is a fully featured developer platform with an ability to manage and control multiple Frappe deployments.
 
-## License
-Distributed under [GNU AFFERO GENERAL PUBLIC LICENSE](license.txt)
+<div>
+	<a href="https://frappecloud.com/lms/signup" target="_blank">
+		<picture>
+			<source media="(prefers-color-scheme: dark)" srcset="https://frappe.io/files/try-on-fc-white.png">
+			<img src="https://frappe.io/files/try-on-fc-black.png" alt="Try on Frappe Cloud" height="28" />
+		</picture>
+	</a>
+</div>
+
+### Self Hosting
+
+Follow these steps to set up Frappe Learning in production:
+
+**Step 1**: Download the easy install script
+
+```bash
+wget https://frappe.io/easy-install.py
+```
+
+**Step 2**: Run the deployment command
+
+```bash
+python3 ./easy-install.py deploy \
+    --project=learning_prod_setup \
+    --email=your_email.example.com \
+    --image=ghcr.io/frappe/learning \
+    --version=stable \
+    --app=learning \
+    --sitename subdomain.domain.tld
+```
+
+Replace the following parameters with your values:
+- `your_email.example.com`: Your email address
+- `subdomain.domain.tld`: Your domain name where Learning will be hosted
+
+The script will set up a production-ready instance of Frappe Learning with all the necessary configurations in about 5 minutes.
+
+## Development Setup
+
+### Docker
+
+You need Docker, docker-compose and git setup on your machine. Refer [Docker documentation](https://docs.docker.com/). After that, follow below steps:
+
+**Step 1**: Setup folder and download the required files
+
+    mkdir frappe-learning
+    cd frappe-learning
+
+    # Download the docker-compose file
+    wget -O docker-compose.yml https://raw.githubusercontent.com/frappe/lms/develop/docker/docker-compose.yml
+
+    # Download the setup script
+    wget -O init.sh https://raw.githubusercontent.com/frappe/lms/develop/docker/init.sh
+
+**Step 2**: Run the container and daemonize it
+
+    docker compose up -d
+
+**Step 3**: The site [http://lms.localhost:8000/lms](http://lms.localhost:8000/lms) should now be available. The default credentials are:
+- Username: Administrator
+- Password: admin
+
+### Local
+
+To setup the repository locally follow the steps mentioned below:
+
+1. Install bench and setup a `frappe-bench` directory by following the [Installation Steps](https://frappeframework.com/docs/user/en/installation)
+1. Start the server by running `bench start`
+1. In a separate terminal window, create a new site by running `bench new-site learning.test`
+1. Map your site to localhost with the command `bench --site learning.test add-to-hosts`
+1. Get the Learning app. Run `bench get-app https://github.com/frappe/lms`
+1. Run `bench --site learning.test install-app lms`.
+1. Now open the URL `http://learning.test:8000/lms` in your browser, you should see the app running
+
+## Learn and connect
+
+- [Telegram Public Group](https://t.me/frappelms)
+- [Discuss Forum](https://discuss.frappe.io/c/lms/70)
+- [Documentation](https://docs.frappe.io/learning)
+- [YouTube](https://www.youtube.com/channel/UCn3bV5kx77HsVwtnlCeEi_A)
+
+<br>
+<br>
+<div align="center" style="padding-top: 0.75rem;">
+	<a href="https://frappe.io" target="_blank">
+		<picture>
+			<source media="(prefers-color-scheme: dark)" srcset="https://frappe.io/files/Frappe-white.png">
+			<img src="https://frappe.io/files/Frappe-black.png" alt="Frappe Technologies" height="28"/>
+		</picture>
+	</a>
+</div>

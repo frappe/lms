@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<div class="flex items-center justify-between mb-4">
-			<div class="text-xl font-semibold">
+			<div class="text-lg font-semibold">
 				{{ __('Courses') }}
 			</div>
 			<Button v-if="canSeeAddButton()" @click="openCourseModal()">
@@ -118,13 +118,13 @@ const getCoursesColumns = () => {
 		},
 		{
 			label: 'Lessons',
-			key: 'lesson_count',
+			key: 'lessons',
 			align: 'right',
 		},
 		{
 			label: 'Enrollments',
 			align: 'right',
-			key: 'enrollment_count',
+			key: 'enrollments',
 		},
 	]
 }
