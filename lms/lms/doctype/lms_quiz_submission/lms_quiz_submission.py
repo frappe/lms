@@ -17,6 +17,7 @@ class LMSQuizSubmission(Document):
 		self.notify_member()
 
 	def validate_marks(self):
+		self.score = 0
 		for row in self.result:
 			if cint(row.marks) > cint(row.marks_out_of):
 				frappe.throw(
