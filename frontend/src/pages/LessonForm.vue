@@ -132,6 +132,7 @@ const renderEditor = (holder) => {
 		holder: holder,
 		tools: getEditorTools(true),
 		autofocus: true,
+		defaultBlock: 'markdownParser',
 	})
 }
 

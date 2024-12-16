@@ -13,8 +13,6 @@ import dayjs from '@/utils/dayjs'
 import Embed from '@editorjs/embed'
 import SimpleImage from '@editorjs/simple-image'
 import Table from '@editorjs/table'
-import MDParser from 'editorjs-md-parser'
-import MDImporter from 'editorjs-md-parser'
 
 export function createToast(options) {
 	toast({
@@ -150,7 +148,12 @@ export function htmlToText(html) {
 
 export function getEditorTools() {
 	return {
-		header: Header,
+		header: {
+			class: Header,
+			config: {
+				placeholder: 'Header',
+			},
+		},
 		quiz: Quiz,
 		upload: Upload,
 		markdownParser: MarkdownParser,
@@ -184,7 +187,7 @@ export function getEditorTools() {
 		},
 		embed: {
 			class: Embed,
-			inlineToolbar: false,
+			inlineToolbar: true,
 			config: {
 				services: {
 					youtube: {

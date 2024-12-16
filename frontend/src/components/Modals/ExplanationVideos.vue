@@ -26,7 +26,7 @@ const props = defineProps({
 		required: true,
 	},
 	title: {
-		type: String,
+		type: [String, null],
 		required: true,
 	},
 })
