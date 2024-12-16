@@ -162,3 +162,14 @@ class SCORMRenderer(BaseRenderer):
 			)
 			response.mimetype = mimetypes.guess_type(path)[0]
 			return response
+		else:
+			path = path.replace(".html", "")
+			if os.path.exists(path) and os.path.isdir(path):
+				index_path = os.path.join(path, "index.html")
+				if os.path.exists(index_path):
+					f = open(index_path, "rb")
+					response = Response(
+						wrap_file(frappe.local.request.environ, f), direct_passthrough=True
+					)
+					response.mimetype = mimetypes.guess_type(index_path)[0]
+					return response
