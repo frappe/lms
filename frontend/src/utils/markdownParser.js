@@ -65,8 +65,6 @@ export class Markdown {
 		} else if (previousLine && this.hasLink(previousLine)) {
 			const { text, url } = this.extractLink(previousLine)
 			const anchorTag = `<a href="${url}" target="_blank">${text}</a>`
-			console.log(previousLine.replace(/\[.+?\]\(.+?\)/, anchorTag))
-			debugger
 			this.convertBlock('paragraph', {
 				text: previousLine.replace(/\[.+?\]\(.+?\)/, anchorTag),
 			})
