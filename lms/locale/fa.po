@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2024-12-06 16:04+0000\n"
-"PO-Revision-Date: 2024-12-09 23:31\n"
+"PO-Revision-Date: 2024-12-17 00:07\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Persian\n"
 "MIME-Version: 1.0\n"
@@ -2469,7 +2469,7 @@ msgstr ""
 
 #: frontend/src/pages/CourseForm.vue:136
 msgid "Keywords for the course"
-msgstr ""
+msgstr "کلمات کلیدی برای دوره"
 
 #. Name of a Workspace
 #: lms/lms/workspace/lms/lms.json
@@ -3265,7 +3265,7 @@ msgstr ""
 
 #: frontend/src/pages/Courses.vue:147
 msgid "No courses found"
-msgstr ""
+msgstr "هیچ دوره ای پیدا نشد"
 
 #: frontend/src/pages/Programs.vue:83
 msgid "No courses in this program"
