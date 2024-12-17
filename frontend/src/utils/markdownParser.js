@@ -1,4 +1,4 @@
-export class MarkdownParser {
+export class Markdown {
 	constructor({ data, api, readOnly, config }) {
 		this.api = api
 		this.data = data || {}
@@ -65,6 +65,8 @@ export class MarkdownParser {
 		} else if (previousLine && this.hasLink(previousLine)) {
 			const { text, url } = this.extractLink(previousLine)
 			const anchorTag = `<a href="${url}" target="_blank">${text}</a>`
+			console.log(previousLine.replace(/\[.+?\]\(.+?\)/, anchorTag))
+			debugger
 			this.convertBlock('paragraph', {
 				text: previousLine.replace(/\[.+?\]\(.+?\)/, anchorTag),
 			})
@@ -149,4 +151,4 @@ export class MarkdownParser {
 	}
 }
 
-export default MarkdownParser
+export default Markdown

@@ -2,7 +2,7 @@ import { toast } from 'frappe-ui'
 import { useTimeAgo } from '@vueuse/core'
 import { Quiz } from '@/utils/quiz'
 import { Upload } from '@/utils/upload'
-import { MarkdownParser } from '@/utils/markdownParser'
+import { Markdown } from '@/utils/markdownParser'
 import Header from '@editorjs/header'
 import Paragraph from '@editorjs/paragraph'
 import { CodeBox } from '@/utils/code'
@@ -156,12 +156,12 @@ export function getEditorTools() {
 		},
 		quiz: Quiz,
 		upload: Upload,
-		markdownParser: MarkdownParser,
+		markdown: Markdown,
 		image: SimpleImage,
 		table: Table,
 		paragraph: {
 			class: Paragraph,
-			inlineToolbar: false,
+			inlineToolbar: true,
 			config: {
 				preserveBlank: true,
 			},
@@ -187,7 +187,7 @@ export function getEditorTools() {
 		},
 		embed: {
 			class: Embed,
-			inlineToolbar: true,
+			inlineToolbar: false,
 			config: {
 				services: {
 					youtube: {
