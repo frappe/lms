@@ -46,6 +46,11 @@
 				</router-link>
 			</ListRows>
 		</ListView>
+		<div class="flex justify-center my-5">
+			<Button v-if="quizzes.hasNextPage" @click="quizzes.next()">
+				{{ __('Load More') }}
+			</Button>
+		</div>
 	</div>
 	<div
 		v-else
@@ -67,13 +72,13 @@
 <script setup>
 import {
 	Breadcrumbs,
+	Button,
 	createListResource,
 	ListView,
 	ListRows,
 	ListRow,
 	ListHeader,
 	ListHeaderItem,
-	Button,
 } from 'frappe-ui'
 import { useRouter } from 'vue-router'
 import { computed, inject, onMounted } from 'vue'
@@ -103,9 +108,6 @@ const quizzes = createListResource({
 	auto: true,
 	cache: ['quizzes', user.data?.name],
 	orderBy: 'modified desc',
-	onSuccess(data) {
-		data.forEach((row) => {})
-	},
 })
 
 const quizColumns = computed(() => {
