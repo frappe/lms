@@ -52,7 +52,7 @@
 								{{ row[column.key] }}
 							</div>
 							<div v-else-if="column.icon == 'book-open'">
-								{{ Math.ceil(row.courses[column.key]) }}%
+								{{ Math.ceil(row.courses[column.key]) }}
 							</div>
 							<div v-else-if="column.icon == 'help-circle'">
 								<Badge
@@ -62,7 +62,7 @@
 								>
 									{{ row.assessments[column.key] }}
 								</Badge>
-								<div v-else>{{ parseInt(row.assessments[column.key]) }}%</div>
+								<div v-else>{{ parseInt(row.assessments[column.key]) }}</div>
 							</div>
 						</ListRowItem>
 					</template>
@@ -134,21 +134,9 @@ const getStudentColumns = () => {
 		{
 			label: 'Full Name',
 			key: 'full_name',
-			width: '10rem',
+			width: '15rem',
 		},
 	]
-
-	if (students.data?.[0].courses) {
-		Object.keys(students.data?.[0].courses).forEach((course) => {
-			columns.push({
-				label: course,
-				key: course,
-				width: '10rem',
-				icon: 'book-open',
-				align: 'center',
-			})
-		})
-	}
 
 	if (students.data?.[0].assessments) {
 		Object.keys(students.data?.[0].assessments).forEach((assessment) => {
@@ -163,6 +151,19 @@ const getStudentColumns = () => {
 			})
 		})
 	}
+
+	if (students.data?.[0].courses) {
+		Object.keys(students.data?.[0].courses).forEach((course) => {
+			columns.push({
+				label: course,
+				key: course,
+				width: '10rem',
+				icon: 'book-open',
+				align: 'center',
+			})
+		})
+	}
+
 	return columns
 }
 
