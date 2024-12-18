@@ -1,8 +1,13 @@
 {
  "charts": [],
- "content": "[{\"id\":\"3nulSsFIp7\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Course Registration</span>\",\"col\":12}}]",
+ "content": "[{\"id\":\"3nulSsFIp7\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Course Registration</span>\",\"col\":12}},{\"id\":\"8tX-3xRR4U\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Course List\",\"col\":12}}]",
  "creation": "2024-12-18 15:55:17.042788",
- "custom_blocks": [],
+ "custom_blocks": [
+  {
+   "custom_block_name": "Course List",
+   "label": "Course List"
+  }
+ ],
  "docstatus": 0,
  "doctype": "Workspace",
  "for_user": "",
@@ -13,7 +18,7 @@
  "is_hidden": 0,
  "label": "Course Registration",
  "links": [],
- "modified": "2024-12-18 15:56:59.834714",
+ "modified": "2024-12-18 16:14:39.368299",
  "modified_by": "Administrator",
  "module": "RySS Lms",
  "name": "Course Registration",
