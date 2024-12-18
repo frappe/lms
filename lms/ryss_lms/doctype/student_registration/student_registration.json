@@ -1,0 +1,399 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:SR-{#####}",
+ "creation": "2024-11-30 17:19:37.368737",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "course_and_centre_selection_tab",
+  "date_of_application",
+  "batch_no",
+  "term_start_date",
+  "column_break_gfys",
+  "course_name",
+  "course_mode",
+  "section_break_shfp",
+  "training_centre_district",
+  "regional_training_centre",
+  "column_break_kvsj",
+  "training_centre_id",
+  "personal_data_tab",
+  "personal_data_section",
+  "first__given_name",
+  "father__spouse_name",
+  "date_of_birth_ddmmyyyy",
+  "mobile_no",
+  "address_2_road_area",
+  "country_name",
+  "state_name",
+  "column_break_gpsv",
+  "last__family_name",
+  "gender",
+  "isd_code",
+  "address_1_door__apartment_no_building_society",
+  "address_3_city__town__village",
+  "pin__zip",
+  "district_name",
+  "section_break_lfls",
+  "rsk__kvk",
+  "tab_2_tab",
+  "educational_qualifications",
+  "farm_data_tab",
+  "year_of_nf",
+  "extent_of_agriculture_in_ha",
+  "willingness_to_provide_at_least_05_ha_12_ac",
+  "section_break_wiau",
+  "latitude",
+  "column_break_ucmj",
+  "longitude",
+  "section_break_ylvi",
+  "fetch_location",
+  "farm_geocordinats",
+  "documents_to_submit_tab",
+  "statement_of_purpose",
+  "10th_grade_marks_sheet__passing_certificate",
+  "graduate__pg_diploma_marks_sheet",
+  "caste_certificate",
+  "land_lease_or_ownership_document",
+  "column_break_pagg",
+  "photograph",
+  "12th_undergraduate_marks_sheet__passing_certificate",
+  "post_graduate_marks_sheet",
+  "vo_resolution_only_for_offline_courses_in_india",
+  "certificate_for_physically_challenged"
+ ],
+ "fields": [
+  {
+   "fieldname": "personal_data_section",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "first__given_name",
+   "fieldtype": "Data",
+   "label": "First / Given Name"
+  },
+  {
+   "fieldname": "last__family_name",
+   "fieldtype": "Data",
+   "label": "Last / Family Name"
+  },
+  {
+   "fieldname": "father__spouse_name",
+   "fieldtype": "Data",
+   "label": "Father / Spouse Name"
+  },
+  {
+   "fieldname": "gender",
+   "fieldtype": "Link",
+   "label": "Gender",
+   "link_filters": "[[\"Gender\",\"gender\",\"in\",[\"Male\",\"Female\",\"Transgender\"]]]",
+   "options": "Gender"
+  },
+  {
+   "fieldname": "date_of_birth_ddmmyyyy",
+   "fieldtype": "Date",
+   "label": "Date of Birth (dd/mm/yyyy)"
+  },
+  {
+   "fieldname": "isd_code",
+   "fieldtype": "Int",
+   "label": "ISD Code"
+  },
+  {
+   "default": "+91-",
+   "fieldname": "mobile_no",
+   "fieldtype": "Phone",
+   "label": "Mobile No."
+  },
+  {
+   "fieldname": "address_1_door__apartment_no_building_society",
+   "fieldtype": "Data",
+   "label": "Address 1 (Door / Apartment No., Building, Society)"
+  },
+  {
+   "fieldname": "address_2_road_area",
+   "fieldtype": "Data",
+   "label": "Address 2 (Road, Area)"
+  },
+  {
+   "fieldname": "address_3_city__town__village",
+   "fieldtype": "Data",
+   "label": "Address 3 (City / Town / Village)"
+  },
+  {
+   "fieldname": "pin__zip",
+   "fieldtype": "Data",
+   "label": "Pin / Zip"
+  },
+  {
+   "fieldname": "personal_data_tab",
+   "fieldtype": "Tab Break",
+   "label": "Personal Data"
+  },
+  {
+   "fieldname": "tab_2_tab",
+   "fieldtype": "Tab Break",
+   "label": "Education"
+  },
+  {
+   "fieldname": "educational_qualifications",
+   "fieldtype": "Link",
+   "label": "Educational Qualifications",
+   "options": "Education Table"
+  },
+  {
+   "fieldname": "column_break_gpsv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.course_mode == \"Offline\"",
+   "fieldname": "rsk__kvk",
+   "fieldtype": "Link",
+   "label": "RSK / KVK",
+   "options": "RBK"
+  },
+  {
+   "fieldname": "farm_data_tab",
+   "fieldtype": "Tab Break",
+   "label": "Farm Data"
+  },
+  {
+   "fieldname": "year_of_nf",
+   "fieldtype": "Float",
+   "label": "Year of NF",
+   "precision": "1"
+  },
+  {
+   "fieldname": "extent_of_agriculture_in_ha",
+   "fieldtype": "Float",
+   "label": "Extent of Agriculture in Ha",
+   "precision": "4"
+  },
+  {
+   "fieldname": "willingness_to_provide_at_least_05_ha_12_ac",
+   "fieldtype": "Select",
+   "label": "Willingness to provide at least 0.5 ha/ 1.2 ac of agricultural land for NF practices",
+   "options": "\nYes\nNo"
+  },
+  {
+   "fieldname": "farm_geocordinats",
+   "fieldtype": "Geolocation",
+   "label": "Farm Geocordinats"
+  },
+  {
+   "fieldname": "documents_to_submit_tab",
+   "fieldtype": "Tab Break",
+   "label": "Documents to Submit"
+  },
+  {
+   "fieldname": "course_and_centre_selection_tab",
+   "fieldtype": "Tab Break",
+   "label": "Course and Centre Selection"
+  },
+  {
+   "default": "Today",
+   "fieldname": "date_of_application",
+   "fieldtype": "Date",
+   "label": "Date of Application"
+  },
+  {
+   "fetch_from": "course_name.batch_no",
+   "fieldname": "batch_no",
+   "fieldtype": "Data",
+   "label": "Batch No",
+   "read_only": 1
+  },
+  {
+   "fieldname": "training_centre_district",
+   "fieldtype": "Link",
+   "label": "Training Centre District",
+   "options": "Regional Training Centre Table for Offline Course"
+  },
+  {
+   "fetch_from": "training_centre_district.center_id",
+   "fieldname": "training_centre_id",
+   "fieldtype": "Data",
+   "label": "Training Centre ID",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_gfys",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "course_name",
+   "fieldtype": "Link",
+   "label": "Course Name",
+   "options": "LMS Course"
+  },
+  {
+   "fetch_from": "course_name.course_mode",
+   "fieldname": "course_mode",
+   "fieldtype": "Data",
+   "label": "Course Mode",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "course_name.term_start_date",
+   "fieldname": "term_start_date",
+   "fieldtype": "Data",
+   "label": "Term Start Date",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "training_centre_district.fetched_centre_name",
+   "fieldname": "regional_training_centre",
+   "fieldtype": "Data",
+   "label": "Regional Training Centre",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_lfls",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "statement_of_purpose",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Statement of Purpose",
+   "reqd": 1
+  },
+  {
+   "fieldname": "photograph",
+   "fieldtype": "Attach",
+   "in_list_view": 1,
+   "label": "Photograph",
+   "reqd": 1
+  },
+  {
+   "fieldname": "10th_grade_marks_sheet__passing_certificate",
+   "fieldtype": "Attach",
+   "in_list_view": 1,
+   "label": "10th Grade Marks Sheet / Passing Certificate",
+   "reqd": 1
+  },
+  {
+   "fieldname": "12th_undergraduate_marks_sheet__passing_certificate",
+   "fieldtype": "Attach",
+   "label": "12th Undergraduate Marks Sheet / Passing Certificate"
+  },
+  {
+   "fieldname": "graduate__pg_diploma_marks_sheet",
+   "fieldtype": "Attach",
+   "label": "Graduate / PG Diploma Marks Sheet"
+  },
+  {
+   "fieldname": "post_graduate_marks_sheet",
+   "fieldtype": "Attach",
+   "label": "Post Graduate Marks Sheet"
+  },
+  {
+   "fieldname": "caste_certificate",
+   "fieldtype": "Attach",
+   "label": "Caste Certificate"
+  },
+  {
+   "fieldname": "vo_resolution_only_for_offline_courses_in_india",
+   "fieldtype": "Attach",
+   "in_list_view": 1,
+   "label": "VO Resolution (Only for Offline Courses in India) ",
+   "reqd": 1
+  },
+  {
+   "fieldname": "certificate_for_physically_challenged",
+   "fieldtype": "Data",
+   "label": "Certificate for Physically Challenged"
+  },
+  {
+   "fieldname": "land_lease_or_ownership_document",
+   "fieldtype": "Attach",
+   "label": "Land Lease or Ownership Document",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_pagg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_wiau",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "latitude",
+   "fieldtype": "Data",
+   "label": "Farm Geocoordinates Latitude",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_ucmj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "longitude",
+   "fieldtype": "Data",
+   "label": "Farm Geocoordinates Longitude",
+   "read_only": 1
+  },
+  {
+   "fieldname": "fetch_location",
+   "fieldtype": "Button",
+   "label": "Fetch Geolocation"
+  },
+  {
+   "fieldname": "section_break_ylvi",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "section_break_shfp",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_kvsj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "country_name",
+   "fieldtype": "Link",
+   "label": "Country",
+   "options": "Country"
+  },
+  {
+   "fieldname": "state_name",
+   "fieldtype": "Link",
+   "label": "State",
+   "options": "State"
+  },
+  {
+   "fieldname": "district_name",
+   "fieldtype": "Link",
+   "label": "District",
+   "options": "District"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2024-12-06 15:45:02.224684",
+ "modified_by": "Administrator",
+ "module": "RySS Lms",
+ "name": "Student Registration",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

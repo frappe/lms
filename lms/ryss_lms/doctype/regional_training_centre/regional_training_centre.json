@@ -1,0 +1,70 @@
+{
+ "actions": [],
+ "autoname": "format:C-{####}",
+ "creation": "2024-12-03 14:40:36.198925",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "country_name",
+  "state_name",
+  "district_name",
+  "centre_name"
+ ],
+ "fields": [
+  {
+   "fieldname": "country_name",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Country Name",
+   "options": "Country"
+  },
+  {
+   "fieldname": "state_name",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "State Name",
+   "options": "State"
+  },
+  {
+   "fieldname": "district_name",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "District Name",
+   "options": "District"
+  },
+  {
+   "fieldname": "centre_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Centre Name",
+   "unique": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2024-12-06 14:39:03.337175",
+ "modified_by": "Administrator",
+ "module": "RySS Lms",
+ "name": "Regional Training Centre",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "show_title_field_in_link": 1,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "centre_name"
+}
