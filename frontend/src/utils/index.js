@@ -2,6 +2,7 @@ import { toast } from 'frappe-ui'
 import { useTimeAgo } from '@vueuse/core'
 import { Quiz } from '@/utils/quiz'
 import { Upload } from '@/utils/upload'
+import { Markdown } from '@/utils/markdownParser'
 import Header from '@editorjs/header'
 import Paragraph from '@editorjs/paragraph'
 import { CodeBox } from '@/utils/code'
@@ -147,9 +148,15 @@ export function htmlToText(html) {
 
 export function getEditorTools() {
 	return {
-		header: Header,
+		header: {
+			class: Header,
+			config: {
+				placeholder: 'Header',
+			},
+		},
 		quiz: Quiz,
 		upload: Upload,
+		markdown: Markdown,
 		image: SimpleImage,
 		table: Table,
 		paragraph: {
