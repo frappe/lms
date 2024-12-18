@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2024-12-06 16:04+0000\n"
-"PO-Revision-Date: 2024-12-09 23:31\n"
+"POT-Creation-Date: 2024-12-13 16:04+0000\n"
+"PO-Revision-Date: 2024-12-18 00:37\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Esperanto\n"
 "MIME-Version: 1.0\n"
@@ -101,7 +101,7 @@ msgstr "crwdns149210:0crwdne149210:0"
 
 #: frontend/src/components/Assessments.vue:11
 #: frontend/src/components/BatchCourses.vue:11
-#: frontend/src/components/BatchStudents.vue:6
+#: frontend/src/components/BatchStudents.vue:10
 #: frontend/src/components/Categories.vue:26
 #: frontend/src/components/LiveClass.vue:11
 #: frontend/src/components/Members.vue:43 frontend/src/pages/ProgramForm.vue:30
@@ -1702,7 +1702,7 @@ msgstr "crwdns149728:0crwdne149728:0"
 msgid "Enrollment Count"
 msgstr "crwdns149730:0crwdne149730:0"
 
-#: lms/lms/utils.py:1702
+#: lms/lms/utils.py:1715
 msgid "Enrollment Failed"
 msgstr "crwdns149732:0crwdne149732:0"
 
@@ -1738,6 +1738,7 @@ msgstr "crwdns149742:0crwdne149742:0"
 #: frontend/src/components/Modals/Question.vue:249
 #: frontend/src/components/Modals/Question.vue:269
 #: frontend/src/components/Modals/Question.vue:326
+#: frontend/src/components/Modals/StudentModal.vue:69
 #: frontend/src/components/SettingDetails.vue:62
 #: frontend/src/pages/Billing.vue:264 frontend/src/pages/QuizForm.vue:350
 #: frontend/src/pages/QuizForm.vue:365
@@ -2812,7 +2813,7 @@ msgstr "crwdns150108:0crwdne150108:0"
 msgid "LiveCode URL"
 msgstr "crwdns150110:0crwdne150110:0"
 
-#: frontend/src/components/Members.vue:95
+#: frontend/src/components/Members.vue:106
 msgid "Load More"
 msgstr "crwdns150112:0crwdne150112:0"
 
@@ -3230,7 +3231,7 @@ msgstr "crwdns150238:0crwdne150238:0"
 msgid "Next Question"
 msgstr "crwdns150240:0crwdne150240:0"
 
-#: frontend/src/components/Assessments.vue:63 lms/templates/assessments.html:58
+#: frontend/src/components/Assessments.vue:66 lms/templates/assessments.html:58
 msgid "No Assessments"
 msgstr "crwdns150242:0crwdne150242:0"
 
@@ -3687,7 +3688,7 @@ msgstr "crwdns150404:0crwdne150404:0"
 msgid "Please click on the following button to set your new password"
 msgstr "crwdns150406:0crwdne150406:0"
 
-#: lms/lms/utils.py:1824 lms/lms/utils.py:1828
+#: lms/lms/utils.py:1837 lms/lms/utils.py:1841
 msgid "Please complete the previous courses in the program to enroll in this course."
 msgstr "crwdns151772:0crwdne151772:0"
 
@@ -4700,13 +4701,13 @@ msgstr "crwdns150746:0{0}crwdne150746:0"
 
 #. Label of the students (Table) field in DocType 'LMS Batch'
 #. Label of the show_students (Check) field in DocType 'LMS Settings'
-#: frontend/src/components/BatchStudents.vue:9
+#: frontend/src/components/BatchStudents.vue:4
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Students"
 msgstr "crwdns150748:0crwdne150748:0"
 
-#: frontend/src/components/BatchStudents.vue:157
+#: frontend/src/components/BatchStudents.vue:191
 msgid "Students deleted successfully"
 msgstr "crwdns150750:0crwdne150750:0"
 
@@ -4758,7 +4759,7 @@ msgstr "crwdns150766:0{0}crwdne150766:0"
 
 #: frontend/src/components/BatchCourses.vue:150
 #: frontend/src/components/BatchOverlay.vue:135
-#: frontend/src/components/BatchStudents.vue:157
+#: frontend/src/components/BatchStudents.vue:191
 #: frontend/src/components/CourseCardOverlay.vue:161
 #: frontend/src/components/Modals/AnnouncementModal.vue:99
 #: frontend/src/components/Modals/AssessmentModal.vue:73
@@ -4946,7 +4947,7 @@ msgstr "crwdns151798:0crwdne151798:0"
 msgid "There are no seats available in this batch."
 msgstr "crwdns150808:0crwdne150808:0"
 
-#: frontend/src/components/BatchStudents.vue:67
+#: frontend/src/components/BatchStudents.vue:86
 msgid "There are no students in this batch."
 msgstr "crwdns150810:0crwdne150810:0"
 
@@ -4977,7 +4978,7 @@ msgstr "crwdns150818:0crwdne150818:0"
 msgid "This course has:"
 msgstr "crwdns150820:0crwdne150820:0"
 
-#: lms/lms/utils.py:1582
+#: lms/lms/utils.py:1595
 msgid "This course is free."
 msgstr "crwdns150822:0crwdne150822:0"
 
@@ -5119,7 +5120,7 @@ msgstr "crwdns150852:0crwdne150852:0"
 msgid "To Date"
 msgstr "crwdns150854:0crwdne150854:0"
 
-#: lms/lms/utils.py:1593
+#: lms/lms/utils.py:1606
 msgid "To join this batch, please contact the Administrator."
 msgstr "crwdns150858:0crwdne150858:0"
 
