@@ -97,9 +97,9 @@ override_doctype_class = {
 # Hook on document methods and events
 
 doc_events = {
-    # "User": {
-    #     "after_insert": "custom_app.utils.assign_custom_role"
-    # },
+    "User": {
+        "after_insert": "lms.academic.assign_custom_role.assign_custom_role"
+    },
 	"*": {
 		"on_change": [
 			"lms.lms.doctype.lms_badge.lms_badge.process_badges",

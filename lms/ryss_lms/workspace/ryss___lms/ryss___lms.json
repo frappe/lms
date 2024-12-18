@@ -1,0 +1,41 @@
+{
+ "charts": [],
+ "content": "[{\"id\":\"HcbosDhb0n\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">RySS - LMS </span>\",\"col\":12}},{\"id\":\"ebrz0Rv5Zr\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"LMS Website\",\"col\":3}}]",
+ "creation": "2024-10-18 01:41:47.264461",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "list-alt",
+ "idx": 0,
+ "indicator_color": "",
+ "is_hidden": 0,
+ "label": "RySS - LMS",
+ "links": [],
+ "modified": "2024-12-18 15:35:08.419547",
+ "modified_by": "Administrator",
+ "module": "RySS Lms",
+ "name": "RySS - LMS",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [
+  {
+   "role": "LMS Admin"
+  }
+ ],
+ "sequence_id": 43.0,
+ "shortcuts": [
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "LMS Website",
+   "type": "URL",
+   "url": "/lms"
+  }
+ ],
+ "title": "RySS - LMS"
+}

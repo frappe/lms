@@ -61,7 +61,8 @@
   "12th_undergraduate_marks_sheet__passing_certificate",
   "post_graduate_marks_sheet",
   "vo_resolution_only_for_offline_courses_in_india",
-  "certificate_for_physically_challenged"
+  "certificate_for_physically_challenged",
+  "amended_from"
  ],
  "fields": [
   {
@@ -369,11 +370,22 @@
    "fieldtype": "Link",
    "label": "District",
    "options": "District"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Student Registration",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
   }
  ],
  "index_web_pages_for_search": 1,
+ "is_submittable": 1,
  "links": [],
- "modified": "2024-12-06 15:45:02.224684",
+ "modified": "2024-12-18 15:58:33.539889",
  "modified_by": "Administrator",
  "module": "RySS Lms",
  "name": "Student Registration",
@@ -390,6 +402,18 @@
    "report": 1,
    "role": "System Manager",
    "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Temp Student",
+   "share": 1,
+   "submit": 1,
    "write": 1
   }
  ],
