@@ -20,6 +20,7 @@
     "@editorjs/simple-image": "^1.6.0",
     "@editorjs/table": "^2.4.2",
     "ace-builds": "^1.36.2",
+    "apexcharts": "^4.3.0",
     "chart.js": "^4.4.1",
     "codemirror-editor-vue3": "^2.8.0",
     "dayjs": "^1.11.6",
@@ -35,6 +36,7 @@
     "vue-chartjs": "^5.3.0",
     "vue-draggable-next": "^2.2.1",
     "vue-router": "^4.0.12",
+    "vue3-apexcharts": "^1.8.0",
     "vuedraggable": "4.1.0"
   },
   "devDependencies": {

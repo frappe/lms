@@ -1487,6 +1487,11 @@ def get_batch_students(batch):
 
 		detail.courses_completed = courses_completed
 		detail.assessments_completed = assessments_completed
+		detail.progress = (
+			(courses_completed + assessments_completed)
+			/ (len(batch_courses) + len(assessments))
+			* 100
+		)
 		students.append(detail)
 
 	return students
