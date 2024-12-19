@@ -119,7 +119,7 @@ scheduler_events = {
 	"daily": ["lms.job.doctype.job_opportunity.job_opportunity.update_job_openings"],
 }
 
-fixtures = ["Custom Field", "Function", "Industry", "LMS Category"]
+fixtures = ["Custom Field", "Function", "Industry", "LMS Category","Custom HTML Block"]
 
 # Testing
 # -------
