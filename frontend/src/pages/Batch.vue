@@ -94,7 +94,7 @@
 				</div>
 				<div v-html="batch.data.description" class="leading-5 mb-2"></div>
 
-				<div class="flex avatar-group overlap mb-5">
+				<div class="flex items-center avatar-group overlap mb-5">
 					<div
 						class="h-6 mr-1"
 						:class="{
