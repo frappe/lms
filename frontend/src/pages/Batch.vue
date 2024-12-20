@@ -22,7 +22,7 @@
 			</div>
 		</header>
 		<div v-if="batch.data" class="grid grid-cols-[70%,30%] h-screen">
-			<div class="border-r-2">
+			<div class="border-r">
 				<Tabs
 					v-model="tabIndex"
 					:tabs="tabs"
@@ -66,7 +66,7 @@
 								<LiveClass :batch="batch.data.name" />
 							</div>
 							<div v-else-if="tab.label == 'Students'">
-								<BatchStudents :batch="batch.data.name" />
+								<BatchStudents :batch="batch.data" />
 							</div>
 							<div v-else-if="tab.label == 'Assessments'">
 								<Assessments :batch="batch.data.name" />

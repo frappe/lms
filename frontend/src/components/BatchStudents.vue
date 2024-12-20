@@ -1,13 +1,60 @@
 <template>
-	<div>
-		<!-- <Bar v-if="chartData" :data="chartData" :options="chartOptions" /> -->
-		<ApexChart
-			v-if="chartData"
-			:options="chartOptions"
-			:series="chartData"
-			type="bar"
-			height="350"
-		/>
+	<div class="">
+		<div class="grid grid-cols-3 gap-5 mb-8">
+			<div class="flex items-center shadow py-2 px-3 rounded-md">
+				<div class="p-2 rounded-md bg-gray-100 mr-3">
+					<User class="w-18 h-18 stroke-1.5 text-gray-700" />
+				</div>
+				<div class="flex flex-col">
+					<span class="text-xl font-semibold mb-1">
+						{{ students.data?.length }}
+					</span>
+					<span class="text-gray-700">
+						{{ __('Students') }}
+					</span>
+				</div>
+			</div>
+
+			<div class="flex items-center shadow py-2 px-3 rounded-md">
+				<div class="p-2 rounded-md bg-gray-100 mr-3">
+					<BookOpen class="w-18 h-18 stroke-1.5 text-gray-700" />
+				</div>
+				<div class="flex flex-col">
+					<span class="text-xl font-semibold mb-1">
+						{{ batch.courses?.length }}
+					</span>
+					<span class="text-gray-700">
+						{{ __('Courses') }}
+					</span>
+				</div>
+			</div>
+
+			<div class="flex items-center shadow py-2 px-3 rounded-md">
+				<div class="p-2 rounded-md bg-gray-100 mr-3">
+					<ShieldCheck class="w-18 h-18 stroke-1.5 text-gray-700" />
+				</div>
+				<div class="flex flex-col">
+					<span class="text-xl font-semibold mb-1">
+						{{ assessmentCount }}
+					</span>
+					<span class="text-gray-700">
+						{{ __('Assessments') }}
+					</span>
+				</div>
+			</div>
+		</div>
+		<div class="mb-8">
+			<div class="text-lg font-semibold">
+				{{ __('Progress') }}
+			</div>
+			<ApexChart
+				v-if="showProgressChart"
+				:options="chartOptions"
+				:series="chartData"
+				type="bar"
+				height="350"
+			/>
+		</div>
 		<div class="flex items-center justify-between mb-4">
 			<div class="text-lg font-semibold">
 				{{ __('Students') }}
@@ -72,19 +119,6 @@
 							<div v-else>
 								{{ row[column.key] }}
 							</div>
-							<!-- <div v-else-if="column.icon == 'book-open'">
-								{{ Math.ceil(row.courses[column.key]) }}
-							</div>
-							<div v-else-if="column.icon == 'help-circle'">
-								<Badge
-									v-if="isAssignment(row.assessments[column.key])"
-									:theme="getStatusTheme(row.assessments[column.key])"
-									class="text-xs"
-								>
-									{{ row.assessments[column.key] }}
-								</Badge>
-								<div v-else>{{ parseInt(row.assessments[column.key]) }}</div>
-							</div> -->
 						</ListRowItem>
 					</template>
 				</ListRow>
@@ -107,7 +141,7 @@
 		{{ __('There are no students in this batch.') }}
 	</div>
 	<StudentModal
-		:batch="props.batch"
+		:batch="props.batch.name"
 		v-model="showStudentModal"
 		v-model:reloadStudents="students"
 	/>
@@ -130,32 +164,12 @@ import {
 	ListView,
 	ListRowItem,
 } from 'frappe-ui'
-import { Trash2, Plus } from 'lucide-vue-next'
-import { computed, ref } from 'vue'
+import { BookOpen, Plus, ShieldCheck, Trash2, User } from 'lucide-vue-next'
+import { ref, watch } from 'vue'
 import StudentModal from '@/components/Modals/StudentModal.vue'
 import { showToast } from '@/utils'
 import ProgressBar from '@/components/ProgressBar.vue'
 import BatchStudentProgress from '@/components/Modals/BatchStudentProgress.vue'
-import { Bar } from 'vue-chartjs'
-import {
-	Chart as ChartJS,
-	Title,
-	Tooltip,
-	Legend,
-	BarElement,
-	CategoryScale,
-	LinearScale,
-	Filler,
-} from 'chart.js'
-ChartJS.register(
-	Title,
-	Tooltip,
-	Legend,
-	BarElement,
-	CategoryScale,
-	LinearScale,
-	Filler
-)
 import ApexChart from 'vue3-apexcharts'
 
 const showStudentModal = ref(false)
@@ -163,24 +177,26 @@ const showStudentProgressModal = ref(false)
 const selectedStudent = ref(null)
 const chartData = ref(null)
 const chartOptions = ref(null)
+const showProgressChart = ref(false)
+const assessmentCount = ref(0)
 
 const props = defineProps({
 	batch: {
-		type: String,
+		type: Object,
 		default: null,
 	},
 })
 
 const students = createResource({
 	url: 'lms.lms.utils.get_batch_students',
-	cache: ['students', props.batch],
+	cache: ['students', props.batch.name],
 	params: {
-		batch: props.batch,
+		batch: props.batch?.name,
 	},
 	auto: true,
 	onSuccess(data) {
 		chartData.value = getChartData()
-		console.log(chartData.value)
+		showProgressChart.value = true
 	},
 })
 
@@ -245,11 +261,8 @@ const removeStudents = (selections, unselectAll) => {
 }
 
 const getChartData = () => {
-	console.log('called')
-
 	let categories = {}
 
-	// Initialize categories with categories
 	Object.keys(students.data?.[0].courses).forEach((course) => {
 		categories[course] = {
 			value: 0,
@@ -264,7 +277,6 @@ const getChartData = () => {
 		}
 	})
 
-	// Populate data
 	students.data.forEach((student) => {
 		Object.keys(student.courses).forEach((course) => {
 			if (student.courses[course] === 100) {
@@ -279,84 +291,33 @@ const getChartData = () => {
 		})
 	})
 
-	// Transform data for ApexCharts
-	console.log(Object.values(categories).map((item) => item.value))
 	chartOptions.value = getChartOptions(categories)
 	return [
 		{
 			name: __('Student Progress'),
 			data: Object.values(categories).map((item) => item.value),
-			/* colors: Object.values(categories).map(item =>
-          item.type === 'course' ? courseColor : assessmentColor
-        ), */
 		},
 	]
 }
 
-/* const chartOptions = computed(() => {
-	return {
-		responsive: true,
-		fill: true,
-		scales: {
-			x: {
-				ticks: {
-					maxRotation: 0,
-					minRotation: 0,
-					autoSkip: false,
-				}
-			},
-			y: {
-				beginAtZero: true,
-				max: students.data?.length,
-				ticks: {
-					stepSize: 5,
-				},
-			},
-		},
-		plugins: {
-			legends: {
-				display: false,
-				title: {
-					text: __("Student Progress 1111"),
-				}
-			},
-			title: {
-				display: true,
-				text: __("Student Progress"),
-				font: {
-					size: 14,
-					weight: '500',
-				},
-				color: '#171717',
-			}
-		}
-	}
-}) */
-
-const chartSeries = ref([
-	{
-		name: 'Courses',
-		data: [20, 30, 50], // Example data for courses
-	},
-	{
-		name: 'Assessments',
-		data: [10, 40, 60], // Example data for assessments
-	},
-])
-
 const getChartOptions = (categories) => {
-	const courseColor = '#3498db' // Blue for courses
-	const assessmentColor = '#e74c3c' // Red for assessments
+	const courseColor = '#318AD8'
+	const assessmentColor = '#F683AE'
+	const maxY = Math.ceil(students.data?.length / 10) * 10
+
 	return {
 		chart: {
 			type: 'bar',
 			height: 350,
+			toolbar: {
+				show: false,
+			},
 		},
 		plotOptions: {
 			bar: {
-				distributed: true, // Allows individual bar colors
+				distributed: true,
 				borderRadius: 0,
-				horizontal: false, // Set to true for horizontal bars
+				horizontal: false,
 				columnWidth: '30%',
 			},
 		},
@@ -365,20 +326,35 @@ const getChartOptions = (categories) => {
 		),
 		legends: {
 			show: true,
+			markers: {
+				fillColors: [courseColor, assessmentColor],
+			},
 		},
 		xaxis: {
-			categories: Object.keys(categories),
+			categories: ['Courses', 'Assessments'],
+			overwriteCategories: Object.keys(categories),
 			labels: {
 				style: {
 					fontSize: '10px',
 				},
 				rotate: 0,
 				formatter: function (value) {
-					console.log(value)
-					return value.length > 20 ? `${value.substring(0, 20)}...` : value // Trim long labels
+					return value.length > 25 ? `${value.substring(0, 25)}...` : value // Trim long labels
 				},
 			},
 		},
+		yaxis: {
+			max: maxY,
+			min: 0,
+			stepSize: 10,
+			tickAmount: maxY / 10,
+		},
 	}
 }
+
+watch(students, () => {
+	if (students.data?.length) {
+		assessmentCount.value = Object.keys(students.data?.[0].assessments).length
+	}
+})
 </script>
