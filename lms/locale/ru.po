@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2024-12-06 16:04+0000\n"
-"PO-Revision-Date: 2024-12-09 23:31\n"
+"POT-Creation-Date: 2024-12-13 16:04+0000\n"
+"PO-Revision-Date: 2024-12-23 02:15\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Russian\n"
 "MIME-Version: 1.0\n"
@@ -101,7 +101,7 @@ msgstr ""
 
 #: frontend/src/components/Assessments.vue:11
 #: frontend/src/components/BatchCourses.vue:11
-#: frontend/src/components/BatchStudents.vue:6
+#: frontend/src/components/BatchStudents.vue:10
 #: frontend/src/components/Categories.vue:26
 #: frontend/src/components/LiveClass.vue:11
 #: frontend/src/components/Members.vue:43 frontend/src/pages/ProgramForm.vue:30
@@ -1702,7 +1702,7 @@ msgstr "Подтверждение регистрации на следующу�
 msgid "Enrollment Count"
 msgstr "Количество регистраций"
 
-#: lms/lms/utils.py:1702
+#: lms/lms/utils.py:1715
 msgid "Enrollment Failed"
 msgstr ""
 
@@ -1738,6 +1738,7 @@ msgstr "Введите правильный ответ"
 #: frontend/src/components/Modals/Question.vue:249
 #: frontend/src/components/Modals/Question.vue:269
 #: frontend/src/components/Modals/Question.vue:326
+#: frontend/src/components/Modals/StudentModal.vue:69
 #: frontend/src/components/SettingDetails.vue:62
 #: frontend/src/pages/Billing.vue:264 frontend/src/pages/QuizForm.vue:350
 #: frontend/src/pages/QuizForm.vue:365
@@ -2812,7 +2813,7 @@ msgstr "Онлайн-урок"
 msgid "LiveCode URL"
 msgstr ""
 
-#: frontend/src/components/Members.vue:95
+#: frontend/src/components/Members.vue:106
 msgid "Load More"
 msgstr ""
 
@@ -3230,7 +3231,7 @@ msgstr ""
 msgid "Next Question"
 msgstr "Следующий вопрос"
 
-#: frontend/src/components/Assessments.vue:63 lms/templates/assessments.html:58
+#: frontend/src/components/Assessments.vue:66 lms/templates/assessments.html:58
 msgid "No Assessments"
 msgstr "Нет оценок"
 
@@ -3687,7 +3688,7 @@ msgstr "Пожалуйста, проверьте свой email для подт�
 msgid "Please click on the following button to set your new password"
 msgstr "Нажмите на следующую кнопку, чтобы установить новый пароль."
 
-#: lms/lms/utils.py:1824 lms/lms/utils.py:1828
+#: lms/lms/utils.py:1837 lms/lms/utils.py:1841
 msgid "Please complete the previous courses in the program to enroll in this course."
 msgstr ""
 
@@ -4700,13 +4701,13 @@ msgstr "Курс {0} уже добавлен в группу."
 
 #. Label of the students (Table) field in DocType 'LMS Batch'
 #. Label of the show_students (Check) field in DocType 'LMS Settings'
-#: frontend/src/components/BatchStudents.vue:9
+#: frontend/src/components/BatchStudents.vue:4
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Students"
 msgstr "Студенты"
 
-#: frontend/src/components/BatchStudents.vue:157
+#: frontend/src/components/BatchStudents.vue:191
 msgid "Students deleted successfully"
 msgstr ""
 
@@ -4758,7 +4759,7 @@ msgstr "Отправлено {0}"
 
 #: frontend/src/components/BatchCourses.vue:150
 #: frontend/src/components/BatchOverlay.vue:135
-#: frontend/src/components/BatchStudents.vue:157
+#: frontend/src/components/BatchStudents.vue:191
 #: frontend/src/components/CourseCardOverlay.vue:161
 #: frontend/src/components/Modals/AnnouncementModal.vue:99
 #: frontend/src/components/Modals/AssessmentModal.vue:73
@@ -4946,7 +4947,7 @@ msgstr ""
 msgid "There are no seats available in this batch."
 msgstr "В этой группе нет свободных мест."
 
-#: frontend/src/components/BatchStudents.vue:67
+#: frontend/src/components/BatchStudents.vue:86
 msgid "There are no students in this batch."
 msgstr "В этой группе нет студентов."
 
@@ -4977,7 +4978,7 @@ msgstr "Этот сертификат является бессрочным"
 msgid "This course has:"
 msgstr ""
 
-#: lms/lms/utils.py:1582
+#: lms/lms/utils.py:1595
 msgid "This course is free."
 msgstr "Этот курс бесплатный."
 
@@ -5119,7 +5120,7 @@ msgstr ""
 msgid "To Date"
 msgstr ""
 
-#: lms/lms/utils.py:1593
+#: lms/lms/utils.py:1606
 msgid "To join this batch, please contact the Administrator."
 msgstr "Чтобы присоединиться к этой группе, свяжитесь с администратором."
 
