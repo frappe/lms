@@ -62,9 +62,7 @@
 							<div v-else-if="tab.label == 'Dashboard' && isStudent">
 								<BatchDashboard :batch="batch" :isStudent="isStudent" />
 							</div>
-							<div
-								v-else-if="tab.label == 'Dashboard' && user.data?.is_moderator"
-							>
+							<div v-else-if="tab.label == 'Dashboard'">
 								<BatchStudents :batch="batch.data" />
 							</div>
 							<div v-else-if="tab.label == 'Live Class'">
