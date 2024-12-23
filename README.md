@@ -106,9 +106,9 @@ wget https://frappe.io/easy-install.py
 python3 ./easy-install.py deploy \
     --project=learning_prod_setup \
     --email=your_email.example.com \
-    --image=ghcr.io/frappe/learning \
+    --image=ghcr.io/frappe/lms \
     --version=stable \
-    --app=learning \
+    --app=lms \
     --sitename subdomain.domain.tld
 ```
 
