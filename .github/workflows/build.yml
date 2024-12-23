@@ -10,14 +10,21 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        arch: [amd64, arm64]
+
     permissions:
       packages: write
 
     steps:
       - name: Checkout Entire Repository
         uses: actions/checkout@v4
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
@@ -28,11 +35,13 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+          
       - name: Set Branch
         run: |
           export APPS_JSON='[{"url": "https://github.com/frappe/lms","branch": "main"}]'
           echo "APPS_JSON_BASE64=$(echo $APPS_JSON | base64 -w 0)" >> $GITHUB_ENV
           echo "FRAPPE_BRANCH=version-15" >> $GITHUB_ENV
+
       - name: Set Image Tag
         run: |
           echo "IMAGE_TAG=stable" >> $GITHUB_ENV
@@ -40,6 +49,7 @@ jobs:
         with:
           repository: frappe/frappe_docker
           path: builds
+
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
