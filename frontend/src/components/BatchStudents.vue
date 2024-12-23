@@ -1,5 +1,10 @@
 <template>
 	<div class="">
+		<div class="w-full flex items-center justify-between border-b pb-4">
+			<div class="font-medium text-gray-600">
+				{{ __('Statistics') }}
+			</div>
+		</div>
 		<div class="grid grid-cols-3 gap-5 mb-8">
 			<div class="flex items-center shadow py-2 px-3 rounded-md">
 				<div class="p-2 rounded-md bg-gray-100 mr-3">
@@ -44,7 +49,7 @@
 			</div>
 		</div>
 		<div class="mb-8">
-			<div class="text-lg font-semibold">
+			<div class="text-gray-600 font-medium">
 				{{ __('Progress') }}
 			</div>
 			<ApexChart
@@ -54,9 +59,28 @@
 				type="bar"
 				height="350"
 			/>
+			<div
+				class="flex items-center justify-center text-sm text-gray-700 space-x-4"
+			>
+				<div class="flex items-center space-x-2">
+					<div class="w-3 h-3" style="background-color: #0289f7"></div>
+					<div>
+						{{ __('Courses') }}
+					</div>
+				</div>
+				<div class="flex items-center space-x-2">
+					<div class="w-3 h-3" style="background-color: #e03636"></div>
+					<div>
+						{{ __('Assessments') }}
+					</div>
+				</div>
+			</div>
 		</div>
+	</div>
+
+	<div>
 		<div class="flex items-center justify-between mb-4">
-			<div class="text-lg font-semibold">
+			<div class="text-gray-600 font-medium">
 				{{ __('Students') }}
 			</div>
 			<Button @click="openStudentModal()">
@@ -66,80 +90,82 @@
 				{{ __('Add') }}
 			</Button>
 		</div>
-	</div>
-	<div v-if="students.data?.length">
-		<ListView
-			:columns="getStudentColumns()"
-			:rows="students.data"
-			row-key="name"
-			:options="{
-				showTooltip: false,
-				onRowClick: (row) => {
-					openStudentProgressModal(row)
-				},
-			}"
-		>
-			<ListHeader
-				class="mb-2 grid items-center space-x-4 rounded bg-gray-100 p-2"
+
+		<div v-if="students.data?.length">
+			<ListView
+				:columns="getStudentColumns()"
+				:rows="students.data"
+				row-key="name"
+				:options="{
+					showTooltip: false,
+					onRowClick: (row) => {
+						openStudentProgressModal(row)
+					},
+				}"
 			>
-				<ListHeaderItem
-					:item="item"
-					v-for="item in getStudentColumns()"
-					:title="item.label"
+				<ListHeader
+					class="mb-2 grid items-center space-x-4 rounded bg-gray-100 p-2"
 				>
-					<template #prefix="{ item }">
-						<FeatherIcon
-							v-if="item.icon"
-							:name="item.icon"
-							class="h-4 w-4 stroke-1.5"
-						/>
-					</template>
-				</ListHeaderItem>
-			</ListHeader>
-			<ListRows>
-				<ListRow :row="row" v-for="row in students.data">
-					<template #default="{ column, item }">
-						<ListRowItem :item="row[column.key]" :align="column.align">
-							<template #prefix>
-								<div v-if="column.key == 'full_name'">
-									<Avatar
-										class="flex items-center"
-										:image="row['user_image']"
-										:label="item"
-										size="sm"
-									/>
+					<ListHeaderItem
+						:item="item"
+						v-for="item in getStudentColumns()"
+						:title="item.label"
+					>
+						<template #prefix="{ item }">
+							<FeatherIcon
+								v-if="item.icon"
+								:name="item.icon"
+								class="h-4 w-4 stroke-1.5"
+							/>
+						</template>
+					</ListHeaderItem>
+				</ListHeader>
+				<ListRows>
+					<ListRow :row="row" v-for="row in students.data">
+						<template #default="{ column, item }">
+							<ListRowItem :item="row[column.key]" :align="column.align">
+								<template #prefix>
+									<div v-if="column.key == 'full_name'">
+										<Avatar
+											class="flex items-center"
+											:image="row['user_image']"
+											:label="item"
+											size="sm"
+										/>
+									</div>
+								</template>
+								<div
+									v-if="column.key == 'progress'"
+									class="flex items-center space-x-4 w-full"
+								>
+									<ProgressBar :progress="row[column.key]" size="sm" />
 								</div>
-							</template>
-							<div
-								v-if="column.key == 'progress'"
-								class="flex items-center space-x-4 w-full"
+								<div v-else>
+									{{ row[column.key] }}
+								</div>
+							</ListRowItem>
+						</template>
+					</ListRow>
+				</ListRows>
+				<ListSelectBanner>
+					<template #actions="{ unselectAll, selections }">
+						<div class="flex gap-2">
+							<Button
+								variant="ghost"
+								@click="removeStudents(selections, unselectAll)"
 							>
-								<ProgressBar :progress="row[column.key]" size="sm" />
-							</div>
-							<div v-else>
-								{{ row[column.key] }}
-							</div>
-						</ListRowItem>
+								<Trash2 class="h-4 w-4 stroke-1.5" />
+							</Button>
+						</div>
 					</template>
-				</ListRow>
-			</ListRows>
-			<ListSelectBanner>
-				<template #actions="{ unselectAll, selections }">
-					<div class="flex gap-2">
-						<Button
-							variant="ghost"
-							@click="removeStudents(selections, unselectAll)"
-						>
-							<Trash2 class="h-4 w-4 stroke-1.5" />
-						</Button>
-					</div>
-				</template>
-			</ListSelectBanner>
-		</ListView>
+				</ListSelectBanner>
+			</ListView>
+		</div>
+		<div v-else class="text-sm italic text-gray-600">
+			{{ __('There are no students in this batch.') }}
+		</div>
 	</div>
-	<div v-else class="text-sm italic text-gray-600">
-		{{ __('There are no students in this batch.') }}
-	</div>
+
 	<StudentModal
 		:batch="props.batch.name"
 		v-model="showStudentModal"
@@ -267,6 +293,7 @@ const getChartData = () => {
 		categories[course] = {
 			value: 0,
 			type: 'course',
+			label: course,
 		}
 	})
 
@@ -274,6 +301,7 @@ const getChartData = () => {
 		categories[assessment] = {
 			value: 0,
 			type: 'assessment',
+			label: assessment,
 		}
 	})
 
@@ -294,15 +322,15 @@ const getChartData = () => {
 	chartOptions.value = getChartOptions(categories)
 	return [
 		{
-			name: __('Student Progress'),
+			name: __('Completed by Students'),
 			data: Object.values(categories).map((item) => item.value),
 		},
 	]
 }
 
 const getChartOptions = (categories) => {
-	const courseColor = '#318AD8'
-	const assessmentColor = '#F683AE'
+	const courseColor = '#0289F7'
+	const assessmentColor = '#E03636'
 	const maxY = Math.ceil(students.data?.length / 10) * 10
 
 	return {
@@ -325,21 +353,17 @@ const getChartOptions = (categories) => {
 			item.type === 'course' ? courseColor : assessmentColor
 		),
 		legends: {
-			show: true,
-			markers: {
-				fillColors: [courseColor, assessmentColor],
-			},
+			show: false,
 		},
 		xaxis: {
-			categories: ['Courses', 'Assessments'],
-			overwriteCategories: Object.keys(categories),
+			categories: Object.values(categories).map((item) => item.label),
 			labels: {
 				style: {
 					fontSize: '10px',
 				},
 				rotate: 0,
 				formatter: function (value) {
-					return value.length > 25 ? `${value.substring(0, 25)}...` : value // Trim long labels
+					return value.length > 22 ? `${value.substring(0, 22)}...` : value // Trim long labels
 				},
 			},
 		},
@@ -358,3 +382,8 @@ watch(students, () => {
 	}
 })
 </script>
+<style>
+.apexcharts-legend {
+	display: none !important;
+}
+</style>

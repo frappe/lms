@@ -59,14 +59,16 @@
 							<div v-if="tab.label == 'Courses'">
 								<BatchCourses :batch="batch.data.name" />
 							</div>
-							<div v-else-if="tab.label == 'Dashboard'">
+							<div v-else-if="tab.label == 'Dashboard' && isStudent">
 								<BatchDashboard :batch="batch" :isStudent="isStudent" />
+							</div>
+							<div
+								v-else-if="tab.label == 'Dashboard' && user.data?.is_moderator"
+							>
+								<BatchStudents :batch="batch.data" />
 							</div>
 							<div v-else-if="tab.label == 'Live Class'">
 								<LiveClass :batch="batch.data.name" />
-							</div>
-							<div v-else-if="tab.label == 'Students'">
-								<BatchStudents :batch="batch.data" />
 							</div>
 							<div v-else-if="tab.label == 'Assessments'">
 								<Assessments :batch="batch.data.name" />
@@ -259,34 +261,33 @@ const isStudent = computed(() => {
 const tabIndex = ref(0)
 const tabs = computed(() => {
 	let batchTabs = []
-	if (isStudent.value) {
-		batchTabs.push({
-			label: 'Dashboard',
-			icon: LayoutDashboard,
-		})
-	}
+	batchTabs.push({
+		label: 'Dashboard',
+		icon: LayoutDashboard,
+	})
+
+	batchTabs.push({
+		label: 'Courses',
+		icon: BookOpen,
+	})
+
+	batchTabs.push({
+		label: 'Live Class',
+		icon: Laptop,
+	})
+
 	if (user.data?.is_moderator) {
-		batchTabs.push({
-			label: 'Students',
-			icon: Contact2,
-		})
 		batchTabs.push({
 			label: 'Assessments',
 			icon: BookOpenCheck,
 		})
 	}
-	batchTabs.push({
-		label: 'Live Class',
-		icon: Laptop,
-	})
-	batchTabs.push({
-		label: 'Courses',
-		icon: BookOpen,
-	})
+
 	batchTabs.push({
 		label: 'Announcements',
 		icon: Mail,
 	})
+
 	batchTabs.push({
 		label: 'Discussions',
 		icon: MessageCircle,
