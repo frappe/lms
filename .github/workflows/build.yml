@@ -10,9 +10,9 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        arch: [amd64, arm64]
+    permissions:
+      packages: write
+
     steps:
       - name: Checkout Entire Repository
         uses: actions/checkout@v4
