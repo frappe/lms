@@ -1,6 +1,6 @@
 <template>
 	<div class="">
-		<div class="w-full flex items-center justify-between border-b pb-4">
+		<div class="w-full flex items-center justify-between pb-4">
 			<div class="font-medium text-gray-600">
 				{{ __('Statistics') }}
 			</div>
@@ -98,9 +98,6 @@
 				row-key="name"
 				:options="{
 					showTooltip: false,
-					onRowClick: (row) => {
-						openStudentProgressModal(row)
-					},
 				}"
 			>
 				<ListHeader
@@ -121,7 +118,12 @@
 					</ListHeaderItem>
 				</ListHeader>
 				<ListRows>
-					<ListRow :row="row" v-for="row in students.data">
+					<ListRow
+						:row="row"
+						v-for="row in students.data"
+						class="group cursor-pointer"
+						@click="openStudentProgressModal(row)"
+					>
 						<template #default="{ column, item }">
 							<ListRowItem :item="row[column.key]" :align="column.align">
 								<template #prefix>
@@ -139,6 +141,16 @@
 									class="flex items-center space-x-4 w-full"
 								>
 									<ProgressBar :progress="row[column.key]" size="sm" />
+								</div>
+								<div
+									v-else-if="column.key == 'copy'"
+									class="invisible group-hover:visible"
+								>
+									<Button variant="ghost" @click="copyEmail(row)">
+										<template #icon>
+											<Clipboard class="h-4 w-4 stroke-1.5" />
+										</template>
+									</Button>
 								</div>
 								<div v-else>
 									{{ row[column.key] }}
@@ -190,7 +202,14 @@ import {
 	ListView,
 	ListRowItem,
 } from 'frappe-ui'
-import { BookOpen, Plus, ShieldCheck, Trash2, User } from 'lucide-vue-next'
+import {
+	BookOpen,
+	Clipboard,
+	Plus,
+	ShieldCheck,
+	Trash2,
+	User,
+} from 'lucide-vue-next'
 import { ref, watch } from 'vue'
 import StudentModal from '@/components/Modals/StudentModal.vue'
 import { showToast } from '@/utils'
@@ -246,6 +265,10 @@ const getStudentColumns = () => {
 			width: '15rem',
 			align: 'center',
 			icon: 'clock',
+		},
+		{
+			label: '',
+			key: 'copy',
 		},
 	]
 
@@ -331,7 +354,10 @@ const getChartData = () => {
 const getChartOptions = (categories) => {
 	const courseColor = '#0289F7'
 	const assessmentColor = '#E03636'
-	const maxY = Math.ceil(students.data?.length / 10) * 10
+	const maxY =
+		students.data?.length % 5
+			? students.data?.length + (5 - (students.data?.length % 5))
+			: students.data?.length
 
 	return {
 		chart: {
@@ -346,7 +372,7 @@ const getChartOptions = (categories) => {
 				distributed: true,
 				borderRadius: 0,
 				horizontal: false,
-				columnWidth: '30%',
+				columnWidth: '5%',
 			},
 		},
 		colors: Object.values(categories).map((item) =>
@@ -362,18 +388,20 @@ const getChartOptions = (categories) => {
 					fontSize: '10px',
 				},
 				rotate: 0,
-				formatter: function (value) {
-					return value.length > 22 ? `${value.substring(0, 22)}...` : value // Trim long labels
-				},
 			},
 		},
 		yaxis: {
 			max: maxY,
 			min: 0,
 			stepSize: 10,
-			tickAmount: maxY / 10,
+			tickAmount: maxY / 5,
 		},
 	}
+}
+
+const copyEmail = (row) => {
+	navigator.clipboard.writeText(row.email)
+	showToast(__('Success'), __('Email copied to clipboard'), 'check')
 }
 
 watch(students, () => {

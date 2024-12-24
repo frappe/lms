@@ -148,7 +148,7 @@ const getRowRoute = (row) => {
 			return {
 				name: 'AssignmentSubmission',
 				params: {
-					assignmentName: row.assessment_name,
+					assignmentID: row.assessment_name,
 					submissionName: row.submission.name,
 				},
 			}
@@ -156,7 +156,7 @@ const getRowRoute = (row) => {
 			return {
 				name: 'AssignmentSubmission',
 				params: {
-					assignmentName: row.assessment_name,
+					assignmentID: row.assessment_name,
 					submissionName: 'new',
 				},
 			}

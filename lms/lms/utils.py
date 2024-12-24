@@ -1487,11 +1487,19 @@ def get_batch_students(batch):
 
 		detail.courses_completed = courses_completed
 		detail.assessments_completed = assessments_completed
-		detail.progress = (
-			(courses_completed + assessments_completed)
-			/ (len(batch_courses) + len(assessments))
-			* 100
-		)
+
+		if len(batch_courses) or len(assessments):
+			detail.progress = flt(
+				(
+					(courses_completed + assessments_completed)
+					/ (len(batch_courses) + len(assessments))
+					* 100
+				),
+				2,
+			)
+		else:
+			detail.progress = 0
+
 		students.append(detail)
 
 	return students

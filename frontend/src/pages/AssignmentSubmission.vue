@@ -10,7 +10,7 @@
 	<div class="container py-5">
 		<div
 			v-if="submissionResource.data"
-			class="bg-blue-100 p-2 rounded-md leading-5 text-sm italic"
+			class="bg-blue-100 p-2 rounded-md leading-5 text-sm mb-4"
 		>
 			{{ __("You've successfully submitted the assignment.") }}
 			{{
@@ -133,7 +133,7 @@ const answer = ref(null)
 const router = useRouter()
 
 const props = defineProps({
-	assignmentName: {
+	assignmentID: {
 		type: String,
 		required: true,
 	},
@@ -147,7 +147,7 @@ const assignment = createResource({
 	url: 'frappe.client.get',
 	params: {
 		doctype: 'LMS Assignment',
-		name: props.assignmentName,
+		name: props.assignmentID,
 	},
 	auto: true,
 })
@@ -191,7 +191,7 @@ const newSubmission = createResource({
 	makeParams(values) {
 		let doc = {
 			doctype: 'LMS Assignment Submission',
-			assignment: props.assignmentName,
+			assignment: props.assignmentID,
 			member: user.data?.name,
 		}
 		if (showUploader()) {
@@ -256,7 +256,7 @@ const addNewSubmission = () => {
 				router.push({
 					name: 'AssignmentSubmission',
 					params: {
-						assignmentName: props.assignmentName,
+						assignmentID: props.assignmentID,
 						submissionName: data.name,
 					},
 				})
@@ -278,7 +278,7 @@ const breadcrumbs = computed(() => {
 			route: {
 				name: 'AssignmentSubmission',
 				params: {
-					assignmentName: assignment.data?.name,
+					assignmentID: assignment.data?.name,
 				},
 			},
 		},

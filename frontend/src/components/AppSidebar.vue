@@ -185,6 +185,17 @@ const addQuizzes = () => {
 	}
 }
 
+const addAssignments = () => {
+	if (isInstructor.value || isModerator.value) {
+		sidebarLinks.value.push({
+			label: 'Assignments',
+			icon: 'Pencil',
+			to: 'Assignments',
+			activeFor: ['Assignments', 'AssignmentForm'],
+		})
+	}
+}
+
 const addPrograms = () => {
 	let activeFor = ['Programs', 'ProgramForm']
 	let index = 1
@@ -247,8 +258,9 @@ watch(userResource, () => {
 	if (userResource.data) {
 		isModerator.value = userResource.data.is_moderator
 		isInstructor.value = userResource.data.is_instructor
-		addQuizzes()
 		addPrograms()
+		addQuizzes()
+		addAssignments()
 	}
 })
 

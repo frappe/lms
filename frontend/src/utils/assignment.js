@@ -1,11 +1,10 @@
-import QuizBlock from '@/components/QuizBlock.vue'
-import AssessmentPlugin from '@/components/AssessmentPlugin.vue'
+import { Pencil } from 'lucide-vue-next'
 import { createApp, h } from 'vue'
-import { usersStore } from '../stores/user'
+import AssessmentPlugin from '@/components/AssessmentPlugin.vue'
 import translationPlugin from '../translation'
-import { CircleHelp } from 'lucide-vue-next'
+import { usersStore } from '../stores/user'
 
-export class Quiz {
+export class Assignment {
 	constructor({ data, api, readOnly }) {
 		this.data = data
 		this.readOnly = readOnly
@@ -14,14 +13,14 @@ export class Quiz {
 	static get toolbox() {
 		const app = createApp({
 			render: () =>
-				h(CircleHelp, { size: 18, strokeWidth: 1.5, color: 'black' }),
+				h(Pencil, { size: 18, strokeWidth: 1.5, color: 'black' }),
 		})
 
 		const div = document.createElement('div')
 		app.mount(div)
 
 		return {
-			title: __('Quiz'),
+			title: __('Assignment'),
 			icon: div.innerHTML,
 		}
 	}
@@ -33,17 +32,17 @@ export class Quiz {
 	render() {
 		this.wrapper = document.createElement('div')
 		if (Object.keys(this.data).length) {
-			this.renderQuiz(this.data.quiz)
+			this.renderAssignment(this.data.assignment)
 		} else {
-			this.renderQuizModal()
+			this.renderAssignmentModal()
 		}
 		return this.wrapper
 	}
 
-	renderQuiz(quiz) {
+	renderAssignment(assignment) {
 		if (this.readOnly) {
-			const app = createApp(QuizBlock, {
-				quiz: quiz,
+			const app = createApp(AssignmentBlock, {
+				assignment: assignment,
 			})
 			app.use(translationPlugin)
 			const { userResource } = usersStore()
@@ -53,20 +52,20 @@ export class Quiz {
 		}
 		this.wrapper.innerHTML = `<div class='border rounded-md p-10 text-center bg-gray-50 mb-2'>
             <span class="font-medium">
-                Quiz: ${quiz}
+                Assignment: ${assignment}
             </span>
         </div>`
 		return
 	}
 
-	renderQuizModal() {
+	renderAssignmentModal() {
 		if (this.readOnly) {
 			return
 		}
 		const app = createApp(AssessmentPlugin, {
-			onAddition: (quiz) => {
-				this.data.quiz = quiz
-				this.renderQuiz(quiz)
+			onAddition: (assignment) => {
+				this.data.assignment = assignment
+				this.renderAssignment(assignment)
 			},
 		})
 		app.use(translationPlugin)
@@ -75,7 +74,7 @@ export class Quiz {
 
 	save(blockContent) {
 		return {
-			quiz: this.data.quiz,
+			assignment: this.data.assignment,
 		}
 	}
 }

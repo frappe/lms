@@ -132,12 +132,6 @@ const routes = [
 		props: true,
 	},
 	{
-		path: '/assignment-submission/:assignmentName/:submissionName',
-		name: 'AssignmentSubmission',
-		component: () => import('@/pages/AssignmentSubmission.vue'),
-		props: true,
-	},
-	{
 		path: '/certified-participants',
 		name: 'CertifiedParticipants',
 		component: () => import('@/pages/CertifiedParticipants.vue'),
@@ -192,6 +186,28 @@ const routes = [
 		path: '/programs',
 		name: 'Programs',
 		component: () => import('@/pages/Programs.vue'),
+	},
+	{
+		path: '/assignments',
+		name: 'Assignments',
+		component: () => import('@/pages/Assignments.vue'),
+	},
+	{
+		path: '/assignments/:assignmentID',
+		name: 'AssignmentForm',
+		component: () => import('@/pages/AssignmentForm.vue'),
+		props: true,
+	},
+	{
+		path: '/assignment-submission/:assignmentID/:submissionName',
+		name: 'AssignmentSubmission',
+		component: () => import('@/pages/AssignmentSubmission.vue'),
+		props: true,
+	},
+	{
+		path: '/assignment-submissions',
+		name: 'AssignmentSubmissionList',
+		component: () => import('@/pages/AssignmentSubmissionList.vue'),
 	},
 ]
 

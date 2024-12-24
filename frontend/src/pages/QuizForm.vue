@@ -256,11 +256,7 @@ onMounted(() => {
 })
 
 const keyboardShortcut = (e) => {
-	if (
-		e.key === 's' &&
-		(e.ctrlKey || e.metaKey) &&
-		!e.target.classList.contains('ProseMirror')
-	) {
+	if (e.key === 's' && (e.ctrlKey || e.metaKey)) {
 		submitQuiz()
 		e.preventDefault()
 	}

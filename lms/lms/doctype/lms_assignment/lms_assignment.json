@@ -9,10 +9,11 @@
  "engine": "InnoDB",
  "field_order": [
   "title",
-  "grade_assignment",
   "question",
   "column_break_hmwv",
   "type",
+  "grade_assignment",
+  "section_break_sjti",
   "show_answer",
   "answer"
  ],
@@ -20,7 +21,8 @@
   {
    "fieldname": "question",
    "fieldtype": "Text Editor",
-   "label": "Question"
+   "label": "Question",
+   "reqd": 1
   },
   {
    "fieldname": "type",
@@ -28,14 +30,16 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Type",
-   "options": "Document\nPDF\nURL\nImage\nText"
+   "options": "Document\nPDF\nURL\nImage\nText",
+   "reqd": 1
   },
   {
    "fieldname": "title",
    "fieldtype": "Data",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Title"
+   "label": "Title",
+   "reqd": 1
   },
   {
    "fieldname": "column_break_hmwv",
@@ -60,11 +64,15 @@
    "fieldname": "grade_assignment",
    "fieldtype": "Check",
    "label": "Grade Assignment"
+  },
+  {
+   "fieldname": "section_break_sjti",
+   "fieldtype": "Section Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-04-05 12:01:36.601160",
+ "modified": "2024-12-24 09:36:31.464508",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Assignment",
