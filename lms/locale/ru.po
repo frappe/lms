@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2024-12-13 16:04+0000\n"
-"PO-Revision-Date: 2024-12-23 02:15\n"
+"POT-Creation-Date: 2024-12-20 16:04+0000\n"
+"PO-Revision-Date: 2024-12-25 02:17\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Russian\n"
 "MIME-Version: 1.0\n"
@@ -142,6 +142,10 @@ msgstr ""
 #: frontend/src/components/Modals/BatchCourseModal.vue:5
 msgid "Add a course"
 msgstr "Добавить курс"
+
+#: frontend/src/pages/CourseForm.vue:136
+msgid "Add a keyword and then press enter"
+msgstr ""
 
 #: frontend/src/components/OnboardingBanner.vue:73
 msgid "Add a lesson"
@@ -1231,7 +1235,7 @@ msgstr ""
 msgid "Course already added to the batch."
 msgstr "Курс уже добавлен в группу."
 
-#: frontend/src/pages/CourseForm.vue:460
+#: frontend/src/pages/CourseForm.vue:461
 msgid "Course deleted successfully"
 msgstr ""
 
@@ -1406,7 +1410,7 @@ msgstr "Тип степени"
 
 #: frontend/src/components/CourseOutline.vue:235
 #: frontend/src/components/CourseOutline.vue:293
-#: frontend/src/pages/CourseForm.vue:15 frontend/src/pages/CourseForm.vue:473
+#: frontend/src/pages/CourseForm.vue:15 frontend/src/pages/CourseForm.vue:474
 msgid "Delete"
 msgstr ""
 
@@ -1414,7 +1418,7 @@ msgstr ""
 msgid "Delete Chapter"
 msgstr ""
 
-#: frontend/src/pages/CourseForm.vue:467
+#: frontend/src/pages/CourseForm.vue:468
 msgid "Delete Course"
 msgstr ""
 
@@ -1426,7 +1430,7 @@ msgstr ""
 msgid "Delete this lesson?"
 msgstr ""
 
-#: frontend/src/pages/CourseForm.vue:468
+#: frontend/src/pages/CourseForm.vue:469
 msgid "Deleting the course will also delete all its chapters and lessons. Are you sure you want to delete this course?"
 msgstr ""
 
@@ -2468,10 +2472,6 @@ msgstr ""
 msgid "Join URL"
 msgstr "Присоединиться URL"
 
-#: frontend/src/pages/CourseForm.vue:136
-msgid "Keywords for the course"
-msgstr ""
-
 #. Name of a Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "LMS"
@@ -2793,7 +2793,7 @@ msgstr ""
 msgid "Links"
 msgstr "Ссылки"
 
-#: frontend/src/pages/Quizzes.vue:147
+#: frontend/src/pages/Quizzes.vue:149
 msgid "List of quizzes"
 msgstr ""
 
@@ -2814,6 +2814,8 @@ msgid "LiveCode URL"
 msgstr ""
 
 #: frontend/src/components/Members.vue:106
+#: frontend/src/pages/QuizSubmissionList.vue:39
+#: frontend/src/pages/Quizzes.vue:51
 msgid "Load More"
 msgstr ""
 
@@ -2908,7 +2910,7 @@ msgstr "Отметить как прочитанное"
 msgid "Marks"
 msgstr "Отметки"
 
-#: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.py:23
+#: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.py:24
 msgid "Marks for question number {0} cannot be greater than the marks allotted for that question."
 msgstr ""
 
@@ -2958,7 +2960,7 @@ msgstr "Средний:"
 #. Label of the member (Link) field in DocType 'LMS Program Member'
 #. Label of the member (Link) field in DocType 'LMS Quiz Submission'
 #: frontend/src/pages/QuizSubmission.vue:31
-#: frontend/src/pages/QuizSubmissionList.vue:77
+#: frontend/src/pages/QuizSubmissionList.vue:86
 #: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
 #: lms/lms/doctype/exercise_submission/exercise_submission.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
@@ -3292,7 +3294,7 @@ msgstr "Не запланированы онлайн-курсы"
 msgid "No programs found"
 msgstr ""
 
-#: frontend/src/pages/Quizzes.vue:56
+#: frontend/src/pages/Quizzes.vue:61
 msgid "No quizzes found"
 msgstr ""
 
@@ -3408,7 +3410,7 @@ msgstr ""
 msgid "Only files of type {0} will be accepted."
 msgstr "Принимаются только файлы типа {0} ."
 
-#: frontend/src/pages/CourseForm.vue:497 frontend/src/utils/index.js:520
+#: frontend/src/pages/CourseForm.vue:498 frontend/src/utils/index.js:527
 msgid "Only image file is allowed."
 msgstr ""
 
@@ -3559,7 +3561,7 @@ msgstr "Пропустить"
 
 #. Label of the passing_percentage (Int) field in DocType 'LMS Quiz'
 #. Label of the passing_percentage (Int) field in DocType 'LMS Quiz Submission'
-#: frontend/src/pages/QuizForm.vue:72 frontend/src/pages/Quizzes.vue:125
+#: frontend/src/pages/QuizForm.vue:72 frontend/src/pages/Quizzes.vue:127
 #: lms/lms/doctype/lms_quiz/lms_quiz.json
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.json
 msgid "Passing Percentage"
@@ -3654,7 +3656,7 @@ msgstr ""
 
 #. Label of the percentage (Int) field in DocType 'LMS Quiz Submission'
 #: frontend/src/pages/QuizSubmission.vue:44
-#: frontend/src/pages/QuizSubmissionList.vue:93
+#: frontend/src/pages/QuizSubmissionList.vue:97
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.json
 msgid "Percentage"
 msgstr "Проценты"
@@ -4041,8 +4043,7 @@ msgstr ""
 
 #. Label of the quiz (Link) field in DocType 'LMS Quiz Submission'
 #. Label of a Link in the LMS Workspace
-#: frontend/src/pages/QuizSubmission.vue:26
-#: frontend/src/pages/QuizSubmissionList.vue:82 frontend/src/utils/quiz.js:24
+#: frontend/src/pages/QuizSubmission.vue:26 frontend/src/utils/quiz.js:24
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.json
 #: lms/lms/workspace/lms/lms.json
 msgid "Quiz"
@@ -4060,7 +4061,7 @@ msgid "Quiz Submission"
 msgstr "Подача теста"
 
 #: frontend/src/pages/QuizSubmission.vue:122
-#: frontend/src/pages/QuizSubmissionList.vue:102
+#: frontend/src/pages/QuizSubmissionList.vue:106
 msgid "Quiz Submissions"
 msgstr ""
 
@@ -4090,8 +4091,8 @@ msgstr ""
 msgid "Quiz will appear at the bottom of the lesson."
 msgstr "Тест появится в конце урока."
 
-#: frontend/src/pages/QuizForm.vue:442 frontend/src/pages/Quizzes.vue:136
-#: frontend/src/pages/Quizzes.vue:146
+#: frontend/src/pages/QuizForm.vue:442 frontend/src/pages/Quizzes.vue:138
+#: frontend/src/pages/Quizzes.vue:148
 msgid "Quizzes"
 msgstr ""
 
@@ -4329,7 +4330,7 @@ msgstr "Объем"
 
 #. Label of the score (Int) field in DocType 'LMS Quiz Submission'
 #: frontend/src/pages/QuizSubmission.vue:39
-#: frontend/src/pages/QuizSubmissionList.vue:87
+#: frontend/src/pages/QuizSubmissionList.vue:91
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.json
 #: lms/templates/quiz/quiz.html:148
 msgid "Score"
@@ -4707,7 +4708,7 @@ msgstr "Курс {0} уже добавлен в группу."
 msgid "Students"
 msgstr "Студенты"
 
-#: frontend/src/components/BatchStudents.vue:191
+#: frontend/src/components/BatchStudents.vue:192
 msgid "Students deleted successfully"
 msgstr ""
 
@@ -4759,7 +4760,7 @@ msgstr "Отправлено {0}"
 
 #: frontend/src/components/BatchCourses.vue:150
 #: frontend/src/components/BatchOverlay.vue:135
-#: frontend/src/components/BatchStudents.vue:191
+#: frontend/src/components/BatchStudents.vue:192
 #: frontend/src/components/CourseCardOverlay.vue:161
 #: frontend/src/components/Modals/AnnouncementModal.vue:99
 #: frontend/src/components/Modals/AssessmentModal.vue:73
@@ -4770,7 +4771,7 @@ msgstr "Отправлено {0}"
 #: frontend/src/components/Modals/Event.vue:310
 #: frontend/src/components/Modals/Question.vue:264
 #: frontend/src/components/Modals/Question.vue:315
-#: frontend/src/pages/CourseForm.vue:460 frontend/src/pages/ProgramForm.vue:229
+#: frontend/src/pages/CourseForm.vue:461 frontend/src/pages/ProgramForm.vue:229
 #: frontend/src/pages/ProgramForm.vue:251
 #: frontend/src/pages/ProgramForm.vue:272
 #: frontend/src/pages/ProgramForm.vue:298 frontend/src/pages/QuizForm.vue:343
@@ -4792,7 +4793,7 @@ msgstr "Резюме"
 msgid "Sunday"
 msgstr "Воскресенье"
 
-#: lms/lms/api.py:951
+#: lms/lms/api.py:952
 msgid "Suspicious pattern found in {0}: {1}"
 msgstr ""
 
@@ -4955,7 +4956,7 @@ msgstr "В этой группе нет студентов."
 msgid "There are no {0} on this site."
 msgstr "На этом сайте нет {0} ."
 
-#: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.py:41
+#: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.py:42
 msgid "There has been an update on your submission. You have got a score of {0} for the quiz {1}"
 msgstr ""
 
@@ -5084,7 +5085,7 @@ msgstr "Сроки:"
 #: frontend/src/pages/BatchForm.vue:20 frontend/src/pages/CourseForm.vue:32
 #: frontend/src/pages/JobCreation.vue:20 frontend/src/pages/ProgramForm.vue:11
 #: frontend/src/pages/Programs.vue:118 frontend/src/pages/QuizForm.vue:48
-#: frontend/src/pages/Quizzes.vue:114 lms/lms/doctype/cohort/cohort.json
+#: frontend/src/pages/Quizzes.vue:116 lms/lms/doctype/cohort/cohort.json
 #: lms/lms/doctype/cohort_subgroup/cohort_subgroup.json
 #: lms/lms/doctype/cohort_web_page/cohort_web_page.json
 #: lms/lms/doctype/course_chapter/course_chapter.json
@@ -5137,7 +5138,7 @@ msgid "Total"
 msgstr ""
 
 #. Label of the total_marks (Int) field in DocType 'LMS Quiz'
-#: frontend/src/pages/QuizForm.vue:67 frontend/src/pages/Quizzes.vue:119
+#: frontend/src/pages/QuizForm.vue:67 frontend/src/pages/Quizzes.vue:121
 #: lms/lms/doctype/lms_quiz/lms_quiz.json
 msgid "Total Marks"
 msgstr "Всего задач"
@@ -5538,11 +5539,11 @@ msgstr ""
 msgid "You have been enrolled in this course"
 msgstr ""
 
-#: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.py:38
+#: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.py:39
 msgid "You have got a score of {0} for the quiz {1}"
 msgstr ""
 
-#: frontend/src/pages/Quizzes.vue:60
+#: frontend/src/pages/Quizzes.vue:65
 msgid "You have not created any quizzes yet. To create a new quiz, click on the \"New Quiz\" button above."
 msgstr ""
 
