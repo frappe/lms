@@ -41,6 +41,11 @@
 								<div v-if="column.key == 'assessment_type'">
 									{{ row[column.key] == 'LMS Quiz' ? 'Quiz' : 'Assignment' }}
 								</div>
+								<div v-else-if="column.key == 'status'">
+									<Badge :theme="getStatusTheme(row[column.key])">
+										{{ row[column.key] }}
+									</Badge>
+								</div>
 								<div v-else>
 									{{ row[column.key] }}
 								</div>
@@ -83,6 +88,7 @@ import {
 	ListSelectBanner,
 	createResource,
 	Button,
+	Badge,
 } from 'frappe-ui'
 import { inject, ref } from 'vue'
 import AssessmentModal from '@/components/Modals/AssessmentModal.vue'
@@ -180,7 +186,7 @@ const getAssessmentColumns = () => {
 		{
 			label: 'Assessment',
 			key: 'title',
-			width: '30rem',
+			width: '25rem',
 		},
 		{
 			label: 'Type',
@@ -198,5 +204,15 @@ const getAssessmentColumns = () => {
 		})
 	}
 	return columns
+}
+
+const getStatusTheme = (status) => {
+	if (status === 'Pass') {
+		return 'green'
+	} else if (status === 'Not Graded') {
+		return 'orange'
+	} else {
+		return 'red'
+	}
 }
 </script>

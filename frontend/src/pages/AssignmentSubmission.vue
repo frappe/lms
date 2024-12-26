@@ -3,110 +3,128 @@
 		class="flex justify-between sticky top-0 z-10 border-b bg-white px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs :items="breadcrumbs" />
-		<Button variant="solid" @click="submitAssignment()">
-			{{ __('Save') }}
-		</Button>
-	</header>
-	<div class="container py-5">
-		<div
-			v-if="submissionResource.data"
-			class="bg-blue-100 p-2 rounded-md leading-5 text-sm mb-4"
-		>
-			{{ __("You've successfully submitted the assignment.") }}
-			{{
-				__(
-					"Once the moderator grades your submission, you'll find the details here."
-				)
-			}}
-			{{ __('Feel free to make edits to your submission if needed.') }}
+		<div class="flex items-center space-x-2">
+			<Badge
+				v-if="submissionResource.doc?.status"
+				:theme="statusTheme"
+				size="lg"
+			>
+				{{ submissionResource.doc.status }}
+			</Badge>
+			<Button variant="solid" @click="submitAssignment()">
+				{{ __('Save') }}
+			</Button>
 		</div>
-		<div v-if="assignment.data">
-			<div>
-				<div class="text-xl font-semibold hidden">
+	</header>
+	<div class="p-5 overflow-hidden h-[calc(100vh-3.2rem)]">
+		<div v-if="assignment.data" class="grid grid-cols-2 gap-5">
+			<div class="p-5 border rounded-md overflow-y-auto h-[calc(100vh-6rem)]">
+				<div class="text-sm text-gray-600 font-medium mb-2">
 					{{ __('Question') }}
-				</div>
-				<div class="text-sm mt-1 hidden">
-					{{
-						__('Read the question carefully before attempting the assignment.')
-					}}
 				</div>
 				<div
 					v-html="assignment.data.question"
 					class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-gray-300 prose-th:border-gray-300 prose-td:relative prose-th:relative prose-th:bg-gray-100 prose-sm max-w-none !whitespace-normal"
 				></div>
 			</div>
-			<div class="">
-				<div class="text-xl font-semibold mt-10">
-					{{ __('Submission') }}
-				</div>
-				<div v-if="showUploader()">
-					<div class="text-sm mt-1 mb-4">
-						{{ __('Add your assignment as {0}').format(assignment.data.type) }}
+
+			<div class="flex flex-col">
+				<div class="p-5 border rounded-md">
+					<div class="text-sm text-gray-600 font-medium mb-4">
+						{{ __('Submission') }}
 					</div>
-					<FileUploader
-						v-if="!submissionFile"
-						:fileTypes="getType()"
-						:validateFile="validateFile"
-						@success="(file) => saveSubmission(file)"
+					<div
+						v-if="submissionName != 'new'"
+						class="bg-blue-100 p-2 rounded-md leading-5 text-sm mb-4"
 					>
-						<template
-							#default="{
-								file,
-								uploading,
-								progress,
-								uploaded,
-								message,
-								error,
-								total,
-								success,
-								openFileSelector,
-							}"
+						{{ __("You've successfully submitted the assignment.") }}
+						{{
+							__(
+								"Once the moderator grades your submission, you'll find the details here."
+							)
+						}}
+						{{ __('Feel free to make edits to your submission if needed.') }}
+					</div>
+					<div v-if="showUploader()">
+						<div class="text-xs text-gray-600 mt-1 mb-2">
+							{{
+								__('Add your assignment as {0}').format(assignment.data.type)
+							}}
+						</div>
+						<FileUploader
+							v-if="!submissionFile"
+							:fileTypes="getType()"
+							:validateFile="validateFile"
+							@success="(file) => saveSubmission(file)"
 						>
-							<Button @click="openFileSelector" :loading="uploading">
-								{{
-									uploading
-										? __('Uploading {0}%').format(progress)
-										: __('Upload File')
-								}}
-							</Button>
-						</template>
-					</FileUploader>
-					<div v-else>
-						<div class="flex items-center">
-							<div class="border rounded-md p-2 mr-2">
-								<FileText class="h-5 w-5 stroke-1.5 text-gray-700" />
+							<template #default="{ uploading, progress, openFileSelector }">
+								<Button @click="openFileSelector" :loading="uploading">
+									{{
+										uploading
+											? __('Uploading {0}%').format(progress)
+											: __('Upload File')
+									}}
+								</Button>
+							</template>
+						</FileUploader>
+						<div v-else>
+							<div class="flex items-center">
+								<div class="border rounded-md p-2 mr-2">
+									<FileText class="h-5 w-5 stroke-1.5 text-gray-700" />
+								</div>
+								<div class="flex flex-col">
+									<span>
+										{{ submissionFile.file_name }}
+									</span>
+									<span class="text-sm text-gray-500 mt-1">
+										{{ getFileSize(submissionFile.file_size) }}
+									</span>
+								</div>
+								<X
+									v-if="submissionResource.doc.owner == user.data?.name"
+									@click="removeSubmission()"
+									class="bg-gray-200 rounded-md cursor-pointer stroke-1.5 w-5 h-5 p-1 ml-4"
+								/>
 							</div>
-							<div class="flex flex-col">
-								<span>
-									{{ submissionFile.file_name }}
-								</span>
-								<span class="text-sm text-gray-500 mt-1">
-									{{ getFileSize(submissionFile.file_size) }}
-								</span>
-							</div>
-							<X
-								@click="removeSubmission()"
-								class="bg-gray-200 rounded-md cursor-pointer stroke-1.5 w-5 h-5 p-1 ml-4"
-							/>
 						</div>
 					</div>
-				</div>
-				<div v-else-if="assignment.data.type == 'URL'">
-					<div class="text-sm mb-4">
-						{{ __('Enter a URL') }}
+					<div v-else-if="assignment.data.type == 'URL'" class="mt-5">
+						<div class="text-xs text-gray-600 mb-1">
+							{{ __('Enter a URL') }}
+						</div>
+						<FormControl v-model="answer" />
 					</div>
-					<FormControl v-model="answer" />
-				</div>
-				<div v-else>
-					<div class="text-sm mb-4">
-						{{ __('Write your answer here') }}
+					<div v-else>
+						<div class="text-sm mb-4">
+							{{ __('Write your answer here') }}
+						</div>
+						<TextEditor
+							:content="answer"
+							@change="(val) => (answer = val)"
+							:editable="true"
+							:fixedMenu="true"
+							editorClass="prose-sm max-w-none border-b border-x bg-gray-100 rounded-b-md py-1 px-2 min-h-[7rem]"
+						/>
 					</div>
-					<TextEditor
-						:content="answer"
-						@change="(val) => (answer = val)"
-						:editable="true"
-						:fixedMenu="true"
-						editorClass="prose-sm max-w-none border-b border-x bg-gray-100 rounded-b-md py-1 px-2 min-h-[7rem]"
+				</div>
+				<!-- Grading -->
+				<div
+					v-if="canGradeSubmission"
+					class="p-3 border rounded-md mt-5 space-y-4"
+				>
+					<div class="text-sm text-gray-600 font-medium mb-5">
+						{{ __('Grading') }}
+					</div>
+					<FormControl
+						v-model="submissionResource.doc.status"
+						:label="__('Grade')"
+						type="select"
+						:options="submissionStatusOptions"
+					/>
+					<FormControl
+						v-model="submissionResource.doc.comments"
+						:label="__('Comments')"
+						type="textarea"
 					/>
 				</div>
 			</div>
@@ -119,8 +137,10 @@ import {
 	createResource,
 	FileUploader,
 	Button,
+	Badge,
 	FormControl,
 	TextEditor,
+	createDocumentResource,
 } from 'frappe-ui'
 import { FileText, X } from 'lucide-vue-next'
 import { computed, inject, onMounted, ref } from 'vue'
@@ -143,6 +163,12 @@ const props = defineProps({
 	},
 })
 
+onMounted(() => {
+	if (!user.data) {
+		window.location.href = '/login'
+	}
+})
+
 const assignment = createResource({
 	url: 'frappe.client.get',
 	params: {
@@ -150,28 +176,16 @@ const assignment = createResource({
 		name: props.assignmentID,
 	},
 	auto: true,
+	onSuccess(data) {
+		if (props.submissionName != 'new') {
+			submissionResource.reload()
+		}
+	},
 })
 
 const showUploader = () => {
 	return ['PDF', 'Image', 'Document'].includes(assignment.data?.type)
 }
-
-const updateSubmission = createResource({
-	url: 'frappe.client.set_value',
-	makeParams(values) {
-		let fieldname = {}
-		if (showUploader()) {
-			fieldname.assignment_attachment = submissionFile.value.file_url
-		} else {
-			fieldname.answer = answer.value
-		}
-		return {
-			doctype: 'LMS Assignment Submission',
-			name: props.submissionName,
-			fieldname: fieldname,
-		}
-	},
-})
 
 const imageResource = createResource({
 	url: 'lms.lms.api.get_file_info',
@@ -205,43 +219,25 @@ const newSubmission = createResource({
 	},
 })
 
-const submissionResource = createResource({
-	url: 'frappe.client.get_value',
-	params: {
-		doctype: 'LMS Assignment Submission',
-		fieldname: showUploader() ? 'assignment_attachment' : 'answer',
-		filters: {
-			name: props.submissionName,
-		},
-	},
+const submissionResource = createDocumentResource({
+	doctype: 'LMS Assignment Submission',
+	name: props.submissionName,
+	auto: false,
 	onSuccess(data) {
-		if (data.assignment_attachment)
+		if (data.assignment_attachment) {
 			imageResource.reload({ image: data.assignment_attachment })
-		if (data.answer) answer.value = data.answer
+		}
 	},
-})
-onMounted(() => {
-	if (!user.data) {
-		window.location.href = '/login'
-	}
-	if (props.submissionName != 'new') {
-		submissionResource.reload()
-	}
 })
 
 const submitAssignment = () => {
 	if (props.submissionName != 'new') {
-		updateSubmission.submit(
-			{},
-			{
-				onSuccess(data) {
-					showToast('Success', 'Submission updated successfully.', 'check')
-				},
-				onError(err) {
-					showToast('Error', err.messages?.[0] || err, 'x')
-				},
-			}
-		)
+		let evaluator =
+			submissionResource.doc.owner != user.data?.name ? user.data?.name : null
+		submissionResource.setValue.submit({
+			...submissionResource.doc,
+			evaluator: evaluator,
+		})
 	} else {
 		addNewSubmission()
 	}
@@ -271,7 +267,8 @@ const addNewSubmission = () => {
 const breadcrumbs = computed(() => {
 	let crumbs = [
 		{
-			label: 'Assignment',
+			label: 'Submissions',
+			route: { name: 'AssignmentSubmissionList' },
 		},
 		{
 			label: assignment.data?.title,
@@ -325,4 +322,31 @@ const validateFile = (file) => {
 const removeSubmission = () => {
 	submissionFile.value = null
 }
+
+const canGradeSubmission = computed(() => {
+	return (
+		(user.data?.is_moderator ||
+			user.data?.is_evaluator ||
+			user.data?.is_instructor) &&
+		props.submissionName != 'new'
+	)
+})
+
+const submissionStatusOptions = computed(() => {
+	return [
+		{ label: 'Not Graded', value: 'Not Graded' },
+		{ label: 'Pass', value: 'Pass' },
+		{ label: 'Fail', value: 'Fail' },
+	]
+})
+
+const statusTheme = computed(() => {
+	if (submissionResource.doc.status == 'Pass') {
+		return 'green'
+	} else if (submissionResource.doc.status == 'Not Graded') {
+		return 'orange'
+	} else {
+		return 'red'
+	}
+})
 </script>

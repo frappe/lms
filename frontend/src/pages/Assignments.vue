@@ -20,8 +20,18 @@
 		</router-link>
 	</header>
 
-	<div v-if="assignments.data?.length" class="md:w-3/4 md:mx-auto py-5 mx-5">
+	<div class="md:w-3/4 md:mx-auto py-5 mx-5">
+		<div class="grid grid-cols-3 gap-5 mb-5">
+			<FormControl v-model="titleFilter" :placeholder="__('Search by title')" />
+			<FormControl
+				v-model="typeFilter"
+				type="select"
+				:options="assignmentTypes"
+				:placeholder="__('Type')"
+			/>
+		</div>
 		<ListView
+			v-if="assignments.data?.length"
 			:columns="assignmentColumns"
 			:rows="assignments.data"
 			row-key="name"
@@ -37,50 +47,91 @@
 			}"
 		>
 		</ListView>
-		<div class="flex justify-center my-5">
-			<Button v-if="assignments.hasNextPage" @click="assignments.next()">
+		<div
+			v-else
+			class="text-center p-5 text-gray-600 mt-52 w-3/4 md:w-1/2 mx-auto space-y-2"
+		>
+			<Pencil class="size-10 mx-auto stroke-1 text-gray-500" />
+			<div class="text-xl font-medium">
+				{{ __('No assignments found') }}
+			</div>
+			<div class="leading-5">
+				{{
+					__(
+						'You have not created any assignments yet. To create a new assignment, click on the "New" button above.'
+					)
+				}}
+			</div>
+		</div>
+		<div v-if="assignments.hasNextPage" class="flex justify-center my-5">
+			<Button @click="assignments.next()">
 				{{ __('Load More') }}
 			</Button>
 		</div>
 	</div>
-	<div
-		v-else
-		class="text-center p-5 text-gray-600 mt-52 w-3/4 md:w-1/2 mx-auto space-y-2"
-	>
-		<Pencil class="size-10 mx-auto stroke-1 text-gray-500" />
-		<div class="text-xl font-medium">
-			{{ __('No assignments found') }}
-		</div>
-		<div class="leading-5">
-			{{
-				__(
-					'You have not created any assignments yet. To create a new assignment, click on the "New" button above.'
-				)
-			}}
-		</div>
-	</div>
 </template>
 <script setup>
-import { Breadcrumbs, Button, createListResource, ListView } from 'frappe-ui'
-import { computed, inject } from 'vue'
+import {
+	Breadcrumbs,
+	Button,
+	createListResource,
+	FormControl,
+	ListView,
+} from 'frappe-ui'
+import { computed, inject, onMounted, ref, watch } from 'vue'
 import { Plus, Pencil } from 'lucide-vue-next'
+import { useRouter } from 'vue-router'
 
 const user = inject('$user')
 const dayjs = inject('$dayjs')
+const titleFilter = ref('')
+const typeFilter = ref('')
+const router = useRouter()
+
+onMounted(() => {
+	if (!user.data?.is_moderator && !user.data?.is_instructor) {
+		router.push({ name: 'Courses' })
+	}
+
+	titleFilter.value = router.currentRoute.value.query.title
+	typeFilter.value = router.currentRoute.value.query.type
+})
+
+watch([titleFilter, typeFilter], () => {
+	router.push({
+		query: {
+			title: titleFilter.value,
+			type: typeFilter.value,
+		},
+	})
+	reloadAssignments()
+})
+
+const reloadAssignments = () => {
+	assignments.update({
+		filters: assignmentFilter.value,
+	})
+	assignments.reload()
+}
 
 const assignmentFilter = computed(() => {
-	if (user.data?.is_moderator) return {}
-	return {
-		owner: user.data?.name,
+	let filters = {}
+	if (titleFilter.value) {
+		filters.title = ['like', `%${titleFilter.value}%`]
 	}
+	if (typeFilter.value) {
+		filters.type = typeFilter.value
+	}
+	if (!user.data?.is_moderator) {
+		filters.owner = user.data?.email
+	}
+	return filters
 })
 
 const assignments = createListResource({
 	doctype: 'LMS Assignment',
 	fields: ['name', 'title', 'type', 'creation'],
-	filters: assignmentFilter,
 	orderBy: 'modified desc',
-	auto: true,
 	cache: ['assignments'],
 	transform(data) {
 		return data.map((row) => {
@@ -103,7 +154,7 @@ const assignmentColumns = computed(() => {
 			label: __('Type'),
 			key: 'type',
 			width: 1,
-			align: 'center',
+			align: 'left',
 		},
 		{
 			label: __('Created'),
@@ -112,6 +163,16 @@ const assignmentColumns = computed(() => {
 			align: 'center',
 		},
 	]
+})
+
+const assignmentTypes = computed(() => {
+	let types = ['', 'Document', 'Image', 'PDF', 'URL', 'Text']
+	return types.map((type) => {
+		return {
+			label: __(type),
+			value: type,
+		}
+	})
 })
 
 const breadcrumbs = computed(() => [

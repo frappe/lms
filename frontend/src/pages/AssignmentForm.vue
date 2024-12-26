@@ -8,7 +8,7 @@
 				v-if="assignment.doc?.name"
 				:to="{
 					name: 'AssignmentSubmissionList',
-					params: {
+					query: {
 						assignmentID: assignment.doc.name,
 					},
 				}"
