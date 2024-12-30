@@ -63,13 +63,13 @@
 				class="flex items-center justify-center text-sm text-gray-700 space-x-4"
 			>
 				<div class="flex items-center space-x-2">
-					<div class="w-3 h-3" style="background-color: #0289f7"></div>
+					<div class="w-3 h-3" style="background-color: #0f736b"></div>
 					<div>
 						{{ __('Courses') }}
 					</div>
 				</div>
 				<div class="flex items-center space-x-2">
-					<div class="w-3 h-3" style="background-color: #e03636"></div>
+					<div class="w-3 h-3" style="background-color: #0070cc"></div>
 					<div>
 						{{ __('Assessments') }}
 					</div>
@@ -352,8 +352,8 @@ const getChartData = () => {
 }
 
 const getChartOptions = (categories) => {
-	const courseColor = '#0289F7'
-	const assessmentColor = '#E03636'
+	const courseColor = '#0F736B'
+	const assessmentColor = '#0070CC'
 	const maxY =
 		students.data?.length % 5
 			? students.data?.length + (5 - (students.data?.length % 5))
@@ -362,7 +362,7 @@ const getChartOptions = (categories) => {
 	return {
 		chart: {
 			type: 'bar',
-			height: 350,
+			height: 50,
 			toolbar: {
 				show: false,
 			},
@@ -371,16 +371,13 @@ const getChartOptions = (categories) => {
 			bar: {
 				distributed: true,
 				borderRadius: 0,
-				horizontal: false,
-				columnWidth: '5%',
+				horizontal: true,
+				barHeight: '30%',
 			},
 		},
 		colors: Object.values(categories).map((item) =>
 			item.type === 'course' ? courseColor : assessmentColor
 		),
-		legends: {
-			show: false,
-		},
 		xaxis: {
 			categories: Object.values(categories).map((item) => item.label),
 			labels: {
@@ -388,6 +385,9 @@ const getChartOptions = (categories) => {
 					fontSize: '10px',
 				},
 				rotate: 0,
+				formatter: function (value) {
+					return value.length > 20 ? `${value.substring(0, 20)}...` : value // Trim long labels
+				},
 			},
 		},
 		yaxis: {

@@ -87,25 +87,29 @@
 					</span>
 				</Button>
 			</router-link>
-			<div class="mt-8 mb-4 font-medium">
-				{{ __('This course has:') }}
-			</div>
-			<div class="flex items-center mb-3">
-				<BookOpen class="h-5 w-5 stroke-1.5 text-gray-600" />
-				<span class="ml-2">
-					{{ course.data.lessons }} {{ __('Lessons') }}
-				</span>
-			</div>
-			<div class="flex items-center mb-3">
-				<Users class="h-5 w-5 stroke-1.5 text-gray-600" />
-				<span class="ml-2">
-					{{ formatAmount(course.data.enrollments) }}
-					{{ __('Enrolled Students') }}
-				</span>
-			</div>
-			<div class="flex items-center">
-				<Star class="h-5 w-5 stroke-1.5 fill-orange-500 text-gray-50" />
-				<span class="ml-2"> {{ course.data.rating }} {{ __('Rating') }} </span>
+			<div class="space-y-4">
+				<div class="mt-8 font-medium">
+					{{ __('This course has:') }}
+				</div>
+				<div class="flex items-center">
+					<BookOpen class="h-4 w-4 stroke-1.5 text-gray-600" />
+					<span class="ml-2">
+						{{ course.data.lessons }} {{ __('Lessons') }}
+					</span>
+				</div>
+				<div class="flex items-center">
+					<Users class="h-4 w-4 stroke-1.5 text-gray-600" />
+					<span class="ml-2">
+						{{ formatAmount(course.data.enrollments) }}
+						{{ __('Enrolled Students') }}
+					</span>
+				</div>
+				<div v-if="parseInt(course.data.rating) > 0" class="flex items-center">
+					<Star class="h-4 w-4 stroke-1.5 fill-orange-500 text-gray-50" />
+					<span class="ml-2">
+						{{ course.data.rating }} {{ __('Rating') }}
+					</span>
+				</div>
 			</div>
 		</div>
 	</div>

@@ -16,7 +16,7 @@
 					</div>
 					<div class="flex items-center">
 						<Tooltip
-							v-if="course.data.rating"
+							v-if="parseInt(course.data.rating) > 0"
 							:text="__('Average Rating')"
 							class="flex items-center"
 						>
@@ -25,7 +25,9 @@
 								{{ course.data.rating }}
 							</span>
 						</Tooltip>
-						<span v-if="course.data.rating" class="mx-3">&middot;</span>
+						<span v-if="parseInt(course.data.rating) > 0" class="mx-3"
+							>&middot;</span
+						>
 						<Tooltip
 							v-if="course.data.enrollment_count"
 							:text="__('Enrolled Students')"

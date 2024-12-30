@@ -1487,8 +1487,7 @@ def get_batch_students(batch):
 
 		detail.courses_completed = courses_completed
 		detail.assessments_completed = assessments_completed
-
-		if len(batch_courses) or len(assessments):
+		if len(batch_courses) + len(assessments):
 			detail.progress = flt(
 				(
 					(courses_completed + assessments_completed)
