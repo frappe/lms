@@ -1,7 +1,19 @@
 <template>
-	<div v-if="assignment.data" class="grid grid-cols-2 gap-5">
-		<div class="p-5 border rounded-md overflow-y-auto h-[calc(100vh-6rem)]">
-			<div class="font-medium mb-2">
+	<div
+		v-if="assignment.data"
+		class="grid grid-cols-[70%,30%] h-full"
+		:class="{ 'border rounded-lg': !showTitle }"
+	>
+		<div class="border-r p-5 overflow-y-auto h-[calc(100vh-3.2rem)]">
+			<div v-if="showTitle">
+				<div v-if="submissionName === 'new'" class="text-lg font-semibold mb-4">
+					{{ __('Submission by') }} {{ user.data?.full_name }}
+				</div>
+				<div v-else class="text-lg font-semibold mb-4">
+					{{ __('Submission by') }} {{ submissionResource.doc.member_name }}
+				</div>
+			</div>
+			<div class="font-semibold mb-2">
 				{{ __('Question') }}
 			</div>
 			<div
@@ -11,14 +23,19 @@
 		</div>
 
 		<div class="flex flex-col">
-			<div class="p-5 border rounded-md">
-				<div class="flex items-center justify-between mb-4">
-					<div class="font-medium">
+			<div class="p-5">
+				<div class="flex items-center justify-between mb-5">
+					<div class="font-semibold">
 						{{ __('Submission') }}
 					</div>
 					<div class="flex items-center space-x-2">
+						<Badge v-if="isDirty()" theme="orange">
+							{{ __('Not Saved') }}
+						</Badge>
 						<Badge
-							v-if="submissionResource.doc?.status || !submissionResource.doc"
+							v-else-if="
+								submissionResource.doc?.status || !submissionResource.doc
+							"
 							:theme="statusTheme"
 							size="lg"
 						>
@@ -30,7 +47,11 @@
 					</div>
 				</div>
 				<div
-					v-if="submissionName != 'new'"
+					v-if="
+						submissionName != 'new' &&
+						!['Pass', 'Fail'].includes(submissionResource.doc?.status) &&
+						submissionResource.doc?.owner == user.data?.name
+					"
 					class="bg-blue-100 p-2 rounded-md leading-5 text-sm mb-4"
 				>
 					{{ __("You've successfully submitted the assignment.") }}
@@ -42,7 +63,7 @@
 					{{ __('Feel free to make edits to your submission if needed.') }}
 				</div>
 				<div v-if="showUploader()">
-					<div class="text-xs text-gray-600 mt-1 mb-2">
+					<div class="text-xs text-gray-600 mt-1 mb-1">
 						{{ __('Add your assignment as {0}').format(assignment.data.type) }}
 					</div>
 					<FileUploader
@@ -66,14 +87,18 @@
 							<div class="border rounded-md p-2 mr-2">
 								<FileText class="h-5 w-5 stroke-1.5 text-gray-700" />
 							</div>
-							<div class="flex flex-col">
+							<a
+								:href="submissionFile.file_url"
+								target="_blank"
+								class="flex flex-col cursor-pointer !no-underline"
+							>
 								<span>
 									{{ submissionFile.file_name }}
 								</span>
 								<span class="text-sm text-gray-500 mt-1">
 									{{ getFileSize(submissionFile.file_size) }}
 								</span>
-							</div>
+							</a>
 							<X
 								v-if="
 									!submissionResource.doc ||
@@ -85,7 +110,7 @@
 						</div>
 					</div>
 				</div>
-				<div v-else-if="assignment.data.type == 'URL'" class="mt-5">
+				<div v-else-if="assignment.data.type == 'URL'">
 					<div class="text-xs text-gray-600 mb-1">
 						{{ __('Enter a URL') }}
 					</div>
@@ -103,28 +128,26 @@
 						editorClass="prose-sm max-w-none border-b border-x bg-gray-100 rounded-b-md py-1 px-2 min-h-[7rem]"
 					/>
 				</div>
-			</div>
-			<!-- Grading -->
-			<div
-				v-if="canGradeSubmission"
-				class="p-3 border rounded-md mt-5 space-y-4"
-			>
-				<div class="text-sm text-gray-600 font-medium mb-5">
-					{{ __('Grading') }}
+
+				<!-- Grading -->
+				<div v-if="canGradeSubmission" class="mt-8 space-y-4">
+					<div class="font-semibold mb-2">
+						{{ __('Grading') }}
+					</div>
+					<FormControl
+						v-if="submissionResource.doc"
+						v-model="submissionResource.doc.status"
+						:label="__('Grade')"
+						type="select"
+						:options="submissionStatusOptions"
+					/>
+					<FormControl
+						v-if="submissionResource.doc"
+						v-model="submissionResource.doc.comments"
+						:label="__('Comments')"
+						type="textarea"
+					/>
 				</div>
-				<FormControl
-					v-if="submissionResource.doc"
-					v-model="submissionResource.doc.status"
-					:label="__('Grade')"
-					type="select"
-					:options="submissionStatusOptions"
-				/>
-				<FormControl
-					v-if="submissionResource.doc"
-					v-model="submissionResource.doc.comments"
-					:label="__('Comments')"
-					type="textarea"
-				/>
 			</div>
 		</div>
 	</div>
@@ -140,7 +163,7 @@ import {
 	FormControl,
 	TextEditor,
 } from 'frappe-ui'
-import { computed, inject, ref } from 'vue'
+import { computed, inject, onMounted, onBeforeUnmount, ref, watch } from 'vue'
 import { FileText, X } from 'lucide-vue-next'
 import { showToast, getFileSize } from '@/utils'
 import { useRouter } from 'vue-router'
@@ -149,6 +172,7 @@ const submissionFile = ref(null)
 const answer = ref(null)
 const router = useRouter()
 const user = inject('$user')
+const showTitle = router.currentRoute.value.name == 'AssignmentSubmission'
 
 const props = defineProps({
 	assignmentID: {
@@ -159,6 +183,21 @@ const props = defineProps({
 		type: String,
 		default: 'new',
 	},
+})
+
+onMounted(() => {
+	window.addEventListener('keydown', keyboardShortcut)
+})
+
+const keyboardShortcut = (e) => {
+	if (e.key === 's' && (e.ctrlKey || e.metaKey)) {
+		submitAssignment()
+		e.preventDefault()
+	}
+}
+
+onBeforeUnmount(() => {
+	window.removeEventListener('keydown', keyboardShortcut)
 })
 
 const assignment = createResource({
@@ -211,11 +250,19 @@ const submissionResource = createDocumentResource({
 	doctype: 'LMS Assignment Submission',
 	name: props.submissionName,
 	auto: false,
-	onSuccess(data) {
-		if (data.assignment_attachment) {
-			imageResource.reload({ image: data.assignment_attachment })
+})
+
+watch(submissionResource, () => {
+	if (submissionResource.doc) {
+		if (submissionResource.doc.assignment_attachment) {
+			imageResource.reload({
+				image: submissionResource.doc.assignment_attachment,
+			})
 		}
-	},
+		if (submissionResource.doc.answer) {
+			answer.value = submissionResource.doc.answer
+		}
+	}
 })
 
 const submitAssignment = () => {
@@ -345,5 +392,16 @@ const statusTheme = computed(() => {
 
 const showUploader = () => {
 	return ['PDF', 'Image', 'Document'].includes(assignment.data?.type)
+}
+
+const isDirty = () => {
+	if (submissionResource.doc) {
+		if (showUploader() && !submissionFile.value) {
+			return true
+		} else if (!showUploader() && !answer.value) {
+			return true
+		}
+	}
+	return false
 }
 </script>

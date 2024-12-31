@@ -4,13 +4,8 @@
 	>
 		<Breadcrumbs :items="breadcrumbs" />
 	</header>
-	<div class="p-5 overflow-hidden h-[calc(100vh-3.2rem)]">
-		<div>
-			<Assignment
-				:assignmentID="assignmentID"
-				:submissionName="submissionName"
-			/>
-		</div>
+	<div class="overflow-hidden h-[calc(100vh-3.2rem)]">
+		<Assignment :assignmentID="assignmentID" :submissionName="submissionName" />
 	</div>
 </template>
 <script setup>

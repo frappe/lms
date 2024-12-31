@@ -63,7 +63,10 @@
 				}}
 			</div>
 		</div>
-		<div v-if="assignments.hasNextPage" class="flex justify-center my-5">
+		<div
+			v-if="assignments.data && assignments.hasNextPage"
+			class="flex justify-center my-5"
+		>
 			<Button @click="assignments.next()">
 				{{ __('Load More') }}
 			</Button>
