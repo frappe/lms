@@ -195,6 +195,7 @@ import {
 	SendIcon,
 	MessageCircle,
 	Globe,
+	ShieldCheck,
 } from 'lucide-vue-next'
 import { formatTime, updateDocumentTitle } from '@/utils'
 import BatchDashboard from '@/components/BatchDashboard.vue'

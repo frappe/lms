@@ -1,8 +1,10 @@
 import { Pencil } from 'lucide-vue-next'
 import { createApp, h } from 'vue'
 import AssessmentPlugin from '@/components/AssessmentPlugin.vue'
+import AssignmentBlock from '@/components/AssignmentBlock.vue'
 import translationPlugin from '../translation'
-import { usersStore } from '../stores/user'
+import { usersStore } from '@/stores/user'
+import router from '../router'
 
 export class Assignment {
 	constructor({ data, api, readOnly }) {
@@ -42,9 +44,10 @@ export class Assignment {
 	renderAssignment(assignment) {
 		if (this.readOnly) {
 			const app = createApp(AssignmentBlock, {
-				assignment: assignment,
+				assignmentID: assignment,
 			})
 			app.use(translationPlugin)
+			app.use(router)
 			const { userResource } = usersStore()
 			app.provide('$user', userResource)
 			app.mount(this.wrapper)

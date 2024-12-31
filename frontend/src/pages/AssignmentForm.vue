@@ -64,7 +64,14 @@ import {
 	FormControl,
 	TextEditor,
 } from 'frappe-ui'
-import { computed, inject, onMounted, onBeforeUnmount, reactive } from 'vue'
+import {
+	computed,
+	inject,
+	onMounted,
+	onBeforeUnmount,
+	reactive,
+	watch,
+} from 'vue'
 import { showToast } from '@/utils'
 import { useRouter } from 'vue-router'
 
@@ -113,11 +120,6 @@ const assignment = createDocumentResource({
 	doctype: 'LMS Assignment',
 	name: props.assignmentID,
 	auto: false,
-	onSuccess(data) {
-		Object.keys(data).forEach((key) => {
-			model[key] = data[key]
-		})
-	},
 })
 
 const newAssignment = createResource({
@@ -160,6 +162,12 @@ const saveAssignment = () => {
 		)
 	}
 }
+
+watch(assignment, () => {
+	Object.keys(assignment.doc).forEach((key) => {
+		model[key] = assignment.doc[key]
+	})
+})
 
 const breadcrumbs = computed(() => [
 	{
