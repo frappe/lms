@@ -271,6 +271,7 @@
 import {
 	Badge,
 	Button,
+	call,
 	createResource,
 	ListView,
 	TextEditor,
@@ -280,6 +281,7 @@ import { ref, watch, reactive, inject, computed } from 'vue'
 import { createToast } from '@/utils/'
 import { CheckCircle, XCircle, MinusCircle } from 'lucide-vue-next'
 import { timeAgo } from '@/utils'
+import { useRouter } from 'vue-router'
 import ProgressBar from '@/components/ProgressBar.vue'
 
 const user = inject('$user')
@@ -291,6 +293,7 @@ let questions = reactive([])
 const possibleAnswer = ref(null)
 const timer = ref(0)
 let timerInterval = null
+const router = useRouter()
 
 const props = defineProps({
 	quizName: {
@@ -560,6 +563,7 @@ const createSubmission = () => {
 		{},
 		{
 			onSuccess(data) {
+				markLessonProgress()
 				if (quiz.data && quiz.data.max_attempts) attempts.reload()
 				if (quiz.data.duration) clearInterval(timerInterval)
 			},
@@ -581,6 +585,16 @@ const getInstructions = (question) => {
 		if (question.multiple) return __('Choose all answers that apply')
 		else return __('Choose one answer')
 	else return __('Type your answer')
+}
+
+const markLessonProgress = () => {
+	if (router.currentRoute.value.name == 'Lesson') {
+		call('lms.lms.api.mark_lesson_progress', {
+			course: router.currentRoute.value.params.courseName,
+			chapter_number: router.currentRoute.value.params.chapterNumber,
+			lesson_number: router.currentRoute.value.params.lessonNumber,
+		})
+	}
 }
 
 const getSubmissionColumns = () => {

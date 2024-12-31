@@ -17,6 +17,7 @@ from frappe.utils import time_diff, now_datetime, get_datetime, flt
 from typing import Optional
 from lms.lms.utils import get_average_rating, get_lesson_count
 from xml.dom.minidom import parseString
+from lms.lms.doctype.course_lesson.course_lesson import save_progress
 
 
 @frappe.whitelist()
@@ -1030,3 +1031,14 @@ def delete_scorm_package(scorm_package_path):
 	scorm_package_path = frappe.get_site_path("public", scorm_package_path[1:])
 	if os.path.exists(scorm_package_path):
 		shutil.rmtree(scorm_package_path)
+
+
+@frappe.whitelist()
+def mark_lesson_progress(course, chapter_number, lesson_number):
+	chapter_name = frappe.get_value(
+		"Chapter Reference", {"parent": course, "idx": chapter_number}, "chapter"
+	)
+	lesson_name = frappe.get_value(
+		"Lesson Reference", {"parent": chapter_name, "idx": lesson_number}, "lesson"
+	)
+	save_progress(lesson_name, course)

@@ -133,6 +133,7 @@
 import {
 	Badge,
 	Button,
+	call,
 	createResource,
 	createDocumentResource,
 	FileUploader,
@@ -247,6 +248,7 @@ const addNewSubmission = () => {
 						},
 					})
 				} else {
+					markLessonProgress()
 					router.go()
 				}
 			},
@@ -259,6 +261,20 @@ const addNewSubmission = () => {
 
 const saveSubmission = (file) => {
 	submissionFile.value = file
+}
+
+const markLessonProgress = () => {
+	if (router.currentRoute.value.name == 'Lesson') {
+		let courseName = router.currentRoute.value.params.courseName
+		let chapterNumber = router.currentRoute.value.params.chapterNumber
+		let lessonNumber = router.currentRoute.value.params.lessonNumber
+
+		call('lms.lms.api.mark_lesson_progress', {
+			course: courseName,
+			chapter_number: chapterNumber,
+			lesson_number: lessonNumber,
+		})
+	}
 }
 
 const getType = () => {
