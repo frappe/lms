@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2024-12-27 16:04+0000\n"
-"PO-Revision-Date: 2024-12-31 03:29\n"
+"PO-Revision-Date: 2025-01-01 03:30\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Persian\n"
 "MIME-Version: 1.0\n"
@@ -145,7 +145,7 @@ msgstr "دوره را اضافه کنید"
 
 #: frontend/src/pages/CourseForm.vue:136
 msgid "Add a keyword and then press enter"
-msgstr ""
+msgstr "یک کلمه کلیدی اضافه کنید و سپس اینتر را فشار دهید"
 
 #: frontend/src/components/OnboardingBanner.vue:73
 msgid "Add a lesson"
@@ -2417,7 +2417,7 @@ msgstr "موارد موجود در نوار کناری"
 
 #: frontend/src/pages/ProgramForm.vue:272
 msgid "Items removed successfully"
-msgstr ""
+msgstr "آیتم‌ها با موفقیت حذف شدند"
 
 #: lms/templates/signup-form.html:6
 msgid "Jane Doe"
@@ -3781,11 +3781,11 @@ msgstr ""
 
 #: frontend/src/components/Modals/LiveClassModal.vue:170
 msgid "Please select a time."
-msgstr ""
+msgstr "لطفا زمانی را انتخاب کنید."
 
 #: frontend/src/components/Modals/LiveClassModal.vue:173
 msgid "Please select a timezone."
-msgstr ""
+msgstr "لطفاً یک منطقه زمانی انتخاب کنید."
 
 #: lms/templates/emails/job_report.html:6
 msgid "Please take appropriate action at {0}"
