@@ -1327,7 +1327,6 @@ def get_question_details(question):
 	for i in range(1, 5):
 		fields.append(f"option_{i}")
 		fields.append(f"explanation_{i}")
-		fields.append(f"is_correct_{i}")
 
 	question_details = frappe.db.get_value("LMS Question", question, fields, as_dict=1)
 	return question_details

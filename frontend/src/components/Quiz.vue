@@ -118,15 +118,17 @@
 								class="w-3.5 h-3.5 text-gray-900 rounded-sm focus:ring-gray-200"
 								@change="markAnswer(index)"
 							/>
-
 							<div
 								v-else-if="quiz.data.show_answers"
 								v-for="(answer, idx) in showAnswers"
 							>
 								<div v-if="index - 1 == idx">
-									<CheckCircle v-if="answer" class="w-4 h-4 text-green-500" />
+									<CheckCircle
+										v-if="answer == 1"
+										class="w-4 h-4 text-green-500"
+									/>
 									<MinusCircle
-										v-else-if="questionDetails.data[`is_correct_${index}`]"
+										v-else-if="answer == 2"
 										class="w-4 h-4 text-green-500"
 									/>
 									<XCircle
@@ -499,8 +501,8 @@ const checkAnswer = () => {
 				selectedOptions.forEach((option, index) => {
 					if (option) {
 						showAnswers[index] = option && data[index]
-					} else if (questionDetails.data[`is_correct_${index + 1}`]) {
-						showAnswers[index] = 0
+					} else if (data[index] == 2) {
+						showAnswers[index] = 2
 					} else {
 						showAnswers[index] = undefined
 					}
