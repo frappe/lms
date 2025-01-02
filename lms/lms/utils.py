@@ -1327,7 +1327,6 @@ def get_question_details(question):
 	for i in range(1, 5):
 		fields.append(f"option_{i}")
 		fields.append(f"explanation_{i}")
-		fields.append(f"is_correct_{i}")
 
 	question_details = frappe.db.get_value("LMS Question", question, fields, as_dict=1)
 	return question_details
@@ -1421,7 +1420,7 @@ def get_quiz_details(assessment, member):
 	if len(existing_submission):
 		assessment.submission = existing_submission[0]
 		assessment.completed = True
-		assessment.status = assessment.submission.score
+		assessment.status = assessment.submission.percentage or assessment.submission.score
 	else:
 		assessment.status = "Not Attempted"
 		assessment.color = "red"
@@ -1487,6 +1486,18 @@ def get_batch_students(batch):
 
 		detail.courses_completed = courses_completed
 		detail.assessments_completed = assessments_completed
+		if len(batch_courses) + len(assessments):
+			detail.progress = flt(
+				(
+					(courses_completed + assessments_completed)
+					/ (len(batch_courses) + len(assessments))
+					* 100
+				),
+				2,
+			)
+		else:
+			detail.progress = 0
+
 		students.append(detail)
 
 	return students

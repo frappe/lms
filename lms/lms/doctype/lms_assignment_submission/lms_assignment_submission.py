@@ -6,12 +6,14 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import validate_url, validate_email_address
 from frappe.email.doctype.email_template.email_template import get_email_template
+from frappe.desk.doctype.notification_log.notification_log import make_notification_logs
 
 
 class LMSAssignmentSubmission(Document):
 	def validate(self):
 		self.validate_duplicates()
 		self.validate_url()
+		self.validate_status()
 
 	def after_insert(self):
 		if not frappe.flags.in_test:
@@ -68,6 +70,28 @@ class LMSAssignmentSubmission(Document):
 			args=args,
 			header=[subject, "green"],
 		)
+
+	def validate_status(self):
+		doc_before_save = self.get_doc_before_save()
+		if doc_before_save.status != self.status or doc_before_save.comments != self.comments:
+			self.trigger_update_notification()
+
+	def trigger_update_notification(self):
+		notification = frappe._dict(
+			{
+				"subject": _(
+					"There has been an update on your submission for assignment {0}"
+				).format(self.assignment_title),
+				"email_content": self.comments,
+				"document_type": self.doctype,
+				"document_name": self.name,
+				"for_user": self.owner,
+				"from_user": self.evaluator,
+				"type": "Alert",
+				"link": f"/assignment-submission/{self.assignment}/{self.name}",
+			}
+		)
+		make_notification_logs(notification, [self.member])
 
 
 @frappe.whitelist()

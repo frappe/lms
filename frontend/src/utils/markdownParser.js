@@ -18,6 +18,27 @@ export class Markdown {
 		}
 	}
 
+	onPaste(event) {
+		const data = {
+			text: event.detail.data.innerHTML,
+		}
+
+		this.data = data
+
+		window.requestAnimationFrame(() => {
+			if (!this.wrapper) {
+				return
+			}
+			this.wrapper.innerHTML = this.data.text || ''
+		})
+	}
+
+	static get pasteConfig() {
+		return {
+			tags: ['P'],
+		}
+	}
+
 	render() {
 		this.wrapper = document.createElement('div')
 		this.wrapper.classList.add('cdx-block')
@@ -36,10 +57,6 @@ export class Markdown {
 					this.parseContent(event)
 				}
 			})
-
-			this.wrapper.addEventListener('paste', (event) =>
-				this.handlePaste(event)
-			)
 		}
 
 		return this.wrapper
@@ -99,19 +116,6 @@ export class Markdown {
 		const currentBlock = this.api.blocks.getBlockByIndex(currentIndex)
 		await this.api.blocks.convert(currentBlock.id, type, data)
 		this.api.caret.focus(true)
-	}
-
-	handlePaste(event) {
-		event.preventDefault()
-
-		const clipboardData = event.clipboardData || window.clipboardData
-		const pastedText = clipboardData.getData('text/plain')
-		const sanitizedText = this.processPastedContent(pastedText)
-		document.execCommand('insertText', false, sanitizedText)
-	}
-
-	processPastedContent(text) {
-		return text.trim()
 	}
 
 	save(blockContent) {

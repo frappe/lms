@@ -29,8 +29,8 @@
 				<slot name="item-label" v-bind="{ active, selected, option }" />
 			</template>
 
-			<template v-if="attrs.onCreate" #footer="{ value, close }">
-				<div>
+			<template #footer="{ value, close }">
+				<div v-if="attrs.onCreate">
 					<Button
 						variant="ghost"
 						class="w-full !justify-start"
@@ -39,6 +39,18 @@
 					>
 						<template #prefix>
 							<Plus class="h-4 w-4 stroke-1.5" />
+						</template>
+					</Button>
+				</div>
+				<div>
+					<Button
+						variant="ghost"
+						class="w-full !justify-start"
+						:label="__('Clear')"
+						@click="() => clearValue(close)"
+					>
+						<template #prefix>
+							<X class="h-4 w-4 stroke-1.5" />
 						</template>
 					</Button>
 				</div>
@@ -52,7 +64,7 @@
 import Autocomplete from '@/components/Controls/Autocomplete.vue'
 import { watchDebounced } from '@vueuse/core'
 import { createResource, Button } from 'frappe-ui'
-import { Plus } from 'lucide-vue-next'
+import { Plus, X } from 'lucide-vue-next'
 import { useAttrs, computed, ref } from 'vue'
 
 const props = defineProps({
@@ -75,9 +87,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['update:modelValue', 'change'])
-
 const attrs = useAttrs()
-
 const valuePropPassed = computed(() => 'value' in attrs)
 
 const value = computed({
@@ -131,7 +141,7 @@ const options = createResource({
 	},
 })
 
-function reload(val) {
+const reload = (val) => {
 	options.update({
 		params: {
 			txt: val,
@@ -140,6 +150,11 @@ function reload(val) {
 		},
 	})
 	options.reload()
+}
+
+const clearValue = (close) => {
+	emit(valuePropPassed.value ? 'change' : 'update:modelValue', '')
+	close()
 }
 
 const labelClasses = computed(() => {
