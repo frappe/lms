@@ -1,7 +1,7 @@
 import { toast } from 'frappe-ui'
 import { useTimeAgo } from '@vueuse/core'
 import { Quiz } from '@/utils/quiz'
-import { Assignment } from '@/utils/Assignment'
+import { Assignment } from '@/utils/assignment'
 import { Upload } from '@/utils/upload'
 import { Markdown } from '@/utils/markdownParser'
 import Header from '@editorjs/header'
