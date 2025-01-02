@@ -1,20 +1,20 @@
 <template>
 	<div
 		v-if="assignment.data"
-		class="grid grid-cols-[70%,30%] h-full"
+		class="grid grid-cols-[68%,32%] h-full"
 		:class="{ 'border rounded-lg': !showTitle }"
 	>
 		<div class="border-r p-5 overflow-y-auto h-[calc(100vh-3.2rem)]">
-			<div v-if="showTitle">
-				<div v-if="submissionName === 'new'" class="text-lg font-semibold mb-4">
+			<div v-if="showTitle" class="text-lg font-semibold mb-5">
+				<div v-if="submissionName === 'new'">
 					{{ __('Submission by') }} {{ user.data?.full_name }}
 				</div>
-				<div v-else class="text-lg font-semibold mb-4">
-					{{ __('Submission by') }} {{ submissionResource.doc.member_name }}
+				<div v-else>
+					{{ __('Submission by') }} {{ submissionResource.doc?.member_name }}
 				</div>
 			</div>
-			<div class="font-semibold mb-2">
-				{{ __('Question') }}
+			<div class="text-sm text-gray-600 font-medium mb-2">
+				{{ __('Question') }}:
 			</div>
 			<div
 				v-html="assignment.data.question"
@@ -24,22 +24,20 @@
 
 		<div class="flex flex-col">
 			<div class="p-5">
-				<div class="flex items-center justify-between mb-5">
+				<div class="flex items-center justify-between mb-4">
 					<div class="font-semibold">
 						{{ __('Submission') }}
 					</div>
 					<div class="flex items-center space-x-2">
-						<Badge v-if="isDirty()" theme="orange">
+						<Badge v-if="isDirty" theme="orange">
 							{{ __('Not Saved') }}
 						</Badge>
 						<Badge
-							v-else-if="
-								submissionResource.doc?.status || !submissionResource.doc
-							"
+							v-else-if="submissionResource.doc?.status"
 							:theme="statusTheme"
 							size="lg"
 						>
-							{{ submissionResource.doc?.status || 'Not Saved' }}
+							{{ submissionResource.doc?.status }}
 						</Badge>
 						<Button variant="solid" @click="submitAssignment()">
 							{{ __('Save') }}
@@ -52,7 +50,7 @@
 						!['Pass', 'Fail'].includes(submissionResource.doc?.status) &&
 						submissionResource.doc?.owner == user.data?.name
 					"
-					class="bg-blue-100 p-2 rounded-md leading-5 text-sm mb-4"
+					class="bg-blue-100 p-3 rounded-md leading-5 text-sm mb-4"
 				>
 					{{ __("You've successfully submitted the assignment.") }}
 					{{
@@ -63,7 +61,7 @@
 					{{ __('Feel free to make edits to your submission if needed.') }}
 				</div>
 				<div v-if="showUploader()">
-					<div class="text-xs text-gray-600 mt-1 mb-1">
+					<div class="text-xs text-gray-600 mt-1 mb-2">
 						{{ __('Add your assignment as {0}').format(assignment.data.type) }}
 					</div>
 					<FileUploader
@@ -100,10 +98,7 @@
 								</span>
 							</a>
 							<X
-								v-if="
-									!submissionResource.doc ||
-									submissionResource.doc?.owner == user.data?.name
-								"
+								v-if="canModifyAssignment"
 								@click="removeSubmission()"
 								class="bg-gray-200 rounded-md cursor-pointer stroke-1.5 w-5 h-5 p-1 ml-4"
 							/>
@@ -114,7 +109,11 @@
 					<div class="text-xs text-gray-600 mb-1">
 						{{ __('Enter a URL') }}
 					</div>
-					<FormControl v-model="answer" />
+					<FormControl
+						v-model="answer"
+						type="text"
+						:readonly="!canModifyAssignment"
+					/>
 				</div>
 				<div v-else>
 					<div class="text-sm mb-4">
@@ -127,6 +126,21 @@
 						:fixedMenu="true"
 						editorClass="prose-sm max-w-none border-b border-x bg-gray-100 rounded-b-md py-1 px-2 min-h-[7rem]"
 					/>
+				</div>
+
+				<div
+					v-if="
+						user.data?.name == submissionResource.doc?.owner &&
+						submissionResource.doc?.comments
+					"
+					class="mt-8 p-3 bg-blue-100 rounded-md"
+				>
+					<div class="text-sm text-gray-600 font-medium mb-2">
+						{{ __('Comments by Evaluator') }}:
+					</div>
+					<div class="leading-5">
+						{{ submissionResource.doc.comments }}
+					</div>
 				</div>
 
 				<!-- Grading -->
@@ -173,6 +187,7 @@ const answer = ref(null)
 const router = useRouter()
 const user = inject('$user')
 const showTitle = router.currentRoute.value.name == 'AssignmentSubmission'
+const isDirty = ref(false)
 
 const props = defineProps({
 	assignmentID: {
@@ -249,7 +264,11 @@ const imageResource = createResource({
 const submissionResource = createDocumentResource({
 	doctype: 'LMS Assignment Submission',
 	name: props.submissionName,
+	onError(err) {
+		showToast(__('Error'), __(err.messages?.[0] || err), 'x')
+	},
 	auto: false,
+	cache: [user.data?.name, props.assignmentID],
 })
 
 watch(submissionResource, () => {
@@ -262,6 +281,22 @@ watch(submissionResource, () => {
 		if (submissionResource.doc.answer) {
 			answer.value = submissionResource.doc.answer
 		}
+
+		if (submissionResource.isDirty) {
+			isDirty.value = true
+		} else if (showUploader() && !submissionFile.value) {
+			isDirty.value = true
+		} else if (!showUploader() && !answer.value) {
+			isDirty.value = true
+		} else {
+			isDirty.value = false
+		}
+	}
+})
+
+watch(submissionFile, () => {
+	if (props.submissionName == 'new' && submissionFile.value) {
+		isDirty.value = true
 	}
 })
 
@@ -271,10 +306,17 @@ const submitAssignment = () => {
 			submissionResource.doc && submissionResource.doc.owner != user.data?.name
 				? user.data?.name
 				: null
-		submissionResource.setValue.submit({
-			...submissionResource.doc,
-			evaluator: evaluator,
-		})
+		submissionResource.setValue.submit(
+			{
+				...submissionResource.doc,
+				evaluator: evaluator,
+			},
+			{
+				onSuccess(data) {
+					showToast(__('Success'), __('Changes saved successfully'), 'check')
+				},
+			}
+		)
 	} else {
 		addNewSubmission()
 	}
@@ -298,6 +340,8 @@ const addNewSubmission = () => {
 					markLessonProgress()
 					router.go()
 				}
+				submissionResource.name = data.name
+				submissionResource.reload()
 			},
 			onError(err) {
 				showToast('Error', err.messages?.[0] || err, 'x')
@@ -370,6 +414,14 @@ const canGradeSubmission = computed(() => {
 	)
 })
 
+const canModifyAssignment = computed(() => {
+	return (
+		!submissionResource.doc ||
+		(submissionResource.doc?.owner == user.data?.name &&
+			submissionResource.doc?.status == 'Not Graded')
+	)
+})
+
 const submissionStatusOptions = computed(() => {
 	return [
 		{ label: 'Not Graded', value: 'Not Graded' },
@@ -392,16 +444,5 @@ const statusTheme = computed(() => {
 
 const showUploader = () => {
 	return ['PDF', 'Image', 'Document'].includes(assignment.data?.type)
-}
-
-const isDirty = () => {
-	if (submissionResource.doc) {
-		if (showUploader() && !submissionFile.value) {
-			return true
-		} else if (!showUploader() && !answer.value) {
-			return true
-		}
-	}
-	return false
 }
 </script>

@@ -1421,7 +1421,7 @@ def get_quiz_details(assessment, member):
 	if len(existing_submission):
 		assessment.submission = existing_submission[0]
 		assessment.completed = True
-		assessment.status = assessment.submission.score
+		assessment.status = assessment.submission.percentage or assessment.submission.score
 	else:
 		assessment.status = "Not Attempted"
 		assessment.color = "red"

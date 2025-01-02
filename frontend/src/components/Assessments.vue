@@ -19,6 +19,7 @@
 				:options="{
 					showTooltip: false,
 					getRowRoute: (row) => getRowRoute(row),
+					selectable: user.data?.is_student ? false : true,
 				}"
 			>
 				<ListHeader
@@ -41,7 +42,10 @@
 								<div v-if="column.key == 'assessment_type'">
 									{{ row[column.key] == 'LMS Quiz' ? 'Quiz' : 'Assignment' }}
 								</div>
-								<div v-else-if="column.key == 'status'">
+								<div v-else-if="column.key == 'title'">
+									{{ row[column.key] }}
+								</div>
+								<div v-else-if="isNaN(row[column.key])">
 									<Badge :theme="getStatusTheme(row[column.key])">
 										{{ row[column.key] }}
 									</Badge>
@@ -191,15 +195,15 @@ const getAssessmentColumns = () => {
 		{
 			label: 'Type',
 			key: 'assessment_type',
-			width: '10rem',
+			width: '15rem',
 		},
 	]
 
 	if (!user.data?.is_moderator) {
 		columns.push({
-			label: 'Status/Score',
+			label: 'Status/Percentage',
 			key: 'status',
-			align: 'center',
+			align: 'left',
 			width: '10rem',
 		})
 	}

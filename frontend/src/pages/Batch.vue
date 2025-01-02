@@ -89,7 +89,7 @@
 				</Tabs>
 			</div>
 			<div class="p-5">
-				<div class="text-2xl font-semibold mb-2">
+				<div class="text-xl font-semibold mb-2">
 					{{ batch.data.title }}
 				</div>
 				<div v-html="batch.data.description" class="leading-5 mb-2"></div>

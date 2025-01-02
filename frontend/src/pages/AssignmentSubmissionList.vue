@@ -201,7 +201,7 @@ const getStatusTheme = (status) => {
 	if (status === 'Pass') {
 		return 'green'
 	} else if (status === 'Not Graded') {
-		return 'orange'
+		return 'blue'
 	} else {
 		return 'red'
 	}
