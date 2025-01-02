@@ -137,7 +137,7 @@ const courses = createResource({
 })
 
 const breadcrumbs = computed(() => {
-	let items = [{ label: 'All Batches', route: { name: 'Batches' } }]
+	let items = [{ label: 'Batches', route: { name: 'Batches' } }]
 	items.push({
 		label: batch?.data?.title,
 		route: { name: 'BatchDetail', params: { batchName: batch?.data?.name } },

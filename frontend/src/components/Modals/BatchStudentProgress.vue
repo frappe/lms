@@ -1,7 +1,7 @@
 <template>
 	<Dialog v-model="show" :options="{}">
 		<template #body>
-			<div class="p-5 space-y-8">
+			<div class="p-5 space-y-8 text-base">
 				<div class="flex items-center space-x-2">
 					<Avatar :image="student.user_image" size="3xl" />
 					<div class="space-y-1">

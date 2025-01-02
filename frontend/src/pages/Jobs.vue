@@ -42,8 +42,11 @@
 			</div>
 		</header>
 		<div v-if="jobsList?.length">
-			<div class="divide-y lg:w-3/4 mx-auto p-5">
-				<div v-for="job in jobsList">
+			<div class="lg:w-3/4 mx-auto p-5">
+				<div class="text-xl font-semibold mb-5">
+					{{ __('Find the perfect job for you') }}
+				</div>
+				<div v-for="job in jobsList" class="divide-y">
 					<router-link
 						:to="{
 							name: 'JobDetail',

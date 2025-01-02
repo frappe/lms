@@ -89,7 +89,7 @@
 				</Tabs>
 			</div>
 			<div class="p-5">
-				<div class="text-2xl font-semibold mb-2">
+				<div class="text-xl font-semibold mb-2">
 					{{ batch.data.title }}
 				</div>
 				<div v-html="batch.data.description" class="leading-5 mb-2"></div>
@@ -195,6 +195,7 @@ import {
 	SendIcon,
 	MessageCircle,
 	Globe,
+	ShieldCheck,
 } from 'lucide-vue-next'
 import { formatTime, updateDocumentTitle } from '@/utils'
 import BatchDashboard from '@/components/BatchDashboard.vue'
@@ -229,7 +230,7 @@ const batch = createResource({
 })
 
 const breadcrumbs = computed(() => {
-	let crumbs = [{ label: 'All Batches', route: { name: 'Batches' } }]
+	let crumbs = [{ label: 'Batches', route: { name: 'Batches' } }]
 	if (!isStudent.value) {
 		crumbs.push({
 			label: 'Details',
