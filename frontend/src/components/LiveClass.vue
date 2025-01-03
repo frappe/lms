@@ -15,45 +15,55 @@
 	<div v-if="liveClasses.data?.length" class="grid grid-cols-2 gap-5">
 		<div
 			v-for="cls in liveClasses.data"
-			class="flex flex-col border rounded-md h-full text-sm text-gray-700 p-3"
+			class="flex flex-col border rounded-md h-full text-gray-700 p-3"
 		>
-			<div class="font-semibold text-gray-900 text-lg mb-4">
+			<div class="font-semibold text-gray-900 text-lg mb-1">
 				{{ cls.title }}
 			</div>
-			<div class="leading-5 text-gray-700 text-sm mb-4">
+			<div class="short-introduction">
 				{{ cls.description }}
 			</div>
-			<div class="flex items-center mb-2">
-				<Calendar class="w-4 h-4 stroke-1.5 text-gray-700" />
-				<span class="ml-2">
-					{{ dayjs(cls.date).format('DD MMMM YYYY') }}
-				</span>
-			</div>
-			<div class="flex items-center mb-5">
-				<Clock class="w-4 h-4 stroke-1.5" />
-				<span class="ml-2">
-					{{ formatTime(cls.time) }}
-				</span>
-			</div>
-			<div class="flex items-center space-x-2 text-gray-900 mt-auto">
-				<a
-					v-if="user.data?.is_moderator || user.data?.is_evaluator"
-					:href="cls.start_url"
-					target="_blank"
-					class="w-1/2 cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-gray-800 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 focus-visible:ring focus-visible:ring-gray-400 h-7 text-base px-2 rounded"
+			<div class="space-y-3">
+				<div class="flex items-center space-x-2">
+					<Calendar class="w-4 h-4 stroke-1.5" />
+					<span>
+						{{ dayjs(cls.date).format('DD MMMM YYYY') }}
+					</span>
+				</div>
+				<div class="flex items-center space-x-2">
+					<Clock class="w-4 h-4 stroke-1.5" />
+					<span>
+						{{ formatTime(cls.time) }}
+					</span>
+				</div>
+				<div
+					v-if="cls.date >= dayjs().format('YYYY-MM-DD')"
+					class="flex items-center space-x-2 text-gray-900 mt-auto"
 				>
-					<Monitor class="h-4 w-4 stroke-1.5" />
-					{{ __('Start') }}
-				</a>
-				<a
-					v-if="cls.date <= dayjs().format('YYYY-MM-DD')"
-					:href="cls.join_url"
-					target="_blank"
-					class="w-full cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-gray-800 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 focus-visible:ring focus-visible:ring-gray-400 h-7 text-base px-2 rounded"
-				>
-					<Video class="h-4 w-4 stroke-1.5" />
-					{{ __('Join') }}
-				</a>
+					<a
+						v-if="user.data?.is_moderator || user.data?.is_evaluator"
+						:href="cls.start_url"
+						target="_blank"
+						class="w-1/2 cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-gray-800 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 focus-visible:ring focus-visible:ring-gray-400 h-7 text-base px-2 rounded"
+					>
+						<Monitor class="h-4 w-4 stroke-1.5" />
+						{{ __('Start') }}
+					</a>
+					<a
+						:href="cls.join_url"
+						target="_blank"
+						class="w-full cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-gray-800 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 focus-visible:ring focus-visible:ring-gray-400 h-7 text-base px-2 rounded"
+					>
+						<Video class="h-4 w-4 stroke-1.5" />
+						{{ __('Join') }}
+					</a>
+				</div>
+				<div v-else class="flex items-center space-x-2 text-yellow-700">
+					<Info class="w-4 h-4 stroke-1.5" />
+					<span>
+						{{ __('This class has ended') }}
+					</span>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -68,7 +78,7 @@
 </template>
 <script setup>
 import { createListResource, Button } from 'frappe-ui'
-import { Plus, Clock, Calendar, Video, Monitor } from 'lucide-vue-next'
+import { Plus, Clock, Calendar, Video, Monitor, Info } from 'lucide-vue-next'
 import { inject } from 'vue'
 import LiveClassModal from '@/components/Modals/LiveClassModal.vue'
 import { ref } from 'vue'
@@ -107,3 +117,15 @@ const openLiveClassModal = () => {
 	showLiveClassModal.value = true
 }
 </script>
+<style>
+.short-introduction {
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	text-overflow: ellipsis;
+	width: 100%;
+	overflow: hidden;
+	margin: 0.25rem 0 1.5rem;
+	line-height: 1.5;
+}
+</style>

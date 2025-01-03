@@ -1499,7 +1499,7 @@ def get_batch_students(batch):
 			detail.progress = 0
 
 		students.append(detail)
-
+		students = sorted(students, key=lambda x: x.progress, reverse=True)
 	return students
 
 
@@ -1750,31 +1750,31 @@ def enroll_in_batch(batch, payment_name=None):
 	if not frappe.db.exists(
 		"Batch Student", {"parent": batch, "student": frappe.session.user}
 	):
-		student = frappe.new_doc("Batch Student")
-		current_count = frappe.db.count("Batch Student", {"parent": batch})
+		batch_doc = frappe.get_doc("LMS Batch", batch)
+		if batch_doc.seat_count and len(batch_doc.students) >= batch_doc.seat_count:
+			frappe.throw(_("The batch is full. Please contact the Administrator."))
 
-		student.update(
-			{
-				"student": frappe.session.user,
-				"parent": batch,
-				"parenttype": "LMS Batch",
-				"parentfield": "students",
-				"idx": current_count + 1,
-			}
-		)
+		new_student = {
+			"student": frappe.session.user,
+			"parent": batch,
+			"parenttype": "LMS Batch",
+			"parentfield": "students",
+			"idx": len(batch_doc.students) + 1,
+		}
 
 		if payment_name:
 			payment = frappe.db.get_value(
 				"LMS Payment", payment_name, ["name", "source"], as_dict=True
 			)
-			student.update(
+			new_student.update(
 				{
 					"payment": payment.name,
 					"source": payment.source,
 				}
 			)
 
-		student.save(ignore_permissions=True)
+		batch_doc.append("students", new_student)
+		batch_doc.save(ignore_permissions=True)
 
 
 @frappe.whitelist()
