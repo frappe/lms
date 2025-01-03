@@ -125,7 +125,11 @@
 						@click="openStudentProgressModal(row)"
 					>
 						<template #default="{ column, item }">
-							<ListRowItem :item="row[column.key]" :align="column.align">
+							<ListRowItem
+								:item="row[column.key]"
+								:align="column.align"
+								class="text-sm"
+							>
 								<template #prefix>
 									<div v-if="column.key == 'full_name'">
 										<Avatar
@@ -141,6 +145,7 @@
 									class="flex items-center space-x-4 w-full"
 								>
 									<ProgressBar :progress="row[column.key]" size="sm" />
+									<div class="text-xs">{{ row[column.key] }}%</div>
 								</div>
 								<div
 									v-else-if="column.key == 'copy'"
@@ -256,13 +261,13 @@ const getStudentColumns = () => {
 		{
 			label: 'Progress',
 			key: 'progress',
-			width: '10rem',
+			width: '15rem',
 			icon: 'activity',
 		},
 		{
 			label: 'Last Active',
 			key: 'last_active',
-			width: '15rem',
+			width: '10rem',
 			align: 'center',
 			icon: 'clock',
 		},
