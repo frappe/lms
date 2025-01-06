@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2024-12-27 16:04+0000\n"
-"PO-Revision-Date: 2024-12-31 03:29\n"
+"PO-Revision-Date: 2025-01-06 04:13\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Swedish\n"
 "MIME-Version: 1.0\n"
@@ -4569,7 +4569,7 @@ msgstr "Lösning"
 #: lms/lms/doctype/lms_payment/lms_payment.json
 #: lms/lms/doctype/lms_source/lms_source.json
 msgid "Source"
-msgstr "Källa"
+msgstr "Från"
 
 #. Option for the 'Role' (Select) field in DocType 'Cohort Staff'
 #. Option for the 'Member Type' (Select) field in DocType 'LMS Enrollment'
