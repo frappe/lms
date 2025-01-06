@@ -6,6 +6,7 @@
  "engine": "InnoDB",
  "field_order": [
   "member",
+  "member_name",
   "issued_on",
   "column_break_ugix",
   "badge",
@@ -57,11 +58,18 @@
    "label": "Badge Description",
    "read_only": 1,
    "reqd": 1
+  },
+  {
+   "fetch_from": "member.full_name",
+   "fieldname": "member_name",
+   "fieldtype": "Data",
+   "label": "Member Name",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-05-13 20:16:00.191517",
+ "modified": "2025-01-06 12:32:28.450028",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Badge Assignment",

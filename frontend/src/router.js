@@ -228,8 +228,7 @@ router.beforeEach(async (to, from, next) => {
 			isLoggedIn &&
 			(to.name == 'Lesson' ||
 				to.name == 'Batch' ||
-				to.name == 'Notifications' ||
-				to.name == 'Badge')
+				to.name == 'Notifications')
 		) {
 			await allUsers.promise
 		}
