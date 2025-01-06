@@ -10,5 +10,11 @@ frappe.ui.form.on("LMS Badge Assignment", {
 				},
 			};
 		});
+
+		if (frm.doc.name)
+			frm.add_web_link(
+				`/badges/${frm.doc.badge}/${frm.doc.member}`,
+				"See on Website"
+			);
 	},
 });

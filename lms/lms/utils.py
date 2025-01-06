@@ -1239,6 +1239,7 @@ def get_batch_card_details(batchname):
 			"amount_usd",
 			"currency",
 			"start_date",
+			"end_date",
 			"start_time",
 			"end_time",
 			"timezone",
