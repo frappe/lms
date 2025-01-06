@@ -13,7 +13,15 @@ from frappe.translate import get_all_translations
 from frappe import _
 from frappe.query_builder import DocType
 from frappe.query_builder.functions import Count
-from frappe.utils import time_diff, now_datetime, get_datetime, flt
+from frappe.utils import (
+	time_diff,
+	now_datetime,
+	get_datetime,
+	flt,
+	now,
+	add_days,
+	format_date,
+)
 from typing import Optional
 from lms.lms.utils import get_average_rating, get_lesson_count
 from xml.dom.minidom import parseString
@@ -594,7 +602,7 @@ def get_categories(doctype, filters):
 def get_members(start=0, search=""):
 	"""Get members for the given search term and start index.
 	Args: start (int): Start index for the query.
-	        search (str): Search term to filter the results.
+	                search (str): Search term to filter the results.
 	Returns: List of members.
 	"""
 
@@ -1043,3 +1051,54 @@ def mark_lesson_progress(course, chapter_number, lesson_number):
 		"Lesson Reference", {"parent": chapter_name, "idx": lesson_number}, "lesson"
 	)
 	save_progress(lesson_name, course)
+
+
+@frappe.whitelist()
+def get_heatmap_data(member=None):
+	if not member:
+		member = frappe.session.user
+
+	last_90_days = [add_days(now(), -i) for i in range(90)]
+	date_count = {format_date(day, "YYYY-MM-dd"): 0 for day in last_90_days}
+
+	def count_dates(data):
+		for entry in data:
+			date = format_date(entry.creation, "YYYY-MM-dd")
+			if date in date_count:
+				date_count[date] += 1
+
+	lesson_completions = frappe.get_all(
+		"LMS Course Progress",
+		fields=["creation"],
+		filters={"member": member, "creation": [">", add_days(now(), -90)]},
+	)
+
+	quiz_submissions = frappe.get_all(
+		"LMS Quiz Submission",
+		fields=["creation"],
+		filters={"member": member, "creation": [">", add_days(now(), -90)]},
+	)
+
+	assigment_submissions = frappe.get_all(
+		"LMS Assignment Submission",
+		fields=["creation"],
+		filters={"member": member, "creation": [">", add_days(now(), -90)]},
+	)
+
+	count_dates(lesson_completions)
+	count_dates(quiz_submissions)
+	count_dates(assigment_submissions)
+
+	weekMap = {}
+	heatmap_data = []
+
+	for date, count in date_count.items():
+		week = get_datetime(date).strftime("%U")
+		if week not in weekMap:
+			weekMap[week] = []
+		weekMap[week].append({"x": date, "y": count})
+
+	for week in weekMap.keys():
+		heatmap_data.update({"name": week, "data": weekMap[week]})
+
+	return heatmap_data

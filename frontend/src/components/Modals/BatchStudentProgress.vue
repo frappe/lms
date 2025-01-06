@@ -20,67 +20,59 @@
 				</div>
 
 				<!-- Assessments -->
-				<div>
-					<div>
-						<div
-							class="grid grid-cols-[70%,30%] border-b pl-2 pb-1 mb-2 text-xs text-gray-700 font-medium"
-						>
-							<span>
-								{{ __('Assessment') }}
-							</span>
-							<span>
-								{{ __('Progress') }}
-							</span>
-						</div>
-						<div
-							v-for="assessment in Object.keys(student.assessments)"
-							class="grid grid-cols-[70%,30%] pl-2 mb-2 text-gray-700 font-medium"
-						>
-							<span>
-								{{ assessment }}
-							</span>
-							<span v-if="isAssignment(student.assessments[assessment])">
-								<Badge :theme="getStatusTheme(student.assessments[assessment])">
-									{{ student.assessments[assessment] }}
-								</Badge>
-							</span>
-							<span v-else>
+				<div class="space-y-4 text-sm">
+					<div
+						class="flex items-center border-b pb-1 text-xs text-gray-700 font-medium"
+					>
+						<span class="flex-1">
+							{{ __('Assessment') }}
+						</span>
+						<span>
+							{{ __('Progress') }}
+						</span>
+					</div>
+					<div
+						v-for="assessment in Object.keys(student.assessments)"
+						class="flex items-center text-gray-700 font-medium"
+					>
+						<span class="flex-1">
+							{{ assessment }}
+						</span>
+						<span v-if="isAssignment(student.assessments[assessment])">
+							<Badge :theme="getStatusTheme(student.assessments[assessment])">
 								{{ student.assessments[assessment] }}
-							</span>
-						</div>
+							</Badge>
+						</span>
+						<span v-else>
+							{{ student.assessments[assessment] }}
+						</span>
 					</div>
 				</div>
 
 				<!-- Courses -->
-				<div>
-					<div>
-						<div
-							class="grid grid-cols-[70%,30%] mb-2 text-xs text-gray-700 border-b pl-2 pb-1 font-medium"
-						>
-							<span>
-								{{ __('Courses') }}
-							</span>
-							<span>
-								{{ __('Progress') }}
-							</span>
-						</div>
-						<div
-							v-for="course in Object.keys(student.courses)"
-							class="grid grid-cols-[70%,30%] pl-2 mb-2 text-gray-700 font-medium"
-						>
-							<span>
-								{{ course }}
-							</span>
-							<span>
-								{{ Math.floor(student.courses[course]) }}
-							</span>
-						</div>
+				<div class="space-y-4 text-sm">
+					<div
+						class="flex items-center text-xs text-gray-700 border-b pb-1 font-medium"
+					>
+						<span class="flex-1">
+							{{ __('Courses') }}
+						</span>
+						<span>
+							{{ __('Progress') }}
+						</span>
+					</div>
+					<div
+						v-for="course in Object.keys(student.courses)"
+						class="flex items-center text-gray-700 font-medium"
+					>
+						<span class="flex-1">
+							{{ course }}
+						</span>
+						<span>
+							{{ Math.floor(student.courses[course]) }}
+						</span>
 					</div>
 				</div>
-
-				<!-- <span class="mt-4">
-                    {{ student }}
-                </span> -->
 			</div>
 		</template>
 	</Dialog>
