@@ -133,12 +133,12 @@
   {
    "fieldname": "duration",
    "fieldtype": "Data",
-   "label": "Duration"
+   "label": "Duration (in minutes)"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-01-06 10:46:50.564614",
+ "modified": "2025-01-06 11:02:09.749207",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz",
