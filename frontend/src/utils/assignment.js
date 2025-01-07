@@ -66,6 +66,7 @@ export class Assignment {
 			return
 		}
 		const app = createApp(AssessmentPlugin, {
+			type: "assignment",
 			onAddition: (assignment) => {
 				this.data.assignment = assignment
 				this.renderAssignment(assignment)
