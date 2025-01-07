@@ -8,10 +8,10 @@
 		<div class="grid grid-cols-3 gap-5 mb-8">
 			<div class="flex items-center shadow py-2 px-3 rounded-md">
 				<div class="p-2 rounded-md bg-gray-100 mr-3">
-					<User class="w-18 h-18 stroke-1.5 text-gray-700" />
+					<User class="w-5 h-5 stroke-1.5 text-gray-700" />
 				</div>
-				<div class="flex flex-col">
-					<span class="text-xl font-semibold mb-1">
+				<div class="flex items-center space-x-2">
+					<span class="font-semibold">
 						{{ students.data?.length }}
 					</span>
 					<span class="text-gray-700">
@@ -22,10 +22,10 @@
 
 			<div class="flex items-center shadow py-2 px-3 rounded-md">
 				<div class="p-2 rounded-md bg-gray-100 mr-3">
-					<BookOpen class="w-18 h-18 stroke-1.5 text-gray-700" />
+					<BookOpen class="w-5 h-5 stroke-1.5 text-gray-700" />
 				</div>
-				<div class="flex flex-col">
-					<span class="text-xl font-semibold mb-1">
+				<div class="flex items-center space-x-2">
+					<span class="font-semibold">
 						{{ batch.courses?.length }}
 					</span>
 					<span class="text-gray-700">
@@ -36,10 +36,10 @@
 
 			<div class="flex items-center shadow py-2 px-3 rounded-md">
 				<div class="p-2 rounded-md bg-gray-100 mr-3">
-					<ShieldCheck class="w-18 h-18 stroke-1.5 text-gray-700" />
+					<ShieldCheck class="w-5 h-5 stroke-1.5 text-gray-700" />
 				</div>
-				<div class="flex flex-col">
-					<span class="text-xl font-semibold mb-1">
+				<div class="flex items-center space-x-2">
+					<span class="font-semibold">
 						{{ assessmentCount }}
 					</span>
 					<span class="text-gray-700">
@@ -48,28 +48,33 @@
 				</div>
 			</div>
 		</div>
-		<div class="mb-8">
+		<div v-if="showProgressChart" class="mb-8">
 			<div class="text-gray-600 font-medium">
 				{{ __('Progress') }}
 			</div>
 			<ApexChart
-				v-if="showProgressChart"
 				:options="chartOptions"
 				:series="chartData"
 				type="bar"
-				height="350"
+				height="200"
 			/>
 			<div
 				class="flex items-center justify-center text-sm text-gray-700 space-x-4"
 			>
 				<div class="flex items-center space-x-2">
-					<div class="w-3 h-3" style="background-color: #0f736b"></div>
+					<div
+						class="w-3 h-3 rounded-sm"
+						:style="{ 'background-color': theme.colors.green[600] }"
+					></div>
 					<div>
 						{{ __('Courses') }}
 					</div>
 				</div>
 				<div class="flex items-center space-x-2">
-					<div class="w-3 h-3" style="background-color: #0070cc"></div>
+					<div
+						class="w-3 h-3 rounded-sm"
+						:style="{ 'background-color': theme.colors.blue[600] }"
+					></div>
 					<div>
 						{{ __('Assessments') }}
 					</div>
@@ -147,16 +152,6 @@
 									<ProgressBar :progress="row[column.key]" size="sm" />
 									<div class="text-xs">{{ row[column.key] }}%</div>
 								</div>
-								<div
-									v-else-if="column.key == 'copy'"
-									class="invisible group-hover:visible"
-								>
-									<Button variant="ghost" @click="copyEmail(row)">
-										<template #icon>
-											<Clipboard class="h-4 w-4 stroke-1.5" />
-										</template>
-									</Button>
-								</div>
 								<div v-else>
 									{{ row[column.key] }}
 								</div>
@@ -221,6 +216,7 @@ import { showToast } from '@/utils'
 import ProgressBar from '@/components/ProgressBar.vue'
 import BatchStudentProgress from '@/components/Modals/BatchStudentProgress.vue'
 import ApexChart from 'vue3-apexcharts'
+import { theme } from '@/utils/theme'
 
 const showStudentModal = ref(false)
 const showStudentProgressModal = ref(false)
@@ -270,10 +266,6 @@ const getStudentColumns = () => {
 			width: '10rem',
 			align: 'center',
 			icon: 'clock',
-		},
-		{
-			label: '',
-			key: 'copy',
 		},
 	]
 
@@ -357,8 +349,8 @@ const getChartData = () => {
 }
 
 const getChartOptions = (categories) => {
-	const courseColor = '#0F736B'
-	const assessmentColor = '#0070CC'
+	const courseColor = theme.colors.green[700]
+	const assessmentColor = theme.colors.blue[700]
 	const maxY =
 		students.data?.length % 5
 			? students.data?.length + (5 - (students.data?.length % 5))
@@ -367,7 +359,6 @@ const getChartOptions = (categories) => {
 	return {
 		chart: {
 			type: 'bar',
-			height: 50,
 			toolbar: {
 				show: false,
 			},
@@ -375,9 +366,10 @@ const getChartOptions = (categories) => {
 		plotOptions: {
 			bar: {
 				distributed: true,
-				borderRadius: 0,
+				borderRadius: 3,
+				borderRadiusApplication: 'end',
 				horizontal: true,
-				barHeight: '30%',
+				barHeight: '40%',
 			},
 		},
 		colors: Object.values(categories).map((item) =>
@@ -391,7 +383,7 @@ const getChartOptions = (categories) => {
 				},
 				rotate: 0,
 				formatter: function (value) {
-					return value.length > 20 ? `${value.substring(0, 20)}...` : value // Trim long labels
+					return value.length > 30 ? `${value.substring(0, 30)}...` : value // Trim long labels
 				},
 			},
 		},
@@ -400,13 +392,9 @@ const getChartOptions = (categories) => {
 			min: 0,
 			stepSize: 10,
 			tickAmount: maxY / 5,
+			/* reversed: true */
 		},
 	}
-}
-
-const copyEmail = (row) => {
-	navigator.clipboard.writeText(row.email)
-	showToast(__('Success'), __('Email copied to clipboard'), 'check')
 }
 
 watch(students, () => {
