@@ -1,12 +1,12 @@
 <template>
 	<div class="space-y-10">
-		<Assessments :batch="batch.data.name" />
 		<UpcomingEvaluations
 			:batch="batch.data.name"
 			:endDate="batch.data.evaluation_end_date"
 			:courses="batch.data.courses"
 		/>
-		<StudentHeatmap :batch="batch.data.name" />
+		<Assessments :batch="batch.data.name" />
+		<StudentHeatmap />
 	</div>
 </template>
 <script setup>

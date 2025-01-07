@@ -11,7 +11,7 @@
 				{{ __('Add') }}
 			</Button>
 		</div>
-		<div v-if="assessments.data?.length">
+		<div v-if="assessments.data?.length" class="text-sm">
 			<ListView
 				:columns="getAssessmentColumns()"
 				:rows="assessments.data"

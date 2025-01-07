@@ -1,7 +1,12 @@
 <template>
-	<Dialog v-model="show" :options="{}">
+	<Dialog
+		v-model="show"
+		:options="{
+			size: 'xl',
+		}"
+	>
 		<template #body>
-			<div class="p-5 space-y-8 text-base">
+			<div class="p-5 space-y-10 text-base">
 				<div class="flex items-center space-x-2">
 					<Avatar :image="student.user_image" size="3xl" />
 					<div class="space-y-1">
@@ -19,67 +24,68 @@
 					</div>
 				</div>
 
-				<!-- Assessments -->
-				<div class="space-y-4 text-sm">
-					<div
-						class="flex items-center border-b pb-1 text-xs text-gray-700 font-medium"
-					>
-						<span class="flex-1">
-							{{ __('Assessment') }}
-						</span>
-						<span>
-							{{ __('Progress') }}
-						</span>
-					</div>
-					<div
-						v-for="assessment in Object.keys(student.assessments)"
-						class="flex items-center text-gray-700 font-medium"
-					>
-						<span class="flex-1">
-							{{ assessment }}
-						</span>
-						<span v-if="isAssignment(student.assessments[assessment])">
-							<Badge :theme="getStatusTheme(student.assessments[assessment])">
+				<div class="space-y-8">
+					<!-- Assessments -->
+					<div class="space-y-2 text-sm">
+						<div class="flex items-center border-b pb-1 font-medium">
+							<span class="flex-1">
+								{{ __('Assessment') }}
+							</span>
+							<span>
+								{{ __('Progress') }}
+							</span>
+						</div>
+						<div
+							v-for="assessment in Object.keys(student.assessments)"
+							class="flex items-center text-gray-700 font-medium"
+						>
+							<span class="flex-1">
+								{{ assessment }}
+							</span>
+							<span v-if="isAssignment(student.assessments[assessment])">
+								<Badge :theme="getStatusTheme(student.assessments[assessment])">
+									{{ student.assessments[assessment] }}
+								</Badge>
+							</span>
+							<span v-else>
 								{{ student.assessments[assessment] }}
-							</Badge>
-						</span>
-						<span v-else>
-							{{ student.assessments[assessment] }}
-						</span>
+							</span>
+						</div>
+					</div>
+
+					<!-- Courses -->
+					<div class="space-y-2 text-sm">
+						<div class="flex items-center border-b pb-1 font-medium">
+							<span class="flex-1">
+								{{ __('Courses') }}
+							</span>
+							<span>
+								{{ __('Progress') }}
+							</span>
+						</div>
+						<div
+							v-for="course in Object.keys(student.courses)"
+							class="flex items-center text-gray-700 font-medium"
+						>
+							<span class="flex-1">
+								{{ course }}
+							</span>
+							<span>
+								{{ Math.floor(student.courses[course]) }}
+							</span>
+						</div>
 					</div>
 				</div>
 
-				<!-- Courses -->
-				<div class="space-y-4 text-sm">
-					<div
-						class="flex items-center text-xs text-gray-700 border-b pb-1 font-medium"
-					>
-						<span class="flex-1">
-							{{ __('Courses') }}
-						</span>
-						<span>
-							{{ __('Progress') }}
-						</span>
-					</div>
-					<div
-						v-for="course in Object.keys(student.courses)"
-						class="flex items-center text-gray-700 font-medium"
-					>
-						<span class="flex-1">
-							{{ course }}
-						</span>
-						<span>
-							{{ Math.floor(student.courses[course]) }}
-						</span>
-					</div>
-				</div>
+				<!-- Heatmap -->
+				<StudentHeatmap :member="student.email" :base_days="120" />
 			</div>
 		</template>
 	</Dialog>
 </template>
 <script setup>
 import { Avatar, Badge, Dialog } from 'frappe-ui'
-import ProgressBar from '@/components/ProgressBar.vue'
+import StudentHeatmap from '@/components/StudentHeatmap.vue'
 
 const show = defineModel()
 const props = defineProps({

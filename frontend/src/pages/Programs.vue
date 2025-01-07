@@ -28,9 +28,7 @@
 						size="lg"
 					>
 						{{ program.members }}
-						{{
-							program.members == 1 ? __(singularize('members')) : __('members')
-						}}
+						{{ program.members == 1 ? __('member') : __('members') }}
 					</Badge>
 					<Badge
 						v-if="program.progress"
@@ -133,7 +131,7 @@ import { computed, inject, onMounted, ref } from 'vue'
 import { BookOpen, Edit, Plus, LockKeyhole } from 'lucide-vue-next'
 import CourseCard from '@/components/CourseCard.vue'
 import { useRouter } from 'vue-router'
-import { showToast, singularize } from '@/utils'
+import { showToast } from '@/utils'
 import { useSettings } from '@/stores/settings'
 
 const user = inject('$user')

@@ -17,10 +17,12 @@ from frappe.utils import (
 	time_diff,
 	now_datetime,
 	get_datetime,
+	cint,
 	flt,
 	now,
 	add_days,
 	format_date,
+	days_diff,
 )
 from typing import Optional
 from lms.lms.utils import get_average_rating, get_lesson_count
@@ -602,7 +604,7 @@ def get_categories(doctype, filters):
 def get_members(start=0, search=""):
 	"""Get members for the given search term and start index.
 	Args: start (int): Start index for the query.
-	                search (str): Search term to filter the results.
+	                                search (str): Search term to filter the results.
 	Returns: List of members.
 	"""
 
@@ -1054,51 +1056,118 @@ def mark_lesson_progress(course, chapter_number, lesson_number):
 
 
 @frappe.whitelist()
-def get_heatmap_data(member=None):
+def get_heatmap_data(member=None, base_days=200):
 	if not member:
 		member = frappe.session.user
 
-	last_90_days = [add_days(now(), -i) for i in range(90)]
-	date_count = {format_date(day, "YYYY-MM-dd"): 0 for day in last_90_days}
+	base_date, start_date, number_of_days, days = calculate_date_ranges(base_days)
+	date_count = initialize_date_count(days)
 
-	def count_dates(data):
-		for entry in data:
-			date = format_date(entry.creation, "YYYY-MM-dd")
-			if date in date_count:
-				date_count[date] += 1
+	lesson_completions, quiz_submissions, assignment_submissions = fetch_activity_data(
+		member, start_date
+	)
+	count_dates(lesson_completions, date_count)
+	count_dates(quiz_submissions, date_count)
+	count_dates(assignment_submissions, date_count)
 
+	heatmap_data, labels, total_activities, weeks = prepare_heatmap_data(
+		start_date, number_of_days, date_count
+	)
+
+	return {
+		"heatmap_data": heatmap_data,
+		"labels": labels,
+		"total_activities": total_activities,
+		"weeks": weeks,
+	}
+
+
+def calculate_date_ranges(base_days):
+	today = format_date(now(), "YYYY-MM-dd")
+	day_today = get_datetime(today).strftime("%w")
+	padding_end = 6 - cint(day_today)
+
+	base_date = add_days(today, -base_days)
+	day_of_base_date = cint(get_datetime(base_date).strftime("%w"))
+	start_date = add_days(base_date, -day_of_base_date)
+	number_of_days = base_days + day_of_base_date + padding_end
+	days = [add_days(start_date, i) for i in range(number_of_days + 1)]
+
+	return base_date, start_date, number_of_days, days
+
+
+def initialize_date_count(days):
+	return {format_date(day, "YYYY-MM-dd"): 0 for day in days}
+
+
+def fetch_activity_data(member, start_date):
 	lesson_completions = frappe.get_all(
 		"LMS Course Progress",
 		fields=["creation"],
-		filters={"member": member, "creation": [">", add_days(now(), -90)]},
+		filters={"member": member, "creation": [">=", start_date]},
 	)
 
 	quiz_submissions = frappe.get_all(
 		"LMS Quiz Submission",
 		fields=["creation"],
-		filters={"member": member, "creation": [">", add_days(now(), -90)]},
+		filters={"member": member, "creation": [">=", start_date]},
 	)
 
-	assigment_submissions = frappe.get_all(
+	assignment_submissions = frappe.get_all(
 		"LMS Assignment Submission",
 		fields=["creation"],
-		filters={"member": member, "creation": [">", add_days(now(), -90)]},
+		filters={"member": member, "creation": [">=", start_date]},
 	)
 
-	count_dates(lesson_completions)
-	count_dates(quiz_submissions)
-	count_dates(assigment_submissions)
+	return lesson_completions, quiz_submissions, assignment_submissions
 
-	weekMap = {}
-	heatmap_data = []
 
-	for date, count in date_count.items():
-		week = get_datetime(date).strftime("%U")
-		if week not in weekMap:
-			weekMap[week] = []
-		weekMap[week].append({"x": date, "y": count})
+def count_dates(data, date_count):
+	for entry in data:
+		date = format_date(entry.creation, "YYYY-MM-dd")
+		if date in date_count:
+			date_count[date] += 1
 
-	for week in weekMap.keys():
-		heatmap_data.update({"name": week, "data": weekMap[week]})
 
-	return heatmap_data
+def prepare_heatmap_data(start_date, number_of_days, date_count):
+	days_of_week = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+	heatmap_data = {day: [] for day in days_of_week}
+	week_count = -(number_of_days // -7)
+	labels = [None] * week_count
+	last_seen_month = None
+	sorted_dates = sorted(date_count.keys())
+
+	for date in sorted_dates:
+		activity_count = date_count[date]
+		day_of_week = get_datetime(date).strftime("%a")
+		current_month = get_datetime(date).strftime("%b")
+		column_index = get_week_difference(start_date, date)
+
+		if 0 <= column_index < week_count:
+			heatmap_data[day_of_week].append(
+				{
+					"date": date,
+					"count": activity_count,
+					"label": f"{activity_count} activities on {format_date(date, 'dd MMM')}",
+				}
+			)
+
+			if last_seen_month != current_month:
+				labels[column_index] = current_month
+				last_seen_month = current_month
+
+	for (index, label) in enumerate(labels):
+		if not label:
+			labels[index] = ""
+
+	formatted_heatmap_data = [
+		{"name": day, "data": heatmap_data[day]} for day in days_of_week
+	]
+
+	total_activities = sum(date_count.values())
+	return formatted_heatmap_data, labels, total_activities, week_count
+
+
+def get_week_difference(start_date, current_date):
+	diff_in_days = days_diff(current_date, start_date)
+	return diff_in_days // 7
