@@ -22,7 +22,7 @@ from frappe.utils import (
 	now,
 	add_days,
 	format_date,
-	days_diff,
+	date_diff,
 )
 from typing import Optional
 from lms.lms.utils import get_average_rating, get_lesson_count
@@ -1169,5 +1169,5 @@ def prepare_heatmap_data(start_date, number_of_days, date_count):
 
 
 def get_week_difference(start_date, current_date):
-	diff_in_days = days_diff(current_date, start_date)
+	diff_in_days = date_diff(current_date, start_date)
 	return diff_in_days // 7
