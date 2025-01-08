@@ -77,10 +77,6 @@
 						</div>
 					</div>
 				</div>
-
-				<!-- <span class="mt-4">
-                    {{ student }}
-                </span> -->
 			</div>
 		</template>
 	</Dialog>

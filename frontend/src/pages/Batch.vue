@@ -84,6 +84,9 @@
 									:scrollToBottom="true"
 								/>
 							</div>
+							<div v-else-if="tab.label == 'Feedback'">
+								<BatchFeedback :batch="batch.data.name" />
+							</div>
 						</div>
 					</template>
 				</Tabs>
@@ -190,12 +193,11 @@ import {
 	BookOpen,
 	Laptop,
 	BookOpenCheck,
-	Contact2,
 	Mail,
 	SendIcon,
 	MessageCircle,
 	Globe,
-	ShieldCheck,
+	ClipboardPen,
 } from 'lucide-vue-next'
 import { formatTime, updateDocumentTitle } from '@/utils'
 import BatchDashboard from '@/components/BatchDashboard.vue'
@@ -208,6 +210,7 @@ import AnnouncementModal from '@/components/Modals/AnnouncementModal.vue'
 import Discussions from '@/components/Discussions.vue'
 import DateRange from '@/components/Common/DateRange.vue'
 import BulkCertificates from '@/components/Modals/BulkCertificates.vue'
+import BatchFeedback from '@/components/BatchFeedback.vue'
 
 const user = inject('$user')
 const showAnnouncementModal = ref(false)
@@ -291,6 +294,13 @@ const tabs = computed(() => {
 		label: 'Discussions',
 		icon: MessageCircle,
 	})
+
+	if (isStudent.value) {
+		batchTabs.push({
+			label: 'Feedback',
+			icon: ClipboardPen,
+		})
+	}
 	return batchTabs
 })
 

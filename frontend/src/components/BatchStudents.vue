@@ -391,7 +391,7 @@ const getChartOptions = (categories) => {
 				},
 				rotate: 0,
 				formatter: function (value) {
-					return value.length > 20 ? `${value.substring(0, 20)}...` : value // Trim long labels
+					return value.length > 20 ? `${value.substring(0, 20)}...` : value
 				},
 			},
 		},
