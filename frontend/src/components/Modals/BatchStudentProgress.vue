@@ -1,7 +1,12 @@
 <template>
-	<Dialog v-model="show" :options="{}">
+	<Dialog
+		v-model="show"
+		:options="{
+			size: 'xl',
+		}"
+	>
 		<template #body>
-			<div class="p-5 space-y-8 text-base">
+			<div class="p-5 space-y-10 text-base">
 				<div class="flex items-center space-x-2">
 					<Avatar :image="student.user_image" size="3xl" />
 					<div class="space-y-1">
@@ -19,13 +24,11 @@
 					</div>
 				</div>
 
-				<!-- Assessments -->
-				<div>
-					<div>
-						<div
-							class="grid grid-cols-[70%,30%] border-b pl-2 pb-1 mb-2 text-xs text-gray-700 font-medium"
-						>
-							<span>
+				<div class="space-y-8">
+					<!-- Assessments -->
+					<div class="space-y-2 text-sm">
+						<div class="flex items-center border-b pb-1 font-medium">
+							<span class="flex-1">
 								{{ __('Assessment') }}
 							</span>
 							<span>
@@ -34,9 +37,9 @@
 						</div>
 						<div
 							v-for="assessment in Object.keys(student.assessments)"
-							class="grid grid-cols-[70%,30%] pl-2 mb-2 text-gray-700 font-medium"
+							class="flex items-center text-gray-700 font-medium"
 						>
-							<span>
+							<span class="flex-1">
 								{{ assessment }}
 							</span>
 							<span v-if="isAssignment(student.assessments[assessment])">
@@ -49,15 +52,11 @@
 							</span>
 						</div>
 					</div>
-				</div>
 
-				<!-- Courses -->
-				<div>
-					<div>
-						<div
-							class="grid grid-cols-[70%,30%] mb-2 text-xs text-gray-700 border-b pl-2 pb-1 font-medium"
-						>
-							<span>
+					<!-- Courses -->
+					<div class="space-y-2 text-sm">
+						<div class="flex items-center border-b pb-1 font-medium">
+							<span class="flex-1">
 								{{ __('Courses') }}
 							</span>
 							<span>
@@ -66,9 +65,9 @@
 						</div>
 						<div
 							v-for="course in Object.keys(student.courses)"
-							class="grid grid-cols-[70%,30%] pl-2 mb-2 text-gray-700 font-medium"
+							class="flex items-center text-gray-700 font-medium"
 						>
-							<span>
+							<span class="flex-1">
 								{{ course }}
 							</span>
 							<span>
@@ -78,16 +77,15 @@
 					</div>
 				</div>
 
-				<!-- <span class="mt-4">
-                    {{ student }}
-                </span> -->
+				<!-- Heatmap -->
+				<StudentHeatmap :member="student.email" :base_days="120" />
 			</div>
 		</template>
 	</Dialog>
 </template>
 <script setup>
 import { Avatar, Badge, Dialog } from 'frappe-ui'
-import ProgressBar from '@/components/ProgressBar.vue'
+import StudentHeatmap from '@/components/StudentHeatmap.vue'
 
 const show = defineModel()
 const props = defineProps({

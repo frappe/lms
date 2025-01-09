@@ -1030,6 +1030,7 @@ def get_course_details(course):
 	course_details.tags = course_details.tags.split(",") if course_details.tags else []
 
 	course_details.instructors = get_instructors(course_details.name)
+	# course_details.is_instructor = is_instructor(course_details.name)
 	if course_details.paid_course:
 		"""course_details.course_price, course_details.currency = check_multicurrency(
 		        course_details.course_price, course_details.currency, None, course_details.amount_usd
@@ -1048,7 +1049,6 @@ def get_course_details(course):
 			["name", "course", "current_lesson", "progress", "member"],
 			as_dict=1,
 		)
-		course_details.is_instructor = is_instructor(course_details.name)
 
 	if course_details.membership and course_details.membership.current_lesson:
 		course_details.current_lesson = get_lesson_index(
@@ -1219,10 +1219,48 @@ def get_batches():
 	batch_list = frappe.get_all("LMS Batch", filters)
 
 	for batch in batch_list:
-		batches.append(get_batch_details(batch.name))
+		batches.append(get_batch_card_details(batch.name))
 
 	batches = categorize_batches(batches)
 	return batches
+
+
+def get_batch_card_details(batchname):
+	batch = frappe.db.get_value(
+		"LMS Batch",
+		batchname,
+		[
+			"name",
+			"title",
+			"description",
+			"seat_count",
+			"paid_batch",
+			"amount",
+			"amount_usd",
+			"currency",
+			"start_date",
+			"end_date",
+			"start_time",
+			"end_time",
+			"timezone",
+			"published",
+		],
+		as_dict=True,
+	)
+
+	batch.instructors = get_instructors(batchname)
+	students_count = frappe.db.count("Batch Student", {"parent": batchname})
+
+	if batch.seat_count:
+		batch.seats_left = batch.seat_count - students_count
+
+	if batch.paid_batch and batch.start_date >= getdate():
+		batch.amount, batch.currency = check_multicurrency(
+			batch.amount, batch.currency, None, batch.amount_usd
+		)
+		batch.price = fmt_money(batch.amount, 0, batch.currency)
+
+	return batch
 
 
 @frappe.whitelist(allow_guest=True)
@@ -1499,7 +1537,7 @@ def get_batch_students(batch):
 			detail.progress = 0
 
 		students.append(detail)
-
+		students = sorted(students, key=lambda x: x.progress, reverse=True)
 	return students
 
 
@@ -1750,31 +1788,31 @@ def enroll_in_batch(batch, payment_name=None):
 	if not frappe.db.exists(
 		"Batch Student", {"parent": batch, "student": frappe.session.user}
 	):
-		student = frappe.new_doc("Batch Student")
-		current_count = frappe.db.count("Batch Student", {"parent": batch})
+		batch_doc = frappe.get_doc("LMS Batch", batch)
+		if batch_doc.seat_count and len(batch_doc.students) >= batch_doc.seat_count:
+			frappe.throw(_("The batch is full. Please contact the Administrator."))
 
-		student.update(
-			{
-				"student": frappe.session.user,
-				"parent": batch,
-				"parenttype": "LMS Batch",
-				"parentfield": "students",
-				"idx": current_count + 1,
-			}
-		)
+		new_student = {
+			"student": frappe.session.user,
+			"parent": batch,
+			"parenttype": "LMS Batch",
+			"parentfield": "students",
+			"idx": len(batch_doc.students) + 1,
+		}
 
 		if payment_name:
 			payment = frappe.db.get_value(
 				"LMS Payment", payment_name, ["name", "source"], as_dict=True
 			)
-			student.update(
+			new_student.update(
 				{
 					"payment": payment.name,
 					"source": payment.source,
 				}
 			)
 
-		student.save(ignore_permissions=True)
+		batch_doc.append("students", new_student)
+		batch_doc.save(ignore_permissions=True)
 
 
 @frappe.whitelist()

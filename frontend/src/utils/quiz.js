@@ -64,6 +64,7 @@ export class Quiz {
 			return
 		}
 		const app = createApp(AssessmentPlugin, {
+			type: 'quiz',
 			onAddition: (quiz) => {
 				this.data.quiz = quiz
 				this.renderQuiz(quiz)
