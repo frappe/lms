@@ -160,7 +160,10 @@ export function getEditorTools() {
 		upload: Upload,
 		markdown: Markdown,
 		image: SimpleImage,
-		table: Table,
+		table: {
+			class: Table,
+			inlineToolbar: true,
+		},
 		paragraph: {
 			class: Paragraph,
 			inlineToolbar: true,
@@ -179,6 +182,7 @@ export function getEditorTools() {
 		},
 		list: {
 			class: NestedList,
+			inlineToolbar: true,
 			config: {
 				defaultStyle: 'ordered',
 			},
