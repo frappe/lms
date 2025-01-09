@@ -1244,6 +1244,7 @@ def get_batch_card_details(batchname):
 			"end_time",
 			"timezone",
 			"published",
+			"category",
 		],
 		as_dict=True,
 	)
