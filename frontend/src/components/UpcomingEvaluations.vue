@@ -1,10 +1,12 @@
 <template>
-	<div class="mb-10">
-		<Button v-if="isStudent" @click="openEvalModal" class="float-right">
-			{{ __('Schedule Evaluation') }}
-		</Button>
-		<div class="text-lg font-semibold mb-4">
-			{{ __('Upcoming Evaluations') }}
+	<div>
+		<div class="flex items-center justify-between mb-4">
+			<div class="text-lg font-semibold">
+				{{ __('Upcoming Evaluations') }}
+			</div>
+			<Button @click="openEvalModal">
+				{{ __('Schedule Evaluation') }}
+			</Button>
 		</div>
 		<div v-if="upcoming_evals.data?.length">
 			<div class="grid grid-cols-2 gap-4">
@@ -66,10 +68,6 @@ const props = defineProps({
 	courses: {
 		type: Array,
 		default: [],
-	},
-	isStudent: {
-		type: Boolean,
-		default: false,
 	},
 	endDate: {
 		type: String,

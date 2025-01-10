@@ -17,6 +17,7 @@ export default defineConfig({
 	resolve: {
 		alias: {
 			'@': path.resolve(__dirname, 'src'),
+			'tailwind.config.js': path.resolve(__dirname, 'tailwind.config.js'),
 		},
 	},
 	build: {
@@ -36,6 +37,11 @@ export default defineConfig({
 		},
 	},
 	optimizeDeps: {
-		include: ['frappe-ui > feather-icons', 'showdown', 'engine.io-client'],
+		include: [
+			'feather-icons',
+			'showdown',
+			'engine.io-client',
+			'tailwind.config.js',
+		],
 	},
 })

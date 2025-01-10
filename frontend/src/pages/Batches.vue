@@ -163,7 +163,7 @@ onMounted(() => {
 const batches = createResource({
 	doctype: 'LMS Batch',
 	url: 'lms.lms.utils.get_batches',
-	cache: ['batches', user.data?.email],
+	cache: ['batches', user.data?.email || ''],
 	auto: true,
 })
 

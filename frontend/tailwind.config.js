@@ -11,6 +11,10 @@ module.exports = {
 			strokeWidth: {
 				1.5: '1.5',
 			},
+			screens: {
+				'2xl': '1536px',
+				'3xl': '1920px',
+			},
 		},
 	},
 	plugins: [],
