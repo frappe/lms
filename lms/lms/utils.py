@@ -827,6 +827,17 @@ def get_telemetry_boot_info():
 
 
 def is_onboarding_complete():
+	onboarding_status = frappe.db.get_single_value(
+		"LMS Settings", "is_onboarding_complete"
+	)
+	if onboarding_status:
+		return {
+			"is_onboarded": onboarding_status,
+			"course_created": True,
+			"chapter_created": True,
+			"lesson_created": True,
+			"first_course": None,
+		}
 	course_created = frappe.db.a_row_exists("LMS Course")
 	chapter_created = frappe.db.a_row_exists("Course Chapter")
 	lesson_created = frappe.db.a_row_exists("Course Lesson")
@@ -835,7 +846,7 @@ def is_onboarding_complete():
 		frappe.db.set_single_value("LMS Settings", "is_onboarding_complete", 1)
 
 	return {
-		"is_onboarded": frappe.db.get_single_value("LMS Settings", "is_onboarding_complete"),
+		"is_onboarded": onboarding_status,
 		"course_created": course_created,
 		"chapter_created": chapter_created,
 		"lesson_created": lesson_created,
