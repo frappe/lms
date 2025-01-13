@@ -21,7 +21,7 @@
 				</Button>
 			</div>
 		</header>
-		<div v-if="batch.data" class="grid grid-cols-[70%,30%] h-screen">
+		<div v-if="batch.data" class="grid grid-cols-[75%,25%] h-screen">
 			<div class="border-r">
 				<Tabs
 					v-model="tabIndex"
@@ -65,7 +65,7 @@
 							<div v-else-if="tab.label == 'Dashboard'">
 								<BatchStudents :batch="batch.data" />
 							</div>
-							<div v-else-if="tab.label == 'Live Class'">
+							<div v-else-if="tab.label == 'Classes'">
 								<LiveClass :batch="batch.data.name" />
 							</div>
 							<div v-else-if="tab.label == 'Assessments'">
@@ -81,7 +81,7 @@
 									:title="__('Discussions')"
 									:key="batch.data.name"
 									:singleThread="true"
-									:scrollToBottom="true"
+									:scrollToBottom="false"
 								/>
 							</div>
 							<div v-else-if="tab.label == 'Feedback'">
@@ -274,7 +274,7 @@ const tabs = computed(() => {
 	})
 
 	batchTabs.push({
-		label: 'Live Class',
+		label: 'Classes',
 		icon: Laptop,
 	})
 
@@ -295,12 +295,10 @@ const tabs = computed(() => {
 		icon: MessageCircle,
 	})
 
-	if (isStudent.value) {
-		batchTabs.push({
-			label: 'Feedback',
-			icon: ClipboardPen,
-		})
-	}
+	batchTabs.push({
+		label: 'Feedback',
+		icon: ClipboardPen,
+	})
 	return batchTabs
 })
 

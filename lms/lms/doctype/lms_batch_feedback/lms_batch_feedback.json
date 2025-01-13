@@ -6,13 +6,15 @@
  "engine": "InnoDB",
  "field_order": [
   "member",
+  "member_name",
+  "member_image",
   "batch",
-  "feedback",
   "column_break_swst",
   "content",
   "delivery",
   "instructors",
-  "value"
+  "value",
+  "feedback"
  ],
  "fields": [
   {
@@ -61,11 +63,25 @@
    "fieldname": "value",
    "fieldtype": "Rating",
    "label": "Value"
+  },
+  {
+   "fetch_from": "member.full_name",
+   "fieldname": "member_name",
+   "fieldtype": "Data",
+   "label": "Member Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "member.user_image",
+   "fieldname": "member_image",
+   "fieldtype": "Attach Image",
+   "label": "Member Image",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-01-10 17:25:25.482724",
+ "modified": "2025-01-10 19:39:04.143783",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch Feedback",
