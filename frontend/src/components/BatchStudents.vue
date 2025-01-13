@@ -383,7 +383,7 @@ const getChartOptions = (categories) => {
 				},
 				rotate: 0,
 				formatter: function (value) {
-					return value.length > 30 ? `${value.substring(0, 30)}...` : value // Trim long labels
+					return value.length > 30 ? `${value.substring(0, 30)}...` : value
 				},
 			},
 		},
