@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-01-10 16:04+0000\n"
-"PO-Revision-Date: 2025-01-13 06:31\n"
+"PO-Revision-Date: 2025-01-14 06:35\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Swedish\n"
 "MIME-Version: 1.0\n"
@@ -77,7 +77,7 @@ msgstr "Om"
 
 #: frontend/src/pages/Batch.vue:93
 msgid "About this batch"
-msgstr ""
+msgstr "Om denna grupp"
 
 #. Label of the verify_terms (Check) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -5767,7 +5767,7 @@ msgstr "har varit"
 
 #: frontend/src/components/StudentHeatmap.vue:8
 msgid "in the last"
-msgstr ""
+msgstr "i sista"
 
 #: frontend/src/pages/ProfileCertificates.vue:17
 msgid "issued on"
@@ -5811,7 +5811,7 @@ msgstr "stjärnor"
 
 #: frontend/src/components/StudentHeatmap.vue:10
 msgid "weeks"
-msgstr ""
+msgstr "veckor"
 
 #: lms/templates/emails/mentor_request_creation_email.html:5
 msgid "you can"
