@@ -1211,7 +1211,7 @@ def get_neighbour_lesson(course, chapter, lesson):
 
 
 @frappe.whitelist(allow_guest=True)
-def get_batches():
+def get_batches1():
 	batches = []
 	filters = {}
 	if frappe.session.user == "Guest":
@@ -1902,3 +1902,58 @@ def enroll_in_program_course(program, course):
 	)
 	enrollment.save()
 	return enrollment
+
+
+@frappe.whitelist(allow_guest=True)
+def get_batches(filters=None, start=0, page_length=20):
+	if not filters:
+		filters = {}
+
+	if filters.get("enrolled"):
+		enrolled_batches = frappe.get_all(
+			"Batch Student", {"student": frappe.session.user}, pluck="parent"
+		)
+		filters.update({"name": ["in", enrolled_batches]})
+		del filters["enrolled"]
+		del filters["published"]
+		del filters["start_date"]
+
+	batches = frappe.get_all(
+		"LMS Batch",
+		filters=filters,
+		fields=[
+			"name",
+			"title",
+			"description",
+			"seat_count",
+			"paid_batch",
+			"amount",
+			"amount_usd",
+			"currency",
+			"start_date",
+			"end_date",
+			"start_time",
+			"end_time",
+			"timezone",
+			"published",
+			"category",
+		],
+		order_by="start_date desc",
+		start=start,
+		page_length=page_length,
+	)
+
+	for batch in batches:
+		batch.instructors = get_instructors(batch.name)
+		students_count = frappe.db.count("Batch Student", {"parent": batch.name})
+
+		if batch.seat_count:
+			batch.seats_left = batch.seat_count - students_count
+
+		if batch.paid_batch and batch.start_date >= getdate():
+			batch.amount, batch.currency = check_multicurrency(
+				batch.amount, batch.currency, None, batch.amount_usd
+			)
+			batch.price = fmt_money(batch.amount, 0, batch.currency)
+
+	return batches
