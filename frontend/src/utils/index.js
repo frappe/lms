@@ -533,3 +533,21 @@ export const validateFile = (file) => {
 		return __('Only image file is allowed.')
 	}
 }
+
+export const escapeHTML = (text) => {
+	if (!text) return ''
+	let escape_html_mapping = {
+		'&': '&amp;',
+		'<': '&lt;',
+		'>': '&gt;',
+		'"': '&quot;',
+		"'": '&#39;',
+		'`': '&#x60;',
+		'=': '&#x3D;',
+	}
+
+	return String(text).replace(
+		/[&<>"'`=]/g,
+		(char) => escape_html_mapping[char] || char
+	)
+}
