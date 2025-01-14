@@ -935,7 +935,7 @@ def check_multicurrency(amount, currency, country=None, amount_usd=None):
 
 	# Conversion logic starts here. Exchange rate is fetched and amount is converted.
 	exchange_rate = get_current_exchange_rate(currency, "USD")
-	amount = amount * exchange_rate
+	amount = flt(amount * exchange_rate, 2)
 	currency = "USD"
 
 	# Check if the amount should be rounded and then apply rounding
@@ -1208,60 +1208,6 @@ def get_neighbour_lesson(course, chapter, lesson):
 		"prev": sorted_numbers[index - 1] if index - 1 >= 0 else None,
 		"next": sorted_numbers[index + 1] if index + 1 < len(sorted_numbers) else None,
 	}
-
-
-@frappe.whitelist(allow_guest=True)
-def get_batches1():
-	batches = []
-	filters = {}
-	if frappe.session.user == "Guest":
-		filters.update({"start_date": [">=", getdate()], "published": 1})
-	batch_list = frappe.get_all("LMS Batch", filters)
-
-	for batch in batch_list:
-		batches.append(get_batch_card_details(batch.name))
-
-	batches = categorize_batches(batches)
-	return batches
-
-
-def get_batch_card_details(batchname):
-	batch = frappe.db.get_value(
-		"LMS Batch",
-		batchname,
-		[
-			"name",
-			"title",
-			"description",
-			"seat_count",
-			"paid_batch",
-			"amount",
-			"amount_usd",
-			"currency",
-			"start_date",
-			"end_date",
-			"start_time",
-			"end_time",
-			"timezone",
-			"published",
-			"category",
-		],
-		as_dict=True,
-	)
-
-	batch.instructors = get_instructors(batchname)
-	students_count = frappe.db.count("Batch Student", {"parent": batchname})
-
-	if batch.seat_count:
-		batch.seats_left = batch.seat_count - students_count
-
-	if batch.paid_batch and batch.start_date >= getdate():
-		batch.amount, batch.currency = check_multicurrency(
-			batch.amount, batch.currency, None, batch.amount_usd
-		)
-		batch.price = fmt_money(batch.amount, 0, batch.currency)
-
-	return batch
 
 
 @frappe.whitelist(allow_guest=True)
