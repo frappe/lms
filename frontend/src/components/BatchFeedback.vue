@@ -17,23 +17,9 @@
 		<div class="space-y-8">
 			<div class="flex items-center justify-between">
 				<Rating
-					v-model="feedback.content"
-					:label="__('Content')"
-					:readonly="readOnly"
-				/>
-				<Rating
-					v-model="feedback.delivery"
-					:label="__('Delivery')"
-					:readonly="readOnly"
-				/>
-				<Rating
-					v-model="feedback.instructors"
-					:label="__('Instructors')"
-					:readonly="readOnly"
-				/>
-				<Rating
-					v-model="feedback.value"
-					:label="__('Value')"
+					v-for="key in ratingKeys"
+					v-model="feedback[key]"
+					:label="__(convertToTitleCase(key))"
 					:readonly="readOnly"
 				/>
 			</div>
@@ -54,21 +40,11 @@
 
 		<div class="flex items-center justify-between mb-10">
 			<Rating
-				v-model="average.content"
-				:label="__('Content')"
+				v-for="key in ratingKeys"
+				v-model="average[key]"
+				:label="__(convertToTitleCase(key))"
 				:readonly="true"
 			/>
-			<Rating
-				v-model="average.delivery"
-				:label="__('Delivery')"
-				:readonly="true"
-			/>
-			<Rating
-				v-model="average.instructors"
-				:label="__('Instructors')"
-				:readonly="true"
-			/>
-			<Rating v-model="average.value" :label="__('Value')" :readonly="true" />
 		</div>
 
 		<div class="text-lg font-semibold mb-5">
@@ -121,9 +97,13 @@
 			</ListRows>
 		</ListView>
 	</div>
+	<div v-else class="text-sm italic text-center text-gray-700 mt-5">
+		{{ __('No feedback received yet.') }}
+	</div>
 </template>
 <script setup>
 import { computed, inject, onMounted, reactive, ref, watch } from 'vue'
+import { convertToTitleCase } from '@/utils'
 import {
 	Avatar,
 	Button,
@@ -139,7 +119,7 @@ import {
 } from 'frappe-ui'
 
 const user = inject('$user')
-const ratingKeys = ['content', 'delivery', 'instructors', 'value']
+const ratingKeys = ['content', 'instructors', 'value']
 const readOnly = ref(false)
 const average = reactive({})
 const feedback = reactive({})
@@ -171,7 +151,6 @@ const feedbackList = createListResource({
 	},
 	fields: [
 		'content',
-		'delivery',
 		'instructors',
 		'value',
 		'feedback',
@@ -243,22 +222,17 @@ const feedbackColumns = computed(() => {
 		{
 			label: 'Content',
 			key: 'content',
-			width: '10rem',
-		},
-		{
-			label: 'Delivery',
-			key: 'delivery',
-			width: '10rem',
+			width: '9rem',
 		},
 		{
 			label: 'Instructors',
 			key: 'instructors',
-			width: '10rem',
+			width: '9rem',
 		},
 		{
 			label: 'Value',
 			key: 'value',
-			width: '10rem',
+			width: '9rem',
 		},
 	]
 })

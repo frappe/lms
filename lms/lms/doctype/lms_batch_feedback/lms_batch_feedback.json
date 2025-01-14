@@ -11,7 +11,6 @@
   "batch",
   "column_break_swst",
   "content",
-  "delivery",
   "instructors",
   "value",
   "feedback"
@@ -50,11 +49,6 @@
    "label": "Content"
   },
   {
-   "fieldname": "delivery",
-   "fieldtype": "Rating",
-   "label": "Delivery"
-  },
-  {
    "fieldname": "instructors",
    "fieldtype": "Rating",
    "label": "Instructors"
@@ -81,7 +75,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-01-10 19:39:04.143783",
+ "modified": "2025-01-13 19:02:58.259908",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch Feedback",
