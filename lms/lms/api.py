@@ -603,9 +603,13 @@ def get_categories(doctype, filters):
 @frappe.whitelist()
 def get_members(start=0, search=""):
 	"""Get members for the given search term and start index.
-	Args: start (int): Start index for the query.
-	                                search (str): Search term to filter the results.
-	Returns: List of members.
+	        Args: start (int): Start index for the query.
+	<<<<<<< HEAD
+	        search (str): Search term to filter the results.
+	=======
+	                                        search (str): Search term to filter the results.
+	>>>>>>> 4869bba7bbb2fb38477d6fc29fb3b5838e075577
+	        Returns: List of members.
 	"""
 
 	filters = {"enabled": 1, "name": ["not in", ["Administrator", "Guest"]]}

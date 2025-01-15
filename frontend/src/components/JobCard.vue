@@ -1,5 +1,5 @@
 <template>
-	<div class="flex rounded p-1 lg:px-2 lg:py-2.5 hover:bg-gray-100">
+	<div class="flex rounded p-1 lg:px-2 lg:py-4 hover:bg-gray-100">
 		<div class="flex w-3/5 md:w-2/5">
 			<img
 				:src="job.company_logo"

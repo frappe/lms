@@ -160,7 +160,10 @@ export function getEditorTools() {
 		upload: Upload,
 		markdown: Markdown,
 		image: SimpleImage,
-		table: Table,
+		table: {
+			class: Table,
+			inlineToolbar: true,
+		},
 		paragraph: {
 			class: Paragraph,
 			inlineToolbar: true,
@@ -179,6 +182,7 @@ export function getEditorTools() {
 		},
 		list: {
 			class: NestedList,
+			inlineToolbar: true,
 			config: {
 				defaultStyle: 'ordered',
 			},
@@ -528,4 +532,22 @@ export const validateFile = (file) => {
 	if (!['jpg', 'jpeg', 'png', 'webp'].includes(extension)) {
 		return __('Only image file is allowed.')
 	}
+}
+
+export const escapeHTML = (text) => {
+	if (!text) return ''
+	let escape_html_mapping = {
+		'&': '&amp;',
+		'<': '&lt;',
+		'>': '&gt;',
+		'"': '&quot;',
+		"'": '&#39;',
+		'`': '&#x60;',
+		'=': '&#x3D;',
+	}
+
+	return String(text).replace(
+		/[&<>"'`=]/g,
+		(char) => escape_html_mapping[char] || char
+	)
 }

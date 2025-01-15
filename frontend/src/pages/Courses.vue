@@ -71,7 +71,7 @@
 				<template #default="{ tab }">
 					<div
 						v-if="tab.courses && tab.courses.value.length"
-						class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 my-5 mx-5"
+						class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 gap-7 my-5 mx-5"
 					>
 						<router-link
 							v-for="course in tab.courses.value"

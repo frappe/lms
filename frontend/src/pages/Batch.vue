@@ -21,7 +21,7 @@
 				</Button>
 			</div>
 		</header>
-		<div v-if="batch.data" class="grid grid-cols-[70%,30%] h-screen">
+		<div v-if="batch.data" class="grid grid-cols-[75%,25%] h-screen">
 			<div class="border-r">
 				<Tabs
 					v-model="tabIndex"
@@ -65,7 +65,7 @@
 							<div v-else-if="tab.label == 'Dashboard'">
 								<BatchStudents :batch="batch.data" />
 							</div>
-							<div v-else-if="tab.label == 'Live Class'">
+							<div v-else-if="tab.label == 'Classes'">
 								<LiveClass :batch="batch.data.name" />
 							</div>
 							<div v-else-if="tab.label == 'Assessments'">
@@ -81,8 +81,11 @@
 									:title="__('Discussions')"
 									:key="batch.data.name"
 									:singleThread="true"
-									:scrollToBottom="true"
+									:scrollToBottom="false"
 								/>
+							</div>
+							<div v-else-if="tab.label == 'Feedback'">
+								<BatchFeedback :batch="batch.data.name" />
 							</div>
 						</div>
 					</template>
@@ -190,12 +193,11 @@ import {
 	BookOpen,
 	Laptop,
 	BookOpenCheck,
-	Contact2,
 	Mail,
 	SendIcon,
 	MessageCircle,
 	Globe,
-	ShieldCheck,
+	ClipboardPen,
 } from 'lucide-vue-next'
 import { formatTime, updateDocumentTitle } from '@/utils'
 import BatchDashboard from '@/components/BatchDashboard.vue'
@@ -208,6 +210,7 @@ import AnnouncementModal from '@/components/Modals/AnnouncementModal.vue'
 import Discussions from '@/components/Discussions.vue'
 import DateRange from '@/components/Common/DateRange.vue'
 import BulkCertificates from '@/components/Modals/BulkCertificates.vue'
+import BatchFeedback from '@/components/BatchFeedback.vue'
 
 const user = inject('$user')
 const showAnnouncementModal = ref(false)
@@ -271,7 +274,7 @@ const tabs = computed(() => {
 	})
 
 	batchTabs.push({
-		label: 'Live Class',
+		label: 'Classes',
 		icon: Laptop,
 	})
 
@@ -290,6 +293,11 @@ const tabs = computed(() => {
 	batchTabs.push({
 		label: 'Discussions',
 		icon: MessageCircle,
+	})
+
+	batchTabs.push({
+		label: 'Feedback',
+		icon: ClipboardPen,
 	})
 	return batchTabs
 })

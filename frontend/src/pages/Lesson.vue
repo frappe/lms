@@ -475,7 +475,8 @@ updateDocumentTitle(pageMeta)
 	font-weight: 500;
 }
 
-.embed-tool__caption {
+.embed-tool__caption,
+.cdx-simple-image__caption {
 	display: none;
 }
 
@@ -584,5 +585,9 @@ updateDocumentTitle(pageMeta)
 iframe {
 	border-top: 3px solid theme('colors.gray.700');
 	border-bottom: 3px solid theme('colors.gray.700');
+}
+
+.tc-table {
+	border-left: 1px solid #e8e8eb;
 }
 </style>
