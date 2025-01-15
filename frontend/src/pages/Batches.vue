@@ -25,7 +25,7 @@
 			</div>
 			<div class="flex items-center space-x-2">
 				<TabButtons
-					v-if="user.data && user.data?.is_student"
+					v-if="user.data"
 					:buttons="batchTabs"
 					v-model="currentTab"
 				/>
@@ -35,14 +35,6 @@
 					type="text"
 					@input="updateBatches()"
 				/>
-				<div v-if="user.data && !user.data?.is_student" class="w-44">
-					<Select
-						v-model="currentDuration"
-						:options="batchType"
-						:placeholder="__('Type')"
-						@change="updateBatches()"
-					/>
-				</div>
 				<div class="w-44">
 					<Select
 						v-if="categories.length"
@@ -79,7 +71,7 @@
 			</div>
 		</div>
 		<div
-			v-if="!batches.loading && batches.hasNextPage"
+			v-if="!batches.list.loading && batches.hasNextPage"
 			class="flex justify-center mt-5"
 		>
 			<Button @click="batches.next()">
@@ -109,7 +101,6 @@ const categories = ref([])
 const currentCategory = ref(null)
 const title = ref('')
 const filters = ref({})
-const currentDuration = ref(null)
 const currentTab = ref('All')
 
 onMounted(() => {
@@ -127,7 +118,6 @@ const setFiltersFromQuery = () => {
 	let queries = new URLSearchParams(location.search)
 	title.value = queries.get('title') || ''
 	currentCategory.value = queries.get('category') || null
-	currentDuration.value = queries.get('type') || null
 }
 
 const batches = createListResource({
@@ -156,46 +146,55 @@ const updateBatches = () => {
 }
 
 const updateFilters = () => {
+	updateCategoryFilter()
+	updateTitleFilter()
+	updateTabFilter()
+	updateStudentFilter()
+	setQueryParams()
+}
+
+const updateCategoryFilter = () => {
 	if (currentCategory.value) {
 		filters.value['category'] = currentCategory.value
 	} else {
 		delete filters.value['category']
 	}
+}
 
+const updateTitleFilter = () => {
 	if (title.value) {
 		filters.value['title'] = ['like', `%${title.value}%`]
 	} else {
 		delete filters.value['title']
 	}
+}
 
-	if (currentDuration.value) {
-		delete filters.value['start_date']
-		delete filters.value['published']
-
-		if (currentDuration.value == 'Upcoming') {
-			filters.value['start_date'] = ['>=', dayjs().format('YYYY-MM-DD')]
-		} else if (currentDuration.value == 'Archived') {
-			filters.value['start_date'] = ['<', dayjs().format('YYYY-MM-DD')]
-		} else if (currentDuration.value == 'Unpublished') {
-			filters.value['published'] = 0
-		}
-	} else {
-		delete filters.value['start_date']
-		delete filters.value['published']
+const updateTabFilter = () => {
+	if (!user.data) {
+		return
 	}
-
 	if (currentTab.value == 'Enrolled' && user.data?.is_student) {
 		filters.value['enrolled'] = 1
-	} else {
+	} else if (user.data?.is_student) {
 		delete filters.value['enrolled']
+	} else {
+		delete filters.value['start_date']
+		delete filters.value['published']
+		if (currentTab.value == 'Upcoming') {
+			filters.value['start_date'] = ['>=', dayjs().format('YYYY-MM-DD')]
+		} else if (currentTab.value == 'Archived') {
+			filters.value['start_date'] = ['<', dayjs().format('YYYY-MM-DD')]
+		} else if (currentTab.value == 'Unpublished') {
+			filters.value['published'] = 0
+		}
 	}
+}
 
+const updateStudentFilter = () => {
 	if (!user.data || user.data?.is_student) {
 		filters.value['start_date'] = ['>=', dayjs().format('YYYY-MM-DD')]
 		filters.value['published'] = 1
 	}
-
-	setQueryParams()
 }
 
 const setQueryParams = () => {
@@ -203,7 +202,6 @@ const setQueryParams = () => {
 	let filterKeys = {
 		title: title.value,
 		category: currentCategory.value,
-		type: currentDuration.value,
 	}
 
 	Object.keys(filterKeys).forEach((key) => {
@@ -251,10 +249,14 @@ const batchTabs = computed(() => {
 		{
 			label: __('All'),
 		},
-		{
-			label: __('Enrolled'),
-		},
 	]
+	if (user.data?.is_student) {
+		tabs.push({ label: __('Enrolled') })
+	} else {
+		tabs.push({ label: __('Upcoming') })
+		tabs.push({ label: __('Archived') })
+		tabs.push({ label: __('Unpublished') })
+	}
 	return tabs
 })
 
