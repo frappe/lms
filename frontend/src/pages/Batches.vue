@@ -55,7 +55,7 @@
 			</router-link>
 		</div>
 		<div
-			v-else
+			v-else-if="!batches.list.loading"
 			class="flex flex-col items-center justify-center text-sm text-gray-600 italic mt-48"
 		>
 			<BookOpen class="size-10 mx-auto stroke-1.5 text-gray-500" />
@@ -101,7 +101,8 @@ const categories = ref([])
 const currentCategory = ref(null)
 const title = ref('')
 const filters = ref({})
-const currentTab = ref('All')
+const currentTab = ref(user.data?.is_student ? 'All' : 'Upcoming')
+const orderBy = ref('start_date')
 
 onMounted(() => {
 	setFiltersFromQuery()
@@ -141,6 +142,7 @@ const updateBatches = () => {
 	updateFilters()
 	batches.update({
 		filters: filters.value,
+		orderBy: orderBy.value,
 	})
 	batches.reload()
 }
@@ -170,18 +172,22 @@ const updateTitleFilter = () => {
 }
 
 const updateTabFilter = () => {
+	orderBy.value = 'start_date'
 	if (!user.data) {
 		return
 	}
 	if (currentTab.value == 'Enrolled' && user.data?.is_student) {
 		filters.value['enrolled'] = 1
+		orderBy.value = 'start_date desc'
 	} else if (user.data?.is_student) {
 		delete filters.value['enrolled']
 	} else {
 		delete filters.value['start_date']
 		delete filters.value['published']
+		orderBy.value = 'start_date desc'
 		if (currentTab.value == 'Upcoming') {
 			filters.value['start_date'] = ['>=', dayjs().format('YYYY-MM-DD')]
+			orderBy.value = 'start_date'
 		} else if (currentTab.value == 'Archived') {
 			filters.value['start_date'] = ['<', dayjs().format('YYYY-MM-DD')]
 		} else if (currentTab.value == 'Unpublished') {

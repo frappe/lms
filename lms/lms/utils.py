@@ -1851,7 +1851,7 @@ def enroll_in_program_course(program, course):
 
 
 @frappe.whitelist(allow_guest=True)
-def get_batches(filters=None, start=0, page_length=20):
+def get_batches(filters=None, start=0, page_length=20, order_by="start_date"):
 	if not filters:
 		filters = {}
 
@@ -1884,7 +1884,7 @@ def get_batches(filters=None, start=0, page_length=20):
 			"published",
 			"category",
 		],
-		order_by="start_date desc",
+		order_by=order_by,
 		start=start,
 		page_length=page_length,
 	)
