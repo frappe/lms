@@ -19,34 +19,44 @@
 		</router-link>
 	</header>
 	<div class="p-5 pb-10">
-		<div class="flex items-center justify-between mb-5">
+		<div
+			class="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:items-center justify-between mb-5"
+		>
 			<div class="text-lg font-semibold">
 				{{ __('All Batches') }}
 			</div>
-			<div class="flex items-center space-x-2">
+			<div
+				class="flex flex-col space-y-2 lg:space-y-0 lg:flex-row lg:items-center lg:space-x-2"
+			>
 				<TabButtons
 					v-if="user.data"
 					:buttons="batchTabs"
 					v-model="currentTab"
 				/>
-				<FormControl
-					v-model="title"
-					:placeholder="__('Search by Title')"
-					type="text"
-					@input="updateBatches()"
-				/>
-				<div class="w-44">
-					<Select
-						v-if="categories.length"
-						v-model="currentCategory"
-						:options="categories"
-						:placeholder="__('Category')"
-						@change="updateBatches()"
+				<div class="grid grid-cols-2 gap-2">
+					<FormControl
+						v-model="title"
+						:placeholder="__('Search by Title')"
+						type="text"
+						class="min-w-40 lg:min-w-0 lg:w-32"
+						@input="updateBatches()"
 					/>
+					<div class="min-w-40 lg:min-w-0 lg:w-32">
+						<Select
+							v-if="categories.length"
+							v-model="currentCategory"
+							:options="categories"
+							:placeholder="__('Category')"
+							@change="updateBatches()"
+						/>
+					</div>
 				</div>
 			</div>
 		</div>
-		<div v-if="batches.data?.length" class="grid grid-cols-4 gap-5">
+		<div
+			v-if="batches.data?.length"
+			class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
+		>
 			<router-link
 				v-for="batch in batches.data"
 				:to="{ name: 'BatchDetail', params: { batchName: batch.name } }"
@@ -187,6 +197,7 @@ const updateTabFilter = () => {
 		orderBy.value = 'start_date desc'
 		if (currentTab.value == 'Upcoming') {
 			filters.value['start_date'] = ['>=', dayjs().format('YYYY-MM-DD')]
+			filters.value['published'] = 1
 			orderBy.value = 'start_date'
 		} else if (currentTab.value == 'Archived') {
 			filters.value['start_date'] = ['<', dayjs().format('YYYY-MM-DD')]
