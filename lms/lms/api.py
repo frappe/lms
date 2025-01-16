@@ -361,34 +361,59 @@ def get_evaluator_details(evaluator):
 
 
 @frappe.whitelist(allow_guest=True)
-def get_certified_participants():
-	LMSCertificate = DocType("LMS Certificate")
-	participants = (
-		frappe.qb.from_(LMSCertificate)
-		.select(LMSCertificate.member)
-		.distinct()
-		.where(LMSCertificate.published == 1)
-		.orderby(LMSCertificate.creation, order=frappe.qb.desc)
-		.run(as_dict=1)
+def get_certified_participants(filters=None, start=0, page_length=30, search=None):
+	or_filters = {}
+	if not filters:
+		filters = {}
+
+	filters.update({"published": 1})
+
+	category = filters.get("category")
+	if category:
+		del filters["category"]
+		or_filters["course_title"] = ["like", f"%{category}%"]
+		or_filters["batch_title"] = ["like", f"%{category}%"]
+
+	participants = frappe.get_all(
+		"LMS Certificate",
+		filters=filters,
+		or_filters=or_filters,
+		fields=["member"],
+		group_by="member",
+		order_by="creation desc",
+		start=start,
+		page_length=page_length,
 	)
 
-	participant_details = []
 	for participant in participants:
 		details = frappe.db.get_value(
 			"User",
 			participant.member,
-			["name", "full_name", "username", "user_image"],
-			as_dict=True,
+			["full_name", "user_image", "username", "country", "headline"],
+			as_dict=1,
 		)
-		course_names = frappe.get_all(
-			"LMS Certificate", {"member": participant.member}, pluck="course"
-		)
-		courses = []
-		for course in course_names:
-			courses.append(frappe.db.get_value("LMS Course", course, "title"))
-		details["courses"] = courses
-		participant_details.append(details)
-	return participant_details
+		participant.update(details)
+
+	return participants
+
+
+@frappe.whitelist()
+def get_certification_categories():
+	categories = []
+	docs = frappe.get_all(
+		"LMS Certificate",
+		filters={
+			"published": 1,
+		},
+		fields=["course_title", "batch_title"],
+	)
+
+	for doc in docs:
+		category = doc.course_title if doc.course_title else doc.batch_title
+		if category not in categories:
+			categories.append(category)
+
+	return categories
 
 
 @frappe.whitelist()

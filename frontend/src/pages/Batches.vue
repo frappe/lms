@@ -68,8 +68,8 @@
 			v-else-if="!batches.list.loading"
 			class="flex flex-col items-center justify-center text-sm text-gray-600 italic mt-48"
 		>
-			<BookOpen class="size-10 mx-auto stroke-1.5 text-gray-500" />
-			<div class="text-xl font-medium mb-2">
+			<BookOpen class="size-10 mx-auto stroke-1 text-gray-500" />
+			<div class="text-lg font-medium mb-1">
 				{{ __('No batches found') }}
 			</div>
 			<div class="leading-5 w-2/5 text-center">
