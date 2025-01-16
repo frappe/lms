@@ -35,8 +35,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Course",
-   "options": "LMS Course",
-   "reqd": 1
+   "options": "LMS Course"
   },
   {
    "fieldname": "expiry_date",
@@ -114,7 +113,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-09-11 11:37:20.419956",
+ "modified": "2025-01-16 11:42:51.449506",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate",

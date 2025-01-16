@@ -38,10 +38,10 @@
 						v-model="title"
 						:placeholder="__('Search by Title')"
 						type="text"
-						class="min-w-40 lg:min-w-0 lg:w-32"
+						class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40"
 						@input="updateBatches()"
 					/>
-					<div class="min-w-40 lg:min-w-0 lg:w-32">
+					<div class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40">
 						<Select
 							v-if="categories.length"
 							v-model="currentCategory"
@@ -101,6 +101,7 @@ import {
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { BookOpen, Plus } from 'lucide-vue-next'
+import { updateDocumentTitle } from '@/utils'
 import BatchCard from '@/components/BatchCard.vue'
 
 const user = inject('$user')
@@ -200,7 +201,7 @@ const updateTabFilter = () => {
 			filters.value['published'] = 1
 			orderBy.value = 'start_date'
 		} else if (currentTab.value == 'Archived') {
-			filters.value['start_date'] = ['<', dayjs().format('YYYY-MM-DD')]
+			filters.value['start_date'] = ['<=', dayjs().format('YYYY-MM-DD')]
 		} else if (currentTab.value == 'Unpublished') {
 			filters.value['published'] = 0
 		}
@@ -283,4 +284,13 @@ const breadcrumbs = computed(() => [
 		route: { name: 'Batches' },
 	},
 ])
+
+const pageMeta = computed(() => {
+	return {
+		title: 'Batches',
+		description: 'All upcoming batches.',
+	}
+})
+
+updateDocumentTitle(pageMeta)
 </script>

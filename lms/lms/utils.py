@@ -1889,6 +1889,28 @@ def get_batches(filters=None, start=0, page_length=20, order_by="start_date"):
 		page_length=page_length,
 	)
 
+	print(batches)
+	batchType = get_batch_type(filters)
+	if batchType == "upcoming":
+		batches_to_remove = list(
+			filter(
+				lambda batch: getdate(batch.start_date) == getdate()
+				and get_time_str(batch.start_time) < nowtime(),
+				batches,
+			)
+		)
+		print(batches_to_remove)
+		batches = [batch for batch in batches if batch not in batches_to_remove]
+	elif batchType == "archived":
+		batches_to_remove = list(
+			filter(
+				lambda batch: getdate(batch.start_date) == getdate()
+				and get_time_str(batch.start_time) >= nowtime(),
+				batches,
+			)
+		)
+		batches = [batch for batch in batches if batch not in batches_to_remove]
+
 	for batch in batches:
 		batch.instructors = get_instructors(batch.name)
 		students_count = frappe.db.count("Batch Student", {"parent": batch.name})
@@ -1903,3 +1925,16 @@ def get_batches(filters=None, start=0, page_length=20, order_by="start_date"):
 			batch.price = fmt_money(batch.amount, 0, batch.currency)
 
 	return batches
+
+
+def get_batch_type(filters):
+	start_date_filter = filters.get("start_date")
+	batchType = None
+	if start_date_filter:
+		sign = start_date_filter[0]
+		if ">" in sign:
+			batchType = "upcoming"
+		elif "<" in sign:
+			batchType = "archived"
+
+	return batchType
