@@ -1861,8 +1861,6 @@ def get_batches(filters=None, start=0, page_length=20, order_by="start_date"):
 		)
 		filters.update({"name": ["in", enrolled_batches]})
 		del filters["enrolled"]
-		del filters["published"]
-		del filters["start_date"]
 
 	batches = frappe.get_all(
 		"LMS Batch",
@@ -1889,6 +1887,12 @@ def get_batches(filters=None, start=0, page_length=20, order_by="start_date"):
 		page_length=page_length,
 	)
 
+	batches = filter_batches_based_on_start_time(batches, filters)
+	batches = get_batch_card_details(batches)
+	return batches
+
+
+def filter_batches_based_on_start_time(batches, filters):
 	batchType = get_batch_type(filters)
 	if batchType == "upcoming":
 		batches_to_remove = list(
@@ -1908,20 +1912,6 @@ def get_batches(filters=None, start=0, page_length=20, order_by="start_date"):
 			)
 		)
 		batches = [batch for batch in batches if batch not in batches_to_remove]
-
-	for batch in batches:
-		batch.instructors = get_instructors(batch.name)
-		students_count = frappe.db.count("Batch Student", {"parent": batch.name})
-
-		if batch.seat_count:
-			batch.seats_left = batch.seat_count - students_count
-
-		if batch.paid_batch and batch.start_date >= getdate():
-			batch.amount, batch.currency = check_multicurrency(
-				batch.amount, batch.currency, None, batch.amount_usd
-			)
-			batch.price = fmt_money(batch.amount, 0, batch.currency)
-
 	return batches
 
 
@@ -1936,3 +1926,20 @@ def get_batch_type(filters):
 			batchType = "archived"
 
 	return batchType
+
+
+def get_batch_card_details(batches):
+	for batch in batches:
+		batch.instructors = get_instructors(batch.name)
+		students_count = frappe.db.count("Batch Student", {"parent": batch.name})
+
+		if batch.seat_count:
+			batch.seats_left = batch.seat_count - students_count
+
+		if batch.paid_batch and batch.start_date >= getdate():
+			batch.amount, batch.currency = check_multicurrency(
+				batch.amount, batch.currency, None, batch.amount_usd
+			)
+			batch.price = fmt_money(batch.amount, 0, batch.currency)
+
+	return batches

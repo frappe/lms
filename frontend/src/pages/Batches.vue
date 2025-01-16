@@ -189,6 +189,8 @@ const updateTabFilter = () => {
 	}
 	if (currentTab.value == 'Enrolled' && user.data?.is_student) {
 		filters.value['enrolled'] = 1
+		delete filters.value['start_date']
+		delete filters.value['published']
 		orderBy.value = 'start_date desc'
 	} else if (user.data?.is_student) {
 		delete filters.value['enrolled']
@@ -209,7 +211,7 @@ const updateTabFilter = () => {
 }
 
 const updateStudentFilter = () => {
-	if (!user.data || user.data?.is_student) {
+	if (!user.data || (user.data?.is_student && currentTab.value != 'Enrolled')) {
 		filters.value['start_date'] = ['>=', dayjs().format('YYYY-MM-DD')]
 		filters.value['published'] = 1
 	}
