@@ -1,25 +1,27 @@
 {
  "actions": [],
  "allow_import": 1,
+ "autoname": "hash",
  "creation": "2021-08-16 15:47:19.494055",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "course",
-  "course_title",
   "member",
   "member_name",
-  "column_break_vwbn",
-  "issue_date",
-  "template",
-  "published",
-  "section_break_scyf",
   "evaluator",
   "evaluator_name",
-  "column_break_slaw",
+  "column_break_vwbn",
+  "issue_date",
   "expiry_date",
-  "batch_name"
+  "template",
+  "published",
+  "section_break_unwn",
+  "course",
+  "course_title",
+  "column_break_ywee",
+  "batch_name",
+  "batch_title"
  ],
  "fields": [
   {
@@ -32,11 +34,9 @@
   {
    "fieldname": "course",
    "fieldtype": "Link",
-   "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Course",
-   "options": "LMS Course",
-   "reqd": 1
+   "options": "LMS Course"
   },
   {
    "fieldname": "expiry_date",
@@ -46,7 +46,6 @@
   {
    "fieldname": "member",
    "fieldtype": "Link",
-   "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Member",
    "options": "User",
@@ -56,6 +55,8 @@
    "fetch_from": "member.full_name",
    "fieldname": "member_name",
    "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Member Name",
    "read_only": 1
   },
@@ -91,14 +92,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "section_break_scyf",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "column_break_slaw",
-   "fieldtype": "Column Break"
-  },
-  {
    "fieldname": "evaluator",
    "fieldtype": "Link",
    "label": "Evaluator",
@@ -108,16 +101,33 @@
    "fetch_from": "evaluator.full_name",
    "fieldname": "evaluator_name",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Evaluator Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_unwn",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_ywee",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "batch_name.title",
+   "fieldname": "batch_title",
+   "fieldtype": "Data",
+   "label": "Batch Title",
    "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-09-11 11:37:20.419956",
+ "modified": "2025-01-16 12:12:49.998114",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate",
+ "naming_rule": "Random",
  "owner": "Administrator",
  "permissions": [
   {
