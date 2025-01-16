@@ -4,12 +4,14 @@
 	>
 		<Breadcrumbs :items="breadcrumbs" />
 	</header>
-	<div class="px-5 py-10 w-3/4 mx-auto">
-		<div class="flex items-center justify-between mb-5">
+	<div class="p-5 lg:w-3/4 mx-auto">
+		<div
+			class="flex flex-col lg:flex-row lg:items-center space-y-4 lg:space-y-0 justify-between mb-5"
+		>
 			<div class="text-lg font-semibold">
 				{{ __('All Certified Participants') }}
 			</div>
-			<div class="flex items-center space-x-2">
+			<div class="grid grid-cols-2 gap-2">
 				<FormControl
 					v-model="nameFilter"
 					:placeholder="__('Search by Name')"
@@ -31,7 +33,7 @@
 			</div>
 		</div>
 		<div v-if="participants.data?.length">
-			<div class="grid grid-cols-3 gap-5">
+			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
 				<router-link
 					v-for="participant in participants.data"
 					:to="{
