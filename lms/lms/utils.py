@@ -1895,22 +1895,20 @@ def get_batches(filters=None, start=0, page_length=20, order_by="start_date"):
 def filter_batches_based_on_start_time(batches, filters):
 	batchType = get_batch_type(filters)
 	if batchType == "upcoming":
-		batches_to_remove = list(
-			filter(
-				lambda batch: getdate(batch.start_date) == getdate()
-				and get_time_str(batch.start_time) < nowtime(),
-				batches,
-			)
-		)
+		batches_to_remove = [
+			batch
+			for batch in batches
+			if getdate(batch.start_date) == getdate()
+			and get_time_str(batch.start_time) < nowtime()
+		]
 		batches = [batch for batch in batches if batch not in batches_to_remove]
 	elif batchType == "archived":
-		batches_to_remove = list(
-			filter(
-				lambda batch: getdate(batch.start_date) == getdate()
-				and get_time_str(batch.start_time) >= nowtime(),
-				batches,
-			)
-		)
+		batches_to_remove = [
+			batch
+			for batch in batches
+			if getdate(batch.start_date) == getdate()
+			and get_time_str(batch.start_time) >= nowtime()
+		]
 		batches = [batch for batch in batches if batch not in batches_to_remove]
 	return batches
 
