@@ -1889,7 +1889,6 @@ def get_batches(filters=None, start=0, page_length=20, order_by="start_date"):
 		page_length=page_length,
 	)
 
-	print(batches)
 	batchType = get_batch_type(filters)
 	if batchType == "upcoming":
 		batches_to_remove = list(
@@ -1899,7 +1898,6 @@ def get_batches(filters=None, start=0, page_length=20, order_by="start_date"):
 				batches,
 			)
 		)
-		print(batches_to_remove)
 		batches = [batch for batch in batches if batch not in batches_to_remove]
 	elif batchType == "archived":
 		batches_to_remove = list(

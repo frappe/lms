@@ -17,12 +17,6 @@
 	>
 		<template #body-content>
 			<div class="space-y-4">
-				<FormControl
-					type="select"
-					v-model="details.course"
-					:label="__('Course')"
-					:options="getCourses()"
-				/>
 				<Link
 					v-model="details.evaluator"
 					:label="__('Evaluator')"
@@ -37,6 +31,12 @@
 					type="date"
 					v-model="details.expiry_date"
 					:label="__('Expiry Date')"
+				/>
+				<FormControl
+					type="select"
+					v-model="details.course"
+					:label="__('Course')"
+					:options="getCourses()"
 				/>
 				<Link
 					v-model="details.template"
@@ -94,7 +94,7 @@ const createCertificate = createResource({
 				template: details.template,
 				published: details.published,
 				course: values.course,
-				batch: values.batch,
+				batch_name: values.batch,
 				member: values.member,
 				evaluator: details.evaluator,
 			},

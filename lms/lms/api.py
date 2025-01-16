@@ -408,17 +408,6 @@ def get_assigned_badges(member):
 
 
 @frappe.whitelist()
-def get_certificates(member):
-	"""Get certificates for a member."""
-	return frappe.get_all(
-		"LMS Certificate",
-		filters={"member": member},
-		fields=["name", "course", "course_title", "issue_date", "template"],
-		order_by="creation desc",
-	)
-
-
-@frappe.whitelist()
 def get_all_users():
 	users = frappe.get_all(
 		"User",
