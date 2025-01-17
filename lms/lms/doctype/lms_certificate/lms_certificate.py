@@ -86,7 +86,6 @@ class LMSCertificate(Document):
 				fields=["name", "batch_name", "batch_title"],
 			)
 			if len(batch_duplicates):
-				print(batch_duplicates)
 				full_name = frappe.db.get_value("User", self.member, "full_name")
 				frappe.throw(
 					_("{0} is already certified for the batch {1}").format(
