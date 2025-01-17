@@ -27,9 +27,7 @@
 			</div>
 			<div class="flex items-center space-x-2">
 				<Calendar class="w-4 h-4 stroke-1.5 text-gray-600" />
-				<span>
-					{{ dayjs(job.creation).fromNow() }}
-				</span>
+				<span> {{ __('posted') }} {{ dayjs(job.creation).fromNow() }} </span>
 			</div>
 		</div>
 	</div>
