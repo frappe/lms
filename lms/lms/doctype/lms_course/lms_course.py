@@ -93,10 +93,7 @@ class LMSCourse(Document):
 
 	def autoname(self):
 		if not self.name:
-			title = self.title
-			if self.title == "New Course":
-				title = self.title + str(random.randint(0, 99))
-			self.name = generate_slug(title, "LMS Course")
+			self.name = generate_slug(self.title, "LMS Course")
 
 	def __repr__(self):
 		return f"<Course#{self.name}>"
