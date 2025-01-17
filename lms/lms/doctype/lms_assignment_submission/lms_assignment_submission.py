@@ -72,9 +72,12 @@ class LMSAssignmentSubmission(Document):
 		)
 
 	def validate_status(self):
-		doc_before_save = self.get_doc_before_save()
-		if doc_before_save.status != self.status or doc_before_save.comments != self.comments:
-			self.trigger_update_notification()
+		if not self.is_new():
+			doc_before_save = self.get_doc_before_save()
+			if (
+				doc_before_save.status != self.status or doc_before_save.comments != self.comments
+			):
+				self.trigger_update_notification()
 
 	def trigger_update_notification(self):
 		notification = frappe._dict(

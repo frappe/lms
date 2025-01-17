@@ -1,7 +1,6 @@
 {
  "actions": [],
  "allow_import": 1,
- "autoname": "hash",
  "creation": "2021-08-16 15:47:19.494055",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -123,11 +122,10 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-01-16 12:12:49.998114",
+ "modified": "2025-01-17 11:57:02.859109",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate",
- "naming_rule": "Random",
  "owner": "Administrator",
  "permissions": [
   {
