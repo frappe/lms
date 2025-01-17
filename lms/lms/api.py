@@ -434,6 +434,7 @@ def get_assigned_badges(member):
 
 @frappe.whitelist()
 def get_all_users():
+	frappe.only_for(["Moderator", "Course Creator", "Batch Evaluator"])
 	users = frappe.get_all(
 		"User",
 		{
@@ -1189,3 +1190,21 @@ def prepare_heatmap_data(start_date, number_of_days, date_count):
 def get_week_difference(start_date, current_date):
 	diff_in_days = date_diff(current_date, start_date)
 	return diff_in_days // 7
+
+
+@frappe.whitelist()
+def get_notifications(filters):
+	notifications = frappe.get_all(
+		"Notification Log",
+		filters,
+		["subject", "from_user", "link", "read", "name"],
+		order_by="creation desc",
+	)
+
+	for notification in notifications:
+		from_user_details = frappe.db.get_value(
+			"User", notification.from_user, ["full_name", "user_image"], as_dict=1
+		)
+		notification.update(from_user_details)
+
+	return notifications

@@ -72,16 +72,6 @@ class CourseLesson(Document):
 		exercises = [value for name, value in macros if name == "Exercise"]
 		return [frappe.get_doc("LMS Exercise", name) for name in exercises]
 
-	def get_progress(self):
-		return frappe.db.get_value(
-			"LMS Course Progress", {"lesson": self.name, "owner": frappe.session.user}, "status"
-		)
-
-	def get_slugified_class(self):
-		if self.get_progress():
-			return ("").join([s for s in self.get_progress().lower().split()])
-		return
-
 
 @frappe.whitelist()
 def save_progress(lesson, course):

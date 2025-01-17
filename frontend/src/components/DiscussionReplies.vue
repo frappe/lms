@@ -71,6 +71,7 @@
 		</div>
 
 		<TextEditor
+			v-if="renderEditor"
 			class="mt-5"
 			:content="newReply"
 			:mentions="mentionUsers"
@@ -94,7 +95,7 @@ import { createResource, TextEditor, Button, Dropdown } from 'frappe-ui'
 import { timeAgo } from '../utils'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { ChevronLeft, MoreHorizontal } from 'lucide-vue-next'
-import { ref, inject, onMounted, computed } from 'vue'
+import { ref, inject, onMounted } from 'vue'
 import { createToast } from '../utils'
 
 const showTopics = defineModel('showTopics')
@@ -102,6 +103,8 @@ const newReply = ref('')
 const socket = inject('$socket')
 const user = inject('$user')
 const allUsers = inject('$allUsers')
+const mentionUsers = ref([])
+const renderEditor = ref(false)
 
 const props = defineProps({
 	topic: {
@@ -124,6 +127,7 @@ onMounted(() => {
 	socket.on('delete_message', (data) => {
 		replies.reload()
 	})
+	fetchMentionUsers()
 })
 
 const replies = createResource({
@@ -150,15 +154,26 @@ const newReplyResource = createResource({
 	},
 })
 
-const mentionUsers = computed(() => {
-	let users = Object.values(allUsers.data).map((user) => {
-		return {
-			value: user.name,
-			label: user.full_name,
-		}
-	})
-	return users
-})
+const fetchMentionUsers = () => {
+	if (user.data?.is_student) {
+		renderEditor.value = true
+	} else {
+		allUsers.reload(
+			{},
+			{
+				onSuccess(data) {
+					mentionUsers.value = Object.values(data).map((user) => {
+						return {
+							value: user.name,
+							label: user.full_name,
+						}
+					})
+					renderEditor.value = true
+				},
+			}
+		)
+	}
+}
 
 const postReply = () => {
 	newReplyResource.submit(

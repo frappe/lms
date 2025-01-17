@@ -217,20 +217,12 @@ let router = createRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
-	const { userResource, allUsers } = usersStore()
+	const { userResource } = usersStore()
 	let { isLoggedIn } = sessionStore()
 
 	try {
 		if (isLoggedIn) {
 			await userResource.promise
-		}
-		if (
-			isLoggedIn &&
-			(to.name == 'Lesson' ||
-				to.name == 'Batch' ||
-				to.name == 'Notifications')
-		) {
-			await allUsers.promise
 		}
 	} catch (error) {
 		isLoggedIn = false
