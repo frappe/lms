@@ -48,7 +48,10 @@ frappe.ui.form.on("LMS Batch", {
 	},
 
 	refresh: (frm) => {
-		frm.add_web_link(`/batches/details/${frm.doc.name}`, "See on website");
+		frm.add_web_link(
+			`/lms/batches/details/${frm.doc.name}`,
+			"See on website"
+		);
 	},
 });
 
