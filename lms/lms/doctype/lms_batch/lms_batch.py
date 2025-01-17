@@ -16,6 +16,7 @@ from lms.lms.utils import (
 	get_quiz_details,
 	get_assignment_details,
 	update_payment_record,
+	generate_slug,
 )
 from frappe.email.doctype.email_template.email_template import get_email_template
 
@@ -35,6 +36,10 @@ class LMSBatch(Document):
 		self.send_confirmation_mail()
 		self.validate_evaluation_end_date()
 		self.add_students_to_live_class()
+
+	def autoname(self):
+		if not self.name:
+			self.name = generate_slug(self.title, "LMS Batch")
 
 	def validate_batch_end_date(self):
 		if self.end_date < self.start_date:
