@@ -1,31 +1,9 @@
 {% set enrolled = get_enrolled_courses().in_progress + get_enrolled_courses().completed %}
 
-
 {% if enrolled | length %}
 <div class="cards-parent">
     {% for course in enrolled %}
         {{ widgets.CourseCard(course=course) }}
     {% endfor %}
-</div>
-
-
-{% else %}
-{% set site_name = frappe.db.get_single_value("System Settings", "app_name") %}
-<div class="empty-state p-5">
-    <div style="text-align: left; flex: 1;">
-        <div class="text-center">
-            <div class="empty-state-heading">{{ _("You haven't enrolled for any courses") }}</div>
-            <div class="course-meta mb-6">{{ _("Here are a few courses we recommend for you to get started with {0}").format(site_name) }}</div>
-        </div>
-        {% set recommended_courses = get_popular_courses() %}
-        <div class="cards-parent">
-            {% for course in recommended_courses %}
-                {% if course %}
-                    {% set course_details = frappe.get_doc("LMS Course", course.course) %}
-                    {{ widgets.CourseCard(course=course_details) }}
-                {% endif %}
-            {% endfor %}
-        </div>
-    </div>
 </div>
 {% endif %}

@@ -5,7 +5,7 @@ import router from '@/router'
 import { ref, computed } from 'vue'
 
 export const sessionStore = defineStore('lms-session', () => {
-	let { userResource, allUsers } = usersStore()
+	let { userResource } = usersStore()
 
 	function sessionUser() {
 		let cookies = new URLSearchParams(document.cookie.split('; ').join('&'))
@@ -17,9 +17,6 @@ export const sessionStore = defineStore('lms-session', () => {
 	}
 
 	let user = ref(sessionUser())
-	if (user.value) {
-		allUsers.reload()
-	}
 	const isLoggedIn = computed(() => !!user.value)
 
 	const login = createResource({

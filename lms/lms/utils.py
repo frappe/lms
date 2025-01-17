@@ -450,24 +450,6 @@ def get_signup_optin_checks():
 	return (", ").join(links)
 
 
-def get_popular_courses():
-	courses = frappe.get_all("LMS Course", {"published": 1, "upcoming": 0})
-	course_membership = []
-
-	for course in courses:
-		course_membership.append(
-			{
-				"course": course.name,
-				"members": cint(frappe.db.count("LMS Enrollment", {"course": course.name})),
-			}
-		)
-
-	course_membership = sorted(
-		course_membership, key=lambda x: x.get("members"), reverse=True
-	)
-	return course_membership[:3]
-
-
 def format_amount(amount, currency):
 	amount_reduced = amount / 1000
 	if amount_reduced < 1:
