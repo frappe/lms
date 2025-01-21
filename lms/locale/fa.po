@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-01-17 16:04+0000\n"
-"PO-Revision-Date: 2025-01-20 11:13\n"
+"PO-Revision-Date: 2025-01-21 11:11\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Persian\n"
 "MIME-Version: 1.0\n"
@@ -3794,7 +3794,7 @@ msgstr "درصد"
 #. Option for the 'Grade Type' (Select) field in DocType 'Education Detail'
 #: lms/lms/doctype/education_detail/education_detail.json
 msgid "Percentage (e.g. 70%)"
-msgstr ""
+msgstr "درصد (به عنوان مثال 70%)"
 
 #: frontend/src/pages/Billing.vue:104
 msgid "Phone Number"
@@ -5011,7 +5011,7 @@ msgstr "مدیر سیستم"
 #: frontend/src/pages/CourseForm.vue:120
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Tags"
-msgstr "برچسب ها"
+msgstr "تگ‌ها"
 
 #: lms/templates/emails/community_course_membership.html:18
 #: lms/templates/emails/mentor_request_creation_email.html:8
