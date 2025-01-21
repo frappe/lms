@@ -47,6 +47,12 @@ import { updateDocumentTitle } from '@/utils'
 const sidebarStore = useSidebar()
 const user = inject('$user')
 const readyToRender = ref(false)
+const isSuccessfullyCompleted = ref(false)
+
+// If courseRestartOnFailure is true, student has to restart the whole course if failed.
+// Otherwise, student could retake the final quiz portion.
+// Ideally, this should be configurable along with `Number of failures before course should restart`.
+const courseRestartOnFailure = false
 
 const props = defineProps({
 	courseName: {
@@ -97,12 +103,20 @@ const getDataFromLMS = (key) => {
 }
 
 const saveDataToLMS = (key, value) => {
-	if (key === 'cmi.core.lesson_status' && value === 'passed') {
-		saveProgress({
-			is_complete: true,
-			scorm_content: '',
-		})
-	} else if (key === 'cmi.suspend_data') {
+	if (key === 'cmi.core.lesson_status') {
+		if (value === 'passed') {
+			isSuccessfullyCompleted.value = true
+			saveProgress({
+				is_complete: isSuccessfullyCompleted.value,
+				scorm_content: '',
+			})
+		} else if (value === 'failed' && courseRestartOnFailure) {
+			saveProgress({
+				is_complete: isSuccessfullyCompleted.value,
+				scorm_content: '',
+			})
+		}
+	} else if (key === 'cmi.suspend_data' && !isSuccessfullyCompleted.value) {
 		saveProgress({
 			is_complete: false,
 			scorm_content: value,
