@@ -81,7 +81,7 @@
 	</div>
 </template>
 <script setup>
-import { Button, Breadcrumbs, createListResource, FormControl } from 'frappe-ui'
+import { Button, Breadcrumbs, createResource, FormControl } from 'frappe-ui'
 import { Plus, Search } from 'lucide-vue-next'
 import { inject, computed, ref, onMounted } from 'vue'
 import JobCard from '@/components/JobCard.vue'
@@ -101,32 +101,26 @@ onMounted(() => {
 	updateJobs()
 })
 
-const jobs = createListResource({
-	doctype: 'Job Opportunity',
-	fields: [
-		'name',
-		'job_title',
-		'company_name',
-		'company_logo',
-		'location',
-		'type',
-		'creation',
-	],
-	start: 0,
-	pageLength: 20,
-	cache: ['jobOpportunities'],
+const jobs = createResource({
+	url: 'lms.lms.api.get_job_opportunities',
+	cache: ['jobs'],
 })
 
 const updateJobs = () => {
 	updateFilters()
 	jobs.update({
-		filters: filters.value,
-		orFilters: orFilters.value,
+		params: {
+			filters: filters.value,
+			orFilters: orFilters.value,
+		},
 	})
 	jobs.reload()
 }
 
 const updateFilters = () => {
+	filters.value.status = 'Open'
+	filters.value.disabled = 0
+
 	if (jobType.value) {
 		filters.value.type = jobType.value
 	} else {

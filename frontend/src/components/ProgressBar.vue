@@ -1,6 +1,6 @@
 <template>
 	<Tooltip :text="`${props.progress}%`">
-		<div class="w-full bg-gray-200 rounded-full h-1 my-2">
+		<div class="w-full bg-gray-200 rounded-full h-1">
 			<div
 				class="bg-gray-900 rounded-full"
 				:class="progressBarHeight"
