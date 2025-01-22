@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-01-17 16:04+0000\n"
-"PO-Revision-Date: 2025-01-21 11:11\n"
+"PO-Revision-Date: 2025-01-22 11:18\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Turkish\n"
 "MIME-Version: 1.0\n"
@@ -3962,7 +3962,7 @@ msgstr "Posta Kodu"
 
 #: frontend/src/pages/JobDetail.vue:115
 msgid "Posted on"
-msgstr ""
+msgstr "Yayınlama Tarihi"
 
 #. Name of a DocType
 #: lms/lms/doctype/preferred_function/preferred_function.json
@@ -5866,7 +5866,7 @@ msgstr ""
 
 #: frontend/src/components/JobCard.vue:30
 msgid "posted"
-msgstr ""
+msgstr "gönderildi"
 
 #: frontend/src/pages/QuizForm.vue:386
 msgid "question_detail"
@@ -5886,7 +5886,7 @@ msgstr ""
 
 #: lms/templates/emails/mentor_request_creation_email.html:5
 msgid "you can"
-msgstr ""
+msgstr "yapabilirsin"
 
 #: lms/lms/api.py:780 lms/lms/api.py:788
 msgid "{0} Settings not found"
