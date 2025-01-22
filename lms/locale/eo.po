@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2025-01-10 16:04+0000\n"
-"PO-Revision-Date: 2025-01-13 06:31\n"
+"POT-Creation-Date: 2025-01-17 16:04+0000\n"
+"PO-Revision-Date: 2025-01-20 11:13\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Esperanto\n"
 "MIME-Version: 1.0\n"
@@ -75,7 +75,7 @@ msgstr "crwdns151462:0crwdne151462:0"
 msgid "About"
 msgstr "crwdns149200:0crwdne149200:0"
 
-#: frontend/src/pages/Batch.vue:93
+#: frontend/src/pages/Batch.vue:96
 msgid "About this batch"
 msgstr "crwdns152174:0crwdne152174:0"
 
@@ -212,13 +212,25 @@ msgid "Admin"
 msgstr "crwdns149248:0crwdne149248:0"
 
 #. Name of a role
-#: lms/lms/doctype/lms_badge/lms_badge.json
+#: frontend/src/pages/Batches.vue:270 lms/lms/doctype/lms_badge/lms_badge.json
 msgid "All"
 msgstr "crwdns149250:0crwdne149250:0"
+
+#: frontend/src/pages/Batches.vue:26
+msgid "All Batches"
+msgstr "crwdns152262:0crwdne152262:0"
+
+#: frontend/src/pages/CertifiedParticipants.vue:12
+msgid "All Certified Participants"
+msgstr "crwdns152264:0crwdne152264:0"
 
 #: lms/lms/widgets/BreadCrumb.html:3
 msgid "All Courses"
 msgstr "crwdns149252:0crwdne149252:0"
+
+#: frontend/src/components/BatchFeedback.vue:51
+msgid "All Feedback"
+msgstr "crwdns152266:0crwdne152266:0"
 
 #: lms/templates/quiz/quiz.html:141
 msgid "All Submissions"
@@ -279,7 +291,7 @@ msgstr "crwdns149272:0crwdne149272:0"
 msgid "Amount Field"
 msgstr "crwdns149274:0crwdne149274:0"
 
-#: lms/lms/doctype/lms_batch/lms_batch.py:70
+#: lms/lms/doctype/lms_batch/lms_batch.py:75
 msgid "Amount and currency are required for paid batches."
 msgstr "crwdns151730:0crwdne151730:0"
 
@@ -353,6 +365,10 @@ msgstr "crwdns149292:0crwdne149292:0"
 msgid "Apps"
 msgstr "crwdns149294:0crwdne149294:0"
 
+#: frontend/src/pages/Batches.vue:259 frontend/src/pages/Batches.vue:277
+msgid "Archived"
+msgstr "crwdns152268:0crwdne152268:0"
+
 #. Label of the user_category (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Ask User Category during Signup"
@@ -381,7 +397,7 @@ msgstr "crwdns149304:0crwdne149304:0"
 msgid "Assessment added successfully"
 msgstr "crwdns149306:0crwdne149306:0"
 
-#: lms/lms/doctype/lms_batch/lms_batch.py:80
+#: lms/lms/doctype/lms_batch/lms_batch.py:85
 msgid "Assessment {0} has already been added to this batch."
 msgstr "crwdns149308:0{0}crwdne149308:0"
 
@@ -473,6 +489,10 @@ msgstr "crwdns149334:0crwdne149334:0"
 msgid "Average Rating"
 msgstr "crwdns149336:0crwdne149336:0"
 
+#: frontend/src/components/BatchFeedback.vue:38
+msgid "Average of Feedback Received"
+msgstr "crwdns152270:0crwdne152270:0"
+
 #: frontend/src/pages/Lesson.vue:96
 msgid "Back to Course"
 msgstr "crwdns149338:0crwdne149338:0"
@@ -493,10 +513,12 @@ msgstr "crwdns149342:0crwdne149342:0"
 msgid "Badge Image"
 msgstr "crwdns149344:0crwdne149344:0"
 
+#. Label of the batch (Link) field in DocType 'LMS Batch Feedback'
 #. Label of the batch_name (Link) field in DocType 'LMS Certificate'
 #. Label of the batch_name (Link) field in DocType 'LMS Certificate Request'
 #. Label of the batch_name (Link) field in DocType 'LMS Live Class'
 #: frontend/src/components/Modals/Event.vue:32
+#: lms/lms/doctype/lms_batch_feedback/lms_batch_feedback.json
 #: lms/lms/doctype/lms_certificate/lms_certificate.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
@@ -578,7 +600,9 @@ msgstr "crwdns149368:0crwdne149368:0"
 msgid "Batch Student"
 msgstr "crwdns149370:0crwdne149370:0"
 
+#. Label of the batch_title (Data) field in DocType 'LMS Certificate'
 #. Label of the batch_title (Data) field in DocType 'LMS Certificate Request'
+#: lms/lms/doctype/lms_certificate/lms_certificate.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Batch Title"
 msgstr "crwdns149372:0crwdne149372:0"
@@ -587,14 +611,15 @@ msgstr "crwdns149372:0crwdne149372:0"
 msgid "Batch Updated"
 msgstr "crwdns149374:0crwdne149374:0"
 
-#: lms/lms/doctype/lms_batch/lms_batch.py:41
+#: lms/lms/doctype/lms_batch/lms_batch.py:46
 msgid "Batch end date cannot be before the batch start date"
 msgstr "crwdns149376:0crwdne149376:0"
 
 #. Group in LMS Course's connections
 #. Label of the batches (Check) field in DocType 'LMS Settings'
-#: frontend/src/pages/Batches.vue:8 lms/lms/doctype/lms_course/lms_course.json
-#: lms/lms/doctype/lms_settings/lms_settings.json lms/www/lms.py:60
+#: frontend/src/pages/Batches.vue:285
+#: lms/lms/doctype/lms_course/lms_course.json
+#: lms/lms/doctype/lms_settings/lms_settings.json lms/www/lms.py:61
 msgid "Batches"
 msgstr "crwdns149380:0crwdne149380:0"
 
@@ -689,7 +714,8 @@ msgstr "crwdns149414:0crwdne149414:0"
 #. Label of the category (Link) field in DocType 'LMS Batch'
 #. Label of the category (Data) field in DocType 'LMS Category'
 #. Label of the category (Link) field in DocType 'LMS Course'
-#: frontend/src/pages/BatchForm.vue:202 frontend/src/pages/Batches.vue:16
+#: frontend/src/pages/BatchForm.vue:202 frontend/src/pages/Batches.vue:49
+#: frontend/src/pages/CertifiedParticipants.vue:29
 #: frontend/src/pages/CourseForm.vue:147 frontend/src/pages/Courses.vue:17
 #: frontend/src/pages/JobDetail.vue:102
 #: lms/lms/doctype/lms_batch/lms_batch.json
@@ -756,6 +782,7 @@ msgid "Certification Name"
 msgstr "crwdns149436:0crwdne149436:0"
 
 #. Label of the certified_participants (Check) field in DocType 'LMS Settings'
+#: frontend/src/pages/CertifiedParticipants.vue:153
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Certified Participants"
 msgstr "crwdns149438:0crwdne149438:0"
@@ -1048,7 +1075,7 @@ msgstr "crwdns149530:0crwdne149530:0"
 msgid "Confirmation Email Sent"
 msgstr "crwdns149532:0crwdne149532:0"
 
-#: lms/lms/doctype/lms_certificate/lms_certificate.py:25
+#: lms/lms/doctype/lms_certificate/lms_certificate.py:29
 msgid "Congratulations on getting certified!"
 msgstr "crwdns149534:0crwdne149534:0"
 
@@ -1057,8 +1084,10 @@ msgid "Contact the Administrator to enroll for this course."
 msgstr "crwdns149536:0crwdne149536:0"
 
 #. Label of the content (Text) field in DocType 'Course Lesson'
+#. Label of the content (Rating) field in DocType 'LMS Batch Feedback'
 #: frontend/src/pages/LessonForm.vue:62
 #: lms/lms/doctype/course_lesson/course_lesson.json
+#: lms/lms/doctype/lms_batch_feedback/lms_batch_feedback.json
 msgid "Content"
 msgstr "crwdns149538:0crwdne149538:0"
 
@@ -1067,7 +1096,7 @@ msgid "Continue Learning"
 msgstr "crwdns149540:0crwdne149540:0"
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
-#: frontend/src/pages/Jobs.vue:120
+#: frontend/src/pages/Jobs.vue:152
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Contract"
 msgstr "crwdns149542:0crwdne149542:0"
@@ -1133,7 +1162,7 @@ msgstr "crwdns149554:0crwdne149554:0"
 #. Label of a Link in the LMS Workspace
 #. Label of a shortcut in the LMS Workspace
 #: frontend/src/components/Modals/BatchCourseModal.vue:20
-#: frontend/src/components/Modals/BulkCertificates.vue:23
+#: frontend/src/components/Modals/BulkCertificates.vue:38
 #: frontend/src/components/Modals/EvaluationModal.vue:20
 #: frontend/src/components/Modals/Event.vue:24
 #: lms/lms/doctype/batch_course/batch_course.json
@@ -1220,7 +1249,7 @@ msgstr "crwdns149574:0crwdne149574:0"
 msgid "Course Lesson"
 msgstr "crwdns149576:0crwdne149576:0"
 
-#: lms/www/lms.py:27
+#: lms/www/lms.py:28
 msgid "Course List"
 msgstr "crwdns149578:0crwdne149578:0"
 
@@ -1270,7 +1299,7 @@ msgstr "crwdns149590:0crwdne149590:0"
 msgid "Course added to program"
 msgstr "crwdns151734:0crwdne151734:0"
 
-#: lms/lms/doctype/lms_batch/lms_batch.py:345
+#: lms/lms/doctype/lms_batch/lms_batch.py:350
 msgid "Course already added to the batch."
 msgstr "crwdns149592:0crwdne149592:0"
 
@@ -1282,7 +1311,7 @@ msgstr "crwdns151586:0crwdne151586:0"
 msgid "Course moved successfully"
 msgstr "crwdns151736:0crwdne151736:0"
 
-#: lms/lms/doctype/lms_batch/lms_batch.py:59
+#: lms/lms/doctype/lms_batch/lms_batch.py:64
 #: lms/lms/doctype/lms_program/lms_program.py:19
 msgid "Course {0} has already been added to this batch."
 msgstr "crwdns149596:0{0}crwdne149596:0"
@@ -1332,10 +1361,6 @@ msgstr "crwdns149608:0crwdne149608:0"
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.js:8
 msgid "Create LMS Certificate Evaluation"
 msgstr "crwdns149610:0crwdne149610:0"
-
-#: frontend/src/pages/Batches.vue:110
-msgid "Create a Batch"
-msgstr "crwdns151470:0crwdne151470:0"
 
 #: frontend/src/pages/Courses.vue:132 lms/templates/onboarding_header.html:19
 msgid "Create a Course"
@@ -1732,6 +1757,10 @@ msgstr "crwdns149720:0crwdne149720:0"
 msgid "Enroll Now"
 msgstr "crwdns149722:0crwdne149722:0"
 
+#: frontend/src/pages/Batches.vue:274
+msgid "Enrolled"
+msgstr "crwdns152272:0crwdne152272:0"
+
 #: frontend/src/components/CourseCard.vue:43
 #: frontend/src/components/CourseCardOverlay.vue:104
 #: frontend/src/pages/CourseDetail.vue:33
@@ -1742,7 +1771,7 @@ msgstr "crwdns149724:0crwdne149724:0"
 msgid "Enrolled successfully"
 msgstr "crwdns149726:0crwdne149726:0"
 
-#: lms/lms/doctype/lms_batch/lms_batch.py:103
+#: lms/lms/doctype/lms_batch/lms_batch.py:108
 msgid "Enrollment Confirmation for the Next Training Batch"
 msgstr "crwdns149728:0crwdne149728:0"
 
@@ -1751,7 +1780,7 @@ msgstr "crwdns149728:0crwdne149728:0"
 msgid "Enrollment Count"
 msgstr "crwdns149730:0crwdne149730:0"
 
-#: lms/lms/utils.py:1765
+#: lms/lms/utils.py:1693
 msgid "Enrollment Failed"
 msgstr "crwdns149732:0crwdne149732:0"
 
@@ -1821,7 +1850,7 @@ msgstr "crwdns149750:0crwdne149750:0"
 msgid "Evaluation Request"
 msgstr "crwdns149752:0crwdne149752:0"
 
-#: lms/lms/doctype/lms_batch/lms_batch.py:87
+#: lms/lms/doctype/lms_batch/lms_batch.py:92
 msgid "Evaluation end date cannot be less than the batch end date."
 msgstr "crwdns149754:0crwdne149754:0"
 
@@ -1836,7 +1865,7 @@ msgstr "crwdns149756:0crwdne149756:0"
 #. Label of the evaluator (Link) field in DocType 'LMS Certificate Evaluation'
 #. Label of the evaluator (Link) field in DocType 'LMS Certificate Request'
 #: frontend/src/components/Modals/BatchCourseModal.vue:26
-#: frontend/src/components/Modals/BulkCertificates.vue:28
+#: frontend/src/components/Modals/BulkCertificates.vue:22
 #: frontend/src/pages/ProfileRoles.vue:22
 #: lms/lms/doctype/batch_course/batch_course.json
 #: lms/lms/doctype/course_evaluator/course_evaluator.json
@@ -1914,7 +1943,7 @@ msgid "Expiration Date"
 msgstr "crwdns149778:0crwdne149778:0"
 
 #. Label of the expiry_date (Date) field in DocType 'LMS Certificate'
-#: frontend/src/components/Modals/BulkCertificates.vue:39
+#: frontend/src/components/Modals/BulkCertificates.vue:33
 #: frontend/src/components/Modals/Event.vue:126
 #: lms/lms/doctype/lms_certificate/lms_certificate.json
 msgid "Expiry Date"
@@ -1955,6 +1984,12 @@ msgstr "crwdns149788:0crwdne149788:0"
 msgid "Featured"
 msgstr "crwdns149790:0crwdne149790:0"
 
+#. Label of the feedback (Small Text) field in DocType 'LMS Batch Feedback'
+#: frontend/src/components/BatchFeedback.vue:29
+#: lms/lms/doctype/lms_batch_feedback/lms_batch_feedback.json
+msgid "Feedback"
+msgstr "crwdns152274:0crwdne152274:0"
+
 #: frontend/src/components/Assignment.vue:61
 msgid "Feel free to make edits to your submission if needed."
 msgstr "crwdns149792:0crwdne149792:0"
@@ -1974,7 +2009,7 @@ msgstr "crwdns149796:0crwdne149796:0"
 msgid "File Type"
 msgstr "crwdns149798:0crwdne149798:0"
 
-#: frontend/src/pages/Jobs.vue:47
+#: frontend/src/pages/Jobs.vue:33
 msgid "Find the perfect job for you"
 msgstr "crwdns152120:0crwdne152120:0"
 
@@ -2007,7 +2042,7 @@ msgid "Free"
 msgstr "crwdns149810:0crwdne149810:0"
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
-#: frontend/src/pages/Jobs.vue:121
+#: frontend/src/pages/Jobs.vue:153
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Freelance"
 msgstr "crwdns149812:0crwdne149812:0"
@@ -2049,7 +2084,7 @@ msgid "Full Name"
 msgstr "crwdns149824:0crwdne149824:0"
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
-#: frontend/src/pages/Jobs.vue:118
+#: frontend/src/pages/Jobs.vue:150
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Full Time"
 msgstr "crwdns149826:0crwdne149826:0"
@@ -2147,6 +2182,10 @@ msgstr "crwdns149856:0crwdne149856:0"
 msgid "Hello"
 msgstr "crwdns149858:0crwdne149858:0"
 
+#: frontend/src/components/BatchFeedback.vue:11
+msgid "Help Us Improve"
+msgstr "crwdns152276:0crwdne152276:0"
+
 #: lms/templates/courses_created.html:15
 msgid "Help others learn something new by creating a course."
 msgstr "crwdns149862:0crwdne149862:0"
@@ -2154,10 +2193,6 @@ msgstr "crwdns149862:0crwdne149862:0"
 #: lms/templates/reviews.html:101
 msgid "Help us improve our course material."
 msgstr "crwdns149864:0crwdne149864:0"
-
-#: lms/lms/web_template/courses_enrolled/courses_enrolled.html:18
-msgid "Here are a few courses we recommend for you to get started with {0}"
-msgstr "crwdns149866:0{0}crwdne149866:0"
 
 #: lms/lms/notification/certificate_request_reminder/certificate_request_reminder.html:1
 #: lms/templates/emails/certificate_request_notification.html:1
@@ -2360,9 +2395,11 @@ msgid "Instructor Notes"
 msgstr "crwdns149940:0crwdne149940:0"
 
 #. Label of the instructors (Table MultiSelect) field in DocType 'LMS Batch'
+#. Label of the instructors (Rating) field in DocType 'LMS Batch Feedback'
 #. Label of the instructors (Table MultiSelect) field in DocType 'LMS Course'
 #: frontend/src/pages/BatchForm.vue:89 frontend/src/pages/CourseForm.vue:154
 #: lms/lms/doctype/lms_batch/lms_batch.json
+#: lms/lms/doctype/lms_batch_feedback/lms_batch_feedback.json
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Instructors"
 msgstr "crwdns149942:0crwdne149942:0"
@@ -2437,7 +2474,7 @@ msgstr "crwdns151636:0crwdne151636:0"
 
 #. Label of the issue_date (Date) field in DocType 'Certification'
 #. Label of the issue_date (Date) field in DocType 'LMS Certificate'
-#: frontend/src/components/Modals/BulkCertificates.vue:34
+#: frontend/src/components/Modals/BulkCertificates.vue:28
 #: frontend/src/components/Modals/Event.vue:121
 #: lms/lms/doctype/certification/certification.json
 #: lms/lms/doctype/lms_certificate/lms_certificate.json
@@ -2450,6 +2487,7 @@ msgid "Issued On"
 msgstr "crwdns149970:0crwdne149970:0"
 
 #: frontend/src/pages/ProfileAbout.vue:56
+#: frontend/src/pages/ProfileCertificates.vue:17
 #: lms/templates/certificates_section.html:11
 msgid "Issued on"
 msgstr "crwdns149972:0crwdne149972:0"
@@ -2487,7 +2525,7 @@ msgstr "crwdns149982:0crwdne149982:0"
 msgid "Job Details"
 msgstr "crwdns149984:0crwdne149984:0"
 
-#: lms/www/lms.py:108
+#: lms/www/lms.py:109
 msgid "Job Openings"
 msgstr "crwdns149986:0crwdne149986:0"
 
@@ -2565,6 +2603,11 @@ msgstr "crwdns150012:0crwdne150012:0"
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "LMS Batch"
 msgstr "crwdns150014:0crwdne150014:0"
+
+#. Name of a DocType
+#: lms/lms/doctype/lms_batch_feedback/lms_batch_feedback.json
+msgid "LMS Batch Feedback"
+msgstr "crwdns152278:0crwdne152278:0"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
@@ -2725,6 +2768,7 @@ msgstr "crwdns150066:0crwdne150066:0"
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 #: lms/lms/doctype/lms_badge_assignment/lms_badge_assignment.json
+#: lms/lms/doctype/lms_batch_feedback/lms_batch_feedback.json
 #: lms/lms/doctype/lms_certificate/lms_certificate.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/doctype/lms_course_progress/lms_course_progress.json
@@ -2870,15 +2914,12 @@ msgid "LiveCode URL"
 msgstr "crwdns150110:0crwdne150110:0"
 
 #: frontend/src/components/Members.vue:106
-#: frontend/src/pages/Assignments.vue:71
+#: frontend/src/pages/Assignments.vue:71 frontend/src/pages/Batches.vue:88
+#: frontend/src/pages/CertifiedParticipants.vue:71
 #: frontend/src/pages/QuizSubmissionList.vue:39
 #: frontend/src/pages/Quizzes.vue:51
 msgid "Load More"
 msgstr "crwdns150112:0crwdne150112:0"
-
-#: frontend/src/pages/Batches.vue:40
-msgid "Loading Batches..."
-msgstr "crwdns150114:0crwdne150114:0"
 
 #. Option for the 'Auto Recording' (Select) field in DocType 'LMS Live Class'
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
@@ -2902,7 +2943,7 @@ msgstr "crwdns150120:0crwdne150120:0"
 
 #: frontend/src/components/AssignmentBlock.vue:13
 #: frontend/src/components/NoPermission.vue:28
-#: frontend/src/components/QuizBlock.vue:9 frontend/src/pages/Batch.vue:175
+#: frontend/src/components/QuizBlock.vue:9 frontend/src/pages/Batch.vue:178
 #: frontend/src/pages/Lesson.vue:24
 msgid "Login"
 msgstr "crwdns150122:0crwdne150122:0"
@@ -3007,6 +3048,7 @@ msgstr "crwdns150158:0crwdne150158:0"
 #. Label of the member (Link) field in DocType 'Exercise Submission'
 #. Label of the member (Link) field in DocType 'LMS Assignment Submission'
 #. Label of the member (Link) field in DocType 'LMS Badge Assignment'
+#. Label of the member (Link) field in DocType 'LMS Batch Feedback'
 #. Label of the member (Link) field in DocType 'LMS Certificate'
 #. Label of the member (Link) field in DocType 'LMS Certificate Evaluation'
 #. Label of the member (Link) field in DocType 'LMS Certificate Request'
@@ -3024,6 +3066,7 @@ msgstr "crwdns150158:0crwdne150158:0"
 #: lms/lms/doctype/exercise_submission/exercise_submission.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 #: lms/lms/doctype/lms_badge_assignment/lms_badge_assignment.json
+#: lms/lms/doctype/lms_batch_feedback/lms_batch_feedback.json
 #: lms/lms/doctype/lms_certificate/lms_certificate.json
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
@@ -3049,8 +3092,15 @@ msgstr "crwdns150162:0crwdne150162:0"
 msgid "Member Email"
 msgstr "crwdns150164:0crwdne150164:0"
 
+#. Label of the member_image (Attach Image) field in DocType 'LMS Batch
+#. Feedback'
+#: lms/lms/doctype/lms_batch_feedback/lms_batch_feedback.json
+msgid "Member Image"
+msgstr "crwdns152280:0crwdne152280:0"
+
 #. Label of the member_name (Data) field in DocType 'LMS Assignment Submission'
 #. Label of the member_name (Data) field in DocType 'LMS Badge Assignment'
+#. Label of the member_name (Data) field in DocType 'LMS Batch Feedback'
 #. Label of the member_name (Data) field in DocType 'LMS Certificate'
 #. Label of the member_name (Data) field in DocType 'LMS Certificate
 #. Evaluation'
@@ -3061,6 +3111,7 @@ msgstr "crwdns150164:0crwdne150164:0"
 #. Label of the member_name (Data) field in DocType 'LMS Quiz Submission'
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 #: lms/lms/doctype/lms_badge_assignment/lms_badge_assignment.json
+#: lms/lms/doctype/lms_batch_feedback/lms_batch_feedback.json
 #: lms/lms/doctype/lms_certificate/lms_certificate.json
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
@@ -3223,7 +3274,7 @@ msgid "My calendar"
 msgstr "crwdns150212:0crwdne150212:0"
 
 #. Option for the 'Event' (Select) field in DocType 'LMS Badge'
-#: frontend/src/pages/Assignments.vue:18 frontend/src/pages/Batches.vue:30
+#: frontend/src/pages/Assignments.vue:18 frontend/src/pages/Batches.vue:17
 #: frontend/src/pages/Courses.vue:45 frontend/src/pages/Programs.vue:14
 #: lms/lms/doctype/lms_badge/lms_badge.json
 msgid "New"
@@ -3237,15 +3288,15 @@ msgstr "crwdns152124:0crwdne152124:0"
 msgid "New Assignment Submission"
 msgstr "crwdns150216:0crwdne150216:0"
 
-#: lms/public/js/common_functions.js:255 lms/www/lms.py:86
+#: lms/public/js/common_functions.js:255 lms/www/lms.py:87
 msgid "New Batch"
 msgstr "crwdns150218:0crwdne150218:0"
 
-#: lms/www/lms.py:37
+#: lms/www/lms.py:38
 msgid "New Course"
 msgstr "crwdns150220:0crwdne150220:0"
 
-#: frontend/src/pages/Jobs.vue:39
+#: frontend/src/pages/Jobs.vue:23
 msgid "New Job"
 msgstr "crwdns150222:0crwdne150222:0"
 
@@ -3278,11 +3329,11 @@ msgstr "crwdns150228:0crwdne150228:0"
 msgid "New Sign Up"
 msgstr "crwdns150230:0crwdne150230:0"
 
-#: lms/lms/utils.py:623
+#: lms/lms/utils.py:605
 msgid "New comment in batch {0}"
 msgstr "crwdns150232:0{0}crwdne150232:0"
 
-#: lms/lms/utils.py:616
+#: lms/lms/utils.py:598
 msgid "New reply on the topic {0} in course {1}"
 msgstr "crwdns150234:0{0}crwdnd150234:0{1}crwdne150234:0"
 
@@ -3324,7 +3375,7 @@ msgstr "crwdns150250:0crwdne150250:0"
 msgid "No assignments found"
 msgstr "crwdns152126:0crwdne152126:0"
 
-#: frontend/src/pages/Batches.vue:125
+#: frontend/src/pages/Batches.vue:73
 msgid "No batches found"
 msgstr "crwdns151478:0crwdne151478:0"
 
@@ -3348,17 +3399,25 @@ msgstr "crwdns151766:0crwdne151766:0"
 msgid "No courses under review"
 msgstr "crwdns150256:0crwdne150256:0"
 
+#: frontend/src/components/BatchFeedback.vue:101
+msgid "No feedback received yet."
+msgstr "crwdns152282:0crwdne152282:0"
+
 #: frontend/src/pages/ProfileAbout.vue:12
 msgid "No introduction"
 msgstr "crwdns150258:0crwdne150258:0"
 
-#: frontend/src/pages/Jobs.vue:63
+#: frontend/src/pages/Jobs.vue:77
 msgid "No jobs posted"
 msgstr "crwdns150260:0crwdne150260:0"
 
 #: frontend/src/components/LiveClass.vue:71
 msgid "No live classes scheduled"
 msgstr "crwdns150262:0crwdne150262:0"
+
+#: frontend/src/pages/CertifiedParticipants.vue:81
+msgid "No participants found"
+msgstr "crwdns152284:0crwdne152284:0"
 
 #: frontend/src/pages/Programs.vue:91
 msgid "No programs found"
@@ -3383,10 +3442,6 @@ msgstr "crwdns150266:0crwdne150266:0"
 #: lms/templates/course_list.html:13
 msgid "No {0}"
 msgstr "crwdns150268:0{0}crwdne150268:0"
-
-#: frontend/src/pages/Batches.vue:84
-msgid "No {0} batches"
-msgstr "crwdns151482:0{0}crwdne151482:0"
 
 #: frontend/src/pages/Courses.vue:107
 msgid "No {0} courses"
@@ -3420,7 +3475,7 @@ msgstr "crwdns150282:0crwdne150282:0"
 msgid "Not Graded"
 msgstr "crwdns150284:0crwdne150284:0"
 
-#: frontend/src/components/NoPermission.vue:7 frontend/src/pages/Batch.vue:143
+#: frontend/src/components/NoPermission.vue:7 frontend/src/pages/Batch.vue:146
 msgid "Not Permitted"
 msgstr "crwdns150286:0crwdne150286:0"
 
@@ -3614,7 +3669,7 @@ msgid "Pan Number"
 msgstr "crwdns150356:0crwdne150356:0"
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
-#: frontend/src/pages/Jobs.vue:119
+#: frontend/src/pages/Jobs.vue:151
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Part Time"
 msgstr "crwdns150358:0crwdne150358:0"
@@ -3765,11 +3820,11 @@ msgstr "crwdns150404:0crwdne150404:0"
 msgid "Please click on the following button to set your new password"
 msgstr "crwdns150406:0crwdne150406:0"
 
-#: lms/lms/utils.py:1887 lms/lms/utils.py:1891
+#: lms/lms/utils.py:1815 lms/lms/utils.py:1819
 msgid "Please complete the previous courses in the program to enroll in this course."
 msgstr "crwdns151772:0crwdne151772:0"
 
-#: lms/lms/doctype/lms_batch/lms_batch.py:256
+#: lms/lms/doctype/lms_batch/lms_batch.py:261
 msgid "Please enable Zoom Settings to use this feature."
 msgstr "crwdns150408:0crwdne150408:0"
 
@@ -3786,7 +3841,7 @@ msgid "Please enter a title."
 msgstr "crwdns151774:0crwdne151774:0"
 
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.py:40
-#: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.py:122
+#: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.py:125
 msgid "Please enter a valid URL."
 msgstr "crwdns150412:0crwdne150412:0"
 
@@ -3794,7 +3849,7 @@ msgstr "crwdns150412:0crwdne150412:0"
 msgid "Please enter a valid time in the format HH:mm."
 msgstr "crwdns151776:0crwdne151776:0"
 
-#: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.py:116
+#: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.py:119
 msgid "Please enter the URL for assignment submission."
 msgstr "crwdns150414:0crwdne150414:0"
 
@@ -3802,7 +3857,7 @@ msgstr "crwdns150414:0crwdne150414:0"
 msgid "Please enter your answer"
 msgstr "crwdns150416:0crwdne150416:0"
 
-#: lms/lms/doctype/lms_batch/lms_batch.py:66
+#: lms/lms/doctype/lms_batch/lms_batch.py:71
 msgid "Please install the Payments app to create a paid batches."
 msgstr "crwdns150418:0crwdne150418:0"
 
@@ -3822,7 +3877,7 @@ msgstr "crwdns152130:0crwdne152130:0"
 msgid "Please login to access the quiz."
 msgstr "crwdns150424:0crwdne150424:0"
 
-#: frontend/src/components/NoPermission.vue:25 frontend/src/pages/Batch.vue:154
+#: frontend/src/components/NoPermission.vue:25 frontend/src/pages/Batch.vue:157
 msgid "Please login to access this page."
 msgstr "crwdns150426:0crwdne150426:0"
 
@@ -3863,7 +3918,7 @@ msgstr "crwdns150432:0{0}crwdne150432:0"
 msgid "Please upload a SCORM package"
 msgstr "crwdns151646:0crwdne151646:0"
 
-#: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.py:119
+#: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.py:122
 msgid "Please upload the assignment file."
 msgstr "crwdns150434:0crwdne150434:0"
 
@@ -3897,7 +3952,7 @@ msgid "Possible Answer 4"
 msgstr "crwdns150446:0crwdne150446:0"
 
 #: frontend/src/components/DiscussionReplies.vue:52
-#: frontend/src/components/DiscussionReplies.vue:86
+#: frontend/src/components/DiscussionReplies.vue:87
 msgid "Post"
 msgstr "crwdns150448:0crwdne150448:0"
 
@@ -4326,19 +4381,19 @@ msgstr "crwdns150594:0crwdne150594:0"
 msgid "Route"
 msgstr "crwdns150596:0crwdne150596:0"
 
-#: lms/lms/doctype/lms_batch/lms_batch.py:199
+#: lms/lms/doctype/lms_batch/lms_batch.py:204
 msgid "Row #{0} Date cannot be outside the batch duration."
 msgstr "crwdns150598:0#{0}crwdne150598:0"
 
-#: lms/lms/doctype/lms_batch/lms_batch.py:194
+#: lms/lms/doctype/lms_batch/lms_batch.py:199
 msgid "Row #{0} End time cannot be outside the batch duration."
 msgstr "crwdns150600:0#{0}crwdne150600:0"
 
-#: lms/lms/doctype/lms_batch/lms_batch.py:176
+#: lms/lms/doctype/lms_batch/lms_batch.py:181
 msgid "Row #{0} Start time cannot be greater than or equal to end time."
 msgstr "crwdns150602:0#{0}crwdne150602:0"
 
-#: lms/lms/doctype/lms_batch/lms_batch.py:185
+#: lms/lms/doctype/lms_batch/lms_batch.py:190
 msgid "Row #{0} Start time cannot be outside the batch duration."
 msgstr "crwdns150604:0#{0}crwdne150604:0"
 
@@ -4419,9 +4474,17 @@ msgstr "crwdns150622:0crwdne150622:0"
 msgid "Score Out Of"
 msgstr "crwdns150624:0crwdne150624:0"
 
-#: frontend/src/components/Members.vue:15
+#: frontend/src/components/Members.vue:15 frontend/src/pages/Jobs.vue:38
 msgid "Search"
 msgstr "crwdns150626:0crwdne150626:0"
+
+#: frontend/src/pages/CertifiedParticipants.vue:17
+msgid "Search by Name"
+msgstr "crwdns152286:0crwdne152286:0"
+
+#: frontend/src/pages/Batches.vue:39
+msgid "Search by Title"
+msgstr "crwdns152288:0crwdne152288:0"
 
 #: frontend/src/pages/Assignments.vue:25
 msgid "Search by title"
@@ -4719,7 +4782,7 @@ msgstr "crwdns150730:0crwdne150730:0"
 #. Label of the statistics (Check) field in DocType 'LMS Settings'
 #: frontend/src/components/BatchStudents.vue:5
 #: lms/lms/doctype/lms_course/lms_course.json
-#: lms/lms/doctype/lms_settings/lms_settings.json lms/www/lms.py:133
+#: lms/lms/doctype/lms_settings/lms_settings.json lms/www/lms.py:134
 msgid "Statistics"
 msgstr "crwdns150732:0crwdne150732:0"
 
@@ -4784,7 +4847,7 @@ msgstr "crwdns150742:0crwdne150742:0"
 msgid "Student Reviews"
 msgstr "crwdns150744:0crwdne150744:0"
 
-#: lms/lms/doctype/lms_batch/lms_batch.py:48
+#: lms/lms/doctype/lms_batch/lms_batch.py:53
 msgid "Student {0} has already been added to this batch."
 msgstr "crwdns150746:0{0}crwdne150746:0"
 
@@ -4832,6 +4895,7 @@ msgstr "crwdns150760:0crwdne150760:0"
 msgid "Submission by"
 msgstr "crwdns152136:0crwdne152136:0"
 
+#: frontend/src/components/BatchFeedback.vue:14
 #: frontend/src/components/Modals/AssessmentModal.vue:9
 #: frontend/src/components/Modals/BatchCourseModal.vue:9
 #: frontend/src/components/Modals/EvaluationModal.vue:9
@@ -4889,7 +4953,7 @@ msgstr "crwdns150770:0crwdne150770:0"
 msgid "Sunday"
 msgstr "crwdns150772:0crwdne150772:0"
 
-#: lms/lms/api.py:964
+#: lms/lms/api.py:983
 msgid "Suspicious pattern found in {0}: {1}"
 msgstr "crwdns151930:0{0}crwdnd151930:0{1}crwdne151930:0"
 
@@ -4915,6 +4979,7 @@ msgstr "crwdns151930:0{0}crwdnd151930:0{1}crwdne151930:0"
 #: lms/lms/doctype/lms_badge/lms_badge.json
 #: lms/lms/doctype/lms_badge_assignment/lms_badge_assignment.json
 #: lms/lms/doctype/lms_batch/lms_batch.json
+#: lms/lms/doctype/lms_batch_feedback/lms_batch_feedback.json
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 #: lms/lms/doctype/lms_category/lms_category.json
 #: lms/lms/doctype/lms_certificate/lms_certificate.json
@@ -4997,6 +5062,10 @@ msgstr "crwdns150790:0crwdne150790:0"
 msgid "Text"
 msgstr "crwdns150792:0crwdne150792:0"
 
+#: frontend/src/components/BatchFeedback.vue:7
+msgid "Thank you for providing your feedback!"
+msgstr "crwdns152290:0crwdne152290:0"
+
 #: lms/templates/emails/lms_course_interest.html:17
 #: lms/templates/emails/lms_invite_request_approved.html:15
 #: lms/templates/emails/mentor_request_creation_email.html:7
@@ -5004,7 +5073,7 @@ msgstr "crwdns150792:0crwdne150792:0"
 msgid "Thanks and Regards"
 msgstr "crwdns150794:0crwdne150794:0"
 
-#: lms/lms/utils.py:1794
+#: lms/lms/utils.py:1722
 msgid "The batch is full. Please contact the Administrator."
 msgstr "crwdns152138:0crwdne152138:0"
 
@@ -5028,9 +5097,9 @@ msgstr "crwdns150802:0crwdne150802:0"
 msgid "The status of your application has changed."
 msgstr "crwdns150804:0crwdne150804:0"
 
-#: frontend/src/pages/Batches.vue:129
-msgid "There are no batches available at the moment. Keep an eye out, fresh learning experiences are on the way soon!"
-msgstr "crwdns151494:0crwdne151494:0"
+#: frontend/src/pages/Batches.vue:77
+msgid "There are no batches matching the criteria. Keep an eye out, fresh learning experiences are on the way soon!"
+msgstr "crwdns152292:0crwdne152292:0"
 
 #: frontend/src/components/CreateOutline.vue:12
 msgid "There are no chapters in this course. Create and manage chapters from here."
@@ -5040,11 +5109,15 @@ msgstr "crwdns150806:0crwdne150806:0"
 msgid "There are no courses available at the moment. Keep an eye out, fresh learning experiences are on the way soon!"
 msgstr "crwdns151496:0crwdne151496:0"
 
+#: frontend/src/pages/CertifiedParticipants.vue:84
+msgid "There are no participants matching this criteria."
+msgstr "crwdns152294:0crwdne152294:0"
+
 #: frontend/src/pages/Programs.vue:95
 msgid "There are no programs available at the moment. Keep an eye out, fresh learning experiences are on the way soon!"
 msgstr "crwdns151798:0crwdne151798:0"
 
-#: lms/lms/doctype/lms_batch/lms_batch.py:146
+#: lms/lms/doctype/lms_batch/lms_batch.py:151
 msgid "There are no seats available in this batch."
 msgstr "crwdns150808:0crwdne150808:0"
 
@@ -5060,7 +5133,7 @@ msgstr "crwdns152140:0crwdne152140:0"
 msgid "There are no {0} on this site."
 msgstr "crwdns150812:0{0}crwdne150812:0"
 
-#: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.py:82
+#: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.py:85
 msgid "There has been an update on your submission for assignment {0}"
 msgstr "crwdns152142:0{0}crwdne152142:0"
 
@@ -5091,7 +5164,7 @@ msgstr "crwdns152144:0crwdne152144:0"
 msgid "This course has:"
 msgstr "crwdns150820:0crwdne150820:0"
 
-#: lms/lms/utils.py:1645
+#: lms/lms/utils.py:1573
 msgid "This course is free."
 msgstr "crwdns150822:0crwdne150822:0"
 
@@ -5235,7 +5308,7 @@ msgstr "crwdns150852:0crwdne150852:0"
 msgid "To Date"
 msgstr "crwdns150854:0crwdne150854:0"
 
-#: lms/lms/utils.py:1656
+#: lms/lms/utils.py:1584
 msgid "To join this batch, please contact the Administrator."
 msgstr "crwdns150858:0crwdne150858:0"
 
@@ -5291,7 +5364,7 @@ msgstr "crwdns150876:0crwdne150876:0"
 #: frontend/src/components/Modals/Question.vue:54
 #: frontend/src/pages/AssignmentForm.vue:39
 #: frontend/src/pages/Assignments.vue:30 frontend/src/pages/Assignments.vue:157
-#: frontend/src/pages/JobCreation.vue:33 frontend/src/pages/Jobs.vue:16
+#: frontend/src/pages/JobCreation.vue:33 frontend/src/pages/Jobs.vue:55
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
@@ -5337,6 +5410,10 @@ msgstr "crwdns150890:0crwdne150890:0"
 msgid "Unlisted"
 msgstr "crwdns150892:0crwdne150892:0"
 
+#: frontend/src/pages/Batches.vue:262 frontend/src/pages/Batches.vue:278
+msgid "Unpublished"
+msgstr "crwdns152296:0crwdne152296:0"
+
 #: frontend/src/components/Modals/EditCoverImage.vue:60
 #: frontend/src/components/UnsplashImageBrowser.vue:54
 msgid "Unsplash"
@@ -5354,12 +5431,13 @@ msgstr "crwdns150898:0crwdne150898:0"
 
 #. Option for the 'Status' (Select) field in DocType 'Cohort'
 #. Label of the upcoming (Check) field in DocType 'LMS Course'
+#: frontend/src/pages/Batches.vue:258 frontend/src/pages/Batches.vue:276
 #: frontend/src/pages/CourseForm.vue:184 lms/lms/doctype/cohort/cohort.json
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Upcoming"
 msgstr "crwdns150900:0crwdne150900:0"
 
-#: frontend/src/pages/Batch.vue:166
+#: frontend/src/pages/Batch.vue:169
 msgid "Upcoming Batches"
 msgstr "crwdns150902:0crwdne150902:0"
 
@@ -5421,7 +5499,7 @@ msgstr "crwdns150920:0crwdne150920:0"
 msgid "User Skill"
 msgstr "crwdns150922:0crwdne150922:0"
 
-#: lms/job/doctype/job_opportunity/job_opportunity.py:37
+#: lms/job/doctype/job_opportunity/job_opportunity.py:40
 msgid "User {0} has reported the job post {1}"
 msgstr "crwdns150924:0{0}crwdnd150924:0{1}crwdne150924:0"
 
@@ -5445,6 +5523,11 @@ msgstr "crwdns150930:0crwdne150930:0"
 #: lms/templates/signup-form.html:83
 msgid "Valid email and name required"
 msgstr "crwdns150932:0crwdne150932:0"
+
+#. Label of the value (Rating) field in DocType 'LMS Batch Feedback'
+#: lms/lms/doctype/lms_batch_feedback/lms_batch_feedback.json
+msgid "Value"
+msgstr "crwdns152298:0crwdne152298:0"
 
 #. Option for the 'Event' (Select) field in DocType 'LMS Badge'
 #: lms/lms/doctype/lms_badge/lms_badge.json
@@ -5569,7 +5652,7 @@ msgstr "crwdns150980:0crwdne150980:0"
 msgid "You are already enrolled for this course."
 msgstr "crwdns150982:0crwdne150982:0"
 
-#: frontend/src/pages/Batch.vue:148
+#: frontend/src/pages/Batch.vue:151
 msgid "You are not a member of this batch. Please checkout our upcoming batches."
 msgstr "crwdns150984:0crwdne150984:0"
 
@@ -5605,10 +5688,6 @@ msgstr "crwdns150992:0{0}crwdne150992:0"
 #: lms/templates/emails/job_application.html:6
 msgid "You can find their resume attached to this email."
 msgstr "crwdns150994:0crwdne150994:0"
-
-#: frontend/src/pages/Batches.vue:113
-msgid "You can link courses and assessments to it."
-msgstr "crwdns151504:0crwdne151504:0"
 
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.py:115
 msgid "You cannot schedule evaluations after {0}."
@@ -5670,10 +5749,6 @@ msgstr "crwdns151594:0crwdne151594:0"
 #: lms/lms/widgets/NoPreviewModal.html:12 lms/public/js/common_functions.js:126
 msgid "You have opted to be notified for this course. You will receive an email when the course becomes available."
 msgstr "crwdns151018:0crwdne151018:0"
-
-#: lms/lms/web_template/courses_enrolled/courses_enrolled.html:17
-msgid "You haven't enrolled for any courses"
-msgstr "crwdns151020:0crwdne151020:0"
 
 #: frontend/src/components/CourseCardOverlay.vue:146
 msgid "You need to login first to enroll for this course"
@@ -5769,10 +5844,6 @@ msgstr "crwdns151058:0crwdne151058:0"
 msgid "in the last"
 msgstr "crwdns152180:0crwdne152180:0"
 
-#: frontend/src/pages/ProfileCertificates.vue:17
-msgid "issued on"
-msgstr "crwdns151060:0crwdne151060:0"
-
 #: lms/templates/signup-form.html:12
 msgid "jane@example.com"
 msgstr "crwdns151062:0crwdne151062:0"
@@ -5793,9 +5864,9 @@ msgstr "crwdns151064:0crwdne151064:0"
 msgid "out of"
 msgstr "crwdns151066:0crwdne151066:0"
 
-#: frontend/src/components/JobCard.vue:37
-msgid "posted by"
-msgstr "crwdns151068:0crwdne151068:0"
+#: frontend/src/components/JobCard.vue:30
+msgid "posted"
+msgstr "crwdns152300:0crwdne152300:0"
 
 #: frontend/src/pages/QuizForm.vue:386
 msgid "question_detail"
@@ -5817,7 +5888,7 @@ msgstr "crwdns152184:0crwdne152184:0"
 msgid "you can"
 msgstr "crwdns151076:0crwdne151076:0"
 
-#: lms/lms/api.py:761 lms/lms/api.py:769
+#: lms/lms/api.py:780 lms/lms/api.py:788
 msgid "{0} Settings not found"
 msgstr "crwdns151078:0{0}crwdne151078:0"
 
@@ -5845,7 +5916,11 @@ msgstr "crwdns151088:0{0}crwdnd151088:0{1}crwdne151088:0"
 msgid "{0} is already a {1} of the course {2}"
 msgstr "crwdns151090:0{0}crwdnd151090:0{1}crwdnd151090:0{2}crwdne151090:0"
 
-#: lms/lms/doctype/lms_certificate/lms_certificate.py:59
+#: lms/lms/doctype/lms_certificate/lms_certificate.py:91
+msgid "{0} is already certified for the batch {1}"
+msgstr "crwdns152302:0{0}crwdnd152302:0{1}crwdne152302:0"
+
+#: lms/lms/doctype/lms_certificate/lms_certificate.py:72
 msgid "{0} is already certified for the course {1}"
 msgstr "crwdns151092:0{0}crwdnd151092:0{1}crwdne151092:0"
 
@@ -5853,7 +5928,7 @@ msgstr "crwdns151092:0{0}crwdnd151092:0{1}crwdne151092:0"
 msgid "{0} is your evaluator"
 msgstr "crwdns151094:0{0}crwdne151094:0"
 
-#: lms/lms/utils.py:700
+#: lms/lms/utils.py:682
 msgid "{0} mentioned you in a comment"
 msgstr "crwdns151096:0{0}crwdne151096:0"
 
@@ -5861,11 +5936,11 @@ msgstr "crwdns151096:0{0}crwdne151096:0"
 msgid "{0} mentioned you in a comment in your batch."
 msgstr "crwdns151098:0{0}crwdne151098:0"
 
-#: lms/lms/utils.py:653 lms/lms/utils.py:659
+#: lms/lms/utils.py:635 lms/lms/utils.py:641
 msgid "{0} mentioned you in a comment in {1}"
 msgstr "crwdns151100:0{0}crwdnd151100:0{1}crwdne151100:0"
 
-#: lms/lms/utils.py:476
+#: lms/lms/utils.py:458
 msgid "{0}k"
 msgstr "crwdns151102:0{0}crwdne151102:0"
 
