@@ -7,14 +7,14 @@
 			<div
 				v-for="certificate in certificates.data"
 				:key="certificate.name"
-				class="bg-white shadow rounded-lg p-3 cursor-pointer"
+				class="flex flex-col bg-white shadow rounded-lg p-3 cursor-pointer hover:bg-gray-50"
 				@click="openCertificate(certificate)"
 			>
-				<div class="font-medium leading-5">
-					{{ certificate.course_title }}
+				<div class="font-medium leading-5 mb-2">
+					{{ certificate.course_title || certificate.batch_title }}
 				</div>
-				<div class="mt-2">
-					<span class="text-xs text-gray-700"> {{ __('issued on') }}: </span>
+				<div class="text-sm text-gray-700 font-medium mt-auto">
+					<span> {{ __('Issued on') }}: </span>
 					{{ dayjs(certificate.issue_date).format('DD MMM YYYY') }}
 				</div>
 			</div>
@@ -22,8 +22,8 @@
 	</div>
 </template>
 <script setup>
-import { createResource } from 'frappe-ui'
-import { inject } from 'vue'
+import { createListResource } from 'frappe-ui'
+import { inject, onMounted } from 'vue'
 
 const dayjs = inject('$dayjs')
 const props = defineProps({
@@ -33,12 +33,19 @@ const props = defineProps({
 	},
 })
 
-const certificates = createResource({
-	url: 'lms.lms.api.get_certificates',
-	params: {
-		member: props.profile.data.name,
+onMounted(() => {
+	if (props.profile.data?.name) {
+		certificates.reload()
+	}
+})
+
+const certificates = createListResource({
+	doctype: 'LMS Certificate',
+	filters: {
+		member: props.profile.data?.name,
 	},
-	auto: true,
+	fields: ['name', 'course_title', 'batch_title', 'issue_date'],
+	cache: ['certificates', props.profile.data?.name],
 })
 
 const openCertificate = (certificate) => {

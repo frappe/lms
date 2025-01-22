@@ -25,7 +25,7 @@
 			class="flex items-center py-2 justify-between"
 		>
 			<div class="flex items-center">
-				<UserAvatar :user="allUsers.data[log.from_user]" class="mr-2" />
+				<Avatar :image="log.user_image" :label="log.full_name" class="mr-2" />
 				<div class="notification" v-html="log.subject"></div>
 			</div>
 			<div class="flex items-center space-x-2">
@@ -57,6 +57,7 @@
 </template>
 <script setup>
 import {
+	Avatar,
 	createListResource,
 	createResource,
 	Breadcrumbs,
@@ -66,14 +67,12 @@ import {
 	Tooltip,
 } from 'frappe-ui'
 import { computed, inject, ref, onMounted } from 'vue'
-import UserAvatar from '@/components/UserAvatar.vue'
 import { useRouter } from 'vue-router'
 import { X } from 'lucide-vue-next'
 import { updateDocumentTitle } from '@/utils'
 
 const user = inject('$user')
 const socket = inject('$socket')
-const allUsers = inject('$allUsers')
 const activeTab = ref('Unread')
 const router = useRouter()
 
@@ -93,24 +92,22 @@ const notifications = computed(() => {
 
 const unReadNotifications = createListResource({
 	doctype: 'Notification Log',
-	fields: ['subject', 'from_user', 'link', 'read', 'name'],
+	url: 'lms.lms.api.get_notifications',
 	filters: {
 		for_user: user.data?.name,
 		read: 0,
 	},
-	orderBy: 'creation desc',
 	auto: true,
 	cache: 'Unread Notifications',
 })
 
 const readNotifications = createListResource({
 	doctype: 'Notification Log',
-	fields: ['subject', 'from_user', 'link', 'read', 'name'],
+	url: 'lms.lms.api.get_notifications',
 	filters: {
 		for_user: user.data?.name,
 		read: 1,
 	},
-	orderBy: 'creation desc',
 	auto: true,
 	cache: 'Read Notifications',
 })

@@ -450,24 +450,6 @@ def get_signup_optin_checks():
 	return (", ").join(links)
 
 
-def get_popular_courses():
-	courses = frappe.get_all("LMS Course", {"published": 1, "upcoming": 0})
-	course_membership = []
-
-	for course in courses:
-		course_membership.append(
-			{
-				"course": course.name,
-				"members": cint(frappe.db.count("LMS Enrollment", {"course": course.name})),
-			}
-		)
-
-	course_membership = sorted(
-		course_membership, key=lambda x: x.get("members"), reverse=True
-	)
-	return course_membership[:3]
-
-
 def format_amount(amount, currency):
 	amount_reduced = amount / 1000
 	if amount_reduced < 1:
@@ -1851,7 +1833,7 @@ def enroll_in_program_course(program, course):
 
 
 @frappe.whitelist(allow_guest=True)
-def get_batches(filters=None, start=0, page_length=20):
+def get_batches(filters=None, start=0, page_length=20, order_by="start_date"):
 	if not filters:
 		filters = {}
 
@@ -1861,8 +1843,6 @@ def get_batches(filters=None, start=0, page_length=20):
 		)
 		filters.update({"name": ["in", enrolled_batches]})
 		del filters["enrolled"]
-		del filters["published"]
-		del filters["start_date"]
 
 	batches = frappe.get_all(
 		"LMS Batch",
@@ -1884,11 +1864,51 @@ def get_batches(filters=None, start=0, page_length=20):
 			"published",
 			"category",
 		],
-		order_by="start_date desc",
+		order_by=order_by,
 		start=start,
 		page_length=page_length,
 	)
 
+	batches = filter_batches_based_on_start_time(batches, filters)
+	batches = get_batch_card_details(batches)
+	return batches
+
+
+def filter_batches_based_on_start_time(batches, filters):
+	batchType = get_batch_type(filters)
+	if batchType == "upcoming":
+		batches_to_remove = [
+			batch
+			for batch in batches
+			if getdate(batch.start_date) == getdate()
+			and get_time_str(batch.start_time) < nowtime()
+		]
+		batches = [batch for batch in batches if batch not in batches_to_remove]
+	elif batchType == "archived":
+		batches_to_remove = [
+			batch
+			for batch in batches
+			if getdate(batch.start_date) == getdate()
+			and get_time_str(batch.start_time) >= nowtime()
+		]
+		batches = [batch for batch in batches if batch not in batches_to_remove]
+	return batches
+
+
+def get_batch_type(filters):
+	start_date_filter = filters.get("start_date")
+	batchType = None
+	if start_date_filter:
+		sign = start_date_filter[0]
+		if ">" in sign:
+			batchType = "upcoming"
+		elif "<" in sign:
+			batchType = "archived"
+
+	return batchType
+
+
+def get_batch_card_details(batches):
 	for batch in batches:
 		batch.instructors = get_instructors(batch.name)
 		students_count = frappe.db.count("Batch Student", {"parent": batch.name})

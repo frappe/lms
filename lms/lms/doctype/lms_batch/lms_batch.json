@@ -2,7 +2,6 @@
  "actions": [],
  "allow_import": 1,
  "allow_rename": 1,
- "autoname": "format: CLS-{#####}",
  "creation": "2022-11-09 16:14:05.876933",
  "default_view": "List",
  "doctype": "DocType",
@@ -330,11 +329,10 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-11-18 16:28:41.336928",
+ "modified": "2025-01-17 10:23:10.580311",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch",
- "naming_rule": "Expression (old style)",
  "owner": "Administrator",
  "permissions": [
   {

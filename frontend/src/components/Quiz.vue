@@ -40,12 +40,14 @@
 			</div>
 		</div>
 
-		<div v-if="quiz.data.duration" class="flex items-center space-x-2 my-4">
-			<span class="text-gray-600 text-xs"> {{ __('Time') }}: </span>
+		<div v-if="quiz.data.duration" class="flex flex-col space-x-1 my-4">
+			<div class="mb-2">
+				<span class=""> {{ __('Time') }}: </span>
+				<span class="font-semibold">
+					{{ formatTimer(timer) }}
+				</span>
+			</div>
 			<ProgressBar :progress="timerProgress" />
-			<span class="font-semibold">
-				{{ formatTimer(timer) }}
-			</span>
 		</div>
 
 		<div v-if="activeQuestion == 0">
@@ -590,6 +592,7 @@ const getInstructions = (question) => {
 }
 
 const markLessonProgress = () => {
+	console.log(router)
 	if (router.currentRoute.value.name == 'Lesson') {
 		call('lms.lms.api.mark_lesson_progress', {
 			course: router.currentRoute.value.params.courseName,

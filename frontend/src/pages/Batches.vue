@@ -19,34 +19,44 @@
 		</router-link>
 	</header>
 	<div class="p-5 pb-10">
-		<div class="flex items-center justify-between mb-5">
+		<div
+			class="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:items-center justify-between mb-5"
+		>
 			<div class="text-lg font-semibold">
 				{{ __('All Batches') }}
 			</div>
-			<div class="flex items-center space-x-2">
+			<div
+				class="flex flex-col space-y-2 lg:space-y-0 lg:flex-row lg:items-center lg:space-x-2"
+			>
 				<TabButtons
 					v-if="user.data"
 					:buttons="batchTabs"
 					v-model="currentTab"
 				/>
-				<FormControl
-					v-model="title"
-					:placeholder="__('Search by Title')"
-					type="text"
-					@input="updateBatches()"
-				/>
-				<div class="w-44">
-					<Select
-						v-if="categories.length"
-						v-model="currentCategory"
-						:options="categories"
-						:placeholder="__('Category')"
-						@change="updateBatches()"
+				<div class="grid grid-cols-2 gap-2">
+					<FormControl
+						v-model="title"
+						:placeholder="__('Search by Title')"
+						type="text"
+						class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40"
+						@input="updateBatches()"
 					/>
+					<div class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40">
+						<Select
+							v-if="categories.length"
+							v-model="currentCategory"
+							:options="categories"
+							:placeholder="__('Category')"
+							@change="updateBatches()"
+						/>
+					</div>
 				</div>
 			</div>
 		</div>
-		<div v-if="batches.data?.length" class="grid grid-cols-4 gap-5">
+		<div
+			v-if="batches.data?.length"
+			class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
+		>
 			<router-link
 				v-for="batch in batches.data"
 				:to="{ name: 'BatchDetail', params: { batchName: batch.name } }"
@@ -55,11 +65,11 @@
 			</router-link>
 		</div>
 		<div
-			v-else
+			v-else-if="!batches.list.loading"
 			class="flex flex-col items-center justify-center text-sm text-gray-600 italic mt-48"
 		>
-			<BookOpen class="size-10 mx-auto stroke-1.5 text-gray-500" />
-			<div class="text-xl font-medium mb-2">
+			<BookOpen class="size-10 mx-auto stroke-1 text-gray-500" />
+			<div class="text-lg font-medium mb-1">
 				{{ __('No batches found') }}
 			</div>
 			<div class="leading-5 w-2/5 text-center">
@@ -91,6 +101,7 @@ import {
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { BookOpen, Plus } from 'lucide-vue-next'
+import { updateDocumentTitle } from '@/utils'
 import BatchCard from '@/components/BatchCard.vue'
 
 const user = inject('$user')
@@ -101,7 +112,8 @@ const categories = ref([])
 const currentCategory = ref(null)
 const title = ref('')
 const filters = ref({})
-const currentTab = ref('All')
+const currentTab = ref(user.data?.is_student ? 'All' : 'Upcoming')
+const orderBy = ref('start_date')
 
 onMounted(() => {
 	setFiltersFromQuery()
@@ -141,6 +153,7 @@ const updateBatches = () => {
 	updateFilters()
 	batches.update({
 		filters: filters.value,
+		orderBy: orderBy.value,
 	})
 	batches.reload()
 }
@@ -170,20 +183,27 @@ const updateTitleFilter = () => {
 }
 
 const updateTabFilter = () => {
+	orderBy.value = 'start_date'
 	if (!user.data) {
 		return
 	}
 	if (currentTab.value == 'Enrolled' && user.data?.is_student) {
 		filters.value['enrolled'] = 1
+		delete filters.value['start_date']
+		delete filters.value['published']
+		orderBy.value = 'start_date desc'
 	} else if (user.data?.is_student) {
 		delete filters.value['enrolled']
 	} else {
 		delete filters.value['start_date']
 		delete filters.value['published']
+		orderBy.value = 'start_date desc'
 		if (currentTab.value == 'Upcoming') {
 			filters.value['start_date'] = ['>=', dayjs().format('YYYY-MM-DD')]
+			filters.value['published'] = 1
+			orderBy.value = 'start_date'
 		} else if (currentTab.value == 'Archived') {
-			filters.value['start_date'] = ['<', dayjs().format('YYYY-MM-DD')]
+			filters.value['start_date'] = ['<=', dayjs().format('YYYY-MM-DD')]
 		} else if (currentTab.value == 'Unpublished') {
 			filters.value['published'] = 0
 		}
@@ -191,7 +211,7 @@ const updateTabFilter = () => {
 }
 
 const updateStudentFilter = () => {
-	if (!user.data || user.data?.is_student) {
+	if (!user.data || (user.data?.is_student && currentTab.value != 'Enrolled')) {
 		filters.value['start_date'] = ['>=', dayjs().format('YYYY-MM-DD')]
 		filters.value['published'] = 1
 	}
@@ -266,4 +286,13 @@ const breadcrumbs = computed(() => [
 		route: { name: 'Batches' },
 	},
 ])
+
+const pageMeta = computed(() => {
+	return {
+		title: 'Batches',
+		description: 'All upcoming batches.',
+	}
+})
+
+updateDocumentTitle(pageMeta)
 </script>

@@ -7,47 +7,63 @@
 				class="h-7"
 				:items="[{ label: __('Jobs'), route: { name: 'Jobs' } }]"
 			/>
-			<div class="flex space-x-2">
-				<div class="w-40 md:w-44">
-					<FormControl
-						v-model="jobType"
-						type="select"
-						:options="jobTypes"
-						:placeholder="__('Type')"
-					/>
-				</div>
-				<div class="w-28 md:w-36">
-					<FormControl type="text" placeholder="Search" v-model="searchQuery">
-						<template #prefix>
-							<Search class="w-4 h-4 stroke-1.5 text-gray-600" name="search" />
-						</template>
-					</FormControl>
-				</div>
-				<router-link
-					v-if="user.data?.name"
-					:to="{
-						name: 'JobCreation',
-						params: {
-							jobName: 'new',
-						},
-					}"
-				>
-					<Button variant="solid">
-						<template #prefix>
-							<Plus class="h-4 w-4" />
-						</template>
-						{{ __('New Job') }}
-					</Button>
-				</router-link>
-			</div>
+			<router-link
+				v-if="user.data?.name"
+				:to="{
+					name: 'JobCreation',
+					params: {
+						jobName: 'new',
+					},
+				}"
+			>
+				<Button variant="solid">
+					<template #prefix>
+						<Plus class="h-4 w-4" />
+					</template>
+					{{ __('New Job') }}
+				</Button>
+			</router-link>
 		</header>
-		<div v-if="jobsList?.length">
+		<div>
 			<div class="lg:w-3/4 mx-auto p-5">
-				<div class="text-xl font-semibold mb-5">
-					{{ __('Find the perfect job for you') }}
+				<div
+					class="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:items-center justify-between mb-5"
+				>
+					<div class="text-xl font-semibold">
+						{{ __('Find the perfect job for you') }}
+					</div>
+					<div class="grid grid-cols-2 gap-2">
+						<FormControl
+							type="text"
+							:placeholder="__('Search')"
+							v-model="searchQuery"
+							class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40"
+							@input="updateJobs"
+						>
+							<template #prefix>
+								<Search
+									class="w-4 h-4 stroke-1.5 text-gray-600"
+									name="search"
+								/>
+							</template>
+						</FormControl>
+						<FormControl
+							v-model="jobType"
+							type="select"
+							:options="jobTypes"
+							class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40"
+							:placeholder="__('Type')"
+							@change="updateJobs"
+						/>
+					</div>
 				</div>
-				<div v-for="job in jobsList" class="divide-y">
+
+				<div
+					v-if="jobs.data?.length"
+					class="grid grid-cols-1 lg:grid-cols-2 gap-5"
+				>
 					<router-link
+						v-for="job in jobs.data"
 						:to="{
 							name: 'JobDetail',
 							params: { job: job.name },
@@ -57,10 +73,10 @@
 						<JobCard :job="job" />
 					</router-link>
 				</div>
+				<div v-else class="text-gray-700 italic p-5 w-fit mx-auto">
+					{{ __('No jobs posted') }}
+				</div>
 			</div>
-		</div>
-		<div v-else class="text-gray-700 italic p-5 w-fit mx-auto">
-			{{ __('No jobs posted') }}
 		</div>
 	</div>
 </template>
@@ -74,43 +90,53 @@ import { updateDocumentTitle } from '@/utils'
 const user = inject('$user')
 const jobType = ref(null)
 const searchQuery = ref('')
+const filters = ref({})
+const orFilters = ref({})
 
 onMounted(() => {
 	let queries = new URLSearchParams(location.search)
 	if (queries.has('type')) {
 		jobType.value = queries.get('type')
 	}
+	updateJobs()
 })
 
 const jobs = createResource({
 	url: 'lms.lms.api.get_job_opportunities',
 	cache: ['jobs'],
-	auto: true,
 })
 
-const pageMeta = computed(() => {
-	return {
-		title: 'Jobs',
-		description: 'An open job board for the community',
-	}
-})
+const updateJobs = () => {
+	updateFilters()
+	jobs.update({
+		params: {
+			filters: filters.value,
+			orFilters: orFilters.value,
+		},
+	})
+	jobs.reload()
+}
 
-const jobsList = computed(() => {
-	let jobData = jobs.data
-	if (jobType.value && jobType.value != '') {
-		jobData = jobData.filter((job) => job.type == jobType.value)
+const updateFilters = () => {
+	filters.value.status = 'Open'
+	filters.value.disabled = 0
+
+	if (jobType.value) {
+		filters.value.type = jobType.value
+	} else {
+		delete filters.value.type
 	}
+
 	if (searchQuery.value) {
-		let query = searchQuery.value.toLowerCase()
-		jobData = jobData.filter(
-			(job) =>
-				job.job_title.toLowerCase().includes(query) ||
-				job.company_name.toLowerCase().includes(query) ||
-				job.location.toLowerCase().includes(query)
-		)
+		orFilters.value = {
+			job_title: ['like', `%${searchQuery.value}%`],
+			company_name: ['like', `%${searchQuery.value}%`],
+			location: ['like', `%${searchQuery.value}%`],
+		}
+	} else {
+		orFilters.value = {}
 	}
-	return jobData
-})
+}
 
 const jobTypes = computed(() => {
 	return [
@@ -120,6 +146,12 @@ const jobTypes = computed(() => {
 		{ label: __('Contract'), value: 'Contract' },
 		{ label: __('Freelance'), value: 'Freelance' },
 	]
+})
+const pageMeta = computed(() => {
+	return {
+		title: 'Jobs',
+		description: 'An open job board for the community',
+	}
 })
 
 updateDocumentTitle(pageMeta)

@@ -18,6 +18,7 @@ def get_context():
 	frappe.db.commit()  # nosemgrep
 	context.csrf_token = csrf_token
 	capture("active_site", "lms")
+	context.favicon = frappe.db.get_single_value("Website Settings", "favicon")
 	return context
 
 
