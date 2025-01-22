@@ -267,11 +267,23 @@ def get_job_details(job):
 
 
 @frappe.whitelist(allow_guest=True)
-def get_job_opportunities():
+def get_job_opportunities(filters=None, orFilters=None):
+	if not filters:
+		filters = {}
+
 	jobs = frappe.get_all(
 		"Job Opportunity",
-		{"status": "Open", "disabled": False},
-		["job_title", "location", "type", "company_name", "company_logo", "name", "creation"],
+		filters=filters,
+		or_filters=orFilters,
+		fields=[
+			"job_title",
+			"location",
+			"type",
+			"company_name",
+			"company_logo",
+			"name",
+			"creation",
+		],
 		order_by="creation desc",
 	)
 	return jobs
