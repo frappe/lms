@@ -81,7 +81,7 @@
 				:progress="course.membership.progress"
 			/>
 
-			<div v-if="user && course.membership" class="text-sm mb-4">
+			<div v-if="user && course.membership" class="text-sm mt-2 mb-4">
 				{{ Math.ceil(course.membership.progress) }}% completed
 			</div>
 
