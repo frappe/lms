@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-01-17 16:04+0000\n"
-"PO-Revision-Date: 2025-01-21 11:11\n"
+"PO-Revision-Date: 2025-01-25 11:52\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Persian\n"
 "MIME-Version: 1.0\n"
@@ -793,7 +793,7 @@ msgstr "تغییر دادن"
 
 #: frontend/src/components/Assignment.vue:316
 msgid "Changes saved successfully"
-msgstr ""
+msgstr "تغییرات با موفقیت ذخیره شد"
 
 #. Label of the chapter (Link) field in DocType 'Chapter Reference'
 #. Label of the chapter (Link) field in DocType 'LMS Course Progress'
@@ -1593,7 +1593,7 @@ msgstr ""
 
 #: lms/lms/doctype/lms_question/lms_question.py:33
 msgid "Duplicate options found for this question."
-msgstr "گزینه های تکراری برای این سوال پیدا شد."
+msgstr "گزینه‌های تکراری برای این سوال پیدا شد."
 
 #. Label of the duration (Data) field in DocType 'Cohort'
 #. Label of the duration (Data) field in DocType 'LMS Batch Timetable'
@@ -1662,7 +1662,7 @@ msgstr ""
 
 #: frontend/src/components/Members.vue:32 lms/templates/signup-form.html:10
 msgid "Email"
-msgstr "پست الکترونیک"
+msgstr "ایمیل"
 
 #: frontend/src/components/Modals/Event.vue:16
 msgid "Email ID"
@@ -3365,7 +3365,7 @@ msgstr ""
 
 #: lms/templates/upcoming_evals.html:43
 msgid "No Upcoming Evaluations"
-msgstr ""
+msgstr "بدون ارزیابی های آتی"
 
 #: frontend/src/components/Annoucements.vue:24
 msgid "No announcements"
@@ -3437,7 +3437,7 @@ msgstr ""
 
 #: frontend/src/components/UpcomingEvaluations.vue:41
 msgid "No upcoming evaluations."
-msgstr ""
+msgstr "بدون ارزیابی های آتی."
 
 #: lms/templates/course_list.html:13
 msgid "No {0}"
@@ -3838,7 +3838,7 @@ msgstr ""
 
 #: frontend/src/components/Modals/LiveClassModal.vue:164
 msgid "Please enter a title."
-msgstr ""
+msgstr "لطفا یک عنوان وارد کنید."
 
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.py:40
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.py:125
@@ -4049,7 +4049,7 @@ msgstr ""
 
 #: frontend/src/components/Modals/EditProfile.vue:37
 msgid "Profile Image"
-msgstr "عکس پروفایل"
+msgstr "عکس نمایه"
 
 #: frontend/src/pages/ProgramForm.vue:155
 msgid "Program Course"
@@ -4488,7 +4488,7 @@ msgstr ""
 
 #: frontend/src/pages/Assignments.vue:25
 msgid "Search by title"
-msgstr ""
+msgstr "جستجو بر اساس عنوان"
 
 #: frontend/src/components/Controls/IconPicker.vue:36
 msgid "Search for an icon"
@@ -4893,7 +4893,7 @@ msgstr ""
 #: frontend/src/components/Assignment.vue:10
 #: frontend/src/components/Assignment.vue:13
 msgid "Submission by"
-msgstr ""
+msgstr "ارسال توسط"
 
 #: frontend/src/components/BatchFeedback.vue:14
 #: frontend/src/components/Modals/AssessmentModal.vue:9
@@ -5435,7 +5435,7 @@ msgstr ""
 #: frontend/src/pages/CourseForm.vue:184 lms/lms/doctype/cohort/cohort.json
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Upcoming"
-msgstr ""
+msgstr "آینده"
 
 #: frontend/src/pages/Batch.vue:169
 msgid "Upcoming Batches"
@@ -5444,7 +5444,7 @@ msgstr ""
 #: frontend/src/components/UpcomingEvaluations.vue:5
 #: lms/templates/upcoming_evals.html:3
 msgid "Upcoming Evaluations"
-msgstr ""
+msgstr "ارزیابی های آتی"
 
 #: frontend/src/components/BrandSettings.vue:23
 #: frontend/src/components/PaymentSettings.vue:27
