@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2025-01-17 16:04+0000\n"
-"PO-Revision-Date: 2025-01-20 11:13\n"
+"POT-Creation-Date: 2025-01-24 16:04+0000\n"
+"PO-Revision-Date: 2025-01-28 12:17\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Chinese Simplified\n"
 "MIME-Version: 1.0\n"
@@ -823,7 +823,7 @@ msgstr ""
 msgid "Chapters"
 msgstr ""
 
-#: frontend/src/components/Quiz.vue:203 lms/templates/quiz/quiz.html:120
+#: frontend/src/components/Quiz.vue:205 lms/templates/quiz/quiz.html:120
 msgid "Check"
 msgstr "检查"
 
@@ -846,7 +846,7 @@ msgstr ""
 msgid "Choices"
 msgstr ""
 
-#: frontend/src/components/Quiz.vue:587 lms/templates/quiz/quiz.html:53
+#: frontend/src/components/Quiz.vue:589 lms/templates/quiz/quiz.html:53
 msgid "Choose all answers that apply"
 msgstr ""
 
@@ -854,7 +854,7 @@ msgstr ""
 msgid "Choose an icon"
 msgstr ""
 
-#: frontend/src/components/Quiz.vue:588 lms/templates/quiz/quiz.html:53
+#: frontend/src/components/Quiz.vue:590 lms/templates/quiz/quiz.html:53
 msgid "Choose one answer"
 msgstr ""
 
@@ -1096,7 +1096,7 @@ msgid "Continue Learning"
 msgstr ""
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
-#: frontend/src/pages/Jobs.vue:152
+#: frontend/src/pages/Jobs.vue:146
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Contract"
 msgstr "合同"
@@ -1117,7 +1117,7 @@ msgstr ""
 #. Option for the 'Status' (Select) field in DocType 'Exercise Latest
 #. Submission'
 #. Option for the 'Status' (Select) field in DocType 'Exercise Submission'
-#: frontend/src/components/Quiz.vue:163
+#: frontend/src/components/Quiz.vue:165
 #: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
 #: lms/lms/doctype/exercise_submission/exercise_submission.json
 msgid "Correct"
@@ -2042,7 +2042,7 @@ msgid "Free"
 msgstr ""
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
-#: frontend/src/pages/Jobs.vue:153
+#: frontend/src/pages/Jobs.vue:147
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Freelance"
 msgstr ""
@@ -2084,7 +2084,7 @@ msgid "Full Name"
 msgstr "全名"
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
-#: frontend/src/pages/Jobs.vue:150
+#: frontend/src/pages/Jobs.vue:144
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Full Time"
 msgstr ""
@@ -2341,7 +2341,7 @@ msgstr ""
 #. Option for the 'Status' (Select) field in DocType 'Exercise Latest
 #. Submission'
 #. Option for the 'Status' (Select) field in DocType 'Exercise Submission'
-#: frontend/src/components/Quiz.vue:168
+#: frontend/src/components/Quiz.vue:170
 #: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
 #: lms/lms/doctype/exercise_submission/exercise_submission.json
 msgid "Incorrect"
@@ -2985,7 +2985,7 @@ msgstr ""
 msgid "Manifest File"
 msgstr ""
 
-#: frontend/src/components/Quiz.vue:94
+#: frontend/src/components/Quiz.vue:96
 msgid "Mark"
 msgstr ""
 
@@ -3001,7 +3001,7 @@ msgstr ""
 #. Label of the marks (Int) field in DocType 'LMS Quiz Result'
 #: frontend/src/components/Modals/Question.vue:50
 #: frontend/src/components/Modals/Question.vue:99
-#: frontend/src/components/Quiz.vue:94 frontend/src/pages/QuizForm.vue:390
+#: frontend/src/components/Quiz.vue:96 frontend/src/pages/QuizForm.vue:390
 #: frontend/src/pages/QuizSubmission.vue:59
 #: lms/lms/doctype/lms_quiz_question/lms_quiz_question.json
 #: lms/lms/doctype/lms_quiz_result/lms_quiz_result.json
@@ -3342,7 +3342,7 @@ msgstr ""
 msgid "New {0}"
 msgstr "新建 {0}"
 
-#: frontend/src/components/Quiz.vue:211 frontend/src/pages/Lesson.vue:84
+#: frontend/src/components/Quiz.vue:213 frontend/src/pages/Lesson.vue:84
 msgid "Next"
 msgstr "下一个"
 
@@ -3669,7 +3669,7 @@ msgid "Pan Number"
 msgstr ""
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
-#: frontend/src/pages/Jobs.vue:151
+#: frontend/src/pages/Jobs.vue:145
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Part Time"
 msgstr ""
@@ -4161,11 +4161,11 @@ msgstr ""
 msgid "Question updated successfully"
 msgstr ""
 
-#: frontend/src/components/Quiz.vue:86
+#: frontend/src/components/Quiz.vue:88
 msgid "Question {0}"
 msgstr ""
 
-#: frontend/src/components/Quiz.vue:188
+#: frontend/src/components/Quiz.vue:190
 msgid "Question {0} of {1}"
 msgstr ""
 
@@ -4202,7 +4202,7 @@ msgstr ""
 msgid "Quiz Submissions"
 msgstr ""
 
-#: frontend/src/components/Quiz.vue:225
+#: frontend/src/components/Quiz.vue:227
 msgid "Quiz Summary"
 msgstr ""
 
@@ -4718,7 +4718,7 @@ msgstr ""
 msgid "Stage"
 msgstr ""
 
-#: frontend/src/components/LiveClass.vue:50 frontend/src/components/Quiz.vue:65
+#: frontend/src/components/LiveClass.vue:50 frontend/src/components/Quiz.vue:67
 #: lms/templates/quiz/quiz.html:39
 msgid "Start"
 msgstr "开始"
@@ -4900,7 +4900,7 @@ msgstr ""
 #: frontend/src/components/Modals/BatchCourseModal.vue:9
 #: frontend/src/components/Modals/EvaluationModal.vue:9
 #: frontend/src/components/Modals/Question.vue:338
-#: frontend/src/components/Quiz.vue:216 lms/templates/assignment.html:9
+#: frontend/src/components/Quiz.vue:218 lms/templates/assignment.html:9
 #: lms/templates/livecode/extension_footer.html:25
 #: lms/templates/quiz/quiz.html:128 lms/templates/reviews.html:163
 #: lms/www/new-sign-up.html:32
@@ -4953,7 +4953,7 @@ msgstr "概要"
 msgid "Sunday"
 msgstr ""
 
-#: lms/lms/api.py:983
+#: lms/lms/api.py:995
 msgid "Suspicious pattern found in {0}: {1}"
 msgstr ""
 
@@ -5198,7 +5198,7 @@ msgstr ""
 #. Label of the time (Time) field in DocType 'LMS Live Class'
 #: frontend/src/components/Modals/Event.vue:48
 #: frontend/src/components/Modals/LiveClassModal.vue:37
-#: frontend/src/components/Quiz.vue:44
+#: frontend/src/components/Quiz.vue:45
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Time"
 msgstr "时间"
@@ -5340,7 +5340,7 @@ msgstr ""
 msgid "Travel"
 msgstr "出差"
 
-#: frontend/src/components/Quiz.vue:254 lms/templates/quiz/quiz.html:131
+#: frontend/src/components/Quiz.vue:256 lms/templates/quiz/quiz.html:131
 msgid "Try Again"
 msgstr ""
 
@@ -5374,7 +5374,7 @@ msgstr ""
 msgid "Type"
 msgstr "类型"
 
-#: frontend/src/components/Quiz.vue:589
+#: frontend/src/components/Quiz.vue:591
 msgid "Type your answer"
 msgstr ""
 
@@ -5709,7 +5709,7 @@ msgstr ""
 msgid "You got"
 msgstr ""
 
-#: frontend/src/components/Quiz.vue:236
+#: frontend/src/components/Quiz.vue:238
 #, python-format
 msgid "You got {0}% correct answers with a score of {1} out of {2}"
 msgstr ""
@@ -5718,7 +5718,7 @@ msgstr ""
 msgid "You have already applied for this job."
 msgstr ""
 
-#: frontend/src/components/Quiz.vue:70 lms/templates/quiz/quiz.html:43
+#: frontend/src/components/Quiz.vue:72 lms/templates/quiz/quiz.html:43
 msgid "You have already exceeded the maximum number of attempts allowed for this quiz."
 msgstr ""
 
@@ -5807,7 +5807,7 @@ msgstr ""
 msgid "Your score is"
 msgstr ""
 
-#: frontend/src/components/Quiz.vue:229
+#: frontend/src/components/Quiz.vue:231
 msgid "Your submission has been successfully saved. The instructor will review and grade it shortly, and you'll be notified of your final result."
 msgstr ""
 
@@ -5888,7 +5888,7 @@ msgstr ""
 msgid "you can"
 msgstr ""
 
-#: lms/lms/api.py:780 lms/lms/api.py:788
+#: lms/lms/api.py:792 lms/lms/api.py:800
 msgid "{0} Settings not found"
 msgstr ""
 
