@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-01-24 16:04+0000\n"
-"PO-Revision-Date: 2025-01-31 13:15\n"
+"PO-Revision-Date: 2025-02-01 14:00\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Bosnian\n"
 "MIME-Version: 1.0\n"
@@ -523,7 +523,7 @@ msgstr ""
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Batch"
-msgstr ""
+msgstr "Grupna Serija"
 
 #. Label of the batch_confirmation_template (Link) field in DocType 'LMS
 #. Settings'
@@ -544,7 +544,7 @@ msgstr ""
 #. Old'
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 msgid "Batch Description"
-msgstr ""
+msgstr "Opis Grupne Serije"
 
 #. Label of the batch_details (Text Editor) field in DocType 'LMS Batch'
 #: frontend/src/pages/BatchForm.vue:104
@@ -552,7 +552,7 @@ msgstr ""
 #: lms/public/js/common_functions.js:349
 #: lms/templates/emails/batch_confirmation.html:30
 msgid "Batch Details"
-msgstr ""
+msgstr "Detalji Skupne Serije"
 
 #. Label of the batch_details_raw (HTML Editor) field in DocType 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json
@@ -638,7 +638,7 @@ msgstr ""
 #: frontend/src/pages/Billing.vue:8
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Billing Details"
-msgstr ""
+msgstr "Detalji Fakture"
 
 #. Label of the billing_name (Data) field in DocType 'LMS Payment'
 #: frontend/src/pages/Billing.vue:75
@@ -663,7 +663,7 @@ msgstr ""
 #. Label of the branch (Data) field in DocType 'User'
 #: lms/fixtures/custom_field.json
 msgid "Branch"
-msgstr ""
+msgstr "Podružnica"
 
 #. Option for the 'User Category' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json lms/templates/signup-form.html:23
@@ -732,7 +732,7 @@ msgstr "Naziv kategorije"
 #. Label of a shortcut in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "Certificate"
-msgstr ""
+msgstr "Certifikat"
 
 #. Label of the certification_template (Link) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -4732,7 +4732,7 @@ msgstr ""
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 #: lms/public/js/common_functions.js:275
 msgid "Start Date"
-msgstr ""
+msgstr "Start Datum"
 
 #: frontend/src/components/CourseCardOverlay.vue:63
 #: frontend/src/pages/Lesson.vue:21 frontend/src/pages/SCORMChapter.vue:28
@@ -4776,7 +4776,7 @@ msgstr ""
 
 #: frontend/src/pages/Billing.vue:88
 msgid "State"
-msgstr ""
+msgstr "Država"
 
 #. Label of the tab_4_tab (Tab Break) field in DocType 'LMS Course'
 #. Label of the statistics (Check) field in DocType 'LMS Settings'
@@ -4814,7 +4814,7 @@ msgstr "Statistika"
 #: lms/lms/doctype/lms_course_progress/lms_course_progress.json
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
 msgid "Status"
-msgstr ""
+msgstr "Status"
 
 #: lms/templates/assessments.html:17
 msgid "Status/Score"
@@ -4880,7 +4880,7 @@ msgstr ""
 
 #: frontend/src/components/Modals/AnnouncementModal.vue:20
 msgid "Subject"
-msgstr ""
+msgstr "Predmet"
 
 #: frontend/src/components/Assignment.vue:29
 msgid "Submission"
@@ -4937,7 +4937,7 @@ msgstr ""
 #: frontend/src/pages/ProgramForm.vue:298 frontend/src/pages/QuizForm.vue:339
 #: frontend/src/pages/QuizForm.vue:358 frontend/src/pages/QuizForm.vue:427
 msgid "Success"
-msgstr ""
+msgstr "Uspjeh"
 
 #. Label of the summary (Small Text) field in DocType 'LMS Certificate
 #. Evaluation'
@@ -5005,7 +5005,7 @@ msgstr ""
 #: lms/lms/doctype/user_skill/user_skill.json
 #: lms/lms/doctype/zoom_settings/zoom_settings.json
 msgid "System Manager"
-msgstr ""
+msgstr "Upravitelj Sistema"
 
 #. Label of the tags (Data) field in DocType 'LMS Course'
 #: frontend/src/pages/CourseForm.vue:120
@@ -5306,7 +5306,7 @@ msgstr "Do"
 #. Label of the to_date (Date) field in DocType 'Work Experience'
 #: lms/lms/doctype/work_experience/work_experience.json
 msgid "To Date"
-msgstr ""
+msgstr "Do Datuma"
 
 #: lms/lms/utils.py:1584
 msgid "To join this batch, please contact the Administrator."
@@ -5322,7 +5322,7 @@ msgstr "Nedavno se prijavilo previše korisnika, pa je registracija onemogućena
 
 #: frontend/src/pages/Billing.vue:58
 msgid "Total"
-msgstr ""
+msgstr "Ukupno"
 
 #. Label of the total_marks (Int) field in DocType 'LMS Quiz'
 #: frontend/src/pages/QuizForm.vue:67 frontend/src/pages/Quizzes.vue:121
