@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-01-24 16:04+0000\n"
-"PO-Revision-Date: 2025-02-01 14:00\n"
+"PO-Revision-Date: 2025-02-02 14:21\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Bosnian\n"
 "MIME-Version: 1.0\n"
@@ -153,12 +153,12 @@ msgstr ""
 
 #: frontend/src/components/OnboardingBanner.vue:73
 msgid "Add a lesson"
-msgstr ""
+msgstr "Dodaj Lekciju"
 
 #: frontend/src/components/Modals/Question.vue:144
 #: frontend/src/pages/QuizForm.vue:183
 msgid "Add a new question"
-msgstr ""
+msgstr "Dodaj novo pitanje"
 
 #: frontend/src/components/AssessmentPlugin.vue:11
 msgid "Add a quiz to your lesson"
@@ -209,7 +209,7 @@ msgstr "Adresna linija 2"
 #: lms/lms/doctype/cohort_web_page/cohort_web_page.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 msgid "Admin"
-msgstr ""
+msgstr "Admin"
 
 #. Name of a role
 #: frontend/src/pages/Batches.vue:270 lms/lms/doctype/lms_badge/lms_badge.json
@@ -218,7 +218,7 @@ msgstr "Sve"
 
 #: frontend/src/pages/Batches.vue:26
 msgid "All Batches"
-msgstr ""
+msgstr "Sve Grupe"
 
 #: frontend/src/pages/CertifiedParticipants.vue:12
 msgid "All Certified Participants"
@@ -226,7 +226,7 @@ msgstr ""
 
 #: lms/lms/widgets/BreadCrumb.html:3
 msgid "All Courses"
-msgstr ""
+msgstr "Svi Kursevi"
 
 #: frontend/src/components/BatchFeedback.vue:51
 msgid "All Feedback"
@@ -279,17 +279,17 @@ msgstr "Iznos"
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/public/js/common_functions.js:397
 msgid "Amount (USD)"
-msgstr ""
+msgstr "Iznos (USD)"
 
 #. Label of the amount_based_on_field (Check) field in DocType 'Web Form'
 #: lms/fixtures/custom_field.json
 msgid "Amount Based On Field"
-msgstr ""
+msgstr "Iznos na osnovu polja"
 
 #. Label of the amount_field (Select) field in DocType 'Web Form'
 #: lms/fixtures/custom_field.json
 msgid "Amount Field"
-msgstr ""
+msgstr "Polje Iznosa"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:75
 msgid "Amount and currency are required for paid batches."
@@ -306,11 +306,11 @@ msgstr ""
 
 #: frontend/src/components/Modals/AnnouncementModal.vue:33
 msgid "Announcement"
-msgstr ""
+msgstr "Objava"
 
 #: frontend/src/components/Modals/AnnouncementModal.vue:100
 msgid "Announcement has been sent successfully"
-msgstr ""
+msgstr "Objava je uspješno poslana"
 
 #. Label of the answer (Text Editor) field in DocType 'LMS Assignment'
 #. Label of the answer (Text Editor) field in DocType 'LMS Assignment
@@ -332,11 +332,11 @@ msgstr ""
 
 #: frontend/src/pages/JobDetail.vue:131
 msgid "Applications Received"
-msgstr ""
+msgstr "Prijave Primljene"
 
 #: frontend/src/pages/JobDetail.vue:42
 msgid "Apply"
-msgstr ""
+msgstr "Primjeni"
 
 #. Label of the apply_gst (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -359,7 +359,7 @@ msgstr ""
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
 msgid "Approved"
-msgstr ""
+msgstr "Odobreno"
 
 #: frontend/src/components/Apps.vue:13
 msgid "Apps"
@@ -380,18 +380,18 @@ msgstr ""
 #: frontend/src/components/Modals/BatchStudentProgress.vue:32
 #: lms/lms/doctype/lms_batch/lms_batch.json lms/templates/assessments.html:11
 msgid "Assessment"
-msgstr ""
+msgstr "Procjena"
 
 #. Label of the assessment_name (Dynamic Link) field in DocType 'LMS
 #. Assessment'
 #: lms/lms/doctype/lms_assessment/lms_assessment.json
 msgid "Assessment Name"
-msgstr ""
+msgstr "Naziv Procjene"
 
 #. Label of the assessment_type (Link) field in DocType 'LMS Assessment'
 #: lms/lms/doctype/lms_assessment/lms_assessment.json
 msgid "Assessment Type"
-msgstr ""
+msgstr "Tip Procjene"
 
 #: frontend/src/components/Modals/AssessmentModal.vue:73
 msgid "Assessment added successfully"
@@ -408,11 +408,11 @@ msgstr ""
 #: lms/lms/doctype/lms_settings/lms_settings.json
 #: lms/templates/assessments.html:3
 msgid "Assessments"
-msgstr ""
+msgstr "Procjene"
 
 #: lms/lms/doctype/lms_badge/lms_badge.js:50
 msgid "Assign"
-msgstr ""
+msgstr "Dodijeli"
 
 #. Label of the section_break_16 (Section Break) field in DocType 'Course
 #. Lesson'
@@ -487,7 +487,7 @@ msgstr ""
 #: frontend/src/components/CourseCard.vue:52
 #: frontend/src/pages/CourseDetail.vue:20
 msgid "Average Rating"
-msgstr ""
+msgstr "Prosječna Ocjena"
 
 #: frontend/src/components/BatchFeedback.vue:38
 msgid "Average of Feedback Received"
@@ -500,18 +500,18 @@ msgstr ""
 #. Label of the badge (Link) field in DocType 'LMS Badge Assignment'
 #: lms/lms/doctype/lms_badge_assignment/lms_badge_assignment.json
 msgid "Badge"
-msgstr ""
+msgstr "Značka"
 
 #. Label of the badge_description (Small Text) field in DocType 'LMS Badge
 #. Assignment'
 #: lms/lms/doctype/lms_badge_assignment/lms_badge_assignment.json
 msgid "Badge Description"
-msgstr ""
+msgstr "Opis Značke"
 
 #. Label of the badge_image (Attach) field in DocType 'LMS Badge Assignment'
 #: lms/lms/doctype/lms_badge_assignment/lms_badge_assignment.json
 msgid "Badge Image"
-msgstr ""
+msgstr "Slika Značke"
 
 #. Label of the batch (Link) field in DocType 'LMS Batch Feedback'
 #. Label of the batch_name (Link) field in DocType 'LMS Certificate'
@@ -534,11 +534,11 @@ msgstr ""
 #. Name of a DocType
 #: lms/lms/doctype/batch_course/batch_course.json
 msgid "Batch Course"
-msgstr ""
+msgstr "Grupni Kurs"
 
 #: lms/public/js/common_functions.js:428
 msgid "Batch Created"
-msgstr ""
+msgstr "Grupa Kreirana"
 
 #. Label of the section_break_5 (Section Break) field in DocType 'LMS Batch
 #. Old'
@@ -621,17 +621,17 @@ msgstr ""
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_settings/lms_settings.json lms/www/lms.py:61
 msgid "Batches"
-msgstr ""
+msgstr "Grupe"
 
 #. Label of the begin_date (Date) field in DocType 'Cohort'
 #: lms/lms/doctype/cohort/cohort.json
 msgid "Begin Date"
-msgstr ""
+msgstr "Datum Početka"
 
 #: lms/templates/emails/batch_confirmation.html:37
 #: lms/templates/emails/certification.html:20
 msgid "Best Regards"
-msgstr ""
+msgstr "Srdačan Pozdrav"
 
 #. Label of the billing_details_section (Section Break) field in DocType 'LMS
 #. Payment'
@@ -653,7 +653,7 @@ msgstr "Bio"
 #. Label of the body (Markdown Editor) field in DocType 'Course Lesson'
 #: lms/lms/doctype/course_lesson/course_lesson.json
 msgid "Body"
-msgstr ""
+msgstr "Sadržaj"
 
 #. Option for the 'Collaboration Preference' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -686,7 +686,7 @@ msgstr ""
 
 #: lms/templates/emails/lms_message.html:11
 msgid "By"
-msgstr ""
+msgstr "Od"
 
 #. Option for the 'Grade Type' (Select) field in DocType 'Education Detail'
 #: lms/lms/doctype/education_detail/education_detail.json
@@ -1006,7 +1006,7 @@ msgstr ""
 #: frontend/src/pages/JobCreation.vue:88
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Company Logo"
-msgstr ""
+msgstr "Logo Kompanije"
 
 #. Label of the company_name (Data) field in DocType 'Job Opportunity'
 #: frontend/src/pages/JobCreation.vue:70
@@ -1099,7 +1099,7 @@ msgstr ""
 #: frontend/src/pages/Jobs.vue:146
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Contract"
-msgstr ""
+msgstr "Ugovor"
 
 #: lms/lms/utils.py:438
 msgid "Cookie Policy"
@@ -1472,7 +1472,7 @@ msgstr "Poštovani "
 #. Label of the default_currency (Link) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Default Currency"
-msgstr ""
+msgstr "Standard Valuta"
 
 #. Label of the degree_type (Data) field in DocType 'Education Detail'
 #: lms/lms/doctype/education_detail/education_detail.json
@@ -1648,7 +1648,7 @@ msgstr ""
 #. Label of the education (Table) field in DocType 'User'
 #: lms/fixtures/custom_field.json
 msgid "Education"
-msgstr ""
+msgstr "Obrazovanje"
 
 #. Name of a DocType
 #: lms/lms/doctype/education_detail/education_detail.json
@@ -1686,7 +1686,7 @@ msgstr "E-pošta"
 #. Option for the 'User Category' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json lms/templates/signup-form.html:25
 msgid "Employee"
-msgstr ""
+msgstr "Zaposleni"
 
 #. Label of the enable (Check) field in DocType 'Zoom Settings'
 #: lms/lms/doctype/zoom_settings/zoom_settings.json
@@ -1947,7 +1947,7 @@ msgstr ""
 #: frontend/src/components/Modals/Event.vue:126
 #: lms/lms/doctype/lms_certificate/lms_certificate.json
 msgid "Expiry Date"
-msgstr ""
+msgstr "Datum Isteka Roka"
 
 #. Label of the explanation_1 (Small Text) field in DocType 'LMS Question'
 #. Label of the explanation_3 (Small Text) field in DocType 'LMS Question'
@@ -2209,7 +2209,7 @@ msgstr "Zdravo {0},"
 
 #: lms/templates/emails/lms_invite_request_approved.html:3
 msgid "Hi,"
-msgstr ""
+msgstr "Zdravo,"
 
 #. Label of the hide_private (Check) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -2368,7 +2368,7 @@ msgstr ""
 #: lms/lms/doctype/industry/industry.json
 #: lms/lms/doctype/preferred_industry/preferred_industry.json
 msgid "Industry"
-msgstr ""
+msgstr "Industrija"
 
 #. Label of the institution_name (Data) field in DocType 'Education Detail'
 #: lms/lms/doctype/education_detail/education_detail.json
@@ -4704,7 +4704,7 @@ msgstr ""
 #: lms/lms/doctype/lms_payment/lms_payment.json
 #: lms/lms/doctype/lms_source/lms_source.json
 msgid "Source"
-msgstr ""
+msgstr "Izvor"
 
 #. Option for the 'Role' (Select) field in DocType 'Cohort Staff'
 #. Option for the 'Member Type' (Select) field in DocType 'LMS Enrollment'
@@ -5947,7 +5947,7 @@ msgstr ""
 #. Count format of shortcut in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "{} Active"
-msgstr ""
+msgstr "{} Aktivan"
 
 #. Count format of shortcut in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
