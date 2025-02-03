@@ -28,6 +28,7 @@ from frappe.utils import (
 )
 from frappe.utils.dateutils import get_period
 from lms.lms.md import find_macros, markdown_to_html
+import time
 
 RE_SLUG_NOTALLOWED = re.compile("[^a-z0-9]+")
 
@@ -38,12 +39,12 @@ def slugify(title, used_slugs=None):
 	If a list of used slugs is specified, it will make sure the generated slug
 	is not one of them.
 
-	    >>> slugify("Hello World!")
-	    'hello-world'
-	    >>> slugify("Hello World!", ['hello-world'])
-	    'hello-world-2'
-	    >>> slugify("Hello World!", ['hello-world', 'hello-world-2'])
-	    'hello-world-3'
+		>>> slugify("Hello World!")
+		'hello-world'
+		>>> slugify("Hello World!", ['hello-world'])
+		'hello-world-2'
+		>>> slugify("Hello World!", ['hello-world', 'hello-world-2'])
+		'hello-world-3'
 	"""
 	if not used_slugs:
 		used_slugs = []
@@ -1015,7 +1016,7 @@ def get_course_details(course):
 	# course_details.is_instructor = is_instructor(course_details.name)
 	if course_details.paid_course:
 		"""course_details.course_price, course_details.currency = check_multicurrency(
-		        course_details.course_price, course_details.currency, None, course_details.amount_usd
+				course_details.course_price, course_details.currency, None, course_details.amount_usd
 		)"""
 		course_details.price = fmt_money(
 			course_details.course_price, 0, course_details.currency
@@ -1923,3 +1924,78 @@ def get_batch_card_details(batches):
 			batch.price = fmt_money(batch.amount, 0, batch.currency)
 
 	return batches
+
+@frappe.whitelist()
+def get_files_attached_to_lesson(doc, method):
+	"""Adds file attachment details as a JSON block in Course Lesson."""
+	if doc.attached_to_doctype != "Course Lesson":
+		return
+	
+	lesson_doc = frappe.get_doc("Course Lesson", doc.attached_to_name)
+	content = frappe.parse_json(lesson_doc.content or '{"time": 0, "blocks": [], "version": "2.30.7"}')
+
+	# Update timestamp
+	content["time"] = int(time.time() * 1000)
+
+	# Determine file type
+	file_extension = (doc.file_type or "").lower()
+	file_types = {
+		"png": "image", "jpeg": "image", "jpg": "image", "gif": "image",
+		"pdf": "document", "mp4": "video", "webm": "video", "mp3": "audio"
+	}
+	file_type = file_types.get(file_extension, "other")
+
+	new_block = {
+		"id": frappe.generate_hash(length=10),
+		"type": "upload",
+		"data": {
+			"file_url": doc.file_url,
+			"file_type": file_extension.upper() if file_extension else "UNKNOWN",
+			"type": file_type
+		}
+	}
+
+	# Check for duplicates before adding
+	if any(block.get("data", {}).get("file_url") == doc.file_url for block in content["blocks"]):
+		return
+
+	content["blocks"].append(new_block)
+
+	# Save and commit changes
+	lesson_doc.content = frappe.as_json(content)
+	lesson_doc.save()
+	frappe.db.commit()
+
+@frappe.whitelist()
+def remove_json_block_on_attachment_delete(file_doc, method):
+	"""Removes file-related JSON blocks when an attachment is deleted."""
+	if not file_doc.attached_to_doctype or not file_doc.attached_to_name:
+		return
+
+	try:
+		doc = frappe.get_doc(file_doc.attached_to_doctype, file_doc.attached_to_name)
+		
+		if not hasattr(doc, "content") or not isinstance(doc.content, str):
+			return
+
+		content_json = json.loads(doc.content)
+
+		if "blocks" not in content_json or not isinstance(content_json["blocks"], list):
+			return
+
+		original_blocks = content_json["blocks"]
+		new_blocks = [block for block in original_blocks if block.get("data", {}).get("file_url") != file_doc.file_url]
+
+		if len(new_blocks) == len(original_blocks):
+			return
+
+		content_json["blocks"] = new_blocks
+
+		# Save and commit changes
+		doc.content = json.dumps(content_json, indent=2)
+		doc.save()
+		frappe.db.commit()
+
+	except Exception as e:
+		# Handling exception silently (optional to log error if needed)
+		pass

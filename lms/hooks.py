@@ -104,6 +104,11 @@ doc_events = {
 	},
 	"Discussion Reply": {"after_insert": "lms.lms.utils.handle_notifications"},
 	"Notification Log": {"on_change": "lms.lms.utils.publish_notifications"},
+	"File": {
+	"after_insert": "lms.lms.utils.get_files_attached_to_lesson",
+	"on_trash": "lms.lms.utils.remove_json_block_on_attachment_delete"
+}
+
 }
 
 # Scheduled Tasks
