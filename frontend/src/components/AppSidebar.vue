@@ -23,7 +23,7 @@
 				<div
 					class="flex items-center justify-between pr-2 cursor-pointer"
 					:class="sidebarStore.isSidebarCollapsed ? 'pl-3' : 'pl-4'"
-					@click="showWebPages = !showWebPages"
+					@click="toggleWebPages"
 				>
 					<div
 						v-if="!sidebarStore.isSidebarCollapsed"
@@ -32,7 +32,7 @@
 						<span class="grid h-5 w-6 flex-shrink-0 place-items-center">
 							<ChevronRight
 								class="h-4 w-4 stroke-1.5 text-gray-900 transition-all duration-300 ease-in-out"
-								:class="{ 'rotate-90': showWebPages }"
+								:class="{ 'rotate-90': !sidebarStore.isWebpagesCollapsed }"
 							/>
 						</span>
 						<span class="ml-2">
@@ -48,7 +48,7 @@
 				<div
 					v-if="sidebarSettings.data?.web_pages?.length"
 					class="flex flex-col transition-all duration-300 ease-in-out"
-					:class="showWebPages ? 'block' : 'hidden'"
+					:class="!sidebarStore.isWebpagesCollapsed ? 'block' : 'hidden'"
 				>
 					<SidebarLink
 						v-for="link in sidebarSettings.data.web_pages"
@@ -114,7 +114,6 @@ const showPageModal = ref(false)
 const isModerator = ref(false)
 const isInstructor = ref(false)
 const pageToEdit = ref(null)
-const showWebPages = ref(false)
 const settingsStore = useSettings()
 
 onMounted(() => {
@@ -266,5 +265,17 @@ watch(userResource, () => {
 
 const toggleSidebar = () => {
 	sidebarStore.isSidebarCollapsed = !sidebarStore.isSidebarCollapsed
+	localStorage.setItem(
+		'isSidebarCollapsed',
+		JSON.stringify(sidebarStore.isSidebarCollapsed)
+	)
+}
+
+const toggleWebPages = () => {
+	sidebarStore.isWebpagesCollapsed = !sidebarStore.isWebpagesCollapsed
+	localStorage.setItem(
+		'isWebpagesCollapsed',
+		JSON.stringify(sidebarStore.isWebpagesCollapsed)
+	)
 }
 </script>
