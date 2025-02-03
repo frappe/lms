@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-01-24 16:04+0000\n"
-"PO-Revision-Date: 2025-02-02 14:21\n"
+"PO-Revision-Date: 2025-02-03 14:31\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Bosnian\n"
 "MIME-Version: 1.0\n"
@@ -3459,7 +3459,7 @@ msgstr "Nije dozvoljeno"
 #. Submission'
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 msgid "Not Applicable"
-msgstr ""
+msgstr "Nije Primjenjivo"
 
 #: lms/templates/assessments.html:48
 msgid "Not Attempted"
