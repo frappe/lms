@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-01-24 16:04+0000\n"
-"PO-Revision-Date: 2025-02-03 14:31\n"
+"PO-Revision-Date: 2025-02-04 15:05\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Bosnian\n"
 "MIME-Version: 1.0\n"
@@ -2924,7 +2924,7 @@ msgstr "Učitaj još"
 #. Option for the 'Auto Recording' (Select) field in DocType 'LMS Live Class'
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Local"
-msgstr ""
+msgstr "Lokal"
 
 #. Label of the location (Data) field in DocType 'Job Opportunity'
 #. Label of the location (Data) field in DocType 'Education Detail'
@@ -2934,7 +2934,7 @@ msgstr ""
 #: lms/lms/doctype/education_detail/education_detail.json
 #: lms/lms/doctype/work_experience/work_experience.json
 msgid "Location"
-msgstr ""
+msgstr "Lokacija"
 
 #. Label of the location_preference (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -3712,7 +3712,7 @@ msgstr ""
 #: lms/lms/doctype/batch_student/batch_student.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 msgid "Payment"
-msgstr ""
+msgstr "Plaćanje"
 
 #. Name of a DocType
 #: lms/lms/doctype/payment_country/payment_country.json
@@ -3763,7 +3763,7 @@ msgstr ""
 #. Label of the payments_tab (Tab Break) field in DocType 'Web Form'
 #: lms/fixtures/custom_field.json
 msgid "Payments"
-msgstr ""
+msgstr "Plaćanja"
 
 #. Label of the payments_app_is_not_installed (HTML) field in DocType 'LMS
 #. Settings'
@@ -3798,7 +3798,7 @@ msgstr ""
 
 #: frontend/src/pages/Billing.vue:104
 msgid "Phone Number"
-msgstr ""
+msgstr "Broj Telefona"
 
 #: frontend/src/components/CourseCardOverlay.vue:145
 msgid "Please Login"
@@ -4341,7 +4341,7 @@ msgstr "Rezultat"
 #. Label of the resume (Attach) field in DocType 'LMS Job Application'
 #: lms/job/doctype/lms_job_application/lms_job_application.json
 msgid "Resume"
-msgstr ""
+msgstr "Nastavi"
 
 #. Label of the review (Small Text) field in DocType 'LMS Course Review'
 #. Label of a Link in the LMS Workspace
@@ -4467,7 +4467,7 @@ msgstr ""
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.json
 #: lms/templates/quiz/quiz.html:148
 msgid "Score"
-msgstr ""
+msgstr "Bodovi"
 
 #. Label of the score_out_of (Int) field in DocType 'LMS Quiz Submission'
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.json
@@ -5450,7 +5450,7 @@ msgstr ""
 #: frontend/src/components/PaymentSettings.vue:27
 #: frontend/src/components/SettingDetails.vue:23
 msgid "Update"
-msgstr ""
+msgstr "Ažuriraj"
 
 #: lms/templates/emails/community_course_membership.html:11
 msgid "Update Password"
@@ -5541,7 +5541,7 @@ msgstr ""
 
 #: frontend/src/pages/Notifications.vue:38
 msgid "View"
-msgstr ""
+msgstr "Pogled"
 
 #: frontend/src/components/Modals/Event.vue:67
 msgid "View Certificate"
