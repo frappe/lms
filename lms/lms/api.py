@@ -1087,7 +1087,7 @@ def mark_lesson_progress(course, chapter_number, lesson_number):
 
 
 @frappe.whitelist()
-def get_heatmap_data(member=None, base_days=300):
+def get_heatmap_data(member=None, base_days=200):
 	if not member:
 		member = frappe.session.user
 
