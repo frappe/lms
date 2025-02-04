@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-01-24 16:04+0000\n"
-"PO-Revision-Date: 2025-02-03 14:31\n"
+"PO-Revision-Date: 2025-02-04 15:05\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Persian\n"
 "MIME-Version: 1.0\n"
@@ -5412,7 +5412,7 @@ msgstr ""
 
 #: frontend/src/pages/Batches.vue:262 frontend/src/pages/Batches.vue:278
 msgid "Unpublished"
-msgstr ""
+msgstr "منتشر نشده"
 
 #: frontend/src/components/Modals/EditCoverImage.vue:60
 #: frontend/src/components/UnsplashImageBrowser.vue:54
