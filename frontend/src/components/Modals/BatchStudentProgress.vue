@@ -78,7 +78,7 @@
 				</div>
 
 				<!-- Heatmap -->
-				<StudentHeatmap :member="student.email" :base_days="120" />
+				<StudentHeatmap :member="student.email" :days="120" />
 			</div>
 		</template>
 	</Dialog>

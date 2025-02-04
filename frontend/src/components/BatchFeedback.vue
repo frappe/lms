@@ -67,7 +67,7 @@
 				<ListRow
 					:row="row"
 					v-for="row in feedbackList.data"
-					class="group cursor-pointer"
+					class="group cursor-pointer feedback-list"
 				>
 					<template #default="{ column, item }">
 						<ListRowItem
@@ -237,3 +237,9 @@ const feedbackColumns = computed(() => {
 	]
 })
 </script>
+<style>
+.feedback-list > button > div {
+	align-items: start;
+	padding: 0.25rem 0;
+}
+</style>
