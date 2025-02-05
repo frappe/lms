@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-01-24 16:04+0000\n"
-"PO-Revision-Date: 2025-02-04 15:05\n"
+"PO-Revision-Date: 2025-02-05 15:57\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Bosnian\n"
 "MIME-Version: 1.0\n"
@@ -2479,7 +2479,7 @@ msgstr ""
 #: lms/lms/doctype/certification/certification.json
 #: lms/lms/doctype/lms_certificate/lms_certificate.json
 msgid "Issue Date"
-msgstr ""
+msgstr "Datum Izdavanja"
 
 #. Label of the issued_on (Date) field in DocType 'LMS Badge Assignment'
 #: lms/lms/doctype/lms_badge_assignment/lms_badge_assignment.json
@@ -4721,7 +4721,7 @@ msgstr ""
 #: frontend/src/components/LiveClass.vue:50 frontend/src/components/Quiz.vue:67
 #: lms/templates/quiz/quiz.html:39
 msgid "Start"
-msgstr ""
+msgstr "Start"
 
 #. Label of the start_date (Date) field in DocType 'Education Detail'
 #. Label of the start_date (Date) field in DocType 'LMS Batch'
