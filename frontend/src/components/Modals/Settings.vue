@@ -119,6 +119,13 @@ const tabsStructure = computed(() => {
 							type: 'checkbox',
 						},
 						{
+							label: 'Allow Guest Access',
+							name: 'allow_guest_access',
+							description:
+								'If enabled, users can access the course and batch lists without logging in.',
+							type: 'checkbox',
+						},
+						{
 							label: 'Send calendar invite for evaluations',
 							name: 'send_calendar_invite_for_evaluations',
 							description:

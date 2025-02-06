@@ -409,7 +409,7 @@ def get_certified_participants(filters=None, start=0, page_length=30, search=Non
 	return participants
 
 
-@frappe.whitelist()
+@frappe.whitelist(allow_guest=True)
 def get_certification_categories():
 	categories = []
 	docs = frappe.get_all(
@@ -1220,3 +1220,8 @@ def get_notifications(filters):
 		notification.update(from_user_details)
 
 	return notifications
+
+
+@frappe.whitelist(allow_guest=True)
+def is_guest_allowed():
+	return frappe.get_cached_value("LMS Settings", None, "allow_guest_access")

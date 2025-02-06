@@ -396,9 +396,9 @@ const createNewLesson = () => {
 						onSuccess() {
 							capture('lesson_created')
 							showToast('Success', 'Lesson created successfully', 'check')
-							if (!settingsStore.onboardingDetails.data?.is_onboarded) {
+							/* if (!settingsStore.onboardingDetails.data?.is_onboarded) {
 								settingsStore.onboardingDetails.reload()
-							}
+							} */
 							lessonDetails.reload()
 						},
 					}
