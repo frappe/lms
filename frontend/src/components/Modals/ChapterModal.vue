@@ -145,9 +145,9 @@ const addChapter = async (close) => {
 					{
 						onSuccess(data) {
 							cleanChapter()
-							if (!settingsStore.onboardingDetails.data?.is_onboarded) {
+							/* if (!settingsStore.onboardingDetails.data?.is_onboarded) {
 								settingsStore.onboardingDetails.reload()
-							}
+							} */
 							outline.value.reload()
 							showToast(
 								__('Success'),
