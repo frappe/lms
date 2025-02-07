@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-01-24 16:04+0000\n"
-"PO-Revision-Date: 2025-02-05 15:57\n"
+"PO-Revision-Date: 2025-02-06 15:56\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Bosnian\n"
 "MIME-Version: 1.0\n"
@@ -2039,7 +2039,7 @@ msgstr ""
 
 #: lms/lms/widgets/CourseCard.html:114
 msgid "Free"
-msgstr "Slobodno"
+msgstr "Besplatno"
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
 #: frontend/src/pages/Jobs.vue:147
