@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-01-24 16:04+0000\n"
-"PO-Revision-Date: 2025-02-07 16:11\n"
+"PO-Revision-Date: 2025-02-08 16:11\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Bosnian\n"
 "MIME-Version: 1.0\n"
@@ -4010,7 +4010,7 @@ msgstr "Prethodno"
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/public/js/common_functions.js:368
 msgid "Pricing"
-msgstr ""
+msgstr "Određivanje Cijena"
 
 #. Label of the exception_country (Table MultiSelect) field in DocType 'LMS
 #. Settings'
@@ -4349,7 +4349,7 @@ msgstr "Nastavi"
 #: lms/lms/doctype/lms_course_review/lms_course_review.json
 #: lms/lms/workspace/lms/lms.json lms/templates/reviews.html:143
 msgid "Review"
-msgstr ""
+msgstr "Recenzija"
 
 #: lms/templates/reviews.html:100
 msgid "Review the course"
@@ -4716,7 +4716,7 @@ msgstr ""
 #. Label of the stage (Select) field in DocType 'LMS Batch Old'
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 msgid "Stage"
-msgstr ""
+msgstr "Faza"
 
 #: frontend/src/components/LiveClass.vue:50 frontend/src/components/Quiz.vue:67
 #: lms/templates/quiz/quiz.html:39
@@ -5031,7 +5031,7 @@ msgstr ""
 #: lms/lms/doctype/cohort_web_page/cohort_web_page.json
 #: lms/lms/doctype/lms_certificate/lms_certificate.json
 msgid "Template"
-msgstr ""
+msgstr "Šablon"
 
 #: lms/overrides/user.py:205
 msgid "Temporarily Disabled"
@@ -5291,7 +5291,7 @@ msgstr ""
 #: lms/lms/doctype/work_experience/work_experience.json
 #: lms/public/js/common_functions.js:259
 msgid "Title"
-msgstr ""
+msgstr "Naziv"
 
 #: frontend/src/components/Modals/ChapterModal.vue:174
 msgid "Title is required"
