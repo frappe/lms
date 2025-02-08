@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-01-24 16:04+0000\n"
-"PO-Revision-Date: 2025-02-04 15:05\n"
+"PO-Revision-Date: 2025-02-08 16:11\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Persian\n"
 "MIME-Version: 1.0\n"
@@ -111,7 +111,7 @@ msgstr "فعال"
 #: frontend/src/components/Members.vue:43 frontend/src/pages/ProgramForm.vue:30
 #: frontend/src/pages/ProgramForm.vue:92 frontend/src/pages/ProgramForm.vue:137
 msgid "Add"
-msgstr "اضافه کردن"
+msgstr "افزودن"
 
 #: frontend/src/components/CourseOutline.vue:11
 #: frontend/src/components/CreateOutline.vue:18
@@ -5095,7 +5095,7 @@ msgstr ""
 
 #: lms/patches/create_mentor_request_email_templates.py:40
 msgid "The status of your application has changed."
-msgstr ""
+msgstr "وضعیت درخواست شما تغییر کرده است."
 
 #: frontend/src/pages/Batches.vue:77
 msgid "There are no batches matching the criteria. Keep an eye out, fresh learning experiences are on the way soon!"
@@ -5826,7 +5826,7 @@ msgstr "فعالیت"
 
 #: lms/templates/emails/mentor_request_creation_email.html:5
 msgid "cancel your application"
-msgstr ""
+msgstr "درخواست خود را لغو کنید"
 
 #: frontend/src/pages/Lesson.vue:174
 msgid "completed"
