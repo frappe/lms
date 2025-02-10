@@ -1226,9 +1226,9 @@ def get_batch_details(batch):
 	batch_details.courses = frappe.get_all(
 		"Batch Course", filters={"parent": batch}, fields=["course", "title", "evaluator"]
 	)
-	batch_details.students = frappe.get_all("LMS Batch Enrollment", {
-		"batch": batch
-	}, pluck='member')
+	batch_details.students = frappe.get_all(
+		"LMS Batch Enrollment", {"batch": batch}, pluck="member"
+	)
 
 	if batch_details.paid_batch and batch_details.start_date >= getdate():
 		batch_details.amount, batch_details.currency = check_multicurrency(
@@ -1718,16 +1718,20 @@ def enroll_in_batch(batch, payment_name=None):
 	if not frappe.db.exists(
 		"LMS Batch Enrollment", {"batch": batch, "member": frappe.session.user}
 	):
-		batch_doc = frappe.db.get_value('LMS Batch', batch, ['name', 'seat_count'], as_dict=True)
+		batch_doc = frappe.db.get_value(
+			"LMS Batch", batch, ["name", "seat_count"], as_dict=True
+		)
 		students = frappe.db.count("LMS Batch Enrollment", {"batch": batch})
 		if batch_doc.seat_count and students >= batch_doc.seat_count:
 			frappe.throw(_("The batch is full. Please contact the Administrator."))
 
 		new_student = frappe.new_doc("LMS Batch Enrollment")
-		new_student.update({
-			"member": frappe.session.user,
-			"batch": batch,
-		})
+		new_student.update(
+			{
+				"member": frappe.session.user,
+				"batch": batch,
+			}
+		)
 
 		if payment_name:
 			payment = frappe.db.get_value(

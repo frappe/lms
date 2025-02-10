@@ -8,7 +8,6 @@ from frappe.email.doctype.email_template.email_template import get_email_templat
 
 
 class LMSBatchEnrollment(Document):
-
 	def after_insert(self):
 		self.send_confirmation_email()
 		self.add_member_to_live_class()
@@ -18,7 +17,9 @@ class LMSBatchEnrollment(Document):
 		self.validate_course_enrollment()
 
 	def validate_duplicate_members(self):
-		if frappe.db.exists("LMS Batch Enrollment", {"batch": self.batch, "member": self.member}):
+		if frappe.db.exists(
+			"LMS Batch Enrollment", {"batch": self.batch, "member": self.member}
+		):
 			frappe.throw(_("Member already enrolled in this batch"))
 
 	def validate_course_enrollment(self):
@@ -41,9 +42,8 @@ class LMSBatchEnrollment(Document):
 			outgoing_email_account = frappe.get_cached_value(
 				"Email Account", {"default_outgoing": 1, "enable_outgoing": 1}, "name"
 			)
-			if (
-				not self.confirmation_email_sent
-				and (outgoing_email_account or frappe.conf.get("mail_login"))
+			if not self.confirmation_email_sent and (
+				outgoing_email_account or frappe.conf.get("mail_login")
 			):
 				self.send_mail()
 				self.confirmation_email_sent = 1
@@ -54,7 +54,12 @@ class LMSBatchEnrollment(Document):
 		custom_template = frappe.db.get_single_value(
 			"LMS Settings", "batch_confirmation_template"
 		)
-		batch = frappe.db.get_value("LMS Batch", self.batch, ["name", "title", "start_date", "start_time", "medium"], as_dict=1)
+		batch = frappe.db.get_value(
+			"LMS Batch",
+			self.batch,
+			["name", "title", "start_date", "start_time", "medium"],
+			as_dict=1,
+		)
 		args = {
 			"title": batch.title,
 			"student_name": self.member_name,

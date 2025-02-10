@@ -88,11 +88,15 @@ class LMSBatch(Document):
 			frappe.throw(_("Evaluation end date cannot be less than the batch end date."))
 
 	def validate_membership(self):
-		members = frappe.get_all('LMS Batch Enrollment', filters={'batch': self.name}, pluck=['member'])
+		members = frappe.get_all(
+			"LMS Batch Enrollment", filters={"batch": self.name}, pluck=["member"]
+		)
 		for course in self.courses:
 			for member in members:
-				if not frappe.db.exists('LMS Enrollment', {'course': course.course, 'member': member}):
-					enrollment = frappe.new_doc('LMS Enrollment')
+				if not frappe.db.exists(
+					"LMS Enrollment", {"course": course.course, "member": member}
+				):
+					enrollment = frappe.new_doc("LMS Enrollment")
 					enrollment.course = course.course
 					enrollment.member = member
 					enrollment.save()
