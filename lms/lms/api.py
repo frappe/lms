@@ -220,7 +220,7 @@ def validate_billing_access(type, name):
 
 	else:
 		membership = frappe.db.exists(
-			"Batch Student", {"student": frappe.session.user, "parent": name}
+			"LMS Batch Enrollment", {"member": frappe.session.user, "batch": name}
 		)
 		if membership:
 			access = False
