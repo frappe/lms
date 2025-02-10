@@ -291,7 +291,7 @@ const deleteStudents = createResource({
 	url: 'lms.lms.api.delete_documents',
 	makeParams(values) {
 		return {
-			doctype: 'Batch Student',
+			doctype: 'LMS Batch Enrollment',
 			documents: values.students,
 		}
 	},

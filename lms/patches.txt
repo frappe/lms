@@ -98,3 +98,4 @@ lms.patches.v2_0.update_desk_access_for_lms_roles
 lms.patches.v2_0.update_quiz_submission_data
 lms.patches.v2_0.convert_quiz_duration_to_minutes
 lms.patches.v2_0.allow_guest_access #05-02-2025
+lms.patches.v2_0.migrate_batch_student_data
