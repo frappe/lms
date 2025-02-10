@@ -46,7 +46,7 @@ class LMSBatchEnrollment(Document):
 				outgoing_email_account or frappe.conf.get("mail_login")
 			):
 				self.send_mail()
-				self.confirmation_email_sent = 1
+				self.db_set("confirmation_email_sent", 1)
 
 	def send_mail(self):
 		subject = _("Enrollment Confirmation for the Next Training Batch")
