@@ -16,7 +16,9 @@ def execute():
 	)
 
 	for student in students:
-		if not frappe.db.exists("LMS Batch Enrollment", {"member": student.student, "batch": student.parent}):
+		if not frappe.db.exists(
+			"LMS Batch Enrollment", {"member": student.student, "batch": student.parent}
+		):
 			doc = frappe.new_doc("LMS Batch Enrollment")
 			doc.member = student.student
 			doc.member_name = student.student_name
