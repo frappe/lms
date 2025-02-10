@@ -25,6 +25,7 @@
 			<div class="border-r">
 				<Tabs
 					v-model="tabIndex"
+					as="div"
 					:tabs="tabs"
 					tablistClass="overflow-y-hidden bg-white"
 				>
@@ -54,7 +55,7 @@
 							</button>
 						</div>
 					</template>
-					<template #default="{ tab }">
+					<template #tab-panel="{ tab }">
 						<div class="pt-5 px-5 pb-10">
 							<div v-if="tab.label == 'Courses'">
 								<BatchCourses :batch="batch.data.name" />

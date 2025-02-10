@@ -50,6 +50,7 @@
 		<div class="">
 			<Tabs
 				v-if="hasCourses"
+				as="div"
 				v-model="tabIndex"
 				tablistClass="overflow-x-visible flex-wrap !gap-3 md:flex-nowrap"
 				:tabs="makeTabs"
@@ -68,7 +69,7 @@
 						</button>
 					</div>
 				</template>
-				<template #default="{ tab }">
+				<template #tab-panel="{ tab }">
 					<div
 						v-if="tab.courses && tab.courses.value.length"
 						class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 gap-7 my-5 mx-5"

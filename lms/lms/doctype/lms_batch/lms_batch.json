@@ -32,7 +32,6 @@
   "batch_details",
   "batch_details_raw",
   "section_break_jgji",
-  "students",
   "courses",
   "assessment_tab",
   "assessment",
@@ -85,12 +84,6 @@
   {
    "fieldname": "section_break_6",
    "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "students",
-   "fieldtype": "Table",
-   "label": "Students",
-   "options": "Batch Student"
   },
   {
    "fieldname": "courses",
@@ -328,8 +321,13 @@
   }
  ],
  "index_web_pages_for_search": 1,
- "links": [],
- "modified": "2025-01-17 10:23:10.580311",
+ "links": [
+  {
+   "link_doctype": "LMS Batch Enrollment",
+   "link_fieldname": "batch"
+  }
+ ],
+ "modified": "2025-02-10 12:01:22.476325",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch",
