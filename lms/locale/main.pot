@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Frappe LMS VERSION\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2025-01-31 16:04+0000\n"
-"PO-Revision-Date: 2025-01-31 16:04+0000\n"
+"POT-Creation-Date: 2025-02-07 16:03+0000\n"
+"PO-Revision-Date: 2025-02-07 16:03+0000\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: jannat@frappe.io\n"
 "MIME-Version: 1.0\n"
@@ -236,6 +236,11 @@ msgstr ""
 
 #: lms/lms/doctype/lms_quiz/lms_quiz.py:46
 msgid "All questions should have the same marks if the limit is set."
+msgstr ""
+
+#. Label of the allow_guest_access (Check) field in DocType 'LMS Settings'
+#: lms/lms/doctype/lms_settings/lms_settings.json
+msgid "Allow Guest Access"
 msgstr ""
 
 #. Label of the allow_posting (Check) field in DocType 'Job Settings'
@@ -1212,6 +1217,7 @@ msgstr ""
 
 #. Name of a role
 #: frontend/src/pages/ProfileRoles.vue:16
+#: lms/lms/doctype/course_chapter/course_chapter.json
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_program/lms_program.json
 #: lms/lms/doctype/lms_question/lms_question.json
@@ -1338,7 +1344,7 @@ msgstr ""
 msgid "Courses Mentored"
 msgstr ""
 
-#: frontend/src/components/BatchCourses.vue:150
+#: frontend/src/components/BatchCourses.vue:151
 msgid "Courses deleted successfully"
 msgstr ""
 
@@ -4915,7 +4921,7 @@ msgid "Submitted {0}"
 msgstr ""
 
 #: frontend/src/components/Assignment.vue:316
-#: frontend/src/components/BatchCourses.vue:150
+#: frontend/src/components/BatchCourses.vue:151
 #: frontend/src/components/BatchOverlay.vue:135
 #: frontend/src/components/BatchStudents.vue:302
 #: frontend/src/components/CourseCardOverlay.vue:165
