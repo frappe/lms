@@ -1,5 +1,5 @@
 <template>
-	<div class="shadow rounded-md min-w-80">
+	<div class="border rounded-md min-w-80">
 		<iframe
 			v-if="course.data.video_link"
 			:src="video_link"
@@ -48,7 +48,7 @@
 			</router-link>
 			<div
 				v-else-if="course.data.disable_self_learning"
-				class="bg-blue-100 text-blue-900 text-sm rounded-md py-1 px-3"
+				class="bg-surface-blue-2 text-blue-900 text-sm rounded-md py-1 px-3"
 			>
 				{{ __('Contact the Administrator to enroll for this course.') }}
 			</div>
@@ -88,23 +88,26 @@
 				</Button>
 			</router-link>
 			<div class="space-y-4">
-				<div class="mt-8 font-medium">
+				<div class="mt-8 font-medium text-ink-gray-7">
 					{{ __('This course has:') }}
 				</div>
-				<div class="flex items-center">
-					<BookOpen class="h-4 w-4 stroke-1.5 text-gray-600" />
+				<div class="flex items-center text-ink-gray-7">
+					<BookOpen class="h-4 w-4 stroke-1.5" />
 					<span class="ml-2">
 						{{ course.data.lessons }} {{ __('Lessons') }}
 					</span>
 				</div>
-				<div class="flex items-center">
-					<Users class="h-4 w-4 stroke-1.5 text-gray-600" />
+				<div class="flex items-center text-ink-gray-7">
+					<Users class="h-4 w-4 stroke-1.5" />
 					<span class="ml-2">
 						{{ formatAmount(course.data.enrollments) }}
 						{{ __('Enrolled Students') }}
 					</span>
 				</div>
-				<div v-if="parseInt(course.data.rating) > 0" class="flex items-center">
+				<div
+					v-if="parseInt(course.data.rating) > 0"
+					class="flex items-center text-ink-gray-7"
+				>
 					<Star class="h-4 w-4 stroke-1.5 fill-orange-500 text-gray-50" />
 					<span class="ml-2">
 						{{ course.data.rating }} {{ __('Rating') }}

@@ -1,6 +1,6 @@
 <template>
 	<header
-		class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
+		class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs :items="breadbrumbs" />
 		<Button
@@ -73,20 +73,20 @@
 						v-if="lockCourse(course)"
 						class="absolute inset-0 flex items-center justify-center"
 					>
-						<LockKeyhole class="size-10 text-white" />
+						<LockKeyhole class="size-10 text-ink-white" />
 					</div>
 				</div>
 			</div>
-			<div v-else class="text-sm italic text-gray-600 mt-4">
+			<div v-else class="text-sm italic text-ink-gray-5 mt-4">
 				{{ __('No courses in this program') }}
 			</div>
 		</div>
 	</div>
 	<div
 		v-else
-		class="text-center p-5 text-gray-600 mt-52 w-3/4 md:w-1/2 mx-auto space-y-2"
+		class="text-center p-5 text-ink-gray-5 mt-52 w-3/4 md:w-1/2 mx-auto space-y-2"
 	>
-		<BookOpen class="size-10 mx-auto stroke-1 text-gray-500" />
+		<BookOpen class="size-10 mx-auto stroke-1 text-ink-gray-4" />
 		<div class="text-xl font-medium">
 			{{ __('No programs found') }}
 		</div>

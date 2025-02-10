@@ -1,7 +1,7 @@
 <template>
 	<div class="flex flex-col min-h-0">
 		<div class="flex items-center justify-between">
-			<div class="text-xl font-semibold mb-1">
+			<div class="text-xl font-semibold mb-5 text-ink-gray-9">
 				{{ label }}
 			</div>
 			<Button @click="() => showCategoryForm()">
@@ -28,12 +28,12 @@
 		</div>
 
 		<div class="overflow-y-scroll">
-			<div class="text-base divide-y">
+			<div class="text-base divide-y space-y-2">
 				<FormControl
 					:value="cat.category"
 					type="text"
 					v-for="cat in categories.data"
-					class="form-control"
+					class=""
 					@change.stop="(e) => update(cat.name, e.target.value)"
 				/>
 			</div>
@@ -128,24 +128,3 @@ const update = (name, value) => {
 	)
 }
 </script>
-<style>
-.form-control input {
-	padding: 1.25rem 0;
-	border-color: transparent;
-	background: white;
-}
-
-.form-control input:focus {
-	outline: transparent;
-	background: white;
-	box-shadow: none;
-	border-color: transparent;
-}
-
-.form-control input:hover {
-	outline: transparent;
-	background: white;
-	box-shadow: none;
-	border-color: transparent;
-}
-</style>

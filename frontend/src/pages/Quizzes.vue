@@ -1,6 +1,6 @@
 <template>
 	<header
-		class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
+		class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs :items="breadcrumbs" />
 		<router-link
@@ -27,7 +27,7 @@
 			:options="{ showTooltip: false, selectable: false }"
 		>
 			<ListHeader
-				class="mb-2 grid items-center space-x-4 rounded bg-gray-100 p-2"
+				class="mb-2 grid items-center space-x-4 rounded bg-surface-gray-2 p-2"
 			>
 				<ListHeaderItem :item="item" v-for="item in quizColumns">
 				</ListHeaderItem>
@@ -54,9 +54,9 @@
 	</div>
 	<div
 		v-else
-		class="text-center p-5 text-gray-600 mt-52 w-3/4 md:w-1/2 mx-auto space-y-2"
+		class="text-center p-5 text-ink-gray-5 mt-52 w-3/4 md:w-1/2 mx-auto space-y-2"
 	>
-		<BookOpen class="size-10 mx-auto stroke-1 text-gray-500" />
+		<BookOpen class="size-10 mx-auto stroke-1 text-ink-gray-4" />
 		<div class="text-xl font-medium">
 			{{ __('No quizzes found') }}
 		</div>

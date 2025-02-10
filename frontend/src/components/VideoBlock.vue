@@ -11,22 +11,22 @@
 			<source :src="fileURL" :type="type" />
 		</video>
 		<div
-			class="flex items-center space-x-2 bg-gray-200 rounded-md p-0.5 absolute bottom-3 w-[98%] left-0 right-0 mx-auto invisible group-hover:visible"
+			class="flex items-center space-x-2 bg-surface-gray-3 rounded-md p-0.5 absolute bottom-3 w-[98%] left-0 right-0 mx-auto invisible group-hover:visible"
 		>
 			<Button variant="ghost">
 				<template #icon>
 					<Play
 						v-if="!playing"
 						@click="playVideo"
-						class="w-4 h-4 text-gray-900"
+						class="w-4 h-4 text-ink-gray-9"
 					/>
-					<Pause v-else @click="pauseVideo" class="w-4 h-4 text-gray-900" />
+					<Pause v-else @click="pauseVideo" class="w-4 h-4 text-ink-gray-9" />
 				</template>
 			</Button>
 			<Button variant="ghost" @click="toggleMute">
 				<template #icon>
-					<Volume2 v-if="!muted" class="w-4 h-4 text-gray-900" />
-					<VolumeX v-else class="w-4 h-4 text-gray-900" />
+					<Volume2 v-if="!muted" class="w-4 h-4 text-ink-gray-9" />
+					<VolumeX v-else class="w-4 h-4 text-ink-gray-9" />
 				</template>
 			</Button>
 			<input
@@ -43,7 +43,7 @@
 			</span>
 			<Button variant="ghost" @click="toggleFullscreen">
 				<template #icon>
-					<Maximize class="w-4 h-4 text-gray-900" />
+					<Maximize class="w-4 h-4 text-ink-gray-9" />
 				</template>
 			</Button>
 		</div>

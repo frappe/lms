@@ -3,7 +3,7 @@
 		<div class="grid md:grid-cols-[75%,25%] h-screen">
 			<div class="border-r">
 				<header
-					class="sticky top-0 z-10 flex flex-col md:flex-row md:items-center justify-between border-b overflow-hidden bg-white px-3 py-2.5 sm:px-5"
+					class="sticky top-0 z-10 flex flex-col md:flex-row md:items-center justify-between border-b overflow-hidden bg-surface-white px-3 py-2.5 sm:px-5"
 				>
 					<Breadcrumbs class="text-ellipsis" :items="breadcrumbs" />
 					<Button
@@ -38,11 +38,11 @@
 									}
 								"
 							>
-								<label class="block font-medium text-gray-600 mb-1">
+								<label class="block font-medium text-ink-gray-5 mb-1">
 									{{ __('Instructor Notes') }}
 								</label>
 								<ChevronRight
-									class="stroke-2 h-5 w-5 text-gray-600"
+									class="stroke-2 h-5 w-5 text-ink-gray-5"
 									:class="{
 										'rotate-90 transform duration-200': openInstructorEditor,
 										'duration-200': !openInstructorEditor,
@@ -52,18 +52,18 @@
 							<div
 								v-show="openInstructorEditor"
 								id="instructor-notes"
-								class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-gray-300 prose-th:border-gray-300 prose-td:relative prose-th:relative prose-th:bg-gray-100 prose-sm max-w-none !whitespace-normal py-3"
+								class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal py-3"
 							></div>
 						</div>
 					</div>
 					<div class="border-t mt-4">
 						<div class="w-5/6 mx-auto pt-4">
-							<label class="block font-medium text-gray-600 mb-1">
+							<label class="block font-medium text-ink-gray-5 mb-1">
 								{{ __('Content') }}
 							</label>
 							<div
 								id="content"
-								class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-gray-300 prose-th:border-gray-300 prose-td:relative prose-th:relative prose-th:bg-gray-100 prose-sm max-w-none !whitespace-normal py-3"
+								class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal py-3"
 							></div>
 						</div>
 					</div>
@@ -448,8 +448,8 @@ const showToast = (title, text, icon) => {
 		icon: icon,
 		iconClasses:
 			icon == 'check'
-				? 'bg-green-600 text-white rounded-md p-px'
-				: 'bg-red-600 text-white rounded-md p-px',
+				? 'bg-surface-green-3 text-ink-white rounded-md p-px'
+				: 'bg-surface-red-5 text-ink-white rounded-md p-px',
 		position: icon == 'check' ? 'bottom-right' : 'top-center',
 		timeout: icon == 'check' ? 5 : 10,
 	})

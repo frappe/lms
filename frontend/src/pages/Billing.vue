@@ -1,7 +1,7 @@
 <template>
 	<div class="">
 		<header
-			class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
+			class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 		>
 			<Breadcrumbs
 				class="h-7"
@@ -19,10 +19,10 @@
 			</div> -->
 			<div class="flex flex-col lg:flex-row justify-between">
 				<div
-					class="h-fit bg-gray-100 rounded-md p-5 space-y-4 lg:order-last mb-10 lg:mt-10 text-sm font-medium lg:w-1/4"
+					class="h-fit bg-surface-gray-2 rounded-md p-5 space-y-4 lg:order-last mb-10 lg:mt-10 text-sm font-medium lg:w-1/4"
 				>
 					<div class="flex items-center justify-between space-x-2">
-						<div class="text-gray-600">
+						<div class="text-ink-gray-5">
 							{{ __('Ordered Item') }}
 						</div>
 						<div class="">
@@ -33,7 +33,7 @@
 						v-if="orderSummary.data.gst_applied"
 						class="flex items-center justify-between"
 					>
-						<div class="text-gray-600">
+						<div class="text-ink-gray-5">
 							{{ __('Original Amount') }}
 						</div>
 						<div class="">
@@ -44,7 +44,7 @@
 						v-if="orderSummary.data.gst_applied"
 						class="flex items-center justify-between mt-2"
 					>
-						<div class="text-gray-600">
+						<div class="text-ink-gray-5">
 							{{ __('GST Amount') }}
 						</div>
 						<div>
@@ -52,7 +52,7 @@
 						</div>
 					</div>
 					<div
-						class="flex items-center justify-between border-t border-gray-400 pt-4 mt-2"
+						class="flex items-center justify-between border-t border-outline-gray-3 pt-4 mt-2"
 					>
 						<div class="text-lg font-semibold">
 							{{ __('Total') }}
@@ -123,7 +123,7 @@
 						</div>
 					</div>
 					<div class="flex items-center justify-between border-t pt-4 mt-8">
-						<p class="text-gray-600">
+						<p class="text-ink-gray-5">
 							{{
 								__(
 									'Make sure to enter the right billing name as the same will be used in your invoice.'
@@ -337,7 +337,7 @@ const showError = (err) => {
 		title: 'Error',
 		text: err.messages?.[0] || err,
 		icon: 'x',
-		iconClasses: 'bg-red-600 text-white rounded-md p-px',
+		iconClasses: 'bg-surface-red-5 text-ink-white rounded-md p-px',
 		position: 'top-center',
 		timeout: 10,
 	})

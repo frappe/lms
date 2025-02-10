@@ -1,6 +1,6 @@
 <template>
 	<header
-		class="sticky flex items-center justify-between top-0 z-10 border-b bg-white px-3 py-2.5 sm:px-5"
+		class="sticky flex items-center justify-between top-0 z-10 border-b bg-surface-white px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs :items="breadcrumbs" />
 	</header>
@@ -42,7 +42,7 @@
 					}"
 				>
 					<div
-						class="flex items-center space-x-2 border rounded-md hover:bg-gray-50 p-2"
+						class="flex items-center space-x-2 border rounded-md hover:bg-surface-menu-bar p-2 text-ink-gray-7"
 					>
 						<Avatar
 							:image="participant.user_image"
@@ -55,7 +55,7 @@
 							</div>
 							<div
 								v-if="participant.headline"
-								class="headline text-sm text-gray-700"
+								class="headline text-sm text-ink-gray-7"
 							>
 								{{ participant.headline }}
 							</div>
@@ -74,9 +74,9 @@
 		</div>
 		<div
 			v-else-if="!participants.list.loading"
-			class="flex flex-col items-center justify-center text-sm text-gray-600 italic mt-48"
+			class="flex flex-col items-center justify-center text-sm text-ink-gray-5 italic mt-48"
 		>
-			<BookOpen class="size-10 mx-auto stroke-1 text-gray-500" />
+			<BookOpen class="size-10 mx-auto stroke-1 text-ink-gray-4" />
 			<div class="text-lg font-medium mb-1">
 				{{ __('No participants found') }}
 			</div>

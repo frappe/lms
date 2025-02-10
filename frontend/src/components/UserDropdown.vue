@@ -7,8 +7,8 @@
 					isCollapsed
 						? 'px-0 w-auto'
 						: open
-						? 'bg-white shadow-sm px-2 w-52'
-						: 'hover:bg-gray-200 px-2 w-52'
+						? 'bg-surface-white shadow-sm px-2 w-52'
+						: 'hover:bg-surface-gray-3 px-2 w-52'
 				"
 			>
 				<img
@@ -25,7 +25,7 @@
 							: 'opacity-100 ml-2 w-auto'
 					"
 				>
-					<div class="text-base font-medium text-gray-900 leading-none">
+					<div class="text-base font-medium text-ink-gray-9 leading-none">
 						<span
 							v-if="
 								branding.data?.app_name && branding.data?.app_name != 'Frappe'
@@ -37,7 +37,7 @@
 					</div>
 					<div
 						v-if="userResource"
-						class="mt-1 text-sm text-gray-700 leading-none"
+						class="mt-1 text-sm text-ink-gray-7 leading-none"
 					>
 						{{ convertToTitleCase(userResource.data?.full_name) }}
 					</div>
@@ -50,7 +50,7 @@
 							: 'opacity-100 ml-2 w-auto'
 					"
 				>
-					<ChevronDown class="h-4 w-4 text-gray-700" />
+					<ChevronDown class="h-4 w-4 text-ink-gray-7" />
 				</div>
 			</button>
 		</template>
@@ -66,12 +66,20 @@ import LMSLogo from '@/components/Icons/LMSLogo.vue'
 import { sessionStore } from '@/stores/session'
 import { Dropdown } from 'frappe-ui'
 import Apps from '@/components/Apps.vue'
-import { ChevronDown, LogIn, LogOut, User, Settings } from 'lucide-vue-next'
+import {
+	ChevronDown,
+	LogIn,
+	LogOut,
+	Moon,
+	User,
+	Settings,
+	Sun,
+} from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { convertToTitleCase } from '../utils'
 import { usersStore } from '@/stores/user'
 import { useSettings } from '@/stores/settings'
-import { markRaw, watch, ref } from 'vue'
+import { markRaw, watch, ref, onMounted, computed } from 'vue'
 import SettingsModal from '@/components/Modals/Settings.vue'
 
 const router = useRouter()
@@ -80,12 +88,20 @@ let { userResource } = usersStore()
 const settingsStore = useSettings()
 let { isLoggedIn } = sessionStore()
 const showSettingsModal = ref(false)
+const theme = ref('light')
 
 const props = defineProps({
 	isCollapsed: {
 		type: Boolean,
 		default: false,
 	},
+})
+
+onMounted(() => {
+	theme.value = localStorage.getItem('theme') || 'light'
+	if (['light', 'dark'].includes(theme.value)) {
+		document.documentElement.setAttribute('data-theme', theme.value)
+	}
 })
 
 watch(
@@ -95,57 +111,73 @@ watch(
 	}
 )
 
-const userDropdownOptions = [
-	{
-		icon: User,
-		label: 'My Profile',
-		onClick: () => {
-			router.push(`/user/${userResource.data?.username}`)
+const toggleTheme = () => {
+	const currentTheme = document.documentElement.getAttribute('data-theme')
+	theme.value = currentTheme === 'dark' ? 'light' : 'dark'
+	document.documentElement.setAttribute('data-theme', theme.value)
+	localStorage.setItem('theme', theme.value)
+}
+
+const userDropdownOptions = computed(() => {
+	return [
+		{
+			icon: User,
+			label: 'My Profile',
+			onClick: () => {
+				router.push(`/user/${userResource.data?.username}`)
+			},
+			condition: () => {
+				return isLoggedIn
+			},
 		},
-		condition: () => {
-			return isLoggedIn
+		{
+			component: markRaw(Apps),
+			condition: () => {
+				let cookies = new URLSearchParams(document.cookie.split('; ').join('&'))
+				let system_user = cookies.get('system_user')
+				if (system_user === 'yes') return true
+				else return false
+			},
 		},
-	},
-	{
-		component: markRaw(Apps),
-		condition: () => {
-			let cookies = new URLSearchParams(document.cookie.split('; ').join('&'))
-			let system_user = cookies.get('system_user')
-			if (system_user === 'yes') return true
-			else return false
+		{
+			icon: theme.value === 'light' ? Moon : Sun,
+			label: 'Toggle Theme',
+			onClick: () => {
+				toggleTheme()
+			},
 		},
-	},
-	{
-		icon: Settings,
-		label: 'Settings',
-		onClick: () => {
-			settingsStore.isSettingsOpen = true
+		{
+			icon: Settings,
+			label: 'Settings',
+			onClick: () => {
+				settingsStore.isSettingsOpen = true
+			},
+			condition: () => {
+				return userResource.data?.is_moderator
+			},
 		},
-		condition: () => {
-			return userResource.data?.is_moderator
+		{
+			icon: LogOut,
+			label: 'Log out',
+			onClick: () => {
+				logout.submit().then(() => {
+					isLoggedIn = false
+				})
+			},
+			condition: () => {
+				return isLoggedIn
+			},
 		},
-	},
-	{
-		icon: LogOut,
-		label: 'Log out',
-		onClick: () => {
-			logout.submit().then(() => {
-				isLoggedIn = false
-			})
+		{
+			icon: LogIn,
+			label: 'Log in',
+			onClick: () => {
+				window.location.href = '/login'
+			},
+			condition: () => {
+				return !isLoggedIn
+			},
 		},
-		condition: () => {
-			return isLoggedIn
-		},
-	},
-	{
-		icon: LogIn,
-		label: 'Log in',
-		onClick: () => {
-			window.location.href = '/login'
-		},
-		condition: () => {
-			return !isLoggedIn
-		},
-	},
-]
+	]
+})
 </script>

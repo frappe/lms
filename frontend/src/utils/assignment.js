@@ -53,7 +53,7 @@ export class Assignment {
 			app.mount(this.wrapper)
 			return
 		}
-		this.wrapper.innerHTML = `<div class='border rounded-md p-10 text-center bg-gray-50 mb-2'>
+		this.wrapper.innerHTML = `<div class='border rounded-md p-10 text-center bg-surface-menu-bar mb-2'>
             <span class="font-medium">
                 Assignment: ${assignment}
             </span>

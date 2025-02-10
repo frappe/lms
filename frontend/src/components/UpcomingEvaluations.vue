@@ -37,7 +37,7 @@
 				</div>
 			</div>
 		</div>
-		<div v-else class="text-sm italic text-gray-600">
+		<div v-else class="text-sm italic text-ink-gray-5">
 			{{ __('No upcoming evaluations.') }}
 		</div>
 	</div>

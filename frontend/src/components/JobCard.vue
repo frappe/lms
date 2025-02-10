@@ -7,26 +7,26 @@
 					{{ job.job_title }}
 				</span>
 			</div>
-			<div class="flex items-center space-x-2">
-				<Building2 class="w-4 h-4 stroke-1.5 text-gray-600" />
+			<div class="flex items-center space-x-2 text-ink-gray-5">
+				<Building2 class="w-4 h-4 stroke-1.5" />
 				<span>
 					{{ job.company_name }}
 				</span>
 			</div>
-			<div class="flex items-center space-x-2">
-				<MapPin class="w-4 h-4 stroke-1.5 text-gray-600" />
+			<div class="flex items-center space-x-2 text-ink-gray-5">
+				<MapPin class="w-4 h-4 stroke-1.5" />
 				<span>
 					{{ job.location }}
 				</span>
 			</div>
-			<div class="flex items-center space-x-2">
-				<Shapes class="w-4 h-4 stroke-1.5 text-gray-600" />
+			<div class="flex items-center space-x-2 text-ink-gray-5">
+				<Shapes class="w-4 h-4 stroke-1.5" />
 				<span>
 					{{ job.type }}
 				</span>
 			</div>
-			<div class="flex items-center space-x-2">
-				<Calendar class="w-4 h-4 stroke-1.5 text-gray-600" />
+			<div class="flex items-center space-x-2 text-ink-gray-5">
+				<Calendar class="w-4 h-4 stroke-1.5" />
 				<span> {{ __('posted') }} {{ dayjs(job.creation).fromNow() }} </span>
 			</div>
 		</div>

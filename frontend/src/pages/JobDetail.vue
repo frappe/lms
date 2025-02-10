@@ -1,7 +1,7 @@
 <template>
 	<div class="">
 		<header
-			class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
+			class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 		>
 			<Breadcrumbs
 				class="h-7"
@@ -68,11 +68,11 @@
 							class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-5 md:gap-y-5"
 						>
 							<div class="flex items-center space-x-2">
-								<span class="p-4 bg-green-50 rounded-full">
-									<Building2 class="h-4 w-4 text-green-500" />
+								<span class="p-4 bg-surface-green-1 rounded-full">
+									<Building2 class="h-4 w-4 text-ink-green-2" />
 								</span>
 								<div class="flex flex-col space-y-2">
-									<span class="text-xs text-gray-600 font-medium uppercase">
+									<span class="text-xs text-ink-gray-5 font-medium uppercase">
 										{{ __('Organisation') }}
 									</span>
 									<span class="text-sm font-semibold">
@@ -81,11 +81,11 @@
 								</div>
 							</div>
 							<div class="flex items-center space-x-2">
-								<span class="p-4 bg-red-50 rounded-full">
-									<MapPin class="h-4 w-4 text-red-500" />
+								<span class="p-4 bg-surface-red-1 rounded-full">
+									<MapPin class="h-4 w-4 text-ink-red-3" />
 								</span>
 								<div class="flex flex-col space-y-2">
-									<span class="text-xs text-gray-600 font-medium uppercase">
+									<span class="text-xs text-ink-gray-5 font-medium uppercase">
 										{{ __('Location') }}
 									</span>
 									<span class="text-sm font-semibold">
@@ -98,7 +98,7 @@
 									<ClipboardType class="h-4 w-4 text-yellow-500" />
 								</span>
 								<div class="flex flex-col space-y-2">
-									<span class="text-xs font-medium text-gray-600 uppercase">
+									<span class="text-xs font-medium text-ink-gray-5 uppercase">
 										{{ __('Category') }}
 									</span>
 									<span class="text-sm font-semibold">
@@ -107,11 +107,11 @@
 								</div>
 							</div>
 							<div class="flex items-center space-x-2">
-								<span class="p-4 bg-blue-50 rounded-full">
-									<CalendarDays class="h-4 w-4 text-blue-500" />
+								<span class="p-4 bg-surface-blue-1 rounded-full">
+									<CalendarDays class="h-4 w-4 text-ink-blue-2" />
 								</span>
 								<div class="flex flex-col space-y-2">
-									<span class="text-xs text-gray-600 font-medium uppercase">
+									<span class="text-xs text-ink-gray-5 font-medium uppercase">
 										{{ __('Posted on') }}
 									</span>
 									<span class="text-sm font-semibold">
@@ -127,7 +127,7 @@
 									<SquareUserRound class="h-4 w-4 text-purple-500" />
 								</span>
 								<div class="flex flex-col space-y-2">
-									<span class="text-xs text-gray-600 font-medium uppercase">
+									<span class="text-xs text-ink-gray-5 font-medium uppercase">
 										{{ __('Applications Received') }}
 									</span>
 									<span class="text-sm font-semibold">
@@ -140,7 +140,7 @@
 				</div>
 				<p
 					v-html="job.data.description"
-					class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-gray-300 prose-th:border-gray-300 prose-td:relative prose-th:relative prose-th:bg-gray-100 prose-sm max-w-none !whitespace-normal mt-6"
+					class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-6"
 				></p>
 			</div>
 			<JobApplicationModal

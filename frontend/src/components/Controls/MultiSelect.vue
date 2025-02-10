@@ -2,7 +2,7 @@
 	<div>
 		<label class="block mb-1" :class="labelClasses" v-if="label">
 			{{ label }}
-			<span class="text-red-500" v-if="required">*</span>
+			<span class="text-ink-red-3" v-if="required">*</span>
 		</label>
 		<div class="grid grid-cols-3 gap-1">
 			<Button
@@ -41,7 +41,9 @@
 						</template>
 						<template #body="{ isOpen }">
 							<div v-show="isOpen">
-								<div class="mt-1 rounded-lg bg-white py-1 text-base shadow-2xl">
+								<div
+									class="mt-1 rounded-lg bg-surface-white py-1 text-base shadow-2xl"
+								>
 									<ComboboxOptions
 										class="my-1 max-h-[12rem] overflow-y-auto px-1.5"
 										static
@@ -55,14 +57,14 @@
 											<li
 												:class="[
 													'flex cursor-pointer items-center rounded px-2 py-1 text-base',
-													{ 'bg-gray-100': active },
+													{ 'bg-surface-gray-2': active },
 												]"
 											>
 												<div class="flex flex-col gap-1 p-1">
 													<div class="text-base font-medium">
 														{{ option.description }}
 													</div>
-													<div class="text-sm text-gray-600">
+													<div class="text-sm text-ink-gray-5">
 														{{ option.value }}
 													</div>
 												</div>
@@ -240,7 +242,7 @@ const labelClasses = computed(() => {
 			sm: 'text-xs',
 			md: 'text-base',
 		}[props.size || 'sm'],
-		'text-gray-600',
+		'text-ink-gray-5',
 	]
 })
 </script>

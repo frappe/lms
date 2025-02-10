@@ -1,6 +1,6 @@
 <template>
 	<div class="flex items-center justify-between mb-5">
-		<div class="text-lg font-semibold">
+		<div class="text-lg font-semibold text-ink-gray-9">
 			{{ __('Live Class') }}
 		</div>
 		<Button v-if="user.data.is_moderator" @click="openLiveClassModal">
@@ -15,9 +15,9 @@
 	<div v-if="liveClasses.data?.length" class="grid grid-cols-2 gap-5">
 		<div
 			v-for="cls in liveClasses.data"
-			class="flex flex-col border rounded-md h-full text-gray-700 p-3"
+			class="flex flex-col border rounded-md h-full text-ink-gray-7 p-3"
 		>
-			<div class="font-semibold text-gray-900 text-lg mb-1">
+			<div class="font-semibold text-ink-gray-9 text-lg mb-1">
 				{{ cls.title }}
 			</div>
 			<div class="short-introduction">
@@ -38,13 +38,13 @@
 				</div>
 				<div
 					v-if="cls.date >= dayjs().format('YYYY-MM-DD')"
-					class="flex items-center space-x-2 text-gray-900 mt-auto"
+					class="flex items-center space-x-2 text-ink-gray-9 mt-auto"
 				>
 					<a
 						v-if="user.data?.is_moderator || user.data?.is_evaluator"
 						:href="cls.start_url"
 						target="_blank"
-						class="w-1/2 cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-gray-800 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 focus-visible:ring focus-visible:ring-gray-400 h-7 text-base px-2 rounded"
+						class="w-1/2 cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 focus-visible:ring focus-visible:ring-outline-gray-3 h-7 text-base px-2 rounded"
 					>
 						<Monitor class="h-4 w-4 stroke-1.5" />
 						{{ __('Start') }}
@@ -52,7 +52,7 @@
 					<a
 						:href="cls.join_url"
 						target="_blank"
-						class="w-full cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-gray-800 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 focus-visible:ring focus-visible:ring-gray-400 h-7 text-base px-2 rounded"
+						class="w-full cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 focus-visible:ring focus-visible:ring-outline-gray-3 h-7 text-base px-2 rounded"
 					>
 						<Video class="h-4 w-4 stroke-1.5" />
 						{{ __('Join') }}
@@ -67,7 +67,7 @@
 			</div>
 		</div>
 	</div>
-	<div v-else class="text-sm italic text-gray-600">
+	<div v-else class="text-sm italic text-ink-gray-5">
 		{{ __('No live classes scheduled') }}
 	</div>
 	<LiveClassModal

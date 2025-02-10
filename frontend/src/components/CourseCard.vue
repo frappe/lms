@@ -1,7 +1,7 @@
 <template>
 	<div
 		v-if="course.title"
-		class="flex flex-col h-full rounded-md shadow-md text-base overflow-auto"
+		class="flex flex-col h-full rounded-md shadow-md border overflow-auto"
 		style="min-height: 350px"
 	>
 		<div
@@ -16,7 +16,7 @@
 					{{ __('Featured') }}
 				</Badge>
 				<Badge
-					variant="subtle"
+					variant="solid"
 					theme="gray"
 					size="md"
 					v-for="tag in course.tags"
@@ -32,8 +32,8 @@
 			<div class="flex items-center justify-between mb-2">
 				<div v-if="course.lessons">
 					<Tooltip :text="__('Lessons')">
-						<span class="flex items-center">
-							<BookOpen class="h-4 w-4 stroke-1.5 text-gray-700 mr-1" />
+						<span class="flex items-center text-ink-gray-7">
+							<BookOpen class="h-4 w-4 stroke-1.5 mr-1" />
 							{{ course.lessons }}
 						</span>
 					</Tooltip>
@@ -41,8 +41,8 @@
 
 				<div v-if="course.enrollments">
 					<Tooltip :text="__('Enrolled Students')">
-						<span class="flex items-center">
-							<Users class="h-4 w-4 stroke-1.5 text-gray-700 mr-1" />
+						<span class="flex items-center text-ink-gray-7">
+							<Users class="h-4 w-4 stroke-1. mr-1" />
 							{{ course.enrollments }}
 						</span>
 					</Tooltip>
@@ -50,8 +50,8 @@
 
 				<div v-if="course.rating">
 					<Tooltip :text="__('Average Rating')">
-						<span class="flex items-center">
-							<Star class="h-4 w-4 stroke-1.5 text-gray-700 mr-1" />
+						<span class="flex items-center text-ink-gray-7">
+							<Star class="h-4 w-4 stroke-1.5 mr-1" />
 							{{ course.rating }}
 						</span>
 					</Tooltip>
@@ -68,11 +68,11 @@
 				</div>
 			</div>
 
-			<div class="text-xl font-semibold leading-6">
+			<div class="text-xl font-semibold leading-6 text-ink-gray-9">
 				{{ course.title }}
 			</div>
 
-			<div class="short-introduction text-gray-700 text-sm">
+			<div class="short-introduction text-ink-gray-7 text-sm">
 				{{ course.short_introduction }}
 			</div>
 

@@ -2,7 +2,7 @@
 	<div class="flex flex-col justify-between h-full">
 		<div>
 			<div class="flex itemsc-center justify-between">
-				<div class="text-xl font-semibold leading-none mb-1">
+				<div class="text-xl font-semibold leading-none mb-1 text-ink-gray-9">
 					{{ __(label) }}
 				</div>
 				<Badge
@@ -12,7 +12,7 @@
 					theme="orange"
 				/>
 			</div>
-			<div class="text-xs text-gray-600">
+			<div class="text-xs text-ink-gray-5">
 				{{ __(description) }}
 			</div>
 		</div>
