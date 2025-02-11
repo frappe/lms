@@ -67,10 +67,8 @@
 						<div
 							class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-5 md:gap-y-5"
 						>
-							<div class="flex items-center space-x-2">
-								<span class="p-4 bg-surface-green-1 rounded-full">
-									<Building2 class="h-4 w-4 text-ink-green-2" />
-								</span>
+							<div class="flex items-center space-x-4">
+								<Building2 class="h-4 w-4 text-ink-green-2" />
 								<div class="flex flex-col space-y-2 text-ink-gray-7">
 									<span class="text-xs text-ink-gray-5 font-medium uppercase">
 										{{ __('Organisation') }}
@@ -80,10 +78,8 @@
 									</span>
 								</div>
 							</div>
-							<div class="flex items-center space-x-2">
-								<span class="p-4 bg-surface-red-1 rounded-full">
-									<MapPin class="h-4 w-4 text-ink-red-3" />
-								</span>
+							<div class="flex items-center space-x-4">
+								<MapPin class="size-4 text-ink-red-3" />
 								<div class="flex flex-col space-y-2 text-ink-gray-7">
 									<span class="text-xs font-medium uppercase">
 										{{ __('Location') }}
@@ -93,10 +89,8 @@
 									</span>
 								</div>
 							</div>
-							<div class="flex items-center space-x-2">
-								<span class="p-4 bg-yellow-50 rounded-full">
-									<ClipboardType class="h-4 w-4 text-yellow-500" />
-								</span>
+							<div class="flex items-center space-x-4">
+								<ClipboardType class="h-4 w-4 text-yellow-500" />
 								<div class="flex flex-col space-y-2 text-ink-gray-7">
 									<span class="text-xs font-medium uppercase">
 										{{ __('Category') }}
@@ -106,10 +100,8 @@
 									</span>
 								</div>
 							</div>
-							<div class="flex items-center space-x-2">
-								<span class="p-4 bg-surface-blue-1 rounded-full">
-									<CalendarDays class="h-4 w-4 text-ink-blue-2" />
-								</span>
+							<div class="flex items-center space-x-4">
+								<CalendarDays class="h-4 w-4 text-ink-blue-2" />
 								<div class="flex flex-col space-y-2 text-ink-gray-7">
 									<span class="text-xs font-medium uppercase">
 										{{ __('Posted on') }}
@@ -121,11 +113,9 @@
 							</div>
 							<div
 								v-if="applicationCount.data"
-								class="flex items-center space-x-2"
+								class="flex items-center space-x-4"
 							>
-								<span class="p-4 bg-purple-50 rounded-full">
-									<SquareUserRound class="h-4 w-4 text-purple-500" />
-								</span>
+								<SquareUserRound class="h-4 w-4 text-purple-500" />
 								<div class="flex flex-col space-y-2 text-ink-gray-7">
 									<span class="text-xs font-medium uppercase">
 										{{ __('Applications Received') }}

@@ -88,16 +88,16 @@
 				</Button>
 			</router-link>
 			<div class="space-y-4">
-				<div class="mt-8 font-medium text-ink-gray-7">
+				<div class="mt-8 font-medium text-ink-gray-9">
 					{{ __('This course has:') }}
 				</div>
-				<div class="flex items-center text-ink-gray-7">
+				<div class="flex items-center text-ink-gray-9">
 					<BookOpen class="h-4 w-4 stroke-1.5" />
 					<span class="ml-2">
 						{{ course.data.lessons }} {{ __('Lessons') }}
 					</span>
 				</div>
-				<div class="flex items-center text-ink-gray-7">
+				<div class="flex items-center text-ink-gray-9">
 					<Users class="h-4 w-4 stroke-1.5" />
 					<span class="ml-2">
 						{{ formatAmount(course.data.enrollments) }}
@@ -106,7 +106,7 @@
 				</div>
 				<div
 					v-if="parseInt(course.data.rating) > 0"
-					class="flex items-center text-ink-gray-7"
+					class="flex items-center text-ink-gray-9"
 				>
 					<Star class="h-4 w-4 stroke-1.5 fill-orange-500 text-gray-50" />
 					<span class="ml-2">

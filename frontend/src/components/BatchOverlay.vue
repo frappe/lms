@@ -1,20 +1,17 @@
 <template>
 	<div v-if="batch.data" class="border-2 rounded-md p-5 lg:w-72">
-		<Badge
-			v-if="batch.data.seat_count && seats_left > 0"
-			theme="green"
-			class="self-start mb-2 float-right"
-		>
-			{{ seats_left }} <span v-if="seats_left > 1">{{ __('Seats Left') }}</span
-			><span v-else-if="seats_left == 1">{{ __('Seat Left') }}</span>
-		</Badge>
-		<Badge
-			v-else-if="batch.data.seat_count && seats_left <= 0"
-			theme="red"
-			class="self-start mb-2 float-right"
-		>
+		<div v-if="batch.data.seat_count && seats_left > 0" class="text-xs bg-green-200 text-green-800 float-right px-2 py-0.5 rounded-md">
+			{{ seats_left }}
+			<span v-if="seats_left > 1">
+				{{ __('Seats Left') }}
+			</span>
+			<span v-else-if="seats_left == 1">
+				{{ __('Seat Left') }}
+			</span>
+		</div>
+		<div v-else-if="batch.data.seat_count && seats_left <= 0" class="text-xs bg-red-200 text-red-900 float-right px-2 py-0.5 rounded-md">
 			{{ __('Sold Out') }}
-		</Badge>
+		</div>
 		<div
 			v-if="batch.data.amount"
 			class="text-lg font-semibold mb-3 text-ink-gray-9"

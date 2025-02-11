@@ -60,7 +60,7 @@
 						<Badge
 							theme="gray"
 							size="lg"
-							class="mr-2"
+							class="mr-2 text-ink-gray-9"
 							v-for="tag in course.data.tags"
 						>
 							{{ tag }}

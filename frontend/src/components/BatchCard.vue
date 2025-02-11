@@ -27,7 +27,7 @@
 		<div class="short-introduction text-sm text-ink-gray-7">
 			{{ batch.description }}
 		</div>
-		<div v-if="batch.amount" class="font-semibold mb-4">
+		<div v-if="batch.amount" class="font-semibold text-ink-gray-9 mb-4">
 			{{ batch.price }}
 		</div>
 		<div class="flex flex-col space-y-2 mt-auto">

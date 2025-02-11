@@ -36,7 +36,7 @@
 						class="h-4 w-4 text-ink-gray-9 stroke-1"
 					/>
 					<div
-						class="text-base text-left text-ink-gray-7 font-medium leading-5 ml-2"
+						class="text-base text-left text-ink-gray-9 font-medium leading-5 ml-2"
 						@click="redirectToChapter(chapter)"
 					>
 						{{ chapter.title }}
