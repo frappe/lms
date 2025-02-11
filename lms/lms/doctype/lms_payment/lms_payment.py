@@ -37,7 +37,7 @@ def send_payment_reminder():
 
 
 def send_mail(payment):
-	subject = _(" Complete Your Enrollment - Don't miss out!")
+	subject = _("Complete Your Enrollment - Don't miss out!")
 	template = "payment_reminder"
 	custom_template = frappe.db.get_single_value(
 		"LMS Settings", "payment_reminder_template"
