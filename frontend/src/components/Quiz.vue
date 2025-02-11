@@ -1,7 +1,7 @@
 <template>
 	<div v-if="quiz.data">
 		<div
-			class="bg-blue-100 space-y-1 py-2 px-2 mb-4 rounded-md text-sm text-blue-800"
+			class="bg-surface-blue-2 space-y-1 py-2 px-2 mb-4 rounded-md text-sm text-ink-blue-800"
 		>
 			<div class="leading-5">
 				{{
@@ -83,7 +83,7 @@
 					class="border rounded-md p-5"
 				>
 					<div class="flex justify-between">
-						<div class="text-sm text-gray-600">
+						<div class="text-sm text-ink-gray-5">
 							<span class="mr-2">
 								{{ __('Question {0}').format(activeQuestion) }}:
 							</span>
@@ -91,25 +91,25 @@
 								{{ getInstructions(questionDetails.data) }}
 							</span>
 						</div>
-						<div class="text-gray-900 text-sm font-semibold item-left">
+						<div class="text-ink-gray-9 text-sm font-semibold item-left">
 							{{ question.marks }}
 							{{ question.marks == 1 ? __('Mark') : __('Marks') }}
 						</div>
 					</div>
 					<div
-						class="text-gray-900 font-semibold mt-2 leading-5"
+						class="text-ink-gray-9 font-semibold mt-2 leading-5"
 						v-html="questionDetails.data.question"
 					></div>
 					<div v-if="questionDetails.data.type == 'Choices'" v-for="index in 4">
 						<label
 							v-if="questionDetails.data[`option_${index}`]"
-							class="flex items-center bg-gray-200 rounded-md p-3 mt-4 w-full cursor-pointer focus:border-blue-600"
+							class="flex items-center bg-surface-gray-3 rounded-md p-3 mt-4 w-full cursor-pointer focus:border-blue-600"
 						>
 							<input
 								v-if="!showAnswers.length && !questionDetails.data.multiple"
 								type="radio"
 								:name="encodeURIComponent(questionDetails.data.question)"
-								class="w-3.5 h-3.5 text-gray-900 focus:ring-gray-200"
+								class="w-3.5 h-3.5 text-ink-gray-9 focus:ring-outline-gray-modals"
 								@change="markAnswer(index)"
 							/>
 
@@ -117,7 +117,7 @@
 								v-else-if="!showAnswers.length && questionDetails.data.multiple"
 								type="checkbox"
 								:name="encodeURIComponent(questionDetails.data.question)"
-								class="w-3.5 h-3.5 text-gray-900 rounded-sm focus:ring-gray-200"
+								class="w-3.5 h-3.5 text-ink-gray-9 rounded-sm focus:ring-outline-gray-modals"
 								@change="markAnswer(index)"
 							/>
 							<div
@@ -127,15 +127,15 @@
 								<div v-if="index - 1 == idx">
 									<CheckCircle
 										v-if="answer == 1"
-										class="w-4 h-4 text-green-500"
+										class="w-4 h-4 text-ink-green-2"
 									/>
 									<MinusCircle
 										v-else-if="answer == 2"
-										class="w-4 h-4 text-green-500"
+										class="w-4 h-4 text-ink-green-2"
 									/>
 									<XCircle
 										v-else-if="answer == 0"
-										class="w-4 h-4 text-red-500"
+										class="w-4 h-4 text-ink-red-3"
 									/>
 									<MinusCircle v-else class="w-4 h-4" />
 								</div>
@@ -164,12 +164,12 @@
 						<div v-if="showAnswers.length">
 							<Badge v-if="showAnswers[0]" :label="__('Correct')" theme="green">
 								<template #prefix>
-									<CheckCircle class="w-4 h-4 text-green-500 mr-1" />
+									<CheckCircle class="w-4 h-4 text-ink-green-2 mr-1" />
 								</template>
 							</Badge>
 							<Badge v-else theme="red" :label="__('Incorrect')">
 								<template #prefix>
-									<XCircle class="w-4 h-4 text-red-500 mr-1" />
+									<XCircle class="w-4 h-4 text-ink-red-3 mr-1" />
 								</template>
 							</Badge>
 						</div>
@@ -181,11 +181,11 @@
 							@change="(val) => (possibleAnswer = val)"
 							:editable="true"
 							:fixedMenu="true"
-							editorClass="prose-sm max-w-none border-b border-x bg-gray-100 rounded-b-md py-1 px-2 min-h-[7rem]"
+							editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
 						/>
 					</div>
 					<div class="flex items-center justify-between mt-4">
-						<div class="text-sm text-gray-600">
+						<div class="text-sm text-ink-gray-5">
 							{{
 								__('Question {0} of {1}').format(
 									activeQuestion,

@@ -5,7 +5,7 @@
 		</div>
 		<div
 			v-if="sidebarSettings.data"
-			class="fixed flex items-center justify-around border-t border-gray-300 bottom-0 z-10 w-full bg-white standalone:pb-4"
+			class="fixed flex items-center justify-around border-t border-outline-gray-2 bottom-0 z-10 w-full bg-surface-white standalone:pb-4"
 			:style="{
 				gridTemplateColumns: `repeat(${
 					sidebarLinks.length + 1
@@ -22,7 +22,7 @@
 				<component
 					:is="icons[tab.icon]"
 					class="h-6 w-6 stroke-1.5"
-					:class="[isActive(tab) ? 'text-gray-900' : 'text-gray-600']"
+					:class="[isActive(tab) ? 'text-ink-gray-9' : 'text-ink-gray-5']"
 				/>
 			</button>
 			<Popover
@@ -33,7 +33,7 @@
 				<template #target>
 					<component
 						:is="icons['List']"
-						class="h-6 w-6 stroke-1.5 text-gray-600"
+						class="h-6 w-6 stroke-1.5 text-ink-gray-5"
 					/>
 				</template>
 				<template #body-main>
@@ -46,7 +46,7 @@
 						>
 							<component
 								:is="icons[link.icon]"
-								class="h-4 w-4 stroke-1.5 text-gray-600"
+								class="h-4 w-4 stroke-1.5 text-ink-gray-5"
 							/>
 							<div>
 								{{ link.label }}

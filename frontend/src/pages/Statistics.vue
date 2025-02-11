@@ -1,101 +1,111 @@
 <template>
 	<div class="">
 		<header
-			class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
+			class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 		>
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
 		</header>
 		<div v-if="chartDetails.data" class="p-5">
 			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-				<div class="flex items-center shadow py-2 px-3 rounded-md">
-					<div class="p-2 rounded-md bg-gray-100 mr-3">
-						<BookOpen class="w-18 h-18 stroke-1.5 text-gray-700" />
+				<div
+					class="flex items-center border py-2 px-3 rounded-md text-ink-gray-7"
+				>
+					<div class="p-2 rounded-md bg-surface-gray-2 mr-3">
+						<BookOpen class="w-18 h-18 stroke-1.5" />
 					</div>
 					<div>
 						<div class="text-xl font-semibold mb-1">
 							{{ formatNumber(chartDetails.data.courses) }}
 						</div>
-						<div class="text-gray-700">
+						<div>
 							{{ __('Courses') }}
 						</div>
 					</div>
 				</div>
-				<div class="flex items-center shadow py-2 px-3 rounded-md">
-					<div class="p-2 rounded-md bg-gray-100 mr-3">
-						<LogIn class="w-18 h-18 stroke-1.5 text-gray-700" />
+				<div
+					class="flex items-center border py-2 px-3 rounded-md text-ink-gray-7"
+				>
+					<div class="p-2 rounded-md bg-surface-gray-2 mr-3">
+						<LogIn class="w-18 h-18 stroke-1.5" />
 					</div>
 					<div>
 						<div class="text-xl font-semibold mb-1">
 							{{ formatNumber(chartDetails.data.users) }}
 						</div>
-						<div class="text-gray-700">
+						<div>
 							{{ __('Signups') }}
 						</div>
 					</div>
 				</div>
-				<div class="flex items-center shadow py-2 px-3 rounded-md">
-					<div class="p-2 rounded-md bg-gray-100 mr-3">
-						<BookOpenCheck class="w-18 h-18 stroke-1.5 text-gray-700" />
+				<div
+					class="flex items-center border py-2 px-3 rounded-md text-ink-gray-7"
+				>
+					<div class="p-2 rounded-md bg-surface-gray-2 mr-3">
+						<BookOpenCheck class="w-18 h-18 stroke-1.5" />
 					</div>
 					<div>
 						<div class="text-xl font-semibold mb-1">
 							{{ formatNumber(chartDetails.data.enrollments) }}
 						</div>
-						<div class="text-gray-700">
+						<div>
 							{{ __('Enrollments') }}
 						</div>
 					</div>
 				</div>
-				<div class="flex items-center shadow py-2 px-3 rounded-md">
-					<div class="p-2 rounded-md bg-gray-100 mr-3">
-						<FileCheck class="w-18 h-18 stroke-1.5 text-gray-700" />
+				<div
+					class="flex items-center border py-2 px-3 rounded-md text-ink-gray-7"
+				>
+					<div class="p-2 rounded-md bg-surface-gray-2 mr-3">
+						<FileCheck class="w-18 h-18 stroke-1.5" />
 					</div>
 					<div>
 						<div class="text-xl font-semibold mb-1">
 							{{ formatNumber(chartDetails.data.completions) }}
 						</div>
-						<div class="text-gray-700">
+						<div>
 							{{ __('Completions') }}
 						</div>
 					</div>
 				</div>
-				<div class="flex items-center shadow py-2 px-3 rounded-md">
-					<div class="p-2 rounded-md bg-gray-100 mr-3">
-						<FileCheck2 class="w-18 h-18 stroke-1.5 text-gray-700" />
+				<div
+					class="flex items-center border py-2 px-3 rounded-md text-ink-gray-7"
+				>
+					<div class="p-2 rounded-md bg-surface-gray-2 mr-3">
+						<FileCheck2 class="w-18 h-18 stroke-1.5" />
 					</div>
 					<div>
 						<div class="text-xl font-semibold mb-1">
 							{{ formatNumber(chartDetails.data.lesson_completions) }}
 						</div>
-						<div class="text-gray-700">
+						<div class="text-ink-gray-7">
 							{{ __('Milestones') }}
 						</div>
 					</div>
 				</div>
 			</div>
 			<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
-				<div class="shadow rounded-md p-5 min-h-72">
+				<div class="border rounded-md p-5 min-h-72">
 					<Line
 						v-if="signupsChart.data"
 						:data="signupsChart.data"
 						:options="signupChartOptions()"
 					/>
 				</div>
-				<div class="shadow rounded-md p-5 min-h-72">
+				<div class="border rounded-md p-5 min-h-72">
 					<Line
 						v-if="enrollmentChart.data"
 						:data="enrollmentChart.data"
 						:options="enrollmentChartOptions()"
 					/>
 				</div>
-				<div class="shadow rounded-md p-5">
+				<div class="border rounded-md p-5">
 					<Line
 						v-if="lessonCompletion.data"
 						:data="lessonCompletion.data"
 						:options="lessonChartOptions()"
 					/>
 				</div>
-				<div class="shadow rounded-md p-5">
+				<div class="border rounded-md p-5">
 					<Pie
 						v-if="courseCompletion.data"
 						:data="courseCompletion.data"

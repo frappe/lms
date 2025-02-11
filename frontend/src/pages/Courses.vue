@@ -1,7 +1,7 @@
 <template>
 	<div v-if="courses.data">
 		<header
-			class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
+			class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 		>
 			<Breadcrumbs
 				class="h-7"
@@ -25,7 +25,10 @@
 						@input="courses.reload()"
 					>
 						<template #prefix>
-							<Search class="w-4 h-4 stroke-1.5 text-gray-600" name="search" />
+							<Search
+								class="w-4 h-4 stroke-1.5 text-ink-gray-5"
+								name="search"
+							/>
 						</template>
 					</FormControl>
 				</div>
@@ -58,8 +61,8 @@
 				<template #tab="{ tab, selected }">
 					<div>
 						<button
-							class="group -mb-px flex items-center gap-2 overflow-hidden border-b border-transparent py-2.5 text-base text-gray-600 duration-300 ease-in-out hover:border-gray-400 hover:text-gray-900"
-							:class="{ 'text-gray-900': selected }"
+							class="group -mb-px flex items-center gap-2 overflow-hidden border-b border-transparent py-2.5 text-base text-ink-gray-5 duration-300 ease-in-out hover:border-outline-gray-3 hover:text-ink-gray-9"
+							:class="{ 'text-ink-gray-9': selected }"
 						>
 							<component v-if="tab.icon" :is="tab.icon" class="h-5" />
 							{{ __(tab.label) }}
@@ -104,7 +107,7 @@
 							<CourseCard :course="course" />
 						</router-link>
 					</div>
-					<div v-else class="p-5 italic text-gray-500">
+					<div v-else class="p-5 italic text-ink-gray-4">
 						{{ __('No {0} courses').format(tab.label.toLowerCase()) }}
 					</div>
 				</template>
@@ -124,15 +127,15 @@
 						},
 					}"
 				>
-					<div class="bg-gray-50 py-32 px-5 rounded-md">
+					<div class="bg-surface-menu-bar py-32 px-5 rounded-md">
 						<div class="flex flex-col items-center text-center space-y-2">
 							<Plus
-								class="size-10 stroke-1 text-gray-800 p-1 rounded-full border bg-white"
+								class="size-10 stroke-1 text-ink-gray-8 p-1 rounded-full border bg-surface-white"
 							/>
 							<div class="font-medium">
 								{{ __('Create a Course') }}
 							</div>
-							<span class="text-gray-700 text-sm leading-4">
+							<span class="text-ink-gray-7 text-sm leading-4">
 								{{ __('You can add chapters and lessons to it.') }}
 							</span>
 						</div>
@@ -141,9 +144,9 @@
 			</div>
 			<div
 				v-else-if="!courses.loading && !hasCourses"
-				class="text-center p-5 text-gray-600 mt-52 w-3/4 md:w-1/2 mx-auto space-y-2"
+				class="text-center p-5 text-ink-gray-5 mt-52 w-3/4 md:w-1/2 mx-auto space-y-2"
 			>
-				<BookOpen class="size-10 mx-auto stroke-1 text-gray-500" />
+				<BookOpen class="size-10 mx-auto stroke-1 text-ink-gray-4" />
 				<div class="text-xl font-medium">
 					{{ __('No courses found') }}
 				</div>

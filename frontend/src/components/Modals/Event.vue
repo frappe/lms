@@ -12,7 +12,7 @@
 						{{ event.title }}
 					</div>
 
-					<div class="flex flex-col space-y-4 text-sm text-gray-800">
+					<div class="flex flex-col space-y-4 text-sm text-ink-gray-8">
 						<Tooltip :text="__('Email ID')">
 							<div class="flex items-center space-x-2 w-fit">
 								<User class="h-4 w-4 stroke-1.5" />

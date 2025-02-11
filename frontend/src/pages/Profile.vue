@@ -2,7 +2,7 @@
 	<NoPermission v-if="!$user.data" />
 	<div v-else-if="profile.data">
 		<header
-			class="sticky top-0 z-10 flex flex-col md:flex-row md:items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
+			class="sticky top-0 z-10 flex flex-col md:flex-row md:items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 		>
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
 		</header>
@@ -14,7 +14,7 @@
 			/>
 			<div
 				v-else
-				:class="{ 'bg-gray-100': !profile.data.cover_image }"
+				:class="{ 'bg-surface-gray-2': !profile.data.cover_image }"
 				class="h-[130px] w-full"
 			></div>
 			<div
@@ -27,7 +27,7 @@
 					<template v-slot="{ togglePopover }">
 						<Button variant="outline" @click="togglePopover()">
 							<template #prefix>
-								<Edit class="w-4 h-4 stroke-1.5 text-gray-700" />
+								<Edit class="w-4 h-4 stroke-1.5 text-ink-gray-7" />
 							</template>
 							{{ __('Edit') }}
 						</Button>
@@ -50,10 +50,10 @@
 					/>
 				</div>
 				<div class="ml-6">
-					<h2 class="mt-2 text-3xl font-semibold text-gray-900">
+					<h2 class="mt-2 text-3xl font-semibold text-ink-gray-9">
 						{{ profile.data.full_name }}
 					</h2>
-					<div class="mt-2 text-base text-gray-700">
+					<div class="mt-2 text-base text-ink-gray-7">
 						{{ profile.data.headline }}
 					</div>
 				</div>
@@ -63,7 +63,7 @@
 					@click="editProfile()"
 				>
 					<template #prefix>
-						<Edit class="w-4 h-4 stroke-1.5 text-gray-700" />
+						<Edit class="w-4 h-4 stroke-1.5 text-ink-gray-7" />
 					</template>
 					{{ __('Edit Profile') }}
 				</Button>

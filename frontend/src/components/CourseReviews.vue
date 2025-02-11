@@ -7,7 +7,7 @@
 		>
 			{{ __('Write a Review') }}
 		</Button>
-		<div class="flex items-center font-semibold text-2xl">
+		<div class="flex items-center font-semibold text-2xl text-ink-gray-9">
 			{{ __('Student Reviews') }}
 		</div>
 		<div class="grid gap-8 mt-10">
@@ -28,17 +28,17 @@
 								params: { username: review.owner_details.username },
 							}"
 						>
-							<span class="text-lg font-medium mr-4">
+							<span class="text-lg font-medium mr-4 text-ink-gray-7">
 								{{ review.owner_details.full_name }}
 							</span>
 						</router-link>
-						<span>
+						<span class="text-ink-gray-7">
 							{{ review.creation }}
 						</span>
 						<div class="flex mt-2">
 							<Star
 								v-for="index in 5"
-								class="h-5 w-5 text-gray-100 bg-gray-200 rounded-sm mr-2"
+								class="h-5 w-5 text-ink-gray-2 rounded-sm mr-2"
 								:class="
 									index <= Math.ceil(review.rating)
 										? 'fill-orange-500'
@@ -48,7 +48,7 @@
 						</div>
 					</div>
 				</div>
-				<div v-if="review.review" class="mt-4 leading-5">
+				<div v-if="review.review" class="mt-4 leading-5 text-ink-gray-7">
 					{{ review.review }}
 				</div>
 			</div>

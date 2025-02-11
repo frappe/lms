@@ -18,7 +18,7 @@
 								{{ student.progress }}% {{ __('Complete') }}
 							</Badge>
 						</div>
-						<div class="text-sm text-gray-700">
+						<div class="text-sm text-ink-gray-7">
 							{{ student.email }}
 						</div>
 					</div>
@@ -37,7 +37,7 @@
 						</div>
 						<div
 							v-for="assessment in Object.keys(student.assessments)"
-							class="flex items-center text-gray-700 font-medium"
+							class="flex items-center text-ink-gray-7 font-medium"
 						>
 							<span class="flex-1">
 								{{ assessment }}
@@ -65,7 +65,7 @@
 						</div>
 						<div
 							v-for="course in Object.keys(student.courses)"
-							class="flex items-center text-gray-700 font-medium"
+							class="flex items-center text-ink-gray-7 font-medium"
 						>
 							<span class="flex-1">
 								{{ course }}

@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<div class="flex items-center justify-between mb-4">
-			<div class="text-lg font-semibold">
+			<div class="text-lg font-semibold text-ink-gray-9">
 				{{ __('Assessments') }}
 			</div>
 			<Button v-if="canSeeAddButton()" @click="showModal = true">
@@ -23,7 +23,7 @@
 				}"
 			>
 				<ListHeader
-					class="mb-2 grid items-center space-x-4 rounded bg-gray-100 p-2"
+					class="mb-2 grid items-center space-x-4 rounded bg-surface-gray-2 p-2"
 				>
 					<ListHeaderItem :item="item" v-for="item in getAssessmentColumns()">
 						<template #prefix="{ item }">
@@ -71,7 +71,7 @@
 				</ListSelectBanner>
 			</ListView>
 		</div>
-		<div v-else class="text-sm italic text-gray-600">
+		<div v-else class="text-sm italic text-ink-gray-5">
 			{{ __('No Assessments') }}
 		</div>
 	</div>

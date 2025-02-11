@@ -1,12 +1,12 @@
 <template>
 	<div class="mt-7 mb-20">
-		<h2 class="mb-4 text-lg font-semibold text-gray-900">
+		<h2 class="mb-4 text-lg font-semibold text-ink-gray-9">
 			{{ __('My availability') }}
 		</h2>
 
 		<div class="">
 			<div
-				class="grid grid-cols-3 md:grid-cols-4 gap-4 text-sm text-gray-700 mb-4"
+				class="grid grid-cols-3 md:grid-cols-4 gap-4 text-sm text-ink-gray-7 mb-4"
 			>
 				<div>
 					{{ __('Day') }}
@@ -42,7 +42,7 @@
 				/>
 				<X
 					@click="deleteRow(slot.name)"
-					class="w-6 h-auto stroke-1.5 text-red-900 rounded-md cursor-pointer p-1 bg-red-100 hidden group-hover:block"
+					class="w-6 h-auto stroke-1.5 text-red-900 rounded-md cursor-pointer p-1 bg-surface-red-2 hidden group-hover:block"
 				/>
 			</div>
 
@@ -70,13 +70,13 @@
 
 			<Button @click="showSlotsTemplate = 1">
 				<template #prefix>
-					<Plus class="w-4 h-4 stroke-1.5 text-gray-700" />
+					<Plus class="w-4 h-4 stroke-1.5 text-ink-gray-7" />
 				</template>
 				{{ __('Add Slot') }}
 			</Button>
 		</div>
 		<div class="my-10">
-			<h2 class="mb-4 text-lg font-semibold text-gray-900">
+			<h2 class="mb-4 text-lg font-semibold text-ink-gray-9">
 				{{ __('I am unavailable') }}
 			</h2>
 			<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -109,12 +109,12 @@
 			</div>
 		</div>
 		<div>
-			<h2 class="mb-4 text-lg font-semibold text-gray-900">
+			<h2 class="mb-4 text-lg font-semibold text-ink-gray-9">
 				{{ __('My calendar') }}
 			</h2>
 			<div
 				v-if="evaluator.data?.calendar && evaluator.data?.is_authorized"
-				class="flex items-center bg-green-100 text-green-900 text-sm p-1 rounded-md mb-4 w-fit"
+				class="flex items-center bg-surface-green-2 text-green-900 text-sm p-1 rounded-md mb-4 w-fit"
 			>
 				<Check class="h-4 w-4 stroke-1.5 mr-2" />
 				{{ __('Your calendar is set.') }}

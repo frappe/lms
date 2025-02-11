@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="flex h-full flex-col justify-between transition-all duration-300 ease-in-out bg-gray-50"
+		class="flex h-full flex-col justify-between transition-all duration-300 ease-in-out border-r bg-surface-menu-bar"
 		:class="sidebarStore.isSidebarCollapsed ? 'w-14' : 'w-56'"
 	>
 		<div
@@ -27,11 +27,11 @@
 				>
 					<div
 						v-if="!sidebarStore.isSidebarCollapsed"
-						class="flex items-center text-sm text-gray-600 my-1"
+						class="flex items-center text-sm text-ink-gray-5 my-1"
 					>
 						<span class="grid h-5 w-6 flex-shrink-0 place-items-center">
 							<ChevronRight
-								class="h-4 w-4 stroke-1.5 text-gray-900 transition-all duration-300 ease-in-out"
+								class="h-4 w-4 stroke-1.5 text-ink-gray-9 transition-all duration-300 ease-in-out"
 								:class="{ 'rotate-90': !sidebarStore.isWebpagesCollapsed }"
 							/>
 						</span>
@@ -41,7 +41,7 @@
 					</div>
 					<Button v-if="isModerator" variant="ghost" @click="openPageModal()">
 						<template #icon>
-							<Plus class="h-4 w-4 text-gray-700 stroke-1.5" />
+							<Plus class="h-4 w-4 text-ink-gray-7 stroke-1.5" />
 						</template>
 					</Button>
 				</div>
@@ -73,7 +73,7 @@
 			<template #icon>
 				<span class="grid h-5 w-6 flex-shrink-0 place-items-center">
 					<CollapseSidebar
-						class="h-4.5 w-4.5 text-gray-700 duration-300 ease-in-out"
+						class="h-4.5 w-4.5 text-ink-gray-7 duration-300 ease-in-out"
 						:class="{
 							'[transform:rotateY(180deg)]': sidebarStore.isSidebarCollapsed,
 						}"

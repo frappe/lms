@@ -200,7 +200,7 @@ const submitLiveClass = (close) => {
 				title: 'Error',
 				text: err.messages?.[0] || err,
 				icon: 'x',
-				iconClasses: 'bg-red-600 text-white rounded-md p-px',
+				iconClasses: 'bg-surface-red-5 text-ink-white rounded-md p-px',
 				position: 'top-center',
 				timeout: 10,
 			})

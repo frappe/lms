@@ -2,7 +2,7 @@
 	<div v-if="user.data?.is_student">
 		<div
 			v-if="feedbackList.data?.length"
-			class="bg-blue-100 text-blue-700 p-2 rounded-md mb-5"
+			class="bg-surface-blue-2 text-blue-700 p-2 rounded-md mb-5"
 		>
 			{{ __('Thank you for providing your feedback!') }}
 		</div>
@@ -61,7 +61,7 @@
 			}"
 		>
 			<ListHeader
-				class="mb-2 grid items-center space-x-4 rounded bg-gray-100 p-2"
+				class="mb-2 grid items-center space-x-4 rounded bg-surface-gray-2 p-2"
 			></ListHeader>
 			<ListRows>
 				<ListRow
@@ -97,7 +97,7 @@
 			</ListRows>
 		</ListView>
 	</div>
-	<div v-else class="text-sm italic text-center text-gray-700 mt-5">
+	<div v-else class="text-sm italic text-center text-ink-gray-7 mt-5">
 		{{ __('No feedback received yet.') }}
 	</div>
 </template>

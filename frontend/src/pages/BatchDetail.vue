@@ -1,21 +1,23 @@
 <template>
 	<div v-if="batch.data" class="">
-		<header class="sticky top-0 z-10 border-b bg-white px-3 py-2.5 sm:px-5">
+		<header
+			class="sticky top-0 z-10 border-b bg-surface-white px-3 py-2.5 sm:px-5"
+		>
 			<Breadcrumbs :items="breadcrumbs" />
 		</header>
 		<div class="m-5 pb-10">
 			<div>
-				<div class="text-3xl font-semibold">
+				<div class="text-3xl font-semibold text-ink-gray-9">
 					{{ batch.data.title }}
 				</div>
-				<div class="my-3">
+				<div class="my-3 leading-6 text-ink-gray-7">
 					{{ batch.data.description }}
 				</div>
 				<div
 					class="flex flex-col gap-2 lg:gap-0 lg:flex-row lg:items-center justify-between lg:w-1/2"
 				>
-					<div class="flex items-center">
-						<BookOpen class="h-4 w-4 text-gray-700 mr-2" />
+					<div class="flex items-center text-ink-gray-7">
+						<BookOpen class="h-4 w-4 mr-2" />
 						<span> {{ batch.data?.courses?.length }} {{ __('Courses') }} </span>
 					</div>
 					<span class="hidden lg:block" v-if="batch.data.courses"
@@ -28,8 +30,8 @@
 					<span class="hidden lg:block" v-if="batch.data.start_date"
 						>&middot;</span
 					>
-					<div class="flex items-center">
-						<Clock class="h-4 w-4 text-gray-700 mr-2" />
+					<div class="flex items-center text-ink-gray-7">
+						<Clock class="h-4 w-4 mr-2" />
 						<span>
 							{{ formatTime(batch.data.start_time) }} -
 							{{ formatTime(batch.data.end_time) }}
@@ -54,7 +56,7 @@
 			<div class="grid lg:grid-cols-[60%,20%] gap-4 lg:gap-20 mt-10">
 				<div class="order-2 lg:order-none">
 					<div
-						class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-gray-300 prose-th:border-gray-300 prose-td:relative prose-th:relative prose-th:bg-gray-100 prose-sm max-w-none !whitespace-normal mt-6"
+						class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-6"
 						v-html="batch.data.batch_details"
 					></div>
 				</div>

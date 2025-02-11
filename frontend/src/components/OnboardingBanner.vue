@@ -6,7 +6,7 @@
 				@click="skipOnboarding.reload()"
 			/>
 		</Tooltip>
-		<div class="flex items-center justify-evenly bg-gray-100 p-10">
+		<div class="flex items-center justify-evenly bg-surface-gray-2 p-10">
 			<div
 				@click="redirectToCourseForm()"
 				class="flex items-center space-x-2"
@@ -16,11 +16,14 @@
 			>
 				<span
 					v-if="onboardingDetails.data.course_created?.length"
-					class="py-1 px-1 bg-white rounded-full"
+					class="py-1 px-1 bg-surface-white rounded-full"
 				>
-					<Check class="h-4 w-4 stroke-2 text-green-600" />
+					<Check class="h-4 w-4 stroke-2 text-ink-green-3" />
 				</span>
-				<span v-else class="font-semibold bg-white px-2 py-1 rounded-full">
+				<span
+					v-else
+					class="font-semibold bg-surface-white px-2 py-1 rounded-full"
+				>
 					1
 				</span>
 				<span class="text-lg font-semibold">
@@ -34,16 +37,19 @@
 					'cursor-pointer':
 						onboardingDetails.data.course_created?.length &&
 						!onboardingDetails.data.chapter_created?.length,
-					'text-gray-400': !onboardingDetails.data.course_created?.length,
+					'text-ink-gray-3': !onboardingDetails.data.course_created?.length,
 				}"
 			>
 				<span
 					v-if="onboardingDetails.data.chapter_created?.length"
-					class="py-1 px-1 bg-white rounded-full"
+					class="py-1 px-1 bg-surface-white rounded-full"
 				>
-					<Check class="h-4 w-4 stroke-2 text-green-600" />
+					<Check class="h-4 w-4 stroke-2 text-ink-green-3" />
 				</span>
-				<span v-else class="font-semibold bg-white px-2 py-1 rounded-full">
+				<span
+					v-else
+					class="font-semibold bg-surface-white px-2 py-1 rounded-full"
+				>
 					2
 				</span>
 				<span class="text-lg font-semibold">
@@ -57,18 +63,20 @@
 					'cursor-pointer':
 						onboardingDetails.data.course_created?.length &&
 						onboardingDetails.data.chapter_created?.length,
-					'text-gray-400':
+					'text-ink-gray-3':
 						!onboardingDetails.data.course_created?.length ||
 						!onboardingDetails.data.chapter_created?.length,
 				}"
 			>
 				<span
 					v-if="onboardingDetails.data.lesson_created?.length"
-					class="py-1 px-1 bg-white rounded-full"
+					class="py-1 px-1 bg-surface-white rounded-full"
 				>
-					<Check class="h-4 w-4 stroke-2 text-green-600" />
+					<Check class="h-4 w-4 stroke-2 text-ink-green-3" />
 				</span>
-				<span class="font-semibold bg-white px-2 py-1 rounded-full"> 3 </span>
+				<span class="font-semibold bg-surface-white px-2 py-1 rounded-full">
+					3
+				</span>
 				<span class="text-lg font-semibold">
 					{{ __('Add a lesson') }}
 				</span>

@@ -9,8 +9,8 @@
 		<div class="flex items-center space-x-2 shadow rounded-lg p-1 w-1/2">
 			<Button variant="ghost" @click="togglePlay">
 				<template #icon>
-					<Play v-if="!isPlaying" class="w-4 h-4 text-gray-900" />
-					<Pause v-else class="w-4 h-4 text-gray-900" />
+					<Play v-if="!isPlaying" class="w-4 h-4 text-ink-gray-9" />
+					<Pause v-else class="w-4 h-4 text-ink-gray-9" />
 				</template>
 			</Button>
 			<input
@@ -22,13 +22,13 @@
 				@input="changeCurrentTime"
 				class="duration-slider w-full h-1"
 			/>
-			<span class="text-xs text-gray-900 font-medium">
+			<span class="text-xs text-ink-gray-9 font-medium">
 				{{ formatTime(currentTime) }} / {{ formatTime(duration) }}
 			</span>
 			<Button variant="ghost" @click="toggleMute">
 				<template #icon>
-					<Volume2 v-if="!isMuted" class="w-4 h-4 text-gray-900" />
-					<VolumeX v-else class="w-4 h-4 text-gray-900" />
+					<Volume2 v-if="!isMuted" class="w-4 h-4 text-ink-gray-9" />
+					<VolumeX v-else class="w-4 h-4 text-ink-gray-9" />
 				</template>
 			</Button>
 		</div>
