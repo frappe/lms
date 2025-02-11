@@ -341,7 +341,7 @@ const getChartData = () => {
 		})
 
 		Object.keys(student.assessments).forEach((assessment) => {
-			if (student.assessments[assessment] === 100) {
+			if (student.assessments[assessment].result === 'Passed') {
 				categories[assessment].value += 1
 			}
 		})

@@ -1,7 +1,7 @@
 <template>
 	<div
 		v-if="course.title"
-		class="flex flex-col h-full rounded-md shadow-md border-2 overflow-auto"
+		class="flex flex-col h-full rounded-md border-2 overflow-auto"
 		style="min-height: 350px"
 	>
 		<div
@@ -15,7 +15,10 @@
 				<Badge v-if="course.featured" variant="subtle" theme="green" size="md">
 					{{ __('Featured') }}
 				</Badge>
-				<div v-for="tag in course.tags" class="text-xs bg-white text-gray-800 px-2 py-0.5 rounded-md">
+				<div
+					v-for="tag in course.tags"
+					class="text-xs bg-white text-gray-800 px-2 py-0.5 rounded-md"
+				>
 					{{ tag }}
 				</div>
 			</div>

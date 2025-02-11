@@ -6,7 +6,10 @@
 		<div class="text-lg leading-5 font-semibold mb-2 text-ink-gray-9">
 			{{ batch.title }}
 		</div>
-		<div v-if="batch.seat_count && batch.seats_left > 0" class="text-xs bg-green-200 text-green-800 self-start px-2 py-0.5 rounded-md">
+		<div
+			v-if="batch.seat_count && batch.seats_left > 0"
+			class="text-xs bg-green-200 text-green-800 self-start px-2 py-0.5 rounded-md"
+		>
 			{{ batch.seats_left }}
 			<span v-if="batch.seats_left > 1">
 				{{ __('Seats Left') }}
@@ -15,7 +18,10 @@
 				{{ __('Seat Left') }}
 			</span>
 		</div>
-		<div v-else-if="batch.seat_count && batch.seats_left <= 0" class="text-xs bg-red-200 text-red-900 self-start px-2 py-0.5 rounded-md">
+		<div
+			v-else-if="batch.seat_count && batch.seats_left <= 0"
+			class="text-xs bg-red-200 text-red-900 self-start px-2 py-0.5 rounded-md"
+		>
 			{{ __('Sold Out') }}
 		</div>
 		<div class="short-introduction text-sm text-ink-gray-7">

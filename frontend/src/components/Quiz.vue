@@ -316,6 +316,9 @@ const quiz = createResource({
 	},
 	cache: ['quiz', props.quizName],
 	auto: true,
+	transform(data) {
+		data.duration = parseInt(data.duration)
+	},
 	onSuccess(data) {
 		populateQuestions()
 		setupTimer()

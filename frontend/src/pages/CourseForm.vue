@@ -123,7 +123,7 @@
 								<div
 									v-if="course.tags"
 									v-for="tag in course.tags?.split(', ')"
-									class="flex items-center bg-surface-gray-2 p-2 rounded-md mr-2"
+									class="flex items-center bg-surface-gray-2 text-ink-gray-7 p-2 rounded-md mr-2"
 								>
 									{{ tag }}
 									<X

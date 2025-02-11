@@ -41,16 +41,6 @@ class LMSBatch(Document):
 		if self.end_date < self.start_date:
 			frappe.throw(_("Batch end date cannot be before the batch start date"))
 
-	def validate_duplicate_students(self):
-		students = [row.student for row in self.students]
-		duplicates = {student for student in students if students.count(student) > 1}
-		if len(duplicates):
-			frappe.throw(
-				_("Student {0} has already been added to this batch.").format(
-					frappe.bold(next(iter(duplicates)))
-				)
-			)
-
 	def validate_duplicate_courses(self):
 		courses = [row.course for row in self.courses]
 		duplicates = {course for course in courses if courses.count(course) > 1}
@@ -88,9 +78,7 @@ class LMSBatch(Document):
 			frappe.throw(_("Evaluation end date cannot be less than the batch end date."))
 
 	def validate_membership(self):
-		members = frappe.get_all(
-			"LMS Batch Enrollment", filters={"batch": self.name}, pluck=["member"]
-		)
+		members = frappe.get_all("LMS Batch Enrollment", {"batch": self.name}, pluck="member")
 		for course in self.courses:
 			for member in members:
 				if not frappe.db.exists(
@@ -102,7 +90,8 @@ class LMSBatch(Document):
 					enrollment.save()
 
 	def validate_seats_left(self):
-		if cint(self.seat_count) < len(self.students):
+		students = frappe.db.count("LMS Batch Enrollment", {"batch": self.name})
+		if cint(self.seat_count) < students:
 			frappe.throw(_("There are no seats available in this batch."))
 
 	def validate_timetable(self):

@@ -16,7 +16,7 @@
 		</div>
 		<div
 			:class="{
-				'shadow rounded-md py-2 px-2': showOutline && outline.data?.length,
+				'border-2 rounded-md py-2 px-2': showOutline && outline.data?.length,
 			}"
 		>
 			<Disclosure
