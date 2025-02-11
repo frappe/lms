@@ -44,7 +44,7 @@ const certificates = createListResource({
 	filters: {
 		member: props.profile.data?.name,
 	},
-	fields: ['name', 'course_title', 'batch_title', 'issue_date'],
+	fields: ['name', 'course_title', 'batch_title', 'issue_date', 'template'],
 	cache: ['certificates', props.profile.data?.name],
 })
 
