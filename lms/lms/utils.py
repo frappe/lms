@@ -1434,7 +1434,7 @@ def get_batch_students(batch):
 		""" Iterate through courses and track their progress """
 		for course in batch_courses:
 			progress = frappe.db.get_value(
-				"LMS Enrollment", {"course": course.course, "member": student.student}, "progress"
+				"LMS Enrollment", {"course": course.course, "member": student.member}, "progress"
 			)
 			detail.courses[course.title] = progress
 			if progress == 100:
@@ -1445,11 +1445,12 @@ def get_batch_students(batch):
 			title = frappe.db.get_value(
 				assessment.assessment_type, assessment.assessment_name, "title"
 			)
-			status = has_submitted_assessment(
-				assessment.assessment_name, assessment.assessment_type, student.student
+			assessment_info = has_submitted_assessment(
+				assessment.assessment_name, assessment.assessment_type, student.member
 			)
-			detail.assessments[title] = status
-			if status not in ["Not Attempted", 0]:
+			detail.assessments[title] = assessment_info
+
+			if assessment_info.result == "Passed":
 				assessments_completed += 1
 
 		detail.courses_completed = courses_completed
@@ -1493,9 +1494,28 @@ def has_submitted_assessment(assessment, assessment_type, member=None):
 	attempt = frappe.db.exists(doctype, filters)
 	if attempt:
 		attempt_details = frappe.db.get_value(doctype, filters, fields)
-		return attempt_details
+		if assessment_type == "LMS Quiz":
+			result = "Failed"
+			passing_percentage = frappe.db.get_value(
+				"LMS Quiz", assessment, "passing_percentage"
+			)
+			if attempt_details >= passing_percentage:
+				result = "Passed"
+		else:
+			result = attempt_details
+		return frappe._dict(
+			{
+				"status": attempt_details,
+				"result": result,
+			}
+		)
 	else:
-		return not_attempted
+		return frappe._dict(
+			{
+				"status": not_attempted,
+				"result": "Failed",
+			}
+		)
 
 
 @frappe.whitelist()

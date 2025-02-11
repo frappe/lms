@@ -2,6 +2,7 @@
 # For license information, please see license.txt
 
 import frappe
+import json
 from frappe import _
 from frappe.model.document import Document
 from frappe.email.doctype.email_template.email_template import get_email_template
@@ -9,7 +10,7 @@ from frappe.email.doctype.email_template.email_template import get_email_templat
 
 class LMSBatchEnrollment(Document):
 	def after_insert(self):
-		self.send_confirmation_email()
+		send_confirmation_email(self)
 		self.add_member_to_live_class()
 
 	def validate(self):
@@ -37,53 +38,6 @@ class LMSBatchEnrollment(Document):
 				enrollment.member = self.member
 				enrollment.save()
 
-	def send_confirmation_email(self):
-		if not self.confirmation_email_sent:
-			outgoing_email_account = frappe.get_cached_value(
-				"Email Account", {"default_outgoing": 1, "enable_outgoing": 1}, "name"
-			)
-			if not self.confirmation_email_sent and (
-				outgoing_email_account or frappe.conf.get("mail_login")
-			):
-				self.send_mail()
-				self.db_set("confirmation_email_sent", 1)
-
-	def send_mail(self):
-		subject = _("Enrollment Confirmation for the Next Training Batch")
-		template = "batch_confirmation"
-		custom_template = frappe.db.get_single_value(
-			"LMS Settings", "batch_confirmation_template"
-		)
-		batch = frappe.db.get_value(
-			"LMS Batch",
-			self.batch,
-			["name", "title", "start_date", "start_time", "medium"],
-			as_dict=1,
-		)
-		args = {
-			"title": batch.title,
-			"student_name": self.member_name,
-			"start_time": batch.start_time,
-			"start_date": batch.start_date,
-			"medium": batch.medium,
-			"name": batch.name,
-		}
-
-		if custom_template:
-			email_template = get_email_template(custom_template, args)
-			subject = email_template.get("subject")
-			content = email_template.get("message")
-
-		frappe.sendmail(
-			recipients=self.member,
-			subject=subject,
-			template=template if not custom_template else None,
-			content=content if custom_template else None,
-			args=args,
-			header=[subject, "green"],
-			retry=3,
-		)
-
 	def add_member_to_live_class(self):
 		live_classes = frappe.get_all(
 			"LMS Live Class", {"batch_name": self.batch}, ["name", "event"]
@@ -102,3 +56,56 @@ class LMSBatchEnrollment(Document):
 						"parentfield": "event_participants",
 					}
 				).save()
+
+
+@frappe.whitelist()
+def send_confirmation_email(doc):
+	if isinstance(doc, str):
+		doc = frappe._dict(json.loads(doc))
+
+	if not doc.confirmation_email_sent:
+		outgoing_email_account = frappe.get_cached_value(
+			"Email Account", {"default_outgoing": 1, "enable_outgoing": 1}, "name"
+		)
+		if not doc.confirmation_email_sent and (
+			outgoing_email_account or frappe.conf.get("mail_login")
+		):
+			doc.send_mail()
+			doc.db_set("confirmation_email_sent", 1)
+
+
+def send_mail(doc):
+	subject = _("Enrollment Confirmation for the Next Training Batch")
+	template = "batch_confirmation"
+	custom_template = frappe.db.get_single_value(
+		"LMS Settings", "batch_confirmation_template"
+	)
+	batch = frappe.db.get_value(
+		"LMS Batch",
+		doc.batch,
+		["name", "title", "start_date", "start_time", "medium"],
+		as_dict=1,
+	)
+	args = {
+		"title": batch.title,
+		"student_name": doc.member_name,
+		"start_time": batch.start_time,
+		"start_date": batch.start_date,
+		"medium": batch.medium,
+		"name": batch.name,
+	}
+
+	if custom_template:
+		email_template = get_email_template(custom_template, args)
+		subject = email_template.get("subject")
+		content = email_template.get("message")
+
+	frappe.sendmail(
+		recipients=doc.member,
+		subject=subject,
+		template=template if not custom_template else None,
+		content=content if custom_template else None,
+		args=args,
+		header=[subject, "green"],
+		retry=3,
+	)
