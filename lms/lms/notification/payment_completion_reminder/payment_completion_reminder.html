@@ -1,5 +1,5 @@
 <div>
-    <p>Hi {{ doc.member_name }},</p>
+    <p>Hi {{ doc.billing_name }},</p>
     <p>We noticed that you started enrolling in the {{ doc.payment_for_document_type.split(" ")[-1] }} {{ frappe.db.get_value(doc.payment_for_document_type, doc.payment_for_document, "title") }} but didn’t complete your payment.</p>
     <p>We have a limited number of seats, and they won't be available for long!</p>
     <p>Don’t miss this opportunity to enhance your skills. Click below to complete your enrollment:</p>

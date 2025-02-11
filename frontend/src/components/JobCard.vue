@@ -3,7 +3,7 @@
 		<Avatar :image="job.company_logo" :label="job.job_title" size="2xl" />
 		<div class="flex flex-col space-y-2 flex-1">
 			<div class="flex items-center justify-between">
-				<span class="font-semibold">
+				<span class="font-semibold text-ink-gray-9">
 					{{ job.job_title }}
 				</span>
 			</div>

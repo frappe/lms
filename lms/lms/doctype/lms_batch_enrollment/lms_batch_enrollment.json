@@ -73,7 +73,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-02-10 16:06:48.720780",
+ "modified": "2025-02-11 10:39:57.259526",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch Enrollment",
@@ -117,5 +117,6 @@
  ],
  "sort_field": "creation",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "title_field": "member_name"
 }

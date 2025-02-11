@@ -59,7 +59,7 @@
 							class="w-16 h-16 rounded-lg object-contain mr-4"
 							:alt="job.data.company_name"
 						/>
-						<div class="text-2xl font-semibold mb-4">
+						<div class="text-2xl text-ink-gray-9 font-semibold mb-4">
 							{{ job.data.job_title }}
 						</div>
 					</div>
@@ -71,7 +71,7 @@
 								<span class="p-4 bg-surface-green-1 rounded-full">
 									<Building2 class="h-4 w-4 text-ink-green-2" />
 								</span>
-								<div class="flex flex-col space-y-2">
+								<div class="flex flex-col space-y-2 text-ink-gray-7">
 									<span class="text-xs text-ink-gray-5 font-medium uppercase">
 										{{ __('Organisation') }}
 									</span>
@@ -84,8 +84,8 @@
 								<span class="p-4 bg-surface-red-1 rounded-full">
 									<MapPin class="h-4 w-4 text-ink-red-3" />
 								</span>
-								<div class="flex flex-col space-y-2">
-									<span class="text-xs text-ink-gray-5 font-medium uppercase">
+								<div class="flex flex-col space-y-2 text-ink-gray-7">
+									<span class="text-xs font-medium uppercase">
 										{{ __('Location') }}
 									</span>
 									<span class="text-sm font-semibold">
@@ -97,8 +97,8 @@
 								<span class="p-4 bg-yellow-50 rounded-full">
 									<ClipboardType class="h-4 w-4 text-yellow-500" />
 								</span>
-								<div class="flex flex-col space-y-2">
-									<span class="text-xs font-medium text-ink-gray-5 uppercase">
+								<div class="flex flex-col space-y-2 text-ink-gray-7">
+									<span class="text-xs font-medium uppercase">
 										{{ __('Category') }}
 									</span>
 									<span class="text-sm font-semibold">
@@ -110,8 +110,8 @@
 								<span class="p-4 bg-surface-blue-1 rounded-full">
 									<CalendarDays class="h-4 w-4 text-ink-blue-2" />
 								</span>
-								<div class="flex flex-col space-y-2">
-									<span class="text-xs text-ink-gray-5 font-medium uppercase">
+								<div class="flex flex-col space-y-2 text-ink-gray-7">
+									<span class="text-xs font-medium uppercase">
 										{{ __('Posted on') }}
 									</span>
 									<span class="text-sm font-semibold">
@@ -126,8 +126,8 @@
 								<span class="p-4 bg-purple-50 rounded-full">
 									<SquareUserRound class="h-4 w-4 text-purple-500" />
 								</span>
-								<div class="flex flex-col space-y-2">
-									<span class="text-xs text-ink-gray-5 font-medium uppercase">
+								<div class="flex flex-col space-y-2 text-ink-gray-7">
+									<span class="text-xs font-medium uppercase">
 										{{ __('Applications Received') }}
 									</span>
 									<span class="text-sm font-semibold">
