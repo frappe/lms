@@ -74,6 +74,7 @@ def send_confirmation_email(doc):
 			send_mail(doc)
 			frappe.db.set_value(doc.doctype, doc.name, "confirmation_email_sent", 1)
 
+
 def send_mail(doc):
 	subject = _("Enrollment Confirmation for the Next Training Batch")
 	template = "batch_confirmation"
