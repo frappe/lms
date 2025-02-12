@@ -1225,3 +1225,16 @@ def get_notifications(filters):
 @frappe.whitelist(allow_guest=True)
 def is_guest_allowed():
 	return frappe.get_cached_value("LMS Settings", None, "allow_guest_access")
+
+
+@frappe.whitelist()
+def make_announcement(students, cc, subject, content):
+	for student in students:
+		frappe.sendmail(
+			recipients=student,
+			cc=cc,
+			subject=subject,
+			message=content,
+			header=[subject, "green"],
+			retry=3,
+		)

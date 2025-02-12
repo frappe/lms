@@ -281,7 +281,6 @@ watch(submissionResource, () => {
 		if (submissionResource.doc.answer) {
 			answer.value = submissionResource.doc.answer
 		}
-
 		if (submissionResource.isDirty) {
 			isDirty.value = true
 		} else if (showUploader() && !submissionFile.value) {
@@ -309,6 +308,7 @@ const submitAssignment = () => {
 		submissionResource.setValue.submit(
 			{
 				...submissionResource.doc,
+				assignment_attachment: submissionFile.value?.file_url,
 				evaluator: evaluator,
 			},
 			{
@@ -351,6 +351,7 @@ const addNewSubmission = () => {
 }
 
 const saveSubmission = (file) => {
+	isDirty.value = true
 	submissionFile.value = file
 }
 
@@ -401,6 +402,7 @@ const validateFile = (file) => {
 }
 
 const removeSubmission = () => {
+	isDirty.value = true
 	submissionFile.value = null
 }
 

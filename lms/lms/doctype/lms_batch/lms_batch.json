@@ -325,9 +325,17 @@
   {
    "link_doctype": "LMS Batch Enrollment",
    "link_fieldname": "batch"
+  },
+  {
+   "link_doctype": "LMS Certificate Evaluation",
+   "link_fieldname": "batch_name"
+  },
+  {
+   "link_doctype": "LMS Certificate",
+   "link_fieldname": "batch_name"
   }
  ],
- "modified": "2025-02-10 12:01:22.476325",
+ "modified": "2025-02-12 11:59:35.312487",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch",

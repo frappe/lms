@@ -33,9 +33,9 @@
 						{{ __('Announcement') }}
 					</div>
 					<TextEditor
-						:bubbleMenu="true"
+						:fixedMenu="true"
 						@change="(val) => (announcement.announcement = val)"
-						editorClass="prose-sm py-2 px-2 min-h-[200px] border-outline-gray-2 hover:border-outline-gray-3 rounded-md bg-surface-gray-3"
+						editorClass="prose-sm py-2 px-2 min-h-[200px] border-outline-gray-2 hover:border-outline-gray-3 rounded-b-md bg-surface-gray-3"
 					/>
 				</div>
 			</div>
@@ -67,16 +67,13 @@ const announcement = reactive({
 })
 
 const announcementResource = createResource({
-	url: 'frappe.core.doctype.communication.email.make',
+	url: 'lms.lms.api.make_announcement',
 	makeParams(values) {
 		return {
-			recipients: props.students.join(', '),
+			students: props.students,
 			cc: announcement.replyTo,
 			subject: announcement.subject,
 			content: announcement.announcement,
-			doctype: 'LMS Batch',
-			name: props.batch,
-			send_email: 1,
 		}
 	},
 })
@@ -102,7 +99,7 @@ const makeAnnouncement = (close) => {
 				)
 			},
 			onError(err) {
-				showToast(__('Error'), __(err.messages?.[0] || err), 'check')
+				showToast(__('Error'), __(err.messages?.[0] || err), 'alert-circle')
 			},
 		}
 	)
