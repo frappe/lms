@@ -428,16 +428,15 @@ watch(students, () => {
 })
 
 const certificationCount = createResource({
-	url: "frappe.client.get_count",
+	url: 'frappe.client.get_count',
 	params: {
-		doctype: "LMS Certificate",
+		doctype: 'LMS Certificate',
 		filters: {
-			"batch_name": props.batch.name,
+			batch_name: props.batch.name,
 		},
 	},
-	auto: true
+	auto: true,
 })
-
 </script>
 <style>
 .apexcharts-legend {
