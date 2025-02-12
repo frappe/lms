@@ -19,7 +19,8 @@ class LMSBatchEnrollment(Document):
 
 	def validate_duplicate_members(self):
 		if frappe.db.exists(
-			"LMS Batch Enrollment", {"batch": self.batch, "member": self.member}
+			"LMS Batch Enrollment",
+			{"batch": self.batch, "member": self.member, "name": ["!=", self.name]},
 		):
 			frappe.throw(_("Member already enrolled in this batch"))
 
@@ -70,7 +71,7 @@ def send_confirmation_email(doc):
 		if not doc.confirmation_email_sent and (
 			outgoing_email_account or frappe.conf.get("mail_login")
 		):
-			doc.send_mail()
+			send_mail(doc)
 			doc.db_set("confirmation_email_sent", 1)
 
 
