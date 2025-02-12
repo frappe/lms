@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-02-07 16:03+0000\n"
-"PO-Revision-Date: 2025-02-10 16:09\n"
+"PO-Revision-Date: 2025-02-11 16:47\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Persian\n"
 "MIME-Version: 1.0\n"
@@ -129,15 +129,15 @@ msgstr ""
 
 #: lms/templates/onboarding_header.html:26
 msgid "Add a Chapter"
-msgstr "فصل را اضافه کنید"
+msgstr "افزودن فصل"
 
 #: lms/templates/onboarding_header.html:33
 msgid "Add a Lesson"
-msgstr "درس را اضافه کنید"
+msgstr "افزودن درس"
 
 #: frontend/src/components/Modals/StudentModal.vue:5
 msgid "Add a Student"
-msgstr "دانش‌آموز را اضافه کنید"
+msgstr "افزودن دانش‌آموز"
 
 #: frontend/src/components/OnboardingBanner.vue:50
 msgid "Add a chapter"
@@ -145,7 +145,7 @@ msgstr ""
 
 #: frontend/src/components/Modals/BatchCourseModal.vue:5
 msgid "Add a course"
-msgstr "دوره را اضافه کنید"
+msgstr "افزودن دوره"
 
 #: frontend/src/pages/CourseForm.vue:136
 msgid "Add a keyword and then press enter"
@@ -182,7 +182,7 @@ msgstr "حداقل یک پاسخ ممکن برای این سؤال اضافه ک
 
 #: frontend/src/components/Modals/PageModal.vue:6
 msgid "Add web page to sidebar"
-msgstr "صفحه وب را به نوار کناری اضافه کنید"
+msgstr "افزودن صفحه وب را به نوار کناری"
 
 #: frontend/src/components/Assignment.vue:65
 msgid "Add your assignment as {0}"
@@ -243,7 +243,7 @@ msgstr "در صورت تعیین حد مجاز، همه سؤالات باید ن
 #. Label of the allow_guest_access (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Allow Guest Access"
-msgstr ""
+msgstr "اجازه دسترسی مهمان"
 
 #. Label of the allow_posting (Check) field in DocType 'Job Settings'
 #: lms/job/doctype/job_settings/job_settings.json
