@@ -72,8 +72,7 @@ def send_confirmation_email(doc):
 			outgoing_email_account or frappe.conf.get("mail_login")
 		):
 			send_mail(doc)
-			doc.db_set("confirmation_email_sent", 1)
-
+			frappe.db.set_value(doc.doctype, doc.name, "confirmation_email_sent", 1)
 
 def send_mail(doc):
 	subject = _("Enrollment Confirmation for the Next Training Batch")
