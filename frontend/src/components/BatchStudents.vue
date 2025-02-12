@@ -5,7 +5,7 @@
 				{{ __('Statistics') }}
 			</div>
 		</div>
-		<div class="grid grid-cols-3 gap-5 mb-8">
+		<div class="grid grid-cols-4 gap-5 mb-8">
 			<div
 				class="flex items-center border py-2 px-3 rounded-md text-ink-gray-7"
 			>
@@ -18,6 +18,22 @@
 					</span>
 					<span class="">
 						{{ __('Students') }}
+					</span>
+				</div>
+			</div>
+
+			<div
+				class="flex items-center border py-2 px-3 rounded-md text-ink-gray-7"
+			>
+				<div class="p-2 rounded-md bg-surface-gray-2 mr-3">
+					<GraduationCap class="w-5 h-5 stroke-1.5" />
+				</div>
+				<div class="flex items-center space-x-2">
+					<span class="font-semibold">
+						{{ certificationCount.data }}
+					</span>
+					<span class="">
+						{{ __('Certified') }}
 					</span>
 				</div>
 			</div>
@@ -210,7 +226,7 @@ import {
 } from 'frappe-ui'
 import {
 	BookOpen,
-	Clipboard,
+	GraduationCap,
 	Plus,
 	ShieldCheck,
 	Trash2,
@@ -410,6 +426,18 @@ watch(students, () => {
 		assessmentCount.value = Object.keys(students.data?.[0].assessments).length
 	}
 })
+
+const certificationCount = createResource({
+	url: "frappe.client.get_count",
+	params: {
+		doctype: "LMS Certificate",
+		filters: {
+			"batch_name": props.batch.name,
+		},
+	},
+	auto: true
+})
+
 </script>
 <style>
 .apexcharts-legend {
