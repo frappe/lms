@@ -23,7 +23,7 @@ def send_payment_reminder():
 	incomplete_payments = frappe.get_all(
 		"LMS Payment",
 		{"payment_received": 0, "creation": [">", add_days(nowdate(), -1)]},
-		fields=[
+		[
 			"name",
 			"member",
 			"payment_for_document",
