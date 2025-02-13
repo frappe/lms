@@ -127,6 +127,11 @@ const batch = createResource({
 		batch: props.batchName,
 	},
 	auto: true,
+	onSuccess: (data) => {
+		if (!data) {
+			router.push({ name: 'Batches' })
+		}
+	},
 })
 
 const courses = createResource({

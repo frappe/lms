@@ -67,13 +67,16 @@ const announcement = reactive({
 })
 
 const announcementResource = createResource({
-	url: 'lms.lms.api.make_announcement',
+	url: 'frappe.core.doctype.communication.email.make',
 	makeParams(values) {
 		return {
-			students: props.students,
+			recipients: props.students.join(', '),
 			cc: announcement.replyTo,
 			subject: announcement.subject,
 			content: announcement.announcement,
+			doctype: 'LMS Batch',
+			name: props.batch,
+			send_email: 1,
 		}
 	},
 })

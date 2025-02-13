@@ -7,15 +7,10 @@ import zipfile
 import os
 import re
 import shutil
-import requests
 import xml.etree.ElementTree as ET
 from frappe.translate import get_all_translations
 from frappe import _
-from frappe.query_builder import DocType
-from frappe.query_builder.functions import Count
 from frappe.utils import (
-	time_diff,
-	now_datetime,
 	get_datetime,
 	cint,
 	flt,
@@ -24,10 +19,10 @@ from frappe.utils import (
 	format_date,
 	date_diff,
 )
-from typing import Optional
 from lms.lms.utils import get_average_rating, get_lesson_count
 from xml.dom.minidom import parseString
 from lms.lms.doctype.course_lesson.course_lesson import save_progress
+from frappe.core.doctype.communication.email import make
 
 
 @frappe.whitelist()
@@ -845,7 +840,7 @@ def update_course_statistics():
 
 @frappe.whitelist()
 def get_announcements(batch):
-	return frappe.get_all(
+	communications = frappe.get_all(
 		"Communication",
 		filters={
 			"reference_doctype": "LMS Batch",
@@ -862,6 +857,13 @@ def get_announcements(batch):
 		],
 		order_by="communication_date desc",
 	)
+
+	for communication in communications:
+		communication.image = frappe.get_cached_value(
+			"User", communication.sender, "user_image"
+		)
+
+	return communications
 
 
 @frappe.whitelist()
@@ -1225,16 +1227,3 @@ def get_notifications(filters):
 @frappe.whitelist(allow_guest=True)
 def is_guest_allowed():
 	return frappe.get_cached_value("LMS Settings", None, "allow_guest_access")
-
-
-@frappe.whitelist()
-def make_announcement(students, cc, subject, content):
-	for student in students:
-		frappe.sendmail(
-			recipients=student,
-			cc=cc,
-			subject=subject,
-			message=content,
-			header=[subject, "green"],
-			retry=3,
-		)

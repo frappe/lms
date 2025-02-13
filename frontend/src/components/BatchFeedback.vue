@@ -78,7 +78,7 @@
 							<template #prefix>
 								<div v-if="column.key == 'member_name'">
 									<Avatar
-										class="flex items-center"
+										class="flex"
 										:image="row['member_image']"
 										:label="item"
 										size="sm"
@@ -240,6 +240,6 @@ const feedbackColumns = computed(() => {
 <style>
 .feedback-list > button > div {
 	align-items: start;
-	padding: 0.25rem 0;
+	padding: 0.15rem 0;
 }
 </style>

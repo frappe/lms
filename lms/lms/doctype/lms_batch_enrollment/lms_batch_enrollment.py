@@ -76,17 +76,19 @@ def send_confirmation_email(doc):
 
 
 def send_mail(doc):
-	subject = _("Enrollment Confirmation for the Next Training Batch")
-	template = "batch_confirmation"
-	custom_template = frappe.db.get_single_value(
-		"LMS Settings", "batch_confirmation_template"
-	)
 	batch = frappe.db.get_value(
 		"LMS Batch",
 		doc.batch,
 		["name", "title", "start_date", "start_time", "medium"],
 		as_dict=1,
 	)
+
+	subject = _("Enrollment Confirmation for {0}").format(batch.title)
+	template = "batch_confirmation"
+	custom_template = frappe.db.get_single_value(
+		"LMS Settings", "batch_confirmation_template"
+	)
+
 	args = {
 		"title": batch.title,
 		"student_name": doc.member_name,
@@ -107,6 +109,6 @@ def send_mail(doc):
 		template=template if not custom_template else None,
 		content=content if custom_template else None,
 		args=args,
-		header=[subject, "green"],
+		header=[_(batch.title), "green"],
 		retry=3,
 	)
