@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-02-07 16:03+0000\n"
-"PO-Revision-Date: 2025-02-11 16:47\n"
+"PO-Revision-Date: 2025-02-12 16:44\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Persian\n"
 "MIME-Version: 1.0\n"
@@ -2017,7 +2017,7 @@ msgstr "نوع فایل"
 
 #: frontend/src/pages/Jobs.vue:33
 msgid "Find the perfect job for you"
-msgstr ""
+msgstr "شغل مناسب خود را پیدا کنید"
 
 #: frontend/src/components/Members.vue:38
 #: frontend/src/components/Modals/EditProfile.vue:59
@@ -2074,7 +2074,7 @@ msgstr "جمعه"
 #: frontend/src/pages/ProfileEvaluator.vue:85
 #: lms/lms/doctype/course_evaluator/course_evaluator.json
 msgid "From"
-msgstr "از جانب"
+msgstr "از"
 
 #. Label of the from_date (Date) field in DocType 'Work Experience'
 #: lms/lms/doctype/work_experience/work_experience.json
@@ -3439,7 +3439,7 @@ msgstr ""
 
 #: frontend/src/pages/AssignmentSubmissionList.vue:67
 msgid "No submissions"
-msgstr ""
+msgstr "ارسالی وجود ندارد"
 
 #: frontend/src/components/UpcomingEvaluations.vue:41
 msgid "No upcoming evaluations."
@@ -5533,7 +5533,7 @@ msgstr "ایمیل و نام معتبر مورد نیاز است"
 #. Label of the value (Rating) field in DocType 'LMS Batch Feedback'
 #: lms/lms/doctype/lms_batch_feedback/lms_batch_feedback.json
 msgid "Value"
-msgstr "ارزش"
+msgstr "مقدار"
 
 #. Option for the 'Event' (Select) field in DocType 'LMS Badge'
 #: lms/lms/doctype/lms_badge/lms_badge.json

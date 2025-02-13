@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-02-07 16:03+0000\n"
-"PO-Revision-Date: 2025-02-10 16:09\n"
+"PO-Revision-Date: 2025-02-12 16:44\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Swedish\n"
 "MIME-Version: 1.0\n"
@@ -923,7 +923,7 @@ msgstr "Kod"
 #: lms/lms/doctype/cohort_web_page/cohort_web_page.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 msgid "Cohort"
-msgstr "Kohort"
+msgstr "Grupp"
 
 #. Name of a DocType
 #: lms/lms/doctype/cohort_join_request/cohort_join_request.json
