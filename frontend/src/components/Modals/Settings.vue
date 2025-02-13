@@ -137,7 +137,7 @@ const tabsStructure = computed(() => {
 							name: 'unsplash_access_key',
 							description:
 								'Optional. If this is set, students can pick a cover image from the unsplash library for their profile page. https://unsplash.com/documentation#getting-started.',
-							type: 'text',
+							type: 'password',
 						},
 					],
 				},
