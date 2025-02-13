@@ -78,7 +78,7 @@
 				:options="chartOptions"
 				:series="chartData"
 				type="bar"
-				height="200"
+				:height="chartData[0].data.length * 30 + 100"
 			/>
 			<div
 				class="flex items-center justify-center text-sm text-ink-gray-7 space-x-4"
@@ -357,7 +357,7 @@ const getChartData = () => {
 		})
 
 		Object.keys(student.assessments).forEach((assessment) => {
-			if (student.assessments[assessment].result === 'Passed') {
+			if (student.assessments[assessment].result === 'Pass') {
 				categories[assessment].value += 1
 			}
 		})

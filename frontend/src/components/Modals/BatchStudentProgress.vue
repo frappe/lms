@@ -32,25 +32,44 @@
 								{{ __('Assessment') }}
 							</span>
 							<span>
-								{{ __('Progress') }}
+								{{ __('Percentage/Status') }}
 							</span>
 						</div>
-						<div
+						<router-link
 							v-for="assessment in Object.keys(student.assessments)"
 							class="flex items-center text-ink-gray-7 font-medium"
+							:to="{
+								name:
+									student.assessments[assessment].type == 'LMS Assignment'
+										? 'AssignmentSubmission'
+										: '',
+								params:
+									student.assessments[assessment].type == 'LMS Assignment'
+										? {
+												assignmentID:
+													student.assessments[assessment].assessment,
+												submissionName:
+													student.assessments[assessment].submission,
+										  }
+										: {},
+							}"
 						>
 							<span class="flex-1">
 								{{ assessment }}
 							</span>
-							<span v-if="isAssignment(student.assessments[assessment])">
-								<Badge :theme="getStatusTheme(student.assessments[assessment])">
-									{{ student.assessments[assessment] }}
+							<span v-if="isAssignment(student.assessments[assessment].status)">
+								<Badge
+									:theme="
+										getStatusTheme(student.assessments[assessment].status)
+									"
+								>
+									{{ student.assessments[assessment].status }}
 								</Badge>
 							</span>
 							<span v-else>
-								{{ student.assessments[assessment] }}
+								{{ student.assessments[assessment].status }}
 							</span>
-						</div>
+						</router-link>
 					</div>
 
 					<!-- Courses -->

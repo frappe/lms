@@ -6,12 +6,6 @@
     {{ _("We are pleased to inform you that you have been enrolled in our upcoming batch. Congratulations!") }}
 </p>
 <br>
-<p>
-    <b>
-        {{ title }}
-    </b>
-</p>
-
 
 <p>
     <b>{{ _("Batch Start Date:") }}</b> {{ frappe.utils.format_date(start_date, "medium") }}
@@ -27,7 +21,7 @@
 <br>
 <p>
     {{ _("Visit the following link to view your ") }}
-    <a href="/batches/{{ name }}">{{ _("Batch Details") }}</a>
+    <a href="/lms/batches/{{ name }}">{{ _("Batch Details") }}</a>
 </p>
 <p>
     {{ _("If you have any questions or require assistance, feel free to contact us.") }}

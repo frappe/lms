@@ -1194,6 +1194,9 @@ def get_neighbour_lesson(course, chapter, lesson):
 
 @frappe.whitelist(allow_guest=True)
 def get_batch_details(batch):
+	if not frappe.db.get_value("LMS Batch", batch, "published") and has_student_role():
+		return
+
 	batch_details = frappe.db.get_value(
 		"LMS Batch",
 		batch,
@@ -1450,7 +1453,7 @@ def get_batch_students(batch):
 			)
 			detail.assessments[title] = assessment_info
 
-			if assessment_info.result == "Passed":
+			if assessment_info.result == "Pass":
 				assessments_completed += 1
 
 		detail.courses_completed = courses_completed
@@ -1493,20 +1496,26 @@ def has_submitted_assessment(assessment, assessment_type, member=None):
 
 	attempt = frappe.db.exists(doctype, filters)
 	if attempt:
-		attempt_details = frappe.db.get_value(doctype, filters, fields)
+		fields.append("name")
+		attempt_details = frappe.db.get_value(doctype, filters, fields, as_dict=1)
 		if assessment_type == "LMS Quiz":
 			result = "Failed"
 			passing_percentage = frappe.db.get_value(
 				"LMS Quiz", assessment, "passing_percentage"
 			)
-			if attempt_details >= passing_percentage:
-				result = "Passed"
+			if attempt_details.percentage >= passing_percentage:
+				result = "Pass"
 		else:
-			result = attempt_details
+			result = attempt_details.status
 		return frappe._dict(
 			{
-				"status": attempt_details,
+				"status": attempt_details.percentage
+				if assessment_type == "LMS Quiz"
+				else attempt_details.status,
 				"result": result,
+				"assessment": assessment,
+				"type": assessment_type,
+				"submission": attempt_details.name,
 			}
 		)
 	else:
