@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-02-07 16:03+0000\n"
-"PO-Revision-Date: 2025-02-12 16:44\n"
+"PO-Revision-Date: 2025-02-13 16:47\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Bosnian\n"
 "MIME-Version: 1.0\n"
@@ -4552,7 +4552,7 @@ msgstr ""
 #: frontend/src/pages/BatchForm.vue:165 frontend/src/pages/CourseForm.vue:161
 #: frontend/src/pages/ProfileRoles.vue:4 frontend/src/pages/QuizForm.vue:79
 msgid "Settings"
-msgstr ""
+msgstr "Postavke"
 
 #: frontend/src/pages/ProfileAbout.vue:62
 msgid "Share on"
