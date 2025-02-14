@@ -1197,7 +1197,11 @@ def get_batch_details(batch):
 	batch_students = frappe.get_all(
 		"LMS Batch Enrollment", {"batch": batch}, pluck="member"
 	)
-	if not frappe.db.get_value("LMS Batch", batch, "published") and has_student_role() and frappe.session.user not in batch_students:
+	if (
+		not frappe.db.get_value("LMS Batch", batch, "published")
+		and has_student_role()
+		and frappe.session.user not in batch_students
+	):
 		return
 
 	batch_details = frappe.db.get_value(
