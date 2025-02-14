@@ -8,7 +8,7 @@ import json
 from frappe import _
 from datetime import timedelta
 from frappe.model.document import Document
-from frappe.utils import cint, format_date, format_datetime, get_time, getdate, add_days
+from frappe.utils import cint, format_datetime, get_time
 from lms.lms.utils import (
 	get_lessons,
 	get_lesson_index,
@@ -18,7 +18,6 @@ from lms.lms.utils import (
 	update_payment_record,
 	generate_slug,
 )
-from frappe.email.doctype.email_template.email_template import get_email_template
 
 
 class LMSBatch(Document):
@@ -27,15 +26,12 @@ class LMSBatch(Document):
 			self.validate_seats_left()
 		self.validate_batch_end_date()
 		self.validate_duplicate_courses()
-		self.validate_duplicate_students()
 		self.validate_payments_app()
 		self.validate_amount_and_currency()
 		self.validate_duplicate_assessments()
 		self.validate_membership()
 		self.validate_timetable()
-		self.send_confirmation_mail()
 		self.validate_evaluation_end_date()
-		self.add_students_to_live_class()
 
 	def autoname(self):
 		if not self.name:
@@ -44,16 +40,6 @@ class LMSBatch(Document):
 	def validate_batch_end_date(self):
 		if self.end_date < self.start_date:
 			frappe.throw(_("Batch end date cannot be before the batch start date"))
-
-	def validate_duplicate_students(self):
-		students = [row.student for row in self.students]
-		duplicates = {student for student in students if students.count(student) > 1}
-		if len(duplicates):
-			frappe.throw(
-				_("Student {0} has already been added to this batch.").format(
-					frappe.bold(next(iter(duplicates)))
-				)
-			)
 
 	def validate_duplicate_courses(self):
 		courses = [row.course for row in self.courses]
@@ -91,85 +77,22 @@ class LMSBatch(Document):
 		if self.evaluation_end_date and self.evaluation_end_date < self.end_date:
 			frappe.throw(_("Evaluation end date cannot be less than the batch end date."))
 
-	def send_confirmation_mail(self):
-		for student in self.students:
-			outgoing_email_account = frappe.get_cached_value(
-				"Email Account", {"default_outgoing": 1, "enable_outgoing": 1}, "name"
-			)
-			if (
-				not student.confirmation_email_sent
-				and getdate(student.creation) >= add_days(getdate(), -2)
-				and (outgoing_email_account or frappe.conf.get("mail_login"))
-			):
-				self.send_mail(student)
-				student.confirmation_email_sent = 1
-
-	def send_mail(self, student):
-		subject = _("Enrollment Confirmation for the Next Training Batch")
-		template = "batch_confirmation"
-		custom_template = frappe.db.get_single_value(
-			"LMS Settings", "batch_confirmation_template"
-		)
-
-		args = {
-			"title": self.title,
-			"student_name": student.student_name,
-			"start_time": self.start_time,
-			"start_date": self.start_date,
-			"medium": self.medium,
-			"name": self.name,
-		}
-
-		if custom_template:
-			email_template = get_email_template(custom_template, args)
-			subject = email_template.get("subject")
-			content = email_template.get("message")
-
-		frappe.sendmail(
-			recipients=student.student,
-			subject=subject,
-			template=template if not custom_template else None,
-			content=content if custom_template else None,
-			args=args,
-			header=[subject, "green"],
-			retry=3,
-		)
-
 	def validate_membership(self):
+		members = frappe.get_all("LMS Batch Enrollment", {"batch": self.name}, pluck="member")
 		for course in self.courses:
-			for student in self.students:
-				filters = {
-					"doctype": "LMS Enrollment",
-					"member": student.student,
-					"course": course.course,
-				}
-				if not frappe.db.exists(filters):
-					frappe.get_doc(filters).save()
+			for member in members:
+				if not frappe.db.exists(
+					"LMS Enrollment", {"course": course.course, "member": member}
+				):
+					enrollment = frappe.new_doc("LMS Enrollment")
+					enrollment.course = course.course
+					enrollment.member = member
+					enrollment.save()
 
 	def validate_seats_left(self):
-		if cint(self.seat_count) < len(self.students):
+		students = frappe.db.count("LMS Batch Enrollment", {"batch": self.name})
+		if cint(self.seat_count) < students:
 			frappe.throw(_("There are no seats available in this batch."))
-
-	def add_students_to_live_class(self):
-		for student in self.students:
-			if student.is_new():
-				live_classes = frappe.get_all(
-					"LMS Live Class", {"batch_name": self.name}, ["name", "event"]
-				)
-
-				for live_class in live_classes:
-					if live_class.event:
-						frappe.get_doc(
-							{
-								"doctype": "Event Participants",
-								"reference_doctype": "User",
-								"reference_docname": student.student,
-								"email": student.student,
-								"parent": live_class.event,
-								"parenttype": "Event",
-								"parentfield": "event_participants",
-							}
-						).save()
 
 	def validate_timetable(self):
 		for schedule in self.timetable:

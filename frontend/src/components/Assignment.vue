@@ -5,7 +5,7 @@
 		:class="{ 'border rounded-lg': !showTitle }"
 	>
 		<div class="border-r p-5 overflow-y-auto h-[calc(100vh-3.2rem)]">
-			<div v-if="showTitle" class="text-lg font-semibold mb-5">
+			<div v-if="showTitle" class="text-lg font-semibold mb-5 text-ink-gray-9">
 				<div v-if="submissionName === 'new'">
 					{{ __('Submission by') }} {{ user.data?.full_name }}
 				</div>
@@ -13,19 +13,19 @@
 					{{ __('Submission by') }} {{ submissionResource.doc?.member_name }}
 				</div>
 			</div>
-			<div class="text-sm text-gray-600 font-medium mb-2">
+			<div class="text-sm text-ink-gray-7 font-medium mb-2">
 				{{ __('Question') }}:
 			</div>
 			<div
 				v-html="assignment.data.question"
-				class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-gray-300 prose-th:border-gray-300 prose-td:relative prose-th:relative prose-th:bg-gray-100 prose-sm max-w-none !whitespace-normal"
+				class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal"
 			></div>
 		</div>
 
 		<div class="flex flex-col">
 			<div class="p-5">
 				<div class="flex items-center justify-between mb-4">
-					<div class="font-semibold">
+					<div class="font-semibold text-ink-gray-9">
 						{{ __('Submission') }}
 					</div>
 					<div class="flex items-center space-x-2">
@@ -50,7 +50,7 @@
 						!['Pass', 'Fail'].includes(submissionResource.doc?.status) &&
 						submissionResource.doc?.owner == user.data?.name
 					"
-					class="bg-blue-100 p-3 rounded-md leading-5 text-sm mb-4"
+					class="bg-surface-blue-2 p-3 rounded-md leading-5 text-sm mb-4"
 				>
 					{{ __("You've successfully submitted the assignment.") }}
 					{{
@@ -61,7 +61,7 @@
 					{{ __('Feel free to make edits to your submission if needed.') }}
 				</div>
 				<div v-if="showUploader()">
-					<div class="text-xs text-gray-600 mt-1 mb-2">
+					<div class="text-xs text-ink-gray-5 mt-1 mb-2">
 						{{ __('Add your assignment as {0}').format(assignment.data.type) }}
 					</div>
 					<FileUploader
@@ -81,9 +81,9 @@
 						</template>
 					</FileUploader>
 					<div v-else>
-						<div class="flex items-center">
+						<div class="flex items-center text-ink-gray-7">
 							<div class="border rounded-md p-2 mr-2">
-								<FileText class="h-5 w-5 stroke-1.5 text-gray-700" />
+								<FileText class="h-5 w-5 stroke-1.5" />
 							</div>
 							<a
 								:href="submissionFile.file_url"
@@ -93,20 +93,20 @@
 								<span>
 									{{ submissionFile.file_name }}
 								</span>
-								<span class="text-sm text-gray-500 mt-1">
+								<span class="text-sm text-ink-gray-5 mt-1">
 									{{ getFileSize(submissionFile.file_size) }}
 								</span>
 							</a>
 							<X
 								v-if="canModifyAssignment"
 								@click="removeSubmission()"
-								class="bg-gray-200 rounded-md cursor-pointer stroke-1.5 w-5 h-5 p-1 ml-4"
+								class="bg-surface-gray-3 rounded-md cursor-pointer stroke-1.5 w-5 h-5 p-1 ml-4"
 							/>
 						</div>
 					</div>
 				</div>
 				<div v-else-if="assignment.data.type == 'URL'">
-					<div class="text-xs text-gray-600 mb-1">
+					<div class="text-xs text-ink-gray-5 mb-1">
 						{{ __('Enter a URL') }}
 					</div>
 					<FormControl
@@ -124,7 +124,7 @@
 						@change="(val) => (answer = val)"
 						:editable="true"
 						:fixedMenu="true"
-						editorClass="prose-sm max-w-none border-b border-x bg-gray-100 rounded-b-md py-1 px-2 min-h-[7rem]"
+						editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
 					/>
 				</div>
 
@@ -133,9 +133,9 @@
 						user.data?.name == submissionResource.doc?.owner &&
 						submissionResource.doc?.comments
 					"
-					class="mt-8 p-3 bg-blue-100 rounded-md"
+					class="mt-8 p-3 bg-surface-blue-2 rounded-md"
 				>
-					<div class="text-sm text-gray-600 font-medium mb-2">
+					<div class="text-sm text-ink-gray-5 font-medium mb-2">
 						{{ __('Comments by Evaluator') }}:
 					</div>
 					<div class="leading-5">
@@ -145,7 +145,7 @@
 
 				<!-- Grading -->
 				<div v-if="canGradeSubmission" class="mt-8 space-y-4">
-					<div class="font-semibold mb-2">
+					<div class="font-semibold mb-2 text-ink-gray-9">
 						{{ __('Grading') }}
 					</div>
 					<FormControl
@@ -281,7 +281,6 @@ watch(submissionResource, () => {
 		if (submissionResource.doc.answer) {
 			answer.value = submissionResource.doc.answer
 		}
-
 		if (submissionResource.isDirty) {
 			isDirty.value = true
 		} else if (showUploader() && !submissionFile.value) {
@@ -309,6 +308,7 @@ const submitAssignment = () => {
 		submissionResource.setValue.submit(
 			{
 				...submissionResource.doc,
+				assignment_attachment: submissionFile.value?.file_url,
 				evaluator: evaluator,
 			},
 			{
@@ -351,6 +351,7 @@ const addNewSubmission = () => {
 }
 
 const saveSubmission = (file) => {
+	isDirty.value = true
 	submissionFile.value = file
 }
 
@@ -401,6 +402,7 @@ const validateFile = (file) => {
 }
 
 const removeSubmission = () => {
+	isDirty.value = true
 	submissionFile.value = null
 }
 

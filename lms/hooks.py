@@ -113,7 +113,10 @@ scheduler_events = {
 		"lms.lms.doctype.lms_certificate_request.lms_certificate_request.schedule_evals",
 		"lms.lms.api.update_course_statistics",
 	],
-	"daily": ["lms.job.doctype.job_opportunity.job_opportunity.update_job_openings"],
+	"daily": [
+		"lms.job.doctype.job_opportunity.job_opportunity.update_job_openings",
+		"lms.lms.doctype.lms_payment.lms_payment.send_payment_reminder",
+	],
 }
 
 fixtures = ["Custom Field", "Function", "Industry", "LMS Category"]

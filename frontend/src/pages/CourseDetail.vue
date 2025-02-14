@@ -1,17 +1,17 @@
 <template>
 	<div v-if="course.data">
 		<header
-			class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
+			class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 		>
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
 		</header>
 		<div class="m-5">
 			<div class="flex justify-between w-full">
 				<div class="md:w-2/3">
-					<div class="text-3xl font-semibold">
+					<div class="text-3xl font-semibold text-ink-gray-9">
 						{{ course.data.title }}
 					</div>
-					<div class="my-3 leading-6">
+					<div class="my-3 leading-6 text-ink-gray-7">
 						{{ course.data.short_introduction }}
 					</div>
 					<div class="flex items-center">
@@ -21,7 +21,7 @@
 							class="flex items-center"
 						>
 							<Star class="h-5 w-5 text-gray-100 fill-orange-500" />
-							<span class="ml-1">
+							<span class="ml-1 text-ink-gray-7">
 								{{ course.data.rating }}
 							</span>
 						</Tooltip>
@@ -33,7 +33,7 @@
 							:text="__('Enrolled Students')"
 							class="flex items-center"
 						>
-							<Users class="h-4 w-4 text-gray-700" />
+							<Users class="h-4 w-4 text-ink-gray-7" />
 							<span class="ml-1">
 								{{ course.data.enrollment_count_formatted }}
 							</span>
@@ -60,7 +60,7 @@
 						<Badge
 							theme="gray"
 							size="lg"
-							class="mr-2"
+							class="mr-2 text-ink-gray-9"
 							v-for="tag in course.data.tags"
 						>
 							{{ tag }}
@@ -69,7 +69,7 @@
 					<CourseCardOverlay :course="course" class="md:hidden mb-4" />
 					<div
 						v-html="course.data.description"
-						class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-gray-300 prose-th:border-gray-300 prose-td:relative prose-th:relative prose-th:bg-gray-100 prose-sm max-w-none !whitespace-normal"
+						class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal"
 					></div>
 					<div class="mt-10">
 						<CourseOutline

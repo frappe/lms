@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2025-01-17 16:04+0000\n"
-"PO-Revision-Date: 2025-01-21 11:11\n"
+"POT-Creation-Date: 2025-02-07 16:03+0000\n"
+"PO-Revision-Date: 2025-02-10 16:09\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Turkish\n"
 "MIME-Version: 1.0\n"
@@ -239,6 +239,11 @@ msgstr "Tüm Gönderiler"
 #: lms/lms/doctype/lms_quiz/lms_quiz.py:46
 msgid "All questions should have the same marks if the limit is set."
 msgstr "Eğer bir sınır konulmuşsa tüm soruların puanları aynı olmalıdır."
+
+#. Label of the allow_guest_access (Check) field in DocType 'LMS Settings'
+#: lms/lms/doctype/lms_settings/lms_settings.json
+msgid "Allow Guest Access"
+msgstr ""
 
 #. Label of the allow_posting (Check) field in DocType 'Job Settings'
 #: lms/job/doctype/job_settings/job_settings.json
@@ -523,7 +528,7 @@ msgstr "Rozet Resmi"
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Batch"
-msgstr "Toplu İşlem"
+msgstr "Parti"
 
 #. Label of the batch_confirmation_template (Link) field in DocType 'LMS
 #. Settings'
@@ -823,7 +828,7 @@ msgstr "Bölüm başarıyla güncellendi"
 msgid "Chapters"
 msgstr "Bölümler"
 
-#: frontend/src/components/Quiz.vue:203 lms/templates/quiz/quiz.html:120
+#: frontend/src/components/Quiz.vue:205 lms/templates/quiz/quiz.html:120
 msgid "Check"
 msgstr "Kontrol et"
 
@@ -846,7 +851,7 @@ msgstr "Kursları Kontrol Et"
 msgid "Choices"
 msgstr "Seçimler"
 
-#: frontend/src/components/Quiz.vue:587 lms/templates/quiz/quiz.html:53
+#: frontend/src/components/Quiz.vue:589 lms/templates/quiz/quiz.html:53
 msgid "Choose all answers that apply"
 msgstr "Uygulanabilir tüm cevapları seçin"
 
@@ -854,7 +859,7 @@ msgstr "Uygulanabilir tüm cevapları seçin"
 msgid "Choose an icon"
 msgstr "Bir simge seçimi"
 
-#: frontend/src/components/Quiz.vue:588 lms/templates/quiz/quiz.html:53
+#: frontend/src/components/Quiz.vue:590 lms/templates/quiz/quiz.html:53
 msgid "Choose one answer"
 msgstr "Bir cevap seçin"
 
@@ -1096,7 +1101,7 @@ msgid "Continue Learning"
 msgstr "Öğrenmeye Devam Et"
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
-#: frontend/src/pages/Jobs.vue:152
+#: frontend/src/pages/Jobs.vue:146
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Contract"
 msgstr "Sözleşme"
@@ -1117,7 +1122,7 @@ msgstr "Kurumsal Organizasyon"
 #. Option for the 'Status' (Select) field in DocType 'Exercise Latest
 #. Submission'
 #. Option for the 'Status' (Select) field in DocType 'Exercise Submission'
-#: frontend/src/components/Quiz.vue:163
+#: frontend/src/components/Quiz.vue:165
 #: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
 #: lms/lms/doctype/exercise_submission/exercise_submission.json
 msgid "Correct"
@@ -1214,6 +1219,7 @@ msgstr "Kurs İçeriği"
 
 #. Name of a role
 #: frontend/src/pages/ProfileRoles.vue:16
+#: lms/lms/doctype/course_chapter/course_chapter.json
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_program/lms_program.json
 #: lms/lms/doctype/lms_question/lms_question.json
@@ -1340,7 +1346,7 @@ msgstr "Tamamlanan Kurslar"
 msgid "Courses Mentored"
 msgstr "Mentorluk Yapılan Kurslar"
 
-#: frontend/src/components/BatchCourses.vue:150
+#: frontend/src/components/BatchCourses.vue:151
 msgid "Courses deleted successfully"
 msgstr "Kurslar başarıyla silindi"
 
@@ -2042,7 +2048,7 @@ msgid "Free"
 msgstr "Serbest"
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
-#: frontend/src/pages/Jobs.vue:153
+#: frontend/src/pages/Jobs.vue:147
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Freelance"
 msgstr "Serbest çalışan"
@@ -2084,7 +2090,7 @@ msgid "Full Name"
 msgstr "Tam Adı"
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
-#: frontend/src/pages/Jobs.vue:150
+#: frontend/src/pages/Jobs.vue:144
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Full Time"
 msgstr "Tam Zamanlı"
@@ -2341,7 +2347,7 @@ msgstr "Tamamlanmadı"
 #. Option for the 'Status' (Select) field in DocType 'Exercise Latest
 #. Submission'
 #. Option for the 'Status' (Select) field in DocType 'Exercise Submission'
-#: frontend/src/components/Quiz.vue:168
+#: frontend/src/components/Quiz.vue:170
 #: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
 #: lms/lms/doctype/exercise_submission/exercise_submission.json
 msgid "Incorrect"
@@ -2861,7 +2867,7 @@ msgstr "Ders Tamamlandı"
 
 #: lms/templates/onboarding_header.html:11
 msgid "Lets start setting up your content on the LMS so that you can reclaim time and focus on growth."
-msgstr ""
+msgstr "Zamandan tasarruf edip büyümeye odaklanabilmeniz için ÖYS'deki içeriğinizi kurmaya başlayalım."
 
 #. Option for the 'Grade Type' (Select) field in DocType 'Education Detail'
 #: lms/lms/doctype/education_detail/education_detail.json
@@ -2985,7 +2991,7 @@ msgstr "Yönetici (Satış/Pazarlama/Müşteri)"
 msgid "Manifest File"
 msgstr ""
 
-#: frontend/src/components/Quiz.vue:94
+#: frontend/src/components/Quiz.vue:96
 msgid "Mark"
 msgstr "İşaretle"
 
@@ -3001,7 +3007,7 @@ msgstr "Okundu olarak İşaretle"
 #. Label of the marks (Int) field in DocType 'LMS Quiz Result'
 #: frontend/src/components/Modals/Question.vue:50
 #: frontend/src/components/Modals/Question.vue:99
-#: frontend/src/components/Quiz.vue:94 frontend/src/pages/QuizForm.vue:390
+#: frontend/src/components/Quiz.vue:96 frontend/src/pages/QuizForm.vue:390
 #: frontend/src/pages/QuizSubmission.vue:59
 #: lms/lms/doctype/lms_quiz_question/lms_quiz_question.json
 #: lms/lms/doctype/lms_quiz_result/lms_quiz_result.json
@@ -3342,7 +3348,7 @@ msgstr "{1} dersinde {0} konusuna yeni yanıt"
 msgid "New {0}"
 msgstr "Yeni {0}"
 
-#: frontend/src/components/Quiz.vue:211 frontend/src/pages/Lesson.vue:84
+#: frontend/src/components/Quiz.vue:213 frontend/src/pages/Lesson.vue:84
 msgid "Next"
 msgstr "Sonraki"
 
@@ -3669,7 +3675,7 @@ msgid "Pan Number"
 msgstr ""
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
-#: frontend/src/pages/Jobs.vue:151
+#: frontend/src/pages/Jobs.vue:145
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Part Time"
 msgstr "Yarı Zamanlı"
@@ -3962,7 +3968,7 @@ msgstr "Posta Kodu"
 
 #: frontend/src/pages/JobDetail.vue:115
 msgid "Posted on"
-msgstr ""
+msgstr "Yayınlama Tarihi"
 
 #. Name of a DocType
 #: lms/lms/doctype/preferred_function/preferred_function.json
@@ -4161,11 +4167,11 @@ msgstr "Soru başarıyla eklendi"
 msgid "Question updated successfully"
 msgstr "Soru başarıyla güncellendi"
 
-#: frontend/src/components/Quiz.vue:86
+#: frontend/src/components/Quiz.vue:88
 msgid "Question {0}"
 msgstr "Soru {0}"
 
-#: frontend/src/components/Quiz.vue:188
+#: frontend/src/components/Quiz.vue:190
 msgid "Question {0} of {1}"
 msgstr "Soru {0} / {1}"
 
@@ -4202,7 +4208,7 @@ msgstr "Sınav Gönderimi"
 msgid "Quiz Submissions"
 msgstr ""
 
-#: frontend/src/components/Quiz.vue:225
+#: frontend/src/components/Quiz.vue:227
 msgid "Quiz Summary"
 msgstr "Sınav Özeti"
 
@@ -4718,7 +4724,7 @@ msgstr "Ekip"
 msgid "Stage"
 msgstr "Aşama"
 
-#: frontend/src/components/LiveClass.vue:50 frontend/src/components/Quiz.vue:65
+#: frontend/src/components/LiveClass.vue:50 frontend/src/components/Quiz.vue:67
 #: lms/templates/quiz/quiz.html:39
 msgid "Start"
 msgstr "Başlangıç"
@@ -4900,7 +4906,7 @@ msgstr ""
 #: frontend/src/components/Modals/BatchCourseModal.vue:9
 #: frontend/src/components/Modals/EvaluationModal.vue:9
 #: frontend/src/components/Modals/Question.vue:338
-#: frontend/src/components/Quiz.vue:216 lms/templates/assignment.html:9
+#: frontend/src/components/Quiz.vue:218 lms/templates/assignment.html:9
 #: lms/templates/livecode/extension_footer.html:25
 #: lms/templates/quiz/quiz.html:128 lms/templates/reviews.html:163
 #: lms/www/new-sign-up.html:32
@@ -4917,7 +4923,7 @@ msgid "Submitted {0}"
 msgstr "Kaydedildi {0}"
 
 #: frontend/src/components/Assignment.vue:316
-#: frontend/src/components/BatchCourses.vue:150
+#: frontend/src/components/BatchCourses.vue:151
 #: frontend/src/components/BatchOverlay.vue:135
 #: frontend/src/components/BatchStudents.vue:302
 #: frontend/src/components/CourseCardOverlay.vue:165
@@ -4953,7 +4959,7 @@ msgstr "Özet"
 msgid "Sunday"
 msgstr "Pazar"
 
-#: lms/lms/api.py:983
+#: lms/lms/api.py:995
 msgid "Suspicious pattern found in {0}: {1}"
 msgstr ""
 
@@ -5099,7 +5105,7 @@ msgstr "Başvurunuzun durumu değişti."
 
 #: frontend/src/pages/Batches.vue:77
 msgid "There are no batches matching the criteria. Keep an eye out, fresh learning experiences are on the way soon!"
-msgstr ""
+msgstr "Şu anda mevcut toplu ders bulunmamaktadır. Gözünüzü dört açın, yeni öğrenme deneyimleri yakında yolda!"
 
 #: frontend/src/components/CreateOutline.vue:12
 msgid "There are no chapters in this course. Create and manage chapters from here."
@@ -5111,7 +5117,7 @@ msgstr "Şu anda mevcut toplu ders bulunmamaktadır. Gözünüzü dört açın, 
 
 #: frontend/src/pages/CertifiedParticipants.vue:84
 msgid "There are no participants matching this criteria."
-msgstr ""
+msgstr "Bu kriterlere uyan katılımcı bulunamadı."
 
 #: frontend/src/pages/Programs.vue:95
 msgid "There are no programs available at the moment. Keep an eye out, fresh learning experiences are on the way soon!"
@@ -5198,7 +5204,7 @@ msgstr "Perşembe"
 #. Label of the time (Time) field in DocType 'LMS Live Class'
 #: frontend/src/components/Modals/Event.vue:48
 #: frontend/src/components/Modals/LiveClassModal.vue:37
-#: frontend/src/components/Quiz.vue:44
+#: frontend/src/components/Quiz.vue:45
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Time"
 msgstr "Zaman"
@@ -5340,7 +5346,7 @@ msgstr "Toplam Kayıt"
 msgid "Travel"
 msgstr "Gezi"
 
-#: frontend/src/components/Quiz.vue:254 lms/templates/quiz/quiz.html:131
+#: frontend/src/components/Quiz.vue:256 lms/templates/quiz/quiz.html:131
 msgid "Try Again"
 msgstr "Tekrar Deneyin"
 
@@ -5374,7 +5380,7 @@ msgstr "X"
 msgid "Type"
 msgstr "Türü"
 
-#: frontend/src/components/Quiz.vue:589
+#: frontend/src/components/Quiz.vue:591
 msgid "Type your answer"
 msgstr "Cevabınızı yazın"
 
@@ -5709,7 +5715,7 @@ msgstr "Herhangi bir bildiriminiz yok."
 msgid "You got"
 msgstr "Puanın"
 
-#: frontend/src/components/Quiz.vue:236
+#: frontend/src/components/Quiz.vue:238
 #, python-format
 msgid "You got {0}% correct answers with a score of {1} out of {2}"
 msgstr "{0}% doğru cevap verdiniz ve {2} üzerinden {1} puan aldınız"
@@ -5718,7 +5724,7 @@ msgstr "{0}% doğru cevap verdiniz ve {2} üzerinden {1} puan aldınız"
 msgid "You have already applied for this job."
 msgstr "Bu iş için zaten başvurdunuz."
 
-#: frontend/src/components/Quiz.vue:70 lms/templates/quiz/quiz.html:43
+#: frontend/src/components/Quiz.vue:72 lms/templates/quiz/quiz.html:43
 msgid "You have already exceeded the maximum number of attempts allowed for this quiz."
 msgstr "Bu sınav için izin verilen maksimum deneme sayısını zaten aştınız."
 
@@ -5807,7 +5813,7 @@ msgstr ""
 msgid "Your score is"
 msgstr "Puanınız"
 
-#: frontend/src/components/Quiz.vue:229
+#: frontend/src/components/Quiz.vue:231
 msgid "Your submission has been successfully saved. The instructor will review and grade it shortly, and you'll be notified of your final result."
 msgstr ""
 
@@ -5866,7 +5872,7 @@ msgstr ""
 
 #: frontend/src/components/JobCard.vue:30
 msgid "posted"
-msgstr ""
+msgstr "gönderildi"
 
 #: frontend/src/pages/QuizForm.vue:386
 msgid "question_detail"
@@ -5886,9 +5892,9 @@ msgstr ""
 
 #: lms/templates/emails/mentor_request_creation_email.html:5
 msgid "you can"
-msgstr ""
+msgstr "yapabilirsin"
 
-#: lms/lms/api.py:780 lms/lms/api.py:788
+#: lms/lms/api.py:792 lms/lms/api.py:800
 msgid "{0} Settings not found"
 msgstr "{0} Ayarları bulunamadı"
 

@@ -1,6 +1,6 @@
 <template>
 	<div class="space-y-1">
-		<label class="block text-xs text-gray-600" v-if="props.label">
+		<label class="block text-xs text-ink-gray-5" v-if="props.label">
 			{{ props.label }}
 		</label>
 		<div class="flex text-center">

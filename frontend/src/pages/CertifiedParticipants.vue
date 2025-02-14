@@ -1,14 +1,22 @@
 <template>
 	<header
-		class="sticky flex items-center justify-between top-0 z-10 border-b bg-white px-3 py-2.5 sm:px-5"
+		class="sticky flex items-center justify-between top-0 z-10 border-b bg-surface-white px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs :items="breadcrumbs" />
+		<router-link :to="{ name: 'Batches' }">
+			<Button>
+				<template #prefix>
+					<GraduationCap class="h-4 w-4 stroke-1.5" />
+				</template>
+				{{ __('Get Certified') }}
+			</Button>
+		</router-link>
 	</header>
 	<div class="p-5 lg:w-3/4 mx-auto">
 		<div
 			class="flex flex-col lg:flex-row lg:items-center space-y-4 lg:space-y-0 justify-between mb-5"
 		>
-			<div class="text-lg font-semibold">
+			<div class="text-lg text-ink-gray-9 font-semibold">
 				{{ __('All Certified Participants') }}
 			</div>
 			<div class="grid grid-cols-2 gap-2">
@@ -42,7 +50,7 @@
 					}"
 				>
 					<div
-						class="flex items-center space-x-2 border rounded-md hover:bg-gray-50 p-2"
+						class="flex items-center space-x-2 border rounded-md hover:bg-surface-menu-bar p-2 text-ink-gray-7"
 					>
 						<Avatar
 							:image="participant.user_image"
@@ -55,7 +63,7 @@
 							</div>
 							<div
 								v-if="participant.headline"
-								class="headline text-sm text-gray-700"
+								class="headline text-sm text-ink-gray-7"
 							>
 								{{ participant.headline }}
 							</div>
@@ -74,9 +82,9 @@
 		</div>
 		<div
 			v-else-if="!participants.list.loading"
-			class="flex flex-col items-center justify-center text-sm text-gray-600 italic mt-48"
+			class="flex flex-col items-center justify-center text-sm text-ink-gray-5 italic mt-48"
 		>
-			<BookOpen class="size-10 mx-auto stroke-1 text-gray-500" />
+			<BookOpen class="size-10 mx-auto stroke-1 text-ink-gray-4" />
 			<div class="text-lg font-medium mb-1">
 				{{ __('No participants found') }}
 			</div>
@@ -97,7 +105,7 @@ import {
 } from 'frappe-ui'
 import { computed, onMounted, ref } from 'vue'
 import { updateDocumentTitle } from '@/utils'
-import { BookOpen } from 'lucide-vue-next'
+import { BookOpen, GraduationCap } from 'lucide-vue-next'
 
 const currentCategory = ref('')
 const filters = ref({})

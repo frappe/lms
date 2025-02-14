@@ -1,6 +1,6 @@
 <template>
 	<header
-		class="sticky top-0 z-10 flex flex-col md:flex-row md:items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
+		class="sticky top-0 z-10 flex flex-col md:flex-row md:items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs :items="breadbrumbs" />
 		<Button variant="solid" @click="saveProgram()">
@@ -40,7 +40,7 @@
 				}"
 			>
 				<ListHeader
-					class="mb-2 grid items-center space-x-4 rounded bg-gray-100 p-2"
+					class="mb-2 grid items-center space-x-4 rounded bg-surface-gray-2 p-2"
 				>
 					<ListHeaderItem :item="item" v-for="item in courseColumns" />
 				</ListHeader>
@@ -102,7 +102,7 @@
 				}"
 			>
 				<ListHeader
-					class="mb-2 grid items-center space-x-4 rounded bg-gray-100 p-2"
+					class="mb-2 grid items-center space-x-4 rounded bg-surface-gray-2 p-2"
 				>
 					<ListHeaderItem :item="item" v-for="item in memberColumns" />
 				</ListHeader>

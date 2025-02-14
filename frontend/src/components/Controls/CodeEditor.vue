@@ -5,7 +5,7 @@
 			height: height,
 		}"
 	>
-		<span class="text-xs" v-if="label">
+		<span class="text-xs text-ink-gray-7" v-if="label">
 			{{ label }}
 		</span>
 		<div
@@ -13,7 +13,7 @@
 			class="h-auto flex-1 overflow-hidden overscroll-none !rounded border border-outline-gray-2 bg-surface-gray-2 dark:bg-gray-900"
 		/>
 		<span
-			class="mt-1 text-xs text-gray-600"
+			class="mt-1 text-xs text-ink-gray-5"
 			v-show="description"
 			v-html="description"
 		></span>
@@ -27,7 +27,6 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { useDark } from '@vueuse/core'
 import ace from 'ace-builds'
 import 'ace-builds/src-min-noconflict/ext-searchbox'
 import 'ace-builds/src-min-noconflict/theme-chrome'
@@ -35,9 +34,7 @@ import 'ace-builds/src-min-noconflict/theme-twilight'
 import { PropType, onMounted, ref, watch } from 'vue'
 import { Button } from 'frappe-ui'
 
-const isDark = useDark({
-	attribute: 'data-theme',
-})
+const isDark = ref(false)
 
 const props = defineProps({
 	modelValue: {
@@ -82,6 +79,7 @@ const editor = ref<HTMLElement | null>(null)
 let aceEditor = null as ace.Ace.Editor | null
 
 onMounted(() => {
+	isDark.value = localStorage.getItem('theme') === 'dark'
 	setupEditor()
 })
 
@@ -148,6 +146,7 @@ function resetEditor(value: string, resetHistory = false) {
 	value = getModelValue()
 	aceEditor?.setValue(value)
 	aceEditor?.clearSelection()
+	console.log(isDark.value)
 	aceEditor?.setTheme(isDark.value ? 'ace/theme/twilight' : 'ace/theme/chrome')
 	props.autofocus && aceEditor?.focus()
 	if (resetHistory) {
@@ -156,6 +155,7 @@ function resetEditor(value: string, resetHistory = false) {
 }
 
 watch(isDark, () => {
+	console.log(isDark.value)
 	aceEditor?.setTheme(isDark.value ? 'ace/theme/twilight' : 'ace/theme/chrome')
 })
 
@@ -175,30 +175,3 @@ watch(
 
 defineExpose({ resetEditor })
 </script>
-<style scoped>
-.editor .ace_editor {
-	height: 100%;
-	width: 100%;
-	border-radius: 5px;
-	overscroll-behavior: none;
-}
-.editor :deep(.ace_scrollbar-h) {
-	display: none;
-}
-.editor :deep(.ace_search) {
-	@apply dark:bg-gray-800 dark:text-gray-200;
-	@apply dark:border-gray-800;
-}
-.editor :deep(.ace_searchbtn) {
-	@apply dark:bg-gray-800 dark:text-gray-200;
-	@apply dark:border-gray-800;
-}
-.editor :deep(.ace_button) {
-	@apply dark:bg-gray-800 dark:text-gray-200;
-}
-
-.editor :deep(.ace_search_field) {
-	@apply dark:bg-gray-900 dark:text-gray-200;
-	@apply dark:border-gray-800;
-}
-</style>

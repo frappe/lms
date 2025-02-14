@@ -1,6 +1,6 @@
 <template>
 	<header
-		class="sticky top-0 z-10 flex flex-col md:flex-row md:items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
+		class="sticky top-0 z-10 flex flex-col md:flex-row md:items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs :items="breadcrumbs" />
 		<div class="flex items-center space-x-2">
@@ -26,14 +26,14 @@
 		>
 			<div class="flex items-center">
 				<Avatar :image="log.user_image" :label="log.full_name" class="mr-2" />
-				<div class="notification" v-html="log.subject"></div>
+				<div class="notification text-ink-gray-7" v-html="log.subject"></div>
 			</div>
 			<div class="flex items-center space-x-2">
 				<Link
 					v-if="log.link"
 					:to="log.link"
 					@click="markAsRead.submit({ name: log.name })"
-					class="text-gray-600 font-medium text-sm hover:text-gray-700"
+					class="text-ink-gray-5 font-medium text-sm hover:text-ink-gray-7"
 				>
 					{{ __('View') }}
 				</Link>
@@ -44,13 +44,13 @@
 						@click="markAsRead.submit({ name: log.name })"
 					>
 						<template #icon>
-							<X class="h-4 w-4 text-gray-700 stroke-1.5" />
+							<X class="h-4 w-4 text-ink-gray-7 stroke-1.5" />
 						</template>
 					</Button>
 				</Tooltip>
 			</div>
 		</div>
-		<div v-else class="text-gray-600">
+		<div v-else class="text-ink-gray-5">
 			{{ __('Nothing to see here.') }}
 		</div>
 	</div>

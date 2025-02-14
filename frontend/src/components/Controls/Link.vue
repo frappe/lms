@@ -2,7 +2,7 @@
 	<div class="space-y-1.5">
 		<label class="block" :class="labelClasses" v-if="attrs.label">
 			{{ attrs.label }}
-			<span class="text-red-500" v-if="attrs.required">*</span>
+			<span class="text-ink-red-3" v-if="attrs.required">*</span>
 		</label>
 		<Autocomplete
 			ref="autocomplete"
@@ -56,7 +56,7 @@
 				</div>
 			</template>
 		</Autocomplete>
-		<p v-if="description" class="text-sm text-gray-600">{{ description }}</p>
+		<p v-if="description" class="text-sm text-ink-gray-5">{{ description }}</p>
 	</div>
 </template>
 
@@ -163,7 +163,7 @@ const labelClasses = computed(() => {
 			sm: 'text-xs',
 			md: 'text-base',
 		}[attrs.size || 'sm'],
-		'text-gray-600',
+		'text-ink-gray-5',
 	]
 })
 </script>

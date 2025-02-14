@@ -1,7 +1,7 @@
 <template>
 	<div class="flex flex-col h-full">
 		<div class="flex items-center justify-between">
-			<div class="text-xl font-semibold mb-1">
+			<div class="text-xl font-semibold mb-1 text-ink-gray-9">
 				{{ label }}
 			</div>
 			<!-- <Badge

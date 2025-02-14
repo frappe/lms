@@ -3,7 +3,7 @@
 		<Button v-if="!singleThread" class="float-right" @click="openTopicModal()">
 			{{ __('New {0}').format(singularize(title)) }}
 		</Button>
-		<div class="text-xl font-semibold">
+		<div class="text-xl font-semibold text-ink-gray-9">
 			{{ __(title) }}
 		</div>
 	</div>
@@ -16,10 +16,10 @@
 			>
 				<UserAvatar :user="topic.user" size="2xl" class="mr-4" />
 				<div>
-					<div class="text-lg font-semibold mb-1">
+					<div class="text-lg font-semibold mb-1 text-ink-gray-7">
 						{{ topic.title }}
 					</div>
-					<div class="flex items-center">
+					<div class="flex items-center text-ink-gray-5">
 						<span>
 							{{ topic.user.full_name }}
 						</span>
@@ -44,12 +44,12 @@
 		v-else
 		class="flex flex-col items-center justify-center border-2 border-dashed mt-5 py-8 rounded-md"
 	>
-		<MessageSquareText class="w-7 h-7 text-gray-500 stroke-1.5 mr-2" />
+		<MessageSquareText class="w-7 h-7 text-ink-gray-4 stroke-1.5 mr-2" />
 		<div class="">
 			<div v-if="emptyStateTitle" class="font-medium mb-2">
 				{{ __(emptyStateTitle) }}
 			</div>
-			<div class="text-gray-600">
+			<div class="text-ink-gray-5">
 				{{ __(emptyStateText) }}
 			</div>
 		</div>

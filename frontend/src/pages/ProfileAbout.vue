@@ -1,19 +1,19 @@
 <template>
 	<div class="mt-7 mb-10">
-		<h2 class="mb-3 text-lg font-semibold text-gray-900">
+		<h2 class="mb-3 text-lg font-semibold text-ink-gray-9">
 			{{ __('About') }}
 		</h2>
 		<div
 			v-if="profile.data.bio"
 			v-html="profile.data.bio"
-			class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-gray-300 prose-th:border-gray-300 prose-td:relative prose-th:relative prose-th:bg-gray-100 prose-sm max-w-none !whitespace-normal"
+			class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal"
 		></div>
-		<div v-else class="text-gray-700 text-sm italic">
+		<div v-else class="text-ink-gray-7 text-sm italic">
 			{{ __('No introduction') }}
 		</div>
 	</div>
 	<div class="mt-7 mb-10" v-if="badges.data?.length">
-		<h2 class="mb-3 text-lg font-semibold text-gray-900">
+		<h2 class="mb-3 text-lg font-semibold text-ink-gray-9">
 			{{ __('Achievements') }}
 		</h2>
 		<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -28,7 +28,7 @@
 							/>
 							<div
 								v-if="badge.count > 1"
-								class="flex items-end bg-gray-100 p-2 text-xs font-semibold rounded-full absolute right-0 bottom-0"
+								class="flex items-end bg-surface-gray-2 p-2 text-xs font-semibold rounded-full absolute right-0 bottom-0"
 							>
 								<span>
 									<X class="w-3 h-3" />
@@ -42,7 +42,7 @@
 							<img
 								:src="badge.badge_image"
 								:alt="badge.badge"
-								class="bg-gray-100 rounded-t-md h-[200px] mx-auto"
+								class="bg-surface-gray-2 rounded-t-md h-[200px] mx-auto"
 							/>
 							<div class="p-5">
 								<div class="text-2xl font-semibold mb-2">
@@ -52,13 +52,13 @@
 									{{ badge.badge_description }}
 								</div>
 								<div class="flex flex-col mb-4">
-									<span class="text-xs text-gray-700 font-medium mb-1">
+									<span class="text-xs text-ink-gray-7 font-medium mb-1">
 										{{ __('Issued on') }}:
 									</span>
 									{{ dayjs(badge.issued_on).format('DD MMM YYYY') }}
 								</div>
 								<div class="flex flex-col">
-									<span class="text-xs text-gray-700 font-medium mb-1">
+									<span class="text-xs text-ink-gray-7 font-medium mb-1">
 										{{ __('Share on') }}:
 									</span>
 									<div class="flex items-center space-x-2">
@@ -68,7 +68,7 @@
 											@click="shareOnSocial(badge, 'LinkedIn')"
 										>
 											<template #prefix>
-												<LinkedinIcon class="h-3 w-3 text-gray-700" />
+												<LinkedinIcon class="h-3 w-3 text-ink-gray-7" />
 											</template>
 											<span class="text-xs">
 												{{ __('LinkedIn') }}
@@ -80,7 +80,7 @@
 											@click="shareOnSocial(badge, 'Twitter')"
 										>
 											<template #prefix>
-												<Twitter class="h-3 w-3 text-gray-700" />
+												<Twitter class="h-3 w-3 text-ink-gray-7" />
 											</template>
 											<span class="text-xs">
 												{{ __('Twitter') }}

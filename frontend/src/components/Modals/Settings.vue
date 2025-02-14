@@ -2,14 +2,14 @@
 	<Dialog v-model="show" :options="{ size: '4xl' }">
 		<template #body>
 			<div class="flex h-[calc(100vh_-_8rem)]">
-				<div class="flex w-52 shrink-0 flex-col bg-gray-50 p-2">
-					<h1 class="mb-3 px-2 pt-2 text-lg font-semibold">
+				<div class="flex w-52 shrink-0 flex-col bg-surface-gray-2 p-2">
+					<h1 class="mb-3 px-2 pt-2 text-lg font-semibold text-ink-gray-9">
 						{{ __('Settings') }}
 					</h1>
 					<div v-for="tab in tabs" :key="tab.label">
 						<div
 							v-if="!tab.hideLabel"
-							class="mb-2 mt-3 flex cursor-pointer gap-1.5 px-1 text-base font-medium text-gray-600 transition-all duration-300 ease-in-out"
+							class="mb-2 mt-3 flex cursor-pointer gap-1.5 px-1 text-base font-medium text-ink-gray-5 transition-all duration-300 ease-in-out"
 						>
 							<span>{{ __(tab.label) }}</span>
 						</div>
@@ -21,8 +21,8 @@
 								class="w-full"
 								:class="
 									activeTab?.label == item.label
-										? 'bg-white shadow-sm'
-										: 'hover:bg-gray-100'
+										? 'bg-surface-selected shadow-sm'
+										: 'hover:bg-surface-gray-2'
 								"
 								@click="activeTab = item"
 							/>
@@ -32,7 +32,7 @@
 				<div
 					v-if="activeTab && data.doc"
 					:key="activeTab.label"
-					class="flex flex-1 flex-col px-10 py-8"
+					class="flex flex-1 flex-col px-10 py-8 bg-surface-modal"
 				>
 					<Members
 						v-if="activeTab.label === 'Members'"
@@ -119,6 +119,13 @@ const tabsStructure = computed(() => {
 							type: 'checkbox',
 						},
 						{
+							label: 'Allow Guest Access',
+							name: 'allow_guest_access',
+							description:
+								'If enabled, users can access the course and batch lists without logging in.',
+							type: 'checkbox',
+						},
+						{
 							label: 'Send calendar invite for evaluations',
 							name: 'send_calendar_invite_for_evaluations',
 							description:
@@ -130,7 +137,7 @@ const tabsStructure = computed(() => {
 							name: 'unsplash_access_key',
 							description:
 								'Optional. If this is set, students can pick a cover image from the unsplash library for their profile page. https://unsplash.com/documentation#getting-started.',
-							type: 'text',
+							type: 'password',
 						},
 					],
 				},

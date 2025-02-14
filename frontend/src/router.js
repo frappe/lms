@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { usersStore } from './stores/user'
 import { sessionStore } from './stores/session'
+import { useSettings } from './stores/settings'
 
 let defaultRoute = '/courses'
 const routes = [
@@ -218,7 +219,8 @@ let router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
 	const { userResource } = usersStore()
-	let { isLoggedIn } = sessionStore()
+	const { isLoggedIn } = sessionStore()
+	const { allowGuestAccess } = useSettings()
 
 	try {
 		if (isLoggedIn) {
@@ -226,6 +228,14 @@ router.beforeEach(async (to, from, next) => {
 		}
 	} catch (error) {
 		isLoggedIn = false
+	}
+
+	if (!isLoggedIn) {
+		await allowGuestAccess.promise
+		if (!allowGuestAccess.data) {
+			window.location.href = '/login'
+			return
+		}
 	}
 	return next()
 })

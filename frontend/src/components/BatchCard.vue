@@ -1,50 +1,52 @@
 <template>
 	<div
-		class="flex flex-col shadow hover:bg-gray-100 rounded-md p-4 h-full"
+		class="flex flex-col border-2 hover:bg-surface-gray-2 rounded-md p-4 h-full"
 		style="min-height: 150px"
 	>
-		<div class="text-lg leading-5 font-semibold mb-2">
+		<div class="text-lg leading-5 font-semibold mb-2 text-ink-gray-9">
 			{{ batch.title }}
 		</div>
-		<Badge
+		<div
 			v-if="batch.seat_count && batch.seats_left > 0"
-			theme="green"
-			class="self-start mb-2"
+			class="text-xs bg-green-100 text-green-700 self-start px-2 py-0.5 rounded-md"
 		>
 			{{ batch.seats_left }}
-			<span v-if="batch.seats_left > 1">{{ __('Seats Left') }}</span
-			><span v-else-if="batch.seats_left == 1">{{ __('Seat Left') }}</span>
-		</Badge>
-		<Badge
+			<span v-if="batch.seats_left > 1">
+				{{ __('Seats Left') }}
+			</span>
+			<span v-else-if="batch.seats_left == 1">
+				{{ __('Seat Left') }}
+			</span>
+		</div>
+		<div
 			v-else-if="batch.seat_count && batch.seats_left <= 0"
-			theme="red"
-			class="self-start mb-2"
+			class="text-xs bg-red-100 text-red-700 self-start px-2 py-0.5 rounded-md"
 		>
 			{{ __('Sold Out') }}
-		</Badge>
-		<div class="short-introduction text-sm text-gray-700">
+		</div>
+		<div class="short-introduction text-sm text-ink-gray-7">
 			{{ batch.description }}
 		</div>
-		<div v-if="batch.amount" class="font-semibold mb-4">
+		<div v-if="batch.amount" class="font-semibold text-ink-gray-9 mb-4">
 			{{ batch.price }}
 		</div>
 		<div class="flex flex-col space-y-2 mt-auto">
 			<DateRange
 				:startDate="batch.start_date"
 				:endDate="batch.end_date"
-				class="text-sm text-gray-700"
+				class="text-sm text-ink-gray-7"
 			/>
-			<div class="flex items-center text-sm text-gray-700">
-				<Clock class="h-4 w-4 stroke-1.5 mr-2 text-gray-700" />
+			<div class="flex items-center text-sm text-ink-gray-7">
+				<Clock class="h-4 w-4 stroke-1.5 mr-2 text-ink-gray-7" />
 				<span>
 					{{ formatTime(batch.start_time) }} - {{ formatTime(batch.end_time) }}
 				</span>
 			</div>
 			<div
 				v-if="batch.timezone"
-				class="flex items-center text-sm text-gray-700"
+				class="flex items-center text-sm text-ink-gray-7"
 			>
-				<Globe class="h-4 w-4 stroke-1.5 mr-2 text-gray-600" />
+				<Globe class="h-4 w-4 stroke-1.5 mr-2 text-ink-gray-5" />
 				<span>
 					{{ batch.timezone }}
 				</span>
