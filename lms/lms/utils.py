@@ -1194,7 +1194,10 @@ def get_neighbour_lesson(course, chapter, lesson):
 
 @frappe.whitelist(allow_guest=True)
 def get_batch_details(batch):
-	if not frappe.db.get_value("LMS Batch", batch, "published") and has_student_role():
+	batch_students = frappe.get_all(
+		"LMS Batch Enrollment", {"batch": batch}, pluck="member"
+	)
+	if not frappe.db.get_value("LMS Batch", batch, "published") and has_student_role() and frappe.session.user not in batch_students:
 		return
 
 	batch_details = frappe.db.get_value(
@@ -1229,9 +1232,7 @@ def get_batch_details(batch):
 	batch_details.courses = frappe.get_all(
 		"Batch Course", filters={"parent": batch}, fields=["course", "title", "evaluator"]
 	)
-	batch_details.students = frappe.get_all(
-		"LMS Batch Enrollment", {"batch": batch}, pluck="member"
-	)
+	batch_details.students = batch_students
 
 	if batch_details.paid_batch and batch_details.start_date >= getdate():
 		batch_details.amount, batch_details.currency = check_multicurrency(
