@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-02-07 16:03+0000\n"
-"PO-Revision-Date: 2025-02-13 16:47\n"
+"PO-Revision-Date: 2025-02-15 16:59\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Bosnian\n"
 "MIME-Version: 1.0\n"
@@ -1668,7 +1668,7 @@ msgstr ""
 
 #: frontend/src/components/Members.vue:32 lms/templates/signup-form.html:10
 msgid "Email"
-msgstr "E-pošta"
+msgstr "e-pošta"
 
 #: frontend/src/components/Modals/Event.vue:16
 msgid "Email ID"
@@ -1836,7 +1836,7 @@ msgstr "Grеška"
 #. Label of a shortcut in the LMS Workspace
 #: frontend/src/components/Modals/Event.vue:364 lms/lms/workspace/lms/lms.json
 msgid "Evaluation"
-msgstr ""
+msgstr "Evaluacija"
 
 #. Label of the section_break_6 (Section Break) field in DocType 'LMS
 #. Certificate Evaluation'
@@ -2153,7 +2153,7 @@ msgstr "Google Meet veza"
 #: frontend/src/components/Assignment.vue:154
 #: lms/lms/doctype/education_detail/education_detail.json
 msgid "Grade"
-msgstr ""
+msgstr "Ocjena"
 
 #. Label of the grade_assignment (Check) field in DocType 'LMS Assignment'
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
@@ -3898,7 +3898,7 @@ msgstr ""
 
 #: frontend/src/components/Modals/LiveClassModal.vue:167
 msgid "Please select a date."
-msgstr ""
+msgstr "Odaberi Datum."
 
 #: frontend/src/components/Modals/LiveClassModal.vue:191
 msgid "Please select a duration."
@@ -4304,7 +4304,7 @@ msgstr "Registrovan, ali onemogućen"
 #: lms/lms/doctype/invite_request/invite_request.json
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
 msgid "Rejected"
-msgstr ""
+msgstr "Odbijeno"
 
 #. Label of the related_courses (Table) field in DocType 'LMS Course'
 #. Name of a DocType
@@ -5344,7 +5344,7 @@ msgstr ""
 #. Option for the 'Location Preference' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
 msgid "Travel"
-msgstr ""
+msgstr "Putovanja"
 
 #: frontend/src/components/Quiz.vue:256 lms/templates/quiz/quiz.html:131
 msgid "Try Again"
