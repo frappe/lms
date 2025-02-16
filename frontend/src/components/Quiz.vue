@@ -258,14 +258,22 @@
 			</Button>
 		</div>
 		<div
-			v-if="quiz.data.show_submission_history && attempts?.data"
+			v-if="
+				quiz.data.show_submission_history &&
+				attempts?.data &&
+				attempts.data.length > 0
+			"
 			class="mt-10"
 		>
 			<ListView
 				:columns="getSubmissionColumns()"
 				:rows="attempts?.data"
 				row-key="name"
-				:options="{ selectable: false, showTooltip: false }"
+				:options="{
+					selectable: false,
+					showTooltip: false,
+					emptyState: { title: __('No Quiz submissions found') },
+				}"
 			>
 			</ListView>
 		</div>
