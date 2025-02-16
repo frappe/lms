@@ -429,7 +429,11 @@ def get_timetable_details(timetable):
 				True
 				if frappe.db.exists(
 					"LMS Course Progress",
-					{"lesson": entry.reference_docname, "member": frappe.session.user},
+					{
+						"lesson": entry.reference_docname,
+						"member": frappe.session.user,
+						"status": "Complete",
+					},
 				)
 				else False
 			)

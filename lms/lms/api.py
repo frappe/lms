@@ -306,7 +306,9 @@ def get_chart_details():
 	details.completions = frappe.db.count(
 		"LMS Enrollment", {"progress": ["like", "%100%"]}
 	)
-	details.lesson_completions = frappe.db.count("LMS Course Progress")
+	details.lesson_completions = frappe.db.count(
+		"LMS Course Progress", {"status": "Complete"}
+	)
 	return details
 
 
@@ -1135,7 +1137,7 @@ def fetch_activity_data(member, start_date):
 	lesson_completions = frappe.get_all(
 		"LMS Course Progress",
 		fields=["creation"],
-		filters={"member": member, "creation": [">=", start_date]},
+		filters={"member": member, "creation": [">=", start_date], "status": "Complete"},
 	)
 
 	quiz_submissions = frappe.get_all(
