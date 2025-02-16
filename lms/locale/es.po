@@ -3031,7 +3031,7 @@ msgid "Max Attempts"
 msgstr "Intentos máximos"
 
 #: frontend/src/pages/QuizForm.vue:58
-msgid "Maximun Attempts"
+msgid "Maximum Attempts"
 msgstr "Intentos máximos"
 
 #. Label of the medium (Select) field in DocType 'LMS Batch'
