@@ -207,7 +207,7 @@
 						</Button>
 						<Button
 							v-else-if="activeQuestion != questions.length"
-							@click="nextQuetion()"
+							@click="nextQuestion()"
 						>
 							<span>
 								{{ __('Next') }}
@@ -544,7 +544,7 @@ const addToLocalStorage = () => {
 	localStorage.setItem(quiz.data.title, JSON.stringify(quizData))
 }
 
-const nextQuetion = () => {
+const nextQuestion = () => {
 	if (!quiz.data.show_answers && questionDetails.data?.type != 'Open Ended') {
 		checkAnswer()
 	} else {
