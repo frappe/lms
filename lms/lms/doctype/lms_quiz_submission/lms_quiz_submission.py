@@ -10,11 +10,28 @@ from frappe.desk.doctype.notification_log.notification_log import make_notificat
 
 class LMSQuizSubmission(Document):
 	def validate(self):
+		self.validate_if_max_attempts_exceeded()
 		self.validate_marks()
 		self.set_percentage()
 
 	def on_update(self):
 		self.notify_member()
+
+	def validate_if_max_attempts_exceeded(self):
+		max_attempts = frappe.db.get_value("LMS Quiz", self.quiz, ["max_attempts"])
+		if max_attempts == 0:
+			return
+
+		current_user_submission_count = frappe.db.count(
+			self.doctype, filters={"quiz": self.quiz, "member": frappe.session.user}
+		)
+		if current_user_submission_count >= max_attempts:
+			frappe.throw(
+				_("You have exceeded the maximum number of attempts ({0}) for this quiz").format(
+					max_attempts
+				),
+				MaximumAttemptsExceededError,
+			)
 
 	def validate_marks(self):
 		self.score = 0
@@ -52,3 +69,7 @@ class LMSQuizSubmission(Document):
 			)
 
 			make_notification_logs(notification, [self.member])
+
+
+class MaximumAttemptsExceededError(frappe.DuplicateEntryError):
+	pass

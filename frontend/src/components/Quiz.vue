@@ -290,7 +290,7 @@ import {
 	FormControl,
 } from 'frappe-ui'
 import { ref, watch, reactive, inject, computed } from 'vue'
-import { createToast } from '@/utils/'
+import { createToast, showToast } from '@/utils/'
 import { CheckCircle, XCircle, MinusCircle } from 'lucide-vue-next'
 import { timeAgo } from '@/utils'
 import { useRouter } from 'vue-router'
@@ -581,6 +581,16 @@ const createSubmission = () => {
 				markLessonProgress()
 				if (quiz.data && quiz.data.max_attempts) attempts.reload()
 				if (quiz.data.duration) clearInterval(timerInterval)
+			},
+			onError(err) {
+				const errorTitle = err?.message || ''
+				if (errorTitle.includes('MaximumAttemptsExceededError')) {
+					const errorMessage = err.messages?.[0] || err
+					showToast(__('Error'), __(errorMessage), 'x')
+					setTimeout(() => {
+						window.location.reload()
+					}, 3000)
+				}
 			},
 		}
 	)
