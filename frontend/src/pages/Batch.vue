@@ -21,7 +21,10 @@
 				</Button>
 			</div>
 		</header>
-		<div v-if="batch.data" class="grid grid-cols-[75%,25%]">
+		<div
+			v-if="batch.data"
+			class="grid grid-cols-[75%,25%] h-[calc(100vh-3.2rem)]"
+		>
 			<div class="border-r">
 				<Tabs
 					v-model="tabIndex"
