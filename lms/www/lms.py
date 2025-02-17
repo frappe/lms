@@ -1,8 +1,9 @@
 import frappe
-from frappe.utils.telemetry import capture
-from frappe import _
-from bs4 import BeautifulSoup
 import re
+from bs4 import BeautifulSoup
+from frappe import _
+from frappe.utils.telemetry import capture
+from frappe.utils import cint
 
 no_cache = 1
 
@@ -17,6 +18,7 @@ def get_context():
 	csrf_token = frappe.sessions.get_csrf_token()
 	frappe.db.commit()  # nosemgrep
 	context.csrf_token = csrf_token
+	context.setup_complete = cint(frappe.get_system_settings("setup_complete"))
 	capture("active_site", "lms")
 	context.favicon = frappe.db.get_single_value("Website Settings", "favicon")
 	return context
