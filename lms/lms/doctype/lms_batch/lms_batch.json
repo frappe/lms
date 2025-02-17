@@ -17,16 +17,17 @@
   "start_time",
   "end_time",
   "timezone",
-  "section_break_rgfj",
-  "medium",
-  "category",
-  "column_break_flwy",
-  "seat_count",
-  "evaluation_end_date",
   "section_break_6",
   "description",
   "column_break_hlqw",
   "instructors",
+  "section_break_rgfj",
+  "medium",
+  "category",
+  "confirmation_email_template",
+  "column_break_flwy",
+  "seat_count",
+  "evaluation_end_date",
   "meta_image",
   "section_break_khcn",
   "batch_details",
@@ -318,6 +319,12 @@
   {
    "fieldname": "section_break_khcn",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "confirmation_email_template",
+   "fieldtype": "Link",
+   "label": "Confirmation Email Template",
+   "options": "Email Template"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -335,7 +342,7 @@
    "link_fieldname": "batch_name"
   }
  ],
- "modified": "2025-02-12 11:59:35.312487",
+ "modified": "2025-02-17 17:48:12.949392",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch",
