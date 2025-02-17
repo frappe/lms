@@ -2,10 +2,10 @@
 	<div class="flex min-h-0 flex-col text-base">
 		<div class="flex items-center justify-between">
 			<div>
-				<div class="text-xl font-semibold mb-1">
+				<div class="text-xl font-semibold mb-1 text-ink-gray-9">
 					{{ __(label) }}
 				</div>
-				<!-- <div class="text-xs text-gray-600">
+				<!-- <div class="text-xs text-ink-gray-5">
 					{{ __(description) }}
 				</div> -->
 			</div>
@@ -63,7 +63,7 @@
 							/>
 							<div class="space-y-1">
 								<div class="flex">
-									<div class="text-gray-900">
+									<div class="text-ink-gray-9">
 										{{ member.full_name }}
 									</div>
 									<div
@@ -81,12 +81,14 @@
 										</Badge>
 									</div>
 								</div>
-								<div class="text-sm text-gray-700">
+								<div class="text-sm text-ink-gray-7">
 									{{ member.name }}
 								</div>
 							</div>
 						</div>
-						<div class="flex items-center justify-center text-gray-700 text-sm">
+						<div
+							class="flex items-center justify-center text-ink-gray-7 text-sm"
+						>
 							<div v-if="member.last_active">
 								{{ dayjs(member.last_active).format('DD MMM, YYYY HH:mm a') }}
 							</div>

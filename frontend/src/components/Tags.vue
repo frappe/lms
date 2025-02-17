@@ -1,13 +1,13 @@
 <template>
 	<div>
-		<div class="mb-1.5 text-sm text-gray-700">
+		<div class="mb-1.5 text-sm text-ink-gray-7">
 			{{ __(label) }}
 		</div>
 		<div class="flex items-center">
 			{{ tags }}
 			<div
 				v-for="tag in tags?.split(', ')"
-				class="flex items-center bg-gray-100 p-2 rounded-md mr-2"
+				class="flex items-center bg-surface-gray-2 p-2 rounded-md mr-2"
 			>
 				{{ tag }}
 				<X

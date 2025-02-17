@@ -1,6 +1,6 @@
 <template>
 	<header
-		class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
+		class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs v-if="submisisonDetails.doc" :items="breadcrumbs" />
 		<div class="space-x-2">
@@ -16,7 +16,7 @@
 		</div>
 	</header>
 	<div v-if="submisisonDetails.doc" class="w-1/2 mx-auto py-5 space-y-5">
-		<div class="text-xl font-semibold">
+		<div class="text-xl font-semibold text-ink-gray-9">
 			{{ submisisonDetails.doc.member_name }}
 		</div>
 		<div class="space-y-4 border p-5 rounded-md">
@@ -48,13 +48,19 @@
 		</div>
 
 		<div
-			v-for="row in submisisonDetails.doc.result"
+			v-for="(row, index) in submisisonDetails.doc.result"
 			class="border p-5 rounded-md space-y-4"
 		>
-			<div class="flex space-x-1 font-semibold">
+			<div class="flex items-start space-x-1 font-semibold text-ink-gray-9">
+				<!-- <span>
+					{{ index + 1 }}.
+				</span> -->
 				<span class="leading-5" v-html="row.question"> </span>
 			</div>
-			<div v-html="row.answer" class="leading-5"></div>
+			<div class="leading-5 text-ink-gray-7 space-x-1">
+				<span> {{ __('Answer') }}: </span>
+				<span v-html="row.answer"></span>
+			</div>
 			<div class="grid grid-cols-2 gap-5">
 				<FormControl v-model="row.marks" :label="__('Marks')" />
 				<FormControl

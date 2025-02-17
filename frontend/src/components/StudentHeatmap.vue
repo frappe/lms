@@ -27,7 +27,7 @@ const props = defineProps({
 	member: {
 		type: String,
 	},
-	base_days: {
+	days: {
 		type: Number,
 		default: 200,
 	},
@@ -42,7 +42,7 @@ const heatmap = createResource({
 	makeParams(values) {
 		return {
 			member: values.member,
-			base_days: props.base_days,
+			base_days: props.days,
 		}
 	},
 	auto: false,
@@ -117,7 +117,7 @@ const chartOptions = computed(() => {
 		},
 		tooltip: {
 			custom: ({ series, seriesIndex, dataPointIndex, w }) => {
-				return `<div class="text-xs bg-gray-900 text-white font-medium p-1">
+				return `<div class="text-xs bg-surface-gray-7 text-ink-white font-medium p-1">
 					<div class="text-center">${heatmap.data.heatmap_data[seriesIndex].data[dataPointIndex].label}</div>
 				</div>`
 			},

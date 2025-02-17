@@ -1,7 +1,7 @@
 <template>
 	<div v-if="lesson.data" class="">
 		<header
-			class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
+			class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 		>
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
 		</header>
@@ -26,7 +26,7 @@
 			</div>
 			<div v-else class="border-r container pt-5 pb-10 px-5">
 				<div class="flex flex-col md:flex-row md:items-center justify-between">
-					<div class="text-3xl font-semibold">
+					<div class="text-3xl font-semibold text-ink-gray-9">
 						{{ lesson.data.title }}
 					</div>
 					<div class="flex items-center mt-2 md:mt-0">
@@ -122,31 +122,31 @@
 						JSON.parse(lesson.data.instructor_content)?.blocks?.length > 1 &&
 						allowInstructorContent()
 					"
-					class="bg-gray-100 p-3 rounded-md mt-6"
+					class="bg-surface-gray-2 p-3 rounded-md mt-6"
 				>
-					<div class="text-gray-600 font-medium">
+					<div class="text-ink-gray-5 font-medium">
 						{{ __('Instructor Notes') }}
 					</div>
 					<div
 						id="instructor-content"
-						class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-gray-300 prose-th:border-gray-300 prose-td:relative prose-th:relative prose-th:bg-gray-100 prose-sm max-w-none !whitespace-normal"
+						class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal"
 					></div>
 				</div>
 				<div
 					v-else-if="lesson.data.instructor_notes"
-					class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-gray-300 prose-th:border-gray-300 prose-td:relative prose-th:relative prose-th:bg-gray-100 prose-sm max-w-none !whitespace-normal mt-6"
+					class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-6"
 				>
 					<LessonContent :content="lesson.data.instructor_notes" />
 				</div>
 				<div
 					v-if="lesson.data.content"
-					class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-gray-300 prose-th:border-gray-300 prose-td:relative prose-th:relative prose-th:bg-gray-100 prose-sm max-w-none !whitespace-normal mt-5"
+					class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-5"
 				>
 					<div id="editor"></div>
 				</div>
 				<div
 					v-else
-					class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-gray-300 prose-th:border-gray-300 prose-td:relative prose-th:relative prose-th:bg-gray-100 prose-sm max-w-none !whitespace-normal mt-5"
+					class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-5"
 				>
 					<LessonContent
 						v-if="lesson.data?.body"
@@ -166,11 +166,14 @@
 				</div>
 			</div>
 			<div class="sticky top-10">
-				<div class="bg-gray-50 py-5 px-2 border-b">
-					<div class="text-lg font-semibold">
+				<div class="bg-surface-menu-bar py-5 px-2 border-b">
+					<div class="text-lg font-semibold text-ink-gray-9">
 						{{ lesson.data.course_title }}
 					</div>
-					<div v-if="user && lesson.data.membership" class="text-sm mt-3">
+					<div
+						v-if="user && lesson.data.membership"
+						class="text-sm mt-4 mb-2 text-ink-gray-5"
+					>
 						{{ Math.ceil(lessonProgress) }}% {{ __('completed') }}
 					</div>
 

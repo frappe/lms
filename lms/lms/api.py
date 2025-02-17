@@ -7,15 +7,10 @@ import zipfile
 import os
 import re
 import shutil
-import requests
 import xml.etree.ElementTree as ET
 from frappe.translate import get_all_translations
 from frappe import _
-from frappe.query_builder import DocType
-from frappe.query_builder.functions import Count
 from frappe.utils import (
-	time_diff,
-	now_datetime,
 	get_datetime,
 	cint,
 	flt,
@@ -24,10 +19,10 @@ from frappe.utils import (
 	format_date,
 	date_diff,
 )
-from typing import Optional
 from lms.lms.utils import get_average_rating, get_lesson_count
 from xml.dom.minidom import parseString
 from lms.lms.doctype.course_lesson.course_lesson import save_progress
+from frappe.integrations.frappe_providers.frappecloud_billing import is_fc_site
 
 
 @frappe.whitelist()
@@ -180,6 +175,7 @@ def get_user_info():
 	user.is_moderator = "Moderator" in user.roles
 	user.is_evaluator = "Batch Evaluator" in user.roles
 	user.is_student = "LMS Student" in user.roles
+	user.is_fc_site = is_fc_site()
 	return user
 
 
@@ -220,7 +216,7 @@ def validate_billing_access(type, name):
 
 	else:
 		membership = frappe.db.exists(
-			"Batch Student", {"student": frappe.session.user, "parent": name}
+			"LMS Batch Enrollment", {"member": frappe.session.user, "batch": name}
 		)
 		if membership:
 			access = False
@@ -411,7 +407,7 @@ def get_certified_participants(filters=None, start=0, page_length=30, search=Non
 	return participants
 
 
-@frappe.whitelist()
+@frappe.whitelist(allow_guest=True)
 def get_certification_categories():
 	categories = []
 	docs = frappe.get_all(
@@ -847,7 +843,7 @@ def update_course_statistics():
 
 @frappe.whitelist()
 def get_announcements(batch):
-	return frappe.get_all(
+	communications = frappe.get_all(
 		"Communication",
 		filters={
 			"reference_doctype": "LMS Batch",
@@ -864,6 +860,13 @@ def get_announcements(batch):
 		],
 		order_by="communication_date desc",
 	)
+
+	for communication in communications:
+		communication.image = frappe.get_cached_value(
+			"User", communication.sender, "user_image"
+		)
+
+	return communications
 
 
 @frappe.whitelist()
@@ -1222,3 +1225,8 @@ def get_notifications(filters):
 		notification.update(from_user_details)
 
 	return notifications
+
+
+@frappe.whitelist(allow_guest=True)
+def is_guest_allowed():
+	return frappe.get_cached_value("LMS Settings", None, "allow_guest_access")

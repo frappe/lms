@@ -1,6 +1,6 @@
 <template>
 	<header
-		class="flex justify-between sticky top-0 z-10 border-b bg-white px-3 py-2.5 sm:px-5"
+		class="flex justify-between sticky top-0 z-10 border-b bg-surface-white px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs :items="breadcrumbs" />
 	</header>

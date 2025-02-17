@@ -1,6 +1,6 @@
 <template>
-	<div class="flex items-center">
-		<Calendar class="h-4 w-4 stroke-1.5 mr-2 text-gray-700" />
+	<div class="flex items-center text-ink-gray-7">
+		<Calendar class="h-4 w-4 stroke-1.5 mr-2" />
 		<span>
 			{{ getFormattedDateRange(props.startDate, props.endDate) }}
 		</span>

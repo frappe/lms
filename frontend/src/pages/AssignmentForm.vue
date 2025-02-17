@@ -1,6 +1,6 @@
 <template>
 	<header
-		class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
+		class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs :items="breadcrumbs" />
 		<div class="space-x-2">
@@ -41,7 +41,7 @@
 			/>
 		</div>
 		<div>
-			<div class="text-xs text-gray-600 mb-2">
+			<div class="text-xs text-ink-gray-5 mb-2">
 				{{ __('Question') }}
 				<span class="text-ink-red-3">*</span>
 			</div>
@@ -50,7 +50,7 @@
 				@change="(val) => (model.question = val)"
 				:editable="true"
 				:fixedMenu="true"
-				editorClass="prose-sm max-w-none border-b border-x bg-gray-100 rounded-b-md py-1 px-2 min-h-[7rem]"
+				editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
 			/>
 		</div>
 	</div>

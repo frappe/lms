@@ -30,12 +30,11 @@ class LMSLiveClass(Document):
 			}
 		)
 		event.save()
-
 		return event
 
 	def add_event_participants(self, event, calendar):
 		participants = frappe.get_all(
-			"Batch Student", {"parent": self.batch_name}, pluck="student"
+			"LMS Batch Enrollment", {"batch": self.batch_name}, pluck="member"
 		)
 
 		participants.append(frappe.session.user)

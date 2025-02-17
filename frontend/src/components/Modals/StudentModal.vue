@@ -46,11 +46,9 @@ const studentResource = createResource({
 	makeParams(values) {
 		return {
 			doc: {
-				doctype: 'Batch Student',
-				parent: props.batch,
-				parenttype: 'LMS Batch',
-				parentfield: 'students',
-				student: student.value,
+				doctype: 'LMS Batch Enrollment',
+				batch: props.batch,
+				member: student.value,
 			},
 		}
 	},

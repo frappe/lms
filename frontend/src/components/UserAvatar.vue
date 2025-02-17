@@ -1,7 +1,7 @@
 <template>
 	<Tooltip :text="user.full_name">
 		<Avatar
-			class="avatar border border-gray-300 cursor-auto"
+			class="avatar border border-outline-gray-2 cursor-auto"
 			v-if="user"
 			:label="user.full_name"
 			:image="user.user_image"

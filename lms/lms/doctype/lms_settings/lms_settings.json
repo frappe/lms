@@ -10,6 +10,7 @@
   "send_calendar_invite_for_evaluations",
   "is_onboarding_complete",
   "column_break_zdel",
+  "allow_guest_access",
   "enable_learning_paths",
   "unsplash_access_key",
   "livecode_url",
@@ -57,7 +58,8 @@
   "certification_template",
   "batch_confirmation_template",
   "column_break_uwsp",
-  "assignment_submission_template"
+  "assignment_submission_template",
+  "payment_reminder_template"
  ],
  "fields": [
   {
@@ -351,12 +353,24 @@
    "fieldname": "general_tab",
    "fieldtype": "Tab Break",
    "label": "General"
+  },
+  {
+   "default": "1",
+   "fieldname": "allow_guest_access",
+   "fieldtype": "Check",
+   "label": "Allow Guest Access"
+  },
+  {
+   "fieldname": "payment_reminder_template",
+   "fieldtype": "Link",
+   "label": "Payment Reminder Template",
+   "options": "Email Template"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-11-20 11:55:05.358421",
+ "modified": "2025-02-11 11:29:43.412897",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",

@@ -1,6 +1,6 @@
 <template>
 	<div class="space-y-1.5">
-		<label class="block text-xs text-gray-600">
+		<label class="block text-xs text-ink-gray-5">
 			{{ label }}
 		</label>
 		<div class="w-full">
@@ -8,22 +8,22 @@
 				<template #target="{ togglePopover }">
 					<button
 						@click="openPopover(togglePopover)"
-						class="flex w-full items-center space-x-2 focus:outline-none bg-gray-100 rounded h-7 py-1.5 px-2 hover:bg-gray-200 focus:bg-white border border-gray-100 hover:border-gray-200 focus:border-gray-500"
+						class="flex w-full items-center space-x-2 focus:outline-none bg-surface-gray-2 rounded h-7 py-1.5 px-2 hover:bg-surface-gray-3 focus:bg-surface-white border border-gray-100 hover:border-outline-gray-modals focus:border-outline-gray-4"
 					>
 						<component
 							v-if="selectedIcon"
-							class="w-4 h-4 text-gray-700 stroke-1.5"
+							class="w-4 h-4 text-ink-gray-7 stroke-1.5"
 							:is="icons[selectedIcon]"
 						/>
 						<component
 							v-else
-							class="w-4 h-4 text-gray-700 stroke-1.5"
+							class="w-4 h-4 text-ink-gray-7 stroke-1.5"
 							:is="icons.Folder"
 						/>
 						<span v-if="selectedIcon">
 							{{ selectedIcon }}
 						</span>
-						<span v-else class="text-gray-600">
+						<span v-else class="text-ink-gray-5">
 							{{ __('Choose an icon') }}
 						</span>
 					</button>
@@ -40,7 +40,7 @@
 							<div v-for="(iconComponent, iconName) in filteredIcons">
 								<component
 									:is="iconComponent"
-									class="h-4 w-4 stroke-1.5 text-gray-700 cursor-pointer"
+									class="h-4 w-4 stroke-1.5 text-ink-gray-7 cursor-pointer"
 									@click="setIcon(iconName, close)"
 								/>
 							</div>

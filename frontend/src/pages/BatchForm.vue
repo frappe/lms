@@ -1,7 +1,7 @@
 <template>
 	<div class="">
 		<header
-			class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
+			class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 		>
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
 			<Button variant="solid" @click="saveBatch()">
@@ -13,15 +13,14 @@
 				<div class="text-lg font-semibold mb-4">
 					{{ __('Details') }}
 				</div>
-				<div class="grid grid-cols-2 gap-10 mb-4 space-y-2">
-					<div>
-						<FormControl
-							v-model="batch.title"
-							:label="__('Title')"
-							:required="true"
-						/>
-					</div>
-					<div class="flex flex-col space-y-2">
+				<div class="space-y-4 mb-4">
+					<FormControl
+						v-model="batch.title"
+						:label="__('Title')"
+						:required="true"
+						class="w-full"
+					/>
+					<div class="flex items-center space-x-5">
 						<FormControl
 							v-model="batch.published"
 							type="checkbox"
@@ -36,7 +35,7 @@
 				</div>
 			</div>
 			<div class="mb-4">
-				<div class="text-xs text-gray-600 mb-2">
+				<div class="text-xs text-ink-gray-5 mb-2">
 					{{ __('Meta Image') }}
 				</div>
 				<FileUploader
@@ -48,13 +47,13 @@
 					<template v-slot="{ file, progress, uploading, openFileSelector }">
 						<div class="flex items-center">
 							<div class="border rounded-md w-fit py-5 px-20">
-								<Image class="size-5 stroke-1 text-gray-700" />
+								<Image class="size-5 stroke-1 text-ink-gray-7" />
 							</div>
 							<div class="ml-4">
 								<Button @click="openFileSelector">
 									{{ __('Upload') }}
 								</Button>
-								<div class="mt-2 text-gray-600 text-sm">
+								<div class="mt-2 text-ink-gray-5 text-sm">
 									{{
 										__(
 											'Appears when the batch URL is shared on any online platform'
@@ -72,7 +71,7 @@
 							<Button @click="removeImage()">
 								{{ __('Remove') }}
 							</Button>
-							<div class="mt-2 text-gray-600 text-sm">
+							<div class="mt-2 text-ink-gray-5 text-sm">
 								{{
 									__(
 										'Appears when the batch URL is shared on any online platform'
@@ -90,30 +89,8 @@
 				:required="true"
 				:filters="{ ignore_user_type: 1 }"
 			/>
-			<div class="mb-4">
-				<FormControl
-					v-model="batch.description"
-					:label="__('Description')"
-					type="textarea"
-					class="my-4"
-					:placeholder="__('Short description of the batch')"
-					:required="true"
-				/>
-				<div>
-					<label class="block text-sm text-gray-600 mb-1">
-						{{ __('Batch Details') }}
-						<span class="text-red-500">*</span>
-					</label>
-					<TextEditor
-						:content="batch.batch_details"
-						@change="(val) => (batch.batch_details = val)"
-						:editable="true"
-						:fixedMenu="true"
-						editorClass="prose-sm max-w-none border-b border-x bg-gray-100 rounded-b-md py-1 px-2 min-h-[7rem] mb-4"
-					/>
-				</div>
-			</div>
-			<div class="mb-4">
+
+			<div class="my-10">
 				<div class="text-lg font-semibold mb-4">
 					{{ __('Date and Time') }}
 				</div>
@@ -133,6 +110,14 @@
 							class="mb-4"
 							:required="true"
 						/>
+						<FormControl
+							v-model="batch.timezone"
+							:label="__('Timezone')"
+							type="text"
+							:placeholder="__('Example: IST (+5:30)')"
+							class="mb-4"
+							:required="true"
+						/>
 					</div>
 					<div>
 						<FormControl
@@ -149,18 +134,11 @@
 							class="mb-4"
 							:required="true"
 						/>
-						<FormControl
-							v-model="batch.timezone"
-							:label="__('Timezone')"
-							type="text"
-							:placeholder="__('Example: IST (+5:30)')"
-							class="mb-4"
-							:required="true"
-						/>
 					</div>
 				</div>
 			</div>
-			<div class="mb-4">
+
+			<div class="mb-10">
 				<div class="text-lg font-semibold mb-4">
 					{{ __('Settings') }}
 				</div>
@@ -178,6 +156,11 @@
 							:label="__('Evaluation End Date')"
 							type="date"
 							class="mb-4"
+						/>
+						<Link
+							doctype="Email Template"
+							:label="__('Email Template')"
+							v-model="batch.confirmation_email_template"
 						/>
 					</div>
 					<div>
@@ -230,6 +213,33 @@
 					/>
 				</div>
 			</div>
+
+			<div class="my-10">
+				<div class="text-lg font-semibold mb-4">
+					{{ __('Description') }}
+				</div>
+				<FormControl
+					v-model="batch.description"
+					:label="__('Short Description')"
+					type="textarea"
+					class="my-4"
+					:placeholder="__('Short description of the batch')"
+					:required="true"
+				/>
+				<div>
+					<label class="block text-sm text-ink-gray-5 mb-1">
+						{{ __('Batch Details') }}
+						<span class="text-ink-red-3">*</span>
+					</label>
+					<TextEditor
+						:content="batch.batch_details"
+						@change="(val) => (batch.batch_details = val)"
+						:editable="true"
+						:fixedMenu="true"
+						editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem] mb-4"
+					/>
+				</div>
+			</div>
 		</div>
 	</div>
 </template>
@@ -278,6 +288,7 @@ const batch = reactive({
 	end_time: '',
 	timezone: '',
 	evaluation_end_date: '',
+	confirmation_email_template: '',
 	seat_count: '',
 	medium: '',
 	category: '',

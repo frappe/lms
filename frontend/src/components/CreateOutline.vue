@@ -6,7 +6,7 @@
 		<div v-if="course.chapters.length">
 			{{ course.chapters }}
 		</div>
-		<div v-else class="border bg-white rounded-md p-5 text-center mt-4">
+		<div v-else class="border bg-surface-white rounded-md p-5 text-center mt-4">
 			<div>
 				{{
 					__(

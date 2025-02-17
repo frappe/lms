@@ -1,65 +1,87 @@
 <template>
 	<div class="">
 		<div class="w-full flex items-center justify-between pb-4">
-			<div class="font-medium text-gray-600">
+			<div class="font-medium text-ink-gray-7">
 				{{ __('Statistics') }}
 			</div>
 		</div>
-		<div class="grid grid-cols-3 gap-5 mb-8">
-			<div class="flex items-center shadow py-2 px-3 rounded-md">
-				<div class="p-2 rounded-md bg-gray-100 mr-3">
-					<User class="w-5 h-5 stroke-1.5 text-gray-700" />
+		<div class="grid grid-cols-4 gap-5 mb-8">
+			<div
+				class="flex items-center border py-2 px-3 rounded-md text-ink-gray-7"
+			>
+				<div class="p-2 rounded-md bg-surface-gray-2 mr-3">
+					<User class="w-5 h-5 stroke-1.5" />
 				</div>
 				<div class="flex items-center space-x-2">
 					<span class="font-semibold">
 						{{ students.data?.length }}
 					</span>
-					<span class="text-gray-700">
+					<span class="">
 						{{ __('Students') }}
 					</span>
 				</div>
 			</div>
 
-			<div class="flex items-center shadow py-2 px-3 rounded-md">
-				<div class="p-2 rounded-md bg-gray-100 mr-3">
-					<BookOpen class="w-5 h-5 stroke-1.5 text-gray-700" />
+			<div
+				class="flex items-center border py-2 px-3 rounded-md text-ink-gray-7"
+			>
+				<div class="p-2 rounded-md bg-surface-gray-2 mr-3">
+					<GraduationCap class="w-5 h-5 stroke-1.5" />
+				</div>
+				<div class="flex items-center space-x-2">
+					<span class="font-semibold">
+						{{ certificationCount.data }}
+					</span>
+					<span class="">
+						{{ __('Certified') }}
+					</span>
+				</div>
+			</div>
+
+			<div
+				class="flex items-center border py-2 px-3 rounded-md text-ink-gray-7"
+			>
+				<div class="p-2 rounded-md bg-surface-gray-2 mr-3">
+					<BookOpen class="w-5 h-5 stroke-1.5" />
 				</div>
 				<div class="flex items-center space-x-2">
 					<span class="font-semibold">
 						{{ batch.courses?.length }}
 					</span>
-					<span class="text-gray-700">
+					<span>
 						{{ __('Courses') }}
 					</span>
 				</div>
 			</div>
 
-			<div class="flex items-center shadow py-2 px-3 rounded-md">
-				<div class="p-2 rounded-md bg-gray-100 mr-3">
-					<ShieldCheck class="w-5 h-5 stroke-1.5 text-gray-700" />
+			<div
+				class="flex items-center border py-2 px-3 rounded-md text-ink-gray-7"
+			>
+				<div class="p-2 rounded-md bg-surface-gray-2 mr-3">
+					<ShieldCheck class="w-5 h-5 stroke-1.5" />
 				</div>
 				<div class="flex items-center space-x-2">
 					<span class="font-semibold">
 						{{ assessmentCount }}
 					</span>
-					<span class="text-gray-700">
+					<span>
 						{{ __('Assessments') }}
 					</span>
 				</div>
 			</div>
 		</div>
 		<div v-if="showProgressChart" class="mb-8">
-			<div class="text-gray-600 font-medium">
+			<div class="text-ink-gray-7 font-medium">
 				{{ __('Progress') }}
 			</div>
 			<ApexChart
 				:options="chartOptions"
 				:series="chartData"
 				type="bar"
-				height="200"
+				:height="chartData[0].data.length * 30 + 100"
 			/>
 			<div
-				class="flex items-center justify-center text-sm text-gray-700 space-x-4"
+				class="flex items-center justify-center text-sm text-ink-gray-7 space-x-4"
 			>
 				<div class="flex items-center space-x-2">
 					<div
@@ -85,7 +107,7 @@
 
 	<div>
 		<div class="flex items-center justify-between mb-4">
-			<div class="text-gray-600 font-medium">
+			<div class="text-ink-gray-7 font-medium">
 				{{ __('Students') }}
 			</div>
 			<Button @click="openStudentModal()">
@@ -106,7 +128,7 @@
 				}"
 			>
 				<ListHeader
-					class="mb-2 grid items-center space-x-4 rounded bg-gray-100 p-2"
+					class="mb-2 grid items-center space-x-4 rounded bg-surface-gray-2 p-2"
 				>
 					<ListHeaderItem
 						:item="item"
@@ -173,7 +195,7 @@
 				</ListSelectBanner>
 			</ListView>
 		</div>
-		<div v-else class="text-sm italic text-gray-600">
+		<div v-else class="text-sm italic text-ink-gray-5">
 			{{ __('There are no students in this batch.') }}
 		</div>
 	</div>
@@ -204,7 +226,7 @@ import {
 } from 'frappe-ui'
 import {
 	BookOpen,
-	Clipboard,
+	GraduationCap,
 	Plus,
 	ShieldCheck,
 	Trash2,
@@ -242,7 +264,7 @@ const students = createResource({
 	auto: true,
 	onSuccess(data) {
 		chartData.value = getChartData()
-		showProgressChart.value = true
+		showProgressChart.value = data.length && true
 	},
 })
 
@@ -285,7 +307,7 @@ const deleteStudents = createResource({
 	url: 'lms.lms.api.delete_documents',
 	makeParams(values) {
 		return {
-			doctype: 'Batch Student',
+			doctype: 'LMS Batch Enrollment',
 			documents: values.students,
 		}
 	},
@@ -309,7 +331,9 @@ const removeStudents = (selections, unselectAll) => {
 const getChartData = () => {
 	let categories = {}
 
-	Object.keys(students.data?.[0].courses).forEach((course) => {
+	if (!students.data?.length) return []
+
+	Object.keys(students.data[0].courses).forEach((course) => {
 		categories[course] = {
 			value: 0,
 			type: 'course',
@@ -333,7 +357,7 @@ const getChartData = () => {
 		})
 
 		Object.keys(student.assessments).forEach((assessment) => {
-			if (student.assessments[assessment] === 100) {
+			if (student.assessments[assessment].result === 'Pass') {
 				categories[assessment].value += 1
 			}
 		})
@@ -401,6 +425,17 @@ watch(students, () => {
 	if (students.data?.length) {
 		assessmentCount.value = Object.keys(students.data?.[0].assessments).length
 	}
+})
+
+const certificationCount = createResource({
+	url: 'frappe.client.get_count',
+	params: {
+		doctype: 'LMS Certificate',
+		filters: {
+			batch_name: props.batch.name,
+		},
+	},
+	auto: true,
 })
 </script>
 <style>

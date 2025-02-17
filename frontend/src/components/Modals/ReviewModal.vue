@@ -16,13 +16,13 @@
 		<template #body-content>
 			<div class="flex flex-col gap-4">
 				<div>
-					<div class="mb-1.5 text-sm text-gray-600">
+					<div class="mb-1.5 text-sm text-ink-gray-5">
 						{{ __('Rating') }}
 					</div>
 					<Rating v-model="review.rating" />
 				</div>
 				<div>
-					<div class="mb-1.5 text-sm text-gray-600">
+					<div class="mb-1.5 text-sm text-ink-gray-5">
 						{{ __('Review') }}
 					</div>
 					<Textarea type="text" size="md" rows="5" v-model="review.review" />
@@ -81,7 +81,7 @@ function submitReview(close) {
 			createToast({
 				text: err.messages?.[0] || err,
 				icon: 'x',
-				iconClasses: 'text-red-600 bg-red-300',
+				iconClasses: 'text-ink-red-4 bg-surface-red-4',
 			})
 		},
 	})

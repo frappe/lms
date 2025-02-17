@@ -17,7 +17,7 @@ export let Dialogs = {
 				() => [
 					h(
 						'p',
-						{ class: 'text-p-base text-gray-700' },
+						{ class: 'text-p-base text-ink-gray-7' },
 						dialog.message
 					),
 					h(ErrorMessage, { class: 'mt-2', message: dialog.error }),
