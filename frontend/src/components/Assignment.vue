@@ -1,7 +1,7 @@
 <template>
 	<div
 		v-if="assignment.data"
-		class="grid grid-cols-[60%,40%] h-full"
+		class="grid grid-cols-[65%,35%] h-full"
 		:class="{ 'border rounded-lg': !showTitle }"
 	>
 		<div class="border-r p-5 overflow-y-auto h-[calc(100vh-3.2rem)]">
