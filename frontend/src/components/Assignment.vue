@@ -1,7 +1,7 @@
 <template>
 	<div
 		v-if="assignment.data"
-		class="grid grid-cols-[68%,32%] h-full"
+		class="grid grid-cols-[60%,40%] h-full"
 		:class="{ 'border rounded-lg': !showTitle }"
 	>
 		<div class="border-r p-5 overflow-y-auto h-[calc(100vh-3.2rem)]">
@@ -81,8 +81,8 @@
 						</template>
 					</FileUploader>
 					<div v-else>
-						<div class="flex items-center text-ink-gray-7">
-							<div class="border rounded-md p-2 mr-2">
+						<div class="flex text-ink-gray-7">
+							<div class="border self-start rounded-md p-2 mr-2">
 								<FileText class="h-5 w-5 stroke-1.5" />
 							</div>
 							<a
@@ -90,7 +90,7 @@
 								target="_blank"
 								class="flex flex-col cursor-pointer !no-underline"
 							>
-								<span>
+								<span class="text-sm leading-5">
 									{{ submissionFile.file_name }}
 								</span>
 								<span class="text-sm text-ink-gray-5 mt-1">
