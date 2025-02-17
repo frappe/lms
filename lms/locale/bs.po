@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-02-07 16:03+0000\n"
-"PO-Revision-Date: 2025-02-13 16:47\n"
+"PO-Revision-Date: 2025-02-16 17:02\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Bosnian\n"
 "MIME-Version: 1.0\n"
@@ -1668,7 +1668,7 @@ msgstr ""
 
 #: frontend/src/components/Members.vue:32 lms/templates/signup-form.html:10
 msgid "Email"
-msgstr "E-pošta"
+msgstr "e-pošta"
 
 #: frontend/src/components/Modals/Event.vue:16
 msgid "Email ID"
@@ -1836,7 +1836,7 @@ msgstr "Grеška"
 #. Label of a shortcut in the LMS Workspace
 #: frontend/src/components/Modals/Event.vue:364 lms/lms/workspace/lms/lms.json
 msgid "Evaluation"
-msgstr ""
+msgstr "Evaluacija"
 
 #. Label of the section_break_6 (Section Break) field in DocType 'LMS
 #. Certificate Evaluation'
@@ -1961,7 +1961,7 @@ msgstr "Datum Isteka Roka"
 #: frontend/src/components/Modals/Question.vue:69
 #: lms/lms/doctype/lms_question/lms_question.json
 msgid "Explanation"
-msgstr ""
+msgstr "Objašnjenje"
 
 #. Label of the explanation_2 (Small Text) field in DocType 'LMS Question'
 #: lms/lms/doctype/lms_question/lms_question.json
@@ -2153,7 +2153,7 @@ msgstr "Google Meet veza"
 #: frontend/src/components/Assignment.vue:154
 #: lms/lms/doctype/education_detail/education_detail.json
 msgid "Grade"
-msgstr ""
+msgstr "Ocjena"
 
 #. Label of the grade_assignment (Check) field in DocType 'LMS Assignment'
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
@@ -2417,7 +2417,7 @@ msgstr ""
 #. Label of a Link in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "Interest"
-msgstr ""
+msgstr "Kamata"
 
 #. Group in LMS Course's connections
 #: lms/lms/doctype/lms_course/lms_course.json
@@ -2533,7 +2533,7 @@ msgstr ""
 
 #: lms/www/lms.py:109
 msgid "Job Openings"
-msgstr ""
+msgstr "Otvorena Radna Mjesta"
 
 #. Name of a DocType
 #: lms/job/doctype/job_opportunity/job_opportunity.json
@@ -2550,13 +2550,13 @@ msgstr ""
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/job/doctype/lms_job_application/lms_job_application.json
 msgid "Job Title"
-msgstr ""
+msgstr "Naziv Posla"
 
 #. Label of the jobs (Check) field in DocType 'LMS Settings'
 #: frontend/src/pages/JobDetail.vue:10 frontend/src/pages/Jobs.vue:8
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Jobs"
-msgstr ""
+msgstr "Poslovi"
 
 #: frontend/src/components/LiveClass.vue:58
 #: lms/templates/upcoming_evals.html:15
@@ -3632,7 +3632,7 @@ msgstr ""
 #. Option for the 'User Category' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json lms/templates/signup-form.html:28
 msgid "Others"
-msgstr ""
+msgstr "Ostalo"
 
 #: lms/lms/doctype/lms_badge/lms_badge.js:39
 msgid "Owner"
@@ -3898,7 +3898,7 @@ msgstr ""
 
 #: frontend/src/components/Modals/LiveClassModal.vue:167
 msgid "Please select a date."
-msgstr ""
+msgstr "Odaberi Datum."
 
 #: frontend/src/components/Modals/LiveClassModal.vue:191
 msgid "Please select a duration."
@@ -4250,7 +4250,7 @@ msgstr ""
 #: lms/lms/doctype/lms_course_review/lms_course_review.json
 #: lms/templates/reviews.html:125
 msgid "Rating"
-msgstr ""
+msgstr "Ocjena"
 
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.py:17
 msgid "Rating cannot be 0"
@@ -4304,7 +4304,7 @@ msgstr "Registrovan, ali onemogućen"
 #: lms/lms/doctype/invite_request/invite_request.json
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
 msgid "Rejected"
-msgstr ""
+msgstr "Odbijeno"
 
 #. Label of the related_courses (Table) field in DocType 'LMS Course'
 #. Name of a DocType
@@ -4432,7 +4432,7 @@ msgstr ""
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Saturday"
-msgstr ""
+msgstr "Subota"
 
 #: frontend/src/components/AssessmentPlugin.vue:34
 #: frontend/src/components/Assignment.vue:43
@@ -4649,7 +4649,7 @@ msgstr ""
 #. Label of the skill (Data) field in DocType 'User Skill'
 #: lms/fixtures/custom_field.json lms/lms/doctype/user_skill/user_skill.json
 msgid "Skill"
-msgstr ""
+msgstr "Vještina"
 
 #. Label of the skill_details (Section Break) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -4659,12 +4659,12 @@ msgstr ""
 #. Label of the skill_name (Link) field in DocType 'Skills'
 #: lms/lms/doctype/skills/skills.json
 msgid "Skill Name"
-msgstr ""
+msgstr "Naziv Vještine"
 
 #. Name of a DocType
 #: lms/lms/doctype/skills/skills.json
 msgid "Skills"
-msgstr ""
+msgstr "Vještine"
 
 #: lms/overrides/user.py:42
 msgid "Skills must be unique"
@@ -4764,7 +4764,7 @@ msgstr ""
 #: lms/lms/doctype/scheduled_flow/scheduled_flow.json
 #: lms/public/js/common_functions.js:292
 msgid "Start Time"
-msgstr ""
+msgstr "Vrijeme Početka"
 
 #: lms/lms/doctype/course_evaluator/course_evaluator.py:28
 msgid "Start Time cannot be greater than End Time"
@@ -4957,7 +4957,7 @@ msgstr "Sažetak"
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Sunday"
-msgstr ""
+msgstr "Nedjelja"
 
 #: lms/lms/api.py:995
 msgid "Suspicious pattern found in {0}: {1}"
@@ -5344,7 +5344,7 @@ msgstr ""
 #. Option for the 'Location Preference' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
 msgid "Travel"
-msgstr ""
+msgstr "Putovanja"
 
 #: frontend/src/components/Quiz.vue:256 lms/templates/quiz/quiz.html:131
 msgid "Try Again"
@@ -5355,7 +5355,7 @@ msgstr "Pokušaj ponovo"
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Tuesday"
-msgstr ""
+msgstr "Utorak"
 
 #: frontend/src/pages/ProfileAbout.vue:86
 msgid "Twitter"
@@ -5409,7 +5409,7 @@ msgstr ""
 #. Option for the 'Status' (Select) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Under Review"
-msgstr ""
+msgstr "Pod Recenzijom"
 
 #. Option for the 'Visibility' (Select) field in DocType 'LMS Batch Old'
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
@@ -5586,7 +5586,7 @@ msgstr "Web stranica"
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Wednesday"
-msgstr ""
+msgstr "Srijeda"
 
 #: lms/lms/doctype/invite_request/invite_request.py:40
 #: lms/templates/emails/lms_invite_request_approved.html:4
