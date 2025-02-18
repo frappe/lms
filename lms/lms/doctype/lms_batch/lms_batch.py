@@ -8,7 +8,7 @@ import json
 from frappe import _
 from datetime import timedelta
 from frappe.model.document import Document
-from frappe.utils import cint, format_datetime, get_time
+from frappe.utils import cint, format_datetime, get_time, add_days, nowdate
 from lms.lms.utils import (
 	get_lessons,
 	get_lesson_index,
@@ -405,3 +405,40 @@ def is_milestone_complete(idx, batch):
 				return False
 
 	return True
+
+
+def send_batch_start_reminder():
+	batches = frappe.get_all(
+		"LMS Batch",
+		{"start_date": add_days(nowdate(), 1), "published": 1},
+		["name", "title", "start_date", "start_time", "medium"],
+	)
+
+	for batch in batches:
+		students = frappe.get_all(
+			"LMS Batch Enrollment", {"batch": batch}, ["member", "member_name"]
+		)
+		for student in students:
+			send_mail(batch, student)
+
+
+def send_mail(batch, student):
+	subject = _("Batch Start Reminder")
+	template = "batch_start_reminder"
+
+	args = {
+		"student_name": student.member_name,
+		"title": batch.title,
+		"start_date": batch.start_date,
+		"start_time": batch.start_time,
+		"medium": batch.medium,
+		"name": batch.name,
+	}
+
+	frappe.sendmail(
+		recipients=student.member,
+		subject=subject,
+		template=template,
+		args=args,
+		header=[_(f"Batch Start Reminder: {batch.title}"), "orange"],
+	)
