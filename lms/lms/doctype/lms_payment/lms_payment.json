@@ -139,8 +139,17 @@
   }
  ],
  "index_web_pages_for_search": 1,
- "links": [],
- "modified": "2025-02-11 14:48:27.801895",
+ "links": [
+  {
+   "link_doctype": "LMS Batch Enrollment",
+   "link_fieldname": "payment"
+  },
+  {
+   "link_doctype": "LMS Enrollment",
+   "link_fieldname": "payment"
+  }
+ ],
+ "modified": "2025-02-18 15:54:25.383353",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Payment",
