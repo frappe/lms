@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-02-14 16:04+0000\n"
-"PO-Revision-Date: 2025-02-17 17:03\n"
+"PO-Revision-Date: 2025-02-18 17:35\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Persian\n"
 "MIME-Version: 1.0\n"
@@ -764,7 +764,7 @@ msgstr ""
 
 #: frontend/src/components/BatchStudents.vue:36
 msgid "Certified"
-msgstr ""
+msgstr "گواهی شده"
 
 #. Label of the certified_participants (Check) field in DocType 'LMS Settings'
 #: frontend/src/pages/CertifiedParticipants.vue:161
@@ -1023,11 +1023,11 @@ msgstr ""
 
 #: lms/templates/emails/payment_reminder.html:15
 msgid "Complete Your Enrollment"
-msgstr ""
+msgstr "ثبت نام خود را تکمیل کنید"
 
 #: lms/lms/doctype/lms_payment/lms_payment.py:40
 msgid "Complete Your Enrollment - Don't miss out!"
-msgstr ""
+msgstr "ثبت نام خود را تکمیل کنید - فرصت را از دست ندهید!"
 
 #. Option for the 'Status' (Select) field in DocType 'Cohort'
 #. Option for the 'Stage' (Select) field in DocType 'LMS Batch Old'
@@ -1581,7 +1581,7 @@ msgstr "سند"
 
 #: lms/templates/emails/payment_reminder.html:11
 msgid "Don’t miss this opportunity to enhance your skills. Click below to complete your enrollment"
-msgstr ""
+msgstr "این فرصت را برای افزایش مهارت های خود از دست ندهید. برای تکمیل ثبت نام خود روی زیر کلیک کنید"
 
 #. Label of the dream_companies (Data) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -1770,7 +1770,7 @@ msgstr "با موفقیت ثبت نام شد"
 
 #: lms/lms/doctype/lms_batch_enrollment/lms_batch_enrollment.py:86
 msgid "Enrollment Confirmation for {0}"
-msgstr ""
+msgstr "تایید ثبت نام برای {0}"
 
 #: lms/lms/web_template/lms_statistics/lms_statistics.html:14
 #: lms/templates/statistics.html:20
@@ -2127,7 +2127,7 @@ msgstr ""
 
 #: frontend/src/pages/CertifiedParticipants.vue:11
 msgid "Get Certified"
-msgstr ""
+msgstr "گواهینامه دریافت کنید"
 
 #: lms/templates/onboarding_header.html:8
 msgid "Get Started"
@@ -2206,7 +2206,7 @@ msgstr "سلام،"
 
 #: lms/templates/emails/payment_reminder.html:2
 msgid "Hi"
-msgstr ""
+msgstr "سلام"
 
 #: lms/templates/emails/lms_course_interest.html:3
 msgid "Hi {0},"
@@ -2277,7 +2277,7 @@ msgstr ""
 
 #: lms/templates/emails/payment_reminder.html:19
 msgid "If you have any questions or need assistance, feel free to reach out to our support team."
-msgstr ""
+msgstr "اگر سوالی دارید یا نیاز به کمک دارید، با تیم پشتیبانی ما تماس بگیرید."
 
 #: lms/templates/emails/batch_confirmation.html:27
 msgid "If you have any questions or require assistance, feel free to contact us."
@@ -2616,7 +2616,7 @@ msgstr ""
 #. Name of a DocType
 #: lms/lms/doctype/lms_batch_enrollment/lms_batch_enrollment.json
 msgid "LMS Batch Enrollment"
-msgstr ""
+msgstr "ثبت نام دسته ای LMS"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_batch_feedback/lms_batch_feedback.json
@@ -2969,7 +2969,7 @@ msgstr ""
 
 #: lms/templates/emails/payment_reminder.html:23
 msgid "Looking forward to seeing you enrolled!"
-msgstr ""
+msgstr "مشتاقانه منتظر دیدن ثبت نام شما هستم!"
 
 #. Label of the default_home (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -3045,7 +3045,7 @@ msgstr ""
 
 #: frontend/src/pages/QuizForm.vue:58
 msgid "Maximum Attempts"
-msgstr ""
+msgstr "حداکثر تلاش‌ها"
 
 #. Label of the medium (Select) field in DocType 'LMS Batch'
 #: frontend/src/pages/BatchForm.vue:197
@@ -3160,7 +3160,7 @@ msgstr "نوع عضو"
 #. Label of the member_username (Data) field in DocType 'LMS Batch Enrollment'
 #: lms/lms/doctype/lms_batch_enrollment/lms_batch_enrollment.json
 msgid "Member Username"
-msgstr ""
+msgstr "نام کاربری عضو"
 
 #: frontend/src/pages/ProgramForm.vue:251
 msgid "Member added to program"
@@ -3168,7 +3168,7 @@ msgstr ""
 
 #: lms/lms/doctype/lms_batch_enrollment/lms_batch_enrollment.py:25
 msgid "Member already enrolled in this batch"
-msgstr ""
+msgstr "عضو قبلاً در این دسته ثبت نام کرده است"
 
 #: lms/lms/doctype/lms_program/lms_program.py:29
 msgid "Member {0} has already been added to this batch."
@@ -3777,7 +3777,7 @@ msgstr "پرداخت دریافت شد"
 #. Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Payment Reminder Template"
-msgstr ""
+msgstr "الگوی یادآوری پرداخت"
 
 #. Label of the payment_settings_tab (Tab Break) field in DocType 'LMS
 #. Settings'
@@ -3830,7 +3830,7 @@ msgstr "درصد (به عنوان مثال 70%)"
 
 #: frontend/src/components/Modals/BatchStudentProgress.vue:35
 msgid "Percentage/Status"
-msgstr ""
+msgstr "درصد/وضعیت"
 
 #: frontend/src/pages/Billing.vue:104
 msgid "Phone Number"
@@ -4302,7 +4302,7 @@ msgstr "مرجع DocName"
 #: lms/lms/doctype/lms_batch_timetable/lms_batch_timetable.json
 #: lms/lms/doctype/lms_timetable_legend/lms_timetable_legend.json
 msgid "Reference DocType"
-msgstr "مرجع DocType"
+msgstr "DocType مرجع"
 
 #. Label of the reference_doctype (Link) field in DocType 'LMS Badge'
 #: lms/lms/doctype/lms_badge/lms_badge.json
@@ -4564,7 +4564,7 @@ msgstr ""
 
 #: lms/lms/doctype/lms_batch_enrollment/lms_batch_enrollment.js:7
 msgid "Send Confirmation Email"
-msgstr ""
+msgstr "ارسال ایمیل تایید"
 
 #. Label of the send_calendar_invite_for_evaluations (Check) field in DocType
 #. 'LMS Settings'
@@ -5590,11 +5590,11 @@ msgstr ""
 
 #: lms/templates/emails/payment_reminder.html:7
 msgid "We have a limited number of seats, and they won't be available for long!"
-msgstr ""
+msgstr "ما تعداد محدودی صندلی داریم و برای مدت طولانی در دسترس نخواهند بود!"
 
 #: lms/templates/emails/payment_reminder.html:4
 msgid "We noticed that you started enrolling in the"
-msgstr ""
+msgstr "ما متوجه شدیم که شما شروع به ثبت نام کردید در"
 
 #. Label of the web_page (Link) field in DocType 'LMS Sidebar Item'
 #: frontend/src/components/Modals/PageModal.vue:23
@@ -5689,11 +5689,11 @@ msgstr ""
 
 #: frontend/src/components/CourseOutline.vue:316
 msgid "You are not enrolled"
-msgstr "شما ثبت نام نکرده اید"
+msgstr "شما ثبت نام نکرده‌اید"
 
 #: frontend/src/pages/SCORMChapter.vue:22
 msgid "You are not enrolled in this course. Please enroll to access this lesson."
-msgstr "شما در این دوره ثبت نام نکرده اید. لطفا برای دسترسی به این دوره ثبت نام کنید."
+msgstr "شما در این دوره ثبت نام نکرده‌اید. لطفا برای دسترسی به این دوره ثبت نام کنید."
 
 #: frontend/src/pages/Courses.vue:139
 msgid "You can add chapters and lessons to it."
@@ -5853,7 +5853,7 @@ msgstr "فعالیت"
 
 #: lms/templates/emails/payment_reminder.html:4
 msgid "but didn’t complete your payment"
-msgstr ""
+msgstr "اما پرداخت شما را تکمیل نکرد"
 
 #: lms/templates/emails/mentor_request_creation_email.html:5
 msgid "cancel your application"
