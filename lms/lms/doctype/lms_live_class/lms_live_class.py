@@ -5,7 +5,7 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 from datetime import timedelta
-from frappe.utils import cint, get_datetime, format_date, add_days, nowdate, format_time
+from frappe.utils import cint, get_datetime, format_date, nowdate, format_time
 
 
 class LMSLiveClass(Document):
@@ -68,7 +68,7 @@ def send_live_class_reminder():
 	classes = frappe.get_all(
 		"LMS Live Class",
 		{
-			"date": add_days(nowdate(), 1),
+			"date": nowdate(),
 		},
 		["name", "batch_name", "title", "date", "time"],
 	)
