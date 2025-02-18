@@ -313,7 +313,7 @@ const tabs = computed(() => {
 })
 
 const redirectToLogin = () => {
-	window.location.href = `/login?redirect-to=/batches`
+	window.location.href = `/login?redirect-to=/lms/batch/${props.batchName}`
 }
 
 const openAnnouncementModal = () => {

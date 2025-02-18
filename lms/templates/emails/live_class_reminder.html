@@ -1,0 +1,31 @@
+<p>
+    {{ _("Dear ") }} {{ student_name }},
+</p>
+<br>
+<p>
+    {{ _("You have a live class scheduled tomorrow. Please be prepared and be on time for the session.") }}
+</p>
+<br>
+<p>
+    <b>{{ _("Class:") }}</b> {{ title }}
+</p>
+<br>
+<p>
+    <b>{{ _("Date:") }}</b> {{ frappe.utils.format_date(date, "medium") }}
+</p>
+<br>
+<p>
+    <b>{{ _("Timings:") }}</b> {{ frappe.utils.format_time(time, "hh:mm a") }}
+</p>
+<br>
+<p>
+    {{ _("Visit the following link to view your ") }}
+    <a href="/lms/live_classes/{{ batch_name }}">{{ _("Batch Details") }}</a>
+</p>
+<p>
+    {{ _("If you have any questions or require assistance, feel free to contact us.") }}
+</p>
+<br>
+<p>
+    {{ _("Best Regards") }}
+</p>
