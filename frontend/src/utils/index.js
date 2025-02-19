@@ -14,7 +14,7 @@ import dayjs from '@/utils/dayjs'
 import Embed from '@editorjs/embed'
 import SimpleImage from '@editorjs/simple-image'
 import Table from '@editorjs/table'
-import HlsVideoBlock from "@/components/HlsVideoBlock";
+import HlsVideoTool from "@/components/HlsVideoBlock";
 
 export function createToast(options) {
 	toast({
@@ -151,7 +151,7 @@ export function htmlToText(html) {
 export function getEditorTools() {
 	return {
 		hlsVideo: {
-			class: HlsVideoBlock,
+			class: HlsVideoTool,
 		},
 		header: {
 			class: Header,
