@@ -1233,6 +1233,7 @@ def get_batch_details(batch):
 	)
 
 	batch_details.instructors = get_instructors(batch)
+	batch_details.accept_enrollments = batch_details.start_date > getdate()
 
 	batch_details.courses = frappe.get_all(
 		"Batch Course", filters={"parent": batch}, fields=["course", "title", "evaluator"]
