@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-02-14 16:04+0000\n"
-"PO-Revision-Date: 2025-02-17 17:03\n"
+"PO-Revision-Date: 2025-02-18 17:35\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Bosnian\n"
 "MIME-Version: 1.0\n"
@@ -20,7 +20,7 @@ msgstr ""
 
 #: lms/templates/emails/assignment_submission.html:5
 msgid " Please evaluate and grade it."
-msgstr ""
+msgstr "Procjeni i Ocjeni"
 
 #: frontend/src/pages/Programs.vue:39
 #, python-format
@@ -30,46 +30,46 @@ msgstr "% završeno"
 #. Paragraph text in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "<a href=\"/app/lms-settings/LMS%20Settings\">LMS Settings</a>"
-msgstr ""
+msgstr "<a href=\"/app/lms-settings/LMS%20Settings\">Postavke</a>"
 
 #. Paragraph text in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "<a href=\"/app/web-page/new-web-page-1\">Setup a Home Page</a>"
-msgstr ""
+msgstr "<a href=\"/app/web-page/new-web-page-1\">Postavi Početnu Stranicu</a>"
 
 #. Paragraph text in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "<a href=\"/lms/courses\">Visit LMS Portal</a>"
-msgstr ""
+msgstr "<a href=\"/lms/courses\">Posjeti Portal</a>"
 
 #. Paragraph text in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "<a href=\"/lms/courses/new/edit\">Create a Course</a>"
-msgstr ""
+msgstr "<a href=\"/lms/courses/new/edit\">Kreiraj Kurs</a>"
 
 #. Paragraph text in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "<a href=\"https://docs.frappe.io/learning\">Documentation</a>"
-msgstr ""
+msgstr "<a href=\"https://docs.frappe.io/learning\">Dokumentacija</a>"
 
 #. Header text in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "<span class=\"h4\"><b>Get Started</b></span>"
-msgstr ""
+msgstr "<span class=\"h4\"><b>Započni</b></span>"
 
 #. Header text in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "<span class=\"h4\"><b>Master</b></span>"
-msgstr ""
+msgstr "<span class=\"h4\"><b>Postavke</b></span>"
 
 #. Header text in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "<span style=\"font-size: 18px;\"><b>Statistics</b></span>"
-msgstr ""
+msgstr "<span style=\"font-size: 18px;\"><b>Statistika</b></span>"
 
 #: frontend/src/pages/CourseForm.vue:40
 msgid "A one line introduction to the course that appears on the course card"
-msgstr ""
+msgstr "Uvod u kurs u jednom redu koji se pojavljuje na kartici kursa"
 
 #: frontend/src/pages/ProfileAbout.vue:4
 msgid "About"
@@ -82,7 +82,7 @@ msgstr "O ovoj Grupi"
 #. Label of the verify_terms (Check) field in DocType 'User'
 #: lms/fixtures/custom_field.json
 msgid "Acceptance for Terms and/or Policies"
-msgstr ""
+msgstr "Prihvatanje Uslova i/ili Pravila"
 
 #. Option for the 'Status' (Select) field in DocType 'Cohort Join Request'
 #: lms/lms/doctype/cohort_join_request/cohort_join_request.json
@@ -149,7 +149,7 @@ msgstr "Doda Kurs"
 
 #: frontend/src/pages/CourseForm.vue:136
 msgid "Add a keyword and then press enter"
-msgstr ""
+msgstr "Dodaj ključnu riječ, a zatim pritisnite enter"
 
 #: frontend/src/components/OnboardingBanner.vue:81
 msgid "Add a lesson"
@@ -162,31 +162,31 @@ msgstr "Dodaj novo pitanje"
 
 #: frontend/src/components/AssessmentPlugin.vue:11
 msgid "Add a quiz to your lesson"
-msgstr ""
+msgstr "Dodaj kviz svojoj lekciji"
 
 #: frontend/src/components/Modals/AssessmentModal.vue:5
 msgid "Add an assessment"
-msgstr ""
+msgstr "Dodaj Procjenu"
 
 #: frontend/src/components/AssessmentPlugin.vue:14
 msgid "Add an assignment to your lesson"
-msgstr ""
+msgstr "Dodaj zadatak svojoj lekciji"
 
 #: frontend/src/components/Modals/Question.vue:18
 msgid "Add an existing question"
-msgstr ""
+msgstr "Dodaj postojeće pitanje"
 
 #: lms/lms/doctype/lms_question/lms_question.py:66
 msgid "Add at least one possible answer for this question: {0}"
-msgstr ""
+msgstr "Dodaj barem jedan mogući odgovor na ovo pitanje: {0}"
 
 #: frontend/src/components/Modals/PageModal.vue:6
 msgid "Add web page to sidebar"
-msgstr ""
+msgstr "Dodaj web stranicu na bočnu traku"
 
 #: frontend/src/components/Assignment.vue:65
 msgid "Add your assignment as {0}"
-msgstr ""
+msgstr "Dodaj zadatak kao {0}"
 
 #. Label of the address (Link) field in DocType 'LMS Payment'
 #: frontend/src/pages/Billing.vue:17 frontend/src/pages/Billing.vue:69
@@ -222,7 +222,7 @@ msgstr "Sve Grupe"
 
 #: frontend/src/pages/CertifiedParticipants.vue:20
 msgid "All Certified Participants"
-msgstr ""
+msgstr "Svi Certificirani Učesnici"
 
 #: lms/lms/widgets/BreadCrumb.html:3
 msgid "All Courses"
@@ -238,17 +238,17 @@ msgstr "Sva Podnošenja"
 
 #: lms/lms/doctype/lms_quiz/lms_quiz.py:46
 msgid "All questions should have the same marks if the limit is set."
-msgstr ""
+msgstr "Sva pitanja bi trebala imati iste ocjene ako je ograničenje postavljeno."
 
 #. Label of the allow_guest_access (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Allow Guest Access"
-msgstr ""
+msgstr "Dozvoli Pristup Gostima"
 
 #. Label of the allow_posting (Check) field in DocType 'Job Settings'
 #: lms/job/doctype/job_settings/job_settings.json
 msgid "Allow Job Posting From Website"
-msgstr ""
+msgstr "Dozvolite objavljivanje poslova sa web stranice"
 
 #. Label of the allow_self_enrollment (Check) field in DocType 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json
@@ -291,7 +291,7 @@ msgstr "Iznos i Valuta su obavezni za plaćene grupe."
 
 #: lms/lms/doctype/lms_course/lms_course.py:57
 msgid "Amount and currency are required for paid courses."
-msgstr ""
+msgstr "Iznos i valuta su potrebni za plaćene kurseve."
 
 #. Label of the amount_with_gst (Currency) field in DocType 'LMS Payment'
 #: lms/lms/doctype/lms_payment/lms_payment.json
@@ -319,7 +319,7 @@ msgstr "Odgovori"
 
 #: frontend/src/pages/CourseForm.vue:84 frontend/src/pages/CourseForm.vue:102
 msgid "Appears on the course card in the course list"
-msgstr ""
+msgstr "Pojavljuje se na kartici kursa u listi kurseva"
 
 #: frontend/src/pages/BatchForm.vue:59 frontend/src/pages/BatchForm.vue:77
 msgid "Appears when the batch URL is shared on any online platform"
@@ -336,12 +336,12 @@ msgstr "Primjeni"
 #. Label of the apply_gst (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Apply GST for India"
-msgstr ""
+msgstr "Primijeni GST za Indiju"
 
 #. Label of the apply_rounding (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Apply Rounding on Equivalent"
-msgstr ""
+msgstr "Primijeni zaokruživanje na ekvivalent"
 
 #: frontend/src/components/Modals/JobApplicationModal.vue:6
 msgid "Apply for this job"
@@ -367,7 +367,7 @@ msgstr "Arhivirano"
 #. Label of the user_category (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Ask User Category during Signup"
-msgstr ""
+msgstr "Pitaj za kategoriju korisnika prilikom registracije"
 
 #. Label of the assessment_tab (Tab Break) field in DocType 'LMS Batch'
 #. Label of the assessment (Table) field in DocType 'LMS Batch'
@@ -390,7 +390,7 @@ msgstr "Tip Procjene"
 
 #: frontend/src/components/Modals/AssessmentModal.vue:73
 msgid "Assessment added successfully"
-msgstr ""
+msgstr "Procjena je uspješno dodana"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:71
 msgid "Assessment {0} has already been added to this batch."
@@ -424,32 +424,32 @@ msgstr "Zadatak"
 #. Submission'
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 msgid "Assignment Attachment"
-msgstr ""
+msgstr "Prilog Zadatku"
 
 #. Label of the assignment_submission_template (Link) field in DocType 'LMS
 #. Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Assignment Submission Template"
-msgstr ""
+msgstr "Šablon Podnošenja Zadatka"
 
 #. Label of the assignment_title (Data) field in DocType 'LMS Assignment
 #. Submission'
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 msgid "Assignment Title"
-msgstr ""
+msgstr "Naziv Zadatka"
 
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.py:33
 msgid "Assignment for Lesson {0} by {1} already exists."
-msgstr ""
+msgstr "Zadatak za Lekciju {0} od {1} već postoji."
 
 #: frontend/src/pages/AssignmentForm.vue:155
 msgid "Assignment saved successfully"
-msgstr ""
+msgstr "Zadatak je uspješno sačuvan"
 
 #. Description of the 'Question' (Small Text) field in DocType 'Course Lesson'
 #: lms/lms/doctype/course_lesson/course_lesson.json
 msgid "Assignment will appear at the bottom of the lesson."
-msgstr ""
+msgstr "Zadatak će se pojaviti na dnu lekcije."
 
 #: frontend/src/pages/AssignmentForm.vue:174
 msgid "Assignments"
@@ -457,12 +457,12 @@ msgstr "Dodjele"
 
 #: lms/lms/doctype/lms_question/lms_question.py:43
 msgid "At least one option must be correct for this question."
-msgstr ""
+msgstr "Barem jedna opcija mora biti tačna za ovo pitanje."
 
 #. Label of the attire (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
 msgid "Attire Preference"
-msgstr ""
+msgstr "Preferencija Odjeće"
 
 #: frontend/src/pages/ProfileEvaluator.vue:123
 msgid "Authorize Google Calendar Access"
@@ -490,7 +490,7 @@ msgstr "Prosjek Primljenih Povratnih Informacija"
 
 #: frontend/src/pages/Lesson.vue:96
 msgid "Back to Course"
-msgstr ""
+msgstr "Povratak na Kurs"
 
 #. Label of the badge (Link) field in DocType 'LMS Badge Assignment'
 #: lms/lms/doctype/lms_badge_assignment/lms_badge_assignment.json
@@ -636,7 +636,7 @@ msgstr "Detalji Fakture"
 #: frontend/src/pages/Billing.vue:75
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Billing Name"
-msgstr ""
+msgstr "Faktura Adresa"
 
 #: frontend/src/components/Modals/EditProfile.vue:75
 msgid "Bio"
@@ -650,7 +650,7 @@ msgstr "Sadržaj"
 #. Option for the 'Collaboration Preference' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
 msgid "Both Individual and Team Work"
-msgstr ""
+msgstr "I Individualni i Timski Rad"
 
 #. Label of the branch (Data) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -664,7 +664,7 @@ msgstr ""
 
 #: frontend/src/components/CourseCardOverlay.vue:45
 msgid "Buy this course"
-msgstr ""
+msgstr "Kupi ovaj kurs"
 
 #: lms/templates/emails/lms_message.html:11
 msgid "By"
@@ -770,7 +770,7 @@ msgstr ""
 #: frontend/src/pages/CertifiedParticipants.vue:161
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Certified Participants"
-msgstr ""
+msgstr "Certificirani Učesnici"
 
 #: lms/templates/assignment.html:13
 msgid "Change"
@@ -778,7 +778,7 @@ msgstr "Promjeni"
 
 #: frontend/src/components/Assignment.vue:316
 msgid "Changes saved successfully"
-msgstr ""
+msgstr "Promjene su uspješno spremljene"
 
 #. Label of the chapter (Link) field in DocType 'Chapter Reference'
 #. Label of the chapter (Link) field in DocType 'LMS Course Progress'
@@ -855,7 +855,7 @@ msgstr "Očisti"
 #. Option for the 'Role Preference' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
 msgid "Clearly Defined Role"
-msgstr ""
+msgstr "Jasno Definisana Uloga"
 
 #: frontend/src/components/LessonHelp.vue:30
 msgid "Click on the add icon in the editor and select Quiz from the menu. It opens up a dialog, where you can either select a quiz from the list or create a new quiz. When you select the Create New option it redirects you to the quiz creation page."
@@ -1341,7 +1341,7 @@ msgstr "Kursevi su uspješno izbrisani"
 #. Label of the cover_image (Attach Image) field in DocType 'User'
 #: lms/fixtures/custom_field.json
 msgid "Cover Image"
-msgstr ""
+msgstr "Naslovna Slika"
 
 #: frontend/src/components/Modals/ChapterModal.vue:9
 #: frontend/src/pages/Programs.vue:108
@@ -1350,15 +1350,15 @@ msgstr "Kreiraj"
 
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.js:7
 msgid "Create LMS Certificate"
-msgstr ""
+msgstr "Kreiraj Certifikat"
 
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.js:8
 msgid "Create LMS Certificate Evaluation"
-msgstr ""
+msgstr "Kreiraj Procjenu Certifikata"
 
 #: frontend/src/pages/Courses.vue:136 lms/templates/onboarding_header.html:19
 msgid "Create a Course"
-msgstr ""
+msgstr "Kreiraj Kurs"
 
 #: frontend/src/components/Modals/LiveClassModal.vue:5
 msgid "Create a Live Class"
@@ -1366,11 +1366,11 @@ msgstr ""
 
 #: frontend/src/components/OnboardingBanner.vue:30
 msgid "Create a course"
-msgstr ""
+msgstr "Kreiraj kurs"
 
 #: frontend/src/components/Modals/Question.vue:31
 msgid "Create a new question"
-msgstr ""
+msgstr "Kreiraj novo pitanje"
 
 #: frontend/src/pages/Assignments.vue:163
 msgid "Created"
@@ -1390,7 +1390,7 @@ msgstr "Valuta"
 #. Label of the current_lesson (Link) field in DocType 'LMS Enrollment'
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 msgid "Current Lesson"
-msgstr ""
+msgstr "Trenutna Lekcija"
 
 #. Label of the custom_component (Code) field in DocType 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json
@@ -1480,19 +1480,19 @@ msgstr "Izbriši"
 
 #: frontend/src/components/CourseOutline.vue:52
 msgid "Delete Chapter"
-msgstr ""
+msgstr "Izbriši Poglavlje"
 
 #: frontend/src/pages/CourseForm.vue:468
 msgid "Delete Course"
-msgstr ""
+msgstr "Izbriši Kurs"
 
 #: frontend/src/components/CourseOutline.vue:292
 msgid "Delete this chapter?"
-msgstr ""
+msgstr "Izbriši ovo Poglavlje?"
 
 #: frontend/src/components/CourseOutline.vue:234
 msgid "Delete this lesson?"
-msgstr ""
+msgstr "Izbriši ovu Lekciju?"
 
 #: frontend/src/pages/CourseForm.vue:469
 msgid "Deleting the course will also delete all its chapters and lessons. Are you sure you want to delete this course?"
@@ -1552,7 +1552,7 @@ msgstr ""
 #. Label of the disable_self_learning (Check) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Disable Self Learning"
-msgstr ""
+msgstr "Onemogući Samoučenje"
 
 #. Label of the disabled (Check) field in DocType 'Job Opportunity'
 #: lms/job/doctype/job_opportunity/job_opportunity.json
@@ -1614,12 +1614,12 @@ msgstr ""
 #. Label of the email (Link) field in DocType 'Cohort Join Request'
 #: lms/lms/doctype/cohort_join_request/cohort_join_request.json
 msgid "E-Mail"
-msgstr ""
+msgstr "E-pošta"
 
 #. Label of the email (Link) field in DocType 'Cohort Mentor'
 #: lms/lms/doctype/cohort_mentor/cohort_mentor.json
 msgid "E-mail"
-msgstr ""
+msgstr "E-pošta"
 
 #: frontend/src/components/BatchOverlay.vue:99
 #: frontend/src/components/CourseCardOverlay.vue:86
@@ -1632,7 +1632,7 @@ msgstr "Uredi"
 #: frontend/src/components/CourseOutline.vue:45
 #: frontend/src/components/Modals/ChapterModal.vue:5
 msgid "Edit Chapter"
-msgstr ""
+msgstr "Uredi poglavlje"
 
 #: frontend/src/pages/Profile.vue:68
 msgid "Edit Profile"
@@ -1683,7 +1683,7 @@ msgstr "E-pošta"
 #. Option for the 'User Category' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json lms/templates/signup-form.html:25
 msgid "Employee"
-msgstr "Zaposleni"
+msgstr "Personal"
 
 #. Label of the enable (Check) field in DocType 'Zoom Settings'
 #: lms/lms/doctype/zoom_settings/zoom_settings.json
@@ -1775,11 +1775,11 @@ msgstr ""
 #: lms/lms/web_template/lms_statistics/lms_statistics.html:14
 #: lms/templates/statistics.html:20
 msgid "Enrollment Count"
-msgstr ""
+msgstr "Broj Upisa"
 
 #: lms/lms/utils.py:1728
 msgid "Enrollment Failed"
-msgstr ""
+msgstr "Upis nije uspio"
 
 #. Label of the enrollments (Data) field in DocType 'LMS Course'
 #. Label of a chart in the LMS Workspace
@@ -1787,7 +1787,7 @@ msgstr ""
 #: frontend/src/pages/Statistics.vue:51
 #: lms/lms/doctype/lms_course/lms_course.json lms/lms/workspace/lms/lms.json
 msgid "Enrollments"
-msgstr ""
+msgstr "Upisi"
 
 #: lms/lms/doctype/lms_settings/lms_settings.py:25
 msgid "Enter Client Id and Client Secret in Google Settings to send calendar invites for evaluations."
@@ -2018,12 +2018,12 @@ msgstr "Ime"
 #. Option for the 'Time Preference' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
 msgid "Fixed 9-5"
-msgstr ""
+msgstr "Fiksno 9-5"
 
 #. Option for the 'Time Preference' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
 msgid "Flexible Time"
-msgstr ""
+msgstr "Fleksibilno Vrijeme"
 
 #: frontend/src/pages/QuizForm.vue:459
 msgid "Form to create and edit quizzes"
@@ -2105,7 +2105,7 @@ msgstr ""
 #. Label of the gstin (Data) field in DocType 'LMS Payment'
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "GSTIN"
-msgstr ""
+msgstr "GSTIN"
 
 #. Label of the general_tab (Tab Break) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -2136,7 +2136,7 @@ msgstr ""
 #. Label of the github (Data) field in DocType 'User'
 #: lms/fixtures/custom_field.json
 msgid "Github ID"
-msgstr ""
+msgstr "Github ID"
 
 #. Label of the google_meet_link (Data) field in DocType 'LMS Certificate
 #. Request'
@@ -2198,11 +2198,11 @@ msgstr ""
 #: lms/lms/notification/certificate_request_reminder/certificate_request_reminder.html:1
 #: lms/templates/emails/certificate_request_notification.html:1
 msgid "Hey {0}"
-msgstr ""
+msgstr "Hej {0}"
 
 #: lms/templates/emails/job_report.html:3
 msgid "Hey,"
-msgstr ""
+msgstr "Hej,"
 
 #: lms/templates/emails/payment_reminder.html:2
 msgid "Hi"
@@ -2229,7 +2229,7 @@ msgstr ""
 #. Label of the host (Link) field in DocType 'LMS Live Class'
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Host"
-msgstr ""
+msgstr "Domaćin"
 
 #: frontend/src/components/LessonHelp.vue:24
 msgid "How to add a Quiz?"
@@ -2578,32 +2578,32 @@ msgstr ""
 #. Name of a Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "LMS"
-msgstr ""
+msgstr "LMS"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_assessment/lms_assessment.json
 msgid "LMS Assessment"
-msgstr ""
+msgstr "Procjena"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
 msgid "LMS Assignment"
-msgstr ""
+msgstr "Zadatak"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 msgid "LMS Assignment Submission"
-msgstr ""
+msgstr "Podnošenje Zadatka"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_badge/lms_badge.json
 msgid "LMS Badge"
-msgstr ""
+msgstr "Značka"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_badge_assignment/lms_badge_assignment.json
 msgid "LMS Badge Assignment"
-msgstr ""
+msgstr "Dodjela Značke"
 
 #. Name of a DocType
 #. Option for the 'Payment for Document Type' (Select) field in DocType 'LMS
@@ -2631,27 +2631,27 @@ msgstr "Stara Grupa"
 #. Name of a DocType
 #: lms/lms/doctype/lms_batch_timetable/lms_batch_timetable.json
 msgid "LMS Batch Timetable"
-msgstr ""
+msgstr "Raspored Grupe"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_category/lms_category.json
 msgid "LMS Category"
-msgstr ""
+msgstr "Kategorija"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_certificate/lms_certificate.json
 msgid "LMS Certificate"
-msgstr ""
+msgstr "Certifikat"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 msgid "LMS Certificate Evaluation"
-msgstr ""
+msgstr "Evaluacija Certifikata"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "LMS Certificate Request"
-msgstr ""
+msgstr "Zahtjev za Certifikat"
 
 #. Name of a DocType
 #. Option for the 'Payment for Document Type' (Select) field in DocType 'LMS
@@ -2659,107 +2659,107 @@ msgstr ""
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "LMS Course"
-msgstr ""
+msgstr "Kurs"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_course_interest/lms_course_interest.json
 msgid "LMS Course Interest"
-msgstr ""
+msgstr "Kurs Interesovanja"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_course_mentor_mapping/lms_course_mentor_mapping.json
 msgid "LMS Course Mentor Mapping"
-msgstr ""
+msgstr "Kurs Mentor Mapiranje"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_course_progress/lms_course_progress.json
 msgid "LMS Course Progress"
-msgstr ""
+msgstr "Napredak Kursa"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_course_review/lms_course_review.json
 msgid "LMS Course Review"
-msgstr ""
+msgstr "Pregled Kursa"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 msgid "LMS Enrollment"
-msgstr ""
+msgstr "Upis"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_exercise/lms_exercise.json
 msgid "LMS Exercise"
-msgstr ""
+msgstr "Vježba"
 
 #. Name of a DocType
 #: lms/job/doctype/lms_job_application/lms_job_application.json
 msgid "LMS Job Application"
-msgstr ""
+msgstr "Prijava za Posao"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "LMS Live Class"
-msgstr ""
+msgstr "Live Class"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
 msgid "LMS Mentor Request"
-msgstr ""
+msgstr "Zahtjev za Mentora"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_option/lms_option.json
 msgid "LMS Option"
-msgstr ""
+msgstr "Opcija"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "LMS Payment"
-msgstr ""
+msgstr "Plaćanje"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_program/lms_program.json
 msgid "LMS Program"
-msgstr ""
+msgstr "Program"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_program_course/lms_program_course.json
 msgid "LMS Program Course"
-msgstr ""
+msgstr "Kurs Programa"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_program_member/lms_program_member.json
 msgid "LMS Program Member"
-msgstr ""
+msgstr "Član Programa"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_question/lms_question.json
 msgid "LMS Question"
-msgstr ""
+msgstr "Pitanje"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_quiz/lms_quiz.json
 msgid "LMS Quiz"
-msgstr ""
+msgstr "Kviz"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_quiz_question/lms_quiz_question.json
 msgid "LMS Quiz Question"
-msgstr ""
+msgstr "Pitanje Kviza"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_quiz_result/lms_quiz_result.json
 msgid "LMS Quiz Result"
-msgstr ""
+msgstr "Rezultat Kviza"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.json
 msgid "LMS Quiz Submission"
-msgstr ""
+msgstr "Podnošenje Kviza"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "LMS Settings"
-msgstr ""
+msgstr "Postavke"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_sidebar_item/lms_sidebar_item.json
@@ -2769,7 +2769,7 @@ msgstr ""
 #. Name of a DocType
 #: lms/lms/doctype/lms_source/lms_source.json
 msgid "LMS Source"
-msgstr ""
+msgstr "Izvor"
 
 #. Name of a role
 #: lms/job/doctype/job_opportunity/job_opportunity.json
@@ -2796,17 +2796,17 @@ msgstr ""
 #: lms/lms/doctype/lms_source/lms_source.json
 #: lms/lms/doctype/user_skill/user_skill.json
 msgid "LMS Student"
-msgstr ""
+msgstr "Student"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_timetable_legend/lms_timetable_legend.json
 msgid "LMS Timetable Legend"
-msgstr ""
+msgstr "Legenda Vremenske Tabele"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_timetable_template/lms_timetable_template.json
 msgid "LMS Timetable Template"
-msgstr ""
+msgstr "Šablon Vremenske Tabele"
 
 #. Label of the label (Data) field in DocType 'LMS Timetable Legend'
 #: lms/lms/doctype/lms_timetable_legend/lms_timetable_legend.json
@@ -2826,7 +2826,7 @@ msgstr ""
 #. Label of the launch_file (Code) field in DocType 'Course Chapter'
 #: lms/lms/doctype/course_chapter/course_chapter.json
 msgid "Launch File"
-msgstr ""
+msgstr "Pokreni Datoteku"
 
 #. Label of the lesson (Link) field in DocType 'Exercise Latest Submission'
 #. Label of the lesson (Link) field in DocType 'Exercise Submission'
@@ -2847,17 +2847,17 @@ msgstr ""
 #: lms/lms/doctype/scheduled_flow/scheduled_flow.json
 #: lms/lms/workspace/lms/lms.json
 msgid "Lesson"
-msgstr ""
+msgstr "Lekcija"
 
 #. Name of a DocType
 #: lms/lms/doctype/lesson_reference/lesson_reference.json
 msgid "Lesson Reference"
-msgstr ""
+msgstr "Referenca Lekcije"
 
 #. Label of the lesson_title (Data) field in DocType 'Scheduled Flow'
 #: lms/lms/doctype/scheduled_flow/scheduled_flow.json
 msgid "Lesson Title"
-msgstr ""
+msgstr "Naziv Lekcije"
 
 #. Label of the lessons (Table) field in DocType 'Course Chapter'
 #. Group in Course Chapter's connections
@@ -2867,7 +2867,7 @@ msgstr ""
 #: lms/lms/doctype/course_chapter/course_chapter.json
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Lessons"
-msgstr ""
+msgstr "Lekcije"
 
 #: lms/lms/web_template/lms_statistics/lms_statistics.html:14
 #: lms/templates/statistics.html:36
@@ -2881,7 +2881,7 @@ msgstr ""
 #. Option for the 'Grade Type' (Select) field in DocType 'Education Detail'
 #: lms/lms/doctype/education_detail/education_detail.json
 msgid "Letter Grade (e.g. A, B-)"
-msgstr ""
+msgstr "Slovna Ocjena (npr. A, B-)"
 
 #. Label of the limit_questions_to (Int) field in DocType 'LMS Quiz'
 #: frontend/src/pages/QuizForm.vue:108 lms/lms/doctype/lms_quiz/lms_quiz.json
@@ -2899,7 +2899,7 @@ msgstr ""
 #. Label of the linkedin (Data) field in DocType 'User'
 #: lms/fixtures/custom_field.json
 msgid "LinkedIn ID"
-msgstr ""
+msgstr "LinkedIn ID"
 
 #. Group in Cohort's connections
 #. Group in Cohort Subgroup's connections
