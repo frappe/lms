@@ -170,8 +170,7 @@ const userDropdownOptions = computed(() => {
 			},
 			condition: () => {
 				return (
-					userResource.data?.user_type == 'System User' &&
-					userResource.data?.is_fc_site
+					userResource.data?.is_system_manager && userResource.data?.is_fc_site
 				)
 			},
 		},

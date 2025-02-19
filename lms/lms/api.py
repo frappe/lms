@@ -179,7 +179,8 @@ def get_user_info():
 	user.is_evaluator = "Batch Evaluator" in user.roles
 	user.is_student = "LMS Student" in user.roles
 	user.is_fc_site = is_fc_site()
-	if user.is_fc_site and user.user_type == "System User":
+	user.is_system_manager = "System Manager" in user.roles
+	if user.is_fc_site and user.is_system_manager:
 		user.site_info = current_site_info()
 		user.sitename = frappe.local.site
 	return user
