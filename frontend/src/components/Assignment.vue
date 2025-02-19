@@ -1,7 +1,7 @@
 <template>
 	<div
 		v-if="assignment.data"
-		class="grid grid-cols-[68%,32%] h-full"
+		class="grid grid-cols-[65%,35%] h-full"
 		:class="{ 'border rounded-lg': !showTitle }"
 	>
 		<div class="border-r p-5 overflow-y-auto h-[calc(100vh-3.2rem)]">
@@ -81,8 +81,8 @@
 						</template>
 					</FileUploader>
 					<div v-else>
-						<div class="flex items-center text-ink-gray-7">
-							<div class="border rounded-md p-2 mr-2">
+						<div class="flex text-ink-gray-7">
+							<div class="border self-start rounded-md p-2 mr-2">
 								<FileText class="h-5 w-5 stroke-1.5" />
 							</div>
 							<a
@@ -90,7 +90,7 @@
 								target="_blank"
 								class="flex flex-col cursor-pointer !no-underline"
 							>
-								<span>
+								<span class="text-sm leading-5">
 									{{ submissionFile.file_name }}
 								</span>
 								<span class="text-sm text-ink-gray-5 mt-1">
@@ -155,12 +155,23 @@
 						type="select"
 						:options="submissionStatusOptions"
 					/>
-					<FormControl
-						v-if="submissionResource.doc"
-						v-model="submissionResource.doc.comments"
-						:label="__('Comments')"
-						type="textarea"
-					/>
+					<div>
+						<div class="text-sm text-ink-gray-5 mb-1">
+							{{ __('Comments') }}
+						</div>
+						<TextEditor
+							:content="comments"
+							@change="
+								(val) => {
+									comments = val
+									isDirty = true
+								}
+							"
+							:editable="true"
+							:fixedMenu="true"
+							editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
+						/>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -184,6 +195,7 @@ import { useRouter } from 'vue-router'
 
 const submissionFile = ref(null)
 const answer = ref(null)
+const comments = ref(null)
 const router = useRouter()
 const user = inject('$user')
 const showTitle = router.currentRoute.value.name == 'AssignmentSubmission'
@@ -281,6 +293,9 @@ watch(submissionResource, () => {
 		if (submissionResource.doc.answer) {
 			answer.value = submissionResource.doc.answer
 		}
+		if (submissionResource.doc.comments) {
+			comments.value = submissionResource.doc.comments
+		}
 		if (submissionResource.isDirty) {
 			isDirty.value = true
 		} else if (showUploader() && !submissionFile.value) {
@@ -305,11 +320,14 @@ const submitAssignment = () => {
 			submissionResource.doc && submissionResource.doc.owner != user.data?.name
 				? user.data?.name
 				: null
+
 		submissionResource.setValue.submit(
 			{
 				...submissionResource.doc,
 				assignment_attachment: submissionFile.value?.file_url,
 				evaluator: evaluator,
+				comments: comments.value,
+				answer: answer.value,
 			},
 			{
 				onSuccess(data) {

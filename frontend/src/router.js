@@ -219,7 +219,7 @@ let router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
 	const { userResource } = usersStore()
-	const { isLoggedIn } = sessionStore()
+	let { isLoggedIn } = sessionStore()
 	const { allowGuestAccess } = useSettings()
 
 	try {

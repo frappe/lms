@@ -55,7 +55,7 @@
 					<FormControl
 						type="number"
 						v-model="quiz.max_attempts"
-						:label="__('Maximun Attempts')"
+						:label="__('Maximum Attempts')"
 					/>
 					<FormControl
 						type="number"

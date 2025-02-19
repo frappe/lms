@@ -8,25 +8,31 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "published",
+  "section_break_earo",
   "title",
   "start_date",
   "end_date",
   "column_break_4",
-  "allow_self_enrollment",
   "start_time",
   "end_time",
   "timezone",
-  "section_break_rgfj",
-  "medium",
-  "category",
-  "column_break_flwy",
-  "seat_count",
-  "evaluation_end_date",
+  "section_break_cssv",
+  "published",
+  "column_break_wfkz",
+  "allow_self_enrollment",
+  "column_break_vnrp",
+  "certification",
   "section_break_6",
   "description",
   "column_break_hlqw",
   "instructors",
+  "section_break_rgfj",
+  "medium",
+  "category",
+  "confirmation_email_template",
+  "column_break_flwy",
+  "seat_count",
+  "evaluation_end_date",
   "meta_image",
   "section_break_khcn",
   "batch_details",
@@ -206,6 +212,7 @@
    "default": "0",
    "fieldname": "published",
    "fieldtype": "Check",
+   "in_standard_filter": 1,
    "label": "Published"
   },
   {
@@ -318,6 +325,35 @@
   {
    "fieldname": "section_break_khcn",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "confirmation_email_template",
+   "fieldtype": "Link",
+   "label": "Confirmation Email Template",
+   "options": "Email Template"
+  },
+  {
+   "fieldname": "column_break_wfkz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_vnrp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "certification",
+   "fieldtype": "Check",
+   "in_standard_filter": 1,
+   "label": "Certification"
+  },
+  {
+   "fieldname": "section_break_earo",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "section_break_cssv",
+   "fieldtype": "Section Break"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -335,7 +371,7 @@
    "link_fieldname": "batch_name"
   }
  ],
- "modified": "2025-02-12 11:59:35.312487",
+ "modified": "2025-02-18 15:43:18.512504",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Batch",

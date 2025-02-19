@@ -6,7 +6,7 @@
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
 			<div class="flex items-center space-x-2">
 				<Button
-					v-if="user.data?.is_moderator"
+					v-if="user.data?.is_moderator && batch.data?.certification"
 					@click="openCertificateDialog = true"
 				>
 					{{ __('Generate Certificates') }}
@@ -21,7 +21,10 @@
 				</Button>
 			</div>
 		</header>
-		<div v-if="batch.data" class="grid grid-cols-[75%,25%]">
+		<div
+			v-if="batch.data"
+			class="grid grid-cols-[75%,25%] h-[calc(100vh-3.2rem)]"
+		>
 			<div class="border-r">
 				<Tabs
 					v-model="tabIndex"
@@ -310,7 +313,7 @@ const tabs = computed(() => {
 })
 
 const redirectToLogin = () => {
-	window.location.href = `/login?redirect-to=/batches`
+	window.location.href = `/login?redirect-to=/lms/batches/${props.batchName}`
 }
 
 const openAnnouncementModal = () => {

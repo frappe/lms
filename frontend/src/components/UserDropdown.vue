@@ -59,13 +59,22 @@
 		v-if="userResource.data?.is_moderator"
 		v-model="showSettingsModal"
 	/>
+	<FCVerfiyCodeModal v-if="showFCLoginDialog" :email="verificationEmail" />
 </template>
 
 <script setup>
 import LMSLogo from '@/components/Icons/LMSLogo.vue'
 import { sessionStore } from '@/stores/session'
-import { Dropdown } from 'frappe-ui'
+import { call, Dropdown } from 'frappe-ui'
 import Apps from '@/components/Apps.vue'
+import { useRouter } from 'vue-router'
+import { convertToTitleCase, showToast } from '@/utils'
+import { usersStore } from '@/stores/user'
+import { useSettings } from '@/stores/settings'
+import { markRaw, watch, ref, onMounted, computed } from 'vue'
+import SettingsModal from '@/components/Modals/Settings.vue'
+import { createDialog } from '@/utils/dialogs'
+import FCVerfiyCodeModal from './Modals/FCVerfiyCodeModal.vue'
 import {
 	ChevronDown,
 	LogIn,
@@ -74,13 +83,8 @@ import {
 	User,
 	Settings,
 	Sun,
+	LogInIcon,
 } from 'lucide-vue-next'
-import { useRouter } from 'vue-router'
-import { convertToTitleCase } from '../utils'
-import { usersStore } from '@/stores/user'
-import { useSettings } from '@/stores/settings'
-import { markRaw, watch, ref, onMounted, computed } from 'vue'
-import SettingsModal from '@/components/Modals/Settings.vue'
 
 const router = useRouter()
 const { logout, branding } = sessionStore()
@@ -89,6 +93,11 @@ const settingsStore = useSettings()
 let { isLoggedIn } = sessionStore()
 const showSettingsModal = ref(false)
 const theme = ref('light')
+const $dialog = createDialog
+const frappeCloudBaseEndpoint = 'https://frappecloud.com'
+
+const showFCLoginDialog = ref(false)
+const verificationEmail = ref(null)
 
 const props = defineProps({
 	isCollapsed: {
@@ -131,19 +140,19 @@ const userDropdownOptions = computed(() => {
 			},
 		},
 		{
+			icon: theme.value === 'light' ? Moon : Sun,
+			label: 'Toggle Theme',
+			onClick: () => {
+				toggleTheme()
+			},
+		},
+		{
 			component: markRaw(Apps),
 			condition: () => {
 				let cookies = new URLSearchParams(document.cookie.split('; ').join('&'))
 				let system_user = cookies.get('system_user')
 				if (system_user === 'yes') return true
 				else return false
-			},
-		},
-		{
-			icon: theme.value === 'light' ? Moon : Sun,
-			label: 'Toggle Theme',
-			onClick: () => {
-				toggleTheme()
 			},
 		},
 		{
@@ -154,6 +163,19 @@ const userDropdownOptions = computed(() => {
 			},
 			condition: () => {
 				return userResource.data?.is_moderator
+			},
+		},
+		{
+			icon: LogInIcon,
+			label: 'Login to Frappe Cloud',
+			onClick: () => {
+				initiateRequestForLoginToFrappeCloud()
+			},
+			condition: () => {
+				return (
+					userResource.data?.user_type == 'System User' &&
+					userResource.data?.is_fc_site
+				)
 			},
 		},
 		{
@@ -180,4 +202,48 @@ const userDropdownOptions = computed(() => {
 		},
 	]
 })
+
+const initiateRequestForLoginToFrappeCloud = () => {
+	$dialog({
+		title: __('Login to Frappe Cloud?'),
+		message: __(
+			'Are you sure you want to login to your Frappe Cloud dashboard?'
+		),
+		actions: [
+			{
+				label: __('Confirm'),
+				variant: 'solid',
+				onClick(close) {
+					requestLoginToFC()
+					close()
+				},
+			},
+		],
+	})
+}
+
+const requestLoginToFC = () => {
+	call(
+		'frappe.integrations.frappe_providers.frappecloud_billing.send_verification_code'
+	)
+		.then((data) => {
+			if (data.message.is_user_logged_in) {
+				window.open(
+					`${frappeCloudBaseEndpoint}${data.message.redirect_to}`,
+					'_blank'
+				)
+				return
+			} else {
+				showFCLoginDialog.value = true
+				verificationEmail.value = data.message.email
+			}
+		})
+		.catch((err) => {
+			showToast(
+				__('Failed to login to Frappe Cloud'),
+				__('Please try again'),
+				'x'
+			)
+		})
+}
 </script>
