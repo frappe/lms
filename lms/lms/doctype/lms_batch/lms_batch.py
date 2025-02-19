@@ -176,6 +176,10 @@ def create_live_class(
 		class_details = frappe.get_doc(payload)
 		class_details.save()
 		return class_details
+	else:
+		frappe.throw(
+			_("Error creating live class. Please try again. {0}").format(response.text)
+		)
 
 
 def authenticate():

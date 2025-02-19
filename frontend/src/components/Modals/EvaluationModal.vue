@@ -25,7 +25,15 @@
 					<div class="mb-1.5 text-sm text-ink-gray-5">
 						{{ __('Date') }}
 					</div>
-					<FormControl type="date" v-model="evaluation.date" />
+					<FormControl
+						type="date"
+						v-model="evaluation.date"
+						:min="
+							dayjs()
+								.add(dayjs.duration({ days: 1 }))
+								.format('YYYY-MM-DD')
+						"
+					/>
 				</div>
 				<div v-if="slots.data?.length">
 					<div class="mb-1.5 text-sm text-ink-gray-5">

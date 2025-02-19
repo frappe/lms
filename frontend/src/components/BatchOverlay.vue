@@ -69,7 +69,11 @@
 					name: batch.data.name,
 				},
 			}"
-			v-else-if="batch.data.paid_batch && batch.data.seats_left"
+			v-else-if="
+				batch.data.paid_batch &&
+				batch.data.seats_left > 0 &&
+				batch.data.accept_enrollments
+			"
 		>
 			<Button v-if="!isStudent" class="w-full mt-4" variant="solid">
 				<span>
@@ -80,7 +84,11 @@
 		<Button
 			variant="solid"
 			class="w-full mt-2"
-			v-else-if="batch.data.allow_self_enrollment && batch.data.seats_left"
+			v-else-if="
+				batch.data.allow_self_enrollment &&
+				batch.data.seats_left &&
+				batch.data.accept_enrollments
+			"
 			@click="enrollInBatch()"
 		>
 			{{ __('Enroll Now') }}
@@ -112,6 +120,7 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const user = inject('$user')
+const dayjs = inject('$dayjs')
 
 const props = defineProps({
 	batch: {
