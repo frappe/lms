@@ -50,10 +50,18 @@ export class Markdown {
 			this.wrapper.innerHTML = this.text
 
 			this.wrapper.addEventListener('keydown', (event) => {
-				const value = event.target.textContent
+				let value = event.target.textContent
 				if (event.keyCode === 32 && value.startsWith('#')) {
 					this.convertToHeader(event, value)
-				} else if (event.keyCode === 13) {
+				} else if (event.keyCode == 189) {
+					this.convertBlock('list', {
+						style: 'unordered',
+					})
+				} else if (/^[a-zA-Z]/.test(event.key)) {
+					this.convertBlock('paragraph', {
+						text: value,
+					})
+				} else if (event.keyCode === 13 || event.keyCode === 190) {
 					this.parseContent(event)
 				}
 			})
@@ -75,7 +83,11 @@ export class Markdown {
 
 	parseContent(event) {
 		event.preventDefault()
-		const previousLine = this.wrapper.textContent
+		let previousLine = this.wrapper.textContent
+		if (event.keyCode === 190) {
+			previousLine = previousLine + '.'
+		}
+
 		if (previousLine && this.hasImage(previousLine)) {
 			this.wrapper.textContent = ''
 			this.convertBlock('image')
@@ -94,12 +106,12 @@ export class Markdown {
 					},
 				],
 			})
-		} else if (previousLine && previousLine.startsWith('1. ')) {
+		} else if (previousLine && previousLine.startsWith('1.')) {
 			this.convertBlock('list', {
 				style: 'ordered',
 				items: [
 					{
-						content: previousLine.replace('1. ', ''),
+						content: previousLine.replace('1.', ''),
 					},
 				],
 			})
@@ -107,6 +119,10 @@ export class Markdown {
 			this.wrapper.textContent = ''
 			this.convertBlock('embed', {
 				source: previousLine,
+			})
+		} else {
+			this.convertBlock('paragraph', {
+				text: previousLine,
 			})
 		}
 	}
