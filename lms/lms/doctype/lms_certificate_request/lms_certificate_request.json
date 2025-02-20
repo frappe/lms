@@ -24,7 +24,8 @@
   "google_meet_link",
   "column_break_ddyh",
   "start_time",
-  "end_time"
+  "end_time",
+  "status"
  ],
  "fields": [
   {
@@ -144,11 +145,19 @@
    "fieldtype": "Data",
    "hidden": 1,
    "label": "Batch Title"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Upcoming\nCompleted\nCancelled",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-09-11 11:19:44.669132",
+ "modified": "2025-02-19 17:20:02.526294",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate Request",
@@ -204,6 +213,19 @@
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": [],
+ "states": [
+  {
+   "color": "Blue",
+   "title": "Upcoming"
+  },
+  {
+   "color": "Green",
+   "title": "Completed"
+  },
+  {
+   "color": "Red",
+   "title": "Cancelled"
+  }
+ ],
  "title_field": "member_name"
 }

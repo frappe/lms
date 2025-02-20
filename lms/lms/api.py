@@ -12,6 +12,7 @@ from frappe.translate import get_all_translations
 from frappe import _
 from frappe.utils import (
 	get_datetime,
+	getdate,
 	cint,
 	flt,
 	now,
@@ -1228,3 +1229,39 @@ def get_notifications(filters):
 @frappe.whitelist(allow_guest=True)
 def is_guest_allowed():
 	return frappe.get_cached_value("LMS Settings", None, "allow_guest_access")
+
+
+@frappe.whitelist()
+def cancel_evaluation(evaluation):
+	evaluation = frappe._dict(evaluation)
+
+	if evaluation.member != frappe.session.user:
+		return
+
+	frappe.db.set_value("LMS Certificate Request", evaluation.name, "status", "Cancelled")
+	events = frappe.get_all(
+		"Event Participants",
+		{
+			"email": evaluation.member,
+		},
+		["parent", "name"],
+	)
+
+	for event in events:
+		info = frappe.db.get_value("Event", event.parent, ["starts_on", "subject"], as_dict=1)
+		date = str(info.starts_on).split(" ")[0]
+
+		if (
+			date == str(evaluation.date.format("YYYY-MM-DD"))
+			and evaluation.member_name in info.subject
+		):
+			communication = frappe.db.get_value(
+				"Communication",
+				{"reference_doctype": "Event", "reference_name": event.parent},
+				"name",
+			)
+			if communication:
+				frappe.delete_doc("Communication", communication, ignore_permissions=True)
+
+			frappe.delete_doc("Event Participants", event.name, ignore_permissions=True)
+			frappe.delete_doc("Event", event.parent, ignore_permissions=True)

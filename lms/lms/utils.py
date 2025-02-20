@@ -874,8 +874,18 @@ def get_upcoming_evals(student, courses):
 			"member": student,
 			"course": ["in", courses],
 			"date": [">=", frappe.utils.nowdate()],
+			"status": "Upcoming",
 		},
-		["date", "start_time", "course", "evaluator", "google_meet_link"],
+		[
+			"name",
+			"date",
+			"start_time",
+			"course",
+			"evaluator",
+			"google_meet_link",
+			"member",
+			"member_name",
+		],
 		order_by="date",
 	)
 
