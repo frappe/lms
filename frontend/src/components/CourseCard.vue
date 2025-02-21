@@ -100,8 +100,14 @@
 					<CourseInstructors :instructors="course.instructors" />
 				</div>
 
-				<div class="font-semibold">
+				<div v-if="course.paid_course" class="font-semibold">
 					{{ course.price }}
+				</div>
+				<div
+					v-if="course.paid_certificate"
+					class="text-xs text-ink-blue-3 bg-surface-blue-1 py-0.5 px-1 rounded-md"
+				>
+					{{ __('Paid Certificate') }}
 				</div>
 			</div>
 		</div>

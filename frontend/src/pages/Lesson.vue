@@ -4,6 +4,45 @@
 			class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 		>
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
+			<div
+				v-if="
+					lesson.data && lesson.data.membership && lesson.data.paid_certificate
+				"
+			>
+				<router-link
+					v-if="!lesson.data.membership.purchased_certificate"
+					:to="{
+						name: 'Billing',
+						params: {
+							type: 'certificate',
+							name: courseName,
+						},
+					}"
+				>
+					<Button>
+						<template #prefix>
+							<GraduationCap class="size-4 stroke-1.5" />
+						</template>
+						{{ __('Get Certified') }}
+					</Button>
+				</router-link>
+				<router-link
+					v-else-if="!lesson.data.membership.certficate"
+					:to="{
+						name: 'CourseCertification',
+						params: {
+							courseName: courseName,
+						},
+					}"
+				>
+					<Button>
+						<template #prefix>
+							<GraduationCap class="size-4 stroke-1.5" />
+						</template>
+						{{ __('Get Certified') }}
+					</Button>
+				</router-link>
+			</div>
 		</header>
 		<div class="grid md:grid-cols-[70%,30%] h-screen">
 			<div
@@ -197,7 +236,7 @@ import { computed, watch, inject, ref, onMounted, onBeforeUnmount } from 'vue'
 import CourseOutline from '@/components/CourseOutline.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { useRouter, useRoute } from 'vue-router'
-import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import { ChevronLeft, ChevronRight, GraduationCap } from 'lucide-vue-next'
 import Discussions from '@/components/Discussions.vue'
 import { getEditorTools, updateDocumentTitle } from '../utils'
 import EditorJS from '@editorjs/editorjs'

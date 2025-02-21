@@ -6,7 +6,7 @@
 			class="rounded-t-md min-h-56 w-full"
 		/>
 		<div class="p-5">
-			<div v-if="course.data.price" class="text-2xl font-semibold mb-3">
+			<div v-if="course.data.paid_course" class="text-2xl font-semibold mb-3">
 				{{ course.data.price }}
 			</div>
 			<router-link
@@ -113,12 +113,21 @@
 						{{ course.data.rating }} {{ __('Rating') }}
 					</span>
 				</div>
+				<div
+					v-if="course.data.paid_certificate"
+					class="flex items-center font-semibold text-ink-gray-9"
+				>
+					<GraduationCap class="h-4 w-4 stroke-2" />
+					<span class="ml-2">
+						{{ __('Paid Certificate') }}
+					</span>
+				</div>
 			</div>
 		</div>
 	</div>
 </template>
 <script setup>
-import { BookOpen, Users, Star } from 'lucide-vue-next'
+import { BookOpen, Users, Star, GraduationCap } from 'lucide-vue-next'
 import { computed, inject } from 'vue'
 import { Button, createResource } from 'frappe-ui'
 import { showToast, formatAmount } from '@/utils/'

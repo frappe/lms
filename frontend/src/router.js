@@ -29,6 +29,12 @@ const routes = [
 		props: true,
 	},
 	{
+		path: '/courses/:courseName/certification',
+		name: 'CourseCertification',
+		component: () => import('@/pages/CourseCertification.vue'),
+		props: true,
+	},
+	{
 		path: '/courses/:courseName/learn/:chapterName',
 		name: 'SCORMChapter',
 		component: () => import('@/pages/SCORMChapter.vue'),

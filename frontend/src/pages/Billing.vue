@@ -21,11 +21,11 @@
 				<div
 					class="h-fit bg-surface-gray-2 rounded-md p-5 space-y-4 lg:order-last mb-10 lg:mt-10 text-sm font-medium lg:w-1/4"
 				>
-					<div class="flex items-center justify-between space-x-2">
+					<div class="flex flex-col space-y-2">
 						<div class="text-ink-gray-5">
-							{{ __('Ordered Item') }}
+							{{ __('Payment for ') }} {{ type }}:
 						</div>
-						<div class="">
+						<div class="leading-5">
 							{{ orderSummary.data.title }}
 						</div>
 					</div>
@@ -126,7 +126,7 @@
 						<p class="text-ink-gray-5">
 							{{
 								__(
-									'Make sure to enter the right billing name as the same will be used in your invoice.'
+									'Make sure to enter the correct billing name as the same will be used in your invoice.'
 								)
 							}}
 						</p>
@@ -140,10 +140,10 @@
 		<div v-else-if="access.data?.message">
 			<NotPermitted
 				:text="access.data.message"
-				:buttonLabel="
-					type == 'course' ? 'Checkout Courses' : 'Checkout Batches'
+				:buttonLabel="type == 'course' ? 'Checkout Course' : 'Checkout Batch'"
+				:buttonLink="
+					type == 'course' ? `/lms/courses/${name}` : `/lms/batches/${name}`
 				"
-				:buttonLink="type == 'course' ? '/lms/courses' : '/lms/batches'"
 			/>
 		</div>
 		<div v-else-if="!user.data?.name">
@@ -163,7 +163,7 @@ import {
 	Breadcrumbs,
 	Tooltip,
 } from 'frappe-ui'
-import { reactive, inject, onMounted, ref } from 'vue'
+import { reactive, inject, onMounted, computed } from 'vue'
 import Link from '@/components/Controls/Link.vue'
 import NotPermitted from '@/components/NotPermitted.vue'
 import { showToast } from '@/utils/'
@@ -193,7 +193,7 @@ const props = defineProps({
 const access = createResource({
 	url: 'lms.lms.api.validate_billing_access',
 	params: {
-		type: props.type,
+		billing_type: props.type,
 		name: props.name,
 	},
 	onSuccess(data) {
@@ -206,7 +206,7 @@ const orderSummary = createResource({
 	url: 'lms.lms.utils.get_order_summary',
 	makeParams(values) {
 		return {
-			doctype: props.type == 'course' ? 'LMS Course' : 'LMS Batch',
+			doctype: props.type == 'batch' ? 'LMS Batch' : 'LMS Course',
 			docname: props.name,
 			country: billingDetails.country,
 		}
@@ -236,13 +236,15 @@ const paymentLink = createResource({
 	url: 'lms.lms.payments.get_payment_link',
 	makeParams(values) {
 		return {
-			doctype: props.type == 'course' ? 'LMS Course' : 'LMS Batch',
+			doctype: props.type == 'batch' ? 'LMS Batch' : 'LMS Course',
 			docname: props.name,
 			title: orderSummary.data.title,
 			amount: orderSummary.data.original_amount,
 			total_amount: orderSummary.data.amount,
 			currency: orderSummary.data.currency,
 			address: billingDetails,
+			redirect_to: redirectTo,
+			payment_for_certificate: props.type == 'certificate',
 		}
 	},
 })
@@ -347,4 +349,14 @@ const changeCurrency = (country) => {
 	billingDetails.country = country
 	orderSummary.reload()
 }
+
+const redirectTo = computed(() => {
+	if (props.type == 'course') {
+		return `/lms/courses/${props.name}`
+	} else if (props.type == 'batch') {
+		return `/lms/batches/${props.name}`
+	} else if (props.type == 'certificate') {
+		return `/lms/courses/${props.name}/certification`
+	}
+})
 </script>
