@@ -66,7 +66,7 @@
 </template>
 <script setup>
 import { Dialog, createResource, Select, FormControl } from 'frappe-ui'
-import { defineModel, reactive, watch, inject } from 'vue'
+import { reactive, watch, inject } from 'vue'
 import { createToast, formatTime } from '@/utils/'
 
 const user = inject('$user')

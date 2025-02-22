@@ -35,7 +35,7 @@
 </template>
 <script setup>
 import { Dialog, FormControl, TextEditor, createResource } from 'frappe-ui'
-import { reactive, defineModel } from 'vue'
+import { reactive } from 'vue'
 import { showToast, singularize } from '@/utils'
 
 const topics = defineModel('reloadTopics')
