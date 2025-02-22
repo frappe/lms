@@ -271,7 +271,7 @@ const isStudent = computed(() => {
 	)
 })
 
-const tabIndex = useRouteQuery("tab", 0)
+const tabIndex = useRouteQuery('tab', 0)
 const tabs = computed(() => {
 	let batchTabs = []
 	batchTabs.push({
