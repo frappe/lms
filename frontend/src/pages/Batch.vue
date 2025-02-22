@@ -193,8 +193,9 @@
 	<BulkCertificates v-model="openCertificateDialog" :batch="batch.data" />
 </template>
 <script setup>
-import { Breadcrumbs, Button, createResource, Tabs, Badge } from 'frappe-ui'
 import { computed, inject, ref } from 'vue'
+import { useRouteQuery } from '@vueuse/router'
+import { Breadcrumbs, Button, createResource, Tabs, Badge } from 'frappe-ui'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import {
@@ -270,7 +271,7 @@ const isStudent = computed(() => {
 	)
 })
 
-const tabIndex = ref(0)
+const tabIndex = useRouteQuery("tab", 0)
 const tabs = computed(() => {
 	let batchTabs = []
 	batchTabs.push({
