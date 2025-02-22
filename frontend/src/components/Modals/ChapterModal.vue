@@ -77,7 +77,7 @@ import {
 	FormControl,
 	Switch,
 } from 'frappe-ui'
-import { defineModel, reactive, watch } from 'vue'
+import { reactive, watch } from 'vue'
 import { showToast, getFileSize } from '@/utils/'
 import { capture } from '@/telemetry'
 import { FileText, X } from 'lucide-vue-next'

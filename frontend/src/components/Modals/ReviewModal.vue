@@ -33,7 +33,7 @@
 </template>
 <script setup>
 import { Dialog, Textarea, createResource } from 'frappe-ui'
-import { defineModel, reactive } from 'vue'
+import { reactive } from 'vue'
 import Rating from '@/components/Controls/Rating.vue'
 import { createToast } from '@/utils/'
 
