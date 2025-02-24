@@ -196,11 +196,11 @@
 							</div>
 						</div>
 					</div>
-					<div class="container border-t">
-						<div class="text-lg font-semibold mt-5 mb-4">
+					<div class="container border-t space-y-4">
+						<div class="text-lg font-semibold mt-5">
 							{{ __('Pricing and Certification') }}
 						</div>
-						<div class="grid grid-cols-3 mb-4">
+						<div class="grid grid-cols-3">
 							<FormControl
 								type="checkbox"
 								v-model="course.paid_course"
@@ -217,16 +217,18 @@
 								:label="__('Paid Certificate')"
 							/>
 						</div>
-						<FormControl
-							v-model="course.course_price"
-							:label="__('Amount')"
-							class="mb-4"
-						/>
+						<FormControl v-model="course.course_price" :label="__('Amount')" />
 						<Link
 							doctype="Currency"
 							v-model="course.currency"
 							:filters="{ enabled: 1 }"
 							:label="__('Currency')"
+						/>
+						<Link
+							v-if="course.paid_certificate"
+							doctype="Course Evaluator"
+							v-model="course.evaluator"
+							:label="__('Evaluator')"
 						/>
 					</div>
 				</div>
@@ -299,6 +301,7 @@ const course = reactive({
 	disable_self_learning: false,
 	enable_certification: false,
 	paid_course: false,
+	paid_certificate: false,
 	course_price: '',
 	currency: '',
 })
@@ -394,6 +397,7 @@ const courseResource = createResource({
 			'paid_course',
 			'featured',
 			'enable_certification',
+			'paid_certifiate',
 		]
 		for (let idx in checkboxes) {
 			let key = checkboxes[idx]

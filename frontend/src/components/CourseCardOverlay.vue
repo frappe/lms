@@ -9,27 +9,29 @@
 			<div v-if="course.data.paid_course" class="text-2xl font-semibold mb-3">
 				{{ course.data.price }}
 			</div>
-			<router-link
-				v-if="course.data.membership"
-				:to="{
-					name: 'Lesson',
-					params: {
-						courseName: course.name,
-						chapterNumber: course.data.current_lesson
-							? course.data.current_lesson.split('-')[0]
-							: 1,
-						lessonNumber: course.data.current_lesson
-							? course.data.current_lesson.split('-')[1]
-							: 1,
-					},
-				}"
-			>
-				<Button variant="solid" size="md" class="w-full">
-					<span>
-						{{ __('Continue Learning') }}
-					</span>
-				</Button>
-			</router-link>
+			<div v-if="course.data.membership" class="space-y-2">
+				<router-link
+					:to="{
+						name: 'Lesson',
+						params: {
+							courseName: course.name,
+							chapterNumber: course.data.current_lesson
+								? course.data.current_lesson.split('-')[0]
+								: 1,
+							lessonNumber: course.data.current_lesson
+								? course.data.current_lesson.split('-')[1]
+								: 1,
+						},
+					}"
+				>
+					<Button variant="solid" size="md" class="w-full">
+						<span>
+							{{ __('Continue Learning') }}
+						</span>
+					</Button>
+				</router-link>
+				<CertificationLinks :courseName="course.data.name" />
+			</div>
 			<router-link
 				v-else-if="course.data.paid_course"
 				:to="{
@@ -133,6 +135,7 @@ import { Button, createResource } from 'frappe-ui'
 import { showToast, formatAmount } from '@/utils/'
 import { capture } from '@/telemetry'
 import { useRouter } from 'vue-router'
+import CertificationLinks from '@/components/CertificationLinks.vue'
 
 const router = useRouter()
 const user = inject('$user')

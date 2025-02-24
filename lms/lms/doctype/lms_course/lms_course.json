@@ -42,6 +42,7 @@
   "paid_course",
   "enable_certification",
   "paid_certificate",
+  "evaluator",
   "column_break_acoj",
   "course_price",
   "currency",
@@ -264,6 +265,13 @@
    "fieldname": "paid_certificate",
    "fieldtype": "Check",
    "label": "Paid Certificate"
+  },
+  {
+   "depends_on": "paid_certificate",
+   "fieldname": "evaluator",
+   "fieldtype": "Link",
+   "label": "Evaluator",
+   "options": "Course Evaluator"
   }
  ],
  "is_published_field": "published",
@@ -290,7 +298,7 @@
   }
  ],
  "make_attachments_public": 1,
- "modified": "2025-02-20 16:44:38.891383",
+ "modified": "2025-02-24 11:50:58.325804",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",

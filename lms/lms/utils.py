@@ -855,13 +855,16 @@ def is_onboarding_complete():
 	}
 
 
-def get_evaluator(course, batch):
+def get_evaluator(course, batch=None):
 	evaluator = None
-	evaluator = frappe.db.get_value(
-		"Batch Course",
-		{"parent": batch, "course": course},
-		"evaluator",
-	)
+	if batch:
+		evaluator = frappe.db.get_value(
+			"Batch Course",
+			{"parent": batch, "course": course},
+			"evaluator",
+		)
+	else:
+		evaluator = frappe.db.get_value("LMS Course", course, "evaluator")
 	return evaluator
 
 

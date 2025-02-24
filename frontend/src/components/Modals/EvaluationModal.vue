@@ -169,6 +169,11 @@ const getCourses = () => {
 			})
 		}
 	}
+
+	if (courses.length == 1) {
+		evaluation.course = courses[0].value
+	}
+
 	return courses
 }
 

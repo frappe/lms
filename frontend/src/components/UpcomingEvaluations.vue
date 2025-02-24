@@ -4,7 +4,13 @@
 			<div class="text-lg font-semibold">
 				{{ __('Upcoming Evaluations') }}
 			</div>
-			<Button @click="openEvalModal">
+			<Button
+				v-if="
+					!upcoming_evals.data?.length ||
+					upcoming_evals.length == courses.length
+				"
+				@click="openEvalModal"
+			>
 				{{ __('Schedule Evaluation') }}
 			</Button>
 		</div>
@@ -60,7 +66,7 @@
 			</div>
 		</div>
 		<div v-else class="text-sm italic text-ink-gray-5">
-			{{ __('No upcoming evaluations.') }}
+			{{ __('Please schedule an evaluation to get certified.') }}
 		</div>
 	</div>
 	<EvaluationModal

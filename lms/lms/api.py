@@ -1278,3 +1278,21 @@ def cancel_evaluation(evaluation):
 
 			frappe.delete_doc("Event Participants", event.name, ignore_permissions=True)
 			frappe.delete_doc("Event", event.parent, ignore_permissions=True)
+
+
+@frappe.whitelist()
+def get_certification_details(course):
+	membership = None
+	filters = {"course": course, "member": frappe.session.user}
+
+	if frappe.db.exists("LMS Enrollment", filters):
+		membership = frappe.db.get_value(
+			"LMS Enrollment",
+			filters,
+			["name", "certificate", "purchased_certificate"],
+			as_dict=1,
+		)
+
+	paid_certificate = frappe.db.get_value("LMS Course", course, "paid_certificate")
+
+	return {"membership": membership, "paid_certificate": paid_certificate}
