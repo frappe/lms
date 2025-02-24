@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2025-02-14 16:04+0000\n"
-"PO-Revision-Date: 2025-02-17 17:03\n"
+"POT-Creation-Date: 2025-02-21 16:04+0000\n"
+"PO-Revision-Date: 2025-02-24 19:35\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Swedish\n"
 "MIME-Version: 1.0\n"
@@ -75,7 +75,7 @@ msgstr "En rad introduktion till kurs som finns på kurskortet"
 msgid "About"
 msgstr "Om"
 
-#: frontend/src/pages/Batch.vue:97
+#: frontend/src/pages/Batch.vue:100
 msgid "About this batch"
 msgstr "Om denna grupp"
 
@@ -212,7 +212,7 @@ msgid "Admin"
 msgstr "Administratör"
 
 #. Name of a role
-#: frontend/src/pages/Batches.vue:270 lms/lms/doctype/lms_badge/lms_badge.json
+#: frontend/src/pages/Batches.vue:288 lms/lms/doctype/lms_badge/lms_badge.json
 msgid "All"
 msgstr "Alla"
 
@@ -260,7 +260,7 @@ msgstr "Tillåt självregistrering"
 msgid "Allow accessing future dates"
 msgstr "Tillåt åtkomst till framtida datum"
 
-#: frontend/src/pages/BatchForm.vue:33
+#: frontend/src/pages/BatchForm.vue:32
 msgid "Allow self enrollment"
 msgstr "Tillåt självregistrering"
 
@@ -270,7 +270,7 @@ msgstr "Redan Registrerad"
 
 #. Label of the amount (Currency) field in DocType 'LMS Batch'
 #. Label of the amount (Currency) field in DocType 'LMS Payment'
-#: frontend/src/pages/BatchForm.vue:221
+#: frontend/src/pages/BatchForm.vue:209
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_payment/lms_payment.json
 #: lms/public/js/common_functions.js:379
@@ -321,7 +321,7 @@ msgstr "Svara"
 msgid "Appears on the course card in the course list"
 msgstr "Visas på kurskort i kurslista"
 
-#: frontend/src/pages/BatchForm.vue:59 frontend/src/pages/BatchForm.vue:77
+#: frontend/src/pages/BatchForm.vue:63 frontend/src/pages/BatchForm.vue:81
 msgid "Appears when the batch URL is shared on any online platform"
 msgstr "Visas när grupp URL delas på valfri online plattform"
 
@@ -360,9 +360,17 @@ msgstr "Godkänd"
 msgid "Apps"
 msgstr "Appar"
 
-#: frontend/src/pages/Batches.vue:259 frontend/src/pages/Batches.vue:277
+#: frontend/src/pages/Batches.vue:277 frontend/src/pages/Batches.vue:295
 msgid "Archived"
 msgstr "Arkiverad"
+
+#: frontend/src/components/UpcomingEvaluations.vue:129
+msgid "Are you sure you want to cancel this evaluation? This action cannot be undone."
+msgstr "Är du säker på att du vill avbryta denna utvärdering? Denna åtgärd kan inte ångras."
+
+#: frontend/src/components/UserDropdown.vue:209
+msgid "Are you sure you want to login to your Frappe Cloud dashboard?"
+msgstr "Är du säker på att du vill logga in på din Översikt Panel i Frappe Cloud?"
 
 #. Label of the user_category (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -544,10 +552,12 @@ msgid "Batch Description"
 msgstr "Parti Beskrivning"
 
 #. Label of the batch_details (Text Editor) field in DocType 'LMS Batch'
-#: frontend/src/pages/BatchForm.vue:104
+#: frontend/src/pages/BatchForm.vue:236
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/public/js/common_functions.js:349
 #: lms/templates/emails/batch_confirmation.html:24
+#: lms/templates/emails/batch_start_reminder.html:27
+#: lms/templates/emails/live_class_reminder.html:23
 msgid "Batch Details"
 msgstr "Parti Detaljer"
 
@@ -592,6 +602,10 @@ msgstr "Grupp Inställningar"
 msgid "Batch Start Date:"
 msgstr "Grupp Start Datum:"
 
+#: lms/lms/doctype/lms_batch/lms_batch.py:430
+msgid "Batch Start Reminder"
+msgstr "Grupp Start Påminnelse"
+
 #. Label of the batch_title (Data) field in DocType 'LMS Certificate'
 #. Label of the batch_title (Data) field in DocType 'LMS Certificate Request'
 #: lms/lms/doctype/lms_certificate/lms_certificate.json
@@ -607,11 +621,15 @@ msgstr "Grupp Uppdaterad"
 msgid "Batch end date cannot be before the batch start date"
 msgstr "Grupp slutdatum får inte vara före grupp startdatum"
 
+#: lms/templates/emails/batch_start_reminder.html:10
+msgid "Batch:"
+msgstr "Parti:"
+
 #. Group in LMS Course's connections
 #. Label of the batches (Check) field in DocType 'LMS Settings'
-#: frontend/src/pages/Batches.vue:285
+#: frontend/src/pages/Batches.vue:303
 #: lms/lms/doctype/lms_course/lms_course.json
-#: lms/lms/doctype/lms_settings/lms_settings.json lms/www/lms.py:61
+#: lms/lms/doctype/lms_settings/lms_settings.json lms/www/lms.py:63
 msgid "Batches"
 msgstr "Grupper"
 
@@ -621,7 +639,9 @@ msgid "Begin Date"
 msgstr "Start Datum"
 
 #: lms/templates/emails/batch_confirmation.html:31
+#: lms/templates/emails/batch_start_reminder.html:34
 #: lms/templates/emails/certification.html:20
+#: lms/templates/emails/live_class_reminder.html:30
 msgid "Best Regards"
 msgstr "Vänliga hälsningar,"
 
@@ -675,10 +695,21 @@ msgstr "Av"
 msgid "CGPA/4"
 msgstr "CGPA/4"
 
+#: frontend/src/components/UpcomingEvaluations.vue:55
+#: frontend/src/components/UpcomingEvaluations.vue:134
+msgid "Cancel"
+msgstr "Annullera"
+
+#: frontend/src/components/UpcomingEvaluations.vue:128
+msgid "Cancel this evaluation?"
+msgstr "Avbryt denna utvärdering?"
+
 #. Option for the 'Status' (Select) field in DocType 'Cohort'
 #. Option for the 'Stage' (Select) field in DocType 'LMS Batch Old'
+#. Option for the 'Status' (Select) field in DocType 'LMS Certificate Request'
 #: lms/lms/doctype/cohort/cohort.json
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
+#: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Cancelled"
 msgstr "Annullerad"
 
@@ -696,7 +727,7 @@ msgstr "Fritidskläder"
 #. Label of the category (Link) field in DocType 'LMS Batch'
 #. Label of the category (Data) field in DocType 'LMS Category'
 #. Label of the category (Link) field in DocType 'LMS Course'
-#: frontend/src/pages/BatchForm.vue:202 frontend/src/pages/Batches.vue:49
+#: frontend/src/pages/BatchForm.vue:190 frontend/src/pages/Batches.vue:55
 #: frontend/src/pages/CertifiedParticipants.vue:37
 #: frontend/src/pages/CourseForm.vue:147 frontend/src/pages/Courses.vue:17
 #: frontend/src/pages/JobDetail.vue:96 lms/lms/doctype/lms_batch/lms_batch.json
@@ -738,11 +769,15 @@ msgstr "Certifikat genererade"
 
 #. Label of the certification (Table) field in DocType 'User'
 #. Name of a DocType
+#. Label of the certification (Check) field in DocType 'LMS Batch'
 #. Label of the certification_tab (Tab Break) field in DocType 'LMS Course'
 #. Label of a Card Break in the LMS Workspace
 #. Label of a Link in the LMS Workspace
-#: frontend/src/components/Modals/Event.vue:371 lms/fixtures/custom_field.json
+#: frontend/src/components/Modals/Event.vue:371
+#: frontend/src/pages/BatchForm.vue:37 frontend/src/pages/Batches.vue:38
+#: lms/fixtures/custom_field.json
 #: lms/lms/doctype/certification/certification.json
+#: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_course/lms_course.json lms/lms/workspace/lms/lms.json
 msgid "Certification"
 msgstr "Certifiering"
@@ -776,7 +811,7 @@ msgstr "Certifierade Deltagare"
 msgid "Change"
 msgstr "Ändra"
 
-#: frontend/src/components/Assignment.vue:316
+#: frontend/src/components/Assignment.vue:334
 msgid "Changes saved successfully"
 msgstr "Ändringar sparade"
 
@@ -831,7 +866,7 @@ msgstr "Kolla Kurser"
 msgid "Choices"
 msgstr "Alternativ"
 
-#: frontend/src/components/Quiz.vue:592 lms/templates/quiz/quiz.html:53
+#: frontend/src/components/Quiz.vue:610 lms/templates/quiz/quiz.html:53
 msgid "Choose all answers that apply"
 msgstr "Välj alla svar som gäller"
 
@@ -839,7 +874,7 @@ msgstr "Välj alla svar som gäller"
 msgid "Choose an icon"
 msgstr "Välj Ikon"
 
-#: frontend/src/components/Quiz.vue:593 lms/templates/quiz/quiz.html:53
+#: frontend/src/components/Quiz.vue:611 lms/templates/quiz/quiz.html:53
 msgid "Choose one answer"
 msgstr "Välj ett svar"
 
@@ -847,6 +882,10 @@ msgstr "Välj ett svar"
 #: frontend/src/pages/Billing.vue:86 lms/fixtures/custom_field.json
 msgid "City"
 msgstr "Ort"
+
+#: lms/templates/emails/live_class_reminder.html:10
+msgid "Class:"
+msgstr "Klass:"
 
 #: frontend/src/components/Controls/Link.vue:49
 msgid "Clear"
@@ -856,6 +895,10 @@ msgstr "Rensa"
 #: lms/fixtures/custom_field.json
 msgid "Clearly Defined Role"
 msgstr "Tydligt Definierad Roll"
+
+#: frontend/src/components/Modals/FCVerfiyCodeModal.vue:75
+msgid "Click here to login"
+msgstr "Klicka här för att logga in"
 
 #: frontend/src/components/LessonHelp.vue:30
 msgid "Click on the add icon in the editor and select Quiz from the menu. It opens up a dialog, where you can either select a quiz from the list or create a new quiz. When you select the Create New option it redirects you to the quiz creation page."
@@ -952,10 +995,10 @@ msgstr "Färg"
 #. Label of the comments (Small Text) field in DocType 'Exercise Latest
 #. Submission'
 #. Label of the comments (Small Text) field in DocType 'Exercise Submission'
-#. Label of the comments (Small Text) field in DocType 'LMS Assignment
+#. Label of the comments (Text Editor) field in DocType 'LMS Assignment
 #. Submission'
 #. Label of the comments (Small Text) field in DocType 'LMS Mentor Request'
-#: frontend/src/components/Assignment.vue:161
+#: frontend/src/components/Assignment.vue:160
 #: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
 #: lms/lms/doctype/exercise_submission/exercise_submission.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
@@ -1031,8 +1074,10 @@ msgstr "Slutför din Registrering - Missa inte!"
 
 #. Option for the 'Status' (Select) field in DocType 'Cohort'
 #. Option for the 'Stage' (Select) field in DocType 'LMS Batch Old'
+#. Option for the 'Status' (Select) field in DocType 'LMS Certificate Request'
 #: lms/lms/doctype/cohort/cohort.json
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
+#: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/widgets/CourseCard.html:78
 msgid "Completed"
 msgstr "Klar"
@@ -1062,11 +1107,20 @@ msgstr "Villkoret måste vara i giltigt JSON format."
 msgid "Condition must be valid python code."
 msgstr "Villkoret måste vara giltig python kod."
 
+#: frontend/src/components/UserDropdown.vue:214
+msgid "Confirm"
+msgstr "Bekräfta"
+
 #. Label of the confirmation_email_sent (Check) field in DocType 'LMS Batch
 #. Enrollment'
 #: lms/lms/doctype/lms_batch_enrollment/lms_batch_enrollment.json
 msgid "Confirmation Email Sent"
 msgstr "Bekräftelse E-post Skickad"
+
+#. Label of the confirmation_email_template (Link) field in DocType 'LMS Batch'
+#: lms/lms/doctype/lms_batch/lms_batch.json
+msgid "Confirmation Email Template"
+msgstr "Bekräftelse E-post Mall"
 
 #: lms/lms/doctype/lms_certificate/lms_certificate.py:29
 msgid "Congratulations on getting certified!"
@@ -1243,7 +1297,7 @@ msgstr "Kurslärare"
 msgid "Course Lesson"
 msgstr "Kurslektion"
 
-#: lms/www/lms.py:28
+#: lms/www/lms.py:30
 msgid "Course List"
 msgstr "Kurslista"
 
@@ -1293,7 +1347,7 @@ msgstr "Kurs Benämning"
 msgid "Course added to program"
 msgstr "Kurs tillagd till program"
 
-#: lms/lms/doctype/lms_batch/lms_batch.py:273
+#: lms/lms/doctype/lms_batch/lms_batch.py:277
 msgid "Course already added to the batch."
 msgstr "Kurs har redan lagts till grupp."
 
@@ -1379,7 +1433,7 @@ msgstr "Skapad"
 #. Label of the currency (Link) field in DocType 'LMS Batch'
 #. Label of the currency (Link) field in DocType 'LMS Course'
 #. Label of the currency (Link) field in DocType 'LMS Payment'
-#: frontend/src/pages/BatchForm.vue:229 frontend/src/pages/CourseForm.vue:226
+#: frontend/src/pages/BatchForm.vue:217 frontend/src/pages/CourseForm.vue:226
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_payment/lms_payment.json
@@ -1437,10 +1491,14 @@ msgstr "Datum"
 
 #. Label of the section_break_glxh (Section Break) field in DocType 'LMS Live
 #. Class'
-#: frontend/src/pages/BatchForm.vue:118
+#: frontend/src/pages/BatchForm.vue:100
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Date and Time"
 msgstr "Datum och Tid"
+
+#: lms/templates/emails/live_class_reminder.html:14
+msgid "Date:"
+msgstr "Datum:"
 
 #. Label of the day (Select) field in DocType 'Evaluator Schedule'
 #. Label of the day (Int) field in DocType 'LMS Batch Timetable'
@@ -1458,7 +1516,9 @@ msgid "Dear"
 msgstr "Hej"
 
 #: lms/templates/emails/batch_confirmation.html:2
+#: lms/templates/emails/batch_start_reminder.html:2
 #: lms/templates/emails/certification.html:2
+#: lms/templates/emails/live_class_reminder.html:2
 msgid "Dear "
 msgstr "Hej "
 
@@ -1519,7 +1579,7 @@ msgstr "Borttagning av denna lektion kommer att ta bort den permanent från kurs
 #. Label of the description (Text) field in DocType 'LMS Live Class'
 #. Label of the description (Small Text) field in DocType 'Work Experience'
 #: frontend/src/components/Modals/LiveClassModal.vue:78
-#: frontend/src/pages/BatchForm.vue:96 frontend/src/pages/JobCreation.vue:50
+#: frontend/src/pages/BatchForm.vue:224 frontend/src/pages/JobCreation.vue:50
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/lms/doctype/certification/certification.json
 #: lms/lms/doctype/cohort/cohort.json
@@ -1545,6 +1605,10 @@ msgstr "Skrivbord"
 msgid "Details"
 msgstr "Detaljer"
 
+#: frontend/src/components/Modals/FCVerfiyCodeModal.vue:30
+msgid "Didn't receive the code?"
+msgstr "Fick du ingen kod?"
+
 #: frontend/src/pages/CourseForm.vue:196
 msgid "Disable Self Enrollment"
 msgstr "Inaktivera självregistrering"
@@ -1565,7 +1629,7 @@ msgid "Discard"
 msgstr "Ångra"
 
 #. Label of the show_discussions (Check) field in DocType 'LMS Settings'
-#: frontend/src/pages/Batch.vue:82
+#: frontend/src/pages/Batch.vue:85
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Discussions"
 msgstr "Diskussioner"
@@ -1621,7 +1685,7 @@ msgstr "E-post"
 msgid "E-mail"
 msgstr "E-post"
 
-#: frontend/src/components/BatchOverlay.vue:99
+#: frontend/src/components/BatchOverlay.vue:107
 #: frontend/src/components/CourseCardOverlay.vue:86
 #: frontend/src/components/Modals/ChapterModal.vue:9
 #: frontend/src/pages/JobDetail.vue:31 frontend/src/pages/Lesson.vue:65
@@ -1669,6 +1733,10 @@ msgstr "E-post"
 #: lms/lms/doctype/lms_course_interest/lms_course_interest.json
 msgid "Email Sent"
 msgstr "E-post Skickad"
+
+#: frontend/src/pages/BatchForm.vue:167
+msgid "Email Template"
+msgstr "E-post Mall"
 
 #. Label of the email_templates_tab (Tab Break) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -1719,7 +1787,7 @@ msgstr "Om du aktiverar detta kommer certifikatet att publiceras på sidan för 
 
 #. Label of the end_date (Date) field in DocType 'Cohort'
 #. Label of the end_date (Date) field in DocType 'LMS Batch'
-#: frontend/src/pages/BatchForm.vue:131 lms/lms/doctype/cohort/cohort.json
+#: frontend/src/pages/BatchForm.vue:113 lms/lms/doctype/cohort/cohort.json
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/public/js/common_functions.js:282
 msgid "End Date"
@@ -1737,7 +1805,7 @@ msgstr "Slutdatum (eller förväntat)"
 #. Label of the end_time (Time) field in DocType 'LMS Certificate Evaluation'
 #. Label of the end_time (Time) field in DocType 'LMS Certificate Request'
 #. Label of the end_time (Time) field in DocType 'Scheduled Flow'
-#: frontend/src/pages/BatchForm.vue:147
+#: frontend/src/pages/BatchForm.vue:137
 #: frontend/src/pages/ProfileEvaluator.vue:18
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_batch/lms_batch.json
@@ -1750,11 +1818,11 @@ msgstr "Slutdatum (eller förväntat)"
 msgid "End Time"
 msgstr "Slut Tid"
 
-#: frontend/src/components/BatchOverlay.vue:86
+#: frontend/src/components/BatchOverlay.vue:94
 msgid "Enroll Now"
 msgstr "Registrera Nu"
 
-#: frontend/src/pages/Batches.vue:274
+#: frontend/src/pages/Batches.vue:292
 msgid "Enrolled"
 msgstr "Inskriven"
 
@@ -1768,7 +1836,7 @@ msgstr "Inskrivna Studenter"
 msgid "Enrolled successfully"
 msgstr "Inskriven"
 
-#: lms/lms/doctype/lms_batch_enrollment/lms_batch_enrollment.py:86
+#: lms/lms/doctype/lms_batch_enrollment/lms_batch_enrollment.py:93
 msgid "Enrollment Confirmation for {0}"
 msgstr "Registreringsbekräftelse för {0}"
 
@@ -1777,7 +1845,7 @@ msgstr "Registreringsbekräftelse för {0}"
 msgid "Enrollment Count"
 msgstr "Antal Inskrivna"
 
-#: lms/lms/utils.py:1728
+#: lms/lms/utils.py:1740
 msgid "Enrollment Failed"
 msgstr "Registrering Misslyckad"
 
@@ -1805,7 +1873,7 @@ msgstr "Ange benämning och spara frågesport för att fortsätta"
 msgid "Enter the correct answer"
 msgstr "Ange korrekt svar"
 
-#: frontend/src/components/Assignment.vue:268
+#: frontend/src/components/Assignment.vue:280
 #: frontend/src/components/Modals/AnnouncementModal.vue:105
 #: frontend/src/components/Modals/BulkCertificates.vue:115
 #: frontend/src/components/Modals/ChapterModal.vue:159
@@ -1815,6 +1883,7 @@ msgstr "Ange korrekt svar"
 #: frontend/src/components/Modals/Question.vue:269
 #: frontend/src/components/Modals/Question.vue:326
 #: frontend/src/components/Modals/StudentModal.vue:67
+#: frontend/src/components/Quiz.vue:589
 #: frontend/src/components/SettingDetails.vue:62
 #: frontend/src/pages/AssignmentForm.vue:139
 #: frontend/src/pages/AssignmentForm.vue:159 frontend/src/pages/Billing.vue:264
@@ -1822,6 +1891,10 @@ msgstr "Ange korrekt svar"
 #: frontend/src/pages/QuizSubmission.vue:147
 msgid "Error"
 msgstr "Fel"
+
+#: lms/lms/doctype/lms_batch/lms_batch.py:181
+msgid "Error creating live class. Please try again. {0}"
+msgstr "Fel vid skapande av liveklass. Vänligen försök igen. {0}"
 
 #. Label of a Link in the LMS Workspace
 #. Label of a shortcut in the LMS Workspace
@@ -1836,7 +1909,7 @@ msgid "Evaluation Details"
 msgstr "Utvärdering Detaljer"
 
 #. Label of the evaluation_end_date (Date) field in DocType 'LMS Batch'
-#: frontend/src/pages/BatchForm.vue:178
+#: frontend/src/pages/BatchForm.vue:161
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/public/js/common_functions.js:333
 msgid "Evaluation End Date"
@@ -1890,7 +1963,7 @@ msgstr "Utvärderarens Namn"
 msgid "Evaluator Schedule"
 msgstr "Utvärderare Schema"
 
-#: frontend/src/components/Modals/EvaluationModal.vue:143
+#: frontend/src/components/Modals/EvaluationModal.vue:151
 msgid "Evaluator is Unavailable"
 msgstr "Utvärderare är inte tillgänglig"
 
@@ -1901,7 +1974,7 @@ msgstr "Utvärderare är inte tillgänglig"
 msgid "Event"
 msgstr "Händelse"
 
-#: frontend/src/pages/BatchForm.vue:156
+#: frontend/src/pages/BatchForm.vue:122
 msgid "Example: IST (+5:30)"
 msgstr "Exempel: IST (+5:30)"
 
@@ -1974,6 +2047,14 @@ msgstr "Utforska mer"
 msgid "Fail"
 msgstr "Misslyckad "
 
+#: frontend/src/components/UserDropdown.vue:243
+msgid "Failed to login to Frappe Cloud"
+msgstr "Det gick inte att logga in på Frappe Cloud"
+
+#: frontend/src/components/Modals/FCVerfiyCodeModal.vue:91
+msgid "Failed to resend code"
+msgstr "Det gick inte att skicka om koden"
+
 #. Label of the featured (Check) field in DocType 'LMS Course'
 #: frontend/src/components/CourseCard.vue:16
 #: frontend/src/pages/CourseForm.vue:189
@@ -2033,6 +2114,10 @@ msgstr "Formulär för att skapa och redigera frågesporter"
 #: lms/fixtures/custom_field.json
 msgid "Formal Wear"
 msgstr "Formella Kläder"
+
+#: frontend/src/components/Modals/FCVerfiyCodeModal.vue:70
+msgid "Frappe Cloud Login Successful"
+msgstr "Frappe Cloud Inloggning Lyckades"
 
 #: lms/lms/widgets/CourseCard.html:114
 msgid "Free"
@@ -2280,8 +2365,14 @@ msgid "If you have any questions or need assistance, feel free to reach out to o
 msgstr "Om du har några frågor eller behöver hjälp är du välkommen att kontakta vårt supportteam."
 
 #: lms/templates/emails/batch_confirmation.html:27
+#: lms/templates/emails/batch_start_reminder.html:30
+#: lms/templates/emails/live_class_reminder.html:26
 msgid "If you have any questions or require assistance, feel free to contact us."
 msgstr "Om du har några frågor eller behöver hjälp är du välkommen att kontakta oss."
+
+#: frontend/src/components/Modals/FCVerfiyCodeModal.vue:71
+msgid "If you haven't been redirected,"
+msgstr "Om du inte blivit omdirigerad,"
 
 #. Description of the 'Amount (USD)' (Currency) field in DocType 'LMS Batch'
 #. Description of the 'Amount (USD)' (Currency) field in DocType 'LMS Course'
@@ -2406,7 +2497,7 @@ msgstr "Lärare Anteckningar"
 #. Label of the instructors (Table MultiSelect) field in DocType 'LMS Batch'
 #. Label of the instructors (Rating) field in DocType 'LMS Batch Feedback'
 #. Label of the instructors (Table MultiSelect) field in DocType 'LMS Course'
-#: frontend/src/pages/BatchForm.vue:89 frontend/src/pages/CourseForm.vue:154
+#: frontend/src/pages/BatchForm.vue:93 frontend/src/pages/CourseForm.vue:154
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_batch_feedback/lms_batch_feedback.json
 #: lms/lms/doctype/lms_course/lms_course.json
@@ -2534,7 +2625,7 @@ msgstr "Jobb Styrelse Benämning"
 msgid "Job Details"
 msgstr "Jobb Detaljer"
 
-#: lms/www/lms.py:109
+#: lms/www/lms.py:111
 msgid "Job Openings"
 msgstr "Jobb Erbjudande"
 
@@ -2565,6 +2656,10 @@ msgstr "Jobb"
 #: lms/templates/upcoming_evals.html:15
 msgid "Join"
 msgstr "Anslut"
+
+#: frontend/src/components/UpcomingEvaluations.vue:45
+msgid "Join Call"
+msgstr "Delta i Samtal"
 
 #: frontend/src/components/Modals/Event.vue:74
 msgid "Join Meeting"
@@ -2929,7 +3024,7 @@ msgid "LiveCode URL"
 msgstr "LiveCode URL"
 
 #: frontend/src/components/Members.vue:108
-#: frontend/src/pages/Assignments.vue:71 frontend/src/pages/Batches.vue:88
+#: frontend/src/pages/Assignments.vue:71 frontend/src/pages/Batches.vue:94
 #: frontend/src/pages/CertifiedParticipants.vue:79
 #: frontend/src/pages/QuizSubmissionList.vue:39
 #: frontend/src/pages/Quizzes.vue:51
@@ -2958,10 +3053,23 @@ msgstr "Platspreferens"
 
 #: frontend/src/components/AssignmentBlock.vue:13
 #: frontend/src/components/NoPermission.vue:28
-#: frontend/src/components/QuizBlock.vue:9 frontend/src/pages/Batch.vue:185
+#: frontend/src/components/QuizBlock.vue:9 frontend/src/pages/Batch.vue:188
 #: frontend/src/pages/Lesson.vue:24
 msgid "Login"
 msgstr "Logga In"
+
+#: frontend/src/components/Modals/FCVerfiyCodeModal.vue:79
+#: frontend/src/components/Modals/FCVerfiyCodeModal.vue:83
+msgid "Login failed"
+msgstr "Inloggning misslyckades"
+
+#: frontend/src/components/Modals/FCVerfiyCodeModal.vue:6
+msgid "Login to Frappe Cloud"
+msgstr "Logga in på Frappe Cloud"
+
+#: frontend/src/components/UserDropdown.vue:208
+msgid "Login to Frappe Cloud?"
+msgstr "Logga in på Frappe Cloud?"
 
 #: frontend/src/pages/JobDetail.vue:48
 msgid "Login to apply"
@@ -3028,7 +3136,7 @@ msgstr "Markera som läst"
 msgid "Marks"
 msgstr "Märken"
 
-#: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.py:24
+#: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.py:41
 msgid "Marks for question number {0} cannot be greater than the marks allotted for that question."
 msgstr "Poängen för fråga nummer {0} får inte vara högre än de poäng som tilldelats för denna fråga."
 
@@ -3048,7 +3156,7 @@ msgid "Maximum Attempts"
 msgstr "Maximalt Antal Försök"
 
 #. Label of the medium (Select) field in DocType 'LMS Batch'
-#: frontend/src/pages/BatchForm.vue:197
+#: frontend/src/pages/BatchForm.vue:185
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/public/js/common_functions.js:309
 msgid "Medium"
@@ -3060,6 +3168,7 @@ msgid "Medium ID"
 msgstr "Medium ID"
 
 #: lms/templates/emails/batch_confirmation.html:15
+#: lms/templates/emails/batch_start_reminder.html:22
 msgid "Medium:"
 msgstr "Medium:"
 
@@ -3232,7 +3341,7 @@ msgid "Mentors"
 msgstr "Mentorer"
 
 #. Label of the meta_image (Attach Image) field in DocType 'LMS Batch'
-#: frontend/src/pages/BatchForm.vue:40 lms/lms/doctype/lms_batch/lms_batch.json
+#: frontend/src/pages/BatchForm.vue:44 lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/public/js/common_functions.js:362
 msgid "Meta Image"
 msgstr "Meta Bild"
@@ -3274,11 +3383,11 @@ msgstr "Moderator"
 msgid "Modified By"
 msgstr "Modifierad Av"
 
-#: lms/lms/api.py:206
+#: lms/lms/api.py:208
 msgid "Module Name is incorrect or does not exist."
 msgstr "Modul Namn är felaktigt eller existerar inte."
 
-#: lms/lms/api.py:202
+#: lms/lms/api.py:204
 msgid "Module is incorrect."
 msgstr "Modul är felaktig."
 
@@ -3321,11 +3430,11 @@ msgstr "Ny Uppgift"
 msgid "New Assignment Submission"
 msgstr "Ny Uppgift Inlämning"
 
-#: lms/public/js/common_functions.js:255 lms/www/lms.py:87
+#: lms/public/js/common_functions.js:255 lms/www/lms.py:89
 msgid "New Batch"
 msgstr "Ny Grupp"
 
-#: lms/www/lms.py:38
+#: lms/www/lms.py:40
 msgid "New Course"
 msgstr "Ny Kurs"
 
@@ -3391,6 +3500,10 @@ msgstr "Inga Bedömningar"
 msgid "No Notifications"
 msgstr "Inga Aviseringar"
 
+#: frontend/src/components/Quiz.vue:275
+msgid "No Quiz submissions found"
+msgstr "Inga frågesport inlämningar hittades"
+
 #. Option for the 'Auto Recording' (Select) field in DocType 'LMS Live Class'
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "No Recording"
@@ -3408,7 +3521,7 @@ msgstr "Inga tillkännagivanden"
 msgid "No assignments found"
 msgstr "Inga uppgifter hittades"
 
-#: frontend/src/pages/Batches.vue:73
+#: frontend/src/pages/Batches.vue:79
 msgid "No batches found"
 msgstr "Inga grupper hittades"
 
@@ -3460,7 +3573,7 @@ msgstr "Inga program hittades"
 msgid "No quizzes found"
 msgstr "Inga frågesporter hittades"
 
-#: frontend/src/components/Modals/EvaluationModal.vue:53
+#: frontend/src/components/Modals/EvaluationModal.vue:61
 msgid "No slots available for this date."
 msgstr "Inga lediga tider för detta datum."
 
@@ -3468,7 +3581,7 @@ msgstr "Inga lediga tider för detta datum."
 msgid "No submissions"
 msgstr "Inga inlämningar"
 
-#: frontend/src/components/UpcomingEvaluations.vue:41
+#: frontend/src/components/UpcomingEvaluations.vue:63
 msgid "No upcoming evaluations."
 msgstr "Inga kommande utvärderingar."
 
@@ -3508,7 +3621,7 @@ msgstr "Inte tillgänglig för förhandsgranskning"
 msgid "Not Graded"
 msgstr "Ej Betygsatt"
 
-#: frontend/src/components/NoPermission.vue:7 frontend/src/pages/Batch.vue:153
+#: frontend/src/components/NoPermission.vue:7 frontend/src/pages/Batch.vue:156
 msgid "Not Permitted"
 msgstr "Ej Tillåtet"
 
@@ -3533,7 +3646,7 @@ msgstr "Aviseringar"
 msgid "Notify me when available"
 msgstr "Meddela mig när den är tillgänglig"
 
-#: frontend/src/pages/BatchForm.vue:174
+#: frontend/src/pages/BatchForm.vue:157
 msgid "Number of seats available"
 msgstr "Antal platser tillgängliga"
 
@@ -3685,7 +3798,7 @@ msgid "Pages"
 msgstr "Sidor"
 
 #. Label of the paid_batch (Check) field in DocType 'LMS Batch'
-#: frontend/src/pages/BatchForm.vue:217
+#: frontend/src/pages/BatchForm.vue:205
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/public/js/common_functions.js:373
 msgid "Paid Batch"
@@ -3720,7 +3833,7 @@ msgstr "Delvis Klar"
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 msgid "Pass"
-msgstr "Lösenord"
+msgstr "Godkänd"
 
 #. Label of the passing_percentage (Int) field in DocType 'LMS Quiz'
 #. Label of the passing_percentage (Int) field in DocType 'LMS Quiz Submission'
@@ -3741,7 +3854,7 @@ msgstr "Klistra in youtube länk i kort video för kursintroduktion"
 
 #. Label of the payment (Link) field in DocType 'LMS Batch Enrollment'
 #. Label of the payment (Link) field in DocType 'LMS Enrollment'
-#: frontend/src/pages/BatchForm.vue:211
+#: frontend/src/pages/BatchForm.vue:199
 #: lms/lms/doctype/lms_batch_enrollment/lms_batch_enrollment.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 msgid "Payment"
@@ -3856,11 +3969,11 @@ msgstr "Kontrollera din E-post för verifiering"
 msgid "Please click on the following button to set your new password"
 msgstr "Klicka på följande knapp för att ange ditt nya lösenord"
 
-#: lms/lms/utils.py:1851 lms/lms/utils.py:1855
+#: lms/lms/utils.py:1863 lms/lms/utils.py:1867
 msgid "Please complete the previous courses in the program to enroll in this course."
 msgstr "Slutför tidigare kurser i program för att anmäla dig till denna kurs."
 
-#: lms/lms/doctype/lms_batch/lms_batch.py:184
+#: lms/lms/doctype/lms_batch/lms_batch.py:188
 msgid "Please enable Zoom Settings to use this feature."
 msgstr "Aktivera Zoom Inställningar för att använda denna funktion."
 
@@ -3913,11 +4026,11 @@ msgstr "Logga in för att komma åt uppgift."
 msgid "Please login to access the quiz."
 msgstr "Logga in för att komma åt frågesport."
 
-#: frontend/src/components/NoPermission.vue:25 frontend/src/pages/Batch.vue:164
+#: frontend/src/components/NoPermission.vue:25 frontend/src/pages/Batch.vue:167
 msgid "Please login to access this page."
 msgstr "Logga in för att komma till denna sida."
 
-#: lms/lms/api.py:198
+#: lms/lms/api.py:200
 msgid "Please login to continue with payment."
 msgstr "Logga in för att fortsätta med betalning."
 
@@ -3949,6 +4062,13 @@ msgstr "Välj tidszon."
 #: lms/templates/emails/job_report.html:6
 msgid "Please take appropriate action at {0}"
 msgstr "Vidta lämpliga åtgärder {0}"
+
+#: frontend/src/components/Modals/FCVerfiyCodeModal.vue:79
+#: frontend/src/components/Modals/FCVerfiyCodeModal.vue:83
+#: frontend/src/components/Modals/FCVerfiyCodeModal.vue:91
+#: frontend/src/components/UserDropdown.vue:244
+msgid "Please try again"
+msgstr "Försök igen"
 
 #: frontend/src/components/Modals/ChapterModal.vue:177
 msgid "Please upload a SCORM package"
@@ -4136,7 +4256,7 @@ msgstr "Publicera på deltagarsidan"
 #. Label of the published (Check) field in DocType 'LMS Course'
 #: frontend/src/components/Modals/BulkCertificates.vue:51
 #: frontend/src/components/Modals/Event.vue:108
-#: frontend/src/pages/BatchForm.vue:28 frontend/src/pages/CourseForm.vue:171
+#: frontend/src/pages/BatchForm.vue:27 frontend/src/pages/CourseForm.vue:171
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/public/js/common_functions.js:266
@@ -4215,7 +4335,7 @@ msgstr "Frågor är borttagna"
 
 #. Label of the quiz (Link) field in DocType 'LMS Quiz Submission'
 #. Label of a Link in the LMS Workspace
-#: frontend/src/pages/QuizSubmission.vue:26 frontend/src/utils/quiz.js:24
+#: frontend/src/pages/QuizSubmission.vue:26 frontend/src/utils/quiz.js:25
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.json
 #: lms/lms/workspace/lms/lms.json
 msgid "Quiz"
@@ -4313,7 +4433,7 @@ msgstr "Referens Dokument Typ"
 msgid "Regards"
 msgstr "Hälsningar"
 
-#: frontend/src/components/BatchOverlay.vue:76
+#: frontend/src/components/BatchOverlay.vue:80
 msgid "Register Now"
 msgstr "Registrera Nu"
 
@@ -4342,7 +4462,7 @@ msgstr "Avvisad"
 msgid "Related Courses"
 msgstr "Relaterade Kurser"
 
-#: frontend/src/pages/BatchForm.vue:73 frontend/src/pages/CourseForm.vue:99
+#: frontend/src/pages/BatchForm.vue:77 frontend/src/pages/CourseForm.vue:99
 msgid "Remove"
 msgstr "Ta bort"
 
@@ -4362,6 +4482,10 @@ msgstr "Begäran om Mentorskap"
 #: lms/lms/doctype/cohort_web_page/cohort_web_page.json
 msgid "Required Role"
 msgstr "Erfordrad Roll"
+
+#: frontend/src/components/Modals/FCVerfiyCodeModal.vue:31
+msgid "Resend"
+msgstr "Skicka igen"
 
 #. Option for the 'Membership' (Select) field in DocType 'LMS Batch Old'
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
@@ -4517,7 +4641,7 @@ msgstr "Sök"
 msgid "Search by Name"
 msgstr "Sök efter Namn"
 
-#: frontend/src/pages/Batches.vue:39
+#: frontend/src/pages/Batches.vue:45
 msgid "Search by Title"
 msgstr "Sök efter Benämning"
 
@@ -4530,7 +4654,7 @@ msgid "Search for an icon"
 msgstr "Sök efter ikon"
 
 #. Label of the seat_count (Int) field in DocType 'LMS Batch'
-#: frontend/src/pages/BatchForm.vue:171
+#: frontend/src/pages/BatchForm.vue:154
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/public/js/common_functions.js:327
 msgid "Seat Count"
@@ -4554,7 +4678,7 @@ msgstr "Välj fråga"
 msgid "Select a quiz"
 msgstr "Välj Frågesport"
 
-#: frontend/src/components/Modals/EvaluationModal.vue:32
+#: frontend/src/components/Modals/EvaluationModal.vue:40
 msgid "Select a slot"
 msgstr "Välj tid"
 
@@ -4582,7 +4706,7 @@ msgid "Set your Password"
 msgstr "Ange Lösenord"
 
 #: frontend/src/components/Modals/Settings.vue:7
-#: frontend/src/pages/BatchForm.vue:165 frontend/src/pages/CourseForm.vue:161
+#: frontend/src/pages/BatchForm.vue:148 frontend/src/pages/CourseForm.vue:161
 #: frontend/src/pages/ProfileRoles.vue:4 frontend/src/pages/QuizForm.vue:79
 msgid "Settings"
 msgstr "Inställningar"
@@ -4591,13 +4715,17 @@ msgstr "Inställningar"
 msgid "Share on"
 msgstr "Dela på"
 
+#: frontend/src/pages/BatchForm.vue:228
+msgid "Short Description"
+msgstr "Kort Beskrivning"
+
 #. Label of the short_introduction (Small Text) field in DocType 'LMS Course'
 #: frontend/src/pages/CourseForm.vue:38
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Short Introduction"
 msgstr "Kort Introduktion"
 
-#: frontend/src/pages/BatchForm.vue:99
+#: frontend/src/pages/BatchForm.vue:231
 msgid "Short description of the batch"
 msgstr "Kort beskrivning av grupp"
 
@@ -4765,13 +4893,17 @@ msgstr "Start"
 #. Label of the start_date (Date) field in DocType 'Education Detail'
 #. Label of the start_date (Date) field in DocType 'LMS Batch'
 #. Label of the start_date (Date) field in DocType 'LMS Batch Old'
-#: frontend/src/pages/BatchForm.vue:124
+#: frontend/src/pages/BatchForm.vue:106
 #: lms/lms/doctype/education_detail/education_detail.json
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 #: lms/public/js/common_functions.js:275
 msgid "Start Date"
 msgstr "Start Datum"
+
+#: lms/templates/emails/batch_start_reminder.html:14
+msgid "Start Date:"
+msgstr "Start Datum:"
 
 #: frontend/src/components/CourseCardOverlay.vue:63
 #: frontend/src/pages/Lesson.vue:21 frontend/src/pages/SCORMChapter.vue:28
@@ -4786,7 +4918,7 @@ msgstr "Börja lära dig"
 #. Label of the start_time (Time) field in DocType 'LMS Certificate Evaluation'
 #. Label of the start_time (Time) field in DocType 'LMS Certificate Request'
 #. Label of the start_time (Time) field in DocType 'Scheduled Flow'
-#: frontend/src/pages/BatchForm.vue:140
+#: frontend/src/pages/BatchForm.vue:130
 #: frontend/src/pages/ProfileEvaluator.vue:15
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_batch/lms_batch.json
@@ -4821,7 +4953,7 @@ msgstr "Län"
 #. Label of the statistics (Check) field in DocType 'LMS Settings'
 #: frontend/src/components/BatchStudents.vue:5
 #: lms/lms/doctype/lms_course/lms_course.json
-#: lms/lms/doctype/lms_settings/lms_settings.json lms/www/lms.py:134
+#: lms/lms/doctype/lms_settings/lms_settings.json lms/www/lms.py:136
 msgid "Statistics"
 msgstr "Statistik"
 
@@ -4834,6 +4966,7 @@ msgstr "Statistik"
 #. Label of the status (Select) field in DocType 'LMS Assignment Submission'
 #. Label of the status (Select) field in DocType 'LMS Batch Old'
 #. Label of the status (Select) field in DocType 'LMS Certificate Evaluation'
+#. Label of the status (Select) field in DocType 'LMS Certificate Request'
 #. Label of the status (Select) field in DocType 'LMS Course'
 #. Label of the status (Select) field in DocType 'LMS Course Progress'
 #. Label of the status (Select) field in DocType 'LMS Mentor Request'
@@ -4849,6 +4982,7 @@ msgstr "Statistik"
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
+#: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_course_progress/lms_course_progress.json
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
@@ -4936,9 +5070,9 @@ msgstr "Lämna in ditt CV för att gå vidare med din ansökan till denna tjäns
 msgid "Submitted {0}"
 msgstr "Inskickad {0}"
 
-#: frontend/src/components/Assignment.vue:316
+#: frontend/src/components/Assignment.vue:334
 #: frontend/src/components/BatchCourses.vue:151
-#: frontend/src/components/BatchOverlay.vue:141
+#: frontend/src/components/BatchOverlay.vue:150
 #: frontend/src/components/BatchStudents.vue:324
 #: frontend/src/components/CourseCardOverlay.vue:168
 #: frontend/src/components/Modals/AnnouncementModal.vue:99
@@ -4973,7 +5107,7 @@ msgstr "Översikt"
 msgid "Sunday"
 msgstr "Söndag"
 
-#: lms/lms/api.py:997
+#: lms/lms/api.py:999
 msgid "Suspicious pattern found in {0}: {1}"
 msgstr "Misstänkt mönster hittat i {0}: {1}"
 
@@ -5094,9 +5228,13 @@ msgstr "Tack för återkoppling!"
 msgid "Thanks and Regards"
 msgstr "Tack och Hälsningar"
 
-#: lms/lms/utils.py:1760
+#: lms/lms/utils.py:1772
 msgid "The batch is full. Please contact the Administrator."
 msgstr "Gruppen är full. Kontakta administratör."
+
+#: lms/templates/emails/batch_start_reminder.html:6
+msgid "The batch you have enrolled for is starting tomorrow. Please be prepared and be on time for the session."
+msgstr "Gruppen du har anmält dig till börjar i morgon. Var förberedd och kom i tid till sessionen."
 
 #: lms/templates/emails/lms_course_interest.html:5
 msgid "The course {0} is now available on {1}."
@@ -5118,7 +5256,7 @@ msgstr "Tiden är redan bokad av en annan deltagare."
 msgid "The status of your application has changed."
 msgstr "Status för din ansökan har förändrats."
 
-#: frontend/src/pages/Batches.vue:77
+#: frontend/src/pages/Batches.vue:83
 msgid "There are no batches matching the criteria. Keep an eye out, fresh learning experiences are on the way soon!"
 msgstr "Det finns inga grupper som matchar kriterierna. Håll utkik, nya inlärningsupplevelser är snart på väg!"
 
@@ -5158,7 +5296,7 @@ msgstr "Det finns ingen {0} på denna webbplats."
 msgid "There has been an update on your submission for assignment {0}"
 msgstr "Det har skett uppdatering av din inlämning för uppgift {0}"
 
-#: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.py:42
+#: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.py:59
 msgid "There has been an update on your submission. You have got a score of {0} for the quiz {1}"
 msgstr "Det har skett uppdatering av din inlämning. Du har fått resultat av {0} för frågesport {1}"
 
@@ -5185,7 +5323,7 @@ msgstr "Denna klass har avslutats"
 msgid "This course has:"
 msgstr "Denna kurs har:"
 
-#: lms/lms/utils.py:1608
+#: lms/lms/utils.py:1620
 msgid "This course is free."
 msgstr "Denna kurs är gratis."
 
@@ -5258,7 +5396,7 @@ msgstr "Tidtabell Mall"
 #. Label of the timezone (Data) field in DocType 'LMS Certificate Request'
 #. Label of the timezone (Data) field in DocType 'LMS Live Class'
 #: frontend/src/components/Modals/LiveClassModal.vue:46
-#: frontend/src/pages/BatchForm.vue:154
+#: frontend/src/pages/BatchForm.vue:120
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
@@ -5266,6 +5404,8 @@ msgid "Timezone"
 msgstr "Tidszon"
 
 #: lms/templates/emails/batch_confirmation.html:19
+#: lms/templates/emails/batch_start_reminder.html:18
+#: lms/templates/emails/live_class_reminder.html:18
 msgid "Timings:"
 msgstr "Tidpunkter:"
 
@@ -5289,7 +5429,7 @@ msgstr "Tidpunkter:"
 #: frontend/src/components/Modals/DiscussionModal.vue:18
 #: frontend/src/components/Modals/LiveClassModal.vue:23
 #: frontend/src/pages/AssignmentForm.vue:32
-#: frontend/src/pages/Assignments.vue:152 frontend/src/pages/BatchForm.vue:20
+#: frontend/src/pages/Assignments.vue:152 frontend/src/pages/BatchForm.vue:19
 #: frontend/src/pages/CourseForm.vue:32 frontend/src/pages/JobCreation.vue:20
 #: frontend/src/pages/ProgramForm.vue:11 frontend/src/pages/Programs.vue:116
 #: frontend/src/pages/QuizForm.vue:48 frontend/src/pages/Quizzes.vue:116
@@ -5329,7 +5469,7 @@ msgstr "Till"
 msgid "To Date"
 msgstr "Till Datum"
 
-#: lms/lms/utils.py:1619
+#: lms/lms/utils.py:1631
 msgid "To join this batch, please contact the Administrator."
 msgstr "För att gå med i denna grupp, kontakta Administratör."
 
@@ -5395,7 +5535,7 @@ msgstr "Twitter"
 msgid "Type"
 msgstr "Typ"
 
-#: frontend/src/components/Quiz.vue:594
+#: frontend/src/components/Quiz.vue:612
 msgid "Type your answer"
 msgstr "Skriv ditt svar"
 
@@ -5431,7 +5571,7 @@ msgstr "Under Recension"
 msgid "Unlisted"
 msgstr "Ej Listad"
 
-#: frontend/src/pages/Batches.vue:262 frontend/src/pages/Batches.vue:278
+#: frontend/src/pages/Batches.vue:280 frontend/src/pages/Batches.vue:296
 msgid "Unpublished"
 msgstr "Opublicerad"
 
@@ -5451,14 +5591,16 @@ msgid "Unstructured Role"
 msgstr "Ostrukturerad Roll"
 
 #. Option for the 'Status' (Select) field in DocType 'Cohort'
+#. Option for the 'Status' (Select) field in DocType 'LMS Certificate Request'
 #. Label of the upcoming (Check) field in DocType 'LMS Course'
-#: frontend/src/pages/Batches.vue:258 frontend/src/pages/Batches.vue:276
+#: frontend/src/pages/Batches.vue:276 frontend/src/pages/Batches.vue:294
 #: frontend/src/pages/CourseForm.vue:184 lms/lms/doctype/cohort/cohort.json
+#: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Upcoming"
 msgstr "Kommande"
 
-#: frontend/src/pages/Batch.vue:176
+#: frontend/src/pages/Batch.vue:179
 msgid "Upcoming Batches"
 msgstr "Kommande grupper"
 
@@ -5477,7 +5619,7 @@ msgstr "Uppdatera"
 msgid "Update Password"
 msgstr "Uppdatera lösenord"
 
-#: frontend/src/pages/BatchForm.vue:55 frontend/src/pages/CourseForm.vue:80
+#: frontend/src/pages/BatchForm.vue:59 frontend/src/pages/CourseForm.vue:80
 msgid "Upload"
 msgstr "Ladda upp"
 
@@ -5553,6 +5695,14 @@ msgstr "Värde"
 msgid "Value Change"
 msgstr "Värde Förändring"
 
+#: frontend/src/components/Modals/FCVerfiyCodeModal.vue:26
+msgid "Verification Code"
+msgstr "Verifiering Kod"
+
+#: frontend/src/components/Modals/FCVerfiyCodeModal.vue:9
+msgid "Verify"
+msgstr "Verifiera"
+
 #. Label of the video_link (Data) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Video Embed Link"
@@ -5576,6 +5726,8 @@ msgid "Visit Batch"
 msgstr "Besök Omgång"
 
 #: lms/templates/emails/batch_confirmation.html:23
+#: lms/templates/emails/batch_start_reminder.html:26
+#: lms/templates/emails/live_class_reminder.html:22
 msgid "Visit the following link to view your "
 msgstr "Besök följande länk för att se din "
 
@@ -5591,6 +5743,10 @@ msgstr "Vi är glada att informera dig om att du har blivit antagen i vår komma
 #: lms/templates/emails/payment_reminder.html:7
 msgid "We have a limited number of seats, and they won't be available for long!"
 msgstr "Vi har ett begränsat antal platser, och de kommer inte att finnas kvar länge till!"
+
+#: frontend/src/components/Modals/FCVerfiyCodeModal.vue:21
+msgid "We have sent the verificaton code to your email id "
+msgstr "Vi har skickat verifieringskod till ditt e-post "
 
 #: lms/templates/emails/payment_reminder.html:4
 msgid "We noticed that you started enrolling in the"
@@ -5671,15 +5827,15 @@ msgstr "Skriv ditt svar här"
 msgid "You already have an evaluation on {0} at {1} for the course {2}."
 msgstr "Du har redan utvärdering {0} kl. {1} för kurs {2}."
 
-#: lms/lms/api.py:222
+#: lms/lms/api.py:224
 msgid "You are already enrolled for this batch."
 msgstr "Du är redan inskriven för denna grupp."
 
-#: lms/lms/api.py:214
+#: lms/lms/api.py:216
 msgid "You are already enrolled for this course."
 msgstr "Du är redan inskriven på denna kurs."
 
-#: frontend/src/pages/Batch.vue:158
+#: frontend/src/pages/Batch.vue:161
 msgid "You are not a member of this batch. Please checkout our upcoming batches."
 msgstr "Du är inte i denna omgång. Kolla in våra kommande omgångar."
 
@@ -5741,6 +5897,10 @@ msgstr "Du har"
 msgid "You got {0}% correct answers with a score of {1} out of {2}"
 msgstr "Du fick {0}% rätta svar med resultat på {1} av {2}"
 
+#: lms/templates/emails/live_class_reminder.html:6
+msgid "You have a live class scheduled tomorrow. Please be prepared and be on time for the session."
+msgstr "Du har en liveklass schemalagd i morgon. Var förberedd och kom i tid till sessionen."
+
 #: lms/job/doctype/lms_job_application/lms_job_application.py:22
 msgid "You have already applied for this job."
 msgstr "Du har redan sökt detta jobb."
@@ -5753,7 +5913,7 @@ msgstr "Du har redan överskridit maximal antalet försök som tillåts för den
 msgid "You have already reviewed this course"
 msgstr "Du har redan granskat denna kurs"
 
-#: frontend/src/components/BatchOverlay.vue:142
+#: frontend/src/components/BatchOverlay.vue:151
 msgid "You have been enrolled in this batch"
 msgstr "Du har blivit registrerad i denna grupp"
 
@@ -5761,7 +5921,11 @@ msgstr "Du har blivit registrerad i denna grupp"
 msgid "You have been enrolled in this course"
 msgstr "Du har blivit registrerad på denna kurs"
 
-#: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.py:39
+#: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.py:30
+msgid "You have exceeded the maximum number of attempts ({0}) for this quiz"
+msgstr "Du har överskridit det maximala antalet försök ({0}) för denna frågesport"
+
+#: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.py:56
 msgid "You have got a score of {0} for the quiz {1}"
 msgstr "Du har fått resultat av {0} för frågesport {1}"
 
@@ -5780,6 +5944,10 @@ msgstr "Du har valt att bli meddelad om denna kurs. Du kommer att få ett e-post
 #: frontend/src/components/CourseCardOverlay.vue:149
 msgid "You need to login first to enroll for this course"
 msgstr "Du måste logga in först för att registrera dig till denna kurs"
+
+#: frontend/src/components/Modals/FCVerfiyCodeModal.vue:71
+msgid "You will be redirected to Frappe Cloud soon."
+msgstr "Du kommer snart att omdirigeras till Frappe Cloud."
 
 #: frontend/src/components/Quiz.vue:27 lms/templates/quiz/quiz.html:11
 #, python-format
@@ -5919,7 +6087,7 @@ msgstr "veckor"
 msgid "you can"
 msgstr "du kan"
 
-#: lms/lms/api.py:787 lms/lms/api.py:795
+#: lms/lms/api.py:789 lms/lms/api.py:797
 msgid "{0} Settings not found"
 msgstr "{0} Inställningar hittades inte"
 
