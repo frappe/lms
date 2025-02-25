@@ -5,7 +5,7 @@
 		<Breadcrumbs class="h-7" :items="breadcrumbs" />
 	</header>
 	<div class="p-5">
-		<div v-if="certificate.data">
+		<div v-if="certificate.data && Object.keys(certificate.data).length">
 			<div class="text-lg text-ink-gray-9 font-semibold mb-1">
 				{{ __('Certification') }}
 			</div>
@@ -17,7 +17,7 @@
 				}}
 			</div>
 			<div
-				class="border p-2 w-fit rounded-md space-y-2 hover:bg-surface-gray-1 cursor-pointer mt-5"
+				class="border p-3 w-fit min-w-60 rounded-md space-y-2 hover:bg-surface-gray-1 cursor-pointer mt-5"
 				@click="openCertificate(certificate.data)"
 			>
 				<div class="text-ink-gray-9 font-semibold">
@@ -67,6 +67,7 @@ const certificate = createResource({
 		fieldname: ['name', 'template', 'issue_date'],
 	},
 	auto: true,
+	cache: [user.data?.name, props.courseName],
 })
 
 const fetchCourseDetails = () => {

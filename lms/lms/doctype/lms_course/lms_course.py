@@ -18,7 +18,7 @@ class LMSCourse(Document):
 		self.validate_video_link()
 		self.validate_status()
 		self.validate_payments_app()
-		self.validate_evaluator()
+		self.validate_certification()
 		self.validate_amount_and_currency()
 		self.image = validate_image(self.image)
 
@@ -52,7 +52,12 @@ class LMSCourse(Document):
 			if "payments" not in installed_apps:
 				frappe.throw(_("Please install the Payments app to create a paid courses."))
 
-	def validate_evaluator(self):
+	def validate_certification(self):
+		if self.enable_certification and self.paid_certificate:
+			frappe.throw(
+				_("A course cannot have both paid certificate and certificate of completion.")
+			)
+
 		if self.paid_certificate and not self.evaluator:
 			frappe.throw(_("Evaluator is required for paid certificates."))
 

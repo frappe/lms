@@ -116,12 +116,21 @@
 					</span>
 				</div>
 				<div
+					v-if="course.data.enable_certification"
+					class="flex items-center font-semibold text-ink-gray-9"
+				>
+					<GraduationCap class="h-4 w-4 stroke-2" />
+					<span class="ml-2">
+						{{ __('Certificate of Completion') }}
+					</span>
+				</div>
+				<div
 					v-if="course.data.paid_certificate"
 					class="flex items-center font-semibold text-ink-gray-9"
 				>
 					<GraduationCap class="h-4 w-4 stroke-2" />
 					<span class="ml-2">
-						{{ __('Paid Certificate') }}
+						{{ __('Paid Certificate after Evaluation') }}
 					</span>
 				</div>
 			</div>
@@ -131,7 +140,7 @@
 <script setup>
 import { BookOpen, Users, Star, GraduationCap } from 'lucide-vue-next'
 import { computed, inject } from 'vue'
-import { Button, createResource } from 'frappe-ui'
+import { Button, createResource, Tooltip } from 'frappe-ui'
 import { showToast, formatAmount } from '@/utils/'
 import { capture } from '@/telemetry'
 import { useRouter } from 'vue-router'

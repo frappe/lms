@@ -869,15 +869,20 @@ def get_evaluator(course, batch=None):
 
 
 @frappe.whitelist()
-def get_upcoming_evals(student, courses):
+def get_upcoming_evals(student, courses, batch=None):
+	filters = {
+		"member": student,
+		"course": ["in", courses],
+		"date": [">=", frappe.utils.nowdate()],
+		"status": "Upcoming",
+	}
+
+	if batch:
+		filters["batch_name"] = batch
+
 	upcoming_evals = frappe.get_all(
 		"LMS Certificate Request",
-		{
-			"member": student,
-			"course": ["in", courses],
-			"date": [">=", frappe.utils.nowdate()],
-			"status": "Upcoming",
-		},
+		filters,
 		[
 			"name",
 			"date",

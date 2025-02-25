@@ -59,7 +59,6 @@ class CourseEvaluator(Document):
 
 @frappe.whitelist()
 def get_schedule(course, date, batch=None):
-	print(batch)
 	evaluator = get_evaluator(course, batch)
 	day = datetime.strptime(date, "%Y-%m-%d").strftime("%A")
 

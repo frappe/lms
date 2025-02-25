@@ -304,6 +304,7 @@ const course = reactive({
 	paid_certificate: false,
 	course_price: '',
 	currency: '',
+	evaluator: '',
 })
 
 onMounted(() => {

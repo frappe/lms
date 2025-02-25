@@ -104,10 +104,10 @@
 					{{ course.price }}
 				</div>
 				<div
-					v-if="course.paid_certificate"
+					v-if="course.paid_certificate || course.enable_certification"
 					class="text-xs text-ink-blue-3 bg-surface-blue-1 py-0.5 px-1 rounded-md"
 				>
-					{{ __('Paid Certificate') }}
+					{{ __('Certification') }}
 				</div>
 			</div>
 		</div>

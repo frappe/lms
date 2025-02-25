@@ -113,10 +113,10 @@ const props = defineProps({
 
 const upcoming_evals = createResource({
 	url: 'lms.lms.utils.get_upcoming_evals',
-	cache: ['upcoming_evals', user.data.name],
 	params: {
 		student: user.data.name,
 		courses: props.courses.map((course) => course.course),
+		batch: props.batch,
 	},
 	auto: true,
 })

@@ -12,16 +12,11 @@
 			v-if="access.data?.access && orderSummary.data"
 			class="pt-5 pb-10 mx-5"
 		>
-			<!-- <div class="mb-5">
-				<div class="text-lg font-semibold">
-					{{ __('Address') }}
-				</div>
-			</div> -->
 			<div class="flex flex-col lg:flex-row justify-between">
 				<div
-					class="h-fit bg-surface-gray-2 rounded-md p-5 space-y-4 lg:order-last mb-10 lg:mt-10 text-sm font-medium lg:w-1/4"
+					class="h-fit bg-surface-gray-2 rounded-md p-5 space-y-4 lg:order-last mb-10 lg:mt-10 font-medium lg:w-1/3"
 				>
-					<div class="flex flex-col space-y-2">
+					<div class="flex items-baseline justify-between space-y-2">
 						<div class="text-ink-gray-5">
 							{{ __('Payment for ') }} {{ type }}:
 						</div>
@@ -243,17 +238,19 @@ const paymentLink = createResource({
 			total_amount: orderSummary.data.amount,
 			currency: orderSummary.data.currency,
 			address: billingDetails,
-			redirect_to: redirectTo,
+			redirect_to: redirectTo.value,
 			payment_for_certificate: props.type == 'certificate',
 		}
 	},
 })
 
 const generatePaymentLink = () => {
+	console.log('called')
 	paymentLink.submit(
 		{},
 		{
 			validate() {
+				console.log('validation start')
 				if (!billingDetails.source) {
 					return __('Please let us know where you heard about us from.')
 				}
@@ -332,6 +329,8 @@ const validateAddress = () => {
 		!states.includes(billingDetails.state)
 	)
 		return 'Please enter a valid state with correct spelling and the first letter capitalized.'
+
+	console.log('validation address')
 }
 
 const showError = (err) => {
