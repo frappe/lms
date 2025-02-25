@@ -38,7 +38,7 @@
 						<div class="flex mt-2">
 							<Star
 								v-for="index in 5"
-								class="h-5 w-5 text-ink-gray-2 rounded-sm mr-2"
+								class="h-5 w-5 text-ink-gray-1 rounded-sm mr-2"
 								:class="
 									index <= Math.ceil(review.rating)
 										? 'fill-orange-500'

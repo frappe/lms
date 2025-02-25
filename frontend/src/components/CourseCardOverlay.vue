@@ -6,30 +6,32 @@
 			class="rounded-t-md min-h-56 w-full"
 		/>
 		<div class="p-5">
-			<div v-if="course.data.price" class="text-2xl font-semibold mb-3">
+			<div v-if="course.data.paid_course" class="text-2xl font-semibold mb-3">
 				{{ course.data.price }}
 			</div>
-			<router-link
-				v-if="course.data.membership"
-				:to="{
-					name: 'Lesson',
-					params: {
-						courseName: course.name,
-						chapterNumber: course.data.current_lesson
-							? course.data.current_lesson.split('-')[0]
-							: 1,
-						lessonNumber: course.data.current_lesson
-							? course.data.current_lesson.split('-')[1]
-							: 1,
-					},
-				}"
-			>
-				<Button variant="solid" size="md" class="w-full">
-					<span>
-						{{ __('Continue Learning') }}
-					</span>
-				</Button>
-			</router-link>
+			<div v-if="course.data.membership" class="space-y-2">
+				<router-link
+					:to="{
+						name: 'Lesson',
+						params: {
+							courseName: course.name,
+							chapterNumber: course.data.current_lesson
+								? course.data.current_lesson.split('-')[0]
+								: 1,
+							lessonNumber: course.data.current_lesson
+								? course.data.current_lesson.split('-')[1]
+								: 1,
+						},
+					}"
+				>
+					<Button variant="solid" size="md" class="w-full">
+						<span>
+							{{ __('Continue Learning') }}
+						</span>
+					</Button>
+				</router-link>
+				<CertificationLinks :courseName="course.data.name" />
+			</div>
 			<router-link
 				v-else-if="course.data.paid_course"
 				:to="{
@@ -113,17 +115,36 @@
 						{{ course.data.rating }} {{ __('Rating') }}
 					</span>
 				</div>
+				<div
+					v-if="course.data.enable_certification"
+					class="flex items-center font-semibold text-ink-gray-9"
+				>
+					<GraduationCap class="h-4 w-4 stroke-2" />
+					<span class="ml-2">
+						{{ __('Certificate of Completion') }}
+					</span>
+				</div>
+				<div
+					v-if="course.data.paid_certificate"
+					class="flex items-center font-semibold text-ink-gray-9"
+				>
+					<GraduationCap class="h-4 w-4 stroke-2" />
+					<span class="ml-2">
+						{{ __('Paid Certificate after Evaluation') }}
+					</span>
+				</div>
 			</div>
 		</div>
 	</div>
 </template>
 <script setup>
-import { BookOpen, Users, Star } from 'lucide-vue-next'
+import { BookOpen, Users, Star, GraduationCap } from 'lucide-vue-next'
 import { computed, inject } from 'vue'
-import { Button, createResource } from 'frappe-ui'
+import { Button, createResource, Tooltip } from 'frappe-ui'
 import { showToast, formatAmount } from '@/utils/'
 import { capture } from '@/telemetry'
 import { useRouter } from 'vue-router'
+import CertificationLinks from '@/components/CertificationLinks.vue'
 
 const router = useRouter()
 const user = inject('$user')

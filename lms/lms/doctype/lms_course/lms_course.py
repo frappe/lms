@@ -5,9 +5,8 @@ import json
 import random
 import frappe
 from frappe.model.document import Document
-from frappe.utils import cint, today
-from frappe.utils.telemetry import capture
-from lms.lms.utils import get_chapters, can_create_courses
+from frappe.utils import today, cint
+from lms.lms.utils import get_chapters
 from ...utils import generate_slug, validate_image, update_payment_record
 from frappe import _
 
@@ -19,6 +18,7 @@ class LMSCourse(Document):
 		self.validate_video_link()
 		self.validate_status()
 		self.validate_payments_app()
+		self.validate_certification()
 		self.validate_amount_and_currency()
 		self.image = validate_image(self.image)
 
@@ -52,9 +52,21 @@ class LMSCourse(Document):
 			if "payments" not in installed_apps:
 				frappe.throw(_("Please install the Payments app to create a paid courses."))
 
+	def validate_certification(self):
+		if self.enable_certification and self.paid_certificate:
+			frappe.throw(
+				_("A course cannot have both paid certificate and certificate of completion.")
+			)
+
+		if self.paid_certificate and not self.evaluator:
+			frappe.throw(_("Evaluator is required for paid certificates."))
+
 	def validate_amount_and_currency(self):
-		if self.paid_course and (not self.course_price and not self.currency):
+		if self.paid_course and (cint(self.course_price) < 0 or not self.currency):
 			frappe.throw(_("Amount and currency are required for paid courses."))
+
+		if self.paid_certificate and (cint(self.course_price) <= 0 or not self.currency):
+			frappe.throw(_("Amount and currency are required for paid certificates."))
 
 	def on_update(self):
 		if not self.upcoming and self.has_value_changed("upcoming"):
