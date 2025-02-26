@@ -12,6 +12,7 @@ from frappe.translate import get_all_translations
 from frappe import _
 from frappe.utils import (
 	get_datetime,
+	getdate,
 	cint,
 	flt,
 	now,
@@ -189,24 +190,24 @@ def get_translations():
 
 
 @frappe.whitelist()
-def validate_billing_access(type, name):
+def validate_billing_access(billing_type, name):
 	access = True
 	message = ""
-	doctype = "LMS Course" if type == "course" else "LMS Batch"
+	doctype = "LMS Batch" if billing_type == "batch" else "LMS Course"
 
 	if frappe.session.user == "Guest":
 		access = False
 		message = _("Please login to continue with payment.")
 
-	if type not in ["course", "batch"]:
+	if access and billing_type not in ["course", "batch", "certificate"]:
 		access = False
 		message = _("Module is incorrect.")
 
-	if not frappe.db.exists(doctype, name):
+	if access and not frappe.db.exists(doctype, name):
 		access = False
 		message = _("Module Name is incorrect or does not exist.")
 
-	if type == "course":
+	if access and billing_type == "course":
 		membership = frappe.db.exists(
 			"LMS Enrollment", {"member": frappe.session.user, "course": name}
 		)
@@ -214,13 +215,26 @@ def validate_billing_access(type, name):
 			access = False
 			message = _("You are already enrolled for this course.")
 
-	else:
+	elif access and billing_type == "batch":
 		membership = frappe.db.exists(
 			"LMS Batch Enrollment", {"member": frappe.session.user, "batch": name}
 		)
 		if membership:
 			access = False
 			message = _("You are already enrolled for this batch.")
+
+	elif access and billing_type == "certificate":
+		purchased_certificate = frappe.db.exists(
+			"LMS Enrollment",
+			{
+				"course": name,
+				"member": frappe.session.user,
+				"purchased_certificate": 1,
+			},
+		)
+		if purchased_certificate:
+			access = False
+			message = _("You have already purchased the certificate for this course.")
 
 	address = frappe.db.get_value(
 		"Address",
@@ -369,7 +383,7 @@ def get_evaluator_details(evaluator):
 
 
 @frappe.whitelist(allow_guest=True)
-def get_certified_participants(filters=None, start=0, page_length=30, search=None):
+def get_certified_participants(filters=None, start=0, page_length=30):
 	or_filters = {}
 	if not filters:
 		filters = {}
@@ -1228,3 +1242,57 @@ def get_notifications(filters):
 @frappe.whitelist(allow_guest=True)
 def is_guest_allowed():
 	return frappe.get_cached_value("LMS Settings", None, "allow_guest_access")
+
+
+@frappe.whitelist()
+def cancel_evaluation(evaluation):
+	evaluation = frappe._dict(evaluation)
+
+	if evaluation.member != frappe.session.user:
+		return
+
+	frappe.db.set_value("LMS Certificate Request", evaluation.name, "status", "Cancelled")
+	events = frappe.get_all(
+		"Event Participants",
+		{
+			"email": evaluation.member,
+		},
+		["parent", "name"],
+	)
+
+	for event in events:
+		info = frappe.db.get_value("Event", event.parent, ["starts_on", "subject"], as_dict=1)
+		date = str(info.starts_on).split(" ")[0]
+
+		if (
+			date == str(evaluation.date.format("YYYY-MM-DD"))
+			and evaluation.member_name in info.subject
+		):
+			communication = frappe.db.get_value(
+				"Communication",
+				{"reference_doctype": "Event", "reference_name": event.parent},
+				"name",
+			)
+			if communication:
+				frappe.delete_doc("Communication", communication, ignore_permissions=True)
+
+			frappe.delete_doc("Event Participants", event.name, ignore_permissions=True)
+			frappe.delete_doc("Event", event.parent, ignore_permissions=True)
+
+
+@frappe.whitelist()
+def get_certification_details(course):
+	membership = None
+	filters = {"course": course, "member": frappe.session.user}
+
+	if frappe.db.exists("LMS Enrollment", filters):
+		membership = frappe.db.get_value(
+			"LMS Enrollment",
+			filters,
+			["name", "certificate", "purchased_certificate"],
+			as_dict=1,
+		)
+
+	paid_certificate = frappe.db.get_value("LMS Course", course, "paid_certificate")
+
+	return {"membership": membership, "paid_certificate": paid_certificate}

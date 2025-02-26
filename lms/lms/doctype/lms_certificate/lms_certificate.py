@@ -122,11 +122,6 @@ def create_certificate(course):
 		)
 
 	else:
-		expires_after_yrs = int(frappe.db.get_value("LMS Course", course, "expiry"))
-		expiry_date = None
-		if expires_after_yrs:
-			expiry_date = add_years(nowdate(), expires_after_yrs)
-
 		default_certificate_template = frappe.db.get_value(
 			"Property Setter",
 			{
@@ -148,7 +143,6 @@ def create_certificate(course):
 				"member": frappe.session.user,
 				"course": course,
 				"issue_date": nowdate(),
-				"expiry_date": expiry_date,
 				"template": default_certificate_template,
 			}
 		)

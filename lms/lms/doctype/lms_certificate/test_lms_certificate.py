@@ -16,7 +16,6 @@ class TestLMSCertificate(unittest.TestCase):
 			"Test Certificate",
 			{
 				"enable_certification": 1,
-				"expiry": 2,
 			},
 		)
 		certificate = create_certificate(course.name)
@@ -24,7 +23,6 @@ class TestLMSCertificate(unittest.TestCase):
 		self.assertEqual(certificate.member, "Administrator")
 		self.assertEqual(certificate.course, course.name)
 		self.assertEqual(certificate.issue_date, nowdate())
-		self.assertEqual(certificate.expiry_date, add_years(nowdate(), cint(course.expiry)))
 
 		frappe.db.delete("LMS Certificate", certificate.name)
 		frappe.db.delete("LMS Course", course.name)

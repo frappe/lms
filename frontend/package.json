@@ -19,6 +19,7 @@
     "@editorjs/paragraph": "^2.11.3",
     "@editorjs/simple-image": "^1.6.0",
     "@editorjs/table": "^2.4.2",
+    "@vueuse/router": "^12.7.0",
     "ace-builds": "^1.36.2",
     "apexcharts": "^4.3.0",
     "chart.js": "^4.4.1",

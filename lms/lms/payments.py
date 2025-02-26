@@ -18,18 +18,25 @@ def validate_currency(payment_gateway, currency):
 
 
 @frappe.whitelist()
-def get_payment_link(doctype, docname, title, amount, total_amount, currency, address):
+def get_payment_link(
+	doctype,
+	docname,
+	title,
+	amount,
+	total_amount,
+	currency,
+	address,
+	redirect_to,
+	payment_for_certificate,
+):
 	payment_gateway = get_payment_gateway()
 	address = frappe._dict(address)
 	amount_with_gst = total_amount if total_amount != amount else 0
 
-	payment = record_payment(address, doctype, docname, amount, currency, amount_with_gst)
+	payment = record_payment(
+		address, doctype, docname, amount, currency, amount_with_gst, payment_for_certificate
+	)
 	controller = get_controller(payment_gateway)
-
-	if doctype == "LMS Course":
-		redirect_to = f"/lms/courses/{docname}/learn/1-1"
-	elif doctype == "LMS Batch":
-		redirect_to = f"/lms/batches/{docname}"
 
 	payment_details = {
 		"amount": total_amount,
@@ -53,7 +60,15 @@ def get_payment_link(doctype, docname, title, amount, total_amount, currency, ad
 	return url
 
 
-def record_payment(address, doctype, docname, amount, currency, amount_with_gst=0):
+def record_payment(
+	address,
+	doctype,
+	docname,
+	amount,
+	currency,
+	amount_with_gst=0,
+	payment_for_certificate=0,
+):
 	address = frappe._dict(address)
 	address_name = save_address(address)
 
@@ -71,6 +86,7 @@ def record_payment(address, doctype, docname, amount, currency, amount_with_gst=
 			"source": address.source,
 			"payment_for_document_type": doctype,
 			"payment_for_document": docname,
+			"payment_for_certificate": payment_for_certificate,
 		}
 	)
 	payment_doc.save(ignore_permissions=True)
