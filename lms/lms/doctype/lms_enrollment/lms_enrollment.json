@@ -91,7 +91,7 @@
    "fetch_from": "member.username",
    "fieldname": "member_username",
    "fieldtype": "Data",
-   "label": "Memeber Username",
+   "label": "Member Username",
    "read_only": 1
   },
   {
