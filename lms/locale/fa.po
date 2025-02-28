@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-02-21 16:04+0000\n"
-"PO-Revision-Date: 2025-02-26 20:10\n"
+"PO-Revision-Date: 2025-02-28 20:30\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Persian\n"
 "MIME-Version: 1.0\n"
@@ -1080,7 +1080,7 @@ msgstr "ثبت نام خود را تکمیل کنید - فرصت را از دس�
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/widgets/CourseCard.html:78
 msgid "Completed"
-msgstr "تکمیل شد"
+msgstr "تکمیل شده"
 
 #: frontend/src/components/BatchStudents.vue:369
 msgid "Completed by Students"
