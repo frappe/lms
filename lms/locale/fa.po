@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-02-21 16:04+0000\n"
-"PO-Revision-Date: 2025-02-24 19:35\n"
+"PO-Revision-Date: 2025-02-26 20:10\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Persian\n"
 "MIME-Version: 1.0\n"
@@ -1525,7 +1525,7 @@ msgstr "عزیز "
 #. Label of the default_currency (Link) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Default Currency"
-msgstr "ارز پیش فرض"
+msgstr "ارز پیش‌فرض"
 
 #. Label of the degree_type (Data) field in DocType 'Education Detail'
 #: lms/lms/doctype/education_detail/education_detail.json
@@ -4464,7 +4464,7 @@ msgstr ""
 
 #: frontend/src/pages/BatchForm.vue:77 frontend/src/pages/CourseForm.vue:99
 msgid "Remove"
-msgstr "برداشتن"
+msgstr "حدف"
 
 #: frontend/src/components/Modals/AnnouncementModal.vue:27
 msgid "Reply To"
@@ -5105,7 +5105,7 @@ msgstr "خلاصه"
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Sunday"
-msgstr "یکشنبه"
+msgstr "یک‌شنبه"
 
 #: lms/lms/api.py:999
 msgid "Suspicious pattern found in {0}: {1}"
@@ -5352,7 +5352,7 @@ msgstr ""
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Thursday"
-msgstr "پنج شنبه"
+msgstr "پنج‌شنبه"
 
 #. Label of the time (Time) field in DocType 'LMS Live Class'
 #: frontend/src/components/Modals/Event.vue:48
