@@ -14,6 +14,9 @@
   "member",
   "member_name",
   "member_username",
+  "certification_section",
+  "purchased_certificate",
+  "certificate",
   "section_break_8",
   "cohort",
   "subgroup",
@@ -123,11 +126,28 @@
    "fieldtype": "Link",
    "label": "Payment",
    "options": "LMS Payment"
+  },
+  {
+   "fieldname": "certification_section",
+   "fieldtype": "Section Break",
+   "label": "Certification"
+  },
+  {
+   "default": "0",
+   "fieldname": "purchased_certificate",
+   "fieldtype": "Check",
+   "label": "Purchased Certificate"
+  },
+  {
+   "fieldname": "certificate",
+   "fieldtype": "Link",
+   "label": "Certificate",
+   "options": "LMS Certificate"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-10-30 12:44:16.103598",
+ "modified": "2025-02-21 17:11:37.986157",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Enrollment",

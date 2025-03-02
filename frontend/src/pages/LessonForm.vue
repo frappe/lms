@@ -139,7 +139,7 @@ const renderEditor = (holder) => {
 const lesson = reactive({
 	title: '',
 	include_in_preview: false,
-	body: 'Test',
+	body: '',
 	instructor_notes: '',
 	content: '',
 })
@@ -294,7 +294,7 @@ const convertToJSON = (lessonData) => {
 				type: 'upload',
 				data: {
 					file_url: video,
-					file_type: 'video',
+					file_type: video.split('.').pop(),
 				},
 			})
 		} else if (block.includes('{{ Audio')) {
@@ -303,7 +303,7 @@ const convertToJSON = (lessonData) => {
 				type: 'upload',
 				data: {
 					file_url: audio,
-					file_type: 'audio',
+					file_type: audio.split('.').pop(),
 				},
 			})
 		} else if (block.includes('{{ PDF')) {

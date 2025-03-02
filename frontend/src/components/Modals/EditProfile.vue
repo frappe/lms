@@ -94,7 +94,7 @@ import {
 	createResource,
 	TextEditor,
 } from 'frappe-ui'
-import { reactive, watch, defineModel } from 'vue'
+import { reactive, watch } from 'vue'
 import { FileText, X } from 'lucide-vue-next'
 import { getFileSize, showToast, escapeHTML } from '@/utils'
 

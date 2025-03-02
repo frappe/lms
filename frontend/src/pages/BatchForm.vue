@@ -31,6 +31,11 @@
 							type="checkbox"
 							:label="__('Allow self enrollment')"
 						/>
+						<FormControl
+							v-model="batch.certification"
+							type="checkbox"
+							:label="__('Certification')"
+						/>
 					</div>
 				</div>
 			</div>
@@ -293,6 +298,7 @@ const batch = reactive({
 	medium: '',
 	category: '',
 	allow_self_enrollment: false,
+	certification: false,
 	image: null,
 	paid_batch: false,
 	currency: '',
@@ -362,7 +368,12 @@ const batchDetail = createResource({
 				batch[key] = `${hours}:${minutes}`
 			} else if (Object.hasOwn(batch, key)) batch[key] = data[key]
 		})
-		let checkboxes = ['published', 'paid_batch', 'allow_self_enrollment']
+		let checkboxes = [
+			'published',
+			'paid_batch',
+			'allow_self_enrollment',
+			'certification',
+		]
 		for (let idx in checkboxes) {
 			let key = checkboxes[idx]
 			batch[key] = batch[key] ? true : false

@@ -6,7 +6,7 @@
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
 			<div class="flex items-center space-x-2">
 				<Button
-					v-if="user.data?.is_moderator"
+					v-if="user.data?.is_moderator && batch.data?.certification"
 					@click="openCertificateDialog = true"
 				>
 					{{ __('Generate Certificates') }}
@@ -193,8 +193,9 @@
 	<BulkCertificates v-model="openCertificateDialog" :batch="batch.data" />
 </template>
 <script setup>
-import { Breadcrumbs, Button, createResource, Tabs, Badge } from 'frappe-ui'
 import { computed, inject, ref } from 'vue'
+import { useRouteQuery } from '@vueuse/router'
+import { Breadcrumbs, Button, createResource, Tabs, Badge } from 'frappe-ui'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import {
@@ -270,7 +271,7 @@ const isStudent = computed(() => {
 	)
 })
 
-const tabIndex = ref(0)
+const tabIndex = useRouteQuery('tab', 0)
 const tabs = computed(() => {
 	let batchTabs = []
 	batchTabs.push({
@@ -313,7 +314,7 @@ const tabs = computed(() => {
 })
 
 const redirectToLogin = () => {
-	window.location.href = `/login?redirect-to=/batches`
+	window.location.href = `/login?redirect-to=/lms/batches/${props.batchName}`
 }
 
 const openAnnouncementModal = () => {

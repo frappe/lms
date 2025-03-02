@@ -5,7 +5,7 @@ describe("Course Creation", () => {
 		cy.visit("/lms/courses");
 
 		// Create a course
-		cy.get("header").children().last().children().last().click();
+		cy.get("button").contains("New").click();
 		cy.wait(1000);
 		cy.url().should("include", "/courses/new/edit");
 
@@ -84,9 +84,8 @@ describe("Course Creation", () => {
 		cy.wait(1000);
 
 		cy.get("label").contains("Title").type("Test Lesson");
-
 		cy.get("#content .ce-block").type(
-			"This is an extremely big paragraph that is meant to test the UI. This is a very long paragraph. It contains more than once sentence. Its meant to be this long as this is a UI test. Its unbearably long and I'm not sure why I'm typing this much. I'm just going to keep typing until I feel like its long enough. I think its long enough now. I'm going to stop typing now."
+			"{enter}This is an extremely big paragraph that is meant to test the UI. This is a very long paragraph. It contains more than once sentence. Its meant to be this long as this is a UI test. Its unbearably long and I'm not sure why I'm typing this much. I'm just going to keep typing until I feel like its long enough. I think its long enough now. I'm going to stop typing now."
 		);
 		cy.button("Save").click();
 

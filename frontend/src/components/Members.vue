@@ -36,7 +36,7 @@
 			<FormControl
 				v-model="member.first_name"
 				:placeholder="__('First Name')"
-				type="test"
+				type="text"
 				class="w-full"
 			/>
 			<Button @click="addMember()" variant="subtle">

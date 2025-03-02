@@ -26,12 +26,18 @@
 				{{ __('All Batches') }}
 			</div>
 			<div
-				class="flex flex-col space-y-2 lg:space-y-0 lg:flex-row lg:items-center lg:space-x-2"
+				class="flex flex-col space-y-2 lg:space-y-0 lg:flex-row lg:items-center lg:space-x-4"
 			>
 				<TabButtons
 					v-if="user.data"
 					:buttons="batchTabs"
 					v-model="currentTab"
+				/>
+				<FormControl
+					v-model="certification"
+					:label="__('Certification')"
+					type="checkbox"
+					@change="updateBatches()"
 				/>
 				<div class="grid grid-cols-2 gap-2">
 					<FormControl
@@ -111,6 +117,7 @@ const pageLength = ref(20)
 const categories = ref([])
 const currentCategory = ref(null)
 const title = ref('')
+const certification = ref(false)
 const filters = ref({})
 const currentTab = ref(user.data?.is_student ? 'All' : 'Upcoming')
 const orderBy = ref('start_date')
@@ -130,6 +137,7 @@ const setFiltersFromQuery = () => {
 	let queries = new URLSearchParams(location.search)
 	title.value = queries.get('title') || ''
 	currentCategory.value = queries.get('category') || null
+	certification.value = queries.get('certification') || false
 }
 
 const batches = createListResource({
@@ -161,6 +169,7 @@ const updateBatches = () => {
 const updateFilters = () => {
 	updateCategoryFilter()
 	updateTitleFilter()
+	updateCertificationFilter()
 	updateTabFilter()
 	updateStudentFilter()
 	setQueryParams()
@@ -179,6 +188,14 @@ const updateTitleFilter = () => {
 		filters.value['title'] = ['like', `%${title.value}%`]
 	} else {
 		delete filters.value['title']
+	}
+}
+
+const updateCertificationFilter = () => {
+	if (certification.value) {
+		filters.value['certification'] = 1
+	} else {
+		delete filters.value['certification']
 	}
 }
 
@@ -222,6 +239,7 @@ const setQueryParams = () => {
 	let filterKeys = {
 		title: title.value,
 		category: currentCategory.value,
+		certification: certification.value,
 	}
 
 	Object.keys(filterKeys).forEach((key) => {

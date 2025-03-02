@@ -14,6 +14,7 @@
   "payment_for_document_type",
   "payment_for_document",
   "payment_received",
+  "payment_for_certificate",
   "payment_details_section",
   "currency",
   "amount",
@@ -136,11 +137,26 @@
    "fieldtype": "Link",
    "label": "Source",
    "options": "LMS Source"
+  },
+  {
+   "default": "0",
+   "fieldname": "payment_for_certificate",
+   "fieldtype": "Check",
+   "label": "Payment for Certificate"
   }
  ],
  "index_web_pages_for_search": 1,
- "links": [],
- "modified": "2025-02-11 14:48:27.801895",
+ "links": [
+  {
+   "link_doctype": "LMS Batch Enrollment",
+   "link_fieldname": "payment"
+  },
+  {
+   "link_doctype": "LMS Enrollment",
+   "link_fieldname": "payment"
+  }
+ ],
+ "modified": "2025-02-21 18:29:55.436611",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Payment",
