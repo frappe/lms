@@ -65,8 +65,7 @@
 		<div>
 			<TrialBanner
 				v-if="
-					userResource.data?.user_type == 'System User' &&
-					userResource.data?.is_fc_site
+					userResource.data?.is_system_manager && userResource.data?.is_fc_site
 				"
 				:isSidebarCollapsed="sidebarStore.isSidebarCollapsed"
 			/>

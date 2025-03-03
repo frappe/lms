@@ -23,7 +23,10 @@ from frappe.utils import (
 from lms.lms.utils import get_average_rating, get_lesson_count
 from xml.dom.minidom import parseString
 from lms.lms.doctype.course_lesson.course_lesson import save_progress
-from frappe.integrations.frappe_providers.frappecloud_billing import is_fc_site
+from frappe.integrations.frappe_providers.frappecloud_billing import (
+	is_fc_site,
+	current_site_info,
+)
 
 
 @frappe.whitelist()
@@ -177,6 +180,10 @@ def get_user_info():
 	user.is_evaluator = "Batch Evaluator" in user.roles
 	user.is_student = "LMS Student" in user.roles
 	user.is_fc_site = is_fc_site()
+	user.is_system_manager = "System Manager" in user.roles
+	if user.is_fc_site and user.is_system_manager:
+		user.site_info = current_site_info()
+		user.sitename = frappe.local.site
 	return user
 
 
