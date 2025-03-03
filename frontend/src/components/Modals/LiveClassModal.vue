@@ -39,13 +39,19 @@
 								:required="true"
 							/>
 						</Tooltip>
-						<FormControl
-							v-model="liveClass.timezone"
-							type="select"
-							:options="getTimezoneOptions()"
-							:label="__('Timezone')"
-							:required="true"
-						/>
+
+						<div class="space-y-1.5">
+							<label class="block text-ink-gray-5 text-xs" for="batchTimezone">
+								{{ __('Timezone') }}
+								<span class="text-ink-red-3">*</span>
+							</label>
+							<Autocomplete
+								@update:modelValue="(opt) => (liveClass.timezone = opt.value)"
+								:modelValue="liveClass.timezone"
+								:options="getTimezoneOptions()"
+								:required="true"
+							/>
+						</div>
 					</div>
 					<div>
 						<FormControl
@@ -82,7 +88,13 @@
 	</Dialog>
 </template>
 <script setup>
-import { Dialog, createResource, Tooltip, FormControl } from 'frappe-ui'
+import {
+	Dialog,
+	createResource,
+	Tooltip,
+	FormControl,
+	Autocomplete,
+} from 'frappe-ui'
 import { reactive, inject } from 'vue'
 import { getTimezones, createToast } from '@/utils/'
 
