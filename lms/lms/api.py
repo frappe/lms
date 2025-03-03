@@ -12,7 +12,6 @@ from frappe.translate import get_all_translations
 from frappe import _
 from frappe.utils import (
 	get_datetime,
-	getdate,
 	cint,
 	flt,
 	now,
@@ -1303,3 +1302,22 @@ def get_certification_details(course):
 	paid_certificate = frappe.db.get_value("LMS Course", course, "paid_certificate")
 
 	return {"membership": membership, "paid_certificate": paid_certificate}
+
+
+@frappe.whitelist()
+def save_role(user, role, value):
+	frappe.only_for("Moderator")
+	if cint(value):
+		doc = frappe.get_doc(
+			{
+				"doctype": "Has Role",
+				"parent": user,
+				"role": role,
+				"parenttype": "User",
+				"parentfield": "roles",
+			}
+		)
+		doc.save(ignore_permissions=True)
+	else:
+		frappe.db.delete("Has Role", {"parent": user, "role": role})
+	return True
