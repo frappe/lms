@@ -82,19 +82,9 @@
 	</Dialog>
 </template>
 <script setup>
-import {
-	Input,
-	DatePicker,
-	Select,
-	Textarea,
-	Dialog,
-	createResource,
-	Tooltip,
-	FormControl,
-} from 'frappe-ui'
+import { Dialog, createResource, Tooltip, FormControl } from 'frappe-ui'
 import { reactive, inject } from 'vue'
 import { getTimezones, createToast } from '@/utils/'
-import { Info } from 'lucide-vue-next'
 
 const liveClasses = defineModel('reloadLiveClasses')
 const show = defineModel()
