@@ -95,8 +95,8 @@ import {
 	FormControl,
 	Autocomplete,
 } from 'frappe-ui'
-import { reactive, inject } from 'vue'
-import { getTimezones, createToast } from '@/utils/'
+import { reactive, inject, onMounted } from 'vue'
+import { getTimezones, createToast, getUserTimezone } from '@/utils/'
 
 const liveClasses = defineModel('reloadLiveClasses')
 const show = defineModel()
@@ -120,6 +120,10 @@ let liveClass = reactive({
 	auto_recording: 'No Recording',
 	batch: props.batch,
 	host: user.data.name,
+})
+
+onMounted(() => {
+	liveClass.timezone = getUserTimezone()
 })
 
 const getTimezoneOptions = () => {
