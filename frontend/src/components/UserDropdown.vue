@@ -71,7 +71,9 @@ import { convertToTitleCase } from '@/utils'
 import { usersStore } from '@/stores/user'
 import { useSettings } from '@/stores/settings'
 import { markRaw, watch, ref, onMounted, computed } from 'vue'
+import { createDialog } from '@/utils/dialogs'
 import SettingsModal from '@/components/Modals/Settings.vue'
+import FrappeCloudIcon from '@/components/Icons/FrappeCloudIcon.vue'
 import {
 	ChevronDown,
 	LogIn,
@@ -80,7 +82,6 @@ import {
 	User,
 	Settings,
 	Sun,
-	LogInIcon,
 } from 'lucide-vue-next'
 
 const router = useRouter()
@@ -91,6 +92,7 @@ let { isLoggedIn } = sessionStore()
 const showSettingsModal = ref(false)
 const theme = ref('light')
 const frappeCloudBaseEndpoint = 'https://frappecloud.com'
+const $dialog = createDialog
 
 const props = defineProps({
 	isCollapsed: {
@@ -159,14 +161,25 @@ const userDropdownOptions = computed(() => {
 			},
 		},
 		{
-			icon: LogInIcon,
+			icon: FrappeCloudIcon,
 			label: 'Login to Frappe Cloud',
 			onClick: () => {
-				let redirect_to = '/dashboard/welcome'
-				if (userResource.data.site_info.is_payment_method_added) {
-					redirect_to = '/dashboard/sites/' + userResource.data.sitename
-				}
-				window.open(`${frappeCloudBaseEndpoint}${redirect_to}`, '_blank')
+				$dialog({
+					title: __('Login to Frappe Cloud?'),
+					message: __(
+						'Are you sure you want to login to your Frappe Cloud dashboard?'
+					),
+					actions: [
+						{
+							label: __('Confirm'),
+							variant: 'solid',
+							onClick(close) {
+								loginToFrappeCloud()
+								close()
+							},
+						},
+					],
+				})
 			},
 			condition: () => {
 				return (
@@ -198,4 +211,12 @@ const userDropdownOptions = computed(() => {
 		},
 	]
 })
+
+const loginToFrappeCloud = () => {
+	let redirect_to = '/dashboard/welcome'
+	if (userResource.data?.site_info.is_payment_method_added) {
+		redirect_to = '/dashboard/sites/' + userResource.data.sitename
+	}
+	window.open(`${frappeCloudBaseEndpoint}${redirect_to}`, '_blank')
+}
 </script>
