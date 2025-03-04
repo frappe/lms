@@ -3,7 +3,7 @@
 
 frappe.ui.form.on("LMS Certificate Request", {
 	refresh: function (frm) {
-		if (!frm.is_new()) {
+		if (!frm.is_new() && frm.doc.status == "Upcoming") {
 			frm.add_custom_button(
 				__("Create LMS Certificate Evaluation"),
 				() => {
@@ -14,7 +14,7 @@ frappe.ui.form.on("LMS Certificate Request", {
 				}
 			);
 		}
-		if (!frm.doc.google_meet_link) {
+		if (!frm.doc.google_meet_link && frm.doc.status == "Upcoming") {
 			frm.add_custom_button(__("Generate Google Meet Link"), () => {
 				frappe.call({
 					method: "lms.lms.doctype.lms_certificate_request.lms_certificate_request.setup_calendar_event",
