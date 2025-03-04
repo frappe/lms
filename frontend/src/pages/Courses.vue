@@ -201,17 +201,19 @@ const updateTabFilter = () => {
 	if (!user.data) {
 		return
 	}
+
 	delete filters.value['live']
 	delete filters.value['created']
 	delete filters.value['published_on']
 	delete filters.value['upcoming']
+
 	if (currentTab.value == 'Enrolled' && user.data?.is_student) {
 		filters.value['enrolled'] = 1
 		delete filters.value['published']
-	} else if (user.data?.is_student) {
-		delete filters.value['enrolled']
 	} else {
 		delete filters.value['published']
+		delete filters.value['enrolled']
+
 		if (currentTab.value == 'Live') {
 			filters.value['published'] = 1
 			filters.value['upcoming'] = 0

@@ -1006,6 +1006,7 @@ def get_courses(filters=None, start=0, page_length=20):
 	if show_featured:
 		courses = get_featured_courses(filters, or_filters, fields) + courses
 
+	courses = get_enrollment_details(courses)
 	courses = get_course_card_details(courses)
 	return courses
 
@@ -1065,6 +1066,24 @@ def update_course_filters(filters):
 		del filters["certification"]
 
 	return filters, or_filters, show_featured
+
+
+def get_enrollment_details(courses):
+	for course in courses:
+		filters = {
+			"course": course.name,
+			"member": frappe.session.user,
+		}
+
+		if frappe.db.exists("LMS Enrollment", filters):
+			course.membership = frappe.db.get_value(
+				"LMS Enrollment",
+				filters,
+				["name", "course", "current_lesson", "progress", "member"],
+				as_dict=1,
+			)
+
+	return courses
 
 
 def get_featured_courses(filters, or_filters, fields):
