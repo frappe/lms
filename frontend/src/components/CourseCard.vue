@@ -16,7 +16,7 @@
 					{{ __('Featured') }}
 				</Badge>
 				<div
-					v-for="tag in course.tags"
+					v-for="tag in course.tags?.split(',')"
 					class="text-xs bg-white text-gray-800 px-2 py-0.5 rounded-md"
 				>
 					{{ tag }}
