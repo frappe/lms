@@ -62,7 +62,7 @@ def sign_up(email, full_name, verify_terms, user_category):
 	user.insert()
 
 	# set default signup role as per Portal Settings
-	default_role = frappe.db.get_value("Portal Settings", None, "default_role")
+	default_role = frappe.db.get_single_value("Portal Settings", "default_role")
 	if default_role:
 		user.add_roles(default_role)
 
