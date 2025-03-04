@@ -4,15 +4,12 @@
 frappe.ui.form.on("LMS Certificate Request", {
 	refresh: function (frm) {
 		if (!frm.is_new() && frm.doc.status == "Upcoming") {
-			frm.add_custom_button(
-				__("Create LMS Certificate Evaluation"),
-				() => {
-					frappe.model.open_mapped_doc({
-						method: "lms.lms.doctype.lms_certificate_request.lms_certificate_request.create_lms_certificate_evaluation",
-						frm: frm,
-					});
-				}
-			);
+			frm.add_custom_button(__("Conduct Evaluation"), () => {
+				frappe.model.open_mapped_doc({
+					method: "lms.lms.doctype.lms_certificate_request.lms_certificate_request.create_lms_certificate_evaluation",
+					frm: frm,
+				});
+			});
 		}
 		if (!frm.doc.google_meet_link && frm.doc.status == "Upcoming") {
 			frm.add_custom_button(__("Generate Google Meet Link"), () => {
