@@ -88,7 +88,6 @@ setup_wizard_requires = "assets/lms/js/setup_wizard.js"
 # Override standard doctype classes
 
 override_doctype_class = {
-	"User": "lms.overrides.user.CustomUser",
 	"Web Template": "lms.overrides.web_template.CustomWebTemplate",
 }
 
@@ -104,6 +103,10 @@ doc_events = {
 	},
 	"Discussion Reply": {"after_insert": "lms.lms.utils.handle_notifications"},
 	"Notification Log": {"on_change": "lms.lms.utils.publish_notifications"},
+	"User": {
+		"validate": "lms.lms.user.validate_username_duplicates",
+		"after_insert": "lms.lms.user.after_insert",
+	},
 }
 
 # Scheduled Tasks
@@ -191,8 +194,8 @@ jinja = {
 		"lms.lms.utils.get_lesson_index",
 		"lms.lms.utils.get_lesson_url",
 		"lms.page_renderers.get_profile_url",
-		"lms.overrides.user.get_palette",
 		"lms.lms.utils.is_instructor",
+		"lms.lms.utils.get_palette",
 	],
 	"filters": [],
 }
@@ -238,8 +241,6 @@ page_renderer = [
 profile_url_prefix = "/users/"
 
 signup_form_template = "lms.plugins.show_custom_signup"
-
-on_session_creation = "lms.overrides.user.on_session_creation"
 
 add_to_apps_screen = [
 	{
