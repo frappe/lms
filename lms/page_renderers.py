@@ -6,6 +6,7 @@ import re
 import os
 import mimetypes
 import frappe
+from frappe.utils import get_files_path
 from frappe.website.page_renderers.base_renderer import BaseRenderer
 from frappe.website.page_renderers.document_page import DocumentPage
 from frappe.website.page_renderers.list_page import ListPage
@@ -172,4 +173,24 @@ class SCORMRenderer(BaseRenderer):
 						wrap_file(frappe.local.request.environ, f), direct_passthrough=True
 					)
 					response.mimetype = mimetypes.guess_type(index_path)[0]
+					return response
+			elif not os.path.exists(path):
+				chapter_folder = "/".join(self.path.split("/")[:3])
+				chapter_folder_path = os.path.realpath(
+					frappe.get_site_path("public", chapter_folder)
+				)
+				file = path.split("/")[-1]
+				correct_file_path = None
+
+				for root, dirs, files in os.walk(chapter_folder_path):
+					if file in files:
+						correct_file_path = os.path.join(root, file)
+						break
+
+				if correct_file_path:
+					f = open(correct_file_path, "rb")
+					response = Response(
+						wrap_file(frappe.local.request.environ, f), direct_passthrough=True
+					)
+					response.mimetype = mimetypes.guess_type(correct_file_path)[0]
 					return response
