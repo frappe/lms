@@ -441,6 +441,22 @@ export function getTimezones() {
 	]
 }
 
+export function getUserTimezone() {
+	try {
+		const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+		const supportedTimezones = getTimezones()
+
+		if (supportedTimezones.includes(timezone)) {
+			return timezone // e.g., 'Asia/Calcutta', 'America/New_York', etc.
+		} else {
+			throw Error('unsupported timezone')
+		}
+	} catch (error) {
+		console.error('Error getting timezone:', error)
+		return null
+	}
+}
+
 export function getSidebarLinks() {
 	return [
 		{

@@ -33,7 +33,22 @@ def send_payment_reminder():
 	)
 
 	for payment in incomplete_payments:
+		if has_paid_later(payment):
+			continue
+
 		send_mail(payment)
+
+
+def has_paid_later(payment):
+	return frappe.db.exists(
+		"LMS Payment",
+		{
+			"member": payment.member,
+			"payment_received": 1,
+			"payment_for_document": payment.payment_for_document,
+			"payment_for_document_type": payment.payment_for_document_type,
+		},
+	)
 
 
 def send_mail(payment):
