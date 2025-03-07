@@ -158,7 +158,10 @@ export function getEditorTools() {
 		quiz: Quiz,
 		assignment: Assignment,
 		upload: Upload,
-		markdown: Markdown,
+		markdown: {
+			class: Markdown,
+			inlineToolbar: true,
+		},
 		image: SimpleImage,
 		table: {
 			class: Table,
