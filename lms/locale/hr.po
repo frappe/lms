@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-02-28 16:04+0000\n"
-"PO-Revision-Date: 2025-03-05 22:14\n"
+"PO-Revision-Date: 2025-03-09 22:29\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Croatian\n"
 "MIME-Version: 1.0\n"
@@ -77,7 +77,7 @@ msgstr ""
 
 #: frontend/src/pages/ProfileAbout.vue:4
 msgid "About"
-msgstr ""
+msgstr "O"
 
 #: frontend/src/pages/Batch.vue:100
 msgid "About this batch"
@@ -115,7 +115,7 @@ msgstr ""
 #: frontend/src/components/Members.vue:43 frontend/src/pages/ProgramForm.vue:30
 #: frontend/src/pages/ProgramForm.vue:92 frontend/src/pages/ProgramForm.vue:137
 msgid "Add"
-msgstr ""
+msgstr "Dodaj"
 
 #: frontend/src/components/CourseOutline.vue:11
 #: frontend/src/components/CreateOutline.vue:18
@@ -1031,7 +1031,7 @@ msgstr ""
 #: lms/job/doctype/lms_job_application/lms_job_application.json
 #: lms/lms/doctype/work_experience/work_experience.json
 msgid "Company"
-msgstr ""
+msgstr "Tvrtka"
 
 #. Label of the company_details_section (Section Break) field in DocType 'Job
 #. Opportunity'
@@ -1050,13 +1050,13 @@ msgstr ""
 #: frontend/src/pages/JobCreation.vue:88
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Company Logo"
-msgstr ""
+msgstr "Logo Tvrtke"
 
 #. Label of the company_name (Data) field in DocType 'Job Opportunity'
 #: frontend/src/pages/JobCreation.vue:70
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Company Name"
-msgstr ""
+msgstr "Naziv Tvrtke"
 
 #. Label of the company_type (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
