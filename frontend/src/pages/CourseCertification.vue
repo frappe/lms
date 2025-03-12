@@ -37,6 +37,7 @@
 <script setup>
 import { computed, inject, onMounted, ref } from 'vue'
 import { Breadcrumbs, call, createResource } from 'frappe-ui'
+import { useRouter } from 'vue-router'
 import UpcomingEvaluations from '@/components/UpcomingEvaluations.vue'
 
 const courseTitle = ref(null)
@@ -44,6 +45,7 @@ const evaluator = ref(null)
 const courses = ref([])
 const user = inject('$user')
 const dayjs = inject('$dayjs')
+const router = useRouter()
 
 const props = defineProps({
 	courseName: {
@@ -53,6 +55,7 @@ const props = defineProps({
 })
 
 onMounted(() => {
+	fetchEnrollmentDetails()
 	fetchCourseDetails()
 })
 
@@ -66,9 +69,25 @@ const certificate = createResource({
 		},
 		fieldname: ['name', 'template', 'issue_date'],
 	},
-	auto: true,
 	cache: [user.data?.name, props.courseName],
 })
+
+const fetchEnrollmentDetails = () => {
+	call('frappe.client.get_value', {
+		doctype: 'LMS Enrollment',
+		filters: { member: user.data?.name, course: props.courseName },
+		fieldname: ['purchased_certificate'],
+	}).then((data) => {
+		if (data.purchased_certificate) {
+			certificate.reload()
+		} else {
+			router.push({
+				name: 'CourseDetail',
+				params: { courseName: props.courseName },
+			})
+		}
+	})
+}
 
 const fetchCourseDetails = () => {
 	call('frappe.client.get_value', {
