@@ -256,8 +256,7 @@ const setQueryParams = () => {
 		}
 	})
 
-
-	let queryString = '';
+	let queryString = ''
 	if (queries.toString()) {
 		queryString = `?${queries.toString()}`
 	}

@@ -120,7 +120,10 @@ const currentCategory = ref(null)
 const title = ref('')
 const certification = ref(false)
 const filters = ref({})
-const currentTab = useRouteQuery('tab', user.data?.is_student ? 'All' : 'Upcoming')
+const currentTab = useRouteQuery(
+	'tab',
+	user.data?.is_student ? 'All' : 'Upcoming'
+)
 const orderBy = ref('start_date')
 
 onMounted(() => {
@@ -251,7 +254,7 @@ const setQueryParams = () => {
 		}
 	})
 
-	let queryString = '';
+	let queryString = ''
 	if (queries.toString()) {
 		queryString = `?${queries.toString()}`
 	}
