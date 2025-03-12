@@ -113,37 +113,6 @@ def render_portal_page(path, **kwargs):
 	return page.render()
 
 
-class CoursePage(BaseRenderer):
-	def __init__(self, path, http_status_code):
-		super().__init__(path, http_status_code)
-		self.renderer = None
-
-	def can_render(self):
-		return self.path.startswith("course")
-
-	def render(self):
-		if "learn" in self.path:
-			prefix = self.path.split("/learn")[0]
-			course_name = prefix.split("/")[1]
-			lesson_index = self.path.split("/learn/")[1]
-			chapter_number = lesson_index.split(".")[0]
-			lesson_number = lesson_index.split(".")[1]
-
-			frappe.flags.redirect_location = (
-				f"/lms/courses/{course_name}/learn/{chapter_number}-{lesson_number}"
-			)
-			return RedirectPage(self.path).render()
-
-		elif len(self.path.split("/")) > 1:
-			course_name = self.path.split("/")[1]
-			frappe.flags.redirect_location = f"/lms/courses/{course_name}"
-			return RedirectPage(self.path).render()
-
-		else:
-			frappe.flags.redirect_location = "/lms/courses"
-			return RedirectPage(self.path).render()
-
-
 class SCORMRenderer(BaseRenderer):
 	def can_render(self):
 		return "scorm/" in self.path
