@@ -271,18 +271,6 @@ watch(currentTab, () => {
 	updateBatches()
 })
 
-const batchType = computed(() => {
-	let types = [
-		{ label: __(''), value: null },
-		{ label: __('Upcoming'), value: 'Upcoming' },
-		{ label: __('Archived'), value: 'Archived' },
-	]
-	if (user.data?.is_moderator) {
-		types.push({ label: __('Unpublished'), value: 'Unpublished' })
-	}
-	return types
-})
-
 const batchTabs = computed(() => {
 	let tabs = [
 		{
