@@ -105,6 +105,7 @@ import {
 	Select,
 	TabButtons,
 } from 'frappe-ui'
+import { useRouteQuery } from '@vueuse/router'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { BookOpen, Plus } from 'lucide-vue-next'
 import { updateDocumentTitle } from '@/utils'
@@ -119,7 +120,7 @@ const currentCategory = ref(null)
 const title = ref('')
 const certification = ref(false)
 const filters = ref({})
-const currentTab = ref(user.data?.is_student ? 'All' : 'Upcoming')
+const currentTab = useRouteQuery('tab', user.data?.is_student ? 'All' : 'Upcoming')
 const orderBy = ref('start_date')
 
 onMounted(() => {
