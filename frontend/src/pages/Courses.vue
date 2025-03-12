@@ -105,6 +105,7 @@ import {
 	Select,
 	TabButtons,
 } from 'frappe-ui'
+import { useRouteQuery } from '@vueuse/router'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { BookOpen, Plus } from 'lucide-vue-next'
 import { updateDocumentTitle } from '@/utils'
@@ -119,7 +120,7 @@ const currentCategory = ref(null)
 const title = ref('')
 const certification = ref(false)
 const filters = ref({})
-const currentTab = ref('Live')
+const currentTab = useRouteQuery('tab', 'Live')
 
 onMounted(() => {
 	setFiltersFromQuery()
@@ -255,7 +256,12 @@ const setQueryParams = () => {
 		}
 	})
 
-	history.replaceState({}, '', `${location.pathname}?${queries.toString()}`)
+	let queryString = ''
+	if (queries.toString()) {
+		queryString = `?${queries.toString()}`
+	}
+
+	history.replaceState({}, '', `${location.pathname}${queryString}`)
 }
 
 const updateCategories = (data) => {
@@ -273,21 +279,6 @@ const updateCategories = (data) => {
 
 watch(currentTab, () => {
 	updateCourses()
-})
-
-const courseType = computed(() => {
-	let types = [
-		{ label: __(''), value: null },
-		{ label: __('New'), value: 'New' },
-		{ label: __('Upcoming'), value: 'Upcoming' },
-	]
-	if (user.data?.is_student) {
-		types.push({ label: __('Enrolled'), value: 'Enrolled' })
-	}
-	if (user.data?.is_moderator || user.data?.is_instructor) {
-		types.push({ label: __('Created'), value: 'Created' })
-	}
-	return types
 })
 
 const courseTabs = computed(() => {

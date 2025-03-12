@@ -105,6 +105,7 @@ import {
 	Select,
 	TabButtons,
 } from 'frappe-ui'
+import { useRouteQuery } from '@vueuse/router'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { BookOpen, Plus } from 'lucide-vue-next'
 import { updateDocumentTitle } from '@/utils'
@@ -119,7 +120,10 @@ const currentCategory = ref(null)
 const title = ref('')
 const certification = ref(false)
 const filters = ref({})
-const currentTab = ref(user.data?.is_student ? 'All' : 'Upcoming')
+const currentTab = useRouteQuery(
+	'tab',
+	user.data?.is_student ? 'All' : 'Upcoming'
+)
 const orderBy = ref('start_date')
 
 onMounted(() => {
@@ -250,7 +254,12 @@ const setQueryParams = () => {
 		}
 	})
 
-	history.replaceState({}, '', `${location.pathname}?${queries.toString()}`)
+	let queryString = ''
+	if (queries.toString()) {
+		queryString = `?${queries.toString()}`
+	}
+
+	history.replaceState({}, '', `${location.pathname}${queryString}`)
 }
 
 const updateCategories = (data) => {
@@ -268,18 +277,6 @@ const updateCategories = (data) => {
 
 watch(currentTab, () => {
 	updateBatches()
-})
-
-const batchType = computed(() => {
-	let types = [
-		{ label: __(''), value: null },
-		{ label: __('Upcoming'), value: 'Upcoming' },
-		{ label: __('Archived'), value: 'Archived' },
-	]
-	if (user.data?.is_moderator) {
-		types.push({ label: __('Unpublished'), value: 'Unpublished' })
-	}
-	return types
 })
 
 const batchTabs = computed(() => {
