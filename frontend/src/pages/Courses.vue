@@ -276,21 +276,6 @@ watch(currentTab, () => {
 	updateCourses()
 })
 
-const courseType = computed(() => {
-	let types = [
-		{ label: __(''), value: null },
-		{ label: __('New'), value: 'New' },
-		{ label: __('Upcoming'), value: 'Upcoming' },
-	]
-	if (user.data?.is_student) {
-		types.push({ label: __('Enrolled'), value: 'Enrolled' })
-	}
-	if (user.data?.is_moderator || user.data?.is_instructor) {
-		types.push({ label: __('Created'), value: 'Created' })
-	}
-	return types
-})
-
 const courseTabs = computed(() => {
 	let tabs = [
 		{
