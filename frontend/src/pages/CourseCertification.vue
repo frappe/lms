@@ -81,7 +81,10 @@ const fetchEnrollmentDetails = () => {
 		if (data.purchased_certificate) {
 			certificate.reload()
 		} else {
-			router.push({ name: 'CourseDetail', params: { courseName: props.courseName } })
+			router.push({
+				name: 'CourseDetail',
+				params: { courseName: props.courseName },
+			})
 		}
 	})
 }

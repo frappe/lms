@@ -283,7 +283,7 @@ const courseType = computed(() => {
 	]
 	if (user.data?.is_student) {
 		types.push({ label: __('Enrolled'), value: 'Enrolled' })
-	} 
+	}
 	if (user.data?.is_moderator || user.data?.is_instructor) {
 		types.push({ label: __('Created'), value: 'Created' })
 	}
