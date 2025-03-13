@@ -408,14 +408,14 @@ def send_batch_start_reminder():
 
 	for batch in batches:
 		students = frappe.get_all(
-			"LMS Batch Enrollment", {"batch": batch}, ["member", "member_name"]
+			"LMS Batch Enrollment", {"batch": batch.name}, ["member", "member_name"]
 		)
 		for student in students:
 			send_mail(batch, student)
 
 
 def send_mail(batch, student):
-	subject = _("Batch Start Reminder")
+	subject = _("Your batch {0} is starting tomorrow").format(batch.title)
 	template = "batch_start_reminder"
 
 	args = {

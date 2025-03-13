@@ -1,6 +1,16 @@
 <template>
+	<Button
+		v-if="certification.data && certification.data.certificate"
+		@click="downloadCertificate"
+		class="w-full"
+	>
+		<template #prefix>
+			<GraduationCap class="size-4 stroke-1.5" />
+		</template>
+		{{ __('View Certificate') }}
+	</Button>
 	<div
-		v-if="
+		v-else-if="
 			certification.data &&
 			certification.data.membership &&
 			certification.data.paid_certificate &&
@@ -25,7 +35,7 @@
 			</Button>
 		</router-link>
 		<router-link
-			v-else-if="!certification.data.membership.certficate"
+			v-else-if="!certification.data.membership.certificate"
 			:to="{
 				name: 'CourseCertification',
 				params: {
@@ -64,4 +74,12 @@ const certification = createResource({
 	auto: true,
 	cache: ['certificationData', user.data?.name],
 })
+
+const downloadCertificate = () => {
+	window.open(
+		`/api/method/frappe.utils.print_format.download_pdf?doctype=LMS+Certificate&name=${
+			certification.data.certificate.name
+		}&format=${encodeURIComponent(certification.data.certificate.template)}`
+	)
+}
 </script>

@@ -9,19 +9,17 @@
 <p>
     <b>{{ _("Class:") }}</b> {{ title }}
 </p>
-<br>
 <p>
-    <b>{{ _("Date:") }}</b> {{ frappe.utils.format_date(date, "medium") }}
+    <b>{{ _("Date:") }}</b> {{ frappe.utils.format_date(date, "long") }}
 </p>
-<br>
 <p>
     <b>{{ _("Timings:") }}</b> {{ frappe.utils.format_time(time, "hh:mm a") }}
 </p>
 <br>
 <p>
-    {{ _("Visit the following link to view your ") }}
-    <a href="/lms/live_classes/{{ batch_name }}">{{ _("Batch Details") }}</a>
+    <a href="/lms/batches/{{ batch_name }}">👉 {{ _("Visit your batch") }}</a>
 </p>
+<br>
 <p>
     {{ _("If you have any questions or require assistance, feel free to contact us.") }}
 </p>
