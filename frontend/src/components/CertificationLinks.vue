@@ -1,5 +1,9 @@
 <template>
-	<Button v-if="certification.data && certification.data.certificate" @click="downloadCertificate" class="w-full">
+	<Button
+		v-if="certification.data && certification.data.certificate"
+		@click="downloadCertificate"
+		class="w-full"
+	>
 		<template #prefix>
 			<GraduationCap class="size-4 stroke-1.5" />
 		</template>
@@ -75,7 +79,7 @@ const downloadCertificate = () => {
 	window.open(
 		`/api/method/frappe.utils.print_format.download_pdf?doctype=LMS+Certificate&name=${
 			certification.data.certificate.name
-		}&format=${encodeURIComponent(certification.data.certificate.template)}`,
+		}&format=${encodeURIComponent(certification.data.certificate.template)}`
 	)
 }
 </script>
