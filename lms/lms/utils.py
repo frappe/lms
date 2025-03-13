@@ -1957,7 +1957,7 @@ def update_certificate_purchase(course, payment_name):
 		{
 			"purchased_certificate": 1,
 			"payment": payment_name,
-		}
+		},
 	)
 
 

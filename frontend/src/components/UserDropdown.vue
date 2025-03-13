@@ -126,7 +126,7 @@ const toggleTheme = () => {
 const userDropdownOptions = computed(() => {
 	return [
 		{
-			group: "",
+			group: '',
 			items: [
 				{
 					icon: User,
@@ -148,7 +148,9 @@ const userDropdownOptions = computed(() => {
 				{
 					component: markRaw(Apps),
 					condition: () => {
-						let cookies = new URLSearchParams(document.cookie.split('; ').join('&'))
+						let cookies = new URLSearchParams(
+							document.cookie.split('; ').join('&')
+						)
 						let system_user = cookies.get('system_user')
 						if (system_user === 'yes') return true
 						else return false
@@ -187,18 +189,19 @@ const userDropdownOptions = computed(() => {
 					},
 					condition: () => {
 						return (
-							userResource.data?.is_system_manager && userResource.data?.is_fc_site
+							userResource.data?.is_system_manager &&
+							userResource.data?.is_fc_site
 						)
 					},
 				},
-			]
+			],
 		},
 		{
-			group: "",
+			group: '',
 			items: [
 				{
 					icon: Zap,
-					label: "Powered by Learning",
+					label: 'Powered by Learning',
 					onClick: () => {
 						window.open('https://frappe.io/learning', '_blank')
 					},
@@ -225,8 +228,8 @@ const userDropdownOptions = computed(() => {
 						return !isLoggedIn
 					},
 				},
-			]
-		}
+			],
+		},
 	]
 })
 

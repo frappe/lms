@@ -22,11 +22,13 @@
 							<span class="font-semibold leading-5">
 								{{ evl.course_title }}
 							</span>
-							<Menu v-if="evl.date > dayjs().format()" as="div" class="relative inline-block text-left">
+							<Menu
+								v-if="evl.date > dayjs().format()"
+								as="div"
+								class="relative inline-block text-left"
+							>
 								<div>
-									<MenuButton
-									class="inline-flex w-full justify-center"
-									>
+									<MenuButton class="inline-flex w-full justify-center">
 										<EllipsisVertical class="w-4 h-4 stroke-1.5" />
 									</MenuButton>
 								</div>
@@ -43,15 +45,19 @@
 										class="absolute mt-2 w-32 rounded-md bg-white shadow-lg p-1.5"
 									>
 										<MenuItem v-slot="{ active }">
-											<Button variant="ghost" class="w-full" @click="cancelEvaluation(evl)">
+											<Button
+												variant="ghost"
+												class="w-full"
+												@click="cancelEvaluation(evl)"
+											>
 												<template #prefix>
 													<Ban
 														:active="active"
 														class="size-4 stroke-1.5"
 														aria-hidden="true"
-														/>
+													/>
 												</template>
-												{{ __("Cancel") }}
+												{{ __('Cancel') }}
 											</Button>
 										</MenuItem>
 									</MenuItems>
@@ -111,7 +117,7 @@ import {
 	Clock,
 	GraduationCap,
 	HeadsetIcon,
-	EllipsisVertical
+	EllipsisVertical,
 } from 'lucide-vue-next'
 import { inject, ref, getCurrentInstance } from 'vue'
 import { formatTime } from '../utils'
