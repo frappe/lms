@@ -277,28 +277,20 @@
  "is_published_field": "published",
  "links": [
   {
-   "group": "Chapters",
+   "link_doctype": "LMS Enrollment",
+   "link_fieldname": "course"
+  },
+  {
    "link_doctype": "Course Chapter",
    "link_fieldname": "course"
   },
   {
-   "group": "Batches",
-   "link_doctype": "LMS Batch Old",
-   "link_fieldname": "course"
-  },
-  {
-   "group": "Mentors",
-   "link_doctype": "LMS Course Mentor Mapping",
-   "link_fieldname": "course"
-  },
-  {
-   "group": "Interests",
-   "link_doctype": "LMS Course Interest",
+   "link_doctype": "Course Lesson",
    "link_fieldname": "course"
   }
  ],
  "make_attachments_public": 1,
- "modified": "2025-03-04 15:43:25.151554",
+ "modified": "2025-03-13 16:01:19.105212",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",
