@@ -44,13 +44,15 @@
    "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "Amount",
-   "options": "currency"
+   "options": "currency",
+   "reqd": 1
   },
   {
    "fieldname": "currency",
    "fieldtype": "Link",
    "label": "Currency",
-   "options": "Currency"
+   "options": "Currency",
+   "reqd": 1
   },
   {
    "fieldname": "column_break_rqkd",
@@ -70,7 +72,8 @@
    "fieldname": "address",
    "fieldtype": "Link",
    "label": "Address",
-   "options": "Address"
+   "options": "Address",
+   "reqd": 1
   },
   {
    "default": "0",
@@ -124,13 +127,15 @@
    "fieldname": "payment_for_document_type",
    "fieldtype": "Select",
    "label": "Payment for Document Type",
-   "options": "\nLMS Course\nLMS Batch"
+   "options": "\nLMS Course\nLMS Batch",
+   "reqd": 1
   },
   {
    "fieldname": "payment_for_document",
    "fieldtype": "Dynamic Link",
    "label": "Payment for Document",
-   "options": "payment_for_document_type"
+   "options": "payment_for_document_type",
+   "reqd": 1
   },
   {
    "fieldname": "source",
@@ -156,7 +161,7 @@
    "link_fieldname": "payment"
   }
  ],
- "modified": "2025-02-21 18:29:55.436611",
+ "modified": "2025-03-13 15:31:38.019002",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Payment",

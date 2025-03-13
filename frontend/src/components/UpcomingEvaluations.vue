@@ -18,8 +18,51 @@
 			<div class="grid grid-cols-3 gap-4">
 				<div v-for="evl in upcoming_evals.data">
 					<div class="border rounded-md p-3">
-						<div class="font-semibold mb-3">
-							{{ evl.course_title }}
+						<div class="flex justify-between mb-3">
+							<span class="font-semibold leading-5">
+								{{ evl.course_title }}
+							</span>
+							<Menu
+								v-if="evl.date > dayjs().format()"
+								as="div"
+								class="relative inline-block text-left"
+							>
+								<div>
+									<MenuButton class="inline-flex w-full justify-center">
+										<EllipsisVertical class="w-4 h-4 stroke-1.5" />
+									</MenuButton>
+								</div>
+
+								<transition
+									enter-active-class="transition duration-100 ease-out"
+									enter-from-class="transform scale-95 opacity-0"
+									enter-to-class="transform scale-100 opacity-100"
+									leave-active-class="transition duration-75 ease-in"
+									leave-from-class="transform scale-100 opacity-100"
+									leave-to-class="transform scale-95 opacity-0"
+								>
+									<MenuItems
+										class="absolute mt-2 w-32 rounded-md bg-white shadow-lg p-1.5"
+									>
+										<MenuItem v-slot="{ active }">
+											<Button
+												variant="ghost"
+												class="w-full"
+												@click="cancelEvaluation(evl)"
+											>
+												<template #prefix>
+													<Ban
+														:active="active"
+														class="size-4 stroke-1.5"
+														aria-hidden="true"
+													/>
+												</template>
+												{{ __('Cancel') }}
+											</Button>
+										</MenuItem>
+									</MenuItems>
+								</transition>
+							</Menu>
 						</div>
 						<div class="flex items-center mb-2">
 							<Calendar class="w-4 h-4 stroke-1.5" />
@@ -50,16 +93,6 @@
 								</template>
 								{{ __('Join Call') }}
 							</Button>
-							<Button
-								v-if="evl.date > dayjs().format()"
-								@click="cancelEvaluation(evl)"
-								class="w-full"
-							>
-								<template #prefix>
-									<Ban class="w-4 h-4 stroke-1.5" />
-								</template>
-								{{ __('Cancel') }}
-							</Button>
 						</div>
 					</div>
 				</div>
@@ -84,11 +117,13 @@ import {
 	Clock,
 	GraduationCap,
 	HeadsetIcon,
+	EllipsisVertical,
 } from 'lucide-vue-next'
 import { inject, ref, getCurrentInstance } from 'vue'
 import { formatTime } from '../utils'
 import { Button, createResource, call } from 'frappe-ui'
 import EvaluationModal from '@/components/Modals/EvaluationModal.vue'
+import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
 
 const dayjs = inject('$dayjs')
 const user = inject('$user')

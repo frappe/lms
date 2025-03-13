@@ -82,6 +82,7 @@ import {
 	User,
 	Settings,
 	Sun,
+	Zap,
 } from 'lucide-vue-next'
 
 const router = useRouter()
@@ -125,89 +126,109 @@ const toggleTheme = () => {
 const userDropdownOptions = computed(() => {
 	return [
 		{
-			icon: User,
-			label: 'My Profile',
-			onClick: () => {
-				router.push(`/user/${userResource.data?.username}`)
-			},
-			condition: () => {
-				return isLoggedIn
-			},
+			group: '',
+			items: [
+				{
+					icon: User,
+					label: 'My Profile',
+					onClick: () => {
+						router.push(`/user/${userResource.data?.username}`)
+					},
+					condition: () => {
+						return isLoggedIn
+					},
+				},
+				{
+					icon: theme.value === 'light' ? Moon : Sun,
+					label: 'Toggle Theme',
+					onClick: () => {
+						toggleTheme()
+					},
+				},
+				{
+					component: markRaw(Apps),
+					condition: () => {
+						let cookies = new URLSearchParams(
+							document.cookie.split('; ').join('&')
+						)
+						let system_user = cookies.get('system_user')
+						if (system_user === 'yes') return true
+						else return false
+					},
+				},
+				{
+					icon: Settings,
+					label: 'Settings',
+					onClick: () => {
+						settingsStore.isSettingsOpen = true
+					},
+					condition: () => {
+						return userResource.data?.is_moderator
+					},
+				},
+				{
+					icon: FrappeCloudIcon,
+					label: 'Login to Frappe Cloud',
+					onClick: () => {
+						$dialog({
+							title: __('Login to Frappe Cloud?'),
+							message: __(
+								'Are you sure you want to login to your Frappe Cloud dashboard?'
+							),
+							actions: [
+								{
+									label: __('Confirm'),
+									variant: 'solid',
+									onClick(close) {
+										loginToFrappeCloud()
+										close()
+									},
+								},
+							],
+						})
+					},
+					condition: () => {
+						return (
+							userResource.data?.is_system_manager &&
+							userResource.data?.is_fc_site
+						)
+					},
+				},
+			],
 		},
 		{
-			icon: theme.value === 'light' ? Moon : Sun,
-			label: 'Toggle Theme',
-			onClick: () => {
-				toggleTheme()
-			},
-		},
-		{
-			component: markRaw(Apps),
-			condition: () => {
-				let cookies = new URLSearchParams(document.cookie.split('; ').join('&'))
-				let system_user = cookies.get('system_user')
-				if (system_user === 'yes') return true
-				else return false
-			},
-		},
-		{
-			icon: Settings,
-			label: 'Settings',
-			onClick: () => {
-				settingsStore.isSettingsOpen = true
-			},
-			condition: () => {
-				return userResource.data?.is_moderator
-			},
-		},
-		{
-			icon: FrappeCloudIcon,
-			label: 'Login to Frappe Cloud',
-			onClick: () => {
-				$dialog({
-					title: __('Login to Frappe Cloud?'),
-					message: __(
-						'Are you sure you want to login to your Frappe Cloud dashboard?'
-					),
-					actions: [
-						{
-							label: __('Confirm'),
-							variant: 'solid',
-							onClick(close) {
-								loginToFrappeCloud()
-								close()
-							},
-						},
-					],
-				})
-			},
-			condition: () => {
-				return (
-					userResource.data?.is_system_manager && userResource.data?.is_fc_site
-				)
-			},
-		},
-		{
-			icon: LogOut,
-			label: 'Log out',
-			onClick: () => {
-				logout.submit().then(() => {
-					isLoggedIn = false
-				})
-			},
-			condition: () => {
-				return isLoggedIn
-			},
-		},
-		{
-			icon: LogIn,
-			label: 'Log in',
-			onClick: () => {
-				window.location.href = '/login'
-			},
-			condition: () => {
-				return !isLoggedIn
-			},
+			group: '',
+			items: [
+				{
+					icon: Zap,
+					label: 'Powered by Learning',
+					onClick: () => {
+						window.open('https://frappe.io/learning', '_blank')
+					},
+				},
+				{
+					icon: LogOut,
+					label: 'Log out',
+					onClick: () => {
+						logout.submit().then(() => {
+							isLoggedIn = false
+						})
+					},
+					condition: () => {
+						return isLoggedIn
+					},
+				},
+				{
+					icon: LogIn,
+					label: 'Log in',
+					onClick: () => {
+						window.location.href = '/login'
+					},
+					condition: () => {
+						return !isLoggedIn
+					},
+				},
+			],
 		},
 	]
 })
