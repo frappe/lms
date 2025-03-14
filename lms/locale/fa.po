@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2025-03-07 16:04+0000\n"
-"PO-Revision-Date: 2025-03-10 22:46\n"
+"POT-Creation-Date: 2025-03-14 16:04+0000\n"
+"PO-Revision-Date: 2025-03-14 23:46\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Persian\n"
 "MIME-Version: 1.0\n"
@@ -216,7 +216,7 @@ msgid "Admin"
 msgstr "ادمین"
 
 #. Name of a role
-#: frontend/src/pages/Batches.vue:288 lms/lms/doctype/lms_badge/lms_badge.json
+#: frontend/src/pages/Batches.vue:285 lms/lms/doctype/lms_badge/lms_badge.json
 msgid "All"
 msgstr "همه"
 
@@ -370,15 +370,15 @@ msgstr "تایید شده"
 msgid "Apps"
 msgstr "برنامه ها"
 
-#: frontend/src/pages/Batches.vue:277 frontend/src/pages/Batches.vue:295
+#: frontend/src/pages/Batches.vue:292
 msgid "Archived"
 msgstr "بایگانی شد"
 
-#: frontend/src/components/UpcomingEvaluations.vue:135
+#: frontend/src/components/UpcomingEvaluations.vue:170
 msgid "Are you sure you want to cancel this evaluation? This action cannot be undone."
 msgstr ""
 
-#: frontend/src/components/UserDropdown.vue:169
+#: frontend/src/components/UserDropdown.vue:175
 msgid "Are you sure you want to login to your Frappe Cloud dashboard?"
 msgstr ""
 
@@ -566,8 +566,6 @@ msgstr "توضیحات دسته"
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/public/js/common_functions.js:349
 #: lms/templates/emails/batch_confirmation.html:24
-#: lms/templates/emails/batch_start_reminder.html:27
-#: lms/templates/emails/live_class_reminder.html:23
 msgid "Batch Details"
 msgstr "جزئیات دسته"
 
@@ -612,10 +610,6 @@ msgstr "تنظمات دسته"
 msgid "Batch Start Date:"
 msgstr "تاریخ شروع دسته:"
 
-#: lms/lms/doctype/lms_batch/lms_batch.py:418
-msgid "Batch Start Reminder"
-msgstr ""
-
 #. Label of the batch_title (Data) field in DocType 'LMS Certificate'
 #. Label of the batch_title (Data) field in DocType 'LMS Certificate Request'
 #: lms/lms/doctype/lms_certificate/lms_certificate.json
@@ -635,10 +629,8 @@ msgstr ""
 msgid "Batch:"
 msgstr "دسته:"
 
-#. Group in LMS Course's connections
 #. Label of the batches (Check) field in DocType 'LMS Settings'
-#: frontend/src/pages/Batches.vue:303
-#: lms/lms/doctype/lms_course/lms_course.json
+#: frontend/src/pages/Batches.vue:300
 #: lms/lms/doctype/lms_settings/lms_settings.json lms/www/lms.py:63
 msgid "Batches"
 msgstr ""
@@ -649,9 +641,9 @@ msgid "Begin Date"
 msgstr ""
 
 #: lms/templates/emails/batch_confirmation.html:31
-#: lms/templates/emails/batch_start_reminder.html:34
+#: lms/templates/emails/batch_start_reminder.html:31
 #: lms/templates/emails/certification.html:20
-#: lms/templates/emails/live_class_reminder.html:30
+#: lms/templates/emails/live_class_reminder.html:28
 msgid "Best Regards"
 msgstr "با احترام"
 
@@ -705,12 +697,12 @@ msgstr "توسط"
 msgid "CGPA/4"
 msgstr "CGPA/4"
 
-#: frontend/src/components/UpcomingEvaluations.vue:61
-#: frontend/src/components/UpcomingEvaluations.vue:140
+#: frontend/src/components/UpcomingEvaluations.vue:60
+#: frontend/src/components/UpcomingEvaluations.vue:175
 msgid "Cancel"
 msgstr "لغو"
 
-#: frontend/src/components/UpcomingEvaluations.vue:134
+#: frontend/src/components/UpcomingEvaluations.vue:169
 msgid "Cancel this evaluation?"
 msgstr ""
 
@@ -794,7 +786,7 @@ msgstr ""
 #: frontend/src/components/Modals/Event.vue:371
 #: frontend/src/pages/BatchForm.vue:37 frontend/src/pages/Batches.vue:38
 #: frontend/src/pages/CourseCertification.vue:10
-#: frontend/src/pages/CourseCertification.vue:114
+#: frontend/src/pages/CourseCertification.vue:133
 #: frontend/src/pages/Courses.vue:38 lms/fixtures/custom_field.json
 #: lms/lms/doctype/certification/certification.json
 #: lms/lms/doctype/lms_batch/lms_batch.json
@@ -854,7 +846,6 @@ msgid "Chapter updated successfully"
 msgstr "فصل با موفقیت به روز شد"
 
 #. Label of the chapters (Table) field in DocType 'LMS Course'
-#. Group in LMS Course's connections
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Chapters"
 msgstr "فصل‌ها"
@@ -1125,7 +1116,7 @@ msgstr ""
 msgid "Conduct Evaluation"
 msgstr ""
 
-#: frontend/src/components/UserDropdown.vue:174
+#: frontend/src/components/UserDropdown.vue:180
 msgid "Confirm"
 msgstr "تایید"
 
@@ -1381,8 +1372,8 @@ msgstr "دوره {0} قبلاً به این دسته اضافه شده است."
 #: frontend/src/components/BatchStudents.vue:92
 #: frontend/src/components/Modals/BatchStudentProgress.vue:79
 #: frontend/src/pages/BatchDetail.vue:21 frontend/src/pages/BatchDetail.vue:70
-#: frontend/src/pages/CourseCertification.vue:106
-#: frontend/src/pages/Courses.vue:314 frontend/src/pages/Statistics.vue:21
+#: frontend/src/pages/CourseCertification.vue:125
+#: frontend/src/pages/Courses.vue:306 frontend/src/pages/Statistics.vue:21
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Courses"
@@ -1427,8 +1418,7 @@ msgstr ""
 msgid "Create a new question"
 msgstr ""
 
-#: frontend/src/pages/Assignments.vue:163 frontend/src/pages/Courses.vue:287
-#: frontend/src/pages/Courses.vue:307
+#: frontend/src/pages/Assignments.vue:163 frontend/src/pages/Courses.vue:299
 msgid "Created"
 msgstr "ایجاد شده"
 
@@ -1498,7 +1488,7 @@ msgstr "تاریخ"
 msgid "Date and Time"
 msgstr "تاریخ و زمان"
 
-#: lms/templates/emails/live_class_reminder.html:14
+#: lms/templates/emails/live_class_reminder.html:13
 msgid "Date:"
 msgstr "تاریخ:"
 
@@ -1815,8 +1805,7 @@ msgstr "زمان پایان"
 msgid "Enroll Now"
 msgstr ""
 
-#: frontend/src/pages/Batches.vue:292 frontend/src/pages/Courses.vue:285
-#: frontend/src/pages/Courses.vue:305
+#: frontend/src/pages/Batches.vue:289 frontend/src/pages/Courses.vue:297
 msgid "Enrolled"
 msgstr ""
 
@@ -2198,8 +2187,8 @@ msgstr "لینک Google Meet را ایجاد کنید"
 msgid "Get Certificate"
 msgstr ""
 
-#: frontend/src/components/CertificationLinks.vue:24
-#: frontend/src/components/CertificationLinks.vue:40
+#: frontend/src/components/CertificationLinks.vue:34
+#: frontend/src/components/CertificationLinks.vue:50
 #: frontend/src/pages/CertifiedParticipants.vue:11
 msgid "Get Certified"
 msgstr "گواهینامه دریافت کنید"
@@ -2355,8 +2344,8 @@ msgid "If you have any questions or need assistance, feel free to reach out to o
 msgstr "اگر سوالی دارید یا نیاز به کمک دارید، با تیم پشتیبانی ما تماس بگیرید."
 
 #: lms/templates/emails/batch_confirmation.html:27
-#: lms/templates/emails/batch_start_reminder.html:30
-#: lms/templates/emails/live_class_reminder.html:26
+#: lms/templates/emails/batch_start_reminder.html:27
+#: lms/templates/emails/live_class_reminder.html:24
 msgid "If you have any questions or require assistance, feel free to contact us."
 msgstr "اگر سوالی دارید یا نیاز به کمک دارید، با ما تماس بگیرید."
 
@@ -2499,11 +2488,6 @@ msgstr ""
 msgid "Interest"
 msgstr "علاقه"
 
-#. Group in LMS Course's connections
-#: lms/lms/doctype/lms_course/lms_course.json
-msgid "Interests"
-msgstr "علاقمندی ها"
-
 #: lms/lms/doctype/invite_request/invite_request.py:83
 msgid "Invalid Invite Code."
 msgstr ""
@@ -2644,7 +2628,7 @@ msgstr "شغل ها"
 msgid "Join"
 msgstr "پیوستن"
 
-#: frontend/src/components/UpcomingEvaluations.vue:51
+#: frontend/src/components/UpcomingEvaluations.vue:94
 msgid "Join Call"
 msgstr ""
 
@@ -2995,7 +2979,7 @@ msgid "List of quizzes"
 msgstr ""
 
 #. Option for the 'Status' (Select) field in DocType 'Cohort'
-#: frontend/src/pages/Courses.vue:295 lms/lms/doctype/cohort/cohort.json
+#: frontend/src/pages/Courses.vue:287 lms/lms/doctype/cohort/cohort.json
 msgid "Live"
 msgstr "فعال"
 
@@ -3046,7 +3030,7 @@ msgstr ""
 msgid "Login"
 msgstr "وارد شدن"
 
-#: frontend/src/components/UserDropdown.vue:168
+#: frontend/src/components/UserDropdown.vue:174
 msgid "Login to Frappe Cloud?"
 msgstr "ورود به Frappe Cloud?"
 
@@ -3147,7 +3131,7 @@ msgid "Medium ID"
 msgstr ""
 
 #: lms/templates/emails/batch_confirmation.html:15
-#: lms/templates/emails/batch_start_reminder.html:22
+#: lms/templates/emails/batch_start_reminder.html:19
 msgid "Medium:"
 msgstr "متوسط:"
 
@@ -3314,11 +3298,6 @@ msgstr ""
 msgid "Mentor Request Status Update Template"
 msgstr ""
 
-#. Group in LMS Course's connections
-#: lms/lms/doctype/lms_course/lms_course.json
-msgid "Mentors"
-msgstr "مربیان"
-
 #. Label of the meta_image (Attach Image) field in DocType 'LMS Batch'
 #: frontend/src/pages/BatchForm.vue:44 lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/public/js/common_functions.js:362
@@ -3396,9 +3375,8 @@ msgstr "تقویم من"
 
 #. Option for the 'Event' (Select) field in DocType 'LMS Badge'
 #: frontend/src/pages/Assignments.vue:18 frontend/src/pages/Batches.vue:17
-#: frontend/src/pages/Courses.vue:17 frontend/src/pages/Courses.vue:281
-#: frontend/src/pages/Courses.vue:298 frontend/src/pages/Programs.vue:14
-#: lms/lms/doctype/lms_badge/lms_badge.json
+#: frontend/src/pages/Courses.vue:17 frontend/src/pages/Courses.vue:290
+#: frontend/src/pages/Programs.vue:14 lms/lms/doctype/lms_badge/lms_badge.json
 msgid "New"
 msgstr "جدید"
 
@@ -3952,7 +3930,7 @@ msgstr "لطفا ایمیل خود را برای تایید بررسی کنید"
 msgid "Please click on the following button to set your new password"
 msgstr ""
 
-#: lms/lms/utils.py:2030 lms/lms/utils.py:2034
+#: lms/lms/utils.py:2032 lms/lms/utils.py:2036
 msgid "Please complete the previous courses in the program to enroll in this course."
 msgstr ""
 
@@ -4022,7 +4000,7 @@ msgstr ""
 msgid "Please prepare well and be on time for the evaluations."
 msgstr ""
 
-#: frontend/src/components/UpcomingEvaluations.vue:69
+#: frontend/src/components/UpcomingEvaluations.vue:102
 msgid "Please schedule an evaluation to get certified."
 msgstr ""
 
@@ -4881,7 +4859,7 @@ msgstr "شروع"
 msgid "Start Date"
 msgstr "تاریخ شروع"
 
-#: lms/templates/emails/batch_start_reminder.html:14
+#: lms/templates/emails/batch_start_reminder.html:13
 msgid "Start Date:"
 msgstr "تاریخ شروع:"
 
@@ -5380,8 +5358,8 @@ msgid "Timezone"
 msgstr "منطقه زمانی"
 
 #: lms/templates/emails/batch_confirmation.html:19
-#: lms/templates/emails/batch_start_reminder.html:18
-#: lms/templates/emails/live_class_reminder.html:18
+#: lms/templates/emails/batch_start_reminder.html:16
+#: lms/templates/emails/live_class_reminder.html:16
 msgid "Timings:"
 msgstr ""
 
@@ -5547,7 +5525,7 @@ msgstr "تحت بررسی"
 msgid "Unlisted"
 msgstr ""
 
-#: frontend/src/pages/Batches.vue:280 frontend/src/pages/Batches.vue:296
+#: frontend/src/pages/Batches.vue:293
 msgid "Unpublished"
 msgstr "منتشر نشده"
 
@@ -5569,9 +5547,8 @@ msgstr ""
 #. Option for the 'Status' (Select) field in DocType 'Cohort'
 #. Option for the 'Status' (Select) field in DocType 'LMS Certificate Request'
 #. Label of the upcoming (Check) field in DocType 'LMS Course'
-#: frontend/src/pages/Batches.vue:276 frontend/src/pages/Batches.vue:294
-#: frontend/src/pages/CourseForm.vue:184 frontend/src/pages/Courses.vue:282
-#: frontend/src/pages/Courses.vue:301 lms/lms/doctype/cohort/cohort.json
+#: frontend/src/pages/Batches.vue:291 frontend/src/pages/CourseForm.vue:184
+#: frontend/src/pages/Courses.vue:293 lms/lms/doctype/cohort/cohort.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Upcoming"
@@ -5681,6 +5658,7 @@ msgstr ""
 msgid "View"
 msgstr "نما"
 
+#: frontend/src/components/CertificationLinks.vue:10
 #: frontend/src/components/Modals/Event.vue:67
 msgid "View Certificate"
 msgstr ""
@@ -5695,9 +5673,12 @@ msgid "Visit Batch"
 msgstr ""
 
 #: lms/templates/emails/batch_confirmation.html:23
-#: lms/templates/emails/batch_start_reminder.html:26
-#: lms/templates/emails/live_class_reminder.html:22
 msgid "Visit the following link to view your "
+msgstr ""
+
+#: lms/templates/emails/batch_start_reminder.html:23
+#: lms/templates/emails/live_class_reminder.html:20
+msgid "Visit your batch"
 msgstr ""
 
 #. Label of the internship (Table) field in DocType 'User'
@@ -5942,8 +5923,16 @@ msgstr ""
 msgid "Your Account has been successfully created!"
 msgstr ""
 
+#: lms/lms/doctype/lms_batch/lms_batch.py:418
+msgid "Your batch {0} is starting tomorrow"
+msgstr ""
+
 #: frontend/src/pages/ProfileEvaluator.vue:120
 msgid "Your calendar is set."
+msgstr ""
+
+#: lms/lms/doctype/lms_live_class/lms_live_class.py:87
+msgid "Your class on {0} is today"
 msgstr ""
 
 #: lms/lms/notification/certificate_request_reminder/certificate_request_reminder.html:3
