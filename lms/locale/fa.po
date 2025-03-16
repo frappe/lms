@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-03-14 16:04+0000\n"
-"PO-Revision-Date: 2025-03-14 23:46\n"
+"PO-Revision-Date: 2025-03-16 00:19\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Persian\n"
 "MIME-Version: 1.0\n"
@@ -883,7 +883,7 @@ msgstr "یک تصویر انتخاب کن"
 
 #: frontend/src/components/Quiz.vue:611 lms/templates/quiz/quiz.html:53
 msgid "Choose one answer"
-msgstr "یک پاسخ را انتخاب کردن کنید"
+msgstr "یک پاسخ را انتخاب کنید"
 
 #. Label of the city (Data) field in DocType 'User'
 #: frontend/src/pages/Billing.vue:81 lms/fixtures/custom_field.json
@@ -3634,7 +3634,7 @@ msgstr ""
 
 #: lms/templates/assignment.html:6
 msgid "Only files of type {0} will be accepted."
-msgstr "فقط فایل هایی از نوع {0} پذیرفته می شوند."
+msgstr "فقط فایل هایی از نوع {0} پذیرفته می‌شوند."
 
 #: frontend/src/pages/CourseForm.vue:506 frontend/src/utils/index.js:552
 msgid "Only image file is allowed."
@@ -5933,7 +5933,7 @@ msgstr ""
 
 #: lms/lms/doctype/lms_live_class/lms_live_class.py:87
 msgid "Your class on {0} is today"
-msgstr ""
+msgstr "کلاس شما در {0} امروز است"
 
 #: lms/lms/notification/certificate_request_reminder/certificate_request_reminder.html:3
 #: lms/templates/emails/certificate_request_notification.html:3
