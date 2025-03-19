@@ -245,12 +245,10 @@ const paymentLink = createResource({
 })
 
 const generatePaymentLink = () => {
-	console.log('called')
 	paymentLink.submit(
 		{},
 		{
 			validate() {
-				console.log('validation start')
 				if (!billingDetails.source) {
 					return __('Please let us know where you heard about us from.')
 				}
