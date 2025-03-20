@@ -174,6 +174,12 @@ export function getEditorTools() {
 				preserveBlank: true,
 			},
 		},
+		codeBox: {
+			class: CodeBox,
+			config: {
+				useDefaultTheme: 'dark',
+			},
+		},
 		list: {
 			class: NestedList,
 			inlineToolbar: true,

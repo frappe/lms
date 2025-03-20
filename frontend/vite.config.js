@@ -7,12 +7,11 @@ import frappeui from 'frappe-ui/vite'
 export default defineConfig({
 	plugins: [
 		frappeui({
-			frappeProxy: true, 
+			frappeProxy: true,
 			lucideIcons: true,
 			jinjaBootData: true,
 			frappeTypes: {
-				input: {
-				},
+				input: {},
 			},
 			buildConfig: {
 				indexHtmlPath: '../lms/www/lms.html',
@@ -40,7 +39,7 @@ export default defineConfig({
 			'showdown',
 			'engine.io-client',
 			'tailwind.config.js',
-			'highlight.js'
+			'highlight.js',
 		],
 	},
 })

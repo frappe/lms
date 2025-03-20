@@ -110,7 +110,7 @@ import { useSidebar } from '@/stores/sidebar'
 import { useSettings } from '@/stores/settings'
 import { ChevronRight, Plus } from 'lucide-vue-next'
 import { Button, createResource } from 'frappe-ui'
-import { TrialBanner } from "frappe-ui/frappe"
+import { TrialBanner } from 'frappe-ui/frappe'
 import PageModal from '@/components/Modals/PageModal.vue'
 
 const { user, sidebarSettings } = sessionStore()
