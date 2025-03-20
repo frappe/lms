@@ -234,10 +234,7 @@ const userDropdownOptions = computed(() => {
 })
 
 const loginToFrappeCloud = () => {
-	let redirect_to = '/dashboard/welcome'
-	if (userResource.data?.site_info.is_payment_method_added) {
-		redirect_to = '/dashboard/sites/' + userResource.data.sitename
-	}
+	let redirect_to = '/dashboard/sites/' + userResource.data.sitename
 	window.open(`${frappeCloudBaseEndpoint}${redirect_to}`, '_blank')
 }
 </script>
