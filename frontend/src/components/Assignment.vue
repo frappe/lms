@@ -1,7 +1,7 @@
 <template>
 	<div
 		v-if="assignment.data"
-		class="grid grid-cols-[65%,35%] h-full"
+		class="grid grid-cols-[60%,40%] h-full"
 		:class="{ 'border rounded-lg': !showTitle }"
 	>
 		<div class="border-r p-5 overflow-y-auto h-[calc(100vh-3.2rem)]">
@@ -115,7 +115,13 @@
 						:readonly="!canModifyAssignment"
 					/>
 				</div>
-				<div v-else>
+				<div v-if="true">
+					<div class="text-sm mb-4">
+						{{ __('Write your answer here') }}
+					</div>
+					<FormControl />
+				</div>
+				<!-- <div v-else>
 					<div class="text-sm mb-4">
 						{{ __('Write your answer here') }}
 					</div>
@@ -126,7 +132,7 @@
 						:fixedMenu="true"
 						editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
 					/>
-				</div>
+				</div> -->
 
 				<div
 					v-if="

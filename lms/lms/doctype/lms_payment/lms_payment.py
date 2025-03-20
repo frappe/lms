@@ -36,6 +36,9 @@ def send_payment_reminder():
 		if has_paid_later(payment):
 			continue
 
+		if is_batch_sold_out(payment):
+			continue
+
 		send_mail(payment)
 
 
@@ -49,6 +52,21 @@ def has_paid_later(payment):
 			"payment_for_document_type": payment.payment_for_document_type,
 		},
 	)
+
+
+def is_batch_sold_out(payment):
+	if payment.payment_for_document_type == "LMS Batch":
+		seat_count = frappe.get_cached_value(
+			"LMS Batch", payment.payment_for_document, "seat_count"
+		)
+		number_of_students = frappe.db.count(
+			"LMS Batch Enrollment", {"batch": payment.payment_for_document}
+		)
+
+		if seat_count <= number_of_students:
+			return True
+
+	return False
 
 
 def send_mail(payment):

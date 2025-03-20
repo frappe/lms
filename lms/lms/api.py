@@ -229,6 +229,12 @@ def validate_billing_access(billing_type, name):
 			access = False
 			message = _("You are already enrolled for this batch.")
 
+		seat_count = frappe.get_cached_value("LMS Batch", name, "seat_count")
+		number_of_students = frappe.db.count("LMS Batch Enrollment", {"batch": name})
+		if seat_count <= number_of_students:
+			access = False
+			message = _("Batch is sold out.")
+
 	elif access and billing_type == "certificate":
 		purchased_certificate = frappe.db.exists(
 			"LMS Enrollment",

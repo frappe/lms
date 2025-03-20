@@ -72,7 +72,7 @@
 		</div>
 		<div
 			v-else-if="!batches.list.loading"
-			class="flex flex-col items-center justify-center text-sm text-ink-gray-5 italic mt-48"
+			class="flex flex-col items-center justify-center text-sm text-ink-gray-5 mt-48"
 		>
 			<BookOpen class="size-10 mx-auto stroke-1 text-ink-gray-4" />
 			<div class="text-lg font-medium mb-1">

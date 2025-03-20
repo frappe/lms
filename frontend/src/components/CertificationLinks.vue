@@ -2,7 +2,7 @@
 	<Button
 		v-if="certification.data && certification.data.certificate"
 		@click="downloadCertificate"
-		class="w-full"
+		class=""
 	>
 		<template #prefix>
 			<GraduationCap class="size-4 stroke-1.5" />
@@ -71,7 +71,7 @@ const certification = createResource({
 	params: {
 		course: props.courseName,
 	},
-	auto: true,
+	auto: user.data ? true : false,
 	cache: ['certificationData', user.data?.name],
 })
 

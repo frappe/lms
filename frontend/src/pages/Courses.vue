@@ -28,11 +28,7 @@
 			<div
 				class="flex flex-col space-y-2 lg:space-y-0 lg:flex-row lg:items-center lg:space-x-4"
 			>
-				<TabButtons
-					v-if="user.data"
-					:buttons="courseTabs"
-					v-model="currentTab"
-				/>
+				<TabButtons :buttons="courseTabs" v-model="currentTab" />
 				<FormControl
 					v-model="certification"
 					:label="__('Certification')"
@@ -199,10 +195,6 @@ const updateCertificationFilter = () => {
 }
 
 const updateTabFilter = () => {
-	if (!user.data) {
-		return
-	}
-
 	delete filters.value['live']
 	delete filters.value['created']
 	delete filters.value['published_on']
@@ -295,7 +287,7 @@ const courseTabs = computed(() => {
 	]
 	if (user.data?.is_student) {
 		tabs.push({ label: __('Enrolled') })
-	} else {
+	} else if (user.data) {
 		tabs.push({ label: __('Created') })
 	}
 	return tabs

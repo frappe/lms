@@ -177,9 +177,6 @@ export function getEditorTools() {
 		codeBox: {
 			class: CodeBox,
 			config: {
-				themeURL:
-					'https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.1/build/styles/atom-one-dark.min.css',
-				themeName: 'atom-one-dark',
 				useDefaultTheme: 'dark',
 			},
 		},
