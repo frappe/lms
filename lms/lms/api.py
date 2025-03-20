@@ -229,6 +229,12 @@ def validate_billing_access(billing_type, name):
 			access = False
 			message = _("You are already enrolled for this batch.")
 
+		seat_count = frappe.get_cached_value("LMS Batch", name, "seat_count")
+		number_of_students = frappe.db.count("LMS Batch Enrollment", {"batch": name})
+		if seat_count <= number_of_students:
+			access = False
+			message = _("Batch is sold out.")
+
 	elif access and billing_type == "certificate":
 		purchased_certificate = frappe.db.exists(
 			"LMS Enrollment",
@@ -1295,13 +1301,23 @@ def get_certification_details(course):
 		membership = frappe.db.get_value(
 			"LMS Enrollment",
 			filters,
-			["name", "certificate", "purchased_certificate"],
+			["name", "purchased_certificate"],
 			as_dict=1,
 		)
 
 	paid_certificate = frappe.db.get_value("LMS Course", course, "paid_certificate")
+	certificate = frappe.db.get_value(
+		"LMS Certificate",
+		{"member": frappe.session.user, "course": course},
+		["name", "template"],
+		as_dict=1,
+	)
 
-	return {"membership": membership, "paid_certificate": paid_certificate}
+	return {
+		"membership": membership,
+		"paid_certificate": paid_certificate,
+		"certificate": certificate,
+	}
 
 
 @frappe.whitelist()

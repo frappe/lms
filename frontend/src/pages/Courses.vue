@@ -22,17 +22,13 @@
 		<div
 			class="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:items-center justify-between mb-5"
 		>
-			<div class="text-lg font-semibold">
+			<div class="text-lg text-ink-gray-9 font-semibold">
 				{{ __('All Courses') }}
 			</div>
 			<div
 				class="flex flex-col space-y-2 lg:space-y-0 lg:flex-row lg:items-center lg:space-x-4"
 			>
-				<TabButtons
-					v-if="user.data"
-					:buttons="courseTabs"
-					v-model="currentTab"
-				/>
+				<TabButtons :buttons="courseTabs" v-model="currentTab" />
 				<FormControl
 					v-model="certification"
 					:label="__('Certification')"
@@ -105,6 +101,7 @@ import {
 	Select,
 	TabButtons,
 } from 'frappe-ui'
+import { useRouteQuery } from '@vueuse/router'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { BookOpen, Plus } from 'lucide-vue-next'
 import { updateDocumentTitle } from '@/utils'
@@ -119,7 +116,7 @@ const currentCategory = ref(null)
 const title = ref('')
 const certification = ref(false)
 const filters = ref({})
-const currentTab = ref('Live')
+const currentTab = useRouteQuery('tab', 'Live')
 
 onMounted(() => {
 	setFiltersFromQuery()
@@ -198,10 +195,6 @@ const updateCertificationFilter = () => {
 }
 
 const updateTabFilter = () => {
-	if (!user.data) {
-		return
-	}
-
 	delete filters.value['live']
 	delete filters.value['created']
 	delete filters.value['published_on']
@@ -255,7 +248,12 @@ const setQueryParams = () => {
 		}
 	})
 
-	history.replaceState({}, '', `${location.pathname}?${queries.toString()}`)
+	let queryString = ''
+	if (queries.toString()) {
+		queryString = `?${queries.toString()}`
+	}
+
+	history.replaceState({}, '', `${location.pathname}${queryString}`)
 }
 
 const updateCategories = (data) => {
@@ -275,21 +273,6 @@ watch(currentTab, () => {
 	updateCourses()
 })
 
-const courseType = computed(() => {
-	let types = [
-		{ label: __(''), value: null },
-		{ label: __('New'), value: 'New' },
-		{ label: __('Upcoming'), value: 'Upcoming' },
-	]
-	if (user.data?.is_student) {
-		types.push({ label: __('Enrolled'), value: 'Enrolled' })
-	}
-	if (user.data?.is_moderator || user.data?.is_instructor) {
-		types.push({ label: __('Created'), value: 'Created' })
-	}
-	return types
-})
-
 const courseTabs = computed(() => {
 	let tabs = [
 		{
@@ -304,7 +287,7 @@ const courseTabs = computed(() => {
 	]
 	if (user.data?.is_student) {
 		tabs.push({ label: __('Enrolled') })
-	} else {
+	} else if (user.data) {
 		tabs.push({ label: __('Created') })
 	}
 	return tabs

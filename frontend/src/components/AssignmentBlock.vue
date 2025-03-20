@@ -1,4 +1,6 @@
 <template>
+	{{ user.data }}
+	{{ submission.data }}
 	<Assignment
 		v-if="user.data && submission.data"
 		:assignmentID="assignmentID"
@@ -16,7 +18,7 @@
 	</div>
 </template>
 <script setup>
-import { inject, watch } from 'vue'
+import { inject } from 'vue'
 import { Button, createResource } from 'frappe-ui'
 import Assignment from '@/components/Assignment.vue'
 
