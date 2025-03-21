@@ -56,12 +56,12 @@
 							<CourseInstructors :instructors="course.data.instructors" />
 						</div>
 					</div>
-					<div class="flex mt-3 mb-4 w-fit">
+					<div v-if="course.data.tags" class="flex mt-3 mb-4 w-fit">
 						<Badge
 							theme="gray"
 							size="lg"
 							class="mr-2 text-ink-gray-9"
-							v-for="tag in course.data.tags"
+							v-for="tag in course.data.tags.split(', ')"
 						>
 							{{ tag }}
 						</Badge>

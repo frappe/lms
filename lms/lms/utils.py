@@ -1156,7 +1156,6 @@ def get_course_details(course):
 		],
 		as_dict=1,
 	)
-	course_details.tags = course_details.tags.split(",") if course_details.tags else []
 
 	course_details.instructors = get_instructors(course_details.name)
 	# course_details.is_instructor = is_instructor(course_details.name)
