@@ -1,6 +1,4 @@
 <template>
-	{{ user.data }}
-	{{ submission.data }}
 	<Assignment
 		v-if="user.data && submission.data"
 		:assignmentID="assignmentID"
