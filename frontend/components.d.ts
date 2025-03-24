@@ -66,6 +66,7 @@ declare module 'vue' {
     MobileLayout: typeof import('./src/components/MobileLayout.vue')['default']
     MultiSelect: typeof import('./src/components/Controls/MultiSelect.vue')['default']
     NoPermission: typeof import('./src/components/NoPermission.vue')['default']
+    NoSidebarLayout: typeof import('./src/components/NoSidebarLayout.vue')['default']
     NotPermitted: typeof import('./src/components/NotPermitted.vue')['default']
     OnboardingBanner: typeof import('./src/components/OnboardingBanner.vue')['default']
     PageModal: typeof import('./src/components/Modals/PageModal.vue')['default']

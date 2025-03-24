@@ -1,10 +1,13 @@
 <template>
 	<div
 		v-if="assignment.data"
-		class="grid grid-cols-[60%,40%] h-full"
-		:class="{ 'border rounded-lg': !showTitle }"
+		class="grid grid-cols-2 h-full"
+		:class="{ 'border rounded-lg overflow-auto': !showTitle }"
 	>
-		<div class="border-r p-5 overflow-y-auto h-[calc(100vh-3.2rem)]">
+		<div
+			class="border-r p-5 overflow-y-auto h-[calc(100vh-3.2rem)]"
+			:class="{ 'h-full': !showTitle }"
+		>
 			<div v-if="showTitle" class="text-lg font-semibold mb-5 text-ink-gray-9">
 				<div v-if="submissionName === 'new'">
 					{{ __('Submission by') }} {{ user.data?.full_name }}
@@ -115,13 +118,7 @@
 						:readonly="!canModifyAssignment"
 					/>
 				</div>
-				<div v-if="true">
-					<div class="text-sm mb-4">
-						{{ __('Write your answer here') }}
-					</div>
-					<FormControl />
-				</div>
-				<!-- <div v-else>
+				<div v-else>
 					<div class="text-sm mb-4">
 						{{ __('Write your answer here') }}
 					</div>
@@ -132,7 +129,7 @@
 						:fixedMenu="true"
 						editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
 					/>
-				</div> -->
+				</div>
 
 				<div
 					v-if="
@@ -144,9 +141,7 @@
 					<div class="text-sm text-ink-gray-5 font-medium mb-2">
 						{{ __('Comments by Evaluator') }}:
 					</div>
-					<div class="leading-5">
-						{{ submissionResource.doc.comments }}
-					</div>
+					<div class="leading-5" v-html="submissionResource.doc.comments"></div>
 				</div>
 
 				<!-- Grading -->
@@ -204,7 +199,6 @@ const answer = ref(null)
 const comments = ref(null)
 const router = useRouter()
 const user = inject('$user')
-const showTitle = router.currentRoute.value.name == 'AssignmentSubmission'
 const isDirty = ref(false)
 
 const props = defineProps({
@@ -215,6 +209,10 @@ const props = defineProps({
 	submissionName: {
 		type: String,
 		default: 'new',
+	},
+	showTitle: {
+		type: Boolean,
+		default: true,
 	},
 })
 
@@ -359,6 +357,7 @@ const addNewSubmission = () => {
 							assignmentID: props.assignmentID,
 							submissionName: data.name,
 						},
+						query: { fromLesson: router.currentRoute.value.query.fromLesson },
 					})
 				} else {
 					markLessonProgress()
