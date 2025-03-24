@@ -53,7 +53,7 @@
 						!['Pass', 'Fail'].includes(submissionResource.doc?.status) &&
 						submissionResource.doc?.owner == user.data?.name
 					"
-					class="bg-surface-blue-2 p-3 rounded-md leading-5 text-sm mb-4"
+					class="bg-surface-blue-2 text-ink-blue-2 p-3 rounded-md leading-5 text-sm mb-4"
 				>
 					{{ __("You've successfully submitted the assignment.") }}
 					{{
@@ -119,7 +119,7 @@
 					/>
 				</div>
 				<div v-else>
-					<div class="text-sm mb-4">
+					<div class="text-sm mb-2 text-ink-gray-7">
 						{{ __('Write your answer here') }}
 					</div>
 					<TextEditor
@@ -141,7 +141,10 @@
 					<div class="text-sm text-ink-gray-5 font-medium mb-2">
 						{{ __('Comments by Evaluator') }}:
 					</div>
-					<div class="leading-5" v-html="submissionResource.doc.comments"></div>
+					<div
+						class="leading-5 text-ink-gray-9"
+						v-html="submissionResource.doc.comments"
+					></div>
 				</div>
 
 				<!-- Grading -->
