@@ -188,7 +188,12 @@ const addQuizzes = () => {
 			label: 'Quizzes',
 			icon: 'CircleHelp',
 			to: 'Quizzes',
-			activeFor: ['Quizzes', 'QuizForm'],
+			activeFor: [
+				'Quizzes',
+				'QuizForm',
+				'QuizSubmissionList',
+				'QuizSubmission',
+			],
 		})
 	}
 }
@@ -199,7 +204,12 @@ const addAssignments = () => {
 			label: 'Assignments',
 			icon: 'Pencil',
 			to: 'Assignments',
-			activeFor: ['Assignments', 'AssignmentForm'],
+			activeFor: [
+				'Assignments',
+				'AssignmentForm',
+				'AssignmentSubmissionList',
+				'AssignmentSubmission',
+			],
 		})
 	}
 }
