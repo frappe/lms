@@ -101,7 +101,6 @@ import {
 	Select,
 	TabButtons,
 } from 'frappe-ui'
-import { useRouteQuery } from '@vueuse/router'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { BookOpen, Plus } from 'lucide-vue-next'
 import { updateDocumentTitle } from '@/utils'
@@ -116,7 +115,7 @@ const currentCategory = ref(null)
 const title = ref('')
 const certification = ref(false)
 const filters = ref({})
-const currentTab = useRouteQuery('tab', 'Live')
+const currentTab = ref('Live')
 
 onMounted(() => {
 	setFiltersFromQuery()
@@ -285,10 +284,14 @@ const courseTabs = computed(() => {
 			label: __('Upcoming'),
 		},
 	]
-	if (user.data?.is_student) {
-		tabs.push({ label: __('Enrolled') })
-	} else if (user.data) {
+	if (
+		user.data?.is_moderator ||
+		user.data?.is_instructor ||
+		user.data?.is_evaluator
+	) {
 		tabs.push({ label: __('Created') })
+	} else if (user.data) {
+		tabs.push({ label: __('Enrolled') })
 	}
 	return tabs
 })

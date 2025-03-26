@@ -105,7 +105,6 @@ import {
 	Select,
 	TabButtons,
 } from 'frappe-ui'
-import { useRouteQuery } from '@vueuse/router'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { BookOpen, Plus } from 'lucide-vue-next'
 import { updateDocumentTitle } from '@/utils'
@@ -120,10 +119,8 @@ const currentCategory = ref(null)
 const title = ref('')
 const certification = ref(false)
 const filters = ref({})
-const currentTab = useRouteQuery(
-	'tab',
-	user.data?.is_student ? 'All' : 'Upcoming'
-)
+const is_student = computed(() => user.data?.is_student)
+const currentTab = ref(is_student.value ? 'All' : 'Upcoming')
 const orderBy = ref('start_date')
 
 onMounted(() => {
@@ -208,12 +205,12 @@ const updateTabFilter = () => {
 	if (!user.data) {
 		return
 	}
-	if (currentTab.value == 'Enrolled' && user.data?.is_student) {
+	if (currentTab.value == 'Enrolled' && is_student.value) {
 		filters.value['enrolled'] = 1
 		delete filters.value['start_date']
 		delete filters.value['published']
 		orderBy.value = 'start_date desc'
-	} else if (user.data?.is_student) {
+	} else if (is_student.value) {
 		delete filters.value['enrolled']
 	} else {
 		delete filters.value['start_date']
@@ -232,7 +229,7 @@ const updateTabFilter = () => {
 }
 
 const updateStudentFilter = () => {
-	if (!user.data || (user.data?.is_student && currentTab.value != 'Enrolled')) {
+	if (!user.data || (is_student.value && currentTab.value != 'Enrolled')) {
 		filters.value['start_date'] = ['>=', dayjs().format('YYYY-MM-DD')]
 		filters.value['published'] = 1
 	}
@@ -285,12 +282,17 @@ const batchTabs = computed(() => {
 			label: __('All'),
 		},
 	]
-	if (user.data?.is_student) {
-		tabs.push({ label: __('Enrolled') })
-	} else {
+
+	if (
+		user.data?.is_moderator ||
+		user.data?.is_instructor ||
+		user.data?.is_evaluator
+	) {
 		tabs.push({ label: __('Upcoming') })
 		tabs.push({ label: __('Archived') })
 		tabs.push({ label: __('Unpublished') })
+	} else if (user.data) {
+		tabs.push({ label: __('Enrolled') })
 	}
 	return tabs
 })

@@ -271,9 +271,11 @@ import { showToast } from '@/utils'
 import { Image } from 'lucide-vue-next'
 import { capture } from '@/telemetry'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
+import { useOnboarding } from 'frappe-ui/frappe'
 
 const router = useRouter()
 const user = inject('$user')
+const { updateOnboardingStep } = useOnboarding('learning')
 
 const props = defineProps({
 	batchName: {
@@ -426,6 +428,9 @@ const createNewBatch = () => {
 		{
 			onSuccess(data) {
 				capture('batch_created')
+				updateOnboardingStep('create_first_batch', true, false, () => {
+					localStorage.setItem('firstBatch', data.name)
+				})
 				router.push({
 					name: 'BatchDetail',
 					params: {

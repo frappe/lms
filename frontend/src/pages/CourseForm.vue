@@ -270,6 +270,7 @@ import { useRouter } from 'vue-router'
 import CourseOutline from '@/components/CourseOutline.vue'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import { capture } from '@/telemetry'
+import { useOnboarding } from 'frappe-ui/frappe'
 import { useSettings } from '@/stores/settings'
 
 const user = inject('$user')
@@ -278,6 +279,7 @@ const router = useRouter()
 const instructors = ref([])
 const settingsStore = useSettings()
 const app = getCurrentInstance()
+const { updateOnboardingStep } = useOnboarding('learning')
 const { $dialog } = app.appContext.config.globalProperties
 
 const props = defineProps({
@@ -443,9 +445,9 @@ const submitCourse = () => {
 			onSuccess(data) {
 				capture('course_created')
 				showToast('Success', 'Course created successfully', 'check')
-				/* if (!settingsStore.onboardingDetails.data?.is_onboarded) {
-					settingsStore.onboardingDetails.reload()
-				} */
+				updateOnboardingStep('create_first_course', true, false, () => {
+					localStorage.setItem('firstCourse', data.name)
+				})
 				router.push({
 					name: 'CourseForm',
 					params: { courseName: data.name },

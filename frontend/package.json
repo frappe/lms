@@ -26,7 +26,7 @@
     "codemirror-editor-vue3": "^2.8.0",
     "dayjs": "^1.11.6",
     "feather-icons": "^4.28.0",
-    "frappe-ui": "^0.1.118",
+    "frappe-ui": "^0.1.121",
     "highlight.js": "^11.11.1",
     "lucide-vue-next": "^0.383.0",
     "markdown-it": "^14.0.0",
