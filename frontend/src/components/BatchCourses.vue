@@ -63,6 +63,9 @@
 				</ListSelectBanner>
 			</ListView>
 		</div>
+		<div v-else class="text-sm italic text-ink-gray-5">
+			{{ __('No courses added') }}
+		</div>
 		<BatchCourseModal
 			v-model="showCourseModal"
 			:batch="batch"

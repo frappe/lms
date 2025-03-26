@@ -29,9 +29,11 @@ import { Dialog, createResource } from 'frappe-ui'
 import { ref } from 'vue'
 import Link from '@/components/Controls/Link.vue'
 import { showToast } from '@/utils'
+import { useOnboarding } from 'frappe-ui/frappe'
 
 const students = defineModel('reloadStudents')
 const student = ref()
+const { updateOnboardingStep } = useOnboarding('learning')
 const show = defineModel()
 
 const props = defineProps({
@@ -61,6 +63,7 @@ const addStudent = (close) => {
 			onSuccess() {
 				students.value.reload()
 				student.value = null
+				updateOnboardingStep('add_batch_student')
 				close()
 			},
 			onError(err) {

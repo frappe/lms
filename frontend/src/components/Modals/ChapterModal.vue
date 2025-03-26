@@ -81,11 +81,11 @@ import { reactive, watch } from 'vue'
 import { showToast, getFileSize } from '@/utils/'
 import { capture } from '@/telemetry'
 import { FileText, X } from 'lucide-vue-next'
-import { useSettings } from '@/stores/settings'
+import { useOnboarding } from 'frappe-ui/frappe'
 
 const show = defineModel()
 const outline = defineModel('outline')
-const settingsStore = useSettings()
+const { updateOnboardingStep } = useOnboarding('learning')
 
 const props = defineProps({
 	course: {
@@ -140,14 +140,12 @@ const addChapter = async (close) => {
 			},
 			onSuccess: (data) => {
 				capture('chapter_created')
+				updateOnboardingStep('create_first_chapter')
 				chapterReference.submit(
 					{ name: data.name },
 					{
 						onSuccess(data) {
 							cleanChapter()
-							/* if (!settingsStore.onboardingDetails.data?.is_onboarded) {
-								settingsStore.onboardingDetails.reload()
-							} */
 							outline.value.reload()
 							showToast(
 								__('Success'),

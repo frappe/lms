@@ -4,7 +4,7 @@
 			class="youtube-video"
 			:src="getYouTubeVideoSource(youtube.split('/').pop())"
 			width="100%"
-			height="400"
+			:height="screenSize.width < 640 ? 200 : 400"
 			frameborder="0"
 			allowfullscreen
 		></iframe>
@@ -15,7 +15,7 @@
 				class="youtube-video"
 				:src="getYouTubeVideoSource(block)"
 				width="100%"
-				height="400"
+				:height="screenSize.width < 640 ? 200 : 400"
 				frameborder="0"
 				allowfullscreen
 			></iframe>
@@ -66,6 +66,9 @@
 <script setup>
 import Quiz from '@/components/QuizBlock.vue'
 import MarkdownIt from 'markdown-it'
+import { useScreenSize } from '@/utils/composables'
+
+const screenSize = useScreenSize()
 
 const markdown = new MarkdownIt({
 	html: true,
