@@ -1,5 +1,6 @@
 import frappe
 
+
 def get_first_course():
 	course = frappe.get_all(
 		"LMS Course",
@@ -8,6 +9,7 @@ def get_first_course():
 		limit=1,
 	)
 	return course[0].name if course else None
+
 
 def get_first_batch():
 	batch = frappe.get_all(

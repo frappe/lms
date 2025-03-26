@@ -1,10 +1,17 @@
 <template>
-	<div class="text-base">
+	<div class="h-full">
 		<div
 			v-if="title && (outline.data?.length || allowEdit)"
-			class="grid grid-cols-[70%,30%] mb-4 px-2"
+			class="flex items-center justify-between space-x-2 mb-4 px-2"
+			:class="{
+				'sticky top-0 z-10 bg-surface-white border-b px-3 py-2.5 sm:px-5':
+					allowEdit,
+			}"
 		>
-			<div class="font-semibold text-lg leading-5 text-ink-gray-9">
+			<div
+				class="font-semibold text-lg leading-5 text-ink-gray-9"
+				:class="{ 'font-medium text-p-base': allowEdit }"
+			>
 				{{ __(title) }}
 			</div>
 			<Button size="sm" v-if="allowEdit" @click="openChapterModal()">

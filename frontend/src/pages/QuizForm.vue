@@ -211,7 +211,6 @@ import { Plus, Trash2 } from 'lucide-vue-next'
 import Question from '@/components/Modals/Question.vue'
 import { showToast, updateDocumentTitle } from '@/utils'
 import { useRouter } from 'vue-router'
-import { useOnboarding } from 'frappe-ui/frappe'
 
 const showQuestionModal = ref(false)
 const currentQuestion = reactive({
@@ -221,7 +220,6 @@ const currentQuestion = reactive({
 })
 const user = inject('$user')
 const router = useRouter()
-const { updateOnboardingStep } = useOnboarding('learning')
 
 const props = defineProps({
 	quizID: {
@@ -339,7 +337,6 @@ const createQuiz = () => {
 		{
 			onSuccess(data) {
 				showToast(__('Success'), __('Quiz created successfully'), 'check')
-				updateOnboardingStep('create_first_quiz')
 				router.push({
 					name: 'QuizForm',
 					params: { quizID: data.name },

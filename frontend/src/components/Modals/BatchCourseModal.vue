@@ -88,7 +88,7 @@ const addCourse = (close) => {
 
 const openSettings = (close) => {
 	close()
-	settingsStore.activeTab = 'Categories'
+	settingsStore.activeTab = 'Evaluators'
 	settingsStore.isSettingsOpen = true
 }
 </script>

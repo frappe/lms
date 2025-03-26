@@ -88,7 +88,9 @@
 				"
 			>
 				<template #icon>
-					<CircleHelp class="h-4 w-4" />
+					<span class="grid h-5 w-6 flex-shrink-0 place-items-center">
+						<CircleHelp class="h-4 w-4 stroke-1.5" />
+					</span>
 				</template>
 			</SidebarLink>
 			<SidebarLink
@@ -101,7 +103,7 @@
 				<template #icon>
 					<span class="grid h-5 w-6 flex-shrink-0 place-items-center">
 						<CollapseSidebar
-							class="h-4.5 w-4.5 text-ink-gray-7 duration-300 ease-in-out"
+							class="h-4 w-4 text-ink-gray-7 duration-300 ease-in-out"
 							:class="{
 								'[transform:rotateY(180deg)]': sidebarStore.isSidebarCollapsed,
 							}"
@@ -110,28 +112,28 @@
 				</template>
 			</SidebarLink>
 		</div>
+		<HelpModal
+			v-if="showOnboarding && showHelpModal"
+			v-model="showHelpModal"
+			v-model:articles="articles"
+			appName="learning"
+			title="Frappe Learning"
+			:logo="LMSLogo"
+			:afterSkip="(step) => capture('onboarding_step_skipped_' + step)"
+			:afterSkipAll="() => capture('onboarding_steps_skipped')"
+			:afterReset="(step) => capture('onboarding_step_reset_' + step)"
+			:afterResetAll="() => capture('onboarding_steps_reset')"
+			docsLink="https://docs.frappe.io/learning"
+		/>
+		<IntermediateStepModal
+			v-model="showIntermediateModal"
+			:currentStep="currentStep"
+		/>
 	</div>
 	<PageModal
 		v-model="showPageModal"
 		v-model:reloadSidebar="sidebarSettings"
 		:page="pageToEdit"
-	/>
-	<HelpModal
-		v-if="showOnboarding && showHelpModal"
-		v-model="showHelpModal"
-		v-model:articles="articles"
-		appName="learning"
-		title="Frappe Learning"
-		:logo="LMSLogo"
-		:afterSkip="(step) => capture('onboarding_step_skipped_' + step)"
-		:afterSkipAll="() => capture('onboarding_steps_skipped')"
-		:afterReset="(step) => capture('onboarding_step_reset_' + step)"
-		:afterResetAll="() => capture('onboarding_steps_reset')"
-		docsLink="https://docs.frappe.io/learning"
-	/>
-	<IntermediateStepModal
-		v-model="showIntermediateModal"
-		:currentStep="currentStep"
 	/>
 </template>
 
@@ -140,12 +142,18 @@ import UserDropdown from '@/components/UserDropdown.vue'
 import CollapseSidebar from '@/components/Icons/CollapseSidebar.vue'
 import SidebarLink from '@/components/SidebarLink.vue'
 import { useStorage } from '@vueuse/core'
-import { ref, onMounted, inject, watch, reactive, markRaw } from 'vue'
+import { ref, onMounted, inject, watch, reactive, markRaw, h } from 'vue'
 import { getSidebarLinks } from '../utils'
 import { usersStore } from '@/stores/user'
 import { sessionStore } from '@/stores/session'
 import { useSidebar } from '@/stores/sidebar'
 import { useSettings } from '@/stores/settings'
+import { Button, createResource } from 'frappe-ui'
+import PageModal from '@/components/Modals/PageModal.vue'
+import { capture } from '@/telemetry'
+import LMSLogo from '@/components/Icons/LMSLogo.vue'
+import { useRouter } from 'vue-router'
+import InviteIcon from './Icons/InviteIcon.vue'
 import {
 	BookOpen,
 	ChevronRight,
@@ -155,8 +163,8 @@ import {
 	FileText,
 	UserPlus,
 	Users,
+	BookText,
 } from 'lucide-vue-next'
-import { Button, createResource } from 'frappe-ui'
 import {
 	TrialBanner,
 	HelpModal,
@@ -166,10 +174,6 @@ import {
 	minimize,
 	IntermediateStepModal,
 } from 'frappe-ui/frappe'
-import PageModal from '@/components/Modals/PageModal.vue'
-import { capture } from '@/telemetry'
-import LMSLogo from '@/components/Icons/LMSLogo.vue'
-import { useRouter } from 'vue-router'
 
 const { user, sidebarSettings } = sessionStore()
 const { userResource } = usersStore()
@@ -188,6 +192,11 @@ const currentStep = ref({})
 const router = useRouter()
 let onboardingDetails
 let isOnboardingStepsCompleted = false
+const iconProps = {
+	strokeWidth: 1.5,
+	width: 16,
+	height: 16,
+}
 
 onMounted(() => {
 	addNotifications()
@@ -372,22 +381,19 @@ const steps = reactive([
 	{
 		name: 'create_first_course',
 		title: __('Create your first course'),
-		icon: markRaw(BookOpen),
+		icon: markRaw(h(BookOpen, iconProps)),
 		completed: false,
 		onClick: () => {
 			minimize.value = true
 			router.push({
-				name: 'CourseForm',
-				params: {
-					courseName: 'new',
-				},
+				name: 'Courses',
 			})
 		},
 	},
 	{
 		name: 'create_first_chapter',
 		title: __('Add your first chapter'),
-		icon: markRaw(FolderTree),
+		icon: markRaw(h(FolderTree, iconProps)),
 		completed: false,
 		onClick: async () => {
 			minimize.value = true
@@ -402,35 +408,35 @@ const steps = reactive([
 	{
 		name: 'create_first_lesson',
 		title: __('Add your first lesson'),
-		icon: markRaw(FileText),
+		icon: markRaw(h(FileText, iconProps)),
 		completed: false,
 		onClick: async () => {
 			minimize.value = true
 			let course = await getFirstCourse()
 			if (course) {
 				router.push({
-					name: 'LessonForm',
-					params: { courseName: course, chapterNumber: 1, lessonNumber: 1 },
+					name: 'CourseForm',
+					params: { courseName: course },
 				})
 			} else {
-				router.push({ name: 'CourseForm' })
+				router.push({ name: 'Courses' })
 			}
 		},
 	},
 	{
 		name: 'create_first_quiz',
 		title: __('Create your first quiz'),
-		icon: markRaw(CircleHelp),
+		icon: markRaw(h(CircleHelp, iconProps)),
 		completed: false,
 		onClick: () => {
 			minimize.value = true
-			router.push({ name: 'QuizForm', params: { quizID: 'new' } })
+			router.push({ name: 'Quizzes' })
 		},
 	},
 	{
 		name: 'invite_students',
 		title: __('Invite your team and students'),
-		icon: markRaw(UserPlus),
+		icon: markRaw(h(InviteIcon, iconProps)),
 		completed: false,
 		onClick: () => {
 			minimize.value = true
@@ -441,17 +447,17 @@ const steps = reactive([
 	{
 		name: 'create_first_batch',
 		title: __('Create your first batch'),
-		icon: markRaw(Users),
+		icon: markRaw(h(Users, iconProps)),
 		completed: false,
 		onClick: () => {
 			minimize.value = true
-			router.push({ name: 'BatchForm', params: { batchName: 'new' } })
+			router.push({ name: 'Batches' })
 		},
 	},
 	{
 		name: 'add_batch_student',
 		title: __('Add students to your batch'),
-		icon: markRaw(UserPlus),
+		icon: markRaw(h(UserPlus, iconProps)),
 		completed: false,
 		onClick: async () => {
 			minimize.value = true
@@ -471,7 +477,7 @@ const steps = reactive([
 	{
 		name: 'add_batch_course',
 		title: __('Add courses to your batch'),
-		icon: markRaw(BookOpen),
+		icon: markRaw(h(BookText, iconProps)),
 		completed: false,
 		onClick: async () => {
 			minimize.value = true
@@ -482,7 +488,7 @@ const steps = reactive([
 					params: {
 						batchName: batch,
 					},
-					hash: 'courses',
+					hash: '#courses',
 				})
 			} else {
 				router.push({ name: 'Batch' })
