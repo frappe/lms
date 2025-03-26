@@ -1,6 +1,6 @@
 <template>
 	<div>
-        <div class="flex items-center justify-between mb-4">
+		<div class="flex items-center justify-between mb-4">
 			<div>
 				<div class="text-xl font-semibold mb-1 text-ink-gray-9">
 					{{ __(label) }}
@@ -25,21 +25,25 @@
 			</div>
 		</div>
 
-        <!-- Form to add new member -->
+		<!-- Form to add new member -->
 		<div v-if="showForm" class="flex items-center space-x-2 my-4">
 			<FormControl
-                v-model="email"
-                :placeholder="__('Email')"
-                type="email"
-                class="w-full"
-            />
+				v-model="email"
+				:placeholder="__('Email')"
+				type="email"
+				class="w-full"
+			/>
 			<Button @click="addEvaluator()" variant="subtle">
 				{{ __('Add') }}
 			</Button>
 		</div>
 
 		<div class="divide-y">
-			<div v-for="evaluator in evaluators.data"  @click="openProfile(evaluator.username)" class="cursor-pointer">
+			<div
+				v-for="evaluator in evaluators.data"
+				@click="openProfile(evaluator.username)"
+				class="cursor-pointer"
+			>
 				<div class="flex items-center justify-between py-3">
 					<div class="flex items-center space-x-3">
 						<Avatar
@@ -59,8 +63,7 @@
 				</div>
 			</div>
 		</div>
-		
-    </div>
+	</div>
 </template>
 <script setup lang="ts">
 import { createResource, Button, FormControl, call, Avatar } from 'frappe-ui'
@@ -93,21 +96,21 @@ const evaluators = createResource({
 	makeParams: () => {
 		return {
 			doctype: 'Course Evaluator',
-            fields: ['evaluator', 'full_name', 'user_image', 'username'],
-            filters: search.value ? [['evaluator', 'like', search.value]] : [],
+			fields: ['evaluator', 'full_name', 'user_image', 'username'],
+			filters: search.value ? [['evaluator', 'like', search.value]] : [],
 		}
 	},
 	auto: true,
 })
 
 const addEvaluator = () => {
-	call("lms.lms.api.add_an_evaluator", {
-        email: email.value
-    }).then(data => {
-        showForm.value = false
-        email.value = ''
-        evaluators.reload()
-    })
+	call('lms.lms.api.add_an_evaluator', {
+		email: email.value,
+	}).then((data) => {
+		showForm.value = false
+		email.value = ''
+		evaluators.reload()
+	})
 }
 
 watch(search, () => {
