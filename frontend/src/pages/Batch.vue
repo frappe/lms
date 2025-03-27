@@ -190,11 +190,15 @@
 			</div>
 		</div>
 	</div>
-	<BulkCertificates v-model="openCertificateDialog" :batch="batch.data" />
+	<BulkCertificates
+		v-if="batch.data"
+		v-model="openCertificateDialog"
+		:batch="batch.data"
+	/>
 </template>
 <script setup>
-import { computed, inject, ref } from 'vue'
-import { useRouteQuery } from '@vueuse/router'
+import { computed, inject, ref, onMounted, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { Breadcrumbs, Button, createResource, Tabs, Badge } from 'frappe-ui'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
@@ -226,52 +230,10 @@ import BatchFeedback from '@/components/BatchFeedback.vue'
 const user = inject('$user')
 const showAnnouncementModal = ref(false)
 const openCertificateDialog = ref(false)
+const route = useRoute()
+const router = useRouter()
+const tabIndex = ref(0)
 
-const props = defineProps({
-	batchName: {
-		type: String,
-		required: true,
-	},
-})
-
-const batch = createResource({
-	url: 'lms.lms.utils.get_batch_details',
-	cache: ['batch', props.batchName],
-	params: {
-		batch: props.batchName,
-	},
-	auto: true,
-})
-
-const breadcrumbs = computed(() => {
-	let crumbs = [{ label: 'Batches', route: { name: 'Batches' } }]
-	if (!isStudent.value) {
-		crumbs.push({
-			label: 'Details',
-			route: {
-				name: 'BatchDetail',
-				params: {
-					batchName: batch.data?.name,
-				},
-			},
-		})
-	}
-	crumbs.push({
-		label: batch?.data?.title,
-		route: { name: 'Batch', params: { batchName: props.batchName } },
-	})
-	return crumbs
-})
-
-const isStudent = computed(() => {
-	return (
-		user?.data &&
-		batch.data?.students?.length &&
-		batch.data?.students.includes(user.data.name)
-	)
-})
-
-const tabIndex = useRouteQuery('tab', 0, { transform: Number })
 const tabs = computed(() => {
 	let batchTabs = []
 	batchTabs.push({
@@ -313,6 +275,61 @@ const tabs = computed(() => {
 	return batchTabs
 })
 
+const props = defineProps({
+	batchName: {
+		type: String,
+		required: true,
+	},
+})
+
+onMounted(() => {
+	const hash = route.hash
+	if (hash) {
+		tabs.value.forEach((tab, index) => {
+			if (tab.label?.toLowerCase() === hash.replace('#', '')) {
+				tabIndex.value = index
+			}
+		})
+	}
+})
+
+const batch = createResource({
+	url: 'lms.lms.utils.get_batch_details',
+	cache: ['batch', props.batchName],
+	params: {
+		batch: props.batchName,
+	},
+	auto: true,
+})
+
+const breadcrumbs = computed(() => {
+	let crumbs = [{ label: 'Batches', route: { name: 'Batches' } }]
+	if (!isStudent.value) {
+		crumbs.push({
+			label: 'Details',
+			route: {
+				name: 'BatchDetail',
+				params: {
+					batchName: batch.data?.name,
+				},
+			},
+		})
+	}
+	crumbs.push({
+		label: batch?.data?.title,
+		route: { name: 'Batch', params: { batchName: props.batchName } },
+	})
+	return crumbs
+})
+
+const isStudent = computed(() => {
+	return (
+		user?.data &&
+		batch.data?.students?.length &&
+		batch.data?.students.includes(user.data.name)
+	)
+})
+
 const redirectToLogin = () => {
 	window.location.href = `/login?redirect-to=/lms/batches/${props.batchName}`
 }
@@ -320,6 +337,13 @@ const redirectToLogin = () => {
 const openAnnouncementModal = () => {
 	showAnnouncementModal.value = true
 }
+
+watch(tabIndex, () => {
+	const tab = tabs.value[tabIndex.value]
+	if (tab.label != route.hash.replace('#', '')) {
+		router.push({ ...route, hash: `#${tab.label.toLowerCase()}` })
+	}
+})
 
 const pageMeta = computed(() => {
 	return {

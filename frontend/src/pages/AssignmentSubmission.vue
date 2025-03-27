@@ -1,19 +1,25 @@
 <template>
 	<header
+		v-if="!fromLesson"
 		class="flex justify-between sticky top-0 z-10 border-b bg-surface-white px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs :items="breadcrumbs" />
 	</header>
 	<div class="overflow-hidden h-[calc(100vh-3.2rem)]">
-		<Assignment :assignmentID="assignmentID" :submissionName="submissionName" />
+		<Assignment
+			:assignmentID="assignmentID"
+			:submissionName="submissionName"
+			:showTitle="!fromLesson"
+		/>
 	</div>
 </template>
 <script setup>
 import { Breadcrumbs, createResource } from 'frappe-ui'
-import { computed, inject, onMounted } from 'vue'
+import { computed, inject, onMounted, onBeforeUnmount, ref } from 'vue'
 import Assignment from '@/components/Assignment.vue'
 
 const user = inject('$user')
+const fromLesson = ref(false)
 
 const props = defineProps({
 	assignmentID: {
@@ -41,6 +47,10 @@ const title = createResource({
 onMounted(() => {
 	if (!user.data) {
 		window.location.href = '/login'
+	}
+
+	if (new URLSearchParams(window.location.search).get('fromLesson')) {
+		fromLesson.value = true
 	}
 })
 

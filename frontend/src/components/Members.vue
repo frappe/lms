@@ -116,6 +116,7 @@ import { createResource, Avatar, Button, FormControl, Badge } from 'frappe-ui'
 import { useRouter } from 'vue-router'
 import { ref, watch, reactive, inject } from 'vue'
 import { RefreshCw, Plus, X } from 'lucide-vue-next'
+import { useOnboarding } from 'frappe-ui/frappe'
 
 const router = useRouter()
 const show = defineModel('show')
@@ -125,6 +126,7 @@ const memberList = ref([])
 const hasNextPage = ref(false)
 const showForm = ref(false)
 const dayjs = inject('$dayjs')
+const { updateOnboardingStep } = useOnboarding('learning')
 
 const member = reactive({
 	email: '',
@@ -185,6 +187,7 @@ const newMember = createResource({
 	auto: false,
 	onSuccess(data) {
 		show.value = false
+		updateOnboardingStep('invite_students')
 		router.push({
 			name: 'Profile',
 			params: {

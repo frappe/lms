@@ -233,7 +233,6 @@ lms_markdown_macro_renderers = {
 page_renderer = [
 	"lms.page_renderers.ProfileRedirectPage",
 	"lms.page_renderers.ProfilePage",
-	"lms.page_renderers.CoursePage",
 	"lms.page_renderers.SCORMRenderer",
 ]
 

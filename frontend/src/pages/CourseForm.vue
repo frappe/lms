@@ -1,19 +1,20 @@
 <template>
-	<div class="">
+	<div class="h-full">
 		<div class="grid md:grid-cols-[70%,30%] h-full">
 			<div>
 				<header
-					class="sticky top-0 z-10 flex flex-col md:flex-row md:items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
+					class="sticky top-0 z-10 group flex flex-col md:flex-row md:items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 				>
 					<Breadcrumbs class="h-7" :items="breadcrumbs" />
 					<div class="flex items-center mt-3 md:mt-0">
-						<Button v-if="courseResource.data?.name" @click="trashCourse()">
-							<template #prefix>
+						<Button
+							v-if="courseResource.data?.name"
+							@click="trashCourse()"
+							class="invisible group-hover:visible"
+						>
+							<template #icon>
 								<Trash2 class="w-4 h-4 stroke-1.5" />
 							</template>
-							<span>
-								{{ __('Delete') }}
-							</span>
 						</Button>
 						<Button variant="solid" @click="submitCourse()" class="ml-2">
 							<span>
@@ -233,11 +234,11 @@
 					</div>
 				</div>
 			</div>
-			<div class="border-l pt-5">
+			<div class="border-l">
 				<CourseOutline
 					v-if="courseResource.data"
 					:courseName="courseResource.data.name"
-					:title="course.title"
+					:title="__('Course Outline')"
 					:allowEdit="true"
 				/>
 			</div>
@@ -270,6 +271,7 @@ import { useRouter } from 'vue-router'
 import CourseOutline from '@/components/CourseOutline.vue'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import { capture } from '@/telemetry'
+import { useOnboarding } from 'frappe-ui/frappe'
 import { useSettings } from '@/stores/settings'
 
 const user = inject('$user')
@@ -278,6 +280,7 @@ const router = useRouter()
 const instructors = ref([])
 const settingsStore = useSettings()
 const app = getCurrentInstance()
+const { updateOnboardingStep } = useOnboarding('learning')
 const { $dialog } = app.appContext.config.globalProperties
 
 const props = defineProps({
@@ -443,9 +446,9 @@ const submitCourse = () => {
 			onSuccess(data) {
 				capture('course_created')
 				showToast('Success', 'Course created successfully', 'check')
-				/* if (!settingsStore.onboardingDetails.data?.is_onboarded) {
-					settingsStore.onboardingDetails.reload()
-				} */
+				updateOnboardingStep('create_first_course', true, false, () => {
+					localStorage.setItem('firstCourse', data.name)
+				})
 				router.push({
 					name: 'CourseForm',
 					params: { courseName: data.name },

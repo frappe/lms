@@ -24,6 +24,7 @@
 				doctype="Course Evaluator"
 				v-model="evaluator"
 				:label="__('Evaluator')"
+				:onCreate="(value, close) => openSettings(close)"
 				class="mt-4"
 			/>
 		</template>
@@ -34,11 +35,15 @@ import { Dialog, createResource } from 'frappe-ui'
 import { ref } from 'vue'
 import Link from '@/components/Controls/Link.vue'
 import { showToast } from '@/utils'
+import { useOnboarding } from 'frappe-ui/frappe'
+import { useSettings } from '@/stores/settings'
 
 const show = defineModel()
 const course = ref(null)
 const evaluator = ref(null)
 const courses = defineModel('courses')
+const { updateOnboardingStep } = useOnboarding('learning')
+const settingsStore = useSettings()
 
 const props = defineProps({
 	batch: {
@@ -69,6 +74,7 @@ const addCourse = (close) => {
 		{
 			onSuccess() {
 				courses.value.reload()
+				updateOnboardingStep('add_batch_course')
 				close()
 				course.value = null
 				evaluator.value = null
@@ -78,5 +84,11 @@ const addCourse = (close) => {
 			},
 		}
 	)
+}
+
+const openSettings = (close) => {
+	close()
+	settingsStore.activeTab = 'Evaluators'
+	settingsStore.isSettingsOpen = true
 }
 </script>

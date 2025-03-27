@@ -177,7 +177,9 @@ def get_user_info():
 	user.is_instructor = "Course Creator" in user.roles
 	user.is_moderator = "Moderator" in user.roles
 	user.is_evaluator = "Batch Evaluator" in user.roles
-	user.is_student = "LMS Student" in user.roles
+	user.is_student = (
+		not user.is_instructor and not user.is_moderator and not user.is_evaluator
+	)
 	user.is_fc_site = is_fc_site()
 	user.is_system_manager = "System Manager" in user.roles
 	if user.is_fc_site and user.is_system_manager:
@@ -1337,3 +1339,24 @@ def save_role(user, role, value):
 	else:
 		frappe.db.delete("Has Role", {"parent": user, "role": role})
 	return True
+
+
+@frappe.whitelist()
+def add_an_evaluator(email):
+	if not frappe.db.exists("User", email):
+		user = frappe.new_doc("User")
+		user.update(
+			{
+				"email": email,
+				"first_name": email.split("@")[0].capitalize(),
+				"enabled": 1,
+			}
+		)
+		user.insert()
+		user.add_roles("Batch Evaluator")
+
+	evaluator = frappe.new_doc("Course Evaluator")
+	evaluator.evaluator = email
+	evaluator.insert()
+
+	return evaluator
