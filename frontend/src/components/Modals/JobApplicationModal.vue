@@ -66,7 +66,7 @@
 <script setup>
 import { Dialog, FileUploader, Button, createResource } from 'frappe-ui'
 import { FileText } from 'lucide-vue-next'
-import { ref, inject, defineModel } from 'vue'
+import { ref, inject } from 'vue'
 import { createToast, getFileSize } from '@/utils/'
 
 const resume = ref(null)

@@ -40,15 +40,13 @@
   "pricing_tab",
   "pricing_section",
   "paid_course",
+  "enable_certification",
+  "paid_certificate",
+  "evaluator",
   "column_break_acoj",
   "course_price",
   "currency",
   "amount_usd",
-  "certification_tab",
-  "certification_section",
-  "enable_certification",
-  "column_break_rxww",
-  "expiry",
   "tab_4_tab",
   "statistics_section",
   "enrollments",
@@ -135,21 +133,10 @@
    "label": "Course Settings"
   },
   {
-   "fieldname": "certification_section",
-   "fieldtype": "Section Break"
-  },
-  {
    "default": "0",
    "fieldname": "enable_certification",
    "fieldtype": "Check",
-   "label": "Enable Certification"
-  },
-  {
-   "default": "0",
-   "depends_on": "enable_certification",
-   "fieldname": "expiry",
-   "fieldtype": "Int",
-   "label": "Certification Expires After (Years)"
+   "label": "Completion Certificate"
   },
   {
    "fieldname": "related_courses",
@@ -181,7 +168,6 @@
    "fieldtype": "Section Break"
   },
   {
-   "depends_on": "paid_course",
    "fieldname": "currency",
    "fieldtype": "Link",
    "label": "Currency",
@@ -195,22 +181,16 @@
    "label": "Paid Course"
   },
   {
-   "depends_on": "paid_course",
    "fieldname": "course_price",
    "fieldtype": "Currency",
-   "label": "Course Price",
+   "label": "Amount",
    "mandatory_depends_on": "paid_course"
-  },
-  {
-   "fieldname": "column_break_rxww",
-   "fieldtype": "Column Break"
   },
   {
    "fieldname": "column_break_acoj",
    "fieldtype": "Column Break"
   },
   {
-   "depends_on": "paid_course",
    "description": "If you set an amount here, then the USD equivalent setting will not get applied.",
    "fieldname": "amount_usd",
    "fieldtype": "Currency",
@@ -238,12 +218,7 @@
   {
    "fieldname": "pricing_tab",
    "fieldtype": "Tab Break",
-   "label": "Pricing"
-  },
-  {
-   "fieldname": "certification_tab",
-   "fieldtype": "Tab Break",
-   "label": "Certification"
+   "label": "Pricing and Certification"
   },
   {
    "fieldname": "column_break_htgn",
@@ -267,14 +242,14 @@
   {
    "default": "0",
    "fieldname": "enrollments",
-   "fieldtype": "Data",
+   "fieldtype": "Int",
    "label": "Enrollments",
    "read_only": 1
   },
   {
    "default": "0",
    "fieldname": "lessons",
-   "fieldtype": "Data",
+   "fieldtype": "Int",
    "label": "Lessons",
    "read_only": 1
   },
@@ -284,33 +259,38 @@
    "fieldtype": "Data",
    "label": "Rating",
    "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "paid_certificate",
+   "fieldtype": "Check",
+   "label": "Paid Certificate"
+  },
+  {
+   "depends_on": "paid_certificate",
+   "fieldname": "evaluator",
+   "fieldtype": "Link",
+   "label": "Evaluator",
+   "options": "Course Evaluator"
   }
  ],
  "is_published_field": "published",
  "links": [
   {
-   "group": "Chapters",
+   "link_doctype": "LMS Enrollment",
+   "link_fieldname": "course"
+  },
+  {
    "link_doctype": "Course Chapter",
    "link_fieldname": "course"
   },
   {
-   "group": "Batches",
-   "link_doctype": "LMS Batch Old",
-   "link_fieldname": "course"
-  },
-  {
-   "group": "Mentors",
-   "link_doctype": "LMS Course Mentor Mapping",
-   "link_fieldname": "course"
-  },
-  {
-   "group": "Interests",
-   "link_doctype": "LMS Course Interest",
+   "link_doctype": "Course Lesson",
    "link_fieldname": "course"
   }
  ],
  "make_attachments_public": 1,
- "modified": "2024-10-30 23:08:31.842860",
+ "modified": "2025-03-13 16:01:19.105212",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",

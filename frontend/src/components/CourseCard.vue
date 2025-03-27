@@ -16,7 +16,8 @@
 					{{ __('Featured') }}
 				</Badge>
 				<div
-					v-for="tag in course.tags"
+					v-if="course.tags"
+					v-for="tag in course.tags?.split(', ')"
 					class="text-xs bg-white text-gray-800 px-2 py-0.5 rounded-md"
 				>
 					{{ tag }}
@@ -100,8 +101,14 @@
 					<CourseInstructors :instructors="course.instructors" />
 				</div>
 
-				<div class="font-semibold">
+				<div v-if="course.paid_course" class="font-semibold">
 					{{ course.price }}
+				</div>
+				<div
+					v-if="course.paid_certificate || course.enable_certification"
+					class="text-xs text-ink-blue-3 bg-surface-blue-1 py-0.5 px-1 rounded-md"
+				>
+					{{ __('Certification') }}
 				</div>
 			</div>
 		</div>

@@ -109,11 +109,13 @@ import { Dialog, FormControl, TextEditor, createResource } from 'frappe-ui'
 import { computed, watch, reactive, ref } from 'vue'
 import Link from '@/components/Controls/Link.vue'
 import { showToast } from '@/utils'
+import { useOnboarding } from 'frappe-ui/frappe'
 
 const show = defineModel()
 const quiz = defineModel('quiz')
 const questionType = ref(null)
 const editMode = ref(false)
+const { updateOnboardingStep } = useOnboarding('learning')
 
 const existingQuestion = reactive({
 	question: '',
@@ -122,7 +124,7 @@ const existingQuestion = reactive({
 const question = reactive({
 	question: '',
 	type: 'Choices',
-	marks: 0,
+	marks: 1,
 })
 
 const populateFields = () => {
@@ -261,6 +263,7 @@ const addQuestionRow = (question, close) => {
 		{
 			onSuccess() {
 				show.value = false
+				updateOnboardingStep('create_first_quiz')
 				showToast(__('Success'), __('Question added successfully'), 'check')
 				quiz.value.reload()
 				close()

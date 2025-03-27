@@ -17,7 +17,7 @@
 	<div v-if="programs.data?.length" class="pt-5 px-5">
 		<div v-for="program in programs.data" class="mb-10">
 			<div class="flex items-center justify-between">
-				<div class="text-xl font-semibold">
+				<div class="text-xl text-ink-gray-9 font-semibold">
 					{{ program.name }}
 				</div>
 				<div class="flex items-center space-x-2">

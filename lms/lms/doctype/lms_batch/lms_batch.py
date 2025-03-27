@@ -10,7 +10,6 @@ from datetime import timedelta
 from frappe.model.document import Document
 from frappe.utils import cint, format_datetime, get_time, add_days, nowdate
 from lms.lms.utils import (
-	get_lessons,
 	get_lesson_index,
 	get_lesson_url,
 	get_quiz_details,
@@ -176,6 +175,10 @@ def create_live_class(
 		class_details = frappe.get_doc(payload)
 		class_details.save()
 		return class_details
+	else:
+		frappe.throw(
+			_("Error creating live class. Please try again. {0}").format(response.text)
+		)
 
 
 def authenticate():
@@ -252,17 +255,6 @@ def create_batch(
 	)
 	doc.save()
 	return doc
-
-
-@frappe.whitelist()
-def fetch_lessons(courses):
-	lessons = []
-	courses = json.loads(courses)
-
-	for course in courses:
-		lessons.extend(get_lessons(course.get("course")))
-
-	return lessons
 
 
 @frappe.whitelist()
@@ -416,14 +408,14 @@ def send_batch_start_reminder():
 
 	for batch in batches:
 		students = frappe.get_all(
-			"LMS Batch Enrollment", {"batch": batch}, ["member", "member_name"]
+			"LMS Batch Enrollment", {"batch": batch.name}, ["member", "member_name"]
 		)
 		for student in students:
 			send_mail(batch, student)
 
 
 def send_mail(batch, student):
-	subject = _("Batch Start Reminder")
+	subject = _("Your batch {0} is starting tomorrow").format(batch.title)
 	template = "batch_start_reminder"
 
 	args = {

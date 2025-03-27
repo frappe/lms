@@ -4,6 +4,7 @@
 			class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 		>
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
+			<CertificationLinks :courseName="courseName" />
 		</header>
 		<div class="grid md:grid-cols-[70%,30%] h-screen">
 			<div
@@ -197,13 +198,14 @@ import { computed, watch, inject, ref, onMounted, onBeforeUnmount } from 'vue'
 import CourseOutline from '@/components/CourseOutline.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { useRouter, useRoute } from 'vue-router'
-import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import { ChevronLeft, ChevronRight, GraduationCap } from 'lucide-vue-next'
 import Discussions from '@/components/Discussions.vue'
 import { getEditorTools, updateDocumentTitle } from '../utils'
 import EditorJS from '@editorjs/editorjs'
 import LessonContent from '@/components/LessonContent.vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
+import CertificationLinks from '@/components/CertificationLinks.vue'
 
 const user = inject('$user')
 const router = useRouter()
@@ -583,11 +585,6 @@ updateDocumentTitle(pageMeta)
 
 .codeBoxTextArea {
 	line-height: 1.7;
-}
-
-iframe {
-	border-top: 3px solid theme('colors.gray.700');
-	border-bottom: 3px solid theme('colors.gray.700');
 }
 
 .tc-table {

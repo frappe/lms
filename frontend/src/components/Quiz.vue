@@ -1,7 +1,7 @@
 <template>
 	<div v-if="quiz.data">
 		<div
-			class="bg-surface-blue-2 space-y-1 py-2 px-2 mb-4 rounded-md text-sm text-ink-blue-800"
+			class="bg-surface-blue-2 space-y-1 py-2 px-2 mb-4 rounded-md text-sm text-ink-blue-2"
 		>
 			<div class="leading-5">
 				{{
@@ -29,7 +29,7 @@
 					).format(quiz.data.passing_percentage)
 				}}
 			</div>
-			<div v-if="quiz.data.max_attempts" class="leading-relaxed">
+			<div v-if="quiz.data.max_attempts" class="leading-5">
 				{{
 					__('You can attempt this quiz {0}.').format(
 						quiz.data.max_attempts == 1
@@ -52,7 +52,7 @@
 
 		<div v-if="activeQuestion == 0">
 			<div class="border text-center p-20 rounded-md">
-				<div class="font-semibold text-lg">
+				<div class="font-semibold text-lg text-ink-gray-9">
 					{{ quiz.data.title }}
 				</div>
 				<Button
@@ -67,7 +67,7 @@
 						{{ __('Start') }}
 					</span>
 				</Button>
-				<div v-else>
+				<div v-else class="leading-5 text-ink-gray-7">
 					{{
 						__(
 							'You have already exceeded the maximum number of attempts allowed for this quiz.'
@@ -222,11 +222,14 @@
 				</div>
 			</div>
 		</div>
-		<div v-else class="border rounded-md p-20 text-center space-y-4">
-			<div class="text-lg font-semibold">
+		<div v-else class="border rounded-md p-20 text-center space-y-2">
+			<div class="text-lg font-semibold text-ink-gray-9">
 				{{ __('Quiz Summary') }}
 			</div>
-			<div v-if="quizSubmission.data.is_open_ended">
+			<div
+				v-if="quizSubmission.data.is_open_ended"
+				class="leading-5 text-ink-gray-7"
+			>
 				{{
 					__(
 						"Your submission has been successfully saved. The instructor will review and grade it shortly, and you'll be notified of your final result."
@@ -613,7 +616,6 @@ const getInstructions = (question) => {
 }
 
 const markLessonProgress = () => {
-	console.log(router)
 	if (router.currentRoute.value.name == 'Lesson') {
 		call('lms.lms.api.mark_lesson_progress', {
 			course: router.currentRoute.value.params.courseName,

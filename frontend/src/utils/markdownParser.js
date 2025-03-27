@@ -1,3 +1,6 @@
+import { CodeXml } from 'lucide-vue-next'
+import { createApp, h } from 'vue'
+
 export class Markdown {
 	constructor({ data, api, readOnly, config }) {
 		this.api = api
@@ -18,13 +21,26 @@ export class Markdown {
 		}
 	}
 
+	static get toolbox() {
+		const app = createApp({
+			render: () =>
+				h(CodeXml, { size: 18, strokeWidth: 1.5, color: 'black' }),
+		})
+
+		const div = document.createElement('div')
+		app.mount(div)
+		return {
+			title: '',
+			icon: div.innerHTML,
+		}
+	}
+
 	onPaste(event) {
 		const data = {
 			text: event.detail.data.innerHTML,
 		}
 
 		this.data = data
-
 		window.requestAnimationFrame(() => {
 			if (!this.wrapper) {
 				return
@@ -41,19 +57,26 @@ export class Markdown {
 
 	render() {
 		this.wrapper = document.createElement('div')
-		this.wrapper.classList.add('cdx-block')
-		this.wrapper.classList.add('ce-paragraph')
+		this.wrapper.classList.add('cdx-block', 'ce-paragraph')
 		this.wrapper.innerHTML = this.text
 
 		if (!this.readOnly) {
 			this.wrapper.contentEditable = true
 			this.wrapper.innerHTML = this.text
 
-			this.wrapper.addEventListener('keydown', (event) => {
-				const value = event.target.textContent
+			this.wrapper.addEventListener('input', (event) => {
+				let value = event.target.textContent
 				if (event.keyCode === 32 && value.startsWith('#')) {
 					this.convertToHeader(event, value)
-				} else if (event.keyCode === 13) {
+				} else if (event.keyCode == 189) {
+					this.convertBlock('list', {
+						style: 'unordered',
+					})
+				} else if (/^[a-zA-Z]/.test(event.key)) {
+					this.convertBlock('paragraph', {
+						text: value,
+					})
+				} else if (event.keyCode === 13 || event.keyCode === 190) {
 					this.parseContent(event)
 				}
 			})
@@ -75,7 +98,11 @@ export class Markdown {
 
 	parseContent(event) {
 		event.preventDefault()
-		const previousLine = this.wrapper.textContent
+		let previousLine = this.wrapper.textContent
+		if (event.keyCode === 190) {
+			previousLine = previousLine + '.'
+		}
+
 		if (previousLine && this.hasImage(previousLine)) {
 			this.wrapper.textContent = ''
 			this.convertBlock('image')
@@ -94,12 +121,12 @@ export class Markdown {
 					},
 				],
 			})
-		} else if (previousLine && previousLine.startsWith('1. ')) {
+		} else if (previousLine && previousLine.startsWith('1.')) {
 			this.convertBlock('list', {
 				style: 'ordered',
 				items: [
 					{
-						content: previousLine.replace('1. ', ''),
+						content: previousLine.replace('1.', ''),
 					},
 				],
 			})
@@ -107,6 +134,10 @@ export class Markdown {
 			this.wrapper.textContent = ''
 			this.convertBlock('embed', {
 				source: previousLine,
+			})
+		} else {
+			this.convertBlock('paragraph', {
+				text: previousLine,
 			})
 		}
 	}
@@ -149,7 +180,7 @@ export class Markdown {
 	}
 
 	canBeEmbed(line) {
-		return /^https?:\/\/.+/.test(line)
+		return /^https?:\/\/.+/.test(line.trim())
 	}
 }
 

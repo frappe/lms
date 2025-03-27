@@ -40,6 +40,12 @@
 						:description="activeTab.description"
 						v-model:show="show"
 					/>
+					<Evaluators
+						v-else-if="activeTab.label === 'Evaluators'"
+						:label="activeTab.label"
+						:description="activeTab.description"
+						v-model:show="show"
+					/>
 					<Categories
 						v-else-if="activeTab.label === 'Categories'"
 						:label="activeTab.label"
@@ -78,6 +84,7 @@ import { useSettings } from '@/stores/settings'
 import SettingDetails from '../SettingDetails.vue'
 import SidebarLink from '@/components/SidebarLink.vue'
 import Members from '@/components/Members.vue'
+import Evaluators from '@/components/Evaluators.vue'
 import Categories from '@/components/Categories.vue'
 import BrandSettings from '@/components/BrandSettings.vue'
 import PaymentSettings from '@/components/PaymentSettings.vue'
@@ -192,6 +199,11 @@ const tabsStructure = computed(() => {
 					label: 'Members',
 					description: 'Manage the members of your learning system',
 					icon: 'UserRoundPlus',
+				},
+				{
+					label: 'Evaluators',
+					description: 'Manage the evaluators of your learning system',
+					icon: 'UserCheck',
 				},
 				{
 					label: 'Categories',

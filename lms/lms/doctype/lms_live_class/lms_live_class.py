@@ -84,7 +84,7 @@ def send_live_class_reminder():
 
 
 def send_mail(live_class, student):
-	subject = f"Your class on {live_class.title} is tomorrow"
+	subject = _("Your class on {0} is today").format(live_class.title)
 	template = "live_class_reminder"
 
 	args = {

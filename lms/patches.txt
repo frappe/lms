@@ -101,3 +101,4 @@ lms.patches.v2_0.allow_guest_access #05-02-2025
 lms.patches.v2_0.migrate_batch_student_data #10-02-2025
 lms.patches.v2_0.delete_old_enrollment_doctypes
 lms.patches.v2_0.delete_unused_custom_fields
+lms.patches.v2_0.update_certificate_request_status

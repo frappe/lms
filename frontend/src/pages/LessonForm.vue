@@ -92,13 +92,13 @@ import LessonHelp from '@/components/LessonHelp.vue'
 import { ChevronRight } from 'lucide-vue-next'
 import { updateDocumentTitle, createToast, getEditorTools } from '@/utils'
 import { capture } from '@/telemetry'
-import { useSettings } from '@/stores/settings'
+import { useOnboarding } from 'frappe-ui/frappe'
 
 const editor = ref(null)
 const instructorEditor = ref(null)
 const user = inject('$user')
 const openInstructorEditor = ref(false)
-const settingsStore = useSettings()
+const { updateOnboardingStep } = useOnboarding('learning')
 let autoSaveInterval
 let showSuccessMessage = false
 
@@ -139,7 +139,7 @@ const renderEditor = (holder) => {
 const lesson = reactive({
 	title: '',
 	include_in_preview: false,
-	body: 'Test',
+	body: '',
 	instructor_notes: '',
 	content: '',
 })
@@ -294,7 +294,7 @@ const convertToJSON = (lessonData) => {
 				type: 'upload',
 				data: {
 					file_url: video,
-					file_type: 'video',
+					file_type: video.split('.').pop(),
 				},
 			})
 		} else if (block.includes('{{ Audio')) {
@@ -303,7 +303,7 @@ const convertToJSON = (lessonData) => {
 				type: 'upload',
 				data: {
 					file_url: audio,
-					file_type: 'audio',
+					file_type: audio.split('.').pop(),
 				},
 			})
 		} else if (block.includes('{{ PDF')) {
@@ -395,10 +395,8 @@ const createNewLesson = () => {
 					{
 						onSuccess() {
 							capture('lesson_created')
+							updateOnboardingStep('create_first_lesson')
 							showToast('Success', 'Lesson created successfully', 'check')
-							/* if (!settingsStore.onboardingDetails.data?.is_onboarded) {
-								settingsStore.onboardingDetails.reload()
-							} */
 							lessonDetails.reload()
 						},
 					}
@@ -622,5 +620,13 @@ iframe {
 
 .tc-table {
 	border-left: 1px solid #e8e8eb;
+}
+
+.ce-toolbox__button[data-tool='markdown'] {
+	display: none !important;
+}
+
+.ce-popover-item[data-item-name='markdown'] {
+	display: none !important;
 }
 </style>

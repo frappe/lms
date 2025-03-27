@@ -37,6 +37,9 @@ Cypress.Commands.add("login", (email, password) => {
 		url: "/api/method/login",
 		method: "POST",
 		body: { usr: email, pwd: password },
+		timeout: 60000,
+		retryOnStatusCodeFailure: true,
+		retryOnNetworkFailure: true,
 	});
 });
 

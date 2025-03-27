@@ -1,6 +1,7 @@
 import re
 import string
 import frappe
+import hashlib
 import json
 import razorpay
 import requests
@@ -68,27 +69,26 @@ def generate_slug(title, doctype):
 	return slugify(title, used_slugs=slugs)
 
 
-def get_membership(course, member=None, batch=None):
+def get_membership(course, member=None):
 	if not member:
 		member = frappe.session.user
 
 	filters = {"member": member, "course": course}
-	if batch:
-		filters["batch_old"] = batch
 
-	is_member = frappe.db.exists("LMS Enrollment", filters)
-	if is_member:
+	if frappe.db.exists("LMS Enrollment", filters):
 		membership = frappe.db.get_value(
 			"LMS Enrollment",
 			filters,
-			["name", "batch_old", "current_lesson", "member_type", "progress", "member"],
+			[
+				"name",
+				"current_lesson",
+				"progress",
+				"member",
+				"purchased_certificate",
+				"certificate",
+			],
 			as_dict=True,
 		)
-
-		if membership and membership.batch_old:
-			membership.batch_title = frappe.db.get_value(
-				"LMS Batch Old", membership.batch_old, "title"
-			)
 		return membership
 
 	return False
@@ -533,10 +533,11 @@ def has_course_evaluator_role(member=None):
 
 
 def has_student_role(member=None):
-	return frappe.db.get_value(
-		"Has Role",
-		{"parent": member or frappe.session.user, "role": "LMS Student"},
-		"name",
+	roles = frappe.get_roles(member or frappe.session.user)
+	return (
+		"Moderator" not in roles
+		and "Course Creator" not in roles
+		and "Batch Evaluator" not in roles
 	)
 
 
@@ -856,26 +857,44 @@ def is_onboarding_complete():
 	}
 
 
-def get_evaluator(course, batch):
+def get_evaluator(course, batch=None):
 	evaluator = None
-	evaluator = frappe.db.get_value(
-		"Batch Course",
-		{"parent": batch, "course": course},
-		"evaluator",
-	)
+	if batch:
+		evaluator = frappe.db.get_value(
+			"Batch Course",
+			{"parent": batch, "course": course},
+			"evaluator",
+		)
+	else:
+		evaluator = frappe.db.get_value("LMS Course", course, "evaluator")
 	return evaluator
 
 
 @frappe.whitelist()
-def get_upcoming_evals(student, courses):
+def get_upcoming_evals(student, courses, batch=None):
+	filters = {
+		"member": student,
+		"course": ["in", courses],
+		"date": [">=", frappe.utils.nowdate()],
+		"status": "Upcoming",
+	}
+
+	if batch:
+		filters["batch_name"] = batch
+
 	upcoming_evals = frappe.get_all(
 		"LMS Certificate Request",
-		{
-			"member": student,
-			"course": ["in", courses],
-			"date": [">=", frappe.utils.nowdate()],
-		},
-		["date", "start_time", "course", "evaluator", "google_meet_link"],
+		filters,
+		[
+			"name",
+			"date",
+			"start_time",
+			"course",
+			"evaluator",
+			"google_meet_link",
+			"member",
+			"member_name",
+		],
 		order_by="date",
 	)
 
@@ -967,15 +986,143 @@ def change_currency(amount, currency, country=None):
 
 
 @frappe.whitelist(allow_guest=True)
-def get_courses():
+def get_courses(filters=None, start=0, page_length=20):
 	"""Returns the list of courses."""
-	courses = []
-	course_list = frappe.get_all("LMS Course", pluck="name")
-	for course in course_list:
-		courses.append(get_course_details(course))
 
-	courses = get_categorized_courses(courses)
+	if not filters:
+		filters = {}
+
+	filters, or_filters, show_featured = update_course_filters(filters)
+	fields = get_course_fields()
+
+	courses = frappe.get_all(
+		"LMS Course",
+		filters=filters,
+		fields=fields,
+		or_filters=or_filters,
+		order_by="enrollments desc",
+		start=start,
+		page_length=page_length,
+	)
+	if show_featured:
+		courses = get_featured_courses(filters, or_filters, fields) + courses
+
+	courses = get_enrollment_details(courses)
+	courses = get_course_card_details(courses)
 	return courses
+
+
+def get_course_card_details(courses):
+	for course in courses:
+		course.instructors = get_instructors(course.name)
+
+		if course.paid_course and course.published == 1:
+			course.amount, course.currency = check_multicurrency(
+				course.course_price, course.currency, None, course.amount_usd
+			)
+			course.price = fmt_money(course.amount, 0, course.currency)
+
+	return courses
+
+
+def get_course_or_filters(filters):
+	or_filters = {}
+	or_filters.update({"title": filters.get("title")})
+	or_filters.update({"short_introduction": filters.get("title")})
+	or_filters.update({"description": filters.get("title")})
+	or_filters.update({"tags": filters.get("title")})
+	return or_filters
+
+
+def update_course_filters(filters):
+	or_filters = {}
+	show_featured = False
+
+	if filters.get("title"):
+		or_filters = get_course_or_filters(filters)
+		del filters["title"]
+
+	if filters.get("enrolled"):
+		enrolled_courses = frappe.get_all(
+			"LMS Enrollment", {"member": frappe.session.user}, pluck="course"
+		)
+		filters.update({"name": ["in", enrolled_courses]})
+		del filters["enrolled"]
+
+	if filters.get("created"):
+		created_courses = frappe.get_all(
+			"Course Instructor", {"instructor": frappe.session.user}, pluck="parent"
+		)
+		filters.update({"name": ["in", created_courses]})
+		del filters["created"]
+
+	if filters.get("live"):
+		filters.update({"featured": 0})
+		show_featured = True
+		del filters["live"]
+
+	if filters.get("certification"):
+		or_filters.update({"enable_certification": 1})
+		or_filters.update({"paid_certificate": 1})
+		del filters["certification"]
+
+	return filters, or_filters, show_featured
+
+
+def get_enrollment_details(courses):
+	for course in courses:
+		filters = {
+			"course": course.name,
+			"member": frappe.session.user,
+		}
+
+		if frappe.db.exists("LMS Enrollment", filters):
+			course.membership = frappe.db.get_value(
+				"LMS Enrollment",
+				filters,
+				["name", "course", "current_lesson", "progress", "member"],
+				as_dict=1,
+			)
+
+	return courses
+
+
+def get_featured_courses(filters, or_filters, fields):
+	filters.update({"featured": 1})
+	featured_courses = frappe.get_all(
+		"LMS Course",
+		filters=filters,
+		fields=fields,
+		or_filters=or_filters,
+		order_by="enrollments desc",
+	)
+	return featured_courses
+
+
+def get_course_fields():
+	return [
+		"name",
+		"title",
+		"tags",
+		"image",
+		"short_introduction",
+		"published",
+		"upcoming",
+		"featured",
+		"disable_self_learning",
+		"published_on",
+		"category",
+		"status",
+		"paid_course",
+		"paid_certificate",
+		"course_price",
+		"currency",
+		"amount_usd",
+		"enable_certification",
+		"lessons",
+		"enrollments",
+		"rating",
+	]
 
 
 @frappe.whitelist(allow_guest=True)
@@ -999,6 +1146,7 @@ def get_course_details(course):
 			"category",
 			"status",
 			"paid_course",
+			"paid_certificate",
 			"course_price",
 			"currency",
 			"amount_usd",
@@ -1009,11 +1157,10 @@ def get_course_details(course):
 		],
 		as_dict=1,
 	)
-	course_details.tags = course_details.tags.split(",") if course_details.tags else []
 
 	course_details.instructors = get_instructors(course_details.name)
 	# course_details.is_instructor = is_instructor(course_details.name)
-	if course_details.paid_course:
+	if course_details.paid_course or course_details.paid_certificate:
 		"""course_details.course_price, course_details.currency = check_multicurrency(
 		        course_details.course_price, course_details.currency, None, course_details.amount_usd
 		)"""
@@ -1126,14 +1273,21 @@ def get_lesson(course, chapter, lesson):
 		return {}
 
 	membership = get_membership(course)
-	course_title = frappe.db.get_value("LMS Course", course, "title")
+	course_info = frappe.db.get_value(
+		"LMS Course", course, ["title", "paid_certificate"], as_dict=1
+	)
+
 	if (
 		not lesson_details.include_in_preview
 		and not membership
 		and not has_course_moderator_role()
 		and not is_instructor(course)
 	):
-		return {"no_preview": 1, "title": lesson_details.title, "course_title": course_title}
+		return {
+			"no_preview": 1,
+			"title": lesson_details.title,
+			"course_title": course_info.title,
+		}
 
 	lesson_details = frappe.db.get_value(
 		"Course Lesson",
@@ -1168,7 +1322,8 @@ def get_lesson(course, chapter, lesson):
 	lesson_details.prev = neighbours["prev"]
 	lesson_details.membership = membership
 	lesson_details.instructors = get_instructors(course)
-	lesson_details.course_title = course_title
+	lesson_details.course_title = course_info.title
+	lesson_details.paid_certificate = course_info.paid_certificate
 	return lesson_details
 
 
@@ -1233,6 +1388,7 @@ def get_batch_details(batch):
 	)
 
 	batch_details.instructors = get_instructors(batch)
+	batch_details.accept_enrollments = batch_details.start_date > getdate()
 
 	batch_details.courses = frappe.get_all(
 		"Batch Course", filters={"parent": batch}, fields=["course", "title", "evaluator"]
@@ -1601,11 +1757,19 @@ def get_order_summary(doctype, docname, country=None):
 		details = frappe.db.get_value(
 			"LMS Course",
 			docname,
-			["title", "name", "paid_course", "course_price as amount", "currency", "amount_usd"],
+			[
+				"title",
+				"name",
+				"paid_course",
+				"paid_certificate",
+				"course_price as amount",
+				"currency",
+				"amount_usd",
+			],
 			as_dict=True,
 		)
 
-		if not details.paid_course:
+		if not details.paid_course and not details.paid_certificate:
 			raise frappe.throw(_("This course is free."))
 
 	else:
@@ -1719,17 +1883,22 @@ def update_payment_record(doctype, docname):
 				"order_id": data.get("order_id"),
 			},
 		)
+		payment_for_certificate = frappe.db.get_value(
+			"LMS Payment", data.payment, "payment_for_certificate"
+		)
 
 		try:
-			if doctype == "LMS Course":
-				enroll_in_course(data.payment, docname)
+			if payment_for_certificate:
+				update_certificate_purchase(docname, data.payment)
+			elif doctype == "LMS Course":
+				enroll_in_course(docname, data.payment)
 			else:
 				enroll_in_batch(docname, data.payment)
 		except Exception as e:
 			frappe.log_error(frappe.get_traceback(), _("Enrollment Failed"))
 
 
-def enroll_in_course(payment_name, course):
+def enroll_in_course(course, payment_name):
 	if not frappe.db.exists(
 		"LMS Enrollment", {"member": frappe.session.user, "course": course}
 	):
@@ -1779,6 +1948,17 @@ def enroll_in_batch(batch, payment_name=None):
 				}
 			)
 		new_student.save()
+
+
+def update_certificate_purchase(course, payment_name):
+	frappe.db.set_value(
+		"LMS Enrollment",
+		{"member": frappe.session.user, "course": course},
+		{
+			"purchased_certificate": 1,
+			"payment": payment_name,
+		},
+	)
 
 
 @frappe.whitelist()
@@ -1960,3 +2140,25 @@ def get_batch_card_details(batches):
 			batch.price = fmt_money(batch.amount, 0, batch.currency)
 
 	return batches
+
+
+def get_palette(full_name):
+	"""
+	Returns a color unique to each member for Avatar"""
+
+	palette = [
+		["--orange-avatar-bg", "--orange-avatar-color"],
+		["--pink-avatar-bg", "--pink-avatar-color"],
+		["--blue-avatar-bg", "--blue-avatar-color"],
+		["--green-avatar-bg", "--green-avatar-color"],
+		["--dark-green-avatar-bg", "--dark-green-avatar-color"],
+		["--red-avatar-bg", "--red-avatar-color"],
+		["--yellow-avatar-bg", "--yellow-avatar-color"],
+		["--purple-avatar-bg", "--purple-avatar-color"],
+		["--gray-avatar-bg", "--gray-avatar-color0"],
+	]
+
+	encoded_name = str(full_name).encode("utf-8")
+	hash_name = hashlib.md5(encoded_name).hexdigest()
+	idx = cint((int(hash_name[4:6], 16) + 1) / 5.33)
+	return palette[idx % 8]

@@ -1,26 +1,35 @@
 <template>
 	<header
+		v-if="!fromLesson"
 		class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs :items="breadcrumbs" />
 	</header>
-	<div class="md:w-7/12 md:mx-auto mx-4 py-10">
+	<div
+		class="md:w-7/12 md:mx-auto mx-4 py-10"
+		:class="{ 'pt-4 md:w-full': fromLesson }"
+	>
 		<Quiz :quizName="quizID" />
 	</div>
 </template>
 <script setup>
 import Quiz from '@/components/Quiz.vue'
 import { createResource, Breadcrumbs } from 'frappe-ui'
-import { computed, inject, onMounted } from 'vue'
+import { computed, inject, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { updateDocumentTitle } from '@/utils'
 
 const user = inject('$user')
 const router = useRouter()
+const fromLesson = ref(false)
 
 onMounted(() => {
 	if (!user.data) {
 		router.push({ name: 'Courses' })
+	}
+
+	if (new URLSearchParams(window.location.search).get('fromLesson')) {
+		fromLesson.value = true
 	}
 })
 
