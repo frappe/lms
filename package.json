@@ -28,6 +28,7 @@
     "cypress-file-upload": "^5.0.8"
   },
   "dependencies": {
+    "hls.js": "^1.6.0",
     "pre-commit": "^1.2.2"
   }
 }
