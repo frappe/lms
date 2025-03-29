@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-03-21 16:04+0000\n"
-"PO-Revision-Date: 2025-03-28 02:59\n"
+"PO-Revision-Date: 2025-03-29 03:03\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Chinese Simplified\n"
 "MIME-Version: 1.0\n"
@@ -5888,7 +5888,7 @@ msgstr "您在测验{1}中获得了{0}分"
 
 #: frontend/src/pages/Assignments.vue:60
 msgid "You have not created any assignments yet. To create a new assignment, click on the \"New\" button above."
-msgstr ""
+msgstr "当前尚未创建任何任务。点击上方\"新建\"按钮创建新任务。"
 
 #: frontend/src/pages/Quizzes.vue:65
 msgid "You have not created any quizzes yet. To create a new quiz, click on the \"New Quiz\" button above."
