@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-03-21 16:04+0000\n"
-"PO-Revision-Date: 2025-04-06 04:04\n"
+"PO-Revision-Date: 2025-04-07 04:01\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Persian\n"
 "MIME-Version: 1.0\n"
@@ -262,7 +262,7 @@ msgstr "اجازه ثبت نام خود"
 #. Label of the allow_future (Check) field in DocType 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json
 msgid "Allow accessing future dates"
-msgstr "اجازه دسترسی به تاریخ های آینده"
+msgstr "اجازه دسترسی به تاریخ‌های آینده"
 
 #: frontend/src/pages/BatchForm.vue:32
 msgid "Allow self enrollment"
