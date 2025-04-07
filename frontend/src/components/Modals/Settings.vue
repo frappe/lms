@@ -328,18 +328,25 @@ const tabsStructure = computed(() => {
 					icon: 'LogIn',
 					fields: [
 						{
-							label: 'Custom Content',
+							label: 'Identify User Persona',
+							name: 'user_category',
+							type: 'checkbox',
+							description:
+								'Enable this option to identify the user persona during signup.',
+						},
+						{
+							label: 'Disable signup',
+							name: 'disable_signup',
+							type: 'checkbox',
+							description:
+								'New users will have to be manually registered by Admins.',
+						},
+						{
+							label: 'Signup Consent HTML',
 							name: 'custom_signup_content',
 							type: 'Code',
 							mode: 'htmlmixed',
 							rows: 10,
-						},
-						{
-							label: 'Ask for Occupation',
-							name: 'user_category',
-							type: 'checkbox',
-							description:
-								'Enable this option to ask users to select their occupation during the signup process.',
 						},
 					],
 				},
