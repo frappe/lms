@@ -27,8 +27,9 @@
   "signup_settings_tab",
   "signup_settings_section",
   "column_break_9",
-  "custom_signup_content",
   "user_category",
+  "disable_signup",
+  "custom_signup_content",
   "sidebar_tab",
   "items_in_sidebar_section",
   "courses",
@@ -104,7 +105,7 @@
    "default": "0",
    "fieldname": "user_category",
    "fieldtype": "Check",
-   "label": "Ask User Category during Signup"
+   "label": "Identify User Persona"
   },
   {
    "default": "0",
@@ -365,12 +366,19 @@
    "fieldtype": "Link",
    "label": "Payment Reminder Template",
    "options": "Email Template"
+  },
+  {
+   "default": "0",
+   "fieldname": "disable_signup",
+   "fieldtype": "Check",
+   "label": "Disable Signup"
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-02-11 11:29:43.412897",
+ "modified": "2025-04-07 18:05:52.000651",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",
@@ -394,6 +402,7 @@
    "share": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],

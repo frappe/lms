@@ -10,6 +10,7 @@ from frappe.utils import get_url_to_list
 class LMSSettings(Document):
 	def validate(self):
 		self.validate_google_settings()
+		self.validate_signup()
 
 	def validate_google_settings(self):
 		if self.send_calendar_invite_for_evaluations:
@@ -39,6 +40,10 @@ class LMSSettings(Document):
 						frappe.bold("Course Evaluator"),
 					)
 				)
+
+	def validate_signup(self):
+		if self.has_value_changed("disable_signup"):
+			frappe.db.set_single_value("Website Settings", "disable_signup", self.disable_signup)
 
 
 @frappe.whitelist()
