@@ -119,7 +119,7 @@ const { updateOnboardingStep } = useOnboarding('learning')
 
 const existingQuestion = reactive({
 	question: '',
-	marks: 0,
+	marks: 1,
 })
 const question = reactive({
 	question: '',
