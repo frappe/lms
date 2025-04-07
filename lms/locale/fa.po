@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-03-21 16:04+0000\n"
-"PO-Revision-Date: 2025-03-23 01:31\n"
+"PO-Revision-Date: 2025-04-07 04:01\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Persian\n"
 "MIME-Version: 1.0\n"
@@ -262,7 +262,7 @@ msgstr "اجازه ثبت نام خود"
 #. Label of the allow_future (Check) field in DocType 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json
 msgid "Allow accessing future dates"
-msgstr "اجازه دسترسی به تاریخ های آینده"
+msgstr "اجازه دسترسی به تاریخ‌های آینده"
 
 #: frontend/src/pages/BatchForm.vue:32
 msgid "Allow self enrollment"
@@ -2636,7 +2636,7 @@ msgstr "پیوستن"
 
 #: frontend/src/components/UpcomingEvaluations.vue:94
 msgid "Join Call"
-msgstr ""
+msgstr "پیوستن به تماس"
 
 #: frontend/src/components/Modals/Event.vue:74
 msgid "Join Meeting"
@@ -3804,7 +3804,7 @@ msgstr ""
 #. Label of the password (Password) field in DocType 'LMS Live Class'
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Password"
-msgstr "کلمه عبور"
+msgstr "گذرواژه"
 
 #: frontend/src/pages/CourseForm.vue:112
 msgid "Paste the youtube link of a short video introducing the course"
@@ -4685,7 +4685,7 @@ msgstr ""
 
 #: frontend/src/pages/BatchForm.vue:228
 msgid "Short Description"
-msgstr ""
+msgstr "شرح کوتاه"
 
 #. Label of the short_introduction (Small Text) field in DocType 'LMS Course'
 #: frontend/src/pages/CourseForm.vue:38
@@ -5497,7 +5497,7 @@ msgstr "نوع"
 
 #: frontend/src/components/Quiz.vue:612
 msgid "Type your answer"
-msgstr ""
+msgstr "پاسخ خود را تایپ کنید"
 
 #. Option for the 'Grade Type' (Select) field in DocType 'Education Detail'
 #: lms/lms/doctype/education_detail/education_detail.json
@@ -5715,7 +5715,7 @@ msgstr "صفحه وب"
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Wednesday"
-msgstr "چهار شنبه"
+msgstr "چهارشنبه"
 
 #: lms/lms/doctype/invite_request/invite_request.py:40
 #: lms/templates/emails/lms_invite_request_approved.html:4
