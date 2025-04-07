@@ -11,8 +11,6 @@ from fuzzywuzzy import fuzz
 from lms.lms.doctype.course_lesson.course_lesson import save_progress
 from lms.lms.utils import (
 	generate_slug,
-	has_course_moderator_role,
-	has_course_instructor_role,
 )
 from binascii import Error as BinasciiError
 from frappe.utils.file_manager import safe_b64decode

@@ -23,6 +23,7 @@ declare module 'vue' {
     BatchCourses: typeof import('./src/components/BatchCourses.vue')['default']
     BatchDashboard: typeof import('./src/components/BatchDashboard.vue')['default']
     BatchFeedback: typeof import('./src/components/BatchFeedback.vue')['default']
+    BatchIcon: typeof import('./src/components/Icons/BatchIcon.vue')['default']
     BatchOverlay: typeof import('./src/components/BatchOverlay.vue')['default']
     BatchStudentProgress: typeof import('./src/components/Modals/BatchStudentProgress.vue')['default']
     BatchStudents: typeof import('./src/components/BatchStudents.vue')['default']
