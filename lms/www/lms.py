@@ -15,12 +15,9 @@ def get_context():
 		context.meta = get_meta(app_path)
 	else:
 		context.meta = {}
-	csrf_token = frappe.sessions.get_csrf_token()
-	frappe.db.commit()  # nosemgrep
-	context.csrf_token = csrf_token
-	context.setup_complete = cint(frappe.get_system_settings("setup_complete"))
 	capture("active_site", "lms")
 	context.favicon = frappe.db.get_single_value("Website Settings", "favicon")
+	context.title = frappe.db.get_single_value("Website Settings", "app_name")
 	return context
 
 
