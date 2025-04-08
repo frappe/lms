@@ -16,7 +16,7 @@
 					},
 				]"
 			/>
-			<div v-if="user.data?.name" class="flex">
+			<div v-if="user.data?.name" class="flex space-x-2">
 				<router-link
 					v-if="user.data.name == job.data?.owner"
 					:to="{
@@ -24,13 +24,19 @@
 						params: { jobName: job.data?.name },
 					}"
 				>
-					<Button class="mr-2">
+					<Button>
 						<template #prefix>
 							<Pencil class="h-4 w-4 stroke-1.5" />
 						</template>
 						{{ __('Edit') }}
 					</Button>
 				</router-link>
+				<Button @click="redirectToWebsite(job.data?.company_website)">
+					<template #prefix>
+						<SquareArrowOutUpRight class="h-4 w-4 stroke-1.5" />
+					</template>
+					{{ __('Visit Website') }}
+				</Button>
 				<Button
 					v-if="!jobApplication.data?.length"
 					variant="solid"
@@ -56,10 +62,11 @@
 					<div class="flex items-center">
 						<img
 							:src="job.data.company_logo"
-							class="w-16 h-16 rounded-lg object-contain mr-4"
+							class="w-16 h-16 rounded-lg object-contain cursor-pointer mr-4"
 							:alt="job.data.company_name"
+							@click="redirectToWebsite(job.data.company_website)"
 						/>
-						<div class="text-2xl text-ink-gray-9 font-semibold mb-4">
+						<div class="text-2xl text-ink-gray-9 font-semibold">
 							{{ job.data.job_title }}
 						</div>
 					</div>
@@ -69,7 +76,7 @@
 						>
 							<div class="flex items-center space-x-4">
 								<Building2 class="h-4 w-4 text-ink-green-2" />
-								<div class="flex flex-col space-y-2 text-ink-gray-7">
+								<div class="flex flex-col space-y-1 text-ink-gray-7">
 									<span class="text-xs text-ink-gray-5 font-medium uppercase">
 										{{ __('Organisation') }}
 									</span>
@@ -80,7 +87,7 @@
 							</div>
 							<div class="flex items-center space-x-4">
 								<MapPin class="size-4 text-ink-red-3" />
-								<div class="flex flex-col space-y-2 text-ink-gray-7">
+								<div class="flex flex-col space-y-1 text-ink-gray-7">
 									<span class="text-xs font-medium uppercase">
 										{{ __('Location') }}
 									</span>
@@ -91,7 +98,7 @@
 							</div>
 							<div class="flex items-center space-x-4">
 								<ClipboardType class="h-4 w-4 text-yellow-500" />
-								<div class="flex flex-col space-y-2 text-ink-gray-7">
+								<div class="flex flex-col space-y-1 text-ink-gray-7">
 									<span class="text-xs font-medium uppercase">
 										{{ __('Category') }}
 									</span>
@@ -102,7 +109,7 @@
 							</div>
 							<div class="flex items-center space-x-4">
 								<CalendarDays class="h-4 w-4 text-ink-blue-2" />
-								<div class="flex flex-col space-y-2 text-ink-gray-7">
+								<div class="flex flex-col space-y-1 text-ink-gray-7">
 									<span class="text-xs font-medium uppercase">
 										{{ __('Posted on') }}
 									</span>
@@ -116,7 +123,7 @@
 								class="flex items-center space-x-4"
 							>
 								<SquareUserRound class="h-4 w-4 text-purple-500" />
-								<div class="flex flex-col space-y-2 text-ink-gray-7">
+								<div class="flex flex-col space-y-1 text-ink-gray-7">
 									<span class="text-xs font-medium uppercase">
 										{{ __('Applications Received') }}
 									</span>
@@ -154,6 +161,7 @@ import {
 	CalendarDays,
 	ClipboardType,
 	SquareUserRound,
+	SquareArrowOutUpRight,
 } from 'lucide-vue-next'
 
 const user = inject('$user')
@@ -214,6 +222,10 @@ const openApplicationModal = () => {
 
 const redirectToLogin = (job) => {
 	window.location.href = `/login?redirect-to=/job-openings/${job}`
+}
+
+const redirectToWebsite = (url) => {
+	window.open(url, '_blank')
 }
 
 usePageMeta(() => {
