@@ -79,8 +79,9 @@ import {
 	FormControl,
 	Button,
 	Badge,
+	usePageMeta,
 } from 'frappe-ui'
-import { computed, onBeforeUnmount, onMounted, inject, usePageMeta } from 'vue'
+import { computed, onBeforeUnmount, onMounted, inject } from 'vue'
 import { useRouter } from 'vue-router'
 import { showToast } from '@/utils'
 import { sessionStore } from '@/stores/session'
