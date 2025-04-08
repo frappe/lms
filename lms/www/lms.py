@@ -10,22 +10,55 @@ no_cache = 1
 
 def get_context():
 	app_path = frappe.form_dict.get("app_path")
+	favicon = (
+		frappe.db.get_single_value("Website Settings", "favicon")
+		or "/assets/lms/frontend/favicon.png"
+	)
+	title = frappe.db.get_single_value("Website Settings", "app_name") or "Frappe Learning"
+
 	context = frappe._dict()
-	if app_path:
-		context.meta = get_meta(app_path)
-	else:
-		context.meta = {}
+	context.meta = get_meta(app_path, title, favicon)
 	capture("active_site", "lms")
-	context.favicon = frappe.db.get_single_value("Website Settings", "favicon")
-	context.title = frappe.db.get_single_value("Website Settings", "app_name")
+	context.title = title
+	context.favicon = favicon
 	return context
 
 
-def get_meta(app_path):
+def get_meta(app_path, title, favicon):
+	meta = {}
+	if app_path:
+		meta = get_meta_from_document(app_path, favicon)
+
+	route_meta = frappe.get_all("Website Meta Tag", {"parent": app_path}, ["key", "value"])
+
+	if len(route_meta) > 0:
+		for row in route_meta:
+			if row.key == "title":
+				meta["title"] = row.value
+			elif row.key == "image":
+				meta["image"] = row.value
+			elif row.key == "description":
+				meta["description"] = f"{meta.get('description', '')} {row.value}"
+			elif row.key == "keywords":
+				meta["keywords"] = f"{meta.get('keywords', '')} {row.value}"
+			elif row.key == "link":
+				meta["link"] = row.value
+
+	if not meta:
+		meta = {
+			"title": title,
+			"image": favicon,
+			"description": "Easy to use Learning Management System",
+		}
+
+	return meta
+
+
+def get_meta_from_document(app_path, favicon):
 	if app_path == "courses":
 		return {
 			"title": _("Course List"),
-			"image": frappe.db.get_single_value("Website Settings", "banner_image"),
+			"image": favicon,
 			"description": "This page lists all the courses published on our website",
 			"keywords": "All Courses, Courses, Learn",
 			"link": "/courses",
@@ -47,6 +80,11 @@ def get_meta(app_path):
 			["title", "image", "description", "tags"],
 			as_dict=True,
 		)
+
+		if course.description:
+			soup = BeautifulSoup(course.description, "html.parser")
+			course.description = soup.get_text()
+
 		return {
 			"title": course.title,
 			"image": course.image,
@@ -58,7 +96,7 @@ def get_meta(app_path):
 	if app_path == "batches":
 		return {
 			"title": _("Batches"),
-			"image": frappe.db.get_single_value("Website Settings", "banner_image"),
+			"image": favicon,
 			"description": "This page lists all the batches published on our website",
 			"keywords": "All Batches, Batches, Learn",
 			"link": "/batches",
@@ -71,6 +109,11 @@ def get_meta(app_path):
 			["title", "meta_image", "batch_details", "category", "medium"],
 			as_dict=True,
 		)
+
+		if batch.batch_details:
+			soup = BeautifulSoup(batch.batch_details, "html.parser")
+			batch.batch_details = soup.get_text()
+
 		return {
 			"title": batch.title,
 			"image": batch.meta_image,
@@ -84,7 +127,7 @@ def get_meta(app_path):
 		if "new/edit" in app_path:
 			return {
 				"title": _("New Batch"),
-				"image": frappe.db.get_single_value("Website Settings", "banner_image"),
+				"image": favicon,
 				"description": "Create a new batch",
 				"keywords": "New Batch, Create Batch",
 				"link": "/lms/batches/new/edit",
@@ -95,6 +138,11 @@ def get_meta(app_path):
 			["title", "meta_image", "batch_details", "category", "medium"],
 			as_dict=True,
 		)
+
+		if batch.batch_details:
+			soup = BeautifulSoup(batch.batch_details, "html.parser")
+			batch.batch_details = soup.get_text()
+
 		return {
 			"title": batch.title,
 			"image": batch.meta_image,
@@ -106,7 +154,7 @@ def get_meta(app_path):
 	if app_path == "job-openings":
 		return {
 			"title": _("Job Openings"),
-			"image": frappe.db.get_single_value("Website Settings", "banner_image"),
+			"image": favicon,
 			"description": "This page lists all the job openings published on our website",
 			"keywords": "Job Openings, Jobs, Vacancies",
 			"link": "/job-openings",
@@ -131,7 +179,7 @@ def get_meta(app_path):
 	if app_path == "statistics":
 		return {
 			"title": _("Statistics"),
-			"image": frappe.db.get_single_value("Website Settings", "banner_image"),
+			"image": favicon,
 			"description": "This page lists all the statistics of this platform",
 			"keywords": "Enrollment Count, Completion, Signups",
 			"link": "/statistics",
@@ -175,4 +223,65 @@ def get_meta(app_path):
 			"description": badge.description,
 			"keywords": f"{badge.title}, {badge.description}",
 			"link": f"/badges/{badgeName}/{email}",
+		}
+
+	if app_path == "quizzes":
+		return {
+			"title": _("Quizzes"),
+			"image": favicon,
+			"description": _("Test your knowledge with interactive quizzes and more."),
+			"keywords": "Quizzes, interactive quizzes, online quizzes",
+			"link": "/quizzes",
+		}
+
+	if re.match(r"^quizzes/[^/]+$", app_path):
+		quiz_name = app_path.split("/")[1]
+		quiz = frappe.db.get_value(
+			"LMS Quiz",
+			quiz_name,
+			["title"],
+			as_dict=True,
+		)
+		if quiz:
+			return {
+				"title": quiz.title,
+				"image": favicon,
+				"description": "Test your knowledge with interactive quizzes.",
+				"keywords": quiz.title,
+				"link": f"/quizzes/{quiz_name}",
+			}
+
+	if app_path == "assignments":
+		return {
+			"title": _("Assignments"),
+			"image": favicon,
+			"description": _("Test your knowledge with interactive assignments and more."),
+			"keywords": "Assignments, interactive assignments, online assignments",
+			"link": "/assignments",
+		}
+
+	if re.match(r"^assignments/[^/]+$", app_path):
+		assignment_name = app_path.split("/")[1]
+		assignment = frappe.db.get_value(
+			"LMS Assignment",
+			assignment_name,
+			["title"],
+			as_dict=True,
+		)
+		if assignment:
+			return {
+				"title": assignment.title,
+				"image": favicon,
+				"description": "Test your knowledge with interactive assignments.",
+				"keywords": assignment.title,
+				"link": f"/assignments/{assignment_name}",
+			}
+
+	if app_path == "programs":
+		return {
+			"title": _("Programs"),
+			"image": favicon,
+			"description": "This page lists all the programs published on our website",
+			"keywords": "All Programs, Programs, Learn",
+			"link": "/programs",
 		}
