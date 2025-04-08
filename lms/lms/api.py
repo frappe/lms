@@ -281,6 +281,7 @@ def get_job_details(job):
 			"type",
 			"company_name",
 			"company_logo",
+			"company_website",
 			"name",
 			"creation",
 			"description",

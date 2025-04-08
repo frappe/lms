@@ -25,7 +25,7 @@
 			</router-link>
 		</header>
 		<div>
-			<div class="lg:w-3/4 mx-auto p-5">
+			<div class="p-5">
 				<div
 					class="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:items-center justify-between mb-5"
 				>
@@ -60,7 +60,7 @@
 
 				<div
 					v-if="jobs.data?.length"
-					class="grid grid-cols-1 lg:grid-cols-2 gap-5"
+					class="grid grid-cols-1 lg:grid-cols-3 gap-5"
 				>
 					<router-link
 						v-for="job in jobs.data"
