@@ -36,7 +36,7 @@
 						<span v-else> Learning </span>
 					</div>
 					<div
-						v-if="userResource"
+						v-if="userResource.data"
 						class="mt-1 text-sm text-ink-gray-7 leading-none"
 					>
 						{{ convertToTitleCase(userResource.data?.full_name) }}
