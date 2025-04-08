@@ -44,13 +44,13 @@ def get_meta(app_path):
 		course = frappe.db.get_value(
 			"LMS Course",
 			course_name,
-			["title", "image", "short_introduction", "tags"],
+			["title", "image", "description", "tags"],
 			as_dict=True,
 		)
 		return {
 			"title": course.title,
 			"image": course.image,
-			"description": course.short_introduction,
+			"description": course.description,
 			"keywords": course.tags,
 			"link": f"/courses/{course_name}",
 		}
@@ -68,13 +68,13 @@ def get_meta(app_path):
 		batch = frappe.db.get_value(
 			"LMS Batch",
 			batch_name,
-			["title", "meta_image", "description", "category", "medium"],
+			["title", "meta_image", "batch_details", "category", "medium"],
 			as_dict=True,
 		)
 		return {
 			"title": batch.title,
 			"image": batch.meta_image,
-			"description": batch.description,
+			"description": batch.batch_details,
 			"keywords": f"{batch.category} {batch.medium}",
 			"link": f"/batches/details/{batch_name}",
 		}
@@ -92,13 +92,13 @@ def get_meta(app_path):
 		batch = frappe.db.get_value(
 			"LMS Batch",
 			batch_name,
-			["title", "meta_image", "description", "category", "medium"],
+			["title", "meta_image", "batch_details", "category", "medium"],
 			as_dict=True,
 		)
 		return {
 			"title": batch.title,
 			"image": batch.meta_image,
-			"description": batch.description,
+			"description": batch.batch_details,
 			"keywords": f"{batch.category} {batch.medium}",
 			"link": f"/batches/{batch_name}",
 		}
@@ -117,13 +117,13 @@ def get_meta(app_path):
 		job_opening = frappe.db.get_value(
 			"Job Opportunity",
 			job_opening_name,
-			["job_title", "company_logo", "company_name"],
+			["job_title", "company_logo", "description"],
 			as_dict=True,
 		)
 		return {
 			"title": job_opening.job_title,
 			"image": job_opening.company_logo,
-			"description": job_opening.company_name,
+			"description": job_opening.description,
 			"keywords": "Job Openings, Jobs, Vacancies",
 			"link": f"/job-openings/{job_opening_name}",
 		}
