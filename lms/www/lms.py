@@ -15,8 +15,11 @@ def get_context():
 		or "/assets/lms/frontend/favicon.png"
 	)
 	title = frappe.db.get_single_value("Website Settings", "app_name") or "Frappe Learning"
+	csrf_token = frappe.sessions.get_csrf_token()
+	frappe.db.commit()
 
 	context = frappe._dict()
+	context.csrf_token = csrf_token
 	context.meta = get_meta(app_path, title, favicon)
 	capture("active_site", "lms")
 	context.title = title
