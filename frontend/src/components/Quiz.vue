@@ -1,7 +1,7 @@
 <template>
 	<div v-if="quiz.data">
 		<div
-			class="bg-surface-blue-2 space-y-1 py-2 px-2 mb-4 rounded-md text-sm text-ink-blue-2"
+			class="bg-surface-blue-2 space-y-1 py-2 px-2 mb-4 rounded-md text-sm text-ink-blue-3"
 		>
 			<div class="leading-5">
 				{{

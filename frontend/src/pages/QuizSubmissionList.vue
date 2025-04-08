@@ -40,6 +40,18 @@
 			</Button>
 		</div>
 	</div>
+	<div
+		v-else
+		class="text-center p-5 text-ink-gray-5 mt-52 w-3/4 md:w-1/2 mx-auto space-y-2"
+	>
+		<BookOpen class="size-10 mx-auto stroke-1 text-ink-gray-4" />
+		<div class="text-xl font-medium">
+			{{ __('No submissions') }}
+		</div>
+		<div class="leading-5">
+			{{ __('No quiz submissions found. Please check again later.') }}
+		</div>
+	</div>
 </template>
 <script setup>
 import {
@@ -51,10 +63,14 @@ import {
 	ListRows,
 	ListHeader,
 	ListHeaderItem,
+	usePageMeta,
 } from 'frappe-ui'
+import { BookOpen } from 'lucide-vue-next'
 import { computed, onMounted, inject } from 'vue'
+import { sessionStore } from '../stores/session'
 import { useRouter } from 'vue-router'
 
+const { brand } = sessionStore()
 const router = useRouter()
 const user = inject('$user')
 
@@ -104,5 +120,12 @@ const quizColumns = computed(() => {
 
 const breadcrumbs = computed(() => {
 	return [{ label: __('Quiz Submissions') }]
+})
+
+usePageMeta(() => {
+	return {
+		title: __('Quiz Submissions'),
+		icon: brand.favicon,
+	}
 })
 </script>

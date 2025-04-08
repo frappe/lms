@@ -139,14 +139,17 @@ import {
 	Button,
 	TextEditor,
 	FileUploader,
+	usePageMeta,
 } from 'frappe-ui'
 import { computed, onMounted, reactive, inject } from 'vue'
 import { FileText, X } from 'lucide-vue-next'
+import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
 import { getFileSize, showToast } from '../utils'
 
 const user = inject('$user')
 const router = useRouter()
+const { brand } = sessionStore()
 
 const props = defineProps({
 	jobName: {
@@ -318,5 +321,12 @@ const breadcrumbs = computed(() => {
 		},
 	]
 	return crumbs
+})
+
+usePageMeta(() => {
+	return {
+		title: props.jobName == 'new' ? 'New Job' : jobDetail.data?.title,
+		icon: brand.favicon,
+	}
 })
 </script>
