@@ -27,7 +27,7 @@ jobs:
           npx commitlint --verbose --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }}
 
   linters:
-    name: Semantic Commits
+    name: Semgrep Rules
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
 
