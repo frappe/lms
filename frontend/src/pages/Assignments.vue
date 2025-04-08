@@ -80,15 +80,18 @@ import {
 	createListResource,
 	FormControl,
 	ListView,
+	usePageMeta,
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { Plus, Pencil } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
+import { sessionStore } from '../stores/session'
 
 const user = inject('$user')
 const dayjs = inject('$dayjs')
 const titleFilter = ref('')
 const typeFilter = ref('')
+const { brand } = sessionStore()
 const router = useRouter()
 
 onMounted(() => {
@@ -184,4 +187,11 @@ const breadcrumbs = computed(() => [
 		route: { name: 'Assignments' },
 	},
 ])
+
+usePageMeta(() => {
+	return {
+		title: __('Assignments'),
+		icon: brand.favicon,
+	}
+})
 </script>

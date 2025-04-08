@@ -81,14 +81,21 @@
 	</div>
 </template>
 <script setup>
-import { Button, Breadcrumbs, createResource, FormControl } from 'frappe-ui'
+import {
+	Button,
+	Breadcrumbs,
+	createResource,
+	FormControl,
+	usePageMeta,
+} from 'frappe-ui'
 import { Plus, Search } from 'lucide-vue-next'
+import { sessionStore } from '../stores/session'
 import { inject, computed, ref, onMounted } from 'vue'
 import JobCard from '@/components/JobCard.vue'
-import { updateDocumentTitle } from '@/utils'
 
 const user = inject('$user')
 const jobType = ref(null)
+const { brand } = sessionStore()
 const searchQuery = ref('')
 const filters = ref({})
 const orFilters = ref({})
@@ -147,12 +154,11 @@ const jobTypes = computed(() => {
 		{ label: __('Freelance'), value: 'Freelance' },
 	]
 })
-const pageMeta = computed(() => {
+
+usePageMeta(() => {
 	return {
-		title: 'Jobs',
-		description: 'An open job board for the community',
+		title: __('Jobs'),
+		icon: brand.favicon,
 	}
 })
-
-updateDocumentTitle(pageMeta)
 </script>

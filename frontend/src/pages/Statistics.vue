@@ -117,9 +117,9 @@
 	</div>
 </template>
 <script setup>
-import { createResource, Breadcrumbs } from 'frappe-ui'
-import { computed, inject } from 'vue'
-import { updateDocumentTitle } from '@/utils'
+import { createResource, Breadcrumbs, usePageMeta } from 'frappe-ui'
+import { computed } from 'vue'
+import { sessionStore } from '../stores/session'
 import { formatNumber } from '@/utils'
 import { Line, Pie } from 'vue-chartjs'
 import {
@@ -154,7 +154,7 @@ import {
 	BookOpenCheck,
 } from 'lucide-vue-next'
 
-const dayjs = inject('$dayjs')
+const { brand } = sessionStore()
 
 const breadcrumbs = computed(() => {
 	return [
@@ -317,12 +317,10 @@ const chartOptions = (isPie) => {
 	}
 }
 
-const pageMeta = computed(() => {
+usePageMeta(() => {
 	return {
-		title: 'Statistics',
-		description: 'Statistics of the platform',
+		title: __('Statistics'),
+		icon: brand.favicon,
 	}
 })
-
-updateDocumentTitle(pageMeta)
 </script>

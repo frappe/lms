@@ -104,14 +104,16 @@ import {
 	FormControl,
 	Select,
 	TabButtons,
+	usePageMeta,
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { BookOpen, Plus } from 'lucide-vue-next'
-import { updateDocumentTitle } from '@/utils'
+import { sessionStore } from '@/stores/session'
 import BatchCard from '@/components/BatchCard.vue'
 
 const user = inject('$user')
 const dayjs = inject('$dayjs')
+const { brand } = sessionStore()
 const start = ref(0)
 const pageLength = ref(20)
 const categories = ref([])
@@ -304,12 +306,10 @@ const breadcrumbs = computed(() => [
 	},
 ])
 
-const pageMeta = computed(() => {
+usePageMeta(() => {
 	return {
-		title: 'Batches',
-		description: 'All upcoming batches.',
+		title: __('Batches'),
+		icon: brand.favicon,
 	}
 })
-
-updateDocumentTitle(pageMeta)
 </script>

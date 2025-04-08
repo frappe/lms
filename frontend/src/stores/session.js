@@ -2,10 +2,11 @@ import { defineStore } from 'pinia'
 import { createResource } from 'frappe-ui'
 import { usersStore } from './user'
 import router from '@/router'
-import { ref, computed } from 'vue'
+import { computed, reactive, ref } from 'vue'
 
 export const sessionStore = defineStore('lms-session', () => {
 	let { userResource } = usersStore()
+	const brand = reactive({})
 
 	function sessionUser() {
 		let cookies = new URLSearchParams(document.cookie.split('; ').join('&'))
@@ -46,7 +47,9 @@ export const sessionStore = defineStore('lms-session', () => {
 		cache: 'brand',
 		auto: true,
 		onSuccess(data) {
-			document.querySelector("link[rel='icon']").href = data.favicon
+			brand.name = data.app_name
+			brand.logo = data.app_logo
+			brand.favicon = data.favicon.file_url
 		},
 	})
 
@@ -61,6 +64,7 @@ export const sessionStore = defineStore('lms-session', () => {
 		isLoggedIn,
 		login,
 		logout,
+		brand,
 		branding,
 		sidebarSettings,
 	}

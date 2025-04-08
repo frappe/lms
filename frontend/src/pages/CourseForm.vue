@@ -253,6 +253,7 @@ import {
 	createResource,
 	FormControl,
 	FileUploader,
+	usePageMeta,
 } from 'frappe-ui'
 import {
 	inject,
@@ -265,17 +266,19 @@ import {
 	getCurrentInstance,
 } from 'vue'
 import { showToast, updateDocumentTitle } from '@/utils'
-import Link from '@/components/Controls/Link.vue'
 import { Image, Trash2, X } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
-import CourseOutline from '@/components/CourseOutline.vue'
-import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import { capture } from '@/telemetry'
 import { useOnboarding } from 'frappe-ui/frappe'
+import { sessionStore } from '../stores/session'
 import { useSettings } from '@/stores/settings'
+import Link from '@/components/Controls/Link.vue'
+import CourseOutline from '@/components/CourseOutline.vue'
+import MultiSelect from '@/components/Controls/MultiSelect.vue'
 
 const user = inject('$user')
 const newTag = ref('')
+const { brand } = sessionStore()
 const router = useRouter()
 const instructors = ref([])
 const settingsStore = useSettings()
@@ -574,12 +577,10 @@ const breadcrumbs = computed(() => {
 	return crumbs
 })
 
-const pageMeta = computed(() => {
+usePageMeta(() => {
 	return {
-		title: 'Create a Course',
-		description: 'Create or edit a course for your learning system.',
+		title: courseResource.data?.title || __('New Course'),
+		icon: brand.favicon,
 	}
 })
-
-updateDocumentTitle(pageMeta)
 </script>

@@ -102,14 +102,17 @@ import {
 	createListResource,
 	FormControl,
 	Select,
+	usePageMeta,
 } from 'frappe-ui'
 import { computed, onMounted, ref } from 'vue'
 import { updateDocumentTitle } from '@/utils'
 import { BookOpen, GraduationCap } from 'lucide-vue-next'
+import { sessionStore } from '../stores/session'
 
 const currentCategory = ref('')
 const filters = ref({})
 const nameFilter = ref('')
+const { brand } = sessionStore()
 
 onMounted(() => {
 	updateParticipants()
@@ -163,13 +166,12 @@ const breadcrumbs = computed(() => [
 	},
 ])
 
-const pageMeta = computed(() => {
+usePageMeta(() => {
 	return {
-		title: 'Certified Participants',
-		description: 'All participants that have been certified.',
+		title: __('Certified Participants'),
+		icon: brand.favicon,
 	}
 })
-updateDocumentTitle(pageMeta)
 </script>
 <style>
 .headline {

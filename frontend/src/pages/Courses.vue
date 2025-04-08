@@ -100,10 +100,11 @@ import {
 	FormControl,
 	Select,
 	TabButtons,
+	usePageMeta,
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { BookOpen, Plus } from 'lucide-vue-next'
-import { updateDocumentTitle } from '@/utils'
+import { sessionStore } from '@/stores/session'
 import CourseCard from '@/components/CourseCard.vue'
 
 const user = inject('$user')
@@ -116,6 +117,7 @@ const title = ref('')
 const certification = ref(false)
 const filters = ref({})
 const currentTab = ref('Live')
+const { brand } = sessionStore()
 
 onMounted(() => {
 	setFiltersFromQuery()
@@ -303,12 +305,10 @@ const breadcrumbs = computed(() => [
 	},
 ])
 
-const pageMeta = computed(() => {
+usePageMeta(() => {
 	return {
-		title: 'Courses',
-		description: 'All published courses.',
+		title: __('Courses'),
+		icon: brand.favicon,
 	}
 })
-
-updateDocumentTitle(pageMeta)
 </script>

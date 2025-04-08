@@ -142,9 +142,9 @@
 	</div>
 </template>
 <script setup>
-import { Button, Breadcrumbs, createResource } from 'frappe-ui'
-import { inject, ref, computed } from 'vue'
-import { updateDocumentTitle } from '@/utils'
+import { Button, Breadcrumbs, createResource, usePageMeta } from 'frappe-ui'
+import { inject, ref } from 'vue'
+import { sessionStore } from '../stores/session'
 import JobApplicationModal from '@/components/Modals/JobApplicationModal.vue'
 import {
 	MapPin,
@@ -158,6 +158,7 @@ import {
 
 const user = inject('$user')
 const dayjs = inject('$dayjs')
+const { brand } = sessionStore()
 const showApplicationModal = ref(false)
 
 const props = defineProps({
@@ -215,12 +216,10 @@ const redirectToLogin = (job) => {
 	window.location.href = `/login?redirect-to=/job-openings/${job}`
 }
 
-const pageMeta = computed(() => {
+usePageMeta(() => {
 	return {
 		title: job.data?.job_title,
-		description: job.data?.description,
+		icon: brand.favicon,
 	}
 })
-
-updateDocumentTitle(pageMeta)
 </script>

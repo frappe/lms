@@ -264,17 +264,20 @@ import {
 	Button,
 	TextEditor,
 	createResource,
+	usePageMeta,
 } from 'frappe-ui'
-import Link from '@/components/Controls/Link.vue'
 import { useRouter } from 'vue-router'
 import { showToast } from '@/utils'
 import { Image } from 'lucide-vue-next'
 import { capture } from '@/telemetry'
-import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import { useOnboarding } from 'frappe-ui/frappe'
+import { sessionStore } from '../stores/session'
+import MultiSelect from '@/components/Controls/MultiSelect.vue'
+import Link from '@/components/Controls/Link.vue'
 
 const router = useRouter()
 const user = inject('$user')
+const { brand } = sessionStore()
 const { updateOnboardingStep } = useOnboarding('learning')
 
 const props = defineProps({
@@ -504,5 +507,12 @@ const breadcrumbs = computed(() => {
 		route: { name: 'BatchForm', params: { batchName: props.batchName } },
 	})
 	return crumbs
+})
+
+usePageMeta(() => {
+	return {
+		title: props.batchName == 'new' ? 'New Batch' : batchDetail.data?.title,
+		icon: brand.favicon,
+	}
 })
 </script>

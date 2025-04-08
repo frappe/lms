@@ -126,14 +126,17 @@ import {
 	createResource,
 	Dialog,
 	FormControl,
+	usePageMeta,
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref } from 'vue'
 import { BookOpen, Edit, Plus, LockKeyhole } from 'lucide-vue-next'
 import CourseCard from '@/components/CourseCard.vue'
 import { useRouter } from 'vue-router'
+import { sessionStore } from '../stores/session'
 import { showToast } from '@/utils'
 import { useSettings } from '@/stores/settings'
 
+const { brand } = sessionStore()
 const user = inject('$user')
 const showDialog = ref(false)
 const router = useRouter()
@@ -210,4 +213,11 @@ const breadbrumbs = computed(() => [
 		label: 'Programs',
 	},
 ])
+
+usePageMeta(() => {
+	return {
+		title: __('Programs'),
+		icon: brand.favicon,
+	}
+})
 </script>

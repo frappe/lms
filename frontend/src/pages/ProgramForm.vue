@@ -186,14 +186,17 @@ import {
 	ListHeader,
 	ListHeaderItem,
 	ListSelectBanner,
+	usePageMeta,
 } from 'frappe-ui'
 import { computed, ref } from 'vue'
 import { Plus, Trash2 } from 'lucide-vue-next'
-import Link from '@/components/Controls/Link.vue'
 import { showToast } from '@/utils/'
-import Draggable from 'vuedraggable'
 import { useRouter } from 'vue-router'
+import { sessionStore } from '../stores/session'
+import Draggable from 'vuedraggable'
+import Link from '@/components/Controls/Link.vue'
 
+const { brand } = sessionStore()
 const showDialog = ref(false)
 const currentForm = ref(null)
 const course = ref(null)
@@ -363,5 +366,12 @@ const breadbrumbs = computed(() => {
 			label: props.programName === 'new' ? 'New Program' : props.programName,
 		},
 	]
+})
+
+usePageMeta(() => {
+	return {
+		title: program.doc?.title,
+		icon: brand.favicon,
+	}
 })
 </script>
