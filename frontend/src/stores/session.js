@@ -49,7 +49,9 @@ export const sessionStore = defineStore('lms-session', () => {
 		onSuccess(data) {
 			brand.name = data.app_name
 			brand.logo = data.app_logo
-			brand.favicon = data.favicon.file_url
+			brand.favicon =
+				data.favicon?.file_url ||
+				'/assets/lms/frontend/public/learning.svg'
 		},
 	})
 
