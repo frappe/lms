@@ -14,6 +14,7 @@ import dayjs from '@/utils/dayjs'
 import Embed from '@editorjs/embed'
 import SimpleImage from '@editorjs/simple-image'
 import Table from '@editorjs/table'
+import HlsVideoTool from "@/components/HlsVideoBlock";
 
 export function createToast(options) {
 	toast({
@@ -154,6 +155,9 @@ export function getEditorTools() {
 			config: {
 				placeholder: 'Header',
 			},
+		},
+		hlsVideo: {
+			class: HlsVideoTool,
 		},
 		quiz: Quiz,
 		assignment: Assignment,
