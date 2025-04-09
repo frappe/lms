@@ -14,12 +14,14 @@
 	</div>
 </template>
 <script setup>
-import { Breadcrumbs, createResource } from 'frappe-ui'
-import { computed, inject, onMounted, onBeforeUnmount, ref } from 'vue'
+import { Breadcrumbs, createResource, usePageMeta } from 'frappe-ui'
+import { computed, inject, onMounted, ref } from 'vue'
+import { sessionStore } from '../stores/session'
 import Assignment from '@/components/Assignment.vue'
 
 const user = inject('$user')
 const fromLesson = ref(false)
+const { brand } = sessionStore()
 
 const props = defineProps({
 	assignmentID: {
@@ -71,5 +73,12 @@ const breadcrumbs = computed(() => {
 		},
 	]
 	return crumbs
+})
+
+usePageMeta(() => {
+	return {
+		title: title.data?.title,
+		icon: brand.favicon,
+	}
 })
 </script>

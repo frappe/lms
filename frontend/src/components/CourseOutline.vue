@@ -142,6 +142,7 @@
 		</div>
 	</div>
 	<ChapterModal
+		v-if="user.data"
 		v-model="showChapterModal"
 		v-model:outline="outline"
 		:course="courseName"

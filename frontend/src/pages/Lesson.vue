@@ -193,14 +193,15 @@
 	</div>
 </template>
 <script setup>
-import { createResource, Breadcrumbs, Button } from 'frappe-ui'
+import { createResource, Breadcrumbs, Button, usePageMeta } from 'frappe-ui'
 import { computed, watch, inject, ref, onMounted, onBeforeUnmount } from 'vue'
 import CourseOutline from '@/components/CourseOutline.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ChevronLeft, ChevronRight, GraduationCap } from 'lucide-vue-next'
 import Discussions from '@/components/Discussions.vue'
-import { getEditorTools, updateDocumentTitle } from '../utils'
+import { getEditorTools } from '../utils'
+import { sessionStore } from '@/stores/session'
 import EditorJS from '@editorjs/editorjs'
 import LessonContent from '@/components/LessonContent.vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
@@ -215,6 +216,7 @@ const editor = ref(null)
 const instructorEditor = ref(null)
 const lessonProgress = ref(0)
 const timer = ref(0)
+const { brand } = sessionStore()
 let timerInterval
 
 const props = defineProps({
@@ -419,14 +421,12 @@ const redirectToLogin = () => {
 	window.location.href = `/login?redirect-to=/lms/courses/${props.courseName}`
 }
 
-const pageMeta = computed(() => {
+usePageMeta(() => {
 	return {
-		title: lesson.data?.title,
-		description: lesson.data?.course,
+		title: lesson?.data?.title,
+		icon: brand.favicon,
 	}
 })
-
-updateDocumentTitle(pageMeta)
 </script>
 <style>
 .avatar-group {

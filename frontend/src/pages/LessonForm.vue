@@ -78,7 +78,13 @@
 	</div>
 </template>
 <script setup>
-import { Breadcrumbs, Button, createResource, FormControl } from 'frappe-ui'
+import {
+	Breadcrumbs,
+	Button,
+	createResource,
+	FormControl,
+	usePageMeta,
+} from 'frappe-ui'
 import {
 	computed,
 	reactive,
@@ -87,13 +93,15 @@ import {
 	ref,
 	onBeforeUnmount,
 } from 'vue'
+import { sessionStore } from '../stores/session'
 import EditorJS from '@editorjs/editorjs'
 import LessonHelp from '@/components/LessonHelp.vue'
 import { ChevronRight } from 'lucide-vue-next'
-import { updateDocumentTitle, createToast, getEditorTools } from '@/utils'
+import { createToast, getEditorTools } from '@/utils'
 import { capture } from '@/telemetry'
 import { useOnboarding } from 'frappe-ui/frappe'
 
+const { brand } = sessionStore()
 const editor = ref(null)
 const instructorEditor = ref(null)
 const user = inject('$user')
@@ -492,14 +500,14 @@ const breadcrumbs = computed(() => {
 	return crumbs
 })
 
-const pageMeta = computed(() => {
+usePageMeta(() => {
 	return {
-		title: 'Lesson Editor',
-		description: 'Create and edit lessons for your course',
+		title: lessonDetails?.data?.lesson
+			? lessonDetails.data.lesson.title
+			: 'New Lesson',
+		icon: brand.favicon,
 	}
 })
-
-updateDocumentTitle(pageMeta)
 </script>
 <style>
 .embed-tool__caption,

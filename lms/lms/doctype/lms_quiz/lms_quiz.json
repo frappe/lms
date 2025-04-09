@@ -136,9 +136,15 @@
    "label": "Duration (in minutes)"
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
- "links": [],
- "modified": "2025-01-06 11:02:09.749207",
+ "links": [
+  {
+   "link_doctype": "LMS Quiz Submission",
+   "link_fieldname": "quiz"
+  }
+ ],
+ "modified": "2025-04-07 15:03:48.525458",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz",
@@ -190,6 +196,7 @@
    "share": 1
   }
  ],
+ "row_format": "Dynamic",
  "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",

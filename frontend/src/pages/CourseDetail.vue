@@ -92,15 +92,23 @@
 	</div>
 </template>
 <script setup>
-import { createResource, Breadcrumbs, Badge, Tooltip } from 'frappe-ui'
+import {
+	createResource,
+	Breadcrumbs,
+	Badge,
+	Tooltip,
+	usePageMeta,
+} from 'frappe-ui'
 import { computed } from 'vue'
 import { Users, Star } from 'lucide-vue-next'
+import { sessionStore } from '@/stores/session'
 import CourseCardOverlay from '@/components/CourseCardOverlay.vue'
 import CourseOutline from '@/components/CourseOutline.vue'
 import CourseReviews from '@/components/CourseReviews.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
-import { updateDocumentTitle } from '@/utils'
 import CourseInstructors from '@/components/CourseInstructors.vue'
+
+const { brand } = sessionStore()
 
 const props = defineProps({
 	courseName: {
@@ -127,14 +135,12 @@ const breadcrumbs = computed(() => {
 	return items
 })
 
-const pageMeta = computed(() => {
+usePageMeta(() => {
 	return {
 		title: course?.data?.title,
-		description: course?.data?.short_introduction,
+		icon: brand.favicon,
 	}
 })
-
-updateDocumentTitle(pageMeta)
 </script>
 <style>
 .avatar-group {

@@ -63,6 +63,7 @@ import {
 	createResource,
 	FormControl,
 	TextEditor,
+	usePageMeta,
 } from 'frappe-ui'
 import {
 	computed,
@@ -72,11 +73,13 @@ import {
 	reactive,
 	watch,
 } from 'vue'
+import { sessionStore } from '../stores/session'
 import { showToast } from '@/utils'
 import { useRouter } from 'vue-router'
 
 const user = inject('$user')
 const router = useRouter()
+const { brand } = sessionStore()
 
 const props = defineProps({
 	assignmentID: {
@@ -187,5 +190,12 @@ const assignmentOptions = computed(() => {
 		{ label: 'Text', value: 'Text' },
 		{ label: 'URL', value: 'URL' },
 	]
+})
+
+usePageMeta(() => {
+	return {
+		title: assignment.doc ? assignment.doc.title : __('New Assignment'),
+		icon: brand.favicon,
+	}
 })
 </script>

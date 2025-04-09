@@ -199,9 +199,14 @@
 <script setup>
 import { computed, inject, ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Breadcrumbs, Button, createResource, Tabs, Badge } from 'frappe-ui'
-import CourseInstructors from '@/components/CourseInstructors.vue'
-import UserAvatar from '@/components/UserAvatar.vue'
+import {
+	Breadcrumbs,
+	Button,
+	createResource,
+	Tabs,
+	Badge,
+	usePageMeta,
+} from 'frappe-ui'
 import {
 	Clock,
 	LayoutDashboard,
@@ -214,7 +219,10 @@ import {
 	Globe,
 	ClipboardPen,
 } from 'lucide-vue-next'
-import { formatTime, updateDocumentTitle } from '@/utils'
+import { formatTime } from '@/utils'
+import { sessionStore } from '@/stores/session'
+import CourseInstructors from '@/components/CourseInstructors.vue'
+import UserAvatar from '@/components/UserAvatar.vue'
 import BatchDashboard from '@/components/BatchDashboard.vue'
 import BatchCourses from '@/components/BatchCourses.vue'
 import LiveClass from '@/components/LiveClass.vue'
@@ -232,6 +240,7 @@ const showAnnouncementModal = ref(false)
 const openCertificateDialog = ref(false)
 const route = useRoute()
 const router = useRouter()
+const { brand } = sessionStore()
 const tabIndex = ref(0)
 
 const tabs = computed(() => {
@@ -345,12 +354,10 @@ watch(tabIndex, () => {
 	}
 })
 
-const pageMeta = computed(() => {
+usePageMeta(() => {
 	return {
-		title: batch.data?.title,
-		description: batch.data?.description,
+		title: batch?.data?.title,
+		icon: brand.favicon,
 	}
 })
-
-updateDocumentTitle(pageMeta)
 </script>

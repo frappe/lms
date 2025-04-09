@@ -79,12 +79,14 @@ import {
 	ListRow,
 	ListHeader,
 	ListHeaderItem,
+	usePageMeta,
 } from 'frappe-ui'
 import { useRouter } from 'vue-router'
 import { computed, inject, onMounted } from 'vue'
 import { BookOpen, Plus } from 'lucide-vue-next'
-import { updateDocumentTitle } from '@/utils'
+import { sessionStore } from '@/stores/session'
 
+const { brand } = sessionStore()
 const user = inject('$user')
 const router = useRouter()
 
@@ -143,12 +145,10 @@ const breadcrumbs = computed(() => {
 	]
 })
 
-const pageMeta = computed(() => {
+usePageMeta(() => {
 	return {
 		title: __('Quizzes'),
-		description: __('List of quizzes'),
+		icon: brand.favicon,
 	}
 })
-
-updateDocumentTitle(pageMeta)
 </script>

@@ -14,11 +14,12 @@
 </template>
 <script setup>
 import Quiz from '@/components/Quiz.vue'
-import { createResource, Breadcrumbs } from 'frappe-ui'
+import { createResource, Breadcrumbs, usePageMeta } from 'frappe-ui'
 import { computed, inject, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { updateDocumentTitle } from '@/utils'
+import { sessionStore } from '../stores/session'
 
+const { brand } = sessionStore()
 const user = inject('$user')
 const router = useRouter()
 const fromLesson = ref(false)
@@ -56,12 +57,10 @@ const breadcrumbs = computed(() => {
 	return [{ label: __('Quiz Submission') }, { label: title.data?.title }]
 })
 
-const pageMeta = computed(() => {
+usePageMeta(() => {
 	return {
-		title: title.data?.title,
-		description: __('Quiz Submission'),
+		title: `${title.data?.title}`,
+		icon: brand.favicon,
 	}
 })
-
-updateDocumentTitle(pageMeta)
 </script>
