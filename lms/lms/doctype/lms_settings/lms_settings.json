@@ -8,7 +8,6 @@
   "general_tab",
   "default_home",
   "send_calendar_invite_for_evaluations",
-  "is_onboarding_complete",
   "column_break_zdel",
   "allow_guest_access",
   "enable_learning_paths",
@@ -60,7 +59,9 @@
   "batch_confirmation_template",
   "column_break_uwsp",
   "assignment_submission_template",
-  "payment_reminder_template"
+  "payment_reminder_template",
+  "seo_tab",
+  "meta_description"
  ],
  "fields": [
   {
@@ -106,13 +107,6 @@
    "fieldname": "user_category",
    "fieldtype": "Check",
    "label": "Identify User Persona"
-  },
-  {
-   "default": "0",
-   "fieldname": "is_onboarding_complete",
-   "fieldtype": "Check",
-   "label": "Is Onboarding Complete",
-   "read_only": 1
   },
   {
    "default": "0",
@@ -372,14 +366,25 @@
    "fieldname": "disable_signup",
    "fieldtype": "Check",
    "label": "Disable Signup"
+  },
+  {
+   "fieldname": "seo_tab",
+   "fieldtype": "Tab Break",
+   "label": "SEO"
+  },
+  {
+   "description": "This description will be shown on lists and pages without meta description",
+   "fieldname": "meta_description",
+   "fieldtype": "Small Text",
+   "label": "Meta Description"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-04-07 18:05:52.000651",
- "modified_by": "Administrator",
+ "modified": "2025-04-10 16:17:00.658698",
+ "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Settings",
  "owner": "Administrator",
