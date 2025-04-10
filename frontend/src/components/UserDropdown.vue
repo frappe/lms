@@ -190,7 +190,7 @@ const userDropdownOptions = computed(() => {
 					condition: () => {
 						return (
 							userResource.data?.is_system_manager &&
-							userResource.data?.is_fc_site
+							userResource.data?.is_fc_site && 1==0
 						)
 					},
 				},
@@ -199,13 +199,13 @@ const userDropdownOptions = computed(() => {
 		{
 			group: '',
 			items: [
-				{
-					icon: Zap,
-					label: 'Powered by Learning',
-					onClick: () => {
-						window.open('https://frappe.io/learning', '_blank')
-					},
-				},
+				// {
+				// 	icon: Zap,
+				// 	label: 'Powered by MedRef Learning',
+				// 	onClick: () => {
+				// 		window.open('https://medrefsl.com', '_blank')
+				// 	},
+				// },
 				{
 					icon: LogOut,
 					label: 'Log out',

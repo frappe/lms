@@ -15,7 +15,7 @@
 						</div>
 						<nav class="space-y-1">
 							<SidebarLink
-								v-for="item in tab.items"
+								v-for="item in tab.items.filter( e=> {return (e.allow === '1' | Issystem_user )})"
 								:link="item"
 								:key="item.label"
 								class="w-full"
@@ -117,6 +117,7 @@ const tabsStructure = computed(() => {
 				{
 					label: 'General',
 					icon: 'Wrench',
+					allow: '1',
 					fields: [
 						{
 							label: 'Enable Learning Paths',
@@ -157,6 +158,7 @@ const tabsStructure = computed(() => {
 				{
 					label: 'Payment Gateway',
 					icon: 'DollarSign',
+					allow: '0',
 					description:
 						'Configure the payment gateway and other payment related settings',
 					fields: [
@@ -165,6 +167,8 @@ const tabsStructure = computed(() => {
 							name: 'payment_gateway',
 							type: 'Link',
 							doctype: 'Payment Gateway',
+							
+							
 						},
 						{
 							label: 'Default Currency',
@@ -199,16 +203,19 @@ const tabsStructure = computed(() => {
 					label: 'Members',
 					description: 'Manage the members of your learning system',
 					icon: 'UserRoundPlus',
+					allow: '1',
 				},
 				{
 					label: 'Evaluators',
 					description: 'Manage the evaluators of your learning system',
 					icon: 'UserCheck',
+					allow: '1',
 				},
 				{
 					label: 'Categories',
 					description: 'Manage the members of your learning system',
 					icon: 'Network',
+					allow: '1',
 				},
 			],
 		},
@@ -219,6 +226,7 @@ const tabsStructure = computed(() => {
 				{
 					label: 'Branding',
 					icon: 'Blocks',
+					allow: '0',
 					fields: [
 						{
 							label: 'Brand Name',
@@ -263,6 +271,7 @@ const tabsStructure = computed(() => {
 					label: 'Sidebar',
 					icon: 'PanelLeftIcon',
 					description: 'Choose the items you want to show in the sidebar',
+					allow: '0',
 					fields: [
 						{
 							label: 'Courses',
@@ -302,6 +311,7 @@ const tabsStructure = computed(() => {
 				{
 					label: 'Email Templates',
 					icon: 'MailPlus',
+					allow: '1',
 					fields: [
 						{
 							label: 'Batch Confirmation Template',
@@ -326,6 +336,7 @@ const tabsStructure = computed(() => {
 				{
 					label: 'Signup',
 					icon: 'LogIn',
+					allow: '0',
 					fields: [
 						{
 							label: 'Identify User Persona',
@@ -364,6 +375,16 @@ const tabs = computed(() => {
 			}),
 		}
 	})
+})
+
+const Issystem_user = computed(() => {
+
+	let cookies = new URLSearchParams(
+							document.cookie.split('; ').join('&')
+						)
+						let system_user = cookies.get('system_user')
+						if (system_user === 'yes') return true
+						else return false
 })
 
 watch(show, async () => {
