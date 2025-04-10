@@ -402,8 +402,10 @@ const createNewLesson = () => {
 					{ lesson: data.name },
 					{
 						onSuccess() {
+							if (user.data?.is_system_manager)
+								updateOnboardingStep('create_first_lesson')
+
 							capture('lesson_created')
-							updateOnboardingStep('create_first_lesson')
 							showToast('Success', 'Lesson created successfully', 'check')
 							lessonDetails.reload()
 						},

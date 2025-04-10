@@ -4,7 +4,7 @@
 	>
 		<Breadcrumbs :items="breadcrumbs" />
 		<router-link
-			v-if="user.data?.is_moderator"
+			v-if="canCreateCourse()"
 			:to="{
 				name: 'CourseForm',
 				params: { courseName: 'new' },
@@ -105,6 +105,7 @@ import {
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { BookOpen, Plus } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
+import { canCreateCourse } from '@/utils'
 import CourseCard from '@/components/CourseCard.vue'
 
 const user = inject('$user')
