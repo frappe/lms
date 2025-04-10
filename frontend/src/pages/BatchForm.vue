@@ -430,10 +430,13 @@ const createNewBatch = () => {
 		{},
 		{
 			onSuccess(data) {
+				if (user.data?.is_system_manager) {
+					updateOnboardingStep('create_first_batch', true, false, () => {
+						localStorage.setItem('firstBatch', data.name)
+					})
+				}
+
 				capture('batch_created')
-				updateOnboardingStep('create_first_batch', true, false, () => {
-					localStorage.setItem('firstBatch', data.name)
-				})
 				router.push({
 					name: 'BatchDetail',
 					params: {

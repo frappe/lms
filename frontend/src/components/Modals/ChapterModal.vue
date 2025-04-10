@@ -77,7 +77,7 @@ import {
 	FormControl,
 	Switch,
 } from 'frappe-ui'
-import { reactive, watch } from 'vue'
+import { reactive, watch, inject } from 'vue'
 import { showToast, getFileSize } from '@/utils/'
 import { capture } from '@/telemetry'
 import { FileText, X } from 'lucide-vue-next'
@@ -85,6 +85,7 @@ import { useOnboarding } from 'frappe-ui/frappe'
 
 const show = defineModel()
 const outline = defineModel('outline')
+const user = inject('$user')
 const { updateOnboardingStep } = useOnboarding('learning')
 
 const props = defineProps({
@@ -139,8 +140,10 @@ const addChapter = async (close) => {
 				return validateChapter()
 			},
 			onSuccess: (data) => {
+				if (user.data?.is_system_manager)
+					updateOnboardingStep('create_first_chapter')
+
 				capture('chapter_created')
-				updateOnboardingStep('create_first_chapter')
 				chapterReference.submit(
 					{ name: data.name },
 					{

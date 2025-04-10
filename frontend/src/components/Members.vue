@@ -118,6 +118,23 @@ import { ref, watch, reactive, inject } from 'vue'
 import { RefreshCw, Plus, X } from 'lucide-vue-next'
 import { useOnboarding } from 'frappe-ui/frappe'
 
+interface User {
+	data: {
+		email: string
+		name: string
+		enabled: boolean
+		user_image: string
+		full_name: string
+		user_type: ['System User', 'Website User']
+		username: string
+		is_moderator: boolean
+		is_system_manager: boolean
+		is_evaluator: boolean
+		is_instructor: boolean
+		is_fc_site: boolean
+	}
+}
+
 const router = useRouter()
 const show = defineModel('show')
 const search = ref('')
@@ -126,6 +143,7 @@ const memberList = ref([])
 const hasNextPage = ref(false)
 const showForm = ref(false)
 const dayjs = inject('$dayjs')
+const user = inject<User | null>('$user')
 const { updateOnboardingStep } = useOnboarding('learning')
 
 const member = reactive({
@@ -187,7 +205,9 @@ const newMember = createResource({
 	auto: false,
 	onSuccess(data) {
 		show.value = false
-		updateOnboardingStep('invite_students')
+
+		if (user?.data?.is_system_manager) updateOnboardingStep('invite_students')
+
 		router.push({
 			name: 'Profile',
 			params: {
