@@ -25,7 +25,7 @@
 			</router-link>
 		</header>
 		<div>
-			<div class="p-5">
+			<div v-if="jobs.data?.length" class="p-5">
 				<div
 					class="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:items-center justify-between mb-5"
 				>
@@ -58,10 +58,7 @@
 					</div>
 				</div>
 
-				<div
-					v-if="jobs.data?.length"
-					class="grid grid-cols-1 lg:grid-cols-3 gap-5"
-				>
+				<div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
 					<router-link
 						v-for="job in jobs.data"
 						:to="{
@@ -73,8 +70,21 @@
 						<JobCard :job="job" />
 					</router-link>
 				</div>
-				<div v-else class="text-ink-gray-7 italic p-5 w-fit mx-auto">
-					{{ __('No jobs posted') }}
+			</div>
+			<div
+				v-else
+				class="flex flex-col items-center justify-center text-sm text-ink-gray-5 mt-48"
+			>
+				<Laptop class="size-10 mx-auto stroke-1 text-ink-gray-4" />
+				<div class="text-lg font-medium mb-1">
+					{{ __('No jobs found') }}
+				</div>
+				<div class="leading-5 w-2/5 text-center">
+					{{
+						__(
+							'There are no jobs available at the moment. Open a job opportunity or check here again later.'
+						)
+					}}
 				</div>
 			</div>
 		</div>
@@ -88,7 +98,7 @@ import {
 	FormControl,
 	usePageMeta,
 } from 'frappe-ui'
-import { Plus, Search } from 'lucide-vue-next'
+import { Laptop, Plus, Search } from 'lucide-vue-next'
 import { sessionStore } from '../stores/session'
 import { inject, computed, ref, onMounted } from 'vue'
 import JobCard from '@/components/JobCard.vue'

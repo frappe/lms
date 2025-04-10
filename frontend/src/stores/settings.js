@@ -9,15 +9,9 @@ export const useSettings = defineStore('settings', () => {
 	const activeTab = ref(null)
 
 	const learningPaths = createResource({
-		url: 'frappe.client.get_single_value',
-		makeParams(values) {
-			return {
-				doctype: 'LMS Settings',
-				field: 'enable_learning_paths',
-			}
-		},
-		auto: isLoggedIn ? true : false,
-		cache: ['learningPaths'],
+		url: 'lms.lms.api.is_learning_path_enabled',
+		auto: true,
+		cache: ['learningPath'],
 	})
 
 	const allowGuestAccess = createResource({
@@ -25,12 +19,6 @@ export const useSettings = defineStore('settings', () => {
 		auto: true,
 		cache: ['allowGuestAccess'],
 	})
-
-	/* const onboardingDetails = createResource({
-		url: 'lms.lms.utils.is_onboarding_complete',
-		auto: isLoggedIn ? true : false,
-		cache: ['onboardingDetails'],
-	}) */
 
 	return {
 		isSettingsOpen,

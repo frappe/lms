@@ -3,15 +3,11 @@
 		<div class="grid md:grid-cols-[70%,30%] h-full">
 			<div>
 				<header
-					class="sticky top-0 z-10 group flex flex-col md:flex-row md:items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
+					class="sticky top-0 z-10 flex flex-col md:flex-row md:items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 				>
 					<Breadcrumbs class="h-7" :items="breadcrumbs" />
 					<div class="flex items-center mt-3 md:mt-0">
-						<Button
-							v-if="courseResource.data?.name"
-							@click="trashCourse()"
-							class="invisible group-hover:visible"
-						>
+						<Button v-if="courseResource.data?.name" @click="trashCourse()">
 							<template #icon>
 								<Trash2 class="w-4 h-4 stroke-1.5" />
 							</template>
@@ -265,7 +261,7 @@ import {
 	watch,
 	getCurrentInstance,
 } from 'vue'
-import { showToast, updateDocumentTitle } from '@/utils'
+import { showToast } from '@/utils'
 import { Image, Trash2, X } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { capture } from '@/telemetry'
@@ -404,7 +400,7 @@ const courseResource = createResource({
 			'paid_course',
 			'featured',
 			'enable_certification',
-			'paid_certifiate',
+			'paid_certificate',
 		]
 		for (let idx in checkboxes) {
 			let key = checkboxes[idx]
@@ -447,11 +443,14 @@ const submitCourse = () => {
 	} else {
 		courseCreationResource.submit(course, {
 			onSuccess(data) {
+				if (user.data?.is_system_manager) {
+					updateOnboardingStep('create_first_course', true, false, () => {
+						localStorage.setItem('firstCourse', data.name)
+					})
+				}
+
 				capture('course_created')
 				showToast('Success', 'Course created successfully', 'check')
-				updateOnboardingStep('create_first_course', true, false, () => {
-					localStorage.setItem('firstCourse', data.name)
-				})
 				router.push({
 					name: 'CourseForm',
 					params: { courseName: data.name },

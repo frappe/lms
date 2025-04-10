@@ -1259,6 +1259,11 @@ def is_guest_allowed():
 	return frappe.get_cached_value("LMS Settings", None, "allow_guest_access")
 
 
+@frappe.whitelist(allow_guest=True)
+def is_learning_path_enabled():
+	return frappe.get_cached_value("LMS Settings", None, "enable_learning_paths")
+
+
 @frappe.whitelist()
 def cancel_evaluation(evaluation):
 	evaluation = frappe._dict(evaluation)
