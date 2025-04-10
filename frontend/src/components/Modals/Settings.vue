@@ -350,6 +350,20 @@ const tabsStructure = computed(() => {
 						},
 					],
 				},
+				{
+					label: 'SEO',
+					icon: 'Search',
+					fields: [
+						{
+							label: 'Meta Description',
+							name: 'meta_description',
+							type: 'textarea',
+							rows: 5,
+							description:
+								"This description will be shown on lists and pages that don't have meta description",
+						},
+					],
+				},
 			],
 		},
 	]
