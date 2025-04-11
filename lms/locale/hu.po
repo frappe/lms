@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-04-04 16:04+0000\n"
-"PO-Revision-Date: 2025-04-08 03:58\n"
+"PO-Revision-Date: 2025-04-11 05:06\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Hungarian\n"
 "MIME-Version: 1.0\n"
@@ -1773,7 +1773,7 @@ msgstr ""
 #: frontend/src/components/Evaluators.vue:32
 #: frontend/src/components/Members.vue:32 lms/templates/signup-form.html:10
 msgid "Email"
-msgstr ""
+msgstr "E-mail"
 
 #: frontend/src/components/Modals/Event.vue:16
 msgid "Email ID"
@@ -1791,12 +1791,12 @@ msgstr "E-mail sablon"
 #. Label of the email_templates_tab (Tab Break) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Email Templates"
-msgstr ""
+msgstr "E-mail sablonok"
 
 #. Label of the show_emails (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Emails"
-msgstr ""
+msgstr "E-mailek"
 
 #. Option for the 'User Category' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json lms/templates/signup-form.html:25
@@ -3112,7 +3112,7 @@ msgstr "Bejelentkezés"
 
 #: frontend/src/components/UserDropdown.vue:174
 msgid "Login to Frappe Cloud?"
-msgstr ""
+msgstr "Bejelentkezés a Frappe Cloudba?"
 
 #: frontend/src/pages/JobDetail.vue:48
 msgid "Login to apply"
@@ -3161,7 +3161,7 @@ msgstr ""
 
 #: frontend/src/pages/Notifications.vue:12
 msgid "Mark all as read"
-msgstr ""
+msgstr "Mindegyik megjelölése olvasottként"
 
 #: frontend/src/pages/Notifications.vue:40
 msgid "Mark as read"
