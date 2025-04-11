@@ -280,3 +280,5 @@ def get_meta_from_document(app_path):
 			"keywords": "All Certified Participants, Certified Participants, Learn, Certification",
 			"link": "/certified-participants",
 		}
+
+	return {}
