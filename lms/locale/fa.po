@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-04-04 16:04+0000\n"
-"PO-Revision-Date: 2025-04-08 03:58\n"
+"PO-Revision-Date: 2025-04-11 05:07\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Persian\n"
 "MIME-Version: 1.0\n"
@@ -1650,7 +1650,7 @@ msgstr "شرح"
 
 #: frontend/src/components/Apps.vue:51
 msgid "Desk"
-msgstr ""
+msgstr "میز کار"
 
 #: frontend/src/components/Modals/DiscussionModal.vue:22
 #: frontend/src/pages/AssignmentForm.vue:27 frontend/src/pages/BatchForm.vue:14
@@ -4041,7 +4041,7 @@ msgstr "لطفا یک عنوان وارد کنید."
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.py:40
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.py:125
 msgid "Please enter a valid URL."
-msgstr ""
+msgstr "لطفاً یک URL معتبر وارد کنید."
 
 #: frontend/src/components/Modals/LiveClassModal.vue:182
 msgid "Please enter a valid time in the format HH:mm."
