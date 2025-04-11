@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-04-04 16:04+0000\n"
-"PO-Revision-Date: 2025-04-08 03:58\n"
+"PO-Revision-Date: 2025-04-11 05:06\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: French\n"
 "MIME-Version: 1.0\n"
@@ -1650,7 +1650,7 @@ msgstr ""
 
 #: frontend/src/components/Apps.vue:51
 msgid "Desk"
-msgstr ""
+msgstr "Bureau"
 
 #: frontend/src/components/Modals/DiscussionModal.vue:22
 #: frontend/src/pages/AssignmentForm.vue:27 frontend/src/pages/BatchForm.vue:14
@@ -1791,12 +1791,12 @@ msgstr "Modèle d&#39;email"
 #. Label of the email_templates_tab (Tab Break) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Email Templates"
-msgstr ""
+msgstr "Modèles d’Email"
 
 #. Label of the show_emails (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Emails"
-msgstr ""
+msgstr "E-mails"
 
 #. Option for the 'User Category' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json lms/templates/signup-form.html:25
@@ -3161,7 +3161,7 @@ msgstr ""
 
 #: frontend/src/pages/Notifications.vue:12
 msgid "Mark all as read"
-msgstr ""
+msgstr "Marquer tout comme lu"
 
 #: frontend/src/pages/Notifications.vue:40
 msgid "Mark as read"
@@ -4515,7 +4515,7 @@ msgstr ""
 
 #: frontend/src/pages/BatchForm.vue:77 frontend/src/pages/CourseForm.vue:100
 msgid "Remove"
-msgstr ""
+msgstr "Supprimer"
 
 #: frontend/src/components/Modals/AnnouncementModal.vue:27
 msgid "Reply To"
