@@ -28,7 +28,8 @@ def get_context():
 
 
 def get_meta(app_path, title, favicon, description):
-	meta = {}
+	meta = frappe._dict()
+
 	if app_path:
 		meta = get_meta_from_document(app_path)
 
@@ -273,3 +274,5 @@ def get_meta_from_document(app_path):
 			"keywords": "All Programs, Programs, Learn",
 			"link": "/programs",
 		}
+
+	return {}
