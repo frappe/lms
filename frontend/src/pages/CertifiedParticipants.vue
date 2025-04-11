@@ -13,85 +13,36 @@
 		</router-link>
 	</header>
 	<div class="p-5 lg:w-3/4 mx-auto">
-		<div
-			class="flex flex-col lg:flex-row lg:items-center space-y-4 lg:space-y-0 justify-between mb-5"
-		>
-			<div class="text-lg text-ink-gray-9 font-semibold">
-				{{ __('All Certified Participants') }}
-			</div>
-			<div class="grid grid-cols-2 gap-2">
-				<FormControl
-					v-model="nameFilter"
-					:placeholder="__('Search by Name')"
-					type="text"
-					class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40"
-					@input="updateParticipants()"
-				/>
-				<div
-					v-if="categories.data?.length"
-					class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40"
-				>
-					<Select
-						v-model="currentCategory"
-						:options="categories.data"
-						:placeholder="__('Category')"
-						@change="updateParticipants()"
+		<template v-for="participant in participants.data">
+			<router-link
+				:to="{
+					name: 'Profile',
+					params: {
+						username: participant.username,
+					},
+				}"
+			>
+				<div class="flex items-center space-x-3">
+					<Avatar
+						:image="participant.user_image"
+						class="size-8 rounded-full object-contain"
+						:label="participant.full_name"
+						size="2xl"
 					/>
-				</div>
-			</div>
-		</div>
-		<div v-if="participants.data?.length">
-			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-				<router-link
-					v-for="participant in participants.data"
-					:to="{
-						name: 'ProfileCertificates',
-						params: { username: participant.username },
-					}"
-				>
-					<div
-						class="flex items-center space-x-2 border rounded-md hover:bg-surface-menu-bar p-2 text-ink-gray-7"
-					>
-						<Avatar
-							:image="participant.user_image"
-							:label="participant.full_name"
-							size="2xl"
-						/>
-						<div class="flex flex-col space-y-2">
-							<div class="font-medium">
-								{{ participant.full_name }}
-							</div>
-							<div
-								v-if="participant.headline"
-								class="headline text-sm text-ink-gray-7"
-							>
-								{{ participant.headline }}
-							</div>
+					<div>
+						<div>
+							{{ participant.full_name }}
+						</div>
+						<div>
+							{{ participant.headline }}
 						</div>
 					</div>
-				</router-link>
-			</div>
-			<div
-				v-if="!participants.list.loading && participants.hasNextPage"
-				class="flex justify-center mt-5"
-			>
-				<Button @click="participants.next()">
-					{{ __('Load More') }}
-				</Button>
-			</div>
-		</div>
-		<div
-			v-else-if="!participants.list.loading"
-			class="flex flex-col items-center justify-center text-sm text-ink-gray-5 italic mt-48"
-		>
-			<BookOpen class="size-10 mx-auto stroke-1 text-ink-gray-4" />
-			<div class="text-lg font-medium mb-1">
-				{{ __('No participants found') }}
-			</div>
-			<div class="leading-5 w-2/5 text-center">
-				{{ __('There are no participants matching this criteria.') }}
-			</div>
-		</div>
+					<div>
+						{{ participant.certificate_count }} {{ __('certificates') }}
+					</div>
+				</div>
+			</router-link>
+		</template>
 	</div>
 </template>
 <script setup>
@@ -125,6 +76,10 @@ const participants = createListResource({
 	start: 0,
 	pageLength: 30,
 })
+
+const count = call('lms.lms.api.get_count_of_certified_members').then(
+	(data) => {}
+)
 
 const categories = createListResource({
 	doctype: 'LMS Certificate',

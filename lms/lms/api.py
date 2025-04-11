@@ -411,13 +411,13 @@ def get_certified_participants(filters=None, start=0, page_length=30):
 		or_filters["course_title"] = ["like", f"%{category}%"]
 		or_filters["batch_title"] = ["like", f"%{category}%"]
 
-	participants = frappe.get_all(
+	participants = frappe.db.get_all(
 		"LMS Certificate",
 		filters=filters,
 		or_filters=or_filters,
-		fields=["member"],
+		fields=["member", "COUNT(*) as certificate_count"],
 		group_by="member",
-		order_by="creation desc",
+		order_by="MAX(creation) desc",
 		start=start,
 		page_length=page_length,
 	)

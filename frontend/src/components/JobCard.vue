@@ -1,10 +1,7 @@
 <template>
-	<div class="border rounded-md p-4">
-		<div class="flex space-x-4">
-			<img
-				:src="job.company_logo"
-				class="size-10 rounded-full object-contain"
-			/>
+	<div class="flex flex-col border rounded-md p-4 h-full">
+		<div class="flex space-x-4 mb-2">
+			<img :src="job.company_logo" class="size-8 rounded-full object-contain" />
 			<div class="flex flex-col space-y-1 flex-1">
 				<div class="flex items-center justify-between">
 					<span class="text-lg font-semibold text-ink-gray-9">
@@ -16,7 +13,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="space-x-4 mt-2">
+		<div class="space-x-4 mt-auto">
 			<Badge>
 				{{ job.location }}
 			</Badge>
