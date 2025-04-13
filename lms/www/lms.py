@@ -169,6 +169,11 @@ def get_meta_from_document(app_path):
 			["job_title", "company_logo", "description"],
 			as_dict=True,
 		)
+
+		if job_opening.description:
+			soup = BeautifulSoup(job_opening.description, "html.parser")
+			job_opening.description = soup.get_text()
+
 		return {
 			"title": job_opening.job_title,
 			"image": job_opening.company_logo,
