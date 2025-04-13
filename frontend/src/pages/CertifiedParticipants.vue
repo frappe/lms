@@ -12,37 +12,104 @@
 			</Button>
 		</router-link>
 	</header>
-	<div class="p-5 lg:w-3/4 mx-auto">
-		<template v-for="participant in participants.data">
-			<router-link
-				:to="{
-					name: 'Profile',
-					params: {
-						username: participant.username,
-					},
-				}"
-			>
-				<div class="flex items-center space-x-3">
-					<Avatar
-						:image="participant.user_image"
-						class="size-8 rounded-full object-contain"
-						:label="participant.full_name"
-						size="2xl"
+	<div
+		v-if="participants.data?.length"
+		class="mx-auto w-full max-w-4xl pt-6 pb-10"
+	>
+		<div class="flex justify-between mb-4">
+			<div class="text-xl font-semibold text-ink-gray-7">
+				{{ memberCount }} {{ __('certified members') }}
+			</div>
+			<div class="grid grid-cols-2 gap-2">
+				<FormControl
+					v-model="nameFilter"
+					:placeholder="__('Search by Name')"
+					type="text"
+					class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40"
+					@input="updateParticipants()"
+				/>
+				<div
+					v-if="categories.data?.length"
+					class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40"
+				>
+					<Select
+						v-model="currentCategory"
+						:options="categories.data"
+						:placeholder="__('Category')"
+						@change="updateParticipants()"
 					/>
-					<div>
-						<div>
-							{{ participant.full_name }}
-						</div>
-						<div>
-							{{ participant.headline }}
-						</div>
-					</div>
-					<div>
-						{{ participant.certificate_count }} {{ __('certificates') }}
-					</div>
 				</div>
-			</router-link>
-		</template>
+			</div>
+		</div>
+		<div class="divide-y">
+			<template v-for="participant in participants.data">
+				<router-link
+					:to="{
+						name: 'ProfileCertificates',
+						params: {
+							username: participant.username,
+						},
+					}"
+					class="flex sm:rounded px-3 py-2 sm:h-15 hover:bg-surface-gray-2"
+				>
+					<div class="flex items-center w-full space-x-3">
+						<Avatar
+							:image="participant.user_image"
+							class="size-8 rounded-full object-contain"
+							:label="participant.full_name"
+							size="2xl"
+						/>
+						<div class="flex-1">
+							<div class="text-base font-medium text-ink-gray-8">
+								{{ participant.full_name }}
+							</div>
+							<div
+								class="mt-1.5 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-base text-ink-gray-5"
+							>
+								{{ participant.headline }}
+							</div>
+						</div>
+						<div class="flex items-center space-x-20 justify-self-end">
+							<div class="text-ink-gray-5">
+								{{ participant.certificate_count }}
+								{{
+									participant.certificate_count > 1
+										? __('certificates')
+										: __('certificate')
+								}}
+							</div>
+							<div class="text-ink-gray-5">
+								{{ dayjs(participant.issue_date).format('DD MMM YYYY') }}
+							</div>
+						</div>
+					</div>
+				</router-link>
+			</template>
+		</div>
+		<div
+			v-if="!participants.list.loading && participants.hasNextPage"
+			class="flex justify-center mt-5"
+		>
+			<Button @click="participants.next()">
+				{{ __('Load More') }}
+			</Button>
+		</div>
+	</div>
+	<div
+		v-else
+		class="flex flex-col items-center justify-center text-sm text-ink-gray-5 mt-48"
+	>
+		<BookOpen class="size-10 mx-auto stroke-1 text-ink-gray-4" />
+		<div class="text-lg font-medium mb-1">
+			{{ __('No certified members') }}
+		</div>
+		<div class="leading-5 w-2/5 text-center">
+			{{
+				__(
+					'No certified members found. Please check again later or get certified yourself.'
+				)
+			}}
+		</div>
 	</div>
 </template>
 <script setup>
@@ -50,13 +117,13 @@ import {
 	Avatar,
 	Breadcrumbs,
 	Button,
+	call,
 	createListResource,
 	FormControl,
 	Select,
 	usePageMeta,
 } from 'frappe-ui'
-import { computed, onMounted, ref } from 'vue'
-import { updateDocumentTitle } from '@/utils'
+import { computed, inject, onMounted, ref } from 'vue'
 import { BookOpen, GraduationCap } from 'lucide-vue-next'
 import { sessionStore } from '../stores/session'
 
@@ -64,6 +131,8 @@ const currentCategory = ref('')
 const filters = ref({})
 const nameFilter = ref('')
 const { brand } = sessionStore()
+const memberCount = ref(0)
+const dayjs = inject('$dayjs')
 
 onMounted(() => {
 	updateParticipants()
@@ -78,7 +147,9 @@ const participants = createListResource({
 })
 
 const count = call('lms.lms.api.get_count_of_certified_members').then(
-	(data) => {}
+	(data) => {
+		memberCount.value = data
+	}
 )
 
 const categories = createListResource({
@@ -116,14 +187,14 @@ const updateFilters = () => {
 
 const breadcrumbs = computed(() => [
 	{
-		label: __('Certified Participants'),
+		label: __('Certified Members'),
 		route: { name: 'CertifiedParticipants' },
 	},
 ])
 
 usePageMeta(() => {
 	return {
-		title: __('Certified Participants'),
+		title: __('Certified Members'),
 		icon: brand.favicon,
 	}
 })
