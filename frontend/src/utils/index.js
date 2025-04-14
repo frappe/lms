@@ -109,7 +109,7 @@ export function showToast(title, text, icon, iconClasses = null) {
 		icon: icon,
 		iconClasses: iconClasses,
 		position: icon == 'check' ? 'bottom-right' : 'top-center',
-		timeout: 5,
+		timeout: icon != 'check' ? 10 : 5,
 	})
 }
 

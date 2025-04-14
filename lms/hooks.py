@@ -246,7 +246,7 @@ on_login = "lms.lms.user.on_login"
 add_to_apps_screen = [
 	{
 		"name": "lms",
-		"logo": "/assets/lms/images/lms-logo.png",
+		"logo": "/assets/lms/frontend/learning.svg",
 		"title": "Learning",
 		"route": "/lms",
 		"has_permission": "lms.lms.api.check_app_permission",
