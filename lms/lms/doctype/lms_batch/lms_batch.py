@@ -56,7 +56,7 @@ class LMSBatch(Document):
 				documentation_link = "https://docs.frappe.io/learning/setting-up-payment-gateway"
 				frappe.throw(
 					_(
-						"Please install the Payments App to create a paid batches. Refer to the documentation for more details. {0}"
+						"Please install the Payments App to create a paid batch. Refer to the documentation for more details. {0}"
 					).format(documentation_link)
 				)
 
