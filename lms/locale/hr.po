@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-04-11 16:04+0000\n"
-"PO-Revision-Date: 2025-04-14 06:01\n"
+"PO-Revision-Date: 2025-04-15 06:20\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Croatian\n"
 "MIME-Version: 1.0\n"
@@ -465,7 +465,7 @@ msgstr ""
 
 #: frontend/src/pages/AssignmentSubmissionList.vue:223
 msgid "Assignment Submissions"
-msgstr ""
+msgstr "Podnošenje Zadataka"
 
 #. Label of the assignment_title (Data) field in DocType 'LMS Assignment
 #. Submission'
@@ -1671,7 +1671,7 @@ msgstr ""
 #. Label of the disable_signup (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Disable Signup"
-msgstr ""
+msgstr "Onemogući Prijavu"
 
 #. Label of the disabled (Check) field in DocType 'Job Opportunity'
 #: lms/job/doctype/job_opportunity/job_opportunity.json
@@ -3610,7 +3610,7 @@ msgstr ""
 
 #: frontend/src/pages/Jobs.vue:80
 msgid "No jobs found"
-msgstr ""
+msgstr "Nema pronađenih poslova"
 
 #: frontend/src/components/LiveClass.vue:71
 msgid "No live classes scheduled"
@@ -4288,7 +4288,7 @@ msgstr ""
 
 #: frontend/src/pages/Programs.vue:219 lms/www/lms.py:273
 msgid "Programs"
-msgstr ""
+msgstr "Programi"
 
 #. Label of the progress (Float) field in DocType 'LMS Enrollment'
 #. Label of the progress (Int) field in DocType 'LMS Program Member'
@@ -4652,7 +4652,7 @@ msgstr ""
 #. Label of the seo_tab (Tab Break) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "SEO"
-msgstr ""
+msgstr "SEO"
 
 #. Option for the 'Day' (Select) field in DocType 'Evaluator Schedule'
 #. Option for the 'Day' (Select) field in DocType 'LMS Certificate Request'
@@ -5806,7 +5806,7 @@ msgstr ""
 
 #: frontend/src/pages/JobDetail.vue:38
 msgid "Visit Website"
-msgstr ""
+msgstr "Posjeti Web Stranicu"
 
 #: lms/templates/emails/batch_confirmation.html:23
 msgid "Visit the following link to view your "
