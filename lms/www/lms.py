@@ -57,6 +57,9 @@ def get_meta(app_path, title, favicon, description):
 	if not meta.get("image"):
 		meta["image"] = favicon
 
+	if not meta.get("keywords"):
+		meta["keywords"] = ""
+
 	if not meta:
 		meta = {
 			"title": title,
