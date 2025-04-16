@@ -48,6 +48,9 @@ def get_meta(app_path, title, favicon, description):
 			elif row.key == "link":
 				meta["link"] = row.value
 
+	if not meta.get("title"):
+		meta["title"] = title
+
 	if not meta.get("description"):
 		meta["description"] = description
 
