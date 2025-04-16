@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-04-11 16:04+0000\n"
-"PO-Revision-Date: 2025-04-14 06:01\n"
+"PO-Revision-Date: 2025-04-15 06:20\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Bosnian\n"
 "MIME-Version: 1.0\n"
@@ -465,7 +465,7 @@ msgstr "Šablon Podnošenja Zadatka"
 
 #: frontend/src/pages/AssignmentSubmissionList.vue:223
 msgid "Assignment Submissions"
-msgstr ""
+msgstr "Podnošenje Zadataka"
 
 #. Label of the assignment_title (Data) field in DocType 'LMS Assignment
 #. Submission'
@@ -1671,7 +1671,7 @@ msgstr "Onemogući Samoučenje"
 #. Label of the disable_signup (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Disable Signup"
-msgstr ""
+msgstr "Onemogući Prijavu"
 
 #. Label of the disabled (Check) field in DocType 'Job Opportunity'
 #: lms/job/doctype/job_opportunity/job_opportunity.json
@@ -2400,7 +2400,7 @@ msgstr "Ikona"
 #. Label of the user_category (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Identify User Persona"
-msgstr ""
+msgstr "Identificiraj Korisnika"
 
 #: frontend/src/components/LessonHelp.vue:11
 msgid "If Include in Preview is enabled for a lesson then the lesson will also be accessible to non logged in users."
@@ -2578,7 +2578,7 @@ msgstr "Nevažeći ID Kviza"
 
 #: lms/lms/doctype/course_lesson/course_lesson.py:33
 msgid "Invalid Quiz ID in content"
-msgstr ""
+msgstr "Nevažeći ID Kviza"
 
 #. Label of the invite_code (Data) field in DocType 'Cohort Subgroup'
 #. Label of the invite_code (Data) field in DocType 'Invite Request'
@@ -3610,7 +3610,7 @@ msgstr "Nema Uvoda"
 
 #: frontend/src/pages/Jobs.vue:80
 msgid "No jobs found"
-msgstr ""
+msgstr "Nema pronađenih poslova"
 
 #: frontend/src/components/LiveClass.vue:71
 msgid "No live classes scheduled"
@@ -3626,7 +3626,7 @@ msgstr "Nije pronađen nijedan program"
 
 #: frontend/src/pages/QuizSubmissionList.vue:52
 msgid "No quiz submissions found. Please check again later."
-msgstr ""
+msgstr "Nije pronađen nijedan podnešeni kviz. Provjeri ponovo kasnije."
 
 #: frontend/src/pages/Quizzes.vue:61
 msgid "No quizzes found"
@@ -4288,7 +4288,7 @@ msgstr "Članovi Programa"
 
 #: frontend/src/pages/Programs.vue:219 lms/www/lms.py:273
 msgid "Programs"
-msgstr ""
+msgstr "Programi"
 
 #. Label of the progress (Float) field in DocType 'LMS Enrollment'
 #. Label of the progress (Int) field in DocType 'LMS Program Member'
@@ -4652,7 +4652,7 @@ msgstr "SCORM Paket Put"
 #. Label of the seo_tab (Tab Break) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "SEO"
-msgstr ""
+msgstr "SEO"
 
 #. Option for the 'Day' (Select) field in DocType 'Evaluator Schedule'
 #. Option for the 'Day' (Select) field in DocType 'LMS Certificate Request'
@@ -5347,7 +5347,7 @@ msgstr "Nema kurseva koji odgovaraju kriterijumima. Pazite, nova iskustva učenj
 
 #: frontend/src/pages/Jobs.vue:84
 msgid "There are no jobs available at the moment. Open a job opportunity or check here again later."
-msgstr ""
+msgstr "Trenutno nema slobodnih poslova. Otvori priliku za posao ili provjeri ovdje ponovo kasnije."
 
 #: frontend/src/pages/CertifiedParticipants.vue:92
 msgid "There are no participants matching this criteria."
@@ -5412,7 +5412,7 @@ msgstr "Ovaj kurs je besplatan."
 #. Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "This description will be shown on lists and pages without meta description"
-msgstr ""
+msgstr "Ovaj opis će biti prikazan na listama i stranicama bez meta opisa"
 
 #: frontend/src/pages/Lesson.vue:16
 msgid "This lesson is not available for preview. Please enroll in the course to access it."
@@ -5806,7 +5806,7 @@ msgstr "Posjeti Grupu"
 
 #: frontend/src/pages/JobDetail.vue:38
 msgid "Visit Website"
-msgstr ""
+msgstr "Posjeti Web Stranicu"
 
 #: lms/templates/emails/batch_confirmation.html:23
 msgid "Visit the following link to view your "

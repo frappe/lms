@@ -46,12 +46,18 @@ def get_meta(app_path, title, favicon, description):
 				meta["keywords"] = f"{meta.get('keywords', '')} {row.value}"
 			elif row.key == "link":
 				meta["link"] = row.value
-	print(meta)
+
+	if not meta.get("title"):
+		meta["title"] = title
+
 	if not meta.get("description"):
 		meta["description"] = description
 
 	if not meta.get("image"):
 		meta["image"] = favicon
+
+	if not meta.get("keywords"):
+		meta["keywords"] = ""
 
 	if not meta:
 		meta = {
