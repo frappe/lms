@@ -8,7 +8,6 @@ import requests
 from frappe import _
 from frappe.desk.doctype.dashboard_chart.dashboard_chart import get_result
 from frappe.desk.doctype.notification_log.notification_log import make_notification_logs
-from frappe.desk.search import get_user_groups
 from frappe.desk.notifications import extract_mentions
 from frappe.utils import (
 	add_months,
@@ -20,7 +19,6 @@ from frappe.utils import (
 	format_date,
 	get_datetime,
 	getdate,
-	validate_phone_number,
 	get_fullname,
 	pretty_date,
 	get_time_str,
@@ -1389,6 +1387,13 @@ def get_batch_details(batch):
 
 	batch_details.instructors = get_instructors(batch)
 	batch_details.accept_enrollments = batch_details.start_date > getdate()
+
+	if (
+		not batch_details.accept_enrollments
+		and batch_details.start_date == getdate()
+		and get_time_str(batch_details.start_time) > nowtime()
+	):
+		batch_details.accept_enrollments = True
 
 	batch_details.courses = frappe.get_all(
 		"Batch Course", filters={"parent": batch}, fields=["course", "title", "evaluator"]
