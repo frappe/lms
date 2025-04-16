@@ -310,11 +310,7 @@ const course = reactive({
 })
 
 onMounted(() => {
-	if (
-		props.courseName == 'new' &&
-		!user.data?.is_moderator &&
-		!user.data?.is_instructor
-	) {
+	if (!user.data?.is_moderator && !user.data?.is_instructor) {
 		router.push({ name: 'Courses' })
 	}
 
