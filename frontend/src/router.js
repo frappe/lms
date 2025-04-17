@@ -200,12 +200,6 @@ const routes = [
 		component: () => import('@/pages/Assignments.vue'),
 	},
 	{
-		path: '/assignments/:assignmentID',
-		name: 'AssignmentForm',
-		component: () => import('@/pages/AssignmentForm.vue'),
-		props: true,
-	},
-	{
 		path: '/assignment-submission/:assignmentID/:submissionName',
 		name: 'AssignmentSubmission',
 		component: () => import('@/pages/AssignmentSubmission.vue'),

@@ -54,7 +54,7 @@
 						<div v-else>
 							<div class="flex items-center text-sm space-x-2">
 								<div
-									class="flex items-center justify-center rounded border border-outline-gray-modals w-[10rem] py-5"
+									class="flex items-center justify-center rounded border border-outline-gray-modals bg-white w-[10rem] py-5"
 								>
 									<img :src="data[field.name]?.file_url" class="h-6 rounded" />
 								</div>
@@ -68,7 +68,7 @@
 								</div>
 								<X
 									@click="data[field.name] = null"
-									class="bg-surface-gray-5 rounded-md cursor-pointer stroke-1.5 w-5 h-5 p-1 ml-4"
+									class="border text-ink-gray-7 border-outline-gray-3 rounded-md cursor-pointer stroke-1.5 w-5 h-5 p-1 ml-4"
 								/>
 							</div>
 						</div>
@@ -99,7 +99,7 @@
 </template>
 <script setup>
 import { FormControl, FileUploader, Button, Switch } from 'frappe-ui'
-import { computed, onMounted } from 'vue'
+import { computed } from 'vue'
 import { getFileSize, validateFile } from '@/utils'
 import { X } from 'lucide-vue-next'
 import Link from '@/components/Controls/Link.vue'
