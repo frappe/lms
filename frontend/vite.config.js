@@ -25,7 +25,7 @@ export default defineConfig({
 		}),
 	],
 	server: {
-		allowedHosts: ['fs', 'onb2'],
+		allowedHosts: ['fs', 'bs'],
 	},
 	resolve: {
 		alias: {

@@ -58,7 +58,6 @@
   "certification_template",
   "batch_confirmation_template",
   "column_break_uwsp",
-  "assignment_submission_template",
   "payment_reminder_template",
   "seo_tab",
   "meta_description"
@@ -239,12 +238,6 @@
    "label": "Email Templates"
   },
   {
-   "fieldname": "assignment_submission_template",
-   "fieldtype": "Link",
-   "label": "Assignment Submission Template",
-   "options": "Email Template"
-  },
-  {
    "fieldname": "column_break_uwsp",
    "fieldtype": "Column Break"
   },
@@ -383,7 +376,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-04-10 16:17:00.658698",
+ "modified": "2025-04-17 21:58:30.365876",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Settings",
