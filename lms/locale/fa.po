@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-04-11 16:04+0000\n"
-"PO-Revision-Date: 2025-04-14 06:01\n"
+"PO-Revision-Date: 2025-04-17 06:19\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Persian\n"
 "MIME-Version: 1.0\n"
@@ -1671,7 +1671,7 @@ msgstr "خودآموزی را غیرفعال کنید"
 #. Label of the disable_signup (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Disable Signup"
-msgstr ""
+msgstr "غیرفعال کردن ثبت نام"
 
 #. Label of the disabled (Check) field in DocType 'Job Opportunity'
 #: lms/job/doctype/job_opportunity/job_opportunity.json
@@ -2604,7 +2604,7 @@ msgstr ""
 
 #: frontend/src/components/AppSidebar.vue:438
 msgid "Invite your team and students"
-msgstr ""
+msgstr "تیم و دانش آموزان خود را دعوت کنید"
 
 #. Label of the is_correct (Check) field in DocType 'LMS Option'
 #. Label of the is_correct_1 (Check) field in DocType 'LMS Question'
@@ -3582,7 +3582,7 @@ msgstr ""
 
 #: frontend/src/components/BatchCourses.vue:67
 msgid "No courses added"
-msgstr ""
+msgstr "هیچ دوره ای اضافه نشده است"
 
 #: lms/templates/courses_created.html:14
 msgid "No courses created"
@@ -4652,7 +4652,7 @@ msgstr ""
 #. Label of the seo_tab (Tab Break) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "SEO"
-msgstr ""
+msgstr "سئو"
 
 #. Option for the 'Day' (Select) field in DocType 'Evaluator Schedule'
 #. Option for the 'Day' (Select) field in DocType 'LMS Certificate Request'
@@ -4786,7 +4786,7 @@ msgstr ""
 
 #: frontend/src/components/AppSidebar.vue:551
 msgid "Setting up payment gateway"
-msgstr ""
+msgstr "راه‌اندازی درگاه پرداخت"
 
 #: frontend/src/components/AppSidebar.vue:556
 #: frontend/src/components/Modals/Settings.vue:7
