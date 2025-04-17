@@ -19,6 +19,8 @@ from frappe.utils import (
 	format_date,
 	date_diff,
 )
+from frappe.query_builder import DocType
+from pypika.functions import DistinctOptionFunction
 from lms.lms.utils import get_average_rating, get_lesson_count
 from xml.dom.minidom import parseString
 from lms.lms.doctype.course_lesson.course_lesson import save_progress
@@ -411,27 +413,48 @@ def get_certified_participants(filters=None, start=0, page_length=30):
 		or_filters["course_title"] = ["like", f"%{category}%"]
 		or_filters["batch_title"] = ["like", f"%{category}%"]
 
-	participants = frappe.get_all(
+	participants = frappe.db.get_all(
 		"LMS Certificate",
 		filters=filters,
 		or_filters=or_filters,
-		fields=["member"],
+		fields=["member", "issue_date"],
 		group_by="member",
-		order_by="creation desc",
+		order_by="issue_date desc",
 		start=start,
 		page_length=page_length,
 	)
 
 	for participant in participants:
+		count = frappe.db.count("LMS Certificate", {"member": participant.member})
 		details = frappe.db.get_value(
 			"User",
 			participant.member,
 			["full_name", "user_image", "username", "country", "headline"],
 			as_dict=1,
 		)
+		details["certificate_count"] = count
 		participant.update(details)
 
 	return participants
+
+
+class CountDistinct(DistinctOptionFunction):
+	def __init__(self, field):
+		super().__init__("COUNT", field, distinct=True)
+
+
+@frappe.whitelist(allow_guest=True)
+def get_count_of_certified_members():
+	Certificate = DocType("LMS Certificate")
+
+	query = (
+		frappe.qb.from_(Certificate)
+		.select(CountDistinct(Certificate.member).as_("total"))
+		.where(Certificate.published == 1)
+	)
+
+	result = query.run(as_dict=True)
+	return result[0]["total"] if result else 0
 
 
 @frappe.whitelist(allow_guest=True)
@@ -655,13 +678,13 @@ def get_categories(doctype, filters):
 @frappe.whitelist()
 def get_members(start=0, search=""):
 	"""Get members for the given search term and start index.
-	        Args: start (int): Start index for the query.
+	                Args: start (int): Start index for the query.
 	<<<<<<< HEAD
-	        search (str): Search term to filter the results.
+	                search (str): Search term to filter the results.
 	=======
-	                                        search (str): Search term to filter the results.
+	                                                                                search (str): Search term to filter the results.
 	>>>>>>> 4869bba7bbb2fb38477d6fc29fb3b5838e075577
-	        Returns: List of members.
+	                Returns: List of members.
 	"""
 
 	filters = {"enabled": 1, "name": ["not in", ["Administrator", "Guest"]]}
