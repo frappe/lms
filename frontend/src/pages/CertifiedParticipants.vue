@@ -17,7 +17,7 @@
 		class="mx-auto w-full max-w-4xl pt-6 pb-10"
 	>
 		<div class="flex flex-col md:flex-row justify-between mb-4 px-3">
-			<div class="text-xl font-semibold text-ink-gray-7 mb-2 md:mb-0">
+			<div class="text-xl font-semibold text-ink-gray-7 mb-4 md:mb-0">
 				{{ memberCount }} {{ __('certified members') }}
 			</div>
 			<div class="grid grid-cols-2 gap-2">
@@ -52,27 +52,27 @@
 					}"
 					class="flex sm:rounded px-3 py-2 sm:h-15 hover:bg-surface-gray-2"
 				>
-					<div class="flex md:items-center w-full space-x-3">
+					<div class="flex items-center w-full space-x-3">
 						<Avatar
 							:image="participant.user_image"
 							class="size-8 rounded-full object-contain"
 							:label="participant.full_name"
 							size="2xl"
 						/>
-						<div class="flex flex-col md:flex-row">
+						<div class="flex flex-col md:flex-row w-full">
 							<div class="flex-1">
 								<div class="text-base font-medium text-ink-gray-8">
 									{{ participant.full_name }}
 								</div>
 								<div
 									v-if="participant.headline"
-									class="my-1.5 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-base text-ink-gray-5"
+									class="mt-1.5 text-base text-ink-gray-5"
 								>
 									{{ participant.headline }}
 								</div>
 							</div>
 							<div
-								class="flex items-center space-x-4 md:space-x-20 justify-self-end text-base"
+								class="flex items-center space-x-3 md:space-x-24 text-sm md:text-base mt-1.5"
 							>
 								<div class="text-ink-gray-5">
 									{{ participant.certificate_count }}
@@ -82,6 +82,7 @@
 											: __('certificate')
 									}}
 								</div>
+								<span class="text-ink-gray-4 md:hidden">·</span>
 								<div class="text-ink-gray-5">
 									{{ dayjs(participant.issue_date).format('DD MMM YYYY') }}
 								</div>
