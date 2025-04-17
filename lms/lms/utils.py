@@ -340,6 +340,7 @@ def render_html(lesson):
 
 	quiz_id = "{{ Quiz('" + quiz_id + "') }}" if quiz_id else ""
 	youtube = "{{ YouTubeVideo('" + youtube + "') }}" if youtube else ""
+	body = body if body else ""
 	text = youtube + body + quiz_id
 
 	if lesson.question:
