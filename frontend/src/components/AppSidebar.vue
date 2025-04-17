@@ -74,43 +74,53 @@
 				:isSidebarCollapsed="sidebarStore.isSidebarCollapsed"
 				appName="learning"
 			/>
-			<SidebarLink
-				v-if="isOnboardingStepsCompleted"
-				:link="{
-					label: __('Help'),
-				}"
-				:isCollapsed="sidebarStore.isSidebarCollapsed"
-				@click="
-					() => {
-						showHelpModal = minimize ? true : !showHelpModal
-						minimize = !showHelpModal
-					}
+
+			<div
+				class="flex items-center"
+				:class="
+					sidebarStore.isSidebarCollapsed ? 'flex-col space-y-3' : 'flex-row'
 				"
 			>
-				<template #icon>
-					<span class="grid h-5 w-6 flex-shrink-0 place-items-center">
-						<CircleHelp class="h-4 w-4 stroke-1.5" />
-					</span>
-				</template>
-			</SidebarLink>
-			<SidebarLink
-				:link="{
-					label: sidebarStore.isSidebarCollapsed ? 'Expand' : 'Collapse',
-				}"
-				:isCollapsed="sidebarStore.isSidebarCollapsed"
-				@click="toggleSidebar()"
-			>
-				<template #icon>
-					<span class="grid h-5 w-6 flex-shrink-0 place-items-center">
-						<CollapseSidebar
-							class="h-4 w-4 text-ink-gray-7 duration-300 ease-in-out"
-							:class="{
-								'[transform:rotateY(180deg)]': sidebarStore.isSidebarCollapsed,
-							}"
+				<div
+					class="flex items-center flex-1"
+					:class="
+						sidebarStore.isSidebarCollapsed
+							? 'flex-col space-y-3'
+							: 'flex-row space-x-3'
+					"
+				>
+					<Tooltip :text="__('Powered by Learning')">
+						<Zap
+							class="size-4 stroke-1.5 text-gray-700 cursor-pointer"
+							@click="redirectToWebsite()"
 						/>
-					</span>
-				</template>
-			</SidebarLink>
+					</Tooltip>
+					<Tooltip :text="__('Help')">
+						<CircleHelp
+							class="size-4 stroke-1.5 text-gray-700 cursor-pointer"
+							@click="
+								() => {
+									showHelpModal = minimize ? true : !showHelpModal
+									minimize = !showHelpModal
+								}
+							"
+						/>
+					</Tooltip>
+				</div>
+				<Tooltip
+					:text="
+						sidebarStore.isSidebarCollapsed ? __('Expand') : __('Collapse')
+					"
+				>
+					<CollapseSidebar
+						class="size-4 text-gray-700 duration-300 stroke-1.5 ease-in-out cursor-pointer"
+						:class="{
+							'[transform:rotateY(180deg)]': sidebarStore.isSidebarCollapsed,
+						}"
+						@click="toggleSidebar()"
+					/>
+				</Tooltip>
+			</div>
 		</div>
 		<HelpModal
 			v-if="showOnboarding && showHelpModal"
@@ -148,7 +158,7 @@ import { usersStore } from '@/stores/user'
 import { sessionStore } from '@/stores/session'
 import { useSidebar } from '@/stores/sidebar'
 import { useSettings } from '@/stores/settings'
-import { Button, createResource } from 'frappe-ui'
+import { Button, createResource, Tooltip } from 'frappe-ui'
 import PageModal from '@/components/Modals/PageModal.vue'
 import { capture } from '@/telemetry'
 import LMSLogo from '@/components/Icons/LMSLogo.vue'
@@ -164,6 +174,7 @@ import {
 	UserPlus,
 	Users,
 	BookText,
+	Zap,
 } from 'lucide-vue-next'
 import {
 	TrialBanner,
@@ -578,4 +589,8 @@ watch(userResource, () => {
 		setUpOnboarding()
 	}
 })
+
+const redirectToWebsite = () => {
+	window.open('https://frappe.io/learning', '_blank')
+}
 </script>
