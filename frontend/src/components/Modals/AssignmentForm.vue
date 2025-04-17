@@ -17,7 +17,7 @@
 		}"
 	>
 		<template #body-content>
-			<div class="space-y-4 text-base">
+			<div class="space-y-4 text-base max-h-[65vh] overflow-y-auto">
 				<FormControl
 					v-model="assignment.title"
 					:label="__('Title')"
