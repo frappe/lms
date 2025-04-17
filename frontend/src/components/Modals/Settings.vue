@@ -315,12 +315,6 @@ const tabsStructure = computed(() => {
 							doctype: 'Email Template',
 							type: 'Link',
 						},
-						{
-							label: 'Assignment Submission Template',
-							name: 'assignment_submission_template',
-							doctype: 'Email Template',
-							type: 'Link',
-						},
 					],
 				},
 				{
