@@ -76,7 +76,7 @@
 			/>
 
 			<div
-				class="flex items-center"
+				class="flex items-center mt-4"
 				:class="
 					sidebarStore.isSidebarCollapsed ? 'flex-col space-y-3' : 'flex-row'
 				"
