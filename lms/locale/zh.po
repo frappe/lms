@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-04-11 16:04+0000\n"
-"PO-Revision-Date: 2025-04-14 06:01\n"
+"PO-Revision-Date: 2025-04-18 06:22\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Chinese Simplified\n"
 "MIME-Version: 1.0\n"
@@ -4652,7 +4652,7 @@ msgstr "SCORM包路径"
 #. Label of the seo_tab (Tab Break) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "SEO"
-msgstr ""
+msgstr "搜索引擎优化"
 
 #. Option for the 'Day' (Select) field in DocType 'Evaluator Schedule'
 #. Option for the 'Day' (Select) field in DocType 'LMS Certificate Request'
@@ -4786,7 +4786,7 @@ msgstr ""
 
 #: frontend/src/components/AppSidebar.vue:551
 msgid "Setting up payment gateway"
-msgstr ""
+msgstr "设置支付网关"
 
 #: frontend/src/components/AppSidebar.vue:556
 #: frontend/src/components/Modals/Settings.vue:7
@@ -5806,7 +5806,7 @@ msgstr "访问批次"
 
 #: frontend/src/pages/JobDetail.vue:38
 msgid "Visit Website"
-msgstr ""
+msgstr "访问网站"
 
 #: lms/templates/emails/batch_confirmation.html:23
 msgid "Visit the following link to view your "
