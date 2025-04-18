@@ -2,6 +2,7 @@
 """
 
 import json
+import requests
 import frappe
 import zipfile
 import os
@@ -1389,3 +1390,21 @@ def add_an_evaluator(email):
 	evaluator.insert()
 
 	return evaluator
+
+
+@frappe.whitelist()
+def capture_user_persona(site, role, number_of_students, use_case, frappe_products):
+	requests.post(
+		"https://school.frappe.io/api/method/capture_persona",
+		json={
+			"site": site,
+			"role": role,
+			"number_of_students": number_of_students,
+			"use_case": use_case,
+			"frappe_products": frappe_products,
+		},
+		headers={
+			"Authorization": f"token {frappe.local.conf.frappe_token}",
+			"Content-Type": "application/json",
+		},
+	)
