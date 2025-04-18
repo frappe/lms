@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-04-11 16:04+0000\n"
-"PO-Revision-Date: 2025-04-14 06:01\n"
+"PO-Revision-Date: 2025-04-18 06:22\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Thai\n"
 "MIME-Version: 1.0\n"
@@ -1045,7 +1045,7 @@ msgstr ""
 #: lms/job/doctype/lms_job_application/lms_job_application.json
 #: lms/lms/doctype/work_experience/work_experience.json
 msgid "Company"
-msgstr ""
+msgstr "บริษัท"
 
 #. Label of the company_details_section (Section Break) field in DocType 'Job
 #. Opportunity'
