@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-04-11 16:04+0000\n"
-"PO-Revision-Date: 2025-04-18 06:22\n"
+"PO-Revision-Date: 2025-04-20 06:28\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Chinese Simplified\n"
 "MIME-Version: 1.0\n"
@@ -187,11 +187,11 @@ msgstr "请为该问题添加至少一个备选答案：{0}"
 
 #: frontend/src/components/AppSidebar.vue:479
 msgid "Add courses to your batch"
-msgstr ""
+msgstr "为班级添加课程"
 
 #: frontend/src/components/AppSidebar.vue:459
 msgid "Add students to your batch"
-msgstr ""
+msgstr "为班级添加学员"
 
 #: frontend/src/components/Modals/PageModal.vue:6
 msgid "Add web page to sidebar"
@@ -203,11 +203,11 @@ msgstr "以{0}格式添加作业"
 
 #: frontend/src/components/AppSidebar.vue:395
 msgid "Add your first chapter"
-msgstr ""
+msgstr "添加首个章节"
 
 #: frontend/src/components/AppSidebar.vue:410
 msgid "Add your first lesson"
-msgstr ""
+msgstr "添加首节课时"
 
 #. Label of the address (Link) field in DocType 'LMS Payment'
 #: frontend/src/pages/Billing.vue:64
@@ -465,7 +465,7 @@ msgstr "作业提交模板"
 
 #: frontend/src/pages/AssignmentSubmissionList.vue:223
 msgid "Assignment Submissions"
-msgstr ""
+msgstr "作业提交记录"
 
 #. Label of the assignment_title (Data) field in DocType 'LMS Assignment
 #. Submission'
@@ -1442,7 +1442,7 @@ msgstr "创建直播课程"
 
 #: frontend/src/components/AppSidebar.vue:522
 msgid "Create a batch"
-msgstr ""
+msgstr "创建班级"
 
 #: frontend/src/components/AppSidebar.vue:513
 msgid "Create a course"
@@ -1450,7 +1450,7 @@ msgstr "创建课程"
 
 #: frontend/src/components/AppSidebar.vue:523
 msgid "Create a live class"
-msgstr ""
+msgstr "创建直播课程"
 
 #: frontend/src/components/Modals/Question.vue:31
 msgid "Create a new question"
@@ -1458,15 +1458,15 @@ msgstr "新建试题"
 
 #: frontend/src/components/AppSidebar.vue:449
 msgid "Create your first batch"
-msgstr ""
+msgstr "创建首个班级"
 
 #: frontend/src/components/AppSidebar.vue:383
 msgid "Create your first course"
-msgstr ""
+msgstr "创建首门课程"
 
 #: frontend/src/components/AppSidebar.vue:428
 msgid "Create your first quiz"
-msgstr ""
+msgstr "创建首项测验"
 
 #: frontend/src/pages/Assignments.vue:166 frontend/src/pages/Courses.vue:295
 msgid "Created"
@@ -1474,11 +1474,11 @@ msgstr "已创建"
 
 #: frontend/src/components/AppSidebar.vue:519
 msgid "Creating a batch"
-msgstr ""
+msgstr "正在创建班级"
 
 #: frontend/src/components/AppSidebar.vue:510
 msgid "Creating a course"
-msgstr ""
+msgstr "正在创建课程"
 
 #. Label of the currency (Link) field in DocType 'LMS Batch'
 #. Label of the currency (Link) field in DocType 'LMS Course'
@@ -1498,7 +1498,7 @@ msgstr "当前课时"
 
 #: frontend/src/components/AppSidebar.vue:541
 msgid "Custom Certificate Templates"
-msgstr ""
+msgstr "自定义证书模板"
 
 #. Label of the custom_component (Code) field in DocType 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json
@@ -1671,7 +1671,7 @@ msgstr "禁用自主学习"
 #. Label of the disable_signup (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Disable Signup"
-msgstr ""
+msgstr "禁用注册功能"
 
 #. Label of the disabled (Check) field in DocType 'Job Opportunity'
 #: lms/job/doctype/job_opportunity/job_opportunity.json
@@ -2400,7 +2400,7 @@ msgstr "图标"
 #. Label of the user_category (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Identify User Persona"
-msgstr ""
+msgstr "识别用户角色"
 
 #: frontend/src/components/LessonHelp.vue:11
 msgid "If Include in Preview is enabled for a lesson then the lesson will also be accessible to non logged in users."
@@ -2578,7 +2578,7 @@ msgstr "无效的测验ID"
 
 #: lms/lms/doctype/course_lesson/course_lesson.py:33
 msgid "Invalid Quiz ID in content"
-msgstr ""
+msgstr "内容中存在无效测验ID"
 
 #. Label of the invite_code (Data) field in DocType 'Cohort Subgroup'
 #. Label of the invite_code (Data) field in DocType 'Invite Request'
@@ -2604,7 +2604,7 @@ msgstr "邀请请求"
 
 #: frontend/src/components/AppSidebar.vue:438
 msgid "Invite your team and students"
-msgstr ""
+msgstr "邀请团队成员及学员"
 
 #. Label of the is_correct (Check) field in DocType 'LMS Option'
 #. Label of the is_correct_1 (Check) field in DocType 'LMS Question'
@@ -2636,7 +2636,7 @@ msgstr "签发日期"
 
 #: frontend/src/components/AppSidebar.vue:538
 msgid "Issue a Certificate"
-msgstr ""
+msgstr "颁发证书"
 
 #. Label of the issued_on (Date) field in DocType 'LMS Badge Assignment'
 #: frontend/src/pages/CourseCertification.vue:27
@@ -3446,7 +3446,7 @@ msgstr "星期一"
 
 #: frontend/src/components/AppSidebar.vue:546
 msgid "Monetization"
-msgstr ""
+msgstr "课程变现功能"
 
 #: frontend/src/components/AppSidebar.vue:39
 msgid "More"
@@ -3582,7 +3582,7 @@ msgstr "无证书"
 
 #: frontend/src/components/BatchCourses.vue:67
 msgid "No courses added"
-msgstr ""
+msgstr "未添加任何课程"
 
 #: lms/templates/courses_created.html:14
 msgid "No courses created"
@@ -3610,7 +3610,7 @@ msgstr "无简介"
 
 #: frontend/src/pages/Jobs.vue:80
 msgid "No jobs found"
-msgstr ""
+msgstr "未找到招聘职位"
 
 #: frontend/src/components/LiveClass.vue:71
 msgid "No live classes scheduled"
@@ -3626,7 +3626,7 @@ msgstr "未找到项目"
 
 #: frontend/src/pages/QuizSubmissionList.vue:52
 msgid "No quiz submissions found. Please check again later."
-msgstr ""
+msgstr "当前无测验提交记录，请稍后再查。"
 
 #: frontend/src/pages/Quizzes.vue:61
 msgid "No quizzes found"
@@ -4288,7 +4288,7 @@ msgstr "项目成员"
 
 #: frontend/src/pages/Programs.vue:219 lms/www/lms.py:273
 msgid "Programs"
-msgstr ""
+msgstr "课程项目"
 
 #. Label of the progress (Float) field in DocType 'LMS Enrollment'
 #. Label of the progress (Int) field in DocType 'LMS Program Member'
@@ -4782,7 +4782,7 @@ msgstr "设置密码"
 
 #: frontend/src/components/AppSidebar.vue:506
 msgid "Setting up"
-msgstr ""
+msgstr "系统配置中"
 
 #: frontend/src/components/AppSidebar.vue:551
 msgid "Setting up payment gateway"
@@ -5347,7 +5347,7 @@ msgstr "暂无符合条件的课程，请持续关注，新学习项目即将上
 
 #: frontend/src/pages/Jobs.vue:84
 msgid "There are no jobs available at the moment. Open a job opportunity or check here again later."
-msgstr ""
+msgstr "当前暂无招聘职位，请发布新职位或稍后再查看。"
 
 #: frontend/src/pages/CertifiedParticipants.vue:92
 msgid "There are no participants matching this criteria."
@@ -5412,7 +5412,7 @@ msgstr "本课程免费"
 #. Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "This description will be shown on lists and pages without meta description"
-msgstr ""
+msgstr "本描述将展示在无元描述的列表及页面中"
 
 #: frontend/src/pages/Lesson.vue:16
 msgid "This lesson is not available for preview. Please enroll in the course to access it."
