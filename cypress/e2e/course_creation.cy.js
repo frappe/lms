@@ -19,12 +19,16 @@ describe("Course Creation", () => {
 		);
 
 		cy.fixture("profile.png", "base64").then((fileContent) => {
-			cy.get('input[type="file"]').attachFile({
-				fileContent,
-				fileName: "profile.png",
-				mimeType: "image/png",
-				encoding: "base64",
-			});
+			cy.get("div")
+				.contains("Course Image")
+				.siblings("div")
+				.children('input[type="file"]')
+				.attachFile({
+					fileContent,
+					fileName: "profile.png",
+					mimeType: "image/png",
+					encoding: "base64",
+				});
 		});
 
 		cy.get("label")

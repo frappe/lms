@@ -56,7 +56,7 @@
 							<CourseInstructors :instructors="course.data.instructors" />
 						</div>
 					</div>
-					<div v-if="course.data.tags" class="flex mt-4 w-fit">
+					<div v-if="course.data.tags" class="flex my-4 w-fit">
 						<Badge
 							theme="gray"
 							size="lg"
