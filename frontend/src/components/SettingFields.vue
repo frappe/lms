@@ -54,15 +54,24 @@
 						<div v-else>
 							<div class="flex items-center text-sm space-x-2">
 								<div
-									class="flex items-center justify-center rounded border border-outline-gray-modals bg-white w-[10rem] py-5"
+									class="flex items-center justify-center rounded border border-outline-gray-modals bg-white w-[10rem] py-2"
 								>
-									<img :src="data[field.name]?.file_url" class="h-6 rounded" />
+									<img
+										:src="data[field.name]?.file_url || data[field.name]"
+										class="w-[80%] rounded"
+									/>
 								</div>
 								<div class="flex flex-col flex-wrap">
 									<span class="break-all text-ink-gray-9">
-										{{ data[field.name]?.file_name }}
+										{{
+											data[field.name]?.file_name ||
+											data[field.name].split('/').pop()
+										}}
 									</span>
-									<span class="text-sm text-ink-gray-5 mt-1">
+									<span
+										v-if="data[field.name]?.file_size"
+										class="text-sm text-ink-gray-5 mt-1"
+									>
 										{{ getFileSize(data[field.name]?.file_size) }}
 									</span>
 								</div>

@@ -352,9 +352,22 @@ const tabsStructure = computed(() => {
 							label: 'Meta Description',
 							name: 'meta_description',
 							type: 'textarea',
-							rows: 5,
+							rows: 4,
 							description:
 								"This description will be shown on lists and pages that don't have meta description",
+						},
+						{
+							label: 'Meta Keywords',
+							name: 'meta_keywords',
+							type: 'textarea',
+							rows: 4,
+							description:
+								'Keywords for search engines to find your website. Separated by commas.',
+						},
+						{
+							label: 'Meta Image',
+							name: 'meta_image',
+							type: 'Upload',
 						},
 					],
 				},
