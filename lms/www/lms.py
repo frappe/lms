@@ -14,25 +14,28 @@ def get_context():
 		or "/assets/lms/frontend/favicon.png"
 	)
 	title = frappe.db.get_single_value("Website Settings", "app_name") or "Frappe Learning"
-	description = frappe.db.get_single_value("LMS Settings", "meta_description")
+
 	csrf_token = frappe.sessions.get_csrf_token()
 	frappe.db.commit()
 
 	context = frappe._dict()
 	context.csrf_token = csrf_token
-	context.meta = get_meta(app_path, title, favicon, description)
+	context.meta = get_meta(app_path, title, favicon)
 	capture("active_site", "lms")
 	context.title = title
 	context.favicon = favicon
 	return context
 
 
-def get_meta(app_path, title, favicon, description):
+def get_meta(app_path, title, favicon):
 	meta = frappe._dict()
 	if app_path:
 		meta = get_meta_from_document(app_path)
 
 	route_meta = frappe.get_all("Website Meta Tag", {"parent": app_path}, ["key", "value"])
+	description = frappe.db.get_single_value("LMS Settings", "meta_description")
+	image = frappe.db.get_single_value("LMS Settings", "meta_image")
+	keywords = frappe.db.get_single_value("LMS Settings", "meta_keywords")
 
 	if len(route_meta) > 0:
 		for row in route_meta:
@@ -54,10 +57,9 @@ def get_meta(app_path, title, favicon, description):
 		meta["description"] = description
 
 	if not meta.get("image"):
-		meta["image"] = favicon
+		meta["image"] = image or favicon
 
-	if not meta.get("keywords"):
-		meta["keywords"] = ""
+	meta["keywords"] = f"{meta.get('keywords')}, {keywords}"
 
 	if not meta:
 		meta = {

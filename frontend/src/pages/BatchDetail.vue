@@ -14,13 +14,16 @@
 					{{ batch.data.description }}
 				</div>
 				<div
-					class="flex flex-col gap-2 lg:gap-0 lg:flex-row lg:items-center justify-between lg:w-1/2"
+					class="flex flex-col gap-2 lg:gap-0 lg:flex-row lg:items-center space-x-5 lg:w-1/2"
 				>
-					<div class="flex items-center text-ink-gray-7">
+					<div
+						v-if="batch.data?.courses?.length"
+						class="flex items-center text-ink-gray-7"
+					>
 						<BookOpen class="h-4 w-4 mr-2" />
 						<span> {{ batch.data?.courses?.length }} {{ __('Courses') }} </span>
 					</div>
-					<span class="hidden lg:block" v-if="batch.data.courses"
+					<span v-if="batch.data?.courses?.length" class="hidden lg:block"
 						>&middot;</span
 					>
 					<DateRange

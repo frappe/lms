@@ -60,7 +60,10 @@
   "column_break_uwsp",
   "payment_reminder_template",
   "seo_tab",
-  "meta_description"
+  "meta_description",
+  "meta_image",
+  "column_break_xijv",
+  "meta_keywords"
  ],
  "fields": [
   {
@@ -370,13 +373,29 @@
    "fieldname": "meta_description",
    "fieldtype": "Small Text",
    "label": "Meta Description"
+  },
+  {
+   "description": "This image will be shown on lists and pages that don't have an image by default",
+   "fieldname": "meta_image",
+   "fieldtype": "Attach Image",
+   "label": "Meta Image"
+  },
+  {
+   "description": "Common keywords that will be used for all pages",
+   "fieldname": "meta_keywords",
+   "fieldtype": "Small Text",
+   "label": "Meta Keywords"
+  },
+  {
+   "fieldname": "column_break_xijv",
+   "fieldtype": "Column Break"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-04-17 21:58:30.365876",
+ "modified": "2025-04-19 12:19:24.037931",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Settings",
