@@ -201,9 +201,9 @@ export function getEditorTools() {
 						regex: /(?:https?:\/\/)?(?:www\.)?(?:(?:youtu\.be\/)|(?:youtube\.com)\/(?:v\/|u\/\w\/|embed\/|watch))(?:(?:\?v=)?([^#&?=]*))?((?:[?&]\w*=\w*)*)/,
 						embedUrl:
 							'https://www.youtube.com/embed/<%= remote_id %>',
-						html: '<iframe style="width:100%; height: 30rem;" frameborder="0" allowfullscreen></iframe>',
-						height: 320,
-						width: 580,
+						html: `<iframe style="width:100%; height: ${
+							window.innerWidth < 640 ? '15rem' : '30rem'
+						};" frameborder="0" allowfullscreen></iframe>`,
 						id: ([id, params]) => {
 							if (!params && id) {
 								return id
@@ -249,28 +249,40 @@ export function getEditorTools() {
 							return id + '?' + newParams.join('&')
 						},
 					},
-					vimeo: true,
+					vimeo: {
+						regex: /(?:http[s]?:\/\/)?(?:www\.)?vimeo\.com\/(\d+)/,
+						embedUrl:
+							'https://player.vimeo.com/video/<%= remote_id %>',
+						html: `<iframe style="width:100%; height: ${
+							window.innerWidth < 640 ? '15rem' : '30rem'
+						};" frameborder="0" allowfullscreen></iframe>`,
+						id: ([id]) => id,
+					},
 					codepen: true,
 					aparat: {
 						regex: /(?:http[s]?:\/\/)?(?:www.)?aparat\.com\/v\/([^\/\?\&]+)\/?/,
 						embedUrl:
 							'https://www.aparat.com/video/video/embed/videohash/<%= remote_id %>/vt/frame',
-						html: '<iframe style="margin: 0 auto; width: 100%; height: 25rem;" frameborder="0" scrolling="no" allowtransparency="true"></iframe>',
-						height: 300,
-						width: 600,
+						html: `<iframe style="margin: 0 auto; width: 100%; height: ${
+							window.innerWidth < 640 ? '15rem' : '30rem'
+						};" frameborder="0" scrolling="no" allowtransparency="true"></iframe>`,
 					},
 					github: true,
 					slides: {
 						regex: /https:\/\/docs\.google\.com\/presentation\/d\/([A-Za-z0-9_-]+)\/pub/,
 						embedUrl:
 							'https://docs.google.com/presentation/d/<%= remote_id %>/embed',
-						html: "<iframe style='width: 100%; height: 30rem; border: 1px solid #D3D3D3; border-radius: 12px; margin: 1rem 0' frameborder='0' allowfullscreen='true'></iframe>",
+						html: `<iframe style='width: 100%; height: ${
+							window.innerWidth < 640 ? '15rem' : '30rem'
+						}; border: 1px solid #D3D3D3; border-radius: 12px; margin: 1rem 0' frameborder='0' allowfullscreen='true'></iframe>`,
 					},
 					drive: {
 						regex: /https:\/\/drive\.google\.com\/file\/d\/([A-Za-z0-9_-]+)\/view(\?.+)?/,
 						embedUrl:
 							'https://drive.google.com/file/d/<%= remote_id %>/preview',
-						html: "<iframe style='width: 100%; height: 25rem; border: 1px solid #D3D3D3; border-radius: 12px;' frameborder='0' allowfullscreen='true'></iframe>",
+						html: `<iframe style='width: 100%; height: ${
+							window.innerWidth < 640 ? '15rem' : '30rem'
+						}; border: 1px solid #D3D3D3; border-radius: 12px;' frameborder='0' allowfullscreen='true'></iframe>`,
 					},
 					docsPublic: {
 						regex: /https:\/\/docs\.google\.com\/document\/d\/([A-Za-z0-9_-]+)\/edit(\?.+)?/,

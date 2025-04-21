@@ -9,16 +9,20 @@
 			:class="{ 'default-image': !course.image }"
 			:style="{ backgroundImage: 'url(\'' + encodeURI(course.image) + '\')' }"
 		>
-			<div
-				class="flex items-center flex-wrap space-x-1 relative top-4 px-2 w-fit"
-			>
-				<Badge v-if="course.featured" variant="subtle" theme="green" size="md">
+			<div class="flex items-center flex-wrap relative top-4 px-2 w-fit">
+				<Badge
+					v-if="course.featured"
+					variant="subtle"
+					theme="green"
+					size="md"
+					class="mb-1 mr-1"
+				>
 					{{ __('Featured') }}
 				</Badge>
 				<div
 					v-if="course.tags"
 					v-for="tag in course.tags?.split(', ')"
-					class="text-xs bg-white text-gray-800 px-2 py-0.5 rounded-md"
+					class="text-xs bg-white text-gray-800 px-2 py-0.5 rounded-md mb-1 mr-1"
 				>
 					{{ tag }}
 				</div>
