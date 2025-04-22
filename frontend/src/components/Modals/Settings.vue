@@ -322,11 +322,11 @@ const tabsStructure = computed(() => {
 					icon: 'LogIn',
 					fields: [
 						{
-							label: 'Identify User Persona',
+							label: 'Identify User Category',
 							name: 'user_category',
 							type: 'checkbox',
 							description:
-								'Enable this option to identify the user persona during signup.',
+								'Enable this option to identify the user category during signup.',
 						},
 						{
 							label: 'Disable signup',
