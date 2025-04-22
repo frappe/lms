@@ -96,6 +96,7 @@
 import {
 	Breadcrumbs,
 	Button,
+	call,
 	createListResource,
 	FormControl,
 	Select,
@@ -107,6 +108,7 @@ import { BookOpen, Plus } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { canCreateCourse } from '@/utils'
 import CourseCard from '@/components/CourseCard.vue'
+import router from '../router'
 
 const user = inject('$user')
 const dayjs = inject('$dayjs')
@@ -121,6 +123,7 @@ const currentTab = ref('Live')
 const { brand } = sessionStore()
 
 onMounted(() => {
+	identifyUserPersona()
 	setFiltersFromQuery()
 	updateCourses()
 	categories.value = [
@@ -145,15 +148,51 @@ const courses = createListResource({
 	pageLength: pageLength.value,
 	start: start.value,
 	onSuccess(data) {
-		let allCategories = data.map((course) => course.category)
-		allCategories = allCategories.filter(
-			(category, index) => allCategories.indexOf(category) === index && category
-		)
-		if (categories.value.length <= allCategories.length) {
-			updateCategories(data)
-		}
+		setCategories(data)
 	},
 })
+
+const setCategories = (data) => {
+	let allCategories = data.map((course) => course.category)
+	allCategories = allCategories.filter(
+		(category, index) => allCategories.indexOf(category) === index && category
+	)
+	if (categories.value.length <= allCategories.length) {
+		updateCategories(data)
+	}
+}
+
+const isPersonaCaptured = async () => {
+	let persona = await call('frappe.client.get_single_value', {
+		doctype: 'LMS Settings',
+		field: 'persona_captured',
+	})
+	return persona
+}
+
+const identifyUserPersona = async () => {
+	let personaCaptured = await isPersonaCaptured()
+	debugger
+	console.log('personaCaptured', personaCaptured)
+	console.log('user.data?.is_system_manager', user.data?.is_system_manager)
+	console.log('user.data?.developer_mode', user.data?.developer_mode)
+
+	if (
+		user.data?.is_system_manager &&
+		!user.data?.developer_mode &&
+		!personaCaptured
+	) {
+		call('frappe.client.get_count', {
+			doctype: 'LMS Course',
+		}).then((data) => {
+			if (!data) {
+				router.push({
+					name: 'PersonaForm',
+				})
+			}
+		})
+	}
+}
 
 const updateCourses = () => {
 	updateFilters()

@@ -184,9 +184,10 @@ def get_user_info():
 	)
 	user.is_fc_site = is_fc_site()
 	user.is_system_manager = "System Manager" in user.roles
+	user.sitename = frappe.local.site
+	user.developer_mode = frappe.conf.developer_mode
 	if user.is_fc_site and user.is_system_manager:
 		user.site_info = current_site_info()
-		user.sitename = frappe.local.site
 	return user
 
 
@@ -678,13 +679,13 @@ def get_categories(doctype, filters):
 @frappe.whitelist()
 def get_members(start=0, search=""):
 	"""Get members for the given search term and start index.
-	                Args: start (int): Start index for the query.
+	                                Args: start (int): Start index for the query.
 	<<<<<<< HEAD
-	                search (str): Search term to filter the results.
+	                                search (str): Search term to filter the results.
 	=======
-	                                                                                search (str): Search term to filter the results.
+	                                                                                                                                                                search (str): Search term to filter the results.
 	>>>>>>> 4869bba7bbb2fb38477d6fc29fb3b5838e075577
-	                Returns: List of members.
+	                                Returns: List of members.
 	"""
 
 	filters = {"enabled": 1, "name": ["not in", ["Administrator", "Guest"]]}
@@ -1389,3 +1390,17 @@ def add_an_evaluator(email):
 	evaluator.insert()
 
 	return evaluator
+
+
+@frappe.whitelist()
+def capture_user_persona(responses):
+	frappe.only_for("System Manager")
+	data = frappe.parse_json(responses)
+	data = json.dumps(data)
+	response = frappe.integrations.utils.make_post_request(
+		"https://school.frappe.io/api/method/capture-persona",
+		data={"response": data},
+	)
+	if response.get("message").get("name"):
+		frappe.db.set_single_value("LMS Settings", "persona_captured", True)
+	return response

@@ -24,7 +24,7 @@ const router = useRouter()
 const noSidebar = ref(false)
 
 router.beforeEach((to, from, next) => {
-	if (to.query.fromLesson) {
+	if (to.query.fromLesson || to.path === '/persona') {
 		noSidebar.value = true
 	} else {
 		noSidebar.value = false
