@@ -8,6 +8,7 @@
   "general_tab",
   "default_home",
   "send_calendar_invite_for_evaluations",
+  "persona_captured",
   "column_break_zdel",
   "allow_guest_access",
   "enable_learning_paths",
@@ -60,10 +61,7 @@
   "column_break_uwsp",
   "payment_reminder_template",
   "seo_tab",
-  "meta_description",
-  "meta_image",
-  "column_break_xijv",
-  "meta_keywords"
+  "meta_description"
  ],
  "fields": [
   {
@@ -375,28 +373,19 @@
    "label": "Meta Description"
   },
   {
-   "description": "This image will be shown on lists and pages that don't have an image by default",
-   "fieldname": "meta_image",
-   "fieldtype": "Attach Image",
-   "label": "Meta Image"
-  },
-  {
-   "description": "Common keywords that will be used for all pages",
-   "fieldname": "meta_keywords",
-   "fieldtype": "Small Text",
-   "label": "Meta Keywords"
-  },
-  {
-   "fieldname": "column_break_xijv",
-   "fieldtype": "Column Break"
+   "default": "0",
+   "fieldname": "persona_captured",
+   "fieldtype": "Check",
+   "label": "Persona Captured",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-04-19 12:19:24.037931",
- "modified_by": "sayali@frappe.io",
+ "modified": "2025-04-22 14:34:19.656896",
+ "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",
  "owner": "Administrator",

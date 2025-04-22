@@ -162,8 +162,21 @@ const setCategories = (data) => {
 	}
 }
 
-const identifyUserPersona = () => {
-	if (user.data?.is_system_manager) {
+const isPersonaCaptured = async () => {
+	let persona = await call('frappe.client.get_single_value', {
+		doctype: 'LMS Settings',
+		field: 'persona_captured',
+	})
+	return persona
+}
+
+const identifyUserPersona = async () => {
+	let personaCaptured = await isPersonaCaptured()
+	if (
+		user.data?.is_system_manager &&
+		!user.data?.developer_mode &&
+		!personaCaptured
+	) {
 		call('frappe.client.get_count', {
 			doctype: 'LMS Course',
 		}).then((data) => {
