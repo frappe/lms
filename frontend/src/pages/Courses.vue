@@ -172,6 +172,11 @@ const isPersonaCaptured = async () => {
 
 const identifyUserPersona = async () => {
 	let personaCaptured = await isPersonaCaptured()
+	debugger
+	console.log('personaCaptured', personaCaptured)
+	console.log('user.data?.is_system_manager', user.data?.is_system_manager)
+	console.log('user.data?.developer_mode', user.data?.developer_mode)
+
 	if (
 		user.data?.is_system_manager &&
 		!user.data?.developer_mode &&

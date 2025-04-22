@@ -2,10 +2,7 @@ describe("Course Creation", () => {
 	it("creates a new course", () => {
 		cy.login();
 		cy.wait(1000);
-		cy.visit("/lms");
-		cy.wait(1000);
-		cy.get("div").contains("Skip").click();
-		cy.wait(1000);
+		cy.visit("/lms/courses");
 
 		// Create a course
 		cy.get("button").contains("New").click();
