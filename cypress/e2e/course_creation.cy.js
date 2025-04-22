@@ -2,7 +2,10 @@ describe("Course Creation", () => {
 	it("creates a new course", () => {
 		cy.login();
 		cy.wait(1000);
-		cy.visit("/lms/courses");
+		cy.visit("/lms");
+		cy.wait(1000);
+		cy.get("div").contains("Skip").click();
+		cy.wait(1000);
 
 		// Create a course
 		cy.get("button").contains("New").click();
@@ -19,13 +22,6 @@ describe("Course Creation", () => {
 		);
 
 		cy.fixture("profile.png", "base64").then((fileContent) => {
-			/* cy.get('input[type="file"]').should("be.hidden").attachFile({
-				fileContent,
-				fileName: "profile.png",
-				mimeType: "image/png",
-				encoding: "base64",
-			}); */
-
 			cy.get("div")
 				.contains("Course Image")
 				.siblings("div")
