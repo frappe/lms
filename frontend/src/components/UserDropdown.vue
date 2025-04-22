@@ -194,11 +194,6 @@ const userDropdownOptions = computed(() => {
 						)
 					},
 				},
-			],
-		},
-		{
-			group: '',
-			items: [
 				{
 					icon: LogOut,
 					label: 'Log out',
