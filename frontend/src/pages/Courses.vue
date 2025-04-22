@@ -171,17 +171,10 @@ const isPersonaCaptured = async () => {
 }
 
 const identifyUserPersona = async () => {
-	let personaCaptured = await isPersonaCaptured()
-	debugger
-	console.log('personaCaptured', personaCaptured)
-	console.log('user.data?.is_system_manager', user.data?.is_system_manager)
-	console.log('user.data?.developer_mode', user.data?.developer_mode)
+	if (user.data?.is_system_manager && !user.data?.developer_mode) {
+		let personaCaptured = await isPersonaCaptured()
+		if (personaCaptured) return
 
-	if (
-		user.data?.is_system_manager &&
-		!user.data?.developer_mode &&
-		!personaCaptured
-	) {
 		call('frappe.client.get_count', {
 			doctype: 'LMS Course',
 		}).then((data) => {

@@ -7,24 +7,33 @@
 			<CertificationLinks :courseName="courseName" />
 		</header>
 		<div class="grid md:grid-cols-[70%,30%] h-screen">
-			<div
-				v-if="lesson.data.no_preview"
-				class="border-r text-center pt-10 px-5 md:px-0 pb-10"
-			>
-				<p class="mb-4">
-					{{
-						__(
-							'This lesson is not available for preview. Please enroll in the course to access it.'
-						)
-					}}
-				</p>
-				<Button v-if="user.data" @click="enrollStudent()" variant="solid">
-					{{ __('Start Learning') }}
-				</Button>
-				<Button v-else @click="redirectToLogin()">
-					{{ __('Login') }}
-				</Button>
+			<div v-if="lesson.data.no_preview" class="border-r">
+				<div class="shadow rounded-md w-3/4 mt-10 mx-auto text-center p-4">
+					<div class="flex items-center justify-center mt-4 space-x-2">
+						<LockKeyholeIcon class="size-4 stroke-2 text-ink-gray-5" />
+						<div class="text-lg font-semibold text-ink-gray-7">
+							{{ __('This lesson is locked') }}
+						</div>
+					</div>
+					<div class="mt-1 mb-4 text-ink-gray-7">
+						{{
+							__(
+								'This lesson is not available for preview. Please enroll in the course to access it.'
+							)
+						}}
+					</div>
+					<Button v-if="user.data" @click="enrollStudent()" variant="solid">
+						{{ __('Start Learning') }}
+					</Button>
+					<Button v-else @click="redirectToLogin()">
+						<template #prefix>
+							<LogIn class="w-4 h-4 stroke-1" />
+						</template>
+						{{ __('Login') }}
+					</Button>
+				</div>
 			</div>
+
 			<div v-else class="border-r container pt-5 pb-10 px-5">
 				<div class="flex flex-col md:flex-row md:items-center justify-between">
 					<div class="text-3xl font-semibold text-ink-gray-9">
@@ -198,7 +207,12 @@ import { computed, watch, inject, ref, onMounted, onBeforeUnmount } from 'vue'
 import CourseOutline from '@/components/CourseOutline.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { useRouter, useRoute } from 'vue-router'
-import { ChevronLeft, ChevronRight, GraduationCap } from 'lucide-vue-next'
+import {
+	ChevronLeft,
+	ChevronRight,
+	LockKeyholeIcon,
+	LogIn,
+} from 'lucide-vue-next'
 import Discussions from '@/components/Discussions.vue'
 import { getEditorTools } from '../utils'
 import { sessionStore } from '@/stores/session'
