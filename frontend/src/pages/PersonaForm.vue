@@ -1,6 +1,6 @@
 <template>
 	<div class="flex h-screen overflow-hidden sm:bg-gray-50">
-		<div class="relative z-10 mx-auto py-8 sm:w-max sm:py-32">
+		<div class="relative h-full z-10 mx-auto pt-8 sm:w-max sm:pt-32">
 			<div class="mx-auto flex items-center justify-center space-x-2">
 				<LMSLogo class="size-7" />
 				<span
@@ -68,6 +68,12 @@
 					</Button>
 				</div>
 			</div>
+			<div
+				class="text-center absolute bottom-0 right-0 left-0 mx-auto cursor-pointer text-sm pb-4"
+				@click="skipPersonaForm()"
+			>
+				{{ __('Skip') }}
+			</div>
 		</div>
 	</div>
 </template>
@@ -81,6 +87,7 @@ import { sessionStore } from '@/stores/session'
 const user = inject('$user')
 const router = useRouter()
 const { brand } = sessionStore()
+console.log(user.data?.sitename)
 
 const persona = reactive({
 	role: null,
@@ -90,12 +97,28 @@ const persona = reactive({
 })
 
 const submitPersona = () => {
-	call('lms.lms.api.capture_user_persona', {
+	let responses = {
 		site: user.data?.sitename,
 		role: persona.role,
 		no_of_students: persona.noOfStudents,
 		use_case: persona.useCase,
 		frappe_products: persona.frappeProducts,
+	}
+	call('lms.lms.api.capture_user_persona', {
+		responses: JSON.stringify(responses),
+	}).then(() => {
+		router.push({
+			name: 'Courses',
+		})
+	})
+}
+
+const skipPersonaForm = () => {
+	call('frappe.client.set_value', {
+		doctype: 'LMS Settings',
+		name: null,
+		fieldname: 'persona_captured',
+		value: 1,
 	}).then(() => {
 		router.push({
 			name: 'Courses',
