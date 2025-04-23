@@ -245,6 +245,8 @@ import LessonContent from '@/components/LessonContent.vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
 import CertificationLinks from '@/components/CertificationLinks.vue'
+import Plyr from 'plyr'
+import 'plyr/dist/plyr.css'
 
 const user = inject('$user')
 const router = useRouter()
@@ -276,6 +278,7 @@ const props = defineProps({
 
 onMounted(() => {
 	startTimer()
+	enablePlyr()
 	document.addEventListener('fullscreenchange', attachFullscreenEvent)
 })
 
@@ -290,6 +293,34 @@ const attachFullscreenEvent = () => {
 onBeforeUnmount(() => {
 	document.removeEventListener('fullscreenchange', attachFullscreenEvent)
 })
+
+const enablePlyr = () => {
+	setTimeout(() => {
+		let src = document
+			.getElementsByClassName('video-player')[0]
+			.getAttribute('src')
+		if (src) {
+			let videoID = src.split('/').pop()
+			document
+				.getElementsByClassName('video-player')[0]
+				.setAttribute('data-plyr-embed-id', videoID)
+		}
+		new Plyr('.video-player', {
+			youtube: {
+				noCookie: true,
+			},
+			controls: [
+				'play-large',
+				'play',
+				'progress',
+				'current-time',
+				'mute',
+				'volume',
+				'fullscreen',
+			],
+		})
+	}, 500)
+}
 
 const lesson = createResource({
 	url: 'lms.lms.utils.get_lesson',
@@ -401,6 +432,7 @@ watch(
 			clearInterval(timerInterval)
 			timer.value = 0
 			startTimer()
+			enablePlyr()
 		}
 	}
 )
@@ -654,5 +686,8 @@ usePageMeta(() => {
 
 .tc-table {
 	border-left: 1px solid #e8e8eb;
+}
+
+.plyr__control--overlaid {
 }
 </style>

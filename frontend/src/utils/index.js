@@ -199,55 +199,9 @@ export function getEditorTools() {
 				services: {
 					youtube: {
 						regex: /(?:https?:\/\/)?(?:www\.)?(?:(?:youtu\.be\/)|(?:youtube\.com)\/(?:v\/|u\/\w\/|embed\/|watch))(?:(?:\?v=)?([^#&?=]*))?((?:[?&]\w*=\w*)*)/,
-						embedUrl:
-							'https://www.youtube.com/embed/<%= remote_id %>?modestbranding=1&enablejsapi=1&widgetid=3&iv_load_policy=3&fs=0',
-						html: `<iframe style="width:100%; height: ${
-							window.innerWidth < 640 ? '15rem' : '30rem'
-						};" frameborder="0" allowfullscreen></iframe>`,
-						id: ([id, params]) => {
-							if (!params && id) {
-								return id
-							}
-
-							const paramsMap = {
-								start: 'start',
-								end: 'end',
-								t: 'start',
-								// eslint-disable-next-line camelcase
-								time_continue: 'start',
-								list: 'list',
-							}
-
-							let newParams = params
-								.slice(1)
-								.split('&')
-								.map((param) => {
-									const [name, value] = param.split('=')
-
-									if (!id && name === 'v') {
-										id = value
-
-										return null
-									}
-
-									if (!paramsMap[name]) {
-										return null
-									}
-
-									if (
-										value === 'LL' ||
-										value.startsWith('RDMM') ||
-										value.startsWith('FL')
-									) {
-										return null
-									}
-
-									return `${paramsMap[name]}=${value}`
-								})
-								.filter((param) => !!param)
-
-							return id + '?' + newParams.join('&')
-						},
+						embedUrl: '<%= remote_id %>',
+						/* 'https://www.youtube.com/embed/<%= remote_id %>?origin=https://plyr.io&amp;iv_load_policy=3&amp;modestbranding=1&amp;playsinline=1&amp;showinfo=0&amp;rel=0&amp;enablejsapi=1' */ html: `<div class="video-player" data-plyr-provider="youtube"></div>`,
+						id: ([id]) => id,
 					},
 					vimeo: {
 						regex: /(?:http[s]?:\/\/)?(?:www\.)?vimeo\.com\/(\d+)/,
