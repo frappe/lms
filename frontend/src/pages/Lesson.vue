@@ -4,7 +4,16 @@
 			class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 		>
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
-			<CertificationLinks :courseName="courseName" />
+			<div class="flex items-center space-x-2">
+				<Tooltip :text="__('Zen Mode')">
+					<Button @click="goFullScreen()">
+						<template #icon>
+							<Focus class="w-4 h-4 stroke-2" />
+						</template>
+					</Button>
+				</Tooltip>
+				<CertificationLinks :courseName="courseName" />
+			</div>
 		</header>
 		<div class="grid md:grid-cols-[70%,30%] h-screen">
 			<div v-if="lesson.data.no_preview" class="border-r">
@@ -33,146 +42,154 @@
 					</Button>
 				</div>
 			</div>
-
-			<div v-else class="border-r container pt-5 pb-10 px-5">
-				<div class="flex flex-col md:flex-row md:items-center justify-between">
-					<div class="text-3xl font-semibold text-ink-gray-9">
-						{{ lesson.data.title }}
-					</div>
-					<div class="flex items-center mt-2 md:mt-0">
-						<router-link
-							v-if="lesson.data.prev"
-							:to="{
-								name: 'Lesson',
-								params: {
-									courseName: courseName,
-									chapterNumber: lesson.data.prev.split('.')[0],
-									lessonNumber: lesson.data.prev.split('.')[1],
-								},
-							}"
-						>
-							<Button class="mr-2">
-								<template #prefix>
-									<ChevronLeft class="w-4 h-4 stroke-1" />
-								</template>
-								<span>
-									{{ __('Previous') }}
-								</span>
-							</Button>
-						</router-link>
-						<router-link
-							v-if="allowEdit()"
-							:to="{
-								name: 'LessonForm',
-								params: {
-									courseName: courseName,
-									chapterNumber: props.chapterNumber,
-									lessonNumber: props.lessonNumber,
-								},
-							}"
-						>
-							<Button class="mr-2">
-								{{ __('Edit') }}
-							</Button>
-						</router-link>
-						<router-link
-							v-if="lesson.data.next"
-							:to="{
-								name: 'Lesson',
-								params: {
-									courseName: courseName,
-									chapterNumber: lesson.data.next.split('.')[0],
-									lessonNumber: lesson.data.next.split('.')[1],
-								},
-							}"
-						>
-							<Button>
-								<template #suffix>
-									<ChevronRight class="w-4 h-4 stroke-1" />
-								</template>
-								<span>
-									{{ __('Next') }}
-								</span>
-							</Button>
-						</router-link>
-						<router-link
-							v-else
-							:to="{
-								name: 'CourseDetail',
-								params: { courseName: courseName },
-							}"
-						>
-							<Button>
-								{{ __('Back to Course') }}
-							</Button>
-						</router-link>
-					</div>
-				</div>
-
-				<div class="flex items-center mt-2">
-					<span
-						class="h-6 mr-1"
-						:class="{
-							'avatar-group overlap': lesson.data.instructors?.length > 1,
-						}"
-					>
-						<UserAvatar
-							v-for="instructor in lesson.data.instructors"
-							:user="instructor"
-						/>
-					</span>
-					<CourseInstructors
-						v-if="lesson.data?.instructors"
-						:instructors="lesson.data.instructors"
-					/>
-				</div>
+			<div v-else ref="lessonContainer" class="bg-surface-white">
 				<div
-					v-if="
-						lesson.data.instructor_content &&
-						JSON.parse(lesson.data.instructor_content)?.blocks?.length > 1 &&
-						allowInstructorContent()
-					"
-					class="bg-surface-gray-2 p-3 rounded-md mt-6"
+					class="border-r container pt-5 pb-10 px-5"
+					:class="{
+						'w-1/2 mx-auto border-none': zenModeEnabled,
+					}"
 				>
-					<div class="text-ink-gray-5 font-medium">
-						{{ __('Instructor Notes') }}
+					<div
+						class="flex flex-col md:flex-row md:items-center justify-between"
+					>
+						<div class="text-3xl font-semibold text-ink-gray-9">
+							{{ lesson.data.title }}
+						</div>
+						<div class="flex items-center mt-2 md:mt-0">
+							<router-link
+								v-if="lesson.data.prev"
+								:to="{
+									name: 'Lesson',
+									params: {
+										courseName: courseName,
+										chapterNumber: lesson.data.prev.split('.')[0],
+										lessonNumber: lesson.data.prev.split('.')[1],
+									},
+								}"
+							>
+								<Button class="mr-2">
+									<template #prefix>
+										<ChevronLeft class="w-4 h-4 stroke-1" />
+									</template>
+									<span>
+										{{ __('Previous') }}
+									</span>
+								</Button>
+							</router-link>
+							<router-link
+								v-if="allowEdit()"
+								:to="{
+									name: 'LessonForm',
+									params: {
+										courseName: courseName,
+										chapterNumber: props.chapterNumber,
+										lessonNumber: props.lessonNumber,
+									},
+								}"
+							>
+								<Button class="mr-2">
+									{{ __('Edit') }}
+								</Button>
+							</router-link>
+							<router-link
+								v-if="lesson.data.next"
+								:to="{
+									name: 'Lesson',
+									params: {
+										courseName: courseName,
+										chapterNumber: lesson.data.next.split('.')[0],
+										lessonNumber: lesson.data.next.split('.')[1],
+									},
+								}"
+							>
+								<Button>
+									<template #suffix>
+										<ChevronRight class="w-4 h-4 stroke-1" />
+									</template>
+									<span>
+										{{ __('Next') }}
+									</span>
+								</Button>
+							</router-link>
+							<router-link
+								v-else
+								:to="{
+									name: 'CourseDetail',
+									params: { courseName: courseName },
+								}"
+							>
+								<Button>
+									{{ __('Back to Course') }}
+								</Button>
+							</router-link>
+						</div>
+					</div>
+
+					<div class="flex items-center mt-2">
+						<span
+							class="h-6 mr-1"
+							:class="{
+								'avatar-group overlap': lesson.data.instructors?.length > 1,
+							}"
+						>
+							<UserAvatar
+								v-for="instructor in lesson.data.instructors"
+								:user="instructor"
+							/>
+						</span>
+						<CourseInstructors
+							v-if="lesson.data?.instructors"
+							:instructors="lesson.data.instructors"
+						/>
 					</div>
 					<div
-						id="instructor-content"
-						class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal"
-					></div>
-				</div>
-				<div
-					v-else-if="lesson.data.instructor_notes"
-					class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-6"
-				>
-					<LessonContent :content="lesson.data.instructor_notes" />
-				</div>
-				<div
-					v-if="lesson.data.content"
-					class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-5"
-				>
-					<div id="editor"></div>
-				</div>
-				<div
-					v-else
-					class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-5"
-				>
-					<LessonContent
-						v-if="lesson.data?.body"
-						:content="lesson.data.body"
-						:youtube="lesson.data.youtube"
-						:quizId="lesson.data.quiz_id"
-					/>
-				</div>
-				<div class="mt-20">
-					<Discussions
-						v-if="allowDiscussions"
-						:title="'Questions'"
-						:doctype="'Course Lesson'"
-						:docname="lesson.data.name"
-						:key="lesson.data.name"
-					/>
+						v-if="
+							lesson.data.instructor_content &&
+							JSON.parse(lesson.data.instructor_content)?.blocks?.length > 1 &&
+							allowInstructorContent()
+						"
+						class="bg-surface-gray-2 p-3 rounded-md mt-6"
+					>
+						<div class="text-ink-gray-5 font-medium">
+							{{ __('Instructor Notes') }}
+						</div>
+						<div
+							id="instructor-content"
+							class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal"
+						></div>
+					</div>
+					<div
+						v-else-if="lesson.data.instructor_notes"
+						class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-6"
+					>
+						<LessonContent :content="lesson.data.instructor_notes" />
+					</div>
+					<div
+						v-if="lesson.data.content"
+						class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-5"
+					>
+						<div id="editor"></div>
+					</div>
+					<div
+						v-else
+						class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-5"
+					>
+						<LessonContent
+							v-if="lesson.data?.body"
+							:content="lesson.data.body"
+							:youtube="lesson.data.youtube"
+							:quizId="lesson.data.quiz_id"
+						/>
+					</div>
+					<div class="mt-20">
+						<Discussions
+							v-if="allowDiscussions"
+							:title="'Questions'"
+							:doctype="'Course Lesson'"
+							:docname="lesson.data.name"
+							:key="lesson.data.name"
+						/>
+					</div>
 				</div>
 			</div>
 			<div class="sticky top-10">
@@ -202,7 +219,13 @@
 	</div>
 </template>
 <script setup>
-import { createResource, Breadcrumbs, Button, usePageMeta } from 'frappe-ui'
+import {
+	createResource,
+	Breadcrumbs,
+	Button,
+	Tooltip,
+	usePageMeta,
+} from 'frappe-ui'
 import { computed, watch, inject, ref, onMounted, onBeforeUnmount } from 'vue'
 import CourseOutline from '@/components/CourseOutline.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
@@ -212,6 +235,7 @@ import {
 	ChevronRight,
 	LockKeyholeIcon,
 	LogIn,
+	Focus,
 } from 'lucide-vue-next'
 import Discussions from '@/components/Discussions.vue'
 import { getEditorTools } from '../utils'
@@ -229,6 +253,8 @@ const allowDiscussions = ref(false)
 const editor = ref(null)
 const instructorEditor = ref(null)
 const lessonProgress = ref(0)
+const lessonContainer = ref(null)
+const zenModeEnabled = ref(false)
 const timer = ref(0)
 const { brand } = sessionStore()
 let timerInterval
@@ -250,6 +276,19 @@ const props = defineProps({
 
 onMounted(() => {
 	startTimer()
+	document.addEventListener('fullscreenchange', attachFullscreenEvent)
+})
+
+const attachFullscreenEvent = () => {
+	if (document.fullscreenElement) {
+		zenModeEnabled.value = true
+	} else {
+		zenModeEnabled.value = false
+	}
+}
+
+onBeforeUnmount(() => {
+	document.removeEventListener('fullscreenchange', attachFullscreenEvent)
 })
 
 const lesson = createResource({
@@ -429,6 +468,18 @@ const enrollStudent = () => {
 			},
 		}
 	)
+}
+
+const goFullScreen = () => {
+	if (lessonContainer.value.requestFullscreen) {
+		lessonContainer.value.requestFullscreen()
+	} else if (lessonContainer.value.mozRequestFullScreen) {
+		lessonContainer.value.mozRequestFullScreen()
+	} else if (lessonContainer.value.webkitRequestFullscreen) {
+		lessonContainer.value.webkitRequestFullscreen()
+	} else if (lessonContainer.value.msRequestFullscreen) {
+		lessonContainer.value.msRequestFullscreen()
+	}
 }
 
 const redirectToLogin = () => {

@@ -200,7 +200,7 @@ export function getEditorTools() {
 					youtube: {
 						regex: /(?:https?:\/\/)?(?:www\.)?(?:(?:youtu\.be\/)|(?:youtube\.com)\/(?:v\/|u\/\w\/|embed\/|watch))(?:(?:\?v=)?([^#&?=]*))?((?:[?&]\w*=\w*)*)/,
 						embedUrl:
-							'https://www.youtube.com/embed/<%= remote_id %>',
+							'https://www.youtube.com/embed/<%= remote_id %>?modestbranding=1&enablejsapi=1&widgetid=3&iv_load_policy=3&fs=0',
 						html: `<iframe style="width:100%; height: ${
 							window.innerWidth < 640 ? '15rem' : '30rem'
 						};" frameborder="0" allowfullscreen></iframe>`,
