@@ -47,7 +47,10 @@
 					</template>
 					{{ __('Apply') }}
 				</Button>
-				<Badge v-else theme="green">
+				<Badge v-else variant="subtle" theme="green" size="lg">
+					<template #prefix>
+						<Check class="h-4 w-4" />
+					</template>
 					{{ __('You have applied') }}
 				</Badge>
 			</div>
@@ -164,6 +167,7 @@ import { sessionStore } from '../stores/session'
 import JobApplicationModal from '@/components/Modals/JobApplicationModal.vue'
 import {
 	MapPin,
+	Check,
 	SendHorizonal,
 	Pencil,
 	Building2,
