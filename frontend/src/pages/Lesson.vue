@@ -296,7 +296,10 @@ onBeforeUnmount(() => {
 
 const enablePlyr = () => {
 	setTimeout(() => {
-		let src = document
+		const videoElement = document.getElementsByClassName('video-player')
+		if (videoElement.length === 0) return
+
+		const src = document
 			.getElementsByClassName('video-player')[0]
 			.getAttribute('src')
 		if (src) {
@@ -689,5 +692,18 @@ usePageMeta(() => {
 }
 
 .plyr__control--overlaid {
+	background: radial-gradient(
+		circle,
+		rgba(0, 0, 0, 0.4) 0%,
+		rgba(0, 0, 0, 0.5) 50%
+	);
+}
+
+:root {
+	--plyr-video-controls-background: radial-gradient(
+		circle,
+		rgba(0, 0, 0, 0.4) 0%,
+		rgba(0, 0, 0, 0.5) 50%
+	);
 }
 </style>
