@@ -1,22 +1,35 @@
 <template>
-	<div class="flex flex-col border rounded-md p-4 h-full">
+	<div
+		class="flex flex-col shadow-sm border rounded-md p-3 h-full hover:bg-surface-gray-2"
+	>
 		<div class="flex space-x-4 mb-2">
-			<img :src="job.company_logo" class="size-8 rounded-full object-contain" />
-			<div class="flex flex-col space-y-1 flex-1">
-				<div class="flex items-center justify-between">
-					<span class="text-lg font-semibold text-ink-gray-9">
-						{{ job.job_title }}
-					</span>
-				</div>
-				<div class="text-xs text-ink-gray-5">
+			<div class="flex flex-col space-y-2 flex-1">
+				<div class="text-lg font-semibold text-ink-gray-9">
 					{{ job.company_name }}
 				</div>
+				<span class="font-medium text-ink-gray-7">
+					{{ job.job_title }}
+				</span>
+				<div class="flex items-center space-x-1 text-sm text-ink-gray-7">
+					<MapPin class="size-3" />
+					<span>
+						{{ job.location }}
+					</span>
+				</div>
+				<div
+					v-if="job.applicants"
+					class="flex items-center space-x-1 text-sm text-ink-gray-7"
+				>
+					<User class="size-3" />
+					<span>
+						{{ job.applicants }}
+						{{ job.applicants > 1 ? __('applicants') : __('applicant') }}
+					</span>
+				</div>
 			</div>
+			<!-- <img :src="job.company_logo" alt="Company Logo" class="h-8 object-contain bg-white" /> -->
 		</div>
-		<div class="space-x-4 mt-auto">
-			<Badge>
-				{{ job.location }}
-			</Badge>
+		<div class="space-x-4 mt-2 mb-4">
 			<Badge>
 				{{ job.type }}
 			</Badge>
@@ -24,11 +37,16 @@
 				{{ dayjs(job.creation).fromNow() }}
 			</Badge>
 		</div>
+		<div
+			class="description text-ink-gray-9 text-sm"
+			v-html="job.description"
+		></div>
 	</div>
 </template>
 <script setup>
 import { inject } from 'vue'
 import { Badge } from 'frappe-ui'
+import { MapPin, User } from 'lucide-vue-next'
 
 const dayjs = inject('$dayjs')
 const props = defineProps({
@@ -38,3 +56,15 @@ const props = defineProps({
 	},
 })
 </script>
+<style>
+.description {
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	text-overflow: ellipsis;
+	width: 100%;
+	overflow: hidden;
+	margin-top: auto;
+	line-height: 1.5;
+}
+</style>

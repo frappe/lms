@@ -10,7 +10,7 @@
 			<router-link
 				v-if="user.data?.name"
 				:to="{
-					name: 'JobCreation',
+					name: 'JobForm',
 					params: {
 						jobName: 'new',
 					},
@@ -29,8 +29,11 @@
 				<div
 					class="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:items-center justify-between mb-5"
 				>
-					<div class="text-xl text-ink-gray-9 font-semibold">
-						{{ __('Find the perfect job for you') }}
+					<div
+						v-if="jobCount"
+						class="text-xl font-semibold text-ink-gray-7 mb-4 md:mb-0"
+					>
+						{{ __('{0} Open Jobs').format(jobCount) }}
 					</div>
 					<div class="grid grid-cols-2 gap-2">
 						<FormControl
@@ -58,7 +61,7 @@
 					</div>
 				</div>
 
-				<div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+				<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 					<router-link
 						v-for="job in jobs.data"
 						:to="{
@@ -94,6 +97,7 @@
 import {
 	Button,
 	Breadcrumbs,
+	call,
 	createResource,
 	FormControl,
 	usePageMeta,
@@ -109,6 +113,7 @@ const { brand } = sessionStore()
 const searchQuery = ref('')
 const filters = ref({})
 const orFilters = ref({})
+const jobCount = ref(0)
 
 onMounted(() => {
 	let queries = new URLSearchParams(location.search)
@@ -116,6 +121,7 @@ onMounted(() => {
 		jobType.value = queries.get('type')
 	}
 	updateJobs()
+	getJobCount()
 })
 
 const jobs = createResource({
@@ -155,6 +161,17 @@ const updateFilters = () => {
 	}
 }
 
+const getJobCount = () => {
+	call('frappe.client.get_count', {
+		doctype: 'Job Opportunity',
+		filters: {
+			status: 'Open',
+			disabled: 0,
+		},
+	}).then((data) => {
+		jobCount.value = data
+	})
+}
 const jobTypes = computed(() => {
 	return [
 		'',
