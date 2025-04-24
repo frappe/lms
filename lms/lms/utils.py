@@ -181,7 +181,7 @@ def get_lesson_icon(body, content):
 			if block.get("type") == "embed" and block.get("data").get("service") in [
 				"youtube",
 				"vimeo",
-				"cloudflareStream"
+				"cloudflareStream",
 			]:
 				return "icon-youtube"
 

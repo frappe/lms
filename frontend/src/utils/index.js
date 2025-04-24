@@ -260,7 +260,8 @@ export function getEditorTools() {
 					},
 					cloudflareStream: {
 						regex: /https:\/\/customer-[a-z0-9]+\.cloudflarestream\.com\/([a-f0-9]{32})\/watch/,
-						embedUrl: 'https://iframe.videodelivery.net/<%= remote_id %>',
+						embedUrl:
+							'https://iframe.videodelivery.net/<%= remote_id %>',
 						html: `<iframe style="width:100%; height: ${
 							window.innerWidth < 640 ? '15rem' : '30rem'
 						};" frameborder="0" allowfullscreen></iframe>`,
