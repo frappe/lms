@@ -306,14 +306,20 @@ def get_job_opportunities(filters=None, orFilters=None):
 		fields=[
 			"job_title",
 			"location",
+			"country",
 			"type",
 			"company_name",
 			"company_logo",
 			"name",
 			"creation",
+			"description",
 		],
 		order_by="creation desc",
 	)
+
+	for job in jobs:
+		job.description = frappe.utils.strip_html_tags(job.description)
+		job.applicants = frappe.db.count("LMS Job Application", {"job": job.name})
 	return jobs
 
 
