@@ -16,7 +16,7 @@
 					},
 				]"
 			/>
-			<div v-if="user.data?.name" class="flex space-x-2">
+			<div v-if="user.data?.name" class="flex items-center space-x-2">
 				<router-link
 					v-if="user.data.name == job.data?.owner"
 					:to="{
@@ -47,6 +47,9 @@
 					</template>
 					{{ __('Apply') }}
 				</Button>
+				<Badge v-else theme="green">
+					{{ __('You have applied') }}
+				</Badge>
 			</div>
 			<div v-else>
 				<Button @click="redirectToLogin(job.data?.name)">
@@ -56,13 +59,13 @@
 				</Button>
 			</div>
 		</header>
-		<div v-if="job.data" class="max-w-3xl mx-auto">
+		<div v-if="job.data" class="max-w-3xl mx-auto pt-5">
 			<div class="p-4">
 				<div class="space-y-5 mb-10">
 					<div class="flex items-center">
 						<img
 							:src="job.data.company_logo"
-							class="size-15 rounded-lg object-contain cursor-pointer mr-4"
+							class="size-10 rounded-lg object-contain cursor-pointer mr-4"
 							:alt="job.data.company_name"
 							@click="redirectToWebsite(job.data.company_website)"
 						/>
@@ -149,7 +152,13 @@
 	</div>
 </template>
 <script setup>
-import { Button, Breadcrumbs, createResource, usePageMeta } from 'frappe-ui'
+import {
+	Badge,
+	Button,
+	Breadcrumbs,
+	createResource,
+	usePageMeta,
+} from 'frappe-ui'
 import { inject, ref } from 'vue'
 import { sessionStore } from '../stores/session'
 import JobApplicationModal from '@/components/Modals/JobApplicationModal.vue'

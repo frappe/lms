@@ -1,19 +1,19 @@
 <template>
 	<div
-		class="flex flex-col shadow-sm border rounded-md p-3 h-full hover:bg-surface-gray-2"
+		class="flex flex-col border rounded-md p-3 h-full hover:border-outline-gray-4"
 	>
-		<div class="flex space-x-4 mb-2">
+		<div class="flex space-x-4 mb-4">
 			<div class="flex flex-col space-y-2 flex-1">
 				<div class="text-lg font-semibold text-ink-gray-9">
 					{{ job.company_name }}
 				</div>
-				<span class="font-medium text-ink-gray-7">
+				<span class="font-medium text-ink-gray-7 leading-5">
 					{{ job.job_title }}
 				</span>
 				<div class="flex items-center space-x-1 text-sm text-ink-gray-7">
 					<MapPin class="size-3" />
 					<span>
-						{{ job.location }}
+						{{ job.location }}{{ job.country ? `, ${job.country}` : '' }}
 					</span>
 				</div>
 				<div
@@ -27,9 +27,9 @@
 					</span>
 				</div>
 			</div>
-			<!-- <img :src="job.company_logo" alt="Company Logo" class="h-8 object-contain bg-white" /> -->
+			<!-- <img :src="job.company_logo" alt="Company Logo" class="size-8  rounded-full object-contain  bg-white" /> -->
 		</div>
-		<div class="space-x-4 mt-2 mb-4">
+		<div class="space-x-2 mt-auto">
 			<Badge>
 				{{ job.type }}
 			</Badge>
@@ -37,10 +37,10 @@
 				{{ dayjs(job.creation).fromNow() }}
 			</Badge>
 		</div>
-		<div
+		<!-- <div
 			class="description text-ink-gray-9 text-sm"
 			v-html="job.description"
-		></div>
+		></div> -->
 	</div>
 </template>
 <script setup>

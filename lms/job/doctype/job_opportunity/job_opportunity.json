@@ -9,10 +9,11 @@
  "field_order": [
   "job_title",
   "location",
-  "disabled",
+  "country",
   "column_break_5",
   "type",
   "status",
+  "disabled",
   "section_break_6",
   "company_name",
   "company_website",
@@ -36,7 +37,7 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Location",
+   "label": "City",
    "reqd": 1
   },
   {
@@ -111,6 +112,13 @@
   {
    "fieldname": "column_break_phkm",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "country",
+   "fieldtype": "Link",
+   "label": "Country",
+   "options": "Country",
+   "reqd": 1
   }
  ],
  "grid_page_length": 50,
@@ -122,7 +130,7 @@
   }
  ],
  "make_attachments_public": 1,
- "modified": "2025-04-24 13:21:24.311596",
+ "modified": "2025-04-24 14:34:35.920242",
  "modified_by": "sayali@frappe.io",
  "module": "Job",
  "name": "Job Opportunity",

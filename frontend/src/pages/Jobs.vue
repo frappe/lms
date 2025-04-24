@@ -25,43 +25,48 @@
 			</router-link>
 		</header>
 		<div>
-			<div v-if="jobs.data?.length" class="p-5">
+			<div
+				class="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:items-center justify-between w-full md:w-4/5 mx-auto p-5"
+			>
 				<div
-					class="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:items-center justify-between mb-5"
+					v-if="jobCount"
+					class="text-xl font-semibold text-ink-gray-7 mb-4 md:mb-0"
 				>
-					<div
-						v-if="jobCount"
-						class="text-xl font-semibold text-ink-gray-7 mb-4 md:mb-0"
-					>
-						{{ __('{0} Open Jobs').format(jobCount) }}
-					</div>
-					<div class="grid grid-cols-2 gap-2">
-						<FormControl
-							type="text"
-							:placeholder="__('Search')"
-							v-model="searchQuery"
-							class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40"
-							@input="updateJobs"
-						>
-							<template #prefix>
-								<Search
-									class="w-4 h-4 stroke-1.5 text-ink-gray-5"
-									name="search"
-								/>
-							</template>
-						</FormControl>
-						<FormControl
-							v-model="jobType"
-							type="select"
-							:options="jobTypes"
-							class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40"
-							:placeholder="__('Type')"
-							@change="updateJobs"
-						/>
-					</div>
+					{{ __('{0} Open Jobs').format(jobCount) }}
 				</div>
-
-				<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+				<div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+					<FormControl
+						type="text"
+						:placeholder="__('Search')"
+						v-model="searchQuery"
+						class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40"
+						@input="updateJobs"
+					>
+						<template #prefix>
+							<Search
+								class="w-4 h-4 stroke-1.5 text-ink-gray-5"
+								name="search"
+							/>
+						</template>
+					</FormControl>
+					<Link
+						doctype="Country"
+						v-model="country"
+						:placeholder="__('Country')"
+						class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40"
+					/>
+					<FormControl
+						v-model="jobType"
+						type="select"
+						:options="jobTypes"
+						class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40"
+						:placeholder="__('Type')"
+						@change="updateJobs"
+					/>
+				</div>
+			</div>
+			<div v-if="jobs.data?.length" class="w-full md:w-4/5 mx-auto p-5 pt-0">
+				<div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
 					<router-link
 						v-for="job in jobs.data"
 						:to="{
@@ -76,18 +81,17 @@
 			</div>
 			<div
 				v-else
-				class="flex flex-col items-center justify-center text-sm text-ink-gray-5 mt-48"
+				class="flex flex-col items-center justify-center text-sm text-ink-gray-5 mt-56"
 			>
 				<Laptop class="size-10 mx-auto stroke-1 text-ink-gray-4" />
 				<div class="text-lg font-medium mb-1">
 					{{ __('No jobs found') }}
 				</div>
 				<div class="leading-5 w-2/5 text-center">
-					{{
-						__(
-							'There are no jobs available at the moment. Open a job opportunity or check here again later.'
-						)
-					}}
+					{{ __('There are no jobs available at the moment.') }}
+				</div>
+				<div class="leading-5 w-1/5 text-center">
+					{{ __('Post a new job or check again later.') }}
 				</div>
 			</div>
 		</div>
@@ -104,13 +108,15 @@ import {
 } from 'frappe-ui'
 import { Laptop, Plus, Search } from 'lucide-vue-next'
 import { sessionStore } from '../stores/session'
-import { inject, computed, ref, onMounted } from 'vue'
+import { inject, computed, ref, onMounted, watch } from 'vue'
 import JobCard from '@/components/JobCard.vue'
+import Link from '@/components/Controls/Link.vue'
 
 const user = inject('$user')
 const jobType = ref(null)
 const { brand } = sessionStore()
 const searchQuery = ref('')
+const country = ref(null)
 const filters = ref({})
 const orFilters = ref({})
 const jobCount = ref(0)
@@ -159,6 +165,12 @@ const updateFilters = () => {
 	} else {
 		orFilters.value = {}
 	}
+
+	if (country.value) {
+		filters.value.country = country.value
+	} else {
+		delete filters.value.country
+	}
 }
 
 const getJobCount = () => {
@@ -172,6 +184,11 @@ const getJobCount = () => {
 		jobCount.value = data
 	})
 }
+
+watch(country, (val) => {
+	updateJobs()
+})
+
 const jobTypes = computed(() => {
 	return [
 		'',

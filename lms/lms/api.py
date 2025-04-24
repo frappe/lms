@@ -306,6 +306,7 @@ def get_job_opportunities(filters=None, orFilters=None):
 		fields=[
 			"job_title",
 			"location",
+			"country",
 			"type",
 			"company_name",
 			"company_logo",
