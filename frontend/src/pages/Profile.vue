@@ -86,18 +86,24 @@
 	/>
 </template>
 <script setup>
-import { Breadcrumbs, createResource, Button, TabButtons } from 'frappe-ui'
+import {
+	Breadcrumbs,
+	createResource,
+	Button,
+	TabButtons,
+	usePageMeta,
+} from 'frappe-ui'
 import { computed, inject, watch, ref, onMounted, watchEffect } from 'vue'
 import { sessionStore } from '@/stores/session'
-import { Edit } from 'lucide-vue-next'
+import { Edit, icons } from 'lucide-vue-next'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { useRoute, useRouter } from 'vue-router'
 import NoPermission from '@/components/NoPermission.vue'
-import { convertToTitleCase, updateDocumentTitle } from '@/utils'
+import { convertToTitleCase } from '@/utils'
 import EditProfile from '@/components/Modals/EditProfile.vue'
 import EditCoverImage from '@/components/Modals/EditCoverImage.vue'
 
-const { user } = sessionStore()
+const { user, brand } = sessionStore()
 const $user = inject('$user')
 const route = useRoute()
 const router = useRouter()
@@ -215,12 +221,10 @@ const breadcrumbs = computed(() => {
 	return crumbs
 })
 
-const pageMeta = computed(() => {
+usePageMeta(() => {
 	return {
 		title: profile.data?.full_name,
-		description: profile.data?.headline,
+		icon: brand.favicon,
 	}
 })
-
-updateDocumentTitle(pageMeta)
 </script>

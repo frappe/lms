@@ -151,19 +151,20 @@
 </template>
 <script setup>
 import {
-	Input,
 	Button,
 	createResource,
 	FormControl,
 	Breadcrumbs,
-	Tooltip,
+	usePageMeta,
 } from 'frappe-ui'
 import { reactive, inject, onMounted, computed } from 'vue'
+import { showToast } from '@/utils/'
+import { sessionStore } from '../stores/session'
 import Link from '@/components/Controls/Link.vue'
 import NotPermitted from '@/components/NotPermitted.vue'
-import { showToast } from '@/utils/'
 
 const user = inject('$user')
+const { brand } = sessionStore()
 
 onMounted(() => {
 	const script = document.createElement('script')
@@ -245,12 +246,10 @@ const paymentLink = createResource({
 })
 
 const generatePaymentLink = () => {
-	console.log('called')
 	paymentLink.submit(
 		{},
 		{
 			validate() {
-				console.log('validation start')
 				if (!billingDetails.source) {
 					return __('Please let us know where you heard about us from.')
 				}
@@ -356,6 +355,13 @@ const redirectTo = computed(() => {
 		return `/lms/batches/${props.name}`
 	} else if (props.type == 'certificate') {
 		return `/lms/courses/${props.name}/certification`
+	}
+})
+
+usePageMeta(() => {
+	return {
+		title: __('Billing Details'),
+		icon: brand.favicon,
 	}
 })
 </script>

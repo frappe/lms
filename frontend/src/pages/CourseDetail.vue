@@ -56,12 +56,12 @@
 							<CourseInstructors :instructors="course.data.instructors" />
 						</div>
 					</div>
-					<div class="flex mt-3 mb-4 w-fit">
+					<div v-if="course.data.tags" class="flex my-4 w-fit">
 						<Badge
 							theme="gray"
 							size="lg"
 							class="mr-2 text-ink-gray-9"
-							v-for="tag in course.data.tags"
+							v-for="tag in course.data.tags.split(', ')"
 						>
 							{{ tag }}
 						</Badge>
@@ -69,7 +69,7 @@
 					<CourseCardOverlay :course="course" class="md:hidden mb-4" />
 					<div
 						v-html="course.data.description"
-						class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal"
+						class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-4"
 					></div>
 					<div class="mt-10">
 						<CourseOutline
@@ -92,15 +92,23 @@
 	</div>
 </template>
 <script setup>
-import { createResource, Breadcrumbs, Badge, Tooltip } from 'frappe-ui'
+import {
+	createResource,
+	Breadcrumbs,
+	Badge,
+	Tooltip,
+	usePageMeta,
+} from 'frappe-ui'
 import { computed } from 'vue'
 import { Users, Star } from 'lucide-vue-next'
+import { sessionStore } from '@/stores/session'
 import CourseCardOverlay from '@/components/CourseCardOverlay.vue'
 import CourseOutline from '@/components/CourseOutline.vue'
 import CourseReviews from '@/components/CourseReviews.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
-import { updateDocumentTitle } from '@/utils'
 import CourseInstructors from '@/components/CourseInstructors.vue'
+
+const { brand } = sessionStore()
 
 const props = defineProps({
 	courseName: {
@@ -127,14 +135,12 @@ const breadcrumbs = computed(() => {
 	return items
 })
 
-const pageMeta = computed(() => {
+usePageMeta(() => {
 	return {
 		title: course?.data?.title,
-		description: course?.data?.short_introduction,
+		icon: brand.favicon,
 	}
 })
-
-updateDocumentTitle(pageMeta)
 </script>
 <style>
 .avatar-group {

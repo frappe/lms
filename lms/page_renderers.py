@@ -6,6 +6,7 @@ import re
 import os
 import mimetypes
 import frappe
+from frappe.utils import get_files_path
 from frappe.website.page_renderers.base_renderer import BaseRenderer
 from frappe.website.page_renderers.document_page import DocumentPage
 from frappe.website.page_renderers.list_page import ListPage
@@ -112,37 +113,6 @@ def render_portal_page(path, **kwargs):
 	return page.render()
 
 
-class CoursePage(BaseRenderer):
-	def __init__(self, path, http_status_code):
-		super().__init__(path, http_status_code)
-		self.renderer = None
-
-	def can_render(self):
-		return self.path.startswith("course")
-
-	def render(self):
-		if "learn" in self.path:
-			prefix = self.path.split("/learn")[0]
-			course_name = prefix.split("/")[1]
-			lesson_index = self.path.split("/learn/")[1]
-			chapter_number = lesson_index.split(".")[0]
-			lesson_number = lesson_index.split(".")[1]
-
-			frappe.flags.redirect_location = (
-				f"/lms/courses/{course_name}/learn/{chapter_number}-{lesson_number}"
-			)
-			return RedirectPage(self.path).render()
-
-		elif len(self.path.split("/")) > 1:
-			course_name = self.path.split("/")[1]
-			frappe.flags.redirect_location = f"/lms/courses/{course_name}"
-			return RedirectPage(self.path).render()
-
-		else:
-			frappe.flags.redirect_location = "/lms/courses"
-			return RedirectPage(self.path).render()
-
-
 class SCORMRenderer(BaseRenderer):
 	def can_render(self):
 		return "scorm/" in self.path
@@ -172,4 +142,24 @@ class SCORMRenderer(BaseRenderer):
 						wrap_file(frappe.local.request.environ, f), direct_passthrough=True
 					)
 					response.mimetype = mimetypes.guess_type(index_path)[0]
+					return response
+			elif not os.path.exists(path):
+				chapter_folder = "/".join(self.path.split("/")[:3])
+				chapter_folder_path = os.path.realpath(
+					frappe.get_site_path("public", chapter_folder)
+				)
+				file = path.split("/")[-1]
+				correct_file_path = None
+
+				for root, dirs, files in os.walk(chapter_folder_path):
+					if file in files:
+						correct_file_path = os.path.join(root, file)
+						break
+
+				if correct_file_path:
+					f = open(correct_file_path, "rb")
+					response = Response(
+						wrap_file(frappe.local.request.environ, f), direct_passthrough=True
+					)
+					response.mimetype = mimetypes.guess_type(correct_file_path)[0]
 					return response

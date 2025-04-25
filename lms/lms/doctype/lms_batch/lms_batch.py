@@ -53,7 +53,12 @@ class LMSBatch(Document):
 		if self.paid_batch:
 			installed_apps = frappe.get_installed_apps()
 			if "payments" not in installed_apps:
-				frappe.throw(_("Please install the Payments app to create a paid batches."))
+				documentation_link = "https://docs.frappe.io/learning/setting-up-payment-gateway"
+				frappe.throw(
+					_(
+						"Please install the Payments App to create a paid batch. Refer to the documentation for more details. {0}"
+					).format(documentation_link)
+				)
 
 	def validate_amount_and_currency(self):
 		if self.paid_batch and (not self.amount or not self.currency):
@@ -408,14 +413,14 @@ def send_batch_start_reminder():
 
 	for batch in batches:
 		students = frappe.get_all(
-			"LMS Batch Enrollment", {"batch": batch}, ["member", "member_name"]
+			"LMS Batch Enrollment", {"batch": batch.name}, ["member", "member_name"]
 		)
 		for student in students:
 			send_mail(batch, student)
 
 
 def send_mail(batch, student):
-	subject = _("Batch Start Reminder")
+	subject = _("Your batch {0} is starting tomorrow").format(batch.title)
 	template = "batch_start_reminder"
 
 	args = {

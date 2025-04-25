@@ -10,7 +10,7 @@
 			<router-link
 				v-if="user.data?.name"
 				:to="{
-					name: 'JobCreation',
+					name: 'JobForm',
 					params: {
 						jobName: 'new',
 					},
@@ -25,43 +25,48 @@
 			</router-link>
 		</header>
 		<div>
-			<div class="lg:w-3/4 mx-auto p-5">
+			<div
+				class="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:items-center justify-between w-full md:w-4/5 mx-auto p-5"
+			>
 				<div
-					class="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:items-center justify-between mb-5"
+					v-if="jobCount"
+					class="text-xl font-semibold text-ink-gray-7 mb-4 md:mb-0"
 				>
-					<div class="text-xl text-ink-gray-9 font-semibold">
-						{{ __('Find the perfect job for you') }}
-					</div>
-					<div class="grid grid-cols-2 gap-2">
-						<FormControl
-							type="text"
-							:placeholder="__('Search')"
-							v-model="searchQuery"
-							class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40"
-							@input="updateJobs"
-						>
-							<template #prefix>
-								<Search
-									class="w-4 h-4 stroke-1.5 text-ink-gray-5"
-									name="search"
-								/>
-							</template>
-						</FormControl>
-						<FormControl
-							v-model="jobType"
-							type="select"
-							:options="jobTypes"
-							class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40"
-							:placeholder="__('Type')"
-							@change="updateJobs"
-						/>
-					</div>
+					{{ __('{0} Open Jobs').format(jobCount) }}
 				</div>
-
-				<div
-					v-if="jobs.data?.length"
-					class="grid grid-cols-1 lg:grid-cols-2 gap-5"
-				>
+				<div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+					<FormControl
+						type="text"
+						:placeholder="__('Search')"
+						v-model="searchQuery"
+						class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40"
+						@input="updateJobs"
+					>
+						<template #prefix>
+							<Search
+								class="w-4 h-4 stroke-1.5 text-ink-gray-5"
+								name="search"
+							/>
+						</template>
+					</FormControl>
+					<Link
+						doctype="Country"
+						v-model="country"
+						:placeholder="__('Country')"
+						class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40"
+					/>
+					<FormControl
+						v-model="jobType"
+						type="select"
+						:options="jobTypes"
+						class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40"
+						:placeholder="__('Type')"
+						@change="updateJobs"
+					/>
+				</div>
+			</div>
+			<div v-if="jobs.data?.length" class="w-full md:w-4/5 mx-auto p-5 pt-0">
+				<div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
 					<router-link
 						v-for="job in jobs.data"
 						:to="{
@@ -73,25 +78,48 @@
 						<JobCard :job="job" />
 					</router-link>
 				</div>
-				<div v-else class="text-ink-gray-7 italic p-5 w-fit mx-auto">
-					{{ __('No jobs posted') }}
+			</div>
+			<div
+				v-else
+				class="flex flex-col items-center justify-center text-sm text-ink-gray-5 mt-56"
+			>
+				<Laptop class="size-10 mx-auto stroke-1 text-ink-gray-4" />
+				<div class="text-lg font-medium mb-1">
+					{{ __('No jobs found') }}
+				</div>
+				<div class="leading-5 w-2/5 text-center">
+					{{ __('There are no jobs available at the moment.') }}
+				</div>
+				<div class="leading-5 w-1/5 text-center">
+					{{ __('Post a new job or check again later.') }}
 				</div>
 			</div>
 		</div>
 	</div>
 </template>
 <script setup>
-import { Button, Breadcrumbs, createResource, FormControl } from 'frappe-ui'
-import { Plus, Search } from 'lucide-vue-next'
-import { inject, computed, ref, onMounted } from 'vue'
+import {
+	Button,
+	Breadcrumbs,
+	call,
+	createResource,
+	FormControl,
+	usePageMeta,
+} from 'frappe-ui'
+import { Laptop, Plus, Search } from 'lucide-vue-next'
+import { sessionStore } from '../stores/session'
+import { inject, computed, ref, onMounted, watch } from 'vue'
 import JobCard from '@/components/JobCard.vue'
-import { updateDocumentTitle } from '@/utils'
+import Link from '@/components/Controls/Link.vue'
 
 const user = inject('$user')
 const jobType = ref(null)
+const { brand } = sessionStore()
 const searchQuery = ref('')
+const country = ref(null)
 const filters = ref({})
 const orFilters = ref({})
+const jobCount = ref(0)
 
 onMounted(() => {
 	let queries = new URLSearchParams(location.search)
@@ -99,6 +127,7 @@ onMounted(() => {
 		jobType.value = queries.get('type')
 	}
 	updateJobs()
+	getJobCount()
 })
 
 const jobs = createResource({
@@ -136,7 +165,29 @@ const updateFilters = () => {
 	} else {
 		orFilters.value = {}
 	}
+
+	if (country.value) {
+		filters.value.country = country.value
+	} else {
+		delete filters.value.country
+	}
 }
+
+const getJobCount = () => {
+	call('frappe.client.get_count', {
+		doctype: 'Job Opportunity',
+		filters: {
+			status: 'Open',
+			disabled: 0,
+		},
+	}).then((data) => {
+		jobCount.value = data
+	})
+}
+
+watch(country, (val) => {
+	updateJobs()
+})
 
 const jobTypes = computed(() => {
 	return [
@@ -147,12 +198,11 @@ const jobTypes = computed(() => {
 		{ label: __('Freelance'), value: 'Freelance' },
 	]
 })
-const pageMeta = computed(() => {
+
+usePageMeta(() => {
 	return {
-		title: 'Jobs',
-		description: 'An open job board for the community',
+		title: __('Jobs'),
+		icon: brand.favicon,
 	}
 })
-
-updateDocumentTitle(pageMeta)
 </script>

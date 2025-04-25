@@ -77,6 +77,7 @@ class LMSCertificateRequest(Document):
 				"member": self.member,
 				"course": self.course,
 				"name": ["!=", self.name],
+				"status": "Upcoming",
 			},
 			["date", "start_time", "course"],
 		)
@@ -150,7 +151,11 @@ def schedule_evals():
 		timelapse = add_to_date(get_datetime(), hours=-5)
 		evals = frappe.get_all(
 			"LMS Certificate Request",
-			{"creation": [">=", timelapse], "google_meet_link": ["is", "not set"]},
+			{
+				"creation": [">=", timelapse],
+				"google_meet_link": ["is", "not set"],
+				"status": "Upcoming",
+			},
 			["name", "member", "member_name", "evaluator", "date", "start_time", "end_time"],
 		)
 		for eval in evals:
@@ -254,3 +259,20 @@ def create_lms_certificate_evaluation(source_name, target_doc=None):
 		target_doc,
 	)
 	return doc
+
+
+def mark_eval_as_completed():
+	requests = frappe.get_all(
+		"LMS Certificate Request",
+		{
+			"status": "Upcoming",
+			"date": ["<=", getdate()],
+		},
+		["name", "end_time", "date"],
+	)
+
+	for req in requests:
+		if req.date < getdate():
+			frappe.db.set_value("LMS Certificate Request", req.name, "status", "Completed")
+		elif req.date == getdate() and get_time(req.end_time) < get_time(nowtime()):
+			frappe.db.set_value("LMS Certificate Request", req.name, "status", "Completed")

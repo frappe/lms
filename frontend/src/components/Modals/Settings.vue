@@ -40,6 +40,12 @@
 						:description="activeTab.description"
 						v-model:show="show"
 					/>
+					<Evaluators
+						v-else-if="activeTab.label === 'Evaluators'"
+						:label="activeTab.label"
+						:description="activeTab.description"
+						v-model:show="show"
+					/>
 					<Categories
 						v-else-if="activeTab.label === 'Categories'"
 						:label="activeTab.label"
@@ -78,6 +84,7 @@ import { useSettings } from '@/stores/settings'
 import SettingDetails from '../SettingDetails.vue'
 import SidebarLink from '@/components/SidebarLink.vue'
 import Members from '@/components/Members.vue'
+import Evaluators from '@/components/Evaluators.vue'
 import Categories from '@/components/Categories.vue'
 import BrandSettings from '@/components/BrandSettings.vue'
 import PaymentSettings from '@/components/PaymentSettings.vue'
@@ -194,6 +201,11 @@ const tabsStructure = computed(() => {
 					icon: 'UserRoundPlus',
 				},
 				{
+					label: 'Evaluators',
+					description: 'Manage the evaluators of your learning system',
+					icon: 'UserCheck',
+				},
+				{
 					label: 'Categories',
 					description: 'Manage the members of your learning system',
 					icon: 'Network',
@@ -303,12 +315,6 @@ const tabsStructure = computed(() => {
 							doctype: 'Email Template',
 							type: 'Link',
 						},
-						{
-							label: 'Assignment Submission Template',
-							name: 'assignment_submission_template',
-							doctype: 'Email Template',
-							type: 'Link',
-						},
 					],
 				},
 				{
@@ -316,18 +322,52 @@ const tabsStructure = computed(() => {
 					icon: 'LogIn',
 					fields: [
 						{
-							label: 'Custom Content',
+							label: 'Identify User Category',
+							name: 'user_category',
+							type: 'checkbox',
+							description:
+								'Enable this option to identify the user category during signup.',
+						},
+						{
+							label: 'Disable signup',
+							name: 'disable_signup',
+							type: 'checkbox',
+							description:
+								'New users will have to be manually registered by Admins.',
+						},
+						{
+							label: 'Signup Consent HTML',
 							name: 'custom_signup_content',
 							type: 'Code',
 							mode: 'htmlmixed',
 							rows: 10,
 						},
+					],
+				},
+				{
+					label: 'SEO',
+					icon: 'Search',
+					fields: [
 						{
-							label: 'Ask for Occupation',
-							name: 'user_category',
-							type: 'checkbox',
+							label: 'Meta Description',
+							name: 'meta_description',
+							type: 'textarea',
+							rows: 4,
 							description:
-								'Enable this option to ask users to select their occupation during the signup process.',
+								"This description will be shown on lists and pages that don't have meta description",
+						},
+						{
+							label: 'Meta Keywords',
+							name: 'meta_keywords',
+							type: 'textarea',
+							rows: 4,
+							description:
+								'Keywords for search engines to find your website. Separated by commas.',
+						},
+						{
+							label: 'Meta Image',
+							name: 'meta_image',
+							type: 'Upload',
 						},
 					],
 				},

@@ -14,13 +14,16 @@
 					{{ batch.data.description }}
 				</div>
 				<div
-					class="flex flex-col gap-2 lg:gap-0 lg:flex-row lg:items-center justify-between lg:w-1/2"
+					class="flex flex-col gap-2 lg:gap-0 lg:flex-row lg:items-center space-x-5 lg:w-1/2"
 				>
-					<div class="flex items-center text-ink-gray-7">
+					<div
+						v-if="batch.data?.courses?.length"
+						class="flex items-center text-ink-gray-7"
+					>
 						<BookOpen class="h-4 w-4 mr-2" />
 						<span> {{ batch.data?.courses?.length }} {{ __('Courses') }} </span>
 					</div>
-					<span class="hidden lg:block" v-if="batch.data.courses"
+					<span v-if="batch.data?.courses?.length" class="hidden lg:block"
 						>&middot;</span
 					>
 					<DateRange
@@ -102,8 +105,9 @@
 import { computed, inject } from 'vue'
 import { useRouter } from 'vue-router'
 import { BookOpen, Clock } from 'lucide-vue-next'
-import { formatTime, updateDocumentTitle } from '@/utils'
-import { Breadcrumbs, createResource } from 'frappe-ui'
+import { formatTime } from '@/utils'
+import { Breadcrumbs, createResource, usePageMeta } from 'frappe-ui'
+import { sessionStore } from '@/stores/session'
 import CourseCard from '@/components/CourseCard.vue'
 import BatchOverlay from '@/components/BatchOverlay.vue'
 import DateRange from '../components/Common/DateRange.vue'
@@ -112,6 +116,7 @@ import UserAvatar from '@/components/UserAvatar.vue'
 
 const user = inject('$user')
 const router = useRouter()
+const { brand } = sessionStore()
 
 const props = defineProps({
 	batchName: {
@@ -152,14 +157,12 @@ const breadcrumbs = computed(() => {
 	return items
 })
 
-const pageMeta = computed(() => {
+usePageMeta(() => {
 	return {
-		title: batch.data?.title,
-		description: batch.data?.description,
+		title: batch?.data?.title,
+		icon: brand.favicon,
 	}
 })
-
-updateDocumentTitle(pageMeta)
 </script>
 <style>
 .batch-description p {

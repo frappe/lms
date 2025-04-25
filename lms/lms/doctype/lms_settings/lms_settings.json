@@ -8,7 +8,7 @@
   "general_tab",
   "default_home",
   "send_calendar_invite_for_evaluations",
-  "is_onboarding_complete",
+  "persona_captured",
   "column_break_zdel",
   "allow_guest_access",
   "enable_learning_paths",
@@ -27,8 +27,9 @@
   "signup_settings_tab",
   "signup_settings_section",
   "column_break_9",
-  "custom_signup_content",
   "user_category",
+  "disable_signup",
+  "custom_signup_content",
   "sidebar_tab",
   "items_in_sidebar_section",
   "courses",
@@ -58,8 +59,12 @@
   "certification_template",
   "batch_confirmation_template",
   "column_break_uwsp",
-  "assignment_submission_template",
-  "payment_reminder_template"
+  "payment_reminder_template",
+  "seo_tab",
+  "meta_description",
+  "meta_image",
+  "column_break_xijv",
+  "meta_keywords"
  ],
  "fields": [
   {
@@ -104,14 +109,7 @@
    "default": "0",
    "fieldname": "user_category",
    "fieldtype": "Check",
-   "label": "Ask User Category during Signup"
-  },
-  {
-   "default": "0",
-   "fieldname": "is_onboarding_complete",
-   "fieldtype": "Check",
-   "label": "Is Onboarding Complete",
-   "read_only": 1
+   "label": "Identify User Category"
   },
   {
    "default": "0",
@@ -244,12 +242,6 @@
    "label": "Email Templates"
   },
   {
-   "fieldname": "assignment_submission_template",
-   "fieldtype": "Link",
-   "label": "Assignment Submission Template",
-   "options": "Email Template"
-  },
-  {
    "fieldname": "column_break_uwsp",
    "fieldtype": "Column Break"
   },
@@ -365,13 +357,54 @@
    "fieldtype": "Link",
    "label": "Payment Reminder Template",
    "options": "Email Template"
+  },
+  {
+   "default": "0",
+   "fieldname": "disable_signup",
+   "fieldtype": "Check",
+   "label": "Disable Signup"
+  },
+  {
+   "fieldname": "seo_tab",
+   "fieldtype": "Tab Break",
+   "label": "SEO"
+  },
+  {
+   "description": "This description will be shown on lists and pages without meta description",
+   "fieldname": "meta_description",
+   "fieldtype": "Small Text",
+   "label": "Meta Description"
+  },
+  {
+   "description": "This image will be shown on lists and pages that don't have an image by default",
+   "fieldname": "meta_image",
+   "fieldtype": "Attach Image",
+   "label": "Meta Image"
+  },
+  {
+   "fieldname": "column_break_xijv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Common keywords that will be used for all pages",
+   "fieldname": "meta_keywords",
+   "fieldtype": "Small Text",
+   "label": "Meta Keywords"
+  },
+  {
+   "default": "0",
+   "fieldname": "persona_captured",
+   "fieldtype": "Check",
+   "label": "Persona Captured",
+   "read_only": 1
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-02-11 11:29:43.412897",
- "modified_by": "Administrator",
+ "modified": "2025-04-22 16:05:27.914422",
+ "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Settings",
  "owner": "Administrator",
@@ -394,6 +427,7 @@
    "share": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],

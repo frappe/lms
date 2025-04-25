@@ -3,21 +3,20 @@
 		class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs :items="breadcrumbs" />
-		<router-link
-			:to="{
-				name: 'AssignmentForm',
-				params: {
-					assignmentID: 'new',
-				},
-			}"
+		<Button
+			variant="solid"
+			@click="
+				() => {
+					assignmentID = 'new'
+					showAssignmentForm = true
+				}
+			"
 		>
-			<Button variant="solid">
-				<template #prefix>
-					<Plus class="w-4 h-4" />
-				</template>
-				{{ __('New') }}
-			</Button>
-		</router-link>
+			<template #prefix>
+				<Plus class="w-4 h-4" />
+			</template>
+			{{ __('New') }}
+		</Button>
 	</header>
 
 	<div class="md:w-3/4 md:mx-auto py-5 mx-5">
@@ -38,12 +37,10 @@
 			:options="{
 				showTooltip: false,
 				selectable: false,
-				getRowRoute: (row) => ({
-					name: 'AssignmentForm',
-					params: {
-						assignmentID: row.name,
-					},
-				}),
+				onRowClick: (row) => {
+					assignmentID = row.name
+					showAssignmentForm = true
+				},
 			}"
 		>
 		</ListView>
@@ -72,6 +69,11 @@
 			</Button>
 		</div>
 	</div>
+	<AssignmentForm
+		v-model="showAssignmentForm"
+		v-model:assignments="assignments"
+		:assignmentID="assignmentID"
+	/>
 </template>
 <script setup>
 import {
@@ -80,15 +82,21 @@ import {
 	createListResource,
 	FormControl,
 	ListView,
+	usePageMeta,
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { Plus, Pencil } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
+import { sessionStore } from '../stores/session'
+import AssignmentForm from '@/components/Modals/AssignmentForm.vue'
 
 const user = inject('$user')
 const dayjs = inject('$dayjs')
 const titleFilter = ref('')
 const typeFilter = ref('')
+const showAssignmentForm = ref(false)
+const assignmentID = ref('new')
+const { brand } = sessionStore()
 const router = useRouter()
 
 onMounted(() => {
@@ -133,7 +141,7 @@ const assignmentFilter = computed(() => {
 
 const assignments = createListResource({
 	doctype: 'LMS Assignment',
-	fields: ['name', 'title', 'type', 'creation'],
+	fields: ['name', 'title', 'type', 'creation', 'question'],
 	orderBy: 'modified desc',
 	cache: ['assignments'],
 	transform(data) {
@@ -163,7 +171,7 @@ const assignmentColumns = computed(() => {
 			label: __('Created'),
 			key: 'creation',
 			width: 1,
-			align: 'center',
+			align: 'right',
 		},
 	]
 })
@@ -184,4 +192,11 @@ const breadcrumbs = computed(() => [
 		route: { name: 'Assignments' },
 	},
 ])
+
+usePageMeta(() => {
+	return {
+		title: __('Assignments'),
+		icon: brand.favicon,
+	}
+})
 </script>

@@ -24,7 +24,10 @@
 		>
 			{{ formatNumberIntoCurrency(batch.data.amount, batch.data.currency) }}
 		</div>
-		<div class="flex items-center mb-3 text-ink-gray-7">
+		<div
+			v-if="batch.data.courses.length"
+			class="flex items-center mb-3 text-ink-gray-7"
+		>
 			<BookOpen class="h-4 w-4 stroke-1.5 mr-2" />
 			<span> {{ batch.data.courses.length }} {{ __('Courses') }} </span>
 		</div>

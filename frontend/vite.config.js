@@ -6,7 +6,17 @@ import frappeui from 'frappe-ui/vite'
 // https://vitejs.dev/config/
 export default defineConfig({
 	plugins: [
-		frappeui(),
+		frappeui({
+			frappeProxy: true,
+			lucideIcons: true,
+			jinjaBootData: true,
+			frappeTypes: {
+				input: {},
+			},
+			buildConfig: {
+				indexHtmlPath: '../lms/www/lms.html',
+			},
+		}),
 		vue({
 			script: {
 				defineModel: true,
@@ -15,28 +25,12 @@ export default defineConfig({
 		}),
 	],
 	server: {
-		allowedHosts: ['fs', 'bs'],
+		allowedHosts: ['fs', 'persona'],
 	},
 	resolve: {
 		alias: {
 			'@': path.resolve(__dirname, 'src'),
 			'tailwind.config.js': path.resolve(__dirname, 'tailwind.config.js'),
-		},
-	},
-	build: {
-		outDir: `../lms/public/frontend`,
-		emptyOutDir: true,
-		commonjsOptions: {
-			include: [/tailwind.config.js/, /node_modules/],
-		},
-		sourcemap: true,
-		target: 'es2015',
-		rollupOptions: {
-			output: {
-				manualChunks: {
-					'frappe-ui': ['frappe-ui'],
-				},
-			},
 		},
 	},
 	optimizeDeps: {
@@ -45,6 +39,7 @@ export default defineConfig({
 			'showdown',
 			'engine.io-client',
 			'tailwind.config.js',
+			'highlight.js',
 		],
 	},
 })

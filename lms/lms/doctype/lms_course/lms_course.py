@@ -50,7 +50,12 @@ class LMSCourse(Document):
 		if self.paid_course:
 			installed_apps = frappe.get_installed_apps()
 			if "payments" not in installed_apps:
-				frappe.throw(_("Please install the Payments app to create a paid courses."))
+				documentation_link = "https://docs.frappe.io/learning/setting-up-payment-gateway"
+				frappe.throw(
+					_(
+						"Please install the Payments App to create a paid course. Refer to the documentation for more details. {0}"
+					).format(documentation_link)
+				)
 
 	def validate_certification(self):
 		if self.enable_certification and self.paid_certificate:

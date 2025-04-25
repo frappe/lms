@@ -1,5 +1,5 @@
 <template>
-	<div class="">
+	<div class="h-full">
 		<div class="grid md:grid-cols-[70%,30%] h-full">
 			<div>
 				<header
@@ -8,12 +8,9 @@
 					<Breadcrumbs class="h-7" :items="breadcrumbs" />
 					<div class="flex items-center mt-3 md:mt-0">
 						<Button v-if="courseResource.data?.name" @click="trashCourse()">
-							<template #prefix>
+							<template #icon>
 								<Trash2 class="w-4 h-4 stroke-1.5" />
 							</template>
-							<span>
-								{{ __('Delete') }}
-							</span>
 						</Button>
 						<Button variant="solid" @click="submitCourse()" class="ml-2">
 							<span>
@@ -233,11 +230,11 @@
 					</div>
 				</div>
 			</div>
-			<div class="border-l pt-5">
+			<div class="border-l">
 				<CourseOutline
 					v-if="courseResource.data"
 					:courseName="courseResource.data.name"
-					:title="course.title"
+					:title="__('Course Outline')"
 					:allowEdit="true"
 				/>
 			</div>
@@ -252,6 +249,7 @@ import {
 	createResource,
 	FormControl,
 	FileUploader,
+	usePageMeta,
 } from 'frappe-ui'
 import {
 	inject,
@@ -263,21 +261,25 @@ import {
 	watch,
 	getCurrentInstance,
 } from 'vue'
-import { showToast, updateDocumentTitle } from '@/utils'
-import Link from '@/components/Controls/Link.vue'
+import { showToast } from '@/utils'
 import { Image, Trash2, X } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
+import { capture } from '@/telemetry'
+import { useOnboarding } from 'frappe-ui/frappe'
+import { sessionStore } from '../stores/session'
+import { useSettings } from '@/stores/settings'
+import Link from '@/components/Controls/Link.vue'
 import CourseOutline from '@/components/CourseOutline.vue'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
-import { capture } from '@/telemetry'
-import { useSettings } from '@/stores/settings'
 
 const user = inject('$user')
 const newTag = ref('')
+const { brand } = sessionStore()
 const router = useRouter()
 const instructors = ref([])
 const settingsStore = useSettings()
 const app = getCurrentInstance()
+const { updateOnboardingStep } = useOnboarding('learning')
 const { $dialog } = app.appContext.config.globalProperties
 
 const props = defineProps({
@@ -308,11 +310,7 @@ const course = reactive({
 })
 
 onMounted(() => {
-	if (
-		props.courseName == 'new' &&
-		!user.data?.is_moderator &&
-		!user.data?.is_instructor
-	) {
+	if (!user.data?.is_moderator && !user.data?.is_instructor) {
 		router.push({ name: 'Courses' })
 	}
 
@@ -398,7 +396,7 @@ const courseResource = createResource({
 			'paid_course',
 			'featured',
 			'enable_certification',
-			'paid_certifiate',
+			'paid_certificate',
 		]
 		for (let idx in checkboxes) {
 			let key = checkboxes[idx]
@@ -441,11 +439,14 @@ const submitCourse = () => {
 	} else {
 		courseCreationResource.submit(course, {
 			onSuccess(data) {
+				if (user.data?.is_system_manager) {
+					updateOnboardingStep('create_first_course', true, false, () => {
+						localStorage.setItem('firstCourse', data.name)
+					})
+				}
+
 				capture('course_created')
 				showToast('Success', 'Course created successfully', 'check')
-				/* if (!settingsStore.onboardingDetails.data?.is_onboarded) {
-					settingsStore.onboardingDetails.reload()
-				} */
 				router.push({
 					name: 'CourseForm',
 					params: { courseName: data.name },
@@ -571,12 +572,10 @@ const breadcrumbs = computed(() => {
 	return crumbs
 })
 
-const pageMeta = computed(() => {
+usePageMeta(() => {
 	return {
-		title: 'Create a Course',
-		description: 'Create or edit a course for your learning system.',
+		title: courseResource.data?.title || __('New Course'),
+		icon: brand.favicon,
 	}
 })
-
-updateDocumentTitle(pageMeta)
 </script>

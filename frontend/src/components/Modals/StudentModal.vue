@@ -26,12 +26,15 @@
 </template>
 <script setup>
 import { Dialog, createResource } from 'frappe-ui'
-import { ref } from 'vue'
+import { ref, inject } from 'vue'
 import Link from '@/components/Controls/Link.vue'
 import { showToast } from '@/utils'
+import { useOnboarding } from 'frappe-ui/frappe'
 
 const students = defineModel('reloadStudents')
 const student = ref()
+const user = inject('$user')
+const { updateOnboardingStep } = useOnboarding('learning')
 const show = defineModel()
 
 const props = defineProps({
@@ -59,6 +62,9 @@ const addStudent = (close) => {
 		{},
 		{
 			onSuccess() {
+				if (user.data?.is_system_manager)
+					updateOnboardingStep('add_batch_student')
+
 				students.value.reload()
 				student.value = null
 				close()

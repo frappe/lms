@@ -72,7 +72,7 @@ const roles = createResource({
 })
 
 const updateRole = createResource({
-	url: 'lms.overrides.user.save_role',
+	url: 'lms.lms.api.save_role',
 	makeParams(values) {
 		return {
 			user: props.profile.data?.name,

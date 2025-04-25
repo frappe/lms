@@ -8,98 +8,109 @@
 				{{ __('Save') }}
 			</Button>
 		</header>
-		<div class="w-1/2 mx-auto py-5">
+		<div class="w-3/4 mx-auto py-5">
 			<div class="">
 				<div class="text-lg font-semibold mb-4">
 					{{ __('Details') }}
 				</div>
-				<div class="space-y-4 mb-4">
-					<FormControl
-						v-model="batch.title"
-						:label="__('Title')"
-						:required="true"
-						class="w-full"
-					/>
-					<div class="flex items-center space-x-5">
+				<div class="space-y-10 mb-4">
+					<div class="grid grid-cols-2 gap-10">
 						<FormControl
-							v-model="batch.published"
-							type="checkbox"
-							:label="__('Published')"
+							v-model="batch.title"
+							:label="__('Title')"
+							:required="true"
+							class="w-full"
 						/>
-						<FormControl
-							v-model="batch.allow_self_enrollment"
-							type="checkbox"
-							:label="__('Allow self enrollment')"
-						/>
-						<FormControl
-							v-model="batch.certification"
-							type="checkbox"
-							:label="__('Certification')"
+						<MultiSelect
+							v-model="instructors"
+							doctype="User"
+							:label="__('Instructors')"
+							:required="true"
+							:filters="{ ignore_user_type: 1 }"
 						/>
 					</div>
-				</div>
-			</div>
-			<div class="mb-4">
-				<div class="text-xs text-ink-gray-5 mb-2">
-					{{ __('Meta Image') }}
-				</div>
-				<FileUploader
-					v-if="!batch.image"
-					:fileTypes="['image/*']"
-					:validateFile="validateFile"
-					@success="(file) => saveImage(file)"
-				>
-					<template v-slot="{ file, progress, uploading, openFileSelector }">
-						<div class="flex items-center">
-							<div class="border rounded-md w-fit py-5 px-20">
-								<Image class="size-5 stroke-1 text-ink-gray-7" />
+
+					<div class="grid grid-cols-2 gap-10">
+						<div class="flex flex-col space-y-5">
+							<FormControl
+								v-model="batch.published"
+								type="checkbox"
+								:label="__('Published')"
+							/>
+							<FormControl
+								v-model="batch.allow_self_enrollment"
+								type="checkbox"
+								:label="__('Allow self enrollment')"
+							/>
+							<FormControl
+								v-model="batch.certification"
+								type="checkbox"
+								:label="__('Certification')"
+							/>
+						</div>
+
+						<div>
+							<div class="text-xs text-ink-gray-5 mb-2">
+								{{ __('Meta Image') }}
 							</div>
-							<div class="ml-4">
-								<Button @click="openFileSelector">
-									{{ __('Upload') }}
-								</Button>
-								<div class="mt-2 text-ink-gray-5 text-sm">
-									{{
-										__(
-											'Appears when the batch URL is shared on any online platform'
-										)
-									}}
+							<FileUploader
+								v-if="!batch.image"
+								:fileTypes="['image/*']"
+								:validateFile="validateFile"
+								@success="(file) => saveImage(file)"
+							>
+								<template
+									v-slot="{ file, progress, uploading, openFileSelector }"
+								>
+									<div class="flex items-center">
+										<div class="border rounded-md w-fit py-5 px-20">
+											<Image class="size-5 stroke-1 text-ink-gray-7" />
+										</div>
+										<div class="ml-4">
+											<Button @click="openFileSelector">
+												{{ __('Upload') }}
+											</Button>
+											<div class="mt-2 text-ink-gray-5 text-sm">
+												{{
+													__(
+														'Appears when the batch URL is shared on any online platform'
+													)
+												}}
+											</div>
+										</div>
+									</div>
+								</template>
+							</FileUploader>
+							<div v-else class="mb-4">
+								<div class="flex items-center">
+									<img
+										:src="batch.image.file_url"
+										class="border rounded-md w-40"
+									/>
+									<div class="ml-4">
+										<Button @click="removeImage()">
+											{{ __('Remove') }}
+										</Button>
+										<div class="mt-2 text-ink-gray-5 text-sm">
+											{{
+												__(
+													'Appears when the batch URL is shared on any online platform'
+												)
+											}}
+										</div>
+									</div>
 								</div>
 							</div>
 						</div>
-					</template>
-				</FileUploader>
-				<div v-else class="mb-4">
-					<div class="flex items-center">
-						<img :src="batch.image.file_url" class="border rounded-md w-40" />
-						<div class="ml-4">
-							<Button @click="removeImage()">
-								{{ __('Remove') }}
-							</Button>
-							<div class="mt-2 text-ink-gray-5 text-sm">
-								{{
-									__(
-										'Appears when the batch URL is shared on any online platform'
-									)
-								}}
-							</div>
-						</div>
 					</div>
 				</div>
 			</div>
-			<MultiSelect
-				v-model="instructors"
-				doctype="User"
-				:label="__('Instructors')"
-				:required="true"
-				:filters="{ ignore_user_type: 1 }"
-			/>
 
 			<div class="my-10">
 				<div class="text-lg font-semibold mb-4">
 					{{ __('Date and Time') }}
 				</div>
-				<div class="grid grid-cols-2 gap-10">
+				<div class="grid grid-cols-3 gap-10">
 					<div>
 						<FormControl
 							v-model="batch.start_date"
@@ -112,14 +123,6 @@
 							v-model="batch.end_date"
 							:label="__('End Date')"
 							type="date"
-							class="mb-4"
-							:required="true"
-						/>
-						<FormControl
-							v-model="batch.timezone"
-							:label="__('Timezone')"
-							type="text"
-							:placeholder="__('Example: IST (+5:30)')"
 							class="mb-4"
 							:required="true"
 						/>
@@ -140,6 +143,16 @@
 							:required="true"
 						/>
 					</div>
+					<div>
+						<FormControl
+							v-model="batch.timezone"
+							:label="__('Timezone')"
+							type="text"
+							:placeholder="__('Example: IST (+5:30)')"
+							class="mb-4"
+							:required="true"
+						/>
+					</div>
 				</div>
 			</div>
 
@@ -147,7 +160,7 @@
 				<div class="text-lg font-semibold mb-4">
 					{{ __('Settings') }}
 				</div>
-				<div class="grid grid-cols-2 gap-10">
+				<div class="grid grid-cols-3 gap-10">
 					<div>
 						<FormControl
 							v-model="batch.seat_count"
@@ -161,11 +174,6 @@
 							:label="__('Evaluation End Date')"
 							type="date"
 							class="mb-4"
-						/>
-						<Link
-							doctype="Email Template"
-							:label="__('Email Template')"
-							v-model="batch.confirmation_email_template"
 						/>
 					</div>
 					<div>
@@ -191,6 +199,13 @@
 							v-model="batch.category"
 						/>
 					</div>
+					<div>
+						<Link
+							doctype="Email Template"
+							:label="__('Email Template')"
+							v-model="batch.confirmation_email_template"
+						/>
+					</div>
 				</div>
 			</div>
 
@@ -198,17 +213,16 @@
 				<div class="text-lg font-semibold mb-4">
 					{{ __('Payment') }}
 				</div>
-				<div>
-					<FormControl
-						v-model="batch.paid_batch"
-						type="checkbox"
-						:label="__('Paid Batch')"
-					/>
+				<FormControl
+					v-model="batch.paid_batch"
+					type="checkbox"
+					:label="__('Paid Batch')"
+				/>
+				<div class="grid grid-cols-3 gap-10 mt-4">
 					<FormControl
 						v-model="batch.amount"
 						:label="__('Amount')"
 						type="number"
-						class="my-4"
 					/>
 					<Link
 						doctype="Currency"
@@ -264,16 +278,21 @@ import {
 	Button,
 	TextEditor,
 	createResource,
+	usePageMeta,
 } from 'frappe-ui'
-import Link from '@/components/Controls/Link.vue'
 import { useRouter } from 'vue-router'
 import { showToast } from '@/utils'
 import { Image } from 'lucide-vue-next'
 import { capture } from '@/telemetry'
+import { useOnboarding } from 'frappe-ui/frappe'
+import { sessionStore } from '../stores/session'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
+import Link from '@/components/Controls/Link.vue'
 
 const router = useRouter()
 const user = inject('$user')
+const { brand } = sessionStore()
+const { updateOnboardingStep } = useOnboarding('learning')
 
 const props = defineProps({
 	batchName: {
@@ -425,6 +444,12 @@ const createNewBatch = () => {
 		{},
 		{
 			onSuccess(data) {
+				if (user.data?.is_system_manager) {
+					updateOnboardingStep('create_first_batch', true, false, () => {
+						localStorage.setItem('firstBatch', data.name)
+					})
+				}
+
 				capture('batch_created')
 				router.push({
 					name: 'BatchDetail',
@@ -434,7 +459,7 @@ const createNewBatch = () => {
 				})
 			},
 			onError(err) {
-				showToast('Error', err.messages?.[0] || err, 'x')
+				showToast('Message', err.messages?.[0] || err, 'alert-circle')
 			},
 		}
 	)
@@ -453,7 +478,7 @@ const editBatchDetails = () => {
 				})
 			},
 			onError(err) {
-				showToast('Error', err.messages?.[0] || err, 'x')
+				showToast('Message', err.messages?.[0] || err, 'alert-circle')
 			},
 		}
 	)
@@ -499,5 +524,12 @@ const breadcrumbs = computed(() => {
 		route: { name: 'BatchForm', params: { batchName: props.batchName } },
 	})
 	return crumbs
+})
+
+usePageMeta(() => {
+	return {
+		title: props.batchName == 'new' ? 'New Batch' : batchDetail.data?.title,
+		icon: brand.favicon,
+	}
 })
 </script>

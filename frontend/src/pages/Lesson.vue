@@ -7,24 +7,33 @@
 			<CertificationLinks :courseName="courseName" />
 		</header>
 		<div class="grid md:grid-cols-[70%,30%] h-screen">
-			<div
-				v-if="lesson.data.no_preview"
-				class="border-r text-center pt-10 px-5 md:px-0 pb-10"
-			>
-				<p class="mb-4">
-					{{
-						__(
-							'This lesson is not available for preview. Please enroll in the course to access it.'
-						)
-					}}
-				</p>
-				<Button v-if="user.data" @click="enrollStudent()" variant="solid">
-					{{ __('Start Learning') }}
-				</Button>
-				<Button v-else @click="redirectToLogin()">
-					{{ __('Login') }}
-				</Button>
+			<div v-if="lesson.data.no_preview" class="border-r">
+				<div class="shadow rounded-md w-3/4 mt-10 mx-auto text-center p-4">
+					<div class="flex items-center justify-center mt-4 space-x-2">
+						<LockKeyholeIcon class="size-4 stroke-2 text-ink-gray-5" />
+						<div class="text-lg font-semibold text-ink-gray-7">
+							{{ __('This lesson is locked') }}
+						</div>
+					</div>
+					<div class="mt-1 mb-4 text-ink-gray-7">
+						{{
+							__(
+								'This lesson is not available for preview. Please enroll in the course to access it.'
+							)
+						}}
+					</div>
+					<Button v-if="user.data" @click="enrollStudent()" variant="solid">
+						{{ __('Start Learning') }}
+					</Button>
+					<Button v-else @click="redirectToLogin()">
+						<template #prefix>
+							<LogIn class="w-4 h-4 stroke-1" />
+						</template>
+						{{ __('Login') }}
+					</Button>
+				</div>
 			</div>
+
 			<div v-else class="border-r container pt-5 pb-10 px-5">
 				<div class="flex flex-col md:flex-row md:items-center justify-between">
 					<div class="text-3xl font-semibold text-ink-gray-9">
@@ -193,14 +202,20 @@
 	</div>
 </template>
 <script setup>
-import { createResource, Breadcrumbs, Button } from 'frappe-ui'
+import { createResource, Breadcrumbs, Button, usePageMeta } from 'frappe-ui'
 import { computed, watch, inject, ref, onMounted, onBeforeUnmount } from 'vue'
 import CourseOutline from '@/components/CourseOutline.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { useRouter, useRoute } from 'vue-router'
-import { ChevronLeft, ChevronRight, GraduationCap } from 'lucide-vue-next'
+import {
+	ChevronLeft,
+	ChevronRight,
+	LockKeyholeIcon,
+	LogIn,
+} from 'lucide-vue-next'
 import Discussions from '@/components/Discussions.vue'
-import { getEditorTools, updateDocumentTitle } from '../utils'
+import { getEditorTools } from '../utils'
+import { sessionStore } from '@/stores/session'
 import EditorJS from '@editorjs/editorjs'
 import LessonContent from '@/components/LessonContent.vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
@@ -215,6 +230,7 @@ const editor = ref(null)
 const instructorEditor = ref(null)
 const lessonProgress = ref(0)
 const timer = ref(0)
+const { brand } = sessionStore()
 let timerInterval
 
 const props = defineProps({
@@ -419,14 +435,12 @@ const redirectToLogin = () => {
 	window.location.href = `/login?redirect-to=/lms/courses/${props.courseName}`
 }
 
-const pageMeta = computed(() => {
+usePageMeta(() => {
 	return {
-		title: lesson.data?.title,
-		description: lesson.data?.course,
+		title: lesson?.data?.title,
+		icon: brand.favicon,
 	}
 })
-
-updateDocumentTitle(pageMeta)
 </script>
 <style>
 .avatar-group {
@@ -585,11 +599,6 @@ updateDocumentTitle(pageMeta)
 
 .codeBoxTextArea {
 	line-height: 1.7;
-}
-
-iframe {
-	border-top: 3px solid theme('colors.gray.700');
-	border-bottom: 3px solid theme('colors.gray.700');
 }
 
 .tc-table {

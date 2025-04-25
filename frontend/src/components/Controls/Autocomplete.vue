@@ -130,7 +130,7 @@ import {
 	ComboboxOptions,
 	ComboboxOption,
 } from '@headlessui/vue'
-import { Popover, Button } from 'frappe-ui'
+import { Popover } from 'frappe-ui'
 import { ChevronDown, X } from 'lucide-vue-next'
 import { ref, computed, useAttrs, useSlots, watch, nextTick } from 'vue'
 

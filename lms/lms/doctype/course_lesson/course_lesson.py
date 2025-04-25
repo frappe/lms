@@ -11,66 +11,34 @@ import json
 
 
 class CourseLesson(Document):
-	def validate(self):
-		# self.check_and_create_folder()
+	def on_update(self):
 		self.validate_quiz_id()
 
 	def validate_quiz_id(self):
 		if self.quiz_id and not frappe.db.exists("LMS Quiz", self.quiz_id):
 			frappe.throw(_("Invalid Quiz ID"))
 
-	def on_update(self):
-		dynamic_documents = ["Exercise", "Quiz"]
-		for section in dynamic_documents:
-			self.update_lesson_name_in_document(section)
+		if self.content:
+			self.save_lesson_details_in_quiz(self.content)
 
-	def update_lesson_name_in_document(self, section):
-		doctype_map = {"Exercise": "LMS Exercise", "Quiz": "LMS Quiz"}
-		macros = find_macros(self.body)
-		documents = [value for name, value in macros if name == section]
-		index = 1
-		for name in documents:
-			e = frappe.get_doc(doctype_map[section], name)
-			e.lesson = self.name
-			e.index_ = index
-			e.course = self.course
-			e.save(ignore_permissions=True)
-			index += 1
-		self.update_orphan_documents(doctype_map[section], documents)
+		if self.instructor_content:
+			self.save_lesson_details_in_quiz(self.instructor_content)
 
-	def update_orphan_documents(self, doctype, documents):
-		"""Updates the documents that were previously part of this lesson,
-		but not any more.
-		"""
-		linked_documents = {
-			row["name"] for row in frappe.get_all(doctype, {"lesson": self.name})
-		}
-		active_documents = set(documents)
-		orphan_documents = linked_documents - active_documents
-		for name in orphan_documents:
-			ex = frappe.get_doc(doctype, name)
-			ex.lesson = None
-			ex.course = None
-			ex.index_ = 0
-			ex.save(ignore_permissions=True)
-
-	def check_and_create_folder(self):
-		args = {
-			"doctype": "File",
-			"is_folder": True,
-			"file_name": f"{self.name} {self.course}",
-		}
-		if not frappe.db.exists(args):
-			folder = frappe.get_doc(args)
-			folder.save(ignore_permissions=True)
-
-	def get_exercises(self):
-		if not self.body:
-			return []
-
-		macros = find_macros(self.body)
-		exercises = [value for name, value in macros if name == "Exercise"]
-		return [frappe.get_doc("LMS Exercise", name) for name in exercises]
+	def save_lesson_details_in_quiz(self, content):
+		content = json.loads(self.content)
+		for block in content.get("blocks"):
+			if block.get("type") == "quiz":
+				quiz = block.get("data").get("quiz")
+				if not frappe.db.exists("LMS Quiz", quiz):
+					frappe.throw(_("Invalid Quiz ID in content"))
+				frappe.db.set_value(
+					"LMS Quiz",
+					quiz,
+					{
+						"course": self.course,
+						"lesson": self.name,
+					},
+				)
 
 
 @frappe.whitelist()
@@ -102,7 +70,7 @@ def save_progress(lesson, course):
 	progress = get_course_progress(course)
 	capture_progress_for_analytics(progress, course)
 
-	# Had to get doc, as on_change doesn't trigger when you use set_value. The trigger is necesary for badge to get assigned.
+	# Had to get doc, as on_change doesn't trigger when you use set_value. The trigger is necessary for badge to get assigned.
 	enrollment = frappe.get_doc("LMS Enrollment", membership)
 	enrollment.progress = progress
 	enrollment.save()

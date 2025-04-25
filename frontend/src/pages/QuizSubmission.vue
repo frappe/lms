@@ -79,11 +79,14 @@ import {
 	FormControl,
 	Button,
 	Badge,
+	usePageMeta,
 } from 'frappe-ui'
 import { computed, onBeforeUnmount, onMounted, inject } from 'vue'
 import { useRouter } from 'vue-router'
 import { showToast } from '@/utils'
+import { sessionStore } from '@/stores/session'
 
+const { brand } = sessionStore()
 const router = useRouter()
 const user = inject('$user')
 
@@ -149,4 +152,11 @@ const saveSubmission = () => {
 		}
 	)
 }
+
+usePageMeta(() => {
+	return {
+		title: `${submisisonDetails.doc.quiz_title}`,
+		icon: brand.favicon,
+	}
+})
 </script>

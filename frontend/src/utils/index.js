@@ -14,6 +14,7 @@ import dayjs from '@/utils/dayjs'
 import Embed from '@editorjs/embed'
 import SimpleImage from '@editorjs/simple-image'
 import Table from '@editorjs/table'
+import { usersStore } from '../stores/user'
 
 export function createToast(options) {
 	toast({
@@ -108,7 +109,7 @@ export function showToast(title, text, icon, iconClasses = null) {
 		icon: icon,
 		iconClasses: iconClasses,
 		position: icon == 'check' ? 'bottom-right' : 'top-center',
-		timeout: 5,
+		timeout: icon != 'check' ? 10 : 5,
 	})
 }
 
@@ -158,7 +159,10 @@ export function getEditorTools() {
 		quiz: Quiz,
 		assignment: Assignment,
 		upload: Upload,
-		markdown: Markdown,
+		markdown: {
+			class: Markdown,
+			inlineToolbar: true,
+		},
 		image: SimpleImage,
 		table: {
 			class: Table,
@@ -174,9 +178,6 @@ export function getEditorTools() {
 		codeBox: {
 			class: CodeBox,
 			config: {
-				themeURL:
-					'https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.1/build/styles/atom-one-dark.min.css',
-				themeName: 'atom-one-dark',
 				useDefaultTheme: 'dark',
 			},
 		},
@@ -200,9 +201,9 @@ export function getEditorTools() {
 						regex: /(?:https?:\/\/)?(?:www\.)?(?:(?:youtu\.be\/)|(?:youtube\.com)\/(?:v\/|u\/\w\/|embed\/|watch))(?:(?:\?v=)?([^#&?=]*))?((?:[?&]\w*=\w*)*)/,
 						embedUrl:
 							'https://www.youtube.com/embed/<%= remote_id %>',
-						html: '<iframe style="width:100%; height: 30rem;" frameborder="0" allowfullscreen></iframe>',
-						height: 320,
-						width: 580,
+						html: `<iframe style="width:100%; height: ${
+							window.innerWidth < 640 ? '15rem' : '30rem'
+						};" frameborder="0" allowfullscreen></iframe>`,
 						id: ([id, params]) => {
 							if (!params && id) {
 								return id
@@ -248,28 +249,48 @@ export function getEditorTools() {
 							return id + '?' + newParams.join('&')
 						},
 					},
-					vimeo: true,
+					vimeo: {
+						regex: /(?:http[s]?:\/\/)?(?:www\.)?vimeo\.com\/(\d+)/,
+						embedUrl:
+							'https://player.vimeo.com/video/<%= remote_id %>',
+						html: `<iframe style="width:100%; height: ${
+							window.innerWidth < 640 ? '15rem' : '30rem'
+						};" frameborder="0" allowfullscreen></iframe>`,
+						id: ([id]) => id,
+					},
+					cloudflareStream: {
+						regex: /https:\/\/customer-[a-z0-9]+\.cloudflarestream\.com\/([a-f0-9]{32})\/watch/,
+						embedUrl:
+							'https://iframe.videodelivery.net/<%= remote_id %>',
+						html: `<iframe style="width:100%; height: ${
+							window.innerWidth < 640 ? '15rem' : '30rem'
+						};" frameborder="0" allowfullscreen></iframe>`,
+					},
 					codepen: true,
 					aparat: {
 						regex: /(?:http[s]?:\/\/)?(?:www.)?aparat\.com\/v\/([^\/\?\&]+)\/?/,
 						embedUrl:
 							'https://www.aparat.com/video/video/embed/videohash/<%= remote_id %>/vt/frame',
-						html: '<iframe style="margin: 0 auto; width: 100%; height: 25rem;" frameborder="0" scrolling="no" allowtransparency="true"></iframe>',
-						height: 300,
-						width: 600,
+						html: `<iframe style="margin: 0 auto; width: 100%; height: ${
+							window.innerWidth < 640 ? '15rem' : '30rem'
+						};" frameborder="0" scrolling="no" allowtransparency="true"></iframe>`,
 					},
 					github: true,
 					slides: {
 						regex: /https:\/\/docs\.google\.com\/presentation\/d\/([A-Za-z0-9_-]+)\/pub/,
 						embedUrl:
 							'https://docs.google.com/presentation/d/<%= remote_id %>/embed',
-						html: "<iframe style='width: 100%; height: 30rem; border: 1px solid #D3D3D3; border-radius: 12px; margin: 1rem 0' frameborder='0' allowfullscreen='true'></iframe>",
+						html: `<iframe style='width: 100%; height: ${
+							window.innerWidth < 640 ? '15rem' : '30rem'
+						}; border: 1px solid #D3D3D3; border-radius: 12px; margin: 1rem 0' frameborder='0' allowfullscreen='true'></iframe>`,
 					},
 					drive: {
 						regex: /https:\/\/drive\.google\.com\/file\/d\/([A-Za-z0-9_-]+)\/view(\?.+)?/,
 						embedUrl:
 							'https://drive.google.com/file/d/<%= remote_id %>/preview',
-						html: "<iframe style='width: 100%; height: 25rem; border: 1px solid #D3D3D3; border-radius: 12px;' frameborder='0' allowfullscreen='true'></iframe>",
+						html: `<iframe style='width: 100%; height: ${
+							window.innerWidth < 640 ? '15rem' : '30rem'
+						}; border: 1px solid #D3D3D3; border-radius: 12px;' frameborder='0' allowfullscreen='true'></iframe>`,
 					},
 					docsPublic: {
 						regex: /https:\/\/docs\.google\.com\/document\/d\/([A-Za-z0-9_-]+)\/edit(\?.+)?/,
@@ -441,6 +462,22 @@ export function getTimezones() {
 	]
 }
 
+export function getUserTimezone() {
+	try {
+		const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+		const supportedTimezones = getTimezones()
+
+		if (supportedTimezones.includes(timezone)) {
+			return timezone // e.g., 'Asia/Calcutta', 'America/New_York', etc.
+		} else {
+			throw Error('unsupported timezone')
+		}
+	} catch (error) {
+		console.error('Error getting timezone:', error)
+		return null
+	}
+}
+
 export function getSidebarLinks() {
 	return [
 		{
@@ -462,7 +499,7 @@ export function getSidebarLinks() {
 			activeFor: ['Batches', 'BatchDetail', 'Batch', 'BatchForm'],
 		},
 		{
-			label: 'Certified Participants',
+			label: 'Certified Members',
 			icon: 'GraduationCap',
 			to: 'CertifiedParticipants',
 			activeFor: ['CertifiedParticipants'],
@@ -550,4 +587,9 @@ export const escapeHTML = (text) => {
 		/[&<>"'`=]/g,
 		(char) => escape_html_mapping[char] || char
 	)
+}
+
+export const canCreateCourse = () => {
+	const { userResource } = usersStore()
+	return userResource.data?.is_instructor || userResource.data?.is_moderator
 }

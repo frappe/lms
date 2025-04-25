@@ -58,7 +58,7 @@ jobs:
           echo "127.0.0.1 lms.test" | sudo tee -a /etc/hosts
 
       - name: Cache pip
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/*requirements.txt', '**/pyproject.toml', '**/setup.py') }}
@@ -70,7 +70,7 @@ jobs:
         id: yarn-cache-dir-path
         run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         id: yarn-cache
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -79,7 +79,7 @@ jobs:
             ${{ runner.os }}-yarn-ui-
 
       - name: Cache cypress binary
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.cache/Cypress
           key: ${{ runner.os }}-cypress
@@ -100,6 +100,7 @@ jobs:
           bench --site lms.test execute frappe.utils.install.complete_setup_wizard
           bench --site lms.test execute frappe.tests.ui_test_helpers.create_test_user
           bench --site lms.test set-password frappe@example.com admin
+          bench --site lms.test execute lms.lms.utils.persona_captured
 
       - name: cypress pre-requisites
         run: |

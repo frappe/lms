@@ -84,14 +84,17 @@ import {
 	ListRows,
 	ListRow,
 	ListRowItem,
+	usePageMeta,
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { Pencil } from 'lucide-vue-next'
+import { sessionStore } from '../stores/session'
 import Link from '@/components/Controls/Link.vue'
 
 const user = inject('$user')
 const dayjs = inject('$dayjs')
+const { brand } = sessionStore()
 const router = useRouter()
 const assignmentID = ref('')
 const member = ref('')
@@ -213,5 +216,12 @@ const breadcrumbs = computed(() => {
 			label: 'Assignment Submissions',
 		},
 	]
+})
+
+usePageMeta(() => {
+	return {
+		title: __('Assignment Submissions'),
+		icon: brand.favicon,
+	}
 })
 </script>

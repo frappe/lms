@@ -197,6 +197,7 @@ import {
 	ListRowItem,
 	ListSelectBanner,
 	Button,
+	usePageMeta,
 } from 'frappe-ui'
 import {
 	computed,
@@ -207,11 +208,13 @@ import {
 	onBeforeUnmount,
 	watch,
 } from 'vue'
+import { sessionStore } from '../stores/session'
 import { Plus, Trash2 } from 'lucide-vue-next'
-import Question from '@/components/Modals/Question.vue'
 import { showToast, updateDocumentTitle } from '@/utils'
 import { useRouter } from 'vue-router'
+import Question from '@/components/Modals/Question.vue'
 
+const { brand } = sessionStore()
 const showQuestionModal = ref(false)
 const currentQuestion = reactive({
 	question: '',
@@ -453,12 +456,10 @@ const breadcrumbs = computed(() => {
 	return crumbs
 })
 
-const pageMeta = computed(() => {
+usePageMeta(() => {
 	return {
 		title: props.quizID == 'new' ? __('New Quiz') : quizDetails.data?.title,
-		description: __('Form to create and edit quizzes'),
+		icon: brand.favicon,
 	}
 })
-
-updateDocumentTitle(pageMeta)
 </script>

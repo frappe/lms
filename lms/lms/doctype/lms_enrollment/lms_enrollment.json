@@ -145,10 +145,11 @@
    "options": "LMS Certificate"
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-02-21 17:11:37.986157",
- "modified_by": "Administrator",
+ "modified": "2025-04-25 10:06:25.824119",
+ "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Enrollment",
  "owner": "Administrator",
@@ -192,6 +193,7 @@
   }
  ],
  "quick_entry": 1,
+ "row_format": "Dynamic",
  "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
