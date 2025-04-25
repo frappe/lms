@@ -92,14 +92,17 @@ import {
 	inject,
 	ref,
 	onBeforeUnmount,
+	watch,
 } from 'vue'
 import { sessionStore } from '../stores/session'
 import EditorJS from '@editorjs/editorjs'
 import LessonHelp from '@/components/LessonHelp.vue'
-import { ChevronRight } from 'lucide-vue-next'
+import { AppleIcon, ChevronRight } from 'lucide-vue-next'
 import { createToast, getEditorTools } from '@/utils'
 import { capture } from '@/telemetry'
 import { useOnboarding } from 'frappe-ui/frappe'
+import Plyr from 'plyr'
+import 'plyr/dist/plyr.css'
 
 const { brand } = sessionStore()
 const editor = ref(null)
@@ -133,6 +136,7 @@ onMounted(() => {
 	editor.value = renderEditor('content')
 	instructorEditor.value = renderEditor('instructor-notes')
 	window.addEventListener('keydown', keyboardShortcut)
+	enablePlyr()
 })
 
 const renderEditor = (holder) => {
@@ -141,6 +145,9 @@ const renderEditor = (holder) => {
 		tools: getEditorTools(true),
 		autofocus: true,
 		defaultBlock: 'markdown',
+		onChange: async (api, event) => {
+			enablePlyr()
+		},
 	})
 }
 
@@ -463,6 +470,37 @@ const showToast = (title, text, icon) => {
 	})
 }
 
+const enablePlyr = () => {
+	setTimeout(() => {
+		const videoElement = document.getElementsByClassName('video-player')
+		if (videoElement.length === 0) return
+
+		const src = document
+			.getElementsByClassName('video-player')[0]
+			.getAttribute('src')
+		if (src) {
+			let videoID = src.split('/').pop()
+			document
+				.getElementsByClassName('video-player')[0]
+				.setAttribute('data-plyr-embed-id', videoID)
+		}
+		new Plyr('.video-player', {
+			youtube: {
+				noCookie: true,
+			},
+			controls: [
+				'play-large',
+				'play',
+				'progress',
+				'current-time',
+				'mute',
+				'volume',
+				'fullscreen',
+			],
+		})
+	}, 500)
+}
+
 const breadcrumbs = computed(() => {
 	let crumbs = [
 		{
@@ -638,5 +676,31 @@ iframe {
 
 .ce-popover-item[data-item-name='markdown'] {
 	display: none !important;
+}
+
+.plyr__volume input[type='range'] {
+	display: none;
+}
+
+.plyr__control--overlaid {
+	background: radial-gradient(
+		circle,
+		rgba(0, 0, 0, 0.4) 0%,
+		rgba(0, 0, 0, 0.5) 50%
+	);
+}
+
+.plyr__control:hover {
+	background: none;
+}
+
+.plyr--video {
+	border: 1px solid theme('colors.gray.200');
+	border-radius: 8px;
+}
+
+:root {
+	--plyr-range-fill-background: white;
+	--plyr-video-control-background-hover: transparent;
 }
 </style>

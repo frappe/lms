@@ -1,32 +1,53 @@
 <template>
-	<div ref="videoContainer" class="video-block group relative">
+	<div ref="videoContainer" class="video-block relative group">
 		<video
 			@timeupdate="updateTime"
 			@ended="videoEnded"
 			@click="togglePlay"
 			oncontextmenu="return false"
-			class="rounded-lg border border-gray-100 group cursor-pointer"
+			class="rounded-md border border-gray-100 cursor-pointer"
 			ref="videoRef"
 		>
 			<source :src="fileURL" :type="type" />
 		</video>
 		<div
-			class="flex items-center space-x-2 bg-surface-gray-3 rounded-md p-0.5 absolute bottom-3 w-[98%] left-0 right-0 mx-auto invisible group-hover:visible"
+			v-if="!playing"
+			class="absolute inset-0 flex items-center justify-center cursor-pointer"
+			@click="playVideo"
+		>
+			<div
+				class="rounded-full p-4 pl-4.5"
+				style="
+					background: radial-gradient(
+						circle,
+						rgba(0, 0, 0, 0.3) 0%,
+						rgba(0, 0, 0, 0.4) 50%
+					);
+				"
+			>
+				<Play />
+			</div>
+		</div>
+		<div
+			class="flex items-center space-x-2 py-2 px-1 text-ink-white bg-gradient-to-b from-transparent to-black/75 absolute bottom-0 left-0 right-0 mx-auto rounded-md"
+			:class="{
+				'invisible group-hover:visible': playing,
+			}"
 		>
 			<Button variant="ghost">
 				<template #icon>
 					<Play
 						v-if="!playing"
 						@click="playVideo"
-						class="w-4 h-4 text-ink-gray-9"
+						class="size-4 text-ink-gray-9"
 					/>
-					<Pause v-else @click="pauseVideo" class="w-4 h-4 text-ink-gray-9" />
+					<Pause v-else @click="pauseVideo" class="size-5 text-ink-white" />
 				</template>
 			</Button>
 			<Button variant="ghost" @click="toggleMute">
 				<template #icon>
-					<Volume2 v-if="!muted" class="w-4 h-4 text-ink-gray-9" />
-					<VolumeX v-else class="w-4 h-4 text-ink-gray-9" />
+					<Volume2 v-if="!muted" class="size-5 text-ink-white" />
+					<VolumeX v-else class="size-5 text-ink-white" />
 				</template>
 			</Button>
 			<input
@@ -38,12 +59,12 @@
 				@input="changeCurrentTime"
 				class="duration-slider w-full h-1"
 			/>
-			<span class="text-xs font-medium">
+			<span class="text-sm font-semibold">
 				{{ formatTime(currentTime) }} / {{ formatTime(duration) }}
 			</span>
 			<Button variant="ghost" @click="toggleFullscreen">
 				<template #icon>
-					<Maximize class="w-4 h-4 text-ink-gray-9" />
+					<Maximize class="size-5 text-ink-white" />
 				</template>
 			</Button>
 		</div>
@@ -51,8 +72,9 @@
 </template>
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import { Play, Pause, Maximize, Volume2, VolumeX } from 'lucide-vue-next'
+import { Pause, Maximize, Volume2, VolumeX } from 'lucide-vue-next'
 import { Button } from 'frappe-ui'
+import Play from '@/components/Icons/Play.vue'
 
 const videoRef = ref(null)
 const videoContainer = ref(null)
@@ -147,7 +169,6 @@ const toggleFullscreen = () => {
 <style scoped>
 .video-block {
 	width: 100%;
-	max-width: 900px;
 	margin: 0 auto;
 }
 
@@ -165,15 +186,16 @@ iframe {
 	flex: 1;
 	-webkit-appearance: none;
 	appearance: none;
-	background-color: theme('colors.gray.400');
+	border-radius: 10px;
+	background-color: theme('colors.gray.100');
 	cursor: pointer;
 }
 
 .duration-slider::-webkit-slider-thumb {
-	height: 10px;
-	width: 10px;
+	width: 2px;
+	border-radius: 50%;
 	-webkit-appearance: none;
-	background-color: theme('colors.gray.900');
+	background-color: theme('colors.gray.500');
 }
 
 @media screen and (-webkit-min-device-pixel-ratio: 0) {
@@ -186,7 +208,7 @@ iframe {
 	input[type='range']::-webkit-slider-thumb {
 		-webkit-appearance: none;
 		cursor: pointer;
-		box-shadow: -500px 0 0 500px theme('colors.gray.900');
+		box-shadow: -500px 0 0 500px theme('colors.gray.600');
 	}
 }
 </style>

@@ -1314,6 +1314,9 @@ def get_lesson(course, chapter, lesson):
 	else:
 		progress = get_progress(course, lesson_details.name)
 
+	lesson_details.chapter_title = frappe.db.get_value(
+		"Course Chapter", chapter_name, "title"
+	)
 	lesson_details.rendered_content = render_html(lesson_details)
 	neighbours = get_neighbour_lesson(course, chapter, lesson)
 	lesson_details.next = neighbours["next"]

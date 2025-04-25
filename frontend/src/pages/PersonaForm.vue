@@ -87,7 +87,6 @@ import { sessionStore } from '@/stores/session'
 const user = inject('$user')
 const router = useRouter()
 const { brand } = sessionStore()
-console.log(user.data?.sitename)
 
 const persona = reactive({
 	role: null,

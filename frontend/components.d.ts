@@ -71,6 +71,7 @@ declare module 'vue' {
     NotPermitted: typeof import('./src/components/NotPermitted.vue')['default']
     PageModal: typeof import('./src/components/Modals/PageModal.vue')['default']
     PaymentSettings: typeof import('./src/components/PaymentSettings.vue')['default']
+    Play: typeof import('./src/components/Icons/Play.vue')['default']
     ProgressBar: typeof import('./src/components/ProgressBar.vue')['default']
     Question: typeof import('./src/components/Modals/Question.vue')['default']
     Quiz: typeof import('./src/components/Quiz.vue')['default']
