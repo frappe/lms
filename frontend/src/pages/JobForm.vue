@@ -14,16 +14,21 @@
 					{{ __('Job Details') }}
 				</div>
 				<div class="grid grid-cols-2 gap-5">
-					<div>
+					<div class="space-y-4">
 						<FormControl
 							v-model="job.job_title"
 							:label="__('Title')"
-							class="mb-4"
 							:required="true"
 						/>
 						<FormControl
 							v-model="job.location"
-							:label="__('Location')"
+							:label="__('City')"
+							:required="true"
+						/>
+						<Link
+							v-model="job.country"
+							doctype="Country"
+							:label="__('Country')"
 							:required="true"
 						/>
 					</div>
@@ -217,6 +222,7 @@ const imageResource = createResource({
 const job = reactive({
 	job_title: '',
 	location: '',
+	country: '',
 	type: 'Full Time',
 	status: 'Open',
 	company_name: '',
