@@ -134,8 +134,8 @@ const routes = [
 	},
 	{
 		path: '/job-opening/:jobName/edit',
-		name: 'JobCreation',
-		component: () => import('@/pages/JobCreation.vue'),
+		name: 'JobForm',
+		component: () => import('@/pages/JobForm.vue'),
 		props: true,
 	},
 	{
