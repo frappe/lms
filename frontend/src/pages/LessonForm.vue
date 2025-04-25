@@ -92,6 +92,7 @@ import {
 	inject,
 	ref,
 	onBeforeUnmount,
+	watch,
 } from 'vue'
 import { sessionStore } from '../stores/session'
 import EditorJS from '@editorjs/editorjs'
@@ -133,6 +134,7 @@ onMounted(() => {
 	editor.value = renderEditor('content')
 	instructorEditor.value = renderEditor('instructor-notes')
 	window.addEventListener('keydown', keyboardShortcut)
+	enablePlyr()
 })
 
 const renderEditor = (holder) => {
@@ -461,6 +463,37 @@ const showToast = (title, text, icon) => {
 		position: icon == 'check' ? 'bottom-right' : 'top-center',
 		timeout: icon == 'check' ? 5 : 10,
 	})
+}
+
+const enablePlyr = () => {
+	setTimeout(() => {
+		const videoElement = document.getElementsByClassName('video-player')
+		if (videoElement.length === 0) return
+
+		const src = document
+			.getElementsByClassName('video-player')[0]
+			.getAttribute('src')
+		if (src) {
+			let videoID = src.split('/').pop()
+			document
+				.getElementsByClassName('video-player')[0]
+				.setAttribute('data-plyr-embed-id', videoID)
+		}
+		new Plyr('.video-player', {
+			youtube: {
+				noCookie: true,
+			},
+			controls: [
+				'play-large',
+				'play',
+				'progress',
+				'current-time',
+				'mute',
+				'volume',
+				'fullscreen',
+			],
+		})
+	}, 500)
 }
 
 const breadcrumbs = computed(() => {

@@ -200,16 +200,14 @@ export function getEditorTools() {
 					youtube: {
 						regex: /(?:https?:\/\/)?(?:www\.)?(?:(?:youtu\.be\/)|(?:youtube\.com)\/(?:v\/|u\/\w\/|embed\/|watch))(?:(?:\?v=)?([^#&?=]*))?((?:[?&]\w*=\w*)*)/,
 						embedUrl: '<%= remote_id %>',
-						/* 'https://www.youtube.com/embed/<%= remote_id %>?origin=https://plyr.io&amp;iv_load_policy=3&amp;modestbranding=1&amp;playsinline=1&amp;showinfo=0&amp;rel=0&amp;enablejsapi=1' */ html: `<div class="video-player" data-plyr-provider="youtube"></div>`,
+						/* 'https://www.youtube.com/embed/<%= remote_id %>?origin=https://plyr.io&amp;iv_load_policy=3&amp;modestbranding=1&amp;playsinline=1&amp;showinfo=0&amp;rel=0&amp;enablejsapi=1' */
+						html: `<div class="video-player" data-plyr-provider="youtube"></div>`,
 						id: ([id]) => id,
 					},
 					vimeo: {
 						regex: /(?:http[s]?:\/\/)?(?:www\.)?vimeo\.com\/(\d+)/,
-						embedUrl:
-							'https://player.vimeo.com/video/<%= remote_id %>',
-						html: `<iframe style="width:100%; height: ${
-							window.innerWidth < 640 ? '15rem' : '30rem'
-						};" frameborder="0" allowfullscreen></iframe>`,
+						embedUrl: '<%= remote_id %>',
+						html: `<div class="video-player" data-plyr-provider="vimeo"></div>`,
 						id: ([id]) => id,
 					},
 					codepen: true,

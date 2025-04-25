@@ -42,11 +42,15 @@
 					</Button>
 				</div>
 			</div>
-			<div v-else ref="lessonContainer" class="bg-surface-white">
+			<div
+				v-else
+				ref="lessonContainer"
+				class="bg-surface-white overflow-y-auto"
+			>
 				<div
 					class="border-r container pt-5 pb-10 px-5"
 					:class="{
-						'w-1/2 mx-auto border-none': zenModeEnabled,
+						'w-3/4 mx-auto border-none': zenModeEnabled,
 					}"
 				>
 					<div
@@ -125,7 +129,7 @@
 						</div>
 					</div>
 
-					<div class="flex items-center mt-2">
+					<div v-if="!zenModeEnabled" class="flex items-center mt-2">
 						<span
 							class="h-6 mr-1"
 							:class="{
@@ -142,6 +146,10 @@
 							:instructors="lesson.data.instructors"
 						/>
 					</div>
+					<div v-else class="text-sm mt-1 text-ink-gray-7">
+						{{ lesson.data.course_title }}
+					</div>
+
 					<div
 						v-if="
 							lesson.data.instructor_content &&
@@ -160,19 +168,19 @@
 					</div>
 					<div
 						v-else-if="lesson.data.instructor_notes"
-						class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-6"
+						class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-10"
 					>
 						<LessonContent :content="lesson.data.instructor_notes" />
 					</div>
 					<div
 						v-if="lesson.data.content"
-						class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-5"
+						class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-10"
 					>
 						<div id="editor"></div>
 					</div>
 					<div
 						v-else
-						class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-5"
+						class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-10"
 					>
 						<LessonContent
 							v-if="lesson.data?.body"
@@ -691,6 +699,10 @@ usePageMeta(() => {
 	border-left: 1px solid #e8e8eb;
 }
 
+.plyr__volume input[type='range'] {
+	display: none;
+}
+
 .plyr__control--overlaid {
 	background: radial-gradient(
 		circle,
@@ -699,11 +711,17 @@ usePageMeta(() => {
 	);
 }
 
+.plyr__control:hover {
+	background: none;
+}
+
+.plyr--video {
+	border: 1px solid theme('colors.gray.200');
+	border-radius: 8px;
+}
+
 :root {
-	--plyr-video-controls-background: radial-gradient(
-		circle,
-		rgba(0, 0, 0, 0.4) 0%,
-		rgba(0, 0, 0, 0.5) 50%
-	);
+	--plyr-range-fill-background: white;
+	--plyr-video-control-background-hover: transparent;
 }
 </style>
