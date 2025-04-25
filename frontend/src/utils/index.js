@@ -210,6 +210,14 @@ export function getEditorTools() {
 						html: `<div class="video-player" data-plyr-provider="vimeo"></div>`,
 						id: ([id]) => id,
 					},
+					cloudflareStream: {
+						regex: /https:\/\/customer-[a-z0-9]+\.cloudflarestream\.com\/([a-f0-9]{32})\/watch/,
+						embedUrl:
+							'https://iframe.videodelivery.net/<%= remote_id %>',
+						html: `<iframe style="width:100%; height: ${
+							window.innerWidth < 640 ? '15rem' : '30rem'
+						};" frameborder="0" allowfullscreen></iframe>`,
+					},
 					codepen: true,
 					aparat: {
 						regex: /(?:http[s]?:\/\/)?(?:www.)?aparat\.com\/v\/([^\/\?\&]+)\/?/,
