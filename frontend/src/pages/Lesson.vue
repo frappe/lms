@@ -45,21 +45,49 @@
 			<div
 				v-else
 				ref="lessonContainer"
-				class="bg-surface-white overflow-y-auto"
+				class="bg-surface-white"
+				:class="{
+					'overflow-y-auto': zenModeEnabled,
+				}"
 			>
 				<div
-					class="border-r container pt-5 pb-10 px-5"
+					class="border-r container pt-5 pb-10 px-5 h-full"
 					:class="{
-						'w-3/4 mx-auto border-none': zenModeEnabled,
+						'w-full md:w-3/4 mx-auto border-none !pt-10': zenModeEnabled,
 					}"
 				>
 					<div
 						class="flex flex-col md:flex-row md:items-center justify-between"
 					>
-						<div class="text-3xl font-semibold text-ink-gray-9">
-							{{ lesson.data.title }}
+						<div class="flex flex-col">
+							<div class="text-3xl font-semibold text-ink-gray-9">
+								{{ lesson.data.title }}
+							</div>
+
+							<div
+								v-if="zenModeEnabled"
+								class="relative flex items-center space-x-2 text-sm mt-1 text-ink-gray-7 group w-fit mt-2"
+							>
+								<span>
+									{{ lesson.data.chapter_title }} -
+									{{ lesson.data.course_title }}
+								</span>
+								<Info class="size-3" />
+								<div
+									class="hidden group-hover:block rounded bg-gray-900 px-2 py-1 text-xs text-white shadow-xl absolute left-0 top-full mt-2"
+								>
+									{{ Math.ceil(lesson.data.membership.progress) }}%
+									{{ __('completed') }}
+								</div>
+							</div>
 						</div>
-						<div class="flex items-center mt-2 md:mt-0">
+
+						<div class="flex items-center space-x-2 mt-2 md:mt-0">
+							<Button v-if="zenModeEnabled" @click="showDiscussionsInZenMode">
+								<template #icon>
+									<MessageCircleQuestion class="w-4 h-4 stroke-1.5" />
+								</template>
+							</Button>
 							<router-link
 								v-if="lesson.data.prev"
 								:to="{
@@ -71,7 +99,7 @@
 									},
 								}"
 							>
-								<Button class="mr-2">
+								<Button>
 									<template #prefix>
 										<ChevronLeft class="w-4 h-4 stroke-1" />
 									</template>
@@ -91,7 +119,7 @@
 									},
 								}"
 							>
-								<Button class="mr-2">
+								<Button>
 									{{ __('Edit') }}
 								</Button>
 							</router-link>
@@ -146,9 +174,6 @@
 							:instructors="lesson.data.instructors"
 						/>
 					</div>
-					<div v-else class="text-sm mt-1 text-ink-gray-7">
-						{{ lesson.data.chapter_title }} - {{ lesson.data.course_title }}
-					</div>
 
 					<div
 						v-if="
@@ -189,7 +214,7 @@
 							:quizId="lesson.data.quiz_id"
 						/>
 					</div>
-					<div class="mt-20">
+					<div class="mt-20" ref="discussionsContainer">
 						<Discussions
 							v-if="allowDiscussions"
 							:title="'Questions'"
@@ -234,7 +259,15 @@ import {
 	Tooltip,
 	usePageMeta,
 } from 'frappe-ui'
-import { computed, watch, inject, ref, onMounted, onBeforeUnmount } from 'vue'
+import {
+	computed,
+	watch,
+	inject,
+	ref,
+	onMounted,
+	onBeforeUnmount,
+	nextTick,
+} from 'vue'
 import CourseOutline from '@/components/CourseOutline.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { useRouter, useRoute } from 'vue-router'
@@ -244,6 +277,8 @@ import {
 	LockKeyholeIcon,
 	LogIn,
 	Focus,
+	Info,
+	MessageCircleQuestion,
 } from 'lucide-vue-next'
 import Discussions from '@/components/Discussions.vue'
 import { getEditorTools } from '../utils'
@@ -265,6 +300,8 @@ const instructorEditor = ref(null)
 const lessonProgress = ref(0)
 const lessonContainer = ref(null)
 const zenModeEnabled = ref(false)
+const hasQuiz = ref(false)
+const discussionsContainer = ref(null)
 const timer = ref(0)
 const { brand } = sessionStore()
 let timerInterval
@@ -293,8 +330,12 @@ onMounted(() => {
 const attachFullscreenEvent = () => {
 	if (document.fullscreenElement) {
 		zenModeEnabled.value = true
+		allowDiscussions.value = false
 	} else {
 		zenModeEnabled.value = false
+		if (!hasQuiz.value) {
+			allowDiscussions.value = true
+		}
 	}
 }
 
@@ -335,7 +376,6 @@ const enablePlyr = () => {
 
 const lesson = createResource({
 	url: 'lms.lms.utils.get_lesson',
-	cache: ['lesson', props.courseName, props.chapterNumber, props.lessonNumber],
 	makeParams(values) {
 		return {
 			course: props.courseName,
@@ -344,35 +384,36 @@ const lesson = createResource({
 		}
 	},
 	auto: true,
-	onSuccess(data) {
-		if (Object.keys(data).length === 0) {
-			router.push({
-				name: 'CourseDetail',
-				params: { courseName: props.courseName },
-			})
-			return
-		}
-		lessonProgress.value = data.membership?.progress
-		if (data.content) editor.value = renderEditor('editor', data.content)
-		if (
-			data.instructor_content &&
-			JSON.parse(data.instructor_content)?.blocks?.length > 1
-		)
-			instructorEditor.value = renderEditor(
-				'instructor-content',
-				data.instructor_content
-			)
-		editor.value?.isReady.then(() => {
-			checkIfDiscussionsAllowed()
-		})
-
-		if (!editor.value && data.body) {
-			const quizRegex = /\{\{ Quiz\(".*"\) \}\}/
-			const hasQuiz = quizRegex.test(data.body)
-			if (!hasQuiz) allowDiscussions.value = true
-		}
-	},
 })
+
+const setupLesson = (data) => {
+	if (Object.keys(data).length === 0) {
+		router.push({
+			name: 'CourseDetail',
+			params: { courseName: props.courseName },
+		})
+		return
+	}
+	lessonProgress.value = data.membership?.progress
+	if (data.content) editor.value = renderEditor('editor', data.content)
+	if (
+		data.instructor_content &&
+		JSON.parse(data.instructor_content)?.blocks?.length > 1
+	)
+		instructorEditor.value = renderEditor(
+			'instructor-content',
+			data.instructor_content
+		)
+	editor.value?.isReady.then(() => {
+		checkIfDiscussionsAllowed()
+	})
+
+	if (!editor.value && data.body) {
+		const quizRegex = /\{\{ Quiz\(".*"\) \}\}/
+		hasQuiz.value = quizRegex.test(data.body)
+		if (!hasQuiz.value) allowDiscussions.value = true
+	}
+}
 
 const renderEditor = (holder, content) => {
 	// empty the holder
@@ -448,6 +489,13 @@ watch(
 	}
 )
 
+watch(
+	() => lesson.data,
+	(data) => {
+		setupLesson(data)
+	}
+)
+
 const startTimer = () => {
 	timerInterval = setInterval(() => {
 		timer.value++
@@ -463,13 +511,13 @@ onBeforeUnmount(() => {
 })
 
 const checkIfDiscussionsAllowed = () => {
-	let quizPresent = false
 	JSON.parse(lesson.data?.content)?.blocks?.forEach((block) => {
-		if (block.type === 'quiz') quizPresent = true
+		if (block.type === 'quiz') hasQuiz.value = true
 	})
 
 	if (
-		!quizPresent &&
+		!hasQuiz.value &&
+		!zenModeEnabled.value &&
 		(lesson.data?.membership ||
 			user.data?.is_moderator ||
 			user.data?.is_instructor)
@@ -523,6 +571,25 @@ const goFullScreen = () => {
 	} else if (lessonContainer.value.msRequestFullscreen) {
 		lessonContainer.value.msRequestFullscreen()
 	}
+}
+
+const showDiscussionsInZenMode = () => {
+	if (allowDiscussions.value) {
+		allowDiscussions.value = false
+	} else {
+		allowDiscussions.value = true
+		scrollDiscussionsIntoView()
+	}
+}
+
+const scrollDiscussionsIntoView = () => {
+	nextTick(() => {
+		discussionsContainer.value?.scrollIntoView({
+			behavior: 'smooth',
+			block: 'center',
+			inline: 'nearest',
+		})
+	})
 }
 
 const redirectToLogin = () => {
