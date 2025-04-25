@@ -98,7 +98,7 @@
 										{{ __('Location') }}
 									</span>
 									<span class="text-sm font-semibold">
-										{{ job.data.location }}
+										{{ job.data.location }}, {{ job.data.country }}
 									</span>
 								</div>
 							</div>

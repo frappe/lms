@@ -281,6 +281,7 @@ def get_job_details(job):
 		[
 			"job_title",
 			"location",
+			"country",
 			"type",
 			"company_name",
 			"company_logo",
