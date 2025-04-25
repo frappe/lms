@@ -16,12 +16,12 @@
 			@click="playVideo"
 		>
 			<div
-				class="rounded-full p-5 pl-6"
+				class="rounded-full p-4 pl-4.5"
 				style="
 					background: radial-gradient(
 						circle,
-						rgba(0, 0, 0, 0.4) 0%,
-						rgba(0, 0, 0, 0.5) 50%
+						rgba(0, 0, 0, 0.3) 0%,
+						rgba(0, 0, 0, 0.4) 50%
 					);
 				"
 			>
