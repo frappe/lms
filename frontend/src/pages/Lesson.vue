@@ -5,7 +5,7 @@
 		>
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
 			<div class="flex items-center space-x-2">
-				<Tooltip :text="__('Zen Mode')">
+				<Tooltip v-if="lesson.data?.membership" :text="__('Zen Mode')">
 					<Button @click="goFullScreen()">
 						<template #icon>
 							<Focus class="w-4 h-4 stroke-2" />
@@ -147,7 +147,7 @@
 						/>
 					</div>
 					<div v-else class="text-sm mt-1 text-ink-gray-7">
-						{{ lesson.data.course_title }}
+						{{ lesson.data.chapter_title }} - {{ lesson.data.course_title }}
 					</div>
 
 					<div
@@ -168,19 +168,19 @@
 					</div>
 					<div
 						v-else-if="lesson.data.instructor_notes"
-						class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-10"
+						class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-8"
 					>
 						<LessonContent :content="lesson.data.instructor_notes" />
 					</div>
 					<div
 						v-if="lesson.data.content"
-						class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-10"
+						class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-8"
 					>
 						<div id="editor"></div>
 					</div>
 					<div
 						v-else
-						class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-10"
+						class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-8"
 					>
 						<LessonContent
 							v-if="lesson.data?.body"
