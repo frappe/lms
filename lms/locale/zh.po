@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-04-18 16:04+0000\n"
-"PO-Revision-Date: 2025-04-21 06:38\n"
+"PO-Revision-Date: 2025-04-24 08:07\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Chinese Simplified\n"
 "MIME-Version: 1.0\n"
@@ -465,7 +465,7 @@ msgstr "作业标题"
 
 #: frontend/src/components/Modals/AssignmentForm.vue:112
 msgid "Assignment created successfully"
-msgstr ""
+msgstr "作业创建成功"
 
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.py:24
 msgid "Assignment for Lesson {0} by {1} already exists."
@@ -473,7 +473,7 @@ msgstr "学员{1}的课时{0}作业已存在。"
 
 #: frontend/src/components/Modals/AssignmentForm.vue:129
 msgid "Assignment updated successfully"
-msgstr ""
+msgstr "作业更新成功"
 
 #. Description of the 'Question' (Small Text) field in DocType 'Course Lesson'
 #: lms/lms/doctype/course_lesson/course_lesson.json
@@ -831,7 +831,7 @@ msgstr "已认证"
 #: frontend/src/pages/CertifiedParticipants.vue:196
 #: frontend/src/pages/CertifiedParticipants.vue:203
 msgid "Certified Members"
-msgstr ""
+msgstr "认证成员"
 
 #. Label of the certified_participants (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json lms/www/lms.py:290
@@ -1458,7 +1458,7 @@ msgstr "新建试题"
 
 #: frontend/src/components/Modals/AssignmentForm.vue:7
 msgid "Create an Assignment"
-msgstr ""
+msgstr "创建作业"
 
 #: frontend/src/components/AppSidebar.vue:460
 msgid "Create your first batch"
@@ -1754,7 +1754,7 @@ msgstr "编辑"
 
 #: frontend/src/components/Modals/AssignmentForm.vue:8
 msgid "Edit Assignment"
-msgstr ""
+msgstr "编辑作业"
 
 #: frontend/src/components/CourseOutline.vue:52
 #: frontend/src/components/Modals/ChapterModal.vue:5
@@ -3584,11 +3584,11 @@ msgstr "无证书"
 
 #: frontend/src/pages/CertifiedParticipants.vue:110
 msgid "No certified members"
-msgstr ""
+msgstr "无认证成员"
 
 #: frontend/src/pages/CertifiedParticipants.vue:114
 msgid "No certified members found. Please check again later or get certified yourself."
-msgstr ""
+msgstr "未找到认证成员，请稍后再试或自行申请认证。"
 
 #: frontend/src/components/BatchCourses.vue:67
 msgid "No courses added"
@@ -4077,11 +4077,11 @@ msgstr "请输入答案"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:58
 msgid "Please install the Payments App to create a paid batch. Refer to the documentation for more details. {0}"
-msgstr ""
+msgstr "请安装支付应用以创建付费班级，详情请参阅文档{0}"
 
 #: lms/lms/doctype/lms_course/lms_course.py:55
 msgid "Please install the Payments App to create a paid course. Refer to the documentation for more details. {0}"
-msgstr ""
+msgstr "请安装支付应用以创建付费课程，详情请参阅文档{0}"
 
 #: frontend/src/pages/Billing.vue:254
 msgid "Please let us know where you heard about us from."
@@ -4184,7 +4184,7 @@ msgstr "发布于"
 
 #: frontend/src/components/AppSidebar.vue:92
 msgid "Powered by Learning"
-msgstr ""
+msgstr "技术支持：学习平台"
 
 #. Name of a DocType
 #: lms/lms/doctype/preferred_function/preferred_function.json
@@ -5135,7 +5135,7 @@ msgstr "提交列表"
 
 #: frontend/src/components/Modals/AssignmentForm.vue:30
 msgid "Submission Type"
-msgstr ""
+msgstr "提交类型"
 
 #: frontend/src/components/Assignment.vue:13
 #: frontend/src/components/Assignment.vue:16
@@ -6139,7 +6139,7 @@ msgstr "证书"
 
 #: frontend/src/pages/CertifiedParticipants.vue:21
 msgid "certified members"
-msgstr ""
+msgstr "认证成员"
 
 #: frontend/src/pages/Lesson.vue:178
 msgid "completed"

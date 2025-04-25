@@ -40,6 +40,7 @@ export default defineConfig({
 			'engine.io-client',
 			'tailwind.config.js',
 			'highlight.js',
+			'plyr',
 		],
 	},
 })
