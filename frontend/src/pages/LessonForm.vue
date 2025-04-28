@@ -662,8 +662,7 @@ usePageMeta(() => {
 }
 
 iframe {
-	border-top: 3px solid theme('colors.gray.700');
-	border-bottom: 3px solid theme('colors.gray.700');
+	border: none !important;
 }
 
 .tc-table {

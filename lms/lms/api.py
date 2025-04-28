@@ -240,6 +240,11 @@ def validate_billing_access(billing_type, name):
 			access = False
 			message = _("Batch is sold out.")
 
+		start_date = frappe.get_cached_value("LMS Batch", name, "start_date")
+		if start_date and date_diff(start_date, now()) < 0:
+			access = False
+			message = _("Batch has already started.")
+
 	elif access and billing_type == "certificate":
 		purchased_certificate = frappe.db.exists(
 			"LMS Enrollment",
