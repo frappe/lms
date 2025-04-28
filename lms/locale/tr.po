@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2025-04-18 16:04+0000\n"
-"PO-Revision-Date: 2025-04-21 06:38\n"
+"POT-Creation-Date: 2025-04-25 16:04+0000\n"
+"PO-Revision-Date: 2025-04-28 08:31\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Turkish\n"
 "MIME-Version: 1.0\n"
@@ -26,6 +26,22 @@ msgstr " Lütfen değerlendirin ve not verin."
 #, python-format
 msgid "% completed"
 msgstr "% tamamlandı"
+
+#: frontend/src/pages/PersonaForm.vue:17
+msgid "1. What best describes your role?"
+msgstr ""
+
+#: frontend/src/pages/PersonaForm.vue:29
+msgid "2. How many students are you planning to teach?"
+msgstr ""
+
+#: frontend/src/pages/PersonaForm.vue:42
+msgid "3. What is your main use case for Frappe Learning?"
+msgstr ""
+
+#: frontend/src/pages/PersonaForm.vue:55
+msgid "4. Are you currently using any Frappe products?"
+msgstr ""
 
 #. Paragraph text in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
@@ -124,7 +140,7 @@ msgstr "Ekle"
 msgid "Add Chapter"
 msgstr "Bölüm Ekle"
 
-#: frontend/src/components/CourseOutline.vue:136
+#: frontend/src/components/CourseOutline.vue:133
 msgid "Add Lesson"
 msgstr "Ders Ekle"
 
@@ -348,7 +364,7 @@ msgstr ""
 msgid "Appears when the batch URL is shared on any online platform"
 msgstr "Parti URL’si herhangi bir çevrimiçi platformda paylaşıldığında görünür."
 
-#: frontend/src/pages/JobDetail.vue:128
+#: frontend/src/pages/JobDetail.vue:134
 msgid "Applications Received"
 msgstr "Alınan Başvurular"
 
@@ -481,7 +497,7 @@ msgid "Assignment will appear at the bottom of the lesson."
 msgstr "Ödev dersin alt kısmında görünecektir."
 
 #: frontend/src/components/AppSidebar.vue:542
-#: frontend/src/pages/Assignments.vue:198 lms/www/lms.py:261
+#: frontend/src/pages/Assignments.vue:198 lms/www/lms.py:263
 msgid "Assignments"
 msgstr "Atamalar"
 
@@ -509,7 +525,7 @@ msgstr "Otomatik Atama"
 msgid "Auto Recording"
 msgstr "Otomatik Kayıt"
 
-#: frontend/src/components/CourseCard.vue:51
+#: frontend/src/components/CourseCard.vue:55
 #: frontend/src/pages/CourseDetail.vue:20
 msgid "Average Rating"
 msgstr "Ortalama Puan"
@@ -518,7 +534,7 @@ msgstr "Ortalama Puan"
 msgid "Average of Feedback Received"
 msgstr ""
 
-#: frontend/src/pages/Lesson.vue:97
+#: frontend/src/pages/Lesson.vue:154
 msgid "Back to Course"
 msgstr "Kursa geri dön"
 
@@ -638,7 +654,7 @@ msgstr ""
 msgid "Batch end date cannot be before the batch start date"
 msgstr ""
 
-#: lms/lms/api.py:240
+#: lms/lms/api.py:241
 msgid "Batch is sold out."
 msgstr ""
 
@@ -648,7 +664,7 @@ msgstr "Parti:"
 
 #. Label of the batches (Check) field in DocType 'LMS Settings'
 #: frontend/src/pages/Batches.vue:304 frontend/src/pages/Batches.vue:311
-#: lms/lms/doctype/lms_settings/lms_settings.json lms/www/lms.py:110
+#: lms/lms/doctype/lms_settings/lms_settings.json lms/www/lms.py:112
 msgid "Batches"
 msgstr "Sınıflar"
 
@@ -749,7 +765,7 @@ msgstr "Günlük Giyim"
 #: frontend/src/pages/BatchForm.vue:198 frontend/src/pages/Batches.vue:55
 #: frontend/src/pages/CertifiedParticipants.vue:38
 #: frontend/src/pages/CourseForm.vue:144 frontend/src/pages/Courses.vue:51
-#: frontend/src/pages/JobDetail.vue:103
+#: frontend/src/pages/JobDetail.vue:109
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_category/lms_category.json
 #: lms/lms/doctype/lms_course/lms_course.json
@@ -801,7 +817,7 @@ msgstr ""
 #. Label of a Card Break in the LMS Workspace
 #. Label of a Link in the LMS Workspace
 #: frontend/src/components/AppSidebar.vue:546
-#: frontend/src/components/CourseCard.vue:111
+#: frontend/src/components/CourseCard.vue:115
 #: frontend/src/components/Modals/Event.vue:371
 #: frontend/src/pages/BatchForm.vue:48 frontend/src/pages/Batches.vue:38
 #: frontend/src/pages/CourseCertification.vue:10
@@ -834,7 +850,7 @@ msgid "Certified Members"
 msgstr ""
 
 #. Label of the certified_participants (Check) field in DocType 'LMS Settings'
-#: lms/lms/doctype/lms_settings/lms_settings.json lms/www/lms.py:290
+#: lms/lms/doctype/lms_settings/lms_settings.json lms/www/lms.py:292
 msgid "Certified Participants"
 msgstr "Sertifikalı Katılımcılar"
 
@@ -909,7 +925,10 @@ msgid "Choose one answer"
 msgstr "Bir cevap seçin"
 
 #. Label of the city (Data) field in DocType 'User'
-#: frontend/src/pages/Billing.vue:81 lms/fixtures/custom_field.json
+#. Label of the location (Data) field in DocType 'Job Opportunity'
+#: frontend/src/pages/Billing.vue:81 frontend/src/pages/JobForm.vue:25
+#: lms/fixtures/custom_field.json
+#: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "City"
 msgstr "Şehir"
 
@@ -1008,10 +1027,6 @@ msgstr ""
 msgid "Collapse"
 msgstr "Daralt"
 
-#: frontend/src/components/CourseOutline.vue:21
-msgid "Collapse all chapters"
-msgstr ""
-
 #. Label of the college (Data) field in DocType 'User'
 #: lms/fixtures/custom_field.json
 msgid "College Name"
@@ -1040,6 +1055,12 @@ msgstr "Yorumlar"
 msgid "Comments by Evaluator"
 msgstr ""
 
+#. Description of the 'Meta Keywords' (Small Text) field in DocType 'LMS
+#. Settings'
+#: lms/lms/doctype/lms_settings/lms_settings.json
+msgid "Common keywords that will be used for all pages"
+msgstr ""
+
 #. Label of the company (Data) field in DocType 'LMS Job Application'
 #. Label of the company (Data) field in DocType 'Work Experience'
 #: lms/job/doctype/lms_job_application/lms_job_application.json
@@ -1047,27 +1068,27 @@ msgstr ""
 msgid "Company"
 msgstr "Şirket"
 
-#. Label of the company_details_section (Section Break) field in DocType 'Job
+#. Label of the section_break_6 (Section Break) field in DocType 'Job
 #. Opportunity'
-#: frontend/src/pages/JobCreation.vue:64
+#: frontend/src/pages/JobForm.vue:56
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Company Details"
 msgstr "Şirket Detayları"
 
 #. Label of the company_email_address (Data) field in DocType 'Job Opportunity'
-#: frontend/src/pages/JobCreation.vue:83
+#: frontend/src/pages/JobForm.vue:75
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Company Email Address"
 msgstr "Şirket E-posta Adresi"
 
 #. Label of the company_logo (Attach Image) field in DocType 'Job Opportunity'
-#: frontend/src/pages/JobCreation.vue:88
+#: frontend/src/pages/JobForm.vue:80
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Company Logo"
 msgstr "Şirket Logosu"
 
 #. Label of the company_name (Data) field in DocType 'Job Opportunity'
-#: frontend/src/pages/JobCreation.vue:70
+#: frontend/src/pages/JobForm.vue:62
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Company Name"
 msgstr "Şirket Adı"
@@ -1078,7 +1099,7 @@ msgid "Company Type"
 msgstr "Şirket Türü"
 
 #. Label of the company_website (Data) field in DocType 'Job Opportunity'
-#: frontend/src/pages/JobCreation.vue:76
+#: frontend/src/pages/JobForm.vue:68
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Company Website"
 msgstr "Şirket Web Sitesi"
@@ -1179,12 +1200,12 @@ msgid "Continue Learning"
 msgstr "Öğrenmeye Devam Et"
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
-#: frontend/src/pages/Jobs.vue:163
+#: frontend/src/pages/Jobs.vue:197
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Contract"
 msgstr "Sözleşme"
 
-#: lms/lms/utils.py:436
+#: lms/lms/utils.py:437
 msgid "Cookie Policy"
 msgstr "Çerez Politikası"
 
@@ -1211,8 +1232,11 @@ msgid "Correct Answer"
 msgstr "Doğru Cevap"
 
 #. Label of the country (Link) field in DocType 'User'
+#. Label of the country (Link) field in DocType 'Job Opportunity'
 #. Label of the country (Link) field in DocType 'Payment Country'
-#: frontend/src/pages/Billing.vue:92 lms/fixtures/custom_field.json
+#: frontend/src/pages/Billing.vue:92 frontend/src/pages/JobForm.vue:31
+#: frontend/src/pages/Jobs.vue:55 lms/fixtures/custom_field.json
+#: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/lms/doctype/payment_country/payment_country.json
 msgid "Country"
 msgstr "Ülke"
@@ -1331,7 +1355,7 @@ msgstr "Kurs Eğitmeni"
 msgid "Course Lesson"
 msgstr "Kurs Dersi"
 
-#: lms/www/lms.py:75
+#: lms/www/lms.py:77
 msgid "Course List"
 msgstr "Kurs Listesi"
 
@@ -1396,13 +1420,13 @@ msgstr "Kurs {0} bu gruba zaten eklenmiştir."
 #. Label of the show_courses (Check) field in DocType 'LMS Settings'
 #. Label of the courses (Check) field in DocType 'LMS Settings'
 #: frontend/src/components/BatchCourses.vue:5
-#: frontend/src/components/BatchOverlay.vue:29
+#: frontend/src/components/BatchOverlay.vue:32
 #: frontend/src/components/BatchStudents.vue:52
 #: frontend/src/components/BatchStudents.vue:92
 #: frontend/src/components/Modals/BatchStudentProgress.vue:79
-#: frontend/src/pages/BatchDetail.vue:21 frontend/src/pages/BatchDetail.vue:70
+#: frontend/src/pages/BatchDetail.vue:24 frontend/src/pages/BatchDetail.vue:73
 #: frontend/src/pages/CourseCertification.vue:127
-#: frontend/src/pages/Courses.vue:304 frontend/src/pages/Courses.vue:311
+#: frontend/src/pages/Courses.vue:336 frontend/src/pages/Courses.vue:343
 #: frontend/src/pages/Statistics.vue:21
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -1472,7 +1496,7 @@ msgstr ""
 msgid "Create your first quiz"
 msgstr ""
 
-#: frontend/src/pages/Assignments.vue:171 frontend/src/pages/Courses.vue:295
+#: frontend/src/pages/Assignments.vue:171 frontend/src/pages/Courses.vue:327
 msgid "Created"
 msgstr "Oluşturdu"
 
@@ -1590,13 +1614,13 @@ msgstr "Varsayılan Para Birimi"
 msgid "Degree Type"
 msgstr "Derece Türü"
 
-#: frontend/src/components/CourseOutline.vue:248
-#: frontend/src/components/CourseOutline.vue:306
+#: frontend/src/components/CourseOutline.vue:245
+#: frontend/src/components/CourseOutline.vue:303
 #: frontend/src/pages/CourseForm.vue:483
 msgid "Delete"
 msgstr "Sil"
 
-#: frontend/src/components/CourseOutline.vue:59
+#: frontend/src/components/CourseOutline.vue:56
 msgid "Delete Chapter"
 msgstr "Bölümü Sil"
 
@@ -1604,11 +1628,11 @@ msgstr "Bölümü Sil"
 msgid "Delete Course"
 msgstr "Kursu Sil"
 
-#: frontend/src/components/CourseOutline.vue:300
+#: frontend/src/components/CourseOutline.vue:297
 msgid "Delete this chapter?"
 msgstr "Bu bölümü silmek istiyor musunuz?"
 
-#: frontend/src/components/CourseOutline.vue:242
+#: frontend/src/components/CourseOutline.vue:239
 msgid "Delete this lesson?"
 msgstr "Bu dersi silmek istiyor musunuz?"
 
@@ -1616,11 +1640,11 @@ msgstr "Bu dersi silmek istiyor musunuz?"
 msgid "Deleting the course will also delete all its chapters and lessons. Are you sure you want to delete this course?"
 msgstr "Kursu silmek, tüm bölümlerini ve derslerini de silecektir. Bu kursu silmek istediğinizden emin misiniz?"
 
-#: frontend/src/components/CourseOutline.vue:301
+#: frontend/src/components/CourseOutline.vue:298
 msgid "Deleting this chapter will also delete all its lessons and permanently remove it from the course. This action cannot be undone. Are you sure you want to continue?"
 msgstr "Bu bölümü silmek, tüm derslerini de silecek ve onu kurstan kalıcı olarak kaldıracaktır. Bu eylem geri alınamaz. Devam etmek istediğinizden emin misiniz?"
 
-#: frontend/src/components/CourseOutline.vue:243
+#: frontend/src/components/CourseOutline.vue:240
 msgid "Deleting this lesson will permanently remove it from the course. This action cannot be undone. Are you sure you want to continue?"
 msgstr "Bu dersi silmek onu kurstan kalıcı olarak kaldıracaktır. Bu eylem geri alınamaz. Devam etmek istediğinizden emin misiniz?"
 
@@ -1637,7 +1661,7 @@ msgstr "Bu dersi silmek onu kurstan kalıcı olarak kaldıracaktır. Bu eylem ge
 #. Label of the description (Text) field in DocType 'LMS Live Class'
 #. Label of the description (Small Text) field in DocType 'Work Experience'
 #: frontend/src/components/Modals/LiveClassModal.vue:84
-#: frontend/src/pages/BatchForm.vue:238 frontend/src/pages/JobCreation.vue:50
+#: frontend/src/pages/BatchForm.vue:238 frontend/src/pages/JobForm.vue:125
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/lms/doctype/certification/certification.json
 #: lms/lms/doctype/cohort/cohort.json
@@ -1744,10 +1768,10 @@ msgstr "E-posta"
 msgid "E-mail"
 msgstr "E-Posta"
 
-#: frontend/src/components/BatchOverlay.vue:107
+#: frontend/src/components/BatchOverlay.vue:110
 #: frontend/src/components/CourseCardOverlay.vue:88
 #: frontend/src/components/Modals/ChapterModal.vue:9
-#: frontend/src/pages/JobDetail.vue:31 frontend/src/pages/Lesson.vue:66
+#: frontend/src/pages/JobDetail.vue:31 frontend/src/pages/Lesson.vue:123
 #: frontend/src/pages/Profile.vue:32 frontend/src/pages/Programs.vue:53
 msgid "Edit"
 msgstr "Düzenle"
@@ -1756,7 +1780,7 @@ msgstr "Düzenle"
 msgid "Edit Assignment"
 msgstr ""
 
-#: frontend/src/components/CourseOutline.vue:52
+#: frontend/src/components/CourseOutline.vue:49
 #: frontend/src/components/Modals/ChapterModal.vue:5
 msgid "Edit Chapter"
 msgstr "Bölümü Düzenle"
@@ -1877,15 +1901,15 @@ msgstr "Bitiş Tarihi (veya beklenen)"
 msgid "End Time"
 msgstr "Bitiş Zamanı"
 
-#: frontend/src/components/BatchOverlay.vue:94
+#: frontend/src/components/BatchOverlay.vue:97
 msgid "Enroll Now"
 msgstr "Hemen Kaydol"
 
-#: frontend/src/pages/Batches.vue:297 frontend/src/pages/Courses.vue:297
+#: frontend/src/pages/Batches.vue:297 frontend/src/pages/Courses.vue:329
 msgid "Enrolled"
 msgstr "Kayıtlı"
 
-#: frontend/src/components/CourseCard.vue:42
+#: frontend/src/components/CourseCard.vue:46
 #: frontend/src/components/CourseCardOverlay.vue:106
 #: frontend/src/pages/CourseDetail.vue:33
 msgid "Enrolled Students"
@@ -1904,7 +1928,7 @@ msgstr ""
 msgid "Enrollment Count"
 msgstr "Kayıt Sayısı"
 
-#: lms/lms/utils.py:1903
+#: lms/lms/utils.py:1907
 msgid "Enrollment Failed"
 msgstr "Kayıt Başarısız"
 
@@ -1943,7 +1967,7 @@ msgstr "Doğru cevabı girin"
 #: frontend/src/components/Modals/Question.vue:332
 #: frontend/src/components/Modals/StudentModal.vue:73
 #: frontend/src/components/Quiz.vue:592
-#: frontend/src/components/SettingDetails.vue:62
+#: frontend/src/components/SettingDetails.vue:64
 #: frontend/src/pages/Billing.vue:262 frontend/src/pages/QuizForm.vue:349
 #: frontend/src/pages/QuizForm.vue:364
 #: frontend/src/pages/QuizSubmission.vue:150
@@ -2071,10 +2095,6 @@ msgstr "Alıştırma Başlığı"
 msgid "Expand"
 msgstr "Genişlet"
 
-#: frontend/src/components/CourseOutline.vue:21
-msgid "Expand all chapters"
-msgstr ""
-
 #. Label of the expiration_date (Data) field in DocType 'Certification'
 #: lms/lms/doctype/certification/certification.json
 msgid "Expiration Date"
@@ -2116,7 +2136,7 @@ msgid "Fail"
 msgstr "Başarısız"
 
 #. Label of the featured (Check) field in DocType 'LMS Course'
-#: frontend/src/components/CourseCard.vue:16
+#: frontend/src/components/CourseCard.vue:20
 #: frontend/src/pages/CourseForm.vue:186
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Featured"
@@ -2147,10 +2167,6 @@ msgstr ""
 msgid "File Type"
 msgstr "Dosya Türü"
 
-#: frontend/src/pages/Jobs.vue:33
-msgid "Find the perfect job for you"
-msgstr ""
-
 #: frontend/src/components/Members.vue:38
 #: frontend/src/components/Modals/EditProfile.vue:59
 msgid "First Name"
@@ -2176,7 +2192,7 @@ msgid "Free"
 msgstr "Serbest"
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
-#: frontend/src/pages/Jobs.vue:164
+#: frontend/src/pages/Jobs.vue:198
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Freelance"
 msgstr "Serbest çalışan"
@@ -2220,7 +2236,7 @@ msgid "Full Name"
 msgstr "Tam Adı"
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
-#: frontend/src/pages/Jobs.vue:161
+#: frontend/src/pages/Jobs.vue:195
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Full Time"
 msgstr "Tam Zamanlı"
@@ -2410,7 +2426,7 @@ msgstr "Simge"
 
 #. Label of the user_category (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
-msgid "Identify User Persona"
+msgid "Identify User Category"
 msgstr ""
 
 #: frontend/src/components/LessonHelp.vue:11
@@ -2550,7 +2566,7 @@ msgstr "Eğitmen İçeriği"
 
 #. Label of the instructor_notes (Markdown Editor) field in DocType 'Course
 #. Lesson'
-#: frontend/src/pages/Lesson.vue:129 frontend/src/pages/LessonForm.vue:42
+#: frontend/src/pages/Lesson.vue:187 frontend/src/pages/LessonForm.vue:42
 #: lms/lms/doctype/course_lesson/course_lesson.json
 msgid "Instructor Notes"
 msgstr "Eğitmen Notları"
@@ -2690,11 +2706,11 @@ msgstr "İş İlanları Alt Başlığı"
 msgid "Job Board Title"
 msgstr "İş İlanı Başlığı"
 
-#: frontend/src/pages/JobCreation.vue:14
+#: frontend/src/pages/JobForm.vue:14
 msgid "Job Details"
 msgstr "İş Detayları"
 
-#: lms/www/lms.py:164
+#: lms/www/lms.py:166
 msgid "Job Openings"
 msgstr "İş Alımları"
 
@@ -2717,7 +2733,7 @@ msgstr "İş İlanı Başlığı"
 
 #. Label of the jobs (Check) field in DocType 'LMS Settings'
 #: frontend/src/pages/JobDetail.vue:10 frontend/src/pages/Jobs.vue:8
-#: frontend/src/pages/Jobs.vue:170
+#: frontend/src/pages/Jobs.vue:204
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Jobs"
 msgstr "İşler"
@@ -3026,7 +3042,7 @@ msgstr "Ders Başlığı"
 #. Label of the lessons (Table) field in DocType 'Course Chapter'
 #. Group in Course Chapter's connections
 #. Label of the lessons (Int) field in DocType 'LMS Course'
-#: frontend/src/components/CourseCard.vue:33
+#: frontend/src/components/CourseCard.vue:37
 #: frontend/src/components/CourseCardOverlay.vue:99
 #: lms/lms/doctype/course_chapter/course_chapter.json
 #: lms/lms/doctype/lms_course/lms_course.json
@@ -3073,7 +3089,7 @@ msgid "Links"
 msgstr "Bağlantılar"
 
 #. Option for the 'Status' (Select) field in DocType 'Cohort'
-#: frontend/src/pages/Courses.vue:281 lms/lms/doctype/cohort/cohort.json
+#: frontend/src/pages/Courses.vue:313 lms/lms/doctype/cohort/cohort.json
 msgid "Live"
 msgstr "Canlı"
 
@@ -3102,11 +3118,9 @@ msgstr "Daha Fazla Yükle"
 msgid "Local"
 msgstr "Yerel"
 
-#. Label of the location (Data) field in DocType 'Job Opportunity'
 #. Label of the location (Data) field in DocType 'Education Detail'
 #. Label of the location (Data) field in DocType 'Work Experience'
-#: frontend/src/pages/JobCreation.vue:26 frontend/src/pages/JobDetail.vue:92
-#: lms/job/doctype/job_opportunity/job_opportunity.json
+#: frontend/src/pages/JobDetail.vue:98
 #: lms/lms/doctype/education_detail/education_detail.json
 #: lms/lms/doctype/work_experience/work_experience.json
 msgid "Location"
@@ -3119,7 +3133,7 @@ msgstr "Konum Tercihi"
 
 #: frontend/src/components/NoPermission.vue:28
 #: frontend/src/components/QuizBlock.vue:9 frontend/src/pages/Batch.vue:188
-#: frontend/src/pages/Lesson.vue:25
+#: frontend/src/pages/Lesson.vue:41
 msgid "Login"
 msgstr "Giriş"
 
@@ -3127,7 +3141,7 @@ msgstr "Giriş"
 msgid "Login to Frappe Cloud?"
 msgstr "Frappe Cloud'a Giriş Yapın?"
 
-#: frontend/src/pages/JobDetail.vue:54
+#: frontend/src/pages/JobDetail.vue:60
 msgid "Login to apply"
 msgstr "Başvurmak için giriş yapın"
 
@@ -3149,7 +3163,7 @@ msgstr "Bir Duyuru Yapın"
 msgid "Make sure to enter the correct billing name as the same will be used in your invoice."
 msgstr ""
 
-#: frontend/src/components/BatchOverlay.vue:60
+#: frontend/src/components/BatchOverlay.vue:63
 msgid "Manage Batch"
 msgstr ""
 
@@ -3323,7 +3337,9 @@ msgid "Member Type"
 msgstr "Üye Türü"
 
 #. Label of the member_username (Data) field in DocType 'LMS Batch Enrollment'
+#. Label of the member_username (Data) field in DocType 'LMS Enrollment'
 #: lms/lms/doctype/lms_batch_enrollment/lms_batch_enrollment.json
+#: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 msgid "Member Username"
 msgstr ""
 
@@ -3348,11 +3364,6 @@ msgstr "Üyeler"
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 msgid "Membership"
 msgstr "Üyelik"
-
-#. Label of the member_username (Data) field in DocType 'LMS Enrollment'
-#: lms/lms/doctype/lms_enrollment/lms_enrollment.json
-msgid "Memeber Username"
-msgstr "Üye Kullanıcı Adı"
 
 #. Option for the 'Required Role' (Select) field in DocType 'Cohort Web Page'
 #. Label of the mentor (Link) field in DocType 'LMS Course Mentor Mapping'
@@ -3397,9 +3408,16 @@ msgid "Meta Description"
 msgstr "Meta Açıklaması"
 
 #. Label of the meta_image (Attach Image) field in DocType 'LMS Batch'
+#. Label of the meta_image (Attach Image) field in DocType 'LMS Settings'
 #: frontend/src/pages/BatchForm.vue:54 lms/lms/doctype/lms_batch/lms_batch.json
+#: lms/lms/doctype/lms_settings/lms_settings.json
 #: lms/public/js/common_functions.js:362
 msgid "Meta Image"
+msgstr ""
+
+#. Label of the meta_keywords (Small Text) field in DocType 'LMS Settings'
+#: lms/lms/doctype/lms_settings/lms_settings.json
+msgid "Meta Keywords"
 msgstr ""
 
 #. Label of the milestone (Check) field in DocType 'LMS Batch Timetable'
@@ -3440,11 +3458,11 @@ msgstr "Moderatör"
 msgid "Modified By"
 msgstr "Değiştiren"
 
-#: lms/lms/api.py:218
+#: lms/lms/api.py:219
 msgid "Module Name is incorrect or does not exist."
 msgstr "Modül Adı yanlış veya mevcut değil."
 
-#: lms/lms/api.py:214
+#: lms/lms/api.py:215
 msgid "Module is incorrect."
 msgstr "Modül hatalı."
 
@@ -3478,16 +3496,16 @@ msgstr "Takvimim"
 
 #. Option for the 'Event' (Select) field in DocType 'LMS Badge'
 #: frontend/src/pages/Assignments.vue:18 frontend/src/pages/Batches.vue:17
-#: frontend/src/pages/Courses.vue:17 frontend/src/pages/Courses.vue:284
+#: frontend/src/pages/Courses.vue:17 frontend/src/pages/Courses.vue:316
 #: frontend/src/pages/Programs.vue:14 lms/lms/doctype/lms_badge/lms_badge.json
 msgid "New"
 msgstr "Yeni"
 
-#: lms/public/js/common_functions.js:255 lms/www/lms.py:139
+#: lms/public/js/common_functions.js:255 lms/www/lms.py:141
 msgid "New Batch"
 msgstr "Yeni Parti"
 
-#: frontend/src/pages/CourseForm.vue:577 lms/www/lms.py:83
+#: frontend/src/pages/CourseForm.vue:577 lms/www/lms.py:85
 msgid "New Course"
 msgstr "Yeni Kurs"
 
@@ -3524,11 +3542,11 @@ msgstr "Yeni Test"
 msgid "New Sign Up"
 msgstr "Yeni Kayıt"
 
-#: lms/lms/utils.py:604
+#: lms/lms/utils.py:605
 msgid "New comment in batch {0}"
 msgstr "Toplu işlerde yeni yorum {0}"
 
-#: lms/lms/utils.py:597
+#: lms/lms/utils.py:598
 msgid "New reply on the topic {0} in course {1}"
 msgstr "{1} dersinde {0} konusuna yeni yanıt"
 
@@ -3537,7 +3555,7 @@ msgstr "{1} dersinde {0} konusuna yeni yanıt"
 msgid "New {0}"
 msgstr "Yeni {0}"
 
-#: frontend/src/components/Quiz.vue:213 frontend/src/pages/Lesson.vue:85
+#: frontend/src/components/Quiz.vue:213 frontend/src/pages/Lesson.vue:142
 msgid "Next"
 msgstr "Sonraki"
 
@@ -3618,7 +3636,7 @@ msgstr ""
 msgid "No introduction"
 msgstr "Tanıtım yok"
 
-#: frontend/src/pages/Jobs.vue:80
+#: frontend/src/pages/Jobs.vue:88
 msgid "No jobs found"
 msgstr ""
 
@@ -3744,7 +3762,7 @@ msgstr ""
 msgid "Only files of type {0} will be accepted."
 msgstr "Sadece {0} türündeki dosyalar kabul edilecektir."
 
-#: frontend/src/pages/CourseForm.vue:507 frontend/src/utils/index.js:550
+#: frontend/src/pages/CourseForm.vue:507 frontend/src/utils/index.js:522
 msgid "Only image file is allowed."
 msgstr "Sadece resim dosyasına izin verilir."
 
@@ -3806,7 +3824,7 @@ msgstr "Seçenek 4"
 msgid "Order ID"
 msgstr "Sipariş No"
 
-#: frontend/src/pages/JobDetail.vue:81
+#: frontend/src/pages/JobDetail.vue:87
 msgid "Organisation"
 msgstr ""
 
@@ -3875,7 +3893,7 @@ msgid "Pan Number"
 msgstr ""
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
-#: frontend/src/pages/Jobs.vue:162
+#: frontend/src/pages/Jobs.vue:196
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Part Time"
 msgstr "Yarı Zamanlı"
@@ -4014,6 +4032,11 @@ msgstr "Yüzde (örn. %70)"
 msgid "Percentage/Status"
 msgstr ""
 
+#. Label of the persona_captured (Check) field in DocType 'LMS Settings'
+#: lms/lms/doctype/lms_settings/lms_settings.json
+msgid "Persona Captured"
+msgstr ""
+
 #: frontend/src/pages/Billing.vue:99
 msgid "Phone Number"
 msgstr "Telefon Numarası"
@@ -4038,7 +4061,7 @@ msgstr "Doğrulama için lütfen e-postanızı kontrol edin"
 msgid "Please click on the following button to set your new password"
 msgstr "Yeni şifrenizi belirlemek için lütfen aşağıdaki linke tıklayınız"
 
-#: lms/lms/utils.py:2037 lms/lms/utils.py:2041
+#: lms/lms/utils.py:2041 lms/lms/utils.py:2045
 msgid "Please complete the previous courses in the program to enroll in this course."
 msgstr ""
 
@@ -4046,7 +4069,7 @@ msgstr ""
 msgid "Please enable Zoom Settings to use this feature."
 msgstr "Bu özelliği kullanmak için lütfen Zoom Ayarlarını etkinleştirin."
 
-#: frontend/src/components/CourseOutline.vue:325
+#: frontend/src/components/CourseOutline.vue:322
 msgid "Please enroll for this course to view this lesson"
 msgstr ""
 
@@ -4095,7 +4118,7 @@ msgstr "Teste erişmek için lütfen giriş yapın."
 msgid "Please login to access this page."
 msgstr "Bu sayfaya erişebilmek için lütfen giriş yapın."
 
-#: lms/lms/api.py:210
+#: lms/lms/api.py:211
 msgid "Please login to continue with payment."
 msgstr "Ödeme işlemine devam etmek için lütfen giriş yapın."
 
@@ -4174,11 +4197,15 @@ msgstr "Olası Cevap 4"
 msgid "Post"
 msgstr "Gönder"
 
+#: frontend/src/pages/Jobs.vue:94
+msgid "Post a new job or check again later."
+msgstr ""
+
 #: frontend/src/pages/Billing.vue:95
 msgid "Postal Code"
 msgstr "Posta Kodu"
 
-#: frontend/src/pages/JobDetail.vue:114
+#: frontend/src/pages/JobDetail.vue:120
 msgid "Posted on"
 msgstr "Yayınlama Tarihi"
 
@@ -4221,7 +4248,7 @@ msgstr "Resim Önizleme"
 msgid "Preview Video"
 msgstr "Video Önzileme"
 
-#: frontend/src/pages/Lesson.vue:50
+#: frontend/src/pages/Lesson.vue:107
 msgid "Previous"
 msgstr "Önceki"
 
@@ -4248,7 +4275,7 @@ msgstr ""
 msgid "Primary Subgroup"
 msgstr "Birincil Alt Grup"
 
-#: lms/lms/utils.py:435
+#: lms/lms/utils.py:436
 msgid "Privacy Policy"
 msgstr ""
 
@@ -4296,7 +4323,7 @@ msgstr ""
 msgid "Program Members"
 msgstr ""
 
-#: frontend/src/pages/Programs.vue:219 lms/www/lms.py:283
+#: frontend/src/pages/Programs.vue:219 lms/www/lms.py:285
 msgid "Programs"
 msgstr ""
 
@@ -4464,7 +4491,7 @@ msgstr ""
 
 #: frontend/src/components/AppSidebar.vue:541
 #: frontend/src/pages/QuizForm.vue:441 frontend/src/pages/Quizzes.vue:140
-#: frontend/src/pages/Quizzes.vue:150 lms/www/lms.py:239
+#: frontend/src/pages/Quizzes.vue:150 lms/www/lms.py:241
 msgid "Quizzes"
 msgstr "Sınavlar"
 
@@ -4513,7 +4540,7 @@ msgstr "Referans Belge Türü"
 msgid "Regards"
 msgstr "Saygılarımla"
 
-#: frontend/src/components/BatchOverlay.vue:80
+#: frontend/src/components/BatchOverlay.vue:83
 msgid "Register Now"
 msgstr "Şimdi Kaydol"
 
@@ -4679,7 +4706,7 @@ msgstr "Cumartesi"
 #: frontend/src/components/Modals/Event.vue:101
 #: frontend/src/components/Modals/Event.vue:129
 #: frontend/src/pages/BatchForm.vue:8 frontend/src/pages/CourseForm.vue:17
-#: frontend/src/pages/JobCreation.vue:8 frontend/src/pages/LessonForm.vue:14
+#: frontend/src/pages/JobForm.vue:8 frontend/src/pages/LessonForm.vue:14
 #: frontend/src/pages/ProgramForm.vue:7 frontend/src/pages/QuizForm.vue:34
 #: frontend/src/pages/QuizSubmission.vue:14
 #: lms/public/js/common_functions.js:405
@@ -4720,7 +4747,7 @@ msgid "Score Out Of"
 msgstr ""
 
 #: frontend/src/components/Evaluators.vue:15
-#: frontend/src/components/Members.vue:15 frontend/src/pages/Jobs.vue:38
+#: frontend/src/components/Members.vue:15 frontend/src/pages/Jobs.vue:40
 msgid "Search"
 msgstr "Arama"
 
@@ -4923,7 +4950,7 @@ msgstr "Yetkinlik İsmi"
 msgid "Skills"
 msgstr "Yetkinlikler"
 
-#: lms/templates/onboarding_header.html:6
+#: frontend/src/pages/PersonaForm.vue:75 lms/templates/onboarding_header.html:6
 msgid "Skip"
 msgstr "Geç"
 
@@ -4994,7 +5021,7 @@ msgid "Start Date:"
 msgstr "Başlangıç Tarihi:"
 
 #: frontend/src/components/CourseCardOverlay.vue:65
-#: frontend/src/pages/Lesson.vue:22 frontend/src/pages/SCORMChapter.vue:28
+#: frontend/src/pages/Lesson.vue:35 frontend/src/pages/SCORMChapter.vue:28
 #: lms/templates/emails/lms_course_interest.html:9
 msgid "Start Learning"
 msgstr "Öğrenmeye Başlayın"
@@ -5042,7 +5069,7 @@ msgstr "Durum"
 #: frontend/src/components/BatchStudents.vue:5
 #: frontend/src/pages/Statistics.vue:322
 #: lms/lms/doctype/lms_course/lms_course.json
-#: lms/lms/doctype/lms_settings/lms_settings.json lms/www/lms.py:192
+#: lms/lms/doctype/lms_settings/lms_settings.json lms/www/lms.py:194
 msgid "Statistics"
 msgstr "İstatistik"
 
@@ -5061,7 +5088,7 @@ msgstr "İstatistik"
 #. Label of the status (Select) field in DocType 'LMS Mentor Request'
 #: frontend/src/components/Modals/Event.vue:91
 #: frontend/src/pages/AssignmentSubmissionList.vue:19
-#: frontend/src/pages/JobCreation.vue:41
+#: frontend/src/pages/JobForm.vue:46
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/lms/doctype/cohort/cohort.json
 #: lms/lms/doctype/cohort_join_request/cohort_join_request.json
@@ -5154,6 +5181,10 @@ msgstr ""
 msgid "Submit"
 msgstr "Gönder"
 
+#: frontend/src/pages/PersonaForm.vue:67
+msgid "Submit and Continue"
+msgstr ""
+
 #: frontend/src/components/Modals/JobApplicationModal.vue:23
 msgid "Submit your resume to proceed with your application for this position. Upon submission, it will be shared with the job poster."
 msgstr ""
@@ -5165,7 +5196,7 @@ msgstr "Kaydedildi {0}"
 
 #: frontend/src/components/Assignment.vue:341
 #: frontend/src/components/BatchCourses.vue:154
-#: frontend/src/components/BatchOverlay.vue:150
+#: frontend/src/components/BatchOverlay.vue:153
 #: frontend/src/components/BatchStudents.vue:325
 #: frontend/src/components/CourseCardOverlay.vue:189
 #: frontend/src/components/Modals/AnnouncementModal.vue:99
@@ -5201,7 +5232,7 @@ msgstr "Özet"
 msgid "Sunday"
 msgstr "Pazar"
 
-#: lms/lms/api.py:1050
+#: lms/lms/api.py:1058
 msgid "Suspicious pattern found in {0}: {1}"
 msgstr ""
 
@@ -5286,7 +5317,7 @@ msgstr "Şablon"
 msgid "Temporarily Disabled"
 msgstr "Geçici Olarak Devre Dışı"
 
-#: lms/lms/utils.py:434
+#: lms/lms/utils.py:435
 msgid "Terms of Use"
 msgstr "Kullanım Koşulları"
 
@@ -5322,7 +5353,7 @@ msgstr ""
 msgid "Thanks and Regards"
 msgstr "Teşekkürler ve Saygılar"
 
-#: lms/lms/utils.py:1935
+#: lms/lms/utils.py:1939
 msgid "The batch is full. Please contact the Administrator."
 msgstr ""
 
@@ -5362,8 +5393,8 @@ msgstr "Bu kursta bölüm bulunmamaktadır. Bölümleri buradan oluşturun ve y�
 msgid "There are no courses matching the criteria. Keep an eye out, fresh learning experiences are on the way soon!"
 msgstr ""
 
-#: frontend/src/pages/Jobs.vue:84
-msgid "There are no jobs available at the moment. Open a job opportunity or check here again later."
+#: frontend/src/pages/Jobs.vue:91
+msgid "There are no jobs available at the moment."
 msgstr ""
 
 #: frontend/src/pages/Programs.vue:95
@@ -5417,7 +5448,7 @@ msgstr ""
 msgid "This course has:"
 msgstr "Bu kursta:"
 
-#: lms/lms/utils.py:1778
+#: lms/lms/utils.py:1782
 msgid "This course is free."
 msgstr "Bu kurs ücretsizdir."
 
@@ -5427,7 +5458,17 @@ msgstr "Bu kurs ücretsizdir."
 msgid "This description will be shown on lists and pages without meta description"
 msgstr ""
 
-#: frontend/src/pages/Lesson.vue:16
+#. Description of the 'Meta Image' (Attach Image) field in DocType 'LMS
+#. Settings'
+#: lms/lms/doctype/lms_settings/lms_settings.json
+msgid "This image will be shown on lists and pages that don't have an image by default"
+msgstr ""
+
+#: frontend/src/pages/Lesson.vue:24
+msgid "This lesson is locked"
+msgstr ""
+
+#: frontend/src/pages/Lesson.vue:29
 msgid "This lesson is not available for preview. Please enroll in the course to access it."
 msgstr "Bu ders önizleme için mevcut değil. Lütfen erişmek için kursa kaydolun."
 
@@ -5522,7 +5563,7 @@ msgstr ""
 #: frontend/src/components/Modals/DiscussionModal.vue:18
 #: frontend/src/components/Modals/LiveClassModal.vue:23
 #: frontend/src/pages/Assignments.vue:160 frontend/src/pages/BatchForm.vue:20
-#: frontend/src/pages/CourseForm.vue:29 frontend/src/pages/JobCreation.vue:20
+#: frontend/src/pages/CourseForm.vue:29 frontend/src/pages/JobForm.vue:20
 #: frontend/src/pages/ProgramForm.vue:11 frontend/src/pages/Programs.vue:116
 #: frontend/src/pages/QuizForm.vue:48 frontend/src/pages/Quizzes.vue:118
 #: lms/lms/doctype/cohort/cohort.json
@@ -5561,7 +5602,7 @@ msgstr "Alıcı"
 msgid "To Date"
 msgstr "Bitiş Tarihi"
 
-#: lms/lms/utils.py:1789
+#: lms/lms/utils.py:1793
 msgid "To join this batch, please contact the Administrator."
 msgstr ""
 
@@ -5616,7 +5657,7 @@ msgstr "X"
 #: frontend/src/components/Modals/AssessmentModal.vue:22
 #: frontend/src/components/Modals/Question.vue:54
 #: frontend/src/pages/Assignments.vue:29 frontend/src/pages/Assignments.vue:165
-#: frontend/src/pages/JobCreation.vue:33 frontend/src/pages/Jobs.vue:55
+#: frontend/src/pages/JobForm.vue:38 frontend/src/pages/Jobs.vue:63
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
@@ -5685,7 +5726,7 @@ msgstr "Ayarlanmamış Rol"
 #. Option for the 'Status' (Select) field in DocType 'LMS Certificate Request'
 #. Label of the upcoming (Check) field in DocType 'LMS Course'
 #: frontend/src/pages/Batches.vue:293 frontend/src/pages/CourseForm.vue:181
-#: frontend/src/pages/Courses.vue:287 lms/lms/doctype/cohort/cohort.json
+#: frontend/src/pages/Courses.vue:319 lms/lms/doctype/cohort/cohort.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Upcoming"
@@ -5812,7 +5853,7 @@ msgstr "Sertifikayı Görüntüle"
 msgid "Visibility"
 msgstr "Görünürlülük"
 
-#: frontend/src/components/BatchOverlay.vue:60
+#: frontend/src/components/BatchOverlay.vue:63
 msgid "Visit Batch"
 msgstr ""
 
@@ -5925,11 +5966,11 @@ msgstr ""
 msgid "You are already certified for this course. Click on the card below to open your certificate."
 msgstr ""
 
-#: lms/lms/api.py:234
+#: lms/lms/api.py:235
 msgid "You are already enrolled for this batch."
 msgstr "Bu gruba zaten kayıtlısınız."
 
-#: lms/lms/api.py:226
+#: lms/lms/api.py:227
 msgid "You are already enrolled for this course."
 msgstr "Bu kursa zaten kayıtlısınız."
 
@@ -5941,7 +5982,7 @@ msgstr "Bu sınıfın üyesi değilsiniz. Lütfen yaklaşan sınıflara göz at�
 msgid "You are not a mentor of the course {0}"
 msgstr "Kursun mentoru değilsiniz {0}"
 
-#: frontend/src/components/CourseOutline.vue:324
+#: frontend/src/components/CourseOutline.vue:321
 msgid "You are not enrolled"
 msgstr "Kayıtlı değilsiniz"
 
@@ -6003,7 +6044,7 @@ msgstr "Bu iş için zaten başvurdunuz."
 msgid "You have already exceeded the maximum number of attempts allowed for this quiz."
 msgstr "Bu sınav için izin verilen maksimum deneme sayısını zaten aştınız."
 
-#: lms/lms/api.py:253
+#: lms/lms/api.py:254
 msgid "You have already purchased the certificate for this course."
 msgstr ""
 
@@ -6011,7 +6052,11 @@ msgstr ""
 msgid "You have already reviewed this course"
 msgstr "Bu kursa zaten yorum eklediniz"
 
-#: frontend/src/components/BatchOverlay.vue:151
+#: frontend/src/pages/JobDetail.vue:54
+msgid "You have applied"
+msgstr ""
+
+#: frontend/src/components/BatchOverlay.vue:154
 msgid "You have been enrolled in this batch"
 msgstr "Bu gruba kayıt oldunuz"
 
@@ -6108,6 +6153,10 @@ msgstr "Puanınız"
 msgid "Your submission has been successfully saved. The instructor will review and grade it shortly, and you'll be notified of your final result."
 msgstr ""
 
+#: frontend/src/pages/Lesson.vue:8
+msgid "Zen Mode"
+msgstr ""
+
 #. Name of a DocType
 #: lms/lms/doctype/zoom_settings/zoom_settings.json
 msgid "Zoom Settings"
@@ -6120,6 +6169,14 @@ msgstr "aktiviteler"
 #: frontend/src/components/StudentHeatmap.vue:6
 msgid "activity"
 msgstr "aktivite"
+
+#: frontend/src/components/JobCard.vue:26
+msgid "applicant"
+msgstr ""
+
+#: frontend/src/components/JobCard.vue:26
+msgid "applicants"
+msgstr ""
 
 #: lms/templates/emails/payment_reminder.html:4
 msgid "but didn’t complete your payment"
@@ -6141,7 +6198,7 @@ msgstr "sertifikalar"
 msgid "certified members"
 msgstr ""
 
-#: frontend/src/pages/Lesson.vue:178
+#: frontend/src/pages/Lesson.vue:80 frontend/src/pages/Lesson.vue:237
 msgid "completed"
 msgstr "Tamamlandı"
 
@@ -6197,7 +6254,11 @@ msgstr ""
 msgid "you can"
 msgstr "yapabilirsin"
 
-#: lms/lms/api.py:840 lms/lms/api.py:848
+#: frontend/src/pages/Jobs.vue:35
+msgid "{0} Open Jobs"
+msgstr ""
+
+#: lms/lms/api.py:848 lms/lms/api.py:856
 msgid "{0} Settings not found"
 msgstr "{0} Ayarları bulunamadı"
 
@@ -6237,7 +6298,7 @@ msgstr ""
 msgid "{0} is your evaluator"
 msgstr ""
 
-#: lms/lms/utils.py:681
+#: lms/lms/utils.py:682
 msgid "{0} mentioned you in a comment"
 msgstr "{0} bir yorumda sizden bahsetti"
 
@@ -6245,11 +6306,11 @@ msgstr "{0} bir yorumda sizden bahsetti"
 msgid "{0} mentioned you in a comment in your batch."
 msgstr ""
 
-#: lms/lms/utils.py:634 lms/lms/utils.py:640
+#: lms/lms/utils.py:635 lms/lms/utils.py:641
 msgid "{0} mentioned you in a comment in {1}"
 msgstr ""
 
-#: lms/lms/utils.py:456
+#: lms/lms/utils.py:457
 msgid "{0}k"
 msgstr ""
 
