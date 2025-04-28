@@ -254,4 +254,11 @@ add_to_apps_screen = [
 ]
 
  
+permission_query_conditions = {
+    "LMS Course": "lms.lms.doctype.lms_course.lms_course.get_permission_query_conditions",
+}
+
+has_permission = {
+    "LMS Course": "lms.lms.doctype.lms_course.lms_course.has_permission",
+}
  
