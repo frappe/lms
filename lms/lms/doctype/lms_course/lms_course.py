@@ -203,32 +203,3 @@ def reindex_exercises(doc):
     frappe.msgprint("All exercises in this course have been re-indexed.")
  
  
-# Trainer Visibility 
- 
-@frappe.whitelist()
-def get_permission_query_conditions(user):
-    if "Administrator" in frappe.get_roles(user):
-        return None  # Admin sees everything
- 
-    # LMS Trainer: only their own courses
-    if "LMS Trainer" in frappe.get_roles(user):
-        return f"`tabLMS Course`.owner = '{user}'"
- 
-    return None
- 
-def has_permission(doc, ptype, user):
-    if getattr(doc, "__islocal", False):
-        return True  # allow unsaved
- 
-    if user == "Administrator":
-        return True
- 
-    if ptype == "read":
-        # Trainer can only read their own courses
-        if "LMS Trainer" in frappe.get_roles(user):
-            return doc.owner == user
- 
-    if ptype in ["write", "submit", "cancel", "delete"]:
-        return doc.owner == user or user == "Administrator"
- 
-    return False
