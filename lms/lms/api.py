@@ -346,7 +346,7 @@ def get_chart_details():
 	details.completions = frappe.db.count(
 		"LMS Enrollment", {"progress": ["like", "%100%"]}
 	)
-	details.lesson_completions = frappe.db.count("LMS Course Progress")
+	details.certifications = frappe.db.count("LMS Certificate", {"published": 1})
 	return details
 
 
