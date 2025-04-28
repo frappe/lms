@@ -789,16 +789,15 @@ def get_chart_data(
 	)
 
 	result = get_result(data, timegrain, from_date, to_date, chart.chart_type)
-
-	return {
-		"labels": [
-			format_date(get_period(r[0], timegrain), parse_day_first=True)
-			if timegrain in ("Daily", "Weekly")
-			else get_period(r[0], timegrain)
-			for r in result
-		],
-		"datasets": [{"name": chart.name, "data": [r[1] for r in result]}],
-	}
+	data = []
+	for row in result:
+		data.append(
+			{
+				"date": row[0],
+				"count": row[1],
+			}
+		)
+	return data
 
 
 @frappe.whitelist(allow_guest=True)
@@ -806,15 +805,10 @@ def get_course_completion_data():
 	all_membership = frappe.db.count("LMS Enrollment")
 	completed = frappe.db.count("LMS Enrollment", {"progress": ["like", "%100%"]})
 
-	return {
-		"labels": ["Completed", "In Progress"],
-		"datasets": [
-			{
-				"name": "Course Completion",
-				"data": [completed, all_membership - completed],
-			}
-		],
-	}
+	return [
+		{"label": "Completed", "value": completed},
+		{"label": "In Progress", "value": all_membership - completed},
+	]
 
 
 def get_telemetry_boot_info():

@@ -172,7 +172,7 @@ function enrollStudent() {
 		)
 		setTimeout(() => {
 			window.location.href = `/login?redirect-to=${window.location.pathname}`
-		}, 2000)
+		}, 1000)
 	} else {
 		const enrollStudentResource = createResource({
 			url: 'lms.lms.doctype.lms_enrollment.lms_enrollment.create_membership',
