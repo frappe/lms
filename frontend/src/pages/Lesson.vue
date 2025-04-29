@@ -31,9 +31,21 @@
 							)
 						}}
 					</div>
-					<Button v-if="user.data" @click="enrollStudent()" variant="solid">
+					<Button
+						v-if="user.data && !lesson.data.disable_self_learning"
+						@click="enrollStudent()"
+						variant="solid"
+					>
 						{{ __('Start Learning') }}
 					</Button>
+					<Badge
+						theme="blue"
+						size="lg"
+						v-else-if="lesson.data.disable_self_learning"
+						class="mt-2"
+					>
+						{{ __('Contact the Administrator to enroll for this course.') }}
+					</Badge>
 					<Button v-else @click="redirectToLogin()">
 						<template #prefix>
 							<LogIn class="w-4 h-4 stroke-1" />
@@ -254,6 +266,7 @@
 <script setup>
 import {
 	createResource,
+	Badge,
 	Breadcrumbs,
 	Button,
 	Tooltip,
