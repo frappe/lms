@@ -20,6 +20,7 @@ def get_context():
 
 	context = frappe._dict()
 	context.csrf_token = csrf_token
+	context.read_only = frappe.flags.read_only
 	context.meta = get_meta(app_path, title, favicon)
 	capture("active_site", "lms")
 	context.title = title

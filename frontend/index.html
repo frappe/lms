@@ -32,6 +32,7 @@
 		<script>
 			document.getElementById('seo-content').style.display = 'none';
 			window.csrf_token = '{{ csrf_token }}'
+			window.read_only_mode = '{{ read_only }}'
 		</script>
 		<script type="module" src="/src/main.js"></script>
 	</body>
