@@ -421,16 +421,11 @@ def get_initial_members(course):
 
 
 def is_instructor(course):
-	return (
-		len(
-			list(
-				filter(
-					lambda x: x.name == frappe.session.user, get_instructors("LMS Course", course)
-				)
-			)
-		)
-		> 0
-	)
+	instructors = get_instructors("LMS Course", course)
+	for instructor in instructors:
+		if instructor.name == frappe.session.user:
+			return True
+	return False
 
 
 def convert_number_to_character(number):
