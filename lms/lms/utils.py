@@ -206,10 +206,13 @@ def get_tags(course):
 	return tags.split(",") if tags else []
 
 
-def get_instructors(course):
+def get_instructors(doctype, docname):
 	instructor_details = []
 	instructors = frappe.get_all(
-		"Course Instructor", {"parent": course}, order_by="idx", pluck="instructor"
+		"Course Instructor",
+		{"parent": docname, "parenttype": doctype},
+		order_by="idx",
+		pluck="instructor",
 	)
 
 	for instructor in instructors:
@@ -418,10 +421,11 @@ def get_initial_members(course):
 
 
 def is_instructor(course):
-	return (
-		len(list(filter(lambda x: x.name == frappe.session.user, get_instructors(course))))
-		> 0
-	)
+	instructors = get_instructors("LMS Course", course)
+	for instructor in instructors:
+		if instructor.name == frappe.session.user:
+			return True
+	return False
 
 
 def convert_number_to_character(number):
@@ -1007,7 +1011,7 @@ def get_courses(filters=None, start=0, page_length=20):
 
 def get_course_card_details(courses):
 	for course in courses:
-		course.instructors = get_instructors(course.name)
+		course.instructors = get_instructors("LMS Course", course.name)
 
 		if course.paid_course and course.published == 1:
 			course.amount, course.currency = check_multicurrency(
@@ -1151,7 +1155,7 @@ def get_course_details(course):
 		as_dict=1,
 	)
 
-	course_details.instructors = get_instructors(course_details.name)
+	course_details.instructors = get_instructors("LMS Course", course_details.name)
 	# course_details.is_instructor = is_instructor(course_details.name)
 	if course_details.paid_course or course_details.paid_certificate:
 		"""course_details.course_price, course_details.currency = check_multicurrency(
@@ -1317,7 +1321,7 @@ def get_lesson(course, chapter, lesson):
 	lesson_details.progress = progress
 	lesson_details.prev = neighbours["prev"]
 	lesson_details.membership = membership
-	lesson_details.instructors = get_instructors(course)
+	lesson_details.instructors = get_instructors("LMS Course", course)
 	lesson_details.course_title = course_info.title
 	lesson_details.paid_certificate = course_info.paid_certificate
 	return lesson_details
@@ -1383,7 +1387,7 @@ def get_batch_details(batch):
 		as_dict=True,
 	)
 
-	batch_details.instructors = get_instructors(batch)
+	batch_details.instructors = get_instructors("LMS Batch", batch)
 	batch_details.accept_enrollments = batch_details.start_date > getdate()
 
 	if (
@@ -2130,7 +2134,7 @@ def get_batch_type(filters):
 
 def get_batch_card_details(batches):
 	for batch in batches:
-		batch.instructors = get_instructors(batch.name)
+		batch.instructors = get_instructors("LMS Batch", batch.name)
 		students_count = frappe.db.count("LMS Batch Enrollment", {"batch": batch.name})
 
 		if batch.seat_count:
