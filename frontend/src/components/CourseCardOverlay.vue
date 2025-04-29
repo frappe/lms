@@ -48,12 +48,13 @@
 					</span>
 				</Button>
 			</router-link>
-			<div
+			<Badge
 				v-else-if="course.data.disable_self_learning"
-				class="bg-surface-blue-2 text-blue-900 text-sm rounded-md py-1 px-3"
+				theme="blue"
+				size="lg"
 			>
 				{{ __('Contact the Administrator to enroll for this course.') }}
-			</div>
+			</Badge>
 			<Button
 				v-else
 				@click="enrollStudent()"
@@ -140,7 +141,7 @@
 <script setup>
 import { BookOpen, Users, Star, GraduationCap } from 'lucide-vue-next'
 import { computed, inject } from 'vue'
-import { Button, createResource, Tooltip } from 'frappe-ui'
+import { Badge, Button, createResource } from 'frappe-ui'
 import { showToast, formatAmount } from '@/utils/'
 import { capture } from '@/telemetry'
 import { useRouter } from 'vue-router'
