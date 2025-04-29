@@ -1271,7 +1271,10 @@ def get_lesson(course, chapter, lesson):
 
 	membership = get_membership(course)
 	course_info = frappe.db.get_value(
-		"LMS Course", course, ["title", "paid_certificate"], as_dict=1
+		"LMS Course",
+		course,
+		["title", "paid_certificate", "disable_self_learning"],
+		as_dict=1,
 	)
 
 	if (
@@ -1284,6 +1287,7 @@ def get_lesson(course, chapter, lesson):
 			"no_preview": 1,
 			"title": lesson_details.title,
 			"course_title": course_info.title,
+			"disable_self_learning": course_info.disable_self_learning,
 		}
 
 	lesson_details = frappe.db.get_value(
@@ -1324,6 +1328,7 @@ def get_lesson(course, chapter, lesson):
 	lesson_details.instructors = get_instructors("LMS Course", course)
 	lesson_details.course_title = course_info.title
 	lesson_details.paid_certificate = course_info.paid_certificate
+	lesson_details.disable_self_learning = course_info.disable_self_learning
 	return lesson_details
 
 
