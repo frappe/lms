@@ -121,6 +121,7 @@ const certification = ref(false)
 const filters = ref({})
 const currentTab = ref('Live')
 const { brand } = sessionStore()
+const readOnlyMode = window.read_only_mode
 
 onMounted(() => {
 	identifyUserPersona()

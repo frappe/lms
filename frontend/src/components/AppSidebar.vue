@@ -39,7 +39,11 @@
 							{{ __('More') }}
 						</span>
 					</div>
-					<Button v-if="isModerator" variant="ghost" @click="openPageModal()">
+					<Button
+						v-if="isModerator && !readOnlyMode"
+						variant="ghost"
+						@click="openPageModal()"
+					>
 						<template #icon>
 							<Plus class="h-4 w-4 text-ink-gray-7 stroke-1.5" />
 						</template>
@@ -63,6 +67,16 @@
 			</div>
 		</div>
 		<div class="m-2 flex flex-col gap-1">
+			<div
+				v-if="readOnlyMode && !sidebarStore.isSidebarCollapsed"
+				class="z-10 m-2 bg-surface-modal py-2.5 px-3 text-xs text-ink-gray-7 leading-5 rounded-md"
+			>
+				{{
+					__(
+						'This site is being updated. You will not be able to make any changes. Full access will be restored shortly.'
+					)
+				}}
+			</div>
 			<TrialBanner
 				v-if="
 					userResource.data?.is_system_manager && userResource.data?.is_fc_site
@@ -89,15 +103,31 @@
 							: 'flex-row space-x-3'
 					"
 				>
+					<Tooltip v-if="readOnlyMode && sidebarStore.isSidebarCollapsed">
+						<CircleAlert
+							class="size-4 stroke-1.5 text-ink-gray-7 cursor-pointer"
+						/>
+						<template #body>
+							<div
+								class="max-w-[30ch] rounded bg-surface-gray-7 px-2 py-1 text-center text-p-xs text-ink-white shadow-xl"
+							>
+								{{
+									__(
+										'This site is being updated. You will not be able to make any changes. Full access will be restored shortly.'
+									)
+								}}
+							</div>
+						</template>
+					</Tooltip>
 					<Tooltip :text="__('Powered by Learning')">
 						<Zap
-							class="size-4 stroke-1.5 text-gray-700 cursor-pointer"
+							class="size-4 stroke-1.5 text-ink-gray-7 cursor-pointer"
 							@click="redirectToWebsite()"
 						/>
 					</Tooltip>
 					<Tooltip :text="__('Help')">
 						<CircleHelp
-							class="size-4 stroke-1.5 text-gray-700 cursor-pointer"
+							class="size-4 stroke-1.5 text-ink-gray-7 cursor-pointer"
 							@click="
 								() => {
 									showHelpModal = minimize ? true : !showHelpModal
@@ -113,7 +143,7 @@
 					"
 				>
 					<CollapseSidebar
-						class="size-4 text-gray-700 duration-300 stroke-1.5 ease-in-out cursor-pointer"
+						class="size-4 text-ink-gray-7 duration-300 stroke-1.5 ease-in-out cursor-pointer"
 						:class="{
 							'[transform:rotateY(180deg)]': sidebarStore.isSidebarCollapsed,
 						}"
@@ -166,6 +196,7 @@ import { useRouter } from 'vue-router'
 import InviteIcon from './Icons/InviteIcon.vue'
 import {
 	BookOpen,
+	CircleAlert,
 	ChevronRight,
 	Plus,
 	CircleHelp,
@@ -203,6 +234,7 @@ const currentStep = ref({})
 const router = useRouter()
 let onboardingDetails
 let isOnboardingStepsCompleted = false
+const readOnlyMode = window.read_only_mode
 const iconProps = {
 	strokeWidth: 1.5,
 	width: 16,

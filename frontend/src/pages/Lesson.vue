@@ -5,7 +5,7 @@
 		>
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
 			<div class="flex items-center space-x-2">
-				<Tooltip v-if="lesson.data?.membership" :text="__('Zen Mode')">
+				<Tooltip v-if="canGoZen()" :text="__('Zen Mode')">
 					<Button @click="goFullScreen()">
 						<template #icon>
 							<Focus class="w-4 h-4 stroke-2" />
@@ -95,7 +95,7 @@
 						</div>
 
 						<div class="flex items-center space-x-2 mt-2 md:mt-0">
-							<Button v-if="zenModeEnabled" @click="showDiscussionsInZenMode">
+							<Button v-if="zenModeEnabled" @click="showDiscussionsInZenMode()">
 								<template #icon>
 									<MessageCircleQuestion class="w-4 h-4 stroke-1.5" />
 								</template>
@@ -424,7 +424,7 @@ const setupLesson = (data) => {
 	if (!editor.value && data.body) {
 		const quizRegex = /\{\{ Quiz\(".*"\) \}\}/
 		hasQuiz.value = quizRegex.test(data.body)
-		if (!hasQuiz.value) allowDiscussions.value = true
+		if (!hasQuiz.value && !zenModeEnabled) allowDiscussions.value = true
 	}
 }
 
@@ -539,6 +539,7 @@ const checkIfDiscussionsAllowed = () => {
 }
 
 const allowEdit = () => {
+	if (window.read_only_mode) return false
 	if (user.data?.is_moderator) return true
 	if (lesson.data?.instructors?.includes(user.data?.name)) return true
 	return false
@@ -572,6 +573,17 @@ const enrollStudent = () => {
 			},
 		}
 	)
+}
+
+const canGoZen = () => {
+	if (
+		user.data?.is_moderator ||
+		user.data?.is_instructor ||
+		user.data?.is_evaluator
+	)
+		return false
+	if (lesson.data?.membership) return true
+	return false
 }
 
 const goFullScreen = () => {

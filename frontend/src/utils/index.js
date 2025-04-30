@@ -16,6 +16,8 @@ import SimpleImage from '@editorjs/simple-image'
 import Table from '@editorjs/table'
 import { usersStore } from '../stores/user'
 
+const readOnlyMode = window.read_only_mode
+
 export function createToast(options) {
 	toast({
 		position: 'bottom-right',
@@ -543,5 +545,8 @@ export const escapeHTML = (text) => {
 
 export const canCreateCourse = () => {
 	const { userResource } = usersStore()
-	return userResource.data?.is_instructor || userResource.data?.is_moderator
+	return (
+		!readOnlyMode &&
+		(userResource.data?.is_instructor || userResource.data?.is_moderator)
+	)
 }

@@ -1,6 +1,10 @@
 <template>
 	<div>
-		<Button v-if="!singleThread" class="float-right" @click="openTopicModal()">
+		<Button
+			v-if="!singleThread && !readOnlyMode"
+			class="float-right"
+			@click="openTopicModal()"
+		>
 			{{ __('New {0}').format(singularize(title)) }}
 		</Button>
 		<div class="text-xl font-semibold text-ink-gray-9">
@@ -77,6 +81,7 @@ const currentTopic = ref(null)
 const socket = inject('$socket')
 const user = inject('$user')
 const showTopicModal = ref(false)
+const readOnlyMode = window.read_only_mode
 
 const props = defineProps({
 	title: {

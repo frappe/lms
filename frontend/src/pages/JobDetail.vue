@@ -16,7 +16,10 @@
 					},
 				]"
 			/>
-			<div v-if="user.data?.name" class="flex items-center space-x-2">
+			<div
+				v-if="user.data?.name && !readOnlyMode"
+				class="flex items-center space-x-2"
+			>
 				<router-link
 					v-if="user.data.name == job.data?.owner"
 					:to="{
@@ -54,7 +57,7 @@
 					{{ __('You have applied') }}
 				</Badge>
 			</div>
-			<div v-else>
+			<div v-else-if="!readOnlyMode">
 				<Button @click="redirectToLogin(job.data?.name)">
 					<span>
 						{{ __('Login to apply') }}
@@ -181,6 +184,7 @@ const user = inject('$user')
 const dayjs = inject('$dayjs')
 const { brand } = sessionStore()
 const showApplicationModal = ref(false)
+const readOnlyMode = window.read_only_mode
 
 const props = defineProps({
 	job: {

@@ -4,7 +4,7 @@
 			<div class="text-lg font-semibold text-ink-gray-9">
 				{{ __('Assessments') }}
 			</div>
-			<Button v-if="canSeeAddButton()" @click="showModal = true">
+			<Button v-if="canAddAssessments()" @click="showModal = true">
 				<template #prefix>
 					<Plus class="h-4 w-4" />
 				</template>
@@ -100,6 +100,7 @@ import { Plus, Trash2 } from 'lucide-vue-next'
 
 const user = inject('$user')
 const showModal = ref(false)
+const readOnlyMode = window.read_only_mode
 
 const props = defineProps({
 	batch: {
@@ -181,7 +182,8 @@ const getRowRoute = (row) => {
 	}
 }
 
-const canSeeAddButton = () => {
+const canAddAssessments = () => {
+	if (readOnlyMode) return false
 	return user.data?.is_moderator || user.data?.is_evaluator
 }
 
