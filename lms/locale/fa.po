@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-04-25 16:04+0000\n"
-"PO-Revision-Date: 2025-04-28 08:31\n"
+"PO-Revision-Date: 2025-04-30 09:58\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Persian\n"
 "MIME-Version: 1.0\n"
@@ -4624,7 +4624,7 @@ msgstr ""
 
 #: lms/templates/reviews.html:4
 msgid "Reviews"
-msgstr "بررسی ها"
+msgstr ""
 
 #. Label of the role (Select) field in DocType 'Cohort Staff'
 #. Label of the role (Select) field in DocType 'LMS Enrollment'
@@ -5466,7 +5466,7 @@ msgstr ""
 
 #: frontend/src/pages/Lesson.vue:24
 msgid "This lesson is locked"
-msgstr ""
+msgstr "این درس قفل شده است"
 
 #: frontend/src/pages/Lesson.vue:29
 msgid "This lesson is not available for preview. Please enroll in the course to access it."
@@ -6172,11 +6172,11 @@ msgstr "فعالیت"
 
 #: frontend/src/components/JobCard.vue:26
 msgid "applicant"
-msgstr ""
+msgstr "متقاضی"
 
 #: frontend/src/components/JobCard.vue:26
 msgid "applicants"
-msgstr ""
+msgstr "متقاضیان"
 
 #: lms/templates/emails/payment_reminder.html:4
 msgid "but didn’t complete your payment"
