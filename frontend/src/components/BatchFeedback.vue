@@ -111,7 +111,6 @@ import {
 	FormControl,
 	ListView,
 	ListHeader,
-	ListHeaderItem,
 	ListRows,
 	ListRow,
 	ListRowItem,

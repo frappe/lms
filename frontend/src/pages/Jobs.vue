@@ -16,7 +16,7 @@
 					},
 				}"
 			>
-				<Button variant="solid">
+				<Button v-if="!readOnlyMode" variant="solid">
 					<template #prefix>
 						<Plus class="h-4 w-4" />
 					</template>
@@ -120,6 +120,7 @@ const country = ref(null)
 const filters = ref({})
 const orFilters = ref({})
 const jobCount = ref(0)
+const readOnlyMode = window.read_only_mode
 
 onMounted(() => {
 	let queries = new URLSearchParams(location.search)

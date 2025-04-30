@@ -4,6 +4,7 @@
 	>
 		<Breadcrumbs :items="breadcrumbs" />
 		<Button
+			v-if="!readOnlyMode"
 			variant="solid"
 			@click="
 				() => {
@@ -38,6 +39,7 @@
 				showTooltip: false,
 				selectable: false,
 				onRowClick: (row) => {
+					if (readOnlyMode) return
 					assignmentID = row.name
 					showAssignmentForm = true
 				},
@@ -98,6 +100,7 @@ const showAssignmentForm = ref(false)
 const assignmentID = ref('new')
 const { brand } = sessionStore()
 const router = useRouter()
+const readOnlyMode = window.read_only_mode
 
 onMounted(() => {
 	if (!user.data?.is_moderator && !user.data?.is_instructor) {

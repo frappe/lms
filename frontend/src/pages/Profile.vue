@@ -25,7 +25,11 @@
 					@select="(imageUrl) => coverImage.submit({ url: imageUrl })"
 				>
 					<template v-slot="{ togglePopover }">
-						<Button variant="outline" @click="togglePopover()">
+						<Button
+							v-if="!readOnlyMode"
+							variant="outline"
+							@click="togglePopover()"
+						>
 							<template #prefix>
 								<Edit class="w-4 h-4 stroke-1.5 text-ink-gray-7" />
 							</template>
@@ -58,7 +62,7 @@
 					</div>
 				</div>
 				<Button
-					v-if="isSessionUser()"
+					v-if="isSessionUser() && !readOnlyMode"
 					class="mt-3 sm:mt-0 md:ml-auto"
 					@click="editProfile()"
 				>
@@ -95,7 +99,7 @@ import {
 } from 'frappe-ui'
 import { computed, inject, watch, ref, onMounted, watchEffect } from 'vue'
 import { sessionStore } from '@/stores/session'
-import { Edit, icons } from 'lucide-vue-next'
+import { Edit } from 'lucide-vue-next'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { useRoute, useRouter } from 'vue-router'
 import NoPermission from '@/components/NoPermission.vue'
@@ -109,6 +113,7 @@ const route = useRoute()
 const router = useRouter()
 const activeTab = ref('')
 const showProfileModal = ref(false)
+const readOnlyMode = window.read_only_mode
 
 const props = defineProps({
 	username: {
