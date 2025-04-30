@@ -95,7 +95,7 @@
 						</div>
 
 						<div class="flex items-center space-x-2 mt-2 md:mt-0">
-							<Button v-if="zenModeEnabled" @click="showDiscussionsInZenMode">
+							<Button v-if="zenModeEnabled" @click="showDiscussionsInZenMode()">
 								<template #icon>
 									<MessageCircleQuestion class="w-4 h-4 stroke-1.5" />
 								</template>
@@ -424,7 +424,7 @@ const setupLesson = (data) => {
 	if (!editor.value && data.body) {
 		const quizRegex = /\{\{ Quiz\(".*"\) \}\}/
 		hasQuiz.value = quizRegex.test(data.body)
-		if (!hasQuiz.value) allowDiscussions.value = true
+		if (!hasQuiz.value && !zenModeEnabled) allowDiscussions.value = true
 	}
 }
 
