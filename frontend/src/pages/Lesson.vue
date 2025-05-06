@@ -361,9 +361,7 @@ const enablePlyr = () => {
 		const videoElement = document.getElementsByClassName('video-player')
 		if (videoElement.length === 0) return
 
-		const src = document
-			.getElementsByClassName('video-player')[0]
-			.getAttribute('src')
+		const src = videoElement[0].getAttribute('src')
 		if (src) {
 			let videoID = src.split('/').pop()
 			document
