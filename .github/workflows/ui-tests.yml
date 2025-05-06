@@ -100,6 +100,7 @@ jobs:
           bench --site lms.test execute frappe.utils.install.complete_setup_wizard
           bench --site lms.test execute frappe.tests.ui_test_helpers.create_test_user
           bench --site lms.test set-password frappe@example.com admin
+          bench --site lms.test execute lms.lms.utils.persona_captured
 
       - name: cypress pre-requisites
         run: |

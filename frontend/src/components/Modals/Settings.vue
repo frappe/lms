@@ -315,12 +315,6 @@ const tabsStructure = computed(() => {
 							doctype: 'Email Template',
 							type: 'Link',
 						},
-						{
-							label: 'Assignment Submission Template',
-							name: 'assignment_submission_template',
-							doctype: 'Email Template',
-							type: 'Link',
-						},
 					],
 				},
 				{
@@ -328,11 +322,11 @@ const tabsStructure = computed(() => {
 					icon: 'LogIn',
 					fields: [
 						{
-							label: 'Identify User Persona',
+							label: 'Identify User Category',
 							name: 'user_category',
 							type: 'checkbox',
 							description:
-								'Enable this option to identify the user persona during signup.',
+								'Enable this option to identify the user category during signup.',
 						},
 						{
 							label: 'Disable signup',
@@ -358,9 +352,22 @@ const tabsStructure = computed(() => {
 							label: 'Meta Description',
 							name: 'meta_description',
 							type: 'textarea',
-							rows: 5,
+							rows: 4,
 							description:
 								"This description will be shown on lists and pages that don't have meta description",
+						},
+						{
+							label: 'Meta Keywords',
+							name: 'meta_keywords',
+							type: 'textarea',
+							rows: 4,
+							description:
+								'Keywords for search engines to find your website. Separated by commas.',
+						},
+						{
+							label: 'Meta Image',
+							name: 'meta_image',
+							type: 'Upload',
 						},
 					],
 				},

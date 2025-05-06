@@ -13,17 +13,22 @@
 				<div class="text-lg font-semibold mb-4">
 					{{ __('Job Details') }}
 				</div>
-				<div class="grid grid-cols-2 gap-4">
-					<div>
+				<div class="grid grid-cols-2 gap-5">
+					<div class="space-y-4">
 						<FormControl
 							v-model="job.job_title"
 							:label="__('Title')"
-							class="mb-4"
 							:required="true"
 						/>
 						<FormControl
 							v-model="job.location"
-							:label="__('Location')"
+							:label="__('City')"
+							:required="true"
+						/>
+						<Link
+							v-model="job.country"
+							doctype="Country"
+							:label="__('Country')"
 							:required="true"
 						/>
 					</div>
@@ -45,25 +50,12 @@
 						/>
 					</div>
 				</div>
-				<div class="mt-4">
-					<label class="block text-ink-gray-5 text-xs mb-1">
-						{{ __('Description') }}
-						<span class="text-ink-red-3">*</span>
-					</label>
-					<TextEditor
-						:content="job.description"
-						@change="(val) => (job.description = val)"
-						:editable="true"
-						:fixedMenu="true"
-						editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem] mb-4"
-					/>
-				</div>
 			</div>
-			<div class="container mb-4 pb-4">
+			<div class="container border-b mb-4 pb-4">
 				<div class="text-lg font-semibold mb-4">
 					{{ __('Company Details') }}
 				</div>
-				<div class="grid grid-cols-2 gap-4">
+				<div class="grid grid-cols-2 gap-5">
 					<div>
 						<FormControl
 							v-model="job.company_name"
@@ -127,6 +119,19 @@
 						</div>
 					</div>
 				</div>
+			</div>
+			<div class="container mt-4">
+				<label class="block text-ink-gray-5 text-xs mb-1">
+					{{ __('Description') }}
+					<span class="text-ink-red-3">*</span>
+				</label>
+				<TextEditor
+					:content="job.description"
+					@change="(val) => (job.description = val)"
+					:editable="true"
+					:fixedMenu="true"
+					editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem] mb-4"
+				/>
 			</div>
 		</div>
 	</div>
@@ -217,6 +222,7 @@ const imageResource = createResource({
 const job = reactive({
 	job_title: '',
 	location: '',
+	country: '',
 	type: 'Full Time',
 	status: 'Open',
 	company_name: '',
@@ -317,7 +323,7 @@ const breadcrumbs = computed(() => {
 		},
 		{
 			label: props.jobName == 'new' ? 'New Job' : 'Edit Job',
-			route: { name: 'JobCreation' },
+			route: { name: 'JobForm' },
 		},
 	]
 	return crumbs

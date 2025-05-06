@@ -4,6 +4,7 @@
 	>
 		<Breadcrumbs :items="breadcrumbs" />
 		<router-link
+			v-if="!readOnlyMode"
 			:to="{
 				name: 'QuizForm',
 				params: {
@@ -89,6 +90,7 @@ import { sessionStore } from '@/stores/session'
 const { brand } = sessionStore()
 const user = inject('$user')
 const router = useRouter()
+const readOnlyMode = window.read_only_mode
 
 onMounted(() => {
 	if (!user.data?.is_moderator && !user.data?.is_instructor) {
