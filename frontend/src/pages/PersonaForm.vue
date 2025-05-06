@@ -10,56 +10,32 @@
 				</span>
 			</div>
 			<div
-				class="mx-auto space-y-5 w-full h-fit bg-white px-4 py-8 sm:mt-6 sm:w-96 sm:rounded-lg sm:px-8 sm:shadow-xl"
+				class="mx-auto w-full h-fit bg-white py-8 sm:mt-6 sm:w-96 sm:rounded-lg sm:px-8 sm:shadow-xl"
 			>
-				<div>
+				<div class="font-medium text-center mb-8">
+					{{ __('Help us understand your needs') }}
+				</div>
+
+				<div class="mb-5">
 					<div class="text-sm text-gray-700 mb-2">
-						{{ __('1. What best describes your role?') }}
+						{{ __('What is your main use case for Frappe Learning?') }}
 					</div>
 					<FormControl
-						v-model="persona.role"
+						v-model="persona.useCase"
 						type="select"
-						:options="roleOptions"
+						:options="useCaseOptions"
 					/>
 				</div>
 
-				<div>
-					<div>
-						<div class="text-sm text-gray-700 mb-2">
-							{{ __('2. How many students are you planning to teach?') }}
-						</div>
-						<FormControl
-							v-model="persona.noOfStudents"
-							type="select"
-							:options="noOfStudentsOptions"
-						/>
+				<div class="mb-5">
+					<div class="text-sm text-gray-700 mb-2">
+						{{ __('How many students are you planning to teach?') }}
 					</div>
-				</div>
-
-				<div>
-					<div>
-						<div class="text-sm text-gray-700 mb-2">
-							{{ __('3. What is your main use case for Frappe Learning?') }}
-						</div>
-						<FormControl
-							v-model="persona.useCase"
-							type="select"
-							:options="useCaseOptions"
-						/>
-					</div>
-				</div>
-
-				<div>
-					<div>
-						<div class="text-sm text-gray-700 mb-2">
-							{{ __('4. Are you currently using any Frappe products?') }}
-						</div>
-						<FormControl
-							v-model="persona.frappeProducts"
-							type="select"
-							:options="frappeProductsOptions"
-						/>
-					</div>
+					<FormControl
+						v-model="persona.noOfStudents"
+						type="select"
+						:options="noOfStudentsOptions"
+					/>
 				</div>
 
 				<div class="flex w-full">
@@ -89,19 +65,15 @@ const router = useRouter()
 const { brand } = sessionStore()
 
 const persona = reactive({
-	role: null,
 	noOfStudents: null,
 	useCase: null,
-	frappeProducts: null,
 })
 
 const submitPersona = () => {
 	let responses = {
 		site: user.data?.sitename,
-		role: persona.role,
 		no_of_students: persona.noOfStudents,
 		use_case: persona.useCase,
-		frappe_products: persona.frappeProducts,
 	}
 	call('lms.lms.api.capture_user_persona', {
 		responses: JSON.stringify(responses),
@@ -125,24 +97,6 @@ const skipPersonaForm = () => {
 	})
 }
 
-const roleOptions = computed(() => {
-	const options = [
-		'Trainer / Instructor',
-		'Freelancer / Consultant',
-		'HR / L&D Professional',
-		'School / University Admin',
-		'Software Developer',
-		'Community Manager',
-		'Business Owner / Team Lead',
-		'Other',
-	]
-
-	return options.map((option) => ({
-		label: option,
-		value: option,
-	}))
-})
-
 const noOfStudentsOptions = computed(() => {
 	const options = [
 		'Less than 50',
@@ -165,22 +119,6 @@ const useCaseOptions = computed(() => {
 		'Onboarding and educating my users/community',
 		'Selling courses and earning income',
 		'Other',
-	]
-
-	return options.map((option) => ({
-		label: option,
-		value: option,
-	}))
-})
-
-const frappeProductsOptions = computed(() => {
-	const options = [
-		'Frappe Framework',
-		'ERPNext / Frappe HR',
-		'Frappe CRM / Helpdesk',
-		'Custom Frappe App',
-		'Other',
-		'Not using any Frappe product',
 	]
 
 	return options.map((option) => ({
