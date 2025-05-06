@@ -25,7 +25,7 @@ export default defineConfig({
 		}),
 	],
 	server: {
-		allowedHosts: ['fs', 'onb2'],
+		allowedHosts: ['fs', 'persona'],
 	},
 	resolve: {
 		alias: {
@@ -40,6 +40,7 @@ export default defineConfig({
 			'engine.io-client',
 			'tailwind.config.js',
 			'highlight.js',
+			'plyr',
 		],
 	},
 })

@@ -3,7 +3,7 @@
 		class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs :items="breadcrumbs" />
-		<div class="space-x-2">
+		<div v-if="!readOnlyMode" class="space-x-2">
 			<router-link
 				v-if="quizDetails.data?.name"
 				:to="{
@@ -116,7 +116,7 @@
 						<div class="font-semibold">
 							{{ __('Questions') }}
 						</div>
-						<Button @click="openQuestionModal()">
+						<Button v-if="!readOnlyMode" @click="openQuestionModal()">
 							<template #prefix>
 								<Plus class="w-4 h-4" />
 							</template>
@@ -223,6 +223,7 @@ const currentQuestion = reactive({
 })
 const user = inject('$user')
 const router = useRouter()
+const readOnlyMode = window.read_only_mode
 
 const props = defineProps({
 	quizID: {

@@ -4,7 +4,7 @@
 	>
 		<Breadcrumbs :items="breadcrumbs" />
 		<router-link
-			v-if="user.data?.is_moderator"
+			v-if="canCreateBatch()"
 			:to="{
 				name: 'BatchForm',
 				params: { batchName: 'new' },
@@ -124,6 +124,7 @@ const filters = ref({})
 const is_student = computed(() => user.data?.is_student)
 const currentTab = ref(is_student.value ? 'All' : 'Upcoming')
 const orderBy = ref('start_date')
+const readOnlyMode = window.read_only_mode
 
 onMounted(() => {
 	setFiltersFromQuery()
@@ -298,6 +299,12 @@ const batchTabs = computed(() => {
 	}
 	return tabs
 })
+
+const canCreateBatch = () => {
+	if (readOnlyMode) return false
+	if (user.data?.is_moderator || user.data?.is_instructor) return true
+	return false
+}
 
 const breadcrumbs = computed(() => [
 	{

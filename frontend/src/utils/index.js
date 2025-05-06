@@ -15,6 +15,10 @@ import Embed from '@editorjs/embed'
 import SimpleImage from '@editorjs/simple-image'
 import Table from '@editorjs/table'
 import { usersStore } from '../stores/user'
+import Plyr from 'plyr'
+import 'plyr/dist/plyr.css'
+
+const readOnlyMode = window.read_only_mode
 
 export function createToast(options) {
 	toast({
@@ -199,64 +203,24 @@ export function getEditorTools() {
 				services: {
 					youtube: {
 						regex: /(?:https?:\/\/)?(?:www\.)?(?:(?:youtu\.be\/)|(?:youtube\.com)\/(?:v\/|u\/\w\/|embed\/|watch))(?:(?:\?v=)?([^#&?=]*))?((?:[?&]\w*=\w*)*)/,
-						embedUrl:
-							'https://www.youtube.com/embed/<%= remote_id %>',
-						html: `<iframe style="width:100%; height: ${
-							window.innerWidth < 640 ? '15rem' : '30rem'
-						};" frameborder="0" allowfullscreen></iframe>`,
-						id: ([id, params]) => {
-							if (!params && id) {
-								return id
-							}
-
-							const paramsMap = {
-								start: 'start',
-								end: 'end',
-								t: 'start',
-								// eslint-disable-next-line camelcase
-								time_continue: 'start',
-								list: 'list',
-							}
-
-							let newParams = params
-								.slice(1)
-								.split('&')
-								.map((param) => {
-									const [name, value] = param.split('=')
-
-									if (!id && name === 'v') {
-										id = value
-
-										return null
-									}
-
-									if (!paramsMap[name]) {
-										return null
-									}
-
-									if (
-										value === 'LL' ||
-										value.startsWith('RDMM') ||
-										value.startsWith('FL')
-									) {
-										return null
-									}
-
-									return `${paramsMap[name]}=${value}`
-								})
-								.filter((param) => !!param)
-
-							return id + '?' + newParams.join('&')
-						},
+						embedUrl: '<%= remote_id %>',
+						/* 'https://www.youtube.com/embed/<%= remote_id %>?origin=https://plyr.io&amp;iv_load_policy=3&amp;modestbranding=1&amp;playsinline=1&amp;showinfo=0&amp;rel=0&amp;enablejsapi=1' */
+						html: `<div class="video-player" data-plyr-provider="youtube"></div>`,
+						id: ([id]) => id,
 					},
 					vimeo: {
 						regex: /(?:http[s]?:\/\/)?(?:www\.)?vimeo\.com\/(\d+)/,
+						embedUrl: '<%= remote_id %>',
+						html: `<div class="video-player" data-plyr-provider="vimeo"></div>`,
+						id: ([id]) => id,
+					},
+					cloudflareStream: {
+						regex: /https:\/\/customer-[a-z0-9]+\.cloudflarestream\.com\/([a-f0-9]{32})\/watch/,
 						embedUrl:
-							'https://player.vimeo.com/video/<%= remote_id %>',
+							'https://iframe.videodelivery.net/<%= remote_id %>',
 						html: `<iframe style="width:100%; height: ${
 							window.innerWidth < 640 ? '15rem' : '30rem'
 						};" frameborder="0" allowfullscreen></iframe>`,
-						id: ([id]) => id,
 					},
 					codepen: true,
 					aparat: {
@@ -491,7 +455,7 @@ export function getSidebarLinks() {
 			activeFor: ['Batches', 'BatchDetail', 'Batch', 'BatchForm'],
 		},
 		{
-			label: 'Certified Participants',
+			label: 'Certified Members',
 			icon: 'GraduationCap',
 			to: 'CertifiedParticipants',
 			activeFor: ['CertifiedParticipants'],
@@ -583,5 +547,35 @@ export const escapeHTML = (text) => {
 
 export const canCreateCourse = () => {
 	const { userResource } = usersStore()
-	return userResource.data?.is_instructor || userResource.data?.is_moderator
+	return (
+		!readOnlyMode &&
+		(userResource.data?.is_instructor || userResource.data?.is_moderator)
+	)
+}
+
+export const enablePlyr = () => {
+	setTimeout(() => {
+		const videoElement = document.getElementsByClassName('video-player')
+		if (videoElement.length === 0) return
+
+		const src = videoElement[0].getAttribute('src')
+		if (src) {
+			let videoID = src.split('/').pop()
+			videoElement[0].setAttribute('data-plyr-embed-id', videoID)
+		}
+		new Plyr('.video-player', {
+			youtube: {
+				noCookie: true,
+			},
+			controls: [
+				'play-large',
+				'play',
+				'progress',
+				'current-time',
+				'mute',
+				'volume',
+				'fullscreen',
+			],
+		})
+	}, 500)
 }
