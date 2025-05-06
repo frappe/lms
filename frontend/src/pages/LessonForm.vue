@@ -92,17 +92,14 @@ import {
 	inject,
 	ref,
 	onBeforeUnmount,
-	watch,
 } from 'vue'
 import { sessionStore } from '../stores/session'
 import EditorJS from '@editorjs/editorjs'
 import LessonHelp from '@/components/LessonHelp.vue'
-import { AppleIcon, ChevronRight } from 'lucide-vue-next'
-import { createToast, getEditorTools } from '@/utils'
+import { ChevronRight } from 'lucide-vue-next'
+import { createToast, getEditorTools, enablePlyr } from '@/utils'
 import { capture } from '@/telemetry'
 import { useOnboarding } from 'frappe-ui/frappe'
-import Plyr from 'plyr'
-import 'plyr/dist/plyr.css'
 
 const { brand } = sessionStore()
 const editor = ref(null)
@@ -468,35 +465,6 @@ const showToast = (title, text, icon) => {
 		position: icon == 'check' ? 'bottom-right' : 'top-center',
 		timeout: icon == 'check' ? 5 : 10,
 	})
-}
-
-const enablePlyr = () => {
-	setTimeout(() => {
-		const videoElement = document.getElementsByClassName('video-player')
-		if (videoElement.length === 0) return
-
-		const src = videoElement[0].getAttribute('src')
-		if (src) {
-			let videoID = src.split('/').pop()
-			document
-				.getElementsByClassName('video-player')[0]
-				.setAttribute('data-plyr-embed-id', videoID)
-		}
-		new Plyr('.video-player', {
-			youtube: {
-				noCookie: true,
-			},
-			controls: [
-				'play-large',
-				'play',
-				'progress',
-				'current-time',
-				'mute',
-				'volume',
-				'fullscreen',
-			],
-		})
-	}, 500)
 }
 
 const breadcrumbs = computed(() => {
