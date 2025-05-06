@@ -15,6 +15,8 @@ import Embed from '@editorjs/embed'
 import SimpleImage from '@editorjs/simple-image'
 import Table from '@editorjs/table'
 import { usersStore } from '../stores/user'
+import Plyr from 'plyr'
+import 'plyr/dist/plyr.css'
 
 const readOnlyMode = window.read_only_mode
 
@@ -549,4 +551,31 @@ export const canCreateCourse = () => {
 		!readOnlyMode &&
 		(userResource.data?.is_instructor || userResource.data?.is_moderator)
 	)
+}
+
+export const enablePlyr = () => {
+	setTimeout(() => {
+		const videoElement = document.getElementsByClassName('video-player')
+		if (videoElement.length === 0) return
+
+		const src = videoElement[0].getAttribute('src')
+		if (src) {
+			let videoID = src.split('/').pop()
+			videoElement[0].setAttribute('data-plyr-embed-id', videoID)
+		}
+		new Plyr('.video-player', {
+			youtube: {
+				noCookie: true,
+			},
+			controls: [
+				'play-large',
+				'play',
+				'progress',
+				'current-time',
+				'mute',
+				'volume',
+				'fullscreen',
+			],
+		})
+	}, 500)
 }

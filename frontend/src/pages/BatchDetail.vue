@@ -14,13 +14,13 @@
 					{{ batch.data.description }}
 				</div>
 				<div
-					class="flex flex-col gap-2 lg:gap-0 lg:flex-row lg:items-center space-x-5 lg:w-1/2"
+					class="flex flex-col gap-2 lg:gap-0 lg:flex-row lg:items-center space-x-0 md:space-x-5 lg:w-1/2"
 				>
 					<div
 						v-if="batch.data?.courses?.length"
 						class="flex items-center text-ink-gray-7"
 					>
-						<BookOpen class="h-4 w-4 mr-2" />
+						<BookOpen class="h-4 w-4 mr-2 stroke-1.5" />
 						<span> {{ batch.data?.courses?.length }} {{ __('Courses') }} </span>
 					</div>
 					<span v-if="batch.data?.courses?.length" class="hidden lg:block"
@@ -34,7 +34,7 @@
 						>&middot;</span
 					>
 					<div class="flex items-center text-ink-gray-7">
-						<Clock class="h-4 w-4 mr-2" />
+						<Clock class="h-4 w-4 mr-2 stroke-1.5" />
 						<span>
 							{{ formatTime(batch.data.start_time) }} -
 							{{ formatTime(batch.data.end_time) }}

@@ -294,15 +294,13 @@ import {
 	MessageCircleQuestion,
 } from 'lucide-vue-next'
 import Discussions from '@/components/Discussions.vue'
-import { getEditorTools } from '../utils'
+import { getEditorTools, enablePlyr } from '@/utils'
 import { sessionStore } from '@/stores/session'
 import EditorJS from '@editorjs/editorjs'
 import LessonContent from '@/components/LessonContent.vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
 import CertificationLinks from '@/components/CertificationLinks.vue'
-import Plyr from 'plyr'
-import 'plyr/dist/plyr.css'
 
 const user = inject('$user')
 const router = useRouter()
@@ -355,37 +353,6 @@ const attachFullscreenEvent = () => {
 onBeforeUnmount(() => {
 	document.removeEventListener('fullscreenchange', attachFullscreenEvent)
 })
-
-const enablePlyr = () => {
-	setTimeout(() => {
-		const videoElement = document.getElementsByClassName('video-player')
-		if (videoElement.length === 0) return
-
-		const src = document
-			.getElementsByClassName('video-player')[0]
-			.getAttribute('src')
-		if (src) {
-			let videoID = src.split('/').pop()
-			document
-				.getElementsByClassName('video-player')[0]
-				.setAttribute('data-plyr-embed-id', videoID)
-		}
-		new Plyr('.video-player', {
-			youtube: {
-				noCookie: true,
-			},
-			controls: [
-				'play-large',
-				'play',
-				'progress',
-				'current-time',
-				'mute',
-				'volume',
-				'fullscreen',
-			],
-		})
-	}, 500)
-}
 
 const lesson = createResource({
 	url: 'lms.lms.utils.get_lesson',

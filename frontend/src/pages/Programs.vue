@@ -217,7 +217,7 @@ const canCreateProgram = () => {
 
 const breadbrumbs = computed(() => [
 	{
-		label: 'Programs',
+		label: __('Programs'),
 	},
 ])
 
