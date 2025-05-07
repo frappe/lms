@@ -11,7 +11,7 @@ def after_install():
 def after_sync():
 	create_lms_roles()
 	set_default_certificate_print_format()
-	add_all_roles_to("Administrator")
+	give_lms_roles_to_admin()
 
 
 def before_uninstall():
@@ -171,4 +171,16 @@ def create_batch_source():
 		if not frappe.db.exists("LMS Source", source):
 			doc = frappe.new_doc("LMS Source")
 			doc.source = source
+			doc.save()
+
+
+def give_lms_roles_to_admin():
+	roles = ["Course Creator", "Moderator", "Batch Evaluator"]
+	for role in roles:
+		if not frappe.db.exists("Has Role", {"parent": "Administrator", "role": role}):
+			doc = frappe.new_doc("Has Role")
+			doc.parent = "Administrator"
+			doc.parenttype = "User"
+			doc.parentfield = "roles"
+			doc.role = role
 			doc.save()
