@@ -2,57 +2,73 @@
 	<Dialog
 		v-model="show"
 		:options="{
-			title:
-				assignmentID === 'new'
-					? __('Create an Assignment')
-					: __('Edit Assignment'),
 			size: 'lg',
-			actions: [
-				{
-					label: __('Save'),
-					variant: 'solid',
-					onClick: (close) => saveAssignment(close),
-				},
-			],
 		}"
 	>
-		<template #body-content>
-			<div class="space-y-4 text-base max-h-[65vh] overflow-y-auto">
-				<FormControl
-					v-model="assignment.title"
-					:label="__('Title')"
-					:required="true"
-				/>
-				<FormControl
-					v-model="assignment.type"
-					type="select"
-					:options="assignmentOptions"
-					:label="__('Submission Type')"
-					:required="true"
-				/>
-				<div>
-					<div class="text-xs text-ink-gray-5 mb-2">
-						{{ __('Question') }}
-						<span class="text-ink-red-3">*</span>
-					</div>
-					<TextEditor
-						:content="assignment.question"
-						@change="(val) => (assignment.question = val)"
-						:editable="true"
-						:fixedMenu="true"
-						editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
+		<template #body>
+			<div class="p-5 text-base max-h-[75vh] overflow-y-auto">
+				<div class="text-lg text-ink-gray-9 font-semibold mb-5">
+					{{
+						assignmentID === 'new'
+							? __('Create an Assignment')
+							: __('Edit Assignment')
+					}}
+				</div>
+				<div class="space-y-4">
+					<FormControl
+						v-model="assignment.title"
+						:label="__('Title')"
+						:required="true"
 					/>
+					<FormControl
+						v-model="assignment.type"
+						type="select"
+						:options="assignmentOptions"
+						:label="__('Submission Type')"
+						:required="true"
+					/>
+					<div>
+						<div class="text-xs text-ink-gray-5 mb-2">
+							{{ __('Question') }}
+							<span class="text-ink-red-3">*</span>
+						</div>
+						<TextEditor
+							:content="assignment.question"
+							@change="(val) => (assignment.question = val)"
+							:editable="true"
+							:fixedMenu="true"
+							editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
+						/>
+					</div>
+				</div>
+
+				<div class="flex justify-end space-x-2 mt-5">
+					<router-link
+						:to="{
+							name: 'AssignmentSubmissionList',
+							query: {
+								assignmentID: assignmentID,
+							},
+						}"
+					>
+						<Button v-if="assignmentID !== 'new'" variant="subtle">
+							{{ __('Check Submissions') }}
+						</Button>
+					</router-link>
+					<Button variant="solid" @click="saveAssignment">
+						{{ __('Save') }}
+					</Button>
 				</div>
 			</div>
 		</template>
 	</Dialog>
 </template>
 <script setup lang="ts">
-import { Dialog, FormControl, TextEditor } from 'frappe-ui'
+import { Button, Dialog, FormControl, TextEditor } from 'frappe-ui'
 import { computed, reactive, watch } from 'vue'
 import { showToast } from '@/utils'
 
-const show = defineModel('show')
+const show = defineModel()
 const assignments = defineModel<Assignments>('assignments')
 
 interface Assignment {
@@ -98,7 +114,7 @@ watch(
 	{ flush: 'post' }
 )
 
-const saveAssignment = (close) => {
+const saveAssignment = () => {
 	if (props.assignmentID == 'new') {
 		assignments.value.insert.submit(
 			{
@@ -106,7 +122,7 @@ const saveAssignment = (close) => {
 			},
 			{
 				onSuccess() {
-					close()
+					show.value = false
 					showToast(
 						__('Success'),
 						__('Assignment created successfully'),
@@ -123,7 +139,7 @@ const saveAssignment = (close) => {
 			},
 			{
 				onSuccess() {
-					close()
+					show.value = false
 					showToast(
 						__('Success'),
 						__('Assignment updated successfully'),

@@ -312,7 +312,7 @@ def get_lesson_index(lesson_name):
 def get_lesson_url(course, lesson_number):
 	if not lesson_number:
 		return
-	return f"/courses/{course}/learn/{lesson_number}"
+	return f"/lms/courses/{course}/learn/{lesson_number}"
 
 
 def get_batch(course, batch_name):
