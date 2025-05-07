@@ -8,6 +8,7 @@
   "general_tab",
   "default_home",
   "send_calendar_invite_for_evaluations",
+  "persona_captured",
   "column_break_zdel",
   "allow_guest_access",
   "enable_learning_paths",
@@ -58,10 +59,12 @@
   "certification_template",
   "batch_confirmation_template",
   "column_break_uwsp",
-  "assignment_submission_template",
   "payment_reminder_template",
   "seo_tab",
-  "meta_description"
+  "meta_description",
+  "meta_image",
+  "column_break_xijv",
+  "meta_keywords"
  ],
  "fields": [
   {
@@ -106,7 +109,7 @@
    "default": "0",
    "fieldname": "user_category",
    "fieldtype": "Check",
-   "label": "Identify User Persona"
+   "label": "Identify User Category"
   },
   {
    "default": "0",
@@ -237,12 +240,6 @@
    "fieldname": "email_templates_tab",
    "fieldtype": "Tab Break",
    "label": "Email Templates"
-  },
-  {
-   "fieldname": "assignment_submission_template",
-   "fieldtype": "Link",
-   "label": "Assignment Submission Template",
-   "options": "Email Template"
   },
   {
    "fieldname": "column_break_uwsp",
@@ -377,13 +374,36 @@
    "fieldname": "meta_description",
    "fieldtype": "Small Text",
    "label": "Meta Description"
+  },
+  {
+   "description": "This image will be shown on lists and pages that don't have an image by default",
+   "fieldname": "meta_image",
+   "fieldtype": "Attach Image",
+   "label": "Meta Image"
+  },
+  {
+   "fieldname": "column_break_xijv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Common keywords that will be used for all pages",
+   "fieldname": "meta_keywords",
+   "fieldtype": "Small Text",
+   "label": "Meta Keywords"
+  },
+  {
+   "default": "0",
+   "fieldname": "persona_captured",
+   "fieldtype": "Check",
+   "label": "Persona Captured",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-04-10 16:17:00.658698",
+ "modified": "2025-04-22 16:05:27.914422",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Settings",

@@ -24,7 +24,10 @@
 		>
 			{{ formatNumberIntoCurrency(batch.data.amount, batch.data.currency) }}
 		</div>
-		<div class="flex items-center mb-3 text-ink-gray-7">
+		<div
+			v-if="batch.data.courses.length"
+			class="flex items-center mb-3 text-ink-gray-7"
+		>
 			<BookOpen class="h-4 w-4 stroke-1.5 mr-2" />
 			<span> {{ batch.data.courses.length }} {{ __('Courses') }} </span>
 		</div>
@@ -46,68 +49,70 @@
 				{{ batch.data.timezone }}
 			</span>
 		</div>
-		<router-link
-			v-if="isModerator || isStudent"
-			:to="{
-				name: 'Batch',
-				params: {
-					batchName: batch.data.name,
-				},
-			}"
-		>
-			<Button variant="solid" class="w-full mt-4">
-				<span>
-					{{ isModerator ? __('Manage Batch') : __('Visit Batch') }}
-				</span>
+		<div v-if="!readOnlyMode">
+			<router-link
+				v-if="isModerator || isStudent"
+				:to="{
+					name: 'Batch',
+					params: {
+						batchName: batch.data.name,
+					},
+				}"
+			>
+				<Button variant="solid" class="w-full mt-4">
+					<span>
+						{{ isModerator ? __('Manage Batch') : __('Visit Batch') }}
+					</span>
+				</Button>
+			</router-link>
+			<router-link
+				:to="{
+					name: 'Billing',
+					params: {
+						type: 'batch',
+						name: batch.data.name,
+					},
+				}"
+				v-else-if="
+					batch.data.paid_batch &&
+					batch.data.seats_left > 0 &&
+					batch.data.accept_enrollments
+				"
+			>
+				<Button v-if="!isStudent" class="w-full mt-4" variant="solid">
+					<span>
+						{{ __('Register Now') }}
+					</span>
+				</Button>
+			</router-link>
+			<Button
+				variant="solid"
+				class="w-full mt-2"
+				v-else-if="
+					batch.data.allow_self_enrollment &&
+					batch.data.seats_left &&
+					batch.data.accept_enrollments
+				"
+				@click="enrollInBatch()"
+			>
+				{{ __('Enroll Now') }}
 			</Button>
-		</router-link>
-		<router-link
-			:to="{
-				name: 'Billing',
-				params: {
-					type: 'batch',
-					name: batch.data.name,
-				},
-			}"
-			v-else-if="
-				batch.data.paid_batch &&
-				batch.data.seats_left > 0 &&
-				batch.data.accept_enrollments
-			"
-		>
-			<Button v-if="!isStudent" class="w-full mt-4" variant="solid">
-				<span>
-					{{ __('Register Now') }}
-				</span>
-			</Button>
-		</router-link>
-		<Button
-			variant="solid"
-			class="w-full mt-2"
-			v-else-if="
-				batch.data.allow_self_enrollment &&
-				batch.data.seats_left &&
-				batch.data.accept_enrollments
-			"
-			@click="enrollInBatch()"
-		>
-			{{ __('Enroll Now') }}
-		</Button>
-		<router-link
-			v-if="isModerator"
-			:to="{
-				name: 'BatchForm',
-				params: {
-					batchName: batch.data.name,
-				},
-			}"
-		>
-			<Button class="w-full mt-2">
-				<span>
-					{{ __('Edit') }}
-				</span>
-			</Button>
-		</router-link>
+			<router-link
+				v-if="isModerator"
+				:to="{
+					name: 'BatchForm',
+					params: {
+						batchName: batch.data.name,
+					},
+				}"
+			>
+				<Button class="w-full mt-2">
+					<span>
+						{{ __('Edit') }}
+					</span>
+				</Button>
+			</router-link>
+		</div>
 	</div>
 </template>
 <script setup>
@@ -120,7 +125,7 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const user = inject('$user')
-const dayjs = inject('$dayjs')
+const readOnlyMode = window.read_only_mode
 
 const props = defineProps({
 	batch: {

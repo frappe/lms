@@ -51,7 +51,9 @@ const props = defineProps({
 
 const update = () => {
 	props.fields.forEach((f) => {
-		if (f.type != 'Column Break') {
+		if (f.type == 'Upload') {
+			props.data.doc[f.name] = f.value ? f.value.file_url : null
+		} else if (f.type != 'Column Break') {
 			props.data.doc[f.name] = f.value
 		}
 	})

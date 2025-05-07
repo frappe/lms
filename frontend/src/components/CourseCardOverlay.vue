@@ -9,88 +9,94 @@
 			<div v-if="course.data.paid_course" class="text-2xl font-semibold mb-3">
 				{{ course.data.price }}
 			</div>
-			<div v-if="course.data.membership" class="space-y-2">
+			<div v-if="!readOnlyMode">
+				<div v-if="course.data.membership" class="space-y-2">
+					<router-link
+						:to="{
+							name: 'Lesson',
+							params: {
+								courseName: course.name,
+								chapterNumber: course.data.current_lesson
+									? course.data.current_lesson.split('-')[0]
+									: 1,
+								lessonNumber: course.data.current_lesson
+									? course.data.current_lesson.split('-')[1]
+									: 1,
+							},
+						}"
+					>
+						<Button variant="solid" size="md" class="w-full">
+							<span>
+								{{ __('Continue Learning') }}
+							</span>
+						</Button>
+					</router-link>
+					<CertificationLinks :courseName="course.data.name" class="w-full" />
+				</div>
 				<router-link
+					v-else-if="course.data.paid_course"
 					:to="{
-						name: 'Lesson',
+						name: 'Billing',
 						params: {
-							courseName: course.name,
-							chapterNumber: course.data.current_lesson
-								? course.data.current_lesson.split('-')[0]
-								: 1,
-							lessonNumber: course.data.current_lesson
-								? course.data.current_lesson.split('-')[1]
-								: 1,
+							type: 'course',
+							name: course.data.name,
 						},
 					}"
 				>
 					<Button variant="solid" size="md" class="w-full">
 						<span>
-							{{ __('Continue Learning') }}
+							{{ __('Buy this course') }}
 						</span>
 					</Button>
 				</router-link>
-				<CertificationLinks :courseName="course.data.name" class="w-full" />
-			</div>
-			<router-link
-				v-else-if="course.data.paid_course"
-				:to="{
-					name: 'Billing',
-					params: {
-						type: 'course',
-						name: course.data.name,
-					},
-				}"
-			>
-				<Button variant="solid" size="md" class="w-full">
+				<Badge
+					v-else-if="course.data.disable_self_learning"
+					theme="blue"
+					size="lg"
+				>
+					{{ __('Contact the Administrator to enroll for this course.') }}
+				</Badge>
+				<Button
+					v-else
+					@click="enrollStudent()"
+					variant="solid"
+					class="w-full"
+					size="md"
+				>
 					<span>
-						{{ __('Buy this course') }}
+						{{ __('Start Learning') }}
 					</span>
 				</Button>
-			</router-link>
-			<div
-				v-else-if="course.data.disable_self_learning"
-				class="bg-surface-blue-2 text-blue-900 text-sm rounded-md py-1 px-3"
-			>
-				{{ __('Contact the Administrator to enroll for this course.') }}
-			</div>
-			<Button
-				v-else
-				@click="enrollStudent()"
-				variant="solid"
-				class="w-full"
-				size="md"
-			>
-				<span>
-					{{ __('Start Learning') }}
-				</span>
-			</Button>
-			<Button
-				v-if="canGetCertificate"
-				@click="fetchCertificate()"
-				variant="subtle"
-				class="w-full mt-2"
-				size="md"
-			>
-				{{ __('Get Certificate') }}
-			</Button>
-			<router-link
-				v-if="user?.data?.is_moderator || is_instructor()"
-				:to="{
-					name: 'CourseForm',
-					params: {
-						courseName: course.data.name,
-					},
-				}"
-			>
-				<Button variant="subtle" class="w-full mt-2" size="md">
-					<span>
-						{{ __('Edit') }}
-					</span>
+				<Button
+					v-if="canGetCertificate"
+					@click="fetchCertificate()"
+					variant="subtle"
+					class="w-full mt-2"
+					size="md"
+				>
+					{{ __('Get Certificate') }}
 				</Button>
-			</router-link>
+				<router-link
+					v-if="user?.data?.is_moderator || is_instructor()"
+					:to="{
+						name: 'CourseForm',
+						params: {
+							courseName: course.data.name,
+						},
+					}"
+				>
+					<Button variant="subtle" class="w-full mt-2" size="md">
+						<span>
+							{{ __('Edit') }}
+						</span>
+					</Button>
+				</router-link>
+			</div>
 			<div class="space-y-4">
-				<div class="mt-8 font-medium text-ink-gray-9">
+				<div
+					class="font-medium text-ink-gray-9"
+					:class="{ 'mt-8': !readOnlyMode }"
+				>
 					{{ __('This course has:') }}
 				</div>
 				<div class="flex items-center text-ink-gray-9">
@@ -140,7 +146,7 @@
 <script setup>
 import { BookOpen, Users, Star, GraduationCap } from 'lucide-vue-next'
 import { computed, inject } from 'vue'
-import { Button, createResource, Tooltip } from 'frappe-ui'
+import { Badge, Button, createResource } from 'frappe-ui'
 import { showToast, formatAmount } from '@/utils/'
 import { capture } from '@/telemetry'
 import { useRouter } from 'vue-router'
@@ -148,6 +154,7 @@ import CertificationLinks from '@/components/CertificationLinks.vue'
 
 const router = useRouter()
 const user = inject('$user')
+const readOnlyMode = window.read_only_mode
 
 const props = defineProps({
 	course: {
@@ -172,7 +179,7 @@ function enrollStudent() {
 		)
 		setTimeout(() => {
 			window.location.href = `/login?redirect-to=${window.location.pathname}`
-		}, 2000)
+		}, 1000)
 	} else {
 		const enrollStudentResource = createResource({
 			url: 'lms.lms.doctype.lms_enrollment.lms_enrollment.create_membership',

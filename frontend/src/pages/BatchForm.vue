@@ -10,11 +10,11 @@
 		</header>
 		<div class="w-3/4 mx-auto py-5">
 			<div class="">
-				<div class="text-lg font-semibold mb-4">
+				<div class="text-lg text-ink-gray-9 font-semibold mb-4">
 					{{ __('Details') }}
 				</div>
 				<div class="space-y-10 mb-4">
-					<div class="grid grid-cols-2 gap-10">
+					<div class="space-y-4">
 						<FormControl
 							v-model="batch.title"
 							:label="__('Title')"
@@ -107,7 +107,7 @@
 			</div>
 
 			<div class="my-10">
-				<div class="text-lg font-semibold mb-4">
+				<div class="text-lg text-ink-gray-9 font-semibold mb-4">
 					{{ __('Date and Time') }}
 				</div>
 				<div class="grid grid-cols-3 gap-10">
@@ -157,7 +157,7 @@
 			</div>
 
 			<div class="mb-10">
-				<div class="text-lg font-semibold mb-4">
+				<div class="text-lg text-ink-gray-9 font-semibold mb-4">
 					{{ __('Settings') }}
 				</div>
 				<div class="grid grid-cols-3 gap-10">
@@ -210,7 +210,7 @@
 			</div>
 
 			<div class="">
-				<div class="text-lg font-semibold mb-4">
+				<div class="text-lg text-ink-gray-9 font-semibold mb-4">
 					{{ __('Payment') }}
 				</div>
 				<FormControl
@@ -234,7 +234,7 @@
 			</div>
 
 			<div class="my-10">
-				<div class="text-lg font-semibold mb-4">
+				<div class="text-lg text-ink-gray-9 font-semibold mb-4">
 					{{ __('Description') }}
 				</div>
 				<FormControl

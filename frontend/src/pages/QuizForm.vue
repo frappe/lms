@@ -3,7 +3,7 @@
 		class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs :items="breadcrumbs" />
-		<div class="space-x-2">
+		<div v-if="!readOnlyMode" class="space-x-2">
 			<router-link
 				v-if="quizDetails.data?.name"
 				:to="{
@@ -38,7 +38,7 @@
 	<div class="w-3/4 mx-auto py-5">
 		<!-- Details -->
 		<div class="mb-8">
-			<div class="font-semibold mb-4">
+			<div class="font-semibold text-ink-gray-9 mb-4">
 				{{ __('Details') }}
 			</div>
 			<FormControl
@@ -75,7 +75,7 @@
 
 				<!-- Settings -->
 				<div class="mb-8">
-					<div class="font-semibold mb-4">
+					<div class="font-semibold text-ink-gray-9 mb-4">
 						{{ __('Settings') }}
 					</div>
 					<div class="grid grid-cols-3 gap-5 my-4">
@@ -93,7 +93,7 @@
 				</div>
 
 				<div class="mb-8">
-					<div class="font-semibold mb-4">
+					<div class="font-semibold text-ink-gray-9 mb-4">
 						{{ __('Shuffle Settings') }}
 					</div>
 					<div class="grid grid-cols-3">
@@ -113,10 +113,10 @@
 				<!-- Questions -->
 				<div>
 					<div class="flex items-center justify-between mb-4">
-						<div class="font-semibold">
+						<div class="font-semibold text-ink-gray-9">
 							{{ __('Questions') }}
 						</div>
-						<Button @click="openQuestionModal()">
+						<Button v-if="!readOnlyMode" @click="openQuestionModal()">
 							<template #prefix>
 								<Plus class="w-4 h-4" />
 							</template>
@@ -223,6 +223,7 @@ const currentQuestion = reactive({
 })
 const user = inject('$user')
 const router = useRouter()
+const readOnlyMode = window.read_only_mode
 
 const props = defineProps({
 	quizID: {
@@ -444,11 +445,7 @@ const breadcrumbs = computed(() => {
 			},
 		},
 	]
-	/* if (quizDetails.data) {
-		crumbs.push({
-			label: quiz.title,
-		})
-	} */
+
 	crumbs.push({
 		label: props.quizID == 'new' ? __('New Quiz') : quizDetails.data?.title,
 		route: { name: 'QuizForm', params: { quizID: props.quizID } },

@@ -1,5 +1,5 @@
 <template>
-	<div class="h-full">
+	<div class="">
 		<div
 			v-if="title && (outline.data?.length || allowEdit)"
 			class="flex items-center justify-between space-x-2 mb-4 px-2"
@@ -17,9 +17,6 @@
 			<Button size="sm" v-if="allowEdit" @click="openChapterModal()">
 				{{ __('Add Chapter') }}
 			</Button>
-			<!-- <span class="font-medium cursor-pointer" @click="expandAllChapters()">
-				{{ expandAll ? __("Collapse all chapters") : __("Expand all chapters") }}
-			</span> -->
 		</div>
 		<div
 			:class="{

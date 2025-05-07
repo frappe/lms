@@ -11,7 +11,7 @@
 				>
 					{{ __('Generate Certificates') }}
 				</Button>
-				<Button v-if="user.data?.is_moderator" @click="openAnnouncementModal()">
+				<Button v-if="canMakeAnnouncement()" @click="openAnnouncementModal()">
 					<span>
 						{{ __('Make an Announcement') }}
 					</span>
@@ -242,6 +242,7 @@ const route = useRoute()
 const router = useRouter()
 const { brand } = sessionStore()
 const tabIndex = ref(0)
+const readOnlyMode = window.read_only_mode
 
 const tabs = computed(() => {
 	let batchTabs = []
@@ -353,6 +354,11 @@ watch(tabIndex, () => {
 		router.push({ ...route, hash: `#${tab.label.toLowerCase()}` })
 	}
 })
+
+const canMakeAnnouncement = () => {
+	if (readOnlyMode) return false
+	return user.data?.is_moderator || user.data?.is_evaluator
+}
 
 usePageMeta(() => {
 	return {

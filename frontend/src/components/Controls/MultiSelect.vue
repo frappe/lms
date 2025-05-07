@@ -4,7 +4,7 @@
 			{{ label }}
 			<span class="text-ink-red-3" v-if="required">*</span>
 		</label>
-		<div class="grid grid-cols-3 gap-1">
+		<div class="grid grid-cols-3 gap-2">
 			<Button
 				ref="emails"
 				v-for="value in values"
@@ -12,7 +12,7 @@
 				:label="value"
 				theme="gray"
 				variant="subtle"
-				class="rounded-md"
+				class="rounded-md word-break-all"
 				@keydown.delete.capture.stop="removeLastValue"
 			>
 				<template #suffix>
@@ -42,7 +42,7 @@
 						<template #body="{ isOpen }">
 							<div v-show="isOpen">
 								<div
-									class="mt-1 rounded-lg bg-surface-white py-1 text-base shadow-2xl"
+									class="mt-1 rounded-lg bg-surface-white py-1 text-base border-2"
 								>
 									<ComboboxOptions
 										class="my-1 max-h-[12rem] overflow-y-auto px-1.5"
@@ -61,7 +61,7 @@
 												]"
 											>
 												<div class="flex flex-col gap-1 p-1">
-													<div class="text-base font-medium">
+													<div class="text-base font-medium text-ink-gray-8">
 														{{ option.description }}
 													</div>
 													<div class="text-sm text-ink-gray-5">

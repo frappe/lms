@@ -13,6 +13,6 @@ module.exports = defineConfig({
 		openMode: 0,
 	},
 	e2e: {
-		baseUrl: "http://testui:8000",
+		baseUrl: "http://pertest:8000",
 	},
 });

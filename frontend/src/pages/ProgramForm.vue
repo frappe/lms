@@ -13,7 +13,7 @@
 		<!-- Courses -->
 		<div>
 			<div class="flex items-center justify-between mb-2">
-				<div class="text-lg font-semibold">
+				<div class="text-lg text-ink-gray-9 font-semibold">
 					{{ __('Program Courses') }}
 				</div>
 				<Button
@@ -75,7 +75,7 @@
 		<!-- Members -->
 		<div>
 			<div class="flex items-center justify-between mb-2">
-				<div class="text-lg font-semibold">
+				<div class="text-lg text-ink-gray-9 font-semibold">
 					{{ __('Program Members') }}
 				</div>
 				<Button

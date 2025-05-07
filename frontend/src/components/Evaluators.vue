@@ -97,7 +97,7 @@ const evaluators = createResource({
 		return {
 			doctype: 'Course Evaluator',
 			fields: ['evaluator', 'full_name', 'user_image', 'username'],
-			filters: search.value ? [['evaluator', 'like', search.value]] : [],
+			filters: search.value ? { evaluator: ['like', `%${search.value}%`] } : {},
 		}
 	},
 	auto: true,

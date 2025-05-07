@@ -194,18 +194,6 @@ const userDropdownOptions = computed(() => {
 						)
 					},
 				},
-			],
-		},
-		{
-			group: '',
-			items: [
-				{
-					icon: Zap,
-					label: 'Powered by Learning',
-					onClick: () => {
-						window.open('https://frappe.io/learning', '_blank')
-					},
-				},
 				{
 					icon: LogOut,
 					label: 'Log out',

@@ -110,7 +110,7 @@
 			<div class="text-ink-gray-7 font-medium">
 				{{ __('Students') }}
 			</div>
-			<Button @click="openStudentModal()">
+			<Button v-if="!readOnlyMode" @click="openStudentModal()">
 				<template #prefix>
 					<Plus class="h-4 w-4" />
 				</template>
@@ -247,6 +247,7 @@ const chartData = ref(null)
 const chartOptions = ref(null)
 const showProgressChart = ref(false)
 const assessmentCount = ref(0)
+const readOnlyMode = window.read_only_mode
 
 const props = defineProps({
 	batch: {

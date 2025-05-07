@@ -4,7 +4,7 @@
 	>
 		<Breadcrumbs :items="breadbrumbs" />
 		<Button
-			v-if="user.data?.is_moderator || user.data?.is_instructor"
+			v-if="canCreateProgram()"
 			@click="showDialog = true"
 			variant="solid"
 		>
@@ -46,7 +46,7 @@
 							params: { programName: program.name },
 						}"
 					>
-						<Button>
+						<Button v-if="!readOnlyMode">
 							<template #prefix>
 								<Edit class="h-4 w-4 stroke-1.5" />
 							</template>
@@ -142,6 +142,7 @@ const showDialog = ref(false)
 const router = useRouter()
 const title = ref('')
 const settings = useSettings()
+const readOnlyMode = window.read_only_mode
 
 onMounted(() => {
 	if (
@@ -208,9 +209,15 @@ const lockCourse = (course) => {
 	return true
 }
 
+const canCreateProgram = () => {
+	if (readOnlyMode) return false
+	if (user.data?.is_moderator || user.data?.is_instructor) return true
+	return false
+}
+
 const breadbrumbs = computed(() => [
 	{
-		label: 'Programs',
+		label: __('Programs'),
 	},
 ])
 
