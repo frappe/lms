@@ -42,10 +42,11 @@
 					<div class="grid grid-cols-2 gap-2">
 						<div v-for="slot in slots.data">
 							<div
-								class="text-base text-center border rounded-md bg-surface-gray-3 p-2 cursor-pointer"
+								class="text-base text-center border rounded-md text-ink-gray-8 bg-surface-gray-3 p-2 cursor-pointer"
 								@click="saveSlot(slot)"
 								:class="{
-									'border-gray-900': evaluation.start_time == slot.start_time,
+									'border-outline-gray-4':
+										evaluation.start_time == slot.start_time,
 								}"
 							>
 								{{ formatTime(slot.start_time) }} -

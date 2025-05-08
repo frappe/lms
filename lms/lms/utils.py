@@ -772,14 +772,17 @@ def get_chart_data(
 		from_date = add_months(getdate(), -1)
 	if not to_date:
 		to_date = getdate()
-	chart = frappe.get_doc("Dashboard Chart", chart_name)
-	filters = [([chart.document_type, "docstatus", "<", 2, False])]
-	doctype = chart.document_type
-	datefield = chart.based_on
-	value_field = chart.value_based_on or "1"
+
 	from_date = get_datetime(from_date).strftime("%Y-%m-%d")
 	to_date = get_datetime(to_date)
 
+	chart = frappe.get_doc("Dashboard Chart", chart_name)
+	doctype = chart.document_type
+	datefield = chart.based_on
+	value_field = chart.value_based_on or "1"
+
+	filters = [([chart.document_type, "docstatus", "<", 2, False])]
+	filters = filters + json.loads(chart.filters_json)
 	filters.append([doctype, datefield, ">=", from_date, False])
 	filters.append([doctype, datefield, "<=", to_date, False])
 
