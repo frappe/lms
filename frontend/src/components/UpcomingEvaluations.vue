@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<div class="flex items-center justify-between mb-4">
-			<div class="text-lg font-semibold">
+			<div class="text-lg text-ink-gray-9 font-semibold">
 				{{ __('Upcoming Evaluations') }}
 			</div>
 			<Button
@@ -17,9 +17,9 @@
 		<div v-if="upcoming_evals.data?.length">
 			<div class="grid grid-cols-3 gap-4">
 				<div v-for="evl in upcoming_evals.data">
-					<div class="border rounded-md p-3">
+					<div class="border text-ink-gray-7 rounded-md p-3">
 						<div class="flex justify-between mb-3">
-							<span class="font-semibold leading-5">
+							<span class="font-semibold text-ink-gray-9 leading-5">
 								{{ evl.course_title }}
 							</span>
 							<Menu
@@ -42,7 +42,7 @@
 									leave-to-class="transform scale-95 opacity-0"
 								>
 									<MenuItems
-										class="absolute mt-2 w-32 rounded-md bg-white shadow-lg p-1.5"
+										class="absolute mt-2 w-32 rounded-md bg-surface-white border p-1.5"
 									>
 										<MenuItem v-slot="{ active }">
 											<Button
@@ -82,12 +82,11 @@
 								{{ evl.evaluator_name }}
 							</span>
 						</div>
-						<div class="flex items-center justify-between space-x-2 mt-4">
-							<Button
-								v-if="evl.google_meet_link"
-								@click="openEvalCall(evl)"
-								class="w-full"
-							>
+						<div
+							v-if="evl.google_meet_link"
+							class="flex items-center justify-between space-x-2 mt-4"
+						>
+							<Button @click="openEvalCall(evl)" class="w-full">
 								<template #prefix>
 									<HeadsetIcon class="w-4 h-4 stroke-1.5" />
 								</template>
