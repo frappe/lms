@@ -7,35 +7,45 @@
 		</header>
 		<div v-if="chartDetails.data" class="p-5">
 			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-				<NumberChart
-					class="border rounded-md"
-					:config="{ title: 'Courses', value: chartDetails.data.courses }"
-				/>
-				<NumberChart
-					class="border rounded-md"
-					:config="{ title: 'Signups', value: chartDetails.data.users }"
-				/>
-				<NumberChart
-					class="border rounded-md"
-					:config="{
-						title: 'Enrollments',
-						value: chartDetails.data.enrollments,
-					}"
-				/>
-				<NumberChart
-					class="border rounded-md"
-					:config="{
-						title: 'Completions',
-						value: chartDetails.data.completions,
-					}"
-				/>
-				<NumberChart
-					class="border rounded-md"
-					:config="{
-						title: 'Certifications',
-						value: chartDetails.data.certifications,
-					}"
-				/>
+				<Tooltip :text="__('Published Courses')">
+					<NumberChart
+						class="border rounded-md"
+						:config="{ title: 'Courses', value: chartDetails.data.courses }"
+					/>
+				</Tooltip>
+				<Tooltip :text="__('Active Members')">
+					<NumberChart
+						class="border rounded-md"
+						:config="{ title: 'Signups', value: chartDetails.data.users }"
+					/>
+				</Tooltip>
+				<Tooltip :text="__('Course Enrollments')">
+					<NumberChart
+						class="border rounded-md"
+						:config="{
+							title: 'Enrollments',
+							value: chartDetails.data.enrollments,
+						}"
+					/>
+				</Tooltip>
+				<Tooltip :text="__('Course Completions')">
+					<NumberChart
+						class="border rounded-md"
+						:config="{
+							title: 'Completions',
+							value: chartDetails.data.completions,
+						}"
+					/>
+				</Tooltip>
+				<Tooltip :text="__('Certified Members')">
+					<NumberChart
+						class="border rounded-md"
+						:config="{
+							title: 'Certifications',
+							value: chartDetails.data.certifications,
+						}"
+					/>
+				</Tooltip>
 			</div>
 			<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
 				<div class="border rounded-md min-h-72">
@@ -129,6 +139,7 @@ import {
 	createResource,
 	DonutChart,
 	NumberChart,
+	Tooltip,
 	usePageMeta,
 } from 'frappe-ui'
 import { computed } from 'vue'
