@@ -2,7 +2,8 @@
   "name": "frappe_lms",
   "version": "1.0.0",
   "description": "Easy to use, open-source, Learning Management System",
-  "workspaces1": [
+  "type": "module",
+  "workspaces": [
     "frappe-ui",
     "frontend"
   ],

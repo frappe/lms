@@ -6,70 +6,100 @@
 			</div>
 		</div>
 		<div class="grid grid-cols-4 gap-5 mb-8">
-			<div
-				class="flex items-center border py-2 px-3 rounded-md text-ink-gray-7"
-			>
-				<div class="p-2 rounded-md bg-surface-gray-2 mr-3">
-					<User class="w-5 h-5 stroke-1.5" />
-				</div>
-				<div class="flex items-center space-x-2">
-					<span class="font-semibold">
-						{{ students.data?.length }}
-					</span>
-					<span class="">
-						{{ __('Students') }}
-					</span>
-				</div>
-			</div>
 
-			<div
-				class="flex items-center border py-2 px-3 rounded-md text-ink-gray-7"
-			>
-				<div class="p-2 rounded-md bg-surface-gray-2 mr-3">
-					<GraduationCap class="w-5 h-5 stroke-1.5" />
-				</div>
-				<div class="flex items-center space-x-2">
-					<span class="font-semibold">
-						{{ certificationCount.data }}
-					</span>
-					<span class="">
-						{{ __('Certified') }}
-					</span>
-				</div>
-			</div>
+			<NumberChart
+				class="border rounded-md"
+				:config="{ title: __('Students'), value: students.data?.length || 0 }"
+			/>
 
-			<div
-				class="flex items-center border py-2 px-3 rounded-md text-ink-gray-7"
-			>
-				<div class="p-2 rounded-md bg-surface-gray-2 mr-3">
-					<BookOpen class="w-5 h-5 stroke-1.5" />
-				</div>
-				<div class="flex items-center space-x-2">
-					<span class="font-semibold">
-						{{ batch.courses?.length }}
-					</span>
-					<span>
-						{{ __('Courses') }}
-					</span>
-				</div>
-			</div>
+			<NumberChart
+				class="border rounded-md"
+				:config="{ title: __('Certified'), value: certificationCount.data || 0 }"
+			/>
 
-			<div
-				class="flex items-center border py-2 px-3 rounded-md text-ink-gray-7"
-			>
-				<div class="p-2 rounded-md bg-surface-gray-2 mr-3">
-					<ShieldCheck class="w-5 h-5 stroke-1.5" />
-				</div>
-				<div class="flex items-center space-x-2">
-					<span class="font-semibold">
-						{{ assessmentCount }}
-					</span>
-					<span>
-						{{ __('Assessments') }}
-					</span>
-				</div>
-			</div>
+			<NumberChart
+				class="border rounded-md"
+				:config="{ title: __('Courses'), value: batch.courses?.length || 0 }"
+			/>
+
+			<NumberChart
+				class="border rounded-md"
+				:config="{ title: __('Assessments'), value: assessmentCount || 0 }"
+			/>
 		</div>
+
+		<AxisChart
+			:config="{
+				data: [
+					{
+						product: 'Apple Watch',
+						sales: 400,
+					},
+					{
+						product: 'Services',
+						sales: 400,
+					},
+					{
+						product: 'iMac',
+						sales: 350,
+					},
+					{
+						product: 'Accessories',
+						sales: 350,
+					},
+					{
+						product: 'iPad',
+						sales: 300,
+					},
+					{
+						product: 'AirPods',
+						sales: 300,
+					},
+					{
+						product: 'Apple TV',
+						sales: 300,
+					},
+					{
+						product: 'Others',
+						sales: 300,
+					},
+					{
+						product: 'Macbook',
+						sales: 250,
+					},
+					{
+						product: 'Beats',
+						sales: 250,
+					},
+					{
+						product: 'iPhone',
+						sales: 200,
+					},
+					{
+						product: 'HomePod',
+						sales: 200,
+					},
+					],
+					title: __('Batch Summary'),
+					subtitle: __('Progress of students in courses and assessments'),
+					xAxis: {
+						key: 'product',
+						title: 'Product',
+						type: 'category',
+					},
+					yAxis: {
+						title: __('Number of Students'),
+					},
+					swapXY: true,
+					series: [
+						{
+							name: 'sales',
+							type: 'bar',
+						},
+					],
+				}"
+			/>
+
 		<div v-if="showProgressChart" class="mb-8">
 			<div class="text-ink-gray-7 font-medium">
 				{{ __('Progress') }}
@@ -213,6 +243,7 @@
 <script setup>
 import {
 	Avatar,
+	AxisChart,
 	Button,
 	createResource,
 	FeatherIcon,
@@ -223,6 +254,7 @@ import {
 	ListRows,
 	ListView,
 	ListRowItem,
+	NumberChart,
 } from 'frappe-ui'
 import {
 	BookOpen,
@@ -331,10 +363,19 @@ const removeStudents = (selections, unselectAll) => {
 }
 
 const getChartData = () => {
-	let categories = {}
+	let data = []
+	console.log(students.data)
+
+	students.data.forEach(row => {
+		row.assessments.forEach(assessment => {
+			
+		})
+	})
+
+	/* let categories = {}
 
 	if (!students.data?.length) return []
-
+	console.log(students.data)
 	Object.keys(students.data[0].courses).forEach((course) => {
 		categories[course] = {
 			value: 0,
@@ -366,12 +407,13 @@ const getChartData = () => {
 	})
 
 	chartOptions.value = getChartOptions(categories)
+	console.log(Object.values(categories).map((item) => item.value))
 	return [
 		{
 			name: __('Completed by Students'),
 			data: Object.values(categories).map((item) => item.value),
 		},
-	]
+	] */
 }
 
 const getChartOptions = (categories) => {
