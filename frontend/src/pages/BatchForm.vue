@@ -8,49 +8,182 @@
 				{{ __('Save') }}
 			</Button>
 		</header>
-		<div class="w-3/4 mx-auto py-5">
-			<div class="">
+		<div class="py-5">
+			<div class="px-20 pb-5 space-y-5 border-b mb-5">
 				<div class="text-lg text-ink-gray-9 font-semibold mb-4">
 					{{ __('Details') }}
 				</div>
-				<div class="space-y-10 mb-4">
-					<div class="space-y-4">
+				<div class="grid grid-cols-2 gap-5">
+					<div class="space-y-5">
 						<FormControl
 							v-model="batch.title"
 							:label="__('Title')"
 							:required="true"
 							class="w-full"
 						/>
+						<FormControl
+							v-model="batch.description"
+							:label="__('Short Description')"
+							type="textarea"
+							:rows="8"
+							:placeholder="__('Short description of the batch')"
+							:required="true"
+						/>
+					</div>
+					<div class="space-y-5">
 						<MultiSelect
 							v-model="instructors"
 							doctype="User"
 							:label="__('Instructors')"
 							:required="true"
+							:onCreate="(close) => openSettings('Members', close)"
 							:filters="{ ignore_user_type: 1 }"
 						/>
-					</div>
-
-					<div class="grid grid-cols-2 gap-10">
-						<div class="flex flex-col space-y-5">
-							<FormControl
-								v-model="batch.published"
-								type="checkbox"
-								:label="__('Published')"
-							/>
-							<FormControl
-								v-model="batch.allow_self_enrollment"
-								type="checkbox"
-								:label="__('Allow self enrollment')"
-							/>
-							<FormControl
-								v-model="batch.certification"
-								type="checkbox"
-								:label="__('Certification')"
+						<div>
+							<label class="block text-sm text-ink-gray-5 mb-1">
+								{{ __('Batch Details') }}
+								<span class="text-ink-red-3">*</span>
+							</label>
+							<TextEditor
+								:content="batch.batch_details"
+								@change="(val) => (batch.batch_details = val)"
+								:editable="true"
+								:fixedMenu="true"
+								editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem] mb-4"
 							/>
 						</div>
+					</div>
+				</div>
+			</div>
 
+
+			<div class="px-20 pb-5 space-y-5 border-b mb-5">
+				<div class="text-lg text-ink-gray-9 font-semibold mb-4">
+					{{ __('Settings') }}
+				</div>
+				<div class="grid grid-cols-3 gap-5">
+					<FormControl
+						v-model="batch.published"
+						type="checkbox"
+						:label="__('Published')"
+					/>
+					<FormControl
+						v-model="batch.allow_self_enrollment"
+						type="checkbox"
+						:label="__('Allow self enrollment')"
+					/>
+					<FormControl
+						v-model="batch.certification"
+						type="checkbox"
+						:label="__('Certification')"
+					/>
+				</div>
+			</div>
+
+
+			<div class="px-20 pb-5 space-y-5 border-b mb-5">
+				<div class="text-lg text-ink-gray-9 font-semibold mb-4">
+					{{ __('Date and Time') }}
+				</div>
+				<div class="grid grid-cols-3 gap-10">
+					<div class="space-y-5">
+						<FormControl
+							v-model="batch.start_date"
+							:label="__('Start Date')"
+							type="date"
+							class="mb-4"
+							:required="true"
+						/>
+						<FormControl
+							v-model="batch.end_date"
+							:label="__('End Date')"
+							type="date"
+							class="mb-4"
+							:required="true"
+						/>
+					</div>
+					<div class="space-y-5">
+						<FormControl
+							v-model="batch.start_time"
+							:label="__('Start Time')"
+							type="time"
+							class="mb-4"
+							:required="true"
+						/>
+						<FormControl
+							v-model="batch.end_time"
+							:label="__('End Time')"
+							type="time"
+							class="mb-4"
+							:required="true"
+						/>
+					</div>
+					<div class="space-y-5">
+						<FormControl
+							v-model="batch.timezone"
+							:label="__('Timezone')"
+							type="text"
+							:placeholder="__('Example: IST (+5:30)')"
+							class="mb-4"
+							:required="true"
+						/>
+						<FormControl
+							v-model="batch.evaluation_end_date"
+							:label="__('Evaluation End Date')"
+							type="date"
+							class="mb-4"
+						/>
+					</div>
+				</div>
+			</div>
+
+
+			<div class="px-20 pb-5 space-y-5 border-b mb-5">
+				<div class="text-lg text-ink-gray-9 font-semibold mb-4">
+					{{ __('Configurations') }}
+				</div>
+				<div class="grid grid-cols-3 gap-10">
+					<div class="space-y-5">
+						<FormControl
+							v-model="batch.seat_count"
+							:label="__('Seat Count')"
+							type="number"
+							class="mb-4"
+							:placeholder="__('Number of seats available')"
+						/>
+						<Link
+							doctype="Email Template"
+							:label="__('Email Template')"
+							v-model="batch.confirmation_email_template"
+						/>
+					</div>
+					<div class="space-y-5">
+						<FormControl
+							v-model="batch.medium"
+							type="select"
+							:options="[
+								{
+									label: 'Online',
+									value: 'Online',
+								},
+								{
+									label: 'Offline',
+									value: 'Offline',
+								},
+							]"
+							:label="__('Medium')"
+							class="mb-4"
+						/>
+						<Link
+							doctype="LMS Category"
+							:label="__('Category')"
+							v-model="batch.category"
+							:onCreate="(value, close) => openSettings('Categories', close)"
+						/>
+					</div>
+					<div class="space-y-5">
 						<div>
-							<div class="text-xs text-ink-gray-5 mb-2">
+							<div class="text-xs text-ink-gray-5">
 								{{ __('Meta Image') }}
 							</div>
 							<FileUploader
@@ -70,10 +203,10 @@
 											<Button @click="openFileSelector">
 												{{ __('Upload') }}
 											</Button>
-											<div class="mt-2 text-ink-gray-5 text-sm">
+											<div class="mt-1 text-ink-gray-5 text-sm leading-5">
 												{{
 													__(
-														'Appears when the batch URL is shared on any online platform'
+														'Appears when the batch URL is shared on socials'
 													)
 												}}
 											</div>
@@ -106,111 +239,9 @@
 				</div>
 			</div>
 
-			<div class="my-10">
-				<div class="text-lg text-ink-gray-9 font-semibold mb-4">
-					{{ __('Date and Time') }}
-				</div>
-				<div class="grid grid-cols-3 gap-10">
-					<div>
-						<FormControl
-							v-model="batch.start_date"
-							:label="__('Start Date')"
-							type="date"
-							class="mb-4"
-							:required="true"
-						/>
-						<FormControl
-							v-model="batch.end_date"
-							:label="__('End Date')"
-							type="date"
-							class="mb-4"
-							:required="true"
-						/>
-					</div>
-					<div>
-						<FormControl
-							v-model="batch.start_time"
-							:label="__('Start Time')"
-							type="time"
-							class="mb-4"
-							:required="true"
-						/>
-						<FormControl
-							v-model="batch.end_time"
-							:label="__('End Time')"
-							type="time"
-							class="mb-4"
-							:required="true"
-						/>
-					</div>
-					<div>
-						<FormControl
-							v-model="batch.timezone"
-							:label="__('Timezone')"
-							type="text"
-							:placeholder="__('Example: IST (+5:30)')"
-							class="mb-4"
-							:required="true"
-						/>
-					</div>
-				</div>
-			</div>
 
-			<div class="mb-10">
-				<div class="text-lg text-ink-gray-9 font-semibold mb-4">
-					{{ __('Settings') }}
-				</div>
-				<div class="grid grid-cols-3 gap-10">
-					<div>
-						<FormControl
-							v-model="batch.seat_count"
-							:label="__('Seat Count')"
-							type="number"
-							class="mb-4"
-							:placeholder="__('Number of seats available')"
-						/>
-						<FormControl
-							v-model="batch.evaluation_end_date"
-							:label="__('Evaluation End Date')"
-							type="date"
-							class="mb-4"
-						/>
-					</div>
-					<div>
-						<FormControl
-							v-model="batch.medium"
-							type="select"
-							:options="[
-								{
-									label: 'Online',
-									value: 'Online',
-								},
-								{
-									label: 'Offline',
-									value: 'Offline',
-								},
-							]"
-							:label="__('Medium')"
-							class="mb-4"
-						/>
-						<Link
-							doctype="LMS Category"
-							:label="__('Category')"
-							v-model="batch.category"
-						/>
-					</div>
-					<div>
-						<Link
-							doctype="Email Template"
-							:label="__('Email Template')"
-							v-model="batch.confirmation_email_template"
-						/>
-					</div>
-				</div>
-			</div>
-
-			<div class="">
-				<div class="text-lg text-ink-gray-9 font-semibold mb-4">
+			<div class="px-20 pb-5 space-y-5">
+				<div class="text-lg text-ink-gray-9 font-semibold">
 					{{ __('Payment') }}
 				</div>
 				<FormControl
@@ -218,7 +249,7 @@
 					type="checkbox"
 					:label="__('Paid Batch')"
 				/>
-				<div class="grid grid-cols-3 gap-10 mt-4">
+				<div v-if="batch.paid_batch" class="grid grid-cols-3 gap-5">
 					<FormControl
 						v-model="batch.amount"
 						:label="__('Amount')"
@@ -233,32 +264,6 @@
 				</div>
 			</div>
 
-			<div class="my-10">
-				<div class="text-lg text-ink-gray-9 font-semibold mb-4">
-					{{ __('Description') }}
-				</div>
-				<FormControl
-					v-model="batch.description"
-					:label="__('Short Description')"
-					type="textarea"
-					class="my-4"
-					:placeholder="__('Short description of the batch')"
-					:required="true"
-				/>
-				<div>
-					<label class="block text-sm text-ink-gray-5 mb-1">
-						{{ __('Batch Details') }}
-						<span class="text-ink-red-3">*</span>
-					</label>
-					<TextEditor
-						:content="batch.batch_details"
-						@change="(val) => (batch.batch_details = val)"
-						:editable="true"
-						:fixedMenu="true"
-						editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem] mb-4"
-					/>
-				</div>
-			</div>
 		</div>
 	</div>
 </template>
@@ -286,6 +291,7 @@ import { Image } from 'lucide-vue-next'
 import { capture } from '@/telemetry'
 import { useOnboarding } from 'frappe-ui/frappe'
 import { sessionStore } from '../stores/session'
+import { useSettings } from '@/stores/settings'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import Link from '@/components/Controls/Link.vue'
 
@@ -293,6 +299,7 @@ const router = useRouter()
 const user = inject('$user')
 const { brand } = sessionStore()
 const { updateOnboardingStep } = useOnboarding('learning')
+const settingsStore = useSettings()
 
 const props = defineProps({
 	batchName: {
@@ -497,6 +504,12 @@ const validateFile = (file) => {
 	if (!['jpg', 'jpeg', 'png'].includes(extension)) {
 		return 'Only image file is allowed.'
 	}
+}
+
+const openSettings = (category, close) => {
+	close()
+	settingsStore.activeTab = category
+	settingsStore.isSettingsOpen = true
 }
 
 const breadcrumbs = computed(() => {
