@@ -34,7 +34,11 @@
 				>
 					{{ __('{0} Open Jobs').format(jobCount) }}
 				</div>
-				<div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+
+				<div
+					v-if="jobs.data?.length || jobCount > 0"
+					class="grid grid-cols-1 md:grid-cols-3 gap-2"
+				>
 					<FormControl
 						type="text"
 						:placeholder="__('Search')"
@@ -79,21 +83,7 @@
 					</router-link>
 				</div>
 			</div>
-			<div
-				v-else
-				class="flex flex-col items-center justify-center text-sm text-ink-gray-5 mt-56"
-			>
-				<Laptop class="size-10 mx-auto stroke-1 text-ink-gray-4" />
-				<div class="text-lg font-medium mb-1">
-					{{ __('No jobs found') }}
-				</div>
-				<div class="leading-5 w-2/5 text-center">
-					{{ __('There are no jobs available at the moment.') }}
-				</div>
-				<div class="leading-5 w-1/5 text-center">
-					{{ __('Post a new job or check again later.') }}
-				</div>
-			</div>
+			<EmptyState v-else type="Job Openings" />
 		</div>
 	</div>
 </template>
@@ -106,11 +96,12 @@ import {
 	FormControl,
 	usePageMeta,
 } from 'frappe-ui'
-import { Laptop, Plus, Search } from 'lucide-vue-next'
+import { Plus, Search } from 'lucide-vue-next'
 import { sessionStore } from '../stores/session'
 import { inject, computed, ref, onMounted, watch } from 'vue'
 import JobCard from '@/components/JobCard.vue'
 import Link from '@/components/Controls/Link.vue'
+import EmptyState from '@/components/EmptyState.vue'
 
 const user = inject('$user')
 const jobType = ref(null)

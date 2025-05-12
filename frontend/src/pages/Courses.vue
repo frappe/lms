@@ -66,22 +66,7 @@
 				<CourseCard :course="course" />
 			</router-link>
 		</div>
-		<div
-			v-else-if="!courses.list.loading"
-			class="flex flex-col items-center justify-center text-sm text-ink-gray-5 italic mt-48"
-		>
-			<BookOpen class="size-10 mx-auto stroke-1 text-ink-gray-4" />
-			<div class="text-lg font-medium mb-1">
-				{{ __('No courses found') }}
-			</div>
-			<div class="leading-5 w-2/5 text-center">
-				{{
-					__(
-						'There are no courses matching the criteria. Keep an eye out, fresh learning experiences are on the way soon!'
-					)
-				}}
-			</div>
-		</div>
+		<EmptyState v-else-if="!courses.list.loading" type="Courses" />
 		<div
 			v-if="!courses.list.loading && courses.hasNextPage"
 			class="flex justify-center mt-5"
@@ -108,6 +93,7 @@ import { BookOpen, Plus } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { canCreateCourse } from '@/utils'
 import CourseCard from '@/components/CourseCard.vue'
+import EmptyState from '@/components/EmptyState.vue'
 import router from '../router'
 
 const user = inject('$user')

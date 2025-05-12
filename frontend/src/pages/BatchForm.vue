@@ -56,7 +56,6 @@
 				</div>
 			</div>
 
-
 			<div class="px-20 pb-5 space-y-5 border-b mb-5">
 				<div class="text-lg text-ink-gray-9 font-semibold mb-4">
 					{{ __('Settings') }}
@@ -79,7 +78,6 @@
 					/>
 				</div>
 			</div>
-
 
 			<div class="px-20 pb-5 space-y-5 border-b mb-5">
 				<div class="text-lg text-ink-gray-9 font-semibold mb-4">
@@ -136,7 +134,6 @@
 					</div>
 				</div>
 			</div>
-
 
 			<div class="px-20 pb-5 space-y-5 border-b mb-5">
 				<div class="text-lg text-ink-gray-9 font-semibold mb-4">
@@ -205,9 +202,7 @@
 											</Button>
 											<div class="mt-1 text-ink-gray-5 text-sm leading-5">
 												{{
-													__(
-														'Appears when the batch URL is shared on socials'
-													)
+													__('Appears when the batch URL is shared on socials')
 												}}
 											</div>
 										</div>
@@ -239,7 +234,6 @@
 				</div>
 			</div>
 
-
 			<div class="px-20 pb-5 space-y-5">
 				<div class="text-lg text-ink-gray-9 font-semibold">
 					{{ __('Payment') }}
@@ -263,7 +257,6 @@
 					/>
 				</div>
 			</div>
-
 		</div>
 	</div>
 </template>

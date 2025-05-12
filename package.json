@@ -6,6 +6,7 @@
     "frappe-ui",
     "frontend"
   ],
+  "type": "module",
   "scripts": {
     "test-local": "cypress open --e2e --browser chrome",
     "postinstall": "cd frontend && yarn install --check-files",

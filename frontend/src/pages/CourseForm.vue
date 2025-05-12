@@ -127,7 +127,9 @@
 												{{ __('Remove') }}
 											</Button>
 											<div class="mt-2 text-ink-gray-5 text-sm">
-												{{ __('Appears on the course card in the course list') }}
+												{{
+													__('Appears on the course card in the course list')
+												}}
 											</div>
 										</div>
 									</div>
@@ -136,10 +138,9 @@
 						</div>
 					</div>
 
-
 					<div class="px-10 pb-5 mb-5 space-y-5 border-b">
 						<div class="text-lg font-semibold">
-							{{ __("Settings") }}
+							{{ __('Settings') }}
 						</div>
 						<div class="grid grid-cols-2 gap-5">
 							<div class="flex flex-col space-y-5">
@@ -174,7 +175,6 @@
 						</div>
 					</div>
 
-
 					<div class="px-10 pb-5 mb-5 space-y-5 border-b">
 						<div class="">
 							<div class="mb-1.5 text-sm text-ink-gray-5">
@@ -189,7 +189,7 @@
 								editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
 							/>
 						</div>
-						
+
 						<FormControl
 							v-model="course.video_link"
 							:label="__('Preview Video')"
@@ -200,8 +200,7 @@
 							"
 						/>
 					</div>
-					
-					
+
 					<div class="px-10 pb-5 space-y-5">
 						<div class="text-lg font-semibold mt-5">
 							{{ __('Pricing and Certification') }}
@@ -225,13 +224,19 @@
 						</div>
 						<div class="grid grid-cols-2 gap-5">
 							<div class="space-y-5">
-								<FormControl v-if="course.paid_course || course.paid_certificate" v-model="course.course_price" :label="__('Amount')" />
+								<FormControl
+									v-if="course.paid_course || course.paid_certificate"
+									v-model="course.course_price"
+									:label="__('Amount')"
+								/>
 								<Link
 									v-if="course.paid_certificate"
 									doctype="Course Evaluator"
 									v-model="course.evaluator"
 									:label="__('Evaluator')"
-									:onCreate="(value, close) => openSettings('Evaluators', close)"
+									:onCreate="
+										(value, close) => openSettings('Evaluators', close)
+									"
 								/>
 							</div>
 							<Link

@@ -55,7 +55,10 @@
 											</div>
 										</li>
 									</ComboboxOption>
-									<div v-if="attrs.onCreate" class="absolute bottom-2 left-1 w-[98%] pt-2 bg-white border-t">
+									<div
+										v-if="attrs.onCreate"
+										class="absolute bottom-2 left-1 w-[98%] pt-2 bg-white border-t"
+									>
 										<Button
 											variant="ghost"
 											class="w-full !justify-start"
@@ -75,13 +78,18 @@
 			</Combobox>
 		</div>
 		<div v-if="values.length" class="grid grid-cols-2 gap-2 mt-4">
-			<div v-for="value in values" class="flex items-center justify-between break-all bg-surface-gray-2 text-ink-gray-7 word-wrap p-2 rounded-md mr-2">
+			<div
+				v-for="value in values"
+				class="flex items-center justify-between break-all bg-surface-gray-2 text-ink-gray-7 word-wrap p-2 rounded-md mr-2"
+			>
 				<span class="break-all">
 					{{ value }}
 				</span>
-				<X class="size-4 stroke-1.5 cursor-pointer" @click="removeValue(value)" />
+				<X
+					class="size-4 stroke-1.5 cursor-pointer"
+					@click="removeValue(value)"
+				/>
 			</div>
-			
 		</div>
 		<!-- <ErrorMessage class="mt-2 pl-2" v-if="error" :message="error" /> -->
 	</div>

@@ -82,22 +82,7 @@
 			</div>
 		</div>
 	</div>
-	<div
-		v-else
-		class="text-center p-5 text-ink-gray-5 mt-52 w-3/4 md:w-1/2 mx-auto space-y-2"
-	>
-		<BookOpen class="size-10 mx-auto stroke-1 text-ink-gray-4" />
-		<div class="text-xl font-medium">
-			{{ __('No programs found') }}
-		</div>
-		<div class="leading-5">
-			{{
-				__(
-					'There are no programs available at the moment. Keep an eye out, fresh learning experiences are on the way soon!'
-				)
-			}}
-		</div>
-	</div>
+	<EmptyState v-else type="Programs" />
 
 	<Dialog
 		v-model="showDialog"
@@ -129,8 +114,9 @@ import {
 	usePageMeta,
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref } from 'vue'
-import { BookOpen, Edit, Plus, LockKeyhole } from 'lucide-vue-next'
+import { Edit, Plus, LockKeyhole } from 'lucide-vue-next'
 import CourseCard from '@/components/CourseCard.vue'
+import EmptyState from '@/components/EmptyState.vue'
 import { useRouter } from 'vue-router'
 import { sessionStore } from '../stores/session'
 import { showToast } from '@/utils'
