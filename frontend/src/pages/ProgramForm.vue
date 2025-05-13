@@ -168,6 +168,7 @@
 					ignore_user_type: 1,
 				}"
 				:label="__('Program Member')"
+				:onCreate="(value, close) => openSettings('Members', close)"
 			/>
 		</template>
 	</Dialog>
@@ -192,7 +193,8 @@ import { computed, ref } from 'vue'
 import { Plus, Trash2 } from 'lucide-vue-next'
 import { showToast } from '@/utils/'
 import { useRouter } from 'vue-router'
-import { sessionStore } from '../stores/session'
+import { sessionStore } from '@/stores/session'
+import { useSettings } from '@/stores/settings'
 import Draggable from 'vuedraggable'
 import Link from '@/components/Controls/Link.vue'
 
@@ -202,6 +204,7 @@ const currentForm = ref(null)
 const course = ref(null)
 const member = ref(null)
 const router = useRouter()
+const settingsStore = useSettings()
 
 const props = defineProps({
 	programName: {
@@ -355,6 +358,12 @@ const memberColumns = computed(() => {
 		},
 	]
 })
+
+const openSettings = (category, close) => {
+	close()
+	settingsStore.activeTab = category
+	settingsStore.isSettingsOpen = true
+}
 
 const breadbrumbs = computed(() => {
 	return [

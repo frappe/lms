@@ -21,8 +21,7 @@ from lms.lms.utils import (
 
 class LMSBatch(Document):
 	def validate(self):
-		if self.seat_count:
-			self.validate_seats_left()
+		self.validate_seats_left()
 		self.validate_batch_end_date()
 		self.validate_duplicate_courses()
 		self.validate_payments_app()
@@ -94,6 +93,9 @@ class LMSBatch(Document):
 					enrollment.save()
 
 	def validate_seats_left(self):
+		if cint(self.seat_count) < 0:
+			frappe.throw(_("Seat count cannot be negative."))
+
 		students = frappe.db.count("LMS Batch Enrollment", {"batch": self.name})
 		if cint(self.seat_count) < students:
 			frappe.throw(_("There are no seats available in this batch."))
@@ -206,86 +208,6 @@ def authenticate():
 	}
 	response = requests.request("POST", authenticate_url, headers=headers)
 	return response.json()["access_token"]
-
-
-@frappe.whitelist()
-def create_batch(
-	title,
-	start_date,
-	end_date,
-	description=None,
-	batch_details=None,
-	batch_details_raw=None,
-	meta_image=None,
-	seat_count=0,
-	start_time=None,
-	end_time=None,
-	medium="Online",
-	category=None,
-	paid_batch=0,
-	amount=0,
-	currency=None,
-	amount_usd=0,
-	name=None,
-	published=0,
-	evaluation_end_date=None,
-):
-	frappe.only_for("Moderator")
-	if name:
-		doc = frappe.get_doc("LMS Batch", name)
-	else:
-		doc = frappe.get_doc({"doctype": "LMS Batch"})
-
-	doc.update(
-		{
-			"title": title,
-			"start_date": start_date,
-			"end_date": end_date,
-			"description": description,
-			"batch_details": batch_details,
-			"batch_details_raw": batch_details_raw,
-			"meta_image": meta_image,
-			"seat_count": seat_count,
-			"start_time": start_time,
-			"end_time": end_time,
-			"medium": medium,
-			"category": category,
-			"paid_batch": paid_batch,
-			"amount": amount,
-			"currency": currency,
-			"amount_usd": amount_usd,
-			"published": published,
-			"evaluation_end_date": evaluation_end_date,
-		}
-	)
-	doc.save()
-	return doc
-
-
-@frappe.whitelist()
-def add_course(course, parent, name=None, evaluator=None):
-	frappe.only_for("Moderator")
-
-	if frappe.db.exists("Batch Course", {"course": course, "parent": parent}):
-		frappe.throw(_("Course already added to the batch."))
-
-	if name:
-		doc = frappe.get_doc("Batch Course", name)
-	else:
-		doc = frappe.new_doc("Batch Course")
-
-	doc.update(
-		{
-			"course": course,
-			"evaluator": evaluator,
-			"parent": parent,
-			"parentfield": "courses",
-			"parenttype": "LMS Batch",
-		}
-	)
-	doc.save()
-
-	return doc.name
 
 
 @frappe.whitelist()

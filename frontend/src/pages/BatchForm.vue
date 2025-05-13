@@ -21,16 +21,6 @@
 							:required="true"
 							class="w-full"
 						/>
-						<FormControl
-							v-model="batch.description"
-							:label="__('Short Description')"
-							type="textarea"
-							:rows="8"
-							:placeholder="__('Short description of the batch')"
-							:required="true"
-						/>
-					</div>
-					<div class="space-y-5">
 						<MultiSelect
 							v-model="instructors"
 							doctype="User"
@@ -39,20 +29,15 @@
 							:onCreate="(close) => openSettings('Members', close)"
 							:filters="{ ignore_user_type: 1 }"
 						/>
-						<div>
-							<label class="block text-sm text-ink-gray-5 mb-1">
-								{{ __('Batch Details') }}
-								<span class="text-ink-red-3">*</span>
-							</label>
-							<TextEditor
-								:content="batch.batch_details"
-								@change="(val) => (batch.batch_details = val)"
-								:editable="true"
-								:fixedMenu="true"
-								editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem] mb-4"
-							/>
-						</div>
 					</div>
+					<FormControl
+						v-model="batch.description"
+						:label="__('Short Description')"
+						type="textarea"
+						:rows="8"
+						:placeholder="__('Short description of the batch')"
+						:required="true"
+					/>
 				</div>
 			</div>
 
@@ -132,6 +117,22 @@
 							class="mb-4"
 						/>
 					</div>
+				</div>
+			</div>
+
+			<div class="px-20 pb-5 space-y-5 border-b mb-5">
+				<div>
+					<label class="block text-sm text-ink-gray-5 mb-1">
+						{{ __('Batch Details') }}
+						<span class="text-ink-red-3">*</span>
+					</label>
+					<TextEditor
+						:content="batch.batch_details"
+						@change="(val) => (batch.batch_details = val)"
+						:editable="true"
+						:fixedMenu="true"
+						editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem] max-h-[20rem] overflow-y-scroll mb-4"
+					/>
 				</div>
 			</div>
 
@@ -236,7 +237,7 @@
 
 			<div class="px-20 pb-5 space-y-5">
 				<div class="text-lg text-ink-gray-9 font-semibold">
-					{{ __('Payment') }}
+					{{ __('Pricing') }}
 				</div>
 				<FormControl
 					v-model="batch.paid_batch"

@@ -30,7 +30,7 @@
 								class="mt-1 rounded-lg bg-surface-white py-1 text-base border-2"
 							>
 								<ComboboxOptions
-									class="my-1 max-h-[12rem] overflow-y-auto px-1.5"
+									class="my-1 min-h-[6rem] max-h-[12rem] overflow-y-auto px-1.5"
 									static
 								>
 									<ComboboxOption
@@ -77,7 +77,7 @@
 				</Popover>
 			</Combobox>
 		</div>
-		<div v-if="values.length" class="grid grid-cols-2 gap-2 mt-4">
+		<div v-if="values.length" class="grid grid-cols-2 gap-2 mt-1">
 			<div
 				v-for="value in values"
 				class="flex items-center justify-between break-all bg-surface-gray-2 text-ink-gray-7 word-wrap p-2 rounded-md mr-2"

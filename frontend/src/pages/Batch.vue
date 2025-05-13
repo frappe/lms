@@ -357,7 +357,7 @@ watch(tabIndex, () => {
 
 const canMakeAnnouncement = () => {
 	if (readOnlyMode) return false
-	return user.data?.is_moderator || user.data?.is_evaluator
+	if (batch.data) return user.data?.is_moderator || user.data?.is_evaluator
 }
 
 usePageMeta(() => {

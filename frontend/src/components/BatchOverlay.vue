@@ -2,7 +2,12 @@
 	<div v-if="batch.data" class="border-2 rounded-md p-5 lg:w-72">
 		<div
 			v-if="batch.data.seat_count && seats_left > 0"
-			class="text-xs bg-green-100 text-green-700 float-right px-2 py-0.5 rounded-md"
+			class="text-sm bg-green-100 text-green-700 px-2 py-1 rounded-md"
+			:class="
+				batch.data.amount || batch.data.courses.length
+					? 'float-right'
+					: 'w-fit mb-4'
+			"
 		>
 			{{ seats_left }}
 			<span v-if="seats_left > 1">
