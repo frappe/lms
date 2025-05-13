@@ -285,15 +285,14 @@ import { Image } from 'lucide-vue-next'
 import { capture } from '@/telemetry'
 import { useOnboarding } from 'frappe-ui/frappe'
 import { sessionStore } from '../stores/session'
-import { useSettings } from '@/stores/settings'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import Link from '@/components/Controls/Link.vue'
+import { openSettings } from '@/utils'
 
 const router = useRouter()
 const user = inject('$user')
 const { brand } = sessionStore()
 const { updateOnboardingStep } = useOnboarding('learning')
-const settingsStore = useSettings()
 
 const props = defineProps({
 	batchName: {
@@ -500,11 +499,7 @@ const validateFile = (file) => {
 	}
 }
 
-const openSettings = (category, close) => {
-	close()
-	settingsStore.activeTab = category
-	settingsStore.isSettingsOpen = true
-}
+
 
 const breadcrumbs = computed(() => {
 	let crumbs = [

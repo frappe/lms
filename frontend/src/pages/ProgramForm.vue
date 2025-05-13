@@ -194,7 +194,7 @@ import { computed, ref } from 'vue'
 import { Plus, Trash2 } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { sessionStore } from '@/stores/session'
-import { useSettings } from '@/stores/settings'
+import { openSettings } from '@/utils'
 import Draggable from 'vuedraggable'
 import Link from '@/components/Controls/Link.vue'
 
@@ -204,7 +204,6 @@ const currentForm = ref(null)
 const course = ref(null)
 const member = ref(null)
 const router = useRouter()
-const settingsStore = useSettings()
 
 const props = defineProps({
 	programName: {
@@ -358,12 +357,6 @@ const memberColumns = computed(() => {
 		},
 	]
 })
-
-const openSettings = (category, close) => {
-	close()
-	settingsStore.activeTab = category
-	settingsStore.isSettingsOpen = true
-}
 
 const breadbrumbs = computed(() => {
 	return [

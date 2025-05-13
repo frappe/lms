@@ -20,12 +20,14 @@
 	</header>
 	<div class="p-5 pb-10">
 		<div
+			v-if="courseCount"
 			class="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:items-center justify-between mb-5"
 		>
 			<div class="text-lg text-ink-gray-9 font-semibold">
 				{{ __('All Courses') }}
 			</div>
 			<div
+				v-if="courses.data?.length || courseCount"
 				class="flex flex-col space-y-2 lg:space-y-0 lg:flex-row lg:items-center lg:space-x-4"
 			>
 				<TabButtons :buttons="courseTabs" v-model="currentTab" />
@@ -89,7 +91,7 @@ import {
 	usePageMeta,
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref, watch } from 'vue'
-import { BookOpen, Plus } from 'lucide-vue-next'
+import { Plus } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { canCreateCourse } from '@/utils'
 import CourseCard from '@/components/CourseCard.vue'
@@ -107,12 +109,13 @@ const certification = ref(false)
 const filters = ref({})
 const currentTab = ref('Live')
 const { brand } = sessionStore()
-const readOnlyMode = window.read_only_mode
+const courseCount = ref(0)
 
 onMounted(() => {
 	identifyUserPersona()
 	setFiltersFromQuery()
 	updateCourses()
+	getCourseCount()
 	categories.value = [
 		{
 			label: '',
@@ -161,17 +164,20 @@ const identifyUserPersona = async () => {
 	if (user.data?.is_system_manager && !user.data?.developer_mode) {
 		let personaCaptured = await isPersonaCaptured()
 		if (personaCaptured) return
-
-		call('frappe.client.get_count', {
-			doctype: 'LMS Course',
-		}).then((data) => {
-			if (!data) {
-				router.push({
-					name: 'PersonaForm',
-				})
-			}
-		})
+		if (!courseCount.value) {
+			router.push({
+				name: 'PersonaForm',
+			})
+		}
 	}
+}
+
+const getCourseCount = () => {
+	call('frappe.client.get_count', {
+		doctype: 'LMS Course',
+	}).then((data) => {
+		courseCount.value = data
+	})
 }
 
 const updateCourses = () => {

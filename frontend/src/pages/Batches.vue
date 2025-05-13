@@ -20,12 +20,14 @@
 	</header>
 	<div class="p-5 pb-10">
 		<div
+			v-if="batchCount"
 			class="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:items-center justify-between mb-5"
 		>
 			<div class="text-lg text-ink-gray-9 font-semibold">
 				{{ __('All Batches') }}
 			</div>
 			<div
+				v-if="batches.data?.length || batchCount"
 				class="flex flex-col space-y-2 lg:space-y-0 lg:flex-row lg:items-center lg:space-x-4"
 			>
 				<TabButtons
@@ -86,6 +88,7 @@
 import {
 	Breadcrumbs,
 	Button,
+	call,
 	createListResource,
 	FormControl,
 	Select,
@@ -93,7 +96,7 @@ import {
 	usePageMeta,
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref, watch } from 'vue'
-import { BookOpen, Plus } from 'lucide-vue-next'
+import { Plus } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import BatchCard from '@/components/BatchCard.vue'
 import EmptyState from '@/components/EmptyState.vue'
@@ -112,10 +115,12 @@ const is_student = computed(() => user.data?.is_student)
 const currentTab = ref(is_student.value ? 'All' : 'Upcoming')
 const orderBy = ref('start_date')
 const readOnlyMode = window.read_only_mode
+const batchCount = ref(0)
 
 onMounted(() => {
 	setFiltersFromQuery()
 	updateBatches()
+	getBatchCount()
 	categories.value = [
 		{
 			label: '',
@@ -291,6 +296,14 @@ const canCreateBatch = () => {
 	if (readOnlyMode) return false
 	if (user.data?.is_moderator || user.data?.is_instructor) return true
 	return false
+}
+
+const getBatchCount = () => {
+	call('frappe.client.get_count', {
+		doctype: 'LMS Batch',
+	}).then((data) => {
+		batchCount.value = data
+	})
 }
 
 const breadcrumbs = computed(() => [

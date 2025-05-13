@@ -23,6 +23,7 @@ class LMSBatch(Document):
 	def validate(self):
 		self.validate_seats_left()
 		self.validate_batch_end_date()
+		self.validate_batch_time()
 		self.validate_duplicate_courses()
 		self.validate_payments_app()
 		self.validate_amount_and_currency()
@@ -38,6 +39,11 @@ class LMSBatch(Document):
 	def validate_batch_end_date(self):
 		if self.end_date < self.start_date:
 			frappe.throw(_("Batch end date cannot be before the batch start date"))
+
+	def validate_batch_time(self):
+		if self.start_time and self.end_time:
+			if get_time(self.start_time) >= get_time(self.end_time):
+				frappe.throw(_("Batch start time cannot be greater than or equal to end time."))
 
 	def validate_duplicate_courses(self):
 		courses = [row.course for row in self.courses]

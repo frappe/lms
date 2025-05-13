@@ -67,7 +67,7 @@
 								<BatchDashboard :batch="batch" :isStudent="isStudent" />
 							</div>
 							<div v-else-if="tab.label == 'Dashboard'">
-								<BatchStudents :batch="batch.data" />
+								<BatchStudents :batch="batch" />
 							</div>
 							<div v-else-if="tab.label == 'Classes'">
 								<LiveClass :batch="batch.data.name" />
@@ -357,7 +357,11 @@ watch(tabIndex, () => {
 
 const canMakeAnnouncement = () => {
 	if (readOnlyMode) return false
-	if (batch.data) return user.data?.is_moderator || user.data?.is_evaluator
+
+	if (!batch.data?.students?.length) 
+		return false
+	
+	return user.data?.is_moderator || user.data?.is_evaluator
 }
 
 usePageMeta(() => {

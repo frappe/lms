@@ -282,12 +282,12 @@ import {
 	watch,
 	getCurrentInstance,
 } from 'vue'
-import { Check, Image, Trash2, X } from 'lucide-vue-next'
+import { Image, Trash2, X } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { capture } from '@/telemetry'
 import { useOnboarding } from 'frappe-ui/frappe'
 import { sessionStore } from '../stores/session'
-import { useSettings } from '@/stores/settings'
+import { openSettings } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
 import CourseOutline from '@/components/CourseOutline.vue'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
@@ -297,7 +297,6 @@ const newTag = ref('')
 const { brand } = sessionStore()
 const router = useRouter()
 const instructors = ref([])
-const settingsStore = useSettings()
 const app = getCurrentInstance()
 const { updateOnboardingStep } = useOnboarding('learning')
 const { $dialog } = app.appContext.config.globalProperties
@@ -564,12 +563,6 @@ const check_permission = () => {
 	if (!user_is_instructor) {
 		router.push({ name: 'Courses' })
 	}
-}
-
-const openSettings = (category, close) => {
-	close()
-	settingsStore.activeTab = category
-	settingsStore.isSettingsOpen = true
 }
 
 const breadcrumbs = computed(() => {

@@ -31,6 +31,7 @@
 				<div class="mb-4">
 					<div class="mb-1.5 text-sm text-ink-gray-5">
 						{{ __('Announcement') }}
+						<span class="text-ink-red-3">*</span>
 					</div>
 					<TextEditor
 						:fixedMenu="true"
@@ -86,10 +87,13 @@ const makeAnnouncement = (close) => {
 		{
 			validate() {
 				if (!props.students.length) {
-					return 'No students in this batch'
+					return __('No students in this batch')
 				}
 				if (!announcement.subject) {
-					return 'Subject is required'
+					return __('Subject is required')
+				}
+				if (!announcement.announcement) {
+					return __('Announcement is required')
 				}
 			},
 			onSuccess() {

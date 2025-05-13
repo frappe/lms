@@ -3,6 +3,8 @@ import { Quiz } from '@/utils/quiz'
 import { Assignment } from '@/utils/assignment'
 import { Upload } from '@/utils/upload'
 import { Markdown } from '@/utils/markdownParser'
+import { useSettings } from '@/stores/settings'
+import { usersStore } from '@/stores/user'
 import Header from '@editorjs/header'
 import Paragraph from '@editorjs/paragraph'
 import { CodeBox } from '@/utils/code'
@@ -13,7 +15,6 @@ import dayjs from '@/utils/dayjs'
 import Embed from '@editorjs/embed'
 import SimpleImage from '@editorjs/simple-image'
 import Table from '@editorjs/table'
-import { usersStore } from '../stores/user'
 import Plyr from 'plyr'
 import 'plyr/dist/plyr.css'
 
@@ -550,4 +551,11 @@ export const enablePlyr = () => {
 			],
 		})
 	}, 500)
+}
+
+export const openSettings = (category, close) => {
+	const settingsStore = useSettings()
+	close()
+	settingsStore.activeTab = category
+	settingsStore.isSettingsOpen = true
 }

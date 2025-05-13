@@ -26,10 +26,10 @@
 		</header>
 		<div>
 			<div
+				v-if="jobCount"
 				class="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:items-center justify-between w-full md:w-4/5 mx-auto p-5"
 			>
 				<div
-					v-if="jobCount"
 					class="text-xl font-semibold text-ink-gray-7 mb-4 md:mb-0"
 				>
 					{{ __('{0} Open Jobs').format(jobCount) }}

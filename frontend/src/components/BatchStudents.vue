@@ -1,5 +1,5 @@
 <template>
-	<div class="">
+	<div v-if="batch.data" class="">
 		<div class="w-full flex items-center justify-between pb-4">
 			<div class="font-medium text-ink-gray-7">
 				{{ __('Statistics') }}
@@ -46,7 +46,7 @@
 				</div>
 				<div class="flex items-center space-x-2">
 					<span class="font-semibold">
-						{{ batch.courses?.length }}
+						{{ batch.data.courses?.length }}
 					</span>
 					<span>
 						{{ __('Courses') }}
@@ -201,9 +201,10 @@
 	</div>
 
 	<StudentModal
-		:batch="props.batch.name"
+		:batch="props.batch.data.name"
 		v-model="showStudentModal"
 		v-model:reloadStudents="students"
+		v-model:batchModal="props.batch"
 	/>
 	<BatchStudentProgress
 		:student="selectedStudent"
@@ -258,15 +259,14 @@ const props = defineProps({
 
 const students = createResource({
 	url: 'lms.lms.utils.get_batch_students',
-	cache: ['students', props.batch.name],
 	params: {
-		batch: props.batch?.name,
+		batch: props.batch?.data?.name,
 	},
 	auto: true,
 	onSuccess(data) {
 		chartData.value = getChartData()
 		showProgressChart.value =
-			data.length && (props.batch?.courses?.length || assessmentCount.value)
+			data.length && (props.batch?.data?.courses?.length || assessmentCount.value)
 	},
 })
 
@@ -323,6 +323,7 @@ const removeStudents = (selections, unselectAll) => {
 		{
 			onSuccess(data) {
 				students.reload()
+				props.batch.reload()
 				toast.success(__('Students deleted successfully'))
 				unselectAll()
 			},
@@ -434,7 +435,7 @@ const certificationCount = createResource({
 	params: {
 		doctype: 'LMS Certificate',
 		filters: {
-			batch_name: props.batch.name,
+			batch_name: props.batch?.data?.name,
 		},
 	},
 	auto: true,
