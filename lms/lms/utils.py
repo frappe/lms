@@ -987,29 +987,49 @@ def change_currency(amount, currency, country=None):
 
 @frappe.whitelist(allow_guest=True)
 def get_courses(filters=None, start=0, page_length=20):
-	"""Returns the list of courses."""
+    """
+    Returns a list of LMS courses based on filters and user role.
+    LMS Students see only their enrolled courses; Administrators see all.
+    """
 
-	if not filters:
-		filters = {}
+    user = frappe.session.user
 
-	filters, or_filters, show_featured = update_course_filters(filters)
-	fields = get_course_fields()
+    # Block Guest users
+    if user == "Guest":
+        return []
 
-	courses = frappe.get_all(
-		"LMS Course",
-		filters=filters,
-		fields=fields,
-		or_filters=or_filters,
-		order_by="enrollments desc",
-		start=start,
-		page_length=page_length,
-	)
-	if show_featured:
-		courses = get_featured_courses(filters, or_filters, fields) + courses
+    # Initialize filters if not provided
+    filters = frappe._dict(filters or {})
 
-	courses = get_enrollment_details(courses)
-	courses = get_course_card_details(courses)
-	return courses
+    # If user is an LMS Student (not Admin), only show enrolled courses
+    if is_lms_student(user):
+        filters["enrolled"] = True
+
+    filters, or_filters, show_featured = update_course_filters(filters)
+    fields = get_course_fields()
+
+    courses = frappe.get_all(
+        "LMS Course",
+        filters=filters,
+        fields=fields,
+        or_filters=or_filters,
+        order_by="enrollments desc",
+        start=start,
+        page_length=page_length,
+    )
+
+    if show_featured:
+        courses = get_featured_courses(filters, or_filters, fields) + courses
+
+    courses = get_enrollment_details(courses)
+    courses = get_course_card_details(courses)
+
+    return courses
+
+
+def is_lms_student(user):
+    roles = frappe.get_roles(user)
+    return "LMS Student" in roles and "Administrator" not in roles
 
 
 def get_course_card_details(courses):
