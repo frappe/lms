@@ -112,6 +112,7 @@ import {
 	Dialog,
 	FormControl,
 	usePageMeta,
+	toast,
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref } from 'vue'
 import { Edit, Plus, LockKeyhole } from 'lucide-vue-next'
@@ -119,7 +120,6 @@ import CourseCard from '@/components/CourseCard.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import { useRouter } from 'vue-router'
 import { sessionStore } from '../stores/session'
-import { showToast } from '@/utils'
 import { useSettings } from '@/stores/settings'
 
 const { brand } = sessionStore()
@@ -184,7 +184,7 @@ const enrollMember = (program, course) => {
 			}
 		})
 		.catch((err) => {
-			showToast('Error', err.messages?.[0] || err, 'x')
+			toast.error(err.messages?.[0] || err)
 		})
 }
 

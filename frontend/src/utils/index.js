@@ -1,4 +1,3 @@
-import { toast } from 'frappe-ui'
 import { useTimeAgo } from '@vueuse/core'
 import { Quiz } from '@/utils/quiz'
 import { Assignment } from '@/utils/assignment'
@@ -19,13 +18,6 @@ import Plyr from 'plyr'
 import 'plyr/dist/plyr.css'
 
 const readOnlyMode = window.read_only_mode
-
-export function createToast(options) {
-	toast({
-		position: 'bottom-right',
-		...options,
-	})
-}
 
 export function timeAgo(date) {
 	return useTimeAgo(date).value
@@ -95,26 +87,6 @@ export function getFileSize(file_size) {
 		return (value / 1024).toFixed(2) + 'K'
 	}
 	return value
-}
-
-export function showToast(title, text, icon, iconClasses = null) {
-	if (!iconClasses) {
-		if (icon == 'check') {
-			iconClasses = 'bg-surface-green-3 text-ink-white rounded-md p-px'
-		} else if (icon == 'alert-circle') {
-			iconClasses = 'bg-yellow-600 text-ink-white rounded-md p-px'
-		} else {
-			iconClasses = 'bg-surface-red-5 text-ink-white rounded-md p-px'
-		}
-	}
-	createToast({
-		title: title,
-		text: htmlToText(text),
-		icon: icon,
-		iconClasses: iconClasses,
-		position: icon == 'check' ? 'bottom-right' : 'top-center',
-		timeout: icon != 'check' ? 10 : 5,
-	})
 }
 
 export function getImgDimensions(imgSrc) {

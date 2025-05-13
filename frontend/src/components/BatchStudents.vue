@@ -223,6 +223,7 @@ import {
 	ListRows,
 	ListView,
 	ListRowItem,
+	toast,
 } from 'frappe-ui'
 import {
 	BookOpen,
@@ -234,7 +235,6 @@ import {
 } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
 import StudentModal from '@/components/Modals/StudentModal.vue'
-import { showToast } from '@/utils'
 import ProgressBar from '@/components/ProgressBar.vue'
 import BatchStudentProgress from '@/components/Modals/BatchStudentProgress.vue'
 import ApexChart from 'vue3-apexcharts'
@@ -323,7 +323,7 @@ const removeStudents = (selections, unselectAll) => {
 		{
 			onSuccess(data) {
 				students.reload()
-				showToast(__('Success'), __('Students deleted successfully'), 'check')
+				toast.success(__('Students deleted successfully'))
 				unselectAll()
 			},
 		}

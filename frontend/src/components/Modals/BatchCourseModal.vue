@@ -31,10 +31,9 @@
 	</Dialog>
 </template>
 <script setup>
-import { Dialog, createResource } from 'frappe-ui'
+import { Dialog, createResource, toast } from 'frappe-ui'
 import { ref, inject } from 'vue'
 import Link from '@/components/Controls/Link.vue'
-import { showToast } from '@/utils'
 import { useOnboarding } from 'frappe-ui/frappe'
 import { useSettings } from '@/stores/settings'
 
@@ -83,7 +82,7 @@ const addCourse = (close) => {
 				evaluator.value = null
 			},
 			onError(err) {
-				showToast('Error', err.message[0] || err, 'x')
+				toast.error(err.messages?.[0] || err)
 			},
 		}
 	)

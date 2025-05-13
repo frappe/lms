@@ -30,11 +30,10 @@
 	</Dialog>
 </template>
 <script setup>
-import { Dialog, createResource } from 'frappe-ui'
+import { Dialog, createResource, toast } from 'frappe-ui'
 import Link from '@/components/Controls/Link.vue'
 import { reactive, watch } from 'vue'
 import IconPicker from '@/components/Controls/IconPicker.vue'
-import { showToast } from '@/utils'
 
 const sidebar = defineModel('reloadSidebar')
 const show = defineModel()
@@ -78,10 +77,10 @@ const addWebPage = (close) => {
 			onSuccess() {
 				sidebar.value.reload()
 				close()
-				showToast('Success', 'Web page added to sidebar', 'check')
+				toast.success(__('Web page added to sidebar'))
 			},
 			onError(err) {
-				showToast('Error', err.message[0] || err, 'x')
+				toast.error(err.message[0] || err)
 				close()
 			},
 		}

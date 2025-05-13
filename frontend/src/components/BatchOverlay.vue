@@ -122,9 +122,9 @@
 </template>
 <script setup>
 import { inject, computed } from 'vue'
-import { Badge, Button, createResource } from 'frappe-ui'
+import { Badge, Button, createResource, toast } from 'frappe-ui'
 import { BookOpen, Clock, Globe } from 'lucide-vue-next'
-import { formatNumberIntoCurrency, formatTime, showToast } from '@/utils'
+import { formatNumberIntoCurrency, formatTime } from '@/utils'
 import DateRange from '@/components/Common/DateRange.vue'
 import { useRouter } from 'vue-router'
 
@@ -156,11 +156,7 @@ const enrollInBatch = () => {
 		{},
 		{
 			onSuccess(data) {
-				showToast(
-					__('Success'),
-					__('You have been enrolled in this batch'),
-					'check'
-				)
+				toast.success(__('You have been enrolled in this batch'))
 				router.push({
 					name: 'Batch',
 					params: {

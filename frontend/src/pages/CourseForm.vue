@@ -282,7 +282,6 @@ import {
 	watch,
 	getCurrentInstance,
 } from 'vue'
-import { showToast } from '@/utils'
 import { Check, Image, Trash2, X } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { capture } from '@/telemetry'
@@ -450,31 +449,10 @@ const submitCourse = () => {
 			},
 			{
 				onSuccess() {
-					console.log('Course updated successfully')
-					/* showToast('Success', 'Course updated successfully', 'check') */
-					/* First arg of toast.promise is a promiseToResolve and second is the options obj, how to write this */
-					toast.promise(
-						new Promise((resolve) => {
-							resolve()
-						}),
-						{
-							open: true,
-							type: 'success',
-							message: __('Course updated successfully'),
-							icon: Check,
-							duration: 500,
-						}
-					)
-					/* toast.promise({
-						open: true,
-						type: 'success',
-						message: __('Course updated successfully'),
-						icon: Check,
-						duration: 5
-					}) */
+					toast.success(__('Course updated successfully'))
 				},
 				onError(err) {
-					showToast('Error', err.messages?.[0] || err, 'x')
+					toast.error(err.messages?.[0] || err)
 				},
 			}
 		)
@@ -488,14 +466,14 @@ const submitCourse = () => {
 				}
 
 				capture('course_created')
-				showToast('Success', 'Course created successfully', 'check')
+				toast.success(__('Course created successfully'))
 				router.push({
 					name: 'CourseForm',
 					params: { courseName: data.name },
 				})
 			},
 			onError(err) {
-				showToast('Error', err.messages?.[0] || err, 'x')
+				toast.error(err.messages?.[0] || err)
 			},
 		})
 	}
@@ -509,7 +487,7 @@ const deleteCourse = createResource({
 		}
 	},
 	onSuccess() {
-		showToast(__('Success'), __('Course deleted successfully'), 'check')
+		toast.success(__('Course deleted successfully'))
 		router.push({ name: 'Courses' })
 	},
 })

@@ -31,10 +31,9 @@
 	</Dialog>
 </template>
 <script setup>
-import { Dialog, FormControl, createResource } from 'frappe-ui'
+import { Dialog, FormControl, createResource, toast } from 'frappe-ui'
 import Link from '@/components/Controls/Link.vue'
 import { computed, ref } from 'vue'
-import { showToast } from '@/utils'
 
 const show = defineModel()
 const assessmentType = ref(null)
@@ -70,7 +69,7 @@ const addAssessment = (close) => {
 		{
 			onSuccess(data) {
 				assessments.value.reload()
-				showToast(__('Success'), __('Assessment added successfully'), 'check')
+				toast.success(__('Assessment added successfully'))
 				close()
 			},
 		}

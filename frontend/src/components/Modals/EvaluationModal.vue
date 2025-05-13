@@ -68,7 +68,7 @@
 <script setup>
 import { Dialog, createResource, Select, FormControl } from 'frappe-ui'
 import { reactive, watch, inject } from 'vue'
-import { createToast, formatTime } from '@/utils/'
+import { formatTime } from '@/utils/'
 
 const user = inject('$user')
 const dayjs = inject('$dayjs')
@@ -148,14 +148,7 @@ function submitEvaluation(close) {
 				unavailabilityMessage = false
 			}
 
-			createToast({
-				title: unavailabilityMessage ? __('Evaluator is Unavailable') : '',
-				text: message,
-				icon: unavailabilityMessage ? 'alert-circle' : 'x',
-				iconClasses: 'bg-yellow-600 text-ink-white rounded-md p-px',
-				position: 'top-center',
-				timeout: 10,
-			})
+			toast.warn(__('Evaluator is unavailable'))
 		},
 	})
 }

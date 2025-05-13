@@ -25,10 +25,9 @@
 	</Dialog>
 </template>
 <script setup>
-import { Dialog, createResource } from 'frappe-ui'
+import { Dialog, createResource, toast } from 'frappe-ui'
 import { ref, inject } from 'vue'
 import Link from '@/components/Controls/Link.vue'
-import { showToast } from '@/utils'
 import { useOnboarding } from 'frappe-ui/frappe'
 
 const students = defineModel('reloadStudents')
@@ -70,7 +69,7 @@ const addStudent = (close) => {
 				close()
 			},
 			onError(err) {
-				showToast(__('Error'), __(err.messages?.[0] || err), 'x')
+				toast.error(err.messages?.[0] || err)
 			},
 		}
 	)

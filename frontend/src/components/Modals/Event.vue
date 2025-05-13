@@ -144,6 +144,7 @@ import {
 	Tabs,
 	Tooltip,
 	Textarea,
+	toast,
 } from 'frappe-ui'
 import {
 	User,
@@ -157,7 +158,7 @@ import {
 	ClipboardList,
 } from 'lucide-vue-next'
 import { inject, reactive, watch, ref, computed } from 'vue'
-import { formatTime, showToast } from '@/utils'
+import { formatTime } from '@/utils'
 import Rating from '@/components/Controls/Rating.vue'
 import Link from '@/components/Controls/Link.vue'
 
@@ -252,7 +253,7 @@ const saveEvaluation = () => {
 				} else {
 					show.value = false
 				}
-				showToast(__('Success'), __('Evaluation saved successfully'), 'check')
+				toast.success(__('Evaluation saved successfully'))
 			},
 		}
 	)
@@ -307,7 +308,7 @@ const saveCertificate = () => {
 		{},
 		{
 			onSuccess: () => {
-				showToast(__('Success'), __('Certificate saved successfully'), 'check')
+				toast.success(__('Certificate saved successfully'))
 			},
 		}
 	)

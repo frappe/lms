@@ -145,12 +145,13 @@ import {
 	TextEditor,
 	FileUploader,
 	usePageMeta,
+	toast,
 } from 'frappe-ui'
 import { computed, onMounted, reactive, inject } from 'vue'
 import { FileText, X } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
-import { getFileSize, showToast } from '../utils'
+import { getFileSize } from '@/utils'
 
 const user = inject('$user')
 const router = useRouter()
@@ -259,7 +260,7 @@ const createNewJob = () => {
 				})
 			},
 			onError(err) {
-				showToast('Error', err.messages?.[0] || err, 'x')
+				toast.error(err.messages?.[0] || err)
 			},
 		}
 	)
@@ -278,7 +279,7 @@ const editJobDetails = () => {
 				})
 			},
 			onError(err) {
-				showToast('Error', err.messages?.[0] || err, 'x')
+				toast.error(err.messages?.[0] || err)
 			},
 		}
 	)

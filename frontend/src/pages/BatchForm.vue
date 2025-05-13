@@ -278,9 +278,9 @@ import {
 	TextEditor,
 	createResource,
 	usePageMeta,
+	toast,
 } from 'frappe-ui'
 import { useRouter } from 'vue-router'
-import { showToast } from '@/utils'
 import { Image } from 'lucide-vue-next'
 import { capture } from '@/telemetry'
 import { useOnboarding } from 'frappe-ui/frappe'
@@ -460,7 +460,7 @@ const createNewBatch = () => {
 				})
 			},
 			onError(err) {
-				showToast('Message', err.messages?.[0] || err, 'alert-circle')
+				toast.error(err.messages?.[0] || err)
 			},
 		}
 	)
@@ -479,7 +479,7 @@ const editBatchDetails = () => {
 				})
 			},
 			onError(err) {
-				showToast('Message', err.messages?.[0] || err, 'alert-circle')
+				toast.error(err.messages?.[0] || err)
 			},
 		}
 	)

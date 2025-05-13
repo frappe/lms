@@ -64,9 +64,8 @@
 	</Dialog>
 </template>
 <script setup lang="ts">
-import { Button, Dialog, FormControl, TextEditor } from 'frappe-ui'
+import { Button, Dialog, FormControl, TextEditor, toast } from 'frappe-ui'
 import { computed, reactive, watch } from 'vue'
-import { showToast } from '@/utils'
 
 const show = defineModel()
 const assignments = defineModel<Assignments>('assignments')
@@ -123,11 +122,7 @@ const saveAssignment = () => {
 			{
 				onSuccess() {
 					show.value = false
-					showToast(
-						__('Success'),
-						__('Assignment created successfully'),
-						'check'
-					)
+					toast.success(__('Assignment created successfully'))
 				},
 			}
 		)
@@ -140,11 +135,7 @@ const saveAssignment = () => {
 			{
 				onSuccess() {
 					show.value = false
-					showToast(
-						__('Success'),
-						__('Assignment updated successfully'),
-						'check'
-					)
+					toast.success(__('Assignment updated successfully'))
 				},
 			}
 		)
