@@ -266,7 +266,8 @@ const students = createResource({
 	onSuccess(data) {
 		chartData.value = getChartData()
 		showProgressChart.value =
-			data.length && (props.batch?.data?.courses?.length || assessmentCount.value)
+			data.length &&
+			(props.batch?.data?.courses?.length || assessmentCount.value)
 	},
 })
 

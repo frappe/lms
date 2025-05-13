@@ -358,9 +358,8 @@ watch(tabIndex, () => {
 const canMakeAnnouncement = () => {
 	if (readOnlyMode) return false
 
-	if (!batch.data?.students?.length) 
-		return false
-	
+	if (!batch.data?.students?.length) return false
+
 	return user.data?.is_moderator || user.data?.is_evaluator
 }
 

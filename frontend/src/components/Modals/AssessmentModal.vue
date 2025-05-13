@@ -25,21 +25,23 @@
 					v-model="assessment"
 					:doctype="assessmentType"
 					:label="__('Assessment')"
-					:onCreate="(value, close) => {
-						close()
-						if (assessmentType === 'LMS Quiz') {
-							router.push({
-								name: 'QuizForm',
-								params: {
-									quizID: 'new',
-								},
-							})
-						} else if (assessmentType === 'LMS Assignment') {
-							router.push({
-								name: 'Assignments'
-							})
+					:onCreate="
+						(value, close) => {
+							close()
+							if (assessmentType === 'LMS Quiz') {
+								router.push({
+									name: 'QuizForm',
+									params: {
+										quizID: 'new',
+									},
+								})
+							} else if (assessmentType === 'LMS Assignment') {
+								router.push({
+									name: 'Assignments',
+								})
+							}
 						}
-					}"
+					"
 				/>
 			</div>
 		</template>

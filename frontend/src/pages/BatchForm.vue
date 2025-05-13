@@ -499,8 +499,6 @@ const validateFile = (file) => {
 	}
 }
 
-
-
 const breadcrumbs = computed(() => {
 	let crumbs = [
 		{

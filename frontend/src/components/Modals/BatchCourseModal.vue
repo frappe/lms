@@ -19,15 +19,17 @@
 				v-model="course"
 				:label="__('Course')"
 				:required="true"
-				:onCreate="(value, close) => {
-					close()
-					router.push({
-						name: 'CourseForm',
-						params: {
-							courseName: 'new'
-						}
-					})
-				}"
+				:onCreate="
+					(value, close) => {
+						close()
+						router.push({
+							name: 'CourseForm',
+							params: {
+								courseName: 'new',
+							},
+						})
+					}
+				"
 			/>
 			<Link
 				doctype="Course Evaluator"

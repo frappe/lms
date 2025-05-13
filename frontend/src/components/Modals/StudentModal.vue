@@ -19,9 +19,11 @@
 					doctype="User"
 					v-model="student"
 					:filters="{ ignore_user_type: 1 }"
-					:onCreate="(value, close) => {
-						openSettings('Members', close)
-					}"
+					:onCreate="
+						(value, close) => {
+							openSettings('Members', close)
+						}
+					"
 				/>
 			</div>
 		</template>
