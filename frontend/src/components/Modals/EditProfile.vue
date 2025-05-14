@@ -93,10 +93,11 @@ import {
 	Button,
 	createResource,
 	TextEditor,
+	toast,
 } from 'frappe-ui'
 import { reactive, watch } from 'vue'
 import { FileText, X } from 'lucide-vue-next'
-import { getFileSize, showToast, escapeHTML } from '@/utils'
+import { getFileSize, escapeHTML } from '@/utils'
 
 const reloadProfile = defineModel('reloadProfile')
 
@@ -155,7 +156,7 @@ const saveProfile = (close) => {
 				reloadProfile.value.reload()
 			},
 			onError(err) {
-				showToast('Error', err.messages?.[0] || err, 'x')
+				toast.error(err.messages?.[0] || err)
 			},
 		}
 	)

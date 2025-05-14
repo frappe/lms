@@ -14,7 +14,13 @@
 							<div class="text-xl font-semibold">
 								{{ student.full_name }}
 							</div>
-							<Badge :theme="student.progress === 100 ? 'green' : 'red'">
+							<Badge
+								v-if="
+									Object.keys(student.assessments).length ||
+									Object.keys(student.courses).length
+								"
+								:theme="student.progress === 100 ? 'green' : 'red'"
+							>
 								{{ student.progress }}% {{ __('Complete') }}
 							</Badge>
 						</div>
@@ -26,7 +32,10 @@
 
 				<div class="space-y-8">
 					<!-- Assessments -->
-					<div class="space-y-2 text-sm">
+					<div
+						v-if="Object.keys(student.assessments).length"
+						class="space-y-2 text-sm"
+					>
 						<div class="flex items-center border-b pb-1 font-medium">
 							<span class="flex-1">
 								{{ __('Assessment') }}
@@ -73,7 +82,10 @@
 					</div>
 
 					<!-- Courses -->
-					<div class="space-y-2 text-sm">
+					<div
+						v-if="Object.keys(student.courses).length"
+						class="space-y-2 text-sm"
+					>
 						<div class="flex items-center border-b pb-1 font-medium">
 							<span class="flex-1">
 								{{ __('Courses') }}

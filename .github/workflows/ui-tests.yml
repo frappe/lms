@@ -105,7 +105,7 @@ jobs:
       - name: cypress pre-requisites
         run: |
           cd ~/frappe-bench/apps/lms
-          yarn add cypress@^10 --no-lockfile
+          yarn add cypress@^10 --no-lockfile -W
 
       - name: UI Tests
         run: cd ~/frappe-bench/ && bench --site lms.test run-ui-tests lms --headless

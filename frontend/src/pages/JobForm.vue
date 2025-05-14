@@ -9,7 +9,7 @@
 			</Button>
 		</header>
 		<div class="py-5">
-			<div class="container border-b mb-4 pb-4">
+			<div class="container border-b mb-4 pb-5">
 				<div class="text-lg font-semibold mb-4">
 					{{ __('Job Details') }}
 				</div>
@@ -21,6 +21,15 @@
 							:required="true"
 						/>
 						<FormControl
+							v-model="job.type"
+							:label="__('Type')"
+							type="select"
+							:options="jobTypes"
+							:required="true"
+						/>
+					</div>
+					<div class="space-y-4">
+						<FormControl
 							v-model="job.location"
 							:label="__('City')"
 							:required="true"
@@ -31,17 +40,8 @@
 							:label="__('Country')"
 							:required="true"
 						/>
-					</div>
-					<div>
 						<FormControl
-							v-model="job.type"
-							:label="__('Type')"
-							type="select"
-							:options="jobTypes"
-							class="mb-4"
-							:required="true"
-						/>
-						<FormControl
+							v-if="jobName != 'new'"
 							v-model="job.status"
 							:label="__('Status')"
 							type="select"
@@ -51,7 +51,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="container border-b mb-4 pb-4">
+			<div class="container border-b mb-4 pb-5">
 				<div class="text-lg font-semibold mb-4">
 					{{ __('Company Details') }}
 				</div>
@@ -145,12 +145,13 @@ import {
 	TextEditor,
 	FileUploader,
 	usePageMeta,
+	toast,
 } from 'frappe-ui'
 import { computed, onMounted, reactive, inject } from 'vue'
 import { FileText, X } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
-import { getFileSize, showToast } from '../utils'
+import { getFileSize } from '@/utils'
 
 const user = inject('$user')
 const router = useRouter()
@@ -259,7 +260,7 @@ const createNewJob = () => {
 				})
 			},
 			onError(err) {
-				showToast('Error', err.messages?.[0] || err, 'x')
+				toast.error(err.messages?.[0] || err)
 			},
 		}
 	)
@@ -278,7 +279,7 @@ const editJobDetails = () => {
 				})
 			},
 			onError(err) {
-				showToast('Error', err.messages?.[0] || err, 'x')
+				toast.error(err.messages?.[0] || err)
 			},
 		}
 	)

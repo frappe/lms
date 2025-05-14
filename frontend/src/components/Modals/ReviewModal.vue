@@ -32,10 +32,9 @@
 	</Dialog>
 </template>
 <script setup>
-import { Dialog, Textarea, createResource } from 'frappe-ui'
+import { Dialog, Textarea, createResource, toast } from 'frappe-ui'
 import { reactive } from 'vue'
 import Rating from '@/components/Controls/Rating.vue'
-import { createToast } from '@/utils/'
 
 const show = defineModel()
 const reviews = defineModel('reloadReviews')
@@ -78,11 +77,7 @@ function submitReview(close) {
 			hasReviewed.value.reload()
 		},
 		onError(err) {
-			createToast({
-				text: err.messages?.[0] || err,
-				icon: 'x',
-				iconClasses: 'text-ink-red-4 bg-surface-red-4',
-			})
+			toast.error(err.messages?.[0] || err)
 		},
 	})
 	close()
