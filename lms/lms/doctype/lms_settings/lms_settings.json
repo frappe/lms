@@ -403,7 +403,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-04-22 16:05:27.914422",
+ "modified": "2025-05-14 12:43:22.749850",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Settings",
@@ -425,6 +425,16 @@
    "read": 1,
    "role": "LMS Student",
    "share": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "Moderator",
+   "share": 1,
+   "write": 1
   }
  ],
  "row_format": "Dynamic",
