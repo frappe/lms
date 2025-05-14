@@ -67,86 +67,61 @@
 		</header>
 		<div v-if="job.data" class="max-w-3xl mx-auto pt-5">
 			<div class="p-4">
-				<div class="space-y-5 mb-10">
-					<div class="flex items-center">
+				<div class="space-y-5 mb-12">
+					<div class="flex">
 						<img
 							:src="job.data.company_logo"
 							class="size-10 rounded-lg object-contain cursor-pointer mr-4"
 							:alt="job.data.company_name"
 							@click="redirectToWebsite(job.data.company_website)"
 						/>
-						<div class="text-2xl text-ink-gray-9 font-semibold">
-							{{ job.data.job_title }}
+						<div class="">
+							<div class="text-2xl text-ink-gray-9 font-semibold mb-1">
+								{{ job.data.job_title }}
+							</div>
+							<div class="text-sm text-ink-gray-5 font-semibold">
+								{{ job.data.company_name }} - {{ job.data.location }},
+								{{ job.data.country }}
+							</div>
 						</div>
 					</div>
-					<div>
-						<div
-							class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-5 md:gap-y-5"
-						>
-							<div class="flex items-center space-x-4">
-								<Building2 class="size-4 stroke-1.5 text-ink-gray-7" />
-								<div class="flex flex-col space-y-1 text-ink-gray-7">
-									<span class="text-xs text-ink-gray-5 font-medium uppercase">
-										{{ __('Organisation') }}
-									</span>
-									<span class="text-sm font-semibold">
-										{{ job.data.company_name }}
-									</span>
-								</div>
-							</div>
-							<div class="flex items-center space-x-4">
-								<MapPin class="size-4 stroke-1.5 text-ink-gray-7" />
-								<div class="flex flex-col space-y-1 text-ink-gray-7">
-									<span class="text-xs text-ink-gray-5 font-medium uppercase">
-										{{ __('Location') }}
-									</span>
-									<span class="text-sm font-semibold">
-										{{ job.data.location }}, {{ job.data.country }}
-									</span>
-								</div>
-							</div>
-							<div class="flex items-center space-x-4">
-								<ClipboardType class="size-4 stroke-1.5 text-ink-gray-7" />
-								<div class="flex flex-col space-y-1 text-ink-gray-7">
-									<span class="text-xs text-ink-gray-5 font-medium uppercase">
-										{{ __('Category') }}
-									</span>
-									<span class="text-sm font-semibold">
-										{{ job.data.type }}
-									</span>
-								</div>
-							</div>
-							<div class="flex items-center space-x-4">
-								<CalendarDays class="size-4 stroke-1.5 text-ink-gray-7" />
-								<div class="flex flex-col space-y-1 text-ink-gray-7">
-									<span class="text-xs text-ink-gray-5 font-medium uppercase">
-										{{ __('Posted on') }}
-									</span>
-									<span class="text-sm font-semibold">
-										{{ dayjs(job.data.creation).format('DD MMM YYYY') }}
-									</span>
-								</div>
-							</div>
-							<div
-								v-if="applicationCount.data"
-								class="flex items-center space-x-4"
-							>
-								<SquareUserRound class="size-4 stroke-1.5 text-ink-gray-7" />
-								<div class="flex flex-col space-y-1 text-ink-gray-7">
-									<span class="text-xs text-ink-gray-5 font-medium uppercase">
-										{{ __('Applications Received') }}
-									</span>
-									<span class="text-sm font-semibold">
-										{{ applicationCount.data }}
-									</span>
-								</div>
-							</div>
-						</div>
+
+					<div class="space-x-5">
+						<Badge size="lg">
+							<template #prefix>
+								<CalendarDays class="size-3 stroke-2 text-ink-gray-7" />
+							</template>
+							{{ dayjs(job.data.creation).fromNow() }}
+						</Badge>
+						<Badge size="lg">
+							<template #prefix>
+								<ClipboardType class="size-3 stroke-2 text-ink-gray-7" />
+							</template>
+							{{ job.data.type }}
+						</Badge>
+						<Badge v-if="applicationCount.data" size="lg">
+							<template #prefix>
+								<SquareUserRound class="size-3 stroke-2 text-ink-gray-7" />
+							</template>
+							{{ applicationCount.data }}
+							{{
+								applicationCount.data == 1 ? __('applicant') : __('applicants')
+							}}
+						</Badge>
 					</div>
 				</div>
+
+				<div class="flex items-center justify-between">
+					<div class="bg-surface-gray-2 h-px m-1 w-1/2"></div>
+					<div>
+						<FileText class="size-3 stroke-1 text-ink-gray-5" />
+					</div>
+					<div class="bg-surface-gray-2 h-px m-1 w-1/2"></div>
+				</div>
+
 				<p
 					v-html="job.data.description"
-					class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-6"
+					class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-12"
 				></p>
 			</div>
 			<JobApplicationModal
@@ -169,15 +144,14 @@ import { inject, ref } from 'vue'
 import { sessionStore } from '../stores/session'
 import JobApplicationModal from '@/components/Modals/JobApplicationModal.vue'
 import {
-	MapPin,
 	Check,
 	SendHorizonal,
 	Pencil,
-	Building2,
 	CalendarDays,
-	ClipboardType,
 	SquareUserRound,
 	SquareArrowOutUpRight,
+	FileText,
+	ClipboardType,
 } from 'lucide-vue-next'
 
 const user = inject('$user')
@@ -252,3 +226,12 @@ usePageMeta(() => {
 	}
 })
 </script>
+<style>
+p {
+	margin-bottom: 0.5rem !important;
+	line-height: 1.5;
+}
+p span {
+	line-height: 1.5;
+}
+</style>

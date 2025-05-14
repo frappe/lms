@@ -1,6 +1,6 @@
-const { defineConfig } = require("cypress");
+import { defineConfig } from "cypress";
 
-module.exports = defineConfig({
+export default defineConfig({
 	projectId: "vandxn",
 	adminPassword: "admin",
 	testUser: "frappe@example.com",

@@ -191,10 +191,11 @@ import {
 	FileUploader,
 	FormControl,
 	TextEditor,
+	toast,
 } from 'frappe-ui'
 import { computed, inject, onMounted, onBeforeUnmount, ref, watch } from 'vue'
 import { FileText, X } from 'lucide-vue-next'
-import { showToast, getFileSize } from '@/utils'
+import { getFileSize } from '@/utils'
 import { useRouter } from 'vue-router'
 
 const submissionFile = ref(null)
@@ -284,7 +285,7 @@ const submissionResource = createDocumentResource({
 	doctype: 'LMS Assignment Submission',
 	name: props.submissionName,
 	onError(err) {
-		showToast(__('Error'), __(err.messages?.[0] || err), 'x')
+		toast.error(err.messages?.[0] || err)
 	},
 	auto: false,
 	cache: [user.data?.name, props.assignmentID],
@@ -338,7 +339,7 @@ const submitAssignment = () => {
 			},
 			{
 				onSuccess(data) {
-					showToast(__('Success'), __('Changes saved successfully'), 'check')
+					toast.success(__('Changes saved successfully'))
 				},
 			}
 		)
@@ -352,7 +353,7 @@ const addNewSubmission = () => {
 		{},
 		{
 			onSuccess(data) {
-				showToast('Success', 'Assignment submitted successfully.', 'check')
+				toast.success(__('Assignment submitted successfully'))
 				if (router.currentRoute.value.name == 'AssignmentSubmission') {
 					router.push({
 						name: 'AssignmentSubmission',
@@ -370,7 +371,7 @@ const addNewSubmission = () => {
 				submissionResource.reload()
 			},
 			onError(err) {
-				showToast('Error', err.messages?.[0] || err, 'x')
+				toast.error(err.messages?.[0] || err)
 			},
 		}
 	)

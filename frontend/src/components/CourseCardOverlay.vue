@@ -146,8 +146,8 @@
 <script setup>
 import { BookOpen, Users, Star, GraduationCap } from 'lucide-vue-next'
 import { computed, inject } from 'vue'
-import { Badge, Button, createResource } from 'frappe-ui'
-import { showToast, formatAmount } from '@/utils/'
+import { Badge, Button, createResource, toast } from 'frappe-ui'
+import { formatAmount } from '@/utils/'
 import { capture } from '@/telemetry'
 import { useRouter } from 'vue-router'
 import CertificationLinks from '@/components/CertificationLinks.vue'
@@ -172,11 +172,7 @@ const video_link = computed(() => {
 
 function enrollStudent() {
 	if (!user.data) {
-		showToast(
-			__('Please Login'),
-			__('You need to login first to enroll for this course'),
-			'alert-circle'
-		)
+		toast.success(__('You need to login first to enroll for this course'))
 		setTimeout(() => {
 			window.location.href = `/login?redirect-to=${window.location.pathname}`
 		}, 1000)
@@ -192,11 +188,7 @@ function enrollStudent() {
 				capture('enrolled_in_course', {
 					course: props.course.data.name,
 				})
-				showToast(
-					__('Success'),
-					__('You have been enrolled in this course'),
-					'check'
-				)
+				toast.success(__('You have been enrolled in this course'))
 				setTimeout(() => {
 					router.push({
 						name: 'Lesson',

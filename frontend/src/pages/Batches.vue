@@ -20,12 +20,14 @@
 	</header>
 	<div class="p-5 pb-10">
 		<div
+			v-if="batchCount"
 			class="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:items-center justify-between mb-5"
 		>
 			<div class="text-lg text-ink-gray-9 font-semibold">
 				{{ __('All Batches') }}
 			</div>
 			<div
+				v-if="batches.data?.length || batchCount"
 				class="flex flex-col space-y-2 lg:space-y-0 lg:flex-row lg:items-center lg:space-x-4"
 			>
 				<TabButtons
@@ -70,22 +72,8 @@
 				<BatchCard :batch="batch" />
 			</router-link>
 		</div>
-		<div
-			v-else-if="!batches.list.loading"
-			class="flex flex-col items-center justify-center text-sm text-ink-gray-5 mt-48"
-		>
-			<BookOpen class="size-10 mx-auto stroke-1 text-ink-gray-4" />
-			<div class="text-lg font-medium mb-1">
-				{{ __('No batches found') }}
-			</div>
-			<div class="leading-5 w-2/5 text-center">
-				{{
-					__(
-						'There are no batches matching the criteria. Keep an eye out, fresh learning experiences are on the way soon!'
-					)
-				}}
-			</div>
-		</div>
+		<EmptyState v-else-if="!batches.list.loading" type="Batches" />
+
 		<div
 			v-if="!batches.list.loading && batches.hasNextPage"
 			class="flex justify-center mt-5"
@@ -100,6 +88,7 @@
 import {
 	Breadcrumbs,
 	Button,
+	call,
 	createListResource,
 	FormControl,
 	Select,
@@ -107,9 +96,10 @@ import {
 	usePageMeta,
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref, watch } from 'vue'
-import { BookOpen, Plus } from 'lucide-vue-next'
+import { Plus } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import BatchCard from '@/components/BatchCard.vue'
+import EmptyState from '@/components/EmptyState.vue'
 
 const user = inject('$user')
 const dayjs = inject('$dayjs')
@@ -125,10 +115,12 @@ const is_student = computed(() => user.data?.is_student)
 const currentTab = ref(is_student.value ? 'All' : 'Upcoming')
 const orderBy = ref('start_date')
 const readOnlyMode = window.read_only_mode
+const batchCount = ref(0)
 
 onMounted(() => {
 	setFiltersFromQuery()
 	updateBatches()
+	getBatchCount()
 	categories.value = [
 		{
 			label: '',
@@ -304,6 +296,14 @@ const canCreateBatch = () => {
 	if (readOnlyMode) return false
 	if (user.data?.is_moderator || user.data?.is_instructor) return true
 	return false
+}
+
+const getBatchCount = () => {
+	call('frappe.client.get_count', {
+		doctype: 'LMS Batch',
+	}).then((data) => {
+		batchCount.value = data
+	})
 }
 
 const breadcrumbs = computed(() => [

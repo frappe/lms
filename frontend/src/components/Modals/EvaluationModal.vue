@@ -42,10 +42,11 @@
 					<div class="grid grid-cols-2 gap-2">
 						<div v-for="slot in slots.data">
 							<div
-								class="text-base text-center border rounded-md bg-surface-gray-3 p-2 cursor-pointer"
+								class="text-base text-center border rounded-md text-ink-gray-8 bg-surface-gray-3 p-2 cursor-pointer"
 								@click="saveSlot(slot)"
 								:class="{
-									'border-gray-900': evaluation.start_time == slot.start_time,
+									'border-outline-gray-4':
+										evaluation.start_time == slot.start_time,
 								}"
 							>
 								{{ formatTime(slot.start_time) }} -
@@ -67,7 +68,7 @@
 <script setup>
 import { Dialog, createResource, Select, FormControl } from 'frappe-ui'
 import { reactive, watch, inject } from 'vue'
-import { createToast, formatTime } from '@/utils/'
+import { formatTime } from '@/utils/'
 
 const user = inject('$user')
 const dayjs = inject('$dayjs')
@@ -147,14 +148,7 @@ function submitEvaluation(close) {
 				unavailabilityMessage = false
 			}
 
-			createToast({
-				title: unavailabilityMessage ? __('Evaluator is Unavailable') : '',
-				text: message,
-				icon: unavailabilityMessage ? 'alert-circle' : 'x',
-				iconClasses: 'bg-yellow-600 text-ink-white rounded-md p-px',
-				position: 'top-center',
-				timeout: 10,
-			})
+			toast.warn(__('Evaluator is unavailable'))
 		},
 	})
 }

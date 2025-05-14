@@ -80,10 +80,10 @@ import {
 	Button,
 	Badge,
 	usePageMeta,
+	toast,
 } from 'frappe-ui'
 import { computed, onBeforeUnmount, onMounted, inject } from 'vue'
 import { useRouter } from 'vue-router'
-import { showToast } from '@/utils'
 import { sessionStore } from '@/stores/session'
 
 const { brand } = sessionStore()
@@ -147,7 +147,7 @@ const saveSubmission = () => {
 		{},
 		{
 			onError(err) {
-				showToast(__('Error'), __(err.messages?.[0] || err), 'x')
+				toast.error(err.messages?.[0] || err)
 			},
 		}
 	)

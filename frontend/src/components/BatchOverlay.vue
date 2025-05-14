@@ -2,7 +2,12 @@
 	<div v-if="batch.data" class="border-2 rounded-md p-5 lg:w-72">
 		<div
 			v-if="batch.data.seat_count && seats_left > 0"
-			class="text-xs bg-green-100 text-green-700 float-right px-2 py-0.5 rounded-md"
+			class="text-sm bg-green-100 text-green-700 px-2 py-1 rounded-md"
+			:class="
+				batch.data.amount || batch.data.courses.length
+					? 'float-right'
+					: 'w-fit mb-4'
+			"
 		>
 			{{ seats_left }}
 			<span v-if="seats_left > 1">
@@ -117,9 +122,9 @@
 </template>
 <script setup>
 import { inject, computed } from 'vue'
-import { Badge, Button, createResource } from 'frappe-ui'
+import { Badge, Button, createResource, toast } from 'frappe-ui'
 import { BookOpen, Clock, Globe } from 'lucide-vue-next'
-import { formatNumberIntoCurrency, formatTime, showToast } from '@/utils'
+import { formatNumberIntoCurrency, formatTime } from '@/utils'
 import DateRange from '@/components/Common/DateRange.vue'
 import { useRouter } from 'vue-router'
 
@@ -151,11 +156,7 @@ const enrollInBatch = () => {
 		{},
 		{
 			onSuccess(data) {
-				showToast(
-					__('Success'),
-					__('You have been enrolled in this batch'),
-					'check'
-				)
+				toast.success(__('You have been enrolled in this batch'))
 				router.push({
 					name: 'Batch',
 					params: {

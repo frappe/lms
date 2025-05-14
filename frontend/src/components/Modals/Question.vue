@@ -121,10 +121,10 @@ import {
 	createResource,
 	Switch,
 	Button,
+	toast,
 } from 'frappe-ui'
 import { computed, watch, reactive, ref, inject } from 'vue'
 import Link from '@/components/Controls/Link.vue'
-import { showToast } from '@/utils'
 import { useOnboarding } from 'frappe-ui/frappe'
 
 const show = defineModel()
@@ -260,7 +260,7 @@ const addQuestion = () => {
 					})
 				},
 				onError(err) {
-					showToast(__('Error'), __(err.messages?.[0] || err), 'x')
+					toast.error(err.messages?.[0] || err)
 				},
 			}
 		)
@@ -278,12 +278,12 @@ const addQuestionRow = (question) => {
 					updateOnboardingStep('create_first_quiz')
 
 				show.value = false
-				showToast(__('Success'), __('Question added successfully'), 'check')
+				toast.success(__('Question added successfully'))
 				quiz.value.reload()
 				show.value = false
 			},
 			onError(err) {
-				showToast(__('Error'), __(err.messages?.[0] || err), 'x')
+				toast.error(err.messages?.[0] || err)
 				show.value = false
 			},
 		}
@@ -328,18 +328,14 @@ const updateQuestion = () => {
 					{
 						onSuccess() {
 							show.value = false
-							showToast(
-								__('Success'),
-								__('Question updated successfully'),
-								'check'
-							)
+							toast.success(__('Question updated successfully'))
 							quiz.value.reload()
 						},
 					}
 				)
 			},
 			onError(err) {
-				showToast(__('Error'), __(err.messages?.[0] || err), 'x')
+				toast.error(err.messages?.[0] || err)
 			},
 		}
 	)

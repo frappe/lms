@@ -19,32 +19,43 @@
 				v-model="course"
 				:label="__('Course')"
 				:required="true"
+				:onCreate="
+					(value, close) => {
+						close()
+						router.push({
+							name: 'CourseForm',
+							params: {
+								courseName: 'new',
+							},
+						})
+					}
+				"
 			/>
 			<Link
 				doctype="Course Evaluator"
 				v-model="evaluator"
 				:label="__('Evaluator')"
-				:onCreate="(value, close) => openSettings(close)"
+				:onCreate="(value, close) => openSettings('Evaluators', close)"
 				class="mt-4"
 			/>
 		</template>
 	</Dialog>
 </template>
 <script setup>
-import { Dialog, createResource } from 'frappe-ui'
+import { Dialog, createResource, toast } from 'frappe-ui'
 import { ref, inject } from 'vue'
 import Link from '@/components/Controls/Link.vue'
-import { showToast } from '@/utils'
 import { useOnboarding } from 'frappe-ui/frappe'
-import { useSettings } from '@/stores/settings'
+import { openSettings } from '@/utils'
+import { useRouter } from 'vue-router'
 
 const show = defineModel()
 const course = ref(null)
 const evaluator = ref(null)
 const user = inject('$user')
 const courses = defineModel('courses')
+const router = useRouter()
 const { updateOnboardingStep } = useOnboarding('learning')
-const settingsStore = useSettings()
 
 const props = defineProps({
 	batch: {
@@ -83,15 +94,9 @@ const addCourse = (close) => {
 				evaluator.value = null
 			},
 			onError(err) {
-				showToast('Error', err.message[0] || err, 'x')
+				toast.error(err.messages?.[0] || err)
 			},
 		}
 	)
-}
-
-const openSettings = (close) => {
-	close()
-	settingsStore.activeTab = 'Evaluators'
-	settingsStore.isSettingsOpen = true
 }
 </script>

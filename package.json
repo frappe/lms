@@ -2,10 +2,11 @@
   "name": "frappe_lms",
   "version": "1.0.0",
   "description": "Easy to use, open-source, Learning Management System",
-  "workspaces1": [
+  "workspaces": [
     "frappe-ui",
     "frontend"
   ],
+  "type": "module",
   "scripts": {
     "test-local": "cypress open --e2e --browser chrome",
     "postinstall": "cd frontend && yarn install --check-files",

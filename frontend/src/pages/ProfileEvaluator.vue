@@ -141,9 +141,9 @@
 	</div>
 </template>
 <script setup>
-import { createResource, FormControl, Button, Badge } from 'frappe-ui'
+import { createResource, FormControl, Button, Badge, toast } from 'frappe-ui'
 import { computed, reactive, ref, onMounted, inject } from 'vue'
-import { showToast, convertToTitleCase } from '@/utils'
+import { convertToTitleCase } from '@/utils'
 import { Plus, X, Check, CircleAlert } from 'lucide-vue-next'
 
 const user = inject('$user')
@@ -198,7 +198,7 @@ const createSlot = createResource({
 		}
 	},
 	onSuccess() {
-		showToast('Success', 'Slot added successfully', 'check')
+		toast.success(__('Slot added successfully'))
 		evaluator.reload()
 		showSlotsTemplate.value = 0
 		newSlot.day = ''
@@ -206,7 +206,7 @@ const createSlot = createResource({
 		newSlot.end_time = ''
 	},
 	onError(err) {
-		showToast('Error', err.messages?.[0] || err, 'x')
+		toast.error(err.messages?.[0] || err)
 	},
 })
 
@@ -221,10 +221,10 @@ const updateSlot = createResource({
 		}
 	},
 	onSuccess() {
-		showToast('Success', 'Availability updated successfully', 'check')
+		toast.success(__('Availability updated successfully'))
 	},
 	onError(err) {
-		showToast('Error', err.messages?.[0] || err, 'x')
+		toast.error(err.messages?.[0] || err)
 	},
 })
 
@@ -237,11 +237,11 @@ const deleteSlot = createResource({
 		}
 	},
 	onSuccess() {
-		showToast('Success', 'Slot deleted successfully', 'check')
+		toast.success(__('Slot deleted successfully'))
 		evaluator.reload()
 	},
 	onError(err) {
-		showToast('Error', err.messages?.[0] || err, 'x')
+		toast.error(err.messages?.[0] || err)
 	},
 })
 
@@ -256,10 +256,10 @@ const updateUnavailability = createResource({
 		}
 	},
 	onSuccess() {
-		showToast('Success', 'Unavailability updated successfully', 'check')
+		toast.success(__('Unavailability updated successfully'))
 	},
 	onError(err) {
-		showToast('Error', err.messages?.[0] || err, 'x')
+		toast.error(err.messages?.[0] || err)
 	},
 })
 

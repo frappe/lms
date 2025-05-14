@@ -1,12 +1,13 @@
 <template>
-	<Layout>
-		<router-view />
-	</Layout>
-	<Dialogs />
-	<Toasts />
+	<FrappeUIProvider>
+		<Layout>
+			<router-view />
+		</Layout>
+		<Dialogs />
+	</FrappeUIProvider>
 </template>
 <script setup>
-import { Toasts } from 'frappe-ui'
+import { FrappeUIProvider } from 'frappe-ui'
 import { Dialogs } from '@/utils/dialogs'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useScreenSize } from './utils/composables'
