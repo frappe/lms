@@ -1,6 +1,6 @@
 <template>
 	<div class="flex h-screen overflow-hidden sm:bg-gray-50">
-		<div class="relative h-full z-10 mx-auto pt-8 sm:w-max sm:pt-32">
+		<div class="relative h-full z-10 mx-auto sm:w-max pt-40">
 			<div class="mx-auto flex items-center justify-center space-x-2">
 				<LMSLogo class="size-7" />
 				<span
@@ -18,7 +18,7 @@
 
 				<div class="mb-5">
 					<div class="text-sm text-gray-700 mb-2">
-						{{ __('What is your main use case for Frappe Learning?') }}
+						{{ __('What is your use case for Frappe Learning?') }}
 					</div>
 					<FormControl
 						v-model="persona.useCase"
@@ -29,12 +29,12 @@
 
 				<div class="mb-5">
 					<div class="text-sm text-gray-700 mb-2">
-						{{ __('How many students are you planning to teach?') }}
+						{{ __('What best describes your role?') }}
 					</div>
 					<FormControl
-						v-model="persona.noOfStudents"
+						v-model="persona.role"
 						type="select"
-						:options="noOfStudentsOptions"
+						:options="roleOptions"
 					/>
 				</div>
 
@@ -65,7 +65,7 @@ const router = useRouter()
 const { brand } = sessionStore()
 
 const persona = reactive({
-	noOfStudents: null,
+	role: null,
 	useCase: null,
 })
 
@@ -96,6 +96,24 @@ const skipPersonaForm = () => {
 		})
 	})
 }
+
+const roleOptions = computed(() => {
+	const options = [
+		'Trainer / Instructor',
+		'Freelancer / Consultant',
+		'HR / L&D Professional',
+		'School / University Admin',
+		'Software Developer',
+		'Community Manager',
+		'Business Owner / Team Lead',
+		'Other',
+	]
+
+	return options.map((option) => ({
+		label: option,
+		value: option,
+	}))
+})
 
 const noOfStudentsOptions = computed(() => {
 	const options = [
