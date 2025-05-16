@@ -155,7 +155,7 @@ const saveSubmission = () => {
 
 usePageMeta(() => {
 	return {
-		title: `${submisisonDetails.doc.quiz_title}`,
+		title: `${submisisonDetails.doc?.quiz_title}`,
 		icon: brand.favicon,
 	}
 })

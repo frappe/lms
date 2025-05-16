@@ -494,7 +494,7 @@ const getAnswers = () => {
 const checkAnswer = () => {
 	let answers = getAnswers()
 	if (!answers.length) {
-		toast.warn(__('Please select an option'))
+		toast.warning(__('Please select an option'))
 		return
 	}
 
