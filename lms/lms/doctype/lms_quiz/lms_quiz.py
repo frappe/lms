@@ -96,9 +96,7 @@ def set_total_marks(questions):
 
 @frappe.whitelist()
 def quiz_summary(quiz, results):
-	score = 0
 	results = results and json.loads(results)
-	is_open_ended = False
 	percentage = 0
 
 	quiz_details = frappe.db.get_value(
@@ -108,7 +106,32 @@ def quiz_summary(quiz, results):
 		as_dict=1,
 	)
 
+	data = process_results(results, quiz)
+	results = data["results"]
+	score = data["score"]
+	is_open_ended = data["is_open_ended"]
+
 	score_out_of = quiz_details.total_marks
+	percentage = (score / score_out_of) * 100 if score_out_of else 0
+	submission = create_submission(
+		quiz, results, score_out_of, quiz_details.passing_percentage
+	)
+
+	save_progress_after_quiz(quiz_details, percentage)
+
+	return {
+		"score": score,
+		"score_out_of": score_out_of,
+		"submission": submission.name,
+		"pass": percentage == quiz_details.passing_percentage,
+		"percentage": percentage,
+		"is_open_ended": is_open_ended,
+	}
+
+
+def process_results(results, quiz):
+	score = 0
+	is_open_ended = False
 
 	for result in results:
 		question_details = frappe.db.get_value(
@@ -123,55 +146,28 @@ def quiz_summary(quiz, results):
 		result["marks_out_of"] = question_details.marks
 
 		if question_details.type != "Open Ended":
-			correct = result["is_correct"][0]
-			for point in result["is_correct"]:
-				correct = correct and point
-			result["is_correct"] = correct
+			if len(result["is_correct"]) > 0:
+				correct = result["is_correct"][0]
+				for point in result["is_correct"]:
+					correct = correct and point
+				result["is_correct"] = correct
+			else:
+				result["is_correct"] = 0
 
 			marks = question_details.marks if correct else 0
 			result["marks"] = marks
 			score += marks
 
 		else:
-			result["is_correct"] = 0
 			is_open_ended = True
-
-		percentage = (score / score_out_of) * 100
-		result["answer"] = re.sub(
-			r'<img[^>]*src\s*=\s*["\'](?=data:)(.*?)["\']', _save_file, result["answer"]
-		)
-
-	submission = frappe.new_doc("LMS Quiz Submission")
-	# Score and percentage are calculated by the controller function
-	submission.update(
-		{
-			"doctype": "LMS Quiz Submission",
-			"quiz": quiz,
-			"result": results,
-			"score": 0,
-			"score_out_of": score_out_of,
-			"member": frappe.session.user,
-			"percentage": 0,
-			"passing_percentage": quiz_details.passing_percentage,
-		}
-	)
-	submission.save(ignore_permissions=True)
-
-	if (
-		percentage >= quiz_details.passing_percentage
-		and quiz_details.lesson
-		and quiz_details.course
-	):
-		save_progress(quiz_details.lesson, quiz_details.course)
-	elif not quiz_details.passing_percentage:
-		save_progress(quiz_details.lesson, quiz_details.course)
+			result["is_correct"] = 0
+			result["answer"] = re.sub(
+				r'<img[^>]*src\s*=\s*["\'](?=data:)(.*?)["\']', _save_file, result["answer"]
+			)
 
 	return {
+		"results": results,
 		"score": score,
-		"score_out_of": score_out_of,
-		"submission": submission.name,
-		"pass": percentage == quiz_details.passing_percentage,
-		"percentage": percentage,
 		"is_open_ended": is_open_ended,
 	}
 
@@ -217,6 +213,36 @@ def _save_file(match):
 
 def get_corrupted_image_msg():
 	return _("Image: Corrupted Data Stream")
+
+
+def create_submission(quiz, results, score_out_of, passing_percentage):
+	submission = frappe.new_doc("LMS Quiz Submission")
+	# Score and percentage are calculated by the controller function
+	submission.update(
+		{
+			"doctype": "LMS Quiz Submission",
+			"quiz": quiz,
+			"result": results,
+			"score": 0,
+			"score_out_of": score_out_of,
+			"member": frappe.session.user,
+			"percentage": 0,
+			"passing_percentage": passing_percentage,
+		}
+	)
+	submission.save(ignore_permissions=True)
+	return submission
+
+
+def save_progress_after_quiz(quiz_details, percentage):
+	if (
+		percentage >= quiz_details.passing_percentage
+		and quiz_details.lesson
+		and quiz_details.course
+	):
+		save_progress(quiz_details.lesson, quiz_details.course)
+	elif not quiz_details.passing_percentage:
+		save_progress(quiz_details.lesson, quiz_details.course)
 
 
 @frappe.whitelist()
