@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-05-09 16:04+0000\n"
-"PO-Revision-Date: 2025-05-12 15:25\n"
+"PO-Revision-Date: 2025-05-16 15:39\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Swedish\n"
 "MIME-Version: 1.0\n"
@@ -5058,7 +5058,7 @@ msgstr "Uppstart Organisation"
 
 #: frontend/src/pages/Billing.vue:83
 msgid "State"
-msgstr "Län"
+msgstr "Tillstånd"
 
 #. Label of the tab_4_tab (Tab Break) field in DocType 'LMS Course'
 #. Label of the statistics (Check) field in DocType 'LMS Settings'
