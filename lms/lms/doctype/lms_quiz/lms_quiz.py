@@ -112,7 +112,7 @@ def quiz_summary(quiz, results):
 	is_open_ended = data["is_open_ended"]
 
 	score_out_of = quiz_details.total_marks
-	percentage = (score / score_out_of) * 100
+	percentage = (score / score_out_of) * 100 if score_out_of else 0
 	submission = create_submission(
 		quiz, results, score_out_of, quiz_details.passing_percentage
 	)
@@ -146,7 +146,7 @@ def process_results(results, quiz):
 		result["marks_out_of"] = question_details.marks
 
 		if question_details.type != "Open Ended":
-			if len(result["is_correct"]):
+			if len(result["is_correct"]) > 0:
 				correct = result["is_correct"][0]
 				for point in result["is_correct"]:
 					correct = correct and point
