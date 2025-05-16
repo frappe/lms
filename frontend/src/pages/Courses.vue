@@ -112,7 +112,6 @@ const { brand } = sessionStore()
 const courseCount = ref(0)
 
 onMounted(() => {
-	identifyUserPersona()
 	setFiltersFromQuery()
 	updateCourses()
 	getCourseCount()
@@ -177,6 +176,7 @@ const getCourseCount = () => {
 		doctype: 'LMS Course',
 	}).then((data) => {
 		courseCount.value = data
+		identifyUserPersona()
 	})
 }
 
