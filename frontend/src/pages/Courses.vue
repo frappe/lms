@@ -20,12 +20,14 @@
 	</header>
 	<div class="p-5 pb-10">
 		<div
+			v-if="courseCount"
 			class="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:items-center justify-between mb-5"
 		>
 			<div class="text-lg text-ink-gray-9 font-semibold">
 				{{ __('All Courses') }}
 			</div>
 			<div
+				v-if="courses.data?.length || courseCount"
 				class="flex flex-col space-y-2 lg:space-y-0 lg:flex-row lg:items-center lg:space-x-4"
 			>
 				<TabButtons :buttons="courseTabs" v-model="currentTab" />
@@ -66,22 +68,7 @@
 				<CourseCard :course="course" />
 			</router-link>
 		</div>
-		<div
-			v-else-if="!courses.list.loading"
-			class="flex flex-col items-center justify-center text-sm text-ink-gray-5 italic mt-48"
-		>
-			<BookOpen class="size-10 mx-auto stroke-1 text-ink-gray-4" />
-			<div class="text-lg font-medium mb-1">
-				{{ __('No courses found') }}
-			</div>
-			<div class="leading-5 w-2/5 text-center">
-				{{
-					__(
-						'There are no courses matching the criteria. Keep an eye out, fresh learning experiences are on the way soon!'
-					)
-				}}
-			</div>
-		</div>
+		<EmptyState v-else-if="!courses.list.loading" type="Courses" />
 		<div
 			v-if="!courses.list.loading && courses.hasNextPage"
 			class="flex justify-center mt-5"
@@ -104,10 +91,11 @@ import {
 	usePageMeta,
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref, watch } from 'vue'
-import { BookOpen, Plus } from 'lucide-vue-next'
+import { Plus } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { canCreateCourse } from '@/utils'
 import CourseCard from '@/components/CourseCard.vue'
+import EmptyState from '@/components/EmptyState.vue'
 import router from '../router'
 
 const user = inject('$user')
@@ -121,12 +109,12 @@ const certification = ref(false)
 const filters = ref({})
 const currentTab = ref('Live')
 const { brand } = sessionStore()
-const readOnlyMode = window.read_only_mode
+const courseCount = ref(0)
 
 onMounted(() => {
-	identifyUserPersona()
 	setFiltersFromQuery()
 	updateCourses()
+	getCourseCount()
 	categories.value = [
 		{
 			label: '',
@@ -175,17 +163,21 @@ const identifyUserPersona = async () => {
 	if (user.data?.is_system_manager && !user.data?.developer_mode) {
 		let personaCaptured = await isPersonaCaptured()
 		if (personaCaptured) return
-
-		call('frappe.client.get_count', {
-			doctype: 'LMS Course',
-		}).then((data) => {
-			if (!data) {
-				router.push({
-					name: 'PersonaForm',
-				})
-			}
-		})
+		if (!courseCount.value) {
+			router.push({
+				name: 'PersonaForm',
+			})
+		}
 	}
+}
+
+const getCourseCount = () => {
+	call('frappe.client.get_count', {
+		doctype: 'LMS Course',
+	}).then((data) => {
+		courseCount.value = data
+		identifyUserPersona()
+	})
 }
 
 const updateCourses = () => {

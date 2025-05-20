@@ -5,10 +5,11 @@
 				{{ label }}
 			</div>
 			<Button @click="() => showCategoryForm()">
-				<template #icon>
+				<template #prefix>
 					<Plus v-if="!showForm" class="h-3 w-3 stroke-1.5" />
 					<X v-else class="h-3 w-3 stroke-1.5" />
 				</template>
+				{{ showForm ? __('Close') : __('New') }}
 			</Button>
 		</div>
 
@@ -28,12 +29,11 @@
 		</div>
 
 		<div class="overflow-y-scroll">
-			<div class="text-base divide-y space-y-2">
+			<div class="text-base space-y-2">
 				<FormControl
 					:value="cat.category"
 					type="text"
 					v-for="cat in categories.data"
-					class=""
 					@change.stop="(e) => update(cat.name, e.target.value)"
 				/>
 			</div>

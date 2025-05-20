@@ -95,18 +95,18 @@
 						</Badge>
 						<Badge size="lg">
 							<template #prefix>
+								<ClipboardType class="size-3 stroke-2 text-ink-gray-7" />
+							</template>
+							{{ job.data.type }}
+						</Badge>
+						<Badge v-if="applicationCount.data" size="lg">
+							<template #prefix>
 								<SquareUserRound class="size-3 stroke-2 text-ink-gray-7" />
 							</template>
 							{{ applicationCount.data }}
 							{{
 								applicationCount.data == 1 ? __('applicant') : __('applicants')
 							}}
-						</Badge>
-						<Badge size="lg">
-							<template #prefix>
-								<ClipboardType class="size-3 stroke-2 text-ink-gray-7" />
-							</template>
-							{{ job.data.type }}
 						</Badge>
 					</div>
 				</div>

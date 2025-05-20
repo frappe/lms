@@ -291,9 +291,9 @@ import {
 	ListView,
 	TextEditor,
 	FormControl,
+	toast,
 } from 'frappe-ui'
 import { ref, watch, reactive, inject, computed } from 'vue'
-import { createToast, showToast } from '@/utils/'
 import { CheckCircle, XCircle, MinusCircle } from 'lucide-vue-next'
 import { timeAgo } from '@/utils'
 import { useRouter } from 'vue-router'
@@ -494,12 +494,7 @@ const getAnswers = () => {
 const checkAnswer = () => {
 	let answers = getAnswers()
 	if (!answers.length) {
-		createToast({
-			title: 'Please select an option',
-			icon: 'alert-circle',
-			iconClasses: 'text-yellow-600 bg-yellow-100 rounded-full',
-			position: 'top-center',
-		})
+		toast.warning(__('Please select an option'))
 		return
 	}
 
@@ -589,7 +584,7 @@ const createSubmission = () => {
 				const errorTitle = err?.message || ''
 				if (errorTitle.includes('MaximumAttemptsExceededError')) {
 					const errorMessage = err.messages?.[0] || err
-					showToast(__('Error'), __(errorMessage), 'x')
+					toast.error(__(errorMessage))
 					setTimeout(() => {
 						window.location.reload()
 					}, 3000)

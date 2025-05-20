@@ -31,6 +31,7 @@
 				<div class="mb-4">
 					<div class="mb-1.5 text-sm text-ink-gray-5">
 						{{ __('Announcement') }}
+						<span class="text-ink-red-3">*</span>
 					</div>
 					<TextEditor
 						:fixedMenu="true"
@@ -43,9 +44,8 @@
 	</Dialog>
 </template>
 <script setup>
-import { Dialog, Input, TextEditor, createResource } from 'frappe-ui'
+import { Dialog, Input, TextEditor, createResource, toast } from 'frappe-ui'
 import { reactive } from 'vue'
-import { showToast } from '@/utils/'
 
 const show = defineModel()
 
@@ -87,22 +87,21 @@ const makeAnnouncement = (close) => {
 		{
 			validate() {
 				if (!props.students.length) {
-					return 'No students in this batch'
+					return __('No students in this batch')
 				}
 				if (!announcement.subject) {
-					return 'Subject is required'
+					return __('Subject is required')
+				}
+				if (!announcement.announcement) {
+					return __('Announcement is required')
 				}
 			},
 			onSuccess() {
 				close()
-				showToast(
-					__('Success'),
-					__('Announcement has been sent successfully'),
-					'check'
-				)
+				toast.success(__('Announcement has been sent successfully'))
 			},
 			onError(err) {
-				showToast(__('Error'), __(err.messages?.[0] || err), 'alert-circle')
+				toast.error(__(err.messages?.[0] || err))
 			},
 		}
 	)

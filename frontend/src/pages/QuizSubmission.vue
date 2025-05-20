@@ -2,10 +2,10 @@
 	<header
 		class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 	>
-		<Breadcrumbs v-if="submisisonDetails.doc" :items="breadcrumbs" />
+		<Breadcrumbs v-if="submissionDetails.doc" :items="breadcrumbs" />
 		<div class="space-x-2">
 			<Badge
-				v-if="submisisonDetails.isDirty"
+				v-if="submissionDetails.isDirty"
 				:label="__('Not Saved')"
 				variant="subtle"
 				theme="orange"
@@ -15,19 +15,19 @@
 			</Button>
 		</div>
 	</header>
-	<div v-if="submisisonDetails.doc" class="w-1/2 mx-auto py-5 space-y-5">
-		<div class="text-xl font-semibold text-ink-gray-9">
-			{{ submisisonDetails.doc.member_name }}
+	<div v-if="submissionDetails.doc" class="w-2/3 border-x mx-auto py-5">
+		<div class="text-xl px-10 font-semibold text-ink-gray-9 mb-5">
+			{{ submissionDetails.doc.member_name }}
 		</div>
-		<div class="space-y-4 border p-5 rounded-md">
+		<div class="space-y-4 border-b pb-5 px-10">
 			<div class="grid grid-cols-2 gap-5">
 				<FormControl
-					v-model="submisisonDetails.doc.quiz_title"
+					v-model="submissionDetails.doc.quiz_title"
 					:label="__('Quiz')"
 					:disabled="true"
 				/>
 				<FormControl
-					v-model="submisisonDetails.doc.member_name"
+					v-model="submissionDetails.doc.member_name"
 					:label="__('Member')"
 					:disabled="true"
 				/>
@@ -35,39 +35,39 @@
 
 			<div class="grid grid-cols-2 gap-5">
 				<FormControl
-					v-model="submisisonDetails.doc.score"
+					v-model="submissionDetails.doc.score"
 					:label="__('Score')"
 					:disabled="true"
 				/>
 				<FormControl
-					v-model="submisisonDetails.doc.percentage"
+					v-model="submissionDetails.doc.percentage"
 					:label="__('Percentage')"
 					:disabled="true"
 				/>
 			</div>
 		</div>
 
-		<div
-			v-for="(row, index) in submisisonDetails.doc.result"
-			class="border p-5 rounded-md space-y-4"
-		>
-			<div class="flex items-start space-x-1 font-semibold text-ink-gray-9">
-				<!-- <span>
-					{{ index + 1 }}.
-				</span> -->
-				<span class="leading-5" v-html="row.question"> </span>
-			</div>
-			<div class="leading-5 text-ink-gray-7 space-x-1">
-				<span> {{ __('Answer') }}: </span>
-				<span v-html="row.answer"></span>
-			</div>
-			<div class="grid grid-cols-2 gap-5">
-				<FormControl v-model="row.marks" :label="__('Marks')" />
-				<FormControl
-					v-model="row.marks_out_of"
-					:label="__('Marks out of')"
-					:disabled="true"
-				/>
+		<div class="divide-y">
+			<div
+				v-for="(row, index) in submissionDetails.doc.result"
+				class="py-5 px-10 space-y-4"
+			>
+				<div class="text-ink-gray-9">
+					<span class="font-semibold"> {{ __('Question') }}: </span>
+					<span class="leading-5" v-html="row.question"> </span>
+				</div>
+				<div class="">
+					<span class="font-semibold"> {{ __('Answer') }} </span>
+					<span class="leading-5" v-html="row.answer"></span>
+				</div>
+				<div class="grid grid-cols-2 gap-5">
+					<FormControl v-model="row.marks" :label="__('Marks')" />
+					<FormControl
+						v-model="row.marks_out_of"
+						:label="__('Marks out of')"
+						:disabled="true"
+					/>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -80,10 +80,10 @@ import {
 	Button,
 	Badge,
 	usePageMeta,
+	toast,
 } from 'frappe-ui'
 import { computed, onBeforeUnmount, onMounted, inject } from 'vue'
 import { useRouter } from 'vue-router'
-import { showToast } from '@/utils'
 import { sessionStore } from '@/stores/session'
 
 const { brand } = sessionStore()
@@ -119,7 +119,7 @@ const props = defineProps({
 	},
 })
 
-const submisisonDetails = createDocumentResource({
+const submissionDetails = createDocumentResource({
 	doctype: 'LMS Quiz Submission',
 	name: props.submission,
 	auto: true,
@@ -132,22 +132,22 @@ const breadcrumbs = computed(() => {
 			route: {
 				name: 'QuizSubmissionList',
 				params: {
-					quizID: submisisonDetails.doc.quiz,
+					quizID: submissionDetails.doc.quiz,
 				},
 			},
 		},
 		{
-			label: submisisonDetails.doc.quiz_title,
+			label: submissionDetails.doc.quiz_title,
 		},
 	]
 })
 
 const saveSubmission = () => {
-	submisisonDetails.save.submit(
+	submissionDetails.save.submit(
 		{},
 		{
 			onError(err) {
-				showToast(__('Error'), __(err.messages?.[0] || err), 'x')
+				toast.error(err.messages?.[0] || err)
 			},
 		}
 	)
@@ -155,7 +155,7 @@ const saveSubmission = () => {
 
 usePageMeta(() => {
 	return {
-		title: `${submisisonDetails.doc.quiz_title}`,
+		title: `${submissionDetails.doc?.quiz_title}`,
 		icon: brand.favicon,
 	}
 })

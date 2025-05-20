@@ -76,9 +76,10 @@ import {
 	FileUploader,
 	FormControl,
 	Switch,
+	toast,
 } from 'frappe-ui'
 import { reactive, watch, inject } from 'vue'
-import { showToast, getFileSize } from '@/utils/'
+import { getFileSize } from '@/utils/'
 import { capture } from '@/telemetry'
 import { FileText, X } from 'lucide-vue-next'
 import { useOnboarding } from 'frappe-ui/frappe'
@@ -150,21 +151,17 @@ const addChapter = async (close) => {
 						onSuccess(data) {
 							cleanChapter()
 							outline.value.reload()
-							showToast(
-								__('Success'),
-								__('Chapter added successfully'),
-								'check'
-							)
+							toast.success(__('Chapter added successfully'))
 						},
 						onError(err) {
-							showToast(__('Error'), err.messages?.[0] || err, 'x')
+							toast.error(err.messages?.[0] || err)
 						},
 					}
 				)
 				close()
 			},
 			onError(err) {
-				showToast(__('Error'), err.messages?.[0] || err, 'x')
+				toast.error(err.messages?.[0] || err)
 			},
 		}
 	)
@@ -196,11 +193,11 @@ const editChapter = (close) => {
 			},
 			onSuccess() {
 				outline.value.reload()
-				showToast(__('Success'), __('Chapter updated successfully'), 'check')
+				toast.success(__('Chapter updated successfully'))
 				close()
 			},
 			onError(err) {
-				showToast(__('Error'), err.messages?.[0] || err, 'x')
+				toast.error(err.messages?.[0] || err)
 			},
 		}
 	)

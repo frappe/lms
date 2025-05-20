@@ -17,10 +17,11 @@
 					:debounce="300"
 				/>
 				<Button @click="() => (showForm = !showForm)">
-					<template #icon>
-						<Plus v-if="!showForm" class="h-3 w-3 stroke-1.5" />
-						<X v-else class="h-3 w-3 stroke-1.5" />
+					<template #prefix>
+						<Plus v-if="!showForm" class="size-4 stroke-1.5" />
+						<X v-else class="size-4 stroke-1.5" />
 					</template>
+					{{ showForm ? __('Close') : __('New') }}
 				</Button>
 			</div>
 		</div>

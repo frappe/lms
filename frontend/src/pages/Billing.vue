@@ -156,9 +156,9 @@ import {
 	FormControl,
 	Breadcrumbs,
 	usePageMeta,
+	toast,
 } from 'frappe-ui'
 import { reactive, inject, onMounted, computed } from 'vue'
-import { showToast } from '@/utils/'
 import { sessionStore } from '../stores/session'
 import Link from '@/components/Controls/Link.vue'
 import NotPermitted from '@/components/NotPermitted.vue'
@@ -259,7 +259,7 @@ const generatePaymentLink = () => {
 				window.location.href = data
 			},
 			onError(err) {
-				showToast(__('Error'), err.messages?.[0] || err, 'x')
+				toast.error(err.messages?.[0] || err)
 			},
 		}
 	)
@@ -333,14 +333,7 @@ const validateAddress = () => {
 }
 
 const showError = (err) => {
-	createToast({
-		title: 'Error',
-		text: err.messages?.[0] || err,
-		icon: 'x',
-		iconClasses: 'bg-surface-red-5 text-ink-white rounded-md p-px',
-		position: 'top-center',
-		timeout: 10,
-	})
+	toast.error(err.messages?.[0] || err)
 }
 
 const changeCurrency = (country) => {

@@ -21,14 +21,28 @@
 	</header>
 
 	<div class="md:w-3/4 md:mx-auto py-5 mx-5">
-		<div class="grid grid-cols-3 gap-5 mb-5">
-			<FormControl v-model="titleFilter" :placeholder="__('Search by title')" />
-			<FormControl
-				v-model="typeFilter"
-				type="select"
-				:options="assignmentTypes"
-				:placeholder="__('Type')"
-			/>
+		<div class="flex items-center justify-between mb-5">
+			<div
+				v-if="assignmentCount"
+				class="text-xl font-semibold text-ink-gray-7 mb-4"
+			>
+				{{ __('{0} Assignments').format(assignmentCount) }}
+			</div>
+			<div
+				v-if="assignments.data?.length || assigmentCount > 0"
+				class="grid grid-cols-2 gap-5"
+			>
+				<FormControl
+					v-model="titleFilter"
+					:placeholder="__('Search by title')"
+				/>
+				<FormControl
+					v-model="typeFilter"
+					type="select"
+					:options="assignmentTypes"
+					:placeholder="__('Type')"
+				/>
+			</div>
 		</div>
 		<ListView
 			v-if="assignments.data?.length"
@@ -46,22 +60,7 @@
 			}"
 		>
 		</ListView>
-		<div
-			v-else
-			class="text-center p-5 text-ink-gray-5 mt-52 w-3/4 md:w-1/2 mx-auto space-y-2"
-		>
-			<Pencil class="size-10 mx-auto stroke-1 text-ink-gray-4" />
-			<div class="text-xl font-medium">
-				{{ __('No assignments found') }}
-			</div>
-			<div class="leading-5">
-				{{
-					__(
-						'You have not created any assignments yet. To create a new assignment, click on the "New" button above.'
-					)
-				}}
-			</div>
-		</div>
+		<EmptyState v-else type="Assignments" />
 		<div
 			v-if="assignments.data && assignments.hasNextPage"
 			class="flex justify-center my-5"
@@ -81,16 +80,18 @@
 import {
 	Breadcrumbs,
 	Button,
+	call,
 	createListResource,
 	FormControl,
 	ListView,
 	usePageMeta,
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref, watch } from 'vue'
-import { Plus, Pencil } from 'lucide-vue-next'
+import { Plus } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { sessionStore } from '../stores/session'
 import AssignmentForm from '@/components/Modals/AssignmentForm.vue'
+import EmptyState from '@/components/EmptyState.vue'
 
 const user = inject('$user')
 const dayjs = inject('$dayjs')
@@ -98,6 +99,7 @@ const titleFilter = ref('')
 const typeFilter = ref('')
 const showAssignmentForm = ref(false)
 const assignmentID = ref('new')
+const assignmentCount = ref(0)
 const { brand } = sessionStore()
 const router = useRouter()
 const readOnlyMode = window.read_only_mode
@@ -106,7 +108,7 @@ onMounted(() => {
 	if (!user.data?.is_moderator && !user.data?.is_instructor) {
 		router.push({ name: 'Courses' })
 	}
-
+	getAssignmentCount()
 	titleFilter.value = router.currentRoute.value.query.title
 	typeFilter.value = router.currentRoute.value.query.type
 })
@@ -178,6 +180,14 @@ const assignmentColumns = computed(() => {
 		},
 	]
 })
+
+const getAssignmentCount = () => {
+	call('frappe.client.get_count', {
+		doctype: 'LMS Assignment',
+	}).then((data) => {
+		assignmentCount.value = data
+	})
+}
 
 const assignmentTypes = computed(() => {
 	let types = ['', 'Document', 'Image', 'PDF', 'URL', 'Text']

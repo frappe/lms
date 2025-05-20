@@ -37,7 +37,7 @@
 							@change="(val) => (assignment.question = val)"
 							:editable="true"
 							:fixedMenu="true"
-							editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
+							editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem] max-h-[18rem] overflow-y-auto"
 						/>
 					</div>
 				</div>
@@ -64,9 +64,8 @@
 	</Dialog>
 </template>
 <script setup lang="ts">
-import { Button, Dialog, FormControl, TextEditor } from 'frappe-ui'
+import { Button, Dialog, FormControl, TextEditor, toast } from 'frappe-ui'
 import { computed, reactive, watch } from 'vue'
-import { showToast } from '@/utils'
 
 const show = defineModel()
 const assignments = defineModel<Assignments>('assignments')
@@ -123,11 +122,7 @@ const saveAssignment = () => {
 			{
 				onSuccess() {
 					show.value = false
-					showToast(
-						__('Success'),
-						__('Assignment created successfully'),
-						'check'
-					)
+					toast.success(__('Assignment created successfully'))
 				},
 			}
 		)
@@ -140,11 +135,7 @@ const saveAssignment = () => {
 			{
 				onSuccess() {
 					show.value = false
-					showToast(
-						__('Success'),
-						__('Assignment updated successfully'),
-						'check'
-					)
+					toast.success(__('Assignment updated successfully'))
 				},
 			}
 		)

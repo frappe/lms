@@ -44,9 +44,9 @@
 	</div>
 </template>
 <script setup>
-import { FormControl, createResource } from 'frappe-ui'
+import { FormControl, createResource, toast } from 'frappe-ui'
 import { ref } from 'vue'
-import { showToast, convertToTitleCase } from '@/utils'
+import { convertToTitleCase } from '@/utils'
 import { CircleAlert } from 'lucide-vue-next'
 
 const moderator = ref(false)
@@ -102,7 +102,7 @@ const changeRole = (role) => {
 		},
 		{
 			onSuccess(data) {
-				showToast('Success', 'Role updated successfully', 'check')
+				toast.success(__('Role updated successfully'))
 			},
 		}
 	)

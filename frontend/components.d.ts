@@ -47,6 +47,7 @@ declare module 'vue' {
     Discussions: typeof import('./src/components/Discussions.vue')['default']
     EditCoverImage: typeof import('./src/components/Modals/EditCoverImage.vue')['default']
     EditProfile: typeof import('./src/components/Modals/EditProfile.vue')['default']
+    EmptyState: typeof import('./src/components/EmptyState.vue')['default']
     EvaluationModal: typeof import('./src/components/Modals/EvaluationModal.vue')['default']
     Evaluators: typeof import('./src/components/Evaluators.vue')['default']
     Event: typeof import('./src/components/Modals/Event.vue')['default']

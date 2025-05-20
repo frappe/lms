@@ -1,9 +1,10 @@
-import { toast } from 'frappe-ui'
 import { useTimeAgo } from '@vueuse/core'
 import { Quiz } from '@/utils/quiz'
 import { Assignment } from '@/utils/assignment'
 import { Upload } from '@/utils/upload'
 import { Markdown } from '@/utils/markdownParser'
+import { useSettings } from '@/stores/settings'
+import { usersStore } from '@/stores/user'
 import Header from '@editorjs/header'
 import Paragraph from '@editorjs/paragraph'
 import { CodeBox } from '@/utils/code'
@@ -14,18 +15,10 @@ import dayjs from '@/utils/dayjs'
 import Embed from '@editorjs/embed'
 import SimpleImage from '@editorjs/simple-image'
 import Table from '@editorjs/table'
-import { usersStore } from '../stores/user'
 import Plyr from 'plyr'
 import 'plyr/dist/plyr.css'
 
 const readOnlyMode = window.read_only_mode
-
-export function createToast(options) {
-	toast({
-		position: 'bottom-right',
-		...options,
-	})
-}
 
 export function timeAgo(date) {
 	return useTimeAgo(date).value
@@ -95,26 +88,6 @@ export function getFileSize(file_size) {
 		return (value / 1024).toFixed(2) + 'K'
 	}
 	return value
-}
-
-export function showToast(title, text, icon, iconClasses = null) {
-	if (!iconClasses) {
-		if (icon == 'check') {
-			iconClasses = 'bg-surface-green-3 text-ink-white rounded-md p-px'
-		} else if (icon == 'alert-circle') {
-			iconClasses = 'bg-yellow-600 text-ink-white rounded-md p-px'
-		} else {
-			iconClasses = 'bg-surface-red-5 text-ink-white rounded-md p-px'
-		}
-	}
-	createToast({
-		title: title,
-		text: htmlToText(text),
-		icon: icon,
-		iconClasses: iconClasses,
-		position: icon == 'check' ? 'bottom-right' : 'top-center',
-		timeout: icon != 'check' ? 10 : 5,
-	})
 }
 
 export function getImgDimensions(imgSrc) {
@@ -558,24 +531,33 @@ export const enablePlyr = () => {
 		const videoElement = document.getElementsByClassName('video-player')
 		if (videoElement.length === 0) return
 
-		const src = videoElement[0].getAttribute('src')
-		if (src) {
-			let videoID = src.split('/').pop()
-			videoElement[0].setAttribute('data-plyr-embed-id', videoID)
-		}
-		new Plyr('.video-player', {
-			youtube: {
-				noCookie: true,
-			},
-			controls: [
-				'play-large',
-				'play',
-				'progress',
-				'current-time',
-				'mute',
-				'volume',
-				'fullscreen',
-			],
-		})
-	}, 500)
+		Array.from(videoElement).forEach((video) => {
+			const src = video.getAttribute('src')
+			if (src) {
+				let videoID = src.split('/').pop()
+				video.setAttribute('data-plyr-embed-id', videoID)
+			}
+			new Plyr(video, {
+				youtube: {
+					noCookie: true,
+				},
+				controls: [
+					'play-large',
+					'play',
+					'progress',
+					'current-time',
+					'mute',
+					'volume',
+					'fullscreen',
+				],
+			})
+		}, 500)
+	})
+}
+
+export const openSettings = (category, close) => {
+	const settingsStore = useSettings()
+	close()
+	settingsStore.activeTab = category
+	settingsStore.isSettingsOpen = true
 }

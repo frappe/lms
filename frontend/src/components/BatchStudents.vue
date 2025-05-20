@@ -1,12 +1,11 @@
 <template>
-	<div class="">
+	<div v-if="batch.data" class="">
 		<div class="w-full flex items-center justify-between pb-4">
 			<div class="font-medium text-ink-gray-7">
 				{{ __('Statistics') }}
 			</div>
 		</div>
 		<div class="grid grid-cols-4 gap-5 mb-8">
-
 			<NumberChart
 				class="border rounded-md"
 				:config="{ title: __('Students'), value: students.data?.length || 0 }"
@@ -14,7 +13,10 @@
 
 			<NumberChart
 				class="border rounded-md"
-				:config="{ title: __('Certified'), value: certificationCount.data || 0 }"
+				:config="{
+					title: __('Certified'),
+					value: certificationCount.data || 0,
+				}"
 			/>
 
 			<NumberChart
@@ -79,26 +81,26 @@
 						product: 'HomePod',
 						sales: 200,
 					},
-					],
-					title: __('Batch Summary'),
-					subtitle: __('Progress of students in courses and assessments'),
-					xAxis: {
-						key: 'product',
-						title: 'Product',
-						type: 'category',
+				],
+				title: __('Batch Summary'),
+				subtitle: __('Progress of students in courses and assessments'),
+				xAxis: {
+					key: 'product',
+					title: 'Product',
+					type: 'category',
+				},
+				yAxis: {
+					title: __('Number of Students'),
+				},
+				swapXY: true,
+				series: [
+					{
+						name: 'sales',
+						type: 'bar',
 					},
-					yAxis: {
-						title: __('Number of Students'),
-					},
-					swapXY: true,
-					series: [
-						{
-							name: 'sales',
-							type: 'bar',
-						},
-					],
-				}"
-			/>
+				],
+			}"
+		/>
 
 		<div v-if="showProgressChart" class="mb-8">
 			<div class="text-ink-gray-7 font-medium">
@@ -231,9 +233,10 @@
 	</div>
 
 	<StudentModal
-		:batch="props.batch.name"
+		:batch="props.batch.data.name"
 		v-model="showStudentModal"
 		v-model:reloadStudents="students"
+		v-model:batchModal="props.batch"
 	/>
 	<BatchStudentProgress
 		:student="selectedStudent"
@@ -255,6 +258,7 @@ import {
 	ListView,
 	ListRowItem,
 	NumberChart,
+	toast,
 } from 'frappe-ui'
 import {
 	BookOpen,
@@ -266,7 +270,6 @@ import {
 } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
 import StudentModal from '@/components/Modals/StudentModal.vue'
-import { showToast } from '@/utils'
 import ProgressBar from '@/components/ProgressBar.vue'
 import BatchStudentProgress from '@/components/Modals/BatchStudentProgress.vue'
 import ApexChart from 'vue3-apexcharts'
@@ -290,15 +293,15 @@ const props = defineProps({
 
 const students = createResource({
 	url: 'lms.lms.utils.get_batch_students',
-	cache: ['students', props.batch.name],
 	params: {
-		batch: props.batch?.name,
+		batch: props.batch?.data?.name,
 	},
 	auto: true,
 	onSuccess(data) {
 		chartData.value = getChartData()
 		showProgressChart.value =
-			data.length && (props.batch?.courses?.length || assessmentCount.value)
+			data.length &&
+			(props.batch?.data?.courses?.length || assessmentCount.value)
 	},
 })
 
@@ -355,7 +358,8 @@ const removeStudents = (selections, unselectAll) => {
 		{
 			onSuccess(data) {
 				students.reload()
-				showToast(__('Success'), __('Students deleted successfully'), 'check')
+				props.batch.reload()
+				toast.success(__('Students deleted successfully'))
 				unselectAll()
 			},
 		}
@@ -366,10 +370,8 @@ const getChartData = () => {
 	let data = []
 	console.log(students.data)
 
-	students.data.forEach(row => {
-		row.assessments.forEach(assessment => {
-			
-		})
+	students.data.forEach((row) => {
+		row.assessments.forEach((assessment) => {})
 	})
 
 	/* let categories = {}
@@ -476,7 +478,7 @@ const certificationCount = createResource({
 	params: {
 		doctype: 'LMS Certificate',
 		filters: {
-			batch_name: props.batch.name,
+			batch_name: props.batch?.data?.name,
 		},
 	},
 	auto: true,

@@ -62,9 +62,8 @@
 </template>
 <script setup>
 import { inject, reactive } from 'vue'
-import { createResource, Dialog, FormControl, Switch } from 'frappe-ui'
+import { createResource, Dialog, FormControl, Switch, toast } from 'frappe-ui'
 import Link from '@/components/Controls/Link.vue'
-import { showToast } from '@/utils'
 
 const show = defineModel()
 const dayjs = inject('$dayjs')
@@ -112,13 +111,13 @@ const generateCertificates = (close) => {
 			},
 			{
 				onError(err) {
-					showToast(__('Error'), err.messages?.[0] || err, 'x')
+					toast.error(err.messages?.[0] || err)
 				},
 			}
 		)
 	})
 	close()
-	showToast(__('Success'), __('Certificates generated successfully'), 'check')
+	toast.success(__('Certificates generated successfully'))
 }
 
 const getCourses = () => {

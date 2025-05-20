@@ -334,7 +334,6 @@ const props = defineProps({
 
 onMounted(() => {
 	startTimer()
-	enablePlyr()
 	document.addEventListener('fullscreenchange', attachFullscreenEvent)
 })
 
@@ -473,6 +472,7 @@ watch(
 	() => lesson.data,
 	(data) => {
 		setupLesson(data)
+		enablePlyr()
 	}
 )
 

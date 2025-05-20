@@ -125,7 +125,7 @@
 							@click="redirectToWebsite()"
 						/>
 					</Tooltip>
-					<Tooltip :text="__('Help')">
+					<Tooltip v-if="showOnboarding" :text="__('Help')">
 						<CircleHelp
 							class="size-4 stroke-1.5 text-ink-gray-7 cursor-pointer"
 							@click="
