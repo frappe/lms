@@ -181,7 +181,6 @@
 import UserDropdown from '@/components/UserDropdown.vue'
 import CollapseSidebar from '@/components/Icons/CollapseSidebar.vue'
 import SidebarLink from '@/components/SidebarLink.vue'
-import { useStorage } from '@vueuse/core'
 import { ref, onMounted, inject, watch, reactive, markRaw, h } from 'vue'
 import { getSidebarLinks } from '../utils'
 import { usersStore } from '@/stores/user'
@@ -244,6 +243,7 @@ const iconProps = {
 onMounted(() => {
 	addNotifications()
 	setSidebarLinks()
+	setUpOnboarding()
 	socket.on('publish_lms_notifications', (data) => {
 		unreadNotifications.reload()
 	})
@@ -386,10 +386,6 @@ const deletePage = (link) => {
 			},
 		}
 	)
-}
-
-const getSidebarFromStorage = () => {
-	return useStorage('sidebar_is_collapsed', false)
 }
 
 const toggleSidebar = () => {
