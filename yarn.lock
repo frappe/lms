@@ -2107,6 +2107,11 @@ cypress-file-upload@^5.0.8:
   resolved "https://registry.yarnpkg.com/cypress-file-upload/-/cypress-file-upload-5.0.8.tgz#d8824cbeaab798e44be8009769f9a6c9daa1b4a1"
   integrity sha512-+8VzNabRk3zG6x8f8BWArF/xA/W0VK4IZNx3MV0jFWrJS/qKn8eHfa5nU73P9fOQAgwHFJx7zjg4lwOnljMO8g==
 
+cypress-real-events@^1.14.0:
+  version "1.14.0"
+  resolved "https://registry.yarnpkg.com/cypress-real-events/-/cypress-real-events-1.14.0.tgz#c5495db50a2bd247f4accde983af7153566945d3"
+  integrity sha512-XmI8y3OZLh6cjRroPalzzS++iv+pGCaD9G9kfIbtspgv7GVsDt30dkZvSXfgZb4rAN+3pOkMVB7e0j4oXydW7Q==
+
 cypress@^13.9.0:
   version "13.17.0"
   resolved "https://registry.yarnpkg.com/cypress/-/cypress-13.17.0.tgz#34c3d68080c4497eace0f353bd1629587a5f600d"
@@ -2698,6 +2703,57 @@ fraction.js@^4.3.7:
   version "4.3.7"
   resolved "https://registry.yarnpkg.com/fraction.js/-/fraction.js-4.3.7.tgz#06ca0085157e42fda7f9e726e79fefc4068840f7"
   integrity sha512-ZsDfxO51wGAXREY55a7la9LScWpwv9RxIrYABrlvOFBlH/ShPnrtsXeuUIfXKKOVicNxQ+o8JTbJvjS4M89yew==
+
+frappe-ui@^0.1.146:
+  version "0.1.146"
+  resolved "https://registry.yarnpkg.com/frappe-ui/-/frappe-ui-0.1.146.tgz#3aadc0911ed02aefaa47df353a65a70a18f660fb"
+  integrity sha512-alka2Ru3+ZRTX3XJJCesWYjtZJwGCWeasInZGj1YYGEDxFRlRxg7THLtSAJ3ubGyWqgvAXW5ua/xBySLua00mQ==
+  dependencies:
+    "@floating-ui/vue" "^1.1.6"
+    "@headlessui/vue" "^1.7.14"
+    "@popperjs/core" "^2.11.2"
+    "@tailwindcss/forms" "^0.5.3"
+    "@tailwindcss/typography" "^0.5.16"
+    "@tiptap/core" "^2.11.7"
+    "@tiptap/extension-code-block" "^2.11.9"
+    "@tiptap/extension-code-block-lowlight" "^2.11.5"
+    "@tiptap/extension-color" "^2.0.3"
+    "@tiptap/extension-highlight" "^2.0.3"
+    "@tiptap/extension-image" "^2.0.3"
+    "@tiptap/extension-link" "^2.0.3"
+    "@tiptap/extension-mention" "^2.0.3"
+    "@tiptap/extension-placeholder" "^2.0.3"
+    "@tiptap/extension-table" "^2.0.3"
+    "@tiptap/extension-table-cell" "^2.0.3"
+    "@tiptap/extension-table-header" "^2.0.3"
+    "@tiptap/extension-table-row" "^2.0.3"
+    "@tiptap/extension-text-align" "^2.0.3"
+    "@tiptap/extension-text-style" "^2.0.3"
+    "@tiptap/extension-typography" "^2.0.3"
+    "@tiptap/pm" "^2.0.3"
+    "@tiptap/starter-kit" "^2.0.3"
+    "@tiptap/suggestion" "^2.0.3"
+    "@tiptap/vue-3" "^2.0.3"
+    "@vueuse/core" "^10.4.1"
+    dayjs "^1.11.13"
+    echarts "^5.6.0"
+    feather-icons "^4.28.0"
+    idb-keyval "^6.2.0"
+    lowlight "^3.3.0"
+    lucide-static "^0.479.0"
+    ora "5.4.1"
+    prettier "^3.3.2"
+    prosemirror-model "^1.25.1"
+    prosemirror-state "^1.4.3"
+    prosemirror-view "^1.39.2"
+    radix-vue "^1.5.3"
+    reka-ui "^2.0.2"
+    showdown "^2.1.0"
+    socket.io-client "^4.5.1"
+    tippy.js "^6.3.7"
+    typescript "^5.0.2"
+    unplugin-icons "^22.1.0"
+    unplugin-vue-components "^28.4.1"
 
 fs-extra@^10.1.0:
   version "10.1.0"

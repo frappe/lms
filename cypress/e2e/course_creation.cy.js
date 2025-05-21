@@ -1,12 +1,15 @@
 describe("Course Creation", () => {
 	it("creates a new course", () => {
 		cy.login();
-		cy.wait(1000);
+		cy.wait(500);
 		cy.visit("/lms/courses");
+
+		// Close onboarding modal
+		cy.closeOnboardingModal();
 
 		// Create a course
 		cy.get("button").contains("New").click();
-		cy.wait(1000);
+		cy.wait(500);
 		cy.url().should("include", "/courses/new/edit");
 
 		cy.get("label").contains("Title").type("Test Course");
@@ -96,7 +99,8 @@ describe("Course Creation", () => {
 		// View Course
 		cy.wait(1000);
 		cy.visit("/lms");
-		cy.wait(500);
+		cy.closeOnboardingModal();
+
 		cy.url().should("include", "/lms/courses");
 		cy.get(".grid a:first").within(() => {
 			cy.get("div").contains("Test Course");
