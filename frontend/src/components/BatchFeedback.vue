@@ -1,44 +1,49 @@
 <template>
 	<div v-if="user.data?.is_student">
-		<div
-			v-if="feedbackList.data?.length"
-			class="bg-surface-blue-2 text-blue-700 p-2 rounded-md mb-5"
-		>
-			{{ __('Thank you for providing your feedback!') }}
-		</div>
-		<div v-else class="flex justify-between items-center mb-5">
-			<div class="text-lg font-semibold">
-				{{ __('Help Us Improve') }}
+		<div>
+			<div class="leading-5 mb-4">
+				<div v-if="readOnly">
+					{{ __('Thank you for providing your feedback.') }}
+					<span
+						@click="showFeedbackForm = !showFeedbackForm"
+						class="underline cursor-pointer"
+						>{{ __('Click here') }}</span
+					>
+					{{ __('to view your feedback.') }}
+				</div>
+				<div v-else>
+					{{ __('Help us improve by providing your feedback.') }}
+				</div>
 			</div>
-			<Button @click="submitFeedback()">
-				{{ __('Submit') }}
-			</Button>
-		</div>
-		<div class="space-y-8">
-			<div class="flex items-center justify-between">
-				<Rating
-					v-for="key in ratingKeys"
-					v-model="feedback[key]"
-					:label="__(convertToTitleCase(key))"
+			<div class="space-y-4" :class="showFeedbackForm ? 'block' : 'hidden'">
+				<div class="space-y-4">
+					<Rating
+						v-for="key in ratingKeys"
+						v-model="feedback[key]"
+						:label="__(convertToTitleCase(key))"
+						:readonly="readOnly"
+					/>
+				</div>
+				<FormControl
+					v-model="feedback.feedback"
+					type="textarea"
+					:label="__('Feedback')"
+					:rows="9"
 					:readonly="readOnly"
 				/>
+				<Button v-if="!readOnly" @click="submitFeedback">
+					{{ __('Submit Feedback') }}
+				</Button>
 			</div>
-			<FormControl
-				v-model="feedback.feedback"
-				type="textarea"
-				:label="__('Feedback')"
-				:rows="7"
-				:readonly="readOnly"
-			/>
 		</div>
 	</div>
 
 	<div v-else-if="feedbackList.data?.length">
-		<div class="text-lg font-semibold mb-5">
-			{{ __('Average of Feedback Received') }}
+		<div class="leading-5 text-sm mb-2 mt-5">
+			{{ __('Average Feedback Received') }}
 		</div>
 
-		<div class="flex items-center justify-between mb-10">
+		<div class="space-y-4">
 			<Rating
 				v-for="key in ratingKeys"
 				v-model="average[key]"
@@ -47,81 +52,32 @@
 			/>
 		</div>
 
-		<div class="text-lg font-semibold mb-5">
-			{{ __('All Feedback') }}
-		</div>
-		<ListView
-			:columns="feedbackColumns"
-			:rows="feedbackList.data"
-			row-key="name"
-			:options="{
-				showTooltip: false,
-				rowHeight: 'h-16',
-				selectable: false,
-			}"
-		>
-			<ListHeader
-				class="mb-2 grid items-center space-x-4 rounded bg-surface-gray-2 p-2"
-			></ListHeader>
-			<ListRows>
-				<ListRow
-					:row="row"
-					v-for="row in feedbackList.data"
-					class="group cursor-pointer feedback-list"
-				>
-					<template #default="{ column, item }">
-						<ListRowItem
-							:item="row[column.key]"
-							:align="column.align"
-							class="text-sm"
-						>
-							<template #prefix>
-								<div v-if="column.key == 'member_name'">
-									<Avatar
-										class="flex"
-										:image="row['member_image']"
-										:label="item"
-										size="sm"
-									/>
-								</div>
-							</template>
-							<div v-if="ratingKeys.includes(column.key)">
-								<Rating v-model="row[column.key]" :readonly="true" />
-							</div>
-							<div v-else class="leading-5">
-								{{ row[column.key] }}
-							</div>
-						</ListRowItem>
-					</template>
-				</ListRow>
-			</ListRows>
-		</ListView>
+		<Button variant="outline" class="mt-5" @click="showAllFeedback = true">
+			{{ __('View all feedback') }}
+		</Button>
 	</div>
-	<div v-else class="text-sm italic text-center text-ink-gray-7 mt-5">
+	<div v-else class="text-ink-gray-7 mt-5 leading-5">
 		{{ __('No feedback received yet.') }}
 	</div>
+	<FeedbackModal
+		v-if="feedbackList.data?.length"
+		v-model="showAllFeedback"
+		:feedbackList="feedbackList.data"
+	/>
 </template>
 <script setup>
-import { computed, inject, onMounted, reactive, ref, watch } from 'vue'
+import { inject, onMounted, reactive, ref, watch } from 'vue'
 import { convertToTitleCase } from '@/utils'
-import {
-	Avatar,
-	Button,
-	createListResource,
-	FormControl,
-	ListView,
-	ListHeader,
-	ListRows,
-	ListRow,
-	ListRowItem,
-	Rating,
-} from 'frappe-ui'
+import { Button, createListResource, FormControl, Rating } from 'frappe-ui'
+import FeedbackModal from '@/components/Modals/FeedbackModal.vue'
 
 const user = inject('$user')
 const ratingKeys = ['content', 'instructors', 'value']
 const readOnly = ref(false)
 const average = reactive({})
 const feedback = reactive({})
+const showFeedbackForm = ref(true)
+const showAllFeedback = ref(false)
 
 const props = defineProps({
 	batch: {
@@ -167,6 +123,7 @@ watch(
 		if (feedbackList.data.length) {
 			let data = feedbackList.data
 			readOnly.value = true
+			showFeedbackForm.value = false
 
 			ratingKeys.forEach((key) => {
 				average[key] = 0
@@ -201,40 +158,11 @@ const submitFeedback = () => {
 		{
 			onSuccess: () => {
 				feedbackList.reload()
+				showFeedbackForm.value = false
 			},
 		}
 	)
 }
-
-const feedbackColumns = computed(() => {
-	return [
-		{
-			label: 'Member',
-			key: 'member_name',
-			width: '10rem',
-		},
-		{
-			label: 'Feedback',
-			key: 'feedback',
-			width: '15rem',
-		},
-		{
-			label: 'Content',
-			key: 'content',
-			width: '9rem',
-		},
-		{
-			label: 'Instructors',
-			key: 'instructors',
-			width: '9rem',
-		},
-		{
-			label: 'Value',
-			key: 'value',
-			width: '9rem',
-		},
-	]
-})
 </script>
 <style>
 .feedback-list > button > div {
