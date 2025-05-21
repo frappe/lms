@@ -138,7 +138,7 @@
 						</span>
 					</div>
 				</div>
-				<div v-if="batch.data?.start_date <= dayjs().format('YYYY-MM-DD')">
+				<div v-if="dayjs().isSameOrAfter(dayjs(batch.data.start_date))">
 					<div class="text-ink-gray-7 font-semibold mb-2">
 						{{ __('Feedback') }}
 					</div>
