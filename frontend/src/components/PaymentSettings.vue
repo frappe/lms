@@ -12,13 +12,13 @@
             /> -->
 		</div>
 		<div class="overflow-y-scroll">
-			<div class="flex space-x-4">
-				<SettingFields :fields="fields" :data="data.doc" class="w-1/2" />
+			<div class="flex flex-col divide-y">
+				<SettingFields :fields="fields" :data="data.doc" />
 				<SettingFields
 					v-if="paymentGateway.data"
 					:fields="paymentGateway.data.fields"
 					:data="paymentGateway.data.data"
-					class="w-1/2"
+					class="pt-5 my-0"
 				/>
 			</div>
 		</div>
@@ -60,8 +60,26 @@ const paymentGateway = createResource({
 			payment_gateway: props.data.doc.payment_gateway,
 		}
 	},
+	transform(data) {
+		arrangeFields(data.fields)
+	},
 	auto: true,
 })
+
+const arrangeFields = (fields) => {
+	fields = data.fields.sort((a, b) => {
+		if (a.type === 'Upload' && b.type !== 'Upload') {
+			return 1
+		} else if (a.type !== 'Upload' && b.type === 'Upload') {
+			return -1
+		}
+		return 0
+	})
+
+	fields.splice(3, 0, {
+		type: 'Column Break',
+	})
+}
 
 const saveSettings = createResource({
 	url: 'frappe.client.set_value',
