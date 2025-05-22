@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div class="flex min-h-0 flex-col text-base">
 		<div class="flex items-center justify-between mb-4">
 			<div>
 				<div class="text-xl font-semibold mb-1 text-ink-gray-9">
@@ -39,25 +39,27 @@
 			</Button>
 		</div>
 
-		<div class="divide-y">
-			<div
-				v-for="evaluator in evaluators.data"
-				@click="openProfile(evaluator.username)"
-				class="cursor-pointer"
-			>
-				<div class="flex items-center justify-between py-3">
-					<div class="flex items-center space-x-3">
-						<Avatar
-							:image="evaluator.user_image"
-							:label="evaluator.full_name"
-							size="lg"
-						/>
-						<div>
-							<div class="text-base font-semibold text-ink-gray-9">
-								{{ evaluator.full_name }}
-							</div>
-							<div class="text-xs text-ink-gray-5">
-								{{ evaluator.evaluator }}
+		<div class="overflow-y-scroll">
+			<div class="divide-y">
+				<div
+					v-for="evaluator in evaluators.data"
+					@click="openProfile(evaluator.username)"
+					class="cursor-pointer"
+				>
+					<div class="flex items-center justify-between py-3">
+						<div class="flex items-center space-x-3">
+							<Avatar
+								:image="evaluator.user_image"
+								:label="evaluator.full_name"
+								size="lg"
+							/>
+							<div>
+								<div class="text-base font-semibold text-ink-gray-9">
+									{{ evaluator.full_name }}
+								</div>
+								<div class="text-xs text-ink-gray-5">
+									{{ evaluator.evaluator }}
+								</div>
 							</div>
 						</div>
 					</div>
