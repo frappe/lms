@@ -207,7 +207,7 @@ const tabsStructure = computed(() => {
 				},
 				{
 					label: 'Categories',
-					description: 'Manage the members of your learning system',
+					description: 'Double click to edit the category',
 					icon: 'Network',
 				},
 			],

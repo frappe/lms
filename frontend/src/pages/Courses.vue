@@ -20,14 +20,12 @@
 	</header>
 	<div class="p-5 pb-10">
 		<div
-			v-if="courseCount"
 			class="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:items-center justify-between mb-5"
 		>
 			<div class="text-lg text-ink-gray-9 font-semibold">
 				{{ __('All Courses') }}
 			</div>
 			<div
-				v-if="courses.data?.length || courseCount"
 				class="flex flex-col space-y-2 lg:space-y-0 lg:flex-row lg:items-center lg:space-x-4"
 			>
 				<TabButtons :buttons="courseTabs" v-model="currentTab" />
@@ -172,6 +170,8 @@ const identifyUserPersona = async () => {
 }
 
 const getCourseCount = () => {
+	if (!user.data) return
+
 	call('frappe.client.get_count', {
 		doctype: 'LMS Course',
 	}).then((data) => {
