@@ -103,7 +103,7 @@ class LMSBatch(Document):
 			frappe.throw(_("Seat count cannot be negative."))
 
 		students = frappe.db.count("LMS Batch Enrollment", {"batch": self.name})
-		if cint(self.seat_count) < students:
+		if cint(self.seat_count) and cint(self.seat_count) < students:
 			frappe.throw(_("There are no seats available in this batch."))
 
 	def validate_timetable(self):
