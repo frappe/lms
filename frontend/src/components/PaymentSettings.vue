@@ -62,6 +62,7 @@ const paymentGateway = createResource({
 	},
 	transform(data) {
 		arrangeFields(data.fields)
+		return data
 	},
 	auto: true,
 })

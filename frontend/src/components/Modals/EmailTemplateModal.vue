@@ -143,7 +143,6 @@ const setValue = (close) => {
 			onSuccess() {
 				emailTemplates.value.reload()
 				refreshForm(close)
-				console.log('template', template)
 				toast.success(__('Email Template updated successfully'))
 			},
 			onError(err) {
