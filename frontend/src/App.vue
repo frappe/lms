@@ -39,9 +39,9 @@ const Layout = computed(() => {
 	}
 	if (screenSize.width < 640) {
 		return MobileLayout
-	} else {
-		return DesktopLayout
 	}
+
+	return DesktopLayout
 })
 
 onMounted(async () => {
