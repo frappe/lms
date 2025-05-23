@@ -6,7 +6,7 @@
 		<div v-for="(column, index) in columns" :key="index">
 			<div
 				class="flex flex-col space-y-5"
-				:class="columns.length > 1 ? 'w-72' : 'w-full'"
+				:class="columns.length > 1 ? 'w-[21rem]' : 'w-1/2'"
 			>
 				<div v-for="field in column">
 					<Link
@@ -14,6 +14,7 @@
 						v-model="data[field.name]"
 						:doctype="field.doctype"
 						:label="__(field.label)"
+						:description="__(field.description)"
 					/>
 
 					<div v-else-if="field.type == 'Code'">
@@ -54,11 +55,11 @@
 						<div v-else>
 							<div class="flex items-center text-sm space-x-2">
 								<div
-									class="flex items-center justify-center rounded border border-outline-gray-modals bg-white w-[10rem] py-2"
+									class="flex items-center justify-center rounded border border-outline-gray-1 bg-surface-gray-2 px-20 py-5"
 								>
 									<img
 										:src="data[field.name]?.file_url || data[field.name]"
-										class="w-[80%] rounded"
+										class="size-6 rounded"
 									/>
 								</div>
 								<div class="flex flex-col flex-wrap">

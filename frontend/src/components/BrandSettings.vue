@@ -18,11 +18,11 @@
 		</div>
 		<div class="overflow-y-auto">
 			<SettingFields :fields="fields" :data="data.data" />
-			<div class="flex flex-row-reverse mt-auto">
-				<Button variant="solid" :loading="saveSettings.loading" @click="update">
-					{{ __('Update') }}
-				</Button>
-			</div>
+		</div>
+		<div class="flex flex-row-reverse mt-auto">
+			<Button variant="solid" :loading="saveSettings.loading" @click="update">
+				{{ __('Update') }}
+			</Button>
 		</div>
 	</div>
 </template>

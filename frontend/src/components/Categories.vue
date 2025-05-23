@@ -49,11 +49,11 @@
 				<div
 					v-for="(cat, index) in categories.data"
 					:key="cat.name"
-					class="pt-4 pb-1"
+					class="pt-2"
 				>
 					<div
 						v-if="editing?.name !== cat.name"
-						class="flex items-center justify-between group"
+						class="flex items-center justify-between group text-sm"
 					>
 						<div @dblclick="allowEdit(cat, index)">
 							{{ cat.category }}
