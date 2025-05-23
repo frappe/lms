@@ -90,7 +90,7 @@ const props = defineProps({
 	},
 })
 
-let evaluation = reactive({
+const evaluation = reactive({
 	course: '',
 	date: '',
 	start_time: '',
@@ -139,7 +139,7 @@ function submitEvaluation(close) {
 			close()
 		},
 		onError(err) {
-			let message = err.messages?.[0] || err
+			const message = err.messages?.[0] || err
 			let unavailabilityMessage
 
 			if (typeof message === 'string') {
@@ -154,7 +154,7 @@ function submitEvaluation(close) {
 }
 
 const getCourses = () => {
-	let courses = []
+	const courses = []
 	for (const course of props.courses) {
 		if (course.evaluator) {
 			courses.push({
@@ -164,7 +164,7 @@ const getCourses = () => {
 		}
 	}
 
-	if (courses.length == 1) {
+	if (courses.length === 1) {
 		evaluation.course = courses[0].value
 	}
 
