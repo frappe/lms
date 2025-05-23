@@ -66,7 +66,7 @@
 	</Dialog>
 </template>
 <script setup>
-import { Dialog, createResource, Select, FormControl } from 'frappe-ui'
+import { Dialog, createResource, Select, FormControl, toast } from 'frappe-ui'
 import { reactive, watch, inject } from 'vue'
 import { formatTime } from '@/utils/'
 
