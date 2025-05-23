@@ -67,7 +67,7 @@ const paymentGateway = createResource({
 })
 
 const arrangeFields = (fields) => {
-	fields = data.fields.sort((a, b) => {
+	fields = fields.sort((a, b) => {
 		if (a.type === 'Upload' && b.type !== 'Upload') {
 			return 1
 		} else if (a.type !== 'Upload' && b.type === 'Upload') {

@@ -57,7 +57,7 @@
 						:description="activeTab.description"
 					/>
 					<PaymentSettings
-						v-else-if="activeTab.label === 'Payment'"
+						v-else-if="activeTab.label === 'Payment Gateway'"
 						:label="activeTab.label"
 						:description="activeTab.description"
 						:data="data"
@@ -176,7 +176,7 @@ const tabsStructure = computed(() => {
 			hideLabel: true,
 			items: [
 				{
-					label: 'Payment',
+					label: 'Payment Gateway',
 					icon: 'DollarSign',
 					description:
 						'Configure the payment gateway and other payment related settings',

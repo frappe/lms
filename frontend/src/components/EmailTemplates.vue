@@ -10,7 +10,7 @@
 				</div>
 			</div>
 			<div class="flex items-center space-x-5">
-				<Button @click="() => (showForm = true)">
+				<Button @click="openTemplateForm('new')">
 					<template #prefix>
 						<Plus class="h-3 w-3 stroke-1.5" />
 					</template>
@@ -26,9 +26,7 @@
 				:options="{
 					showTooltip: false,
 					onRowClick: (row) => {
-						if (readOnlyMode) return
-						selectedTemplate = row.name
-						showForm = true
+						openTemplateForm(row.name)
 					},
 				}"
 			>
@@ -50,20 +48,26 @@
 					<ListRow :row="row" v-for="row in emailTemplates.data">
 						<template #default="{ column, item }">
 							<ListRowItem :item="row[column.key]" :align="column.align">
-								<div v-if="column.key == 'use_html'">
-									<FormControl
-										v-model="row[column.key]"
-										type="checkbox"
-										:disabled="true"
-									/>
-								</div>
-								<div v-else class="leading-5 text-sm">
+								<div class="leading-5 text-sm">
 									{{ row[column.key] }}
 								</div>
 							</ListRowItem>
 						</template>
 					</ListRow>
 				</ListRows>
+
+				<ListSelectBanner>
+					<template #actions="{ unselectAll, selections }">
+						<div class="flex gap-2">
+							<Button
+								variant="ghost"
+								@click="removeTemplate(selections, unselectAll)"
+							>
+								<Trash2 class="h-4 w-4 stroke-1.5" />
+							</Button>
+						</div>
+					</template>
+				</ListSelectBanner>
 			</ListView>
 		</div>
 	</div>
@@ -75,16 +79,17 @@
 </template>
 <script setup lang="ts">
 import {
+	Button,
+	call,
 	createListResource,
 	ListView,
 	ListHeader,
 	ListHeaderItem,
 	ListSelectBanner,
-	FormControl,
 	ListRows,
 	ListRow,
 	ListRowItem,
-	Button,
+	toast,
 } from 'frappe-ui'
 import { computed, ref } from 'vue'
 import { Plus, Trash2 } from 'lucide-vue-next'
@@ -107,29 +112,48 @@ const selectedTemplate = ref(null)
 
 const emailTemplates = createListResource({
 	doctype: 'Email Template',
-	fields: ['name', 'subject', 'use_html', 'response'],
+	fields: ['name', 'subject', 'use_html', 'response', 'response_html'],
 	auto: true,
 	orderBy: 'modified desc',
 	cache: 'email-templates',
 })
+
+const removeTemplate = (selections, unselectAll) => {
+	call('lms.lms.api.delete_documents', {
+		doctype: 'Email Template',
+		documents: Array.from(selections),
+	})
+		.then(() => {
+			emailTemplates.reload()
+			toast.success(__('Email Templates deleted successfully'))
+			unselectAll()
+		})
+		.catch((err) => {
+			toast.error(
+				cleanError(err.messages[0]) || __('Error deleting email templates')
+			)
+		})
+}
+
+const openTemplateForm = (templateID) => {
+	if (readOnlyMode) {
+		return
+	}
+	selectedTemplate.value = templateID
+	showForm.value = true
+}
 
 const columns = computed(() => {
 	return [
 		{
 			label: 'Name',
 			key: 'name',
-			width: '15rem',
+			width: '20rem',
 		},
 		{
 			label: 'Subject',
 			key: 'subject',
-			width: '18rem',
-		},
-		{
-			label: 'Use HTML',
-			key: 'use_html',
-			width: '10rem',
-			align: 'right',
+			width: '25rem',
 		},
 	]
 })
