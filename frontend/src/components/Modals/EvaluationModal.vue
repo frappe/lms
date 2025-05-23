@@ -148,7 +148,7 @@ function submitEvaluation(close) {
 				unavailabilityMessage = false
 			}
 
-			toast.warning(__('Evaluator is unavailable'))
+			toast.warning(__(unavailabilityMessage || 'Evaluator is unavailable'))
 		},
 	})
 }
