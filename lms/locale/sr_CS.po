@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-05-16 16:04+0000\n"
-"PO-Revision-Date: 2025-05-23 17:43\n"
+"PO-Revision-Date: 2025-05-24 17:46\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Serbian (Latin)\n"
 "MIME-Version: 1.0\n"
@@ -251,7 +251,7 @@ msgstr ""
 
 #: lms/templates/quiz/quiz.html:141
 msgid "All Submissions"
-msgstr "Svi podneti podaci"
+msgstr "Sve podneseno"
 
 #: lms/lms/doctype/lms_quiz/lms_quiz.py:44
 msgid "All questions should have the same marks if the limit is set."
@@ -1794,7 +1794,7 @@ msgstr ""
 #: frontend/src/pages/JobDetail.vue:34 frontend/src/pages/Lesson.vue:135
 #: frontend/src/pages/Profile.vue:36 frontend/src/pages/Programs.vue:53
 msgid "Edit"
-msgstr "Izmeni"
+msgstr "Uredi"
 
 #: frontend/src/components/Modals/AssignmentForm.vue:14
 msgid "Edit Assignment"
@@ -3659,7 +3659,7 @@ msgstr "Nije dozvoljeno"
 #. Submission'
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 msgid "Not Applicable"
-msgstr "Nije primenljivo"
+msgstr "Nije primenjivo"
 
 #: lms/templates/assessments.html:48
 msgid "Not Attempted"
@@ -5135,7 +5135,7 @@ msgstr ""
 
 #: frontend/src/components/Modals/AnnouncementModal.vue:20
 msgid "Subject"
-msgstr "Predmet"
+msgstr "Naslov"
 
 #: frontend/src/components/Modals/AnnouncementModal.vue:93
 msgid "Subject is required"
