@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-05-16 16:04+0000\n"
-"PO-Revision-Date: 2025-05-19 16:03\n"
+"PO-Revision-Date: 2025-05-24 17:46\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Chinese Simplified\n"
 "MIME-Version: 1.0\n"
@@ -109,7 +109,7 @@ msgstr "激活"
 
 #: frontend/src/pages/Statistics.vue:16
 msgid "Active Members"
-msgstr ""
+msgstr "活跃成员"
 
 #: frontend/src/components/Assessments.vue:11
 #: frontend/src/components/BatchCourses.vue:11
@@ -329,7 +329,7 @@ msgstr "公告发送成功"
 
 #: frontend/src/components/Modals/AnnouncementModal.vue:96
 msgid "Announcement is required"
-msgstr ""
+msgstr "必须填写公告内容。"
 
 #. Label of the answer (Text Editor) field in DocType 'LMS Assignment'
 #. Label of the answer (Text Editor) field in DocType 'LMS Assignment
@@ -352,7 +352,7 @@ msgstr "在分享批次链接至网络平台时显示"
 
 #: frontend/src/pages/BatchForm.vue:206
 msgid "Appears when the batch URL is shared on socials"
-msgstr ""
+msgstr "当班级URL在社交平台分享时显示"
 
 #: frontend/src/pages/JobDetail.vue:51
 msgid "Apply"
@@ -475,7 +475,7 @@ msgstr "学员{1}的课时{0}作业已存在。"
 
 #: frontend/src/components/Assignment.vue:356
 msgid "Assignment submitted successfully"
-msgstr ""
+msgstr "作业提交成功。"
 
 #: frontend/src/components/Modals/AssignmentForm.vue:138
 msgid "Assignment updated successfully"
@@ -517,7 +517,7 @@ msgstr "自动录制"
 
 #: frontend/src/pages/ProfileEvaluator.vue:224
 msgid "Availability updated successfully"
-msgstr ""
+msgstr "可用性更新成功。"
 
 #: frontend/src/components/CourseCard.vue:55
 #: frontend/src/pages/CourseDetail.vue:20
@@ -640,7 +640,7 @@ msgstr "批次结束日期不可早于开始日期"
 
 #: lms/lms/api.py:246
 msgid "Batch has already started."
-msgstr ""
+msgstr "班级已开始。"
 
 #: lms/lms/api.py:241
 msgid "Batch is sold out."
@@ -648,7 +648,7 @@ msgstr "该批次已满额。"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:46
 msgid "Batch start time cannot be greater than or equal to end time."
-msgstr ""
+msgstr "班级开始时间不可大于或等于结束时间。"
 
 #: lms/templates/emails/batch_start_reminder.html:10
 msgid "Batch:"
@@ -873,7 +873,7 @@ msgstr "章节添加成功"
 
 #: frontend/src/components/CourseOutline.vue:290
 msgid "Chapter deleted successfully"
-msgstr ""
+msgstr "章节删除成功。"
 
 #: frontend/src/components/Modals/ChapterModal.vue:196
 msgid "Chapter updated successfully"
@@ -894,7 +894,7 @@ msgstr "查看讨论"
 
 #: frontend/src/components/Modals/AssignmentForm.vue:55
 msgid "Check Submissions"
-msgstr ""
+msgstr "查看提交记录"
 
 #: lms/templates/certificates_section.html:24
 msgid "Check out the {0} to know more about certification."
@@ -917,7 +917,7 @@ msgstr "选择所有适用答案"
 
 #: frontend/src/components/Modals/Question.vue:19
 msgid "Choose an existing question"
-msgstr ""
+msgstr "选择现有题目"
 
 #: frontend/src/components/Controls/IconPicker.vue:27
 msgid "Choose an icon"
@@ -1068,7 +1068,7 @@ msgstr "评估人评语"
 #. Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Common keywords that will be used for all pages"
-msgstr ""
+msgstr "全站通用关键词"
 
 #. Label of the company (Data) field in DocType 'LMS Job Application'
 #. Label of the company (Data) field in DocType 'Work Experience'
@@ -1171,7 +1171,7 @@ msgstr "执行评估"
 
 #: frontend/src/pages/BatchForm.vue:141
 msgid "Configurations"
-msgstr ""
+msgstr "系统配置"
 
 #: frontend/src/components/UserDropdown.vue:180
 msgid "Confirm"
@@ -1327,7 +1327,7 @@ msgstr "课程完成"
 
 #: frontend/src/pages/Statistics.vue:31
 msgid "Course Completions"
-msgstr ""
+msgstr "课程完成情况"
 
 #. Name of a role
 #: frontend/src/pages/ProfileRoles.vue:26
@@ -1352,7 +1352,7 @@ msgstr "课程描述"
 
 #: frontend/src/pages/Statistics.vue:22
 msgid "Course Enrollments"
-msgstr ""
+msgstr "课程注册记录"
 
 #. Name of a DocType
 #: lms/lms/doctype/course_evaluator/course_evaluator.json
@@ -1419,7 +1419,7 @@ msgstr "课程已添加至项目"
 
 #: frontend/src/pages/CourseForm.vue:468
 msgid "Course created successfully"
-msgstr ""
+msgstr "课程创建成功。"
 
 #: frontend/src/pages/CourseForm.vue:489
 msgid "Course deleted successfully"
@@ -1431,7 +1431,7 @@ msgstr "课程移动成功"
 
 #: frontend/src/pages/CourseForm.vue:451
 msgid "Course updated successfully"
-msgstr ""
+msgstr "课程更新成功。"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:54
 #: lms/lms/doctype/lms_program/lms_program.py:19
@@ -2047,7 +2047,7 @@ msgstr "付费证书需指定评估人"
 
 #: frontend/src/components/Modals/EvaluationModal.vue:151
 msgid "Evaluator is unavailable"
-msgstr ""
+msgstr "评估人不可用"
 
 #. Label of the event (Select) field in DocType 'LMS Badge'
 #. Label of the event (Link) field in DocType 'LMS Live Class'
@@ -2352,7 +2352,7 @@ msgstr "帮助我们改进课程材料"
 
 #: frontend/src/pages/PersonaForm.vue:16
 msgid "Help us understand your needs"
-msgstr ""
+msgstr "请说明您的需求"
 
 #: lms/lms/notification/certificate_request_reminder/certificate_request_reminder.html:1
 #: lms/templates/emails/certificate_request_notification.html:1
@@ -2425,7 +2425,7 @@ msgstr "图标"
 #. Label of the user_category (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Identify User Category"
-msgstr ""
+msgstr "识别用户类别"
 
 #: frontend/src/components/LessonHelp.vue:11
 msgid "If Include in Preview is enabled for a lesson then the lesson will also be accessible to non logged in users."
@@ -3038,19 +3038,19 @@ msgstr "课时标题"
 
 #: frontend/src/pages/LessonForm.vue:414
 msgid "Lesson created successfully"
-msgstr ""
+msgstr "课时创建成功。"
 
 #: frontend/src/components/CourseOutline.vue:217
 msgid "Lesson deleted successfully"
-msgstr ""
+msgstr "课时删除成功。"
 
 #: frontend/src/components/CourseOutline.vue:232
 msgid "Lesson moved successfully"
-msgstr ""
+msgstr "课时移动成功。"
 
 #: frontend/src/pages/LessonForm.vue:438
 msgid "Lesson updated successfully"
-msgstr ""
+msgstr "课时更新成功。"
 
 #. Label of the lessons (Table) field in DocType 'Course Chapter'
 #. Group in Course Chapter's connections
@@ -3429,7 +3429,7 @@ msgstr "元图片"
 #. Label of the meta_keywords (Small Text) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Meta Keywords"
-msgstr ""
+msgstr "元关键词"
 
 #. Label of the milestone (Check) field in DocType 'LMS Batch Timetable'
 #: lms/lms/doctype/lms_batch_timetable/lms_batch_timetable.json
@@ -3637,7 +3637,7 @@ msgstr "该日期无可用时段"
 
 #: frontend/src/components/Modals/AnnouncementModal.vue:90
 msgid "No students in this batch"
-msgstr ""
+msgstr "本班级暂无学员"
 
 #: frontend/src/pages/AssignmentSubmissionList.vue:67
 msgid "No submissions"
@@ -4011,7 +4011,7 @@ msgstr "百分比/状态"
 #. Label of the persona_captured (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Persona Captured"
-msgstr ""
+msgstr "用户画像已采集"
 
 #: frontend/src/pages/Billing.vue:99
 msgid "Phone Number"
@@ -4125,7 +4125,7 @@ msgstr "请选择时区"
 
 #: frontend/src/components/Quiz.vue:497
 msgid "Please select an option"
-msgstr ""
+msgstr "请选择选项"
 
 #: lms/templates/emails/job_report.html:6
 msgid "Please take appropriate action at {0}"
@@ -4146,7 +4146,7 @@ msgstr "分数点（如70分）"
 
 #: frontend/src/components/Modals/Question.vue:62
 msgid "Possibilities"
-msgstr ""
+msgstr "可能性分析"
 
 #: frontend/src/components/Modals/Question.vue:88
 msgid "Possibility"
@@ -4613,7 +4613,7 @@ msgstr "角色偏好"
 
 #: frontend/src/pages/ProfileRoles.vue:105
 msgid "Role updated successfully"
-msgstr ""
+msgstr "角色更新成功。"
 
 #: frontend/src/components/AppSidebar.vue:601
 msgid "Roles"
@@ -4756,7 +4756,7 @@ msgstr "剩余席位"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:103
 msgid "Seat count cannot be negative."
-msgstr ""
+msgstr "座位数不可为负数。"
 
 #: frontend/src/components/BatchCard.vue:15
 #: frontend/src/components/BatchOverlay.vue:14
@@ -4939,11 +4939,11 @@ msgstr "部分日程时段存在重叠"
 
 #: frontend/src/pages/ProfileEvaluator.vue:201
 msgid "Slot added successfully"
-msgstr ""
+msgstr "时段添加成功。"
 
 #: frontend/src/pages/ProfileEvaluator.vue:240
 msgid "Slot deleted successfully"
-msgstr ""
+msgstr "时段删除成功。"
 
 #. Label of the slug (Data) field in DocType 'Cohort'
 #. Label of the slug (Data) field in DocType 'Cohort Subgroup'
@@ -5139,7 +5139,7 @@ msgstr "主题"
 
 #: frontend/src/components/Modals/AnnouncementModal.vue:93
 msgid "Subject is required"
-msgstr ""
+msgstr "必须填写主题"
 
 #: frontend/src/components/Assignment.vue:32
 msgid "Submission"
@@ -5172,7 +5172,7 @@ msgstr "提交"
 
 #: frontend/src/pages/PersonaForm.vue:43
 msgid "Submit and Continue"
-msgstr ""
+msgstr "提交并继续"
 
 #: frontend/src/components/Modals/JobApplicationModal.vue:23
 msgid "Submit your resume to proceed with your application for this position. Upon submission, it will be shared with the job poster."
@@ -5364,7 +5364,7 @@ msgstr "本作业暂无提交记录"
 
 #: frontend/src/components/EmptyState.vue:11
 msgid "There are no {0} currently. Keep an eye out, fresh learning experiences are on the way!"
-msgstr ""
+msgstr "当前暂无{0}，新学习资源即将上线，敬请关注！"
 
 #: lms/templates/course_list.html:14
 msgid "There are no {0} on this site."
@@ -5415,11 +5415,11 @@ msgstr "本描述将展示在无元描述的列表及页面中"
 #. Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "This image will be shown on lists and pages that don't have an image by default"
-msgstr ""
+msgstr "本图片将显示在无默认图片的列表及页面"
 
 #: frontend/src/pages/Lesson.vue:24
 msgid "This lesson is locked"
-msgstr ""
+msgstr "本课时已锁定"
 
 #: frontend/src/pages/Lesson.vue:29
 msgid "This lesson is not available for preview. Please enroll in the course to access it."
@@ -5436,7 +5436,7 @@ msgstr "本测验共包含{0}道试题"
 #: frontend/src/components/AppSidebar.vue:75
 #: frontend/src/components/AppSidebar.vue:115
 msgid "This site is being updated. You will not be able to make any changes. Full access will be restored shortly."
-msgstr ""
+msgstr "系统正在更新中，期间不可进行任何修改操作。完整访问权限将很快恢复。"
 
 #. Option for the 'Day' (Select) field in DocType 'Evaluator Schedule'
 #. Option for the 'Day' (Select) field in DocType 'LMS Certificate Request'
@@ -5648,7 +5648,7 @@ msgstr "不可用状态"
 
 #: frontend/src/pages/ProfileEvaluator.vue:259
 msgid "Unavailability updated successfully"
-msgstr ""
+msgstr "不可用状态更新成功"
 
 #: lms/lms/doctype/course_evaluator/course_evaluator.py:29
 msgid "Unavailable From Date cannot be greater than Unavailable To Date"
@@ -5856,7 +5856,7 @@ msgstr "网页"
 
 #: frontend/src/components/Modals/PageModal.vue:80
 msgid "Web page added to sidebar"
-msgstr ""
+msgstr "网页已添加至侧边栏"
 
 #. Option for the 'Day' (Select) field in DocType 'Evaluator Schedule'
 #. Option for the 'Day' (Select) field in DocType 'LMS Certificate Request'
@@ -5872,7 +5872,7 @@ msgstr "欢迎使用{0}！"
 
 #: frontend/src/pages/PersonaForm.vue:32
 msgid "What best describes your role?"
-msgstr ""
+msgstr "请选择最能描述您角色的选项"
 
 #: frontend/src/components/LessonHelp.vue:6
 msgid "What does include in preview mean?"
@@ -5880,7 +5880,7 @@ msgstr "「包含在预览中」的含义是什么？"
 
 #: frontend/src/pages/PersonaForm.vue:21
 msgid "What is your use case for Frappe Learning?"
-msgstr ""
+msgstr "您使用Frappe Learning的主要场景是？"
 
 #: lms/templates/courses_under_review.html:15
 msgid "When a course gets submitted for review, it will be listed here."
@@ -5978,11 +5978,11 @@ msgstr "简历已作为附件发送至本邮箱"
 
 #: frontend/src/pages/ProfileEvaluator.vue:14
 msgid "You cannot change the availability when the site is being updated."
-msgstr ""
+msgstr "系统更新期间不可修改可用性设置。"
 
 #: frontend/src/pages/ProfileRoles.vue:12
 msgid "You cannot change the roles in read-only mode."
-msgstr ""
+msgstr "只读模式下不可修改角色。"
 
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.py:116
 msgid "You cannot schedule evaluations after {0}."
@@ -6031,7 +6031,7 @@ msgstr "您已评价过本课程"
 
 #: frontend/src/pages/JobDetail.vue:57
 msgid "You have applied"
-msgstr ""
+msgstr "您已申请"
 
 #: frontend/src/components/BatchOverlay.vue:159
 msgid "You have been enrolled in this batch"
@@ -6124,7 +6124,7 @@ msgstr "提交内容已保存，讲师将尽快评阅并通知最终结果"
 
 #: frontend/src/pages/Lesson.vue:8
 msgid "Zen Mode"
-msgstr ""
+msgstr "禅模式"
 
 #. Name of a DocType
 #: lms/lms/doctype/zoom_settings/zoom_settings.json
@@ -6141,11 +6141,11 @@ msgstr "活动"
 
 #: frontend/src/components/JobCard.vue:26 frontend/src/pages/JobDetail.vue:108
 msgid "applicant"
-msgstr ""
+msgstr "申请人"
 
 #: frontend/src/components/JobCard.vue:26 frontend/src/pages/JobDetail.vue:108
 msgid "applicants"
-msgstr ""
+msgstr "申请人列表"
 
 #: lms/templates/emails/payment_reminder.html:4
 msgid "but didn’t complete your payment"
@@ -6225,15 +6225,15 @@ msgstr "您可以"
 
 #: frontend/src/pages/Assignments.vue:29
 msgid "{0} Assignments"
-msgstr ""
+msgstr "{0}项作业"
 
 #: frontend/src/pages/Jobs.vue:33
 msgid "{0} Open Jobs"
-msgstr ""
+msgstr "{0}个开放职位"
 
 #: frontend/src/pages/Quizzes.vue:25
 msgid "{0} Quizzes"
-msgstr ""
+msgstr "{0}项测验"
 
 #: lms/lms/api.py:853 lms/lms/api.py:861
 msgid "{0} Settings not found"
