@@ -1,38 +1,27 @@
 <template>
-	<Dialog v-model="show" :options="dialogOptions">
-		<template #body-content>
-			<div class="space-y-4">
+	<Dialog
+		v-model="show"
+		:options="{
+			size: '3xl',
+		}"
+	>
+		<template #body>
+			<div class="p-5 space-y-5">
+				<div class="text-lg font-semibold text-ink-gray-9 mb-5">
+					{{ __(props.title) }}
+				</div>
 				<div
 					v-if="!editMode"
 					class="flex items-center text-xs text-ink-gray-7 space-x-5"
 				>
-					<div class="flex items-center space-x-2">
-						<input
-							type="radio"
-							id="existing"
-							value="existing"
-							v-model="questionType"
-							class="w-3 h-3 cursor-pointer"
-						/>
-						<label for="existing" class="cursor-pointer">
-							{{ __('Add an existing question') }}
-						</label>
-					</div>
-
-					<div class="flex items-center space-x-2">
-						<input
-							type="radio"
-							id="new"
-							value="new"
-							v-model="questionType"
-							class="w-3 h-3 cursor-pointer"
-						/>
-						<label for="new" class="cursor-pointer">
-							{{ __('Create a new question') }}
-						</label>
-					</div>
+					<Switch
+						size="sm"
+						:label="__('Choose an existing question')"
+						v-model="chooseFromExisting"
+						class="!p-0"
+					/>
 				</div>
-				<div v-if="questionType == 'new' || editMode" class="space-y-2">
+				<div v-if="!chooseFromExisting || editMode" class="space-y-2">
 					<div>
 						<label class="block text-xs text-ink-gray-5 mb-1">
 							{{ __('Question') }}
@@ -45,20 +34,34 @@
 							editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
 						/>
 					</div>
-					<FormControl
-						v-model="question.marks"
-						:label="__('Marks')"
-						type="number"
-					/>
-					<FormControl
-						:label="__('Type')"
-						v-model="question.type"
-						type="select"
-						:options="['Choices', 'User Input', 'Open Ended']"
-						class="pb-2"
-						:required="true"
-					/>
-					<div v-if="question.type == 'Choices'" class="divide-y border-t">
+					<div class="grid grid-cols-2 gap-4">
+						<FormControl
+							v-model="question.marks"
+							:label="__('Marks')"
+							type="number"
+						/>
+						<FormControl
+							:label="__('Type')"
+							v-model="question.type"
+							type="select"
+							:options="['Choices', 'User Input', 'Open Ended']"
+							class="pb-2"
+							:required="true"
+						/>
+					</div>
+					<div
+						v-if="question.type == 'Choices'"
+						class="text-base font-semibold text-ink-gray-9 mb-5 mt-5"
+					>
+						{{ __('Options') }}
+					</div>
+					<div
+						v-else-if="question.type == 'User Input'"
+						class="text-base font-semibold text-ink-gray-9 mb-5 mt-5"
+					>
+						{{ __('Possibilities') }}
+					</div>
+					<div v-if="question.type == 'Choices'" class="grid grid-cols-2 gap-4">
 						<div v-for="n in 4" class="space-y-4 py-2">
 							<FormControl
 								:label="__('Option') + ' ' + n"
@@ -78,17 +81,18 @@
 					</div>
 					<div
 						v-else-if="question.type == 'User Input'"
-						v-for="n in 4"
-						class="space-y-2"
+						class="grid grid-cols-2 gap-4 py-2"
 					>
-						<FormControl
-							:label="__('Possibility') + ' ' + n"
-							v-model="question[`possibility_${n}`]"
-							:required="n == 1 ? true : false"
-						/>
+						<div v-for="n in 4">
+							<FormControl
+								:label="__('Possibility') + ' ' + n"
+								v-model="question[`possibility_${n}`]"
+								:required="n == 1 ? true : false"
+							/>
+						</div>
 					</div>
 				</div>
-				<div v-else-if="questionType == 'existing'" class="space-y-2">
+				<div v-else-if="chooseFromExisting" class="space-y-2">
 					<Link
 						v-model="existingQuestion.question"
 						:label="__('Select a question')"
@@ -100,20 +104,32 @@
 						type="number"
 					/>
 				</div>
+				<div class="flex items-center justify-end space-x-2 mt-5">
+					<Button variant="solid" @click="submitQuestion()">
+						{{ __('Submit') }}
+					</Button>
+				</div>
 			</div>
 		</template>
 	</Dialog>
 </template>
 <script setup>
-import { Dialog, FormControl, TextEditor, createResource } from 'frappe-ui'
+import {
+	Dialog,
+	FormControl,
+	TextEditor,
+	createResource,
+	Switch,
+	Button,
+	toast,
+} from 'frappe-ui'
 import { computed, watch, reactive, ref, inject } from 'vue'
 import Link from '@/components/Controls/Link.vue'
-import { showToast } from '@/utils'
 import { useOnboarding } from 'frappe-ui/frappe'
 
 const show = defineModel()
 const quiz = defineModel('quiz')
-const questionType = ref(null)
+const chooseFromExisting = ref(false)
 const editMode = ref(false)
 const user = inject('$user')
 const { updateOnboardingStep } = useOnboarding('learning')
@@ -182,11 +198,12 @@ watch(show, () => {
 		editMode.value = false
 		if (props.questionDetail.question) questionData.fetch()
 		else {
-			;(question.question = ''), (question.marks = 0)
+			question.question = ''
+			question.marks = 1
 			question.type = 'Choices'
 			existingQuestion.question = ''
-			existingQuestion.marks = 0
-			questionType.value = null
+			existingQuestion.marks = 1
+			chooseFromExisting.value = false
 			populateFields()
 		}
 
@@ -221,42 +238,36 @@ const questionCreation = createResource({
 	},
 })
 
-const submitQuestion = (close) => {
-	if (props.questionDetail?.question) updateQuestion(close)
-	else addQuestion(close)
+const submitQuestion = () => {
+	if (props.questionDetail?.question) updateQuestion()
+	else addQuestion()
 }
 
-const addQuestion = (close) => {
-	if (questionType.value == 'existing') {
-		addQuestionRow(
-			{
-				question: existingQuestion.question,
-				marks: existingQuestion.marks,
-			},
-			close
-		)
+const addQuestion = () => {
+	if (chooseFromExisting.value) {
+		addQuestionRow({
+			question: existingQuestion.question,
+			marks: existingQuestion.marks,
+		})
 	} else {
 		questionCreation.submit(
 			{},
 			{
 				onSuccess(data) {
-					addQuestionRow(
-						{
-							question: data.name,
-							marks: question.marks,
-						},
-						close
-					)
+					addQuestionRow({
+						question: data.name,
+						marks: question.marks,
+					})
 				},
 				onError(err) {
-					showToast(__('Error'), __(err.messages?.[0] || err), 'x')
+					toast.error(err.messages?.[0] || err)
 				},
 			}
 		)
 	}
 }
 
-const addQuestionRow = (question, close) => {
+const addQuestionRow = (question) => {
 	questionRow.submit(
 		{
 			...question,
@@ -267,13 +278,13 @@ const addQuestionRow = (question, close) => {
 					updateOnboardingStep('create_first_quiz')
 
 				show.value = false
-				showToast(__('Success'), __('Question added successfully'), 'check')
+				toast.success(__('Question added successfully'))
 				quiz.value.reload()
-				close()
+				show.value = false
 			},
 			onError(err) {
-				showToast(__('Error'), __(err.messages?.[0] || err), 'x')
-				close()
+				toast.error(err.messages?.[0] || err)
+				show.value = false
 			},
 		}
 	)
@@ -307,7 +318,7 @@ const marksUpdate = createResource({
 	},
 })
 
-const updateQuestion = (close) => {
+const updateQuestion = () => {
 	questionUpdate.submit(
 		{},
 		{
@@ -317,39 +328,18 @@ const updateQuestion = (close) => {
 					{
 						onSuccess() {
 							show.value = false
-							showToast(
-								__('Success'),
-								__('Question updated successfully'),
-								'check'
-							)
+							toast.success(__('Question updated successfully'))
 							quiz.value.reload()
-							close()
 						},
 					}
 				)
 			},
 			onError(err) {
-				showToast(__('Error'), __(err.messages?.[0] || err), 'x')
+				toast.error(err.messages?.[0] || err)
 			},
 		}
 	)
 }
-
-const dialogOptions = computed(() => {
-	return {
-		title: __(props.title),
-		size: 'xl',
-		actions: [
-			{
-				label: __('Submit'),
-				variant: 'solid',
-				onClick: (close) => {
-					submitQuestion(close)
-				},
-			},
-		],
-	}
-})
 </script>
 <style>
 input[type='radio']:checked {

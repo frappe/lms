@@ -6,64 +6,45 @@
 			<Breadcrumbs :items="breadcrumbs" />
 		</header>
 		<div class="m-5 pb-10">
-			<div>
-				<div class="text-3xl font-semibold text-ink-gray-9">
-					{{ batch.data.title }}
-				</div>
-				<div class="my-3 leading-6 text-ink-gray-7">
-					{{ batch.data.description }}
-				</div>
-				<div
-					class="flex flex-col gap-2 lg:gap-0 lg:flex-row lg:items-center justify-between lg:w-1/2"
-				>
-					<div class="flex items-center text-ink-gray-7">
-						<BookOpen class="h-4 w-4 mr-2" />
-						<span> {{ batch.data?.courses?.length }} {{ __('Courses') }} </span>
+			<div class="flex justify-between w-full">
+				<div class="md:w-2/3">
+					<div class="text-3xl font-semibold text-ink-gray-9">
+						{{ batch.data.title }}
 					</div>
-					<span class="hidden lg:block" v-if="batch.data.courses"
-						>&middot;</span
-					>
-					<DateRange
-						:startDate="batch.data.start_date"
-						:endDate="batch.data.end_date"
-					/>
-					<span class="hidden lg:block" v-if="batch.data.start_date"
-						>&middot;</span
-					>
-					<div class="flex items-center text-ink-gray-7">
-						<Clock class="h-4 w-4 mr-2" />
-						<span>
-							{{ formatTime(batch.data.start_time) }} -
-							{{ formatTime(batch.data.end_time) }}
-						</span>
+					<div class="my-3 leading-6 text-ink-gray-7">
+						{{ batch.data.description }}
 					</div>
-				</div>
-				<div class="flex avatar-group overlap mt-3">
+					<div class="flex avatar-group overlap">
+						<div
+							class="h-6 mr-1"
+							:class="{
+								'avatar-group overlap': batch.data.instructors.length > 1,
+							}"
+						>
+							<UserAvatar
+								v-for="instructor in batch.data.instructors"
+								:user="instructor"
+							/>
+						</div>
+						<CourseInstructors :instructors="batch.data.instructors" />
+					</div>
 					<div
-						class="h-6 mr-1"
-						:class="{
-							'avatar-group overlap': batch.data.instructors.length > 1,
-						}"
-					>
-						<UserAvatar
-							v-for="instructor in batch.data.instructors"
-							:user="instructor"
-						/>
-					</div>
-					<CourseInstructors :instructors="batch.data.instructors" />
-				</div>
-			</div>
-			<div class="grid lg:grid-cols-[60%,20%] gap-4 lg:gap-20 mt-10">
-				<div class="order-2 lg:order-none">
-					<div
-						class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-6"
+						class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-10"
 						v-html="batch.data.batch_details"
 					></div>
+				</div>
+				<div class="hidden md:block">
+					<BatchOverlay :batch="batch" />
+				</div>
+			</div>
+			<!-- <div class="grid lg:grid-cols-[60%,20%] gap-4 lg:gap-20 mt-10">
+				<div class="order-2 lg:order-none">
+					
 				</div>
 				<div class="order-1 lg:order-none">
 					<BatchOverlay :batch="batch" />
 				</div>
-			</div>
+			</div> -->
 			<div v-if="batch.data.courses.length">
 				<div class="flex items-center mt-10">
 					<div class="text-2xl font-semibold">

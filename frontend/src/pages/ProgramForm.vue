@@ -13,7 +13,7 @@
 		<!-- Courses -->
 		<div>
 			<div class="flex items-center justify-between mb-2">
-				<div class="text-lg font-semibold">
+				<div class="text-lg text-ink-gray-9 font-semibold">
 					{{ __('Program Courses') }}
 				</div>
 				<Button
@@ -75,7 +75,7 @@
 		<!-- Members -->
 		<div>
 			<div class="flex items-center justify-between mb-2">
-				<div class="text-lg font-semibold">
+				<div class="text-lg text-ink-gray-9 font-semibold">
 					{{ __('Program Members') }}
 				</div>
 				<Button
@@ -168,6 +168,7 @@
 					ignore_user_type: 1,
 				}"
 				:label="__('Program Member')"
+				:onCreate="(value, close) => openSettings('Members', close)"
 			/>
 		</template>
 	</Dialog>
@@ -187,12 +188,13 @@ import {
 	ListHeaderItem,
 	ListSelectBanner,
 	usePageMeta,
+	toast,
 } from 'frappe-ui'
 import { computed, ref } from 'vue'
 import { Plus, Trash2 } from 'lucide-vue-next'
-import { showToast } from '@/utils/'
 import { useRouter } from 'vue-router'
-import { sessionStore } from '../stores/session'
+import { sessionStore } from '@/stores/session'
+import { openSettings } from '@/utils'
 import Draggable from 'vuedraggable'
 import Link from '@/components/Controls/Link.vue'
 
@@ -229,11 +231,11 @@ const addProgramCourse = () => {
 			onSuccess(data) {
 				showDialog.value = false
 				course.value = null
-				showToast(__('Success'), __('Course added to program'), 'check')
+				toast.success(__('Course added to program'))
 				program.reload()
 			},
 			onError(err) {
-				showToast('Error', err.messages?.[0] || err, 'x')
+				toast.error(err.messages?.[0] || err)
 			},
 		}
 	)
@@ -251,11 +253,11 @@ const addProgramMember = () => {
 			onSuccess(data) {
 				showDialog.value = false
 				member.value = null
-				showToast(__('Success'), __('Member added to program'), 'check')
+				toast.success(__('Member added to program'))
 				program.reload()
 			},
 			onError(err) {
-				showToast('Error', err.messages?.[0] || err, 'x')
+				toast.error(err.messages?.[0] || err)
 			},
 		}
 	)
@@ -272,11 +274,11 @@ const remove = (selections, unselectAll, doctype) => {
 		{
 			onSuccess(data) {
 				unselectAll()
-				showToast(__('Success'), __('Items removed successfully'), 'check')
+				toast.success(__('Items removed successfully'))
 				program.reload()
 			},
 			onError(err) {
-				showToast('Error', err.messages?.[0] || err, 'x')
+				toast.error(err.messages?.[0] || err)
 			},
 		}
 	)
@@ -298,11 +300,11 @@ const updateOrder = (e) => {
 		},
 		{
 			onSuccess(data) {
-				showToast(__('Success'), __('Course moved successfully'), 'check')
+				toast.success(__('Course moved successfully'))
 				program.reload()
 			},
 			onError(err) {
-				showToast('Error', err.messages?.[0] || err, 'x')
+				toast.error(err.messages?.[0] || err)
 			},
 		}
 	)

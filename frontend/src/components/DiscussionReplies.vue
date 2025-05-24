@@ -27,7 +27,9 @@
 						</span>
 					</div>
 					<Dropdown
-						v-if="user.data.name == reply.owner && !reply.editable"
+						v-if="
+							user.data.name == reply.owner && !reply.editable && !readOnlyMode
+						"
 						:options="[
 							{
 								label: 'Edit',
@@ -71,7 +73,7 @@
 		</div>
 
 		<TextEditor
-			v-if="renderEditor"
+			v-if="renderEditor && !readOnlyMode"
 			class="mt-5"
 			:content="newReply"
 			:mentions="mentionUsers"
@@ -80,7 +82,7 @@
 			:fixedMenu="true"
 			editorClass="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none border border-outline-gray-2 rounded-b-md min-h-[7rem] py-1 px-2"
 		/>
-		<div class="flex justify-between mt-2">
+		<div v-if="!readOnlyMode" class="flex justify-between mt-2">
 			<span> </span>
 			<Button @click="postReply()">
 				<span>
@@ -91,12 +93,11 @@
 	</div>
 </template>
 <script setup>
-import { createResource, TextEditor, Button, Dropdown } from 'frappe-ui'
+import { createResource, TextEditor, Button, Dropdown, toast } from 'frappe-ui'
 import { timeAgo } from '../utils'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { ChevronLeft, MoreHorizontal } from 'lucide-vue-next'
 import { ref, inject, onMounted } from 'vue'
-import { createToast } from '../utils'
 
 const showTopics = defineModel('showTopics')
 const newReply = ref('')
@@ -105,6 +106,7 @@ const user = inject('$user')
 const allUsers = inject('$allUsers')
 const mentionUsers = ref([])
 const renderEditor = ref(false)
+const readOnlyMode = window.read_only_mode
 
 const props = defineProps({
 	topic: {
@@ -189,14 +191,7 @@ const postReply = () => {
 				replies.reload()
 			},
 			onError(err) {
-				createToast({
-					title: 'Error',
-					text: err.messages?.[0] || err,
-					icon: 'x',
-					iconClasses: 'bg-surface-red-5 text-ink-white rounded-md p-px',
-					position: 'top-center',
-					timeout: 10,
-				})
+				toast.error(err.messages?.[0] || err)
 			},
 		}
 	)

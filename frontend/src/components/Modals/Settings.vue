@@ -1,5 +1,5 @@
 <template>
-	<Dialog v-model="show" :options="{ size: '4xl' }">
+	<Dialog v-model="show" :options="{ size: '5xl' }">
 		<template #body>
 			<div class="flex h-[calc(100vh_-_8rem)]">
 				<div class="flex w-52 shrink-0 flex-col bg-surface-gray-2 p-2">
@@ -51,6 +51,11 @@
 						:label="activeTab.label"
 						:description="activeTab.description"
 					/>
+					<EmailTemplates
+						v-else-if="activeTab.label === 'Email Templates'"
+						:label="activeTab.label"
+						:description="activeTab.description"
+					/>
 					<PaymentSettings
 						v-else-if="activeTab.label === 'Payment Gateway'"
 						:label="activeTab.label"
@@ -86,6 +91,7 @@ import SidebarLink from '@/components/SidebarLink.vue'
 import Members from '@/components/Members.vue'
 import Evaluators from '@/components/Evaluators.vue'
 import Categories from '@/components/Categories.vue'
+import EmailTemplates from '@/components/EmailTemplates.vue'
 import BrandSettings from '@/components/BrandSettings.vue'
 import PaymentSettings from '@/components/PaymentSettings.vue'
 
@@ -123,7 +129,7 @@ const tabsStructure = computed(() => {
 							label: 'Enable Learning Paths',
 							name: 'enable_learning_paths',
 							description:
-								'This will enforce students to go through programs assigned to them in the correct order.',
+								'This will ensure students follow the assigned programs in order.',
 							type: 'checkbox',
 						},
 						{
@@ -141,10 +147,25 @@ const tabsStructure = computed(() => {
 							type: 'checkbox',
 						},
 						{
+							type: 'Column Break',
+						},
+						{
+							label: 'Batch Confirmation Template',
+							name: 'batch_confirmation_template',
+							doctype: 'Email Template',
+							type: 'Link',
+						},
+						{
+							label: 'Certification Template',
+							name: 'certification_template',
+							doctype: 'Email Template',
+							type: 'Link',
+						},
+						{
 							label: 'Unsplash Access Key',
 							name: 'unsplash_access_key',
 							description:
-								'Optional. If this is set, students can pick a cover image from the unsplash library for their profile page. https://unsplash.com/documentation#getting-started.',
+								'Allows users to pick a profile cover image from Unsplash. https://unsplash.com/documentation#getting-started.',
 							type: 'password',
 						},
 					],
@@ -163,6 +184,12 @@ const tabsStructure = computed(() => {
 						'Configure the payment gateway and other payment related settings',
 					fields: [
 						{
+							label: 'Default Currency',
+							name: 'default_currency',
+							type: 'Link',
+							doctype: 'Currency',
+						},
+						{
 							label: 'Payment Gateway',
 							name: 'payment_gateway',
 							type: 'Link',
@@ -171,10 +198,7 @@ const tabsStructure = computed(() => {
 							
 						},
 						{
-							label: 'Default Currency',
-							name: 'default_currency',
-							type: 'Link',
-							doctype: 'Currency',
+							type: 'Column Break',
 						},
 						{
 							label: 'Apply GST for India',
@@ -213,9 +237,14 @@ const tabsStructure = computed(() => {
 				},
 				{
 					label: 'Categories',
-					description: 'Manage the members of your learning system',
+					description: 'Double click to edit the category',
 					icon: 'Network',
 					allow: '1',
+				},
+				{
+					label: 'Email Templates',
+					description: 'Manage the email templates for your learning system',
+					icon: 'MailPlus',
 				},
 			],
 		},
@@ -242,28 +271,6 @@ const tabsStructure = computed(() => {
 							label: 'Favicon',
 							name: 'favicon',
 							type: 'Upload',
-						},
-						{
-							label: 'Footer Logo',
-							name: 'footer_logo',
-							type: 'Upload',
-						},
-						{
-							label: 'Address',
-							name: 'address',
-							type: 'textarea',
-							rows: 2,
-						},
-						{
-							label: 'Footer "Powered By"',
-							name: 'footer_powered',
-							type: 'textarea',
-							rows: 4,
-						},
-						{
-							label: 'Copyright',
-							name: 'copyright',
-							type: 'text',
 						},
 					],
 				},
@@ -308,7 +315,7 @@ const tabsStructure = computed(() => {
 						},
 					],
 				},
-				{
+				{ 
 					label: 'Email Templates',
 					icon: 'MailPlus',
 					allow: '1',
@@ -334,16 +341,17 @@ const tabsStructure = computed(() => {
 					],
 				},
 				{
+ 
 					label: 'Signup',
 					icon: 'LogIn',
 					allow: '0',
 					fields: [
 						{
-							label: 'Identify User Persona',
+							label: 'Identify User Category',
 							name: 'user_category',
 							type: 'checkbox',
 							description:
-								'Enable this option to identify the user persona during signup.',
+								'Enable this option to identify the user category during signup.',
 						},
 						{
 							label: 'Disable signup',
@@ -358,6 +366,33 @@ const tabsStructure = computed(() => {
 							type: 'Code',
 							mode: 'htmlmixed',
 							rows: 10,
+						},
+					],
+				},
+				{
+					label: 'SEO',
+					icon: 'Search',
+					fields: [
+						{
+							label: 'Meta Description',
+							name: 'meta_description',
+							type: 'textarea',
+							rows: 4,
+							description:
+								"This description will be shown on lists and pages that don't have meta description",
+						},
+						{
+							label: 'Meta Keywords',
+							name: 'meta_keywords',
+							type: 'textarea',
+							rows: 4,
+							description:
+								'Keywords for search engines to find your website. Separated by commas.',
+						},
+						{
+							label: 'Meta Image',
+							name: 'meta_image',
+							type: 'Upload',
 						},
 					],
 				},

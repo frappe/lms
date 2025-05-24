@@ -193,19 +193,7 @@ const userDropdownOptions = computed(() => {
 							userResource.data?.is_fc_site && 1==0
 						)
 					},
-				},
-			],
-		},
-		{
-			group: '',
-			items: [
-				// {
-				// 	icon: Zap,
-				// 	label: 'Powered by MedRef Learning',
-				// 	onClick: () => {
-				// 		window.open('https://medrefsl.com', '_blank')
-				// 	},
-				// },
+				}, 
 				{
 					icon: LogOut,
 					label: 'Log out',

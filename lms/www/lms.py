@@ -3,36 +3,49 @@ import re
 from bs4 import BeautifulSoup
 from frappe import _
 from frappe.utils.telemetry import capture
-from frappe.utils import cint
 
 no_cache = 1
 
 
 def get_context():
+	context = frappe._dict()
+	context.boot = get_boot()
+	frappe.db.commit()
+
 	app_path = frappe.form_dict.get("app_path")
 	favicon = (
 		frappe.db.get_single_value("Website Settings", "favicon")
 		or "/assets/lms/frontend/favicon.png"
 	)
 	title = frappe.db.get_single_value("Website Settings", "app_name") or "Frappe Learning"
-	csrf_token = frappe.sessions.get_csrf_token()
-	frappe.db.commit()
 
-	context = frappe._dict()
-	context.csrf_token = csrf_token
 	context.meta = get_meta(app_path, title, favicon)
-	capture("active_site", "lms")
 	context.title = title
 	context.favicon = favicon
+
+	capture("active_site", "lms")
 	return context
 
 
+def get_boot():
+	return frappe._dict(
+		{
+			"frappe_version": frappe.__version__,
+			"read_only_mode": frappe.flags.read_only,
+			"csrf_token": frappe.sessions.get_csrf_token(),
+		}
+	)
+
+
 def get_meta(app_path, title, favicon):
-	meta = {}
+	meta = frappe._dict()
 	if app_path:
-		meta = get_meta_from_document(app_path, favicon)
+		meta = get_meta_from_document(app_path)
 
 	route_meta = frappe.get_all("Website Meta Tag", {"parent": app_path}, ["key", "value"])
+	description = frappe.db.get_single_value("LMS Settings", "meta_description")
+	image = frappe.db.get_single_value("LMS Settings", "meta_image")
+	keywords = frappe.db.get_single_value("LMS Settings", "meta_keywords")
 
 	if len(route_meta) > 0:
 		for row in route_meta:
@@ -47,22 +60,31 @@ def get_meta(app_path, title, favicon):
 			elif row.key == "link":
 				meta["link"] = row.value
 
+	if not meta.get("title"):
+		meta["title"] = title
+
+	if not meta.get("description"):
+		meta["description"] = description
+
+	if not meta.get("image"):
+		meta["image"] = image or favicon
+
+	meta["keywords"] = f"{meta.get('keywords')}, {keywords}"
+
 	if not meta:
 		meta = {
 			"title": title,
 			"image": favicon,
-			"description": "Easy to use Learning Management System",
+			"description": description,
 		}
 
 	return meta
 
 
-def get_meta_from_document(app_path, favicon):
+def get_meta_from_document(app_path):
 	if app_path == "courses":
 		return {
 			"title": _("Course List"),
-			"image": favicon,
-			"description": "This page lists all the courses published on our website",
 			"keywords": "All Courses, Courses, Learn",
 			"link": "/courses",
 		}
@@ -72,7 +94,6 @@ def get_meta_from_document(app_path, favicon):
 			return {
 				"title": _("New Course"),
 				"image": frappe.db.get_single_value("Website Settings", "banner_image"),
-				"description": "Create a new course",
 				"keywords": "New Course, Create Course",
 				"link": "/lms/courses/new/edit",
 			}
@@ -99,8 +120,6 @@ def get_meta_from_document(app_path, favicon):
 	if app_path == "batches":
 		return {
 			"title": _("Batches"),
-			"image": favicon,
-			"description": "This page lists all the batches published on our website",
 			"keywords": "All Batches, Batches, Learn",
 			"link": "/batches",
 		}
@@ -130,8 +149,6 @@ def get_meta_from_document(app_path, favicon):
 		if "new/edit" in app_path:
 			return {
 				"title": _("New Batch"),
-				"image": favicon,
-				"description": "Create a new batch",
 				"keywords": "New Batch, Create Batch",
 				"link": "/lms/batches/new/edit",
 			}
@@ -157,8 +174,6 @@ def get_meta_from_document(app_path, favicon):
 	if app_path == "job-openings":
 		return {
 			"title": _("Job Openings"),
-			"image": favicon,
-			"description": "This page lists all the job openings published on our website",
 			"keywords": "Job Openings, Jobs, Vacancies",
 			"link": "/job-openings",
 		}
@@ -171,6 +186,11 @@ def get_meta_from_document(app_path, favicon):
 			["job_title", "company_logo", "description"],
 			as_dict=True,
 		)
+
+		if job_opening.description:
+			soup = BeautifulSoup(job_opening.description, "html.parser")
+			job_opening.description = soup.get_text()
+
 		return {
 			"title": job_opening.job_title,
 			"image": job_opening.company_logo,
@@ -182,8 +202,6 @@ def get_meta_from_document(app_path, favicon):
 	if app_path == "statistics":
 		return {
 			"title": _("Statistics"),
-			"image": favicon,
-			"description": "This page lists all the statistics of this platform",
 			"keywords": "Enrollment Count, Completion, Signups",
 			"link": "/statistics",
 		}
@@ -231,8 +249,6 @@ def get_meta_from_document(app_path, favicon):
 	if app_path == "quizzes":
 		return {
 			"title": _("Quizzes"),
-			"image": favicon,
-			"description": _("Test your knowledge with interactive quizzes and more."),
 			"keywords": "Quizzes, interactive quizzes, online quizzes",
 			"link": "/quizzes",
 		}
@@ -248,8 +264,6 @@ def get_meta_from_document(app_path, favicon):
 		if quiz:
 			return {
 				"title": quiz.title,
-				"image": favicon,
-				"description": "Test your knowledge with interactive quizzes.",
 				"keywords": quiz.title,
 				"link": f"/quizzes/{quiz_name}",
 			}
@@ -257,8 +271,6 @@ def get_meta_from_document(app_path, favicon):
 	if app_path == "assignments":
 		return {
 			"title": _("Assignments"),
-			"image": favicon,
-			"description": _("Test your knowledge with interactive assignments and more."),
 			"keywords": "Assignments, interactive assignments, online assignments",
 			"link": "/assignments",
 		}
@@ -274,8 +286,6 @@ def get_meta_from_document(app_path, favicon):
 		if assignment:
 			return {
 				"title": assignment.title,
-				"image": favicon,
-				"description": "Test your knowledge with interactive assignments.",
 				"keywords": assignment.title,
 				"link": f"/assignments/{assignment_name}",
 			}
@@ -283,8 +293,15 @@ def get_meta_from_document(app_path, favicon):
 	if app_path == "programs":
 		return {
 			"title": _("Programs"),
-			"image": favicon,
-			"description": "This page lists all the programs published on our website",
 			"keywords": "All Programs, Programs, Learn",
 			"link": "/programs",
 		}
+
+	if app_path == "certified-participants":
+		return {
+			"title": _("Certified Participants"),
+			"keywords": "All Certified Participants, Certified Participants, Learn, Certification",
+			"link": "/certified-participants",
+		}
+
+	return {}

@@ -25,6 +25,7 @@
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
 import "cypress-file-upload";
+import "cypress-real-events";
 
 Cypress.Commands.add("login", (email, password) => {
 	if (!email) {
@@ -67,4 +68,12 @@ Cypress.Commands.add("paste", { prevSubject: true }, (subject, text) => {
 		const event = new Event("paste", { bubbles: true });
 		element.dispatchEvent(event);
 	});
+});
+
+Cypress.Commands.add("closeOnboardingModal", () => {
+	cy.wait(500);
+	cy.get('[class*="z-50"]')
+		.find('button:has(svg[class*="feather-x"])')
+		.realClick();
+	cy.wait(1000);
 });

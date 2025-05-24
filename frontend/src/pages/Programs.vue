@@ -4,7 +4,7 @@
 	>
 		<Breadcrumbs :items="breadbrumbs" />
 		<Button
-			v-if="user.data?.is_moderator || user.data?.is_instructor"
+			v-if="canCreateProgram()"
 			@click="showDialog = true"
 			variant="solid"
 		>
@@ -46,7 +46,7 @@
 							params: { programName: program.name },
 						}"
 					>
-						<Button>
+						<Button v-if="!readOnlyMode">
 							<template #prefix>
 								<Edit class="h-4 w-4 stroke-1.5" />
 							</template>
@@ -82,22 +82,7 @@
 			</div>
 		</div>
 	</div>
-	<div
-		v-else
-		class="text-center p-5 text-ink-gray-5 mt-52 w-3/4 md:w-1/2 mx-auto space-y-2"
-	>
-		<BookOpen class="size-10 mx-auto stroke-1 text-ink-gray-4" />
-		<div class="text-xl font-medium">
-			{{ __('No programs found') }}
-		</div>
-		<div class="leading-5">
-			{{
-				__(
-					'There are no programs available at the moment. Keep an eye out, fresh learning experiences are on the way soon!'
-				)
-			}}
-		</div>
-	</div>
+	<EmptyState v-else type="Programs" />
 
 	<Dialog
 		v-model="showDialog"
@@ -127,13 +112,14 @@ import {
 	Dialog,
 	FormControl,
 	usePageMeta,
+	toast,
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref } from 'vue'
-import { BookOpen, Edit, Plus, LockKeyhole } from 'lucide-vue-next'
+import { Edit, Plus, LockKeyhole } from 'lucide-vue-next'
 import CourseCard from '@/components/CourseCard.vue'
+import EmptyState from '@/components/EmptyState.vue'
 import { useRouter } from 'vue-router'
 import { sessionStore } from '../stores/session'
-import { showToast } from '@/utils'
 import { useSettings } from '@/stores/settings'
 
 const { brand } = sessionStore()
@@ -142,6 +128,7 @@ const showDialog = ref(false)
 const router = useRouter()
 const title = ref('')
 const settings = useSettings()
+const readOnlyMode = window.read_only_mode
 
 onMounted(() => {
 	if (
@@ -197,7 +184,7 @@ const enrollMember = (program, course) => {
 			}
 		})
 		.catch((err) => {
-			showToast('Error', err.messages?.[0] || err, 'x')
+			toast.error(err.messages?.[0] || err)
 		})
 }
 
@@ -208,9 +195,15 @@ const lockCourse = (course) => {
 	return true
 }
 
+const canCreateProgram = () => {
+	if (readOnlyMode) return false
+	if (user.data?.is_moderator || user.data?.is_instructor) return true
+	return false
+}
+
 const breadbrumbs = computed(() => [
 	{
-		label: 'Programs',
+		label: __('Programs'),
 	},
 ])
 

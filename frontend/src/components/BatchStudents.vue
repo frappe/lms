@@ -1,5 +1,5 @@
 <template>
-	<div class="">
+	<div v-if="batch.data" class="">
 		<div class="w-full flex items-center justify-between pb-4">
 			<div class="font-medium text-ink-gray-7">
 				{{ __('Statistics') }}
@@ -46,7 +46,7 @@
 				</div>
 				<div class="flex items-center space-x-2">
 					<span class="font-semibold">
-						{{ batch.courses?.length }}
+						{{ batch.data.courses?.length }}
 					</span>
 					<span>
 						{{ __('Courses') }}
@@ -110,7 +110,7 @@
 			<div class="text-ink-gray-7 font-medium">
 				{{ __('Students') }}
 			</div>
-			<Button @click="openStudentModal()">
+			<Button v-if="!readOnlyMode" @click="openStudentModal()">
 				<template #prefix>
 					<Plus class="h-4 w-4" />
 				</template>
@@ -201,9 +201,10 @@
 	</div>
 
 	<StudentModal
-		:batch="props.batch.name"
+		:batch="props.batch.data.name"
 		v-model="showStudentModal"
 		v-model:reloadStudents="students"
+		v-model:batchModal="props.batch"
 	/>
 	<BatchStudentProgress
 		:student="selectedStudent"
@@ -223,6 +224,7 @@ import {
 	ListRows,
 	ListView,
 	ListRowItem,
+	toast,
 } from 'frappe-ui'
 import {
 	BookOpen,
@@ -234,7 +236,6 @@ import {
 } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
 import StudentModal from '@/components/Modals/StudentModal.vue'
-import { showToast } from '@/utils'
 import ProgressBar from '@/components/ProgressBar.vue'
 import BatchStudentProgress from '@/components/Modals/BatchStudentProgress.vue'
 import ApexChart from 'vue3-apexcharts'
@@ -247,6 +248,7 @@ const chartData = ref(null)
 const chartOptions = ref(null)
 const showProgressChart = ref(false)
 const assessmentCount = ref(0)
+const readOnlyMode = window.read_only_mode
 
 const props = defineProps({
 	batch: {
@@ -257,15 +259,15 @@ const props = defineProps({
 
 const students = createResource({
 	url: 'lms.lms.utils.get_batch_students',
-	cache: ['students', props.batch.name],
 	params: {
-		batch: props.batch?.name,
+		batch: props.batch?.data?.name,
 	},
 	auto: true,
 	onSuccess(data) {
 		chartData.value = getChartData()
 		showProgressChart.value =
-			data.length && (props.batch?.courses?.length || assessmentCount.value)
+			data.length &&
+			(props.batch?.data?.courses?.length || assessmentCount.value)
 	},
 })
 
@@ -322,7 +324,8 @@ const removeStudents = (selections, unselectAll) => {
 		{
 			onSuccess(data) {
 				students.reload()
-				showToast(__('Success'), __('Students deleted successfully'), 'check')
+				props.batch.reload()
+				toast.success(__('Students deleted successfully'))
 				unselectAll()
 			},
 		}
@@ -433,7 +436,7 @@ const certificationCount = createResource({
 	params: {
 		doctype: 'LMS Certificate',
 		filters: {
-			batch_name: props.batch.name,
+			batch_name: props.batch?.data?.name,
 		},
 	},
 	auto: true,

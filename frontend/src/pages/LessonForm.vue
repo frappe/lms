@@ -84,6 +84,7 @@ import {
 	createResource,
 	FormControl,
 	usePageMeta,
+	toast,
 } from 'frappe-ui'
 import {
 	computed,
@@ -97,7 +98,7 @@ import { sessionStore } from '../stores/session'
 import EditorJS from '@editorjs/editorjs'
 import LessonHelp from '@/components/LessonHelp.vue'
 import { ChevronRight } from 'lucide-vue-next'
-import { createToast, getEditorTools } from '@/utils'
+import { getEditorTools, enablePlyr } from '@/utils'
 import { capture } from '@/telemetry'
 import { useOnboarding } from 'frappe-ui/frappe'
 
@@ -133,6 +134,7 @@ onMounted(() => {
 	editor.value = renderEditor('content')
 	instructorEditor.value = renderEditor('instructor-notes')
 	window.addEventListener('keydown', keyboardShortcut)
+	enablePlyr()
 })
 
 const renderEditor = (holder) => {
@@ -141,6 +143,9 @@ const renderEditor = (holder) => {
 		tools: getEditorTools(true),
 		autofocus: true,
 		defaultBlock: 'markdown',
+		onChange: async (api, event) => {
+			enablePlyr()
+		},
 	})
 }
 
@@ -406,14 +411,14 @@ const createNewLesson = () => {
 								updateOnboardingStep('create_first_lesson')
 
 							capture('lesson_created')
-							showToast('Success', 'Lesson created successfully', 'check')
+							toast.success(__('Lesson created successfully'))
 							lessonDetails.reload()
 						},
 					}
 				)
 			},
 			onError(err) {
-				showToast('Error', err.message, 'x')
+				toast.error(err.messages?.[0] || err)
 			},
 		}
 	)
@@ -430,11 +435,11 @@ const editCurrentLesson = () => {
 			},
 			onSuccess() {
 				showSuccessMessage
-					? showToast('Success', 'Lesson updated successfully', 'check')
+					? toast.success(__('Lesson updated successfully'))
 					: ''
 			},
 			onError(err) {
-				showToast('Error', err.message, 'x')
+				toast.error(err.message)
 			},
 		}
 	)
@@ -447,20 +452,6 @@ const validateLesson = () => {
 	if (!lesson.content) {
 		return 'Content is required'
 	}
-}
-
-const showToast = (title, text, icon) => {
-	createToast({
-		title: title,
-		text: text,
-		icon: icon,
-		iconClasses:
-			icon == 'check'
-				? 'bg-surface-green-3 text-ink-white rounded-md p-px'
-				: 'bg-surface-red-5 text-ink-white rounded-md p-px',
-		position: icon == 'check' ? 'bottom-right' : 'top-center',
-		timeout: icon == 'check' ? 5 : 10,
-	})
 }
 
 const breadcrumbs = computed(() => {
@@ -624,8 +615,7 @@ usePageMeta(() => {
 }
 
 iframe {
-	border-top: 3px solid theme('colors.gray.700');
-	border-bottom: 3px solid theme('colors.gray.700');
+	border: none !important;
 }
 
 .tc-table {
@@ -638,5 +628,31 @@ iframe {
 
 .ce-popover-item[data-item-name='markdown'] {
 	display: none !important;
+}
+
+.plyr__volume input[type='range'] {
+	display: none;
+}
+
+.plyr__control--overlaid {
+	background: radial-gradient(
+		circle,
+		rgba(0, 0, 0, 0.4) 0%,
+		rgba(0, 0, 0, 0.5) 50%
+	);
+}
+
+.plyr__control:hover {
+	background: none;
+}
+
+.plyr--video {
+	border: 1px solid theme('colors.gray.200');
+	border-radius: 8px;
+}
+
+:root {
+	--plyr-range-fill-background: white;
+	--plyr-video-control-background-hover: transparent;
 }
 </style>

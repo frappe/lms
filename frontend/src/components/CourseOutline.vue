@@ -1,5 +1,5 @@
 <template>
-	<div class="h-full">
+	<div class="">
 		<div
 			v-if="title && (outline.data?.length || allowEdit)"
 			class="flex items-center justify-between space-x-2 mb-4 px-2"
@@ -17,9 +17,6 @@
 			<Button size="sm" v-if="allowEdit" @click="openChapterModal()">
 				{{ __('Add Chapter') }}
 			</Button>
-			<!-- <span class="font-medium cursor-pointer" @click="expandAllChapters()">
-				{{ expandAll ? __("Collapse all chapters") : __("Expand all chapters") }}
-			</span> -->
 		</div>
 		<div
 			:class="{
@@ -150,7 +147,7 @@
 	/>
 </template>
 <script setup>
-import { Button, createResource, Tooltip } from 'frappe-ui'
+import { Button, createResource, Tooltip, toast } from 'frappe-ui'
 import { getCurrentInstance, inject, ref } from 'vue'
 import Draggable from 'vuedraggable'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
@@ -165,7 +162,6 @@ import {
 } from 'lucide-vue-next'
 import { useRoute, useRouter } from 'vue-router'
 import ChapterModal from '@/components/Modals/ChapterModal.vue'
-import { showToast } from '@/utils'
 
 const route = useRoute()
 const router = useRouter()
@@ -218,7 +214,7 @@ const deleteLesson = createResource({
 	},
 	onSuccess() {
 		outline.reload()
-		showToast('Success', 'Lesson deleted successfully', 'check')
+		toast.success(__('Lesson deleted successfully'))
 	},
 })
 
@@ -233,7 +229,7 @@ const updateLessonIndex = createResource({
 		}
 	},
 	onSuccess() {
-		showToast('Success', 'Lesson moved successfully', 'check')
+		toast.success(__('Lesson moved successfully'))
 	},
 })
 
@@ -291,7 +287,7 @@ const deleteChapter = createResource({
 	},
 	onSuccess() {
 		outline.reload()
-		showToast('Success', 'Chapter deleted successfully', 'check')
+		toast.success(__('Chapter deleted successfully'))
 	},
 })
 
@@ -320,11 +316,7 @@ const redirectToChapter = (chapter) => {
 	event.preventDefault()
 	if (props.allowEdit) return
 	if (!user.data) {
-		showToast(
-			__('You are not enrolled'),
-			__('Please enroll for this course to view this lesson'),
-			'alert-circle'
-		)
+		toast.success(__('Please enroll for this course to view this lesson'))
 		return
 	}
 

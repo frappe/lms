@@ -86,9 +86,10 @@ import {
 	ListRows,
 	ListView,
 	ListRowItem,
+	toast,
 } from 'frappe-ui'
 import { Plus, Trash2 } from 'lucide-vue-next'
-import { showToast } from '@/utils'
+const readOnlyMode = window.read_only_mode
 
 const showCourseModal = ref(false)
 const user = inject('$user')
@@ -151,7 +152,7 @@ const removeCourses = (selections, unselectAll) => {
 		{
 			onSuccess(data) {
 				courses.reload()
-				showToast(__('Success'), __('Courses deleted successfully'), 'check')
+				toast.success(__('Courses deleted successfully'))
 				unselectAll()
 			},
 		}
@@ -159,6 +160,9 @@ const removeCourses = (selections, unselectAll) => {
 }
 
 const canSeeAddButton = () => {
+	if (readOnlyMode) {
+		return false
+	}
 	return user.data?.is_moderator || user.data?.is_evaluator
 }
 </script>

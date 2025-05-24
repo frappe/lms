@@ -35,14 +35,14 @@
 						<span class="text-ink-gray-7">
 							{{ review.creation }}
 						</span>
-						<div class="flex mt-2">
+						<div class="flex mt-2 space-x-1">
 							<Star
 								v-for="index in 5"
-								class="h-5 w-5 text-ink-gray-1 rounded-sm mr-2"
+								class="size-4 text-transparent rounded-sm"
 								:class="
 									index <= Math.ceil(review.rating)
-										? 'fill-orange-500'
-										: 'fill-gray-600'
+										? 'fill-yellow-500'
+										: 'fill-gray-300'
 								"
 							/>
 						</div>

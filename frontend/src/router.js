@@ -134,8 +134,8 @@ const routes = [
 	},
 	{
 		path: '/job-opening/:jobName/edit',
-		name: 'JobCreation',
-		component: () => import('@/pages/JobCreation.vue'),
+		name: 'JobForm',
+		component: () => import('@/pages/JobForm.vue'),
 		props: true,
 	},
 	{
@@ -200,12 +200,6 @@ const routes = [
 		component: () => import('@/pages/Assignments.vue'),
 	},
 	{
-		path: '/assignments/:assignmentID',
-		name: 'AssignmentForm',
-		component: () => import('@/pages/AssignmentForm.vue'),
-		props: true,
-	},
-	{
 		path: '/assignment-submission/:assignmentID/:submissionName',
 		name: 'AssignmentSubmission',
 		component: () => import('@/pages/AssignmentSubmission.vue'),
@@ -215,6 +209,11 @@ const routes = [
 		path: '/assignment-submissions',
 		name: 'AssignmentSubmissionList',
 		component: () => import('@/pages/AssignmentSubmissionList.vue'),
+	},
+	{
+		path: '/persona',
+		name: 'PersonaForm',
+		component: () => import('@/pages/PersonaForm.vue'),
 	},
 ]
 

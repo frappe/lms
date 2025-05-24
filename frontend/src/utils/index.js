@@ -1,9 +1,10 @@
-import { toast } from 'frappe-ui'
 import { useTimeAgo } from '@vueuse/core'
 import { Quiz } from '@/utils/quiz'
 import { Assignment } from '@/utils/assignment'
 import { Upload } from '@/utils/upload'
 import { Markdown } from '@/utils/markdownParser'
+import { useSettings } from '@/stores/settings'
+import { usersStore } from '@/stores/user'
 import Header from '@editorjs/header'
 import Paragraph from '@editorjs/paragraph'
 import { CodeBox } from '@/utils/code'
@@ -14,14 +15,10 @@ import dayjs from '@/utils/dayjs'
 import Embed from '@editorjs/embed'
 import SimpleImage from '@editorjs/simple-image'
 import Table from '@editorjs/table'
-import { usersStore } from '../stores/user'
+import Plyr from 'plyr'
+import 'plyr/dist/plyr.css'
 
-export function createToast(options) {
-	toast({
-		position: 'bottom-right',
-		...options,
-	})
-}
+const readOnlyMode = window.read_only_mode
 
 export function timeAgo(date) {
 	return useTimeAgo(date).value
@@ -91,26 +88,6 @@ export function getFileSize(file_size) {
 		return (value / 1024).toFixed(2) + 'K'
 	}
 	return value
-}
-
-export function showToast(title, text, icon, iconClasses = null) {
-	if (!iconClasses) {
-		if (icon == 'check') {
-			iconClasses = 'bg-surface-green-3 text-ink-white rounded-md p-px'
-		} else if (icon == 'alert-circle') {
-			iconClasses = 'bg-yellow-600 text-ink-white rounded-md p-px'
-		} else {
-			iconClasses = 'bg-surface-red-5 text-ink-white rounded-md p-px'
-		}
-	}
-	createToast({
-		title: title,
-		text: htmlToText(text),
-		icon: icon,
-		iconClasses: iconClasses,
-		position: icon == 'check' ? 'bottom-right' : 'top-center',
-		timeout: 5,
-	})
 }
 
 export function getImgDimensions(imgSrc) {
@@ -199,78 +176,50 @@ export function getEditorTools() {
 				services: {
 					youtube: {
 						regex: /(?:https?:\/\/)?(?:www\.)?(?:(?:youtu\.be\/)|(?:youtube\.com)\/(?:v\/|u\/\w\/|embed\/|watch))(?:(?:\?v=)?([^#&?=]*))?((?:[?&]\w*=\w*)*)/,
-						embedUrl:
-							'https://www.youtube.com/embed/<%= remote_id %>',
-						html: '<iframe style="width:100%; height: 30rem;" frameborder="0" allowfullscreen></iframe>',
-						height: 320,
-						width: 580,
-						id: ([id, params]) => {
-							if (!params && id) {
-								return id
-							}
-
-							const paramsMap = {
-								start: 'start',
-								end: 'end',
-								t: 'start',
-								// eslint-disable-next-line camelcase
-								time_continue: 'start',
-								list: 'list',
-							}
-
-							let newParams = params
-								.slice(1)
-								.split('&')
-								.map((param) => {
-									const [name, value] = param.split('=')
-
-									if (!id && name === 'v') {
-										id = value
-
-										return null
-									}
-
-									if (!paramsMap[name]) {
-										return null
-									}
-
-									if (
-										value === 'LL' ||
-										value.startsWith('RDMM') ||
-										value.startsWith('FL')
-									) {
-										return null
-									}
-
-									return `${paramsMap[name]}=${value}`
-								})
-								.filter((param) => !!param)
-
-							return id + '?' + newParams.join('&')
-						},
+						embedUrl: '<%= remote_id %>',
+						/* 'https://www.youtube.com/embed/<%= remote_id %>?origin=https://plyr.io&amp;iv_load_policy=3&amp;modestbranding=1&amp;playsinline=1&amp;showinfo=0&amp;rel=0&amp;enablejsapi=1' */
+						html: `<div class="video-player" data-plyr-provider="youtube"></div>`,
+						id: ([id]) => id,
 					},
-					vimeo: true,
+					vimeo: {
+						regex: /(?:http[s]?:\/\/)?(?:www\.)?vimeo\.com\/(\d+)/,
+						embedUrl: '<%= remote_id %>',
+						html: `<div class="video-player" data-plyr-provider="vimeo"></div>`,
+						id: ([id]) => id,
+					},
+					cloudflareStream: {
+						regex: /https:\/\/customer-[a-z0-9]+\.cloudflarestream\.com\/([a-f0-9]{32})\/watch/,
+						embedUrl:
+							'https://iframe.videodelivery.net/<%= remote_id %>',
+						html: `<iframe style="width:100%; height: ${
+							window.innerWidth < 640 ? '15rem' : '30rem'
+						};" frameborder="0" allowfullscreen></iframe>`,
+					},
 					codepen: true,
 					aparat: {
 						regex: /(?:http[s]?:\/\/)?(?:www.)?aparat\.com\/v\/([^\/\?\&]+)\/?/,
 						embedUrl:
 							'https://www.aparat.com/video/video/embed/videohash/<%= remote_id %>/vt/frame',
-						html: '<iframe style="margin: 0 auto; width: 100%; height: 25rem;" frameborder="0" scrolling="no" allowtransparency="true"></iframe>',
-						height: 300,
-						width: 600,
+						html: `<iframe style="margin: 0 auto; width: 100%; height: ${
+							window.innerWidth < 640 ? '15rem' : '30rem'
+						};" frameborder="0" scrolling="no" allowtransparency="true"></iframe>`,
 					},
 					github: true,
 					slides: {
 						regex: /https:\/\/docs\.google\.com\/presentation\/d\/([A-Za-z0-9_-]+)\/pub/,
 						embedUrl:
 							'https://docs.google.com/presentation/d/<%= remote_id %>/embed',
-						html: "<iframe style='width: 100%; height: 30rem; border: 1px solid #D3D3D3; border-radius: 12px; margin: 1rem 0' frameborder='0' allowfullscreen='true'></iframe>",
+						html: `<iframe style='width: 100%; height: ${
+							window.innerWidth < 640 ? '15rem' : '30rem'
+						}; border: 1px solid #D3D3D3; border-radius: 12px; margin: 1rem 0' frameborder='0' allowfullscreen='true'></iframe>`,
 					},
 					drive: {
 						regex: /https:\/\/drive\.google\.com\/file\/d\/([A-Za-z0-9_-]+)\/view(\?.+)?/,
 						embedUrl:
 							'https://drive.google.com/file/d/<%= remote_id %>/preview',
-						html: "<iframe style='width: 100%; height: 25rem; border: 1px solid #D3D3D3; border-radius: 12px;' frameborder='0' allowfullscreen='true'></iframe>",
+						html: `<iframe style='width: 100%; height: ${
+							window.innerWidth < 640 ? '15rem' : '30rem'
+						}; border: 1px solid #D3D3D3; border-radius: 12px;' frameborder='0' allowfullscreen='true'></iframe>`,
 					},
 					docsPublic: {
 						regex: /https:\/\/docs\.google\.com\/document\/d\/([A-Za-z0-9_-]+)\/edit(\?.+)?/,
@@ -479,7 +428,7 @@ export function getSidebarLinks() {
 			activeFor: ['Batches', 'BatchDetail', 'Batch', 'BatchForm'],
 		},
 		{
-			label: 'Certified Participants',
+			label: 'Certified Members',
 			icon: 'GraduationCap',
 			to: 'CertifiedParticipants',
 			activeFor: ['CertifiedParticipants'],
@@ -571,5 +520,65 @@ export const escapeHTML = (text) => {
 
 export const canCreateCourse = () => {
 	const { userResource } = usersStore()
-	return userResource.data?.is_instructor || userResource.data?.is_moderator
+	return (
+		!readOnlyMode &&
+		(userResource.data?.is_instructor || userResource.data?.is_moderator)
+	)
+}
+
+export const enablePlyr = () => {
+	setTimeout(() => {
+		const videoElement = document.getElementsByClassName('video-player')
+		if (videoElement.length === 0) return
+
+		Array.from(videoElement).forEach((video) => {
+			const src = video.getAttribute('src')
+			if (src) {
+				let videoID = src.split('/').pop()
+				video.setAttribute('data-plyr-embed-id', videoID)
+			}
+			new Plyr(video, {
+				youtube: {
+					noCookie: true,
+				},
+				controls: [
+					'play-large',
+					'play',
+					'progress',
+					'current-time',
+					'mute',
+					'volume',
+					'fullscreen',
+				],
+			})
+		}, 500)
+	})
+}
+
+export const openSettings = (category, close) => {
+	const settingsStore = useSettings()
+	close()
+	settingsStore.activeTab = category
+	settingsStore.isSettingsOpen = true
+}
+
+export const cleanError = (message) => {
+	// Remove HTML tags but keep the text within the tags
+
+	const cleanMessage = message.replace(/<[^>]+>/g, (match) => {
+		return match.replace(/<\/?[^>]+(>|$)/g, '')
+	})
+	return cleanMessage
+		.replace(/&nbsp;/g, ' ')
+		.replace(/&lt;/g, '<')
+		.replace(/&gt;/g, '>')
+		.replace(/&quot;/g, '"')
+		.replace(/&#39;/g, "'")
+		.replace(/&amp;/g, '&')
+		.replace(/&#x60;/g, '`')
+		.replace(/&#x3D;/g, '=')
+		.replace(/&#x2F;/g, '/')
+		.replace(/&#x2C;/g, ',')
+		.replace(/&#x3B;/g, ';')
+		.replace(/&#x3A;/g, ':')
 }

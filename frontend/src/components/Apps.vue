@@ -3,7 +3,7 @@
 		<template #target="{ togglePopover }">
 			<button
 				:class="[
-					'group w-full flex h-7 items-center justify-between rounded px-2 text-base text-ink-gray-8 hover:bg-surface-gray-2',
+					'group w-full flex h-7 items-center justify-between rounded px-2 text-base text-ink-gray-7 hover:bg-surface-gray-2',
 				]"
 				@click.prevent="togglePopover()"
 			>

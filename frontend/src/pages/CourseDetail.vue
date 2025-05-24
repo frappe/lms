@@ -20,7 +20,7 @@
 							:text="__('Average Rating')"
 							class="flex items-center"
 						>
-							<Star class="h-5 w-5 text-gray-100 fill-orange-500" />
+							<Star class="size-4 text-transparent fill-yellow-500" />
 							<span class="ml-1 text-ink-gray-7">
 								{{ course.data.rating }}
 							</span>
@@ -56,7 +56,7 @@
 							<CourseInstructors :instructors="course.data.instructors" />
 						</div>
 					</div>
-					<div v-if="course.data.tags" class="flex mt-4 w-fit">
+					<div v-if="course.data.tags" class="flex my-4 w-fit">
 						<Badge
 							theme="gray"
 							size="lg"
@@ -69,7 +69,7 @@
 					<CourseCardOverlay :course="course" class="md:hidden mb-4" />
 					<div
 						v-html="course.data.description"
-						class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-4"
+						class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-10"
 					></div>
 					<div class="mt-10">
 						<CourseOutline

@@ -42,10 +42,11 @@
 					<div class="grid grid-cols-2 gap-2">
 						<div v-for="slot in slots.data">
 							<div
-								class="text-base text-center border rounded-md bg-surface-gray-3 p-2 cursor-pointer"
+								class="text-base text-center border rounded-md text-ink-gray-8 bg-surface-gray-3 p-2 cursor-pointer"
 								@click="saveSlot(slot)"
 								:class="{
-									'border-gray-900': evaluation.start_time == slot.start_time,
+									'border-outline-gray-4':
+										evaluation.start_time == slot.start_time,
 								}"
 							>
 								{{ formatTime(slot.start_time) }} -
@@ -65,9 +66,9 @@
 	</Dialog>
 </template>
 <script setup>
-import { Dialog, createResource, Select, FormControl } from 'frappe-ui'
+import { Dialog, createResource, Select, FormControl, toast } from 'frappe-ui'
 import { reactive, watch, inject } from 'vue'
-import { createToast, formatTime } from '@/utils/'
+import { formatTime } from '@/utils/'
 
 const user = inject('$user')
 const dayjs = inject('$dayjs')
@@ -89,7 +90,7 @@ const props = defineProps({
 	},
 })
 
-let evaluation = reactive({
+const evaluation = reactive({
 	course: '',
 	date: '',
 	start_time: '',
@@ -138,7 +139,7 @@ function submitEvaluation(close) {
 			close()
 		},
 		onError(err) {
-			let message = err.messages?.[0] || err
+			const message = err.messages?.[0] || err
 			let unavailabilityMessage
 
 			if (typeof message === 'string') {
@@ -147,20 +148,13 @@ function submitEvaluation(close) {
 				unavailabilityMessage = false
 			}
 
-			createToast({
-				title: unavailabilityMessage ? __('Evaluator is Unavailable') : '',
-				text: message,
-				icon: unavailabilityMessage ? 'alert-circle' : 'x',
-				iconClasses: 'bg-yellow-600 text-ink-white rounded-md p-px',
-				position: 'top-center',
-				timeout: 10,
-			})
+			toast.warning(__(unavailabilityMessage || 'Evaluator is unavailable'))
 		},
 	})
 }
 
 const getCourses = () => {
-	let courses = []
+	const courses = []
 	for (const course of props.courses) {
 		if (course.evaluator) {
 			courses.push({
@@ -170,7 +164,7 @@ const getCourses = () => {
 		}
 	}
 
-	if (courses.length == 1) {
+	if (courses.length === 1) {
 		evaluation.course = courses[0].value
 	}
 

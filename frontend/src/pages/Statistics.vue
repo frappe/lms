@@ -7,109 +7,125 @@
 		</header>
 		<div v-if="chartDetails.data" class="p-5">
 			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-				<div
-					class="flex items-center border py-2 px-3 rounded-md text-ink-gray-7"
-				>
-					<div class="p-2 rounded-md bg-surface-gray-2 mr-3">
-						<BookOpen class="w-18 h-18 stroke-1.5" />
-					</div>
-					<div>
-						<div class="text-xl font-semibold mb-1">
-							{{ formatNumber(chartDetails.data.courses) }}
-						</div>
-						<div>
-							{{ __('Courses') }}
-						</div>
-					</div>
-				</div>
-				<div
-					class="flex items-center border py-2 px-3 rounded-md text-ink-gray-7"
-				>
-					<div class="p-2 rounded-md bg-surface-gray-2 mr-3">
-						<LogIn class="w-18 h-18 stroke-1.5" />
-					</div>
-					<div>
-						<div class="text-xl font-semibold mb-1">
-							{{ formatNumber(chartDetails.data.users) }}
-						</div>
-						<div>
-							{{ __('Signups') }}
-						</div>
-					</div>
-				</div>
-				<div
-					class="flex items-center border py-2 px-3 rounded-md text-ink-gray-7"
-				>
-					<div class="p-2 rounded-md bg-surface-gray-2 mr-3">
-						<BookOpenCheck class="w-18 h-18 stroke-1.5" />
-					</div>
-					<div>
-						<div class="text-xl font-semibold mb-1">
-							{{ formatNumber(chartDetails.data.enrollments) }}
-						</div>
-						<div>
-							{{ __('Enrollments') }}
-						</div>
-					</div>
-				</div>
-				<div
-					class="flex items-center border py-2 px-3 rounded-md text-ink-gray-7"
-				>
-					<div class="p-2 rounded-md bg-surface-gray-2 mr-3">
-						<FileCheck class="w-18 h-18 stroke-1.5" />
-					</div>
-					<div>
-						<div class="text-xl font-semibold mb-1">
-							{{ formatNumber(chartDetails.data.completions) }}
-						</div>
-						<div>
-							{{ __('Completions') }}
-						</div>
-					</div>
-				</div>
-				<div
-					class="flex items-center border py-2 px-3 rounded-md text-ink-gray-7"
-				>
-					<div class="p-2 rounded-md bg-surface-gray-2 mr-3">
-						<FileCheck2 class="w-18 h-18 stroke-1.5" />
-					</div>
-					<div>
-						<div class="text-xl font-semibold mb-1">
-							{{ formatNumber(chartDetails.data.lesson_completions) }}
-						</div>
-						<div class="text-ink-gray-7">
-							{{ __('Milestones') }}
-						</div>
-					</div>
-				</div>
+				<Tooltip :text="__('Published Courses')">
+					<NumberChart
+						class="border rounded-md"
+						:config="{ title: 'Courses', value: chartDetails.data.courses }"
+					/>
+				</Tooltip>
+				<Tooltip :text="__('Active Members')">
+					<NumberChart
+						class="border rounded-md"
+						:config="{ title: 'Signups', value: chartDetails.data.users }"
+					/>
+				</Tooltip>
+				<Tooltip :text="__('Course Enrollments')">
+					<NumberChart
+						class="border rounded-md"
+						:config="{
+							title: 'Enrollments',
+							value: chartDetails.data.enrollments,
+						}"
+					/>
+				</Tooltip>
+				<Tooltip :text="__('Course Completions')">
+					<NumberChart
+						class="border rounded-md"
+						:config="{
+							title: 'Completions',
+							value: chartDetails.data.completions,
+						}"
+					/>
+				</Tooltip>
+				<Tooltip :text="__('Certified Members')">
+					<NumberChart
+						class="border rounded-md"
+						:config="{
+							title: 'Certifications',
+							value: chartDetails.data.certifications,
+						}"
+					/>
+				</Tooltip>
 			</div>
 			<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
-				<div class="border rounded-md p-5 min-h-72">
-					<Line
+				<div class="border rounded-md min-h-72">
+					<AxisChart
 						v-if="signupsChart.data"
-						:data="signupsChart.data"
-						:options="signupChartOptions()"
+						:config="{
+							data: signupsChart.data,
+							title: 'Signups',
+							subtitle: 'Signups per month',
+							xAxis: {
+								key: 'date',
+								type: 'time',
+								title: 'Date',
+								timeGrain: 'day',
+							},
+							yAxis: {
+								title: 'Signups',
+							},
+							series: [{ name: 'signups', type: 'line', showDataPoints: true }],
+						}"
 					/>
 				</div>
-				<div class="border rounded-md p-5 min-h-72">
-					<Line
+				<div class="border rounded-md min-h-72">
+					<AxisChart
 						v-if="enrollmentChart.data"
-						:data="enrollmentChart.data"
-						:options="enrollmentChartOptions()"
+						:config="{
+							data: enrollmentChart.data,
+							title: 'Enrollments',
+							subtitle: 'Enrollments per month',
+							xAxis: {
+								key: 'date',
+								type: 'time',
+								title: 'Date',
+								timeGrain: 'day',
+							},
+							yAxis: {
+								title: 'Enrollments',
+							},
+							series: [
+								{ name: 'enrollments', type: 'line', showDataPoints: true },
+							],
+						}"
 					/>
 				</div>
-				<div class="border rounded-md p-5">
-					<Line
-						v-if="lessonCompletion.data"
-						:data="lessonCompletion.data"
-						:options="lessonChartOptions()"
+				<div class="border rounded-md">
+					<AxisChart
+						v-if="certification.data"
+						:config="{
+							data: certification.data,
+							title: 'Certifications',
+							subtitle: 'Certifications per month',
+							xAxis: {
+								key: 'date',
+								type: 'time',
+								title: 'Date',
+								timeGrain: 'day',
+							},
+							yAxis: {
+								title: 'Certifications',
+							},
+							series: [
+								{
+									name: 'certifications',
+									type: 'line',
+									showDataPoints: true,
+								},
+							],
+						}"
 					/>
 				</div>
-				<div class="border rounded-md p-5">
-					<Pie
+				<div class="border rounded-md">
+					<DonutChart
 						v-if="courseCompletion.data"
-						:data="courseCompletion.data"
-						:options="courseChartOptions()"
+						:config="{
+							data: courseCompletion.data,
+							title: 'Completions',
+							subtitle: 'Course Completion',
+							categoryColumn: 'label',
+							valueColumn: 'value',
+						}"
 					/>
 				</div>
 			</div>
@@ -117,42 +133,17 @@
 	</div>
 </template>
 <script setup>
-import { createResource, Breadcrumbs, usePageMeta } from 'frappe-ui'
+import {
+	AxisChart,
+	Breadcrumbs,
+	createResource,
+	DonutChart,
+	NumberChart,
+	Tooltip,
+	usePageMeta,
+} from 'frappe-ui'
 import { computed } from 'vue'
 import { sessionStore } from '../stores/session'
-import { formatNumber } from '@/utils'
-import { Line, Pie } from 'vue-chartjs'
-import {
-	Chart as ChartJS,
-	Title,
-	Tooltip,
-	Legend,
-	LineElement,
-	CategoryScale,
-	LinearScale,
-	PointElement,
-	ArcElement,
-	Filler,
-} from 'chart.js'
-
-ChartJS.register(
-	Title,
-	Tooltip,
-	Legend,
-	LineElement,
-	CategoryScale,
-	LinearScale,
-	PointElement,
-	ArcElement,
-	Filler
-)
-import {
-	BookOpen,
-	LogIn,
-	FileCheck,
-	FileCheck2,
-	BookOpenCheck,
-} from 'lucide-vue-next'
 
 const { brand } = sessionStore()
 
@@ -175,11 +166,18 @@ const chartDetails = createResource({
 
 const signupsChart = createResource({
 	url: 'lms.lms.utils.get_chart_data',
-	cache: ['signups'],
 	params: {
 		chart_name: 'New Signups',
 	},
 	auto: true,
+	transform(data) {
+		return data.map((item) => {
+			return {
+				date: new Date(item.date),
+				signups: item.count,
+			}
+		})
+	},
 })
 
 const enrollmentChart = createResource({
@@ -189,15 +187,31 @@ const enrollmentChart = createResource({
 		chart_name: 'Course Enrollments',
 	},
 	auto: true,
+	transform(data) {
+		return data.map((item) => {
+			return {
+				date: new Date(item.date),
+				enrollments: item.count,
+			}
+		})
+	},
 })
 
-const lessonCompletion = createResource({
+const certification = createResource({
 	url: 'lms.lms.utils.get_chart_data',
-	cache: ['lessonCompletion'],
+	cache: ['certifications'],
 	params: {
-		chart_name: 'Lesson Completion',
+		chart_name: 'Certification',
 	},
 	auto: true,
+	transform(data) {
+		return data.map((item) => {
+			return {
+				date: new Date(item.date),
+				certifications: item.count,
+			}
+		})
+	},
 })
 
 const courseCompletion = createResource({
@@ -205,117 +219,6 @@ const courseCompletion = createResource({
 	auto: true,
 	cache: ['courseCompletion'],
 })
-
-const signupChartOptions = () => {
-	let options = chartOptions(false)
-	options.plugins.title.text = 'Signups'
-	options.borderColor = '#4563f0'
-	options.backgroundColor = (ctx) => {
-		const canvas = ctx.chart.ctx
-		const gradient = canvas.createLinearGradient(0, 0, 0, 160)
-		gradient.addColorStop(0, '#4563f0')
-		gradient.addColorStop(0.5, '#e8ecfe')
-		gradient.addColorStop(1, '#f6f7ff')
-
-		return gradient
-	}
-	return options
-}
-
-const enrollmentChartOptions = () => {
-	let options = chartOptions(false)
-	options.plugins.title.text = 'Enrollments'
-	options.borderColor = '#4563f0'
-	options.backgroundColor = (ctx) => {
-		const canvas = ctx.chart.ctx
-		const gradient = canvas.createLinearGradient(0, 0, 0, 160)
-		gradient.addColorStop(0, '#4563f0')
-		gradient.addColorStop(0.5, '#e8ecfe')
-		gradient.addColorStop(1, '#f6f7ff')
-
-		return gradient
-	}
-	return options
-}
-
-const lessonChartOptions = () => {
-	let options = chartOptions(false)
-	options.plugins.title.text = 'Milestones'
-	options.borderColor = '#4563f0'
-	options.backgroundColor = (ctx) => {
-		const canvas = ctx.chart.ctx
-		const gradient = canvas.createLinearGradient(0, 0, 0, 160)
-		gradient.addColorStop(0, '#B6DEC5')
-		gradient.addColorStop(0.5, '#e8ecfe')
-		gradient.addColorStop(1, '#f6f7ff')
-
-		return gradient
-	}
-	return options
-}
-
-const courseChartOptions = () => {
-	let options = chartOptions(true)
-	options.plugins.title.text = 'Completions'
-	options.backgroundColor = ['#4563f0', '#f683ae']
-	return options
-}
-
-const chartOptions = (isPie) => {
-	return {
-		responsive: true,
-		maintainAspectRatio: false,
-		fill: true,
-		borderWidth: 2,
-		pointRadius: 2,
-		pointStyle: 'cross',
-		ticks: {
-			autoSkip: true,
-			maxTicksLimit: 5,
-		},
-		plugins: {
-			legend: {
-				display: isPie ? true : false,
-			},
-			title: {
-				display: true,
-				align: 'start',
-				font: {
-					size: 14,
-					weight: '500',
-				},
-				color: '#171717',
-				padding: {
-					bottom: 20,
-				},
-			},
-			tooltip: {
-				backgroundColor: '#000',
-			},
-		},
-		scales: {
-			x: {
-				display: isPie ? false : true,
-				grid: {
-					display: false,
-				},
-				border: {
-					display: isPie ? false : true,
-				},
-			},
-			y: {
-				beginAtZero: true,
-				display: isPie ? false : true,
-				grid: {
-					display: false,
-				},
-				border: {
-					display: isPie ? false : true,
-				},
-			},
-		},
-	}
-}
 
 usePageMeta(() => {
 	return {

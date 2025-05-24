@@ -4,7 +4,7 @@
 	>
 		<Breadcrumbs :items="breadcrumbs" />
 		<router-link
-			v-if="user.data?.is_moderator"
+			v-if="canCreateBatch()"
 			:to="{
 				name: 'BatchForm',
 				params: { batchName: 'new' },
@@ -70,22 +70,8 @@
 				<BatchCard :batch="batch" />
 			</router-link>
 		</div>
-		<div
-			v-else-if="!batches.list.loading"
-			class="flex flex-col items-center justify-center text-sm text-ink-gray-5 mt-48"
-		>
-			<BookOpen class="size-10 mx-auto stroke-1 text-ink-gray-4" />
-			<div class="text-lg font-medium mb-1">
-				{{ __('No batches found') }}
-			</div>
-			<div class="leading-5 w-2/5 text-center">
-				{{
-					__(
-						'There are no batches matching the criteria. Keep an eye out, fresh learning experiences are on the way soon!'
-					)
-				}}
-			</div>
-		</div>
+		<EmptyState v-else-if="!batches.list.loading" type="Batches" />
+
 		<div
 			v-if="!batches.list.loading && batches.hasNextPage"
 			class="flex justify-center mt-5"
@@ -100,6 +86,7 @@
 import {
 	Breadcrumbs,
 	Button,
+	call,
 	createListResource,
 	FormControl,
 	Select,
@@ -107,9 +94,10 @@ import {
 	usePageMeta,
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref, watch } from 'vue'
-import { BookOpen, Plus } from 'lucide-vue-next'
+import { Plus } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import BatchCard from '@/components/BatchCard.vue'
+import EmptyState from '@/components/EmptyState.vue'
 
 const user = inject('$user')
 const dayjs = inject('$dayjs')
@@ -124,6 +112,7 @@ const filters = ref({})
 const is_student = computed(() => user.data?.is_student)
 const currentTab = ref(is_student.value ? 'All' : 'Upcoming')
 const orderBy = ref('start_date')
+const readOnlyMode = window.read_only_mode
 
 onMounted(() => {
 	setFiltersFromQuery()
@@ -298,6 +287,12 @@ const batchTabs = computed(() => {
 	}
 	return tabs
 })
+
+const canCreateBatch = () => {
+	if (readOnlyMode) return false
+	if (user.data?.is_moderator || user.data?.is_instructor) return true
+	return false
+}
 
 const breadcrumbs = computed(() => [
 	{

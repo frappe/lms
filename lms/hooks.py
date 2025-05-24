@@ -21,7 +21,7 @@ app_license = "AGPL"
 # include js, css files in header of web template
 web_include_css = "lms.bundle.css"
 # web_include_css = "/assets/lms/css/lms.css"
-web_include_js = ["website.bundle.js"]
+web_include_js = []
 
 # include custom scss in every website theme (without file extension ".scss")
 # website_theme_scss = "lms/public/scss/website"
@@ -246,7 +246,7 @@ on_login = "lms.lms.user.on_login"
 add_to_apps_screen = [
 	{
 		"name": "lms",
-		"logo": "/assets/lms/images/lms-logo.png",
+		"logo": "/assets/lms/frontend/learning.svg",
 		"title": "Learning",
 		"route": "/lms",
 		"has_permission": "lms.lms.api.check_app_permission",

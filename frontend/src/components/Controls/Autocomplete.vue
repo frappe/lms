@@ -28,9 +28,7 @@
 			</template>
 			<template #body="{ isOpen }">
 				<div v-show="isOpen">
-					<div
-						class="mt-1 rounded-lg bg-surface-white py-1 text-base shadow-2xl"
-					>
+					<div class="mt-1 rounded-lg bg-surface-white py-1 text-base border-2">
 						<div class="relative px-1.5 pt-0.5">
 							<ComboboxInput
 								ref="search"
@@ -49,7 +47,7 @@
 								class="absolute right-1.5 inline-flex h-7 w-7 items-center justify-center"
 								@click="selectedValue = null"
 							>
-								<X class="h-4 w-4 stroke-1.5" />
+								<X class="h-4 w-4 stroke-1.5 text-ink-gray-7" />
 							</button>
 						</div>
 						<ComboboxOptions
@@ -89,12 +87,15 @@
 											name="item-label"
 											v-bind="{ active, selected, option }"
 										>
-											<div class="flex flex-col space-y-1">
+											<div class="flex flex-col space-y-1 text-ink-gray-8">
 												<div>
 													{{ option.label }}
 												</div>
 												<div
-													v-if="option.description"
+													v-if="
+														option.description &&
+														option.description != option.label
+													"
 													class="text-xs text-ink-gray-7"
 													v-html="option.description"
 												></div>

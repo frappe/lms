@@ -3,7 +3,7 @@
 		<div class="text-lg font-semibold text-ink-gray-9">
 			{{ __('Live Class') }}
 		</div>
-		<Button v-if="user.data.is_moderator" @click="openLiveClassModal">
+		<Button v-if="canCreateClass()" @click="openLiveClassModal">
 			<template #prefix>
 				<Plus class="h-4 w-4" />
 			</template>
@@ -87,6 +87,7 @@ import { formatTime } from '@/utils/'
 const user = inject('$user')
 const showLiveClassModal = ref(false)
 const dayjs = inject('$dayjs')
+const readOnlyMode = window.read_only_mode
 
 const props = defineProps({
 	batch: {
@@ -115,6 +116,11 @@ const liveClasses = createListResource({
 
 const openLiveClassModal = () => {
 	showLiveClassModal.value = true
+}
+
+const canCreateClass = () => {
+	if (readOnlyMode) return false
+	return user.data?.is_moderator || user.data?.is_evaluator
 }
 </script>
 <style>

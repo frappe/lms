@@ -94,9 +94,10 @@ import {
 	Tooltip,
 	FormControl,
 	Autocomplete,
+	toast,
 } from 'frappe-ui'
 import { reactive, inject, onMounted } from 'vue'
-import { getTimezones, createToast, getUserTimezone } from '@/utils/'
+import { getTimezones, getUserTimezone } from '@/utils/'
 
 const liveClasses = defineModel('reloadLiveClasses')
 const show = defineModel()
@@ -202,14 +203,7 @@ const submitLiveClass = (close) => {
 			close()
 		},
 		onError(err) {
-			createToast({
-				title: 'Error',
-				text: err.messages?.[0] || err,
-				icon: 'x',
-				iconClasses: 'bg-surface-red-5 text-ink-white rounded-md p-px',
-				position: 'top-center',
-				timeout: 10,
-			})
+			toast.error(err.messages?.[0] || err)
 		},
 	})
 }

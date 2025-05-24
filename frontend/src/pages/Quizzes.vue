@@ -4,6 +4,7 @@
 	>
 		<Breadcrumbs :items="breadcrumbs" />
 		<router-link
+			v-if="!readOnlyMode"
 			:to="{
 				name: 'QuizForm',
 				params: {
@@ -20,6 +21,9 @@
 		</router-link>
 	</header>
 	<div v-if="quizzes.data?.length" class="md:w-3/4 md:mx-auto py-5 mx-5">
+		<div v-if="quizCount" class="text-xl font-semibold text-ink-gray-7 mb-4">
+			{{ __('{0} Quizzes').format(quizCount) }}
+		</div>
 		<ListView
 			:columns="quizColumns"
 			:rows="quizzes.data"
@@ -52,27 +56,13 @@
 			</Button>
 		</div>
 	</div>
-	<div
-		v-else
-		class="text-center p-5 text-ink-gray-5 mt-52 w-3/4 md:w-1/2 mx-auto space-y-2"
-	>
-		<BookOpen class="size-10 mx-auto stroke-1 text-ink-gray-4" />
-		<div class="text-xl font-medium">
-			{{ __('No quizzes found') }}
-		</div>
-		<div class="leading-5">
-			{{
-				__(
-					'You have not created any quizzes yet. To create a new quiz, click on the "New Quiz" button above.'
-				)
-			}}
-		</div>
-	</div>
+	<EmptyState v-else type="Quizzes" />
 </template>
 <script setup>
 import {
 	Breadcrumbs,
 	Button,
+	call,
 	createListResource,
 	ListView,
 	ListRows,
@@ -82,18 +72,22 @@ import {
 	usePageMeta,
 } from 'frappe-ui'
 import { useRouter } from 'vue-router'
-import { computed, inject, onMounted } from 'vue'
-import { BookOpen, Plus } from 'lucide-vue-next'
+import { computed, inject, onMounted, ref } from 'vue'
+import { Plus } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
+import EmptyState from '@/components/EmptyState.vue'
 
 const { brand } = sessionStore()
 const user = inject('$user')
 const router = useRouter()
+const quizCount = ref(0)
+const readOnlyMode = window.read_only_mode
 
 onMounted(() => {
 	if (!user.data?.is_moderator && !user.data?.is_instructor) {
 		router.push({ name: 'Courses' })
 	}
+	getQuizCount()
 })
 
 const quizFilter = computed(() => {
@@ -111,6 +105,14 @@ const quizzes = createListResource({
 	cache: ['quizzes', user.data?.name],
 	orderBy: 'modified desc',
 })
+
+const getQuizCount = () => {
+	call('frappe.client.get_count', {
+		doctype: 'LMS Quiz',
+	}).then((data) => {
+		quizCount.value = data
+	})
+}
 
 const quizColumns = computed(() => {
 	return [

@@ -39,7 +39,11 @@
 							{{ __('More') }}
 						</span>
 					</div>
-					<Button v-if="isModerator" variant="ghost" @click="openPageModal()">
+					<Button
+						v-if="isModerator && !readOnlyMode"
+						variant="ghost"
+						@click="openPageModal()"
+					>
 						<template #icon>
 							<Plus class="h-4 w-4 text-ink-gray-7 stroke-1.5" />
 						</template>
@@ -63,6 +67,16 @@
 			</div>
 		</div>
 		<div class="m-2 flex flex-col gap-1">
+			<div
+				v-if="readOnlyMode && !sidebarStore.isSidebarCollapsed"
+				class="z-10 m-2 bg-surface-modal py-2.5 px-3 text-xs text-ink-gray-7 leading-5 rounded-md"
+			>
+				{{
+					__(
+						'This site is being updated. You will not be able to make any changes. Full access will be restored shortly.'
+					)
+				}}
+			</div>
 			<TrialBanner
 				v-if="
 					userResource.data?.is_system_manager && userResource.data?.is_fc_site
@@ -74,43 +88,69 @@
 				:isSidebarCollapsed="sidebarStore.isSidebarCollapsed"
 				appName="learning"
 			/>
-			<SidebarLink
-				v-if="isOnboardingStepsCompleted"
-				:link="{
-					label: __('Help'),
-				}"
-				:isCollapsed="sidebarStore.isSidebarCollapsed"
-				@click="
-					() => {
-						showHelpModal = minimize ? true : !showHelpModal
-						minimize = !showHelpModal
-					}
+
+			<div
+				class="flex items-center mt-4"
+				:class="
+					sidebarStore.isSidebarCollapsed ? 'flex-col space-y-3' : 'flex-row'
 				"
 			>
-				<template #icon>
-					<span class="grid h-5 w-6 flex-shrink-0 place-items-center">
-						<CircleHelp class="h-4 w-4 stroke-1.5" />
-					</span>
-				</template>
-			</SidebarLink>
-			<SidebarLink
-				:link="{
-					label: sidebarStore.isSidebarCollapsed ? 'Expand' : 'Collapse',
-				}"
-				:isCollapsed="sidebarStore.isSidebarCollapsed"
-				@click="toggleSidebar()"
-			>
-				<template #icon>
-					<span class="grid h-5 w-6 flex-shrink-0 place-items-center">
-						<CollapseSidebar
-							class="h-4 w-4 text-ink-gray-7 duration-300 ease-in-out"
-							:class="{
-								'[transform:rotateY(180deg)]': sidebarStore.isSidebarCollapsed,
-							}"
+				<div
+					class="flex items-center flex-1"
+					:class="
+						sidebarStore.isSidebarCollapsed
+							? 'flex-col space-y-3'
+							: 'flex-row space-x-3'
+					"
+				>
+					<Tooltip v-if="readOnlyMode && sidebarStore.isSidebarCollapsed">
+						<CircleAlert
+							class="size-4 stroke-1.5 text-ink-gray-7 cursor-pointer"
 						/>
-					</span>
-				</template>
-			</SidebarLink>
+						<template #body>
+							<div
+								class="max-w-[30ch] rounded bg-surface-gray-7 px-2 py-1 text-center text-p-xs text-ink-white shadow-xl"
+							>
+								{{
+									__(
+										'This site is being updated. You will not be able to make any changes. Full access will be restored shortly.'
+									)
+								}}
+							</div>
+						</template>
+					</Tooltip>
+					<Tooltip :text="__('Powered by Learning')">
+						<Zap
+							class="size-4 stroke-1.5 text-ink-gray-7 cursor-pointer"
+							@click="redirectToWebsite()"
+						/>
+					</Tooltip>
+					<Tooltip v-if="showOnboarding" :text="__('Help')">
+						<CircleHelp
+							class="size-4 stroke-1.5 text-ink-gray-7 cursor-pointer"
+							@click="
+								() => {
+									showHelpModal = minimize ? true : !showHelpModal
+									minimize = !showHelpModal
+								}
+							"
+						/>
+					</Tooltip>
+				</div>
+				<Tooltip
+					:text="
+						sidebarStore.isSidebarCollapsed ? __('Expand') : __('Collapse')
+					"
+				>
+					<CollapseSidebar
+						class="size-4 text-ink-gray-7 duration-300 stroke-1.5 ease-in-out cursor-pointer"
+						:class="{
+							'[transform:rotateY(180deg)]': sidebarStore.isSidebarCollapsed,
+						}"
+						@click="toggleSidebar()"
+					/>
+				</Tooltip>
+			</div>
 		</div>
 		<HelpModal
 			v-if="showOnboarding && showHelpModal"
@@ -141,14 +181,13 @@
 import UserDropdown from '@/components/UserDropdown.vue'
 import CollapseSidebar from '@/components/Icons/CollapseSidebar.vue'
 import SidebarLink from '@/components/SidebarLink.vue'
-import { useStorage } from '@vueuse/core'
 import { ref, onMounted, inject, watch, reactive, markRaw, h } from 'vue'
 import { getSidebarLinks } from '../utils'
 import { usersStore } from '@/stores/user'
 import { sessionStore } from '@/stores/session'
 import { useSidebar } from '@/stores/sidebar'
 import { useSettings } from '@/stores/settings'
-import { Button, createResource } from 'frappe-ui'
+import { Button, createResource, Tooltip } from 'frappe-ui'
 import PageModal from '@/components/Modals/PageModal.vue'
 import { capture } from '@/telemetry'
 import LMSLogo from '@/components/Icons/LMSLogo.vue'
@@ -156,6 +195,7 @@ import { useRouter } from 'vue-router'
 import InviteIcon from './Icons/InviteIcon.vue'
 import {
 	BookOpen,
+	CircleAlert,
 	ChevronRight,
 	Plus,
 	CircleHelp,
@@ -164,6 +204,7 @@ import {
 	UserPlus,
 	Users,
 	BookText,
+	Zap,
 } from 'lucide-vue-next'
 import {
 	TrialBanner,
@@ -192,6 +233,7 @@ const currentStep = ref({})
 const router = useRouter()
 let onboardingDetails
 let isOnboardingStepsCompleted = false
+const readOnlyMode = window.read_only_mode
 const iconProps = {
 	strokeWidth: 1.5,
 	width: 16,
@@ -201,6 +243,7 @@ const iconProps = {
 onMounted(() => {
 	addNotifications()
 	setSidebarLinks()
+	setUpOnboarding()
 	socket.on('publish_lms_notifications', (data) => {
 		unreadNotifications.reload()
 	})
@@ -343,10 +386,6 @@ const deletePage = (link) => {
 			},
 		}
 	)
-}
-
-const getSidebarFromStorage = () => {
-	return useStorage('sidebar_is_collapsed', false)
 }
 
 const toggleSidebar = () => {
@@ -578,4 +617,8 @@ watch(userResource, () => {
 		setUpOnboarding()
 	}
 })
+
+const redirectToWebsite = () => {
+	window.open('https://frappe.io/learning', '_blank')
+}
 </script>

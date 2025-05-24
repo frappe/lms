@@ -1,12 +1,13 @@
 <template>
-	<Layout>
-		<router-view />
-	</Layout>
-	<Dialogs />
-	<Toasts />
+	<FrappeUIProvider>
+		<Layout>
+			<router-view />
+		</Layout>
+		<Dialogs />
+	</FrappeUIProvider>
 </template>
 <script setup>
-import { Toasts } from 'frappe-ui'
+import { FrappeUIProvider } from 'frappe-ui'
 import { Dialogs } from '@/utils/dialogs'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useScreenSize } from './utils/composables'
@@ -24,7 +25,7 @@ const router = useRouter()
 const noSidebar = ref(false)
 
 router.beforeEach((to, from, next) => {
-	if (to.query.fromLesson) {
+	if (to.query.fromLesson || to.path === '/persona') {
 		noSidebar.value = true
 	} else {
 		noSidebar.value = false
@@ -38,9 +39,9 @@ const Layout = computed(() => {
 	}
 	if (screenSize.width < 640) {
 		return MobileLayout
-	} else {
-		return DesktopLayout
 	}
+
+	return DesktopLayout
 })
 
 onMounted(async () => {

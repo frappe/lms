@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div class="flex min-h-0 flex-col text-base">
 		<div class="flex items-center justify-between mb-4">
 			<div>
 				<div class="text-xl font-semibold mb-1 text-ink-gray-9">
@@ -17,10 +17,11 @@
 					:debounce="300"
 				/>
 				<Button @click="() => (showForm = !showForm)">
-					<template #icon>
-						<Plus v-if="!showForm" class="h-3 w-3 stroke-1.5" />
-						<X v-else class="h-3 w-3 stroke-1.5" />
+					<template #prefix>
+						<Plus v-if="!showForm" class="size-4 stroke-1.5" />
+						<X v-else class="size-4 stroke-1.5" />
 					</template>
+					{{ showForm ? __('Close') : __('New') }}
 				</Button>
 			</div>
 		</div>
@@ -38,25 +39,27 @@
 			</Button>
 		</div>
 
-		<div class="divide-y">
-			<div
-				v-for="evaluator in evaluators.data"
-				@click="openProfile(evaluator.username)"
-				class="cursor-pointer"
-			>
-				<div class="flex items-center justify-between py-3">
-					<div class="flex items-center space-x-3">
-						<Avatar
-							:image="evaluator.user_image"
-							:label="evaluator.full_name"
-							size="lg"
-						/>
-						<div>
-							<div class="text-base font-semibold text-ink-gray-9">
-								{{ evaluator.full_name }}
-							</div>
-							<div class="text-xs text-ink-gray-5">
-								{{ evaluator.evaluator }}
+		<div class="overflow-y-scroll">
+			<div class="divide-y">
+				<div
+					v-for="evaluator in evaluators.data"
+					@click="openProfile(evaluator.username)"
+					class="cursor-pointer"
+				>
+					<div class="flex items-center justify-between py-3">
+						<div class="flex items-center space-x-3">
+							<Avatar
+								:image="evaluator.user_image"
+								:label="evaluator.full_name"
+								size="lg"
+							/>
+							<div>
+								<div class="text-base font-semibold text-ink-gray-9">
+									{{ evaluator.full_name }}
+								</div>
+								<div class="text-xs text-ink-gray-5">
+									{{ evaluator.evaluator }}
+								</div>
 							</div>
 						</div>
 					</div>
@@ -97,7 +100,7 @@ const evaluators = createResource({
 		return {
 			doctype: 'Course Evaluator',
 			fields: ['evaluator', 'full_name', 'user_image', 'username'],
-			filters: search.value ? [['evaluator', 'like', search.value]] : [],
+			filters: search.value ? { evaluator: ['like', `%${search.value}%`] } : {},
 		}
 	},
 	auto: true,

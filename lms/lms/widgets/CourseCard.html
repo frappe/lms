@@ -81,7 +81,7 @@
         <div class="course-card-footer">
 
             <div class="course-card-instructors">
-                {% set instructors = get_instructors(course.name) %}
+                {% set instructors = get_instructors("LMS Course", course.name) %}
                 {% set ins_len = instructors | length %}
                 {% for instructor in instructors %}
                 {% if ins_len > 1 and loop.index == 1 %}
@@ -128,7 +128,7 @@
 				<a class="stretched-link" href="{{ get_lesson_url(course.name, lesson_index) }}{{ query_parameter }}"></a>
 
 			{% else %}
-				<a class="stretched-link" href="/courses/{{ course.name }}"></a>
+				<a class="stretched-link" href="/lms/courses/{{ course.name }}"></a>
             {% endif %}
         {% endif %}
     </div>

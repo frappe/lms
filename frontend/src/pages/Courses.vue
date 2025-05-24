@@ -57,7 +57,7 @@
 		</div>
 		<div
 			v-if="courses.data?.length"
-			class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-5"
+			class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4"
 		>
 			<router-link
 				v-for="course in courses.data"
@@ -66,22 +66,7 @@
 				<CourseCard :course="course" />
 			</router-link>
 		</div>
-		<div
-			v-else-if="!courses.list.loading"
-			class="flex flex-col items-center justify-center text-sm text-ink-gray-5 italic mt-48"
-		>
-			<BookOpen class="size-10 mx-auto stroke-1 text-ink-gray-4" />
-			<div class="text-lg font-medium mb-1">
-				{{ __('No courses found') }}
-			</div>
-			<div class="leading-5 w-2/5 text-center">
-				{{
-					__(
-						'There are no courses matching the criteria. Keep an eye out, fresh learning experiences are on the way soon!'
-					)
-				}}
-			</div>
-		</div>
+		<EmptyState v-else-if="!courses.list.loading" type="Courses" />
 		<div
 			v-if="!courses.list.loading && courses.hasNextPage"
 			class="flex justify-center mt-5"
@@ -96,6 +81,7 @@
 import {
 	Breadcrumbs,
 	Button,
+	call,
 	createListResource,
 	FormControl,
 	Select,
@@ -103,10 +89,12 @@ import {
 	usePageMeta,
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref, watch } from 'vue'
-import { BookOpen, Plus } from 'lucide-vue-next'
+import { Plus } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { canCreateCourse } from '@/utils'
 import CourseCard from '@/components/CourseCard.vue'
+import EmptyState from '@/components/EmptyState.vue'
+import router from '../router'
 
 const user = inject('$user')
 const dayjs = inject('$dayjs')
@@ -119,10 +107,12 @@ const certification = ref(false)
 const filters = ref({})
 const currentTab = ref('Live')
 const { brand } = sessionStore()
+const courseCount = ref(0)
 
 onMounted(() => {
 	setFiltersFromQuery()
 	updateCourses()
+	getCourseCount()
 	categories.value = [
 		{
 			label: '',
@@ -145,15 +135,50 @@ const courses = createListResource({
 	pageLength: pageLength.value,
 	start: start.value,
 	onSuccess(data) {
-		let allCategories = data.map((course) => course.category)
-		allCategories = allCategories.filter(
-			(category, index) => allCategories.indexOf(category) === index && category
-		)
-		if (categories.value.length <= allCategories.length) {
-			updateCategories(data)
-		}
+		setCategories(data)
 	},
 })
+
+const setCategories = (data) => {
+	let allCategories = data.map((course) => course.category)
+	allCategories = allCategories.filter(
+		(category, index) => allCategories.indexOf(category) === index && category
+	)
+	if (categories.value.length <= allCategories.length) {
+		updateCategories(data)
+	}
+}
+
+const isPersonaCaptured = async () => {
+	let persona = await call('frappe.client.get_single_value', {
+		doctype: 'LMS Settings',
+		field: 'persona_captured',
+	})
+	return persona
+}
+
+const identifyUserPersona = async () => {
+	if (user.data?.is_system_manager && !user.data?.developer_mode) {
+		let personaCaptured = await isPersonaCaptured()
+		if (personaCaptured) return
+		if (!courseCount.value) {
+			router.push({
+				name: 'PersonaForm',
+			})
+		}
+	}
+}
+
+const getCourseCount = () => {
+	if (!user.data) return
+
+	call('frappe.client.get_count', {
+		doctype: 'LMS Course',
+	}).then((data) => {
+		courseCount.value = data
+		identifyUserPersona()
+	})
+}
 
 const updateCourses = () => {
 	updateFilters()

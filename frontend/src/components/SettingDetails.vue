@@ -27,9 +27,8 @@
 </template>
 
 <script setup>
-import { Button, Badge } from 'frappe-ui'
+import { Button, Badge, toast } from 'frappe-ui'
 import SettingFields from '@/components/SettingFields.vue'
-import { showToast } from '@/utils'
 
 const props = defineProps({
 	fields: {
@@ -51,7 +50,9 @@ const props = defineProps({
 
 const update = () => {
 	props.fields.forEach((f) => {
-		if (f.type != 'Column Break') {
+		if (f.type == 'Upload') {
+			props.data.doc[f.name] = f.value ? f.value.file_url : null
+		} else if (f.type != 'Column Break') {
 			props.data.doc[f.name] = f.value
 		}
 	})
@@ -59,7 +60,7 @@ const update = () => {
 		{},
 		{
 			onError(err) {
-				showToast(__('Error'), err.messages?.[0] || err, 'x')
+				toast.error(err.messages?.[0] || err)
 			},
 		}
 	)
