@@ -15,7 +15,6 @@ import DesktopLayout from './components/DesktopLayout.vue'
 import MobileLayout from './components/MobileLayout.vue'
 import NoSidebarLayout from './components/NoSidebarLayout.vue'
 import { stopSession } from '@/telemetry'
-import { init as initTelemetry } from '@/telemetry'
 import { usersStore } from '@/stores/user'
 import { useRouter } from 'vue-router'
 
@@ -42,10 +41,6 @@ const Layout = computed(() => {
 	}
 
 	return DesktopLayout
-})
-
-onMounted(async () => {
-	if (userResource.data) await initTelemetry()
 })
 
 onUnmounted(() => {
