@@ -561,3 +561,24 @@ export const openSettings = (category, close) => {
 	settingsStore.activeTab = category
 	settingsStore.isSettingsOpen = true
 }
+
+export const cleanError = (message) => {
+	// Remove HTML tags but keep the text within the tags
+
+	const cleanMessage = message.replace(/<[^>]+>/g, (match) => {
+		return match.replace(/<\/?[^>]+(>|$)/g, '')
+	})
+	return cleanMessage
+		.replace(/&nbsp;/g, ' ')
+		.replace(/&lt;/g, '<')
+		.replace(/&gt;/g, '>')
+		.replace(/&quot;/g, '"')
+		.replace(/&#39;/g, "'")
+		.replace(/&amp;/g, '&')
+		.replace(/&#x60;/g, '`')
+		.replace(/&#x3D;/g, '=')
+		.replace(/&#x2F;/g, '/')
+		.replace(/&#x2C;/g, ',')
+		.replace(/&#x3B;/g, ';')
+		.replace(/&#x3A;/g, ':')
+}

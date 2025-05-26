@@ -6,7 +6,7 @@
 		}"
 	>
 		<template #body>
-			<div class="p-5 text-base max-h-[75vh] overflow-y-auto">
+			<div class="p-5 text-base">
 				<div class="text-lg text-ink-gray-9 font-semibold mb-5">
 					{{
 						assignmentID === 'new'
@@ -14,7 +14,7 @@
 							: __('Edit Assignment')
 					}}
 				</div>
-				<div class="space-y-4">
+				<div class="space-y-4 max-h-[75vh] overflow-y-auto">
 					<FormControl
 						v-model="assignment.title"
 						:label="__('Title')"

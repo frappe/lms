@@ -20,7 +20,7 @@
 							:text="__('Average Rating')"
 							class="flex items-center"
 						>
-							<Star class="h-5 w-5 text-gray-100 fill-orange-500" />
+							<Star class="size-4 text-transparent fill-yellow-500" />
 							<span class="ml-1 text-ink-gray-7">
 								{{ course.data.rating }}
 							</span>

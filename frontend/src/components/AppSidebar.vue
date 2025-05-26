@@ -181,7 +181,6 @@
 import UserDropdown from '@/components/UserDropdown.vue'
 import CollapseSidebar from '@/components/Icons/CollapseSidebar.vue'
 import SidebarLink from '@/components/SidebarLink.vue'
-import { useStorage } from '@vueuse/core'
 import { ref, onMounted, inject, watch, reactive, markRaw, h } from 'vue'
 import { getSidebarLinks } from '../utils'
 import { usersStore } from '@/stores/user'
@@ -244,6 +243,7 @@ const iconProps = {
 onMounted(() => {
 	addNotifications()
 	setSidebarLinks()
+	setUpOnboarding()
 	socket.on('publish_lms_notifications', (data) => {
 		unreadNotifications.reload()
 	})
@@ -388,10 +388,6 @@ const deletePage = (link) => {
 	)
 }
 
-const getSidebarFromStorage = () => {
-	return useStorage('sidebar_is_collapsed', false)
-}
-
 const toggleSidebar = () => {
 	sidebarStore.isSidebarCollapsed = !sidebarStore.isSidebarCollapsed
 	localStorage.setItem(
@@ -438,6 +434,7 @@ const steps = reactive([
 		title: __('Add your first chapter'),
 		icon: markRaw(h(FolderTree, iconProps)),
 		completed: false,
+		dependsOn: 'create_first_course',
 		onClick: async () => {
 			minimize.value = true
 			let course = await getFirstCourse()
@@ -453,6 +450,7 @@ const steps = reactive([
 		title: __('Add your first lesson'),
 		icon: markRaw(h(FileText, iconProps)),
 		completed: false,
+		dependsOn: 'create_first_chapter',
 		onClick: async () => {
 			minimize.value = true
 			let course = await getFirstCourse()
@@ -471,6 +469,7 @@ const steps = reactive([
 		title: __('Create your first quiz'),
 		icon: markRaw(h(CircleHelp, iconProps)),
 		completed: false,
+		dependsOn: 'create_first_course',
 		onClick: () => {
 			minimize.value = true
 			router.push({ name: 'Quizzes' })
@@ -502,6 +501,7 @@ const steps = reactive([
 		title: __('Add students to your batch'),
 		icon: markRaw(h(UserPlus, iconProps)),
 		completed: false,
+		dependsOn: 'create_first_batch',
 		onClick: async () => {
 			minimize.value = true
 			let batch = await getFirstBatch()
@@ -522,6 +522,7 @@ const steps = reactive([
 		title: __('Add courses to your batch'),
 		icon: markRaw(h(BookText, iconProps)),
 		completed: false,
+		dependsOn: 'create_first_batch',
 		onClick: async () => {
 			minimize.value = true
 			let batch = await getFirstBatch()
