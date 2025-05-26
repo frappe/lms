@@ -88,56 +88,61 @@
 									:scrollToBottom="false"
 								/>
 							</div>
-							<div v-else-if="tab.label == 'Feedback'">
-								<BatchFeedback :batch="batch.data.name" />
-							</div>
 						</div>
 					</template>
 				</Tabs>
 			</div>
 			<div class="p-5">
-				<div class="text-ink-gray-7 font-semibold mb-4">
-					{{ __('About this batch') }}:
-				</div>
-				<div
-					v-html="batch.data.description"
-					class="leading-5 mb-4 text-ink-gray-7"
-				></div>
-
-				<div class="flex items-center avatar-group overlap mb-5">
-					<div
-						class="h-6 mr-1"
-						:class="{
-							'avatar-group overlap': batch.data.instructors.length > 1,
-						}"
-					>
-						<UserAvatar
-							v-for="instructor in batch.data.instructors"
-							:user="instructor"
-						/>
+				<div class="mb-10">
+					<div class="text-ink-gray-7 font-semibold mb-2">
+						{{ __('About this batch') }}
 					</div>
-					<CourseInstructors :instructors="batch.data.instructors" />
+					<div
+						v-html="batch.data.description"
+						class="leading-5 mb-4 text-ink-gray-7"
+					></div>
+
+					<div class="flex items-center avatar-group overlap mb-5">
+						<div
+							class="h-6 mr-1"
+							:class="{
+								'avatar-group overlap': batch.data.instructors.length > 1,
+							}"
+						>
+							<UserAvatar
+								v-for="instructor in batch.data.instructors"
+								:user="instructor"
+							/>
+						</div>
+						<CourseInstructors :instructors="batch.data.instructors" />
+					</div>
+					<DateRange
+						:startDate="batch.data.start_date"
+						:endDate="batch.data.end_date"
+						class="mb-3"
+					/>
+					<div class="flex items-center mb-4 text-ink-gray-7">
+						<Clock class="h-4 w-4 stroke-1.5 mr-2" />
+						<span>
+							{{ formatTime(batch.data.start_time) }} -
+							{{ formatTime(batch.data.end_time) }}
+						</span>
+					</div>
+					<div
+						v-if="batch.data.timezone"
+						class="flex items-center mb-4 text-ink-gray-7"
+					>
+						<Globe class="h-4 w-4 stroke-1.5 mr-2" />
+						<span>
+							{{ batch.data.timezone }}
+						</span>
+					</div>
 				</div>
-				<DateRange
-					:startDate="batch.data.start_date"
-					:endDate="batch.data.end_date"
-					class="mb-3"
-				/>
-				<div class="flex items-center mb-4 text-ink-gray-7">
-					<Clock class="h-4 w-4 stroke-1.5 mr-2" />
-					<span>
-						{{ formatTime(batch.data.start_time) }} -
-						{{ formatTime(batch.data.end_time) }}
-					</span>
-				</div>
-				<div
-					v-if="batch.data.timezone"
-					class="flex items-center mb-4 text-ink-gray-7"
-				>
-					<Globe class="h-4 w-4 stroke-1.5 mr-2" />
-					<span>
-						{{ batch.data.timezone }}
-					</span>
+				<div v-if="dayjs().isSameOrAfter(dayjs(batch.data.start_date))">
+					<div class="text-ink-gray-7 font-semibold mb-2">
+						{{ __('Feedback') }}
+					</div>
+					<BatchFeedback :batch="batch.data?.name" />
 				</div>
 			</div>
 			<AnnouncementModal
@@ -234,6 +239,7 @@ import Discussions from '@/components/Discussions.vue'
 import DateRange from '@/components/Common/DateRange.vue'
 import BulkCertificates from '@/components/Modals/BulkCertificates.vue'
 import BatchFeedback from '@/components/BatchFeedback.vue'
+import dayjs from 'dayjs/esm'
 
 const user = inject('$user')
 const showAnnouncementModal = ref(false)
@@ -276,11 +282,6 @@ const tabs = computed(() => {
 	batchTabs.push({
 		label: 'Discussions',
 		icon: MessageCircle,
-	})
-
-	batchTabs.push({
-		label: 'Feedback',
-		icon: ClipboardPen,
 	})
 	return batchTabs
 })

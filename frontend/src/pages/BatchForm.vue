@@ -153,6 +153,11 @@
 							doctype="Email Template"
 							:label="__('Email Template')"
 							v-model="batch.confirmation_email_template"
+							:onCreate="
+								(value, close) => {
+									openSettings('Email Templates', close)
+								}
+							"
 						/>
 					</div>
 					<div class="space-y-5">

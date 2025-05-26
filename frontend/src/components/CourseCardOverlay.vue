@@ -116,7 +116,7 @@
 					v-if="parseInt(course.data.rating) > 0"
 					class="flex items-center text-ink-gray-9"
 				>
-					<Star class="h-4 w-4 stroke-1.5 fill-orange-500 text-gray-50" />
+					<Star class="size-4 stroke-1.5 fill-yellow-500 text-transparent" />
 					<span class="ml-2">
 						{{ course.data.rating }} {{ __('Rating') }}
 					</span>

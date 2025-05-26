@@ -37,14 +37,7 @@
 					<BatchOverlay :batch="batch" />
 				</div>
 			</div>
-			<!-- <div class="grid lg:grid-cols-[60%,20%] gap-4 lg:gap-20 mt-10">
-				<div class="order-2 lg:order-none">
-					
-				</div>
-				<div class="order-1 lg:order-none">
-					<BatchOverlay :batch="batch" />
-				</div>
-			</div> -->
+			<BatchOverlay :batch="batch" class="md:hidden mt-5" />
 			<div v-if="batch.data.courses.length">
 				<div class="flex items-center mt-10">
 					<div class="text-2xl font-semibold">
