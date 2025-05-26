@@ -159,6 +159,11 @@
 								}
 							"
 						/>
+						<Link
+							doctype="LMS Zoom Settings"
+							:label="__('Zoom Account')"
+							v-model="batch.zoom_account"
+						/>
 					</div>
 					<div class="space-y-5">
 						<FormControl
@@ -327,6 +332,7 @@ const batch = reactive({
 	paid_batch: false,
 	currency: '',
 	amount: 0,
+	zoom_account: '',
 })
 
 const instructors = ref([])

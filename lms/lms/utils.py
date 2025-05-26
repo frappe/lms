@@ -1391,6 +1391,7 @@ def get_batch_details(batch):
 			"certification",
 			"timezone",
 			"category",
+			"zoom_account",
 		],
 		as_dict=True,
 	)

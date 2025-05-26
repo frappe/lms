@@ -8,7 +8,7 @@
 				{
 					label: 'Submit',
 					variant: 'solid',
-					onClick: (close) => submitLiveClass(close),
+					onClick: ({ close }) => submitLiveClass(close),
 				},
 			],
 		}"
@@ -107,7 +107,11 @@ const dayjs = inject('$dayjs')
 const props = defineProps({
 	batch: {
 		type: String,
-		default: null,
+		required: true,
+	},
+	zoomAccount: {
+		type: String,
+		required: true,
 	},
 })
 
@@ -159,6 +163,7 @@ const createLiveClass = createResource({
 		return {
 			doctype: 'LMS Live Class',
 			batch_name: values.batch,
+			zoom_account: props.zoomAccount,
 			...values,
 		}
 	},
@@ -167,45 +172,50 @@ const createLiveClass = createResource({
 const submitLiveClass = (close) => {
 	return createLiveClass.submit(liveClass, {
 		validate() {
-			if (!liveClass.title) {
-				return __('Please enter a title.')
-			}
-			if (!liveClass.date) {
-				return __('Please select a date.')
-			}
-			if (!liveClass.time) {
-				return __('Please select a time.')
-			}
-			if (!liveClass.timezone) {
-				return __('Please select a timezone.')
-			}
-			if (!valideTime()) {
-				return __('Please enter a valid time in the format HH:mm.')
-			}
-			const liveClassDateTime = dayjs(`${liveClass.date}T${liveClass.time}`).tz(
-				liveClass.timezone,
-				true
-			)
-			if (
-				liveClassDateTime.isSameOrBefore(
-					dayjs().tz(liveClass.timezone, false),
-					'minute'
-				)
-			) {
-				return __('Please select a future date and time.')
-			}
-			if (!liveClass.duration) {
-				return __('Please select a duration.')
-			}
+			validateFormFields()
 		},
 		onSuccess() {
 			liveClasses.value.reload()
+			refreshForm()
 			close()
 		},
 		onError(err) {
 			toast.error(err.messages?.[0] || err)
 		},
 	})
+}
+
+const validateFormFields = () => {
+	if (!liveClass.title) {
+		return __('Please enter a title.')
+	}
+	if (!liveClass.date) {
+		return __('Please select a date.')
+	}
+	if (!liveClass.time) {
+		return __('Please select a time.')
+	}
+	if (!liveClass.timezone) {
+		return __('Please select a timezone.')
+	}
+	if (!valideTime()) {
+		return __('Please enter a valid time in the format HH:mm.')
+	}
+	const liveClassDateTime = dayjs(`${liveClass.date}T${liveClass.time}`).tz(
+		liveClass.timezone,
+		true
+	)
+	if (
+		liveClassDateTime.isSameOrBefore(
+			dayjs().tz(liveClass.timezone, false),
+			'minute'
+		)
+	) {
+		return __('Please select a future date and time.')
+	}
+	if (!liveClass.duration) {
+		return __('Please select a duration.')
+	}
 }
 
 const valideTime = () => {
@@ -220,5 +230,15 @@ const valideTime = () => {
 		return false
 	}
 	return true
+}
+
+const refreshForm = () => {
+	liveClass.title = ''
+	liveClass.description = ''
+	liveClass.date = ''
+	liveClass.time = ''
+	liveClass.duration = ''
+	liveClass.timezone = getUserTimezone()
+	liveClass.auto_recording = 'No Recording'
 }
 </script>

@@ -1,5 +1,15 @@
 <template>
-	<div class="flex items-center justify-between mb-5">
+	<div
+		v-if="hasPermission() && !props.zoomAccount"
+		class="flex items-center space-x-2 mb-5 bg-surface-amber-1 py-1 px-2 rounded-md text-ink-amber-3"
+	>
+		<AlertCircle class="size-4 stroke-1.5" />
+		<span>
+			{{ __('Please add a zoom account to the batch to create live classes.') }}
+		</span>
+	</div>
+
+	<div class="flex items-center justify-between">
 		<div class="text-lg font-semibold text-ink-gray-9">
 			{{ __('Live Class') }}
 		</div>
@@ -12,10 +22,10 @@
 			</span>
 		</Button>
 	</div>
-	<div v-if="liveClasses.data?.length" class="grid grid-cols-2 gap-5">
+	<div v-if="liveClasses.data?.length" class="grid grid-cols-2 gap-5 mt-5">
 		<div
 			v-for="cls in liveClasses.data"
-			class="flex flex-col border rounded-md h-full text-ink-gray-7 p-3"
+			class="flex flex-col border rounded-md h-full text-ink-gray-7 hover:border-outline-gray-3 p-3"
 		>
 			<div class="font-semibold text-ink-gray-9 text-lg mb-1">
 				{{ cls.title }}
@@ -44,7 +54,8 @@
 						v-if="user.data?.is_moderator || user.data?.is_evaluator"
 						:href="cls.start_url"
 						target="_blank"
-						class="w-1/2 cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 focus-visible:ring focus-visible:ring-outline-gray-3 h-7 text-base px-2 rounded"
+						class="cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 focus-visible:ring focus-visible:ring-outline-gray-3 h-7 text-base px-2 rounded"
+						:class="cls.join_url ? 'w-full' : 'w-1/2'"
 					>
 						<Monitor class="h-4 w-4 stroke-1.5" />
 						{{ __('Start') }}
@@ -67,21 +78,30 @@
 			</div>
 		</div>
 	</div>
-	<div v-else class="text-sm italic text-ink-gray-5">
+	<div v-else class="text-sm italic text-ink-gray-5 mt-2">
 		{{ __('No live classes scheduled') }}
 	</div>
+
 	<LiveClassModal
 		:batch="props.batch"
+		:zoomAccount="props.zoomAccount"
 		v-model="showLiveClassModal"
 		v-model:reloadLiveClasses="liveClasses"
 	/>
 </template>
 <script setup>
 import { createListResource, Button } from 'frappe-ui'
-import { Plus, Clock, Calendar, Video, Monitor, Info } from 'lucide-vue-next'
-import { inject } from 'vue'
+import {
+	Plus,
+	Clock,
+	Calendar,
+	Video,
+	Monitor,
+	Info,
+	AlertCircle,
+} from 'lucide-vue-next'
+import { inject, ref } from 'vue'
 import LiveClassModal from '@/components/Modals/LiveClassModal.vue'
-import { ref } from 'vue'
 import { formatTime } from '@/utils/'
 
 const user = inject('$user')
@@ -94,6 +114,7 @@ const props = defineProps({
 		type: String,
 		required: true,
 	},
+	zoomAccount: String,
 })
 
 const liveClasses = createListResource({
@@ -120,6 +141,11 @@ const openLiveClassModal = () => {
 
 const canCreateClass = () => {
 	if (readOnlyMode) return false
+	if (!props.zoomAccount) return false
+	return hasPermission()
+}
+
+const hasPermission = () => {
 	return user.data?.is_moderator || user.data?.is_evaluator
 }
 </script>

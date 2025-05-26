@@ -146,7 +146,15 @@ class LMSBatch(Document):
 
 @frappe.whitelist()
 def create_live_class(
-	batch_name, title, duration, date, time, timezone, auto_recording, description=None
+	batch_name,
+	zoom_account,
+	title,
+	duration,
+	date,
+	time,
+	timezone,
+	auto_recording,
+	description=None,
 ):
 	frappe.only_for("Moderator")
 	payload = {
@@ -161,7 +169,7 @@ def create_live_class(
 		"timezone": timezone,
 	}
 	headers = {
-		"Authorization": "Bearer " + authenticate(),
+		"Authorization": "Bearer " + authenticate(zoom_account),
 		"content-type": "application/json",
 	}
 	response = requests.post(
@@ -183,6 +191,7 @@ def create_live_class(
 				"password": data.get("password"),
 				"description": description,
 				"auto_recording": auto_recording,
+				"zoom_account": zoom_account,
 			}
 		)
 		class_details = frappe.get_doc(payload)
@@ -194,10 +203,10 @@ def create_live_class(
 		)
 
 
-def authenticate():
-	zoom = frappe.get_single("Zoom Settings")
-	if not zoom.enable:
-		frappe.throw(_("Please enable Zoom Settings to use this feature."))
+def authenticate(zoom_account):
+	zoom = frappe.get_doc("LMS Zoom Settings", zoom_account)
+	if not zoom.enabled:
+		frappe.throw(_("Please enable the zoom account to use this feature."))
 
 	authenticate_url = f"https://zoom.us/oauth/token?grant_type=account_credentials&account_id={zoom.account_id}"
 
