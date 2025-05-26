@@ -434,6 +434,7 @@ const steps = reactive([
 		title: __('Add your first chapter'),
 		icon: markRaw(h(FolderTree, iconProps)),
 		completed: false,
+		dependsOn: 'create_first_course',
 		onClick: async () => {
 			minimize.value = true
 			let course = await getFirstCourse()
@@ -449,6 +450,7 @@ const steps = reactive([
 		title: __('Add your first lesson'),
 		icon: markRaw(h(FileText, iconProps)),
 		completed: false,
+		dependsOn: 'create_first_chapter',
 		onClick: async () => {
 			minimize.value = true
 			let course = await getFirstCourse()
@@ -467,6 +469,7 @@ const steps = reactive([
 		title: __('Create your first quiz'),
 		icon: markRaw(h(CircleHelp, iconProps)),
 		completed: false,
+		dependsOn: 'create_first_course',
 		onClick: () => {
 			minimize.value = true
 			router.push({ name: 'Quizzes' })
@@ -498,6 +501,7 @@ const steps = reactive([
 		title: __('Add students to your batch'),
 		icon: markRaw(h(UserPlus, iconProps)),
 		completed: false,
+		dependsOn: 'create_first_batch',
 		onClick: async () => {
 			minimize.value = true
 			let batch = await getFirstBatch()
@@ -518,6 +522,7 @@ const steps = reactive([
 		title: __('Add courses to your batch'),
 		icon: markRaw(h(BookText, iconProps)),
 		completed: false,
+		dependsOn: 'create_first_batch',
 		onClick: async () => {
 			minimize.value = true
 			let batch = await getFirstBatch()
