@@ -72,7 +72,7 @@ import { usersStore } from '@/stores/user'
 import { useSettings } from '@/stores/settings'
 import { markRaw, watch, ref, onMounted, computed } from 'vue'
 import { createDialog } from '@/utils/dialogs'
-import SettingsModal from '@/components/Modals/Settings.vue'
+import SettingsModal from '@/components/Settings/Settings.vue'
 import FrappeCloudIcon from '@/components/Icons/FrappeCloudIcon.vue'
 import {
 	ChevronDown,
