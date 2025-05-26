@@ -1,98 +1,96 @@
-import { useStorage } from "@vueuse/core";
-import { call } from "frappe-ui";
-import "../../../frappe/frappe/public/js/lib/posthog.js";
-
-const APP = "lms";
-const SITENAME = window.location.hostname;
+import '../../../frappe/frappe/public/js/lib/posthog.js'
+import { createResource } from 'frappe-ui'
 
 declare global {
   interface Window {
-    posthog: any;
+    posthog: any
   }
 }
-
-const telemetry = useStorage("telemetry", {
-  enabled: false,
-  project_id: "",
-  host: "",
-});
-
-export async function init() {
-  await set_enabled();
-  if (!telemetry.value.enabled) return;
-  try {
-    await set_credentials();
-    window.posthog.init(telemetry.value.project_id, {
-      api_host: telemetry.value.host,
-      autocapture: false,
-      person_profiles: "always",
-      capture_pageview: true,
-      capture_pageleave: true,
-      disable_session_recording: false,
-      session_recording: {
-        maskAllInputs: false,
-        maskInputOptions: {
-          password: true,
-        },
-      },
-      loaded: (posthog) => {
-        window.posthog = posthog;
-        window.posthog.identify(SITENAME);
-      },
-    });
-  } catch (e) {
-    console.trace("Failed to initialize telemetry", e);
-    telemetry.value.enabled = false;
-  }
+type PosthogSettings = {
+  posthog_project_id: string
+  posthog_host: string
+  enable_telemetry: boolean
+  telemetry_site_age: number
 }
-
-async function set_enabled() {
-  if (telemetry.value.enabled) return;
-
-  await call("lms.lms.telemetry.is_enabled").then((res) => {
-    telemetry.value.enabled = res;
-  });
-}
-
-async function set_credentials() {
-  if (!telemetry.value.enabled) return;
-  if (telemetry.value.project_id && telemetry.value.host) return;
-
-  await call("lms.lms.telemetry.get_credentials").then((res) => {
-    telemetry.value.project_id = res.project_id;
-    telemetry.value.host = res.telemetry_host;
-  });
-}
-
 interface CaptureOptions {
   data: {
-    user: string;
-    [key: string]: string | number | boolean | object;
-  };
+    user: string
+    [key: string]: string | number | boolean | object
+  }
 }
 
-export function capture(
+let posthog: typeof window.posthog = window.posthog
+
+// Posthog Settings
+let posthogSettings = createResource({
+  url: 'lms.lms.telemetry.get_posthog_settings',
+  cache: 'posthog_settings',
+  onSuccess: (ps: PosthogSettings) => initPosthog(ps),
+})
+
+let isTelemetryEnabled = () => {
+  if (!posthogSettings.data) return false
+
+  return (
+    posthogSettings.data.enable_telemetry &&
+    posthogSettings.data.posthog_project_id &&
+    posthogSettings.data.posthog_host
+  )
+}
+
+// Posthog Initialization
+function initPosthog(ps: PosthogSettings) {
+  if (!isTelemetryEnabled()) return
+
+  posthog.init(ps.posthog_project_id, {
+    api_host: ps.posthog_host,
+    person_profiles: 'identified_only',
+    autocapture: false,
+    capture_pageview: true,
+    capture_pageleave: true,
+    enable_heatmaps: false,
+    disable_session_recording: false,
+    loaded: (ph: typeof posthog) => {
+      window.posthog = ph
+      ph.identify(window.location.hostname)
+    },
+  })
+}
+
+// Posthog Functions
+function capture(
   event: string,
-  options: CaptureOptions = { data: { user: "" } }
+  options: CaptureOptions = { data: { user: '' } },
 ) {
-  if (!telemetry.value.enabled) return;
-  window.posthog.capture(`${APP}_${event}`, options);
+  if (!isTelemetryEnabled()) return
+  window.posthog.capture(`lms_${event}`, options)
 }
 
-export function recordSession() {
-  if (!telemetry.value.enabled) return;
-  if (window.posthog && window.posthog.__loaded) {
-    window.posthog.startSessionRecording();
+function startRecording() {
+  if (!isTelemetryEnabled()) return
+  if (window.posthog?.__loaded) {
+    window.posthog.startSessionRecording()
   }
 }
 
-export function stopSession() {
-  if (!telemetry.value.enabled) return;
-  if (
-    window.posthog &&
-    window.posthog.__loaded &&
-    window.posthog.sessionRecordingStarted()
-  ) {
-    window.posthog.stopSessionRecording();
-  }
+function stopRecording() {
+    if (!isTelemetryEnabled()) return
+    if (window.posthog?.__loaded && window.posthog.sessionRecordingStarted()) {
+        window.posthog.stopSessionRecording()
+    }
+}
+
+// Posthog Plugin
+function posthogPlugin(app: any) {
+    app.config.globalProperties.posthog = posthog
+    if (!window.posthog?.length) posthogSettings.fetch()
+}
+
+export {
+  posthog,
+  posthogSettings,
+  posthogPlugin,
+  capture,
+  startRecording,
+  stopRecording,
 }
