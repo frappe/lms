@@ -21,7 +21,7 @@
 
 			<NumberChart
 				class="border rounded-md"
-				:config="{ title: __('Courses'), value: batch.courses?.length || 0 }"
+				:config="{ title: __('Courses'), value: batch.data.courses?.length || 0 }"
 			/>
 
 			<NumberChart
@@ -43,7 +43,9 @@
 				},
 				yAxis: {
 					title: __('Number of Students'),
-					minInterval: 1,
+					echartOptions: {
+						minInterval: 1,
+					},
 				},
 				swapXY: true,
 				series: [
