@@ -6,103 +6,59 @@
 			</div>
 		</div>
 		<div class="grid grid-cols-4 gap-5 mb-8">
-			<div
-				class="flex items-center border py-2 px-3 rounded-md text-ink-gray-7"
-			>
-				<div class="p-2 rounded-md bg-surface-gray-2 mr-3">
-					<User class="w-5 h-5 stroke-1.5" />
-				</div>
-				<div class="flex items-center space-x-2">
-					<span class="font-semibold">
-						{{ students.data?.length }}
-					</span>
-					<span class="">
-						{{ __('Students') }}
-					</span>
-				</div>
-			</div>
-
-			<div
-				class="flex items-center border py-2 px-3 rounded-md text-ink-gray-7"
-			>
-				<div class="p-2 rounded-md bg-surface-gray-2 mr-3">
-					<GraduationCap class="w-5 h-5 stroke-1.5" />
-				</div>
-				<div class="flex items-center space-x-2">
-					<span class="font-semibold">
-						{{ certificationCount.data }}
-					</span>
-					<span class="">
-						{{ __('Certified') }}
-					</span>
-				</div>
-			</div>
-
-			<div
-				class="flex items-center border py-2 px-3 rounded-md text-ink-gray-7"
-			>
-				<div class="p-2 rounded-md bg-surface-gray-2 mr-3">
-					<BookOpen class="w-5 h-5 stroke-1.5" />
-				</div>
-				<div class="flex items-center space-x-2">
-					<span class="font-semibold">
-						{{ batch.data.courses?.length }}
-					</span>
-					<span>
-						{{ __('Courses') }}
-					</span>
-				</div>
-			</div>
-
-			<div
-				class="flex items-center border py-2 px-3 rounded-md text-ink-gray-7"
-			>
-				<div class="p-2 rounded-md bg-surface-gray-2 mr-3">
-					<ShieldCheck class="w-5 h-5 stroke-1.5" />
-				</div>
-				<div class="flex items-center space-x-2">
-					<span class="font-semibold">
-						{{ assessmentCount }}
-					</span>
-					<span>
-						{{ __('Assessments') }}
-					</span>
-				</div>
-			</div>
-		</div>
-		<div v-if="showProgressChart" class="mb-8">
-			<div class="text-ink-gray-7 font-medium">
-				{{ __('Progress') }}
-			</div>
-			<ApexChart
-				:options="chartOptions"
-				:series="chartData"
-				type="bar"
-				:height="chartData[0].data.length * 30 + 100"
+			<NumberChart
+				class="border rounded-md"
+				:config="{ title: __('Students'), value: students.data?.length || 0 }"
 			/>
-			<div
-				class="flex items-center justify-center text-sm text-ink-gray-7 space-x-4"
-			>
-				<div class="flex items-center space-x-2">
-					<div
-						class="w-3 h-3 rounded-sm"
-						:style="{ 'background-color': theme.colors.green[600] }"
-					></div>
-					<div>
-						{{ __('Courses') }}
-					</div>
-				</div>
-				<div class="flex items-center space-x-2">
-					<div
-						class="w-3 h-3 rounded-sm"
-						:style="{ 'background-color': theme.colors.blue[600] }"
-					></div>
-					<div>
-						{{ __('Assessments') }}
-					</div>
-				</div>
-			</div>
+
+			<NumberChart
+				class="border rounded-md"
+				:config="{
+					title: __('Certified'),
+					value: certificationCount.data || 0,
+				}"
+			/>
+
+			<NumberChart
+				class="border rounded-md"
+				:config="{
+					title: __('Courses'),
+					value: batch.data.courses?.length || 0,
+				}"
+			/>
+
+			<NumberChart
+				class="border rounded-md"
+				:config="{ title: __('Assessments'), value: assessmentCount || 0 }"
+			/>
 		</div>
+
+		<AxisChart
+			v-if="showProgressChart"
+			:config="{
+				data: chartData,
+				title: __('Batch Summary'),
+				subtitle: __('Progress of students in courses and assessments'),
+				xAxis: {
+					key: 'task',
+					title: 'Tasks',
+					type: 'category',
+				},
+				yAxis: {
+					title: __('Number of Students'),
+					echartOptions: {
+						minInterval: 1,
+					},
+				},
+				swapXY: true,
+				series: [
+					{
+						name: 'value',
+						type: 'bar',
+					},
+				],
+			}"
+		/>
 	</div>
 
 	<div>
@@ -214,6 +170,7 @@
 <script setup>
 import {
 	Avatar,
+	AxisChart,
 	Button,
 	createResource,
 	FeatherIcon,
@@ -224,6 +181,7 @@ import {
 	ListRows,
 	ListView,
 	ListRowItem,
+	NumberChart,
 	toast,
 } from 'frappe-ui'
 import {
@@ -245,7 +203,6 @@ const showStudentModal = ref(false)
 const showStudentProgressModal = ref(false)
 const selectedStudent = ref(null)
 const chartData = ref(null)
-const chartOptions = ref(null)
 const showProgressChart = ref(false)
 const assessmentCount = ref(0)
 const readOnlyMode = window.read_only_mode
@@ -333,96 +290,49 @@ const removeStudents = (selections, unselectAll) => {
 }
 
 const getChartData = () => {
-	let categories = {}
+	let tasks = []
+	let data = []
 
-	if (!students.data?.length) return []
-
-	Object.keys(students.data[0].courses).forEach((course) => {
-		categories[course] = {
-			value: 0,
-			type: 'course',
-			label: course,
-		}
+	students.data.forEach((row) => {
+		tasks = countAssessments(row, tasks)
+		tasks = countCourses(row, tasks)
 	})
 
-	Object.keys(students.data?.[0].assessments).forEach((assessment) => {
-		categories[assessment] = {
-			value: 0,
-			type: 'assessment',
-			label: assessment,
-		}
-	})
-
-	students.data.forEach((student) => {
-		Object.keys(student.courses).forEach((course) => {
-			if (student.courses[course] === 100) {
-				categories[course].value += 1
-			}
-		})
-
-		Object.keys(student.assessments).forEach((assessment) => {
-			if (student.assessments[assessment].result === 'Pass') {
-				categories[assessment].value += 1
-			}
+	tasks.forEach((task) => {
+		data.push({
+			task: task.label,
+			value: task.value,
 		})
 	})
-
-	chartOptions.value = getChartOptions(categories)
-	return [
-		{
-			name: __('Completed by Students'),
-			data: Object.values(categories).map((item) => item.value),
-		},
-	]
+	return data
 }
 
-const getChartOptions = (categories) => {
-	const courseColor = theme.colors.green[700]
-	const assessmentColor = theme.colors.blue[700]
-	const maxY =
-		students.data?.length % 5
-			? students.data?.length + (5 - (students.data?.length % 5))
-			: students.data?.length
+const countAssessments = (row, tasks) => {
+	Object.keys(row.assessments).forEach((assessment) => {
+		if (row.assessments[assessment].result === 'Pass') {
+			tasks.filter((task) => task.label === assessment).length
+				? tasks.filter((task) => task.label === assessment)[0].value++
+				: tasks.push({
+						value: 1,
+						label: assessment,
+				  })
+		}
+	})
+	return tasks
+}
 
-	return {
-		chart: {
-			type: 'bar',
-			toolbar: {
-				show: false,
-			},
-		},
-		plotOptions: {
-			bar: {
-				distributed: true,
-				borderRadius: 3,
-				borderRadiusApplication: 'end',
-				horizontal: true,
-				barHeight: '40%',
-			},
-		},
-		colors: Object.values(categories).map((item) =>
-			item.type === 'course' ? courseColor : assessmentColor
-		),
-		xaxis: {
-			categories: Object.values(categories).map((item) => item.label),
-			labels: {
-				style: {
-					fontSize: '10px',
-				},
-				rotate: 0,
-				formatter: function (value) {
-					return value.length > 30 ? `${value.substring(0, 30)}...` : value
-				},
-			},
-		},
-		yaxis: {
-			max: maxY,
-			min: 0,
-			stepSize: 10,
-			tickAmount: maxY / 5,
-			/* reversed: true */
-		},
-	}
+const countCourses = (row, tasks) => {
+	Object.keys(row.courses).forEach((course) => {
+		if (row.courses[course] === 100) {
+			tasks.filter((task) => task.label === course).length
+				? tasks.filter((task) => task.label === course)[0].value++
+				: tasks.push({
+						value: 1,
+						label: course,
+				  })
+		}
+	})
+	return tasks
 }
 
 watch(students, () => {
@@ -442,8 +352,3 @@ const certificationCount = createResource({
 	auto: true,
 })
 </script>
-<style>
-.apexcharts-legend {
-	display: none !important;
-}
-</style>
