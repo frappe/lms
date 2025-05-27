@@ -155,13 +155,13 @@ const tabsStructure = computed(() => {
 							type: 'Column Break',
 						},
 						{
-							label: 'Batch Confirmation Template',
+							label: 'Batch Confirmation Email Template',
 							name: 'batch_confirmation_template',
 							doctype: 'Email Template',
 							type: 'Link',
 						},
 						{
-							label: 'Certification Template',
+							label: 'Certification Email Template',
 							name: 'certification_template',
 							doctype: 'Email Template',
 							type: 'Link',

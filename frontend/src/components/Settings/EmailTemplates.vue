@@ -5,9 +5,9 @@
 				<div class="text-xl font-semibold text-ink-gray-9">
 					{{ label }}
 				</div>
-				<div class="text-xs text-ink-gray-5">
+				<!-- <div class="text-xs text-ink-gray-5">
 					{{ __(description) }}
-				</div>
+				</div> -->
 			</div>
 			<div class="flex items-center space-x-5">
 				<Button @click="openTemplateForm('new')">

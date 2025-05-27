@@ -48,7 +48,15 @@
 					<ListRow :row="row" v-for="row in zoomAccounts.data">
 						<template #default="{ column, item }">
 							<ListRowItem :item="row[column.key]" :align="column.align">
-								<div class="leading-5 text-sm">
+								<div v-if="column.key == 'enabled'">
+									<Badge v-if="row[column.key]" theme="blue">
+										{{ __('Enabled') }}
+									</Badge>
+									<Badge v-else theme="gray">
+										{{ __('Disabled') }}
+									</Badge>
+								</div>
+								<div v-else class="leading-5 text-sm">
 									{{ row[column.key] }}
 								</div>
 							</ListRowItem>
@@ -61,7 +69,7 @@
 						<div class="flex gap-2">
 							<Button
 								variant="ghost"
-								@click="removeTemplate(selections, unselectAll)"
+								@click="removeAccount(selections, unselectAll)"
 							>
 								<Trash2 class="h-4 w-4 stroke-1.5" />
 							</Button>
@@ -71,12 +79,18 @@
 			</ListView>
 		</div>
 	</div>
-	<ZoomAccountModal v-model="showForm" v-model:zoomAccounts="zoomAccounts" />
+	<ZoomAccountModal
+		v-model="showForm"
+		v-model:zoomAccounts="zoomAccounts"
+		:accountID="currentAccount"
+	/>
 </template>
 <script setup lang="ts">
 import {
-	createListResource,
 	Button,
+	Badge,
+	call,
+	createListResource,
 	ListView,
 	ListHeader,
 	ListHeaderItem,
@@ -84,9 +98,11 @@ import {
 	ListRow,
 	ListRowItem,
 	ListSelectBanner,
+	toast,
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref } from 'vue'
 import { Plus, Trash2 } from 'lucide-vue-next'
+import { cleanError } from '@/utils'
 import { User } from '@/components/Settings/types'
 import ZoomAccountModal from '@/components/Modals/ZoomAccountModal.vue'
 
@@ -103,6 +119,7 @@ const zoomAccounts = createListResource({
 	doctype: 'LMS Zoom Settings',
 	fields: [
 		'name',
+		'enabled',
 		'member',
 		'member_name',
 		'account_id',
@@ -119,7 +136,7 @@ onMounted(() => {
 const fetchZoomAccounts = () => {
 	if (!user?.data?.is_moderator && !user?.data?.is_evaluator) return
 
-	if (user?.data?.is_evaluator) {
+	if (!user?.data?.is_moderator) {
 		zoomAccounts.update({
 			filters: {
 				member: user.data.name,
@@ -134,6 +151,23 @@ const openForm = (accountID: string) => {
 	showForm.value = true
 }
 
+const removeAccount = (selections, unselectAll) => {
+	call('lms.lms.api.delete_documents', {
+		doctype: 'LMS Zoom Settings',
+		documents: Array.from(selections),
+	})
+		.then(() => {
+			zoomAccounts.reload()
+			toast.success(__('Email Templates deleted successfully'))
+			unselectAll()
+		})
+		.catch((err) => {
+			toast.error(
+				cleanError(err.messages[0]) || __('Error deleting email templates')
+			)
+		})
+}
+
 const columns = computed(() => {
 	return [
 		{
@@ -143,6 +177,11 @@ const columns = computed(() => {
 		{
 			label: __('Member'),
 			key: 'member_name',
+		},
+		{
+			label: __('Enabled'),
+			key: 'enabled',
+			align: 'center',
 		},
 	]
 })
