@@ -16,14 +16,29 @@
 		<template #body-content>
 			<div class="flex flex-col gap-4">
 				<div class="grid grid-cols-2 gap-4">
-					<div>
+					<div class="space-y-4">
 						<FormControl
 							type="text"
 							v-model="liveClass.title"
 							:label="__('Title')"
-							class="mb-4"
 							:required="true"
 						/>
+						<FormControl
+							v-model="liveClass.date"
+							type="date"
+							:label="__('Date')"
+							:required="true"
+						/>
+						<Tooltip :text="__('Duration of the live class in minutes')">
+							<FormControl
+								type="number"
+								v-model="liveClass.duration"
+								:label="__('Duration')"
+								:required="true"
+							/>
+						</Tooltip>
+					</div>
+					<div class="space-y-4">
 						<Tooltip
 							:text="
 								__(
@@ -35,7 +50,6 @@
 								v-model="liveClass.time"
 								type="time"
 								:label="__('Time')"
-								class="mb-4"
 								:required="true"
 							/>
 						</Tooltip>
@@ -52,24 +66,6 @@
 								:required="true"
 							/>
 						</div>
-					</div>
-					<div>
-						<FormControl
-							v-model="liveClass.date"
-							type="date"
-							class="mb-4"
-							:label="__('Date')"
-							:required="true"
-						/>
-						<Tooltip :text="__('Duration of the live class in minutes')">
-							<FormControl
-								type="number"
-								v-model="liveClass.duration"
-								:label="__('Duration')"
-								class="mb-4"
-								:required="true"
-							/>
-						</Tooltip>
 						<FormControl
 							v-model="liveClass.auto_recording"
 							type="select"

@@ -20,8 +20,13 @@
   "description",
   "column_break_spvt",
   "event",
-  "password",
   "auto_recording",
+  "section_break_fhet",
+  "meeting_id",
+  "uuid",
+  "column_break_aony",
+  "attendees",
+  "password",
   "section_break_yrpq",
   "start_url",
   "column_break_yokr",
@@ -137,13 +142,42 @@
    "label": "Zoom Account",
    "options": "LMS Zoom Settings",
    "reqd": 1
+  },
+  {
+   "fieldname": "meeting_id",
+   "fieldtype": "Data",
+   "label": "Meeting ID"
+  },
+  {
+   "fieldname": "attendees",
+   "fieldtype": "Int",
+   "label": "Attendees",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_fhet",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "uuid",
+   "fieldtype": "Data",
+   "label": "UUID"
+  },
+  {
+   "fieldname": "column_break_aony",
+   "fieldtype": "Column Break"
   }
  ],
  "grid_page_length": 50,
  "in_create": 1,
  "index_web_pages_for_search": 1,
- "links": [],
- "modified": "2025-05-26 13:23:38.209187",
+ "links": [
+  {
+   "link_doctype": "LMS Live Class Participant",
+   "link_fieldname": "live_class"
+  }
+ ],
+ "modified": "2025-05-27 14:44:35.679712",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Live Class",

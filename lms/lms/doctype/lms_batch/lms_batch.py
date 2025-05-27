@@ -183,6 +183,8 @@ def create_live_class(
 				"doctype": "LMS Live Class",
 				"start_url": data.get("start_url"),
 				"join_url": data.get("join_url"),
+				"meeting_id": data.get("id"),
+				"uuid": data.get("uuid"),
 				"title": title,
 				"host": frappe.session.user,
 				"date": date,

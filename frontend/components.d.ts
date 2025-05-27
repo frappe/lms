@@ -65,6 +65,7 @@ declare module 'vue' {
     LessonHelp: typeof import('./src/components/LessonHelp.vue')['default']
     Link: typeof import('./src/components/Controls/Link.vue')['default']
     LiveClass: typeof import('./src/components/LiveClass.vue')['default']
+    LiveClassAttendance: typeof import('./src/components/Modals/LiveClassAttendance.vue')['default']
     LiveClassModal: typeof import('./src/components/Modals/LiveClassModal.vue')['default']
     LMSLogo: typeof import('./src/components/Icons/LMSLogo.vue')['default']
     Members: typeof import('./src/components/Settings/Members.vue')['default']
