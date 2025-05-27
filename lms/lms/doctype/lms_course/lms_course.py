@@ -206,3 +206,32 @@ def reindex_exercises(doc):
 	course = frappe.get_doc("LMS Course", course_data["name"])
 	course.reindex_exercises()
 	frappe.msgprint("All exercises in this course have been re-indexed.")
+<<<<<<< Updated upstream
+=======
+
+ 
+@frappe.whitelist()
+def get_permission_query_conditions(user):
+    if "Administrator" in frappe.get_roles(user):
+        return None  
+ 
+    if "LMS Trainer" in frappe.get_roles(user):
+        return f"`tabLMS Course`.owner = '{user}'"
+ 
+    return None
+ 
+def has_permission(doc, ptype, user):
+    if getattr(doc, "__islocal", False):
+        return True 
+	
+    if user == "Administrator":
+        return True
+ 
+    if ptype == "read":
+        if "LMS Trainer" in frappe.get_roles(user):
+            return doc.owner == user
+    if ptype in ["write", "submit", "cancel", "delete"]:
+        return doc.owner == user or user == "Administrator"
+ 
+    return False
+>>>>>>> Stashed changes
