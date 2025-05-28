@@ -35,7 +35,8 @@
 
 				<div
 					v-if="jobs.data?.length || jobCount > 0"
-					class="grid grid-cols-1 md:grid-cols-3 gap-2"
+					class="grid grid-cols-1 gap-2"
+					:class="user.data ? 'md:grid-cols-3' : 'md:grid-cols-2'"
 				>
 					<FormControl
 						type="text"
@@ -52,6 +53,7 @@
 						</template>
 					</FormControl>
 					<Link
+						v-if="user.data"
 						doctype="Country"
 						v-model="country"
 						:placeholder="__('Country')"
@@ -164,7 +166,7 @@ const updateFilters = () => {
 }
 
 const getJobCount = () => {
-	call('frappe.client.get_count', {
+	call('lms.lms.api.get_count', {
 		doctype: 'Job Opportunity',
 		filters: {
 			status: 'Open',

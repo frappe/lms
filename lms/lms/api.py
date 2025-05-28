@@ -838,6 +838,14 @@ def delete_documents(doctype, documents):
 		frappe.delete_doc(doctype, doc)
 
 
+@frappe.whitelist(allow_guest=True)
+def get_count(doctype, filters):
+	return frappe.db.count(
+		doctype,
+		filters=filters,
+	)
+
+
 @frappe.whitelist()
 def get_payment_gateway_details(payment_gateway):
 	fields = []
