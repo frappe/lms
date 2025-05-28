@@ -9,21 +9,27 @@
  "field_order": [
   "title",
   "host",
+  "zoom_account",
   "batch_name",
-  "event",
   "column_break_astv",
-  "description",
-  "section_break_glxh",
   "date",
-  "duration",
-  "column_break_spvt",
   "time",
+  "duration",
   "timezone",
-  "section_break_yrpq",
+  "section_break_glxh",
+  "description",
+  "column_break_spvt",
+  "event",
+  "auto_recording",
+  "section_break_fhet",
+  "meeting_id",
+  "uuid",
+  "column_break_aony",
+  "attendees",
   "password",
+  "section_break_yrpq",
   "start_url",
   "column_break_yokr",
-  "auto_recording",
   "join_url"
  ],
  "fields": [
@@ -73,8 +79,7 @@
   },
   {
    "fieldname": "section_break_glxh",
-   "fieldtype": "Section Break",
-   "label": "Date and Time"
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "column_break_spvt",
@@ -130,13 +135,50 @@
    "label": "Event",
    "options": "Event",
    "read_only": 1
+  },
+  {
+   "fieldname": "zoom_account",
+   "fieldtype": "Link",
+   "label": "Zoom Account",
+   "options": "LMS Zoom Settings",
+   "reqd": 1
+  },
+  {
+   "fieldname": "meeting_id",
+   "fieldtype": "Data",
+   "label": "Meeting ID"
+  },
+  {
+   "fieldname": "attendees",
+   "fieldtype": "Int",
+   "label": "Attendees",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_fhet",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "uuid",
+   "fieldtype": "Data",
+   "label": "UUID"
+  },
+  {
+   "fieldname": "column_break_aony",
+   "fieldtype": "Column Break"
   }
  ],
+ "grid_page_length": 50,
  "in_create": 1,
  "index_web_pages_for_search": 1,
- "links": [],
- "modified": "2024-11-11 18:59:26.396111",
- "modified_by": "Administrator",
+ "links": [
+  {
+   "link_doctype": "LMS Live Class Participant",
+   "link_fieldname": "live_class"
+  }
+ ],
+ "modified": "2025-05-27 14:44:35.679712",
+ "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Live Class",
  "owner": "Administrator",
@@ -175,6 +217,7 @@
    "share": 1
   }
  ],
+ "row_format": "Dynamic",
  "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",

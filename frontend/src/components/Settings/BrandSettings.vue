@@ -28,7 +28,7 @@
 </template>
 <script setup>
 import { createResource, Button, Badge } from 'frappe-ui'
-import SettingFields from '@/components/SettingFields.vue'
+import SettingFields from '@/components/Settings/SettingFields.vue'
 import { watch, ref } from 'vue'
 
 const isDirty = ref(false)

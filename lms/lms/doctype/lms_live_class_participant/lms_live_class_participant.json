@@ -1,0 +1,116 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-05-27 12:09:57.712221",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "live_class",
+  "joined_at",
+  "column_break_dwbm",
+  "duration",
+  "left_at",
+  "section_break_xczy",
+  "member",
+  "member_name",
+  "column_break_bpjn",
+  "member_image",
+  "member_username"
+ ],
+ "fields": [
+  {
+   "fieldname": "live_class",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Live Class",
+   "options": "LMS Live Class",
+   "reqd": 1
+  },
+  {
+   "fieldname": "member",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Member",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "member.full_name",
+   "fieldname": "member_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Member Name"
+  },
+  {
+   "fieldname": "column_break_dwbm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "duration",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Duration",
+   "reqd": 1
+  },
+  {
+   "fieldname": "joined_at",
+   "fieldtype": "Datetime",
+   "label": "Joined At",
+   "reqd": 1
+  },
+  {
+   "fieldname": "left_at",
+   "fieldtype": "Datetime",
+   "label": "Left At",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_xczy",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_bpjn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "member.user_image",
+   "fieldname": "member_image",
+   "fieldtype": "Attach Image",
+   "label": "Member Image"
+  },
+  {
+   "fetch_from": "member.username",
+   "fieldname": "member_username",
+   "fieldtype": "Data",
+   "label": "Member Username"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-05-27 22:32:24.196643",
+ "modified_by": "Administrator",
+ "module": "LMS",
+ "name": "LMS Live Class Participant",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "member_name"
+}

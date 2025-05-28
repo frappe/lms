@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="flex flex-col border rounded-md p-3 h-full hover:border-outline-gray-4"
+		class="flex flex-col border rounded-md p-3 h-full hover:border-outline-gray-3"
 	>
 		<div class="flex space-x-4 mb-4">
 			<div class="flex flex-col space-y-2 flex-1">

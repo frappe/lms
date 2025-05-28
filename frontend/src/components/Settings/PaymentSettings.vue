@@ -30,9 +30,9 @@
 	</div>
 </template>
 <script setup>
-import SettingFields from '@/components/SettingFields.vue'
+import SettingFields from '@/components/Settings/SettingFields.vue'
 import { createResource, Badge, Button } from 'frappe-ui'
-import { watch, ref } from 'vue'
+import { watch } from 'vue'
 
 const props = defineProps({
 	label: {
