@@ -97,7 +97,7 @@ import {
 } from 'frappe-ui'
 import { reactive, watch } from 'vue'
 import { FileText, X } from 'lucide-vue-next'
-import { getFileSize, escapeHTML } from '@/utils'
+import { getFileSize } from '@/utils'
 
 const reloadProfile = defineModel('reloadProfile')
 
@@ -132,7 +132,7 @@ const imageResource = createResource({
 const updateProfile = createResource({
 	url: 'frappe.client.set_value',
 	makeParams(values) {
-		profile.bio = escapeHTML(profile.bio)
+		profile.bio = profile.bio
 		return {
 			doctype: 'User',
 			name: props.profile.data.name,
