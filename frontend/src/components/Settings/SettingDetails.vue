@@ -28,7 +28,7 @@
 
 <script setup>
 import { Button, Badge, toast } from 'frappe-ui'
-import SettingFields from '@/components/SettingFields.vue'
+import SettingFields from '@/components/Settings/SettingFields.vue'
 
 const props = defineProps({
 	fields: {

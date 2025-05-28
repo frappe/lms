@@ -8,7 +8,7 @@
 				{
 					label: 'Submit',
 					variant: 'solid',
-					onClick: (close) => submitLiveClass(close),
+					onClick: ({ close }) => submitLiveClass(close),
 				},
 			],
 		}"
@@ -16,14 +16,29 @@
 		<template #body-content>
 			<div class="flex flex-col gap-4">
 				<div class="grid grid-cols-2 gap-4">
-					<div>
+					<div class="space-y-4">
 						<FormControl
 							type="text"
 							v-model="liveClass.title"
 							:label="__('Title')"
-							class="mb-4"
 							:required="true"
 						/>
+						<FormControl
+							v-model="liveClass.date"
+							type="date"
+							:label="__('Date')"
+							:required="true"
+						/>
+						<Tooltip :text="__('Duration of the live class in minutes')">
+							<FormControl
+								type="number"
+								v-model="liveClass.duration"
+								:label="__('Duration')"
+								:required="true"
+							/>
+						</Tooltip>
+					</div>
+					<div class="space-y-4">
 						<Tooltip
 							:text="
 								__(
@@ -35,7 +50,6 @@
 								v-model="liveClass.time"
 								type="time"
 								:label="__('Time')"
-								class="mb-4"
 								:required="true"
 							/>
 						</Tooltip>
@@ -52,24 +66,6 @@
 								:required="true"
 							/>
 						</div>
-					</div>
-					<div>
-						<FormControl
-							v-model="liveClass.date"
-							type="date"
-							class="mb-4"
-							:label="__('Date')"
-							:required="true"
-						/>
-						<Tooltip :text="__('Duration of the live class in minutes')">
-							<FormControl
-								type="number"
-								v-model="liveClass.duration"
-								:label="__('Duration')"
-								class="mb-4"
-								:required="true"
-							/>
-						</Tooltip>
 						<FormControl
 							v-model="liveClass.auto_recording"
 							type="select"
@@ -107,7 +103,11 @@ const dayjs = inject('$dayjs')
 const props = defineProps({
 	batch: {
 		type: String,
-		default: null,
+		required: true,
+	},
+	zoomAccount: {
+		type: String,
+		required: true,
 	},
 })
 
@@ -159,6 +159,7 @@ const createLiveClass = createResource({
 		return {
 			doctype: 'LMS Live Class',
 			batch_name: values.batch,
+			zoom_account: props.zoomAccount,
 			...values,
 		}
 	},
@@ -167,45 +168,50 @@ const createLiveClass = createResource({
 const submitLiveClass = (close) => {
 	return createLiveClass.submit(liveClass, {
 		validate() {
-			if (!liveClass.title) {
-				return __('Please enter a title.')
-			}
-			if (!liveClass.date) {
-				return __('Please select a date.')
-			}
-			if (!liveClass.time) {
-				return __('Please select a time.')
-			}
-			if (!liveClass.timezone) {
-				return __('Please select a timezone.')
-			}
-			if (!valideTime()) {
-				return __('Please enter a valid time in the format HH:mm.')
-			}
-			const liveClassDateTime = dayjs(`${liveClass.date}T${liveClass.time}`).tz(
-				liveClass.timezone,
-				true
-			)
-			if (
-				liveClassDateTime.isSameOrBefore(
-					dayjs().tz(liveClass.timezone, false),
-					'minute'
-				)
-			) {
-				return __('Please select a future date and time.')
-			}
-			if (!liveClass.duration) {
-				return __('Please select a duration.')
-			}
+			validateFormFields()
 		},
 		onSuccess() {
 			liveClasses.value.reload()
+			refreshForm()
 			close()
 		},
 		onError(err) {
 			toast.error(err.messages?.[0] || err)
 		},
 	})
+}
+
+const validateFormFields = () => {
+	if (!liveClass.title) {
+		return __('Please enter a title.')
+	}
+	if (!liveClass.date) {
+		return __('Please select a date.')
+	}
+	if (!liveClass.time) {
+		return __('Please select a time.')
+	}
+	if (!liveClass.timezone) {
+		return __('Please select a timezone.')
+	}
+	if (!valideTime()) {
+		return __('Please enter a valid time in the format HH:mm.')
+	}
+	const liveClassDateTime = dayjs(`${liveClass.date}T${liveClass.time}`).tz(
+		liveClass.timezone,
+		true
+	)
+	if (
+		liveClassDateTime.isSameOrBefore(
+			dayjs().tz(liveClass.timezone, false),
+			'minute'
+		)
+	) {
+		return __('Please select a future date and time.')
+	}
+	if (!liveClass.duration) {
+		return __('Please select a duration.')
+	}
 }
 
 const valideTime = () => {
@@ -220,5 +226,15 @@ const valideTime = () => {
 		return false
 	}
 	return true
+}
+
+const refreshForm = () => {
+	liveClass.title = ''
+	liveClass.description = ''
+	liveClass.date = ''
+	liveClass.time = ''
+	liveClass.duration = ''
+	liveClass.timezone = getUserTimezone()
+	liveClass.auto_recording = 'No Recording'
 }
 </script>
