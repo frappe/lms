@@ -179,7 +179,7 @@ const columns = computed(() => {
 			key: 'member_name',
 		},
 		{
-			label: __('Enabled'),
+			label: __('Status'),
 			key: 'enabled',
 			align: 'center',
 		},

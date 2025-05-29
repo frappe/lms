@@ -240,7 +240,6 @@ const updateTabFilter = () => {
 			filters.value['live'] = 1
 		} else if (currentTab.value == 'Upcoming') {
 			filters.value['upcoming'] = 1
-			filters.value['published'] = 1
 		} else if (currentTab.value == 'New') {
 			filters.value['published'] = 1
 			filters.value['published_on'] = [
@@ -249,6 +248,8 @@ const updateTabFilter = () => {
 			]
 		} else if (currentTab.value == 'Created') {
 			filters.value['created'] = 1
+		} else if (currentTab.value == 'Unpublished') {
+			filters.value['published'] = 0
 		}
 	}
 }
@@ -318,6 +319,7 @@ const courseTabs = computed(() => {
 		user.data?.is_evaluator
 	) {
 		tabs.push({ label: __('Created') })
+		tabs.push({ label: __('Unpublished') })
 	} else if (user.data) {
 		tabs.push({ label: __('Enrolled') })
 	}
