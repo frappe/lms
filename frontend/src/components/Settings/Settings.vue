@@ -365,7 +365,7 @@ const tabsStructure = computed(() => {
 							type: 'textarea',
 							rows: 4,
 							description:
-								'Keywords for search engines to find your website. Separated by commas.',
+								'Comma separated keywords for search engines to find your website.',
 						},
 						{
 							type: 'Column Break',

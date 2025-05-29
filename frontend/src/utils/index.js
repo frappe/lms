@@ -1,3 +1,5 @@
+import { watch } from 'vue'
+import { call, toast } from 'frappe-ui'
 import { useTimeAgo } from '@vueuse/core'
 import { Quiz } from '@/utils/quiz'
 import { Assignment } from '@/utils/assignment'
@@ -10,7 +12,6 @@ import Paragraph from '@editorjs/paragraph'
 import { CodeBox } from '@/utils/code'
 import NestedList from '@editorjs/nested-list'
 import InlineCode from '@editorjs/inline-code'
-import { watch } from 'vue'
 import dayjs from '@/utils/dayjs'
 import Embed from '@editorjs/embed'
 import SimpleImage from '@editorjs/simple-image'
@@ -581,4 +582,35 @@ export const cleanError = (message) => {
 		.replace(/&#x2C;/g, ',')
 		.replace(/&#x3B;/g, ';')
 		.replace(/&#x3A;/g, ':')
+}
+
+export const getMetaInfo = (type, route, meta) => {
+	call('lms.lms.api.get_meta_info', {
+		type: type,
+		route: route,
+	}).then((data) => {
+		if (data.length) {
+			data.forEach((row) => {
+				if (row.key == 'description') {
+					meta.description = row.value
+				} else if (row.key == 'keywords') {
+					meta.keywords = row.value
+				}
+			})
+		}
+	})
+}
+
+export const updateMetaInfo = (type, route, meta) => {
+	call('lms.lms.api.update_meta_info', {
+		type: type,
+		route: route,
+		meta_tags: [
+			{ key: 'description', value: meta.description },
+			{ key: 'keywords', value: meta.keywords },
+		],
+	}).catch((error) => {
+		toast.error(__('Failed to update meta tags {0}').format(error))
+		console.error(error)
+	})
 }
