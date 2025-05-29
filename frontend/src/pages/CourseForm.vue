@@ -284,7 +284,7 @@ import {
 } from 'vue'
 import { Image, Trash2, X } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
-import { capture } from '@/telemetry'
+import { capture, startRecording, stopRecording } from '@/telemetry'
 import { useOnboarding } from 'frappe-ui/frappe'
 import { sessionStore } from '../stores/session'
 import { openSettings } from '@/utils'
@@ -337,6 +337,7 @@ onMounted(() => {
 		courseResource.reload()
 	} else {
 		capture('course_form_opened')
+		startRecording()
 	}
 	window.addEventListener('keydown', keyboardShortcut)
 })
@@ -354,6 +355,7 @@ const keyboardShortcut = (e) => {
 
 onBeforeUnmount(() => {
 	window.removeEventListener('keydown', keyboardShortcut)
+	stopRecording()
 })
 
 const courseCreationResource = createResource({
