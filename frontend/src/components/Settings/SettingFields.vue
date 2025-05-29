@@ -6,7 +6,7 @@
 		<div v-for="(column, index) in columns" :key="index">
 			<div
 				class="flex flex-col space-y-5"
-				:class="columns.length > 1 ? 'w-[21rem]' : 'w-1/2'"
+				:class="columns.length > 1 ? 'w-[21rem]' : 'w-full'"
 			>
 				<div v-for="field in column">
 					<Link
@@ -55,11 +55,13 @@
 						<div v-else>
 							<div class="flex items-center text-sm space-x-2">
 								<div
-									class="flex items-center justify-center rounded border border-outline-gray-1 bg-surface-gray-2 px-20 py-5"
+									class="flex items-center justify-center rounded border border-outline-gray-1 bg-surface-gray-2"
+									:class="field.size == 'lg' ? 'px-5 py-5' : 'px-20 py-8'"
 								>
 									<img
 										:src="data[field.name]?.file_url || data[field.name]"
-										class="size-6 rounded"
+										class="rounded"
+										:class="field.size == 'lg' ? 'w-36' : 'size-6'"
 									/>
 								</div>
 								<div class="flex flex-col flex-wrap">
@@ -101,6 +103,7 @@
 						:rows="field.rows"
 						:options="field.options"
 						:description="field.description"
+						:class="columns.length > 1 ? 'w-full' : 'w-1/2'"
 					/>
 				</div>
 			</div>

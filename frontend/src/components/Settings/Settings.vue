@@ -336,6 +336,9 @@ const tabsStructure = computed(() => {
 								'New users will have to be manually registered by Admins.',
 						},
 						{
+							type: 'Column Break',
+						},
+						{
 							label: 'Signup Consent HTML',
 							name: 'custom_signup_content',
 							type: 'Code',
@@ -365,9 +368,13 @@ const tabsStructure = computed(() => {
 								'Keywords for search engines to find your website. Separated by commas.',
 						},
 						{
+							type: 'Column Break',
+						},
+						{
 							label: 'Meta Image',
 							name: 'meta_image',
 							type: 'Upload',
+							size: 'lg',
 						},
 					],
 				},
