@@ -457,7 +457,7 @@ class CountDistinct(DistinctOptionFunction):
 
 
 @frappe.whitelist(allow_guest=True)
-def get_count_of_certified_members():
+def get_count_of_certified_members(filters=None):
 	Certificate = DocType("LMS Certificate")
 
 	query = (
@@ -465,6 +465,14 @@ def get_count_of_certified_members():
 		.select(CountDistinct(Certificate.member).as_("total"))
 		.where(Certificate.published == 1)
 	)
+
+	if filters:
+		for field, value in filters.items():
+			if field == "category":
+				query = query.where(
+					Certificate.course_title.like(f"%{value}%")
+					| Certificate.batch_title.like(f"%{value}%")
+				)
 
 	result = query.run(as_dict=True)
 	return result[0]["total"] if result else 0
@@ -691,13 +699,13 @@ def get_categories(doctype, filters):
 @frappe.whitelist()
 def get_members(start=0, search=""):
 	"""Get members for the given search term and start index.
-	                                Args: start (int): Start index for the query.
+	                                                                Args: start (int): Start index for the query.
 	<<<<<<< HEAD
-	                                search (str): Search term to filter the results.
+	                                                                search (str): Search term to filter the results.
 	=======
-	                                                                                                                                                                search (str): Search term to filter the results.
+	                                                                                                                                                                                                                                                                                                                                search (str): Search term to filter the results.
 	>>>>>>> 4869bba7bbb2fb38477d6fc29fb3b5838e075577
-	                                Returns: List of members.
+	                                                                Returns: List of members.
 	"""
 
 	filters = {"enabled": 1, "name": ["not in", ["Administrator", "Guest"]]}

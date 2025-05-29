@@ -127,6 +127,7 @@ const memberCount = ref(0)
 const dayjs = inject('$dayjs')
 
 onMounted(() => {
+	getMemberCount()
 	updateParticipants()
 })
 
@@ -138,11 +139,13 @@ const participants = createListResource({
 	pageLength: 30,
 })
 
-const count = call('lms.lms.api.get_count_of_certified_members').then(
-	(data) => {
+const getMemberCount = () => {
+	call('lms.lms.api.get_count_of_certified_members', {
+		filters: filters.value,
+	}).then((data) => {
 		memberCount.value = data
-	}
-)
+	})
+}
 
 const categories = createListResource({
 	doctype: 'LMS Certificate',
@@ -157,6 +160,7 @@ const categories = createListResource({
 
 const updateParticipants = () => {
 	updateFilters()
+	getMemberCount()
 	participants.update({
 		filters: filters.value,
 	})
