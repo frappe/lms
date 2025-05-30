@@ -1,8 +1,11 @@
 <template>
 	<div v-if="quiz.data">
 		<div
-			class="bg-surface-blue-2 space-y-1 py-2 px-2 mb-4 rounded-md text-sm text-ink-blue-3"
+			class="bg-surface-blue-2 space-y-1 py-2 px-2 mb-4 rounded-md text-sm text-ink-blue-3 leading-5"
 		>
+			<div v-if="inVideo">
+				{{ __('You will have to complete the quiz to continue the video') }}
+			</div>
 			<div class="leading-5">
 				{{
 					__('This quiz consists of {0} questions.').format(questions.length)
@@ -247,18 +250,23 @@
 					)
 				}}
 			</div>
-			<Button
-				@click="resetQuiz()"
-				class="mt-2"
-				v-if="
-					!quiz.data.max_attempts ||
-					attempts?.data.length < quiz.data.max_attempts
-				"
-			>
-				<span>
-					{{ __('Try Again') }}
-				</span>
-			</Button>
+			<div class="space-x-2">
+				<Button
+					@click="resetQuiz()"
+					class="mt-2"
+					v-if="
+						!quiz.data.max_attempts ||
+						attempts?.data.length < quiz.data.max_attempts
+					"
+				>
+					<span>
+						{{ __('Try Again') }}
+					</span>
+				</Button>
+				<Button v-if="inVideo" @click="props.onSubmit()">
+					{{ __('Resume Video') }}
+				</Button>
+			</div>
 		</div>
 		<div
 			v-if="
@@ -314,6 +322,14 @@ const props = defineProps({
 	quizName: {
 		type: String,
 		required: true,
+	},
+	inVideo: {
+		type: Boolean,
+		default: false,
+	},
+	onSubmit: {
+		type: Function,
+		default: () => {},
 	},
 })
 

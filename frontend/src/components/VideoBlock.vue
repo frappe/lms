@@ -1,6 +1,26 @@
 <template>
 	<div>
-		<div ref="videoContainer" class="video-block relative group">
+		<div
+			v-if="quizzes.length && !showQuiz"
+			class="bg-surface-blue-2 space-y-1 py-3 px-4 rounded-md text-sm text-ink-blue-3 leading-5"
+		>
+			{{
+				__('This video has {0} {1}:').format(
+					quizzes.length,
+					quizzes.length == 1 ? 'quiz' : 'quizzes'
+				)
+			}}
+
+			<div v-for="(quiz, index) in quizzes" class="pl-3 mt-1">
+				<span> {{ index + 1 }}. {{ quiz.quiz }} </span>
+				{{ __('at {0} minutes').format(quiz.time) }}
+			</div>
+		</div>
+		<div
+			v-if="!showQuiz"
+			ref="videoContainer"
+			class="video-block relative group"
+		>
 			<video
 				@timeupdate="updateTime"
 				@ended="videoEnded"
@@ -78,6 +98,12 @@
 				</Button>
 			</div>
 		</div>
+		<Quiz
+			v-if="showQuiz"
+			:quizName="currentQuiz"
+			:inVideo="true"
+			:onSubmit="resumeVideo"
+		/>
 		<div v-if="!readOnly" @click="showQuizModal = true">
 			<Button>
 				{{ __('Add Quiz to Video') }}
@@ -106,6 +132,9 @@ let currentTime = ref(0)
 let duration = ref(0)
 let muted = ref(false)
 const showQuizModal = ref(false)
+const showQuiz = ref(false)
+const currentQuiz = ref(null)
+const nextQuiz = ref({})
 
 const props = defineProps({
 	file: {
@@ -130,15 +159,54 @@ const props = defineProps({
 })
 
 onMounted(() => {
+	updateCurrentTime()
+	updateNextQuiz()
+})
+
+const updateCurrentTime = () => {
 	setTimeout(() => {
 		videoRef.value.onloadedmetadata = () => {
 			duration.value = videoRef.value.duration
 		}
 		videoRef.value.ontimeupdate = () => {
-			currentTime.value = videoRef.value.currentTime
+			currentTime.value = videoRef.value?.currentTime || currentTime.value
+			if (currentTime.value >= nextQuiz.value.time * 60) {
+				videoRef.value.pause()
+				playing.value = false
+				videoRef.value.onTimeupdate = null
+				currentQuiz.value = nextQuiz.value.quiz
+				showQuiz.value = true
+				updateNextQuiz()
+			}
 		}
 	}, 0)
-})
+}
+
+const resumeVideo = () => {
+	showQuiz.value = false
+	currentQuiz.value = null
+	updateCurrentTime()
+	setTimeout(() => {
+		videoRef.value.currentTime = currentTime.value
+		videoRef.value.play()
+		playing.value = true
+	}, 0)
+}
+
+const updateNextQuiz = () => {
+	if (!props.quizzes.length) return
+	props.quizzes.sort((a, b) => a.time - b.time)
+
+	const nextQuizIndex = props.quizzes.findIndex(
+		(quiz) => quiz.time * 60 > currentTime.value
+	)
+
+	if (nextQuizIndex !== -1) {
+		nextQuiz.value = props.quizzes[nextQuizIndex]
+	} else {
+		nextQuiz.value = {}
+	}
+}
 
 const fileURL = computed(() => {
 	if (isYoutube) {
@@ -156,6 +224,7 @@ const isYoutube = computed(() => {
 })
 
 const playVideo = () => {
+	console.log(currentTime.value)
 	videoRef.value.play()
 	playing.value = true
 }
@@ -166,6 +235,7 @@ const pauseVideo = () => {
 }
 
 const togglePlay = () => {
+	console.log(currentTime.value)
 	if (playing.value) {
 		pauseVideo()
 	} else {
@@ -184,6 +254,8 @@ const toggleMute = () => {
 
 const changeCurrentTime = () => {
 	videoRef.value.currentTime = currentTime.value
+	console.log('Current Time:', currentTime.value)
+	updateNextQuiz()
 }
 
 const toggleFullscreen = () => {

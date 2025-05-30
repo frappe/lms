@@ -3,23 +3,14 @@
 		v-model="show"
 		:options="{
 			title: __('Add quiz to this video'),
-			size: 'xl',
-			actions: [
-				{
-					label: __('Save'),
-					variant: 'solid',
-					onClick({ close }) {
-						addQuizToVideo(close)
-					},
-				},
-			],
+			size: '2xl',
 		}"
 	>
 		<template #body-content>
 			<div class="text-base">
 				<div class="flex items-end gap-4">
 					<FormControl
-						:label="__('Time in Video (seconds)')"
+						:label="__('Time in Video (minutes)')"
 						v-model="quiz.time"
 						type="number"
 						placeholder="Time"
@@ -31,7 +22,7 @@
 						doctype="LMS Quiz"
 						class="flex-1"
 					/>
-					<Button @click="addQuiz()">
+					<Button @click="addQuiz()" variant="solid">
 						<template #prefix>
 							<Plus class="w-4 h-4 stroke-1.5" />
 						</template>
@@ -39,43 +30,63 @@
 					</Button>
 				</div>
 
-				<ListView
-					v-if="quizzes.length"
-					class="mt-10"
-					:columns="columns"
-					:rows="allQuizzes"
-					row-key="name"
-					:options="{
-						showTooltip: false,
-						selectable: false,
-					}"
-				>
-					<ListHeader
-						class="mb-2 grid items-center space-x-4 rounded bg-surface-gray-2 p-2"
+				<div class="mt-10 mb-5">
+					<div class="font-medium mb-4">
+						{{ __('Quizzes in this video') }}
+					</div>
+					<ListView
+						v-if="allQuizzes.length"
+						:columns="columns"
+						:rows="allQuizzes"
+						row-key="quiz"
+						:options="{
+							showTooltip: false,
+						}"
 					>
-						<ListHeaderItem :item="item" v-for="item in columns">
-							<template #prefix="{ item }">
-								<component
-									v-if="item.icon"
-									:is="item.icon"
-									class="h-4 w-4 stroke-1.5 ml-4"
-								/>
-							</template>
-						</ListHeaderItem>
-					</ListHeader>
+						<ListHeader
+							class="mb-2 grid items-center space-x-4 rounded bg-surface-gray-2 p-2"
+						>
+							<ListHeaderItem :item="item" v-for="item in columns">
+								<template #prefix="{ item }">
+									<component
+										v-if="item.icon"
+										:is="item.icon"
+										class="h-4 w-4 stroke-1.5 ml-4"
+									/>
+								</template>
+							</ListHeaderItem>
+						</ListHeader>
 
-					<ListRows>
-						<ListRow :row="row" v-for="row in allQuizzes">
-							<template #default="{ column, item }">
-								<ListRowItem :item="row[column.key]" :align="column.align">
-									<div class="leading-5 text-sm">
-										{{ row[column.key] }}
-									</div>
-								</ListRowItem>
+						<ListRows>
+							<ListRow :row="row" v-for="row in allQuizzes">
+								<template #default="{ column, item }">
+									<ListRowItem :item="row[column.key]" :align="column.align">
+										<div class="leading-5 text-sm">
+											{{ row[column.key] }}
+										</div>
+									</ListRowItem>
+								</template>
+							</ListRow>
+						</ListRows>
+
+						<ListSelectBanner>
+							<template #actions="{ unselectAll, selections }">
+								<div class="flex gap-2">
+									<Button
+										variant="ghost"
+										@click="removeQuiz(selections, unselectAll)"
+									>
+										<Trash2 class="h-4 w-4 stroke-1.5" />
+									</Button>
+								</div>
 							</template>
-						</ListRow>
-					</ListRows>
-				</ListView>
+						</ListSelectBanner>
+					</ListView>
+
+					<div v-else class="text-ink-gray-5 italic text-xs">
+						{{ __('No quizzes added yet.') }}
+					</div>
+				</div>
 			</div>
 		</template>
 	</Dialog>
@@ -91,10 +102,11 @@ import {
 	ListRows,
 	ListRow,
 	ListRowItem,
+	ListSelectBanner,
 	toast,
 } from 'frappe-ui'
 import { computed, reactive, ref, watch } from 'vue'
-import { Plus } from 'lucide-vue-next'
+import { Plus, Trash2 } from 'lucide-vue-next'
 import Link from '@/components/Controls/Link.vue'
 
 type Quiz = {
@@ -124,11 +136,6 @@ const props = defineProps({
 	},
 })
 
-const addQuizToVideo = (close: () => void) => {
-	props.saveQuizzes(allQuizzes.value)
-	close()
-}
-
 const addQuiz = () => {
 	if (quiz.time > props.duration) {
 		toast.error(__('Time in video exceeds the total duration of the video.'))
@@ -139,8 +146,21 @@ const addQuiz = () => {
 		quiz: quiz.quiz,
 	})
 
+	props.saveQuizzes(allQuizzes.value)
+
 	quiz.time = 0
 	quiz.quiz = ''
+}
+
+const removeQuiz = (selections: string, unselectAll: () => void) => {
+	Array.from(selections).forEach((selection) => {
+		const index = allQuizzes.value.findIndex((q) => q.quiz === selection)
+		if (index !== -1) {
+			allQuizzes.value.splice(index, 1)
+		}
+		unselectAll()
+	})
+	props.saveQuizzes(allQuizzes.value)
 }
 
 watch(
@@ -159,7 +179,7 @@ const columns = computed(() => {
 		},
 		{
 			key: 'time',
-			label: __('Time in Video (seconds)'),
+			label: __('Time in Video (minutes)'),
 			align: 'center',
 		},
 	]

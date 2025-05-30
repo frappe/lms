@@ -47,6 +47,7 @@ export class Upload {
 			const app = createApp(VideoBlock, {
 				file: file.file_url,
 				readOnly: this.readOnly,
+				quizzes: file.quizzes || [],
 				saveQuizzes: (quizzes) => {
 					if (this.readOnly) return
 					this.data.quizzes = quizzes

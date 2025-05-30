@@ -96,6 +96,11 @@ def get_quiz_progress(lesson):
 		for block in content.get("blocks"):
 			if block.get("type") == "quiz":
 				quizzes.append(block.get("data").get("quiz"))
+			if block.get("type") == "upload":
+				quizzes_in_video = block.get("data").get("quizzes")
+				if quizzes_in_video and len(quizzes_in_video) > 0:
+					for row in quizzes_in_video:
+						quizzes.append(row.get("quiz"))
 
 	elif lesson_details.body:
 		macros = find_macros(lesson_details.body)

@@ -293,7 +293,7 @@ const tabsStructure = computed(() => {
 							type: 'checkbox',
 						},
 						{
-							label: 'Certified Participants',
+							label: 'Certified Members',
 							name: 'certified_participants',
 							type: 'checkbox',
 						},
