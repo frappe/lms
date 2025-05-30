@@ -1432,3 +1432,67 @@ def capture_user_persona(responses):
 	if response.get("message").get("name"):
 		frappe.db.set_single_value("LMS Settings", "persona_captured", True)
 	return response
+
+
+@frappe.whitelist()
+def get_meta_info(type, route):
+	if frappe.db.exists("Website Meta Tag", {"parent": f"{type}/{route}"}):
+		meta_tags = frappe.get_all(
+			"Website Meta Tag",
+			{
+				"parent": f"{type}/{route}",
+			},
+			["name", "key", "value"],
+		)
+
+		return meta_tags
+
+	return []
+
+
+@frappe.whitelist()
+def update_meta_info(type, route, meta_tags):
+	parent_name = f"{type}/{route}"
+	if not isinstance(meta_tags, list):
+		frappe.throw(_("Meta tags should be a list."))
+
+	for tag in meta_tags:
+		existing_tag = frappe.db.exists(
+			"Website Meta Tag",
+			{
+				"parent": parent_name,
+				"parenttype": "Website Route Meta",
+				"parentfield": "meta_tags",
+				"key": tag["key"],
+			},
+		)
+		if existing_tag:
+			if not tag.get("value"):
+				frappe.db.delete("Website Meta Tag", existing_tag)
+				continue
+			frappe.db.set_value("Website Meta Tag", existing_tag, "value", tag["value"])
+		elif tag.get("value"):
+			tag_properties = {
+				"parent": parent_name,
+				"parenttype": "Website Route Meta",
+				"parentfield": "meta_tags",
+				"key": tag["key"],
+				"value": tag["value"],
+			}
+
+			parent_exists = frappe.db.exists("Website Route Meta", parent_name)
+			if not parent_exists:
+				route_meta = frappe.new_doc("Website Route Meta")
+				route_meta.update(
+					{
+						"__newname": parent_name,
+					}
+				)
+				route_meta.append("meta_tags", tag_properties)
+				route_meta.insert()
+			else:
+				new_tag = frappe.new_doc("Website Meta Tag")
+				new_tag.update(tag_properties)
+				print(new_tag)
+				new_tag.insert()
+				print(new_tag.as_dict())

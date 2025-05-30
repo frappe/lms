@@ -273,6 +273,27 @@
 					/>
 				</div>
 			</div>
+
+			<div class="px-20 pb-5 space-y-5 border-b">
+				<div class="text-lg text-ink-gray-9 font-semibold">
+					{{ __('Meta Tags') }}
+				</div>
+				<div class="space-y-5">
+					<FormControl
+						v-model="meta.description"
+						:label="__('Meta Description')"
+						type="textarea"
+						:rows="7"
+					/>
+					<FormControl
+						v-model="meta.keywords"
+						:label="__('Meta Keywords')"
+						type="textarea"
+						:rows="7"
+						:placeholder="__('Comma separated keywords for SEO')"
+					/>
+				</div>
+			</div>
 		</div>
 	</div>
 </template>
@@ -302,12 +323,13 @@ import { useOnboarding } from 'frappe-ui/frappe'
 import { sessionStore } from '../stores/session'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import Link from '@/components/Controls/Link.vue'
-import { openSettings } from '@/utils'
+import { openSettings, getMetaInfo, updateMetaInfo } from '@/utils'
 
 const router = useRouter()
 const user = inject('$user')
 const { brand } = sessionStore()
 const { updateOnboardingStep } = useOnboarding('learning')
+const instructors = ref([])
 
 const props = defineProps({
 	batchName: {
@@ -340,17 +362,25 @@ const batch = reactive({
 	zoom_account: '',
 })
 
-const instructors = ref([])
+const meta = reactive({
+	description: '',
+	keywords: '',
+})
 
 onMounted(() => {
 	if (!user.data) window.location.href = '/login'
 	if (props.batchName != 'new') {
-		batchDetail.reload()
+		fetchBatchInfo()
 	} else {
 		capture('batch_form_opened')
 	}
 	window.addEventListener('keydown', keyboardShortcut)
 })
+
+const fetchBatchInfo = () => {
+	batchDetail.reload()
+	getMetaInfo('batches', props.batchName, meta)
+}
 
 const keyboardShortcut = (e) => {
 	if (
@@ -465,7 +495,7 @@ const createNewBatch = () => {
 						localStorage.setItem('firstBatch', data.name)
 					})
 				}
-
+				updateMetaInfo('batches', data.name, meta)
 				capture('batch_created')
 				router.push({
 					name: 'BatchDetail',
@@ -486,6 +516,7 @@ const editBatchDetails = () => {
 		{},
 		{
 			onSuccess(data) {
+				updateMetaInfo('batches', data.name, meta)
 				router.push({
 					name: 'BatchDetail',
 					params: {
