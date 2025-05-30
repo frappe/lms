@@ -1,80 +1,103 @@
 <template>
-	<div ref="videoContainer" class="video-block relative group">
-		<video
-			@timeupdate="updateTime"
-			@ended="videoEnded"
-			@click="togglePlay"
-			oncontextmenu="return false"
-			class="rounded-md border border-gray-100 cursor-pointer"
-			ref="videoRef"
-		>
-			<source :src="fileURL" :type="type" />
-		</video>
-		<div
-			v-if="!playing"
-			class="absolute inset-0 flex items-center justify-center cursor-pointer"
-			@click="playVideo"
-		>
-			<div
-				class="rounded-full p-4 pl-4.5"
-				style="
-					background: radial-gradient(
-						circle,
-						rgba(0, 0, 0, 0.3) 0%,
-						rgba(0, 0, 0, 0.4) 50%
-					);
-				"
+	<div>
+		<div ref="videoContainer" class="video-block relative group">
+			<video
+				@timeupdate="updateTime"
+				@ended="videoEnded"
+				@click="togglePlay"
+				oncontextmenu="return false"
+				class="rounded-md border border-gray-100 cursor-pointer"
+				ref="videoRef"
 			>
-				<Play />
+				<source :src="fileURL" :type="type" />
+			</video>
+			<div
+				v-if="!playing"
+				class="absolute inset-0 flex items-center justify-center cursor-pointer"
+				@click="playVideo"
+			>
+				<div
+					class="rounded-full p-4 pl-4.5"
+					style="
+						background: radial-gradient(
+							circle,
+							rgba(0, 0, 0, 0.3) 0%,
+							rgba(0, 0, 0, 0.4) 50%
+						);
+					"
+				>
+					<Play />
+				</div>
+			</div>
+			<div
+				class="flex items-center space-x-2 py-2 px-1 text-ink-white bg-gradient-to-b from-transparent to-black/75 absolute bottom-0 left-0 right-0 mx-auto rounded-md"
+				:class="{
+					'invisible group-hover:visible': playing,
+				}"
+			>
+				<Button variant="ghost" class="hover:bg-transparent">
+					<template #icon>
+						<Play
+							v-if="!playing"
+							@click="playVideo"
+							class="size-4 text-ink-gray-9"
+						/>
+						<Pause v-else @click="pauseVideo" class="size-5 text-ink-white" />
+					</template>
+				</Button>
+				<input
+					type="range"
+					min="0"
+					:max="duration"
+					step="0.1"
+					v-model="currentTime"
+					@input="changeCurrentTime"
+					class="duration-slider w-full h-1"
+				/>
+				<span class="text-sm font-medium">
+					{{ formatSeconds(currentTime) }} / {{ formatSeconds(duration) }}
+				</span>
+				<Button
+					variant="ghost"
+					@click="toggleMute"
+					class="hover:bg-transparent"
+				>
+					<template #icon>
+						<Volume2 v-if="!muted" class="size-5 text-ink-white" />
+						<VolumeX v-else class="size-5 text-ink-white" />
+					</template>
+				</Button>
+				<Button
+					variant="ghost"
+					@click="toggleFullscreen"
+					class="hover:bg-transparent"
+				>
+					<template #icon>
+						<Maximize class="size-5 text-ink-white" />
+					</template>
+				</Button>
 			</div>
 		</div>
-		<div
-			class="flex items-center space-x-2 py-2 px-1 text-ink-white bg-gradient-to-b from-transparent to-black/75 absolute bottom-0 left-0 right-0 mx-auto rounded-md"
-			:class="{
-				'invisible group-hover:visible': playing,
-			}"
-		>
-			<Button variant="ghost">
-				<template #icon>
-					<Play
-						v-if="!playing"
-						@click="playVideo"
-						class="size-4 text-ink-gray-9"
-					/>
-					<Pause v-else @click="pauseVideo" class="size-5 text-ink-white" />
-				</template>
-			</Button>
-			<Button variant="ghost" @click="toggleMute">
-				<template #icon>
-					<Volume2 v-if="!muted" class="size-5 text-ink-white" />
-					<VolumeX v-else class="size-5 text-ink-white" />
-				</template>
-			</Button>
-			<input
-				type="range"
-				min="0"
-				:max="duration"
-				step="0.1"
-				v-model="currentTime"
-				@input="changeCurrentTime"
-				class="duration-slider w-full h-1"
-			/>
-			<span class="text-sm font-semibold">
-				{{ formatTime(currentTime) }} / {{ formatTime(duration) }}
-			</span>
-			<Button variant="ghost" @click="toggleFullscreen">
-				<template #icon>
-					<Maximize class="size-5 text-ink-white" />
-				</template>
+		<div v-if="!readOnly" @click="showQuizModal = true">
+			<Button>
+				{{ __('Add Quiz to Video') }}
 			</Button>
 		</div>
 	</div>
+	<QuizInVideo
+		v-model="showQuizModal"
+		:quizzes="quizzes"
+		:saveQuizzes="saveQuizzes"
+		:duration="duration"
+	/>
 </template>
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { Pause, Maximize, Volume2, VolumeX } from 'lucide-vue-next'
 import { Button } from 'frappe-ui'
+import { formatSeconds } from '@/utils'
 import Play from '@/components/Icons/Play.vue'
+import QuizInVideo from '@/components/Modals/QuizInVideo.vue'
 
 const videoRef = ref(null)
 const videoContainer = ref(null)
@@ -82,6 +105,7 @@ let playing = ref(false)
 let currentTime = ref(0)
 let duration = ref(0)
 let muted = ref(false)
+const showQuizModal = ref(false)
 
 const props = defineProps({
 	file: {
@@ -91,6 +115,17 @@ const props = defineProps({
 	type: {
 		type: String,
 		default: 'video/mp4',
+	},
+	readOnly: {
+		type: String,
+		default: true,
+	},
+	quizzes: {
+		type: Array,
+		default: () => [],
+	},
+	saveQuizzes: {
+		type: Function,
 	},
 })
 
@@ -149,12 +184,6 @@ const toggleMute = () => {
 
 const changeCurrentTime = () => {
 	videoRef.value.currentTime = currentTime.value
-}
-
-const formatTime = (time) => {
-	const minutes = Math.floor(time / 60)
-	const seconds = Math.floor(time % 60)
-	return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`
 }
 
 const toggleFullscreen = () => {

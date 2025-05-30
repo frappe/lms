@@ -28,18 +28,19 @@ export function timeAgo(date) {
 export function formatTime(timeString) {
 	if (!timeString) return ''
 	const [hour, minute] = timeString.split(':').map(Number)
-
-	// Create a Date object with dummy values for day, month, and year
 	const dummyDate = new Date(0, 0, 0, hour, minute)
-
-	// Use Intl.DateTimeFormat to format the time in 12-hour format
 	const formattedTime = new Intl.DateTimeFormat('en-US', {
 		hour: 'numeric',
 		minute: 'numeric',
 		hour12: true,
 	}).format(dummyDate)
-
 	return formattedTime
+}
+
+export const formatSeconds = (time) => {
+	const minutes = Math.floor(time / 60)
+	const seconds = Math.floor(time % 60)
+	return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`
 }
 
 export function formatNumber(number) {

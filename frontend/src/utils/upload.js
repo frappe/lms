@@ -46,7 +46,13 @@ export class Upload {
 		if (this.isVideo(file.file_type)) {
 			const app = createApp(VideoBlock, {
 				file: file.file_url,
+				readOnly: this.readOnly,
+				saveQuizzes: (quizzes) => {
+					if (this.readOnly) return
+					this.data.quizzes = quizzes
+				},
 			})
+			app.use(translationPlugin)
 			app.mount(this.wrapper)
 			return
 		} else if (this.isAudio(file.file_type)) {
@@ -93,6 +99,7 @@ export class Upload {
 		return {
 			file_url: this.data.file_url,
 			file_type: this.data.file_type,
+			quizzes: this.data.quizzes || [],
 		}
 	}
 
