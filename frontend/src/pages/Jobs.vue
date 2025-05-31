@@ -125,6 +125,9 @@ onMounted(() => {
 const jobs = createResource({
 	url: 'lms.lms.api.get_job_opportunities',
 	cache: ['jobs'],
+	onSuccess(data) {
+		jobCount.value = data.length
+	},
 })
 
 const updateJobs = () => {
@@ -168,10 +171,7 @@ const updateFilters = () => {
 const getJobCount = () => {
 	call('lms.lms.api.get_count', {
 		doctype: 'Job Opportunity',
-		filters: {
-			status: 'Open',
-			disabled: 0,
-		},
+		filters: filters.value,
 	}).then((data) => {
 		jobCount.value = data
 	})

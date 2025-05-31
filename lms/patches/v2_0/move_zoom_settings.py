@@ -7,6 +7,10 @@ def execute():
 
 def create_settings():
 	current_settings = frappe.get_single("Zoom Settings")
+
+	if not current_settings.enable:
+		return
+
 	member = current_settings.owner
 	member_name = frappe.get_value("User", member, "full_name")
 
