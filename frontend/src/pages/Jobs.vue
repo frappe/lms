@@ -26,7 +26,6 @@
 		</header>
 		<div>
 			<div
-				v-if="jobCount"
 				class="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:items-center justify-between w-full md:w-4/5 mx-auto p-5"
 			>
 				<div class="text-xl font-semibold text-ink-gray-7 mb-4 md:mb-0">
@@ -34,7 +33,6 @@
 				</div>
 
 				<div
-					v-if="jobs.data?.length || jobCount > 0"
 					class="grid grid-cols-1 gap-2"
 					:class="user.data ? 'md:grid-cols-3' : 'md:grid-cols-2'"
 				>
@@ -119,7 +117,6 @@ onMounted(() => {
 		jobType.value = queries.get('type')
 	}
 	updateJobs()
-	getJobCount()
 })
 
 const jobs = createResource({
@@ -166,15 +163,6 @@ const updateFilters = () => {
 	} else {
 		delete filters.value.country
 	}
-}
-
-const getJobCount = () => {
-	call('lms.lms.api.get_count', {
-		doctype: 'Job Opportunity',
-		filters: filters.value,
-	}).then((data) => {
-		jobCount.value = data
-	})
 }
 
 watch(country, (val) => {
