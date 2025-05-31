@@ -12,10 +12,7 @@
 			</Button>
 		</router-link>
 	</header>
-	<div
-		v-if="participants.data?.length"
-		class="mx-auto w-full max-w-4xl pt-6 pb-10"
-	>
+	<div class="mx-auto w-full max-w-4xl pt-6 pb-10">
 		<div class="flex flex-col md:flex-row justify-between mb-4 px-3">
 			<div class="text-xl font-semibold text-ink-gray-7 mb-4 md:mb-0">
 				{{ memberCount }} {{ __('certified members') }}
@@ -41,7 +38,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="divide-y">
+		<div v-if="participants.data?.length" class="divide-y">
 			<template v-for="participant in participants.data">
 				<router-link
 					:to="{
@@ -92,6 +89,7 @@
 				</router-link>
 			</template>
 		</div>
+		<EmptyState v-else type="Certified Members" />
 		<div
 			v-if="!participants.list.loading && participants.hasNextPage"
 			class="flex justify-center mt-5"
@@ -101,7 +99,6 @@
 			</Button>
 		</div>
 	</div>
-	<EmptyState v-else type="Certified Members" />
 </template>
 <script setup>
 import {
@@ -134,9 +131,8 @@ onMounted(() => {
 const participants = createListResource({
 	doctype: 'LMS Certificate',
 	url: 'lms.lms.api.get_certified_participants',
-	cache: ['certified_participants'],
 	start: 0,
-	pageLength: 30,
+	pageLength: 100,
 })
 
 const getMemberCount = () => {
