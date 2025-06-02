@@ -181,7 +181,16 @@
 import UserDropdown from '@/components/UserDropdown.vue'
 import CollapseSidebar from '@/components/Icons/CollapseSidebar.vue'
 import SidebarLink from '@/components/SidebarLink.vue'
-import { ref, onMounted, inject, watch, reactive, markRaw, h } from 'vue'
+import {
+	ref,
+	onMounted,
+	inject,
+	watch,
+	reactive,
+	markRaw,
+	h,
+	onUnmounted,
+} from 'vue'
 import { getSidebarLinks } from '../utils'
 import { usersStore } from '@/stores/user'
 import { sessionStore } from '@/stores/session'
@@ -626,4 +635,8 @@ watch(userResource, () => {
 const redirectToWebsite = () => {
 	window.open('https://frappe.io/learning', '_blank')
 }
+
+onUnmounted(() => {
+	socket.off('publish_lms_notifications')
+})
 </script>

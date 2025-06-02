@@ -1,8 +1,11 @@
 <template>
 	<div v-if="quiz.data">
 		<div
-			class="bg-surface-blue-2 space-y-1 py-2 px-2 mb-4 rounded-md text-sm text-ink-blue-3"
+			class="bg-surface-blue-2 space-y-1 py-2 px-2 mb-4 rounded-md text-sm text-ink-blue-3 leading-5"
 		>
+			<div v-if="inVideo">
+				{{ __('You will have to complete the quiz to continue the video') }}
+			</div>
 			<div class="leading-5">
 				{{
 					__('This quiz consists of {0} questions.').format(questions.length)
@@ -55,19 +58,30 @@
 				<div class="font-semibold text-lg text-ink-gray-9">
 					{{ quiz.data.title }}
 				</div>
-				<Button
+				<div class="flex items-center justify-center space-x-2 mt-4">
+					<Button
+						v-if="
+							!quiz.data.max_attempts ||
+							attempts.data?.length < quiz.data.max_attempts
+						"
+						variant="solid"
+						@click="startQuiz"
+					>
+						<span>
+							{{ inVideo ? __('Start the Quiz') : __('Start') }}
+						</span>
+					</Button>
+					<Button v-if="inVideo" @click="props.backToVideo()">
+						{{ __('Resume Video') }}
+					</Button>
+				</div>
+				<div
 					v-if="
-						!quiz.data.max_attempts ||
-						attempts.data?.length < quiz.data.max_attempts
+						quiz.data.max_attempts &&
+						attempts.data?.length >= quiz.data.max_attempts
 					"
-					@click="startQuiz"
-					class="mt-2"
+					class="leading-5 text-ink-gray-7"
 				>
-					<span>
-						{{ __('Start') }}
-					</span>
-				</Button>
-				<div v-else class="leading-5 text-ink-gray-7">
 					{{
 						__(
 							'You have already exceeded the maximum number of attempts allowed for this quiz.'
@@ -247,18 +261,23 @@
 					)
 				}}
 			</div>
-			<Button
-				@click="resetQuiz()"
-				class="mt-2"
-				v-if="
-					!quiz.data.max_attempts ||
-					attempts?.data.length < quiz.data.max_attempts
-				"
-			>
-				<span>
-					{{ __('Try Again') }}
-				</span>
-			</Button>
+			<div class="space-x-2">
+				<Button
+					@click="resetQuiz()"
+					class="mt-2"
+					v-if="
+						!quiz.data.max_attempts ||
+						attempts?.data.length < quiz.data.max_attempts
+					"
+				>
+					<span>
+						{{ __('Try Again') }}
+					</span>
+				</Button>
+				<Button v-if="inVideo" @click="props.backToVideo()">
+					{{ __('Resume Video') }}
+				</Button>
+			</div>
 		</div>
 		<div
 			v-if="
@@ -308,12 +327,19 @@ let questions = reactive([])
 const possibleAnswer = ref(null)
 const timer = ref(0)
 let timerInterval = null
-const router = useRouter()
 
 const props = defineProps({
 	quizName: {
 		type: String,
 		required: true,
+	},
+	inVideo: {
+		type: Boolean,
+		default: false,
+	},
+	backToVideo: {
+		type: Function,
+		default: () => {},
 	},
 })
 
@@ -611,11 +637,15 @@ const getInstructions = (question) => {
 }
 
 const markLessonProgress = () => {
-	if (router.currentRoute.value.name == 'Lesson') {
+	let pathname = window.location.pathname.split('/')
+	if (pathname[2] != 'courses') return
+	let lessonIndex = pathname.pop().split('-')
+
+	if (lessonIndex.length == 2) {
 		call('lms.lms.api.mark_lesson_progress', {
-			course: router.currentRoute.value.params.courseName,
-			chapter_number: router.currentRoute.value.params.chapterNumber,
-			lesson_number: router.currentRoute.value.params.lessonNumber,
+			course: pathname[3],
+			chapter_number: lessonIndex[0],
+			lesson_number: lessonIndex[1],
 		})
 	}
 }

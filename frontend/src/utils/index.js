@@ -28,18 +28,19 @@ export function timeAgo(date) {
 export function formatTime(timeString) {
 	if (!timeString) return ''
 	const [hour, minute] = timeString.split(':').map(Number)
-
-	// Create a Date object with dummy values for day, month, and year
 	const dummyDate = new Date(0, 0, 0, hour, minute)
-
-	// Use Intl.DateTimeFormat to format the time in 12-hour format
 	const formattedTime = new Intl.DateTimeFormat('en-US', {
 		hour: 'numeric',
 		minute: 'numeric',
 		hour12: true,
 	}).format(dummyDate)
-
 	return formattedTime
+}
+
+export const formatSeconds = (time) => {
+	const minutes = Math.floor(time / 60)
+	const seconds = Math.floor(time % 60)
+	return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`
 }
 
 export function formatNumber(number) {
@@ -613,4 +614,11 @@ export const updateMetaInfo = (type, route, meta) => {
 		toast.error(__('Failed to update meta tags {0}').format(error))
 		console.error(error)
 	})
+}
+
+export const formatTimestamp = (seconds) => {
+	const date = new Date(seconds * 1000)
+	const minutes = String(date.getUTCMinutes()).padStart(2, '0')
+	const secs = String(date.getUTCSeconds()).padStart(2, '0')
+	return `${minutes}:${secs}`
 }

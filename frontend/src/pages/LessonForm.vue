@@ -210,7 +210,7 @@ const addInstructorNotes = (data) => {
 const enableAutoSave = () => {
 	autoSaveInterval = setInterval(() => {
 		saveLesson({ showSuccessMessage: false })
-	}, 10000)
+	}, 5000)
 }
 
 const keyboardShortcut = (e) => {

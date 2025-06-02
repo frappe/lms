@@ -68,7 +68,7 @@ import {
 	usePageMeta,
 } from 'frappe-ui'
 import { sessionStore } from '../stores/session'
-import { computed, inject, ref, onMounted } from 'vue'
+import { computed, inject, ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { X } from 'lucide-vue-next'
 
@@ -133,6 +133,10 @@ const markAllAsRead = createResource({
 		unReadNotifications.reload()
 		readNotifications.reload()
 	},
+})
+
+onUnmounted(() => {
+	socket.off('publish_lms_notifications')
 })
 
 const breadcrumbs = computed(() => {

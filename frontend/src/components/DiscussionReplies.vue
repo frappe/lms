@@ -97,7 +97,7 @@ import { createResource, TextEditor, Button, Dropdown, toast } from 'frappe-ui'
 import { timeAgo } from '../utils'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { ChevronLeft, MoreHorizontal } from 'lucide-vue-next'
-import { ref, inject, onMounted } from 'vue'
+import { ref, inject, onMounted, onUnmounted } from 'vue'
 
 const showTopics = defineModel('showTopics')
 const newReply = ref('')
@@ -251,4 +251,10 @@ const deleteReply = (reply) => {
 		}
 	)
 }
+
+onUnmounted(() => {
+	socket.off('publish_message')
+	socket.off('update_message')
+	socket.off('delete_message')
+})
 </script>
