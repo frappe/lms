@@ -10,7 +10,7 @@
 			<div class="text-base">
 				<div class="flex items-end gap-4">
 					<FormControl
-						:label="__('Time in Video (minutes:seconds)')"
+						:label="__('Time in Video')"
 						v-model="quiz.time"
 						type="text"
 						placeholder="2:15"
