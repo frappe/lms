@@ -303,6 +303,7 @@ import ProgressBar from '@/components/ProgressBar.vue'
 import CertificationLinks from '@/components/CertificationLinks.vue'
 
 const user = inject('$user')
+const socket = inject('$socket')
 const router = useRouter()
 const route = useRoute()
 const allowDiscussions = ref(false)
@@ -335,6 +336,11 @@ const props = defineProps({
 onMounted(() => {
 	startTimer()
 	document.addEventListener('fullscreenchange', attachFullscreenEvent)
+	socket.on('update_lesson_progress', (data) => {
+		if (data.course === props.courseName) {
+			lessonProgress.value = data.progress
+		}
+	})
 })
 
 const attachFullscreenEvent = () => {

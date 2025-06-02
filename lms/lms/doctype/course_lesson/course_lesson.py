@@ -2,12 +2,13 @@
 # For license information, please see license.txt
 
 import frappe
+import json
 from frappe import _
 from frappe.model.document import Document
 from frappe.utils.telemetry import capture
 from lms.lms.utils import get_course_progress
 from ...md import find_macros
-import json
+from frappe.realtime import get_website_room
 
 
 class CourseLesson(Document):
@@ -55,6 +56,7 @@ def save_progress(lesson, course):
 	)
 
 	quiz_completed = get_quiz_progress(lesson)
+	print("quiz_completed", quiz_completed)
 	assignment_completed = get_assignment_progress(lesson)
 
 	if not already_completed and quiz_completed and assignment_completed:
@@ -75,6 +77,13 @@ def save_progress(lesson, course):
 	enrollment.progress = progress
 	enrollment.save()
 	enrollment.run_method("on_change")
+
+	frappe.publish_realtime(
+		event="update_lesson_progress",
+		room=get_website_room(),
+		message={"course": course, "lesson": lesson, "progress": progress},
+		after_commit=True,
+	)
 
 	return progress
 
@@ -106,8 +115,10 @@ def get_quiz_progress(lesson):
 		macros = find_macros(lesson_details.body)
 		quizzes = [value for name, value in macros if name == "Quiz"]
 
+	print(quizzes)
 	for quiz in quizzes:
 		passing_percentage = frappe.db.get_value("LMS Quiz", quiz, "passing_percentage")
+		print(quiz, passing_percentage)
 		if not frappe.db.exists(
 			"LMS Quiz Submission",
 			{

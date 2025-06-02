@@ -1,11 +1,11 @@
 <template>
 	<div>
 		<div
-			v-if="quizzes.length && !showQuiz"
+			v-if="quizzes.length && !showQuiz && readOnly"
 			class="bg-surface-blue-2 space-y-1 py-3 px-4 rounded-md text-sm text-ink-blue-3 leading-5"
 		>
 			{{
-				__('This video has {0} {1}:').format(
+				__('This video contains {0} {1}:').format(
 					quizzes.length,
 					quizzes.length == 1 ? 'quiz' : 'quizzes'
 				)
@@ -13,7 +13,7 @@
 
 			<div v-for="(quiz, index) in quizzes" class="pl-3 mt-1">
 				<span> {{ index + 1 }}. {{ quiz.quiz }} </span>
-				{{ __('at {0} minutes').format(quiz.time) }}
+				{{ __('at {0}').format(formatTimestamp(quiz.time)) }}
 			</div>
 		</div>
 		<div
@@ -102,7 +102,7 @@
 			v-if="showQuiz"
 			:quizName="currentQuiz"
 			:inVideo="true"
-			:onSubmit="resumeVideo"
+			:backToVideo="resumeVideo"
 		/>
 		<div v-if="!readOnly" @click="showQuizModal = true">
 			<Button>
@@ -118,7 +118,7 @@
 	/>
 </template>
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { Pause, Maximize, Volume2, VolumeX } from 'lucide-vue-next'
 import { Button } from 'frappe-ui'
 import { formatSeconds } from '@/utils'
@@ -170,37 +170,45 @@ const updateCurrentTime = () => {
 		}
 		videoRef.value.ontimeupdate = () => {
 			currentTime.value = videoRef.value?.currentTime || currentTime.value
-			if (currentTime.value >= nextQuiz.value.time * 60) {
+			if (currentTime.value >= nextQuiz.value.time) {
 				videoRef.value.pause()
 				playing.value = false
 				videoRef.value.onTimeupdate = null
 				currentQuiz.value = nextQuiz.value.quiz
 				showQuiz.value = true
-				updateNextQuiz()
 			}
 		}
 	}, 0)
 }
 
-const resumeVideo = () => {
+const resumeVideo = (restart = false) => {
 	showQuiz.value = false
 	currentQuiz.value = null
 	updateCurrentTime()
 	setTimeout(() => {
-		videoRef.value.currentTime = currentTime.value
+		videoRef.value.currentTime = restart ? 0 : currentTime.value
 		videoRef.value.play()
 		playing.value = true
+		updateNextQuiz()
 	}, 0)
 }
 
 const updateNextQuiz = () => {
 	if (!props.quizzes.length) return
+
+	props.quizzes.forEach((quiz) => {
+		if (typeof quiz.time == 'string' && quiz.time.includes(':')) {
+			let time = quiz.time.split(':')
+			let timeInSeconds = parseInt(time[0]) * 60 + parseInt(time[1])
+			quiz.time = timeInSeconds
+		}
+	})
+
 	props.quizzes.sort((a, b) => a.time - b.time)
 
 	const nextQuizIndex = props.quizzes.findIndex(
-		(quiz) => quiz.time * 60 > currentTime.value
+		(quiz) => quiz.time > currentTime.value
 	)
-
 	if (nextQuizIndex !== -1) {
 		nextQuiz.value = props.quizzes[nextQuizIndex]
 	} else {
@@ -209,22 +217,10 @@ const updateNextQuiz = () => {
 }
 
 const fileURL = computed(() => {
-	if (isYoutube) {
-		let url = props.file
-		if (url.includes('watch?v=')) {
-			url = url.replace('watch?v=', 'embed/')
-		}
-		return `${url}?autoplay=0&controls=0&disablekb=1&playsinline=1&cc_load_policy=1&cc_lang_pref=auto`
-	}
 	return props.file
 })
 
-const isYoutube = computed(() => {
-	return props.type == 'video/youtube'
-})
-
 const playVideo = () => {
-	console.log(currentTime.value)
 	videoRef.value.play()
 	playing.value = true
 }
@@ -235,7 +231,6 @@ const pauseVideo = () => {
 }
 
 const togglePlay = () => {
-	console.log(currentTime.value)
 	if (playing.value) {
 		pauseVideo()
 	} else {
@@ -254,7 +249,6 @@ const toggleMute = () => {
 
 const changeCurrentTime = () => {
 	videoRef.value.currentTime = currentTime.value
-	console.log('Current Time:', currentTime.value)
 	updateNextQuiz()
 }
 
@@ -264,6 +258,13 @@ const toggleFullscreen = () => {
 	} else {
 		videoContainer.value.requestFullscreen()
 	}
+}
+
+const formatTimestamp = (seconds) => {
+	const date = new Date(seconds * 1000)
+	const minutes = String(date.getUTCMinutes()).padStart(2, '0')
+	const secs = String(date.getUTCSeconds()).padStart(2, '0')
+	return `${minutes}:${secs}`
 }
 </script>
 
