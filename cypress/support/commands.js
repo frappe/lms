@@ -72,8 +72,15 @@ Cypress.Commands.add("paste", { prevSubject: true }, (subject, text) => {
 
 Cypress.Commands.add("closeOnboardingModal", () => {
 	cy.wait(500);
-	cy.get('[class*="z-50"]')
-		.find('button:has(svg[class*="feather-x"])')
-		.realClick();
-	cy.wait(1000);
+	cy.get("body").then(($body) => {
+		// Check if any element with class including 'z-50' exists
+		if ($body.find('[class*="z-50"]').length > 0) {
+			cy.get('[class*="z-50"]')
+				.find('button:has(svg[class*="feather-x"])')
+				.realClick();
+			cy.wait(1000);
+		} else {
+			cy.log("Onboarding modal not found, skipping close.");
+		}
+	});
 });
