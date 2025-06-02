@@ -118,10 +118,10 @@
 	/>
 </template>
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { Pause, Maximize, Volume2, VolumeX } from 'lucide-vue-next'
 import { Button } from 'frappe-ui'
-import { formatSeconds } from '@/utils'
+import { formatSeconds, formatTimestamp } from '@/utils'
 import Play from '@/components/Icons/Play.vue'
 import QuizInVideo from '@/components/Modals/QuizInVideo.vue'
 
@@ -258,13 +258,6 @@ const toggleFullscreen = () => {
 	} else {
 		videoContainer.value.requestFullscreen()
 	}
-}
-
-const formatTimestamp = (seconds) => {
-	const date = new Date(seconds * 1000)
-	const minutes = String(date.getUTCMinutes()).padStart(2, '0')
-	const secs = String(date.getUTCSeconds()).padStart(2, '0')
-	return `${minutes}:${secs}`
 }
 </script>
 

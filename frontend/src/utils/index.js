@@ -615,3 +615,10 @@ export const updateMetaInfo = (type, route, meta) => {
 		console.error(error)
 	})
 }
+
+export const formatTimestamp = (seconds) => {
+	const date = new Date(seconds * 1000)
+	const minutes = String(date.getUTCMinutes()).padStart(2, '0')
+	const secs = String(date.getUTCSeconds()).padStart(2, '0')
+	return `${minutes}:${secs}`
+}

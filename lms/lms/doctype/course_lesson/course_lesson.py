@@ -56,7 +56,6 @@ def save_progress(lesson, course):
 	)
 
 	quiz_completed = get_quiz_progress(lesson)
-	print("quiz_completed", quiz_completed)
 	assignment_completed = get_assignment_progress(lesson)
 
 	if not already_completed and quiz_completed and assignment_completed:
@@ -115,10 +114,8 @@ def get_quiz_progress(lesson):
 		macros = find_macros(lesson_details.body)
 		quizzes = [value for name, value in macros if name == "Quiz"]
 
-	print(quizzes)
 	for quiz in quizzes:
 		passing_percentage = frappe.db.get_value("LMS Quiz", quiz, "passing_percentage")
-		print(quiz, passing_percentage)
 		if not frappe.db.exists(
 			"LMS Quiz Submission",
 			{

@@ -60,9 +60,15 @@
 						<ListRows>
 							<ListRow :row="row" v-for="row in allQuizzes">
 								<template #default="{ column, item }">
-									<ListRowItem :item="row[column.key]" :align="column.align">
-										<div class="leading-5 text-sm">
-											{{ row[column.key] }}
+									<ListRowItem
+										:item="row[column.key as keyof Quiz]"
+										:align="column.align"
+									>
+										<div v-if="column.key == 'time'" class="leading-5 text-sm">
+											{{ formatTimestamp(row[column.key as keyof Quiz]) }}
+										</div>
+										<div v-else class="leading-5 text-sm">
+											{{ row[column.key as keyof Quiz] }}
 										</div>
 									</ListRowItem>
 								</template>
@@ -107,17 +113,18 @@ import {
 } from 'frappe-ui'
 import { computed, reactive, ref, watch } from 'vue'
 import { Plus, Trash2 } from 'lucide-vue-next'
+import { formatTimestamp } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
 
 type Quiz = {
-	time: number
+	time: string
 	quiz: string
 }
 
 const show = defineModel()
 const allQuizzes = ref<Quiz[]>([])
 const quiz = reactive<Quiz>({
-	time: 0,
+	time: '',
 	quiz: '',
 })
 
@@ -137,10 +144,9 @@ const props = defineProps({
 })
 
 const addQuiz = () => {
-	if (quiz.time > props.duration) {
-		toast.error(__('Time in video exceeds the total duration of the video.'))
-		return
-	}
+	quiz.time = `${getTimeInSeconds()}`
+	if (!isTimeValid() || !isFormComplete()) return
+
 	allQuizzes.value.push({
 		time: quiz.time,
 		quiz: quiz.quiz,
@@ -148,8 +154,40 @@ const addQuiz = () => {
 
 	props.saveQuizzes(allQuizzes.value)
 
-	quiz.time = 0
+	quiz.time = ''
 	quiz.quiz = ''
+}
+
+const getTimeInSeconds = () => {
+	if (quiz.time && !quiz.time.includes(':')) {
+		quiz.time = `${quiz.time}:00`
+	}
+	const timeParts = quiz.time.split(':')
+	const timeInSeconds = parseInt(timeParts[0]) * 60 + parseInt(timeParts[1])
+
+	return timeInSeconds
+}
+
+const isTimeValid = () => {
+	if (parseInt(quiz.time) > props.duration) {
+		toast.error(__('Time in video exceeds the total duration of the video.'))
+		return false
+	}
+	return true
+}
+
+const isFormComplete = () => {
+	if (!quiz.time) {
+		toast.error(__('Please enter a valid timestamp'))
+		return false
+	}
+
+	if (!quiz.quiz) {
+		toast.error(__('Please select a quiz'))
+		return false
+	}
+
+	return true
 }
 
 const removeQuiz = (selections: string, unselectAll: () => void) => {
