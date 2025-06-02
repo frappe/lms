@@ -20,7 +20,6 @@ from frappe.utils import (
 	date_diff,
 )
 from frappe.query_builder import DocType
-from pypika.functions import DistinctOptionFunction
 from lms.lms.utils import get_average_rating, get_lesson_count
 from xml.dom.minidom import parseString
 from lms.lms.doctype.course_lesson.course_lesson import save_progress
@@ -413,7 +412,7 @@ def get_evaluator_details(evaluator):
 
 
 @frappe.whitelist(allow_guest=True)
-def get_certified_participants(filters=None, start=0, page_length=30):
+def get_certified_participants(filters=None, start=0, page_length=100):
 	or_filters = {}
 	if not filters:
 		filters = {}
@@ -451,18 +450,14 @@ def get_certified_participants(filters=None, start=0, page_length=30):
 	return participants
 
 
-class CountDistinct(DistinctOptionFunction):
-	def __init__(self, field):
-		super().__init__("COUNT", field, distinct=True)
-
-
 @frappe.whitelist(allow_guest=True)
 def get_count_of_certified_members(filters=None):
 	Certificate = DocType("LMS Certificate")
 
 	query = (
 		frappe.qb.from_(Certificate)
-		.select(CountDistinct(Certificate.member).as_("total"))
+		.select(Certificate.member)
+		.distinct()
 		.where(Certificate.published == 1)
 	)
 
@@ -473,9 +468,11 @@ def get_count_of_certified_members(filters=None):
 					Certificate.course_title.like(f"%{value}%")
 					| Certificate.batch_title.like(f"%{value}%")
 				)
+			elif field == "member_name":
+				query = query.where(Certificate.member_name.like(value[1]))
 
 	result = query.run(as_dict=True)
-	return result[0]["total"] if result else 0
+	return len(result) or 0
 
 
 @frappe.whitelist(allow_guest=True)
@@ -552,7 +549,7 @@ def get_sidebar_settings():
 	items = [
 		"courses",
 		"batches",
-		"certified_participants",
+		"certified_members",
 		"jobs",
 		"statistics",
 		"notifications",
