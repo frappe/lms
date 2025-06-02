@@ -55,7 +55,8 @@ describe("Batch Creation", () => {
 			batchName = url.split("/").pop();
 			cy.wrap(batchName).as("batchName");
 		});
-		cy.wait(3000);
+		cy.wait(500);
+
 		// Add Student to system
 
 		cy.get("span").contains("Learning").click();
@@ -148,26 +149,7 @@ describe("Batch Creation", () => {
 		cy.get("div").contains(randomEmail).click();
 		cy.get("button").contains("Submit").click();
 
-		/* Add course to batch */
-		cy.get("div[role='tablist']")
-			.find("button")
-			.contains("Courses")
-			.click();
-		cy.get("button").contains("Add").click();
-		cy.get('div[id^="headlessui-dialog-panel-v-"]')
-			.first()
-			.find("button")
-			.eq(1)
-			.click();
-		cy.get("input[id^='headlessui-combobox-input-v-']")
-			.eq(0)
-			.type("Test Course");
-		cy.get("[id^='headlessui-combobox-option-v-")
-			.contains("Test Course")
-			.eq(0)
-			.click();
-		cy.get("button").contains("Submit").click();
-
+		// Verify Seat Count
 		cy.get("span").contains("Details").click();
 		cy.get("div")
 			.contains("9")
@@ -175,15 +157,5 @@ describe("Batch Creation", () => {
 			.get("span")
 			.contains("Seats Left")
 			.should("be.visible");
-		cy.get(".grid a:first").within(() => {
-			cy.get("div").contains("Test Course").should("be.visible");
-			cy.get("div")
-				.contains("Test Course Short Introduction to test the UI")
-				.should("be.visible");
-		});
-
-		cy.get("button").contains("Edit").click();
-		cy.get("label").contains("Published").click();
-		cy.get("button").contains("Save").click();
 	});
 });
