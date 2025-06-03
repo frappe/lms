@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-05-30 16:04+0000\n"
-"PO-Revision-Date: 2025-06-02 20:30\n"
+"PO-Revision-Date: 2025-06-03 20:28\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Serbian (Latin)\n"
 "MIME-Version: 1.0\n"
@@ -510,12 +510,12 @@ msgstr "Bar jedna opcija mora biti tačna za ovo pitanje."
 
 #: frontend/src/components/Modals/LiveClassAttendance.vue:5
 msgid "Attendance for Class - {0}"
-msgstr ""
+msgstr "Prisustvo na predavanju - {0}"
 
 #. Label of the attendees (Int) field in DocType 'LMS Live Class'
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Attendees"
-msgstr ""
+msgstr "Prisutni"
 
 #. Label of the attire (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -656,7 +656,7 @@ msgstr "Datum početka grupe:"
 
 #: frontend/src/components/BatchStudents.vue:40
 msgid "Batch Summary"
-msgstr ""
+msgstr "Rezime grupe"
 
 #. Label of the batch_title (Data) field in DocType 'LMS Certificate'
 #. Label of the batch_title (Data) field in DocType 'LMS Certificate Request'
@@ -1101,7 +1101,7 @@ msgstr "Boja"
 
 #: frontend/src/pages/BatchForm.vue:293 frontend/src/pages/CourseForm.vue:268
 msgid "Comma separated keywords for SEO"
-msgstr ""
+msgstr "Ključne reči, odvojene zarezom, za SEO"
 
 #. Label of the comments (Small Text) field in DocType 'Exercise Latest
 #. Submission'
@@ -1873,7 +1873,7 @@ msgstr "Uredi profil"
 
 #: frontend/src/components/Modals/ZoomAccountModal.vue:6
 msgid "Edit Zoom Account"
-msgstr ""
+msgstr "Uredi Zoom nalog"
 
 #: frontend/src/pages/QuizForm.vue:182
 msgid "Edit the question"
@@ -2005,7 +2005,7 @@ msgstr "Vreme završetka"
 
 #: frontend/src/components/LiveClass.vue:89
 msgid "Ended"
-msgstr ""
+msgstr "Završeno"
 
 #: frontend/src/components/BatchOverlay.vue:103
 msgid "Enroll Now"
@@ -2059,7 +2059,7 @@ msgstr "Unesite tačan odgovor"
 
 #: frontend/src/components/Modals/ZoomAccountModal.vue:163
 msgid "Error creating Zoom Account"
-msgstr ""
+msgstr "Greška prilikom kreiranja Zoom naloga"
 
 #: frontend/src/components/Modals/EmailTemplateModal.vue:122
 msgid "Error creating email template"
@@ -2076,7 +2076,7 @@ msgstr "Greška prilikom brisanja imejl šablona"
 
 #: frontend/src/components/Modals/ZoomAccountModal.vue:200
 msgid "Error updating Zoom Account"
-msgstr ""
+msgstr "Greška prilikom ažuriranja Zoom naloga"
 
 #: frontend/src/components/Modals/EmailTemplateModal.vue:151
 msgid "Error updating email template"
@@ -2236,11 +2236,11 @@ msgstr "Neuspeh"
 
 #: lms/lms/doctype/lms_live_class/lms_live_class.py:139
 msgid "Failed to fetch attendance data from Zoom for class {0}: {1}"
-msgstr ""
+msgstr "Neuspešno preuzimanje podataka o prisustvu za Zoom za predavanje {0}: {1}"
 
 #: frontend/src/utils/index.js:613
 msgid "Failed to update meta tags {0}"
-msgstr ""
+msgstr "Neuspešno ažuriranje meta oznaka {0}"
 
 #. Label of the featured (Check) field in DocType 'LMS Course'
 #: frontend/src/components/CourseCard.vue:20
@@ -2871,7 +2871,7 @@ msgstr "URL za pridruživanje"
 #. Participant'
 #: lms/lms/doctype/lms_live_class_participant/lms_live_class_participant.json
 msgid "Joined At"
-msgstr ""
+msgstr "Pristup u"
 
 #. Name of a Workspace
 #: lms/lms/workspace/lms/lms.json
@@ -3002,7 +3002,7 @@ msgstr "LMS onlajn predavanje"
 #. Name of a DocType
 #: lms/lms/doctype/lms_live_class_participant/lms_live_class_participant.json
 msgid "LMS Live Class Participant"
-msgstr ""
+msgstr "LMS učesnik onlajn predavanja"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
@@ -3114,7 +3114,7 @@ msgstr "LMS šablon rasporeda nastave"
 #. Name of a DocType
 #: lms/lms/doctype/lms_zoom_settings/lms_zoom_settings.json
 msgid "LMS Zoom Settings"
-msgstr ""
+msgstr "LMS Zoom podešavanja"
 
 #. Label of the label (Data) field in DocType 'LMS Timetable Legend'
 #: lms/lms/doctype/lms_timetable_legend/lms_timetable_legend.json
@@ -3140,7 +3140,7 @@ msgstr "Pokreni fajl"
 #. Participant'
 #: lms/lms/doctype/lms_live_class_participant/lms_live_class_participant.json
 msgid "Left At"
-msgstr ""
+msgstr "Napušteno u"
 
 #. Label of the lesson (Link) field in DocType 'Exercise Latest Submission'
 #. Label of the lesson (Link) field in DocType 'Exercise Submission'
@@ -3395,7 +3395,7 @@ msgstr "Sredstvo:"
 #. Label of the meeting_id (Data) field in DocType 'LMS Live Class'
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Meeting ID"
-msgstr ""
+msgstr "ID sastanka"
 
 #. Label of the member (Link) field in DocType 'Exercise Latest Submission'
 #. Label of the member (Link) field in DocType 'Exercise Submission'
@@ -3600,7 +3600,7 @@ msgstr "Meta oznake"
 
 #: lms/lms/api.py:1457
 msgid "Meta tags should be a list."
-msgstr ""
+msgstr "Meta oznake treba da budu lista."
 
 #. Label of the milestone (Check) field in DocType 'LMS Batch Timetable'
 #: lms/lms/doctype/lms_batch_timetable/lms_batch_timetable.json
@@ -3739,7 +3739,7 @@ msgstr "Nova registracija"
 
 #: frontend/src/components/Modals/ZoomAccountModal.vue:6
 msgid "New Zoom Account"
-msgstr ""
+msgstr "Novi Zoom nalog"
 
 #: lms/lms/utils.py:609
 msgid "New comment in batch {0}"
@@ -3890,7 +3890,7 @@ msgstr "Obavesti me kada bude dostupno"
 
 #: frontend/src/components/BatchStudents.vue:48
 msgid "Number of Students"
-msgstr ""
+msgstr "Broj studenata"
 
 #: frontend/src/pages/BatchForm.vue:150
 msgid "Number of seats available"
@@ -4215,7 +4215,7 @@ msgstr "Molimo Vas da dodate <a href='{0}'>{1}</a> za <a href='{2}'>{3}</a> kako
 
 #: frontend/src/components/LiveClass.vue:8
 msgid "Please add a zoom account to the batch to create live classes."
-msgstr ""
+msgstr "Molimo Vas da dodate Zoom nalog da u grupi da biste mogli da kreirate onlajn predavanja."
 
 #: lms/lms/user.py:75
 msgid "Please ask your administrator to verify your sign-up"
@@ -4235,7 +4235,7 @@ msgstr "Molimo Vas da završite prethodne obuke u programu kako biste se upisali
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:211
 msgid "Please enable the zoom account to use this feature."
-msgstr ""
+msgstr "Molimo Vas da omogućite Zoom nalog kako biste koristili ovu mogućnost."
 
 #: frontend/src/components/CourseOutline.vue:319
 msgid "Please enroll for this course to view this lesson"
@@ -4414,7 +4414,7 @@ msgstr "Pregled slike"
 
 #: frontend/src/pages/CourseForm.vue:195
 msgid "Preview Video"
-msgstr "Pregled video snimka"
+msgstr "Pregled video-snimka"
 
 #: frontend/src/pages/Lesson.vue:119
 msgid "Previous"
@@ -4510,7 +4510,7 @@ msgstr "Napredak (%)"
 
 #: frontend/src/components/BatchStudents.vue:41
 msgid "Progress of students in courses and assessments"
-msgstr ""
+msgstr "Napredak studenata na obukama i u procenama"
 
 #. Option for the 'Required Role' (Select) field in DocType 'Cohort Web Page'
 #. Option for the 'Visibility' (Select) field in DocType 'LMS Batch Old'
@@ -6362,15 +6362,15 @@ msgstr "Zen režim"
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Zoom Account"
-msgstr ""
+msgstr "Zoom nalog"
 
 #: frontend/src/components/Modals/ZoomAccountModal.vue:158
 msgid "Zoom Account created successfully"
-msgstr ""
+msgstr "Zoom nalog je uspešno kreiran"
 
 #: frontend/src/components/Modals/ZoomAccountModal.vue:195
 msgid "Zoom Account updated successfully"
-msgstr ""
+msgstr "Zoom nalog je uspešno ažuriran"
 
 #. Name of a DocType
 #: lms/lms/doctype/zoom_settings/zoom_settings.json
@@ -6395,7 +6395,7 @@ msgstr "kandidati"
 
 #: frontend/src/components/Modals/LiveClassAttendance.vue:39
 msgid "attended for"
-msgstr ""
+msgstr "prisustvovao"
 
 #: lms/templates/emails/payment_reminder.html:4
 msgid "but didn’t complete your payment"
