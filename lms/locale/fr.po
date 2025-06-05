@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-05-30 16:04+0000\n"
-"PO-Revision-Date: 2025-06-02 20:29\n"
+"PO-Revision-Date: 2025-06-04 20:52\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: French\n"
 "MIME-Version: 1.0\n"
@@ -1750,7 +1750,7 @@ msgstr ""
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 #: lms/lms/doctype/work_experience/work_experience.json
 msgid "Description"
-msgstr ""
+msgstr "Description"
 
 #: frontend/src/components/Apps.vue:51
 msgid "Desk"
