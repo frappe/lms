@@ -23,10 +23,10 @@
 						/>
 						<MultiSelect
 							v-model="instructors"
-							doctype="User"
+							doctype="Course Evaluator"
 							:label="__('Instructors')"
 							:required="true"
-							:onCreate="(close) => openSettings('Members', close)"
+							:onCreate="(close) => openSettings('Evaluators', close)"
 							:filters="{ ignore_user_type: 1 }"
 						/>
 					</div>
