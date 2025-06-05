@@ -146,7 +146,7 @@
 <script setup>
 import { BookOpen, Users, Star, GraduationCap } from 'lucide-vue-next'
 import { computed, inject } from 'vue'
-import { Badge, Button, createResource, toast } from 'frappe-ui'
+import { Badge, Button, call, createResource, toast } from 'frappe-ui'
 import { formatAmount } from '@/utils/'
 import { capture } from '@/telemetry'
 import { useRouter } from 'vue-router'
@@ -175,15 +175,11 @@ function enrollStudent() {
 		toast.success(__('You need to login first to enroll for this course'))
 		setTimeout(() => {
 			window.location.href = `/login?redirect-to=${window.location.pathname}`
-		}, 1000)
+		}, 500)
 	} else {
-		const enrollStudentResource = createResource({
-			url: 'lms.lms.doctype.lms_enrollment.lms_enrollment.create_membership',
+		call('lms.lms.doctype.lms_enrollment.lms_enrollment.create_membership', {
+			course: props.course.data.name,
 		})
-		enrollStudentResource
-			.submit({
-				course: props.course.data.name,
-			})
 			.then(() => {
 				capture('enrolled_in_course', {
 					course: props.course.data.name,
@@ -198,7 +194,11 @@ function enrollStudent() {
 							lessonNumber: 1,
 						},
 					})
-				}, 2000)
+				}, 1000)
+			})
+			.catch((err) => {
+				toast.warning(__(err.messages?.[0] || err))
+				console.error(err)
 			})
 	}
 }
