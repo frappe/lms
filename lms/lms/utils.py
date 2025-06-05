@@ -961,15 +961,6 @@ def apply_gst(amount, country=None):
 	return amount, gst_applied
 
 
-def create_membership(course, payment):
-	membership = frappe.new_doc("LMS Enrollment")
-	membership.update(
-		{"member": frappe.session.user, "course": course, "payment": payment.name}
-	)
-	membership.save(ignore_permissions=True)
-	return f"/lms/courses/{course}/learn/1-1"
-
-
 def get_current_exchange_rate(source, target="USD"):
 	url = f"https://api.frankfurter.app/latest?from={source}&to={target}"
 

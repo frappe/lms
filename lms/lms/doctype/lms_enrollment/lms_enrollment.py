@@ -84,7 +84,11 @@ class LMSEnrollment(Document):
 def create_membership(
 	course, batch=None, member=None, member_type="Student", role="Member"
 ):
-	frappe.get_doc(
+	if frappe.db.get_value("LMS Course", course, "disable_self_learning"):
+		return False
+
+	enrollment = frappe.new_doc("LMS Enrollment")
+	enrollment.update(
 		{
 			"doctype": "LMS Enrollment",
 			"batch_old": batch,
@@ -93,8 +97,9 @@ def create_membership(
 			"member_type": member_type,
 			"member": member or frappe.session.user,
 		}
-	).save(ignore_permissions=True)
-	return "OK"
+	)
+	enrollment.insert()
+	return enrollment
 
 
 @frappe.whitelist()
