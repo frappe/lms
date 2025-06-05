@@ -3,8 +3,47 @@ describe("Batch Creation", () => {
 		cy.login();
 		cy.wait(500);
 		cy.visit("/lms/batches");
+		cy.closeOnboardingModal();
 
-		// Close onboarding modal
+		// Open Settings
+		cy.get("span").contains("Learning").click();
+		cy.get("span").contains("Settings").click();
+
+		// Add a new member
+		cy.get('[id^="headlessui-dialog-panel-v-"]')
+			.find("span")
+			.contains(/^Members$/)
+			.click();
+		cy.get('[id^="headlessui-dialog-panel-v-"]')
+			.find("button")
+			.contains("New")
+			.click();
+
+		const dateNow = Date.now();
+		const randomEmail = `testuser_${dateNow}@example.com`;
+		const randomName = `Test User ${dateNow}`;
+
+		cy.get("input[placeholder='Email']").type(randomEmail);
+		cy.get("input[placeholder='First Name']").type(randomName);
+		cy.get("button").contains("Add").click();
+
+		// Add evaluator
+		cy.get('[id^="headlessui-dialog-panel-v-"]')
+			.find("span")
+			.contains(/^Evaluators$/)
+			.click();
+
+		cy.get('[id^="headlessui-dialog-panel-v-"]')
+			.find("button")
+			.contains("New")
+			.click();
+		const randomEvaluator = `evaluator${dateNow}@example.com`;
+
+		cy.get("input[placeholder='Email']").type(randomEvaluator);
+		cy.get("button").contains("Add").click();
+		cy.get("div").contains(randomEvaluator).should("be.visible").click();
+
+		cy.visit("/lms/batches");
 		cy.closeOnboardingModal();
 
 		// Create a batch
@@ -34,7 +73,7 @@ describe("Batch Creation", () => {
 			.contains("Instructors")
 			.parent()
 			.within(() => {
-				cy.get("input").click().type("frappe");
+				cy.get("input").click().type("evaluator");
 				cy.get("input")
 					.invoke("attr", "aria-controls")
 					.as("instructor_list_id");
@@ -56,26 +95,6 @@ describe("Batch Creation", () => {
 			cy.wrap(batchName).as("batchName");
 		});
 		cy.wait(500);
-
-		// Add Student to system
-
-		cy.get("span").contains("Learning").click();
-		cy.get("span").contains("Settings").click();
-		cy.get('[id^="headlessui-dialog-panel-v-"]')
-			.find("span")
-			.contains(/^Members$/)
-			.should("have.text", "Members")
-			.click();
-		cy.get("button").contains("New").click();
-
-		const dateNow = Date.now();
-		const randomEmail = `testuser_${dateNow}@example.com`;
-		const randomName = `Test User ${dateNow}`;
-
-		cy.get("input[placeholder='Email']").type(randomEmail);
-		cy.get("input[placeholder='First Name']").type(randomName);
-		cy.get("button").contains("Add").click();
-		cy.get("div").contains(randomName).should("be.visible").click();
 
 		// View Batch
 		cy.wait(1000);
@@ -103,7 +122,7 @@ describe("Batch Creation", () => {
 					.contains("10:00 AM - 11:00 AM")
 					.should("be.visible");
 				cy.get("span").contains("IST").should("be.visible");
-				cy.get("a").contains("Frappe").should("be.visible");
+				cy.get("a").contains("Evaluator").should("be.visible");
 				cy.get("div")
 					.contains("10")
 					.should("be.visible")
@@ -118,7 +137,7 @@ describe("Batch Creation", () => {
 		cy.get("div")
 			.contains("Test Batch Short Description to test the UI")
 			.should("be.visible");
-		cy.get("a").contains("Frappe").should("be.visible");
+		cy.get("a").contains("Evaluator").should("be.visible");
 		cy.get("span")
 			.contains("01 Oct 2030 - 31 Oct 2030")
 			.should("be.visible");
