@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-05-30 16:04+0000\n"
-"PO-Revision-Date: 2025-06-04 20:52\n"
+"PO-Revision-Date: 2025-06-05 21:33\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: French\n"
 "MIME-Version: 1.0\n"
@@ -307,7 +307,7 @@ msgstr "Déjà Inscrit"
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Amount"
-msgstr ""
+msgstr "Montant"
 
 #. Label of the amount_usd (Currency) field in DocType 'LMS Batch'
 #. Label of the amount_usd (Currency) field in DocType 'LMS Course'
@@ -1898,7 +1898,7 @@ msgstr ""
 #: frontend/src/components/Settings/Members.vue:33
 #: lms/templates/signup-form.html:10
 msgid "Email"
-msgstr ""
+msgstr "Courriel"
 
 #: frontend/src/components/Modals/Event.vue:16
 msgid "Email ID"
@@ -3837,7 +3837,7 @@ msgstr ""
 
 #: lms/templates/quiz/quiz.html:147
 msgid "No."
-msgstr ""
+msgstr "N°."
 
 #: lms/lms/user.py:29
 msgid "Not Allowed"
