@@ -2182,5 +2182,6 @@ def get_related_courses(course):
 		related_course_details.append(get_course_details(related_course))
 	return related_course_details
 
+
 def persona_captured():
 	frappe.db.set_single_value("LMS Settings", "persona_captured", 1)

@@ -131,16 +131,16 @@ const course = createResource({
 })
 
 watch(
-    () => route.params.courseName,
-    (newCourseName, oldCourseName) => {
-        if (newCourseName && newCourseName !== oldCourseName) {
-            course.update({
-                cache: ['course', newCourseName],
-                params: { course: newCourseName }
-            })
-            course.reload()
-        }
-    }
+	() => route.params.courseName,
+	(newCourseName, oldCourseName) => {
+		if (newCourseName && newCourseName !== oldCourseName) {
+			course.update({
+				cache: ['course', newCourseName],
+				params: { course: newCourseName },
+			})
+			course.reload()
+		}
+	}
 )
 
 const breadcrumbs = computed(() => {
