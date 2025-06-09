@@ -207,6 +207,7 @@ def reindex_exercises(doc):
 	course.reindex_exercises()
 	frappe.msgprint("All exercises in this course have been re-indexed.")
 
+
 @frappe.whitelist()
 def get_permission_query_conditions(user):
 	
