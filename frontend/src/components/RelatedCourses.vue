@@ -20,18 +20,6 @@
 			</router-link>
 		</div>
 	</div>
-	<div v-else-if="relatedCourses.loading" class="mt-10">
-		<div class="text-2xl font-semibold text-ink-gray-9 mb-6">
-			{{ __('Related Courses') }}
-		</div>
-		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-			<div
-				v-for="n in 3"
-				:key="n"
-				class="animate-pulse bg-gray-200 rounded-md h-80"
-			></div>
-		</div>
-	</div>
 </template>
 
 <script setup>
