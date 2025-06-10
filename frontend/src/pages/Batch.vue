@@ -124,7 +124,7 @@
 						:endDate="batch.data.end_date"
 						class="mb-3"
 					/>
-					<div class="flex items-center mb-4 text-ink-gray-7">
+					<div class="flex items-center mb-3 text-ink-gray-7">
 						<Clock class="h-4 w-4 stroke-1.5 mr-2" />
 						<span>
 							{{ formatTime(batch.data.start_time) }} -
@@ -133,7 +133,7 @@
 					</div>
 					<div
 						v-if="batch.data.timezone"
-						class="flex items-center mb-4 text-ink-gray-7"
+						class="flex items-center mb-3 text-ink-gray-7"
 					>
 						<Globe class="h-4 w-4 stroke-1.5 mr-2" />
 						<span>

@@ -76,8 +76,8 @@
 						</Button>
 					</div>
 				</div>
-				<Tabs :tabs="tabs" v-model="tabIndex" class="border-l w-1/2">
-					<template #default="{ tab }">
+				<Tabs :tabs="tabs" as="div" v-model="tabIndex" class="border-l w-1/2">
+					<template #tab-panel="{ tab }">
 						<div
 							v-if="tab.label == 'Evaluation'"
 							class="flex flex-col space-y-4 p-5"
