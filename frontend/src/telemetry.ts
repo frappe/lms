@@ -6,12 +6,14 @@ declare global {
     posthog: any
   }
 }
+
 type PosthogSettings = {
   posthog_project_id: string
   posthog_host: string
   enable_telemetry: boolean
   telemetry_site_age: number
 }
+
 interface CaptureOptions {
   data: {
     user: string
