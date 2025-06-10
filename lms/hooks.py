@@ -260,6 +260,7 @@ permission_query_conditions = {
   
 }
 
+
 has_permission = {
     "LMS Course": "lms.lms.doctype.lms_course.lms_course.has_permission",
     
