@@ -69,17 +69,9 @@ function capture(
 }
 
 function startRecording() {
-  if (!isTelemetryEnabled()) return
-  if (window.posthog?.__loaded) {
-    window.posthog.startSessionRecording()
-  }
 }
 
 function stopRecording() {
-    if (!isTelemetryEnabled()) return
-    if (window.posthog?.__loaded && window.posthog.sessionRecordingStarted()) {
-        window.posthog.stopSessionRecording()
-    }
 }
 
 // Posthog Plugin

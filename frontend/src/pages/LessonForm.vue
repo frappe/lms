@@ -99,7 +99,7 @@ import EditorJS from '@editorjs/editorjs'
 import LessonHelp from '@/components/LessonHelp.vue'
 import { ChevronRight } from 'lucide-vue-next'
 import { getEditorTools, enablePlyr } from '@/utils'
-import { capture } from '@/telemetry'
+import { capture, startRecording, stopRecording } from '@/telemetry'
 import { useOnboarding } from 'frappe-ui/frappe'
 
 const { brand } = sessionStore()
@@ -131,6 +131,7 @@ onMounted(() => {
 		window.location.href = '/login'
 	}
 	capture('lesson_form_opened')
+	startRecording()
 	editor.value = renderEditor('content')
 	instructorEditor.value = renderEditor('instructor-notes')
 	window.addEventListener('keydown', keyboardShortcut)
@@ -209,7 +210,7 @@ const addInstructorNotes = (data) => {
 const enableAutoSave = () => {
 	autoSaveInterval = setInterval(() => {
 		saveLesson({ showSuccessMessage: false })
-	}, 10000)
+	}, 5000)
 }
 
 const keyboardShortcut = (e) => {
@@ -226,6 +227,7 @@ const keyboardShortcut = (e) => {
 onBeforeUnmount(() => {
 	clearInterval(autoSaveInterval)
 	window.removeEventListener('keydown', keyboardShortcut)
+	stopRecording()
 })
 
 const newLessonResource = createResource({

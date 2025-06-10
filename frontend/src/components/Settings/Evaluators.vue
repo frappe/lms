@@ -33,6 +33,7 @@
 				:placeholder="__('Email')"
 				type="email"
 				class="w-full"
+				@keydown.enter="addEvaluator"
 			/>
 			<Button @click="addEvaluator()" variant="subtle">
 				{{ __('Add') }}

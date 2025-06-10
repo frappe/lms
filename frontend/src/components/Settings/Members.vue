@@ -118,23 +118,7 @@ import { useRouter } from 'vue-router'
 import { ref, watch, reactive, inject } from 'vue'
 import { RefreshCw, Plus, X } from 'lucide-vue-next'
 import { useOnboarding } from 'frappe-ui/frappe'
-
-interface User {
-	data: {
-		email: string
-		name: string
-		enabled: boolean
-		user_image: string
-		full_name: string
-		user_type: ['System User', 'Website User']
-		username: string
-		is_moderator: boolean
-		is_system_manager: boolean
-		is_evaluator: boolean
-		is_instructor: boolean
-		is_fc_site: boolean
-	}
-}
+import type { User } from '@/components/Settings/types'
 
 const router = useRouter()
 const show = defineModel('show')

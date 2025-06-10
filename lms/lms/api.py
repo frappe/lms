@@ -20,7 +20,6 @@ from frappe.utils import (
 	date_diff,
 )
 from frappe.query_builder import DocType
-from pypika.functions import DistinctOptionFunction
 from lms.lms.utils import get_average_rating, get_lesson_count
 from xml.dom.minidom import parseString
 from lms.lms.doctype.course_lesson.course_lesson import save_progress
@@ -413,7 +412,7 @@ def get_evaluator_details(evaluator):
 
 
 @frappe.whitelist(allow_guest=True)
-def get_certified_participants(filters=None, start=0, page_length=30):
+def get_certified_participants(filters=None, start=0, page_length=100):
 	or_filters = {}
 	if not filters:
 		filters = {}
@@ -451,23 +450,29 @@ def get_certified_participants(filters=None, start=0, page_length=30):
 	return participants
 
 
-class CountDistinct(DistinctOptionFunction):
-	def __init__(self, field):
-		super().__init__("COUNT", field, distinct=True)
-
-
 @frappe.whitelist(allow_guest=True)
-def get_count_of_certified_members():
+def get_count_of_certified_members(filters=None):
 	Certificate = DocType("LMS Certificate")
 
 	query = (
 		frappe.qb.from_(Certificate)
-		.select(CountDistinct(Certificate.member).as_("total"))
+		.select(Certificate.member)
+		.distinct()
 		.where(Certificate.published == 1)
 	)
 
+	if filters:
+		for field, value in filters.items():
+			if field == "category":
+				query = query.where(
+					Certificate.course_title.like(f"%{value}%")
+					| Certificate.batch_title.like(f"%{value}%")
+				)
+			elif field == "member_name":
+				query = query.where(Certificate.member_name.like(value[1]))
+
 	result = query.run(as_dict=True)
-	return result[0]["total"] if result else 0
+	return len(result) or 0
 
 
 @frappe.whitelist(allow_guest=True)
@@ -544,7 +549,7 @@ def get_sidebar_settings():
 	items = [
 		"courses",
 		"batches",
-		"certified_participants",
+		"certified_members",
 		"jobs",
 		"statistics",
 		"notifications",
@@ -691,13 +696,13 @@ def get_categories(doctype, filters):
 @frappe.whitelist()
 def get_members(start=0, search=""):
 	"""Get members for the given search term and start index.
-	                                Args: start (int): Start index for the query.
+	                                                                Args: start (int): Start index for the query.
 	<<<<<<< HEAD
-	                                search (str): Search term to filter the results.
+	                                                                search (str): Search term to filter the results.
 	=======
-	                                                                                                                                                                search (str): Search term to filter the results.
+	                                                                                                                                                                                                                                                                                                                                search (str): Search term to filter the results.
 	>>>>>>> 4869bba7bbb2fb38477d6fc29fb3b5838e075577
-	                                Returns: List of members.
+	                                                                Returns: List of members.
 	"""
 
 	filters = {"enabled": 1, "name": ["not in", ["Administrator", "Guest"]]}
@@ -836,6 +841,14 @@ def delete_documents(doctype, documents):
 	frappe.only_for("Moderator")
 	for doc in documents:
 		frappe.delete_doc(doctype, doc)
+
+
+@frappe.whitelist(allow_guest=True)
+def get_count(doctype, filters):
+	return frappe.db.count(
+		doctype,
+		filters=filters,
+	)
 
 
 @frappe.whitelist()
@@ -1416,3 +1429,67 @@ def capture_user_persona(responses):
 	if response.get("message").get("name"):
 		frappe.db.set_single_value("LMS Settings", "persona_captured", True)
 	return response
+
+
+@frappe.whitelist()
+def get_meta_info(type, route):
+	if frappe.db.exists("Website Meta Tag", {"parent": f"{type}/{route}"}):
+		meta_tags = frappe.get_all(
+			"Website Meta Tag",
+			{
+				"parent": f"{type}/{route}",
+			},
+			["name", "key", "value"],
+		)
+
+		return meta_tags
+
+	return []
+
+
+@frappe.whitelist()
+def update_meta_info(type, route, meta_tags):
+	parent_name = f"{type}/{route}"
+	if not isinstance(meta_tags, list):
+		frappe.throw(_("Meta tags should be a list."))
+
+	for tag in meta_tags:
+		existing_tag = frappe.db.exists(
+			"Website Meta Tag",
+			{
+				"parent": parent_name,
+				"parenttype": "Website Route Meta",
+				"parentfield": "meta_tags",
+				"key": tag["key"],
+			},
+		)
+		if existing_tag:
+			if not tag.get("value"):
+				frappe.db.delete("Website Meta Tag", existing_tag)
+				continue
+			frappe.db.set_value("Website Meta Tag", existing_tag, "value", tag["value"])
+		elif tag.get("value"):
+			tag_properties = {
+				"parent": parent_name,
+				"parenttype": "Website Route Meta",
+				"parentfield": "meta_tags",
+				"key": tag["key"],
+				"value": tag["value"],
+			}
+
+			parent_exists = frappe.db.exists("Website Route Meta", parent_name)
+			if not parent_exists:
+				route_meta = frappe.new_doc("Website Route Meta")
+				route_meta.update(
+					{
+						"__newname": parent_name,
+					}
+				)
+				route_meta.append("meta_tags", tag_properties)
+				route_meta.insert()
+			else:
+				new_tag = frappe.new_doc("Website Meta Tag")
+				new_tag.update(tag_properties)
+				print(new_tag)
+				new_tag.insert()
+				print(new_tag.as_dict())

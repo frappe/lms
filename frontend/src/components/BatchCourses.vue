@@ -106,7 +106,6 @@ const courses = createResource({
 	params: {
 		batch: props.batch,
 	},
-	cache: ['batchCourses', props.batchName],
 	auto: true,
 })
 

@@ -104,3 +104,8 @@ lms.patches.v2_0.delete_unused_custom_fields
 lms.patches.v2_0.update_certificate_request_status
 lms.patches.v2_0.update_job_city_and_country
 lms.patches.v2_0.update_course_evaluator_data
+lms.patches.v2_0.move_zoom_settings #20-05-2025
+lms.patches.v2_0.link_zoom_account_to_live_class
+lms.patches.v2_0.link_zoom_account_to_batch
+lms.patches.v2_0.sidebar_for_certified_members
+lms.patches.v2_0.move_batch_instructors_to_evaluators

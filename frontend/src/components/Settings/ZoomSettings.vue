@@ -5,12 +5,12 @@
 				<div class="text-xl font-semibold text-ink-gray-9">
 					{{ label }}
 				</div>
-				<div class="text-xs text-ink-gray-5">
+				<!-- <div class="text-xs text-ink-gray-5">
 					{{ __(description) }}
-				</div>
+				</div> -->
 			</div>
 			<div class="flex items-center space-x-5">
-				<Button @click="openTemplateForm('new')">
+				<Button @click="openForm('new')">
 					<template #prefix>
 						<Plus class="h-3 w-3 stroke-1.5" />
 					</template>
@@ -18,15 +18,15 @@
 				</Button>
 			</div>
 		</div>
-		<div v-if="emailTemplates.data?.length" class="overflow-y-scroll">
+		<div v-if="zoomAccounts.data?.length" class="overflow-y-scroll">
 			<ListView
 				:columns="columns"
-				:rows="emailTemplates.data"
+				:rows="zoomAccounts.data"
 				row-key="name"
 				:options="{
 					showTooltip: false,
 					onRowClick: (row) => {
-						openTemplateForm(row.name)
+						openForm(row.name)
 					},
 				}"
 			>
@@ -45,10 +45,18 @@
 				</ListHeader>
 
 				<ListRows>
-					<ListRow :row="row" v-for="row in emailTemplates.data">
+					<ListRow :row="row" v-for="row in zoomAccounts.data">
 						<template #default="{ column, item }">
 							<ListRowItem :item="row[column.key]" :align="column.align">
-								<div class="leading-5 text-sm">
+								<div v-if="column.key == 'enabled'">
+									<Badge v-if="row[column.key]" theme="blue">
+										{{ __('Enabled') }}
+									</Badge>
+									<Badge v-else theme="gray">
+										{{ __('Disabled') }}
+									</Badge>
+								</div>
+								<div v-else class="leading-5 text-sm">
 									{{ row[column.key] }}
 								</div>
 							</ListRowItem>
@@ -61,7 +69,7 @@
 						<div class="flex gap-2">
 							<Button
 								variant="ghost"
-								@click="removeTemplate(selections, unselectAll)"
+								@click="removeAccount(selections, unselectAll)"
 							>
 								<Trash2 class="h-4 w-4 stroke-1.5" />
 							</Button>
@@ -71,60 +79,85 @@
 			</ListView>
 		</div>
 	</div>
-	<EmailTemplateModal
+	<ZoomAccountModal
 		v-model="showForm"
-		v-model:emailTemplates="emailTemplates"
-		:templateID="selectedTemplate"
+		v-model:zoomAccounts="zoomAccounts"
+		:accountID="currentAccount"
 	/>
 </template>
 <script setup lang="ts">
 import {
 	Button,
+	Badge,
 	call,
 	createListResource,
 	ListView,
 	ListHeader,
 	ListHeaderItem,
-	ListSelectBanner,
 	ListRows,
 	ListRow,
 	ListRowItem,
+	ListSelectBanner,
 	toast,
 } from 'frappe-ui'
-import { computed, ref } from 'vue'
+import { computed, inject, onMounted, ref } from 'vue'
 import { Plus, Trash2 } from 'lucide-vue-next'
-import EmailTemplateModal from '@/components/Modals/EmailTemplateModal.vue'
+import { cleanError } from '@/utils'
+import { User } from '@/components/Settings/types'
+import ZoomAccountModal from '@/components/Modals/ZoomAccountModal.vue'
+
+const user = inject<User | null>('$user')
+const showForm = ref(false)
+const currentAccount = ref<string | null>(null)
 
 const props = defineProps({
-	label: {
-		type: String,
-		required: true,
-	},
-	description: {
-		type: String,
-		default: '',
-	},
+	label: String,
+	description: String,
 })
 
-const showForm = ref(false)
-const readOnlyMode = window.read_only_mode
-const selectedTemplate = ref(null)
-
-const emailTemplates = createListResource({
-	doctype: 'Email Template',
-	fields: ['name', 'subject', 'use_html', 'response', 'response_html'],
-	auto: true,
-	orderBy: 'modified desc',
-	cache: 'email-templates',
+const zoomAccounts = createListResource({
+	doctype: 'LMS Zoom Settings',
+	fields: [
+		'name',
+		'enabled',
+		'member',
+		'member_name',
+		'account_id',
+		'client_id',
+		'client_secret',
+	],
+	cache: ['zoomAccounts'],
 })
 
-const removeTemplate = (selections, unselectAll) => {
+onMounted(() => {
+	fetchZoomAccounts()
+})
+
+const fetchZoomAccounts = () => {
+	if (!user?.data?.is_moderator && !user?.data?.is_evaluator) return
+
+	if (!user?.data?.is_moderator) {
+		zoomAccounts.update({
+			filters: {
+				member: user.data.name,
+			},
+		})
+	}
+	zoomAccounts.reload()
+}
+
+const openForm = (accountID: string) => {
+	currentAccount.value = accountID
+	showForm.value = true
+}
+
+const removeAccount = (selections, unselectAll) => {
 	call('lms.lms.api.delete_documents', {
-		doctype: 'Email Template',
+		doctype: 'LMS Zoom Settings',
 		documents: Array.from(selections),
 	})
 		.then(() => {
-			emailTemplates.reload()
+			zoomAccounts.reload()
 			toast.success(__('Email Templates deleted successfully'))
 			unselectAll()
 		})
@@ -135,25 +168,20 @@ const removeTemplate = (selections, unselectAll) => {
 		})
 }
 
-const openTemplateForm = (templateID) => {
-	if (readOnlyMode) {
-		return
-	}
-	selectedTemplate.value = templateID
-	showForm.value = true
-}
-
 const columns = computed(() => {
 	return [
 		{
-			label: 'Name',
+			label: __('Account'),
 			key: 'name',
-			width: '20rem',
 		},
 		{
-			label: 'Subject',
-			key: 'subject',
-			width: '25rem',
+			label: __('Member'),
+			key: 'member_name',
+		},
+		{
+			label: __('Status'),
+			key: 'enabled',
+			align: 'center',
 		},
 	]
 })

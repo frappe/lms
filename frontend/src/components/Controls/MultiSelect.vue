@@ -55,9 +55,10 @@
 											</div>
 										</li>
 									</ComboboxOption>
+									<div class="h-10"></div>
 									<div
 										v-if="attrs.onCreate"
-										class="absolute bottom-2 left-1 w-[98%] pt-2 bg-white border-t"
+										class="absolute bottom-2 left-1 w-[99%] pt-2 bg-white border-t"
 									>
 										<Button
 											variant="ghost"

@@ -45,7 +45,6 @@ const Layout = computed(() => {
 
 onUnmounted(() => {
 	noSidebar.value = false
-	stopSession()
 })
 
 watch(userResource, () => {

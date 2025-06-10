@@ -116,6 +116,7 @@ scheduler_events = {
 		"lms.lms.doctype.lms_certificate_request.lms_certificate_request.schedule_evals",
 		"lms.lms.api.update_course_statistics",
 		"lms.lms.doctype.lms_certificate_request.lms_certificate_request.mark_eval_as_completed",
+		"lms.lms.doctype.lms_live_class.lms_live_class.update_attendance",
 	],
 	"daily": [
 		"lms.job.doctype.job_opportunity.job_opportunity.update_job_openings",

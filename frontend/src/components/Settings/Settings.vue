@@ -56,6 +56,11 @@
 						:label="activeTab.label"
 						:description="activeTab.description"
 					/>
+					<ZoomSettings
+						v-else-if="activeTab.label === 'Zoom Accounts'"
+						:label="activeTab.label"
+						:description="activeTab.description"
+					/>
 					<PaymentSettings
 						v-else-if="activeTab.label === 'Payment Gateway'"
 						:label="activeTab.label"
@@ -86,14 +91,15 @@
 import { Dialog, createDocumentResource, createResource } from 'frappe-ui'
 import { ref, computed, watch } from 'vue'
 import { useSettings } from '@/stores/settings'
-import SettingDetails from '../SettingDetails.vue'
+import SettingDetails from '@/components/Settings/SettingDetails.vue'
 import SidebarLink from '@/components/SidebarLink.vue'
-import Members from '@/components/Members.vue'
-import Evaluators from '@/components/Evaluators.vue'
-import Categories from '@/components/Categories.vue'
-import EmailTemplates from '@/components/EmailTemplates.vue'
-import BrandSettings from '@/components/BrandSettings.vue'
-import PaymentSettings from '@/components/PaymentSettings.vue'
+import Members from '@/components/Settings/Members.vue'
+import Evaluators from '@/components/Settings/Evaluators.vue'
+import Categories from '@/components/Settings/Categories.vue'
+import EmailTemplates from '@/components/Settings/EmailTemplates.vue'
+import BrandSettings from '@/components/Settings/BrandSettings.vue'
+import PaymentSettings from '@/components/Settings/PaymentSettings.vue'
+import ZoomSettings from '@/components/Settings/ZoomSettings.vue'
 
 const show = defineModel()
 const doctype = ref('LMS Settings')
@@ -149,13 +155,13 @@ const tabsStructure = computed(() => {
 							type: 'Column Break',
 						},
 						{
-							label: 'Batch Confirmation Template',
+							label: 'Batch Confirmation Email Template',
 							name: 'batch_confirmation_template',
 							doctype: 'Email Template',
 							type: 'Link',
 						},
 						{
-							label: 'Certification Template',
+							label: 'Certification Email Template',
 							name: 'certification_template',
 							doctype: 'Email Template',
 							type: 'Link',
@@ -239,6 +245,11 @@ const tabsStructure = computed(() => {
 					description: 'Manage the email templates for your learning system',
 					icon: 'MailPlus',
 				},
+				{
+					label: 'Zoom Accounts',
+					description: 'Manage the Zoom accounts for your learning system',
+					icon: 'Video',
+				},
 			],
 		},
 		{
@@ -282,8 +293,8 @@ const tabsStructure = computed(() => {
 							type: 'checkbox',
 						},
 						{
-							label: 'Certified Participants',
-							name: 'certified_participants',
+							label: 'Certified Members',
+							name: 'certified_members',
 							type: 'checkbox',
 						},
 						{
@@ -325,6 +336,9 @@ const tabsStructure = computed(() => {
 								'New users will have to be manually registered by Admins.',
 						},
 						{
+							type: 'Column Break',
+						},
+						{
 							label: 'Signup Consent HTML',
 							name: 'custom_signup_content',
 							type: 'Code',
@@ -351,12 +365,16 @@ const tabsStructure = computed(() => {
 							type: 'textarea',
 							rows: 4,
 							description:
-								'Keywords for search engines to find your website. Separated by commas.',
+								'Comma separated keywords for search engines to find your website.',
+						},
+						{
+							type: 'Column Break',
 						},
 						{
 							label: 'Meta Image',
 							name: 'meta_image',
 							type: 'Upload',
+							size: 'lg',
 						},
 					],
 				},

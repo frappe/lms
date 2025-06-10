@@ -139,16 +139,7 @@ function submitEvaluation(close) {
 			close()
 		},
 		onError(err) {
-			const message = err.messages?.[0] || err
-			let unavailabilityMessage
-
-			if (typeof message === 'string') {
-				unavailabilityMessage = message?.includes('unavailable')
-			} else {
-				unavailabilityMessage = false
-			}
-
-			toast.warning(__(unavailabilityMessage || 'Evaluator is unavailable'))
+			toast.warning(__(err.messages?.[0] || err))
 		},
 	})
 }

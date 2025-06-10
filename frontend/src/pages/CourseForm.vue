@@ -76,7 +76,7 @@
 							<FormControl
 								v-model="course.short_introduction"
 								type="textarea"
-								:rows="4"
+								:rows="5"
 								:label="__('Short Introduction')"
 								:placeholder="
 									__(
@@ -201,7 +201,7 @@
 						/>
 					</div>
 
-					<div class="px-10 pb-5 space-y-5">
+					<div class="px-10 pb-5 space-y-5 border-b">
 						<div class="text-lg font-semibold mt-5">
 							{{ __('Pricing and Certification') }}
 						</div>
@@ -248,6 +248,27 @@
 							/>
 						</div>
 					</div>
+
+					<div class="px-10 pb-5 space-y-5">
+						<div class="text-lg font-semibold mt-5">
+							{{ __('Meta Tags') }}
+						</div>
+						<div class="space-y-5">
+							<FormControl
+								v-model="meta.description"
+								:label="__('Meta Description')"
+								type="textarea"
+								:rows="7"
+							/>
+							<FormControl
+								v-model="meta.keywords"
+								:label="__('Meta Keywords')"
+								type="textarea"
+								:rows="7"
+								:placeholder="__('Comma separated keywords for SEO')"
+							/>
+						</div>
+					</div>
 				</div>
 			</div>
 			<div class="border-l">
@@ -264,6 +285,7 @@
 <script setup>
 import {
 	Breadcrumbs,
+	call,
 	TextEditor,
 	Button,
 	createResource,
@@ -284,10 +306,10 @@ import {
 } from 'vue'
 import { Image, Trash2, X } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
-import { capture } from '@/telemetry'
+import { capture, startRecording, stopRecording } from '@/telemetry'
 import { useOnboarding } from 'frappe-ui/frappe'
 import { sessionStore } from '../stores/session'
-import { openSettings } from '@/utils'
+import { openSettings, getMetaInfo, updateMetaInfo } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
 import CourseOutline from '@/components/CourseOutline.vue'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
@@ -328,18 +350,29 @@ const course = reactive({
 	evaluator: '',
 })
 
+const meta = reactive({
+	description: '',
+	keywords: '',
+})
+
 onMounted(() => {
 	if (!user.data?.is_moderator && !user.data?.is_instructor) {
 		router.push({ name: 'Courses' })
 	}
 
 	if (props.courseName !== 'new') {
-		courseResource.reload()
+		fetchCourseInfo()
 	} else {
 		capture('course_form_opened')
+		startRecording()
 	}
 	window.addEventListener('keydown', keyboardShortcut)
 })
+
+const fetchCourseInfo = () => {
+	courseResource.reload()
+	getMetaInfo('courses', props.courseName, meta)
+}
 
 const keyboardShortcut = (e) => {
 	if (
@@ -354,6 +387,7 @@ const keyboardShortcut = (e) => {
 
 onBeforeUnmount(() => {
 	window.removeEventListener('keydown', keyboardShortcut)
+	stopRecording()
 })
 
 const courseCreationResource = createResource({
@@ -442,40 +476,50 @@ const imageResource = createResource({
 
 const submitCourse = () => {
 	if (courseResource.data) {
-		courseEditResource.submit(
-			{
-				course: courseResource.data.name,
-			},
-			{
-				onSuccess() {
-					toast.success(__('Course updated successfully'))
-				},
-				onError(err) {
-					toast.error(err.messages?.[0] || err)
-				},
-			}
-		)
+		editCourse()
 	} else {
-		courseCreationResource.submit(course, {
-			onSuccess(data) {
-				if (user.data?.is_system_manager) {
-					updateOnboardingStep('create_first_course', true, false, () => {
-						localStorage.setItem('firstCourse', data.name)
-					})
-				}
+		createCourse()
+	}
+}
 
-				capture('course_created')
-				toast.success(__('Course created successfully'))
-				router.push({
-					name: 'CourseForm',
-					params: { courseName: data.name },
+const createCourse = () => {
+	courseCreationResource.submit(course, {
+		onSuccess(data) {
+			updateMetaInfo('courses', data.name, meta)
+			if (user.data?.is_system_manager) {
+				updateOnboardingStep('create_first_course', true, false, () => {
+					localStorage.setItem('firstCourse', data.name)
 				})
+			}
+
+			capture('course_created')
+			toast.success(__('Course created successfully'))
+			router.push({
+				name: 'CourseForm',
+				params: { courseName: data.name },
+			})
+		},
+		onError(err) {
+			toast.error(err.messages?.[0] || err)
+		},
+	})
+}
+
+const editCourse = () => {
+	courseEditResource.submit(
+		{
+			course: courseResource.data.name,
+		},
+		{
+			onSuccess() {
+				updateMetaInfo('courses', props.courseName, meta)
+				toast.success(__('Course updated successfully'))
 			},
 			onError(err) {
 				toast.error(err.messages?.[0] || err)
 			},
-		})
-	}
+		}
+	)
 }
 
 const deleteCourse = createResource({
@@ -515,7 +559,7 @@ watch(
 	() => props.courseName !== 'new',
 	(newVal) => {
 		if (newVal) {
-			courseResource.reload()
+			fetchCourseInfo()
 		}
 	}
 )

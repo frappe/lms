@@ -2,12 +2,13 @@
 # For license information, please see license.txt
 
 import frappe
+import json
 from frappe import _
 from frappe.model.document import Document
 from frappe.utils.telemetry import capture
 from lms.lms.utils import get_course_progress
 from ...md import find_macros
-import json
+from frappe.realtime import get_website_room
 
 
 class CourseLesson(Document):
@@ -76,6 +77,13 @@ def save_progress(lesson, course):
 	enrollment.save()
 	enrollment.run_method("on_change")
 
+	frappe.publish_realtime(
+		event="update_lesson_progress",
+		room=get_website_room(),
+		message={"course": course, "lesson": lesson, "progress": progress},
+		after_commit=True,
+	)
+
 	return progress
 
 
@@ -96,6 +104,11 @@ def get_quiz_progress(lesson):
 		for block in content.get("blocks"):
 			if block.get("type") == "quiz":
 				quizzes.append(block.get("data").get("quiz"))
+			if block.get("type") == "upload":
+				quizzes_in_video = block.get("data").get("quizzes")
+				if quizzes_in_video and len(quizzes_in_video) > 0:
+					for row in quizzes_in_video:
+						quizzes.append(row.get("quiz"))
 
 	elif lesson_details.body:
 		macros = find_macros(lesson_details.body)

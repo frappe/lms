@@ -1,5 +1,5 @@
 <template>
-	<div class="flex flex-col justify-between min-h-0">
+	<div class="flex flex-col justify-between h-full">
 		<div>
 			<div class="flex items-center justify-between">
 				<div class="font-semibold mb-1 text-ink-gray-9">
@@ -28,7 +28,7 @@
 </template>
 <script setup>
 import { createResource, Button, Badge } from 'frappe-ui'
-import SettingFields from '@/components/SettingFields.vue'
+import SettingFields from '@/components/Settings/SettingFields.vue'
 import { watch, ref } from 'vue'
 
 const isDirty = ref(false)

@@ -70,7 +70,7 @@
 import { createResource, Button } from 'frappe-ui'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { singularize, timeAgo } from '../utils'
-import { ref, onMounted, inject } from 'vue'
+import { ref, onMounted, inject, onUnmounted } from 'vue'
 import DiscussionReplies from '@/components/DiscussionReplies.vue'
 import DiscussionModal from '@/components/Modals/DiscussionModal.vue'
 import { MessageSquareText } from 'lucide-vue-next'
@@ -153,4 +153,8 @@ const showReplies = (topic) => {
 const openTopicModal = () => {
 	showTopicModal.value = true
 }
+
+onUnmounted(() => {
+	socket.off('new_discussion_topic')
+})
 </script>

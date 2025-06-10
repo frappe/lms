@@ -26,6 +26,7 @@
   "description",
   "column_break_hlqw",
   "instructors",
+  "zoom_account",
   "section_break_rgfj",
   "medium",
   "category",
@@ -354,6 +355,12 @@
   {
    "fieldname": "section_break_cssv",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "zoom_account",
+   "fieldtype": "Link",
+   "label": "Zoom Account",
+   "options": "LMS Zoom Settings"
   }
  ],
  "grid_page_length": 50,
@@ -372,7 +379,7 @@
    "link_fieldname": "batch_name"
   }
  ],
- "modified": "2025-05-21 13:30:28.904260",
+ "modified": "2025-05-26 15:30:55.083507",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Batch",
