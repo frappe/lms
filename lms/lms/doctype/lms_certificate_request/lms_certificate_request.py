@@ -87,8 +87,7 @@ class LMSCertificateRequest(Document):
 				req.date == getdate(self.date)
 				or getdate() < getdate(req.date)
 				or (
-					getdate() == getdate(req.date)
-					and getdate(self.start_time) < getdate(req.start_time)
+					getdate() == getdate(req.date) and get_time(nowtime()) < get_time(req.start_time)
 				)
 			):
 				course_title = frappe.db.get_value("LMS Course", req.course, "title")
