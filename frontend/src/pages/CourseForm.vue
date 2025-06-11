@@ -277,6 +277,7 @@
 					:courseName="courseResource.data.name"
 					:title="__('Course Outline')"
 					:allowEdit="true"
+					:getProgress="false"
 				/>
 			</div>
 		</div>

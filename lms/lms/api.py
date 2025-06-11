@@ -343,7 +343,7 @@ def get_chart_details():
 		"User", {"enabled": 1, "name": ["not in", ("Administrator", "Guest")]}
 	)
 	details.completions = frappe.db.count(
-		"LMS Enrollment", {"progress": ["like", "%100%"]}
+		"LMS Enrollment", {"progress": 100}
 	)
 	details.certifications = frappe.db.count("LMS Certificate", {"published": 1})
 	return details

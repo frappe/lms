@@ -327,7 +327,7 @@ def get_progress(course, lesson, member=None):
 	if not member:
 		member = frappe.session.user
 
-	return frappe.db.exists(
+	return frappe.db.get_value(
 		"LMS Course Progress",
 		{"course": course, "member": member, "lesson": lesson},
 		["status"],
@@ -810,7 +810,7 @@ def get_chart_data(
 @frappe.whitelist(allow_guest=True)
 def get_course_completion_data():
 	all_membership = frappe.db.count("LMS Enrollment")
-	completed = frappe.db.count("LMS Enrollment", {"progress": ["like", "%100%"]})
+	completed = frappe.db.count("LMS Enrollment", {"progress": 100})
 
 	return [
 		{"label": "Completed", "value": completed},
@@ -1316,7 +1316,7 @@ def get_lesson(course, chapter, lesson):
 	lesson_details.rendered_content = render_html(lesson_details)
 	neighbours = get_neighbour_lesson(course, chapter, lesson)
 	lesson_details.next = neighbours["next"]
-	lesson_details.progress = progress
+	lesson_details.is_complete = progress == 'Complete'
 	lesson_details.prev = neighbours["prev"]
 	lesson_details.membership = membership
 	lesson_details.instructors = get_instructors("LMS Course", course)

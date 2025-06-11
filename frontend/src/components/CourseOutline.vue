@@ -25,7 +25,7 @@
 		>
 			<Disclosure
 				v-slot="{ open }"
-				v-for="(chapter, index) in outline.data"
+				v-for="(chapter, chapterIndex) in outline.data"
 				:key="chapter.name"
 				:defaultOpen="openChapterDetail(chapter.idx)"
 			>
@@ -35,7 +35,7 @@
 							'rotate-90 transform duration-200': open,
 							'duration-200': !open,
 							hidden: chapter.is_scorm_package,
-							open: index == 1,
+							open: chapterIndex == 1,
 						}"
 						class="h-4 w-4 text-ink-gray-9 stroke-1"
 					/>
@@ -72,14 +72,15 @@
 						@end="updateOutline"
 						:data-chapter="chapter.name"
 					>
-						<template #item="{ element: lesson }">
+						<template #item="{ element: lesson, index: lessonIndex }">
 							<div
 								class="outline-lesson pl-8 py-2 pr-4 text-ink-gray-9"
 								:class="
 									isActiveLesson(lesson.number) ? 'bg-surface-gray-3' : ''
 								"
 							>
-								<router-link
+								<component
+									:is="isAccessible(allowEdit, chapterIndex, lessonIndex) ? 'router-link' : 'div'"
 									:to="{
 										name: allowEdit ? 'LessonForm' : 'Lesson',
 										params: {
@@ -112,8 +113,12 @@
 											v-if="lesson.is_complete"
 											class="h-4 w-4 text-green-700 ml-2"
 										/>
+										<Lock
+											v-if="!isAccessible(allowEdit, chapterIndex, lessonIndex)"
+											class="h-4 w-4 text-gray-600 ml-2"
+										/>
 									</div>
-								</router-link>
+								</component>
 							</div>
 						</template>
 					</Draggable>
@@ -159,6 +164,7 @@ import {
 	HelpCircle,
 	MonitorPlay,
 	Trash2,
+	Lock,
 } from 'lucide-vue-next'
 import { useRoute, useRouter } from 'vue-router'
 import ChapterModal from '@/components/Modals/ChapterModal.vue'
@@ -196,7 +202,7 @@ const props = defineProps({
 
 const outline = createResource({
 	url: 'lms.lms.utils.get_course_outline',
-	cache: ['course_outline', props.courseName],
+	cache: ['course_outline', props.courseName, props.getProgress],
 	params: {
 		course: props.courseName,
 		progress: props.getProgress,
@@ -335,4 +341,23 @@ const isActiveLesson = (lessonNumber) => {
 		route.params.lessonNumber == lessonNumber.split('.')[1]
 	)
 }
+
+const isAccessible = (allowEdit, chapterIndex, lessonIndex) => {
+	if (allowEdit) return true
+	const chapters = outline.data
+	if (lessonIndex === 0) {
+		if (chapterIndex === 0) return true
+		const prevChapter = chapters[chapterIndex - 1]
+		const totalLessons = prevChapter.lessons.length
+		return prevChapter.lessons[totalLessons - 1].is_complete !== null
+	} else {
+		const lessons = chapters[chapterIndex].lessons
+		const prevLesson = lessons[lessonIndex - 1]
+		return prevLesson.is_complete
+	}
+}
+
+defineExpose({
+	reload: () => outline.reload()
+})
 </script>

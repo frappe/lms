@@ -111,7 +111,7 @@
 									},
 								}"
 							>
-								<Button>
+								<Button class="bg-surface-gray-7 hover:bg-surface-gray-6 text-white">
 									<template #prefix>
 										<ChevronLeft class="w-4 h-4 stroke-1" />
 									</template>
@@ -135,8 +135,9 @@
 									{{ __('Edit') }}
 								</Button>
 							</router-link>
-							<router-link
+							<component
 								v-if="lesson.data.next"
+								:is="!lesson.data.is_complete ? 'div' : 'router-link'"
 								:to="{
 									name: 'Lesson',
 									params: {
@@ -146,7 +147,12 @@
 									},
 								}"
 							>
-								<Button>
+								<Button
+									:class="{
+										'bg-surface-gray-7 text-white hover:bg-surface-gray-6': lesson.data.is_complete,
+										'bg-surface-gray-3 cursor-not-allowed': !lesson.data.is_complete
+									}"
+								>
 									<template #suffix>
 										<ChevronRight class="w-4 h-4 stroke-1" />
 									</template>
@@ -154,7 +160,7 @@
 										{{ __('Next') }}
 									</span>
 								</Button>
-							</router-link>
+							</component>
 							<router-link
 								v-else
 								:to="{
@@ -255,11 +261,13 @@
 					/>
 				</div>
 				<CourseOutline
+					ref="childRef"
 					:courseName="courseName"
 					:key="chapterNumber"
 					:getProgress="lesson.data.membership ? true : false"
 				/>
 			</div>
+			<ChatAssistant v-model="showAssistantModal" />
 		</div>
 	</div>
 </template>
@@ -301,6 +309,7 @@ import LessonContent from '@/components/LessonContent.vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
 import CertificationLinks from '@/components/CertificationLinks.vue'
+import ChatAssistant from '@/components/ChatAssistant.vue'
 
 const user = inject('$user')
 const socket = inject('$socket')
@@ -315,6 +324,8 @@ const zenModeEnabled = ref(false)
 const hasQuiz = ref(false)
 const discussionsContainer = ref(null)
 const timer = ref(0)
+const childRef = ref(null)
+const showAssistantModal = ref(true)
 const { brand } = sessionStore()
 let timerInterval
 
@@ -416,6 +427,10 @@ const renderEditor = (holder, content) => {
 const markProgress = () => {
 	if (user.data && lesson.data && !lesson.data.progress) {
 		progress.submit()
+		setTimeout(() => {
+			lesson.reload()
+			childRef?.value.reload()
+		}, 500)
 	}
 }
 
@@ -485,7 +500,8 @@ watch(
 const startTimer = () => {
 	timerInterval = setInterval(() => {
 		timer.value++
-		if (timer.value == 30) {
+		// if (timer.value == 30) {
+		if (timer.value == 10) {
 			clearInterval(timerInterval)
 			markProgress()
 		}

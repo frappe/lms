@@ -26,6 +26,7 @@ export default defineConfig({
 	],
 	server: {
 		allowedHosts: ['fs', 'per2'],
+		host: true
 	},
 	resolve: {
 		alias: {
