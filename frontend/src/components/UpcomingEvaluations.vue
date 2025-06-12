@@ -116,7 +116,7 @@ import {
 	EllipsisVertical,
 } from 'lucide-vue-next'
 import { inject, ref, getCurrentInstance, computed } from 'vue'
-import { formatTime } from '../utils'
+import { formatTime } from '@/utils'
 import { Button, createResource, call } from 'frappe-ui'
 import EvaluationModal from '@/components/Modals/EvaluationModal.vue'
 import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'

@@ -94,7 +94,7 @@
 </template>
 <script setup>
 import { createResource, TextEditor, Button, Dropdown, toast } from 'frappe-ui'
-import { timeAgo } from '../utils'
+import { timeAgo } from '@/utils'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { ChevronLeft, MoreHorizontal } from 'lucide-vue-next'
 import { ref, inject, onMounted, onUnmounted } from 'vue'

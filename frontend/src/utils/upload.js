@@ -3,6 +3,7 @@ import VideoBlock from '@/components/VideoBlock.vue'
 import UploadPlugin from '@/components/UploadPlugin.vue'
 import { h, createApp } from 'vue'
 import { Upload as UploadIcon } from 'lucide-vue-next'
+import { createDialog } from '@/utils/dialogs'
 import translationPlugin from '../translation'
 
 export class Upload {
@@ -54,6 +55,7 @@ export class Upload {
 				},
 			})
 			app.use(translationPlugin)
+			app.config.globalProperties.$dialog = createDialog
 			app.mount(this.wrapper)
 			return
 		} else if (this.isAudio(file.file_type)) {

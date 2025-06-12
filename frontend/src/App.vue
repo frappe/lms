@@ -1,7 +1,9 @@
 <template>
 	<FrappeUIProvider>
 		<Layout>
-			<router-view />
+			<div class="text-base">
+				<router-view />
+			</div>
 		</Layout>
 		<Dialogs />
 	</FrappeUIProvider>
