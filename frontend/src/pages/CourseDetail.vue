@@ -83,6 +83,7 @@
 						:avg_rating="course.data.rating"
 						:membership="course.data.membership"
 					/>
+					<RelatedCourses :courseName="course.data.name" />
 				</div>
 				<div class="hidden md:block">
 					<CourseCardOverlay :course="course" />
@@ -99,7 +100,7 @@ import {
 	Tooltip,
 	usePageMeta,
 } from 'frappe-ui'
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { Users, Star } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import CourseCardOverlay from '@/components/CourseCardOverlay.vue'
@@ -107,8 +108,11 @@ import CourseOutline from '@/components/CourseOutline.vue'
 import CourseReviews from '@/components/CourseReviews.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
+import RelatedCourses from '@/components/RelatedCourses.vue'
+import { useRoute } from 'vue-router'
 
 const { brand } = sessionStore()
+const route = useRoute()
 
 const props = defineProps({
 	courseName: {
@@ -125,6 +129,19 @@ const course = createResource({
 	},
 	auto: true,
 })
+
+watch(
+	() => route.params.courseName,
+	(newCourseName, oldCourseName) => {
+		if (newCourseName && newCourseName !== oldCourseName) {
+			course.update({
+				cache: ['course', newCourseName],
+				params: { course: newCourseName },
+			})
+			course.reload()
+		}
+	}
+)
 
 const breadcrumbs = computed(() => {
 	let items = [{ label: 'Courses', route: { name: 'Courses' } }]
