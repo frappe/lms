@@ -122,9 +122,6 @@ onMounted(() => {
 const jobs = createResource({
 	url: 'lms.lms.api.get_job_opportunities',
 	cache: ['jobs'],
-	onSuccess(data) {
-		jobCount.value = data.length
-	},
 })
 
 const updateJobs = () => {
@@ -167,6 +164,10 @@ const updateFilters = () => {
 
 watch(country, (val) => {
 	updateJobs()
+})
+
+watch(jobs, () => {
+	jobCount.value = jobs.data?.length || 0
 })
 
 const jobTypes = computed(() => {
