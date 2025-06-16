@@ -115,11 +115,27 @@
 		:saveQuizzes="saveQuizzes"
 		:duration="duration"
 	/>
+	<Dialog
+		v-model="showQuizLoader"
+		:options="{
+			size: 'sm',
+		}"
+	>
+		<template #body>
+			<div class="p-5 text-base">
+				{{
+					__(
+						'Complete the upcoming quiz to continue watching the video. The quiz will open in {0} {1}.'
+					).format(quizLoadTimer, quizLoadTimer === 1 ? 'second' : 'seconds')
+				}}
+			</div>
+		</template>
+	</Dialog>
 </template>
 <script setup>
-import { ref, onMounted, computed, watch, getCurrentInstance } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { Pause, Maximize, Volume2, VolumeX } from 'lucide-vue-next'
-import { Button } from 'frappe-ui'
+import { Button, Dialog } from 'frappe-ui'
 import { formatSeconds, formatTimestamp } from '@/utils'
 import Play from '@/components/Icons/Play.vue'
 import QuizInVideo from '@/components/Modals/QuizInVideo.vue'
@@ -136,9 +152,7 @@ const showQuizLoader = ref(false)
 const quizLoadTimer = ref(0)
 const currentQuiz = ref(null)
 const nextQuiz = ref({})
-const app = getCurrentInstance()
-const { $dialog } = app.appContext.config.globalProperties
-console.log($dialog)
+
 const props = defineProps({
 	file: {
 		type: String,
@@ -178,28 +192,21 @@ const updateCurrentTime = () => {
 				playing.value = false
 				videoRef.value.onTimeupdate = null
 				currentQuiz.value = nextQuiz.value.quiz
-				quizLoadTimer.value = 5
+				quizLoadTimer.value = 7
 			}
 		}
 	}, 0)
 }
 
 watch(quizLoadTimer, () => {
-	console.log('watch start')
 	if (quizLoadTimer.value > 0) {
+		showQuizLoader.value = true
 		setTimeout(() => {
 			quizLoadTimer.value -= 1
-			if (quizLoadTimer.value === 0) {
-				showQuizLoader.value = false
-				showQuiz.value = true
-			} else {
-				$dialog({
-					message: __(
-						'Complete the upcoming quiz to continue watching the video. Quiz will open in {0} seconds.'
-					).format(quizLoadTimer.value),
-				})
-			}
 		}, 1000)
+	} else {
+		showQuizLoader.value = false
+		showQuiz.value = true
 	}
 })
 
