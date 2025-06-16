@@ -64,15 +64,28 @@
 						<Pause v-else @click="pauseVideo" class="size-5 text-ink-white" />
 					</template>
 				</Button>
-				<input
-					type="range"
-					min="0"
-					:max="duration"
-					step="0.1"
-					v-model="currentTime"
-					@input="changeCurrentTime"
-					class="duration-slider w-full h-1"
-				/>
+
+				<div class="relative flex items-center w-full flex-1">
+					<input
+						type="range"
+						min="0"
+						:max="duration"
+						step="0.1"
+						v-model="currentTime"
+						@input="changeCurrentTime"
+						class="duration-slider h-1"
+					/>
+					<!-- QUIZ MARKERS -->
+					<div class="absolute top-0 left-0 w-full h-full pointer-events-none">
+						<div
+							v-for="(quiz, index) in quizzes"
+							:key="index"
+							:style="getQuizMarkerStyle(quiz.time)"
+							class="absolute top-0 h-full w-0.5 bg-red-500"
+						></div>
+					</div>
+				</div>
+
 				<span class="text-sm font-medium">
 					{{ formatSeconds(currentTime) }} / {{ formatSeconds(duration) }}
 				</span>
@@ -288,6 +301,13 @@ const toggleFullscreen = () => {
 		videoContainer.value.requestFullscreen()
 	}
 }
+
+const getQuizMarkerStyle = (time) => {
+	const percentage = ((time - 5) / Math.ceil(duration.value)) * 100
+	return {
+		left: `${percentage}%`,
+	}
+}
 </script>
 
 <style scoped>
@@ -307,11 +327,10 @@ iframe {
 }
 
 .duration-slider {
-	flex: 1;
 	-webkit-appearance: none;
 	appearance: none;
 	border-radius: 10px;
-	background-color: theme('colors.gray.100');
+	background-color: theme('colors.gray.600');
 	cursor: pointer;
 }
 
@@ -319,20 +338,20 @@ iframe {
 	width: 2px;
 	border-radius: 50%;
 	-webkit-appearance: none;
-	background-color: theme('colors.gray.500');
+	background-color: theme('colors.white');
 }
 
 @media screen and (-webkit-min-device-pixel-ratio: 0) {
 	input[type='range'] {
 		overflow: hidden;
-		width: 150px;
+		width: 100%;
 		-webkit-appearance: none;
 	}
 
 	input[type='range']::-webkit-slider-thumb {
 		-webkit-appearance: none;
 		cursor: pointer;
-		box-shadow: -500px 0 0 500px theme('colors.gray.600');
+		box-shadow: -500px 0 0 500px theme('colors.white');
 	}
 }
 </style>
