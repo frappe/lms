@@ -69,7 +69,7 @@
 <script setup>
 import { createResource, Button } from 'frappe-ui'
 import UserAvatar from '@/components/UserAvatar.vue'
-import { singularize, timeAgo } from '../utils'
+import { singularize, timeAgo } from '@/utils'
 import { ref, onMounted, inject, onUnmounted } from 'vue'
 import DiscussionReplies from '@/components/DiscussionReplies.vue'
 import DiscussionModal from '@/components/Modals/DiscussionModal.vue'
