@@ -182,6 +182,7 @@ def get_lesson_icon(body, content):
 				"youtube",
 				"vimeo",
 				"cloudflareStream",
+				"bunnyStream",
 			]:
 				return "icon-youtube"
 
@@ -2169,6 +2170,18 @@ def get_palette(full_name):
 	hash_name = hashlib.md5(encoded_name).hexdigest()
 	idx = cint((int(hash_name[4:6], 16) + 1) / 5.33)
 	return palette[idx % 8]
+
+
+@frappe.whitelist(allow_guest=True)
+def get_related_courses(course):
+	related_course_details = []
+	related_courses = frappe.get_all(
+		"Related Courses", {"parent": course}, order_by="idx", pluck="course"
+	)
+
+	for related_course in related_courses:
+		related_course_details.append(get_course_details(related_course))
+	return related_course_details
 
 
 def persona_captured():
