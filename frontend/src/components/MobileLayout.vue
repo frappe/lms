@@ -54,7 +54,7 @@
 	</div>
 </template>
 <script setup>
-import { getSidebarLinks } from '../utils'
+import { getSidebarLinks } from '@/utils'
 import { useRouter } from 'vue-router'
 import { watch, ref, onMounted } from 'vue'
 import { sessionStore } from '@/stores/session'

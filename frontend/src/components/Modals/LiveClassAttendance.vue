@@ -3,44 +3,59 @@
 		v-model="show"
 		:options="{
 			title: __('Attendance for Class - {0}').format(live_class?.title),
-			size: 'xl',
+			size: '4xl',
 		}"
 	>
 		<template #body-content>
-			<div class="space-y-5">
+			<div
+				class="grid grid-cols-2 gap-12 text-sm font-semibold text-ink-gray-5 pb-2"
+			>
+				<div>
+					{{ __('Member') }}
+				</div>
+				<div class="grid grid-cols-3 gap-20">
+					<div>
+						{{ __('Joined at') }}
+					</div>
+					<div class="text-center">
+						{{ __('Left at') }}
+					</div>
+					<div>
+						{{ __('Attended for') }}
+					</div>
+				</div>
+			</div>
+			<div class="divide-y text-base">
 				<div
 					v-for="participant in participants.data"
 					@click="redirectToProfile(participant.member_username)"
-					class="cursor-pointer text-base w-fit"
+					class="grid grid-cols-2 items-center w-full text-base w-fit py-2"
 				>
-					<Tooltip placement="right">
-						<div class="flex items-center space-x-2">
-							<Avatar
-								:image="participant.member_image"
-								:label="participant.member_name"
-								size="xl"
-							/>
-							<div class="space-y-1">
-								<div class="font-medium">
-									{{ participant.member_name }}
-								</div>
-								<div>
-									{{ participant.member }}
-								</div>
+					<div class="flex items-center space-x-2">
+						<Avatar
+							:image="participant.member_image"
+							:label="participant.member_name"
+							size="xl"
+						/>
+						<div class="space-y-1">
+							<div class="font-medium">
+								{{ participant.member_name }}
+							</div>
+							<div>
+								{{ participant.member }}
 							</div>
 						</div>
-						<template #body>
-							<div
-								class="max-w-[30ch] rounded bg-surface-gray-7 px-2 py-1 text-p-xs text-ink-white leading-5 shadow-xl"
-							>
-								{{ dayjs(participant.joined_at).format('HH:mm a') }} -
-								{{ dayjs(participant.left_at).format('HH:mm a') }}
-								<br />
-								{{ __('attended for') }} {{ participant.duration }}
-								{{ __('minutes') }}
-							</div>
-						</template>
-					</Tooltip>
+					</div>
+
+					<div class="grid grid-cols-3 gap-20 text-right">
+						<div>
+							{{ dayjs(participant.joined_at).format('HH:mm a') }}
+						</div>
+						<div>
+							{{ dayjs(participant.left_at).format('HH:mm a') }}
+						</div>
+						<div>{{ participant.duration }} {{ __('minutes') }}</div>
+					</div>
 				</div>
 			</div>
 		</template>

@@ -88,6 +88,7 @@
 					<CourseCardOverlay :course="course" />
 				</div>
 			</div>
+			<RelatedCourses :courseName="course.data.name" />
 		</div>
 	</div>
 </template>
@@ -99,7 +100,7 @@ import {
 	Tooltip,
 	usePageMeta,
 } from 'frappe-ui'
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { Users, Star } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import CourseCardOverlay from '@/components/CourseCardOverlay.vue'
@@ -107,6 +108,7 @@ import CourseOutline from '@/components/CourseOutline.vue'
 import CourseReviews from '@/components/CourseReviews.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
+import RelatedCourses from '@/components/RelatedCourses.vue'
 
 const { brand } = sessionStore()
 
@@ -120,11 +122,20 @@ const props = defineProps({
 const course = createResource({
 	url: 'lms.lms.utils.get_course_details',
 	cache: ['course', props.courseName],
-	params: {
-		course: props.courseName,
+	makeParams() {
+		return {
+			course: props.courseName,
+		}
 	},
 	auto: true,
 })
+
+watch(
+	() => props.courseName,
+	() => {
+		course.reload()
+	}
+)
 
 const breadcrumbs = computed(() => {
 	let items = [{ label: 'Courses', route: { name: 'Courses' } }]

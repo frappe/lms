@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-06-06 16:04+0000\n"
-"PO-Revision-Date: 2025-06-09 22:05\n"
+"PO-Revision-Date: 2025-06-10 22:03\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Serbian (Latin)\n"
 "MIME-Version: 1.0\n"
@@ -153,7 +153,7 @@ msgstr "Dodaj lekciju"
 
 #: frontend/src/components/VideoBlock.vue:109
 msgid "Add Quiz to Video"
-msgstr ""
+msgstr "Dodaj kviz u video-snimak"
 
 #: frontend/src/pages/ProfileEvaluator.vue:89
 msgid "Add Slot"
@@ -214,7 +214,7 @@ msgstr "Dodaj obuke u Vašu grupu"
 
 #: frontend/src/components/Modals/QuizInVideo.vue:5
 msgid "Add quiz to this video"
-msgstr ""
+msgstr "Dodaj kviz u ovaj video-snimak"
 
 #: frontend/src/components/AppSidebar.vue:510
 msgid "Add students to your batch"
@@ -3832,7 +3832,7 @@ msgstr "Nema zakazanih onlajn predavanja"
 
 #: frontend/src/components/Modals/QuizInVideo.vue:93
 msgid "No quizzes added yet."
-msgstr ""
+msgstr "Još uvek nisu dodati kvizovi."
 
 #: frontend/src/components/Modals/EvaluationModal.vue:62
 msgid "No slots available for this date."
@@ -4275,7 +4275,7 @@ msgstr "Molimo Vas da unesete ispravno vreme u formatu HH:mm."
 
 #: frontend/src/components/Modals/QuizInVideo.vue:181
 msgid "Please enter a valid timestamp"
-msgstr ""
+msgstr "Molimo Vas da unesete važeći vremenski žig"
 
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.py:78
 msgid "Please enter the URL for assignment submission."
@@ -4332,7 +4332,7 @@ msgstr "Molimo Vas da izaberete budući datum i vreme."
 
 #: frontend/src/components/Modals/QuizInVideo.vue:186
 msgid "Please select a quiz"
-msgstr ""
+msgstr "Molimo Vas da izaberete kviz"
 
 #: frontend/src/components/Modals/LiveClassModal.vue:192
 msgid "Please select a time."
@@ -4694,7 +4694,7 @@ msgstr "Kvizovi"
 
 #: frontend/src/components/Modals/QuizInVideo.vue:35
 msgid "Quizzes in this video"
-msgstr ""
+msgstr "Kvizovi u ovom video-snimku"
 
 #. Label of the rating (Rating) field in DocType 'LMS Certificate Evaluation'
 #. Label of the rating (Data) field in DocType 'LMS Course'
@@ -4808,7 +4808,7 @@ msgstr "CV"
 
 #: frontend/src/components/Quiz.vue:75 frontend/src/components/Quiz.vue:278
 msgid "Resume Video"
-msgstr ""
+msgstr "Nastavi video-snimak"
 
 #. Label of the review (Small Text) field in DocType 'LMS Course Review'
 #. Label of a Link in the LMS Workspace
@@ -5277,7 +5277,7 @@ msgstr "Početni URL"
 
 #: frontend/src/components/Quiz.vue:71
 msgid "Start the Quiz"
-msgstr ""
+msgstr "Započni kviz"
 
 #. Option for the 'Company Type' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -5686,7 +5686,7 @@ msgstr "Sajt se ažurira. Trenutno nisu moguće izmene. Pun pristup će uskoro b
 
 #: frontend/src/components/VideoBlock.vue:8
 msgid "This video contains {0} {1}:"
-msgstr ""
+msgstr "Ovaj video-snimak sadrži {0} {1}:"
 
 #. Option for the 'Day' (Select) field in DocType 'Evaluator Schedule'
 #. Option for the 'Day' (Select) field in DocType 'LMS Certificate Request'
@@ -5710,15 +5710,15 @@ msgstr "Vremenska preferencija"
 
 #: frontend/src/components/Modals/QuizInVideo.vue:13
 msgid "Time in Video"
-msgstr ""
+msgstr "Vreme u video-snimku"
 
 #: frontend/src/components/Modals/QuizInVideo.vue:220
 msgid "Time in Video (minutes)"
-msgstr ""
+msgstr "Vreme u video-snimku (u minutima)"
 
 #: frontend/src/components/Modals/QuizInVideo.vue:173
 msgid "Time in video exceeds the total duration of the video."
-msgstr ""
+msgstr "Vreme u video-snimku prelazi ukupno trajanje video-snimka."
 
 #: frontend/src/components/Modals/LiveClassModal.vue:44
 msgid "Time must be in 24 hour format (HH:mm). Example 11:30 or 22:00"
@@ -6338,7 +6338,7 @@ msgstr "Neophodno je da se prvo prijavite da biste se upisali na ovu obuku"
 
 #: frontend/src/components/Quiz.vue:7
 msgid "You will have to complete the quiz to continue the video"
-msgstr ""
+msgstr "Neophodno je da završite kviz kako biste nastavili video-snimak"
 
 #: frontend/src/components/Quiz.vue:30 lms/templates/quiz/quiz.html:11
 #, python-format
@@ -6452,7 +6452,7 @@ msgstr "kandidati"
 
 #: frontend/src/components/VideoBlock.vue:16
 msgid "at {0}"
-msgstr ""
+msgstr "u {0}"
 
 #: frontend/src/components/Modals/LiveClassAttendance.vue:39
 msgid "attended for"

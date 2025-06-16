@@ -70,9 +70,8 @@
 	</div>
 </template>
 <script setup>
-import { Badge } from 'frappe-ui'
-import { formatTime } from '../utils'
-import { Clock, BookOpen, Globe } from 'lucide-vue-next'
+import { formatTime } from '@/utils'
+import { Clock, Globe } from 'lucide-vue-next'
 import DateRange from '@/components/Common/DateRange.vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 import UserAvatar from '@/components/UserAvatar.vue'

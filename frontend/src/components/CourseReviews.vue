@@ -64,7 +64,7 @@
 <script setup>
 import { Star } from 'lucide-vue-next'
 import { createResource, Button } from 'frappe-ui'
-import { computed, ref, inject } from 'vue'
+import { watch, ref, inject } from 'vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import ReviewModal from '@/components/Modals/ReviewModal.vue'
 
@@ -101,11 +101,20 @@ const hasReviewed = createResource({
 const reviews = createResource({
 	url: 'lms.lms.utils.get_reviews',
 	cache: ['course_reviews', props.courseName],
-	params: {
-		course: props.courseName,
+	makeParams() {
+		return {
+			course: props.courseName,
+		}
 	},
 	auto: true,
 })
+
+watch(
+	() => props.courseName,
+	() => {
+		reviews.reload()
+	}
+)
 
 const showReviewModal = ref(false)
 
