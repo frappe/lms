@@ -83,12 +83,12 @@
 						:avg_rating="course.data.rating"
 						:membership="course.data.membership"
 					/>
-					<RelatedCourses :courseName="course.data.name" />
 				</div>
 				<div class="hidden md:block">
 					<CourseCardOverlay :course="course" />
 				</div>
 			</div>
+			<RelatedCourses :courseName="course.data.name" />
 		</div>
 	</div>
 </template>
@@ -109,10 +109,8 @@ import CourseReviews from '@/components/CourseReviews.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 import RelatedCourses from '@/components/RelatedCourses.vue'
-import { useRoute } from 'vue-router'
 
 const { brand } = sessionStore()
-const route = useRoute()
 
 const props = defineProps({
 	courseName: {
@@ -124,22 +122,18 @@ const props = defineProps({
 const course = createResource({
 	url: 'lms.lms.utils.get_course_details',
 	cache: ['course', props.courseName],
-	params: {
-		course: props.courseName,
+	makeParams() {
+		return {
+			course: props.courseName,
+		}
 	},
 	auto: true,
 })
 
 watch(
-	() => route.params.courseName,
-	(newCourseName, oldCourseName) => {
-		if (newCourseName && newCourseName !== oldCourseName) {
-			course.update({
-				cache: ['course', newCourseName],
-				params: { course: newCourseName },
-			})
-			course.reload()
-		}
+	() => props.courseName,
+	() => {
+		course.reload()
 	}
 )
 

@@ -81,7 +81,7 @@
 							v-for="(quiz, index) in quizzes"
 							:key="index"
 							:style="getQuizMarkerStyle(quiz.time)"
-							class="absolute top-0 h-full w-0.5 bg-red-500"
+							class="absolute top-0 h-full w-2 bg-surface-amber-3"
 						></div>
 					</div>
 				</div>
@@ -303,7 +303,7 @@ const toggleFullscreen = () => {
 }
 
 const getQuizMarkerStyle = (time) => {
-	const percentage = ((time - 5) / Math.ceil(duration.value)) * 100
+	const percentage = ((time - 7) / Math.ceil(duration.value)) * 100
 	return {
 		left: `${percentage}%`,
 	}

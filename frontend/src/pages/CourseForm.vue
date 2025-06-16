@@ -199,6 +199,21 @@
 								)
 							"
 						/>
+
+						<MultiSelect
+							v-model="related_courses"
+							doctype="LMS Course"
+							:label="__('Related Courses')"
+							:filters="{ name: ['!=', courseResource.data?.name] }"
+							:onCreate="
+								(close) => {
+									router.push({
+										name: 'CourseForm',
+										params: { courseName: 'new' },
+									})
+								}
+							"
+						/>
 					</div>
 
 					<div class="px-10 pb-5 space-y-5 border-b">
@@ -319,6 +334,7 @@ const newTag = ref('')
 const { brand } = sessionStore()
 const router = useRouter()
 const instructors = ref([])
+const related_courses = ref([])
 const app = getCurrentInstance()
 const { updateOnboardingStep } = useOnboarding('learning')
 const { $dialog } = app.appContext.config.globalProperties
@@ -400,6 +416,9 @@ const courseCreationResource = createResource({
 				instructors: instructors.value.map((instructor) => ({
 					instructor: instructor,
 				})),
+				related_courses: related_courses.value.map((course) => ({
+					course: course,
+				})),
 				...values,
 			},
 		}
@@ -417,6 +436,9 @@ const courseEditResource = createResource({
 				image: course.course_image?.file_url || '',
 				instructors: instructors.value.map((instructor) => ({
 					instructor: instructor,
+				})),
+				related_courses: related_courses.value.map((course) => ({
+					course: course,
 				})),
 				...course,
 			},
@@ -439,6 +461,11 @@ const courseResource = createResource({
 				instructors.value = []
 				data.instructors.forEach((instructor) => {
 					instructors.value.push(instructor.instructor)
+				})
+			} else if (key == 'related_courses') {
+				related_courses.value = []
+				data.related_courses.forEach((course) => {
+					related_courses.value.push(course.course)
 				})
 			} else if (Object.hasOwn(course, key)) course[key] = data[key]
 		})

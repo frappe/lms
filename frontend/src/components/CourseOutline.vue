@@ -148,7 +148,7 @@
 </template>
 <script setup>
 import { Button, createResource, Tooltip, toast } from 'frappe-ui'
-import { getCurrentInstance, inject, ref } from 'vue'
+import { getCurrentInstance, inject, ref, watch } from 'vue'
 import Draggable from 'vuedraggable'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import {
@@ -197,12 +197,21 @@ const props = defineProps({
 const outline = createResource({
 	url: 'lms.lms.utils.get_course_outline',
 	cache: ['course_outline', props.courseName],
-	params: {
-		course: props.courseName,
-		progress: props.getProgress,
+	makeParams() {
+		return {
+			course: props.courseName,
+			progress: props.getProgress,
+		}
 	},
 	auto: true,
 })
+
+watch(
+	() => props.courseName,
+	() => {
+		outline.reload()
+	}
+)
 
 const deleteLesson = createResource({
 	url: 'lms.lms.api.delete_lesson',

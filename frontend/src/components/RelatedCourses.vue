@@ -4,15 +4,13 @@
 			<div class="text-2xl font-semibold text-ink-gray-9">
 				{{ __('Related Courses') }}
 			</div>
-			<div class="text-sm text-ink-gray-7">
-				{{ relatedCourses.data.length }} {{ __('courses') }}
-			</div>
 		</div>
 		<div
 			class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4"
 		>
 			<router-link
 				v-for="course in relatedCourses.data"
+				:key="course.name"
 				:to="{ name: 'CourseDetail', params: { courseName: course.name } }"
 				class="cursor-pointer"
 			>
@@ -24,11 +22,8 @@
 
 <script setup>
 import { createResource } from 'frappe-ui'
-import CourseCard from '@/components/CourseCard.vue'
-import { useRoute } from 'vue-router'
 import { watch } from 'vue'
-
-const route = useRoute()
+import CourseCard from '@/components/CourseCard.vue'
 
 const props = defineProps({
 	courseName: {
@@ -40,22 +35,18 @@ const props = defineProps({
 const relatedCourses = createResource({
 	url: 'lms.lms.utils.get_related_courses',
 	cache: ['related_courses', props.courseName],
-	params: {
-		course: props.courseName,
+	makeParams() {
+		return {
+			course: props.courseName,
+		}
 	},
 	auto: true,
 })
 
 watch(
-	() => route.params.courseName,
-	(newCourseName, oldCourseName) => {
-		if (newCourseName && newCourseName !== oldCourseName) {
-			relatedCourses.update({
-				cache: ['related_courses', newCourseName],
-				params: { course: newCourseName },
-			})
-			relatedCourses.reload()
-		}
+	() => props.courseName,
+	() => {
+		relatedCourses.reload()
 	}
 )
 </script>
