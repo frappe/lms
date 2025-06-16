@@ -17,6 +17,7 @@ declare module 'vue' {
     Assessments: typeof import('./src/components/Assessments.vue')['default']
     Assignment: typeof import('./src/components/Assignment.vue')['default']
     AssignmentForm: typeof import('./src/components/Modals/AssignmentForm.vue')['default']
+    AssistantMessage: typeof import('./src/components/AssistantMessage.vue')['default']
     AudioBlock: typeof import('./src/components/AudioBlock.vue')['default']
     Autocomplete: typeof import('./src/components/Controls/Autocomplete.vue')['default']
     BatchCard: typeof import('./src/components/BatchCard.vue')['default']
