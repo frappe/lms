@@ -27,6 +27,8 @@ from frappe.integrations.frappe_providers.frappecloud_billing import (
 	is_fc_site,
 	current_site_info,
 )
+import requests
+from werkzeug.wrappers import Response
 
 
 @frappe.whitelist()
@@ -696,13 +698,13 @@ def get_categories(doctype, filters):
 @frappe.whitelist()
 def get_members(start=0, search=""):
 	"""Get members for the given search term and start index.
-	                                                                Args: start (int): Start index for the query.
+																	Args: start (int): Start index for the query.
 	<<<<<<< HEAD
-	                                                                search (str): Search term to filter the results.
+																	search (str): Search term to filter the results.
 	=======
-	                                                                                                                                                                                                                                                                                                                                search (str): Search term to filter the results.
+																																																																																	search (str): Search term to filter the results.
 	>>>>>>> 4869bba7bbb2fb38477d6fc29fb3b5838e075577
-	                                                                Returns: List of members.
+																	Returns: List of members.
 	"""
 
 	filters = {"enabled": 1, "name": ["not in", ["Administrator", "Guest"]]}
@@ -1493,3 +1495,43 @@ def update_meta_info(type, route, meta_tags):
 				print(new_tag)
 				new_tag.insert()
 				print(new_tag.as_dict())
+
+@frappe.whitelist()
+def chat_llm(message, bsid):
+	base_url = frappe.local.conf.assistant_api
+	user_email = frappe.get_value('User', frappe.session.user, "email")
+	data = {
+		'input': message,
+		'src': frappe.local.conf.llm_source,
+		'bsid': bsid
+	}
+	headers = {
+		'uid': user_email,
+	}
+	response = requests.post(url=f'{base_url}/general/chat', json=data, headers=headers, stream=True)
+	def generate():
+		try:
+			for chunk in response.iter_content():
+				yield chunk
+		finally:
+			response.close()
+	return Response(
+		generate(),
+		content_type=response.headers.get('content-type', 'application/octet-stream'),
+		status=response.status_code
+)
+
+@frappe.whitelist()
+def llm_get_sources(bsid, bcid):
+	base_url = frappe.local.conf.assistant_api
+	user_email = frappe.get_value('User', frappe.session.user, "email")
+	data = {
+		'src': frappe.local.conf.llm_source,
+		'bsid': bsid,
+		'bcid': bcid
+	}
+	headers = {
+		'uid': user_email,
+	}
+	response = requests.post(url=f'{base_url}/general/sources', json=data, headers=headers)
+	return response.json()
