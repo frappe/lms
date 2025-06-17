@@ -135,6 +135,17 @@ export function getEditorTools() {
 				placeholder: 'Header',
 			},
 		},
+		list: {
+			class: NestedList,
+			inlineToolbar: true,
+			config: {
+				defaultStyle: 'ordered',
+			},
+		},
+		table: {
+			class: Table,
+			inlineToolbar: true,
+		},
 		quiz: Quiz,
 		assignment: Assignment,
 		upload: Upload,
@@ -143,10 +154,6 @@ export function getEditorTools() {
 			inlineToolbar: true,
 		},
 		image: SimpleImage,
-		table: {
-			class: Table,
-			inlineToolbar: true,
-		},
 		paragraph: {
 			class: Paragraph,
 			inlineToolbar: true,
@@ -158,13 +165,6 @@ export function getEditorTools() {
 			class: CodeBox,
 			config: {
 				useDefaultTheme: 'dark',
-			},
-		},
-		list: {
-			class: NestedList,
-			inlineToolbar: true,
-			config: {
-				defaultStyle: 'ordered',
 			},
 		},
 		inlineCode: {

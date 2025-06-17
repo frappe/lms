@@ -653,6 +653,68 @@ iframe {
 	border-radius: 8px;
 }
 
+.ce-popover__container {
+	border-radius: 12px;
+	padding: 8px;
+}
+
+.cdx-search-field {
+	border: none;
+}
+
+.cdx-search-field__input {
+	font-weight: 400;
+	font-size: 13px;
+}
+
+.cdx-search-field__input::before {
+	font-weight: 400;
+}
+
+.cdx-search-field__input:focus {
+	--tw-ring-color: theme('colors.gray.100');
+}
+
+.ce-popover-item__title {
+	font-size: 13px;
+	font-weight: 400;
+}
+
+.ce-popover-item__icon svg {
+	width: 15px;
+	height: 15px;
+}
+
+.ce-popover--opened > .ce-popover__container {
+	max-height: 320px;
+}
+
+.cdx-search-field__icon svg {
+	width: 15px;
+	height: 15px;
+}
+
+.cdx-search-field__icon {
+	margin-right: 5px;
+}
+
+.cdx-block.embed-tool {
+	position: relative;
+	display: inline-block;
+	width: 100%;
+}
+
+.cdx-block.embed-tool::after {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: transparent;
+	z-index: 1000;
+}
+
 :root {
 	--plyr-range-fill-background: white;
 	--plyr-video-control-background-hover: transparent;

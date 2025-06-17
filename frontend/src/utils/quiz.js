@@ -14,8 +14,7 @@ export class Quiz {
 
 	static get toolbox() {
 		const app = createApp({
-			render: () =>
-				h(CircleHelp, { size: 18, strokeWidth: 1.5, color: 'black' }),
+			render: () => h(CircleHelp, { size: 5, strokeWidth: 1.5 }),
 		})
 
 		const div = document.createElement('div')
