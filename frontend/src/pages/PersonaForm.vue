@@ -72,7 +72,7 @@ const persona = reactive({
 const submitPersona = () => {
 	let responses = {
 		site: user.data?.sitename,
-		no_of_students: persona.noOfStudents,
+		role: persona.role,
 		use_case: persona.useCase,
 	}
 	call('lms.lms.api.capture_user_persona', {

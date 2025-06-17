@@ -1,9 +1,6 @@
 <template>
 	<div>
-		<div
-			v-if="quizzes.length && !showQuiz && readOnly"
-			class="bg-surface-blue-2 space-y-1 py-3 px-4 rounded-md text-sm text-ink-blue-3 leading-5"
-		>
+		<div v-if="quizzes.length && !showQuiz && readOnly" class="leading-5">
 			{{
 				__('This video contains {0} {1}:').format(
 					quizzes.length,
@@ -12,8 +9,10 @@
 			}}
 
 			<div v-for="(quiz, index) in quizzes" class="pl-3 mt-1">
-				<span> {{ index + 1 }}. {{ quiz.quiz }} </span>
-				{{ __('at {0}').format(formatTimestamp(quiz.time)) }}
+				<span>
+					{{ index + 1 }}. <span class="font-semibold"> {{ quiz.quiz }} </span>
+				</span>
+				{{ __('at {0} minutes').format(formatTimestamp(quiz.time)) }}
 			</div>
 		</div>
 		<div
@@ -65,15 +64,28 @@
 						<Pause v-else @click="pauseVideo" class="size-5 text-ink-white" />
 					</template>
 				</Button>
-				<input
-					type="range"
-					min="0"
-					:max="duration"
-					step="0.1"
-					v-model="currentTime"
-					@input="changeCurrentTime"
-					class="duration-slider w-full h-1"
-				/>
+
+				<div class="relative flex items-center w-full flex-1">
+					<input
+						type="range"
+						min="0"
+						:max="duration"
+						step="0.1"
+						v-model="currentTime"
+						@input="changeCurrentTime"
+						class="duration-slider h-1"
+					/>
+					<!-- QUIZ MARKERS -->
+					<div class="absolute top-0 left-0 w-full h-full pointer-events-none">
+						<div
+							v-for="(quiz, index) in quizzes"
+							:key="index"
+							:style="getQuizMarkerStyle(quiz.time)"
+							class="absolute top-0 h-full w-2 bg-surface-amber-3"
+						></div>
+					</div>
+				</div>
+
 				<span class="text-sm font-medium">
 					{{ formatSeconds(currentTime) }} / {{ formatSeconds(duration) }}
 				</span>
@@ -116,11 +128,27 @@
 		:saveQuizzes="saveQuizzes"
 		:duration="duration"
 	/>
+	<Dialog
+		v-model="showQuizLoader"
+		:options="{
+			size: 'sm',
+		}"
+	>
+		<template #body>
+			<div class="p-5 text-base">
+				{{
+					__(
+						'Complete the upcoming quiz to continue watching the video. The quiz will open in {0} {1}.'
+					).format(quizLoadTimer, quizLoadTimer === 1 ? 'second' : 'seconds')
+				}}
+			</div>
+		</template>
+	</Dialog>
 </template>
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { Pause, Maximize, Volume2, VolumeX } from 'lucide-vue-next'
-import { Button } from 'frappe-ui'
+import { Button, Dialog } from 'frappe-ui'
 import { formatSeconds, formatTimestamp } from '@/utils'
 import Play from '@/components/Icons/Play.vue'
 import QuizInVideo from '@/components/Modals/QuizInVideo.vue'
@@ -133,6 +161,8 @@ let duration = ref(0)
 let muted = ref(false)
 const showQuizModal = ref(false)
 const showQuiz = ref(false)
+const showQuizLoader = ref(false)
+const quizLoadTimer = ref(0)
 const currentQuiz = ref(null)
 const nextQuiz = ref({})
 
@@ -175,11 +205,23 @@ const updateCurrentTime = () => {
 				playing.value = false
 				videoRef.value.onTimeupdate = null
 				currentQuiz.value = nextQuiz.value.quiz
-				showQuiz.value = true
+				quizLoadTimer.value = 7
 			}
 		}
 	}, 0)
 }
+
+watch(quizLoadTimer, () => {
+	if (quizLoadTimer.value > 0) {
+		showQuizLoader.value = true
+		setTimeout(() => {
+			quizLoadTimer.value -= 1
+		}, 1000)
+	} else {
+		showQuizLoader.value = false
+		showQuiz.value = true
+	}
+})
 
 const resumeVideo = (restart = false) => {
 	showQuiz.value = false
@@ -259,6 +301,13 @@ const toggleFullscreen = () => {
 		videoContainer.value.requestFullscreen()
 	}
 }
+
+const getQuizMarkerStyle = (time) => {
+	const percentage = ((time - 7) / Math.ceil(duration.value)) * 100
+	return {
+		left: `${percentage}%`,
+	}
+}
 </script>
 
 <style scoped>
@@ -278,11 +327,10 @@ iframe {
 }
 
 .duration-slider {
-	flex: 1;
 	-webkit-appearance: none;
 	appearance: none;
 	border-radius: 10px;
-	background-color: theme('colors.gray.100');
+	background-color: theme('colors.gray.600');
 	cursor: pointer;
 }
 
@@ -290,20 +338,20 @@ iframe {
 	width: 2px;
 	border-radius: 50%;
 	-webkit-appearance: none;
-	background-color: theme('colors.gray.500');
+	background-color: theme('colors.white');
 }
 
 @media screen and (-webkit-min-device-pixel-ratio: 0) {
 	input[type='range'] {
 		overflow: hidden;
-		width: 150px;
+		width: 100%;
 		-webkit-appearance: none;
 	}
 
 	input[type='range']::-webkit-slider-thumb {
 		-webkit-appearance: none;
 		cursor: pointer;
-		box-shadow: -500px 0 0 500px theme('colors.gray.600');
+		box-shadow: -500px 0 0 500px theme('colors.white');
 	}
 }
 </style>

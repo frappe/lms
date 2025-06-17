@@ -5,10 +5,7 @@
 				{{ __('Upcoming Evaluations') }}
 			</div>
 			<Button
-				v-if="
-					!upcoming_evals.data?.length ||
-					upcoming_evals.length == courses.length
-				"
+				v-if="upcoming_evals.data?.length != evaluationCourses.length"
 				@click="openEvalModal"
 			>
 				{{ __('Schedule Evaluation') }}
@@ -118,8 +115,8 @@ import {
 	HeadsetIcon,
 	EllipsisVertical,
 } from 'lucide-vue-next'
-import { inject, ref, getCurrentInstance } from 'vue'
-import { formatTime } from '../utils'
+import { inject, ref, getCurrentInstance, computed } from 'vue'
+import { formatTime } from '@/utils'
 import { Button, createResource, call } from 'frappe-ui'
 import EvaluationModal from '@/components/Modals/EvaluationModal.vue'
 import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
@@ -162,6 +159,12 @@ function openEvalModal() {
 const openEvalCall = (evl) => {
 	window.open(evl.google_meet_link, '_blank')
 }
+
+const evaluationCourses = computed(() => {
+	return props.courses.filter((course) => {
+		return course.evaluator != ''
+	})
+})
 
 const cancelEvaluation = (evl) => {
 	$dialog({

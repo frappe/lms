@@ -191,7 +191,7 @@ import {
 	h,
 	onUnmounted,
 } from 'vue'
-import { getSidebarLinks } from '../utils'
+import { getSidebarLinks } from '@/utils'
 import { usersStore } from '@/stores/user'
 import { sessionStore } from '@/stores/session'
 import { useSidebar } from '@/stores/sidebar'
