@@ -101,7 +101,6 @@ import { ChevronRight } from 'lucide-vue-next'
 import { getEditorTools, enablePlyr } from '@/utils'
 import { capture, startRecording, stopRecording } from '@/telemetry'
 import { useOnboarding } from 'frappe-ui/frappe'
-import { edit } from 'ace-builds'
 
 const { brand } = sessionStore()
 const editor = ref(null)

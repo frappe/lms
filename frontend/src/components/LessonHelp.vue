@@ -15,7 +15,7 @@
 			</div>
 		</div>
 
-		<div class="space-y-2" v-for="(item, key) in contentMap">
+		<div class="space-y-2" v-for="(item, key) in contentMap" :key="key">
 			<div
 				class="flex items-center text-sm font-medium space-x-2 cursor-pointer"
 				@click="openHelpDialog(key)"
