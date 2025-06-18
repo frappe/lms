@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2025-06-06 16:04+0000\n"
-"PO-Revision-Date: 2025-06-09 22:05\n"
+"POT-Creation-Date: 2025-06-13 16:04+0000\n"
+"PO-Revision-Date: 2025-06-16 15:29\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Turkish\n"
 "MIME-Version: 1.0\n"
@@ -412,7 +412,7 @@ msgstr "Uygulamalar"
 msgid "Archived"
 msgstr "Arşivlendi"
 
-#: frontend/src/components/UpcomingEvaluations.vue:169
+#: frontend/src/components/UpcomingEvaluations.vue:172
 msgid "Are you sure you want to cancel this evaluation? This action cannot be undone."
 msgstr ""
 
@@ -762,12 +762,12 @@ msgstr ""
 msgid "CGPA/4"
 msgstr "CGPA/4"
 
-#: frontend/src/components/UpcomingEvaluations.vue:60
-#: frontend/src/components/UpcomingEvaluations.vue:174
+#: frontend/src/components/UpcomingEvaluations.vue:57
+#: frontend/src/components/UpcomingEvaluations.vue:177
 msgid "Cancel"
 msgstr "İptal"
 
-#: frontend/src/components/UpcomingEvaluations.vue:168
+#: frontend/src/components/UpcomingEvaluations.vue:171
 msgid "Cancel this evaluation?"
 msgstr ""
 
@@ -1276,7 +1276,7 @@ msgid "Continue Learning"
 msgstr "Öğrenmeye Devam Et"
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
-#: frontend/src/pages/Jobs.vue:177
+#: frontend/src/pages/Jobs.vue:178
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Contract"
 msgstr "Sözleşme"
@@ -2311,7 +2311,7 @@ msgid "Free"
 msgstr "Serbest"
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
-#: frontend/src/pages/Jobs.vue:178
+#: frontend/src/pages/Jobs.vue:179
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Freelance"
 msgstr "Serbest çalışan"
@@ -2355,7 +2355,7 @@ msgid "Full Name"
 msgstr "Tam Adı"
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
-#: frontend/src/pages/Jobs.vue:175
+#: frontend/src/pages/Jobs.vue:176
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Full Time"
 msgstr "Tam Zamanlı"
@@ -2855,7 +2855,7 @@ msgstr "İş İlanı Başlığı"
 
 #. Label of the jobs (Check) field in DocType 'LMS Settings'
 #: frontend/src/pages/JobDetail.vue:10 frontend/src/pages/Jobs.vue:8
-#: frontend/src/pages/Jobs.vue:184
+#: frontend/src/pages/Jobs.vue:185
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Jobs"
 msgstr "İşler"
@@ -2865,7 +2865,7 @@ msgstr "İşler"
 msgid "Join"
 msgstr "Katıl"
 
-#: frontend/src/components/UpcomingEvaluations.vue:93
+#: frontend/src/components/UpcomingEvaluations.vue:90
 msgid "Join Call"
 msgstr ""
 
@@ -3351,10 +3351,6 @@ msgstr "İşaretle"
 #: frontend/src/pages/Notifications.vue:12
 msgid "Mark all as read"
 msgstr "Hepsini Okundu İşaretle"
-
-#: frontend/src/pages/Notifications.vue:40
-msgid "Mark as read"
-msgstr "Okundu olarak İşaretle"
 
 #. Label of the marks (Int) field in DocType 'LMS Quiz Question'
 #. Label of the marks (Int) field in DocType 'LMS Quiz Result'
@@ -3890,7 +3886,7 @@ msgstr "İzin Verilmedi"
 msgid "Not Saved"
 msgstr "Kaydedilmedi"
 
-#: frontend/src/pages/Notifications.vue:54
+#: frontend/src/pages/Notifications.vue:53
 msgid "Nothing to see here."
 msgstr "Burada gösterilecek bir şey yok."
 
@@ -4077,7 +4073,7 @@ msgid "Pan Number"
 msgstr ""
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
-#: frontend/src/pages/Jobs.vue:176
+#: frontend/src/pages/Jobs.vue:177
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Part Time"
 msgstr "Yarı Zamanlı"
@@ -4314,7 +4310,7 @@ msgstr "Ödeme işlemine devam etmek için lütfen giriş yapın."
 msgid "Please prepare well and be on time for the evaluations."
 msgstr "Lütfen iyi hazırlanın ve değerlendirmelere zamanında katılın."
 
-#: frontend/src/components/UpcomingEvaluations.vue:101
+#: frontend/src/components/UpcomingEvaluations.vue:98
 msgid "Please schedule an evaluation to get certified."
 msgstr ""
 
@@ -4929,7 +4925,7 @@ msgid "Schedule"
 msgstr "Planla"
 
 #: frontend/src/components/Modals/EvaluationModal.vue:5
-#: frontend/src/components/UpcomingEvaluations.vue:14
+#: frontend/src/components/UpcomingEvaluations.vue:11
 msgid "Schedule Evaluation"
 msgstr ""
 
@@ -6075,7 +6071,7 @@ msgstr "Değer Değişimi"
 msgid "Video Embed Link"
 msgstr "Video Gömme Bağlantısı"
 
-#: frontend/src/pages/Notifications.vue:38
+#: frontend/src/pages/Notifications.vue:39
 msgid "View"
 msgstr "Göster"
 
@@ -6210,7 +6206,7 @@ msgstr "Bir inceleme yazın"
 msgid "Write your answer here"
 msgstr "Cevabınızı buraya yazın"
 
-#: lms/lms/doctype/lms_certificate_request/lms_certificate_request.py:96
+#: lms/lms/doctype/lms_certificate_request/lms_certificate_request.py:95
 msgid "You already have an evaluation on {0} at {1} for the course {2}."
 msgstr ""
 
@@ -6263,11 +6259,11 @@ msgstr ""
 msgid "You cannot change the roles in read-only mode."
 msgstr ""
 
-#: lms/lms/doctype/lms_certificate_request/lms_certificate_request.py:116
+#: lms/lms/doctype/lms_certificate_request/lms_certificate_request.py:115
 msgid "You cannot schedule evaluations after {0}."
 msgstr "{0} tarihinden sonra değerlendirme planlayamazsınız."
 
-#: lms/lms/doctype/lms_certificate_request/lms_certificate_request.py:105
+#: lms/lms/doctype/lms_certificate_request/lms_certificate_request.py:104
 msgid "You cannot schedule evaluations for past slots."
 msgstr "Geçmiş dönemler için değerlendirme planlayamazsınız."
 
@@ -6389,7 +6385,7 @@ msgstr ""
 msgid "Your evaluation for the course {0} has been scheduled on {1} at {2} {3}."
 msgstr ""
 
-#: lms/lms/doctype/lms_certificate_request/lms_certificate_request.py:126
+#: lms/lms/doctype/lms_certificate_request/lms_certificate_request.py:125
 msgid "Your evaluation slot has been booked"
 msgstr ""
 
