@@ -1,7 +1,10 @@
 import { createApp, h } from 'vue'
 import { Code } from 'lucide-vue-next'
 import translationPlugin from '@/translation'
-import ProgrammingExerciseModal from '@/components/Modals/ProgrammingExerciseModal.vue';
+import ProgrammingExerciseModal from '@/pages/ProgrammingExercises/ProgrammingExerciseModal.vue';
+import { call } from 'frappe-ui';
+import { usersStore } from '@/stores/user'
+
 
 export class Program {
 
@@ -59,15 +62,38 @@ export class Program {
     }
 
     renderExercise(exercise: string) {
-        this.wrapper.innerHTML = `<div class='border rounded-md p-10 text-center bg-surface-menu-bar mb-2'>
-            <span class="font-medium">
-                Programming Exercise: ${exercise}
-            </span>
-        </div>`
-		return
+        if (this.readOnly) {
+            const { userResource } = usersStore()
+            call('frappe.client.get_value', {
+                doctype: 'LMS Programming Exercise Submission',
+                filters: {
+                    exercise: exercise,
+                    member: userResource.data?.name,
+                },
+                fieldname: ['name'],
+            }).then((data: { name: string }) => {
+                let submission = data.name || 'new'
+                this.wrapper.innerHTML = `<iframe src="/lms/exercises/${exercise}/submission/${submission}?fromLesson=1" class="w-full h-[900px] border rounded-md"></iframe>`
+            })
+            return
+        } 
+        call("frappe.client.get_value", {
+            doctype: 'LMS Programming Exercise',
+            name: exercise,
+            fieldname: "title"
+        }).then((data: { title: string }) => {
+            this.wrapper.innerHTML = `<div class='border rounded-md p-4 text-center bg-surface-menu-bar mb-4'>
+                <span class="font-medium">
+                    Programming Exercise: ${data.title}
+                </span>
+            </div>`
+            return
+        })
+        
     }
 
     save() {
+        if (!this.data.exercise) return {}
 		return {
 			exercise: this.data.exercise,
 		}

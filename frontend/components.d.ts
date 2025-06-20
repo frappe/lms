@@ -32,6 +32,7 @@ declare module 'vue' {
     Categories: typeof import('./src/components/Settings/Categories.vue')['default']
     CertificationLinks: typeof import('./src/components/CertificationLinks.vue')['default']
     ChapterModal: typeof import('./src/components/Modals/ChapterModal.vue')['default']
+    ChildTable: typeof import('./src/components/Controls/ChildTable.vue')['default']
     Code: typeof import('./src/components/Controls/Code.vue')['default']
     CodeEditor: typeof import('./src/components/Controls/CodeEditor.vue')['default']
     CollapseSidebar: typeof import('./src/components/Icons/CollapseSidebar.vue')['default']

@@ -65,7 +65,7 @@
 				<div
 					class="border-r container pt-5 pb-10 px-5 h-full"
 					:class="{
-						'w-full md:w-3/4 mx-auto border-none !pt-10': zenModeEnabled,
+						'w-full md:w-3/5 mx-auto border-none !pt-10': zenModeEnabled,
 					}"
 				>
 					<div
@@ -296,6 +296,7 @@ import {
 import Discussions from '@/components/Discussions.vue'
 import { getEditorTools, enablePlyr } from '@/utils'
 import { sessionStore } from '@/stores/session'
+import { useSidebar } from '@/stores/sidebar'
 import EditorJS from '@editorjs/editorjs'
 import LessonContent from '@/components/LessonContent.vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
@@ -316,6 +317,7 @@ const hasQuiz = ref(false)
 const discussionsContainer = ref(null)
 const timer = ref(0)
 const { brand } = sessionStore()
+const sidebarStore = useSidebar()
 let timerInterval
 
 const props = defineProps({
@@ -335,6 +337,8 @@ const props = defineProps({
 
 onMounted(() => {
 	startTimer()
+	console.log(sidebarStore.isSidebarCollapsed)
+	sidebarStore.isSidebarCollapsed = true
 	document.addEventListener('fullscreenchange', attachFullscreenEvent)
 	socket.on('update_lesson_progress', (data) => {
 		if (data.course === props.courseName) {
@@ -357,6 +361,7 @@ const attachFullscreenEvent = () => {
 
 onBeforeUnmount(() => {
 	document.removeEventListener('fullscreenchange', attachFullscreenEvent)
+	sidebarStore.isSidebarCollapsed = false
 })
 
 const lesson = createResource({
@@ -554,7 +559,7 @@ const canGoZen = () => {
 		user.data?.is_instructor ||
 		user.data?.is_evaluator
 	)
-		return false
+		return true
 	if (lesson.data?.membership) return true
 	return false
 }

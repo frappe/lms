@@ -59,7 +59,6 @@ const code = ref<string>('')
 watch(
 	() => props.modelValue,
 	(newVal) => {
-		console.log('newVal', newVal)
 		code.value =
 			typeof newVal === 'string' ? newVal : JSON.stringify(newVal, null, 2)
 	},

@@ -19,8 +19,8 @@
 			<div class="text-base">
 				<Link
 					v-model="exercise"
-					doctype="LMS Exercise"
-					:label="__('Programming Exercise')"
+					doctype="LMS Programming Exercise"
+					:label="__('Select a Programming Exercise')"
 				/>
 			</div>
 		</template>

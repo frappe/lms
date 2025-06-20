@@ -1,5 +1,6 @@
 <template>
 	<header
+		v-if="!fromLesson"
 		class="sticky flex items-center justify-between top-0 z-10 border-b bg-surface-white px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs :items="breadcrumbs" />
@@ -135,6 +136,7 @@ const boilerplate = ref<string>(
 )
 const { brand } = sessionStore()
 const router = useRouter()
+const fromLesson = ref(false)
 
 const props = withDefaults(
 	defineProps<{
@@ -153,6 +155,9 @@ onMounted(() => {
 	}
 	if (!code.value) {
 		code.value = boilerplate.value
+	}
+	if (new URLSearchParams(window.location.search).get('fromLesson')) {
+		fromLesson.value = true
 	}
 })
 
@@ -261,8 +266,6 @@ const execute = async (stdin = '') => {
 			code: code.value,
 			files: [{ filename: 'stdin', contents: stdin }],
 			onMessage: (msg: any) => {
-				console.log(msg)
-
 				if (msg.msgtype === 'write' && msg.file === 'stdout') {
 					outputChunks.push(msg.data)
 				}

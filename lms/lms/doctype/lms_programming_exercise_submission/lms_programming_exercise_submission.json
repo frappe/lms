@@ -6,10 +6,12 @@
  "engine": "InnoDB",
  "field_order": [
   "exercise",
+  "exercise_title",
   "status",
   "column_break_jkjs",
   "member",
   "member_name",
+  "member_image",
   "section_break_onmz",
   "code",
   "section_break_idyi",
@@ -68,12 +70,25 @@
    "fieldtype": "Code",
    "label": "Code",
    "reqd": 1
+  },
+  {
+   "fetch_from": "exercise.title",
+   "fieldname": "exercise_title",
+   "fieldtype": "Data",
+   "label": "Exercise Title",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "member.user_image",
+   "fieldname": "member_image",
+   "fieldtype": "Attach",
+   "label": "Member Image"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-19 12:14:36.604958",
+ "modified": "2025-06-20 19:17:23.940979",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Programming Exercise Submission",

@@ -2,6 +2,7 @@ import { watch } from 'vue'
 import { call, toast } from 'frappe-ui'
 import { useTimeAgo } from '@vueuse/core'
 import { Quiz } from '@/utils/quiz'
+import { Program } from '@/utils/program'
 import { Assignment } from '@/utils/assignment'
 import { Upload } from '@/utils/upload'
 import { Markdown } from '@/utils/markdownParser'
@@ -148,6 +149,7 @@ export function getEditorTools() {
 		},
 		quiz: Quiz,
 		assignment: Assignment,
+		program: Program,
 		upload: Upload,
 		markdown: {
 			class: Markdown,

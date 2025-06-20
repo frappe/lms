@@ -229,11 +229,11 @@ const routes = [
 		props: true,
 	},
 	{
-		path: '/exercises/:exerciseID/submissions',
+		path: '/exercises/submissions',
 		name: 'ProgrammingExerciseSubmissions',
 		component: () =>
 			import(
-				'@/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue'
+				'@/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue'
 			),
 		props: true,
 	},

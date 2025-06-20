@@ -343,6 +343,22 @@ const addAssignments = () => {
 	}
 }
 
+const addProgrammingExercises = () => {
+	if (isInstructor.value || isModerator.value) {
+		sidebarLinks.value.push({
+			label: 'Programming Exercises',
+			icon: 'Code',
+			to: 'ProgrammingExercises',
+			activeFor: [
+				'ProgrammingExercises',
+				'ProgrammingExerciseForm',
+				'ProgrammingExerciseSubmissionList',
+				'ProgrammingExerciseSubmission',
+			],
+		})
+	}
+}
+
 const addPrograms = () => {
 	let activeFor = ['Programs', 'ProgramForm']
 	let index = 1
@@ -628,6 +644,7 @@ watch(userResource, () => {
 		addPrograms()
 		addQuizzes()
 		addAssignments()
+		addProgrammingExercises()
 		setUpOnboarding()
 	}
 })
