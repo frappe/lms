@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-06-20 16:04+0000\n"
-"PO-Revision-Date: 2025-06-21 16:37\n"
+"PO-Revision-Date: 2025-06-22 16:44\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Serbian (Latin)\n"
 "MIME-Version: 1.0\n"
@@ -210,7 +210,7 @@ msgstr "Dodajte bar jedan mogući odgovor za ovo pitanje: {0}"
 
 #: frontend/src/components/AppSidebar.vue:531
 msgid "Add courses to your batch"
-msgstr "Dodaj obuke u Vašu grupu"
+msgstr "Dodajte obuke u Vašu grupu"
 
 #: frontend/src/components/Modals/QuizInVideo.vue:5
 msgid "Add quiz to this video"
@@ -523,7 +523,7 @@ msgstr "Prisustvo na predavanju - {0}"
 
 #: frontend/src/components/Modals/LiveClassAttendance.vue:24
 msgid "Attended for"
-msgstr ""
+msgstr "Prisustvovano u trajanju od"
 
 #. Label of the attendees (Int) field in DocType 'LMS Live Class'
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
@@ -1202,7 +1202,7 @@ msgstr "Dovršite svoj upis - Nemojte ga propustiti!"
 
 #: frontend/src/components/VideoBlock.vue:140
 msgid "Complete the upcoming quiz to continue watching the video. The quiz will open in {0} {1}."
-msgstr ""
+msgstr "Završite predstojeći kviz da biste nastavili gledanje video-snimka. Kviz će biti dostupan za {0} {1}."
 
 #. Option for the 'Status' (Select) field in DocType 'Cohort'
 #. Option for the 'Stage' (Select) field in DocType 'LMS Batch Old'
@@ -2043,7 +2043,7 @@ msgstr "Broj upisanih"
 
 #: lms/lms/utils.py:1906
 msgid "Enrollment Failed"
-msgstr "Upis je neuspešna"
+msgstr "Upis je neuspešan"
 
 #. Label of the enrollments (Int) field in DocType 'LMS Course'
 #. Label of a chart in the LMS Workspace
@@ -2882,7 +2882,7 @@ msgstr "Pristup u"
 
 #: frontend/src/components/Modals/LiveClassAttendance.vue:18
 msgid "Joined at"
-msgstr ""
+msgstr "Pristup ostvaren u"
 
 #. Name of a Workspace
 #: lms/lms/workspace/lms/lms.json
@@ -3155,7 +3155,7 @@ msgstr "Napušteno u"
 
 #: frontend/src/components/Modals/LiveClassAttendance.vue:21
 msgid "Left at"
-msgstr ""
+msgstr "Odlazak u"
 
 #. Label of the lesson (Link) field in DocType 'Exercise Latest Submission'
 #. Label of the lesson (Link) field in DocType 'Exercise Submission'
@@ -5891,7 +5891,7 @@ msgstr "Vrsta"
 
 #: frontend/src/utils/markdownParser.js:11
 msgid "Type '/' for commands or select text to format"
-msgstr ""
+msgstr "Ukucajte '/' za komande ili označite tekst za formatiranje"
 
 #: frontend/src/components/Quiz.vue:636
 msgid "Type your answer"
@@ -6455,7 +6455,7 @@ msgstr "kandidati"
 
 #: frontend/src/components/VideoBlock.vue:15
 msgid "at {0} minutes"
-msgstr ""
+msgstr "na {0} minuta"
 
 #: lms/templates/emails/payment_reminder.html:4
 msgid "but didn’t complete your payment"
