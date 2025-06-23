@@ -2,14 +2,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2025-06-13 16:04+0000\n"
-"PO-Revision-Date: 2025-06-16 15:29\n"
+"POT-Creation-Date: 2025-06-20 16:04+0000\n"
+"PO-Revision-Date: 2025-06-21 16:37\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Croatian\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.13.1\n"
+"Generated-By: Babel 2.16.0\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "X-Crowdin-Project: frappe\n"
 "X-Crowdin-Project-ID: 639578\n"
@@ -151,7 +151,7 @@ msgstr "Dodaj Poglavlje"
 msgid "Add Lesson"
 msgstr "Dodaj Lekciju"
 
-#: frontend/src/components/VideoBlock.vue:109
+#: frontend/src/components/VideoBlock.vue:121
 msgid "Add Quiz to Video"
 msgstr ""
 
@@ -311,7 +311,7 @@ msgstr ""
 #. Label of the amount (Currency) field in DocType 'LMS Batch'
 #. Label of the course_price (Currency) field in DocType 'LMS Course'
 #. Label of the amount (Currency) field in DocType 'LMS Payment'
-#: frontend/src/pages/BatchForm.vue:265 frontend/src/pages/CourseForm.vue:230
+#: frontend/src/pages/BatchForm.vue:265 frontend/src/pages/CourseForm.vue:245
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_payment/lms_payment.json
@@ -521,6 +521,10 @@ msgstr ""
 msgid "Attendance for Class - {0}"
 msgstr ""
 
+#: frontend/src/components/Modals/LiveClassAttendance.vue:24
+msgid "Attended for"
+msgstr ""
+
 #. Label of the attendees (Int) field in DocType 'LMS Live Class'
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Attendees"
@@ -714,7 +718,7 @@ msgstr ""
 
 #. Label of the billing_details_section (Section Break) field in DocType 'LMS
 #. Payment'
-#: frontend/src/pages/Billing.vue:8 frontend/src/pages/Billing.vue:356
+#: frontend/src/pages/Billing.vue:8 frontend/src/pages/Billing.vue:357
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Billing Details"
 msgstr ""
@@ -925,7 +929,7 @@ msgstr ""
 msgid "Chapter added successfully"
 msgstr ""
 
-#: frontend/src/components/CourseOutline.vue:290
+#: frontend/src/components/CourseOutline.vue:299
 msgid "Chapter deleted successfully"
 msgstr ""
 
@@ -1004,10 +1008,6 @@ msgstr ""
 
 #: frontend/src/components/BatchFeedback.vue:10
 msgid "Click here"
-msgstr ""
-
-#: frontend/src/components/LessonHelp.vue:30
-msgid "Click on the add icon in the editor and select Quiz from the menu. It opens up a dialog, where you can either select a quiz from the list or create a new quiz. When you select the Create New option it redirects you to the quiz creation page."
 msgstr ""
 
 #. Label of the client_id (Data) field in DocType 'LMS Zoom Settings'
@@ -1110,7 +1110,7 @@ msgstr ""
 msgid "Color"
 msgstr "Boja"
 
-#: frontend/src/pages/BatchForm.vue:293 frontend/src/pages/CourseForm.vue:268
+#: frontend/src/pages/BatchForm.vue:293 frontend/src/pages/CourseForm.vue:283
 msgid "Comma separated keywords for SEO"
 msgstr ""
 
@@ -1200,6 +1200,10 @@ msgstr ""
 msgid "Complete Your Enrollment - Don't miss out!"
 msgstr ""
 
+#: frontend/src/components/VideoBlock.vue:140
+msgid "Complete the upcoming quiz to continue watching the video. The quiz will open in {0} {1}."
+msgstr ""
+
 #. Option for the 'Status' (Select) field in DocType 'Cohort'
 #. Option for the 'Stage' (Select) field in DocType 'LMS Batch Old'
 #. Option for the 'Status' (Select) field in DocType 'LMS Certificate Request'
@@ -1211,7 +1215,7 @@ msgid "Completed"
 msgstr ""
 
 #. Label of the enable_certification (Check) field in DocType 'LMS Course'
-#: frontend/src/pages/CourseForm.vue:217
+#: frontend/src/pages/CourseForm.vue:232
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Completion Certificate"
 msgstr ""
@@ -1281,12 +1285,8 @@ msgstr ""
 msgid "Contract"
 msgstr ""
 
-#: lms/lms/utils.py:441
+#: lms/lms/utils.py:442
 msgid "Cookie Policy"
-msgstr ""
-
-#: frontend/src/components/LessonHelp.vue:68
-msgid "Copy the URL of the video from YouTube and paste it in the editor."
 msgstr ""
 
 #. Option for the 'Company Type' (Select) field in DocType 'User'
@@ -1447,7 +1447,7 @@ msgstr ""
 msgid "Course Name"
 msgstr ""
 
-#: frontend/src/pages/CourseDetail.vue:76 frontend/src/pages/CourseForm.vue:278
+#: frontend/src/pages/CourseDetail.vue:76 frontend/src/pages/CourseForm.vue:293
 msgid "Course Outline"
 msgstr ""
 
@@ -1483,11 +1483,11 @@ msgstr ""
 msgid "Course added to program"
 msgstr ""
 
-#: frontend/src/pages/CourseForm.vue:496
+#: frontend/src/pages/CourseForm.vue:523
 msgid "Course created successfully"
 msgstr ""
 
-#: frontend/src/pages/CourseForm.vue:533
+#: frontend/src/pages/CourseForm.vue:560
 msgid "Course deleted successfully"
 msgstr ""
 
@@ -1495,7 +1495,7 @@ msgstr ""
 msgid "Course moved successfully"
 msgstr ""
 
-#: frontend/src/pages/CourseForm.vue:516
+#: frontend/src/pages/CourseForm.vue:543
 msgid "Course updated successfully"
 msgstr ""
 
@@ -1598,7 +1598,7 @@ msgstr ""
 #. Label of the currency (Link) field in DocType 'LMS Batch'
 #. Label of the currency (Link) field in DocType 'LMS Course'
 #. Label of the currency (Link) field in DocType 'LMS Payment'
-#: frontend/src/pages/BatchForm.vue:272 frontend/src/pages/CourseForm.vue:247
+#: frontend/src/pages/BatchForm.vue:272 frontend/src/pages/CourseForm.vue:262
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_payment/lms_payment.json
@@ -1701,9 +1701,9 @@ msgstr ""
 msgid "Degree Type"
 msgstr ""
 
-#: frontend/src/components/CourseOutline.vue:244
-#: frontend/src/components/CourseOutline.vue:302
-#: frontend/src/pages/CourseForm.vue:546
+#: frontend/src/components/CourseOutline.vue:253
+#: frontend/src/components/CourseOutline.vue:311
+#: frontend/src/pages/CourseForm.vue:573
 msgid "Delete"
 msgstr ""
 
@@ -1711,27 +1711,27 @@ msgstr ""
 msgid "Delete Chapter"
 msgstr ""
 
-#: frontend/src/pages/CourseForm.vue:540
+#: frontend/src/pages/CourseForm.vue:567
 msgid "Delete Course"
 msgstr ""
 
-#: frontend/src/components/CourseOutline.vue:296
+#: frontend/src/components/CourseOutline.vue:305
 msgid "Delete this chapter?"
 msgstr ""
 
-#: frontend/src/components/CourseOutline.vue:238
+#: frontend/src/components/CourseOutline.vue:247
 msgid "Delete this lesson?"
 msgstr ""
 
-#: frontend/src/pages/CourseForm.vue:541
+#: frontend/src/pages/CourseForm.vue:568
 msgid "Deleting the course will also delete all its chapters and lessons. Are you sure you want to delete this course?"
 msgstr ""
 
-#: frontend/src/components/CourseOutline.vue:297
+#: frontend/src/components/CourseOutline.vue:306
 msgid "Deleting this chapter will also delete all its lessons and permanently remove it from the course. This action cannot be undone. Are you sure you want to continue?"
 msgstr ""
 
-#: frontend/src/components/CourseOutline.vue:239
+#: frontend/src/components/CourseOutline.vue:248
 msgid "Deleting this lesson will permanently remove it from the course. This action cannot be undone. Are you sure you want to continue?"
 msgstr ""
 
@@ -2041,7 +2041,7 @@ msgstr ""
 msgid "Enrollment Count"
 msgstr ""
 
-#: lms/lms/utils.py:1905
+#: lms/lms/utils.py:1906
 msgid "Enrollment Failed"
 msgstr ""
 
@@ -2133,7 +2133,7 @@ msgstr ""
 #. Label of the evaluator (Link) field in DocType 'LMS Course'
 #: frontend/src/components/Modals/BatchCourseModal.vue:37
 #: frontend/src/components/Modals/BulkCertificates.vue:22
-#: frontend/src/pages/CourseForm.vue:236 frontend/src/pages/ProfileRoles.vue:32
+#: frontend/src/pages/CourseForm.vue:251 frontend/src/pages/ProfileRoles.vue:32
 #: lms/lms/doctype/batch_course/batch_course.json
 #: lms/lms/doctype/course_evaluator/course_evaluator.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
@@ -2249,7 +2249,7 @@ msgstr ""
 msgid "Failed to fetch attendance data from Zoom for class {0}: {1}"
 msgstr ""
 
-#: frontend/src/utils/index.js:614
+#: frontend/src/utils/index.js:622
 msgid "Failed to update meta tags {0}"
 msgstr ""
 
@@ -2513,10 +2513,6 @@ msgstr ""
 #. Label of the host (Link) field in DocType 'LMS Live Class'
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Host"
-msgstr ""
-
-#: frontend/src/components/LessonHelp.vue:24
-msgid "How to add a Quiz?"
 msgstr ""
 
 #. Label of the current (Check) field in DocType 'Work Experience'
@@ -2884,6 +2880,10 @@ msgstr ""
 msgid "Joined At"
 msgstr ""
 
+#: frontend/src/components/Modals/LiveClassAttendance.vue:18
+msgid "Joined at"
+msgstr ""
+
 #. Name of a Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "LMS"
@@ -3153,6 +3153,10 @@ msgstr ""
 msgid "Left At"
 msgstr ""
 
+#: frontend/src/components/Modals/LiveClassAttendance.vue:21
+msgid "Left at"
+msgstr ""
+
 #. Label of the lesson (Link) field in DocType 'Exercise Latest Submission'
 #. Label of the lesson (Link) field in DocType 'Exercise Submission'
 #. Label of the lesson (Link) field in DocType 'Lesson Reference'
@@ -3188,11 +3192,11 @@ msgstr ""
 msgid "Lesson created successfully"
 msgstr ""
 
-#: frontend/src/components/CourseOutline.vue:217
+#: frontend/src/components/CourseOutline.vue:226
 msgid "Lesson deleted successfully"
 msgstr ""
 
-#: frontend/src/components/CourseOutline.vue:232
+#: frontend/src/components/CourseOutline.vue:241
 msgid "Lesson moved successfully"
 msgstr ""
 
@@ -3422,6 +3426,7 @@ msgstr ""
 #. Label of the member (Link) field in DocType 'LMS Program Member'
 #. Label of the member (Link) field in DocType 'LMS Quiz Submission'
 #. Label of the member (Link) field in DocType 'LMS Zoom Settings'
+#: frontend/src/components/Modals/LiveClassAttendance.vue:14
 #: frontend/src/components/Modals/ZoomAccountModal.vue:42
 #: frontend/src/components/Settings/ZoomSettings.vue:178
 #: frontend/src/pages/AssignmentSubmissionList.vue:14
@@ -3582,7 +3587,7 @@ msgid "Mentor Request Status Update Template"
 msgstr ""
 
 #. Label of the meta_description (Small Text) field in DocType 'LMS Settings'
-#: frontend/src/pages/BatchForm.vue:284 frontend/src/pages/CourseForm.vue:259
+#: frontend/src/pages/BatchForm.vue:284 frontend/src/pages/CourseForm.vue:274
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Meta Description"
 msgstr ""
@@ -3596,12 +3601,12 @@ msgid "Meta Image"
 msgstr ""
 
 #. Label of the meta_keywords (Small Text) field in DocType 'LMS Settings'
-#: frontend/src/pages/BatchForm.vue:290 frontend/src/pages/CourseForm.vue:265
+#: frontend/src/pages/BatchForm.vue:290 frontend/src/pages/CourseForm.vue:280
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Meta Keywords"
 msgstr ""
 
-#: frontend/src/pages/BatchForm.vue:279 frontend/src/pages/CourseForm.vue:254
+#: frontend/src/pages/BatchForm.vue:279 frontend/src/pages/CourseForm.vue:269
 msgid "Meta Tags"
 msgstr ""
 
@@ -3703,7 +3708,7 @@ msgstr ""
 msgid "New Batch"
 msgstr ""
 
-#: frontend/src/pages/CourseForm.vue:634 lms/www/lms.py:95
+#: frontend/src/pages/CourseForm.vue:661 lms/www/lms.py:95
 msgid "New Course"
 msgstr ""
 
@@ -3748,11 +3753,11 @@ msgstr ""
 msgid "New Zoom Account"
 msgstr ""
 
-#: lms/lms/utils.py:609
+#: lms/lms/utils.py:610
 msgid "New comment in batch {0}"
 msgstr ""
 
-#: lms/lms/utils.py:602
+#: lms/lms/utils.py:603
 msgid "New reply on the topic {0} in course {1}"
 msgstr ""
 
@@ -3943,7 +3948,7 @@ msgstr ""
 msgid "Only files of type {0} will be accepted."
 msgstr ""
 
-#: frontend/src/pages/CourseForm.vue:570 frontend/src/utils/index.js:501
+#: frontend/src/pages/CourseForm.vue:597 frontend/src/utils/index.js:509
 msgid "Only image file is allowed."
 msgstr ""
 
@@ -4053,7 +4058,7 @@ msgid "Paid Batch"
 msgstr ""
 
 #. Label of the paid_certificate (Check) field in DocType 'LMS Course'
-#: frontend/src/pages/CourseForm.vue:222
+#: frontend/src/pages/CourseForm.vue:237
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Paid Certificate"
 msgstr ""
@@ -4063,7 +4068,7 @@ msgid "Paid Certificate after Evaluation"
 msgstr ""
 
 #. Label of the paid_course (Check) field in DocType 'LMS Course'
-#: frontend/src/pages/CourseForm.vue:212
+#: frontend/src/pages/CourseForm.vue:227
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Paid Course"
 msgstr ""
@@ -4240,7 +4245,7 @@ msgstr ""
 msgid "Please click on the following button to set your new password"
 msgstr ""
 
-#: lms/lms/utils.py:2039 lms/lms/utils.py:2043
+#: lms/lms/utils.py:2040 lms/lms/utils.py:2044
 msgid "Please complete the previous courses in the program to enroll in this course."
 msgstr ""
 
@@ -4248,7 +4253,7 @@ msgstr ""
 msgid "Please enable the zoom account to use this feature."
 msgstr ""
 
-#: frontend/src/components/CourseOutline.vue:319
+#: frontend/src/components/CourseOutline.vue:328
 msgid "Please enroll for this course to view this lesson"
 msgstr ""
 
@@ -4446,7 +4451,7 @@ msgid "Pricing"
 msgstr ""
 
 #. Label of the pricing_tab (Tab Break) field in DocType 'LMS Course'
-#: frontend/src/pages/CourseForm.vue:206
+#: frontend/src/pages/CourseForm.vue:221
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Pricing and Certification"
 msgstr ""
@@ -4462,7 +4467,7 @@ msgstr ""
 msgid "Primary Subgroup"
 msgstr ""
 
-#: lms/lms/utils.py:440
+#: lms/lms/utils.py:441
 msgid "Privacy Policy"
 msgstr ""
 
@@ -4634,7 +4639,7 @@ msgstr ""
 #. Label of a Link in the LMS Workspace
 #: frontend/src/components/Modals/QuizInVideo.vue:21
 #: frontend/src/components/Modals/QuizInVideo.vue:216
-#: frontend/src/pages/QuizSubmission.vue:26 frontend/src/utils/quiz.js:25
+#: frontend/src/pages/QuizSubmission.vue:26 frontend/src/utils/quiz.js:24
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.json
 #: lms/lms/workspace/lms/lms.json
 msgid "Quiz"
@@ -4761,6 +4766,8 @@ msgstr ""
 
 #. Label of the related_courses (Table) field in DocType 'LMS Course'
 #. Name of a DocType
+#: frontend/src/components/RelatedCourses.vue:5
+#: frontend/src/pages/CourseForm.vue:206
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/related_courses/related_courses.json
 msgid "Related Courses"
@@ -5524,7 +5531,7 @@ msgstr ""
 msgid "Temporarily Disabled"
 msgstr ""
 
-#: lms/lms/utils.py:439
+#: lms/lms/utils.py:440
 msgid "Terms of Use"
 msgstr ""
 
@@ -5560,7 +5567,7 @@ msgstr "Hvala vam na povratnim informacijama."
 msgid "Thanks and Regards"
 msgstr ""
 
-#: lms/lms/utils.py:1937
+#: lms/lms/utils.py:1938
 msgid "The batch is full. Please contact the Administrator."
 msgstr ""
 
@@ -5643,7 +5650,7 @@ msgstr ""
 msgid "This course has:"
 msgstr ""
 
-#: lms/lms/utils.py:1780
+#: lms/lms/utils.py:1781
 msgid "This course is free."
 msgstr ""
 
@@ -5680,7 +5687,7 @@ msgstr ""
 msgid "This site is being updated. You will not be able to make any changes. Full access will be restored shortly."
 msgstr ""
 
-#: frontend/src/components/VideoBlock.vue:8
+#: frontend/src/components/VideoBlock.vue:5
 msgid "This video contains {0} {1}:"
 msgstr ""
 
@@ -5817,12 +5824,8 @@ msgstr ""
 msgid "To Date"
 msgstr ""
 
-#: lms/lms/utils.py:1791
+#: lms/lms/utils.py:1792
 msgid "To join this batch, please contact the Administrator."
-msgstr ""
-
-#: frontend/src/components/LessonHelp.vue:49
-msgid "To upload Image, Video, Audio or PDF from your system, click on the add icon and select upload from the menu. Then choose the file you want to add to the lesson and it gets added to your lesson."
 msgstr ""
 
 #: lms/lms/user.py:41
@@ -5884,6 +5887,10 @@ msgstr ""
 #: lms/lms/doctype/lms_quiz_question/lms_quiz_question.json
 #: lms/templates/assessments.html:14
 msgid "Type"
+msgstr ""
+
+#: frontend/src/utils/markdownParser.js:11
+msgid "Type '/' for commands or select text to format"
 msgstr ""
 
 #: frontend/src/components/Quiz.vue:636
@@ -6446,12 +6453,8 @@ msgstr ""
 msgid "applicants"
 msgstr ""
 
-#: frontend/src/components/VideoBlock.vue:16
-msgid "at {0}"
-msgstr ""
-
-#: frontend/src/components/Modals/LiveClassAttendance.vue:39
-msgid "attended for"
+#: frontend/src/components/VideoBlock.vue:15
+msgid "at {0} minutes"
 msgstr ""
 
 #: lms/templates/emails/payment_reminder.html:4
@@ -6502,7 +6505,7 @@ msgstr ""
 msgid "members"
 msgstr ""
 
-#: frontend/src/components/Modals/LiveClassAttendance.vue:40
+#: frontend/src/components/Modals/LiveClassAttendance.vue:57
 msgid "minutes"
 msgstr "minuta"
 
@@ -6594,7 +6597,7 @@ msgstr ""
 msgid "{0} is your evaluator"
 msgstr ""
 
-#: lms/lms/utils.py:686
+#: lms/lms/utils.py:687
 msgid "{0} mentioned you in a comment"
 msgstr ""
 
@@ -6602,11 +6605,11 @@ msgstr ""
 msgid "{0} mentioned you in a comment in your batch."
 msgstr ""
 
-#: lms/lms/utils.py:639 lms/lms/utils.py:645
+#: lms/lms/utils.py:640 lms/lms/utils.py:646
 msgid "{0} mentioned you in a comment in {1}"
 msgstr ""
 
-#: lms/lms/utils.py:461
+#: lms/lms/utils.py:462
 msgid "{0}k"
 msgstr ""
 
