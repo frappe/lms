@@ -352,7 +352,7 @@ const addProgrammingExercises = () => {
 			activeFor: [
 				'ProgrammingExercises',
 				'ProgrammingExerciseForm',
-				'ProgrammingExerciseSubmissionList',
+				'ProgrammingExerciseSubmissions',
 				'ProgrammingExerciseSubmission',
 			],
 		})

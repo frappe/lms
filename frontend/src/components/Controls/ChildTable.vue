@@ -1,7 +1,6 @@
 <template>
 	<div>
 		<div class="overflow-x-auto border rounded-md">
-			<!-- Header Row -->
 			<div
 				class="grid items-center space-x-4 p-2 border-b"
 				:style="{ gridTemplateColumns: getGridTemplateColumns() }"
@@ -15,7 +14,7 @@
 				</div>
 				<div></div>
 			</div>
-			<!-- Data Rows -->
+
 			<div
 				v-for="(row, rowIndex) in rows"
 				:key="rowIndex"
@@ -31,18 +30,20 @@
 				</template>
 
 				<div class="relative" ref="menuRef">
-					<Button variant="ghost">
+					<Button
+						variant="ghost"
+						@click="(event: MouseEvent) => toggleMenu(rowIndex, event)"
+					>
 						<template #icon>
 							<Ellipsis
 								class="size-4 text-ink-gray-7 stroke-1.5 cursor-pointer"
-								@click="toggleMenu(rowIndex)"
 							/>
 						</template>
 					</Button>
 
 					<div
 						v-if="menuOpenIndex === rowIndex"
-						class="absolute right-0 z-10 mt-1 w-32 bg-white border border-outline-gray-1 rounded-md shadow-sm"
+						class="absolute right-[30px] top-5 mt-1 w-32 bg-surface-white border border-outline-gray-1 rounded-md shadow-sm"
 					>
 						<button
 							@click="deleteRow(rowIndex)"
@@ -58,7 +59,6 @@
 			</div>
 		</div>
 
-		<!-- Add Row Button -->
 		<div class="mt-2">
 			<Button @click="addRow">
 				<template #prefix>
@@ -77,7 +77,9 @@ import { Ellipsis, Plus, Trash2 } from 'lucide-vue-next'
 import { onClickOutside } from '@vueuse/core'
 
 const rows = defineModel<Cell[][]>()
+const menuRef = ref(null)
 const menuOpenIndex = ref<number | null>(null)
+const menuTopPosition = ref<string>('')
 const emit = defineEmits<{
 	(e: 'update:modelValue', value: Cell[][]): void
 }>()
@@ -87,7 +89,6 @@ type Cell = {
 	editable?: boolean
 }
 
-// Props
 const props = withDefaults(
 	defineProps<{
 		modelValue?: Cell[][]
@@ -121,12 +122,11 @@ const getGridTemplateColumns = () => {
 	return [...Array(columns.value.length).fill('1fr'), '0.25fr'].join(' ')
 }
 
-const toggleMenu = (index: number) => {
+const toggleMenu = (index: number, event: MouseEvent) => {
 	menuOpenIndex.value = menuOpenIndex.value === index ? null : index
+	menuTopPosition.value = `${event.clientY + 10}px`
 }
 
-// Optional: Close menu when clicking outside
-const menuRef = ref(null)
 onClickOutside(menuRef, () => {
 	menuOpenIndex.value = null
 })

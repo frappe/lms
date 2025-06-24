@@ -216,20 +216,13 @@ const routes = [
 		component: () => import('@/pages/PersonaForm.vue'),
 	},
 	{
-		path: '/exercises',
+		path: '/programming-exercises',
 		name: 'ProgrammingExercises',
 		component: () =>
 			import('@/pages/ProgrammingExercises/ProgrammingExercises.vue'),
 	},
 	{
-		path: '/exercises/:exerciseID',
-		name: 'ProgrammingExerciseForm',
-		component: () =>
-			import('@/pages/ProgrammingExercises/ProgrammingExerciseForm.vue'),
-		props: true,
-	},
-	{
-		path: '/exercises/submissions',
+		path: '/programming-exercises/submissions',
 		name: 'ProgrammingExerciseSubmissions',
 		component: () =>
 			import(
@@ -238,7 +231,7 @@ const routes = [
 		props: true,
 	},
 	{
-		path: '/exercises/:exerciseID/submission/:submissionID',
+		path: '/programming-exercises/:exerciseID/submission/:submissionID',
 		name: 'ProgrammingExerciseSubmission',
 		component: () =>
 			import(

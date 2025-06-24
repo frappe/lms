@@ -54,7 +54,7 @@
 						showForm = true
 					}
 				"
-				class="flex flex-col border rounded-md p-3 h-full hover:border-outline-gray-3 space-y-2"
+				class="flex flex-col border rounded-md p-3 h-full hover:border-outline-gray-3 space-y-2 cursor-pointer"
 			>
 				<div class="text-lg font-semibold text-ink-gray-9">
 					{{ exercise.title }}

@@ -16,6 +16,7 @@
   {
    "fieldname": "input",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Input"
   },
   {
@@ -49,8 +50,8 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-06-18 20:06:57.182153",
- "modified_by": "Administrator",
+ "modified": "2025-06-24 11:23:13.803159",
+ "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Test Case Submission",
  "owner": "Administrator",

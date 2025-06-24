@@ -11,7 +11,7 @@
 			class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal border-r px-5 py-2 h-full"
 		></div>
 		<div>
-			<div class="flex items-center justify-between p-2 bg-surface-gray-1">
+			<div class="flex items-center justify-between p-2 bg-surface-gray-2">
 				<div class="font-semibold">
 					{{ exercise.doc?.language }}
 				</div>
@@ -38,7 +38,7 @@
 					maxHeight="1000px"
 				/>
 				<span v-if="error" class="text-xs text-ink-gray-5 px-2">
-					{{ __('Compiler Error') }}:
+					{{ __('Compiler Message') }}:
 				</span>
 				<textarea
 					v-if="error"
@@ -48,6 +48,7 @@
 				/>
 				<!-- <textarea v-else v-model="output" class="bg-surface-gray-1 border-none text-sm h-28 leading-6" readonly /> -->
 			</div>
+
 			<div ref="testCaseSection" v-if="testCases.length" class="p-3">
 				<span class="text-lg font-semibold text-ink-gray-9">
 					{{ __('Test Cases') }}
@@ -132,7 +133,7 @@ const testCases = ref<
 	}>
 >([])
 const boilerplate = ref<string>(
-	`with open("stdin", "r") as f:\n    data = f.read()\n\ninputs = data.split()\n\n# inputs is a list of strings\n# write your code below\n\n`
+	`with open("stdin", "r") as f:\n    data = f.read()\n\ninputs = data.split() if len(data) else []\n\n# inputs is a list of strings\n# write your code below\n\n`
 )
 const { brand } = sessionStore()
 const router = useRouter()
@@ -179,7 +180,9 @@ watch(
 	(doc) => {
 		if (doc) {
 			code.value = `${boilerplate.value}${doc.code || ''}\n`
-			testCases.value = doc.test_cases || []
+			if (testCases.value.length === 0) {
+				testCases.value = doc.test_cases || []
+			}
 		}
 	},
 	{ immediate: true }
@@ -207,6 +210,7 @@ const runCode = async () => {
 	if (testCaseSection.value) {
 		testCaseSection.value.scrollIntoView({ behavior: 'smooth' })
 	}
+
 	for (const test_case of exercise.doc.test_cases) {
 		let result = await execute(test_case.input)
 		if (error.value) {
@@ -217,7 +221,6 @@ const runCode = async () => {
 		}
 		let status =
 			result.trim() === test_case.expected_output.trim() ? 'Passed' : 'Failed'
-
 		testCases.value.push({
 			input: test_case.input,
 			output: result,
@@ -256,41 +259,57 @@ const createSubmission = () => {
 		})
 }
 
-const execute = async (stdin = '') => {
-	return new Promise<string>((resolve, reject) => {
+const execute = (stdin = ''): Promise<string> => {
+	return new Promise((resolve, reject) => {
 		let outputChunks: string[] = []
+		let hasExited = false
+		let hasError = false
 
-		const session = new LiveCodeSession({
+		let session = new LiveCodeSession({
 			base_url: 'https://falcon.frappe.io',
 			runtime: 'python',
 			code: code.value,
 			files: [{ filename: 'stdin', contents: stdin }],
 			onMessage: (msg: any) => {
+				console.log('msg', msg)
+
 				if (msg.msgtype === 'write' && msg.file === 'stdout') {
 					outputChunks.push(msg.data)
 				}
 
-				if (msg.msgtype == 'exitstatus') {
-					if (msg.exitstatus != 0) {
+				if (msg.msgtype === 'write' && msg.file === 'stderr') {
+					hasError = true
+					errorMessage.value = msg.data
+				}
+
+				if (msg.msgtype === 'exitstatus') {
+					hasExited = true
+					if (msg.exitstatus !== 0) {
 						error.value = true
 					} else {
 						error.value = false
 					}
-				}
-
-				if (msg.msgtype === 'exitstatus') {
-					resolve(outputChunks.join(''))
+					resolve(outputChunks.join('').trim())
 				}
 			},
 		})
 
-		setTimeout(() => reject('Execution timed out.'), 10000)
+		setTimeout(() => {
+			if (!hasExited) {
+				error.value = true
+				errorMessage.value = 'Execution timed out.'
+				reject('Execution timed out.')
+			}
+		}, 20000)
 	})
 }
 
 const breadcrumbs = computed(() => {
 	return [
-		{ label: __('Programming Exercises') },
+		{
+			label: __('Programming Exercise Submissions'),
+			route: { name: 'ProgrammingExerciseSubmissions' },
+		},
 		{ label: exercise.doc?.title },
 	]
 })

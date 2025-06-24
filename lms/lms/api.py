@@ -1544,24 +1544,18 @@ def get_exercise_status(test_cases):
 
 
 def update_test_cases(test_cases, submission):
+	frappe.db.delete("LMS Test Case Submission", {"parent": submission})
 	for row in test_cases:
-		test_case = frappe.db.get_value(
-			"LMS Test Case Submission",
+		test_case = frappe.new_doc("LMS Test Case Submission")
+		test_case.update(
 			{
 				"parent": submission,
+				"parenttype": "LMS Programming Exercise Submission",
+				"parentfield": "test_cases",
 				"input": row.get("input"),
-			},
-			"name",
-			as_dict=True,
+				"output": row.get("output"),
+				"expected_output": row.get("expected_output"),
+				"status": row.get("status", "Failed"),
+			}
 		)
-
-		if test_case:
-			frappe.db.set_value(
-				"LMS Test Case Submission",
-				test_case.name,
-				{
-					"output": row.get("output"),
-					"expected_output": row.get("expected_output"),
-					"status": row.get("status", "Failed"),
-				},
-			)
+		test_case.insert()

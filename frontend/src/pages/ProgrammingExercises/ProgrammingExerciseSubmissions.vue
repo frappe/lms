@@ -129,24 +129,39 @@ import {
 	ListRowItem,
 	usePageMeta,
 } from 'frappe-ui'
-import { computed, inject, ref, watch } from 'vue'
-import { sessionStore } from '@/stores/session'
 import type {
 	ProgrammingExerciseSubmission,
 	Filters,
 } from '@/pages/ProgrammingExercises/types'
+import { computed, inject, onMounted, ref, watch } from 'vue'
+import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
 import Link from '@/components/Controls/Link.vue'
 import EmptyState from '@/components/EmptyState.vue'
 
 const { brand } = sessionStore()
 const dayjs = inject('$dayjs') as any
+const user = inject('$user') as any
+const filterFields = ['exercise', 'member', 'status']
 const filters = ref<Filters>({
 	exercise: '',
 	member: '',
 	status: '',
 })
 const router = useRouter()
+
+onMounted(() => {
+	if (!user.data?.is_instructor && !user.data?.is_moderator) {
+		router.push({ name: 'Courses' })
+	}
+	filterFields.forEach((field) => {
+		if (router.currentRoute.value.query[field]) {
+			filters.value[field as keyof Filters] = router.currentRoute.value.query[
+				field
+			] as string
+		}
+	})
+})
 
 const submissions = createListResource({
 	doctype: 'LMS Programming Exercise Submission',
@@ -172,7 +187,6 @@ const submissions = createListResource({
 
 watch(filters.value, () => {
 	let filtersToApply: Record<string, any> = {}
-	const filterFields = ['exercise', 'member', 'status']
 	filterFields.forEach((field) => {
 		if (filters.value[field as keyof Filters]) {
 			filtersToApply[field] = filters.value[field as keyof Filters]
@@ -211,7 +225,7 @@ const submissionColumns = computed(() => {
 		{
 			label: __('Exercise'),
 			key: 'exercise_title',
-			width: '40%',
+			width: '30%',
 			icon: 'code',
 		},
 		{
@@ -225,6 +239,7 @@ const submissionColumns = computed(() => {
 			key: 'modified',
 			width: '20%',
 			icon: 'clock',
+			align: 'right',
 		},
 	]
 })

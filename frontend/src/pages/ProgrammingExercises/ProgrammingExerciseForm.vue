@@ -1,5 +1,5 @@
 <template>
-	<Dialog v-model="show" :options="{ size: '2xl' }">
+	<Dialog v-model="show" :options="{ size: '5xl' }">
 		<template #body-title>
 			<div class="text-xl font-semibold text-ink-gray-9">
 				{{
@@ -10,41 +10,45 @@
 			</div>
 		</template>
 		<template #body-content>
-			<div class="space-y-4">
-				<FormControl
-					v-model="exercise.title"
-					:label="__('Title')"
-					:required="true"
-				/>
-				<FormControl
-					v-model="exercise.language"
-					:label="__('Language')"
-					type="select"
-					:options="languageOptions"
-					:required="true"
-				/>
-				<div>
-					<div class="text-xs text-ink-gray-5 mb-2">
-						{{ __('Problem Statement') }}
-						<span class="text-ink-red-3">*</span>
-					</div>
-					<TextEditor
-						:content="exercise.problem_statement"
-						@change="(val: string) => (exercise.problem_statement = val)"
+			<div class="grid grid-cols-2 gap-10">
+				<div class="space-y-4">
+					<FormControl
+						v-model="exercise.title"
+						:label="__('Title')"
+						:required="true"
+					/>
+					<FormControl
+						v-model="exercise.language"
+						:label="__('Language')"
+						type="select"
+						:options="languageOptions"
+						:required="true"
+					/>
+					<ChildTable
+						v-model="exercise.test_cases"
+						:columns="testCaseColumns"
+						:required="true"
+						:addable="true"
+						:deletable="true"
 						:editable="true"
-						:fixedMenu="true"
-						editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem] max-h-[18rem] overflow-y-auto"
+						:placeholder="__('Add Test Case')"
 					/>
 				</div>
-				<ChildTable
-					v-model="exercise.test_cases"
-					:columns="testCaseColumns"
-					:required="true"
-					:addable="true"
-					:deletable="true"
-					:editable="true"
-					:placeholder="__('Add Test Case')"
-				/>
+				<div>
+					<div>
+						<div class="text-xs text-ink-gray-5 mb-2">
+							{{ __('Problem Statement') }}
+							<span class="text-ink-red-3">*</span>
+						</div>
+						<TextEditor
+							:content="exercise.problem_statement"
+							@change="(val: string) => (exercise.problem_statement = val)"
+							:editable="true"
+							:fixedMenu="true"
+							editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem] max-h-[21rem] overflow-y-auto"
+						/>
+					</div>
+				</div>
 			</div>
 		</template>
 		<template #actions="{ close }">
@@ -65,7 +69,9 @@
 				<router-link
 					:to="{
 						name: 'ProgrammingExerciseSubmissions',
-						params: { exerciseID: props.exerciseID },
+						query: {
+							exercise: props.exerciseID,
+						},
 					}"
 				>
 					<Button>
@@ -105,12 +111,14 @@ const exercises = defineModel<{
 		) => void
 	}
 }>('exercises')
+
 const exercise = ref<ProgrammingExercise>({
 	title: '',
 	language: 'Python',
 	problem_statement: '',
 	test_cases: [],
 })
+
 const languageOptions = [
 	{ label: 'Python', value: 'Python' },
 	{ label: 'JavaScript', value: 'JavaScript' },
@@ -159,6 +167,8 @@ const fetchTestCases = () => {
 	testCases.update({
 		filters: {
 			parent: props.exerciseID,
+			parenttype: 'LMS Programming Exercise',
+			parentfield: 'test_cases',
 		},
 	})
 	testCases.reload()
