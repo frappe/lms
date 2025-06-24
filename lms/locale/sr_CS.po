@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-06-20 16:04+0000\n"
-"PO-Revision-Date: 2025-06-22 16:44\n"
+"PO-Revision-Date: 2025-06-23 16:55\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Serbian (Latin)\n"
 "MIME-Version: 1.0\n"
@@ -4442,7 +4442,7 @@ msgstr "Pregled video-snimka"
 
 #: frontend/src/pages/Lesson.vue:119
 msgid "Previous"
-msgstr "Prethodni"
+msgstr "Prethodno"
 
 #. Label of the pricing_tab (Tab Break) field in DocType 'LMS Batch'
 #: frontend/src/pages/BatchForm.vue:255
@@ -4877,7 +4877,7 @@ msgstr "Red #{0} sadrži vreme početka van trajanja grupe."
 
 #: lms/lms/doctype/lms_quiz/lms_quiz.py:32
 msgid "Rows {0} have the duplicate questions."
-msgstr "Redovi #{0} sadrže duplikate pitanja."
+msgstr "Redovi {0} sadrže duplikate pitanja."
 
 #: lms/templates/livecode/extension_footer.html:21
 msgid "Run"
@@ -6293,7 +6293,7 @@ msgstr "Imate {0}% tačnih odgovora sa rezultatom od {1} od mogućih {2}"
 
 #: lms/templates/emails/live_class_reminder.html:6
 msgid "You have a live class scheduled tomorrow. Please be prepared and be on time for the session."
-msgstr "Imate onlajn predavanje zakazano za sutra. Molimo Vas se pripremite da se pridružite na vreme."
+msgstr "Imate onlajn predavanje zakazano za sutra. Molimo Vas da se pripremite i pridružite na vreme."
 
 #: lms/job/doctype/lms_job_application/lms_job_application.py:22
 msgid "You have already applied for this job."
