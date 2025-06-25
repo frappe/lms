@@ -578,16 +578,17 @@ export const enablePlyr = () => {
 	})
 }
 
-export const openSettings = (category, close) => {
+export const openSettings = (category, close = null) => {
 	const settingsStore = useSettings()
-	close()
+	if (close) {
+		close()
+	}
 	settingsStore.activeTab = category
 	settingsStore.isSettingsOpen = true
+	console.log(settingsStore.activeTab, settingsStore.isSettingsOpen)
 }
 
 export const cleanError = (message) => {
-	// Remove HTML tags but keep the text within the tags
-
 	const cleanMessage = message.replace(/<[^>]+>/g, (match) => {
 		return match.replace(/<\/?[^>]+(>|$)/g, '')
 	})

@@ -167,6 +167,12 @@ const tabsStructure = computed(() => {
 							type: 'Link',
 						},
 						{
+							label: 'Livecode URL',
+							name: 'livecode_url',
+							doctype: 'Livecode URL',
+							type: 'text',
+						},
+						{
 							label: 'Unsplash Access Key',
 							name: 'unsplash_access_key',
 							description:

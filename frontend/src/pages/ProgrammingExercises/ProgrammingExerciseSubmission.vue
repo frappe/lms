@@ -5,6 +5,20 @@
 	>
 		<Breadcrumbs :items="breadcrumbs" />
 	</header>
+	<div
+		v-if="falconError"
+		class="flex items-center justify-between p-3 text-sm bg-surface-amber-1 text-ink-amber-3"
+	>
+		<span>
+			{{ falconError }}
+		</span>
+		<Button v-if="user.data?.is_moderator" @click="openSettings('General')">
+			<template #prefix>
+				<Settings class="size-4 stroke-1.5" />
+			</template>
+			{{ __('Settings') }}
+		</Button>
+	</div>
 	<div class="grid grid-cols-2 h-[calc(100vh_-_3rem)]">
 		<div class="border-r py-5 px-8 h-full">
 			<div class="font-semibold mb-2">
@@ -29,7 +43,9 @@
 					</Badge>
 					<Button
 						v-if="
-							submissionID == 'new' || user.data?.name == submission.doc?.owner
+							!falconError &&
+							(submissionID == 'new' ||
+								user.data?.name == submission.doc?.owner)
 						"
 						variant="solid"
 						@click="submitCode"
@@ -131,9 +147,10 @@ import {
 	usePageMeta,
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref, watch } from 'vue'
-import { Play, X, Check } from 'lucide-vue-next'
+import { Play, X, Check, Settings } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
+import { openSettings } from '@/utils'
 
 const user = inject<any>('$user')
 const code = ref<string | null>('')
@@ -141,19 +158,13 @@ const output = ref<string | null>(null)
 const error = ref<boolean | null>(null)
 const errorMessage = ref<string | null>(null)
 const testCaseSection = ref<HTMLElement | null>(null)
-const testCases = ref<
-	Array<{
-		input: string
-		output: string
-		expected_output: string
-		status: string
-	}>
->([])
+const testCases = ref<TestCase[]>([])
 const boilerplate = ref<string>('')
-const { brand } = sessionStore()
+const { brand, livecodeURL } = sessionStore()
 const router = useRouter()
 const fromLesson = ref(false)
-const falconURL = 'https://falcon.frappe.io/'
+const falconURL = ref<string>('https://falcon.frappe.io/')
+const falconError = ref<string | null>(null)
 
 const props = withDefaults(
 	defineProps<{
@@ -273,9 +284,23 @@ watch(
 )
 
 const loadFalcon = () => {
+	if (livecodeURL.data.includes('falcon.frappe.io') && !user.data?.is_fc_site) {
+		falconError.value = __(
+			'Only Frappe Cloud sites can use Falcon Live Code. Please migrate your site to Frappe Cloud or setup Falcon Live Code on your own server.'
+		)
+		return
+	} else if (livecodeURL.data) {
+		falconURL.value = livecodeURL.data
+	} else if (!livecodeURL.data && !user.data?.is_fc_site) {
+		falconError.value = __(
+			'Live Code URL is not set. Please set it from the Settings.'
+		)
+		return
+	}
+
 	return new Promise((resolve, reject) => {
 		const script = document.createElement('script')
-		script.src = `${falconURL}static/livecode.js`
+		script.src = `${falconURL.value}static/livecode.js`
 		script.onload = resolve
 		script.onerror = reject
 		document.head.appendChild(script)
@@ -351,7 +376,7 @@ const execute = (stdin = ''): Promise<string> => {
 		let hasError = false
 
 		let session = new LiveCodeSession({
-			base_url: 'https://falcon.frappe.io',
+			base_url: falconURL.value,
 			runtime: exercise.doc?.language.toLowerCase() || 'python',
 			code: code.value,
 			files: [{ filename: 'stdin', contents: stdin }],

@@ -3,21 +3,35 @@
 		class="sticky flex items-center justify-between top-0 z-10 border-b bg-surface-white px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs :items="breadcrumbs" />
-		<Button
-			v-if="!readOnlyMode"
-			variant="solid"
-			@click="
-				() => {
-					exerciseID = 'new'
-					showForm = true
-				}
-			"
-		>
-			<template #prefix>
-				<Plus class="h-4 w-4 stroke-1.5" />
-			</template>
-			{{ __('New') }}
-		</Button>
+		<div class="space-x-2">
+			<router-link
+				:to="{
+					name: 'ProgrammingExerciseSubmissions',
+				}"
+			>
+				<Button>
+					<template #prefix>
+						<ClipboardList class="size-4 stroke-1.5" />
+					</template>
+					{{ __('Check All Submissions') }}
+				</Button>
+			</router-link>
+			<Button
+				v-if="!readOnlyMode"
+				variant="solid"
+				@click="
+					() => {
+						exerciseID = 'new'
+						showForm = true
+					}
+				"
+			>
+				<template #prefix>
+					<Plus class="h-4 w-4 stroke-1.5" />
+				</template>
+				{{ __('New') }}
+			</Button>
+		</div>
 	</header>
 	<div class="md:w-4/5 md:mx-auto p-5">
 		<div class="flex items-center justify-between mb-5">
@@ -89,7 +103,7 @@ import {
 	createListResource,
 	usePageMeta,
 } from 'frappe-ui'
-import { Plus } from 'lucide-vue-next'
+import { ClipboardList, Plus } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
 import ProgrammingExerciseForm from '@/pages/ProgrammingExercises/ProgrammingExerciseForm.vue'
