@@ -1,0 +1,177 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-06-25 09:53:07.121539",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "account__distributor_code",
+  "distributor_email_address",
+  "user_id",
+  "column_break_ytyi",
+  "distributor_contact_number",
+  "distributor_company_name",
+  "section_break_vifn",
+  "rsm__state_head",
+  "meril_company_name",
+  "column_break_yezz",
+  "division",
+  "bu__fd_head",
+  "section_break_edqt",
+  "city",
+  "state",
+  "country",
+  "column_break_boqd",
+  "region",
+  "distributor_company_address",
+  "signup_settings_tab",
+  "distributor_edited_first_time",
+  "cutom_auth_data"
+ ],
+ "fields": [
+  {
+   "fieldname": "account__distributor_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Account / Distributor Code",
+   "reqd": 1
+  },
+  {
+   "fieldname": "distributor_email_address",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Distributor Email Address",
+   "reqd": 1
+  },
+  {
+   "fieldname": "user_id",
+   "fieldtype": "Link",
+   "label": "User Id",
+   "options": "User"
+  },
+  {
+   "fieldname": "column_break_ytyi",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "distributor_contact_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Distributor Contact number",
+   "reqd": 1
+  },
+  {
+   "fieldname": "distributor_company_name",
+   "fieldtype": "Data",
+   "label": "Distributor Company Name"
+  },
+  {
+   "fieldname": "section_break_vifn",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "rsm__state_head",
+   "fieldtype": "Data",
+   "label": "RSM / State Head"
+  },
+  {
+   "fieldname": "meril_company_name",
+   "fieldtype": "Data",
+   "label": "Meril Company Name"
+  },
+  {
+   "fieldname": "column_break_yezz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "division",
+   "fieldtype": "Data",
+   "label": "Division"
+  },
+  {
+   "fieldname": "bu__fd_head",
+   "fieldtype": "Data",
+   "label": "BU / FD Head"
+  },
+  {
+   "fieldname": "section_break_edqt",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "city",
+   "fieldtype": "Data",
+   "label": "City"
+  },
+  {
+   "fieldname": "state",
+   "fieldtype": "Data",
+   "label": "State"
+  },
+  {
+   "fieldname": "column_break_boqd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "region",
+   "fieldtype": "Data",
+   "label": "Region"
+  },
+  {
+   "fieldname": "distributor_company_address",
+   "fieldtype": "Data",
+   "label": "Distributor Company Address"
+  },
+  {
+   "fieldname": "country",
+   "fieldtype": "Link",
+   "label": "Country",
+   "options": "Country"
+  },
+  {
+   "default": "False",
+   "fieldname": "distributor_edited_first_time",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Distributor edited fields"
+  },
+  {
+   "fieldname": "signup_settings_tab",
+   "fieldtype": "Tab Break",
+   "label": "signup settings"
+  },
+  {
+   "fieldname": "cutom_auth_data",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Cutom Auth Data",
+   "options": "Custom Auth Data",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-06-25 16:09:43.492290",
+ "modified_by": "Administrator",
+ "module": "LMS",
+ "name": "Distributor",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

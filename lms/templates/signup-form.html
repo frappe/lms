@@ -1,72 +1,252 @@
-{% set custom_signup_content = frappe.db.get_single_value("LMS Settings", "custom_signup_content") %}
+<div id="signup-form" style="display: relative;">
 <form class="signup-form" role="form">
-    <div class="page-card-body">
-        <div class="form-group">
-            <label class="form-label sr-only" for="signup_fullname"> {{ _("Full Name") }} </label>
-            <input type="text" id="signup_fullname" class="form-control" placeholder="{{ _('Jane Doe') }}"
-            required autofocus>
-        </div>
-        <div class="form-group">
-            <label class="form-label sr-only" for="signup_email"> {{ _("Email") }} </label>
-            <input type="email" id="signup_email" class="form-control"
-            placeholder="{{ _('jane@example.com') }}" required>
-        </div>
+    <div class="form-group">
+        <label class="form-label sr-only"> {{ _("User Category") }} </label>
+        <div class="control-input-wrapper">
+            <div class="control-input flex align-center form-group">
+                <select type="text" id="user_category" data-fieldname="user_category" style="color: var(--text-light)"
+                class="input-with-feedback form-control ellipsis" data-fieldtype="Select" required>
+                    <option value=""> {{ _("Category") }} </option>
+                    <option value="employee"> {{ _("Employee") }} </option>
+                    <option value="distributor" > {{ _("Distributor") }} </option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label sr-only" for="signup_email"> {{ _("Email") }} </label>
+                <input type="email" data-fieldname="email" id="signup_email" name="email" class="form-control"
+                placeholder="{{ _('jane@example.com') }}" required>
+           </div>
+            
+            <!-- Employee Section -->
+            <section style="display:none;"  id="employee-section" class="form-section">
+                   
+            </section>
 
-        {% if frappe.db.get_single_value("LMS Settings", "user_category") %}
-        <div class="form-group">
-            <label class="form-label sr-only"> {{ _("User Category") }} </label>
-            <div class="control-input-wrapper">
-                <div class="control-input flex align-center">
-                    <select type="text" id="user_category" data-fieldname="user_category" style="color: var(--text-light)"
-                    class="input-with-feedback form-control ellipsis" data-fieldtype="Select" required>
-                        <option value=""> {{ _("Category") }} </option>
-                        <option value="Business Owner"> {{ _("Business Owner") }} </option>
-                        <option value="Manager (Sales/Marketing/Customer)"> {{ _("Manager (Sales/Marketing/Customer)") }} </option>
-                        <option value="Employee"> {{ _("Employee") }} </option>
-                        <option value="Student"> {{ _("Student") }} </option>
-                        <option value="Freelancer/Just looking"> {{ _("Freelancer/Just looking") }} </option>
-                        <option value="Others"> {{ _("Others") }} </option>
-                    </select>
+            <!-- Distributor Section -->
+            <section style="display:none;" id="distributor-section" class="form-section">
+                <div class="form-group">
+                    <input type="text" id="attendee_name" name="attendee_name" class="form-control"
+                        placeholder="{{ _('Attendee Name') }}">
                 </div>
-            </div>
+                <div class="form-group">
+                    <input type="tel" id="mobile_number" class="form-control" name="mobile_number" maxlength="10" 
+                        placeholder="{{ _('Mobile Number') }}" maxlength="15">
+                    <div id="mobile-error" class="invalid-feedback" style="display:none;"></div>
+                </div>
+            </section>
         </div>
-        {% endif %}
-
-        {% if custom_signup_content %}
-        <div class="form-group">
-            <div class="checkbox">
-                <label>
-                    <span class="input-area">
-                    <input type="checkbox" autocomplete="off" class="input-with-feedback"
-                        data-fieldtype="Check" data-fieldname="terms" id="signup-terms" required>
-                    </span>
-                    <span class="label-area">
-                    {{ custom_signup_content }}
-                    </span>
-                </label>
-            </div>
-        </div>
-        {% endif %}
     </div>
+    
     <div class="page-card-actions">
         <button class="btn btn-sm btn-primary btn-block btn-signup"
-            type="submit">{{ _("Sign up") }}</button>
-
-        <p class="text-center sign-up-message">
-            <a href="#login" class="blue">{{ _("Have an account? Login") }}</a>
-        </p>
+         id="send-otp-button"  >{{ _("Send otp") }}</button>
+    </div>
     </div>
 </form>
 
+      <form class="confirm-otp-form" role="form" id="confirm-otp-form" style="display:none;">
+            <div class="form-group mt-2">
+                <label class="form-label sr-only" for="otp"> {{ _("Enter Otp") }} </label>
+                <input type="text" id="otp" name="otp"  maxlength="6" class="form-control"
+                    placeholder="{{ _('Enter Otp') }}" required>
+            </div>
+              
+        <button class="btn btn-sm btn-primary btn-block btn-signup"
+            type="submit">{{ _("Sign up") }}</button>
+              <p class="text-center sign-up-message">
+            <a href="#login" class="blue">{{ _("Have an account? Login") }}</a>
+        </p>
+        </form>
+</div>
+
+
+<!-- Employee Details Read-Only Section -->
+<div id="employee-details-section" class="detail-section">
+    <div class="card-header px-4 py-2">
+        <strong>Employee Details</strong>
+    </div>
+    <div class="card-body" style="background: #fff;">
+        <div class="row">
+            <div class="form-group col-lg-6">
+                <label>First Name</label>
+                <input type="text" id="readonly_first_name" class="form-control" readonly>
+            </div>
+            <div class="form-group col-lg-6">
+                <label>Last Name</label>
+                <input type="text" id="readonly_last_name" class="form-control" readonly>
+            </div>
+            <div class="form-group col-lg-6">
+                <label>Employee Code</label>
+                <input type="text" id="readonly_employee_code" class="form-control" readonly>
+            </div>
+            <div class="form-group col-lg-6">
+                <label>Company Name</label>
+                <input type="text" id="readonly_company_name" class="form-control" readonly>
+            </div>
+            <div class="form-group col-lg-6">
+                <label>Business Unit</label>
+                <input type="text" id="readonly_business_unit" class="form-control" readonly>
+            </div>
+            <div class="form-group col-lg-6">
+                <label>Department</label>
+                <input type="text" id="readonly_department" class="form-control" readonly>
+            </div>
+            <div class="form-group col-lg-6">
+                <label>Job Title</label>
+                <input type="text" id="readonly_job_title" class="form-control" readonly>
+            </div>
+            <div class="form-group col-lg-6">
+                <label>Official Email Address</label>
+                <input type="email" id="readonly_official_email" class="form-control" readonly>
+            </div>
+            <div class="form-group col-lg-6">
+                <label>Phone Number</label>
+                <input type="text" id="readonly_phone_number" class="form-control" readonly>
+            </div>
+            <div class="form-group col-lg-6">
+                <label>Name of their Supervisor</label>
+                <input type="text" id="readonly_supervisor_name" class="form-control" readonly>
+            </div>
+            <div class="form-group col-lg-6">
+                <label>Name of the HOD</label>
+                <input type="text" id="readonly_hod_name" class="form-control" readonly>
+            </div>
+            <div class="form-group col-lg-6">
+                <label>Region or Zone</label>
+                <input type="text" id="readonly_region_zone" class="form-control" readonly>
+            </div>
+            <div class="form-group col-lg-6">
+                <label>Country</label>
+                <input type="text" id="readonly_country" class="form-control" readonly>
+            </div>
+        </div>
+        <button class="btn btn-sm btn-primary btn-block mt-4">login in</button>
+    </div>
+</div>
+
+   <!-- Distributor Details Read-Only Section -->
+<div id="distributor-details-section" class="detail-section card mt-4" >
+    <div class="card-header px-4 py-2">
+        <strong>Distributor Details</strong>
+    </div>
+    <div class="card-body" style="background: #fff;">
+        <div class="row">
+            <div class="form-group col-md-6">
+                <label>Account / Distributor Code</label>
+                <input type="text" id="readonly_distributor_code" class="form-control" readonly>
+            </div>
+            <div class="form-group col-md-6">
+                <label>Distributor Company Name</label>
+                <input type="text" id="readonly_distributor_company_name" class="form-control" readonly>
+            </div>
+            <div class="form-group col-md-6">
+                <label>Distributor Email Address</label>
+                <input type="email" id="readonly_distributor_email" class="form-control" readonly>
+            </div>
+            <div class="form-group col-md-6">
+                <label>Distributor Company Address</label>
+                <input type="text" id="readonly_distributor_address" class="form-control" readonly>
+            </div>
+            <div class="form-group col-md-6">
+                <label>Distributor Contact Number</label>
+                <input type="text" id="readonly_distributor_contact" class="form-control" readonly>
+            </div>
+            <div class="form-group col-md-6">
+                <label>Division</label>
+                <input type="text" id="readonly_division" class="form-control" readonly>
+            </div>
+            <div class="form-group col-md-6">
+                <label>Meril Company Name</label>
+                <input type="text" id="readonly_meril_company_name" class="form-control" readonly>
+            </div>
+            <div class="form-group col-md-6">
+                <label>BU / FD Head</label>
+                <input type="text" id="readonly_bu_fd_head" class="form-control" readonly>
+            </div>
+            <div class="form-group col-md-6">
+                <label>RSM / State Head</label>
+                <input type="text" id="readonly_rsm_state_head" class="form-control" readonly>
+            </div>
+            <div class="form-group col-md-6">
+                <label>Region</label>
+                <input type="text" id="readonly_region" class="form-control" readonly>
+            </div>
+            <div class="form-group col-md-6">
+                <label>State</label>
+                <input type="text" id="readonly_state" class="form-control" readonly>
+            </div>
+            <div class="form-group col-md-6">
+                <label>City</label>
+                <input type="text" id="readonly_city" class="form-control" readonly>
+            </div>
+        </div>
+        <button class="btn btn-sm btn-primary btn-block mt-4">login in</button>
+    </div>
+</div>
+
+<style>
+    .detail-section{
+        position: absolute;
+        max-width: 600px;
+        width: 100%;
+        background: #fff;
+        top: 50%;
+        left: 50%;
+        translate: -50% -50%;
+        margin-top: 50px;
+        max-height: 85vh;
+        overflow-y: auto;
+        z-index: 1000;
+
+          -ms-overflow-style: none;  /* IE and Edge */
+     scrollbar-width: none;  /* Firefox */
+        &::-webkit-scrollbar {
+     display: none; /* Chrome, Safari, and Opera */
+   }
+    }
+</style>
 <script>
     frappe.ready(function () {
+        
+    $("#employee-details-section").hide(); // hide employee-details-section
+    $("#distributor-details-section").hide(); // hide distributor-details-section
+
         $("#user_category").on("change", (e) => {
             style_category(e);
+            if( e.currentTarget.value == "employee"){
+                $("#employee-section").show();
+                $("#distributor-section").hide();
+                $('#mobile_number').prop('disabled', true).prop('required', false);
+                $('#attendee_name').prop('disabled', true).prop('required', false);
+            }else if(e.currentTarget.value == "distributor"){
+                $('#signup_email').prop('disabled', false).prop('required', true);
+                $('#mobile_number').prop('disabled', false).prop('required', true);
+                $('#attendee_name').prop('disabled', false).prop('required', true);
+                $("#employee-section").hide();
+                $("#distributor-section").show();
+            }else{
+                $('#signup_email').prop('disabled', false).prop('required', true);
+                $('#mobile_number').prop('disabled', false).prop('required', true);
+                $("#employee-section").hide();
+                $("#distributor-section").hide();
+            }
         });
 
         $(".signup-form").on("submit", (e) => {
-            signup(e);
+            send_otp(e)
         });
+
+         // Attach to OTP form submit
+    $("#confirm-otp-form").on("submit", validate_otp_request);
+
+      $("#mobile_number").on("input", function() {
+        const mobile = $(this).val().trim();
+        if (mobile && !validate_mobile(mobile)) {
+            show_mobile_error('{{ _("Enter a valid 10-digit mobile number starting with 6-9") }}');
+        } else {
+            clear_mobile_error();
+        }
+    });
     });
 
     const style_category = (e) => {
@@ -74,26 +254,208 @@
         $("#user_category").css("color", category_color);
     }
 
-    const signup = (e) => {
-        e.preventDefault();
-        const email = ($("#signup_email").val() || "").trim();
-        const full_name = frappe.utils.xss_sanitise(($("#signup_fullname").val() || "").trim());
+    // Helper to show error/success message and highlight input
+    function show_input_status(input_selector, message, status) {
+        const $input = $(input_selector);
+        $input.removeClass("is-invalid is-valid");
+        $("#otp-message").remove();
 
-        if (!email || !validate_email(email) || !full_name) {
-            login.set_status('{{ _("Valid email and name required") }}', 'red');
+        if (status === "error") {
+            $input.addClass("is-invalid");
+            $input.after(`<div id="otp-message" class="invalid-feedback" style="display:block;">${message}</div>`);
+        } else if (status === "success") {
+            $input.addClass("is-valid");
+            $input.after(`<div id="otp-message" class="valid-feedback" style="display:block;">${message}</div>`);
+        }
+    }
+
+    function clear_input_status(input_selector) {
+        const $input = $(input_selector);
+        $input.removeClass("is-invalid is-valid");
+        $("#otp-message").remove();
+    }
+
+
+
+    let sended = false;
+    const send_otp = async(e) =>{
+        e.preventDefault();
+        clear_input_status("#signup_email");
+        clear_mobile_error();
+
+
+        const user_category = $("#user_category").val();
+        const email = ($("#signup_email").val() || "").trim();
+        const mobile = ($("#mobile_number").val() || "").trim();
+
+        if(!email || !validate_email(email)) {
+            show_input_status("#signup_email", '{{ _("Valid email required") }}', "error");
+            return false;
+        }
+
+        if(user_category === "distributor") {
+            if(!mobile || !validate_mobile(mobile)) {
+                show_mobile_error('{{ _("Enter a valid 10-digit mobile number starting with 6-9") }}');
+                return false;
+            }
+        }
+
+        // Remove previous messages
+        $("#otp-message").remove();
+        let res;
+        try {
+            res = await frappe.call({
+                method: "lms.lms.user.send_otp",
+                args: {
+                    "email": email
+                }
+            });
+        } catch (err) {
+            show_input_status("#signup_email", '{{ _("Failed to send otp. Please try again.") }}', "error");
+            return false;
+        }
+        if(res && res.message && res.message.status === "success") {
+            show_input_status("#signup_email", '{{ _("Otp sent successfully") }}', "success");
+            $("#confirm-otp-form").show()
+            if(sended === false){
+                sended = true;
+                $("#send-otp-button").text("{{ _('Resend otp') }}");
+            }
+        } else {
+            show_input_status("#signup_email", '{{ _("Failed to send otp") }}', "error");
+        }
+    }
+
+    function validate_otp_request(e) {
+        e.preventDefault();
+        console.log("validateing otp request")
+        const email = ($("#signup_email").val() || "").trim();
+        const otp = ($("#otp").val() || "").trim();
+        const user_category = $("#user_category").val();
+
+        // Clear previous status
+        clear_input_status("#otp");
+
+        if (!otp || otp.length !== 6) {
+            show_input_status("#otp", '{{ _("Enter a valid 6-digit OTP") }}', "error");
             return false;
         }
 
         frappe.call({
-            method: "lms.lms.user.sign_up",
+            method: "lms.lms.user.validate_otp",
             args: {
-                "email": email,
-                "full_name": full_name,
-                "verify_terms": $("#signup-terms").prop("checked") ? 1 : 0,
-                "user_category": $("#user_category").length ?  $("#user_category").val() : ""
+                email: email,
+                otp: otp
             },
-            statusCode: login.login_handlers
-        })
-        return false;
+            callback: function(res) {
+                if (res.message && res.message.success) {
+                    show_input_status("#otp", '{{ _("OTP is valid") }}', "success");
+                    // Show details section based on user category
+                    console.log(res.message)
+                    if (user_category === "employee" && res.message.data) {
+                        showEmployeeDetails(res.message.data);
+                    } else if (user_category === "distributor" && res.message.data) {
+                        showDistributorDetails(res.message.data);
+                    }
+                    $("#confirm-otp-form").hide();
+                } else {
+                    show_input_status("#otp", '{{ _("Invalid OTP") }}', "error");
+                }
+            },
+            error: function() {
+                show_input_status("#otp", '{{ _("Failed to validate OTP. Please try again.") }}', "error");
+            }
+        });
     }
+
+    // Simple email validation
+    function validate_email(email) {
+        // Basic email regex
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+    function validate_mobile(mobile) {
+        // Example: 10 digit Indian mobile number, starting with 6-9
+        return /^[6-9]\d{9}$/.test(mobile);
+    }
+
+    function show_mobile_error(message) {
+        $('#mobile_number').addClass('is-invalid');
+        $('#mobile-error').text(message).show();
+    }
+
+    function clear_mobile_error() {
+        $('#mobile_number').removeClass('is-invalid');
+        $('#mobile-error').hide();
+    }
+
+  
+
+    // Show employee details in the read-only section
+    function showEmployeeDetails(data) {
+        $("#readonly_first_name").val(data.first_name || "");
+        $("#readonly_last_name").val(data.last_name || "");
+        $("#readonly_employee_code").val(data.employee_code || "");
+        $("#readonly_company_name").val(data.company_name || "");
+        $("#readonly_business_unit").val(data.business_unit || "");
+        $("#readonly_department").val(data.department || "");
+        $("#readonly_job_title").val(data.job_title || "");
+        $("#readonly_official_email").val(data.official_email || "");
+        $("#readonly_phone_number").val(data.phone_number || "");
+        $("#readonly_supervisor_name").val(data.supervisor_name || "");
+        $("#readonly_hod_name").val(data.hod_name || "");
+        $("#readonly_region_zone").val(data.region_zone || "");
+        $("#readonly_country").val(data.country || "");
+        $("#employee-details-section").show();
+    }
+
+    // Example usage:
+    // showEmployeeDetails({
+    //     first_name: "Priyansh",
+    //     last_name: "Sharma",
+    //     employee_code: "EMP123",
+    //     company_name: "Merlin LMS",
+    //     business_unit: "Tech",
+    //     department: "Engineering",
+    //     job_title: "Developer",
+    //     official_email: "priyansh@example.com",
+    //     phone_number: "9876543210",
+    //     supervisor_name: "Supervisor Name",
+    //     hod_name: "HOD Name",
+    //     region_zone: "North",
+    //     country: "India"
+    // });
+
+    // Show distributor details in the read-only section
+    function showDistributorDetails(data) {
+        $("#readonly_division").val(data.division || "");
+        $("#readonly_meril_company_name").val(data.meril_company_name || "");
+        $("#readonly_bu_fd_head").val(data.bu_fd_head || "");
+        $("#readonly_rsm_state_head").val(data.rsm_state_head || "");
+        $("#readonly_region").val(data.region || "");
+        $("#readonly_state").val(data.state || "");
+        $("#readonly_city").val(data.city || "");
+        $("#readonly_distributor_code").val(data.distributor_code || "");
+        $("#readonly_distributor_company_name").val(data.distributor_company_name || "");
+        $("#readonly_distributor_email").val(data.distributor_email || "");
+        $("#readonly_distributor_address").val(data.distributor_address || "");
+        $("#readonly_distributor_contact").val(data.distributor_contact || "");
+        $("#distributor-details-section").show();
+    }
+
+    // Example usage:
+    // showDistributorDetails({
+    //     division: "Diagnostics",
+    //     meril_company_name: "Meril Life Sciences",
+    //     bu_fd_head: "John Doe",
+    //     rsm_state_head: "Jane Smith",
+    //     region: "West",
+    //     state: "Maharashtra",
+    //     city: "Mumbai",
+    //     distributor_code: "D12345",
+    //     distributor_company_name: "ABC Distributors",
+    //     distributor_email: "abc@distributor.com",
+    //     distributor_address: "123, Main Street, Mumbai",
+    //     distributor_contact: "9876543210"
+    // });
 </script>

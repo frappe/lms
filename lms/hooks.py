@@ -11,6 +11,7 @@ app_color = "grey"
 app_email = "jannat@frappe.io"
 app_license = "AGPL"
 
+    
 # Includes in <head>
 # ------------------
 
@@ -107,6 +108,8 @@ doc_events = {
 		"validate": "lms.lms.user.validate_username_duplicates",
 		"after_insert": "lms.lms.user.after_insert",
 	},
+    "Employee": {"before_insert": "lms.lms.user.create_user_from_employee"},
+	"Distributor": {"before_insert": "lms.lms.user.create_user_from_distributor"},
 }
 
 # Scheduled Tasks
@@ -180,6 +183,7 @@ website_redirects = [
 		"match_with_query_string": True,
 	},
 	{"source": "/statistics", "target": "/lms/statistics"},
+    {"source": "/#signup", "target": "/new-sign-up"},
 ]
 
 update_website_context = [

@@ -1,0 +1,134 @@
+<form id="sign-up">
+    </div>
+	<div class="form-group">
+		<label for="full_name">Full Name:</label>
+		<input id="full_name" type="text" class="form-control" required />
+	</div>
+	<div class="form-group">
+		<label for="signup_email">Email:</label>
+		<input id="signup_email" type="email" class="form-control" required />
+	</div>
+	<div class="form-group">
+		<label for="username">Username:</label>
+		<input id="username" type="text" class="form-control" required />
+	</div>
+	<div class="form-group">
+		<label for="password">Password:</label>
+		<input id="password" type="password" class="form-control" required />
+		<span class="password-strength-indicator indicator"></span>
+	</div>
+	<p class="password-strength-message text-muted small hidden"></p>
+	<div class="form-group">
+		<label for="invite_code">Invite Code:</label>
+		<input
+			id="invite_code"
+			type="text"
+			class="form-control"
+			readonly
+			required
+			value="{{ frappe.form_dict['invite_code'] }}"
+		/>
+	</div>
+    <div class="form-group ">
+        <label> select your role:</label> 
+        <select id="role" class="form-control">
+            <option value="employee">Employee</option>
+            <option value="distributor">Distributor</option>
+    </div>
+	<button type="submit" id="submit" class="btn btn-primary">
+		{{_("Submit")}}
+	</button>
+</form>
+
+<!-- Employee Section Fields -->
+<div id="employee-section" class="section" style="display:none;">
+    <h3>Employee Section</h3>
+    <div class="two-column-fields">
+        <!-- ...other employee fields... -->
+        <div class="form-group" style="display: flex; align-items: flex-end;">
+            <div style="flex:1;">
+                <label for="official_email">Official Email:</label>
+                <input type="email" id="official_email" name="official_email" class="form-control" />
+            </div>
+            <button type="button" id="auto_fill_employee_btn" class="btn btn-secondary" style="margin-left:8px;" disabled>Auto Fill</button>
+        </div>
+        <!-- ...other employee fields... -->
+    </div>
+</div>
+
+<!-- Distributor Section Fields -->
+<div id="distributor-section" class="section" style="display:none;">
+    <h3>Distributor Section</h3>
+    <div class="two-column-fields">
+        <div class="form-group" style="display: flex; align-items: flex-end;">
+            <div style="flex:1;">
+                <label for="customer_code_or_email">Customer Code or Email:</label>
+                <input type="text" id="customer_code_or_email" name="customer_code_or_email" class="form-control" />
+            </div>
+            <button type="button" id="auto_fill_distributor_btn" class="btn btn-secondary" style="margin-left:8px;" disabled>Auto Fill</button>
+        </div>
+        <!-- ...other distributor fields... -->
+    </div>
+</div>
+
+<script>
+	frappe.ready(() => {
+		$("#submit").click(function () {
+			var data = {
+				full_name: $("#full_name").val(),
+				signup_email: $("#signup_email").val(),
+				username: $("#username").val(),
+				password: $("#password").val(),
+				invite_code: $("#invite_code").val(),
+			};
+
+			frappe.call({
+				type: "POST",
+				method: "lms.lms.doctype.invite_request.invite_request.update_invite",
+				args: {
+					data: data,
+				},
+				callback: (data) => {
+					$("input").val("");
+					if (data.message == "OK") {
+						frappe.msgprint({
+							message: __(
+								"Your Account has been successfully created!",
+							),
+							clear: true,
+						});
+						setTimeout(function () {
+							window.location.href = "/login";
+						}, 2000);
+					}
+				},
+			});
+			return false;
+		});
+	});
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Employee section auto fill
+    const empEmailInput = document.getElementById('official_email');
+    const empAutoFillBtn = document.getElementById('auto_fill_employee_btn');
+    empEmailInput.addEventListener('input', function() {
+        empAutoFillBtn.disabled = !empEmailInput.value.trim();
+    });
+    empAutoFillBtn.addEventListener('click', function() {
+        // Employee auto fill logic here
+        alert('Employee Auto Fill triggered for: ' + empEmailInput.value);
+    });
+
+    // Distributor section auto fill
+    const distEmailInput = document.getElementById('customer_code_or_email');
+    const distAutoFillBtn = document.getElementById('auto_fill_distributor_btn');
+    distEmailInput.addEventListener('input', function() {
+        distAutoFillBtn.disabled = !distEmailInput.value.trim();
+    });
+    distAutoFillBtn.addEventListener('click', function() {
+        // Distributor auto fill logic here
+        alert('Distributor Auto Fill triggered for: ' + distEmailInput.value);
+    });
+});
+</script>
+

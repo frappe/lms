@@ -1,18 +1,21 @@
 <div class="{{ classes }}">
-    {% if courses | length %}
-    <div class="course-cards-parent cards-parent">
-        {% for course in courses %}
-        {{ widgets.CourseCard(course=course, read_only=False) }}
-        {% endfor %}
-    </div>
+	{% if courses | length %}
+	<div class="course-cards-parent cards-parent">
+		{% for course in courses %} {{ widgets.CourseCard(course=course,
+		read_only=False) }} {% endfor %}
+	</div>
 
-    {% else %}
-    <div class="empty-state">
-        <img class="icon icon-xl" src="/assets/lms/icons/comment.svg">
-        <div class="empty-state-text">
-            <div class="empty-state-heading">{{ _("No {0}").format(title) }}</div>
-            <div class="course-meta">{{ _("There are no {0} on this site.").format(title.lower()) }}</div>
-        </div>
-    </div>
-    {% endif %}
+	{% else %}
+	<div class="empty-state">
+		<img class="icon icon-xl" src="/assets/lms/icons/comment.svg" />
+		<div class="empty-state-text">
+			<div class="empty-state-heading">
+				{{ _("No {0}").format(title) }}
+			</div>
+			<div class="course-meta">
+				{{ _("There are no {0} on this site.").format(title.lower()) }}
+			</div>
+		</div>
+	</div>
+	{% endif %}
 </div>

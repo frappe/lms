@@ -1,0 +1,67 @@
+{% extends "templates/web.html" %}
+
+{% block page_content %}
+<div class="container max-w-lg">
+<h4 class="mb-4 mx-auto text-center">Edit Distributor Profile</h4>
+{% if frappe.session.user_doc.is_distributor %}
+    <p class="alert alert-info">You are logged in as a distributor. Please update your profile details below.</p>
+{% else %}
+    <p class="alert alert-warning">You are not logged in as a distributor. Please log in to edit your profile.</p>
+{% endif %}
+<form method="POST" action="/api/method/lms.lms.lms.user.update_distributor_profile">
+    <div class="row">
+        <div class="form-group col-md-6">
+            <label for="division">Division</label>
+            <input type="text" class="form-control" id="division" name="division" value="{{ frappe.session.user_doc.division or '' }}">
+        </div>
+        <div class="form-group col-md-6">
+            <label for="meril_company_name">Meril Company Name</label>
+            <input type="text" class="form-control" id="meril_company_name" name="meril_company_name" value="{{ frappe.session.user_doc.meril_company_name or '' }}">
+        </div>
+        <div class="form-group col-md-6">
+            <label for="bu_fd_head">BU/FD Head</label>
+            <input type="text" class="form-control" id="bu_fd_head" name="bu_fd_head" value="{{ frappe.session.user_doc.bu_fd_head or '' }}">
+        </div>
+        <div class="form-group col-md-6">
+            <label for="rsm_state_head">RSM/State Head</label>
+            <input type="text" class="form-control" id="rsm_state_head" name="rsm_state_head" value="{{ frappe.session.user_doc.rsm_state_head or '' }}">
+        </div>
+        <div class="form-group col-md-6">
+            <label for="region">Region</label>
+            <input type="text" class="form-control" id="region" name="region" value="{{ frappe.session.user_doc.region or '' }}">
+        </div>
+        <div class="form-group col-md-6">
+            <label for="state">State</label>
+            <input type="text" class="form-control" id="state" name="state" value="{{ frappe.session.user_doc.state or '' }}">
+        </div>
+        <div class="form-group col-md-6">
+            <label for="city">City</label>
+            <input type="text" class="form-control" id="city" name="city" value="{{ frappe.session.user_doc.city or '' }}">
+        </div>
+        <div class="form-group col-md-6">
+            <label for="distributor_code">Distributor Code</label>
+            <input type="text" class="form-control" id="distributor_code" name="distributor_code" value="{{ frappe.session.user_doc.distributor_code or '' }}">
+        </div>
+        <div class="form-group col-md-6">
+            <label for="distributor_company_name">Distributor Company Name</label>
+            <input type="text" class="form-control" id="distributor_company_name" name="distributor_company_name" value="{{ frappe.session.user_doc.distributor_company_name or '' }}">
+        </div>
+        <div class="form-group col-md-6">
+            <label for="distributor_email">Distributor Email</label>
+            <input type="email" class="form-control" id="distributor_email" name="distributor_email" value="{{ frappe.session.user_doc.distributor_email or '' }}">
+        </div>
+        <div class="form-group col-md-6">
+            <label for="distributor_address">Distributor Address</label>
+            <input type="text" class="form-control" id="distributor_address" name="distributor_address" value="{{ frappe.session.user_doc.distributor_address or '' }}">
+        </div>
+        <div class="form-group col-md-6">
+            <label for="distributor_contact">Distributor Contact</label>
+            <input type="text" class="form-control" id="distributor_contact" name="distributor_contact" value="{{ frappe.session.user_doc.distributor_contact or '' }}">
+        </div>
+        <div class="form-group col-12">
+            <button type="submit" class="btn btn-primary btn-block w-100 mt-3 mx-auto" style="max-width:500px;">Save</button>
+        </div>
+    </div>
+</form>
+</div>
+{% endblock %}
