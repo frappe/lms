@@ -26,6 +26,7 @@
 					doctype="User"
 					v-model="filters.member"
 					:placeholder="__('Filter by Member')"
+					:readonly="isStudent"
 				/>
 				<FormControl
 					v-model="filters.status"
@@ -45,7 +46,7 @@
 			:rows="submissions.data"
 			rowKey="name"
 			:options="{
-				selectable: false,
+				selectable: true,
 			}"
 		>
 			<ListHeader
@@ -100,6 +101,18 @@
 					</ListRow>
 				</router-link>
 			</ListRows>
+			<ListSelectBanner>
+				<template #actions="{ unselectAll, selections }">
+					<div class="flex gap-2">
+						<Button
+							variant="ghost"
+							@click="deleteExercises(selections, unselectAll)"
+						>
+							<Trash2 class="h-4 w-4 stroke-1.5" />
+						</Button>
+					</div>
+				</template>
+			</ListSelectBanner>
 		</ListView>
 		<EmptyState v-else type="Programming Exercise Submissions" />
 		<div
@@ -127,7 +140,9 @@ import {
 	ListRows,
 	ListRow,
 	ListRowItem,
+	ListSelectBanner,
 	usePageMeta,
+	toast,
 } from 'frappe-ui'
 import type {
 	ProgrammingExerciseSubmission,
@@ -136,6 +151,7 @@ import type {
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
+import { Trash2 } from 'lucide-vue-next'
 import Link from '@/components/Controls/Link.vue'
 import EmptyState from '@/components/EmptyState.vue'
 
@@ -151,9 +167,11 @@ const filters = ref<Filters>({
 const router = useRouter()
 
 onMounted(() => {
-	if (!user.data?.is_instructor && !user.data?.is_moderator) {
-		router.push({ name: 'Courses' })
-	}
+	setFiltersFromRoute()
+	fetchBasedOnRole()
+})
+
+const setFiltersFromRoute = () => {
 	filterFields.forEach((field) => {
 		if (router.currentRoute.value.query[field]) {
 			filters.value[field as keyof Filters] = router.currentRoute.value.query[
@@ -161,7 +179,15 @@ onMounted(() => {
 			] as string
 		}
 	})
-})
+}
+
+const fetchBasedOnRole = () => {
+	if (isStudent.value) {
+		filters.value['member'] = user.data?.name
+	} else {
+		submissions.reload()
+	}
+}
 
 const submissions = createListResource({
 	doctype: 'LMS Programming Exercise Submission',
@@ -174,7 +200,7 @@ const submissions = createListResource({
 		'status',
 		'modified',
 	],
-	auto: true,
+	orderBy: 'modified desc',
 	transform(data: ProgrammingExercise[]) {
 		return data.map((submission: ProgrammingExerciseSubmission) => {
 			return {
@@ -212,6 +238,22 @@ watch(filters.value, () => {
 		},
 	})
 	submissions.reload()
+})
+
+const deleteExercises = (selections: Set<string>, unselectAll: () => void) => {
+	Array.from(selections).forEach(async (submission: string) => {
+		await submissions.delete.submit(submission)
+	})
+	unselectAll()
+	toast.success(__('Submissions deleted successfully'))
+}
+
+const isStudent = computed(() => {
+	return (
+		!user.data?.is_instructor &&
+		!user.data?.is_moderator &&
+		!user.data?.is_evaluator
+	)
 })
 
 const submissionColumns = computed(() => {

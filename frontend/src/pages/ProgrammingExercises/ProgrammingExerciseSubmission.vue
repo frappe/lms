@@ -6,10 +6,15 @@
 		<Breadcrumbs :items="breadcrumbs" />
 	</header>
 	<div class="grid grid-cols-2 h-[calc(100vh_-_3rem)]">
-		<div
-			v-html="exercise.doc?.problem_statement"
-			class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal border-r px-5 py-2 h-full"
-		></div>
+		<div class="border-r py-5 px-8 h-full">
+			<div class="font-semibold mb-2">
+				{{ __('Problem Statement') }}
+			</div>
+			<div
+				v-html="exercise.doc?.problem_statement"
+				class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal"
+			></div>
+		</div>
 		<div>
 			<div class="flex items-center justify-between p-2 bg-surface-gray-2">
 				<div class="font-semibold">
@@ -22,7 +27,13 @@
 					>
 						{{ submission.doc.status }}
 					</Badge>
-					<Button variant="solid" @click="submitCode">
+					<Button
+						v-if="
+							submissionID == 'new' || user.data?.name == submission.doc?.owner
+						"
+						variant="solid"
+						@click="submitCode"
+					>
 						<template #prefix>
 							<Play class="size-3" />
 						</template>
@@ -33,7 +44,7 @@
 			<div class="flex flex-col space-y-4 py-5 border-b">
 				<Code
 					v-model="code"
-					language="python"
+					:language="exercise.doc?.language.toLowerCase()"
 					height="400px"
 					maxHeight="1000px"
 				/>
@@ -43,23 +54,23 @@
 				<textarea
 					v-if="error"
 					v-model="errorMessage"
-					class="bg-surface-gray-1 border-none text-sm h-28 leading-6"
+					class="bg-surface-gray-1 border-none text-sm h-32 leading-6"
 					readonly
 				/>
 				<!-- <textarea v-else v-model="output" class="bg-surface-gray-1 border-none text-sm h-28 leading-6" readonly /> -->
 			</div>
 
-			<div ref="testCaseSection" v-if="testCases.length" class="p-3">
+			<div ref="testCaseSection" class="p-5">
 				<span class="text-lg font-semibold text-ink-gray-9">
 					{{ __('Test Cases') }}
 				</span>
-				<div class="divide-y mt-5">
+				<div v-if="testCases.length" class="divide-y mt-5">
 					<div
 						v-for="(testCase, index) in testCases"
 						:key="testCase.input"
 						class="py-3"
 					>
-						<div class="flex items-center mb-5">
+						<div class="flex items-center mb-3">
 							<span class=""> {{ __('Test {0}').format(index + 1) }} - </span>
 							<span
 								class="font-semibold ml-2 mr-1"
@@ -71,16 +82,18 @@
 							>
 								{{ testCase.status }}
 							</span>
-							<span v-if="testCase.status === 'Passed'">
+							<!-- <span v-if="testCase.status === 'Passed'">
 								<Check class="size-4 text-ink-green-3" />
 							</span>
 							<span v-else>
 								<X class="size-4 text-ink-red-3" />
-							</span>
+							</span> -->
 						</div>
 						<div class="flex items-center justify-between w-[60%]">
 							<div v-if="testCase.input" class="space-y-2">
-								<div class="text-xs text-ink-gray-7">{{ __('Input') }}:</div>
+								<div class="text-xs text-ink-gray-7">
+									{{ __('Input') }}
+								</div>
 								<div>{{ testCase.input }}</div>
 							</div>
 							<div class="space-y-2">
@@ -100,6 +113,9 @@
 						</div>
 					</div>
 				</div>
+				<div v-else class="text-sm text-ink-gray-6 mt-4">
+					{{ __('Please run the code to execute the test cases.') }}
+				</div>
 			</div>
 		</div>
 	</div>
@@ -114,11 +130,12 @@ import {
 	toast,
 	usePageMeta,
 } from 'frappe-ui'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, inject, onMounted, ref, watch } from 'vue'
 import { Play, X, Check } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
 
+const user = inject<any>('$user')
 const code = ref<string | null>('')
 const output = ref<string | null>(null)
 const error = ref<boolean | null>(null)
@@ -132,12 +149,11 @@ const testCases = ref<
 		status: string
 	}>
 >([])
-const boilerplate = ref<string>(
-	`with open("stdin", "r") as f:\n    data = f.read()\n\ninputs = data.split() if len(data) else []\n\n# inputs is a list of strings\n# write your code below\n\n`
-)
+const boilerplate = ref<string>('')
 const { brand } = sessionStore()
 const router = useRouter()
 const fromLesson = ref(false)
+const falconURL = 'https://falcon.frappe.io/'
 
 const props = withDefaults(
 	defineProps<{
@@ -151,16 +167,25 @@ const props = withDefaults(
 
 onMounted(() => {
 	loadFalcon()
-	if (props.submissionID != 'new') {
-		submission.reload()
-	}
-	if (!code.value) {
-		code.value = boilerplate.value
-	}
+	checkIfUserIsPermitted()
+	checkIfInLesson()
+	fetchSubmission()
+})
+
+const checkIfInLesson = () => {
 	if (new URLSearchParams(window.location.search).get('fromLesson')) {
 		fromLesson.value = true
 	}
-})
+}
+
+const fetchSubmission = (name: string = '') => {
+	if (name) {
+		submission.name = name
+		submission.reload()
+	} else if (props.submissionID != 'new') {
+		submission.reload()
+	}
+}
 
 const exercise = createDocumentResource({
 	doctype: 'LMS Programming Exercise',
@@ -172,17 +197,76 @@ const exercise = createDocumentResource({
 const submission = createDocumentResource({
 	doctype: 'LMS Programming Exercise Submission',
 	name: props.submissionID,
-	cache: ['programmingExerciseSubmission', props.submissionID],
+	auto: false,
+	onError(error: any) {
+		if (error.messages?.[0].includes('not found')) {
+			router.push({
+				name: 'ProgrammingExerciseSubmission',
+				params: { exerciseID: props.exerciseID, submissionID: 'new' },
+			})
+		} else {
+			toast.error(__(error.messages?.[0] || error))
+		}
+	},
 })
+
+watch(exercise, () => {
+	updateCode()
+})
+
+const updateCode = (submissionCode = '') => {
+	updateBoilerPlate()
+	if (!code.value?.includes(boilerplate.value)) {
+		code.value = `${boilerplate.value}${code.value}`
+	}
+	if (submissionCode && !code.value?.includes(submissionCode)) {
+		code.value = `${code.value}${submissionCode}`
+	} else if (!submissionCode && !code.value) {
+		code.value = boilerplate.value
+	}
+}
+
+const updateBoilerPlate = () => {
+	if (exercise.doc?.language == 'Python') {
+		boilerplate.value = `with open("stdin", "r") as f:\n    data = f.read()\n\ninputs = data.split() if len(data) else []\n\n# inputs is a list of strings\n# write your code below\n\n`
+	} else if (exercise.doc?.language == 'JavaScript') {
+		boilerplate.value = `const fs = require('fs');\n\nlet input = fs.readFileSync('/app/stdin', 'utf8').trim();\nconst inputs = input.split("\\n");\n// inputs is an array of strings\n// write your code below\n`
+	}
+}
+
+const checkIfUserIsPermitted = (doc: any = null) => {
+	if (!user.data) {
+		window.location.href = `/login?redirect-to=/lms/programming-exercises/${props.exerciseID}/submission/${props.submissionID}`
+	}
+
+	if (!doc) return
+	if (
+		doc.owner != user.data?.name &&
+		!user.data?.is_instructor &&
+		!user.data?.is_moderator &&
+		!user.data.is_evaluator
+	) {
+		router.push({
+			name: 'ProgrammingExerciseSubmission',
+			params: { exerciseID: props.exerciseID, submissionID: 'new' },
+		})
+		return
+	}
+}
+
+const updateTestCases = (doc: any) => {
+	if (testCases.value.length === 0) {
+		testCases.value = doc.test_cases || []
+	}
+}
 
 watch(
 	() => submission.doc,
 	(doc) => {
 		if (doc) {
-			code.value = `${boilerplate.value}${doc.code || ''}\n`
-			if (testCases.value.length === 0) {
-				testCases.value = doc.test_cases || []
-			}
+			checkIfUserIsPermitted(doc)
+			updateTestCases(doc)
+			updateCode(doc.code)
 		}
 	},
 	{ immediate: true }
@@ -191,7 +275,7 @@ watch(
 const loadFalcon = () => {
 	return new Promise((resolve, reject) => {
 		const script = document.createElement('script')
-		script.src = 'https://falcon.frappe.io/static/livecode.js'
+		script.src = `${falconURL}static/livecode.js`
 		script.onload = resolve
 		script.onerror = reject
 		document.head.appendChild(script)
@@ -246,10 +330,11 @@ const createSubmission = () => {
 					name: 'ProgrammingExerciseSubmission',
 					params: { exerciseID: props.exerciseID, submissionID: data },
 				})
+				fetchSubmission(data)
 			} else {
-				submission.reload()
+				fetchSubmission(props.submissionID)
 			}
-			toast.success(__('Submitted successfully!'))
+			toast.success(__('Submission saved!'))
 		})
 		.catch((error: any) => {
 			console.error('Error creating submission:', error)
@@ -267,7 +352,7 @@ const execute = (stdin = ''): Promise<string> => {
 
 		let session = new LiveCodeSession({
 			base_url: 'https://falcon.frappe.io',
-			runtime: 'python',
+			runtime: exercise.doc?.language.toLowerCase() || 'python',
 			code: code.value,
 			files: [{ filename: 'stdin', contents: stdin }],
 			onMessage: (msg: any) => {

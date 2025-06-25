@@ -231,7 +231,7 @@ const getAssessmentColumns = () => {
 }
 
 const getStatusTheme = (status) => {
-	if (status === 'Pass') {
+	if (status === 'Pass' || status === 'Passed') {
 		return 'green'
 	} else if (status === 'Not Graded') {
 		return 'orange'

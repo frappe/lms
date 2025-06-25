@@ -440,6 +440,17 @@ export function getSidebarLinks() {
 			activeFor: ['Batches', 'BatchDetail', 'Batch', 'BatchForm'],
 		},
 		{
+			label: 'Programming Exercises',
+			icon: 'Code',
+			to: 'ProgrammingExercises',
+			activeFor: [
+				'ProgrammingExercises',
+				'ProgrammingExerciseForm',
+				'ProgrammingExerciseSubmissions',
+				'ProgrammingExerciseSubmission',
+			],
+		},
+		{
 			label: 'Certified Members',
 			icon: 'GraduationCap',
 			to: 'CertifiedParticipants',

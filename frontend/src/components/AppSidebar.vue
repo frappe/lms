@@ -313,7 +313,7 @@ const addNotifications = () => {
 
 const addQuizzes = () => {
 	if (isInstructor.value || isModerator.value) {
-		sidebarLinks.value.push({
+		sidebarLinks.value.splice(4, 0, {
 			label: 'Quizzes',
 			icon: 'CircleHelp',
 			to: 'Quizzes',
@@ -329,7 +329,7 @@ const addQuizzes = () => {
 
 const addAssignments = () => {
 	if (isInstructor.value || isModerator.value) {
-		sidebarLinks.value.push({
+		sidebarLinks.value.splice(5, 0, {
 			label: 'Assignments',
 			icon: 'Pencil',
 			to: 'Assignments',
@@ -338,22 +338,6 @@ const addAssignments = () => {
 				'AssignmentForm',
 				'AssignmentSubmissionList',
 				'AssignmentSubmission',
-			],
-		})
-	}
-}
-
-const addProgrammingExercises = () => {
-	if (isInstructor.value || isModerator.value) {
-		sidebarLinks.value.push({
-			label: 'Programming Exercises',
-			icon: 'Code',
-			to: 'ProgrammingExercises',
-			activeFor: [
-				'ProgrammingExercises',
-				'ProgrammingExerciseForm',
-				'ProgrammingExerciseSubmissions',
-				'ProgrammingExerciseSubmission',
 			],
 		})
 	}
@@ -644,7 +628,6 @@ watch(userResource, () => {
 		addPrograms()
 		addQuizzes()
 		addAssignments()
-		addProgrammingExercises()
 		setUpOnboarding()
 	}
 })

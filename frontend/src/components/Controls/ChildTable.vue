@@ -1,5 +1,8 @@
 <template>
 	<div>
+		<div class="text-xs text-ink-gray-5 mb-2">
+			{{ label }}
+		</div>
 		<div class="overflow-x-auto border rounded-md">
 			<div
 				class="grid items-center space-x-4 p-2 border-b"
@@ -14,7 +17,6 @@
 				</div>
 				<div></div>
 			</div>
-
 			<div
 				v-for="(row, rowIndex) in rows"
 				:key="rowIndex"
@@ -71,7 +73,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { Button } from 'frappe-ui'
 import { Ellipsis, Plus, Trash2 } from 'lucide-vue-next'
 import { onClickOutside } from '@vueuse/core'
@@ -93,6 +95,7 @@ const props = withDefaults(
 	defineProps<{
 		modelValue?: Cell[][]
 		columns?: string[]
+		label?: string
 	}>(),
 	{
 		columns: [],
@@ -100,6 +103,12 @@ const props = withDefaults(
 )
 
 const columns = ref(props.columns)
+
+watch(rows, () => {
+	if (rows.value?.length < 1) {
+		addRow()
+	}
+})
 
 const addRow = () => {
 	if (!rows.value) {

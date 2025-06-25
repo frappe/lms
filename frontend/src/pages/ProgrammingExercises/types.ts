@@ -20,3 +20,28 @@ type Filters = {
     member?: string,
     status?: string
 }
+
+type ProgrammingExercises = {
+	data: ProgrammingExercise[]
+	reload: () => void
+	hasNextPage: boolean
+	next: () => void
+	setValue: {
+		submit: (
+			data: ProgrammingExercise,
+			options?: { onSuccess?: () => void }
+		) => void
+	}
+	insert: {
+		submit: (
+			data: ProgrammingExercise,
+			options?: { onSuccess?: () => void }
+		) => void
+	}
+	delete: {
+		submit: (
+			name: string,
+			options?: { onSuccess?: () => void }
+		) => void
+	}
+}

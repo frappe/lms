@@ -81,7 +81,7 @@
 	/>
 </template>
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, inject, onMounted, ref } from 'vue'
 import {
 	Breadcrumbs,
 	Button,
@@ -91,6 +91,7 @@ import {
 } from 'frappe-ui'
 import { Plus } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
+import { useRouter } from 'vue-router'
 import ProgrammingExerciseForm from '@/pages/ProgrammingExercises/ProgrammingExerciseForm.vue'
 
 const exerciseCount = ref<number>(0)
@@ -98,10 +99,25 @@ const readOnlyMode = window.read_only_mode
 const { brand } = sessionStore()
 const showForm = ref<boolean>(false)
 const exerciseID = ref<string | null>('new')
+const user = inject<any>('$user')
+const router = useRouter()
 
 onMounted(() => {
+	validatePermissions()
 	getExerciseCount()
 })
+
+const validatePermissions = () => {
+	if (
+		!user.data?.is_instructor &&
+		!user.data?.is_moderator &&
+		!user.data?.is_evaluator
+	) {
+		router.push({
+			name: 'ProgrammingExerciseSubmissions',
+		})
+	}
+}
 
 const getExerciseCount = () => {
 	call('frappe.client.get_count', {

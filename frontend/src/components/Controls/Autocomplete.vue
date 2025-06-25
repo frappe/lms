@@ -8,6 +8,7 @@
 							class="flex w-full items-center justify-between focus:outline-none"
 							:class="inputClasses"
 							@click="() => togglePopover()"
+							:disabled="attrs.readonly"
 						>
 							<div class="flex items-center">
 								<slot name="prefix" />

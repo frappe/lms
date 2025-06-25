@@ -138,7 +138,6 @@ watch(userResource, () => {
 	) {
 		addQuizzes()
 		addAssignments()
-		addProgrammingExercises()
 	}
 })
 
@@ -155,14 +154,6 @@ const addAssignments = () => {
 		label: 'Assignments',
 		icon: 'Pencil',
 		to: 'Assignments',
-	})
-}
-
-const addProgrammingExercises = () => {
-	otherLinks.value.push({
-		label: 'Programming Exercises',
-		icon: 'Code',
-		to: 'ProgrammingExercises',
 	})
 }
 

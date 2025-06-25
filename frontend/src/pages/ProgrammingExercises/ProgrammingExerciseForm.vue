@@ -26,6 +26,7 @@
 					/>
 					<ChildTable
 						v-model="exercise.test_cases"
+						:label="__('Test Cases')"
 						:columns="testCaseColumns"
 						:required="true"
 						:addable="true"
@@ -52,7 +53,19 @@
 			</div>
 		</template>
 		<template #actions="{ close }">
-			<div class="flex justify-end space-x-2">
+			<div class="flex justify-end space-x-2 group">
+				<Button
+					v-if="exerciseID != 'new'"
+					@click="deleteExercise(close)"
+					variant="outline"
+					theme="red"
+					class="invisible group-hover:visible"
+				>
+					<template #prefix>
+						<Trash2 class="size-4 stroke-1.5" />
+					</template>
+					{{ __('Delete') }}
+				</Button>
 				<router-link
 					:to="{
 						name: 'ProgrammingExerciseSubmission',
@@ -63,6 +76,9 @@
 					}"
 				>
 					<Button>
+						<template #prefix>
+							<Play class="size-4 stroke-1.5" />
+						</template>
 						{{ __('Test this Exercise') }}
 					</Button>
 				</router-link>
@@ -75,6 +91,9 @@
 					}"
 				>
 					<Button>
+						<template #prefix>
+							<ClipboardList class="size-4 stroke-1.5" />
+						</template>
 						{{ __('Check Submission') }}
 					</Button>
 				</router-link>
@@ -95,22 +114,16 @@ import {
 	toast,
 } from 'frappe-ui'
 import { computed, ref, watch } from 'vue'
-import { ProgrammingExercise, TestCase } from '@/types/programming-exercise'
+import {
+	ProgrammingExercise,
+	ProgrammingExercises,
+	TestCase,
+} from '@/types/programming-exercise'
 import ChildTable from '@/components/Controls/ChildTable.vue'
+import { ClipboardList, Play, Trash2 } from 'lucide-vue-next'
 
 const show = defineModel()
-const exercises = defineModel<{
-	data: ProgrammingExercise[]
-	reload: () => void
-	hasNextPage: boolean
-	next: () => void
-	setValue: {
-		submit: (
-			data: ProgrammingExercise,
-			options?: { onSuccess?: () => void }
-		) => void
-	}
-}>('exercises')
+const exercises = defineModel<ProgrammingExercises>('exercises')
 
 const exercise = ref<ProgrammingExercise>({
 	title: '',
@@ -122,8 +135,6 @@ const exercise = ref<ProgrammingExercise>({
 const languageOptions = [
 	{ label: 'Python', value: 'Python' },
 	{ label: 'JavaScript', value: 'JavaScript' },
-	{ label: 'Java', value: 'Java' },
-	{ label: 'C++', value: 'C++' },
 ]
 
 const props = withDefaults(
@@ -138,19 +149,28 @@ const props = withDefaults(
 watch(
 	() => props.exerciseID,
 	() => {
-		if (props.exerciseID != 'new') {
-			setExerciseData()
-			fetchTestCases()
-		}
+		setExerciseData()
+		fetchTestCases()
 	}
 )
 
 const setExerciseData = () => {
-	exercises.value?.data.forEach((ex) => {
+	let isNew = true
+	exercises.value?.data.forEach((ex: ProgrammingExercise) => {
 		if (ex.name === props.exerciseID) {
+			isNew = false
 			exercise.value = { ...ex }
 		}
 	})
+
+	if (isNew) {
+		exercise.value = {
+			title: '',
+			language: 'Python',
+			problem_statement: '',
+			test_cases: [],
+		}
+	}
 }
 
 const testCases = createListResource({
@@ -180,22 +200,25 @@ const saveExercise = (close: () => void) => {
 }
 
 const createNewExercise = (close: () => void) => {
-	exercises.value.insert.submit(
+	exercises.value?.insert.submit(
 		{
 			...exercise.value,
 		},
 		{
 			onSuccess() {
 				close()
-				exercises.value.reload()
+				exercises.value?.reload()
 				toast.success(__('Programming Exercise created successfully'))
+			},
+			onError(err: any) {
+				toast.warning(__(err.messages?.[0] || err))
 			},
 		}
 	)
 }
 
 const updateExercise = (close: () => void) => {
-	exercises.value.setValue.submit(
+	exercises.value?.setValue.submit(
 		{
 			name: props.exerciseID,
 			...exercise.value,
@@ -203,8 +226,11 @@ const updateExercise = (close: () => void) => {
 		{
 			onSuccess() {
 				close()
-				exercises.value.reload()
+				exercises.value?.reload()
 				toast.success(__('Programming Exercise updated successfully'))
+			},
+			onError(err: any) {
+				toast.warning(__(err.messages?.[0] || err))
 			},
 		}
 	)
@@ -213,4 +239,17 @@ const updateExercise = (close: () => void) => {
 const testCaseColumns = computed(() => {
 	return ['Input', 'Expected Output']
 })
+
+const deleteExercise = (close: () => void) => {
+	if (props.exerciseID == 'new') return
+	exercises.value?.delete.submit(props.exerciseID, {
+		onSuccess() {
+			toast.success(__('Programming Exercise deleted successfully'))
+			close()
+		},
+		onError(err: any) {
+			toast.warning(__(err.messages?.[0] || err))
+		},
+	})
+}
 </script>
