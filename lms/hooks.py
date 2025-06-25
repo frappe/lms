@@ -109,7 +109,7 @@ doc_events = {
 		"after_insert": "lms.lms.user.after_insert",
 	},
     "Employee": {"before_insert": "lms.lms.user.create_user_from_employee"},
-	"Distributor": {"before_insert": "lms.lms.user.create_user_from_distributor"},
+	"Distributor": {"after_insert": "lms.lms.user.create_user_from_distributor"},
 }
 
 # Scheduled Tasks
