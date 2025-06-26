@@ -5,13 +5,18 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "section_break_vaki",
+  "user",
+  "otps_section",
   "email_otp",
   "email_otp_expiry_datetime",
   "column_break_tsfd",
   "mobile_otp",
   "mobile_otp_expiry_datetime",
-  "section_break_vaki",
-  "user"
+  "session_section",
+  "unlocked_at",
+  "column_break_zzcd",
+  "lock_at"
  ],
  "fields": [
   {
@@ -46,19 +51,44 @@
   },
   {
    "fieldname": "section_break_vaki",
-   "fieldtype": "Section Break"
+   "fieldtype": "Section Break",
+   "label": "User"
   },
   {
    "fieldname": "user",
    "fieldtype": "Link",
    "label": "User",
    "options": "User"
+  },
+  {
+   "fieldname": "otps_section",
+   "fieldtype": "Section Break",
+   "label": "Otps"
+  },
+  {
+   "fieldname": "session_section",
+   "fieldtype": "Section Break",
+   "label": "Session"
+  },
+  {
+   "fieldname": "unlocked_at",
+   "fieldtype": "Datetime",
+   "label": "Unlocked at"
+  },
+  {
+   "fieldname": "column_break_zzcd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "lock_at",
+   "fieldtype": "Datetime",
+   "label": "Lock at"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-25 16:11:12.652551",
+ "modified": "2025-06-25 17:49:52.176687",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Custom Auth Data",
