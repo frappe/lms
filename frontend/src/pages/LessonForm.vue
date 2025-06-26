@@ -210,7 +210,7 @@ const addInstructorNotes = (data) => {
 const enableAutoSave = () => {
 	autoSaveInterval = setInterval(() => {
 		saveLesson({ showSuccessMessage: false })
-	}, 5000)
+	}, 10000)
 }
 
 const keyboardShortcut = (e) => {
@@ -385,8 +385,10 @@ const saveLesson = (e) => {
 		showSuccessMessage = true
 	}
 	editor.value.save().then((outputData) => {
+		outputData = removeEmptyBlocks(outputData)
 		lesson.content = JSON.stringify(outputData)
 		instructorEditor.value.save().then((outputData) => {
+			outputData = removeEmptyBlocks(outputData)
 			lesson.instructor_content = JSON.stringify(outputData)
 			if (lessonDetails.data?.lesson) {
 				editCurrentLesson()
@@ -395,6 +397,14 @@ const saveLesson = (e) => {
 			}
 		})
 	})
+}
+
+const removeEmptyBlocks = (outputData) => {
+	let blocks = outputData.blocks.filter((block) => {
+		return Object.keys(block.data).length > 0 || block.type == 'paragraph'
+	})
+	outputData.blocks = blocks
+	return outputData
 }
 
 const createNewLesson = () => {
@@ -686,7 +696,7 @@ iframe {
 }
 
 .ce-popover--opened > .ce-popover__container {
-	max-height: 320px;
+	max-height: unset;
 }
 
 .cdx-search-field__icon svg {

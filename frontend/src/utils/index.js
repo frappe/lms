@@ -2,6 +2,7 @@ import { watch } from 'vue'
 import { call, toast } from 'frappe-ui'
 import { useTimeAgo } from '@vueuse/core'
 import { Quiz } from '@/utils/quiz'
+import { Program } from '@/utils/program'
 import { Assignment } from '@/utils/assignment'
 import { Upload } from '@/utils/upload'
 import { Markdown } from '@/utils/markdownParser'
@@ -148,6 +149,7 @@ export function getEditorTools() {
 		},
 		quiz: Quiz,
 		assignment: Assignment,
+		program: Program,
 		upload: Upload,
 		markdown: {
 			class: Markdown,
@@ -438,6 +440,17 @@ export function getSidebarLinks() {
 			activeFor: ['Batches', 'BatchDetail', 'Batch', 'BatchForm'],
 		},
 		{
+			label: 'Programming Exercises',
+			icon: 'Code',
+			to: 'ProgrammingExercises',
+			activeFor: [
+				'ProgrammingExercises',
+				'ProgrammingExerciseForm',
+				'ProgrammingExerciseSubmissions',
+				'ProgrammingExerciseSubmission',
+			],
+		},
+		{
 			label: 'Certified Members',
 			icon: 'GraduationCap',
 			to: 'CertifiedParticipants',
@@ -565,16 +578,17 @@ export const enablePlyr = () => {
 	})
 }
 
-export const openSettings = (category, close) => {
+export const openSettings = (category, close = null) => {
 	const settingsStore = useSettings()
-	close()
+	if (close) {
+		close()
+	}
 	settingsStore.activeTab = category
 	settingsStore.isSettingsOpen = true
+	console.log(settingsStore.activeTab, settingsStore.isSettingsOpen)
 }
 
 export const cleanError = (message) => {
-	// Remove HTML tags but keep the text within the tags
-
 	const cleanMessage = message.replace(/<[^>]+>/g, (match) => {
 		return match.replace(/<\/?[^>]+(>|$)/g, '')
 	})

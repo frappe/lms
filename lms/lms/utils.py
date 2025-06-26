@@ -1504,6 +1504,9 @@ def get_assessments(batch, member=None):
 		elif assessment.assessment_type == "LMS Quiz":
 			assessment = get_quiz_details(assessment, member)
 
+		elif assessment.assessment_type == "LMS Programming Exercise":
+			assessment = get_exercise_details(assessment, member)
+
 	return assessments
 
 
@@ -1574,6 +1577,31 @@ def get_quiz_details(assessment, member):
 	assessment.url = f"/quiz-submission/{assessment.assessment_name}/{submission_name}"
 
 	return assessment
+
+
+def get_exercise_details(assessment, member):
+	assessment.title = frappe.db.get_value(
+		"LMS Programming Exercise", assessment.assessment_name, "title"
+	)
+	filters = {"member": member, "exercise": assessment.assessment_name}
+
+	if frappe.db.exists("LMS Programming Exercise Submission", filters):
+		assessment.submission = frappe.db.get_value(
+			"LMS Programming Exercise Submission",
+			filters,
+			["name", "status"],
+			as_dict=True,
+		)
+		assessment.completed = True
+		assessment.status = assessment.submission.status
+		assessment.edit_url = (
+			f"/exercises/{assessment.assessment_name}/submission/{assessment.submission.name}"
+		)
+	else:
+		assessment.status = "Not Attempted"
+		assessment.color = "red"
+		assessment.completed = False
+		assessment.edit_url = f"/exercises/{assessment.assessment_name}/submission/new"
 
 
 @frappe.whitelist()

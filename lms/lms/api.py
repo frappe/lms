@@ -1493,3 +1493,69 @@ def update_meta_info(type, route, meta_tags):
 				print(new_tag)
 				new_tag.insert()
 				print(new_tag.as_dict())
+
+
+@frappe.whitelist()
+def create_programming_exercise_submission(exercise, submission, code, test_cases):
+	if submission == "new":
+		return make_new_exercise_submission(exercise, code, test_cases)
+	else:
+		update_exercise_submission(submission, code, test_cases)
+
+
+def make_new_exercise_submission(exercise, code, test_cases):
+	submission = frappe.new_doc("LMS Programming Exercise Submission")
+	submission.exercise = exercise
+	submission.member = frappe.session.user
+	submission.code = code
+
+	for test_case in test_cases:
+		submission.append(
+			"test_cases",
+			{
+				"input": test_case.get("input"),
+				"output": test_case.get("output"),
+				"expected_output": test_case.get("expected_output"),
+				"status": test_case.get("status", test_case.get("status", "Failed")),
+			},
+		)
+
+	submission.status = get_exercise_status(test_cases)
+	submission.insert()
+	return submission.name
+
+
+def update_exercise_submission(submission, code, test_cases):
+	update_test_cases(test_cases, submission)
+	status = get_exercise_status(test_cases)
+	frappe.db.set_value(
+		"LMS Programming Exercise Submission", submission, {"status": status, "code": code}
+	)
+
+
+def get_exercise_status(test_cases):
+	if not test_cases:
+		return "Failed"
+
+	if all(row.get("status", "Failed") == "Passed" for row in test_cases):
+		return "Passed"
+	else:
+		return "Failed"
+
+
+def update_test_cases(test_cases, submission):
+	frappe.db.delete("LMS Test Case Submission", {"parent": submission})
+	for row in test_cases:
+		test_case = frappe.new_doc("LMS Test Case Submission")
+		test_case.update(
+			{
+				"parent": submission,
+				"parenttype": "LMS Programming Exercise Submission",
+				"parentfield": "test_cases",
+				"input": row.get("input"),
+				"output": row.get("output"),
+				"expected_output": row.get("expected_output"),
+				"status": row.get("status", "Failed"),
+			}
+		)
+		test_case.insert()

@@ -1,0 +1,172 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-06-18 20:01:37.678342",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "exercise",
+  "exercise_title",
+  "status",
+  "column_break_jkjs",
+  "member",
+  "member_name",
+  "member_image",
+  "section_break_onmz",
+  "code",
+  "section_break_idyi",
+  "test_cases"
+ ],
+ "fields": [
+  {
+   "fieldname": "exercise",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Exercise",
+   "options": "LMS Programming Exercise",
+   "reqd": 1
+  },
+  {
+   "fieldname": "member",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Member",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "member.full_name",
+   "fieldname": "member_name",
+   "fieldtype": "Data",
+   "label": "Member Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "\nPassed\nFailed"
+  },
+  {
+   "fieldname": "column_break_jkjs",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_idyi",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "test_cases",
+   "fieldtype": "Table",
+   "label": "Test Cases",
+   "options": "LMS Test Case Submission"
+  },
+  {
+   "fieldname": "section_break_onmz",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "code",
+   "fieldtype": "Code",
+   "label": "Code",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "exercise.title",
+   "fieldname": "exercise_title",
+   "fieldtype": "Data",
+   "label": "Exercise Title",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "member.user_image",
+   "fieldname": "member_image",
+   "fieldtype": "Attach",
+   "label": "Member Image"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-06-24 14:42:08.288983",
+ "modified_by": "sayali@frappe.io",
+ "module": "LMS",
+ "name": "LMS Programming Exercise Submission",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Moderator",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Course Creator",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Batch Evaluator",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "LMS Student",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "show_title_field_in_link": 1,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [
+  {
+   "color": "Green",
+   "title": "Passed"
+  },
+  {
+   "color": "Red",
+   "title": "Failed"
+  }
+ ],
+ "title_field": "member_name"
+}

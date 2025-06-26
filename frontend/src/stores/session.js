@@ -60,6 +60,16 @@ export const sessionStore = defineStore('lms-session', () => {
 		auto: false,
 	})
 
+	const livecodeURL = createResource({
+		url: 'frappe.client.get_single_value',
+		params: {
+			doctype: 'LMS Settings',
+			field: 'livecode_url',
+		},
+		cache: 'livecodeURL',
+		auto: true,
+	})
+
 	return {
 		user,
 		isLoggedIn,
@@ -68,5 +78,6 @@ export const sessionStore = defineStore('lms-session', () => {
 		brand,
 		branding,
 		sidebarSettings,
+		livecodeURL,
 	}
 })

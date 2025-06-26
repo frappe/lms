@@ -22,14 +22,11 @@
 
 	<div class="md:w-3/4 md:mx-auto py-5 mx-5">
 		<div class="flex items-center justify-between mb-5">
-			<div
-				v-if="assignmentCount"
-				class="text-xl font-semibold text-ink-gray-7 mb-4"
-			>
+			<div v-if="assignmentCount" class="text-lg font-semibold text-ink-gray-9">
 				{{ __('{0} Assignments').format(assignmentCount) }}
 			</div>
 			<div
-				v-if="assignments.data?.length || assigmentCount > 0"
+				v-if="assignments.data?.length || assignmentCount > 0"
 				class="grid grid-cols-2 gap-5"
 			>
 				<FormControl
