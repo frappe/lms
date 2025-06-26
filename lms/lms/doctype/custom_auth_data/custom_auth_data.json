@@ -7,25 +7,31 @@
  "field_order": [
   "email_otp",
   "email_otp_expiry_datetime",
+  "unlocked_at",
   "column_break_tsfd",
   "mobile_otp",
   "mobile_otp_expiry_datetime",
+  "locked_at",
   "section_break_vaki",
-  "user"
+  "user",
+  "is_expired",
+  "otp_attempts_remaining",
+  "column_break_dycl",
+  "email",
+  "is_verified"
  ],
  "fields": [
   {
    "fieldname": "email_otp",
    "fieldtype": "Data",
-   "hidden": 1,
-   "label": "Email otp",
+   "label": "Email OTP",
+   "options": "Password",
    "read_only": 1
   },
   {
    "fieldname": "email_otp_expiry_datetime",
    "fieldtype": "Datetime",
-   "label": "Email otp expiry datetime",
-   "read_only": 1
+   "label": "Email OTP Expiry Datetime"
   },
   {
    "fieldname": "column_break_tsfd",
@@ -33,16 +39,15 @@
   },
   {
    "fieldname": "mobile_otp",
-   "fieldtype": "Date",
-   "hidden": 1,
-   "label": "Mobile otp",
+   "fieldtype": "Data",
+   "label": "Mobile OTP",
+   "options": "password",
    "read_only": 1
   },
   {
    "fieldname": "mobile_otp_expiry_datetime",
    "fieldtype": "Datetime",
-   "label": "Mobile otp expiry datetime",
-   "read_only": 1
+   "label": "Mobile OTP Expiry Datetime"
   },
   {
    "fieldname": "section_break_vaki",
@@ -53,12 +58,52 @@
    "fieldtype": "Link",
    "label": "User",
    "options": "User"
+  },
+  {
+   "fieldname": "unlocked_at",
+   "fieldtype": "Datetime",
+   "label": "Unlocked At"
+  },
+  {
+   "fieldname": "locked_at",
+   "fieldtype": "Datetime",
+   "label": "Locked At"
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "label": "Email",
+   "options": "Email"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_expired",
+   "fieldtype": "Check",
+   "label": "Is Expired",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_dycl",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_verified",
+   "fieldtype": "Check",
+   "label": "Is Varified",
+   "read_only": 1
+  },
+  {
+   "default": "3",
+   "fieldname": "otp_attempts_remaining",
+   "fieldtype": "Int",
+   "label": "OTP Attempts Remaining"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-25 16:11:12.652551",
+ "modified": "2025-06-26 11:45:18.601802",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Custom Auth Data",
