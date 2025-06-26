@@ -217,7 +217,6 @@ const updateCurrentTime = () => {
 }
 
 watch(quizLoadTimer, () => {
-	console.log(showQuizLoader.value, quizLoadTimer.value, showQuiz.value)
 	if (quizLoadTimer.value > 0) {
 		showQuizLoader.value = true
 		setTimeout(() => {
