@@ -5,6 +5,9 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "section_break_vaki",
+  "user",
+  "otps_section",
   "email_otp",
   "email_otp_expiry_datetime",
   "unlocked_at",
@@ -19,6 +22,8 @@
   "column_break_dycl",
   "email",
   "is_verified"
+  "session_section",
+  
  ],
  "fields": [
   {
@@ -51,7 +56,8 @@
   },
   {
    "fieldname": "section_break_vaki",
-   "fieldtype": "Section Break"
+   "fieldtype": "Section Break",
+   "label": "User"
   },
   {
    "fieldname": "user",
@@ -98,11 +104,17 @@
    "fieldname": "otp_attempts_remaining",
    "fieldtype": "Int",
    "label": "OTP Attempts Remaining"
-  }
+  },
+  {
+   "fieldname": "session_section",
+   "fieldtype": "Section Break",
+   "label": "Session"
+  },
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
+
  "modified": "2025-06-26 11:45:18.601802",
  "modified_by": "Administrator",
  "module": "LMS",

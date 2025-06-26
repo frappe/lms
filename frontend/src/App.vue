@@ -6,6 +6,7 @@
 			</div>
 		</Layout>
 		<Dialogs />
+		<OtpDialog />
 	</FrappeUIProvider>
 </template>
 <script setup>
@@ -19,6 +20,7 @@ import NoSidebarLayout from './components/NoSidebarLayout.vue'
 import { usersStore } from '@/stores/user'
 import { useRouter } from 'vue-router'
 import { posthogSettings } from '@/telemetry'
+import OtpDialog from '@/components/custom/OtpDialog.vue'
 
 const screenSize = useScreenSize()
 const router = useRouter()

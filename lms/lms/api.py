@@ -741,7 +741,7 @@ def check_app_permission():
 		return True
 
 	roles = frappe.get_roles()
-	lms_roles = ["Moderator", "Course Creator", "Batch Evaluator", "LMS Student"]
+	lms_roles = ["Moderator", "Course Creator", "Batch Evaluator", "LMS Student", "Distributor"]
 	if any(role in roles for role in lms_roles):
 		return True
 

@@ -25,8 +25,7 @@
   "region",
   "distributor_company_address",
   "signup_settings_tab",
-  "distributor_edited_first_time",
-  "cutom_auth_data"
+  "distributor_edited_fields_once"
  ],
  "fields": [
   {
@@ -128,30 +127,22 @@
    "options": "Country"
   },
   {
-   "default": "False",
-   "fieldname": "distributor_edited_first_time",
-   "fieldtype": "Check",
-   "hidden": 1,
-   "label": "Distributor edited fields"
-  },
-  {
    "fieldname": "signup_settings_tab",
    "fieldtype": "Tab Break",
    "label": "signup settings"
   },
   {
-   "fieldname": "cutom_auth_data",
-   "fieldtype": "Link",
+   "default": "False",
+   "fieldname": "distributor_edited_fields_once",
+   "fieldtype": "Check",
    "hidden": 1,
-   "label": "Cutom Auth Data",
-   "options": "Custom Auth Data",
-   "read_only": 1
+   "label": "Distributor edited fields once"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-25 16:09:43.492290",
+ "modified": "2025-06-26 11:46:08.376057",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Distributor",

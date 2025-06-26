@@ -74,6 +74,7 @@ declare module 'vue' {
     NoPermission: typeof import('./src/components/NoPermission.vue')['default']
     NoSidebarLayout: typeof import('./src/components/NoSidebarLayout.vue')['default']
     NotPermitted: typeof import('./src/components/NotPermitted.vue')['default']
+    OtpDialog: typeof import('./src/components/custom/OtpDialog.vue')['default']
     PageModal: typeof import('./src/components/Modals/PageModal.vue')['default']
     PaymentSettings: typeof import('./src/components/Settings/PaymentSettings.vue')['default']
     Play: typeof import('./src/components/Icons/Play.vue')['default']

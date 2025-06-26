@@ -8,6 +8,7 @@ from lms.lms.utils import get_country_code
 import random
 import string
 import frappe
+from frappe.utils.password import update_password
 
 def validate_username_duplicates(doc, method):
 	while not doc.username or doc.username_exists():
@@ -27,8 +28,6 @@ def after_insert(doc, method):
 ## FUNCTIONS FOR CUSTOM SIGNUP FLOW
 
 def generate_and_save_otp():
-	# This function should generate an OTP and save it to the database or session
-	# For demonstration, we will just return a static OTP
 	otp = "123456"
 	return otp
 
@@ -55,11 +54,12 @@ def create_user_from_employee(self, method=None):
 						"user_type": "Website User",						
 						"new_password": new_password,
 						"user_category": "Employee",
+						"mobile_no": self.employee_number,
 						"send_welcome_email": 0,
 					}
 					).insert(ignore_permissions=True).email
 			
-
+				update_password(email, new_password)
 				
 				# Update self in the database
 				frappe.sendmail(
@@ -99,11 +99,18 @@ def create_user_from_distributor(self, method=None):
                     "email": email,
                     "enabled": 1,
                     "user_type": "Website User",
-                    "new_password": new_password,
                     "send_welcome_email": 0,
+					"mobile_no": self.distributor_contact_number,
+					"first_name": email.split('@')[0],  # Use email prefix as first name
                     "user_category": "Distributor",
-                }).insert(ignore_permissions=True)
+			"roles": [
+				{"role": "Distributor"},
+				{"role": "LMS Student"}
+			],
+			"country": country
+		}).insert(ignore_permissions=True)
 
+                update_password(email, new_password)
                 print("user", user)
                 self.db_set("user_id", user.name)
 
@@ -124,27 +131,58 @@ def create_user_from_distributor(self, method=None):
         frappe.throw(_("An error occurred during distributor creation: {0}").format(str(e)))
 
 
-@frappe.whitelist(allow_guest=True)
-def send_otp(email, category=None):
-	if not email:
-		frappe.throw(_("Email is required"), _("Validation Error"))
+@frappe.whitelist(allow_guest=False)
+def get_unlocked_status():
+	frappe.session.user
 
-	try:
-		frappe.utils.validate_email_address(email, throw=True)
-	except frappe.ValidationError:
-		frappe.throw(_("Invalid email address"), _("Validation Error"))
+@frappe.whitelist(allow_guest=False)
+def send_otp(category=None):
+    """
+    Sends OTPs to the currently logged-in user's email and/or mobile number.
+    """
+    user = frappe.session.user
 
-	otp = generate_and_save_otp()
+    # Fetch the User documen
+    user_doc = frappe.get_doc("User", user)
 
-	res = frappe.sendmail(
-		recipients=[email],
-		sender='noreply@merlinlms.com',
-		subject='Test Email',
-		message=f'<p>Hello Priyansh from merlin lms your otp is : {otp} </p>'
-	)
+    # Pull email and mobile off the User doc
+    email = user_doc.email or None
+    mobile = user_doc.get("mobile_no") or user_doc.get("mobile") or None
 
-	print("otp send res: ", res)
-	return {"message": _("Email sent  successfully to {0}").format(email), "status": "success"}
+    if not email and not mobile:
+        return {"success": False, "error": "No email or mobile number found on your user profile."}
+
+    response = {"success": True, "messages": []}
+
+    # Generate OTPs
+    email_otp = generate_and_save_otp(email) if email else None
+    mobile_otp = generate_and_save_otp(email) if mobile else None
+
+    # Send Email OTP
+    if email:
+        try:
+            frappe.utils.validate_email_address(email, throw=True)
+            frappe.sendmail(
+                recipients=[email],
+                sender='noreply@merlinlms.com',
+                subject='Your Merlin LMS OTP',
+                message=f'<p>Hello {user_doc.full_name or user}, your email OTP is: <b>{email_otp} your mobbile otp is {mobile_otp} </b></p>'
+            )
+            response["messages"].append(f"Email OTP sent to {email}")
+        except Exception as e:
+            return {"success": False, "error": f"Failed to send email OTP: {e}"}
+
+    # Send Mobile OTP (simulate SMS sending)
+    # if mobile:
+    #     try:
+    #         # TODO: replace print with your SMS gateway integration
+    #         print(f"SMS OTP to {mobile}: {mobile_otp}")
+    #         response["messages"].append(f"SMS OTP sent to {mobile}")
+    #     except Exception as e:
+    #         return {"success": False, "error": f"Failed to send SMS OTP: {e}"}
+
+    return response
+
 
 @frappe.whitelist(allow_guest=True)
 def validate_otp(email, otp):
@@ -238,19 +276,32 @@ def set_country_from_ip(login_manager=None, user=None):
 
 
 def on_login(login_manager):
-	user = frappe.get_doc("User", frappe.session.user)
-	user_category = user.get("user_category")
+	user_id = login_manager.user
+	user_doc = frappe.get_doc("User", user_id)
+	roles = [user.role for user in user_doc.roles]
 
-	if user_category == "Distributor":
-		# Check if distributor_edited_fields is truthy
-		if user.get("distributor_edited_fields"):
-			frappe.local.response["home_page"] = "/lms"
+	if "Distributor" in roles:
+		distributor = frappe.db.get_value(
+			"Distributor",
+			{"user_id": user_doc.email},
+			["name", "distributor_edited_fields_once"],
+			as_dict=True
+		)
+
+		print("Distributor:", distributor,"edited once", distributor.distributor_edited_fields_once)
+		if distributor:
+			if distributor.distributor_edited_fields_once == 1:
+				frappe.local.response["home_page"] = "/lms"
+			else:
+				frappe.local.response["home_page"] = "/edit-distributor-profile"
 		else:
-			#redirect to profile edit page
-			frappe.local.response["home_page"] = "/edit-distributor-profile"
+			frappe.log_error(f"No Distributor found for user: {user_doc.name}", "on_login")
+
 	else:
-		# For other users, route to LMS if it's the default app
 		default_app = frappe.db.get_single_value("System Settings", "default_app")
 		if default_app == "lms":
 			frappe.local.response["home_page"] = "/lms"
+
+
+
 
