@@ -284,20 +284,6 @@ watch(
 )
 
 const loadFalcon = () => {
-	if (livecodeURL.data.includes('falcon.frappe.io') && !user.data?.is_fc_site) {
-		falconError.value = __(
-			'Only Frappe Cloud sites can use Falcon Live Code. Please migrate your site to Frappe Cloud or setup Falcon Live Code on your own server.'
-		)
-		return
-	} else if (livecodeURL.data) {
-		falconURL.value = livecodeURL.data
-	} else if (!livecodeURL.data && !user.data?.is_fc_site) {
-		falconError.value = __(
-			'Live Code URL is not set. Please set it from the Settings.'
-		)
-		return
-	}
-
 	return new Promise((resolve, reject) => {
 		const script = document.createElement('script')
 		script.src = `${falconURL.value}static/livecode.js`

@@ -135,12 +135,17 @@
 		}"
 	>
 		<template #body>
-			<div class="p-5 text-base">
-				{{
-					__(
-						'Complete the upcoming quiz to continue watching the video. The quiz will open in {0} {1}.'
-					).format(quizLoadTimer, quizLoadTimer === 1 ? 'second' : 'seconds')
-				}}
+			<div class="flex flex-col space-y-2 p-5 text-base leading-5">
+				<span class="font-semibold">
+					{{ __('Time for a Quiz') }}
+				</span>
+				<span>
+					{{
+						__(
+							'Complete the upcoming quiz to continue watching the video. The quiz will open in {0} {1}.'
+						).format(quizLoadTimer, quizLoadTimer === 1 ? 'second' : 'seconds')
+					}}
+				</span>
 			</div>
 		</template>
 	</Dialog>
@@ -212,6 +217,7 @@ const updateCurrentTime = () => {
 }
 
 watch(quizLoadTimer, () => {
+	console.log(showQuizLoader.value, quizLoadTimer.value, showQuiz.value)
 	if (quizLoadTimer.value > 0) {
 		showQuizLoader.value = true
 		setTimeout(() => {
@@ -303,7 +309,7 @@ const toggleFullscreen = () => {
 }
 
 const getQuizMarkerStyle = (time) => {
-	const percentage = ((time - 7) / Math.ceil(duration.value)) * 100
+	const percentage = ((time - 5) / Math.ceil(duration.value)) * 100
 	return {
 		left: `${percentage}%`,
 	}
