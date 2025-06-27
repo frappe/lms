@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-06-20 16:04+0000\n"
-"PO-Revision-Date: 2025-06-21 16:37\n"
+"PO-Revision-Date: 2025-06-26 18:13\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: German\n"
 "MIME-Version: 1.0\n"
@@ -6507,7 +6507,7 @@ msgstr "mitglieder"
 
 #: frontend/src/components/Modals/LiveClassAttendance.vue:57
 msgid "minutes"
-msgstr "protokolle"
+msgstr "Minuten"
 
 #: lms/templates/quiz/quiz.html:106
 msgid "of"
