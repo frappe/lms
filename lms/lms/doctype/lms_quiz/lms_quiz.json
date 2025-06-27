@@ -144,6 +144,7 @@
    "label": "Enable Negative Marking"
   },
   {
+   "default": "1",
    "depends_on": "enable_negative_marking",
    "fieldname": "marks_to_cut",
    "fieldtype": "Int",
@@ -158,7 +159,7 @@
    "link_fieldname": "quiz"
   }
  ],
- "modified": "2025-06-27 18:33:13.714465",
+ "modified": "2025-06-27 20:00:15.660323",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Quiz",
