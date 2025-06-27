@@ -93,6 +93,12 @@
 										{{ row[column.key] }}
 									</Badge>
 								</div>
+								<div
+									v-else-if="column.key == 'modified'"
+									class="text-sm text-ink-gray-5"
+								>
+									{{ row[column.key] }}
+								</div>
 								<div v-else>
 									{{ row[column.key] }}
 								</div>
@@ -261,7 +267,7 @@ const submissionColumns = computed(() => {
 		{
 			label: __('Member'),
 			key: 'member_name',
-			width: '20%',
+			width: '30%',
 			icon: 'user',
 		},
 		{
@@ -279,7 +285,7 @@ const submissionColumns = computed(() => {
 		{
 			label: __('Modified'),
 			key: 'modified',
-			width: '20%',
+			width: '15%',
 			icon: 'clock',
 			align: 'right',
 		},

@@ -104,24 +104,6 @@ export function getImgDimensions(imgSrc) {
 	})
 }
 
-export function updateDocumentTitle(meta) {
-	watch(
-		() => meta,
-		(meta) => {
-			if (!meta.value.title) return
-			if (meta.value.title && meta.value.subtitle) {
-				document.title = `${meta.value.title} | ${meta.value.subtitle}`
-				return
-			}
-			if (meta.value.title) {
-				document.title = `${meta.value.title}`
-				return
-			}
-		},
-		{ immediate: true, deep: true }
-	)
-}
-
 export function htmlToText(html) {
 	const div = document.createElement('div')
 	div.innerHTML = html

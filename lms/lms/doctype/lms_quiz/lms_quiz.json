@@ -17,8 +17,10 @@
   "duration",
   "section_break_tzbu",
   "shuffle_questions",
-  "column_break_clsh",
   "limit_questions_to",
+  "column_break_clsh",
+  "enable_negative_marking",
+  "marks_to_cut",
   "section_break_sbjx",
   "questions",
   "section_break_3",
@@ -134,6 +136,18 @@
    "fieldname": "duration",
    "fieldtype": "Data",
    "label": "Duration (in minutes)"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_negative_marking",
+   "fieldtype": "Check",
+   "label": "Enable Negative Marking"
+  },
+  {
+   "depends_on": "enable_negative_marking",
+   "fieldname": "marks_to_cut",
+   "fieldtype": "Int",
+   "label": "Marks To Cut"
   }
  ],
  "grid_page_length": 50,
@@ -144,8 +158,8 @@
    "link_fieldname": "quiz"
   }
  ],
- "modified": "2025-04-07 15:03:48.525458",
- "modified_by": "Administrator",
+ "modified": "2025-06-27 18:33:13.714465",
+ "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Quiz",
  "owner": "Administrator",
