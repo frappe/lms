@@ -132,6 +132,7 @@ fixtures = ["Custom Field", "Function", "Industry", "LMS Category"]
 # ------------------------------
 #
 override_whitelisted_methods = {
+    "lms.api.evidhya_sso.login_with_jwt": "lms.api.evidhya_sso.login_with_jwt"
 	# "frappe.desk.search.get_names_for_mentions": "lms.lms.utils.get_names_for_mentions",
 }
 #
