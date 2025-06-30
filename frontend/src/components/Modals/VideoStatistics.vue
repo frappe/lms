@@ -77,7 +77,7 @@ import {
 	NumberChart,
 	TabButtons,
 } from 'frappe-ui'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import VideoBlock from '@/components/VideoBlock.vue'
 
 const show = defineModel<boolean | undefined>()
@@ -102,12 +102,21 @@ const statistics = createListResource({
 		'source',
 		'watch_time',
 	],
-	auto: true,
 	cache: ['videoStatistics', props.lessonName],
 	onSuccess() {
 		currentTab.value = Object.keys(statisticsData.value)[0]
 	},
 })
+
+watch(
+	() => props.lessonName,
+	() => {
+		if (props.lessonName) {
+			statistics.filters.lesson = props.lessonName
+			statistics.reload()
+		}
+	}
+)
 
 const statisticsData = computed(() => {
 	const grouped = <Record<string, any[]>>{}
