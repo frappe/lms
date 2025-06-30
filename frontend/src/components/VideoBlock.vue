@@ -27,9 +27,9 @@
 				oncontextmenu="return false"
 				class="rounded-md border border-gray-100 cursor-pointer"
 				ref="videoRef"
-			>
-				<source :src="fileURL" :type="type" />
-			</video>
+				:src="fileURL"
+				:type="type"
+			></video>
 			<div
 				v-if="!playing"
 				class="absolute inset-0 flex items-center justify-center cursor-pointer"
@@ -181,7 +181,7 @@ const props = defineProps({
 		default: 'video/mp4',
 	},
 	readOnly: {
-		type: String,
+		type: Boolean,
 		default: true,
 	},
 	quizzes: {
@@ -190,6 +190,7 @@ const props = defineProps({
 	},
 	saveQuizzes: {
 		type: Function,
+		default: () => {},
 	},
 })
 

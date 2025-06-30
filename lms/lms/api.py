@@ -1559,3 +1559,38 @@ def update_test_cases(test_cases, submission):
 			}
 		)
 		test_case.insert()
+
+
+@frappe.whitelist()
+def track_video_watch_duration(lesson, videos):
+	"""
+	Track the watch duration of videos in a lesson.
+	"""
+	if not isinstance(videos, list):
+		videos = json.loads(videos)
+
+	for video in videos:
+		filters = {
+			"lesson": lesson,
+			"source": video.get("source"),
+			"member": frappe.session.user,
+		}
+
+		if frappe.db.exists("LMS Video Watch Duration", filters):
+			frappe.db.set_value(
+				"LMS Video Watch Duration",
+				filters,
+				"watch_time",
+				video.get("watch_time"),
+			)
+		else:
+			track_new_watch_time(lesson, video)
+
+
+def track_new_watch_time(lesson, video):
+	doc = frappe.new_doc("LMS Video Watch Duration")
+	doc.lesson = lesson
+	doc.source = video.get("source")
+	doc.watch_time = video.get("watch_time")
+	doc.member = frappe.session.user
+	doc.save()

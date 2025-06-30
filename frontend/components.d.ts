@@ -102,6 +102,7 @@ declare module 'vue' {
     UserAvatar: typeof import('./src/components/UserAvatar.vue')['default']
     UserDropdown: typeof import('./src/components/UserDropdown.vue')['default']
     VideoBlock: typeof import('./src/components/VideoBlock.vue')['default']
+    VideoStatistics: typeof import('./src/components/Modals/VideoStatistics.vue')['default']
     ZoomAccountModal: typeof import('./src/components/Modals/ZoomAccountModal.vue')['default']
     ZoomSettings: typeof import('./src/components/Settings/ZoomSettings.vue')['default']
   }

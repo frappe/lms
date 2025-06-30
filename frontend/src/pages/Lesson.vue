@@ -12,6 +12,12 @@
 						</template>
 					</Button>
 				</Tooltip>
+				<Button v-if="canSeeStats()" @click="showVideoStats()">
+					<template #prefix>
+						<TrendingUp class="size-4 stroke-1.5" />
+					</template>
+					{{ __('Video Statistics') }}
+				</Button>
 				<CertificationLinks :courseName="courseName" />
 			</div>
 		</header>
@@ -100,26 +106,15 @@
 									<MessageCircleQuestion class="w-4 h-4 stroke-1.5" />
 								</template>
 							</Button>
-							<router-link
-								v-if="lesson.data.prev"
-								:to="{
-									name: 'Lesson',
-									params: {
-										courseName: courseName,
-										chapterNumber: lesson.data.prev.split('.')[0],
-										lessonNumber: lesson.data.prev.split('.')[1],
-									},
-								}"
-							>
-								<Button>
-									<template #prefix>
-										<ChevronLeft class="w-4 h-4 stroke-1" />
-									</template>
-									<span>
-										{{ __('Previous') }}
-									</span>
-								</Button>
-							</router-link>
+							<Button v-if="lesson.data.prev" @click="switchLesson('prev')">
+								<template #prefix>
+									<ChevronLeft class="w-4 h-4 stroke-1" />
+								</template>
+								<span>
+									{{ __('Previous') }}
+								</span>
+							</Button>
+
 							<router-link
 								v-if="allowEdit()"
 								:to="{
@@ -135,26 +130,16 @@
 									{{ __('Edit') }}
 								</Button>
 							</router-link>
-							<router-link
-								v-if="lesson.data.next"
-								:to="{
-									name: 'Lesson',
-									params: {
-										courseName: courseName,
-										chapterNumber: lesson.data.next.split('.')[0],
-										lessonNumber: lesson.data.next.split('.')[1],
-									},
-								}"
-							>
-								<Button>
-									<template #suffix>
-										<ChevronRight class="w-4 h-4 stroke-1" />
-									</template>
-									<span>
-										{{ __('Next') }}
-									</span>
-								</Button>
-							</router-link>
+
+							<Button v-if="lesson.data.next" @click="switchLesson('next')">
+								<template #suffix>
+									<ChevronRight class="w-4 h-4 stroke-1" />
+								</template>
+								<span>
+									{{ __('Next') }}
+								</span>
+							</Button>
+
 							<router-link
 								v-else
 								:to="{
@@ -262,13 +247,19 @@
 			</div>
 		</div>
 	</div>
+	<VideoStatistics
+		v-model="showStatsDialog"
+		:lessonName="lesson.data?.name"
+		:lessonTitle="lesson.data?.title"
+	/>
 </template>
 <script setup>
 import {
-	createResource,
 	Badge,
 	Breadcrumbs,
 	Button,
+	call,
+	createResource,
 	Tooltip,
 	usePageMeta,
 } from 'frappe-ui'
@@ -292,6 +283,7 @@ import {
 	Focus,
 	Info,
 	MessageCircleQuestion,
+	TrendingUp,
 } from 'lucide-vue-next'
 import Discussions from '@/components/Discussions.vue'
 import { getEditorTools, enablePlyr } from '@/utils'
@@ -302,6 +294,7 @@ import LessonContent from '@/components/LessonContent.vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
 import CertificationLinks from '@/components/CertificationLinks.vue'
+import VideoStatistics from '@/components/Modals/VideoStatistics.vue'
 
 const user = inject('$user')
 const socket = inject('$socket')
@@ -313,6 +306,7 @@ const instructorEditor = ref(null)
 const lessonProgress = ref(0)
 const lessonContainer = ref(null)
 const zenModeEnabled = ref(false)
+const showStatsDialog = ref(false)
 const hasQuiz = ref(false)
 const discussionsContainer = ref(null)
 const timer = ref(0)
@@ -337,7 +331,6 @@ const props = defineProps({
 
 onMounted(() => {
 	startTimer()
-	console.log(sidebarStore.isSidebarCollapsed)
 	sidebarStore.isSidebarCollapsed = true
 	document.addEventListener('fullscreenchange', attachFullscreenEvent)
 	socket.on('update_lesson_progress', (data) => {
@@ -362,6 +355,7 @@ const attachFullscreenEvent = () => {
 onBeforeUnmount(() => {
 	document.removeEventListener('fullscreenchange', attachFullscreenEvent)
 	sidebarStore.isSidebarCollapsed = false
+	trackVideoWatchDuration()
 })
 
 const lesson = createResource({
@@ -457,6 +451,23 @@ const breadcrumbs = computed(() => {
 	return items
 })
 
+const switchLesson = (direction) => {
+	trackVideoWatchDuration()
+	let lessonIndex =
+		direction === 'prev'
+			? lesson.data.prev.split('.')
+			: lesson.data.next.split('.')
+
+	router.push({
+		name: 'Lesson',
+		params: {
+			courseName: props.courseName,
+			chapterNumber: lessonIndex[0],
+			lessonNumber: lessonIndex[1],
+		},
+	})
+}
+
 watch(
 	[() => route.params.chapterNumber, () => route.params.lessonNumber],
 	(
@@ -464,28 +475,73 @@ watch(
 		[oldChapterNumber, oldLessonNumber]
 	) => {
 		if (newChapterNumber || newLessonNumber) {
-			editor.value = null
-			instructorEditor.value = null
-			allowDiscussions.value = false
-			lesson.submit({
-				chapter: newChapterNumber,
-				lesson: newLessonNumber,
-			})
-			clearInterval(timerInterval)
-			timer.value = 0
+			resetLessonState(newChapterNumber, newLessonNumber)
 			startTimer()
 			enablePlyr()
 		}
 	}
 )
 
+const resetLessonState = (newChapterNumber, newLessonNumber) => {
+	editor.value = null
+	instructorEditor.value = null
+	allowDiscussions.value = false
+	lesson.submit({
+		chapter: newChapterNumber,
+		lesson: newLessonNumber,
+	})
+	clearInterval(timerInterval)
+	timer.value = 0
+}
+
+const trackVideoWatchDuration = () => {
+	const videoDetails = []
+	const videos = document.querySelectorAll('video')
+	if (videos.length > 0 && lesson.data.membership) {
+		videos.forEach((video) => {
+			videoDetails.push({
+				source: video.src,
+				watch_time: video.currentTime,
+			})
+		})
+		call('lms.lms.api.track_video_watch_duration', {
+			lesson: lesson.data.name,
+			videos: videoDetails,
+		})
+	}
+}
+
 watch(
 	() => lesson.data,
 	(data) => {
 		setupLesson(data)
 		enablePlyr()
+		updateVideoWatchDuration()
 	}
 )
+
+const updateVideoWatchDuration = () => {
+	setTimeout(() => {
+		if (lesson.data.videos && lesson.data.videos.length > 0) {
+			lesson.data.videos.forEach((video) => {
+				const videos = document.querySelectorAll('video')
+				if (videos.length > 0) {
+					videos.forEach((vid) => {
+						if (vid.src === video.source) {
+							if (vid.readyState >= 1) {
+								vid.currentTime = video.watch_time
+							} else {
+								vid.addEventListener('loadedmetadata', () => {
+									vid.currentTime = video.watch_time
+								})
+							}
+						}
+					})
+				}
+			})
+		}
+	}, 10)
+}
 
 const startTimer = () => {
 	timerInterval = setInterval(() => {
@@ -551,6 +607,15 @@ const enrollStudent = () => {
 			},
 		}
 	)
+}
+
+const canSeeStats = () => {
+	if (user.data?.is_moderator || user.data?.is_instructor) return true
+	return false
+}
+
+const showVideoStats = () => {
+	showStatsDialog.value = true
 }
 
 const canGoZen = () => {
