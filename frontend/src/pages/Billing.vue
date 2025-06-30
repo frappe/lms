@@ -80,7 +80,7 @@
 							/>
 							<FormControl :label="__('City')" v-model="billingDetails.city" />
 							<FormControl
-								:label="__('State')"
+								:label="__('State', null, 'LMS')"
 								v-model="billingDetails.state"
 							/>
 						</div>
