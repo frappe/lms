@@ -2,7 +2,7 @@
 	<Dialog
 		v-model="show"
 		:options="{
-			size: '3xl',
+			size: '5xl',
 		}"
 	>
 		<template #body>
@@ -21,7 +21,7 @@
 						class="!p-0"
 					/>
 				</div>
-				<div v-if="!chooseFromExisting || editMode" class="space-y-2">
+				<div v-if="!chooseFromExisting || editMode">
 					<div>
 						<label class="block text-xs text-ink-gray-5 mb-1">
 							{{ __('Question') }}
@@ -34,7 +34,7 @@
 							editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
 						/>
 					</div>
-					<div class="grid grid-cols-2 gap-4">
+					<div class="grid grid-cols-2 gap-8 mt-4">
 						<FormControl
 							v-model="question.marks"
 							:label="__('Marks')"
@@ -51,7 +51,7 @@
 					</div>
 					<div
 						v-if="question.type == 'Choices'"
-						class="text-base font-semibold text-ink-gray-9 mb-5 mt-5"
+						class="text-base font-semibold text-ink-gray-9 mb-5 mt-10"
 					>
 						{{ __('Options') }}
 					</div>
@@ -61,7 +61,10 @@
 					>
 						{{ __('Possibilities') }}
 					</div>
-					<div v-if="question.type == 'Choices'" class="grid grid-cols-2 gap-4">
+					<div
+						v-if="question.type == 'Choices'"
+						class="grid grid-cols-2 gap-x-8 gap-y-4"
+					>
 						<div v-for="n in 4" class="space-y-4 py-2">
 							<FormControl
 								:label="__('Option') + ' ' + n"
@@ -81,7 +84,7 @@
 					</div>
 					<div
 						v-else-if="question.type == 'User Input'"
-						class="grid grid-cols-2 gap-4 py-2"
+						class="grid grid-cols-2 gap-x-8 gap-y-4 py-2"
 					>
 						<div v-for="n in 4">
 							<FormControl
@@ -106,7 +109,7 @@
 				</div>
 				<div class="flex items-center justify-end space-x-2 mt-5">
 					<Button variant="solid" @click="submitQuestion()">
-						{{ __('Submit') }}
+						{{ __('Save') }}
 					</Button>
 				</div>
 			</div>
@@ -217,7 +220,7 @@ const questionRow = createResource({
 		return {
 			doc: {
 				doctype: 'LMS Quiz Question',
-				parent: quiz.value.data.name,
+				parent: quiz.value.doc.name,
 				parentfield: 'questions',
 				parenttype: 'LMS Quiz',
 				...values,

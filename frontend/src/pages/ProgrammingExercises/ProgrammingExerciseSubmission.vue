@@ -57,22 +57,24 @@
 					</Button>
 				</div>
 			</div>
-			<div class="flex flex-col space-y-4 py-5 border-b">
+			<div class="flex flex-col space-y-4 pt-5 border-b">
 				<Code
 					v-model="code"
 					:language="exercise.doc?.language.toLowerCase()"
 					height="400px"
 					maxHeight="1000px"
 				/>
-				<span v-if="error" class="text-xs text-ink-gray-5 px-2">
-					{{ __('Compiler Message') }}:
-				</span>
-				<textarea
-					v-if="error"
-					v-model="errorMessage"
-					class="bg-surface-gray-1 border-none text-sm h-32 leading-6"
-					readonly
-				/>
+				<div class="flex flex-col space-y-1">
+					<span v-if="error" class="text-xs text-ink-gray-5 px-1">
+						{{ __('Compiler Message') }}:
+					</span>
+					<textarea
+						v-if="error"
+						v-model="errorMessage"
+						class="font-mono text-ink-red-3 bg-surface-gray-1 border-none text-sm h-32 leading-6"
+						readonly
+					/>
+				</div>
 				<!-- <textarea v-else v-model="output" class="bg-surface-gray-1 border-none text-sm h-28 leading-6" readonly /> -->
 			</div>
 

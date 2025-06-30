@@ -1,7 +1,7 @@
 <template>
 	<div v-if="quiz.data">
 		<div
-			class="bg-surface-blue-2 space-y-1 py-2 px-2 mb-4 rounded-md text-sm text-ink-blue-3 leading-5"
+			class="bg-surface-blue-2 space-y-2 py-2 px-3 mb-4 rounded-md text-sm text-ink-blue-2 leading-5"
 		>
 			<div v-if="inVideo">
 				{{ __('You will have to complete the quiz to continue the video') }}
@@ -38,6 +38,16 @@
 						quiz.data.max_attempts == 1
 							? '1 time'
 							: `${quiz.data.max_attempts} times`
+					)
+				}}
+			</div>
+			<div v-if="quiz.data.enable_negative_marking" class="leading-5">
+				{{
+					__(
+						'If you answer incorrectly, {0} {1} will be deducted from your score for each incorrect answer.'
+					).format(
+						quiz.data.marks_to_cut,
+						quiz.data.marks_to_cut == 1 ? 'mark' : 'marks'
 					)
 				}}
 			</div>
