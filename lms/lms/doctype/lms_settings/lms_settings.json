@@ -36,6 +36,7 @@
   "batches",
   "certified_participants",
   "certified_members",
+  "programming_exercises",
   "column_break_exdz",
   "jobs",
   "statistics",
@@ -405,6 +406,12 @@
    "fieldname": "certified_members",
    "fieldtype": "Check",
    "label": "Certified Members"
+  },
+  {
+   "default": "1",
+   "fieldname": "programming_exercises",
+   "fieldtype": "Check",
+   "label": "Programming Exercises"
   }
  ],
  "grid_page_length": 50,
