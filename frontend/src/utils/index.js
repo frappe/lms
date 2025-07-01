@@ -566,16 +566,37 @@ const setupPlyrForVideo = (video, players) => {
 		'fullscreen',
 	]
 
-	if (useSettings().preventSkippingVideos.data) {
-		controls.splice(controls.indexOf('progress'), 1)
-	}
-
 	const player = new Plyr(video, {
 		youtube: { noCookie: true },
 		controls: controls,
+		listeners: {
+			seek: function customSeekBehavior(e) {
+				const current_time = player.currentTime
+				const newTime = getTargetTime(player, e)
+				if (
+					useSettings().preventSkippingVideos.data &&
+					parseFloat(newTime) > current_time
+				) {
+					e.preventDefault()
+					player.currentTime = current_time
+					return false
+				}
+			},
+		},
 	})
 
 	players.push(player)
+}
+
+const getTargetTime = (plyr, input) => {
+	if (
+		typeof input === 'object' &&
+		(input.type === 'input' || input.type === 'change')
+	) {
+		return (input.target.value / input.target.max) * plyr.duration
+	} else {
+		return Number(input)
+	}
 }
 
 const extractYouTubeId = (url) => {

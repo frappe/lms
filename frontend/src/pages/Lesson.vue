@@ -511,6 +511,7 @@ const getVideoDetails = () => {
 	const videos = document.querySelectorAll('video')
 	if (videos.length > 0) {
 		videos.forEach((video) => {
+			if (video.currentTime == video.duration) markProgress()
 			details.push({
 				source: video.src,
 				watch_time: video.currentTime,
@@ -523,6 +524,7 @@ const getVideoDetails = () => {
 const getPlyrSourceDetails = () => {
 	let details = []
 	plyrSources.value.forEach((source) => {
+		if (source.currentTime == source.duration) markProgress()
 		let src = cleanYouTubeUrl(source.source)
 		details.push({
 			source: src,
@@ -544,6 +546,7 @@ watch(
 	async (data) => {
 		setupLesson(data)
 		getPlyrSource()
+		if (data.icon == 'icon-youtube') clearInterval(timerInterval)
 	}
 )
 
@@ -551,7 +554,6 @@ const getPlyrSource = async () => {
 	await nextTick()
 	if (plyrSources.value.length == 0) {
 		plyrSources.value = await enablePlyr()
-		console.log(plyrSources.value)
 	}
 	updateVideoWatchDuration()
 }
@@ -570,6 +572,9 @@ const updateVideoWatchDuration = () => {
 
 const updatePlyrVideoTime = (video) => {
 	plyrSources.value.forEach((plyrSource) => {
+		let lastWatchedTime = 0
+		let isSeeking = false
+
 		plyrSource.on('ready', () => {
 			if (plyrSource.source === video.source) {
 				plyrSource.embed.seekTo(video.watch_time, true)

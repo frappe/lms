@@ -74,7 +74,6 @@
 						v-model="currentTime"
 						@input="changeCurrentTime"
 						class="duration-slider h-1"
-						:disabled="preventSkippingVideos.data"
 					/>
 					<!-- QUIZ MARKERS -->
 					<div class="absolute top-0 left-0 w-full h-full pointer-events-none">
@@ -299,6 +298,11 @@ const toggleMute = () => {
 }
 
 const changeCurrentTime = () => {
+	if (
+		preventSkippingVideos.data &&
+		currentTime.value > videoRef.value.currentTime
+	)
+		return
 	videoRef.value.currentTime = currentTime.value
 	updateNextQuiz()
 }
