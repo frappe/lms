@@ -550,7 +550,6 @@ def get_sidebar_settings():
 		"courses",
 		"batches",
 		"certified_members",
-		"programming_exercises",
 		"jobs",
 		"statistics",
 		"notifications",
