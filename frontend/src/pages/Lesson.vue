@@ -551,6 +551,7 @@ const getPlyrSource = async () => {
 	await nextTick()
 	if (plyrSources.value.length == 0) {
 		plyrSources.value = await enablePlyr()
+		console.log(plyrSources.value)
 	}
 	updateVideoWatchDuration()
 }

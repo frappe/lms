@@ -1,4 +1,3 @@
-import { watch } from 'vue'
 import { call, toast } from 'frappe-ui'
 import { useTimeAgo } from '@vueuse/core'
 import { Quiz } from '@/utils/quiz'
@@ -557,17 +556,23 @@ const setupPlyrForVideo = (video, players) => {
 		video.setAttribute('data-plyr-embed-id', videoID)
 	}
 
+	let controls = [
+		'play-large',
+		'play',
+		'progress',
+		'current-time',
+		'mute',
+		'volume',
+		'fullscreen',
+	]
+
+	if (useSettings().preventSkippingVideos.data) {
+		controls.splice(controls.indexOf('progress'), 1)
+	}
+
 	const player = new Plyr(video, {
 		youtube: { noCookie: true },
-		controls: [
-			'play-large',
-			'play',
-			'progress',
-			'current-time',
-			'mute',
-			'volume',
-			'fullscreen',
-		],
+		controls: controls,
 	})
 
 	players.push(player)

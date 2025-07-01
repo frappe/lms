@@ -1304,13 +1304,8 @@ def get_notifications(filters):
 
 
 @frappe.whitelist(allow_guest=True)
-def is_guest_allowed():
-	return frappe.get_cached_value("LMS Settings", None, "allow_guest_access")
-
-
-@frappe.whitelist(allow_guest=True)
-def is_learning_path_enabled():
-	return frappe.get_cached_value("LMS Settings", None, "enable_learning_paths")
+def get_lms_setting(field):
+	return frappe.get_cached_value("LMS Settings", None, field)
 
 
 @frappe.whitelist()

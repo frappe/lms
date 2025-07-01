@@ -74,6 +74,7 @@
 						v-model="currentTime"
 						@input="changeCurrentTime"
 						class="duration-slider h-1"
+						:disabled="preventSkippingVideos.data"
 					/>
 					<!-- QUIZ MARKERS -->
 					<div class="absolute top-0 left-0 w-full h-full pointer-events-none">
@@ -155,6 +156,7 @@ import { ref, onMounted, computed, watch } from 'vue'
 import { Pause, Maximize, Volume2, VolumeX } from 'lucide-vue-next'
 import { Button, Dialog } from 'frappe-ui'
 import { formatSeconds, formatTimestamp } from '@/utils'
+import { useSettings } from '@/stores/settings'
 import Play from '@/components/Icons/Play.vue'
 import QuizInVideo from '@/components/Modals/QuizInVideo.vue'
 
@@ -170,6 +172,7 @@ const showQuizLoader = ref(false)
 const quizLoadTimer = ref(0)
 const currentQuiz = ref(null)
 const nextQuiz = ref({})
+const { preventSkippingVideos } = useSettings()
 
 const props = defineProps({
 	file: {
