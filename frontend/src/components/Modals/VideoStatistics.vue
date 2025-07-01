@@ -8,7 +8,12 @@
 	>
 		<template #body-content>
 			<div class="text-base">
-				<TabButtons :buttons="tabs" v-model="currentTab" class="w-fit" />
+				<TabButtons
+					v-if="tabs.length > 1"
+					:buttons="tabs"
+					v-model="currentTab"
+					class="w-fit"
+				/>
 				<div v-if="currentTab" class="mt-8">
 					<div class="grid grid-cols-[55%,40%] gap-5">
 						<div class="space-y-5 border rounded-md p-2 pt-4">
@@ -47,7 +52,7 @@
 											</div>
 										</div>
 										<div class="text-center text-sm">
-											{{ row.watch_time }}
+											{{ parseFloat(row.watch_time).toFixed(2) }}
 										</div>
 									</div>
 								</router-link>
@@ -61,7 +66,10 @@
 									value: averageWatchTime,
 								}"
 							/>
-							<VideoBlock :file="currentTab" />
+							<div v-if="isPlyrSource">
+								<div class="video-player" :src="currentTab"></div>
+							</div>
+							<VideoBlock v-else :file="currentTab" />
 						</div>
 					</div>
 				</div>
@@ -78,14 +86,15 @@ import {
 	TabButtons,
 } from 'frappe-ui'
 import { computed, ref, watch } from 'vue'
+import { enablePlyr } from '@/utils'
 import VideoBlock from '@/components/VideoBlock.vue'
 
 const show = defineModel<boolean | undefined>()
 const currentTab = ref<string>('')
 
 const props = defineProps<{
-	lessonName: string
-	lessonTitle: string
+	lessonName?: string
+	lessonTitle?: string
 }>()
 
 const statistics = createListResource({
@@ -118,6 +127,12 @@ watch(
 	}
 )
 
+watch(show, () => {
+	if (show.value) {
+		enablePlyr()
+	}
+})
+
 const statisticsData = computed(() => {
 	const grouped = <Record<string, any[]>>{}
 	statistics.data.forEach((item: { source: string }) => {
@@ -143,6 +158,28 @@ const currentTabData = computed(() => {
 	return statisticsData.value[currentTab.value] || []
 })
 
+const isPlyrSource = computed(() => {
+	return (
+		currentTab.value.includes('youtube') || currentTab.value.includes('vimeo')
+	)
+})
+
+const provider = computed(() => {
+	if (currentTab.value.includes('youtube')) {
+		return 'youtube'
+	} else if (currentTab.value.includes('vimeo')) {
+		return 'vimeo'
+	}
+	return ''
+})
+
+const embedURL = computed(() => {
+	if (isPlyrSource.value) {
+		return currentTab.value.replace('watch?v=', 'embed/')
+	}
+	return ''
+})
+
 const tabs = computed(() => {
 	return Object.keys(statisticsData.value).map((source, index) => ({
 		label: __(`Video ${index + 1}`),
@@ -150,3 +187,30 @@ const tabs = computed(() => {
 	}))
 })
 </script>
+<style>
+.plyr__volume input[type='range'] {
+	display: none;
+}
+
+.plyr__control--overlaid {
+	background: radial-gradient(
+		circle,
+		rgba(0, 0, 0, 0.4) 0%,
+		rgba(0, 0, 0, 0.5) 50%
+	);
+}
+
+.plyr__control:hover {
+	background: none;
+}
+
+.plyr--video {
+	border: 1px solid theme('colors.gray.200');
+	border-radius: 8px;
+}
+
+:root {
+	--plyr-range-fill-background: white;
+	--plyr-video-control-background-hover: transparent;
+}
+</style>

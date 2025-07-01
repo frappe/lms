@@ -1575,15 +1575,17 @@ def track_video_watch_duration(lesson, videos):
 			"source": video.get("source"),
 			"member": frappe.session.user,
 		}
-
-		if frappe.db.exists("LMS Video Watch Duration", filters):
+		existing_record = frappe.db.get_value(
+			"LMS Video Watch Duration", filters, ["name", "watch_time"], as_dict=True
+		)
+		if existing_record and existing_record.watch_time < video.get("watch_time"):
 			frappe.db.set_value(
 				"LMS Video Watch Duration",
 				filters,
 				"watch_time",
 				video.get("watch_time"),
 			)
-		else:
+		elif not existing_record:
 			track_new_watch_time(lesson, video)
 
 

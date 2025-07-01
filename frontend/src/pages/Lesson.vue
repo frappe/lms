@@ -312,6 +312,7 @@ const discussionsContainer = ref(null)
 const timer = ref(0)
 const { brand } = sessionStore()
 const sidebarStore = useSidebar()
+const plyrSources = ref([])
 let timerInterval
 
 const props = defineProps({
@@ -470,14 +471,15 @@ const switchLesson = (direction) => {
 
 watch(
 	[() => route.params.chapterNumber, () => route.params.lessonNumber],
-	(
+	async (
 		[newChapterNumber, newLessonNumber],
 		[oldChapterNumber, oldLessonNumber]
 	) => {
 		if (newChapterNumber || newLessonNumber) {
+			plyrSources.value = []
+			await nextTick()
 			resetLessonState(newChapterNumber, newLessonNumber)
 			startTimer()
-			enablePlyr()
 		}
 	}
 )
@@ -495,52 +497,104 @@ const resetLessonState = (newChapterNumber, newLessonNumber) => {
 }
 
 const trackVideoWatchDuration = () => {
-	const videoDetails = []
+	if (!lesson.data.membership) return
+	let videoDetails = getVideoDetails()
+	videoDetails = videoDetails.concat(getPlyrSourceDetails())
+	call('lms.lms.api.track_video_watch_duration', {
+		lesson: lesson.data.name,
+		videos: videoDetails,
+	})
+}
+
+const getVideoDetails = () => {
+	let details = []
 	const videos = document.querySelectorAll('video')
-	if (videos.length > 0 && lesson.data.membership) {
+	if (videos.length > 0) {
 		videos.forEach((video) => {
-			videoDetails.push({
+			details.push({
 				source: video.src,
 				watch_time: video.currentTime,
 			})
 		})
-		call('lms.lms.api.track_video_watch_duration', {
-			lesson: lesson.data.name,
-			videos: videoDetails,
-		})
 	}
+	return details
+}
+
+const getPlyrSourceDetails = () => {
+	let details = []
+	plyrSources.value.forEach((source) => {
+		let src = cleanYouTubeUrl(source.source)
+		details.push({
+			source: src,
+			watch_time: source.currentTime,
+		})
+	})
+	return details
+}
+
+const cleanYouTubeUrl = (url) => {
+	if (!url) return url
+	const urlObj = new URL(url)
+	urlObj.searchParams.delete('t')
+	return urlObj.toString()
 }
 
 watch(
 	() => lesson.data,
-	(data) => {
+	async (data) => {
 		setupLesson(data)
-		enablePlyr()
-		updateVideoWatchDuration()
+		getPlyrSource()
 	}
 )
 
+const getPlyrSource = async () => {
+	await nextTick()
+	if (plyrSources.value.length == 0) {
+		plyrSources.value = await enablePlyr()
+	}
+	updateVideoWatchDuration()
+}
+
 const updateVideoWatchDuration = () => {
-	setTimeout(() => {
-		if (lesson.data.videos && lesson.data.videos.length > 0) {
-			lesson.data.videos.forEach((video) => {
-				const videos = document.querySelectorAll('video')
-				if (videos.length > 0) {
-					videos.forEach((vid) => {
-						if (vid.src === video.source) {
-							if (vid.readyState >= 1) {
-								vid.currentTime = video.watch_time
-							} else {
-								vid.addEventListener('loadedmetadata', () => {
-									vid.currentTime = video.watch_time
-								})
-							}
-						}
+	if (lesson.data.videos && lesson.data.videos.length > 0) {
+		lesson.data.videos.forEach((video) => {
+			if (video.source.includes('youtube') || video.source.includes('vimeo')) {
+				updatePlyrVideoTime(video)
+			} else {
+				updateVideoTime(video)
+			}
+		})
+	}
+}
+
+const updatePlyrVideoTime = (video) => {
+	plyrSources.value.forEach((plyrSource) => {
+		plyrSource.on('ready', () => {
+			if (plyrSource.source === video.source) {
+				plyrSource.embed.seekTo(video.watch_time, true)
+				plyrSource.play()
+				plyrSource.pause()
+			}
+		})
+	})
+}
+
+const updateVideoTime = (video) => {
+	const videos = document.querySelectorAll('video')
+	if (videos.length > 0) {
+		videos.forEach((vid) => {
+			if (vid.src === video.source) {
+				let watch_time = video.watch_time < vid.duration ? video.watch_time : 0
+				if (vid.readyState >= 1) {
+					vid.currentTime = watch_time
+				} else {
+					vid.addEventListener('loadedmetadata', () => {
+						vid.currentTime = watch_time
 					})
 				}
-			})
-		}
-	}, 10)
+			}
+		})
+	}
 }
 
 const startTimer = () => {
