@@ -29,11 +29,18 @@ export const useSettings = defineStore('settings', () => {
 		cache: ['preventSkippingVideos'],
 	})
 
+	const sidebarSettings = createResource({
+		url: 'lms.lms.api.get_sidebar_settings',
+		cache: 'Sidebar Settings',
+		auto: false,
+	})
+
 	return {
 		isSettingsOpen,
 		activeTab,
 		learningPaths,
 		allowGuestAccess,
 		preventSkippingVideos,
+		sidebarSettings,
 	}
 })
