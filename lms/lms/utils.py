@@ -978,7 +978,7 @@ def change_currency(amount, currency, country=None):
 
 
 @frappe.whitelist(allow_guest=True)
-def get_courses(filters=None, start=0, page_length=20):
+def get_courses(filters=None, start=0):
 	"""Returns the list of courses."""
 
 	if not filters:
@@ -994,8 +994,8 @@ def get_courses(filters=None, start=0, page_length=20):
 		or_filters=or_filters,
 		order_by="enrollments desc",
 		start=start,
-		page_length=page_length,
 	)
+
 	if show_featured:
 		courses = get_featured_courses(filters, or_filters, fields) + courses
 
