@@ -131,6 +131,13 @@ const tabsStructure = computed(() => {
 					icon: 'Wrench',
 					fields: [
 						{
+							label: 'Allow Guest Access',
+							name: 'allow_guest_access',
+							description:
+								'If enabled, users can access the course and batch lists without logging in.',
+							type: 'checkbox',
+						},
+						{
 							label: 'Enable Learning Paths',
 							name: 'enable_learning_paths',
 							description:
@@ -138,11 +145,11 @@ const tabsStructure = computed(() => {
 							type: 'checkbox',
 						},
 						{
-							label: 'Allow Guest Access',
-							name: 'allow_guest_access',
-							description:
-								'If enabled, users can access the course and batch lists without logging in.',
+							label: 'Prevent Skipping Videos',
+							name: 'prevent_skipping_videos',
 							type: 'checkbox',
+							description:
+								'If enabled, users will no able to move forward in a video',
 						},
 						{
 							label: 'Send calendar invite for evaluations',
@@ -155,6 +162,14 @@ const tabsStructure = computed(() => {
 							type: 'Column Break',
 						},
 						{
+							label: 'Livecode URL',
+							name: 'livecode_url',
+							doctype: 'Livecode URL',
+							type: 'text',
+							description:
+								'https://docs.frappe.io/learning/falcon-self-hosting-guide',
+						},
+						{
 							label: 'Batch Confirmation Email Template',
 							name: 'batch_confirmation_template',
 							doctype: 'Email Template',
@@ -165,14 +180,6 @@ const tabsStructure = computed(() => {
 							name: 'certification_template',
 							doctype: 'Email Template',
 							type: 'Link',
-						},
-						{
-							label: 'Livecode URL',
-							name: 'livecode_url',
-							doctype: 'Livecode URL',
-							type: 'text',
-							description:
-								'https://docs.frappe.io/learning/falcon-self-hosting-guide',
 						},
 						{
 							label: 'Unsplash Access Key',
@@ -298,6 +305,11 @@ const tabsStructure = computed(() => {
 						{
 							label: 'Batches',
 							name: 'batches',
+							type: 'checkbox',
+						},
+						{
+							label: 'Programming Exercises',
+							name: 'programming_exercises',
 							type: 'checkbox',
 						},
 						{
