@@ -64,7 +64,7 @@ const saveSettings = createResource({
 
 const update = () => {
 	let fieldsToSave = {}
-	let imageFields = ['favicon', 'banner_image', 'footer_logo']
+	let imageFields = ['favicon', 'banner_image']
 	props.fields.forEach((f) => {
 		if (imageFields.includes(f.name)) {
 			fieldsToSave[f.name] = f.value ? f.value.file_url : null
@@ -72,6 +72,8 @@ const update = () => {
 			fieldsToSave[f.name] = f.value
 		}
 	})
+
+	fieldsToSave['app_logo'] = fieldsToSave['banner_image']
 	saveSettings.submit(
 		{
 			fields: fieldsToSave,

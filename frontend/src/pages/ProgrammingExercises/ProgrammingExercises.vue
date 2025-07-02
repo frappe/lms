@@ -150,6 +150,7 @@ const exercises = createListResource({
 	cache: ['programmingExercises'],
 	fields: ['name', 'title', 'language', 'problem_statement'],
 	auto: true,
+	orderBy: 'modified desc',
 })
 
 usePageMeta(() => {
