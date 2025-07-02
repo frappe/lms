@@ -286,6 +286,9 @@ watch(
 )
 
 const loadFalcon = () => {
+	if (livecodeURL.data) {
+		falconURL.value = livecodeURL.data
+	}
 	return new Promise((resolve, reject) => {
 		const script = document.createElement('script')
 		script.src = `${falconURL.value}static/livecode.js`
