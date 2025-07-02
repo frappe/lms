@@ -149,7 +149,7 @@ const tabsStructure = computed(() => {
 							name: 'prevent_skipping_videos',
 							type: 'checkbox',
 							description:
-								'If enabled, students cannot skip videos in a lesson.',
+								'If enabled, users will no able to move forward in a video',
 						},
 						{
 							label: 'Send calendar invite for evaluations',
@@ -305,6 +305,11 @@ const tabsStructure = computed(() => {
 						{
 							label: 'Batches',
 							name: 'batches',
+							type: 'checkbox',
+						},
+						{
+							label: 'Programming Exercises',
+							name: 'programming_exercises',
 							type: 'checkbox',
 						},
 						{

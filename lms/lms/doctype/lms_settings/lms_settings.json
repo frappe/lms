@@ -38,6 +38,7 @@
   "batches",
   "certified_participants",
   "certified_members",
+  "programming_exercises",
   "column_break_exdz",
   "jobs",
   "statistics",
@@ -416,13 +417,19 @@
   {
    "fieldname": "column_break_bjis",
    "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "programming_exercises",
+   "fieldtype": "Check",
+   "label": "Programming Exercises"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-07-01 17:01:58.466697",
+ "modified": "2025-07-01 17:01:58.466698",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Settings",

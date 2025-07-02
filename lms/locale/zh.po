@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2025-06-20 16:04+0000\n"
-"PO-Revision-Date: 2025-06-21 16:37\n"
+"POT-Creation-Date: 2025-06-27 16:04+0000\n"
+"PO-Revision-Date: 2025-06-30 19:09\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Chinese Simplified\n"
 "MIME-Version: 1.0\n"
@@ -155,9 +155,17 @@ msgstr "添加课时"
 msgid "Add Quiz to Video"
 msgstr ""
 
+#: frontend/src/components/Controls/ChildTable.vue:69
+msgid "Add Row"
+msgstr "添加行"
+
 #: frontend/src/pages/ProfileEvaluator.vue:89
 msgid "Add Slot"
 msgstr "添加时段"
+
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:35
+msgid "Add Test Case"
+msgstr ""
 
 #: lms/templates/onboarding_header.html:26
 msgid "Add a Chapter"
@@ -192,7 +200,11 @@ msgstr "添加课时"
 msgid "Add a new question"
 msgstr "新增试题"
 
-#: frontend/src/components/AssessmentPlugin.vue:11
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseModal.vue:5
+msgid "Add a programming exercise to your lesson"
+msgstr ""
+
+#: frontend/src/components/AssessmentPlugin.vue:7
 msgid "Add a quiz to your lesson"
 msgstr "为本课时添加测验"
 
@@ -200,7 +212,7 @@ msgstr "为本课时添加测验"
 msgid "Add an assessment"
 msgstr "添加考核"
 
-#: frontend/src/components/AssessmentPlugin.vue:14
+#: frontend/src/components/AssessmentPlugin.vue:8
 msgid "Add an assignment to your lesson"
 msgstr "为本课时添加作业"
 
@@ -463,6 +475,7 @@ msgstr "分配"
 #. Label of the section_break_16 (Section Break) field in DocType 'Course
 #. Lesson'
 #. Label of the assignment (Link) field in DocType 'LMS Assignment Submission'
+#: frontend/src/components/Assessments.vue:245
 #: frontend/src/pages/AssignmentSubmissionList.vue:12
 #: frontend/src/utils/assignment.js:24
 #: lms/lms/doctype/course_lesson/course_lesson.json
@@ -509,13 +522,17 @@ msgid "Assignment will appear at the bottom of the lesson."
 msgstr "作业将显示在课时末尾。"
 
 #: frontend/src/components/AppSidebar.vue:584
-#: frontend/src/pages/Assignments.vue:211 lms/www/lms.py:273
+#: frontend/src/pages/Assignments.vue:208 lms/www/lms.py:273
 msgid "Assignments"
 msgstr "作业"
 
 #: lms/lms/doctype/lms_question/lms_question.py:43
 msgid "At least one option must be correct for this question."
 msgstr "本题至少需设置一个正确选项。"
+
+#: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.py:15
+msgid "At least one test case is required for the programming exercise."
+msgstr ""
 
 #: frontend/src/components/Modals/LiveClassAttendance.vue:5
 msgid "Attendance for Class - {0}"
@@ -636,6 +653,8 @@ msgstr ""
 #: lms/lms/doctype/lms_category/lms_category.json
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
+#: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.json
+#: lms/lms/doctype/lms_programming_exercise_submission/lms_programming_exercise_submission.json
 #: lms/lms/doctype/lms_zoom_settings/lms_zoom_settings.json
 msgid "Batch Evaluator"
 msgstr "批次评估人"
@@ -843,7 +862,7 @@ msgstr "证书链接"
 msgid "Certificate of Completion"
 msgstr "结业证书"
 
-#: frontend/src/components/Modals/Event.vue:311
+#: frontend/src/components/Modals/Event.vue:317
 msgid "Certificate saved successfully"
 msgstr "证书保存成功"
 
@@ -864,7 +883,7 @@ msgstr "证书生成成功"
 #. Label of a Link in the LMS Workspace
 #: frontend/src/components/AppSidebar.vue:588
 #: frontend/src/components/CourseCard.vue:115
-#: frontend/src/components/Modals/Event.vue:372
+#: frontend/src/components/Modals/Event.vue:381
 #: frontend/src/pages/BatchForm.vue:62 frontend/src/pages/Batches.vue:38
 #: frontend/src/pages/CourseCertification.vue:10
 #: frontend/src/pages/CourseCertification.vue:135
@@ -946,9 +965,17 @@ msgstr "章节"
 msgid "Check"
 msgstr "检查"
 
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:16
+msgid "Check All Submissions"
+msgstr ""
+
 #: lms/templates/emails/mention_template.html:10
 msgid "Check Discussion"
 msgstr "查看讨论"
+
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:97
+msgid "Check Submission"
+msgstr ""
 
 #: frontend/src/components/Modals/AssignmentForm.vue:55
 msgid "Check Submissions"
@@ -997,7 +1024,7 @@ msgstr "城市"
 msgid "Class:"
 msgstr "班级："
 
-#: frontend/src/components/Controls/Link.vue:49
+#: frontend/src/components/Controls/Link.vue:50
 msgid "Clear"
 msgstr "清除"
 
@@ -1045,7 +1072,10 @@ msgid "Cloud"
 msgstr "云"
 
 #. Label of the code (Code) field in DocType 'LMS Exercise'
+#. Label of the code (Code) field in DocType 'LMS Programming Exercise
+#. Submission'
 #: lms/lms/doctype/lms_exercise/lms_exercise.json
+#: lms/lms/doctype/lms_programming_exercise_submission/lms_programming_exercise_submission.json
 msgid "Code"
 msgstr "代码"
 
@@ -1181,6 +1211,10 @@ msgstr "公司类型"
 msgid "Company Website"
 msgstr "公司网站"
 
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:68
+msgid "Compiler Message"
+msgstr ""
+
 #. Option for the 'Status' (Select) field in DocType 'LMS Course Progress'
 #: frontend/src/components/Modals/BatchStudentProgress.vue:24
 #: lms/lms/doctype/lms_course_progress/lms_course_progress.json
@@ -1200,7 +1234,7 @@ msgstr "完成注册"
 msgid "Complete Your Enrollment - Don't miss out!"
 msgstr "完成注册——切勿错过！"
 
-#: frontend/src/components/VideoBlock.vue:140
+#: frontend/src/components/VideoBlock.vue:144
 msgid "Complete the upcoming quiz to continue watching the video. The quiz will open in {0} {1}."
 msgstr ""
 
@@ -1402,6 +1436,8 @@ msgstr "课程完成情况"
 #: lms/lms/doctype/lms_category/lms_category.json
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_program/lms_program.json
+#: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.json
+#: lms/lms/doctype/lms_programming_exercise_submission/lms_programming_exercise_submission.json
 #: lms/lms/doctype/lms_question/lms_question.json
 #: lms/lms/doctype/lms_quiz/lms_quiz.json
 msgid "Course Creator"
@@ -1542,10 +1578,14 @@ msgstr "创建"
 msgid "Create Certificate"
 msgstr "创建证书"
 
-#: frontend/src/components/Controls/Link.vue:37
+#: frontend/src/components/Controls/Link.vue:38
 #: frontend/src/components/Controls/MultiSelect.vue:66
 msgid "Create New"
 msgstr "新建"
+
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:7
+msgid "Create Programming Exercise"
+msgstr ""
 
 #: lms/templates/onboarding_header.html:19
 msgid "Create a Course"
@@ -1583,7 +1623,7 @@ msgstr "创建首门课程"
 msgid "Create your first quiz"
 msgstr "创建首项测验"
 
-#: frontend/src/pages/Assignments.vue:176 frontend/src/pages/Courses.vue:321
+#: frontend/src/pages/Assignments.vue:173 frontend/src/pages/Courses.vue:321
 msgid "Created"
 msgstr "已创建"
 
@@ -1701,9 +1741,11 @@ msgstr "默认币种"
 msgid "Degree Type"
 msgstr "学位类型"
 
+#: frontend/src/components/Controls/ChildTable.vue:56
 #: frontend/src/components/CourseOutline.vue:253
 #: frontend/src/components/CourseOutline.vue:311
 #: frontend/src/pages/CourseForm.vue:573
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:67
 msgid "Delete"
 msgstr "删除"
 
@@ -1882,6 +1924,10 @@ msgstr ""
 msgid "Edit Profile"
 msgstr "编辑个人资料"
 
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:8
+msgid "Edit Programming Exercise"
+msgstr ""
+
 #: frontend/src/components/Modals/ZoomAccountModal.vue:6
 msgid "Edit Zoom Account"
 msgstr ""
@@ -2041,7 +2087,7 @@ msgstr "{0}的注册确认"
 msgid "Enrollment Count"
 msgstr "注册人数"
 
-#: lms/lms/utils.py:1906
+#: lms/lms/utils.py:1934
 msgid "Enrollment Failed"
 msgstr "注册失败"
 
@@ -2095,7 +2141,7 @@ msgstr ""
 
 #. Label of a Link in the LMS Workspace
 #. Label of a shortcut in the LMS Workspace
-#: frontend/src/components/Modals/Event.vue:365 lms/lms/workspace/lms/lms.json
+#: frontend/src/components/Modals/Event.vue:374 lms/lms/workspace/lms/lms.json
 msgid "Evaluation"
 msgstr "评估"
 
@@ -2178,8 +2224,12 @@ msgstr "示例：IST（+5:30）"
 
 #. Label of the exercise (Link) field in DocType 'Exercise Latest Submission'
 #. Label of the exercise (Link) field in DocType 'Exercise Submission'
+#. Label of the exercise (Link) field in DocType 'LMS Programming Exercise
+#. Submission'
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:268
 #: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
 #: lms/lms/doctype/exercise_submission/exercise_submission.json
+#: lms/lms/doctype/lms_programming_exercise_submission/lms_programming_exercise_submission.json
 msgid "Exercise"
 msgstr "练习"
 
@@ -2196,14 +2246,26 @@ msgstr "练习提交"
 #. Label of the exercise_title (Data) field in DocType 'Exercise Latest
 #. Submission'
 #. Label of the exercise_title (Data) field in DocType 'Exercise Submission'
+#. Label of the exercise_title (Data) field in DocType 'LMS Programming
+#. Exercise Submission'
 #: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
 #: lms/lms/doctype/exercise_submission/exercise_submission.json
+#: lms/lms/doctype/lms_programming_exercise_submission/lms_programming_exercise_submission.json
 msgid "Exercise Title"
 msgstr "练习标题"
 
 #: frontend/src/components/AppSidebar.vue:142
 msgid "Expand"
 msgstr "展开"
+
+#. Label of the expected_output (Data) field in DocType 'LMS Test Case'
+#. Label of the expected_output (Data) field in DocType 'LMS Test Case
+#. Submission'
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:125
+#: lms/lms/doctype/lms_test_case/lms_test_case.json
+#: lms/lms/doctype/lms_test_case_submission/lms_test_case_submission.json
+msgid "Expected Output"
+msgstr ""
 
 #. Label of the expiration_date (Data) field in DocType 'Certification'
 #: lms/lms/doctype/certification/certification.json
@@ -2239,17 +2301,30 @@ msgstr "查看更多"
 #. Submission'
 #. Option for the 'Status' (Select) field in DocType 'LMS Certificate
 #. Evaluation'
-#: frontend/src/components/Modals/Event.vue:357
+#: frontend/src/components/Modals/Event.vue:366
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 msgid "Fail"
 msgstr "未通过"
 
+#. Option for the 'Status' (Select) field in DocType 'LMS Programming Exercise
+#. Submission'
+#. Option for the 'Status' (Select) field in DocType 'LMS Test Case Submission'
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:37
+#: lms/lms/doctype/lms_programming_exercise_submission/lms_programming_exercise_submission.json
+#: lms/lms/doctype/lms_test_case_submission/lms_test_case_submission.json
+msgid "Failed"
+msgstr "失败"
+
 #: lms/lms/doctype/lms_live_class/lms_live_class.py:139
 msgid "Failed to fetch attendance data from Zoom for class {0}: {1}"
 msgstr ""
 
-#: frontend/src/utils/index.js:622
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:353
+msgid "Failed to submit. Please try again. {0}"
+msgstr ""
+
+#: frontend/src/utils/index.js:636
 msgid "Failed to update meta tags {0}"
 msgstr ""
 
@@ -2285,6 +2360,18 @@ msgstr "专业/研究领域"
 #: lms/lms/doctype/course_lesson/course_lesson.json
 msgid "File Type"
 msgstr "文件类型"
+
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:23
+msgid "Filter by Exercise"
+msgstr ""
+
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:28
+msgid "Filter by Member"
+msgstr ""
+
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:39
+msgid "Filter by Status"
+msgstr ""
 
 #: frontend/src/components/Modals/EditProfile.vue:59
 #: frontend/src/components/Settings/Members.vue:39
@@ -2611,7 +2698,7 @@ msgstr "图片：数据流损坏"
 #. Option for the 'Status' (Select) field in DocType 'LMS Certificate
 #. Evaluation'
 #. Option for the 'Status' (Select) field in DocType 'LMS Course'
-#: frontend/src/components/Modals/Event.vue:349
+#: frontend/src/components/Modals/Event.vue:358
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 #: lms/lms/doctype/lms_course/lms_course.json
@@ -2664,6 +2751,14 @@ msgstr "个人作业"
 #: lms/lms/doctype/preferred_industry/preferred_industry.json
 msgid "Industry"
 msgstr "行业"
+
+#. Label of the input (Data) field in DocType 'LMS Test Case'
+#. Label of the input (Data) field in DocType 'LMS Test Case Submission'
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:111
+#: lms/lms/doctype/lms_test_case/lms_test_case.json
+#: lms/lms/doctype/lms_test_case_submission/lms_test_case_submission.json
+msgid "Input"
+msgstr ""
 
 #. Label of the institution_name (Data) field in DocType 'Education Detail'
 #: lms/lms/doctype/education_detail/education_detail.json
@@ -2808,6 +2903,12 @@ msgstr "项目移除成功"
 #: lms/templates/signup-form.html:6
 msgid "Jane Doe"
 msgstr "示例用户"
+
+#. Option for the 'Language' (Select) field in DocType 'LMS Programming
+#. Exercise'
+#: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.json
+msgid "JavaScript"
+msgstr "JavaScript"
 
 #. Label of the job (Link) field in DocType 'LMS Job Application'
 #: lms/job/doctype/lms_job_application/lms_job_application.json
@@ -3046,6 +3147,16 @@ msgid "LMS Program Member"
 msgstr "学习管理系统项目成员"
 
 #. Name of a DocType
+#: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.json
+msgid "LMS Programming Exercise"
+msgstr ""
+
+#. Name of a DocType
+#: lms/lms/doctype/lms_programming_exercise_submission/lms_programming_exercise_submission.json
+msgid "LMS Programming Exercise Submission"
+msgstr ""
+
+#. Name of a DocType
 #: lms/lms/doctype/lms_question/lms_question.json
 msgid "LMS Question"
 msgstr "学习管理系统试题"
@@ -3104,6 +3215,8 @@ msgstr "学习管理系统来源"
 #: lms/lms/doctype/lms_course_review/lms_course_review.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
+#: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.json
+#: lms/lms/doctype/lms_programming_exercise_submission/lms_programming_exercise_submission.json
 #: lms/lms/doctype/lms_quiz/lms_quiz.json
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.json
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -3111,6 +3224,16 @@ msgstr "学习管理系统来源"
 #: lms/lms/doctype/user_skill/user_skill.json
 msgid "LMS Student"
 msgstr "学习管理系统学员"
+
+#. Name of a DocType
+#: lms/lms/doctype/lms_test_case/lms_test_case.json
+msgid "LMS Test Case"
+msgstr ""
+
+#. Name of a DocType
+#: lms/lms/doctype/lms_test_case_submission/lms_test_case_submission.json
+msgid "LMS Test Case Submission"
+msgstr ""
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_timetable_legend/lms_timetable_legend.json
@@ -3131,6 +3254,12 @@ msgstr ""
 #: lms/lms/doctype/lms_timetable_legend/lms_timetable_legend.json
 msgid "Label"
 msgstr "标签"
+
+#. Label of the language (Select) field in DocType 'LMS Programming Exercise'
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:22
+#: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.json
+msgid "Language"
+msgstr "语言"
 
 #: frontend/src/components/Modals/EditProfile.vue:64
 msgid "Last Name"
@@ -3188,7 +3317,7 @@ msgstr "课时引用"
 msgid "Lesson Title"
 msgstr "课时标题"
 
-#: frontend/src/pages/LessonForm.vue:416
+#: frontend/src/pages/LessonForm.vue:426
 msgid "Lesson created successfully"
 msgstr "课时创建成功。"
 
@@ -3200,7 +3329,7 @@ msgstr "课时删除成功。"
 msgid "Lesson moved successfully"
 msgstr "课时移动成功。"
 
-#: frontend/src/pages/LessonForm.vue:440
+#: frontend/src/pages/LessonForm.vue:450
 msgid "Lesson updated successfully"
 msgstr "课时更新成功。"
 
@@ -3272,9 +3401,11 @@ msgid "LiveCode URL"
 msgstr "实时编码链接"
 
 #: frontend/src/components/Settings/Members.vue:109
-#: frontend/src/pages/Assignments.vue:69 frontend/src/pages/Batches.vue:80
+#: frontend/src/pages/Assignments.vue:66 frontend/src/pages/Batches.vue:80
 #: frontend/src/pages/CertifiedParticipants.vue:98
 #: frontend/src/pages/Courses.vue:75
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:123
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:87
 #: frontend/src/pages/QuizSubmissionList.vue:39
 #: frontend/src/pages/Quizzes.vue:55
 msgid "Load More"
@@ -3424,12 +3555,15 @@ msgstr ""
 #. Label of the member (Link) field in DocType 'LMS Mentor Request'
 #. Label of the member (Link) field in DocType 'LMS Payment'
 #. Label of the member (Link) field in DocType 'LMS Program Member'
+#. Label of the member (Link) field in DocType 'LMS Programming Exercise
+#. Submission'
 #. Label of the member (Link) field in DocType 'LMS Quiz Submission'
 #. Label of the member (Link) field in DocType 'LMS Zoom Settings'
 #: frontend/src/components/Modals/LiveClassAttendance.vue:14
 #: frontend/src/components/Modals/ZoomAccountModal.vue:42
 #: frontend/src/components/Settings/ZoomSettings.vue:178
 #: frontend/src/pages/AssignmentSubmissionList.vue:14
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:262
 #: frontend/src/pages/QuizSubmission.vue:31
 #: frontend/src/pages/QuizSubmissionList.vue:91
 #: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
@@ -3447,6 +3581,7 @@ msgstr ""
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
 #: lms/lms/doctype/lms_payment/lms_payment.json
 #: lms/lms/doctype/lms_program_member/lms_program_member.json
+#: lms/lms/doctype/lms_programming_exercise_submission/lms_programming_exercise_submission.json
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.json
 #: lms/lms/doctype/lms_zoom_settings/lms_zoom_settings.json
 #: lms/lms/report/course_progress_summary/course_progress_summary.py:64
@@ -3469,8 +3604,11 @@ msgstr "成员邮箱"
 #. Feedback'
 #. Label of the member_image (Attach Image) field in DocType 'LMS Live Class
 #. Participant'
+#. Label of the member_image (Attach) field in DocType 'LMS Programming
+#. Exercise Submission'
 #: lms/lms/doctype/lms_batch_feedback/lms_batch_feedback.json
 #: lms/lms/doctype/lms_live_class_participant/lms_live_class_participant.json
+#: lms/lms/doctype/lms_programming_exercise_submission/lms_programming_exercise_submission.json
 msgid "Member Image"
 msgstr "成员头像"
 
@@ -3487,6 +3625,8 @@ msgstr "成员头像"
 #. Label of the member_name (Data) field in DocType 'LMS Live Class
 #. Participant'
 #. Label of the member_name (Data) field in DocType 'LMS Mentor Request'
+#. Label of the member_name (Data) field in DocType 'LMS Programming Exercise
+#. Submission'
 #. Label of the member_name (Data) field in DocType 'LMS Quiz Submission'
 #. Label of the member_name (Data) field in DocType 'LMS Zoom Settings'
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
@@ -3500,6 +3640,7 @@ msgstr "成员头像"
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 #: lms/lms/doctype/lms_live_class_participant/lms_live_class_participant.json
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
+#: lms/lms/doctype/lms_programming_exercise_submission/lms_programming_exercise_submission.json
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.json
 #: lms/lms/doctype/lms_zoom_settings/lms_zoom_settings.json
 #: lms/lms/report/course_progress_summary/course_progress_summary.py:71
@@ -3639,6 +3780,8 @@ msgstr "多选题至少需要两个选项"
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 #: lms/lms/doctype/lms_program/lms_program.json
+#: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.json
+#: lms/lms/doctype/lms_programming_exercise_submission/lms_programming_exercise_submission.json
 #: lms/lms/doctype/lms_question/lms_question.json
 #: lms/lms/doctype/lms_quiz/lms_quiz.json
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -3647,6 +3790,10 @@ msgstr "多选题至少需要两个选项"
 #: lms/lms/doctype/lms_zoom_settings/lms_zoom_settings.json
 msgid "Moderator"
 msgstr "主持人"
+
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:280
+msgid "Modified"
+msgstr ""
 
 #: lms/lms/doctype/lms_badge/lms_badge.js:40
 msgid "Modified By"
@@ -3700,6 +3847,7 @@ msgstr "名称"
 #: frontend/src/components/Settings/ZoomSettings.vue:17
 #: frontend/src/pages/Assignments.vue:19 frontend/src/pages/Batches.vue:17
 #: frontend/src/pages/Courses.vue:17 frontend/src/pages/Courses.vue:310
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:32
 #: frontend/src/pages/Programs.vue:14 lms/lms/doctype/lms_badge/lms_badge.json
 msgid "New"
 msgstr "新建"
@@ -3790,6 +3938,10 @@ msgstr "未找到测验提交记录"
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "No Recording"
 msgstr "无录制"
+
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:13
+msgid "No Submissions"
+msgstr ""
 
 #: lms/templates/upcoming_evals.html:43
 msgid "No Upcoming Evaluations"
@@ -3948,7 +4100,7 @@ msgstr "仅允许添加已禁用自主学习的课程至项目"
 msgid "Only files of type {0} will be accepted."
 msgstr "仅接受{0}类型文件"
 
-#: frontend/src/pages/CourseForm.vue:597 frontend/src/utils/index.js:509
+#: frontend/src/pages/CourseForm.vue:597 frontend/src/utils/index.js:522
 msgid "Only image file is allowed."
 msgstr "仅允许图片文件"
 
@@ -4028,6 +4180,11 @@ msgstr "原始金额"
 msgid "Others"
 msgstr "其他"
 
+#. Label of the output (Data) field in DocType 'LMS Test Case Submission'
+#: lms/lms/doctype/lms_test_case_submission/lms_test_case_submission.json
+msgid "Output"
+msgstr "输出"
+
 #: lms/lms/doctype/lms_badge/lms_badge.js:39
 msgid "Owner"
 msgstr "所有者"
@@ -4092,10 +4249,19 @@ msgstr "部分完成"
 #. Submission'
 #. Option for the 'Status' (Select) field in DocType 'LMS Certificate
 #. Evaluation'
-#: frontend/src/components/Modals/Event.vue:353
+#: frontend/src/components/Modals/Event.vue:362
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 msgid "Pass"
+msgstr "通过"
+
+#. Option for the 'Status' (Select) field in DocType 'LMS Programming Exercise
+#. Submission'
+#. Option for the 'Status' (Select) field in DocType 'LMS Test Case Submission'
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:36
+#: lms/lms/doctype/lms_programming_exercise_submission/lms_programming_exercise_submission.json
+#: lms/lms/doctype/lms_test_case_submission/lms_test_case_submission.json
+msgid "Passed"
 msgstr "通过"
 
 #. Label of the passing_percentage (Int) field in DocType 'LMS Quiz'
@@ -4192,7 +4358,7 @@ msgstr "未安装支付应用"
 #. Option for the 'Status' (Select) field in DocType 'LMS Certificate
 #. Evaluation'
 #. Option for the 'Status' (Select) field in DocType 'LMS Mentor Request'
-#: frontend/src/components/Modals/Event.vue:345
+#: frontend/src/components/Modals/Event.vue:354
 #: lms/lms/doctype/cohort_join_request/cohort_join_request.json
 #: lms/lms/doctype/invite_request/invite_request.json
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
@@ -4245,7 +4411,7 @@ msgstr "请查看邮箱进行验证"
 msgid "Please click on the following button to set your new password"
 msgstr "点击下方按钮设置新密码"
 
-#: lms/lms/utils.py:2040 lms/lms/utils.py:2044
+#: lms/lms/utils.py:2068 lms/lms/utils.py:2072
 msgid "Please complete the previous courses in the program to enroll in this course."
 msgstr "请先完成项目前置课程以报名本课程"
 
@@ -4314,6 +4480,10 @@ msgstr "请登录以继续支付"
 #: lms/templates/emails/certificate_request_notification.html:7
 msgid "Please prepare well and be on time for the evaluations."
 msgstr "请充分准备并准时参加评估"
+
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:133
+msgid "Please run the code to execute the test cases."
+msgstr ""
 
 #: frontend/src/components/UpcomingEvaluations.vue:98
 msgid "Please schedule an evaluation to get certified."
@@ -4482,6 +4652,14 @@ msgstr "私有"
 msgid "Private Information includes your Grade and Work Environment Preferences"
 msgstr "隐私信息包含您的成绩和工作环境偏好"
 
+#. Label of the problem_statement (Text Editor) field in DocType 'LMS
+#. Programming Exercise'
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:41
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:25
+#: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.json
+msgid "Problem Statement"
+msgstr ""
+
 #: frontend/src/pages/Billing.vue:129
 msgid "Proceed to Payment"
 msgstr "前往支付"
@@ -4514,6 +4692,37 @@ msgstr "项目成员"
 #: lms/lms/doctype/lms_program/lms_program.json
 msgid "Program Members"
 msgstr "项目成员"
+
+#: frontend/src/components/Assessments.vue:249
+msgid "Programming Exercise"
+msgstr ""
+
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:415
+msgid "Programming Exercise Submission"
+msgstr ""
+
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:406
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:292
+msgid "Programming Exercise Submissions"
+msgstr ""
+
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:211
+msgid "Programming Exercise created successfully"
+msgstr ""
+
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:247
+msgid "Programming Exercise deleted successfully"
+msgstr ""
+
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:230
+msgid "Programming Exercise updated successfully"
+msgstr ""
+
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:302
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:157
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:165
+msgid "Programming Exercises"
+msgstr ""
 
 #: frontend/src/pages/Programs.vue:206 frontend/src/pages/Programs.vue:212
 #: lms/www/lms.py:295
@@ -4574,6 +4783,12 @@ msgstr "发布于"
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 msgid "Purchased Certificate"
 msgstr "已购证书"
+
+#. Option for the 'Language' (Select) field in DocType 'LMS Programming
+#. Exercise'
+#: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.json
+msgid "Python"
+msgstr "Python"
 
 #. Label of the question (Small Text) field in DocType 'Course Lesson'
 #. Label of the question (Text Editor) field in DocType 'LMS Assignment'
@@ -4637,6 +4852,7 @@ msgstr "问题删除成功"
 
 #. Label of the quiz (Link) field in DocType 'LMS Quiz Submission'
 #. Label of a Link in the LMS Workspace
+#: frontend/src/components/Assessments.vue:247
 #: frontend/src/components/Modals/QuizInVideo.vue:21
 #: frontend/src/components/Modals/QuizInVideo.vue:216
 #: frontend/src/pages/QuizSubmission.vue:26 frontend/src/utils/quiz.js:24
@@ -4879,6 +5095,7 @@ msgstr "第{0}行开始时间不可超出批次周期"
 msgid "Rows {0} have the duplicate questions."
 msgstr "第{0}行存在重复试题"
 
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:56
 #: lms/templates/livecode/extension_footer.html:21
 msgid "Run"
 msgstr "运行"
@@ -4911,8 +5128,9 @@ msgstr "搜索引擎优化"
 msgid "Saturday"
 msgstr "星期六"
 
-#: frontend/src/components/AssessmentPlugin.vue:34
+#: frontend/src/components/AssessmentPlugin.vue:12
 #: frontend/src/components/Assignment.vue:46
+#: frontend/src/components/Controls/Code.vue:18
 #: frontend/src/components/Controls/CodeEditor.vue:25
 #: frontend/src/components/Modals/AssignmentForm.vue:59
 #: frontend/src/components/Modals/EmailTemplateModal.vue:12
@@ -4921,8 +5139,10 @@ msgstr "星期六"
 #: frontend/src/components/Modals/ZoomAccountModal.vue:10
 #: frontend/src/pages/BatchForm.vue:8 frontend/src/pages/CourseForm.vue:17
 #: frontend/src/pages/JobForm.vue:8 frontend/src/pages/LessonForm.vue:14
-#: frontend/src/pages/ProgramForm.vue:7 frontend/src/pages/QuizForm.vue:34
-#: frontend/src/pages/QuizSubmission.vue:14
+#: frontend/src/pages/ProgramForm.vue:7
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:101
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseModal.vue:9
+#: frontend/src/pages/QuizForm.vue:34 frontend/src/pages/QuizSubmission.vue:14
 msgid "Save"
 msgstr "保存"
 
@@ -4973,7 +5193,8 @@ msgstr "按名称搜索"
 msgid "Search by Title"
 msgstr "按标题搜索"
 
-#: frontend/src/pages/Assignments.vue:37
+#: frontend/src/pages/Assignments.vue:34
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:47
 msgid "Search by title"
 msgstr "按标题搜索"
 
@@ -5001,11 +5222,15 @@ msgstr "座位数不可为负数。"
 msgid "Seats Left"
 msgstr "剩余席位"
 
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseModal.vue:23
+msgid "Select a Programming Exercise"
+msgstr ""
+
 #: frontend/src/components/Modals/Question.vue:98
 msgid "Select a question"
 msgstr "选择试题"
 
-#: frontend/src/components/AssessmentPlugin.vue:21
+#: frontend/src/components/AssessmentPlugin.vue:28
 msgid "Select a quiz"
 msgstr "选择测验"
 
@@ -5013,7 +5238,7 @@ msgstr "选择测验"
 msgid "Select a slot"
 msgstr "选择时段"
 
-#: frontend/src/components/AssessmentPlugin.vue:28
+#: frontend/src/components/AssessmentPlugin.vue:35
 msgid "Select an assignment"
 msgstr "选择作业"
 
@@ -5047,7 +5272,9 @@ msgstr "设置支付网关"
 #: frontend/src/components/AppSidebar.vue:609
 #: frontend/src/components/Settings/Settings.vue:7
 #: frontend/src/pages/BatchForm.vue:46 frontend/src/pages/CourseForm.vue:143
-#: frontend/src/pages/ProfileRoles.vue:4 frontend/src/pages/QuizForm.vue:79
+#: frontend/src/pages/ProfileRoles.vue:4
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:19
+#: frontend/src/pages/QuizForm.vue:79
 msgid "Settings"
 msgstr "设置"
 
@@ -5313,10 +5540,14 @@ msgstr "统计"
 #. Label of the status (Select) field in DocType 'LMS Course'
 #. Label of the status (Select) field in DocType 'LMS Course Progress'
 #. Label of the status (Select) field in DocType 'LMS Mentor Request'
+#. Label of the status (Select) field in DocType 'LMS Programming Exercise
+#. Submission'
+#. Label of the status (Select) field in DocType 'LMS Test Case Submission'
 #: frontend/src/components/Modals/Event.vue:91
 #: frontend/src/components/Settings/ZoomSettings.vue:182
 #: frontend/src/pages/AssignmentSubmissionList.vue:19
 #: frontend/src/pages/JobForm.vue:46
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:274
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/lms/doctype/cohort/cohort.json
 #: lms/lms/doctype/cohort_join_request/cohort_join_request.json
@@ -5330,6 +5561,8 @@ msgstr "统计"
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_course_progress/lms_course_progress.json
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
+#: lms/lms/doctype/lms_programming_exercise_submission/lms_programming_exercise_submission.json
+#: lms/lms/doctype/lms_test_case_submission/lms_test_case_submission.json
 msgid "Status"
 msgstr "状态"
 
@@ -5401,6 +5634,14 @@ msgstr "提交类型"
 #: frontend/src/components/Assignment.vue:16
 msgid "Submission by"
 msgstr "提交人"
+
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:348
+msgid "Submission saved!"
+msgstr ""
+
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:248
+msgid "Submissions deleted successfully"
+msgstr ""
 
 #: frontend/src/components/Modals/AssessmentModal.vue:9
 #: frontend/src/components/Modals/BatchCourseModal.vue:9
@@ -5489,6 +5730,8 @@ msgstr "在{0}中发现可疑模式：{1}"
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
 #: lms/lms/doctype/lms_payment/lms_payment.json
 #: lms/lms/doctype/lms_program/lms_program.json
+#: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.json
+#: lms/lms/doctype/lms_programming_exercise_submission/lms_programming_exercise_submission.json
 #: lms/lms/doctype/lms_question/lms_question.json
 #: lms/lms/doctype/lms_quiz/lms_quiz.json
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.json
@@ -5535,6 +5778,16 @@ msgstr "临时禁用"
 msgid "Terms of Use"
 msgstr "使用条款"
 
+#. Label of the test_cases (Table) field in DocType 'LMS Programming Exercise'
+#. Label of the test_cases (Table) field in DocType 'LMS Programming Exercise
+#. Submission'
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:29
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:81
+#: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.json
+#: lms/lms/doctype/lms_programming_exercise_submission/lms_programming_exercise_submission.json
+msgid "Test Cases"
+msgstr ""
+
 #. Label of the test_results (Small Text) field in DocType 'Exercise Latest
 #. Submission'
 #. Label of the test_results (Small Text) field in DocType 'Exercise
@@ -5543,6 +5796,14 @@ msgstr "使用条款"
 #: lms/lms/doctype/exercise_submission/exercise_submission.json
 msgid "Test Results"
 msgstr "测试结果"
+
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:82
+msgid "Test this Exercise"
+msgstr ""
+
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:90
+msgid "Test {0}"
+msgstr ""
 
 #. Label of the tests (Code) field in DocType 'LMS Exercise'
 #: lms/lms/doctype/lms_exercise/lms_exercise.json
@@ -5567,7 +5828,7 @@ msgstr ""
 msgid "Thanks and Regards"
 msgstr "此致敬礼"
 
-#: lms/lms/utils.py:1938
+#: lms/lms/utils.py:1966
 msgid "The batch is full. Please contact the Administrator."
 msgstr "该批次已满。请联系管理员"
 
@@ -5650,7 +5911,7 @@ msgstr "本课程已结束"
 msgid "This course has:"
 msgstr "本课程包含："
 
-#: lms/lms/utils.py:1781
+#: lms/lms/utils.py:1809
 msgid "This course is free."
 msgstr "本课程免费"
 
@@ -5710,6 +5971,10 @@ msgstr "时间"
 #: lms/fixtures/custom_field.json
 msgid "Time Preference"
 msgstr "时间偏好"
+
+#: frontend/src/components/VideoBlock.vue:140
+msgid "Time for a Quiz"
+msgstr ""
 
 #: frontend/src/components/Modals/QuizInVideo.vue:13
 msgid "Time in Video"
@@ -5778,6 +6043,7 @@ msgstr "时间安排："
 #. Label of the title (Data) field in DocType 'LMS Exercise'
 #. Label of the title (Data) field in DocType 'LMS Live Class'
 #. Label of the title (Data) field in DocType 'LMS Program'
+#. Label of the title (Data) field in DocType 'LMS Programming Exercise'
 #. Label of the title (Data) field in DocType 'LMS Quiz'
 #. Label of the title (Data) field in DocType 'LMS Sidebar Item'
 #. Label of the title (Data) field in DocType 'LMS Timetable Template'
@@ -5785,11 +6051,12 @@ msgstr "时间安排："
 #: frontend/src/components/Modals/AssignmentForm.vue:20
 #: frontend/src/components/Modals/DiscussionModal.vue:18
 #: frontend/src/components/Modals/LiveClassModal.vue:23
-#: frontend/src/pages/Assignments.vue:165 frontend/src/pages/BatchForm.vue:20
+#: frontend/src/pages/Assignments.vue:162 frontend/src/pages/BatchForm.vue:20
 #: frontend/src/pages/CourseForm.vue:30 frontend/src/pages/JobForm.vue:20
-#: frontend/src/pages/ProgramForm.vue:11 frontend/src/pages/Programs.vue:101
-#: frontend/src/pages/QuizForm.vue:48 frontend/src/pages/Quizzes.vue:120
-#: lms/lms/doctype/cohort/cohort.json
+#: frontend/src/pages/ProgramForm.vue:11
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:17
+#: frontend/src/pages/Programs.vue:101 frontend/src/pages/QuizForm.vue:48
+#: frontend/src/pages/Quizzes.vue:120 lms/lms/doctype/cohort/cohort.json
 #: lms/lms/doctype/cohort_subgroup/cohort_subgroup.json
 #: lms/lms/doctype/cohort_web_page/cohort_web_page.json
 #: lms/lms/doctype/course_chapter/course_chapter.json
@@ -5802,6 +6069,7 @@ msgstr "时间安排："
 #: lms/lms/doctype/lms_exercise/lms_exercise.json
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 #: lms/lms/doctype/lms_program/lms_program.json
+#: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.json
 #: lms/lms/doctype/lms_quiz/lms_quiz.json
 #: lms/lms/doctype/lms_sidebar_item/lms_sidebar_item.json
 #: lms/lms/doctype/lms_timetable_template/lms_timetable_template.json
@@ -5824,7 +6092,7 @@ msgstr "至"
 msgid "To Date"
 msgstr "截止日期"
 
-#: lms/lms/utils.py:1792
+#: lms/lms/utils.py:1820
 msgid "To join this batch, please contact the Administrator."
 msgstr "加入本批次请联系管理员"
 
@@ -5878,8 +6146,9 @@ msgstr "推特"
 #. Label of the type (Select) field in DocType 'LMS Quiz Question'
 #: frontend/src/components/Modals/AssessmentModal.vue:22
 #: frontend/src/components/Modals/Question.vue:44
-#: frontend/src/pages/Assignments.vue:43 frontend/src/pages/Assignments.vue:170
+#: frontend/src/pages/Assignments.vue:40 frontend/src/pages/Assignments.vue:167
 #: frontend/src/pages/JobForm.vue:25 frontend/src/pages/Jobs.vue:65
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:53
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
@@ -6371,6 +6640,10 @@ msgstr "YouTube视频将显示在课时顶部"
 msgid "Your Account has been successfully created!"
 msgstr "账户创建成功！"
 
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:117
+msgid "Your Output"
+msgstr ""
+
 #: lms/lms/doctype/lms_batch/lms_batch.py:362
 msgid "Your batch {0} is starting tomorrow"
 msgstr "您的批次{0}将于明日开始"
@@ -6545,9 +6818,13 @@ msgstr "周"
 msgid "you can"
 msgstr "您可以"
 
-#: frontend/src/pages/Assignments.vue:29
+#: frontend/src/pages/Assignments.vue:26
 msgid "{0} Assignments"
 msgstr "{0}项作业"
+
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:39
+msgid "{0} Exercises"
+msgstr ""
 
 #: frontend/src/pages/Jobs.vue:32
 msgid "{0} Open Jobs"
@@ -6560,6 +6837,10 @@ msgstr "{0}项测验"
 #: lms/lms/api.py:866 lms/lms/api.py:874
 msgid "{0} Settings not found"
 msgstr "未找到{0}设置"
+
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:12
+msgid "{0} Submissions"
+msgstr ""
 
 #: lms/templates/emails/job_application.html:2
 msgid "{0} has applied for the job position {1}"

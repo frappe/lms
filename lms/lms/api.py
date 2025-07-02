@@ -553,6 +553,7 @@ def get_sidebar_settings():
 		"jobs",
 		"statistics",
 		"notifications",
+		"programming_exercises",
 	]
 	for item in items:
 		sidebar_items[item] = lms_settings.get(item)
