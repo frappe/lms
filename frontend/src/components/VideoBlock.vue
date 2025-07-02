@@ -27,9 +27,9 @@
 				oncontextmenu="return false"
 				class="rounded-md border border-gray-100 cursor-pointer"
 				ref="videoRef"
-			>
-				<source :src="fileURL" :type="type" />
-			</video>
+				:src="fileURL"
+				:type="type"
+			></video>
 			<div
 				v-if="!playing"
 				class="absolute inset-0 flex items-center justify-center cursor-pointer"
@@ -155,6 +155,7 @@ import { ref, onMounted, computed, watch } from 'vue'
 import { Pause, Maximize, Volume2, VolumeX } from 'lucide-vue-next'
 import { Button, Dialog } from 'frappe-ui'
 import { formatSeconds, formatTimestamp } from '@/utils'
+import { useSettings } from '@/stores/settings'
 import Play from '@/components/Icons/Play.vue'
 import QuizInVideo from '@/components/Modals/QuizInVideo.vue'
 
@@ -170,6 +171,7 @@ const showQuizLoader = ref(false)
 const quizLoadTimer = ref(0)
 const currentQuiz = ref(null)
 const nextQuiz = ref({})
+const { preventSkippingVideos } = useSettings()
 
 const props = defineProps({
 	file: {
@@ -181,7 +183,7 @@ const props = defineProps({
 		default: 'video/mp4',
 	},
 	readOnly: {
-		type: String,
+		type: Boolean,
 		default: true,
 	},
 	quizzes: {
@@ -190,6 +192,7 @@ const props = defineProps({
 	},
 	saveQuizzes: {
 		type: Function,
+		default: () => {},
 	},
 })
 
@@ -295,6 +298,11 @@ const toggleMute = () => {
 }
 
 const changeCurrentTime = () => {
+	if (
+		preventSkippingVideos.data &&
+		currentTime.value > videoRef.value.currentTime
+	)
+		return
 	videoRef.value.currentTime = currentTime.value
 	updateNextQuiz()
 }

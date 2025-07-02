@@ -58,11 +58,13 @@ import { getSidebarLinks } from '@/utils'
 import { useRouter } from 'vue-router'
 import { watch, ref, onMounted } from 'vue'
 import { sessionStore } from '@/stores/session'
+import { useSettings } from '@/stores/settings'
 import { usersStore } from '@/stores/user'
 import * as icons from 'lucide-vue-next'
 
-const { logout, user, sidebarSettings } = sessionStore()
+const { logout, user } = sessionStore()
 let { isLoggedIn } = sessionStore()
+const { sidebarSettings } = useSettings()
 const router = useRouter()
 let { userResource } = usersStore()
 const sidebarLinks = ref(getSidebarLinks())

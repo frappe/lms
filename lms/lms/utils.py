@@ -1320,11 +1320,21 @@ def get_lesson(course, chapter, lesson):
 	lesson_details.progress = progress
 	lesson_details.prev = neighbours["prev"]
 	lesson_details.membership = membership
+	lesson_details.icon = get_lesson_icon(lesson_details.body, lesson_details.content)
 	lesson_details.instructors = get_instructors("LMS Course", course)
 	lesson_details.course_title = course_info.title
 	lesson_details.paid_certificate = course_info.paid_certificate
 	lesson_details.disable_self_learning = course_info.disable_self_learning
+	lesson_details.videos = get_video_details(lesson_name)
 	return lesson_details
+
+
+def get_video_details(lesson_name):
+	return frappe.get_all(
+		"LMS Video Watch Duration",
+		{"lesson": lesson_name, "member": frappe.session.user},
+		["source", "watch_time"],
+	)
 
 
 def get_neighbour_lesson(course, chapter, lesson):

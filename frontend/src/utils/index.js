@@ -1,4 +1,3 @@
-import { watch } from 'vue'
 import { call, toast } from 'frappe-ui'
 import { useTimeAgo } from '@vueuse/core'
 import { Quiz } from '@/utils/quiz'
@@ -531,33 +530,85 @@ export const canCreateCourse = () => {
 	)
 }
 
-export const enablePlyr = () => {
-	setTimeout(() => {
-		const videoElement = document.getElementsByClassName('video-player')
-		if (videoElement.length === 0) return
+export const enablePlyr = async () => {
+	await wait(500)
 
-		Array.from(videoElement).forEach((video) => {
-			const src = video.getAttribute('src')
-			if (src) {
-				let videoID = src.split('/').pop()
-				video.setAttribute('data-plyr-embed-id', videoID)
-			}
-			new Plyr(video, {
-				youtube: {
-					noCookie: true,
-				},
-				controls: [
-					'play-large',
-					'play',
-					'progress',
-					'current-time',
-					'mute',
-					'volume',
-					'fullscreen',
-				],
-			})
-		}, 500)
+	const players = []
+	const videoElements = document.getElementsByClassName('video-player')
+
+	if (videoElements.length === 0) return players
+
+	Array.from(videoElements).forEach((video) => {
+		setupPlyrForVideo(video, players)
 	})
+
+	return players
+}
+
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+
+const setupPlyrForVideo = (video, players) => {
+	const src = video.getAttribute('src') || video.getAttribute('data-src')
+
+	if (src) {
+		const videoID = extractYouTubeId(src)
+		video.setAttribute('data-plyr-provider', 'youtube')
+		video.setAttribute('data-plyr-embed-id', videoID)
+	}
+
+	let controls = [
+		'play-large',
+		'play',
+		'progress',
+		'current-time',
+		'mute',
+		'volume',
+		'fullscreen',
+	]
+
+	const player = new Plyr(video, {
+		youtube: { noCookie: true },
+		controls: controls,
+		listeners: {
+			seek: function customSeekBehavior(e) {
+				const current_time = player.currentTime
+				const newTime = getTargetTime(player, e)
+				if (
+					useSettings().preventSkippingVideos.data &&
+					parseFloat(newTime) > current_time
+				) {
+					e.preventDefault()
+					player.currentTime = current_time
+					return false
+				}
+			},
+		},
+	})
+
+	players.push(player)
+}
+
+const getTargetTime = (plyr, input) => {
+	if (
+		typeof input === 'object' &&
+		(input.type === 'input' || input.type === 'change')
+	) {
+		return (input.target.value / input.target.max) * plyr.duration
+	} else {
+		return Number(input)
+	}
+}
+
+const extractYouTubeId = (url) => {
+	try {
+		const parsedUrl = new URL(url)
+		return (
+			parsedUrl.searchParams.get('v') ||
+			parsedUrl.pathname.split('/').pop()
+		)
+	} catch {
+		return url.split('/').pop()
+	}
 }
 
 export const openSettings = (category, close = null) => {
@@ -567,7 +618,6 @@ export const openSettings = (category, close = null) => {
 	}
 	settingsStore.activeTab = category
 	settingsStore.isSettingsOpen = true
-	console.log(settingsStore.activeTab, settingsStore.isSettingsOpen)
 }
 
 export const cleanError = (message) => {
