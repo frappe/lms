@@ -2096,7 +2096,7 @@ def enroll_in_program_course(program, course):
 
 
 @frappe.whitelist(allow_guest=True)
-def get_batches(filters=None, start=0, page_length=20, order_by="start_date"):
+def get_batches(filters=None, start=0, order_by="start_date"):
 	if not filters:
 		filters = {}
 
@@ -2129,7 +2129,6 @@ def get_batches(filters=None, start=0, page_length=20, order_by="start_date"):
 		],
 		order_by=order_by,
 		start=start,
-		page_length=page_length,
 	)
 
 	batches = filter_batches_based_on_start_time(batches, filters)
