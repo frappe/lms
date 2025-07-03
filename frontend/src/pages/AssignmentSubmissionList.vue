@@ -145,7 +145,6 @@ const submissions = createListResource({
 	},
 })
 
-// watch changes in assignmentID, member, and status and if changes in any then reload submissions. Also update the url query params for the same
 watch([assignmentID, member, status], () => {
 	router.push({
 		query: {
