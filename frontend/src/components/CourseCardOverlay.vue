@@ -1,5 +1,5 @@
 <template>
-	<div class="border-2 rounded-md min-w-80">
+	<div class="border-2 rounded-md min-w-80 max-w-sm">
 		<iframe
 			v-if="course.data.video_link"
 			:src="video_link"
@@ -26,6 +26,9 @@
 						}"
 					>
 						<Button variant="solid" size="md" class="w-full">
+							<template #prefix>
+								<BookText class="size-4 stroke-1.5" />
+							</template>
 							<span>
 								{{ __('Continue Learning') }}
 							</span>
@@ -44,6 +47,9 @@
 					}"
 				>
 					<Button variant="solid" size="md" class="w-full">
+						<template #prefix>
+							<CreditCard class="size-4 stroke-1.5" />
+						</template>
 						<span>
 							{{ __('Buy this course') }}
 						</span>
@@ -57,12 +63,15 @@
 					{{ __('Contact the Administrator to enroll for this course.') }}
 				</Badge>
 				<Button
-					v-else
+					v-else-if="!user.data?.is_moderator && !is_instructor()"
 					@click="enrollStudent()"
 					variant="solid"
 					class="w-full"
 					size="md"
 				>
+					<template #prefix>
+						<BookText class="size-4 stroke-1.5" />
+					</template>
 					<span>
 						{{ __('Start Learning') }}
 					</span>
@@ -74,7 +83,16 @@
 					class="w-full mt-2"
 					size="md"
 				>
+					<template #prefix>
+						<GraduationCap class="size-4 stroke-1.5" />
+					</template>
 					{{ __('Get Certificate') }}
+				</Button>
+				<Button v-if="user.data?.is_moderator || is_instructor()" class="w-full mt-2" size="md" @click="showProgressSummary">
+					<template #prefix>
+						<TrendingUp class="size-4 stroke-1.5" />
+						{{ __("Progress Summary") }}
+					</template>
 				</Button>
 				<router-link
 					v-if="user?.data?.is_moderator || is_instructor()"
@@ -86,6 +104,9 @@
 					}"
 				>
 					<Button variant="subtle" class="w-full mt-2" size="md">
+						<template #prefix>
+							<Pencil class="size-4 stroke-1.5" />
+						</template>
 						<span>
 							{{ __('Edit') }}
 						</span>
@@ -142,18 +163,25 @@
 			</div>
 		</div>
 	</div>
+	<CourseProgressSummary
+		v-model="showProgressModal"
+		:courseName="course.data.name"
+		:enrollments="course.data.enrollments"
+	/>
 </template>
 <script setup>
-import { BookOpen, Users, Star, GraduationCap } from 'lucide-vue-next'
-import { computed, inject } from 'vue'
+import { BookOpen, BookText, CreditCard, GraduationCap, Pencil, Star, TrendingUp, Users } from 'lucide-vue-next'
+import { computed, inject, ref } from 'vue'
 import { Badge, Button, call, createResource, toast } from 'frappe-ui'
 import { formatAmount } from '@/utils/'
 import { capture } from '@/telemetry'
 import { useRouter } from 'vue-router'
 import CertificationLinks from '@/components/CertificationLinks.vue'
+import CourseProgressSummary from '@/components/Modals/CourseProgressSummary.vue'
 
 const router = useRouter()
 const user = inject('$user')
+const showProgressModal = ref(false)
 const readOnlyMode = window.read_only_mode
 
 const props = defineProps({
@@ -245,5 +273,9 @@ const fetchCertificate = () => {
 		course: props.course.data?.name,
 		member: user.data?.name,
 	})
+}
+
+const showProgressSummary = () => {
+	showProgressModal.value = true
 }
 </script>

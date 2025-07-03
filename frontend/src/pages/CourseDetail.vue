@@ -6,7 +6,7 @@
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
 		</header>
 		<div class="m-5">
-			<div class="flex justify-between w-full">
+			<div class="flex justify-between w-full space-x-5">
 				<div class="md:w-2/3">
 					<div class="text-3xl font-semibold text-ink-gray-9">
 						{{ course.data.title }}
@@ -66,7 +66,9 @@
 							{{ tag }}
 						</Badge>
 					</div>
-					<CourseCardOverlay :course="course" class="md:hidden mb-4" />
+					<div class="md:hidden mb-4">
+						<CourseCardOverlay :course="course" />
+					</div>
 					<div
 						v-html="course.data.description"
 						class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-10"

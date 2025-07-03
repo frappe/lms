@@ -40,6 +40,7 @@ declare module 'vue' {
     CourseCardOverlay: typeof import('./src/components/CourseCardOverlay.vue')['default']
     CourseInstructors: typeof import('./src/components/CourseInstructors.vue')['default']
     CourseOutline: typeof import('./src/components/CourseOutline.vue')['default']
+    CourseProgressSummary: typeof import('./src/components/Modals/CourseProgressSummary.vue')['default']
     CourseReviews: typeof import('./src/components/CourseReviews.vue')['default']
     CreateOutline: typeof import('./src/components/CreateOutline.vue')['default']
     DateRange: typeof import('./src/components/Common/DateRange.vue')['default']

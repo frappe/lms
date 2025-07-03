@@ -1592,3 +1592,44 @@ def track_new_watch_time(lesson, video):
 	doc.watch_time = video.get("watch_time")
 	doc.member = frappe.session.user
 	doc.save()
+
+@frappe.whitelist()
+def get_course_progress_distribution(course):
+	all_progress = frappe.get_all("LMS Enrollment", {
+		"course": course,
+	}, pluck="progress")
+
+	average_progress = get_average_course_progress(all_progress)
+	progress_distribution = get_progress_distribution(all_progress)
+
+	return {
+		"average_progress": average_progress,
+		"progress_distribution": progress_distribution,
+	}
+
+
+def get_average_course_progress(progress_list):
+	if not progress_list:
+		return 0
+	average_progress = sum(progress_list) / len(progress_list)
+	return flt(average_progress, frappe.get_system_settings("float_precision") or 3)
+
+def get_progress_distribution(progressList):
+	distribution = [{
+		"category": "0-20%",
+		"count": len([p for p in progressList if 0 <= p < 20]),
+	}, {
+		"category": "20-40%",
+		"count": len([p for p in progressList if 20 <= p < 40]),
+	}, {
+		"category": "40-60%",
+		"count": len([p for p in progressList if 40 <= p < 60]),
+	}, {
+		"category": "60-80%",
+		"count": len([p for p in progressList if 60 <= p < 80]),
+	}, {
+		"category": "80-100%",
+		"count": len([p for p in progressList if 80 <= p <= 100]),
+	}]
+
+	return distribution
