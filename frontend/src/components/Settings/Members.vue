@@ -5,22 +5,12 @@
 				<div class="text-xl font-semibold mb-1 text-ink-gray-9">
 					{{ __(label) }}
 				</div>
-				<div class="text-xs text-ink-gray-5 leading-5">
+				<div class="text-ink-gray-6 leading-5">
 					{{ __(description) }}
 				</div>
 			</div>
 			<div class="flex item-center space-x-2">
-				<FormControl
-					v-model="search"
-					:placeholder="__('Search')"
-					type="text"
-					:debounce="300"
-				>
-					<template #prefix>
-						<Search class="size-4 stroke-1.5 text-ink-gray-6" />
-					</template>
-				</FormControl>
-				<Button @click="() => (showForm = !showForm)">
+				<Button variant="solid" @click="() => (showForm = !showForm)">
 					<template #prefix>
 						<Plus class="size-4 stroke-1.5" />
 					</template>
@@ -29,7 +19,18 @@
 			</div>
 		</div>
 
-		<div class="mt-5 pb-10 overflow-auto">
+		<div class="mt-8 pb-10 overflow-auto">
+			<FormControl
+				v-model="search"
+				:placeholder="__('Search')"
+				type="text"
+				:debounce="300"
+				class="w-1/4 mb-4"
+			>
+				<template #prefix>
+					<Search class="size-4 stroke-1.5 text-ink-gray-5" />
+				</template>
+			</FormControl>
 			<!-- Member list -->
 			<div class="overflow-y-scroll">
 				<ul class="divide-y">
