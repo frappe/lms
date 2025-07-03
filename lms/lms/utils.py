@@ -537,11 +537,10 @@ def has_course_evaluator_role(member=None):
 
 
 def has_student_role(member=None):
-	roles = frappe.get_roles(member or frappe.session.user)
-	return (
-		"Moderator" not in roles
-		and "Course Creator" not in roles
-		and "Batch Evaluator" not in roles
+	return frappe.db.get_value(
+		"Has Role",
+		{"parent": member or frappe.session.user, "role": "LMS Student"},
+		"name",
 	)
 
 

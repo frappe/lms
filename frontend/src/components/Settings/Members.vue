@@ -15,7 +15,11 @@
 					:placeholder="__('Search')"
 					type="text"
 					:debounce="300"
-				/>
+				>
+					<template #prefix>
+						<Search class="size-4 stroke-1.5 text-ink-gray-6" />
+					</template>
+				</FormControl>
 				<Button @click="() => (showForm = !showForm)">
 					<template #prefix>
 						<Plus class="size-4 stroke-1.5" />
@@ -25,7 +29,7 @@
 			</div>
 		</div>
 
-		<div class="mt-2 pb-10 overflow-auto">
+		<div class="mt-5 pb-10 overflow-auto">
 			<!-- Member list -->
 			<div class="overflow-y-scroll">
 				<ul class="divide-y">
@@ -58,7 +62,7 @@
 							v-if="member.role && member.role !== 'LMS Student'"
 						>
 							<Shield class="size-4 stroke-1.5" />
-							<span>
+							<span class="text-sm">
 								{{ getRole(member.role) }}
 							</span>
 						</div>
@@ -123,7 +127,7 @@ import {
 } from 'frappe-ui'
 import { useRouter } from 'vue-router'
 import { ref, watch, reactive, inject } from 'vue'
-import { RefreshCw, Plus, X, Shield } from 'lucide-vue-next'
+import { RefreshCw, Plus, Search, Shield } from 'lucide-vue-next'
 import { useOnboarding } from 'frappe-ui/frappe'
 import type { User } from '@/components/Settings/types'
 

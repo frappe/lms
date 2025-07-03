@@ -714,7 +714,14 @@ def get_members(start=0, search=""):
 	)
 
 	for member in members:
-		roles = frappe.get_roles(member.name)
+		roles = frappe.get_all(
+			"Has Role",
+			{
+				"parent": member.name,
+				"parenttype": "User",
+			},
+			pluck="role",
+		)
 		if "Moderator" in roles:
 			member.role = "Moderator"
 		elif "Course Creator" in roles:
