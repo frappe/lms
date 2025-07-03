@@ -88,10 +88,15 @@
 					</template>
 					{{ __('Get Certificate') }}
 				</Button>
-				<Button v-if="user.data?.is_moderator || is_instructor()" class="w-full mt-2" size="md" @click="showProgressSummary">
+				<Button
+					v-if="user.data?.is_moderator || is_instructor()"
+					class="w-full mt-2"
+					size="md"
+					@click="showProgressSummary"
+				>
 					<template #prefix>
 						<TrendingUp class="size-4 stroke-1.5" />
-						{{ __("Progress Summary") }}
+						{{ __('Progress Summary') }}
 					</template>
 				</Button>
 				<router-link
@@ -170,7 +175,16 @@
 	/>
 </template>
 <script setup>
-import { BookOpen, BookText, CreditCard, GraduationCap, Pencil, Star, TrendingUp, Users } from 'lucide-vue-next'
+import {
+	BookOpen,
+	BookText,
+	CreditCard,
+	GraduationCap,
+	Pencil,
+	Star,
+	TrendingUp,
+	Users,
+} from 'lucide-vue-next'
 import { computed, inject, ref } from 'vue'
 import { Badge, Button, call, createResource, toast } from 'frappe-ui'
 import { formatAmount } from '@/utils/'
