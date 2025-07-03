@@ -209,7 +209,7 @@
 									v-slot="{ file, progress, uploading, openFileSelector }"
 								>
 									<div class="flex items-center">
-										<div class="border rounded-md w-fit py-5 px-20">
+										<div class="border rounded-md w-fit py-5 px-20 cursor-pointer" @click="openFileSelector">
 											<Image class="size-5 stroke-1 text-ink-gray-7" />
 										</div>
 										<div class="ml-4">
@@ -540,9 +540,10 @@ const removeImage = () => {
 }
 
 const validateFile = (file) => {
-	let extension = file.name.split('.').pop().toLowerCase()
-	if (!['jpg', 'jpeg', 'png'].includes(extension)) {
-		return 'Only image file is allowed.'
+	if (!file.type.startsWith('image/')) {
+		const errorMessage = __('Only image file is allowed.')
+		toast.error(errorMessage)
+		return errorMessage
 	}
 }
 

@@ -294,9 +294,10 @@ const removeImage = () => {
 }
 
 const validateFile = (file) => {
-	let extension = file.name.split('.').pop().toLowerCase()
-	if (!['jpg', 'jpeg', 'png'].includes(extension)) {
-		return 'Only image file is allowed.'
+	if (!file.type.startsWith('image/')) {
+		const errorMessage = __('Only image file is allowed.')
+		toast.error(errorMessage)
+		return errorMessage
 	}
 }
 
