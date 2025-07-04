@@ -1392,6 +1392,7 @@ def save_role(user, role, value):
 
 @frappe.whitelist()
 def add_an_evaluator(email):
+	frappe.only_for("Moderator")
 	if not frappe.db.exists("User", email):
 		user = frappe.new_doc("User")
 		user.update(
@@ -1409,6 +1410,16 @@ def add_an_evaluator(email):
 	evaluator.insert()
 
 	return evaluator
+
+
+@frappe.whitelist()
+def delete_evaluator(evaluator):
+	frappe.only_for("Moderator")
+	if not frappe.db.exists("Course Evaluator", evaluator):
+		frappe.throw(_("Evaluator does not exist."))
+
+	frappe.db.delete("Has Role", {"parent": evaluator, "role": "Batch Evaluator"})
+	frappe.db.delete("Course Evaluator", evaluator)
 
 
 @frappe.whitelist()

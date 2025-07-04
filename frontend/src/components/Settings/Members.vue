@@ -19,7 +19,7 @@
 			</div>
 		</div>
 
-		<div class="mt-8 pb-10 overflow-auto">
+		<div class="mt-8 pb-10">
 			<FormControl
 				v-model="search"
 				:placeholder="__('Search')"
@@ -31,8 +31,7 @@
 					<Search class="size-4 stroke-1.5 text-ink-gray-5" />
 				</template>
 			</FormControl>
-			<!-- Member list -->
-			<div class="overflow-y-scroll">
+			<div class="overflow-y-scroll h-[60vh]">
 				<ul class="divide-y">
 					<li
 						v-for="member in memberList"
@@ -69,17 +68,17 @@
 						</div>
 					</li>
 				</ul>
-			</div>
-			<div
-				v-if="memberList.length && hasNextPage"
-				class="flex justify-center mt-4"
-			>
-				<Button @click="members.reload()">
-					<template #prefix>
-						<RefreshCw class="h-3 w-3 stroke-1.5" />
-					</template>
-					{{ __('Load More') }}
-				</Button>
+				<div
+					v-if="memberList.length && hasNextPage"
+					class="flex justify-center mt-4"
+				>
+					<Button @click="members.reload()">
+						<template #prefix>
+							<RefreshCw class="h-3 w-3 stroke-1.5" />
+						</template>
+						{{ __('Load More') }}
+					</Button>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -210,7 +209,6 @@ const newMember = createResource({
 	auto: false,
 	onSuccess(data: Member) {
 		show.value = false
-
 		if (user?.data?.is_system_manager) updateOnboardingStep('invite_students')
 
 		router.push({

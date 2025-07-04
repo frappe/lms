@@ -248,8 +248,10 @@ const tabsStructure = computed(() => {
 				},
 				{
 					label: 'Evaluators',
-					description: 'Manage the evaluators of your learning system',
+					description: '',
 					icon: 'UserCheck',
+					description:
+						'Add new evaluators or check the slots existing evaluators',
 				},
 				{
 					label: 'Categories',
