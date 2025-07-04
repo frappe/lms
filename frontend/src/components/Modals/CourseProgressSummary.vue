@@ -206,7 +206,7 @@ const progressColumns = computed(() => {
 		{
 			label: __('Member'),
 			key: 'member_name',
-			width: '50%',
+			width: '60%',
 			icon: 'user',
 		},
 		{

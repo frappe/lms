@@ -80,7 +80,7 @@
 					v-model="activeTab"
 				/>
 			</div>
-			<router-view :profile="profile" />
+			<router-view :profile="profile" :key="profile.data?.name" />
 		</div>
 	</div>
 	<EditProfile

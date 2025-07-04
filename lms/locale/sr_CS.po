@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-06-27 16:04+0000\n"
-"PO-Revision-Date: 2025-06-30 19:09\n"
+"PO-Revision-Date: 2025-07-03 19:53\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Serbian (Latin)\n"
 "MIME-Version: 1.0\n"
@@ -165,7 +165,7 @@ msgstr "Dodaj termin"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:35
 msgid "Add Test Case"
-msgstr ""
+msgstr "Dodaj test primer"
 
 #: lms/templates/onboarding_header.html:26
 msgid "Add a Chapter"
@@ -202,7 +202,7 @@ msgstr "Dodaj novo pitanje"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseModal.vue:5
 msgid "Add a programming exercise to your lesson"
-msgstr ""
+msgstr "Dodaj vežbu programiranja u svoju lekciju"
 
 #: frontend/src/components/AssessmentPlugin.vue:7
 msgid "Add a quiz to your lesson"
@@ -532,7 +532,7 @@ msgstr "Bar jedna opcija mora biti tačna za ovo pitanje."
 
 #: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.py:15
 msgid "At least one test case is required for the programming exercise."
-msgstr ""
+msgstr "Najmanje jedan test primer je neophodan za vežbu programiranja."
 
 #: frontend/src/components/Modals/LiveClassAttendance.vue:5
 msgid "Attendance for Class - {0}"
@@ -967,7 +967,7 @@ msgstr "Označi"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:16
 msgid "Check All Submissions"
-msgstr ""
+msgstr "Proveri sve podneske"
 
 #: lms/templates/emails/mention_template.html:10
 msgid "Check Discussion"
@@ -975,7 +975,7 @@ msgstr "Proveri diskusiju"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:97
 msgid "Check Submission"
-msgstr ""
+msgstr "Proveri podnesak"
 
 #: frontend/src/components/Modals/AssignmentForm.vue:55
 msgid "Check Submissions"
@@ -1213,7 +1213,7 @@ msgstr "Veb-sajt kompanije"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:68
 msgid "Compiler Message"
-msgstr ""
+msgstr "Poruka kompajlera"
 
 #. Option for the 'Status' (Select) field in DocType 'LMS Course Progress'
 #: frontend/src/components/Modals/BatchStudentProgress.vue:24
@@ -1585,7 +1585,7 @@ msgstr "Kreiraj novi"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:7
 msgid "Create Programming Exercise"
-msgstr ""
+msgstr "Kreiraj vežbu programiranja"
 
 #: lms/templates/onboarding_header.html:19
 msgid "Create a Course"
@@ -1926,7 +1926,7 @@ msgstr "Uredi profil"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:8
 msgid "Edit Programming Exercise"
-msgstr ""
+msgstr "Uredi vežbu programiranja"
 
 #: frontend/src/components/Modals/ZoomAccountModal.vue:6
 msgid "Edit Zoom Account"
@@ -2265,7 +2265,7 @@ msgstr "Proširi"
 #: lms/lms/doctype/lms_test_case/lms_test_case.json
 #: lms/lms/doctype/lms_test_case_submission/lms_test_case_submission.json
 msgid "Expected Output"
-msgstr ""
+msgstr "Očekivani izlaz"
 
 #. Label of the expiration_date (Data) field in DocType 'Certification'
 #: lms/lms/doctype/certification/certification.json
@@ -2322,7 +2322,7 @@ msgstr "Neuspešno preuzimanje podataka o prisustvu za Zoom za predavanje {0}: {
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:353
 msgid "Failed to submit. Please try again. {0}"
-msgstr ""
+msgstr "Neuspešno podnošenje. Pokušajte ponovo. {0}"
 
 #: frontend/src/utils/index.js:636
 msgid "Failed to update meta tags {0}"
@@ -2363,15 +2363,15 @@ msgstr "Vrsta fajla"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:23
 msgid "Filter by Exercise"
-msgstr ""
+msgstr "Filtriraj po vežbi"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:28
 msgid "Filter by Member"
-msgstr ""
+msgstr "Filtriraj po članu"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:39
 msgid "Filter by Status"
-msgstr ""
+msgstr "Filtriraj po statusu"
 
 #: frontend/src/components/Modals/EditProfile.vue:59
 #: frontend/src/components/Settings/Members.vue:39
@@ -2758,7 +2758,7 @@ msgstr "Industrija"
 #: lms/lms/doctype/lms_test_case/lms_test_case.json
 #: lms/lms/doctype/lms_test_case_submission/lms_test_case_submission.json
 msgid "Input"
-msgstr ""
+msgstr "Ulaz"
 
 #. Label of the institution_name (Data) field in DocType 'Education Detail'
 #: lms/lms/doctype/education_detail/education_detail.json
@@ -3149,12 +3149,12 @@ msgstr "LMS član programa"
 #. Name of a DocType
 #: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.json
 msgid "LMS Programming Exercise"
-msgstr ""
+msgstr "LMS vežba programiranja"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_programming_exercise_submission/lms_programming_exercise_submission.json
 msgid "LMS Programming Exercise Submission"
-msgstr ""
+msgstr "LMS podnesak vežbe programiranja"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_question/lms_question.json
@@ -3228,12 +3228,12 @@ msgstr "LMS student"
 #. Name of a DocType
 #: lms/lms/doctype/lms_test_case/lms_test_case.json
 msgid "LMS Test Case"
-msgstr ""
+msgstr "LMS test primer"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_test_case_submission/lms_test_case_submission.json
 msgid "LMS Test Case Submission"
-msgstr ""
+msgstr "LMS podnesak test primera"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_timetable_legend/lms_timetable_legend.json
@@ -3793,7 +3793,7 @@ msgstr "Moderator"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:280
 msgid "Modified"
-msgstr ""
+msgstr "Izmenjeno"
 
 #: lms/lms/doctype/lms_badge/lms_badge.js:40
 msgid "Modified By"
@@ -3941,7 +3941,7 @@ msgstr "Nema snimka"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:13
 msgid "No Submissions"
-msgstr ""
+msgstr "Nema podnesaka"
 
 #: lms/templates/upcoming_evals.html:43
 msgid "No Upcoming Evaluations"
@@ -4483,7 +4483,7 @@ msgstr "Molimo Vas da se dobro pripremite i stignete na vreme za ocenjivanje."
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:133
 msgid "Please run the code to execute the test cases."
-msgstr ""
+msgstr "Molimo Vas da pokrenete kod da biste izvršili test primere."
 
 #: frontend/src/components/UpcomingEvaluations.vue:98
 msgid "Please schedule an evaluation to get certified."
@@ -4658,7 +4658,7 @@ msgstr "Privatne informacije uključuju Vašu ocenu i želje vezane za radno okr
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:25
 #: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.json
 msgid "Problem Statement"
-msgstr ""
+msgstr "Opis problema"
 
 #: frontend/src/pages/Billing.vue:129
 msgid "Proceed to Payment"
@@ -4695,34 +4695,34 @@ msgstr "Članovi programa"
 
 #: frontend/src/components/Assessments.vue:249
 msgid "Programming Exercise"
-msgstr ""
+msgstr "Vežba programiranja"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:415
 msgid "Programming Exercise Submission"
-msgstr ""
+msgstr "Podnesak vežbe programiranja"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:406
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:292
 msgid "Programming Exercise Submissions"
-msgstr ""
+msgstr "Podnesci vežbe programiranja"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:211
 msgid "Programming Exercise created successfully"
-msgstr ""
+msgstr "Vežba programiranja je uspešno kreirana"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:247
 msgid "Programming Exercise deleted successfully"
-msgstr ""
+msgstr "Vežba programiranja je uspešno obrisana"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:230
 msgid "Programming Exercise updated successfully"
-msgstr ""
+msgstr "Vežba programiranja je uspešno ažurirana"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:302
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:157
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:165
 msgid "Programming Exercises"
-msgstr ""
+msgstr "Vežbe programiranja"
 
 #: frontend/src/pages/Programs.vue:206 frontend/src/pages/Programs.vue:212
 #: lms/www/lms.py:295
@@ -5224,7 +5224,7 @@ msgstr "Preostala mesta"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseModal.vue:23
 msgid "Select a Programming Exercise"
-msgstr ""
+msgstr "Izaberite vežbu programiranja"
 
 #: frontend/src/components/Modals/Question.vue:98
 msgid "Select a question"
@@ -5637,11 +5637,11 @@ msgstr "Podneto od strane"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:348
 msgid "Submission saved!"
-msgstr ""
+msgstr "Podnesak je sačuvan!"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:248
 msgid "Submissions deleted successfully"
-msgstr ""
+msgstr "Podnesci su uspešno obrisani"
 
 #: frontend/src/components/Modals/AssessmentModal.vue:9
 #: frontend/src/components/Modals/BatchCourseModal.vue:9
@@ -5786,7 +5786,7 @@ msgstr "Uslovi korišćenja"
 #: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.json
 #: lms/lms/doctype/lms_programming_exercise_submission/lms_programming_exercise_submission.json
 msgid "Test Cases"
-msgstr ""
+msgstr "Test primeri"
 
 #. Label of the test_results (Small Text) field in DocType 'Exercise Latest
 #. Submission'
@@ -5799,11 +5799,11 @@ msgstr "Rezultati testa"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:82
 msgid "Test this Exercise"
-msgstr ""
+msgstr "Testiraj ovu vežbu"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:90
 msgid "Test {0}"
-msgstr ""
+msgstr "Test {0}"
 
 #. Label of the tests (Code) field in DocType 'LMS Exercise'
 #: lms/lms/doctype/lms_exercise/lms_exercise.json
@@ -5974,7 +5974,7 @@ msgstr "Vremenska preferencija"
 
 #: frontend/src/components/VideoBlock.vue:140
 msgid "Time for a Quiz"
-msgstr ""
+msgstr "Vreme za kviz"
 
 #: frontend/src/components/Modals/QuizInVideo.vue:13
 msgid "Time in Video"
@@ -6642,7 +6642,7 @@ msgstr "Vaš nalog je uspešno kreiran!"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:117
 msgid "Your Output"
-msgstr ""
+msgstr "Tvoj izlaz"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:362
 msgid "Your batch {0} is starting tomorrow"
@@ -6824,7 +6824,7 @@ msgstr "{0} zadataka"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:39
 msgid "{0} Exercises"
-msgstr ""
+msgstr "{0} vežbi"
 
 #: frontend/src/pages/Jobs.vue:32
 msgid "{0} Open Jobs"
@@ -6840,7 +6840,7 @@ msgstr "{0} podešavanja nisu pronađena"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:12
 msgid "{0} Submissions"
-msgstr ""
+msgstr "{0} podnesaka"
 
 #: lms/templates/emails/job_application.html:2
 msgid "{0} has applied for the job position {1}"
