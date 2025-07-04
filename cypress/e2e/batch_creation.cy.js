@@ -23,8 +23,8 @@ describe("Batch Creation", () => {
 		const randomEmail = `testuser_${dateNow}@example.com`;
 		const randomName = `Test User ${dateNow}`;
 
-		cy.get("input[placeholder='Email']").type(randomEmail);
-		cy.get("input[placeholder='First Name']").type(randomName);
+		cy.get("input[placeholder='jane@doe.com']").type(randomEmail);
+		cy.get("input[placeholder='Jane']").type(randomName);
 		cy.get("button").contains("Add").click();
 
 		// Add evaluator
@@ -39,7 +39,7 @@ describe("Batch Creation", () => {
 			.click();
 		const randomEvaluator = `evaluator${dateNow}@example.com`;
 
-		cy.get("input[placeholder='Email']").type(randomEvaluator);
+		cy.get("input[placeholder='jane@doe.com']").type(randomEvaluator);
 		cy.get("button").contains("Add").click();
 		cy.get("div").contains(randomEvaluator).should("be.visible").click();
 

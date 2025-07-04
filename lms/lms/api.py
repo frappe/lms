@@ -696,15 +696,6 @@ def get_categories(doctype, filters):
 
 @frappe.whitelist()
 def get_members(start=0, search=""):
-	"""Get members for the given search term and start index.
-	                                                                Args: start (int): Start index for the query.
-	<<<<<<< HEAD
-	                                                                search (str): Search term to filter the results.
-	=======
-	                                                                                                                                                                                                                                                                                                                                search (str): Search term to filter the results.
-	>>>>>>> 4869bba7bbb2fb38477d6fc29fb3b5838e075577
-	                                                                Returns: List of members.
-	"""
 
 	filters = {"enabled": 1, "name": ["not in", ["Administrator", "Guest"]]}
 	or_filters = {}
@@ -723,7 +714,14 @@ def get_members(start=0, search=""):
 	)
 
 	for member in members:
-		roles = frappe.get_roles(member.name)
+		roles = frappe.get_all(
+			"Has Role",
+			{
+				"parent": member.name,
+				"parenttype": "User",
+			},
+			pluck="role",
+		)
 		if "Moderator" in roles:
 			member.role = "Moderator"
 		elif "Course Creator" in roles:
@@ -1394,6 +1392,7 @@ def save_role(user, role, value):
 
 @frappe.whitelist()
 def add_an_evaluator(email):
+	frappe.only_for("Moderator")
 	if not frappe.db.exists("User", email):
 		user = frappe.new_doc("User")
 		user.update(
@@ -1411,6 +1410,16 @@ def add_an_evaluator(email):
 	evaluator.insert()
 
 	return evaluator
+
+
+@frappe.whitelist()
+def delete_evaluator(evaluator):
+	frappe.only_for("Moderator")
+	if not frappe.db.exists("Course Evaluator", evaluator):
+		frappe.throw(_("Evaluator does not exist."))
+
+	frappe.db.delete("Has Role", {"parent": evaluator, "role": "Batch Evaluator"})
+	frappe.db.delete("Course Evaluator", evaluator)
 
 
 @frappe.whitelist()
@@ -1574,7 +1583,7 @@ def track_video_watch_duration(lesson, videos):
 		existing_record = frappe.db.get_value(
 			"LMS Video Watch Duration", filters, ["name", "watch_time"], as_dict=True
 		)
-		if existing_record and existing_record.watch_time < video.get("watch_time"):
+		if existing_record and flt(existing_record.watch_time) < flt(video.get("watch_time")):
 			frappe.db.set_value(
 				"LMS Video Watch Duration",
 				filters,

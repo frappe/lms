@@ -242,13 +242,16 @@ const tabsStructure = computed(() => {
 			items: [
 				{
 					label: 'Members',
-					description: 'Manage the members of your learning system',
+					description:
+						'Add new members or manage roles and permissions of existing members',
 					icon: 'UserRoundPlus',
 				},
 				{
 					label: 'Evaluators',
-					description: 'Manage the evaluators of your learning system',
+					description: '',
 					icon: 'UserCheck',
+					description:
+						'Add new evaluators or check the slots existing evaluators',
 				},
 				{
 					label: 'Categories',
