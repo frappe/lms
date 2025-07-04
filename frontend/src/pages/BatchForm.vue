@@ -209,7 +209,10 @@
 									v-slot="{ file, progress, uploading, openFileSelector }"
 								>
 									<div class="flex items-center">
-										<div class="border rounded-md w-fit py-5 px-20 cursor-pointer" @click="openFileSelector">
+										<div
+											class="border rounded-md w-fit py-5 px-20 cursor-pointer"
+											@click="openFileSelector"
+										>
 											<Image class="size-5 stroke-1 text-ink-gray-7" />
 										</div>
 										<div class="ml-4">
@@ -323,7 +326,12 @@ import { useOnboarding } from 'frappe-ui/frappe'
 import { sessionStore } from '../stores/session'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import Link from '@/components/Controls/Link.vue'
-import { openSettings, getMetaInfo, updateMetaInfo } from '@/utils'
+import {
+	openSettings,
+	getMetaInfo,
+	updateMetaInfo,
+	validateFile,
+} from '@/utils'
 
 const router = useRouter()
 const user = inject('$user')
@@ -537,14 +545,6 @@ const saveImage = (file) => {
 
 const removeImage = () => {
 	batch.image = null
-}
-
-const validateFile = (file) => {
-	if (!file.type.startsWith('image/')) {
-		const errorMessage = __('Only image file is allowed.')
-		toast.error(errorMessage)
-		return errorMessage
-	}
 }
 
 const breadcrumbs = computed(() => {

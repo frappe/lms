@@ -151,7 +151,7 @@ import { computed, onMounted, reactive, inject } from 'vue'
 import { FileText, X } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
-import { getFileSize } from '@/utils'
+import { getFileSize, validateFile } from '@/utils'
 
 const user = inject('$user')
 const router = useRouter()
@@ -291,14 +291,6 @@ const saveImage = (file) => {
 
 const removeImage = () => {
 	job.image = null
-}
-
-const validateFile = (file) => {
-	if (!file.type.startsWith('image/')) {
-		const errorMessage = __('Only image file is allowed.')
-		toast.error(errorMessage)
-		return errorMessage
-	}
 }
 
 const jobTypes = computed(() => {
