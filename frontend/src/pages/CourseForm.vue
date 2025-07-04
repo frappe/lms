@@ -67,7 +67,11 @@
 									<FormControl
 										v-model="newTag"
 										:placeholder="__('Add a keyword and then press enter')"
-										:class="['w-full', 'flex-1', { 'mt-2': course.tags?.length }]"
+										:class="[
+											'w-full',
+											'flex-1',
+											{ 'mt-2': course.tags?.length },
+										]"
 										@keyup.enter="updateTags()"
 										id="tags"
 									/>
