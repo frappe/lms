@@ -497,10 +497,13 @@ export function singularize(word) {
 	)
 }
 
-export const validateFile = (file) => {
-	let extension = file.name.split('.').pop().toLowerCase()
-	if (!['jpg', 'jpeg', 'png', 'webp'].includes(extension)) {
-		return __('Only image file is allowed.')
+export const validateFile = (file, showToast = true) => {
+	if (!file.type.startsWith('image/')) {
+		const errorMessage = __('Only image file is allowed.')
+		if (showToast) {
+			toast.error(errorMessage)
+		}
+		return errorMessage
 	}
 }
 
