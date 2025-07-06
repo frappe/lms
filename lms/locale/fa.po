@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-06-27 16:04+0000\n"
-"PO-Revision-Date: 2025-06-30 19:09\n"
+"PO-Revision-Date: 2025-07-06 19:44\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Persian\n"
 "MIME-Version: 1.0\n"
@@ -6249,7 +6249,7 @@ msgstr "ارزیابی های آتی"
 #: frontend/src/components/Settings/PaymentSettings.vue:27
 #: frontend/src/components/Settings/SettingDetails.vue:23
 msgid "Update"
-msgstr "به روز رسانی"
+msgstr "به‌روزرسانی"
 
 #: lms/templates/emails/community_course_membership.html:11
 msgid "Update Password"
