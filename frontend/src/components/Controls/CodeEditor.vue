@@ -5,7 +5,7 @@
 			height: height,
 		}"
 	>
-		<span class="text-xs text-ink-gray-7" v-if="label">
+		<span class="text-xs text-ink-gray-7 mb-1" v-if="label">
 			{{ label }}
 		</span>
 		<div

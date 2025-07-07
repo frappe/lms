@@ -14,3 +14,34 @@ export interface User {
         is_fc_site: boolean
     }
 }
+
+export interface Badge {
+    name: string;
+    title: string;
+    enabled: boolean;
+    description: string;
+    image: string;
+    grant_only_once: boolean;
+    event: string;
+    reference_doctype: string;
+    condition: string | null;
+    user_field: string;
+    field_to_check: string;
+};
+
+export interface Badges {
+    data: Badge[],
+    reload: () => void
+	insert: {
+		submit: (
+			data: Badge,
+			options: { onSuccess: () => void; onError: (err: any) => void }
+		) => void
+	},
+	setValue: {
+		submit: (
+			data: Badge,
+			options: { onSuccess: () => void; onError: (err: any) => void }
+		) => void
+	},
+}

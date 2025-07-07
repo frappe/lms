@@ -1,5 +1,8 @@
 <template>
 	<div class="flex w-full flex-col gap-1.5">
+		<div v-if="label" class="text-xs text-ink-gray-5">
+			{{ __(label) }}
+		</div>
 		<codemirror
 			v-model="code"
 			:extensions="extensions"
@@ -9,6 +12,9 @@
 			:style="{ height: height, maxHeight: maxHeight }"
 			:disabled="readonly"
 			@blur="emitEditorValue"
+			:class="{
+				'border border-outline-gray-1': showBorder,
+			}"
 		/>
 		<Button
 			v-if="showSaveButton"
@@ -40,6 +46,7 @@ const props = withDefaults(
 		showLineNumbers?: boolean
 		completions?: Function | null
 		label?: string
+		showBorder?: boolean
 		required?: boolean
 		readonly?: boolean
 	}>(),

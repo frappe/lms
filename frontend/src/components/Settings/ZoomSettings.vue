@@ -49,7 +49,7 @@
 						<template #default="{ column, item }">
 							<ListRowItem :item="row[column.key]" :align="column.align">
 								<div v-if="column.key == 'enabled'">
-									<Badge v-if="row[column.key]" theme="blue">
+									<Badge v-if="row[column.key]" theme="green">
 										{{ __('Enabled') }}
 									</Badge>
 									<Badge v-else theme="gray">
