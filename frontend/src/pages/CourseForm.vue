@@ -106,7 +106,10 @@
 										v-slot="{ file, progress, uploading, openFileSelector }"
 									>
 										<div class="flex items-center">
-											<div class="border rounded-md w-fit py-5 px-20">
+											<div
+												class="border rounded-md w-fit py-5 px-20 cursor-pointer"
+												@click="openFileSelector"
+											>
 												<Image class="size-5 stroke-1 text-ink-gray-7" />
 											</div>
 											<div class="ml-4">
@@ -330,7 +333,12 @@ import { useRouter } from 'vue-router'
 import { capture, startRecording, stopRecording } from '@/telemetry'
 import { useOnboarding } from 'frappe-ui/frappe'
 import { sessionStore } from '../stores/session'
-import { openSettings, getMetaInfo, updateMetaInfo } from '@/utils'
+import {
+	openSettings,
+	getMetaInfo,
+	updateMetaInfo,
+	validateFile,
+} from '@/utils'
 import Link from '@/components/Controls/Link.vue'
 import CourseOutline from '@/components/CourseOutline.vue'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
@@ -596,13 +604,6 @@ watch(
 		}
 	}
 )
-
-const validateFile = (file) => {
-	let extension = file.name.split('.').pop().toLowerCase()
-	if (!['jpg', 'jpeg', 'png', 'webp'].includes(extension)) {
-		return __('Only image file is allowed.')
-	}
-}
 
 const updateTags = () => {
 	if (newTag.value) {
