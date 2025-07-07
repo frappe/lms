@@ -50,22 +50,28 @@
 								<div class="mb-1.5 text-xs text-ink-gray-5">
 									{{ __('Tags') }}
 								</div>
-								<div class="flex items-center">
-									<div
-										v-if="course.tags"
-										v-for="tag in course.tags?.split(', ')"
-										class="flex items-center bg-surface-gray-2 text-ink-gray-7 p-2 rounded-md mr-2"
-									>
-										{{ tag }}
-										<X
-											class="stroke-1.5 w-3 h-3 ml-2 cursor-pointer"
-											@click="removeTag(tag)"
-										/>
+								<div>
+									<div class="flex items-center flex-wrap gap-2">
+										<div
+											v-if="course.tags"
+											v-for="tag in course.tags?.split(', ')"
+											class="flex items-center bg-surface-gray-2 text-ink-gray-7 p-2 rounded-md"
+										>
+											{{ tag }}
+											<X
+												class="stroke-1.5 w-3 h-3 ml-2 cursor-pointer"
+												@click="removeTag(tag)"
+											/>
+										</div>
 									</div>
 									<FormControl
 										v-model="newTag"
 										:placeholder="__('Add a keyword and then press enter')"
-										class="w-full"
+										:class="[
+											'w-full',
+											'flex-1',
+											{ 'mt-2': course.tags?.length },
+										]"
 										@keyup.enter="updateTags()"
 										id="tags"
 									/>
