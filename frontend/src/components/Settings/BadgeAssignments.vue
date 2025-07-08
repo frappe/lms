@@ -179,13 +179,13 @@ const columns = computed(() => {
 			label: __('Member'),
 			key: 'member_name',
 			icon: 'user',
-			width: '80%',
+			width: '60%',
 		},
 		{
 			label: __('Issued On'),
 			key: 'issued_on',
 			icon: 'calendar',
-			align: 'right',
+			align: 'center',
 		},
 	]
 })

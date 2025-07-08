@@ -159,13 +159,11 @@ const setValue = (close: () => void) => {
 			onSuccess() {
 				badges.value?.reload()
 				close()
-				toast.success(__('Zoom Account updated successfully'))
+				toast.success(__('Badge updated successfully'))
 			},
 			onError(err: any) {
 				close()
-				toast.error(
-					cleanError(err.messages[0]) || __('Error updating Zoom Account')
-				)
+				toast.error(cleanError(err.messages[0]) || err)
 			},
 		}
 	)

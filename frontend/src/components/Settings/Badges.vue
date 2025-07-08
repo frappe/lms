@@ -34,7 +34,7 @@
 				<ListHeader
 					class="mb-2 grid items-center space-x-4 rounded bg-surface-gray-2 p-2"
 				>
-					<ListHeaderItem :item="item" v-for="item in columns">
+					<ListHeaderItem :item="item" v-for="item in columns" :key="item.key">
 						<template #prefix="{ item }">
 							<FeatherIcon
 								v-if="item.icon"
@@ -45,7 +45,7 @@
 					</ListHeaderItem>
 				</ListHeader>
 				<ListRows>
-					<ListRow :row="row" v-for="row in badges.data">
+					<ListRow :row="row" v-for="row in badges.data" :key="row.name">
 						<template #default="{ column, item }">
 							<ListRowItem :item="row[column.key]" :align="column.align">
 								<div v-if="column.key == 'enabled'">
