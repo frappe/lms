@@ -21,7 +21,7 @@
 						:required="true"
 					/>
 					<Autocomplete
-						@update:modelValue="(opt) => (badge.reference_doctype = opt.value)"
+						@update:modelValue="(opt: any) => (badge.reference_doctype = opt.value)"
 						:modelValue="badge.reference_doctype"
 						:options="referenceDoctypeOptions"
 						:required="true"
@@ -98,12 +98,12 @@ const defaultBadge = {
 	image: '',
 	grant_only_once: false,
 	event: 'New',
-	reference_doctype: 'LMS Course',
-	condition: null,
+	reference_doctype: '',
+	condition: '',
 	user_field: 'member',
 	field_to_check: '',
 }
-const show = defineModel<boolean | undefined>()
+const show = defineModel<boolean>({ required: true, default: false })
 const badges = defineModel<Badges>('badges')
 const badge = ref<Badge>(defaultBadge)
 
@@ -135,7 +135,6 @@ const saveBadge = (close: () => void) => {
 }
 
 const updateBadge = async (close: () => void) => {
-	console.log(props.badgeName, badge.value?.title)
 	if (props.badgeName != badge.value?.title) {
 		await renameDoc()
 	}

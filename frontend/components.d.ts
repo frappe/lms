@@ -19,6 +19,8 @@ declare module 'vue' {
     AssignmentForm: typeof import('./src/components/Modals/AssignmentForm.vue')['default']
     AudioBlock: typeof import('./src/components/AudioBlock.vue')['default']
     Autocomplete: typeof import('./src/components/Controls/Autocomplete.vue')['default']
+    BadgeAssignmentForm: typeof import('./src/components/Settings/BadgeAssignmentForm.vue')['default']
+    BadgeAssignments: typeof import('./src/components/Settings/BadgeAssignments.vue')['default']
     BadgeForm: typeof import('./src/components/Settings/BadgeForm.vue')['default']
     Badges: typeof import('./src/components/Settings/Badges.vue')['default']
     Bagdes: typeof import('./src/components/Settings/Bagdes.vue')['default']

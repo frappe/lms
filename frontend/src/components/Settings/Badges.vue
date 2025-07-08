@@ -1,5 +1,10 @@
 <template>
-	<div class="flex flex-col min-h-0 text-base">
+	<BadgeAssignments
+		v-if="showAssignments"
+		v-model="showAssignments"
+		:badgeName="showAssignmentsFor"
+	/>
+	<div v-else class="flex flex-col min-h-0 text-base">
 		<div class="flex items-center justify-between mb-5">
 			<div class="flex flex-col space-y-2">
 				<div class="text-xl font-semibold text-ink-gray-9">
@@ -23,6 +28,7 @@
 				row-key="name"
 				:options="{
 					showTooltip: false,
+					selectable: false,
 				}"
 			>
 				<ListHeader
@@ -51,7 +57,11 @@
 									</Badge>
 								</div>
 								<div v-else-if="column.key == 'reference_doctype'">
-									{{ doctypeLabel[row[column.key]] || row[column.key] }}
+									{{
+										doctypeLabel[
+											row[column.key] as keyof typeof doctypeLabel
+										] || row[column.key]
+									}}
 								</div>
 								<FormControl
 									v-else-if="column.key == 'grant_only_once'"
@@ -65,15 +75,12 @@
 								>
 									{{ row[column.key] }}
 								</div>
-								<!-- <Button v-else variant="ghost">
-                                    <Ellipsis class="size-4 stroke-1.5 text-ink-gray-9" />
-                                </Button> -->
 								<Dropdown
 									v-else
 									:options="getMoreOptions(row.name)"
 									:button="{
 										icon: 'more-horizontal',
-										onblur: (e) => {
+										onblur: (e: Event) => {
 											e.stopPropagation()
 										},
 									}"
@@ -83,19 +90,6 @@
 						</template>
 					</ListRow>
 				</ListRows>
-
-				<ListSelectBanner>
-					<template #actions="{ unselectAll, selections }">
-						<div class="flex gap-2">
-							<Button
-								variant="ghost"
-								@click="removeAccount(selections, unselectAll)"
-							>
-								<Trash2 class="h-4 w-4 stroke-1.5" />
-							</Button>
-						</div>
-					</template>
-				</ListSelectBanner>
 			</ListView>
 		</div>
 	</div>
@@ -119,14 +113,18 @@ import {
 	ListRows,
 	ListRow,
 	ListRowItem,
-	ListSelectBanner,
+	toast,
 } from 'frappe-ui'
 import { computed, ref } from 'vue'
-import { Plus, Trash2 } from 'lucide-vue-next'
+import { Plus } from 'lucide-vue-next'
+import { cleanError } from '@/utils'
 import BadgeForm from '@/components/Settings/BadgeForm.vue'
+import BadgeAssignments from '@/components/Settings/BadgeAssignments.vue'
 
 const showForm = ref<boolean>(false)
 const selectedBadge = ref<string | null>(null)
+const showAssignments = ref<boolean>(false)
+const showAssignmentsFor = ref<string | null>(null)
 
 const props = defineProps<{
 	label: string
@@ -165,7 +163,15 @@ const getMoreOptions = (badgeName: string) => {
 			label: __('Assignments'),
 			icon: 'download',
 			onClick() {
-				console.log('assignments')
+				showAssignmentsFor.value = badgeName
+				showAssignments.value = true
+			},
+		},
+		{
+			label: __('Delete'),
+			icon: 'trash-2',
+			onClick() {
+				deleteBadge(badgeName)
 			},
 		},
 	]
@@ -174,6 +180,18 @@ const getMoreOptions = (badgeName: string) => {
 const openForm = (badgeName: string) => {
 	selectedBadge.value = badgeName
 	showForm.value = true
+}
+
+const deleteBadge = (badgeName: string) => {
+	badges.delete
+		.submit(badgeName)
+		.then(() => {
+			badges.reload()
+			toast.success(__('Badge deleted successfully'))
+		})
+		.catch((err: any) => {
+			toast.error(cleanError(err.messages[0]) || __('Error deleting badge'))
+		})
 }
 
 const doctypeLabel = computed(() => {
@@ -218,7 +236,7 @@ const columns = computed(() => {
 			key: 'grant_only_once',
 			icon: 'check',
 			align: 'center',
-			width: '15%',
+			width: '20%',
 		},
 		{
 			key: 'action',

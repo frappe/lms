@@ -24,7 +24,7 @@ export interface Badge {
     grant_only_once: boolean;
     event: string;
     reference_doctype: string;
-    condition: string | null;
+    condition: string;
     user_field: string;
     field_to_check: string;
 };
@@ -44,4 +44,31 @@ export interface Badges {
 			options: { onSuccess: () => void; onError: (err: any) => void }
 		) => void
 	},
+}
+
+export interface BadgeAssignment {
+    name: string;
+    member: string;
+    member_name: string;
+    member_username: string;
+    member_image: string;
+    badge: string;
+    issued_on: string;
+}
+
+export interface BadgeAssignments {
+    data: BadgeAssignment[],
+    reload: () => void
+    insert: {
+        submit: (
+            data: BadgeAssignment,
+            options: { onSuccess: () => void; onError: (err: any) => void }
+        ) => void
+    },
+    setValue: {
+        submit: (
+            data: BadgeAssignment,
+            options: { onSuccess: () => void; onError: (err: any) => void }
+        ) => void
+    },
 }

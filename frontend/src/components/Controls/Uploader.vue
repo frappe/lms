@@ -12,7 +12,7 @@
 		>
 			<template v-slot="{ file, progress, uploading, openFileSelector }">
 				<div class="flex items-center">
-					<div class="border rounded-md w-fit py-5 px-20">
+					<div class="border rounded-md w-fit py-7 px-20">
 						<Image class="size-5 stroke-1 text-ink-gray-7" />
 					</div>
 					<div class="ml-4">
@@ -20,7 +20,7 @@
 							{{ __('Upload') }}
 						</Button>
 						<div class="mt-1 text-ink-gray-5 text-sm leading-5">
-							{{ __('Appears on the course card in the course list') }}
+							{{ __(description) }}
 						</div>
 					</div>
 				</div>

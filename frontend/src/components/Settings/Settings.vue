@@ -224,7 +224,8 @@ const tabsStructure = computed(() => {
 				},
 				{
 					label: 'Zoom Accounts',
-					description: 'Manage the Zoom accounts for your learning system',
+					description:
+						'Manage zoom accounts to conduct live classes from batches',
 					icon: 'Video',
 					template: markRaw(ZoomSettings),
 				},
@@ -250,7 +251,7 @@ const tabsStructure = computed(() => {
 			],
 		},
 		{
-			label: 'Customise',
+			label: 'Customize',
 			hideLabel: false,
 			items: [
 				{
