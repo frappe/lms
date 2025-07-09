@@ -41,7 +41,7 @@
 					v-model="account.member"
 					:label="__('Member')"
 					doctype="Course Evaluator"
-					:onCreate="(value, close) => openSettings('Members', close)"
+					:onCreate="(value: string, close: () => void) => openSettings('Members', close)"
 					:required="true"
 				/>
 				<FormControl
@@ -81,6 +81,12 @@ interface ZoomAccounts {
 	data: ZoomAccount[]
 	reload: () => void
 	insert: {
+		submit: (
+			data: ZoomAccount,
+			options: { onSuccess: () => void; onError: (err: any) => void }
+		) => void
+	}
+	setValue: {
 		submit: (
 			data: ZoomAccount,
 			options: { onSuccess: () => void; onError: (err: any) => void }
@@ -137,7 +143,7 @@ watch(show, (val) => {
 	}
 })
 
-const saveAccount = (close) => {
+const saveAccount = (close: () => void) => {
 	if (props.accountID == 'new') {
 		createAccount(close)
 	} else {
@@ -145,7 +151,7 @@ const saveAccount = (close) => {
 	}
 }
 
-const createAccount = (close) => {
+const createAccount = (close: () => void) => {
 	zoomAccounts.value?.insert.submit(
 		{
 			account_name: account.name,
@@ -167,7 +173,7 @@ const createAccount = (close) => {
 	)
 }
 
-const updateAccount = async (close) => {
+const updateAccount = async (close: () => void) => {
 	if (props.accountID != account.name) {
 		await renameDoc()
 	}
@@ -182,11 +188,12 @@ const renameDoc = async () => {
 	})
 }
 
-const setValue = (close) => {
+const setValue = (close: () => void) => {
 	zoomAccounts.value?.setValue.submit(
 		{
 			...account,
 			name: account.name,
+			account_name: props.accountID,
 		},
 		{
 			onSuccess() {
@@ -194,7 +201,7 @@ const setValue = (close) => {
 				close()
 				toast.success(__('Zoom Account updated successfully'))
 			},
-			onError(err) {
+			onError(err: any) {
 				close()
 				toast.error(
 					cleanError(err.messages[0]) || __('Error updating Zoom Account')
