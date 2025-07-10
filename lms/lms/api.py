@@ -676,6 +676,27 @@ def update_index(lessons, chapter):
 		)
 
 
+@frappe.whitelist()
+def update_chapter_index(chapter, course, idx):
+	"""Update the index of a chapter within a course"""
+	chapters = frappe.get_all(
+		"Chapter Reference",
+		{"parent": course},
+		pluck="chapter",
+		order_by="idx",
+	)
+
+	if chapter in chapters:
+		chapters.remove(chapter)
+
+	chapters.insert(idx, chapter)
+
+	for i, chapter_name in enumerate(chapters):
+		frappe.db.set_value(
+			"Chapter Reference", {"chapter": chapter_name, "parent": course}, "idx", i + 1
+		)
+
+
 @frappe.whitelist(allow_guest=True)
 def get_categories(doctype, filters):
 	categoryOptions = []
