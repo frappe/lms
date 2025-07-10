@@ -990,7 +990,30 @@ def delete_course(course):
 	frappe.delete_doc("LMS Course", course)
 
 
-def give_dicussions_permission():
+@frappe.whitelist()
+def delete_batch(batch):
+	frappe.db.delete("LMS Batch Enrollment", {"batch": batch})
+	frappe.db.delete("Batch Course", {"parent": batch, "parenttype": "LMS Batch"})
+	frappe.db.delete("LMS Assessment", {"parent": batch, "parenttype": "LMS Batch"})
+	frappe.db.delete("LMS Batch Timetable", {"parent": batch, "parenttype": "LMS Batch"})
+	frappe.db.delete("LMS Batch Feedback", {"batch": batch})
+	delete_batch_discussions(batch)
+	frappe.db.delete("LMS Batch", batch)
+
+
+def delete_batch_discussions(batch):
+	topics = frappe.get_all(
+		"Discussion Topic",
+		{"reference_doctype": "LMS Batch", "reference_docname": batch},
+		pluck="name",
+	)
+
+	for topic in topics:
+		frappe.db.delete("Discussion Reply", {"topic": topic})
+		frappe.db.delete("Discussion Topic", topic)
+
+
+def give_discussions_permission():
 	doctypes = ["Discussion Topic", "Discussion Reply"]
 	roles = ["LMS Student", "Course Creator", "Moderator", "Batch Evaluator"]
 	for doctype in doctypes:
