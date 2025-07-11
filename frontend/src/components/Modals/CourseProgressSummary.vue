@@ -7,17 +7,17 @@
 		}"
 	>
 		<template #body-content>
-			<div class="flex justify-between space-x-10 text-base">
+			<div class="flex justify-between space-x-10 text-base mt-10">
 				<div class="w-full">
 					<div class="flex items-center justify-between space-x-5 mb-4">
-						<div class="text-xl font-semibold text-ink-gray-6">
+						<!-- <div class="text-xl font-semibold text-ink-gray-6">
 							{{ __('{0} Members').format(memberCount) }}
-						</div>
+						</div> -->
 						<FormControl
 							v-model="searchFilter"
-							:label="__('Search by Member Name')"
+							:placeholder="__('Search by Member Name')"
 							type="text"
-							class="w-1/2"
+							class="w-full"
 						/>
 					</div>
 					<div class="max-h-[70vh] overflow-y-auto">
@@ -90,13 +90,22 @@
 					</div>
 				</div>
 				<div class="mb-4 self-start w-full space-y-5">
-					<NumberChart
-						class="border rounded-md"
-						:config="{
-							title: __('Average Progress %'),
-							value: chartDetails.data?.average_progress || 0,
-						}"
-					/>
+					<div class="flex items-center space-x-4">
+						<NumberChart
+							class="border rounded-md w-full"
+							:config="{
+								title: __('Enrollments'),
+								value: memberCount || 0,
+							}"
+						/>
+						<NumberChart
+							class="border rounded-md w-full"
+							:config="{
+								title: __('Average Progress %'),
+								value: chartDetails.data?.average_progress || 0,
+							}"
+						/>
+					</div>
 					<DonutChart
 						:config="{
 							data: chartDetails.data?.progress_distribution || [],

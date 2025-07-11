@@ -88,9 +88,31 @@ const update = () => {
 	)
 }
 
-watch(branding, (newData) => {
-	if (newData && !isDirty.value) {
-		isDirty.value = true
-	}
+watch(branding, (updatedDoc) => {
+	let textFields = []
+	let imageFields = []
+
+	props.fields.forEach((f) => {
+		if (f.type === 'Upload') {
+			imageFields.push(f.name)
+		} else {
+			textFields.push(f.name)
+		}
+	})
+
+	textFields.forEach((field) => {
+		if (updatedDoc.data[field] != updatedDoc.previousData[field]) {
+			isDirty.value = true
+		}
+	})
+
+	imageFields.forEach((field) => {
+		if (
+			updatedDoc.data[field] &&
+			updatedDoc.data[field].file_url != updatedDoc.previousData[field].file_url
+		) {
+			isDirty.value = true
+		}
+	})
 })
 </script>

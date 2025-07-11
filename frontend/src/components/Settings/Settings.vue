@@ -37,8 +37,13 @@
 					<component
 						v-if="activeTab.template"
 						:is="activeTab.template"
-						:label="activeTab.label"
-						:description="activeTab.description"
+						v-bind="{
+							label: activeTab.label,
+							description: activeTab.description,
+							...(activeTab.label === 'Branding'
+								? { fields: activeTab.fields }
+								: {}),
+						}"
 					/>
 					<PaymentSettings
 						v-else-if="activeTab.label === 'Payment Gateway'"
