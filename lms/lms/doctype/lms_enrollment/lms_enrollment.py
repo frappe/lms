@@ -5,6 +5,7 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.utils import ceil
+from lms.lms.api import update_course_statistics
 
 
 class LMSEnrollment(Document):
@@ -99,8 +100,38 @@ def create_membership(
 		}
 	)
 	enrollment.insert()
+	update_course_statistics()
 	return enrollment
 
+@frappe.whitelist()
+def remove_membership(course, member=None, member_type="Student", role="Member"):
+	"""
+	Removes the LMS Enrollment record for a given course and member,
+	but only if the course is not yet completed (progress != 100).
+	"""
+
+	if not course or not member:
+		frappe.throw("Course and Member are required parameters.")
+
+	enrollment = frappe.get_list(
+		"LMS Enrollment",
+		filters={
+			"member": member,
+			"course": course,
+			"progress": ["!=", 100]
+		},
+		fields=["name"],
+		limit=1
+	)
+
+	if not enrollment:
+		frappe.msgprint("No active enrollment found or course already completed.")
+		return
+
+	# removing the enrollment
+	frappe.delete_doc("LMS Enrollment", enrollment[0].name, ignore_permissions=True)
+	update_course_statistics() # updating the statistics tab in the course
+	frappe.msgprint("You have been un-enrolled from the course.")
 
 @frappe.whitelist()
 def update_current_membership(batch, course, member):

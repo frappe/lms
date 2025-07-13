@@ -89,6 +89,20 @@
 					{{ __('Get Certificate') }}
 				</Button>
 				<Button
+					v-if="!user.data?.is_moderator && !is_instructor() && course.data.membership"
+					@click="unEnrollStudent(course)"
+					variant="outline"
+					class="w-full mt-2"
+					size="md"
+				>
+					<template #prefix>
+						<LogOut class="size-4 stroke-1.5" />
+					</template>
+					<span>
+						{{ __('Un-enroll from course') }}
+					</span>
+				</Button>
+				<Button
 					v-if="user.data?.is_moderator || is_instructor()"
 					class="w-full mt-2"
 					size="md"
@@ -181,6 +195,7 @@ import {
 	CreditCard,
 	GraduationCap,
 	Pencil,
+	LogOut,
 	Star,
 	TrendingUp,
 	Users,
@@ -243,6 +258,24 @@ function enrollStudent() {
 				console.error(err)
 			})
 	}
+}
+
+function unEnrollStudent(course) {
+	if (!user.data || !course?.data?.name) return;
+	
+	call('lms.lms.doctype.lms_enrollment.lms_enrollment.remove_membership', {
+		course: props.course.data.name,
+		member: user.data.name,
+	})
+	.then(() => {
+		toast.success(__('You have been Un-enrolled successfully.'))
+		setTimeout(() => {
+			window.location.reload()
+		}, 1000)
+	}).catch((err) => {
+		toast.warning(__(err.messages?.[0] || err))
+		console.error(err)
+	});
 }
 
 const is_instructor = () => {

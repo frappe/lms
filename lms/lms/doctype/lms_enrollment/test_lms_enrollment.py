@@ -6,7 +6,7 @@ import unittest
 import frappe
 
 from lms.lms.doctype.lms_course.test_lms_course import new_course, new_user
-
+from lms.lms.doctype.lms_enrollment.lms_enrollment import remove_membership
 
 class TestLMSEnrollment(unittest.TestCase):
 	def setUp(self):
@@ -66,3 +66,36 @@ class TestLMSEnrollment(unittest.TestCase):
 		# it should be possible to change role
 		membership.role = "Admin"
 		membership.save()
+
+	def test_remove_membership(self):
+		course, batch = self.new_course_batch()
+		member = new_user("Test", "test01@test.com")
+
+		enrollment = self.add_membership(batch.name, member.name, course.name)
+		enrollment.progress = 80
+		enrollment.save()
+
+		self.assertTrue(
+			frappe.db.exists("LMS Enrollment", enrollment.name), "Enrollment should exist before removal"
+		)
+
+		remove_membership(course=course.name, member=member.name)
+
+		self.assertFalse(
+			frappe.db.exists("LMS Enrollment", enrollment.name), "Enrollment should be removed after calling remove_membership"
+		)
+
+	def test_remove_membership_does_not_delete_completed(self):
+		course, batch = self.new_course_batch()
+		member = new_user("Completed Test", "test01@test.com")
+
+		enrollment = self.add_membership(batch.name, member.name, course.name)
+		enrollment.progress = 100
+		enrollment.save()
+
+		remove_membership(course=course.name, member=member.name)
+
+		self.assertTrue(
+			frappe.db.exists("LMS Enrollment", enrollment.name),
+			"Enrollment with 100% progress should not be removed"
+		)
