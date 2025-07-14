@@ -23,7 +23,6 @@ declare module 'vue' {
     BadgeAssignments: typeof import('./src/components/Settings/BadgeAssignments.vue')['default']
     BadgeForm: typeof import('./src/components/Settings/BadgeForm.vue')['default']
     Badges: typeof import('./src/components/Settings/Badges.vue')['default']
-    Bagdes: typeof import('./src/components/Settings/Bagdes.vue')['default']
     BatchCard: typeof import('./src/components/BatchCard.vue')['default']
     BatchCourseModal: typeof import('./src/components/Modals/BatchCourseModal.vue')['default']
     BatchCourses: typeof import('./src/components/BatchCourses.vue')['default']
