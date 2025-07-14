@@ -4,30 +4,39 @@
 	>
 		<Breadcrumbs :items="breadcrumbs" />
 		<div v-if="!readOnlyMode" class="space-x-2">
+			<Badge v-if="quizDetails.isDirty" theme="orange">
+				{{ __('Not Saved') }}
+			</Badge>
 			<router-link
-				v-if="quizDetails.data?.name"
+				v-if="quizDetails.doc?.name"
 				:to="{
 					name: 'QuizPage',
 					params: {
-						quizID: quizDetails.data.name,
+						quizID: quizDetails.doc.name,
 					},
 				}"
 			>
 				<Button>
-					{{ __('Open') }}
+					<template #prefix>
+						<ListChecks class="size-4 stroke-1.5" />
+					</template>
+					{{ __('Test Quiz') }}
 				</Button>
 			</router-link>
 			<router-link
-				v-if="quizDetails.data?.name"
+				v-if="quizDetails.doc?.name"
 				:to="{
 					name: 'QuizSubmissionList',
 					params: {
-						quizID: quizDetails.data.name,
+						quizID: quizDetails.doc.name,
 					},
 				}"
 			>
 				<Button>
-					{{ __('Submission List') }}
+					<template #prefix>
+						<ClipboardList class="size-4 stroke-1.5" />
+					</template>
+					{{ __('Check Submissions') }}
 				</Button>
 			</router-link>
 			<Button variant="solid" @click="submitQuiz()">
@@ -35,144 +44,152 @@
 			</Button>
 		</div>
 	</header>
-	<div class="w-3/4 mx-auto py-5">
-		<!-- Details -->
-		<div class="mb-8">
-			<div class="font-semibold text-ink-gray-9 mb-4">
+	<div v-if="quizDetails.doc" class="py-5">
+		<div class="px-20 pb-5 space-y-5 border-b mb-5">
+			<div class="text-lg text-ink-gray-9 font-semibold mb-4">
 				{{ __('Details') }}
 			</div>
-			<FormControl
-				v-model="quiz.title"
-				:label="
-					quizDetails.data?.name
-						? __('Title')
-						: __('Enter a title and save the quiz to proceed')
-				"
-				:required="true"
-			/>
-			<div v-if="quizDetails.data?.name">
-				<div class="grid grid-cols-2 gap-5 mt-4 mb-8">
+			<div class="grid grid-cols-2 gap-5">
+				<div class="space-y-5">
+					<FormControl
+						v-model="quizDetails.doc.title"
+						:label="__('Title')"
+						:required="true"
+					/>
 					<FormControl
 						type="number"
-						v-model="quiz.max_attempts"
+						v-model="quizDetails.doc.max_attempts"
 						:label="__('Maximum Attempts')"
 					/>
 					<FormControl
 						type="number"
-						v-model="quiz.duration"
+						v-model="quizDetails.doc.duration"
 						:label="__('Duration (in minutes)')"
 					/>
+				</div>
+				<div class="space-y-5">
 					<FormControl
-						v-model="quiz.total_marks"
+						v-model="quizDetails.doc.total_marks"
 						:label="__('Total Marks')"
 						disabled
 					/>
 					<FormControl
-						v-model="quiz.passing_percentage"
+						v-model="quizDetails.doc.passing_percentage"
 						:label="__('Passing Percentage')"
+						:required="true"
 					/>
-				</div>
-
-				<!-- Settings -->
-				<div class="mb-8">
-					<div class="font-semibold text-ink-gray-9 mb-4">
-						{{ __('Settings') }}
-					</div>
-					<div class="grid grid-cols-3 gap-5 my-4">
-						<FormControl
-							v-model="quiz.show_answers"
-							type="checkbox"
-							:label="__('Show Answers')"
-						/>
-						<FormControl
-							v-model="quiz.show_submission_history"
-							type="checkbox"
-							:label="__('Show Submission History')"
-						/>
-					</div>
-				</div>
-
-				<div class="mb-8">
-					<div class="font-semibold text-ink-gray-9 mb-4">
-						{{ __('Shuffle Settings') }}
-					</div>
-					<div class="grid grid-cols-3">
-						<FormControl
-							v-model="quiz.shuffle_questions"
-							type="checkbox"
-							:label="__('Shuffle Questions')"
-						/>
-						<FormControl
-							v-if="quiz.shuffle_questions"
-							v-model="quiz.limit_questions_to"
-							:label="__('Limit Questions To')"
-						/>
-					</div>
-				</div>
-
-				<!-- Questions -->
-				<div>
-					<div class="flex items-center justify-between mb-4">
-						<div class="font-semibold text-ink-gray-9">
-							{{ __('Questions') }}
-						</div>
-						<Button v-if="!readOnlyMode" @click="openQuestionModal()">
-							<template #prefix>
-								<Plus class="w-4 h-4" />
-							</template>
-							{{ __('New Question') }}
-						</Button>
-					</div>
-					<ListView
-						:columns="questionColumns"
-						:rows="quiz.questions"
-						row-key="name"
-						:options="{
-							showTooltip: false,
-						}"
-					>
-						<ListHeader
-							class="mb-2 grid items-center space-x-4 rounded bg-surface-gray-2 p-2"
-						>
-							<ListHeaderItem :item="item" v-for="item in questionColumns" />
-						</ListHeader>
-						<ListRows>
-							<ListRow
-								:row="row"
-								v-slot="{ idx, column, item }"
-								v-for="row in quiz.questions"
-								@click="openQuestionModal(row)"
-								class="cursor-pointer"
-							>
-								<ListRowItem :item="item">
-									<div
-										v-if="column.key == 'question_detail'"
-										class="text-xs truncate h-4"
-										v-html="item"
-									></div>
-									<div v-else class="text-xs">
-										{{ item }}
-									</div>
-								</ListRowItem>
-							</ListRow>
-						</ListRows>
-						<ListSelectBanner>
-							<template #actions="{ unselectAll, selections }">
-								<div class="flex gap-2">
-									<Button
-										variant="ghost"
-										@click="deleteQuestions(selections, unselectAll)"
-									>
-										<Trash2 class="h-4 w-4 stroke-1.5" />
-									</Button>
-								</div>
-							</template>
-						</ListSelectBanner>
-					</ListView>
 				</div>
 			</div>
 		</div>
+		<div class="px-20 pb-5 space-y-5 border-b mb-5">
+			<div class="text-lg text-ink-gray-9 font-semibold mb-4">
+				{{ __('Settings') }}
+			</div>
+			<div class="grid grid-cols-3 gap-5">
+				<div class="flex flex-col space-y-10">
+					<FormControl
+						v-model="quizDetails.doc.show_answers"
+						type="checkbox"
+						:label="__('Show Answers')"
+					/>
+					<FormControl
+						v-model="quizDetails.doc.show_submission_history"
+						type="checkbox"
+						:label="__('Show Submission History')"
+					/>
+				</div>
+				<div class="flex flex-col space-y-5">
+					<FormControl
+						v-model="quizDetails.doc.shuffle_questions"
+						type="checkbox"
+						:label="__('Shuffle Questions')"
+					/>
+					<FormControl
+						v-if="quizDetails.doc.shuffle_questions"
+						v-model="quizDetails.doc.limit_questions_to"
+						:label="__('Limit Questions To')"
+					/>
+				</div>
+				<div class="flex flex-col space-y-5">
+					<FormControl
+						v-model="quizDetails.doc.enable_negative_marking"
+						type="checkbox"
+						:label="__('Enable Negative Marking')"
+					/>
+					<FormControl
+						v-if="quizDetails.doc.enable_negative_marking"
+						v-model="quizDetails.doc.marks_to_cut"
+						:label="__('Marks to Cut')"
+					/>
+				</div>
+			</div>
+		</div>
+
+		<div class="px-20 pb-5 space-y-5 mb-5">
+			<div class="flex items-center justify-between mb-4">
+				<div class="text-lg font-semibold text-ink-gray-9">
+					{{ __('Questions') }}
+				</div>
+				<Button v-if="!readOnlyMode" @click="openQuestionModal()">
+					<template #prefix>
+						<Plus class="w-4 h-4" />
+					</template>
+					{{ __('New Question') }}
+				</Button>
+			</div>
+			<ListView
+				v-if="questions.length"
+				:columns="questionColumns"
+				:rows="questions"
+				row-key="name"
+				:options="{
+					showTooltip: false,
+				}"
+			>
+				<ListHeader
+					class="mb-2 grid items-center space-x-4 rounded bg-surface-gray-2 p-2"
+				>
+					<ListHeaderItem :item="item" v-for="item in questionColumns" />
+				</ListHeader>
+				<ListRows>
+					<ListRow
+						:row="row"
+						v-slot="{ idx, column, item }"
+						v-for="row in questions"
+						@click="openQuestionModal(row)"
+						class="cursor-pointer"
+					>
+						<ListRowItem :item="item">
+							<div
+								v-if="column.key == 'question_detail'"
+								class="text-xs truncate h-4"
+								v-html="item"
+							></div>
+							<div v-else class="text-xs">
+								{{ item }}
+							</div>
+						</ListRowItem>
+					</ListRow>
+				</ListRows>
+				<ListSelectBanner>
+					<template #actions="{ unselectAll, selections }">
+						<div class="flex gap-2">
+							<Button
+								variant="ghost"
+								@click="deleteQuestions(selections, unselectAll)"
+							>
+								<Trash2 class="h-4 w-4 stroke-1.5" />
+							</Button>
+						</div>
+					</template>
+				</ListSelectBanner>
+			</ListView>
+			<div v-else class="text-ink-gray-6 text-sm">
+				{{ __('No questions added yet') }}
+			</div>
+		</div>
 	</div>
+
 	<Question
 		v-model="showQuestionModal"
 		:questionDetail="currentQuestion"
@@ -199,6 +216,8 @@ import {
 	Button,
 	usePageMeta,
 	toast,
+	createDocumentResource,
+	Badge,
 } from 'frappe-ui'
 import {
 	computed,
@@ -210,8 +229,7 @@ import {
 	watch,
 } from 'vue'
 import { sessionStore } from '../stores/session'
-import { Plus, Trash2 } from 'lucide-vue-next'
-import { updateDocumentTitle } from '@/utils'
+import { ClipboardList, ListChecks, Plus, Trash2 } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import Question from '@/components/Modals/Question.vue'
 
@@ -233,18 +251,7 @@ const props = defineProps({
 	},
 })
 
-const quiz = reactive({
-	title: '',
-	total_marks: 0,
-	passing_percentage: 0,
-	max_attempts: 0,
-	duration: 0,
-	limit_questions_to: 0,
-	show_answers: true,
-	show_submission_history: false,
-	shuffle_questions: false,
-	questions: [],
-})
+const questions = ref([])
 
 onMounted(() => {
 	if (
@@ -280,86 +287,26 @@ watch(
 	}
 )
 
-const quizDetails = createResource({
-	url: 'frappe.client.get',
-	makeParams(values) {
-		return { doctype: 'LMS Quiz', name: props.quizID }
-	},
+const quizDetails = createDocumentResource({
+	doctype: 'LMS Quiz',
+	name: props.quizID,
 	auto: false,
-	onSuccess(data) {
-		Object.keys(data).forEach((key) => {
-			if (Object.hasOwn(quiz, key)) quiz[key] = data[key]
-		})
-
-		let checkboxes = [
-			'show_answers',
-			'show_submission_history',
-			'shuffle_questions',
-		]
-		for (let idx in checkboxes) {
-			let key = checkboxes[idx]
-			quiz[key] = quiz[key] ? true : false
-		}
-	},
-})
-
-const quizCreate = createResource({
-	url: 'frappe.client.insert',
-	auto: false,
-	makeParams(values) {
-		return {
-			doc: {
-				doctype: 'LMS Quiz',
-				...quiz,
-			},
-		}
-	},
-})
-
-const quizUpdate = createResource({
-	url: 'frappe.client.set_value',
-	auto: false,
-	makeParams(values) {
-		return {
-			doctype: 'LMS Quiz',
-			name: values.quizID,
-			fieldname: {
-				total_marks: calculateTotalMarks(),
-				...quiz,
-			},
+	onSuccess(doc) {
+		if (doc.questions && doc.questions.length > 0) {
+			questions.value = doc.questions.map((question) => question)
 		}
 	},
 })
 
 const submitQuiz = () => {
-	if (quizDetails.data?.name) updateQuiz()
-	else createQuiz()
-}
-
-const createQuiz = () => {
-	quizCreate.submit(
-		{},
+	quizDetails.setValue.submit(
+		{
+			...quizDetails.doc,
+			total_marks: calculateTotalMarks(),
+		},
 		{
 			onSuccess(data) {
-				toast.success(__('Quiz created successfully'))
-				router.push({
-					name: 'QuizForm',
-					params: { quizID: data.name },
-				})
-			},
-			onError(err) {
-				toast.error(err.messages?.[0] || err)
-			},
-		}
-	)
-}
-
-const updateQuiz = () => {
-	quizUpdate.submit(
-		{ quizID: quizDetails.data?.name },
-		{
-			onSuccess(data) {
-				quiz.total_marks = data.total_marks
+				quizDetails.doc.total_marks = data.total_marks
 				toast.success(__('Quiz updated successfully'))
 			},
 			onError(err) {
@@ -371,9 +318,15 @@ const updateQuiz = () => {
 
 const calculateTotalMarks = () => {
 	let totalMarks = 0
-	if (quiz.limit_questions_to && quiz.questions.length > 0)
-		return quiz.questions[0].marks * quiz.limit_questions_to
-	quiz.questions.forEach((question) => {
+	if (
+		quizDetails.doc?.limit_questions_to &&
+		quizDetails.doc?.questions.length > 0
+	)
+		return (
+			quizDetails.doc.questions[0].marks * quizDetails.doc.limit_questions_to
+		)
+
+	quizDetails.doc?.questions.forEach((question) => {
 		totalMarks += question.marks
 	})
 	return totalMarks
@@ -448,7 +401,7 @@ const breadcrumbs = computed(() => {
 	]
 
 	crumbs.push({
-		label: props.quizID == 'new' ? __('New Quiz') : quizDetails.data?.title,
+		label: props.quizID == 'new' ? __('New Quiz') : quizDetails.doc?.title,
 		route: { name: 'QuizForm', params: { quizID: props.quizID } },
 	})
 	return crumbs
@@ -456,7 +409,7 @@ const breadcrumbs = computed(() => {
 
 usePageMeta(() => {
 	return {
-		title: props.quizID == 'new' ? __('New Quiz') : quizDetails.data?.title,
+		title: props.quizID == 'new' ? __('New Quiz') : quizDetails.doc?.title,
 		icon: brand.favicon,
 	}
 })

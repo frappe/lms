@@ -210,7 +210,7 @@ const addInstructorNotes = (data) => {
 const enableAutoSave = () => {
 	autoSaveInterval = setInterval(() => {
 		saveLesson({ showSuccessMessage: false })
-	}, 5000)
+	}, 10000)
 }
 
 const keyboardShortcut = (e) => {
@@ -385,8 +385,10 @@ const saveLesson = (e) => {
 		showSuccessMessage = true
 	}
 	editor.value.save().then((outputData) => {
+		outputData = removeEmptyBlocks(outputData)
 		lesson.content = JSON.stringify(outputData)
 		instructorEditor.value.save().then((outputData) => {
+			outputData = removeEmptyBlocks(outputData)
 			lesson.instructor_content = JSON.stringify(outputData)
 			if (lessonDetails.data?.lesson) {
 				editCurrentLesson()
@@ -395,6 +397,14 @@ const saveLesson = (e) => {
 			}
 		})
 	})
+}
+
+const removeEmptyBlocks = (outputData) => {
+	let blocks = outputData.blocks.filter((block) => {
+		return Object.keys(block.data).length > 0 || block.type == 'paragraph'
+	})
+	outputData.blocks = blocks
+	return outputData
 }
 
 const createNewLesson = () => {
@@ -651,6 +661,68 @@ iframe {
 .plyr--video {
 	border: 1px solid theme('colors.gray.200');
 	border-radius: 8px;
+}
+
+.ce-popover__container {
+	border-radius: 12px;
+	padding: 8px;
+}
+
+.cdx-search-field {
+	border: none;
+}
+
+.cdx-search-field__input {
+	font-weight: 400;
+	font-size: 13px;
+}
+
+.cdx-search-field__input::before {
+	font-weight: 400;
+}
+
+.cdx-search-field__input:focus {
+	--tw-ring-color: theme('colors.gray.100');
+}
+
+.ce-popover-item__title {
+	font-size: 13px;
+	font-weight: 400;
+}
+
+.ce-popover-item__icon svg {
+	width: 15px;
+	height: 15px;
+}
+
+.ce-popover--opened > .ce-popover__container {
+	max-height: unset;
+}
+
+.cdx-search-field__icon svg {
+	width: 15px;
+	height: 15px;
+}
+
+.cdx-search-field__icon {
+	margin-right: 5px;
+}
+
+.cdx-block.embed-tool {
+	position: relative;
+	display: inline-block;
+	width: 100%;
+}
+
+.cdx-block.embed-tool::after {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: transparent;
+	z-index: 1000;
 }
 
 :root {

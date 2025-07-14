@@ -44,6 +44,11 @@ class LMSQuiz(Document):
 				frappe.throw(_("All questions should have the same marks if the limit is set."))
 
 	def calculate_total_marks(self):
+		if len(self.questions) == 0:
+			self.total_marks = 0
+			self.passing_percentage = 100
+			return
+
 		if self.limit_questions_to:
 			self.total_marks = sum(
 				question.marks for question in self.questions[: cint(self.limit_questions_to)]
@@ -102,11 +107,19 @@ def quiz_summary(quiz, results):
 	quiz_details = frappe.db.get_value(
 		"LMS Quiz",
 		quiz,
-		["total_marks", "passing_percentage", "lesson", "course"],
+		[
+			"name",
+			"total_marks",
+			"passing_percentage",
+			"lesson",
+			"course",
+			"enable_negative_marking",
+			"marks_to_cut",
+		],
 		as_dict=1,
 	)
 
-	data = process_results(results, quiz)
+	data = process_results(results, quiz_details)
 	results = data["results"]
 	score = data["score"]
 	is_open_ended = data["is_open_ended"]
@@ -129,14 +142,14 @@ def quiz_summary(quiz, results):
 	}
 
 
-def process_results(results, quiz):
+def process_results(results, quiz_details):
 	score = 0
 	is_open_ended = False
 
 	for result in results:
 		question_details = frappe.db.get_value(
 			"LMS Quiz Question",
-			{"parent": quiz, "question": result["question_name"]},
+			{"parent": quiz_details.name, "question": result["question_name"]},
 			["question", "marks", "question_detail", "type"],
 			as_dict=1,
 		)
@@ -154,7 +167,11 @@ def process_results(results, quiz):
 			else:
 				result["is_correct"] = 0
 
-			marks = question_details.marks if correct else 0
+			if correct:
+				marks = question_details.marks
+			else:
+				marks = -quiz_details.marks_to_cut if quiz_details.enable_negative_marking else 0
+
 			result["marks"] = marks
 			score += marks
 

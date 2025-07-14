@@ -8,7 +8,7 @@ describe("Course Creation", () => {
 		cy.closeOnboardingModal();
 
 		// Create a course
-		cy.get("button").contains("New").click();
+		cy.get("button").contains("Create").click();
 		cy.wait(500);
 		cy.url().should("include", "/courses/new/edit");
 

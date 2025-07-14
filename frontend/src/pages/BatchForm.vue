@@ -4,9 +4,16 @@
 			class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 		>
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
-			<Button variant="solid" @click="saveBatch()">
-				{{ __('Save') }}
-			</Button>
+			<div class="flex items-center space-x-2">
+				<Button v-if="batchDetail.data?.name" @click="deleteBatch">
+					<template #icon>
+						<Trash2 class="size-4 stroke-1.5" />
+					</template>
+				</Button>
+				<Button variant="solid" @click="saveBatch()">
+					{{ __('Save') }}
+				</Button>
+			</div>
 		</header>
 		<div class="py-5">
 			<div class="px-20 pb-5 space-y-5 border-b mb-5">
@@ -209,7 +216,10 @@
 									v-slot="{ file, progress, uploading, openFileSelector }"
 								>
 									<div class="flex items-center">
-										<div class="border rounded-md w-fit py-5 px-20">
+										<div
+											class="border rounded-md w-fit py-5 px-20 cursor-pointer"
+											@click="openFileSelector"
+										>
 											<Image class="size-5 stroke-1 text-ink-gray-7" />
 										</div>
 										<div class="ml-4">
@@ -300,10 +310,11 @@
 <script setup>
 import {
 	computed,
-	onMounted,
+	getCurrentInstance,
 	inject,
-	reactive,
+	onMounted,
 	onBeforeUnmount,
+	reactive,
 	ref,
 } from 'vue'
 import {
@@ -315,21 +326,30 @@ import {
 	createResource,
 	usePageMeta,
 	toast,
+	call,
+	Toast,
 } from 'frappe-ui'
 import { useRouter } from 'vue-router'
-import { Image } from 'lucide-vue-next'
+import { Image, Trash2 } from 'lucide-vue-next'
 import { capture } from '@/telemetry'
 import { useOnboarding } from 'frappe-ui/frappe'
 import { sessionStore } from '../stores/session'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import Link from '@/components/Controls/Link.vue'
-import { openSettings, getMetaInfo, updateMetaInfo } from '@/utils'
+import {
+	openSettings,
+	getMetaInfo,
+	updateMetaInfo,
+	validateFile,
+} from '@/utils'
 
 const router = useRouter()
 const user = inject('$user')
 const { brand } = sessionStore()
 const { updateOnboardingStep } = useOnboarding('learning')
 const instructors = ref([])
+const app = getCurrentInstance()
+const { $dialog } = app.appContext.config.globalProperties
 
 const props = defineProps({
 	batchName: {
@@ -531,19 +551,44 @@ const editBatchDetails = () => {
 	)
 }
 
+const deleteBatch = () => {
+	$dialog({
+		title: __('Confirm your action to delete'),
+		message: __(
+			'Deleting this batch will also delete all its data including enrolled students, linked courses, assessments, feedback and discussions. Are you sure you want to continue?'
+		),
+		actions: [
+			{
+				label: __('Delete'),
+				theme: 'red',
+				variant: 'solid',
+				onClick({ close }) {
+					trashBatch(close)
+					close()
+				},
+			},
+		],
+	})
+}
+
+const trashBatch = (close) => {
+	call('lms.lms.api.delete_batch', {
+		batch: props.batchName,
+	}).then(() => {
+		toast.success(__('Batch deleted successfully'))
+		close()
+		router.push({
+			name: 'Batches',
+		})
+	})
+}
+
 const saveImage = (file) => {
 	batch.image = file
 }
 
 const removeImage = () => {
 	batch.image = null
-}
-
-const validateFile = (file) => {
-	let extension = file.name.split('.').pop().toLowerCase()
-	if (!['jpg', 'jpeg', 'png'].includes(extension)) {
-		return 'Only image file is allowed.'
-	}
 }
 
 const breadcrumbs = computed(() => {

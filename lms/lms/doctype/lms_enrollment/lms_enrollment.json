@@ -14,6 +14,7 @@
   "member",
   "member_name",
   "member_username",
+  "member_image",
   "certification_section",
   "purchased_certificate",
   "certificate",
@@ -143,13 +144,19 @@
    "fieldtype": "Link",
    "label": "Certificate",
    "options": "LMS Certificate"
+  },
+  {
+   "fetch_from": "member.user_image",
+   "fieldname": "member_image",
+   "fieldtype": "Attach Image",
+   "label": "Member Image"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-04-25 10:06:25.824119",
- "modified_by": "sayali@frappe.io",
+ "modified": "2025-07-02 21:27:30.733482",
+ "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Enrollment",
  "owner": "Administrator",

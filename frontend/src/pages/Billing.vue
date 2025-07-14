@@ -80,7 +80,7 @@
 							/>
 							<FormControl :label="__('City')" v-model="billingDetails.city" />
 							<FormControl
-								:label="__('State')"
+								:label="__('State/Province')"
 								v-model="billingDetails.state"
 							/>
 						</div>
@@ -303,6 +303,7 @@ const validateAddress = () => {
 		'Gujarat',
 		'Haryana',
 		'Himachal Pradesh',
+		'Jammu and Kashmir',
 		'Jharkhand',
 		'Karnataka',
 		'Kerala',

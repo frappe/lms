@@ -1,127 +1,140 @@
 <template>
-	<Combobox v-model="selectedValue" nullable v-slot="{ open: isComboboxOpen }">
-		<Popover class="w-full" v-model:show="showOptions">
-			<template #target="{ open: openPopover, togglePopover }">
-				<slot name="target" v-bind="{ open: openPopover, togglePopover }">
-					<div class="w-full">
-						<button
-							class="flex w-full items-center justify-between focus:outline-none"
-							:class="inputClasses"
-							@click="() => togglePopover()"
-						>
-							<div class="flex items-center">
-								<slot name="prefix" />
-								<span
-									class="overflow-hidden text-ellipsis whitespace-nowrap text-base leading-5"
-									v-if="selectedValue"
-								>
-									{{ displayValue(selectedValue) }}
-								</span>
-								<span class="text-base leading-5 text-ink-gray-4" v-else>
-									{{ placeholder || '' }}
-								</span>
-							</div>
-							<ChevronDown class="h-4 w-4 stroke-1.5" />
-						</button>
-					</div>
-				</slot>
-			</template>
-			<template #body="{ isOpen }">
-				<div v-show="isOpen">
-					<div class="mt-1 rounded-lg bg-surface-white py-1 text-base border-2">
-						<div class="relative px-1.5 pt-0.5">
-							<ComboboxInput
-								ref="search"
-								class="form-input w-full"
-								type="text"
-								@change="
-									(e) => {
-										query = e.target.value
-									}
-								"
-								:value="query"
-								autocomplete="off"
-								placeholder="Search"
-							/>
+	<div>
+		<div v-if="label" class="text-xs text-ink-gray-5 mb-1">
+			{{ __(label) }}
+			<span class="text-ink-red-3" v-if="attrs.required">*</span>
+		</div>
+		<Combobox
+			v-model="selectedValue"
+			nullable
+			v-slot="{ open: isComboboxOpen }"
+		>
+			<Popover class="w-full" v-model:show="showOptions">
+				<template #target="{ open: openPopover, togglePopover }">
+					<slot name="target" v-bind="{ open: openPopover, togglePopover }">
+						<div class="w-full">
 							<button
-								class="absolute right-1.5 inline-flex h-7 w-7 items-center justify-center"
-								@click="selectedValue = null"
+								class="flex w-full items-center justify-between focus:outline-none"
+								:class="inputClasses"
+								@click="() => togglePopover()"
+								:disabled="attrs.readonly"
 							>
-								<X class="h-4 w-4 stroke-1.5 text-ink-gray-7" />
+								<div class="flex items-center">
+									<slot name="prefix" />
+									<span
+										class="overflow-hidden text-ellipsis whitespace-nowrap text-base leading-5"
+										v-if="selectedValue"
+									>
+										{{ displayValue(selectedValue) }}
+									</span>
+									<span class="text-base leading-5 text-ink-gray-4" v-else>
+										{{ placeholder || '' }}
+									</span>
+								</div>
+								<ChevronDown class="h-4 w-4 stroke-1.5" />
 							</button>
 						</div>
-						<ComboboxOptions
-							class="my-1 max-h-[12rem] overflow-y-auto px-1.5"
-							static
+					</slot>
+				</template>
+				<template #body="{ isOpen }">
+					<div v-show="isOpen">
+						<div
+							class="mt-1 rounded-lg bg-surface-white py-1 text-base border-2"
 						>
-							<div
-								class="mt-1.5"
-								v-for="group in groups"
-								:key="group.key"
-								v-show="group.items.length > 0"
+							<div class="relative px-1.5 pt-0.5">
+								<ComboboxInput
+									ref="search"
+									class="form-input w-full"
+									type="text"
+									@change="
+										(e) => {
+											query = e.target.value
+										}
+									"
+									:value="query"
+									autocomplete="off"
+									placeholder="Search"
+								/>
+								<button
+									class="absolute right-1.5 inline-flex h-7 w-7 items-center justify-center"
+									@click="selectedValue = null"
+								>
+									<X class="h-4 w-4 stroke-1.5 text-ink-gray-7" />
+								</button>
+							</div>
+							<ComboboxOptions
+								class="my-1 max-h-[12rem] overflow-y-auto px-1.5"
+								static
 							>
 								<div
-									v-if="group.group && !group.hideLabel"
-									class="px-2.5 py-1.5 text-sm font-medium text-ink-gray-4"
+									class="mt-1.5"
+									v-for="group in groups"
+									:key="group.key"
+									v-show="group.items.length > 0"
 								>
-									{{ group.group }}
-								</div>
-								<ComboboxOption
-									as="template"
-									v-for="option in group.items"
-									:key="option.value"
-									:value="option"
-									v-slot="{ active, selected }"
-								>
-									<li
-										:class="[
-											'flex items-center rounded px-2.5 py-2 text-base',
-											{ 'bg-surface-gray-2': active },
-										]"
+									<div
+										v-if="group.group && !group.hideLabel"
+										class="px-2.5 py-1.5 text-sm font-medium text-ink-gray-4"
 									>
-										<slot
-											name="item-prefix"
-											v-bind="{ active, selected, option }"
-										/>
-										<slot
-											name="item-label"
-											v-bind="{ active, selected, option }"
+										{{ group.group }}
+									</div>
+									<ComboboxOption
+										as="template"
+										v-for="option in group.items"
+										:key="option.value"
+										:value="option"
+										v-slot="{ active, selected }"
+									>
+										<li
+											:class="[
+												'flex items-center rounded px-2.5 py-2 text-base',
+												{ 'bg-surface-gray-2': active },
+											]"
 										>
-											<div class="flex flex-col space-y-1 text-ink-gray-8">
-												<div>
-													{{ option.label }}
+											<slot
+												name="item-prefix"
+												v-bind="{ active, selected, option }"
+											/>
+											<slot
+												name="item-label"
+												v-bind="{ active, selected, option }"
+											>
+												<div class="flex flex-col space-y-1 text-ink-gray-8">
+													<div>
+														{{ option.label }}
+													</div>
+													<div
+														v-if="
+															option.description &&
+															option.description != option.label
+														"
+														class="text-xs text-ink-gray-7"
+														v-html="option.description"
+													></div>
 												</div>
-												<div
-													v-if="
-														option.description &&
-														option.description != option.label
-													"
-													class="text-xs text-ink-gray-7"
-													v-html="option.description"
-												></div>
-											</div>
-										</slot>
-									</li>
-								</ComboboxOption>
+											</slot>
+										</li>
+									</ComboboxOption>
+								</div>
+								<li
+									v-if="groups.length == 0"
+									class="mt-1.5 rounded-md px-2.5 py-1.5 text-base text-ink-gray-5"
+								>
+									No results found
+								</li>
+							</ComboboxOptions>
+							<div v-if="slots.footer" class="border-t p-1.5 pb-0.5">
+								<slot
+									name="footer"
+									v-bind="{ value: search?.el._value, close }"
+								></slot>
 							</div>
-							<li
-								v-if="groups.length == 0"
-								class="mt-1.5 rounded-md px-2.5 py-1.5 text-base text-ink-gray-5"
-							>
-								No results found
-							</li>
-						</ComboboxOptions>
-						<div v-if="slots.footer" class="border-t p-1.5 pb-0.5">
-							<slot
-								name="footer"
-								v-bind="{ value: search?.el._value, close }"
-							></slot>
 						</div>
 					</div>
-				</div>
-			</template>
-		</Popover>
-	</Combobox>
+				</template>
+			</Popover>
+		</Combobox>
+	</div>
 </template>
 
 <script setup>
@@ -147,6 +160,10 @@ const props = defineProps({
 	size: {
 		type: String,
 		default: 'md',
+	},
+	label: {
+		type: String,
+		default: '',
 	},
 	variant: {
 		type: String,

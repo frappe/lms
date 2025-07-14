@@ -553,6 +553,7 @@ def get_sidebar_settings():
 		"jobs",
 		"statistics",
 		"notifications",
+		"programming_exercises",
 	]
 	for item in items:
 		sidebar_items[item] = lms_settings.get(item)
@@ -675,6 +676,27 @@ def update_index(lessons, chapter):
 		)
 
 
+@frappe.whitelist()
+def update_chapter_index(chapter, course, idx):
+	"""Update the index of a chapter within a course"""
+	chapters = frappe.get_all(
+		"Chapter Reference",
+		{"parent": course},
+		pluck="chapter",
+		order_by="idx",
+	)
+
+	if chapter in chapters:
+		chapters.remove(chapter)
+
+	chapters.insert(idx, chapter)
+
+	for i, chapter_name in enumerate(chapters):
+		frappe.db.set_value(
+			"Chapter Reference", {"chapter": chapter_name, "parent": course}, "idx", i + 1
+		)
+
+
 @frappe.whitelist(allow_guest=True)
 def get_categories(doctype, filters):
 	categoryOptions = []
@@ -695,15 +717,6 @@ def get_categories(doctype, filters):
 
 @frappe.whitelist()
 def get_members(start=0, search=""):
-	"""Get members for the given search term and start index.
-	                                                                Args: start (int): Start index for the query.
-	<<<<<<< HEAD
-	                                                                search (str): Search term to filter the results.
-	=======
-	                                                                                                                                                                                                                                                                                                                                search (str): Search term to filter the results.
-	>>>>>>> 4869bba7bbb2fb38477d6fc29fb3b5838e075577
-	                                                                Returns: List of members.
-	"""
 
 	filters = {"enabled": 1, "name": ["not in", ["Administrator", "Guest"]]}
 	or_filters = {}
@@ -722,7 +735,14 @@ def get_members(start=0, search=""):
 	)
 
 	for member in members:
-		roles = frappe.get_roles(member.name)
+		roles = frappe.get_all(
+			"Has Role",
+			{
+				"parent": member.name,
+				"parenttype": "User",
+			},
+			pluck="role",
+		)
 		if "Moderator" in roles:
 			member.role = "Moderator"
 		elif "Course Creator" in roles:
@@ -991,7 +1011,30 @@ def delete_course(course):
 	frappe.delete_doc("LMS Course", course)
 
 
-def give_dicussions_permission():
+@frappe.whitelist()
+def delete_batch(batch):
+	frappe.db.delete("LMS Batch Enrollment", {"batch": batch})
+	frappe.db.delete("Batch Course", {"parent": batch, "parenttype": "LMS Batch"})
+	frappe.db.delete("LMS Assessment", {"parent": batch, "parenttype": "LMS Batch"})
+	frappe.db.delete("LMS Batch Timetable", {"parent": batch, "parenttype": "LMS Batch"})
+	frappe.db.delete("LMS Batch Feedback", {"batch": batch})
+	delete_batch_discussions(batch)
+	frappe.db.delete("LMS Batch", batch)
+
+
+def delete_batch_discussions(batch):
+	topics = frappe.get_all(
+		"Discussion Topic",
+		{"reference_doctype": "LMS Batch", "reference_docname": batch},
+		pluck="name",
+	)
+
+	for topic in topics:
+		frappe.db.delete("Discussion Reply", {"topic": topic})
+		frappe.db.delete("Discussion Topic", topic)
+
+
+def give_discussions_permission():
 	doctypes = ["Discussion Topic", "Discussion Reply"]
 	roles = ["LMS Student", "Course Creator", "Moderator", "Batch Evaluator"]
 	for doctype in doctypes:
@@ -1304,13 +1347,8 @@ def get_notifications(filters):
 
 
 @frappe.whitelist(allow_guest=True)
-def is_guest_allowed():
-	return frappe.get_cached_value("LMS Settings", None, "allow_guest_access")
-
-
-@frappe.whitelist(allow_guest=True)
-def is_learning_path_enabled():
-	return frappe.get_cached_value("LMS Settings", None, "enable_learning_paths")
+def get_lms_setting(field):
+	return frappe.get_cached_value("LMS Settings", None, field)
 
 
 @frappe.whitelist()
@@ -1398,6 +1436,7 @@ def save_role(user, role, value):
 
 @frappe.whitelist()
 def add_an_evaluator(email):
+	frappe.only_for("Moderator")
 	if not frappe.db.exists("User", email):
 		user = frappe.new_doc("User")
 		user.update(
@@ -1415,6 +1454,16 @@ def add_an_evaluator(email):
 	evaluator.insert()
 
 	return evaluator
+
+
+@frappe.whitelist()
+def delete_evaluator(evaluator):
+	frappe.only_for("Moderator")
+	if not frappe.db.exists("Course Evaluator", evaluator):
+		frappe.throw(_("Evaluator does not exist."))
+
+	frappe.db.delete("Has Role", {"parent": evaluator, "role": "Batch Evaluator"})
+	frappe.db.delete("Course Evaluator", evaluator)
 
 
 @frappe.whitelist()
@@ -1493,3 +1542,159 @@ def update_meta_info(type, route, meta_tags):
 				print(new_tag)
 				new_tag.insert()
 				print(new_tag.as_dict())
+
+
+@frappe.whitelist()
+def create_programming_exercise_submission(exercise, submission, code, test_cases):
+	if submission == "new":
+		return make_new_exercise_submission(exercise, code, test_cases)
+	else:
+		update_exercise_submission(submission, code, test_cases)
+
+
+def make_new_exercise_submission(exercise, code, test_cases):
+	submission = frappe.new_doc("LMS Programming Exercise Submission")
+	submission.exercise = exercise
+	submission.member = frappe.session.user
+	submission.code = code
+
+	for test_case in test_cases:
+		submission.append(
+			"test_cases",
+			{
+				"input": test_case.get("input"),
+				"output": test_case.get("output"),
+				"expected_output": test_case.get("expected_output"),
+				"status": test_case.get("status", test_case.get("status", "Failed")),
+			},
+		)
+
+	submission.status = get_exercise_status(test_cases)
+	submission.insert()
+	return submission.name
+
+
+def update_exercise_submission(submission, code, test_cases):
+	update_test_cases(test_cases, submission)
+	status = get_exercise_status(test_cases)
+	frappe.db.set_value(
+		"LMS Programming Exercise Submission", submission, {"status": status, "code": code}
+	)
+
+
+def get_exercise_status(test_cases):
+	if not test_cases:
+		return "Failed"
+
+	if all(row.get("status", "Failed") == "Passed" for row in test_cases):
+		return "Passed"
+	else:
+		return "Failed"
+
+
+def update_test_cases(test_cases, submission):
+	frappe.db.delete("LMS Test Case Submission", {"parent": submission})
+	for row in test_cases:
+		test_case = frappe.new_doc("LMS Test Case Submission")
+		test_case.update(
+			{
+				"parent": submission,
+				"parenttype": "LMS Programming Exercise Submission",
+				"parentfield": "test_cases",
+				"input": row.get("input"),
+				"output": row.get("output"),
+				"expected_output": row.get("expected_output"),
+				"status": row.get("status", "Failed"),
+			}
+		)
+		test_case.insert()
+
+
+@frappe.whitelist()
+def track_video_watch_duration(lesson, videos):
+	"""
+	Track the watch duration of videos in a lesson.
+	"""
+	if not isinstance(videos, list):
+		videos = json.loads(videos)
+
+	for video in videos:
+		filters = {
+			"lesson": lesson,
+			"source": video.get("source"),
+			"member": frappe.session.user,
+		}
+		existing_record = frappe.db.get_value(
+			"LMS Video Watch Duration", filters, ["name", "watch_time"], as_dict=True
+		)
+		if existing_record and flt(existing_record.watch_time) < flt(video.get("watch_time")):
+			frappe.db.set_value(
+				"LMS Video Watch Duration",
+				filters,
+				"watch_time",
+				video.get("watch_time"),
+			)
+		elif not existing_record:
+			track_new_watch_time(lesson, video)
+
+
+def track_new_watch_time(lesson, video):
+	doc = frappe.new_doc("LMS Video Watch Duration")
+	doc.lesson = lesson
+	doc.source = video.get("source")
+	doc.watch_time = video.get("watch_time")
+	doc.member = frappe.session.user
+	doc.save()
+
+
+@frappe.whitelist()
+def get_course_progress_distribution(course):
+	all_progress = frappe.get_all(
+		"LMS Enrollment",
+		{
+			"course": course,
+		},
+		pluck="progress",
+	)
+
+	average_progress = get_average_course_progress(all_progress)
+	progress_distribution = get_progress_distribution(all_progress)
+
+	return {
+		"average_progress": average_progress,
+		"progress_distribution": progress_distribution,
+	}
+
+
+def get_average_course_progress(progress_list):
+	if not progress_list:
+		return 0
+	average_progress = sum(progress_list) / len(progress_list)
+	return flt(average_progress, frappe.get_system_settings("float_precision") or 3)
+
+
+def get_progress_distribution(progressList):
+	distribution = [
+		{
+			"category": "0-20%",
+			"count": len([p for p in progressList if 0 <= p < 20]),
+		},
+		{
+			"category": "20-40%",
+			"count": len([p for p in progressList if 20 <= p < 40]),
+		},
+		{
+			"category": "40-60%",
+			"count": len([p for p in progressList if 40 <= p < 60]),
+		},
+		{
+			"category": "60-80%",
+			"count": len([p for p in progressList if 60 <= p < 80]),
+		},
+		{
+			"category": "80-100%",
+			"count": len([p for p in progressList if 80 <= p <= 100]),
+		},
+	]
+
+	return distribution

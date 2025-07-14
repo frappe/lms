@@ -225,7 +225,7 @@ import {
 	IntermediateStepModal,
 } from 'frappe-ui/frappe'
 
-const { user, sidebarSettings } = sessionStore()
+const { user } = sessionStore()
 const { userResource } = usersStore()
 let sidebarStore = useSidebar()
 const socket = inject('$socket')
@@ -236,6 +236,7 @@ const isModerator = ref(false)
 const isInstructor = ref(false)
 const pageToEdit = ref(null)
 const settingsStore = useSettings()
+const { sidebarSettings } = settingsStore
 const showOnboarding = ref(false)
 const showIntermediateModal = ref(false)
 const currentStep = ref({})
@@ -313,7 +314,7 @@ const addNotifications = () => {
 
 const addQuizzes = () => {
 	if (isInstructor.value || isModerator.value) {
-		sidebarLinks.value.push({
+		sidebarLinks.value.splice(4, 0, {
 			label: 'Quizzes',
 			icon: 'CircleHelp',
 			to: 'Quizzes',
@@ -329,7 +330,7 @@ const addQuizzes = () => {
 
 const addAssignments = () => {
 	if (isInstructor.value || isModerator.value) {
-		sidebarLinks.value.push({
+		sidebarLinks.value.splice(5, 0, {
 			label: 'Assignments',
 			icon: 'Pencil',
 			to: 'Assignments',

@@ -537,11 +537,10 @@ def has_course_evaluator_role(member=None):
 
 
 def has_student_role(member=None):
-	roles = frappe.get_roles(member or frappe.session.user)
-	return (
-		"Moderator" not in roles
-		and "Course Creator" not in roles
-		and "Batch Evaluator" not in roles
+	return frappe.db.get_value(
+		"Has Role",
+		{"parent": member or frappe.session.user, "role": "LMS Student"},
+		"name",
 	)
 
 
@@ -978,7 +977,7 @@ def change_currency(amount, currency, country=None):
 
 
 @frappe.whitelist(allow_guest=True)
-def get_courses(filters=None, start=0, page_length=20):
+def get_courses(filters=None, start=0):
 	"""Returns the list of courses."""
 
 	if not filters:
@@ -994,8 +993,9 @@ def get_courses(filters=None, start=0, page_length=20):
 		or_filters=or_filters,
 		order_by="enrollments desc",
 		start=start,
-		page_length=page_length,
+		page_length=30,
 	)
+
 	if show_featured:
 		courses = get_featured_courses(filters, or_filters, fields) + courses
 
@@ -1320,11 +1320,21 @@ def get_lesson(course, chapter, lesson):
 	lesson_details.progress = progress
 	lesson_details.prev = neighbours["prev"]
 	lesson_details.membership = membership
+	lesson_details.icon = get_lesson_icon(lesson_details.body, lesson_details.content)
 	lesson_details.instructors = get_instructors("LMS Course", course)
 	lesson_details.course_title = course_info.title
 	lesson_details.paid_certificate = course_info.paid_certificate
 	lesson_details.disable_self_learning = course_info.disable_self_learning
+	lesson_details.videos = get_video_details(lesson_name)
 	return lesson_details
+
+
+def get_video_details(lesson_name):
+	return frappe.get_all(
+		"LMS Video Watch Duration",
+		{"lesson": lesson_name, "member": frappe.session.user},
+		["source", "watch_time"],
+	)
 
 
 def get_neighbour_lesson(course, chapter, lesson):
@@ -1504,6 +1514,9 @@ def get_assessments(batch, member=None):
 		elif assessment.assessment_type == "LMS Quiz":
 			assessment = get_quiz_details(assessment, member)
 
+		elif assessment.assessment_type == "LMS Programming Exercise":
+			assessment = get_exercise_details(assessment, member)
+
 	return assessments
 
 
@@ -1574,6 +1587,31 @@ def get_quiz_details(assessment, member):
 	assessment.url = f"/quiz-submission/{assessment.assessment_name}/{submission_name}"
 
 	return assessment
+
+
+def get_exercise_details(assessment, member):
+	assessment.title = frappe.db.get_value(
+		"LMS Programming Exercise", assessment.assessment_name, "title"
+	)
+	filters = {"member": member, "exercise": assessment.assessment_name}
+
+	if frappe.db.exists("LMS Programming Exercise Submission", filters):
+		assessment.submission = frappe.db.get_value(
+			"LMS Programming Exercise Submission",
+			filters,
+			["name", "status"],
+			as_dict=True,
+		)
+		assessment.completed = True
+		assessment.status = assessment.submission.status
+		assessment.edit_url = (
+			f"/exercises/{assessment.assessment_name}/submission/{assessment.submission.name}"
+		)
+	else:
+		assessment.status = "Not Attempted"
+		assessment.color = "red"
+		assessment.completed = False
+		assessment.edit_url = f"/exercises/{assessment.assessment_name}/submission/new"
 
 
 @frappe.whitelist()
@@ -2058,7 +2096,7 @@ def enroll_in_program_course(program, course):
 
 
 @frappe.whitelist(allow_guest=True)
-def get_batches(filters=None, start=0, page_length=20, order_by="start_date"):
+def get_batches(filters=None, start=0, order_by="start_date"):
 	if not filters:
 		filters = {}
 
@@ -2091,7 +2129,7 @@ def get_batches(filters=None, start=0, page_length=20, order_by="start_date"):
 		],
 		order_by=order_by,
 		start=start,
-		page_length=page_length,
+		page_length=20,
 	)
 
 	batches = filter_batches_based_on_start_time(batches, filters)

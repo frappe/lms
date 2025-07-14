@@ -1,11 +1,11 @@
 import frappe
 from frappe.desk.page.setup_wizard.setup_wizard import add_all_roles_to
-from lms.lms.api import give_dicussions_permission
+from lms.lms.api import give_discussions_permission
 
 
 def after_install():
 	create_batch_source()
-	give_dicussions_permission()
+	give_discussions_permission()
 
 
 def after_sync():

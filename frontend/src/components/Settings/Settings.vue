@@ -34,32 +34,16 @@
 					:key="activeTab.label"
 					class="flex flex-1 flex-col px-10 py-8 bg-surface-modal"
 				>
-					<Members
-						v-if="activeTab.label === 'Members'"
-						:label="activeTab.label"
-						:description="activeTab.description"
-						v-model:show="show"
-					/>
-					<Evaluators
-						v-else-if="activeTab.label === 'Evaluators'"
-						:label="activeTab.label"
-						:description="activeTab.description"
-						v-model:show="show"
-					/>
-					<Categories
-						v-else-if="activeTab.label === 'Categories'"
-						:label="activeTab.label"
-						:description="activeTab.description"
-					/>
-					<EmailTemplates
-						v-else-if="activeTab.label === 'Email Templates'"
-						:label="activeTab.label"
-						:description="activeTab.description"
-					/>
-					<ZoomSettings
-						v-else-if="activeTab.label === 'Zoom Accounts'"
-						:label="activeTab.label"
-						:description="activeTab.description"
+					<component
+						v-if="activeTab.template"
+						:is="activeTab.template"
+						v-bind="{
+							label: activeTab.label,
+							description: activeTab.description,
+							...(activeTab.label === 'Branding'
+								? { fields: activeTab.fields }
+								: {}),
+						}"
 					/>
 					<PaymentSettings
 						v-else-if="activeTab.label === 'Payment Gateway'"
@@ -67,13 +51,6 @@
 						:description="activeTab.description"
 						:data="data"
 						:fields="activeTab.fields"
-					/>
-					<BrandSettings
-						v-else-if="activeTab.label === 'Branding'"
-						:label="activeTab.label"
-						:description="activeTab.description"
-						:fields="activeTab.fields"
-						:data="branding"
 					/>
 					<SettingDetails
 						v-else
@@ -88,8 +65,8 @@
 	</Dialog>
 </template>
 <script setup>
-import { Dialog, createDocumentResource, createResource } from 'frappe-ui'
-import { ref, computed, watch } from 'vue'
+import { Dialog, createDocumentResource } from 'frappe-ui'
+import { computed, markRaw, ref, watch } from 'vue'
 import { useSettings } from '@/stores/settings'
 import SettingDetails from '@/components/Settings/SettingDetails.vue'
 import SidebarLink from '@/components/SidebarLink.vue'
@@ -100,6 +77,7 @@ import EmailTemplates from '@/components/Settings/EmailTemplates.vue'
 import BrandSettings from '@/components/Settings/BrandSettings.vue'
 import PaymentSettings from '@/components/Settings/PaymentSettings.vue'
 import ZoomSettings from '@/components/Settings/ZoomSettings.vue'
+import Badges from '@/components/Settings/Badges.vue'
 
 const show = defineModel()
 const doctype = ref('LMS Settings')
@@ -114,12 +92,6 @@ const data = createDocumentResource({
 	auto: true,
 })
 
-const branding = createResource({
-	url: 'lms.lms.api.get_branding',
-	auto: true,
-	cache: 'brand',
-})
-
 const tabsStructure = computed(() => {
 	return [
 		{
@@ -131,6 +103,13 @@ const tabsStructure = computed(() => {
 					icon: 'Wrench',
 					fields: [
 						{
+							label: 'Allow Guest Access',
+							name: 'allow_guest_access',
+							description:
+								'If enabled, users can access the course and batch lists without logging in.',
+							type: 'checkbox',
+						},
+						{
 							label: 'Enable Learning Paths',
 							name: 'enable_learning_paths',
 							description:
@@ -138,11 +117,11 @@ const tabsStructure = computed(() => {
 							type: 'checkbox',
 						},
 						{
-							label: 'Allow Guest Access',
-							name: 'allow_guest_access',
-							description:
-								'If enabled, users can access the course and batch lists without logging in.',
+							label: 'Prevent Skipping Videos',
+							name: 'prevent_skipping_videos',
 							type: 'checkbox',
+							description:
+								'If enabled, users will no able to move forward in a video',
 						},
 						{
 							label: 'Send calendar invite for evaluations',
@@ -153,6 +132,14 @@ const tabsStructure = computed(() => {
 						},
 						{
 							type: 'Column Break',
+						},
+						{
+							label: 'Livecode URL',
+							name: 'livecode_url',
+							doctype: 'Livecode URL',
+							type: 'text',
+							description:
+								'https://docs.frappe.io/learning/falcon-self-hosting-guide',
 						},
 						{
 							label: 'Batch Confirmation Email Template',
@@ -227,38 +214,55 @@ const tabsStructure = computed(() => {
 			items: [
 				{
 					label: 'Members',
-					description: 'Manage the members of your learning system',
+					description:
+						'Add new members or manage roles and permissions of existing members',
 					icon: 'UserRoundPlus',
+					template: markRaw(Members),
 				},
 				{
 					label: 'Evaluators',
-					description: 'Manage the evaluators of your learning system',
+					description: '',
 					icon: 'UserCheck',
+					description:
+						'Add new evaluators or check the slots existing evaluators',
+					template: markRaw(Evaluators),
+				},
+				{
+					label: 'Zoom Accounts',
+					description:
+						'Manage zoom accounts to conduct live classes from batches',
+					icon: 'Video',
+					template: markRaw(ZoomSettings),
+				},
+				{
+					label: 'Badges',
+					description:
+						'Create badges and assign them to students to acknowledge their achievements',
+					icon: 'Award',
+					template: markRaw(Badges),
 				},
 				{
 					label: 'Categories',
 					description: 'Double click to edit the category',
 					icon: 'Network',
+					template: markRaw(Categories),
 				},
 				{
 					label: 'Email Templates',
 					description: 'Manage the email templates for your learning system',
 					icon: 'MailPlus',
-				},
-				{
-					label: 'Zoom Accounts',
-					description: 'Manage the Zoom accounts for your learning system',
-					icon: 'Video',
+					template: markRaw(EmailTemplates),
 				},
 			],
 		},
 		{
-			label: 'Customise',
+			label: 'Customize',
 			hideLabel: false,
 			items: [
 				{
 					label: 'Branding',
 					icon: 'Blocks',
+					template: markRaw(BrandSettings),
 					fields: [
 						{
 							label: 'Brand Name',
@@ -290,6 +294,11 @@ const tabsStructure = computed(() => {
 						{
 							label: 'Batches',
 							name: 'batches',
+							type: 'checkbox',
+						},
+						{
+							label: 'Programming Exercises',
+							name: 'programming_exercises',
 							type: 'checkbox',
 						},
 						{

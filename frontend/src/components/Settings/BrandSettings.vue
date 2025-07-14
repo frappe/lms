@@ -17,7 +17,7 @@
 			</div>
 		</div>
 		<div class="overflow-y-auto">
-			<SettingFields :fields="fields" :data="data.data" />
+			<SettingFields :fields="fields" :data="branding.data" />
 		</div>
 		<div class="flex flex-row-reverse mt-auto">
 			<Button variant="solid" :loading="saveSettings.loading" @click="update">
@@ -38,10 +38,6 @@ const props = defineProps({
 		type: Array,
 		required: true,
 	},
-	data: {
-		type: Object,
-		required: true,
-	},
 	label: {
 		type: String,
 		required: true,
@@ -49,6 +45,12 @@ const props = defineProps({
 	description: {
 		type: String,
 	},
+})
+
+const branding = createResource({
+	url: 'lms.lms.api.get_branding',
+	auto: true,
+	cache: 'brand',
 })
 
 const saveSettings = createResource({
@@ -64,7 +66,7 @@ const saveSettings = createResource({
 
 const update = () => {
 	let fieldsToSave = {}
-	let imageFields = ['favicon', 'banner_image', 'footer_logo']
+	let imageFields = ['favicon', 'banner_image']
 	props.fields.forEach((f) => {
 		if (imageFields.includes(f.name)) {
 			fieldsToSave[f.name] = f.value ? f.value.file_url : null
@@ -72,6 +74,8 @@ const update = () => {
 			fieldsToSave[f.name] = f.value
 		}
 	})
+
+	fieldsToSave['app_logo'] = fieldsToSave['banner_image']
 	saveSettings.submit(
 		{
 			fields: fieldsToSave,
@@ -84,9 +88,31 @@ const update = () => {
 	)
 }
 
-watch(props.data, (newData) => {
-	if (newData && !isDirty.value) {
-		isDirty.value = true
-	}
+watch(branding, (updatedDoc) => {
+	let textFields = []
+	let imageFields = []
+
+	props.fields.forEach((f) => {
+		if (f.type === 'Upload') {
+			imageFields.push(f.name)
+		} else {
+			textFields.push(f.name)
+		}
+	})
+
+	textFields.forEach((field) => {
+		if (updatedDoc.data[field] != updatedDoc.previousData[field]) {
+			isDirty.value = true
+		}
+	})
+
+	imageFields.forEach((field) => {
+		if (
+			updatedDoc.data[field] &&
+			updatedDoc.data[field].file_url != updatedDoc.previousData[field].file_url
+		) {
+			isDirty.value = true
+		}
+	})
 })
 </script>

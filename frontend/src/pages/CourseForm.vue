@@ -50,22 +50,28 @@
 								<div class="mb-1.5 text-xs text-ink-gray-5">
 									{{ __('Tags') }}
 								</div>
-								<div class="flex items-center">
-									<div
-										v-if="course.tags"
-										v-for="tag in course.tags?.split(', ')"
-										class="flex items-center bg-surface-gray-2 text-ink-gray-7 p-2 rounded-md mr-2"
-									>
-										{{ tag }}
-										<X
-											class="stroke-1.5 w-3 h-3 ml-2 cursor-pointer"
-											@click="removeTag(tag)"
-										/>
+								<div>
+									<div class="flex items-center flex-wrap gap-2">
+										<div
+											v-if="course.tags"
+											v-for="tag in course.tags?.split(', ')"
+											class="flex items-center bg-surface-gray-2 text-ink-gray-7 p-2 rounded-md"
+										>
+											{{ tag }}
+											<X
+												class="stroke-1.5 w-3 h-3 ml-2 cursor-pointer"
+												@click="removeTag(tag)"
+											/>
+										</div>
 									</div>
 									<FormControl
 										v-model="newTag"
 										:placeholder="__('Add a keyword and then press enter')"
-										class="w-full"
+										:class="[
+											'w-full',
+											'flex-1',
+											{ 'mt-2': course.tags?.length },
+										]"
 										@keyup.enter="updateTags()"
 										id="tags"
 									/>
@@ -100,7 +106,10 @@
 										v-slot="{ file, progress, uploading, openFileSelector }"
 									>
 										<div class="flex items-center">
-											<div class="border rounded-md w-fit py-5 px-20">
+											<div
+												class="border rounded-md w-fit py-5 px-20 cursor-pointer"
+												@click="openFileSelector"
+											>
 												<Image class="size-5 stroke-1 text-ink-gray-7" />
 											</div>
 											<div class="ml-4">
@@ -324,7 +333,12 @@ import { useRouter } from 'vue-router'
 import { capture, startRecording, stopRecording } from '@/telemetry'
 import { useOnboarding } from 'frappe-ui/frappe'
 import { sessionStore } from '../stores/session'
-import { openSettings, getMetaInfo, updateMetaInfo } from '@/utils'
+import {
+	openSettings,
+	getMetaInfo,
+	updateMetaInfo,
+	validateFile,
+} from '@/utils'
 import Link from '@/components/Controls/Link.vue'
 import CourseOutline from '@/components/CourseOutline.vue'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
@@ -590,13 +604,6 @@ watch(
 		}
 	}
 )
-
-const validateFile = (file) => {
-	let extension = file.name.split('.').pop().toLowerCase()
-	if (!['jpg', 'jpeg', 'png', 'webp'].includes(extension)) {
-		return __('Only image file is allowed.')
-	}
-}
 
 const updateTags = () => {
 	if (newTag.value) {
