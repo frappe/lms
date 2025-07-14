@@ -78,6 +78,7 @@
 							:title="__('Course Outline')"
 							:courseName="course.data.name"
 							:showOutline="true"
+							:getProgress="course.data.membership ? true : false"
 						/>
 					</div>
 					<CourseReviews

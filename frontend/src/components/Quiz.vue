@@ -648,6 +648,8 @@ const getInstructions = (question) => {
 
 const markLessonProgress = () => {
 	let pathname = window.location.pathname.split('/')
+	if (!pathname.includes('courses'))
+		pathname = window.parent.location.pathname.split('/')
 	if (pathname[2] != 'courses') return
 	let lessonIndex = pathname.pop().split('-')
 

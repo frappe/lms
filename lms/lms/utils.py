@@ -993,6 +993,7 @@ def get_courses(filters=None, start=0):
 		or_filters=or_filters,
 		order_by="enrollments desc",
 		start=start,
+		page_length=30,
 	)
 
 	if show_featured:
@@ -2128,6 +2129,7 @@ def get_batches(filters=None, start=0, order_by="start_date"):
 		],
 		order_by=order_by,
 		start=start,
+		page_length=20,
 	)
 
 	batches = filter_batches_based_on_start_time(batches, filters)
