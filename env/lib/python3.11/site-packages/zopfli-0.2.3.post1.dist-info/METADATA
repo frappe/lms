@@ -1,0 +1,87 @@
+Metadata-Version: 2.1
+Name: zopfli
+Version: 0.2.3.post1
+Summary: Zopfli module for python
+Home-page: https://github.com/fonttools/py-zopfli
+Author: Adam DePrince
+Author-email: deprince@googlealumni.com
+Maintainer: Cosimo Lupo
+Maintainer-email: cosimo@anthrotype.com
+License: ASL
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Topic :: System :: Archiving :: Compression
+Requires-Python: >=3.8
+License-File: COPYING
+Provides-Extra: test
+Requires-Dist: pytest ; extra == 'test'
+
+|Build Status|
+
+PYZOPFLI
+========
+
+cPython bindings for
+`zopfli <http://googledevelopers.blogspot.com/2013/02/compress-data-more-densely-with-zopfli.html>`__.
+
+It requires Python 3.8 or greater.
+
+USAGE
+=====
+
+pyzopfli is a straight forward wrapper around zopfli's ZlibCompress method.
+
+::
+
+    from zopfli.zlib import compress
+    from zlib import decompress
+    s = 'Hello World'
+    print decompress(compress(s))
+
+pyzopfli also wraps GzipCompress, but the API point does not try to
+mimic the gzip module.
+
+::
+
+    from zopfli.gzip import compress 
+    from StringIO import StringIO
+    from gzip import GzipFile
+    print GzipFile(fileobj=StringIO(compress("Hello World!"))).read()
+
+Both zopfli.zlib.compress and zopfli.gzip.compress support the following
+keyword arguments. All values should be integers; boolean parmaters are
+treated as expected, 0 and >0 as false and true.
+
+-  *verbose* dumps zopfli debugging data to stderr
+
+-  *numiterations* Maximum amount of times to rerun forward and backward
+   pass to optimize LZ77 compression cost. Good values: 10, 15 for small
+   files, 5 for files over several MB in size or it will be too slow.
+
+-  *blocksplitting* If true, splits the data in multiple deflate blocks
+   with optimal choice for the block boundaries. Block splitting gives
+   better compression. Default: true (1).
+
+-  *blocksplittinglast* If true, chooses the optimal block split points
+   only after doing the iterative LZ77 compression. If false, chooses
+   the block split points first, then does iterative LZ77 on each
+   individual block. Depending on the file, either first or last gives
+   the best compression. Default: false (0).
+
+-  *blocksplittingmax* Maximum amount of blocks to split into (0 for
+   unlimited, but this can give extreme results that hurt compression on
+   some files). Default value: 15.
+
+TODO
+====
+
+-  Stop reading the entire file into memory and support streaming
+
+-  Monkey patch zlib and gzip so code with an overly tight binding can
+   be easily modified to use zopfli.
+
+.. |Build Status| image:: https://github.com/fonttools/py-zopfli/actions/workflows/ci.yml/badge.svg?branch=master
+   :target: https://github.com/fonttools/py-zopfli/actions/workflows/ci.yml

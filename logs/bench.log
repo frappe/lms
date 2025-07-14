@@ -1,0 +1,364 @@
+2025-06-16 19:38:48,139 DEBUG cd frappe-lms && python3 -m venv env
+2025-06-16 19:38:49,420 DEBUG cd frappe-lms && /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/bin/python -m pip install --quiet --upgrade pip
+2025-06-16 19:38:49,732 DEBUG cd frappe-lms && /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/bin/python -m pip install --quiet wheel
+2025-06-16 19:38:50,322 LOG Getting frappe
+2025-06-16 19:38:50,322 DEBUG cd frappe-lms/apps && git clone https://github.com/frappe/frappe.git  --depth 1 --origin upstream
+2025-06-16 19:38:52,769 LOG Installing frappe
+2025-06-16 19:38:52,793 DEBUG cd /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms && /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/bin/python -m pip install --quiet --upgrade -e /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe 
+2025-06-16 19:39:34,822 DEBUG cd /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe && yarn install --check-files
+2025-06-16 19:39:46,241 DEBUG cd frappe-lms && bench build
+2025-06-16 19:39:46,362 INFO /opt/homebrew/bin/bench build
+2025-06-16 19:39:56,277 LOG setting up backups
+2025-06-16 19:40:03,246 LOG backups were set up
+2025-06-16 19:40:03,246 INFO Bench frappe-lms initialized
+2025-06-16 19:40:32,237 INFO /opt/homebrew/bin/bench start
+2025-06-16 19:40:32,481 INFO /opt/homebrew/bin/bench serve --port 8000
+2025-06-16 19:40:32,484 INFO /opt/homebrew/bin/bench schedule
+2025-06-16 19:40:32,486 INFO /opt/homebrew/bin/bench watch
+2025-06-16 19:40:32,495 INFO /opt/homebrew/bin/bench worker
+2025-06-16 19:41:26,914 INFO /opt/homebrew/bin/bench new-site learning.test
+2025-06-16 19:43:18,701 INFO /opt/homebrew/bin/bench new-site learning.test
+2025-06-16 19:43:43,914 INFO /opt/homebrew/bin/bench new-site learning.test
+2025-06-16 19:46:40,990 INFO /opt/homebrew/bin/bench new-site learning.test
+2025-06-16 19:48:40,057 INFO /opt/homebrew/bin/bench new-site learning.test
+2025-06-16 19:49:38,848 INFO /opt/homebrew/bin/bench --site learning.test add-to-hosts
+2025-06-16 19:49:59,074 INFO /opt/homebrew/bin/bench get-app https://github.com/frappe/lms
+2025-06-16 19:49:59,085 LOG Getting lms
+2025-06-16 19:49:59,085 DEBUG cd ./apps && git clone https://github.com/frappe/lms  --depth 1 --origin upstream
+2025-06-16 19:50:01,040 LOG Installing lms
+2025-06-16 19:50:01,040 DEBUG cd /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms && /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/bin/python -m pip install --quiet --upgrade -e /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/lms 
+2025-06-16 19:50:04,025 WARNING cd /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms && /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/bin/python -m pip install --quiet --upgrade -e /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/lms  executed with exit code 1
+2025-06-16 19:50:04,025 WARNING /opt/homebrew/bin/bench get-app https://github.com/frappe/lms executed with exit code 1
+2025-06-16 19:53:25,240 INFO /opt/homebrew/bin/bench --site learning.test add-to-hosts
+2025-06-16 19:53:29,116 INFO /opt/homebrew/bin/bench get-app https://github.com/frappe/lms
+2025-06-16 19:53:34,237 INFO App moved from apps/lms to archived/apps/lms-2025-06-16
+2025-06-16 19:53:34,246 LOG Getting lms
+2025-06-16 19:53:34,246 DEBUG cd ./apps && git clone https://github.com/frappe/lms  --depth 1 --origin upstream
+2025-06-16 19:53:36,563 LOG Installing lms
+2025-06-16 19:53:36,563 DEBUG cd /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms && /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/bin/python -m pip install --quiet --upgrade -e /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/lms 
+2025-06-16 19:53:39,056 WARNING cd /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms && /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/bin/python -m pip install --quiet --upgrade -e /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/lms  executed with exit code 1
+2025-06-16 19:53:39,057 WARNING /opt/homebrew/bin/bench get-app https://github.com/frappe/lms executed with exit code 1
+2025-06-16 20:02:03,982 INFO /opt/homebrew/bin/bench --site learning.test add-to-hosts
+2025-06-19 10:11:08,555 INFO /opt/homebrew/bin/bench --verbose --site all backup
+2025-06-19 10:11:08,555 INFO /opt/homebrew/bin/bench --verbose --site all backup
+2025-06-19 18:00:01,340 INFO /opt/homebrew/bin/bench --verbose --site all backup
+2025-06-21 00:00:01,550 INFO /opt/homebrew/bin/bench --verbose --site all backup
+2025-06-22 18:00:22,357 INFO /opt/homebrew/bin/bench --verbose --site all backup
+2025-06-23 16:43:52,012 INFO /opt/homebrew/bin/bench start
+2025-06-23 16:43:52,321 INFO /opt/homebrew/bin/bench watch
+2025-06-23 16:43:52,325 INFO /opt/homebrew/bin/bench serve --port 8000
+2025-06-23 16:43:52,326 INFO /opt/homebrew/bin/bench schedule
+2025-06-23 16:43:52,333 INFO /opt/homebrew/bin/bench worker
+2025-06-23 16:44:38,011 INFO /opt/homebrew/bin/bench start
+2025-06-23 16:44:38,252 INFO /opt/homebrew/bin/bench watch
+2025-06-23 16:44:38,255 INFO /opt/homebrew/bin/bench serve --port 8000
+2025-06-23 16:44:38,256 INFO /opt/homebrew/bin/bench worker
+2025-06-23 16:44:38,258 INFO /opt/homebrew/bin/bench schedule
+2025-06-23 16:45:56,957 INFO /opt/homebrew/bin/bench start
+2025-06-23 16:45:57,213 INFO /opt/homebrew/bin/bench watch
+2025-06-23 16:45:57,214 INFO /opt/homebrew/bin/bench worker
+2025-06-23 16:45:57,214 INFO /opt/homebrew/bin/bench serve --port 8000
+2025-06-23 16:45:57,217 INFO /opt/homebrew/bin/bench schedule
+2025-06-23 16:46:32,998 INFO /opt/homebrew/bin/bench start
+2025-06-23 16:46:33,271 INFO /opt/homebrew/bin/bench watch
+2025-06-23 16:46:33,271 INFO /opt/homebrew/bin/bench serve --port 8000
+2025-06-23 16:46:33,277 INFO /opt/homebrew/bin/bench worker
+2025-06-23 16:46:33,277 INFO /opt/homebrew/bin/bench schedule
+2025-06-23 16:50:05,393 INFO /opt/homebrew/bin/bench new-site learning.test
+2025-06-23 16:50:10,774 INFO /opt/homebrew/bin/bench new-site learning.test --force
+2025-06-23 16:51:14,554 INFO /opt/homebrew/bin/bench --site learning.test add-to-hosts
+2025-06-23 16:56:15,678 INFO /opt/homebrew/bin/bench get-app https://github.com/Carleton-Blueprint/acted-lms-project
+2025-06-23 16:56:15,688 LOG Getting acted-lms-project
+2025-06-23 16:56:15,688 DEBUG cd ./apps && git clone https://github.com/Carleton-Blueprint/acted-lms-project  --depth 1 --origin upstream
+2025-06-23 16:56:18,305 WARNING /opt/homebrew/bin/bench get-app https://github.com/Carleton-Blueprint/acted-lms-project executed with exit code 1
+2025-06-23 16:56:18,462 INFO A newer version of bench is available: 5.25.4 → 5.25.6
+2025-06-23 16:57:24,268 INFO /opt/homebrew/bin/bench get-app https://github.com/Carleton-Blueprint/acted-lms-project
+2025-06-23 16:57:24,278 LOG Getting acted-lms-project
+2025-06-23 16:57:24,278 DEBUG cd ./apps && git clone https://github.com/Carleton-Blueprint/acted-lms-project  --depth 1 --origin upstream
+2025-06-23 16:57:26,591 LOG Installing lms
+2025-06-23 16:57:26,591 DEBUG cd /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms && /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/bin/python -m pip install --quiet --upgrade -e /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/lms 
+2025-06-23 16:57:32,311 WARNING cd /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms && /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/bin/python -m pip install --quiet --upgrade -e /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/lms  executed with exit code 1
+2025-06-23 16:57:32,311 WARNING /opt/homebrew/bin/bench get-app https://github.com/Carleton-Blueprint/acted-lms-project executed with exit code 1
+2025-06-23 16:57:32,406 INFO A newer version of bench is available: 5.25.4 → 5.25.6
+2025-06-23 16:59:14,191 INFO /opt/homebrew/bin/bench setup requirements
+2025-06-23 16:59:14,194 DEBUG /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/bin/python -m pip install --quiet --upgrade pip
+2025-06-23 16:59:14,615 LOG Installing frappe
+2025-06-23 16:59:14,634 DEBUG cd /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms && /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/bin/python -m pip install --quiet --upgrade -e /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe 
+2025-06-23 16:59:15,763 DEBUG cd /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe && yarn install --check-files
+2025-06-23 16:59:16,562 LOG Installing lms
+2025-06-23 16:59:16,562 DEBUG cd /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms && /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/bin/python -m pip install --quiet --upgrade -e /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/lms 
+2025-06-23 16:59:19,079 WARNING cd /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms && /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/bin/python -m pip install --quiet --upgrade -e /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/lms  executed with exit code 1
+2025-06-23 16:59:19,079 WARNING /opt/homebrew/bin/bench setup requirements executed with exit code 1
+2025-06-23 16:59:19,178 INFO A newer version of bench is available: 5.25.4 → 5.25.6
+2025-06-23 16:59:33,368 INFO /opt/homebrew/bin/bench get-app https://github.com/Carleton-Blueprint/acted-lms-project
+2025-06-23 16:59:33,379 LOG Getting acted-lms-project
+2025-06-23 16:59:33,379 DEBUG cd ./apps && git clone https://github.com/Carleton-Blueprint/acted-lms-project  --depth 1 --origin upstream
+2025-06-23 16:59:35,482 WARNING /opt/homebrew/bin/bench get-app https://github.com/Carleton-Blueprint/acted-lms-project executed with exit code 1
+2025-06-23 16:59:35,585 INFO A newer version of bench is available: 5.25.4 → 5.25.6
+2025-06-23 16:59:47,686 INFO /opt/homebrew/bin/bench get-app https://github.com/Carleton-Blueprint/acted-lms-project
+2025-06-23 16:59:58,644 INFO A newer version of bench is available: 5.25.4 → 5.25.6
+2025-06-23 17:00:20,136 INFO /opt/homebrew/bin/bench get-app https://github.com/Carleton-Blueprint/acted-lms-project
+2025-06-23 17:00:20,145 LOG Getting acted-lms-project
+2025-06-23 17:00:20,145 DEBUG cd ./apps && git clone https://github.com/Carleton-Blueprint/acted-lms-project  --depth 1 --origin upstream
+2025-06-23 17:00:22,335 LOG Installing lms
+2025-06-23 17:00:22,336 DEBUG cd /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms && /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/bin/python -m pip install --quiet --upgrade -e /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/lms 
+2025-06-23 17:00:25,272 WARNING cd /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms && /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/bin/python -m pip install --quiet --upgrade -e /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/lms  executed with exit code 1
+2025-06-23 17:00:25,273 WARNING /opt/homebrew/bin/bench get-app https://github.com/Carleton-Blueprint/acted-lms-project executed with exit code 1
+2025-06-23 17:00:25,374 INFO A newer version of bench is available: 5.25.4 → 5.25.6
+2025-06-23 17:01:33,154 INFO /opt/homebrew/bin/bench get-app https://github.com/Carleton-Blueprint/acted-lms-project
+2025-06-23 17:01:33,164 LOG Getting acted-lms-project
+2025-06-23 17:01:33,164 DEBUG cd ./apps && git clone https://github.com/Carleton-Blueprint/acted-lms-project  --depth 1 --origin upstream
+2025-06-23 17:01:35,353 WARNING /opt/homebrew/bin/bench get-app https://github.com/Carleton-Blueprint/acted-lms-project executed with exit code 1
+2025-06-23 17:01:35,451 INFO A newer version of bench is available: 5.25.4 → 5.25.6
+2025-06-23 17:02:10,773 INFO /opt/homebrew/bin/bench get-app https://github.com/Carleton-Blueprint/acted-lms-project
+2025-06-23 17:02:10,783 LOG Getting acted-lms-project
+2025-06-23 17:02:10,783 DEBUG cd ./apps && git clone https://github.com/Carleton-Blueprint/acted-lms-project  --depth 1 --origin upstream
+2025-06-23 17:02:13,021 LOG Installing lms
+2025-06-23 17:02:13,021 DEBUG cd /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms && /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/bin/python -m pip install --quiet --upgrade -e /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/lms 
+2025-06-23 17:02:16,008 WARNING cd /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms && /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/bin/python -m pip install --quiet --upgrade -e /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/lms  executed with exit code 1
+2025-06-23 17:02:16,009 WARNING /opt/homebrew/bin/bench get-app https://github.com/Carleton-Blueprint/acted-lms-project executed with exit code 1
+2025-06-23 17:02:16,110 INFO A newer version of bench is available: 5.25.4 → 5.25.6
+2025-06-23 17:09:21,071 INFO /opt/homebrew/bin/bench get-app https://github.com/Carleton-Blueprint/acted-lms-project
+2025-06-23 17:09:21,082 LOG Getting acted-lms-project
+2025-06-23 17:09:21,082 DEBUG cd ./apps && git clone https://github.com/Carleton-Blueprint/acted-lms-project  --depth 1 --origin upstream
+2025-06-23 17:09:23,378 LOG Installing lms
+2025-06-23 17:09:23,378 DEBUG cd /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms && /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/bin/python -m pip install --quiet --upgrade -e /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/lms 
+2025-06-23 17:09:26,327 WARNING cd /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms && /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/bin/python -m pip install --quiet --upgrade -e /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/lms  executed with exit code 1
+2025-06-23 17:09:26,328 WARNING /opt/homebrew/bin/bench get-app https://github.com/Carleton-Blueprint/acted-lms-project executed with exit code 1
+2025-06-23 17:09:26,434 INFO A newer version of bench is available: 5.25.4 → 5.25.6
+2025-06-23 17:10:10,799 INFO /opt/homebrew/bin/bench get-app https://github.com/Carleton-Blueprint/acted-lms-project
+2025-06-23 17:10:10,808 LOG Getting acted-lms-project
+2025-06-23 17:10:10,808 DEBUG cd ./apps && git clone https://github.com/Carleton-Blueprint/acted-lms-project  --depth 1 --origin upstream
+2025-06-23 17:10:12,960 WARNING /opt/homebrew/bin/bench get-app https://github.com/Carleton-Blueprint/acted-lms-project executed with exit code 1
+2025-06-23 17:10:13,064 INFO A newer version of bench is available: 5.25.4 → 5.25.6
+2025-06-23 17:10:25,164 INFO /opt/homebrew/bin/bench get-app https://github.com/Carleton-Blueprint/acted-lms-project
+2025-06-23 17:10:25,175 LOG Getting acted-lms-project
+2025-06-23 17:10:25,175 DEBUG cd ./apps && git clone https://github.com/Carleton-Blueprint/acted-lms-project  --depth 1 --origin upstream
+2025-06-23 17:10:27,270 LOG Installing lms
+2025-06-23 17:10:27,270 DEBUG cd /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms && /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/bin/python -m pip install --quiet --upgrade -e /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/lms 
+2025-06-23 17:10:30,085 WARNING cd /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms && /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/bin/python -m pip install --quiet --upgrade -e /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/lms  executed with exit code 1
+2025-06-23 17:10:30,085 WARNING /opt/homebrew/bin/bench get-app https://github.com/Carleton-Blueprint/acted-lms-project executed with exit code 1
+2025-06-23 17:10:30,185 INFO A newer version of bench is available: 5.25.4 → 5.25.6
+2025-06-23 17:16:12,081 INFO /opt/homebrew/bin/bench get-app https://github.com/Carleton-Blueprint/acted-lms-project
+2025-06-23 17:16:12,091 LOG Getting acted-lms-project
+2025-06-23 17:16:12,091 DEBUG cd ./apps && git clone https://github.com/Carleton-Blueprint/acted-lms-project  --depth 1 --origin upstream
+2025-06-23 17:16:14,189 LOG Installing lms
+2025-06-23 17:16:14,189 DEBUG cd /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms && /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/bin/python -m pip install --quiet --upgrade -e /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/lms 
+2025-06-23 17:16:16,876 DEBUG cd /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/lms && yarn install --check-files
+2025-06-23 17:16:57,034 DEBUG bench build --app lms
+2025-06-23 17:16:57,155 INFO /opt/homebrew/bin/bench build --app lms
+2025-06-23 17:16:57,183 WARNING bench build --app lms executed with exit code 1
+2025-06-23 17:16:57,183 WARNING /opt/homebrew/bin/bench get-app https://github.com/Carleton-Blueprint/acted-lms-project executed with exit code 1
+2025-06-23 17:16:57,311 INFO A newer version of bench is available: 5.25.4 → 5.25.6
+2025-06-23 17:18:29,274 INFO /opt/homebrew/bin/bench --version
+2025-06-23 17:27:42,491 INFO /opt/homebrew/bin/bench get-app https://github.com/Carleton-Blueprint/acted-lms-project
+2025-06-23 17:27:42,502 LOG Getting acted-lms-project
+2025-06-23 17:27:42,502 DEBUG cd ./apps && git clone https://github.com/Carleton-Blueprint/acted-lms-project  --depth 1 --origin upstream
+2025-06-23 17:27:44,389 LOG Installing lms
+2025-06-23 17:27:44,389 DEBUG cd /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms && /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/bin/python -m pip install --quiet --upgrade -e /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/lms 
+2025-06-23 17:27:45,621 DEBUG cd /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/lms && yarn install --check-files
+2025-06-23 17:27:55,138 DEBUG bench build --app lms
+2025-06-23 17:27:55,268 INFO /opt/homebrew/bin/bench build --app lms
+2025-06-23 17:27:57,263 WARNING bench build --app lms executed with exit code 1
+2025-06-23 17:27:57,263 WARNING /opt/homebrew/bin/bench get-app https://github.com/Carleton-Blueprint/acted-lms-project executed with exit code 1
+2025-06-23 17:27:57,416 INFO A newer version of bench is available: 5.25.4 → 5.25.6
+2025-06-23 17:28:57,003 INFO /opt/homebrew/bin/bench get-app https://github.com/Carleton-Blueprint/acted-lms-project
+2025-06-23 17:28:57,013 LOG Getting acted-lms-project
+2025-06-23 17:28:57,013 DEBUG cd ./apps && git clone https://github.com/Carleton-Blueprint/acted-lms-project  --depth 1 --origin upstream
+2025-06-23 17:29:17,908 LOG Installing lms
+2025-06-23 17:29:17,909 DEBUG cd /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms && /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/bin/python -m pip install --quiet --upgrade -e /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/lms 
+2025-06-23 17:29:19,016 DEBUG cd /Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/lms && yarn install --check-files
+2025-06-23 17:29:28,141 DEBUG bench build --app lms
+2025-06-23 17:29:28,262 INFO /opt/homebrew/bin/bench build --app lms
+2025-06-23 17:29:43,910 INFO A newer version of bench is available: 5.25.4 → 5.25.6
+2025-06-23 17:30:28,496 INFO /opt/homebrew/bin/bench --site learning.test install-app lms
+2025-06-23 17:32:12,814 INFO /opt/homebrew/bin/bench start
+2025-06-23 17:32:13,119 INFO /opt/homebrew/bin/bench serve --port 8000
+2025-06-23 17:32:13,123 INFO /opt/homebrew/bin/bench worker
+2025-06-23 17:32:13,123 INFO /opt/homebrew/bin/bench watch
+2025-06-23 17:32:13,126 INFO /opt/homebrew/bin/bench schedule
+2025-06-23 17:33:18,363 INFO /opt/homebrew/bin/bench start
+2025-06-23 17:33:18,608 INFO /opt/homebrew/bin/bench watch
+2025-06-23 17:33:18,614 INFO /opt/homebrew/bin/bench serve --port 8000
+2025-06-23 17:33:18,615 INFO /opt/homebrew/bin/bench worker
+2025-06-23 17:33:18,618 INFO /opt/homebrew/bin/bench schedule
+2025-06-23 17:35:12,557 INFO /opt/homebrew/bin/bench list-sites
+2025-06-23 17:35:20,011 INFO /opt/homebrew/bin/bench list-sites
+2025-06-23 17:35:50,505 INFO /opt/homebrew/bin/bench --site learning.test migrate
+2025-06-23 17:36:28,168 INFO /opt/homebrew/bin/bench --site learning.test install-app lms
+2025-06-23 17:36:34,341 INFO /opt/homebrew/bin/bench start
+2025-06-23 17:36:34,595 INFO /opt/homebrew/bin/bench serve --port 8000
+2025-06-23 17:36:34,596 INFO /opt/homebrew/bin/bench watch
+2025-06-23 17:36:34,602 INFO /opt/homebrew/bin/bench worker
+2025-06-23 17:36:34,603 INFO /opt/homebrew/bin/bench schedule
+2025-06-23 17:37:10,333 INFO /opt/homebrew/bin/bench --site learning.test doctor
+2025-06-23 17:37:47,542 INFO /opt/homebrew/bin/bench --site learning.test version
+2025-06-23 17:38:03,756 INFO /opt/homebrew/bin/bench restart
+2025-06-23 17:38:03,858 INFO A newer version of bench is available: 5.25.4 → 5.25.6
+2025-06-23 17:38:28,769 INFO /opt/homebrew/bin/bench restart
+2025-06-23 17:38:28,870 INFO A newer version of bench is available: 5.25.4 → 5.25.6
+2025-06-23 17:38:43,035 INFO /opt/homebrew/bin/bench start
+2025-06-23 17:38:43,279 INFO /opt/homebrew/bin/bench schedule
+2025-06-23 17:38:43,280 INFO /opt/homebrew/bin/bench worker
+2025-06-23 17:38:43,284 INFO /opt/homebrew/bin/bench watch
+2025-06-23 17:38:43,284 INFO /opt/homebrew/bin/bench serve --port 8000
+2025-06-23 17:39:30,098 INFO /opt/homebrew/bin/bench --site learning.test log
+2025-06-23 17:40:51,119 INFO /opt/homebrew/bin/bench start
+2025-06-23 17:40:51,378 INFO /opt/homebrew/bin/bench schedule
+2025-06-23 17:40:51,378 INFO /opt/homebrew/bin/bench serve --port 8000
+2025-06-23 17:40:51,378 INFO /opt/homebrew/bin/bench watch
+2025-06-23 17:40:51,381 INFO /opt/homebrew/bin/bench worker
+2025-06-23 17:43:05,932 INFO /opt/homebrew/bin/bench start
+2025-06-23 17:43:06,182 INFO /opt/homebrew/bin/bench worker
+2025-06-23 17:43:06,182 INFO /opt/homebrew/bin/bench serve --port 8000
+2025-06-23 17:43:06,185 INFO /opt/homebrew/bin/bench watch
+2025-06-23 17:43:06,195 INFO /opt/homebrew/bin/bench schedule
+2025-06-23 17:43:54,592 INFO /opt/homebrew/bin/bench start
+2025-06-23 17:43:54,837 INFO /opt/homebrew/bin/bench serve --port 8000
+2025-06-23 17:43:54,841 INFO /opt/homebrew/bin/bench watch
+2025-06-23 17:43:54,846 INFO /opt/homebrew/bin/bench schedule
+2025-06-23 17:43:54,850 INFO /opt/homebrew/bin/bench worker
+2025-06-23 17:45:10,568 INFO /opt/homebrew/bin/bench use learning.test
+2025-06-23 17:45:53,148 INFO /opt/homebrew/bin/bench --site learning.test clear-cache
+2025-06-23 17:45:53,758 INFO /opt/homebrew/bin/bench --site learning.test clear-website-cache
+2025-06-23 17:45:54,194 INFO /opt/homebrew/bin/bench build
+2025-06-23 17:46:18,168 INFO /opt/homebrew/bin/bench start
+2025-06-23 17:46:18,409 INFO /opt/homebrew/bin/bench serve --port 8000
+2025-06-23 17:46:18,411 INFO /opt/homebrew/bin/bench watch
+2025-06-23 17:46:18,412 INFO /opt/homebrew/bin/bench schedule
+2025-06-23 17:46:18,412 INFO /opt/homebrew/bin/bench worker
+2025-06-23 18:07:20,876 INFO /opt/homebrew/bin/bench --verbose --site all backup
+2025-06-27 18:00:01,265 INFO /opt/homebrew/bin/bench --verbose --site all backup
+2025-06-28 18:00:00,620 INFO /opt/homebrew/bin/bench --verbose --site all backup
+2025-06-30 00:00:00,913 INFO /opt/homebrew/bin/bench --verbose --site all backup
+2025-06-30 16:59:56,106 INFO /opt/homebrew/bin/bench start
+2025-06-30 16:59:56,405 INFO /opt/homebrew/bin/bench worker
+2025-06-30 16:59:56,405 INFO /opt/homebrew/bin/bench watch
+2025-06-30 16:59:56,416 INFO /opt/homebrew/bin/bench serve --port 8000
+2025-06-30 16:59:56,416 INFO /opt/homebrew/bin/bench schedule
+2025-07-05 00:00:01,728 INFO /opt/homebrew/bin/bench --verbose --site all backup
+2025-07-06 12:00:01,353 INFO /opt/homebrew/bin/bench --verbose --site all backup
+2025-07-07 12:00:00,655 INFO /opt/homebrew/bin/bench --verbose --site all backup
+2025-07-07 15:00:45,955 INFO /opt/homebrew/bin/bench start
+2025-07-07 15:00:46,213 INFO /opt/homebrew/bin/bench serve --port 8000
+2025-07-07 15:00:46,214 INFO /opt/homebrew/bin/bench schedule
+2025-07-07 15:00:46,216 INFO /opt/homebrew/bin/bench worker
+2025-07-07 15:00:46,225 INFO /opt/homebrew/bin/bench watch
+2025-07-07 15:12:19,494 INFO /opt/homebrew/bin/bench start
+2025-07-07 15:12:25,716 INFO /opt/homebrew/bin/bench start
+2025-07-07 15:12:32,751 INFO /opt/homebrew/bin/bench start
+2025-07-07 15:13:43,727 INFO /opt/homebrew/bin/bench start
+2025-07-07 15:13:43,963 INFO /opt/homebrew/bin/bench schedule
+2025-07-07 15:13:43,967 INFO /opt/homebrew/bin/bench serve --port 8000
+2025-07-07 15:13:43,968 INFO /opt/homebrew/bin/bench worker
+2025-07-07 15:13:43,976 INFO /opt/homebrew/bin/bench watch
+2025-07-07 15:14:21,866 INFO /opt/homebrew/bin/bench start
+2025-07-07 15:14:22,107 INFO /opt/homebrew/bin/bench worker
+2025-07-07 15:14:22,107 INFO /opt/homebrew/bin/bench serve --port 8000
+2025-07-07 15:14:22,108 INFO /opt/homebrew/bin/bench watch
+2025-07-07 15:14:22,110 INFO /opt/homebrew/bin/bench schedule
+2025-07-07 15:15:54,455 INFO /opt/homebrew/bin/bench start
+2025-07-07 15:15:54,719 INFO /opt/homebrew/bin/bench schedule
+2025-07-07 15:15:54,724 INFO /opt/homebrew/bin/bench watch
+2025-07-07 15:15:54,733 INFO /opt/homebrew/bin/bench serve --port 8000
+2025-07-07 15:15:54,737 INFO /opt/homebrew/bin/bench worker
+2025-07-07 15:16:08,928 INFO /opt/homebrew/bin/bench build
+2025-07-07 15:16:31,836 INFO /opt/homebrew/bin/bench start
+2025-07-07 15:16:32,091 INFO /opt/homebrew/bin/bench serve --port 8000
+2025-07-07 15:16:32,094 INFO /opt/homebrew/bin/bench worker
+2025-07-07 15:16:32,100 INFO /opt/homebrew/bin/bench watch
+2025-07-07 15:16:32,101 INFO /opt/homebrew/bin/bench schedule
+2025-07-07 15:16:56,848 INFO /opt/homebrew/bin/bench list-sites
+2025-07-07 15:19:06,649 INFO /opt/homebrew/bin/bench start
+2025-07-07 15:19:06,870 INFO /opt/homebrew/bin/bench watch
+2025-07-07 15:19:06,886 INFO /opt/homebrew/bin/bench worker
+2025-07-07 15:19:06,887 INFO /opt/homebrew/bin/bench schedule
+2025-07-07 15:19:06,893 INFO /opt/homebrew/bin/bench serve --port 8000
+2025-07-07 15:28:18,150 INFO /opt/homebrew/bin/bench start
+2025-07-07 15:29:11,460 INFO /opt/homebrew/bin/bench start
+2025-07-07 15:29:11,706 INFO /opt/homebrew/bin/bench worker
+2025-07-07 15:29:11,706 INFO /opt/homebrew/bin/bench watch
+2025-07-07 15:29:11,712 INFO /opt/homebrew/bin/bench schedule
+2025-07-07 15:29:11,716 INFO /opt/homebrew/bin/bench serve --port 8000
+2025-07-07 15:29:41,326 INFO /opt/homebrew/bin/bench start
+2025-07-07 15:29:41,560 INFO /opt/homebrew/bin/bench worker
+2025-07-07 15:29:41,561 INFO /opt/homebrew/bin/bench schedule
+2025-07-07 15:29:41,569 INFO /opt/homebrew/bin/bench serve --port 8000
+2025-07-07 15:29:41,597 INFO /opt/homebrew/bin/bench watch
+2025-07-07 15:30:36,980 INFO /opt/homebrew/bin/bench start
+2025-07-07 15:30:37,223 INFO /opt/homebrew/bin/bench serve --port 8000
+2025-07-07 15:30:37,224 INFO /opt/homebrew/bin/bench schedule
+2025-07-07 15:30:37,235 INFO /opt/homebrew/bin/bench worker
+2025-07-07 15:30:37,236 INFO /opt/homebrew/bin/bench watch
+2025-07-07 15:34:40,032 INFO /opt/homebrew/bin/bench start
+2025-07-07 15:34:40,266 INFO /opt/homebrew/bin/bench serve --port 8000
+2025-07-07 15:34:40,279 INFO /opt/homebrew/bin/bench watch
+2025-07-07 15:34:40,283 INFO /opt/homebrew/bin/bench worker
+2025-07-07 15:34:40,288 INFO /opt/homebrew/bin/bench schedule
+2025-07-07 15:42:35,176 INFO /opt/homebrew/bin/bench start
+2025-07-07 15:42:35,448 INFO /opt/homebrew/bin/bench schedule
+2025-07-07 15:42:35,449 INFO /opt/homebrew/bin/bench watch
+2025-07-07 15:42:35,450 INFO /opt/homebrew/bin/bench worker
+2025-07-07 15:42:35,451 INFO /opt/homebrew/bin/bench serve --port 8000
+2025-07-07 15:45:20,151 INFO /opt/homebrew/bin/bench start
+2025-07-07 15:46:26,341 INFO /opt/homebrew/bin/bench start
+2025-07-07 15:46:50,412 INFO /opt/homebrew/bin/bench start
+2025-07-07 15:46:50,697 INFO /opt/homebrew/bin/bench watch
+2025-07-07 15:46:50,697 INFO /opt/homebrew/bin/bench worker
+2025-07-07 15:46:50,701 INFO /opt/homebrew/bin/bench serve --port 8000
+2025-07-07 15:46:50,704 INFO /opt/homebrew/bin/bench schedule
+2025-07-07 15:47:13,597 INFO /opt/homebrew/bin/bench stop
+2025-07-07 15:47:31,511 INFO /opt/homebrew/bin/bench start
+2025-07-07 15:47:31,758 INFO /opt/homebrew/bin/bench serve --port 8000
+2025-07-07 15:47:31,759 INFO /opt/homebrew/bin/bench watch
+2025-07-07 15:47:31,760 INFO /opt/homebrew/bin/bench schedule
+2025-07-07 15:47:31,764 INFO /opt/homebrew/bin/bench worker
+2025-07-07 18:00:00,780 INFO /opt/homebrew/bin/bench --verbose --site all backup
+2025-07-08 00:00:00,928 INFO /opt/homebrew/bin/bench --verbose --site all backup
+2025-07-08 06:00:00,620 INFO /opt/homebrew/bin/bench --verbose --site all backup
+2025-07-08 12:00:00,851 INFO /opt/homebrew/bin/bench --verbose --site all backup
+2025-07-10 12:00:01,527 INFO /opt/homebrew/bin/bench --verbose --site all backup
+2025-07-14 14:11:16,119 INFO /opt/homebrew/bin/bench start
+2025-07-14 14:11:16,462 INFO /opt/homebrew/bin/bench serve --port 8000
+2025-07-14 14:11:16,464 INFO /opt/homebrew/bin/bench watch
+2025-07-14 14:11:16,465 INFO /opt/homebrew/bin/bench schedule
+2025-07-14 14:11:16,474 INFO /opt/homebrew/bin/bench worker
+2025-07-14 14:16:40,966 INFO /opt/homebrew/bin/bench build
+2025-07-14 14:17:51,300 INFO /opt/homebrew/bin/bench clear-cache
+2025-07-14 14:17:56,940 INFO /opt/homebrew/bin/bench restart
+2025-07-14 14:17:57,188 INFO A newer version of bench is available: 5.25.4 → 5.25.9
+2025-07-14 14:20:06,161 INFO /opt/homebrew/bin/bench start
+2025-07-14 14:20:06,410 INFO /opt/homebrew/bin/bench serve --port 8000
+2025-07-14 14:20:06,414 INFO /opt/homebrew/bin/bench watch
+2025-07-14 14:20:06,414 INFO /opt/homebrew/bin/bench schedule
+2025-07-14 14:20:06,415 INFO /opt/homebrew/bin/bench worker
+2025-07-14 14:22:38,929 INFO /opt/homebrew/bin/bench restart
+2025-07-14 14:22:39,035 INFO A newer version of bench is available: 5.25.4 → 5.25.9
+2025-07-14 14:23:21,600 INFO /opt/homebrew/bin/bench start
+2025-07-14 14:23:21,831 INFO /opt/homebrew/bin/bench serve --port 8000
+2025-07-14 14:23:21,832 INFO /opt/homebrew/bin/bench schedule
+2025-07-14 14:23:21,834 INFO /opt/homebrew/bin/bench watch
+2025-07-14 14:23:21,838 INFO /opt/homebrew/bin/bench worker
+2025-07-14 14:38:03,712 INFO /opt/homebrew/bin/bench clear-cache
+2025-07-14 14:38:07,096 INFO /opt/homebrew/bin/bench restart
+2025-07-14 14:38:07,209 INFO A newer version of bench is available: 5.25.4 → 5.25.9
+2025-07-14 14:38:10,266 INFO /opt/homebrew/bin/bench start
+2025-07-14 14:38:10,505 INFO /opt/homebrew/bin/bench watch
+2025-07-14 14:38:10,506 INFO /opt/homebrew/bin/bench schedule
+2025-07-14 14:38:10,517 INFO /opt/homebrew/bin/bench serve --port 8000
+2025-07-14 14:38:10,523 INFO /opt/homebrew/bin/bench worker
+2025-07-14 15:24:50,420 INFO /opt/homebrew/bin/bench start
+2025-07-14 15:24:50,666 INFO /opt/homebrew/bin/bench schedule
+2025-07-14 15:24:50,666 INFO /opt/homebrew/bin/bench watch
+2025-07-14 15:24:50,670 INFO /opt/homebrew/bin/bench serve --port 8000
+2025-07-14 15:24:50,680 INFO /opt/homebrew/bin/bench worker
+2025-07-14 15:25:28,481 INFO /opt/homebrew/bin/bench start
+2025-07-14 15:25:28,719 INFO /opt/homebrew/bin/bench worker
+2025-07-14 15:25:28,723 INFO /opt/homebrew/bin/bench watch
+2025-07-14 15:25:28,727 INFO /opt/homebrew/bin/bench schedule
+2025-07-14 15:25:28,735 INFO /opt/homebrew/bin/bench serve --port 8000
+2025-07-14 15:26:52,436 INFO /opt/homebrew/bin/bench start
+2025-07-14 15:26:52,675 INFO /opt/homebrew/bin/bench serve --port 8000
+2025-07-14 15:26:52,678 INFO /opt/homebrew/bin/bench worker
+2025-07-14 15:26:52,681 INFO /opt/homebrew/bin/bench schedule
+2025-07-14 15:26:52,681 INFO /opt/homebrew/bin/bench watch

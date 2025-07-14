@@ -1,0 +1,10 @@
+bench.patches.v3.deprecate_old_config
+bench.patches.v3.celery_to_rq
+bench.patches.v3.redis_bind_ip
+bench.patches.v4.update_node
+bench.patches.v4.update_socketio
+bench.patches.v4.install_yarn #2
+bench.patches.v5.fix_user_permissions
+bench.patches.v5.fix_backup_cronjob
+bench.patches.v5.set_live_reload_config
+bench.patches.v5.update_archived_sites

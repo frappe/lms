@@ -1,0 +1,19 @@
+{
+ "background_workers": 1,
+ "default_site": "learning.test",
+ "file_watcher_port": 6787,
+ "frappe_user": "huzaifa",
+ "gunicorn_workers": 17,
+ "live_reload": true,
+ "rebase_on_pull": false,
+ "redis_cache": "redis://127.0.0.1:13000",
+ "redis_queue": "redis://127.0.0.1:11000",
+ "redis_socketio": "redis://127.0.0.1:13000",
+ "restart_supervisor_on_update": false,
+ "restart_systemd_on_update": false,
+ "serve_default_site": true,
+ "shallow_clone": true,
+ "socketio_port": 9000,
+ "use_redis_auth": false,
+ "webserver_port": 8000
+}

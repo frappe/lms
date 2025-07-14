@@ -1,0 +1,2 @@
+import{e as s,f as r,h as n,g as o,l as t,aB as c,t as p,b0 as l}from"./index-D24HXhLT.js";const i={class:"flex items-center text-ink-gray-7"},m={__name:"DateRange",props:{startDate:{type:String},endDate:{type:String}},setup(a){const e=a;return(_,d)=>(r(),s("div",i,[n(t(c),{class:"h-4 w-4 stroke-1.5 mr-2"}),o("span",null,p(t(l)(e.startDate,e.endDate)),1)]))}};export{m as _};
+//# sourceMappingURL=DateRange-DeTK-VK6.js.map

@@ -1,0 +1,2 @@
+import{j as a,f as r,n as u,k as l,l as t,aE as n,ad as i,O as m}from"./index-D24HXhLT.js";const f={__name:"UserAvatar",props:{user:{type:Object,default:null},size:{type:String}},setup(e){return(s,c)=>(r(),a(t(m),{text:e.user.full_name},{default:u(()=>[e.user?(r(),a(t(n),i({key:0,class:"avatar border border-outline-gray-2 cursor-auto",label:e.user.full_name,image:e.user.user_image,size:e.size},s.$attrs),null,16,["label","image","size"])):l("",!0)]),_:1},8,["text"]))}};export{f as _};
+//# sourceMappingURL=UserAvatar-CNqvj4u9.js.map

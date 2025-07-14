@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" href="{{ favicon }}" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>{{ title }}</title>
+		<meta name="title" content="{{ meta.title }}" />
+		<meta name="image" content="{{ meta.image }}" />
+		<meta name="description" content="{{ meta.description }}" />
+		<meta name="keywords" content="{{ meta.keywords }}" />
+		<meta property="og:title" content="{{ meta.title }}" />
+		<meta property="og:image" content="{{ meta.image }}" />
+		<meta property="og:description" content="{{ meta.description }}" />
+		<meta name="twitter:title" content="{{ meta.title }}" />
+		<meta name="twitter:image" content="{{ meta.image }}" />
+		<meta name="twitter:description" content="{{ meta.description }}" />
+		<script type="module" crossorigin src="/assets/lms/frontend/assets/index-D24HXhLT.js"></script>
+		<link rel="stylesheet" crossorigin href="/assets/lms/frontend/assets/index-BwchOpYn.css">
+	</head>
+	<body>
+		<div id="app">
+			<div id="seo-content">
+				<h1>{{ meta.title }}</h1>
+				<p>
+					{{ meta.description }}
+				</p>
+				<a href="{{ meta.link }}">Know More</a>
+			</div>
+		</div>
+		<script>
+			document.getElementById('seo-content').style.display = 'none';
+		</script>
+	
+          <script>
+              {% for key in boot %}
+              window["{{ key }}"] = {{ boot[key] | tojson }};
+              {% endfor %}
+          </script>
+          </body>
+          
+</html>

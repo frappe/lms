@@ -1,0 +1,2365 @@
+Exception in thread Thread-1:
+Traceback (most recent call last):
+  File "/Users/huzaifa/.pyenv/versions/3.11.4/lib/python3.11/threading.py", line 1038, in _bootstrap_inner
+    self.run()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1799, in run
+    pubsub.get_message(ignore_subscribe_messages=True, timeout=sleep_time)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1690, in get_message
+    response = self.parse_response(block=(timeout is None), timeout=timeout)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1542, in parse_response
+    response = self._execute(conn, try_read)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1536, in try_read
+    if not conn.can_read(timeout=timeout):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 861, in can_read
+    return self._parser.can_read(timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 444, in can_read
+    return self.read_from_socket(timeout=timeout, raise_on_timeout=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 455, in read_from_socket
+    raise ConnectionError(SERVER_CLOSED_CONNECTION_ERROR)
+redis.exceptions.ConnectionError: Connection closed by server.
+Exception in thread Thread-1:
+Traceback (most recent call last):
+  File "/Users/huzaifa/.pyenv/versions/3.11.4/lib/python3.11/threading.py", line 1038, in _bootstrap_inner
+    self.run()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1799, in run
+    pubsub.get_message(ignore_subscribe_messages=True, timeout=sleep_time)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1690, in get_message
+    response = self.parse_response(block=(timeout is None), timeout=timeout)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1542, in parse_response
+    response = self._execute(conn, try_read)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1536, in try_read
+    if not conn.can_read(timeout=timeout):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 861, in can_read
+    return self._parser.can_read(timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 444, in can_read
+    return self.read_from_socket(timeout=timeout, raise_on_timeout=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 455, in read_from_socket
+    raise ConnectionError(SERVER_CLOSED_CONNECTION_ERROR)
+redis.exceptions.ConnectionError: Connection closed by server.
+Exception in thread Thread-1:
+Traceback (most recent call last):
+  File "/Users/huzaifa/.pyenv/versions/3.11.4/lib/python3.11/threading.py", line 1038, in _bootstrap_inner
+    self.run()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1799, in run
+    pubsub.get_message(ignore_subscribe_messages=True, timeout=sleep_time)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1690, in get_message
+    response = self.parse_response(block=(timeout is None), timeout=timeout)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1542, in parse_response
+    response = self._execute(conn, try_read)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1536, in try_read
+    if not conn.can_read(timeout=timeout):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 861, in can_read
+    return self._parser.can_read(timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 444, in can_read
+    return self.read_from_socket(timeout=timeout, raise_on_timeout=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 455, in read_from_socket
+    raise ConnectionError(SERVER_CLOSED_CONNECTION_ERROR)
+redis.exceptions.ConnectionError: Connection closed by server.
+Exception in thread Thread-1:
+Traceback (most recent call last):
+  File "/Users/huzaifa/.pyenv/versions/3.11.4/lib/python3.11/threading.py", line 1038, in _bootstrap_inner
+    self.run()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1799, in run
+    pubsub.get_message(ignore_subscribe_messages=True, timeout=sleep_time)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1690, in get_message
+    response = self.parse_response(block=(timeout is None), timeout=timeout)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1542, in parse_response
+    response = self._execute(conn, try_read)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1536, in try_read
+    if not conn.can_read(timeout=timeout):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 861, in can_read
+    return self._parser.can_read(timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 444, in can_read
+    return self.read_from_socket(timeout=timeout, raise_on_timeout=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 455, in read_from_socket
+    raise ConnectionError(SERVER_CLOSED_CONNECTION_ERROR)
+redis.exceptions.ConnectionError: Connection closed by server.
+Exception in thread Thread-1:
+Traceback (most recent call last):
+  File "/Users/huzaifa/.pyenv/versions/3.11.4/lib/python3.11/threading.py", line 1038, in _bootstrap_inner
+    self.run()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1799, in run
+    pubsub.get_message(ignore_subscribe_messages=True, timeout=sleep_time)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1690, in get_message
+    response = self.parse_response(block=(timeout is None), timeout=timeout)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1542, in parse_response
+    response = self._execute(conn, try_read)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1536, in try_read
+    if not conn.can_read(timeout=timeout):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 861, in can_read
+    return self._parser.can_read(timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 444, in can_read
+    return self.read_from_socket(timeout=timeout, raise_on_timeout=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 455, in read_from_socket
+    raise ConnectionError(SERVER_CLOSED_CONNECTION_ERROR)
+redis.exceptions.ConnectionError: Connection closed by server.
+Exception in thread Thread-1:
+Traceback (most recent call last):
+  File "/Users/huzaifa/.pyenv/versions/3.11.4/lib/python3.11/threading.py", line 1038, in _bootstrap_inner
+    self.run()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1799, in run
+    pubsub.get_message(ignore_subscribe_messages=True, timeout=sleep_time)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1690, in get_message
+    response = self.parse_response(block=(timeout is None), timeout=timeout)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1542, in parse_response
+    response = self._execute(conn, try_read)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1536, in try_read
+    if not conn.can_read(timeout=timeout):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 861, in can_read
+    return self._parser.can_read(timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 444, in can_read
+    return self.read_from_socket(timeout=timeout, raise_on_timeout=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 455, in read_from_socket
+    raise ConnectionError(SERVER_CLOSED_CONNECTION_ERROR)
+redis.exceptions.ConnectionError: Connection closed by server.
+Traceback (most recent call last):
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 699, in connect
+    sock = self.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 700, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+            ^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 1002, in _connect
+    raise err
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 990, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [Errno 61] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/bench_helper.py", line 114, in <module>
+    main()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/bench_helper.py", line 20, in main
+    click.Group(commands=commands)(prog_name="bench")
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1442, in __call__
+    return self.main(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1363, in main
+    rv = self.invoke(ctx)
+         ^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1226, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 794, in invoke
+    return callback(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/commands/scheduler.py", line 205, in start_worker
+    start_worker(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/background_jobs.py", line 321, in start_worker
+    worker.work(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 456, in work
+    self.teardown()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 1047, in teardown
+    self.unsubscribe()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 624, in unsubscribe
+    self.pubsub.unsubscribe()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1659, in unsubscribe
+    return self.execute_command("UNSUBSCRIBE", *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1479, in execute_command
+    self._execute(connection, connection.send_command, *args, **kwargs)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 847, in send_command
+    self.send_packed_command(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 817, in send_packed_command
+    self.connect()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 705, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 61 connecting to 127.0.0.1:11000. Connection refused.
+Traceback (most recent call last):
+Exception in thread Thread-1  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 874, in read_response
+:
+Traceback (most recent call last):
+  File "/Users/huzaifa/.pyenv/versions/3.11.4/lib/python3.11/threading.py", line 1038, in _bootstrap_inner
+        self.run()
+response = self._parser.read_response(disable_decoding=disable_decoding)  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1799, in run
+
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 493, in read_response
+    self.read_from_socket()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 453, in read_from_socket
+    bufflen = self._sock.recv_into(self._buffer)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ConnectionResetError: [Errno 54] Connection reset by peer
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/bench_helper.py", line 114, in <module>
+    main()
+    pubsub.get_message(ignore_subscribe_messages=True, timeout=sleep_time)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1690, in get_message
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/bench_helper.py", line 20, in main
+    response = self.parse_response(block=(timeout is None), timeout=timeout)
+        click.Group(commands=commands)(prog_name="bench") 
+   File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1442, in __call__
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1542, in parse_response
+    response = self._execute(conn, try_read)
+            return self.main(*args, **kwargs)  
+             ^^^^^^^^^ ^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1518, in _execute
+^    return conn.retry.call_with_retry(
+^        ^
+   File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1363, in main
+  ^    rv = self.invoke(ctx)^^^^^^^^^^
+^         ^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 49, in call_with_retry
+^^^    ^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1830, in invoke
+fail(error)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),    return _process_result(sub_ctx.command.invoke(sub_ctx))
+
+                                          ^^^^^^^   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1226, in invoke
+raise error    return ctx.invoke(self.callback, **ctx.params)
+ 
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+     return do()
+            ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^   ^^^     ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1536, in try_read
+^^^^^^^^^^^^^^^^^^^^^^^^    if not conn.can_read(timeout=timeout):
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 794, in invoke
+    return callback(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/commands/scheduler.py", line 205, in start_worker
+^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 861, in can_read
+    start_worker(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/background_jobs.py", line 321, in start_worker
+    worker.work(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 456, in work
+    return self._parser.can_read(timeout)
+     self.teardown()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 1046, in teardown
+          ^^^^^^^^^^^^^^    self.register_death()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 832, in register_death
+    p.execute()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 2120, in execute
+^    return conn.retry.call_with_retry(
+     ^^^^^^^^^^^^^^ ^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 444, in can_read
+     ^^^^^^^^^^^^^^^    return self.read_from_socket(timeout=timeout, raise_on_timeout=False)
+^           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 49, in call_with_retry
+^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 455, in read_from_socket
+    fail(error)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 2122, in <lambda>
+    raise ConnectionError(SERVER_CLOSED_CONNECTION_ERROR)
+redis.exceptions.ConnectionError: Connection closed by server.
+    lambda error: self._disconnect_raise_reset(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 2121, in <lambda>
+    lambda: execute(conn, stack, raise_on_error),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1975, in _execute_transaction
+    self.parse_response(connection, "_")
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 2060, in parse_response
+    result = Redis.parse_response(self, connection, command_name, **options)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1286, in parse_response
+    response = connection.read_response()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 882, in read_response
+    raise ConnectionError(
+redis.exceptions.ConnectionError: Error while reading from 127.0.0.1:11000 : (54, 'Connection reset by peer')
+Exception in thread 2025-07-07 15:13:25,800 Could not connect to Redis instance: Connection closed by server. Retrying in 1 seconds...
+Thread-1:
+Traceback (most recent call last):
+  File "/Users/huzaifa/.pyenv/versions/3.11.4/lib/python3.11/threading.py", line 1038, in _bootstrap_inner
+    self.run()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1799, in run
+    pubsub.get_message(ignore_subscribe_messages=True, timeout=sleep_time)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1690, in get_message
+    response = self.parse_response(block=(timeout is None), timeout=timeout)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1542, in parse_response
+    response = self._execute(conn, try_read)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1536, in try_read
+    if not conn.can_read(timeout=timeout):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 861, in can_read
+    return self._parser.can_read(timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 444, in can_read
+    return self.read_from_socket(timeout=timeout, raise_on_timeout=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 455, in read_from_socket
+    raise ConnectionError(SERVER_CLOSED_CONNECTION_ERROR)
+redis.exceptions.ConnectionError: Connection closed by server.
+2025-07-07 15:13:26,807 Could not connect to Redis instance: Error 61 connecting to 127.0.0.1:11000. Connection refused. Retrying in 2 seconds...
+2025-07-07 15:13:28,813 Could not connect to Redis instance: Error 61 connecting to 127.0.0.1:11000. Connection refused. Retrying in 4 seconds...
+2025-07-07 15:13:32,814 Could not connect to Redis instance: Error 61 connecting to 127.0.0.1:11000. Connection refused. Retrying in 8 seconds...
+2025-07-07 15:13:40,821 Could not connect to Redis instance: Error 61 connecting to 127.0.0.1:11000. Connection refused. Retrying in 16 seconds...
+Exception in thread Thread-1:
+Traceback (most recent call last):
+  File "/Users/huzaifa/.pyenv/versions/3.11.4/lib/python3.11/threading.py", line 1038, in _bootstrap_inner
+    self.run()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1799, in run
+    pubsub.get_message(ignore_subscribe_messages=True, timeout=sleep_time)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1690, in get_message
+    response = self.parse_response(block=(timeout is None), timeout=timeout)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1542, in parse_response
+    response = self._execute(conn, try_read)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1536, in try_read
+    if not conn.can_read(timeout=timeout):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 861, in can_read
+    return self._parser.can_read(timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 444, in can_read
+    return self.read_from_socket(timeout=timeout, raise_on_timeout=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 455, in read_from_socket
+    raise ConnectionError(SERVER_CLOSED_CONNECTION_ERROR)
+redis.exceptions.ConnectionError: Connection closed by server.
+Traceback (most recent call last):
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 699, in connect
+    sock = self.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 700, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+            ^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 1002, in _connect
+    raise err
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 990, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [Errno 61] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/bench_helper.py", line 114, in <module>
+    main()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/bench_helper.py", line 20, in main
+    click.Group(commands=commands)(prog_name="bench")
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1442, in __call__
+    return self.main(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1363, in main
+    rv = self.invoke(ctx)
+         ^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1226, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 794, in invoke
+    return callback(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/commands/scheduler.py", line 205, in start_worker
+    start_worker(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/background_jobs.py", line 321, in start_worker
+    worker.work(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 456, in work
+    self.teardown()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 1047, in teardown
+    self.unsubscribe()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 624, in unsubscribe
+    self.pubsub.unsubscribe()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1659, in unsubscribe
+    return self.execute_command("UNSUBSCRIBE", *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1479, in execute_command
+    self._execute(connection, connection.send_command, *args, **kwargs)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 847, in send_command
+    self.send_packed_command(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 817, in send_packed_command
+    self.connect()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 705, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 61 connecting to 127.0.0.1:11000. Connection refused.
+2025-07-07 15:13:56,826 Could not connect to Redis instance: Error 61 connecting to 127.0.0.1:11000. Connection refused. Retrying in 32 seconds...
+Exception in thread Thread-1:
+Traceback (most recent call last):
+  File "/Users/huzaifa/.pyenv/versions/3.11.4/lib/python3.11/threading.py", line 1038, in _bootstrap_inner
+    self.run()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1799, in run
+    pubsub.get_message(ignore_subscribe_messages=True, timeout=sleep_time)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1690, in get_message
+    response = self.parse_response(block=(timeout is None), timeout=timeout)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1542, in parse_response
+    response = self._execute(conn, try_read)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1536, in try_read
+    if not conn.can_read(timeout=timeout):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 861, in can_read
+    return self._parser.can_read(timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 444, in can_read
+    return self.read_from_socket(timeout=timeout, raise_on_timeout=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 455, in read_from_socket
+    raise ConnectionError(SERVER_CLOSED_CONNECTION_ERROR)
+redis.exceptions.ConnectionError: Connection closed by server.
+Traceback (most recent call last):
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 699, in connect
+    sock = self.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 700, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+            ^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 1002, in _connect
+    raise err
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 990, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [Errno 61] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/bench_helper.py", line 114, in <module>
+    main()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/bench_helper.py", line 20, in main
+    click.Group(commands=commands)(prog_name="bench")
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1442, in __call__
+    return self.main(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1363, in main
+    rv = self.invoke(ctx)
+         ^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1226, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 794, in invoke
+    return callback(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/commands/scheduler.py", line 205, in start_worker
+    start_worker(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/background_jobs.py", line 321, in start_worker
+    worker.work(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 456, in work
+    self.teardown()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 1047, in teardown
+    self.unsubscribe()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 624, in unsubscribe
+    self.pubsub.unsubscribe()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1659, in unsubscribe
+    return self.execute_command("UNSUBSCRIBE", *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1479, in execute_command
+    self._execute(connection, connection.send_command, *args, **kwargs)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 847, in send_command
+    self.send_packed_command(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 817, in send_packed_command
+    self.connect()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 705, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 61 connecting to 127.0.0.1:11000. Connection refused.
+2025-07-07 15:14:28,833 Could not connect to Redis instance: Error 61 connecting to 127.0.0.1:11000. Connection refused. Retrying in 60 seconds...
+2025-07-07 15:15:28,839 Could not connect to Redis instance: Error 61 connecting to 127.0.0.1:11000. Connection refused. Retrying in 60 seconds...
+Exception in thread Thread-1:
+Traceback (most recent call last):
+  File "/Users/huzaifa/.pyenv/versions/3.11.4/lib/python3.11/threading.py", line 1038, in _bootstrap_inner
+    self.run()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1799, in run
+    pubsub.get_message(ignore_subscribe_messages=True, timeout=sleep_time)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1690, in get_message
+    response = self.parse_response(block=(timeout is None), timeout=timeout)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1542, in parse_response
+    response = self._execute(conn, try_read)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1536, in try_read
+    if not conn.can_read(timeout=timeout):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 861, in can_read
+    return self._parser.can_read(timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 444, in can_read
+    return self.read_from_socket(timeout=timeout, raise_on_timeout=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 455, in read_from_socket
+    raise ConnectionError(SERVER_CLOSED_CONNECTION_ERROR)
+redis.exceptions.ConnectionError: Connection closed by server.
+Traceback (most recent call last):
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 699, in connect
+    sock = self.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 700, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+            ^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 1002, in _connect
+    raise err
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 990, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [Errno 61] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/bench_helper.py", line 114, in <module>
+    main()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/bench_helper.py", line 20, in main
+    click.Group(commands=commands)(prog_name="bench")
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1442, in __call__
+    return self.main(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1363, in main
+    rv = self.invoke(ctx)
+         ^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1226, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 794, in invoke
+    return callback(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/commands/scheduler.py", line 205, in start_worker
+    start_worker(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/background_jobs.py", line 321, in start_worker
+    worker.work(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 456, in work
+    self.teardown()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 1047, in teardown
+    self.unsubscribe()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 624, in unsubscribe
+    self.pubsub.unsubscribe()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1659, in unsubscribe
+    return self.execute_command("UNSUBSCRIBE", *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1479, in execute_command
+    self._execute(connection, connection.send_command, *args, **kwargs)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 847, in send_command
+    self.send_packed_command(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 817, in send_packed_command
+    self.connect()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 705, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 61 connecting to 127.0.0.1:11000. Connection refused.
+2025-07-07 15:16:28,846 Could not connect to Redis instance: Error 61 connecting to 127.0.0.1:11000. Connection refused. Retrying in 60 seconds...
+2025-07-07 15:17:28,854 Could not connect to Redis instance: Error 61 connecting to 127.0.0.1:11000. Connection refused. Retrying in 60 seconds...
+2025-07-07 15:18:28,858 Could not connect to Redis instance: Error 61 connecting to 127.0.0.1:11000. Connection refused. Retrying in 60 seconds...
+Exception in thread 2025-07-07 15:29:02,954 Could not connect to Redis instance: Connection closed by server. Retrying in 1 seconds...
+Thread-1:
+Traceback (most recent call last):
+  File "/Users/huzaifa/.pyenv/versions/3.11.4/lib/python3.11/threading.py", line 1038, in _bootstrap_inner
+    self.run()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1799, in run
+    pubsub.get_message(ignore_subscribe_messages=True, timeout=sleep_time)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1690, in get_message
+    response = self.parse_response(block=(timeout is None), timeout=timeout)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1542, in parse_response
+    response = self._execute(conn, try_read)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1536, in try_read
+    if not conn.can_read(timeout=timeout):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 861, in can_read
+    return self._parser.can_read(timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 444, in can_read
+    return self.read_from_socket(timeout=timeout, raise_on_timeout=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 455, in read_from_socket
+    raise ConnectionError(SERVER_CLOSED_CONNECTION_ERROR)
+redis.exceptions.ConnectionError: Connection closed by server.
+2025-07-07 15:29:03,956 Could not connect to Redis instance: Error 61 connecting to 127.0.0.1:11000. Connection refused. Retrying in 2 seconds...
+2025-07-07 15:29:05,959 Could not connect to Redis instance: Error 61 connecting to 127.0.0.1:11000. Connection refused. Retrying in 4 seconds...
+2025-07-07 15:29:09,963 Could not connect to Redis instance: Error 61 connecting to 127.0.0.1:11000. Connection refused. Retrying in 8 seconds...
+Exception in thread Thread-1:
+Traceback (most recent call last):
+  File "/Users/huzaifa/.pyenv/versions/3.11.4/lib/python3.11/threading.py", line 1038, in _bootstrap_inner
+    self.run()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1799, in run
+    pubsub.get_message(ignore_subscribe_messages=True, timeout=sleep_time)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1690, in get_message
+    response = self.parse_response(block=(timeout is None), timeout=timeout)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1542, in parse_response
+    response = self._execute(conn, try_read)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1536, in try_read
+    if not conn.can_read(timeout=timeout):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 861, in can_read
+    return self._parser.can_read(timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 444, in can_read
+    return self.read_from_socket(timeout=timeout, raise_on_timeout=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 455, in read_from_socket
+    raise ConnectionError(SERVER_CLOSED_CONNECTION_ERROR)
+redis.exceptions.ConnectionError: Connection closed by server.
+Traceback (most recent call last):
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 699, in connect
+    sock = self.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 700, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+            ^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 1002, in _connect
+    raise err
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 990, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [Errno 61] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/bench_helper.py", line 114, in <module>
+    main()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/bench_helper.py", line 20, in main
+    click.Group(commands=commands)(prog_name="bench")
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1442, in __call__
+    return self.main(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1363, in main
+    rv = self.invoke(ctx)
+         ^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1226, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 794, in invoke
+    return callback(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/commands/scheduler.py", line 205, in start_worker
+    start_worker(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/background_jobs.py", line 321, in start_worker
+    worker.work(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 456, in work
+    self.teardown()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 1047, in teardown
+    self.unsubscribe()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 624, in unsubscribe
+    self.pubsub.unsubscribe()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1659, in unsubscribe
+    return self.execute_command("UNSUBSCRIBE", *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1479, in execute_command
+    self._execute(connection, connection.send_command, *args, **kwargs)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 847, in send_command
+    self.send_packed_command(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 817, in send_packed_command
+    self.connect()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 705, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 61 connecting to 127.0.0.1:11000. Connection refused.
+2025-07-07 15:29:17,969 Could not connect to Redis instance: Error 61 connecting to 127.0.0.1:11000. Connection refused. Retrying in 16 seconds...
+2025-07-07 15:29:33,970 Could not connect to Redis instance: Error 61 connecting to 127.0.0.1:11000. Connection refused. Retrying in 32 seconds...
+Exception in thread Thread-1:
+Traceback (most recent call last):
+  File "/Users/huzaifa/.pyenv/versions/3.11.4/lib/python3.11/threading.py", line 1038, in _bootstrap_inner
+    self.run()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1799, in run
+    pubsub.get_message(ignore_subscribe_messages=True, timeout=sleep_time)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1690, in get_message
+    response = self.parse_response(block=(timeout is None), timeout=timeout)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1542, in parse_response
+    response = self._execute(conn, try_read)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1536, in try_read
+    if not conn.can_read(timeout=timeout):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 861, in can_read
+    return self._parser.can_read(timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 444, in can_read
+    return self.read_from_socket(timeout=timeout, raise_on_timeout=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 455, in read_from_socket
+    raise ConnectionError(SERVER_CLOSED_CONNECTION_ERROR)
+redis.exceptions.ConnectionError: Connection closed by server.
+Traceback (most recent call last):
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 699, in connect
+    sock = self.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 700, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+            ^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 1002, in _connect
+    raise err
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 990, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [Errno 61] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/bench_helper.py", line 114, in <module>
+    main()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/bench_helper.py", line 20, in main
+    click.Group(commands=commands)(prog_name="bench")
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1442, in __call__
+    return self.main(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1363, in main
+    rv = self.invoke(ctx)
+         ^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1226, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 794, in invoke
+    return callback(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/commands/scheduler.py", line 205, in start_worker
+    start_worker(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/background_jobs.py", line 321, in start_worker
+    worker.work(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 456, in work
+    self.teardown()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 1047, in teardown
+    self.unsubscribe()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 624, in unsubscribe
+    self.pubsub.unsubscribe()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1659, in unsubscribe
+    return self.execute_command("UNSUBSCRIBE", *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1479, in execute_command
+    self._execute(connection, connection.send_command, *args, **kwargs)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 847, in send_command
+    self.send_packed_command(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 817, in send_packed_command
+    self.connect()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 705, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 61 connecting to 127.0.0.1:11000. Connection refused.
+2025-07-07 15:30:05,976 Could not connect to Redis instance: Error 61 connecting to 127.0.0.1:11000. Connection refused. Retrying in 60 seconds...
+Traceback (most recent call last):
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 699, in connect
+    sock = self.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 700, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+            ^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 1002, in _connect
+    raise err
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 990, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [Errno 61] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/bench_helper.py", line 114, in <module>
+    main()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/bench_helper.py", line 20, in main
+    click.Group(commands=commands)(prog_name="bench")
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1442, in __call__
+    return self.main(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1363, in main
+    rv = self.invoke(ctx)
+         ^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1226, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 794, in invoke
+    return callback(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/commands/scheduler.py", line 205, in start_worker
+    start_worker(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/background_jobs.py", line 321, in start_worker
+    worker.work(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 456, in work
+    self.teardown()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 1046, in teardown
+    self.register_death()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 832, in register_death
+    p.execute()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 2114, in execute
+    conn = self.connection_pool.get_connection("MULTI", self.shard_hint)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 1457, in get_connection
+    connection.connect()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 705, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 61 connecting to 127.0.0.1:11000. Connection refused.
+Exception in thread Thread-1:
+Traceback (most recent call last):
+  File "/Users/huzaifa/.pyenv/versions/3.11.4/lib/python3.11/threading.py", line 1038, in _bootstrap_inner
+    self.run()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1799, in run
+    pubsub.get_message(ignore_subscribe_messages=True, timeout=sleep_time)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1690, in get_message
+    response = self.parse_response(block=(timeout is None), timeout=timeout)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1542, in parse_response
+    response = self._execute(conn, try_read)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1536, in try_read
+    if not conn.can_read(timeout=timeout):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 861, in can_read
+    return self._parser.can_read(timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 444, in can_read
+    return self.read_from_socket(timeout=timeout, raise_on_timeout=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 455, in read_from_socket
+    raise ConnectionError(SERVER_CLOSED_CONNECTION_ERROR)
+redis.exceptions.ConnectionError: Connection closed by server.
+Traceback (most recent call last):
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 699, in connect
+    sock = self.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 700, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+            ^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 1002, in _connect
+    raise err
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 990, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [Errno 61] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/bench_helper.py", line 114, in <module>
+    main()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/bench_helper.py", line 20, in main
+    click.Group(commands=commands)(prog_name="bench")
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1442, in __call__
+    return self.main(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1363, in main
+    rv = self.invoke(ctx)
+         ^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1226, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 794, in invoke
+    return callback(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/commands/scheduler.py", line 205, in start_worker
+    start_worker(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/background_jobs.py", line 321, in start_worker
+    worker.work(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 456, in work
+    self.teardown()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 1047, in teardown
+    self.unsubscribe()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 624, in unsubscribe
+    self.pubsub.unsubscribe()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1659, in unsubscribe
+    return self.execute_command("UNSUBSCRIBE", *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1479, in execute_command
+    self._execute(connection, connection.send_command, *args, **kwargs)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 847, in send_command
+    self.send_packed_command(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 817, in send_packed_command
+    self.connect()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 705, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 61 connecting to 127.0.0.1:11000. Connection refused.
+Exception in thread Thread-1:
+Traceback (most recent call last):
+  File "/Users/huzaifa/.pyenv/versions/3.11.4/lib/python3.11/threading.py", line 1038, in _bootstrap_inner
+    self.run()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1799, in run
+    pubsub.get_message(ignore_subscribe_messages=True, timeout=sleep_time)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1690, in get_message
+    response = self.parse_response(block=(timeout is None), timeout=timeout)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1542, in parse_response
+    response = self._execute(conn, try_read)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1536, in try_read
+    if not conn.can_read(timeout=timeout):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 861, in can_read
+    return self._parser.can_read(timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 444, in can_read
+    return self.read_from_socket(timeout=timeout, raise_on_timeout=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 455, in read_from_socket
+    raise ConnectionError(SERVER_CLOSED_CONNECTION_ERROR)
+redis.exceptions.ConnectionError: Connection closed by server.
+Traceback (most recent call last):
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 699, in connect
+    sock = self.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 700, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+            ^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 1002, in _connect
+    raise err
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 990, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [Errno 61] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/bench_helper.py", line 114, in <module>
+    main()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/bench_helper.py", line 20, in main
+    click.Group(commands=commands)(prog_name="bench")
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1442, in __call__
+    return self.main(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1363, in main
+    rv = self.invoke(ctx)
+         ^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1226, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 794, in invoke
+    return callback(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/commands/scheduler.py", line 205, in start_worker
+    start_worker(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/background_jobs.py", line 321, in start_worker
+    worker.work(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 456, in work
+    self.teardown()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 1047, in teardown
+    self.unsubscribe()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 624, in unsubscribe
+    self.pubsub.unsubscribe()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1659, in unsubscribe
+    return self.execute_command("UNSUBSCRIBE", *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1479, in execute_command
+    self._execute(connection, connection.send_command, *args, **kwargs)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 847, in send_command
+    self.send_packed_command(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 817, in send_packed_command
+    self.connect()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 705, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 61 connecting to 127.0.0.1:11000. Connection refused.
+2025-07-07 15:46:22,589 Could not connect to Redis instance: Connection closed by server. Retrying in 1 seconds...
+Exception in thread Thread-1:
+Traceback (most recent call last):
+  File "/Users/huzaifa/.pyenv/versions/3.11.4/lib/python3.11/threading.py", line 1038, in _bootstrap_inner
+    self.run()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1799, in run
+    pubsub.get_message(ignore_subscribe_messages=True, timeout=sleep_time)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1690, in get_message
+    response = self.parse_response(block=(timeout is None), timeout=timeout)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1542, in parse_response
+    response = self._execute(conn, try_read)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1536, in try_read
+    if not conn.can_read(timeout=timeout):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 861, in can_read
+    return self._parser.can_read(timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 444, in can_read
+    return self.read_from_socket(timeout=timeout, raise_on_timeout=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 455, in read_from_socket
+    raise ConnectionError(SERVER_CLOSED_CONNECTION_ERROR)
+redis.exceptions.ConnectionError: Connection closed by server.
+2025-07-07 15:46:23,597 Could not connect to Redis instance: Error 61 connecting to 127.0.0.1:11000. Connection refused. Retrying in 2 seconds...
+2025-07-07 15:46:25,602 Could not connect to Redis instance: Error 61 connecting to 127.0.0.1:11000. Connection refused. Retrying in 4 seconds...
+2025-07-07 15:46:29,605 Could not connect to Redis instance: Error 61 connecting to 127.0.0.1:11000. Connection refused. Retrying in 8 seconds...
+2025-07-07 15:46:37,606 Could not connect to Redis instance: Error 61 connecting to 127.0.0.1:11000. Connection refused. Retrying in 16 seconds...
+Exception in thread Thread-1:
+Traceback (most recent call last):
+  File "/Users/huzaifa/.pyenv/versions/3.11.4/lib/python3.11/threading.py", line 1038, in _bootstrap_inner
+    self.run()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1799, in run
+    pubsub.get_message(ignore_subscribe_messages=True, timeout=sleep_time)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1690, in get_message
+    response = self.parse_response(block=(timeout is None), timeout=timeout)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1542, in parse_response
+    response = self._execute(conn, try_read)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1536, in try_read
+    if not conn.can_read(timeout=timeout):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 861, in can_read
+    return self._parser.can_read(timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 444, in can_read
+    return self.read_from_socket(timeout=timeout, raise_on_timeout=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 455, in read_from_socket
+    raise ConnectionError(SERVER_CLOSED_CONNECTION_ERROR)
+redis.exceptions.ConnectionError: Connection closed by server.
+Traceback (most recent call last):
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 699, in connect
+    sock = self.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 700, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+            ^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 1002, in _connect
+    raise err
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 990, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [Errno 61] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/bench_helper.py", line 114, in <module>
+    main()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/bench_helper.py", line 20, in main
+    click.Group(commands=commands)(prog_name="bench")
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1442, in __call__
+    return self.main(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1363, in main
+    rv = self.invoke(ctx)
+         ^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1226, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 794, in invoke
+    return callback(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/commands/scheduler.py", line 205, in start_worker
+    start_worker(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/background_jobs.py", line 321, in start_worker
+    worker.work(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 456, in work
+    self.teardown()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 1047, in teardown
+    self.unsubscribe()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 624, in unsubscribe
+    self.pubsub.unsubscribe()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1659, in unsubscribe
+    return self.execute_command("UNSUBSCRIBE", *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1479, in execute_command
+    self._execute(connection, connection.send_command, *args, **kwargs)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 847, in send_command
+    self.send_packed_command(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 817, in send_packed_command
+    self.connect()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 705, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 61 connecting to 127.0.0.1:11000. Connection refused.
+2025-07-07 15:46:53,606 Could not connect to Redis instance: Error 61 connecting to 127.0.0.1:11000. Connection refused. Retrying in 32 seconds...
+Traceback (most recent call last):
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 699, in connect
+    sock = self.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 700, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+            ^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 1002, in _connect
+    raise err
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 990, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [Errno 61] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/bench_helper.py", line 114, in <module>
+    main()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/bench_helper.py", line 20, in main
+    click.Group(commands=commands)(prog_name="bench")
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1442, in __call__
+    return self.main(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1363, in main
+    rv = self.invoke(ctx)
+         ^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1226, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 794, in invoke
+    return callback(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/commands/scheduler.py", line 205, in start_worker
+    start_worker(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/background_jobs.py", line 321, in start_worker
+    worker.work(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 456, in work
+    self.teardown()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 1046, in teardown
+    self.register_death()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 832, in register_death
+    p.execute()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 2114, in execute
+    conn = self.connection_pool.get_connection("MULTI", self.shard_hint)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 1457, in get_connection
+    connection.connect()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 705, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 61 connecting to 127.0.0.1:11000. Connection refused.
+Traceback (most recent call last):
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 874, in read_response
+    response = self._parser.read_response(disable_decoding=disable_decoding)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 493, in read_response
+    Exception in thread Thread-1:
+self.read_from_socket()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 453, in read_from_socket
+    bufflen = self._sock.recv_into(self._buffer)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ConnectionResetError: [Errno 54] Connection reset by peer
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/bench_helper.py", line 114, in <module>
+    main()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/bench_helper.py", line 20, in main
+    click.Group(commands=commands)(prog_name="bench")
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1442, in __call__
+Traceback (most recent call last):
+  File "/Users/huzaifa/.pyenv/versions/3.11.4/lib/python3.11/threading.py", line 1038, in _bootstrap_inner
+    return self.main(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1363, in main
+    rv = self.invoke(ctx)
+         ^^^^^^^^^    self.run()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1799, in run
+^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                             pubsub.get_message(ignore_subscribe_messages=True, timeout=sleep_time)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1690, in get_message
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1226, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 794, in invoke
+response = self.parse_response(block=(timeout is None), timeout=timeout)    return callback(*args, **kwargs)
+        
+                ^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1542, in parse_response
+    response = self._execute(conn, try_read)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 49, in call_with_retry
+^    fail(error)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1520, in <lambda>
+^    ^^^^^^^^^
+lambda error: self._disconnect_raise_connect(conn, error),
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/commands/scheduler.py", line 205, in start_worker
+              start_worker(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/background_jobs.py", line 321, in start_worker
+     worker.work(
+   File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 456, in work
+      ^^^^^^^^^^^^^^^^^^^^^^^^^    self.teardown()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 1046, in teardown
+^^^^^^^^^    self.register_death()^
+^  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 832, in register_death
+^^^^^^    p.execute()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 2120, in execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 2122, in <lambda>
+    lambda error: self._disconnect_raise_reset(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 2121, in <lambda>
+    lambda: execute(conn, stack, raise_on_error),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1975, in _execute_transaction
+    self.parse_response(connection, "_")
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 2060, in parse_response
+^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+    result = Redis.parse_response(self, connection, command_name, **options)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1286, in parse_response
+    response = connection.read_response()
+               File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1536, in try_read
+    if not conn.can_read(timeout=timeout):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 861, in can_read
+    return self._parser.can_read(timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 444, in can_read
+    return self.read_from_socket(timeout=timeout, raise_on_timeout=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 455, in read_from_socket
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 882, in read_response
+    raise ConnectionError(SERVER_CLOSED_CONNECTION_ERROR)
+redis.exceptions    raise ConnectionError(
+.redis.exceptions.ConnectionErrorConnectionError: Error while reading from 127.0.0.1:11000 : (54, 'Connection reset by peer')
+: Exception in thread Thread-1:
+Traceback (most recent call last):
+  File "/Users/huzaifa/.pyenv/versions/3.11.4/lib/python3.11/threading.py", line 1038, in _bootstrap_inner
+    self.run()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1799, in run
+    pubsub.get_message(ignore_subscribe_messages=True, timeout=sleep_time)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1690, in get_message
+    response = self.parse_response(block=(timeout is None), timeout=timeout)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1542, in parse_response
+    response = self._execute(conn, try_read)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1536, in try_read
+    if not conn.can_read(timeout=timeout):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 861, in can_read
+    return self._parser.can_read(timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 444, in can_read
+    return self.read_from_socket(timeout=timeout, raise_on_timeout=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 455, in read_from_socket
+    raise ConnectionError(SERVER_CLOSED_CONNECTION_ERROR)
+redis.exceptions.ConnectionError: Connection closed by server.
+Traceback (most recent call last):
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 699, in connect
+    sock = self.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 700, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+            ^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 1002, in _connect
+    raise err
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 990, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [Errno 61] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/bench_helper.py", line 114, in <module>
+    main()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/bench_helper.py", line 20, in main
+    click.Group(commands=commands)(prog_name="bench")
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1442, in __call__
+    return self.main(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1363, in main
+    rv = self.invoke(ctx)
+         ^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1226, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 794, in invoke
+    return callback(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/commands/scheduler.py", line 205, in start_worker
+    start_worker(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/background_jobs.py", line 321, in start_worker
+    worker.work(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 456, in work
+    self.teardown()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 1047, in teardown
+    self.unsubscribe()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 624, in unsubscribe
+    self.pubsub.unsubscribe()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1659, in unsubscribe
+    return self.execute_command("UNSUBSCRIBE", *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1479, in execute_command
+    self._execute(connection, connection.send_command, *args, **kwargs)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 847, in send_command
+    self.send_packed_command(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 817, in send_packed_command
+    self.connect()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 705, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 61 connecting to 127.0.0.1:11000. Connection refused.
+Traceback (most recent call last):
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 699, in connect
+Exception in thread Thread-1:
+Traceback (most recent call last):
+  File "/Users/huzaifa/.pyenv/versions/3.11.4/lib/python3.11/threading.py", line 1038, in _bootstrap_inner
+    self.run()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1799, in run
+    sock = self.retry.call_with_retry(
+           ^^^^^^^^^^^^^^    pubsub.get_message(ignore_subscribe_messages=True, timeout=sleep_time)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1690, in get_message
+    response = self.parse_response(block=(timeout is None), timeout=timeout)^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 700, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+            ^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 1002, in _connect
+
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1542, in parse_response
+    response = self._execute(conn, try_read)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1536, in try_read
+    if not conn.can_read(timeout=timeout):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 861, in can_read
+    return self._parser.can_read(timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 444, in can_read
+    return self.read_from_socket(timeout=timeout, raise_on_timeout=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^    ^raise err
+^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 455, in read_from_socket
+    raise ConnectionError(SERVER_CLOSED_CONNECTION_ERROR)
+redis.exceptions.ConnectionError: Connection closed by server.
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 990, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [Errno 61] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/bench_helper.py", line 114, in <module>
+    main()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/bench_helper.py", line 20, in main
+    click.Group(commands=commands)(prog_name="bench")
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1442, in __call__
+    return self.main(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1363, in main
+    rv = self.invoke(ctx)
+         ^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1226, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 794, in invoke
+    return callback(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/commands/scheduler.py", line 205, in start_worker
+    start_worker(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/background_jobs.py", line 321, in start_worker
+    worker.work(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 456, in work
+    self.teardown()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 1046, in teardown
+    self.register_death()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 832, in register_death
+    p.execute()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 2114, in execute
+    conn = self.connection_pool.get_connection("MULTI", self.shard_hint)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 1457, in get_connection
+    connection.connect()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 705, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 61 connecting to 127.0.0.1:11000. Connection refused.
+Exception in thread Thread-1:
+Traceback (most recent call last):
+  File "/Users/huzaifa/.pyenv/versions/3.11.4/lib/python3.11/threading.py", line 1038, in _bootstrap_inner
+    self.run()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1799, in run
+    pubsub.get_message(ignore_subscribe_messages=True, timeout=sleep_time)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1690, in get_message
+    response = self.parse_response(block=(timeout is None), timeout=timeout)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1542, in parse_response
+    response = self._execute(conn, try_read)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1536, in try_read
+    if not conn.can_read(timeout=timeout):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 861, in can_read
+    return self._parser.can_read(timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 444, in can_read
+    return self.read_from_socket(timeout=timeout, raise_on_timeout=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 455, in read_from_socket
+    raise ConnectionError(SERVER_CLOSED_CONNECTION_ERROR)
+redis.exceptions.ConnectionError: Connection closed by server.
+Traceback (most recent call last):
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 699, in connect
+    sock = self.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 700, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+            ^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 1002, in _connect
+    raise err
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 990, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [Errno 61] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/bench_helper.py", line 114, in <module>
+    main()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/bench_helper.py", line 20, in main
+    click.Group(commands=commands)(prog_name="bench")
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1442, in __call__
+    return self.main(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1363, in main
+    rv = self.invoke(ctx)
+         ^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1226, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 794, in invoke
+    return callback(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/commands/scheduler.py", line 205, in start_worker
+    start_worker(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/background_jobs.py", line 321, in start_worker
+    worker.work(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 456, in work
+    self.teardown()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 1047, in teardown
+    self.unsubscribe()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 624, in unsubscribe
+    self.pubsub.unsubscribe()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1659, in unsubscribe
+    return self.execute_command("UNSUBSCRIBE", *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1479, in execute_command
+    self._execute(connection, connection.send_command, *args, **kwargs)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 847, in send_command
+    self.send_packed_command(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 817, in send_packed_command
+    self.connect()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 705, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 61 connecting to 127.0.0.1:11000. Connection refused.
+Exception in thread Thread-1:
+Traceback (most recent call last):
+  File "/Users/huzaifa/.pyenv/versions/3.11.4/lib/python3.11/threading.py", line 1038, in _bootstrap_inner
+    self.run()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1799, in run
+    pubsub.get_message(ignore_subscribe_messages=True, timeout=sleep_time)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1690, in get_message
+    response = self.parse_response(block=(timeout is None), timeout=timeout)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1542, in parse_response
+    response = self._execute(conn, try_read)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1536, in try_read
+    if not conn.can_read(timeout=timeout):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 861, in can_read
+    return self._parser.can_read(timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 444, in can_read
+    return self.read_from_socket(timeout=timeout, raise_on_timeout=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 455, in read_from_socket
+    raise ConnectionError(SERVER_CLOSED_CONNECTION_ERROR)
+redis.exceptions.ConnectionError: Connection closed by server.
+Traceback (most recent call last):
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 699, in connect
+    sock = self.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 700, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+            ^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 1002, in _connect
+    raise err
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 990, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [Errno 61] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/bench_helper.py", line 114, in <module>
+    main()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/bench_helper.py", line 20, in main
+    click.Group(commands=commands)(prog_name="bench")
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1442, in __call__
+    return self.main(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1363, in main
+    rv = self.invoke(ctx)
+         ^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1226, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 794, in invoke
+    return callback(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/commands/scheduler.py", line 205, in start_worker
+    start_worker(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/background_jobs.py", line 321, in start_worker
+    worker.work(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 456, in work
+    self.teardown()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 1047, in teardown
+    self.unsubscribe()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 624, in unsubscribe
+    self.pubsub.unsubscribe()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1659, in unsubscribe
+    return self.execute_command("UNSUBSCRIBE", *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1479, in execute_command
+    self._execute(connection, connection.send_command, *args, **kwargs)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 847, in send_command
+    self.send_packed_command(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 817, in send_packed_command
+    self.connect()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 705, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 61 connecting to 127.0.0.1:11000. Connection refused.
+Exception in thread Thread-1:
+Traceback (most recent call last):
+  File "/Users/huzaifa/.pyenv/versions/3.11.4/lib/python3.11/threading.py", line 1038, in _bootstrap_inner
+    self.run()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1799, in run
+    pubsub.get_message(ignore_subscribe_messages=True, timeout=sleep_time)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1690, in get_message
+    response = self.parse_response(block=(timeout is None), timeout=timeout)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1542, in parse_response
+    response = self._execute(conn, try_read)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1536, in try_read
+    if not conn.can_read(timeout=timeout):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 861, in can_read
+    return self._parser.can_read(timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 444, in can_read
+    return self.read_from_socket(timeout=timeout, raise_on_timeout=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 455, in read_from_socket
+    raise ConnectionError(SERVER_CLOSED_CONNECTION_ERROR)
+redis.exceptions.ConnectionError: Connection closed by server.
+Traceback (most recent call last):
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 699, in connect
+    sock = self.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 700, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+            ^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 1002, in _connect
+    raise err
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 990, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [Errno 61] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/bench_helper.py", line 114, in <module>
+    main()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/bench_helper.py", line 20, in main
+    click.Group(commands=commands)(prog_name="bench")
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1442, in __call__
+    return self.main(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1363, in main
+    rv = self.invoke(ctx)
+         ^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 1226, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/click/core.py", line 794, in invoke
+    return callback(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/commands/scheduler.py", line 205, in start_worker
+    start_worker(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/apps/frappe/frappe/utils/background_jobs.py", line 321, in start_worker
+    worker.work(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 456, in work
+    self.teardown()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 1047, in teardown
+    self.unsubscribe()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/rq/worker.py", line 624, in unsubscribe
+    self.pubsub.unsubscribe()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1659, in unsubscribe
+    return self.execute_command("UNSUBSCRIBE", *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1479, in execute_command
+    self._execute(connection, connection.send_command, *args, **kwargs)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 847, in send_command
+    self.send_packed_command(
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 817, in send_packed_command
+    self.connect()
+  File "/Users/huzaifa/Desktop/Coding_Projects/Blueprint/frappe-lms/env/lib/python3.11/site-packages/redis/connection.py", line 705, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 61 connecting to 127.0.0.1:11000. Connection refused.
