@@ -39,6 +39,7 @@ export default defineConfig({
 			'showdown',
 			'engine.io-client',
 			'tailwind.config.js',
+			'interactjs',
 			'highlight.js',
 			'plyr',
 		],
