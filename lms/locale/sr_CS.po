@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-07-11 16:04+0000\n"
-"PO-Revision-Date: 2025-07-14 20:03\n"
+"PO-Revision-Date: 2025-07-16 19:54\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Serbian (Latin)\n"
 "MIME-Version: 1.0\n"
@@ -479,7 +479,7 @@ msgstr "Dodeli"
 
 #: frontend/src/components/Settings/BadgeForm.vue:28
 msgid "Assign For"
-msgstr ""
+msgstr "Dodeli za"
 
 #: frontend/src/components/Settings/BadgeForm.vue:58
 msgid "Assign To"
@@ -487,11 +487,11 @@ msgstr "Dodeli"
 
 #: frontend/src/components/Settings/BadgeAssignmentForm.vue:7
 msgid "Assign a Badge"
-msgstr ""
+msgstr "Dodeli bedž"
 
 #: frontend/src/components/Settings/Badges.vue:221
 msgid "Assigned For"
-msgstr ""
+msgstr "Dodeljeno za"
 
 #. Label of the section_break_16 (Section Break) field in DocType 'Course
 #. Lesson'
@@ -514,7 +514,7 @@ msgstr "Prilog zadatka"
 #: frontend/src/components/Settings/BadgeForm.vue:198
 #: frontend/src/components/Settings/Badges.vue:204
 msgid "Assignment Submission"
-msgstr ""
+msgstr "Podnošenje zadatka"
 
 #: frontend/src/pages/AssignmentSubmissionList.vue:222
 msgid "Assignment Submissions"
@@ -639,27 +639,27 @@ msgstr "Slika bedža"
 
 #: frontend/src/components/Settings/BadgeAssignmentForm.vue:131
 msgid "Badge assignment created successfully"
-msgstr ""
+msgstr "Dodela bedža je uspešno kreirana"
 
 #: frontend/src/components/Settings/BadgeAssignmentForm.vue:112
 msgid "Badge assignment updated successfully"
-msgstr ""
+msgstr "Dodela bedža je uspešno ažurirana"
 
 #: frontend/src/components/Settings/BadgeAssignments.vue:173
 msgid "Badge assignments deleted successfully"
-msgstr ""
+msgstr "Dodele bedževa su uspešno obrisane"
 
 #: frontend/src/components/Settings/BadgeForm.vue:182
 msgid "Badge created successfully"
-msgstr ""
+msgstr "Bedž je uspešno kreiran"
 
 #: frontend/src/components/Settings/Badges.vue:190
 msgid "Badge deleted successfully"
-msgstr ""
+msgstr "Bedž je uspešno obrisan"
 
 #: frontend/src/components/Settings/BadgeForm.vue:162
 msgid "Badge updated successfully"
-msgstr ""
+msgstr "Bedž je uspešno ažuriran"
 
 #. Label of the batch (Link) field in DocType 'LMS Batch Enrollment'
 #. Label of the batch (Link) field in DocType 'LMS Batch Feedback'
@@ -709,7 +709,7 @@ msgstr "Neobrađeni detalji grupe"
 #: frontend/src/components/Settings/BadgeForm.vue:204
 #: frontend/src/components/Settings/Badges.vue:202
 msgid "Batch Enrollment"
-msgstr ""
+msgstr "Upis u grupu"
 
 #: frontend/src/components/Modals/EmailTemplateModal.vue:28
 msgid "Batch Enrollment Confirmation"
@@ -767,7 +767,7 @@ msgstr "Naslov grupe"
 
 #: frontend/src/pages/BatchForm.vue:578
 msgid "Batch deleted successfully"
-msgstr ""
+msgstr "Grupa je uspešno obrisana"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:41
 msgid "Batch end date cannot be before the batch start date"
@@ -1028,7 +1028,7 @@ msgstr "Poglavlje je uspešno obrisano"
 
 #: frontend/src/components/CourseOutline.vue:271
 msgid "Chapter moved successfully"
-msgstr ""
+msgstr "Poglavlje je uspešno premešteno"
 
 #: frontend/src/components/Modals/ChapterModal.vue:196
 msgid "Chapter updated successfully"
@@ -1359,7 +1359,7 @@ msgstr "Potvrdi"
 
 #: frontend/src/pages/BatchForm.vue:556
 msgid "Confirm your action to delete"
-msgstr ""
+msgstr "Potvrdite svoju radnju za brisanje"
 
 #. Label of the confirmation_email_sent (Check) field in DocType 'LMS Batch
 #. Enrollment'
@@ -1542,7 +1542,7 @@ msgstr "Opis obuke"
 #: frontend/src/components/Settings/BadgeForm.vue:203
 #: frontend/src/components/Settings/Badges.vue:201
 msgid "Course Enrollment"
-msgstr ""
+msgstr "Upis na kurs"
 
 #: frontend/src/pages/Statistics.vue:22
 msgid "Course Enrollments"
@@ -1709,7 +1709,7 @@ msgstr "Kreiraj onlajn predavanje"
 
 #: frontend/src/components/Settings/BadgeForm.vue:5
 msgid "Create a new Badge"
-msgstr ""
+msgstr "Kreiraj novi bedž"
 
 #: frontend/src/components/Modals/AssignmentForm.vue:13
 msgid "Create an Assignment"
@@ -1876,7 +1876,7 @@ msgstr "Brisanjem obuke takođe će se obrisati sva poglavlja i lekcije. Da li s
 
 #: frontend/src/pages/BatchForm.vue:557
 msgid "Deleting this batch will also delete all its data including enrolled students, linked courses, assessments, feedback and discussions. Are you sure you want to continue?"
-msgstr ""
+msgstr "Brisanjem ove grupe takođe će biti obrisani svi njeni podaci, uključujući upisane studente, povezane kurseve, procene, povratne informacije i diskusije. Da li ste sigurni da želite da nastavite?"
 
 #: frontend/src/components/CourseOutline.vue:344
 msgid "Deleting this chapter will also delete all its lessons and permanently remove it from the course. This action cannot be undone. Are you sure you want to continue?"
@@ -2025,11 +2025,11 @@ msgstr "Uredi zadatak"
 
 #: frontend/src/components/Settings/BadgeForm.vue:5
 msgid "Edit Badge"
-msgstr ""
+msgstr "Uredi bedž"
 
 #: frontend/src/components/Settings/BadgeAssignmentForm.vue:8
 msgid "Edit Badge Assignment"
-msgstr ""
+msgstr "Uredi dodelu bedža"
 
 #: frontend/src/components/CourseOutline.vue:60
 #: frontend/src/components/Modals/ChapterModal.vue:5
@@ -2244,7 +2244,7 @@ msgstr "Greška prilikom kreiranja Zoom naloga"
 
 #: frontend/src/components/Settings/BadgeForm.vue:186
 msgid "Error creating badge"
-msgstr ""
+msgstr "Greška prilikom kreiranja bedža"
 
 #: frontend/src/components/Modals/EmailTemplateModal.vue:122
 msgid "Error creating email template"
@@ -2260,7 +2260,7 @@ msgstr "Greška prilikom kreiranja kviza: {0}"
 
 #: frontend/src/components/Settings/Badges.vue:193
 msgid "Error deleting badge"
-msgstr ""
+msgstr "Greška prilikom brisanja bedža"
 
 #: frontend/src/components/Settings/EmailTemplates.vue:133
 #: frontend/src/components/Settings/ZoomSettings.vue:179
@@ -2467,7 +2467,7 @@ msgstr "Neuspešno"
 
 #: frontend/src/components/Settings/BadgeAssignmentForm.vue:136
 msgid "Failed to create badge assignment: "
-msgstr ""
+msgstr "Neuspešno kreiranje dodele bedža: "
 
 #: lms/lms/doctype/lms_live_class/lms_live_class.py:139
 msgid "Failed to fetch attendance data from Zoom for class {0}: {1}"
@@ -2479,7 +2479,7 @@ msgstr "Neuspešno podnošenje. Pokušajte ponovo. {0}"
 
 #: frontend/src/components/Settings/BadgeAssignmentForm.vue:117
 msgid "Failed to update badge assignment: "
-msgstr ""
+msgstr "Neuspešno ažuriranje dodele bedža: "
 
 #: frontend/src/utils/index.js:671
 msgid "Failed to update meta tags {0}"
@@ -2687,7 +2687,7 @@ msgstr "Ocenjivanje"
 #: frontend/src/components/Settings/BadgeForm.vue:46
 #: frontend/src/components/Settings/Badges.vue:235
 msgid "Grant Only Once"
-msgstr ""
+msgstr "Dodeli samo jednom"
 
 #. Label of the grant_only_once (Check) field in DocType 'LMS Badge'
 #: lms/lms/doctype/lms_badge/lms_badge.json
@@ -4141,7 +4141,7 @@ msgstr "Nema procena"
 
 #: frontend/src/components/Settings/BadgeAssignments.vue:87
 msgid "No Assignments"
-msgstr ""
+msgstr "Nema zadataka"
 
 #: lms/templates/notifications.html:26
 msgid "No Notifications"
@@ -5482,7 +5482,7 @@ msgstr "Preostala mesta"
 
 #: frontend/src/components/Settings/BadgeAssignmentForm.vue:42
 msgid "Select Date"
-msgstr ""
+msgstr "Izaberite datum"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseModal.vue:23
 msgid "Select a Programming Exercise"
@@ -6162,7 +6162,7 @@ msgstr "Ovaj bedž je dodeljen za {0} na {1}."
 
 #: frontend/src/components/Settings/BadgeAssignments.vue:92
 msgid "This badge has not been assigned to any students yet"
-msgstr ""
+msgstr "Ovaj bedž još uvek nije dodeljen nijednom studentu"
 
 #. Label of the expire (Check) field in DocType 'Certification'
 #: lms/lms/doctype/certification/certification.json

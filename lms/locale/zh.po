@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-07-11 16:04+0000\n"
-"PO-Revision-Date: 2025-07-14 20:03\n"
+"PO-Revision-Date: 2025-07-16 19:54\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Chinese Simplified\n"
 "MIME-Version: 1.0\n"
@@ -110,7 +110,7 @@ msgstr "账户ID"
 #: frontend/src/components/Settings/ZoomSettings.vue:192
 #: lms/lms/doctype/lms_zoom_settings/lms_zoom_settings.json
 msgid "Account Name"
-msgstr "账户名称"
+msgstr "科目名称"
 
 #: frontend/src/pages/ProfileAbout.vue:17
 msgid "Achievements"
@@ -158,7 +158,7 @@ msgstr ""
 
 #: frontend/src/components/Controls/ChildTable.vue:69
 msgid "Add Row"
-msgstr "添加行"
+msgstr "添加一行"
 
 #: frontend/src/pages/ProfileEvaluator.vue:89
 msgid "Add Slot"
@@ -483,7 +483,7 @@ msgstr ""
 
 #: frontend/src/components/Settings/BadgeForm.vue:58
 msgid "Assign To"
-msgstr "分配给"
+msgstr "执行人"
 
 #: frontend/src/components/Settings/BadgeAssignmentForm.vue:7
 msgid "Assign a Badge"
