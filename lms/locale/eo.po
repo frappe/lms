@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2025-07-11 16:04+0000\n"
-"PO-Revision-Date: 2025-07-14 20:03\n"
+"POT-Creation-Date: 2025-07-18 16:05+0000\n"
+"PO-Revision-Date: 2025-07-21 20:36\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Esperanto\n"
 "MIME-Version: 1.0\n"
@@ -717,6 +717,7 @@ msgstr "crwdns155170:0crwdne155170:0"
 
 #. Name of a role
 #: lms/lms/doctype/course_evaluator/course_evaluator.json
+#: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_category/lms_category.json
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
@@ -1519,6 +1520,7 @@ msgstr "crwdns154800:0crwdne154800:0"
 #: frontend/src/pages/ProfileRoles.vue:26
 #: lms/lms/doctype/course_chapter/course_chapter.json
 #: lms/lms/doctype/course_lesson/course_lesson.json
+#: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 #: lms/lms/doctype/lms_category/lms_category.json
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_program/lms_program.json
@@ -2214,7 +2216,7 @@ msgstr "crwdns152430:0{0}crwdne152430:0"
 msgid "Enrollment Count"
 msgstr "crwdns149730:0crwdne149730:0"
 
-#: lms/lms/utils.py:1943
+#: lms/lms/utils.py:1944
 msgid "Enrollment Failed"
 msgstr "crwdns149732:0crwdne149732:0"
 
@@ -3982,6 +3984,7 @@ msgstr "crwdns151758:0crwdne151758:0"
 #: lms/lms/doctype/course_evaluator/course_evaluator.json
 #: lms/lms/doctype/course_lesson/course_lesson.json
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
+#: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 #: lms/lms/doctype/lms_badge_assignment/lms_badge_assignment.json
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_batch_enrollment/lms_batch_enrollment.json
@@ -4636,7 +4639,7 @@ msgstr "crwdns150404:0crwdne150404:0"
 msgid "Please click on the following button to set your new password"
 msgstr "crwdns150406:0crwdne150406:0"
 
-#: lms/lms/utils.py:2077 lms/lms/utils.py:2081
+#: lms/lms/utils.py:2078 lms/lms/utils.py:2082
 msgid "Please complete the previous courses in the program to enroll in this course."
 msgstr "crwdns151772:0crwdne151772:0"
 
@@ -6090,7 +6093,7 @@ msgstr "crwdns155204:0crwdne155204:0"
 msgid "Thanks and Regards"
 msgstr "crwdns150794:0crwdne150794:0"
 
-#: lms/lms/utils.py:1975
+#: lms/lms/utils.py:1976
 msgid "The batch is full. Please contact the Administrator."
 msgstr "crwdns152138:0crwdne152138:0"
 
@@ -6177,7 +6180,7 @@ msgstr "crwdns152144:0crwdne152144:0"
 msgid "This course has:"
 msgstr "crwdns150820:0crwdne150820:0"
 
-#: lms/lms/utils.py:1818
+#: lms/lms/utils.py:1819
 msgid "This course is free."
 msgstr "crwdns150822:0crwdne150822:0"
 
@@ -6360,7 +6363,7 @@ msgstr "crwdns150852:0crwdne150852:0"
 msgid "To Date"
 msgstr "crwdns150854:0crwdne150854:0"
 
-#: lms/lms/utils.py:1829
+#: lms/lms/utils.py:1830
 msgid "To join this batch, please contact the Administrator."
 msgstr "crwdns150858:0crwdne150858:0"
 
