@@ -1222,14 +1222,22 @@ def get_course_outline(course, progress=False):
 @frappe.whitelist(allow_guest=True)
 def get_lesson(course, chapter, lesson):
 	chapter_name = frappe.db.get_value("Chapter Reference", {"parent": course, "idx": chapter}, "chapter")
+	is_scorm_chapter = frappe.db.get_value("Course Chapter", chapter_name, "is_scorm_package")
 	lesson_name = frappe.db.get_value("Lesson Reference", {"parent": chapter_name, "idx": lesson}, "lesson")
 	lesson_details = frappe.db.get_value(
 		"Course Lesson",
 		lesson_name,
-		["include_in_preview", "title", "is_scorm_package"],
+		["include_in_preview", "title"],
 		as_dict=1,
 	)
-	if not lesson_details or lesson_details.is_scorm_package:
+
+	if is_scorm_chapter:
+		return {
+			"is_scorm_package": True,
+			"chapter_name": chapter_name,
+		}
+
+	if not lesson_details:
 		return {}
 
 	membership = get_membership(course)

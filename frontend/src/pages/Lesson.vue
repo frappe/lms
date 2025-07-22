@@ -425,6 +425,15 @@ const setupLesson = (data) => {
 		})
 		return
 	}
+	if (data.is_scorm_package) {
+		router.push({
+			name: 'SCORMChapter',
+			params: {
+				courseName: props.courseName,
+				chapterName: data.chapter_name,
+			},
+		})
+	}
 	lessonProgress.value = data.membership?.progress
 	if (data.content) editor.value = renderEditor('editor', data.content)
 	if (
