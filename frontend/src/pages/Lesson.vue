@@ -604,7 +604,7 @@ const updateVideoTime = (video) => {
 }
 
 const startTimer = () => {
-	timerInterval = setInterval(() => {
+	let timerInterval = setInterval(() => {
 		timer.value++
 		if (timer.value == 30) {
 			clearInterval(timerInterval)
