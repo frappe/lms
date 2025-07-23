@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-07-18 16:05+0000\n"
-"PO-Revision-Date: 2025-07-21 20:36\n"
+"PO-Revision-Date: 2025-07-23 21:15\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Portuguese\n"
 "MIME-Version: 1.0\n"
@@ -1115,7 +1115,7 @@ msgstr ""
 
 #: frontend/src/components/BatchFeedback.vue:10
 msgid "Click here"
-msgstr ""
+msgstr "Clique aqui"
 
 #. Label of the client_id (Data) field in DocType 'LMS Zoom Settings'
 #. Label of the client_id (Data) field in DocType 'Zoom Settings'
@@ -4386,7 +4386,7 @@ msgstr ""
 
 #: frontend/src/components/Modals/Question.vue:56
 msgid "Options"
-msgstr ""
+msgstr "Opções"
 
 #. Label of the order_id (Data) field in DocType 'LMS Payment'
 #: lms/lms/doctype/lms_payment/lms_payment.json
