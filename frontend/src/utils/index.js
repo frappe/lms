@@ -551,11 +551,10 @@ export const enablePlyr = async () => {
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 const setupPlyrForVideo = (video, players) => {
-	const src = video.getAttribute('src') || video.getAttribute('data-src')
+	const src = video.getAttribute('src')
 
 	if (src) {
 		const videoID = extractYouTubeId(src)
-		video.setAttribute('data-plyr-provider', 'youtube')
 		video.setAttribute('data-plyr-embed-id', videoID)
 	}
 
