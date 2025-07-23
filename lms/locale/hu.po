@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-07-18 16:05+0000\n"
-"PO-Revision-Date: 2025-07-21 20:36\n"
+"PO-Revision-Date: 2025-07-23 21:15\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Hungarian\n"
 "MIME-Version: 1.0\n"
@@ -2554,7 +2554,7 @@ msgstr ""
 
 #: lms/lms/widgets/CourseCard.html:114
 msgid "Free"
-msgstr ""
+msgstr "Szabadkézi"
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
 #: frontend/src/pages/Jobs.vue:179
@@ -2708,7 +2708,7 @@ msgstr ""
 
 #: lms/lms/widgets/HelloWorld.html:13
 msgid "Hello"
-msgstr ""
+msgstr "Szia"
 
 #: frontend/src/components/AppSidebar.vue:128
 msgid "Help"
@@ -2786,7 +2786,7 @@ msgstr ""
 
 #: frontend/src/pages/QuizForm.vue:338
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #. Label of the icon (Data) field in DocType 'LMS Sidebar Item'
 #: frontend/src/components/Modals/PageModal.vue:28
@@ -2860,7 +2860,7 @@ msgstr ""
 
 #: lms/lms/doctype/lms_quiz/lms_quiz.py:232
 msgid "Image: Corrupted Data Stream"
-msgstr ""
+msgstr "Kép: Sérült adatfolyam"
 
 #. Option for the 'Stage' (Select) field in DocType 'LMS Batch Old'
 #. Option for the 'Status' (Select) field in DocType 'LMS Certificate
@@ -2900,7 +2900,7 @@ msgstr ""
 #. Label of the index_ (Int) field in DocType 'LMS Exercise'
 #: lms/lms/doctype/lms_exercise/lms_exercise.json
 msgid "Index"
-msgstr ""
+msgstr "Indexelés"
 
 #. Label of the index_label (Data) field in DocType 'LMS Exercise'
 #: lms/lms/doctype/lms_exercise/lms_exercise.json
@@ -3072,7 +3072,7 @@ msgstr ""
 
 #: lms/templates/signup-form.html:6
 msgid "Jane Doe"
-msgstr ""
+msgstr "Gipsz Jakab"
 
 #. Option for the 'Language' (Select) field in DocType 'LMS Programming
 #. Exercise'
