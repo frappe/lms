@@ -1,7 +1,7 @@
 name: Create weekly release
 on:
   schedule:
-    - cron: '30 4 15 * *'
+    - cron: '30 3 * * 3'
   workflow_dispatch:
 
 jobs:
