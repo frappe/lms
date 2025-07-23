@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-07-18 16:05+0000\n"
-"PO-Revision-Date: 2025-07-21 20:36\n"
+"PO-Revision-Date: 2025-07-23 21:15\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Thai\n"
 "MIME-Version: 1.0\n"
@@ -158,7 +158,7 @@ msgstr ""
 
 #: frontend/src/components/Controls/ChildTable.vue:69
 msgid "Add Row"
-msgstr ""
+msgstr "เพิ่มแถว"
 
 #: frontend/src/pages/ProfileEvaluator.vue:89
 msgid "Add Slot"
@@ -1135,7 +1135,7 @@ msgstr ""
 
 #: frontend/src/components/Settings/Categories.vue:27
 msgid "Close"
-msgstr ""
+msgstr "ปิด"
 
 #. Option for the 'Status' (Select) field in DocType 'Job Opportunity'
 #. Option for the 'Membership' (Select) field in DocType 'LMS Batch Old'
@@ -1206,7 +1206,7 @@ msgstr ""
 
 #: frontend/src/components/AppSidebar.vue:142
 msgid "Collapse"
-msgstr ""
+msgstr "ยุบ"
 
 #. Label of the college (Data) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -7067,7 +7067,7 @@ msgstr ""
 
 #: frontend/src/components/Modals/LiveClassAttendance.vue:57
 msgid "minutes"
-msgstr ""
+msgstr "นาที"
 
 #: lms/templates/quiz/quiz.html:106
 msgid "of"
@@ -7087,7 +7087,7 @@ msgstr "การให้คะแนน"
 
 #: frontend/src/components/Settings/Categories.vue:19
 msgid "saving..."
-msgstr ""
+msgstr "กำลังบันทึก..."
 
 #: lms/templates/reviews.html:43
 msgid "stars"
