@@ -277,7 +277,7 @@
    "fieldname": "card_gradient",
    "fieldtype": "Select",
    "label": "Card Gradient",
-   "options": "Red\nBlue\nGreen\nAmber\nCyan\nOrange\nPink\nPurple\nTeal\nViolet\nYellow"
+   "options": "Red\nBlue\nGreen\nAmber\nCyan\nOrange\nPink\nPurple\nTeal\nViolet\nYellow\nGray"
   }
  ],
  "is_published_field": "published",
@@ -296,7 +296,7 @@
   }
  ],
  "make_attachments_public": 1,
- "modified": "2025-07-23 18:40:28.707756",
+ "modified": "2025-07-25 17:30:48.553707",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Course",

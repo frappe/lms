@@ -565,10 +565,13 @@ def get_courses_under_review():
 
 def validate_image(path):
 	if path and "/private" in path:
-		file = frappe.get_doc("File", {"file_url": path})
-		file.is_private = 0
-		file.save()
-		return file.file_url
+		frappe.db.set_value(
+			"File",
+			{"file_url": path},
+			"is_private",
+			0,
+		)
+		return path.replace("/private", "")
 	return path
 
 

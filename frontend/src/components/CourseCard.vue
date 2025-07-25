@@ -145,7 +145,7 @@ const props = defineProps({
 })
 
 const getGradientColor = () => {
-	let color = props.course.card_gradient.toLowerCase()
+	let color = props.course.card_gradient?.toLowerCase() || 'blue'
 	let colorMap = theme.backgroundColor[color]
 	return `linear-gradient(to top right, black, ${colorMap[400]})`
 	/* return `bg-gradient-to-br from-${color}-100 via-${color}-200 to-${color}-400` */
