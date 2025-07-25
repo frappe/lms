@@ -1,41 +1,51 @@
 <template>
 	<div
 		v-if="course.title"
-		class="flex flex-col h-full rounded-md border-2 overflow-auto"
+		class="flex flex-col h-full rounded-md border-2 overflow-auto hover:border hover:border-outline-gray-3 text-ink-gray-9"
 		style="min-height: 350px"
 	>
 		<div
-			class="course-image"
-			:class="{ 'default-image': !course.image }"
-			:style="{ backgroundImage: 'url(\'' + encodeURI(course.image) + '\')' }"
+			class="w-[100%] h-[168px] bg-cover bg-center bg-no-repeat"
+			:style="
+				course.image
+					? { backgroundImage: `url('${encodeURI(course.image)}')` }
+					: {
+							backgroundImage: getGradientColor(),
+							backgroundBlendMode: 'screen',
+					  }
+			"
 		>
 			<div class="flex items-center flex-wrap relative top-4 px-2 w-fit">
-				<Badge
+				<div
 					v-if="course.featured"
-					variant="subtle"
-					theme="green"
-					size="md"
-					class="mb-1 mr-1"
+					class="flex items-center space-x-1 text-xs text-ink-amber-3 bg-surface-white px-2 py-0.5 rounded-md mr-1 mb-1"
 				>
-					{{ __('Featured') }}
-				</Badge>
+					<Star class="size-3 stroke-2" />
+					<span>
+						{{ __('Featured') }}
+					</span>
+				</div>
 				<div
 					v-if="course.tags"
 					v-for="tag in course.tags?.split(', ')"
-					class="text-xs bg-white text-gray-800 px-2 py-0.5 rounded-md mb-1 mr-1"
+					class="text-xs bg-surface-white text-ink-gray-9 px-2 py-0.5 rounded-md mb-1 mr-1"
 				>
 					{{ tag }}
 				</div>
 			</div>
-			<div v-if="!course.image" class="image-placeholder">
-				{{ course.title[0] }}
+			<div
+				v-if="!course.image"
+				class="flex items-center justify-center text-white flex-1 font-extrabold text-2xl my-auto"
+				:class="course.tags ? 'h-[80%]' : 'h-full'"
+			>
+				{{ course.title }}
 			</div>
 		</div>
 		<div class="flex flex-col flex-auto p-4">
 			<div class="flex items-center justify-between mb-2">
 				<div v-if="course.lessons">
 					<Tooltip :text="__('Lessons')">
-						<span class="flex items-center text-ink-gray-7">
+						<span class="flex items-center">
 							<BookOpen class="h-4 w-4 stroke-1.5 mr-1" />
 							{{ course.lessons }}
 						</span>
@@ -44,8 +54,8 @@
 
 				<div v-if="course.enrollments">
 					<Tooltip :text="__('Enrolled Students')">
-						<span class="flex items-center text-ink-gray-7">
-							<Users class="h-4 w-4 stroke-1. mr-1" />
+						<span class="flex items-center">
+							<Users class="h-4 w-4 stroke-1.5 mr-1" />
 							{{ course.enrollments }}
 						</span>
 					</Tooltip>
@@ -53,14 +63,14 @@
 
 				<div v-if="course.rating">
 					<Tooltip :text="__('Average Rating')">
-						<span class="flex items-center text-ink-gray-7">
+						<span class="flex items-center">
 							<Star class="h-4 w-4 stroke-1.5 mr-1" />
 							{{ course.rating }}
 						</span>
 					</Tooltip>
 				</div>
 
-				<div v-if="course.status != 'Approved'">
+				<!-- <div v-if="course.status != 'Approved'">
 					<Badge
 						variant="subtle"
 						:theme="course.status === 'Under Review' ? 'orange' : 'blue'"
@@ -68,14 +78,14 @@
 					>
 						{{ course.status }}
 					</Badge>
-				</div>
+				</div> -->
 			</div>
 
-			<div class="text-xl font-semibold leading-6 text-ink-gray-9">
+			<div v-if="course.image" class="text-xl font-semibold leading-6">
 				{{ course.title }}
 			</div>
 
-			<div class="short-introduction text-ink-gray-7 text-sm">
+			<div class="short-introduction text-sm">
 				{{ course.short_introduction }}
 			</div>
 
@@ -84,11 +94,8 @@
 				:progress="course.membership.progress"
 			/>
 
-			<div
-				v-if="user && course.membership"
-				class="text-sm text-ink-gray-7 mt-2 mb-4"
-			>
-				{{ Math.ceil(course.membership.progress) }}% completed
+			<div v-if="user && course.membership" class="text-sm mt-2 mb-4">
+				{{ Math.ceil(course.membership.progress) }}% {{ __('completed') }}
 			</div>
 
 			<div class="flex items-center justify-between mt-auto">
@@ -108,21 +115,23 @@
 				<div v-if="course.paid_course" class="font-semibold">
 					{{ course.price }}
 				</div>
-				<div
+
+				<Tooltip
 					v-if="course.paid_certificate || course.enable_certification"
-					class="text-xs text-ink-blue-3 bg-surface-blue-1 py-0.5 px-1 rounded-md"
+					:text="__('Get Certified')"
 				>
-					{{ __('Certification') }}
-				</div>
+					<GraduationCap class="size-5 stroke-1.5" />
+				</Tooltip>
 			</div>
 		</div>
 	</div>
 </template>
 <script setup>
-import { BookOpen, Users, Star } from 'lucide-vue-next'
+import { BookOpen, GraduationCap, Star, Users } from 'lucide-vue-next'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { sessionStore } from '@/stores/session'
-import { Badge, Tooltip } from 'frappe-ui'
+import { Tooltip } from 'frappe-ui'
+import { theme } from '@/utils/theme'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
 
@@ -134,16 +143,24 @@ const props = defineProps({
 		default: null,
 	},
 })
+
+const getGradientColor = () => {
+	let color = props.course.card_gradient?.toLowerCase() || 'blue'
+	let colorMap = theme.backgroundColor[color]
+	return `linear-gradient(to top right, black, ${colorMap[400]})`
+	/* return `bg-gradient-to-br from-${color}-100 via-${color}-200 to-${color}-400` */
+	/* return `linear-gradient(to bottom right, ${colorMap[100]}, ${colorMap[400]})` */
+	/* return `radial-gradient(ellipse at 80% 20%, black 20%, ${colorMap[500]} 100%)` */
+	/* return `radial-gradient(ellipse at 30% 70%, black 50%, ${colorMap[500]} 100%)` */
+	/* return `radial-gradient(ellipse at 80% 20%, ${colorMap[100]} 0%, ${colorMap[300]} 50%, ${colorMap[500]} 100%)` */
+	/* return `conic-gradient(from 180deg at 50% 50%, ${colorMap[100]} 0%, ${colorMap[200]} 50%, ${colorMap[400]} 100%)` */
+	/* return `linear-gradient(135deg, ${colorMap[100]}, ${colorMap[300]}), linear-gradient(120deg, rgba(255,255,255,0.4) 0%, transparent 60%) ` */
+	/* return `radial-gradient(circle at 20% 30%, ${colorMap[100]} 0%, transparent 40%),
+		radial-gradient(circle at 80% 40%, ${colorMap[200]} 0%, transparent 50%),
+		linear-gradient(135deg, ${colorMap[300]} 0%, ${colorMap[400]} 100%);` */
+}
 </script>
 <style>
-.course-image {
-	height: 168px;
-	width: 100%;
-	background-size: cover;
-	background-position: center;
-	background-repeat: no-repeat;
-}
-
 .course-card-pills {
 	background: #ffffff;
 	margin-left: 0;
@@ -157,14 +174,6 @@ const props = defineProps({
 	width: fit-content;
 }
 
-.default-image {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	background-color: theme('colors.green.100');
-	color: theme('colors.green.600');
-}
-
 .avatar-group {
 	display: inline-flex;
 	align-items: center;
@@ -173,14 +182,7 @@ const props = defineProps({
 .avatar-group .avatar {
 	transition: margin 0.1s ease-in-out;
 }
-.image-placeholder {
-	display: flex;
-	align-items: center;
-	flex: 1;
-	font-size: 5rem;
-	color: theme('colors.gray.700');
-	font-weight: 600;
-}
+
 .avatar-group.overlap .avatar + .avatar {
 	margin-left: calc(-8px);
 }
