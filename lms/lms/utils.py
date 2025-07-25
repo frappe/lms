@@ -1097,6 +1097,7 @@ def get_course_fields():
 		"title",
 		"tags",
 		"image",
+		"card_gradient",
 		"short_introduction",
 		"published",
 		"upcoming",
