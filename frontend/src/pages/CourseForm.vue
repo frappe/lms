@@ -130,7 +130,9 @@
 
 							<ColorSwatches
 								v-model="course.card_gradient"
-								:label="__('Card Gradient')"
+								:label="__('Color')"
+								:description="__('Choose a color for the course card')"
+								class="w-full"
 							/>
 						</div>
 					</div>

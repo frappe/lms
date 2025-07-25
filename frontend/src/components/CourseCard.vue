@@ -5,7 +5,7 @@
 		style="min-height: 350px"
 	>
 		<div
-			class="w-[100%] h-[168px] bg-cover bg-center bg-no-repeat rounded-t-md"
+			class="w-[100%] h-[168px] bg-cover bg-center bg-no-repeat"
 			:style="
 				course.image
 					? { backgroundImage: `url('${encodeURI(course.image)}')` }
