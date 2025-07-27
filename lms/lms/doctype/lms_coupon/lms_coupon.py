@@ -57,4 +57,3 @@ class LMSCoupon(Document):
 	def increment_usage(self):
 		"""Increment the usage count"""
 		frappe.db.set_value("LMS Coupon", self.name, "used_count", self.used_count + 1)
-		frappe.db.commit()
