@@ -565,10 +565,13 @@ def get_courses_under_review():
 
 def validate_image(path):
 	if path and "/private" in path:
-		file = frappe.get_doc("File", {"file_url": path})
-		file.is_private = 0
-		file.save()
-		return file.file_url
+		frappe.db.set_value(
+			"File",
+			{"file_url": path},
+			"is_private",
+			0,
+		)
+		return path.replace("/private", "")
 	return path
 
 
@@ -993,6 +996,7 @@ def get_courses(filters=None, start=0):
 		or_filters=or_filters,
 		order_by="enrollments desc",
 		start=start,
+		page_length=30,
 	)
 
 	if show_featured:
@@ -1096,6 +1100,7 @@ def get_course_fields():
 		"title",
 		"tags",
 		"image",
+		"card_gradient",
 		"short_introduction",
 		"published",
 		"upcoming",
@@ -2128,6 +2133,7 @@ def get_batches(filters=None, start=0, order_by="start_date"):
 		],
 		order_by=order_by,
 		start=start,
+		page_length=20,
 	)
 
 	batches = filter_batches_based_on_start_time(batches, filters)

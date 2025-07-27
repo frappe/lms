@@ -7,12 +7,12 @@
 			<template #prefix>
 				<Plus class="w-4 h-4" />
 			</template>
-			{{ __('New') }}
+			{{ __('Create') }}
 		</Button>
 	</header>
 	<div class="py-5 mx-5">
-		<div class="flex items-center justify-between mb-5">
-			<div class="text-xl font-semibold text-ink-gray-7">
+		<div class="flex items-center justify-between mb-4">
+			<div class="text-lg font-semibold text-ink-gray-7">
 				{{
 					quizzes.data?.length
 						? __('{0} Quizzes').format(quizzes.data.length)
@@ -263,7 +263,7 @@ const quizColumns = computed(() => {
 			label: __('Modified'),
 			key: 'modified',
 			width: 1,
-			align: 'right',
+			align: 'center',
 			icon: 'clock',
 		},
 	]

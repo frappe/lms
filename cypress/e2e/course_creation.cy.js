@@ -8,7 +8,7 @@ describe("Course Creation", () => {
 		cy.closeOnboardingModal();
 
 		// Create a course
-		cy.get("button").contains("New").click();
+		cy.get("button").contains("Create").click();
 		cy.wait(500);
 		cy.url().should("include", "/courses/new/edit");
 
@@ -107,7 +107,7 @@ describe("Course Creation", () => {
 			cy.get("div").contains(
 				"Test Course Short Introduction to test the UI"
 			);
-			cy.get(".course-image")
+			cy.get(".bg-cover")
 				.invoke("css", "background-image")
 				.should("include", "/files/profile");
 		});

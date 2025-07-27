@@ -47,9 +47,16 @@
 								:required="true"
 							/>
 							<div>
-								<div class="mb-1.5 text-xs text-ink-gray-5">
+								<div class="text-xs text-ink-gray-5">
 									{{ __('Tags') }}
 								</div>
+								<FormControl
+									v-model="newTag"
+									:placeholder="__('Add a keyword and then press enter')"
+									:class="['w-full', 'flex-1', 'my-1']"
+									@keyup.enter="updateTags()"
+									id="tags"
+								/>
 								<div>
 									<div class="flex items-center flex-wrap gap-2">
 										<div
@@ -64,37 +71,13 @@
 											/>
 										</div>
 									</div>
-									<FormControl
-										v-model="newTag"
-										:placeholder="__('Add a keyword and then press enter')"
-										:class="[
-											'w-full',
-											'flex-1',
-											{ 'mt-2': course.tags?.length },
-										]"
-										@keyup.enter="updateTags()"
-										id="tags"
-									/>
 								</div>
 							</div>
 						</div>
 						<div class="grid grid-cols-2 gap-5">
-							<FormControl
-								v-model="course.short_introduction"
-								type="textarea"
-								:rows="5"
-								:label="__('Short Introduction')"
-								:placeholder="
-									__(
-										'A one line introduction to the course that appears on the course card'
-									)
-								"
-								:required="true"
-							/>
 							<div class="mb-4">
 								<div class="text-xs text-ink-gray-5 mb-2">
 									{{ __('Course Image') }}
-									<span class="text-ink-red-3">*</span>
 								</div>
 								<FileUploader
 									v-if="!course.course_image"
@@ -144,6 +127,13 @@
 									</div>
 								</div>
 							</div>
+
+							<ColorSwatches
+								v-model="course.card_gradient"
+								:label="__('Color')"
+								:description="__('Choose a color for the course card')"
+								class="w-full"
+							/>
 						</div>
 					</div>
 
@@ -185,6 +175,21 @@
 					</div>
 
 					<div class="px-10 pb-5 mb-5 space-y-5 border-b">
+						<div class="text-lg font-semibold">
+							{{ __('About the Course') }}
+						</div>
+						<FormControl
+							v-model="course.short_introduction"
+							type="textarea"
+							:rows="5"
+							:label="__('Short Introduction')"
+							:placeholder="
+								__(
+									'A one line introduction to the course that appears on the course card'
+								)
+							"
+							:required="true"
+						/>
 						<div class="">
 							<div class="mb-1.5 text-sm text-ink-gray-5">
 								{{ __('Course Description') }}
@@ -342,6 +347,7 @@ import {
 import Link from '@/components/Controls/Link.vue'
 import CourseOutline from '@/components/CourseOutline.vue'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
+import ColorSwatches from '@/components/Controls/ColorSwatches.vue'
 
 const user = inject('$user')
 const newTag = ref('')
@@ -365,6 +371,7 @@ const course = reactive({
 	description: '',
 	video_link: '',
 	course_image: null,
+	card_gradient: '',
 	tags: '',
 	category: '',
 	published: false,

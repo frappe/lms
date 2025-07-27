@@ -5,9 +5,9 @@
 				<div class="text-xl font-semibold text-ink-gray-9">
 					{{ label }}
 				</div>
-				<!-- <div class="text-xs text-ink-gray-5">
+				<div class="text-ink-gray-6 leading-5">
 					{{ __(description) }}
-				</div> -->
+				</div>
 			</div>
 			<div class="flex items-center space-x-5">
 				<Button @click="openForm('new')">
@@ -35,10 +35,10 @@
 				>
 					<ListHeaderItem :item="item" v-for="item in columns">
 						<template #prefix="{ item }">
-							<component
+							<FeatherIcon
 								v-if="item.icon"
-								:is="item.icon"
-								class="h-4 w-4 stroke-1.5 ml-4"
+								:name="item.icon"
+								class="h-4 w-4 stroke-1.5"
 							/>
 						</template>
 					</ListHeaderItem>
@@ -48,8 +48,18 @@
 					<ListRow :row="row" v-for="row in zoomAccounts.data">
 						<template #default="{ column, item }">
 							<ListRowItem :item="row[column.key]" :align="column.align">
+								<template #prefix>
+									<div v-if="column.key == 'member_name'">
+										<Avatar
+											class="flex items-center"
+											:image="row['member_image']"
+											:label="item"
+											size="sm"
+										/>
+									</div>
+								</template>
 								<div v-if="column.key == 'enabled'">
-									<Badge v-if="row[column.key]" theme="blue">
+									<Badge v-if="row[column.key]" theme="green">
 										{{ __('Enabled') }}
 									</Badge>
 									<Badge v-else theme="gray">
@@ -87,10 +97,12 @@
 </template>
 <script setup lang="ts">
 import {
+	Avatar,
 	Button,
 	Badge,
 	call,
 	createListResource,
+	FeatherIcon,
 	ListView,
 	ListHeader,
 	ListHeaderItem,
@@ -122,6 +134,7 @@ const zoomAccounts = createListResource({
 		'enabled',
 		'member',
 		'member_name',
+		'member_image',
 		'account_id',
 		'client_id',
 		'client_secret',
@@ -171,17 +184,20 @@ const removeAccount = (selections, unselectAll) => {
 const columns = computed(() => {
 	return [
 		{
-			label: __('Account'),
-			key: 'name',
-		},
-		{
 			label: __('Member'),
 			key: 'member_name',
+			icon: 'user',
+		},
+		{
+			label: __('Account Name'),
+			key: 'name',
+			icon: 'video',
 		},
 		{
 			label: __('Status'),
 			key: 'enabled',
 			align: 'center',
+			icon: 'check-square',
 		},
 	]
 })

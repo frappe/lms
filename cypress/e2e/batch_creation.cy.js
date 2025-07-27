@@ -47,7 +47,7 @@ describe("Batch Creation", () => {
 		cy.closeOnboardingModal();
 
 		// Create a batch
-		cy.get("button").contains("New").click();
+		cy.get("button").contains("Create").click();
 		cy.wait(500);
 		cy.url().should("include", "/batches/new/edit");
 		cy.get("label").contains("Title").type("Test Batch");

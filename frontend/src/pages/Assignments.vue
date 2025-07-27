@@ -16,7 +16,7 @@
 			<template #prefix>
 				<Plus class="w-4 h-4" />
 			</template>
-			{{ __('New') }}
+			{{ __('Create') }}
 		</Button>
 	</header>
 
