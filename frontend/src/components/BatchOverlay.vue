@@ -131,6 +131,14 @@
 				</Button>
 			</router-link>
 		</div>
+		<Button class="w-full mt-2" @click="copyBatchUrl()">
+			<template #prefix>
+				<Link class="h-4 w-4 stroke-1.5" />
+			</template>
+			<span>
+				{{ __('Copy Link') }}
+			</span>
+		</Button>
 	</div>
 </template>
 <script setup>
@@ -145,6 +153,7 @@ import {
 	LogIn,
 	Pencil,
 	Settings,
+	Link,
 } from 'lucide-vue-next'
 import { formatNumberIntoCurrency, formatTime } from '@/utils'
 import DateRange from '@/components/Common/DateRange.vue'
@@ -204,4 +213,21 @@ const isStudent = computed(() => {
 const isModerator = computed(() => {
 	return user.data?.is_moderator
 })
+
+const copyBatchUrl = async () => {
+	const batchUrl = `${window.location.origin}/lms/batches/details/${props.batch.data.name}`
+	try {
+		await navigator.clipboard.writeText(batchUrl)
+		toast.success(__('Batch URL copied to clipboard'))
+	} catch (err) {
+		// Fallback for older browsers
+		const textArea = document.createElement('textarea')
+		textArea.value = batchUrl
+		document.body.appendChild(textArea)
+		textArea.select()
+		document.execCommand('copy')
+		document.body.removeChild(textArea)
+		toast.success(__('Batch URL copied to clipboard'))
+	}
+}
 </script>
