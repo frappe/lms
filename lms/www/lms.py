@@ -17,7 +17,7 @@ def get_context():
 		frappe.db.get_single_value("Website Settings", "favicon")
 		or "/assets/lms/frontend/favicon.png"
 	)
-	title = frappe.db.get_single_value("Website Settings", "app_name") or "Frappe Learning"
+	title = frappe.db.get_single_value("Website Settings", "app_name") or "Harmony Academy"
 
 	context.meta = get_meta(app_path, title, favicon)
 	context.title = title
