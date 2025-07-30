@@ -132,6 +132,7 @@ const participants = createListResource({
 	doctype: 'LMS Certificate',
 	url: 'lms.lms.api.get_certified_participants',
 	start: 0,
+	cache: ['certified_participants'],
 	pageLength: 100,
 })
 

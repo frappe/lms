@@ -1,7 +1,7 @@
 <template>
 	<div
 		v-if="course.title"
-		class="flex flex-col h-full rounded-md border-2 overflow-auto hover:border hover:border-outline-gray-3 text-ink-gray-9"
+		class="flex flex-col h-full rounded-md border-2 overflow-auto text-ink-gray-9"
 		style="min-height: 350px"
 	>
 		<div
@@ -28,7 +28,7 @@
 				<div
 					v-if="course.tags"
 					v-for="tag in course.tags?.split(', ')"
-					class="text-xs bg-surface-white text-ink-gray-9 px-2 py-0.5 rounded-md mb-1 mr-1"
+					class="text-xs border bg-surface-white text-ink-gray-9 px-2 py-0.5 rounded-md mb-1 mr-1"
 				>
 					{{ tag }}
 				</div>
