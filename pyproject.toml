@@ -13,7 +13,7 @@ dependencies = [
     "markdown~=3.5.1",
     "beautifulsoup4~=4.12.2",
     "lxml~=4.9.3",
-    "cairocffi~=1.6.1",
+    "cairocffi==1.5.1",
     "razorpay~=1.4.1",
     "fuzzywuzzy~=0.18.0",
 ]

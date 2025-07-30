@@ -421,17 +421,6 @@ export function getSidebarLinks() {
 			activeFor: ['Batches', 'BatchDetail', 'Batch', 'BatchForm'],
 		},
 		{
-			label: 'Programming Exercises',
-			icon: 'Code',
-			to: 'ProgrammingExercises',
-			activeFor: [
-				'ProgrammingExercises',
-				'ProgrammingExerciseForm',
-				'ProgrammingExerciseSubmissions',
-				'ProgrammingExerciseSubmission',
-			],
-		},
-		{
 			label: 'Certified Members',
 			icon: 'GraduationCap',
 			to: 'CertifiedParticipants',
@@ -677,4 +666,10 @@ export const formatTimestamp = (seconds) => {
 	const minutes = String(date.getUTCMinutes()).padStart(2, '0')
 	const secs = String(date.getUTCSeconds()).padStart(2, '0')
 	return `${minutes}:${secs}`
+}
+
+export const convertToMinutes = (seconds) => {
+	const minutes = Math.floor(seconds / 60)
+	const remainingSeconds = Math.round(seconds % 60)
+	return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
 }
