@@ -15,7 +15,7 @@
 						</div> -->
 						<FormControl
 							v-model="searchFilter"
-							:placeholder="__('Search by Member Name')"
+							:placeholder="__('Search by Member')"
 							type="text"
 							class="w-full"
 						/>
@@ -149,6 +149,10 @@ import { theme } from '@/utils/theme'
 
 const show = defineModel<boolean | undefined>()
 const searchFilter = ref<string | null>(null)
+type Filters = {
+	course: string | undefined
+	member_name?: string[]
+}
 
 const props = defineProps<{
 	courseName?: string
@@ -184,10 +188,6 @@ const progressList = createListResource({
 
 watch([searchFilter], () => {
 	let filterApplied = false
-	type Filters = {
-		course: string | undefined
-		member_name?: string[]
-	}
 	let filters: Filters = {
 		course: props.courseName,
 	}

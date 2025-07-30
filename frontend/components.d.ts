@@ -40,6 +40,7 @@ declare module 'vue' {
     Code: typeof import('./src/components/Controls/Code.vue')['default']
     CodeEditor: typeof import('./src/components/Controls/CodeEditor.vue')['default']
     CollapseSidebar: typeof import('./src/components/Icons/CollapseSidebar.vue')['default']
+    ColorSwatches: typeof import('./src/components/Controls/ColorSwatches.vue')['default']
     CourseCard: typeof import('./src/components/CourseCard.vue')['default']
     CourseCardOverlay: typeof import('./src/components/CourseCardOverlay.vue')['default']
     CourseInstructors: typeof import('./src/components/CourseInstructors.vue')['default']

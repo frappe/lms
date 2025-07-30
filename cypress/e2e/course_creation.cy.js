@@ -107,7 +107,7 @@ describe("Course Creation", () => {
 			cy.get("div").contains(
 				"Test Course Short Introduction to test the UI"
 			);
-			cy.get(".course-image")
+			cy.get(".bg-cover")
 				.invoke("css", "background-image")
 				.should("include", "/files/profile");
 		});

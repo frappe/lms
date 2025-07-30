@@ -1,5 +1,5 @@
 <template>
-	<div class="text-ink-gray-7">
+	<div class="">
 		<span v-if="instructors?.length == 1">
 			<router-link
 				:to="{
@@ -19,7 +19,7 @@
 			>
 				{{ instructors[0].first_name }}
 			</router-link>
-			and
+			{{ __('and') }}
 			<router-link
 				:to="{
 					name: 'Profile',
@@ -38,7 +38,7 @@
 			>
 				{{ instructors[0].first_name }}
 			</router-link>
-			and {{ instructors?.length - 1 }} others
+			{{ __('and') }} {{ instructors?.length - 1 }} {{ __('others') }}
 		</span>
 	</div>
 </template>

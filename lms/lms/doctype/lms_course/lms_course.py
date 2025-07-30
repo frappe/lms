@@ -21,6 +21,7 @@ class LMSCourse(Document):
 		self.validate_certification()
 		self.validate_amount_and_currency()
 		self.image = validate_image(self.image)
+		self.validate_card_gradient()
 
 	def validate_published(self):
 		if self.published and not self.published_on:
@@ -72,6 +73,24 @@ class LMSCourse(Document):
 
 		if self.paid_certificate and (cint(self.course_price) <= 0 or not self.currency):
 			frappe.throw(_("Amount and currency are required for paid certificates."))
+
+	def validate_card_gradient(self):
+		if not self.image and not self.card_gradient:
+			colors = [
+				"Red",
+				"Blue",
+				"Green",
+				"Yellow",
+				"Orange",
+				"Pink",
+				"Amber",
+				"Violet",
+				"Cyan",
+				"Teal",
+				"Gray",
+				"Purple",
+			]
+			self.card_gradient = random.choice(colors)
 
 	def on_update(self):
 		if not self.upcoming and self.has_value_changed("upcoming"):
