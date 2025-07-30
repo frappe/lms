@@ -18,7 +18,7 @@
 			<div class="flex items-center flex-wrap relative top-4 px-2 w-fit">
 				<div
 					v-if="course.featured"
-					class="flex items-center space-x-1 text-xs text-ink-amber-3 bg-surface-white px-2 py-0.5 rounded-md mr-1 mb-1"
+					class="flex items-center space-x-1 text-xs text-ink-amber-3 bg-surface-white border border-outline-amber-1 px-2 py-0.5 rounded-md mr-1 mb-1"
 				>
 					<Star class="size-3 stroke-2" />
 					<span>
@@ -35,7 +35,7 @@
 			</div>
 			<div
 				v-if="!course.image"
-				class="flex items-center justify-center text-white flex-1 font-extrabold text-2xl my-auto"
+				class="flex items-center justify-center text-white flex-1 font-extrabold text-2xl my-auto px-5 text-center leading-6"
 				:class="course.tags ? 'h-[80%]' : 'h-full'"
 			>
 				{{ course.title }}
@@ -120,7 +120,7 @@
 					v-if="course.paid_certificate || course.enable_certification"
 					:text="__('Get Certified')"
 				>
-					<GraduationCap class="size-5 stroke-1.5" />
+					<GraduationCap class="size-5 stroke-1.5 text-ink-gray-7" />
 				</Tooltip>
 			</div>
 		</div>
