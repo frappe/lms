@@ -19,45 +19,52 @@ def validate_currency(payment_gateway, currency):
 
 @frappe.whitelist()
 def validate_coupon(coupon_code, reference_doctype, reference_name, amount):
-    """Validate coupon and return discount details"""
-    if not coupon_code:
-        return {"valid": False, "message": "Coupon code is required"}
+	"""Validate coupon and return discount details"""
+	if not coupon_code:
+		return {"valid": False, "message": "Coupon code is required"}
 
-    if reference_doctype == "LMS Course":
-        applicable_to = "Course"
-        field_name = "course"
-    elif reference_doctype == "LMS Batch":
-        applicable_to = "Batch"
-        field_name = "batch"
-    else:
-        return {"valid": False, "message": "Invalid reference doctype"}
+	if reference_doctype == "LMS Course":
+		applicable_to = "Course"
+		field_name = "course"
+	elif reference_doctype == "LMS Batch":
+		applicable_to = "Batch"
+		field_name = "batch"
+	else:
+		return {"valid": False, "message": "Invalid reference doctype"}
 
-    coupon = frappe.db.exists("LMS Coupon", {
-        "coupon_code": coupon_code, 
-        "applicable_to": applicable_to,
-        field_name: reference_name
-    })
+	coupon = frappe.db.exists(
+		"LMS Coupon",
+		{
+			"coupon_code": coupon_code,
+			"applicable_to": applicable_to,
+			field_name: reference_name,
+		},
+	)
 
-    if not coupon:
-        return {"valid": False, "message": f"Invalid coupon code for this {applicable_to.lower()}"}
+	if not coupon:
+		return {
+			"valid": False,
+			"message": f"Invalid coupon code for this {applicable_to.lower()}",
+		}
 
-    coupon_doc = frappe.get_doc("LMS Coupon", coupon)
+	coupon_doc = frappe.get_doc("LMS Coupon", coupon)
 
-    can_use, message = coupon_doc.can_use_coupon()
-    if not can_use:
-        return {"valid": False, "message": message}
+	can_use, message = coupon_doc.can_use_coupon()
+	if not can_use:
+		return {"valid": False, "message": message}
 
-    discount_amount = coupon_doc.calculate_discount(float(amount))
-    discounted_amount = float(amount) - discount_amount
+	discount_amount = coupon_doc.calculate_discount(float(amount))
+	discounted_amount = float(amount) - discount_amount
 
-    return {
-        "valid": True,
-        "discount_amount": discount_amount,
-        "discounted_amount": max(0, discounted_amount),
-        "coupon_name": coupon_doc.name,
-        "discount_type": coupon_doc.discount_type,
-        "discount_value": coupon_doc.discount_value,
-    }
+	return {
+		"valid": True,
+		"discount_amount": discount_amount,
+		"discounted_amount": max(0, discounted_amount),
+		"coupon_name": coupon_doc.name,
+		"discount_type": coupon_doc.discount_type,
+		"discount_value": coupon_doc.discount_value,
+	}
+
 
 @frappe.whitelist()
 def get_payment_link(
@@ -70,7 +77,7 @@ def get_payment_link(
 	address,
 	redirect_to,
 	payment_for_certificate,
-	coupon_code=None, 
+	coupon_code=None,
 ):
 	payment_gateway = get_payment_gateway()
 	address = frappe._dict(address)
@@ -88,7 +95,6 @@ def get_payment_link(
 			amount = coupon_result["discounted_amount"]
 			coupon_name = coupon_result["coupon_name"]
 
-	
 			if original_total_amount > original_amount:
 				gst_amount = original_total_amount - original_amount
 				gst_percentage = gst_amount / original_amount if original_amount > 0 else 0
@@ -150,9 +156,9 @@ def record_payment(
 	currency,
 	amount_with_gst=0,
 	payment_for_certificate=0,
-	coupon_code=None,  
-	discount_amount=0,  
-	original_amount=0,  
+	coupon_code=None,
+	discount_amount=0,
+	original_amount=0,
 ):
 	address = frappe._dict(address)
 	address_name = save_address(address)
@@ -172,9 +178,9 @@ def record_payment(
 			"payment_for_document_type": doctype,
 			"payment_for_document": docname,
 			"payment_for_certificate": payment_for_certificate,
-			"coupon_code": coupon_code,  
-			"discount_amount": discount_amount,  
-			"original_amount": original_amount if original_amount > 0 else amount,  
+			"coupon_code": coupon_code,
+			"discount_amount": discount_amount,
+			"original_amount": original_amount if original_amount > 0 else amount,
 		}
 	)
 	payment_doc.save(ignore_permissions=True)
