@@ -9,7 +9,9 @@
  "engine": "InnoDB",
  "field_order": [
   "coupon_code",
+  "applicable_to",
   "course",
+  "batch",
   "column_break_3",
   "is_active",
   "section_break_5",
@@ -34,12 +36,29 @@
    "unique": 1
   },
   {
+   "default": "Course",
+   "fieldname": "applicable_to",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Applicable To",
+   "options": "Course\nBatch",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.applicable_to=='Course'",
    "fieldname": "course",
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Course",
-   "options": "LMS Course",
-   "reqd": 1
+   "options": "LMS Course"
+  },
+  {
+   "depends_on": "eval:doc.applicable_to=='Batch'",
+   "fieldname": "batch",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Batch",
+   "options": "LMS Batch"
   },
   {
    "fieldname": "column_break_3",

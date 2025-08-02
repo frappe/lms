@@ -1,59 +1,63 @@
-# lms/lms/doctype/lms_coupon/lms_coupon.py
 import frappe
 from frappe.model.document import Document
-from frappe import _
+from datetime import date
 
 
 class LMSCoupon(Document):
-	def validate(self):
-		self.validate_dates()
-		self.validate_discount_value()
+    def validate(self):
+        self.validate_applicable_fields()
+        self.validate_discount_value()
 
-	def validate_dates(self):
-		if self.valid_from and self.valid_till:
-			if self.valid_from > self.valid_till:
-				frappe.throw(_("Valid From date cannot be after Valid Till date"))
+    def validate_applicable_fields(self):
+        """Ensure either course or batch is selected based on applicable_to"""
+        if self.applicable_to == "Course":
+            if not self.course:
+                frappe.throw("Course is required when Applicable To is Course")
+            self.batch = None  
+        elif self.applicable_to == "Batch":
+            if not self.batch:
+                frappe.throw("Batch is required when Applicable To is Batch")
+            self.course = None  
 
-	def validate_discount_value(self):
-		if self.discount_value <= 0:
-			frappe.throw(_("Discount Value must be greater than 0"))
+    def validate_discount_value(self):
+        """Validate discount value based on type"""
+        if self.discount_type == "Percentage" and (self.discount_value < 0 or self.discount_value > 100):
+            frappe.throw("Percentage discount must be between 0 and 100")
+        elif self.discount_type == "Fixed Amount" and self.discount_value < 0:
+            frappe.throw("Fixed amount discount cannot be negative")
 
-		if self.discount_type == "Percentage" and self.discount_value > 100:
-			frappe.throw(_("Percentage discount cannot be more than 100%"))
+    def can_use_coupon(self):
+        """Check if coupon can be used"""
+        if not self.is_active:
+            return False, "Coupon is not active"
 
-	def can_use_coupon(self, user_email=None):
-		"""Check if coupon can be used"""
-		if not self.is_active:
-			return False, _("Coupon is not active")
+        today = date.today()
+        if self.valid_from and today < self.valid_from:
+            return False, "Coupon is not yet valid"
+        if self.valid_till and today > self.valid_till:
+            return False, "Coupon has expired"
 
-		# Check validity dates
-		from datetime import date
+        if self.max_uses > 0 and self.used_count >= self.max_uses:
+            return False, "Coupon usage limit exceeded"
 
-		today = date.today()
+        return True, "Coupon is valid"
 
-		if self.valid_from and today < self.valid_from:
-			return False, _("Coupon is not yet valid")
+    def calculate_discount(self, amount):
+        """Calculate discount amount"""
+        if self.discount_type == "Percentage":
+            return min(amount * (self.discount_value / 100), amount)
+        else: 
+            return min(self.discount_value, amount)
 
-		if self.valid_till and today > self.valid_till:
-			return False, _("Coupon has expired")
+    def increment_usage(self):
+        """Increment usage count"""
+        self.used_count = (self.used_count or 0) + 1
+        self.save(ignore_permissions=True)
 
-		# Check usage limit
-		if self.max_uses > 0 and self.used_count >= self.max_uses:
-			return False, _("Coupon usage limit exceeded")
-
-		return True, ""
-
-	def calculate_discount(self, amount):
-		"""Calculate discount amount based on coupon type"""
-		if self.discount_type == "Percentage":
-			discount_amount = (amount * self.discount_value) / 100
-		else:  # Fixed Amount
-			discount_amount = min(
-				self.discount_value, amount
-			)  # Can't discount more than the amount
-
-		return discount_amount
-
-	def increment_usage(self):
-		"""Increment the usage count"""
-		frappe.db.set_value("LMS Coupon", self.name, "used_count", self.used_count + 1)
+    def get_applicable_reference(self):
+        """Get the reference document (course or batch)"""
+        if self.applicable_to == "Course":
+            return self.course
+        elif self.applicable_to == "Batch":
+            return self.batch
+        return None
