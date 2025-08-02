@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-07-25 16:04+0000\n"
-"PO-Revision-Date: 2025-07-29 22:53\n"
+"PO-Revision-Date: 2025-08-02 23:05\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Indonesian\n"
 "MIME-Version: 1.0\n"
@@ -140,7 +140,7 @@ msgstr ""
 #: frontend/src/pages/ProgramForm.vue:30 frontend/src/pages/ProgramForm.vue:92
 #: frontend/src/pages/ProgramForm.vue:137
 msgid "Add"
-msgstr "Tambahkan"
+msgstr "Tambah"
 
 #: frontend/src/components/CourseOutline.vue:18
 #: frontend/src/components/CreateOutline.vue:18
@@ -265,11 +265,11 @@ msgstr "Alamat"
 
 #: frontend/src/pages/Billing.vue:74
 msgid "Address Line 1"
-msgstr "Alamat Baris 1"
+msgstr "Baris Alamat 1"
 
 #: frontend/src/pages/Billing.vue:78
 msgid "Address Line 2"
-msgstr "Alamat Baris 2"
+msgstr "Baris Alamat 2"
 
 #. Option for the 'Role' (Select) field in DocType 'Cohort Staff'
 #. Option for the 'Required Role' (Select) field in DocType 'Cohort Web Page'
@@ -342,7 +342,7 @@ msgstr ""
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Amount"
-msgstr "Total"
+msgstr "Jumlah"
 
 #. Label of the amount_usd (Currency) field in DocType 'LMS Batch'
 #. Label of the amount_usd (Currency) field in DocType 'LMS Course'
@@ -684,7 +684,7 @@ msgstr ""
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Batch"
-msgstr "Kumpulan"
+msgstr "Batch"
 
 #. Label of the batch_confirmation_template (Link) field in DocType 'LMS
 #. Settings'
@@ -1318,7 +1318,7 @@ msgstr ""
 #: lms/lms/doctype/lms_course_progress/lms_course_progress.json
 #: lms/lms/widgets/CourseCard.html:75 lms/templates/reviews.html:48
 msgid "Complete"
-msgstr "Lengkap"
+msgstr "Selesai"
 
 #: lms/templates/emails/lms_invite_request_approved.html:7
 msgid "Complete Sign Up"
@@ -1769,7 +1769,7 @@ msgstr ""
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Currency"
-msgstr "Mata uang"
+msgstr "Mata Uang"
 
 #. Label of the current_lesson (Link) field in DocType 'LMS Enrollment'
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
@@ -1849,7 +1849,7 @@ msgstr "Hari"
 #: lms/templates/emails/mentor_request_creation_email.html:2
 #: lms/templates/emails/mentor_request_status_update_email.html:2
 msgid "Dear"
-msgstr "Kepada Yth."
+msgstr "Yth."
 
 #: lms/templates/emails/batch_confirmation.html:2
 #: lms/templates/emails/batch_start_reminder.html:2
@@ -2188,7 +2188,7 @@ msgstr ""
 #: frontend/src/pages/BatchForm.vue:89 lms/lms/doctype/cohort/cohort.json
 #: lms/lms/doctype/lms_batch/lms_batch.json
 msgid "End Date"
-msgstr "Tanggal Berakhir"
+msgstr "Tanggal Akhir"
 
 #. Label of the end_date (Date) field in DocType 'Education Detail'
 #: lms/lms/doctype/education_detail/education_detail.json
