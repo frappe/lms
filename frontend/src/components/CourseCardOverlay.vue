@@ -120,6 +120,13 @@
 			</div>
 			<div class="space-y-4">
 				<div
+					v-if="course.data.course_duration && course.data.course_duration > 0"
+					class="font-medium text-ink-gray-9"
+					:class="{ 'mt-8': !readOnlyMode }"
+				>
+					{{ __('Course Duration: ') }} {{ course.data.course_duration }} {{ __('Hours') }}
+				</div>
+				<div
 					class="font-medium text-ink-gray-9"
 					:class="{ 'mt-8': !readOnlyMode }"
 				>
