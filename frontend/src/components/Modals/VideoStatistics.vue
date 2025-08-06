@@ -23,7 +23,9 @@
 				</div>
 				<div v-if="currentTab" class="mt-4">
 					<div class="grid grid-cols-[55%,40%] gap-5">
-						<div class="space-y-5 border rounded-md p-2 pt-4">
+						<div
+							class="space-y-5 border rounded-md p-2 pt-4 h-[70vh] overflow-y-auto"
+						>
 							<div class="grid grid-cols-[70%,30%] text-sm text-ink-gray-5">
 								<div class="px-4">
 									{{ __('Member') }}
@@ -59,7 +61,7 @@
 											</div>
 										</div>
 										<div class="text-center text-sm">
-											{{ convertToMinutes(row.watch_time) }}
+											{{ formatTimestamp(row.watch_time) }}
 										</div>
 									</div>
 								</router-link>
@@ -69,7 +71,7 @@
 							<NumberChart
 								class="border rounded-md"
 								:config="{
-									title: __('Average Watch Time (minutes)'),
+									title: __('Average Watch Time'),
 									value: averageWatchTime,
 								}"
 							/>
@@ -97,7 +99,7 @@ import {
 	TabButtons,
 } from 'frappe-ui'
 import { computed, ref, watch } from 'vue'
-import { enablePlyr, convertToMinutes } from '@/utils'
+import { enablePlyr, formatTimestamp } from '@/utils'
 import VideoBlock from '@/components/VideoBlock.vue'
 
 const show = defineModel<boolean | undefined>()
@@ -185,7 +187,7 @@ const averageWatchTime = computed(() => {
 		totalWatchTime += parseFloat(item.watch_time)
 	})
 
-	return convertToMinutes(totalWatchTime / currentTabData.value.length)
+	return formatTimestamp(totalWatchTime / currentTabData.value.length)
 })
 
 const currentTabData = computed(() => {
