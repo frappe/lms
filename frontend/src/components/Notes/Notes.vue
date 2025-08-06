@@ -42,11 +42,13 @@ const updateCurrentNote = () => {
 	const currentNote = notes.value?.data?.filter((row: Note) => {
 		return !row.highlighted_text && row.note !== ''
 	})
-	if (!currentNote) return
-	if (currentNote.length > 0) {
-		currentNoteName.value = currentNote[0].name
-		note.value = currentNote[0].note
+	if (currentNote?.length === 0) {
+		note.value = null
+		currentNoteName.value = null
+		return
 	}
+	currentNoteName.value = currentNote[0].name
+	note.value = currentNote[0].note
 }
 
 const updateNoteText = (val: string) => {

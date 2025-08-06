@@ -162,7 +162,6 @@ const deleteHighlight = () => {
 
 const addToNotes = () => {
 	if (!selectedText.value) return
-	console.log(selectedText.value)
 	let noteToUpdate = notes.value?.data.find((note: Note) => {
 		return !note.highlighted_text && note.note !== ''
 	})
@@ -171,7 +170,6 @@ const addToNotes = () => {
 	} else {
 		updateNote(noteToUpdate)
 	}
-	console.log(noteToUpdate)
 }
 
 const createNote = () => {

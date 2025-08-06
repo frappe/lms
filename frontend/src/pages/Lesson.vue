@@ -532,7 +532,7 @@ watch(
 			await nextTick()
 			resetLessonState(newChapterNumber, newLessonNumber)
 			startTimer()
-			notes.reload()
+			updateNotes()
 		}
 	}
 )
@@ -784,14 +784,12 @@ const scrollDiscussionsIntoView = () => {
 }
 
 const updateNotes = () => {
-	if (!notes.filters?.lesson) {
-		notes.update({
-			filters: {
-				lesson: lesson.data?.name,
-				member: user.data?.name,
-			},
-		})
-	}
+	notes.update({
+		filters: {
+			lesson: lesson.data?.name,
+			member: user.data?.name,
+		},
+	})
 	notes.reload()
 }
 
