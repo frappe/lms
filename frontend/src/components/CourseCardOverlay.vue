@@ -124,7 +124,7 @@
 					class="font-medium text-ink-gray-9"
 					:class="{ 'mt-8': !readOnlyMode }"
 				>
-					{{ __('Course Duration: ') }} {{ course.data.course_duration }} {{course.data.course_duration < 10 ? __('Hour') : __('Hours') }}
+					{{ __('Course Duration: ') }} {{ course.data.course_duration }} {{ course.data.course_duration === 1 ? __('Hour') : __('Hours') }}
 				</div>
 				<div
 					class="font-medium text-ink-gray-9"
