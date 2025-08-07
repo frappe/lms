@@ -25,7 +25,8 @@ export default defineConfig({
 		}),
 	],
 	server: {
-		allowedHosts: ['fs', 'per2'],
+		host: '0.0.0.0', // Accept connections from any network interface
+		allowedHosts: ['ps', 'fs'], // Explicitly allow this host
 	},
 	resolve: {
 		alias: {

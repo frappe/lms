@@ -32,13 +32,13 @@
 						"
 						:options="[
 							{
-								label: 'Edit',
+								label: __('Edit'),
 								onClick() {
 									reply.editable = true
 								},
 							},
 							{
-								label: 'Delete',
+								label: __('Delete'),
 								onClick() {
 									deleteReply(reply)
 								},
