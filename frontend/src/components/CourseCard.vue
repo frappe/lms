@@ -33,13 +33,13 @@
 					{{ tag }}
 				</div>
 			</div>
-			<div
+			<!-- <div
 				v-if="!course.image"
 				class="flex items-center justify-center text-white flex-1 font-extrabold text-2xl my-auto px-5 text-center leading-6"
 				:class="course.tags ? 'h-[80%]' : 'h-full'"
 			>
 				{{ course.title }}
-			</div>
+			</div> -->
 		</div>
 		<div class="flex flex-col flex-auto p-4">
 			<div class="flex items-center justify-between mb-2">
@@ -69,19 +69,9 @@
 						</span>
 					</Tooltip>
 				</div>
-
-				<!-- <div v-if="course.status != 'Approved'">
-					<Badge
-						variant="subtle"
-						:theme="course.status === 'Under Review' ? 'orange' : 'blue'"
-						size="sm"
-					>
-						{{ course.status }}
-					</Badge>
-				</div> -->
 			</div>
 
-			<div v-if="course.image" class="text-xl font-semibold leading-6">
+			<div class="font-semibold leading-6" :class="course.title.length > 32 ? 'text-lg' : 'text-xl'">
 				{{ course.title }}
 			</div>
 
