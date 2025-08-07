@@ -67,7 +67,6 @@ declare module 'vue' {
     IconPicker: typeof import('./src/components/Controls/IconPicker.vue')['default']
     IndicatorIcon: typeof import('./src/components/Icons/IndicatorIcon.vue')['default']
     InlineLessonMenu: typeof import('./src/components/Notes/InlineLessonMenu.vue')['default']
-    InlineMenu: typeof import('./src/components/InlineMenu.vue')['default']
     InviteIcon: typeof import('./src/components/Icons/InviteIcon.vue')['default']
     JobApplicationModal: typeof import('./src/components/Modals/JobApplicationModal.vue')['default']
     JobCard: typeof import('./src/components/JobCard.vue')['default']

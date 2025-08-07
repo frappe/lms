@@ -5,7 +5,7 @@
 	<TextEditor
 		:content="note"
 		:placeholder="__('Make notes for quick revision. Press / for menu.')"
-		@change="(val) => updateNoteText(val)"
+		@change="(val: string) => updateNoteText(val)"
 		:editable="true"
 		editorClass="prose prose-sm min-h-[200px] max-w-none"
 	/>
@@ -33,10 +33,13 @@ onMounted(() => {
 	updateCurrentNote()
 })
 
-watch(notes.value, () => {
-	updateCurrentNote()
-	blockQuotesClick()
-})
+watch(
+	() => notes.value?.data,
+	() => {
+		updateCurrentNote()
+		blockQuotesClick()
+	}
+)
 
 const updateCurrentNote = () => {
 	const currentNote = notes.value?.data?.filter((row: Note) => {
@@ -46,9 +49,10 @@ const updateCurrentNote = () => {
 		note.value = null
 		currentNoteName.value = null
 		return
+	} else if (currentNote && currentNote.length > 0) {
+		currentNoteName.value = currentNote[0].name
+		note.value = currentNote[0].note || null
 	}
-	currentNoteName.value = currentNote[0].name
-	note.value = currentNote[0].note
 }
 
 const updateNoteText = (val: string) => {
@@ -75,6 +79,7 @@ const createNote = () => {
 			member: user?.data?.name,
 			note: note.value,
 			color: 'Yellow',
+			name: '',
 		},
 		{
 			onSuccess(data: Note) {
@@ -89,6 +94,7 @@ const createNote = () => {
 }
 
 const updateNote = () => {
+	if (!currentNoteName.value) return
 	notes.value?.setValue.submit(
 		{
 			name: currentNoteName.value,

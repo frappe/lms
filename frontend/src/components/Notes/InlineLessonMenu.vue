@@ -31,7 +31,7 @@
 		</div>
 		<div class="border-t">
 			<div
-				@click="addToNotes"
+				@click="addToNotes()"
 				class="flex items-center space-x-2 hover:bg-surface-gray-2 cursor-pointer rounded-b-md py-2 px-3"
 			>
 				<NotepadText class="size-3 stroke-1.5" />
@@ -124,6 +124,7 @@ const saveHighLight = (color: string) => {
 			member: user?.data?.name,
 			highlighted_text: selectedText.value,
 			color: color,
+			name: '',
 		},
 		{
 			onSuccess(data: Note) {
@@ -148,8 +149,9 @@ const deleteHighlight = () => {
 		onSuccess() {
 			resetStates()
 			document.querySelectorAll('.highlighted-text').forEach((el) => {
-				if (el.dataset.name === notesToDelete.name) {
-					el.style.backgroundColor = 'transparent'
+				const element = el as HTMLElement
+				if (element.dataset.name === notesToDelete.name) {
+					element.style.backgroundColor = 'transparent'
 				}
 			})
 		},
@@ -179,16 +181,16 @@ const createNote = () => {
 			member: user?.data?.name,
 			note: `<blockquote><p>${selectedText.value}</p></blockquote><br>`,
 			color: 'Yellow',
+			name: '',
 		},
 		{
 			onSuccess(data: Note) {
-				selectedText.value = ''
-				resetStates()
+				emit('updateNotes')
 				setTimeout(() => {
 					scrollToText(selectedText.value)
 					blockQuotesClick()
-				}, 0)
-				emit('updateNotes')
+					resetStates()
+				}, 100)
 			},
 			onError(err: any) {
 				console.error('Error creating note:', err)
@@ -206,11 +208,12 @@ const updateNote = (noteToUpdate: Note) => {
 		},
 		{
 			onSuccess(data: Note) {
-				resetStates()
+				emit('updateNotes')
 				setTimeout(() => {
 					scrollToText(selectedText.value)
 					blockQuotesClick()
-				}, 0)
+					resetStates()
+				}, 100)
 			},
 			onError(err: any) {
 				console.error('Error updating note:', err)
@@ -222,9 +225,10 @@ const updateNote = (noteToUpdate: Note) => {
 
 const scrollToText = (text: string) => {
 	const elements = document.querySelectorAll('blockquote p')
-	Array.from(elements).forEach((el: HTMLElement) => {
-		if (el.textContent?.toLowerCase().includes(text.toLowerCase())) {
-			el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+	Array.from(elements).forEach((el) => {
+		const element = el as HTMLElement
+		if (element.textContent?.toLowerCase().includes(text.toLowerCase())) {
+			element.scrollIntoView({ behavior: 'smooth', block: 'center' })
 		}
 	})
 }
@@ -233,6 +237,5 @@ const resetStates = () => {
 	selectedText.value = ''
 	show.value = false
 	resetMenuPosition()
-	emit('updateNotes')
 }
 </script>

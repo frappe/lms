@@ -232,6 +232,7 @@
 							v-if="currentTab === 'Notes'"
 							:lesson="lesson.data?.name"
 							v-model:notes="notes"
+							@updateNotes="updateNotes"
 						/>
 						<Discussions
 							v-else-if="allowDiscussions"
@@ -271,16 +272,17 @@
 			</div>
 		</div>
 	</div>
-	<InlineMenu
+	<InlineLessonMenu
+		v-if="lesson.data"
 		v-model="showInlineMenu"
 		:lesson="lesson.data?.name"
 		v-model:notes="notes"
+		@updateNotes="updateNotes"
 	/>
 	<VideoStatistics
 		v-model="showStatsDialog"
 		:lessonName="lesson.data?.name"
 		:lessonTitle="lesson.data?.title"
-		@updateNotes="updateNotes"
 	/>
 </template>
 <script setup>
@@ -327,8 +329,8 @@ import CertificationLinks from '@/components/CertificationLinks.vue'
 import VideoStatistics from '@/components/Modals/VideoStatistics.vue'
 import CourseOutline from '@/components/CourseOutline.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
-import InlineMenu from '@/components/Notes/InlineLessonMenu.vue'
 import Notes from '@/components/Notes/Notes.vue'
+import InlineLessonMenu from '@/components/Notes/InlineLessonMenu.vue'
 
 const user = inject('$user')
 const socket = inject('$socket')
@@ -350,6 +352,13 @@ const plyrSources = ref([])
 const showInlineMenu = ref(false)
 const currentTab = ref('Notes')
 let timerInterval
+
+const tabs = ref([
+	{
+		label: __('Notes'),
+		value: 'Notes',
+	},
+])
 
 const props = defineProps({
 	courseName: {
@@ -428,11 +437,18 @@ const setupLesson = (data) => {
 	editor.value?.isReady.then(() => {
 		checkIfDiscussionsAllowed()
 	})
+	checkQuiz()
+}
 
-	if (!editor.value && data.body) {
+const checkQuiz = () => {
+	if (!editor.value && lesson.body) {
 		const quizRegex = /\{\{ Quiz\(".*"\) \}\}/
-		hasQuiz.value = quizRegex.test(data.body)
-		if (!hasQuiz.value && !zenModeEnabled) allowDiscussions.value = true
+		hasQuiz.value = quizRegex.test(lesson.body)
+		if (!hasQuiz.value && !zenModeEnabled) {
+			allowDiscussions.value = true
+		} else {
+			allowDiscussions.value = false
+		}
 	}
 }
 
@@ -533,6 +549,8 @@ watch(
 			resetLessonState(newChapterNumber, newLessonNumber)
 			startTimer()
 			updateNotes()
+			checkIfDiscussionsAllowed()
+			checkQuiz()
 		}
 	}
 )
@@ -672,8 +690,11 @@ onBeforeUnmount(() => {
 })
 
 const checkIfDiscussionsAllowed = () => {
+	hasQuiz.value = false
 	JSON.parse(lesson.data?.content)?.blocks?.forEach((block) => {
-		if (block.type === 'quiz') hasQuiz.value = true
+		if (block.type === 'quiz') {
+			hasQuiz.value = true
+		}
 	})
 
 	if (
@@ -682,8 +703,11 @@ const checkIfDiscussionsAllowed = () => {
 		(lesson.data?.membership ||
 			user.data?.is_moderator ||
 			user.data?.is_instructor)
-	)
+	) {
 		allowDiscussions.value = true
+	} else {
+		allowDiscussions.value = false
+	}
 }
 
 const allowEdit = () => {
@@ -793,11 +817,26 @@ const updateNotes = () => {
 	notes.reload()
 }
 
-const tabs = computed(() => {
-	return [
-		{ label: __('Notes'), value: 'Notes' },
-		{ label: __('Community'), value: 'Community' },
-	]
+watch(allowDiscussions, () => {
+	if (allowDiscussions.value) {
+		tabs.value = [
+			{
+				label: __('Notes'),
+				value: 'Notes',
+			},
+			{
+				label: __('Community'),
+				value: 'Community',
+			},
+		]
+	} else {
+		tabs.value = [
+			{
+				label: __('Notes'),
+				value: 'Notes',
+			},
+		]
+	}
 })
 
 const redirectToLogin = () => {

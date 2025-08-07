@@ -2,7 +2,7 @@
 export type Note = {
 	highlighted_text?: string
 	color?: string
-	name?: string
+	name: string
     note?: string | null
     lesson?: string
     member?: string

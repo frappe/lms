@@ -140,6 +140,7 @@ describe("Course Creation", () => {
 		);
 
 		// Add Discussion
+		cy.get("span").contains("Comments").click();
 		cy.button("New Question").click();
 		cy.wait(500);
 		cy.get("[id^=headlessui-dialog-panel-").within(() => {
