@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2025-07-25 16:04+0000\n"
-"PO-Revision-Date: 2025-07-29 22:53\n"
+"POT-Creation-Date: 2025-08-01 16:04+0000\n"
+"PO-Revision-Date: 2025-08-06 00:04\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Chinese Simplified\n"
 "MIME-Version: 1.0\n"
@@ -184,7 +184,7 @@ msgstr "新增课时"
 msgid "Add a Student"
 msgstr "添加学员"
 
-#: frontend/src/components/AppSidebar.vue:568
+#: frontend/src/components/AppSidebar.vue:584
 msgid "Add a chapter"
 msgstr "添加章节"
 
@@ -196,7 +196,7 @@ msgstr "创建课程"
 msgid "Add a keyword and then press enter"
 msgstr "输入关键词后按回车键添加"
 
-#: frontend/src/components/AppSidebar.vue:569
+#: frontend/src/components/AppSidebar.vue:585
 msgid "Add a lesson"
 msgstr "添加课时"
 
@@ -229,7 +229,7 @@ msgstr "为本课时添加作业"
 msgid "Add at least one possible answer for this question: {0}"
 msgstr "请为该问题添加至少一个备选答案：{0}"
 
-#: frontend/src/components/AppSidebar.vue:532
+#: frontend/src/components/AppSidebar.vue:548
 msgid "Add courses to your batch"
 msgstr "为班级添加课程"
 
@@ -237,7 +237,7 @@ msgstr "为班级添加课程"
 msgid "Add quiz to this video"
 msgstr ""
 
-#: frontend/src/components/AppSidebar.vue:511
+#: frontend/src/components/AppSidebar.vue:527
 msgid "Add students to your batch"
 msgstr "为班级添加学员"
 
@@ -249,11 +249,11 @@ msgstr "添加网页至侧边栏"
 msgid "Add your assignment as {0}"
 msgstr "以{0}格式添加作业"
 
-#: frontend/src/components/AppSidebar.vue:444
+#: frontend/src/components/AppSidebar.vue:460
 msgid "Add your first chapter"
 msgstr "添加首个章节"
 
-#: frontend/src/components/AppSidebar.vue:460
+#: frontend/src/components/AppSidebar.vue:476
 msgid "Add your first lesson"
 msgstr "添加首节课时"
 
@@ -368,15 +368,15 @@ msgstr "付费课程必须填写金额与币种。"
 msgid "Amount with GST"
 msgstr "含商品及服务税金额"
 
-#: frontend/src/components/Modals/AnnouncementModal.vue:33
+#: frontend/src/components/Modals/AnnouncementModal.vue:34
 msgid "Announcement"
 msgstr "公告"
 
-#: frontend/src/components/Modals/AnnouncementModal.vue:101
+#: frontend/src/components/Modals/AnnouncementModal.vue:105
 msgid "Announcement has been sent successfully"
 msgstr "公告发送成功"
 
-#: frontend/src/components/Modals/AnnouncementModal.vue:96
+#: frontend/src/components/Modals/AnnouncementModal.vue:97
 msgid "Announcement is required"
 msgstr "必须填写公告内容。"
 
@@ -474,7 +474,7 @@ msgid "Assessment {0} has already been added to this batch."
 msgstr "考核{0}已添加至本批次。"
 
 #. Label of the show_assessments (Check) field in DocType 'LMS Settings'
-#: frontend/src/components/AppSidebar.vue:581
+#: frontend/src/components/AppSidebar.vue:597
 #: frontend/src/components/Assessments.vue:5
 #: frontend/src/components/BatchStudents.vue:32
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -556,7 +556,7 @@ msgstr "作业更新成功"
 msgid "Assignment will appear at the bottom of the lesson."
 msgstr "作业将显示在课时末尾。"
 
-#: frontend/src/components/AppSidebar.vue:585
+#: frontend/src/components/AppSidebar.vue:601
 #: frontend/src/components/Settings/Badges.vue:163
 #: frontend/src/pages/Assignments.vue:208 lms/www/lms.py:273
 msgid "Assignments"
@@ -620,8 +620,8 @@ msgstr ""
 msgid "Average Rating"
 msgstr "平均评分"
 
-#: frontend/src/components/Modals/VideoStatistics.vue:65
-msgid "Average Watch Time (seconds)"
+#: frontend/src/components/Modals/VideoStatistics.vue:72
+msgid "Average Watch Time (minutes)"
 msgstr ""
 
 #: frontend/src/pages/Lesson.vue:151
@@ -968,7 +968,7 @@ msgstr "证书生成成功"
 #. Enrollment'
 #. Label of a Card Break in the LMS Workspace
 #. Label of a Link in the LMS Workspace
-#: frontend/src/components/AppSidebar.vue:589
+#: frontend/src/components/AppSidebar.vue:605
 #: frontend/src/components/Modals/Event.vue:381
 #: frontend/src/pages/BatchForm.vue:69 frontend/src/pages/Batches.vue:38
 #: frontend/src/pages/CourseCertification.vue:10
@@ -996,8 +996,8 @@ msgid "Certified"
 msgstr "已认证"
 
 #. Label of the certified_members (Check) field in DocType 'LMS Settings'
-#: frontend/src/pages/CertifiedParticipants.vue:182
-#: frontend/src/pages/CertifiedParticipants.vue:189
+#: frontend/src/pages/CertifiedParticipants.vue:183
+#: frontend/src/pages/CertifiedParticipants.vue:190
 #: frontend/src/pages/Statistics.vue:40
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Certified Members"
@@ -1717,15 +1717,15 @@ msgstr "创建直播课程"
 msgid "Create a Quiz"
 msgstr ""
 
-#: frontend/src/components/AppSidebar.vue:576
+#: frontend/src/components/AppSidebar.vue:592
 msgid "Create a batch"
 msgstr "创建班级"
 
-#: frontend/src/components/AppSidebar.vue:567
+#: frontend/src/components/AppSidebar.vue:583
 msgid "Create a course"
 msgstr "创建课程"
 
-#: frontend/src/components/AppSidebar.vue:577
+#: frontend/src/components/AppSidebar.vue:593
 msgid "Create a live class"
 msgstr "创建直播课程"
 
@@ -1737,15 +1737,15 @@ msgstr ""
 msgid "Create an Assignment"
 msgstr "创建作业"
 
-#: frontend/src/components/AppSidebar.vue:501
+#: frontend/src/components/AppSidebar.vue:517
 msgid "Create your first batch"
 msgstr "创建首个班级"
 
-#: frontend/src/components/AppSidebar.vue:432
+#: frontend/src/components/AppSidebar.vue:448
 msgid "Create your first course"
 msgstr "创建首门课程"
 
-#: frontend/src/components/AppSidebar.vue:479
+#: frontend/src/components/AppSidebar.vue:495
 msgid "Create your first quiz"
 msgstr "创建首项测验"
 
@@ -1753,11 +1753,11 @@ msgstr "创建首项测验"
 msgid "Created"
 msgstr "已创建"
 
-#: frontend/src/components/AppSidebar.vue:573
+#: frontend/src/components/AppSidebar.vue:589
 msgid "Creating a batch"
 msgstr "正在创建班级"
 
-#: frontend/src/components/AppSidebar.vue:564
+#: frontend/src/components/AppSidebar.vue:580
 msgid "Creating a course"
 msgstr "正在创建课程"
 
@@ -1776,7 +1776,7 @@ msgstr "币种"
 msgid "Current Lesson"
 msgstr "当前课时"
 
-#: frontend/src/components/AppSidebar.vue:595
+#: frontend/src/components/AppSidebar.vue:611
 msgid "Custom Certificate Templates"
 msgstr "自定义证书模板"
 
@@ -2508,7 +2508,7 @@ msgstr ""
 msgid "Failed to update badge assignment: "
 msgstr ""
 
-#: frontend/src/utils/index.js:670
+#: frontend/src/utils/index.js:659
 msgid "Failed to update meta tags {0}"
 msgstr ""
 
@@ -3007,8 +3007,8 @@ msgstr "讲师评语"
 msgid "Interest"
 msgstr "兴趣"
 
-#: frontend/src/components/AppSidebar.vue:556
-#: frontend/src/components/AppSidebar.vue:559
+#: frontend/src/components/AppSidebar.vue:572
+#: frontend/src/components/AppSidebar.vue:575
 msgid "Introduction"
 msgstr "简介"
 
@@ -3046,7 +3046,7 @@ msgstr "仅限邀请"
 msgid "Invite Request"
 msgstr "邀请请求"
 
-#: frontend/src/components/AppSidebar.vue:490
+#: frontend/src/components/AppSidebar.vue:506
 msgid "Invite your team and students"
 msgstr "邀请团队成员及学员"
 
@@ -3078,7 +3078,7 @@ msgstr "是否为SCORM包"
 msgid "Issue Date"
 msgstr "签发日期"
 
-#: frontend/src/components/AppSidebar.vue:592
+#: frontend/src/components/AppSidebar.vue:608
 msgid "Issue a Certificate"
 msgstr "颁发证书"
 
@@ -3787,7 +3787,7 @@ msgstr ""
 #. Label of the member (Link) field in DocType 'LMS Zoom Settings'
 #: frontend/src/components/Modals/CourseProgressSummary.vue:216
 #: frontend/src/components/Modals/LiveClassAttendance.vue:14
-#: frontend/src/components/Modals/VideoStatistics.vue:22
+#: frontend/src/components/Modals/VideoStatistics.vue:29
 #: frontend/src/components/Modals/ZoomAccountModal.vue:42
 #: frontend/src/components/Settings/BadgeAssignmentForm.vue:26
 #: frontend/src/components/Settings/BadgeAssignments.vue:179
@@ -4067,7 +4067,7 @@ msgstr "模块错误"
 msgid "Monday"
 msgstr "星期一"
 
-#: frontend/src/components/AppSidebar.vue:600
+#: frontend/src/components/AppSidebar.vue:616
 msgid "Monetization"
 msgstr "课程变现功能"
 
@@ -4255,7 +4255,11 @@ msgstr ""
 msgid "No slots available for this date."
 msgstr "该日期无可用时段"
 
-#: frontend/src/components/Modals/AnnouncementModal.vue:90
+#: frontend/src/components/Modals/VideoStatistics.vue:84
+msgid "No statistics available for this video."
+msgstr ""
+
+#: frontend/src/components/Modals/AnnouncementModal.vue:91
 msgid "No students in this batch"
 msgstr "本班级暂无学员"
 
@@ -4364,7 +4368,7 @@ msgstr "仅允许添加已禁用自主学习的课程至项目"
 msgid "Only files of type {0} will be accepted."
 msgstr "仅接受{0}类型文件"
 
-#: frontend/src/utils/index.js:502
+#: frontend/src/utils/index.js:491
 msgid "Only image file is allowed."
 msgstr "仅允许图片文件"
 
@@ -5202,7 +5206,7 @@ msgstr "测验更新成功"
 msgid "Quiz will appear at the bottom of the lesson."
 msgstr "测验将显示在课时末尾"
 
-#: frontend/src/components/AppSidebar.vue:584
+#: frontend/src/components/AppSidebar.vue:600
 #: frontend/src/pages/QuizForm.vue:396 frontend/src/pages/Quizzes.vue:275
 #: frontend/src/pages/Quizzes.vue:285 lms/www/lms.py:251
 msgid "Quizzes"
@@ -5306,6 +5310,10 @@ msgstr "移除"
 msgid "Reply To"
 msgstr "回复至"
 
+#: frontend/src/components/Modals/AnnouncementModal.vue:100
+msgid "Reply To is required"
+msgstr ""
+
 #: lms/lms/widgets/RequestInvite.html:7
 msgid "Request Invite"
 msgstr "申请邀请"
@@ -5375,7 +5383,7 @@ msgstr "角色偏好"
 msgid "Role updated successfully"
 msgstr "角色更新成功。"
 
-#: frontend/src/components/AppSidebar.vue:612
+#: frontend/src/components/AppSidebar.vue:628
 msgid "Roles"
 msgstr "角色"
 
@@ -5499,7 +5507,8 @@ msgid "Search"
 msgstr "搜索"
 
 #: frontend/src/components/Modals/CourseProgressSummary.vue:18
-msgid "Search by Member Name"
+#: frontend/src/components/Modals/VideoStatistics.vue:20
+msgid "Search by Member"
 msgstr ""
 
 #: frontend/src/pages/CertifiedParticipants.vue:23
@@ -5586,15 +5595,15 @@ msgstr ""
 msgid "Set your Password"
 msgstr "设置密码"
 
-#: frontend/src/components/AppSidebar.vue:560
+#: frontend/src/components/AppSidebar.vue:576
 msgid "Setting up"
 msgstr "系统配置中"
 
-#: frontend/src/components/AppSidebar.vue:605
+#: frontend/src/components/AppSidebar.vue:621
 msgid "Setting up payment gateway"
 msgstr "设置支付网关"
 
-#: frontend/src/components/AppSidebar.vue:610
+#: frontend/src/components/AppSidebar.vue:626
 #: frontend/src/components/Settings/Settings.vue:7
 #: frontend/src/pages/BatchForm.vue:53 frontend/src/pages/CourseForm.vue:142
 #: frontend/src/pages/ProfileRoles.vue:4
@@ -5939,7 +5948,7 @@ msgstr "子组"
 msgid "Subject"
 msgstr "主题"
 
-#: frontend/src/components/Modals/AnnouncementModal.vue:93
+#: frontend/src/components/Modals/AnnouncementModal.vue:94
 msgid "Subject is required"
 msgstr "必须填写主题"
 
@@ -6743,7 +6752,7 @@ msgid "Volunteering or Internship"
 msgstr "志愿者/实习经历"
 
 #. Label of the watch_time (Data) field in DocType 'LMS Video Watch Duration'
-#: frontend/src/components/Modals/VideoStatistics.vue:25
+#: frontend/src/components/Modals/VideoStatistics.vue:32
 #: lms/lms/doctype/lms_video_watch_duration/lms_video_watch_duration.json
 msgid "Watch Time"
 msgstr ""
