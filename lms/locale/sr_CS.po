@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-08-01 16:04+0000\n"
-"PO-Revision-Date: 2025-08-06 00:04\n"
+"PO-Revision-Date: 2025-08-07 01:06\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Serbian (Latin)\n"
 "MIME-Version: 1.0\n"
@@ -622,7 +622,7 @@ msgstr "Prosečna ocena"
 
 #: frontend/src/components/Modals/VideoStatistics.vue:72
 msgid "Average Watch Time (minutes)"
-msgstr ""
+msgstr "Prosečno vreme gledanja (minuti)"
 
 #: frontend/src/pages/Lesson.vue:151
 msgid "Back to Course"
@@ -4257,7 +4257,7 @@ msgstr "Nema dostupnih termina za ovaj datum."
 
 #: frontend/src/components/Modals/VideoStatistics.vue:84
 msgid "No statistics available for this video."
-msgstr ""
+msgstr "Nijedna statistika nije dostupna za ovaj video-snimak."
 
 #: frontend/src/components/Modals/AnnouncementModal.vue:91
 msgid "No students in this batch"
@@ -5312,7 +5312,7 @@ msgstr "Odgovori"
 
 #: frontend/src/components/Modals/AnnouncementModal.vue:100
 msgid "Reply To is required"
-msgstr ""
+msgstr "Polje Odgovori je obavezno"
 
 #: lms/lms/widgets/RequestInvite.html:7
 msgid "Request Invite"
@@ -5509,7 +5509,7 @@ msgstr "Pretraga"
 #: frontend/src/components/Modals/CourseProgressSummary.vue:18
 #: frontend/src/components/Modals/VideoStatistics.vue:20
 msgid "Search by Member"
-msgstr ""
+msgstr "Pretraga po članu"
 
 #: frontend/src/pages/CertifiedParticipants.vue:23
 msgid "Search by Name"
