@@ -15,4 +15,4 @@ jobs:
 
     - uses: actions/labeler@v5
       with:
-        repo-token: "${{ secrets.GITHUB_TOKEN }}"
+        repo-token: "${{ secrets.DHWANI_FRAPPE_TOKEN }}"
