@@ -487,14 +487,39 @@ export function singularize(word) {
 	)
 }
 
-export const validateFile = (file, showToast = true) => {
-	if (!file.type.startsWith('image/')) {
-		const errorMessage = __('Only image file is allowed.')
-		if (showToast) {
-			toast.error(errorMessage)
-		}
-		return errorMessage
+export const validateFile = async (file, showToast = true) => {
+	const error = (msg) => {
+		if (showToast) toast.error(msg)
+		console.error(msg)
+		return msg
 	}
+
+	if (!file.type.startsWith('image/')) {
+		return error(__('Only image file is allowed.'))
+	}
+
+	if (file.type === 'image/svg+xml') {
+		const text = await file.text()
+
+		const blacklist = [
+			/<script[\s>]/i,
+			/on\w+=["']?/i,
+			/javascript:/i,
+			/data:/i,
+			/<iframe[\s>]/i,
+			/<object[\s>]/i,
+			/<embed[\s>]/i,
+			/<link[\s>]/i,
+		]
+
+		for (const pattern of blacklist) {
+			if (pattern.test(text)) {
+				return error(__('SVG contains potentially unsafe content.'))
+			}
+		}
+	}
+
+	return null
 }
 
 export const escapeHTML = (text) => {
