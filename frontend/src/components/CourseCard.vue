@@ -71,7 +71,10 @@
 				</div>
 			</div>
 
-			<div class="font-semibold leading-6" :class="course.title.length > 32 ? 'text-lg' : 'text-xl'">
+			<div
+				class="font-semibold leading-6"
+				:class="course.title.length > 32 ? 'text-lg' : 'text-xl'"
+			>
 				{{ course.title }}
 			</div>
 
