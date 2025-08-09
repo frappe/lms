@@ -27,6 +27,7 @@
   "section_break_7",
   "published",
   "published_on",
+  "course_duration",
   "column_break_10",
   "upcoming",
   "featured",
@@ -278,6 +279,11 @@
    "fieldtype": "Select",
    "label": "Color",
    "options": "Red\nBlue\nGreen\nAmber\nCyan\nOrange\nPink\nPurple\nTeal\nViolet\nYellow\nGray"
+  },
+  {
+   "fieldname": "course_duration",
+   "fieldtype": "Float",
+   "label": "Course Duration"
   }
  ],
  "is_published_field": "published",
@@ -296,8 +302,8 @@
   }
  ],
  "make_attachments_public": 1,
- "modified": "2025-07-25 17:50:44.983391",
- "modified_by": "sayali@frappe.io",
+ "modified": "2025-08-06 16:49:45.533501",
+ "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",
  "owner": "Administrator",
