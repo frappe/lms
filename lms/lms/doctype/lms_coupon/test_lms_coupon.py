@@ -51,7 +51,6 @@ class TestLMSCoupon(unittest.TestCase):
 		frappe.db.rollback()
 
 	def test_course_coupon_can_be_applied_to_course_only(self):
-		"""Test that a course coupon works correctly with courses only"""
 		course_coupon = frappe.get_doc(
 			{
 				"doctype": "LMS Coupon",
@@ -65,16 +64,13 @@ class TestLMSCoupon(unittest.TestCase):
 			}
 		).insert(ignore_permissions=True)
 
-		# Should work when applying to the correct course
 		discount = course_coupon.calculate_discount("LMS Course", self.course.name)
 		self.assertEqual(discount, 100)  # 10% of 1000
 
-		# Should fail when trying to apply course coupon to batch
 		with self.assertRaises(frappe.ValidationError):
 			course_coupon.calculate_discount("LMS Batch", self.batch.name)
 
 	def test_batch_coupon_can_be_applied_to_batch_only(self):
-		"""Test that a batch coupon works correctly with batches only"""
 		batch_coupon = frappe.get_doc(
 			{
 				"doctype": "LMS Coupon",
@@ -88,16 +84,13 @@ class TestLMSCoupon(unittest.TestCase):
 			}
 		).insert(ignore_permissions=True)
 
-		# Should work when applying to the correct batch
 		discount = batch_coupon.calculate_discount("LMS Batch", self.batch.name)
-		self.assertEqual(discount, 300)  # 20% of 1500
+		self.assertEqual(discount, 300)
 
-		# Should fail when trying to apply batch coupon to course
 		with self.assertRaises(frappe.ValidationError):
 			batch_coupon.calculate_discount("LMS Course", self.course.name)
 
 	def test_invalid_doctype_throws_error(self):
-		"""Test that using coupon with invalid doctype throws error"""
 		coupon = frappe.get_doc(
 			{
 				"doctype": "LMS Coupon",
@@ -111,16 +104,12 @@ class TestLMSCoupon(unittest.TestCase):
 			}
 		).insert(ignore_permissions=True)
 
-		# Should fail when trying to apply to invalid doctype
 		with self.assertRaises(frappe.ValidationError):
 			coupon.calculate_discount("Invalid DocType", "some-name")
 
 	def test_coupon_specific_reference_validation(self):
-		"""Test that coupon can only be applied to its specific reference"""
-		# Get the instructor from setUp
 		instructor = frappe.get_doc("User", "test@instructor.com")
 		
-		# Create another course
 		another_course = frappe.get_doc(
 			{
 				"doctype": "LMS Course",
@@ -133,7 +122,6 @@ class TestLMSCoupon(unittest.TestCase):
 			}
 		).insert(ignore_permissions=True)
 
-		# Create coupon for self.course
 		coupon = frappe.get_doc(
 			{
 				"doctype": "LMS Coupon",
@@ -147,20 +135,15 @@ class TestLMSCoupon(unittest.TestCase):
 			}
 		).insert(ignore_permissions=True)
 
-		# Should work for the correct course
 		discount = coupon.calculate_discount("LMS Course", self.course.name)
-		self.assertEqual(discount, 100)  # 10% of 1000
+		self.assertEqual(discount, 100)  
 
-		# Should fail for different course of same type
 		with self.assertRaises(frappe.ValidationError):
 			coupon.calculate_discount("LMS Course", another_course.name)
 
 	def test_zero_price_item_validation(self):
-		"""Test that coupon fails when applied to item with zero price"""
-		# Get the instructor from setUp
 		instructor = frappe.get_doc("User", "test@instructor.com")
 		
-		# Create course with zero price
 		free_course = frappe.get_doc(
 			{
 				"doctype": "LMS Course",
@@ -186,13 +169,11 @@ class TestLMSCoupon(unittest.TestCase):
 			}
 		).insert(ignore_permissions=True)
 
-		# Should fail when trying to apply to zero price course
 		with self.assertRaises(frappe.ValidationError):
 			coupon.calculate_discount("LMS Course", free_course.name)
 
 
 	def test_invalid_coupon_usage_inactive_coupon(self):
-		"""Test using an inactive coupon throws error"""
 		inactive_coupon = frappe.get_doc(
 			{
 				"doctype": "LMS Coupon",
@@ -210,7 +191,6 @@ class TestLMSCoupon(unittest.TestCase):
 			inactive_coupon.calculate_discount("LMS Course", self.course.name)
 
 	def test_invalid_coupon_usage_future_coupon(self):
-		"""Test using a future-dated coupon throws error"""
 		future_coupon = frappe.get_doc(
 			{
 				"doctype": "LMS Coupon",
@@ -229,7 +209,6 @@ class TestLMSCoupon(unittest.TestCase):
 			future_coupon.calculate_discount("LMS Course", self.course.name)
 
 	def test_invalid_coupon_usage_expired_coupon(self):
-		"""Test using an expired coupon throws error"""
 		expired_coupon = frappe.get_doc(
 			{
 				"doctype": "LMS Coupon",
@@ -248,7 +227,6 @@ class TestLMSCoupon(unittest.TestCase):
 			expired_coupon.calculate_discount("LMS Course", self.course.name)
 
 	def test_invalid_coupon_usage_limit_exceeded(self):
-		"""Test using a coupon that has exceeded usage limit throws error"""
 		limited_coupon = frappe.get_doc(
 			{
 				"doctype": "LMS Coupon",
@@ -267,7 +245,6 @@ class TestLMSCoupon(unittest.TestCase):
 			limited_coupon.calculate_discount("LMS Course", self.course.name)
 
 	def test_discount_calculation_course_percentage(self):
-		"""Test percentage discount calculation for courses"""
 		coupon = frappe.get_doc(
 			{
 				"doctype": "LMS Coupon",
@@ -282,10 +259,9 @@ class TestLMSCoupon(unittest.TestCase):
 		).insert(ignore_permissions=True)
 
 		discount = coupon.calculate_discount("LMS Course", self.course.name)
-		self.assertEqual(discount, 100)  # 10% of 1000
+		self.assertEqual(discount, 100)
 
 	def test_discount_calculation_batch_fixed_amount(self):
-		"""Test fixed amount discount calculation for batches"""
 		coupon = frappe.get_doc(
 			{
 				"doctype": "LMS Coupon",
@@ -303,7 +279,6 @@ class TestLMSCoupon(unittest.TestCase):
 		self.assertEqual(discount, 200)
 
 	def test_discount_calculation_fixed_amount_exceeds_price(self):
-		"""Test fixed amount discount doesn't exceed item price"""
 		coupon = frappe.get_doc(
 			{
 				"doctype": "LMS Coupon",
@@ -311,17 +286,16 @@ class TestLMSCoupon(unittest.TestCase):
 				"applicable_to": "LMS Course",
 				"applicable_reference": self.course.name,
 				"discount_type": "Fixed Amount",
-				"discount_value": 2000,  # More than course price
+				"discount_value": 2000,
 				"is_active": 1,
 				"max_uses": 100,
 			}
 		).insert(ignore_permissions=True)
 
 		discount = coupon.calculate_discount("LMS Course", self.course.name)
-		self.assertEqual(discount, 1000)  # Should be capped at course price
+		self.assertEqual(discount, 1000) 
 
 	def test_usage_increment(self):
-		"""Test that coupon usage count is properly incremented"""
 		coupon = frappe.get_doc(
 			{
 				"doctype": "LMS Coupon",
@@ -343,7 +317,6 @@ class TestLMSCoupon(unittest.TestCase):
 		self.assertEqual(coupon.used_count, initial_count + 1)
 
 	def test_can_use_coupon_valid_cases(self):
-		"""Test can_use_coupon method for valid scenarios"""
 		valid_coupon = frappe.get_doc(
 			{
 				"doctype": "LMS Coupon",
@@ -363,8 +336,6 @@ class TestLMSCoupon(unittest.TestCase):
 		self.assertEqual(message, "Coupon is valid")
 
 	def test_validate_discount_value_percentage(self):
-		"""Test discount value validation for percentage type"""
-		# Valid percentage
 		coupon = frappe.get_doc(
 			{
 				"doctype": "LMS Coupon",
@@ -376,10 +347,9 @@ class TestLMSCoupon(unittest.TestCase):
 				"is_active": 1,
 			}
 		)
-		# Should not raise error
+		
 		coupon.validate_discount_value()
 
-		# Invalid percentage (over 100)
 		invalid_coupon = frappe.get_doc(
 			{
 				"doctype": "LMS Coupon",
@@ -395,8 +365,6 @@ class TestLMSCoupon(unittest.TestCase):
 			invalid_coupon.validate_discount_value()
 
 	def test_validate_discount_value_fixed_amount(self):
-		"""Test discount value validation for fixed amount type"""
-		# Valid fixed amount
 		coupon = frappe.get_doc(
 			{
 				"doctype": "LMS Coupon",
@@ -408,10 +376,8 @@ class TestLMSCoupon(unittest.TestCase):
 				"is_active": 1,
 			}
 		)
-		# Should not raise error
 		coupon.validate_discount_value()
 
-		# Invalid fixed amount (negative)
 		invalid_coupon = frappe.get_doc(
 			{
 				"doctype": "LMS Coupon",
@@ -427,7 +393,6 @@ class TestLMSCoupon(unittest.TestCase):
 			invalid_coupon.validate_discount_value()
 
 	def test_get_applicable_reference(self):
-		"""Test getting applicable reference with new structure"""
 		course_coupon = frappe.get_doc(
 			{
 				"doctype": "LMS Coupon",

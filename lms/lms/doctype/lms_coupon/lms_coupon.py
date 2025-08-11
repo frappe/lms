@@ -14,7 +14,6 @@ class LMSCoupon(Document):
 
 
 	def validate_discount_value(self):
-		"""Validate discount value based on type"""
 		if self.discount_type == "Percentage" and (
 			self.discount_value < 0 or self.discount_value > 100
 		):
@@ -23,7 +22,6 @@ class LMSCoupon(Document):
 			frappe.throw(frappe._("Fixed amount discount cannot be negative"))
 
 	def can_use_coupon(self):
-		"""Check if coupon can be used"""
 		if not self.is_active:
 			return False, frappe._("Coupon is not active")
 
@@ -39,15 +37,12 @@ class LMSCoupon(Document):
 		return True, frappe._("Coupon is valid")
 
 	def calculate_discount(self, reference_doctype, reference_docname):
-		"""Calculate discount amount for the given reference document"""
 		if not reference_doctype or not reference_docname:
 			return 0
 		
-		# Validate that the reference doctype is supported
 		if reference_doctype not in ["LMS Course", "LMS Batch"]:
 			frappe.throw(frappe._("Invalid reference doctype. Only LMS Course and LMS Batch are supported."))
 		
-		# Validate that the coupon is applicable to the reference doctype
 		if self.applicable_to != reference_doctype:
 			frappe.throw(frappe._(
 				"This coupon is for {0} but you are trying to apply it to {1}".format(
@@ -55,7 +50,6 @@ class LMSCoupon(Document):
 				)
 			))
 		
-		# Validate that the reference document exists and matches the coupon's applicable reference
 		if self.applicable_reference != reference_docname:
 			frappe.throw(frappe._(
 				"This coupon is only applicable to {0}: {1}".format(
@@ -63,12 +57,10 @@ class LMSCoupon(Document):
 				)
 			))
 		
-		# Check if coupon can be used (status, dates, usage limits)
 		can_use, message = self.can_use_coupon()
 		if not can_use:
 			frappe.throw(message)
 		
-		# Get the amount from the reference document
 		amount = 0
 		if reference_doctype == "LMS Course":
 			amount = frappe.db.get_value("LMS Course", reference_docname, "course_price") or 0
@@ -78,20 +70,16 @@ class LMSCoupon(Document):
 		if amount <= 0:
 			frappe.throw(frappe._("Cannot apply coupon: {0} has no price set".format(reference_doctype)))
 		
-		# Calculate discount based on type
 		if self.discount_type == "Percentage":
 			discount = amount * (self.discount_value / 100)
-		else:  # Fixed Amount
+		else:  
 			discount = self.discount_value
 		
-		# Ensure discount doesn't exceed the original amount
 		return min(discount, amount)
 
 	def increment_usage(self):
-		"""Increment usage count"""
 		self.used_count = (self.used_count or 0) + 1
 		self.save(ignore_permissions=True)
 
 	def get_applicable_reference(self):
-		"""Get the reference document (course or batch)"""
 		return self.applicable_reference
