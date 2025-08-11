@@ -13,10 +13,9 @@
 					</Button>
 				</Tooltip>
 				<Button v-if="canSeeStats()" @click="showVideoStats()">
-					<template #prefix>
+					<template #icon>
 						<TrendingUp class="size-4 stroke-1.5" />
 					</template>
-					{{ __('Video Statistics') }}
 				</Button>
 				<CertificationLinks :courseName="courseName" />
 			</div>
@@ -76,7 +75,7 @@
 				>
 					<div class="px-5">
 						<div
-							class="flex flex-col md:flex-row md:items-center justify-between"
+							class="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center justify-between"
 						>
 							<div class="flex flex-col">
 								<div class="text-3xl font-semibold text-ink-gray-9">
@@ -158,7 +157,7 @@
 							</div>
 						</div>
 
-						<div v-if="!zenModeEnabled" class="flex items-center mt-2">
+						<div v-if="!zenModeEnabled" class="flex items-center mt-4 md:mt-2">
 							<span
 								class="h-6 mr-1"
 								:class="{
