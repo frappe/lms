@@ -1,14 +1,17 @@
 # Copyright (c) 2021, FOSS United and contributors
 # For license information, please see license.txt
 
-import frappe
 import json
+
+import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils.telemetry import capture
-from lms.lms.utils import get_course_progress
-from ...md import find_macros
 from frappe.realtime import get_website_room
+from frappe.utils.telemetry import capture
+
+from lms.lms.utils import get_course_progress
+
+from ...md import find_macros
 
 
 class CourseLesson(Document):
@@ -44,9 +47,7 @@ class CourseLesson(Document):
 
 @frappe.whitelist()
 def save_progress(lesson, course):
-	membership = frappe.db.exists(
-		"LMS Enrollment", {"course": course, "member": frappe.session.user}
-	)
+	membership = frappe.db.exists("LMS Enrollment", {"course": course, "member": frappe.session.user})
 	if not membership:
 		return 0
 
@@ -93,9 +94,7 @@ def capture_progress_for_analytics(progress, course):
 
 
 def get_quiz_progress(lesson):
-	lesson_details = frappe.db.get_value(
-		"Course Lesson", lesson, ["body", "content"], as_dict=1
-	)
+	lesson_details = frappe.db.get_value("Course Lesson", lesson, ["body", "content"], as_dict=1)
 	quizzes = []
 
 	if lesson_details.content:
@@ -129,9 +128,7 @@ def get_quiz_progress(lesson):
 
 
 def get_assignment_progress(lesson):
-	lesson_details = frappe.db.get_value(
-		"Course Lesson", lesson, ["body", "content"], as_dict=1
-	)
+	lesson_details = frappe.db.get_value("Course Lesson", lesson, ["body", "content"], as_dict=1)
 	assignments = []
 
 	if lesson_details.content:

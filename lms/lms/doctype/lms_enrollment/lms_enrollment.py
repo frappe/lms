@@ -60,15 +60,11 @@ class LMSEnrollment(Document):
 			)
 
 	def update_program_progress(self):
-		programs = frappe.get_all(
-			"LMS Program Member", {"member": self.member}, ["parent", "name"]
-		)
+		programs = frappe.get_all("LMS Program Member", {"member": self.member}, ["parent", "name"])
 
 		for program in programs:
 			total_progress = 0
-			courses = frappe.get_all(
-				"LMS Program Course", {"parent": program.parent}, pluck="course"
-			)
+			courses = frappe.get_all("LMS Program Course", {"parent": program.parent}, pluck="course")
 			for course in courses:
 				progress = frappe.db.get_value(
 					"LMS Enrollment", {"course": course, "member": self.member}, "progress"
@@ -81,9 +77,7 @@ class LMSEnrollment(Document):
 
 
 @frappe.whitelist()
-def create_membership(
-	course, batch=None, member=None, member_type="Student", role="Member"
-):
+def create_membership(course, batch=None, member=None, member_type="Student", role="Member"):
 	if frappe.db.get_value("LMS Course", course, "disable_self_learning"):
 		return False
 
@@ -104,14 +98,10 @@ def create_membership(
 
 @frappe.whitelist()
 def update_current_membership(batch, course, member):
-	all_memberships = frappe.get_all(
-		"LMS Enrollment", {"member": member, "course": course}
-	)
+	all_memberships = frappe.get_all("LMS Enrollment", {"member": member, "course": course})
 	for membership in all_memberships:
 		frappe.db.set_value("LMS Enrollment", membership.name, "is_current", 0)
 
-	current_membership = frappe.get_all(
-		"LMS Enrollment", {"batch_old": batch, "member": member}
-	)
+	current_membership = frappe.get_all("LMS Enrollment", {"batch_old": batch, "member": member})
 	if len(current_membership):
 		frappe.db.set_value("LMS Enrollment", current_membership[0].name, "is_current", 1)

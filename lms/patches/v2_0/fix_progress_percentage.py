@@ -1,4 +1,5 @@
 import frappe
+
 from lms.lms.utils import get_course_progress
 
 

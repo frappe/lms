@@ -1,9 +1,9 @@
 import frappe
 from frappe import _
 from frappe.model.naming import append_number_if_name_exists
-from frappe.website.utils import cleanup_page_name
-from frappe.website.utils import is_signup_disabled
-from frappe.utils import random_string, escape_html
+from frappe.utils import escape_html, random_string
+from frappe.website.utils import cleanup_page_name, is_signup_disabled
+
 from lms.lms.utils import get_country_code
 
 
@@ -79,8 +79,8 @@ def set_country_from_ip(login_manager=None, user=None):
 	if not user and login_manager:
 		user = login_manager.user
 	user_country = frappe.db.get_value("User", user, "country")
-	# if user_country:
-	#    return
+	if user_country:
+		return
 	frappe.db.set_value("User", user, "country", get_country_code())
 	return
 
