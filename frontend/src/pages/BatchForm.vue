@@ -16,11 +16,11 @@
 			</div>
 		</header>
 		<div class="py-5">
-			<div class="px-20 pb-5 space-y-5 border-b mb-5">
+			<div class="px-5 md:px-20 pb-5 space-y-5 border-b mb-5">
 				<div class="text-lg text-ink-gray-9 font-semibold mb-4">
 					{{ __('Details') }}
 				</div>
-				<div class="grid grid-cols-2 gap-5">
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 					<div class="space-y-5">
 						<FormControl
 							v-model="batch.title"
@@ -48,11 +48,11 @@
 				</div>
 			</div>
 
-			<div class="px-20 pb-5 space-y-5 border-b mb-5">
+			<div class="px-5 md:px-20 pb-5 space-y-5 border-b mb-5">
 				<div class="text-lg text-ink-gray-9 font-semibold mb-4">
 					{{ __('Settings') }}
 				</div>
-				<div class="grid grid-cols-3 gap-5">
+				<div class="grid grid-cols-1 md:grid-cols-3 gap-5">
 					<FormControl
 						v-model="batch.published"
 						type="checkbox"
@@ -71,11 +71,11 @@
 				</div>
 			</div>
 
-			<div class="px-20 pb-5 space-y-5 border-b mb-5">
+			<div class="px-5 md:px-20 pb-5 space-y-5 border-b mb-5">
 				<div class="text-lg text-ink-gray-9 font-semibold mb-4">
 					{{ __('Date and Time') }}
 				</div>
-				<div class="grid grid-cols-3 gap-10">
+				<div class="grid grid-cols-1 md:grid-cols-3 gap-10">
 					<div class="space-y-5">
 						<FormControl
 							v-model="batch.start_date"
@@ -127,7 +127,7 @@
 				</div>
 			</div>
 
-			<div class="px-20 pb-5 space-y-5 border-b mb-5">
+			<div class="px-5 md:px-20 pb-5 space-y-5 border-b mb-5">
 				<div>
 					<label class="block text-sm text-ink-gray-5 mb-1">
 						{{ __('Batch Details') }}
@@ -143,11 +143,11 @@
 				</div>
 			</div>
 
-			<div class="px-20 pb-5 space-y-5 border-b mb-5">
+			<div class="px-5 md:px-20 pb-5 space-y-5 border-b mb-5">
 				<div class="text-lg text-ink-gray-9 font-semibold mb-4">
 					{{ __('Configurations') }}
 				</div>
-				<div class="grid grid-cols-3 gap-10">
+				<div class="grid grid-cols-1 md:grid-cols-3 gap-10">
 					<div class="space-y-5">
 						<FormControl
 							v-model="batch.seat_count"
@@ -217,7 +217,7 @@
 								>
 									<div class="flex items-center">
 										<div
-											class="border rounded-md w-fit py-5 px-20 cursor-pointer"
+											class="border rounded-md w-fit py-5 px-5 md:px-20 cursor-pointer"
 											@click="openFileSelector"
 										>
 											<Image class="size-5 stroke-1 text-ink-gray-7" />
@@ -260,7 +260,7 @@
 				</div>
 			</div>
 
-			<div class="px-20 pb-5 space-y-5">
+			<div class="px-5 md:px-20 pb-5 space-y-5">
 				<div class="text-lg text-ink-gray-9 font-semibold">
 					{{ __('Pricing') }}
 				</div>
@@ -269,7 +269,10 @@
 					type="checkbox"
 					:label="__('Paid Batch')"
 				/>
-				<div v-if="batch.paid_batch" class="grid grid-cols-3 gap-5">
+				<div
+					v-if="batch.paid_batch"
+					class="grid grid-cols-1 md:grid-cols-3 gap-5"
+				>
 					<FormControl
 						v-model="batch.amount"
 						:label="__('Amount')"
@@ -284,7 +287,7 @@
 				</div>
 			</div>
 
-			<div class="px-20 pb-5 space-y-5 border-b">
+			<div class="px-5 md:px-20 pb-5 space-y-5 border-b">
 				<div class="text-lg text-ink-gray-9 font-semibold">
 					{{ __('Meta Tags') }}
 				</div>
