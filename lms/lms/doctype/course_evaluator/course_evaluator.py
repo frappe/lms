@@ -79,7 +79,7 @@ def get_schedule(course, date, batch=None):
 	)
 
 	for slot in booked_slots:
-		same_slot = list(filter(lambda x: x.start_time == slot.start_time and x.day == slot.day, all_slots))
+		same_slot = [x for x in all_slots if x.start_time == slot.start_time and x.day == slot.day]
 		if len(same_slot):
 			all_slots.remove(same_slot[0])
 
