@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Frappe LMS VERSION\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2025-08-01 16:04+0000\n"
-"PO-Revision-Date: 2025-08-01 16:04+0000\n"
+"POT-Creation-Date: 2025-08-08 16:04+0000\n"
+"PO-Revision-Date: 2025-08-08 16:04+0000\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: jannat@frappe.io\n"
 "MIME-Version: 1.0\n"
@@ -239,6 +239,10 @@ msgstr ""
 msgid "Add students to your batch"
 msgstr ""
 
+#: frontend/src/components/Notes/InlineLessonMenu.vue:39
+msgid "Add to Notes"
+msgstr ""
+
 #: frontend/src/components/Modals/PageModal.vue:6
 msgid "Add web page to sidebar"
 msgstr ""
@@ -444,6 +448,10 @@ msgstr ""
 msgid "Are you sure you want to login to your Frappe Cloud dashboard?"
 msgstr ""
 
+#: frontend/src/pages/Lesson.vue:244
+msgid "Ask a question to get help from the community."
+msgstr ""
+
 #. Label of the assessment_tab (Tab Break) field in DocType 'LMS Batch'
 #. Label of the assessment (Table) field in DocType 'LMS Batch'
 #: frontend/src/components/Modals/AssessmentModal.vue:27
@@ -618,11 +626,11 @@ msgstr ""
 msgid "Average Rating"
 msgstr ""
 
-#: frontend/src/components/Modals/VideoStatistics.vue:72
-msgid "Average Watch Time (minutes)"
+#: frontend/src/components/Modals/VideoStatistics.vue:74
+msgid "Average Watch Time"
 msgstr ""
 
-#: frontend/src/pages/Lesson.vue:151
+#: frontend/src/pages/Lesson.vue:155
 msgid "Back to Course"
 msgstr ""
 
@@ -833,7 +841,9 @@ msgid "Bio"
 msgstr ""
 
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
+#. Option for the 'Color' (Select) field in DocType 'LMS Lesson Note'
 #: lms/lms/doctype/lms_course/lms_course.json
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 msgid "Blue"
 msgstr ""
 
@@ -1229,9 +1239,11 @@ msgid "College Name"
 msgstr ""
 
 #. Label of the card_gradient (Select) field in DocType 'LMS Course'
+#. Label of the color (Select) field in DocType 'LMS Lesson Note'
 #. Label of the color (Color) field in DocType 'LMS Timetable Legend'
 #: frontend/src/pages/CourseForm.vue:133
 #: lms/lms/doctype/lms_course/lms_course.json
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 #: lms/lms/doctype/lms_timetable_legend/lms_timetable_legend.json
 msgid "Color"
 msgstr ""
@@ -1262,6 +1274,10 @@ msgstr ""
 #. Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Common keywords that will be used for all pages"
+msgstr ""
+
+#: frontend/src/pages/Lesson.vue:828
+msgid "Community"
 msgstr ""
 
 #. Label of the company (Data) field in DocType 'LMS Job Application'
@@ -1472,6 +1488,7 @@ msgstr ""
 #. Label of the course (Link) field in DocType 'LMS Course Review'
 #. Label of the course (Link) field in DocType 'LMS Enrollment'
 #. Label of the course (Link) field in DocType 'LMS Exercise'
+#. Label of the course (Link) field in DocType 'LMS Lesson Note'
 #. Label of the course (Link) field in DocType 'LMS Mentor Request'
 #. Label of the course (Link) field in DocType 'LMS Program Course'
 #. Label of the course (Link) field in DocType 'LMS Quiz'
@@ -1506,6 +1523,7 @@ msgstr ""
 #: lms/lms/doctype/lms_course_review/lms_course_review.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 #: lms/lms/doctype/lms_exercise/lms_exercise.json
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
 #: lms/lms/doctype/lms_program_course/lms_program_course.json
 #: lms/lms/doctype/lms_quiz/lms_quiz.json
@@ -1541,6 +1559,7 @@ msgstr ""
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 #: lms/lms/doctype/lms_category/lms_category.json
 #: lms/lms/doctype/lms_course/lms_course.json
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 #: lms/lms/doctype/lms_program/lms_program.json
 #: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.json
 #: lms/lms/doctype/lms_programming_exercise_submission/lms_programming_exercise_submission.json
@@ -1873,6 +1892,7 @@ msgstr ""
 #: frontend/src/components/Controls/ChildTable.vue:56
 #: frontend/src/components/CourseOutline.vue:283
 #: frontend/src/components/CourseOutline.vue:349
+#: frontend/src/components/DiscussionReplies.vue:41
 #: frontend/src/components/Settings/Badges.vue:171
 #: frontend/src/pages/BatchForm.vue:562 frontend/src/pages/CourseForm.vue:594
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:67
@@ -2037,9 +2057,10 @@ msgstr ""
 
 #: frontend/src/components/BatchOverlay.vue:129
 #: frontend/src/components/CourseCardOverlay.vue:116
+#: frontend/src/components/DiscussionReplies.vue:35
 #: frontend/src/components/Modals/ChapterModal.vue:9
 #: frontend/src/components/Settings/Badges.vue:156
-#: frontend/src/pages/JobDetail.vue:34 frontend/src/pages/Lesson.vue:130
+#: frontend/src/pages/JobDetail.vue:34 frontend/src/pages/Lesson.vue:134
 #: frontend/src/pages/Profile.vue:36 frontend/src/pages/Programs.vue:53
 msgid "Edit"
 msgstr ""
@@ -2506,7 +2527,7 @@ msgstr ""
 msgid "Failed to update badge assignment: "
 msgstr ""
 
-#: frontend/src/utils/index.js:659
+#: frontend/src/utils/index.js:685
 msgid "Failed to update meta tags {0}"
 msgstr ""
 
@@ -2670,7 +2691,7 @@ msgstr ""
 
 #: frontend/src/components/CertificationLinks.vue:34
 #: frontend/src/components/CertificationLinks.vue:50
-#: frontend/src/components/CourseCard.vue:121
+#: frontend/src/components/CourseCard.vue:114
 #: frontend/src/pages/CertifiedParticipants.vue:11
 msgid "Get Certified"
 msgstr ""
@@ -2726,7 +2747,9 @@ msgid "Gray"
 msgstr ""
 
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
+#. Option for the 'Color' (Select) field in DocType 'LMS Lesson Note'
 #: lms/lms/doctype/lms_course/lms_course.json
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 msgid "Green"
 msgstr ""
 
@@ -2788,6 +2811,16 @@ msgstr ""
 #. Label of the hide_private (Check) field in DocType 'User'
 #: lms/fixtures/custom_field.json
 msgid "Hide my Private Information from others"
+msgstr ""
+
+#: frontend/src/components/Notes/InlineLessonMenu.vue:12
+msgid "Highlight"
+msgstr ""
+
+#. Label of the highlighted_text (Small Text) field in DocType 'LMS Lesson
+#. Note'
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
+msgid "Highlighted Text"
 msgstr ""
 
 #. Label of the hints (Small Text) field in DocType 'LMS Exercise'
@@ -2981,7 +3014,7 @@ msgstr ""
 
 #. Label of the instructor_notes (Markdown Editor) field in DocType 'Course
 #. Lesson'
-#: frontend/src/pages/Lesson.vue:184 frontend/src/pages/LessonForm.vue:42
+#: frontend/src/pages/Lesson.vue:189 frontend/src/pages/LessonForm.vue:42
 #: lms/lms/doctype/course_lesson/course_lesson.json
 msgid "Instructor Notes"
 msgstr ""
@@ -3311,6 +3344,11 @@ msgid "LMS Job Application"
 msgstr ""
 
 #. Name of a DocType
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
+msgid "LMS Lesson Note"
+msgstr ""
+
+#. Name of a DocType
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "LMS Live Class"
 msgstr ""
@@ -3418,6 +3456,7 @@ msgstr ""
 #: lms/lms/doctype/lms_course_progress/lms_course_progress.json
 #: lms/lms/doctype/lms_course_review/lms_course_review.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 #: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.json
 #: lms/lms/doctype/lms_programming_exercise_submission/lms_programming_exercise_submission.json
@@ -3502,6 +3541,7 @@ msgstr ""
 #. Label of the lesson (Link) field in DocType 'LMS Assignment Submission'
 #. Label of the lesson (Link) field in DocType 'LMS Course Progress'
 #. Label of the lesson (Link) field in DocType 'LMS Exercise'
+#. Label of the lesson (Link) field in DocType 'LMS Lesson Note'
 #. Label of the lesson (Link) field in DocType 'LMS Quiz'
 #. Label of the lesson (Link) field in DocType 'LMS Video Watch Duration'
 #. Label of the lesson (Link) field in DocType 'Scheduled Flow'
@@ -3512,6 +3552,7 @@ msgstr ""
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 #: lms/lms/doctype/lms_course_progress/lms_course_progress.json
 #: lms/lms/doctype/lms_exercise/lms_exercise.json
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 #: lms/lms/doctype/lms_quiz/lms_quiz.json
 #: lms/lms/doctype/lms_video_watch_duration/lms_video_watch_duration.json
 #: lms/lms/doctype/scheduled_flow/scheduled_flow.json
@@ -3670,6 +3711,10 @@ msgstr ""
 msgid "Make an Announcement"
 msgstr ""
 
+#: frontend/src/components/Notes/Notes.vue:7
+msgid "Make notes for quick revision. Press / for menu."
+msgstr ""
+
 #: frontend/src/pages/Billing.vue:123
 msgid "Make sure to enter the correct billing name as the same will be used in your invoice."
 msgstr ""
@@ -3774,6 +3819,7 @@ msgstr ""
 #. Label of the member (Link) field in DocType 'LMS Course Progress'
 #. Label of the member (Link) field in DocType 'LMS Enrollment'
 #. Option for the 'Role' (Select) field in DocType 'LMS Enrollment'
+#. Label of the member (Link) field in DocType 'LMS Lesson Note'
 #. Label of the member (Link) field in DocType 'LMS Live Class Participant'
 #. Label of the member (Link) field in DocType 'LMS Mentor Request'
 #. Label of the member (Link) field in DocType 'LMS Payment'
@@ -3785,7 +3831,7 @@ msgstr ""
 #. Label of the member (Link) field in DocType 'LMS Zoom Settings'
 #: frontend/src/components/Modals/CourseProgressSummary.vue:216
 #: frontend/src/components/Modals/LiveClassAttendance.vue:14
-#: frontend/src/components/Modals/VideoStatistics.vue:29
+#: frontend/src/components/Modals/VideoStatistics.vue:31
 #: frontend/src/components/Modals/ZoomAccountModal.vue:42
 #: frontend/src/components/Settings/BadgeAssignmentForm.vue:26
 #: frontend/src/components/Settings/BadgeAssignments.vue:179
@@ -3806,6 +3852,7 @@ msgstr ""
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/doctype/lms_course_progress/lms_course_progress.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 #: lms/lms/doctype/lms_live_class_participant/lms_live_class_participant.json
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
 #: lms/lms/doctype/lms_payment/lms_payment.json
@@ -4027,6 +4074,7 @@ msgstr ""
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 #: lms/lms/doctype/lms_program/lms_program.json
 #: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.json
@@ -4076,6 +4124,10 @@ msgstr ""
 #. Label of the multiple (Check) field in DocType 'LMS Question'
 #: lms/lms/doctype/lms_question/lms_question.json
 msgid "Multiple Correct Answers"
+msgstr ""
+
+#: frontend/src/components/Notes/Notes.vue:3
+msgid "My Notes"
 msgstr ""
 
 #: frontend/src/pages/ProfileEvaluator.vue:4
@@ -4159,12 +4211,12 @@ msgstr ""
 msgid "New reply on the topic {0} in course {1}"
 msgstr ""
 
-#: frontend/src/components/Discussions.vue:8
-#: frontend/src/components/Discussions.vue:63
+#: frontend/src/components/Discussions.vue:11
+#: frontend/src/components/Discussions.vue:66
 msgid "New {0}"
 msgstr ""
 
-#: frontend/src/components/Quiz.vue:237 frontend/src/pages/Lesson.vue:139
+#: frontend/src/components/Quiz.vue:237 frontend/src/pages/Lesson.vue:143
 msgid "Next"
 msgstr ""
 
@@ -4253,7 +4305,7 @@ msgstr ""
 msgid "No slots available for this date."
 msgstr ""
 
-#: frontend/src/components/Modals/VideoStatistics.vue:84
+#: frontend/src/components/Modals/VideoStatistics.vue:86
 msgid "No statistics available for this video."
 msgstr ""
 
@@ -4307,6 +4359,16 @@ msgstr ""
 #: frontend/src/components/Settings/SettingDetails.vue:10
 #: frontend/src/pages/QuizForm.vue:8 frontend/src/pages/QuizSubmission.vue:9
 msgid "Not Saved"
+msgstr ""
+
+#. Label of the note (Text Editor) field in DocType 'LMS Lesson Note'
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
+msgid "Note"
+msgstr ""
+
+#: frontend/src/pages/Lesson.vue:358 frontend/src/pages/Lesson.vue:824
+#: frontend/src/pages/Lesson.vue:835
+msgid "Notes"
 msgstr ""
 
 #: frontend/src/pages/Notifications.vue:53
@@ -4366,7 +4428,7 @@ msgstr ""
 msgid "Only files of type {0} will be accepted."
 msgstr ""
 
-#: frontend/src/utils/index.js:491
+#: frontend/src/utils/index.js:498
 msgid "Only image file is allowed."
 msgstr ""
 
@@ -4891,7 +4953,7 @@ msgstr ""
 msgid "Preview Video"
 msgstr ""
 
-#: frontend/src/pages/Lesson.vue:114
+#: frontend/src/pages/Lesson.vue:118
 msgid "Previous"
 msgstr ""
 
@@ -5079,7 +5141,9 @@ msgid "Purchased Certificate"
 msgstr ""
 
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
+#. Option for the 'Color' (Select) field in DocType 'LMS Lesson Note'
 #: lms/lms/doctype/lms_course/lms_course.json
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 msgid "Purple"
 msgstr ""
 
@@ -5241,7 +5305,9 @@ msgid "Ready"
 msgstr ""
 
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
+#. Option for the 'Color' (Select) field in DocType 'LMS Lesson Note'
 #: lms/lms/doctype/lms_course/lms_course.json
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 msgid "Red"
 msgstr ""
 
@@ -5302,6 +5368,10 @@ msgstr ""
 #: frontend/src/components/Controls/Uploader.vue:34
 #: frontend/src/pages/BatchForm.vue:246 frontend/src/pages/CourseForm.vue:119
 msgid "Remove"
+msgstr ""
+
+#: frontend/src/components/Notes/InlineLessonMenu.vue:49
+msgid "Remove Highlight"
 msgstr ""
 
 #: frontend/src/components/Modals/AnnouncementModal.vue:27
@@ -5434,6 +5504,10 @@ msgstr ""
 #. Label of the seo_tab (Tab Break) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "SEO"
+msgstr ""
+
+#: frontend/src/utils/index.js:517
+msgid "SVG contains potentially unsafe content."
 msgstr ""
 
 #. Option for the 'Day' (Select) field in DocType 'Evaluator Schedule'
@@ -6056,6 +6130,7 @@ msgstr ""
 #: lms/lms/doctype/lms_course_review/lms_course_review.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 #: lms/lms/doctype/lms_exercise/lms_exercise.json
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 #: lms/lms/doctype/lms_live_class_participant/lms_live_class_participant.json
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
@@ -6750,7 +6825,7 @@ msgid "Volunteering or Internship"
 msgstr ""
 
 #. Label of the watch_time (Data) field in DocType 'LMS Video Watch Duration'
-#: frontend/src/components/Modals/VideoStatistics.vue:32
+#: frontend/src/components/Modals/VideoStatistics.vue:34
 #: lms/lms/doctype/lms_video_watch_duration/lms_video_watch_duration.json
 msgid "Watch Time"
 msgstr ""
@@ -6851,7 +6926,9 @@ msgid "Write your answer here"
 msgstr ""
 
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
+#. Option for the 'Color' (Select) field in DocType 'LMS Lesson Note'
 #: lms/lms/doctype/lms_course/lms_course.json
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 msgid "Yellow"
 msgstr ""
 
@@ -7128,8 +7205,8 @@ msgstr ""
 msgid "certified members"
 msgstr ""
 
-#: frontend/src/components/CourseCard.vue:98 frontend/src/pages/Lesson.vue:98
-#: frontend/src/pages/Lesson.vue:234
+#: frontend/src/components/CourseCard.vue:91 frontend/src/pages/Lesson.vue:99
+#: frontend/src/pages/Lesson.vue:259
 msgid "completed"
 msgstr ""
 
