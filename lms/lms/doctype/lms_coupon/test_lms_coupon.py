@@ -109,7 +109,7 @@ class TestLMSCoupon(unittest.TestCase):
 
 	def test_coupon_specific_reference_validation(self):
 		instructor = frappe.get_doc("User", "test@instructor.com")
-		
+
 		another_course = frappe.get_doc(
 			{
 				"doctype": "LMS Course",
@@ -136,14 +136,14 @@ class TestLMSCoupon(unittest.TestCase):
 		).insert(ignore_permissions=True)
 
 		discount = coupon.calculate_discount("LMS Course", self.course.name)
-		self.assertEqual(discount, 100)  
+		self.assertEqual(discount, 100)
 
 		with self.assertRaises(frappe.ValidationError):
 			coupon.calculate_discount("LMS Course", another_course.name)
 
 	def test_zero_price_item_validation(self):
 		instructor = frappe.get_doc("User", "test@instructor.com")
-		
+
 		free_course = frappe.get_doc(
 			{
 				"doctype": "LMS Course",
@@ -171,7 +171,6 @@ class TestLMSCoupon(unittest.TestCase):
 
 		with self.assertRaises(frappe.ValidationError):
 			coupon.calculate_discount("LMS Course", free_course.name)
-
 
 	def test_invalid_coupon_usage_inactive_coupon(self):
 		inactive_coupon = frappe.get_doc(
@@ -293,7 +292,7 @@ class TestLMSCoupon(unittest.TestCase):
 		).insert(ignore_permissions=True)
 
 		discount = coupon.calculate_discount("LMS Course", self.course.name)
-		self.assertEqual(discount, 1000) 
+		self.assertEqual(discount, 1000)
 
 	def test_usage_increment(self):
 		coupon = frappe.get_doc(
@@ -347,7 +346,7 @@ class TestLMSCoupon(unittest.TestCase):
 				"is_active": 1,
 			}
 		)
-		
+
 		coupon.validate_discount_value()
 
 		invalid_coupon = frappe.get_doc(
