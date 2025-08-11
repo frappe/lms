@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-08-01 16:04+0000\n"
-"PO-Revision-Date: 2025-08-08 01:24\n"
+"PO-Revision-Date: 2025-08-11 01:18\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Italian\n"
 "MIME-Version: 1.0\n"
@@ -85,7 +85,7 @@ msgstr "Informazioni"
 
 #: frontend/src/pages/CourseForm.vue:179
 msgid "About the Course"
-msgstr ""
+msgstr "Informazioni sul Corso"
 
 #: frontend/src/pages/Batch.vue:101
 msgid "About this batch"
@@ -123,7 +123,7 @@ msgstr ""
 #. Option for the 'Status' (Select) field in DocType 'LMS Batch Old'
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 msgid "Active"
-msgstr ""
+msgstr "Attivo"
 
 #: frontend/src/pages/Statistics.vue:16
 msgid "Active Members"
@@ -332,7 +332,7 @@ msgstr ""
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Amber"
-msgstr ""
+msgstr "Ambra"
 
 #. Label of the amount (Currency) field in DocType 'LMS Batch'
 #. Label of the course_price (Currency) field in DocType 'LMS Course'
@@ -622,7 +622,7 @@ msgstr ""
 
 #: frontend/src/components/Modals/VideoStatistics.vue:72
 msgid "Average Watch Time (minutes)"
-msgstr ""
+msgstr "Tempo Medio di Visione (minuti)"
 
 #: frontend/src/pages/Lesson.vue:151
 msgid "Back to Course"
@@ -1091,7 +1091,7 @@ msgstr ""
 
 #: frontend/src/pages/CourseForm.vue:134
 msgid "Choose a color for the course card"
-msgstr ""
+msgstr "Scegli un colore per la scheda del corso"
 
 #: frontend/src/components/Quiz.vue:644 lms/templates/quiz/quiz.html:53
 msgid "Choose all answers that apply"
@@ -2069,7 +2069,7 @@ msgstr ""
 
 #: frontend/src/pages/Profile.vue:72
 msgid "Edit Profile"
-msgstr ""
+msgstr "Modifica Profilo"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:8
 msgid "Edit Programming Exercise"
@@ -2143,7 +2143,7 @@ msgstr ""
 #. Option for the 'User Category' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json lms/templates/signup-form.html:25
 msgid "Employee"
-msgstr ""
+msgstr "Dipendente"
 
 #. Label of the enable (Check) field in DocType 'Zoom Settings'
 #: lms/lms/doctype/zoom_settings/zoom_settings.json
@@ -3114,7 +3114,7 @@ msgstr ""
 #. Exercise'
 #: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.json
 msgid "JavaScript"
-msgstr ""
+msgstr "JavaScript"
 
 #. Label of the job (Link) field in DocType 'LMS Job Application'
 #: lms/job/doctype/lms_job_application/lms_job_application.json
@@ -3582,7 +3582,7 @@ msgstr ""
 
 #: frontend/src/pages/ProfileAbout.vue:74
 msgid "LinkedIn"
-msgstr ""
+msgstr "LinkedIn"
 
 #. Label of the linkedin (Data) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -3637,7 +3637,7 @@ msgstr ""
 #: lms/lms/doctype/education_detail/education_detail.json
 #: lms/lms/doctype/work_experience/work_experience.json
 msgid "Location"
-msgstr ""
+msgstr "Luogo"
 
 #. Label of the location_preference (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -3648,7 +3648,7 @@ msgstr ""
 #: frontend/src/components/QuizBlock.vue:9 frontend/src/pages/Batch.vue:196
 #: frontend/src/pages/Lesson.vue:59
 msgid "Login"
-msgstr ""
+msgstr "Login"
 
 #: frontend/src/components/UserDropdown.vue:174
 msgid "Login to Frappe Cloud?"
@@ -4257,7 +4257,7 @@ msgstr ""
 
 #: frontend/src/components/Modals/VideoStatistics.vue:84
 msgid "No statistics available for this video."
-msgstr ""
+msgstr "Nessuna statistica disponibile per questo video."
 
 #: frontend/src/components/Modals/AnnouncementModal.vue:91
 msgid "No students in this batch"
@@ -4474,7 +4474,7 @@ msgstr ""
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 msgid "PDF"
-msgstr ""
+msgstr "PDF"
 
 #. Label of the pages (Table) field in DocType 'Cohort'
 #: lms/lms/doctype/cohort/cohort.json
@@ -5312,7 +5312,7 @@ msgstr ""
 
 #: frontend/src/components/Modals/AnnouncementModal.vue:100
 msgid "Reply To is required"
-msgstr ""
+msgstr "Rispondi A è un campo richiesto"
 
 #: lms/lms/widgets/RequestInvite.html:7
 msgid "Request Invite"
@@ -5509,7 +5509,7 @@ msgstr ""
 #: frontend/src/components/Modals/CourseProgressSummary.vue:18
 #: frontend/src/components/Modals/VideoStatistics.vue:20
 msgid "Search by Member"
-msgstr ""
+msgstr "Ricerca per Membro"
 
 #: frontend/src/pages/CertifiedParticipants.vue:23
 msgid "Search by Name"
@@ -5589,7 +5589,7 @@ msgstr ""
 
 #: frontend/src/components/Controls/ColorSwatches.vue:13
 msgid "Set Color"
-msgstr ""
+msgstr "Imposta Colore"
 
 #: lms/templates/emails/community_course_membership.html:1
 msgid "Set your Password"
@@ -6020,7 +6020,7 @@ msgstr ""
 
 #: frontend/src/components/Controls/ColorSwatches.vue:50
 msgid "Swatches"
-msgstr ""
+msgstr "Tavolozza"
 
 #. Name of a role
 #: lms/job/doctype/job_opportunity/job_opportunity.json
@@ -6087,7 +6087,7 @@ msgstr "Etichette"
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Teal"
-msgstr ""
+msgstr "Verde Acqua"
 
 #: lms/templates/emails/community_course_membership.html:18
 #: lms/templates/emails/mentor_request_creation_email.html:8
@@ -6525,7 +6525,7 @@ msgstr ""
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 msgid "URL"
-msgstr ""
+msgstr "URL"
 
 #. Label of the uuid (Data) field in DocType 'LMS Live Class'
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
@@ -6667,7 +6667,7 @@ msgstr ""
 #: lms/lms/doctype/course_evaluator/course_evaluator.json
 #: lms/lms/doctype/invite_request/invite_request.json
 msgid "Username"
-msgstr ""
+msgstr "Nome Utente"
 
 #. Label of a shortcut in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
