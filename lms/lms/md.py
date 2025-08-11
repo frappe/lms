@@ -120,6 +120,4 @@ def sanitize_html(html, macro):
 	if macro == "YouTubeVideo":
 		classname = "lesson-video"
 
-	return (
-		"<div class='" + classname + "'>" + "\n".join(str(node) for node in nodes) + "</div>"
-	)
+	return "<div class='" + classname + "'>" + "\n".join(str(node) for node in nodes) + "</div>"

@@ -3,12 +3,15 @@
 
 import json
 import random
+
 import frappe
-from frappe.model.document import Document
-from frappe.utils import today, cint
-from lms.lms.utils import get_chapters
-from ...utils import generate_slug, validate_image, update_payment_record
 from frappe import _
+from frappe.model.document import Document
+from frappe.utils import cint, today
+
+from lms.lms.utils import get_chapters
+
+from ...utils import generate_slug, update_payment_record, validate_image
 
 
 class LMSCourse(Document):
@@ -60,9 +63,7 @@ class LMSCourse(Document):
 
 	def validate_certification(self):
 		if self.enable_certification and self.paid_certificate:
-			frappe.throw(
-				_("A course cannot have both paid certificate and certificate of completion.")
-			)
+			frappe.throw(_("A course cannot have both paid certificate and certificate of completion."))
 
 		if self.paid_certificate and not self.evaluator:
 			frappe.throw(_("Evaluator is required for paid certificates."))
@@ -101,9 +102,7 @@ class LMSCourse(Document):
 			update_payment_record("LMS Course", self.name)
 
 	def send_email_to_interested_users(self):
-		interested_users = frappe.get_all(
-			"LMS Course Interest", {"course": self.name}, ["name", "user"]
-		)
+		interested_users = frappe.get_all("LMS Course Interest", {"course": self.name}, ["name", "user"])
 		subject = self.title + " is available!"
 		args = {
 			"title": self.title,
@@ -122,9 +121,7 @@ class LMSCourse(Document):
 				args=args,
 				now=True,
 			)
-			frappe.enqueue(
-				method=frappe.sendmail, queue="short", timeout=300, is_async=True, **email_args
-			)
+			frappe.enqueue(method=frappe.sendmail, queue="short", timeout=300, is_async=True, **email_args)
 			frappe.db.set_value("LMS Course Interest", user.name, "email_sent", True)
 
 	def autoname(self):
@@ -139,9 +136,7 @@ class LMSCourse(Document):
 		if not email or email == "Guest":
 			return False
 
-		mapping = frappe.get_all(
-			"LMS Course Mentor Mapping", {"course": self.name, "mentor": email}
-		)
+		mapping = frappe.get_all("LMS Course Mentor Mapping", {"course": self.name, "mentor": email})
 		return mapping != []
 
 	def add_mentor(self, email):
@@ -155,9 +150,7 @@ class LMSCourse(Document):
 		if self.has_mentor(email):
 			return
 
-		doc = frappe.get_doc(
-			{"doctype": "LMS Course Mentor Mapping", "course": self.name, "mentor": email}
-		)
+		doc = frappe.get_doc({"doctype": "LMS Course Mentor Mapping", "course": self.name, "mentor": email})
 		doc.insert()
 
 	def get_student_batch(self, email):
@@ -213,9 +206,7 @@ class LMSCourse(Document):
 			"LMS Enrollment", {"member": member, "course": self.name}, ["batch_old"]
 		)
 		for membership in all_memberships:
-			membership.batch_title = frappe.db.get_value(
-				"LMS Batch Old", membership.batch_old, "title"
-			)
+			membership.batch_title = frappe.db.get_value("LMS Batch Old", membership.batch_old, "title")
 		return all_memberships
 
 

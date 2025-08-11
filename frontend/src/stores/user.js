@@ -1,5 +1,8 @@
 import { defineStore } from 'pinia'
 import { createResource } from 'frappe-ui'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 export const usersStore = defineStore('lms-users', () => {
 	let userResource = createResource({

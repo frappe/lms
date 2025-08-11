@@ -9,7 +9,6 @@ from frappe.model.document import Document
 class LMSMentorRequest(Document):
 	def on_update(self):
 		if self.has_value_changed("status"):
-
 			if self.status == "Approved":
 				self.create_course_mentor_mapping()
 
@@ -49,18 +48,14 @@ class LMSMentorRequest(Document):
 			"header": email_template.subject,
 			"message": message,
 		}
-		frappe.enqueue(
-			method=frappe.sendmail, queue="short", timeout=300, is_async=True, **email_args
-		)
+		frappe.enqueue(method=frappe.sendmail, queue="short", timeout=300, is_async=True, **email_args)
 
 	def send_status_change_email(self):
 		email_template = self.get_email_template("mentor_request_status_update")
 		if not email_template:
 			return
 
-		course_details = frappe.db.get_value(
-			"LMS Course", self.course, ["owner", "title"], as_dict=True
-		)
+		course_details = frappe.db.get_value("LMS Course", self.course, ["owner", "title"], as_dict=True)
 		message = frappe.render_template(
 			email_template.response,
 			{
@@ -78,9 +73,7 @@ class LMSMentorRequest(Document):
 				"header": email_template.subject,
 				"message": message,
 			}
-			frappe.enqueue(
-				method=frappe.sendmail, queue="short", timeout=300, is_async=True, **email_args
-			)
+			frappe.enqueue(method=frappe.sendmail, queue="short", timeout=300, is_async=True, **email_args)
 
 		elif self.status == "Withdrawn":
 			email_args = {
@@ -89,9 +82,7 @@ class LMSMentorRequest(Document):
 				"header": email_template.subject,
 				"message": message,
 			}
-			frappe.enqueue(
-				method=frappe.sendmail, queue="short", timeout=300, is_async=True, **email_args
-			)
+			frappe.enqueue(method=frappe.sendmail, queue="short", timeout=300, is_async=True, **email_args)
 
 	def get_email_template(self, template_name):
 		template = frappe.db.get_single_value("LMS Settings", template_name)
