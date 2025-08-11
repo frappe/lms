@@ -28,7 +28,7 @@
 			<div
 				class="flex flex-col space-y-2 lg:space-y-0 lg:flex-row lg:items-center lg:space-x-4"
 			>
-				<TabButtons :buttons="courseTabs" v-model="currentTab" />
+				<TabButtons :buttons="courseTabs" v-model="currentTab" class="w-fit" />
 				<FormControl
 					v-model="certification"
 					:label="__('Certification')"

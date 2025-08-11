@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
 import frappeui from 'frappe-ui/vite'
+import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -21,6 +22,40 @@ export default defineConfig({
 			script: {
 				defineModel: true,
 				propsDestructure: true,
+			},
+		}),
+		VitePWA({
+			registerType: 'autoUpdate',
+			devOptions: {
+				enabled: true,
+			},
+			workbox: {
+				cleanupOutdatedCaches: true,
+				maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+			},
+			manifest: {
+				display: 'standalone',
+				name: 'Frappe Learning',
+				short_name: 'Frappe Learning',
+				start_url: '/lms',
+				description:
+					'Easy to use, 100% open source Learning Management System',
+				theme_color: '#0f7159',
+				background_color: '#ffffff',
+				icons: [
+					{
+						src: '/assets/lms/frontend/manifest/manifest-icon-192.maskable.png',
+						sizes: '192x192',
+						type: 'image/png',
+						purpose: 'maskable any',
+					},
+					{
+						src: '/assets/lms/frontend/manifest/manifest-icon-512.maskable.png',
+						sizes: '512x512',
+						type: 'image/png',
+						purpose: 'maskable any',
+					},
+				],
 			},
 		}),
 	],
