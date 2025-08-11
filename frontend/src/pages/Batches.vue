@@ -26,18 +26,13 @@
 				{{ __('All Batches') }}
 			</div>
 			<div
-				class="flex flex-col space-y-2 lg:space-y-0 lg:flex-row lg:items-center lg:space-x-4"
+				class="flex flex-col space-y-3 lg:space-y-0 lg:flex-row lg:items-center lg:space-x-4"
 			>
 				<TabButtons
 					v-if="user.data"
 					:buttons="batchTabs"
 					v-model="currentTab"
-				/>
-				<FormControl
-					v-model="certification"
-					:label="__('Certification')"
-					type="checkbox"
-					@change="updateBatches()"
+					class="w-fit"
 				/>
 				<div class="grid grid-cols-2 gap-2">
 					<FormControl
@@ -57,6 +52,13 @@
 						/>
 					</div>
 				</div>
+
+				<FormControl
+					v-model="certification"
+					:label="__('Certification')"
+					type="checkbox"
+					@change="updateBatches()"
+				/>
 			</div>
 		</div>
 		<div
