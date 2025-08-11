@@ -41,24 +41,16 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Applicable To",
-   "options": "Course\nBatch",
+   "options": "LMS Course\nLMS Batch",
    "reqd": 1
   },
   {
-   "depends_on": "eval:doc.applicable_to=='Course'",
-   "fieldname": "course",
-   "fieldtype": "Link",
+   "fieldname": "applicable_reference",
+   "fieldtype": "Dynamic Link",
    "in_list_view": 1,
-   "label": "Course",
-   "options": "LMS Course"
-  },
-  {
-   "depends_on": "eval:doc.applicable_to=='Batch'",
-   "fieldname": "batch",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Batch",
-   "options": "LMS Batch"
+   "label": "Course/Batch",
+   "options": "applicable_to",
+   "reqd": 1
   },
   {
    "fieldname": "column_break_3",
