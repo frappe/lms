@@ -18,7 +18,7 @@
 			/>
 		</div>
 	</header>
-	<div class="w-3/4 mx-auto px-5 pt-6 divide-y">
+	<div class="w-full md:w-3/4 mx-auto px-5 pt-6 divide-y">
 		<div
 			v-if="notifications?.length"
 			v-for="log in notifications"

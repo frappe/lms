@@ -26,24 +26,19 @@
 				{{ __('All Courses') }}
 			</div>
 			<div
-				class="flex flex-col space-y-2 lg:space-y-0 lg:flex-row lg:items-center lg:space-x-4"
+				class="flex flex-col space-y-3 lg:space-y-0 lg:flex-row lg:items-center lg:space-x-4"
 			>
 				<TabButtons :buttons="courseTabs" v-model="currentTab" class="w-fit" />
-				<FormControl
-					v-model="certification"
-					:label="__('Certification')"
-					type="checkbox"
-					@change="updateCourses()"
-				/>
+
 				<div class="grid grid-cols-2 gap-2">
 					<FormControl
 						v-model="title"
 						:placeholder="__('Search by Title')"
 						type="text"
-						class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40"
+						class="w-full lg:min-w-0 lg:w-32 xl:w-40"
 						@input="updateCourses()"
 					/>
-					<div class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40">
+					<div class="w-full lg:min-w-0 lg:w-32 xl:w-40">
 						<Select
 							v-if="categories.length"
 							v-model="currentCategory"
@@ -53,6 +48,13 @@
 						/>
 					</div>
 				</div>
+
+				<FormControl
+					v-model="certification"
+					:label="__('Certification')"
+					type="checkbox"
+					@change="updateCourses()"
+				/>
 			</div>
 		</div>
 		<div
