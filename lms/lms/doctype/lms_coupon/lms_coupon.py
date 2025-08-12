@@ -1,6 +1,6 @@
 import frappe
-from frappe.utils import today
 from frappe.model.document import Document
+from frappe.utils import today
 
 
 class LMSCoupon(Document):
@@ -13,9 +13,7 @@ class LMSCoupon(Document):
 			frappe.throw(frappe._("Course/Batch is required"))
 
 	def validate_discount_value(self):
-		if self.discount_type == "Percentage" and (
-			self.discount_value < 0 or self.discount_value > 100
-		):
+		if self.discount_type == "Percentage" and (self.discount_value < 0 or self.discount_value > 100):
 			frappe.throw(frappe._("Percentage discount must be between 0 and 100"))
 		elif self.discount_type == "Fixed Amount" and self.discount_value < 0:
 			frappe.throw(frappe._("Fixed amount discount cannot be negative"))
@@ -40,25 +38,19 @@ class LMSCoupon(Document):
 			return 0
 
 		if reference_doctype not in ["LMS Course", "LMS Batch"]:
-			frappe.throw(
-				frappe._("Invalid reference doctype. Only LMS Course and LMS Batch are supported.")
-			)
+			frappe.throw(frappe._("Invalid reference doctype. Only LMS Course and LMS Batch are supported."))
 
 		if self.applicable_to != reference_doctype:
 			frappe.throw(
 				frappe._(
-					"This coupon is for {} but you are trying to apply it to {}".format(
-						self.applicable_to, reference_doctype
-					)
+					f"This coupon is for {self.applicable_to} but you are trying to apply it to {reference_doctype}"
 				)
 			)
 
 		if self.applicable_reference != reference_docname:
 			frappe.throw(
 				frappe._(
-					"This coupon is only applicable to {}: {}".format(
-						reference_doctype, self.applicable_reference
-					)
+					f"This coupon is only applicable to {reference_doctype}: {self.applicable_reference}"
 				)
 			)
 

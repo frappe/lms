@@ -1,6 +1,7 @@
-import frappe
-from frappe.utils import today, add_days
 import unittest
+
+import frappe
+from frappe.utils import add_days, today
 
 
 class TestLMSCoupon(unittest.TestCase):

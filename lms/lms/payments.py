@@ -86,12 +86,12 @@ def get_payment_link(
 		coupon_result = validate_coupon(coupon_code, doctype, docname, amount)
 		if not coupon_result.get("valid"):
 			frappe.throw(coupon_result.get("message", "Invalid coupon"))
-		
+
 		# Apply coupon discount
 		discount_amount = coupon_result["discount_amount"]
 		amount = coupon_result["discounted_amount"]
 		coupon_name = coupon_result["coupon_name"]
-		
+
 		# Recalculate total amount with GST if applicable
 		total_amount = _calculate_total_with_gst(amount, original_amount, original_total_amount)
 
