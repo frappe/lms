@@ -9,9 +9,7 @@ def execute():
 	base_path = frappe.get_app_path("lms", "templates", "emails")
 
 	if not frappe.db.exists("Email Template", _("Mentor Request Creation Template")):
-		response = frappe.read_file(
-			os.path.join(base_path, "mentor_request_creation_email.html")
-		)
+		response = frappe.read_file(os.path.join(base_path, "mentor_request_creation_email.html"))
 		frappe.get_doc(
 			{
 				"doctype": "Email Template",
@@ -29,9 +27,7 @@ def execute():
 		)
 
 	if not frappe.db.exists("Email Template", _("Mentor Request Status Update Template")):
-		response = frappe.read_file(
-			os.path.join(base_path, "mentor_request_status_update_email.html")
-		)
+		response = frappe.read_file(os.path.join(base_path, "mentor_request_status_update_email.html"))
 		frappe.get_doc(
 			{
 				"doctype": "Email Template",
