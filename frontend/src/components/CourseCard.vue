@@ -15,7 +15,7 @@
 					  }
 			"
 		>
-			<div class="flex items-center flex-wrap relative top-4 px-2 w-fit">
+			<!-- <div class="flex items-center flex-wrap relative top-4 px-2 w-fit">
 				<div
 					v-if="course.featured"
 					class="flex items-center space-x-1 text-xs text-ink-amber-3 bg-surface-white border border-outline-amber-1 px-2 py-0.5 rounded-md mr-1 mb-1"
@@ -32,14 +32,20 @@
 				>
 					{{ tag }}
 				</div>
-			</div>
-			<!-- <div
+			</div> -->
+			<div
 				v-if="!course.image"
-				class="flex items-center justify-center text-white flex-1 font-extrabold text-2xl my-auto px-5 text-center leading-6"
-				:class="course.tags ? 'h-[80%]' : 'h-full'"
+				class="flex items-center justify-center text-white flex-1 font-extrabold my-auto px-5 text-center leading-6 h-full"
+				:class="
+					course.title.length > 32
+						? 'text-lg'
+						: course.title.length > 20
+						? 'text-xl'
+						: 'text-2xl'
+				"
 			>
 				{{ course.title }}
-			</div> -->
+			</div>
 		</div>
 		<div class="flex flex-col flex-auto p-4">
 			<div class="flex items-center justify-between mb-2">
@@ -69,9 +75,14 @@
 						</span>
 					</Tooltip>
 				</div>
+
+				<Tooltip v-if="course.featured" :text="__('Featured')">
+					<Award class="size-4 stroke-2 text-ink-amber-3" />
+				</Tooltip>
 			</div>
 
 			<div
+				v-if="course.image"
 				class="font-semibold leading-6"
 				:class="course.title.length > 32 ? 'text-lg' : 'text-xl'"
 			>
@@ -120,7 +131,7 @@
 	</div>
 </template>
 <script setup>
-import { BookOpen, GraduationCap, Star, Users } from 'lucide-vue-next'
+import { Award, BookOpen, GraduationCap, Star, Users } from 'lucide-vue-next'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { sessionStore } from '@/stores/session'
 import { Tooltip } from 'frappe-ui'

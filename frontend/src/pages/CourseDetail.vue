@@ -66,7 +66,7 @@
 							{{ tag }}
 						</Badge>
 					</div>
-					<div class="md:hidden mb-4">
+					<div class="md:hidden my-4">
 						<CourseCardOverlay :course="course" />
 					</div>
 					<div
