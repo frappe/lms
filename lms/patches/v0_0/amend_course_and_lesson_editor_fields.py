@@ -30,8 +30,6 @@ def amend_course_description():
 		courses = frappe.get_all("LMS Course", fields=["name", "description"])
 
 		for course in courses:
-			frappe.db.set_value(
-				"LMS Course", course.name, "description", to_markdown(course.description)
-			)
+			frappe.db.set_value("LMS Course", course.name, "description", to_markdown(course.description))
 
 		frappe.reload_doc("lms", "doctype", "lms_course")

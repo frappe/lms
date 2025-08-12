@@ -1,13 +1,12 @@
 import frappe
+
 from lms.install import create_lms_student_role
 
 
 def execute():
 	create_lms_student_role()
 
-	users = frappe.get_all(
-		"User", filters={"user_type": "Website User", "enabled": 1}, pluck="name"
-	)
+	users = frappe.get_all("User", filters={"user_type": "Website User", "enabled": 1}, pluck="name")
 
 	for user in users:
 		filters = {

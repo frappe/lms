@@ -1,4 +1,5 @@
 import frappe
+
 from lms.lms.api import give_discussions_permission
 
 

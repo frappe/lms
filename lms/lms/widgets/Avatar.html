@@ -1,6 +1,6 @@
 {% set color = get_palette(member.full_name) %}
 <span class="avatar {{ avatar_class }}" title="{{ member.full_name }}">
-    <a class="button-links" href="{{ get_profile_url(member.username) }}">
+    <a class="button-links" href="/lms/users/{{ member.username }}">
         {% if member.user_image %}
         <img class="avatar-frame standard-image" style="object-fit: cover;" src="{{ member.user_image }}"
             title="{{ member.full_name }}">

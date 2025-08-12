@@ -194,7 +194,6 @@ jinja = {
 		"lms.lms.utils.get_instructors",
 		"lms.lms.utils.get_lesson_index",
 		"lms.lms.utils.get_lesson_url",
-		"lms.page_renderers.get_profile_url",
 		"lms.lms.utils.is_instructor",
 		"lms.lms.utils.get_palette",
 	],
@@ -230,10 +229,7 @@ lms_markdown_macro_renderers = {
 	"PDF": "lms.plugins.pdf_renderer",
 }
 
-# page_renderer to manage profile pages
 page_renderer = [
-	"lms.page_renderers.ProfileRedirectPage",
-	"lms.page_renderers.ProfilePage",
 	"lms.page_renderers.SCORMRenderer",
 ]
 

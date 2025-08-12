@@ -63,9 +63,7 @@ def save_message(message, batch):
 
 def switch_batch(course_name, email, batch_name):
 	"""Switches the user from the current batch of the course to a new batch."""
-	membership = frappe.get_last_doc(
-		"LMS Enrollment", filters={"course": course_name, "member": email}
-	)
+	membership = frappe.get_last_doc("LMS Enrollment", filters={"course": course_name, "member": email})
 
 	batch = frappe.get_doc("LMS Batch Old", batch_name)
 	if not batch:
