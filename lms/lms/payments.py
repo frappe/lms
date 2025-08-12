@@ -23,47 +23,40 @@ def validate_coupon(coupon_code, reference_doctype, reference_name, amount):
 	if not coupon_code:
 		return {"valid": False, "message": "Coupon code is required"}
 
-	if reference_doctype == "LMS Course":
-		applicable_to = "Course"
-		field_name = "course"
-	elif reference_doctype == "LMS Batch":
-		applicable_to = "Batch"
-		field_name = "batch"
-	else:
-		return {"valid": False, "message": "Invalid reference doctype"}
-
+	# Find coupon by code and applicable reference
 	coupon = frappe.db.exists(
 		"LMS Coupon",
 		{
 			"coupon_code": coupon_code,
-			"applicable_to": applicable_to,
-			field_name: reference_name,
+			"applicable_to": reference_doctype,
+			"applicable_reference": reference_name,
 		},
 	)
 
 	if not coupon:
 		return {
 			"valid": False,
-			"message": f"Invalid coupon code for this {applicable_to.lower()}",
+			"message": f"Invalid coupon code for this {reference_doctype.replace('LMS ', '').lower()}",
 		}
 
 	coupon_doc = frappe.get_doc("LMS Coupon", coupon)
 
-	can_use, message = coupon_doc.can_use_coupon()
-	if not can_use:
-		return {"valid": False, "message": message}
+	try:
+		# Use the new calculate_discount method which includes all validations
+		discount_amount = coupon_doc.calculate_discount(reference_doctype, reference_name)
+		original_amount = float(amount)
+		discounted_amount = original_amount - discount_amount
 
-	discount_amount = coupon_doc.calculate_discount(float(amount))
-	discounted_amount = float(amount) - discount_amount
-
-	return {
-		"valid": True,
-		"discount_amount": discount_amount,
-		"discounted_amount": max(0, discounted_amount),
-		"coupon_name": coupon_doc.name,
-		"discount_type": coupon_doc.discount_type,
-		"discount_value": coupon_doc.discount_value,
-	}
+		return {
+			"valid": True,
+			"discount_amount": discount_amount,
+			"discounted_amount": max(0, discounted_amount),
+			"coupon_name": coupon_doc.name,
+			"discount_type": coupon_doc.discount_type,
+			"discount_value": coupon_doc.discount_value,
+		}
+	except frappe.ValidationError as e:
+		return {"valid": False, "message": str(e)}
 
 
 @frappe.whitelist()
@@ -88,21 +81,19 @@ def get_payment_link(
 	discount_amount = 0
 	coupon_name = None
 
+	# Process coupon if provided
 	if coupon_code:
 		coupon_result = validate_coupon(coupon_code, doctype, docname, amount)
-		if coupon_result.get("valid"):
-			discount_amount = coupon_result["discount_amount"]
-			amount = coupon_result["discounted_amount"]
-			coupon_name = coupon_result["coupon_name"]
-
-			if original_total_amount > original_amount:
-				gst_amount = original_total_amount - original_amount
-				gst_percentage = gst_amount / original_amount if original_amount > 0 else 0
-				total_amount = amount + (amount * gst_percentage)
-			else:
-				total_amount = amount
-		else:
+		if not coupon_result.get("valid"):
 			frappe.throw(coupon_result.get("message", "Invalid coupon"))
+		
+		# Apply coupon discount
+		discount_amount = coupon_result["discount_amount"]
+		amount = coupon_result["discounted_amount"]
+		coupon_name = coupon_result["coupon_name"]
+		
+		# Recalculate total amount with GST if applicable
+		total_amount = _calculate_total_with_gst(amount, original_amount, original_total_amount)
 
 	amount_with_gst = total_amount if total_amount != amount else 0
 
@@ -206,3 +197,13 @@ def save_address(address):
 	)
 	address_doc.save(ignore_permissions=True)
 	return address_doc.name
+
+
+def _calculate_total_with_gst(discounted_amount, original_amount, original_total_amount):
+	"""Calculate total amount including GST after applying discount"""
+	if original_total_amount > original_amount:
+		gst_amount = original_total_amount - original_amount
+		gst_percentage = gst_amount / original_amount if original_amount > 0 else 0
+		return discounted_amount + (discounted_amount * gst_percentage)
+	else:
+		return discounted_amount
