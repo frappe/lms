@@ -27,7 +27,8 @@
   "devDependencies": {
     "cypress": "^14.5.2",
     "cypress-file-upload": "^5.0.8",
-    "cypress-real-events": "^1.14.0"
+    "cypress-real-events": "^1.14.0",
+    "vite-plugin-pwa": "^1.0.2"
   },
   "dependencies": {
     "pre-commit": "^1.2.2"

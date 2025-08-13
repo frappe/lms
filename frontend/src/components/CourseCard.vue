@@ -15,10 +15,10 @@
 					  }
 			"
 		>
-			<div class="flex items-center flex-wrap relative top-4 px-2 w-fit">
+			<!-- <div class="flex items-center flex-wrap relative top-4 px-2 w-fit">
 				<div
 					v-if="course.featured"
-					class="flex items-center space-x-1 text-xs text-ink-amber-3 bg-surface-white px-2 py-0.5 rounded-md mr-1 mb-1"
+					class="flex items-center space-x-1 text-xs text-ink-amber-3 bg-surface-white border border-outline-amber-1 px-2 py-0.5 rounded-md mr-1 mb-1"
 				>
 					<Star class="size-3 stroke-2" />
 					<span>
@@ -32,11 +32,17 @@
 				>
 					{{ tag }}
 				</div>
-			</div>
+			</div> -->
 			<div
 				v-if="!course.image"
-				class="flex items-center justify-center text-white flex-1 font-extrabold text-2xl my-auto"
-				:class="course.tags ? 'h-[80%]' : 'h-full'"
+				class="flex items-center justify-center text-white flex-1 font-extrabold my-auto px-5 text-center leading-6 h-full"
+				:class="
+					course.title.length > 32
+						? 'text-lg'
+						: course.title.length > 20
+						? 'text-xl'
+						: 'text-2xl'
+				"
 			>
 				{{ course.title }}
 			</div>
@@ -70,18 +76,16 @@
 					</Tooltip>
 				</div>
 
-				<!-- <div v-if="course.status != 'Approved'">
-					<Badge
-						variant="subtle"
-						:theme="course.status === 'Under Review' ? 'orange' : 'blue'"
-						size="sm"
-					>
-						{{ course.status }}
-					</Badge>
-				</div> -->
+				<Tooltip v-if="course.featured" :text="__('Featured')">
+					<Award class="size-4 stroke-2 text-ink-amber-3" />
+				</Tooltip>
 			</div>
 
-			<div v-if="course.image" class="text-xl font-semibold leading-6">
+			<div
+				v-if="course.image"
+				class="font-semibold leading-6"
+				:class="course.title.length > 32 ? 'text-lg' : 'text-xl'"
+			>
 				{{ course.title }}
 			</div>
 
@@ -120,14 +124,14 @@
 					v-if="course.paid_certificate || course.enable_certification"
 					:text="__('Get Certified')"
 				>
-					<GraduationCap class="size-5 stroke-1.5" />
+					<GraduationCap class="size-5 stroke-1.5 text-ink-gray-7" />
 				</Tooltip>
 			</div>
 		</div>
 	</div>
 </template>
 <script setup>
-import { BookOpen, GraduationCap, Star, Users } from 'lucide-vue-next'
+import { Award, BookOpen, GraduationCap, Star, Users } from 'lucide-vue-next'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { sessionStore } from '@/stores/session'
 import { Tooltip } from 'frappe-ui'

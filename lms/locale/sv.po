@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2025-07-25 16:04+0000\n"
-"PO-Revision-Date: 2025-07-29 22:53\n"
+"POT-Creation-Date: 2025-08-08 16:04+0000\n"
+"PO-Revision-Date: 2025-08-12 01:18\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Swedish\n"
 "MIME-Version: 1.0\n"
@@ -184,7 +184,7 @@ msgstr "Lägg till Lektion"
 msgid "Add a Student"
 msgstr "Lägga till Student"
 
-#: frontend/src/components/AppSidebar.vue:568
+#: frontend/src/components/AppSidebar.vue:584
 msgid "Add a chapter"
 msgstr "Lägg till Kapitel"
 
@@ -196,7 +196,7 @@ msgstr "Lägg till kurs"
 msgid "Add a keyword and then press enter"
 msgstr "Lägg till nyckelord och tryck sedan på Enter"
 
-#: frontend/src/components/AppSidebar.vue:569
+#: frontend/src/components/AppSidebar.vue:585
 msgid "Add a lesson"
 msgstr "Lägg till Lektion"
 
@@ -229,7 +229,7 @@ msgstr "Lägg till uppgift till din lektion"
 msgid "Add at least one possible answer for this question: {0}"
 msgstr "Lägg till minst ett möjligt svar för denna fråga: {0}"
 
-#: frontend/src/components/AppSidebar.vue:532
+#: frontend/src/components/AppSidebar.vue:548
 msgid "Add courses to your batch"
 msgstr "Lägg till kurser i din grupp"
 
@@ -237,9 +237,13 @@ msgstr "Lägg till kurser i din grupp"
 msgid "Add quiz to this video"
 msgstr "Lägg till frågesport till denna video"
 
-#: frontend/src/components/AppSidebar.vue:511
+#: frontend/src/components/AppSidebar.vue:527
 msgid "Add students to your batch"
 msgstr "Lägg till studenter i din grupp"
+
+#: frontend/src/components/Notes/InlineLessonMenu.vue:39
+msgid "Add to Notes"
+msgstr "Lägg till i Anteckningar"
 
 #: frontend/src/components/Modals/PageModal.vue:6
 msgid "Add web page to sidebar"
@@ -249,11 +253,11 @@ msgstr "Lägg till webbsida i sidofältet"
 msgid "Add your assignment as {0}"
 msgstr "Lägg till din uppgift som {0}"
 
-#: frontend/src/components/AppSidebar.vue:444
+#: frontend/src/components/AppSidebar.vue:460
 msgid "Add your first chapter"
 msgstr "Lägg till ditt första kapitel"
 
-#: frontend/src/components/AppSidebar.vue:460
+#: frontend/src/components/AppSidebar.vue:476
 msgid "Add your first lesson"
 msgstr "Lägg till din första lektion"
 
@@ -368,15 +372,15 @@ msgstr "Belopp och valuta erfordras för betalda kurser."
 msgid "Amount with GST"
 msgstr "Belopp med Moms"
 
-#: frontend/src/components/Modals/AnnouncementModal.vue:33
+#: frontend/src/components/Modals/AnnouncementModal.vue:34
 msgid "Announcement"
 msgstr "Meddelande"
 
-#: frontend/src/components/Modals/AnnouncementModal.vue:101
+#: frontend/src/components/Modals/AnnouncementModal.vue:105
 msgid "Announcement has been sent successfully"
 msgstr "Tillkännagivande är skickad"
 
-#: frontend/src/components/Modals/AnnouncementModal.vue:96
+#: frontend/src/components/Modals/AnnouncementModal.vue:97
 msgid "Announcement is required"
 msgstr "Tillkännagivande erfordras"
 
@@ -446,6 +450,10 @@ msgstr "Är du säker på att du vill avbryta denna utvärdering? Denna åtgärd
 msgid "Are you sure you want to login to your Frappe Cloud dashboard?"
 msgstr "Är du säker på att du vill logga in på din Översikt Panel i Frappe Cloud?"
 
+#: frontend/src/pages/Lesson.vue:244
+msgid "Ask a question to get help from the community."
+msgstr "Ställ fråga för att få hjälp från gemenskapen."
+
 #. Label of the assessment_tab (Tab Break) field in DocType 'LMS Batch'
 #. Label of the assessment (Table) field in DocType 'LMS Batch'
 #: frontend/src/components/Modals/AssessmentModal.vue:27
@@ -474,7 +482,7 @@ msgid "Assessment {0} has already been added to this batch."
 msgstr "Bedömning {0} har redan lagts till i denna grupp."
 
 #. Label of the show_assessments (Check) field in DocType 'LMS Settings'
-#: frontend/src/components/AppSidebar.vue:581
+#: frontend/src/components/AppSidebar.vue:597
 #: frontend/src/components/Assessments.vue:5
 #: frontend/src/components/BatchStudents.vue:32
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -556,7 +564,7 @@ msgstr "Uppgift uppdaterad"
 msgid "Assignment will appear at the bottom of the lesson."
 msgstr "Uppgift kommer att visas längst ner i lektion."
 
-#: frontend/src/components/AppSidebar.vue:585
+#: frontend/src/components/AppSidebar.vue:601
 #: frontend/src/components/Settings/Badges.vue:163
 #: frontend/src/pages/Assignments.vue:208 lms/www/lms.py:273
 msgid "Assignments"
@@ -620,11 +628,11 @@ msgstr "Genomsnittlig Framsteg %"
 msgid "Average Rating"
 msgstr "Genomsnittlig Betyg"
 
-#: frontend/src/components/Modals/VideoStatistics.vue:65
-msgid "Average Watch Time (seconds)"
-msgstr "Genomsnittlig Visningstid (sekunder)"
+#: frontend/src/components/Modals/VideoStatistics.vue:74
+msgid "Average Watch Time"
+msgstr "Genomsnittlig Visningstid"
 
-#: frontend/src/pages/Lesson.vue:151
+#: frontend/src/pages/Lesson.vue:155
 msgid "Back to Course"
 msgstr "Tillbaka till Kurs"
 
@@ -835,7 +843,9 @@ msgid "Bio"
 msgstr "Resume"
 
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
+#. Option for the 'Color' (Select) field in DocType 'LMS Lesson Note'
 #: lms/lms/doctype/lms_course/lms_course.json
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 msgid "Blue"
 msgstr "Blå"
 
@@ -968,7 +978,7 @@ msgstr "Certifikat genererade"
 #. Enrollment'
 #. Label of a Card Break in the LMS Workspace
 #. Label of a Link in the LMS Workspace
-#: frontend/src/components/AppSidebar.vue:589
+#: frontend/src/components/AppSidebar.vue:605
 #: frontend/src/components/Modals/Event.vue:381
 #: frontend/src/pages/BatchForm.vue:69 frontend/src/pages/Batches.vue:38
 #: frontend/src/pages/CourseCertification.vue:10
@@ -996,8 +1006,8 @@ msgid "Certified"
 msgstr "Certifierad"
 
 #. Label of the certified_members (Check) field in DocType 'LMS Settings'
-#: frontend/src/pages/CertifiedParticipants.vue:182
-#: frontend/src/pages/CertifiedParticipants.vue:189
+#: frontend/src/pages/CertifiedParticipants.vue:183
+#: frontend/src/pages/CertifiedParticipants.vue:190
 #: frontend/src/pages/Statistics.vue:40
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Certified Members"
@@ -1231,9 +1241,11 @@ msgid "College Name"
 msgstr "Skola Namn"
 
 #. Label of the card_gradient (Select) field in DocType 'LMS Course'
+#. Label of the color (Select) field in DocType 'LMS Lesson Note'
 #. Label of the color (Color) field in DocType 'LMS Timetable Legend'
 #: frontend/src/pages/CourseForm.vue:133
 #: lms/lms/doctype/lms_course/lms_course.json
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 #: lms/lms/doctype/lms_timetable_legend/lms_timetable_legend.json
 msgid "Color"
 msgstr "Färg"
@@ -1265,6 +1277,10 @@ msgstr "Kommentarer av Utvärderare"
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Common keywords that will be used for all pages"
 msgstr "Gemensamma sökord som ska användas för alla sidor"
+
+#: frontend/src/pages/Lesson.vue:828
+msgid "Community"
+msgstr "Gemenskap"
 
 #. Label of the company (Data) field in DocType 'LMS Job Application'
 #. Label of the company (Data) field in DocType 'Work Experience'
@@ -1474,6 +1490,7 @@ msgstr "Land"
 #. Label of the course (Link) field in DocType 'LMS Course Review'
 #. Label of the course (Link) field in DocType 'LMS Enrollment'
 #. Label of the course (Link) field in DocType 'LMS Exercise'
+#. Label of the course (Link) field in DocType 'LMS Lesson Note'
 #. Label of the course (Link) field in DocType 'LMS Mentor Request'
 #. Label of the course (Link) field in DocType 'LMS Program Course'
 #. Label of the course (Link) field in DocType 'LMS Quiz'
@@ -1508,6 +1525,7 @@ msgstr "Land"
 #: lms/lms/doctype/lms_course_review/lms_course_review.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 #: lms/lms/doctype/lms_exercise/lms_exercise.json
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
 #: lms/lms/doctype/lms_program_course/lms_program_course.json
 #: lms/lms/doctype/lms_quiz/lms_quiz.json
@@ -1543,6 +1561,7 @@ msgstr "Kursavslutningar"
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 #: lms/lms/doctype/lms_category/lms_category.json
 #: lms/lms/doctype/lms_course/lms_course.json
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 #: lms/lms/doctype/lms_program/lms_program.json
 #: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.json
 #: lms/lms/doctype/lms_programming_exercise_submission/lms_programming_exercise_submission.json
@@ -1717,15 +1736,15 @@ msgstr "Skapa live lektion"
 msgid "Create a Quiz"
 msgstr "Skapa Frågesport"
 
-#: frontend/src/components/AppSidebar.vue:576
+#: frontend/src/components/AppSidebar.vue:592
 msgid "Create a batch"
 msgstr "Skapa grupp"
 
-#: frontend/src/components/AppSidebar.vue:567
+#: frontend/src/components/AppSidebar.vue:583
 msgid "Create a course"
 msgstr "Skapa Kurs"
 
-#: frontend/src/components/AppSidebar.vue:577
+#: frontend/src/components/AppSidebar.vue:593
 msgid "Create a live class"
 msgstr "Skapa live lektion"
 
@@ -1737,15 +1756,15 @@ msgstr "Skapa ny Emblem"
 msgid "Create an Assignment"
 msgstr "Skapa Uppgift"
 
-#: frontend/src/components/AppSidebar.vue:501
+#: frontend/src/components/AppSidebar.vue:517
 msgid "Create your first batch"
 msgstr "Skapa din första grupp"
 
-#: frontend/src/components/AppSidebar.vue:432
+#: frontend/src/components/AppSidebar.vue:448
 msgid "Create your first course"
 msgstr "Skapa din första kurs"
 
-#: frontend/src/components/AppSidebar.vue:479
+#: frontend/src/components/AppSidebar.vue:495
 msgid "Create your first quiz"
 msgstr "Skapa din första frågesport"
 
@@ -1753,11 +1772,11 @@ msgstr "Skapa din första frågesport"
 msgid "Created"
 msgstr "Skapad"
 
-#: frontend/src/components/AppSidebar.vue:573
+#: frontend/src/components/AppSidebar.vue:589
 msgid "Creating a batch"
 msgstr "Skapar grupp"
 
-#: frontend/src/components/AppSidebar.vue:564
+#: frontend/src/components/AppSidebar.vue:580
 msgid "Creating a course"
 msgstr "Skapar kurs"
 
@@ -1776,7 +1795,7 @@ msgstr "Valuta"
 msgid "Current Lesson"
 msgstr "Aktuell Lektion"
 
-#: frontend/src/components/AppSidebar.vue:595
+#: frontend/src/components/AppSidebar.vue:611
 msgid "Custom Certificate Templates"
 msgstr "Anpassade Certifikat Mallar"
 
@@ -1875,6 +1894,7 @@ msgstr "Examen Typ"
 #: frontend/src/components/Controls/ChildTable.vue:56
 #: frontend/src/components/CourseOutline.vue:283
 #: frontend/src/components/CourseOutline.vue:349
+#: frontend/src/components/DiscussionReplies.vue:41
 #: frontend/src/components/Settings/Badges.vue:171
 #: frontend/src/pages/BatchForm.vue:562 frontend/src/pages/CourseForm.vue:594
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:67
@@ -2039,9 +2059,10 @@ msgstr "E-post"
 
 #: frontend/src/components/BatchOverlay.vue:129
 #: frontend/src/components/CourseCardOverlay.vue:116
+#: frontend/src/components/DiscussionReplies.vue:35
 #: frontend/src/components/Modals/ChapterModal.vue:9
 #: frontend/src/components/Settings/Badges.vue:156
-#: frontend/src/pages/JobDetail.vue:34 frontend/src/pages/Lesson.vue:130
+#: frontend/src/pages/JobDetail.vue:34 frontend/src/pages/Lesson.vue:134
 #: frontend/src/pages/Profile.vue:36 frontend/src/pages/Programs.vue:53
 msgid "Edit"
 msgstr "Redigera"
@@ -2508,7 +2529,7 @@ msgstr "Misslyckades med inlämning. Försök igen. {0}"
 msgid "Failed to update badge assignment: "
 msgstr "Misslyckades med att uppdatera Emblem tilldelning: "
 
-#: frontend/src/utils/index.js:670
+#: frontend/src/utils/index.js:685
 msgid "Failed to update meta tags {0}"
 msgstr "Misslyckades med att uppdatera metataggar {0}"
 
@@ -2672,7 +2693,7 @@ msgstr "Hämta Certifikat"
 
 #: frontend/src/components/CertificationLinks.vue:34
 #: frontend/src/components/CertificationLinks.vue:50
-#: frontend/src/components/CourseCard.vue:121
+#: frontend/src/components/CourseCard.vue:114
 #: frontend/src/pages/CertifiedParticipants.vue:11
 msgid "Get Certified"
 msgstr "Bli Certifierad"
@@ -2728,7 +2749,9 @@ msgid "Gray"
 msgstr "grå"
 
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
+#. Option for the 'Color' (Select) field in DocType 'LMS Lesson Note'
 #: lms/lms/doctype/lms_course/lms_course.json
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 msgid "Green"
 msgstr "Grön"
 
@@ -2791,6 +2814,16 @@ msgstr "Hej,"
 #: lms/fixtures/custom_field.json
 msgid "Hide my Private Information from others"
 msgstr "Dölj min privata information från andra"
+
+#: frontend/src/components/Notes/InlineLessonMenu.vue:12
+msgid "Highlight"
+msgstr "Markera"
+
+#. Label of the highlighted_text (Small Text) field in DocType 'LMS Lesson
+#. Note'
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
+msgid "Highlighted Text"
+msgstr "Markerad Text"
 
 #. Label of the hints (Small Text) field in DocType 'LMS Exercise'
 #: lms/lms/doctype/lms_exercise/lms_exercise.json
@@ -2983,7 +3016,7 @@ msgstr "Lärares Innehåll"
 
 #. Label of the instructor_notes (Markdown Editor) field in DocType 'Course
 #. Lesson'
-#: frontend/src/pages/Lesson.vue:184 frontend/src/pages/LessonForm.vue:42
+#: frontend/src/pages/Lesson.vue:189 frontend/src/pages/LessonForm.vue:42
 #: lms/lms/doctype/course_lesson/course_lesson.json
 msgid "Instructor Notes"
 msgstr "Lärare Anteckningar"
@@ -3007,8 +3040,8 @@ msgstr "Lärare Kommentarer"
 msgid "Interest"
 msgstr "Intresse"
 
-#: frontend/src/components/AppSidebar.vue:556
-#: frontend/src/components/AppSidebar.vue:559
+#: frontend/src/components/AppSidebar.vue:572
+#: frontend/src/components/AppSidebar.vue:575
 msgid "Introduction"
 msgstr "Introduktion"
 
@@ -3046,7 +3079,7 @@ msgstr "Endast inbjudan"
 msgid "Invite Request"
 msgstr "Inbjudan Begäran"
 
-#: frontend/src/components/AppSidebar.vue:490
+#: frontend/src/components/AppSidebar.vue:506
 msgid "Invite your team and students"
 msgstr "Bjud in ditt team och dina studenter"
 
@@ -3078,7 +3111,7 @@ msgstr "Är SCORM App"
 msgid "Issue Date"
 msgstr "Utfärdande Datum"
 
-#: frontend/src/components/AppSidebar.vue:592
+#: frontend/src/components/AppSidebar.vue:608
 msgid "Issue a Certificate"
 msgstr "Utfärda Certifikat"
 
@@ -3313,6 +3346,11 @@ msgid "LMS Job Application"
 msgstr "Jobb Ansökan"
 
 #. Name of a DocType
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
+msgid "LMS Lesson Note"
+msgstr "Lektionsanteckning"
+
+#. Name of a DocType
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "LMS Live Class"
 msgstr "Live Klass"
@@ -3420,6 +3458,7 @@ msgstr "Källa"
 #: lms/lms/doctype/lms_course_progress/lms_course_progress.json
 #: lms/lms/doctype/lms_course_review/lms_course_review.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 #: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.json
 #: lms/lms/doctype/lms_programming_exercise_submission/lms_programming_exercise_submission.json
@@ -3504,6 +3543,7 @@ msgstr "Lämnade"
 #. Label of the lesson (Link) field in DocType 'LMS Assignment Submission'
 #. Label of the lesson (Link) field in DocType 'LMS Course Progress'
 #. Label of the lesson (Link) field in DocType 'LMS Exercise'
+#. Label of the lesson (Link) field in DocType 'LMS Lesson Note'
 #. Label of the lesson (Link) field in DocType 'LMS Quiz'
 #. Label of the lesson (Link) field in DocType 'LMS Video Watch Duration'
 #. Label of the lesson (Link) field in DocType 'Scheduled Flow'
@@ -3514,6 +3554,7 @@ msgstr "Lämnade"
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 #: lms/lms/doctype/lms_course_progress/lms_course_progress.json
 #: lms/lms/doctype/lms_exercise/lms_exercise.json
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 #: lms/lms/doctype/lms_quiz/lms_quiz.json
 #: lms/lms/doctype/lms_video_watch_duration/lms_video_watch_duration.json
 #: lms/lms/doctype/scheduled_flow/scheduled_flow.json
@@ -3672,6 +3713,10 @@ msgstr "LMS som Standard Sida"
 msgid "Make an Announcement"
 msgstr "Skapa Meddelande"
 
+#: frontend/src/components/Notes/Notes.vue:7
+msgid "Make notes for quick revision. Press / for menu."
+msgstr "Gör anteckningar för snabb översyn. Tryck på / för meny."
+
 #: frontend/src/pages/Billing.vue:123
 msgid "Make sure to enter the correct billing name as the same will be used in your invoice."
 msgstr "Ange rätt faktura adress eftersom det kommer att användas på din faktura."
@@ -3776,6 +3821,7 @@ msgstr "Mötes ID"
 #. Label of the member (Link) field in DocType 'LMS Course Progress'
 #. Label of the member (Link) field in DocType 'LMS Enrollment'
 #. Option for the 'Role' (Select) field in DocType 'LMS Enrollment'
+#. Label of the member (Link) field in DocType 'LMS Lesson Note'
 #. Label of the member (Link) field in DocType 'LMS Live Class Participant'
 #. Label of the member (Link) field in DocType 'LMS Mentor Request'
 #. Label of the member (Link) field in DocType 'LMS Payment'
@@ -3787,7 +3833,7 @@ msgstr "Mötes ID"
 #. Label of the member (Link) field in DocType 'LMS Zoom Settings'
 #: frontend/src/components/Modals/CourseProgressSummary.vue:216
 #: frontend/src/components/Modals/LiveClassAttendance.vue:14
-#: frontend/src/components/Modals/VideoStatistics.vue:22
+#: frontend/src/components/Modals/VideoStatistics.vue:31
 #: frontend/src/components/Modals/ZoomAccountModal.vue:42
 #: frontend/src/components/Settings/BadgeAssignmentForm.vue:26
 #: frontend/src/components/Settings/BadgeAssignments.vue:179
@@ -3808,6 +3854,7 @@ msgstr "Mötes ID"
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/doctype/lms_course_progress/lms_course_progress.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 #: lms/lms/doctype/lms_live_class_participant/lms_live_class_participant.json
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
 #: lms/lms/doctype/lms_payment/lms_payment.json
@@ -4029,6 +4076,7 @@ msgstr "Minst två alternativ erfordras för flervalsfrågor."
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 #: lms/lms/doctype/lms_program/lms_program.json
 #: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.json
@@ -4067,7 +4115,7 @@ msgstr "Modul är felaktig."
 msgid "Monday"
 msgstr "Måndag"
 
-#: frontend/src/components/AppSidebar.vue:600
+#: frontend/src/components/AppSidebar.vue:616
 msgid "Monetization"
 msgstr "Intäktsgenerering"
 
@@ -4079,6 +4127,10 @@ msgstr "Mer"
 #: lms/lms/doctype/lms_question/lms_question.json
 msgid "Multiple Correct Answers"
 msgstr "Flera korrekta svar"
+
+#: frontend/src/components/Notes/Notes.vue:3
+msgid "My Notes"
+msgstr "Mina Anteckningar"
 
 #: frontend/src/pages/ProfileEvaluator.vue:4
 msgid "My availability"
@@ -4161,12 +4213,12 @@ msgstr "Ny kommentar i grupp {0}"
 msgid "New reply on the topic {0} in course {1}"
 msgstr "Nytt svar i ämne {0} i kurs {1}"
 
-#: frontend/src/components/Discussions.vue:8
-#: frontend/src/components/Discussions.vue:63
+#: frontend/src/components/Discussions.vue:11
+#: frontend/src/components/Discussions.vue:66
 msgid "New {0}"
 msgstr "Ny {0}"
 
-#: frontend/src/components/Quiz.vue:237 frontend/src/pages/Lesson.vue:139
+#: frontend/src/components/Quiz.vue:237 frontend/src/pages/Lesson.vue:143
 msgid "Next"
 msgstr "Nästa"
 
@@ -4255,7 +4307,11 @@ msgstr "Inga frågesporter har lagts till ännu."
 msgid "No slots available for this date."
 msgstr "Inga lediga tider för detta datum."
 
-#: frontend/src/components/Modals/AnnouncementModal.vue:90
+#: frontend/src/components/Modals/VideoStatistics.vue:86
+msgid "No statistics available for this video."
+msgstr "Ingen statistik tillgänglig för denna video."
+
+#: frontend/src/components/Modals/AnnouncementModal.vue:91
 msgid "No students in this batch"
 msgstr "Inga studenter i denna grupp"
 
@@ -4306,6 +4362,16 @@ msgstr "Ej Tillåtet"
 #: frontend/src/pages/QuizForm.vue:8 frontend/src/pages/QuizSubmission.vue:9
 msgid "Not Saved"
 msgstr "Ej Sparad"
+
+#. Label of the note (Text Editor) field in DocType 'LMS Lesson Note'
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
+msgid "Note"
+msgstr "Anteckning"
+
+#: frontend/src/pages/Lesson.vue:358 frontend/src/pages/Lesson.vue:824
+#: frontend/src/pages/Lesson.vue:835
+msgid "Notes"
+msgstr "Anteckningar"
 
 #: frontend/src/pages/Notifications.vue:53
 msgid "Nothing to see here."
@@ -4364,7 +4430,7 @@ msgstr "Endast kurser för vilka självinlärning är inaktiverat kan läggas ti
 msgid "Only files of type {0} will be accepted."
 msgstr "Endast filer av typ {0} kommer att accepteras."
 
-#: frontend/src/utils/index.js:502
+#: frontend/src/utils/index.js:498
 msgid "Only image file is allowed."
 msgstr "Endast bildfiler är tillåtna."
 
@@ -4889,7 +4955,7 @@ msgstr "Förhandsgranska Bild"
 msgid "Preview Video"
 msgstr "Förhandsgranska Video"
 
-#: frontend/src/pages/Lesson.vue:114
+#: frontend/src/pages/Lesson.vue:118
 msgid "Previous"
 msgstr "Föregående"
 
@@ -5077,7 +5143,9 @@ msgid "Purchased Certificate"
 msgstr "Förvärvad Certifikat"
 
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
+#. Option for the 'Color' (Select) field in DocType 'LMS Lesson Note'
 #: lms/lms/doctype/lms_course/lms_course.json
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 msgid "Purple"
 msgstr "Lila"
 
@@ -5202,7 +5270,7 @@ msgstr "Frågesport uppdaterad"
 msgid "Quiz will appear at the bottom of the lesson."
 msgstr "Frågesport kommer att visas längst ner i lektionen."
 
-#: frontend/src/components/AppSidebar.vue:584
+#: frontend/src/components/AppSidebar.vue:600
 #: frontend/src/pages/QuizForm.vue:396 frontend/src/pages/Quizzes.vue:275
 #: frontend/src/pages/Quizzes.vue:285 lms/www/lms.py:251
 msgid "Quizzes"
@@ -5239,7 +5307,9 @@ msgid "Ready"
 msgstr "Klart"
 
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
+#. Option for the 'Color' (Select) field in DocType 'LMS Lesson Note'
 #: lms/lms/doctype/lms_course/lms_course.json
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 msgid "Red"
 msgstr "Röd"
 
@@ -5302,9 +5372,17 @@ msgstr "Relaterade Kurser"
 msgid "Remove"
 msgstr "Ta bort"
 
+#: frontend/src/components/Notes/InlineLessonMenu.vue:49
+msgid "Remove Highlight"
+msgstr "Ta bort Markering"
+
 #: frontend/src/components/Modals/AnnouncementModal.vue:27
 msgid "Reply To"
 msgstr "Svara till"
+
+#: frontend/src/components/Modals/AnnouncementModal.vue:100
+msgid "Reply To is required"
+msgstr "Svara till erfordras"
 
 #: lms/lms/widgets/RequestInvite.html:7
 msgid "Request Invite"
@@ -5375,7 +5453,7 @@ msgstr "Rollpreferens"
 msgid "Role updated successfully"
 msgstr "Roll uppdaterad"
 
-#: frontend/src/components/AppSidebar.vue:612
+#: frontend/src/components/AppSidebar.vue:628
 msgid "Roles"
 msgstr "Roller"
 
@@ -5429,6 +5507,10 @@ msgstr "SCORM App Sökväg"
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "SEO"
 msgstr "SEO"
+
+#: frontend/src/utils/index.js:517
+msgid "SVG contains potentially unsafe content."
+msgstr "SVG innehåller potentiellt osäkert innehåll."
 
 #. Option for the 'Day' (Select) field in DocType 'Evaluator Schedule'
 #. Option for the 'Day' (Select) field in DocType 'LMS Certificate Request'
@@ -5499,8 +5581,9 @@ msgid "Search"
 msgstr "Sök"
 
 #: frontend/src/components/Modals/CourseProgressSummary.vue:18
-msgid "Search by Member Name"
-msgstr "Sök efter Medlemsnamn"
+#: frontend/src/components/Modals/VideoStatistics.vue:20
+msgid "Search by Member"
+msgstr "Sök efter Medlem"
 
 #: frontend/src/pages/CertifiedParticipants.vue:23
 msgid "Search by Name"
@@ -5586,15 +5669,15 @@ msgstr "Ange Färg"
 msgid "Set your Password"
 msgstr "Ange Lösenord"
 
-#: frontend/src/components/AppSidebar.vue:560
+#: frontend/src/components/AppSidebar.vue:576
 msgid "Setting up"
 msgstr "Konfigurera"
 
-#: frontend/src/components/AppSidebar.vue:605
+#: frontend/src/components/AppSidebar.vue:621
 msgid "Setting up payment gateway"
 msgstr "Konfigurerar Betalningsport"
 
-#: frontend/src/components/AppSidebar.vue:610
+#: frontend/src/components/AppSidebar.vue:626
 #: frontend/src/components/Settings/Settings.vue:7
 #: frontend/src/pages/BatchForm.vue:53 frontend/src/pages/CourseForm.vue:142
 #: frontend/src/pages/ProfileRoles.vue:4
@@ -5939,7 +6022,7 @@ msgstr "Undergrupp"
 msgid "Subject"
 msgstr "Ämne"
 
-#: frontend/src/components/Modals/AnnouncementModal.vue:93
+#: frontend/src/components/Modals/AnnouncementModal.vue:94
 msgid "Subject is required"
 msgstr "Ämne erfordras"
 
@@ -6049,6 +6132,7 @@ msgstr "Färgprover"
 #: lms/lms/doctype/lms_course_review/lms_course_review.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 #: lms/lms/doctype/lms_exercise/lms_exercise.json
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 #: lms/lms/doctype/lms_live_class_participant/lms_live_class_participant.json
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
@@ -6743,7 +6827,7 @@ msgid "Volunteering or Internship"
 msgstr "Volontärarbete eller Praktik"
 
 #. Label of the watch_time (Data) field in DocType 'LMS Video Watch Duration'
-#: frontend/src/components/Modals/VideoStatistics.vue:25
+#: frontend/src/components/Modals/VideoStatistics.vue:34
 #: lms/lms/doctype/lms_video_watch_duration/lms_video_watch_duration.json
 msgid "Watch Time"
 msgstr "Visningstid"
@@ -6844,7 +6928,9 @@ msgid "Write your answer here"
 msgstr "Skriv ditt svar här"
 
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
+#. Option for the 'Color' (Select) field in DocType 'LMS Lesson Note'
 #: lms/lms/doctype/lms_course/lms_course.json
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 msgid "Yellow"
 msgstr "Gul"
 
@@ -7121,8 +7207,8 @@ msgstr "certifikat"
 msgid "certified members"
 msgstr "certifierade medlemmar"
 
-#: frontend/src/components/CourseCard.vue:98 frontend/src/pages/Lesson.vue:98
-#: frontend/src/pages/Lesson.vue:234
+#: frontend/src/components/CourseCard.vue:91 frontend/src/pages/Lesson.vue:99
+#: frontend/src/pages/Lesson.vue:259
 msgid "completed"
 msgstr "klar"
 

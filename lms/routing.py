@@ -1,5 +1,4 @@
-"""Utilities for making custom routing.
-"""
+"""Utilities for making custom routing."""
 
 from werkzeug.datastructures import ImmutableDict
 from werkzeug.routing import BaseConverter, Map

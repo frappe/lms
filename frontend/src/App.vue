@@ -5,6 +5,7 @@
 				<router-view />
 			</div>
 		</Layout>
+		<InstallPrompt v-if="isMobile" />
 		<Dialogs />
 	</FrappeUIProvider>
 </template>
@@ -13,14 +14,15 @@ import { FrappeUIProvider } from 'frappe-ui'
 import { Dialogs } from '@/utils/dialogs'
 import { computed, onUnmounted, ref, watch } from 'vue'
 import { useScreenSize } from './utils/composables'
-import DesktopLayout from './components/DesktopLayout.vue'
-import MobileLayout from './components/MobileLayout.vue'
-import NoSidebarLayout from './components/NoSidebarLayout.vue'
 import { usersStore } from '@/stores/user'
 import { useRouter } from 'vue-router'
 import { posthogSettings } from '@/telemetry'
+import DesktopLayout from './components/DesktopLayout.vue'
+import MobileLayout from './components/MobileLayout.vue'
+import NoSidebarLayout from './components/NoSidebarLayout.vue'
+import InstallPrompt from './components/InstallPrompt.vue'
 
-const screenSize = useScreenSize()
+const { isMobile } = useScreenSize()
 const router = useRouter()
 const noSidebar = ref(false)
 const { userResource } = usersStore()
@@ -38,10 +40,9 @@ const Layout = computed(() => {
 	if (noSidebar.value) {
 		return NoSidebarLayout
 	}
-	if (screenSize.width < 640) {
+	if (isMobile.value) {
 		return MobileLayout
 	}
-
 	return DesktopLayout
 })
 

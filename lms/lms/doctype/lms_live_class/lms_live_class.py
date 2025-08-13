@@ -1,21 +1,21 @@
 # Copyright (c) 2023, Frappe and contributors
 # For license information, please see license.txt
 
+import json
+from datetime import timedelta
+
 import frappe
 import requests
-import json
 from frappe import _
 from frappe.model.document import Document
-from datetime import timedelta
-from frappe.utils import cint, get_datetime, format_date, nowdate, format_time
+from frappe.utils import cint, format_date, format_time, get_datetime, nowdate
+
 from lms.lms.doctype.lms_batch.lms_batch import authenticate
 
 
 class LMSLiveClass(Document):
 	def after_insert(self):
-		calendar = frappe.db.get_value(
-			"Google Calendar", {"user": frappe.session.user, "enable": 1}, "name"
-		)
+		calendar = frappe.db.get_value("Google Calendar", {"user": frappe.session.user, "enable": 1}, "name")
 
 		if calendar:
 			event = self.create_event()
@@ -37,9 +37,7 @@ class LMSLiveClass(Document):
 		return event
 
 	def add_event_participants(self, event, calendar):
-		participants = frappe.get_all(
-			"LMS Batch Enrollment", {"batch": self.batch_name}, pluck="member"
-		)
+		participants = frappe.get_all("LMS Batch Enrollment", {"batch": self.batch_name}, pluck="member")
 
 		participants.append(frappe.session.user)
 		for participant in participants:

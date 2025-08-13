@@ -5,7 +5,7 @@
 			{{ __('No {0}').format(type?.toLowerCase()) }}
 		</div>
 		<div
-			class="leading-5 text-base w-2/5 text-base text-center text-ink-gray-7"
+			class="leading-5 text-base w-full md:w-2/5 text-base text-center text-ink-gray-7"
 		>
 			{{
 				__(

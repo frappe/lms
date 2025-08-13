@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2025-07-25 16:04+0000\n"
-"PO-Revision-Date: 2025-07-29 22:53\n"
+"POT-Creation-Date: 2025-08-08 16:04+0000\n"
+"PO-Revision-Date: 2025-08-12 01:17\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Serbian (Cyrillic)\n"
 "MIME-Version: 1.0\n"
@@ -184,7 +184,7 @@ msgstr "Додај лекцију"
 msgid "Add a Student"
 msgstr "Додај студента"
 
-#: frontend/src/components/AppSidebar.vue:568
+#: frontend/src/components/AppSidebar.vue:584
 msgid "Add a chapter"
 msgstr "Додај поглавље"
 
@@ -196,7 +196,7 @@ msgstr "Додај обуку"
 msgid "Add a keyword and then press enter"
 msgstr "Додај кључну реч, а затим притисни ентер"
 
-#: frontend/src/components/AppSidebar.vue:569
+#: frontend/src/components/AppSidebar.vue:585
 msgid "Add a lesson"
 msgstr "Додај лекцију"
 
@@ -229,7 +229,7 @@ msgstr "Додајте задатак у своју лекцију"
 msgid "Add at least one possible answer for this question: {0}"
 msgstr "Додајте бар један могући одговор за ово питање: {0}"
 
-#: frontend/src/components/AppSidebar.vue:532
+#: frontend/src/components/AppSidebar.vue:548
 msgid "Add courses to your batch"
 msgstr "Додајте обуке у Вашу групу"
 
@@ -237,9 +237,13 @@ msgstr "Додајте обуке у Вашу групу"
 msgid "Add quiz to this video"
 msgstr "Додај квиз у овај видео-снимак"
 
-#: frontend/src/components/AppSidebar.vue:511
+#: frontend/src/components/AppSidebar.vue:527
 msgid "Add students to your batch"
 msgstr "Додајте студенте у своју групу"
+
+#: frontend/src/components/Notes/InlineLessonMenu.vue:39
+msgid "Add to Notes"
+msgstr "Додај у белешке"
 
 #: frontend/src/components/Modals/PageModal.vue:6
 msgid "Add web page to sidebar"
@@ -249,11 +253,11 @@ msgstr "Додајте веб-страницу у бочну траку"
 msgid "Add your assignment as {0}"
 msgstr "Додајте свој задатак као {0}"
 
-#: frontend/src/components/AppSidebar.vue:444
+#: frontend/src/components/AppSidebar.vue:460
 msgid "Add your first chapter"
 msgstr "Додајте Ваше прво поглавље"
 
-#: frontend/src/components/AppSidebar.vue:460
+#: frontend/src/components/AppSidebar.vue:476
 msgid "Add your first lesson"
 msgstr "Додајте Вашу прву лекцију"
 
@@ -368,15 +372,15 @@ msgstr "Износ и валута су неопходни за плаћене �
 msgid "Amount with GST"
 msgstr "Износ са GST"
 
-#: frontend/src/components/Modals/AnnouncementModal.vue:33
+#: frontend/src/components/Modals/AnnouncementModal.vue:34
 msgid "Announcement"
 msgstr "Саопштење"
 
-#: frontend/src/components/Modals/AnnouncementModal.vue:101
+#: frontend/src/components/Modals/AnnouncementModal.vue:105
 msgid "Announcement has been sent successfully"
 msgstr "Саопштење је успешно послато"
 
-#: frontend/src/components/Modals/AnnouncementModal.vue:96
+#: frontend/src/components/Modals/AnnouncementModal.vue:97
 msgid "Announcement is required"
 msgstr "Саопштење је неопходно"
 
@@ -446,6 +450,10 @@ msgstr "Да ли сте сигурни да желите да откажете 
 msgid "Are you sure you want to login to your Frappe Cloud dashboard?"
 msgstr "Да ли сте сигурни да желите да се пријавите на своју Frappe Cloud контролну таблу?"
 
+#: frontend/src/pages/Lesson.vue:244
+msgid "Ask a question to get help from the community."
+msgstr "Поставите питање да бисте добили помоћ од заједнице."
+
 #. Label of the assessment_tab (Tab Break) field in DocType 'LMS Batch'
 #. Label of the assessment (Table) field in DocType 'LMS Batch'
 #: frontend/src/components/Modals/AssessmentModal.vue:27
@@ -474,7 +482,7 @@ msgid "Assessment {0} has already been added to this batch."
 msgstr "Процена {0} је већ додата овој групи."
 
 #. Label of the show_assessments (Check) field in DocType 'LMS Settings'
-#: frontend/src/components/AppSidebar.vue:581
+#: frontend/src/components/AppSidebar.vue:597
 #: frontend/src/components/Assessments.vue:5
 #: frontend/src/components/BatchStudents.vue:32
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -556,7 +564,7 @@ msgstr "Задатак је успешно ажуриран"
 msgid "Assignment will appear at the bottom of the lesson."
 msgstr "Задатак ће се приказивати на дну у оквиру лекције."
 
-#: frontend/src/components/AppSidebar.vue:585
+#: frontend/src/components/AppSidebar.vue:601
 #: frontend/src/components/Settings/Badges.vue:163
 #: frontend/src/pages/Assignments.vue:208 lms/www/lms.py:273
 msgid "Assignments"
@@ -620,11 +628,11 @@ msgstr "Просечан напредак %"
 msgid "Average Rating"
 msgstr "Просечна оцена"
 
-#: frontend/src/components/Modals/VideoStatistics.vue:65
-msgid "Average Watch Time (seconds)"
-msgstr "Просечно време гледања (у секундама)"
+#: frontend/src/components/Modals/VideoStatistics.vue:74
+msgid "Average Watch Time"
+msgstr "Просечно време гледања"
 
-#: frontend/src/pages/Lesson.vue:151
+#: frontend/src/pages/Lesson.vue:155
 msgid "Back to Course"
 msgstr "Назад на обуку"
 
@@ -835,7 +843,9 @@ msgid "Bio"
 msgstr "Биографија"
 
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
+#. Option for the 'Color' (Select) field in DocType 'LMS Lesson Note'
 #: lms/lms/doctype/lms_course/lms_course.json
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 msgid "Blue"
 msgstr "Плава"
 
@@ -968,7 +978,7 @@ msgstr "Сертификати су успешно генерисани"
 #. Enrollment'
 #. Label of a Card Break in the LMS Workspace
 #. Label of a Link in the LMS Workspace
-#: frontend/src/components/AppSidebar.vue:589
+#: frontend/src/components/AppSidebar.vue:605
 #: frontend/src/components/Modals/Event.vue:381
 #: frontend/src/pages/BatchForm.vue:69 frontend/src/pages/Batches.vue:38
 #: frontend/src/pages/CourseCertification.vue:10
@@ -996,8 +1006,8 @@ msgid "Certified"
 msgstr "Сертификован"
 
 #. Label of the certified_members (Check) field in DocType 'LMS Settings'
-#: frontend/src/pages/CertifiedParticipants.vue:182
-#: frontend/src/pages/CertifiedParticipants.vue:189
+#: frontend/src/pages/CertifiedParticipants.vue:183
+#: frontend/src/pages/CertifiedParticipants.vue:190
 #: frontend/src/pages/Statistics.vue:40
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Certified Members"
@@ -1231,9 +1241,11 @@ msgid "College Name"
 msgstr "Назив факултета"
 
 #. Label of the card_gradient (Select) field in DocType 'LMS Course'
+#. Label of the color (Select) field in DocType 'LMS Lesson Note'
 #. Label of the color (Color) field in DocType 'LMS Timetable Legend'
 #: frontend/src/pages/CourseForm.vue:133
 #: lms/lms/doctype/lms_course/lms_course.json
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 #: lms/lms/doctype/lms_timetable_legend/lms_timetable_legend.json
 msgid "Color"
 msgstr "Боја"
@@ -1265,6 +1277,10 @@ msgstr "Коментари од особе за оцењивање"
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Common keywords that will be used for all pages"
 msgstr "Заједничке кључне речи које ће се користити за све странице"
+
+#: frontend/src/pages/Lesson.vue:828
+msgid "Community"
+msgstr "Заједница"
 
 #. Label of the company (Data) field in DocType 'LMS Job Application'
 #. Label of the company (Data) field in DocType 'Work Experience'
@@ -1474,6 +1490,7 @@ msgstr "Држава"
 #. Label of the course (Link) field in DocType 'LMS Course Review'
 #. Label of the course (Link) field in DocType 'LMS Enrollment'
 #. Label of the course (Link) field in DocType 'LMS Exercise'
+#. Label of the course (Link) field in DocType 'LMS Lesson Note'
 #. Label of the course (Link) field in DocType 'LMS Mentor Request'
 #. Label of the course (Link) field in DocType 'LMS Program Course'
 #. Label of the course (Link) field in DocType 'LMS Quiz'
@@ -1508,6 +1525,7 @@ msgstr "Држава"
 #: lms/lms/doctype/lms_course_review/lms_course_review.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 #: lms/lms/doctype/lms_exercise/lms_exercise.json
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
 #: lms/lms/doctype/lms_program_course/lms_program_course.json
 #: lms/lms/doctype/lms_quiz/lms_quiz.json
@@ -1543,6 +1561,7 @@ msgstr "Завршене обуке"
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 #: lms/lms/doctype/lms_category/lms_category.json
 #: lms/lms/doctype/lms_course/lms_course.json
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 #: lms/lms/doctype/lms_program/lms_program.json
 #: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.json
 #: lms/lms/doctype/lms_programming_exercise_submission/lms_programming_exercise_submission.json
@@ -1717,15 +1736,15 @@ msgstr "Креирај онлајн предавање"
 msgid "Create a Quiz"
 msgstr "Креирај квиз"
 
-#: frontend/src/components/AppSidebar.vue:576
+#: frontend/src/components/AppSidebar.vue:592
 msgid "Create a batch"
 msgstr "Креирај групу"
 
-#: frontend/src/components/AppSidebar.vue:567
+#: frontend/src/components/AppSidebar.vue:583
 msgid "Create a course"
 msgstr "Креирај обуку"
 
-#: frontend/src/components/AppSidebar.vue:577
+#: frontend/src/components/AppSidebar.vue:593
 msgid "Create a live class"
 msgstr "Креирај онлајн предавање"
 
@@ -1737,15 +1756,15 @@ msgstr "Креирај нови беџ"
 msgid "Create an Assignment"
 msgstr "Креирај задатак"
 
-#: frontend/src/components/AppSidebar.vue:501
+#: frontend/src/components/AppSidebar.vue:517
 msgid "Create your first batch"
 msgstr "Креирајте своју прву групу"
 
-#: frontend/src/components/AppSidebar.vue:432
+#: frontend/src/components/AppSidebar.vue:448
 msgid "Create your first course"
 msgstr "Креирајте своју прву обуку"
 
-#: frontend/src/components/AppSidebar.vue:479
+#: frontend/src/components/AppSidebar.vue:495
 msgid "Create your first quiz"
 msgstr "Креирајте свој први квиз"
 
@@ -1753,11 +1772,11 @@ msgstr "Креирајте свој први квиз"
 msgid "Created"
 msgstr "Креирано"
 
-#: frontend/src/components/AppSidebar.vue:573
+#: frontend/src/components/AppSidebar.vue:589
 msgid "Creating a batch"
 msgstr "Креирање групе"
 
-#: frontend/src/components/AppSidebar.vue:564
+#: frontend/src/components/AppSidebar.vue:580
 msgid "Creating a course"
 msgstr "Креирање обуке"
 
@@ -1776,7 +1795,7 @@ msgstr "Валута"
 msgid "Current Lesson"
 msgstr "Тренутна лекција"
 
-#: frontend/src/components/AppSidebar.vue:595
+#: frontend/src/components/AppSidebar.vue:611
 msgid "Custom Certificate Templates"
 msgstr "Прилагођени шаблон сертификата"
 
@@ -1875,6 +1894,7 @@ msgstr "Врста дипломе"
 #: frontend/src/components/Controls/ChildTable.vue:56
 #: frontend/src/components/CourseOutline.vue:283
 #: frontend/src/components/CourseOutline.vue:349
+#: frontend/src/components/DiscussionReplies.vue:41
 #: frontend/src/components/Settings/Badges.vue:171
 #: frontend/src/pages/BatchForm.vue:562 frontend/src/pages/CourseForm.vue:594
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:67
@@ -2039,9 +2059,10 @@ msgstr "Имејл"
 
 #: frontend/src/components/BatchOverlay.vue:129
 #: frontend/src/components/CourseCardOverlay.vue:116
+#: frontend/src/components/DiscussionReplies.vue:35
 #: frontend/src/components/Modals/ChapterModal.vue:9
 #: frontend/src/components/Settings/Badges.vue:156
-#: frontend/src/pages/JobDetail.vue:34 frontend/src/pages/Lesson.vue:130
+#: frontend/src/pages/JobDetail.vue:34 frontend/src/pages/Lesson.vue:134
 #: frontend/src/pages/Profile.vue:36 frontend/src/pages/Programs.vue:53
 msgid "Edit"
 msgstr "Уреди"
@@ -2508,7 +2529,7 @@ msgstr "Неуспешно подношење. Покушајте поново. 
 msgid "Failed to update badge assignment: "
 msgstr "Неуспешно ажурирање доделе беџа: "
 
-#: frontend/src/utils/index.js:670
+#: frontend/src/utils/index.js:685
 msgid "Failed to update meta tags {0}"
 msgstr "Неуспешно ажурирање мета ознака {0}"
 
@@ -2672,7 +2693,7 @@ msgstr "Преузми сертификат"
 
 #: frontend/src/components/CertificationLinks.vue:34
 #: frontend/src/components/CertificationLinks.vue:50
-#: frontend/src/components/CourseCard.vue:121
+#: frontend/src/components/CourseCard.vue:114
 #: frontend/src/pages/CertifiedParticipants.vue:11
 msgid "Get Certified"
 msgstr "Стекни сертификат"
@@ -2728,7 +2749,9 @@ msgid "Gray"
 msgstr "Сива"
 
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
+#. Option for the 'Color' (Select) field in DocType 'LMS Lesson Note'
 #: lms/lms/doctype/lms_course/lms_course.json
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 msgid "Green"
 msgstr "Зелена"
 
@@ -2791,6 +2814,16 @@ msgstr "Здраво,"
 #: lms/fixtures/custom_field.json
 msgid "Hide my Private Information from others"
 msgstr "Сакриј моје приватне информације од других"
+
+#: frontend/src/components/Notes/InlineLessonMenu.vue:12
+msgid "Highlight"
+msgstr "Истакнуто"
+
+#. Label of the highlighted_text (Small Text) field in DocType 'LMS Lesson
+#. Note'
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
+msgid "Highlighted Text"
+msgstr "Истакнути текст"
 
 #. Label of the hints (Small Text) field in DocType 'LMS Exercise'
 #: lms/lms/doctype/lms_exercise/lms_exercise.json
@@ -2983,7 +3016,7 @@ msgstr "Садржај предавача"
 
 #. Label of the instructor_notes (Markdown Editor) field in DocType 'Course
 #. Lesson'
-#: frontend/src/pages/Lesson.vue:184 frontend/src/pages/LessonForm.vue:42
+#: frontend/src/pages/Lesson.vue:189 frontend/src/pages/LessonForm.vue:42
 #: lms/lms/doctype/course_lesson/course_lesson.json
 msgid "Instructor Notes"
 msgstr "Белешке предавача"
@@ -3007,8 +3040,8 @@ msgstr "Коментари предавача"
 msgid "Interest"
 msgstr "Интересовање"
 
-#: frontend/src/components/AppSidebar.vue:556
-#: frontend/src/components/AppSidebar.vue:559
+#: frontend/src/components/AppSidebar.vue:572
+#: frontend/src/components/AppSidebar.vue:575
 msgid "Introduction"
 msgstr "Увод"
 
@@ -3046,7 +3079,7 @@ msgstr "Само за позване"
 msgid "Invite Request"
 msgstr "Захтев за позивницу"
 
-#: frontend/src/components/AppSidebar.vue:490
+#: frontend/src/components/AppSidebar.vue:506
 msgid "Invite your team and students"
 msgstr "Позовите свој тим и студенте"
 
@@ -3078,7 +3111,7 @@ msgstr "SCORM пакет"
 msgid "Issue Date"
 msgstr "Датум издавања"
 
-#: frontend/src/components/AppSidebar.vue:592
+#: frontend/src/components/AppSidebar.vue:608
 msgid "Issue a Certificate"
 msgstr "Издај сертификат"
 
@@ -3313,6 +3346,11 @@ msgid "LMS Job Application"
 msgstr "LMS пријава за посао"
 
 #. Name of a DocType
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
+msgid "LMS Lesson Note"
+msgstr "LMS белешка лекције"
+
+#. Name of a DocType
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "LMS Live Class"
 msgstr "LMS онлајн предавање"
@@ -3420,6 +3458,7 @@ msgstr "LMS извор"
 #: lms/lms/doctype/lms_course_progress/lms_course_progress.json
 #: lms/lms/doctype/lms_course_review/lms_course_review.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 #: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.json
 #: lms/lms/doctype/lms_programming_exercise_submission/lms_programming_exercise_submission.json
@@ -3504,6 +3543,7 @@ msgstr "Одлазак у"
 #. Label of the lesson (Link) field in DocType 'LMS Assignment Submission'
 #. Label of the lesson (Link) field in DocType 'LMS Course Progress'
 #. Label of the lesson (Link) field in DocType 'LMS Exercise'
+#. Label of the lesson (Link) field in DocType 'LMS Lesson Note'
 #. Label of the lesson (Link) field in DocType 'LMS Quiz'
 #. Label of the lesson (Link) field in DocType 'LMS Video Watch Duration'
 #. Label of the lesson (Link) field in DocType 'Scheduled Flow'
@@ -3514,6 +3554,7 @@ msgstr "Одлазак у"
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 #: lms/lms/doctype/lms_course_progress/lms_course_progress.json
 #: lms/lms/doctype/lms_exercise/lms_exercise.json
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 #: lms/lms/doctype/lms_quiz/lms_quiz.json
 #: lms/lms/doctype/lms_video_watch_duration/lms_video_watch_duration.json
 #: lms/lms/doctype/scheduled_flow/scheduled_flow.json
@@ -3672,6 +3713,10 @@ msgstr "Постави LMS као подразумевану почетну ст
 msgid "Make an Announcement"
 msgstr "Направи саопштење"
 
+#: frontend/src/components/Notes/Notes.vue:7
+msgid "Make notes for quick revision. Press / for menu."
+msgstr "Прави белешке за брзу проверу градива. Притисните / за мени."
+
 #: frontend/src/pages/Billing.vue:123
 msgid "Make sure to enter the correct billing name as the same will be used in your invoice."
 msgstr "Унесите тачан назив за фактурисање јер ће бити коришћено на Вашој фактури."
@@ -3776,6 +3821,7 @@ msgstr "ИД састанка"
 #. Label of the member (Link) field in DocType 'LMS Course Progress'
 #. Label of the member (Link) field in DocType 'LMS Enrollment'
 #. Option for the 'Role' (Select) field in DocType 'LMS Enrollment'
+#. Label of the member (Link) field in DocType 'LMS Lesson Note'
 #. Label of the member (Link) field in DocType 'LMS Live Class Participant'
 #. Label of the member (Link) field in DocType 'LMS Mentor Request'
 #. Label of the member (Link) field in DocType 'LMS Payment'
@@ -3787,7 +3833,7 @@ msgstr "ИД састанка"
 #. Label of the member (Link) field in DocType 'LMS Zoom Settings'
 #: frontend/src/components/Modals/CourseProgressSummary.vue:216
 #: frontend/src/components/Modals/LiveClassAttendance.vue:14
-#: frontend/src/components/Modals/VideoStatistics.vue:22
+#: frontend/src/components/Modals/VideoStatistics.vue:31
 #: frontend/src/components/Modals/ZoomAccountModal.vue:42
 #: frontend/src/components/Settings/BadgeAssignmentForm.vue:26
 #: frontend/src/components/Settings/BadgeAssignments.vue:179
@@ -3808,6 +3854,7 @@ msgstr "ИД састанка"
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/doctype/lms_course_progress/lms_course_progress.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 #: lms/lms/doctype/lms_live_class_participant/lms_live_class_participant.json
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
 #: lms/lms/doctype/lms_payment/lms_payment.json
@@ -4029,6 +4076,7 @@ msgstr "Неопходно су најмање две опције за пита
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 #: lms/lms/doctype/lms_program/lms_program.json
 #: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.json
@@ -4067,7 +4115,7 @@ msgstr "Модул је неисправан."
 msgid "Monday"
 msgstr "Понедељак"
 
-#: frontend/src/components/AppSidebar.vue:600
+#: frontend/src/components/AppSidebar.vue:616
 msgid "Monetization"
 msgstr "Монетизација"
 
@@ -4079,6 +4127,10 @@ msgstr "Више"
 #: lms/lms/doctype/lms_question/lms_question.json
 msgid "Multiple Correct Answers"
 msgstr "Више тачних одговора"
+
+#: frontend/src/components/Notes/Notes.vue:3
+msgid "My Notes"
+msgstr "Моје белешке"
 
 #: frontend/src/pages/ProfileEvaluator.vue:4
 msgid "My availability"
@@ -4161,12 +4213,12 @@ msgstr "Нови коментар у групи {0}"
 msgid "New reply on the topic {0} in course {1}"
 msgstr "Нова порука на тему {0} у обуци {1}"
 
-#: frontend/src/components/Discussions.vue:8
-#: frontend/src/components/Discussions.vue:63
+#: frontend/src/components/Discussions.vue:11
+#: frontend/src/components/Discussions.vue:66
 msgid "New {0}"
 msgstr "Нови {0}"
 
-#: frontend/src/components/Quiz.vue:237 frontend/src/pages/Lesson.vue:139
+#: frontend/src/components/Quiz.vue:237 frontend/src/pages/Lesson.vue:143
 msgid "Next"
 msgstr "Следеће"
 
@@ -4255,7 +4307,11 @@ msgstr "Још увек нису додати квизови."
 msgid "No slots available for this date."
 msgstr "Нема доступних термина за овај датум."
 
-#: frontend/src/components/Modals/AnnouncementModal.vue:90
+#: frontend/src/components/Modals/VideoStatistics.vue:86
+msgid "No statistics available for this video."
+msgstr "Ниједна статистика није доступна за овај видео-снимак."
+
+#: frontend/src/components/Modals/AnnouncementModal.vue:91
 msgid "No students in this batch"
 msgstr "Нема студената у овој групи"
 
@@ -4306,6 +4362,16 @@ msgstr "Није дозвољено"
 #: frontend/src/pages/QuizForm.vue:8 frontend/src/pages/QuizSubmission.vue:9
 msgid "Not Saved"
 msgstr "Није сачувано"
+
+#. Label of the note (Text Editor) field in DocType 'LMS Lesson Note'
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
+msgid "Note"
+msgstr "Белешка"
+
+#: frontend/src/pages/Lesson.vue:358 frontend/src/pages/Lesson.vue:824
+#: frontend/src/pages/Lesson.vue:835
+msgid "Notes"
+msgstr "Белешке"
 
 #: frontend/src/pages/Notifications.vue:53
 msgid "Nothing to see here."
@@ -4364,7 +4430,7 @@ msgstr "Искључиво обуке код којих је самосталн�
 msgid "Only files of type {0} will be accepted."
 msgstr "Искључиво су прихватљиви фајлови врсте {0}."
 
-#: frontend/src/utils/index.js:502
+#: frontend/src/utils/index.js:498
 msgid "Only image file is allowed."
 msgstr "Дозвољен је само фајл слике."
 
@@ -4889,7 +4955,7 @@ msgstr "Преглед слике"
 msgid "Preview Video"
 msgstr "Преглед видео-снимка"
 
-#: frontend/src/pages/Lesson.vue:114
+#: frontend/src/pages/Lesson.vue:118
 msgid "Previous"
 msgstr "Претходно"
 
@@ -5077,7 +5143,9 @@ msgid "Purchased Certificate"
 msgstr "Купљени сертификат"
 
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
+#. Option for the 'Color' (Select) field in DocType 'LMS Lesson Note'
 #: lms/lms/doctype/lms_course/lms_course.json
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 msgid "Purple"
 msgstr "Љубичасто"
 
@@ -5202,7 +5270,7 @@ msgstr "Квиз је успешно ажуриран"
 msgid "Quiz will appear at the bottom of the lesson."
 msgstr "Квиз ће бити приказиван на дну лекције."
 
-#: frontend/src/components/AppSidebar.vue:584
+#: frontend/src/components/AppSidebar.vue:600
 #: frontend/src/pages/QuizForm.vue:396 frontend/src/pages/Quizzes.vue:275
 #: frontend/src/pages/Quizzes.vue:285 lms/www/lms.py:251
 msgid "Quizzes"
@@ -5239,7 +5307,9 @@ msgid "Ready"
 msgstr "Спремно"
 
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
+#. Option for the 'Color' (Select) field in DocType 'LMS Lesson Note'
 #: lms/lms/doctype/lms_course/lms_course.json
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 msgid "Red"
 msgstr "Црвено"
 
@@ -5302,9 +5372,17 @@ msgstr "Сродне обуке"
 msgid "Remove"
 msgstr "Уклони"
 
+#: frontend/src/components/Notes/InlineLessonMenu.vue:49
+msgid "Remove Highlight"
+msgstr "Уклони истакнутост"
+
 #: frontend/src/components/Modals/AnnouncementModal.vue:27
 msgid "Reply To"
 msgstr "Одговори"
+
+#: frontend/src/components/Modals/AnnouncementModal.vue:100
+msgid "Reply To is required"
+msgstr "Поље Одговори је обавезно"
 
 #: lms/lms/widgets/RequestInvite.html:7
 msgid "Request Invite"
@@ -5375,7 +5453,7 @@ msgstr "Пожељна улога"
 msgid "Role updated successfully"
 msgstr "Улога је успешно ажурирана"
 
-#: frontend/src/components/AppSidebar.vue:612
+#: frontend/src/components/AppSidebar.vue:628
 msgid "Roles"
 msgstr "Улоге"
 
@@ -5429,6 +5507,10 @@ msgstr "SCORM путања пакета"
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "SEO"
 msgstr "SEO"
+
+#: frontend/src/utils/index.js:517
+msgid "SVG contains potentially unsafe content."
+msgstr "SVG садржи потенцијално небезбедан садржај."
 
 #. Option for the 'Day' (Select) field in DocType 'Evaluator Schedule'
 #. Option for the 'Day' (Select) field in DocType 'LMS Certificate Request'
@@ -5499,8 +5581,9 @@ msgid "Search"
 msgstr "Претрага"
 
 #: frontend/src/components/Modals/CourseProgressSummary.vue:18
-msgid "Search by Member Name"
-msgstr "Претражи по имену члана"
+#: frontend/src/components/Modals/VideoStatistics.vue:20
+msgid "Search by Member"
+msgstr "Претрага по члану"
 
 #: frontend/src/pages/CertifiedParticipants.vue:23
 msgid "Search by Name"
@@ -5586,15 +5669,15 @@ msgstr "Поставите боју"
 msgid "Set your Password"
 msgstr "Поставите своју лозинку"
 
-#: frontend/src/components/AppSidebar.vue:560
+#: frontend/src/components/AppSidebar.vue:576
 msgid "Setting up"
 msgstr "Подешавање"
 
-#: frontend/src/components/AppSidebar.vue:605
+#: frontend/src/components/AppSidebar.vue:621
 msgid "Setting up payment gateway"
 msgstr "Подешавање платног портала"
 
-#: frontend/src/components/AppSidebar.vue:610
+#: frontend/src/components/AppSidebar.vue:626
 #: frontend/src/components/Settings/Settings.vue:7
 #: frontend/src/pages/BatchForm.vue:53 frontend/src/pages/CourseForm.vue:142
 #: frontend/src/pages/ProfileRoles.vue:4
@@ -5939,7 +6022,7 @@ msgstr "Подгрупа"
 msgid "Subject"
 msgstr "Наслов"
 
-#: frontend/src/components/Modals/AnnouncementModal.vue:93
+#: frontend/src/components/Modals/AnnouncementModal.vue:94
 msgid "Subject is required"
 msgstr "Наслов је неопходан"
 
@@ -6049,6 +6132,7 @@ msgstr "Палета боја"
 #: lms/lms/doctype/lms_course_review/lms_course_review.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 #: lms/lms/doctype/lms_exercise/lms_exercise.json
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 #: lms/lms/doctype/lms_live_class_participant/lms_live_class_participant.json
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
@@ -6743,7 +6827,7 @@ msgid "Volunteering or Internship"
 msgstr "Волонтирање или пракса"
 
 #. Label of the watch_time (Data) field in DocType 'LMS Video Watch Duration'
-#: frontend/src/components/Modals/VideoStatistics.vue:25
+#: frontend/src/components/Modals/VideoStatistics.vue:34
 #: lms/lms/doctype/lms_video_watch_duration/lms_video_watch_duration.json
 msgid "Watch Time"
 msgstr "Време гледања"
@@ -6844,7 +6928,9 @@ msgid "Write your answer here"
 msgstr "Овде упишите Ваш одговор"
 
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
+#. Option for the 'Color' (Select) field in DocType 'LMS Lesson Note'
 #: lms/lms/doctype/lms_course/lms_course.json
+#: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 msgid "Yellow"
 msgstr "Жута"
 
@@ -7121,8 +7207,8 @@ msgstr "сертификати"
 msgid "certified members"
 msgstr "сертификовани чланови"
 
-#: frontend/src/components/CourseCard.vue:98 frontend/src/pages/Lesson.vue:98
-#: frontend/src/pages/Lesson.vue:234
+#: frontend/src/components/CourseCard.vue:91 frontend/src/pages/Lesson.vue:99
+#: frontend/src/pages/Lesson.vue:259
 msgid "completed"
 msgstr "завршено"
 
