@@ -7,7 +7,9 @@
 		}"
 	>
 		<template #body-content>
-			<div class="flex justify-between space-x-10 text-base mt-10">
+			<div
+				class="flex flex-col-reverse md:flex-row justify-between md:space-x-10 text-base mt-10"
+			>
 				<div class="w-full">
 					<div class="flex items-center justify-between space-x-5 mb-4">
 						<!-- <div class="text-xl font-semibold text-ink-gray-6">
@@ -90,7 +92,9 @@
 					</div>
 				</div>
 				<div class="mb-4 self-start w-full space-y-5">
-					<div class="flex items-center space-x-4">
+					<div
+						class="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-4"
+					>
 						<NumberChart
 							class="border rounded-md w-full"
 							:config="{

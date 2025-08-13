@@ -35,8 +35,8 @@ export default defineConfig({
 			},
 			manifest: {
 				display: 'standalone',
-				name: 'Frappe Learning',
-				short_name: 'Frappe Learning',
+				name: 'Learning',
+				short_name: 'Learning',
 				start_url: '/lms',
 				description:
 					'Easy to use, 100% open source Learning Management System',
