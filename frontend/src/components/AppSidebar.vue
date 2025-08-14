@@ -361,34 +361,20 @@ const addProgrammingExercises = () => {
 }
 
 const addPrograms = () => {
-	let activeFor = ['Programs', 'ProgramForm']
+	let activeFor = ['Programs']
 	let index = 1
-	let canAddProgram = false
 
-	if (
-		!isInstructor.value &&
-		!isModerator.value &&
-		settingsStore.learningPaths.data
-	) {
-		sidebarLinks.value = sidebarLinks.value.filter(
-			(link) => link.label !== 'Courses'
-		)
+	if (!isInstructor.value && !isModerator.value) {
 		activeFor.push('CourseDetail')
 		activeFor.push('Lesson')
-		index = 0
-		canAddProgram = true
-	} else if (isInstructor.value || isModerator.value) {
-		canAddProgram = true
 	}
 
-	if (canAddProgram) {
-		sidebarLinks.value.splice(index, 0, {
-			label: 'Programs',
-			icon: 'Route',
-			to: 'Programs',
-			activeFor: activeFor,
-		})
-	}
+	sidebarLinks.value.splice(index, 0, {
+		label: 'Programs',
+		icon: 'Route',
+		to: 'Programs',
+		activeFor: activeFor,
+	})
 }
 
 const openPageModal = (link) => {

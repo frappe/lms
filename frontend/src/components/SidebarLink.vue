@@ -32,7 +32,7 @@
 				{{ __(link.label) }}
 			</span>
 			<span
-				v-if="link.count"
+				v-if="link.count && !isCollapsed"
 				class="!ml-auto block text-xs text-ink-gray-5"
 				:class="
 					isCollapsed && link.count > 9

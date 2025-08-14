@@ -1921,10 +1921,6 @@ def update_certificate_purchase(course, payment_name):
 def get_programs():
 	if has_course_moderator_role() or has_course_instructor_role() or has_course_evaluator_role():
 		programs = frappe.get_all("LMS Program", fields=["name"])
-	else:
-		programs = frappe.get_all(
-			"LMS Program Member", {"member": frappe.session.user}, ["parent as name", "progress"]
-		)
 
 	for program in programs:
 		program_courses = frappe.get_all(

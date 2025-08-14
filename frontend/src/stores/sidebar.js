@@ -4,6 +4,7 @@ import { ref } from 'vue'
 export const useSidebar = defineStore('sidebar', () => {
 	const isSidebarCollapsed = ref(false)
 	const isWebpagesCollapsed = ref(true)
+	const canAccessPrograms = ref(false)
 
 	if (localStorage.getItem('isSidebarCollapsed')) {
 		isSidebarCollapsed.value = JSON.parse(
