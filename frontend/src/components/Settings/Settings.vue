@@ -110,13 +110,6 @@ const tabsStructure = computed(() => {
 							type: 'checkbox',
 						},
 						{
-							label: 'Enable Learning Paths',
-							name: 'enable_learning_paths',
-							description:
-								'This will ensure students follow the assigned programs in order.',
-							type: 'checkbox',
-						},
-						{
 							label: 'Prevent Skipping Videos',
 							name: 'prevent_skipping_videos',
 							type: 'checkbox',

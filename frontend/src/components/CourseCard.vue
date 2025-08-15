@@ -1,7 +1,7 @@
 <template>
 	<div
 		v-if="course.title"
-		class="flex flex-col h-full rounded-md border-2 overflow-auto text-ink-gray-9"
+		class="flex flex-col h-full rounded-md overflow-auto text-ink-gray-9"
 		style="min-height: 350px"
 	>
 		<div
@@ -47,7 +47,7 @@
 				{{ course.title }}
 			</div>
 		</div>
-		<div class="flex flex-col flex-auto p-4">
+		<div class="flex flex-col flex-auto p-4 border-x-2 border-b-2 rounded-b-md">
 			<div class="flex items-center justify-between mb-2">
 				<div v-if="course.lessons">
 					<Tooltip :text="__('Lessons')">
