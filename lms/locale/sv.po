@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-08-15 16:04+0000\n"
-"PO-Revision-Date: 2025-08-16 01:55\n"
+"PO-Revision-Date: 2025-08-17 02:15\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Swedish\n"
 "MIME-Version: 1.0\n"
@@ -2696,7 +2696,7 @@ msgstr "Skaffa appen på din enhet för enkel åtkomst och en bättre upplevelse
 
 #: frontend/src/components/InstallPrompt.vue:46
 msgid "Get the app on your iPhone for easy access & a better experience"
-msgstr "Skaffa appen på din iPhone för enkel åtkomst och en bättre upplevelse"
+msgstr "Skaffa app för iPhone för enkel åtkomst & bättre upplevelse"
 
 #. Label of the github (Data) field in DocType 'User'
 #: lms/fixtures/custom_field.json
