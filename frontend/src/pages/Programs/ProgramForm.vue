@@ -2,16 +2,9 @@
 	<Dialog
 		v-model="show"
 		:options="{
-		title: __('Program'),
-		size: '2xl',
-		actions: [{
-			label: __('Save'),
-			variant: 'solid',
-			onClick: ({ close }: { close: () => void }) => {
-				saveProgram(close)
-			}
-		}]
-	}"
+			title: programName === 'new' ? __('Create Program') : __('Edit Program'),
+			size: '2xl',
+		}"
 	>
 		<template #body-content>
 			<div class="text-base">
@@ -191,6 +184,25 @@
 					</div>
 				</template>
 			</Dialog>
+		</template>
+		<template #actions="{ close }">
+			<div class="flex justify-end space-x-2 group">
+				<Button
+					v-if="programName != 'new'"
+					@click="deleteProgram(close)"
+					variant="outline"
+					theme="red"
+					class="invisible group-hover:visible"
+				>
+					<template #prefix>
+						<Trash2 class="size-4 stroke-1.5" />
+					</template>
+					{{ __('Delete') }}
+				</Button>
+				<Button variant="solid" @click="saveProgram(close)">
+					{{ __('Save') }}
+				</Button>
+			</div>
 		</template>
 	</Dialog>
 </template>
@@ -497,6 +509,19 @@ const remove = async (
 		await wait(100)
 	}
 	unselectAll()
+}
+
+const deleteProgram = (close: () => void) => {
+	if (props.programName == 'new') return
+	programs.value?.delete.submit(props.programName, {
+		onSuccess() {
+			toast.success(__('Program deleted successfully'))
+			close()
+		},
+		onError(err: any) {
+			toast.warning(__(err.messages?.[0] || err))
+		},
+	})
 }
 
 const courseColumns = computed(() => {

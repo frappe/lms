@@ -1919,9 +1919,33 @@ def update_certificate_purchase(course, payment_name):
 
 @frappe.whitelist()
 def get_programs():
-	if has_course_moderator_role() or has_course_instructor_role() or has_course_evaluator_role():
-		programs = frappe.get_all("LMS Program", fields=["name"])
+	enrolled_programs = frappe.get_all(
+		"LMS Program Member", {"member": frappe.session.user}, ["parent as name", "progress"]
+	)
+	for program in enrolled_programs:
+		program.update(
+			frappe.db.get_value(
+				"LMS Program", program.name, ["name", "course_count", "member_count"], as_dict=True
+			)
+		)
 
+	published_programs = frappe.get_all(
+		"LMS Program",
+		{
+			"published": 1,
+			"allow_self_enrollment": 1,
+		},
+		["name", "course_count", "member_count"],
+	)
+	published_programs = [program for program in published_programs if program not in enrolled_programs]
+
+	return {
+		"enrolled": enrolled_programs,
+		"published": published_programs,
+	}
+
+
+""" def set_program_details(programs):
 	for program in programs:
 		program_courses = frappe.get_all(
 			"LMS Program Course", {"parent": program.name}, ["course"], order_by="idx"
@@ -1939,10 +1963,7 @@ def get_programs():
 
 			previous_progress = details.membership.progress if details.membership else 0
 			program.courses.append(details)
-
-		program.members = frappe.db.count("LMS Program Member", {"parent": program.name})
-
-	return programs
+ """
 
 
 @frappe.whitelist()

@@ -10,36 +10,38 @@
 			{{ __('New') }}
 		</Button>
 	</header>
-	<div
-		v-if="programs.data?.length"
-		class="grid grid-cols-3 gap-5 py-10 w-3/4 mx-auto"
-	>
-		<div
-			v-for="program in programs.data"
-			@click="openForm(program.name)"
-			class="border rounded-md p-3 hover:border-outline-gray-3 cursor-pointer space-y-2"
-		>
-			<div class="text-lg font-semibold">
-				{{ program.name }}
-			</div>
-			<div class="flex items-center space-x-1">
-				<BookOpen class="h-4 w-4 stroke-1.5 mr-1" />
-				<span>
-					{{ program.course_count }}
-					{{ program.course_count == 1 ? __('Course') : __('Courses') }}
-				</span>
-			</div>
-			<div class="flex items-center space-x-1">
-				<User class="h-4 w-4 stroke-1.5 mr-1" />
-				<span>
-					{{ program.member_count || 0 }}
-					{{ program.member_count == 1 ? __('member') : __('members') }}
-				</span>
+	<div v-if="programs.data?.length && !isStudent" class="py-10 w-3/4 mx-auto">
+		<div class="text-lg font-semibold text-ink-gray-9 mb-5">
+			{{ __('{0} Programs').format(programs.data.length) }}
+		</div>
+		<div class="grid grid-cols-3 gap-5">
+			<div
+				v-for="program in programs.data"
+				@click="openForm(program.name)"
+				class="border rounded-md p-3 hover:border-outline-gray-3 cursor-pointer space-y-2"
+			>
+				<div class="text-lg font-semibold">
+					{{ program.name }}
+				</div>
+				<div class="flex items-center space-x-1">
+					<BookOpen class="h-4 w-4 stroke-1.5 mr-1" />
+					<span>
+						{{ program.course_count }}
+						{{ program.course_count == 1 ? __('Course') : __('Courses') }}
+					</span>
+				</div>
+				<div class="flex items-center space-x-1">
+					<User class="h-4 w-4 stroke-1.5 mr-1" />
+					<span>
+						{{ program.member_count || 0 }}
+						{{ program.member_count == 1 ? __('member') : __('members') }}
+					</span>
+				</div>
 			</div>
 		</div>
 	</div>
+	<StudentPrograms v-else-if="isStudent" />
 	<EmptyState v-else type="Programs" />
-
 	<ProgramForm
 		v-model="showForm"
 		:programName="currentProgram"
@@ -48,17 +50,27 @@
 </template>
 <script setup>
 import { Breadcrumbs, Button, usePageMeta, createListResource } from 'frappe-ui'
-import { computed, inject, ref } from 'vue'
+import { computed, inject, onMounted, ref } from 'vue'
 import { BookOpen, Plus, User } from 'lucide-vue-next'
-import EmptyState from '@/components/EmptyState.vue'
 import { sessionStore } from '../../stores/session'
 import ProgramForm from '@/pages/Programs/ProgramForm.vue'
+import EmptyState from '@/components/EmptyState.vue'
+import StudentPrograms from '@/pages/Programs/StudentPrograms.vue'
 
 const { brand } = sessionStore()
 const user = inject('$user')
 const showForm = ref(false)
 const currentProgram = ref(null)
 const readOnlyMode = window.read_only_mode
+
+onMounted(() => {
+	if (!user.data) {
+		window.location.href = '/login'
+	}
+	if (user.data?.is_moderator || user.data?.is_instructor) {
+		programs.reload()
+	}
+})
 
 const programs = createListResource({
 	doctype: 'LMS Program',
@@ -72,7 +84,7 @@ const programs = createListResource({
 		'enforce_course_order',
 		'allow_self_enrollment',
 	],
-	auto: true,
+	auto: false,
 	orderBy: 'creation desc',
 })
 
@@ -87,6 +99,10 @@ const openForm = (programName) => {
 	currentProgram.value = programName
 	showForm.value = true
 }
+
+const isStudent = computed(() => {
+	return user.data?.is_student || false
+})
 
 const breadcrumbs = computed(() => [
 	{
