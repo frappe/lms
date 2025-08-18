@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-08-15 16:04+0000\n"
-"PO-Revision-Date: 2025-08-16 01:55\n"
+"PO-Revision-Date: 2025-08-18 02:34\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Serbian (Latin)\n"
 "MIME-Version: 1.0\n"
@@ -2257,7 +2257,7 @@ msgstr "Broj upisanih"
 
 #: lms/lms/utils.py:1864
 msgid "Enrollment Failed, {0}"
-msgstr ""
+msgstr "Neuspešan upis, {0}"
 
 #. Label of the enrollments (Int) field in DocType 'LMS Course'
 #. Label of a chart in the LMS Workspace
@@ -3000,7 +3000,7 @@ msgstr "Instaliraj"
 #: frontend/src/components/InstallPrompt.vue:4
 #: frontend/src/components/InstallPrompt.vue:32
 msgid "Install Frappe Learning"
-msgstr ""
+msgstr "Instalirajte Frappe Learning"
 
 #. Label of the institution_name (Data) field in DocType 'Education Detail'
 #: lms/lms/doctype/education_detail/education_detail.json
@@ -6112,7 +6112,7 @@ msgstr "Oznake"
 
 #: frontend/src/components/InstallPrompt.vue:52
 msgid "Tap"
-msgstr ""
+msgstr "Klikni"
 
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
@@ -7109,7 +7109,7 @@ msgstr "i"
 
 #: frontend/src/components/InstallPrompt.vue:54
 msgid "and then 'Add to Home Screen'"
-msgstr ""
+msgstr "a zatim 'Dodaj na početni ekran'"
 
 #: frontend/src/components/JobCard.vue:26 frontend/src/pages/JobDetail.vue:108
 msgid "applicant"
