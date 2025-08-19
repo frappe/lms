@@ -52,7 +52,7 @@
 import { Breadcrumbs, Button, usePageMeta, createListResource } from 'frappe-ui'
 import { computed, inject, onMounted, ref } from 'vue'
 import { BookOpen, Plus, User } from 'lucide-vue-next'
-import { sessionStore } from '../../stores/session'
+import { sessionStore } from '@/stores/session'
 import ProgramForm from '@/pages/Programs/ProgramForm.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import StudentPrograms from '@/pages/Programs/StudentPrograms.vue'
@@ -82,7 +82,6 @@ const programs = createListResource({
 		'course_count',
 		'published',
 		'enforce_course_order',
-		'allow_self_enrollment',
 	],
 	auto: false,
 	orderBy: 'creation desc',

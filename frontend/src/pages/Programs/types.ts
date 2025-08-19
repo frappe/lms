@@ -3,7 +3,6 @@ interface Program {
     title: string;
     published: boolean;
     enforce_course_order: boolean;
-    allow_self_enrollment: boolean;
     program_courses: ProgramCourse[];
     program_batches: ProgramMember[];
     course_count: number;

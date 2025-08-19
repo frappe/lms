@@ -11,7 +11,6 @@
   "column_break_cwjx",
   "enforce_course_order",
   "column_break_mikl",
-  "allow_self_enrollment",
   "section_break_vhhu",
   "program_courses",
   "program_members",
@@ -62,12 +61,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "default": "0",
-   "fieldname": "allow_self_enrollment",
-   "fieldtype": "Check",
-   "label": "Allow Self Enrollment"
-  },
-  {
    "fieldname": "section_break_pppe",
    "fieldtype": "Section Break"
   },
@@ -93,7 +86,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-18 13:08:04.993241",
+ "modified": "2025-08-19 17:31:23.516060",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Program",

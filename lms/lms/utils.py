@@ -1118,6 +1118,7 @@ def get_course_details(course):
 			"lessons",
 			"enrollments",
 			"rating",
+			"card_gradient",
 		],
 		as_dict=1,
 	)
@@ -1270,7 +1271,6 @@ def get_lesson(course, chapter, lesson):
 		progress = get_progress(course, lesson_details.name)
 
 	lesson_details.chapter_title = frappe.db.get_value("Course Chapter", chapter_name, "title")
-	lesson_details.rendered_content = render_html(lesson_details)
 	neighbours = get_neighbour_lesson(course, chapter, lesson)
 	lesson_details.next = neighbours["next"]
 	lesson_details.progress = progress
@@ -1933,11 +1933,13 @@ def get_programs():
 		"LMS Program",
 		{
 			"published": 1,
-			"allow_self_enrollment": 1,
 		},
 		["name", "course_count", "member_count"],
 	)
-	published_programs = [program for program in published_programs if program not in enrolled_programs]
+
+	for program in published_programs:
+		if program.name in [p.name for p in enrolled_programs]:
+			published_programs.remove(program)
 
 	return {
 		"enrolled": enrolled_programs,
@@ -1945,71 +1947,55 @@ def get_programs():
 	}
 
 
-""" def set_program_details(programs):
-	for program in programs:
-		program_courses = frappe.get_all(
-			"LMS Program Course", {"parent": program.name}, ["course"], order_by="idx"
-		)
-		program.courses = []
-		previous_progress = 0
-		for i, course in enumerate(program_courses):
-			details = get_course_details(course.course)
-			if i == 0:
-				details.eligible = True
-			elif previous_progress == 100:
-				details.eligible = True
-			else:
-				details.eligible = False
+@frappe.whitelist()
+def get_program_details(program_name):
+	program = frappe.db.get_value(
+		"LMS Program",
+		program_name,
+		[
+			"name",
+			"member_count",
+			"course_count",
+			"published",
+			"allow_self_enrollment",
+			"enforce_course_order",
+		],
+		as_dict=1,
+	)
+	program_courses = frappe.get_all(
+		"LMS Program Course", {"parent": program_name}, ["course"], order_by="idx"
+	)
+	program.courses = []
+	previous_progress = 0
+	for i, course in enumerate(program_courses):
+		details = get_course_details(course.course)
+		if i == 0:
+			details.eligible = True
+		elif previous_progress == 100:
+			details.eligible = True
+		else:
+			details.eligible = False
 
-			previous_progress = details.membership.progress if details.membership else 0
-			program.courses.append(details)
- """
+		previous_progress = details.membership.progress if details.membership else 0
+		program.courses.append(details)
+	return program
 
 
 @frappe.whitelist()
-def enroll_in_program_course(program, course):
-	enrollment = frappe.db.exists("LMS Enrollment", {"member": frappe.session.user, "course": course})
-
-	if enrollment:
-		enrollment = frappe.db.get_value("LMS Enrollment", enrollment, ["name", "current_lesson"], as_dict=1)
-		enrollment.current_lesson = get_lesson_index(enrollment.current_lesson)
-		return enrollment
-
-	program_courses = frappe.get_all(
-		"LMS Program Course", {"parent": program}, ["course", "idx"], order_by="idx"
-	)
-	current_course_idx = [
-		program_course.idx for program_course in program_courses if program_course.course == course
-	][0]
-
-	for program_course in program_courses:
-		if program_course.idx < current_course_idx:
-			enrollment = frappe.db.get_value(
-				"LMS Enrollment",
-				{"member": frappe.session.user, "course": program_course.course},
-				["name", "progress"],
-				as_dict=1,
-			)
-			if enrollment and enrollment.progress != 100:
-				frappe.throw(
-					_("Please complete the previous courses in the program to enroll in this course.")
-				)
-			elif not enrollment:
-				frappe.throw(
-					_("Please complete the previous courses in the program to enroll in this course.")
-				)
-			else:
-				continue
-
-	enrollment = frappe.new_doc("LMS Enrollment")
-	enrollment.update(
-		{
-			"member": frappe.session.user,
-			"course": course,
-		}
-	)
-	enrollment.save()
-	return enrollment
+def enroll_in_program(program):
+	if frappe.session.user == "Guest":
+		frappe.throw(_("Please login to enroll in the program."))
+	if not frappe.db.exists("LMS Program Member", {"parent": program, "member": frappe.session.user}):
+		program_member = frappe.new_doc("LMS Program Member")
+		program_member.update(
+			{
+				"parent": program,
+				"parenttype": "LMS Program",
+				"parentfield": "members",
+				"member": frappe.session.user,
+			}
+		)
+		program_member.save(ignore_permissions=True)
 
 
 @frappe.whitelist(allow_guest=True)

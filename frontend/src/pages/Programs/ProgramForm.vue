@@ -2,10 +2,21 @@
 	<Dialog
 		v-model="show"
 		:options="{
-			title: programName === 'new' ? __('Create Program') : __('Edit Program'),
 			size: '2xl',
 		}"
 	>
+		<template #body-title>
+			<div class="flex items-center justify-between text-base w-full space-x-2">
+				<div class="text-xl font-semibold text-ink-gray-9">
+					{{
+						programName === 'new' ? __('Create Program') : __('Edit Program')
+					}}
+				</div>
+				<Badge theme="orange" v-if="dirty">
+					{{ __('Not Saved') }}
+				</Badge>
+			</div>
+		</template>
 		<template #body-content>
 			<div class="text-base">
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-5 pb-5">
@@ -14,22 +25,20 @@
 						:label="__('Title')"
 						type="text"
 						:required="true"
+						@change="dirty = true"
 					/>
 					<div class="flex flex-col space-y-3">
 						<FormControl
 							v-model="program.published"
 							:label="__('Published')"
 							type="checkbox"
+							@change="dirty = true"
 						/>
 						<FormControl
 							v-model="program.enforce_course_order"
 							:label="__('Enforce Course Order')"
 							type="checkbox"
-						/>
-						<FormControl
-							v-model="program.allow_self_enrollment"
-							:label="__('Allow Self Enrollment')"
-							type="checkbox"
+							@change="dirty = true"
 						/>
 					</div>
 				</div>
@@ -208,6 +217,7 @@
 </template>
 <script setup lang="ts">
 import {
+	Badge,
 	Button,
 	createListResource,
 	Dialog,
@@ -233,6 +243,7 @@ const showDialog = ref(false)
 const currentForm = ref<'course' | 'member'>('course')
 const course = ref<string>('')
 const member = ref<string>('')
+const dirty = ref(false)
 
 const props = withDefaults(
 	defineProps<{
@@ -248,7 +259,6 @@ const program = ref<Program>({
 	title: '',
 	published: false,
 	enforce_course_order: false,
-	allow_self_enrollment: false,
 	program_courses: [],
 	program_members: [],
 })
@@ -277,11 +287,11 @@ const setProgramData = () => {
 			title: '',
 			published: false,
 			enforce_course_order: false,
-			allow_self_enrollment: false,
 			program_courses: [],
 			program_members: [],
 		}
 	}
+	dirty.value = false
 }
 
 const programCourses = createListResource({
@@ -331,6 +341,7 @@ const fetchMembers = () => {
 const saveProgram = (close: () => void) => {
 	if (props.programName === 'new') createNewProgram(close)
 	else updateProgram(close)
+	dirty.value = false
 }
 
 const createNewProgram = (close: () => void) => {

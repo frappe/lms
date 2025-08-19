@@ -189,6 +189,12 @@ const routes = [
 		component: () => import('@/pages/Programs/Programs.vue'),
 	},
 	{
+		path: '/programs/:programName',
+		name: 'ProgramDetail',
+		component: () => import('@/pages/Programs/ProgramDetail.vue'),
+		props: true,
+	},
+	{
 		path: '/assignments',
 		name: 'Assignments',
 		component: () => import('@/pages/Assignments.vue'),

@@ -361,13 +361,8 @@ const addProgrammingExercises = () => {
 }
 
 const addPrograms = () => {
-	let activeFor = ['Programs']
+	let activeFor = ['Programs', 'ProgramDetail']
 	let index = 1
-
-	if (!isInstructor.value && !isModerator.value) {
-		activeFor.push('CourseDetail')
-		activeFor.push('Lesson')
-	}
 
 	sidebarLinks.value.splice(index, 0, {
 		label: 'Programs',
