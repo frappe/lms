@@ -1965,6 +1965,7 @@ def get_program_details(program_name):
 	program_courses = frappe.get_all(
 		"LMS Program Course", {"parent": program_name}, ["course"], order_by="idx"
 	)
+
 	program.courses = []
 	previous_progress = 0
 	for i, course in enumerate(program_courses):
@@ -1978,6 +1979,13 @@ def get_program_details(program_name):
 
 		previous_progress = details.membership.progress if details.membership else 0
 		program.courses.append(details)
+		if frappe.session.user != "Guest":
+			program.progress = frappe.db.get_value(
+				"LMS Program Member",
+				{"parent": program_name, "member": frappe.session.user},
+				"progress",
+			)
+
 	return program
 
 

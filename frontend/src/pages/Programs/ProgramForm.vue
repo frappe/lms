@@ -6,7 +6,7 @@
 		}"
 	>
 		<template #body-title>
-			<div class="flex items-center justify-between text-base w-full space-x-2">
+			<div class="flex items-center justify-between text-base w-full">
 				<div class="text-xl font-semibold text-ink-gray-9">
 					{{
 						programName === 'new' ? __('Create Program') : __('Edit Program')
@@ -109,12 +109,28 @@
 						<div class="text-lg font-semibold">
 							{{ __('Members') }}
 						</div>
-						<Button @click="openForm('member')">
-							<template #prefix>
-								<Plus class="h-4 w-4 stroke-1.5" />
-							</template>
-							{{ __('Add') }}
-						</Button>
+
+						<div class="space-x-2">
+							<Button
+								@click="
+									() => {
+										showProgressDialog = true
+										console.log('show progress dialog', showProgressDialog)
+									}
+								"
+							>
+								<template #prefix>
+									<TrendingUp class="size-4 stroke-1.5" />
+								</template>
+								{{ __('Progress Summary') }}
+							</Button>
+							<Button @click="openForm('member')">
+								<template #prefix>
+									<Plus class="h-4 w-4 stroke-1.5" />
+								</template>
+								{{ __('Add') }}
+							</Button>
+						</div>
 					</div>
 					<ListView
 						v-if="programMembers.data.length > 0"
@@ -153,7 +169,7 @@
 				</div>
 			</div>
 			<Dialog
-				v-model="showDialog"
+				v-model="showFormDialog"
 				:options="{
 					title:
 						currentForm == 'course'
@@ -193,6 +209,12 @@
 					</div>
 				</template>
 			</Dialog>
+
+			<ProgramProgressSummary
+				v-model="showProgressDialog"
+				:programName="programName"
+				:programMembers="programMembers.data"
+			/>
 		</template>
 		<template #actions="{ close }">
 			<div class="flex justify-end space-x-2 group">
@@ -212,6 +234,7 @@
 					{{ __('Save') }}
 				</Button>
 			</div>
+			{{ showProgressDialog }}
 		</template>
 	</Dialog>
 </template>
@@ -231,18 +254,20 @@ import {
 	toast,
 } from 'frappe-ui'
 import { computed, ref, watch } from 'vue'
-import { Plus, Trash2 } from 'lucide-vue-next'
+import { Plus, Trash2, TrendingUp } from 'lucide-vue-next'
 import { Programs, Program } from '@/types/programs'
 import { openSettings } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
 import Draggable from 'vuedraggable'
+import ProgramProgressSummary from '@/pages/Programs/ProgramProgressSummary.vue'
 
 const show = defineModel<boolean>()
 const programs = defineModel<Programs>('programs')
-const showDialog = ref(false)
+const showFormDialog = ref(false)
 const currentForm = ref<'course' | 'member'>('course')
 const course = ref<string>('')
 const member = ref<string>('')
+const showProgressDialog = ref(false)
 const dirty = ref(false)
 
 const props = withDefaults(
@@ -384,7 +409,7 @@ const updateProgram = (close: () => void) => {
 
 const openForm = (formType: 'course' | 'member') => {
 	currentForm.value = formType
-	showDialog.value = true
+	showFormDialog.value = true
 	if (formType === 'course') {
 		course.value = ''
 	} else {

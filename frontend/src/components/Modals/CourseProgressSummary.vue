@@ -12,9 +12,6 @@
 			>
 				<div class="w-full">
 					<div class="flex items-center justify-between space-x-5 mb-4">
-						<!-- <div class="text-xl font-semibold text-ink-gray-6">
-							{{ __('{0} Members').format(memberCount) }}
-						</div> -->
 						<FormControl
 							v-model="searchFilter"
 							:placeholder="__('Search by Member')"
@@ -151,7 +148,7 @@ import {
 import { computed, ref, watch } from 'vue'
 import { theme } from '@/utils/theme'
 
-const show = defineModel<boolean | undefined>()
+const show = defineModel<boolean>({ default: false })
 const searchFilter = ref<string | null>(null)
 type Filters = {
 	course: string | undefined
@@ -225,7 +222,6 @@ const progressColumns = computed(() => {
 		{
 			label: __('Progress'),
 			key: 'progress',
-			width: '30%',
 			align: 'right',
 			icon: 'trending-up',
 		},
