@@ -14,7 +14,7 @@
 		<div class="text-lg font-semibold text-ink-gray-9 mb-5">
 			{{ __('{0} Programs').format(programs.data.length) }}
 		</div>
-		<div class="grid grid-cols-3 gap-5">
+		<div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
 			<div
 				v-for="program in programs.data"
 				@click="openForm(program.name)"

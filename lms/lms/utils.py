@@ -1937,9 +1937,11 @@ def get_programs():
 		["name", "course_count", "member_count"],
 	)
 
+	programs_to_remove = []
 	for program in published_programs:
 		if program.name in [p.name for p in enrolled_programs]:
-			published_programs.remove(program)
+			programs_to_remove.append(program)
+	published_programs = [program for program in published_programs if program not in programs_to_remove]
 
 	return {
 		"enrolled": enrolled_programs,

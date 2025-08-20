@@ -4,6 +4,7 @@
 import frappe
 from frappe.model.document import Document
 
+from lms.lms.doctype.lms_enrollment.lms_enrollment import update_program_progress
 from lms.lms.utils import get_course_progress
 
 
@@ -19,3 +20,4 @@ class LMSCourseProgress(Document):
 			"name",
 		)
 		frappe.db.set_value("LMS Enrollment", membership, "progress", progress)
+		update_program_progress(self.member)

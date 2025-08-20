@@ -6,8 +6,8 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "published",
   "title",
+  "published",
   "column_break_cwjx",
   "enforce_course_order",
   "column_break_mikl",
@@ -44,12 +44,16 @@
    "default": "0",
    "fieldname": "published",
    "fieldtype": "Check",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Published"
   },
   {
    "default": "0",
    "fieldname": "enforce_course_order",
    "fieldtype": "Check",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Enforce Course Order"
   },
   {
@@ -67,6 +71,7 @@
   {
    "fieldname": "course_count",
    "fieldtype": "Int",
+   "in_list_view": 1,
    "label": "Course Count"
   },
   {
@@ -76,6 +81,7 @@
   {
    "fieldname": "member_count",
    "fieldtype": "Int",
+   "in_list_view": 1,
    "label": "Member Count"
   },
   {
@@ -86,7 +92,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-19 17:31:23.516060",
+ "modified": "2025-08-20 12:28:57.238902",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Program",
@@ -143,5 +149,6 @@
  "sort_field": "creation",
  "sort_order": "DESC",
  "states": [],
+ "title_field": "title",
  "track_changes": 1
 }

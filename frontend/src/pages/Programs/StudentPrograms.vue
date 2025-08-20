@@ -1,5 +1,5 @@
 <template>
-	<div class="py-10 w-3/4 mx-auto">
+	<div class="py-5 px-5 w-full lg:w-3/4 lg:px-0 mx-auto">
 		<div class="flex items-center justify-between mb-5">
 			<div class="text-lg text-ink-gray-9 font-semibold">
 				{{ __('All Programs') }}
@@ -8,7 +8,10 @@
 		</div>
 		<div v-for="(data, category) in programs.data">
 			<div v-if="category == currentTab">
-				<div v-if="data.length > 0" class="grid grid-cols-3 gap-5">
+				<div
+					v-if="data.length > 0"
+					class="grid grid-cols-1 lg:grid-cols-3 gap-5"
+				>
 					<div
 						v-for="program in data"
 						@click="openDetails(program.name, category)"

@@ -196,7 +196,7 @@ import { usersStore } from '@/stores/user'
 import { sessionStore } from '@/stores/session'
 import { useSidebar } from '@/stores/sidebar'
 import { useSettings } from '@/stores/settings'
-import { Button, createResource, Tooltip } from 'frappe-ui'
+import { Button, call, createResource, Tooltip } from 'frappe-ui'
 import PageModal from '@/components/Modals/PageModal.vue'
 import { capture } from '@/telemetry'
 import LMSLogo from '@/components/Icons/LMSLogo.vue'
@@ -214,6 +214,7 @@ import {
 	Users,
 	BookText,
 	Zap,
+	Check,
 } from 'lucide-vue-next'
 import {
 	TrialBanner,
@@ -360,7 +361,9 @@ const addProgrammingExercises = () => {
 	}
 }
 
-const addPrograms = () => {
+const addPrograms = async () => {
+	let canAddProgram = await checkIfCanAddProgram()
+	if (!canAddProgram) return
 	let activeFor = ['Programs', 'ProgramDetail']
 	let index = 1
 
@@ -370,6 +373,14 @@ const addPrograms = () => {
 		to: 'Programs',
 		activeFor: activeFor,
 	})
+}
+
+const checkIfCanAddProgram = async () => {
+	if (isModerator.value || isInstructor.value) {
+		return true
+	}
+	const programs = await call('lms.lms.utils.get_programs')
+	return programs.enrolled.length > 0 || programs.published.length > 0
 }
 
 const openPageModal = (link) => {

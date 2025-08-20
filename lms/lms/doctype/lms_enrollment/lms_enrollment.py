@@ -13,7 +13,7 @@ class LMSEnrollment(Document):
 		self.validate_membership_in_different_batch_same_course()
 
 	def on_update(self):
-		self.update_program_progress()
+		update_program_progress(self.member)
 
 	def validate_membership_in_same_batch(self):
 		filters = {"member": self.member, "course": self.course, "name": ["!=", self.name]}
@@ -59,21 +59,20 @@ class LMSEnrollment(Document):
 				)
 			)
 
-	def update_program_progress(self):
-		programs = frappe.get_all("LMS Program Member", {"member": self.member}, ["parent", "name"])
 
-		for program in programs:
-			total_progress = 0
-			courses = frappe.get_all("LMS Program Course", {"parent": program.parent}, pluck="course")
-			for course in courses:
-				progress = frappe.db.get_value(
-					"LMS Enrollment", {"course": course, "member": self.member}, "progress"
-				)
-				progress = progress or 0
-				total_progress += progress
+def update_program_progress(member):
+	programs = frappe.get_all("LMS Program Member", {"member": member}, ["parent", "name"])
 
-			average_progress = ceil(total_progress / len(courses))
-			frappe.db.set_value("LMS Program Member", program.name, "progress", average_progress)
+	for program in programs:
+		total_progress = 0
+		courses = frappe.get_all("LMS Program Course", {"parent": program.parent}, pluck="course")
+		for course in courses:
+			progress = frappe.db.get_value("LMS Enrollment", {"course": course, "member": member}, "progress")
+			progress = progress or 0
+			total_progress += progress
+
+		average_progress = ceil(total_progress / len(courses))
+		frappe.db.set_value("LMS Program Member", program.name, "progress", average_progress)
 
 
 @frappe.whitelist()
