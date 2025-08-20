@@ -6,7 +6,7 @@
 		}"
 	>
 		<template #body-title>
-			<div class="flex items-center justify-between text-base w-full">
+			<div class="flex items-center justify-between space-x-2 text-base w-full">
 				<div class="text-xl font-semibold text-ink-gray-9">
 					{{
 						programName === 'new' ? __('Create Program') : __('Edit Program')
@@ -115,7 +115,6 @@
 								@click="
 									() => {
 										showProgressDialog = true
-										console.log('show progress dialog', showProgressDialog)
 									}
 								"
 							>
@@ -234,7 +233,6 @@
 					{{ __('Save') }}
 				</Button>
 			</div>
-			{{ showProgressDialog }}
 		</template>
 	</Dialog>
 </template>
@@ -474,7 +472,6 @@ const updateCounts = async (
 	type: 'member' | 'course',
 	action: 'add' | 'remove'
 ) => {
-	console.log('update', props.programName)
 	if (!props.programName) return
 
 	let memberCount = programMembers.data?.length || 0
