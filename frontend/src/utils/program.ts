@@ -79,7 +79,9 @@ export class Program {
         } 
         call("frappe.client.get_value", {
             doctype: 'LMS Programming Exercise',
-            name: exercise,
+            filters: {
+                name: exercise
+            },
             fieldname: "title"
         }).then((data: { title: string }) => {
             this.wrapper.innerHTML = `<div class='border rounded-md p-4 text-center bg-surface-menu-bar mb-4'>
