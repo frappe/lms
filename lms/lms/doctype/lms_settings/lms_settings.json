@@ -11,7 +11,6 @@
   "persona_captured",
   "column_break_zdel",
   "allow_guest_access",
-  "enable_learning_paths",
   "prevent_skipping_videos",
   "column_break_bjis",
   "unsplash_access_key",
@@ -340,12 +339,6 @@
    "label": "Payments app is not installed"
   },
   {
-   "default": "0",
-   "fieldname": "enable_learning_paths",
-   "fieldtype": "Check",
-   "label": "Enable Learning Paths"
-  },
-  {
    "fieldname": "general_tab",
    "fieldtype": "Tab Break",
    "label": "General"
@@ -429,7 +422,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-07-01 17:01:58.466698",
+ "modified": "2025-08-12 16:47:49.983018",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Settings",

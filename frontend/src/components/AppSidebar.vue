@@ -196,7 +196,7 @@ import { usersStore } from '@/stores/user'
 import { sessionStore } from '@/stores/session'
 import { useSidebar } from '@/stores/sidebar'
 import { useSettings } from '@/stores/settings'
-import { Button, createResource, Tooltip } from 'frappe-ui'
+import { Button, call, createResource, Tooltip } from 'frappe-ui'
 import PageModal from '@/components/Modals/PageModal.vue'
 import { capture } from '@/telemetry'
 import LMSLogo from '@/components/Icons/LMSLogo.vue'
@@ -214,6 +214,7 @@ import {
 	Users,
 	BookText,
 	Zap,
+	Check,
 } from 'lucide-vue-next'
 import {
 	TrialBanner,
@@ -360,35 +361,26 @@ const addProgrammingExercises = () => {
 	}
 }
 
-const addPrograms = () => {
-	let activeFor = ['Programs', 'ProgramForm']
+const addPrograms = async () => {
+	let canAddProgram = await checkIfCanAddProgram()
+	if (!canAddProgram) return
+	let activeFor = ['Programs', 'ProgramDetail']
 	let index = 1
-	let canAddProgram = false
 
-	if (
-		!isInstructor.value &&
-		!isModerator.value &&
-		settingsStore.learningPaths.data
-	) {
-		sidebarLinks.value = sidebarLinks.value.filter(
-			(link) => link.label !== 'Courses'
-		)
-		activeFor.push('CourseDetail')
-		activeFor.push('Lesson')
-		index = 0
-		canAddProgram = true
-	} else if (isInstructor.value || isModerator.value) {
-		canAddProgram = true
-	}
+	sidebarLinks.value.splice(index, 0, {
+		label: 'Programs',
+		icon: 'Route',
+		to: 'Programs',
+		activeFor: activeFor,
+	})
+}
 
-	if (canAddProgram) {
-		sidebarLinks.value.splice(index, 0, {
-			label: 'Programs',
-			icon: 'Route',
-			to: 'Programs',
-			activeFor: activeFor,
-		})
+const checkIfCanAddProgram = async () => {
+	if (isModerator.value || isInstructor.value) {
+		return true
 	}
+	const programs = await call('lms.lms.utils.get_programs')
+	return programs.enrolled.length > 0 || programs.published.length > 0
 }
 
 const openPageModal = (link) => {
