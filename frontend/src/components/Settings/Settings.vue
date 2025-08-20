@@ -37,6 +37,7 @@
 					<component
 						v-if="activeTab.template"
 						:is="activeTab.template"
+						v-model:show="show"
 						v-bind="{
 							label: activeTab.label,
 							description: activeTab.description,

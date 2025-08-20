@@ -185,6 +185,7 @@ const openProfile = (username: string) => {
 			username: username,
 		},
 	})
+	console.log(show.value)
 }
 
 const newMember = createResource({
