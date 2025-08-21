@@ -37,6 +37,7 @@
 					<component
 						v-if="activeTab.template"
 						:is="activeTab.template"
+						v-model:show="show"
 						v-bind="{
 							label: activeTab.label,
 							description: activeTab.description,
@@ -107,13 +108,6 @@ const tabsStructure = computed(() => {
 							name: 'allow_guest_access',
 							description:
 								'If enabled, users can access the course and batch lists without logging in.',
-							type: 'checkbox',
-						},
-						{
-							label: 'Enable Learning Paths',
-							name: 'enable_learning_paths',
-							description:
-								'This will ensure students follow the assigned programs in order.',
 							type: 'checkbox',
 						},
 						{

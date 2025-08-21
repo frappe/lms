@@ -142,7 +142,10 @@
 							{{ __('Settings') }}
 						</div>
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-							<div class="flex flex-col space-y-5">
+							<div
+								v-if="user.data?.is_moderator"
+								class="flex flex-col space-y-5"
+							>
 								<FormControl
 									type="checkbox"
 									v-model="course.published"

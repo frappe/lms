@@ -117,14 +117,7 @@
 	</Dialog>
 </template>
 <script setup lang="ts">
-import {
-	Avatar,
-	Badge,
-	Button,
-	createResource,
-	Dialog,
-	FormControl,
-} from 'frappe-ui'
+import { Avatar, Button, createResource, Dialog, FormControl } from 'frappe-ui'
 import { useRouter } from 'vue-router'
 import { ref, watch, reactive, inject } from 'vue'
 import { RefreshCw, Plus, Search, Shield } from 'lucide-vue-next'
@@ -146,7 +139,6 @@ const start = ref(0)
 const memberList = ref<Member[]>([])
 const hasNextPage = ref(false)
 const showForm = ref(false)
-const dayjs = inject('$dayjs')
 const user = inject<User | null>('$user')
 const { updateOnboardingStep } = useOnboarding('learning')
 
@@ -193,6 +185,7 @@ const openProfile = (username: string) => {
 			username: username,
 		},
 	})
+	console.log(show.value)
 }
 
 const newMember = createResource({
