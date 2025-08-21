@@ -365,7 +365,7 @@ const addPrograms = async () => {
 	let canAddProgram = await checkIfCanAddProgram()
 	if (!canAddProgram) return
 	let activeFor = ['Programs', 'ProgramDetail']
-	let index = 1
+	let index = 2
 
 	sidebarLinks.value.splice(index, 0, {
 		label: 'Programs',

@@ -2,6 +2,7 @@ import hashlib
 import json
 import re
 import string
+from datetime import datetime, timedelta
 
 import frappe
 import razorpay
@@ -39,12 +40,12 @@ def slugify(title, used_slugs=None):
 	If a list of used slugs is specified, it will make sure the generated slug
 	is not one of them.
 
-	    >>> slugify("Hello World!")
-	    'hello-world'
-	    >>> slugify("Hello World!", ["hello-world"])
-	    'hello-world-2'
-	    >>> slugify("Hello World!", ["hello-world", "hello-world-2"])
-	    'hello-world-3'
+		>>> slugify("Hello World!")
+		'hello-world'
+		>>> slugify("Hello World!", ["hello-world"])
+		'hello-world-2'
+		>>> slugify("Hello World!", ["hello-world", "hello-world-2"])
+		'hello-world-3'
 	"""
 	if not used_slugs:
 		used_slugs = []
@@ -844,13 +845,21 @@ def get_evaluator(course, batch=None):
 
 
 @frappe.whitelist()
-def get_upcoming_evals(student, courses, batch=None):
+def get_upcoming_evals(courses=None, batch=None):
+	if frappe.session.user == "Guest":
+		return []
+
+	if not courses:
+		courses = []
+
 	filters = {
-		"member": student,
-		"course": ["in", courses],
+		"member": frappe.session.user,
 		"date": [">=", frappe.utils.nowdate()],
 		"status": "Upcoming",
 	}
+
+	if len(courses) > 0:
+		filters["course"] = ["in", courses]
 
 	if batch:
 		filters["batch_name"] = batch
@@ -1127,7 +1136,7 @@ def get_course_details(course):
 	# course_details.is_instructor = is_instructor(course_details.name)
 	if course_details.paid_course or course_details.paid_certificate:
 		"""course_details.course_price, course_details.currency = check_multicurrency(
-		        course_details.course_price, course_details.currency, None, course_details.amount_usd
+				course_details.course_price, course_details.currency, None, course_details.amount_usd
 		)"""
 		course_details.price = fmt_money(course_details.course_price, 0, course_details.currency)
 
@@ -2133,3 +2142,216 @@ def get_related_courses(course):
 
 def persona_captured():
 	frappe.db.set_single_value("LMS Settings", "persona_captured", 1)
+
+
+@frappe.whitelist()
+def get_my_courses():
+	my_courses = []
+	if frappe.session.user == "Guest":
+		return my_courses
+
+	courses = frappe.get_all(
+		"LMS Enrollment",
+		{
+			"member": frappe.session.user,
+		},
+		order_by="creation desc",
+		limit=3,
+		pluck="course",
+	)
+
+	for course in courses:
+		my_courses.append(get_course_details(course))
+
+	return my_courses
+
+
+@frappe.whitelist()
+def get_my_batches():
+	my_batches = []
+	if frappe.session.user == "Guest":
+		return my_batches
+
+	batches = frappe.get_all(
+		"LMS Batch Enrollment",
+		{
+			"member": frappe.session.user,
+		},
+		order_by="creation desc",
+		limit=4,
+		pluck="batch",
+	)
+
+	for batch in batches:
+		batch_details = get_batch_details(batch)
+		if batch_details:
+			my_batches.append(batch_details)
+
+	return my_batches
+
+
+@frappe.whitelist()
+def get_my_live_classes():
+	my_live_classes = []
+	if frappe.session.user == "Guest":
+		return my_live_classes
+
+	batches = frappe.get_all(
+		"LMS Batch Enrollment",
+		{
+			"member": frappe.session.user,
+		},
+		order_by="creation desc",
+		pluck="batch",
+	)
+
+	live_class_details = frappe.get_all(
+		"LMS Live Class",
+		filters={
+			"date": [">=", getdate()],
+			"batch_name": ["in", batches],
+		},
+		fields=[
+			"name",
+			"title",
+			"description",
+			"time",
+			"date",
+			"duration",
+			"attendees",
+			"start_url",
+			"join_url",
+			"owner",
+		],
+		limit=2,
+		order_by="date",
+	)
+
+	if len(live_class_details):
+		for live_class in live_class_details:
+			live_class.course_title = frappe.db.get_value("LMS Course", live_class.course, "title")
+
+			my_live_classes.append(live_class)
+
+	return my_live_classes
+
+
+@frappe.whitelist()
+def get_created_courses():
+	created_courses = []
+	if frappe.session.user == "Guest":
+		return created_courses
+
+	courses = frappe.get_all(
+		"Course Instructor",
+		{
+			"instructor": frappe.session.user,
+			"parenttype": "LMS Course",
+		},
+		pluck="parent",
+		limit=3,
+		order_by="creation desc",
+	)
+
+	for course in courses:
+		course_details = get_course_details(course)
+		created_courses.append(course_details)
+
+	return created_courses
+
+
+@frappe.whitelist()
+def get_created_batches():
+	created_batches = []
+	if frappe.session.user == "Guest":
+		return created_batches
+
+	batches = frappe.get_all(
+		"Course Instructor",
+		{"instructor": frappe.session.user, "parenttype": "LMS Batch"},
+		pluck="parent",
+		limit=4,
+		order_by="creation asc",
+	)
+
+	for batch in batches:
+		batch_details = get_batch_details(batch)
+		created_batches.append(batch_details)
+
+	return created_batches
+
+
+@frappe.whitelist()
+def get_streak_info():
+	if frappe.session.user == "Guest":
+		return {}
+
+	course_dates = frappe.get_all(
+		"LMS Course Progress",
+		{
+			"member": frappe.session.user,
+		},
+		pluck="creation",
+	)
+
+	quiz_dates = frappe.get_all(
+		"LMS Quiz Submission",
+		{
+			"member": frappe.session.user,
+		},
+		pluck="creation",
+	)
+
+	assignment_dates = frappe.get_all(
+		"LMS Assignment Submission",
+		{
+			"member": frappe.session.user,
+		},
+		pluck="creation",
+	)
+
+	programming_exercise_dates = frappe.get_all(
+		"LMS Programming Exercise Submission",
+		{
+			"member": frappe.session.user,
+		},
+		pluck="creation",
+	)
+
+	all_dates = set(course_dates + quiz_dates + assignment_dates + programming_exercise_dates)
+	all_dates = sorted(all_dates)
+
+	streak = 0
+	max_streak = 0
+	prev_day = None
+
+	for d in all_dates:
+		# skip weekends entirely
+		print(d.weekday())
+		if d.weekday() in (5, 6):  # Saturday=5, Sunday=6
+			continue
+
+		if prev_day:
+			# if yesterday (excluding weekend gaps)
+			expected = prev_day + timedelta(days=1)
+			print(expected.weekday())
+			while expected.weekday() in (5, 6):  # skip Sat/Sun
+				expected += timedelta(days=1)
+
+			if d == expected:
+				streak += 1
+			else:
+				streak = 1
+		else:
+			streak = 1
+
+		max_streak = max(max_streak, streak)
+		prev_day = d
+	return 1
+	""" return {
+		"current_streak": streak,
+		"max_streak": max_streak,
+		"last_activity_date": prev_day.strftime("%Y-%m-%d") if prev_day else None,
+		"total_days_active": len(all_dates),
+		"total_days_in_month": (getdate() - getdate(getdate().year, getdate().month, 1)).days + 1,
+	} """
