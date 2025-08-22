@@ -11,45 +11,25 @@
 					{{ __('Hey') }}, {{ user.data?.full_name }} 👋
 				</div>
 				<div class="text-lg text-ink-gray-6">
-					<span v-if="isAdmin">
-						{{ __('Manage your courses and batches at a glance') }}
-					</span>
-					<span v-else-if="myLiveClasses.data?.length > 0 || evalCount > 0">
-						<span v-if="myLiveClasses.data?.length > 0">
-							{{
-								__('You have {0} upcoming live classes').format(
-									myLiveClasses.data.length
-								)
-							}}
-						</span>
-						<span v-if="evalCount > 0">
-							{{ __(' and {0} evaluation').format(evalCount) }}
-						</span>
-						<span>
-							{{ __(' scheduled.') }}
-						</span>
-					</span>
-					<span v-else-if="myLiveClasses.data?.length > 0">
-						{{
-							__('You have {0} upcoming live classes.').format(
-								myLiveClasses.data.length
-							)
-						}}
-					</span>
-					<span v-else-if="evalCount > 0">
-						{{ __('You have {0} evaluations scheduled.').format(evalCount) }}
-					</span>
-					<span v-else>
-						{{ __('Resume where you left off') }}
-					</span>
+					{{ subtitle }}
 				</div>
 			</div>
 			<div>
 				<TabButtons v-if="isAdmin" v-model="currentTab" :buttons="tabs" />
+				<div v-else class="bg-surface-amber-2 px-2 py-1 rounded-md">
+					<span> 🔥 </span>
+					<span>
+						{{ streakInfo.data?.current_streak }}
+					</span>
+				</div>
 			</div>
 		</div>
 
-		<AdminHome v-if="isAdmin && currentTab === 'instructor'" />
+		<AdminHome
+			v-if="isAdmin && currentTab === 'instructor'"
+			:liveClasses="adminLiveClasses"
+			:evals="adminEvals"
+		/>
 		<StudentHome v-else :myLiveClasses="myLiveClasses" />
 	</div>
 </template>
@@ -77,16 +57,6 @@ onMounted(() => {
 	})
 })
 
-const myLiveClasses = createResource({
-	url: 'lms.lms.utils.get_my_live_classes',
-	auto: true,
-})
-
-const tabs = [
-	{ label: __('Student'), value: 'student' },
-	{ label: __('Instructor'), value: 'instructor' },
-]
-
 const isAdmin = computed(() => {
 	return (
 		user.data?.is_moderator ||
@@ -94,6 +64,63 @@ const isAdmin = computed(() => {
 		user.data?.is_evaluator
 	)
 })
+
+const myLiveClasses = createResource({
+	url: 'lms.lms.utils.get_my_live_classes',
+	auto: !isAdmin.value ? true : false,
+})
+
+const adminLiveClasses = createResource({
+	url: 'lms.lms.utils.get_admin_live_classes',
+	auto: isAdmin.value ? true : false,
+})
+
+const adminEvals = createResource({
+	url: 'lms.lms.utils.get_admin_evals',
+	auto: isAdmin.value ? true : false,
+})
+
+const streakInfo = createResource({
+	url: 'lms.lms.utils.get_streak_info',
+	auto: true,
+})
+
+const subtitle = computed(() => {
+	if (isAdmin.value) {
+		if (adminLiveClasses.data?.length > 0 && adminEvals.data?.length > 0) {
+			return __(
+				'You have {0} upcoming live classes and {1} evaluations scheduled.'
+			).format(adminLiveClasses.data.length, adminEvals.data.length)
+		} else if (adminLiveClasses.data?.length > 0) {
+			return __('You have {0} upcoming live classes.').format(
+				adminLiveClasses.data.length
+			)
+		} else if (adminEvals.data?.length > 0) {
+			return __('You have {0} evaluations scheduled.').format(
+				adminEvals.data.length
+			)
+		}
+		return __('Manage your courses and batches at a glance')
+	} else {
+		if (myLiveClasses.data?.length > 0 && evalCount.value > 0) {
+			return __(
+				'You have {0} upcoming live classes and {1} evaluations scheduled.'
+			).format(myLiveClasses.data.length, evalCount.value)
+		} else if (myLiveClasses.data?.length > 0) {
+			return __('You have {0} upcoming live classes.').format(
+				myLiveClasses.data.length
+			)
+		} else if (evalCount.value > 0) {
+			return __('You have {0} evaluations scheduled.').format(evalCount.value)
+		}
+		return __('Resume where you left off')
+	}
+})
+
+const tabs = [
+	{ label: __('Student'), value: 'student' },
+	{ label: __('Instructor'), value: 'instructor' },
+]
 
 usePageMeta(() => {
 	return {

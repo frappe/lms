@@ -2242,16 +2242,21 @@ def get_created_courses():
 	if frappe.session.user == "Guest":
 		return created_courses
 
-	courses = frappe.get_all(
-		"Course Instructor",
-		{
-			"instructor": frappe.session.user,
-			"parenttype": "LMS Course",
-		},
-		pluck="parent",
-		limit=3,
-		order_by="creation desc",
+	CourseInstructor = frappe.qb.DocType("Course Instructor")
+	Course = frappe.qb.DocType("LMS Course")
+
+	query = (
+		frappe.qb.from_(CourseInstructor)
+		.join(Course)
+		.on(CourseInstructor.parent == Course.name)
+		.select(Course.name)
+		.where(CourseInstructor.instructor == frappe.session.user)
+		.orderby(Course.published_on, order=frappe.qb.desc)
+		.limit(3)
 	)
+
+	results = query.run(as_dict=True)
+	courses = [row["name"] for row in results]
 
 	for course in courses:
 		course_details = get_course_details(course)
@@ -2266,19 +2271,92 @@ def get_created_batches():
 	if frappe.session.user == "Guest":
 		return created_batches
 
-	batches = frappe.get_all(
-		"Course Instructor",
-		{"instructor": frappe.session.user, "parenttype": "LMS Batch"},
-		pluck="parent",
-		limit=4,
-		order_by="creation asc",
+	CourseInstructor = frappe.qb.DocType("Course Instructor")
+	Batch = frappe.qb.DocType("LMS Batch")
+
+	query = (
+		frappe.qb.from_(CourseInstructor)
+		.join(Batch)
+		.on(CourseInstructor.parent == Batch.name)
+		.select(Batch.name)
+		.where(CourseInstructor.instructor == frappe.session.user)
+		.where(Batch.start_date >= getdate())
+		.orderby(Batch.start_date, order=frappe.qb.asc)
+		.limit(4)
 	)
+
+	results = query.run(as_dict=True)
+	batches = [row["name"] for row in results]
 
 	for batch in batches:
 		batch_details = get_batch_details(batch)
 		created_batches.append(batch_details)
 
 	return created_batches
+
+
+@frappe.whitelist()
+def get_admin_live_classes():
+	if frappe.session.user == "Guest":
+		return []
+
+	CourseInstructor = frappe.qb.DocType("Course Instructor")
+	LMSLiveClass = frappe.qb.DocType("LMS Live Class")
+
+	query = (
+		frappe.qb.from_(CourseInstructor)
+		.join(LMSLiveClass)
+		.on(CourseInstructor.parent == LMSLiveClass.batch_name)
+		.select(
+			LMSLiveClass.name,
+			LMSLiveClass.title,
+			LMSLiveClass.description,
+			LMSLiveClass.time,
+			LMSLiveClass.date,
+			LMSLiveClass.duration,
+			LMSLiveClass.attendees,
+			LMSLiveClass.start_url,
+			LMSLiveClass.join_url,
+			LMSLiveClass.owner,
+		)
+		.where(CourseInstructor.instructor == frappe.session.user)
+		.where(LMSLiveClass.date >= getdate())
+		.orderby(LMSLiveClass.date, order=frappe.qb.asc)
+		.limit(4)
+	)
+	results = query.run(as_dict=True)
+	return results
+
+
+@frappe.whitelist()
+def get_admin_evals():
+	if frappe.session.user == "Guest":
+		return []
+
+	evals = frappe.get_all(
+		"LMS Certificate Request",
+		{
+			"evaluator": frappe.session.user,
+			"date": [">=", getdate()],
+		},
+		[
+			"name",
+			"date",
+			"start_time",
+			"course",
+			"evaluator",
+			"google_meet_link",
+			"member",
+			"member_name",
+		],
+		limit=4,
+		order_by="date asc",
+	)
+
+	for evaluation in evals:
+		evaluation.course_title = frappe.db.get_value("LMS Course", evaluation.course, "title")
+
+	return evals
 
 
 @frappe.whitelist()
@@ -2347,11 +2425,8 @@ def get_streak_info():
 
 		max_streak = max(max_streak, streak)
 		prev_day = d
-	return 1
-	""" return {
+
+	return {
 		"current_streak": streak,
 		"max_streak": max_streak,
-		"last_activity_date": prev_day.strftime("%Y-%m-%d") if prev_day else None,
-		"total_days_active": len(all_dates),
-		"total_days_in_month": (getdate() - getdate(getdate().year, getdate().month, 1)).days + 1,
-	} """
+	}

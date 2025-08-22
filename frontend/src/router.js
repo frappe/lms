@@ -258,6 +258,8 @@ router.beforeEach(async (to, from, next) => {
 	}
 
 	if (!isLoggedIn) {
+		if (to.name == 'Home') router.push({ name: 'Courses' })
+
 		await allowGuestAccess.promise
 		if (!allowGuestAccess.data) {
 			window.location.href = '/login'

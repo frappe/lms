@@ -159,11 +159,6 @@ const myBatches = createResource({
 	auto: true,
 })
 
-const streakInfo = createResource({
-	url: 'lms.lms.utils.get_streak_info',
-	auto: true,
-})
-
 const getClassEnd = (cls: { date: string; time: string; duration: number }) => {
 	const classStart = new Date(`${cls.date}T${cls.time}`)
 	return new Date(classStart.getTime() + cls.duration * 60000)
