@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-08-15 16:04+0000\n"
-"PO-Revision-Date: 2025-08-16 01:55\n"
+"PO-Revision-Date: 2025-08-25 03:29\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Indonesian\n"
 "MIME-Version: 1.0\n"
@@ -114,7 +114,7 @@ msgstr ""
 #: frontend/src/components/Settings/ZoomSettings.vue:192
 #: lms/lms/doctype/lms_zoom_settings/lms_zoom_settings.json
 msgid "Account Name"
-msgstr ""
+msgstr "Nama Akun"
 
 #: frontend/src/pages/ProfileAbout.vue:17
 msgid "Achievements"
