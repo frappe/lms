@@ -52,7 +52,7 @@
 				>
 					{{
 						__(
-							"A learning streak is the number of consecutive days you've completed a learning activity like completing a lesson, quiz or an assignment."
+							'Your learning streak counts the number of days in a row you’ve kept up your learning, whether it’s a lesson, quiz, or assignment. Don’t worry, weekends don’t break your streak.'
 						)
 					}}
 				</div>
@@ -62,7 +62,6 @@
 </template>
 <script setup lang="ts">
 import { Dialog } from 'frappe-ui'
-import { Info } from 'lucide-vue-next'
 
 const show = defineModel<boolean>({
 	default: false,

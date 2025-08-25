@@ -3,7 +3,11 @@
 		<div v-if="myCourses.data?.length" class="mt-10">
 			<div class="flex items-center justify-between mb-3">
 				<span class="font-semibold text-lg">
-					{{ __('My Courses') }}
+					{{
+						myCourses.data[0].membership
+							? __('My Courses')
+							: __('Our Popular Courses')
+					}}
 				</span>
 				<router-link
 					:to="{
@@ -31,7 +35,11 @@
 		<div v-if="myBatches.data?.length" class="mt-10">
 			<div class="flex items-center justify-between mb-3">
 				<span class="font-semibold text-lg">
-					{{ __('My Batches') }}
+					{{
+						myBatches.data?.[0].students.includes(user.data?.name)
+							? __('My Batches')
+							: __('Our Upcoming Batches')
+					}}
 				</span>
 				<router-link
 					:to="{

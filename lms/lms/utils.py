@@ -2150,7 +2150,22 @@ def get_my_courses():
 	if frappe.session.user == "Guest":
 		return my_courses
 
-	courses = frappe.get_all(
+	courses = get_my_latest_courses()
+
+	if not len(courses):
+		courses = get_featured_home_courses()
+
+	if not len(courses):
+		courses = get_popular_courses()
+
+	for course in courses:
+		my_courses.append(get_course_details(course))
+
+	return my_courses
+
+
+def get_my_latest_courses():
+	return frappe.get_all(
 		"LMS Enrollment",
 		{
 			"member": frappe.session.user,
@@ -2160,10 +2175,27 @@ def get_my_courses():
 		pluck="course",
 	)
 
-	for course in courses:
-		my_courses.append(get_course_details(course))
 
-	return my_courses
+def get_featured_home_courses():
+	return frappe.get_all(
+		"LMS Course",
+		{"published": 1, "featured": 1},
+		order_by="published_on desc",
+		limit=3,
+		pluck="name",
+	)
+
+
+def get_popular_courses():
+	return frappe.get_all(
+		"LMS Course",
+		{
+			"published": 1,
+		},
+		order_by="enrollments desc",
+		limit=3,
+		pluck="name",
+	)
 
 
 @frappe.whitelist()
@@ -2172,7 +2204,21 @@ def get_my_batches():
 	if frappe.session.user == "Guest":
 		return my_batches
 
-	batches = frappe.get_all(
+	batches = get_my_latest_batches()
+
+	if not len(batches):
+		batches = get_upcoming_batches()
+
+	for batch in batches:
+		batch_details = get_batch_details(batch)
+		if batch_details:
+			my_batches.append(batch_details)
+
+	return my_batches
+
+
+def get_my_latest_batches():
+	return frappe.get_all(
 		"LMS Batch Enrollment",
 		{
 			"member": frappe.session.user,
@@ -2182,12 +2228,18 @@ def get_my_batches():
 		pluck="batch",
 	)
 
-	for batch in batches:
-		batch_details = get_batch_details(batch)
-		if batch_details:
-			my_batches.append(batch_details)
 
-	return my_batches
+def get_upcoming_batches():
+	return frappe.get_all(
+		"LMS Batch",
+		{
+			"published": 1,
+			"start_date": [">=", getdate()],
+		},
+		order_by="start_date asc",
+		limit=4,
+		pluck="name",
+	)
 
 
 @frappe.whitelist()
@@ -2359,74 +2411,71 @@ def get_admin_evals():
 	return evals
 
 
-@frappe.whitelist()
-def get_streak_info():
-	if frappe.session.user == "Guest":
-		return {}
-
-	course_dates = frappe.get_all(
+def fetch_activity_dates(user):
+	doctypes = [
 		"LMS Course Progress",
-		{
-			"member": frappe.session.user,
-		},
-		pluck="creation",
-	)
-
-	quiz_dates = frappe.get_all(
 		"LMS Quiz Submission",
-		{
-			"member": frappe.session.user,
-		},
-		pluck="creation",
-	)
-
-	assignment_dates = frappe.get_all(
 		"LMS Assignment Submission",
-		{
-			"member": frappe.session.user,
-		},
-		pluck="creation",
-	)
-
-	programming_exercise_dates = frappe.get_all(
 		"LMS Programming Exercise Submission",
-		{
-			"member": frappe.session.user,
-		},
-		pluck="creation",
-	)
+	]
 
-	all_dates = set(course_dates + quiz_dates + assignment_dates + programming_exercise_dates)
-	all_dates = sorted(all_dates)
+	all_dates = []
+	for dt in doctypes:
+		all_dates.extend(frappe.get_all(dt, {"member": user}, pluck="creation"))
 
+	return sorted({d.date() if hasattr(d, "date") else d for d in all_dates})
+
+
+def calculate_streaks(all_dates):
 	streak = 0
 	longest_streak = 0
 	prev_day = None
 
 	for d in all_dates:
-		# skip weekends entirely
-		print(d.weekday())
-		if d.weekday() in (5, 6):  # Saturday=5, Sunday=6
+		if d.weekday() in (5, 6):
 			continue
 
 		if prev_day:
-			# if yesterday (excluding weekend gaps)
 			expected = prev_day + timedelta(days=1)
-			print(expected.weekday())
-			while expected.weekday() in (5, 6):  # skip Sat/Sun
+			while expected.weekday() in (5, 6):
 				expected += timedelta(days=1)
 
-			if d == expected:
-				streak += 1
-			else:
-				streak = 1
+			streak = streak + 1 if d == expected else 1
 		else:
 			streak = 1
 
 		longest_streak = max(longest_streak, streak)
 		prev_day = d
 
+	return streak, longest_streak
+
+
+def calculate_current_streak(all_dates, streak):
+	if not all_dates:
+		return 0
+
+	last_date = all_dates[-1]
+	today = getdate()
+
+	ref_day = today
+	while ref_day.weekday() in (5, 6):
+		ref_day -= timedelta(days=1)
+
+	if last_date == ref_day or last_date == ref_day - timedelta(days=1):
+		return streak
+	return 0
+
+
+@frappe.whitelist()
+def get_streak_info():
+	if frappe.session.user == "Guest":
+		return {}
+
+	all_dates = fetch_activity_dates(frappe.session.user)
+	streak, longest_streak = calculate_streaks(all_dates)
+	current_streak = calculate_current_streak(all_dates, streak)
+
 	return {
-		"current_streak": streak,
+		"current_streak": current_streak,
 		"longest_streak": longest_streak,
 	}
