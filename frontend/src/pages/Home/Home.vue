@@ -16,7 +16,11 @@
 			</div>
 			<div>
 				<TabButtons v-if="isAdmin" v-model="currentTab" :buttons="tabs" />
-				<div v-else class="bg-surface-amber-2 px-2 py-1 rounded-md">
+				<div
+					v-else
+					@click="showStreakModal = true"
+					class="bg-surface-amber-2 px-2 py-1 rounded-md cursor-pointer"
+				>
 					<span> 🔥 </span>
 					<span>
 						{{ streakInfo.data?.current_streak }}
@@ -32,6 +36,7 @@
 		/>
 		<StudentHome v-else :myLiveClasses="myLiveClasses" />
 	</div>
+	<Streak v-model="showStreakModal" :streakInfo="streakInfo" />
 </template>
 <script setup lang="ts">
 import { computed, inject, onMounted, ref } from 'vue'
@@ -45,11 +50,13 @@ import {
 import { sessionStore } from '@/stores/session'
 import StudentHome from '@/pages/Home/StudentHome.vue'
 import AdminHome from '@/pages/Home/AdminHome.vue'
+import Streak from '@/pages/Home/Streak.vue'
 
 const user = inject<any>('$user')
 const { brand } = sessionStore()
 const evalCount = ref(0)
 const currentTab = ref<'student' | 'instructor'>('instructor')
+const showStreakModal = ref(false)
 
 onMounted(() => {
 	call('lms.lms.utils.get_upcoming_evals').then((data: any) => {

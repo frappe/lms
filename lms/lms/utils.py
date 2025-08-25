@@ -2400,7 +2400,7 @@ def get_streak_info():
 	all_dates = sorted(all_dates)
 
 	streak = 0
-	max_streak = 0
+	longest_streak = 0
 	prev_day = None
 
 	for d in all_dates:
@@ -2423,10 +2423,10 @@ def get_streak_info():
 		else:
 			streak = 1
 
-		max_streak = max(max_streak, streak)
+		longest_streak = max(longest_streak, streak)
 		prev_day = d
 
 	return {
 		"current_streak": streak,
-		"max_streak": max_streak,
+		"longest_streak": longest_streak,
 	}
