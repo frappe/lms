@@ -52,7 +52,7 @@
 					<Clock class="w-4 h-4 stroke-1.5" />
 					<span>
 						{{ formatTime(cls.time) }} -
-						{{ dayjs(getClassEnd(cls)).format('HH:mm') }}
+						{{ dayjs(getClassEnd(cls)).format('HH:mm A') }}
 					</span>
 				</div>
 				<div

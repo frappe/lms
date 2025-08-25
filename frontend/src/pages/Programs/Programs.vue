@@ -12,7 +12,12 @@
 	</header>
 	<div v-if="programs.data?.length && !isStudent" class="py-10 w-3/4 mx-auto">
 		<div class="text-lg font-semibold text-ink-gray-9 mb-5">
-			{{ __('{0} Programs').format(programs.data.length) }}
+			{{
+				__('{0} {1}').format(
+					programs.data.length,
+					programs.data.length == 1 ? __('Program') : __('Programs')
+				)
+			}}
 		</div>
 		<div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
 			<div
