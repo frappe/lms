@@ -61,7 +61,7 @@ export const sessionStore = defineStore('lms-session', () => {
 			field: 'livecode_url',
 		},
 		cache: 'livecodeURL',
-		auto: true,
+		auto: user.value ? true : false,
 	})
 
 	return {

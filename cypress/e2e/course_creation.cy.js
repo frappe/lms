@@ -98,7 +98,7 @@ describe("Course Creation", () => {
 
 		// View Course
 		cy.wait(1000);
-		cy.visit("/lms");
+		cy.visit("/lms/courses");
 		cy.closeOnboardingModal();
 
 		cy.url().should("include", "/lms/courses");

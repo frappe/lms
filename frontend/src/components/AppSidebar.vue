@@ -365,7 +365,7 @@ const addPrograms = async () => {
 	let canAddProgram = await checkIfCanAddProgram()
 	if (!canAddProgram) return
 	let activeFor = ['Programs', 'ProgramDetail']
-	let index = 1
+	let index = 2
 
 	sidebarLinks.value.splice(index, 0, {
 		label: 'Programs',
@@ -381,6 +381,15 @@ const checkIfCanAddProgram = async () => {
 	}
 	const programs = await call('lms.lms.utils.get_programs')
 	return programs.enrolled.length > 0 || programs.published.length > 0
+}
+
+const addHome = () => {
+	sidebarLinks.value.unshift({
+		label: 'Home',
+		icon: 'Home',
+		to: 'Home',
+		activeFor: ['Home'],
+	})
 }
 
 const openPageModal = (link) => {
@@ -634,6 +643,7 @@ watch(userResource, () => {
 	if (userResource.data) {
 		isModerator.value = userResource.data.is_moderator
 		isInstructor.value = userResource.data.is_instructor
+		addHome()
 		addPrograms()
 		addProgrammingExercises()
 		addQuizzes()
