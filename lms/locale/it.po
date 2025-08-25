@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-08-15 16:04+0000\n"
-"PO-Revision-Date: 2025-08-16 01:55\n"
+"PO-Revision-Date: 2025-08-25 03:29\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Italian\n"
 "MIME-Version: 1.0\n"
@@ -430,7 +430,7 @@ msgstr ""
 
 #: frontend/src/components/Apps.vue:13
 msgid "Apps"
-msgstr ""
+msgstr "Applicazioni"
 
 #: frontend/src/pages/Batches.vue:285
 msgid "Archived"
@@ -879,7 +879,7 @@ msgstr ""
 #: frontend/src/components/UpcomingEvaluations.vue:57
 #: frontend/src/components/UpcomingEvaluations.vue:177
 msgid "Cancel"
-msgstr ""
+msgstr "Annulla"
 
 #: frontend/src/components/UpcomingEvaluations.vue:171
 msgid "Cancel this evaluation?"
@@ -1892,7 +1892,7 @@ msgstr ""
 #: frontend/src/pages/BatchForm.vue:565 frontend/src/pages/CourseForm.vue:594
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:67
 msgid "Delete"
-msgstr ""
+msgstr "Elimina"
 
 #: frontend/src/components/CourseOutline.vue:67
 msgid "Delete Chapter"
@@ -1989,7 +1989,7 @@ msgstr ""
 #: frontend/src/components/DiscussionReplies.vue:57
 #: lms/lms/widgets/NoPreviewModal.html:25 lms/templates/reviews.html:159
 msgid "Discard"
-msgstr ""
+msgstr "Annulla"
 
 #. Label of the show_discussions (Check) field in DocType 'LMS Settings'
 #: frontend/src/pages/Batch.vue:88
@@ -2058,7 +2058,7 @@ msgstr ""
 #: frontend/src/pages/JobDetail.vue:34 frontend/src/pages/Lesson.vue:133
 #: frontend/src/pages/Profile.vue:36 frontend/src/pages/Programs.vue:53
 msgid "Edit"
-msgstr ""
+msgstr "Modifica"
 
 #: frontend/src/components/Modals/AssignmentForm.vue:14
 msgid "Edit Assignment"
@@ -3499,11 +3499,11 @@ msgstr ""
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:22
 #: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.json
 msgid "Language"
-msgstr ""
+msgstr "Lingua"
 
 #: frontend/src/components/Modals/EditProfile.vue:64
 msgid "Last Name"
-msgstr ""
+msgstr "Cognome"
 
 #. Label of the latest_submission (Link) field in DocType 'Exercise Latest
 #. Submission'
@@ -3655,7 +3655,7 @@ msgstr ""
 #: frontend/src/pages/QuizSubmissionList.vue:39
 #: frontend/src/pages/Quizzes.vue:94
 msgid "Load More"
-msgstr ""
+msgstr "Carica altro"
 
 #. Option for the 'Auto Recording' (Select) field in DocType 'LMS Live Class'
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
@@ -4208,7 +4208,7 @@ msgstr "Nuovo {0}"
 
 #: frontend/src/components/Quiz.vue:237 frontend/src/pages/Lesson.vue:142
 msgid "Next"
-msgstr ""
+msgstr "Successivo"
 
 #: frontend/src/components/Assessments.vue:75 lms/templates/assessments.html:58
 msgid "No Assessments"
@@ -4341,7 +4341,7 @@ msgstr ""
 #: frontend/src/components/Settings/SettingDetails.vue:10
 #: frontend/src/pages/QuizForm.vue:8 frontend/src/pages/QuizSubmission.vue:9
 msgid "Not Saved"
-msgstr ""
+msgstr "Non Salvato"
 
 #. Label of the note (Text Editor) field in DocType 'LMS Lesson Note'
 #: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
@@ -4931,7 +4931,7 @@ msgstr ""
 
 #: frontend/src/pages/Lesson.vue:117
 msgid "Previous"
-msgstr ""
+msgstr "Precedente"
 
 #. Label of the pricing_tab (Tab Break) field in DocType 'LMS Batch'
 #: frontend/src/pages/BatchForm.vue:265
@@ -5082,7 +5082,7 @@ msgstr ""
 #: lms/lms/doctype/cohort_web_page/cohort_web_page.json
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 msgid "Public"
-msgstr ""
+msgstr "Pubblico"
 
 #. Label of the published (Check) field in DocType 'LMS Certificate'
 #: lms/lms/doctype/lms_certificate/lms_certificate.json
@@ -5645,7 +5645,7 @@ msgstr ""
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:19
 #: frontend/src/pages/QuizForm.vue:86
 msgid "Settings"
-msgstr ""
+msgstr "Impostazioni"
 
 #: frontend/src/pages/ProfileAbout.vue:62
 msgid "Share on"
@@ -6007,7 +6007,7 @@ msgstr ""
 #: lms/templates/livecode/extension_footer.html:25
 #: lms/templates/reviews.html:163 lms/www/new-sign-up.html:32
 msgid "Submit"
-msgstr ""
+msgstr "Conferma"
 
 #: frontend/src/components/BatchFeedback.vue:35
 msgid "Submit Feedback"
