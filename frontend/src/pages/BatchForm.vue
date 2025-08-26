@@ -79,14 +79,14 @@
 					<div class="space-y-5">
 						<FormControl
 							v-model="batch.start_date"
-							:label="__('Start Date')"
+							:label="__('Batch Start Date')"
 							type="date"
 							class="mb-4"
 							:required="true"
 						/>
 						<FormControl
 							v-model="batch.end_date"
-							:label="__('End Date')"
+							:label="__('Batch End Date')"
 							type="date"
 							class="mb-4"
 							:required="true"
@@ -95,14 +95,14 @@
 					<div class="space-y-5">
 						<FormControl
 							v-model="batch.start_time"
-							:label="__('Start Time')"
+							:label="__('Session Start Time')"
 							type="time"
 							class="mb-4"
 							:required="true"
 						/>
 						<FormControl
 							v-model="batch.end_time"
-							:label="__('End Time')"
+							:label="__('Session End Time')"
 							type="time"
 							class="mb-4"
 							:required="true"
