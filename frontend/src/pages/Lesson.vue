@@ -268,6 +268,7 @@
 					:courseName="courseName"
 					:key="chapterNumber"
 					:getProgress="lesson.data.membership ? true : false"
+					:lessonProgress="lessonProgress"
 				/>
 			</div>
 		</div>

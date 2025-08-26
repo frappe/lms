@@ -208,6 +208,10 @@ const props = defineProps({
 		type: Boolean,
 		default: false,
 	},
+	lessonProgress: {
+		type: Number,
+		default: 0,
+	},
 })
 
 const outline = createResource({
@@ -224,6 +228,13 @@ const outline = createResource({
 
 watch(
 	() => props.courseName,
+	() => {
+		outline.reload()
+	}
+)
+
+watch(
+	() => props.lessonProgress,
 	() => {
 		outline.reload()
 	}
