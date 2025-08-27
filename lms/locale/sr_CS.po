@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-08-22 16:04+0000\n"
-"PO-Revision-Date: 2025-08-26 03:28\n"
+"PO-Revision-Date: 2025-08-27 04:06\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Serbian (Latin)\n"
 "MIME-Version: 1.0\n"
@@ -409,7 +409,7 @@ msgstr "Prikazuje se na kartici obuke u listi obuka"
 
 #: frontend/src/pages/BatchForm.vue:250
 msgid "Appears when the batch URL is shared on any online platform"
-msgstr "Prikazuje se kada je URL grupe podeljen na bilo kojoj onlajn platforni"
+msgstr "Prikazuje se kada je URL grupe podeljen na bilo kojoj onlajn platformi"
 
 #: frontend/src/pages/BatchForm.vue:231
 msgid "Appears when the batch URL is shared on socials"
@@ -1011,7 +1011,7 @@ msgstr "Detalji sertifikacije"
 #. Label of the certification_name (Data) field in DocType 'Certification'
 #: lms/lms/doctype/certification/certification.json
 msgid "Certification Name"
-msgstr "Naziv sertifiakcije"
+msgstr "Naziv sertifikacije"
 
 #: frontend/src/components/BatchStudents.vue:17
 msgid "Certified"
@@ -2393,7 +2393,7 @@ msgstr "Zahtev za ocenjivanje"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:83
 msgid "Evaluation end date cannot be less than the batch end date."
-msgstr "Datum završetka ocenjivanje ne može biti manji od datuma završetka grupe."
+msgstr "Datum završetka ocenjivanja ne može biti manji od datuma završetka grupe."
 
 #: frontend/src/components/Modals/Event.vue:256
 msgid "Evaluation saved successfully"
@@ -2752,7 +2752,7 @@ msgstr "Započni"
 
 #: frontend/src/components/InstallPrompt.vue:9
 msgid "Get the app on your device for easy access & a better experience!"
-msgstr "Preuzmi aplikaciju na svom uređaju za lakši pristup i bolje korisničko uputstvo!"
+msgstr "Preuzmi aplikaciju na svom uređaju za lakši pristup i bolje korisničko iskustvo!"
 
 #: frontend/src/components/InstallPrompt.vue:46
 msgid "Get the app on your iPhone for easy access & a better experience"
@@ -3248,7 +3248,7 @@ msgstr "Pridruži se"
 
 #: frontend/src/components/UpcomingEvaluations.vue:90
 msgid "Join Call"
-msgstr "Pridrži se pozivu"
+msgstr "Pridruži se pozivu"
 
 #: frontend/src/components/Modals/Event.vue:74
 msgid "Join Meeting"
@@ -4112,7 +4112,7 @@ msgstr "Ključna tačka"
 
 #: lms/lms/doctype/lms_question/lms_question.py:49
 msgid "Minimum two options are required for multiple choice questions."
-msgstr "Neophodno su najmanje dve opcije za pitanja sa višestrukim izborom."
+msgstr "Neophodne su najmanje dve opcije za pitanja sa višestrukim izborom."
 
 #. Name of a role
 #: frontend/src/pages/ProfileRoles.vue:20
@@ -4912,7 +4912,7 @@ msgstr "Molimo Vas da preduzmete odgovarajuću radnju na {0}"
 
 #: frontend/src/components/Modals/ChapterModal.vue:175
 msgid "Please upload a SCORM package"
-msgstr "Molimo Vas da otpremnice SCORM paket"
+msgstr "Molimo Vas da otpremite SCORM paket"
 
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.py:77
 msgid "Please upload the assignment file."
@@ -6345,7 +6345,7 @@ msgstr "Trenutno nema {0}. Pratite nas, uskoro stižu nova iskustva učenja!"
 
 #: lms/templates/course_list.html:14
 msgid "There are no {0} on this site."
-msgstr "Na ovoj sajtu nema {0}."
+msgstr "Na ovom sajtu nema {0}."
 
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.py:40
 msgid "There has been an update on your submission for assignment {0}"
@@ -7168,7 +7168,7 @@ msgstr "Vaš zahtev za pridruživanjem kao mentor za obuku"
 
 #: frontend/src/components/Quiz.vue:258
 msgid "Your submission has been successfully saved. The instructor will review and grade it shortly, and you'll be notified of your final result."
-msgstr "Vaš podnesak je uspešno sačuvan. Predavač će je uskoro pregledati i oceniti, a Vi ćete biti obavešteni o konačnom rezultatu."
+msgstr "Vaš podnesak je uspešno sačuvan. Predavač će ga uskoro pregledati i oceniti, a Vi ćete biti obavešteni o konačnom rezultatu."
 
 #: frontend/src/pages/Lesson.vue:8
 msgid "Zen Mode"
