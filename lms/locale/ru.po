@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-08-22 16:04+0000\n"
-"PO-Revision-Date: 2025-08-26 03:28\n"
+"PO-Revision-Date: 2025-08-27 04:06\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Russian\n"
 "MIME-Version: 1.0\n"
@@ -5718,7 +5718,7 @@ msgstr "Сессии в днях"
 
 #: frontend/src/components/Controls/ColorSwatches.vue:13
 msgid "Set Color"
-msgstr ""
+msgstr "Выбрать цвет"
 
 #: lms/templates/emails/community_course_membership.html:1
 msgid "Set your Password"
