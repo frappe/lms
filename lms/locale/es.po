@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-08-22 16:04+0000\n"
-"PO-Revision-Date: 2025-08-26 03:28\n"
+"PO-Revision-Date: 2025-08-27 04:06\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
@@ -3740,7 +3740,7 @@ msgstr "Iniciar sesión"
 
 #: frontend/src/components/UserDropdown.vue:174
 msgid "Login to Frappe Cloud?"
-msgstr ""
+msgstr "¿Iniciar sesión en Frappe Cloud?"
 
 #: frontend/src/pages/JobDetail.vue:63
 msgid "Login to apply"
@@ -5726,7 +5726,7 @@ msgstr "Establecer Contraseña"
 
 #: frontend/src/components/AppSidebar.vue:568
 msgid "Setting up"
-msgstr ""
+msgstr "Puesta en marcha"
 
 #: frontend/src/components/AppSidebar.vue:613
 msgid "Setting up payment gateway"
@@ -6071,7 +6071,7 @@ msgstr "Asunto"
 
 #: frontend/src/components/Modals/AnnouncementModal.vue:94
 msgid "Subject is required"
-msgstr ""
+msgstr "El Asunto es obligatorio"
 
 #: frontend/src/components/Assignment.vue:32
 msgid "Submission"
