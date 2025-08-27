@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="flex h-full flex-col justify-between transition-all duration-300 ease-in-out border-r bg-surface-menu-bar"
+		class="flex h-full flex-col justify-between transition-all duration-300 ease-in-out border-r bg-[#003366]"
 		:class="sidebarStore.isSidebarCollapsed ? 'w-14' : 'w-56'"
 	>
 		<div
@@ -20,7 +20,7 @@
 				v-if="sidebarSettings.data?.web_pages?.length || isModerator"
 				class="mt-4"
 			>
-				<div
+				<!-- <div
 					class="flex items-center justify-between pr-2 cursor-pointer"
 					:class="sidebarStore.isSidebarCollapsed ? 'pl-3' : 'pl-4'"
 					@click="toggleWebPages"
@@ -48,7 +48,7 @@
 							<Plus class="h-4 w-4 text-ink-gray-7 stroke-1.5" />
 						</template>
 					</Button>
-				</div>
+				</div> -->
 				<div
 					v-if="sidebarSettings.data?.web_pages?.length"
 					class="flex flex-col transition-all duration-300 ease-in-out"
@@ -105,7 +105,7 @@
 				>
 					<Tooltip v-if="readOnlyMode && sidebarStore.isSidebarCollapsed">
 						<CircleAlert
-							class="size-4 stroke-1.5 text-ink-gray-7 cursor-pointer"
+							class="size-4 stroke-1.5 text-white cursor-pointer"
 						/>
 						<template #body>
 							<div
@@ -119,23 +119,6 @@
 							</div>
 						</template>
 					</Tooltip>
-					<Tooltip :text="__('Powered by Learning')">
-						<Zap
-							class="size-4 stroke-1.5 text-ink-gray-7 cursor-pointer"
-							@click="redirectToWebsite()"
-						/>
-					</Tooltip>
-					<Tooltip v-if="showOnboarding" :text="__('Help')">
-						<CircleHelp
-							class="size-4 stroke-1.5 text-ink-gray-7 cursor-pointer"
-							@click="
-								() => {
-									showHelpModal = minimize ? true : !showHelpModal
-									minimize = !showHelpModal
-								}
-							"
-						/>
-					</Tooltip>
 				</div>
 				<Tooltip
 					:text="
@@ -143,7 +126,7 @@
 					"
 				>
 					<CollapseSidebar
-						class="size-4 text-ink-gray-7 duration-300 stroke-1.5 ease-in-out cursor-pointer"
+						class="size-4 text-white duration-300 stroke-1.5 ease-in-out cursor-pointer"
 						:class="{
 							'[transform:rotateY(180deg)]': sidebarStore.isSidebarCollapsed,
 						}"
@@ -253,7 +236,7 @@ const iconProps = {
 onMounted(() => {
 	addNotifications()
 	setSidebarLinks()
-	setUpOnboarding()
+	// setUpOnboarding()
 	socket.on('publish_lms_notifications', (data) => {
 		unreadNotifications.reload()
 	})
@@ -643,10 +626,10 @@ watch(userResource, () => {
 		isModerator.value = userResource.data.is_moderator
 		isInstructor.value = userResource.data.is_instructor
 		addPrograms()
-		addProgrammingExercises()
+		//addProgrammingExercises()
 		addQuizzes()
 		addAssignments()
-		setUpOnboarding()
+		// setUpOnboarding()
 	}
 })
 

@@ -3,7 +3,7 @@
 		v-if="link && !link.onlyMobile"
 		class="flex h-7 cursor-pointer items-center rounded text-ink-gray-8 duration-300 ease-in-out focus:outline-none focus:transition-none focus-visible:rounded focus-visible:ring-2 focus-visible:ring-outline-gray-3"
 		:class="
-			isActive ? 'bg-surface-selected shadow-sm' : 'hover:bg-surface-gray-2'
+			isActive ? 'bg-blue-700 shadow-sm' : 'hover:bg-blue-700'
 		"
 		@click="handleClick"
 	>
@@ -16,13 +16,13 @@
 					<span class="grid h-5 w-6 flex-shrink-0 place-items-center">
 						<component
 							:is="icons[link.icon]"
-							class="h-4 w-4 stroke-1.5 text-ink-gray-8"
+							class="h-4 w-4 stroke-1.5 text-white"
 						/>
 					</span>
 				</slot>
 			</Tooltip>
 			<span
-				class="flex-shrink-0 text-sm duration-300 ease-in-out"
+				class="flex-shrink-0 text-sm duration-300 ease-in-out text-white"
 				:class="
 					isCollapsed
 						? 'ml-0 w-0 overflow-hidden opacity-0'
