@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-08-22 16:04+0000\n"
-"PO-Revision-Date: 2025-08-26 03:28\n"
+"PO-Revision-Date: 2025-08-27 04:06\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Thai\n"
 "MIME-Version: 1.0\n"
@@ -1856,7 +1856,7 @@ msgstr ""
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Cyan"
-msgstr ""
+msgstr "สีฟ้า"
 
 #. Label of the show_dashboard (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -1911,7 +1911,10 @@ msgstr ""
 
 #: frontend/src/components/Modals/EmailTemplateModal.vue:66
 msgid "Dear {{ member_name }},\\n\\nYou have been enrolled in our upcoming batch {{ batch_name }}.\\n\\nThanks,\\nFrappe Learning"
-msgstr ""
+msgstr "เรียน {{ member_name }},\n\n"
+"คุณได้รับการลงทะเบียนในรุ่น {{ batch_name }} ที่กำลังจะมาถึงของเรา\n\n"
+"ขอบคุณ,\n"
+"Frappe Learning"
 
 #. Label of the default_currency (Link) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -7238,7 +7241,7 @@ msgstr "ใบรับรอง"
 
 #: frontend/src/pages/CertifiedParticipants.vue:78
 msgid "certificates"
-msgstr ""
+msgstr "ใบรับรอง"
 
 #: frontend/src/pages/CertifiedParticipants.vue:18
 msgid "certified members"
@@ -7291,7 +7294,7 @@ msgstr "นาที"
 
 #: frontend/src/components/CourseInstructors.vue:41
 msgid "others"
-msgstr ""
+msgstr "อื่นๆ"
 
 #: frontend/src/pages/QuizForm.vue:344
 msgid "question_detail"
