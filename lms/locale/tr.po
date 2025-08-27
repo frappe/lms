@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-08-22 16:04+0000\n"
-"PO-Revision-Date: 2025-08-26 03:28\n"
+"PO-Revision-Date: 2025-08-27 04:06\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Turkish\n"
 "MIME-Version: 1.0\n"
@@ -1911,7 +1911,7 @@ msgstr "Sevgili "
 
 #: frontend/src/components/Modals/EmailTemplateModal.vue:66
 msgid "Dear {{ member_name }},\\n\\nYou have been enrolled in our upcoming batch {{ batch_name }}.\\n\\nThanks,\\nFrappe Learning"
-msgstr ""
+msgstr "Sayın {{ member_name }},\\n\\nYaklaşan grubumuza kaydoldunuz {{ batch_name }}.\\n\\nTeşekkürler,\\nFrappe Öğrenme"
 
 #. Label of the default_currency (Link) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -4147,7 +4147,7 @@ msgstr "Moderatör"
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:286
 #: frontend/src/pages/Quizzes.vue:263
 msgid "Modified"
-msgstr ""
+msgstr "Değiştirilmiş"
 
 #: lms/lms/doctype/lms_badge/lms_badge.js:40
 msgid "Modified By"
@@ -5033,7 +5033,7 @@ msgstr "Birincil Alt Grup"
 
 #: lms/lms/utils.py:428
 msgid "Privacy Policy"
-msgstr ""
+msgstr "Gizlilik Politikası\n\n"
 
 #. Option for the 'Visibility' (Select) field in DocType 'LMS Batch Old'
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
@@ -5726,7 +5726,7 @@ msgstr "Şifrenizi Ayarlayın"
 
 #: frontend/src/components/AppSidebar.vue:568
 msgid "Setting up"
-msgstr ""
+msgstr "Kurulum"
 
 #: frontend/src/components/AppSidebar.vue:613
 msgid "Setting up payment gateway"
@@ -6071,7 +6071,7 @@ msgstr "Konu"
 
 #: frontend/src/components/Modals/AnnouncementModal.vue:94
 msgid "Subject is required"
-msgstr ""
+msgstr "Konu gereklidir"
 
 #: frontend/src/components/Assignment.vue:32
 msgid "Submission"
