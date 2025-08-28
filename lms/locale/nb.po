@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-08-22 16:04+0000\n"
-"PO-Revision-Date: 2025-08-27 04:06\n"
+"PO-Revision-Date: 2025-08-28 04:18\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Norwegian Bokmal\n"
 "MIME-Version: 1.0\n"
@@ -84,7 +84,7 @@ msgstr ""
 
 #: frontend/src/pages/ProfileAbout.vue:4
 msgid "About"
-msgstr ""
+msgstr "Om"
 
 #: frontend/src/pages/CourseForm.vue:182
 msgid "About the Course"
@@ -339,7 +339,7 @@ msgstr ""
 
 #: lms/lms/user.py:34
 msgid "Already Registered"
-msgstr ""
+msgstr "Allerede registrert"
 
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
@@ -442,7 +442,7 @@ msgstr ""
 
 #: frontend/src/components/Apps.vue:13
 msgid "Apps"
-msgstr ""
+msgstr "Apper"
 
 #: frontend/src/pages/Batches.vue:285
 msgid "Archived"
@@ -897,7 +897,7 @@ msgstr ""
 #: frontend/src/components/UpcomingEvaluations.vue:57
 #: frontend/src/components/UpcomingEvaluations.vue:177
 msgid "Cancel"
-msgstr ""
+msgstr "Avbryt"
 
 #: frontend/src/components/UpcomingEvaluations.vue:171
 msgid "Cancel this evaluation?"
@@ -1442,7 +1442,7 @@ msgstr ""
 #: lms/lms/doctype/course_lesson/course_lesson.json
 #: lms/lms/doctype/lms_batch_feedback/lms_batch_feedback.json
 msgid "Content"
-msgstr ""
+msgstr "Innhold"
 
 #: frontend/src/components/CourseCardOverlay.vue:33
 msgid "Continue Learning"
@@ -1747,7 +1747,7 @@ msgstr ""
 #: frontend/src/components/Controls/Link.vue:38
 #: frontend/src/components/Controls/MultiSelect.vue:66
 msgid "Create New"
-msgstr ""
+msgstr "Opprett ny"
 
 #: frontend/src/pages/Programs/ProgramForm.vue:12
 msgid "Create Program"
@@ -2230,7 +2230,7 @@ msgstr ""
 #: lms/lms/doctype/lms_badge/lms_badge.json
 #: lms/lms/doctype/lms_zoom_settings/lms_zoom_settings.json
 msgid "Enabled"
-msgstr ""
+msgstr "Aktivert"
 
 #: frontend/src/components/Modals/BulkCertificates.vue:53
 msgid "Enabling this will publish the certificate on the certified participants page."
@@ -2823,7 +2823,7 @@ msgstr ""
 
 #: lms/lms/widgets/HelloWorld.html:13
 msgid "Hello"
-msgstr ""
+msgstr "Hei"
 
 #: frontend/src/components/AppSidebar.vue:128
 msgid "Help"
@@ -3025,7 +3025,7 @@ msgstr ""
 #. Label of the index_ (Int) field in DocType 'LMS Exercise'
 #: lms/lms/doctype/lms_exercise/lms_exercise.json
 msgid "Index"
-msgstr ""
+msgstr "Indeks"
 
 #. Label of the index_label (Data) field in DocType 'LMS Exercise'
 #: lms/lms/doctype/lms_exercise/lms_exercise.json
@@ -3550,7 +3550,7 @@ msgstr ""
 #. Label of the label (Data) field in DocType 'LMS Timetable Legend'
 #: lms/lms/doctype/lms_timetable_legend/lms_timetable_legend.json
 msgid "Label"
-msgstr ""
+msgstr "Etikett"
 
 #. Label of the language (Select) field in DocType 'LMS Programming Exercise'
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:22
@@ -4174,7 +4174,7 @@ msgstr ""
 
 #: frontend/src/components/AppSidebar.vue:39
 msgid "More"
-msgstr ""
+msgstr "Mer"
 
 #. Label of the multiple (Check) field in DocType 'LMS Question'
 #: lms/lms/doctype/lms_question/lms_question.json
@@ -4258,7 +4258,7 @@ msgstr ""
 #: frontend/src/components/Discussions.vue:11
 #: frontend/src/components/Discussions.vue:66
 msgid "New {0}"
-msgstr ""
+msgstr "Ny {0}"
 
 #: frontend/src/components/Quiz.vue:237 frontend/src/pages/Lesson.vue:142
 msgid "Next"
@@ -4408,7 +4408,7 @@ msgstr ""
 #: frontend/src/pages/Programs/ProgramForm.vue:16
 #: frontend/src/pages/QuizForm.vue:8 frontend/src/pages/QuizSubmission.vue:9
 msgid "Not Saved"
-msgstr ""
+msgstr "Ikke lagret"
 
 #. Label of the note (Text Editor) field in DocType 'LMS Lesson Note'
 #: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
@@ -4531,7 +4531,7 @@ msgstr ""
 
 #: frontend/src/components/Modals/Question.vue:56
 msgid "Options"
-msgstr ""
+msgstr "Alternativer"
 
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
@@ -5006,7 +5006,7 @@ msgstr ""
 
 #: frontend/src/pages/Lesson.vue:117
 msgid "Previous"
-msgstr ""
+msgstr "Tidligere"
 
 #. Label of the pricing_tab (Tab Break) field in DocType 'LMS Batch'
 #: frontend/src/pages/BatchForm.vue:265
@@ -5404,7 +5404,7 @@ msgstr ""
 
 #: lms/lms/user.py:36
 msgid "Registered but disabled"
-msgstr ""
+msgstr "Registrert, men deaktivert"
 
 #. Option for the 'Status' (Select) field in DocType 'Cohort Join Request'
 #. Option for the 'Status' (Select) field in DocType 'LMS Mentor Request'
@@ -5497,7 +5497,7 @@ msgstr ""
 #: lms/lms/doctype/cohort_staff/cohort_staff.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 msgid "Role"
-msgstr ""
+msgstr "Rolle"
 
 #. Label of the role (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -5851,7 +5851,7 @@ msgstr ""
 
 #: frontend/src/pages/PersonaForm.vue:51 lms/templates/onboarding_header.html:6
 msgid "Skip"
-msgstr ""
+msgstr "Hopp over"
 
 #: lms/lms/doctype/course_evaluator/course_evaluator.py:57
 msgid "Slot Times are overlapping for some schedules."
@@ -6574,7 +6574,7 @@ msgstr ""
 
 #: lms/lms/user.py:41
 msgid "Too many users signed up recently, so the registration is disabled. Please try back in an hour"
-msgstr ""
+msgstr "Altfor mange brukere har registrert seg nylig, så registreringen er deaktivert. Prøv igjen om en time."
 
 #: frontend/src/pages/Billing.vue:53
 msgid "Total"
@@ -6602,7 +6602,7 @@ msgstr ""
 
 #: frontend/src/components/Quiz.vue:284
 msgid "Try Again"
-msgstr ""
+msgstr "Prøv igjen"
 
 #. Option for the 'Day' (Select) field in DocType 'Evaluator Schedule'
 #. Option for the 'Day' (Select) field in DocType 'LMS Certificate Request'
@@ -7010,7 +7010,7 @@ msgstr ""
 #: lms/templates/emails/lms_course_interest.html:13
 #: lms/templates/emails/lms_invite_request_approved.html:11
 msgid "You can also copy-paste following link in your browser"
-msgstr ""
+msgstr "Du kan også kopiere og lime inn følgende lenke i nettleseren din"
 
 #: frontend/src/components/Quiz.vue:37
 msgid "You can attempt this quiz {0}."
