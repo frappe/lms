@@ -240,7 +240,7 @@ const routes = [
 ]
 
 let router = createRouter({
-	history: createWebHistory('/lms'),
+	history: createWebHistory(import.meta.env.DEV ? '/' : '/lms'),
 	routes,
 })
 
