@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-08-22 16:04+0000\n"
-"PO-Revision-Date: 2025-08-27 04:06\n"
+"PO-Revision-Date: 2025-08-28 04:18\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Danish\n"
 "MIME-Version: 1.0\n"
@@ -1299,7 +1299,7 @@ msgstr ""
 #: lms/job/doctype/lms_job_application/lms_job_application.json
 #: lms/lms/doctype/work_experience/work_experience.json
 msgid "Company"
-msgstr ""
+msgstr "Selskab"
 
 #. Label of the section_break_6 (Section Break) field in DocType 'Job
 #. Opportunity'
@@ -1738,7 +1738,7 @@ msgstr ""
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:32
 #: frontend/src/pages/Quizzes.vue:10
 msgid "Create"
-msgstr ""
+msgstr "Skabe"
 
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.js:7
 msgid "Create Certificate"
@@ -1821,7 +1821,7 @@ msgstr ""
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Currency"
-msgstr ""
+msgstr "Valuta"
 
 #. Label of the current_lesson (Link) field in DocType 'LMS Enrollment'
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
@@ -2864,7 +2864,7 @@ msgstr ""
 
 #: lms/templates/emails/lms_invite_request_approved.html:3
 msgid "Hi,"
-msgstr ""
+msgstr "Hej,"
 
 #. Label of the hide_private (Check) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -5718,7 +5718,7 @@ msgstr ""
 
 #: frontend/src/components/Controls/ColorSwatches.vue:13
 msgid "Set Color"
-msgstr ""
+msgstr "Angiv Farve"
 
 #: lms/templates/emails/community_course_membership.html:1
 msgid "Set your Password"
