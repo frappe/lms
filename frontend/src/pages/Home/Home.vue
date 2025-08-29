@@ -94,31 +94,50 @@ const streakInfo = createResource({
 
 const subtitle = computed(() => {
 	if (isAdmin.value) {
+		let liveClassSuffix =
+			adminLiveClasses.data.length > 1 ? __('live classes') : __('live class')
+		let evalSuffix =
+			adminEvals.data.length > 1 ? __('evaluations') : __('evaluation')
 		if (adminLiveClasses.data?.length > 0 && adminEvals.data?.length > 0) {
-			return __(
-				'You have {0} upcoming live classes and {1} evaluations scheduled.'
-			).format(adminLiveClasses.data.length, adminEvals.data.length)
+			return __('You have {0} upcoming {1} and {2} {3} scheduled.').format(
+				adminLiveClasses.data.length,
+				liveClassSuffix,
+				adminEvals.data.length,
+				evalSuffix
+			)
 		} else if (adminLiveClasses.data?.length > 0) {
-			return __('You have {0} upcoming live classes.').format(
-				adminLiveClasses.data.length
+			return __('You have {0} upcoming {1}.').format(
+				adminLiveClasses.data.length,
+				liveClassSuffix
 			)
 		} else if (adminEvals.data?.length > 0) {
-			return __('You have {0} evaluations scheduled.').format(
-				adminEvals.data.length
+			return __('You have {0} {1} scheduled.').format(
+				adminEvals.data.length,
+				evalSuffix
 			)
 		}
 		return __('Manage your courses and batches at a glance')
 	} else {
+		let liveClassSuffix =
+			myLiveClasses.data.length > 1 ? __('live classes') : __('live class')
+		let evalSuffix = evalCount.value > 1 ? __('evaluations') : __('evaluation')
 		if (myLiveClasses.data?.length > 0 && evalCount.value > 0) {
-			return __(
-				'You have {0} upcoming live classes and {1} evaluations scheduled.'
-			).format(myLiveClasses.data.length, evalCount.value)
+			return __('You have {0} upcoming {1} and {2} {3} scheduled.').format(
+				myLiveClasses.data.length,
+				liveClassSuffix,
+				evalCount.value,
+				evalSuffix
+			)
 		} else if (myLiveClasses.data?.length > 0) {
-			return __('You have {0} upcoming live classes.').format(
-				myLiveClasses.data.length
+			return __('You have {0} upcoming {1}.').format(
+				myLiveClasses.data.length,
+				liveClassSuffix
 			)
 		} else if (evalCount.value > 0) {
-			return __('You have {0} evaluations scheduled.').format(evalCount.value)
+			return __('You have {0} {1} scheduled.').format(
+				evalCount.value,
+				evalSuffix
+			)
 		}
 		return __('Resume where you left off')
 	}
