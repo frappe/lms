@@ -22,7 +22,7 @@
 			</span>
 		</Button>
 	</div>
-	<div v-if="liveClasses.data?.length" class="grid grid-cols-3 gap-5 mt-5">
+	<div v-if="liveClasses.data?.length" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-5">
 		<div
 			v-for="cls in liveClasses.data"
 			class="flex flex-col border rounded-md h-full text-ink-gray-7 hover:border-outline-gray-3 p-3"
