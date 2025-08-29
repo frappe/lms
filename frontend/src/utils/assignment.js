@@ -58,7 +58,9 @@ export class Assignment {
 		}
 		call('frappe.client.get_value', {
 			doctype: 'LMS Assignment',
-			name: assignment,
+			filters: {
+				name: assignment,
+			},
 			fieldname: ['title'],
 		}).then((data) => {
 			this.wrapper.innerHTML = `<div class='border rounded-md p-4 text-center bg-surface-menu-bar mb-4'>

@@ -2,6 +2,7 @@ import hashlib
 import json
 import re
 import string
+from datetime import datetime, timedelta
 
 import frappe
 import razorpay
@@ -39,12 +40,12 @@ def slugify(title, used_slugs=None):
 	If a list of used slugs is specified, it will make sure the generated slug
 	is not one of them.
 
-	    >>> slugify("Hello World!")
-	    'hello-world'
-	    >>> slugify("Hello World!", ["hello-world"])
-	    'hello-world-2'
-	    >>> slugify("Hello World!", ["hello-world", "hello-world-2"])
-	    'hello-world-3'
+		>>> slugify("Hello World!")
+		'hello-world'
+		>>> slugify("Hello World!", ["hello-world"])
+		'hello-world-2'
+		>>> slugify("Hello World!", ["hello-world", "hello-world-2"])
+		'hello-world-3'
 	"""
 	if not used_slugs:
 		used_slugs = []
@@ -844,13 +845,21 @@ def get_evaluator(course, batch=None):
 
 
 @frappe.whitelist()
-def get_upcoming_evals(student, courses, batch=None):
+def get_upcoming_evals(courses=None, batch=None):
+	if frappe.session.user == "Guest":
+		return []
+
+	if not courses:
+		courses = []
+
 	filters = {
-		"member": student,
-		"course": ["in", courses],
+		"member": frappe.session.user,
 		"date": [">=", frappe.utils.nowdate()],
 		"status": "Upcoming",
 	}
+
+	if len(courses) > 0:
+		filters["course"] = ["in", courses]
 
 	if batch:
 		filters["batch_name"] = batch
@@ -1118,6 +1127,7 @@ def get_course_details(course):
 			"lessons",
 			"enrollments",
 			"rating",
+			"card_gradient",
 		],
 		as_dict=1,
 	)
@@ -1126,7 +1136,7 @@ def get_course_details(course):
 	# course_details.is_instructor = is_instructor(course_details.name)
 	if course_details.paid_course or course_details.paid_certificate:
 		"""course_details.course_price, course_details.currency = check_multicurrency(
-		        course_details.course_price, course_details.currency, None, course_details.amount_usd
+				course_details.course_price, course_details.currency, None, course_details.amount_usd
 		)"""
 		course_details.price = fmt_money(course_details.course_price, 0, course_details.currency)
 
@@ -1270,7 +1280,6 @@ def get_lesson(course, chapter, lesson):
 		progress = get_progress(course, lesson_details.name)
 
 	lesson_details.chapter_title = frappe.db.get_value("Course Chapter", chapter_name, "title")
-	lesson_details.rendered_content = render_html(lesson_details)
 	neighbours = get_neighbour_lesson(course, chapter, lesson)
 	lesson_details.next = neighbours["next"]
 	lesson_details.progress = progress
@@ -1919,80 +1928,93 @@ def update_certificate_purchase(course, payment_name):
 
 @frappe.whitelist()
 def get_programs():
-	if has_course_moderator_role() or has_course_instructor_role() or has_course_evaluator_role():
-		programs = frappe.get_all("LMS Program", fields=["name"])
-	else:
-		programs = frappe.get_all(
-			"LMS Program Member", {"member": frappe.session.user}, ["parent as name", "progress"]
+	enrolled_programs = frappe.get_all(
+		"LMS Program Member", {"member": frappe.session.user}, ["parent as name", "progress"]
+	)
+	for program in enrolled_programs:
+		program.update(
+			frappe.db.get_value(
+				"LMS Program", program.name, ["name", "course_count", "member_count"], as_dict=True
+			)
 		)
 
-	for program in programs:
-		program_courses = frappe.get_all(
-			"LMS Program Course", {"parent": program.name}, ["course"], order_by="idx"
-		)
-		program.courses = []
-		previous_progress = 0
-		for i, course in enumerate(program_courses):
-			details = get_course_details(course.course)
-			if i == 0:
-				details.eligible = True
-			elif previous_progress == 100:
-				details.eligible = True
-			else:
-				details.eligible = False
+	published_programs = frappe.get_all(
+		"LMS Program",
+		{
+			"published": 1,
+		},
+		["name", "course_count", "member_count"],
+	)
 
-			previous_progress = details.membership.progress if details.membership else 0
-			program.courses.append(details)
+	programs_to_remove = []
+	for program in published_programs:
+		if program.name in [p.name for p in enrolled_programs]:
+			programs_to_remove.append(program)
+	published_programs = [program for program in published_programs if program not in programs_to_remove]
 
-		program.members = frappe.db.count("LMS Program Member", {"parent": program.name})
-
-	return programs
+	return {
+		"enrolled": enrolled_programs,
+		"published": published_programs,
+	}
 
 
 @frappe.whitelist()
-def enroll_in_program_course(program, course):
-	enrollment = frappe.db.exists("LMS Enrollment", {"member": frappe.session.user, "course": course})
-
-	if enrollment:
-		enrollment = frappe.db.get_value("LMS Enrollment", enrollment, ["name", "current_lesson"], as_dict=1)
-		enrollment.current_lesson = get_lesson_index(enrollment.current_lesson)
-		return enrollment
-
+def get_program_details(program_name):
+	program = frappe.db.get_value(
+		"LMS Program",
+		program_name,
+		[
+			"name",
+			"member_count",
+			"course_count",
+			"published",
+			"allow_self_enrollment",
+			"enforce_course_order",
+		],
+		as_dict=1,
+	)
 	program_courses = frappe.get_all(
-		"LMS Program Course", {"parent": program}, ["course", "idx"], order_by="idx"
+		"LMS Program Course", {"parent": program_name}, ["course"], order_by="idx"
 	)
-	current_course_idx = [
-		program_course.idx for program_course in program_courses if program_course.course == course
-	][0]
 
-	for program_course in program_courses:
-		if program_course.idx < current_course_idx:
-			enrollment = frappe.db.get_value(
-				"LMS Enrollment",
-				{"member": frappe.session.user, "course": program_course.course},
-				["name", "progress"],
-				as_dict=1,
+	program.courses = []
+	previous_progress = 0
+	for i, course in enumerate(program_courses):
+		details = get_course_details(course.course)
+		if i == 0:
+			details.eligible = True
+		elif previous_progress == 100:
+			details.eligible = True
+		else:
+			details.eligible = False
+
+		previous_progress = details.membership.progress if details.membership else 0
+		program.courses.append(details)
+		if frappe.session.user != "Guest":
+			program.progress = frappe.db.get_value(
+				"LMS Program Member",
+				{"parent": program_name, "member": frappe.session.user},
+				"progress",
 			)
-			if enrollment and enrollment.progress != 100:
-				frappe.throw(
-					_("Please complete the previous courses in the program to enroll in this course.")
-				)
-			elif not enrollment:
-				frappe.throw(
-					_("Please complete the previous courses in the program to enroll in this course.")
-				)
-			else:
-				continue
 
-	enrollment = frappe.new_doc("LMS Enrollment")
-	enrollment.update(
-		{
-			"member": frappe.session.user,
-			"course": course,
-		}
-	)
-	enrollment.save()
-	return enrollment
+	return program
+
+
+@frappe.whitelist()
+def enroll_in_program(program):
+	if frappe.session.user == "Guest":
+		frappe.throw(_("Please login to enroll in the program."))
+	if not frappe.db.exists("LMS Program Member", {"parent": program, "member": frappe.session.user}):
+		program_member = frappe.new_doc("LMS Program Member")
+		program_member.update(
+			{
+				"parent": program,
+				"parenttype": "LMS Program",
+				"parentfield": "members",
+				"member": frappe.session.user,
+			}
+		)
+		program_member.save(ignore_permissions=True)
 
 
 @frappe.whitelist(allow_guest=True)
@@ -2120,3 +2142,340 @@ def get_related_courses(course):
 
 def persona_captured():
 	frappe.db.set_single_value("LMS Settings", "persona_captured", 1)
+
+
+@frappe.whitelist()
+def get_my_courses():
+	my_courses = []
+	if frappe.session.user == "Guest":
+		return my_courses
+
+	courses = get_my_latest_courses()
+
+	if not len(courses):
+		courses = get_featured_home_courses()
+
+	if not len(courses):
+		courses = get_popular_courses()
+
+	for course in courses:
+		my_courses.append(get_course_details(course))
+
+	return my_courses
+
+
+def get_my_latest_courses():
+	return frappe.get_all(
+		"LMS Enrollment",
+		{
+			"member": frappe.session.user,
+		},
+		order_by="creation desc",
+		limit=3,
+		pluck="course",
+	)
+
+
+def get_featured_home_courses():
+	return frappe.get_all(
+		"LMS Course",
+		{"published": 1, "featured": 1},
+		order_by="published_on desc",
+		limit=3,
+		pluck="name",
+	)
+
+
+def get_popular_courses():
+	return frappe.get_all(
+		"LMS Course",
+		{
+			"published": 1,
+		},
+		order_by="enrollments desc",
+		limit=3,
+		pluck="name",
+	)
+
+
+@frappe.whitelist()
+def get_my_batches():
+	my_batches = []
+	if frappe.session.user == "Guest":
+		return my_batches
+
+	batches = get_my_latest_batches()
+
+	if not len(batches):
+		batches = get_upcoming_batches()
+
+	for batch in batches:
+		batch_details = get_batch_details(batch)
+		if batch_details:
+			my_batches.append(batch_details)
+
+	return my_batches
+
+
+def get_my_latest_batches():
+	return frappe.get_all(
+		"LMS Batch Enrollment",
+		{
+			"member": frappe.session.user,
+		},
+		order_by="creation desc",
+		limit=4,
+		pluck="batch",
+	)
+
+
+def get_upcoming_batches():
+	return frappe.get_all(
+		"LMS Batch",
+		{
+			"published": 1,
+			"start_date": [">=", getdate()],
+		},
+		order_by="start_date asc",
+		limit=4,
+		pluck="name",
+	)
+
+
+@frappe.whitelist()
+def get_my_live_classes():
+	my_live_classes = []
+	if frappe.session.user == "Guest":
+		return my_live_classes
+
+	batches = frappe.get_all(
+		"LMS Batch Enrollment",
+		{
+			"member": frappe.session.user,
+		},
+		order_by="creation desc",
+		pluck="batch",
+	)
+
+	live_class_details = frappe.get_all(
+		"LMS Live Class",
+		filters={
+			"date": [">=", getdate()],
+			"batch_name": ["in", batches],
+		},
+		fields=[
+			"name",
+			"title",
+			"description",
+			"time",
+			"date",
+			"duration",
+			"attendees",
+			"start_url",
+			"join_url",
+			"owner",
+		],
+		limit=2,
+		order_by="date",
+	)
+
+	if len(live_class_details):
+		for live_class in live_class_details:
+			live_class.course_title = frappe.db.get_value("LMS Course", live_class.course, "title")
+
+			my_live_classes.append(live_class)
+
+	return my_live_classes
+
+
+@frappe.whitelist()
+def get_created_courses():
+	created_courses = []
+	if frappe.session.user == "Guest":
+		return created_courses
+
+	CourseInstructor = frappe.qb.DocType("Course Instructor")
+	Course = frappe.qb.DocType("LMS Course")
+
+	query = (
+		frappe.qb.from_(CourseInstructor)
+		.join(Course)
+		.on(CourseInstructor.parent == Course.name)
+		.select(Course.name)
+		.where(CourseInstructor.instructor == frappe.session.user)
+		.orderby(Course.published_on, order=frappe.qb.desc)
+		.limit(3)
+	)
+
+	results = query.run(as_dict=True)
+	courses = [row["name"] for row in results]
+
+	for course in courses:
+		course_details = get_course_details(course)
+		created_courses.append(course_details)
+
+	return created_courses
+
+
+@frappe.whitelist()
+def get_created_batches():
+	created_batches = []
+	if frappe.session.user == "Guest":
+		return created_batches
+
+	CourseInstructor = frappe.qb.DocType("Course Instructor")
+	Batch = frappe.qb.DocType("LMS Batch")
+
+	query = (
+		frappe.qb.from_(CourseInstructor)
+		.join(Batch)
+		.on(CourseInstructor.parent == Batch.name)
+		.select(Batch.name)
+		.where(CourseInstructor.instructor == frappe.session.user)
+		.where(Batch.start_date >= getdate())
+		.orderby(Batch.start_date, order=frappe.qb.asc)
+		.limit(4)
+	)
+
+	results = query.run(as_dict=True)
+	batches = [row["name"] for row in results]
+
+	for batch in batches:
+		batch_details = get_batch_details(batch)
+		created_batches.append(batch_details)
+
+	return created_batches
+
+
+@frappe.whitelist()
+def get_admin_live_classes():
+	if frappe.session.user == "Guest":
+		return []
+
+	CourseInstructor = frappe.qb.DocType("Course Instructor")
+	LMSLiveClass = frappe.qb.DocType("LMS Live Class")
+
+	query = (
+		frappe.qb.from_(CourseInstructor)
+		.join(LMSLiveClass)
+		.on(CourseInstructor.parent == LMSLiveClass.batch_name)
+		.select(
+			LMSLiveClass.name,
+			LMSLiveClass.title,
+			LMSLiveClass.description,
+			LMSLiveClass.time,
+			LMSLiveClass.date,
+			LMSLiveClass.duration,
+			LMSLiveClass.attendees,
+			LMSLiveClass.start_url,
+			LMSLiveClass.join_url,
+			LMSLiveClass.owner,
+		)
+		.where(CourseInstructor.instructor == frappe.session.user)
+		.where(LMSLiveClass.date >= getdate())
+		.orderby(LMSLiveClass.date, order=frappe.qb.asc)
+		.limit(4)
+	)
+	results = query.run(as_dict=True)
+	return results
+
+
+@frappe.whitelist()
+def get_admin_evals():
+	if frappe.session.user == "Guest":
+		return []
+
+	evals = frappe.get_all(
+		"LMS Certificate Request",
+		{
+			"evaluator": frappe.session.user,
+			"date": [">=", getdate()],
+		},
+		[
+			"name",
+			"date",
+			"start_time",
+			"course",
+			"evaluator",
+			"google_meet_link",
+			"member",
+			"member_name",
+		],
+		limit=4,
+		order_by="date asc",
+	)
+
+	for evaluation in evals:
+		evaluation.course_title = frappe.db.get_value("LMS Course", evaluation.course, "title")
+
+	return evals
+
+
+def fetch_activity_dates(user):
+	doctypes = [
+		"LMS Course Progress",
+		"LMS Quiz Submission",
+		"LMS Assignment Submission",
+		"LMS Programming Exercise Submission",
+	]
+
+	all_dates = []
+	for dt in doctypes:
+		all_dates.extend(frappe.get_all(dt, {"member": user}, pluck="creation"))
+
+	return sorted({d.date() if hasattr(d, "date") else d for d in all_dates})
+
+
+def calculate_streaks(all_dates):
+	streak = 0
+	longest_streak = 0
+	prev_day = None
+
+	for d in all_dates:
+		if d.weekday() in (5, 6):
+			continue
+
+		if prev_day:
+			expected = prev_day + timedelta(days=1)
+			while expected.weekday() in (5, 6):
+				expected += timedelta(days=1)
+
+			streak = streak + 1 if d == expected else 1
+		else:
+			streak = 1
+
+		longest_streak = max(longest_streak, streak)
+		prev_day = d
+
+	return streak, longest_streak
+
+
+def calculate_current_streak(all_dates, streak):
+	if not all_dates:
+		return 0
+
+	last_date = all_dates[-1]
+	today = getdate()
+
+	ref_day = today
+	while ref_day.weekday() in (5, 6):
+		ref_day -= timedelta(days=1)
+
+	if last_date == ref_day or last_date == ref_day - timedelta(days=1):
+		return streak
+	return 0
+
+
+@frappe.whitelist()
+def get_streak_info():
+	if frappe.session.user == "Guest":
+		return {}
+
+	all_dates = fetch_activity_dates(frappe.session.user)
+	streak, longest_streak = calculate_streaks(all_dates)
+	current_streak = calculate_current_streak(all_dates, streak)
+
+	return {
+		"current_streak": current_streak,
+		"longest_streak": longest_streak,
+	}

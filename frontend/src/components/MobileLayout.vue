@@ -56,6 +56,7 @@
 <script setup>
 import { getSidebarLinks } from '@/utils'
 import { useRouter } from 'vue-router'
+import { call } from 'frappe-ui'
 import { watch, ref, onMounted } from 'vue'
 import { sessionStore } from '@/stores/session'
 import { useSettings } from '@/stores/settings'
@@ -71,6 +72,8 @@ const sidebarLinks = ref(getSidebarLinks())
 const otherLinks = ref([])
 const showMenu = ref(false)
 const menu = ref(null)
+const isModerator = ref(false)
+const isInstructor = ref(false)
 
 onMounted(() => {
 	sidebarSettings.reload(
@@ -134,12 +137,15 @@ const addOtherLinks = () => {
 }
 
 watch(userResource, () => {
-	if (
-		userResource.data &&
-		(userResource.data.is_moderator || userResource.data.is_instructor)
-	) {
-		addQuizzes()
-		addAssignments()
+	if (userResource.data) {
+		isModerator.value = userResource.data.is_moderator
+		isInstructor.value = userResource.data.is_instructor
+		addPrograms()
+		if (isModerator.value || isInstructor.value) {
+			addProgrammingExercises()
+			addQuizzes()
+			addAssignments()
+		}
 	}
 })
 
@@ -157,6 +163,28 @@ const addAssignments = () => {
 		icon: 'Pencil',
 		to: 'Assignments',
 	})
+}
+
+const addPrograms = async () => {
+	let canAddProgram = await checkIfCanAddProgram()
+	if (!canAddProgram) return
+	let activeFor = ['Programs', 'ProgramDetail']
+	let index = 1
+
+	sidebarLinks.value.splice(index, 0, {
+		label: 'Programs',
+		icon: 'Route',
+		to: 'Programs',
+		activeFor: activeFor,
+	})
+}
+
+const checkIfCanAddProgram = async () => {
+	if (isModerator.value || isInstructor.value) {
+		return true
+	}
+	const programs = await call('lms.lms.utils.get_programs')
+	return programs.enrolled.length > 0 || programs.published.length > 0
 }
 
 let isActive = (tab) => {

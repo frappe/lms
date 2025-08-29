@@ -209,12 +209,13 @@
 							v-else
 							class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-8"
 						>
-							<LessonContent
+							content
+							<!-- <LessonContent
 								v-if="lesson.data?.body"
 								:content="lesson.data.body"
 								:youtube="lesson.data.youtube"
 								:quizId="lesson.data.quiz_id"
-							/>
+							/> -->
 						</div>
 					</div>
 					<div
@@ -267,6 +268,7 @@
 					:courseName="courseName"
 					:key="chapterNumber"
 					:getProgress="lesson.data.membership ? true : false"
+					:lessonProgress="lessonProgress"
 				/>
 			</div>
 		</div>
