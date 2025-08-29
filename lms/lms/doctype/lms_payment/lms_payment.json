@@ -19,6 +19,9 @@
   "currency",
   "amount",
   "amount_with_gst",
+  "coupon_code",
+  "discount_amount", 
+  "original_amount",
   "column_break_yxpl",
   "order_id",
   "payment_id",
@@ -122,6 +125,27 @@
    "fieldname": "amount_with_gst",
    "fieldtype": "Currency",
    "label": "Amount with GST"
+  },
+  {
+   "fieldname": "coupon_code",
+   "fieldtype": "Link",
+   "label": "Coupon Code",
+   "options": "LMS Coupon"
+  },
+  {
+   "default": "0",
+   "fieldname": "discount_amount",
+   "fieldtype": "Currency",
+   "label": "Discount Amount", 
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "original_amount",
+   "fieldtype": "Currency",
+   "label": "Original Amount",
+   "precision": "2",
+   "read_only": 1
   },
   {
    "fieldname": "payment_for_document_type",
