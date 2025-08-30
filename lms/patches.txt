@@ -78,6 +78,7 @@ lms.patches.v1_0.create_quiz_questions
 lms.patches.v1_0.add_default_marks #16-10-2023
 lms.patches.v1_0.add_certificate_template #26-10-2023
 lms.patches.v1_0.create_batch_source
+lms.patches.add_custom_fields #8 #26-08-2025 
 
 [post_model_sync]
 lms.patches.v1_0.batch_tabs_settings
@@ -102,3 +103,4 @@ lms.patches.v2_0.migrate_batch_student_data #10-02-2025
 lms.patches.v2_0.delete_old_enrollment_doctypes
 lms.patches.v2_0.delete_unused_custom_fields
 lms.patches.v2_0.update_certificate_request_status
+

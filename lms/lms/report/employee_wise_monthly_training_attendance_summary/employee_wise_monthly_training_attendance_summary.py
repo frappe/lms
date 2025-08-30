@@ -1,5 +1,8 @@
 # import frappe
+# import requests
 # from frappe.utils import get_first_day, get_last_day, formatdate
+
+# API_URL = "http://192.168.54.98:8000/api/method/campus_erp.campus_erp.api.employee.fetch_employee_details.get_employee_by_username"
 
 
 # def execute(filters=None):
@@ -93,26 +96,34 @@
 #         as_dict=True,
 #     )
 
-#     # --- Enrich with Employee Details via API ---
+#     # --- Fetch employee details from external API ---
 #     for row in data:
-#         try:
-#             emp = frappe.call(
-#                 "campus_erp.campus_erp.api.employee.fetch_employee_details.get_employee_by_username",
-#                 username=row["employee_id"],
-#             )
-#             if emp and emp.get("message", {}).get("status") == "success":
-#                 emp_data = emp["message"]["data"]
-#                 row["department"] = emp_data.get("department")
-#                 row["designation"] = emp_data.get("designation")
-#         except Exception:
-#             row["department"] = "-"
-#             row["designation"] = "-"
+#         row["department"] = "-"
+#         row["designation"] = "-"
 
+#         try:
+#             res = requests.get(
+#                 API_URL, params={"username": row["employee_id"]}, timeout=5
+#             )
+#             if res.status_code == 200:
+#                 payload = res.json()
+#                 if payload.get("message", {}).get("status") == "success":
+#                     emp = payload["message"]["data"]
+#                     row["employee_name"] = (
+#                         emp.get("employee_name") or row["employee_name"]
+#                     )
+#                     row["department"] = emp.get("department") or "-"
+#                     row["designation"] = emp.get("designation") or "-"
+#         except Exception as e:
+#             frappe.log_error(message=str(e), title="Employee API Fetch Failed")
+
+#         # --- Attendance % ---
 #         total = row.get("total_offered") or 0
 #         attended = row.get("attended") or 0
 #         row["attendance_percent"] = (attended / total * 100) if total else 0
 
 #     return columns, data
+
 
 import frappe
 import requests
@@ -168,55 +179,48 @@ def execute(filters=None):
         },
     ]
 
-    conditions = []
-    values = {}
+    if not filters:
+        filters = {}
 
-    # --- Filters ---
+    values = {}
+    conditions = []
+
+    # Handle filters
     if filters.get("month"):
-        first_day = get_first_day(filters["month"])
-        last_day = get_last_day(filters["month"])
-        conditions.append("a.date BETWEEN %(first_day)s AND %(last_day)s")
-        values["first_day"] = first_day
-        values["last_day"] = last_day
+        values["month_label"] = filters["month"]
+    else:
+        values["month_label"] = formatdate(frappe.utils.nowdate(), "MMMM yyyy")
 
     if filters.get("employee_id"):
-        conditions.append("e.member = %(employee_id)s")
+        conditions.append("be.member = %(employee_id)s")
         values["employee_id"] = filters["employee_id"]
 
     if filters.get("employee_name"):
-        conditions.append("e.member_name LIKE %(employee_name)s")
+        conditions.append("be.member_name LIKE %(employee_name)s")
         values["employee_name"] = f"%{filters['employee_name']}%"
 
     condition_str = " AND ".join(conditions) if conditions else "1=1"
 
-    # --- Query LMS Attendance ---
-    data = frappe.db.sql(
-        f"""
+    # Fetch data: use tabLMS Batch Enrollment and tabLMS Enrollment
+    query = f"""
         SELECT
-            e.member AS employee_id,
-            e.member_name AS employee_name,
-            COUNT(DISTINCT e.batch) AS total_offered,
-            SUM(CASE WHEN a.status = 'Present' THEN 1 ELSE 0 END) AS attended,
-            %(month)s AS month
-        FROM `tabLMS Batch Enrollment` e
-        LEFT JOIN `tabLMS Attendance` a 
-            ON a.batch = e.batch AND a.member = e.member
+            be.member AS employee_id,
+            be.member_name AS employee_name,
+            COUNT(DISTINCT be.batch) AS total_offered,
+            SUM(CASE WHEN le.presence_status = 'Present' THEN 1 ELSE 0 END) AS attended,
+            %(month_label)s AS month
+        FROM `tabLMS Batch Enrollment` be
+        LEFT JOIN `tabLMS Enrollment` le ON le.member = be.member
         WHERE {condition_str}
-        GROUP BY e.member, e.member_name
-    """,
-        {
-            **values,
-            "month": filters.get("month")
-            or formatdate(frappe.utils.nowdate(), "MMMM yyyy"),
-        },
-        as_dict=True,
-    )
+        GROUP BY be.member, be.member_name
+    """
 
-    # --- Fetch employee details from external API ---
+    data = frappe.db.sql(query, values, as_dict=True)
+
+    # Fetch department/designation via external API
     for row in data:
         row["department"] = "-"
         row["designation"] = "-"
-
         try:
             res = requests.get(
                 API_URL, params={"username": row["employee_id"]}, timeout=5
@@ -233,7 +237,7 @@ def execute(filters=None):
         except Exception as e:
             frappe.log_error(message=str(e), title="Employee API Fetch Failed")
 
-        # --- Attendance % ---
+        # Calculate percentage
         total = row.get("total_offered") or 0
         attended = row.get("attended") or 0
         row["attendance_percent"] = (attended / total * 100) if total else 0

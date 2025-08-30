@@ -1,12 +1,45 @@
 import frappe
 
+
 def execute(filters=None):
     columns = [
-        {"label": "Batch Name", "fieldname": "batch_name", "fieldtype": "Data", "width": 200},
-        {"label": "Batch ID", "fieldname": "batch_id", "fieldtype": "Data", "width": 120},
-        {"label": "Member ID", "fieldname": "member_id", "fieldtype": "Data", "width": 120},
-        {"label": "Member Name", "fieldname": "member_name", "fieldtype": "Data", "width": 200},
-        {"label": "Attendance Status", "fieldname": "status", "fieldtype": "Data", "width": 150},
+        {
+            "label": "Batch Name",
+            "fieldname": "batch_name",
+            "fieldtype": "Data",
+            "width": 200,
+        },
+        {
+            "label": "Batch ID",
+            "fieldname": "batch_id",
+            "fieldtype": "Link",
+            "options": "LMS Batch",
+            "width": 150,
+        },
+        {
+            "label": "Member ID",
+            "fieldname": "member_id",
+            "fieldtype": "Data",
+            "width": 150,
+        },
+        {
+            "label": "Member Name",
+            "fieldname": "member_name",
+            "fieldtype": "Data",
+            "width": 200,
+        },
+        {
+            "label": "Attendance Status",
+            "fieldname": "status",
+            "fieldtype": "Data",
+            "width": 150,
+        },
+        {
+            "label": "Batch Summary",
+            "fieldname": "batch_summary",
+            "fieldtype": "Data",
+            "width": 300,
+        },
     ]
 
     conditions = []
@@ -21,12 +54,8 @@ def execute(filters=None):
         conditions.append("b.title LIKE %(batch_name)s")
         values["batch_name"] = f"%{filters['batch_name']}%"
 
-    if filters.get("date"):
-        conditions.append("a.date = %(date)s")
-        values["date"] = filters["date"]
-
     if filters.get("status"):
-        conditions.append("a.status = %(status)s")
+        conditions.append("le.presence_status = %(status)s")
         values["status"] = filters["status"]
 
     if filters.get("member_id"):
@@ -40,35 +69,46 @@ def execute(filters=None):
     condition_str = " AND ".join(conditions) if conditions else "1=1"
 
     # --- Main Query ---
-    data = frappe.db.sql(f"""
+    data = frappe.db.sql(
+        f"""
         SELECT 
             b.title AS batch_name,
             b.name AS batch_id,
             e.member AS member_id,
             e.member_name AS member_name,
-            COALESCE(a.status, 'Not Marked') AS status
+            COALESCE(le.presence_status, 'Not Marked') AS status
         FROM `tabLMS Batch` b
         JOIN `tabLMS Batch Enrollment` e ON e.batch = b.name
-        LEFT JOIN `tabLMS Attendance` a 
-            ON a.batch = b.name AND a.member = e.member
-            {f"AND a.date = %(date)s" if filters.get("date") else ""}
+        LEFT JOIN `tabLMS Enrollment` le ON le.member = e.member
         WHERE {condition_str}
         ORDER BY b.start_date, e.member_name
-    """, values, as_dict=True)
+    """,
+        values,
+        as_dict=True,
+    )
 
-    # --- Summary Section ---
-    total_users = len(data)
-    present_count = sum(1 for d in data if d.status == "Present")
-    absent_count = sum(1 for d in data if d.status == "Absent")
+    # --- Batch-wise summary calculation ---
+    batch_summary_map = {}
 
-    summary = [
-        {"label": "Total Users Enrolled", "value": total_users, "indicator": "Blue"},
-        {"label": "Total Present", "value": present_count, "indicator": "Green"},
-        {"label": "Total Absent", "value": absent_count, "indicator": "Red"},
-    ]
+    # Group rows by batch_id
+    from collections import defaultdict
 
-    # Optional custom note from filters
-    if filters.get("note"):
-        summary.append({"label": "Note", "value": filters["note"], "indicator": "Gray"})
+    grouped = defaultdict(list)
+    for d in data:
+        grouped[d["batch_id"]].append(d)
 
-    return columns, data, None, summary
+    # Calculate summary for each batch
+    for batch_id, rows in grouped.items():
+        total_users = len(rows)
+        present_count = sum(1 for r in rows if r["status"] == "Present")
+        absent_count = sum(1 for r in rows if r["status"] == "Absent")
+
+        batch_summary_map[batch_id] = (
+            f"Total Enrolled: {total_users}, Present: {present_count}, Absent: {absent_count}"
+        )
+
+    # Add batch summary to each row
+    for row in data:
+        row["batch_summary"] = batch_summary_map.get(row["batch_id"], "")
+
+    return columns, data, None, None
