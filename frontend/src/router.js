@@ -6,9 +6,14 @@ import { useSettings } from './stores/settings'
 let defaultRoute = '/courses'
 const routes = [
 	{
+		path: '/welcome',
+		name: 'Welcome',
+		component: () => import('@/pages/Welcome.vue'),
+	},
+	{
 		path: '/',
 		redirect: {
-			name: 'Courses',
+			name: 'Welcome',
 		},
 	},
 	{

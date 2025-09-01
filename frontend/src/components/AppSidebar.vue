@@ -345,7 +345,7 @@ const addProgrammingExercises = () => {
 
 const addPrograms = () => {
 	let activeFor = ['Programs', 'ProgramForm']
-	let index = 1
+	let index = 2
 	let canAddProgram = false
 
 	if (
