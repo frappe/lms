@@ -132,8 +132,6 @@ fixtures = ["Custom Field", "Function", "Industry", "LMS Category"]
 # ------------------------------
 #
 override_whitelisted_methods = {
-    "lms.api.evidhya_sso.login_with_jwt": "lms.api.evidhya_sso.login_with_jwt",
-    'POST /api/method/lms.api.test.fetch_users_from_site_a': 'lms.api.test.fetch_users_from_site_a'
 	# "frappe.desk.search.get_names_for_mentions": "lms.lms.utils.get_names_for_mentions",
 }
 #
@@ -150,7 +148,6 @@ override_whitelisted_methods = {
 
 # Add all simple route rules here
 website_route_rules = [
-    {"from_route": "/sso-login", "to_route": "lms.api.evidhya_sso.login_via_jwt"},
 	{"from_route": "/lms/<path:app_path>", "to_route": "lms"},
 	{
 		"from_route": "/courses/<course_name>/<certificate_id>",
