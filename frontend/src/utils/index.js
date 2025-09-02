@@ -402,7 +402,13 @@ export function getUserTimezone() {
 }
 
 export function getSidebarLinks() {
-	return [
+	return [,
+		{
+			label: 'Dashboard',
+			icon: 'Home',
+			to: 'Welcome',
+			activeFor: ['Dashboard'],
+		},
 		{
 			label: 'Courses',
 			icon: 'BookOpen',
