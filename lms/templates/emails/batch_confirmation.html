@@ -11,9 +11,11 @@
     <b>{{ _("Batch Start Date:") }}</b> {{ frappe.utils.format_date(start_date, "medium") }}
 </p>
 
+{% if medium %}
 <p>
     <b>{{ _("Medium:") }}</b> {{ medium }}
 </p>
+{% endif %}
 
 <p>
     <b>{{ _("Timings:") }}</b> {{ frappe.utils.format_time(start_time, "hh:mm a") }}

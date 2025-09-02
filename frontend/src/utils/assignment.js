@@ -1,10 +1,9 @@
 import { Pencil } from 'lucide-vue-next'
 import { createApp, h } from 'vue'
 import AssessmentPlugin from '@/components/AssessmentPlugin.vue'
-import AssignmentBlock from '@/components/AssignmentBlock.vue'
 import translationPlugin from '../translation'
 import { usersStore } from '@/stores/user'
-import router from '../router'
+import { call } from 'frappe-ui'
 
 export class Assignment {
 	constructor({ data, api, readOnly }) {
@@ -43,22 +42,34 @@ export class Assignment {
 
 	renderAssignment(assignment) {
 		if (this.readOnly) {
-			const app = createApp(AssignmentBlock, {
-				assignmentID: assignment,
-			})
-			app.use(translationPlugin)
-			app.use(router)
 			const { userResource } = usersStore()
-			app.provide('$user', userResource)
-			app.mount(this.wrapper)
+			call('frappe.client.get_value', {
+				doctype: 'LMS Assignment Submission',
+				filters: {
+					assignment: assignment,
+					member: userResource.data?.name,
+				},
+				fieldname: ['name'],
+			}).then((data) => {
+				let submission = data.name || 'new'
+				this.wrapper.innerHTML = `<iframe src="/lms/assignment-submission/${assignment}/${submission}?fromLesson=1" class="w-full h-[500px]"></iframe>`
+			})
 			return
 		}
-		this.wrapper.innerHTML = `<div class='border rounded-md p-10 text-center bg-surface-menu-bar mb-2'>
-            <span class="font-medium">
-                Assignment: ${assignment}
-            </span>
-        </div>`
-		return
+		call('frappe.client.get_value', {
+			doctype: 'LMS Assignment',
+			filters: {
+				name: assignment,
+			},
+			fieldname: ['title'],
+		}).then((data) => {
+			this.wrapper.innerHTML = `<div class='border rounded-md p-4 text-center bg-surface-menu-bar mb-4'>
+				<span class="font-medium">
+					Assignment: ${data.title}
+				</span>
+			</div>`
+			return
+		})
 	}
 
 	renderAssignmentModal() {
@@ -76,7 +87,8 @@ export class Assignment {
 		app.mount(this.wrapper)
 	}
 
-	save(blockContent) {
+	save() {
+		if (Object.keys(this.data).length === 0) return {}
 		return {
 			assignment: this.data.assignment,
 		}

@@ -11,7 +11,7 @@
 				>
 					{{ __('Generate Certificates') }}
 				</Button>
-				<Button v-if="user.data?.is_moderator" @click="openAnnouncementModal()">
+				<Button v-if="canMakeAnnouncement()" @click="openAnnouncementModal()">
 					<span>
 						{{ __('Make an Announcement') }}
 					</span>
@@ -23,7 +23,7 @@
 		</header>
 		<div
 			v-if="batch.data"
-			class="grid grid-cols-[75%,25%] h-[calc(100vh-3.2rem)]"
+			class="grid grid-cols-1 md:grid-cols-[75%,25%] h-[calc(100vh-3.2rem)]"
 		>
 			<div class="border-r">
 				<Tabs
@@ -67,10 +67,13 @@
 								<BatchDashboard :batch="batch" :isStudent="isStudent" />
 							</div>
 							<div v-else-if="tab.label == 'Dashboard'">
-								<BatchStudents :batch="batch.data" />
+								<BatchStudents :batch="batch" />
 							</div>
 							<div v-else-if="tab.label == 'Classes'">
-								<LiveClass :batch="batch.data.name" />
+								<LiveClass
+									:batch="batch.data.name"
+									:zoomAccount="batch.data.zoom_account"
+								/>
 							</div>
 							<div v-else-if="tab.label == 'Assessments'">
 								<Assessments :batch="batch.data.name" />
@@ -88,56 +91,61 @@
 									:scrollToBottom="false"
 								/>
 							</div>
-							<div v-else-if="tab.label == 'Feedback'">
-								<BatchFeedback :batch="batch.data.name" />
-							</div>
 						</div>
 					</template>
 				</Tabs>
 			</div>
-			<div class="p-5">
-				<div class="text-ink-gray-7 font-semibold mb-4">
-					{{ __('About this batch') }}:
-				</div>
-				<div
-					v-html="batch.data.description"
-					class="leading-5 mb-4 text-ink-gray-7"
-				></div>
-
-				<div class="flex items-center avatar-group overlap mb-5">
-					<div
-						class="h-6 mr-1"
-						:class="{
-							'avatar-group overlap': batch.data.instructors.length > 1,
-						}"
-					>
-						<UserAvatar
-							v-for="instructor in batch.data.instructors"
-							:user="instructor"
-						/>
+			<div class="p-5 border-t md:border-t-0">
+				<div class="mb-10">
+					<div class="text-ink-gray-7 font-semibold mb-2">
+						{{ __('About this batch') }}
 					</div>
-					<CourseInstructors :instructors="batch.data.instructors" />
+					<div
+						v-html="batch.data.description"
+						class="leading-5 mb-4 text-ink-gray-7"
+					></div>
+
+					<div class="flex items-center avatar-group overlap mb-5">
+						<div
+							class="h-6 mr-1"
+							:class="{
+								'avatar-group overlap': batch.data.instructors.length > 1,
+							}"
+						>
+							<UserAvatar
+								v-for="instructor in batch.data.instructors"
+								:user="instructor"
+							/>
+						</div>
+						<CourseInstructors :instructors="batch.data.instructors" />
+					</div>
+					<DateRange
+						:startDate="batch.data.start_date"
+						:endDate="batch.data.end_date"
+						class="mb-3"
+					/>
+					<div class="flex items-center mb-3 text-ink-gray-7">
+						<Clock class="h-4 w-4 stroke-1.5 mr-2" />
+						<span>
+							{{ formatTime(batch.data.start_time) }} -
+							{{ formatTime(batch.data.end_time) }}
+						</span>
+					</div>
+					<div
+						v-if="batch.data.timezone"
+						class="flex items-center mb-3 text-ink-gray-7"
+					>
+						<Globe class="h-4 w-4 stroke-1.5 mr-2" />
+						<span>
+							{{ batch.data.timezone }}
+						</span>
+					</div>
 				</div>
-				<DateRange
-					:startDate="batch.data.start_date"
-					:endDate="batch.data.end_date"
-					class="mb-3"
-				/>
-				<div class="flex items-center mb-4 text-ink-gray-7">
-					<Clock class="h-4 w-4 stroke-1.5 mr-2" />
-					<span>
-						{{ formatTime(batch.data.start_time) }} -
-						{{ formatTime(batch.data.end_time) }}
-					</span>
-				</div>
-				<div
-					v-if="batch.data.timezone"
-					class="flex items-center mb-4 text-ink-gray-7"
-				>
-					<Globe class="h-4 w-4 stroke-1.5 mr-2" />
-					<span>
-						{{ batch.data.timezone }}
-					</span>
+				<div v-if="dayjs().isSameOrAfter(dayjs(batch.data.start_date))">
+					<div class="text-ink-gray-7 font-semibold mb-2">
+						{{ __('Feedback') }}
+					</div>
+					<BatchFeedback :batch="batch.data?.name" />
 				</div>
 			</div>
 			<AnnouncementModal
@@ -190,14 +198,23 @@
 			</div>
 		</div>
 	</div>
-	<BulkCertificates v-model="openCertificateDialog" :batch="batch.data" />
+	<BulkCertificates
+		v-if="batch.data"
+		v-model="openCertificateDialog"
+		:batch="batch.data"
+	/>
 </template>
 <script setup>
-import { computed, inject, ref } from 'vue'
-import { useRouteQuery } from '@vueuse/router'
-import { Breadcrumbs, Button, createResource, Tabs, Badge } from 'frappe-ui'
-import CourseInstructors from '@/components/CourseInstructors.vue'
-import UserAvatar from '@/components/UserAvatar.vue'
+import { computed, inject, ref, onMounted, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import {
+	Breadcrumbs,
+	Button,
+	createResource,
+	Tabs,
+	Badge,
+	usePageMeta,
+} from 'frappe-ui'
 import {
 	Clock,
 	LayoutDashboard,
@@ -210,7 +227,10 @@ import {
 	Globe,
 	ClipboardPen,
 } from 'lucide-vue-next'
-import { formatTime, updateDocumentTitle } from '@/utils'
+import { formatTime } from '@/utils'
+import { sessionStore } from '@/stores/session'
+import CourseInstructors from '@/components/CourseInstructors.vue'
+import UserAvatar from '@/components/UserAvatar.vue'
 import BatchDashboard from '@/components/BatchDashboard.vue'
 import BatchCourses from '@/components/BatchCourses.vue'
 import LiveClass from '@/components/LiveClass.vue'
@@ -222,16 +242,69 @@ import Discussions from '@/components/Discussions.vue'
 import DateRange from '@/components/Common/DateRange.vue'
 import BulkCertificates from '@/components/Modals/BulkCertificates.vue'
 import BatchFeedback from '@/components/BatchFeedback.vue'
+import dayjs from 'dayjs/esm'
 
 const user = inject('$user')
 const showAnnouncementModal = ref(false)
 const openCertificateDialog = ref(false)
+const route = useRoute()
+const router = useRouter()
+const { brand } = sessionStore()
+const tabIndex = ref(0)
+const readOnlyMode = window.read_only_mode
+
+const tabs = computed(() => {
+	let batchTabs = []
+	batchTabs.push({
+		label: 'Dashboard',
+		icon: LayoutDashboard,
+	})
+
+	batchTabs.push({
+		label: 'Courses',
+		icon: BookOpen,
+	})
+
+	batchTabs.push({
+		label: 'Classes',
+		icon: Laptop,
+	})
+
+	if (user.data?.is_moderator) {
+		batchTabs.push({
+			label: 'Assessments',
+			icon: BookOpenCheck,
+		})
+	}
+
+	batchTabs.push({
+		label: 'Announcements',
+		icon: Mail,
+	})
+
+	batchTabs.push({
+		label: 'Discussions',
+		icon: MessageCircle,
+	})
+	return batchTabs
+})
 
 const props = defineProps({
 	batchName: {
 		type: String,
 		required: true,
 	},
+})
+
+onMounted(() => {
+	const hash = route.hash
+	if (hash) {
+		tabs.value.forEach((tab, index) => {
+			if (tab.label?.toLowerCase() === hash.replace('#', '')) {
+				tabIndex.value = index
+			}
+		})
+	}
 })
 
 const batch = createResource({
@@ -271,48 +344,6 @@ const isStudent = computed(() => {
 	)
 })
 
-const tabIndex = useRouteQuery('tab', 0)
-const tabs = computed(() => {
-	let batchTabs = []
-	batchTabs.push({
-		label: 'Dashboard',
-		icon: LayoutDashboard,
-	})
-
-	batchTabs.push({
-		label: 'Courses',
-		icon: BookOpen,
-	})
-
-	batchTabs.push({
-		label: 'Classes',
-		icon: Laptop,
-	})
-
-	if (user.data?.is_moderator) {
-		batchTabs.push({
-			label: 'Assessments',
-			icon: BookOpenCheck,
-		})
-	}
-
-	batchTabs.push({
-		label: 'Announcements',
-		icon: Mail,
-	})
-
-	batchTabs.push({
-		label: 'Discussions',
-		icon: MessageCircle,
-	})
-
-	batchTabs.push({
-		label: 'Feedback',
-		icon: ClipboardPen,
-	})
-	return batchTabs
-})
-
 const redirectToLogin = () => {
 	window.location.href = `/login?redirect-to=/lms/batches/${props.batchName}`
 }
@@ -321,12 +352,25 @@ const openAnnouncementModal = () => {
 	showAnnouncementModal.value = true
 }
 
-const pageMeta = computed(() => {
-	return {
-		title: batch.data?.title,
-		description: batch.data?.description,
+watch(tabIndex, () => {
+	const tab = tabs.value[tabIndex.value]
+	if (tab.label != route.hash.replace('#', '')) {
+		router.push({ ...route, hash: `#${tab.label.toLowerCase()}` })
 	}
 })
 
-updateDocumentTitle(pageMeta)
+const canMakeAnnouncement = () => {
+	if (readOnlyMode) return false
+
+	if (!batch.data?.students?.length) return false
+
+	return user.data?.is_moderator || user.data?.is_evaluator
+}
+
+usePageMeta(() => {
+	return {
+		title: batch?.data?.title,
+		icon: brand.favicon,
+	}
+})
 </script>

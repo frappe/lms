@@ -9,11 +9,11 @@
   "enabled",
   "title",
   "description",
+  "reference_doctype",
+  "event",
   "image",
   "column_break_wgum",
   "grant_only_once",
-  "event",
-  "reference_doctype",
   "user_field",
   "field_to_check",
   "condition"
@@ -91,6 +91,7 @@
    "reqd": 1
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [
   {
@@ -98,7 +99,7 @@
    "link_fieldname": "badge"
   }
  ],
- "modified": "2024-05-27 17:25:55.399830",
+ "modified": "2025-07-04 13:02:19.048994",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Badge",
@@ -127,6 +128,7 @@
    "share": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "creation",
  "sort_order": "DESC",
  "states": [],

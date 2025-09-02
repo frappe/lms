@@ -35,5 +35,6 @@ const file = computed(() => {
 	if (props.type == 'youtube') return '/assets/lms/frontend/Youtube.mp4'
 	if (props.type == 'quiz') return '/assets/lms/frontend/Quiz.mp4'
 	if (props.type == 'upload') return '/assets/lms/frontend/Upload.mp4'
+	if (props.type == 'remove') return '/assets/lms/frontend/Remove.mp4'
 })
 </script>

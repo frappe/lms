@@ -40,6 +40,7 @@
 			</Button>
 		</div>
 	</div>
+	<EmptyState v-else />
 </template>
 <script setup>
 import {
@@ -51,10 +52,14 @@ import {
 	ListRows,
 	ListHeader,
 	ListHeaderItem,
+	usePageMeta,
 } from 'frappe-ui'
 import { computed, onMounted, inject } from 'vue'
+import { sessionStore } from '../stores/session'
 import { useRouter } from 'vue-router'
+import EmptyState from '@/components/EmptyState.vue'
 
+const { brand } = sessionStore()
 const router = useRouter()
 const user = inject('$user')
 
@@ -104,5 +109,12 @@ const quizColumns = computed(() => {
 
 const breadcrumbs = computed(() => {
 	return [{ label: __('Quiz Submissions') }]
+})
+
+usePageMeta(() => {
+	return {
+		title: __('Quiz Submissions'),
+		icon: brand.favicon,
+	}
 })
 </script>

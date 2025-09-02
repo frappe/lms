@@ -8,7 +8,7 @@ frappe.ui.form.on("LMS Quiz", {
 
 frappe.ui.form.on("LMS Quiz Question", {
 	marks: function (frm) {
-		total_marks = 0;
+		let total_marks = 0;
 		frm.doc.questions.forEach((question) => {
 			total_marks += question.marks;
 		});

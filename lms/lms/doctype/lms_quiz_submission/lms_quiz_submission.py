@@ -2,10 +2,10 @@
 # For license information, please see license.txt
 
 import frappe
-from frappe.model.document import Document
-from frappe.utils import cint
 from frappe import _
 from frappe.desk.doctype.notification_log.notification_log import make_notification_logs
+from frappe.model.document import Document
+from frappe.utils import cint
 
 
 class LMSQuizSubmission(Document):

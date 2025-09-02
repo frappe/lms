@@ -6,13 +6,12 @@
 			:courses="batch.data.courses"
 		/>
 		<Assessments :batch="batch.data.name" />
-		<StudentHeatmap />
+		<!-- <StudentHeatmap /> -->
 	</div>
 </template>
 <script setup>
 import UpcomingEvaluations from '@/components/UpcomingEvaluations.vue'
 import Assessments from '@/components/Assessments.vue'
-import StudentHeatmap from '@/components/StudentHeatmap.vue'
 
 const props = defineProps({
 	batch: {

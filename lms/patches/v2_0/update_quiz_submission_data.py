@@ -10,9 +10,7 @@ def set_question_data():
 	questions = frappe.get_all("LMS Quiz Question", fields=["name", "question"])
 
 	for question in questions:
-		question_doc = frappe.db.get_value(
-			"LMS Question", question.question, ["question", "type"], as_dict=1
-		)
+		question_doc = frappe.db.get_value("LMS Question", question.question, ["question", "type"], as_dict=1)
 		frappe.db.set_value(
 			"LMS Quiz Question",
 			question.name,

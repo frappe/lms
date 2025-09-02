@@ -34,9 +34,15 @@
 	</Dialog>
 </template>
 <script setup>
-import { Dialog, FormControl, TextEditor, createResource } from 'frappe-ui'
+import {
+	Dialog,
+	FormControl,
+	TextEditor,
+	createResource,
+	toast,
+} from 'frappe-ui'
 import { reactive } from 'vue'
-import { showToast, singularize } from '@/utils'
+import { singularize } from '@/utils'
 
 const topics = defineModel('reloadTopics')
 
@@ -115,7 +121,7 @@ const submitTopic = (close) => {
 				)
 			},
 			onError(err) {
-				showToast('Error', err.message, 'x')
+				toast.error(err.messages?.[0] || err)
 			},
 		}
 	)

@@ -1,6 +1,6 @@
 <template>
-	<div class="">
-		<div class="grid md:grid-cols-[70%,30%] h-full">
+	<div class="h-full">
+		<div class="grid grid-cols-1 md:grid-cols-[70%,30%] h-full">
 			<div>
 				<header
 					class="sticky top-0 z-10 flex flex-col md:flex-row md:items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
@@ -8,12 +8,9 @@
 					<Breadcrumbs class="h-7" :items="breadcrumbs" />
 					<div class="flex items-center mt-3 md:mt-0">
 						<Button v-if="courseResource.data?.name" @click="trashCourse()">
-							<template #prefix>
+							<template #icon>
 								<Trash2 class="w-4 h-4 stroke-1.5" />
 							</template>
-							<span>
-								{{ __('Delete') }}
-							</span>
 						</Button>
 						<Button variant="solid" @click="submitCourse()" class="ml-2">
 							<span>
@@ -22,62 +19,104 @@
 						</Button>
 					</div>
 				</header>
-				<div class="mt-5 mb-10">
-					<div class="container mb-5">
+				<div class="mt-5 mb-5">
+					<div class="px-5 md:px-10 pb-5 mb-5 space-y-5 border-b">
 						<div class="text-lg font-semibold mb-4">
 							{{ __('Details') }}
 						</div>
-						<FormControl
-							v-model="course.title"
-							:label="__('Title')"
-							class="mb-4"
-							:required="true"
-						/>
-						<FormControl
-							v-model="course.short_introduction"
-							:label="__('Short Introduction')"
-							:placeholder="
-								__(
-									'A one line introduction to the course that appears on the course card'
-								)
-							"
-							class="mb-4"
-							:required="true"
-						/>
-						<div class="mb-4">
-							<div class="mb-1.5 text-sm text-ink-gray-5">
-								{{ __('Course Description') }}
-								<span class="text-ink-red-3">*</span>
-							</div>
-							<TextEditor
-								:content="course.description"
-								@change="(val) => (course.description = val)"
-								:editable="true"
-								:fixedMenu="true"
-								editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+							<FormControl
+								v-model="course.title"
+								:label="__('Title')"
+								:required="true"
+							/>
+							<Link
+								doctype="LMS Category"
+								v-model="course.category"
+								:label="__('Category')"
+								:onCreate="(value, close) => openSettings('Categories', close)"
 							/>
 						</div>
-						<div class="mb-4">
-							<div class="text-xs text-ink-gray-5 mb-2">
-								{{ __('Course Image') }}
-								<span class="text-ink-red-3">*</span>
-							</div>
-							<FileUploader
-								v-if="!course.course_image"
-								:fileTypes="['image/*']"
-								:validateFile="validateFile"
-								@success="(file) => saveImage(file)"
-							>
-								<template
-									v-slot="{ file, progress, uploading, openFileSelector }"
-								>
-									<div class="flex items-center">
-										<div class="border rounded-md w-fit py-5 px-20">
-											<Image class="size-5 stroke-1 text-ink-gray-7" />
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+							<MultiSelect
+								v-model="instructors"
+								doctype="User"
+								:label="__('Instructors')"
+								:filters="{ ignore_user_type: 1 }"
+								:onCreate="(close) => openSettings('Members', close)"
+								:required="true"
+							/>
+							<div>
+								<div class="text-xs text-ink-gray-5">
+									{{ __('Tags') }}
+								</div>
+								<FormControl
+									v-model="newTag"
+									:placeholder="__('Add a keyword and then press enter')"
+									:class="['w-full', 'flex-1', 'my-1']"
+									@keyup.enter="updateTags()"
+									id="tags"
+								/>
+								<div>
+									<div class="flex items-center flex-wrap gap-2">
+										<div
+											v-if="course.tags"
+											v-for="tag in course.tags?.split(', ')"
+											class="flex items-center bg-surface-gray-2 text-ink-gray-7 p-2 rounded-md"
+										>
+											{{ tag }}
+											<X
+												class="stroke-1.5 w-3 h-3 ml-2 cursor-pointer"
+												@click="removeTag(tag)"
+											/>
 										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+							<div class="mb-4">
+								<div class="text-xs text-ink-gray-5 mb-2">
+									{{ __('Course Image') }}
+								</div>
+								<FileUploader
+									v-if="!course.course_image"
+									:fileTypes="['image/*']"
+									:validateFile="validateFile"
+									@success="(file) => saveImage(file)"
+								>
+									<template
+										v-slot="{ file, progress, uploading, openFileSelector }"
+									>
+										<div class="flex items-center">
+											<div
+												class="border rounded-md w-fit py-5 px-20 cursor-pointer"
+												@click="openFileSelector"
+											>
+												<Image class="size-5 stroke-1 text-ink-gray-7" />
+											</div>
+											<div class="ml-4">
+												<Button @click="openFileSelector">
+													{{ __('Upload') }}
+												</Button>
+												<div class="mt-1 text-ink-gray-5 text-sm leading-5">
+													{{
+														__('Appears on the course card in the course list')
+													}}
+												</div>
+											</div>
+										</div>
+									</template>
+								</FileUploader>
+								<div v-else class="mb-4">
+									<div class="flex items-center">
+										<img
+											:src="course.course_image.file_url"
+											class="border rounded-md w-40"
+										/>
 										<div class="ml-4">
-											<Button @click="openFileSelector">
-												{{ __('Upload') }}
+											<Button @click="removeImage()">
+												{{ __('Remove') }}
 											</Button>
 											<div class="mt-2 text-ink-gray-5 text-sm">
 												{{
@@ -86,84 +125,26 @@
 											</div>
 										</div>
 									</div>
-								</template>
-							</FileUploader>
-							<div v-else class="mb-4">
-								<div class="flex items-center">
-									<img
-										:src="course.course_image.file_url"
-										class="border rounded-md w-40"
-									/>
-									<div class="ml-4">
-										<Button @click="removeImage()">
-											{{ __('Remove') }}
-										</Button>
-										<div class="mt-2 text-ink-gray-5 text-sm">
-											{{ __('Appears on the course card in the course list') }}
-										</div>
-									</div>
 								</div>
 							</div>
-						</div>
-						<FormControl
-							v-model="course.video_link"
-							:label="__('Preview Video')"
-							:placeholder="
-								__(
-									'Paste the youtube link of a short video introducing the course'
-								)
-							"
-							class="mb-4"
-						/>
-						<div class="mb-4">
-							<div class="mb-1.5 text-xs text-ink-gray-5">
-								{{ __('Tags') }}
-							</div>
-							<div class="flex items-center">
-								<div
-									v-if="course.tags"
-									v-for="tag in course.tags?.split(', ')"
-									class="flex items-center bg-surface-gray-2 text-ink-gray-7 p-2 rounded-md mr-2"
-								>
-									{{ tag }}
-									<X
-										class="stroke-1.5 w-3 h-3 ml-2 cursor-pointer"
-										@click="removeTag(tag)"
-									/>
-								</div>
-								<FormControl
-									v-model="newTag"
-									:placeholder="__('Add a keyword and then press enter')"
-									class="w-72"
-									@keyup.enter="updateTags()"
-									id="tags"
-								/>
-							</div>
-						</div>
-						<div class="w-1/2 mb-4">
-							<Link
-								doctype="LMS Category"
-								v-model="course.category"
-								:label="__('Category')"
-								:onCreate="(value, close) => openSettings(close)"
+
+							<ColorSwatches
+								v-model="course.card_gradient"
+								:label="__('Color')"
+								:description="__('Choose a color for the course card')"
+								class="w-full"
 							/>
 						</div>
-						<MultiSelect
-							v-model="instructors"
-							doctype="User"
-							:label="__('Instructors')"
-							:filters="{ ignore_user_type: 1 }"
-							:required="true"
-						/>
 					</div>
-					<div class="container border-t">
-						<div class="text-lg font-semibold mt-5 mb-4">
+
+					<div class="px-5 md:px-10 pb-5 mb-5 space-y-5 border-b">
+						<div class="text-lg font-semibold">
 							{{ __('Settings') }}
 						</div>
-						<div class="grid grid-cols-2 gap-10 mb-4">
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 							<div
 								v-if="user.data?.is_moderator"
-								class="flex flex-col space-y-4"
+								class="flex flex-col space-y-5"
 							>
 								<FormControl
 									type="checkbox"
@@ -174,10 +155,9 @@
 									v-model="course.published_on"
 									:label="__('Published On')"
 									type="date"
-									class="mb-5"
 								/>
 							</div>
-							<div class="flex flex-col space-y-3">
+							<div class="flex flex-col space-y-5">
 								<FormControl
 									type="checkbox"
 									v-model="course.upcoming"
@@ -196,11 +176,68 @@
 							</div>
 						</div>
 					</div>
-					<div class="container border-t space-y-4">
+
+					<div class="px-5 md:px-10 pb-5 mb-5 space-y-5 border-b">
+						<div class="text-lg font-semibold">
+							{{ __('About the Course') }}
+						</div>
+						<FormControl
+							v-model="course.short_introduction"
+							type="textarea"
+							:rows="5"
+							:label="__('Short Introduction')"
+							:placeholder="
+								__(
+									'A one line introduction to the course that appears on the course card'
+								)
+							"
+							:required="true"
+						/>
+						<div class="">
+							<div class="mb-1.5 text-sm text-ink-gray-5">
+								{{ __('Course Description') }}
+								<span class="text-ink-red-3">*</span>
+							</div>
+							<TextEditor
+								:content="course.description"
+								@change="(val) => (course.description = val)"
+								:editable="true"
+								:fixedMenu="true"
+								editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
+							/>
+						</div>
+
+						<FormControl
+							v-model="course.video_link"
+							:label="__('Preview Video')"
+							:placeholder="
+								__(
+									'Paste the youtube link of a short video introducing the course'
+								)
+							"
+						/>
+
+						<MultiSelect
+							v-model="related_courses"
+							doctype="LMS Course"
+							:label="__('Related Courses')"
+							:filters="{ name: ['!=', courseResource.data?.name] }"
+							:onCreate="
+								(close) => {
+									router.push({
+										name: 'CourseForm',
+										params: { courseName: 'new' },
+									})
+								}
+							"
+						/>
+					</div>
+
+					<div class="px-5 md:px-10 pb-5 space-y-5 border-b">
 						<div class="text-lg font-semibold mt-5">
 							{{ __('Pricing and Certification') }}
 						</div>
-						<div class="grid grid-cols-3">
+						<div class="grid grid-cols-1 md:grid-cols-3 gap-5">
 							<FormControl
 								type="checkbox"
 								v-model="course.paid_course"
@@ -217,27 +254,60 @@
 								:label="__('Paid Certificate')"
 							/>
 						</div>
-						<FormControl v-model="course.course_price" :label="__('Amount')" />
-						<Link
-							doctype="Currency"
-							v-model="course.currency"
-							:filters="{ enabled: 1 }"
-							:label="__('Currency')"
-						/>
-						<Link
-							v-if="course.paid_certificate"
-							doctype="Course Evaluator"
-							v-model="course.evaluator"
-							:label="__('Evaluator')"
-						/>
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+							<div class="space-y-5">
+								<FormControl
+									v-if="course.paid_course || course.paid_certificate"
+									v-model="course.course_price"
+									:label="__('Amount')"
+								/>
+								<Link
+									v-if="course.paid_certificate"
+									doctype="Course Evaluator"
+									v-model="course.evaluator"
+									:label="__('Evaluator')"
+									:onCreate="
+										(value, close) => openSettings('Evaluators', close)
+									"
+								/>
+							</div>
+							<Link
+								v-if="course.paid_course || course.paid_certificate"
+								doctype="Currency"
+								v-model="course.currency"
+								:filters="{ enabled: 1 }"
+								:label="__('Currency')"
+							/>
+						</div>
+					</div>
+
+					<div class="px-5 md:px-10 pb-5 space-y-5">
+						<div class="text-lg font-semibold mt-5">
+							{{ __('Meta Tags') }}
+						</div>
+						<div class="space-y-5">
+							<FormControl
+								v-model="meta.description"
+								:label="__('Meta Description')"
+								type="textarea"
+								:rows="7"
+							/>
+							<FormControl
+								v-model="meta.keywords"
+								:label="__('Meta Keywords')"
+								type="textarea"
+								:rows="7"
+								:placeholder="__('Comma separated keywords for SEO')"
+							/>
+						</div>
 					</div>
 				</div>
 			</div>
-			<div class="border-l pt-5">
+			<div class="border-l">
 				<CourseOutline
 					v-if="courseResource.data"
 					:courseName="courseResource.data.name"
-					:title="course.title"
+					:title="__('Course Outline')"
 					:allowEdit="true"
 				/>
 			</div>
@@ -247,11 +317,14 @@
 <script setup>
 import {
 	Breadcrumbs,
+	call,
 	TextEditor,
 	Button,
 	createResource,
 	FormControl,
 	FileUploader,
+	usePageMeta,
+	toast,
 } from 'frappe-ui'
 import {
 	inject,
@@ -263,21 +336,30 @@ import {
 	watch,
 	getCurrentInstance,
 } from 'vue'
-import { showToast, updateDocumentTitle } from '@/utils'
-import Link from '@/components/Controls/Link.vue'
 import { Image, Trash2, X } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
+import { capture, startRecording, stopRecording } from '@/telemetry'
+import { useOnboarding } from 'frappe-ui/frappe'
+import { sessionStore } from '../stores/session'
+import {
+	openSettings,
+	getMetaInfo,
+	updateMetaInfo,
+	validateFile,
+} from '@/utils'
+import Link from '@/components/Controls/Link.vue'
 import CourseOutline from '@/components/CourseOutline.vue'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
-import { capture } from '@/telemetry'
-import { useSettings } from '@/stores/settings'
+import ColorSwatches from '@/components/Controls/ColorSwatches.vue'
 
 const user = inject('$user')
 const newTag = ref('')
+const { brand } = sessionStore()
 const router = useRouter()
 const instructors = ref([])
-const settingsStore = useSettings()
+const related_courses = ref([])
 const app = getCurrentInstance()
+const { updateOnboardingStep } = useOnboarding('learning')
 const { $dialog } = app.appContext.config.globalProperties
 
 const props = defineProps({
@@ -292,6 +374,7 @@ const course = reactive({
 	description: '',
 	video_link: '',
 	course_image: null,
+	card_gradient: '',
 	tags: '',
 	category: '',
 	published: false,
@@ -307,22 +390,29 @@ const course = reactive({
 	evaluator: '',
 })
 
+const meta = reactive({
+	description: '',
+	keywords: '',
+})
+
 onMounted(() => {
-	if (
-		props.courseName == 'new' &&
-		!user.data?.is_moderator &&
-		!user.data?.is_instructor
-	) {
+	if (!user.data?.is_moderator && !user.data?.is_instructor) {
 		router.push({ name: 'Courses' })
 	}
 
 	if (props.courseName !== 'new') {
-		courseResource.reload()
+		fetchCourseInfo()
 	} else {
 		capture('course_form_opened')
+		startRecording()
 	}
 	window.addEventListener('keydown', keyboardShortcut)
 })
+
+const fetchCourseInfo = () => {
+	courseResource.reload()
+	getMetaInfo('courses', props.courseName, meta)
+}
 
 const keyboardShortcut = (e) => {
 	if (
@@ -337,6 +427,7 @@ const keyboardShortcut = (e) => {
 
 onBeforeUnmount(() => {
 	window.removeEventListener('keydown', keyboardShortcut)
+	stopRecording()
 })
 
 const courseCreationResource = createResource({
@@ -348,6 +439,9 @@ const courseCreationResource = createResource({
 				image: course.course_image?.file_url || '',
 				instructors: instructors.value.map((instructor) => ({
 					instructor: instructor,
+				})),
+				related_courses: related_courses.value.map((course) => ({
+					course: course,
 				})),
 				...values,
 			},
@@ -366,6 +460,9 @@ const courseEditResource = createResource({
 				image: course.course_image?.file_url || '',
 				instructors: instructors.value.map((instructor) => ({
 					instructor: instructor,
+				})),
+				related_courses: related_courses.value.map((course) => ({
+					course: course,
 				})),
 				...course,
 			},
@@ -389,6 +486,11 @@ const courseResource = createResource({
 				data.instructors.forEach((instructor) => {
 					instructors.value.push(instructor.instructor)
 				})
+			} else if (key == 'related_courses') {
+				related_courses.value = []
+				data.related_courses.forEach((course) => {
+					related_courses.value.push(course.course)
+				})
 			} else if (Object.hasOwn(course, key)) course[key] = data[key]
 		})
 		let checkboxes = [
@@ -398,7 +500,7 @@ const courseResource = createResource({
 			'paid_course',
 			'featured',
 			'enable_certification',
-			'paid_certifiate',
+			'paid_certificate',
 		]
 		for (let idx in checkboxes) {
 			let key = checkboxes[idx]
@@ -425,37 +527,50 @@ const imageResource = createResource({
 
 const submitCourse = () => {
 	if (courseResource.data) {
-		courseEditResource.submit(
-			{
-				course: courseResource.data.name,
-			},
-			{
-				onSuccess() {
-					showToast('Success', 'Course updated successfully', 'check')
-				},
-				onError(err) {
-					showToast('Error', err.messages?.[0] || err, 'x')
-				},
-			}
-		)
+		editCourse()
 	} else {
-		courseCreationResource.submit(course, {
-			onSuccess(data) {
-				capture('course_created')
-				showToast('Success', 'Course created successfully', 'check')
-				/* if (!settingsStore.onboardingDetails.data?.is_onboarded) {
-					settingsStore.onboardingDetails.reload()
-				} */
-				router.push({
-					name: 'CourseForm',
-					params: { courseName: data.name },
+		createCourse()
+	}
+}
+
+const createCourse = () => {
+	courseCreationResource.submit(course, {
+		onSuccess(data) {
+			updateMetaInfo('courses', data.name, meta)
+			if (user.data?.is_system_manager) {
+				updateOnboardingStep('create_first_course', true, false, () => {
+					localStorage.setItem('firstCourse', data.name)
 				})
+			}
+
+			capture('course_created')
+			toast.success(__('Course created successfully'))
+			router.push({
+				name: 'CourseForm',
+				params: { courseName: data.name },
+			})
+		},
+		onError(err) {
+			toast.error(err.messages?.[0] || err)
+		},
+	})
+}
+
+const editCourse = () => {
+	courseEditResource.submit(
+		{
+			course: courseResource.data.name,
+		},
+		{
+			onSuccess() {
+				updateMetaInfo('courses', props.courseName, meta)
+				toast.success(__('Course updated successfully'))
 			},
 			onError(err) {
-				showToast('Error', err.messages?.[0] || err, 'x')
+				toast.error(err.messages?.[0] || err)
 			},
-		})
-	}
+		}
+	)
 }
 
 const deleteCourse = createResource({
@@ -466,7 +581,7 @@ const deleteCourse = createResource({
 		}
 	},
 	onSuccess() {
-		showToast(__('Success'), __('Course deleted successfully'), 'check')
+		toast.success(__('Course deleted successfully'))
 		router.push({ name: 'Courses' })
 	},
 })
@@ -495,17 +610,10 @@ watch(
 	() => props.courseName !== 'new',
 	(newVal) => {
 		if (newVal) {
-			courseResource.reload()
+			fetchCourseInfo()
 		}
 	}
 )
-
-const validateFile = (file) => {
-	let extension = file.name.split('.').pop().toLowerCase()
-	if (!['jpg', 'jpeg', 'png', 'webp'].includes(extension)) {
-		return __('Only image file is allowed.')
-	}
-}
 
 const updateTags = () => {
 	if (newTag.value) {
@@ -528,12 +636,6 @@ const saveImage = (file) => {
 
 const removeImage = () => {
 	course.course_image = null
-}
-
-const openSettings = (close) => {
-	close()
-	settingsStore.activeTab = 'Categories'
-	settingsStore.isSettingsOpen = true
 }
 
 const check_permission = () => {
@@ -571,12 +673,10 @@ const breadcrumbs = computed(() => {
 	return crumbs
 })
 
-const pageMeta = computed(() => {
+usePageMeta(() => {
 	return {
-		title: 'Create a Course',
-		description: 'Create or edit a course for your learning system.',
+		title: courseResource.data?.title || __('New Course'),
+		icon: brand.favicon,
 	}
 })
-
-updateDocumentTitle(pageMeta)
 </script>

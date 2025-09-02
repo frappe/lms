@@ -16,13 +16,14 @@
  "field_order": [
   "title",
   "video_link",
+  "tags",
   "column_break_3",
   "instructors",
-  "tags",
-  "column_break_htgn",
-  "image",
   "category",
   "status",
+  "column_break_htgn",
+  "image",
+  "card_gradient",
   "section_break_7",
   "published",
   "published_on",
@@ -98,8 +99,7 @@
   {
    "fieldname": "image",
    "fieldtype": "Attach Image",
-   "label": "Preview Image",
-   "reqd": 1
+   "label": "Preview Image"
   },
   {
    "fieldname": "tags",
@@ -242,14 +242,14 @@
   {
    "default": "0",
    "fieldname": "enrollments",
-   "fieldtype": "Data",
+   "fieldtype": "Int",
    "label": "Enrollments",
    "read_only": 1
   },
   {
    "default": "0",
    "fieldname": "lessons",
-   "fieldtype": "Data",
+   "fieldtype": "Int",
    "label": "Lessons",
    "read_only": 1
   },
@@ -272,34 +272,32 @@
    "fieldtype": "Link",
    "label": "Evaluator",
    "options": "Course Evaluator"
+  },
+  {
+   "fieldname": "card_gradient",
+   "fieldtype": "Select",
+   "label": "Color",
+   "options": "Red\nBlue\nGreen\nAmber\nCyan\nOrange\nPink\nPurple\nTeal\nViolet\nYellow\nGray"
   }
  ],
  "is_published_field": "published",
  "links": [
   {
-   "group": "Chapters",
+   "link_doctype": "LMS Enrollment",
+   "link_fieldname": "course"
+  },
+  {
    "link_doctype": "Course Chapter",
    "link_fieldname": "course"
   },
   {
-   "group": "Batches",
-   "link_doctype": "LMS Batch Old",
-   "link_fieldname": "course"
-  },
-  {
-   "group": "Mentors",
-   "link_doctype": "LMS Course Mentor Mapping",
-   "link_fieldname": "course"
-  },
-  {
-   "group": "Interests",
-   "link_doctype": "LMS Course Interest",
+   "link_doctype": "Course Lesson",
    "link_fieldname": "course"
   }
  ],
  "make_attachments_public": 1,
- "modified": "2025-02-24 11:50:58.325804",
- "modified_by": "Administrator",
+ "modified": "2025-07-25 17:50:44.983391",
+ "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Course",
  "owner": "Administrator",
@@ -327,8 +325,21 @@
    "role": "Course Creator",
    "share": 1,
    "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Moderator",
+   "share": 1,
+   "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "show_title_field_in_link": 1,
  "sort_field": "creation",
  "sort_order": "DESC",

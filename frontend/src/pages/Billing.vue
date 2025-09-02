@@ -80,7 +80,7 @@
 							/>
 							<FormControl :label="__('City')" v-model="billingDetails.city" />
 							<FormControl
-								:label="__('State')"
+								:label="__('State/Province')"
 								v-model="billingDetails.state"
 							/>
 						</div>
@@ -151,19 +151,20 @@
 </template>
 <script setup>
 import {
-	Input,
 	Button,
 	createResource,
 	FormControl,
 	Breadcrumbs,
-	Tooltip,
+	usePageMeta,
+	toast,
 } from 'frappe-ui'
 import { reactive, inject, onMounted, computed } from 'vue'
+import { sessionStore } from '../stores/session'
 import Link from '@/components/Controls/Link.vue'
 import NotPermitted from '@/components/NotPermitted.vue'
-import { showToast } from '@/utils/'
 
 const user = inject('$user')
+const { brand } = sessionStore()
 
 onMounted(() => {
 	const script = document.createElement('script')
@@ -245,12 +246,10 @@ const paymentLink = createResource({
 })
 
 const generatePaymentLink = () => {
-	console.log('called')
 	paymentLink.submit(
 		{},
 		{
 			validate() {
-				console.log('validation start')
 				if (!billingDetails.source) {
 					return __('Please let us know where you heard about us from.')
 				}
@@ -260,7 +259,7 @@ const generatePaymentLink = () => {
 				window.location.href = data
 			},
 			onError(err) {
-				showToast(__('Error'), err.messages?.[0] || err, 'x')
+				toast.error(err.messages?.[0] || err)
 			},
 		}
 	)
@@ -304,6 +303,7 @@ const validateAddress = () => {
 		'Gujarat',
 		'Haryana',
 		'Himachal Pradesh',
+		'Jammu and Kashmir',
 		'Jharkhand',
 		'Karnataka',
 		'Kerala',
@@ -334,14 +334,7 @@ const validateAddress = () => {
 }
 
 const showError = (err) => {
-	createToast({
-		title: 'Error',
-		text: err.messages?.[0] || err,
-		icon: 'x',
-		iconClasses: 'bg-surface-red-5 text-ink-white rounded-md p-px',
-		position: 'top-center',
-		timeout: 10,
-	})
+	toast.error(err.messages?.[0] || err)
 }
 
 const changeCurrency = (country) => {
@@ -356,6 +349,13 @@ const redirectTo = computed(() => {
 		return `/lms/batches/${props.name}`
 	} else if (props.type == 'certificate') {
 		return `/lms/courses/${props.name}/certification`
+	}
+})
+
+usePageMeta(() => {
+	return {
+		title: __('Billing Details'),
+		icon: brand.favicon,
 	}
 })
 </script>

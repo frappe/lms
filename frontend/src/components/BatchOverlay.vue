@@ -2,7 +2,12 @@
 	<div v-if="batch.data" class="border-2 rounded-md p-5 lg:w-72">
 		<div
 			v-if="batch.data.seat_count && seats_left > 0"
-			class="text-xs bg-green-100 text-green-700 float-right px-2 py-0.5 rounded-md"
+			class="text-sm bg-green-100 text-green-700 px-2 py-1 rounded-md"
+			:class="
+				batch.data.amount || batch.data.courses.length
+					? 'float-right'
+					: 'w-fit mb-4'
+			"
 		>
 			{{ seats_left }}
 			<span v-if="seats_left > 1">
@@ -24,7 +29,10 @@
 		>
 			{{ formatNumberIntoCurrency(batch.data.amount, batch.data.currency) }}
 		</div>
-		<div class="flex items-center mb-3 text-ink-gray-7">
+		<div
+			v-if="batch.data.courses.length"
+			class="flex items-center mb-3 text-ink-gray-7"
+		>
 			<BookOpen class="h-4 w-4 stroke-1.5 mr-2" />
 			<span> {{ batch.data.courses.length }} {{ __('Courses') }} </span>
 		</div>
@@ -46,81 +54,105 @@
 				{{ batch.data.timezone }}
 			</span>
 		</div>
-		<router-link
-			v-if="isModerator || isStudent"
-			:to="{
-				name: 'Batch',
-				params: {
-					batchName: batch.data.name,
-				},
-			}"
-		>
-			<Button variant="solid" class="w-full mt-4">
-				<span>
-					{{ isModerator ? __('Manage Batch') : __('Visit Batch') }}
-				</span>
+		<div v-if="!readOnlyMode">
+			<router-link
+				v-if="canAccessBatch"
+				:to="{
+					name: 'Batch',
+					params: {
+						batchName: batch.data.name,
+					},
+				}"
+			>
+				<Button variant="solid" class="w-full mt-4">
+					<template #prefix>
+						<LogIn v-if="isStudent" class="size-4 stroke-1.5" />
+						<Settings v-else class="size-4 stroke-1.5" />
+					</template>
+					<span>
+						{{ isStudent ? __('Visit Batch') : __('Manage Batch') }}
+					</span>
+				</Button>
+			</router-link>
+			<router-link
+				:to="{
+					name: 'Billing',
+					params: {
+						type: 'batch',
+						name: batch.data.name,
+					},
+				}"
+				v-else-if="
+					batch.data.paid_batch &&
+					batch.data.seats_left > 0 &&
+					batch.data.accept_enrollments
+				"
+			>
+				<Button v-if="!isStudent" class="w-full mt-4" variant="solid">
+					<template #prefix>
+						<CreditCard class="size-4 stroke-1.5" />
+					</template>
+					<span>
+						{{ __('Register Now') }}
+					</span>
+				</Button>
+			</router-link>
+			<Button
+				variant="solid"
+				class="w-full mt-2"
+				v-else-if="
+					batch.data.allow_self_enrollment &&
+					batch.data.seats_left &&
+					batch.data.accept_enrollments
+				"
+				@click="enrollInBatch()"
+			>
+				<template #prefix>
+					<GraduationCap class="size-4 stroke-1.5" />
+				</template>
+				{{ __('Enroll Now') }}
 			</Button>
-		</router-link>
-		<router-link
-			:to="{
-				name: 'Billing',
-				params: {
-					type: 'batch',
-					name: batch.data.name,
-				},
-			}"
-			v-else-if="
-				batch.data.paid_batch &&
-				batch.data.seats_left > 0 &&
-				batch.data.accept_enrollments
-			"
-		>
-			<Button v-if="!isStudent" class="w-full mt-4" variant="solid">
-				<span>
-					{{ __('Register Now') }}
-				</span>
-			</Button>
-		</router-link>
-		<Button
-			variant="solid"
-			class="w-full mt-2"
-			v-else-if="
-				batch.data.allow_self_enrollment &&
-				batch.data.seats_left &&
-				batch.data.accept_enrollments
-			"
-			@click="enrollInBatch()"
-		>
-			{{ __('Enroll Now') }}
-		</Button>
-		<router-link
-			v-if="isModerator"
-			:to="{
-				name: 'BatchForm',
-				params: {
-					batchName: batch.data.name,
-				},
-			}"
-		>
-			<Button class="w-full mt-2">
-				<span>
-					{{ __('Edit') }}
-				</span>
-			</Button>
-		</router-link>
+			<router-link
+				v-if="isModerator"
+				:to="{
+					name: 'BatchForm',
+					params: {
+						batchName: batch.data.name,
+					},
+				}"
+			>
+				<Button class="w-full mt-2">
+					<template #prefix>
+						<Pencil class="size-4 stroke-1.5" />
+					</template>
+					<span>
+						{{ __('Edit') }}
+					</span>
+				</Button>
+			</router-link>
+		</div>
 	</div>
 </template>
 <script setup>
 import { inject, computed } from 'vue'
-import { Badge, Button, createResource } from 'frappe-ui'
-import { BookOpen, Clock, Globe } from 'lucide-vue-next'
-import { formatNumberIntoCurrency, formatTime, showToast } from '@/utils'
+import { Button, createResource, toast } from 'frappe-ui'
+import {
+	BookOpen,
+	Clock,
+	CreditCard,
+	Globe,
+	GraduationCap,
+	LogIn,
+	Pencil,
+	Settings,
+} from 'lucide-vue-next'
+import { formatNumberIntoCurrency, formatTime } from '@/utils'
 import DateRange from '@/components/Common/DateRange.vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const user = inject('$user')
-const dayjs = inject('$dayjs')
+const readOnlyMode = window.read_only_mode
 
 const props = defineProps({
 	batch: {
@@ -146,11 +178,7 @@ const enrollInBatch = () => {
 		{},
 		{
 			onSuccess(data) {
-				showToast(
-					__('Success'),
-					__('You have been enrolled in this batch'),
-					'check'
-				)
+				toast.success(__('You have been enrolled in this batch'))
 				router.push({
 					name: 'Batch',
 					params: {
@@ -175,5 +203,13 @@ const isStudent = computed(() => {
 
 const isModerator = computed(() => {
 	return user.data?.is_moderator
+})
+
+const isEvaluator = computed(() => {
+	return user.data?.is_evaluator
+})
+
+const canAccessBatch = computed(() => {
+	return isModerator.value || isStudent.value || isEvaluator.value
 })
 </script>

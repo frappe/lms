@@ -1,18 +1,26 @@
 # Copyright (c) 2022, Frappe and contributors
 # For license information, please see license.txt
 
+from datetime import datetime
+
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from lms.lms.utils import get_evaluator
-from datetime import datetime
 from frappe.utils import get_time, getdate
+
+from lms.lms.utils import get_evaluator
 
 
 class CourseEvaluator(Document):
 	def validate(self):
+		self.validate_evaluator_role()
 		self.validate_time_slots()
 		self.validate_unavailability()
+
+	def validate_evaluator_role(self):
+		roles = frappe.get_roles(self.evaluator)
+		if "Batch Evaluator" not in roles:
+			frappe.get_doc("User", self.evaluator).add_roles("Batch Evaluator")
 
 	def validate_unavailability(self):
 		if (
@@ -36,17 +44,9 @@ class CourseEvaluator(Document):
 		overlap = False
 
 		for slot in same_day_slots:
-			if (
-				get_time(schedule.start_time)
-				<= get_time(slot.start_time)
-				< get_time(schedule.end_time)
-			):
+			if get_time(schedule.start_time) <= get_time(slot.start_time) < get_time(schedule.end_time):
 				overlap = True
-			if (
-				get_time(schedule.start_time)
-				< get_time(slot.end_time)
-				<= get_time(schedule.end_time)
-			):
+			if get_time(schedule.start_time) < get_time(slot.end_time) <= get_time(schedule.end_time):
 				overlap = True
 			if get_time(slot.start_time) < get_time(schedule.start_time) and get_time(
 				schedule.end_time
@@ -79,9 +79,7 @@ def get_schedule(course, date, batch=None):
 	)
 
 	for slot in booked_slots:
-		same_slot = list(
-			filter(lambda x: x.start_time == slot.start_time and x.day == slot.day, all_slots)
-		)
+		same_slot = [x for x in all_slots if x.start_time == slot.start_time and x.day == slot.day]
 		if len(same_slot):
 			all_slots.remove(same_slot[0])
 

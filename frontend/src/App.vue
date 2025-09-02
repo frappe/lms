@@ -1,38 +1,58 @@
 <template>
-	<Layout>
-		<router-view />
-	</Layout>
-	<Dialogs />
-	<Toasts />
+	<FrappeUIProvider>
+		<Layout>
+			<div class="text-base">
+				<router-view />
+			</div>
+		</Layout>
+		<InstallPrompt v-if="isMobile" />
+		<Dialogs />
+	</FrappeUIProvider>
 </template>
 <script setup>
-import { Toasts } from 'frappe-ui'
+import { FrappeUIProvider } from 'frappe-ui'
 import { Dialogs } from '@/utils/dialogs'
-import { computed, onMounted, onUnmounted } from 'vue'
+import { computed, onUnmounted, ref, watch } from 'vue'
 import { useScreenSize } from './utils/composables'
+import { usersStore } from '@/stores/user'
+import { useRouter } from 'vue-router'
+import { posthogSettings } from '@/telemetry'
 import DesktopLayout from './components/DesktopLayout.vue'
 import MobileLayout from './components/MobileLayout.vue'
-import { stopSession } from '@/telemetry'
-import { init as initTelemetry } from '@/telemetry'
-import { usersStore } from '@/stores/user'
+import NoSidebarLayout from './components/NoSidebarLayout.vue'
+import InstallPrompt from './components/InstallPrompt.vue'
 
-const screenSize = useScreenSize()
-let { userResource } = usersStore()
+const { isMobile } = useScreenSize()
+const router = useRouter()
+const noSidebar = ref(false)
+const { userResource } = usersStore()
 
-const Layout = computed(() => {
-	if (screenSize.width < 640) {
-		return MobileLayout
+router.beforeEach((to, from, next) => {
+	if (to.query.fromLesson || to.path === '/persona') {
+		noSidebar.value = true
 	} else {
-		return DesktopLayout
+		noSidebar.value = false
 	}
+	next()
 })
 
-onMounted(async () => {
-	if (!userResource.data) return
-	await initTelemetry()
+const Layout = computed(() => {
+	if (noSidebar.value) {
+		return NoSidebarLayout
+	}
+	if (isMobile.value) {
+		return MobileLayout
+	}
+	return DesktopLayout
 })
 
 onUnmounted(() => {
-	stopSession()
+	noSidebar.value = false
+})
+
+watch(userResource, () => {
+	if (userResource.data) {
+		posthogSettings.reload()
+	}
 })
 </script>

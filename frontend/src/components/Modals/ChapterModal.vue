@@ -38,7 +38,7 @@
 							<div class="mb-4">
 								<Button @click="openFileSelector" :loading="uploading">
 									{{
-										uploading ? `Uploading ${progress}%` : 'Upload an zip file'
+										uploading ? `Uploading ${progress}%` : 'Upload an ZIP file'
 									}}
 								</Button>
 							</div>
@@ -76,16 +76,18 @@ import {
 	FileUploader,
 	FormControl,
 	Switch,
+	toast,
 } from 'frappe-ui'
-import { reactive, watch } from 'vue'
-import { showToast, getFileSize } from '@/utils/'
+import { reactive, watch, inject } from 'vue'
+import { getFileSize } from '@/utils/'
 import { capture } from '@/telemetry'
 import { FileText, X } from 'lucide-vue-next'
-import { useSettings } from '@/stores/settings'
+import { useOnboarding } from 'frappe-ui/frappe'
 
 const show = defineModel()
 const outline = defineModel('outline')
-const settingsStore = useSettings()
+const user = inject('$user')
+const { updateOnboardingStep } = useOnboarding('learning')
 
 const props = defineProps({
 	course: {
@@ -139,31 +141,27 @@ const addChapter = async (close) => {
 				return validateChapter()
 			},
 			onSuccess: (data) => {
+				if (user.data?.is_system_manager)
+					updateOnboardingStep('create_first_chapter')
+
 				capture('chapter_created')
 				chapterReference.submit(
 					{ name: data.name },
 					{
 						onSuccess(data) {
 							cleanChapter()
-							/* if (!settingsStore.onboardingDetails.data?.is_onboarded) {
-								settingsStore.onboardingDetails.reload()
-							} */
 							outline.value.reload()
-							showToast(
-								__('Success'),
-								__('Chapter added successfully'),
-								'check'
-							)
+							toast.success(__('Chapter added successfully'))
 						},
 						onError(err) {
-							showToast(__('Error'), err.messages?.[0] || err, 'x')
+							toast.error(err.messages?.[0] || err)
 						},
 					}
 				)
 				close()
 			},
 			onError(err) {
-				showToast(__('Error'), err.messages?.[0] || err, 'x')
+				toast.error(err.messages?.[0] || err)
 			},
 		}
 	)
@@ -195,11 +193,11 @@ const editChapter = (close) => {
 			},
 			onSuccess() {
 				outline.value.reload()
-				showToast(__('Success'), __('Chapter updated successfully'), 'check')
+				toast.success(__('Chapter updated successfully'))
 				close()
 			},
 			onError(err) {
-				showToast(__('Error'), err.messages?.[0] || err, 'x')
+				toast.error(err.messages?.[0] || err)
 			},
 		}
 	)

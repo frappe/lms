@@ -39,7 +39,7 @@ jobs:
         node-version: '18'
         check-latest: true
     - name: setup cache for bench
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: ~/bench-cache
         key: ${{ runner.os }}

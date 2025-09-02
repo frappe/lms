@@ -18,10 +18,11 @@
 			/>
 		</div>
 	</header>
-	<div class="w-3/4 mx-auto px-5 pt-6 divide-y">
+	<div class="w-full md:w-3/4 mx-auto px-5 pt-6 divide-y">
 		<div
 			v-if="notifications?.length"
 			v-for="log in notifications"
+			:key="log.name"
 			class="flex items-center py-2 justify-between"
 		>
 			<div class="flex items-center">
@@ -32,22 +33,20 @@
 				<Link
 					v-if="log.link"
 					:to="log.link"
-					@click="markAsRead.submit({ name: log.name })"
+					@click="(e) => handleMarkAsRead(e, log.name)"
 					class="text-ink-gray-5 font-medium text-sm hover:text-ink-gray-7"
 				>
 					{{ __('View') }}
 				</Link>
-				<Tooltip :text="__('Mark as read')">
-					<Button
-						variant="ghost"
-						v-if="!log.read"
-						@click="markAsRead.submit({ name: log.name })"
-					>
-						<template #icon>
-							<X class="h-4 w-4 text-ink-gray-7 stroke-1.5" />
-						</template>
-					</Button>
-				</Tooltip>
+				<Button
+					variant="ghost"
+					v-if="!log.read"
+					@click.stop="(e) => handleMarkAsRead(e, log.name)"
+				>
+					<template #icon>
+						<X class="h-4 w-4 text-ink-gray-7 stroke-1.5" />
+					</template>
+				</Button>
 			</div>
 		</div>
 		<div v-else class="text-ink-gray-5">
@@ -64,13 +63,14 @@ import {
 	Link,
 	TabButtons,
 	Button,
-	Tooltip,
+	usePageMeta,
 } from 'frappe-ui'
-import { computed, inject, ref, onMounted } from 'vue'
+import { sessionStore } from '../stores/session'
+import { computed, inject, ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { X } from 'lucide-vue-next'
-import { updateDocumentTitle } from '@/utils'
 
+const { brand } = sessionStore()
 const user = inject('$user')
 const socket = inject('$socket')
 const activeTab = ref('Unread')
@@ -133,6 +133,14 @@ const markAllAsRead = createResource({
 	},
 })
 
+const handleMarkAsRead = (e, logName) => {
+	markAsRead.submit({ name: logName })
+}
+
+onUnmounted(() => {
+	socket.off('publish_lms_notifications')
+})
+
 const breadcrumbs = computed(() => {
 	let crumbs = [
 		{
@@ -145,14 +153,12 @@ const breadcrumbs = computed(() => {
 	return crumbs
 })
 
-const pageMeta = computed(() => {
+usePageMeta(() => {
 	return {
 		title: 'Notifications',
-		description: 'All your notifications in one place.',
+		icon: brand.favicon,
 	}
 })
-
-updateDocumentTitle(pageMeta)
 </script>
 <style>
 .notification strong {

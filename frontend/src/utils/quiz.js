@@ -14,8 +14,7 @@ export class Quiz {
 
 	static get toolbox() {
 		const app = createApp({
-			render: () =>
-				h(CircleHelp, { size: 18, strokeWidth: 1.5, color: 'black' }),
+			render: () => h(CircleHelp, { size: 5, strokeWidth: 1.5 }),
 		})
 
 		const div = document.createElement('div')
@@ -43,17 +42,10 @@ export class Quiz {
 
 	renderQuiz(quiz) {
 		if (this.readOnly) {
-			const app = createApp(QuizBlock, {
-				quiz: quiz,
-			})
-			app.use(translationPlugin)
-			app.use(router)
-			const { userResource } = usersStore()
-			app.provide('$user', userResource)
-			app.mount(this.wrapper)
+			this.wrapper.innerHTML = `<iframe src="/lms/quiz/${quiz}?fromLesson=1" class="w-full h-[500px]"></iframe>`
 			return
 		}
-		this.wrapper.innerHTML = `<div class='border rounded-md p-10 text-center bg-surface-menu-bar mb-2'>
+		this.wrapper.innerHTML = `<div class='border rounded-md p-4 text-center bg-surface-menu-bar mb-4'>
             <span class="font-medium">
                 Quiz: ${quiz}
             </span>
@@ -76,7 +68,8 @@ export class Quiz {
 		app.mount(this.wrapper)
 	}
 
-	save(blockContent) {
+	save() {
+		if (Object.keys(this.data).length === 0) return {}
 		return {
 			quiz: this.data.quiz,
 		}

@@ -1,5 +1,7 @@
 import { Code } from "lucide-vue-next"
 import { h, createApp } from "vue"
+import hljs from 'highlight.js/lib/core';
+
 
 const DEFAULT_THEMES = ['light', 'dark'];
 const COMMON_LANGUAGES = {
@@ -42,7 +44,6 @@ export class CodeBox {
 		this.selectInput = document.createElement('input');
 		this.selectDropIcon = document.createElement('i');
 
-		this._injectHighlightJSScriptElement();
 		this._injectHighlightJSCSSElement();
 
 		this.api.listeners.on(window, 'click', this._closeAllLanguageSelects, true);
@@ -150,7 +151,7 @@ export class CodeBox {
 	}
 
 	_highlightCodeArea(event) {
-		window.hljs.highlightBlock(this.codeArea);
+		hljs.highlightBlock(this.codeArea);
 	}
 
 	_handleCodeAreaPaste(event) {
@@ -167,26 +168,13 @@ export class CodeBox {
 		this.codeArea.removeAttribute('class');
 		this.data.language = language[0];
 		this.codeArea.setAttribute('class', `codeBoxTextArea ${this.config.useDefaultTheme} ${this.data.language}`);
-		window.hljs.highlightBlock(this.codeArea);
+	
+		hljs.highlightElement(this.codeArea);
 	}
 
 	_closeAllLanguageSelects() {
 		const selectPreviews = document.querySelectorAll('.codeBoxSelectPreview');
 		for (let i = 0, len = selectPreviews.length; i < len; i++) selectPreviews[i].classList.remove('codeBoxShow');
-	}
-
-	_injectHighlightJSScriptElement() {
-		const highlightJSScriptElement = document.querySelector(`#${this.highlightScriptID}`);
-		const highlightJSScriptURL = 'https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.1/build/highlight.min.js';
-		if (!highlightJSScriptElement) {
-			const script = document.createElement('script');
-			const head = document.querySelector('head');
-			script.setAttribute('src', highlightJSScriptURL);
-			script.setAttribute('id', this.highlightScriptID);
-
-			if (head) head.appendChild(script);
-		}
-		else highlightJSScriptElement.setAttribute('src', highlightJSScriptURL);
 	}
 
 	_injectHighlightJSCSSElement() {

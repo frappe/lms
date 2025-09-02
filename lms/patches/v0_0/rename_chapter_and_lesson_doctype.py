@@ -49,6 +49,4 @@ def move_lessons():
 def change_parent_for_lesson_reference():
 	lesson_reference = frappe.get_all("Lesson Reference", fields=["name", "parent"])
 	for reference in lesson_reference:
-		frappe.db.set_value(
-			"Lesson Reference", reference.name, "parenttype", "Course Chapter"
-		)
+		frappe.db.set_value("Lesson Reference", reference.name, "parenttype", "Course Chapter")

@@ -1,5 +1,5 @@
 <template>
-	<div class="border-2 rounded-md min-w-80">
+	<div class="border-2 rounded-md min-w-80 max-w-sm">
 		<iframe
 			v-if="course.data.video_link"
 			:src="video_link"
@@ -9,88 +9,120 @@
 			<div v-if="course.data.paid_course" class="text-2xl font-semibold mb-3">
 				{{ course.data.price }}
 			</div>
-			<div v-if="course.data.membership" class="space-y-2">
+			<div v-if="!readOnlyMode">
+				<div v-if="course.data.membership" class="space-y-2">
+					<router-link
+						:to="{
+							name: 'Lesson',
+							params: {
+								courseName: course.name,
+								chapterNumber: course.data.current_lesson
+									? course.data.current_lesson.split('-')[0]
+									: 1,
+								lessonNumber: course.data.current_lesson
+									? course.data.current_lesson.split('-')[1]
+									: 1,
+							},
+						}"
+					>
+						<Button variant="solid" size="md" class="w-full">
+							<template #prefix>
+								<BookText class="size-4 stroke-1.5" />
+							</template>
+							<span>
+								{{ __('Continue Learning') }}
+							</span>
+						</Button>
+					</router-link>
+					<CertificationLinks :courseName="course.data.name" class="w-full" />
+				</div>
 				<router-link
+					v-else-if="course.data.paid_course"
 					:to="{
-						name: 'Lesson',
+						name: 'Billing',
 						params: {
-							courseName: course.name,
-							chapterNumber: course.data.current_lesson
-								? course.data.current_lesson.split('-')[0]
-								: 1,
-							lessonNumber: course.data.current_lesson
-								? course.data.current_lesson.split('-')[1]
-								: 1,
+							type: 'course',
+							name: course.data.name,
 						},
 					}"
 				>
 					<Button variant="solid" size="md" class="w-full">
+						<template #prefix>
+							<CreditCard class="size-4 stroke-1.5" />
+						</template>
 						<span>
-							{{ __('Continue Learning') }}
+							{{ __('Buy this course') }}
 						</span>
 					</Button>
 				</router-link>
-				<CertificationLinks :courseName="course.data.name" />
-			</div>
-			<router-link
-				v-else-if="course.data.paid_course"
-				:to="{
-					name: 'Billing',
-					params: {
-						type: 'course',
-						name: course.data.name,
-					},
-				}"
-			>
-				<Button variant="solid" size="md" class="w-full">
+				<Badge
+					v-else-if="course.data.disable_self_learning"
+					theme="blue"
+					size="lg"
+				>
+					{{ __('Contact the Administrator to enroll for this course.') }}
+				</Badge>
+				<Button
+					v-else-if="!user.data?.is_moderator && !is_instructor()"
+					@click="enrollStudent()"
+					variant="solid"
+					class="w-full"
+					size="md"
+				>
+					<template #prefix>
+						<BookText class="size-4 stroke-1.5" />
+					</template>
 					<span>
-						{{ __('Buy this course') }}
+						{{ __('Start Learning') }}
 					</span>
 				</Button>
-			</router-link>
-			<div
-				v-else-if="course.data.disable_self_learning"
-				class="bg-surface-blue-2 text-blue-900 text-sm rounded-md py-1 px-3"
-			>
-				{{ __('Contact the Administrator to enroll for this course.') }}
-			</div>
-			<Button
-				v-else
-				@click="enrollStudent()"
-				variant="solid"
-				class="w-full"
-				size="md"
-			>
-				<span>
-					{{ __('Start Learning') }}
-				</span>
-			</Button>
-			<Button
-				v-if="canGetCertificate"
-				@click="fetchCertificate()"
-				variant="subtle"
-				class="w-full mt-2"
-				size="md"
-			>
-				{{ __('Get Certificate') }}
-			</Button>
-			<router-link
-				v-if="user?.data?.is_moderator || is_instructor()"
-				:to="{
-					name: 'CourseForm',
-					params: {
-						courseName: course.data.name,
-					},
-				}"
-			>
-				<Button variant="subtle" class="w-full mt-2" size="md">
-					<span>
-						{{ __('Edit') }}
-					</span>
+				<Button
+					v-if="canGetCertificate"
+					@click="fetchCertificate()"
+					variant="subtle"
+					class="w-full mt-2"
+					size="md"
+				>
+					<template #prefix>
+						<GraduationCap class="size-4 stroke-1.5" />
+					</template>
+					{{ __('Get Certificate') }}
 				</Button>
-			</router-link>
+				<Button
+					v-if="user.data?.is_moderator || is_instructor()"
+					class="w-full mt-2"
+					size="md"
+					@click="showProgressSummary"
+				>
+					<template #prefix>
+						<TrendingUp class="size-4 stroke-1.5" />
+						{{ __('Progress Summary') }}
+					</template>
+				</Button>
+				<router-link
+					v-if="user?.data?.is_moderator || is_instructor()"
+					:to="{
+						name: 'CourseForm',
+						params: {
+							courseName: course.data.name,
+						},
+					}"
+				>
+					<Button variant="subtle" class="w-full mt-2" size="md">
+						<template #prefix>
+							<Pencil class="size-4 stroke-1.5" />
+						</template>
+						<span>
+							{{ __('Edit') }}
+						</span>
+					</Button>
+				</router-link>
+			</div>
 			<div class="space-y-4">
-				<div class="mt-8 font-medium text-ink-gray-9">
+				<div
+					class="font-medium text-ink-gray-9"
+					:class="{ 'mt-8': !readOnlyMode }"
+				>
 					{{ __('This course has:') }}
 				</div>
 				<div class="flex items-center text-ink-gray-9">
@@ -110,7 +142,7 @@
 					v-if="parseInt(course.data.rating) > 0"
 					class="flex items-center text-ink-gray-9"
 				>
-					<Star class="h-4 w-4 stroke-1.5 fill-orange-500 text-gray-50" />
+					<Star class="size-4 stroke-1.5 fill-yellow-500 text-transparent" />
 					<span class="ml-2">
 						{{ course.data.rating }} {{ __('Rating') }}
 					</span>
@@ -136,18 +168,35 @@
 			</div>
 		</div>
 	</div>
+	<CourseProgressSummary
+		v-model="showProgressModal"
+		:courseName="course.data.name"
+		:enrollments="course.data.enrollments"
+	/>
 </template>
 <script setup>
-import { BookOpen, Users, Star, GraduationCap } from 'lucide-vue-next'
-import { computed, inject } from 'vue'
-import { Button, createResource, Tooltip } from 'frappe-ui'
-import { showToast, formatAmount } from '@/utils/'
+import {
+	BookOpen,
+	BookText,
+	CreditCard,
+	GraduationCap,
+	Pencil,
+	Star,
+	TrendingUp,
+	Users,
+} from 'lucide-vue-next'
+import { computed, inject, ref } from 'vue'
+import { Badge, Button, call, createResource, toast } from 'frappe-ui'
+import { formatAmount } from '@/utils/'
 import { capture } from '@/telemetry'
 import { useRouter } from 'vue-router'
 import CertificationLinks from '@/components/CertificationLinks.vue'
+import CourseProgressSummary from '@/components/Modals/CourseProgressSummary.vue'
 
 const router = useRouter()
 const user = inject('$user')
+const showProgressModal = ref(false)
+const readOnlyMode = window.read_only_mode
 
 const props = defineProps({
 	course: {
@@ -165,31 +214,19 @@ const video_link = computed(() => {
 
 function enrollStudent() {
 	if (!user.data) {
-		showToast(
-			__('Please Login'),
-			__('You need to login first to enroll for this course'),
-			'alert-circle'
-		)
+		toast.success(__('You need to login first to enroll for this course'))
 		setTimeout(() => {
 			window.location.href = `/login?redirect-to=${window.location.pathname}`
-		}, 2000)
+		}, 500)
 	} else {
-		const enrollStudentResource = createResource({
-			url: 'lms.lms.doctype.lms_enrollment.lms_enrollment.create_membership',
+		call('lms.lms.doctype.lms_enrollment.lms_enrollment.create_membership', {
+			course: props.course.data.name,
 		})
-		enrollStudentResource
-			.submit({
-				course: props.course.data.name,
-			})
 			.then(() => {
 				capture('enrolled_in_course', {
 					course: props.course.data.name,
 				})
-				showToast(
-					__('Success'),
-					__('You have been enrolled in this course'),
-					'check'
-				)
+				toast.success(__('You have been enrolled in this course'))
 				setTimeout(() => {
 					router.push({
 						name: 'Lesson',
@@ -199,7 +236,11 @@ function enrollStudent() {
 							lessonNumber: 1,
 						},
 					})
-				}, 2000)
+				}, 1000)
+			})
+			.catch((err) => {
+				toast.warning(__(err.messages?.[0] || err))
+				console.error(err)
 			})
 	}
 }
@@ -246,5 +287,9 @@ const fetchCertificate = () => {
 		course: props.course.data?.name,
 		member: user.data?.name,
 	})
+}
+
+const showProgressSummary = () => {
+	showProgressModal.value = true
 }
 </script>

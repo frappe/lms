@@ -1,0 +1,45 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-06-18 16:12:10.010416",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "input",
+  "column_break_zkvg",
+  "expected_output"
+ ],
+ "fields": [
+  {
+   "fieldname": "input",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Input"
+  },
+  {
+   "fieldname": "column_break_zkvg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "expected_output",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Expected Output",
+   "reqd": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-06-20 12:57:19.186644",
+ "modified_by": "sayali@frappe.io",
+ "module": "LMS",
+ "name": "LMS Test Case",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

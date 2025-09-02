@@ -4,6 +4,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
+
 from lms.lms.utils import has_course_instructor_role, has_course_moderator_role
 
 
@@ -71,9 +72,7 @@ def validate_possible_answer(question):
 
 def update_question_title(question):
 	if not question.is_new():
-		question_rows = frappe.get_all(
-			"LMS Quiz Question", {"question": question.name}, pluck="name"
-		)
+		question_rows = frappe.get_all("LMS Quiz Question", {"question": question.name}, pluck="name")
 
 		for row in question_rows:
 			frappe.db.set_value("LMS Quiz Question", row, "question_detail", question.question)

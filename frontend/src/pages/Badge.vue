@@ -24,10 +24,12 @@
 	</div>
 </template>
 <script setup>
-import { createDocumentResource, createResource } from 'frappe-ui'
+import { createResource, usePageMeta } from 'frappe-ui'
 import { computed, inject } from 'vue'
+import { sessionStore } from '../stores/session'
 
 const dayjs = inject('$dayjs')
+const { brand } = sessionStore()
 
 const props = defineProps({
 	badgeName: {
@@ -69,5 +71,12 @@ const breadcrumbs = computed(() => {
 			},
 		},
 	]
+})
+
+usePageMeta(() => {
+	return {
+		title: badge.data.badge,
+		icon: brand.favicon,
+	}
 })
 </script>

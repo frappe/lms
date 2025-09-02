@@ -17,7 +17,7 @@
             <label class="form-label sr-only"> {{ _("User Category") }} </label>
             <div class="control-input-wrapper">
                 <div class="control-input flex align-center">
-                    <select type="text" id="user_category" data-fieldname="user_category" style="color: var(--text-muted)"
+                    <select type="text" id="user_category" data-fieldname="user_category" style="color: var(--text-light)"
                     class="input-with-feedback form-control ellipsis" data-fieldtype="Select" required>
                         <option value=""> {{ _("Category") }} </option>
                         <option value="Business Owner"> {{ _("Business Owner") }} </option>
@@ -85,7 +85,7 @@
         }
 
         frappe.call({
-            method: "lms.overrides.user.sign_up",
+            method: "lms.lms.user.sign_up",
             args: {
                 "email": email,
                 "full_name": full_name,

@@ -3,13 +3,11 @@ import { usersStore } from './stores/user'
 import { sessionStore } from './stores/session'
 import { useSettings } from './stores/settings'
 
-let defaultRoute = '/courses'
 const routes = [
 	{
 		path: '/',
-		redirect: {
-			name: 'Courses',
-		},
+		name: 'Home',
+		component: () => import('@/pages/Home/Home.vue'),
 	},
 	{
 		path: '/courses',
@@ -134,8 +132,8 @@ const routes = [
 	},
 	{
 		path: '/job-opening/:jobName/edit',
-		name: 'JobCreation',
-		component: () => import('@/pages/JobCreation.vue'),
+		name: 'JobForm',
+		component: () => import('@/pages/JobForm.vue'),
 		props: true,
 	},
 	{
@@ -184,26 +182,20 @@ const routes = [
 		props: true,
 	},
 	{
-		path: '/programs/:programName',
-		name: 'ProgramForm',
-		component: () => import('@/pages/ProgramForm.vue'),
-		props: true,
-	},
-	{
 		path: '/programs',
 		name: 'Programs',
-		component: () => import('@/pages/Programs.vue'),
+		component: () => import('@/pages/Programs/Programs.vue'),
+	},
+	{
+		path: '/programs/:programName',
+		name: 'ProgramDetail',
+		component: () => import('@/pages/Programs/ProgramDetail.vue'),
+		props: true,
 	},
 	{
 		path: '/assignments',
 		name: 'Assignments',
 		component: () => import('@/pages/Assignments.vue'),
-	},
-	{
-		path: '/assignments/:assignmentID',
-		name: 'AssignmentForm',
-		component: () => import('@/pages/AssignmentForm.vue'),
-		props: true,
 	},
 	{
 		path: '/assignment-submission/:assignmentID/:submissionName',
@@ -215,6 +207,35 @@ const routes = [
 		path: '/assignment-submissions',
 		name: 'AssignmentSubmissionList',
 		component: () => import('@/pages/AssignmentSubmissionList.vue'),
+	},
+	{
+		path: '/persona',
+		name: 'PersonaForm',
+		component: () => import('@/pages/PersonaForm.vue'),
+	},
+	{
+		path: '/programming-exercises',
+		name: 'ProgrammingExercises',
+		component: () =>
+			import('@/pages/ProgrammingExercises/ProgrammingExercises.vue'),
+	},
+	{
+		path: '/programming-exercises/submissions',
+		name: 'ProgrammingExerciseSubmissions',
+		component: () =>
+			import(
+				'@/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue'
+			),
+		props: true,
+	},
+	{
+		path: '/programming-exercises/:exerciseID/submission/:submissionID',
+		name: 'ProgrammingExerciseSubmission',
+		component: () =>
+			import(
+				'@/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue'
+			),
+		props: true,
 	},
 ]
 
@@ -237,6 +258,8 @@ router.beforeEach(async (to, from, next) => {
 	}
 
 	if (!isLoggedIn) {
+		if (to.name == 'Home') router.push({ name: 'Courses' })
+
 		await allowGuestAccess.promise
 		if (!allowGuestAccess.data) {
 			window.location.href = '/login'

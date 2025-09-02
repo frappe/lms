@@ -15,27 +15,20 @@
 	>
 		<template #body-content>
 			<div class="flex flex-col gap-4">
-				<div>
-					<div class="mb-1.5 text-sm text-ink-gray-5">
-						{{ __('Rating') }}
-					</div>
-					<Rating v-model="review.rating" />
-				</div>
-				<div>
-					<div class="mb-1.5 text-sm text-ink-gray-5">
-						{{ __('Review') }}
-					</div>
-					<Textarea type="text" size="md" rows="5" v-model="review.review" />
-				</div>
+				<Rating v-model="review.rating" :label="__('Rating')" />
+				<FormControl
+					:label="__('Review')"
+					type="textarea"
+					v-model="review.review"
+					:rows="5"
+				/>
 			</div>
 		</template>
 	</Dialog>
 </template>
 <script setup>
-import { Dialog, Textarea, createResource } from 'frappe-ui'
+import { Dialog, FormControl, createResource, toast, Rating } from 'frappe-ui'
 import { reactive } from 'vue'
-import Rating from '@/components/Controls/Rating.vue'
-import { createToast } from '@/utils/'
 
 const show = defineModel()
 const reviews = defineModel('reloadReviews')
@@ -78,11 +71,7 @@ function submitReview(close) {
 			hasReviewed.value.reload()
 		},
 		onError(err) {
-			createToast({
-				text: err.messages?.[0] || err,
-				icon: 'x',
-				iconClasses: 'text-ink-red-4 bg-surface-red-4',
-			})
+			toast.error(err.messages?.[0] || err)
 		},
 	})
 	close()

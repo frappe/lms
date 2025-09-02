@@ -6,7 +6,7 @@ export const usersStore = defineStore('lms-users', () => {
 		url: 'lms.lms.api.get_user_info',
 		onError(error) {
 			if (error && error.exc_type === 'AuthenticationError') {
-				router.push('/login')
+				window.location.href = '/login'
 			}
 		},
 		auto: true,

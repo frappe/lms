@@ -64,10 +64,10 @@
 	</Dialog>
 </template>
 <script setup>
-import { Dialog, FileUploader, Button, createResource } from 'frappe-ui'
+import { Dialog, FileUploader, Button, createResource, toast } from 'frappe-ui'
 import { FileText } from 'lucide-vue-next'
 import { ref, inject } from 'vue'
-import { createToast, getFileSize } from '@/utils/'
+import { getFileSize } from '@/utils/'
 
 const resume = ref(null)
 const show = defineModel()
@@ -112,24 +112,12 @@ const submitResume = (close) => {
 				}
 			},
 			onSuccess() {
-				createToast({
-					title: 'Success',
-					text: 'Your application has been submitted',
-					icon: 'check',
-					iconClasses: 'bg-surface-green-3 text-ink-white rounded-md p-px',
-				})
+				toast.success('Your application has been submitted successfully')
 				application.value.reload()
 				close()
 			},
 			onError(err) {
-				createToast({
-					title: 'Error',
-					text: err.messages?.[0] || err,
-					icon: 'x',
-					iconClasses: 'bg-surface-red-5 text-ink-white rounded-md p-px',
-					position: 'top-center',
-					timeout: 10,
-				})
+				toast.error(err.messages?.[0] || err)
 			},
 		}
 	)

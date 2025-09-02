@@ -13,6 +13,4 @@ def execute():
 
 	for quiz in quizzes:
 		questions_count = frappe.db.count("LMS Quiz Question", {"parent": quiz})
-		frappe.db.set_value(
-			"LMS Quiz", quiz, {"total_marks": questions_count, "passing_percentage": 100}
-		)
+		frappe.db.set_value("LMS Quiz", quiz, {"total_marks": questions_count, "passing_percentage": 100})

@@ -11,9 +11,7 @@ class LMSCourseReview(Document):
 		self.validate_if_already_reviewed()
 
 	def validate_if_already_reviewed(self):
-		if frappe.db.exists(
-			"LMS Course Review", {"course": self.course, "owner": self.owner}
-		):
+		if frappe.db.exists("LMS Course Review", {"course": self.course, "owner": self.owner}):
 			frappe.throw(frappe._("You have already reviewed this course"))
 
 

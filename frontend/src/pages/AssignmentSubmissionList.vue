@@ -84,14 +84,17 @@ import {
 	ListRows,
 	ListRow,
 	ListRowItem,
+	usePageMeta,
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { Pencil } from 'lucide-vue-next'
+import { sessionStore } from '../stores/session'
 import Link from '@/components/Controls/Link.vue'
 
 const user = inject('$user')
 const dayjs = inject('$dayjs')
+const { brand } = sessionStore()
 const router = useRouter()
 const assignmentID = ref('')
 const member = ref('')
@@ -142,7 +145,6 @@ const submissions = createListResource({
 	},
 })
 
-// watch changes in assignmentID, member, and status and if changes in any then reload submissions. Also update the url query params for the same
 watch([assignmentID, member, status], () => {
 	router.push({
 		query: {
@@ -213,5 +215,12 @@ const breadcrumbs = computed(() => {
 			label: 'Assignment Submissions',
 		},
 	]
+})
+
+usePageMeta(() => {
+	return {
+		title: __('Assignment Submissions'),
+		icon: brand.favicon,
+	}
 })
 </script>

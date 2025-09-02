@@ -1,8 +1,11 @@
 <template>
 	<div v-if="quiz.data">
 		<div
-			class="bg-surface-blue-2 space-y-1 py-2 px-2 mb-4 rounded-md text-sm text-ink-blue-800"
+			class="bg-surface-blue-2 space-y-2 py-2 px-3 mb-4 rounded-md text-sm text-ink-blue-2 leading-5"
 		>
+			<div v-if="inVideo">
+				{{ __('You will have to complete the quiz to continue the video') }}
+			</div>
 			<div class="leading-5">
 				{{
 					__('This quiz consists of {0} questions.').format(questions.length)
@@ -29,12 +32,22 @@
 					).format(quiz.data.passing_percentage)
 				}}
 			</div>
-			<div v-if="quiz.data.max_attempts" class="leading-relaxed">
+			<div v-if="quiz.data.max_attempts" class="leading-5">
 				{{
 					__('You can attempt this quiz {0}.').format(
 						quiz.data.max_attempts == 1
 							? '1 time'
 							: `${quiz.data.max_attempts} times`
+					)
+				}}
+			</div>
+			<div v-if="quiz.data.enable_negative_marking" class="leading-5">
+				{{
+					__(
+						'If you answer incorrectly, {0} {1} will be deducted from your score for each incorrect answer.'
+					).format(
+						quiz.data.marks_to_cut,
+						quiz.data.marks_to_cut == 1 ? 'mark' : 'marks'
 					)
 				}}
 			</div>
@@ -52,22 +65,33 @@
 
 		<div v-if="activeQuestion == 0">
 			<div class="border text-center p-20 rounded-md">
-				<div class="font-semibold text-lg">
+				<div class="font-semibold text-lg text-ink-gray-9">
 					{{ quiz.data.title }}
 				</div>
-				<Button
+				<div class="flex items-center justify-center space-x-2 mt-4">
+					<Button
+						v-if="
+							!quiz.data.max_attempts ||
+							attempts.data?.length < quiz.data.max_attempts
+						"
+						variant="solid"
+						@click="startQuiz"
+					>
+						<span>
+							{{ inVideo ? __('Start the Quiz') : __('Start') }}
+						</span>
+					</Button>
+					<Button v-if="inVideo" @click="props.backToVideo()">
+						{{ __('Resume Video') }}
+					</Button>
+				</div>
+				<div
 					v-if="
-						!quiz.data.max_attempts ||
-						attempts.data?.length < quiz.data.max_attempts
+						quiz.data.max_attempts &&
+						attempts.data?.length >= quiz.data.max_attempts
 					"
-					@click="startQuiz"
-					class="mt-2"
+					class="leading-5 text-ink-gray-7"
 				>
-					<span>
-						{{ __('Start') }}
-					</span>
-				</Button>
-				<div v-else>
 					{{
 						__(
 							'You have already exceeded the maximum number of attempts allowed for this quiz.'
@@ -222,11 +246,14 @@
 				</div>
 			</div>
 		</div>
-		<div v-else class="border rounded-md p-20 text-center space-y-4">
-			<div class="text-lg font-semibold">
+		<div v-else class="border rounded-md p-20 text-center space-y-2">
+			<div class="text-lg font-semibold text-ink-gray-9">
 				{{ __('Quiz Summary') }}
 			</div>
-			<div v-if="quizSubmission.data.is_open_ended">
+			<div
+				v-if="quizSubmission.data.is_open_ended"
+				class="leading-5 text-ink-gray-7"
+			>
 				{{
 					__(
 						"Your submission has been successfully saved. The instructor will review and grade it shortly, and you'll be notified of your final result."
@@ -244,18 +271,23 @@
 					)
 				}}
 			</div>
-			<Button
-				@click="resetQuiz()"
-				class="mt-2"
-				v-if="
-					!quiz.data.max_attempts ||
-					attempts?.data.length < quiz.data.max_attempts
-				"
-			>
-				<span>
-					{{ __('Try Again') }}
-				</span>
-			</Button>
+			<div class="space-x-2">
+				<Button
+					@click="resetQuiz()"
+					class="mt-2"
+					v-if="
+						!quiz.data.max_attempts ||
+						attempts?.data.length < quiz.data.max_attempts
+					"
+				>
+					<span>
+						{{ __('Try Again') }}
+					</span>
+				</Button>
+				<Button v-if="inVideo" @click="props.backToVideo()">
+					{{ __('Resume Video') }}
+				</Button>
+			</div>
 		</div>
 		<div
 			v-if="
@@ -288,9 +320,9 @@ import {
 	ListView,
 	TextEditor,
 	FormControl,
+	toast,
 } from 'frappe-ui'
 import { ref, watch, reactive, inject, computed } from 'vue'
-import { createToast, showToast } from '@/utils/'
 import { CheckCircle, XCircle, MinusCircle } from 'lucide-vue-next'
 import { timeAgo } from '@/utils'
 import { useRouter } from 'vue-router'
@@ -305,12 +337,19 @@ let questions = reactive([])
 const possibleAnswer = ref(null)
 const timer = ref(0)
 let timerInterval = null
-const router = useRouter()
 
 const props = defineProps({
 	quizName: {
 		type: String,
 		required: true,
+	},
+	inVideo: {
+		type: Boolean,
+		default: false,
+	},
+	backToVideo: {
+		type: Function,
+		default: () => {},
 	},
 })
 
@@ -491,12 +530,7 @@ const getAnswers = () => {
 const checkAnswer = () => {
 	let answers = getAnswers()
 	if (!answers.length) {
-		createToast({
-			title: 'Please select an option',
-			icon: 'alert-circle',
-			iconClasses: 'text-yellow-600 bg-yellow-100 rounded-full',
-			position: 'top-center',
-		})
+		toast.warning(__('Please select an option'))
 		return
 	}
 
@@ -586,7 +620,7 @@ const createSubmission = () => {
 				const errorTitle = err?.message || ''
 				if (errorTitle.includes('MaximumAttemptsExceededError')) {
 					const errorMessage = err.messages?.[0] || err
-					showToast(__('Error'), __(errorMessage), 'x')
+					toast.error(__(errorMessage))
 					setTimeout(() => {
 						window.location.reload()
 					}, 3000)
@@ -613,12 +647,17 @@ const getInstructions = (question) => {
 }
 
 const markLessonProgress = () => {
-	console.log(router)
-	if (router.currentRoute.value.name == 'Lesson') {
+	let pathname = window.location.pathname.split('/')
+	if (!pathname.includes('courses'))
+		pathname = window.parent.location.pathname.split('/')
+	if (pathname[2] != 'courses') return
+	let lessonIndex = pathname.pop().split('-')
+
+	if (lessonIndex.length == 2) {
 		call('lms.lms.api.mark_lesson_progress', {
-			course: router.currentRoute.value.params.courseName,
-			chapter_number: router.currentRoute.value.params.chapterNumber,
-			lesson_number: router.currentRoute.value.params.lessonNumber,
+			course: pathname[3],
+			chapter_number: lessonIndex[0],
+			lesson_number: lessonIndex[1],
 		})
 	}
 }
@@ -651,3 +690,8 @@ const getSubmissionColumns = () => {
 	]
 }
 </script>
+<style>
+p {
+	line-height: 1.5rem;
+}
+</style>

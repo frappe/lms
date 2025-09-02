@@ -26,5 +26,6 @@ app.mount('#app')
 const { userResource, allUsers } = usersStore()
 app.provide('$user', userResource)
 app.provide('$allUsers', allUsers)
+
 app.config.globalProperties.$user = userResource
 app.config.globalProperties.$dialog = createDialog

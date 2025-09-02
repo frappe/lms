@@ -35,14 +35,14 @@
 						<span class="text-ink-gray-7">
 							{{ review.creation }}
 						</span>
-						<div class="flex mt-2">
+						<div class="flex mt-2 space-x-1">
 							<Star
 								v-for="index in 5"
-								class="h-5 w-5 text-ink-gray-1 rounded-sm mr-2"
+								class="size-4 text-transparent rounded-sm"
 								:class="
 									index <= Math.ceil(review.rating)
-										? 'fill-orange-500'
-										: 'fill-gray-600'
+										? 'fill-yellow-500'
+										: 'fill-gray-300'
 								"
 							/>
 						</div>
@@ -64,7 +64,7 @@
 <script setup>
 import { Star } from 'lucide-vue-next'
 import { createResource, Button } from 'frappe-ui'
-import { computed, ref, inject } from 'vue'
+import { watch, ref, inject } from 'vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import ReviewModal from '@/components/Modals/ReviewModal.vue'
 
@@ -101,11 +101,20 @@ const hasReviewed = createResource({
 const reviews = createResource({
 	url: 'lms.lms.utils.get_reviews',
 	cache: ['course_reviews', props.courseName],
-	params: {
-		course: props.courseName,
+	makeParams() {
+		return {
+			course: props.courseName,
+		}
 	},
 	auto: true,
 })
+
+watch(
+	() => props.courseName,
+	() => {
+		reviews.reload()
+	}
+)
 
 const showReviewModal = ref(false)
 

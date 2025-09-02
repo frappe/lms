@@ -39,11 +39,13 @@ import {
 	createDocumentResource,
 	createListResource,
 	createResource,
+	usePageMeta,
 } from 'frappe-ui'
 import { computed, inject, onBeforeMount, ref } from 'vue'
 import { useSidebar } from '@/stores/sidebar'
-import { updateDocumentTitle } from '@/utils'
+import { sessionStore } from '../stores/session'
 
+const { brand } = sessionStore()
 const sidebarStore = useSidebar()
 const user = inject('$user')
 const readyToRender = ref(false)
@@ -195,14 +197,10 @@ const breadcrumbs = computed(() => {
 	]
 })
 
-const pageMeta = computed(() => {
+usePageMeta(() => {
 	return {
-		title: chapter?.doc?.title,
-		description: __('This is a chapter in the course {0}').format(
-			chapter?.doc?.course_title
-		),
+		title: chapter.doc?.title,
+		icon: brand.favicon,
 	}
 })
-
-updateDocumentTitle(pageMeta)
 </script>

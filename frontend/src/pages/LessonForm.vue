@@ -78,7 +78,14 @@
 	</div>
 </template>
 <script setup>
-import { Breadcrumbs, Button, createResource, FormControl } from 'frappe-ui'
+import {
+	Breadcrumbs,
+	Button,
+	createResource,
+	FormControl,
+	usePageMeta,
+	toast,
+} from 'frappe-ui'
 import {
 	computed,
 	reactive,
@@ -87,18 +94,20 @@ import {
 	ref,
 	onBeforeUnmount,
 } from 'vue'
+import { sessionStore } from '../stores/session'
 import EditorJS from '@editorjs/editorjs'
 import LessonHelp from '@/components/LessonHelp.vue'
 import { ChevronRight } from 'lucide-vue-next'
-import { updateDocumentTitle, createToast, getEditorTools } from '@/utils'
-import { capture } from '@/telemetry'
-import { useSettings } from '@/stores/settings'
+import { getEditorTools, enablePlyr } from '@/utils'
+import { capture, startRecording, stopRecording } from '@/telemetry'
+import { useOnboarding } from 'frappe-ui/frappe'
 
+const { brand } = sessionStore()
 const editor = ref(null)
 const instructorEditor = ref(null)
 const user = inject('$user')
 const openInstructorEditor = ref(false)
-const settingsStore = useSettings()
+const { updateOnboardingStep } = useOnboarding('learning')
 let autoSaveInterval
 let showSuccessMessage = false
 
@@ -122,9 +131,11 @@ onMounted(() => {
 		window.location.href = '/login'
 	}
 	capture('lesson_form_opened')
+	startRecording()
 	editor.value = renderEditor('content')
 	instructorEditor.value = renderEditor('instructor-notes')
 	window.addEventListener('keydown', keyboardShortcut)
+	enablePlyr()
 })
 
 const renderEditor = (holder) => {
@@ -133,6 +144,9 @@ const renderEditor = (holder) => {
 		tools: getEditorTools(true),
 		autofocus: true,
 		defaultBlock: 'markdown',
+		onChange: async (api, event) => {
+			enablePlyr()
+		},
 	})
 }
 
@@ -213,6 +227,7 @@ const keyboardShortcut = (e) => {
 onBeforeUnmount(() => {
 	clearInterval(autoSaveInterval)
 	window.removeEventListener('keydown', keyboardShortcut)
+	stopRecording()
 })
 
 const newLessonResource = createResource({
@@ -370,8 +385,10 @@ const saveLesson = (e) => {
 		showSuccessMessage = true
 	}
 	editor.value.save().then((outputData) => {
+		outputData = removeEmptyBlocks(outputData)
 		lesson.content = JSON.stringify(outputData)
 		instructorEditor.value.save().then((outputData) => {
+			outputData = removeEmptyBlocks(outputData)
 			lesson.instructor_content = JSON.stringify(outputData)
 			if (lessonDetails.data?.lesson) {
 				editCurrentLesson()
@@ -380,6 +397,14 @@ const saveLesson = (e) => {
 			}
 		})
 	})
+}
+
+const removeEmptyBlocks = (outputData) => {
+	let blocks = outputData.blocks.filter((block) => {
+		return Object.keys(block.data).length > 0 || block.type == 'paragraph'
+	})
+	outputData.blocks = blocks
+	return outputData
 }
 
 const createNewLesson = () => {
@@ -394,18 +419,18 @@ const createNewLesson = () => {
 					{ lesson: data.name },
 					{
 						onSuccess() {
+							if (user.data?.is_system_manager)
+								updateOnboardingStep('create_first_lesson')
+
 							capture('lesson_created')
-							showToast('Success', 'Lesson created successfully', 'check')
-							/* if (!settingsStore.onboardingDetails.data?.is_onboarded) {
-								settingsStore.onboardingDetails.reload()
-							} */
+							toast.success(__('Lesson created successfully'))
 							lessonDetails.reload()
 						},
 					}
 				)
 			},
 			onError(err) {
-				showToast('Error', err.message, 'x')
+				toast.error(err.messages?.[0] || err)
 			},
 		}
 	)
@@ -422,11 +447,11 @@ const editCurrentLesson = () => {
 			},
 			onSuccess() {
 				showSuccessMessage
-					? showToast('Success', 'Lesson updated successfully', 'check')
+					? toast.success(__('Lesson updated successfully'))
 					: ''
 			},
 			onError(err) {
-				showToast('Error', err.message, 'x')
+				toast.error(err.message)
 			},
 		}
 	)
@@ -439,20 +464,6 @@ const validateLesson = () => {
 	if (!lesson.content) {
 		return 'Content is required'
 	}
-}
-
-const showToast = (title, text, icon) => {
-	createToast({
-		title: title,
-		text: text,
-		icon: icon,
-		iconClasses:
-			icon == 'check'
-				? 'bg-surface-green-3 text-ink-white rounded-md p-px'
-				: 'bg-surface-red-5 text-ink-white rounded-md p-px',
-		position: icon == 'check' ? 'bottom-right' : 'top-center',
-		timeout: icon == 'check' ? 5 : 10,
-	})
 }
 
 const breadcrumbs = computed(() => {
@@ -494,14 +505,14 @@ const breadcrumbs = computed(() => {
 	return crumbs
 })
 
-const pageMeta = computed(() => {
+usePageMeta(() => {
 	return {
-		title: 'Lesson Editor',
-		description: 'Create and edit lessons for your course',
+		title: lessonDetails?.data?.lesson
+			? lessonDetails.data.lesson.title
+			: 'New Lesson',
+		icon: brand.favicon,
 	}
 })
-
-updateDocumentTitle(pageMeta)
 </script>
 <style>
 .embed-tool__caption,
@@ -616,11 +627,95 @@ updateDocumentTitle(pageMeta)
 }
 
 iframe {
-	border-top: 3px solid theme('colors.gray.700');
-	border-bottom: 3px solid theme('colors.gray.700');
+	border: none !important;
 }
 
 .tc-table {
 	border-left: 1px solid #e8e8eb;
+}
+
+.ce-toolbox__button[data-tool='markdown'] {
+	display: none !important;
+}
+
+.ce-popover-item[data-item-name='markdown'] {
+	display: none !important;
+}
+
+.plyr__volume input[type='range'] {
+	display: none;
+}
+
+.plyr__control--overlaid {
+	background: radial-gradient(
+		circle,
+		rgba(0, 0, 0, 0.4) 0%,
+		rgba(0, 0, 0, 0.5) 50%
+	);
+}
+
+.plyr__control:hover {
+	background: none;
+}
+
+.plyr--video {
+	border: 1px solid theme('colors.gray.200');
+	border-radius: 8px;
+}
+
+.ce-popover__container {
+	border-radius: 12px;
+	padding: 8px;
+}
+
+.cdx-search-field {
+	border: none;
+}
+
+.cdx-search-field__input {
+	font-weight: 400;
+	font-size: 13px;
+}
+
+.cdx-search-field__input::before {
+	font-weight: 400;
+}
+
+.cdx-search-field__input:focus {
+	--tw-ring-color: theme('colors.gray.100');
+}
+
+.ce-popover-item__title {
+	font-size: 13px;
+	font-weight: 400;
+}
+
+.ce-popover-item__icon svg {
+	width: 15px;
+	height: 15px;
+}
+
+.ce-popover--opened > .ce-popover__container {
+	max-height: unset;
+}
+
+.cdx-search-field__icon svg {
+	width: 15px;
+	height: 15px;
+}
+
+.cdx-search-field__icon {
+	margin-right: 5px;
+}
+
+.cdx-block.embed-tool {
+	position: relative;
+	display: inline-block;
+	width: 100%;
+}
+
+:root {
+	--plyr-range-fill-background: white;
+	--plyr-video-control-background-hover: transparent;
 }
 </style>

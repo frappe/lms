@@ -4,9 +4,10 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import get_link_to_form, add_months, getdate
+from frappe.utils import add_months, get_link_to_form, getdate
 from frappe.utils.user import get_system_managers
-from lms.lms.utils import validate_image, generate_slug
+
+from lms.lms.utils import generate_slug, validate_image
 
 
 class JobOpportunity(Document):
