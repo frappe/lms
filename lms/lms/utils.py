@@ -1229,8 +1229,15 @@ def get_lesson(course, chapter, lesson):
 		["include_in_preview", "title", "is_scorm_package"],
 		as_dict=1,
 	)
-	if not lesson_details or lesson_details.is_scorm_package:
+
+	if not lesson_details:
 		return {}
+
+	if lesson_details.is_scorm_package:
+		return {
+			"is_scorm_package": True,
+			"chapter_name": chapter_name,
+		}
 
 	membership = get_membership(course)
 	course_info = frappe.db.get_value(
