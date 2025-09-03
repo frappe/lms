@@ -111,4 +111,4 @@ lms.patches.v2_0.sidebar_for_certified_members
 lms.patches.v2_0.move_batch_instructors_to_evaluators
 lms.patches.v2_0.enable_programming_exercises_in_sidebar
 lms.patches.v2_0.count_in_program
-lms.patches.v2_0.fix_scorm_lesson_reference_idx
+lms.patches.v2_0.fix_scorm_lesson_reference_idx #02-09-2025
