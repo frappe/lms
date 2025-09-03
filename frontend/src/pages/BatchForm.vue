@@ -513,11 +513,11 @@ const createNewBatch = () => {
 		{},
 		{
 			onSuccess(data) {
-				if (user.data?.is_system_manager) {
-					updateOnboardingStep('create_first_batch', true, false, () => {
-						localStorage.setItem('firstBatch', data.name)
-					})
-				}
+				// if (user.data?.is_system_manager) {
+				// 	updateOnboardingStep('create_first_batch', true, false, () => {
+				// 		localStorage.setItem('firstBatch', data.name)
+				// 	})
+				// }
 				updateMetaInfo('batches', data.name, meta)
 				capture('batch_created')
 				router.push({

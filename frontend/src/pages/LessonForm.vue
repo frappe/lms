@@ -420,7 +420,7 @@ const createNewLesson = () => {
 					{
 						onSuccess() {
 							if (user.data?.is_system_manager)
-								updateOnboardingStep('create_first_lesson')
+								// updateOnboardingStep('create_first_lesson')
 
 							capture('lesson_created')
 							toast.success(__('Lesson created successfully'))

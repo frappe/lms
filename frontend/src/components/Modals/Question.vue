@@ -278,7 +278,7 @@ const addQuestionRow = (question) => {
 		{
 			onSuccess() {
 				if (user.data?.is_system_manager)
-					updateOnboardingStep('create_first_quiz')
+					// updateOnboardingStep('create_first_quiz')
 
 				show.value = false
 				toast.success(__('Question added successfully'))

@@ -142,7 +142,7 @@ const addChapter = async (close) => {
 			},
 			onSuccess: (data) => {
 				if (user.data?.is_system_manager)
-					updateOnboardingStep('create_first_chapter')
+					// updateOnboardingStep('create_first_chapter')
 
 				capture('chapter_created')
 				chapterReference.submit(

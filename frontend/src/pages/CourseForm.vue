@@ -534,11 +534,11 @@ const createCourse = () => {
 	courseCreationResource.submit(course, {
 		onSuccess(data) {
 			updateMetaInfo('courses', data.name, meta)
-			if (user.data?.is_system_manager) {
-				updateOnboardingStep('create_first_course', true, false, () => {
-					localStorage.setItem('firstCourse', data.name)
-				})
-			}
+			// if (user.data?.is_system_manager) {
+			// 	updateOnboardingStep('create_first_course', true, false, () => {
+			// 		localStorage.setItem('firstCourse', data.name)
+			// 	})
+			// }
 
 			capture('course_created')
 			toast.success(__('Course created successfully'))

@@ -209,7 +209,7 @@ const newMember = createResource({
 	auto: false,
 	onSuccess(data: Member) {
 		show.value = false
-		if (user?.data?.is_system_manager) updateOnboardingStep('invite_students')
+		// if (user?.data?.is_system_manager) updateOnboardingStep('invite_students')
 
 		router.push({
 			name: 'ProfileRoles',

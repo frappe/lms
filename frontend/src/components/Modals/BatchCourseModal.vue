@@ -86,7 +86,7 @@ const addCourse = (close) => {
 		{
 			onSuccess() {
 				if (user.data?.is_system_manager)
-					updateOnboardingStep('add_batch_course')
+					// updateOnboardingStep('add_batch_course')
 
 				close()
 				courses.value.reload()

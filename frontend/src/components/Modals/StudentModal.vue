@@ -69,7 +69,7 @@ const addStudent = (close) => {
 		{
 			onSuccess() {
 				if (user.data?.is_system_manager)
-					updateOnboardingStep('add_batch_student')
+					// updateOnboardingStep('add_batch_student')
 
 				students.value.reload()
 				batchModal.value.reload()
