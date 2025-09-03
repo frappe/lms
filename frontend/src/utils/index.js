@@ -692,7 +692,7 @@ export const formatTimestamp = (seconds) => {
 	const hours = String(date.getUTCHours()).padStart(2, '0')
 	const minutes = String(date.getUTCMinutes()).padStart(2, '0')
 	const secs = String(date.getUTCSeconds()).padStart(2, '0')
-	return `${hours}:${minutes}:${secs}`
+	return hours > 0 ? `${hours}:${minutes}:${secs}` : `${minutes}:${secs}`
 }
 
 const getRootNode = (selector = '#editor') => {
@@ -725,20 +725,30 @@ const findMatchingTextNode = (walker, phrase) => {
 	return { node, startIndex, endIndex }
 }
 
-const createHighlightSpan = (color, name) => {
+const createHighlightSpan = (color, name, scrollIntoView) => {
 	const span = document.createElement('span')
 	span.className = 'highlighted-text'
-	span.style.backgroundColor = theme.backgroundColor[color][200]
+	if (scrollIntoView) {
+		span.style.border = `2px solid ${theme.backgroundColor[color][400]}`
+		span.style.borderRadius = '4px'
+	} else {
+		span.style.backgroundColor = theme.backgroundColor[color][200]
+	}
 	span.dataset.name = name
 	return span
 }
 
-const wrapRangeInHighlight = ({ node, startIndex, endIndex }, color, name) => {
+const wrapRangeInHighlight = (
+	{ node, startIndex, endIndex },
+	color,
+	name,
+	scrollIntoView
+) => {
 	const range = document.createRange()
 	range.setStart(node, startIndex)
 	range.setEnd(node, endIndex)
 
-	const span = createHighlightSpan(color, name)
+	const span = createHighlightSpan(color, name, scrollIntoView)
 	range.surroundContents(span)
 }
 
@@ -755,7 +765,7 @@ export const highlightText = (note, scrollIntoView = false) => {
 	const match = findMatchingTextNode(walker, phrase)
 	if (!match) return
 
-	wrapRangeInHighlight(match, color, note.name)
+	wrapRangeInHighlight(match, color, note.name, scrollIntoView)
 
 	if (scrollIntoView) {
 		match.node.parentElement.scrollIntoView({
@@ -767,7 +777,8 @@ export const highlightText = (note, scrollIntoView = false) => {
 				document.querySelectorAll('.highlighted-text')
 			highlightedElements.forEach((el) => {
 				if (el.dataset.name === note.name) {
-					el.style.backgroundColor = 'transparent'
+					el.style.border = 'none'
+					el.style.borderRadius = '0px'
 				}
 			})
 		}, 3000)
