@@ -1,6 +1,7 @@
 import AudioBlock from '@/components/AudioBlock.vue'
 import VideoBlock from '@/components/VideoBlock.vue'
 import UploadPlugin from '@/components/UploadPlugin.vue'
+import PdfViewerPlugin from '@/components/PdfViewer.vue'
 import { h, createApp } from 'vue'
 import { Upload as UploadIcon } from 'lucide-vue-next'
 import { createDialog } from '@/utils/dialogs'
@@ -65,11 +66,16 @@ export class Upload {
 			app.mount(this.wrapper)
 			return
 		} else if (file.file_type == 'PDF') {
-			this.wrapper.innerHTML = `<iframe src="${
-				window.location.origin
-			}${encodeURI(
-				file.file_url
-			)}" width='100%' height='700px' class="mb-4" type="application/pdf"></iframe>`
+			// this.wrapper.innerHTML = `<iframe src="${
+			// 	window.location.origin
+			// }${encodeURI(
+			// 	file.file_url
+			// )}" width='100%' height='700px' class="mb-4" type="application/pdf"></iframe>`
+
+			const app = createApp(PdfViewerPlugin, {
+				pdfUrl: file.file_url,
+			})
+			app.mount(this.wrapper)
 			return
 		} else {
 			this.wrapper.innerHTML = `<img class="mb-4" src=${encodeURI(

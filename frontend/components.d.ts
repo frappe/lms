@@ -87,6 +87,7 @@ declare module 'vue' {
     NotPermitted: typeof import('./src/components/NotPermitted.vue')['default']
     PageModal: typeof import('./src/components/Modals/PageModal.vue')['default']
     PaymentSettings: typeof import('./src/components/Settings/PaymentSettings.vue')['default']
+    PdfViewer: typeof import('./src/components/PdfViewer.vue')['default']
     Play: typeof import('./src/components/Icons/Play.vue')['default']
     ProgressBar: typeof import('./src/components/ProgressBar.vue')['default']
     Question: typeof import('./src/components/Modals/Question.vue')['default']
