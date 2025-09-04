@@ -84,13 +84,7 @@
 	</Dialog>
 </template>
 <script setup>
-import {
-	Dialog,
-	createResource,
-	Tooltip,
-	FormControl,
-	toast,
-} from 'frappe-ui'
+import { Dialog, createResource, Tooltip, FormControl, toast } from 'frappe-ui'
 import { reactive, inject, onMounted } from 'vue'
 import { getTimezones, getUserTimezone } from '@/utils/'
 import Autocomplete from '@/components/Controls/Autocomplete.vue'

@@ -1020,7 +1020,7 @@ def upsert_chapter(title, course, is_scorm_package, scorm_package, name=None):
 	chapter.save()
 
 	if is_scorm_package and not len(chapter.lessons):
-		add_lesson(title, chapter.name, course)
+		add_lesson(title, chapter.name, course, 1)
 
 	return chapter
 
@@ -1092,7 +1092,7 @@ def get_launch_file(extract_path):
 	return launch_file
 
 
-def add_lesson(title, chapter, course):
+def add_lesson(title, chapter, course, idx):
 	lesson = frappe.new_doc("Course Lesson")
 	lesson.update(
 		{
@@ -1107,6 +1107,7 @@ def add_lesson(title, chapter, course):
 	lesson_reference.update(
 		{
 			"lesson": lesson.name,
+			"idx": idx,
 			"parent": chapter,
 			"parenttype": "Course Chapter",
 			"parentfield": "lessons",

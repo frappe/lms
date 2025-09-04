@@ -54,7 +54,7 @@
 						:config="{
 							data: signupsChart.data,
 							title: 'Signups',
-							subtitle: 'Signups per month',
+							subtitle: 'Signups per day',
 							xAxis: {
 								key: 'date',
 								type: 'time',
@@ -74,7 +74,7 @@
 						:config="{
 							data: enrollmentChart.data,
 							title: 'Enrollments',
-							subtitle: 'Enrollments per month',
+							subtitle: 'Enrollments per day',
 							xAxis: {
 								key: 'date',
 								type: 'time',
@@ -96,7 +96,7 @@
 						:config="{
 							data: certification.data,
 							title: 'Certifications',
-							subtitle: 'Certifications per month',
+							subtitle: 'Certifications per day',
 							xAxis: {
 								key: 'date',
 								type: 'time',

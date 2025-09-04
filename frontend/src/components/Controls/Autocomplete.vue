@@ -257,7 +257,11 @@ watch(query, (q) => {
 watch(showOptions, (val) => {
 	if (val) {
 		nextTick(() => {
-			if (search.value && search.value.el && typeof search.value.el.focus === 'function') {
+			if (
+				search.value &&
+				search.value.el &&
+				typeof search.value.el.focus === 'function'
+			) {
 				search.value.el.focus()
 			}
 		})

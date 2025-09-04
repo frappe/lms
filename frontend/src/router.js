@@ -3,13 +3,11 @@ import { usersStore } from './stores/user'
 import { sessionStore } from './stores/session'
 import { useSettings } from './stores/settings'
 
-let defaultRoute = '/courses'
 const routes = [
 	{
 		path: '/',
-		redirect: {
-			name: 'Courses',
-		},
+		name: 'Home',
+		component: () => import('@/pages/Home/Home.vue'),
 	},
 	{
 		path: '/courses',
@@ -242,7 +240,7 @@ const routes = [
 ]
 
 let router = createRouter({
-	history: createWebHistory(import.meta.env.DEV ? '/' : '/lms'),
+	history: createWebHistory('/lms'),
 	routes,
 })
 
@@ -260,6 +258,8 @@ router.beforeEach(async (to, from, next) => {
 	}
 
 	if (!isLoggedIn) {
+		if (to.name == 'Home') router.push({ name: 'Courses' })
+
 		await allowGuestAccess.promise
 		if (!allowGuestAccess.data) {
 			window.location.href = '/login'

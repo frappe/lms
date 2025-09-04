@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<div v-if="quizzes.length && !showQuiz && readOnly" class="leading-5">
+		<div v-if="quizzes.length && !showQuiz && readOnly" class="leading-6">
 			{{
 				__('This video contains {0} {1}:').format(
 					quizzes.length,
