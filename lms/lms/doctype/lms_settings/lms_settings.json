@@ -8,10 +8,11 @@
   "general_tab",
   "default_home",
   "send_calendar_invite_for_evaluations",
-  "is_onboarding_complete",
+  "persona_captured",
   "column_break_zdel",
   "allow_guest_access",
-  "enable_learning_paths",
+  "prevent_skipping_videos",
+  "column_break_bjis",
   "unsplash_access_key",
   "livecode_url",
   "section_break_szgq",
@@ -27,13 +28,16 @@
   "signup_settings_tab",
   "signup_settings_section",
   "column_break_9",
-  "custom_signup_content",
   "user_category",
+  "disable_signup",
+  "custom_signup_content",
   "sidebar_tab",
   "items_in_sidebar_section",
   "courses",
   "batches",
   "certified_participants",
+  "certified_members",
+  "programming_exercises",
   "column_break_exdz",
   "jobs",
   "statistics",
@@ -58,15 +62,18 @@
   "certification_template",
   "batch_confirmation_template",
   "column_break_uwsp",
-  "assignment_submission_template",
-  "payment_reminder_template"
+  "payment_reminder_template",
+  "seo_tab",
+  "meta_description",
+  "meta_image",
+  "column_break_xijv",
+  "meta_keywords"
  ],
  "fields": [
   {
    "default": "https://livecode.dev.fossunited.org",
    "fieldname": "livecode_url",
    "fieldtype": "Data",
-   "hidden": 1,
    "label": "LiveCode URL"
   },
   {
@@ -104,14 +111,7 @@
    "default": "0",
    "fieldname": "user_category",
    "fieldtype": "Check",
-   "label": "Ask User Category during Signup"
-  },
-  {
-   "default": "0",
-   "fieldname": "is_onboarding_complete",
-   "fieldtype": "Check",
-   "label": "Is Onboarding Complete",
-   "read_only": 1
+   "label": "Identify User Category"
   },
   {
    "default": "0",
@@ -244,12 +244,6 @@
    "label": "Email Templates"
   },
   {
-   "fieldname": "assignment_submission_template",
-   "fieldtype": "Link",
-   "label": "Assignment Submission Template",
-   "options": "Email Template"
-  },
-  {
    "fieldname": "column_break_uwsp",
    "fieldtype": "Column Break"
   },
@@ -285,6 +279,7 @@
    "default": "1",
    "fieldname": "certified_participants",
    "fieldtype": "Check",
+   "hidden": 1,
    "label": "Certified Participants"
   },
   {
@@ -344,12 +339,6 @@
    "label": "Payments app is not installed"
   },
   {
-   "default": "0",
-   "fieldname": "enable_learning_paths",
-   "fieldtype": "Check",
-   "label": "Enable Learning Paths"
-  },
-  {
    "fieldname": "general_tab",
    "fieldtype": "Tab Break",
    "label": "General"
@@ -365,13 +354,76 @@
    "fieldtype": "Link",
    "label": "Payment Reminder Template",
    "options": "Email Template"
+  },
+  {
+   "default": "0",
+   "fieldname": "disable_signup",
+   "fieldtype": "Check",
+   "label": "Disable Signup"
+  },
+  {
+   "fieldname": "seo_tab",
+   "fieldtype": "Tab Break",
+   "label": "SEO"
+  },
+  {
+   "description": "This description will be shown on lists and pages without meta description",
+   "fieldname": "meta_description",
+   "fieldtype": "Small Text",
+   "label": "Meta Description"
+  },
+  {
+   "description": "This image will be shown on lists and pages that don't have an image by default",
+   "fieldname": "meta_image",
+   "fieldtype": "Attach Image",
+   "label": "Meta Image"
+  },
+  {
+   "fieldname": "column_break_xijv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Common keywords that will be used for all pages",
+   "fieldname": "meta_keywords",
+   "fieldtype": "Small Text",
+   "label": "Meta Keywords"
+  },
+  {
+   "default": "0",
+   "fieldname": "persona_captured",
+   "fieldtype": "Check",
+   "label": "Persona Captured",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "certified_members",
+   "fieldtype": "Check",
+   "label": "Certified Members"
+  },
+  {
+   "default": "0",
+   "fieldname": "prevent_skipping_videos",
+   "fieldtype": "Check",
+   "label": "Prevent Skipping Videos"
+  },
+  {
+   "fieldname": "column_break_bjis",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "programming_exercises",
+   "fieldtype": "Check",
+   "label": "Programming Exercises"
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-02-11 11:29:43.412897",
- "modified_by": "Administrator",
+ "modified": "2025-08-12 16:47:49.983018",
+ "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Settings",
  "owner": "Administrator",
@@ -392,8 +444,19 @@
    "read": 1,
    "role": "LMS Student",
    "share": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "Moderator",
+   "share": 1,
+   "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],

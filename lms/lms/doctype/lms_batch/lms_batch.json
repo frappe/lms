@@ -26,6 +26,7 @@
   "description",
   "column_break_hlqw",
   "instructors",
+  "zoom_account",
   "section_break_rgfj",
   "medium",
   "category",
@@ -354,8 +355,15 @@
   {
    "fieldname": "section_break_cssv",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "zoom_account",
+   "fieldtype": "Link",
+   "label": "Zoom Account",
+   "options": "LMS Zoom Settings"
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [
   {
@@ -371,8 +379,8 @@
    "link_fieldname": "batch_name"
   }
  ],
- "modified": "2025-02-18 15:43:18.512504",
- "modified_by": "Administrator",
+ "modified": "2025-05-26 15:30:55.083507",
+ "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Batch",
  "owner": "Administrator",
@@ -412,8 +420,18 @@
    "role": "Batch Evaluator",
    "share": 1,
    "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "LMS Student",
+   "share": 1
   }
  ],
+ "row_format": "Dynamic",
  "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",

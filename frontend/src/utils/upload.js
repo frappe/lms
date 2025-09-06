@@ -3,6 +3,7 @@ import VideoBlock from '@/components/VideoBlock.vue'
 import UploadPlugin from '@/components/UploadPlugin.vue'
 import { h, createApp } from 'vue'
 import { Upload as UploadIcon } from 'lucide-vue-next'
+import { createDialog } from '@/utils/dialogs'
 import translationPlugin from '../translation'
 
 export class Upload {
@@ -46,7 +47,15 @@ export class Upload {
 		if (this.isVideo(file.file_type)) {
 			const app = createApp(VideoBlock, {
 				file: file.file_url,
+				readOnly: this.readOnly,
+				quizzes: file.quizzes || [],
+				saveQuizzes: (quizzes) => {
+					if (this.readOnly) return
+					this.data.quizzes = quizzes
+				},
 			})
+			app.use(translationPlugin)
+			app.config.globalProperties.$dialog = createDialog
 			app.mount(this.wrapper)
 			return
 		} else if (this.isAudio(file.file_type)) {
@@ -56,11 +65,11 @@ export class Upload {
 			app.mount(this.wrapper)
 			return
 		} else if (file.file_type == 'PDF') {
-			this.wrapper.innerHTML = `<iframe src="https://docs.google.com/viewer?url=${
+			this.wrapper.innerHTML = `<iframe src="${
 				window.location.origin
 			}${encodeURI(
 				file.file_url
-			)}&embedded=true" width='100%' height='700px' class="mb-4" type="application/pdf"></iframe>`
+			)}" width='100%' height='700px' class="mb-4" type="application/pdf"></iframe>`
 			return
 		} else {
 			this.wrapper.innerHTML = `<img class="mb-4" src=${encodeURI(
@@ -93,6 +102,7 @@ export class Upload {
 		return {
 			file_url: this.data.file_url,
 			file_type: this.data.file_type,
+			quizzes: this.data.quizzes || [],
 		}
 	}
 

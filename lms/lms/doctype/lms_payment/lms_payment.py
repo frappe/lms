@@ -3,9 +3,9 @@
 
 import frappe
 from frappe import _
-from frappe.utils import add_days, nowdate
 from frappe.email.doctype.email_template.email_template import get_email_template
 from frappe.model.document import Document
+from frappe.utils import add_days, nowdate
 
 
 class LMSPayment(Document):
@@ -33,15 +33,42 @@ def send_payment_reminder():
 	)
 
 	for payment in incomplete_payments:
+		if has_paid_later(payment):
+			continue
+
+		if is_batch_sold_out(payment):
+			continue
+
 		send_mail(payment)
+
+
+def has_paid_later(payment):
+	return frappe.db.exists(
+		"LMS Payment",
+		{
+			"member": payment.member,
+			"payment_received": 1,
+			"payment_for_document": payment.payment_for_document,
+			"payment_for_document_type": payment.payment_for_document_type,
+		},
+	)
+
+
+def is_batch_sold_out(payment):
+	if payment.payment_for_document_type == "LMS Batch":
+		seat_count = frappe.get_cached_value("LMS Batch", payment.payment_for_document, "seat_count")
+		number_of_students = frappe.db.count("LMS Batch Enrollment", {"batch": payment.payment_for_document})
+
+		if seat_count <= number_of_students:
+			return True
+
+	return False
 
 
 def send_mail(payment):
 	subject = _("Complete Your Enrollment - Don't miss out!")
 	template = "payment_reminder"
-	custom_template = frappe.db.get_single_value(
-		"LMS Settings", "payment_reminder_template"
-	)
+	custom_template = frappe.db.get_single_value("LMS Settings", "payment_reminder_template")
 
 	args = {
 		"billing_name": payment.billing_name,

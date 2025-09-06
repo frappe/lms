@@ -19,19 +19,28 @@
 					doctype="User"
 					v-model="student"
 					:filters="{ ignore_user_type: 1 }"
+					:onCreate="
+						(value, close) => {
+							openSettings('Members', close)
+						}
+					"
 				/>
 			</div>
 		</template>
 	</Dialog>
 </template>
 <script setup>
-import { Dialog, createResource } from 'frappe-ui'
-import { ref } from 'vue'
+import { Dialog, createResource, toast } from 'frappe-ui'
+import { ref, inject } from 'vue'
 import Link from '@/components/Controls/Link.vue'
-import { showToast } from '@/utils'
+import { useOnboarding } from 'frappe-ui/frappe'
+import { openSettings } from '@/utils'
 
 const students = defineModel('reloadStudents')
+const batchModal = defineModel('batchModal')
 const student = ref()
+const user = inject('$user')
+const { updateOnboardingStep } = useOnboarding('learning')
 const show = defineModel()
 
 const props = defineProps({
@@ -59,12 +68,16 @@ const addStudent = (close) => {
 		{},
 		{
 			onSuccess() {
+				if (user.data?.is_system_manager)
+					updateOnboardingStep('add_batch_student')
+
 				students.value.reload()
+				batchModal.value.reload()
 				student.value = null
 				close()
 			},
 			onError(err) {
-				showToast(__('Error'), __(err.messages?.[0] || err), 'x')
+				toast.error(err.messages?.[0] || err)
 			},
 		}
 	)

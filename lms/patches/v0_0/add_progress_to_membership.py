@@ -6,9 +6,7 @@ from lms.lms.utils import get_course_progress
 
 def execute():
 	frappe.reload_doc("lms", "doctype", "lms_batch_membership")
-	memberships = frappe.get_all(
-		"LMS Enrollment", ["name", "course", "member"], order_by="course"
-	)
+	memberships = frappe.get_all("LMS Enrollment", ["name", "course", "member"], order_by="course")
 
 	if len(memberships):
 		current_course = memberships[0].course

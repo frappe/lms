@@ -1,10 +1,11 @@
 # Copyright (c) 2024, Frappe and contributors
 # For license information, please see license.txt
 
-import frappe
 import json
-from frappe.model.document import Document
+
+import frappe
 from frappe import _
+from frappe.model.document import Document
 
 
 class LMSBadge(Document):
@@ -27,16 +28,8 @@ class LMSBadge(Document):
 	def rule_condition_satisfied(self, doc):
 		doc_before_save = doc.get_doc_before_save()
 
-		if self.event == "Manual Assignment":
+		if self.event == "New" and doc_before_save is not None:
 			return False
-
-		if self.event == "New" and doc_before_save != None:
-			return False
-
-		if self.event == "Value Change":
-			field_to_check = self.field_to_check
-			if not field_to_check:
-				return False
 
 		if self.condition:
 			return eval_condition(doc, self.condition)

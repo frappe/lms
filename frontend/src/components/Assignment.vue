@@ -1,10 +1,13 @@
 <template>
 	<div
 		v-if="assignment.data"
-		class="grid grid-cols-[65%,35%] h-full"
-		:class="{ 'border rounded-lg': !showTitle }"
+		class="grid grid-cols-2 h-full"
+		:class="{ 'border rounded-lg overflow-auto': !showTitle }"
 	>
-		<div class="border-r p-5 overflow-y-auto h-[calc(100vh-3.2rem)]">
+		<div
+			class="border-r p-5 overflow-y-auto h-[calc(100vh-3.2rem)]"
+			:class="{ 'h-full': !showTitle }"
+		>
 			<div v-if="showTitle" class="text-lg font-semibold mb-5 text-ink-gray-9">
 				<div v-if="submissionName === 'new'">
 					{{ __('Submission by') }} {{ user.data?.full_name }}
@@ -50,7 +53,7 @@
 						!['Pass', 'Fail'].includes(submissionResource.doc?.status) &&
 						submissionResource.doc?.owner == user.data?.name
 					"
-					class="bg-surface-blue-2 p-3 rounded-md leading-5 text-sm mb-4"
+					class="bg-surface-blue-2 text-ink-blue-2 p-3 rounded-md leading-5 text-sm mb-4"
 				>
 					{{ __("You've successfully submitted the assignment.") }}
 					{{
@@ -116,7 +119,7 @@
 					/>
 				</div>
 				<div v-else>
-					<div class="text-sm mb-4">
+					<div class="text-sm mb-2 text-ink-gray-7">
 						{{ __('Write your answer here') }}
 					</div>
 					<TextEditor
@@ -138,9 +141,10 @@
 					<div class="text-sm text-ink-gray-5 font-medium mb-2">
 						{{ __('Comments by Evaluator') }}:
 					</div>
-					<div class="leading-5">
-						{{ submissionResource.doc.comments }}
-					</div>
+					<div
+						class="leading-5 text-ink-gray-9"
+						v-html="submissionResource.doc.comments"
+					></div>
 				</div>
 
 				<!-- Grading -->
@@ -187,10 +191,11 @@ import {
 	FileUploader,
 	FormControl,
 	TextEditor,
+	toast,
 } from 'frappe-ui'
 import { computed, inject, onMounted, onBeforeUnmount, ref, watch } from 'vue'
 import { FileText, X } from 'lucide-vue-next'
-import { showToast, getFileSize } from '@/utils'
+import { getFileSize } from '@/utils'
 import { useRouter } from 'vue-router'
 
 const submissionFile = ref(null)
@@ -198,7 +203,6 @@ const answer = ref(null)
 const comments = ref(null)
 const router = useRouter()
 const user = inject('$user')
-const showTitle = router.currentRoute.value.name == 'AssignmentSubmission'
 const isDirty = ref(false)
 
 const props = defineProps({
@@ -209,6 +213,10 @@ const props = defineProps({
 	submissionName: {
 		type: String,
 		default: 'new',
+	},
+	showTitle: {
+		type: Boolean,
+		default: true,
 	},
 })
 
@@ -277,7 +285,7 @@ const submissionResource = createDocumentResource({
 	doctype: 'LMS Assignment Submission',
 	name: props.submissionName,
 	onError(err) {
-		showToast(__('Error'), __(err.messages?.[0] || err), 'x')
+		toast.error(err.messages?.[0] || err)
 	},
 	auto: false,
 	cache: [user.data?.name, props.assignmentID],
@@ -331,7 +339,7 @@ const submitAssignment = () => {
 			},
 			{
 				onSuccess(data) {
-					showToast(__('Success'), __('Changes saved successfully'), 'check')
+					toast.success(__('Changes saved successfully'))
 				},
 			}
 		)
@@ -345,7 +353,7 @@ const addNewSubmission = () => {
 		{},
 		{
 			onSuccess(data) {
-				showToast('Success', 'Assignment submitted successfully.', 'check')
+				toast.success(__('Assignment submitted successfully'))
 				if (router.currentRoute.value.name == 'AssignmentSubmission') {
 					router.push({
 						name: 'AssignmentSubmission',
@@ -353,6 +361,7 @@ const addNewSubmission = () => {
 							assignmentID: props.assignmentID,
 							submissionName: data.name,
 						},
+						query: { fromLesson: router.currentRoute.value.query.fromLesson },
 					})
 				} else {
 					markLessonProgress()
@@ -362,7 +371,7 @@ const addNewSubmission = () => {
 				submissionResource.reload()
 			},
 			onError(err) {
-				showToast('Error', err.messages?.[0] || err, 'x')
+				toast.error(err.messages?.[0] || err)
 			},
 		}
 	)

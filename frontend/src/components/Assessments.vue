@@ -4,7 +4,7 @@
 			<div class="text-lg font-semibold text-ink-gray-9">
 				{{ __('Assessments') }}
 			</div>
-			<Button v-if="canSeeAddButton()" @click="showModal = true">
+			<Button v-if="canAddAssessments()" @click="showModal = true">
 				<template #prefix>
 					<Plus class="h-4 w-4" />
 				</template>
@@ -40,7 +40,7 @@
 						<template #default="{ column, item }">
 							<ListRowItem :item="row[column.key]" :align="column.align">
 								<div v-if="column.key == 'assessment_type'">
-									{{ row[column.key] == 'LMS Quiz' ? 'Quiz' : 'Assignment' }}
+									{{ getAssessmentTypeLabel(row[column.key]) }}
 								</div>
 								<div v-else-if="column.key == 'title'">
 									{{ row[column.key] }}
@@ -100,6 +100,7 @@ import { Plus, Trash2 } from 'lucide-vue-next'
 
 const user = inject('$user')
 const showModal = ref(false)
+const readOnlyMode = window.read_only_mode
 
 const props = defineProps({
 	batch: {
@@ -171,6 +172,24 @@ const getRowRoute = (row) => {
 				},
 			}
 		}
+	} else if (row.assessment_type == 'LMS Programming Exercise') {
+		if (row.submission) {
+			return {
+				name: 'ProgrammingExerciseSubmission',
+				params: {
+					exerciseID: row.assessment_name,
+					submissionID: row.submission.name,
+				},
+			}
+		} else {
+			return {
+				name: 'ProgrammingExerciseSubmission',
+				params: {
+					exerciseID: row.assessment_name,
+					submissionID: 'new',
+				},
+			}
+		}
 	} else {
 		return {
 			name: 'QuizPage',
@@ -181,7 +200,8 @@ const getRowRoute = (row) => {
 	}
 }
 
-const canSeeAddButton = () => {
+const canAddAssessments = () => {
+	if (readOnlyMode) return false
 	return user.data?.is_moderator || user.data?.is_evaluator
 }
 
@@ -211,12 +231,22 @@ const getAssessmentColumns = () => {
 }
 
 const getStatusTheme = (status) => {
-	if (status === 'Pass') {
+	if (status === 'Pass' || status === 'Passed') {
 		return 'green'
 	} else if (status === 'Not Graded') {
 		return 'orange'
 	} else {
 		return 'red'
+	}
+}
+
+const getAssessmentTypeLabel = (type) => {
+	if (type == 'LMS Assignment') {
+		return __('Assignment')
+	} else if (type == 'LMS Quiz') {
+		return __('Quiz')
+	} else if (type == 'LMS Programming Exercise') {
+		return __('Programming Exercise')
 	}
 }
 </script>

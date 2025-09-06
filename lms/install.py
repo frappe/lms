@@ -1,49 +1,18 @@
 import frappe
 from frappe.desk.page.setup_wizard.setup_wizard import add_all_roles_to
-from lms.lms.api import give_dicussions_permission
+
+from lms.lms.api import give_discussions_permission
 
 
 def after_install():
-	add_pages_to_nav()
 	create_batch_source()
-	give_dicussions_permission()
+	give_discussions_permission()
 
 
 def after_sync():
 	create_lms_roles()
 	set_default_certificate_print_format()
-	add_all_roles_to("Administrator")
-
-
-def add_pages_to_nav():
-	pages = [
-		{"label": "Explore", "idx": 1},
-		{"label": "Courses", "url": "/lms/courses", "parent": "Explore", "idx": 2},
-		{"label": "Batches", "url": "/lms/batches", "parent": "Explore", "idx": 3},
-		{"label": "Statistics", "url": "/lms/statistics", "parent": "Explore", "idx": 4},
-		{"label": "Jobs", "url": "/lms/job-openings", "parent": "Explore", "idx": 5},
-	]
-
-	for page in pages:
-		filters = frappe._dict()
-		if page.get("url"):
-			filters["url"] = ["like", "%" + page.get("url") + "%"]
-		else:
-			filters["label"] = page.get("label")
-
-		if not frappe.db.exists("Top Bar Item", filters):
-			frappe.get_doc(
-				{
-					"doctype": "Top Bar Item",
-					"label": page.get("label"),
-					"url": page.get("url"),
-					"parent_label": page.get("parent"),
-					"idx": page.get("idx"),
-					"parent": "Website Settings",
-					"parenttype": "Website Settings",
-					"parentfield": "top_bar_items",
-				}
-			).save()
+	give_lms_roles_to_admin()
 
 
 def before_uninstall():
@@ -203,4 +172,16 @@ def create_batch_source():
 		if not frappe.db.exists("LMS Source", source):
 			doc = frappe.new_doc("LMS Source")
 			doc.source = source
+			doc.save()
+
+
+def give_lms_roles_to_admin():
+	roles = ["Course Creator", "Moderator", "Batch Evaluator"]
+	for role in roles:
+		if not frappe.db.exists("Has Role", {"parent": "Administrator", "role": role}):
+			doc = frappe.new_doc("Has Role")
+			doc.parent = "Administrator"
+			doc.parenttype = "User"
+			doc.parentfield = "roles"
+			doc.role = role
 			doc.save()

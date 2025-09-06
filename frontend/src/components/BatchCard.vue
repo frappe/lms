@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="flex flex-col border-2 hover:bg-surface-gray-2 rounded-md p-4 h-full"
+		class="flex flex-col border hover:border-outline-gray-3 rounded-md p-4 h-full"
 		style="min-height: 150px"
 	>
 		<div class="text-lg leading-5 font-semibold mb-2 text-ink-gray-9">
@@ -70,9 +70,8 @@
 	</div>
 </template>
 <script setup>
-import { Badge } from 'frappe-ui'
-import { formatTime } from '../utils'
-import { Clock, BookOpen, Globe } from 'lucide-vue-next'
+import { formatTime } from '@/utils'
+import { Clock, Globe } from 'lucide-vue-next'
 import DateRange from '@/components/Common/DateRange.vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 import UserAvatar from '@/components/UserAvatar.vue'

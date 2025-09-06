@@ -4,6 +4,16 @@
 			{{ __('Settings') }}
 		</h2>
 		<div
+			v-if="readOnlyMode"
+			class="flex items-center space-x-2 text-sm text-ink-gray-7 bg-surface-gray-1 px-3 py-2 rounded-md w-full text-center"
+		>
+			<CircleAlert class="size-4 stroke-1.5" />
+			<span>
+				{{ __('You cannot change the roles in read-only mode.') }}
+			</span>
+		</div>
+		<div
+			v-else
 			class="flex flex-col md:flex-row gap-4 md:gap-0 justify-between w-3/4 mt-5"
 		>
 			<FormControl
@@ -34,14 +44,16 @@
 	</div>
 </template>
 <script setup>
-import { FormControl, createResource } from 'frappe-ui'
-import { ref } from 'vue'
-import { showToast, convertToTitleCase } from '@/utils'
+import { FormControl, createResource, toast } from 'frappe-ui'
+import { ref, watch } from 'vue'
+import { convertToTitleCase } from '@/utils'
+import { CircleAlert } from 'lucide-vue-next'
 
 const moderator = ref(false)
 const course_creator = ref(false)
 const batch_evaluator = ref(false)
 const lms_student = ref(false)
+const readOnlyMode = window.read_only_mode
 
 const props = defineProps({
 	profile: {
@@ -54,10 +66,9 @@ const roles = createResource({
 	url: 'lms.lms.utils.get_roles',
 	makeParams(values) {
 		return {
-			name: props.profile.data?.name,
+			name: values.member,
 		}
 	},
-	auto: true,
 	onSuccess(data) {
 		let roles = [
 			'moderator',
@@ -71,8 +82,18 @@ const roles = createResource({
 	},
 })
 
+watch(
+	() => props.profile,
+	(newValue) => {
+		roles.reload({
+			member: newValue.data?.name,
+		})
+	},
+	{ immediate: true }
+)
+
 const updateRole = createResource({
-	url: 'lms.overrides.user.save_role',
+	url: 'lms.lms.api.save_role',
 	makeParams(values) {
 		return {
 			user: props.profile.data?.name,
@@ -85,12 +106,15 @@ const updateRole = createResource({
 const changeRole = (role) => {
 	updateRole.submit(
 		{
-			role: convertToTitleCase(role.split('_').join(' ')),
+			role:
+				role == 'lms_student'
+					? 'LMS Student'
+					: convertToTitleCase(role.split('_').join(' ')),
 			value: eval(role).value,
 		},
 		{
 			onSuccess(data) {
-				showToast('Success', 'Role updated successfully', 'check')
+				toast.success(__('Role updated successfully'))
 			},
 		}
 	)

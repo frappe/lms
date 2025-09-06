@@ -3,10 +3,9 @@
 
 import frappe
 from frappe import _
-from frappe.model.document import Document
-from frappe.utils import validate_url, validate_email_address
-from frappe.email.doctype.email_template.email_template import get_email_template
 from frappe.desk.doctype.notification_log.notification_log import make_notification_logs
+from frappe.model.document import Document
+from frappe.utils import validate_url
 
 
 class LMSAssignmentSubmission(Document):
@@ -15,14 +14,6 @@ class LMSAssignmentSubmission(Document):
 		self.validate_url()
 		self.validate_status()
 
-	def after_insert(self):
-		if not frappe.flags.in_test:
-			outgoing_email_account = frappe.get_cached_value(
-				"Email Account", {"default_outgoing": 1, "enable_outgoing": 1}, "name"
-			)
-			if outgoing_email_account or frappe.conf.get("mail_login"):
-				self.send_mail()
-
 	def validate_duplicates(self):
 		if frappe.db.exists(
 			"LMS Assignment Submission",
@@ -30,61 +21,25 @@ class LMSAssignmentSubmission(Document):
 		):
 			lesson_title = frappe.db.get_value("Course Lesson", self.lesson, "title")
 			frappe.throw(
-				_("Assignment for Lesson {0} by {1} already exists.").format(
-					lesson_title, self.member_name
-				)
+				_("Assignment for Lesson {0} by {1} already exists.").format(lesson_title, self.member_name)
 			)
 
 	def validate_url(self):
 		if self.type == "URL" and not validate_url(self.answer):
 			frappe.throw(_("Please enter a valid URL."))
 
-	def send_mail(self):
-		subject = _("New Assignment Submission")
-		template = "assignment_submission"
-		custom_template = frappe.db.get_single_value(
-			"LMS Settings", "assignment_submission_template"
-		)
-
-		args = {
-			"member_name": self.member_name,
-			"assignment_name": self.assignment,
-			"assignment_title": self.assignment_title,
-			"submission_name": self.name,
-		}
-
-		moderators = frappe.get_all("Has Role", {"role": "Moderator"}, pluck="parent")
-		for moderator in moderators:
-			if not validate_email_address(moderator):
-				moderators.remove(moderator)
-
-		if custom_template:
-			email_template = get_email_template(custom_template, args)
-			subject = email_template.get("subject")
-			content = email_template.get("message")
-		frappe.sendmail(
-			recipients=moderators,
-			subject=subject,
-			template=template if not custom_template else None,
-			content=content if custom_template else None,
-			args=args,
-			header=[subject, "green"],
-		)
-
 	def validate_status(self):
 		if not self.is_new():
 			doc_before_save = self.get_doc_before_save()
-			if (
-				doc_before_save.status != self.status or doc_before_save.comments != self.comments
-			):
+			if doc_before_save.status != self.status or doc_before_save.comments != self.comments:
 				self.trigger_update_notification()
 
 	def trigger_update_notification(self):
 		notification = frappe._dict(
 			{
-				"subject": _(
-					"There has been an update on your submission for assignment {0}"
-				).format(self.assignment_title),
+				"subject": _("There has been an update on your submission for assignment {0}").format(
+					self.assignment_title
+				),
 				"email_content": self.comments,
 				"document_type": self.doctype,
 				"document_name": self.name,

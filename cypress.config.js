@@ -1,6 +1,6 @@
-const { defineConfig } = require("cypress");
+import { defineConfig } from "cypress";
 
-module.exports = defineConfig({
+export default defineConfig({
 	projectId: "vandxn",
 	adminPassword: "admin",
 	testUser: "frappe@example.com",
@@ -13,6 +13,6 @@ module.exports = defineConfig({
 		openMode: 0,
 	},
 	e2e: {
-		baseUrl: "http://testui:8000",
+		baseUrl: "http://pertest:8000",
 	},
 });

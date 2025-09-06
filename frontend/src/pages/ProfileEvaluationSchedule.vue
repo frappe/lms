@@ -58,6 +58,7 @@ const evaluations = createListResource({
 	doctype: 'LMS Certificate Request',
 	filters: {
 		evaluator: user.data?.name,
+		status: ['!=', 'Cancelled'],
 	},
 	fields: [
 		'name',
@@ -76,7 +77,7 @@ const evaluations = createListResource({
 	],
 	auto: true,
 	orderBy: 'creation desc',
-	limit: 100,
+	pageLength: 500,
 	cache: ['schedule', user.data?.name],
 	transform(data) {
 		return data.map((d) => {

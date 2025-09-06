@@ -18,14 +18,18 @@
 				class="h-[130px] w-full"
 			></div>
 			<div
-				class="absolute bottom-0 left-1/2 mb-4 flex -translate-x-1/2 space-x-2 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100"
+				class="absolute bottom-[30%] md:bottom-0 left-[50%] mb-4 flex -translate-x-1/2 space-x-2 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100"
 				v-if="isSessionUser()"
 			>
 				<EditCoverImage
 					@select="(imageUrl) => coverImage.submit({ url: imageUrl })"
 				>
 					<template v-slot="{ togglePopover }">
-						<Button variant="outline" @click="togglePopover()">
+						<Button
+							v-if="!readOnlyMode"
+							variant="outline"
+							@click="togglePopover()"
+						>
 							<template #prefix>
 								<Edit class="w-4 h-4 stroke-1.5 text-ink-gray-7" />
 							</template>
@@ -58,7 +62,7 @@
 					</div>
 				</div>
 				<Button
-					v-if="isSessionUser()"
+					v-if="isSessionUser() && !readOnlyMode"
 					class="mt-3 sm:mt-0 md:ml-auto"
 					@click="editProfile()"
 				>
@@ -76,7 +80,7 @@
 					v-model="activeTab"
 				/>
 			</div>
-			<router-view :profile="profile" />
+			<router-view :profile="profile" :key="profile.data?.name" />
 		</div>
 	</div>
 	<EditProfile
@@ -86,23 +90,30 @@
 	/>
 </template>
 <script setup>
-import { Breadcrumbs, createResource, Button, TabButtons } from 'frappe-ui'
+import {
+	Breadcrumbs,
+	createResource,
+	Button,
+	TabButtons,
+	usePageMeta,
+} from 'frappe-ui'
 import { computed, inject, watch, ref, onMounted, watchEffect } from 'vue'
 import { sessionStore } from '@/stores/session'
 import { Edit } from 'lucide-vue-next'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { useRoute, useRouter } from 'vue-router'
 import NoPermission from '@/components/NoPermission.vue'
-import { convertToTitleCase, updateDocumentTitle } from '@/utils'
+import { convertToTitleCase } from '@/utils'
 import EditProfile from '@/components/Modals/EditProfile.vue'
 import EditCoverImage from '@/components/Modals/EditCoverImage.vue'
 
-const { user } = sessionStore()
+const { user, brand } = sessionStore()
 const $user = inject('$user')
 const route = useRoute()
 const router = useRouter()
 const activeTab = ref('')
 const showProfileModal = ref(false)
+const readOnlyMode = window.read_only_mode
 
 const props = defineProps({
 	username: {
@@ -215,12 +226,10 @@ const breadcrumbs = computed(() => {
 	return crumbs
 })
 
-const pageMeta = computed(() => {
+usePageMeta(() => {
 	return {
 		title: profile.data?.full_name,
-		description: profile.data?.headline,
+		icon: brand.favicon,
 	}
 })
-
-updateDocumentTitle(pageMeta)
 </script>

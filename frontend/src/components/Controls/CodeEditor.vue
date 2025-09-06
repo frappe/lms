@@ -5,7 +5,7 @@
 			height: height,
 		}"
 	>
-		<span class="text-xs text-ink-gray-7" v-if="label">
+		<span class="text-xs text-ink-gray-7 mb-1" v-if="label">
 			{{ label }}
 		</span>
 		<div
@@ -146,7 +146,6 @@ function resetEditor(value: string, resetHistory = false) {
 	value = getModelValue()
 	aceEditor?.setValue(value)
 	aceEditor?.clearSelection()
-	console.log(isDark.value)
 	aceEditor?.setTheme(isDark.value ? 'ace/theme/twilight' : 'ace/theme/chrome')
 	props.autofocus && aceEditor?.focus()
 	if (resetHistory) {

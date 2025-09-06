@@ -14,6 +14,7 @@
   "member",
   "member_name",
   "member_username",
+  "member_image",
   "certification_section",
   "purchased_certificate",
   "certificate",
@@ -91,7 +92,7 @@
    "fetch_from": "member.username",
    "fieldname": "member_username",
    "fieldtype": "Data",
-   "label": "Memeber Username",
+   "label": "Member Username",
    "read_only": 1
   },
   {
@@ -143,11 +144,18 @@
    "fieldtype": "Link",
    "label": "Certificate",
    "options": "LMS Certificate"
+  },
+  {
+   "fetch_from": "member.user_image",
+   "fieldname": "member_image",
+   "fieldtype": "Attach Image",
+   "label": "Member Image"
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-02-21 17:11:37.986157",
+ "modified": "2025-07-02 21:27:30.733482",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Enrollment",
@@ -192,6 +200,7 @@
   }
  ],
  "quick_entry": 1,
+ "row_format": "Dynamic",
  "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",

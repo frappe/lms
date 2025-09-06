@@ -8,6 +8,11 @@
  "engine": "InnoDB",
  "field_order": [
   "evaluator",
+  "full_name",
+  "column_break_casg",
+  "user_image",
+  "username",
+  "section_break_ljse",
   "schedule",
   "unavailability_section",
   "unavailable_from",
@@ -18,8 +23,10 @@
   {
    "fieldname": "evaluator",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Evaluator",
    "options": "User",
+   "reqd": 1,
    "unique": 1
   },
   {
@@ -46,11 +53,37 @@
    "fieldname": "unavailable_to",
    "fieldtype": "Date",
    "label": "To"
+  },
+  {
+   "fetch_from": "evaluator.full_name",
+   "fieldname": "full_name",
+   "fieldtype": "Data",
+   "label": "Full Name"
+  },
+  {
+   "fieldname": "column_break_casg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_ljse",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fetch_from": "evaluator.user_image",
+   "fieldname": "user_image",
+   "fieldtype": "Attach Image",
+   "label": "User Image"
+  },
+  {
+   "fetch_from": "evaluator.username",
+   "fieldname": "username",
+   "fieldtype": "Data",
+   "label": "Username"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-02-24 12:17:08.436659",
+ "modified": "2025-07-04 12:04:11.007945",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Course Evaluator",
@@ -94,7 +127,9 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "title_field": "full_name"
 }

@@ -1,22 +1,24 @@
 # Copyright (c) 2022, Frappe and contributors
 # For license information, please see license.txt
 
+import json
+
 import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.model.mapper import get_mapped_doc
 from frappe.utils import (
+	add_to_date,
 	format_date,
 	format_time,
-	getdate,
-	add_to_date,
 	get_datetime,
-	nowtime,
-	get_time,
 	get_fullname,
+	get_time,
+	getdate,
+	nowtime,
 )
+
 from lms.lms.utils import get_evaluator
-import json
 
 
 class LMSCertificateRequest(Document):
@@ -77,6 +79,7 @@ class LMSCertificateRequest(Document):
 				"member": self.member,
 				"course": self.course,
 				"name": ["!=", self.name],
+				"status": "Upcoming",
 			},
 			["date", "start_time", "course"],
 		)
@@ -85,10 +88,7 @@ class LMSCertificateRequest(Document):
 			if (
 				req.date == getdate(self.date)
 				or getdate() < getdate(req.date)
-				or (
-					getdate() == getdate(req.date)
-					and getdate(self.start_time) < getdate(req.start_time)
-				)
+				or (getdate() == getdate(req.date) and get_time(nowtime()) < get_time(req.start_time))
 			):
 				course_title = frappe.db.get_value("LMS Course", req.course, "title")
 				frappe.throw(
@@ -98,16 +98,12 @@ class LMSCertificateRequest(Document):
 						course_title,
 					)
 				)
-		if getdate() == getdate(self.date) and get_time(self.start_time) < get_time(
-			nowtime()
-		):
+		if getdate() == getdate(self.date) and get_time(self.start_time) < get_time(nowtime()):
 			frappe.throw(_("You cannot schedule evaluations for past slots."))
 
 	def validate_evaluation_end_date(self):
 		if self.batch_name:
-			evaluation_end_date = frappe.db.get_value(
-				"LMS Batch", self.batch_name, "evaluation_end_date"
-			)
+			evaluation_end_date = frappe.db.get_value("LMS Batch", self.batch_name, "evaluation_end_date")
 
 			if evaluation_end_date:
 				if getdate(self.date) > getdate(evaluation_end_date):
@@ -150,7 +146,11 @@ def schedule_evals():
 		timelapse = add_to_date(get_datetime(), hours=-5)
 		evals = frappe.get_all(
 			"LMS Certificate Request",
-			{"creation": [">=", timelapse], "google_meet_link": ["is", "not set"]},
+			{
+				"creation": [">=", timelapse],
+				"google_meet_link": ["is", "not set"],
+				"status": "Upcoming",
+			},
 			["name", "member", "member_name", "evaluator", "date", "start_time", "end_time"],
 		)
 		for eval in evals:
@@ -162,9 +162,7 @@ def setup_calendar_event(eval):
 	if isinstance(eval, str):
 		eval = frappe._dict(json.loads(eval))
 
-	calendar = frappe.db.get_value(
-		"Google Calendar", {"user": eval.evaluator, "enable": 1}, "name"
-	)
+	calendar = frappe.db.get_value("Google Calendar", {"user": eval.evaluator, "enable": 1}, "name")
 
 	if calendar:
 		event = create_event(eval)
@@ -214,15 +212,11 @@ def update_meeting_details(eval, event, calendar):
 
 	event.save()
 	event.reload()
-	frappe.db.set_value(
-		"LMS Certificate Request", eval.name, "google_meet_link", event.google_meet_link
-	)
+	frappe.db.set_value("LMS Certificate Request", eval.name, "google_meet_link", event.google_meet_link)
 
 
 @frappe.whitelist()
-def create_certificate_request(
-	course, date, day, start_time, end_time, batch_name=None
-):
+def create_certificate_request(course, date, day, start_time, end_time, batch_name=None):
 	is_member = frappe.db.exists(
 		{"doctype": "LMS Enrollment", "course": course, "member": frappe.session.user}
 	)
@@ -254,3 +248,20 @@ def create_lms_certificate_evaluation(source_name, target_doc=None):
 		target_doc,
 	)
 	return doc
+
+
+def mark_eval_as_completed():
+	requests = frappe.get_all(
+		"LMS Certificate Request",
+		{
+			"status": "Upcoming",
+			"date": ["<=", getdate()],
+		},
+		["name", "end_time", "date"],
+	)
+
+	for req in requests:
+		if req.date < getdate():
+			frappe.db.set_value("LMS Certificate Request", req.name, "status", "Completed")
+		elif req.date == getdate() and get_time(req.end_time) < get_time(nowtime()):
+			frappe.db.set_value("LMS Certificate Request", req.name, "status", "Completed")

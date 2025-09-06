@@ -1,3 +1,6 @@
+import { CodeXml } from 'lucide-vue-next'
+import { createApp, h } from 'vue'
+
 export class Markdown {
 	constructor({ data, api, readOnly, config }) {
 		this.api = api
@@ -5,6 +8,7 @@ export class Markdown {
 		this.config = config || {}
 		this.text = data.text || ''
 		this.readOnly = readOnly
+		this.placeholder = __("Type '/' for commands or select text to format")
 	}
 
 	static get isReadOnlySupported() {
@@ -18,13 +22,26 @@ export class Markdown {
 		}
 	}
 
+	static get toolbox() {
+		const app = createApp({
+			render: () =>
+				h(CodeXml, { size: 18, strokeWidth: 1.5, color: 'black' }),
+		})
+
+		const div = document.createElement('div')
+		app.mount(div)
+		return {
+			title: '',
+			icon: div.innerHTML,
+		}
+	}
+
 	onPaste(event) {
 		const data = {
 			text: event.detail.data.innerHTML,
 		}
 
 		this.data = data
-
 		window.requestAnimationFrame(() => {
 			if (!this.wrapper) {
 				return
@@ -41,15 +58,22 @@ export class Markdown {
 
 	render() {
 		this.wrapper = document.createElement('div')
-		this.wrapper.classList.add('cdx-block')
-		this.wrapper.classList.add('ce-paragraph')
+		this.wrapper.classList.add('cdx-block', 'ce-paragraph')
 		this.wrapper.innerHTML = this.text
 
 		if (!this.readOnly) {
 			this.wrapper.contentEditable = true
 			this.wrapper.innerHTML = this.text
 
-			this.wrapper.addEventListener('keydown', (event) => {
+			this.wrapper.addEventListener('focus', () =>
+				this._togglePlaceholder()
+			)
+			this.wrapper.addEventListener('blur', () =>
+				this._togglePlaceholder()
+			)
+
+			this.wrapper.addEventListener('input', (event) => {
+				this._togglePlaceholder()
 				let value = event.target.textContent
 				if (event.keyCode === 32 && value.startsWith('#')) {
 					this.convertToHeader(event, value)
@@ -68,6 +92,22 @@ export class Markdown {
 		}
 
 		return this.wrapper
+	}
+
+	_togglePlaceholder() {
+		const blocks = document.querySelectorAll(
+			'.cdx-block.ce-paragraph[data-placeholder]'
+		)
+		blocks.forEach((block) => {
+			if (block !== this.wrapper) {
+				delete block.dataset.placeholder
+			}
+		})
+		if (this.wrapper.innerHTML.trim() === '') {
+			this.wrapper.dataset.placeholder = this.placeholder
+		} else {
+			delete this.wrapper.dataset.placeholder
+		}
 	}
 
 	convertToHeader(event, value) {
@@ -165,7 +205,7 @@ export class Markdown {
 	}
 
 	canBeEmbed(line) {
-		return /^https?:\/\/.+/.test(line)
+		return /^https?:\/\/.+/.test(line.trim())
 	}
 }
 

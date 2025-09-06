@@ -25,6 +25,7 @@
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
 import "cypress-file-upload";
+import "cypress-real-events";
 
 Cypress.Commands.add("login", (email, password) => {
 	if (!email) {
@@ -37,6 +38,9 @@ Cypress.Commands.add("login", (email, password) => {
 		url: "/api/method/login",
 		method: "POST",
 		body: { usr: email, pwd: password },
+		timeout: 60000,
+		retryOnStatusCodeFailure: true,
+		retryOnNetworkFailure: true,
 	});
 });
 
@@ -63,5 +67,20 @@ Cypress.Commands.add("paste", { prevSubject: true }, (subject, text) => {
 		element.textContent = text;
 		const event = new Event("paste", { bubbles: true });
 		element.dispatchEvent(event);
+	});
+});
+
+Cypress.Commands.add("closeOnboardingModal", () => {
+	cy.wait(500);
+	cy.get("body").then(($body) => {
+		// Check if any element with class including 'z-50' exists
+		if ($body.find('[class*="z-50"]').length > 0) {
+			cy.get('[class*="z-50"]')
+				.find('button:has(svg[class*="feather-x"])')
+				.realClick();
+			cy.wait(1000);
+		} else {
+			cy.log("Onboarding modal not found, skipping close.");
+		}
 	});
 });

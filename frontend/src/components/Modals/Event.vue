@@ -76,8 +76,8 @@
 						</Button>
 					</div>
 				</div>
-				<Tabs :tabs="tabs" v-model="tabIndex" class="border-l w-1/2">
-					<template #default="{ tab }">
+				<Tabs :tabs="tabs" as="div" v-model="tabIndex" class="border-l w-1/2">
+					<template #tab-panel="{ tab }">
 						<div
 							v-if="tab.label == 'Evaluation'"
 							class="flex flex-col space-y-4 p-5"
@@ -144,6 +144,7 @@ import {
 	Tabs,
 	Tooltip,
 	Textarea,
+	toast,
 } from 'frappe-ui'
 import {
 	User,
@@ -157,7 +158,7 @@ import {
 	ClipboardList,
 } from 'lucide-vue-next'
 import { inject, reactive, watch, ref, computed } from 'vue'
-import { formatTime, showToast } from '@/utils'
+import { formatTime } from '@/utils'
 import Rating from '@/components/Controls/Rating.vue'
 import Link from '@/components/Controls/Link.vue'
 
@@ -252,7 +253,10 @@ const saveEvaluation = () => {
 				} else {
 					show.value = false
 				}
-				showToast(__('Success'), __('Evaluation saved successfully'), 'check')
+				toast.success(__('Evaluation saved successfully'))
+			},
+			onError(err) {
+				toast.warning(__(err.messages?.[0] || err))
 			},
 		}
 	)
@@ -275,6 +279,9 @@ const certificateResource = createResource({
 	auto: false,
 	onSuccess(data) {
 		certificate.name = data
+	},
+	onError(err) {
+		toast.warning(__(err.messages?.[0] || err))
 	},
 })
 
@@ -307,7 +314,10 @@ const saveCertificate = () => {
 		{},
 		{
 			onSuccess: () => {
-				showToast(__('Success'), __('Certificate saved successfully'), 'check')
+				toast.success(__('Certificate saved successfully'))
+			},
+			onError(err) {
+				toast.error(__(err.messages?.[0] || err))
 			},
 		}
 	)

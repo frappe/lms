@@ -3,9 +3,7 @@ import frappe
 
 def execute():
 	if "payments" not in frappe.get_installed_apps():
-		web_form_custom_fields = frappe.get_all(
-			"Custom Field", {"dt": "Web Form"}, ["name", "fieldname"]
-		)
+		web_form_custom_fields = frappe.get_all("Custom Field", {"dt": "Web Form"}, ["name", "fieldname"])
 
 		unused_fields = [
 			"currency",

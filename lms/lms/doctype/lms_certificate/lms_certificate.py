@@ -3,11 +3,12 @@
 
 import frappe
 from frappe import _
-from frappe.model.document import Document
-from frappe.utils import add_years, nowdate
-from lms.lms.utils import is_certified
 from frappe.email.doctype.email_template.email_template import get_email_template
+from frappe.model.document import Document
 from frappe.model.naming import make_autoname
+from frappe.utils import add_years, nowdate
+
+from lms.lms.utils import is_certified
 
 
 class LMSCertificate(Document):
