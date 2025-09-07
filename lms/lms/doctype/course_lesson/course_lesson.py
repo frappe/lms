@@ -52,10 +52,9 @@ class SCORMDetails(BaseModel):
 
 
 @frappe.whitelist()
-def save_progress(lesson, course, scorm_details=None):
+def save_progress(lesson, course, scorm_details: SCORMDetails | None = None):
 	"""
-	Note: Pass the argument scorm_details only if it is SCORM related save_progress,
-	scorm_details should be of type SCORMDetails
+	Note: Pass the argument scorm_details only if it is SCORM related save_progress
 	"""
 	membership = frappe.db.exists("LMS Enrollment", {"course": course, "member": frappe.session.user})
 	if not membership:
