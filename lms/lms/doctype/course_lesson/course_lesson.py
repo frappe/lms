@@ -8,7 +8,6 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.realtime import get_website_room
 from frappe.utils.telemetry import capture
-from pydantic import BaseModel
 
 from lms.lms.utils import get_course_progress
 
@@ -46,15 +45,10 @@ class CourseLesson(Document):
 				)
 
 
-class SCORMDetails(BaseModel):
-	is_complete: bool
-	scorm_content: str | None = None
-
-
 @frappe.whitelist()
-def save_progress(lesson, course, scorm_details: SCORMDetails | None = None):
+def save_progress(lesson, course, scorm_details=None):
 	"""
-	Note: Pass the argument scorm_details only if it is SCORM related save_progress
+	Note: Pass the argument scorm_details as a dict if it is SCORM related save_progress
 	"""
 	membership = frappe.db.exists("LMS Enrollment", {"course": course, "member": frappe.session.user})
 	if not membership:
@@ -71,6 +65,9 @@ def save_progress(lesson, course, scorm_details: SCORMDetails | None = None):
 
 	quiz_completed = get_quiz_progress(lesson)
 	assignment_completed = get_assignment_progress(lesson)
+
+	if scorm_details:
+		scorm_details = frappe._dict(**scorm_details)
 
 	if not progress_already_exists and quiz_completed and assignment_completed and not scorm_details:
 		frappe.get_doc(
