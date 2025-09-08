@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Frappe LMS VERSION\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2025-08-29 16:04+0000\n"
-"PO-Revision-Date: 2025-08-29 16:04+0000\n"
+"POT-Creation-Date: 2025-09-05 16:04+0000\n"
+"PO-Revision-Date: 2025-09-05 16:04+0000\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: jannat@frappe.io\n"
 "MIME-Version: 1.0\n"
@@ -1300,7 +1300,7 @@ msgstr ""
 msgid "Common keywords that will be used for all pages"
 msgstr ""
 
-#: frontend/src/pages/Lesson.vue:829
+#: frontend/src/pages/Lesson.vue:839
 msgid "Community"
 msgstr ""
 
@@ -2287,7 +2287,7 @@ msgstr ""
 msgid "End Time"
 msgstr ""
 
-#: frontend/src/components/LiveClass.vue:89
+#: frontend/src/components/LiveClass.vue:92
 #: frontend/src/pages/Home/AdminHome.vue:183
 #: frontend/src/pages/Home/StudentHome.vue:126
 msgid "Ended"
@@ -2328,7 +2328,7 @@ msgstr ""
 msgid "Enrollment Count"
 msgstr ""
 
-#: lms/lms/utils.py:1873
+#: lms/lms/utils.py:1880
 msgid "Enrollment Failed, {0}"
 msgstr ""
 
@@ -2466,7 +2466,7 @@ msgstr ""
 msgid "Evaluator deleted successfully"
 msgstr ""
 
-#: lms/lms/api.py:1391
+#: lms/lms/api.py:1392
 msgid "Evaluator does not exist."
 msgstr ""
 
@@ -3271,7 +3271,7 @@ msgstr ""
 msgid "Jobs"
 msgstr ""
 
-#: frontend/src/components/LiveClass.vue:78
+#: frontend/src/components/LiveClass.vue:81
 #: frontend/src/pages/Home/AdminHome.vue:172
 #: frontend/src/pages/Home/StudentHome.vue:115
 #: lms/templates/upcoming_evals.html:15
@@ -4149,7 +4149,7 @@ msgstr ""
 msgid "Meta Tags"
 msgstr ""
 
-#: lms/lms/api.py:1431
+#: lms/lms/api.py:1432
 msgid "Meta tags should be a list."
 msgstr ""
 
@@ -4386,7 +4386,7 @@ msgstr ""
 msgid "No introduction"
 msgstr ""
 
-#: frontend/src/components/LiveClass.vue:97
+#: frontend/src/components/LiveClass.vue:100
 msgid "No live classes scheduled"
 msgstr ""
 
@@ -4472,8 +4472,8 @@ msgstr ""
 msgid "Note"
 msgstr ""
 
-#: frontend/src/pages/Lesson.vue:359 frontend/src/pages/Lesson.vue:825
-#: frontend/src/pages/Lesson.vue:836
+#: frontend/src/pages/Lesson.vue:359 frontend/src/pages/Lesson.vue:835
+#: frontend/src/pages/Lesson.vue:846
 msgid "Notes"
 msgstr ""
 
@@ -4918,7 +4918,7 @@ msgstr ""
 msgid "Please login to continue with payment."
 msgstr ""
 
-#: lms/lms/utils.py:2006
+#: lms/lms/utils.py:2013
 msgid "Please login to enroll in the program."
 msgstr ""
 
@@ -5998,7 +5998,7 @@ msgstr ""
 msgid "Stage"
 msgstr ""
 
-#: frontend/src/components/LiveClass.vue:70 frontend/src/components/Quiz.vue:81
+#: frontend/src/components/LiveClass.vue:73 frontend/src/components/Quiz.vue:81
 #: frontend/src/pages/Home/AdminHome.vue:164
 #: frontend/src/pages/Home/StudentHome.vue:107
 msgid "Start"
@@ -6389,7 +6389,7 @@ msgstr ""
 msgid "Thanks and Regards"
 msgstr ""
 
-#: lms/lms/utils.py:1897
+#: lms/lms/utils.py:1904
 msgid "The batch is full. Please contact the Administrator."
 msgstr ""
 
@@ -6468,7 +6468,7 @@ msgstr ""
 msgid "This certificate does no expire"
 msgstr ""
 
-#: frontend/src/components/LiveClass.vue:83
+#: frontend/src/components/LiveClass.vue:86
 #: frontend/src/pages/Home/AdminHome.vue:177
 #: frontend/src/pages/Home/StudentHome.vue:120
 msgid "This class has ended"
@@ -6478,7 +6478,7 @@ msgstr ""
 msgid "This course has:"
 msgstr ""
 
-#: lms/lms/utils.py:1758
+#: lms/lms/utils.py:1765
 msgid "This course is free."
 msgstr ""
 
@@ -6664,7 +6664,7 @@ msgstr ""
 msgid "To Date"
 msgstr ""
 
-#: lms/lms/utils.py:1769
+#: lms/lms/utils.py:1776
 msgid "To join this batch, please contact the Administrator."
 msgstr ""
 
