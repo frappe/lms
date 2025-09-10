@@ -14,13 +14,14 @@
         </button>
       </div>
 
+      <!-- Unstable: temporary disabled  -->
       <!-- Zoom Controls -->
-      <div class="zoom-controls">
+      <!-- <div class="zoom-controls">
         <button @click="zoomOut" class="btn">-</button>
         <span class="zoom-level">{{ Math.round(scale * 100) }}%</span>
         <button @click="zoomIn" class="btn">+</button>
         <button @click="fitToWidth" class="btn">Fit Width</button>
-      </div>
+      </div> -->
 
     </div>
 
@@ -58,7 +59,7 @@ const props = defineProps({
   },
   initialScale: {
     type: Number,
-    default: 1.0
+    default: 3.2
   }
 })
 
@@ -136,7 +137,6 @@ const renderPage = async () => {
   if (!pdfDoc.value) return
 
   // Cancel any ongoing render
-  console.log('> renderTask.value | PdfViewer.vue line 146', { renderTask: renderTask.value })
   if (renderTask.value) {
     toRaw(renderTask.value).cancel()
     renderTask.value = null
@@ -148,18 +148,26 @@ const renderPage = async () => {
     const context = canvasEl.getContext('2d')
     context.clearRect(0, 0, canvasEl.width, canvasEl.height);
 
-    const viewport = page.getViewport({ scale: scale.value })
-    const devicePixelRatio = window.devicePixelRatio || 1
-    const outputScale = devicePixelRatio / window.matchMedia('(max-resolution: 1dppx)').matches ? 1 : devicePixelRatio
+    const viewport = page.getViewport({ scale: scale.value + 1 })
+    // const devicePixelRatio = window.devicePixelRatio || 1
+    // const outputScale = devicePixelRatio / window.matchMedia('(max-resolution: 1dppx)').matches ? 1 : devicePixelRatio
 
     // Set high-quality rendering
-    canvasEl.width = Math.floor(viewport.width * outputScale)
-    canvasEl.height = Math.floor(viewport.height * outputScale)
-    canvasEl.style.width = `${Math.floor(viewport.width)}px`
-    canvasEl.style.height = `${Math.floor(viewport.height)}px`
+    // canvasEl.width = Math.floor(viewport.width * outputScale)
+    // canvasEl.height = Math.floor(viewport.height * outputScale)
+    // canvasEl.style.width = `${Math.floor(viewport.width)}px`
+    // canvasEl.style.height = `${Math.floor(viewport.height)}px`
+    // context.setTransform(outputScale, 0, 0, outputScale, 0, 0)
+    
+    canvasEl.height = viewport.height;
+    canvasEl.width = viewport.width;
 
+    const pageWidthScale = container.clientWidth / page.view[2];
+    const pageHeightScale = container.clientHeight / page.view[3];
 
-    context.setTransform(outputScale, 0, 0, outputScale, 0, 0)
+    var displayWidth =  Math.min(pageWidthScale, pageHeightScale);
+    canvasEl.style.width = `${(viewport.width * displayWidth) / scale}px`;
+    canvasEl.style.height = `${(viewport.height * displayWidth) / scale}px`;
 
     const renderContext = {
       canvasContext: context,
@@ -218,7 +226,12 @@ const fitToWidth = async () => {
     const viewport = page.getViewport({ scale: 1.0 })
     const containerWidth = container.value.clientWidth - 40 // account for padding
 
+    console.log('> containerWidth | PdfViewer.vue line 229', { containerWidth })
+    console.log('> viewport.width | PdfViewer.vue line 230', { viewport: viewport.width })
+
     scale.value = containerWidth / viewport.width
+
+    console.log('> scale.value | PdfViewer.vue line 231', { scale: scale.value })
     await renderPage()
   } catch (err) {
     console.error('Fit to width error:', err)
