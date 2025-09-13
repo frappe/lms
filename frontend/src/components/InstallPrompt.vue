@@ -20,10 +20,10 @@
 		</template>
 	</Dialog>
 
-	<Popover :show="iosInstallMessage" placement="bottom">
+	<Popover :show="iosInstallMessage" placement="top">
 		<template #body>
 			<div
-				class="mx-2 mt-[calc(100vh-15rem)] flex flex-col gap-3 rounded bg-blue-100 py-5 drop-shadow-xl"
+				class="fixed bottom-[4rem] left-1/2 -translate-x-1/2 z-20 w-[90%] flex flex-col gap-3 rounded bg-blue-100 py-5 drop-shadow-xl"
 			>
 				<div
 					class="mb-1 flex flex-row items-center justify-between px-3 text-center"

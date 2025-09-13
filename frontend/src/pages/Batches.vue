@@ -292,7 +292,12 @@ const batchTabs = computed(() => {
 
 const canCreateBatch = () => {
 	if (readOnlyMode) return false
-	if (user.data?.is_moderator || user.data?.is_instructor) return true
+	if (
+		user.data?.is_moderator ||
+		user.data?.is_instructor ||
+		user.data?.is_evaluator
+	)
+		return true
 	return false
 }
 
