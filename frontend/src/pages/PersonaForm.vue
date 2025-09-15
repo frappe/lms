@@ -18,7 +18,7 @@
 
 				<div class="mb-5">
 					<div class="text-sm text-gray-700 mb-2">
-						{{ __('What is your use case for Frappe Learning?') }}
+                                                {{ __('What is your use case for InvenTech Solution Learning?') }}
 					</div>
 					<FormControl
 						v-model="persona.useCase"

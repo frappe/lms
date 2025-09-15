@@ -26,14 +26,17 @@
 					"
 				>
 					<div class="text-base font-medium text-ink-gray-9 leading-none">
-						<span
-							v-if="
-								branding.data?.app_name && branding.data?.app_name != 'Frappe'
-							"
-						>
-							{{ branding.data?.app_name }}
-						</span>
-						<span v-else> Learning </span>
+                                                <span
+                                                        v-if="
+                                                                branding.data?.app_name &&
+                                                                !branding.data?.app_name
+                                                                        ?.toLowerCase()
+                                                                        ?.includes('frappe')
+                                                        "
+                                                >
+                                                        {{ branding.data?.app_name }}
+                                                </span>
+                                                <span v-else> InvenTech Solution Learning </span>
 					</div>
 					<div
 						v-if="userResource.data"
@@ -73,14 +76,14 @@ import { useSettings } from '@/stores/settings'
 import { markRaw, watch, ref, onMounted, computed } from 'vue'
 import { createDialog } from '@/utils/dialogs'
 import SettingsModal from '@/components/Settings/Settings.vue'
-import FrappeCloudIcon from '@/components/Icons/FrappeCloudIcon.vue'
 import {
-	ChevronDown,
-	LogIn,
-	LogOut,
-	Moon,
-	User,
-	Settings,
+        ChevronDown,
+        Cloud,
+        LogIn,
+        LogOut,
+        Moon,
+        User,
+        Settings,
 	Sun,
 	Zap,
 } from 'lucide-vue-next'
@@ -92,7 +95,7 @@ const settingsStore = useSettings()
 let { isLoggedIn } = sessionStore()
 const showSettingsModal = ref(false)
 const theme = ref('light')
-const frappeCloudBaseEndpoint = 'https://frappecloud.com'
+const inventechCloudBaseEndpoint = 'https://cloud.inventechsolution.com'
 const $dialog = createDialog
 
 const props = defineProps({
@@ -166,21 +169,21 @@ const userDropdownOptions = computed(() => {
 						return userResource.data?.is_moderator
 					},
 				},
-				{
-					icon: FrappeCloudIcon,
-					label: 'Login to Frappe Cloud',
-					onClick: () => {
-						$dialog({
-							title: __('Login to Frappe Cloud?'),
-							message: __(
-								'Are you sure you want to login to your Frappe Cloud dashboard?'
-							),
+                                {
+                                        icon: Cloud,
+                                        label: 'Login to InvenTech Solution Cloud',
+                                        onClick: () => {
+                                                $dialog({
+                                                        title: __('Login to InvenTech Solution Cloud?'),
+                                                        message: __(
+                                                                'Are you sure you want to login to your InvenTech Solution Cloud dashboard?'
+                                                        ),
 							actions: [
 								{
 									label: __('Confirm'),
 									variant: 'solid',
 									onClick(close) {
-										loginToFrappeCloud()
+                                                                                loginToInvenTechCloud()
 										close()
 									},
 								},
@@ -221,8 +224,8 @@ const userDropdownOptions = computed(() => {
 	]
 })
 
-const loginToFrappeCloud = () => {
-	let redirect_to = '/dashboard/sites/' + userResource.data.sitename
-	window.open(`${frappeCloudBaseEndpoint}${redirect_to}`, '_blank')
+const loginToInvenTechCloud = () => {
+        let redirect_to = '/dashboard/sites/' + userResource.data.sitename
+        window.open(`${inventechCloudBaseEndpoint}${redirect_to}`, '_blank')
 }
 </script>
