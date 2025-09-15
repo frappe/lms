@@ -1,0 +1,21 @@
+{% extends "templates/web.html" %} {% block page_content %}
+<div class="container my-5">
+	{% if error %}
+	<div class="alert alert-danger text-center">{{ error }}</div>
+	{% else %}
+	<div class="text-center mb-4">
+		<h2>🎓 Certificate Verification</h2>
+		<p><strong>Certificate ID:</strong> {{ certificate_id }}</p>
+	</div>
+
+	<div class="certificate-frame" style="height: 90vh">
+		<iframe
+			src="{{ iframe_url }}"
+			width="100%"
+			height="100%"
+			frameborder="0"
+		></iframe>
+	</div>
+	{% endif %}
+</div>
+{% endblock %}
