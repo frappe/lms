@@ -1975,7 +1975,6 @@ def get_program_details(program_name):
 			"member_count",
 			"course_count",
 			"published",
-			"allow_self_enrollment",
 			"enforce_course_order",
 		],
 		as_dict=1,

@@ -5,7 +5,24 @@
 		</h2>
 		<div
 			v-if="profile.data.bio"
-			v-html="profile.data.bio"
+			v-html="
+				DOMPurify.sanitize(decodeEntities(profile.data.bio), {
+					ALLOWED_TAGS: [
+						'b',
+						'i',
+						'em',
+						'strong',
+						'a',
+						'p',
+						'br',
+						'ul',
+						'ol',
+						'li',
+						'img',
+					],
+					ALLOWED_ATTR: ['href', 'target', 'rel', 'src'],
+				})
+			"
 			class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal"
 		></div>
 		<div v-else class="text-ink-gray-7 text-sm italic">
@@ -101,6 +118,8 @@ import { inject } from 'vue'
 import { createResource, Popover, Button } from 'frappe-ui'
 import { X, LinkedinIcon, Twitter } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
+import { decodeEntities } from '@/utils'
+import DOMPurify from 'dompurify'
 
 const dayjs = inject('$dayjs')
 const { branding } = sessionStore()
