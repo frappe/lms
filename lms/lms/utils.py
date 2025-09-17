@@ -1975,7 +1975,6 @@ def get_program_details(program_name):
 			"member_count",
 			"course_count",
 			"published",
-			"allow_self_enrollment",
 			"enforce_course_order",
 		],
 		as_dict=1,
@@ -2177,7 +2176,7 @@ def get_my_latest_courses():
 		{
 			"member": frappe.session.user,
 		},
-		order_by="creation desc",
+		order_by="modified desc",
 		limit=3,
 		pluck="course",
 	)
