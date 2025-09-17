@@ -267,11 +267,15 @@ const tabsStructure = computed(() => {
 							label: 'Logo',
 							name: 'banner_image',
 							type: 'Upload',
+							description:
+								'Appears in the top left corner of the application to represent your brand.',
 						},
 						{
 							label: 'Favicon',
 							name: 'favicon',
 							type: 'Upload',
+							description:
+								'Appears in the browser tab next to the page title, bookmarks, and shortcuts to help users quickly identify the application.',
 						},
 					],
 				},
