@@ -2176,7 +2176,7 @@ def get_my_latest_courses():
 		{
 			"member": frappe.session.user,
 		},
-		order_by="creation desc",
+		order_by="modified desc",
 		limit=3,
 		pluck="course",
 	)

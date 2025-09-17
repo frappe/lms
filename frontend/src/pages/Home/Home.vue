@@ -95,9 +95,9 @@ const streakInfo = createResource({
 const subtitle = computed(() => {
 	if (isAdmin.value) {
 		let liveClassSuffix =
-			adminLiveClasses.data.length > 1 ? __('live classes') : __('live class')
+			adminLiveClasses.data?.length > 1 ? __('live classes') : __('live class')
 		let evalSuffix =
-			adminEvals.data.length > 1 ? __('evaluations') : __('evaluation')
+			adminEvals.data?.length > 1 ? __('evaluations') : __('evaluation')
 		if (adminLiveClasses.data?.length > 0 && adminEvals.data?.length > 0) {
 			return __('You have {0} upcoming {1} and {2} {3} scheduled.').format(
 				adminLiveClasses.data.length,
