@@ -119,7 +119,7 @@ const subtitle = computed(() => {
 		return __('Manage your courses and batches at a glance')
 	} else {
 		let liveClassSuffix =
-			myLiveClasses.data.length > 1 ? __('live classes') : __('live class')
+			myLiveClasses.data?.length > 1 ? __('live classes') : __('live class')
 		let evalSuffix = evalCount.value > 1 ? __('evaluations') : __('evaluation')
 		if (myLiveClasses.data?.length > 0 && evalCount.value > 0) {
 			return __('You have {0} upcoming {1} and {2} {3} scheduled.').format(

@@ -86,7 +86,7 @@
 						</div>
 					</div>
 
-					<div class="space-x-5">
+					<div class="space-x-2">
 						<Badge size="lg">
 							<template #prefix>
 								<CalendarDays class="size-3 stroke-2 text-ink-gray-7" />
