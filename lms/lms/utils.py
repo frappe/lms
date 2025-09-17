@@ -325,7 +325,7 @@ def get_progress(course, lesson, member=None):
 
 	return frappe.db.exists(
 		"LMS Course Progress",
-		{"course": course, "member": member, "lesson": lesson},
+		{"course": course, "member": member, "lesson": lesson, "status": "Complete"},
 		["status"],
 	)
 
