@@ -30,12 +30,9 @@
 						</CodeEditor>
 					</div>
 
-					<div
-						v-else-if="field.type == 'Upload'"
-						class="grid grid-cols-2 gap-10"
-					>
-						<div class="space-y-2">
-							<div class="text-sm text-ink-gray-8 font-medium mb-1">
+					<div v-else-if="field.type == 'Upload'">
+						<div class="space-y-1 mb-2">
+							<div class="text-sm text-ink-gray-5 font-medium">
 								{{ __(field.label) }}
 							</div>
 							<div class="text-sm text-ink-gray-5 leading-5">
