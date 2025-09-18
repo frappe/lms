@@ -41,18 +41,18 @@
 						v-bind="{
 							label: activeTab.label,
 							description: activeTab.description,
-							...(activeTab.label === 'Branding'
+							...(activeTab.label == 'Branding'
 								? { fields: activeTab.fields }
 								: {}),
 						}"
 					/>
-					<PaymentSettings
-						v-else-if="activeTab.label === 'Payment Gateway'"
+					<!-- <PaymentSettings
+						v-else-if="activeTab.label === 'Gateways'"
 						:label="activeTab.label"
 						:description="activeTab.description"
 						:data="data"
 						:fields="activeTab.fields"
-					/>
+					/> -->
 					<SettingDetails
 						v-else
 						:fields="activeTab.fields"
@@ -76,7 +76,7 @@ import Evaluators from '@/components/Settings/Evaluators.vue'
 import Categories from '@/components/Settings/Categories.vue'
 import EmailTemplates from '@/components/Settings/EmailTemplates.vue'
 import BrandSettings from '@/components/Settings/BrandSettings.vue'
-import PaymentSettings from '@/components/Settings/PaymentSettings.vue'
+import PaymentGateways from '@/components/Settings/PaymentGateways.vue'
 import ZoomSettings from '@/components/Settings/ZoomSettings.vue'
 import Badges from '@/components/Settings/Badges.vue'
 
@@ -159,12 +159,12 @@ const tabsStructure = computed(() => {
 			],
 		},
 		{
-			label: 'Settings',
-			hideLabel: true,
+			label: 'Payment',
+			hideLabel: false,
 			items: [
 				{
-					label: 'Payment Gateway',
-					icon: 'DollarSign',
+					label: 'Configuration',
+					icon: 'CreditCard',
 					description:
 						'Configure the payment gateway and other payment related settings',
 					fields: [
@@ -199,6 +199,12 @@ const tabsStructure = computed(() => {
 							type: 'checkbox',
 						},
 					],
+				},
+				{
+					label: 'Gateways',
+					icon: 'DollarSign',
+					template: markRaw(PaymentGateways),
+					description: 'Add and manage all your payment gateways',
 				},
 			],
 		},
@@ -275,7 +281,7 @@ const tabsStructure = computed(() => {
 							name: 'favicon',
 							type: 'Upload',
 							description:
-								'Appears in the browser tab next to the page title, bookmarks, and shortcuts to help users quickly identify the application.',
+								'Appears in the browser tab next to the page title to help users quickly identify the application.',
 						},
 					],
 				},
