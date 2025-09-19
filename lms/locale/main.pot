@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Frappe LMS VERSION\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2025-09-12 16:04+0000\n"
-"PO-Revision-Date: 2025-09-12 16:04+0000\n"
+"POT-Creation-Date: 2025-09-19 16:04+0000\n"
+"PO-Revision-Date: 2025-09-19 16:04+0000\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: jannat@frappe.io\n"
 "MIME-Version: 1.0\n"
@@ -121,7 +121,7 @@ msgstr ""
 msgid "Account Name"
 msgstr ""
 
-#: frontend/src/pages/ProfileAbout.vue:17
+#: frontend/src/pages/ProfileAbout.vue:34
 msgid "Achievements"
 msgstr ""
 
@@ -462,7 +462,7 @@ msgstr ""
 msgid "Are you sure you want to login to your Frappe Cloud dashboard?"
 msgstr ""
 
-#: frontend/src/pages/Lesson.vue:244
+#: frontend/src/pages/Lesson.vue:289
 msgid "Ask a question to get help from the community."
 msgstr ""
 
@@ -646,7 +646,7 @@ msgstr ""
 msgid "Average Watch Time"
 msgstr ""
 
-#: frontend/src/pages/Lesson.vue:154
+#: frontend/src/pages/Lesson.vue:63 frontend/src/pages/Lesson.vue:199
 msgid "Back to Course"
 msgstr ""
 
@@ -860,7 +860,7 @@ msgstr ""
 msgid "Billing Name"
 msgstr ""
 
-#: frontend/src/components/Modals/EditProfile.vue:75
+#: frontend/src/components/Modals/EditProfile.vue:81
 msgid "Bio"
 msgstr ""
 
@@ -1125,7 +1125,7 @@ msgstr ""
 msgid "Choose a color for the course card"
 msgstr ""
 
-#: frontend/src/components/Quiz.vue:644
+#: frontend/src/components/Quiz.vue:654
 msgid "Choose all answers that apply"
 msgstr ""
 
@@ -1137,7 +1137,7 @@ msgstr ""
 msgid "Choose an icon"
 msgstr ""
 
-#: frontend/src/components/Quiz.vue:645
+#: frontend/src/components/Quiz.vue:655
 msgid "Choose one answer"
 msgstr ""
 
@@ -1300,7 +1300,7 @@ msgstr ""
 msgid "Common keywords that will be used for all pages"
 msgstr ""
 
-#: frontend/src/pages/Lesson.vue:839
+#: frontend/src/pages/Lesson.vue:884
 msgid "Community"
 msgstr ""
 
@@ -1440,7 +1440,7 @@ msgid "Congratulations on getting certified!"
 msgstr ""
 
 #: frontend/src/components/CourseCardOverlay.vue:63
-#: frontend/src/pages/Lesson.vue:52
+#: frontend/src/pages/Lesson.vue:97
 msgid "Contact the Administrator to enroll for this course."
 msgstr ""
 
@@ -2117,8 +2117,8 @@ msgstr ""
 #: frontend/src/components/DiscussionReplies.vue:35
 #: frontend/src/components/Modals/ChapterModal.vue:9
 #: frontend/src/components/Settings/Badges.vue:156
-#: frontend/src/pages/JobDetail.vue:34 frontend/src/pages/Lesson.vue:133
-#: frontend/src/pages/Profile.vue:36
+#: frontend/src/pages/JobDetail.vue:34 frontend/src/pages/Lesson.vue:42
+#: frontend/src/pages/Lesson.vue:178 frontend/src/pages/Profile.vue:36
 msgid "Edit"
 msgstr ""
 
@@ -2650,7 +2650,7 @@ msgstr ""
 msgid "Filter by Status"
 msgstr ""
 
-#: frontend/src/components/Modals/EditProfile.vue:59
+#: frontend/src/components/Modals/EditProfile.vue:69
 #: frontend/src/components/Settings/Members.vue:110
 msgid "First Name"
 msgstr ""
@@ -2838,7 +2838,7 @@ msgid "Have an account? Login"
 msgstr ""
 
 #. Label of the headline (Data) field in DocType 'User'
-#: frontend/src/components/Modals/EditProfile.vue:69
+#: frontend/src/components/Modals/EditProfile.vue:71
 #: lms/fixtures/custom_field.json
 msgid "Headline"
 msgstr ""
@@ -3111,7 +3111,7 @@ msgstr ""
 
 #. Label of the instructor_notes (Markdown Editor) field in DocType 'Course
 #. Lesson'
-#: frontend/src/pages/Lesson.vue:188 frontend/src/pages/LessonForm.vue:42
+#: frontend/src/pages/Lesson.vue:233 frontend/src/pages/LessonForm.vue:42
 #: lms/lms/doctype/course_lesson/course_lesson.json
 msgid "Instructor Notes"
 msgstr ""
@@ -3174,6 +3174,11 @@ msgstr ""
 msgid "Is Correct"
 msgstr ""
 
+#. Label of the is_scorm_chapter (Check) field in DocType 'LMS Course Progress'
+#: lms/lms/doctype/lms_course_progress/lms_course_progress.json
+msgid "Is SCORM Chapter"
+msgstr ""
+
 #. Label of the is_scorm_package (Check) field in DocType 'Course Chapter'
 #. Label of the is_scorm_package (Check) field in DocType 'Course Lesson'
 #: lms/lms/doctype/course_chapter/course_chapter.json
@@ -3202,7 +3207,7 @@ msgstr ""
 msgid "Issued On"
 msgstr ""
 
-#: frontend/src/pages/ProfileAbout.vue:56
+#: frontend/src/pages/ProfileAbout.vue:73
 #: frontend/src/pages/ProfileCertificates.vue:17
 #: lms/templates/certificates_section.html:11
 msgid "Issued on"
@@ -3589,12 +3594,13 @@ msgid "Label"
 msgstr ""
 
 #. Label of the language (Select) field in DocType 'LMS Programming Exercise'
+#: frontend/src/components/Modals/EditProfile.vue:73
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:22
 #: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.json
 msgid "Language"
 msgstr ""
 
-#: frontend/src/components/Modals/EditProfile.vue:64
+#: frontend/src/components/Modals/EditProfile.vue:70
 msgid "Last Name"
 msgstr ""
 
@@ -3708,7 +3714,7 @@ msgstr ""
 msgid "Limit cannot be greater than or equal to the number of questions in the quiz."
 msgstr ""
 
-#: frontend/src/pages/ProfileAbout.vue:74
+#: frontend/src/pages/ProfileAbout.vue:91
 msgid "LinkedIn"
 msgstr ""
 
@@ -3774,7 +3780,7 @@ msgstr ""
 
 #: frontend/src/components/NoPermission.vue:28
 #: frontend/src/components/QuizBlock.vue:9 frontend/src/pages/Batch.vue:196
-#: frontend/src/pages/Lesson.vue:58
+#: frontend/src/pages/Lesson.vue:103
 msgid "Login"
 msgstr ""
 
@@ -3870,7 +3876,7 @@ msgid "Marks out of"
 msgstr ""
 
 #: frontend/src/pages/QuizForm.vue:122
-msgid "Marks to Cut"
+msgid "Marks to Deduct"
 msgstr ""
 
 #. Label of the max_attempts (Int) field in DocType 'LMS Quiz'
@@ -4316,7 +4322,8 @@ msgstr ""
 msgid "New {0}"
 msgstr ""
 
-#: frontend/src/components/Quiz.vue:237 frontend/src/pages/Lesson.vue:142
+#: frontend/src/components/Quiz.vue:237 frontend/src/pages/Lesson.vue:51
+#: frontend/src/pages/Lesson.vue:187
 msgid "Next"
 msgstr ""
 
@@ -4382,7 +4389,7 @@ msgstr ""
 msgid "No feedback received yet."
 msgstr ""
 
-#: frontend/src/pages/ProfileAbout.vue:12
+#: frontend/src/pages/ProfileAbout.vue:29
 msgid "No introduction"
 msgstr ""
 
@@ -4472,8 +4479,8 @@ msgstr ""
 msgid "Note"
 msgstr ""
 
-#: frontend/src/pages/Lesson.vue:359 frontend/src/pages/Lesson.vue:835
-#: frontend/src/pages/Lesson.vue:846
+#: frontend/src/pages/Lesson.vue:404 frontend/src/pages/Lesson.vue:880
+#: frontend/src/pages/Lesson.vue:891
 msgid "Notes"
 msgstr ""
 
@@ -4918,7 +4925,7 @@ msgstr ""
 msgid "Please login to continue with payment."
 msgstr ""
 
-#: lms/lms/utils.py:2013
+#: lms/lms/utils.py:2012
 msgid "Please login to enroll in the program."
 msgstr ""
 
@@ -5065,7 +5072,7 @@ msgstr ""
 msgid "Preview Video"
 msgstr ""
 
-#: frontend/src/pages/Lesson.vue:117
+#: frontend/src/pages/Lesson.vue:26 frontend/src/pages/Lesson.vue:162
 msgid "Previous"
 msgstr ""
 
@@ -5124,7 +5131,7 @@ msgstr ""
 msgid "Profession"
 msgstr ""
 
-#: frontend/src/components/Modals/EditProfile.vue:37
+#: frontend/src/components/Modals/EditProfile.vue:25
 msgid "Profile Image"
 msgstr ""
 
@@ -5617,6 +5624,12 @@ msgstr ""
 msgid "SCORM"
 msgstr ""
 
+#. Label of the scorm_content (Long Text) field in DocType 'LMS Course
+#. Progress'
+#: lms/lms/doctype/lms_course_progress/lms_course_progress.json
+msgid "SCORM Content"
+msgstr ""
+
 #. Label of the scorm_package (Link) field in DocType 'Course Chapter'
 #: frontend/src/components/Modals/ChapterModal.vue:22
 #: lms/lms/doctype/course_chapter/course_chapter.json
@@ -5830,7 +5843,7 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
-#: frontend/src/pages/ProfileAbout.vue:62
+#: frontend/src/pages/ProfileAbout.vue:79
 msgid "Share on"
 msgstr ""
 
@@ -6018,7 +6031,7 @@ msgid "Start Date:"
 msgstr ""
 
 #: frontend/src/components/CourseCardOverlay.vue:76
-#: frontend/src/pages/Lesson.vue:44 frontend/src/pages/SCORMChapter.vue:28
+#: frontend/src/pages/Lesson.vue:89 frontend/src/pages/SCORMChapter.vue:31
 #: lms/templates/emails/lms_course_interest.html:9
 msgid "Start Learning"
 msgstr ""
@@ -6494,11 +6507,11 @@ msgstr ""
 msgid "This image will be shown on lists and pages that don't have an image by default"
 msgstr ""
 
-#: frontend/src/pages/Lesson.vue:29
+#: frontend/src/pages/Lesson.vue:74
 msgid "This lesson is locked"
 msgstr ""
 
-#: frontend/src/pages/Lesson.vue:34
+#: frontend/src/pages/Lesson.vue:79
 msgid "This lesson is not available for preview. Please enroll in the course to access it."
 msgstr ""
 
@@ -6707,7 +6720,7 @@ msgstr ""
 msgid "Tuesday"
 msgstr ""
 
-#: frontend/src/pages/ProfileAbout.vue:86
+#: frontend/src/pages/ProfileAbout.vue:103
 msgid "Twitter"
 msgstr ""
 
@@ -6734,7 +6747,7 @@ msgstr ""
 msgid "Type '/' for commands or select text to format"
 msgstr ""
 
-#: frontend/src/components/Quiz.vue:646
+#: frontend/src/components/Quiz.vue:656
 msgid "Type your answer"
 msgstr ""
 
@@ -7104,7 +7117,7 @@ msgstr ""
 msgid "You are not a mentor of the course {0}"
 msgstr ""
 
-#: frontend/src/pages/SCORMChapter.vue:22
+#: frontend/src/pages/SCORMChapter.vue:25
 msgid "You are not enrolled in this course. Please enroll to access this lesson."
 msgstr ""
 
@@ -7254,7 +7267,7 @@ msgstr ""
 msgid "Your Output"
 msgstr ""
 
-#: lms/lms/doctype/lms_batch/lms_batch.py:305
+#: lms/lms/doctype/lms_batch/lms_batch.py:309
 msgid "Your batch {0} is starting tomorrow"
 msgstr ""
 
@@ -7369,8 +7382,8 @@ msgstr ""
 msgid "certified members"
 msgstr ""
 
-#: frontend/src/components/CourseCard.vue:102 frontend/src/pages/Lesson.vue:98
-#: frontend/src/pages/Lesson.vue:259
+#: frontend/src/components/CourseCard.vue:102 frontend/src/pages/Lesson.vue:143
+#: frontend/src/pages/Lesson.vue:304
 #: frontend/src/pages/Programs/ProgramDetail.vue:14
 #: frontend/src/pages/Programs/StudentPrograms.vue:44
 msgid "completed"
