@@ -119,7 +119,7 @@
 					<FormControl
 						v-if="quizDetails.doc.enable_negative_marking"
 						v-model="quizDetails.doc.marks_to_cut"
-						:label="__('Marks to Cut')"
+						:label="__('Marks to Deduct')"
 					/>
 				</div>
 			</div>

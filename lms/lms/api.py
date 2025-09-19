@@ -1193,7 +1193,7 @@ def fetch_activity_data(member, start_date):
 	lesson_completions = frappe.get_all(
 		"LMS Course Progress",
 		fields=["creation"],
-		filters={"member": member, "creation": [">=", start_date]},
+		filters={"member": member, "creation": [">=", start_date], "status": "Complete"},
 	)
 
 	quiz_submissions = frappe.get_all(

@@ -73,7 +73,7 @@ export class Program {
                 fieldname: ['name'],
             }).then((data: { name: string }) => {
                 let submission = data.name || 'new'
-                this.wrapper.innerHTML = `<iframe src="/lms/exercises/${exercise}/submission/${submission}?fromLesson=1" class="w-full h-[900px] border rounded-md"></iframe>`
+                this.wrapper.innerHTML = `<iframe src="/lms/programming-exercises/${exercise}/submission/${submission}?fromLesson=1" class="w-full h-[900px] border rounded-md"></iframe>`
             })
             return
         } 

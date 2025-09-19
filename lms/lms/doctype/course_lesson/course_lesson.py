@@ -46,20 +46,30 @@ class CourseLesson(Document):
 
 
 @frappe.whitelist()
-def save_progress(lesson, course):
+def save_progress(lesson, course, scorm_details=None):
+	"""
+	Note: Pass the argument scorm_details as a dict if it is SCORM related save_progress
+	"""
 	membership = frappe.db.exists("LMS Enrollment", {"course": course, "member": frappe.session.user})
 	if not membership:
 		return 0
 
 	frappe.db.set_value("LMS Enrollment", membership, "current_lesson", lesson)
-	already_completed = frappe.db.exists(
+	progress_already_exists = frappe.db.exists(
 		"LMS Course Progress", {"lesson": lesson, "member": frappe.session.user}
+	)
+	lesson_already_completed = frappe.db.exists(
+		"LMS Course Progress",
+		{"lesson": lesson, "member": frappe.session.user, "status": "Complete"},
 	)
 
 	quiz_completed = get_quiz_progress(lesson)
 	assignment_completed = get_assignment_progress(lesson)
 
-	if not already_completed and quiz_completed and assignment_completed:
+	if scorm_details:
+		scorm_details = frappe._dict(**scorm_details)
+
+	if not progress_already_exists and quiz_completed and assignment_completed and not scorm_details:
 		frappe.get_doc(
 			{
 				"doctype": "LMS Course Progress",
@@ -68,6 +78,29 @@ def save_progress(lesson, course):
 				"member": frappe.session.user,
 			}
 		).save(ignore_permissions=True)
+	elif scorm_details and not lesson_already_completed and not progress_already_exists:
+		# Create new SCORM progress
+		frappe.get_doc(
+			{
+				"doctype": "LMS Course Progress",
+				"lesson": lesson,
+				"status": "Complete" if scorm_details.is_complete else "Partially Complete",
+				"member": frappe.session.user,
+				"scorm_content": "" if scorm_details.is_complete else scorm_details.scorm_content,
+			}
+		).save(ignore_permissions=True)
+	elif scorm_details and not lesson_already_completed and progress_already_exists:
+		# Update Existing SCORM Progress
+		frappe.db.set_value(
+			"LMS Course Progress",
+			progress_already_exists,
+			{
+				"lesson": lesson,
+				"status": "Complete" if scorm_details.is_complete else "Partially Complete",
+				"member": frappe.session.user,
+				"scorm_content": "" if scorm_details.is_complete else scorm_details.scorm_content,
+			},
+		)
 
 	progress = get_course_progress(course)
 	capture_progress_for_analytics(progress, course)
