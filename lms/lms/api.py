@@ -6,6 +6,7 @@ import re
 import shutil
 import xml.etree.ElementTree as ET
 import zipfile
+from dataclasses import fields
 from xml.dom.minidom import parseString
 
 import frappe
@@ -823,7 +824,6 @@ def get_count(doctype, filters):
 
 @frappe.whitelist()
 def get_payment_gateway_details(payment_gateway):
-	fields = []
 	gateway = frappe.get_doc("Payment Gateway", payment_gateway)
 
 	if gateway.gateway_controller is None:
@@ -843,15 +843,30 @@ def get_payment_gateway_details(payment_gateway):
 		except Exception:
 			frappe.throw(_("{0} Settings not found").format(payment_gateway))
 
+	gateway_fields = get_transformed_fields(meta, data)
+
+	return {
+		"fields": gateway_fields,
+		"data": data,
+		"doctype": doctype,
+		"docname": docname,
+	}
+
+
+def get_transformed_fields(meta, data=None):
+	transformed_fields = []
 	for row in meta:
 		if row.fieldtype not in ["Column Break", "Section Break"]:
 			if row.fieldtype in ["Attach", "Attach Image"]:
 				fieldtype = "Upload"
-				data[row.fieldname] = get_file_info(data.get(row.fieldname))
+				if data and data.get(row.fieldname):
+					data[row.fieldname] = get_file_info(data.get(row.fieldname))
+			elif row.fieldtype == "Check":
+				fieldtype = "checkbox"
 			else:
 				fieldtype = row.fieldtype
 
-			fields.append(
+			transformed_fields.append(
 				{
 					"label": row.label,
 					"name": row.fieldname,
@@ -859,12 +874,19 @@ def get_payment_gateway_details(payment_gateway):
 				}
 			)
 
-	return {
-		"fields": fields,
-		"data": data,
-		"doctype": doctype,
-		"docname": docname,
-	}
+	return transformed_fields
+
+
+@frappe.whitelist()
+def get_new_gateway_fields(doctype):
+	try:
+		meta = frappe.get_meta(doctype).fields
+	except Exception:
+		frappe.throw(_("{0} not found").format(doctype))
+
+	transformed_fields = get_transformed_fields(meta)
+
+	return transformed_fields
 
 
 def update_course_statistics():

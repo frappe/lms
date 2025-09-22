@@ -11,7 +11,7 @@
 	>
 		<template #body-content>
 			<SettingFields
-				v-if="gatewayID != 'new'"
+				v-if="gatewayID != 'new' && paymentGateway.data"
 				:fields="paymentGateway.data.fields"
 				:data="paymentGateway.data.data"
 				class="pt-5 my-0"
@@ -27,7 +27,7 @@
 				<SettingFields
 					v-if="newGateway"
 					:fields="newGatewayFields"
-					:data="null"
+					:data="newGatewayData"
 					class="pt-5 my-0"
 				/>
 			</div>
@@ -53,9 +53,11 @@ import {
 import { computed, ref, watch } from 'vue'
 import SettingFields from '@/components/Settings/SettingFields.vue'
 
-const show = defineModel()
+const show = defineModel<boolean>({ required: true, default: false })
 const paymentGateways = defineModel<any>('paymentGateways')
 const newGateway = ref(null)
+const newGatewayFields = ref([])
+const newGatewayData = ref<Record<string, any>>({})
 
 const props = defineProps<{
 	gatewayID: string | null
@@ -79,7 +81,16 @@ const allGateways = createListResource({
 	filters: {
 		module: 'Payment Gateways',
 	},
-	fields: ['name', 'issingle', 'fields'],
+	fields: ['name', 'issingle'],
+})
+
+const gatewayFields = createResource({
+	url: 'lms.lms.api.get_new_gateway_fields',
+	makeParams(values: any) {
+		return {
+			doctype: values.doctype,
+		}
+	},
 })
 
 const arrangeFields = (fields: any[]) => {
@@ -104,32 +115,93 @@ watch(
 			paymentGateway.reload()
 		} else if (props.gatewayID == 'new') {
 			allGateways.reload()
-			console.log(allGateways.data)
 		}
 	}
 )
 
+const getNewGateway = () => {
+	return allGateways.data?.find((gateway: any) =>
+		gateway.name.includes(newGateway.value)
+	)
+}
+
+watch(newGateway, () => {
+	let gatewayDoc = getNewGateway()
+	gatewayFields.reload({ doctype: gatewayDoc.name }).then(() => {
+		let fields = gatewayFields.data || []
+		arrangeFields(fields)
+		newGatewayFields.value = fields
+		prepareGatewayData()
+	})
+})
+
 const saveSettings = (close: () => void) => {
-	call('frappe.client.set_value', {
-		doctype: paymentGateway.data.doctype,
-		name: paymentGateway.data.docname,
-		fieldname: Object.keys(paymentGateway.data.data).reduce(
-			(fields: any, key: string) => {
-				if (
-					paymentGateway.data.data[key] &&
-					typeof paymentGateway.data.data[key] === 'object'
-				) {
-					fields[key] = paymentGateway.data.data[key].file_url
-				} else {
-					fields[key] = paymentGateway.data.data[key]
-				}
-				return fields
+	if (props.gatewayID === 'new') {
+		saveNewGateway(close)
+	} else {
+		saveExistingGateway(
+			paymentGateway.data.doctype,
+			paymentGateway.data.docname,
+			close
+		)
+	}
+}
+
+const saveNewGateway = (close: () => void) => {
+	let gatewayDoc = getNewGateway()
+	if (gatewayDoc.issingle) {
+		saveExistingGateway(gatewayDoc.name, gatewayDoc.name, close)
+	} else {
+		call('frappe.client.insert', {
+			doc: {
+				doctype: gatewayDoc.name,
+				...newGatewayData.value,
 			},
-			{}
-		),
+		}).then((data: any) => {
+			paymentGateways.value.reload()
+			close()
+		})
+	}
+}
+
+const saveExistingGateway = (
+	doctype: string,
+	docname: string,
+	close: () => void
+) => {
+	call('frappe.client.set_value', {
+		doctype: doctype,
+		name: docname,
+		fieldname: getGatewayFields(),
 	}).then(() => {
-		paymentGateway.reload()
+		paymentGateways.value?.reload()
 		close()
+	})
+}
+
+const getGatewayFields = () => {
+	let data =
+		props.gatewayID == 'new' ? newGatewayData.value : paymentGateway.data.data
+	return Object.keys(data).reduce((fields: any, key: string) => {
+		if (data[key] && typeof data[key] === 'object') {
+			fields[key] = data[key].file_url
+		} else {
+			fields[key] = data[key]
+		}
+		return fields
+	}, {})
+}
+
+const createGatewayRecord = (gatewayDoc: any, data: any = {}) => {
+	call('frappe.client.insert', {
+		doc: {
+			doctype: 'Payment Gateway',
+			gateway: newGateway.value,
+			gateway_controller: gatewayDoc.issingle ? '' : gatewayDoc.name,
+			gateway_settings: gatewayDoc.issingle ? '' : data.name,
+		},
+	}).then(() => {
+		paymentGateways.value?.reload()
 	})
 }
 
@@ -137,7 +209,6 @@ const allGatewayOptions = computed(() => {
 	let options: string[] = []
 	let gatewayList = allGateways.data?.map((gateway: any) => gateway.name) || []
 	gatewayList.forEach((gateway: any) => {
-		console.log(gateway)
 		let gatewayName = gateway.split(' ')[0]
 		let existingGateways =
 			paymentGateways.value?.data?.map((pg: any) => pg.name) || []
@@ -150,4 +221,13 @@ const allGatewayOptions = computed(() => {
 	})
 	return options.map((gateway: string) => ({ label: gateway, value: gateway }))
 })
+
+const prepareGatewayData = () => {
+	newGatewayData.value = {}
+	if (newGatewayFields.value.length) {
+		newGatewayFields.value.forEach((field: any) => {
+			newGatewayData.value[field.fieldname] = field.default || ''
+		})
+	}
+}
 </script>

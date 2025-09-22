@@ -37,12 +37,15 @@
 					<component
 						v-if="activeTab.template"
 						:is="activeTab.template"
-						v-model:show="show"
 						v-bind="{
 							label: activeTab.label,
 							description: activeTab.description,
 							...(activeTab.label == 'Branding'
 								? { fields: activeTab.fields }
+								: {}),
+							...(activeTab.label == 'Evaluators' ||
+							activeTab.label == 'Members'
+								? { 'onUpdate:show': (val) => (show = val), show }
 								: {}),
 						}"
 					/>

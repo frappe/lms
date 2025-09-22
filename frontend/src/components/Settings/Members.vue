@@ -156,9 +156,6 @@ const props = defineProps({
 		type: String,
 		default: '',
 	},
-	show: {
-		type: Boolean,
-	},
 })
 
 const members = createResource({
@@ -185,7 +182,6 @@ const openProfile = (username: string) => {
 			username: username,
 		},
 	})
-	console.log(show.value)
 }
 
 const newMember = createResource({
