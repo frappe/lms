@@ -44,7 +44,8 @@
 								? { fields: activeTab.fields }
 								: {}),
 							...(activeTab.label == 'Evaluators' ||
-							activeTab.label == 'Members'
+							activeTab.label == 'Members' ||
+							activeTab.label == 'Transactions'
 								? { 'onUpdate:show': (val) => (show = val), show }
 								: {}),
 						}"
@@ -80,6 +81,7 @@ import Categories from '@/components/Settings/Categories.vue'
 import EmailTemplates from '@/components/Settings/EmailTemplates.vue'
 import BrandSettings from '@/components/Settings/BrandSettings.vue'
 import PaymentGateways from '@/components/Settings/PaymentGateways.vue'
+import Transactions from '@/components/Settings/Transactions.vue'
 import ZoomSettings from '@/components/Settings/ZoomSettings.vue'
 import Badges from '@/components/Settings/Badges.vue'
 
@@ -168,8 +170,7 @@ const tabsStructure = computed(() => {
 				{
 					label: 'Configuration',
 					icon: 'CreditCard',
-					description:
-						'Configure the payment gateway and other payment related settings',
+					description: 'Manage all your payment related settings and defaults',
 					fields: [
 						{
 							label: 'Default Currency',
@@ -208,6 +209,12 @@ const tabsStructure = computed(() => {
 					icon: 'DollarSign',
 					template: markRaw(PaymentGateways),
 					description: 'Add and manage all your payment gateways',
+				},
+				{
+					label: 'Transactions',
+					icon: 'Landmark',
+					template: markRaw(Transactions),
+					description: 'View all your payment transactions',
 				},
 			],
 		},
