@@ -147,6 +147,7 @@
    "default": "0",
    "fieldname": "payment_for_certificate",
    "fieldtype": "Check",
+   "in_standard_filter": 1,
    "label": "Payment for Certificate"
   }
  ],
@@ -161,7 +162,7 @@
    "link_fieldname": "payment"
   }
  ],
- "modified": "2025-08-19 10:33:15.457678",
+ "modified": "2025-09-23 11:04:00.462274",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Payment",

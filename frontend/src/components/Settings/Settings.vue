@@ -37,22 +37,26 @@
 					<component
 						v-if="activeTab.template"
 						:is="activeTab.template"
-						v-model:show="show"
 						v-bind="{
 							label: activeTab.label,
 							description: activeTab.description,
-							...(activeTab.label === 'Branding'
+							...(activeTab.label == 'Branding'
 								? { fields: activeTab.fields }
+								: {}),
+							...(activeTab.label == 'Evaluators' ||
+							activeTab.label == 'Members' ||
+							activeTab.label == 'Transactions'
+								? { 'onUpdate:show': (val) => (show = val), show }
 								: {}),
 						}"
 					/>
-					<PaymentSettings
-						v-else-if="activeTab.label === 'Payment Gateway'"
+					<!-- <PaymentSettings
+						v-else-if="activeTab.label === 'Gateways'"
 						:label="activeTab.label"
 						:description="activeTab.description"
 						:data="data"
 						:fields="activeTab.fields"
-					/>
+					/> -->
 					<SettingDetails
 						v-else
 						:fields="activeTab.fields"
@@ -76,7 +80,8 @@ import Evaluators from '@/components/Settings/Evaluators.vue'
 import Categories from '@/components/Settings/Categories.vue'
 import EmailTemplates from '@/components/Settings/EmailTemplates.vue'
 import BrandSettings from '@/components/Settings/BrandSettings.vue'
-import PaymentSettings from '@/components/Settings/PaymentSettings.vue'
+import PaymentGateways from '@/components/Settings/PaymentGateways.vue'
+import Transactions from '@/components/Settings/Transactions.vue'
 import ZoomSettings from '@/components/Settings/ZoomSettings.vue'
 import Badges from '@/components/Settings/Badges.vue'
 
@@ -159,14 +164,13 @@ const tabsStructure = computed(() => {
 			],
 		},
 		{
-			label: 'Settings',
-			hideLabel: true,
+			label: 'Payment',
+			hideLabel: false,
 			items: [
 				{
-					label: 'Payment Gateway',
-					icon: 'DollarSign',
-					description:
-						'Configure the payment gateway and other payment related settings',
+					label: 'Configuration',
+					icon: 'CreditCard',
+					description: 'Manage all your payment related settings and defaults',
 					fields: [
 						{
 							label: 'Default Currency',
@@ -199,6 +203,18 @@ const tabsStructure = computed(() => {
 							type: 'checkbox',
 						},
 					],
+				},
+				{
+					label: 'Gateways',
+					icon: 'DollarSign',
+					template: markRaw(PaymentGateways),
+					description: 'Add and manage all your payment gateways',
+				},
+				{
+					label: 'Transactions',
+					icon: 'Landmark',
+					template: markRaw(Transactions),
+					description: 'View all your payment transactions',
 				},
 			],
 		},
@@ -275,7 +291,7 @@ const tabsStructure = computed(() => {
 							name: 'favicon',
 							type: 'Upload',
 							description:
-								'Appears in the browser tab next to the page title, bookmarks, and shortcuts to help users quickly identify the application.',
+								'Appears in the browser tab next to the page title to help users quickly identify the application.',
 						},
 					],
 				},
