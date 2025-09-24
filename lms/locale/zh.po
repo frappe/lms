@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2025-08-22 16:04+0000\n"
-"PO-Revision-Date: 2025-08-26 03:28\n"
+"POT-Creation-Date: 2025-09-19 16:04+0000\n"
+"PO-Revision-Date: 2025-09-24 07:16\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Chinese Simplified\n"
 "MIME-Version: 1.0\n"
@@ -28,6 +28,10 @@ msgstr ""
 
 #: frontend/src/pages/Programs/ProgramEnrollment.vue:25
 msgid " designed as a structured learning path to guide your progress. Courses in this program must be taken in order, and each course will unlock as you complete the previous one. "
+msgstr ""
+
+#: frontend/src/pages/Home/Streak.vue:21
+msgid " you are on a"
 msgstr ""
 
 #. Paragraph text in the LMS Workspace
@@ -119,7 +123,7 @@ msgstr "账户ID"
 msgid "Account Name"
 msgstr "科目名称"
 
-#: frontend/src/pages/ProfileAbout.vue:17
+#: frontend/src/pages/ProfileAbout.vue:34
 msgid "Achievements"
 msgstr "成就"
 
@@ -192,7 +196,7 @@ msgstr "新增课时"
 msgid "Add a Student"
 msgstr "添加学员"
 
-#: frontend/src/components/AppSidebar.vue:576
+#: frontend/src/components/AppSidebar.vue:585
 msgid "Add a chapter"
 msgstr "添加章节"
 
@@ -204,7 +208,7 @@ msgstr "创建课程"
 msgid "Add a keyword and then press enter"
 msgstr "输入关键词后按回车键添加"
 
-#: frontend/src/components/AppSidebar.vue:577
+#: frontend/src/components/AppSidebar.vue:586
 msgid "Add a lesson"
 msgstr "添加课时"
 
@@ -237,7 +241,7 @@ msgstr "为本课时添加作业"
 msgid "Add at least one possible answer for this question: {0}"
 msgstr "请为该问题添加至少一个备选答案：{0}"
 
-#: frontend/src/components/AppSidebar.vue:540
+#: frontend/src/components/AppSidebar.vue:549
 msgid "Add courses to your batch"
 msgstr "为班级添加课程"
 
@@ -245,7 +249,7 @@ msgstr "为班级添加课程"
 msgid "Add quiz to this video"
 msgstr ""
 
-#: frontend/src/components/AppSidebar.vue:519
+#: frontend/src/components/AppSidebar.vue:528
 msgid "Add students to your batch"
 msgstr "为班级添加学员"
 
@@ -261,11 +265,11 @@ msgstr "添加网页至侧边栏"
 msgid "Add your assignment as {0}"
 msgstr "以{0}格式添加作业"
 
-#: frontend/src/components/AppSidebar.vue:452
+#: frontend/src/components/AppSidebar.vue:461
 msgid "Add your first chapter"
 msgstr "添加首个章节"
 
-#: frontend/src/components/AppSidebar.vue:468
+#: frontend/src/components/AppSidebar.vue:477
 msgid "Add your first lesson"
 msgstr "添加首节课时"
 
@@ -448,7 +452,7 @@ msgstr "应用"
 msgid "Archived"
 msgstr "已归档"
 
-#: frontend/src/components/UpcomingEvaluations.vue:172
+#: frontend/src/components/UpcomingEvaluations.vue:176
 msgid "Are you sure you want to cancel this evaluation? This action cannot be undone."
 msgstr "确认取消本次评估？此操作不可撤销。"
 
@@ -460,7 +464,7 @@ msgstr ""
 msgid "Are you sure you want to login to your Frappe Cloud dashboard?"
 msgstr "确定要登录Frappe Cloud控制面板？"
 
-#: frontend/src/pages/Lesson.vue:244
+#: frontend/src/pages/Lesson.vue:289
 msgid "Ask a question to get help from the community."
 msgstr ""
 
@@ -492,7 +496,7 @@ msgid "Assessment {0} has already been added to this batch."
 msgstr "考核{0}已添加至本批次。"
 
 #. Label of the show_assessments (Check) field in DocType 'LMS Settings'
-#: frontend/src/components/AppSidebar.vue:589
+#: frontend/src/components/AppSidebar.vue:598
 #: frontend/src/components/Assessments.vue:5
 #: frontend/src/components/BatchStudents.vue:32
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -574,7 +578,7 @@ msgstr "作业更新成功"
 msgid "Assignment will appear at the bottom of the lesson."
 msgstr "作业将显示在课时末尾。"
 
-#: frontend/src/components/AppSidebar.vue:593
+#: frontend/src/components/AppSidebar.vue:602
 #: frontend/src/components/Settings/Badges.vue:163
 #: frontend/src/pages/Assignments.vue:208 lms/www/lms.py:271
 msgid "Assignments"
@@ -644,7 +648,7 @@ msgstr "平均评分"
 msgid "Average Watch Time"
 msgstr ""
 
-#: frontend/src/pages/Lesson.vue:154
+#: frontend/src/pages/Lesson.vue:63 frontend/src/pages/Lesson.vue:199
 msgid "Back to Course"
 msgstr "返回课程"
 
@@ -735,6 +739,10 @@ msgstr "批次详情"
 msgid "Batch Details Raw"
 msgstr "批次原始数据"
 
+#: frontend/src/pages/BatchForm.vue:89
+msgid "Batch End Date"
+msgstr ""
+
 #: frontend/src/components/Settings/BadgeForm.vue:204
 #: frontend/src/components/Settings/Badges.vue:202
 msgid "Batch Enrollment"
@@ -780,6 +788,10 @@ msgstr "旧批次"
 msgid "Batch Settings"
 msgstr "批次设置"
 
+#: frontend/src/pages/BatchForm.vue:82
+msgid "Batch Start Date"
+msgstr ""
+
 #: lms/templates/emails/batch_confirmation.html:11
 msgid "Batch Start Date:"
 msgstr "批次开始日期："
@@ -820,7 +832,7 @@ msgid "Batch:"
 msgstr "批次："
 
 #. Label of the batches (Check) field in DocType 'LMS Settings'
-#: frontend/src/pages/Batches.vue:301 frontend/src/pages/Batches.vue:308
+#: frontend/src/pages/Batches.vue:306 frontend/src/pages/Batches.vue:313
 #: lms/lms/doctype/lms_settings/lms_settings.json lms/www/lms.py:120
 msgid "Batches"
 msgstr "批次"
@@ -850,7 +862,7 @@ msgstr "账单明细"
 msgid "Billing Name"
 msgstr "账单名称"
 
-#: frontend/src/components/Modals/EditProfile.vue:75
+#: frontend/src/components/Modals/EditProfile.vue:81
 msgid "Bio"
 msgstr "个人简介"
 
@@ -894,12 +906,12 @@ msgstr "由"
 msgid "CGPA/4"
 msgstr "累计平均绩点/4分制"
 
-#: frontend/src/components/UpcomingEvaluations.vue:57
-#: frontend/src/components/UpcomingEvaluations.vue:177
+#: frontend/src/components/UpcomingEvaluations.vue:59
+#: frontend/src/components/UpcomingEvaluations.vue:181
 msgid "Cancel"
 msgstr "取消"
 
-#: frontend/src/components/UpcomingEvaluations.vue:171
+#: frontend/src/components/UpcomingEvaluations.vue:175
 msgid "Cancel this evaluation?"
 msgstr "取消本次评估？"
 
@@ -990,7 +1002,7 @@ msgstr "证书生成成功"
 #. Enrollment'
 #. Label of a Card Break in the LMS Workspace
 #. Label of a Link in the LMS Workspace
-#: frontend/src/components/AppSidebar.vue:597
+#: frontend/src/components/AppSidebar.vue:606
 #: frontend/src/components/Modals/Event.vue:381
 #: frontend/src/pages/BatchForm.vue:69 frontend/src/pages/Batches.vue:58
 #: frontend/src/pages/CourseCertification.vue:10
@@ -1058,11 +1070,11 @@ msgstr "章节引用"
 msgid "Chapter added successfully"
 msgstr "章节添加成功"
 
-#: frontend/src/components/CourseOutline.vue:337
+#: frontend/src/components/CourseOutline.vue:348
 msgid "Chapter deleted successfully"
 msgstr "章节删除成功。"
 
-#: frontend/src/components/CourseOutline.vue:271
+#: frontend/src/components/CourseOutline.vue:282
 msgid "Chapter moved successfully"
 msgstr ""
 
@@ -1115,7 +1127,7 @@ msgstr "选项"
 msgid "Choose a color for the course card"
 msgstr ""
 
-#: frontend/src/components/Quiz.vue:644
+#: frontend/src/components/Quiz.vue:654
 msgid "Choose all answers that apply"
 msgstr "选择所有适用答案"
 
@@ -1127,7 +1139,7 @@ msgstr "选择现有题目"
 msgid "Choose an icon"
 msgstr "选择图标"
 
-#: frontend/src/components/Quiz.vue:645
+#: frontend/src/components/Quiz.vue:655
 msgid "Choose one answer"
 msgstr "选择唯一答案"
 
@@ -1290,7 +1302,7 @@ msgstr "评估人评语"
 msgid "Common keywords that will be used for all pages"
 msgstr "全站通用关键词"
 
-#: frontend/src/pages/Lesson.vue:828
+#: frontend/src/pages/Lesson.vue:884
 msgid "Community"
 msgstr ""
 
@@ -1430,7 +1442,7 @@ msgid "Congratulations on getting certified!"
 msgstr "祝贺您获得认证！"
 
 #: frontend/src/components/CourseCardOverlay.vue:63
-#: frontend/src/pages/Lesson.vue:52
+#: frontend/src/pages/Lesson.vue:97
 msgid "Contact the Administrator to enroll for this course."
 msgstr "请联系管理员报名本课程"
 
@@ -1454,7 +1466,7 @@ msgstr "继续学习"
 msgid "Contract"
 msgstr "合同"
 
-#: lms/lms/utils.py:429
+#: lms/lms/utils.py:430
 msgid "Cookie Policy"
 msgstr "Cookie政策"
 
@@ -1522,7 +1534,7 @@ msgstr "国家"
 #: frontend/src/components/Settings/BadgeForm.vue:194
 #: frontend/src/components/Settings/Badges.vue:199
 #: frontend/src/pages/Programs/ProgramForm.vue:195
-#: frontend/src/pages/Programs/Programs.vue:30
+#: frontend/src/pages/Programs/Programs.vue:35
 #: lms/lms/doctype/batch_course/batch_course.json
 #: lms/lms/doctype/cohort/cohort.json
 #: lms/lms/doctype/cohort_mentor/cohort_mentor.json
@@ -1704,7 +1716,7 @@ msgstr "课程{0}已添加至本批次"
 #: frontend/src/pages/CourseCertification.vue:127
 #: frontend/src/pages/Courses.vue:333 frontend/src/pages/Courses.vue:340
 #: frontend/src/pages/Programs/ProgramForm.vue:49
-#: frontend/src/pages/Programs/Programs.vue:30
+#: frontend/src/pages/Programs/Programs.vue:35
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Courses"
@@ -1714,6 +1726,10 @@ msgstr "课程"
 #: lms/templates/statistics.html:28
 msgid "Courses Completed"
 msgstr "已完成课程"
+
+#: frontend/src/pages/Home/AdminHome.vue:6
+msgid "Courses Created"
+msgstr ""
 
 #: frontend/src/components/BatchCourses.vue:154
 msgid "Courses deleted successfully"
@@ -1744,6 +1760,10 @@ msgstr "创建"
 msgid "Create Certificate"
 msgstr "创建证书"
 
+#: frontend/src/pages/Home/AdminHome.vue:84
+msgid "Create Course"
+msgstr ""
+
 #: frontend/src/components/Controls/Link.vue:38
 #: frontend/src/components/Controls/MultiSelect.vue:66
 msgid "Create New"
@@ -1769,15 +1789,15 @@ msgstr "创建直播课程"
 msgid "Create a Quiz"
 msgstr ""
 
-#: frontend/src/components/AppSidebar.vue:584
+#: frontend/src/components/AppSidebar.vue:593
 msgid "Create a batch"
 msgstr "创建班级"
 
-#: frontend/src/components/AppSidebar.vue:575
+#: frontend/src/components/AppSidebar.vue:584
 msgid "Create a course"
 msgstr "创建课程"
 
-#: frontend/src/components/AppSidebar.vue:585
+#: frontend/src/components/AppSidebar.vue:594
 msgid "Create a live class"
 msgstr "创建直播课程"
 
@@ -1789,15 +1809,15 @@ msgstr ""
 msgid "Create an Assignment"
 msgstr "创建作业"
 
-#: frontend/src/components/AppSidebar.vue:509
+#: frontend/src/components/AppSidebar.vue:518
 msgid "Create your first batch"
 msgstr "创建首个班级"
 
-#: frontend/src/components/AppSidebar.vue:440
+#: frontend/src/components/AppSidebar.vue:449
 msgid "Create your first course"
 msgstr "创建首门课程"
 
-#: frontend/src/components/AppSidebar.vue:487
+#: frontend/src/components/AppSidebar.vue:496
 msgid "Create your first quiz"
 msgstr "创建首项测验"
 
@@ -1805,11 +1825,11 @@ msgstr "创建首项测验"
 msgid "Created"
 msgstr "已创建"
 
-#: frontend/src/components/AppSidebar.vue:581
+#: frontend/src/components/AppSidebar.vue:590
 msgid "Creating a batch"
 msgstr "正在创建班级"
 
-#: frontend/src/components/AppSidebar.vue:572
+#: frontend/src/components/AppSidebar.vue:581
 msgid "Creating a course"
 msgstr "正在创建课程"
 
@@ -1828,7 +1848,11 @@ msgstr "币种"
 msgid "Current Lesson"
 msgstr "当前课时"
 
-#: frontend/src/components/AppSidebar.vue:603
+#: frontend/src/pages/Home/Streak.vue:34
+msgid "Current Streak"
+msgstr ""
+
+#: frontend/src/components/AppSidebar.vue:612
 msgid "Custom Certificate Templates"
 msgstr "自定义证书模板"
 
@@ -1924,8 +1948,8 @@ msgid "Degree Type"
 msgstr "学位类型"
 
 #: frontend/src/components/Controls/ChildTable.vue:56
-#: frontend/src/components/CourseOutline.vue:283
-#: frontend/src/components/CourseOutline.vue:349
+#: frontend/src/components/CourseOutline.vue:294
+#: frontend/src/components/CourseOutline.vue:360
 #: frontend/src/components/DiscussionReplies.vue:41
 #: frontend/src/components/Settings/Badges.vue:171
 #: frontend/src/pages/BatchForm.vue:565 frontend/src/pages/CourseForm.vue:597
@@ -1942,11 +1966,11 @@ msgstr "删除章节"
 msgid "Delete Course"
 msgstr "删除课程"
 
-#: frontend/src/components/CourseOutline.vue:343
+#: frontend/src/components/CourseOutline.vue:354
 msgid "Delete this chapter?"
 msgstr "确认删除此章节？"
 
-#: frontend/src/components/CourseOutline.vue:277
+#: frontend/src/components/CourseOutline.vue:288
 msgid "Delete this lesson?"
 msgstr "确认删除此课时？"
 
@@ -1958,11 +1982,11 @@ msgstr "删除本课程将同时删除其所有章节和课时。此操作不可
 msgid "Deleting this batch will also delete all its data including enrolled students, linked courses, assessments, feedback and discussions. Are you sure you want to continue?"
 msgstr ""
 
-#: frontend/src/components/CourseOutline.vue:344
+#: frontend/src/components/CourseOutline.vue:355
 msgid "Deleting this chapter will also delete all its lessons and permanently remove it from the course. This action cannot be undone. Are you sure you want to continue?"
 msgstr "删除本章节将同时删除其所有课时并永久移除。此操作不可撤销。确认继续吗？"
 
-#: frontend/src/components/CourseOutline.vue:278
+#: frontend/src/components/CourseOutline.vue:289
 msgid "Deleting this lesson will permanently remove it from the course. This action cannot be undone. Are you sure you want to continue?"
 msgstr "删除本课时将永久移除。此操作不可撤销。确认继续吗？"
 
@@ -2095,8 +2119,8 @@ msgstr "电子邮件"
 #: frontend/src/components/DiscussionReplies.vue:35
 #: frontend/src/components/Modals/ChapterModal.vue:9
 #: frontend/src/components/Settings/Badges.vue:156
-#: frontend/src/pages/JobDetail.vue:34 frontend/src/pages/Lesson.vue:133
-#: frontend/src/pages/Profile.vue:36
+#: frontend/src/pages/JobDetail.vue:34 frontend/src/pages/Lesson.vue:42
+#: frontend/src/pages/Lesson.vue:178 frontend/src/pages/Profile.vue:36
 msgid "Edit"
 msgstr "编辑"
 
@@ -2238,8 +2262,7 @@ msgstr "启用后证书将发布至认证参与者页面"
 
 #. Label of the end_date (Date) field in DocType 'Cohort'
 #. Label of the end_date (Date) field in DocType 'LMS Batch'
-#: frontend/src/pages/BatchForm.vue:89 lms/lms/doctype/cohort/cohort.json
-#: lms/lms/doctype/lms_batch/lms_batch.json
+#: lms/lms/doctype/cohort/cohort.json lms/lms/doctype/lms_batch/lms_batch.json
 msgid "End Date"
 msgstr "结束日期"
 
@@ -2255,7 +2278,6 @@ msgstr "结束日期（或预期）"
 #. Label of the end_time (Time) field in DocType 'LMS Certificate Evaluation'
 #. Label of the end_time (Time) field in DocType 'LMS Certificate Request'
 #. Label of the end_time (Time) field in DocType 'Scheduled Flow'
-#: frontend/src/pages/BatchForm.vue:105
 #: frontend/src/pages/ProfileEvaluator.vue:32
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_batch/lms_batch.json
@@ -2267,7 +2289,9 @@ msgstr "结束日期（或预期）"
 msgid "End Time"
 msgstr "结束时间"
 
-#: frontend/src/components/LiveClass.vue:89
+#: frontend/src/components/LiveClass.vue:92
+#: frontend/src/pages/Home/AdminHome.vue:183
+#: frontend/src/pages/Home/StudentHome.vue:126
 msgid "Ended"
 msgstr ""
 
@@ -2306,7 +2330,7 @@ msgstr "{0}的注册确认"
 msgid "Enrollment Count"
 msgstr "注册人数"
 
-#: lms/lms/utils.py:1864
+#: lms/lms/utils.py:1880
 msgid "Enrollment Failed, {0}"
 msgstr ""
 
@@ -2444,7 +2468,7 @@ msgstr ""
 msgid "Evaluator deleted successfully"
 msgstr ""
 
-#: lms/lms/api.py:1391
+#: lms/lms/api.py:1392
 msgid "Evaluator does not exist."
 msgstr ""
 
@@ -2628,7 +2652,7 @@ msgstr ""
 msgid "Filter by Status"
 msgstr ""
 
-#: frontend/src/components/Modals/EditProfile.vue:59
+#: frontend/src/components/Modals/EditProfile.vue:69
 #: frontend/src/components/Settings/Members.vue:110
 msgid "First Name"
 msgstr "名字"
@@ -2816,7 +2840,7 @@ msgid "Have an account? Login"
 msgstr "已有账号？登录"
 
 #. Label of the headline (Data) field in DocType 'User'
-#: frontend/src/components/Modals/EditProfile.vue:69
+#: frontend/src/components/Modals/EditProfile.vue:71
 #: lms/fixtures/custom_field.json
 msgid "Headline"
 msgstr "标题"
@@ -2844,6 +2868,10 @@ msgstr "帮助我们改进课程材料"
 #: frontend/src/pages/PersonaForm.vue:16
 msgid "Help us understand your needs"
 msgstr "请说明您的需求"
+
+#: frontend/src/pages/Home/Home.vue:11
+msgid "Hey"
+msgstr ""
 
 #: lms/lms/notification/certificate_request_reminder/certificate_request_reminder.html:1
 #: lms/templates/emails/certificate_request_notification.html:1
@@ -2885,6 +2913,10 @@ msgstr ""
 #: lms/lms/doctype/lms_exercise/lms_exercise.json
 msgid "Hints"
 msgstr "提示"
+
+#: frontend/src/pages/Home/Home.vue:5 frontend/src/pages/Home/Home.vue:153
+msgid "Home"
+msgstr "主页"
 
 #. Label of the host (Link) field in DocType 'LMS Live Class'
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
@@ -3069,7 +3101,7 @@ msgstr "机构名称"
 
 #. Label of the instructor (Link) field in DocType 'Cohort'
 #. Label of the instructor (Link) field in DocType 'Course Instructor'
-#: lms/lms/doctype/cohort/cohort.json
+#: frontend/src/pages/Home/Home.vue:148 lms/lms/doctype/cohort/cohort.json
 #: lms/lms/doctype/course_instructor/course_instructor.json
 msgid "Instructor"
 msgstr "讲师"
@@ -3081,7 +3113,7 @@ msgstr "讲师内容"
 
 #. Label of the instructor_notes (Markdown Editor) field in DocType 'Course
 #. Lesson'
-#: frontend/src/pages/Lesson.vue:188 frontend/src/pages/LessonForm.vue:42
+#: frontend/src/pages/Lesson.vue:233 frontend/src/pages/LessonForm.vue:42
 #: lms/lms/doctype/course_lesson/course_lesson.json
 msgid "Instructor Notes"
 msgstr "讲师备注"
@@ -3105,8 +3137,8 @@ msgstr "讲师评语"
 msgid "Interest"
 msgstr "兴趣"
 
-#: frontend/src/components/AppSidebar.vue:564
-#: frontend/src/components/AppSidebar.vue:567
+#: frontend/src/components/AppSidebar.vue:573
+#: frontend/src/components/AppSidebar.vue:576
 msgid "Introduction"
 msgstr "简介"
 
@@ -3128,7 +3160,7 @@ msgstr "邀请码"
 msgid "Invite Only"
 msgstr "仅限邀请"
 
-#: frontend/src/components/AppSidebar.vue:498
+#: frontend/src/components/AppSidebar.vue:507
 msgid "Invite your team and students"
 msgstr "邀请团队成员及学员"
 
@@ -3143,6 +3175,11 @@ msgstr "邀请团队成员及学员"
 #: lms/lms/doctype/lms_quiz_result/lms_quiz_result.json
 msgid "Is Correct"
 msgstr "是否正确"
+
+#. Label of the is_scorm_chapter (Check) field in DocType 'LMS Course Progress'
+#: lms/lms/doctype/lms_course_progress/lms_course_progress.json
+msgid "Is SCORM Chapter"
+msgstr ""
 
 #. Label of the is_scorm_package (Check) field in DocType 'Course Chapter'
 #. Label of the is_scorm_package (Check) field in DocType 'Course Lesson'
@@ -3160,7 +3197,7 @@ msgstr "是否为SCORM包"
 msgid "Issue Date"
 msgstr "签发日期"
 
-#: frontend/src/components/AppSidebar.vue:600
+#: frontend/src/components/AppSidebar.vue:609
 msgid "Issue a Certificate"
 msgstr "颁发证书"
 
@@ -3172,7 +3209,7 @@ msgstr "颁发证书"
 msgid "Issued On"
 msgstr "签发日期"
 
-#: frontend/src/pages/ProfileAbout.vue:56
+#: frontend/src/pages/ProfileAbout.vue:73
 #: frontend/src/pages/ProfileCertificates.vue:17
 #: lms/templates/certificates_section.html:11
 msgid "Issued on"
@@ -3241,12 +3278,14 @@ msgstr "职位名称"
 msgid "Jobs"
 msgstr "职位"
 
-#: frontend/src/components/LiveClass.vue:78
+#: frontend/src/components/LiveClass.vue:81
+#: frontend/src/pages/Home/AdminHome.vue:172
+#: frontend/src/pages/Home/StudentHome.vue:115
 #: lms/templates/upcoming_evals.html:15
 msgid "Join"
 msgstr "加入"
 
-#: frontend/src/components/UpcomingEvaluations.vue:90
+#: frontend/src/components/UpcomingEvaluations.vue:92
 msgid "Join Call"
 msgstr "加入通话"
 
@@ -3267,6 +3306,10 @@ msgstr ""
 
 #: frontend/src/components/Modals/LiveClassAttendance.vue:18
 msgid "Joined at"
+msgstr ""
+
+#: frontend/src/pages/Home/Streak.vue:18
+msgid "Keep going,"
 msgstr ""
 
 #. Name of a Workspace
@@ -3553,12 +3596,13 @@ msgid "Label"
 msgstr "标签"
 
 #. Label of the language (Select) field in DocType 'LMS Programming Exercise'
+#: frontend/src/components/Modals/EditProfile.vue:73
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:22
 #: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.json
 msgid "Language"
 msgstr "语言"
 
-#: frontend/src/components/Modals/EditProfile.vue:64
+#: frontend/src/components/Modals/EditProfile.vue:70
 msgid "Last Name"
 msgstr "姓氏"
 
@@ -3572,6 +3616,10 @@ msgstr "最新提交"
 #: lms/lms/doctype/course_chapter/course_chapter.json
 msgid "Launch File"
 msgstr "启动文件"
+
+#: frontend/src/pages/Home/Streak.vue:5
+msgid "Learning Consistency"
+msgstr ""
 
 #. Label of the left_at (Datetime) field in DocType 'LMS Live Class
 #. Participant'
@@ -3622,11 +3670,11 @@ msgstr "课时标题"
 msgid "Lesson created successfully"
 msgstr "课时创建成功。"
 
-#: frontend/src/components/CourseOutline.vue:242
+#: frontend/src/components/CourseOutline.vue:253
 msgid "Lesson deleted successfully"
 msgstr "课时删除成功。"
 
-#: frontend/src/components/CourseOutline.vue:257
+#: frontend/src/components/CourseOutline.vue:268
 msgid "Lesson moved successfully"
 msgstr "课时移动成功。"
 
@@ -3668,7 +3716,7 @@ msgstr "题目限制数量"
 msgid "Limit cannot be greater than or equal to the number of questions in the quiz."
 msgstr "限制数不可大于或等于测验题目总数"
 
-#: frontend/src/pages/ProfileAbout.vue:74
+#: frontend/src/pages/ProfileAbout.vue:91
 msgid "LinkedIn"
 msgstr "领英"
 
@@ -3734,7 +3782,7 @@ msgstr "地点偏好"
 
 #: frontend/src/components/NoPermission.vue:28
 #: frontend/src/components/QuizBlock.vue:9 frontend/src/pages/Batch.vue:196
-#: frontend/src/pages/Lesson.vue:58
+#: frontend/src/pages/Lesson.vue:103
 msgid "Login"
 msgstr "登录"
 
@@ -3745,6 +3793,10 @@ msgstr "登录Frappe云平台？"
 #: frontend/src/pages/JobDetail.vue:63
 msgid "Login to apply"
 msgstr "登录后申请"
+
+#: frontend/src/pages/Home/Streak.vue:42
+msgid "Longest Streak"
+msgstr ""
 
 #: lms/templates/emails/payment_reminder.html:23
 msgid "Looking forward to seeing you enrolled!"
@@ -3771,6 +3823,10 @@ msgstr "请确保输入正确的开票名称，该名称将用于发票"
 #: frontend/src/components/BatchOverlay.vue:73
 msgid "Manage Batch"
 msgstr "管理批次"
+
+#: frontend/src/pages/Home/Home.vue:119
+msgid "Manage your courses and batches at a glance"
+msgstr ""
 
 #. Option for the 'Role' (Select) field in DocType 'Cohort Staff'
 #: lms/lms/doctype/cohort_staff/cohort_staff.json
@@ -3822,7 +3878,7 @@ msgid "Marks out of"
 msgstr "总分"
 
 #: frontend/src/pages/QuizForm.vue:122
-msgid "Marks to Cut"
+msgid "Marks to Deduct"
 msgstr ""
 
 #. Label of the max_attempts (Int) field in DocType 'LMS Quiz'
@@ -4101,7 +4157,7 @@ msgstr "元关键词"
 msgid "Meta Tags"
 msgstr "元标签"
 
-#: lms/lms/api.py:1431
+#: lms/lms/api.py:1432
 msgid "Meta tags should be a list."
 msgstr ""
 
@@ -4168,7 +4224,7 @@ msgstr "模块错误"
 msgid "Monday"
 msgstr "星期一"
 
-#: frontend/src/components/AppSidebar.vue:608
+#: frontend/src/components/AppSidebar.vue:617
 msgid "Monetization"
 msgstr "课程变现功能"
 
@@ -4180,6 +4236,14 @@ msgstr "更多"
 #: lms/lms/doctype/lms_question/lms_question.json
 msgid "Multiple Correct Answers"
 msgstr "多正确答案"
+
+#: frontend/src/pages/Home/StudentHome.vue:40
+msgid "My Batches"
+msgstr ""
+
+#: frontend/src/pages/Home/StudentHome.vue:8
+msgid "My Courses"
+msgstr ""
 
 #: frontend/src/components/Notes/Notes.vue:3
 msgid "My Notes"
@@ -4247,11 +4311,11 @@ msgstr "新用户注册"
 msgid "New Zoom Account"
 msgstr ""
 
-#: lms/lms/utils.py:591
+#: lms/lms/utils.py:592
 msgid "New comment in batch {0}"
 msgstr "批次{0}的新评论"
 
-#: lms/lms/utils.py:586
+#: lms/lms/utils.py:587
 msgid "New reply on the topic {0} in course {1}"
 msgstr "课程{1}中主题{0}的新回复"
 
@@ -4260,7 +4324,8 @@ msgstr "课程{1}中主题{0}的新回复"
 msgid "New {0}"
 msgstr "新建{0}"
 
-#: frontend/src/components/Quiz.vue:237 frontend/src/pages/Lesson.vue:142
+#: frontend/src/components/Quiz.vue:237 frontend/src/pages/Lesson.vue:51
+#: frontend/src/pages/Lesson.vue:187
 msgid "Next"
 msgstr "下一步"
 
@@ -4313,6 +4378,7 @@ msgstr "未添加任何课程"
 msgid "No courses added yet."
 msgstr ""
 
+#: frontend/src/pages/Home/AdminHome.vue:65
 #: lms/templates/courses_created.html:14
 msgid "No courses created"
 msgstr "未创建课程"
@@ -4325,11 +4391,11 @@ msgstr "无审核中的课程"
 msgid "No feedback received yet."
 msgstr "尚未收到反馈"
 
-#: frontend/src/pages/ProfileAbout.vue:12
+#: frontend/src/pages/ProfileAbout.vue:29
 msgid "No introduction"
 msgstr "无简介"
 
-#: frontend/src/components/LiveClass.vue:97
+#: frontend/src/components/LiveClass.vue:100
 msgid "No live classes scheduled"
 msgstr "未安排直播课程"
 
@@ -4415,8 +4481,8 @@ msgstr "未保存"
 msgid "Note"
 msgstr "备注"
 
-#: frontend/src/pages/Lesson.vue:358 frontend/src/pages/Lesson.vue:824
-#: frontend/src/pages/Lesson.vue:835
+#: frontend/src/pages/Lesson.vue:404 frontend/src/pages/Lesson.vue:880
+#: frontend/src/pages/Lesson.vue:891
 msgid "Notes"
 msgstr "备注"
 
@@ -4556,6 +4622,14 @@ msgstr "原始金额"
 #: lms/fixtures/custom_field.json lms/templates/signup-form.html:28
 msgid "Others"
 msgstr "其他"
+
+#: frontend/src/pages/Home/StudentHome.vue:9
+msgid "Our Popular Courses"
+msgstr ""
+
+#: frontend/src/pages/Home/StudentHome.vue:41
+msgid "Our Upcoming Batches"
+msgstr ""
 
 #. Label of the output (Data) field in DocType 'LMS Test Case Submission'
 #: lms/lms/doctype/lms_test_case_submission/lms_test_case_submission.json
@@ -4800,7 +4874,7 @@ msgstr ""
 msgid "Please enable the zoom account to use this feature."
 msgstr ""
 
-#: frontend/src/components/CourseOutline.vue:366
+#: frontend/src/components/CourseOutline.vue:377
 msgid "Please enroll for this course to view this lesson"
 msgstr "请报名本课程以查看此课时"
 
@@ -4853,7 +4927,7 @@ msgstr "请登录以访问此页面"
 msgid "Please login to continue with payment."
 msgstr "请登录以继续支付"
 
-#: lms/lms/utils.py:1997
+#: lms/lms/utils.py:2012
 msgid "Please login to enroll in the program."
 msgstr ""
 
@@ -4865,10 +4939,6 @@ msgstr "请充分准备并准时参加评估"
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:135
 msgid "Please run the code to execute the test cases."
 msgstr ""
-
-#: frontend/src/components/UpcomingEvaluations.vue:98
-msgid "Please schedule an evaluation to get certified."
-msgstr "请安排评估以获取认证"
 
 #: frontend/src/pages/Programs/ProgramForm.vue:420
 msgid "Please select a course"
@@ -5004,7 +5074,7 @@ msgstr "预览图片"
 msgid "Preview Video"
 msgstr "预览视频"
 
-#: frontend/src/pages/Lesson.vue:117
+#: frontend/src/pages/Lesson.vue:26 frontend/src/pages/Lesson.vue:162
 msgid "Previous"
 msgstr "上一项"
 
@@ -5031,7 +5101,7 @@ msgstr "主要国家"
 msgid "Primary Subgroup"
 msgstr "主分组"
 
-#: lms/lms/utils.py:428
+#: lms/lms/utils.py:429
 msgid "Privacy Policy"
 msgstr "隐私政策"
 
@@ -5063,9 +5133,13 @@ msgstr "前往支付"
 msgid "Profession"
 msgstr "职业"
 
-#: frontend/src/components/Modals/EditProfile.vue:37
+#: frontend/src/components/Modals/EditProfile.vue:25
 msgid "Profile Image"
 msgstr "个人头像"
+
+#: frontend/src/pages/Programs/Programs.vue:18
+msgid "Program"
+msgstr ""
 
 #. Label of the program_courses (Table) field in DocType 'LMS Program'
 #: lms/lms/doctype/lms_program/lms_program.json
@@ -5129,8 +5203,9 @@ msgid "Programming Exercises"
 msgstr ""
 
 #: frontend/src/pages/Programs/ProgramDetail.vue:123
-#: frontend/src/pages/Programs/Programs.vue:108
-#: frontend/src/pages/Programs/Programs.vue:114 lms/www/lms.py:293
+#: frontend/src/pages/Programs/Programs.vue:18
+#: frontend/src/pages/Programs/Programs.vue:113
+#: frontend/src/pages/Programs/Programs.vue:119 lms/www/lms.py:293
 msgid "Programs"
 msgstr "课程项目"
 
@@ -5332,7 +5407,7 @@ msgstr "测验更新成功"
 msgid "Quiz will appear at the bottom of the lesson."
 msgstr "测验将显示在课时末尾"
 
-#: frontend/src/components/AppSidebar.vue:592
+#: frontend/src/components/AppSidebar.vue:601
 #: frontend/src/pages/QuizForm.vue:396 frontend/src/pages/Quizzes.vue:275
 #: frontend/src/pages/Quizzes.vue:285 lms/www/lms.py:249
 msgid "Quizzes"
@@ -5471,6 +5546,10 @@ msgstr "简历"
 msgid "Resume Video"
 msgstr ""
 
+#: frontend/src/pages/Home/Home.vue:142
+msgid "Resume where you left off"
+msgstr ""
+
 #. Label of the review (Small Text) field in DocType 'LMS Course Review'
 #. Label of a Link in the LMS Workspace
 #: frontend/src/components/Modals/ReviewModal.vue:20
@@ -5508,7 +5587,7 @@ msgstr "角色偏好"
 msgid "Role updated successfully"
 msgstr "角色更新成功。"
 
-#: frontend/src/components/AppSidebar.vue:620
+#: frontend/src/components/AppSidebar.vue:629
 msgid "Roles"
 msgstr "角色"
 
@@ -5546,6 +5625,12 @@ msgstr "运行"
 #: lms/lms/doctype/course_chapter/course_chapter.json
 msgid "SCORM"
 msgstr "SCORM标准"
+
+#. Label of the scorm_content (Long Text) field in DocType 'LMS Course
+#. Progress'
+#: lms/lms/doctype/lms_course_progress/lms_course_progress.json
+msgid "SCORM Content"
+msgstr ""
 
 #. Label of the scorm_package (Link) field in DocType 'Course Chapter'
 #: frontend/src/components/Modals/ChapterModal.vue:22
@@ -5602,9 +5687,13 @@ msgid "Schedule"
 msgstr "日程"
 
 #: frontend/src/components/Modals/EvaluationModal.vue:5
-#: frontend/src/components/UpcomingEvaluations.vue:11
+#: frontend/src/components/UpcomingEvaluations.vue:13
 msgid "Schedule Evaluation"
 msgstr "安排评估"
+
+#: frontend/src/components/UpcomingEvaluations.vue:100
+msgid "Schedule an evaluation to get certified."
+msgstr ""
 
 #. Name of a DocType
 #: lms/lms/doctype/scheduled_flow/scheduled_flow.json
@@ -5677,6 +5766,13 @@ msgstr "座位数不可为负数。"
 msgid "Seats Left"
 msgstr "剩余席位"
 
+#: frontend/src/pages/Home/AdminHome.vue:15
+#: frontend/src/pages/Home/AdminHome.vue:43
+#: frontend/src/pages/Home/StudentHome.vue:19
+#: frontend/src/pages/Home/StudentHome.vue:51
+msgid "See all"
+msgstr ""
+
 #: frontend/src/components/Settings/BadgeAssignmentForm.vue:42
 msgid "Select Date"
 msgstr ""
@@ -5711,6 +5807,14 @@ msgstr "发送确认邮件"
 msgid "Send calendar invite for evaluations"
 msgstr "发送评估日历邀请"
 
+#: frontend/src/pages/BatchForm.vue:105
+msgid "Session End Time"
+msgstr ""
+
+#: frontend/src/pages/BatchForm.vue:98
+msgid "Session Start Time"
+msgstr ""
+
 #. Label of the sessions_on (Data) field in DocType 'LMS Batch Old'
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 msgid "Sessions On Days"
@@ -5718,21 +5822,21 @@ msgstr "上课日"
 
 #: frontend/src/components/Controls/ColorSwatches.vue:13
 msgid "Set Color"
-msgstr ""
+msgstr "设置颜色"
 
 #: lms/templates/emails/community_course_membership.html:1
 msgid "Set your Password"
 msgstr "设置密码"
 
-#: frontend/src/components/AppSidebar.vue:568
+#: frontend/src/components/AppSidebar.vue:577
 msgid "Setting up"
 msgstr "系统配置中"
 
-#: frontend/src/components/AppSidebar.vue:613
+#: frontend/src/components/AppSidebar.vue:622
 msgid "Setting up payment gateway"
 msgstr "设置支付网关"
 
-#: frontend/src/components/AppSidebar.vue:618
+#: frontend/src/components/AppSidebar.vue:627
 #: frontend/src/components/Settings/Settings.vue:7
 #: frontend/src/pages/BatchForm.vue:53 frontend/src/pages/CourseForm.vue:142
 #: frontend/src/pages/ProfileRoles.vue:4
@@ -5741,7 +5845,7 @@ msgstr "设置支付网关"
 msgid "Settings"
 msgstr "设置"
 
-#: frontend/src/pages/ProfileAbout.vue:62
+#: frontend/src/pages/ProfileAbout.vue:79
 msgid "Share on"
 msgstr "分享至"
 
@@ -5909,14 +6013,15 @@ msgstr "工作人员"
 msgid "Stage"
 msgstr "阶段"
 
-#: frontend/src/components/LiveClass.vue:70 frontend/src/components/Quiz.vue:81
+#: frontend/src/components/LiveClass.vue:73 frontend/src/components/Quiz.vue:81
+#: frontend/src/pages/Home/AdminHome.vue:164
+#: frontend/src/pages/Home/StudentHome.vue:107
 msgid "Start"
 msgstr "开始"
 
 #. Label of the start_date (Date) field in DocType 'Education Detail'
 #. Label of the start_date (Date) field in DocType 'LMS Batch'
 #. Label of the start_date (Date) field in DocType 'LMS Batch Old'
-#: frontend/src/pages/BatchForm.vue:82
 #: lms/lms/doctype/education_detail/education_detail.json
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
@@ -5928,7 +6033,7 @@ msgid "Start Date:"
 msgstr "开始日期："
 
 #: frontend/src/components/CourseCardOverlay.vue:76
-#: frontend/src/pages/Lesson.vue:44 frontend/src/pages/SCORMChapter.vue:28
+#: frontend/src/pages/Lesson.vue:89 frontend/src/pages/SCORMChapter.vue:31
 #: lms/templates/emails/lms_course_interest.html:9
 msgid "Start Learning"
 msgstr "开始学习"
@@ -5940,7 +6045,6 @@ msgstr "开始学习"
 #. Label of the start_time (Time) field in DocType 'LMS Certificate Evaluation'
 #. Label of the start_time (Time) field in DocType 'LMS Certificate Request'
 #. Label of the start_time (Time) field in DocType 'Scheduled Flow'
-#: frontend/src/pages/BatchForm.vue:98
 #: frontend/src/pages/ProfileEvaluator.vue:29
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_batch/lms_batch.json
@@ -6028,7 +6132,8 @@ msgstr "状态/得分"
 #. Option for the 'User Category' (Select) field in DocType 'User'
 #. Option for the 'Required Role' (Select) field in DocType 'Cohort Web Page'
 #. Option for the 'Member Type' (Select) field in DocType 'LMS Enrollment'
-#: frontend/src/pages/ProfileRoles.vue:38 lms/fixtures/custom_field.json
+#: frontend/src/pages/Home/Home.vue:147 frontend/src/pages/ProfileRoles.vue:38
+#: lms/fixtures/custom_field.json
 #: lms/lms/doctype/cohort_web_page/cohort_web_page.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 #: lms/templates/signup-form.html:26
@@ -6241,7 +6346,7 @@ msgstr "模板"
 msgid "Temporarily Disabled"
 msgstr "临时禁用"
 
-#: lms/lms/utils.py:427
+#: lms/lms/utils.py:428
 msgid "Terms of Use"
 msgstr "使用条款"
 
@@ -6299,7 +6404,7 @@ msgstr ""
 msgid "Thanks and Regards"
 msgstr "此致敬礼"
 
-#: lms/lms/utils.py:1888
+#: lms/lms/utils.py:1904
 msgid "The batch is full. Please contact the Administrator."
 msgstr "该批次已满。请联系管理员"
 
@@ -6326,6 +6431,10 @@ msgstr "您的申请状态已变更"
 #: frontend/src/components/CreateOutline.vue:12
 msgid "There are no chapters in this course. Create and manage chapters from here."
 msgstr "本课程暂无章节，请在此创建和管理章节"
+
+#: frontend/src/pages/Home/AdminHome.vue:71
+msgid "There are no courses currently. Create your first course to get started!"
+msgstr ""
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:101
 msgid "There are no seats available in this batch."
@@ -6374,7 +6483,9 @@ msgstr ""
 msgid "This certificate does no expire"
 msgstr "本证书永久有效"
 
-#: frontend/src/components/LiveClass.vue:83
+#: frontend/src/components/LiveClass.vue:86
+#: frontend/src/pages/Home/AdminHome.vue:177
+#: frontend/src/pages/Home/StudentHome.vue:120
 msgid "This class has ended"
 msgstr "本课程已结束"
 
@@ -6382,7 +6493,7 @@ msgstr "本课程已结束"
 msgid "This course has:"
 msgstr "本课程包含："
 
-#: lms/lms/utils.py:1749
+#: lms/lms/utils.py:1765
 msgid "This course is free."
 msgstr "本课程免费"
 
@@ -6398,11 +6509,11 @@ msgstr "本描述将展示在无元描述的列表及页面中"
 msgid "This image will be shown on lists and pages that don't have an image by default"
 msgstr "本图片将显示在无默认图片的列表及页面"
 
-#: frontend/src/pages/Lesson.vue:29
+#: frontend/src/pages/Lesson.vue:74
 msgid "This lesson is locked"
 msgstr "本课时已锁定"
 
-#: frontend/src/pages/Lesson.vue:34
+#: frontend/src/pages/Lesson.vue:79
 msgid "This lesson is not available for preview. Please enroll in the course to access it."
 msgstr "本课时不可预览，请报名课程后访问"
 
@@ -6568,7 +6679,7 @@ msgstr "至"
 msgid "To Date"
 msgstr "截止日期"
 
-#: lms/lms/utils.py:1760
+#: lms/lms/utils.py:1776
 msgid "To join this batch, please contact the Administrator."
 msgstr "加入本批次请联系管理员"
 
@@ -6611,7 +6722,7 @@ msgstr "重试"
 msgid "Tuesday"
 msgstr "星期二"
 
-#: frontend/src/pages/ProfileAbout.vue:86
+#: frontend/src/pages/ProfileAbout.vue:103
 msgid "Twitter"
 msgstr "推特"
 
@@ -6638,7 +6749,7 @@ msgstr "类型"
 msgid "Type '/' for commands or select text to format"
 msgstr ""
 
-#: frontend/src/components/Quiz.vue:646
+#: frontend/src/components/Quiz.vue:656
 msgid "Type your answer"
 msgstr "输入答案"
 
@@ -6712,14 +6823,19 @@ msgstr "非结构化角色"
 msgid "Upcoming"
 msgstr "即将到来"
 
-#: frontend/src/pages/Batch.vue:187
+#: frontend/src/pages/Batch.vue:187 frontend/src/pages/Home/AdminHome.vue:34
 msgid "Upcoming Batches"
 msgstr "即将开课批次"
 
 #: frontend/src/components/UpcomingEvaluations.vue:5
-#: lms/templates/upcoming_evals.html:3
+#: frontend/src/pages/Home/AdminHome.vue:92 lms/templates/upcoming_evals.html:3
 msgid "Upcoming Evaluations"
 msgstr "即将进行的评估"
+
+#: frontend/src/pages/Home/AdminHome.vue:128
+#: frontend/src/pages/Home/StudentHome.vue:71
+msgid "Upcoming Live Classes"
+msgstr ""
 
 #: frontend/src/components/Settings/BrandSettings.vue:24
 #: frontend/src/components/Settings/PaymentSettings.vue:27
@@ -7003,7 +7119,7 @@ msgstr "您不属于本批次成员，请查看即将开课批次"
 msgid "You are not a mentor of the course {0}"
 msgstr "您不是课程{0}的导师"
 
-#: frontend/src/pages/SCORMChapter.vue:22
+#: frontend/src/pages/SCORMChapter.vue:25
 msgid "You are not enrolled in this course. Please enroll to access this lesson."
 msgstr "请注册本课程以访问此课时"
 
@@ -7015,6 +7131,10 @@ msgstr "您也可将以下链接复制到浏览器"
 #: frontend/src/components/Quiz.vue:37
 msgid "You can attempt this quiz {0}."
 msgstr "您可尝试此测验{0}次"
+
+#: frontend/src/pages/Home/Streak.vue:16
+msgid "You can do better,"
+msgstr ""
 
 #: lms/templates/emails/job_application.html:6
 msgid "You can find their resume attached to this email."
@@ -7093,9 +7213,25 @@ msgstr "您在测验{1}中获得了{0}分"
 msgid "You have opted to be notified for this course. You will receive an email when the course becomes available."
 msgstr "您已订阅本课程通知，课程开放时将收到邮件提醒"
 
+#: frontend/src/pages/Home/Home.vue:102 frontend/src/pages/Home/Home.vue:125
+msgid "You have {0} upcoming {1} and {2} {3} scheduled."
+msgstr ""
+
+#: frontend/src/pages/Home/Home.vue:109 frontend/src/pages/Home/Home.vue:132
+msgid "You have {0} upcoming {1}."
+msgstr ""
+
+#: frontend/src/pages/Home/Home.vue:114 frontend/src/pages/Home/Home.vue:137
+msgid "You have {0} {1} scheduled."
+msgstr ""
+
 #: frontend/src/components/CourseCardOverlay.vue:217
 msgid "You need to login first to enroll for this course"
 msgstr "请先登录以注册本课程"
+
+#: frontend/src/pages/Home/Streak.vue:19
+msgid "You rock,"
+msgstr ""
 
 #: frontend/src/components/Quiz.vue:7
 msgid "You will have to complete the quiz to continue the video"
@@ -7133,7 +7269,7 @@ msgstr "账户创建成功！"
 msgid "Your Output"
 msgstr ""
 
-#: lms/lms/doctype/lms_batch/lms_batch.py:305
+#: lms/lms/doctype/lms_batch/lms_batch.py:309
 msgid "Your batch {0} is starting tomorrow"
 msgstr "您的批次{0}将于明日开始"
 
@@ -7161,6 +7297,10 @@ msgstr "评估时段已预约成功"
 #: lms/templates/emails/certificate_request_notification.html:5
 msgid "Your evaluator is {0}"
 msgstr "您的评估人是{0}"
+
+#: frontend/src/pages/Home/Streak.vue:54
+msgid "Your learning streak counts the number of days in a row you’ve kept up your learning, whether it’s a lesson, quiz, or assignment. Don’t worry, weekends don’t break your streak."
+msgstr ""
 
 #: lms/templates/emails/mentor_request_status_update_email.html:4
 msgid "Your request to join us as a mentor for the course"
@@ -7244,8 +7384,8 @@ msgstr "证书"
 msgid "certified members"
 msgstr "认证成员"
 
-#: frontend/src/components/CourseCard.vue:102 frontend/src/pages/Lesson.vue:98
-#: frontend/src/pages/Lesson.vue:259
+#: frontend/src/components/CourseCard.vue:102 frontend/src/pages/Lesson.vue:143
+#: frontend/src/pages/Lesson.vue:304
 #: frontend/src/pages/Programs/ProgramDetail.vue:14
 #: frontend/src/pages/Programs/StudentPrograms.vue:44
 msgid "completed"
@@ -7258,6 +7398,22 @@ msgstr "课程"
 #: frontend/src/pages/Programs/StudentPrograms.vue:29
 msgid "courses"
 msgstr "课程"
+
+#: frontend/src/pages/Home/Streak.vue:24
+msgid "day streak"
+msgstr ""
+
+#: frontend/src/pages/Home/Streak.vue:37 frontend/src/pages/Home/Streak.vue:45
+msgid "days"
+msgstr "天"
+
+#: frontend/src/pages/Home/Home.vue:100 frontend/src/pages/Home/Home.vue:123
+msgid "evaluation"
+msgstr "评估"
+
+#: frontend/src/pages/Home/Home.vue:100 frontend/src/pages/Home/Home.vue:123
+msgid "evaluations"
+msgstr ""
 
 #: lms/templates/emails/mentor_request_status_update_email.html:4
 msgid "has been"
@@ -7275,12 +7431,20 @@ msgstr "示例@邮箱.com"
 msgid "lessons"
 msgstr "课时"
 
-#: frontend/src/pages/Programs/Programs.vue:37
+#: frontend/src/pages/Home/Home.vue:98 frontend/src/pages/Home/Home.vue:122
+msgid "live class"
+msgstr ""
+
+#: frontend/src/pages/Home/Home.vue:98 frontend/src/pages/Home/Home.vue:122
+msgid "live classes"
+msgstr ""
+
+#: frontend/src/pages/Programs/Programs.vue:42
 #: frontend/src/pages/Programs/StudentPrograms.vue:36
 msgid "member"
 msgstr "成员"
 
-#: frontend/src/pages/Programs/Programs.vue:37
+#: frontend/src/pages/Programs/Programs.vue:42
 #: frontend/src/pages/Programs/StudentPrograms.vue:36
 msgid "members"
 msgstr "成员"
@@ -7341,10 +7505,6 @@ msgstr ""
 msgid "{0} Open Jobs"
 msgstr "{0}个开放职位"
 
-#: frontend/src/pages/Programs/Programs.vue:15
-msgid "{0} Programs"
-msgstr ""
-
 #: frontend/src/pages/Quizzes.vue:18
 msgid "{0} Quizzes"
 msgstr "{0}项测验"
@@ -7393,7 +7553,7 @@ msgstr "{0}已获得课程{1}的认证"
 msgid "{0} is your evaluator"
 msgstr "{0}是您的评估人"
 
-#: lms/lms/utils.py:664
+#: lms/lms/utils.py:665
 msgid "{0} mentioned you in a comment"
 msgstr "{0}在评论中提及您"
 
@@ -7401,11 +7561,11 @@ msgstr "{0}在评论中提及您"
 msgid "{0} mentioned you in a comment in your batch."
 msgstr "{0}在您的批次评论中提及您"
 
-#: lms/lms/utils.py:621 lms/lms/utils.py:625
+#: lms/lms/utils.py:622 lms/lms/utils.py:626
 msgid "{0} mentioned you in a comment in {1}"
 msgstr "{0}在{1}的评论中提及您"
 
-#: lms/lms/utils.py:449
+#: lms/lms/utils.py:450
 msgid "{0}k"
 msgstr "{0}千"
 
