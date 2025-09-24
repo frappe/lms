@@ -6,7 +6,6 @@ import re
 import shutil
 import xml.etree.ElementTree as ET
 import zipfile
-from dataclasses import fields
 from xml.dom.minidom import parseString
 
 import frappe
@@ -26,6 +25,7 @@ from frappe.utils import (
 	get_datetime,
 	now,
 )
+from frappe.utils.response import Response
 
 from lms.lms.doctype.course_lesson.course_lesson import save_progress
 from lms.lms.utils import get_average_rating, get_lesson_count
@@ -1647,3 +1647,26 @@ def get_progress_distribution(progressList):
 	]
 
 	return distribution
+
+
+@frappe.whitelist(allow_guest=True)
+def get_pwa_manifest():
+	title = frappe.db.get_single_value("Website Settings", "app_name") or "Frappe Learning"
+	banner_image = frappe.db.get_single_value("Website Settings", "banner_image")
+
+	manifest = {
+		"name": title,
+		"short_name": title,
+		"description": "Easy to use, 100% open source Learning Management System",
+		"start_url": "/lms",
+		"icons": [
+			{
+				"src": banner_image or "/assets/lms/frontend/manifest/manifest-icon-192.maskable.png",
+				"sizes": "192x192",
+				"type": "image/png",
+				"purpose": "maskable any",
+			}
+		],
+	}
+
+	return Response(json.dumps(manifest), status=200, content_type="application/manifest+json")

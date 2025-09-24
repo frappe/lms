@@ -33,30 +33,7 @@ export default defineConfig({
 				cleanupOutdatedCaches: true,
 				maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
 			},
-			manifest: {
-				display: 'standalone',
-				name: 'Learning',
-				short_name: 'Learning',
-				start_url: '/lms',
-				description:
-					'Easy to use, 100% open source Learning Management System',
-				theme_color: '#0f7159',
-				background_color: '#ffffff',
-				icons: [
-					{
-						src: '/assets/lms/frontend/manifest/manifest-icon-192.maskable.png',
-						sizes: '192x192',
-						type: 'image/png',
-						purpose: 'maskable any',
-					},
-					{
-						src: '/assets/lms/frontend/manifest/manifest-icon-512.maskable.png',
-						sizes: '512x512',
-						type: 'image/png',
-						purpose: 'maskable any',
-					},
-				],
-			},
+			manifest: false,
 		}),
 	],
 	server: {
