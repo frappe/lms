@@ -25,6 +25,7 @@ from frappe.utils import (
 	get_datetime,
 	now,
 )
+from frappe.utils.response import Response
 
 from lms.lms.doctype.course_lesson.course_lesson import save_progress
 from lms.lms.utils import get_average_rating, get_lesson_count
@@ -823,7 +824,6 @@ def get_count(doctype, filters):
 
 @frappe.whitelist()
 def get_payment_gateway_details(payment_gateway):
-	fields = []
 	gateway = frappe.get_doc("Payment Gateway", payment_gateway)
 
 	if gateway.gateway_controller is None:
@@ -843,15 +843,30 @@ def get_payment_gateway_details(payment_gateway):
 		except Exception:
 			frappe.throw(_("{0} Settings not found").format(payment_gateway))
 
+	gateway_fields = get_transformed_fields(meta, data)
+
+	return {
+		"fields": gateway_fields,
+		"data": data,
+		"doctype": doctype,
+		"docname": docname,
+	}
+
+
+def get_transformed_fields(meta, data=None):
+	transformed_fields = []
 	for row in meta:
 		if row.fieldtype not in ["Column Break", "Section Break"]:
 			if row.fieldtype in ["Attach", "Attach Image"]:
 				fieldtype = "Upload"
-				data[row.fieldname] = get_file_info(data.get(row.fieldname))
+				if data and data.get(row.fieldname):
+					data[row.fieldname] = get_file_info(data.get(row.fieldname))
+			elif row.fieldtype == "Check":
+				fieldtype = "checkbox"
 			else:
 				fieldtype = row.fieldtype
 
-			fields.append(
+			transformed_fields.append(
 				{
 					"label": row.label,
 					"name": row.fieldname,
@@ -859,12 +874,19 @@ def get_payment_gateway_details(payment_gateway):
 				}
 			)
 
-	return {
-		"fields": fields,
-		"data": data,
-		"doctype": doctype,
-		"docname": docname,
-	}
+	return transformed_fields
+
+
+@frappe.whitelist()
+def get_new_gateway_fields(doctype):
+	try:
+		meta = frappe.get_meta(doctype).fields
+	except Exception:
+		frappe.throw(_("{0} not found").format(doctype))
+
+	transformed_fields = get_transformed_fields(meta)
+
+	return transformed_fields
 
 
 def update_course_statistics():
@@ -1625,3 +1647,26 @@ def get_progress_distribution(progressList):
 	]
 
 	return distribution
+
+
+@frappe.whitelist(allow_guest=True)
+def get_pwa_manifest():
+	title = frappe.db.get_single_value("Website Settings", "app_name") or "Frappe Learning"
+	banner_image = frappe.db.get_single_value("Website Settings", "banner_image")
+
+	manifest = {
+		"name": title,
+		"short_name": title,
+		"description": "Easy to use, 100% open source Learning Management System",
+		"start_url": "/lms",
+		"icons": [
+			{
+				"src": banner_image or "/assets/lms/frontend/manifest/manifest-icon-192.maskable.png",
+				"sizes": "192x192",
+				"type": "image/png",
+				"purpose": "maskable any",
+			}
+		],
+	}
+
+	return Response(json.dumps(manifest), status=200, content_type="application/manifest+json")
