@@ -27,6 +27,13 @@
 							:options="jobTypes"
 							:required="true"
 						/>
+						<FormControl
+							v-model="job.work_mode"
+							:label="__('Work Mode')"
+							type="select"
+							:options="workModes"
+							:required="true"
+						/>
 					</div>
 					<div class="space-y-4">
 						<FormControl
@@ -225,6 +232,7 @@ const job = reactive({
 	location: '',
 	country: '',
 	type: 'Full Time',
+	work_mode: 'On-site',
 	status: 'Open',
 	company_name: '',
 	company_website: '',
@@ -299,6 +307,14 @@ const jobTypes = computed(() => {
 		{ label: 'Part Time', value: 'Part Time' },
 		{ label: 'Contract', value: 'Contract' },
 		{ label: 'Freelance', value: 'Freelance' },
+	]
+})
+
+const workModes = computed(() => {
+	return [
+		{ label: 'On site', value: 'On-site' },
+		{ label: 'Hybrid', value: 'Hybrid' },
+		{ label: 'Remote', value: 'Remote' },
 	]
 })
 
