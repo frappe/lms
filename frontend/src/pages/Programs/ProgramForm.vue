@@ -112,6 +112,7 @@
 
 						<div class="space-x-2">
 							<Button
+								v-if="programMembers.data.length > 0"
 								@click="
 									() => {
 										showProgressDialog = true

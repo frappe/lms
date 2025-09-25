@@ -37,7 +37,7 @@
 					</slot>
 				</template>
 				<template #body="{ isOpen }">
-					<div v-show="isOpen">
+					<div v-show="isOpen" class="">
 						<div
 							class="mt-1 rounded-lg bg-surface-white py-1 text-base border-2"
 						>

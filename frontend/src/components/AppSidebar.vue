@@ -595,6 +595,11 @@ const articles = ref([
 		],
 	},
 	{
+		title: __('Learning Paths'),
+		opened: false,
+		subArticles: [{ name: 'add-a-program', title: __('Add a program') }],
+	},
+	{
 		title: __('Assessments'),
 		opened: false,
 		subArticles: [

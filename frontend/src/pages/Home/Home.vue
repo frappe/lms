@@ -4,7 +4,7 @@
 	>
 		<Breadcrumbs :items="[{ label: __('Home'), route: { name: 'Home' } }]" />
 	</header> -->
-	<div class="w-full px-5 pt-10 pb-10">
+	<div class="w-full px-5 pt-5 pb-10">
 		<div class="flex items-center justify-between">
 			<div class="space-y-2">
 				<div class="text-xl font-bold">
