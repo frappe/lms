@@ -33,7 +33,7 @@
 				</div>
 
 				<div
-					class="grid grid-cols-1 gap-2"
+					class="grid grid-cols-1 gap-2 md:grid-cols-4"
 					:class="user.data ? 'md:grid-cols-3' : 'md:grid-cols-2'"
 				>
 					<FormControl
@@ -65,7 +65,6 @@
 						:placeholder="__('Type')"
 						@change="updateJobs"
 					/>
-					<!-- add jobModes -->
 					<FormControl
 						v-model="workMode"
 						type="select"
