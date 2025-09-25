@@ -76,7 +76,7 @@ describe("Course Creation", () => {
 		cy.button("Add Chapter").click();
 
 		cy.wait(1000);
-		cy.get("[id^=headlessui-dialog-panel-")
+		cy.get("[data-dismissable-layer]")
 			.should("be.visible")
 			.within(() => {
 				cy.get("label").contains("Title").type("Test Chapter");
@@ -143,7 +143,7 @@ describe("Course Creation", () => {
 		cy.get("span").contains("Community").click();
 		cy.button("New Question").click();
 		cy.wait(500);
-		cy.get("[id^=headlessui-dialog-panel-").within(() => {
+		cy.get("[data-dismissable-layer]").within(() => {
 			cy.get("label").contains("Title").type("Test Discussion");
 			cy.get("div[contenteditable=true]").invoke(
 				"text",
