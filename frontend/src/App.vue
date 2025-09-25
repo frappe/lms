@@ -1,9 +1,7 @@
 <template>
 	<FrappeUIProvider>
-		<Layout>
-			<div class="text-base">
-				<router-view />
-			</div>
+		<Layout class="isolate text-base">
+			<router-view />
 		</Layout>
 		<InstallPrompt v-if="isMobile" />
 		<Dialogs />

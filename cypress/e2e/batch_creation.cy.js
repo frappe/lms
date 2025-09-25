@@ -10,11 +10,11 @@ describe("Batch Creation", () => {
 		cy.get("span").contains("Settings").click();
 
 		// Add a new member
-		cy.get('[id^="headlessui-dialog-panel-v-"]')
+		cy.get("[data-dismissable-layer]")
 			.find("span")
 			.contains(/^Members$/)
 			.click();
-		cy.get('[id^="headlessui-dialog-panel-v-"]')
+		cy.get("[data-dismissable-layer]")
 			.find("button")
 			.contains("New")
 			.click();
@@ -28,12 +28,12 @@ describe("Batch Creation", () => {
 		cy.get("button").contains("Add").click();
 
 		// Add evaluator
-		cy.get('[id^="headlessui-dialog-panel-v-"]')
+		cy.get("[data-dismissable-layer]")
 			.find("span")
 			.contains(/^Evaluators$/)
 			.click();
 
-		cy.get('[id^="headlessui-dialog-panel-v-"]')
+		cy.get("[data-dismissable-layer]")
 			.find("button")
 			.contains("New")
 			.click();
@@ -156,11 +156,7 @@ describe("Batch Creation", () => {
 
 		/* Add student to batch */
 		cy.get("button").contains("Add").click();
-		cy.get('div[id^="headlessui-dialog-panel-v-"]')
-			.first()
-			.find("button")
-			.eq(1)
-			.click();
+		cy.get('div[role="dialog"]').first().find("button").eq(1).click();
 		cy.get("input[id^='headlessui-combobox-input-v-']").type(randomEmail);
 		cy.get("div").contains(randomEmail).click();
 		cy.get("button").contains("Submit").click();
