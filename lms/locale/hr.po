@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-09-19 16:04+0000\n"
-"PO-Revision-Date: 2025-09-24 07:16\n"
+"PO-Revision-Date: 2025-09-25 07:14\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Croatian\n"
 "MIME-Version: 1.0\n"
@@ -32,7 +32,7 @@ msgstr " osmišljen kao strukturirani put učenja koji će voditi vaš napredak.
 
 #: frontend/src/pages/Home/Streak.vue:21
 msgid " you are on a"
-msgstr ""
+msgstr " nalazite se na"
 
 #. Paragraph text in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
@@ -741,7 +741,7 @@ msgstr "Detalji Grupe"
 
 #: frontend/src/pages/BatchForm.vue:89
 msgid "Batch End Date"
-msgstr ""
+msgstr "Datum Završetka Grupe"
 
 #: frontend/src/components/Settings/BadgeForm.vue:204
 #: frontend/src/components/Settings/Badges.vue:202
@@ -1729,7 +1729,7 @@ msgstr "Završeni Kursevi"
 
 #: frontend/src/pages/Home/AdminHome.vue:6
 msgid "Courses Created"
-msgstr ""
+msgstr "Izrađeni Tečajevi"
 
 #: frontend/src/components/BatchCourses.vue:154
 msgid "Courses deleted successfully"
@@ -1762,7 +1762,7 @@ msgstr "Stvori Certifikat"
 
 #: frontend/src/pages/Home/AdminHome.vue:84
 msgid "Create Course"
-msgstr ""
+msgstr "Izradi Tečaj"
 
 #: frontend/src/components/Controls/Link.vue:38
 #: frontend/src/components/Controls/MultiSelect.vue:66
@@ -1850,7 +1850,7 @@ msgstr "Trenutna Lekcija"
 
 #: frontend/src/pages/Home/Streak.vue:34
 msgid "Current Streak"
-msgstr ""
+msgstr "Aktuelni Period"
 
 #: frontend/src/components/AppSidebar.vue:612
 msgid "Custom Certificate Templates"
@@ -3179,7 +3179,7 @@ msgstr "Tačno"
 #. Label of the is_scorm_chapter (Check) field in DocType 'LMS Course Progress'
 #: lms/lms/doctype/lms_course_progress/lms_course_progress.json
 msgid "Is SCORM Chapter"
-msgstr ""
+msgstr "Je SCORM Poglavlje"
 
 #. Label of the is_scorm_package (Check) field in DocType 'Course Chapter'
 #. Label of the is_scorm_package (Check) field in DocType 'Course Lesson'
@@ -3310,7 +3310,7 @@ msgstr "Pridružio/la se u"
 
 #: frontend/src/pages/Home/Streak.vue:18
 msgid "Keep going,"
-msgstr ""
+msgstr "Nastavi dalje,"
 
 #. Name of a Workspace
 #: lms/lms/workspace/lms/lms.json
@@ -3619,7 +3619,7 @@ msgstr "Pokreni Datoteku"
 
 #: frontend/src/pages/Home/Streak.vue:5
 msgid "Learning Consistency"
-msgstr ""
+msgstr "Dosljednost Učenja"
 
 #. Label of the left_at (Datetime) field in DocType 'LMS Live Class
 #. Participant'
@@ -3796,7 +3796,7 @@ msgstr "Prijavite se kako biste se prijavili"
 
 #: frontend/src/pages/Home/Streak.vue:42
 msgid "Longest Streak"
-msgstr ""
+msgstr "Najduži Period"
 
 #: lms/templates/emails/payment_reminder.html:23
 msgid "Looking forward to seeing you enrolled!"
@@ -3826,7 +3826,7 @@ msgstr "Upravljaj Grupom"
 
 #: frontend/src/pages/Home/Home.vue:119
 msgid "Manage your courses and batches at a glance"
-msgstr ""
+msgstr "Upravljajte svojim tečajevima i grupama na prvi pogled"
 
 #. Option for the 'Role' (Select) field in DocType 'Cohort Staff'
 #: lms/lms/doctype/cohort_staff/cohort_staff.json
@@ -3879,7 +3879,7 @@ msgstr "Bodova od mogućih"
 
 #: frontend/src/pages/QuizForm.vue:122
 msgid "Marks to Deduct"
-msgstr ""
+msgstr "Bodovi za Oduzimanje"
 
 #. Label of the max_attempts (Int) field in DocType 'LMS Quiz'
 #: frontend/src/pages/Quizzes.vue:249 lms/lms/doctype/lms_quiz/lms_quiz.json
@@ -4239,11 +4239,11 @@ msgstr "Više Tačnih Odgovora"
 
 #: frontend/src/pages/Home/StudentHome.vue:40
 msgid "My Batches"
-msgstr ""
+msgstr "Moje Grupe"
 
 #: frontend/src/pages/Home/StudentHome.vue:8
 msgid "My Courses"
-msgstr ""
+msgstr "Moji Tečajevi"
 
 #: frontend/src/components/Notes/Notes.vue:3
 msgid "My Notes"
@@ -4625,11 +4625,11 @@ msgstr "Ostalo"
 
 #: frontend/src/pages/Home/StudentHome.vue:9
 msgid "Our Popular Courses"
-msgstr ""
+msgstr "Naši Popularni Tečajevi"
 
 #: frontend/src/pages/Home/StudentHome.vue:41
 msgid "Our Upcoming Batches"
-msgstr ""
+msgstr "Naše Nadolazeće Grupe"
 
 #. Label of the output (Data) field in DocType 'LMS Test Case Submission'
 #: lms/lms/doctype/lms_test_case_submission/lms_test_case_submission.json
@@ -5139,7 +5139,7 @@ msgstr "Profilna Slika"
 
 #: frontend/src/pages/Programs/Programs.vue:18
 msgid "Program"
-msgstr ""
+msgstr "Program"
 
 #. Label of the program_courses (Table) field in DocType 'LMS Program'
 #: lms/lms/doctype/lms_program/lms_program.json
@@ -5548,7 +5548,7 @@ msgstr "Nastavi Video"
 
 #: frontend/src/pages/Home/Home.vue:142
 msgid "Resume where you left off"
-msgstr ""
+msgstr "Nastavite od tamo gdje ste stali"
 
 #. Label of the review (Small Text) field in DocType 'LMS Course Review'
 #. Label of a Link in the LMS Workspace
@@ -5630,7 +5630,7 @@ msgstr "SCORM"
 #. Progress'
 #: lms/lms/doctype/lms_course_progress/lms_course_progress.json
 msgid "SCORM Content"
-msgstr ""
+msgstr "SCORM Sadržaj"
 
 #. Label of the scorm_package (Link) field in DocType 'Course Chapter'
 #: frontend/src/components/Modals/ChapterModal.vue:22
@@ -5693,7 +5693,7 @@ msgstr "Raspored Ocjenjivanja"
 
 #: frontend/src/components/UpcomingEvaluations.vue:100
 msgid "Schedule an evaluation to get certified."
-msgstr ""
+msgstr "Zakažite evaluaciju kako biste dobili certifikat."
 
 #. Name of a DocType
 #: lms/lms/doctype/scheduled_flow/scheduled_flow.json
@@ -5771,7 +5771,7 @@ msgstr "Preostalih Mjesta"
 #: frontend/src/pages/Home/StudentHome.vue:19
 #: frontend/src/pages/Home/StudentHome.vue:51
 msgid "See all"
-msgstr ""
+msgstr "Prikaži sve"
 
 #: frontend/src/components/Settings/BadgeAssignmentForm.vue:42
 msgid "Select Date"
@@ -5809,11 +5809,11 @@ msgstr "Pošalji kalendarsku pozivnicu za ocjenjivanje"
 
 #: frontend/src/pages/BatchForm.vue:105
 msgid "Session End Time"
-msgstr ""
+msgstr "Vrijeme Završetka Sesije"
 
 #: frontend/src/pages/BatchForm.vue:98
 msgid "Session Start Time"
-msgstr ""
+msgstr "Vrijeme Početka Sesije"
 
 #. Label of the sessions_on (Data) field in DocType 'LMS Batch Old'
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
@@ -6434,7 +6434,7 @@ msgstr "U ovom kursu nema poglavlja. Kreiraj i upravljaj poglavljima odavde."
 
 #: frontend/src/pages/Home/AdminHome.vue:71
 msgid "There are no courses currently. Create your first course to get started!"
-msgstr ""
+msgstr "Trenutno nema tečajeva. Izradite svoj prvi tečaj da biste započeli!"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:101
 msgid "There are no seats available in this batch."
@@ -6835,7 +6835,7 @@ msgstr "Nadolazeća Ocjenjivanja"
 #: frontend/src/pages/Home/AdminHome.vue:128
 #: frontend/src/pages/Home/StudentHome.vue:71
 msgid "Upcoming Live Classes"
-msgstr ""
+msgstr "Nadolazeći Tečajevi Uživo"
 
 #: frontend/src/components/Settings/BrandSettings.vue:24
 #: frontend/src/components/Settings/PaymentSettings.vue:27
@@ -7134,7 +7134,7 @@ msgstr "Možete isprobati ovaj kviz {0}."
 
 #: frontend/src/pages/Home/Streak.vue:16
 msgid "You can do better,"
-msgstr ""
+msgstr "Možeš ti bolje,"
 
 #: lms/templates/emails/job_application.html:6
 msgid "You can find their resume attached to this email."
@@ -7215,15 +7215,15 @@ msgstr "Odlučili ste da budete obaviješteni o ovom kursu. Primit ćete e-pošt
 
 #: frontend/src/pages/Home/Home.vue:102 frontend/src/pages/Home/Home.vue:125
 msgid "You have {0} upcoming {1} and {2} {3} scheduled."
-msgstr ""
+msgstr "Imate zakazano {0} nadolazećih {1} i {2} {3}."
 
 #: frontend/src/pages/Home/Home.vue:109 frontend/src/pages/Home/Home.vue:132
 msgid "You have {0} upcoming {1}."
-msgstr ""
+msgstr "Imate {0} nadolazećih {1}."
 
 #: frontend/src/pages/Home/Home.vue:114 frontend/src/pages/Home/Home.vue:137
 msgid "You have {0} {1} scheduled."
-msgstr ""
+msgstr "Imate zakazano {0} {1}."
 
 #: frontend/src/components/CourseCardOverlay.vue:217
 msgid "You need to login first to enroll for this course"
@@ -7231,7 +7231,7 @@ msgstr "Prvo se prijavite da biste se upisali na ovaj kurs"
 
 #: frontend/src/pages/Home/Streak.vue:19
 msgid "You rock,"
-msgstr ""
+msgstr "Ti si super,"
 
 #: frontend/src/components/Quiz.vue:7
 msgid "You will have to complete the quiz to continue the video"
@@ -7300,7 +7300,7 @@ msgstr "Vaš ocjenjivač je {0}"
 
 #: frontend/src/pages/Home/Streak.vue:54
 msgid "Your learning streak counts the number of days in a row you’ve kept up your learning, whether it’s a lesson, quiz, or assignment. Don’t worry, weekends don’t break your streak."
-msgstr ""
+msgstr "Vaš period učenja broji broj dana zaredom koliko ste nastavili učiti, bilo da se radi o lekciji, kvizu ili zadatku. Ne brinite, vikendi ne prekidaju vaš period."
 
 #: lms/templates/emails/mentor_request_status_update_email.html:4
 msgid "Your request to join us as a mentor for the course"
@@ -7401,7 +7401,7 @@ msgstr "kursevi"
 
 #: frontend/src/pages/Home/Streak.vue:24
 msgid "day streak"
-msgstr ""
+msgstr "dnevni period"
 
 #: frontend/src/pages/Home/Streak.vue:37 frontend/src/pages/Home/Streak.vue:45
 msgid "days"
@@ -7413,7 +7413,7 @@ msgstr "evaluacija"
 
 #: frontend/src/pages/Home/Home.vue:100 frontend/src/pages/Home/Home.vue:123
 msgid "evaluations"
-msgstr ""
+msgstr "evaluacije"
 
 #: lms/templates/emails/mentor_request_status_update_email.html:4
 msgid "has been"
@@ -7433,11 +7433,11 @@ msgstr "lekcije"
 
 #: frontend/src/pages/Home/Home.vue:98 frontend/src/pages/Home/Home.vue:122
 msgid "live class"
-msgstr ""
+msgstr "nastava uživo"
 
 #: frontend/src/pages/Home/Home.vue:98 frontend/src/pages/Home/Home.vue:122
 msgid "live classes"
-msgstr ""
+msgstr "nastava uživo"
 
 #: frontend/src/pages/Programs/Programs.vue:42
 #: frontend/src/pages/Programs/StudentPrograms.vue:36
