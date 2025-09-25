@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-09-19 16:04+0000\n"
-"PO-Revision-Date: 2025-09-24 07:15\n"
+"PO-Revision-Date: 2025-09-25 07:14\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Arabic\n"
 "MIME-Version: 1.0\n"
@@ -7405,11 +7405,11 @@ msgstr ""
 
 #: frontend/src/pages/Home/Streak.vue:37 frontend/src/pages/Home/Streak.vue:45
 msgid "days"
-msgstr ""
+msgstr "أيام"
 
 #: frontend/src/pages/Home/Home.vue:100 frontend/src/pages/Home/Home.vue:123
 msgid "evaluation"
-msgstr ""
+msgstr "تقييم"
 
 #: frontend/src/pages/Home/Home.vue:100 frontend/src/pages/Home/Home.vue:123
 msgid "evaluations"

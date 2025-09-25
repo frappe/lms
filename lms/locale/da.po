@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-09-19 16:04+0000\n"
-"PO-Revision-Date: 2025-09-24 07:15\n"
+"PO-Revision-Date: 2025-09-25 07:14\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Danish\n"
 "MIME-Version: 1.0\n"
@@ -2916,7 +2916,7 @@ msgstr ""
 
 #: frontend/src/pages/Home/Home.vue:5 frontend/src/pages/Home/Home.vue:153
 msgid "Home"
-msgstr ""
+msgstr "Hjem"
 
 #. Label of the host (Link) field in DocType 'LMS Live Class'
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
