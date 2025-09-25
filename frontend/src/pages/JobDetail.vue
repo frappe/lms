@@ -99,6 +99,12 @@
 							</template>
 							{{ job.data.type }}
 						</Badge>
+						<Badge v-if="job.data?.work_mode" size="lg">
+							<template #prefix>
+								<BriefcaseBusiness class="size-3 stroke-2 text-ink-gray-7" />
+							</template>
+							{{ job.data.work_mode }}
+						</Badge>
 						<Badge v-if="applicationCount.data" size="lg">
 							<template #prefix>
 								<SquareUserRound class="size-3 stroke-2 text-ink-gray-7" />
@@ -152,6 +158,7 @@ import {
 	SquareArrowOutUpRight,
 	FileText,
 	ClipboardType,
+	BriefcaseBusiness,
 } from 'lucide-vue-next'
 
 const user = inject('$user')

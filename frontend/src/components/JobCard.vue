@@ -33,6 +33,9 @@
 			<Badge>
 				{{ job.type }}
 			</Badge>
+			<Badge v-if="job.work_mode">
+				{{ job.work_mode }}
+			</Badge>
 			<Badge>
 				{{ dayjs(job.creation).fromNow() }}
 			</Badge>
