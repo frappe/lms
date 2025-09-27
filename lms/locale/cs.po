@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2025-09-19 16:04+0000\n"
-"PO-Revision-Date: 2025-09-25 07:14\n"
+"POT-Creation-Date: 2025-09-26 16:04+0000\n"
+"PO-Revision-Date: 2025-09-27 08:15\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Czech\n"
 "MIME-Version: 1.0\n"
@@ -145,8 +145,8 @@ msgstr ""
 #: frontend/src/components/Settings/Evaluators.vue:93
 #: frontend/src/components/Settings/Members.vue:91
 #: frontend/src/pages/Programs/ProgramForm.vue:56
-#: frontend/src/pages/Programs/ProgramForm.vue:130
-#: frontend/src/pages/Programs/ProgramForm.vue:179
+#: frontend/src/pages/Programs/ProgramForm.vue:131
+#: frontend/src/pages/Programs/ProgramForm.vue:180
 msgid "Add"
 msgstr ""
 
@@ -156,7 +156,7 @@ msgstr ""
 msgid "Add Chapter"
 msgstr ""
 
-#: frontend/src/pages/Programs/ProgramForm.vue:175
+#: frontend/src/pages/Programs/ProgramForm.vue:176
 msgid "Add Course to Program"
 msgstr ""
 
@@ -221,6 +221,10 @@ msgstr ""
 msgid "Add a new question"
 msgstr ""
 
+#: frontend/src/components/AppSidebar.vue:600
+msgid "Add a program"
+msgstr ""
+
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseModal.vue:5
 msgid "Add a programming exercise to your lesson"
 msgstr ""
@@ -274,6 +278,7 @@ msgid "Add your first lesson"
 msgstr ""
 
 #. Label of the address (Link) field in DocType 'LMS Payment'
+#: frontend/src/components/Settings/TransactionDetails.vue:56
 #: frontend/src/pages/Billing.vue:64
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Address"
@@ -353,6 +358,8 @@ msgstr ""
 #. Label of the amount (Currency) field in DocType 'LMS Batch'
 #. Label of the course_price (Currency) field in DocType 'LMS Course'
 #. Label of the amount (Currency) field in DocType 'LMS Payment'
+#: frontend/src/components/Settings/TransactionDetails.vue:68
+#: frontend/src/components/Settings/Transactions.vue:219
 #: frontend/src/pages/BatchForm.vue:278 frontend/src/pages/CourseForm.vue:262
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_course/lms_course.json
@@ -460,7 +467,7 @@ msgstr ""
 msgid "Are you sure you want to enroll?"
 msgstr ""
 
-#: frontend/src/components/UserDropdown.vue:175
+#: frontend/src/components/UserDropdown.vue:177
 msgid "Are you sure you want to login to your Frappe Cloud dashboard?"
 msgstr ""
 
@@ -496,7 +503,7 @@ msgid "Assessment {0} has already been added to this batch."
 msgstr ""
 
 #. Label of the show_assessments (Check) field in DocType 'LMS Settings'
-#: frontend/src/components/AppSidebar.vue:598
+#: frontend/src/components/AppSidebar.vue:603
 #: frontend/src/components/Assessments.vue:5
 #: frontend/src/components/BatchStudents.vue:32
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -578,7 +585,7 @@ msgstr ""
 msgid "Assignment will appear at the bottom of the lesson."
 msgstr ""
 
-#: frontend/src/components/AppSidebar.vue:602
+#: frontend/src/components/AppSidebar.vue:607
 #: frontend/src/components/Settings/Badges.vue:163
 #: frontend/src/pages/Assignments.vue:208 lms/www/lms.py:271
 msgid "Assignments"
@@ -702,6 +709,7 @@ msgstr ""
 #: frontend/src/components/Modals/Event.vue:32
 #: frontend/src/components/Settings/BadgeForm.vue:195
 #: frontend/src/components/Settings/Badges.vue:200
+#: frontend/src/components/Settings/TransactionDetails.vue:92
 #: lms/lms/doctype/lms_batch_enrollment/lms_batch_enrollment.json
 #: lms/lms/doctype/lms_batch_feedback/lms_batch_feedback.json
 #: lms/lms/doctype/lms_certificate/lms_certificate.json
@@ -815,11 +823,11 @@ msgstr ""
 msgid "Batch end date cannot be before the batch start date"
 msgstr ""
 
-#: lms/lms/api.py:210
+#: lms/lms/api.py:211
 msgid "Batch has already started."
 msgstr ""
 
-#: lms/lms/api.py:205
+#: lms/lms/api.py:206
 msgid "Batch is sold out."
 msgstr ""
 
@@ -857,6 +865,8 @@ msgid "Billing Details"
 msgstr ""
 
 #. Label of the billing_name (Data) field in DocType 'LMS Payment'
+#: frontend/src/components/Settings/TransactionDetails.vue:31
+#: frontend/src/components/Settings/Transactions.vue:213
 #: frontend/src/pages/Billing.vue:70
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Billing Name"
@@ -1002,7 +1012,7 @@ msgstr ""
 #. Enrollment'
 #. Label of a Card Break in the LMS Workspace
 #. Label of a Link in the LMS Workspace
-#: frontend/src/components/AppSidebar.vue:606
+#: frontend/src/components/AppSidebar.vue:611
 #: frontend/src/components/Modals/Event.vue:381
 #: frontend/src/pages/BatchForm.vue:69 frontend/src/pages/Batches.vue:58
 #: frontend/src/pages/CourseCertification.vue:10
@@ -1145,7 +1155,7 @@ msgstr ""
 
 #. Label of the city (Data) field in DocType 'User'
 #. Label of the location (Data) field in DocType 'Job Opportunity'
-#: frontend/src/pages/Billing.vue:81 frontend/src/pages/JobForm.vue:34
+#: frontend/src/pages/Billing.vue:81 frontend/src/pages/JobForm.vue:41
 #: lms/fixtures/custom_field.json
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "City"
@@ -1315,25 +1325,25 @@ msgstr ""
 
 #. Label of the section_break_6 (Section Break) field in DocType 'Job
 #. Opportunity'
-#: frontend/src/pages/JobForm.vue:56
+#: frontend/src/pages/JobForm.vue:63
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Company Details"
 msgstr ""
 
 #. Label of the company_email_address (Data) field in DocType 'Job Opportunity'
-#: frontend/src/pages/JobForm.vue:75
+#: frontend/src/pages/JobForm.vue:82
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Company Email Address"
 msgstr ""
 
 #. Label of the company_logo (Attach Image) field in DocType 'Job Opportunity'
-#: frontend/src/pages/JobForm.vue:80
+#: frontend/src/pages/JobForm.vue:87
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Company Logo"
 msgstr ""
 
 #. Label of the company_name (Data) field in DocType 'Job Opportunity'
-#: frontend/src/pages/JobForm.vue:62
+#: frontend/src/pages/JobForm.vue:69
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Company Name"
 msgstr ""
@@ -1344,7 +1354,7 @@ msgid "Company Type"
 msgstr ""
 
 #. Label of the company_website (Data) field in DocType 'Job Opportunity'
-#: frontend/src/pages/JobForm.vue:68
+#: frontend/src/pages/JobForm.vue:75
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Company Website"
 msgstr ""
@@ -1414,7 +1424,7 @@ msgstr ""
 msgid "Configurations"
 msgstr ""
 
-#: frontend/src/components/UserDropdown.vue:180
+#: frontend/src/components/UserDropdown.vue:182
 msgid "Confirm"
 msgstr ""
 
@@ -1461,7 +1471,7 @@ msgid "Continue Learning"
 msgstr ""
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
-#: frontend/src/pages/Jobs.vue:178
+#: frontend/src/pages/Jobs.vue:196
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Contract"
 msgstr ""
@@ -1491,7 +1501,7 @@ msgstr ""
 #. Label of the country (Link) field in DocType 'User'
 #. Label of the country (Link) field in DocType 'Job Opportunity'
 #. Label of the country (Link) field in DocType 'Payment Country'
-#: frontend/src/pages/Billing.vue:92 frontend/src/pages/JobForm.vue:40
+#: frontend/src/pages/Billing.vue:92 frontend/src/pages/JobForm.vue:47
 #: frontend/src/pages/Jobs.vue:57 lms/fixtures/custom_field.json
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/lms/doctype/payment_country/payment_country.json
@@ -1533,7 +1543,8 @@ msgstr ""
 #: frontend/src/components/Modals/Event.vue:24
 #: frontend/src/components/Settings/BadgeForm.vue:194
 #: frontend/src/components/Settings/Badges.vue:199
-#: frontend/src/pages/Programs/ProgramForm.vue:195
+#: frontend/src/components/Settings/TransactionDetails.vue:91
+#: frontend/src/pages/Programs/ProgramForm.vue:196
 #: frontend/src/pages/Programs/Programs.vue:35
 #: lms/lms/doctype/batch_course/batch_course.json
 #: lms/lms/doctype/cohort/cohort.json
@@ -1684,7 +1695,7 @@ msgstr ""
 msgid "Course Title"
 msgstr ""
 
-#: frontend/src/pages/Programs/ProgramForm.vue:436
+#: frontend/src/pages/Programs/ProgramForm.vue:437
 msgid "Course added to program successfully"
 msgstr ""
 
@@ -1836,6 +1847,7 @@ msgstr ""
 #. Label of the currency (Link) field in DocType 'LMS Batch'
 #. Label of the currency (Link) field in DocType 'LMS Course'
 #. Label of the currency (Link) field in DocType 'LMS Payment'
+#: frontend/src/components/Settings/TransactionDetails.vue:64
 #: frontend/src/pages/BatchForm.vue:285 frontend/src/pages/CourseForm.vue:279
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_course/lms_course.json
@@ -1852,7 +1864,7 @@ msgstr ""
 msgid "Current Streak"
 msgstr ""
 
-#: frontend/src/components/AppSidebar.vue:612
+#: frontend/src/components/AppSidebar.vue:617
 msgid "Custom Certificate Templates"
 msgstr ""
 
@@ -1954,7 +1966,7 @@ msgstr ""
 #: frontend/src/components/Settings/Badges.vue:171
 #: frontend/src/pages/BatchForm.vue:565 frontend/src/pages/CourseForm.vue:597
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:67
-#: frontend/src/pages/Programs/ProgramForm.vue:230
+#: frontend/src/pages/Programs/ProgramForm.vue:231
 msgid "Delete"
 msgstr ""
 
@@ -2004,7 +2016,7 @@ msgstr ""
 #. Label of the description (Small Text) field in DocType 'Work Experience'
 #: frontend/src/components/Modals/LiveClassModal.vue:80
 #: frontend/src/components/Settings/BadgeForm.vue:32
-#: frontend/src/pages/JobForm.vue:125
+#: frontend/src/pages/JobForm.vue:132
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/lms/doctype/certification/certification.json
 #: lms/lms/doctype/cohort/cohort.json
@@ -2045,6 +2057,7 @@ msgstr ""
 
 #. Label of the disabled (Check) field in DocType 'Job Opportunity'
 #: frontend/src/components/Settings/Badges.vue:56
+#: frontend/src/components/Settings/PaymentGateways.vue:55
 #: frontend/src/components/Settings/ZoomSettings.vue:66
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Disabled"
@@ -2143,6 +2156,10 @@ msgstr ""
 
 #: frontend/src/components/Modals/EmailTemplateModal.vue:8
 msgid "Edit Email Template"
+msgstr ""
+
+#: frontend/src/components/Settings/PaymentGatewayDetails.vue:8
+msgid "Edit Payment Gateway"
 msgstr ""
 
 #: frontend/src/pages/Profile.vue:72
@@ -2250,6 +2267,7 @@ msgstr ""
 #: frontend/src/components/Modals/ZoomAccountModal.vue:23
 #: frontend/src/components/Settings/BadgeForm.vue:14
 #: frontend/src/components/Settings/Badges.vue:53
+#: frontend/src/components/Settings/PaymentGateways.vue:52
 #: frontend/src/components/Settings/ZoomSettings.vue:63
 #: lms/lms/doctype/lms_badge/lms_badge.json
 #: lms/lms/doctype/lms_zoom_settings/lms_zoom_settings.json
@@ -2301,7 +2319,7 @@ msgstr ""
 msgid "Enforce Course Order"
 msgstr ""
 
-#: frontend/src/pages/Programs/ProgramForm.vue:176
+#: frontend/src/pages/Programs/ProgramForm.vue:177
 msgid "Enroll Member to Program"
 msgstr ""
 
@@ -2460,15 +2478,15 @@ msgstr ""
 msgid "Evaluator Schedule"
 msgstr ""
 
-#: frontend/src/components/Settings/Evaluators.vue:163
+#: frontend/src/components/Settings/Evaluators.vue:160
 msgid "Evaluator added successfully"
 msgstr ""
 
-#: frontend/src/components/Settings/Evaluators.vue:196
+#: frontend/src/components/Settings/Evaluators.vue:193
 msgid "Evaluator deleted successfully"
 msgstr ""
 
-#: lms/lms/api.py:1392
+#: lms/lms/api.py:1416
 msgid "Evaluator does not exist."
 msgstr ""
 
@@ -2640,10 +2658,15 @@ msgstr ""
 msgid "File Type"
 msgstr ""
 
+#: frontend/src/components/Settings/Transactions.vue:15
+msgid "Filter by Billing Name"
+msgstr ""
+
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:23
 msgid "Filter by Exercise"
 msgstr ""
 
+#: frontend/src/components/Settings/Transactions.vue:20
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:28
 msgid "Filter by Member"
 msgstr ""
@@ -2677,7 +2700,7 @@ msgid "Free"
 msgstr ""
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
-#: frontend/src/pages/Jobs.vue:179
+#: frontend/src/pages/Jobs.vue:197
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Freelance"
 msgstr ""
@@ -2719,7 +2742,7 @@ msgid "Full Name"
 msgstr ""
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
-#: frontend/src/pages/Jobs.vue:176
+#: frontend/src/pages/Jobs.vue:194
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Full Time"
 msgstr ""
@@ -2741,8 +2764,13 @@ msgid "GST Number"
 msgstr ""
 
 #. Label of the gstin (Data) field in DocType 'LMS Payment'
+#: frontend/src/components/Settings/TransactionDetails.vue:76
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "GSTIN"
+msgstr ""
+
+#: frontend/src/components/Settings/PaymentGateways.vue:134
+msgid "Gateway"
 msgstr ""
 
 #. Label of the general_tab (Tab Break) field in DocType 'LMS Settings'
@@ -2921,6 +2949,11 @@ msgstr ""
 #. Label of the host (Link) field in DocType 'LMS Live Class'
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Host"
+msgstr ""
+
+#. Option for the 'Work Mode' (Select) field in DocType 'Job Opportunity'
+#: lms/job/doctype/job_opportunity/job_opportunity.json
+msgid "Hybrid"
 msgstr ""
 
 #. Label of the current (Check) field in DocType 'Work Experience'
@@ -3197,7 +3230,7 @@ msgstr ""
 msgid "Issue Date"
 msgstr ""
 
-#: frontend/src/components/AppSidebar.vue:609
+#: frontend/src/components/AppSidebar.vue:614
 msgid "Issue a Certificate"
 msgstr ""
 
@@ -3273,7 +3306,7 @@ msgstr ""
 
 #. Label of the jobs (Check) field in DocType 'LMS Settings'
 #: frontend/src/pages/JobDetail.vue:10 frontend/src/pages/Jobs.vue:8
-#: frontend/src/pages/Jobs.vue:185
+#: frontend/src/pages/Jobs.vue:212
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Jobs"
 msgstr ""
@@ -3621,6 +3654,10 @@ msgstr ""
 msgid "Learning Consistency"
 msgstr ""
 
+#: frontend/src/components/AppSidebar.vue:598
+msgid "Learning Paths"
+msgstr ""
+
 #. Label of the left_at (Datetime) field in DocType 'LMS Live Class
 #. Participant'
 #: lms/lms/doctype/lms_live_class_participant/lms_live_class_participant.json
@@ -3753,6 +3790,7 @@ msgstr ""
 #: frontend/src/components/Modals/CourseProgressSummary.vue:86
 #: frontend/src/components/Settings/Evaluators.vue:81
 #: frontend/src/components/Settings/Members.vue:79
+#: frontend/src/components/Settings/Transactions.vue:94
 #: frontend/src/pages/Assignments.vue:66 frontend/src/pages/Batches.vue:82
 #: frontend/src/pages/CertifiedParticipants.vue:98
 #: frontend/src/pages/Courses.vue:77
@@ -3786,7 +3824,7 @@ msgstr ""
 msgid "Login"
 msgstr ""
 
-#: frontend/src/components/UserDropdown.vue:174
+#: frontend/src/components/UserDropdown.vue:176
 msgid "Login to Frappe Cloud?"
 msgstr ""
 
@@ -3940,6 +3978,7 @@ msgstr ""
 #: frontend/src/components/Settings/BadgeAssignmentForm.vue:26
 #: frontend/src/components/Settings/BadgeAssignments.vue:179
 #: frontend/src/components/Settings/BadgeForm.vue:215
+#: frontend/src/components/Settings/TransactionDetails.vue:26
 #: frontend/src/components/Settings/ZoomSettings.vue:187
 #: frontend/src/pages/AssignmentSubmissionList.vue:14
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:268
@@ -4073,7 +4112,7 @@ msgstr ""
 msgid "Member Username"
 msgstr ""
 
-#: frontend/src/pages/Programs/ProgramForm.vue:462
+#: frontend/src/pages/Programs/ProgramForm.vue:463
 msgid "Member added to program successfully"
 msgstr ""
 
@@ -4157,7 +4196,7 @@ msgstr ""
 msgid "Meta Tags"
 msgstr ""
 
-#: lms/lms/api.py:1432
+#: lms/lms/api.py:1456
 msgid "Meta tags should be a list."
 msgstr ""
 
@@ -4209,11 +4248,11 @@ msgstr ""
 msgid "Modified By"
 msgstr ""
 
-#: lms/lms/api.py:187
+#: lms/lms/api.py:188
 msgid "Module Name is incorrect or does not exist."
 msgstr ""
 
-#: lms/lms/api.py:183
+#: lms/lms/api.py:184
 msgid "Module is incorrect."
 msgstr ""
 
@@ -4224,7 +4263,7 @@ msgstr ""
 msgid "Monday"
 msgstr ""
 
-#: frontend/src/components/AppSidebar.vue:617
+#: frontend/src/components/AppSidebar.vue:622
 msgid "Monetization"
 msgstr ""
 
@@ -4268,6 +4307,7 @@ msgstr ""
 #: frontend/src/components/Settings/EmailTemplates.vue:17
 #: frontend/src/components/Settings/Evaluators.vue:17
 #: frontend/src/components/Settings/Members.vue:17
+#: frontend/src/components/Settings/PaymentGateways.vue:16
 #: frontend/src/components/Settings/ZoomSettings.vue:17
 #: frontend/src/pages/Courses.vue:312
 #: frontend/src/pages/Programs/Programs.vue:10
@@ -4293,6 +4333,10 @@ msgstr ""
 
 #: lms/job/doctype/lms_job_application/lms_job_application.py:27
 msgid "New Job Applicant"
+msgstr ""
+
+#: frontend/src/components/Settings/PaymentGatewayDetails.vue:7
+msgid "New Payment Gateway"
 msgstr ""
 
 #: frontend/src/pages/QuizForm.vue:137
@@ -4399,7 +4443,7 @@ msgstr ""
 msgid "No live classes scheduled"
 msgstr ""
 
-#: frontend/src/pages/Programs/ProgramForm.vue:166
+#: frontend/src/pages/Programs/ProgramForm.vue:167
 msgid "No members added yet."
 msgstr ""
 
@@ -4469,7 +4513,6 @@ msgstr ""
 
 #: frontend/src/components/Assignment.vue:36
 #: frontend/src/components/Settings/BrandSettings.vue:10
-#: frontend/src/components/Settings/PaymentSettings.vue:9
 #: frontend/src/components/Settings/SettingDetails.vue:10
 #: frontend/src/pages/Programs/ProgramForm.vue:16
 #: frontend/src/pages/QuizForm.vue:8 frontend/src/pages/QuizSubmission.vue:9
@@ -4522,6 +4565,11 @@ msgstr ""
 msgid "Offline"
 msgstr ""
 
+#. Option for the 'Work Mode' (Select) field in DocType 'Job Opportunity'
+#: lms/job/doctype/job_opportunity/job_opportunity.json
+msgid "On-site"
+msgstr ""
+
 #: lms/templates/emails/certification.html:16
 msgid "Once again, congratulations on this significant accomplishment."
 msgstr ""
@@ -4569,6 +4617,10 @@ msgstr ""
 msgid "Open Ended"
 msgstr ""
 
+#: frontend/src/components/Settings/TransactionDetails.vue:88
+msgid "Open the "
+msgstr ""
+
 #. Label of the option (Data) field in DocType 'LMS Option'
 #: frontend/src/components/Modals/Question.vue:70
 #: lms/lms/doctype/lms_option/lms_option.json
@@ -4605,6 +4657,7 @@ msgid "Orange"
 msgstr ""
 
 #. Label of the order_id (Data) field in DocType 'LMS Payment'
+#: frontend/src/components/Settings/TransactionDetails.vue:70
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Order ID"
 msgstr ""
@@ -4642,6 +4695,7 @@ msgid "Owner"
 msgstr ""
 
 #. Label of the pan (Data) field in DocType 'LMS Payment'
+#: frontend/src/components/Settings/TransactionDetails.vue:77
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "PAN"
 msgstr ""
@@ -4687,7 +4741,7 @@ msgid "Pan Number"
 msgstr ""
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
-#: frontend/src/pages/Jobs.vue:177
+#: frontend/src/pages/Jobs.vue:195
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Part Time"
 msgstr ""
@@ -4747,8 +4801,21 @@ msgstr ""
 
 #. Label of the payment_details_section (Section Break) field in DocType 'LMS
 #. Payment'
+#: frontend/src/components/Settings/TransactionDetails.vue:42
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Payment Details"
+msgstr ""
+
+#: frontend/src/components/Settings/TransactionDetails.vue:18
+msgid "Payment For Certificate"
+msgstr ""
+
+#: frontend/src/components/Settings/TransactionDetails.vue:51
+msgid "Payment For Document"
+msgstr ""
+
+#: frontend/src/components/Settings/TransactionDetails.vue:46
+msgid "Payment For Document Type"
 msgstr ""
 
 #. Label of the payment_gateway (Data) field in DocType 'LMS Settings'
@@ -4757,11 +4824,15 @@ msgid "Payment Gateway"
 msgstr ""
 
 #. Label of the payment_id (Data) field in DocType 'LMS Payment'
+#: frontend/src/components/Settings/TransactionDetails.vue:79
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Payment ID"
 msgstr ""
 
 #. Label of the payment_received (Check) field in DocType 'LMS Payment'
+#: frontend/src/components/Settings/TransactionDetails.vue:13
+#: frontend/src/components/Settings/Transactions.vue:25
+#: frontend/src/components/Settings/Transactions.vue:226
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Payment Received"
 msgstr ""
@@ -4783,6 +4854,8 @@ msgid "Payment for "
 msgstr ""
 
 #. Label of the payment_for_certificate (Check) field in DocType 'LMS Payment'
+#: frontend/src/components/Settings/Transactions.vue:30
+#: frontend/src/components/Settings/Transactions.vue:233
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Payment for Certificate"
 msgstr ""
@@ -4923,7 +4996,7 @@ msgstr ""
 msgid "Please login to access this page."
 msgstr ""
 
-#: lms/lms/api.py:179
+#: lms/lms/api.py:180
 msgid "Please login to continue with payment."
 msgstr ""
 
@@ -4940,7 +5013,7 @@ msgstr ""
 msgid "Please run the code to execute the test cases."
 msgstr ""
 
-#: frontend/src/pages/Programs/ProgramForm.vue:420
+#: frontend/src/pages/Programs/ProgramForm.vue:421
 msgid "Please select a course"
 msgstr ""
 
@@ -4956,7 +5029,7 @@ msgstr ""
 msgid "Please select a future date and time."
 msgstr ""
 
-#: frontend/src/pages/Programs/ProgramForm.vue:447
+#: frontend/src/pages/Programs/ProgramForm.vue:448
 msgid "Please select a member"
 msgstr ""
 
@@ -5146,7 +5219,7 @@ msgstr ""
 msgid "Program Courses"
 msgstr ""
 
-#: frontend/src/pages/Programs/ProgramForm.vue:205
+#: frontend/src/pages/Programs/ProgramForm.vue:206
 msgid "Program Member"
 msgstr ""
 
@@ -5155,15 +5228,15 @@ msgstr ""
 msgid "Program Members"
 msgstr ""
 
-#: frontend/src/pages/Programs/ProgramForm.vue:380
+#: frontend/src/pages/Programs/ProgramForm.vue:381
 msgid "Program created successfully"
 msgstr ""
 
-#: frontend/src/pages/Programs/ProgramForm.vue:551
+#: frontend/src/pages/Programs/ProgramForm.vue:552
 msgid "Program deleted successfully"
 msgstr ""
 
-#: frontend/src/pages/Programs/ProgramForm.vue:399
+#: frontend/src/pages/Programs/ProgramForm.vue:400
 msgid "Program updated successfully"
 msgstr ""
 
@@ -5229,7 +5302,7 @@ msgid "Progress Distribution"
 msgstr ""
 
 #: frontend/src/components/CourseCardOverlay.vue:99
-#: frontend/src/pages/Programs/ProgramForm.vue:124
+#: frontend/src/pages/Programs/ProgramForm.vue:125
 msgid "Progress Summary"
 msgstr ""
 
@@ -5407,7 +5480,7 @@ msgstr ""
 msgid "Quiz will appear at the bottom of the lesson."
 msgstr ""
 
-#: frontend/src/components/AppSidebar.vue:601
+#: frontend/src/components/AppSidebar.vue:606
 #: frontend/src/pages/QuizForm.vue:396 frontend/src/pages/Quizzes.vue:275
 #: frontend/src/pages/Quizzes.vue:285 lms/www/lms.py:249
 msgid "Quizzes"
@@ -5495,6 +5568,11 @@ msgstr ""
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/related_courses/related_courses.json
 msgid "Related Courses"
+msgstr ""
+
+#. Option for the 'Work Mode' (Select) field in DocType 'Job Opportunity'
+#: lms/job/doctype/job_opportunity/job_opportunity.json
+msgid "Remote"
 msgstr ""
 
 #: frontend/src/components/Controls/Uploader.vue:34
@@ -5587,7 +5665,7 @@ msgstr ""
 msgid "Role updated successfully"
 msgstr ""
 
-#: frontend/src/components/AppSidebar.vue:629
+#: frontend/src/components/AppSidebar.vue:634
 msgid "Roles"
 msgstr ""
 
@@ -5671,11 +5749,13 @@ msgstr ""
 #: frontend/src/components/Modals/ZoomAccountModal.vue:10
 #: frontend/src/components/Settings/BadgeAssignmentForm.vue:12
 #: frontend/src/components/Settings/BadgeForm.vue:78
+#: frontend/src/components/Settings/PaymentGatewayDetails.vue:38
+#: frontend/src/components/Settings/TransactionDetails.vue:96
 #: frontend/src/pages/BatchForm.vue:14 frontend/src/pages/CourseForm.vue:17
 #: frontend/src/pages/JobForm.vue:8 frontend/src/pages/LessonForm.vue:14
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:101
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseModal.vue:9
-#: frontend/src/pages/Programs/ProgramForm.vue:233
+#: frontend/src/pages/Programs/ProgramForm.vue:234
 #: frontend/src/pages/QuizForm.vue:43 frontend/src/pages/QuizSubmission.vue:14
 #: frontend/src/pages/Quizzes.vue:105
 msgid "Save"
@@ -5777,6 +5857,10 @@ msgstr ""
 msgid "Select Date"
 msgstr ""
 
+#: frontend/src/components/Settings/PaymentGatewayDetails.vue:22
+msgid "Select Payment Gateway"
+msgstr ""
+
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseModal.vue:23
 msgid "Select a Programming Exercise"
 msgstr ""
@@ -5832,11 +5916,11 @@ msgstr ""
 msgid "Setting up"
 msgstr ""
 
-#: frontend/src/components/AppSidebar.vue:622
+#: frontend/src/components/AppSidebar.vue:627
 msgid "Setting up payment gateway"
 msgstr ""
 
-#: frontend/src/components/AppSidebar.vue:627
+#: frontend/src/components/AppSidebar.vue:632
 #: frontend/src/components/Settings/Settings.vue:7
 #: frontend/src/pages/BatchForm.vue:53 frontend/src/pages/CourseForm.vue:142
 #: frontend/src/pages/ProfileRoles.vue:4
@@ -5994,6 +6078,7 @@ msgstr ""
 #. Label of the source (Link) field in DocType 'LMS Payment'
 #. Label of the source (Data) field in DocType 'LMS Source'
 #. Label of the source (Data) field in DocType 'LMS Video Watch Duration'
+#: frontend/src/components/Settings/TransactionDetails.vue:35
 #: lms/lms/doctype/lms_batch_enrollment/lms_batch_enrollment.json
 #: lms/lms/doctype/lms_payment/lms_payment.json
 #: lms/lms/doctype/lms_source/lms_source.json
@@ -6106,7 +6191,7 @@ msgstr ""
 #: frontend/src/components/Settings/Badges.vue:228
 #: frontend/src/components/Settings/ZoomSettings.vue:197
 #: frontend/src/pages/AssignmentSubmissionList.vue:19
-#: frontend/src/pages/JobForm.vue:46
+#: frontend/src/pages/JobForm.vue:53
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:280
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/lms/doctype/cohort/cohort.json
@@ -6243,7 +6328,7 @@ msgstr ""
 msgid "Sunday"
 msgstr ""
 
-#: lms/lms/api.py:1057
+#: lms/lms/api.py:1081
 msgid "Suspicious pattern found in {0}: {1}"
 msgstr ""
 
@@ -6706,6 +6791,10 @@ msgstr ""
 msgid "Training Feedback"
 msgstr ""
 
+#: frontend/src/components/Settings/TransactionDetails.vue:5
+msgid "Transaction Details"
+msgstr ""
+
 #. Option for the 'Location Preference' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
 msgid "Travel"
@@ -6838,7 +6927,6 @@ msgid "Upcoming Live Classes"
 msgstr ""
 
 #: frontend/src/components/Settings/BrandSettings.vue:24
-#: frontend/src/components/Settings/PaymentSettings.vue:27
 #: frontend/src/components/Settings/SettingDetails.vue:23
 msgid "Update"
 msgstr ""
@@ -7073,6 +7161,12 @@ msgstr ""
 msgid "Work Experience Details"
 msgstr ""
 
+#. Label of the work_mode (Select) field in DocType 'Job Opportunity'
+#: frontend/src/pages/JobForm.vue:32 frontend/src/pages/Jobs.vue:73
+#: lms/job/doctype/job_opportunity/job_opportunity.json
+msgid "Work Mode"
+msgstr ""
+
 #: frontend/src/components/CourseReviews.vue:8
 #: frontend/src/components/Modals/ReviewModal.vue:5
 #: lms/templates/reviews.html:117
@@ -7103,11 +7197,11 @@ msgstr ""
 msgid "You are already certified for this course. Click on the card below to open your certificate."
 msgstr ""
 
-#: lms/lms/api.py:199
+#: lms/lms/api.py:200
 msgid "You are already enrolled for this batch."
 msgstr ""
 
-#: lms/lms/api.py:193
+#: lms/lms/api.py:194
 msgid "You are already enrolled for this course."
 msgstr ""
 
@@ -7181,7 +7275,7 @@ msgstr ""
 msgid "You have already exceeded the maximum number of attempts allowed for this quiz."
 msgstr ""
 
-#: lms/lms/api.py:223
+#: lms/lms/api.py:224
 msgid "You have already purchased the certificate for this course."
 msgstr ""
 
@@ -7352,11 +7446,11 @@ msgstr "a"
 msgid "and then 'Add to Home Screen'"
 msgstr ""
 
-#: frontend/src/components/JobCard.vue:26 frontend/src/pages/JobDetail.vue:108
+#: frontend/src/components/JobCard.vue:26 frontend/src/pages/JobDetail.vue:114
 msgid "applicant"
 msgstr ""
 
-#: frontend/src/components/JobCard.vue:26 frontend/src/pages/JobDetail.vue:108
+#: frontend/src/components/JobCard.vue:26 frontend/src/pages/JobDetail.vue:114
 msgid "applicants"
 msgstr ""
 
@@ -7509,7 +7603,7 @@ msgstr ""
 msgid "{0} Quizzes"
 msgstr ""
 
-#: lms/lms/api.py:836 lms/lms/api.py:844
+#: lms/lms/api.py:838 lms/lms/api.py:846
 msgid "{0} Settings not found"
 msgstr ""
 
@@ -7563,6 +7657,10 @@ msgstr ""
 
 #: lms/lms/utils.py:622 lms/lms/utils.py:626
 msgid "{0} mentioned you in a comment in {1}"
+msgstr ""
+
+#: lms/lms/api.py:887
+msgid "{0} not found"
 msgstr ""
 
 #: lms/lms/utils.py:450
