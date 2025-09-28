@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-09-26 16:04+0000\n"
-"PO-Revision-Date: 2025-09-27 08:15\n"
+"PO-Revision-Date: 2025-09-28 08:29\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Norwegian Bokmal\n"
 "MIME-Version: 1.0\n"
@@ -541,7 +541,7 @@ msgstr ""
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 #: lms/templates/assignment.html:3
 msgid "Assignment"
-msgstr ""
+msgstr "Tildeling"
 
 #. Label of the assignment_attachment (Attach) field in DocType 'LMS Assignment
 #. Submission'
@@ -3811,12 +3811,12 @@ msgstr ""
 #: lms/lms/doctype/education_detail/education_detail.json
 #: lms/lms/doctype/work_experience/work_experience.json
 msgid "Location"
-msgstr ""
+msgstr "Sted"
 
 #. Label of the location_preference (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
 msgid "Location Preference"
-msgstr ""
+msgstr "Stedspreferanse"
 
 #: frontend/src/components/NoPermission.vue:28
 #: frontend/src/components/QuizBlock.vue:9 frontend/src/pages/Batch.vue:196
@@ -5131,7 +5131,7 @@ msgstr ""
 #. Label of the preferred_location (Data) field in DocType 'User'
 #: lms/fixtures/custom_field.json
 msgid "Preferred Location"
-msgstr ""
+msgstr "Foretrukket sted"
 
 #. Label of the prevent_skipping_videos (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
