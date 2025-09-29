@@ -45,7 +45,7 @@
 
 				<div class="pb-5">
 					<div class="flex items-center justify-between mt-5 mb-4">
-						<div class="text-lg font-semibold">
+						<div class="text-lg font-semibold text-ink-gray-9">
 							{{ __('Courses') }}
 						</div>
 						<Button @click="openForm('course')">
@@ -106,7 +106,7 @@
 
 				<div>
 					<div class="flex items-center justify-between mt-5 mb-4">
-						<div class="text-lg font-semibold">
+						<div class="text-lg font-semibold text-ink-gray-9">
 							{{ __('Members') }}
 						</div>
 
