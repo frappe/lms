@@ -70,6 +70,9 @@
 					<FileUploader
 						v-if="!submissionFile"
 						:fileTypes="getType()"
+						:uploadArgs="{
+							private: true,
+						}"
 						:validateFile="validateFile"
 						@success="(file) => saveSubmission(file)"
 					>
