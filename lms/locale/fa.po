@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-09-26 16:04+0000\n"
-"PO-Revision-Date: 2025-09-27 08:15\n"
+"PO-Revision-Date: 2025-09-30 08:35\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Persian\n"
 "MIME-Version: 1.0\n"
@@ -223,7 +223,7 @@ msgstr ""
 
 #: frontend/src/components/AppSidebar.vue:600
 msgid "Add a program"
-msgstr ""
+msgstr "افزودن یک برنامه"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseModal.vue:5
 msgid "Add a programming exercise to your lesson"
@@ -1286,7 +1286,7 @@ msgstr "رنگ"
 
 #: frontend/src/pages/BatchForm.vue:306 frontend/src/pages/CourseForm.vue:300
 msgid "Comma separated keywords for SEO"
-msgstr ""
+msgstr "کلمات کلیدی جدا شده با کاما برای سئو"
 
 #. Label of the comments (Small Text) field in DocType 'Exercise Latest
 #. Submission'
@@ -2160,7 +2160,7 @@ msgstr ""
 
 #: frontend/src/components/Settings/PaymentGatewayDetails.vue:8
 msgid "Edit Payment Gateway"
-msgstr ""
+msgstr "ویرایش درگاه پرداخت"
 
 #: frontend/src/pages/Profile.vue:72
 msgid "Edit Profile"
@@ -2771,7 +2771,7 @@ msgstr ""
 
 #: frontend/src/components/Settings/PaymentGateways.vue:134
 msgid "Gateway"
-msgstr ""
+msgstr "درگاه"
 
 #. Label of the general_tab (Tab Break) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -2954,7 +2954,7 @@ msgstr "میزبان"
 #. Option for the 'Work Mode' (Select) field in DocType 'Job Opportunity'
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Hybrid"
-msgstr ""
+msgstr "ترکیبی"
 
 #. Label of the current (Check) field in DocType 'Work Experience'
 #: lms/lms/doctype/work_experience/work_experience.json
@@ -3656,7 +3656,7 @@ msgstr ""
 
 #: frontend/src/components/AppSidebar.vue:598
 msgid "Learning Paths"
-msgstr ""
+msgstr "مسیرهای یادگیری"
 
 #. Label of the left_at (Datetime) field in DocType 'LMS Live Class
 #. Participant'
@@ -4337,7 +4337,7 @@ msgstr ""
 
 #: frontend/src/components/Settings/PaymentGatewayDetails.vue:7
 msgid "New Payment Gateway"
-msgstr ""
+msgstr "درگاه پرداخت جدید"
 
 #: frontend/src/pages/QuizForm.vue:137
 msgid "New Question"
@@ -4568,7 +4568,7 @@ msgstr "آفلاین"
 #. Option for the 'Work Mode' (Select) field in DocType 'Job Opportunity'
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "On-site"
-msgstr ""
+msgstr "در محل"
 
 #: lms/templates/emails/certification.html:16
 msgid "Once again, congratulations on this significant accomplishment."
@@ -4812,7 +4812,7 @@ msgstr ""
 
 #: frontend/src/components/Settings/TransactionDetails.vue:51
 msgid "Payment For Document"
-msgstr ""
+msgstr "پرداخت برای سند"
 
 #: frontend/src/components/Settings/TransactionDetails.vue:46
 msgid "Payment For Document Type"
@@ -5573,7 +5573,7 @@ msgstr ""
 #. Option for the 'Work Mode' (Select) field in DocType 'Job Opportunity'
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Remote"
-msgstr ""
+msgstr "از راه دور"
 
 #: frontend/src/components/Controls/Uploader.vue:34
 #: frontend/src/pages/BatchForm.vue:246 frontend/src/pages/CourseForm.vue:119
@@ -5859,7 +5859,7 @@ msgstr ""
 
 #: frontend/src/components/Settings/PaymentGatewayDetails.vue:22
 msgid "Select Payment Gateway"
-msgstr ""
+msgstr "انتخاب درگاه پرداخت"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseModal.vue:23
 msgid "Select a Programming Exercise"
@@ -7285,7 +7285,7 @@ msgstr ""
 
 #: frontend/src/pages/JobDetail.vue:57
 msgid "You have applied"
-msgstr ""
+msgstr "شما درخواست داده‌اید"
 
 #: frontend/src/components/BatchOverlay.vue:181
 msgid "You have been enrolled in this batch"
