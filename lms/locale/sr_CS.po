@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-09-26 16:04+0000\n"
-"PO-Revision-Date: 2025-09-27 08:15\n"
+"PO-Revision-Date: 2025-09-29 08:26\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Serbian (Latin)\n"
 "MIME-Version: 1.0\n"
@@ -223,7 +223,7 @@ msgstr "Dodaj novo pitanje"
 
 #: frontend/src/components/AppSidebar.vue:600
 msgid "Add a program"
-msgstr ""
+msgstr "Dodaj program"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseModal.vue:5
 msgid "Add a programming exercise to your lesson"
@@ -2160,7 +2160,7 @@ msgstr "Uredi imejl šablon"
 
 #: frontend/src/components/Settings/PaymentGatewayDetails.vue:8
 msgid "Edit Payment Gateway"
-msgstr ""
+msgstr "Uredi platni portal"
 
 #: frontend/src/pages/Profile.vue:72
 msgid "Edit Profile"
@@ -2660,7 +2660,7 @@ msgstr "Vrsta fajla"
 
 #: frontend/src/components/Settings/Transactions.vue:15
 msgid "Filter by Billing Name"
-msgstr ""
+msgstr "Filtriraj po nazivu za fakturisanje"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:23
 msgid "Filter by Exercise"
@@ -2771,7 +2771,7 @@ msgstr "GSTIN"
 
 #: frontend/src/components/Settings/PaymentGateways.vue:134
 msgid "Gateway"
-msgstr ""
+msgstr "Portal"
 
 #. Label of the general_tab (Tab Break) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -2954,7 +2954,7 @@ msgstr "Domaćin"
 #. Option for the 'Work Mode' (Select) field in DocType 'Job Opportunity'
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Hybrid"
-msgstr ""
+msgstr "Hibridno"
 
 #. Label of the current (Check) field in DocType 'Work Experience'
 #: lms/lms/doctype/work_experience/work_experience.json
@@ -3656,7 +3656,7 @@ msgstr "Doslednost u učenju"
 
 #: frontend/src/components/AppSidebar.vue:598
 msgid "Learning Paths"
-msgstr ""
+msgstr "Edukativni putevi"
 
 #. Label of the left_at (Datetime) field in DocType 'LMS Live Class
 #. Participant'
@@ -4337,7 +4337,7 @@ msgstr "Novi kandidat za posao"
 
 #: frontend/src/components/Settings/PaymentGatewayDetails.vue:7
 msgid "New Payment Gateway"
-msgstr ""
+msgstr "Novi platni portal"
 
 #: frontend/src/pages/QuizForm.vue:137
 msgid "New Question"
@@ -4568,7 +4568,7 @@ msgstr "Uživo"
 #. Option for the 'Work Mode' (Select) field in DocType 'Job Opportunity'
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "On-site"
-msgstr ""
+msgstr "Na lokaciji"
 
 #: lms/templates/emails/certification.html:16
 msgid "Once again, congratulations on this significant accomplishment."
@@ -4619,7 +4619,7 @@ msgstr "Otvoreno pitanje"
 
 #: frontend/src/components/Settings/TransactionDetails.vue:88
 msgid "Open the "
-msgstr ""
+msgstr "Otvori "
 
 #. Label of the option (Data) field in DocType 'LMS Option'
 #: frontend/src/components/Modals/Question.vue:70
@@ -4808,15 +4808,15 @@ msgstr "Detalji plaćanja"
 
 #: frontend/src/components/Settings/TransactionDetails.vue:18
 msgid "Payment For Certificate"
-msgstr ""
+msgstr "Plaćanje za sertifikat"
 
 #: frontend/src/components/Settings/TransactionDetails.vue:51
 msgid "Payment For Document"
-msgstr ""
+msgstr "Plaćanje za dokument"
 
 #: frontend/src/components/Settings/TransactionDetails.vue:46
 msgid "Payment For Document Type"
-msgstr ""
+msgstr "Plaćanje za vrstu dokumenta"
 
 #. Label of the payment_gateway (Data) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -5573,7 +5573,7 @@ msgstr "Srodne obuke"
 #. Option for the 'Work Mode' (Select) field in DocType 'Job Opportunity'
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Remote"
-msgstr ""
+msgstr "Na daljinu"
 
 #: frontend/src/components/Controls/Uploader.vue:34
 #: frontend/src/pages/BatchForm.vue:246 frontend/src/pages/CourseForm.vue:119
@@ -5859,7 +5859,7 @@ msgstr "Izaberite datum"
 
 #: frontend/src/components/Settings/PaymentGatewayDetails.vue:22
 msgid "Select Payment Gateway"
-msgstr ""
+msgstr "Izaberite platni portal"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseModal.vue:23
 msgid "Select a Programming Exercise"
@@ -7165,7 +7165,7 @@ msgstr "Detalji radnog iskustva"
 #: frontend/src/pages/JobForm.vue:32 frontend/src/pages/Jobs.vue:73
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Work Mode"
-msgstr ""
+msgstr "Režim rada"
 
 #: frontend/src/components/CourseReviews.vue:8
 #: frontend/src/components/Modals/ReviewModal.vue:5
