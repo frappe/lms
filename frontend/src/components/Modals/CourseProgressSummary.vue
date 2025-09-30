@@ -152,6 +152,7 @@ const show = defineModel<boolean>({ default: false })
 const searchFilter = ref<string | null>(null)
 type Filters = {
 	course: string | undefined
+
 	member_name?: string[]
 }
 

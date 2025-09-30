@@ -10,5 +10,4 @@
 </template>
 <script setup>
 import AppSidebar from './AppSidebar.vue'
-import AppHeader from './AppHeader.vue'
 </script>
