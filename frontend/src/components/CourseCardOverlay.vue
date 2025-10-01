@@ -169,6 +169,7 @@
 		</div>
 	</div>
 	<CourseProgressSummary
+		v-if="user.data?.is_moderator || is_instructor()"
 		v-model="showProgressModal"
 		:courseName="course.data.name"
 		:enrollments="course.data.enrollments"

@@ -1,16 +1,10 @@
 <template>
-	<div class="relative flex h-full flex-col">
-		<div class="h-full flex-1">
-			<div class="flex h-screen text-base bg-surface-white">
-				<div
-					class="relative block min-h-0 flex-shrink-0 overflow-hidden hover:overflow-auto"
-				>
-					<AppSidebar />
-				</div>
-				<div class="w-full overflow-auto" id="scrollContainer">
-					<slot />
-				</div>
-			</div>
+	<div class="flex h-screen w-screen">
+		<div class="h-full border-r bg-surface-menu-bar">
+			<AppSidebar />
+		</div>
+		<div class="flex-1 flex flex-col h-full overflow-auto bg-surface-white">
+			<slot />
 		</div>
 	</div>
 </template>

@@ -10,6 +10,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     Annoucements: typeof import('./src/components/Annoucements.vue')['default']
     AnnouncementModal: typeof import('./src/components/Modals/AnnouncementModal.vue')['default']
+    AppHeader: typeof import('./src/components/AppHeader.vue')['default']
     Apps: typeof import('./src/components/Apps.vue')['default']
     AppSidebar: typeof import('./src/components/AppSidebar.vue')['default']
     AssessmentModal: typeof import('./src/components/Modals/AssessmentModal.vue')['default']
@@ -71,6 +72,7 @@ declare module 'vue' {
     InviteIcon: typeof import('./src/components/Icons/InviteIcon.vue')['default']
     JobApplicationModal: typeof import('./src/components/Modals/JobApplicationModal.vue')['default']
     JobCard: typeof import('./src/components/JobCard.vue')['default']
+    LayoutHeader: typeof import('./src/components/LayoutHeader.vue')['default']
     LessonContent: typeof import('./src/components/LessonContent.vue')['default']
     LessonHelp: typeof import('./src/components/LessonHelp.vue')['default']
     Link: typeof import('./src/components/Controls/Link.vue')['default']
