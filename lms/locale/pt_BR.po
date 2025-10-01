@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-09-26 16:04+0000\n"
-"PO-Revision-Date: 2025-09-27 08:15\n"
+"PO-Revision-Date: 2025-10-01 08:31\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Portuguese, Brazilian\n"
 "MIME-Version: 1.0\n"
@@ -353,7 +353,7 @@ msgstr ""
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Amber"
-msgstr ""
+msgstr "Âmbar"
 
 #. Label of the amount (Currency) field in DocType 'LMS Batch'
 #. Label of the course_price (Currency) field in DocType 'LMS Course'
@@ -4242,7 +4242,7 @@ msgstr ""
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:286
 #: frontend/src/pages/Quizzes.vue:263
 msgid "Modified"
-msgstr ""
+msgstr "Modificado"
 
 #: lms/lms/doctype/lms_badge/lms_badge.js:40
 msgid "Modified By"
@@ -5914,7 +5914,7 @@ msgstr ""
 
 #: frontend/src/components/AppSidebar.vue:577
 msgid "Setting up"
-msgstr ""
+msgstr "Configurações"
 
 #: frontend/src/components/AppSidebar.vue:627
 msgid "Setting up payment gateway"
@@ -6261,7 +6261,7 @@ msgstr "Assunto"
 
 #: frontend/src/components/Modals/AnnouncementModal.vue:94
 msgid "Subject is required"
-msgstr ""
+msgstr "O assunto é obrigatório"
 
 #: frontend/src/components/Assignment.vue:32
 msgid "Submission"
@@ -7472,7 +7472,7 @@ msgstr "certificado"
 
 #: frontend/src/pages/CertifiedParticipants.vue:78
 msgid "certificates"
-msgstr ""
+msgstr "certificados"
 
 #: frontend/src/pages/CertifiedParticipants.vue:18
 msgid "certified members"
