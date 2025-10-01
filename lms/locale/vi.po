@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-09-26 16:04+0000\n"
-"PO-Revision-Date: 2025-09-27 08:15\n"
+"PO-Revision-Date: 2025-10-01 08:31\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Vietnamese\n"
 "MIME-Version: 1.0\n"
@@ -1892,7 +1892,7 @@ msgstr ""
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Cyan"
-msgstr ""
+msgstr "Lam"
 
 #. Label of the show_dashboard (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -4654,7 +4654,7 @@ msgstr ""
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Orange"
-msgstr ""
+msgstr "Cam"
 
 #. Label of the order_id (Data) field in DocType 'LMS Payment'
 #: frontend/src/components/Settings/TransactionDetails.vue:70
@@ -4917,7 +4917,7 @@ msgstr ""
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Pink"
-msgstr ""
+msgstr "Hồng"
 
 #: lms/lms/doctype/lms_settings/lms_settings.py:34
 msgid "Please add <a href='{0}'>{1}</a> for <a href='{2}'>{3}</a> to send calendar invites for evaluations."
@@ -5362,7 +5362,7 @@ msgstr ""
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 msgid "Purple"
-msgstr ""
+msgstr "Tím"
 
 #. Option for the 'Language' (Select) field in DocType 'LMS Programming
 #. Exercise'
@@ -6161,7 +6161,7 @@ msgstr ""
 
 #: frontend/src/pages/Billing.vue:83
 msgid "State/Province"
-msgstr ""
+msgstr "Tiểu bang/Tỉnh"
 
 #. Label of the tab_4_tab (Tab Break) field in DocType 'LMS Course'
 #. Label of the statistics (Check) field in DocType 'LMS Settings'
@@ -7187,7 +7187,7 @@ msgstr ""
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 msgid "Yellow"
-msgstr ""
+msgstr "Vàng"
 
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.py:95
 msgid "You already have an evaluation on {0} at {1} for the course {2}."
@@ -7487,7 +7487,7 @@ msgstr ""
 
 #: frontend/src/pages/Programs/StudentPrograms.vue:29
 msgid "course"
-msgstr ""
+msgstr "khóa học"
 
 #: frontend/src/pages/Programs/StudentPrograms.vue:29
 msgid "courses"
@@ -7557,7 +7557,7 @@ msgstr ""
 
 #: frontend/src/pages/Programs/ProgramEnrollment.vue:80
 msgid "rating"
-msgstr ""
+msgstr "đánh giá"
 
 #: lms/templates/reviews.html:25
 msgid "ratings"
