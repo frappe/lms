@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-09-26 16:04+0000\n"
-"PO-Revision-Date: 2025-09-27 08:15\n"
+"PO-Revision-Date: 2025-10-01 08:31\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Hungarian\n"
 "MIME-Version: 1.0\n"
@@ -909,7 +909,7 @@ msgstr ""
 
 #: lms/templates/emails/lms_message.html:11
 msgid "By"
-msgstr ""
+msgstr "Által"
 
 #. Option for the 'Grade Type' (Select) field in DocType 'Education Detail'
 #: lms/lms/doctype/education_detail/education_detail.json
@@ -4481,7 +4481,7 @@ msgstr ""
 
 #: frontend/src/components/EmptyState.vue:5 lms/templates/course_list.html:13
 msgid "No {0}"
-msgstr ""
+msgstr "Nem {0}"
 
 #: lms/lms/user.py:29
 msgid "Not Allowed"
@@ -4707,7 +4707,7 @@ msgstr ""
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 msgid "PDF"
-msgstr ""
+msgstr "PDF"
 
 #. Label of the pages (Table) field in DocType 'Cohort'
 #: lms/lms/doctype/cohort/cohort.json
@@ -4759,7 +4759,7 @@ msgstr ""
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 msgid "Pass"
-msgstr ""
+msgstr "Sikeres"
 
 #. Option for the 'Status' (Select) field in DocType 'LMS Programming Exercise
 #. Submission'
@@ -5613,7 +5613,7 @@ msgstr ""
 #. Label of the result (Table) field in DocType 'LMS Quiz Submission'
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.json
 msgid "Result"
-msgstr ""
+msgstr "Eredmény"
 
 #. Label of the resume (Attach) field in DocType 'LMS Job Application'
 #: lms/job/doctype/lms_job_application/lms_job_application.json
@@ -6802,7 +6802,7 @@ msgstr ""
 
 #: frontend/src/components/Quiz.vue:284
 msgid "Try Again"
-msgstr ""
+msgstr "Próbálja újra"
 
 #. Option for the 'Day' (Select) field in DocType 'Evaluator Schedule'
 #. Option for the 'Day' (Select) field in DocType 'LMS Certificate Request'
@@ -6933,7 +6933,7 @@ msgstr ""
 
 #: lms/templates/emails/community_course_membership.html:11
 msgid "Update Password"
-msgstr ""
+msgstr "Jelszó Frissítése"
 
 #: frontend/src/components/Controls/Uploader.vue:20
 #: frontend/src/pages/BatchForm.vue:227 frontend/src/pages/CourseForm.vue:100
@@ -7220,7 +7220,7 @@ msgstr ""
 #: lms/templates/emails/lms_course_interest.html:13
 #: lms/templates/emails/lms_invite_request_approved.html:11
 msgid "You can also copy-paste following link in your browser"
-msgstr ""
+msgstr "A következő linket másolhatod és beillesztheted a böngésződbe is"
 
 #: frontend/src/components/Quiz.vue:37
 msgid "You can attempt this quiz {0}."
@@ -7519,7 +7519,7 @@ msgstr ""
 
 #: lms/templates/signup-form.html:12
 msgid "jane@example.com"
-msgstr ""
+msgstr "nev@pelda.hu"
 
 #: frontend/src/pages/Programs/ProgramEnrollment.vue:65
 msgid "lessons"
@@ -7541,7 +7541,7 @@ msgstr ""
 #: frontend/src/pages/Programs/Programs.vue:42
 #: frontend/src/pages/Programs/StudentPrograms.vue:36
 msgid "members"
-msgstr ""
+msgstr "tagok"
 
 #: frontend/src/components/Modals/LiveClassAttendance.vue:57
 msgid "minutes"
@@ -7670,7 +7670,7 @@ msgstr ""
 #. Count format of shortcut in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "{} Active"
-msgstr ""
+msgstr "{} Aktív"
 
 #. Count format of shortcut in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json

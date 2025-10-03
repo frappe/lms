@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-09-26 16:04+0000\n"
-"PO-Revision-Date: 2025-09-27 08:15\n"
+"PO-Revision-Date: 2025-10-01 08:31\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Chinese Simplified\n"
 "MIME-Version: 1.0\n"
@@ -4242,7 +4242,7 @@ msgstr "主持人"
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:286
 #: frontend/src/pages/Quizzes.vue:263
 msgid "Modified"
-msgstr ""
+msgstr "修改时间"
 
 #: lms/lms/doctype/lms_badge/lms_badge.js:40
 msgid "Modified By"
