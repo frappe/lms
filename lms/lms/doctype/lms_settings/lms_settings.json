@@ -35,8 +35,8 @@
   "items_in_sidebar_section",
   "courses",
   "batches",
-  "certified_participants",
   "certified_members",
+  "certifications",
   "programming_exercises",
   "column_break_exdz",
   "jobs",
@@ -281,13 +281,6 @@
   },
   {
    "default": "1",
-   "fieldname": "certified_participants",
-   "fieldtype": "Check",
-   "hidden": 1,
-   "label": "Certified Participants"
-  },
-  {
-   "default": "1",
    "fieldname": "jobs",
    "fieldtype": "Check",
    "label": "Jobs"
@@ -403,6 +396,7 @@
    "default": "0",
    "fieldname": "certified_members",
    "fieldtype": "Check",
+   "hidden": 1,
    "label": "Certified Members"
   },
   {
@@ -439,13 +433,19 @@
    "fieldname": "contact_us_url",
    "fieldtype": "Data",
    "label": "Contact Us URL"
+  },
+  {
+   "default": "0",
+   "fieldname": "certifications",
+   "fieldtype": "Check",
+   "label": "Certifications"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-10-03 17:41:30.904723",
+ "modified": "2025-10-06 10:27:41.117864",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Settings",
