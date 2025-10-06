@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2025-09-26 16:04+0000\n"
-"PO-Revision-Date: 2025-10-01 08:31\n"
+"POT-Creation-Date: 2025-10-03 16:04+0000\n"
+"PO-Revision-Date: 2025-10-06 10:51\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Chinese Simplified\n"
 "MIME-Version: 1.0\n"
@@ -426,6 +426,11 @@ msgstr "在分享批次链接至网络平台时显示"
 msgid "Appears when the batch URL is shared on socials"
 msgstr "当班级URL在社交平台分享时显示"
 
+#. Label of a field in the job-opportunity Web Form
+#: lms/job/web_form/job_opportunity/job_opportunity.json
+msgid "Application Form Link"
+msgstr ""
+
 #: frontend/src/pages/JobDetail.vue:51
 msgid "Apply"
 msgstr "应用"
@@ -572,7 +577,7 @@ msgstr "作业创建成功"
 msgid "Assignment for Lesson {0} by {1} already exists."
 msgstr "学员{1}的课时{0}作业已存在。"
 
-#: frontend/src/components/Assignment.vue:356
+#: frontend/src/components/Assignment.vue:359
 msgid "Assignment submitted successfully"
 msgstr "作业提交成功。"
 
@@ -1056,7 +1061,7 @@ msgstr "认证参与者"
 msgid "Change"
 msgstr "变更"
 
-#: frontend/src/components/Assignment.vue:342
+#: frontend/src/components/Assignment.vue:345
 msgid "Changes saved successfully"
 msgstr "变更保存成功"
 
@@ -1199,8 +1204,10 @@ msgid "Close"
 msgstr "关闭"
 
 #. Option for the 'Status' (Select) field in DocType 'Job Opportunity'
+#. Option in a Select field in the job-opportunity Web Form
 #. Option for the 'Membership' (Select) field in DocType 'LMS Batch Old'
 #: lms/job/doctype/job_opportunity/job_opportunity.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 msgid "Closed"
 msgstr "已关闭"
@@ -1294,7 +1301,7 @@ msgstr ""
 #. Label of the comments (Text Editor) field in DocType 'LMS Assignment
 #. Submission'
 #. Label of the comments (Small Text) field in DocType 'LMS Mentor Request'
-#: frontend/src/components/Assignment.vue:164
+#: frontend/src/components/Assignment.vue:167
 #: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
 #: lms/lms/doctype/exercise_submission/exercise_submission.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
@@ -1302,7 +1309,7 @@ msgstr ""
 msgid "Comments"
 msgstr "评语"
 
-#: frontend/src/components/Assignment.vue:142
+#: frontend/src/components/Assignment.vue:145
 msgid "Comments by Evaluator"
 msgstr "评估人评语"
 
@@ -1337,14 +1344,18 @@ msgid "Company Email Address"
 msgstr "公司邮箱"
 
 #. Label of the company_logo (Attach Image) field in DocType 'Job Opportunity'
+#. Label of a field in the job-opportunity Web Form
 #: frontend/src/pages/JobForm.vue:87
 #: lms/job/doctype/job_opportunity/job_opportunity.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Company Logo"
 msgstr "公司标志"
 
 #. Label of the company_name (Data) field in DocType 'Job Opportunity'
+#. Label of a field in the job-opportunity Web Form
 #: frontend/src/pages/JobForm.vue:69
 #: lms/job/doctype/job_opportunity/job_opportunity.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Company Name"
 msgstr "公司名称"
 
@@ -1354,8 +1365,10 @@ msgid "Company Type"
 msgstr "公司类型"
 
 #. Label of the company_website (Data) field in DocType 'Job Opportunity'
+#. Label of a field in the job-opportunity Web Form
 #: frontend/src/pages/JobForm.vue:75
 #: lms/job/doctype/job_opportunity/job_opportunity.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Company Website"
 msgstr "公司网站"
 
@@ -1471,8 +1484,10 @@ msgid "Continue Learning"
 msgstr "继续学习"
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
+#. Option in a Select field in the job-opportunity Web Form
 #: frontend/src/pages/Jobs.vue:196
 #: lms/job/doctype/job_opportunity/job_opportunity.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Contract"
 msgstr "合同"
 
@@ -2003,6 +2018,7 @@ msgid "Deleting this lesson will permanently remove it from the course. This act
 msgstr "删除本课时将永久移除。此操作不可撤销。确认继续吗？"
 
 #. Label of the description (Text Editor) field in DocType 'Job Opportunity'
+#. Label of a field in the job-opportunity Web Form
 #. Label of the description (Small Text) field in DocType 'Certification'
 #. Label of the description (Markdown Editor) field in DocType 'Cohort'
 #. Label of the description (Markdown Editor) field in DocType 'Cohort
@@ -2018,6 +2034,7 @@ msgstr "删除本课时将永久移除。此操作不可撤销。确认继续吗
 #: frontend/src/components/Settings/BadgeForm.vue:32
 #: frontend/src/pages/JobForm.vue:132
 #: lms/job/doctype/job_opportunity/job_opportunity.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 #: lms/lms/doctype/certification/certification.json
 #: lms/lms/doctype/cohort/cohort.json
 #: lms/lms/doctype/cohort_subgroup/cohort_subgroup.json
@@ -2369,7 +2386,7 @@ msgstr "注册记录"
 msgid "Enter Client Id and Client Secret in Google Settings to send calendar invites for evaluations."
 msgstr "在Google设置中填写客户端ID和密钥以发送评估日历邀请"
 
-#: frontend/src/components/Assignment.vue:113
+#: frontend/src/components/Assignment.vue:116
 msgid "Enter a URL"
 msgstr "输入URL"
 
@@ -2700,8 +2717,10 @@ msgid "Free"
 msgstr "免费"
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
+#. Option in a Select field in the job-opportunity Web Form
 #: frontend/src/pages/Jobs.vue:197
 #: lms/job/doctype/job_opportunity/job_opportunity.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Freelance"
 msgstr "自由职业"
 
@@ -2742,8 +2761,10 @@ msgid "Full Name"
 msgstr "全名"
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
+#. Option in a Select field in the job-opportunity Web Form
 #: frontend/src/pages/Jobs.vue:194
 #: lms/job/doctype/job_opportunity/job_opportunity.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Full Time"
 msgstr "全职"
 
@@ -2822,7 +2843,7 @@ msgid "Google Meet Link"
 msgstr "Google Meet链接"
 
 #. Label of the grade (Data) field in DocType 'Education Detail'
-#: frontend/src/components/Assignment.vue:158
+#: frontend/src/components/Assignment.vue:161
 #: lms/lms/doctype/education_detail/education_detail.json
 msgid "Grade"
 msgstr "评分"
@@ -2837,7 +2858,7 @@ msgstr "作业评分"
 msgid "Grade Type"
 msgstr "评分类型"
 
-#: frontend/src/components/Assignment.vue:153
+#: frontend/src/components/Assignment.vue:156
 msgid "Grading"
 msgstr "评分"
 
@@ -3288,7 +3309,9 @@ msgid "Job Openings"
 msgstr "职位空缺"
 
 #. Name of a DocType
+#. Title of the job-opportunity Web Form
 #: lms/job/doctype/job_opportunity/job_opportunity.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Job Opportunity"
 msgstr "工作机会"
 
@@ -3299,8 +3322,10 @@ msgstr "职位设置"
 
 #. Label of the job_title (Data) field in DocType 'Job Opportunity'
 #. Label of the job_title (Data) field in DocType 'LMS Job Application'
+#. Label of a field in the job-opportunity Web Form
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/job/doctype/lms_job_application/lms_job_application.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Job Title"
 msgstr "职位名称"
 
@@ -3806,8 +3831,10 @@ msgstr "加载更多"
 msgid "Local"
 msgstr "本地"
 
+#. Label of a field in the job-opportunity Web Form
 #. Label of the location (Data) field in DocType 'Education Detail'
 #. Label of the location (Data) field in DocType 'Work Experience'
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 #: lms/lms/doctype/education_detail/education_detail.json
 #: lms/lms/doctype/work_experience/work_experience.json
 msgid "Location"
@@ -3971,7 +3998,7 @@ msgstr ""
 #. Label of the member (Link) field in DocType 'LMS Quiz Submission'
 #. Label of the member (Link) field in DocType 'LMS Video Watch Duration'
 #. Label of the member (Link) field in DocType 'LMS Zoom Settings'
-#: frontend/src/components/Modals/CourseProgressSummary.vue:217
+#: frontend/src/components/Modals/CourseProgressSummary.vue:218
 #: frontend/src/components/Modals/LiveClassAttendance.vue:14
 #: frontend/src/components/Modals/VideoStatistics.vue:31
 #: frontend/src/components/Modals/ZoomAccountModal.vue:42
@@ -4596,8 +4623,10 @@ msgid "Only zip files are allowed"
 msgstr "仅允许zip文件"
 
 #. Option for the 'Status' (Select) field in DocType 'Job Opportunity'
+#. Option in a Select field in the job-opportunity Web Form
 #. Option for the 'Membership' (Select) field in DocType 'LMS Batch Old'
 #: lms/job/doctype/job_opportunity/job_opportunity.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 msgid "Open"
 msgstr "开放"
@@ -4741,8 +4770,10 @@ msgid "Pan Number"
 msgstr "PAN号码"
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
+#. Option in a Select field in the job-opportunity Web Form
 #: frontend/src/pages/Jobs.vue:195
 #: lms/job/doctype/job_opportunity/job_opportunity.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Part Time"
 msgstr "兼职"
 
@@ -5285,7 +5316,7 @@ msgstr "课程项目"
 #. Label of the progress (Float) field in DocType 'LMS Enrollment'
 #. Label of the progress (Int) field in DocType 'LMS Program Member'
 #: frontend/src/components/Modals/BatchStudentProgress.vue:94
-#: frontend/src/components/Modals/CourseProgressSummary.vue:223
+#: frontend/src/components/Modals/CourseProgressSummary.vue:224
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 #: lms/lms/doctype/lms_program_member/lms_program_member.json
 msgid "Progress"
@@ -5737,6 +5768,7 @@ msgstr ""
 msgid "Saturday"
 msgstr "星期六"
 
+#. Button label of the job-opportunity Web Form
 #: frontend/src/components/AssessmentPlugin.vue:12
 #: frontend/src/components/Assignment.vue:46
 #: frontend/src/components/Controls/Code.vue:24
@@ -5758,6 +5790,7 @@ msgstr "星期六"
 #: frontend/src/pages/Programs/ProgramForm.vue:234
 #: frontend/src/pages/QuizForm.vue:43 frontend/src/pages/QuizSubmission.vue:14
 #: frontend/src/pages/Quizzes.vue:105
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Save"
 msgstr "保存"
 
@@ -6173,6 +6206,7 @@ msgid "Statistics"
 msgstr "统计"
 
 #. Label of the status (Select) field in DocType 'Job Opportunity'
+#. Label of a field in the job-opportunity Web Form
 #. Label of the status (Select) field in DocType 'Cohort'
 #. Label of the status (Select) field in DocType 'Cohort Join Request'
 #. Label of the status (Select) field in DocType 'Exercise Latest Submission'
@@ -6194,6 +6228,7 @@ msgstr "统计"
 #: frontend/src/pages/JobForm.vue:53
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:280
 #: lms/job/doctype/job_opportunity/job_opportunity.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 #: lms/lms/doctype/cohort/cohort.json
 #: lms/lms/doctype/cohort_join_request/cohort_join_request.json
 #: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
@@ -6816,6 +6851,7 @@ msgid "Twitter"
 msgstr "推特"
 
 #. Label of the type (Select) field in DocType 'Job Opportunity'
+#. Label of a field in the job-opportunity Web Form
 #. Label of the type (Select) field in DocType 'LMS Assignment'
 #. Label of the type (Select) field in DocType 'LMS Assignment Submission'
 #. Label of the type (Select) field in DocType 'LMS Question'
@@ -6826,6 +6862,7 @@ msgstr "推特"
 #: frontend/src/pages/JobForm.vue:25 frontend/src/pages/Jobs.vue:65
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:53
 #: lms/job/doctype/job_opportunity/job_opportunity.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 #: lms/lms/doctype/lms_question/lms_question.json
@@ -6940,11 +6977,11 @@ msgstr "更新密码"
 msgid "Upload"
 msgstr "上传"
 
-#: frontend/src/components/Assignment.vue:81
+#: frontend/src/components/Assignment.vue:84
 msgid "Upload File"
 msgstr "上传文件"
 
-#: frontend/src/components/Assignment.vue:80
+#: frontend/src/components/Assignment.vue:83
 msgid "Uploading {0}%"
 msgstr "上传进度{0}%"
 
@@ -7178,7 +7215,7 @@ msgstr "撰写评价"
 msgid "Write a review"
 msgstr "撰写评价"
 
-#: frontend/src/components/Assignment.vue:123
+#: frontend/src/components/Assignment.vue:126
 msgid "Write your answer here"
 msgstr "在此输入答案"
 
@@ -7291,7 +7328,7 @@ msgstr "您已申请"
 msgid "You have been enrolled in this batch"
 msgstr "您已加入本批次"
 
-#: frontend/src/components/CourseCardOverlay.vue:229
+#: frontend/src/components/CourseCardOverlay.vue:230
 msgid "You have been enrolled in this course"
 msgstr "您已注册本课程"
 
@@ -7319,7 +7356,7 @@ msgstr ""
 msgid "You have {0} {1} scheduled."
 msgstr ""
 
-#: frontend/src/components/CourseCardOverlay.vue:217
+#: frontend/src/components/CourseCardOverlay.vue:218
 msgid "You need to login first to enroll for this course"
 msgstr "请先登录以注册本课程"
 
