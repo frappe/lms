@@ -35,8 +35,8 @@
   "items_in_sidebar_section",
   "courses",
   "batches",
-  "certified_participants",
   "certified_members",
+  "certifications",
   "programming_exercises",
   "column_break_exdz",
   "jobs",
@@ -67,7 +67,11 @@
   "meta_description",
   "meta_image",
   "column_break_xijv",
-  "meta_keywords"
+  "meta_keywords",
+  "contact_us_tab",
+  "contact_us_email",
+  "column_break_gcgv",
+  "contact_us_url"
  ],
  "fields": [
   {
@@ -277,13 +281,6 @@
   },
   {
    "default": "1",
-   "fieldname": "certified_participants",
-   "fieldtype": "Check",
-   "hidden": 1,
-   "label": "Certified Participants"
-  },
-  {
-   "default": "1",
    "fieldname": "jobs",
    "fieldtype": "Check",
    "label": "Jobs"
@@ -399,6 +396,7 @@
    "default": "0",
    "fieldname": "certified_members",
    "fieldtype": "Check",
+   "hidden": 1,
    "label": "Certified Members"
   },
   {
@@ -416,13 +414,38 @@
    "fieldname": "programming_exercises",
    "fieldtype": "Check",
    "label": "Programming Exercises"
+  },
+  {
+   "fieldname": "contact_us_tab",
+   "fieldtype": "Tab Break",
+   "label": "Contact Us"
+  },
+  {
+   "fieldname": "contact_us_email",
+   "fieldtype": "Data",
+   "label": "Contact Us Email"
+  },
+  {
+   "fieldname": "column_break_gcgv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "contact_us_url",
+   "fieldtype": "Data",
+   "label": "Contact Us URL"
+  },
+  {
+   "default": "0",
+   "fieldname": "certifications",
+   "fieldtype": "Check",
+   "label": "Certifications"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-08-12 16:47:49.983018",
+ "modified": "2025-10-06 10:27:41.117864",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Settings",

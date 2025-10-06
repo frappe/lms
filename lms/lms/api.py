@@ -507,7 +507,7 @@ def get_sidebar_settings():
 	items = [
 		"courses",
 		"batches",
-		"certified_members",
+		"certifications",
 		"jobs",
 		"statistics",
 		"notifications",
