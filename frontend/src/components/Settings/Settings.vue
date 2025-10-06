@@ -161,6 +161,26 @@ const tabsStructure = computed(() => {
 						},
 					],
 				},
+				{
+					label: 'Contact Us',
+					icon: 'Phone',
+					fields: [
+						{
+							label: 'Email',
+							name: 'contact_us_email',
+							type: 'text',
+							description:
+								'Users can reach out to this email for support or inquiries.',
+						},
+						{
+							label: 'URL',
+							name: 'contact_us_url',
+							type: 'text',
+							description:
+								'Users can reach out to this URL for support or inquiries.',
+						},
+					],
+				},
 			],
 		},
 		{

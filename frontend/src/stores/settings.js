@@ -21,6 +21,20 @@ export const useSettings = defineStore('settings', () => {
 		cache: ['preventSkippingVideos'],
 	})
 
+	const contactUsEmail = createResource({
+		url: 'lms.lms.api.get_lms_setting',
+		params: { field: 'contact_us_email' },
+		auto: true,
+		cache: ['contactUsEmail'],
+	})
+
+	const contactUsURL = createResource({
+		url: 'lms.lms.api.get_lms_setting',
+		params: { field: 'contact_us_url' },
+		auto: true,
+		cache: ['contactUsURL'],
+	})
+
 	const sidebarSettings = createResource({
 		url: 'lms.lms.api.get_sidebar_settings',
 		cache: 'Sidebar Settings',
@@ -32,6 +46,8 @@ export const useSettings = defineStore('settings', () => {
 		activeTab,
 		allowGuestAccess,
 		preventSkippingVideos,
+		contactUsEmail,
+		contactUsURL,
 		sidebarSettings,
 	}
 })

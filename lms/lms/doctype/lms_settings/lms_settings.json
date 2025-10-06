@@ -67,7 +67,11 @@
   "meta_description",
   "meta_image",
   "column_break_xijv",
-  "meta_keywords"
+  "meta_keywords",
+  "contact_us_tab",
+  "contact_us_email",
+  "column_break_gcgv",
+  "contact_us_url"
  ],
  "fields": [
   {
@@ -416,13 +420,32 @@
    "fieldname": "programming_exercises",
    "fieldtype": "Check",
    "label": "Programming Exercises"
+  },
+  {
+   "fieldname": "contact_us_tab",
+   "fieldtype": "Tab Break",
+   "label": "Contact Us"
+  },
+  {
+   "fieldname": "contact_us_email",
+   "fieldtype": "Data",
+   "label": "Contact Us Email"
+  },
+  {
+   "fieldname": "column_break_gcgv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "contact_us_url",
+   "fieldtype": "Data",
+   "label": "Contact Us URL"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-08-12 16:47:49.983018",
+ "modified": "2025-10-03 17:41:30.904723",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Settings",
