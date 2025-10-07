@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-10-03 16:04+0000\n"
-"PO-Revision-Date: 2025-10-06 10:50\n"
+"PO-Revision-Date: 2025-10-07 11:33\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Arabic\n"
 "MIME-Version: 1.0\n"
@@ -803,7 +803,7 @@ msgstr ""
 
 #: frontend/src/pages/BatchForm.vue:82
 msgid "Batch Start Date"
-msgstr ""
+msgstr "تاريخ بدء الدفعة"
 
 #: lms/templates/emails/batch_confirmation.html:11
 msgid "Batch Start Date:"
@@ -1962,7 +1962,7 @@ msgstr "العزيز "
 
 #: frontend/src/components/Modals/EmailTemplateModal.vue:66
 msgid "Dear {{ member_name }},\\n\\nYou have been enrolled in our upcoming batch {{ batch_name }}.\\n\\nThanks,\\nFrappe Learning"
-msgstr ""
+msgstr "عزيزي {{ member_name }}،\\n\\nلقد تم تسجيلك في دفعتنا القادمة {{ batch_name }}.\\n\\nشكرًا،\\nتعلم Frappe"
 
 #. Label of the default_currency (Link) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -7509,7 +7509,7 @@ msgstr "شهادة"
 
 #: frontend/src/pages/CertifiedParticipants.vue:78
 msgid "certificates"
-msgstr ""
+msgstr "الشهادات"
 
 #: frontend/src/pages/CertifiedParticipants.vue:18
 msgid "certified members"
@@ -7528,7 +7528,7 @@ msgstr "المقرر التعليمي"
 
 #: frontend/src/pages/Programs/StudentPrograms.vue:29
 msgid "courses"
-msgstr ""
+msgstr "المقررات الدراسية"
 
 #: frontend/src/pages/Home/Streak.vue:24
 msgid "day streak"
