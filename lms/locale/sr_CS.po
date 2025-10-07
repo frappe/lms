@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2025-09-26 16:04+0000\n"
-"PO-Revision-Date: 2025-09-29 08:26\n"
+"POT-Creation-Date: 2025-10-03 16:04+0000\n"
+"PO-Revision-Date: 2025-10-06 10:51\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Serbian (Latin)\n"
 "MIME-Version: 1.0\n"
@@ -426,6 +426,11 @@ msgstr "Prikazuje se kada je URL grupe podeljen na bilo kojoj onlajn platformi"
 msgid "Appears when the batch URL is shared on socials"
 msgstr "Prikazuje se kada je URL grupe podeljen na društvenim mrežama"
 
+#. Label of a field in the job-opportunity Web Form
+#: lms/job/web_form/job_opportunity/job_opportunity.json
+msgid "Application Form Link"
+msgstr "Link za obrazac prijave"
+
 #: frontend/src/pages/JobDetail.vue:51
 msgid "Apply"
 msgstr "Primeni"
@@ -572,7 +577,7 @@ msgstr "Zadatak je uspešno kreiran"
 msgid "Assignment for Lesson {0} by {1} already exists."
 msgstr "Zadaci za lekciju {0} od strane {1} već postoje."
 
-#: frontend/src/components/Assignment.vue:356
+#: frontend/src/components/Assignment.vue:359
 msgid "Assignment submitted successfully"
 msgstr "Zadatak je uspešno podnet"
 
@@ -1056,7 +1061,7 @@ msgstr "Sertifikovani učesnici"
 msgid "Change"
 msgstr "Promena"
 
-#: frontend/src/components/Assignment.vue:342
+#: frontend/src/components/Assignment.vue:345
 msgid "Changes saved successfully"
 msgstr "Promene su uspešno sačuvane"
 
@@ -1199,8 +1204,10 @@ msgid "Close"
 msgstr "Zatvori"
 
 #. Option for the 'Status' (Select) field in DocType 'Job Opportunity'
+#. Option in a Select field in the job-opportunity Web Form
 #. Option for the 'Membership' (Select) field in DocType 'LMS Batch Old'
 #: lms/job/doctype/job_opportunity/job_opportunity.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 msgid "Closed"
 msgstr "Zatvoreno"
@@ -1294,7 +1301,7 @@ msgstr "Ključne reči, odvojene zarezom, za SEO"
 #. Label of the comments (Text Editor) field in DocType 'LMS Assignment
 #. Submission'
 #. Label of the comments (Small Text) field in DocType 'LMS Mentor Request'
-#: frontend/src/components/Assignment.vue:164
+#: frontend/src/components/Assignment.vue:167
 #: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
 #: lms/lms/doctype/exercise_submission/exercise_submission.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
@@ -1302,7 +1309,7 @@ msgstr "Ključne reči, odvojene zarezom, za SEO"
 msgid "Comments"
 msgstr "Komentari"
 
-#: frontend/src/components/Assignment.vue:142
+#: frontend/src/components/Assignment.vue:145
 msgid "Comments by Evaluator"
 msgstr "Komentari od osobe za ocenjivanje"
 
@@ -1337,14 +1344,18 @@ msgid "Company Email Address"
 msgstr "Imejl adresa kompanije"
 
 #. Label of the company_logo (Attach Image) field in DocType 'Job Opportunity'
+#. Label of a field in the job-opportunity Web Form
 #: frontend/src/pages/JobForm.vue:87
 #: lms/job/doctype/job_opportunity/job_opportunity.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Company Logo"
 msgstr "Logo kompanije"
 
 #. Label of the company_name (Data) field in DocType 'Job Opportunity'
+#. Label of a field in the job-opportunity Web Form
 #: frontend/src/pages/JobForm.vue:69
 #: lms/job/doctype/job_opportunity/job_opportunity.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Company Name"
 msgstr "Naziv kompanije"
 
@@ -1354,8 +1365,10 @@ msgid "Company Type"
 msgstr "Vrsta kompanije"
 
 #. Label of the company_website (Data) field in DocType 'Job Opportunity'
+#. Label of a field in the job-opportunity Web Form
 #: frontend/src/pages/JobForm.vue:75
 #: lms/job/doctype/job_opportunity/job_opportunity.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Company Website"
 msgstr "Veb-sajt kompanije"
 
@@ -1471,8 +1484,10 @@ msgid "Continue Learning"
 msgstr "Nastavite sa učenjem"
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
+#. Option in a Select field in the job-opportunity Web Form
 #: frontend/src/pages/Jobs.vue:196
 #: lms/job/doctype/job_opportunity/job_opportunity.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Contract"
 msgstr "Ugovor"
 
@@ -2003,6 +2018,7 @@ msgid "Deleting this lesson will permanently remove it from the course. This act
 msgstr "Brisanjem ove lekcije ona će trajno biti uklonjena iz obuke. Ova radnja se ne može poništiti. Da li ste sigurni da želite da nastavite?"
 
 #. Label of the description (Text Editor) field in DocType 'Job Opportunity'
+#. Label of a field in the job-opportunity Web Form
 #. Label of the description (Small Text) field in DocType 'Certification'
 #. Label of the description (Markdown Editor) field in DocType 'Cohort'
 #. Label of the description (Markdown Editor) field in DocType 'Cohort
@@ -2018,6 +2034,7 @@ msgstr "Brisanjem ove lekcije ona će trajno biti uklonjena iz obuke. Ova radnja
 #: frontend/src/components/Settings/BadgeForm.vue:32
 #: frontend/src/pages/JobForm.vue:132
 #: lms/job/doctype/job_opportunity/job_opportunity.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 #: lms/lms/doctype/certification/certification.json
 #: lms/lms/doctype/cohort/cohort.json
 #: lms/lms/doctype/cohort_subgroup/cohort_subgroup.json
@@ -2369,7 +2386,7 @@ msgstr "Upisi"
 msgid "Enter Client Id and Client Secret in Google Settings to send calendar invites for evaluations."
 msgstr "Unesite ID klijenta i klijentsku tajnu u Google podešavanjima da biste slali pozivnice za ocenjivanje u kalendar."
 
-#: frontend/src/components/Assignment.vue:113
+#: frontend/src/components/Assignment.vue:116
 msgid "Enter a URL"
 msgstr "Unesite URL"
 
@@ -2700,8 +2717,10 @@ msgid "Free"
 msgstr "Besplatno"
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
+#. Option in a Select field in the job-opportunity Web Form
 #: frontend/src/pages/Jobs.vue:197
 #: lms/job/doctype/job_opportunity/job_opportunity.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Freelance"
 msgstr "Freelance"
 
@@ -2742,8 +2761,10 @@ msgid "Full Name"
 msgstr "Ime i prezime"
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
+#. Option in a Select field in the job-opportunity Web Form
 #: frontend/src/pages/Jobs.vue:194
 #: lms/job/doctype/job_opportunity/job_opportunity.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Full Time"
 msgstr "Puno radno vreme"
 
@@ -2822,7 +2843,7 @@ msgid "Google Meet Link"
 msgstr "Google Meet Link"
 
 #. Label of the grade (Data) field in DocType 'Education Detail'
-#: frontend/src/components/Assignment.vue:158
+#: frontend/src/components/Assignment.vue:161
 #: lms/lms/doctype/education_detail/education_detail.json
 msgid "Grade"
 msgstr "Ocena"
@@ -2837,7 +2858,7 @@ msgstr "Ocena zadatka"
 msgid "Grade Type"
 msgstr "Vrsta ocene"
 
-#: frontend/src/components/Assignment.vue:153
+#: frontend/src/components/Assignment.vue:156
 msgid "Grading"
 msgstr "Ocenjivanje"
 
@@ -3288,7 +3309,9 @@ msgid "Job Openings"
 msgstr "Oglasi za posao"
 
 #. Name of a DocType
+#. Title of the job-opportunity Web Form
 #: lms/job/doctype/job_opportunity/job_opportunity.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Job Opportunity"
 msgstr "Prilika za posao"
 
@@ -3299,8 +3322,10 @@ msgstr "Podešavanje posla"
 
 #. Label of the job_title (Data) field in DocType 'Job Opportunity'
 #. Label of the job_title (Data) field in DocType 'LMS Job Application'
+#. Label of a field in the job-opportunity Web Form
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/job/doctype/lms_job_application/lms_job_application.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Job Title"
 msgstr "Naziv radnog mesta"
 
@@ -3806,8 +3831,10 @@ msgstr "Učitaj više"
 msgid "Local"
 msgstr "Lokalno"
 
+#. Label of a field in the job-opportunity Web Form
 #. Label of the location (Data) field in DocType 'Education Detail'
 #. Label of the location (Data) field in DocType 'Work Experience'
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 #: lms/lms/doctype/education_detail/education_detail.json
 #: lms/lms/doctype/work_experience/work_experience.json
 msgid "Location"
@@ -3971,7 +3998,7 @@ msgstr "ID sastanka"
 #. Label of the member (Link) field in DocType 'LMS Quiz Submission'
 #. Label of the member (Link) field in DocType 'LMS Video Watch Duration'
 #. Label of the member (Link) field in DocType 'LMS Zoom Settings'
-#: frontend/src/components/Modals/CourseProgressSummary.vue:217
+#: frontend/src/components/Modals/CourseProgressSummary.vue:218
 #: frontend/src/components/Modals/LiveClassAttendance.vue:14
 #: frontend/src/components/Modals/VideoStatistics.vue:31
 #: frontend/src/components/Modals/ZoomAccountModal.vue:42
@@ -4596,8 +4623,10 @@ msgid "Only zip files are allowed"
 msgstr "Dozvoljeni su samo zip fajlovi"
 
 #. Option for the 'Status' (Select) field in DocType 'Job Opportunity'
+#. Option in a Select field in the job-opportunity Web Form
 #. Option for the 'Membership' (Select) field in DocType 'LMS Batch Old'
 #: lms/job/doctype/job_opportunity/job_opportunity.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 msgid "Open"
 msgstr "Otvoreno"
@@ -4741,8 +4770,10 @@ msgid "Pan Number"
 msgstr "PAN broj"
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
+#. Option in a Select field in the job-opportunity Web Form
 #: frontend/src/pages/Jobs.vue:195
 #: lms/job/doctype/job_opportunity/job_opportunity.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Part Time"
 msgstr "Nepuno vreme"
 
@@ -5285,7 +5316,7 @@ msgstr "Programi"
 #. Label of the progress (Float) field in DocType 'LMS Enrollment'
 #. Label of the progress (Int) field in DocType 'LMS Program Member'
 #: frontend/src/components/Modals/BatchStudentProgress.vue:94
-#: frontend/src/components/Modals/CourseProgressSummary.vue:223
+#: frontend/src/components/Modals/CourseProgressSummary.vue:224
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 #: lms/lms/doctype/lms_program_member/lms_program_member.json
 msgid "Progress"
@@ -5737,6 +5768,7 @@ msgstr "SVG sadrži potencijalno nebezbedan sadržaj."
 msgid "Saturday"
 msgstr "Subota"
 
+#. Button label of the job-opportunity Web Form
 #: frontend/src/components/AssessmentPlugin.vue:12
 #: frontend/src/components/Assignment.vue:46
 #: frontend/src/components/Controls/Code.vue:24
@@ -5758,6 +5790,7 @@ msgstr "Subota"
 #: frontend/src/pages/Programs/ProgramForm.vue:234
 #: frontend/src/pages/QuizForm.vue:43 frontend/src/pages/QuizSubmission.vue:14
 #: frontend/src/pages/Quizzes.vue:105
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Save"
 msgstr "Sačuvaj"
 
@@ -6173,6 +6206,7 @@ msgid "Statistics"
 msgstr "Statistika"
 
 #. Label of the status (Select) field in DocType 'Job Opportunity'
+#. Label of a field in the job-opportunity Web Form
 #. Label of the status (Select) field in DocType 'Cohort'
 #. Label of the status (Select) field in DocType 'Cohort Join Request'
 #. Label of the status (Select) field in DocType 'Exercise Latest Submission'
@@ -6194,6 +6228,7 @@ msgstr "Statistika"
 #: frontend/src/pages/JobForm.vue:53
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:280
 #: lms/job/doctype/job_opportunity/job_opportunity.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 #: lms/lms/doctype/cohort/cohort.json
 #: lms/lms/doctype/cohort_join_request/cohort_join_request.json
 #: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
@@ -6816,6 +6851,7 @@ msgid "Twitter"
 msgstr "Twitter"
 
 #. Label of the type (Select) field in DocType 'Job Opportunity'
+#. Label of a field in the job-opportunity Web Form
 #. Label of the type (Select) field in DocType 'LMS Assignment'
 #. Label of the type (Select) field in DocType 'LMS Assignment Submission'
 #. Label of the type (Select) field in DocType 'LMS Question'
@@ -6826,6 +6862,7 @@ msgstr "Twitter"
 #: frontend/src/pages/JobForm.vue:25 frontend/src/pages/Jobs.vue:65
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:53
 #: lms/job/doctype/job_opportunity/job_opportunity.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 #: lms/lms/doctype/lms_question/lms_question.json
@@ -6940,11 +6977,11 @@ msgstr "Ažuriraj lozinku"
 msgid "Upload"
 msgstr "Otpremi"
 
-#: frontend/src/components/Assignment.vue:81
+#: frontend/src/components/Assignment.vue:84
 msgid "Upload File"
 msgstr "Otpremi fajl"
 
-#: frontend/src/components/Assignment.vue:80
+#: frontend/src/components/Assignment.vue:83
 msgid "Uploading {0}%"
 msgstr "Otpremanje {0}%"
 
@@ -7178,7 +7215,7 @@ msgstr "Napišite recenziju"
 msgid "Write a review"
 msgstr "Napišite recenziju"
 
-#: frontend/src/components/Assignment.vue:123
+#: frontend/src/components/Assignment.vue:126
 msgid "Write your answer here"
 msgstr "Ovde upišite Vaš odgovor"
 
@@ -7291,7 +7328,7 @@ msgstr "Prijavili ste se"
 msgid "You have been enrolled in this batch"
 msgstr "Upisani ste u ovu grupu"
 
-#: frontend/src/components/CourseCardOverlay.vue:229
+#: frontend/src/components/CourseCardOverlay.vue:230
 msgid "You have been enrolled in this course"
 msgstr "Upisani ste na ovu obuku"
 
@@ -7319,7 +7356,7 @@ msgstr "Imate {0} predstojećih {1}."
 msgid "You have {0} {1} scheduled."
 msgstr "Imate zakazano {0} {1}."
 
-#: frontend/src/components/CourseCardOverlay.vue:217
+#: frontend/src/components/CourseCardOverlay.vue:218
 msgid "You need to login first to enroll for this course"
 msgstr "Neophodno je da se prvo prijavite da biste se upisali na ovu obuku"
 
