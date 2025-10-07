@@ -94,7 +94,7 @@
    "fieldname": "evaluator",
    "fieldtype": "Link",
    "label": "Evaluator",
-   "options": "User"
+   "options": "Course Evaluator"
   },
   {
    "fetch_from": "evaluator.full_name",
@@ -120,10 +120,11 @@
    "read_only": 1
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-02-19 16:26:05.902473",
- "modified_by": "Administrator",
+ "modified": "2025-10-07 19:24:12.272810",
+ "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Certificate",
  "owner": "Administrator",
@@ -165,6 +166,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
