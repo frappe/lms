@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-10-03 16:04+0000\n"
-"PO-Revision-Date: 2025-10-06 10:51\n"
+"PO-Revision-Date: 2025-10-07 11:33\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Persian\n"
 "MIME-Version: 1.0\n"
@@ -454,7 +454,7 @@ msgstr "برای این کار اقدام کنید"
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
 msgid "Approved"
-msgstr "تایید شده"
+msgstr "تأیید شده"
 
 #: frontend/src/components/Apps.vue:13
 msgid "Apps"
@@ -1439,7 +1439,7 @@ msgstr "پیکربندی‌ها"
 
 #: frontend/src/components/UserDropdown.vue:182
 msgid "Confirm"
-msgstr "تایید"
+msgstr "تأیید"
 
 #: frontend/src/pages/Programs/ProgramEnrollment.vue:100
 msgid "Confirm Enrollment"
@@ -1458,7 +1458,7 @@ msgstr ""
 #. Label of the confirmation_email_template (Link) field in DocType 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json
 msgid "Confirmation Email Template"
-msgstr "الگوی ایمیل تایید"
+msgstr "الگوی ایمیل تأیید"
 
 #: lms/lms/doctype/lms_certificate/lms_certificate.py:30
 msgid "Congratulations on getting certified!"
@@ -2358,7 +2358,7 @@ msgstr "دانش آموزان ثبت نام شده"
 
 #: lms/lms/doctype/lms_batch_enrollment/lms_batch_enrollment.py:88
 msgid "Enrollment Confirmation for {0}"
-msgstr "تایید ثبت نام برای {0}"
+msgstr "تأیید ثبت نام برای {0}"
 
 #: lms/lms/web_template/lms_statistics/lms_statistics.html:14
 #: lms/templates/statistics.html:20
@@ -4964,7 +4964,7 @@ msgstr "لطفاً از ادمین خود بخواهید ثبت نام شما ر
 
 #: lms/lms/user.py:73
 msgid "Please check your email for verification"
-msgstr "لطفا ایمیل خود را برای تایید بررسی کنید"
+msgstr "لطفا ایمیل خود را برای تأیید بررسی کنید"
 
 #: lms/templates/emails/community_course_membership.html:7
 msgid "Please click on the following button to set your new password"
@@ -5916,7 +5916,7 @@ msgstr ""
 
 #: lms/lms/doctype/lms_batch_enrollment/lms_batch_enrollment.js:7
 msgid "Send Confirmation Email"
-msgstr "ارسال ایمیل تایید"
+msgstr "ارسال ایمیل تأیید"
 
 #. Label of the send_calendar_invite_for_evaluations (Check) field in DocType
 #. 'LMS Settings'
@@ -7678,7 +7678,7 @@ msgstr ""
 
 #: lms/lms/doctype/lms_certificate/lms_certificate.py:73
 msgid "{0} is already certified for the course {1}"
-msgstr "{0} قبلاً برای دوره {1} تایید شده است"
+msgstr "{0} قبلاً برای دوره {1} تأیید شده است"
 
 #: lms/lms/notification/certificate_request_reminder/certificate_request_reminder.html:5
 msgid "{0} is your evaluator"
