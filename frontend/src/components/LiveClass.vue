@@ -54,8 +54,8 @@
 				<div class="flex items-center space-x-2">
 					<Clock class="w-4 h-4 stroke-1.5" />
 					<span>
-						{{ formatTime(cls.time) }} -
-						{{ dayjs(getClassEnd(cls)).format('HH:mm A') }}
+						{{ dayjs(getClassStart(cls)).format('hh:mm A') }} -
+						{{ dayjs(getClassEnd(cls)).format('hh:mm A') }}
 					</span>
 				</div>
 				<div
@@ -181,8 +181,12 @@ const canAccessClass = (cls) => {
 	return true
 }
 
+const getClassStart = (cls) => {
+	return new Date(`${cls.date}T${cls.time}`)
+}
+
 const getClassEnd = (cls) => {
-	const classStart = new Date(`${cls.date}T${cls.time}`)
+	const classStart = getClassStart(cls)
 	return new Date(classStart.getTime() + cls.duration * 60000)
 }
 
