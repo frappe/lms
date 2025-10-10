@@ -1503,6 +1503,7 @@ def chat_llm(message, bsid):
 	data = {
 		'input': message,
 		'src': frappe.local.conf.llm_source,
+		'model': 'gpt-4o-mini',
 		'bsid': bsid
 	}
 	headers = {
