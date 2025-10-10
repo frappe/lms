@@ -11,10 +11,14 @@
 					<div class="text-3xl font-semibold text-ink-gray-9">
 						{{ course.data.title }}
 					</div>
-					<div class="my-3 leading-6 text-ink-gray-7">
+					<div class="rounded my-2" :class="{ 'default-image': !course.data.image }"
+						:style="{ backgroundImage: 'url(\'' + encodeURI(course.data.image) + '\')' }"
+						style="height: 250px">
+					</div>
+					<div class="my-3 leading-6 text-ink-gray-7 text-justify" :hidden="true">
 						{{ course.data.short_introduction }}
 					</div>
-					<div class="flex items-center">
+					<div class="flex items-center hidden">
 						<Tooltip
 							v-if="parseInt(course.data.rating) > 0"
 							:text="__('Average Rating')"
@@ -69,7 +73,7 @@
 					<CourseCardOverlay :course="course" class="md:hidden mb-4" />
 					<div
 						v-html="course.data.description"
-						class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-10"
+						class="ProseMirror text-justify prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-10"
 					></div>
 					<div class="mt-10">
 						<CourseOutline
