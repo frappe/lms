@@ -146,10 +146,6 @@ def create_live_class(
 	auto_recording,
 	description=None,
 ):
-	instructors = frappe.get_all(
-		"Course Instructor", {"parenttype": "LMS Batch", "parent": batch_name}, pluck="instructor"
-	)
-
 	payload = {
 		"topic": title,
 		"start_time": format_datetime(f"{date} {time}", "yyyy-MM-ddTHH:mm:ssZ"),
@@ -158,9 +154,6 @@ def create_live_class(
 		"private_meeting": True,
 		"auto_recording": "none" if auto_recording == "No Recording" else auto_recording.lower(),
 		"timezone": timezone,
-		"settings": {
-			"alternative_hosts": ";".join(instructors) if instructors else "",
-		},
 	}
 	headers = {
 		"Authorization": "Bearer " + authenticate(zoom_account),
