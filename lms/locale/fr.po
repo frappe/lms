@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2025-09-26 16:04+0000\n"
-"PO-Revision-Date: 2025-09-27 08:15\n"
+"POT-Creation-Date: 2025-10-03 16:04+0000\n"
+"PO-Revision-Date: 2025-10-07 11:33\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: French\n"
 "MIME-Version: 1.0\n"
@@ -426,6 +426,11 @@ msgstr ""
 msgid "Appears when the batch URL is shared on socials"
 msgstr ""
 
+#. Label of a field in the job-opportunity Web Form
+#: lms/job/web_form/job_opportunity/job_opportunity.json
+msgid "Application Form Link"
+msgstr ""
+
 #: frontend/src/pages/JobDetail.vue:51
 msgid "Apply"
 msgstr ""
@@ -572,7 +577,7 @@ msgstr ""
 msgid "Assignment for Lesson {0} by {1} already exists."
 msgstr "Le devoir pour la leçon {0} de {1} existe déjà."
 
-#: frontend/src/components/Assignment.vue:356
+#: frontend/src/components/Assignment.vue:359
 msgid "Assignment submitted successfully"
 msgstr ""
 
@@ -1056,7 +1061,7 @@ msgstr "Participants certifiés"
 msgid "Change"
 msgstr ""
 
-#: frontend/src/components/Assignment.vue:342
+#: frontend/src/components/Assignment.vue:345
 msgid "Changes saved successfully"
 msgstr ""
 
@@ -1199,8 +1204,10 @@ msgid "Close"
 msgstr "Fermer"
 
 #. Option for the 'Status' (Select) field in DocType 'Job Opportunity'
+#. Option in a Select field in the job-opportunity Web Form
 #. Option for the 'Membership' (Select) field in DocType 'LMS Batch Old'
 #: lms/job/doctype/job_opportunity/job_opportunity.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 msgid "Closed"
 msgstr "Fermé"
@@ -1294,7 +1301,7 @@ msgstr ""
 #. Label of the comments (Text Editor) field in DocType 'LMS Assignment
 #. Submission'
 #. Label of the comments (Small Text) field in DocType 'LMS Mentor Request'
-#: frontend/src/components/Assignment.vue:164
+#: frontend/src/components/Assignment.vue:167
 #: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
 #: lms/lms/doctype/exercise_submission/exercise_submission.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
@@ -1302,7 +1309,7 @@ msgstr ""
 msgid "Comments"
 msgstr "Commentaires"
 
-#: frontend/src/components/Assignment.vue:142
+#: frontend/src/components/Assignment.vue:145
 msgid "Comments by Evaluator"
 msgstr ""
 
@@ -1337,14 +1344,18 @@ msgid "Company Email Address"
 msgstr "Courriel de l'entreprise"
 
 #. Label of the company_logo (Attach Image) field in DocType 'Job Opportunity'
+#. Label of a field in the job-opportunity Web Form
 #: frontend/src/pages/JobForm.vue:87
 #: lms/job/doctype/job_opportunity/job_opportunity.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Company Logo"
 msgstr "Logo de la société"
 
 #. Label of the company_name (Data) field in DocType 'Job Opportunity'
+#. Label of a field in the job-opportunity Web Form
 #: frontend/src/pages/JobForm.vue:69
 #: lms/job/doctype/job_opportunity/job_opportunity.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Company Name"
 msgstr "Nom de la Société"
 
@@ -1354,8 +1365,10 @@ msgid "Company Type"
 msgstr ""
 
 #. Label of the company_website (Data) field in DocType 'Job Opportunity'
+#. Label of a field in the job-opportunity Web Form
 #: frontend/src/pages/JobForm.vue:75
 #: lms/job/doctype/job_opportunity/job_opportunity.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Company Website"
 msgstr "Site Web de l'entreprise"
 
@@ -1471,8 +1484,10 @@ msgid "Continue Learning"
 msgstr ""
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
+#. Option in a Select field in the job-opportunity Web Form
 #: frontend/src/pages/Jobs.vue:196
 #: lms/job/doctype/job_opportunity/job_opportunity.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Contract"
 msgstr "Contrat"
 
@@ -2003,6 +2018,7 @@ msgid "Deleting this lesson will permanently remove it from the course. This act
 msgstr ""
 
 #. Label of the description (Text Editor) field in DocType 'Job Opportunity'
+#. Label of a field in the job-opportunity Web Form
 #. Label of the description (Small Text) field in DocType 'Certification'
 #. Label of the description (Markdown Editor) field in DocType 'Cohort'
 #. Label of the description (Markdown Editor) field in DocType 'Cohort
@@ -2018,6 +2034,7 @@ msgstr ""
 #: frontend/src/components/Settings/BadgeForm.vue:32
 #: frontend/src/pages/JobForm.vue:132
 #: lms/job/doctype/job_opportunity/job_opportunity.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 #: lms/lms/doctype/certification/certification.json
 #: lms/lms/doctype/cohort/cohort.json
 #: lms/lms/doctype/cohort_subgroup/cohort_subgroup.json
@@ -2369,7 +2386,7 @@ msgstr ""
 msgid "Enter Client Id and Client Secret in Google Settings to send calendar invites for evaluations."
 msgstr ""
 
-#: frontend/src/components/Assignment.vue:113
+#: frontend/src/components/Assignment.vue:116
 msgid "Enter a URL"
 msgstr ""
 
@@ -2700,8 +2717,10 @@ msgid "Free"
 msgstr ""
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
+#. Option in a Select field in the job-opportunity Web Form
 #: frontend/src/pages/Jobs.vue:197
 #: lms/job/doctype/job_opportunity/job_opportunity.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Freelance"
 msgstr ""
 
@@ -2742,8 +2761,10 @@ msgid "Full Name"
 msgstr "Nom Complet"
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
+#. Option in a Select field in the job-opportunity Web Form
 #: frontend/src/pages/Jobs.vue:194
 #: lms/job/doctype/job_opportunity/job_opportunity.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Full Time"
 msgstr ""
 
@@ -2804,11 +2825,11 @@ msgstr ""
 
 #: frontend/src/components/InstallPrompt.vue:9
 msgid "Get the app on your device for easy access & a better experience!"
-msgstr ""
+msgstr "Obtenez l'application sur votre appareil pour un accès facile et une meilleure expérience !"
 
 #: frontend/src/components/InstallPrompt.vue:46
 msgid "Get the app on your iPhone for easy access & a better experience"
-msgstr ""
+msgstr "Obtenez l'application sur votre iPhone pour un accès facile et une meilleure expérience"
 
 #. Label of the github (Data) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -2819,10 +2840,10 @@ msgstr ""
 #. Request'
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Google Meet Link"
-msgstr ""
+msgstr "Lien Google Meet"
 
 #. Label of the grade (Data) field in DocType 'Education Detail'
-#: frontend/src/components/Assignment.vue:158
+#: frontend/src/components/Assignment.vue:161
 #: lms/lms/doctype/education_detail/education_detail.json
 msgid "Grade"
 msgstr "Note"
@@ -2837,7 +2858,7 @@ msgstr ""
 msgid "Grade Type"
 msgstr ""
 
-#: frontend/src/components/Assignment.vue:153
+#: frontend/src/components/Assignment.vue:156
 msgid "Grading"
 msgstr ""
 
@@ -2854,7 +2875,7 @@ msgstr ""
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Gray"
-msgstr ""
+msgstr "Gris"
 
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #. Option for the 'Color' (Select) field in DocType 'LMS Lesson Note'
@@ -2912,7 +2933,7 @@ msgstr ""
 
 #: lms/templates/emails/payment_reminder.html:2
 msgid "Hi"
-msgstr ""
+msgstr "Salut"
 
 #: lms/templates/emails/lms_course_interest.html:3
 msgid "Hi {0},"
@@ -3120,7 +3141,7 @@ msgstr ""
 
 #: frontend/src/components/InstallPrompt.vue:18
 msgid "Install"
-msgstr ""
+msgstr "Installer"
 
 #: frontend/src/components/InstallPrompt.vue:4
 #: frontend/src/components/InstallPrompt.vue:32
@@ -3288,7 +3309,9 @@ msgid "Job Openings"
 msgstr "Offres d'emploi"
 
 #. Name of a DocType
+#. Title of the job-opportunity Web Form
 #: lms/job/doctype/job_opportunity/job_opportunity.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Job Opportunity"
 msgstr ""
 
@@ -3299,8 +3322,10 @@ msgstr ""
 
 #. Label of the job_title (Data) field in DocType 'Job Opportunity'
 #. Label of the job_title (Data) field in DocType 'LMS Job Application'
+#. Label of a field in the job-opportunity Web Form
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/job/doctype/lms_job_application/lms_job_application.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Job Title"
 msgstr "Titre de l'Emploi"
 
@@ -3806,8 +3831,10 @@ msgstr "Charger plus"
 msgid "Local"
 msgstr "Locale"
 
+#. Label of a field in the job-opportunity Web Form
 #. Label of the location (Data) field in DocType 'Education Detail'
 #. Label of the location (Data) field in DocType 'Work Experience'
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 #: lms/lms/doctype/education_detail/education_detail.json
 #: lms/lms/doctype/work_experience/work_experience.json
 msgid "Location"
@@ -3971,7 +3998,7 @@ msgstr ""
 #. Label of the member (Link) field in DocType 'LMS Quiz Submission'
 #. Label of the member (Link) field in DocType 'LMS Video Watch Duration'
 #. Label of the member (Link) field in DocType 'LMS Zoom Settings'
-#: frontend/src/components/Modals/CourseProgressSummary.vue:217
+#: frontend/src/components/Modals/CourseProgressSummary.vue:218
 #: frontend/src/components/Modals/LiveClassAttendance.vue:14
 #: frontend/src/components/Modals/VideoStatistics.vue:31
 #: frontend/src/components/Modals/ZoomAccountModal.vue:42
@@ -4596,8 +4623,10 @@ msgid "Only zip files are allowed"
 msgstr ""
 
 #. Option for the 'Status' (Select) field in DocType 'Job Opportunity'
+#. Option in a Select field in the job-opportunity Web Form
 #. Option for the 'Membership' (Select) field in DocType 'LMS Batch Old'
 #: lms/job/doctype/job_opportunity/job_opportunity.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 msgid "Open"
 msgstr "Ouvert"
@@ -4741,8 +4770,10 @@ msgid "Pan Number"
 msgstr ""
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
+#. Option in a Select field in the job-opportunity Web Form
 #: frontend/src/pages/Jobs.vue:195
 #: lms/job/doctype/job_opportunity/job_opportunity.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Part Time"
 msgstr ""
 
@@ -5285,7 +5316,7 @@ msgstr ""
 #. Label of the progress (Float) field in DocType 'LMS Enrollment'
 #. Label of the progress (Int) field in DocType 'LMS Program Member'
 #: frontend/src/components/Modals/BatchStudentProgress.vue:94
-#: frontend/src/components/Modals/CourseProgressSummary.vue:223
+#: frontend/src/components/Modals/CourseProgressSummary.vue:224
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 #: lms/lms/doctype/lms_program_member/lms_program_member.json
 msgid "Progress"
@@ -5362,7 +5393,7 @@ msgstr ""
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 msgid "Purple"
-msgstr ""
+msgstr "Violet"
 
 #. Option for the 'Language' (Select) field in DocType 'LMS Programming
 #. Exercise'
@@ -5647,7 +5678,7 @@ msgstr ""
 
 #: lms/templates/reviews.html:4
 msgid "Reviews"
-msgstr ""
+msgstr "Avis"
 
 #. Label of the role (Select) field in DocType 'Cohort Staff'
 #. Label of the role (Select) field in DocType 'LMS Enrollment'
@@ -5737,6 +5768,7 @@ msgstr ""
 msgid "Saturday"
 msgstr "Samedi"
 
+#. Button label of the job-opportunity Web Form
 #: frontend/src/components/AssessmentPlugin.vue:12
 #: frontend/src/components/Assignment.vue:46
 #: frontend/src/components/Controls/Code.vue:24
@@ -5758,6 +5790,7 @@ msgstr "Samedi"
 #: frontend/src/pages/Programs/ProgramForm.vue:234
 #: frontend/src/pages/QuizForm.vue:43 frontend/src/pages/QuizSubmission.vue:14
 #: frontend/src/pages/Quizzes.vue:105
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Save"
 msgstr "Sauvegarder"
 
@@ -5783,7 +5816,7 @@ msgstr ""
 #. Label of the scope (Select) field in DocType 'Cohort Web Page'
 #: lms/lms/doctype/cohort_web_page/cohort_web_page.json
 msgid "Scope"
-msgstr ""
+msgstr "Portée"
 
 #. Label of the score (Int) field in DocType 'LMS Quiz Submission'
 #: frontend/src/pages/QuizSubmission.vue:39
@@ -5906,7 +5939,7 @@ msgstr ""
 
 #: frontend/src/components/Controls/ColorSwatches.vue:13
 msgid "Set Color"
-msgstr ""
+msgstr "Définir la couleur"
 
 #: lms/templates/emails/community_course_membership.html:1
 msgid "Set your Password"
@@ -5991,7 +6024,7 @@ msgstr ""
 #. Label of the sidebar_tab (Tab Break) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Sidebar"
-msgstr ""
+msgstr "Barre latérale"
 
 #. Label of the sidebar_items (Table) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -6170,9 +6203,10 @@ msgstr "État / Province"
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_settings/lms_settings.json lms/www/lms.py:202
 msgid "Statistics"
-msgstr ""
+msgstr "Statistiques"
 
 #. Label of the status (Select) field in DocType 'Job Opportunity'
+#. Label of a field in the job-opportunity Web Form
 #. Label of the status (Select) field in DocType 'Cohort'
 #. Label of the status (Select) field in DocType 'Cohort Join Request'
 #. Label of the status (Select) field in DocType 'Exercise Latest Submission'
@@ -6194,6 +6228,7 @@ msgstr ""
 #: frontend/src/pages/JobForm.vue:53
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:280
 #: lms/job/doctype/job_opportunity/job_opportunity.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 #: lms/lms/doctype/cohort/cohort.json
 #: lms/lms/doctype/cohort_join_request/cohort_join_request.json
 #: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
@@ -6816,6 +6851,7 @@ msgid "Twitter"
 msgstr ""
 
 #. Label of the type (Select) field in DocType 'Job Opportunity'
+#. Label of a field in the job-opportunity Web Form
 #. Label of the type (Select) field in DocType 'LMS Assignment'
 #. Label of the type (Select) field in DocType 'LMS Assignment Submission'
 #. Label of the type (Select) field in DocType 'LMS Question'
@@ -6826,6 +6862,7 @@ msgstr ""
 #: frontend/src/pages/JobForm.vue:25 frontend/src/pages/Jobs.vue:65
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:53
 #: lms/job/doctype/job_opportunity/job_opportunity.json
+#: lms/job/web_form/job_opportunity/job_opportunity.json
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 #: lms/lms/doctype/lms_question/lms_question.json
@@ -6940,11 +6977,11 @@ msgstr ""
 msgid "Upload"
 msgstr "Charger"
 
-#: frontend/src/components/Assignment.vue:81
+#: frontend/src/components/Assignment.vue:84
 msgid "Upload File"
 msgstr ""
 
-#: frontend/src/components/Assignment.vue:80
+#: frontend/src/components/Assignment.vue:83
 msgid "Uploading {0}%"
 msgstr "Envoi de {0}%"
 
@@ -7052,7 +7089,7 @@ msgstr ""
 #. Label of the visibility (Select) field in DocType 'LMS Batch Old'
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 msgid "Visibility"
-msgstr ""
+msgstr "Visibilité"
 
 #: frontend/src/components/BatchOverlay.vue:73
 msgid "Visit Batch"
@@ -7178,7 +7215,7 @@ msgstr ""
 msgid "Write a review"
 msgstr ""
 
-#: frontend/src/components/Assignment.vue:123
+#: frontend/src/components/Assignment.vue:126
 msgid "Write your answer here"
 msgstr ""
 
@@ -7291,7 +7328,7 @@ msgstr ""
 msgid "You have been enrolled in this batch"
 msgstr ""
 
-#: frontend/src/components/CourseCardOverlay.vue:229
+#: frontend/src/components/CourseCardOverlay.vue:230
 msgid "You have been enrolled in this course"
 msgstr ""
 
@@ -7319,7 +7356,7 @@ msgstr ""
 msgid "You have {0} {1} scheduled."
 msgstr ""
 
-#: frontend/src/components/CourseCardOverlay.vue:217
+#: frontend/src/components/CourseCardOverlay.vue:218
 msgid "You need to login first to enroll for this course"
 msgstr ""
 
@@ -7545,7 +7582,7 @@ msgstr ""
 
 #: frontend/src/components/Modals/LiveClassAttendance.vue:57
 msgid "minutes"
-msgstr ""
+msgstr "procès-verbal"
 
 #: frontend/src/components/CourseInstructors.vue:41
 msgid "others"
@@ -7680,7 +7717,7 @@ msgstr "{} complété"
 #. Count format of shortcut in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "{} Enrolled"
-msgstr ""
+msgstr "{} Inscrit·e"
 
 #. Count format of shortcut in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json

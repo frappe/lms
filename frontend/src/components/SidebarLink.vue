@@ -88,6 +88,13 @@ function handleClick() {
 	if (router.hasRoute(props.link.to)) {
 		router.push({ name: props.link.to })
 	} else if (props.link.to) {
+		if (
+			props.link.to.startsWith('http') ||
+			props.link.to.startsWith('mailto:')
+		) {
+			window.open(props.link.to, '_blank')
+			return
+		}
 		window.location.href = `/${props.link.to}`
 	}
 }

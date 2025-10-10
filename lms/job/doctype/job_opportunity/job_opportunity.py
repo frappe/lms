@@ -4,7 +4,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import add_months, get_link_to_form, getdate
+from frappe.utils import add_months, get_link_to_form, getdate, validate_url
 from frappe.utils.user import get_system_managers
 
 from lms.lms.utils import generate_slug, validate_image
@@ -16,7 +16,7 @@ class JobOpportunity(Document):
 		self.company_logo = validate_image(self.company_logo)
 
 	def validate_urls(self):
-		frappe.utils.validate_url(self.company_website, True)
+		validate_url(self.company_website, True)
 
 	def autoname(self):
 		if not self.name:

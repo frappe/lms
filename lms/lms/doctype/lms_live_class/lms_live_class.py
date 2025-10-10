@@ -29,6 +29,7 @@ class LMSLiveClass(Document):
 			{
 				"doctype": "Event",
 				"subject": f"Live Class on {self.title}",
+				"event_type": "Public",
 				"starts_on": start,
 				"ends_on": get_datetime(start) + timedelta(minutes=cint(self.duration)),
 			}
@@ -38,8 +39,14 @@ class LMSLiveClass(Document):
 
 	def add_event_participants(self, event, calendar):
 		participants = frappe.get_all("LMS Batch Enrollment", {"batch": self.batch_name}, pluck="member")
+		instructors = frappe.get_all(
+			"Course Instructor", {"parenttype": "LMS Batch", "parent": self.batch_name}, pluck="instructor"
+		)
 
 		participants.append(frappe.session.user)
+		participants.extend(instructors)
+		participants = list(set(participants))
+
 		for participant in participants:
 			frappe.get_doc(
 				{

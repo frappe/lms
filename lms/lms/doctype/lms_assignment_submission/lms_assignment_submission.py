@@ -14,6 +14,9 @@ class LMSAssignmentSubmission(Document):
 		self.validate_url()
 		self.validate_status()
 
+	def on_update(self):
+		self.validate_private_attachments()
+
 	def validate_duplicates(self):
 		if frappe.db.exists(
 			"LMS Assignment Submission",
@@ -33,6 +36,30 @@ class LMSAssignmentSubmission(Document):
 			doc_before_save = self.get_doc_before_save()
 			if doc_before_save.status != self.status or doc_before_save.comments != self.comments:
 				self.trigger_update_notification()
+
+	def validate_private_attachments(self):
+		if self.type == "Text":
+			from bs4 import BeautifulSoup
+
+			soup = BeautifulSoup(self.answer, "html.parser")
+			images = soup.find_all("img")
+			self.attach_images_to_document(images)
+
+	def attach_images_to_document(self, images):
+		for img in images:
+			src = img.get("src", "")
+			if src.startswith("/private/files/"):
+				file_name = frappe.db.get_value("File", {"file_url": src}, "name")
+				if file_name:
+					frappe.db.set_value(
+						"File",
+						file_name,
+						{
+							"attached_to_doctype": self.doctype,
+							"attached_to_name": self.name,
+							"attached_to_field": "answer",
+						},
+					)
 
 	def trigger_update_notification(self):
 		notification = frappe._dict(
