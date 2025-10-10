@@ -159,7 +159,7 @@ def create_live_class(
 		"auto_recording": "none" if auto_recording == "No Recording" else auto_recording.lower(),
 		"timezone": timezone,
 		"settings": {
-			"alternate_hosts": ";".join(instructors) if instructors else "",
+			"alternative_hosts": ";".join(instructors) if instructors else "",
 		},
 	}
 	headers = {
