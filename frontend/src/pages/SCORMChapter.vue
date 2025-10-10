@@ -4,6 +4,7 @@
 	>
 		<Breadcrumbs class="h-7" :items="breadcrumbs" />
 	</header>
+	<ChatAssistant v-model="showAssistantModal" />
 	<div
 		v-if="
 			readyToRender &&
@@ -44,11 +45,13 @@ import {
 import { computed, inject, onBeforeMount, ref } from 'vue'
 import { useSidebar } from '@/stores/sidebar'
 import { sessionStore } from '../stores/session'
+import ChatAssistant from '@/components/ChatAssistant.vue'
 
 const { brand } = sessionStore()
 const sidebarStore = useSidebar()
 const user = inject('$user')
 const readyToRender = ref(false)
+const showAssistantModal = ref(true)
 
 const props = defineProps({
 	courseName: {
