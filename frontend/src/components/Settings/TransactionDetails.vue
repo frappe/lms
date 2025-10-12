@@ -72,6 +72,40 @@
 					/>
 				</div>
 
+				<div
+					v-if="transactionData && (transactionData.coupon || transactionData.discount_amount || transactionData.discount_percent)"
+					class="mt-10"
+				>
+					<div class="font-semibold">
+						{{ __('Coupon (if applied)') }}
+					</div>
+					<div class="grid grid-cols-3 gap-5 mt-5">
+						<Link
+							:label="__('Coupon')"
+							v-model="transactionData.coupon"
+							doctype="LMS Coupon"
+							:disabled="true"
+						/>
+						<FormControl
+							:label="__('Discount Type')"
+							v-model="transactionData.discount_type"
+							:disabled="true"
+						/>
+						<FormControl
+							v-if="transactionData.discount_type === 'Percent'"
+							:label="__('Discount Percent')"
+							v-model="transactionData.discount_percent"
+							:disabled="true"
+						/>
+						<FormControl
+							v-else
+							:label="__('Discount Amount')"
+							v-model="transactionData.discount_amount"
+							:disabled="true"
+						/>
+					</div>
+				</div>
+
 				<div class="grid grid-cols-3 gap-5 mt-5">
 					<FormControl :label="__('GSTIN')" v-model="transactionData.gstin" />
 					<FormControl :label="__('PAN')" v-model="transactionData.pan" />
@@ -100,7 +134,7 @@
 	</Dialog>
 </template>
 <script setup lang="ts">
-import { Dialog, FormControl, Button } from 'frappe-ui'
+import { Dialog, FormControl, Button, createResource } from 'frappe-ui'
 import { useRouter } from 'vue-router'
 import { ref, watch } from 'vue'
 import Link from '@/components/Controls/Link.vue'
@@ -115,10 +149,24 @@ const props = defineProps<{
 	transaction: { [key: string]: any } | null
 }>()
 
+const paymentDoc = createResource({
+	url: 'frappe.client.get',
+	makeParams() {
+		return { doctype: 'LMS Payment', name: props.transaction?.name }
+	},
+	onSuccess(data) {
+		transactionData.value = data
+	},
+})
+
 watch(
 	() => props.transaction,
 	(newVal) => {
-		transactionData.value = newVal ? { ...newVal } : null
+		if (newVal?.name) {
+			paymentDoc.submit()
+		} else {
+			transactionData.value = null
+		}
 	},
 	{ immediate: true }
 )

@@ -18,6 +18,10 @@
   "payment_details_section",
   "currency",
   "amount",
+  "coupon",
+  "discount_type",
+  "discount_percent",
+  "discount_amount",
   "amount_with_gst",
   "column_break_yxpl",
   "order_id",
@@ -46,6 +50,29 @@
    "label": "Amount",
    "options": "currency",
    "reqd": 1
+  },
+  {
+   "fieldname": "coupon",
+   "fieldtype": "Link",
+   "label": "Coupon",
+   "options": "LMS Coupon"
+  },
+  {
+   "fieldname": "discount_type",
+   "fieldtype": "Select",
+   "label": "Discount Type",
+   "options": "\nPercent\nAmount"
+  },
+  {
+   "fieldname": "discount_percent",
+   "fieldtype": "Percent",
+   "label": "Discount Percent"
+  },
+  {
+   "fieldname": "discount_amount",
+   "fieldtype": "Currency",
+   "label": "Discount Amount",
+   "options": "currency"
   },
   {
    "fieldname": "currency",

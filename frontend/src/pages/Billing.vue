@@ -46,6 +46,10 @@
 							{{ orderSummary.data.gst_amount_formatted }}
 						</div>
 					</div>
+					<div v-if="orderSummary.data.discount_amount" class="flex items-center justify-between mt-2">
+						<div class="text-ink-gray-5">{{ __('Discount') }}</div>
+						<div>-{{ orderSummary.data.discount_amount_formatted }}</div>
+					</div>
 					<div
 						class="flex items-center justify-between border-t border-outline-gray-3 pt-4 mt-2"
 					>
@@ -54,6 +58,14 @@
 						</div>
 						<div class="text-lg font-semibold">
 							{{ orderSummary.data.total_amount_formatted }}
+						</div>
+					</div>
+					<div class="mb-5">
+						<div class="flex items-center gap-3 mt-2 flex-wrap md:flex-nowrap" v-if="props.type !== 'certificate'">
+							<span class="text-ink-gray-5 text-xs shrink-0">{{ __('Coupon') }}</span>
+							<FormControl class="flex-1 min-w-0 [&_input]:!bg-[#fefefe]" v-model="couponCode" @input="couponCode = $event.target.value.toUpperCase()"/>
+							<Button @click="applyCouponCode" variant="outline">{{ __('Apply') }}</Button>
+							<Button v-if="appliedCoupon" @click="removeCoupon" variant="subtle">{{ __('Remove') }}</Button>
 						</div>
 					</div>
 				</div>
@@ -158,7 +170,7 @@ import {
 	usePageMeta,
 	toast,
 } from 'frappe-ui'
-import { reactive, inject, onMounted, computed } from 'vue'
+import { reactive, inject, onMounted, computed, ref } from 'vue'
 import { sessionStore } from '../stores/session'
 import Link from '@/components/Controls/Link.vue'
 import NotPermitted from '@/components/NotPermitted.vue'
@@ -212,6 +224,29 @@ const orderSummary = createResource({
 	},
 })
 
+const couponCode = ref('')
+const appliedCoupon = ref(null)
+
+const applyCoupon = createResource({
+	url: 'lms.lms.utils.apply_coupon',
+	makeParams() {
+		return {
+			doctype: props.type == 'batch' ? 'LMS Batch' : 'LMS Course',
+			docname: props.name,
+			code: couponCode.value,
+			country: billingDetails.country,
+		}
+	},
+	onSuccess(data) {
+		orderSummary.data = data
+		appliedCoupon.value = couponCode.value
+		toast.success(__('Coupon applied'))
+	},
+	onError(err) {
+		toast.error(err.messages?.[0] || err)
+	},
+})
+
 const billingDetails = reactive({})
 
 const setBillingDetails = (data) => {
@@ -241,6 +276,7 @@ const paymentLink = createResource({
 			address: billingDetails,
 			redirect_to: redirectTo.value,
 			payment_for_certificate: props.type == 'certificate',
+			coupon_code: appliedCoupon.value,
 		}
 	},
 })
@@ -263,6 +299,16 @@ const generatePaymentLink = () => {
 			},
 		}
 	)
+}
+
+function applyCouponCode() {
+	if (!couponCode.value) return
+	applyCoupon.submit()
+}
+
+function removeCoupon() {
+	appliedCoupon.value = null
+	orderSummary.reload()
 }
 
 const validateAddress = () => {
