@@ -9,12 +9,12 @@
 		>
 			<UserDropdown :isCollapsed="sidebarStore.isSidebarCollapsed" />
 			<div class="flex flex-col" v-if="sidebarSettings.data">
-				<SidebarLink
-					v-for="link in sidebarLinks"
-					:link="link"
-					:isCollapsed="sidebarStore.isSidebarCollapsed"
-					class="mx-2 my-0.5"
-				/>
+				<div v-for="link in sidebarLinks" class="mx-2 my-0.5">
+					<SidebarLink
+						:link="link"
+						:isCollapsed="sidebarStore.isSidebarCollapsed"
+					/>
+				</div>
 			</div>
 			<div
 				v-if="sidebarSettings.data?.web_pages?.length || isModerator"
@@ -54,15 +54,18 @@
 					class="flex flex-col transition-all duration-300 ease-in-out"
 					:class="!sidebarStore.isWebpagesCollapsed ? 'block' : 'hidden'"
 				>
-					<SidebarLink
+					<div
 						v-for="link in sidebarSettings.data.web_pages"
-						:link="link"
-						:isCollapsed="sidebarStore.isSidebarCollapsed"
 						class="mx-2 my-0.5"
-						:showControls="isModerator ? true : false"
-						@openModal="openPageModal"
-						@deletePage="deletePage"
-					/>
+					>
+						<SidebarLink
+							:link="link"
+							:isCollapsed="sidebarStore.isSidebarCollapsed"
+							:showControls="isModerator ? true : false"
+							@openModal="openPageModal"
+							@deletePage="deletePage"
+						/>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -382,7 +385,7 @@ const addContactUsDetails = () => {
 			icon: settingsStore.contactUsURL?.data ? 'Headset' : 'Mail',
 			to: settingsStore.contactUsURL?.data
 				? settingsStore.contactUsURL.data
-				: `mailto:${settingsStore.contactUsEmail?.data}`,
+				: settingsStore.contactUsEmail?.data,
 		})
 	}
 }

@@ -96,7 +96,7 @@
 						size="sm"
 						:label="__(field.label)"
 						:description="__(field.description)"
-						v-model="data[field.name]"
+						v-model="field.value"
 					/>
 
 					<FormControl
@@ -147,8 +147,6 @@ const columns = computed(() => {
 		} else {
 			if (field.type == 'checkbox') {
 				field.value = props.data[field.name] ? true : false
-			} else {
-				field.value = props.data[field.name]
 			}
 			currentColumn.push(field)
 		}

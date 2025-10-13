@@ -42,6 +42,7 @@ declare module 'vue' {
     CodeEditor: typeof import('./src/components/Controls/CodeEditor.vue')['default']
     CollapseSidebar: typeof import('./src/components/Icons/CollapseSidebar.vue')['default']
     ColorSwatches: typeof import('./src/components/Controls/ColorSwatches.vue')['default']
+    ContactUsEmail: typeof import('./src/components/ContactUsEmail.vue')['default']
     CourseCard: typeof import('./src/components/CourseCard.vue')['default']
     CourseCardOverlay: typeof import('./src/components/CourseCardOverlay.vue')['default']
     CourseInstructors: typeof import('./src/components/CourseInstructors.vue')['default']
