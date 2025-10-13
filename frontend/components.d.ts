@@ -43,6 +43,7 @@ declare module 'vue' {
     ColorSwatches: typeof import('./src/components/Controls/ColorSwatches.vue')['default']
     CouponDetails: typeof import('./src/components/Settings/CouponDetails.vue')['default']
     Coupons: typeof import('./src/components/Settings/Coupons.vue')['default']
+    ContactUsEmail: typeof import('./src/components/ContactUsEmail.vue')['default']
     CourseCard: typeof import('./src/components/CourseCard.vue')['default']
     CourseCardOverlay: typeof import('./src/components/CourseCardOverlay.vue')['default']
     CourseInstructors: typeof import('./src/components/CourseInstructors.vue')['default']

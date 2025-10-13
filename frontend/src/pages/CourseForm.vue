@@ -271,13 +271,21 @@
 									"
 								/>
 							</div>
-							<Link
-								v-if="course.paid_course || course.paid_certificate"
-								doctype="Currency"
-								v-model="course.currency"
-								:filters="{ enabled: 1 }"
-								:label="__('Currency')"
-							/>
+							<div class="space-y-5">
+								<Link
+									v-if="course.paid_course || course.paid_certificate"
+									doctype="Currency"
+									v-model="course.currency"
+									:filters="{ enabled: 1 }"
+									:label="__('Currency')"
+								/>
+								<FormControl
+									v-if="course.paid_certificate"
+									v-model="course.timezone"
+									:label="__('Timezone')"
+									:placeholder="__('e.g. IST, UTC, GMT...')"
+								/>
+							</div>
 						</div>
 					</div>
 
@@ -388,6 +396,7 @@ const course = reactive({
 	course_price: '',
 	currency: '',
 	evaluator: '',
+	timezone: '',
 })
 
 const meta = reactive({
