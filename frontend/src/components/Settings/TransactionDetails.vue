@@ -67,43 +67,32 @@
 					/>
 					<FormControl :label="__('Amount')" v-model="transactionData.amount" />
 					<FormControl
-						:label="__('Order ID')"
-						v-model="transactionData.order_id"
+						v-if="transactionData.coupon"
+						:label="__('Coupon Code')"
+						v-model="transactionData.coupon"
+						:disabled="true"
 					/>
 				</div>
 
-				<div
-					v-if="transactionData && (transactionData.coupon || transactionData.discount_amount || transactionData.discount_percent)"
-					class="mt-10"
-				>
-					<div class="font-semibold">
-						{{ __('Coupon (if applied)') }}
-					</div>
-					<div class="grid grid-cols-3 gap-5 mt-5">
-						<Link
-							:label="__('Coupon')"
-							v-model="transactionData.coupon"
-							doctype="LMS Coupon"
-							:disabled="true"
-						/>
-						<FormControl
-							:label="__('Discount Type')"
-							v-model="transactionData.discount_type"
-							:disabled="true"
-						/>
-						<FormControl
-							v-if="transactionData.discount_type === 'Percent'"
-							:label="__('Discount Percent')"
-							v-model="transactionData.discount_percent"
-							:disabled="true"
-						/>
-						<FormControl
-							v-else
-							:label="__('Discount Amount')"
-							v-model="transactionData.discount_amount"
-							:disabled="true"
-						/>
-					</div>
+				<div class="grid grid-cols-3 gap-5 mt-5">
+					<FormControl
+						v-if="Number(transactionData.discount_amount)"
+						:label="__('Discount Amount')"
+						v-model="transactionData.discount_amount"
+						:disabled="true"
+					/>
+					<FormControl
+						v-if="Number(transactionData.gst_amount)"
+						:label="__('GST Amount')"
+						v-model="transactionData.gst_amount"
+						:disabled="true"
+					/>
+					<FormControl
+						v-if="Number(transactionData.discount_amount) || Number(transactionData.gst_amount)"
+						:label="__('Total Amount')"
+						v-model="transactionData.total_amount"
+						:disabled="true"
+					/>
 				</div>
 
 				<div class="grid grid-cols-3 gap-5 mt-5">
@@ -112,6 +101,13 @@
 					<FormControl
 						:label="__('Payment ID')"
 						v-model="transactionData.payment_id"
+					/>
+				</div>
+
+				<div class="grid grid-cols-3 gap-5 mt-5">
+					<FormControl
+						:label="__('Order ID')"
+						v-model="transactionData.order_id"
 					/>
 				</div>
 			</div>

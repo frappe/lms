@@ -19,10 +19,9 @@
   "currency",
   "amount",
   "coupon",
-  "discount_type",
-  "discount_percent",
   "discount_amount",
-  "amount_with_gst",
+  "gst_amount",
+  "total_amount",
   "column_break_yxpl",
   "order_id",
   "payment_id",
@@ -56,17 +55,6 @@
    "fieldtype": "Link",
    "label": "Coupon",
    "options": "LMS Coupon"
-  },
-  {
-   "fieldname": "discount_type",
-   "fieldtype": "Select",
-   "label": "Discount Type",
-   "options": "\nPercent\nAmount"
-  },
-  {
-   "fieldname": "discount_percent",
-   "fieldtype": "Percent",
-   "label": "Discount Percent"
   },
   {
    "fieldname": "discount_amount",
@@ -145,12 +133,6 @@
    "reqd": 1
   },
   {
-   "depends_on": "eval:doc.currency == \"INR\";",
-   "fieldname": "amount_with_gst",
-   "fieldtype": "Currency",
-   "label": "Amount with GST"
-  },
-  {
    "fieldname": "payment_for_document_type",
    "fieldtype": "Select",
    "label": "Payment for Document Type",
@@ -176,6 +158,21 @@
    "fieldtype": "Check",
    "in_standard_filter": 1,
    "label": "Payment for Certificate"
+  },
+  {
+   "depends_on": "eval:doc.currency == \"INR\";",
+   "fieldname": "gst_amount",
+   "fieldtype": "Currency",
+   "label": "GST Amount",
+   "options": "currency"
+  },
+  {
+   "fieldname": "total_amount",
+   "fieldtype": "Currency",
+   "label": "Total Amount",
+   "options": "currency",
+   "read_only": 1,
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -189,8 +186,8 @@
    "link_fieldname": "payment"
   }
  ],
- "modified": "2025-09-23 11:04:00.462274",
- "modified_by": "sayali@frappe.io",
+ "modified": "2025-10-13 15:25:56.127625",
+ "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Payment",
  "owner": "Administrator",

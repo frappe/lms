@@ -24,15 +24,28 @@
 					:label="__('Discount Amount')"
 					type="number"
 				/>
-				<FormControl v-model="doc.expires_on" :label="__('Expires On')" type="date" />
-				<FormControl v-model="doc.usage_limit" :label="__('Usage Limit')" type="number" />
+				<FormControl
+					v-model="doc.expires_on"
+					:label="__('Expires On')"
+					type="date"
+					:description="__('Leave blank for no expiry')"
+				/>
+				<FormControl
+					v-model="doc.usage_limit"
+					:label="__('Usage Limit')"
+					type="number"
+					:placeholder="__('Unlimited')"
+				/>
 				<Switch v-model="doc.active" :label="__('Active')" />
 				<div class="col-span-2">
-					<div class="text-sm font-medium text-ink-gray-7 mb-2">{{ __('Applicable Items (optional)') }}</div>
+					<div class="text-md font-medium text-ink-gray-7 mb-1 mt-2">{{ __('Select Courses/Batches') }}<span class="text-ink-red-3">*</span></div>
 					<div class="space-y-2">
-						<div v-for="(row, idx) in doc.applicable_items" :key="idx" class="flex gap-2 items-center">
-							<FormControl v-model="row.reference_doctype" :label="__('Type')" type="select" :options="['LMS Course', 'LMS Batch']" />
-							<Link :doctype="row.reference_doctype || 'LMS Course'" :label="__('Item')" :value="row.reference_name" @change="(opt) => (row.reference_name = opt)" />
+						<div v-for="(row, idx) in doc.applicable_items" :key="idx" class="flex gap-2 items-end">
+							<FormControl class="w-28" v-model="row.reference_doctype" :label="__('Type')" type="select" :options="[
+								{ label: 'Course  ', value: 'LMS Course' },
+								{ label: 'Batch  ', value: 'LMS Batch' }
+							]" />
+							<Link class="min-w-40" :doctype="row.reference_doctype || 'LMS Course'" :label="__('Name')" :value="row.reference_name" @change="(opt) => (row.reference_name = opt)" />
 							<Button variant="subtle" @click="removeRow(idx)">
 								<X class="h-3 w-3" />
 							</Button>
@@ -135,7 +148,6 @@ function save() {
 				emit('saved')
 			},
 			onError(err) {
-				console.log('Save error:', err)
 				toast.error(err.messages?.[0] || err.message || err)
 			}
 		})
@@ -147,7 +159,6 @@ function save() {
 				emit('saved')
 			},
 			onError(err) {
-				console.log('Insert error:', err)
 				toast.error(err.messages?.[0] || err.message || err)
 			}
 		})

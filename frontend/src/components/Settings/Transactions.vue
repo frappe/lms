@@ -73,7 +73,7 @@
 									:disabled="true"
 								/>
 								<div v-else-if="column.key == 'amount'">
-									{{ getCurrencySymbol(row['currency']) }} {{ row[column.key] }}
+									{{ getCurrencySymbol(row['currency']) }} {{ row['total_amount'] }}
 								</div>
 								<div v-else class="leading-5 text-sm">
 									{{ row[column.key] }}
@@ -153,6 +153,7 @@ const transactions = createListResource({
 		'payment_for_certificate',
 		'currency',
 		'amount',
+		'total_amount',
 		'order_id',
 		'payment_id',
 		'gstin',

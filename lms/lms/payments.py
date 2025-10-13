@@ -1,6 +1,5 @@
 import frappe
 
-
 def get_payment_gateway():
 	return frappe.db.get_single_value("LMS Settings", "payment_gateway")
 
@@ -19,49 +18,46 @@ def validate_currency(payment_gateway, currency):
 
 @frappe.whitelist()
 def get_payment_link(
-    doctype,
-    docname,
-    title,
-    amount,
-    total_amount,
-    currency,
-    address,
-    redirect_to,
-    payment_for_certificate,
-    coupon_code=None,
+  doctype,
+  docname,
+  title,
+  amount,
+	discount_amount,
+  gst_amount,
+  currency,
+  address,
+  redirect_to,
+  payment_for_certificate,
+  coupon_code=None,
 ):
 	payment_gateway = get_payment_gateway()
 	address = frappe._dict(address)
-    amount_with_gst = total_amount if total_amount != amount else 0
 
-    coupon_context = None
-    # Coupon application only for courses/batches
-    if doctype in ["LMS Course", "LMS Batch"] and coupon_code:
-        try:
-            from lms.lms.utils import apply_coupon
+	coupon_context = None
+	if doctype in ["LMS Course", "LMS Batch"] and coupon_code:
+		try:
+			from lms.lms.utils import apply_coupon
+			coupon_context = apply_coupon(doctype, docname, coupon_code)
+		except Exception:
+			pass
 
-            applied = apply_coupon(doctype, docname, coupon_code)
-            # Override total_amount based on validated coupon calculation
-            total_amount = applied.get("amount", total_amount)
-            coupon_context = applied
-        except Exception:
-            # Ignore coupon errors here; frontend handles validation
-            pass
-
-    payment = record_payment(
-        address,
-        doctype,
-        docname,
-        amount,
-        currency,
-        amount_with_gst,
-        payment_for_certificate,
-        coupon_context,
-    )
+	payment = record_payment(
+    address,
+    doctype,
+    docname,
+    amount,
+    currency,
+    discount_amount,
+    gst_amount,
+    payment_for_certificate,
+    coupon_context,
+  )
 	controller = get_controller(payment_gateway)
 
 	payment_details = {
-		"amount": total_amount,
+		"amount": amount - discount_amount + gst_amount,
+		"discount_amount": discount_amount,
+		"gst_amount": gst_amount,
 		"title": f"Payment for {doctype} {title} {docname}",
 		"description": f"{address.billing_name}'s payment for {title}",
 		"reference_doctype": doctype,
@@ -83,14 +79,15 @@ def get_payment_link(
 
 
 def record_payment(
-    address,
-    doctype,
-    docname,
-    amount,
-    currency,
-    amount_with_gst=0,
-    payment_for_certificate=0,
-    coupon_context=None,
+  address,
+  doctype,
+  docname,
+  amount,
+  currency,
+  discount_amount=0,
+  gst_amount=0,
+  payment_for_certificate=0,
+  coupon_context=None,
 ):
 	address = frappe._dict(address)
 	address_name = save_address(address)
@@ -103,7 +100,8 @@ def record_payment(
 			"address": address_name,
 			"amount": amount,
 			"currency": currency,
-			"amount_with_gst": amount_with_gst,
+			"discount_amount": discount_amount,
+			"gst_amount": gst_amount,
 			"gstin": address.gstin,
 			"pan": address.pan,
 			"source": address.source,
@@ -112,15 +110,15 @@ def record_payment(
 			"payment_for_certificate": payment_for_certificate,
 		}
 	)
-    if coupon_context:
-        payment_doc.update(
-            {
-                "coupon": coupon_context.get("coupon"),
-                "discount_type": coupon_context.get("discount_type"),
-                "discount_percent": coupon_context.get("discount_percent"),
-                "discount_amount": coupon_context.get("discount_amount"),
-            }
-        )
+	if coupon_context:
+		payment_doc.update(
+			{
+				"coupon": coupon_context.get("coupon"),
+				"discount_type": coupon_context.get("discount_type"),
+				"discount_percent": coupon_context.get("discount_percent"),
+				"discount_amount": coupon_context.get("discount_amount"),
+			}
+		)
 	payment_doc.save(ignore_permissions=True)
 	return payment_doc
 

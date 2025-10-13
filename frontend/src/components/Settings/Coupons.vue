@@ -27,6 +27,7 @@
 						<th class="text-left p-2">{{ __('Expires On') }}</th>
 						<th class="text-left p-2">{{ __('Usage') }}</th>
 						<th class="text-left p-2">{{ __('Active') }}</th>
+ 						<th class="text-right p-2 w-8"></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -43,6 +44,13 @@
 							<Badge v-if="row.active" theme="green">{{ __('Enabled') }}</Badge>
 							<Badge v-else theme="gray">{{ __('Disabled') }}</Badge>
 						</td>
+ 						<td class="p-2 text-right" @click.stop>
+ 							<Button variant="ghost" @click="confirmDelete(row)">
+ 								<template #icon>
+									<Trash2 class="h-4 w-4 stroke-1.5 text-ink-red-4" />
+ 								</template>
+ 							</Button>
+ 						</td>
 					</tr>
 				</tbody>
 			</table>
@@ -52,10 +60,13 @@
 	</div>
 </template>
 <script setup>
-import { Button, Badge, createListResource } from 'frappe-ui'
-import { ref } from 'vue'
-import { Plus } from 'lucide-vue-next'
+import { Button, Badge, createListResource, toast, call } from 'frappe-ui'
+import { ref, getCurrentInstance } from 'vue'
+import { Plus, Trash2 } from 'lucide-vue-next'
 import CouponDetails from '@/components/Settings/CouponDetails.vue'
+
+const app = getCurrentInstance()
+const { $dialog } = app.appContext.config.globalProperties
 
 defineProps({
 	label: String,
@@ -78,6 +89,7 @@ const coupons = createListResource({
 		'times_redeemed',
 		'active',
 	],
+	auto: true,
 })
 
 function openForm(id) {
@@ -87,6 +99,32 @@ function openForm(id) {
 
 function onSaved() {
 	coupons.reload()
+}
+
+function confirmDelete(row) {
+	$dialog({
+		title: __('Delete this coupon?'),
+		message: __('This will permanently delete the coupon and the code will no longer work. Are you sure?'),
+		actions: [
+			{
+				label: __('Delete'),
+				theme: 'red',
+				variant: 'solid',
+				onClick({ close }) {
+					trashCoupon(row.name, close)
+					close()
+				},
+			},
+		],
+	})
+}
+
+function trashCoupon(name, close) {
+	call('frappe.client.delete', { doctype: 'LMS Coupon', name }).then(() => {
+		toast.success(__('Coupon deleted successfully'))
+		coupons.reload()
+		if (typeof close === 'function') close()
+	})
 }
 </script>
 

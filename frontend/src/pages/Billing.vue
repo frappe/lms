@@ -35,6 +35,10 @@
 							{{ orderSummary.data.original_amount_formatted }}
 						</div>
 					</div>
+					<div v-if="orderSummary.data.discount_amount" class="flex items-center justify-between mt-2">
+						<div class="text-ink-gray-5">{{ __('Discount') }}</div>
+						<div>-{{ orderSummary.data.discount_amount_formatted }}</div>
+					</div>
 					<div
 						v-if="orderSummary.data.gst_applied"
 						class="flex items-center justify-between mt-2"
@@ -45,10 +49,6 @@
 						<div>
 							{{ orderSummary.data.gst_amount_formatted }}
 						</div>
-					</div>
-					<div v-if="orderSummary.data.discount_amount" class="flex items-center justify-between mt-2">
-						<div class="text-ink-gray-5">{{ __('Discount') }}</div>
-						<div>-{{ orderSummary.data.discount_amount_formatted }}</div>
 					</div>
 					<div
 						class="flex items-center justify-between border-t border-outline-gray-3 pt-4 mt-2"
@@ -63,9 +63,9 @@
 					<div class="mb-5">
 						<div class="flex items-center gap-3 mt-2 flex-wrap md:flex-nowrap" v-if="props.type !== 'certificate'">
 							<span class="text-ink-gray-5 text-xs shrink-0">{{ __('Coupon') }}</span>
-							<FormControl class="flex-1 min-w-0 [&_input]:!bg-[#fefefe]" v-model="couponCode" @input="couponCode = $event.target.value.toUpperCase()"/>
-							<Button @click="applyCouponCode" variant="outline">{{ __('Apply') }}</Button>
-							<Button v-if="appliedCoupon" @click="removeCoupon" variant="subtle">{{ __('Remove') }}</Button>
+						<FormControl class="flex-1 min-w-0 [&_input]:!bg-[#fefefe]" v-model="couponCode" :disabled="appliedCoupon" @input="couponCode = $event.target.value.toUpperCase()"/>
+						<Button v-if="!appliedCoupon" @click="applyCouponCode" variant="outline">{{ __('Apply') }}</Button>
+						<Button v-if="appliedCoupon" @click="removeCoupon" variant="subtle" class="bg-red-200"><X class="h-4.5 w-4.5" /></Button>
 						</div>
 					</div>
 				</div>
@@ -174,6 +174,7 @@ import { reactive, inject, onMounted, computed, ref } from 'vue'
 import { sessionStore } from '../stores/session'
 import Link from '@/components/Controls/Link.vue'
 import NotPermitted from '@/components/NotPermitted.vue'
+import { X } from 'lucide-vue-next'
 
 const user = inject('$user')
 const { brand } = sessionStore()
@@ -239,6 +240,7 @@ const applyCoupon = createResource({
 	},
 	onSuccess(data) {
 		orderSummary.data = data
+		console.log('orderSummary.data - ', orderSummary.data)
 		appliedCoupon.value = couponCode.value
 		toast.success(__('Coupon applied'))
 	},
@@ -266,18 +268,20 @@ const setBillingDetails = (data) => {
 const paymentLink = createResource({
 	url: 'lms.lms.payments.get_payment_link',
 	makeParams(values) {
-		return {
+		let data={
 			doctype: props.type == 'batch' ? 'LMS Batch' : 'LMS Course',
 			docname: props.name,
 			title: orderSummary.data.title,
 			amount: orderSummary.data.original_amount,
-			total_amount: orderSummary.data.amount,
+			discount_amount: orderSummary.data.discount_amount || 0,
+			gst_amount: orderSummary.data.gst_applied || 0,
 			currency: orderSummary.data.currency,
 			address: billingDetails,
 			redirect_to: redirectTo.value,
 			payment_for_certificate: props.type == 'certificate',
 			coupon_code: appliedCoupon.value,
 		}
+		return data
 	},
 })
 
@@ -308,6 +312,7 @@ function applyCouponCode() {
 
 function removeCoupon() {
 	appliedCoupon.value = null
+	couponCode.value = ''
 	orderSummary.reload()
 }
 
