@@ -65,10 +65,12 @@
 									{ label: 'Course  ', value: 'LMS Course' },
 									{ label: 'Batch  ', value: 'LMS Batch' },
 								]"
+								@change="(val) => (row.reference_name = null)"
 							/>
 							<Link
 								class="min-w-40"
 								:doctype="row.reference_doctype || 'LMS Course'"
+								:filters="getFilters(idx)"
 								:label="__('Name')"
 								:value="row.reference_name"
 								@change="(opt) => (row.reference_name = opt)"
@@ -156,6 +158,22 @@ function addRow() {
 }
 function removeRow(idx) {
 	doc.value.applicable_items.splice(idx, 1)
+}
+
+function getFilters(idx) {
+	// don't show the batch or course that has already been selected
+	const row = doc.value.applicable_items[idx]
+	if (!row.reference_doctype) return {}
+	const doctype = row.reference_doctype
+	const selectedNames = doc.value.applicable_items
+		.filter(
+			(r, i) => i !== idx && r.reference_doctype === doctype && r.reference_name
+		)
+		.map((r) => r.reference_name)
+	if (selectedNames.length === 0) return {}
+	return {
+		name: ['not in', selectedNames],
+	}
 }
 
 const saveDoc = createResource({
