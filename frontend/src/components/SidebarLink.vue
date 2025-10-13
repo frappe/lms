@@ -1,7 +1,7 @@
 <template>
 	<button
 		v-if="link && !link.onlyMobile"
-		class="flex h-7 cursor-pointer items-center rounded text-ink-gray-8 duration-300 ease-in-out focus:outline-none focus:transition-none focus-visible:rounded focus-visible:ring-2 focus-visible:ring-outline-gray-3"
+		class="flex w-full h-7 cursor-pointer items-center rounded text-ink-gray-8 duration-300 ease-in-out focus:outline-none focus:transition-none focus-visible:rounded focus-visible:ring-2 focus-visible:ring-outline-gray-3"
 		:class="
 			isActive ? 'bg-surface-selected shadow-sm' : 'hover:bg-surface-gray-2'
 		"
@@ -59,15 +59,18 @@
 			</div>
 		</div>
 	</button>
+	<ContactUsEmail v-model="showContactForm" />
 </template>
 <script setup>
 import { Tooltip } from 'frappe-ui'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import contactUsEmail from '@/components/ContactUsEmail.vue'
 import * as icons from 'lucide-vue-next'
 
 const router = useRouter()
 const emit = defineEmits(['openModal', 'deletePage'])
+const showContactForm = ref(false)
 
 const props = defineProps({
 	link: {
@@ -85,13 +88,12 @@ const props = defineProps({
 })
 
 function handleClick() {
-	if (router.hasRoute(props.link.to)) {
+	if (props.link.to.includes('@')) {
+		showContactForm.value = true
+	} else if (router.hasRoute(props.link.to)) {
 		router.push({ name: props.link.to })
 	} else if (props.link.to) {
-		if (
-			props.link.to.startsWith('http') ||
-			props.link.to.startsWith('mailto:')
-		) {
+		if (props.link.to.startsWith('http')) {
 			window.open(props.link.to, '_blank')
 			return
 		}
