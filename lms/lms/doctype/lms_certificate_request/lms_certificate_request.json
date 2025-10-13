@@ -133,7 +133,6 @@
    "read_only": 1
   },
   {
-   "fetch_from": "batch_name.timezone",
    "fieldname": "timezone",
    "fieldtype": "Data",
    "label": "Timezone",
@@ -155,10 +154,11 @@
    "read_only": 1
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-02-19 17:20:02.526294",
- "modified_by": "Administrator",
+ "modified": "2025-10-13 14:30:57.897102",
+ "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Certificate Request",
  "owner": "Administrator",
@@ -211,6 +211,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [
