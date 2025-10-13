@@ -1017,6 +1017,7 @@ def apply_coupon(doctype, docname, code, country=None):
         "gst_amount_formatted": fmt_money(gst_applied, 0, currency) if gst_applied else None,
         "total_amount_formatted": fmt_money(final_amount, 0, currency),
         "coupon": coupon.name,
+        "coupon_code": coupon.code,
         "discount_type": coupon.discount_type,
         "discount_percent": coupon.percent_off if coupon.discount_type == "Percent" else None,
     }

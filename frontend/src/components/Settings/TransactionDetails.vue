@@ -69,7 +69,7 @@
 					<FormControl
 						v-if="transactionData.coupon"
 						:label="__('Coupon Code')"
-						v-model="transactionData.coupon"
+						v-model="transactionData.coupon_code"
 						:disabled="true"
 					/>
 				</div>

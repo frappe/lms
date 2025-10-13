@@ -117,6 +117,7 @@ def record_payment(
 				"discount_type": coupon_context.get("discount_type"),
 				"discount_percent": coupon_context.get("discount_percent"),
 				"discount_amount": coupon_context.get("discount_amount"),
+				"coupon_code": coupon_context.get("coupon_code"),
 			}
 		)
 	payment_doc.save(ignore_permissions=True)
