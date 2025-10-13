@@ -264,7 +264,6 @@ const applyCoupon = createResource({
 	},
 	onSuccess(data) {
 		orderSummary.data = data
-		console.log('orderSummary.data - ', orderSummary.data)
 		appliedCoupon.value = couponCode.value
 		toast.success(__('Coupon applied'))
 	},

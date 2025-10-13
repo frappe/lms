@@ -953,7 +953,6 @@ def get_current_exchange_rate(source, target="USD"):
 
 @frappe.whitelist()
 def apply_coupon(doctype, docname, code, country=None):
-	# Validate doctype
 	if doctype not in ["LMS Course", "LMS Batch"]:
 		frappe.throw(_("Invalid doctype for coupon application."))
 
@@ -965,22 +964,19 @@ def apply_coupon(doctype, docname, code, country=None):
 	base_amount = summary.original_amount
 	currency = summary.currency
 
-	# Fetch coupon case-insensitively
 	coupon_name = frappe.db.get_value("LMS Coupon", {"code": code.strip().upper(), "active": 1}, "name")
 	if not coupon_name:
 		frappe.throw(_("Invalid or inactive coupon code."))
 
 	coupon = frappe.get_doc("LMS Coupon", coupon_name)
 
-	# Expiry
 	if coupon.expires_on and getdate(coupon.expires_on) < getdate():
 		frappe.throw(_("This coupon has expired."))
 
-	# Usage limit
 	if coupon.usage_limit and cint(coupon.times_redeemed) >= cint(coupon.usage_limit):
 		frappe.throw(_("This coupon has reached its usage limit."))
 
-	# Applicability (if rows exist, must match; if none, applies to all)
+	# check applicability
 	applicable = True
 	if len(coupon.applicable_items):
 		applicable = any(
@@ -990,7 +986,6 @@ def apply_coupon(doctype, docname, code, country=None):
 	if not applicable:
 		frappe.throw(_("This coupon is not applicable to this item."))
 
-	# Compute discount before tax
 	discount_amount = 0
 	if coupon.discount_type == "Percent":
 		discount_amount = cint(flt(base_amount) * flt(coupon.percent_off) / 100)
