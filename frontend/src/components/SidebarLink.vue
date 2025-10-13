@@ -65,7 +65,7 @@
 import { Tooltip } from 'frappe-ui'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import contactUsEmail from '@/components/ContactUsEmail.vue'
+import ContactUsEmail from '@/components/ContactUsEmail.vue'
 import * as icons from 'lucide-vue-next'
 
 const router = useRouter()
@@ -85,13 +85,17 @@ const props = defineProps({
 		type: Boolean,
 		default: false,
 	},
+	activeTab: {
+		type: String,
+		default: '',
+	},
 })
 
 function handleClick() {
-	if (props.link.to.includes('@')) {
-		showContactForm.value = true
-	} else if (router.hasRoute(props.link.to)) {
+	if (router.hasRoute(props.link.to)) {
 		router.push({ name: props.link.to })
+	} else if (props.link.to?.includes('@')) {
+		showContactForm.value = true
 	} else if (props.link.to) {
 		if (props.link.to.startsWith('http')) {
 			window.open(props.link.to, '_blank')
@@ -102,7 +106,10 @@ function handleClick() {
 }
 
 const isActive = computed(() => {
-	return props.link?.activeFor?.includes(router.currentRoute.value.name)
+	return (
+		props.link?.activeFor?.includes(router.currentRoute.value.name) ||
+		(props.activeTab && props.link?.label?.includes(props.activeTab))
+	)
 })
 
 const openModal = (link) => {
