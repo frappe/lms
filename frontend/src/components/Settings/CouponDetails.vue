@@ -2,7 +2,15 @@
 	<Dialog v-model="show" :options="{ title: dialogTitle, size: '3xl' }">
 		<template #body-content>
 			<div class="grid grid-cols-2 gap-4 pt-4">
-				<FormControl v-model="doc.code" :label="__('Coupon Code')" :required="true" pattern="^[A-Za-z0-9]+$" minlength="6" @beforeinput="handleCodeInput" @input="doc.code = $event.target.value.toUpperCase()" />
+				<FormControl
+					v-model="doc.code"
+					:label="__('Coupon Code')"
+					:required="true"
+					pattern="^[A-Za-z0-9]+$"
+					minlength="6"
+					@beforeinput="handleCodeInput"
+					@input="doc.code = $event.target.value.toUpperCase()"
+				/>
 				<FormControl
 					v-model="doc.discount_type"
 					:label="__('Discount Type')"
@@ -38,14 +46,33 @@
 				/>
 				<Switch v-model="doc.active" :label="__('Active')" />
 				<div class="col-span-2">
-					<div class="text-md font-medium text-ink-gray-7 mb-1 mt-2">{{ __('Select Courses/Batches') }}<span class="text-ink-red-3">*</span></div>
+					<div class="text-md font-medium text-ink-gray-7 mb-1 mt-2">
+						{{ __('Select Courses/Batches')
+						}}<span class="text-ink-red-3">*</span>
+					</div>
 					<div class="space-y-2">
-						<div v-for="(row, idx) in doc.applicable_items" :key="idx" class="flex gap-2 items-end">
-							<FormControl class="w-28" v-model="row.reference_doctype" :label="__('Type')" type="select" :options="[
-								{ label: 'Course  ', value: 'LMS Course' },
-								{ label: 'Batch  ', value: 'LMS Batch' }
-							]" />
-							<Link class="min-w-40" :doctype="row.reference_doctype || 'LMS Course'" :label="__('Name')" :value="row.reference_name" @change="(opt) => (row.reference_name = opt)" />
+						<div
+							v-for="(row, idx) in doc.applicable_items"
+							:key="idx"
+							class="flex gap-2 items-end"
+						>
+							<FormControl
+								class="w-28"
+								v-model="row.reference_doctype"
+								:label="__('Type')"
+								type="select"
+								:options="[
+									{ label: 'Course  ', value: 'LMS Course' },
+									{ label: 'Batch  ', value: 'LMS Batch' },
+								]"
+							/>
+							<Link
+								class="min-w-40"
+								:doctype="row.reference_doctype || 'LMS Course'"
+								:label="__('Name')"
+								:value="row.reference_name"
+								@change="(opt) => (row.reference_name = opt)"
+							/>
 							<Button variant="subtle" @click="removeRow(idx)">
 								<X class="h-3 w-3" />
 							</Button>
@@ -60,7 +87,9 @@
 		</template>
 		<template #actions>
 			<div class="pb-5 float-right space-x-2">
-				<Button variant="outline" @click="show = false">{{ __('Cancel') }}</Button>
+				<Button variant="outline" @click="show = false">{{
+					__('Cancel')
+				}}</Button>
 				<Button variant="solid" @click="save">{{ __('Save') }}</Button>
 			</div>
 		</template>
@@ -87,7 +116,9 @@ const doc = ref({
 	applicable_items: [],
 })
 
-const dialogTitle = computed(() => (props.couponId === 'new' ? __('New Coupon') : __('Edit Coupon')))
+const dialogTitle = computed(() =>
+	props.couponId === 'new' ? __('New Coupon') : __('Edit Coupon')
+)
 
 const getDoc = createResource({
 	url: 'frappe.client.get',
@@ -106,14 +137,22 @@ watch(
 			if (props.couponId && props.couponId !== 'new') {
 				getDoc.submit()
 			} else {
-				doc.value = { code: '', discount_type: 'Percent', active: 1, applicable_items: [] }
+				doc.value = {
+					code: '',
+					discount_type: 'Percent',
+					active: 1,
+					applicable_items: [],
+				}
 			}
 		}
 	}
 )
 
 function addRow() {
-	doc.value.applicable_items.push({ reference_doctype: 'LMS Course', reference_name: null })
+	doc.value.applicable_items.push({
+		reference_doctype: 'LMS Course',
+		reference_name: null,
+	})
 }
 function removeRow(idx) {
 	doc.value.applicable_items.splice(idx, 1)
@@ -141,28 +180,33 @@ function handleCodeInput(event) {
 
 function save() {
 	if (props.couponId && props.couponId !== 'new') {
-		saveDoc.submit({}, {
-			onSuccess() {
-				toast.success(__('Saved'))
-				show.value = false
-				emit('saved')
-			},
-			onError(err) {
-				toast.error(err.messages?.[0] || err.message || err)
+		saveDoc.submit(
+			{},
+			{
+				onSuccess() {
+					toast.success(__('Saved'))
+					show.value = false
+					emit('saved')
+				},
+				onError(err) {
+					toast.error(err.messages?.[0] || err.message || err)
+				},
 			}
-		})
+		)
 	} else {
-		insertDoc.submit({}, {
-			onSuccess() {
-				toast.success(__('Saved'))
-				show.value = false
-				emit('saved')
-			},
-			onError(err) {
-				toast.error(err.messages?.[0] || err.message || err)
+		insertDoc.submit(
+			{},
+			{
+				onSuccess() {
+					toast.success(__('Saved'))
+					show.value = false
+					emit('saved')
+				},
+				onError(err) {
+					toast.error(err.messages?.[0] || err.message || err)
+				},
 			}
-		})
+		)
 	}
 }
 </script>
-

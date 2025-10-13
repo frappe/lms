@@ -1,5 +1,6 @@
 import frappe
 
+
 def get_payment_gateway():
 	return frappe.db.get_single_value("LMS Settings", "payment_gateway")
 
@@ -18,17 +19,17 @@ def validate_currency(payment_gateway, currency):
 
 @frappe.whitelist()
 def get_payment_link(
-  doctype,
-  docname,
-  title,
-  amount,
+	doctype,
+	docname,
+	title,
+	amount,
 	discount_amount,
-  gst_amount,
-  currency,
-  address,
-  redirect_to,
-  payment_for_certificate,
-  coupon_code=None,
+	gst_amount,
+	currency,
+	address,
+	redirect_to,
+	payment_for_certificate,
+	coupon_code=None,
 ):
 	payment_gateway = get_payment_gateway()
 	address = frappe._dict(address)
@@ -37,21 +38,22 @@ def get_payment_link(
 	if doctype in ["LMS Course", "LMS Batch"] and coupon_code:
 		try:
 			from lms.lms.utils import apply_coupon
+
 			coupon_context = apply_coupon(doctype, docname, coupon_code)
 		except Exception:
 			pass
 
 	payment = record_payment(
-    address,
-    doctype,
-    docname,
-    amount,
-    currency,
-    discount_amount,
-    gst_amount,
-    payment_for_certificate,
-    coupon_context,
-  )
+		address,
+		doctype,
+		docname,
+		amount,
+		currency,
+		discount_amount,
+		gst_amount,
+		payment_for_certificate,
+		coupon_context,
+	)
 	controller = get_controller(payment_gateway)
 
 	payment_details = {
@@ -79,15 +81,15 @@ def get_payment_link(
 
 
 def record_payment(
-  address,
-  doctype,
-  docname,
-  amount,
-  currency,
-  discount_amount=0,
-  gst_amount=0,
-  payment_for_certificate=0,
-  coupon_context=None,
+	address,
+	doctype,
+	docname,
+	amount,
+	currency,
+	discount_amount=0,
+	gst_amount=0,
+	payment_for_certificate=0,
+	coupon_context=None,
 ):
 	address = frappe._dict(address)
 	address_name = save_address(address)

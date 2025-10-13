@@ -73,7 +73,8 @@
 									:disabled="true"
 								/>
 								<div v-else-if="column.key == 'amount'">
-									{{ getCurrencySymbol(row['currency']) }} {{ row['total_amount'] }}
+									{{ getCurrencySymbol(row['currency']) }}
+									{{ row['total_amount'] }}
 								</div>
 								<div v-else class="leading-5 text-sm">
 									{{ row[column.key] }}

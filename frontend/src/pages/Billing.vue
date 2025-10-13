@@ -35,7 +35,10 @@
 							{{ orderSummary.data.original_amount_formatted }}
 						</div>
 					</div>
-					<div v-if="orderSummary.data.discount_amount" class="flex items-center justify-between mt-2">
+					<div
+						v-if="orderSummary.data.discount_amount"
+						class="flex items-center justify-between mt-2"
+					>
 						<div class="text-ink-gray-5">{{ __('Discount') }}</div>
 						<div>-{{ orderSummary.data.discount_amount_formatted }}</div>
 					</div>
@@ -61,11 +64,32 @@
 						</div>
 					</div>
 					<div class="mb-5">
-						<div class="flex items-center gap-3 mt-2 flex-wrap md:flex-nowrap" v-if="props.type !== 'certificate'">
-							<span class="text-ink-gray-5 text-xs shrink-0">{{ __('Coupon') }}</span>
-						<FormControl class="flex-1 min-w-0 [&_input]:!bg-[#fefefe]" v-model="couponCode" :disabled="appliedCoupon" @input="couponCode = $event.target.value.toUpperCase()"/>
-						<Button v-if="!appliedCoupon" @click="applyCouponCode" variant="outline">{{ __('Apply') }}</Button>
-						<Button v-if="appliedCoupon" @click="removeCoupon" variant="subtle" class="bg-red-200"><X class="h-4.5 w-4.5" /></Button>
+						<div
+							class="flex items-center gap-3 mt-2 flex-wrap md:flex-nowrap"
+							v-if="props.type !== 'certificate'"
+						>
+							<span class="text-ink-gray-5 text-xs shrink-0">{{
+								__('Coupon')
+							}}</span>
+							<FormControl
+								class="flex-1 min-w-0 [&_input]:!bg-[#fefefe]"
+								v-model="couponCode"
+								:disabled="appliedCoupon"
+								@input="couponCode = $event.target.value.toUpperCase()"
+							/>
+							<Button
+								v-if="!appliedCoupon"
+								@click="applyCouponCode"
+								variant="outline"
+								>{{ __('Apply') }}</Button
+							>
+							<Button
+								v-if="appliedCoupon"
+								@click="removeCoupon"
+								variant="subtle"
+								class="bg-red-200"
+								><X class="h-4.5 w-4.5"
+							/></Button>
 						</div>
 					</div>
 				</div>
@@ -268,7 +292,7 @@ const setBillingDetails = (data) => {
 const paymentLink = createResource({
 	url: 'lms.lms.payments.get_payment_link',
 	makeParams(values) {
-		let data={
+		let data = {
 			doctype: props.type == 'batch' ? 'LMS Batch' : 'LMS Course',
 			docname: props.name,
 			title: orderSummary.data.title,

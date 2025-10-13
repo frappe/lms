@@ -5,7 +5,7 @@ import frappe
 from frappe import _
 from frappe.email.doctype.email_template.email_template import get_email_template
 from frappe.model.document import Document
-from frappe.utils import add_days, nowdate, flt
+from frappe.utils import add_days, flt, nowdate
 
 
 class LMSPayment(Document):
@@ -14,6 +14,7 @@ class LMSPayment(Document):
 		discount = flt(self.discount_amount or 0, self.precision("discount_amount"))
 		gst = flt(self.gst_amount or 0, self.precision("gst_amount"))
 		self.total_amount = flt(amount - discount + gst, self.precision("total_amount"))
+
 
 def send_payment_reminder():
 	outgoing_email_account = frappe.get_cached_value(

@@ -27,36 +27,49 @@
 						<th class="text-left p-2">{{ __('Expires On') }}</th>
 						<th class="text-left p-2">{{ __('Usage') }}</th>
 						<th class="text-left p-2">{{ __('Active') }}</th>
- 						<th class="text-right p-2 w-8"></th>
+						<th class="text-right p-2 w-8"></th>
 					</tr>
 				</thead>
 				<tbody>
-					<tr v-for="row in coupons.data" :key="row.name" class="hover:bg-surface-gray-2 cursor-pointer" @click="openForm(row.name)">
+					<tr
+						v-for="row in coupons.data"
+						:key="row.name"
+						class="hover:bg-surface-gray-2 cursor-pointer"
+						@click="openForm(row.name)"
+					>
 						<td class="p-2">{{ row.code }}</td>
 						<td class="p-2">{{ row.discount_type }}</td>
 						<td class="p-2">
-							<span v-if="row.discount_type === 'Percent'">{{ row.percent_off }}%</span>
+							<span v-if="row.discount_type === 'Percent'"
+								>{{ row.percent_off }}%</span
+							>
 							<span v-else>{{ row.amount_off }}</span>
 						</td>
 						<td class="p-2">{{ row.expires_on || '-' }}</td>
-						<td class="p-2">{{ row.times_redeemed }}/{{ row.usage_limit || '∞' }}</td>
+						<td class="p-2">
+							{{ row.times_redeemed }}/{{ row.usage_limit || '∞' }}
+						</td>
 						<td class="p-2">
 							<Badge v-if="row.active" theme="green">{{ __('Enabled') }}</Badge>
 							<Badge v-else theme="gray">{{ __('Disabled') }}</Badge>
 						</td>
- 						<td class="p-2 text-right" @click.stop>
- 							<Button variant="ghost" @click="confirmDelete(row)">
- 								<template #icon>
+						<td class="p-2 text-right" @click.stop>
+							<Button variant="ghost" @click="confirmDelete(row)">
+								<template #icon>
 									<Trash2 class="h-4 w-4 stroke-1.5 text-ink-red-4" />
- 								</template>
- 							</Button>
- 						</td>
+								</template>
+							</Button>
+						</td>
 					</tr>
 				</tbody>
 			</table>
 		</div>
 
-		<CouponDetails v-model="showDialog" :coupon-id="selected" @saved="onSaved" />
+		<CouponDetails
+			v-model="showDialog"
+			:coupon-id="selected"
+			@saved="onSaved"
+		/>
 	</div>
 </template>
 <script setup>
@@ -104,7 +117,9 @@ function onSaved() {
 function confirmDelete(row) {
 	$dialog({
 		title: __('Delete this coupon?'),
-		message: __('This will permanently delete the coupon and the code will no longer work. Are you sure?'),
+		message: __(
+			'This will permanently delete the coupon and the code will no longer work. Are you sure?'
+		),
 		actions: [
 			{
 				label: __('Delete'),
@@ -127,4 +142,3 @@ function trashCoupon(name, close) {
 	})
 }
 </script>
-

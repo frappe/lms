@@ -88,7 +88,10 @@
 						:disabled="true"
 					/>
 					<FormControl
-						v-if="Number(transactionData.discount_amount) || Number(transactionData.gst_amount)"
+						v-if="
+							Number(transactionData.discount_amount) ||
+							Number(transactionData.gst_amount)
+						"
 						:label="__('Total Amount')"
 						v-model="transactionData.total_amount"
 						:disabled="true"
