@@ -28,6 +28,7 @@ class LMSCertificateRequest(Document):
 		self.validate_slot()
 		self.validate_if_existing_requests()
 		self.validate_evaluation_end_date()
+		self.validate_timezone()
 
 	def after_insert(self):
 		self.send_notification()
@@ -112,6 +113,20 @@ class LMSCertificateRequest(Document):
 							format_date(evaluation_end_date, "medium")
 						)
 					)
+
+	def validate_timezone(self):
+		if self.timezone:
+			return
+		if self.batch_name:
+			timezone = frappe.db.get_value("LMS Batch", self.batch_name, "timezone")
+			if timezone:
+				self.timezone = timezone
+				return
+		if self.course:
+			timezone = frappe.db.get_value("LMS Course", self.course, "timezone")
+			if timezone:
+				self.timezone = timezone
+				return
 
 	def send_notification(self):
 		outgoing_email_account = frappe.get_cached_value(
