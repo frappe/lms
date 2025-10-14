@@ -17,6 +17,11 @@
   "column_break_gkip",
   "percentage",
   "passing_percentage",
+  "section_break_yfdj",
+  "is_proctored",
+  "column_break_sdas",
+  "autoproctor_test_id",
+  "autoproctor_trust_percentage",
   "section_break_6",
   "result"
  ],
@@ -111,12 +116,39 @@
    "fieldtype": "Data",
    "label": "Quiz Title",
    "read_only": 1
+  },
+  {
+   "fieldname": "section_break_yfdj",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "0",
+   "fetch_from": "quiz.enable_proctoring",
+   "fieldname": "is_proctored",
+   "fieldtype": "Check",
+   "label": "Is Proctored"
+  },
+  {
+   "fieldname": "column_break_sdas",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "is_proctored",
+   "fieldname": "autoproctor_test_id",
+   "fieldtype": "Data",
+   "label": "AutoProctor Test ID"
+  },
+  {
+   "depends_on": "is_proctored",
+   "fieldname": "autoproctor_trust_percentage",
+   "fieldtype": "Int",
+   "label": "AutoProctor Trust Percentage"
   }
  ],
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-10-07 16:52:04.162521",
+ "modified": "2025-10-13 14:30:34.723122",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz Submission",
@@ -145,6 +177,7 @@
    "share": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],

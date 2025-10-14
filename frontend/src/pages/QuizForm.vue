@@ -97,6 +97,11 @@
 						type="checkbox"
 						:label="__('Show Submission History')"
 					/>
+					<FormControl
+						v-model="quizDetails.doc.enable_proctoring"
+						type="checkbox"
+						:label="__('Enable Proctoring')"
+					/>
 				</div>
 				<div class="flex flex-col space-y-5">
 					<FormControl

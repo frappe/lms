@@ -11,6 +11,11 @@
 					__('This quiz consists of {0} questions.').format(questions.length)
 				}}
 			</div>
+			<div v-if="quiz.data?.enable_proctoring" class="leading-5">
+				{{
+					__('This quiz shall be proctored and you need to give access to your mic & camera.')
+				}}
+			</div>
 			<div v-if="quiz.data?.duration" class="leading-5">
 				{{
 					__(
@@ -75,6 +80,7 @@
 							attempts.data?.length < quiz.data.max_attempts
 						"
 						variant="solid"
+						:disabled="quiz.data.enable_proctoring && !isProctoringReady"
 						@click="startQuiz"
 					>
 						<span>
@@ -337,6 +343,22 @@ let questions = reactive([])
 const possibleAnswer = ref(null)
 const timer = ref(0)
 let timerInterval = null
+let apInstance = null
+const isProctoringReady = ref(false)
+const autoProctorTestId = ref(null)
+const proctoringOptions = {
+	trackingOptions: {
+		audio: true,
+		numHumans: true,
+		tabSwitch: true,
+		photosAtRandom: true,
+		detectMultipleScreens: true,
+		forceFullScreen: false,
+		auxiliaryDevice: false,
+		recordSession: true
+	},
+	showHowToVideo: false,
+};
 
 const props = defineProps({
 	quizName: {
@@ -366,11 +388,65 @@ const quiz = createResource({
 	transform(data) {
 		data.duration = parseInt(data.duration)
 	},
-	onSuccess(data) {
+	async onSuccess(data) {
 		populateQuestions()
 		setupTimer()
+		const canAttempt = !data.max_attempts || attempts.data?.length < data.max_attempts
+		if (canAttempt && data.enable_proctoring) {
+			await initProctoring()
+		}
 	},
 })
+
+const initProctoring = async () => {
+	await loadAutoProctorScript()
+	createResource({
+		url: 'lms.lms.doctype.autoproctor_setting.autoproctor_setting.get_autoproctor_credentials',
+		auto: true,
+		async onSuccess(data) {
+			autoProctorTestId.value = data.testAttemptId
+			if (!window.AutoProctor) {
+				console.error("AutoProctor not available after script load")
+				return
+			}
+			apInstance = new AutoProctor(data);
+			await apInstance.setup(proctoringOptions);
+			apInstance.start();
+			window.addEventListener("apMonitoringStarted", () => {
+				isProctoringReady.value = true
+            })
+		},
+	})
+}
+
+const loadAutoProctorScript = () => {
+	return new Promise((resolve, reject) => {
+		// Already loaded?
+		if (window.AutoProctor) return resolve(window.AutoProctor)
+
+		const existingScript = document.getElementById('autoproctor-script')
+		if (existingScript) {
+			existingScript.addEventListener('load', () => resolve(window.AutoProctor))
+			return
+		}
+
+		const script = document.createElement('script')
+		script.id = 'autoproctor-script'
+		script.src = 'https://cdn.autoproctor.co/ap-entry.js'
+		script.async = true
+		script.onload = () => {
+			// wait until global variable is available
+			const checkInterval = setInterval(() => {
+				if (window.AutoProctor) {
+					clearInterval(checkInterval)
+					resolve(window.AutoProctor)
+				}
+			}, 100)
+		}
+		script.onerror = () => reject(new Error('Failed to load AutoProctor'))
+		document.body.appendChild(script)
+	})
+}
 
 const populateQuestions = () => {
 	let data = quiz.data
@@ -470,6 +546,7 @@ const quizSubmission = createResource({
 		return {
 			quiz: quiz.data.name,
 			results: localStorage.getItem(quiz.data.title),
+			autoproctor_test_id: autoProctorTestId.value,
 		}
 	},
 })
@@ -605,7 +682,10 @@ const resetQuestion = () => {
 	possibleAnswer.value = null
 }
 
-const submitQuiz = () => {
+const submitQuiz = async () => {
+	if (apInstance) {
+		await apInstance.stop();
+	}
 	if (!quiz.data.show_answers) {
 		if (questionDetails.data.type == 'Open Ended') addToLocalStorage()
 		else checkAnswer()

@@ -11,6 +11,7 @@
   "max_attempts",
   "show_answers",
   "show_submission_history",
+  "enable_proctoring",
   "column_break_gaac",
   "total_marks",
   "passing_percentage",
@@ -149,6 +150,12 @@
    "fieldname": "marks_to_cut",
    "fieldtype": "Int",
    "label": "Marks To Cut"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_proctoring",
+   "fieldtype": "Check",
+   "label": "Enable Proctoring"
   }
  ],
  "grid_page_length": 50,
@@ -159,8 +166,8 @@
    "link_fieldname": "quiz"
   }
  ],
- "modified": "2025-06-27 20:00:15.660323",
- "modified_by": "sayali@frappe.io",
+ "modified": "2025-10-10 12:49:23.463133",
+ "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz",
  "owner": "Administrator",
