@@ -421,32 +421,46 @@ const initProctoring = async () => {
 
 const loadAutoProctorScript = () => {
 	return new Promise((resolve, reject) => {
-		// Already loaded?
-		if (window.AutoProctor) return resolve(window.AutoProctor)
-
-		const existingScript = document.getElementById('autoproctor-script')
+		if (window.AutoProctor) {
+			resolve(window.AutoProctor);
+			return;
+		}
+		let existingScript = document.getElementById('autoproctor-script');
 		if (existingScript) {
-			existingScript.addEventListener('load', () => resolve(window.AutoProctor))
-			return
+			if (existingScript.dataset.loaded === "true") {
+				resolve(window.AutoProctor);
+				return;
+			}
+			existingScript.addEventListener('load', () => {
+				resolve(window.AutoProctor);
+			});
+			existingScript.addEventListener('error', reject);
+			return;
 		}
 
-		const script = document.createElement('script')
-		script.id = 'autoproctor-script'
-		script.src = 'https://cdn.autoproctor.co/ap-entry.js'
-		script.async = true
+		const script = document.createElement('script');
+		script.id = 'autoproctor-script';
+		script.src = 'https://cdn.autoproctor.co/ap-entry.js';
+		script.async = true;
+
 		script.onload = () => {
-			// wait until global variable is available
+			script.dataset.loaded = "true";
 			const checkInterval = setInterval(() => {
 				if (window.AutoProctor) {
-					clearInterval(checkInterval)
-					resolve(window.AutoProctor)
+					clearInterval(checkInterval);
+					resolve(window.AutoProctor);
 				}
-			}, 100)
-		}
-		script.onerror = () => reject(new Error('Failed to load AutoProctor'))
-		document.body.appendChild(script)
-	})
-}
+			}, 100);
+			setTimeout(() => {
+				clearInterval(checkInterval);
+				if (!window.AutoProctor) reject(new Error("AutoProctor not available after load"));
+			}, 10000);
+		};
+
+		script.onerror = () => reject(new Error('Failed to load AutoProctor'));
+		document.body.appendChild(script);
+	});
+};
 
 const populateQuestions = () => {
 	let data = quiz.data
