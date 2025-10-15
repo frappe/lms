@@ -2,15 +2,15 @@ import hashlib
 import json
 import re
 import string
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import frappe
-import razorpay
 import requests
 from frappe import _
 from frappe.desk.doctype.dashboard_chart.dashboard_chart import get_result
 from frappe.desk.doctype.notification_log.notification_log import make_notification_logs
 from frappe.desk.notifications import extract_mentions
+from frappe.rate_limiter import rate_limit
 from frappe.utils import (
 	add_months,
 	ceil,
@@ -18,7 +18,6 @@ from frappe.utils import (
 	cstr,
 	flt,
 	fmt_money,
-	format_date,
 	format_datetime,
 	get_datetime,
 	get_fullname,
@@ -27,7 +26,6 @@ from frappe.utils import (
 	nowtime,
 	pretty_date,
 )
-from frappe.utils.dateutils import get_period
 
 from lms.lms.md import find_macros, markdown_to_html
 
@@ -959,6 +957,7 @@ def change_currency(amount, currency, country=None):
 
 
 @frappe.whitelist(allow_guest=True)
+@rate_limit(limit=10, seconds=60 * 60)
 def get_courses(filters=None, start=0):
 	"""Returns the list of courses."""
 

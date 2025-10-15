@@ -260,12 +260,14 @@
 									v-if="course.paid_course || course.paid_certificate"
 									v-model="course.course_price"
 									:label="__('Amount')"
+									:required="course.paid_course || course.paid_certificate"
 								/>
 								<Link
 									v-if="course.paid_certificate"
 									doctype="Course Evaluator"
 									v-model="course.evaluator"
 									:label="__('Evaluator')"
+									:required="course.paid_certificate"
 									:onCreate="
 										(value, close) => openSettings('Evaluators', close)
 									"
@@ -278,11 +280,13 @@
 									v-model="course.currency"
 									:filters="{ enabled: 1 }"
 									:label="__('Currency')"
+									:required="course.paid_course || course.paid_certificate"
 								/>
 								<FormControl
 									v-if="course.paid_certificate"
 									v-model="course.timezone"
 									:label="__('Timezone')"
+									:required="course.paid_certificate"
 									:placeholder="__('e.g. IST, UTC, GMT...')"
 								/>
 							</div>
@@ -359,6 +363,7 @@ import Link from '@/components/Controls/Link.vue'
 import CourseOutline from '@/components/CourseOutline.vue'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import ColorSwatches from '@/components/Controls/ColorSwatches.vue'
+import { require } from 'ace-builds'
 
 const user = inject('$user')
 const newTag = ref('')

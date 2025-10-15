@@ -165,6 +165,14 @@ const addAssignments = () => {
 	})
 }
 
+const addProgrammingExercises = () => {
+	otherLinks.value.push({
+		label: 'Programming Exercises',
+		icon: 'Code',
+		to: 'ProgrammingExercises',
+	})
+}
+
 const addPrograms = async () => {
 	let canAddProgram = await checkIfCanAddProgram()
 	if (!canAddProgram) return
