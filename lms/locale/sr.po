@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-10-10 16:04+0000\n"
-"PO-Revision-Date: 2025-10-13 13:36\n"
+"PO-Revision-Date: 2025-10-14 13:50\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Serbian (Cyrillic)\n"
 "MIME-Version: 1.0\n"
@@ -1043,7 +1043,7 @@ msgstr "Назив сертификације"
 #. Label of the certifications (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Certifications"
-msgstr ""
+msgstr "Сертификација"
 
 #: frontend/src/components/BatchStudents.vue:17
 msgid "Certified"
@@ -1476,12 +1476,12 @@ msgstr "Контактирајте нас"
 #. Label of the contact_us_email (Data) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Contact Us Email"
-msgstr ""
+msgstr "Имејл за контакт"
 
 #. Label of the contact_us_url (Data) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Contact Us URL"
-msgstr ""
+msgstr "Контакт URL"
 
 #: frontend/src/components/CourseCardOverlay.vue:63
 #: frontend/src/pages/Lesson.vue:97
@@ -5011,11 +5011,11 @@ msgstr "Молимо Вас да унесете наслов."
 
 #: lms/lms/doctype/lms_settings/lms_settings.py:51
 msgid "Please enter a valid Contact Us Email."
-msgstr ""
+msgstr "Молимо Вас да унесете важећи имејл за контакт."
 
 #: lms/lms/doctype/lms_settings/lms_settings.py:53
 msgid "Please enter a valid Contact Us URL."
-msgstr ""
+msgstr "Молимо Вас да унесете важећи URL за контакт."
 
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.py:32
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.py:107
