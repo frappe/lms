@@ -363,7 +363,6 @@ import Link from '@/components/Controls/Link.vue'
 import CourseOutline from '@/components/CourseOutline.vue'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import ColorSwatches from '@/components/Controls/ColorSwatches.vue'
-import { require } from 'ace-builds'
 
 const user = inject('$user')
 const newTag = ref('')
