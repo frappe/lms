@@ -146,6 +146,7 @@ watch(
 watch(course, () => {
 	if (
 		!isInstructor() &&
+		!isEnrolled() &&
 		!user.data?.is_moderator &&
 		!course.data?.published &&
 		!course.data?.upcoming
@@ -164,6 +165,22 @@ const isInstructor = () => {
 		}
 	})
 	return user_is_instructor
+}
+
+const isEnrolled = () => {
+	let user_is_enrolled = false
+	createResource({
+		doctype: 'LMS Enrollment',
+		filters: {
+			member: user.data?.name
+		},
+		onSuccess(data){
+			if (data) {
+				user_is_enrolled = true
+			}
+		}
+	})
+	return user_is_enrolled
 }
 
 const breadcrumbs = computed(() => {
