@@ -62,7 +62,7 @@
 					<Tooltip :text="__('Enrolled Students')">
 						<span class="flex items-center">
 							<Users class="h-4 w-4 stroke-1.5 mr-1" />
-							{{ course.enrollments }}
+							{{ formatAmount(course.enrollments) }}
 						</span>
 					</Tooltip>
 				</div>
@@ -116,27 +116,30 @@
 					<CourseInstructors :instructors="course.instructors" />
 				</div>
 
-				<div v-if="course.paid_course" class="font-semibold">
-					{{ course.price }}
-				</div>
+				<div class="flex items-center space-x-2">
+					<div v-if="course.paid_course" class="font-semibold">
+						{{ course.price }}
+					</div>
 
-				<Tooltip
-					v-if="course.paid_certificate || course.enable_certification"
-					:text="__('Get Certified')"
-				>
-					<GraduationCap class="size-5 stroke-1.5 text-ink-gray-7" />
-				</Tooltip>
+					<Tooltip
+						v-if="course.paid_certificate || course.enable_certification"
+						:text="__('Get Certified')"
+					>
+						<GraduationCap class="size-5 stroke-1.5 text-ink-gray-7" />
+					</Tooltip>
+				</div>
 			</div>
 		</div>
 	</div>
 </template>
 <script setup>
 import { Award, BookOpen, GraduationCap, Star, Users } from 'lucide-vue-next'
-import UserAvatar from '@/components/UserAvatar.vue'
 import { sessionStore } from '@/stores/session'
 import { Tooltip } from 'frappe-ui'
 import { theme } from '@/utils/theme'
+import { formatAmount } from '@/utils'
 import CourseInstructors from '@/components/CourseInstructors.vue'
+import UserAvatar from '@/components/UserAvatar.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
 
 const { user } = sessionStore()
