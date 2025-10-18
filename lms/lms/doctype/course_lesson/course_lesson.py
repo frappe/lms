@@ -78,28 +78,31 @@ def save_progress(lesson, course, scorm_details=None):
 				"member": frappe.session.user,
 			}
 		).save(ignore_permissions=True)
-	elif scorm_details and not lesson_already_completed and not progress_already_exists:
+	elif scorm_details and not progress_already_exists:
 		# Create new SCORM progress
 		frappe.get_doc(
 			{
 				"doctype": "LMS Course Progress",
 				"lesson": lesson,
-				"status": "Complete" if scorm_details.is_complete else "Partially Complete",
+                "status": "Complete" if getattr(scorm_details, "is_complete", False) or lesson_already_completed else "Partially Complete",
 				"member": frappe.session.user,
-				"scorm_content": "" if scorm_details.is_complete else scorm_details.scorm_content,
+                "scorm_content": getattr(scorm_details, "scorm_content", None),
 			}
 		).save(ignore_permissions=True)
-	elif scorm_details and not lesson_already_completed and progress_already_exists:
+	elif scorm_details and progress_already_exists:
 		# Update Existing SCORM Progress
+		update_dict = {
+			"lesson": lesson,
+			"status": "Complete" if getattr(scorm_details, "is_complete", False) or lesson_already_completed else "Partially Complete",
+			"member": frappe.session.user,
+		}
+		scorm_content = getattr(scorm_details, "scorm_content", None)
+		if scorm_content is not None:
+			update_dict["scorm_content"] = scorm_content
 		frappe.db.set_value(
 			"LMS Course Progress",
 			progress_already_exists,
-			{
-				"lesson": lesson,
-				"status": "Complete" if scorm_details.is_complete else "Partially Complete",
-				"member": frappe.session.user,
-				"scorm_content": "" if scorm_details.is_complete else scorm_details.scorm_content,
-			},
+			update_dict,
 		)
 
 	progress = get_course_progress(course)

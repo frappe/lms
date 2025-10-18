@@ -121,17 +121,15 @@ const saveDataToLMS = (key, value) => {
 			isSuccessfullyCompleted.value = true
 			saveProgress({
 				is_complete: isSuccessfullyCompleted.value,
-				scorm_content: '',
 			})
 		} else if (value === 'failed' && courseRestartOnFailure) {
 			saveProgress({
 				is_complete: isSuccessfullyCompleted.value,
-				scorm_content: '',
 			})
 		}
-	} else if (key === 'cmi.suspend_data' && !isSuccessfullyCompleted.value) {
+	} else if (key === 'cmi.suspend_data') {
 		debouncedSaveProgress({
-			is_complete: false,
+			is_complete: isSuccessfullyCompleted.value,
 			scorm_content: value,
 		})
 	}
