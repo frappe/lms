@@ -76,6 +76,7 @@ import Categories from '@/components/Settings/Categories.vue'
 import EmailTemplates from '@/components/Settings/EmailTemplates.vue'
 import BrandSettings from '@/components/Settings/BrandSettings.vue'
 import PaymentGateways from '@/components/Settings/PaymentGateways.vue'
+import Coupons from '@/components/Settings/Coupons.vue'
 import Transactions from '@/components/Settings/Transactions.vue'
 import ZoomSettings from '@/components/Settings/ZoomSettings.vue'
 import Badges from '@/components/Settings/Badges.vue'
@@ -224,6 +225,12 @@ const tabsStructure = computed(() => {
 					icon: 'DollarSign',
 					template: markRaw(PaymentGateways),
 					description: 'Add and manage all your payment gateways',
+				},
+				{
+					label: 'Coupons',
+					icon: 'Tag',
+					template: markRaw(Coupons),
+					description: 'Create and manage coupon codes',
 				},
 				{
 					label: 'Transactions',
