@@ -192,7 +192,7 @@ const createBadge = (close: () => void) => {
 const referenceDoctypeOptions = computed(() => {
 	return [
 		{ label: __('Course'), value: 'LMS Course' },
-		{ label: __('Batch'), value: 'LMS Batch' },
+		{ label: __('LMS Batch'), value: 'LMS Batch' },
 		{ label: __('User'), value: 'Member' },
 		{ label: __('Quiz Submission'), value: 'LMS Quiz Submission' },
 		{ label: __('Assignment Submission'), value: 'LMS Assignment Submission' },

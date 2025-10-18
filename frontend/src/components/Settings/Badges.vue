@@ -197,7 +197,7 @@ const deleteBadge = (badgeName: string) => {
 const doctypeLabel = computed(() => {
 	return {
 		'LMS Course': __('Course'),
-		'LMS Batch': __('Batch'),
+		'LMS Batch': __('LMS Batch'),
 		'LMS Enrollment': __('Course Enrollment'),
 		'LMS Batch Enrollment': __('Batch Enrollment'),
 		'LMS Quiz Submission': __('Quiz Submission'),
