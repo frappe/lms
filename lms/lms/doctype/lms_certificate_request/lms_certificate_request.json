@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2022-03-29 10:43:50.889723",
+ "creation": "2025-10-18 23:18:50.889723",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -107,7 +107,7 @@
    "fieldname": "batch_name",
    "fieldtype": "Link",
    "in_standard_filter": 1,
-   "label": "Batch",
+   "label": "LMS Batch",
    "options": "LMS Batch"
   },
   {

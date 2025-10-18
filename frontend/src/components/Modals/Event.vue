@@ -29,7 +29,7 @@
 								</span>
 							</div>
 						</Tooltip>
-						<Tooltip v-if="event.batch_title" :text="__('Batch')">
+						<Tooltip v-if="event.batch_title" :text="__('LMS Batch')">
 							<div class="flex items-center space-x-2 w-fit">
 								<Users class="h-4 w-4 stroke-1.5" />
 								<span>

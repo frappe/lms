@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2023-03-02 10:59:01.741349",
+ "creation": "2025-10-18 23:18:01.741349",
  "default_view": "List",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -119,7 +119,7 @@
   {
    "fieldname": "batch_name",
    "fieldtype": "Link",
-   "label": "Batch",
+   "label": "LMS Batch",
    "options": "LMS Batch"
   },
   {
