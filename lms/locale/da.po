@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-10-10 16:04+0000\n"
-"PO-Revision-Date: 2025-10-13 13:36\n"
+"PO-Revision-Date: 2025-10-19 14:59\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Danish\n"
 "MIME-Version: 1.0\n"
@@ -125,7 +125,7 @@ msgstr "Konto Navn"
 
 #: frontend/src/pages/ProfileAbout.vue:34
 msgid "Achievements"
-msgstr ""
+msgstr "Præstationer"
 
 #. Option for the 'Status' (Select) field in DocType 'LMS Batch Old'
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
@@ -194,7 +194,7 @@ msgstr "Tilføj Lektion"
 
 #: frontend/src/components/Modals/StudentModal.vue:5
 msgid "Add a Student"
-msgstr ""
+msgstr "Tilføj Studerende"
 
 #: frontend/src/components/AppSidebar.vue:597
 msgid "Add a chapter"
@@ -372,7 +372,7 @@ msgstr "Beløb"
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Amount (USD)"
-msgstr ""
+msgstr "Beløb (USD)"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:70
 msgid "Amount and currency are required for paid batches."
@@ -412,7 +412,7 @@ msgstr ""
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 #: lms/lms/doctype/lms_exercise/lms_exercise.json
 msgid "Answer"
-msgstr ""
+msgstr "Svar"
 
 #: frontend/src/pages/CourseForm.vue:104 frontend/src/pages/CourseForm.vue:123
 msgid "Appears on the course card in the course list"
@@ -486,7 +486,7 @@ msgstr ""
 #: frontend/src/components/Modals/BatchStudentProgress.vue:41
 #: lms/lms/doctype/lms_batch/lms_batch.json lms/templates/assessments.html:11
 msgid "Assessment"
-msgstr ""
+msgstr "Bedømmelse"
 
 #. Label of the assessment_name (Dynamic Link) field in DocType 'LMS
 #. Assessment'
@@ -518,15 +518,15 @@ msgstr ""
 
 #: lms/lms/doctype/lms_badge/lms_badge.js:50
 msgid "Assign"
-msgstr ""
+msgstr "Tildel"
 
 #: frontend/src/components/Settings/BadgeForm.vue:28
 msgid "Assign For"
-msgstr ""
+msgstr "Tildel For"
 
 #: frontend/src/components/Settings/BadgeForm.vue:58
 msgid "Assign To"
-msgstr ""
+msgstr "Tildel Til"
 
 #: frontend/src/components/Settings/BadgeAssignmentForm.vue:7
 msgid "Assign a Badge"
@@ -594,7 +594,7 @@ msgstr ""
 #: frontend/src/components/Settings/Badges.vue:163
 #: frontend/src/pages/Assignments.vue:208 lms/www/lms.py:271
 msgid "Assignments"
-msgstr ""
+msgstr "Tildelinger"
 
 #: lms/lms/doctype/lms_question/lms_question.py:44
 msgid "At least one option must be correct for this question."
@@ -615,12 +615,12 @@ msgstr ""
 #. Label of the attendees (Int) field in DocType 'LMS Live Class'
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Attendees"
-msgstr ""
+msgstr "Deltagere"
 
 #. Label of the attire (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
 msgid "Attire Preference"
-msgstr ""
+msgstr "Påklædning Præference"
 
 #: frontend/src/pages/ProfileEvaluator.vue:137
 msgid "Authorize Google Calendar Access"
@@ -629,7 +629,7 @@ msgstr ""
 #. Option for the 'Event' (Select) field in DocType 'LMS Badge'
 #: lms/lms/doctype/lms_badge/lms_badge.json
 msgid "Auto Assign"
-msgstr ""
+msgstr "Automatisk Tildeling"
 
 #. Label of the auto_recording (Select) field in DocType 'LMS Live Class'
 #: frontend/src/components/Modals/LiveClassModal.vue:73
@@ -648,17 +648,17 @@ msgstr ""
 #: frontend/src/components/Modals/CourseProgressSummary.vue:105
 #: frontend/src/pages/Programs/ProgramProgressSummary.vue:22
 msgid "Average Progress %"
-msgstr ""
+msgstr "Gennemsnitlig Fremskridt %"
 
 #: frontend/src/components/CourseCard.vue:71
 #: frontend/src/pages/CourseDetail.vue:20
 #: frontend/src/pages/Programs/ProgramEnrollment.vue:76
 msgid "Average Rating"
-msgstr ""
+msgstr "Gennemsnitlig Bedømmelse"
 
 #: frontend/src/components/Modals/VideoStatistics.vue:74
 msgid "Average Watch Time"
-msgstr ""
+msgstr "Gennemsnitlig Visningstid"
 
 #: frontend/src/pages/Lesson.vue:63 frontend/src/pages/Lesson.vue:199
 msgid "Back to Course"
@@ -891,7 +891,7 @@ msgstr ""
 #. Label of the body (Markdown Editor) field in DocType 'Course Lesson'
 #: lms/lms/doctype/course_lesson/course_lesson.json
 msgid "Body"
-msgstr ""
+msgstr "Indhold"
 
 #. Option for the 'Collaboration Preference' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -914,17 +914,17 @@ msgstr ""
 
 #: lms/templates/emails/lms_message.html:11
 msgid "By"
-msgstr ""
+msgstr "Af"
 
 #. Option for the 'Grade Type' (Select) field in DocType 'Education Detail'
 #: lms/lms/doctype/education_detail/education_detail.json
 msgid "CGPA/4"
-msgstr ""
+msgstr "CGPA/4"
 
 #: frontend/src/components/UpcomingEvaluations.vue:59
 #: frontend/src/components/UpcomingEvaluations.vue:181
 msgid "Cancel"
-msgstr ""
+msgstr "Annuller"
 
 #: frontend/src/components/UpcomingEvaluations.vue:175
 msgid "Cancel this evaluation?"
@@ -937,7 +937,7 @@ msgstr ""
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Cancelled"
-msgstr ""
+msgstr "Annulleret"
 
 #. Label of the carrer_preference_details (Section Break) field in DocType
 #. 'User'
