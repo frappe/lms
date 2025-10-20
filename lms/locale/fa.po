@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-10-10 16:04+0000\n"
-"PO-Revision-Date: 2025-10-13 13:37\n"
+"PO-Revision-Date: 2025-10-19 14:59\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Persian\n"
 "MIME-Version: 1.0\n"
@@ -458,7 +458,7 @@ msgstr "تأیید شده"
 
 #: frontend/src/components/Apps.vue:13
 msgid "Apps"
-msgstr "برنامه ها"
+msgstr "برنامه‌ها"
 
 #: frontend/src/pages/Batches.vue:285
 msgid "Archived"
@@ -492,7 +492,7 @@ msgstr "ارزیابی"
 #. Assessment'
 #: lms/lms/doctype/lms_assessment/lms_assessment.json
 msgid "Assessment Name"
-msgstr "اسم ارزیابی"
+msgstr "نام ارزیابی"
 
 #. Label of the assessment_type (Link) field in DocType 'LMS Assessment'
 #: lms/lms/doctype/lms_assessment/lms_assessment.json
@@ -781,7 +781,7 @@ msgstr "ارزیاب دسته"
 #. Label of the batch_name (Link) field in DocType 'LMS Certificate Evaluation'
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 msgid "Batch Name"
-msgstr "اسم دسته"
+msgstr "نام دسته"
 
 #. Label of the batch_old (Link) field in DocType 'Exercise Latest Submission'
 #. Label of the batch_old (Link) field in DocType 'Exercise Submission'
@@ -1694,7 +1694,7 @@ msgstr ""
 
 #: lms/lms/report/course_progress_summary/course_progress_summary.py:58
 msgid "Course Name"
-msgstr "اسم دوره"
+msgstr "نام دوره"
 
 #: frontend/src/pages/CourseDetail.vue:78 frontend/src/pages/CourseForm.vue:310
 msgid "Course Outline"
@@ -2939,7 +2939,7 @@ msgstr "به ما در درک نیازهای خود کمک کنید"
 
 #: frontend/src/pages/Home/Home.vue:11
 msgid "Hey"
-msgstr ""
+msgstr "سلام"
 
 #: lms/lms/notification/certificate_request_reminder/certificate_request_reminder.html:1
 #: lms/templates/emails/certificate_request_notification.html:1
@@ -3111,7 +3111,7 @@ msgstr "غیر فعال"
 #. Label of the include_in_preview (Check) field in DocType 'Course Lesson'
 #: lms/lms/doctype/course_lesson/course_lesson.json
 msgid "Include In Preview"
-msgstr "شامل در پیش نمایش"
+msgstr "شامل در پیش‌نمایش"
 
 #. Option for the 'Status' (Select) field in DocType 'LMS Course Progress'
 #: lms/lms/doctype/lms_course_progress/lms_course_progress.json
@@ -5199,7 +5199,7 @@ msgstr ""
 #. Label of the image (Attach Image) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Preview Image"
-msgstr "پیش نمایش تصویر"
+msgstr "پیش‌نمایش تصویر"
 
 #: frontend/src/pages/CourseForm.vue:212
 msgid "Preview Video"
@@ -5266,7 +5266,7 @@ msgstr ""
 
 #: frontend/src/components/Modals/EditProfile.vue:25
 msgid "Profile Image"
-msgstr "عکس نمایه"
+msgstr "تصویر نمایه"
 
 #: frontend/src/pages/Programs/Programs.vue:18
 msgid "Program"
@@ -5725,7 +5725,7 @@ msgstr "نقش با موفقیت به‌روزرسانی شد"
 
 #: frontend/src/components/AppSidebar.vue:646
 msgid "Roles"
-msgstr "نقش ها"
+msgstr "نقش‌ها"
 
 #. Label of the route (Data) field in DocType 'LMS Sidebar Item'
 #: lms/lms/doctype/lms_sidebar_item/lms_sidebar_item.json
