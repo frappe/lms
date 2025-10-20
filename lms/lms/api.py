@@ -1686,15 +1686,19 @@ def get_job_applications(job):
 @frappe.whitelist()
 def send_email_to_applicant(applicant_email, subject, message, job):
 	"""Send email to job applicant. Only job owners or system managers can send emails."""
+	job_owner = frappe.db.get_value("Job Opportunity", job, "owner")
+
 	if "System Manager" not in frappe.get_roles():
-		job_owner = frappe.db.get_value("Job Opportunity", job, "owner")
 		if job_owner != frappe.session.user:
 			frappe.throw(_("You don't have permission to send emails for this job"))
+
+	job_owner_email = frappe.db.get_value("User", job_owner, "email")
 
 	frappe.sendmail(
 		recipients=[applicant_email],
 		subject=subject,
 		message=message,
+		reply_to=job_owner_email,
 		now=True,
 	)
 
