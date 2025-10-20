@@ -1651,6 +1651,56 @@ def get_progress_distribution(progressList):
 	return distribution
 
 
+@frappe.whitelist()
+def get_job_applications(job):
+	"""Get job applications for a specific job. Only job owner or system manager can access."""
+	job_doc = frappe.get_doc("Job Opportunity", job)
+
+	if job_doc.owner != frappe.session.user and "System Manager" not in frappe.get_roles():
+		frappe.throw(_("You don't have permission to view applications for this job"))
+
+	applications = frappe.get_all(
+		"LMS Job Application",
+		filters={"job": job},
+		fields=[
+			"name",
+			"user",
+			"resume",
+			"creation",
+			"user.full_name as full_name",
+			"user.email as email",
+			"user.user_image as user_image",
+		],
+		order_by="creation desc",
+	)
+
+	for app in applications:
+		if app.resume:
+			file_url = frappe.db.get_value("File", {"file_name": app.resume}, "file_url")
+			if file_url:
+				app.resume_url = file_url
+
+	return applications
+
+
+@frappe.whitelist()
+def send_email_to_applicant(applicant_email, subject, message, job):
+	"""Send email to job applicant. Only job owners or system managers can send emails."""
+	if "System Manager" not in frappe.get_roles():
+		job_owner = frappe.db.get_value("Job Opportunity", job, "owner")
+		if job_owner != frappe.session.user:
+			frappe.throw(_("You don't have permission to send emails for this job"))
+
+	frappe.sendmail(
+		recipients=[applicant_email],
+		subject=subject,
+		message=message,
+		now=True,
+	)
+
+	return {"success": True, "message": "Email sent successfully"}
+
+
 @frappe.whitelist(allow_guest=True)
 def get_pwa_manifest():
 	title = frappe.db.get_single_value("Website Settings", "app_name") or "Frappe Learning"
