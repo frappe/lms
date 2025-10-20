@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-10-10 16:04+0000\n"
-"PO-Revision-Date: 2025-10-13 13:37\n"
+"PO-Revision-Date: 2025-10-17 14:45\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Norwegian Bokmal\n"
 "MIME-Version: 1.0\n"
@@ -106,7 +106,7 @@ msgstr ""
 #. Option for the 'Status' (Select) field in DocType 'Cohort Join Request'
 #: lms/lms/doctype/cohort_join_request/cohort_join_request.json
 msgid "Accepted"
-msgstr ""
+msgstr "Akseptert"
 
 #. Label of the account_id (Data) field in DocType 'LMS Zoom Settings'
 #. Label of the account_id (Data) field in DocType 'Zoom Settings'
@@ -114,18 +114,18 @@ msgstr ""
 #: lms/lms/doctype/lms_zoom_settings/lms_zoom_settings.json
 #: lms/lms/doctype/zoom_settings/zoom_settings.json
 msgid "Account ID"
-msgstr ""
+msgstr "Konto ID"
 
 #. Label of the account_name (Data) field in DocType 'LMS Zoom Settings'
 #: frontend/src/components/Modals/ZoomAccountModal.vue:30
 #: frontend/src/components/Settings/ZoomSettings.vue:192
 #: lms/lms/doctype/lms_zoom_settings/lms_zoom_settings.json
 msgid "Account Name"
-msgstr ""
+msgstr "Konto Navn"
 
 #: frontend/src/pages/ProfileAbout.vue:34
 msgid "Achievements"
-msgstr ""
+msgstr "Prestasjoner"
 
 #. Option for the 'Status' (Select) field in DocType 'LMS Batch Old'
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
@@ -134,7 +134,7 @@ msgstr "Aktiv"
 
 #: frontend/src/pages/Statistics.vue:16
 msgid "Active Members"
-msgstr ""
+msgstr "Aktive Medlemmer"
 
 #: frontend/src/components/Assessments.vue:11
 #: frontend/src/components/BatchCourses.vue:11
@@ -148,17 +148,17 @@ msgstr ""
 #: frontend/src/pages/Programs/ProgramForm.vue:131
 #: frontend/src/pages/Programs/ProgramForm.vue:180
 msgid "Add"
-msgstr ""
+msgstr "Legg til"
 
 #: frontend/src/components/CourseOutline.vue:18
 #: frontend/src/components/CreateOutline.vue:18
 #: frontend/src/components/Modals/ChapterModal.vue:5
 msgid "Add Chapter"
-msgstr ""
+msgstr "Legg til Kapittel"
 
 #: frontend/src/pages/Programs/ProgramForm.vue:176
 msgid "Add Course to Program"
-msgstr ""
+msgstr "Legg kurs til program"
 
 #: frontend/src/components/Settings/Evaluators.vue:91
 msgid "Add Evaluator"
@@ -344,7 +344,7 @@ msgstr ""
 
 #: frontend/src/pages/BatchForm.vue:64
 msgid "Allow self enrollment"
-msgstr ""
+msgstr "Tillat selvregistrering"
 
 #: lms/lms/user.py:34
 msgid "Already Registered"
@@ -372,7 +372,7 @@ msgstr "Beløp"
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Amount (USD)"
-msgstr ""
+msgstr "Beløp (USD)"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:70
 msgid "Amount and currency are required for paid batches."
@@ -447,14 +447,14 @@ msgstr ""
 
 #: frontend/src/components/Modals/JobApplicationModal.vue:6
 msgid "Apply for this job"
-msgstr ""
+msgstr "Søk på denne jobben"
 
 #. Option for the 'Status' (Select) field in DocType 'LMS Course'
 #. Option for the 'Status' (Select) field in DocType 'LMS Mentor Request'
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
 msgid "Approved"
-msgstr ""
+msgstr "Godkjent"
 
 #: frontend/src/components/Apps.vue:13
 msgid "Apps"
@@ -462,7 +462,7 @@ msgstr "Apper"
 
 #: frontend/src/pages/Batches.vue:285
 msgid "Archived"
-msgstr ""
+msgstr "Arkivert"
 
 #: frontend/src/components/UpcomingEvaluations.vue:176
 msgid "Are you sure you want to cancel this evaluation? This action cannot be undone."
@@ -518,7 +518,7 @@ msgstr ""
 
 #: lms/lms/doctype/lms_badge/lms_badge.js:50
 msgid "Assign"
-msgstr ""
+msgstr "Tildel"
 
 #: frontend/src/components/Settings/BadgeForm.vue:28
 msgid "Assign For"
@@ -669,18 +669,18 @@ msgstr ""
 #: frontend/src/components/Settings/Badges.vue:214
 #: lms/lms/doctype/lms_badge_assignment/lms_badge_assignment.json
 msgid "Badge"
-msgstr ""
+msgstr "Emblem"
 
 #. Label of the badge_description (Small Text) field in DocType 'LMS Badge
 #. Assignment'
 #: lms/lms/doctype/lms_badge_assignment/lms_badge_assignment.json
 msgid "Badge Description"
-msgstr ""
+msgstr "Emblem Beskrivelse"
 
 #. Label of the badge_image (Attach) field in DocType 'LMS Badge Assignment'
 #: lms/lms/doctype/lms_badge_assignment/lms_badge_assignment.json
 msgid "Badge Image"
-msgstr ""
+msgstr "Emblem Bilde"
 
 #: frontend/src/components/Settings/BadgeAssignmentForm.vue:131
 msgid "Badge assignment created successfully"
@@ -721,7 +721,7 @@ msgstr ""
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Batch"
-msgstr ""
+msgstr "Gruppe"
 
 #. Label of the batch_confirmation_template (Link) field in DocType 'LMS
 #. Settings'
