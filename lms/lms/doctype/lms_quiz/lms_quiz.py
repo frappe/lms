@@ -138,6 +138,37 @@ def quiz_summary(quiz, results):
 	}
 
 
+def check_submitted_answer(question_id, submitted_answer):
+	"""Check if the submitted answer matches the correct options for the question."""
+	if not submitted_answer:
+		return False
+	
+	try:
+		fields = ["option_1", "option_2", "option_3", "option_4",
+				  "is_correct_1", "is_correct_2", "is_correct_3", "is_correct_4"]
+		question_data = frappe.db.get_value("LMS Question", question_id, fields, as_dict=True)
+		
+		if not question_data:
+			return False
+		
+		submitted_answers = [ans.strip() for ans in submitted_answer.split(',')]
+		
+		correct_options = []
+		for i in range(1, 5):
+			option = question_data.get(f"option_{i}")
+			is_correct = question_data.get(f"is_correct_{i}", 0)
+			if option and is_correct:
+				correct_options.append(option.strip())
+		
+		if set(submitted_answers) == set(correct_options):
+			return True
+		
+		return False
+	except Exception as e:
+		frappe.log_error(f"Error in check_submitted_answer: {e}")
+		return False
+
+
 def process_results(results, quiz_details):
 	score = 0
 	is_open_ended = False
@@ -161,7 +192,8 @@ def process_results(results, quiz_details):
 					correct = correct and point
 				result["is_correct"] = correct
 			else:
-				result["is_correct"] = 0
+				correct = check_submitted_answer(question_details.question, result.get("answer", ""))
+				result["is_correct"] = correct
 
 			if correct:
 				marks = question_details.marks
