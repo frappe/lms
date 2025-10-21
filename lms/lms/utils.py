@@ -1394,7 +1394,7 @@ def get_batch_details(batch):
 	if (
 		not batch_details.accept_enrollments
 		and batch_details.start_date == getdate()
-		and get_time_str(batch_details.start_time) > nowtime()
+		and get_time_str(str(batch_details.start_time)) > nowtime()
 	):
 		batch_details.accept_enrollments = True
 
@@ -1424,7 +1424,7 @@ def categorize_batches(batches):
 		elif getdate(batch.start_date) < getdate():
 			archived.append(batch)
 		elif (
-			getdate(batch.start_date) == getdate() and get_time_str(batch.start_time) < nowtime()
+			getdate(batch.start_date) == getdate() and get_time_str(str(batch.start_time)) < nowtime()
 		):
 			archived.append(batch)
 		else:
@@ -2106,7 +2106,7 @@ def filter_batches_based_on_start_time(batches, filters):
 			batch
 			for batch in batches
 			if getdate(batch.start_date) == getdate()
-			and get_time_str(batch.start_time) < nowtime()
+			and get_time_str(str(batch.start_time)) < nowtime()
 		]
 		batches = [batch for batch in batches if batch not in batches_to_remove]
 	elif batchType == "archived":
@@ -2114,7 +2114,7 @@ def filter_batches_based_on_start_time(batches, filters):
 			batch
 			for batch in batches
 			if getdate(batch.start_date) == getdate()
-			and get_time_str(batch.start_time) >= nowtime()
+			and get_time_str(str(batch.start_time)) >= nowtime()
 		]
 		batches = [batch for batch in batches if batch not in batches_to_remove]
 	return batches
