@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-10-17 16:04+0000\n"
-"PO-Revision-Date: 2025-10-20 15:18\n"
+"PO-Revision-Date: 2025-10-21 15:47\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Danish\n"
 "MIME-Version: 1.0\n"
@@ -92,7 +92,7 @@ msgstr "Om"
 
 #: frontend/src/pages/CourseForm.vue:182
 msgid "About the Course"
-msgstr ""
+msgstr "Om Kurs"
 
 #: frontend/src/pages/Batch.vue:101
 msgid "About this batch"

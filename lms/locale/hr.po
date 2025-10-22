@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-10-17 16:04+0000\n"
-"PO-Revision-Date: 2025-10-20 15:18\n"
+"PO-Revision-Date: 2025-10-21 15:47\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Croatian\n"
 "MIME-Version: 1.0\n"
@@ -2655,7 +2655,7 @@ msgstr "Nije uspjelo preuzimanje podataka o prisutnosti sa Zooma za čas {0}: {1
 
 #: frontend/src/components/ContactUsEmail.vue:63
 msgid "Failed to send email"
-msgstr ""
+msgstr "Slanje e-pošte nije uspjelo"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:358
 msgid "Failed to submit. Please try again. {0}"
@@ -6779,7 +6779,7 @@ msgstr "Vremenska Zona"
 
 #: lms/lms/doctype/lms_course/lms_course.py:72
 msgid "Timezone is required for paid certificates."
-msgstr ""
+msgstr "Za plaćene certifikate potrebna je vremenska zona."
 
 #: lms/templates/emails/batch_confirmation.html:21
 #: lms/templates/emails/batch_start_reminder.html:16
@@ -7393,7 +7393,7 @@ msgstr "Imate ocjenu {0} za kviz {1}"
 
 #: frontend/src/pages/ProfileCertificates.vue:26
 msgid "You have not received any certificates yet."
-msgstr ""
+msgstr "Još niste primili nikakve certifikate."
 
 #: lms/lms/widgets/NoPreviewModal.html:12
 msgid "You have opted to be notified for this course. You will receive an email when the course becomes available."
@@ -7595,7 +7595,7 @@ msgstr "dana"
 
 #: frontend/src/pages/CourseForm.vue:290
 msgid "e.g. IST, UTC, GMT..."
-msgstr ""
+msgstr "npr. IST, UTC, GMT..."
 
 #: frontend/src/pages/Home/Home.vue:101 frontend/src/pages/Home/Home.vue:124
 msgid "evaluation"
