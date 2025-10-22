@@ -1,5 +1,5 @@
 <template>
-	<div class="text-lg font-semibold mb-4">
+	<div class="text-lg font-semibold mb-4 text-ink-gray-9">
 		{{ __('My Notes') }}
 	</div>
 	<TextEditor
