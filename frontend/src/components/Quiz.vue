@@ -211,111 +211,111 @@
 						/>
 					</div>
 					<div
-					class="flex flex-col lg:flex-row lg:items-center lg:justify-between mt-4 gap-4 text-center lg:text-left"
+						class="flex flex-col lg:flex-row lg:items-center lg:justify-between mt-4 gap-4 text-center lg:text-left"
 					>
-					<div>
-						<div class="text-sm text-ink-gray-5">
-						{{
-							__('Question {0} of {1}').format(activeQuestion, questions.length)
-						}}
-						</div>
-					</div>
-
-					<div v-if=allowPreviousNav class="flex flex-col items-center">
-						
-						
-						<div class="flex items-center gap-2">
-							<button
-							@click="goToPrevPage"
-							:disabled="currentPage === 0"
-							:class="[
-								'p-1 rounded',
-								currentPage === 0 
-								? 'text-gray-300 cursor-not-allowed' 
-								: 'text-gray-600 hover:bg-gray-100'
-							]"
-							>
-							<ChevronLeft :size="20" />
-							</button>
-							
-							<div class="flex gap-2">
-							<button
-								v-for="questionNum in visibleQuestions"
-								:key="questionNum"
-								@click="jumpToQuestion(questionNum)"
-								:class="[
-								'w-8 h-8 rounded border text-sm flex-shrink-0',
-								activeQuestion === questionNum
-									? 'bg-blue-600 text-white border-blue-600'
-									: 'border-gray-300 text-gray-600 hover:bg-gray-100'
-								]"
-							>
-								{{ questionNum }}
-							</button>
+						<div>
+							<div class="text-sm text-ink-gray-5">
+								{{
+									__('Question {0} of {1}').format(
+										activeQuestion,
+										questions.length
+									)
+								}}
 							</div>
-							
-				
-							<button
-							@click="goToNextPage"
-							:disabled="currentPage === totalPages - 1"
-							:class="[
-								'p-1 rounded',
-								currentPage === totalPages - 1
-								? 'text-gray-300 cursor-not-allowed'
-								: 'text-gray-600 hover:bg-gray-100'
-							]"
+						</div>
+
+						<div v-if="allowPreviousNav" class="flex flex-col items-center">
+							<div class="flex items-center gap-2">
+								<button
+									@click="goToPrevPage"
+									:disabled="currentPage === 0"
+									:class="[
+										'p-1 rounded',
+										currentPage === 0
+											? 'text-gray-300 cursor-not-allowed'
+											: 'text-gray-600 hover:bg-gray-100',
+									]"
+								>
+									<ChevronLeft :size="20" />
+								</button>
+
+								<div class="flex gap-2">
+									<button
+										v-for="questionNum in visibleQuestions"
+										:key="questionNum"
+										@click="jumpToQuestion(questionNum)"
+										:class="[
+											'w-8 h-8 rounded border text-sm flex-shrink-0',
+											activeQuestion === questionNum
+												? 'bg-blue-600 text-white border-blue-600'
+												: 'border-gray-300 text-gray-600 hover:bg-gray-100',
+										]"
+									>
+										{{ questionNum }}
+									</button>
+								</div>
+
+								<button
+									@click="goToNextPage"
+									:disabled="currentPage === totalPages - 1"
+									:class="[
+										'p-1 rounded',
+										currentPage === totalPages - 1
+											? 'text-gray-300 cursor-not-allowed'
+											: 'text-gray-600 hover:bg-gray-100',
+									]"
+								>
+									<ChevronRight :size="20" />
+								</button>
+							</div>
+						</div>
+
+						<div class="flex justify-center lg:justify-end items-center gap-2">
+							<Button
+								:class="{
+									invisible: !(allowPreviousNav && activeQuestion > 1),
+								}"
+								variant="outline"
+								class="w-[90px] justify-center"
+								@click="previousQuestion()"
 							>
-							<ChevronRight :size="20" />
-							</button>
+								<template #prefix>
+									<ArrowLeft class="w-4 h-4" />
+								</template>
+								{{ __('Previous') }}
+							</Button>
+
+							<div class="w-[90px]">
+								<Button
+									v-if="
+										quiz.data.show_answers &&
+										!showAnswers.length &&
+										questionDetails.data.type != 'Open Ended'
+									"
+									@click="checkAnswer()"
+									class="w-full justify-center"
+								>
+									{{ __('Check') }}
+								</Button>
+
+								<Button
+									v-else-if="activeQuestion != questions.length"
+									@click="nextQuestion()"
+									class="w-full justify-center"
+								>
+									{{ __('Next') }}
+								</Button>
+
+								<Button
+									v-else
+									@click="submitQuiz()"
+									class="w-full justify-center"
+								>
+									{{ __('Submit') }}
+								</Button>
+							</div>
 						</div>
 					</div>
-
-					
-					<div class="flex justify-center lg:justify-end items-center gap-2">
-						<Button
-						:class="{ 'invisible': !(allowPreviousNav && activeQuestion > 1) }"
-						variant="outline"
-						class="w-[90px] justify-center"
-						@click="previousQuestion()"
-						>
-						<template #prefix>
-							<ArrowLeft class="w-4 h-4" />
-						</template>
-						{{ __('Previous') }}
-						</Button>
-
-						<div class="w-[90px]">
-						<Button
-							v-if="
-							quiz.data.show_answers &&
-							!showAnswers.length &&
-							questionDetails.data.type != 'Open Ended'
-							"
-							@click="checkAnswer()"
-							class="w-full justify-center"
-						>
-							{{ __('Check') }}
-						</Button>
-
-						<Button
-							v-else-if="activeQuestion != questions.length"
-							@click="nextQuestion()"
-							class="w-full justify-center"
-						>
-							{{ __('Next') }}
-						</Button>
-
-						<Button
-							v-else
-							@click="submitQuiz()"
-							class="w-full justify-center"
-						>
-							{{ __('Submit') }}
-						</Button>
-						</div>
-					</div>
-					</div>
-
 				</div>
 			</div>
 		</div>
@@ -396,7 +396,15 @@ import {
 	toast,
 } from 'frappe-ui'
 import { ref, watch, reactive, inject, computed } from 'vue'
-import { CheckCircle, XCircle, MinusCircle, ArrowLeft, Plus, ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import {
+	CheckCircle,
+	XCircle,
+	MinusCircle,
+	ArrowLeft,
+	Plus,
+	ChevronLeft,
+	ChevronRight,
+} from 'lucide-vue-next'
 import { timeAgo } from '@/utils'
 import { useRouter } from 'vue-router'
 import ProgressBar from '@/components/ProgressBar.vue'
@@ -412,8 +420,8 @@ const timer = ref(0)
 let timerInterval = null
 const answersMap = reactive({})
 const allowPreviousNav = computed(() => !quiz.data?.show_answers)
-const currentPage = ref(0);
-const itemsPerPage = 3;
+const currentPage = ref(0)
+const itemsPerPage = 3
 
 const props = defineProps({
 	quizName: {
@@ -430,28 +438,25 @@ const props = defineProps({
 	},
 })
 
-
-const totalPages = computed(() => 
-  Math.ceil(questions.length / itemsPerPage)
-);
+const totalPages = computed(() => Math.ceil(questions.length / itemsPerPage))
 
 const visibleQuestions = computed(() => {
-  const start = currentPage.value * itemsPerPage;
-  const end = Math.min(start + itemsPerPage, questions.length);
-  return Array.from({ length: end - start }, (_, i) => start + i + 1);
-});
+	const start = currentPage.value * itemsPerPage
+	const end = Math.min(start + itemsPerPage, questions.length)
+	return Array.from({ length: end - start }, (_, i) => start + i + 1)
+})
 
 const goToPrevPage = () => {
-  if (currentPage.value > 0) currentPage.value--;
-};
+	if (currentPage.value > 0) currentPage.value--
+}
 
 const goToNextPage = () => {
-  if (currentPage.value < totalPages.value - 1) currentPage.value++;
-};
+	if (currentPage.value < totalPages.value - 1) currentPage.value++
+}
 
 const updateCurrentPage = (questionNum) => {
-  currentPage.value = Math.floor((questionNum - 1) / itemsPerPage);
-};
+	currentPage.value = Math.floor((questionNum - 1) / itemsPerPage)
+}
 
 const quiz = createResource({
 	url: 'frappe.client.get',
@@ -706,13 +711,13 @@ const saveCurrentAnswer = () => {
 	} else {
 		actualAnswers = [possibleAnswer.value]
 	}
-	
+
 	answersMap[currentQuestion.value] = {
 		selectedOptions: [...selectedOptions],
 		possibleAnswer: possibleAnswer.value,
 		actualAnswers: actualAnswers,
 		type: questionDetails.data?.type,
-		timestamp: Date.now()
+		timestamp: Date.now(),
 	}
 }
 
@@ -734,31 +739,30 @@ const previousQuestion = () => {
 	if (allowPreviousNav.value) {
 		saveCurrentAnswer()
 	}
-	
+
 	activeQuestion.value = activeQuestion.value - 1
-	
+
 	updateCurrentPage(activeQuestion.value)
 }
 
 const jumpToQuestion = (questionNumber) => {
 	if (questionNumber < 1 || questionNumber > questions.length) return
 	if (questionNumber === activeQuestion.value) return
-	
+
 	if (allowPreviousNav.value) {
 		saveCurrentAnswer()
 	}
-	
-	activeQuestion.value = questionNumber
-	
-	updateCurrentPage(activeQuestion.value)
 
+	activeQuestion.value = questionNumber
+
+	updateCurrentPage(activeQuestion.value)
 }
 
 const nextQuestion = () => {
 	if (allowPreviousNav.value) {
 		saveCurrentAnswer()
 	}
-	
+
 	if (!quiz.data.show_answers && questionDetails.data?.type != 'Open Ended') {
 		if (allowPreviousNav.value) {
 			if (activeQuestion.value == questions.length) return
@@ -788,7 +792,7 @@ const submitQuiz = () => {
 		batchSubmitAnswers()
 		return
 	}
-	
+
 	if (!quiz.data.show_answers) {
 		if (questionDetails.data.type == 'Open Ended') addToLocalStorage()
 		else checkAnswer()
@@ -802,23 +806,23 @@ const submitQuiz = () => {
 
 const batchSubmitAnswers = () => {
 	const quizData = []
-	
+
 	for (const [questionId, data] of Object.entries(answersMap)) {
 		let answer = ''
-		
+
 		if (data.type === 'Choices') {
 			answer = data.actualAnswers ? data.actualAnswers.join(',') : ''
 		} else {
 			answer = data.possibleAnswer || ''
 		}
-		
+
 		quizData.push({
 			question_name: questionId,
 			answer: answer,
-			is_correct: [] 
+			is_correct: [],
 		})
 	}
-	
+
 	localStorage.setItem(quiz.data.title, JSON.stringify(quizData))
 	setTimeout(() => {
 		createSubmission()
@@ -856,7 +860,7 @@ const resetQuiz = () => {
 	quizSubmission.reset()
 	populateQuestions()
 	setupTimer()
-	Object.keys(answersMap).forEach(key => delete answersMap[key])
+	Object.keys(answersMap).forEach((key) => delete answersMap[key])
 }
 
 const getInstructions = (question) => {
