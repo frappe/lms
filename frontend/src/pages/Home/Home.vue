@@ -18,7 +18,7 @@
 						class="bg-surface-amber-2 px-2 py-1 rounded-md cursor-pointer"
 					>
 						<span> 🔥 </span>
-						<span>
+						<span class="text-ink-gray-9">
 							{{ streakInfo.data?.current_streak }}
 						</span>
 					</div>
