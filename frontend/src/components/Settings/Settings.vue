@@ -2,7 +2,9 @@
 	<Dialog v-model="show" :options="{ size: '5xl' }">
 		<template #body>
 			<div class="flex h-[calc(100vh_-_8rem)]">
-				<div class="flex w-52 shrink-0 flex-col bg-surface-gray-2 p-2">
+				<div
+					class="flex w-52 shrink-0 flex-col bg-surface-gray-2 p-2 overflow-y-auto"
+				>
 					<h1 class="mb-3 px-2 pt-2 text-lg font-semibold text-ink-gray-9">
 						{{ __('Settings') }}
 					</h1>
@@ -14,18 +16,13 @@
 							<span>{{ __(tab.label) }}</span>
 						</div>
 						<nav class="space-y-1">
-							<SidebarLink
-								v-for="item in tab.items"
-								:link="item"
-								:key="item.label"
-								class="w-full"
-								:class="
-									activeTab?.label == item.label
-										? 'bg-surface-selected shadow-sm'
-										: 'hover:bg-surface-gray-2'
-								"
-								@click="activeTab = item"
-							/>
+							<div v-for="item in tab.items" @click="activeTab = item">
+								<SidebarLink
+									:link="item"
+									:key="item.label"
+									:activeTab="activeTab?.label"
+								/>
+							</div>
 						</nav>
 					</div>
 				</div>

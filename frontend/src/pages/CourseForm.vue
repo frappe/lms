@@ -260,24 +260,36 @@
 									v-if="course.paid_course || course.paid_certificate"
 									v-model="course.course_price"
 									:label="__('Amount')"
+									:required="course.paid_course || course.paid_certificate"
 								/>
 								<Link
 									v-if="course.paid_certificate"
 									doctype="Course Evaluator"
 									v-model="course.evaluator"
 									:label="__('Evaluator')"
+									:required="course.paid_certificate"
 									:onCreate="
 										(value, close) => openSettings('Evaluators', close)
 									"
 								/>
 							</div>
-							<Link
-								v-if="course.paid_course || course.paid_certificate"
-								doctype="Currency"
-								v-model="course.currency"
-								:filters="{ enabled: 1 }"
-								:label="__('Currency')"
-							/>
+							<div class="space-y-5">
+								<Link
+									v-if="course.paid_course || course.paid_certificate"
+									doctype="Currency"
+									v-model="course.currency"
+									:filters="{ enabled: 1 }"
+									:label="__('Currency')"
+									:required="course.paid_course || course.paid_certificate"
+								/>
+								<FormControl
+									v-if="course.paid_certificate"
+									v-model="course.timezone"
+									:label="__('Timezone')"
+									:required="course.paid_certificate"
+									:placeholder="__('e.g. IST, UTC, GMT...')"
+								/>
+							</div>
 						</div>
 					</div>
 
@@ -388,6 +400,7 @@ const course = reactive({
 	course_price: '',
 	currency: '',
 	evaluator: '',
+	timezone: '',
 })
 
 const meta = reactive({
