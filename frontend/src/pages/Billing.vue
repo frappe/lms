@@ -20,7 +20,7 @@
 						<div class="text-ink-gray-5">
 							{{ __('Payment for ') }} {{ type }}:
 						</div>
-						<div class="leading-5">
+						<div class="leading-5 text-ink-gray-9">
 							{{ orderSummary.data.title }}
 						</div>
 					</div>
@@ -31,7 +31,7 @@
 						<div class="text-ink-gray-5">
 							{{ __('Original Amount') }}
 						</div>
-						<div class="">
+						<div class="text-ink-gray-9">
 							{{ orderSummary.data.original_amount_formatted }}
 						</div>
 					</div>
@@ -42,17 +42,17 @@
 						<div class="text-ink-gray-5">
 							{{ __('GST Amount') }}
 						</div>
-						<div>
+						<div class="text-ink-gray-9">
 							{{ orderSummary.data.gst_amount_formatted }}
 						</div>
 					</div>
 					<div
 						class="flex items-center justify-between border-t border-outline-gray-3 pt-4 mt-2"
 					>
-						<div class="text-lg font-semibold">
+						<div class="text-lg font-semibold text-ink-gray-9">
 							{{ __('Total') }}
 						</div>
-						<div class="text-lg font-semibold">
+						<div class="text-lg font-semibold text-ink-gray-9">
 							{{ orderSummary.data.total_amount_formatted }}
 						</div>
 					</div>
@@ -60,7 +60,7 @@
 
 				<div class="flex-1 lg:mr-10">
 					<div class="mb-5">
-						<div class="text-lg font-semibold">
+						<div class="text-lg font-semibold text-ink-gray-9">
 							{{ __('Address') }}
 						</div>
 					</div>
