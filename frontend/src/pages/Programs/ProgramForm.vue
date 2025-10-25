@@ -58,15 +58,22 @@
 						</Button>
 					</div>
 					<ListView
-						v-if="programCourses.data.length > 0"
+						v-if="
+							(programName === 'new' && program.program_courses.length > 0) ||
+							(programName !== 'new' && programCourses.data.length > 0)
+						"
 						:columns="courseColumns"
-						:rows="programCourses.data"
+						:rows="
+							programName === 'new'
+								? program.program_courses
+								: programCourses.data
+						"
 						:options="{
 							selectable: true,
 							resizeColumn: true,
 							showTooltip: false,
 						}"
-						rowKey="name"
+						:rowKey="programName === 'new' ? 'course' : 'name'"
 					>
 						<ListHeader
 							class="mb-2 grid items-center space-x-4 rounded bg-surface-gray-2 p-2"
@@ -75,8 +82,12 @@
 						</ListHeader>
 						<ListRows>
 							<Draggable
-								:list="programCourses.data"
-								item-key="name"
+								:list="
+									programName === 'new'
+										? program.program_courses
+										: programCourses.data
+								"
+								:item-key="programName === 'new' ? 'course' : 'name'"
 								group="items"
 								@end="updateOrder"
 								class="cursor-move"
@@ -91,7 +102,11 @@
 								<div class="flex gap-2">
 									<Button
 										variant="ghost"
-										@click="remove(selections, unselectAll, 'courses')"
+										@click="
+											programName === 'new'
+												? removeNewProgramCourses(selections, unselectAll)
+												: remove(selections, unselectAll, 'courses')
+										"
 									>
 										<Trash2 class="h-4 w-4 stroke-1.5" />
 									</Button>
@@ -133,14 +148,21 @@
 						</div>
 					</div>
 					<ListView
-						v-if="programMembers.data.length > 0"
+						v-if="
+							(programName === 'new' && program.program_members.length > 0) ||
+							(programName !== 'new' && programMembers.data.length > 0)
+						"
 						:columns="memberColumns"
-						:rows="programMembers.data"
+						:rows="
+							programName === 'new'
+								? program.program_members
+								: programMembers.data
+						"
 						:options="{
 							selectable: true,
 							resizeColumn: true,
 						}"
-						rowKey="name"
+						:rowKey="programName === 'new' ? 'member' : 'name'"
 					>
 						<ListHeader
 							class="mb-2 grid items-center space-x-4 rounded bg-surface-gray-2 p-2"
@@ -148,14 +170,23 @@
 							<ListHeaderItem :item="item" v-for="item in memberColumns" />
 						</ListHeader>
 						<ListRows>
-							<ListRow :row="row" v-for="row in programMembers.data" />
+							<ListRow
+								:row="row"
+								v-for="row in programName === 'new'
+									? program.program_members
+									: programMembers.data"
+							/>
 						</ListRows>
 						<ListSelectBanner>
 							<template #actions="{ unselectAll, selections }">
 								<div class="flex gap-2">
 									<Button
 										variant="ghost"
-										@click="remove(selections, unselectAll, 'members')"
+										@click="
+											programName === 'new'
+												? removeNewProgramMembers(selections, unselectAll)
+												: remove(selections, unselectAll, 'members')
+										"
 									>
 										<Trash2 class="h-4 w-4 stroke-1.5" />
 									</Button>
@@ -422,6 +453,23 @@ const addCourse = (close: () => void) => {
 		return
 	}
 
+	if (props.programName === 'new') {
+		const existingCourse = program.value.program_courses.find(
+			(c) => c.course === course.value
+		)
+		if (!existingCourse) {
+			program.value.program_courses.push({
+				course: course.value,
+				idx: program.value.program_courses.length + 1,
+			})
+			close()
+			toast.success(__('Course added to program successfully'))
+		} else {
+			toast.warning(__('Course already added to program'))
+		}
+		return
+	}
+
 	programCourses.insert.submit(
 		{
 			parent: props.programName,
@@ -446,6 +494,22 @@ const addCourse = (close: () => void) => {
 const addMember = (close: () => void) => {
 	if (!member.value) {
 		toast.warning(__('Please select a member'))
+		return
+	}
+
+	if (props.programName === 'new') {
+		const existingMember = program.value.program_members.find(
+			(m) => m.member === member.value
+		)
+		if (!existingMember) {
+			program.value.program_members.push({
+				member: member.value,
+			})
+			close()
+			toast.success(__('Member added to program successfully'))
+		} else {
+			toast.warning(__('Member already added to program'))
+		}
 		return
 	}
 
@@ -504,22 +568,32 @@ const updateCounts = async (
 const updateOrder = async (e: DragEvent) => {
 	let sourceIdx = e.from.dataset.idx
 	let targetIdx = e.to.dataset.idx
-	let courses = programCourses.data
-	courses.splice(targetIdx, 0, courses.splice(sourceIdx, 1)[0])
 
-	for (const [index, course] of courses.entries()) {
-		programCourses.setValue.submit(
-			{
-				name: course.name,
-				idx: index + 1,
-			},
-			{
-				onError(err: any) {
-					toast.warning(__(err.messages?.[0] || err))
+	if (props.programName === 'new') {
+		let courses = program.value.program_courses
+		courses.splice(targetIdx, 0, courses.splice(sourceIdx, 1)[0])
+		courses.forEach((course, index) => {
+			course.idx = index + 1
+		})
+		dirty.value = true
+	} else {
+		let courses = programCourses.data
+		courses.splice(targetIdx, 0, courses.splice(sourceIdx, 1)[0])
+
+		for (const [index, course] of courses.entries()) {
+			programCourses.setValue.submit(
+				{
+					name: course.name,
+					idx: index + 1,
 				},
-			}
-		)
-		await wait(100)
+				{
+					onError(err: any) {
+						toast.warning(__(err.messages?.[0] || err))
+					},
+				}
+			)
+			await wait(100)
+		}
 	}
 }
 
@@ -545,6 +619,28 @@ const remove = async (
 	unselectAll()
 }
 
+const removeNewProgramCourses = (
+	selections: string[],
+	unselectAll: () => void
+) => {
+	const selectionsArray = Array.from(selections)
+	program.value.program_courses = program.value.program_courses.filter(
+		(c) => !selectionsArray.includes(c.course)
+	)
+	unselectAll()
+}
+
+const removeNewProgramMembers = (
+	selections: string[],
+	unselectAll: () => void
+) => {
+	const selectionsArray = Array.from(selections)
+	program.value.program_members = program.value.program_members.filter(
+		(m) => !selectionsArray.includes(m.member)
+	)
+	unselectAll()
+}
+
 const deleteProgram = (close: () => void) => {
 	if (props.programName == 'new') return
 	programs.value?.delete.submit(props.programName, {
@@ -562,7 +658,7 @@ const courseColumns = computed(() => {
 	return [
 		{
 			label: 'Title',
-			key: 'course_title',
+			key: props.programName === 'new' ? 'course' : 'course_title',
 			width: 1,
 		},
 	]
