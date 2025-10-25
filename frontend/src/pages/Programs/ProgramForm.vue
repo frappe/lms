@@ -58,16 +58,9 @@
 						</Button>
 					</div>
 					<ListView
-						v-if="
-							(programName === 'new' && program.program_courses.length > 0) ||
-							(programName !== 'new' && programCourses.data.length > 0)
-						"
+						v-if="program.program_courses.length > 0"
 						:columns="courseColumns"
-						:rows="
-							programName === 'new'
-								? program.program_courses
-								: programCourses.data
-						"
+						:rows="program.program_courses"
 						:options="{
 							selectable: true,
 							resizeColumn: true,
@@ -82,11 +75,7 @@
 						</ListHeader>
 						<ListRows>
 							<Draggable
-								:list="
-									programName === 'new'
-										? program.program_courses
-										: programCourses.data
-								"
+								:list="program.program_courses"
 								:item-key="programName === 'new' ? 'course' : 'name'"
 								group="items"
 								@end="updateOrder"
@@ -102,11 +91,7 @@
 								<div class="flex gap-2">
 									<Button
 										variant="ghost"
-										@click="
-											programName === 'new'
-												? removeNewProgramCourses(selections, unselectAll)
-												: remove(selections, unselectAll, 'courses')
-										"
+										@click="remove(selections, unselectAll, 'courses')"
 									>
 										<Trash2 class="h-4 w-4 stroke-1.5" />
 									</Button>
@@ -148,16 +133,9 @@
 						</div>
 					</div>
 					<ListView
-						v-if="
-							(programName === 'new' && program.program_members.length > 0) ||
-							(programName !== 'new' && programMembers.data.length > 0)
-						"
+						v-if="program.program_members.length > 0"
 						:columns="memberColumns"
-						:rows="
-							programName === 'new'
-								? program.program_members
-								: programMembers.data
-						"
+						:rows="program.program_members"
 						:options="{
 							selectable: true,
 							resizeColumn: true,
@@ -170,23 +148,14 @@
 							<ListHeaderItem :item="item" v-for="item in memberColumns" />
 						</ListHeader>
 						<ListRows>
-							<ListRow
-								:row="row"
-								v-for="row in programName === 'new'
-									? program.program_members
-									: programMembers.data"
-							/>
+							<ListRow :row="row" v-for="row in program.program_members" />
 						</ListRows>
 						<ListSelectBanner>
 							<template #actions="{ unselectAll, selections }">
 								<div class="flex gap-2">
 									<Button
 										variant="ghost"
-										@click="
-											programName === 'new'
-												? removeNewProgramMembers(selections, unselectAll)
-												: remove(selections, unselectAll, 'members')
-										"
+										@click="remove(selections, unselectAll, 'members')"
 									>
 										<Trash2 class="h-4 w-4 stroke-1.5" />
 									</Button>
@@ -455,42 +424,22 @@ const addCourse = (close: () => void) => {
 		return
 	}
 
-	if (props.programName === 'new') {
-		const existingCourse = program.value.program_courses.find(
-			(c) => c.course === course.value
-		)
-		if (!existingCourse) {
-			program.value.program_courses.push({
-				course: course.value,
-				idx: program.value.program_courses.length + 1,
-			})
-			close()
-			toast.success(__('Course added to program successfully'))
-		} else {
-			toast.warning(__('Course already added to program'))
-		}
-		return
-	}
-
-	programCourses.insert.submit(
-		{
-			parent: props.programName,
-			parenttype: 'LMS Program',
-			parentfield: 'program_courses',
-			course: course.value,
-			idx: programCourses.data.length + 1,
-		},
-		{
-			onSuccess() {
-				updateCounts('course', 'add')
-				close()
-				toast.success(__('Course added to program successfully'))
-			},
-			onError(err: any) {
-				toast.warning(__(err.messages?.[0] || err))
-			},
-		}
+	const existingCourse = program.value.program_courses.find(
+		(c) => c.course === course.value
 	)
+	if (!existingCourse) {
+		program.value.program_courses.push({
+			course: course.value,
+			idx: program.value.program_courses.length + 1,
+		})
+		if (props.programName !== 'new') {
+			dirty.value = true
+		}
+		close()
+		toast.success(__('Course added to program successfully'))
+	} else {
+		toast.warning(__('Course already added to program'))
+	}
 }
 
 const addMember = (close: () => void) => {
@@ -499,40 +448,21 @@ const addMember = (close: () => void) => {
 		return
 	}
 
-	if (props.programName === 'new') {
-		const existingMember = program.value.program_members.find(
-			(m) => m.member === member.value
-		)
-		if (!existingMember) {
-			program.value.program_members.push({
-				member: member.value,
-			})
-			close()
-			toast.success(__('Member added to program successfully'))
-		} else {
-			toast.warning(__('Member already added to program'))
-		}
-		return
-	}
-
-	programMembers.insert.submit(
-		{
-			parent: props.programName,
-			parenttype: 'LMS Program',
-			parentfield: 'program_members',
-			member: member.value,
-		},
-		{
-			onSuccess() {
-				updateCounts('member', 'add')
-				close()
-				toast.success(__('Member added to program successfully'))
-			},
-			onError(err: any) {
-				toast.warning(__(err.messages?.[0] || err))
-			},
-		}
+	const existingMember = program.value.program_members.find(
+		(m) => m.member === member.value
 	)
+	if (!existingMember) {
+		program.value.program_members.push({
+			member: member.value,
+		})
+		if (props.programName !== 'new') {
+			dirty.value = true
+		}
+		close()
+		toast.success(__('Member added to program successfully'))
+	} else {
+		toast.warning(__('Member already added to program'))
+	}
 }
 
 const updateCounts = async (
@@ -601,45 +531,22 @@ const updateOrder = async (e: DragEvent) => {
 
 const wait = (ms: number) => new Promise((res) => setTimeout(res, ms))
 
-const remove = async (
+const remove = (
 	selections: string[],
 	unselectAll: () => void,
 	type: string
 ) => {
-	selections = Array.from(selections)
-	for (const selection of selections) {
-		if (type == 'courses') {
-			await programCourses.delete.submit(selection)
-			await updateCounts('course', 'remove')
-		} else {
-			await programMembers.delete.submit(selection)
-			await updateCounts('member', 'remove')
-		}
-		await programs.value.reload()
-		await wait(100)
+	const selectionsArray = Array.from(selections)
+	if (type === 'courses') {
+		program.value.program_courses = program.value.program_courses.filter(
+			(c) => !selectionsArray.includes(c.name || c.course)
+		)
+	} else {
+		program.value.program_members = program.value.program_members.filter(
+			(m) => !selectionsArray.includes(m.name || m.member)
+		)
 	}
-	unselectAll()
-}
-
-const removeNewProgramCourses = (
-	selections: string[],
-	unselectAll: () => void
-) => {
-	const selectionsArray = Array.from(selections)
-	program.value.program_courses = program.value.program_courses.filter(
-		(c) => !selectionsArray.includes(c.course)
-	)
-	unselectAll()
-}
-
-const removeNewProgramMembers = (
-	selections: string[],
-	unselectAll: () => void
-) => {
-	const selectionsArray = Array.from(selections)
-	program.value.program_members = program.value.program_members.filter(
-		(m) => !selectionsArray.includes(m.member)
-	)
+	dirty.value = true
 	unselectAll()
 }
 
