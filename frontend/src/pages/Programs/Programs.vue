@@ -25,17 +25,17 @@
 				@click="openForm(program.name)"
 				class="border rounded-md p-3 hover:border-outline-gray-3 cursor-pointer space-y-2"
 			>
-				<div class="text-lg font-semibold">
+				<div class="text-lg font-semibold text-ink-gray-9">
 					{{ program.name }}
 				</div>
-				<div class="flex items-center space-x-1">
+				<div class="flex items-center space-x-1 text-ink-gray-7">
 					<BookOpen class="h-4 w-4 stroke-1.5 mr-1" />
 					<span>
 						{{ program.course_count }}
 						{{ program.course_count == 1 ? __('Course') : __('Courses') }}
 					</span>
 				</div>
-				<div class="flex items-center space-x-1">
+				<div class="flex items-center space-x-1 text-ink-gray-7">
 					<User class="h-4 w-4 stroke-1.5 mr-1" />
 					<span>
 						{{ program.member_count || 0 }}

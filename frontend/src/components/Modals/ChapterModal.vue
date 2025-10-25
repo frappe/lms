@@ -50,7 +50,7 @@
 								<FileText class="h-5 w-5 stroke-1.5 text-ink-gray-7" />
 							</div>
 							<div class="flex flex-col">
-								<span>
+								<span class="text-ink-gray-9">
 									{{ chapter.scorm_package.file_name }}
 								</span>
 								<span class="text-sm text-ink-gray-4 mt-1">
