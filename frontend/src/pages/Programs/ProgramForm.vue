@@ -248,13 +248,12 @@
 			/>
 		</template>
 		<template #actions="{ close }">
-			<div class="flex justify-end space-x-2 group">
+			<div class="flex justify-end space-x-2">
 				<Button
 					v-if="programName != 'new'"
 					@click="deleteProgram(close)"
 					variant="outline"
 					theme="red"
-					class="invisible group-hover:visible"
 				>
 					<template #prefix>
 						<Trash2 class="size-4 stroke-1.5" />
@@ -283,7 +282,7 @@ import {
 	ListRow,
 	toast,
 } from 'frappe-ui'
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, getCurrentInstance } from 'vue'
 import { Plus, Trash2, TrendingUp } from 'lucide-vue-next'
 import { Programs, Program } from '@/types/programs'
 import { openSettings } from '@/utils'
@@ -299,6 +298,9 @@ const course = ref<string>('')
 const member = ref<string>('')
 const showProgressDialog = ref(false)
 const dirty = ref(false)
+
+const app = getCurrentInstance()
+const { $dialog } = app.appContext.config.globalProperties
 
 const props = withDefaults(
 	defineProps<{
@@ -643,14 +645,31 @@ const removeNewProgramMembers = (
 
 const deleteProgram = (close: () => void) => {
 	if (props.programName == 'new') return
-	programs.value?.delete.submit(props.programName, {
-		onSuccess() {
-			toast.success(__('Program deleted successfully'))
-			close()
-		},
-		onError(err: any) {
-			toast.warning(__(err.messages?.[0] || err))
-		},
+	$dialog({
+		title: __('Delete Program'),
+		message: __(
+			'Are you sure you want to delete this program? This action cannot be undone.'
+		),
+		actions: [
+			{
+				label: __('Delete'),
+				theme: 'red',
+				variant: 'solid',
+				onClick(closeDialog) {
+					programs.value?.delete.submit(props.programName, {
+						onSuccess() {
+							toast.success(__('Program deleted successfully'))
+							close()
+							closeDialog()
+						},
+						onError(err: any) {
+							toast.warning(__(err.messages?.[0] || err))
+							closeDialog()
+						},
+					})
+				},
+			},
+		],
 	})
 }
 
