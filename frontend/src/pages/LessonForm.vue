@@ -142,7 +142,6 @@ const renderEditor = (holder) => {
 	return new EditorJS({
 		holder: holder,
 		tools: getEditorTools(true),
-		autofocus: true,
 		defaultBlock: 'markdown',
 		onChange: async (api, event) => {
 			enablePlyr()

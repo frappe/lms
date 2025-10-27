@@ -11,6 +11,7 @@ class CourseChapter(Document):
 	def on_update(self):
 		self.recalculate_course_progress()
 		self.update_lesson_count()
+		frappe.enqueue(method=self.recalculate_course_progress, queue="short", timeout=300, is_async=True)
 
 	def recalculate_course_progress(self):
 		"""Recalculate course progress if a new lesson is added or removed"""
