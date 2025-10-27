@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-10-17 16:04+0000\n"
-"PO-Revision-Date: 2025-10-21 15:47\n"
+"PO-Revision-Date: 2025-10-26 16:13\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Polish\n"
 "MIME-Version: 1.0\n"
@@ -2066,7 +2066,7 @@ msgstr ""
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 #: lms/lms/doctype/work_experience/work_experience.json
 msgid "Description"
-msgstr ""
+msgstr "Opis"
 
 #: frontend/src/components/Apps.vue:51
 msgid "Desk"
@@ -2172,7 +2172,7 @@ msgstr ""
 #: frontend/src/pages/JobDetail.vue:34 frontend/src/pages/Lesson.vue:42
 #: frontend/src/pages/Lesson.vue:178 frontend/src/pages/Profile.vue:36
 msgid "Edit"
-msgstr ""
+msgstr "Edytuj"
 
 #: frontend/src/components/Modals/AssignmentForm.vue:14
 msgid "Edit Assignment"
@@ -5874,7 +5874,7 @@ msgstr ""
 #: frontend/src/components/Settings/Members.vue:25
 #: frontend/src/pages/Jobs.vue:41
 msgid "Search"
-msgstr ""
+msgstr "Szukaj"
 
 #: frontend/src/components/Modals/CourseProgressSummary.vue:17
 #: frontend/src/components/Modals/VideoStatistics.vue:20
