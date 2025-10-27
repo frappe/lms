@@ -4,16 +4,16 @@
 import frappe
 from frappe.model.document import Document
 
-from lms.lms.api import update_course_statistics
-from lms.lms.utils import get_course_progress
+from lms.lms.utils import get_course_progress, get_lesson_count
 
 
 class CourseChapter(Document):
 	def on_update(self):
 		self.recalculate_course_progress()
-		update_course_statistics()
+		self.update_lesson_count()
 
 	def recalculate_course_progress(self):
+		"""Recalculate course progress if a new lesson is added or removed"""
 		previous_lessons = self.get_doc_before_save() and self.get_doc_before_save().as_dict().lessons
 		current_lessons = self.lessons
 
@@ -22,3 +22,7 @@ class CourseChapter(Document):
 			for enrollment in enrolled_members:
 				new_progress = get_course_progress(self.course, enrollment.member)
 				frappe.db.set_value("LMS Enrollment", enrollment.name, "progress", new_progress)
+
+	def update_lesson_count(self):
+		"""Update lesson count in the course"""
+		frappe.db.set_value("LMS Course", self.course, "lessons", get_lesson_count(self.course))
