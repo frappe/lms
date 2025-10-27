@@ -126,7 +126,7 @@ import {
 	Button,
 	toast,
 } from 'frappe-ui'
-import { computed, watch, reactive, ref, inject } from 'vue'
+import { watch, reactive, ref, inject } from 'vue'
 import Link from '@/components/Controls/Link.vue'
 import { useOnboarding } from 'frappe-ui/frappe'
 
@@ -141,6 +141,7 @@ const existingQuestion = reactive({
 	question: '',
 	marks: 1,
 })
+
 const question = reactive({
 	question: '',
 	type: 'Choices',
