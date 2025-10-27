@@ -21,7 +21,7 @@
 				</header>
 				<div class="mt-5 mb-5">
 					<div class="px-5 md:px-10 pb-5 mb-5 space-y-5 border-b">
-						<div class="text-lg font-semibold mb-4">
+						<div class="text-lg font-semibold mb-4 text-ink-gray-9">
 							{{ __('Details') }}
 						</div>
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -138,7 +138,7 @@
 					</div>
 
 					<div class="px-5 md:px-10 pb-5 mb-5 space-y-5 border-b">
-						<div class="text-lg font-semibold">
+						<div class="text-lg font-semibold text-ink-gray-9">
 							{{ __('Settings') }}
 						</div>
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -178,7 +178,7 @@
 					</div>
 
 					<div class="px-5 md:px-10 pb-5 mb-5 space-y-5 border-b">
-						<div class="text-lg font-semibold">
+						<div class="text-lg font-semibold text-ink-gray-9">
 							{{ __('About the Course') }}
 						</div>
 						<FormControl
@@ -234,7 +234,7 @@
 					</div>
 
 					<div class="px-5 md:px-10 pb-5 space-y-5 border-b">
-						<div class="text-lg font-semibold mt-5">
+						<div class="text-lg font-semibold mt-5 text-ink-gray-9">
 							{{ __('Pricing and Certification') }}
 						</div>
 						<div class="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -260,12 +260,14 @@
 									v-if="course.paid_course || course.paid_certificate"
 									v-model="course.course_price"
 									:label="__('Amount')"
+									:required="course.paid_course || course.paid_certificate"
 								/>
 								<Link
 									v-if="course.paid_certificate"
 									doctype="Course Evaluator"
 									v-model="course.evaluator"
 									:label="__('Evaluator')"
+									:required="course.paid_certificate"
 									:onCreate="
 										(value, close) => openSettings('Evaluators', close)
 									"
@@ -278,11 +280,13 @@
 									v-model="course.currency"
 									:filters="{ enabled: 1 }"
 									:label="__('Currency')"
+									:required="course.paid_course || course.paid_certificate"
 								/>
 								<FormControl
 									v-if="course.paid_certificate"
 									v-model="course.timezone"
 									:label="__('Timezone')"
+									:required="course.paid_certificate"
 									:placeholder="__('e.g. IST, UTC, GMT...')"
 								/>
 							</div>
@@ -290,7 +294,7 @@
 					</div>
 
 					<div class="px-5 md:px-10 pb-5 space-y-5">
-						<div class="text-lg font-semibold mt-5">
+						<div class="text-lg font-semibold mt-5 text-ink-gray-9">
 							{{ __('Meta Tags') }}
 						</div>
 						<div class="space-y-5">
@@ -325,7 +329,6 @@
 <script setup>
 import {
 	Breadcrumbs,
-	call,
 	TextEditor,
 	Button,
 	createResource,

@@ -20,7 +20,8 @@ def get_sales_data(site_info):
 		"LMS Programming Exercise",
 		"LMS Program",
 		"LMS Certificate",
-		"LMS Evaluation",
+		"LMS Certificate Request",
+		"LMS Certificate Evaluation",
 	]
 
 	for doctype in doctypes:
