@@ -95,7 +95,7 @@ const jobApplication = createResource({
 			doc: {
 				doctype: 'LMS Job Application',
 				user: user.data?.name,
-				resume: resume.value?.file_name,
+				resume: resume.value?.file_url,
 				job: props.job,
 			},
 		}
