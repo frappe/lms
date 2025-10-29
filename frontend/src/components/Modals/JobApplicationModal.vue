@@ -18,7 +18,7 @@
 	>
 		<template #body-content>
 			<div class="flex flex-col gap-4">
-				<p>
+				<p class="text-ink-gray-9">
 					{{
 						__(
 							'Submit your resume to proceed with your application for this position. Upon submission, it will be shared with the job poster.'
@@ -51,7 +51,7 @@
 						<FileText class="h-5 w-5 stroke-1.5 text-ink-gray-7" />
 					</div>
 					<div class="flex flex-col">
-						<span>
+						<span class="text-ink-gray-9">
 							{{ resume.file_name }}
 						</span>
 						<span class="text-sm text-ink-gray-4 mt-1">
