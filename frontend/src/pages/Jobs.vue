@@ -33,7 +33,7 @@
 				</div>
 
 				<div
-					class="grid grid-cols-1 gap-2"
+					class="grid grid-cols-1 gap-2 md:grid-cols-4"
 					:class="user.data ? 'md:grid-cols-3' : 'md:grid-cols-2'"
 				>
 					<FormControl
@@ -63,6 +63,14 @@
 						:options="jobTypes"
 						class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40"
 						:placeholder="__('Type')"
+						@change="updateJobs"
+					/>
+					<FormControl
+						v-model="workMode"
+						type="select"
+						:options="workModes"
+						class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40"
+						:placeholder="__('Work Mode')"
 						@change="updateJobs"
 					/>
 				</div>
@@ -103,6 +111,7 @@ import EmptyState from '@/components/EmptyState.vue'
 
 const user = inject('$user')
 const jobType = ref(null)
+const workMode = ref(null)
 const { brand } = sessionStore()
 const searchQuery = ref('')
 const country = ref(null)
@@ -115,6 +124,9 @@ onMounted(() => {
 	let queries = new URLSearchParams(location.search)
 	if (queries.has('type')) {
 		jobType.value = queries.get('type')
+	}
+	if (queries.has('work_mode')) {
+		workMode.value = queries.get('work_mode')
 	}
 	updateJobs()
 })
@@ -143,6 +155,12 @@ const updateFilters = () => {
 		filters.value.type = jobType.value
 	} else {
 		delete filters.value.type
+	}
+
+	if (workMode.value) {
+		filters.value.work_mode = workMode.value
+	} else {
+		delete filters.value.work_mode
 	}
 
 	if (searchQuery.value) {
@@ -177,6 +195,15 @@ const jobTypes = computed(() => {
 		{ label: __('Part Time'), value: 'Part Time' },
 		{ label: __('Contract'), value: 'Contract' },
 		{ label: __('Freelance'), value: 'Freelance' },
+	]
+})
+
+const workModes = computed(() => {
+	return [
+		'',
+		{ label: 'On site', value: 'On-site' },
+		{ label: 'Hybrid', value: 'Hybrid' },
+		{ label: 'Remote', value: 'Remote' },
 	]
 })
 

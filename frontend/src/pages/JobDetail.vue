@@ -86,7 +86,7 @@
 						</div>
 					</div>
 
-					<div class="space-x-5">
+					<div class="space-x-2">
 						<Badge size="lg">
 							<template #prefix>
 								<CalendarDays class="size-3 stroke-2 text-ink-gray-7" />
@@ -98,6 +98,12 @@
 								<ClipboardType class="size-3 stroke-2 text-ink-gray-7" />
 							</template>
 							{{ job.data.type }}
+						</Badge>
+						<Badge v-if="job.data?.work_mode" size="lg">
+							<template #prefix>
+								<BriefcaseBusiness class="size-3 stroke-2 text-ink-gray-7" />
+							</template>
+							{{ job.data.work_mode }}
 						</Badge>
 						<Badge v-if="applicationCount.data" size="lg">
 							<template #prefix>
@@ -152,6 +158,7 @@ import {
 	SquareArrowOutUpRight,
 	FileText,
 	ClipboardType,
+	BriefcaseBusiness,
 } from 'lucide-vue-next'
 
 const user = inject('$user')

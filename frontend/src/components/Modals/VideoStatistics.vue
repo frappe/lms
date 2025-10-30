@@ -8,15 +8,24 @@
 	>
 		<template #body-content>
 			<div class="text-base">
-				<TabButtons
-					v-if="tabs.length > 1"
-					:buttons="tabs"
-					v-model="currentTab"
-					class="w-fit"
-				/>
-				<div v-if="currentTab" class="mt-8">
+				<div class="flex items-center justify-between">
+					<TabButtons
+						v-if="tabs.length > 1"
+						:buttons="tabs"
+						v-model="currentTab"
+						class="w-fit"
+					/>
+					<!-- <FormControl
+						v-model="searchText"
+						:placeholder="__('Search by Member')"
+						class="mt-2 mr-5 w-[25%]"
+					/> -->
+				</div>
+				<div v-if="currentTab" class="mt-4">
 					<div class="grid grid-cols-[55%,40%] gap-5">
-						<div class="space-y-5 border rounded-md p-2 pt-4">
+						<div
+							class="space-y-5 border rounded-md p-2 pt-4 h-[70vh] overflow-y-auto"
+						>
 							<div class="grid grid-cols-[70%,30%] text-sm text-ink-gray-5">
 								<div class="px-4">
 									{{ __('Member') }}
@@ -52,7 +61,7 @@
 											</div>
 										</div>
 										<div class="text-center text-sm">
-											{{ parseFloat(row.watch_time).toFixed(2) }}
+											{{ formatTimestamp(row.watch_time) }}
 										</div>
 									</div>
 								</router-link>
@@ -62,7 +71,7 @@
 							<NumberChart
 								class="border rounded-md"
 								:config="{
-									title: __('Average Watch Time (seconds)'),
+									title: __('Average Watch Time'),
 									value: averageWatchTime,
 								}"
 							/>
@@ -73,6 +82,9 @@
 						</div>
 					</div>
 				</div>
+				<div v-else class="text-sm text-ink-gray-5">
+					{{ __('No statistics available for this video.') }}
+				</div>
 			</div>
 		</template>
 	</Dialog>
@@ -82,15 +94,21 @@ import {
 	Avatar,
 	createListResource,
 	Dialog,
+	FormControl,
 	NumberChart,
 	TabButtons,
 } from 'frappe-ui'
 import { computed, ref, watch } from 'vue'
-import { enablePlyr } from '@/utils'
+import { enablePlyr, formatTimestamp } from '@/utils'
 import VideoBlock from '@/components/VideoBlock.vue'
 
 const show = defineModel<boolean | undefined>()
 const currentTab = ref<string>('')
+const searchText = ref<string>('')
+type Filters = {
+	lesson: string | undefined
+	member_name?: string[]
+}
 
 const props = defineProps<{
 	lessonName?: string
@@ -127,6 +145,24 @@ watch(
 	}
 )
 
+watch(searchText, () => {
+	let filterApplied = false
+	let filters: Filters = {
+		lesson: props.lessonName,
+	}
+
+	if (searchText.value) {
+		filters.member_name = ['like', `%${searchText.value}%`]
+		filterApplied = true
+	}
+
+	statistics.update({
+		filters: filters,
+	})
+
+	statistics.reload({})
+})
+
 watch(show, () => {
 	if (show.value) {
 		enablePlyr()
@@ -151,7 +187,7 @@ const averageWatchTime = computed(() => {
 		totalWatchTime += parseFloat(item.watch_time)
 	})
 
-	return totalWatchTime / currentTabData.value.length
+	return formatTimestamp(totalWatchTime / currentTabData.value.length)
 })
 
 const currentTabData = computed(() => {

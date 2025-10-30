@@ -7,8 +7,17 @@
  "engine": "InnoDB",
  "field_order": [
   "title",
+  "published",
+  "column_break_cwjx",
+  "enforce_course_order",
+  "column_break_mikl",
+  "section_break_vhhu",
   "program_courses",
-  "program_members"
+  "program_members",
+  "section_break_pppe",
+  "course_count",
+  "column_break_qwhf",
+  "member_count"
  ],
  "fields": [
   {
@@ -30,12 +39,61 @@
    "label": "Title",
    "reqd": 1,
    "unique": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "published",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Published"
+  },
+  {
+   "default": "0",
+   "fieldname": "enforce_course_order",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Enforce Course Order"
+  },
+  {
+   "fieldname": "section_break_vhhu",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_cwjx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_pppe",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "course_count",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Course Count"
+  },
+  {
+   "fieldname": "column_break_qwhf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "member_count",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Member Count"
+  },
+  {
+   "fieldname": "column_break_mikl",
+   "fieldtype": "Column Break"
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-11-28 22:06:16.742867",
- "modified_by": "Administrator",
+ "modified": "2025-08-20 12:28:57.238902",
+ "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Program",
  "naming_rule": "By fieldname",
@@ -76,10 +134,21 @@
    "role": "Course Creator",
    "share": 1,
    "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "LMS Student",
+   "share": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "creation",
  "sort_order": "DESC",
  "states": [],
+ "title_field": "title",
  "track_changes": 1
 }

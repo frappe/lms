@@ -1,5 +1,6 @@
-import frappe
 import re
+
+import frappe
 from bs4 import BeautifulSoup
 from frappe import _
 from frappe.utils.telemetry import capture
@@ -13,10 +14,7 @@ def get_context():
 	frappe.db.commit()
 
 	app_path = frappe.form_dict.get("app_path")
-	favicon = (
-		frappe.db.get_single_value("Website Settings", "favicon")
-		or "/assets/lms/frontend/favicon.png"
-	)
+	favicon = frappe.db.get_single_value("Website Settings", "favicon") or "/assets/lms/frontend/favicon.png"
 	title = frappe.db.get_single_value("Website Settings", "app_name") or "Frappe Learning"
 
 	context.meta = get_meta(app_path, title, favicon)

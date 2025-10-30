@@ -73,13 +73,15 @@ export class Program {
                 fieldname: ['name'],
             }).then((data: { name: string }) => {
                 let submission = data.name || 'new'
-                this.wrapper.innerHTML = `<iframe src="/lms/exercises/${exercise}/submission/${submission}?fromLesson=1" class="w-full h-[900px] border rounded-md"></iframe>`
+                this.wrapper.innerHTML = `<iframe src="/lms/programming-exercises/${exercise}/submission/${submission}?fromLesson=1" class="w-full h-[900px] border rounded-md"></iframe>`
             })
             return
         } 
         call("frappe.client.get_value", {
             doctype: 'LMS Programming Exercise',
-            name: exercise,
+            filters: {
+                name: exercise
+            },
             fieldname: "title"
         }).then((data: { title: string }) => {
             this.wrapper.innerHTML = `<div class='border rounded-md p-4 text-center bg-surface-menu-bar mb-4'>

@@ -93,7 +93,7 @@
                 </div>
                 {% endif %}
                 {% endfor %}
-                <a class="button-links" href="{{ get_profile_url(instructors[0].username) }}">
+                <a class="button-links" href="/lms/users/{{ instructors[0].username }}">
                     <span class="course-instructor">
                     {% if ins_len == 1 %}
                         {{ instructors[0].full_name }}

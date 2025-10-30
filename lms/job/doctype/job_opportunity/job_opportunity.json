@@ -12,6 +12,7 @@
   "country",
   "column_break_5",
   "type",
+  "work_mode",
   "status",
   "disabled",
   "section_break_6",
@@ -119,6 +120,12 @@
    "label": "Country",
    "options": "Country",
    "reqd": 1
+  },
+  {
+   "fieldname": "work_mode",
+   "fieldtype": "Select",
+   "label": "Work Mode",
+   "options": "\nRemote\nHybrid\nOn-site"
   }
  ],
  "grid_page_length": 50,
@@ -130,8 +137,8 @@
   }
  ],
  "make_attachments_public": 1,
- "modified": "2025-04-24 14:34:35.920242",
- "modified_by": "sayali@frappe.io",
+ "modified": "2025-09-24 15:32:49.030004",
+ "modified_by": "Administrator",
  "module": "Job",
  "name": "Job Opportunity",
  "owner": "Administrator",

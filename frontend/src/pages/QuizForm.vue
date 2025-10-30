@@ -119,7 +119,7 @@
 					<FormControl
 						v-if="quizDetails.doc.enable_negative_marking"
 						v-model="quizDetails.doc.marks_to_cut"
-						:label="__('Marks to Cut')"
+						:label="__('Marks to Deduct')"
 					/>
 				</div>
 			</div>
@@ -254,11 +254,7 @@ const props = defineProps({
 const questions = ref([])
 
 onMounted(() => {
-	if (
-		props.quizID == 'new' &&
-		!user.data?.is_moderator &&
-		!user.data?.is_instructor
-	) {
+	if (!user.data?.is_moderator && !user.data?.is_instructor) {
 		router.push({ name: 'Courses' })
 	}
 	if (props.quizID !== 'new') {

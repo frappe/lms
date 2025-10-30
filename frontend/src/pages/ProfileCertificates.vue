@@ -3,7 +3,10 @@
 		<h2 class="mb-3 text-lg font-semibold text-ink-gray-9">
 			{{ __('Certificates') }}
 		</h2>
-		<div class="grid grod-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+		<div
+			v-if="certificates.data?.length"
+			class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+		>
 			<div
 				v-for="certificate in certificates.data"
 				:key="certificate.name"
@@ -18,6 +21,9 @@
 					{{ dayjs(certificate.issue_date).format('DD MMM YYYY') }}
 				</div>
 			</div>
+		</div>
+		<div v-else class="text-sm italic text-ink-gray-5">
+			{{ __('You have not received any certificates yet.') }}
 		</div>
 	</div>
 </template>

@@ -1,11 +1,11 @@
 <template>
 	<div
 		v-if="course.title"
-		class="flex flex-col h-full rounded-md border-2 overflow-auto hover:border hover:border-outline-gray-3 text-ink-gray-9"
+		class="flex flex-col h-full rounded-md overflow-auto text-ink-gray-9"
 		style="min-height: 350px"
 	>
 		<div
-			class="w-[100%] h-[168px] bg-cover bg-center bg-no-repeat"
+			class="w-[100%] h-[168px] bg-cover bg-center bg-no-repeat border-t border-x rounded-t-md"
 			:style="
 				course.image
 					? { backgroundImage: `url('${encodeURI(course.image)}')` }
@@ -15,10 +15,10 @@
 					  }
 			"
 		>
-			<div class="flex items-center flex-wrap relative top-4 px-2 w-fit">
+			<!-- <div class="flex items-center flex-wrap relative top-4 px-2 w-fit">
 				<div
 					v-if="course.featured"
-					class="flex items-center space-x-1 text-xs text-ink-amber-3 bg-surface-white px-2 py-0.5 rounded-md mr-1 mb-1"
+					class="flex items-center space-x-1 text-xs text-ink-amber-3 bg-surface-white border border-outline-amber-1 px-2 py-0.5 rounded-md mr-1 mb-1"
 				>
 					<Star class="size-3 stroke-2" />
 					<span>
@@ -28,20 +28,26 @@
 				<div
 					v-if="course.tags"
 					v-for="tag in course.tags?.split(', ')"
-					class="text-xs bg-surface-white text-ink-gray-9 px-2 py-0.5 rounded-md mb-1 mr-1"
+					class="text-xs border bg-surface-white text-ink-gray-9 px-2 py-0.5 rounded-md mb-1 mr-1"
 				>
 					{{ tag }}
 				</div>
-			</div>
+			</div> -->
 			<div
 				v-if="!course.image"
-				class="flex items-center justify-center text-white flex-1 font-extrabold text-2xl my-auto"
-				:class="course.tags ? 'h-[80%]' : 'h-full'"
+				class="flex items-center justify-center text-white flex-1 font-extrabold my-auto px-5 text-center leading-6 h-full"
+				:class="
+					course.title.length > 32
+						? 'text-lg'
+						: course.title.length > 20
+						? 'text-xl'
+						: 'text-2xl'
+				"
 			>
 				{{ course.title }}
 			</div>
 		</div>
-		<div class="flex flex-col flex-auto p-4">
+		<div class="flex flex-col flex-auto p-4 border-x-2 border-b-2 rounded-b-md">
 			<div class="flex items-center justify-between mb-2">
 				<div v-if="course.lessons">
 					<Tooltip :text="__('Lessons')">
@@ -56,7 +62,7 @@
 					<Tooltip :text="__('Enrolled Students')">
 						<span class="flex items-center">
 							<Users class="h-4 w-4 stroke-1.5 mr-1" />
-							{{ course.enrollments }}
+							{{ formatAmount(course.enrollments) }}
 						</span>
 					</Tooltip>
 				</div>
@@ -70,18 +76,16 @@
 					</Tooltip>
 				</div>
 
-				<!-- <div v-if="course.status != 'Approved'">
-					<Badge
-						variant="subtle"
-						:theme="course.status === 'Under Review' ? 'orange' : 'blue'"
-						size="sm"
-					>
-						{{ course.status }}
-					</Badge>
-				</div> -->
+				<Tooltip v-if="course.featured" :text="__('Featured')">
+					<Award class="size-4 stroke-2 text-ink-amber-3" />
+				</Tooltip>
 			</div>
 
-			<div v-if="course.image" class="text-xl font-semibold leading-6">
+			<div
+				v-if="course.image"
+				class="font-semibold leading-6"
+				:class="course.title.length > 32 ? 'text-lg' : 'text-xl'"
+			>
 				{{ course.title }}
 			</div>
 
@@ -112,27 +116,30 @@
 					<CourseInstructors :instructors="course.instructors" />
 				</div>
 
-				<div v-if="course.paid_course" class="font-semibold">
-					{{ course.price }}
-				</div>
+				<div class="flex items-center space-x-2">
+					<div v-if="course.paid_course" class="font-semibold">
+						{{ course.price }}
+					</div>
 
-				<Tooltip
-					v-if="course.paid_certificate || course.enable_certification"
-					:text="__('Get Certified')"
-				>
-					<GraduationCap class="size-5 stroke-1.5" />
-				</Tooltip>
+					<Tooltip
+						v-if="course.paid_certificate || course.enable_certification"
+						:text="__('Get Certified')"
+					>
+						<GraduationCap class="size-5 stroke-1.5 text-ink-gray-7" />
+					</Tooltip>
+				</div>
 			</div>
 		</div>
 	</div>
 </template>
 <script setup>
-import { BookOpen, GraduationCap, Star, Users } from 'lucide-vue-next'
-import UserAvatar from '@/components/UserAvatar.vue'
+import { Award, BookOpen, GraduationCap, Star, Users } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { Tooltip } from 'frappe-ui'
 import { theme } from '@/utils/theme'
+import { formatAmount } from '@/utils'
 import CourseInstructors from '@/components/CourseInstructors.vue'
+import UserAvatar from '@/components/UserAvatar.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
 
 const { user } = sessionStore()

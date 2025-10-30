@@ -1,40 +1,40 @@
-"""API methods for the LMS.
-"""
+"""API methods for the LMS."""
 
 import json
-import frappe
-import zipfile
 import os
 import re
 import shutil
 import xml.etree.ElementTree as ET
-from frappe.translate import get_all_translations
+import zipfile
+from xml.dom.minidom import parseString
+
+import frappe
 from frappe import _
-from frappe.utils import (
-	get_datetime,
-	cint,
-	flt,
-	now,
-	add_days,
-	format_date,
-	date_diff,
+from frappe.integrations.frappe_providers.frappecloud_billing import (
+	current_site_info,
+	is_fc_site,
 )
 from frappe.query_builder import DocType
-from lms.lms.utils import get_average_rating, get_lesson_count
-from xml.dom.minidom import parseString
-from lms.lms.doctype.course_lesson.course_lesson import save_progress
-from frappe.integrations.frappe_providers.frappecloud_billing import (
-	is_fc_site,
-	current_site_info,
+from frappe.translate import get_all_translations
+from frappe.utils import (
+	add_days,
+	cint,
+	date_diff,
+	flt,
+	format_date,
+	get_datetime,
+	now,
 )
+from frappe.utils.response import Response
+
+from lms.lms.doctype.course_lesson.course_lesson import save_progress
+from lms.lms.utils import get_average_rating, get_lesson_count
 
 
 @frappe.whitelist()
 def autosave_section(section, code):
 	"""Saves the code edited in one of the sections."""
-	doc = frappe.get_doc(
-		doctype="Code Revision", section=section, code=code, author=frappe.session.user
-	)
+	doc = frappe.get_doc(doctype="Code Revision", section=section, code=code, author=frappe.session.user)
 	doc.insert()
 	return {"name": doc.name}
 
@@ -98,9 +98,7 @@ def approve_cohort_join_request(join_request):
 	sg = r and frappe.get_doc("Cohort Subgroup", r.subgroup)
 	if not sg or r.status not in ["Pending", "Accepted"]:
 		return {"ok": False, "error": "Invalid Join Request"}
-	if (
-		not sg.is_manager(frappe.session.user) and "System Manager" not in frappe.get_roles()
-	):
+	if not sg.is_manager(frappe.session.user) and "System Manager" not in frappe.get_roles():
 		return {"ok": False, "error": "Permission Deined"}
 
 	r.status = "Accepted"
@@ -114,9 +112,7 @@ def reject_cohort_join_request(join_request):
 	sg = r and frappe.get_doc("Cohort Subgroup", r.subgroup)
 	if not sg or r.status not in ["Pending", "Rejected"]:
 		return {"ok": False, "error": "Invalid Join Request"}
-	if (
-		not sg.is_manager(frappe.session.user) and "System Manager" not in frappe.get_roles()
-	):
+	if not sg.is_manager(frappe.session.user) and "System Manager" not in frappe.get_roles():
 		return {"ok": False, "error": "Permission Deined"}
 
 	r.status = "Rejected"
@@ -131,35 +127,11 @@ def undo_reject_cohort_join_request(join_request):
 	# keeping Pending as well to consider the case of duplicate requests
 	if not sg or r.status not in ["Pending", "Rejected"]:
 		return {"ok": False, "error": "Invalid Join Request"}
-	if (
-		not sg.is_manager(frappe.session.user) and "System Manager" not in frappe.get_roles()
-	):
+	if not sg.is_manager(frappe.session.user) and "System Manager" not in frappe.get_roles():
 		return {"ok": False, "error": "Permission Deined"}
 
 	r.status = "Pending"
 	r.save()
-	return {"ok": True}
-
-
-@frappe.whitelist()
-def add_mentor_to_subgroup(subgroup, email):
-	try:
-		sg = frappe.get_doc("Cohort Subgroup", subgroup)
-	except frappe.DoesNotExistError:
-		return {"ok": False, "error": f"Invalid subgroup: {subgroup}"}
-
-	if (
-		not sg.get_cohort().is_admin(frappe.session.user)
-		and "System Manager" not in frappe.get_roles()
-	):
-		return {"ok": False, "error": "Permission Deined"}
-
-	try:
-		user = frappe.get_doc("User", email)
-	except frappe.DoesNotExistError:
-		return {"ok": False, "error": f"Invalid user: {email}"}
-
-	sg.add_mentor(email)
 	return {"ok": True}
 
 
@@ -178,9 +150,7 @@ def get_user_info():
 	user.is_instructor = "Course Creator" in user.roles
 	user.is_moderator = "Moderator" in user.roles
 	user.is_evaluator = "Batch Evaluator" in user.roles
-	user.is_student = (
-		not user.is_instructor and not user.is_moderator and not user.is_evaluator
-	)
+	user.is_student = not user.is_instructor and not user.is_moderator and not user.is_evaluator
 	user.is_fc_site = is_fc_site()
 	user.is_system_manager = "System Manager" in user.roles
 	user.sitename = frappe.local.site
@@ -218,17 +188,13 @@ def validate_billing_access(billing_type, name):
 		message = _("Module Name is incorrect or does not exist.")
 
 	if access and billing_type == "course":
-		membership = frappe.db.exists(
-			"LMS Enrollment", {"member": frappe.session.user, "course": name}
-		)
+		membership = frappe.db.exists("LMS Enrollment", {"member": frappe.session.user, "course": name})
 		if membership:
 			access = False
 			message = _("You are already enrolled for this course.")
 
 	elif access and billing_type == "batch":
-		membership = frappe.db.exists(
-			"LMS Batch Enrollment", {"member": frappe.session.user, "batch": name}
-		)
+		membership = frappe.db.exists("LMS Batch Enrollment", {"member": frappe.session.user, "batch": name})
 		if membership:
 			access = False
 			message = _("You are already enrolled for this batch.")
@@ -287,6 +253,7 @@ def get_job_details(job):
 			"location",
 			"country",
 			"type",
+			"work_mode",
 			"company_name",
 			"company_logo",
 			"company_website",
@@ -313,6 +280,7 @@ def get_job_opportunities(filters=None, orFilters=None):
 			"location",
 			"country",
 			"type",
+			"work_mode",
 			"company_name",
 			"company_logo",
 			"name",
@@ -339,12 +307,8 @@ def get_chart_details():
 			"upcoming": 0,
 		},
 	)
-	details.users = frappe.db.count(
-		"User", {"enabled": 1, "name": ["not in", ("Administrator", "Guest")]}
-	)
-	details.completions = frappe.db.count(
-		"LMS Enrollment", {"progress": ["like", "%100%"]}
-	)
+	details.users = frappe.db.count("User", {"enabled": 1, "name": ["not in", ("Administrator", "Guest")]})
+	details.completions = frappe.db.count("LMS Enrollment", {"progress": ["like", "%100%"]})
 	details.certifications = frappe.db.count("LMS Certificate", {"published": 1})
 	return details
 
@@ -376,7 +340,7 @@ def get_branding():
 
 @frappe.whitelist()
 def get_unsplash_photos(keyword=None):
-	from lms.unsplash import get_list, get_by_keyword
+	from lms.unsplash import get_by_keyword, get_list
 
 	if keyword:
 		return get_by_keyword(keyword)
@@ -455,18 +419,14 @@ def get_count_of_certified_members(filters=None):
 	Certificate = DocType("LMS Certificate")
 
 	query = (
-		frappe.qb.from_(Certificate)
-		.select(Certificate.member)
-		.distinct()
-		.where(Certificate.published == 1)
+		frappe.qb.from_(Certificate).select(Certificate.member).distinct().where(Certificate.published == 1)
 	)
 
 	if filters:
 		for field, value in filters.items():
 			if field == "category":
 				query = query.where(
-					Certificate.course_title.like(f"%{value}%")
-					| Certificate.batch_title.like(f"%{value}%")
+					Certificate.course_title.like(f"%{value}%") | Certificate.batch_title.like(f"%{value}%")
 				)
 			elif field == "member_name":
 				query = query.where(Certificate.member_name.like(value[1]))
@@ -504,9 +464,7 @@ def get_assigned_badges(member):
 	)
 
 	for badge in assigned_badges:
-		badge.update(
-			frappe.db.get_value("LMS Badge", badge.badge, ["name", "title", "image"])
-		)
+		badge.update(frappe.db.get_value("LMS Badge", badge.badge, ["name", "title", "image"]))
 	return assigned_badges
 
 
@@ -549,7 +507,7 @@ def get_sidebar_settings():
 	items = [
 		"courses",
 		"batches",
-		"certified_members",
+		"certifications",
 		"jobs",
 		"statistics",
 		"notifications",
@@ -692,9 +650,7 @@ def update_chapter_index(chapter, course, idx):
 	chapters.insert(idx, chapter)
 
 	for i, chapter_name in enumerate(chapters):
-		frappe.db.set_value(
-			"Chapter Reference", {"chapter": chapter_name, "parent": course}, "idx", i + 1
-		)
+		frappe.db.set_value("Chapter Reference", {"chapter": chapter_name, "parent": course}, "idx", i + 1)
 
 
 @frappe.whitelist(allow_guest=True)
@@ -717,7 +673,6 @@ def get_categories(doctype, filters):
 
 @frappe.whitelist()
 def get_members(start=0, search=""):
-
 	filters = {"enabled": 1, "name": ["not in", ["Administrator", "Guest"]]}
 	or_filters = {}
 
@@ -784,9 +739,7 @@ def save_evaluation_details(
 	"""
 	Save evaluation details for a member against a course.
 	"""
-	evaluation = frappe.db.exists(
-		"LMS Certificate Evaluation", {"member": member, "course": course}
-	)
+	evaluation = frappe.db.exists("LMS Certificate Evaluation", {"member": member, "course": course})
 
 	details = {
 		"date": date,
@@ -873,7 +826,6 @@ def get_count(doctype, filters):
 
 @frappe.whitelist()
 def get_payment_gateway_details(payment_gateway):
-	fields = []
 	gateway = frappe.get_doc("Payment Gateway", payment_gateway)
 
 	if gateway.gateway_controller is None:
@@ -893,15 +845,30 @@ def get_payment_gateway_details(payment_gateway):
 		except Exception:
 			frappe.throw(_("{0} Settings not found").format(payment_gateway))
 
+	gateway_fields = get_transformed_fields(meta, data)
+
+	return {
+		"fields": gateway_fields,
+		"data": data,
+		"doctype": doctype,
+		"docname": docname,
+	}
+
+
+def get_transformed_fields(meta, data=None):
+	transformed_fields = []
 	for row in meta:
 		if row.fieldtype not in ["Column Break", "Section Break"]:
 			if row.fieldtype in ["Attach", "Attach Image"]:
 				fieldtype = "Upload"
-				data[row.fieldname] = get_file_info(data.get(row.fieldname))
+				if data and data.get(row.fieldname):
+					data[row.fieldname] = get_file_info(data.get(row.fieldname))
+			elif row.fieldtype == "Check":
+				fieldtype = "checkbox"
 			else:
 				fieldtype = row.fieldtype
 
-			fields.append(
+			transformed_fields.append(
 				{
 					"label": row.label,
 					"name": row.fieldname,
@@ -909,12 +876,19 @@ def get_payment_gateway_details(payment_gateway):
 				}
 			)
 
-	return {
-		"fields": fields,
-		"data": data,
-		"doctype": doctype,
-		"docname": docname,
-	}
+	return transformed_fields
+
+
+@frappe.whitelist()
+def get_new_gateway_fields(doctype):
+	try:
+		meta = frappe.get_meta(doctype).fields
+	except Exception:
+		frappe.throw(_("{0} not found").format(doctype))
+
+	transformed_fields = get_transformed_fields(meta)
+
+	return transformed_fields
 
 
 def update_course_statistics():
@@ -923,9 +897,7 @@ def update_course_statistics():
 	for course in courses:
 		lessons = get_lesson_count(course.name)
 
-		enrollments = frappe.db.count(
-			"LMS Enrollment", {"course": course.name, "member_type": "Student"}
-		)
+		enrollments = frappe.db.count("LMS Enrollment", {"course": course.name, "member_type": "Student"})
 
 		avg_rating = get_average_rating(course.name) or 0
 		avg_rating = flt(avg_rating, frappe.get_system_settings("float_precision") or 3)
@@ -958,28 +930,21 @@ def get_announcements(batch):
 	)
 
 	for communication in communications:
-		communication.image = frappe.get_cached_value(
-			"User", communication.sender, "user_image"
-		)
+		communication.image = frappe.get_cached_value("User", communication.sender, "user_image")
 
 	return communications
 
 
 @frappe.whitelist()
 def delete_course(course):
-
 	chapters = frappe.get_all("Course Chapter", {"course": course}, pluck="name")
 
-	chapter_references = frappe.get_all(
-		"Chapter Reference", {"parent": course}, pluck="name"
-	)
+	chapter_references = frappe.get_all("Chapter Reference", {"parent": course}, pluck="name")
 
 	for chapter in chapters:
 		lessons = frappe.get_all("Course Lesson", {"chapter": chapter}, pluck="name")
 
-		lesson_references = frappe.get_all(
-			"Lesson Reference", {"parent": chapter}, pluck="name"
-		)
+		lesson_references = frappe.get_all("Lesson Reference", {"parent": chapter}, pluck="name")
 
 		for lesson in lesson_references:
 			frappe.delete_doc("Lesson Reference", lesson)
@@ -1055,9 +1020,7 @@ def give_discussions_permission():
 
 @frappe.whitelist()
 def upsert_chapter(title, course, is_scorm_package, scorm_package, name=None):
-	values = frappe._dict(
-		{"title": title, "course": course, "is_scorm_package": is_scorm_package}
-	)
+	values = frappe._dict({"title": title, "course": course, "is_scorm_package": is_scorm_package})
 
 	if is_scorm_package:
 		scorm_package = frappe._dict(scorm_package)
@@ -1081,7 +1044,7 @@ def upsert_chapter(title, course, is_scorm_package, scorm_package, name=None):
 	chapter.save()
 
 	if is_scorm_package and not len(chapter.lessons):
-		add_lesson(title, chapter.name, course)
+		add_lesson(title, chapter.name, course, 1)
 
 	return chapter
 
@@ -1115,14 +1078,12 @@ def check_for_malicious_code(zip_path):
 					content = file.read().decode("utf-8", errors="ignore")
 					for pattern in suspicious_patterns:
 						if re.search(pattern, content):
-							frappe.throw(
-								_("Suspicious pattern found in {0}: {1}").format(file_name, pattern)
-							)
+							frappe.throw(_("Suspicious pattern found in {0}: {1}").format(file_name, pattern))
 
 
 def get_manifest_file(extract_path):
 	manifest_file = None
-	for root, dirs, files in os.walk(extract_path):
+	for root, _dirs, files in os.walk(extract_path):
 		for file in files:
 			if file == "imsmanifest.xml":
 				manifest_file = os.path.join(root, file)
@@ -1155,7 +1116,7 @@ def get_launch_file(extract_path):
 	return launch_file
 
 
-def add_lesson(title, chapter, course):
+def add_lesson(title, chapter, course, idx):
 	lesson = frappe.new_doc("Course Lesson")
 	lesson.update(
 		{
@@ -1170,6 +1131,7 @@ def add_lesson(title, chapter, course):
 	lesson_reference.update(
 		{
 			"lesson": lesson.name,
+			"idx": idx,
 			"parent": chapter,
 			"parenttype": "Course Chapter",
 			"parentfield": "lessons",
@@ -1201,9 +1163,7 @@ def delete_scorm_package(scorm_package_path):
 
 @frappe.whitelist()
 def mark_lesson_progress(course, chapter_number, lesson_number):
-	chapter_name = frappe.get_value(
-		"Chapter Reference", {"parent": course, "idx": chapter_number}, "chapter"
-	)
+	chapter_name = frappe.get_value("Chapter Reference", {"parent": course, "idx": chapter_number}, "chapter")
 	lesson_name = frappe.get_value(
 		"Lesson Reference", {"parent": chapter_name, "idx": lesson_number}, "lesson"
 	)
@@ -1218,9 +1178,7 @@ def get_heatmap_data(member=None, base_days=200):
 	base_date, start_date, number_of_days, days = calculate_date_ranges(base_days)
 	date_count = initialize_date_count(days)
 
-	lesson_completions, quiz_submissions, assignment_submissions = fetch_activity_data(
-		member, start_date
-	)
+	lesson_completions, quiz_submissions, assignment_submissions = fetch_activity_data(member, start_date)
 	count_dates(lesson_completions, date_count)
 	count_dates(quiz_submissions, date_count)
 	count_dates(assignment_submissions, date_count)
@@ -1259,7 +1217,7 @@ def fetch_activity_data(member, start_date):
 	lesson_completions = frappe.get_all(
 		"LMS Course Progress",
 		fields=["creation"],
-		filters={"member": member, "creation": [">=", start_date]},
+		filters={"member": member, "creation": [">=", start_date], "status": "Complete"},
 	)
 
 	quiz_submissions = frappe.get_all(
@@ -1311,13 +1269,11 @@ def prepare_heatmap_data(start_date, number_of_days, date_count):
 				labels[column_index] = current_month
 				last_seen_month = current_month
 
-	for (index, label) in enumerate(labels):
+	for index, label in enumerate(labels):
 		if not label:
 			labels[index] = ""
 
-	formatted_heatmap_data = [
-		{"name": day, "data": heatmap_data[day]} for day in days_of_week
-	]
+	formatted_heatmap_data = [{"name": day, "data": heatmap_data[day]} for day in days_of_week]
 
 	total_activities = sum(date_count.values())
 	return formatted_heatmap_data, labels, total_activities, week_count
@@ -1371,10 +1327,7 @@ def cancel_evaluation(evaluation):
 		info = frappe.db.get_value("Event", event.parent, ["starts_on", "subject"], as_dict=1)
 		date = str(info.starts_on).split(" ")[0]
 
-		if (
-			date == str(evaluation.date.format("YYYY-MM-DD"))
-			and evaluation.member_name in info.subject
-		):
+		if date == str(evaluation.date.format("YYYY-MM-DD")) and evaluation.member_name in info.subject:
 			communication = frappe.db.get_value(
 				"Communication",
 				{"reference_doctype": "Event", "reference_name": event.parent},
@@ -1577,9 +1530,7 @@ def make_new_exercise_submission(exercise, code, test_cases):
 def update_exercise_submission(submission, code, test_cases):
 	update_test_cases(test_cases, submission)
 	status = get_exercise_status(test_cases)
-	frappe.db.set_value(
-		"LMS Programming Exercise Submission", submission, {"status": status, "code": code}
-	)
+	frappe.db.set_value("LMS Programming Exercise Submission", submission, {"status": status, "code": code})
 
 
 def get_exercise_status(test_cases):
@@ -1698,3 +1649,26 @@ def get_progress_distribution(progressList):
 	]
 
 	return distribution
+
+
+@frappe.whitelist(allow_guest=True)
+def get_pwa_manifest():
+	title = frappe.db.get_single_value("Website Settings", "app_name") or "Frappe Learning"
+	banner_image = frappe.db.get_single_value("Website Settings", "banner_image")
+
+	manifest = {
+		"name": title,
+		"short_name": title,
+		"description": "Easy to use, 100% open source Learning Management System",
+		"start_url": "/lms",
+		"icons": [
+			{
+				"src": banner_image or "/assets/lms/frontend/manifest/manifest-icon-192.maskable.png",
+				"sizes": "192x192",
+				"type": "image/png",
+				"purpose": "maskable any",
+			}
+		],
+	}
+
+	return Response(json.dumps(manifest), status=200, content_type="application/manifest+json")

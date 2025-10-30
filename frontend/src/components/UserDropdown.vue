@@ -1,60 +1,62 @@
 <template>
-	<Dropdown class="p-2" :options="userDropdownOptions">
-		<template v-slot="{ open }">
-			<button
-				class="flex h-12 py-2 items-center rounded-md duration-300 ease-in-out"
-				:class="
-					isCollapsed
-						? 'px-0 w-auto'
-						: open
-						? 'bg-surface-white shadow-sm px-2 w-52'
-						: 'hover:bg-surface-gray-3 px-2 w-52'
-				"
-			>
-				<img
-					v-if="branding.data?.banner_image"
-					:src="branding.data?.banner_image.file_url"
-					class="w-8 h-8 rounded flex-shrink-0"
-				/>
-				<LMSLogo v-else class="w-8 h-8 rounded flex-shrink-0" />
-				<div
-					class="flex flex-1 flex-col text-left duration-300 ease-in-out"
+	<div class="p-2">
+		<Dropdown :options="userDropdownOptions">
+			<template v-slot="{ open }">
+				<button
+					class="flex h-12 py-2 items-center rounded-md duration-300 ease-in-out"
 					:class="
 						isCollapsed
-							? 'opacity-0 ml-0 w-0 overflow-hidden'
-							: 'opacity-100 ml-2 w-auto'
+							? 'px-0 w-auto'
+							: open
+							? 'bg-surface-white shadow-sm px-2 w-52'
+							: 'hover:bg-surface-gray-3 px-2 w-52'
 					"
 				>
-					<div class="text-base font-medium text-ink-gray-9 leading-none">
-						<span
-							v-if="
-								branding.data?.app_name && branding.data?.app_name != 'Frappe'
-							"
+					<img
+						v-if="branding.data?.banner_image"
+						:src="branding.data?.banner_image.file_url"
+						class="w-8 h-8 rounded flex-shrink-0"
+					/>
+					<LMSLogo v-else class="w-8 h-8 rounded flex-shrink-0" />
+					<div
+						class="flex flex-1 flex-col text-left duration-300 ease-in-out"
+						:class="
+							isCollapsed
+								? 'opacity-0 ml-0 w-0 overflow-hidden'
+								: 'opacity-100 ml-2 w-auto'
+						"
+					>
+						<div class="text-base font-medium text-ink-gray-9 leading-none">
+							<span
+								v-if="
+									branding.data?.app_name && branding.data?.app_name != 'Frappe'
+								"
+							>
+								{{ branding.data?.app_name }}
+							</span>
+							<span v-else> Learning </span>
+						</div>
+						<div
+							v-if="userResource.data"
+							class="mt-1 text-sm text-ink-gray-7 leading-none"
 						>
-							{{ branding.data?.app_name }}
-						</span>
-						<span v-else> Learning </span>
+							{{ convertToTitleCase(userResource.data?.full_name) }}
+						</div>
 					</div>
 					<div
-						v-if="userResource.data"
-						class="mt-1 text-sm text-ink-gray-7 leading-none"
+						class="duration-300 ease-in-out"
+						:class="
+							isCollapsed
+								? 'opacity-0 ml-0 w-0 overflow-hidden'
+								: 'opacity-100 ml-2 w-auto'
+						"
 					>
-						{{ convertToTitleCase(userResource.data?.full_name) }}
+						<ChevronDown class="h-4 w-4 text-ink-gray-7" />
 					</div>
-				</div>
-				<div
-					class="duration-300 ease-in-out"
-					:class="
-						isCollapsed
-							? 'opacity-0 ml-0 w-0 overflow-hidden'
-							: 'opacity-100 ml-2 w-auto'
-					"
-				>
-					<ChevronDown class="h-4 w-4 text-ink-gray-7" />
-				</div>
-			</button>
-		</template>
-	</Dropdown>
+				</button>
+			</template>
+		</Dropdown>
+	</div>
 	<SettingsModal
 		v-if="userResource.data?.is_moderator"
 		v-model="showSettingsModal"

@@ -27,6 +27,13 @@
 							:options="jobTypes"
 							:required="true"
 						/>
+						<FormControl
+							v-model="job.work_mode"
+							:label="__('Work Mode')"
+							type="select"
+							:options="workModes"
+							:required="true"
+						/>
 					</div>
 					<div class="space-y-4">
 						<FormControl
@@ -151,7 +158,7 @@ import { computed, onMounted, reactive, inject } from 'vue'
 import { FileText, X } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
-import { getFileSize, validateFile } from '@/utils'
+import { escapeHTML, getFileSize, validateFile } from '@/utils'
 
 const user = inject('$user')
 const router = useRouter()
@@ -225,6 +232,7 @@ const job = reactive({
 	location: '',
 	country: '',
 	type: 'Full Time',
+	work_mode: 'On-site',
 	status: 'Open',
 	company_name: '',
 	company_website: '',
@@ -240,6 +248,7 @@ onMounted(() => {
 })
 
 const saveJob = () => {
+	validateJobFields()
 	if (jobDetail.data) {
 		editJobDetails()
 	} else {
@@ -285,6 +294,14 @@ const editJobDetails = () => {
 	)
 }
 
+const validateJobFields = () => {
+	Object.keys(job).forEach((key) => {
+		if (key != 'description' && typeof job[key] === 'string') {
+			job[key] = escapeHTML(job[key])
+		}
+	})
+}
+
 const saveImage = (file) => {
 	job.image = file
 }
@@ -299,6 +316,14 @@ const jobTypes = computed(() => {
 		{ label: 'Part Time', value: 'Part Time' },
 		{ label: 'Contract', value: 'Contract' },
 		{ label: 'Freelance', value: 'Freelance' },
+	]
+})
+
+const workModes = computed(() => {
+	return [
+		{ label: 'On site', value: 'On-site' },
+		{ label: 'Hybrid', value: 'Hybrid' },
+		{ label: 'Remote', value: 'Remote' },
 	]
 })
 

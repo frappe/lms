@@ -23,7 +23,7 @@
 		</header>
 		<div
 			v-if="batch.data"
-			class="grid grid-cols-[75%,25%] h-[calc(100vh-3.2rem)]"
+			class="grid grid-cols-1 md:grid-cols-[75%,25%] h-[calc(100vh-3.2rem)]"
 		>
 			<div class="border-r">
 				<Tabs
@@ -95,7 +95,7 @@
 					</template>
 				</Tabs>
 			</div>
-			<div class="p-5">
+			<div class="p-5 border-t md:border-t-0">
 				<div class="mb-10">
 					<div class="text-ink-gray-7 font-semibold mb-2">
 						{{ __('About this batch') }}

@@ -141,9 +141,6 @@ const props = defineProps({
 		type: String,
 		default: '',
 	},
-	show: {
-		type: Boolean,
-	},
 })
 
 const evaluators = createListResource({

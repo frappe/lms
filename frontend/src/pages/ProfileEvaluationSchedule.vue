@@ -4,7 +4,7 @@
 			<Calendar
 				v-if="evaluations.data?.length"
 				:config="{
-					defaultMode: 'Month',
+					defaultMode: 'Week',
 					disableModes: ['Day', 'Week'],
 					redundantCellHeight: 100,
 					enableShortcuts: false,
@@ -87,8 +87,10 @@ const evaluations = createListResource({
 			mappedData.participant = d.member_name
 			mappedData.id = d.name
 			mappedData.venue = d.google_meet_link
-			mappedData.fromDate = `${d.date} ${d.start_time}`
-			mappedData.toDate = `${d.date} ${d.end_time}`
+			mappedData.fromDate = `${d.date}`
+			mappedData.toDate = `${d.date}`
+			mappedData.fromTime = d.start_time
+			mappedData.toTime = d.end_time
 			mappedData.color = 'green'
 
 			return mappedData

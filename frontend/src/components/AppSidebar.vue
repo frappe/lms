@@ -9,12 +9,12 @@
 		>
 			<UserDropdown :isCollapsed="sidebarStore.isSidebarCollapsed" />
 			<div class="flex flex-col" v-if="sidebarSettings.data">
-				<SidebarLink
-					v-for="link in sidebarLinks"
-					:link="link"
-					:isCollapsed="sidebarStore.isSidebarCollapsed"
-					class="mx-2 my-0.5"
-				/>
+				<div v-for="link in sidebarLinks" class="mx-2 my-0.5">
+					<SidebarLink
+						:link="link"
+						:isCollapsed="sidebarStore.isSidebarCollapsed"
+					/>
+				</div>
 			</div>
 			<div
 				v-if="sidebarSettings.data?.web_pages?.length || isModerator"
@@ -54,15 +54,18 @@
 					class="flex flex-col transition-all duration-300 ease-in-out"
 					:class="!sidebarStore.isWebpagesCollapsed ? 'block' : 'hidden'"
 				>
-					<SidebarLink
+					<div
 						v-for="link in sidebarSettings.data.web_pages"
-						:link="link"
-						:isCollapsed="sidebarStore.isSidebarCollapsed"
 						class="mx-2 my-0.5"
-						:showControls="isModerator ? true : false"
-						@openModal="openPageModal"
-						@deletePage="deletePage"
-					/>
+					>
+						<SidebarLink
+							:link="link"
+							:isCollapsed="sidebarStore.isSidebarCollapsed"
+							:showControls="isModerator ? true : false"
+							@openModal="openPageModal"
+							@deletePage="deletePage"
+						/>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -196,7 +199,7 @@ import { usersStore } from '@/stores/user'
 import { sessionStore } from '@/stores/session'
 import { useSidebar } from '@/stores/sidebar'
 import { useSettings } from '@/stores/settings'
-import { Button, createResource, Tooltip } from 'frappe-ui'
+import { Button, call, createResource, Tooltip } from 'frappe-ui'
 import PageModal from '@/components/Modals/PageModal.vue'
 import { capture } from '@/telemetry'
 import LMSLogo from '@/components/Icons/LMSLogo.vue'
@@ -214,6 +217,7 @@ import {
 	Users,
 	BookText,
 	Zap,
+	Check,
 } from 'lucide-vue-next'
 import {
 	TrialBanner,
@@ -344,35 +348,63 @@ const addAssignments = () => {
 	}
 }
 
-const addPrograms = () => {
-	let activeFor = ['Programs', 'ProgramForm']
-	let index = 1
-	let canAddProgram = false
-
-	if (
-		!isInstructor.value &&
-		!isModerator.value &&
-		settingsStore.learningPaths.data
-	) {
-		sidebarLinks.value = sidebarLinks.value.filter(
-			(link) => link.label !== 'Courses'
-		)
-		activeFor.push('CourseDetail')
-		activeFor.push('Lesson')
-		index = 0
-		canAddProgram = true
-	} else if (isInstructor.value || isModerator.value) {
-		canAddProgram = true
-	}
-
-	if (canAddProgram) {
-		sidebarLinks.value.splice(index, 0, {
-			label: 'Programs',
-			icon: 'Route',
-			to: 'Programs',
-			activeFor: activeFor,
+const addProgrammingExercises = () => {
+	if (isInstructor.value || isModerator.value) {
+		sidebarLinks.value.splice(3, 0, {
+			label: 'Programming Exercises',
+			icon: 'Code',
+			to: 'ProgrammingExercises',
+			activeFor: [
+				'ProgrammingExercises',
+				'ProgrammingExerciseForm',
+				'ProgrammingExerciseSubmissions',
+				'ProgrammingExerciseSubmission',
+			],
 		})
 	}
+}
+
+const addPrograms = async () => {
+	let canAddProgram = await checkIfCanAddProgram()
+	if (!canAddProgram) return
+	let activeFor = ['Programs', 'ProgramDetail']
+	let index = 2
+
+	sidebarLinks.value.splice(index, 0, {
+		label: 'Programs',
+		icon: 'Route',
+		to: 'Programs',
+		activeFor: activeFor,
+	})
+}
+
+const addContactUsDetails = () => {
+	if (settingsStore.contactUsEmail?.data || settingsStore.contactUsURL?.data) {
+		sidebarLinks.value.push({
+			label: 'Contact Us',
+			icon: settingsStore.contactUsURL?.data ? 'Headset' : 'Mail',
+			to: settingsStore.contactUsURL?.data
+				? settingsStore.contactUsURL.data
+				: settingsStore.contactUsEmail?.data,
+		})
+	}
+}
+
+const checkIfCanAddProgram = async () => {
+	if (isModerator.value || isInstructor.value) {
+		return true
+	}
+	const programs = await call('lms.lms.utils.get_programs')
+	return programs.enrolled.length > 0 || programs.published.length > 0
+}
+
+const addHome = () => {
+	sidebarLinks.value.unshift({
+		label: 'Home',
+		icon: 'Home',
+		to: 'Home',
+		activeFor: ['Home'],
+	})
 }
 
 const openPageModal = (link) => {
@@ -578,6 +610,11 @@ const articles = ref([
 		],
 	},
 	{
+		title: __('Learning Paths'),
+		opened: false,
+		subArticles: [{ name: 'add-a-program', title: __('Add a program') }],
+	},
+	{
 		title: __('Assessments'),
 		opened: false,
 		subArticles: [
@@ -623,10 +660,13 @@ const setUpOnboarding = () => {
 }
 
 watch(userResource, () => {
+	addContactUsDetails()
 	if (userResource.data) {
 		isModerator.value = userResource.data.is_moderator
 		isInstructor.value = userResource.data.is_instructor
+		addHome()
 		addPrograms()
+		addProgrammingExercises()
 		addQuizzes()
 		addAssignments()
 		setUpOnboarding()

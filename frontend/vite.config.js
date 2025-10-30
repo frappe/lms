@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
 import frappeui from 'frappe-ui/vite'
+import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -23,9 +24,21 @@ export default defineConfig({
 				propsDestructure: true,
 			},
 		}),
+		VitePWA({
+			registerType: 'autoUpdate',
+			devOptions: {
+				enabled: true,
+			},
+			workbox: {
+				cleanupOutdatedCaches: true,
+				maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+			},
+			manifest: false,
+		}),
 	],
 	server: {
-		allowedHosts: ['fs', 'per2'],
+		host: '0.0.0.0', // Accept connections from any network interface
+		allowedHosts: ['ps', 'fs', 'home'], // Explicitly allow this host
 	},
 	resolve: {
 		alias: {

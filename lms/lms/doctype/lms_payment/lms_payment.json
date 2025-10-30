@@ -147,6 +147,7 @@
    "default": "0",
    "fieldname": "payment_for_certificate",
    "fieldtype": "Check",
+   "in_standard_filter": 1,
    "label": "Payment for Certificate"
   }
  ],
@@ -161,8 +162,8 @@
    "link_fieldname": "payment"
   }
  ],
- "modified": "2025-03-13 15:31:38.019002",
- "modified_by": "Administrator",
+ "modified": "2025-09-23 11:04:00.462274",
+ "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Payment",
  "owner": "Administrator",
@@ -180,9 +181,11 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
- "title_field": "billing_name"
+ "title_field": "billing_name",
+ "track_changes": 1
 }

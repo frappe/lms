@@ -7,6 +7,7 @@ them will be a lot easier.
 
 The widgets will be provided
 """
+
 import frappe
 from frappe.utils.jinja import get_jenv
 

@@ -5,7 +5,7 @@
 				{{ __('Statistics') }}
 			</div>
 		</div>
-		<div class="grid grid-cols-4 gap-5 mb-8">
+		<div class="grid grid-cols-2 md:grid-cols-4 gap-5 mb-8">
 			<NumberChart
 				class="border rounded-md"
 				:config="{ title: __('Students'), value: students.data?.length || 0 }"

@@ -23,10 +23,8 @@ repos:
       - id: ruff
         name: "Run ruff import sorter"
         args: ["--select=I", "--fix"]
-
       - id: ruff
         name: "Run ruff linter"
-
       - id: ruff-format
         name: "Run ruff formatter"
 
@@ -45,22 +43,21 @@ repos:
                 frappe_desk_theme/public/js/lib/.*
             )$
 
-
   - repo: https://github.com/pre-commit/mirrors-eslint
     rev: v8.44.0
     hooks:
       - id: eslint
         types_or: [javascript]
         args: ['--quiet']
-        # Ignore any files that might contain jinja / bundles
         exclude: |
             (?x)^(
-                frappe_desk_theme/public/dist/.*|
+                lms/public/dist/.*|
                 cypress/.*|
                 .*node_modules.*|
                 .*boilerplate.*|
-                frappe_desk_theme/templates/includes/.*|
-                frappe_desk_theme/public/js/lib/.*
+                lms/www/website_script.js|
+                lms/templates/includes/.*|
+                lms/public/js/lib/.*
             )$
 
 ci:

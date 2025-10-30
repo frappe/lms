@@ -1,6 +1,6 @@
 <template>
 	<div class="h-full">
-		<div class="grid md:grid-cols-[70%,30%] h-full">
+		<div class="grid grid-cols-1 md:grid-cols-[70%,30%] h-full">
 			<div>
 				<header
 					class="sticky top-0 z-10 flex flex-col md:flex-row md:items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
@@ -20,11 +20,11 @@
 					</div>
 				</header>
 				<div class="mt-5 mb-5">
-					<div class="px-10 pb-5 mb-5 space-y-5 border-b">
-						<div class="text-lg font-semibold mb-4">
+					<div class="px-5 md:px-10 pb-5 mb-5 space-y-5 border-b">
+						<div class="text-lg font-semibold mb-4 text-ink-gray-9">
 							{{ __('Details') }}
 						</div>
-						<div class="grid grid-cols-2 gap-5">
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 							<FormControl
 								v-model="course.title"
 								:label="__('Title')"
@@ -37,7 +37,7 @@
 								:onCreate="(value, close) => openSettings('Categories', close)"
 							/>
 						</div>
-						<div class="grid grid-cols-2 gap-5">
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 							<MultiSelect
 								v-model="instructors"
 								doctype="User"
@@ -74,7 +74,7 @@
 								</div>
 							</div>
 						</div>
-						<div class="grid grid-cols-2 gap-5">
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 							<div class="mb-4">
 								<div class="text-xs text-ink-gray-5 mb-2">
 									{{ __('Course Image') }}
@@ -137,12 +137,15 @@
 						</div>
 					</div>
 
-					<div class="px-10 pb-5 mb-5 space-y-5 border-b">
-						<div class="text-lg font-semibold">
+					<div class="px-5 md:px-10 pb-5 mb-5 space-y-5 border-b">
+						<div class="text-lg font-semibold text-ink-gray-9">
 							{{ __('Settings') }}
 						</div>
-						<div class="grid grid-cols-2 gap-5">
-							<div class="flex flex-col space-y-5">
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+							<div
+								v-if="user.data?.is_moderator"
+								class="flex flex-col space-y-5"
+							>
 								<FormControl
 									type="checkbox"
 									v-model="course.published"
@@ -174,8 +177,8 @@
 						</div>
 					</div>
 
-					<div class="px-10 pb-5 mb-5 space-y-5 border-b">
-						<div class="text-lg font-semibold">
+					<div class="px-5 md:px-10 pb-5 mb-5 space-y-5 border-b">
+						<div class="text-lg font-semibold text-ink-gray-9">
 							{{ __('About the Course') }}
 						</div>
 						<FormControl
@@ -239,11 +242,11 @@
 						/>
 					</div>
 
-					<div class="px-10 pb-5 space-y-5 border-b">
-						<div class="text-lg font-semibold mt-5">
+					<div class="px-5 md:px-10 pb-5 space-y-5 border-b">
+						<div class="text-lg font-semibold mt-5 text-ink-gray-9">
 							{{ __('Pricing and Certification') }}
 						</div>
-						<div class="grid grid-cols-3">
+						<div class="grid grid-cols-1 md:grid-cols-3 gap-5">
 							<FormControl
 								type="checkbox"
 								v-model="course.paid_course"
@@ -260,35 +263,47 @@
 								:label="__('Paid Certificate')"
 							/>
 						</div>
-						<div class="grid grid-cols-2 gap-5">
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 							<div class="space-y-5">
 								<FormControl
 									v-if="course.paid_course || course.paid_certificate"
 									v-model="course.course_price"
 									:label="__('Amount')"
+									:required="course.paid_course || course.paid_certificate"
 								/>
 								<Link
 									v-if="course.paid_certificate"
 									doctype="Course Evaluator"
 									v-model="course.evaluator"
 									:label="__('Evaluator')"
+									:required="course.paid_certificate"
 									:onCreate="
 										(value, close) => openSettings('Evaluators', close)
 									"
 								/>
 							</div>
-							<Link
-								v-if="course.paid_course || course.paid_certificate"
-								doctype="Currency"
-								v-model="course.currency"
-								:filters="{ enabled: 1 }"
-								:label="__('Currency')"
-							/>
+							<div class="space-y-5">
+								<Link
+									v-if="course.paid_course || course.paid_certificate"
+									doctype="Currency"
+									v-model="course.currency"
+									:filters="{ enabled: 1 }"
+									:label="__('Currency')"
+									:required="course.paid_course || course.paid_certificate"
+								/>
+								<FormControl
+									v-if="course.paid_certificate"
+									v-model="course.timezone"
+									:label="__('Timezone')"
+									:required="course.paid_certificate"
+									:placeholder="__('e.g. IST, UTC, GMT...')"
+								/>
+							</div>
 						</div>
 					</div>
 
-					<div class="px-10 pb-5 space-y-5">
-						<div class="text-lg font-semibold mt-5">
+					<div class="px-5 md:px-10 pb-5 space-y-5">
+						<div class="text-lg font-semibold mt-5 text-ink-gray-9">
 							{{ __('Meta Tags') }}
 						</div>
 						<div class="space-y-5">
@@ -323,7 +338,6 @@
 <script setup>
 import {
 	Breadcrumbs,
-	call,
 	TextEditor,
 	Button,
 	createResource,
@@ -395,6 +409,7 @@ const course = reactive({
 	currency: '',
 	evaluator: '',
 	course_duration: 0,
+	timezone: '',
 })
 
 const meta = reactive({

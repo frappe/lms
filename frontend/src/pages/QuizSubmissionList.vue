@@ -40,7 +40,7 @@
 			</Button>
 		</div>
 	</div>
-	<EmptyState v-else />
+	<EmptyState v-else type="Quiz Submissions" />
 </template>
 <script setup>
 import {

@@ -3,13 +3,11 @@ import { usersStore } from './stores/user'
 import { sessionStore } from './stores/session'
 import { useSettings } from './stores/settings'
 
-let defaultRoute = '/courses'
 const routes = [
 	{
 		path: '/',
-		redirect: {
-			name: 'Courses',
-		},
+		name: 'Home',
+		component: () => import('@/pages/Home/Home.vue'),
 	},
 	{
 		path: '/courses',
@@ -184,15 +182,15 @@ const routes = [
 		props: true,
 	},
 	{
-		path: '/programs/:programName',
-		name: 'ProgramForm',
-		component: () => import('@/pages/ProgramForm.vue'),
-		props: true,
-	},
-	{
 		path: '/programs',
 		name: 'Programs',
-		component: () => import('@/pages/Programs.vue'),
+		component: () => import('@/pages/Programs/Programs.vue'),
+	},
+	{
+		path: '/programs/:programName',
+		name: 'ProgramDetail',
+		component: () => import('@/pages/Programs/ProgramDetail.vue'),
+		props: true,
 	},
 	{
 		path: '/assignments',
@@ -260,6 +258,8 @@ router.beforeEach(async (to, from, next) => {
 	}
 
 	if (!isLoggedIn) {
+		if (to.name == 'Home') router.push({ name: 'Courses' })
+
 		await allowGuestAccess.promise
 		if (!allowGuestAccess.data) {
 			window.location.href = '/login'
