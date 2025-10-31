@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2025-10-17 16:04+0000\n"
-"PO-Revision-Date: 2025-10-20 15:18\n"
+"POT-Creation-Date: 2025-10-24 16:04+0000\n"
+"PO-Revision-Date: 2025-10-27 17:04\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Czech\n"
 "MIME-Version: 1.0\n"
@@ -5998,7 +5998,7 @@ msgid "Setting up payment gateway"
 msgstr ""
 
 #: frontend/src/components/AppSidebar.vue:647
-#: frontend/src/components/Settings/Settings.vue:7
+#: frontend/src/components/Settings/Settings.vue:9
 #: frontend/src/pages/BatchForm.vue:53 frontend/src/pages/CourseForm.vue:142
 #: frontend/src/pages/ProfileRoles.vue:4
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:19
