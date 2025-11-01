@@ -954,6 +954,73 @@ def get_current_exchange_rate(source, target="USD"):
 
 
 @frappe.whitelist()
+def apply_coupon(doctype, docname, code, country=None):
+	if doctype not in ["LMS Course", "LMS Batch"]:
+		frappe.throw(_("Invalid doctype for coupon application."))
+
+	if not code:
+		frappe.throw(_("Coupon code is required."))
+
+	summary = get_order_summary(doctype, docname, country)
+
+	base_amount = summary.original_amount
+	currency = summary.currency
+
+	coupon_name = frappe.db.get_value("LMS Coupon", {"code": code.strip().upper(), "active": 1}, "name")
+	if not coupon_name:
+		frappe.throw(_("Invalid or inactive coupon code."))
+
+	coupon = frappe.get_doc("LMS Coupon", coupon_name)
+
+	if coupon.expires_on and getdate(coupon.expires_on) < getdate():
+		frappe.throw(_("This coupon has expired."))
+
+	if coupon.usage_limit and cint(coupon.times_redeemed) >= cint(coupon.usage_limit):
+		frappe.throw(_("This coupon has reached its usage limit."))
+
+	# check applicability
+	applicable = True
+	if len(coupon.applicable_items):
+		applicable = any(
+			(row.reference_doctype == doctype and row.reference_name == docname)
+			for row in coupon.applicable_items
+		)
+	if not applicable:
+		frappe.throw(_("This coupon is not applicable to this item."))
+
+	discount_amount = 0
+	if coupon.discount_type == "Percent":
+		discount_amount = cint(flt(base_amount) * flt(coupon.percent_off) / 100)
+	else:
+		discount_amount = min(flt(coupon.amount_off), flt(base_amount))
+
+	subtotal = max(flt(base_amount) - flt(discount_amount), 0)
+
+	gst_applied = 0
+	final_amount = subtotal
+	if currency == "INR":
+		final_amount, gst_applied = apply_gst(subtotal, country)
+
+	return {
+		"title": summary.title,
+		"name": summary.name,
+		"currency": currency,
+		"original_amount": base_amount,
+		"original_amount_formatted": fmt_money(base_amount, 0, currency),
+		"discount_amount": discount_amount,
+		"discount_amount_formatted": fmt_money(discount_amount, 0, currency),
+		"amount": final_amount,
+		"gst_applied": gst_applied,
+		"gst_amount_formatted": fmt_money(gst_applied, 0, currency) if gst_applied else None,
+		"total_amount_formatted": fmt_money(final_amount, 0, currency),
+		"coupon": coupon.name,
+		"coupon_code": coupon.code,
+		"discount_type": coupon.discount_type,
+		"discount_percent": coupon.percent_off if coupon.discount_type == "Percent" else None,
+	}
+
+
+@frappe.whitelist()
 def change_currency(amount, currency, country=None):
 	amount = cint(amount)
 	amount, currency = check_multicurrency(amount, currency, country)
@@ -1875,6 +1942,18 @@ def update_payment_record(doctype, docname):
 				"order_id": data.get("order_id"),
 			},
 		)
+
+		# Increment coupon usage if applicable
+		coupon = frappe.db.get_value("LMS Payment", data.payment, "coupon")
+		if coupon:
+			frappe.db.sql(
+				"""
+				UPDATE `tabLMS Coupon`
+				SET times_redeemed = COALESCE(times_redeemed, 0) + 1
+				WHERE name = %s
+				""",
+				(coupon,),
+			)
 		payment_for_certificate = frappe.db.get_value("LMS Payment", data.payment, "payment_for_certificate")
 
 		try:

@@ -67,8 +67,34 @@
 					/>
 					<FormControl :label="__('Amount')" v-model="transactionData.amount" />
 					<FormControl
-						:label="__('Order ID')"
-						v-model="transactionData.order_id"
+						v-if="transactionData.coupon"
+						:label="__('Coupon Code')"
+						v-model="transactionData.coupon_code"
+						:disabled="true"
+					/>
+				</div>
+
+				<div class="grid grid-cols-3 gap-5 mt-5">
+					<FormControl
+						v-if="Number(transactionData.discount_amount)"
+						:label="__('Discount Amount')"
+						v-model="transactionData.discount_amount"
+						:disabled="true"
+					/>
+					<FormControl
+						v-if="Number(transactionData.gst_amount)"
+						:label="__('GST Amount')"
+						v-model="transactionData.gst_amount"
+						:disabled="true"
+					/>
+					<FormControl
+						v-if="
+							Number(transactionData.discount_amount) ||
+							Number(transactionData.gst_amount)
+						"
+						:label="__('Total Amount')"
+						v-model="transactionData.total_amount"
+						:disabled="true"
 					/>
 				</div>
 
@@ -78,6 +104,13 @@
 					<FormControl
 						:label="__('Payment ID')"
 						v-model="transactionData.payment_id"
+					/>
+				</div>
+
+				<div class="grid grid-cols-3 gap-5 mt-5">
+					<FormControl
+						:label="__('Order ID')"
+						v-model="transactionData.order_id"
 					/>
 				</div>
 			</div>
@@ -100,7 +133,7 @@
 	</Dialog>
 </template>
 <script setup lang="ts">
-import { Dialog, FormControl, Button } from 'frappe-ui'
+import { Dialog, FormControl, Button, createResource } from 'frappe-ui'
 import { useRouter } from 'vue-router'
 import { ref, watch } from 'vue'
 import Link from '@/components/Controls/Link.vue'
@@ -115,10 +148,24 @@ const props = defineProps<{
 	transaction: { [key: string]: any } | null
 }>()
 
+const paymentDoc = createResource({
+	url: 'frappe.client.get',
+	makeParams() {
+		return { doctype: 'LMS Payment', name: props.transaction?.name }
+	},
+	onSuccess(data) {
+		transactionData.value = data
+	},
+})
+
 watch(
 	() => props.transaction,
 	(newVal) => {
-		transactionData.value = newVal ? { ...newVal } : null
+		if (newVal?.name) {
+			paymentDoc.submit()
+		} else {
+			transactionData.value = null
+		}
 	},
 	{ immediate: true }
 )

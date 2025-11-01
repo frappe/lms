@@ -1,0 +1,190 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "hash",
+ "creation": "2025-10-11 21:39:11.456420",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "enabled",
+  "section_break_spfj",
+  "code",
+  "expires_on",
+  "column_break_mptc",
+  "discount_type",
+  "percentage_discount",
+  "fixed_amount_discount",
+  "section_break_ixxu",
+  "usage_limit",
+  "column_break_dcvj",
+  "redemption_count",
+  "section_break_ophm",
+  "applicable_items"
+ ],
+ "fields": [
+  {
+   "fieldname": "code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Code",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "discount_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Discount Type",
+   "options": "Percentage\nFixed Amount",
+   "reqd": 1
+  },
+  {
+   "fieldname": "expires_on",
+   "fieldtype": "Date",
+   "in_standard_filter": 1,
+   "label": "Expires On"
+  },
+  {
+   "fieldname": "usage_limit",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Usage Limit"
+  },
+  {
+   "fieldname": "applicable_items",
+   "fieldtype": "Table",
+   "label": "Applicable Items",
+   "options": "LMS Coupon Item",
+   "reqd": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "in_standard_filter": 1,
+   "label": "Enabled"
+  },
+  {
+   "fieldname": "column_break_mptc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_ixxu",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_dcvj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_ophm",
+   "fieldtype": "Section Break"
+  },
+  {
+   "depends_on": "eval:doc.discount_type=='Percentage'",
+   "fieldname": "percentage_discount",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Percentage Discount",
+   "mandatory_depends_on": "eval:doc.discount_type=='Percentage'"
+  },
+  {
+   "depends_on": "eval:doc.discount_type=='Fixed Amount'",
+   "fieldname": "fixed_amount_discount",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Fixed Amount Discount",
+   "mandatory_depends_on": "eval:doc.discount_type=='Fixed Amount'"
+  },
+  {
+   "default": "0",
+   "fieldname": "redemption_count",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Redemption Count",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_spfj",
+   "fieldtype": "Section Break"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-10-27 19:52:11.835042",
+ "modified_by": "sayali@frappe.io",
+ "module": "LMS",
+ "name": "LMS Coupon",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Administrator",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Batch Evaluator",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Course Creator",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Moderator",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "code"
+}
