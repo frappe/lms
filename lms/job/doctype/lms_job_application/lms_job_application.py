@@ -11,6 +11,10 @@ class LMSJobApplication(Document):
 		self.validate_duplicate()
 
 	def after_insert(self):
+		job_owner = frappe.get_value("Job Opportunity", self.job, "owner")
+		if job_owner:
+			frappe.share.add_docshare("LMS Job Application", self.name, job_owner, read=1)
+
 		outgoing_email_account = frappe.get_cached_value(
 			"Email Account", {"default_outgoing": 1, "enable_outgoing": 1}, "name"
 		)
@@ -33,7 +37,7 @@ class LMSJobApplication(Document):
 			resume = frappe.get_doc(
 				"File",
 				{
-					"file_name": self.resume,
+					"file_url": self.resume,
 				},
 			)
 			frappe.sendmail(
