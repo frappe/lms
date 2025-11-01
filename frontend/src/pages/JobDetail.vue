@@ -21,6 +21,23 @@
 				class="flex items-center space-x-2"
 			>
 				<router-link
+					v-if="canManageJob"
+					:to="{
+						name: 'JobApplications',
+						params: { job: job.data?.name },
+					}"
+				>
+					<Button variant="outline">
+						<template #prefix>
+							<Users class="h-4 w-4 stroke-1.5" />
+						</template>
+						{{ __('Applications') }}
+						<Badge v-if="applicationCount.data" class="ml-2">
+							{{ applicationCount.data }}
+						</Badge>
+					</Button>
+				</router-link>
+				<router-link
 					v-if="user.data.name == job.data?.owner"
 					:to="{
 						name: 'JobForm',
@@ -146,7 +163,7 @@ import {
 	createResource,
 	usePageMeta,
 } from 'frappe-ui'
-import { inject, ref } from 'vue'
+import { inject, ref, computed } from 'vue'
 import { sessionStore } from '../stores/session'
 import JobApplicationModal from '@/components/Modals/JobApplicationModal.vue'
 import {
@@ -159,6 +176,7 @@ import {
 	FileText,
 	ClipboardType,
 	BriefcaseBusiness,
+	Users,
 } from 'lucide-vue-next'
 
 const user = inject('$user')
@@ -225,6 +243,14 @@ const redirectToLogin = (job) => {
 const redirectToWebsite = (url) => {
 	window.open(url, '_blank')
 }
+
+const canManageJob = computed(() => {
+	if (!user.data?.name || !job.data) return false
+	return (
+		user.data.name === job.data.owner ||
+		user.data.roles?.includes('System Manager')
+	)
+})
 
 usePageMeta(() => {
 	return {
