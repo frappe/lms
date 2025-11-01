@@ -29,6 +29,7 @@
 					<FileUploader
 						:fileTypes="['.pdf']"
 						:validateFile="validateFile"
+						:uploadArgs="{ private: 1 }"
 						@success="
 							(file) => {
 								resume = file
