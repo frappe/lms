@@ -21,20 +21,14 @@
 				class="flex items-center space-x-2"
 			>
 				<router-link
-					v-if="canManageJob"
+					v-if="canManageJob && applicationCount.data > 0"
 					:to="{
 						name: 'JobApplications',
 						params: { job: job.data?.name },
 					}"
 				>
-					<Button variant="outline">
-						<template #prefix>
-							<Users class="h-4 w-4 stroke-1.5" />
-						</template>
-						{{ __('Applications') }}
-						<Badge v-if="applicationCount.data" class="ml-2">
-							{{ applicationCount.data }}
-						</Badge>
+					<Button variant="subtle">
+						{{ __('View Applications') }}
 					</Button>
 				</router-link>
 				<router-link
@@ -247,8 +241,7 @@ const redirectToWebsite = (url) => {
 const canManageJob = computed(() => {
 	if (!user.data?.name || !job.data) return false
 	return (
-		user.data.name === job.data.owner ||
-		user.data.roles?.includes('System Manager')
+		user.data.name === job.data.owner || user.data.roles?.includes('Moderator')
 	)
 })
 
