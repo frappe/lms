@@ -11,7 +11,7 @@
 					<Avatar :image="student.user_image" size="3xl" />
 					<div class="space-y-1">
 						<div class="flex items-center space-x-2">
-							<div class="text-xl font-semibold">
+							<div class="text-xl font-semibold text-ink-gray-9">
 								{{ student.full_name }}
 							</div>
 							<Badge
@@ -36,7 +36,9 @@
 						v-if="Object.keys(student.assessments).length"
 						class="space-y-2 text-sm"
 					>
-						<div class="flex items-center border-b pb-1 font-medium">
+						<div
+							class="flex items-center border-b pb-1 font-medium text-ink-gray-9"
+						>
 							<span class="flex-1">
 								{{ __('Assessment') }}
 							</span>
@@ -86,7 +88,9 @@
 						v-if="Object.keys(student.courses).length"
 						class="space-y-2 text-sm"
 					>
-						<div class="flex items-center border-b pb-1 font-medium">
+						<div
+							class="flex items-center border-b pb-1 font-medium text-ink-gray-9"
+						>
 							<span class="flex-1">
 								{{ __('Courses') }}
 							</span>
