@@ -17,19 +17,14 @@
 		</header>
 		<div class="max-w-4xl mx-auto pt-5 p-4">
 			<div class="mb-6">
-				<h1 class="text-2xl font-semibold text-ink-gray-9 mb-2">
-					{{
-						__('Applications for {0}').format(applications.data?.[0]?.job_title)
-					}}
-				</h1>
-				<p class="text-ink-gray-6">
+				<h1 class="text-lg font-semibold text-ink-gray-9 mb-2">
 					{{ applications.data?.length || 0 }}
 					{{
 						applications.data?.length === 1
-							? __('application')
-							: __('applications')
+							? __('Application')
+							: __('Applications')
 					}}
-				</p>
+				</h1>
 			</div>
 
 			<ListView
