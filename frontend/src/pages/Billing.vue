@@ -13,83 +13,81 @@
 			class="pt-5 pb-10 mx-5"
 		>
 			<div class="flex flex-col lg:flex-row justify-between">
-				<div
-					class="h-fit bg-surface-gray-2 rounded-md p-5 space-y-4 lg:order-last mb-10 lg:mt-10 font-medium lg:w-1/3"
-				>
-					<div class="flex items-baseline justify-between space-y-2">
-						<div class="text-ink-gray-5">
-							{{ __('Payment for ') }} {{ type }}:
+				<div class="flex flex-col lg:order-last mb-10 lg:mt-10 lg:w-1/4">
+					<div class="h-fit bg-surface-gray-2 rounded-md p-5 space-y-4">
+						<div class="space-y-1">
+							<div class="text-ink-gray-5 uppercase text-xs">
+								{{ __('Payment for ') }} {{ type }}:
+							</div>
+							<div class="leading-5 text-ink-gray-9">
+								{{ orderSummary.data.title }}
+							</div>
 						</div>
-						<div class="leading-5 text-ink-gray-9">
-							{{ orderSummary.data.title }}
-						</div>
-					</div>
-					<div
-						v-if="orderSummary.data.gst_applied"
-						class="flex items-center justify-between"
-					>
-						<div class="text-ink-gray-5">
-							{{ __('Original Amount') }}
-						</div>
-						<div class="text-ink-gray-9">
-							{{ orderSummary.data.original_amount_formatted }}
-						</div>
-					</div>
-					<div
-						v-if="orderSummary.data.discount_amount"
-						class="flex items-center justify-between mt-2"
-					>
-						<div class="text-ink-gray-5">{{ __('Discount') }}</div>
-						<div>-{{ orderSummary.data.discount_amount_formatted }}</div>
-					</div>
-					<div
-						v-if="orderSummary.data.gst_applied"
-						class="flex items-center justify-between mt-2"
-					>
-						<div class="text-ink-gray-5">
-							{{ __('GST Amount') }}
-						</div>
-						<div class="text-ink-gray-9">
-							{{ orderSummary.data.gst_amount_formatted }}
-						</div>
-					</div>
-					<div
-						class="flex items-center justify-between border-t border-outline-gray-3 pt-4 mt-2"
-					>
-						<div class="text-lg font-semibold text-ink-gray-9">
-							{{ __('Total') }}
-						</div>
-						<div class="text-lg font-semibold text-ink-gray-9">
-							{{ orderSummary.data.total_amount_formatted }}
-						</div>
-					</div>
-					<div class="mb-5">
 						<div
-							class="flex items-center gap-3 mt-2 flex-wrap md:flex-nowrap"
-							v-if="props.type !== 'certificate'"
+							v-if="
+								orderSummary.data.gst_applied ||
+								orderSummary.data.discount_amount
+							"
+							class="space-y-1"
 						>
-							<span class="text-ink-gray-5 text-xs shrink-0">{{
-								__('Coupon')
-							}}</span>
+							<div class="text-ink-gray-5 uppercase text-xs">
+								{{ __('Original Amount') }}:
+							</div>
+							<div class="text-ink-gray-9">
+								{{ orderSummary.data.original_amount_formatted }}
+							</div>
+						</div>
+						<div v-if="orderSummary.data.discount_amount" class="space-y-1">
+							<div class="text-ink-gray-5">{{ __('Discount') }}:</div>
+							<div>- {{ orderSummary.data.discount_amount_formatted }}</div>
+						</div>
+						<div v-if="orderSummary.data.gst_applied" class="space-y-1">
+							<div class="text-ink-gray-5 uppercase text-xs">
+								{{ __('GST Amount') }}:
+							</div>
+							<div class="text-ink-gray-9">
+								{{ orderSummary.data.gst_amount_formatted }}
+							</div>
+						</div>
+						<div class="space-y-1 border-t border-outline-gray-3 pt-4 mt-2">
+							<div class="uppercase text-ink-gray-5 text-xs">
+								{{ __('Total') }}:
+							</div>
+							<div class="font-bold text-ink-gray-9">
+								{{ orderSummary.data.total_amount_formatted }}
+							</div>
+						</div>
+					</div>
+
+					<div class="bg-surface-gray-2 rounded-md p-4 space-y-2 my-5">
+						<span class="text-ink-gray-5 uppercase text-xs">
+							{{ __('Enter a Coupon Code') }}:
+						</span>
+						<div class="flex items-center space-x-2">
 							<FormControl
-								class="flex-1 min-w-0 [&_input]:!bg-[#fefefe]"
-								v-model="couponCode"
-								:disabled="appliedCoupon"
-								@input="couponCode = $event.target.value.toUpperCase()"
+								v-model="appliedCoupon"
+								:disabled="orderSummary.data.discount_amount > 0"
+								@input="appliedCoupon = $event.target.value.toUpperCase()"
+								@keydown.enter="applyCouponCode"
+								placeholder="COUPON2025"
+								class="flex-1 [&_input]:bg-white"
 							/>
 							<Button
-								v-if="!appliedCoupon"
+								v-if="!orderSummary.data.discount_amount"
 								@click="applyCouponCode"
 								variant="outline"
-								>{{ __('Apply') }}</Button
 							>
+								{{ __('Apply') }}
+							</Button>
 							<Button
-								v-if="appliedCoupon"
+								v-if="orderSummary.data.discount_amount"
 								@click="removeCoupon"
-								variant="subtle"
-								class="bg-red-200"
-								><X class="h-4.5 w-4.5"
-							/></Button>
+								variant="outline"
+							>
+								<template #icon>
+									<X class="size-4 stroke-1.5" />
+								</template>
+							</Button>
 						</div>
 					</div>
 				</div>
@@ -148,7 +146,7 @@
 							/>
 							<FormControl
 								v-if="billingDetails.country == 'India'"
-								:label="__('Pan Number')"
+								:label="__('PAN Number')"
 								v-model="billingDetails.pan"
 							/>
 						</div>
@@ -193,6 +191,7 @@ import {
 	Breadcrumbs,
 	usePageMeta,
 	toast,
+	call,
 } from 'frappe-ui'
 import { reactive, inject, onMounted, computed, ref } from 'vue'
 import { sessionStore } from '../stores/session'
@@ -238,10 +237,12 @@ const access = createResource({
 const orderSummary = createResource({
 	url: 'lms.lms.utils.get_order_summary',
 	makeParams(values) {
+		console.log(appliedCoupon.value)
 		return {
 			doctype: props.type == 'batch' ? 'LMS Batch' : 'LMS Course',
 			docname: props.name,
 			country: billingDetails.country,
+			coupon: appliedCoupon.value,
 		}
 	},
 	onError(err) {
@@ -249,29 +250,7 @@ const orderSummary = createResource({
 	},
 })
 
-const couponCode = ref('')
 const appliedCoupon = ref(null)
-
-const applyCoupon = createResource({
-	url: 'lms.lms.utils.apply_coupon',
-	makeParams() {
-		return {
-			doctype: props.type == 'batch' ? 'LMS Batch' : 'LMS Course',
-			docname: props.name,
-			code: couponCode.value,
-			country: billingDetails.country,
-		}
-	},
-	onSuccess(data) {
-		orderSummary.data = data
-		appliedCoupon.value = couponCode.value
-		toast.success(__('Coupon applied'))
-	},
-	onError(err) {
-		toast.error(err.messages?.[0] || err)
-	},
-})
-
 const billingDetails = reactive({})
 
 const setBillingDetails = (data) => {
@@ -329,13 +308,15 @@ const generatePaymentLink = () => {
 }
 
 function applyCouponCode() {
-	if (!couponCode.value) return
-	applyCoupon.submit()
+	if (!appliedCoupon.value) {
+		toast.error(__('Please enter a coupon code'))
+		return
+	}
+	orderSummary.reload()
 }
 
 function removeCoupon() {
 	appliedCoupon.value = null
-	couponCode.value = ''
 	orderSummary.reload()
 }
 
