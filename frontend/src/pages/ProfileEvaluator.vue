@@ -43,18 +43,22 @@
 						:options="days"
 						v-model="slot.day"
 						@focusout.stop="update(slot.name, 'day', slot.day)"
+						:disabled="!isSessionUser()"
 					/>
 					<FormControl
 						type="time"
 						v-model="slot.start_time"
 						@focusout.stop="update(slot.name, 'start_time', slot.start_time)"
+						:disabled="!isSessionUser()"
 					/>
 					<FormControl
 						type="time"
 						v-model="slot.end_time"
 						@focusout.stop="update(slot.name, 'end_time', slot.end_time)"
+						:disabled="!isSessionUser()"
 					/>
 					<X
+						v-if="isSessionUser()"
 						@click="deleteRow(slot.name)"
 						class="w-6 h-auto stroke-1.5 text-red-900 rounded-md cursor-pointer p-1 bg-surface-red-2 hidden group-hover:block"
 					/>
@@ -69,20 +73,23 @@
 						:options="days"
 						v-model="newSlot.day"
 						@focusout.stop="add()"
+						:disabled="!isSessionUser()"
 					/>
 					<FormControl
 						type="time"
 						v-model="newSlot.start_time"
 						@focusout.stop="add()"
+						:disabled="!isSessionUser()"
 					/>
 					<FormControl
 						type="time"
 						v-model="newSlot.end_time"
 						@focusout.stop="add()"
+						:disabled="!isSessionUser()"
 					/>
 				</div>
 
-				<Button @click="showSlotsTemplate = 1">
+				<Button v-if="isSessionUser()" @click="showSlotsTemplate = 1">
 					<template #prefix>
 						<Plus class="w-4 h-4 stroke-1.5 text-ink-gray-7" />
 					</template>
@@ -98,6 +105,7 @@
 						type="date"
 						:label="__('From')"
 						v-model="from"
+						:disabled="!isSessionUser()"
 						@blur="
 							() => {
 								updateUnavailability.submit({
@@ -111,6 +119,7 @@
 						type="date"
 						:label="__('To')"
 						v-model="to"
+						:disabled="!isSessionUser()"
 						@blur="
 							() => {
 								updateUnavailability.submit({
@@ -122,7 +131,7 @@
 					/>
 				</div>
 			</div>
-			<div>
+			<div v-if="isSessionUser()">
 				<h2 class="mb-4 text-lg font-semibold text-ink-gray-9">
 					{{ __('My calendar') }}
 				</h2>
@@ -157,10 +166,18 @@ const props = defineProps({
 })
 
 onMounted(() => {
-	if (user.data?.name !== props.profile.data?.name) {
+	if (user.data?.name !== props.profile.data?.name && !hasHigherAccess()) {
 		window.location.href = `/user/${props.profile.data?.username}`
 	}
 })
+
+const hasHigherAccess = () => {
+	return user.data?.is_evaluator || user.data?.is_moderator
+}
+
+const isSessionUser = () => {
+	return user.data?.email === props.profile.data?.email
+}
 
 const showSlotsTemplate = ref(0)
 const from = ref(null)
