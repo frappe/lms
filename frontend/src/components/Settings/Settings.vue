@@ -27,7 +27,7 @@
 				<div
 					v-if="activeTab && data.doc"
 					:key="activeTab.label"
-					class="flex flex-1 flex-col px-10 py-8 bg-surface-modal"
+					class="flex flex-1 flex-col px-10 py-8 bg-surface-modal overflow-x-auto"
 				>
 					<component
 						v-if="activeTab.template"
