@@ -41,6 +41,13 @@ export const useSettings = defineStore('settings', () => {
 		auto: false,
 	})
 
+	const livecodeURL = createResource({
+		url: 'lms.lms.api.get_lms_setting',
+		params: { field: 'livecode_url' },
+		auto: true,
+		cache: ['livecodeURL'],
+	})
+
 	return {
 		isSettingsOpen,
 		activeTab,
@@ -49,5 +56,6 @@ export const useSettings = defineStore('settings', () => {
 		contactUsEmail,
 		contactUsURL,
 		sidebarSettings,
+		livecodeURL,
 	}
 })
