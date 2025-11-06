@@ -36,7 +36,7 @@
 			</Calendar>
 		</div>
 	</div>
-	<Event v-model="showEvent" :event="currentEvent" />
+	<Event v-if="showEvent" v-model="showEvent" :event="currentEvent" />
 </template>
 <script setup>
 import { Calendar, createListResource, Button } from 'frappe-ui'

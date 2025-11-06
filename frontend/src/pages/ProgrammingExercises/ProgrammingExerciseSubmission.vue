@@ -153,6 +153,7 @@ import { Play, X, Check, Settings } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
 import { openSettings } from '@/utils'
+import { useSettings } from '@/stores/settings'
 
 const user = inject<any>('$user')
 const code = ref<string | null>('')
@@ -162,7 +163,8 @@ const errorMessage = ref<string | null>(null)
 const testCaseSection = ref<HTMLElement | null>(null)
 const testCases = ref<TestCase[]>([])
 const boilerplate = ref<string>('')
-const { brand, livecodeURL } = sessionStore()
+const { brand } = sessionStore()
+const { livecodeURL } = useSettings()
 const router = useRouter()
 const fromLesson = ref(false)
 const falconURL = ref<string>('https://falcon.frappe.io/')
