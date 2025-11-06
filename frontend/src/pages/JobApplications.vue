@@ -40,7 +40,19 @@
 				<ListHeader
 					class="mb-2 grid items-center space-x-4 rounded bg-surface-gray-2 p-2"
 				>
-					<ListHeaderItem :item="item" v-for="item in applicationColumns" />
+					<ListHeaderItem
+						:item="item"
+						v-for="item in applicationColumns"
+						:key="item.key"
+					>
+						<template #prefix="{ item }">
+							<FeatherIcon
+								v-if="item.icon"
+								:name="item.icon?.toString()"
+								class="h-4 w-4"
+							/>
+						</template>
+					</ListHeaderItem>
 				</ListHeader>
 				<ListRows>
 					<ListRow
@@ -51,7 +63,7 @@
 					>
 						<ListRowItem :item="item">
 							<div
-								v-if="column.key === 'display_name'"
+								v-if="column.key === 'full_name'"
 								class="flex items-center space-x-3"
 							>
 								<img
@@ -64,31 +76,19 @@
 									v-else
 									class="w-8 h-8 rounded-full bg-surface-gray-3 flex items-center justify-center"
 								>
-									<User class="w-4 h-4 text-ink-gray-6" />
+									<FeatherIcon name="user" class="w-4 h-4 text-ink-gray-6" />
 								</div>
 								<span class="text-sm font-medium">{{ item }}</span>
 							</div>
 							<div
 								v-else-if="column.key === 'actions'"
-								class="flex justify-center space-x-2"
+								class="flex justify-center"
 							>
-								<Button
-									v-if="row.resume"
-									@click="downloadResume(row.resume)"
-									variant="ghost"
-									size="sm"
-								>
-									<template #prefix>
-										<Download class="w-4 h-4" />
-									</template>
-									{{ __('Resume') }}
-								</Button>
-								<Button @click="openEmailModal(row)" variant="ghost" size="sm">
-									<template #prefix>
-										<Mail class="w-4 h-4" />
-									</template>
-									{{ __('Email') }}
-								</Button>
+								<Dropdown :options="getActionOptions(row)">
+									<Button variant="ghost" size="sm">
+										<FeatherIcon name="more-horizontal" class="w-4 h-4" />
+									</Button>
+								</Dropdown>
 							</div>
 							<div v-else class="text-sm">
 								{{ item }}
@@ -150,6 +150,8 @@ import {
 	Button,
 	Breadcrumbs,
 	Dialog,
+	Dropdown,
+	FeatherIcon,
 	FormControl,
 	TextEditor,
 	ListView,
@@ -163,7 +165,7 @@ import {
 	usePageMeta,
 	toast,
 } from 'frappe-ui'
-import { User, Download, Mail } from 'lucide-vue-next'
+
 import { inject, ref, computed, reactive } from 'vue'
 import { sessionStore } from '../stores/session'
 import EmptyState from '@/components/EmptyState.vue'
@@ -253,27 +255,47 @@ const downloadResume = (resumeUrl) => {
 	window.open(resumeUrl, '_blank')
 }
 
+const getActionOptions = (row) => {
+	const options = []
+	if (row.resume) {
+		options.push({
+			label: __('View Resume'),
+			icon: 'download',
+			onClick: () => downloadResume(row.resume),
+		})
+	}
+	options.push({
+		label: __('Send Email'),
+		icon: 'mail',
+		onClick: () => openEmailModal(row),
+	})
+	return options
+}
+
 const applicationColumns = computed(() => {
 	return [
 		{
-			label: __('Name'),
-			key: 'display_name',
-			width: '15rem',
+			label: __('Full Name'),
+			key: 'full_name',
+			width: 2,
+			icon: 'user',
 		},
 		{
 			label: __('Email'),
 			key: 'email',
-			width: '15rem',
+			width: 2,
+			icon: 'at-sign',
 		},
 		{
 			label: __('Applied On'),
 			key: 'applied_date',
-			width: '10rem',
+			width: 1,
+			icon: 'calendar',
 		},
 		{
-			label: __('Actions'),
+			label: '',
 			key: 'actions',
-			width: '10rem',
+			width: 1,
 		},
 	]
 })
@@ -282,7 +304,7 @@ const applicantRows = computed(() => {
 	if (!applications.data) return []
 	return applications.data.map((application) => ({
 		...application,
-		display_name: application.full_name,
+		full_name: application.full_name,
 		applied_date: dayjs(application.creation).format('MMM DD, YYYY'),
 	}))
 })
