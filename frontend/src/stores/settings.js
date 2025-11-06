@@ -56,5 +56,6 @@ export const useSettings = defineStore('settings', () => {
 		contactUsEmail,
 		contactUsURL,
 		sidebarSettings,
+		livecodeURL,
 	}
 })
