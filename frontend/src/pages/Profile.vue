@@ -177,7 +177,6 @@ watch(
 	() => props.username,
 	() => {
 		profile.reload()
-		getProfileRoles()
 	}
 )
 
@@ -194,7 +193,6 @@ const hasHigherAccess = () => {
 }
 
 const isEvaluatorOrModerator = () => {
-	console.log(profile.data)
 	return (
 		profile.data?.roles.filter(
 			(row) => row.role === 'Moderator' || row.role === 'Evaluator'
