@@ -36,7 +36,7 @@
 			</Calendar>
 		</div>
 	</div>
-	<Event v-model="showEvent" :event="currentEvent" />
+	<Event v-if="showEvent" v-model="showEvent" :event="currentEvent" />
 </template>
 <script setup>
 import { Calendar, createListResource, Button } from 'frappe-ui'
@@ -57,7 +57,7 @@ const props = defineProps({
 const evaluations = createListResource({
 	doctype: 'LMS Certificate Request',
 	filters: {
-		evaluator: user.data?.name,
+		evaluator: props.profile.data?.name,
 		status: ['!=', 'Cancelled'],
 	},
 	fields: [

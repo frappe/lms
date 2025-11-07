@@ -66,7 +66,11 @@
 							</template>
 							{{ __('View Certificate') }}
 						</Button>
-						<Button v-else @click="openCallLink(event.venue)" class="w-full">
+						<Button
+							v-else-if="userIsEvaluator()"
+							@click="openCallLink(event.venue)"
+							class="w-full"
+						>
 							<template #prefix>
 								<Video class="h-4 w-4 stroke-1.5" />
 							</template>
@@ -83,21 +87,31 @@
 							class="flex flex-col space-y-4 p-5"
 						>
 							<div class="flex items-center justify-between">
-								<Rating v-model="evaluation.rating" :label="__('Rating')" />
+								<Rating
+									v-model="evaluation.rating"
+									:label="__('Rating')"
+									:disabled="!userIsEvaluator()"
+								/>
 								<FormControl
 									type="select"
 									:options="statusOptions"
 									v-model="evaluation.status"
 									:label="__('Status')"
 									class="w-1/2"
+									:disabled="!userIsEvaluator()"
 								/>
 							</div>
 							<Textarea
 								v-model="evaluation.summary"
 								:label="__('Summary')"
 								:rows="7"
+								:disabled="!userIsEvaluator()"
 							/>
-							<Button variant="solid" @click="saveEvaluation()">
+							<Button
+								v-if="userIsEvaluator()"
+								variant="solid"
+								@click="saveEvaluation()"
+							>
 								{{ __('Save') }}
 							</Button>
 						</div>
@@ -106,11 +120,13 @@
 								type="checkbox"
 								v-model="certificate.published"
 								:label="__('Published')"
+								:disabled="!userIsEvaluator()"
 							/>
 							<Link
 								v-model="certificate.template"
 								:label="__('Template')"
 								doctype="Print Format"
+								:disabled="!userIsEvaluator()"
 								:filters="{
 									doc_type: 'LMS Certificate',
 								}"
@@ -118,14 +134,20 @@
 							<FormControl
 								type="date"
 								v-model="certificate.issue_date"
+								:disabled="!userIsEvaluator()"
 								:label="__('Issue Date')"
 							/>
 							<FormControl
 								type="date"
 								v-model="certificate.expiry_date"
+								:disabled="!userIsEvaluator()"
 								:label="__('Expiry Date')"
 							/>
-							<Button variant="solid" @click="saveCertificate()">
+							<Button
+								v-if="userIsEvaluator()"
+								variant="solid"
+								@click="saveCertificate()"
+							>
 								{{ __('Save') }}
 							</Button>
 						</div>
@@ -163,6 +185,7 @@ import Rating from '@/components/Controls/Rating.vue'
 import Link from '@/components/Controls/Link.vue'
 
 const show = defineModel()
+const user = inject('$user')
 const dayjs = inject('$dayjs')
 const tabIndex = ref(0)
 const showCertification = ref(false)
@@ -175,8 +198,17 @@ const props = defineProps({
 })
 
 const evaluation = reactive({})
-
 const certificate = reactive({})
+
+watch(user, () => {
+	if (userIsEvaluator()) {
+		defaultTemplate.reload()
+	}
+})
+
+const userIsEvaluator = () => {
+	return user.data && user.data.name == props.event.evaluator
+}
 
 const defaultTemplate = createResource({
 	url: 'frappe.client.get_value',
@@ -190,7 +222,6 @@ const defaultTemplate = createResource({
 			},
 		}
 	},
-	auto: true,
 	onSuccess(data) {
 		certificate.template = data.value
 	},
