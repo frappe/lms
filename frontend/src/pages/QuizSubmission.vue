@@ -56,8 +56,8 @@
 					<span class="font-semibold"> {{ __('Question') }}: </span>
 					<span class="leading-5" v-html="row.question"> </span>
 				</div>
-				<div class="">
-					<span class="font-semibold"> {{ __('Answer') }} </span>
+				<div class="text-ink-gray-9">
+					<span class="font-semibold"> {{ __('Answer') }}: </span>
 					<span class="leading-5" v-html="row.answer"></span>
 				</div>
 				<div class="grid grid-cols-2 gap-5">

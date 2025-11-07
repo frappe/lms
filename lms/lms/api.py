@@ -1672,3 +1672,13 @@ def get_pwa_manifest():
 	}
 
 	return Response(json.dumps(manifest), status=200, content_type="application/manifest+json")
+
+
+@frappe.whitelist()
+def get_profile_details(username):
+	return frappe.db.get_value(
+		"User",
+		{"username": username},
+		["full_name", "name", "username", "user_image", "bio", "headline", "cover_image"],
+		as_dict=True,
+	)

@@ -113,6 +113,14 @@ watch(
 	{ flush: 'post' }
 )
 
+watch(show, (newVal) => {
+	if (newVal && props.assignmentID === 'new') {
+		assignment.title = ''
+		assignment.type = ''
+		assignment.question = ''
+	}
+})
+
 const saveAssignment = () => {
 	if (props.assignmentID == 'new') {
 		assignments.value.insert.submit(

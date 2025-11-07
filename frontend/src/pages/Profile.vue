@@ -124,19 +124,13 @@ const props = defineProps({
 
 onMounted(() => {
 	if ($user.data) profile.reload()
-
 	setActiveTab()
 })
 
 const profile = createResource({
-	url: 'frappe.client.get',
-	makeParams(values) {
-		return {
-			doctype: 'User',
-			filters: {
-				username: props.username,
-			},
-		}
+	url: 'lms.lms.api.get_profile_details',
+	params: {
+		username: props.username,
 	},
 })
 
@@ -194,17 +188,18 @@ const isSessionUser = () => {
 	return $user.data?.email === profile.data?.email
 }
 
+const hasHigherAccess = () => {
+	return $user.data?.is_evaluator || $user.data?.is_moderator
+}
+
 const getTabButtons = () => {
 	let buttons = [{ label: 'About' }, { label: 'Certificates' }]
 	if ($user.data?.is_moderator) buttons.push({ label: 'Roles' })
-	if (
-		isSessionUser() &&
-		($user.data?.is_evaluator || $user.data?.is_moderator)
-	) {
+
+	if (hasHigherAccess()) {
 		buttons.push({ label: 'Slots' })
 		buttons.push({ label: 'Schedule' })
 	}
-
 	return buttons
 }
 
