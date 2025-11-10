@@ -1,9 +1,6 @@
 # Multi-stage build for Frappe LMS on Railway
 FROM frappe/bench:latest
 
-# Set work directory
-WORKDIR /home/frappe/frappe-bench
-
 # Switch to root for system packages
 USER root
 
@@ -11,16 +8,27 @@ USER root
 RUN apt-get update && apt-get install -y \
     netcat-openbsd \
     curl \
+    python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
-# Switch back to frappe user
+# Switch to frappe user
 USER frappe
+
+# Set work directory
+WORKDIR /home/frappe
+
+# Initialize bench structure
+RUN bench init --skip-assets --python $(which python3) frappe-bench || true
+
+# Set working directory to bench
+WORKDIR /home/frappe/frappe-bench
 
 # Copy the LMS app
 COPY --chown=frappe:frappe ./lms ./apps/lms
 
-# Install apps.txt with lms
-RUN echo "frappe" > sites/apps.txt && \
+# Ensure sites directory exists and create apps list
+RUN mkdir -p sites && \
+    echo "frappe" > sites/apps.txt && \
     echo "lms" >> sites/apps.txt
 
 # Copy startup script
@@ -35,7 +43,7 @@ USER frappe
 EXPOSE 8000
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
   CMD curl -f http://localhost:8000/api/method/frappe.ping || exit 1
 
 # Start the application
