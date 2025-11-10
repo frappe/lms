@@ -32,7 +32,7 @@
     "dayjs": "^1.11.6",
     "dompurify": "^3.2.6",
     "feather-icons": "^4.28.0",
-    "frappe-ui": "github:frappe/frappe-ui#a286bd2713d1e38b72a8cdb72f997f9890027387",
+    "frappe-ui": "github:frappe/frappe-ui#8d5956c0c675a13d32d3ef8035389128fa4735d5",
     "highlight.js": "^11.11.1",
     "lucide-vue-next": "^0.383.0",
     "markdown-it": "^14.0.0",
