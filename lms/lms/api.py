@@ -1674,9 +1674,12 @@ def get_pwa_manifest():
 
 @frappe.whitelist()
 def get_profile_details(username):
-	return frappe.db.get_value(
+	details = frappe.db.get_value(
 		"User",
 		{"username": username},
 		["full_name", "name", "username", "user_image", "bio", "headline", "cover_image"],
 		as_dict=True,
 	)
+
+	details.roles = frappe.get_roles(details.name)
+	return details

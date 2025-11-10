@@ -190,15 +190,22 @@ const isSessionUser = () => {
 	return $user.data?.email === profile.data?.email
 }
 
-const hasHigherAccess = () => {
+const currentUserHasHigherAccess = () => {
 	return $user.data?.is_evaluator || $user.data?.is_moderator
+}
+
+const isEvaluatorOrModerator = () => {
+	return (
+		profile.data?.roles?.includes('Batch Evaluator') ||
+		profile.data?.roles?.includes('Moderator')
+	)
 }
 
 const getTabButtons = () => {
 	let buttons = [{ label: 'About' }, { label: 'Certificates' }]
 	if ($user.data?.is_moderator) buttons.push({ label: 'Roles' })
 
-	if (hasHigherAccess()) {
+	if (currentUserHasHigherAccess() && isEvaluatorOrModerator()) {
 		buttons.push({ label: 'Slots' })
 		buttons.push({ label: 'Schedule' })
 	}

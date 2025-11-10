@@ -83,8 +83,8 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-04 12:04:11.007945",
- "modified_by": "Administrator",
+ "modified": "2025-11-10 11:41:51.802016",
+ "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "Course Evaluator",
  "naming_rule": "By fieldname",
@@ -131,5 +131,6 @@
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
- "title_field": "full_name"
+ "title_field": "full_name",
+ "track_changes": 1
 }
