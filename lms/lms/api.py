@@ -1492,9 +1492,7 @@ def update_meta_info(type, route, meta_tags):
 			else:
 				new_tag = frappe.new_doc("Website Meta Tag")
 				new_tag.update(tag_properties)
-				print(new_tag)
 				new_tag.insert()
-				print(new_tag.as_dict())
 
 
 @frappe.whitelist()

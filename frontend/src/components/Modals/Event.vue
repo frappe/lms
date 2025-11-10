@@ -189,6 +189,8 @@ const user = inject('$user')
 const dayjs = inject('$dayjs')
 const tabIndex = ref(0)
 const showCertification = ref(false)
+const evaluation = reactive({})
+const certificate = reactive({})
 
 const props = defineProps({
 	event: {
@@ -196,9 +198,6 @@ const props = defineProps({
 		required: true,
 	},
 })
-
-const evaluation = reactive({})
-const certificate = reactive({})
 
 watch(user, () => {
 	if (userIsEvaluator()) {
