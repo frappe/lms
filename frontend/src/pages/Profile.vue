@@ -129,8 +129,10 @@ onMounted(() => {
 
 const profile = createResource({
 	url: 'lms.lms.api.get_profile_details',
-	params: {
-		username: props.username,
+	makeParams() {
+		return {
+			username: props.username,
+		}
 	},
 })
 
