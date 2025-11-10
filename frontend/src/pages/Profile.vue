@@ -187,7 +187,7 @@ const editProfile = () => {
 }
 
 const isSessionUser = () => {
-	return $user.data?.email === profile.data?.email
+	return $user.data?.email === profile.data?.name
 }
 
 const currentUserHasHigherAccess = () => {
