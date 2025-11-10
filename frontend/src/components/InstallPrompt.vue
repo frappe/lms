@@ -76,7 +76,14 @@ const isIos = () => {
 const isInStandaloneMode = () =>
 	'standalone' in window.navigator && window.navigator.standalone
 
-if (isIos() && !isInStandaloneMode()) iosInstallMessage.value = true
+if (
+	isIos() &&
+	!isInStandaloneMode() &&
+	localStorage.getItem('learningIosInstallPromptShown') !== 'true'
+) {
+	iosInstallMessage.value = true
+	localStorage.setItem('learningIosInstallPromptShown', 'true')
+}
 
 window.addEventListener('beforeinstallprompt', (e) => {
 	e.preventDefault()

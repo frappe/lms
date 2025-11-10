@@ -176,7 +176,7 @@ const hasHigherAccess = () => {
 }
 
 const isSessionUser = () => {
-	return user.data?.email === props.profile.data?.email
+	return user.data?.email === props.profile.data?.name
 }
 
 const showSlotsTemplate = ref(0)
