@@ -131,10 +131,11 @@
    "read_only": 1
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-09-11 11:20:06.233491",
- "modified_by": "Administrator",
+ "modified": "2025-11-10 11:41:38.999620",
+ "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Certificate Evaluation",
  "owner": "Administrator",
@@ -164,6 +165,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [
@@ -184,5 +186,6 @@
    "title": "In Progress"
   }
  ],
- "title_field": "member_name"
+ "title_field": "member_name",
+ "track_changes": 1
 }

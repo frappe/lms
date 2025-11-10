@@ -66,38 +66,38 @@
 								v-if="column.key === 'full_name'"
 								class="flex items-center space-x-3"
 							>
-								<img
-									v-if="row.user_image"
-									:src="row.user_image"
-									:alt="row.full_name"
-									class="w-8 h-8 rounded-full object-cover"
+								<Avatar
+									size="sm"
+									:image="row['user_image']"
+									:label="row['full_name']"
 								/>
-								<div
-									v-else
-									class="w-8 h-8 rounded-full bg-surface-gray-3 flex items-center justify-center"
-								>
-									<FeatherIcon name="user" class="w-4 h-4 text-ink-gray-6" />
-								</div>
-								<span class="text-sm font-medium">{{ item }}</span>
+
+								<span>{{ item }}</span>
 							</div>
 							<div
 								v-else-if="column.key === 'actions'"
 								class="flex justify-center"
 							>
 								<Dropdown :options="getActionOptions(row)">
-									<Button variant="ghost" size="sm">
+									<Button variant="ghost">
 										<FeatherIcon name="more-horizontal" class="w-4 h-4" />
 									</Button>
 								</Dropdown>
 							</div>
-							<div v-else class="text-sm">
+							<div
+								v-else-if="column.key === 'applied_on'"
+								class="text-sm text-ink-gray-6"
+							>
+								{{ item }}
+							</div>
+							<div v-else>
 								{{ item }}
 							</div>
 						</ListRowItem>
 					</ListRow>
 				</ListRows>
 			</ListView>
-			<EmptyState v-else type="Applications" />
+			<EmptyState v-else-if="!applications.loading" type="Job Applications" />
 		</div>
 
 		<Dialog
@@ -147,6 +147,7 @@
 
 <script setup>
 import {
+	Avatar,
 	Button,
 	Breadcrumbs,
 	Dialog,
@@ -252,6 +253,7 @@ const sendEmail = (close) => {
 }
 
 const downloadResume = (resumeUrl) => {
+	console.log(resumeUrl)
 	window.open(resumeUrl, '_blank')
 }
 
@@ -288,7 +290,7 @@ const applicationColumns = computed(() => {
 		},
 		{
 			label: __('Applied On'),
-			key: 'applied_date',
+			key: 'applied_on',
 			width: 1,
 			icon: 'calendar',
 		},
@@ -305,7 +307,7 @@ const applicantRows = computed(() => {
 	return applications.data.map((application) => ({
 		...application,
 		full_name: application.full_name,
-		applied_date: dayjs(application.creation).format('MMM DD, YYYY'),
+		applied_on: dayjs(application.creation).fromNow(),
 	}))
 })
 

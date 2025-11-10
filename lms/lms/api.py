@@ -1492,9 +1492,7 @@ def update_meta_info(type, route, meta_tags):
 			else:
 				new_tag = frappe.new_doc("Website Meta Tag")
 				new_tag.update(tag_properties)
-				print(new_tag)
 				new_tag.insert()
-				print(new_tag.as_dict())
 
 
 @frappe.whitelist()
@@ -1676,9 +1674,12 @@ def get_pwa_manifest():
 
 @frappe.whitelist()
 def get_profile_details(username):
-	return frappe.db.get_value(
+	details = frappe.db.get_value(
 		"User",
 		{"username": username},
 		["full_name", "name", "username", "user_image", "bio", "headline", "cover_image"],
 		as_dict=True,
 	)
+
+	details.roles = frappe.get_roles(details.name)
+	return details

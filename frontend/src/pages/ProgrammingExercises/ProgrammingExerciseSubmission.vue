@@ -266,8 +266,7 @@ const checkIfUserIsPermitted = (doc: any = null) => {
 		!user.data.is_evaluator
 	) {
 		router.push({
-			name: 'ProgrammingExerciseSubmission',
-			params: { exerciseID: props.exerciseID, submissionID: 'new' },
+			name: 'Courses',
 		})
 		return
 	}

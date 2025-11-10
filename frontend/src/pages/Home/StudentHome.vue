@@ -64,7 +64,7 @@
 			</div>
 		</div>
 
-		<div class="grid grid-cols-2 gap-5 mt-10">
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-5 mt-10">
 			<UpcomingEvaluations :forHome="true" />
 			<div v-if="myLiveClasses.data?.length">
 				<div class="font-semibold text-lg mb-3 text-ink-gray-9">
