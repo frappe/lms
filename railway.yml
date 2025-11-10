@@ -1,0 +1,17 @@
+version: 2
+services:
+  web:
+    source: .
+    build:
+      context: .
+      dockerfile: Dockerfile.railway
+    variables:
+      PORT: ${{PORT}}
+      DATABASE_URL: ${{DATABASE_URL}}
+      REDIS_URL: ${{REDIS_URL}}
+      FRAPPE_SITE_NAME_HEADER: ${{RAILWAY_PUBLIC_DOMAIN}}
+    healthcheck:
+      path: /api/method/frappe.ping
+      interval: 30s
+      timeout: 10s
+      retries: 3

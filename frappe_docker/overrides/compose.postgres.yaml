@@ -1,0 +1,18 @@
+services:
+  configurator:
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+    depends_on:
+      - db
+
+  db:
+    image: postgres:13.5
+    command: []
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?No db password set}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+volumes:
+  db-data:

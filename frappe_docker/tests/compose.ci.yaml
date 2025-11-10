@@ -1,0 +1,21 @@
+services:
+  configurator:
+    image: localhost:5000/frappe/erpnext:${ERPNEXT_VERSION}
+
+  backend:
+    image: localhost:5000/frappe/erpnext:${ERPNEXT_VERSION}
+
+  frontend:
+    image: localhost:5000/frappe/erpnext:${ERPNEXT_VERSION}
+
+  websocket:
+    image: localhost:5000/frappe/erpnext:${ERPNEXT_VERSION}
+
+  queue-short:
+    image: localhost:5000/frappe/erpnext:${ERPNEXT_VERSION}
+
+  queue-long:
+    image: localhost:5000/frappe/erpnext:${ERPNEXT_VERSION}
+
+  scheduler:
+    image: localhost:5000/frappe/erpnext:${ERPNEXT_VERSION}

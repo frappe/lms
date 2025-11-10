@@ -1,0 +1,38 @@
+# Use the official Frappe Docker image as base
+FROM frappe/erpnext:latest
+
+# Set working directory
+WORKDIR /home/frappe/frappe-bench
+
+# Copy LMS app
+COPY ./lms ./apps/lms
+
+# Install LMS app
+USER frappe
+RUN cd apps/lms && \
+    npm ci --production && \
+    cd ../..
+
+# Switch to root to install dependencies
+USER root
+
+# Install additional dependencies if needed
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Switch back to frappe user
+USER frappe
+
+# Create a startup script for Railway
+COPY ./railway-start.sh /home/frappe/railway-start.sh
+USER root
+RUN chmod +x /home/frappe/railway-start.sh
+USER frappe
+
+# Expose port (Railway will set the PORT env var)
+EXPOSE $PORT
+
+# Use the startup script
+CMD ["/home/frappe/railway-start.sh"]

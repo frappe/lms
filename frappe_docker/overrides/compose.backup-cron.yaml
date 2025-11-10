@@ -1,0 +1,15 @@
+services:
+  cron:
+    image: mcuadros/ofelia:latest
+    depends_on:
+      - scheduler
+    command: daemon --docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+  scheduler:
+    labels:
+      ofelia.enabled: "true"
+      ofelia.job-exec.datecron.schedule: "${BACKUP_CRONSTRING:-@every 6h}"
+      ofelia.job-exec.datecron.command: "bench --site all backup"
+      ofelia.job-exec.datecron.user: "frappe"

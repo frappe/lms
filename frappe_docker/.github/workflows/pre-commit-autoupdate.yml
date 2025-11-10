@@ -1,0 +1,26 @@
+name: Autoupdate pre-commit hooks
+
+on:
+  schedule:
+    # Every day at 7 am
+    - cron: 0 7 * * *
+
+jobs:
+  pre-commit-autoupdate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Update pre-commit hooks
+        uses: vrslev/pre-commit-autoupdate@v1.0.0
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: pre-commit-autoupdate
+          title: "chore(deps): Update pre-commit hooks"
+          commit-message: "chore(deps): Update pre-commit hooks"
+          body: Update pre-commit hooks
+          labels: dependencies,development
+          delete-branch: True

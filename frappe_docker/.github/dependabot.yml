@@ -1,0 +1,26 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: daily
+
+  - package-ecosystem: docker
+    directory: images/bench
+    schedule:
+      interval: daily
+
+  - package-ecosystem: docker
+    directory: images/production
+    schedule:
+      interval: daily
+
+  - package-ecosystem: docker
+    directory: images/custom
+    schedule:
+      interval: daily
+
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: daily

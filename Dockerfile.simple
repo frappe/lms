@@ -1,0 +1,42 @@
+# Multi-stage build for Frappe LMS on Railway
+FROM frappe/bench:latest
+
+# Set work directory
+WORKDIR /home/frappe/frappe-bench
+
+# Switch to root for system packages
+USER root
+
+# Install required system packages
+RUN apt-get update && apt-get install -y \
+    netcat-openbsd \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Switch back to frappe user
+USER frappe
+
+# Copy the LMS app
+COPY --chown=frappe:frappe ./lms ./apps/lms
+
+# Install apps.txt with lms
+RUN echo "frappe" > sites/apps.txt && \
+    echo "lms" >> sites/apps.txt
+
+# Copy startup script
+COPY --chown=frappe:frappe ./railway-start.sh /home/frappe/railway-start.sh
+
+# Make startup script executable
+USER root
+RUN chmod +x /home/frappe/railway-start.sh
+USER frappe
+
+# Expose port
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:8000/api/method/frappe.ping || exit 1
+
+# Start the application
+CMD ["/home/frappe/railway-start.sh"]

@@ -3,7 +3,7 @@
 ```
 $ git clone https://github.com/frappe/lms.git
 
-$ cd lms
+$ cd lmsAmmar
 
 $ cd docker
 ```

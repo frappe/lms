@@ -1,0 +1,116 @@
+name: Stable build
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - images/production/**
+      - overrides/**
+      - tests/**
+      - compose.yaml
+      - docker-bake.hcl
+      - example.env
+      - .github/workflows/build_stable.yml
+
+  push:
+    branches:
+      - main
+    paths:
+      - images/production/**
+      - overrides/**
+      - tests/**
+      - compose.yaml
+      - docker-bake.hcl
+      - example.env
+
+  # Triggered from frappe/frappe and frappe/erpnext on releases
+  repository_dispatch:
+
+  workflow_dispatch:
+
+jobs:
+  v14:
+    uses: ./.github/workflows/docker-build-push.yml
+    with:
+      repo: erpnext
+      version: "14"
+      push: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
+      python_version: 3.10.13
+      node_version: 16.20.2
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
+  v15:
+    uses: ./.github/workflows/docker-build-push.yml
+    with:
+      repo: erpnext
+      version: "15"
+      push: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
+      python_version: 3.11.6
+      node_version: 20.19.2
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
+  update_versions:
+    name: Update example.env and pwd.yml
+    runs-on: ubuntu-latest
+    if: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
+    needs: v15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.10"
+
+      - name: Get latest versions
+        run: python3 ./.github/scripts/get_latest_tags.py --repo erpnext --version 15
+
+      - name: Update
+        run: |
+          python3 ./.github/scripts/update_example_env.py
+          python3 ./.github/scripts/update_pwd.py
+
+      - name: Push
+        run: |
+          git config --global user.name github-actions
+          git config --global user.email github-actions@github.com
+          git add example.env pwd.yml
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "versions did not change, exiting."
+            exit 0
+          else
+            echo "version changed, pushing changes..."
+            git commit -m "chore: Update example.env"
+            git pull --rebase
+            git push origin main
+          fi
+
+  release_helm:
+    name: Release Helm
+    runs-on: ubuntu-latest
+    if: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
+    needs: v15
+
+    steps:
+      - name: Setup deploy key
+        uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.HELM_DEPLOY_KEY }}
+
+      - name: Setup Git Credentials
+        run: |
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+
+      - name: Release
+        run: |
+          git clone git@github.com:frappe/helm.git && cd helm
+          pip install -r release_wizard/requirements.txt
+          ./release_wizard/wizard 15 patch --remote origin --ci

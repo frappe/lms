@@ -1,0 +1,18 @@
+name: Mark stale issues and pull requests
+
+on:
+  schedule:
+    # Every day at 12:00 pm
+    - cron: 0 0 * * *
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v10
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          stale-issue-message: This issue has been automatically marked as stale. You have a week to explain why you believe this is an error.
+          stale-pr-message: This PR has been automatically marked as stale. You have a week to explain why you believe this is an error.
+          stale-issue-label: no-issue-activity
+          stale-pr-label: no-pr-activity

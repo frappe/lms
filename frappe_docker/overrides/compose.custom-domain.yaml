@@ -1,0 +1,31 @@
+version: "3.3"
+
+services:
+  custom-domain:
+    image: caddy:2
+    command:
+      - caddy
+      - reverse-proxy
+      - --to
+      - frontend:8080
+      - --from
+      - :2016
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik-public
+      - traefik.http.services.${ROUTER?ROUTER not set}.loadbalancer.server.port=2016
+      - traefik.http.routers.${ROUTER}.service=${ROUTER}
+      - traefik.http.routers.${ROUTER}.entrypoints=http
+      - traefik.http.routers.${ROUTER}.rule=Host(${SITES?SITES not set})
+      - traefik.http.middlewares.${ROUTER}.headers.customrequestheaders.Host=${BASE_SITE?BASE_SITE not set}
+      - traefik.http.routers.${ROUTER}.middlewares=${ROUTER}
+    networks:
+      - traefik-public
+      - bench-network
+
+networks:
+  traefik-public:
+    external: true
+  bench-network:
+    name: ${BENCH_NETWORK?BENCH_NETWORK not set}
+    external: true

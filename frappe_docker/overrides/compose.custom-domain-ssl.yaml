@@ -1,0 +1,5 @@
+services:
+  custom-domain:
+    labels:
+      - traefik.http.routers.${ROUTER}.entrypoints=http,https
+      - traefik.http.routers.${ROUTER}.tls.certresolver=le

@@ -1,0 +1,42 @@
+# Railway ignore file - exclude unnecessary files from deployment
+
+# Development files
+.git/
+.github/
+.vscode/
+*.log
+.env*
+docker-compose*.yml
+Dockerfile*
+!Dockerfile.simple
+
+# Documentation
+*.md
+!RAILWAY_DEPLOY.md
+
+# Frontend build (if not needed for backend-only deploy)
+frontend/node_modules/
+frontend/dist/
+frontend/.nuxt/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Node modules (if any)
+node_modules/
+
+# Cypress tests
+cypress/
+
+# Docker development files
+docker/
+frappe_docker/
+docker-installation.md
+bench-installation.md
+
+# Misc
+.DS_Store
+Thumbs.db
+yarn-error.log

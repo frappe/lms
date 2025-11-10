@@ -1,0 +1,11 @@
+2025-11-08 18:25:20,872 - INFO - Running Production Setup
+2025-11-08 18:26:06,201 - INFO - Downloaded frappe_docker zip file from GitHub
+2025-11-08 18:26:06,232 - INFO - Unzipped and Renamed frappe_docker
+2025-11-08 18:26:06,232 - INFO - Removed the downloaded zip file
+2025-11-08 18:29:14,024 - ERROR - Prod docker-compose failed
+Traceback (most recent call last):
+  File "/Users/wadhalsabahi/Desktop/lms/./easy-install.py", line 282, in start_prod
+    subprocess.run(
+  File "/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/subprocess.py", line 528, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['docker', 'compose', '-p', 'learning_prod_setup', '-f', '/Users/wadhalsabahi/learning_prod_setup-compose.yml', 'up', '--force-recreate', '--remove-orphans', '-d']' returned non-zero exit status 18.

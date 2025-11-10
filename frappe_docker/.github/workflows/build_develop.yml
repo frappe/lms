@@ -1,0 +1,33 @@
+name: Develop build
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - images/production/**
+      - overrides/**
+      - tests/**
+      - compose.yaml
+      - docker-bake.hcl
+      - example.env
+      - .github/workflows/build_develop.yml
+
+  schedule:
+    # Every day at 12:00 pm
+    - cron: 0 0 * * *
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    uses: ./.github/workflows/docker-build-push.yml
+    with:
+      repo: erpnext
+      version: develop
+      push: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
+      python_version: 3.11.6
+      node_version: 20.19.2
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}

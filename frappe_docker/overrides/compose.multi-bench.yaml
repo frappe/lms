@@ -1,0 +1,54 @@
+services:
+  frontend:
+    networks:
+      - traefik-public
+      - bench-network
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik-public
+      - traefik.http.services.${ROUTER?ROUTER not set}.loadbalancer.server.port=8080
+      - traefik.http.routers.${ROUTER}-http.service=${ROUTER}
+      - traefik.http.routers.${ROUTER}-http.entrypoints=http
+      - traefik.http.routers.${ROUTER}-http.rule=Host(${SITES?SITES not set})
+  configurator:
+    networks:
+      - bench-network
+      - mariadb-network
+  backend:
+    networks:
+      - mariadb-network
+      - bench-network
+  websocket:
+    networks:
+      - bench-network
+      - mariadb-network
+  scheduler:
+    networks:
+      - bench-network
+      - mariadb-network
+  queue-short:
+    networks:
+      - bench-network
+      - mariadb-network
+  queue-long:
+    networks:
+      - bench-network
+      - mariadb-network
+  redis-cache:
+    networks:
+      - bench-network
+      - mariadb-network
+
+  redis-queue:
+    networks:
+      - bench-network
+      - mariadb-network
+
+networks:
+  traefik-public:
+    external: true
+  mariadb-network:
+    external: true
+  bench-network:
+    name: ${ROUTER}
+    external: false
