@@ -3,8 +3,13 @@
 		class="flex flex-col border hover:border-outline-gray-3 rounded-md p-4 h-full"
 		style="min-height: 150px"
 	>
-		<div class="text-lg leading-5 font-semibold mb-2 text-ink-gray-9">
-			{{ batch.title }}
+		<div class="flex items-center justify-between mb-2">
+			<div class="text-lg leading-5 font-semibold text-ink-gray-9">
+				{{ batch.title }}
+			</div>
+			<Tooltip v-if="batch.is_private" :text="__('Private Batch')" placement="top">
+				<Lock class="h-4 w-4 stroke-1.5 text-ink-gray-5" />
+			</Tooltip>
 		</div>
 		<div
 			v-if="batch.seat_count && batch.seats_left > 0"
@@ -71,7 +76,8 @@
 </template>
 <script setup>
 import { formatTime } from '@/utils'
-import { Clock, Globe } from 'lucide-vue-next'
+import { Clock, Globe, Lock } from 'lucide-vue-next'
+import { Tooltip } from 'frappe-ui'
 import DateRange from '@/components/Common/DateRange.vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 import UserAvatar from '@/components/UserAvatar.vue'

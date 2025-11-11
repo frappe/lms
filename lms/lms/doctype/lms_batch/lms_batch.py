@@ -324,3 +324,36 @@ def send_mail(batch, student):
 		args=args,
 		header=[_(f"Batch Start Reminder: {batch.title}"), "orange"],
 	)
+
+def has_permission(doc, ptype, user):
+	if "System Manager" in frappe.get_roles(user) or "Moderator" in frappe.get_roles(user):
+		return True
+
+	if not doc.is_private:
+		return True
+
+	# Check if the user is in the allowed_users table
+	if frappe.db.exists("LMS Batch Member", {"parent": doc.name, "user": user}):
+		return True
+
+	return False
+
+
+def get_permission_query_conditions(user):
+	if not user:
+		user = frappe.session.user
+
+	if "System Manager" in frappe.get_roles(user) or "Moderator" in frappe.get_roles(user):
+		# System Managers and Moderators can see all batches
+		return None
+
+	# Students and other users can see public batches OR private batches they are allowed to see
+	return """
+		(
+			`tabLMS Batch`.is_private = 0
+			OR
+			`tabLMS Batch`.name IN (
+				SELECT `parent` FROM `tabLMS Batch Member` WHERE `user` = '{user}'
+			)
+		)
+	""".format(user=frappe.db.escape(user))

@@ -93,6 +93,13 @@
    "fieldtype": "Section Break"
   },
   {
+   "fieldname": "allowed_users",
+   "fieldtype": "Table",
+   "label": "Allowed Users",
+   "options": "LMS Batch Member",
+   "depends_on": "eval:doc.is_private"
+  },
+  {
    "fieldname": "courses",
    "fieldtype": "Table",
    "label": "Courses",
@@ -215,6 +222,13 @@
    "fieldtype": "Check",
    "in_standard_filter": 1,
    "label": "Published"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_private",
+   "fieldtype": "Check",
+   "label": "Is Private",
+   "description": "If checked, this batch will only be visible to selected users."
   },
   {
    "fieldname": "timetable",

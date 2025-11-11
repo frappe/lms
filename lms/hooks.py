@@ -251,3 +251,11 @@ add_to_apps_screen = [
 		"has_permission": "lms.lms.api.check_app_permission",
 	}
 ]
+
+permission_query_conditions = {
+	"LMS Batch": "lms.lms.doctype.lms_batch.lms_batch.get_permission_query_conditions",
+}
+
+has_permission = {
+	"LMS Batch": "lms.lms.doctype.lms_batch.lms_batch.has_permission",
+}

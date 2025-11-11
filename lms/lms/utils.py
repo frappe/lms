@@ -2063,6 +2063,7 @@ def get_batches(filters=None, start=0, order_by="start_date"):
 			"timezone",
 			"published",
 			"category",
+			"is_private"
 		],
 		order_by=order_by,
 		start=start,
