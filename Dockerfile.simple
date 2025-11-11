@@ -9,6 +9,8 @@ RUN apt-get update && apt-get install -y \
     netcat-openbsd \
     curl \
     python3-pip \
+    postgresql-client \
+    libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Switch to frappe user
@@ -23,6 +25,9 @@ RUN bench init --skip-assets --python $(which python3) frappe-bench || true
 # Set working directory to bench
 WORKDIR /home/frappe/frappe-bench
 
+# Install PostgreSQL adapter for Python
+RUN pip3 install psycopg2-binary
+
 # Copy the LMS app
 COPY --chown=frappe:frappe ./lms ./apps/lms
 
@@ -32,7 +37,7 @@ RUN mkdir -p sites && \
     echo "lms" >> sites/apps.txt
 
 # Copy startup script
-COPY --chown=frappe:frappe ./railway-start.sh /home/frappe/railway-start.sh
+COPY --chown=frappe:frappe ./railway-start-simple.sh /home/frappe/railway-start.sh
 
 # Make startup script executable
 USER root

@@ -79,10 +79,13 @@ config = {
     'db_port': url.port or 5432,
     'db_name': url.path[1:],
     'db_password': url.password,
+    'db_user': url.username,
     'db_type': 'postgres',
     'auto_commit_on_many_writes': 1,
-    'developer_mode': 1,
+    'developer_mode': 0,
     'disable_website_cache': 1,
+    'allow_tests': 0,
+    'enable_scheduler': 0,
 }
 
 if os.environ.get('REDIS_URL'):
@@ -118,13 +121,28 @@ if [ ! -d "sites/$SITE_NAME" ]; then
         bench get-app frappe || echo "Frappe already available"
     fi
     
-    # Create new site
+    # Extract database info for site creation
+    DB_NAME=$(python3 -c "
+import os
+from urllib.parse import urlparse
+url = urlparse(os.environ['DATABASE_URL'])
+print(url.path[1:])
+")
+    
+    # Create new site with PostgreSQL database
     echo "Creating site with admin password..."
     bench new-site $SITE_NAME \
         --admin-password admin \
+        --mariadb-root-password dummy \
+        --db-type postgres \
+        --db-host $(python3 -c "from urllib.parse import urlparse; import os; print(urlparse(os.environ['DATABASE_URL']).hostname)") \
+        --db-port $(python3 -c "from urllib.parse import urlparse; import os; url=urlparse(os.environ['DATABASE_URL']); print(url.port or 5432)") \
         --verbose \
-        --force \
-        --install-app lms
+        --force
+    
+    # Install LMS app
+    echo "Installing LMS app..."
+    bench --site $SITE_NAME install-app lms
     
     # Set as current site
     echo $SITE_NAME > sites/currentsite.txt
@@ -139,10 +157,13 @@ echo "Setting up site configuration..."
 bench --site $SITE_NAME set-config developer_mode 1
 bench --site $SITE_NAME set-config disable_website_cache 1
 
-# Clear cache and rebuild
+# Clear cache and build assets
 echo "Clearing cache and building assets..."
 bench --site $SITE_NAME clear-cache || true
-bench build || echo "Build completed with warnings"
+
+# Skip asset build for now to save memory - assets will be served from CDN or pre-built
+echo "Skipping asset build to conserve memory"
+# bench build || echo "Build completed with warnings"
 
 # Start the application
 echo "Starting Frappe LMS on port $PORT..."
@@ -150,4 +171,5 @@ echo "Server will be available shortly..."
 
 exec bench serve \
     --port $PORT \
-    --host 0.0.0.0
+    --noreload \
+    --nothreading
