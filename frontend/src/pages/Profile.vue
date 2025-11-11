@@ -2,9 +2,17 @@
 	<NoPermission v-if="!$user.data" />
 	<div v-else-if="profile.data">
 		<header
-			class="sticky top-0 z-10 flex flex-col md:flex-row md:items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
+			class="sticky group top-0 z-10 flex flex-col md:flex-row md:items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 		>
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
+			<Button v-if="isSessionUser()" class="invisible group-hover:visible">
+				<template #icon>
+					<RefreshCcw
+						class="w-4 h-4 stroke-1.5 text-ink-gray-7"
+						@click="reloadUser()"
+					/>
+				</template>
+			</Button>
 		</header>
 		<div class="group relative h-[130px] w-full">
 			<img
@@ -92,18 +100,19 @@
 <script setup>
 import {
 	Breadcrumbs,
-	createResource,
 	Button,
+	call,
+	createResource,
 	TabButtons,
 	usePageMeta,
 } from 'frappe-ui'
 import { computed, inject, watch, ref, onMounted, watchEffect } from 'vue'
 import { sessionStore } from '@/stores/session'
-import { Edit } from 'lucide-vue-next'
-import UserAvatar from '@/components/UserAvatar.vue'
+import { Edit, RefreshCcw } from 'lucide-vue-next'
 import { useRoute, useRouter } from 'vue-router'
-import NoPermission from '@/components/NoPermission.vue'
 import { convertToTitleCase } from '@/utils'
+import UserAvatar from '@/components/UserAvatar.vue'
+import NoPermission from '@/components/NoPermission.vue'
 import EditProfile from '@/components/Modals/EditProfile.vue'
 import EditCoverImage from '@/components/Modals/EditCoverImage.vue'
 
@@ -210,6 +219,14 @@ const getTabButtons = () => {
 		buttons.push({ label: 'Schedule' })
 	}
 	return buttons
+}
+
+const reloadUser = () => {
+	call('frappe.sessions.clear').then(() => {
+		$user.reload().then(() => {
+			profile.reload()
+		})
+	})
 }
 
 const breadcrumbs = computed(() => {
