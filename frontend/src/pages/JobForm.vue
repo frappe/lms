@@ -10,7 +10,7 @@
 		</header>
 		<div class="py-5">
 			<div class="container border-b mb-4 pb-5">
-				<div class="text-lg font-semibold mb-4">
+				<div class="text-lg font-semibold mb-4 text-ink-gray-9">
 					{{ __('Job Details') }}
 				</div>
 				<div class="grid grid-cols-2 gap-5">
@@ -59,7 +59,7 @@
 				</div>
 			</div>
 			<div class="container border-b mb-4 pb-5">
-				<div class="text-lg font-semibold mb-4">
+				<div class="text-lg font-semibold mb-4 text-ink-gray-9">
 					{{ __('Company Details') }}
 				</div>
 				<div class="grid grid-cols-2 gap-5">

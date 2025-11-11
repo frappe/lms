@@ -107,7 +107,7 @@ async function setLanguageExtension() {
 	if (!languageImport) return
 
 	const module = await languageImport()
-	languageExtension.value = (module as any)[props.language]()
+	languageExtension.value = (module as any)[props.language]?.()
 
 	if (props.completions) {
 		const languageData = (module as any)[`${props.language}Language`]

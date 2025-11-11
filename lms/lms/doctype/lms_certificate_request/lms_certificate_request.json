@@ -157,7 +157,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-10-13 14:30:57.897102",
+ "modified": "2025-11-10 11:40:50.679211",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Certificate Request",
@@ -228,5 +228,6 @@
    "title": "Cancelled"
   }
  ],
- "title_field": "member_name"
+ "title_field": "member_name",
+ "track_changes": 1
 }

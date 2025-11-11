@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2025-10-17 16:04+0000\n"
-"PO-Revision-Date: 2025-10-22 15:47\n"
+"POT-Creation-Date: 2025-10-31 16:04+0000\n"
+"PO-Revision-Date: 2025-11-02 19:07\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Serbian (Latin)\n"
 "MIME-Version: 1.0\n"
@@ -216,7 +216,7 @@ msgstr "Dodaj lekciju"
 msgid "Add a new member"
 msgstr "Dodaj novog člana"
 
-#: frontend/src/components/Modals/Question.vue:166
+#: frontend/src/components/Modals/Question.vue:167
 #: frontend/src/pages/QuizForm.vue:200
 msgid "Add a new question"
 msgstr "Dodaj novo pitanje"
@@ -1734,15 +1734,15 @@ msgstr "Naslov obuke"
 msgid "Course added to program successfully"
 msgstr "Obuka je uspešno dodata u program"
 
-#: frontend/src/pages/CourseForm.vue:560
+#: frontend/src/pages/CourseForm.vue:559
 msgid "Course created successfully"
 msgstr "Obuka je uspešno kreirana"
 
-#: frontend/src/pages/CourseForm.vue:597
+#: frontend/src/pages/CourseForm.vue:596
 msgid "Course deleted successfully"
 msgstr "Obuka je uspešno obrisana"
 
-#: frontend/src/pages/CourseForm.vue:580
+#: frontend/src/pages/CourseForm.vue:579
 msgid "Course updated successfully"
 msgstr "Obuka je uspešno ažurirana"
 
@@ -1999,7 +1999,7 @@ msgstr "Vrsta diplome"
 #: frontend/src/components/CourseOutline.vue:360
 #: frontend/src/components/DiscussionReplies.vue:41
 #: frontend/src/components/Settings/Badges.vue:171
-#: frontend/src/pages/BatchForm.vue:565 frontend/src/pages/CourseForm.vue:610
+#: frontend/src/pages/BatchForm.vue:565 frontend/src/pages/CourseForm.vue:609
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:67
 #: frontend/src/pages/Programs/ProgramForm.vue:231
 msgid "Delete"
@@ -2009,7 +2009,7 @@ msgstr "Obriši"
 msgid "Delete Chapter"
 msgstr "Obriši poglavlje"
 
-#: frontend/src/pages/CourseForm.vue:604
+#: frontend/src/pages/CourseForm.vue:603
 msgid "Delete Course"
 msgstr "Obriši obuku"
 
@@ -2021,7 +2021,7 @@ msgstr "Obriši ovo poglavlje?"
 msgid "Delete this lesson?"
 msgstr "Obrišite ovu lekciju?"
 
-#: frontend/src/pages/CourseForm.vue:605
+#: frontend/src/pages/CourseForm.vue:604
 msgid "Deleting the course will also delete all its chapters and lessons. Are you sure you want to delete this course?"
 msgstr "Brisanjem obuke takođe će se obrisati sva poglavlja i lekcije. Da li ste sigurni da želite da obrišete ovu obuku?"
 
@@ -3023,7 +3023,7 @@ msgstr "Trenutno sam u potrazi za poslom"
 msgid "I am unavailable"
 msgstr "Nisam dostupan"
 
-#: frontend/src/pages/QuizForm.vue:338
+#: frontend/src/pages/QuizForm.vue:334
 msgid "ID"
 msgstr "ID"
 
@@ -3756,7 +3756,7 @@ msgstr "Referenca lekcije"
 msgid "Lesson Title"
 msgstr "Naslov lekcije"
 
-#: frontend/src/pages/LessonForm.vue:426
+#: frontend/src/pages/LessonForm.vue:425
 msgid "Lesson created successfully"
 msgstr "Lekcija je uspešno kreirana"
 
@@ -3768,7 +3768,7 @@ msgstr "Lekcija je uspešno obrisana"
 msgid "Lesson moved successfully"
 msgstr "Lekcija je uspešno premeštena"
 
-#: frontend/src/pages/LessonForm.vue:450
+#: frontend/src/pages/LessonForm.vue:449
 msgid "Lesson updated successfully"
 msgstr "Lekcija je uspešno ažurirana"
 
@@ -3948,7 +3948,7 @@ msgstr "Označi sve kao pročitano"
 #. Label of the marks (Int) field in DocType 'LMS Quiz Result'
 #: frontend/src/components/Modals/Question.vue:40
 #: frontend/src/components/Modals/Question.vue:106
-#: frontend/src/components/Quiz.vue:120 frontend/src/pages/QuizForm.vue:348
+#: frontend/src/components/Quiz.vue:120 frontend/src/pages/QuizForm.vue:344
 #: frontend/src/pages/QuizSubmission.vue:64
 #: lms/lms/doctype/lms_quiz_question/lms_quiz_question.json
 #: lms/lms/doctype/lms_quiz_result/lms_quiz_result.json
@@ -4378,7 +4378,7 @@ msgstr "Novi"
 msgid "New Batch"
 msgstr "Nova grupa"
 
-#: frontend/src/pages/CourseForm.vue:691 lms/www/lms.py:93
+#: frontend/src/pages/CourseForm.vue:690 lms/www/lms.py:93
 msgid "New Course"
 msgstr "Nova obuka"
 
@@ -4402,7 +4402,7 @@ msgstr "Novi platni portal"
 msgid "New Question"
 msgstr "Novo pitanje"
 
-#: frontend/src/pages/QuizForm.vue:404 frontend/src/pages/QuizForm.vue:412
+#: frontend/src/pages/QuizForm.vue:400 frontend/src/pages/QuizForm.vue:408
 msgid "New Quiz"
 msgstr "Novi kviz"
 
@@ -5451,7 +5451,7 @@ msgstr "Python"
 #: frontend/src/components/Assignment.vue:20
 #: frontend/src/components/Modals/AssignmentForm.vue:32
 #: frontend/src/components/Modals/Question.vue:27
-#: frontend/src/pages/QuizForm.vue:343 frontend/src/pages/QuizSubmission.vue:56
+#: frontend/src/pages/QuizForm.vue:339 frontend/src/pages/QuizSubmission.vue:56
 #: lms/lms/doctype/course_lesson/course_lesson.json
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
@@ -5471,11 +5471,11 @@ msgstr "Detalji pitanja"
 msgid "Question Name"
 msgstr "Naziv pitanja"
 
-#: frontend/src/components/Modals/Question.vue:284
+#: frontend/src/components/Modals/Question.vue:285
 msgid "Question added successfully"
 msgstr "Pitanje je uspešno dodato"
 
-#: frontend/src/components/Modals/Question.vue:334
+#: frontend/src/components/Modals/Question.vue:335
 msgid "Question updated successfully"
 msgstr "Pitanje je uspešno ažurirano"
 
@@ -5492,7 +5492,7 @@ msgstr "Pitanje {0} od {1}"
 msgid "Questions"
 msgstr "Pitanja"
 
-#: frontend/src/pages/QuizForm.vue:385
+#: frontend/src/pages/QuizForm.vue:381
 msgid "Questions deleted successfully"
 msgstr "Pitanja su uspešno obrisana"
 
@@ -5542,7 +5542,7 @@ msgstr "Kviz je uspešno kreiran"
 msgid "Quiz is not available to Guest users. Please login to continue."
 msgstr "Kviz nije dostupan gostujućim korisnicima. Molimo Vas da se prijavite da biste nastavili."
 
-#: frontend/src/pages/QuizForm.vue:310
+#: frontend/src/pages/QuizForm.vue:306
 msgid "Quiz updated successfully"
 msgstr "Kviz je uspešno ažuriran"
 
@@ -5552,7 +5552,7 @@ msgid "Quiz will appear at the bottom of the lesson."
 msgstr "Kviz će biti prikazivan na dnu lekcije."
 
 #: frontend/src/components/AppSidebar.vue:621
-#: frontend/src/pages/QuizForm.vue:396 frontend/src/pages/Quizzes.vue:275
+#: frontend/src/pages/QuizForm.vue:392 frontend/src/pages/Quizzes.vue:275
 #: frontend/src/pages/Quizzes.vue:285 lms/www/lms.py:249
 msgid "Quizzes"
 msgstr "Kvizovi"
@@ -5998,7 +5998,7 @@ msgid "Setting up payment gateway"
 msgstr "Podešavanje platnog portala"
 
 #: frontend/src/components/AppSidebar.vue:647
-#: frontend/src/components/Settings/Settings.vue:7
+#: frontend/src/components/Settings/Settings.vue:9
 #: frontend/src/pages/BatchForm.vue:53 frontend/src/pages/CourseForm.vue:142
 #: frontend/src/pages/ProfileRoles.vue:4
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:19
@@ -7529,8 +7529,8 @@ msgstr "aktivnosti"
 msgid "activity"
 msgstr "aktivnost"
 
-#: frontend/src/components/CourseInstructors.vue:22
-#: frontend/src/components/CourseInstructors.vue:41
+#: frontend/src/components/CourseInstructors.vue:24
+#: frontend/src/components/CourseInstructors.vue:45
 msgid "and"
 msgstr "i"
 
@@ -7643,11 +7643,11 @@ msgstr "članovi"
 msgid "minutes"
 msgstr "minute"
 
-#: frontend/src/components/CourseInstructors.vue:41
+#: frontend/src/components/CourseInstructors.vue:45
 msgid "others"
 msgstr "ostalo"
 
-#: frontend/src/pages/QuizForm.vue:344
+#: frontend/src/pages/QuizForm.vue:340
 msgid "question_detail"
 msgstr "question_detail"
 

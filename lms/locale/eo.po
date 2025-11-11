@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2025-10-17 16:04+0000\n"
-"PO-Revision-Date: 2025-10-20 15:19\n"
+"POT-Creation-Date: 2025-10-31 16:04+0000\n"
+"PO-Revision-Date: 2025-10-31 17:33\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Esperanto\n"
 "MIME-Version: 1.0\n"
@@ -216,7 +216,7 @@ msgstr "crwdns151728:0crwdne151728:0"
 msgid "Add a new member"
 msgstr "crwdns155798:0crwdne155798:0"
 
-#: frontend/src/components/Modals/Question.vue:166
+#: frontend/src/components/Modals/Question.vue:167
 #: frontend/src/pages/QuizForm.vue:200
 msgid "Add a new question"
 msgstr "crwdns149228:0crwdne149228:0"
@@ -1734,15 +1734,15 @@ msgstr "crwdns149590:0crwdne149590:0"
 msgid "Course added to program successfully"
 msgstr "crwdns158496:0crwdne158496:0"
 
-#: frontend/src/pages/CourseForm.vue:560
+#: frontend/src/pages/CourseForm.vue:559
 msgid "Course created successfully"
 msgstr "crwdns155084:0crwdne155084:0"
 
-#: frontend/src/pages/CourseForm.vue:597
+#: frontend/src/pages/CourseForm.vue:596
 msgid "Course deleted successfully"
 msgstr "crwdns151586:0crwdne151586:0"
 
-#: frontend/src/pages/CourseForm.vue:580
+#: frontend/src/pages/CourseForm.vue:579
 msgid "Course updated successfully"
 msgstr "crwdns155086:0crwdne155086:0"
 
@@ -1999,7 +1999,7 @@ msgstr "crwdns149644:0crwdne149644:0"
 #: frontend/src/components/CourseOutline.vue:360
 #: frontend/src/components/DiscussionReplies.vue:41
 #: frontend/src/components/Settings/Badges.vue:171
-#: frontend/src/pages/BatchForm.vue:565 frontend/src/pages/CourseForm.vue:610
+#: frontend/src/pages/BatchForm.vue:565 frontend/src/pages/CourseForm.vue:609
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:67
 #: frontend/src/pages/Programs/ProgramForm.vue:231
 msgid "Delete"
@@ -2009,7 +2009,7 @@ msgstr "crwdns149646:0crwdne149646:0"
 msgid "Delete Chapter"
 msgstr "crwdns151626:0crwdne151626:0"
 
-#: frontend/src/pages/CourseForm.vue:604
+#: frontend/src/pages/CourseForm.vue:603
 msgid "Delete Course"
 msgstr "crwdns151588:0crwdne151588:0"
 
@@ -2021,7 +2021,7 @@ msgstr "crwdns151628:0crwdne151628:0"
 msgid "Delete this lesson?"
 msgstr "crwdns151630:0crwdne151630:0"
 
-#: frontend/src/pages/CourseForm.vue:605
+#: frontend/src/pages/CourseForm.vue:604
 msgid "Deleting the course will also delete all its chapters and lessons. Are you sure you want to delete this course?"
 msgstr "crwdns151590:0crwdne151590:0"
 
@@ -3023,7 +3023,7 @@ msgstr "crwdns149892:0crwdne149892:0"
 msgid "I am unavailable"
 msgstr "crwdns149894:0crwdne149894:0"
 
-#: frontend/src/pages/QuizForm.vue:338
+#: frontend/src/pages/QuizForm.vue:334
 msgid "ID"
 msgstr "crwdns149896:0crwdne149896:0"
 
@@ -3756,7 +3756,7 @@ msgstr "crwdns150082:0crwdne150082:0"
 msgid "Lesson Title"
 msgstr "crwdns150084:0crwdne150084:0"
 
-#: frontend/src/pages/LessonForm.vue:426
+#: frontend/src/pages/LessonForm.vue:425
 msgid "Lesson created successfully"
 msgstr "crwdns155092:0crwdne155092:0"
 
@@ -3768,7 +3768,7 @@ msgstr "crwdns155094:0crwdne155094:0"
 msgid "Lesson moved successfully"
 msgstr "crwdns155096:0crwdne155096:0"
 
-#: frontend/src/pages/LessonForm.vue:450
+#: frontend/src/pages/LessonForm.vue:449
 msgid "Lesson updated successfully"
 msgstr "crwdns155098:0crwdne155098:0"
 
@@ -3948,7 +3948,7 @@ msgstr "crwdns150140:0crwdne150140:0"
 #. Label of the marks (Int) field in DocType 'LMS Quiz Result'
 #: frontend/src/components/Modals/Question.vue:40
 #: frontend/src/components/Modals/Question.vue:106
-#: frontend/src/components/Quiz.vue:120 frontend/src/pages/QuizForm.vue:348
+#: frontend/src/components/Quiz.vue:120 frontend/src/pages/QuizForm.vue:344
 #: frontend/src/pages/QuizSubmission.vue:64
 #: lms/lms/doctype/lms_quiz_question/lms_quiz_question.json
 #: lms/lms/doctype/lms_quiz_result/lms_quiz_result.json
@@ -4378,7 +4378,7 @@ msgstr "crwdns150214:0crwdne150214:0"
 msgid "New Batch"
 msgstr "crwdns150218:0crwdne150218:0"
 
-#: frontend/src/pages/CourseForm.vue:691 lms/www/lms.py:93
+#: frontend/src/pages/CourseForm.vue:690 lms/www/lms.py:93
 msgid "New Course"
 msgstr "crwdns150220:0crwdne150220:0"
 
@@ -4402,7 +4402,7 @@ msgstr "crwdns159762:0crwdne159762:0"
 msgid "New Question"
 msgstr "crwdns150226:0crwdne150226:0"
 
-#: frontend/src/pages/QuizForm.vue:404 frontend/src/pages/QuizForm.vue:412
+#: frontend/src/pages/QuizForm.vue:400 frontend/src/pages/QuizForm.vue:408
 msgid "New Quiz"
 msgstr "crwdns150228:0crwdne150228:0"
 
@@ -5451,7 +5451,7 @@ msgstr "crwdns155756:0crwdne155756:0"
 #: frontend/src/components/Assignment.vue:20
 #: frontend/src/components/Modals/AssignmentForm.vue:32
 #: frontend/src/components/Modals/Question.vue:27
-#: frontend/src/pages/QuizForm.vue:343 frontend/src/pages/QuizSubmission.vue:56
+#: frontend/src/pages/QuizForm.vue:339 frontend/src/pages/QuizSubmission.vue:56
 #: lms/lms/doctype/course_lesson/course_lesson.json
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
@@ -5471,11 +5471,11 @@ msgstr "crwdns150506:0crwdne150506:0"
 msgid "Question Name"
 msgstr "crwdns150508:0crwdne150508:0"
 
-#: frontend/src/components/Modals/Question.vue:284
+#: frontend/src/components/Modals/Question.vue:285
 msgid "Question added successfully"
 msgstr "crwdns150510:0crwdne150510:0"
 
-#: frontend/src/components/Modals/Question.vue:334
+#: frontend/src/components/Modals/Question.vue:335
 msgid "Question updated successfully"
 msgstr "crwdns150512:0crwdne150512:0"
 
@@ -5492,7 +5492,7 @@ msgstr "crwdns150516:0{0}crwdnd150516:0{1}crwdne150516:0"
 msgid "Questions"
 msgstr "crwdns150518:0crwdne150518:0"
 
-#: frontend/src/pages/QuizForm.vue:385
+#: frontend/src/pages/QuizForm.vue:381
 msgid "Questions deleted successfully"
 msgstr "crwdns150520:0crwdne150520:0"
 
@@ -5542,7 +5542,7 @@ msgstr "crwdns150534:0crwdne150534:0"
 msgid "Quiz is not available to Guest users. Please login to continue."
 msgstr "crwdns150536:0crwdne150536:0"
 
-#: frontend/src/pages/QuizForm.vue:310
+#: frontend/src/pages/QuizForm.vue:306
 msgid "Quiz updated successfully"
 msgstr "crwdns150538:0crwdne150538:0"
 
@@ -5552,7 +5552,7 @@ msgid "Quiz will appear at the bottom of the lesson."
 msgstr "crwdns150540:0crwdne150540:0"
 
 #: frontend/src/components/AppSidebar.vue:621
-#: frontend/src/pages/QuizForm.vue:396 frontend/src/pages/Quizzes.vue:275
+#: frontend/src/pages/QuizForm.vue:392 frontend/src/pages/Quizzes.vue:275
 #: frontend/src/pages/Quizzes.vue:285 lms/www/lms.py:249
 msgid "Quizzes"
 msgstr "crwdns150542:0crwdne150542:0"
@@ -5998,7 +5998,7 @@ msgid "Setting up payment gateway"
 msgstr "crwdns154477:0crwdne154477:0"
 
 #: frontend/src/components/AppSidebar.vue:647
-#: frontend/src/components/Settings/Settings.vue:7
+#: frontend/src/components/Settings/Settings.vue:9
 #: frontend/src/pages/BatchForm.vue:53 frontend/src/pages/CourseForm.vue:142
 #: frontend/src/pages/ProfileRoles.vue:4
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:19
@@ -7529,8 +7529,8 @@ msgstr "crwdns152176:0crwdne152176:0"
 msgid "activity"
 msgstr "crwdns152178:0crwdne152178:0"
 
-#: frontend/src/components/CourseInstructors.vue:22
-#: frontend/src/components/CourseInstructors.vue:41
+#: frontend/src/components/CourseInstructors.vue:24
+#: frontend/src/components/CourseInstructors.vue:45
 msgid "and"
 msgstr "crwdns157186:0crwdne157186:0"
 
@@ -7643,11 +7643,11 @@ msgstr "crwdns151800:0crwdne151800:0"
 msgid "minutes"
 msgstr "crwdns155280:0crwdne155280:0"
 
-#: frontend/src/components/CourseInstructors.vue:41
+#: frontend/src/components/CourseInstructors.vue:45
 msgid "others"
 msgstr "crwdns157188:0crwdne157188:0"
 
-#: frontend/src/pages/QuizForm.vue:344
+#: frontend/src/pages/QuizForm.vue:340
 msgid "question_detail"
 msgstr "crwdns151070:0crwdne151070:0"
 

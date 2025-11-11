@@ -66,6 +66,7 @@
 <script setup lang="ts">
 import { Button, Dialog, FormControl, TextEditor, toast } from 'frappe-ui'
 import { computed, reactive, watch } from 'vue'
+import { escapeHTML } from '@/utils'
 
 const show = defineModel()
 const assignments = defineModel<Assignments>('assignments')
@@ -113,33 +114,54 @@ watch(
 	{ flush: 'post' }
 )
 
-const saveAssignment = () => {
-	if (props.assignmentID == 'new') {
-		assignments.value.insert.submit(
-			{
-				...assignment,
-			},
-			{
-				onSuccess() {
-					show.value = false
-					toast.success(__('Assignment created successfully'))
-				},
-			}
-		)
-	} else {
-		assignments.value.setValue.submit(
-			{
-				...assignment,
-				name: props.assignmentID,
-			},
-			{
-				onSuccess() {
-					show.value = false
-					toast.success(__('Assignment updated successfully'))
-				},
-			}
-		)
+watch(show, (newVal) => {
+	if (newVal && props.assignmentID === 'new') {
+		assignment.title = ''
+		assignment.type = ''
+		assignment.question = ''
 	}
+})
+
+const validateTitle = () => {
+	assignment.title = escapeHTML(assignment.title.trim())
+}
+
+const saveAssignment = () => {
+	validateTitle()
+	if (props.assignmentID == 'new') {
+		createAssignment()
+	} else {
+		updateAssignment()
+	}
+}
+
+const createAssignment = () => {
+	assignments.value.insert.submit(
+		{
+			...assignment,
+		},
+		{
+			onSuccess() {
+				show.value = false
+				toast.success(__('Assignment created successfully'))
+			},
+		}
+	)
+}
+
+const updateAssignment = () => {
+	assignments.value.setValue.submit(
+		{
+			...assignment,
+			name: props.assignmentID,
+		},
+		{
+			onSuccess() {
+				show.value = false
+				toast.success(__('Assignment updated successfully'))
+			},
+		}
+	)
 }
 
 const assignmentOptions = computed(() => {
