@@ -27,6 +27,10 @@ describe("Batch Creation", () => {
 		cy.get("input[placeholder='Jane']").type(randomName);
 		cy.get("button").contains("Add").click();
 
+		// Open Settings
+		cy.get("span").contains("Learning").click();
+		cy.get("span").contains("Settings").click();
+
 		// Add evaluator
 		cy.get("[data-dismissable-layer]")
 			.find("span")

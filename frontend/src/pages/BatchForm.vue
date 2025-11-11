@@ -344,6 +344,7 @@ import {
 	getMetaInfo,
 	updateMetaInfo,
 	validateFile,
+	escapeHTML,
 } from '@/utils'
 
 const router = useRouter()
@@ -500,7 +501,16 @@ const imageResource = createResource({
 	},
 })
 
+const validateFields = () => {
+	Object.keys(batch).forEach((key) => {
+		if (key != 'description' && typeof batch[key] === 'string') {
+			batch[key] = escapeHTML(batch[key])
+		}
+	})
+}
+
 const saveBatch = () => {
+	validateFields()
 	if (batchDetail.data) {
 		editBatchDetails()
 	} else {

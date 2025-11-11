@@ -317,54 +317,68 @@ const addNotifications = () => {
 }
 
 const addQuizzes = () => {
-	if (isInstructor.value || isModerator.value) {
-		sidebarLinks.value.splice(4, 0, {
-			label: 'Quizzes',
-			icon: 'CircleHelp',
-			to: 'Quizzes',
-			activeFor: [
-				'Quizzes',
-				'QuizForm',
-				'QuizSubmissionList',
-				'QuizSubmission',
-			],
-		})
-	}
+	if (!isInstructor.value && !isModerator.value) return
+
+	const quizzesLinkExists = sidebarLinks.value.some(
+		(link) => link.label === 'Quizzes'
+	)
+	if (quizzesLinkExists) return
+
+	sidebarLinks.value.splice(4, 0, {
+		label: 'Quizzes',
+		icon: 'CircleHelp',
+		to: 'Quizzes',
+		activeFor: ['Quizzes', 'QuizForm', 'QuizSubmissionList', 'QuizSubmission'],
+	})
 }
 
 const addAssignments = () => {
-	if (isInstructor.value || isModerator.value) {
-		sidebarLinks.value.splice(5, 0, {
-			label: 'Assignments',
-			icon: 'Pencil',
-			to: 'Assignments',
-			activeFor: [
-				'Assignments',
-				'AssignmentForm',
-				'AssignmentSubmissionList',
-				'AssignmentSubmission',
-			],
-		})
-	}
+	if (!isInstructor.value && !isModerator.value) return
+
+	const assignmentsLinkExists = sidebarLinks.value.some(
+		(link) => link.label === 'Assignments'
+	)
+	if (assignmentsLinkExists) return
+
+	sidebarLinks.value.splice(5, 0, {
+		label: 'Assignments',
+		icon: 'Pencil',
+		to: 'Assignments',
+		activeFor: [
+			'Assignments',
+			'AssignmentForm',
+			'AssignmentSubmissionList',
+			'AssignmentSubmission',
+		],
+	})
 }
 
 const addProgrammingExercises = () => {
-	if (isInstructor.value || isModerator.value) {
-		sidebarLinks.value.splice(3, 0, {
-			label: 'Programming Exercises',
-			icon: 'Code',
-			to: 'ProgrammingExercises',
-			activeFor: [
-				'ProgrammingExercises',
-				'ProgrammingExerciseForm',
-				'ProgrammingExerciseSubmissions',
-				'ProgrammingExerciseSubmission',
-			],
-		})
-	}
+	if (!isInstructor.value && !isModerator.value) return
+	const programmingExercisesLinkExists = sidebarLinks.value.some(
+		(link) => link.label === 'Programming Exercises'
+	)
+	if (programmingExercisesLinkExists) return
+
+	sidebarLinks.value.splice(3, 0, {
+		label: 'Programming Exercises',
+		icon: 'Code',
+		to: 'ProgrammingExercises',
+		activeFor: [
+			'ProgrammingExercises',
+			'ProgrammingExerciseForm',
+			'ProgrammingExerciseSubmissions',
+			'ProgrammingExerciseSubmission',
+		],
+	})
 }
 
 const addPrograms = async () => {
+	const programsLinkExists = sidebarLinks.value.some(
+		(link) => link.label === 'Programs'
+	)
+	if (programsLinkExists) return
+
 	let canAddProgram = await checkIfCanAddProgram()
 	if (!canAddProgram) return
 	let activeFor = ['Programs', 'ProgramDetail']
@@ -379,15 +393,21 @@ const addPrograms = async () => {
 }
 
 const addContactUsDetails = () => {
-	if (settingsStore.contactUsEmail?.data || settingsStore.contactUsURL?.data) {
-		sidebarLinks.value.push({
-			label: 'Contact Us',
-			icon: settingsStore.contactUsURL?.data ? 'Headset' : 'Mail',
-			to: settingsStore.contactUsURL?.data
-				? settingsStore.contactUsURL.data
-				: settingsStore.contactUsEmail?.data,
-		})
-	}
+	if (!settingsStore.contactUsEmail?.data && !settingsStore.contactUsURL?.data)
+		return
+
+	const contactUsLinkExists = sidebarLinks.value.some(
+		(link) => link.label === 'Contact Us'
+	)
+	if (contactUsLinkExists) return
+
+	sidebarLinks.value.push({
+		label: 'Contact Us',
+		icon: settingsStore.contactUsURL?.data ? 'Headset' : 'Mail',
+		to: settingsStore.contactUsURL?.data
+			? settingsStore.contactUsURL.data
+			: settingsStore.contactUsEmail?.data,
+	})
 }
 
 const checkIfCanAddProgram = async () => {
@@ -399,6 +419,10 @@ const checkIfCanAddProgram = async () => {
 }
 
 const addHome = () => {
+	const homeLinkExists = sidebarLinks.value.some(
+		(link) => link.label === 'Home'
+	)
+	if (homeLinkExists) return
 	sidebarLinks.value.unshift({
 		label: 'Home',
 		icon: 'Home',
