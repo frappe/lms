@@ -169,7 +169,13 @@ echo "Skipping asset build to conserve memory"
 echo "Starting Frappe LMS on port $PORT..."
 echo "Server will be available shortly..."
 
-exec bench serve \
-    --port $PORT \
-    --noreload \
-    --nothreading
+# Set current site for bench commands
+bench use $SITE_NAME
+
+# Use gunicorn for proper host binding (Railway requires 0.0.0.0)
+exec gunicorn frappe.app:application \
+    --bind 0.0.0.0:$PORT \
+    --workers 1 \
+    --timeout 120 \
+    --preload \
+    --max-requests 1000
