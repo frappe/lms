@@ -34,13 +34,16 @@
 						:validateFile="validateFile"
 						@success="(file) => (chapter.scorm_package = file)"
 					>
-						<template v-slot="{ file, progress, uploading, openFileSelector }">
+						<template
+							v-slot="{ file, error, progress, uploading, openFileSelector }"
+						>
 							<div class="mb-4">
 								<Button @click="openFileSelector" :loading="uploading">
 									{{
 										uploading ? `Uploading ${progress}%` : 'Upload an ZIP file'
 									}}
 								</Button>
+								<p v-if="error" class="text-ink-red-3 mt-2">{{ error }}</p>
 							</div>
 						</template>
 					</FileUploader>
