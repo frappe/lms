@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-11-07 16:04+0000\n"
-"PO-Revision-Date: 2025-11-11 11:49\n"
+"PO-Revision-Date: 2025-11-12 11:45\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Swedish\n"
 "MIME-Version: 1.0\n"
@@ -438,11 +438,11 @@ msgstr "Ansökningsformulär Länk"
 #: frontend/src/pages/JobApplications.vue:14
 #: frontend/src/pages/JobApplications.vue:25
 msgid "Applications"
-msgstr "Appar"
+msgstr "Ansökningar"
 
 #: frontend/src/pages/JobApplications.vue:290
 msgid "Applied On"
-msgstr "Tillämpad På"
+msgstr "Ansökt"
 
 #: frontend/src/pages/JobDetail.vue:62
 msgid "Apply"
@@ -7167,7 +7167,7 @@ msgstr "Visa"
 
 #: frontend/src/pages/JobDetail.vue:31
 msgid "View Applications"
-msgstr "Visa Appar"
+msgstr "Visa Ansökningar"
 
 #: frontend/src/components/CertificationLinks.vue:10
 #: frontend/src/components/Modals/Event.vue:67
