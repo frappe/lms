@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2025-10-31 16:04+0000\n"
-"PO-Revision-Date: 2025-11-02 19:07\n"
+"POT-Creation-Date: 2025-11-07 16:04+0000\n"
+"PO-Revision-Date: 2025-11-11 11:49\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Swedish\n"
 "MIME-Version: 1.0\n"
@@ -176,7 +176,7 @@ msgstr "Lägg till Frågesport till Video"
 msgid "Add Row"
 msgstr "Lägg till Rad "
 
-#: frontend/src/pages/ProfileEvaluator.vue:89
+#: frontend/src/pages/ProfileEvaluator.vue:96
 msgid "Add Slot"
 msgstr "Lägg till Tid"
 
@@ -286,11 +286,11 @@ msgstr "Adress"
 
 #: frontend/src/pages/Billing.vue:74
 msgid "Address Line 1"
-msgstr "Adress Linje 1"
+msgstr "Adressrad 1"
 
 #: frontend/src/pages/Billing.vue:78
 msgid "Address Line 2"
-msgstr "Adress Linje 2"
+msgstr "Adressrad 2"
 
 #. Option for the 'Role' (Select) field in DocType 'Cohort Staff'
 #. Option for the 'Required Role' (Select) field in DocType 'Cohort Web Page'
@@ -426,12 +426,25 @@ msgstr "Visas när grupp URL delas på valfri online plattform"
 msgid "Appears when the batch URL is shared on socials"
 msgstr "Visas när grupp URL delas på sociala medier"
 
+#: frontend/src/pages/JobApplications.vue:24
+msgid "Application"
+msgstr "Ansökan"
+
 #. Label of a field in the job-opportunity Web Form
 #: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Application Form Link"
 msgstr "Ansökningsformulär Länk"
 
-#: frontend/src/pages/JobDetail.vue:51
+#: frontend/src/pages/JobApplications.vue:14
+#: frontend/src/pages/JobApplications.vue:25
+msgid "Applications"
+msgstr "Appar"
+
+#: frontend/src/pages/JobApplications.vue:290
+msgid "Applied On"
+msgstr "Tillämpad På"
+
+#: frontend/src/pages/JobDetail.vue:62
 msgid "Apply"
 msgstr "Tillämpa"
 
@@ -483,7 +496,7 @@ msgstr "Ställ fråga för att få hjälp från gemenskapen."
 #. Label of the assessment_tab (Tab Break) field in DocType 'LMS Batch'
 #. Label of the assessment (Table) field in DocType 'LMS Batch'
 #: frontend/src/components/Modals/AssessmentModal.vue:27
-#: frontend/src/components/Modals/BatchStudentProgress.vue:41
+#: frontend/src/components/Modals/BatchStudentProgress.vue:43
 #: lms/lms/doctype/lms_batch/lms_batch.json lms/templates/assessments.html:11
 msgid "Assessment"
 msgstr "Bedömning"
@@ -569,7 +582,7 @@ msgstr "Uppgift Inlämningar"
 msgid "Assignment Title"
 msgstr "Uppgift Benämning"
 
-#: frontend/src/components/Modals/AssignmentForm.vue:125
+#: frontend/src/components/Modals/AssignmentForm.vue:133
 msgid "Assignment created successfully"
 msgstr "Uppgift skapad"
 
@@ -581,7 +594,7 @@ msgstr "Uppgift för Lektion {0} av {1} finns redan."
 msgid "Assignment submitted successfully"
 msgstr "Uppgift inlämnad"
 
-#: frontend/src/components/Modals/AssignmentForm.vue:138
+#: frontend/src/components/Modals/AssignmentForm.vue:146
 msgid "Assignment updated successfully"
 msgstr "Uppgift uppdaterad"
 
@@ -622,7 +635,7 @@ msgstr "Deltagare"
 msgid "Attire Preference"
 msgstr "Klädsel Preferens"
 
-#: frontend/src/pages/ProfileEvaluator.vue:137
+#: frontend/src/pages/ProfileEvaluator.vue:146
 msgid "Authorize Google Calendar Access"
 msgstr "Auktorisera Google Kalender Åtkomst"
 
@@ -637,7 +650,7 @@ msgstr "Automatiskt Tilldela"
 msgid "Auto Recording"
 msgstr "Automatisk Inspelning"
 
-#: frontend/src/pages/ProfileEvaluator.vue:224
+#: frontend/src/pages/ProfileEvaluator.vue:241
 msgid "Availability updated successfully"
 msgstr "Tillgänglighet uppdaterad"
 
@@ -768,6 +781,7 @@ msgstr "Grupp Bekräftelse Inskrivning"
 #. Name of a role
 #: lms/lms/doctype/course_evaluator/course_evaluator.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
+#: lms/lms/doctype/lms_badge_assignment/lms_badge_assignment.json
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_category/lms_category.json
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
@@ -998,7 +1012,7 @@ msgstr "Cerifikat Länk"
 msgid "Certificate of Completion"
 msgstr "Certifikat för Genomförande"
 
-#: frontend/src/components/Modals/Event.vue:317
+#: frontend/src/components/Modals/Event.vue:348
 msgid "Certificate saved successfully"
 msgstr "Certifikat sparad"
 
@@ -1018,7 +1032,7 @@ msgstr "Certifikat genererade"
 #. Label of a Card Break in the LMS Workspace
 #. Label of a Link in the LMS Workspace
 #: frontend/src/components/AppSidebar.vue:626
-#: frontend/src/components/Modals/Event.vue:381
+#: frontend/src/components/Modals/Event.vue:412
 #: frontend/src/pages/BatchForm.vue:69 frontend/src/pages/Batches.vue:58
 #: frontend/src/pages/CourseCertification.vue:10
 #: frontend/src/pages/CourseCertification.vue:135
@@ -1640,6 +1654,7 @@ msgstr "Antal Kurser"
 #: lms/lms/doctype/course_chapter/course_chapter.json
 #: lms/lms/doctype/course_lesson/course_lesson.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
+#: lms/lms/doctype/lms_badge_assignment/lms_badge_assignment.json
 #: lms/lms/doctype/lms_category/lms_category.json
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
@@ -1757,7 +1772,7 @@ msgstr "Kurs {0} har redan lagts till i denna omgång."
 #: frontend/src/components/BatchCourses.vue:5
 #: frontend/src/components/BatchOverlay.vue:37
 #: frontend/src/components/BatchStudents.vue:25
-#: frontend/src/components/Modals/BatchStudentProgress.vue:91
+#: frontend/src/components/Modals/BatchStudentProgress.vue:95
 #: frontend/src/pages/BatchDetail.vue:44
 #: frontend/src/pages/CourseCertification.vue:127
 #: frontend/src/pages/Courses.vue:333 frontend/src/pages/Courses.vue:340
@@ -2169,7 +2184,7 @@ msgstr "E-post"
 #: frontend/src/components/DiscussionReplies.vue:35
 #: frontend/src/components/Modals/ChapterModal.vue:9
 #: frontend/src/components/Settings/Badges.vue:156
-#: frontend/src/pages/JobDetail.vue:34 frontend/src/pages/Lesson.vue:42
+#: frontend/src/pages/JobDetail.vue:45 frontend/src/pages/Lesson.vue:42
 #: frontend/src/pages/Lesson.vue:178 frontend/src/pages/Profile.vue:36
 msgid "Edit"
 msgstr "Redigera"
@@ -2236,7 +2251,7 @@ msgstr "Utbildning Detaljer"
 
 #: frontend/src/components/Settings/Evaluators.vue:105
 #: frontend/src/components/Settings/Members.vue:103
-#: lms/templates/signup-form.html:10
+#: frontend/src/pages/JobApplications.vue:284 lms/templates/signup-form.html:10
 msgid "Email"
 msgstr "E-post"
 
@@ -2272,6 +2287,7 @@ msgid "Email Templates deleted successfully"
 msgstr "E-post mallar raderade"
 
 #: frontend/src/components/ContactUsEmail.vue:57
+#: frontend/src/pages/JobApplications.vue:244
 msgid "Email sent successfully"
 msgstr "E-post skickad"
 
@@ -2414,6 +2430,14 @@ msgstr "Ange Klient Id och Klient Hemlighet i Google inställningar för att ski
 msgid "Enter a URL"
 msgstr "Ange URL"
 
+#: frontend/src/pages/JobApplications.vue:122
+msgid "Enter email subject"
+msgstr "Ange e-post ämne"
+
+#: frontend/src/pages/JobApplications.vue:128
+msgid "Enter reply to email"
+msgstr "Ange svara till e-post"
+
 #: frontend/src/components/Modals/ZoomAccountModal.vue:169
 msgid "Error creating Zoom Account"
 msgstr "Fel vid skapande av Zoom-konto"
@@ -2453,7 +2477,7 @@ msgstr "Fel vid uppdatering av e-post mall"
 
 #. Label of a Link in the LMS Workspace
 #. Label of a shortcut in the LMS Workspace
-#: frontend/src/components/Modals/Event.vue:374 lms/lms/workspace/lms/lms.json
+#: frontend/src/components/Modals/Event.vue:405 lms/lms/workspace/lms/lms.json
 msgid "Evaluation"
 msgstr "Utvärdering"
 
@@ -2478,7 +2502,7 @@ msgstr "Utvärdering Begäran"
 msgid "Evaluation end date cannot be less than the batch end date."
 msgstr "Utvärdering slutdatum får inte vara tidigare än grupp slutdatum."
 
-#: frontend/src/components/Modals/Event.vue:256
+#: frontend/src/components/Modals/Event.vue:287
 msgid "Evaluation saved successfully"
 msgstr "Utvärdering sparad"
 
@@ -2586,7 +2610,7 @@ msgstr "Expandera"
 #. Label of the expected_output (Data) field in DocType 'LMS Test Case'
 #. Label of the expected_output (Data) field in DocType 'LMS Test Case
 #. Submission'
-#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:127
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:129
 #: lms/lms/doctype/lms_test_case/lms_test_case.json
 #: lms/lms/doctype/lms_test_case_submission/lms_test_case_submission.json
 msgid "Expected Output"
@@ -2599,7 +2623,7 @@ msgstr "Utgång Datum"
 
 #. Label of the expiry_date (Date) field in DocType 'LMS Certificate'
 #: frontend/src/components/Modals/BulkCertificates.vue:33
-#: frontend/src/components/Modals/Event.vue:126
+#: frontend/src/components/Modals/Event.vue:144
 #: lms/lms/doctype/lms_certificate/lms_certificate.json
 msgid "Expiry Date"
 msgstr "Utgång Datum"
@@ -2626,7 +2650,7 @@ msgstr "Utforska mer"
 #. Submission'
 #. Option for the 'Status' (Select) field in DocType 'LMS Certificate
 #. Evaluation'
-#: frontend/src/components/Modals/Event.vue:366
+#: frontend/src/components/Modals/Event.vue:397
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 msgid "Fail"
@@ -2657,7 +2681,7 @@ msgstr "Misslyckades med att hämta närvarodata från Zoom för lektion {0}: {1
 msgid "Failed to send email"
 msgstr "Misslyckades med att skicka e-post"
 
-#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:358
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:364
 msgid "Failed to submit. Please try again. {0}"
 msgstr "Misslyckades med inlämning. Försök igen. {0}"
 
@@ -2770,7 +2794,7 @@ msgid "Friday"
 msgstr "Fredag"
 
 #. Label of the unavailable_from (Date) field in DocType 'Course Evaluator'
-#: frontend/src/pages/ProfileEvaluator.vue:99
+#: frontend/src/pages/ProfileEvaluator.vue:106
 #: lms/lms/doctype/course_evaluator/course_evaluator.json
 msgid "From"
 msgstr "Från"
@@ -2782,6 +2806,7 @@ msgstr "Från Datum"
 
 #. Label of the full_name (Data) field in DocType 'Course Evaluator'
 #. Label of the full_name (Data) field in DocType 'LMS Program Member'
+#: frontend/src/pages/JobApplications.vue:278
 #: lms/lms/doctype/course_evaluator/course_evaluator.json
 #: lms/lms/doctype/lms_program_member/lms_program_member.json
 #: lms/templates/signup-form.html:5
@@ -3019,7 +3044,7 @@ msgstr "Jag är glad att kunna informera dig om att du har fått din certifierin
 msgid "I am looking for a job"
 msgstr "Jag söker jobb"
 
-#: frontend/src/pages/ProfileEvaluator.vue:94
+#: frontend/src/pages/ProfileEvaluator.vue:101
 msgid "I am unavailable"
 msgstr "Jag är inte tillgänglig"
 
@@ -3105,7 +3130,7 @@ msgstr "Bild: Skadad Dataström"
 #. Option for the 'Status' (Select) field in DocType 'LMS Certificate
 #. Evaluation'
 #. Option for the 'Status' (Select) field in DocType 'LMS Course'
-#: frontend/src/components/Modals/Event.vue:358
+#: frontend/src/components/Modals/Event.vue:389
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 #: lms/lms/doctype/lms_course/lms_course.json
@@ -3161,7 +3186,7 @@ msgstr "Industri"
 
 #. Label of the input (Data) field in DocType 'LMS Test Case'
 #. Label of the input (Data) field in DocType 'LMS Test Case Submission'
-#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:113
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:115
 #: lms/lms/doctype/lms_test_case/lms_test_case.json
 #: lms/lms/doctype/lms_test_case_submission/lms_test_case_submission.json
 msgid "Input"
@@ -3273,7 +3298,7 @@ msgstr "Är SCORM App"
 #. Label of the issue_date (Date) field in DocType 'Certification'
 #. Label of the issue_date (Date) field in DocType 'LMS Certificate'
 #: frontend/src/components/Modals/BulkCertificates.vue:28
-#: frontend/src/components/Modals/Event.vue:121
+#: frontend/src/components/Modals/Event.vue:138
 #: lms/lms/doctype/certification/certification.json
 #: lms/lms/doctype/lms_certificate/lms_certificate.json
 msgid "Issue Date"
@@ -3358,8 +3383,8 @@ msgid "Job Title"
 msgstr "Jobb Benämning"
 
 #. Label of the jobs (Check) field in DocType 'LMS Settings'
-#: frontend/src/pages/JobDetail.vue:10 frontend/src/pages/Jobs.vue:8
-#: frontend/src/pages/Jobs.vue:212
+#: frontend/src/pages/JobApplications.vue:9 frontend/src/pages/JobDetail.vue:10
+#: frontend/src/pages/Jobs.vue:8 frontend/src/pages/Jobs.vue:212
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Jobs"
 msgstr "Jobb"
@@ -3375,7 +3400,7 @@ msgstr "Anslut"
 msgid "Join Call"
 msgstr "Delta i Samtal"
 
-#: frontend/src/components/Modals/Event.vue:74
+#: frontend/src/components/Modals/Event.vue:78
 msgid "Join Meeting"
 msgstr "Delta i Möte"
 
@@ -3883,7 +3908,7 @@ msgstr "Logga In"
 msgid "Login to Frappe Cloud?"
 msgstr "Logga in på Frappe Cloud?"
 
-#: frontend/src/pages/JobDetail.vue:63
+#: frontend/src/pages/JobDetail.vue:74
 msgid "Login to apply"
 msgstr "Logga in för att ansöka"
 
@@ -4228,8 +4253,13 @@ msgid "Mentor Request Status Update Template"
 msgstr "Mentor Begäran Status Uppdatering Mall"
 
 #: frontend/src/components/ContactUsEmail.vue:19
+#: frontend/src/pages/JobApplications.vue:132
 msgid "Message"
 msgstr "Meddelande"
+
+#: frontend/src/pages/JobApplications.vue:240
+msgid "Message is required"
+msgstr "Meddelande erfordras"
 
 #. Label of the meta_description (Small Text) field in DocType 'LMS Settings'
 #: frontend/src/pages/BatchForm.vue:297 frontend/src/pages/CourseForm.vue:303
@@ -4351,7 +4381,7 @@ msgstr "Mina Anteckningar"
 msgid "My availability"
 msgstr "Min tillgänglighet"
 
-#: frontend/src/pages/ProfileEvaluator.vue:127
+#: frontend/src/pages/ProfileEvaluator.vue:136
 msgid "My calendar"
 msgstr "Min kalender"
 
@@ -4390,7 +4420,7 @@ msgstr "Ny e-post mall"
 msgid "New Job"
 msgstr "Nya Jobb"
 
-#: lms/job/doctype/lms_job_application/lms_job_application.py:27
+#: lms/job/doctype/lms_job_application/lms_job_application.py:31
 msgid "New Job Applicant"
 msgstr "Ny Jobb Sökande"
 
@@ -4568,7 +4598,7 @@ msgstr "Ej Betygsatt"
 
 #: frontend/src/components/NoPermission.vue:7 frontend/src/pages/Batch.vue:164
 msgid "Not Permitted"
-msgstr "Ej Tillåtet"
+msgstr "Inte Tillåtet"
 
 #: frontend/src/components/Assignment.vue:36
 #: frontend/src/components/Settings/BrandSettings.vue:10
@@ -4581,7 +4611,7 @@ msgstr "Ej Sparad"
 #. Label of the note (Text Editor) field in DocType 'LMS Lesson Note'
 #: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 msgid "Note"
-msgstr "Anteckning"
+msgstr "Notera"
 
 #: frontend/src/pages/Lesson.vue:404 frontend/src/pages/Lesson.vue:880
 #: frontend/src/pages/Lesson.vue:891
@@ -4818,7 +4848,7 @@ msgstr "Delvis Klar"
 #. Submission'
 #. Option for the 'Status' (Select) field in DocType 'LMS Certificate
 #. Evaluation'
-#: frontend/src/components/Modals/Event.vue:362
+#: frontend/src/components/Modals/Event.vue:393
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 msgid "Pass"
@@ -4945,7 +4975,7 @@ msgstr "Betalning App är inte installerad"
 #. Option for the 'Status' (Select) field in DocType 'LMS Certificate
 #. Evaluation'
 #. Option for the 'Status' (Select) field in DocType 'LMS Mentor Request'
-#: frontend/src/components/Modals/Event.vue:354
+#: frontend/src/components/Modals/Event.vue:385
 #: lms/lms/doctype/cohort_join_request/cohort_join_request.json
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
@@ -4964,7 +4994,7 @@ msgstr "Procentuell"
 msgid "Percentage (e.g. 70%)"
 msgstr "Procent (t.ex. 70%)"
 
-#: frontend/src/components/Modals/BatchStudentProgress.vue:44
+#: frontend/src/components/Modals/BatchStudentProgress.vue:46
 msgid "Percentage/Status"
 msgstr "Procentandel/Status"
 
@@ -5080,7 +5110,7 @@ msgstr "Logga in för att registrera dig i programmet."
 msgid "Please prepare well and be on time for the evaluations."
 msgstr "Förbered dig väl och kom i tid till utvärderingarna."
 
-#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:135
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:139
 msgid "Please run the code to execute the test cases."
 msgstr "Kör kod för att utföra testfall."
 
@@ -5317,11 +5347,11 @@ msgstr "Programmeringsövning"
 
 #: frontend/src/components/Settings/BadgeForm.vue:200
 #: frontend/src/components/Settings/Badges.vue:205
-#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:420
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:426
 msgid "Programming Exercise Submission"
 msgstr "Programmeringsövning Inlämning"
 
-#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:411
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:417
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:298
 msgid "Programming Exercise Submissions"
 msgstr "Programmeringsövning Inlämningar"
@@ -5355,7 +5385,7 @@ msgstr "Program"
 
 #. Label of the progress (Float) field in DocType 'LMS Enrollment'
 #. Label of the progress (Int) field in DocType 'LMS Program Member'
-#: frontend/src/components/Modals/BatchStudentProgress.vue:94
+#: frontend/src/components/Modals/BatchStudentProgress.vue:98
 #: frontend/src/components/Modals/CourseProgressSummary.vue:224
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 #: lms/lms/doctype/lms_program_member/lms_program_member.json
@@ -5401,7 +5431,7 @@ msgstr "Publicera på deltagarsidan"
 #. Label of the published (Check) field in DocType 'LMS Course'
 #. Label of the published (Check) field in DocType 'LMS Program'
 #: frontend/src/components/Modals/BulkCertificates.vue:51
-#: frontend/src/components/Modals/Event.vue:108
+#: frontend/src/components/Modals/Event.vue:122
 #: frontend/src/pages/BatchForm.vue:59 frontend/src/pages/CourseForm.vue:152
 #: frontend/src/pages/Programs/ProgramForm.vue:33
 #: frontend/src/pages/Programs/StudentPrograms.vue:100
@@ -5569,7 +5599,7 @@ msgstr "Frågesporter i denna video"
 #. Label of the rating (Data) field in DocType 'LMS Course'
 #. Label of the rating (Rating) field in DocType 'LMS Course Review'
 #: frontend/src/components/CourseCardOverlay.vue:147
-#: frontend/src/components/Modals/Event.vue:86
+#: frontend/src/components/Modals/Event.vue:92
 #: frontend/src/components/Modals/ReviewModal.vue:18
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 #: lms/lms/doctype/lms_course/lms_course.json
@@ -5656,6 +5686,7 @@ msgid "Remove Highlight"
 msgstr "Ta bort Markering"
 
 #: frontend/src/components/Modals/AnnouncementModal.vue:27
+#: frontend/src/pages/JobApplications.vue:127
 msgid "Reply To"
 msgstr "Svara till"
 
@@ -5815,8 +5846,8 @@ msgstr "Lördag"
 #: frontend/src/components/Controls/CodeEditor.vue:25
 #: frontend/src/components/Modals/AssignmentForm.vue:59
 #: frontend/src/components/Modals/EmailTemplateModal.vue:12
-#: frontend/src/components/Modals/Event.vue:101
-#: frontend/src/components/Modals/Event.vue:129
+#: frontend/src/components/Modals/Event.vue:115
+#: frontend/src/components/Modals/Event.vue:151
 #: frontend/src/components/Modals/Question.vue:112
 #: frontend/src/components/Modals/ZoomAccountModal.vue:10
 #: frontend/src/components/Settings/BadgeAssignmentForm.vue:12
@@ -5955,12 +5986,21 @@ msgid "Select an assignment"
 msgstr "Välj uppgift"
 
 #: frontend/src/components/ContactUsEmail.vue:33
+#: frontend/src/pages/JobApplications.vue:110
 msgid "Send"
 msgstr "Skicka"
 
 #: lms/lms/doctype/lms_batch_enrollment/lms_batch_enrollment.js:7
 msgid "Send Confirmation Email"
 msgstr "Skicka bekräftelse via e-post"
+
+#: frontend/src/pages/JobApplications.vue:268
+msgid "Send Email"
+msgstr "Skicka E-post"
+
+#: frontend/src/pages/JobApplications.vue:106
+msgid "Send Email to {0}"
+msgstr "Skicka E-post till {0}"
 
 #. Label of the send_calendar_invite_for_evaluations (Check) field in DocType
 #. 'LMS Settings'
@@ -6122,11 +6162,11 @@ msgstr "Hoppa Över"
 msgid "Slot Times are overlapping for some schedules."
 msgstr "Tider överlappar för vissa schema."
 
-#: frontend/src/pages/ProfileEvaluator.vue:201
+#: frontend/src/pages/ProfileEvaluator.vue:218
 msgid "Slot added successfully"
 msgstr "Tid tillagd"
 
-#: frontend/src/pages/ProfileEvaluator.vue:240
+#: frontend/src/pages/ProfileEvaluator.vue:257
 msgid "Slot deleted successfully"
 msgstr "Tid raderad"
 
@@ -6161,7 +6201,7 @@ msgstr "Lösning"
 #: lms/lms/doctype/lms_source/lms_source.json
 #: lms/lms/doctype/lms_video_watch_duration/lms_video_watch_duration.json
 msgid "Source"
-msgstr "Från"
+msgstr "Källa"
 
 #. Option for the 'Role' (Select) field in DocType 'Cohort Staff'
 #. Option for the 'Member Type' (Select) field in DocType 'LMS Enrollment'
@@ -6265,7 +6305,7 @@ msgstr "Statistik"
 #. Label of the status (Select) field in DocType 'LMS Programming Exercise
 #. Submission'
 #. Label of the status (Select) field in DocType 'LMS Test Case Submission'
-#: frontend/src/components/Modals/Event.vue:91
+#: frontend/src/components/Modals/Event.vue:99
 #: frontend/src/components/Settings/Badges.vue:228
 #: frontend/src/components/Settings/ZoomSettings.vue:197
 #: frontend/src/pages/AssignmentSubmissionList.vue:19
@@ -6336,10 +6376,12 @@ msgstr "Undergrupp"
 #: frontend/src/components/ContactUsEmail.vue:13
 #: frontend/src/components/Modals/AnnouncementModal.vue:20
 #: frontend/src/components/Modals/EmailTemplateModal.vue:31
+#: frontend/src/pages/JobApplications.vue:121
 msgid "Subject"
 msgstr "Ämne"
 
 #: frontend/src/components/Modals/AnnouncementModal.vue:94
+#: frontend/src/pages/JobApplications.vue:237
 msgid "Subject is required"
 msgstr "Ämne erfordras"
 
@@ -6356,7 +6398,7 @@ msgstr "Inlämningstyp"
 msgid "Submission by"
 msgstr "Inlämning av"
 
-#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:353
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:359
 msgid "Submission saved!"
 msgstr "Inlämning sparad!"
 
@@ -6396,7 +6438,7 @@ msgstr "Registrerad i program"
 
 #. Label of the summary (Small Text) field in DocType 'LMS Certificate
 #. Evaluation'
-#: frontend/src/components/Modals/Event.vue:97
+#: frontend/src/components/Modals/Event.vue:106
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 msgid "Summary"
 msgstr "Översikt"
@@ -6501,7 +6543,7 @@ msgstr "Teamarbete"
 #. Label of the template (Link) field in DocType 'Cohort Web Page'
 #. Label of the template (Link) field in DocType 'LMS Certificate'
 #: frontend/src/components/Modals/BulkCertificates.vue:43
-#: frontend/src/components/Modals/Event.vue:112
+#: frontend/src/components/Modals/Event.vue:127
 #: lms/lms/doctype/cohort_web_page/cohort_web_page.json
 #: lms/lms/doctype/lms_certificate/lms_certificate.json
 msgid "Template"
@@ -6542,7 +6584,7 @@ msgstr "Test Resultat"
 msgid "Test this Exercise"
 msgstr "Testa denna Övning"
 
-#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:92
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:93
 msgid "Test {0}"
 msgstr "Testa {0}"
 
@@ -6840,7 +6882,7 @@ msgid "Title is required"
 msgstr "Benämning erfordras"
 
 #. Label of the unavailable_to (Date) field in DocType 'Course Evaluator'
-#: frontend/src/pages/ProfileEvaluator.vue:112
+#: frontend/src/pages/ProfileEvaluator.vue:120
 #: lms/lms/doctype/course_evaluator/course_evaluator.json
 msgid "To"
 msgstr "Till"
@@ -6953,7 +6995,7 @@ msgstr "UUID"
 msgid "Unavailability"
 msgstr "Otillgänglighet"
 
-#: frontend/src/pages/ProfileEvaluator.vue:259
+#: frontend/src/pages/ProfileEvaluator.vue:276
 msgid "Unavailability updated successfully"
 msgstr "Otillgänglighet uppdaterad"
 
@@ -7123,10 +7165,18 @@ msgstr "Videostatistik för {0}"
 msgid "View"
 msgstr "Visa"
 
+#: frontend/src/pages/JobDetail.vue:31
+msgid "View Applications"
+msgstr "Visa Appar"
+
 #: frontend/src/components/CertificationLinks.vue:10
 #: frontend/src/components/Modals/Event.vue:67
 msgid "View Certificate"
 msgstr "Visa Certifikat"
+
+#: frontend/src/pages/JobApplications.vue:262
+msgid "View Resume"
+msgstr "Visa CV"
 
 #: frontend/src/components/BatchFeedback.vue:56
 msgid "View all feedback"
@@ -7146,7 +7196,7 @@ msgstr "Synlighet"
 msgid "Visit Batch"
 msgstr "Besök Omgång"
 
-#: frontend/src/pages/JobDetail.vue:41
+#: frontend/src/pages/JobDetail.vue:52
 msgid "Visit Website"
 msgstr "Besök Webbplats"
 
@@ -7355,7 +7405,7 @@ msgstr "Du fick {0}% rätta svar med resultat på {1} av {2}"
 msgid "You have a live class scheduled tomorrow. Please be prepared and be on time for the session."
 msgstr "Du har en liveklass schemalagd i morgon. Var förberedd och kom i tid till sessionen."
 
-#: lms/job/doctype/lms_job_application/lms_job_application.py:22
+#: lms/job/doctype/lms_job_application/lms_job_application.py:26
 msgid "You have already applied for this job."
 msgstr "Du har redan sökt detta jobb."
 
@@ -7371,7 +7421,7 @@ msgstr "Du har redan köpt certifikat för denna kurs."
 msgid "You have already reviewed this course"
 msgstr "Du har redan granskat denna kurs"
 
-#: frontend/src/pages/JobDetail.vue:57
+#: frontend/src/pages/JobDetail.vue:68
 msgid "You have applied"
 msgstr "Du har ansökt"
 
@@ -7451,7 +7501,7 @@ msgstr "YouTube Video visas överst i lektion."
 msgid "Your Account has been successfully created!"
 msgstr "Ditt konto är skapad!"
 
-#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:119
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:121
 msgid "Your Output"
 msgstr "Utdata"
 
@@ -7459,7 +7509,7 @@ msgstr "Utdata"
 msgid "Your batch {0} is starting tomorrow"
 msgstr "Din grupp {0} börjar imorgon"
 
-#: frontend/src/pages/ProfileEvaluator.vue:134
+#: frontend/src/pages/ProfileEvaluator.vue:143
 msgid "Your calendar is set."
 msgstr "Din kalender är konfigurerad."
 
@@ -7538,11 +7588,11 @@ msgstr "och"
 msgid "and then 'Add to Home Screen'"
 msgstr "och sedan \"Lägg till Hem\""
 
-#: frontend/src/components/JobCard.vue:26 frontend/src/pages/JobDetail.vue:114
+#: frontend/src/components/JobCard.vue:26 frontend/src/pages/JobDetail.vue:125
 msgid "applicant"
 msgstr "sökande"
 
-#: frontend/src/components/JobCard.vue:26 frontend/src/pages/JobDetail.vue:114
+#: frontend/src/components/JobCard.vue:26 frontend/src/pages/JobDetail.vue:125
 msgid "applicants"
 msgstr "sökande"
 
