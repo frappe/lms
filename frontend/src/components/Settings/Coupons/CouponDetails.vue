@@ -1,16 +1,15 @@
 <template>
-	<div class="flex flex-col text-base h-full overflow-y-auto">
-		<div class="flex items-center space-x-2 mb-5">
-			<Button variant="ghost" @click="emit('updateStep', 'list')">
-				<template #icon>
-					<ChevronLeft class="size-5 stroke-1 text-ink-gray-7" />
-				</template>
-			</Button>
+	<div class="flex flex-col text-base h-full">
+		<div class="flex items-center space-x-2 mb-8 -ml-1.5">
+			<ChevronLeft
+				class="size-5 stroke-1.5 text-ink-gray-7 cursor-pointer"
+				@click="emit('updateStep', 'list')"
+			/>
 			<div class="text-xl font-semibold text-ink-gray-9">
 				{{ data?.name ? __('Edit Coupon') : __('New Coupon') }}
 			</div>
 		</div>
-		<div class="space-y-4">
+		<div class="space-y-4 overflow-y-auto">
 			<div>
 				<FormControl
 					v-model="data.enabled"
@@ -74,34 +73,27 @@
 				<CouponItems ref="couponItems" :data="data" :coupons="coupons" />
 			</div>
 		</div>
-		<div class="mt-auto w-full space-x-2">
-			<Button variant="solid" class="float-right" @click="saveCoupon()">
+		<div class="mt-auto space-x-2 ml-auto">
+			<Button variant="solid" @click="saveCoupon()">
 				{{ __('Save') }}
 			</Button>
 		</div>
 	</div>
 </template>
 <script setup lang="ts">
-import {
-	Button,
-	createListResource,
-	createResource,
-	FormControl,
-	toast,
-} from 'frappe-ui'
-import { ref, watch, computed } from 'vue'
-import { ChevronLeft, Plus, X } from 'lucide-vue-next'
+import { Button, FormControl, toast } from 'frappe-ui'
+import { ref } from 'vue'
+import { ChevronLeft } from 'lucide-vue-next'
 import type { Coupon, Coupons } from './types'
 import CouponItems from '@/components/Settings/Coupons/CouponItems.vue'
 
 const couponItems = ref<any>(null)
+const emit = defineEmits(['updateStep'])
 
 const props = defineProps<{
 	coupons: Coupons
 	data: Coupon
 }>()
-
-const emit = defineEmits(['updateStep'])
 
 const saveCoupon = () => {
 	if (props.data?.name) {
@@ -129,7 +121,6 @@ const editCoupon = () => {
 const createCoupon = () => {
 	if (couponItems.value) {
 		let rows = couponItems.value.saveItems()
-		console.log(rows)
 		props.data.applicable_items = rows
 	}
 	props.coupons.insert.submit(
@@ -148,98 +139,4 @@ const createCoupon = () => {
 		}
 	)
 }
-
-/* 
-watch(
-	() => show.value,
-	(val) => {
-		if (val) {
-			if (props.couponId && props.couponId !== 'new') {
-				getDoc.submit()
-			} else {
-				doc.value = {
-					code: '',
-					discount_type: 'Percent',
-					active: 1,
-					applicable_items: [],
-				}
-			}
-		}
-	}
-) */
-/* 
-function addRow() {
-	doc.value.applicable_items.push({
-		reference_doctype: 'LMS Course',
-		reference_name: null,
-	})
-}
-function removeRow(idx) {
-	doc.value.applicable_items.splice(idx, 1)
-} */
-/* 
-function getFilters(idx) {
-	// don't show the batch or course that has already been selected
-	const row = doc.value.applicable_items[idx]
-	if (!row.reference_doctype) return {}
-	const doctype = row.reference_doctype
-	const selectedNames = doc.value.applicable_items
-		.filter(
-			(r, i) => i !== idx && r.reference_doctype === doctype && r.reference_name
-		)
-		.map((r) => r.reference_name)
-	if (selectedNames.length === 0) return {}
-	return {
-		name: ['not in', selectedNames],
-	}
-}
-
-const saveDoc = createResource({
-	url: 'frappe.client.save',
-	makeParams(values) {
-		return { doc: doc.value }
-	},
-})
-
-const insertDoc = createResource({
-	url: 'frappe.client.insert',
-	makeParams(values) {
-		return { doc: { doctype: 'LMS Coupon', ...doc.value } }
-	},
-})
-
-function handleCodeInput(event) {
-	if (event.data && !/^[A-Za-z0-9]*$/.test(event.data)) {
-		event.preventDefault()
-	}
-}
-
-function save() {
-	if (props.couponId && props.couponId !== 'new') {
-		saveDoc.submit(
-			{},
-			{
-				onSuccess() {
-					toast.success(__('Saved'))
-					emit('saved')
-				},
-				onError(err) {
-					toast.error(err.messages?.[0] || err.message || err)
-				},
-			}
-		)
-	} else {
-		insertDoc.submit(
-			{},
-			{
-				onSuccess() {
-					toast.success(__('Saved'))
-				},
-				onError(err) {
-					toast.error(err.messages?.[0] || err.message || err)
-				},
-			}
-		)
-	}
-} */
 </script>

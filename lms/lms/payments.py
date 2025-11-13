@@ -30,36 +30,31 @@ def get_payment_link(
 	redirect_to,
 	payment_for_certificate,
 	coupon_code=None,
+	coupon=None,
 ):
 	payment_gateway = get_payment_gateway()
 	address = frappe._dict(address)
-
-	coupon_context = None
-	if doctype in ["LMS Course", "LMS Batch"] and coupon_code:
-		try:
-			from lms.lms.utils import apply_coupon
-
-			coupon_context = apply_coupon(doctype, docname, coupon_code)
-		except Exception:
-			pass
+	original_amount = amount
+	amount -= discount_amount
+	amount_with_gst = get_amount_with_gst(amount, gst_amount)
 
 	payment = record_payment(
 		address,
 		doctype,
 		docname,
 		amount,
+		original_amount,
 		currency,
+		amount_with_gst,
 		discount_amount,
-		gst_amount,
 		payment_for_certificate,
-		coupon_context,
+		coupon_code,
+		coupon,
 	)
 	controller = get_controller(payment_gateway)
 
 	payment_details = {
-		"amount": amount - discount_amount + gst_amount,
-		"discount_amount": discount_amount,
-		"gst_amount": gst_amount,
+		"amount": amount_with_gst if amount_with_gst else amount,
 		"title": f"Payment for {doctype} {title} {docname}",
 		"description": f"{address.billing_name}'s payment for {title}",
 		"reference_doctype": doctype,
@@ -71,13 +66,27 @@ def get_payment_link(
 		"redirect_to": redirect_to,
 		"payment": payment.name,
 	}
-	if payment_gateway == "Razorpay":
-		order = controller.create_order(**payment_details)
-		payment_details.update({"order_id": order.get("id")})
 
+	create_order(payment_gateway, payment_details, controller)
 	url = controller.get_payment_url(**payment_details)
 
 	return url
+
+
+def create_order(payment_gateway, payment_details, controller):
+	if payment_gateway != "Razorpay":
+		return
+
+	order = controller.create_order(**payment_details)
+	payment_details.update({"order_id": order.get("id")})
+
+
+def get_amount_with_gst(amount, gst_amount):
+	amount_with_gst = 0
+	if gst_amount:
+		amount_with_gst = amount + gst_amount
+
+	return amount_with_gst
 
 
 def record_payment(
@@ -85,11 +94,13 @@ def record_payment(
 	doctype,
 	docname,
 	amount,
+	original_amount,
 	currency,
+	amount_with_gst=0,
 	discount_amount=0,
-	gst_amount=0,
 	payment_for_certificate=0,
-	coupon_context=None,
+	coupon_code=None,
+	coupon=None,
 ):
 	address = frappe._dict(address)
 	address_name = save_address(address)
@@ -103,7 +114,7 @@ def record_payment(
 			"amount": amount,
 			"currency": currency,
 			"discount_amount": discount_amount,
-			"gst_amount": gst_amount,
+			"amount_with_gst": amount_with_gst,
 			"gstin": address.gstin,
 			"pan": address.pan,
 			"source": address.source,
@@ -112,16 +123,16 @@ def record_payment(
 			"payment_for_certificate": payment_for_certificate,
 		}
 	)
-	if coupon_context:
+	if coupon_code:
 		payment_doc.update(
 			{
-				"coupon": coupon_context.get("coupon"),
-				"discount_type": coupon_context.get("discount_type"),
-				"discount_percent": coupon_context.get("discount_percent"),
-				"discount_amount": coupon_context.get("discount_amount"),
-				"coupon_code": coupon_context.get("coupon_code"),
+				"coupon": coupon,
+				"coupon_code": coupon_code,
+				"discount_amount": discount_amount,
+				"original_amount": original_amount,
 			}
 		)
+
 	payment_doc.save(ignore_permissions=True)
 	return payment_doc
 

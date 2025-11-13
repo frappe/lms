@@ -1753,61 +1753,82 @@ def get_discussion_replies(topic):
 
 @frappe.whitelist()
 def get_order_summary(doctype, docname, coupon=None, country=None):
-	if doctype == "LMS Course":
-		details = frappe.db.get_value(
-			"LMS Course",
-			docname,
-			[
-				"title",
-				"name",
-				"paid_course",
-				"paid_certificate",
-				"course_price as amount",
-				"currency",
-				"amount_usd",
-			],
-			as_dict=True,
-		)
-
-		if not details.paid_course and not details.paid_certificate:
-			raise frappe.throw(_("This course is free."))
-
-	else:
-		details = frappe.db.get_value(
-			"LMS Batch",
-			docname,
-			["title", "name", "paid_batch", "amount", "currency", "amount_usd"],
-			as_dict=True,
-		)
-
-		if not details.paid_batch:
-			raise frappe.throw(_("To join this batch, please contact the Administrator."))
+	details = get_paid_course_details(docname) if doctype == "LMS Course" else get_paid_batch_details(docname)
 
 	details.amount, details.currency = check_multicurrency(
 		details.amount, details.currency, country, details.amount_usd
 	)
+
 	details.original_amount = details.amount
 	details.original_amount_formatted = fmt_money(details.amount, 0, details.currency)
 
-	if coupon:
-		discount_amount, subtotal = apply_coupon(doctype, docname, coupon, details.amount)
-		details.amount = subtotal
-		details.discount_amount = discount_amount
-		details.discount_amount_formatted = fmt_money(discount_amount, 0, details.currency)
+	adjust_amount_for_coupon(details, coupon, doctype, docname)
+	get_gst_details(details, country)
 
-	if details.currency == "INR":
-		details.amount, details.gst_applied = apply_gst(details.amount, country)
-		details.gst_amount_formatted = fmt_money(details.gst_applied, 0, details.currency)
-
+	details.total_amount = details.amount
 	details.total_amount_formatted = fmt_money(details.amount, 0, details.currency)
+
 	return details
+
+
+def get_paid_course_details(docname):
+	details = frappe.db.get_value(
+		"LMS Course",
+		docname,
+		[
+			"title",
+			"name",
+			"paid_course",
+			"paid_certificate",
+			"course_price as amount",
+			"currency",
+			"amount_usd",
+		],
+		as_dict=True,
+	)
+
+	if not details.paid_course and not details.paid_certificate:
+		raise frappe.throw(_("This course is free."))
+
+	return details
+
+
+def get_paid_batch_details(docname):
+	details = frappe.db.get_value(
+		"LMS Batch",
+		docname,
+		["title", "name", "paid_batch", "amount", "currency", "amount_usd"],
+		as_dict=True,
+	)
+
+	if not details.paid_batch:
+		raise frappe.throw(_("To join this batch, please contact the Administrator."))
+
+	return details
+
+
+def adjust_amount_for_coupon(details, coupon, doctype, docname):
+	if not coupon:
+		return
+	discount_amount, subtotal, coupon_name = apply_coupon(doctype, docname, coupon, details.amount)
+	details.amount = subtotal
+	details.discount_amount = discount_amount
+	details.discount_amount_formatted = fmt_money(discount_amount, 0, details.currency)
+	details.coupon = coupon_name
+
+
+def get_gst_details(details, country):
+	if details.currency != "INR":
+		return
+
+	details.amount, details.gst_applied = apply_gst(details.amount, country)
+	details.gst_amount_formatted = fmt_money(details.gst_applied, 0, details.currency)
 
 
 def apply_coupon(doctype, docname, code, base_amount):
 	coupon_name = frappe.db.exists("LMS Coupon", {"code": code, "enabled": 1})
-
 	if not coupon_name:
-		frappe.throw(_("Invalid or inactive coupon code."))
+		frappe.throw(_("The coupon code '{0}' is invalid.").format(code))
 
 	coupon = frappe.db.get_value(
 		"LMS Coupon",
@@ -1825,22 +1846,16 @@ def apply_coupon(doctype, docname, code, base_amount):
 		as_dict=True,
 	)
 
-	validate_coupon(doctype, code, coupon)
+	validate_coupon(code, coupon)
 	validate_coupon_applicability(doctype, docname, coupon_name)
 
 	discount_amount = calculate_discount_amount(base_amount, coupon)
 	subtotal = max(flt(base_amount) - flt(discount_amount), 0)
 
-	return discount_amount, subtotal
+	return discount_amount, subtotal, coupon_name
 
 
-def validate_coupon(doctype, code, coupon):
-	if doctype not in ["LMS Course", "LMS Batch"]:
-		frappe.throw(_("Invalid doctype for coupon application."))
-
-	if not code:
-		frappe.throw(_("Coupon code is required."))
-
+def validate_coupon(code, coupon):
 	if coupon.expires_on and getdate(coupon.expires_on) < getdate():
 		frappe.throw(_("This coupon has expired."))
 

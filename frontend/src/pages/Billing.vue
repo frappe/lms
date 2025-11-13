@@ -70,6 +70,7 @@
 								@input="appliedCoupon = $event.target.value.toUpperCase()"
 								@keydown.enter="applyCouponCode"
 								placeholder="COUPON2025"
+								autocomplete="off"
 								class="flex-1 [&_input]:bg-white"
 							/>
 							<Button
@@ -237,7 +238,6 @@ const access = createResource({
 const orderSummary = createResource({
 	url: 'lms.lms.utils.get_order_summary',
 	makeParams(values) {
-		console.log(appliedCoupon.value)
 		return {
 			doctype: props.type == 'batch' ? 'LMS Batch' : 'LMS Course',
 			docname: props.name,
@@ -282,6 +282,7 @@ const paymentLink = createResource({
 			redirect_to: redirectTo.value,
 			payment_for_certificate: props.type == 'certificate',
 			coupon_code: appliedCoupon.value,
+			coupon: orderSummary.data.coupon,
 		}
 		return data
 	},
@@ -384,8 +385,6 @@ const validateAddress = () => {
 		!states.includes(billingDetails.state)
 	)
 		return 'Please enter a valid state with correct spelling and the first letter capitalized.'
-
-	console.log('validation address')
 }
 
 const showError = (err) => {

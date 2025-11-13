@@ -9,11 +9,7 @@ from frappe.utils import add_days, flt, nowdate
 
 
 class LMSPayment(Document):
-	def validate(self):
-		amount = flt(self.amount or 0, self.precision("amount"))
-		discount = flt(self.discount_amount or 0, self.precision("discount_amount"))
-		gst = flt(self.gst_amount or 0, self.precision("gst_amount"))
-		self.total_amount = flt(amount - discount + gst, self.precision("total_amount"))
+	pass
 
 
 def send_payment_reminder():
