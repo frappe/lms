@@ -120,30 +120,6 @@ watch(
 
 const saveItems = (parent = null) => {
 	return rows.value
-	/* for (const row of rows.value) {
-        if (row.name) {
-            await applicableItems.setValue.submit({
-                ...row,
-            }, {
-                onSuccess() {
-                    props.coupons.reload()
-                    applicableItems.reload()
-                }
-            })
-        } else {
-            await applicableItems.insert.submit({
-                ...row,
-                parent: parent,
-                parenttype: 'LMS Coupon',
-                parentfield: 'applicable_items',
-            }, {
-                onSuccess() {
-                    props.coupons.reload()
-                    applicableItems.reload()
-                }
-            })
-        }
-    } */
 }
 
 const removeRow = (rowToRemove: any) => {

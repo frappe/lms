@@ -1932,61 +1932,79 @@ def publish_notifications(doc, method):
 
 
 def update_payment_record(doctype, docname):
-	request = frappe.get_all(
+	request = get_integration_requests(doctype, docname)
+
+	if len(request):
+		data = request[0].data
+		data = frappe._dict(json.loads(data))
+		payment_doc = get_payment_doc(data.payment)
+
+		update_payment_details(data)
+		update_coupon_redemption(payment_doc)
+
+		if payment_doc.payment_for_certificate:
+			update_certificate_purchase(docname, data.payment)
+		elif doctype == "LMS Course":
+			enroll_in_course(docname, data.payment)
+		else:
+			enroll_in_batch(docname, data.payment)
+
+
+def get_integration_requests(doctype, docname):
+	return frappe.get_all(
 		"Integration Request",
 		{
 			"reference_doctype": doctype,
 			"reference_docname": docname,
 			"owner": frappe.session.user,
 		},
+		["data"],
 		order_by="creation desc",
 		limit=1,
 	)
 
-	if len(request):
-		data = frappe.db.get_value("Integration Request", request[0].name, "data")
-		data = frappe._dict(json.loads(data))
 
-		payment_gateway = data.get("payment_gateway")
-		if payment_gateway == "Razorpay":
-			payment_id = "razorpay_payment_id"
-		elif "Stripe" in payment_gateway:
-			payment_id = "stripe_token_id"
-		else:
-			payment_id = "order_id"
+def get_payment_doc(payment_name):
+	return frappe.db.get_value(
+		"LMS Payment", payment_name, ["name", "coupon", "payment_for_certificate"], as_dict=True
+	)
+
+
+def update_payment_details(data):
+	payment_id = get_payment_id(data)
+
+	frappe.db.set_value(
+		"LMS Payment",
+		data.payment,
+		{
+			"payment_received": 1,
+			"payment_id": data.get(payment_id),
+			"order_id": data.get("order_id"),
+		},
+	)
+
+
+def get_payment_id(data):
+	payment_gateway = data.get("payment_gateway")
+	if payment_gateway == "Razorpay":
+		payment_id = "razorpay_payment_id"
+	elif "Stripe" in payment_gateway:
+		payment_id = "stripe_token_id"
+	else:
+		payment_id = "order_id"
+	return payment_id
+
+
+def update_coupon_redemption(payment_doc):
+	if payment_doc.coupon:
+		redemption_count = frappe.db.get_value("LMS Coupon", payment_doc.coupon, "redemption_count") or 0
 
 		frappe.db.set_value(
-			"LMS Payment",
-			data.payment,
-			{
-				"payment_received": 1,
-				"payment_id": data.get(payment_id),
-				"order_id": data.get("order_id"),
-			},
+			"LMS Coupon",
+			payment_doc.coupon,
+			"redemption_count",
+			redemption_count + 1,
 		)
-
-		# Increment coupon usage if applicable
-		coupon = frappe.db.get_value("LMS Payment", data.payment, "coupon")
-		if coupon:
-			frappe.db.sql(
-				"""
-				UPDATE `tabLMS Coupon`
-				SET times_redeemed = COALESCE(times_redeemed, 0) + 1
-				WHERE name = %s
-				""",
-				(coupon,),
-			)
-		payment_for_certificate = frappe.db.get_value("LMS Payment", data.payment, "payment_for_certificate")
-
-		try:
-			if payment_for_certificate:
-				update_certificate_purchase(docname, data.payment)
-			elif doctype == "LMS Course":
-				enroll_in_course(docname, data.payment)
-			else:
-				enroll_in_batch(docname, data.payment)
-		except Exception as e:
-			frappe.log_error(frappe.get_traceback(), _("Enrollment Failed, {0}").format(e))
 
 
 def enroll_in_course(course, payment_name):

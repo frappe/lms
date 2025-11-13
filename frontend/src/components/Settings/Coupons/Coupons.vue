@@ -29,7 +29,6 @@ const props = defineProps<{
 }>()
 
 const updateStep = (newStep: 'list' | 'new' | 'edit', newData: Coupon) => {
-	console.log('Updating step to:', newStep, newData)
 	step.value = newStep
 	if (newData) {
 		data.value = newData
