@@ -19,10 +19,10 @@
 								@click="() => togglePopover()"
 								:disabled="attrs.readonly"
 							>
-								<div class="flex items-center">
+								<div class="flex items-center w-[90%]">
 									<slot name="prefix" />
 									<span
-										class="overflow-hidden text-ellipsis whitespace-nowrap text-base leading-5"
+										class="block truncate text-base leading-5"
 										v-if="selectedValue"
 									>
 										{{ displayValue(selectedValue) }}

@@ -1752,49 +1752,138 @@ def get_discussion_replies(topic):
 
 
 @frappe.whitelist()
-def get_order_summary(doctype, docname, country=None):
-	if doctype == "LMS Course":
-		details = frappe.db.get_value(
-			"LMS Course",
-			docname,
-			[
-				"title",
-				"name",
-				"paid_course",
-				"paid_certificate",
-				"course_price as amount",
-				"currency",
-				"amount_usd",
-			],
-			as_dict=True,
-		)
-
-		if not details.paid_course and not details.paid_certificate:
-			raise frappe.throw(_("This course is free."))
-
-	else:
-		details = frappe.db.get_value(
-			"LMS Batch",
-			docname,
-			["title", "name", "paid_batch", "amount", "currency", "amount_usd"],
-			as_dict=True,
-		)
-
-		if not details.paid_batch:
-			raise frappe.throw(_("To join this batch, please contact the Administrator."))
+def get_order_summary(doctype, docname, coupon=None, country=None):
+	details = get_paid_course_details(docname) if doctype == "LMS Course" else get_paid_batch_details(docname)
 
 	details.amount, details.currency = check_multicurrency(
 		details.amount, details.currency, country, details.amount_usd
 	)
+
 	details.original_amount = details.amount
 	details.original_amount_formatted = fmt_money(details.amount, 0, details.currency)
 
-	if details.currency == "INR":
-		details.amount, details.gst_applied = apply_gst(details.amount, country)
-		details.gst_amount_formatted = fmt_money(details.gst_applied, 0, details.currency)
+	adjust_amount_for_coupon(details, coupon, doctype, docname)
+	get_gst_details(details, country)
 
+	details.total_amount = details.amount
 	details.total_amount_formatted = fmt_money(details.amount, 0, details.currency)
+
 	return details
+
+
+def get_paid_course_details(docname):
+	details = frappe.db.get_value(
+		"LMS Course",
+		docname,
+		[
+			"title",
+			"name",
+			"paid_course",
+			"paid_certificate",
+			"course_price as amount",
+			"currency",
+			"amount_usd",
+		],
+		as_dict=True,
+	)
+
+	if not details.paid_course and not details.paid_certificate:
+		raise frappe.throw(_("This course is free."))
+
+	return details
+
+
+def get_paid_batch_details(docname):
+	details = frappe.db.get_value(
+		"LMS Batch",
+		docname,
+		["title", "name", "paid_batch", "amount", "currency", "amount_usd"],
+		as_dict=True,
+	)
+
+	if not details.paid_batch:
+		raise frappe.throw(_("To join this batch, please contact the Administrator."))
+
+	return details
+
+
+def adjust_amount_for_coupon(details, coupon, doctype, docname):
+	if not coupon:
+		return
+	discount_amount, subtotal, coupon_name = apply_coupon(doctype, docname, coupon, details.amount)
+	details.amount = subtotal
+	details.discount_amount = discount_amount
+	details.discount_amount_formatted = fmt_money(discount_amount, 0, details.currency)
+	details.coupon = coupon_name
+
+
+def get_gst_details(details, country):
+	if details.currency != "INR":
+		return
+
+	details.amount, details.gst_applied = apply_gst(details.amount, country)
+	details.gst_amount_formatted = fmt_money(details.gst_applied, 0, details.currency)
+
+
+def apply_coupon(doctype, docname, code, base_amount):
+	coupon_name = frappe.db.exists("LMS Coupon", {"code": code, "enabled": 1})
+	if not coupon_name:
+		frappe.throw(_("The coupon code '{0}' is invalid.").format(code))
+
+	coupon = frappe.db.get_value(
+		"LMS Coupon",
+		coupon_name,
+		[
+			"expires_on",
+			"usage_limit",
+			"redemption_count",
+			"discount_type",
+			"percentage_discount",
+			"fixed_amount_discount",
+			"name",
+			"code",
+		],
+		as_dict=True,
+	)
+
+	validate_coupon(code, coupon)
+	validate_coupon_applicability(doctype, docname, coupon_name)
+
+	discount_amount = calculate_discount_amount(base_amount, coupon)
+	subtotal = max(flt(base_amount) - flt(discount_amount), 0)
+
+	return discount_amount, subtotal, coupon_name
+
+
+def validate_coupon(code, coupon):
+	if coupon.expires_on and getdate(coupon.expires_on) < getdate():
+		frappe.throw(_("This coupon has expired."))
+
+	if coupon.usage_limit and cint(coupon.redemption_count) >= cint(coupon.usage_limit):
+		frappe.throw(_("This coupon has reached its maximum usage limit."))
+
+
+def validate_coupon_applicability(doctype, docname, coupon_name):
+	applicable_item = frappe.db.exists(
+		"LMS Coupon Item", {"parent": coupon_name, "reference_doctype": doctype, "reference_name": docname}
+	)
+	if not applicable_item:
+		frappe.throw(
+			_("This coupon is not applicable to this {0}.").format(
+				"Course" if doctype == "LMS Course" else "Batch"
+			)
+		)
+
+
+def calculate_discount_amount(base_amount, coupon):
+	discount_amount = 0
+
+	if coupon.discount_type == "Percentage":
+		discount_amount = (base_amount * coupon.percentage_discount) / 100
+	elif coupon.discount_type == "Fixed Amount":
+		discount_amount = base_amount - coupon.fixed_amount_discount
+
+	return discount_amount
 
 
 @frappe.whitelist()
@@ -1843,49 +1932,79 @@ def publish_notifications(doc, method):
 
 
 def update_payment_record(doctype, docname):
-	request = frappe.get_all(
+	request = get_integration_requests(doctype, docname)
+
+	if len(request):
+		data = request[0].data
+		data = frappe._dict(json.loads(data))
+		payment_doc = get_payment_doc(data.payment)
+
+		update_payment_details(data)
+		update_coupon_redemption(payment_doc)
+
+		if payment_doc.payment_for_certificate:
+			update_certificate_purchase(docname, data.payment)
+		elif doctype == "LMS Course":
+			enroll_in_course(docname, data.payment)
+		else:
+			enroll_in_batch(docname, data.payment)
+
+
+def get_integration_requests(doctype, docname):
+	return frappe.get_all(
 		"Integration Request",
 		{
 			"reference_doctype": doctype,
 			"reference_docname": docname,
 			"owner": frappe.session.user,
 		},
+		["data"],
 		order_by="creation desc",
 		limit=1,
 	)
 
-	if len(request):
-		data = frappe.db.get_value("Integration Request", request[0].name, "data")
-		data = frappe._dict(json.loads(data))
 
-		payment_gateway = data.get("payment_gateway")
-		if payment_gateway == "Razorpay":
-			payment_id = "razorpay_payment_id"
-		elif "Stripe" in payment_gateway:
-			payment_id = "stripe_token_id"
-		else:
-			payment_id = "order_id"
+def get_payment_doc(payment_name):
+	return frappe.db.get_value(
+		"LMS Payment", payment_name, ["name", "coupon", "payment_for_certificate"], as_dict=True
+	)
+
+
+def update_payment_details(data):
+	payment_id = get_payment_id(data)
+
+	frappe.db.set_value(
+		"LMS Payment",
+		data.payment,
+		{
+			"payment_received": 1,
+			"payment_id": data.get(payment_id),
+			"order_id": data.get("order_id"),
+		},
+	)
+
+
+def get_payment_id(data):
+	payment_gateway = data.get("payment_gateway")
+	if payment_gateway == "Razorpay":
+		payment_id = "razorpay_payment_id"
+	elif "Stripe" in payment_gateway:
+		payment_id = "stripe_token_id"
+	else:
+		payment_id = "order_id"
+	return payment_id
+
+
+def update_coupon_redemption(payment_doc):
+	if payment_doc.coupon:
+		redemption_count = frappe.db.get_value("LMS Coupon", payment_doc.coupon, "redemption_count") or 0
 
 		frappe.db.set_value(
-			"LMS Payment",
-			data.payment,
-			{
-				"payment_received": 1,
-				"payment_id": data.get(payment_id),
-				"order_id": data.get("order_id"),
-			},
+			"LMS Coupon",
+			payment_doc.coupon,
+			"redemption_count",
+			redemption_count + 1,
 		)
-		payment_for_certificate = frappe.db.get_value("LMS Payment", data.payment, "payment_for_certificate")
-
-		try:
-			if payment_for_certificate:
-				update_certificate_purchase(docname, data.payment)
-			elif doctype == "LMS Course":
-				enroll_in_course(docname, data.payment)
-			else:
-				enroll_in_batch(docname, data.payment)
-		except Exception as e:
-			frappe.log_error(frappe.get_traceback(), _("Enrollment Failed, {0}").format(e))
 
 
 def enroll_in_course(course, payment_name):
