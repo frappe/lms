@@ -503,7 +503,10 @@ const imageResource = createResource({
 
 const validateFields = () => {
 	Object.keys(batch).forEach((key) => {
-		if (key != 'description' && typeof batch[key] === 'string') {
+		if (
+			!['description', 'batch_details'].includes(key) &&
+			typeof batch[key] === 'string'
+		) {
 			batch[key] = escapeHTML(batch[key])
 		}
 	})
