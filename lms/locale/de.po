@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-11-07 16:04+0000\n"
-"PO-Revision-Date: 2025-11-11 11:49\n"
+"PO-Revision-Date: 2025-11-13 11:41\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: German\n"
 "MIME-Version: 1.0\n"
@@ -539,7 +539,7 @@ msgstr ""
 
 #: frontend/src/components/Settings/BadgeForm.vue:58
 msgid "Assign To"
-msgstr "Zuweisen an"
+msgstr "Zuweisen zu"
 
 #: frontend/src/components/Settings/BadgeAssignmentForm.vue:7
 msgid "Assign a Badge"
@@ -607,7 +607,7 @@ msgstr "Die Aufgabe wird unten in der Lektion angezeigt."
 #: frontend/src/components/Settings/Badges.vue:163
 #: frontend/src/pages/Assignments.vue:208 lms/www/lms.py:271
 msgid "Assignments"
-msgstr "Zuordnungen"
+msgstr "Zuweisungen"
 
 #: lms/lms/doctype/lms_question/lms_question.py:44
 msgid "At least one option must be correct for this question."
@@ -1182,7 +1182,7 @@ msgstr "Wählen Sie eine Antwort"
 #: lms/fixtures/custom_field.json
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "City"
-msgstr "Ort"
+msgstr "Stadt"
 
 #: lms/templates/emails/live_class_reminder.html:10
 msgid "Class:"
@@ -1375,7 +1375,7 @@ msgstr "Logo des Unternehmens"
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Company Name"
-msgstr "Firma"
+msgstr "Firmenname"
 
 #. Label of the company_type (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -1986,7 +1986,7 @@ msgstr "Tag"
 #: lms/templates/emails/mentor_request_creation_email.html:2
 #: lms/templates/emails/mentor_request_status_update_email.html:2
 msgid "Dear"
-msgstr "Liebe/r"
+msgstr "Liebe"
 
 #: lms/templates/emails/batch_confirmation.html:2
 #: lms/templates/emails/batch_start_reminder.html:2
@@ -3164,7 +3164,7 @@ msgstr "Falsch"
 #. Label of the index_ (Int) field in DocType 'LMS Exercise'
 #: lms/lms/doctype/lms_exercise/lms_exercise.json
 msgid "Index"
-msgstr "Pos"
+msgstr "Index"
 
 #. Label of the index_label (Data) field in DocType 'LMS Exercise'
 #: lms/lms/doctype/lms_exercise/lms_exercise.json
@@ -4265,7 +4265,7 @@ msgstr ""
 #: frontend/src/pages/BatchForm.vue:297 frontend/src/pages/CourseForm.vue:303
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Meta Description"
-msgstr "Meta Beschreibung"
+msgstr "Meta-Beschreibung"
 
 #. Label of the meta_image (Attach Image) field in DocType 'LMS Batch'
 #. Label of the meta_image (Attach Image) field in DocType 'LMS Settings'
@@ -4358,7 +4358,7 @@ msgstr ""
 
 #: frontend/src/components/AppSidebar.vue:39
 msgid "More"
-msgstr "Weiter"
+msgstr "Mehr"
 
 #. Label of the multiple (Check) field in DocType 'LMS Question'
 #: lms/lms/doctype/lms_question/lms_question.json
@@ -5198,7 +5198,7 @@ msgstr "Mögliche Antwort 4"
 #: frontend/src/components/DiscussionReplies.vue:54
 #: frontend/src/components/DiscussionReplies.vue:89
 msgid "Post"
-msgstr "Absenden"
+msgstr "Posten"
 
 #: frontend/src/pages/Billing.vue:95
 msgid "Postal Code"
@@ -5250,7 +5250,7 @@ msgstr "Videovorschau"
 
 #: frontend/src/pages/Lesson.vue:26 frontend/src/pages/Lesson.vue:162
 msgid "Previous"
-msgstr "Vorhergehende"
+msgstr "Zurück"
 
 #. Label of the pricing_tab (Tab Break) field in DocType 'LMS Batch'
 #: frontend/src/pages/BatchForm.vue:265
@@ -6898,7 +6898,7 @@ msgstr "Um dieser Gruppe beizutreten, wenden Sie sich bitte an den Administrator
 
 #: lms/lms/user.py:41
 msgid "Too many users signed up recently, so the registration is disabled. Please try back in an hour"
-msgstr "Zu viele Benutzer unterzeichnete vor kurzem, also die Registrierung ist deaktiviert. Bitte versuchen Sie es in einer Stunde zurück"
+msgstr "Zu viele Benutzer haben sich kürzlich registriert. Die Registrierung ist daher deaktiviert. Bitte versuchen Sie es in einer Stunde erneut."
 
 #: frontend/src/pages/Billing.vue:53
 msgid "Total"
