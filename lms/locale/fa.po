@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-11-07 16:04+0000\n"
-"PO-Revision-Date: 2025-11-11 11:49\n"
+"PO-Revision-Date: 2025-11-12 11:45\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Persian\n"
 "MIME-Version: 1.0\n"
@@ -32,7 +32,7 @@ msgstr ""
 
 #: frontend/src/pages/Home/Streak.vue:21
 msgid " you are on a"
-msgstr ""
+msgstr " شما در حال حاضر در یک"
 
 #. Paragraph text in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
@@ -2432,11 +2432,11 @@ msgstr ""
 
 #: frontend/src/pages/JobApplications.vue:122
 msgid "Enter email subject"
-msgstr ""
+msgstr "موضوع ایمیل را وارد کنید"
 
 #: frontend/src/pages/JobApplications.vue:128
 msgid "Enter reply to email"
-msgstr ""
+msgstr "پاسخ به ایمیل را وارد کنید"
 
 #: frontend/src/components/Modals/ZoomAccountModal.vue:169
 msgid "Error creating Zoom Account"
@@ -4259,7 +4259,7 @@ msgstr "پیام"
 
 #: frontend/src/pages/JobApplications.vue:240
 msgid "Message is required"
-msgstr ""
+msgstr "پیام الزامی است"
 
 #. Label of the meta_description (Small Text) field in DocType 'LMS Settings'
 #: frontend/src/pages/BatchForm.vue:297 frontend/src/pages/CourseForm.vue:303
@@ -6000,7 +6000,7 @@ msgstr "ایمیل بفرست"
 
 #: frontend/src/pages/JobApplications.vue:106
 msgid "Send Email to {0}"
-msgstr ""
+msgstr "ارسال ایمیل به {0}"
 
 #. Label of the send_calendar_invite_for_evaluations (Check) field in DocType
 #. 'LMS Settings'
@@ -7167,7 +7167,7 @@ msgstr "نما"
 
 #: frontend/src/pages/JobDetail.vue:31
 msgid "View Applications"
-msgstr ""
+msgstr "مشاهده درخواست‌ها"
 
 #: frontend/src/components/CertificationLinks.vue:10
 #: frontend/src/components/Modals/Event.vue:67
@@ -7176,7 +7176,7 @@ msgstr ""
 
 #: frontend/src/pages/JobApplications.vue:262
 msgid "View Resume"
-msgstr ""
+msgstr "مشاهده رزومه"
 
 #: frontend/src/components/BatchFeedback.vue:56
 msgid "View all feedback"
@@ -7653,7 +7653,7 @@ msgstr "ارزیابی"
 
 #: frontend/src/pages/Home/Home.vue:101 frontend/src/pages/Home/Home.vue:124
 msgid "evaluations"
-msgstr ""
+msgstr "ارزیابی‌ها"
 
 #: lms/templates/emails/mentor_request_status_update_email.html:4
 msgid "has been"
@@ -7673,11 +7673,11 @@ msgstr "درس ها"
 
 #: frontend/src/pages/Home/Home.vue:99 frontend/src/pages/Home/Home.vue:123
 msgid "live class"
-msgstr ""
+msgstr "کلاس زنده"
 
 #: frontend/src/pages/Home/Home.vue:99 frontend/src/pages/Home/Home.vue:123
 msgid "live classes"
-msgstr ""
+msgstr "کلاس‌های زنده"
 
 #: frontend/src/pages/Programs/Programs.vue:42
 #: frontend/src/pages/Programs/StudentPrograms.vue:36

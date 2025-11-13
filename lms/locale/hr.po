@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-11-07 16:04+0000\n"
-"PO-Revision-Date: 2025-11-11 11:49\n"
+"PO-Revision-Date: 2025-11-12 11:45\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Croatian\n"
 "MIME-Version: 1.0\n"
@@ -438,7 +438,7 @@ msgstr "Veza na Obrazac Prijave"
 #: frontend/src/pages/JobApplications.vue:14
 #: frontend/src/pages/JobApplications.vue:25
 msgid "Applications"
-msgstr ""
+msgstr "Prijave"
 
 #: frontend/src/pages/JobApplications.vue:290
 msgid "Applied On"
@@ -2432,11 +2432,11 @@ msgstr "Unesi URL"
 
 #: frontend/src/pages/JobApplications.vue:122
 msgid "Enter email subject"
-msgstr ""
+msgstr "Unesi predmet e-pošte"
 
 #: frontend/src/pages/JobApplications.vue:128
 msgid "Enter reply to email"
-msgstr ""
+msgstr "Unesi e-poštu za odgovor"
 
 #: frontend/src/components/Modals/ZoomAccountModal.vue:169
 msgid "Error creating Zoom Account"
@@ -4259,7 +4259,7 @@ msgstr "Poruka"
 
 #: frontend/src/pages/JobApplications.vue:240
 msgid "Message is required"
-msgstr ""
+msgstr "Poruka je obavezna"
 
 #. Label of the meta_description (Small Text) field in DocType 'LMS Settings'
 #: frontend/src/pages/BatchForm.vue:297 frontend/src/pages/CourseForm.vue:303
@@ -6000,7 +6000,7 @@ msgstr "Pošalji e-poštu"
 
 #: frontend/src/pages/JobApplications.vue:106
 msgid "Send Email to {0}"
-msgstr ""
+msgstr "Pošalji e-poštu {0}"
 
 #. Label of the send_calendar_invite_for_evaluations (Check) field in DocType
 #. 'LMS Settings'
@@ -7167,7 +7167,7 @@ msgstr "Pogled"
 
 #: frontend/src/pages/JobDetail.vue:31
 msgid "View Applications"
-msgstr ""
+msgstr "Prikaži prijave"
 
 #: frontend/src/components/CertificationLinks.vue:10
 #: frontend/src/components/Modals/Event.vue:67
@@ -7176,7 +7176,7 @@ msgstr "Prikaži Certifikat"
 
 #: frontend/src/pages/JobApplications.vue:262
 msgid "View Resume"
-msgstr ""
+msgstr "Prikaži Životopis"
 
 #: frontend/src/components/BatchFeedback.vue:56
 msgid "View all feedback"
