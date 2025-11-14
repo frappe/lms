@@ -244,12 +244,11 @@ const setQueryParams = () => {
 		}
 	})
 
-	let queryString = ''
-	if (queries.toString()) {
-		queryString = `?${queries.toString()}`
-	}
-
-	history.replaceState({}, '', `${location.pathname}${queryString}`)
+	history.replaceState(
+		{},
+		'',
+		`${location.pathname}${queries.size > 0 ? `?${queries.toString()}` : ''}`
+	)
 }
 
 const updateCategories = (data) => {
