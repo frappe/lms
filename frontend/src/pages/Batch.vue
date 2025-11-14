@@ -1,12 +1,12 @@
 <template>
-	<div v-if="user.data?.is_moderator || isStudent" class="">
+	<div v-if="isAdmin || isStudent" class="">
 		<header
 			class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 		>
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
 			<div class="flex items-center space-x-2">
 				<Button
-					v-if="user.data?.is_moderator && batch.data?.certification"
+					v-if="isAdmin && batch.data?.certification"
 					@click="openCertificateDialog = true"
 				>
 					{{ __('Generate Certificates') }}
@@ -67,6 +67,9 @@
 								<BatchDashboard :batch="batch" :isStudent="isStudent" />
 							</div>
 							<div v-else-if="tab.label == 'Dashboard'">
+								<AdminBatchDashboard :batch="batch" />
+							</div>
+							<div v-else-if="tab.label == 'Students'">
 								<BatchStudents :batch="batch" />
 							</div>
 							<div v-else-if="tab.label == 'Classes'">
@@ -235,6 +238,7 @@ import BatchDashboard from '@/components/BatchDashboard.vue'
 import BatchCourses from '@/components/BatchCourses.vue'
 import LiveClass from '@/components/LiveClass.vue'
 import BatchStudents from '@/components/BatchStudents.vue'
+import AdminBatchDashboard from '@/components/AdminBatchDashboard.vue'
 import Assessments from '@/components/Assessments.vue'
 import Announcements from '@/components/Annoucements.vue'
 import AnnouncementModal from '@/components/Modals/AnnouncementModal.vue'
@@ -260,6 +264,13 @@ const tabs = computed(() => {
 		icon: LayoutDashboard,
 	})
 
+	if (isAdmin.value) {
+		batchTabs.push({
+			label: 'Students',
+			icon: ClipboardPen,
+		})
+	}
+
 	batchTabs.push({
 		label: 'Courses',
 		icon: BookOpen,
@@ -270,7 +281,7 @@ const tabs = computed(() => {
 		icon: Laptop,
 	})
 
-	if (user.data?.is_moderator) {
+	if (isAdmin.value) {
 		batchTabs.push({
 			label: 'Assessments',
 			icon: BookOpenCheck,
@@ -366,6 +377,10 @@ const canMakeAnnouncement = () => {
 
 	return user.data?.is_moderator || user.data?.is_evaluator
 }
+
+const isAdmin = computed(() => {
+	return user.data?.is_moderator || user.data?.is_evaluator
+})
 
 usePageMeta(() => {
 	return {

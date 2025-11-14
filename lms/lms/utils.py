@@ -1587,6 +1587,28 @@ def get_batch_students(batch):
 		"LMS Batch Enrollment", filters={"batch": batch}, fields=["member", "name"]
 	)
 
+	for student in students_list:
+		details = get_batch_student_details(student)
+		calculate_student_progress(batch, details)
+		students.append(details)
+		students = sorted(students, key=lambda x: x.progress, reverse=True)
+	return students
+
+
+def get_batch_student_details(student):
+	details = frappe.db.get_value(
+		"User",
+		student.member,
+		["full_name", "email", "username", "last_active", "user_image"],
+		as_dict=True,
+	)
+	details.last_active = format_datetime(details.last_active, "dd MMM YY")
+	details.name = student.name
+	details.assessments = frappe._dict()
+	return details
+
+
+def calculate_student_progress(batch, details):
 	batch_courses = frappe.get_all("Batch Course", {"parent": batch}, ["course", "title"])
 	assessments = frappe.get_all(
 		"LMS Assessment",
@@ -1594,53 +1616,55 @@ def get_batch_students(batch):
 		fields=["name", "assessment_type", "assessment_name"],
 	)
 
-	for student in students_list:
-		courses_completed = 0
-		assessments_completed = 0
-		detail = frappe.db.get_value(
-			"User",
-			student.member,
-			["full_name", "email", "username", "last_active", "user_image"],
-			as_dict=True,
+	calculate_course_progress(batch_courses, details)
+	calculate_assessment_progress(assessments, details)
+
+	if len(batch_courses) + len(assessments):
+		details.progress = flt(
+			(
+				(details.average_course_progress * len(batch_courses))
+				+ (details.average_assessments_progress * len(assessments))
+			)
+			/ (len(batch_courses) + len(assessments)),
+			2,
 		)
-		detail.last_active = format_datetime(detail.last_active, "dd MMM YY")
-		detail.name = student.name
-		detail.courses = frappe._dict()
-		detail.assessments = frappe._dict()
+	else:
+		details.progress = 0
 
-		""" Iterate through courses and track their progress """
-		for course in batch_courses:
-			progress = frappe.db.get_value(
-				"LMS Enrollment", {"course": course.course, "member": student.member}, "progress"
-			)
-			detail.courses[course.title] = progress
-			if progress == 100:
-				courses_completed += 1
 
-		""" Iterate through assessments and track their progress """
-		for assessment in assessments:
-			title = frappe.db.get_value(assessment.assessment_type, assessment.assessment_name, "title")
-			assessment_info = has_submitted_assessment(
-				assessment.assessment_name, assessment.assessment_type, student.member
-			)
-			detail.assessments[title] = assessment_info
+def calculate_course_progress(batch_courses, details):
+	course_progress = []
+	details.courses = frappe._dict()
 
-			if assessment_info.result == "Pass":
-				assessments_completed += 1
+	for course in batch_courses:
+		progress = frappe.db.get_value(
+			"LMS Enrollment", {"course": course.course, "member": details.email}, "progress"
+		)
+		details.courses[course.title] = progress
+		course_progress.append(progress)
 
-		detail.courses_completed = courses_completed
-		detail.assessments_completed = assessments_completed
-		if len(batch_courses) + len(assessments):
-			detail.progress = flt(
-				((courses_completed + assessments_completed) / (len(batch_courses) + len(assessments)) * 100),
-				2,
-			)
-		else:
-			detail.progress = 0
+	details.average_course_progress = (
+		flt(sum(course_progress) / len(batch_courses), 2) if len(batch_courses) else 0
+	)
 
-		students.append(detail)
-		students = sorted(students, key=lambda x: x.progress, reverse=True)
-	return students
+
+def calculate_assessment_progress(assessments, details):
+	assessments_completed = 0
+	details.assessments = frappe._dict()
+
+	for assessment in assessments:
+		title = frappe.db.get_value(assessment.assessment_type, assessment.assessment_name, "title")
+		assessment_info = has_submitted_assessment(
+			assessment.assessment_name, assessment.assessment_type, details.email
+		)
+		details.assessments[title] = assessment_info
+
+		if assessment_info.result == "Pass":
+			assessments_completed += 1
+
+	details.average_assessments_progress = (
+		flt((assessments_completed / len(assessments) * 100), 2) if len(assessments) else 0
+	)
 
 
 def has_submitted_assessment(assessment, assessment_type, member=None):
