@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-11-07 16:04+0000\n"
-"PO-Revision-Date: 2025-11-11 11:49\n"
+"PO-Revision-Date: 2025-11-16 12:26\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Turkish\n"
 "MIME-Version: 1.0\n"
@@ -475,7 +475,7 @@ msgstr "Uygulamalar"
 
 #: frontend/src/pages/Batches.vue:285
 msgid "Archived"
-msgstr "Arşivlendi"
+msgstr ""
 
 #: frontend/src/components/UpcomingEvaluations.vue:176
 msgid "Are you sure you want to cancel this evaluation? This action cannot be undone."
@@ -905,7 +905,7 @@ msgstr ""
 #. Label of the body (Markdown Editor) field in DocType 'Course Lesson'
 #: lms/lms/doctype/course_lesson/course_lesson.json
 msgid "Body"
-msgstr "Vücut"
+msgstr "Gövde"
 
 #. Option for the 'Collaboration Preference' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -2257,7 +2257,7 @@ msgstr "E-posta"
 
 #: frontend/src/components/Modals/Event.vue:16
 msgid "Email ID"
-msgstr "E-Posta ID"
+msgstr ""
 
 #. Label of the email_sent (Check) field in DocType 'LMS Course Interest'
 #: lms/lms/doctype/lms_course_interest/lms_course_interest.json
@@ -2791,7 +2791,7 @@ msgstr "Fransızca (örn. Üstünlük)"
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Friday"
-msgstr "Cuma"
+msgstr ""
 
 #. Label of the unavailable_from (Date) field in DocType 'Course Evaluator'
 #: frontend/src/pages/ProfileEvaluator.vue:106
@@ -3247,7 +3247,7 @@ msgstr "İlgi Alanı"
 #: frontend/src/components/AppSidebar.vue:588
 #: frontend/src/components/AppSidebar.vue:591
 msgid "Introduction"
-msgstr "Tanıtım/Giriş"
+msgstr ""
 
 #: lms/lms/doctype/course_lesson/course_lesson.py:23
 msgid "Invalid Quiz ID"
@@ -3380,7 +3380,7 @@ msgstr "İş Ayarları"
 #: lms/job/doctype/lms_job_application/lms_job_application.json
 #: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Job Title"
-msgstr "İş İlanı Başlığı"
+msgstr "İş Ünvanı"
 
 #. Label of the jobs (Check) field in DocType 'LMS Settings'
 #: frontend/src/pages/JobApplications.vue:9 frontend/src/pages/JobDetail.vue:10
@@ -3891,7 +3891,7 @@ msgstr "Yerel"
 #: lms/lms/doctype/education_detail/education_detail.json
 #: lms/lms/doctype/work_experience/work_experience.json
 msgid "Location"
-msgstr "Konum"
+msgstr ""
 
 #. Label of the location_preference (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -4350,7 +4350,7 @@ msgstr "Modül hatalı."
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Monday"
-msgstr "Pazartesi"
+msgstr ""
 
 #: frontend/src/components/AppSidebar.vue:637
 msgid "Monetization"
@@ -5606,7 +5606,7 @@ msgstr ""
 #: lms/lms/doctype/lms_course_review/lms_course_review.json
 #: lms/templates/reviews.html:125
 msgid "Rating"
-msgstr "Değerlendirme"
+msgstr ""
 
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.py:18
 msgid "Rating cannot be 0"
@@ -5660,7 +5660,7 @@ msgstr "Kayıtlı ancak devre dışı"
 #: lms/lms/doctype/cohort_join_request/cohort_join_request.json
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
 msgid "Rejected"
-msgstr "Reddedildi"
+msgstr ""
 
 #. Label of the related_courses (Table) field in DocType 'LMS Course'
 #. Name of a DocType
@@ -5774,7 +5774,7 @@ msgstr "Roller"
 #. Label of the route (Data) field in DocType 'LMS Sidebar Item'
 #: lms/lms/doctype/lms_sidebar_item/lms_sidebar_item.json
 msgid "Route"
-msgstr "Rota"
+msgstr ""
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:130
 msgid "Row #{0} Date cannot be outside the batch duration."
@@ -5837,7 +5837,7 @@ msgstr ""
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Saturday"
-msgstr "Cumartesi"
+msgstr ""
 
 #. Button label of the job-opportunity Web Form
 #: frontend/src/components/AssessmentPlugin.vue:12
@@ -6256,7 +6256,7 @@ msgstr "Öğrenmeye Başlayın"
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/doctype/scheduled_flow/scheduled_flow.json
 msgid "Start Time"
-msgstr "Başlangıç Zamanı"
+msgstr ""
 
 #: lms/lms/doctype/course_evaluator/course_evaluator.py:36
 msgid "Start Time cannot be greater than End Time"
@@ -6448,7 +6448,7 @@ msgstr "Özet"
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Sunday"
-msgstr "Pazar"
+msgstr ""
 
 #: lms/lms/api.py:1081
 msgid "Suspicious pattern found in {0}: {1}"
@@ -6750,7 +6750,7 @@ msgstr ""
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Thursday"
-msgstr "Perşembe"
+msgstr ""
 
 #. Label of the time (Time) field in DocType 'LMS Live Class'
 #: frontend/src/components/Modals/Event.vue:48
@@ -6937,7 +6937,7 @@ msgstr "Tekrar Deneyin"
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Tuesday"
-msgstr "Salı"
+msgstr ""
 
 #: frontend/src/pages/ProfileAbout.vue:103
 msgid "Twitter"
@@ -7163,7 +7163,7 @@ msgstr ""
 
 #: frontend/src/pages/Notifications.vue:39
 msgid "View"
-msgstr "Göster"
+msgstr ""
 
 #: frontend/src/pages/JobDetail.vue:31
 msgid "View Applications"
@@ -7247,7 +7247,7 @@ msgstr ""
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Wednesday"
-msgstr "Çarşamba"
+msgstr ""
 
 #: lms/templates/emails/lms_invite_request_approved.html:4
 msgid "Welcome to {0}!"
