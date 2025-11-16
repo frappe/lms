@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-11-07 16:04+0000\n"
-"PO-Revision-Date: 2025-11-11 11:49\n"
+"PO-Revision-Date: 2025-11-16 12:26\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Danish\n"
 "MIME-Version: 1.0\n"
@@ -446,7 +446,7 @@ msgstr ""
 
 #: frontend/src/pages/JobDetail.vue:62
 msgid "Apply"
-msgstr ""
+msgstr "Anvend"
 
 #. Label of the apply_gst (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
