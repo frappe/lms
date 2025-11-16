@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-11-07 16:04+0000\n"
-"PO-Revision-Date: 2025-11-11 11:48\n"
+"PO-Revision-Date: 2025-11-16 12:26\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: French\n"
 "MIME-Version: 1.0\n"
@@ -106,7 +106,7 @@ msgstr ""
 #. Option for the 'Status' (Select) field in DocType 'Cohort Join Request'
 #: lms/lms/doctype/cohort_join_request/cohort_join_request.json
 msgid "Accepted"
-msgstr "Accepté.e"
+msgstr ""
 
 #. Label of the account_id (Data) field in DocType 'LMS Zoom Settings'
 #. Label of the account_id (Data) field in DocType 'Zoom Settings'
@@ -475,7 +475,7 @@ msgstr ""
 
 #: frontend/src/pages/Batches.vue:285
 msgid "Archived"
-msgstr "Archivé"
+msgstr ""
 
 #: frontend/src/components/UpcomingEvaluations.vue:176
 msgid "Are you sure you want to cancel this evaluation? This action cannot be undone."
@@ -905,7 +905,7 @@ msgstr ""
 #. Label of the body (Markdown Editor) field in DocType 'Course Lesson'
 #: lms/lms/doctype/course_lesson/course_lesson.json
 msgid "Body"
-msgstr "Corps"
+msgstr ""
 
 #. Option for the 'Collaboration Preference' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -1437,7 +1437,7 @@ msgstr ""
 #: frontend/src/components/Settings/BadgeForm.vue:65
 #: lms/lms/doctype/lms_badge/lms_badge.json
 msgid "Condition"
-msgstr "Conditions"
+msgstr ""
 
 #: lms/lms/doctype/lms_badge/lms_badge.py:17
 msgid "Condition must be in valid JSON format."
@@ -2257,7 +2257,7 @@ msgstr "Courriel"
 
 #: frontend/src/components/Modals/Event.vue:16
 msgid "Email ID"
-msgstr "Identifiant Email"
+msgstr ""
 
 #. Label of the email_sent (Check) field in DocType 'LMS Course Interest'
 #: lms/lms/doctype/lms_course_interest/lms_course_interest.json
@@ -2791,7 +2791,7 @@ msgstr ""
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Friday"
-msgstr "Vendredi"
+msgstr ""
 
 #. Label of the unavailable_from (Date) field in DocType 'Course Evaluator'
 #: frontend/src/pages/ProfileEvaluator.vue:106
@@ -3242,7 +3242,7 @@ msgstr ""
 #. Label of a Link in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "Interest"
-msgstr "Intérêt"
+msgstr ""
 
 #: frontend/src/components/AppSidebar.vue:588
 #: frontend/src/components/AppSidebar.vue:591
@@ -3380,7 +3380,7 @@ msgstr ""
 #: lms/job/doctype/lms_job_application/lms_job_application.json
 #: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Job Title"
-msgstr "Titre de l'Emploi"
+msgstr "Titre du poste"
 
 #. Label of the jobs (Check) field in DocType 'LMS Settings'
 #: frontend/src/pages/JobApplications.vue:9 frontend/src/pages/JobDetail.vue:10
@@ -4350,7 +4350,7 @@ msgstr ""
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Monday"
-msgstr "Lundi"
+msgstr ""
 
 #: frontend/src/components/AppSidebar.vue:637
 msgid "Monetization"
@@ -5606,7 +5606,7 @@ msgstr ""
 #: lms/lms/doctype/lms_course_review/lms_course_review.json
 #: lms/templates/reviews.html:125
 msgid "Rating"
-msgstr "Évaluation"
+msgstr ""
 
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.py:18
 msgid "Rating cannot be 0"
@@ -5660,7 +5660,7 @@ msgstr "Enregistré mais Désactivé"
 #: lms/lms/doctype/cohort_join_request/cohort_join_request.json
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
 msgid "Rejected"
-msgstr "Rejeté"
+msgstr ""
 
 #. Label of the related_courses (Table) field in DocType 'LMS Course'
 #. Name of a DocType
@@ -5837,7 +5837,7 @@ msgstr ""
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Saturday"
-msgstr "Samedi"
+msgstr ""
 
 #. Button label of the job-opportunity Web Form
 #: frontend/src/components/AssessmentPlugin.vue:12
@@ -6256,7 +6256,7 @@ msgstr ""
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/doctype/scheduled_flow/scheduled_flow.json
 msgid "Start Time"
-msgstr "Heure de Début"
+msgstr ""
 
 #: lms/lms/doctype/course_evaluator/course_evaluator.py:36
 msgid "Start Time cannot be greater than End Time"
@@ -6448,7 +6448,7 @@ msgstr "Résumé"
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Sunday"
-msgstr "Dimanche"
+msgstr ""
 
 #: lms/lms/api.py:1081
 msgid "Suspicious pattern found in {0}: {1}"
@@ -6750,7 +6750,7 @@ msgstr ""
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Thursday"
-msgstr "Jeudi"
+msgstr ""
 
 #. Label of the time (Time) field in DocType 'LMS Live Class'
 #: frontend/src/components/Modals/Event.vue:48
@@ -6937,7 +6937,7 @@ msgstr ""
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Tuesday"
-msgstr "Mardi"
+msgstr ""
 
 #: frontend/src/pages/ProfileAbout.vue:103
 msgid "Twitter"
@@ -7247,7 +7247,7 @@ msgstr ""
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Wednesday"
-msgstr "Mercredi"
+msgstr ""
 
 #: lms/templates/emails/lms_invite_request_approved.html:4
 msgid "Welcome to {0}!"
