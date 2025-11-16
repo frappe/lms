@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-11-07 16:04+0000\n"
-"PO-Revision-Date: 2025-11-12 11:45\n"
+"PO-Revision-Date: 2025-11-16 12:26\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Bosnian\n"
 "MIME-Version: 1.0\n"
@@ -1353,7 +1353,7 @@ msgstr "Kompanija"
 #: frontend/src/pages/JobForm.vue:63
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Company Details"
-msgstr "Detalji Kompanije"
+msgstr "Detalji o Kompaniji"
 
 #. Label of the company_email_address (Data) field in DocType 'Job Opportunity'
 #: frontend/src/pages/JobForm.vue:82
@@ -2257,7 +2257,7 @@ msgstr "E-pošta"
 
 #: frontend/src/components/Modals/Event.vue:16
 msgid "Email ID"
-msgstr "ID e-pošte"
+msgstr "E-pošta"
 
 #. Label of the email_sent (Check) field in DocType 'LMS Course Interest'
 #: lms/lms/doctype/lms_course_interest/lms_course_interest.json
@@ -2706,7 +2706,7 @@ msgstr "Istaknuto"
 #: frontend/src/pages/Batch.vue:146
 #: lms/lms/doctype/lms_batch_feedback/lms_batch_feedback.json
 msgid "Feedback"
-msgstr "Povratne informacije"
+msgstr "Povratne Informacije"
 
 #: frontend/src/components/Assignment.vue:64
 msgid "Feel free to make edits to your submission if needed."
@@ -3247,7 +3247,7 @@ msgstr "Kamata"
 #: frontend/src/components/AppSidebar.vue:588
 #: frontend/src/components/AppSidebar.vue:591
 msgid "Introduction"
-msgstr "Uvod"
+msgstr "Introdukcija"
 
 #: lms/lms/doctype/course_lesson/course_lesson.py:23
 msgid "Invalid Quiz ID"
@@ -5606,7 +5606,7 @@ msgstr "Kvizovi u ovom videu"
 #: lms/lms/doctype/lms_course_review/lms_course_review.json
 #: lms/templates/reviews.html:125
 msgid "Rating"
-msgstr "Procjena"
+msgstr "Ocjena"
 
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.py:18
 msgid "Rating cannot be 0"
@@ -6256,7 +6256,7 @@ msgstr "Počni Učiti"
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/doctype/scheduled_flow/scheduled_flow.json
 msgid "Start Time"
-msgstr "Vrijeme Početka"
+msgstr "Počni Vrijeme"
 
 #: lms/lms/doctype/course_evaluator/course_evaluator.py:36
 msgid "Start Time cannot be greater than End Time"
