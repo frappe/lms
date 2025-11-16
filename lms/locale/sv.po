@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-11-07 16:04+0000\n"
-"PO-Revision-Date: 2025-11-12 11:45\n"
+"PO-Revision-Date: 2025-11-16 12:26\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Swedish\n"
 "MIME-Version: 1.0\n"
@@ -2362,7 +2362,7 @@ msgstr "Slutdatum (eller förväntat)"
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/doctype/scheduled_flow/scheduled_flow.json
 msgid "End Time"
-msgstr "Slut Tid"
+msgstr "Slut Tid "
 
 #: frontend/src/components/LiveClass.vue:92
 #: frontend/src/pages/Home/AdminHome.vue:183
@@ -2706,7 +2706,7 @@ msgstr "Utvald"
 #: frontend/src/pages/Batch.vue:146
 #: lms/lms/doctype/lms_batch_feedback/lms_batch_feedback.json
 msgid "Feedback"
-msgstr "Återkoppling"
+msgstr "Återkoppling "
 
 #: frontend/src/components/Assignment.vue:64
 msgid "Feel free to make edits to your submission if needed."
@@ -6962,7 +6962,7 @@ msgstr "Twitter"
 #: lms/lms/doctype/lms_quiz_question/lms_quiz_question.json
 #: lms/templates/assessments.html:14
 msgid "Type"
-msgstr "Typ"
+msgstr "Typ "
 
 #: frontend/src/utils/markdownParser.js:11
 msgid "Type '/' for commands or select text to format"
