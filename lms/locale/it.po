@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-11-07 16:04+0000\n"
-"PO-Revision-Date: 2025-11-11 11:49\n"
+"PO-Revision-Date: 2025-11-16 12:26\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Italian\n"
 "MIME-Version: 1.0\n"
@@ -106,7 +106,7 @@ msgstr ""
 #. Option for the 'Status' (Select) field in DocType 'Cohort Join Request'
 #: lms/lms/doctype/cohort_join_request/cohort_join_request.json
 msgid "Accepted"
-msgstr "Accettato"
+msgstr ""
 
 #. Label of the account_id (Data) field in DocType 'LMS Zoom Settings'
 #. Label of the account_id (Data) field in DocType 'Zoom Settings'
@@ -905,7 +905,7 @@ msgstr ""
 #. Label of the body (Markdown Editor) field in DocType 'Course Lesson'
 #: lms/lms/doctype/course_lesson/course_lesson.json
 msgid "Body"
-msgstr ""
+msgstr "Corpo"
 
 #. Option for the 'Collaboration Preference' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -7163,7 +7163,7 @@ msgstr ""
 
 #: frontend/src/pages/Notifications.vue:39
 msgid "View"
-msgstr ""
+msgstr "Vista"
 
 #: frontend/src/pages/JobDetail.vue:31
 msgid "View Applications"
