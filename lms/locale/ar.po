@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-11-07 16:04+0000\n"
-"PO-Revision-Date: 2025-11-11 11:48\n"
+"PO-Revision-Date: 2025-11-16 12:26\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Arabic\n"
 "MIME-Version: 1.0\n"
@@ -475,7 +475,7 @@ msgstr "التطبيقات"
 
 #: frontend/src/pages/Batches.vue:285
 msgid "Archived"
-msgstr "أرشفة"
+msgstr ""
 
 #: frontend/src/components/UpcomingEvaluations.vue:176
 msgid "Are you sure you want to cancel this evaluation? This action cannot be undone."
@@ -905,7 +905,7 @@ msgstr ""
 #. Label of the body (Markdown Editor) field in DocType 'Course Lesson'
 #: lms/lms/doctype/course_lesson/course_lesson.json
 msgid "Body"
-msgstr "الجسم"
+msgstr ""
 
 #. Option for the 'Collaboration Preference' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -1353,7 +1353,7 @@ msgstr "شركة"
 #: frontend/src/pages/JobForm.vue:63
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Company Details"
-msgstr "تفاصيل الشركة"
+msgstr ""
 
 #. Label of the company_email_address (Data) field in DocType 'Job Opportunity'
 #: frontend/src/pages/JobForm.vue:82
@@ -1437,7 +1437,7 @@ msgstr ""
 #: frontend/src/components/Settings/BadgeForm.vue:65
 #: lms/lms/doctype/lms_badge/lms_badge.json
 msgid "Condition"
-msgstr "الحالة"
+msgstr ""
 
 #: lms/lms/doctype/lms_badge/lms_badge.py:17
 msgid "Condition must be in valid JSON format."
@@ -2257,7 +2257,7 @@ msgstr ""
 
 #: frontend/src/components/Modals/Event.vue:16
 msgid "Email ID"
-msgstr "عنوان الايميل"
+msgstr ""
 
 #. Label of the email_sent (Check) field in DocType 'LMS Course Interest'
 #: lms/lms/doctype/lms_course_interest/lms_course_interest.json
@@ -2362,7 +2362,7 @@ msgstr ""
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/doctype/scheduled_flow/scheduled_flow.json
 msgid "End Time"
-msgstr "وقت الانتهاء"
+msgstr ""
 
 #: frontend/src/components/LiveClass.vue:92
 #: frontend/src/pages/Home/AdminHome.vue:183
@@ -2791,7 +2791,7 @@ msgstr ""
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Friday"
-msgstr "الجمعة"
+msgstr ""
 
 #. Label of the unavailable_from (Date) field in DocType 'Course Evaluator'
 #: frontend/src/pages/ProfileEvaluator.vue:106
@@ -3242,12 +3242,12 @@ msgstr ""
 #. Label of a Link in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "Interest"
-msgstr "فائدة"
+msgstr ""
 
 #: frontend/src/components/AppSidebar.vue:588
 #: frontend/src/components/AppSidebar.vue:591
 msgid "Introduction"
-msgstr "مقدمة"
+msgstr ""
 
 #: lms/lms/doctype/course_lesson/course_lesson.py:23
 msgid "Invalid Quiz ID"
@@ -3380,7 +3380,7 @@ msgstr ""
 #: lms/job/doctype/lms_job_application/lms_job_application.json
 #: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Job Title"
-msgstr "المسمى الوظيفي"
+msgstr ""
 
 #. Label of the jobs (Check) field in DocType 'LMS Settings'
 #: frontend/src/pages/JobApplications.vue:9 frontend/src/pages/JobDetail.vue:10
@@ -4350,7 +4350,7 @@ msgstr ""
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Monday"
-msgstr "يوم الاثنين"
+msgstr ""
 
 #: frontend/src/components/AppSidebar.vue:637
 msgid "Monetization"
@@ -5606,7 +5606,7 @@ msgstr ""
 #: lms/lms/doctype/lms_course_review/lms_course_review.json
 #: lms/templates/reviews.html:125
 msgid "Rating"
-msgstr "تقييم"
+msgstr ""
 
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.py:18
 msgid "Rating cannot be 0"
@@ -5660,7 +5660,7 @@ msgstr "سجل لكن المعوقين"
 #: lms/lms/doctype/cohort_join_request/cohort_join_request.json
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
 msgid "Rejected"
-msgstr "مرفوض"
+msgstr ""
 
 #. Label of the related_courses (Table) field in DocType 'LMS Course'
 #. Name of a DocType
@@ -5774,7 +5774,7 @@ msgstr "الصلاحيات"
 #. Label of the route (Data) field in DocType 'LMS Sidebar Item'
 #: lms/lms/doctype/lms_sidebar_item/lms_sidebar_item.json
 msgid "Route"
-msgstr "مسار"
+msgstr ""
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:130
 msgid "Row #{0} Date cannot be outside the batch duration."
@@ -5837,7 +5837,7 @@ msgstr ""
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Saturday"
-msgstr "السبت"
+msgstr ""
 
 #. Button label of the job-opportunity Web Form
 #: frontend/src/components/AssessmentPlugin.vue:12
@@ -6256,7 +6256,7 @@ msgstr ""
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/doctype/scheduled_flow/scheduled_flow.json
 msgid "Start Time"
-msgstr "بداية الوقت"
+msgstr ""
 
 #: lms/lms/doctype/course_evaluator/course_evaluator.py:36
 msgid "Start Time cannot be greater than End Time"
@@ -6448,7 +6448,7 @@ msgstr "ملخص"
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Sunday"
-msgstr "الأحد"
+msgstr ""
 
 #: lms/lms/api.py:1081
 msgid "Suspicious pattern found in {0}: {1}"
@@ -6750,7 +6750,7 @@ msgstr ""
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Thursday"
-msgstr "الخميس"
+msgstr ""
 
 #. Label of the time (Time) field in DocType 'LMS Live Class'
 #: frontend/src/components/Modals/Event.vue:48
@@ -6937,7 +6937,7 @@ msgstr "حاول مرة أخرى"
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Tuesday"
-msgstr "الثلاثاء"
+msgstr ""
 
 #: frontend/src/pages/ProfileAbout.vue:103
 msgid "Twitter"
@@ -7247,7 +7247,7 @@ msgstr ""
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Wednesday"
-msgstr "الأربعاء"
+msgstr ""
 
 #: lms/templates/emails/lms_invite_request_approved.html:4
 msgid "Welcome to {0}!"
