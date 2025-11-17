@@ -1384,6 +1384,7 @@ def save_role(user, role, value):
 		doc.save(ignore_permissions=True)
 	else:
 		frappe.db.delete("Has Role", {"parent": user, "role": role})
+	frappe.clear_cache(user=user)
 	return True
 
 

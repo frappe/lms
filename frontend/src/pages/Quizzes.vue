@@ -138,6 +138,7 @@ import { useRouter } from 'vue-router'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { Plus } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
+import { escapeHTML } from '@/utils'
 import EmptyState from '@/components/EmptyState.vue'
 
 const { brand } = sessionStore()
@@ -191,7 +192,12 @@ const quizzes = createListResource({
 	},
 })
 
+const validateTitle = () => {
+	title.value = escapeHTML(title.value.trim())
+}
+
 const insertQuiz = (close) => {
+	validateTitle()
 	quizzes.insert.submit(
 		{
 			title: title.value,

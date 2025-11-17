@@ -5,7 +5,7 @@ import frappe
 from frappe import _
 from frappe.email.doctype.email_template.email_template import get_email_template
 from frappe.model.document import Document
-from frappe.utils import add_days, nowdate
+from frappe.utils import add_days, flt, nowdate
 
 
 class LMSPayment(Document):

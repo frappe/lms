@@ -8,6 +8,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AdminBatchDashboard: typeof import('./src/components/AdminBatchDashboard.vue')['default']
     Annoucements: typeof import('./src/components/Annoucements.vue')['default']
     AnnouncementModal: typeof import('./src/components/Modals/AnnouncementModal.vue')['default']
     Apps: typeof import('./src/components/Apps.vue')['default']
@@ -42,6 +43,10 @@ declare module 'vue' {
     CollapseSidebar: typeof import('./src/components/Icons/CollapseSidebar.vue')['default']
     ColorSwatches: typeof import('./src/components/Controls/ColorSwatches.vue')['default']
     ContactUsEmail: typeof import('./src/components/ContactUsEmail.vue')['default']
+    CouponDetails: typeof import('./src/components/Settings/Coupons/CouponDetails.vue')['default']
+    CouponItems: typeof import('./src/components/Settings/Coupons/CouponItems.vue')['default']
+    CouponList: typeof import('./src/components/Settings/Coupons/CouponList.vue')['default']
+    Coupons: typeof import('./src/components/Settings/Coupons/Coupons.vue')['default']
     CourseCard: typeof import('./src/components/CourseCard.vue')['default']
     CourseCardOverlay: typeof import('./src/components/CourseCardOverlay.vue')['default']
     CourseInstructors: typeof import('./src/components/CourseInstructors.vue')['default']
@@ -107,8 +112,9 @@ declare module 'vue' {
     StudentHeatmap: typeof import('./src/components/StudentHeatmap.vue')['default']
     StudentModal: typeof import('./src/components/Modals/StudentModal.vue')['default']
     Tags: typeof import('./src/components/Tags.vue')['default']
-    TransactionDetails: typeof import('./src/components/Settings/TransactionDetails.vue')['default']
-    Transactions: typeof import('./src/components/Settings/Transactions.vue')['default']
+    TransactionDetails: typeof import('./src/components/Settings/Transactions/TransactionDetails.vue')['default']
+    TransactionList: typeof import('./src/components/Settings/Transactions/TransactionList.vue')['default']
+    Transactions: typeof import('./src/components/Settings/Transactions/Transactions.vue')['default']
     UnsplashImageBrowser: typeof import('./src/components/UnsplashImageBrowser.vue')['default']
     UpcomingEvaluations: typeof import('./src/components/UpcomingEvaluations.vue')['default']
     Uploader: typeof import('./src/components/Controls/Uploader.vue')['default']

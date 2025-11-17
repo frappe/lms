@@ -27,6 +27,10 @@ describe("Batch Creation", () => {
 		cy.get("input[placeholder='Jane']").type(randomName);
 		cy.get("button").contains("Add").click();
 
+		// Open Settings
+		cy.get("span").contains("Learning").click();
+		cy.get("span").contains("Settings").click();
+
 		// Add evaluator
 		cy.get("[data-dismissable-layer]")
 			.find("span")
@@ -155,6 +159,7 @@ describe("Batch Creation", () => {
 		cy.get("button:visible").contains("Manage Batch").click();
 
 		/* Add student to batch */
+		cy.get("button").contains("Students").click();
 		cy.get("button").contains("Add").click();
 		cy.get('div[role="dialog"]').first().find("button").eq(1).click();
 		cy.get("input[id^='headlessui-combobox-input-v-']").type(randomEmail);
