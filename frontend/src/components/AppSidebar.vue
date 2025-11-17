@@ -173,6 +173,7 @@
 			:currentStep="currentStep"
 		/>
 	</div>
+	<CommandPalette v-model="settingsStore.isCommandPaletteOpen" />
 	<PageModal
 		v-model="showPageModal"
 		v-model:reloadSidebar="sidebarSettings"
@@ -181,19 +182,6 @@
 </template>
 
 <script setup>
-import UserDropdown from '@/components/UserDropdown.vue'
-import CollapseSidebar from '@/components/Icons/CollapseSidebar.vue'
-import SidebarLink from '@/components/SidebarLink.vue'
-import {
-	ref,
-	onMounted,
-	inject,
-	watch,
-	reactive,
-	markRaw,
-	h,
-	onUnmounted,
-} from 'vue'
 import { getSidebarLinks } from '@/utils'
 import { usersStore } from '@/stores/user'
 import { sessionStore } from '@/stores/session'
@@ -204,7 +192,16 @@ import PageModal from '@/components/Modals/PageModal.vue'
 import { capture } from '@/telemetry'
 import LMSLogo from '@/components/Icons/LMSLogo.vue'
 import { useRouter } from 'vue-router'
-import InviteIcon from './Icons/InviteIcon.vue'
+import {
+	ref,
+	onMounted,
+	inject,
+	watch,
+	reactive,
+	markRaw,
+	h,
+	onUnmounted,
+} from 'vue'
 import {
 	BookOpen,
 	CircleAlert,
@@ -217,7 +214,6 @@ import {
 	Users,
 	BookText,
 	Zap,
-	Check,
 } from 'lucide-vue-next'
 import {
 	TrialBanner,
@@ -228,6 +224,11 @@ import {
 	minimize,
 	IntermediateStepModal,
 } from 'frappe-ui/frappe'
+import InviteIcon from './Icons/InviteIcon.vue'
+import UserDropdown from '@/components/UserDropdown.vue'
+import CollapseSidebar from '@/components/Icons/CollapseSidebar.vue'
+import SidebarLink from '@/components/SidebarLink.vue'
+import CommandPalette from '@/components/CommandPalette/CommandPalette.vue'
 
 const { user } = sessionStore()
 const { userResource } = usersStore()
@@ -258,6 +259,7 @@ onMounted(() => {
 	addNotifications()
 	setSidebarLinks()
 	setUpOnboarding()
+	addKeyboardShortcut()
 	socket.on('publish_lms_notifications', (data) => {
 		unreadNotifications.reload()
 	})
@@ -278,6 +280,23 @@ const setSidebarLinks = () => {
 			},
 		}
 	)
+}
+
+const addKeyboardShortcut = () => {
+	window.addEventListener('keydown', (e) => {
+		if (
+			e.key === 'k' &&
+			(e.ctrlKey || e.metaKey) &&
+			!e.target.classList.contains('ProseMirror')
+		) {
+			toggleCommandPalette()
+			e.preventDefault()
+		}
+	})
+}
+
+const toggleCommandPalette = () => {
+	settingsStore.isCommandPaletteOpen = !settingsStore.isCommandPaletteOpen
 }
 
 const unreadNotifications = createResource({

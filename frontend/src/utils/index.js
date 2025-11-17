@@ -404,6 +404,11 @@ export function getUserTimezone() {
 export function getSidebarLinks() {
 	return [
 		{
+			label: 'Search',
+			icon: 'Search',
+			to: 'Search',
+		},
+		{
 			label: 'Courses',
 			icon: 'BookOpen',
 			to: 'Courses',

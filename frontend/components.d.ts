@@ -42,6 +42,7 @@ declare module 'vue' {
     CodeEditor: typeof import('./src/components/Controls/CodeEditor.vue')['default']
     CollapseSidebar: typeof import('./src/components/Icons/CollapseSidebar.vue')['default']
     ColorSwatches: typeof import('./src/components/Controls/ColorSwatches.vue')['default']
+    CommandPalette: typeof import('./src/components/CommandPalette/CommandPalette.vue')['default']
     ContactUsEmail: typeof import('./src/components/ContactUsEmail.vue')['default']
     CouponDetails: typeof import('./src/components/Settings/Coupons/CouponDetails.vue')['default']
     CouponItems: typeof import('./src/components/Settings/Coupons/CouponItems.vue')['default']

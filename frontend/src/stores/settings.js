@@ -5,6 +5,7 @@ import { sessionStore } from './session'
 
 export const useSettings = defineStore('settings', () => {
 	const isSettingsOpen = ref(false)
+	const isCommandPaletteOpen = ref(false)
 	const activeTab = ref(null)
 
 	const allowGuestAccess = createResource({
@@ -50,6 +51,7 @@ export const useSettings = defineStore('settings', () => {
 
 	return {
 		isSettingsOpen,
+		isCommandPaletteOpen,
 		activeTab,
 		allowGuestAccess,
 		preventSkippingVideos,
