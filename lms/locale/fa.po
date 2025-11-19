@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-11-14 16:04+0000\n"
-"PO-Revision-Date: 2025-11-18 12:34\n"
+"PO-Revision-Date: 2025-11-19 12:32\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Persian\n"
 "MIME-Version: 1.0\n"
@@ -232,7 +232,7 @@ msgstr ""
 
 #: frontend/src/components/AssessmentPlugin.vue:7
 msgid "Add a quiz to your lesson"
-msgstr ""
+msgstr "یک آزمون به درس خود اضافه کنید"
 
 #: frontend/src/components/Modals/AssessmentModal.vue:5
 msgid "Add an assessment"
@@ -2737,7 +2737,7 @@ msgstr "تاریخ انقضا"
 
 #: lms/lms/doctype/lms_coupon/lms_coupon.py:23
 msgid "Expiry date cannot be in the past"
-msgstr ""
+msgstr "تاریخ انقضا نمی‌تواند در گذشته باشد"
 
 #. Label of the explanation_1 (Small Text) field in DocType 'LMS Question'
 #. Label of the explanation_3 (Small Text) field in DocType 'LMS Question'
@@ -2868,12 +2868,12 @@ msgstr ""
 #. Option for the 'Discount Type' (Select) field in DocType 'LMS Coupon'
 #: lms/lms/doctype/lms_coupon/lms_coupon.json
 msgid "Fixed Amount"
-msgstr ""
+msgstr "مبلغ ثابت"
 
 #. Label of the fixed_amount_discount (Int) field in DocType 'LMS Coupon'
 #: lms/lms/doctype/lms_coupon/lms_coupon.json
 msgid "Fixed Amount Discount"
-msgstr ""
+msgstr "تخفیف مبلغ ثابت"
 
 #. Option for the 'Time Preference' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -5211,7 +5211,7 @@ msgstr ""
 
 #: frontend/src/pages/Billing.vue:313
 msgid "Please enter a coupon code"
-msgstr ""
+msgstr "لطفا کد تخفیف را وارد کنید"
 
 #: frontend/src/components/Modals/LiveClassModal.vue:186
 msgid "Please enter a title."
@@ -6948,7 +6948,7 @@ msgstr ""
 
 #: frontend/src/components/Settings/Coupons/CouponList.vue:128
 msgid "This will permanently delete the coupon and the code will no longer be valid."
-msgstr ""
+msgstr "با این کار کد تخفیف به طور دائم حذف می‌شود و کد دیگر معتبر نخواهد بود."
 
 #. Option for the 'Day' (Select) field in DocType 'Evaluator Schedule'
 #. Option for the 'Day' (Select) field in DocType 'LMS Certificate Request'
