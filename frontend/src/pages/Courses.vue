@@ -3,20 +3,51 @@
 		class="sticky flex items-center justify-between top-0 z-10 border-b bg-surface-white px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs :items="breadcrumbs" />
-		<router-link
+		
+		<Dropdown
+			placement="start"
+			side="bottom"
 			v-if="canCreateCourse()"
-			:to="{
-				name: 'CourseForm',
-				params: { courseName: 'new' },
-			}"
+			:options="[
+				{
+					label: __('New Course'),
+					icon: 'book-open',
+					onClick() {
+						router.push({
+							name: 'CourseForm',
+							params: { courseName: 'new' },
+						})
+					},
+				},
+				{
+					label: __('Import Course'),
+					icon: 'upload',
+					onClick() {
+						router.push({
+							name: 'NewDataImport',
+							params: { doctype: 'LMS Course' },
+						})
+					},
+				},
+			]"
 		>
-			<Button variant="solid">
-				<template #prefix>
-					<Plus class="h-4 w-4 stroke-1.5" />
-				</template>
-				{{ __('Create') }}
-			</Button>
-		</router-link>
+			<template v-slot="{ open }">
+				<Button variant="solid">
+					<template #prefix>
+						<Plus class="h-4 w-4 stroke-1.5" />
+					</template>
+					{{ __('Create') }}
+					<template #suffix>
+						<ChevronDown
+							:class="[
+								'w-4 h-4 stroke-1.5 ml-1 transform transition-transform',
+								open ? 'rotate-180' : '',
+							]"
+						/>
+					</template>
+				</Button>
+			</template>
+		</Dropdown>
 	</header>
 	<div class="p-5 pb-10">
 		<div
@@ -85,13 +116,14 @@ import {
 	Button,
 	call,
 	createListResource,
+	Dropdown,
 	FormControl,
 	Select,
 	TabButtons,
 	usePageMeta,
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref, watch } from 'vue'
-import { Plus } from 'lucide-vue-next'
+import { ChevronDown, Plus } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { canCreateCourse } from '@/utils'
 import CourseCard from '@/components/CourseCard.vue'

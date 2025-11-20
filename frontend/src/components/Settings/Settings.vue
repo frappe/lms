@@ -70,9 +70,8 @@
 import { Dialog, createDocumentResource } from 'frappe-ui'
 import { computed, markRaw, ref, watch } from 'vue'
 import { useSettings } from '@/stores/settings'
-import { DataImport } from 'frappe-ui/frappe'
 import SettingDetails from '@/components/Settings/SettingDetails.vue'
-import SidebarLink from '@/components/SidebarLink.vue'
+import SidebarLink from '@/components/Sidebar/SidebarLink.vue'
 import Members from '@/components/Settings/Members.vue'
 import Evaluators from '@/components/Settings/Evaluators.vue'
 import Categories from '@/components/Settings/Categories.vue'
@@ -159,11 +158,6 @@ const tabsStructure = computed(() => {
 							type: 'password',
 						},
 					],
-				},
-				{
-					label: 'Data Import',
-					icon: 'Database',
-					template: markRaw(DataImport),
 				},
 				{
 					label: 'Contact Us',

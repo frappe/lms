@@ -181,19 +181,9 @@
 </template>
 
 <script setup>
-import UserDropdown from '@/components/UserDropdown.vue'
+import UserDropdown from '@/components/Sidebar/UserDropdown.vue'
 import CollapseSidebar from '@/components/Icons/CollapseSidebar.vue'
-import SidebarLink from '@/components/SidebarLink.vue'
-import {
-	ref,
-	onMounted,
-	inject,
-	watch,
-	reactive,
-	markRaw,
-	h,
-	onUnmounted,
-} from 'vue'
+import SidebarLink from '@/components/Sidebar/SidebarLink.vue'
 import { getSidebarLinks } from '@/utils'
 import { usersStore } from '@/stores/user'
 import { sessionStore } from '@/stores/session'
@@ -204,7 +194,17 @@ import PageModal from '@/components/Modals/PageModal.vue'
 import { capture } from '@/telemetry'
 import LMSLogo from '@/components/Icons/LMSLogo.vue'
 import { useRouter } from 'vue-router'
-import InviteIcon from './Icons/InviteIcon.vue'
+import InviteIcon from '@/components/Icons/InviteIcon.vue'
+import {
+	ref,
+	onMounted,
+	inject,
+	watch,
+	reactive,
+	markRaw,
+	h,
+	onUnmounted,
+} from 'vue'
 import {
 	BookOpen,
 	CircleAlert,
