@@ -259,7 +259,7 @@ const routes = [
 		name: 'DataImport',
 		component: () => import('@/pages/DataImport.vue'),
 		props: true,
-	}
+	},
 ]
 
 let router = createRouter({
