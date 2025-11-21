@@ -34,6 +34,16 @@ export default defineConfig({
 				maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
 				globDirectory: '/assets/lms/frontend',
 				globPatterns: ['**/*.{js,css,html,png,svg,woff2}'],
+				runtimeCaching: [
+					{
+						urlPattern: ({ request }) =>
+							request.destination === 'document',
+						handler: 'NetworkFirst',
+						options: {
+							cacheName: 'html-cache',
+						},
+					},
+				],
 			},
 			manifest: false,
 		}),
