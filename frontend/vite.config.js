@@ -33,7 +33,7 @@ export default defineConfig({
 				cleanupOutdatedCaches: true,
 				maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
 				globDirectory: '/assets/lms/frontend',
-				globPatterns: ['**/*.{js,css,html,png,svg,woff2}'],
+				globPatterns: ['**/*.{js,ts,css,html,png,svg}'],
 				runtimeCaching: [
 					{
 						urlPattern: ({ request }) =>
