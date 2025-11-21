@@ -18,7 +18,7 @@
 	>
 		<template #body-content>
 			<div class="flex flex-col gap-4">
-				<p>
+				<p class="text-ink-gray-9">
 					{{
 						__(
 							'Submit your resume to proceed with your application for this position. Upon submission, it will be shared with the job poster.'
@@ -29,6 +29,7 @@
 					<FileUploader
 						:fileTypes="['.pdf']"
 						:validateFile="validateFile"
+						:uploadArgs="{ private: 1 }"
 						@success="
 							(file) => {
 								resume = file
@@ -51,7 +52,7 @@
 						<FileText class="h-5 w-5 stroke-1.5 text-ink-gray-7" />
 					</div>
 					<div class="flex flex-col">
-						<span>
+						<span class="text-ink-gray-9">
 							{{ resume.file_name }}
 						</span>
 						<span class="text-sm text-ink-gray-4 mt-1">
@@ -95,7 +96,7 @@ const jobApplication = createResource({
 			doc: {
 				doctype: 'LMS Job Application',
 				user: user.data?.name,
-				resume: resume.value?.file_name,
+				resume: resume.value?.file_url,
 				job: props.job,
 			},
 		}

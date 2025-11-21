@@ -1,6 +1,6 @@
 <template>
 	<div v-if="heatmap.data">
-		<div class="text-lg font-semibold mb-2">
+		<div class="text-lg font-semibold mb-2 text-ink-gray-9">
 			{{ heatmap.data.total_activities }}
 			{{
 				heatmap.data.total_activities > 1 ? __('activities') : __('activity')

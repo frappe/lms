@@ -3,7 +3,7 @@
 		class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs :items="breadcrumbs" />
-		<div v-if="!readOnlyMode" class="space-x-2">
+		<div v-if="!readOnlyMode" class="flex items-center space-x-2">
 			<Badge v-if="quizDetails.isDirty" theme="orange">
 				{{ __('Not Saved') }}
 			</Badge>
@@ -231,6 +231,7 @@ import {
 import { sessionStore } from '../stores/session'
 import { ClipboardList, ListChecks, Plus, Trash2 } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
+import { escapeHTML } from '@/utils'
 import Question from '@/components/Modals/Question.vue'
 
 const { brand } = sessionStore()
@@ -254,11 +255,7 @@ const props = defineProps({
 const questions = ref([])
 
 onMounted(() => {
-	if (
-		props.quizID == 'new' &&
-		!user.data?.is_moderator &&
-		!user.data?.is_instructor
-	) {
+	if (!user.data?.is_moderator && !user.data?.is_instructor) {
 		router.push({ name: 'Courses' })
 	}
 	if (props.quizID !== 'new') {
@@ -298,7 +295,12 @@ const quizDetails = createDocumentResource({
 	},
 })
 
+const validateTitle = () => {
+	quizDetails.doc.title = escapeHTML(quizDetails.doc.title.trim())
+}
+
 const submitQuiz = () => {
+	validateTitle()
 	quizDetails.setValue.submit(
 		{
 			...quizDetails.doc,

@@ -57,7 +57,7 @@ const props = defineProps({
 const evaluations = createListResource({
 	doctype: 'LMS Certificate Request',
 	filters: {
-		evaluator: user.data?.name,
+		evaluator: props.profile.data?.name,
 		status: ['!=', 'Cancelled'],
 	},
 	fields: [

@@ -10,7 +10,7 @@
 		</header>
 		<div class="py-5">
 			<div class="container border-b mb-4 pb-5">
-				<div class="text-lg font-semibold mb-4">
+				<div class="text-lg font-semibold mb-4 text-ink-gray-9">
 					{{ __('Job Details') }}
 				</div>
 				<div class="grid grid-cols-2 gap-5">
@@ -59,7 +59,7 @@
 				</div>
 			</div>
 			<div class="container border-b mb-4 pb-5">
-				<div class="text-lg font-semibold mb-4">
+				<div class="text-lg font-semibold mb-4 text-ink-gray-9">
 					{{ __('Company Details') }}
 				</div>
 				<div class="grid grid-cols-2 gap-5">
@@ -158,7 +158,7 @@ import { computed, onMounted, reactive, inject } from 'vue'
 import { FileText, X } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
-import { getFileSize, validateFile } from '@/utils'
+import { escapeHTML, getFileSize, validateFile } from '@/utils'
 
 const user = inject('$user')
 const router = useRouter()
@@ -248,6 +248,7 @@ onMounted(() => {
 })
 
 const saveJob = () => {
+	validateJobFields()
 	if (jobDetail.data) {
 		editJobDetails()
 	} else {
@@ -291,6 +292,14 @@ const editJobDetails = () => {
 			},
 		}
 	)
+}
+
+const validateJobFields = () => {
+	Object.keys(job).forEach((key) => {
+		if (key != 'description' && typeof job[key] === 'string') {
+			job[key] = escapeHTML(job[key])
+		}
+	})
 }
 
 const saveImage = (file) => {

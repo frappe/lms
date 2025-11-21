@@ -69,9 +69,12 @@ const update = () => {
 	let imageFields = ['favicon', 'banner_image']
 	props.fields.forEach((f) => {
 		if (imageFields.includes(f.name)) {
-			fieldsToSave[f.name] = f.value ? f.value.file_url : null
+			fieldsToSave[f.name] =
+				branding.data[f.name] && branding.data[f.name].file_url
+					? branding.data[f.name].file_url
+					: null
 		} else {
-			fieldsToSave[f.name] = f.value
+			fieldsToSave[f.name] = branding.data[f.name]
 		}
 	})
 

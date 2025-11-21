@@ -29,7 +29,7 @@
 				<div
 					v-if="activeTab && data.doc"
 					:key="activeTab.label"
-					class="flex flex-1 flex-col px-10 py-8 bg-surface-modal"
+					class="flex flex-1 flex-col p-8 bg-surface-modal"
 				>
 					<component
 						v-if="activeTab.template"
@@ -78,7 +78,8 @@ import Categories from '@/components/Settings/Categories.vue'
 import EmailTemplates from '@/components/Settings/EmailTemplates.vue'
 import BrandSettings from '@/components/Settings/BrandSettings.vue'
 import PaymentGateways from '@/components/Settings/PaymentGateways.vue'
-import Transactions from '@/components/Settings/Transactions.vue'
+import Coupons from '@/components/Settings/Coupons/Coupons.vue'
+import Transactions from '@/components/Settings/Transactions/Transactions.vue'
 import ZoomSettings from '@/components/Settings/ZoomSettings.vue'
 import Badges from '@/components/Settings/Badges.vue'
 
@@ -232,6 +233,12 @@ const tabsStructure = computed(() => {
 					icon: 'Landmark',
 					template: markRaw(Transactions),
 					description: 'View all your payment transactions',
+				},
+				{
+					label: 'Coupons',
+					icon: 'Ticket',
+					template: markRaw(Coupons),
+					description: 'Manage discount coupons for courses and batches',
 				},
 			],
 		},

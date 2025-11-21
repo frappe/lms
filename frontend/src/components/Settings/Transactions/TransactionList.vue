@@ -96,17 +96,10 @@
 			</div>
 		</div>
 	</div>
-	<TransactionDetails
-		v-model="showForm"
-		:transaction="currentTransaction"
-		v-model:transactions="transactions"
-		v-model:show="show"
-	/>
 </template>
 <script setup lang="ts">
 import {
 	Button,
-	createListResource,
 	ListView,
 	ListHeader,
 	ListHeaderItem,
@@ -118,50 +111,19 @@ import {
 } from 'frappe-ui'
 import { computed, ref, watch } from 'vue'
 import { RefreshCw } from 'lucide-vue-next'
-import TransactionDetails from './TransactionDetails.vue'
 import Link from '@/components/Controls/Link.vue'
 
-const showForm = ref(false)
-const currentTransaction = ref<{ [key: string]: any } | null>(null)
-const show = defineModel('show')
 const billingName = ref(null)
 const paymentReceived = ref(false)
 const paymentForCertificate = ref(false)
 const member = ref(null)
+const emit = defineEmits(['updateStep'])
 
-const props = defineProps({
-	label: {
-		type: String,
-		required: true,
-	},
-	description: {
-		type: String,
-		default: '',
-	},
-})
-
-const transactions = createListResource({
-	doctype: 'LMS Payment',
-	fields: [
-		'name',
-		'member',
-		'billing_name',
-		'source',
-		'payment_for_document_type',
-		'payment_for_document',
-		'payment_received',
-		'payment_for_certificate',
-		'currency',
-		'amount',
-		'order_id',
-		'payment_id',
-		'gstin',
-		'pan',
-		'address',
-	],
-	auto: true,
-	orderBy: 'modified desc',
-})
+const props = defineProps<{
+	label: string
+	description: string
+	transactions: any
+}>()
 
 watch(
 	[billingName, member, paymentReceived, paymentForCertificate],
@@ -171,7 +133,7 @@ watch(
 		newPaymentReceived,
 		newPaymentForCertificate,
 	]) => {
-		transactions.update({
+		props.transactions.update({
 			filters: [
 				newBillingName ? [['billing_name', 'like', `%${newBillingName}%`]] : [],
 				newMember ? [['member', '=', newMember]] : [],
@@ -183,14 +145,13 @@ watch(
 					: [],
 			].flat(),
 		})
-		transactions.reload()
+		props.transactions.reload()
 	},
 	{ immediate: true }
 )
 
 const openForm = (transaction: { [key: string]: any }) => {
-	currentTransaction.value = transaction
-	showForm.value = true
+	emit('updateStep', 'details', { ...transaction })
 }
 
 const getCurrencySymbol = (currency: string) => {

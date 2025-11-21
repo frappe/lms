@@ -40,7 +40,7 @@
 			</div>
 			<div v-if="batch.data.courses.length">
 				<div class="flex items-center mt-10">
-					<div class="text-2xl font-semibold">
+					<div class="text-2xl font-semibold text-ink-gray-9">
 						{{ __('Courses') }}
 					</div>
 				</div>

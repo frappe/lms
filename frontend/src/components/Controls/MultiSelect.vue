@@ -20,8 +20,6 @@
 								}
 							"
 							autocomplete="off"
-							@focus="() => togglePopover()"
-							@keydown.delete.capture.stop="removeLastValue"
 						/>
 					</template>
 					<template #body="{ isOpen, close }">
@@ -58,7 +56,7 @@
 									<div class="h-10"></div>
 									<div
 										v-if="attrs.onCreate"
-										class="absolute bottom-2 left-1 w-[99%] pt-2 bg-white border-t"
+										class="absolute bottom-2 left-1 w-[95%] pt-2 bg-white border-t"
 									>
 										<Button
 											variant="ghost"
@@ -180,6 +178,7 @@ const filterOptions = createResource({
 })
 
 const options = computed(() => {
+	setFocus()
 	return filterOptions.data || []
 })
 
@@ -223,25 +222,6 @@ const addValue = (value) => {
 
 const removeValue = (value) => {
 	values.value = values.value.filter((v) => v !== value)
-}
-
-const removeLastValue = () => {
-	if (query.value) return
-
-	let emailRef = emails.value[emails.value.length - 1]?.$el
-	if (document.activeElement === emailRef) {
-		values.value.pop()
-		nextTick(() => {
-			if (values.value.length) {
-				emailRef = emails.value[emails.value.length - 1].$el
-				emailRef?.focus()
-			} else {
-				setFocus()
-			}
-		})
-	} else {
-		emailRef?.focus()
-	}
 }
 
 function setFocus() {

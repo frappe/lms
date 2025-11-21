@@ -20,10 +20,10 @@
 		</template>
 	</Dialog>
 
-	<Popover :show="iosInstallMessage" placement="top">
+	<Popover :show="iosInstallMessage" placement="top-start">
 		<template #body>
 			<div
-				class="fixed bottom-[4rem] left-1/2 -translate-x-1/2 z-20 w-[90%] flex flex-col gap-3 rounded bg-blue-100 py-5 drop-shadow-xl"
+				class="fixed top-[20rem] translate-x-1/3 z-20 flex flex-col gap-3 rounded bg-surface-white py-5 drop-shadow-xl"
 			>
 				<div
 					class="mb-1 flex flex-row items-center justify-between px-3 text-center"
@@ -41,7 +41,7 @@
 				</div>
 				<div class="px-3 text-xs text-gray-800">
 					<span class="flex flex-col gap-2">
-						<span>
+						<span class="leading-5">
 							{{
 								__(
 									'Get the app on your iPhone for easy access & a better experience'
@@ -76,7 +76,14 @@ const isIos = () => {
 const isInStandaloneMode = () =>
 	'standalone' in window.navigator && window.navigator.standalone
 
-if (isIos() && !isInStandaloneMode()) iosInstallMessage.value = true
+if (
+	isIos() &&
+	!isInStandaloneMode() &&
+	localStorage.getItem('learningIosInstallPromptShown') !== 'true'
+) {
+	iosInstallMessage.value = true
+	localStorage.setItem('learningIosInstallPromptShown', 'true')
+}
 
 window.addEventListener('beforeinstallprompt', (e) => {
 	e.preventDefault()

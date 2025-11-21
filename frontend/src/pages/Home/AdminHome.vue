@@ -2,7 +2,7 @@
 	<div>
 		<div v-if="createdCourses.data?.length" class="mt-10">
 			<div class="flex items-center justify-between mb-3">
-				<span class="font-semibold text-lg">
+				<span class="font-semibold text-lg text-ink-gray-9">
 					{{ __('Courses Created') }}
 				</span>
 				<router-link
@@ -94,10 +94,10 @@
 				<div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
 					<div
 						v-for="evaluation in evals?.data"
-						class="border rounded-md p-3 flex flex-col h-full cursor-pointer"
+						class="border hover:border-outline-gray-3 rounded-md p-3 flex flex-col h-full cursor-pointer"
 						@click="redirectToProfile()"
 					>
-						<div class="font-semibold text-ink-gray-9 text-lg mb-1">
+						<div class="font-semibold text-ink-gray-9 text-lg leading-5 mb-1">
 							{{ evaluation.course_title }}
 						</div>
 						<div class="text-ink-gray-7 text-sm">
@@ -128,8 +128,11 @@
 					{{ __('Upcoming Live Classes') }}
 				</div>
 				<div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-					<div v-for="cls in liveClasses?.data" class="border rounded-md p-3">
-						<div class="font-semibold text-ink-gray-9 text-lg mb-1">
+					<div
+						v-for="cls in liveClasses?.data"
+						class="border hover:border-outline-gray-3 rounded-md p-3"
+					>
+						<div class="font-semibold text-ink-gray-9 text-lg leading-5 mb-1">
 							{{ cls.title }}
 						</div>
 						<div class="text-ink-gray-7 text-sm leading-5 mb-4">
