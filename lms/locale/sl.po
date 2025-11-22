@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-11-14 16:04+0000\n"
-"PO-Revision-Date: 2025-11-21 12:31\n"
+"PO-Revision-Date: 2025-11-22 12:37\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Slovenian\n"
 "MIME-Version: 1.0\n"
@@ -162,7 +162,7 @@ msgstr ""
 
 #: frontend/src/components/Settings/Evaluators.vue:91
 msgid "Add Evaluator"
-msgstr ""
+msgstr "Dodaj Ocenjevalca"
 
 #: frontend/src/components/CourseOutline.vue:146
 msgid "Add Lesson"
@@ -228,7 +228,7 @@ msgstr "Dodaj Program"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseModal.vue:5
 msgid "Add a programming exercise to your lesson"
-msgstr ""
+msgstr "Dodajte vajo programiranja svoji lekciji"
 
 #: frontend/src/components/AssessmentPlugin.vue:7
 msgid "Add a quiz to your lesson"
@@ -283,15 +283,15 @@ msgstr ""
 #: frontend/src/pages/Billing.vue:99
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Address"
-msgstr ""
+msgstr "Naslov"
 
 #: frontend/src/pages/Billing.vue:109
 msgid "Address Line 1"
-msgstr ""
+msgstr "Naslovna Vrstica 1"
 
 #: frontend/src/pages/Billing.vue:113
 msgid "Address Line 2"
-msgstr ""
+msgstr "Naslovna Vrstica 2"
 
 #. Option for the 'Role' (Select) field in DocType 'Cohort Staff'
 #. Option for the 'Required Role' (Select) field in DocType 'Cohort Web Page'
@@ -300,21 +300,21 @@ msgstr ""
 #: lms/lms/doctype/cohort_web_page/cohort_web_page.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 msgid "Admin"
-msgstr ""
+msgstr "Admin"
 
 #. Name of a role
 #: lms/lms/doctype/lms_coupon/lms_coupon.json
 msgid "Administrator"
-msgstr ""
+msgstr "Administrator"
 
 #. Name of a role
 #: frontend/src/pages/Batches.vue:274 lms/lms/doctype/lms_badge/lms_badge.json
 msgid "All"
-msgstr ""
+msgstr "Vsi"
 
 #: frontend/src/pages/Batches.vue:26
 msgid "All Batches"
-msgstr ""
+msgstr "Vse Skupine"
 
 #: frontend/src/pages/Courses.vue:26 lms/lms/widgets/BreadCrumb.html:3
 msgid "All Courses"
@@ -371,7 +371,7 @@ msgstr ""
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Amount"
-msgstr ""
+msgstr "Znesek"
 
 #. Label of the amount_usd (Currency) field in DocType 'LMS Batch'
 #. Label of the amount_usd (Currency) field in DocType 'LMS Course'
@@ -444,7 +444,7 @@ msgstr ""
 
 #: frontend/src/pages/JobApplications.vue:24
 msgid "Application"
-msgstr ""
+msgstr "Prijava"
 
 #. Label of a field in the job-opportunity Web Form
 #: lms/job/web_form/job_opportunity/job_opportunity.json
@@ -462,7 +462,7 @@ msgstr ""
 
 #: frontend/src/pages/Billing.vue:81 frontend/src/pages/JobDetail.vue:62
 msgid "Apply"
-msgstr ""
+msgstr "Uporabi"
 
 #. Label of the apply_gst (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -483,15 +483,15 @@ msgstr ""
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
 msgid "Approved"
-msgstr ""
+msgstr "Odobreno"
 
 #: frontend/src/components/Apps.vue:13
 msgid "Apps"
-msgstr ""
+msgstr "Aplikacije"
 
 #: frontend/src/pages/Batches.vue:284
 msgid "Archived"
-msgstr ""
+msgstr "Arhivirano"
 
 #: frontend/src/components/UpcomingEvaluations.vue:179
 msgid "Are you sure you want to cancel this evaluation? This action cannot be undone."
@@ -555,7 +555,7 @@ msgstr ""
 
 #: frontend/src/components/Settings/BadgeForm.vue:58
 msgid "Assign To"
-msgstr ""
+msgstr "Dodeli"
 
 #: frontend/src/components/Settings/BadgeAssignmentForm.vue:7
 msgid "Assign a Badge"
@@ -575,7 +575,7 @@ msgstr ""
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 #: lms/templates/assignment.html:3
 msgid "Assignment"
-msgstr ""
+msgstr "Dodela"
 
 #. Label of the assignment_attachment (Attach) field in DocType 'LMS Assignment
 #. Submission'
@@ -754,7 +754,7 @@ msgstr ""
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Batch"
-msgstr "Šarža"
+msgstr "Serija"
 
 #. Label of the batch_confirmation_template (Link) field in DocType 'LMS
 #. Settings'
@@ -765,20 +765,20 @@ msgstr ""
 #. Name of a DocType
 #: lms/lms/doctype/batch_course/batch_course.json
 msgid "Batch Course"
-msgstr ""
+msgstr "Skupni Tečaj"
 
 #. Label of the section_break_5 (Section Break) field in DocType 'LMS Batch
 #. Old'
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 msgid "Batch Description"
-msgstr ""
+msgstr "Opis Serije"
 
 #. Label of the batch_details (Text Editor) field in DocType 'LMS Batch'
 #: frontend/src/pages/BatchForm.vue:133
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/templates/emails/batch_confirmation.html:26
 msgid "Batch Details"
-msgstr ""
+msgstr "Podrobnosti Serije"
 
 #. Label of the batch_details_raw (HTML Editor) field in DocType 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json
@@ -877,7 +877,7 @@ msgstr ""
 
 #: lms/templates/emails/batch_start_reminder.html:10
 msgid "Batch:"
-msgstr ""
+msgstr "Skupina:"
 
 #. Label of the batches (Check) field in DocType 'LMS Settings'
 #: frontend/src/pages/Batches.vue:305 frontend/src/pages/Batches.vue:312
@@ -915,7 +915,7 @@ msgstr ""
 
 #: frontend/src/components/Modals/EditProfile.vue:81
 msgid "Bio"
-msgstr ""
+msgstr "Življenjepis"
 
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #. Option for the 'Color' (Select) field in DocType 'LMS Lesson Note'
@@ -960,7 +960,7 @@ msgstr ""
 #: frontend/src/components/UpcomingEvaluations.vue:62
 #: frontend/src/components/UpcomingEvaluations.vue:184
 msgid "Cancel"
-msgstr ""
+msgstr "Prekliči"
 
 #: frontend/src/components/UpcomingEvaluations.vue:178
 msgid "Cancel this evaluation?"
@@ -1099,7 +1099,7 @@ msgstr ""
 
 #: lms/templates/assignment.html:13
 msgid "Change"
-msgstr ""
+msgstr "Spremeni"
 
 #: frontend/src/components/Assignment.vue:348
 msgid "Changes saved successfully"
@@ -1371,7 +1371,7 @@ msgstr ""
 #: lms/job/doctype/lms_job_application/lms_job_application.json
 #: lms/lms/doctype/work_experience/work_experience.json
 msgid "Company"
-msgstr ""
+msgstr "Podjetje"
 
 #. Label of the section_break_6 (Section Break) field in DocType 'Job
 #. Opportunity'
@@ -1548,7 +1548,7 @@ msgstr ""
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Contract"
-msgstr ""
+msgstr "Pogodba"
 
 #: lms/lms/utils.py:430
 msgid "Cookie Policy"
@@ -6207,7 +6207,7 @@ msgstr ""
 
 #: frontend/src/components/Controls/ColorSwatches.vue:13
 msgid "Set Color"
-msgstr ""
+msgstr "Nastavi Barvo"
 
 #: lms/templates/emails/community_course_membership.html:1
 msgid "Set your Password"
