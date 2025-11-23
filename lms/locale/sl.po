@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-11-14 16:04+0000\n"
-"PO-Revision-Date: 2025-11-22 12:37\n"
+"PO-Revision-Date: 2025-11-23 13:07\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Slovenian\n"
 "MIME-Version: 1.0\n"
@@ -2836,7 +2836,7 @@ msgstr ""
 #. Label of the file_type (Select) field in DocType 'Course Lesson'
 #: lms/lms/doctype/course_lesson/course_lesson.json
 msgid "File Type"
-msgstr ""
+msgstr "Tip Datoteke"
 
 #: frontend/src/components/Settings/Transactions/TransactionList.vue:15
 msgid "Filter by Billing Name"
