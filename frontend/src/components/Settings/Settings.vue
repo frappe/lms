@@ -29,7 +29,7 @@
 				<div
 					v-if="activeTab && data.doc"
 					:key="activeTab.label"
-					class="flex flex-1 flex-col p-8 bg-surface-modal"
+					class="flex flex-1 flex-col p-8 bg-surface-modal overflow-x-auto"
 				>
 					<component
 						v-if="activeTab.template"
@@ -71,7 +71,7 @@ import { Dialog, createDocumentResource } from 'frappe-ui'
 import { computed, markRaw, ref, watch } from 'vue'
 import { useSettings } from '@/stores/settings'
 import SettingDetails from '@/components/Settings/SettingDetails.vue'
-import SidebarLink from '@/components/SidebarLink.vue'
+import SidebarLink from '@/components/Sidebar/SidebarLink.vue'
 import Members from '@/components/Settings/Members.vue'
 import Evaluators from '@/components/Settings/Evaluators.vue'
 import Categories from '@/components/Settings/Categories.vue'
@@ -182,6 +182,53 @@ const tabsStructure = computed(() => {
 			],
 		},
 		{
+			label: 'Lists',
+			hideLabel: false,
+			items: [
+				{
+					label: 'Members',
+					description:
+						'Add new members or manage roles and permissions of existing members',
+					icon: 'UserRoundPlus',
+					template: markRaw(Members),
+				},
+				{
+					label: 'Evaluators',
+					description: '',
+					icon: 'UserCheck',
+					description:
+						'Add new evaluators or check the slots existing evaluators',
+					template: markRaw(Evaluators),
+				},
+				{
+					label: 'Zoom Accounts',
+					description:
+						'Manage zoom accounts to conduct live classes from batches',
+					icon: 'Video',
+					template: markRaw(ZoomSettings),
+				},
+				{
+					label: 'Badges',
+					description:
+						'Create badges and assign them to students to acknowledge their achievements',
+					icon: 'Award',
+					template: markRaw(Badges),
+				},
+				{
+					label: 'Categories',
+					description: 'Double click to edit the category',
+					icon: 'Network',
+					template: markRaw(Categories),
+				},
+				{
+					label: 'Email Templates',
+					description: 'Manage the email templates for your learning system',
+					icon: 'MailPlus',
+					template: markRaw(EmailTemplates),
+				},
+			],
+		},
+		{
 			label: 'Payment',
 			hideLabel: false,
 			items: [
@@ -239,53 +286,6 @@ const tabsStructure = computed(() => {
 					icon: 'Ticket',
 					template: markRaw(Coupons),
 					description: 'Manage discount coupons for courses and batches',
-				},
-			],
-		},
-		{
-			label: 'Lists',
-			hideLabel: false,
-			items: [
-				{
-					label: 'Members',
-					description:
-						'Add new members or manage roles and permissions of existing members',
-					icon: 'UserRoundPlus',
-					template: markRaw(Members),
-				},
-				{
-					label: 'Evaluators',
-					description: '',
-					icon: 'UserCheck',
-					description:
-						'Add new evaluators or check the slots existing evaluators',
-					template: markRaw(Evaluators),
-				},
-				{
-					label: 'Zoom Accounts',
-					description:
-						'Manage zoom accounts to conduct live classes from batches',
-					icon: 'Video',
-					template: markRaw(ZoomSettings),
-				},
-				{
-					label: 'Badges',
-					description:
-						'Create badges and assign them to students to acknowledge their achievements',
-					icon: 'Award',
-					template: markRaw(Badges),
-				},
-				{
-					label: 'Categories',
-					description: 'Double click to edit the category',
-					icon: 'Network',
-					template: markRaw(Categories),
-				},
-				{
-					label: 'Email Templates',
-					description: 'Manage the email templates for your learning system',
-					icon: 'MailPlus',
-					template: markRaw(EmailTemplates),
 				},
 			],
 		},

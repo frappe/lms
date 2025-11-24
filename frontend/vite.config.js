@@ -32,6 +32,18 @@ export default defineConfig({
 			workbox: {
 				cleanupOutdatedCaches: true,
 				maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+				globDirectory: '/assets/lms/frontend',
+				globPatterns: ['**/*.{js,ts,css,html,png,svg}'],
+				runtimeCaching: [
+					{
+						urlPattern: ({ request }) =>
+							request.destination === 'document',
+						handler: 'NetworkFirst',
+						options: {
+							cacheName: 'html-cache',
+						},
+					},
+				],
 			},
 			manifest: false,
 		}),
