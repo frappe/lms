@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-11-14 16:04+0000\n"
-"PO-Revision-Date: 2025-11-23 13:07\n"
+"PO-Revision-Date: 2025-11-24 13:41\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Slovenian\n"
 "MIME-Version: 1.0\n"
@@ -260,7 +260,7 @@ msgstr ""
 
 #: frontend/src/components/Notes/InlineLessonMenu.vue:39
 msgid "Add to Notes"
-msgstr ""
+msgstr "Dodaj v Opombe"
 
 #: frontend/src/components/Modals/PageModal.vue:6
 msgid "Add web page to sidebar"
@@ -359,7 +359,7 @@ msgstr ""
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Amber"
-msgstr ""
+msgstr "Amber"
 
 #. Label of the amount (Currency) field in DocType 'LMS Batch'
 #. Label of the course_price (Currency) field in DocType 'LMS Course'
@@ -378,37 +378,37 @@ msgstr "Znesek"
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Amount (USD)"
-msgstr ""
+msgstr "Znesek (USD)"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:70
 msgid "Amount and currency are required for paid batches."
-msgstr ""
+msgstr "Za plačane skupine sta potrebna znesek in valuta."
 
 #: lms/lms/doctype/lms_course/lms_course.py:79
 msgid "Amount and currency are required for paid certificates."
-msgstr ""
+msgstr "Za plačana potrdila sta potrebna znesek in valuta."
 
 #: lms/lms/doctype/lms_course/lms_course.py:76
 msgid "Amount and currency are required for paid courses."
-msgstr ""
+msgstr "Za plačljive tečaje sta potrebna znesek in valuta."
 
 #. Label of the amount_with_gst (Currency) field in DocType 'LMS Payment'
 #: frontend/src/components/Settings/Transactions/TransactionDetails.vue:65
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Amount with GST"
-msgstr ""
+msgstr "Znesek z DDV"
 
 #: frontend/src/components/Modals/AnnouncementModal.vue:34
 msgid "Announcement"
-msgstr ""
+msgstr "Obvestilo"
 
 #: frontend/src/components/Modals/AnnouncementModal.vue:105
 msgid "Announcement has been sent successfully"
-msgstr ""
+msgstr "Obvestilo je bilo uspešno poslano"
 
 #: frontend/src/components/Modals/AnnouncementModal.vue:97
 msgid "Announcement is required"
-msgstr ""
+msgstr "Obvestilo je potrebno"
 
 #. Label of the answer (Text Editor) field in DocType 'LMS Assignment'
 #. Label of the answer (Text Editor) field in DocType 'LMS Assignment
@@ -419,7 +419,7 @@ msgstr ""
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 #: lms/lms/doctype/lms_exercise/lms_exercise.json
 msgid "Answer"
-msgstr ""
+msgstr "Odgovor"
 
 #: frontend/src/pages/CourseForm.vue:104 frontend/src/pages/CourseForm.vue:123
 msgid "Appears on the course card in the course list"
@@ -435,7 +435,7 @@ msgstr ""
 
 #: frontend/src/components/Settings/Coupons/CouponDetails.vue:71
 msgid "Applicable For"
-msgstr ""
+msgstr "Velja za"
 
 #. Label of the applicable_items (Table) field in DocType 'LMS Coupon'
 #: lms/lms/doctype/lms_coupon/lms_coupon.json
@@ -521,20 +521,20 @@ msgstr ""
 #. Assessment'
 #: lms/lms/doctype/lms_assessment/lms_assessment.json
 msgid "Assessment Name"
-msgstr ""
+msgstr "Ime Ocene"
 
 #. Label of the assessment_type (Link) field in DocType 'LMS Assessment'
 #: lms/lms/doctype/lms_assessment/lms_assessment.json
 msgid "Assessment Type"
-msgstr ""
+msgstr "Tip Ocenjevanja"
 
 #: frontend/src/components/Modals/AssessmentModal.vue:91
 msgid "Assessment added successfully"
-msgstr ""
+msgstr "Ocena je uspešno dodana"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:78
 msgid "Assessment {0} has already been added to this batch."
-msgstr ""
+msgstr "Ocena {0} je bila že dodana tej skupini."
 
 #. Label of the show_assessments (Check) field in DocType 'LMS Settings'
 #: frontend/src/components/AdminBatchDashboard.vue:32
@@ -543,15 +543,15 @@ msgstr ""
 #: lms/lms/doctype/lms_settings/lms_settings.json
 #: lms/templates/assessments.html:3
 msgid "Assessments"
-msgstr ""
+msgstr "Ocene"
 
 #: lms/lms/doctype/lms_badge/lms_badge.js:50
 msgid "Assign"
-msgstr ""
+msgstr "Dodeli"
 
 #: frontend/src/components/Settings/BadgeForm.vue:28
 msgid "Assign For"
-msgstr ""
+msgstr "Dodeli za"
 
 #: frontend/src/components/Settings/BadgeForm.vue:58
 msgid "Assign To"
@@ -559,11 +559,11 @@ msgstr "Dodeli"
 
 #: frontend/src/components/Settings/BadgeAssignmentForm.vue:7
 msgid "Assign a Badge"
-msgstr ""
+msgstr "Dodeli značko"
 
 #: frontend/src/components/Settings/Badges.vue:221
 msgid "Assigned For"
-msgstr ""
+msgstr "Dodeljeno za"
 
 #. Label of the section_break_16 (Section Break) field in DocType 'Course
 #. Lesson'
@@ -754,7 +754,7 @@ msgstr ""
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Batch"
-msgstr "Serija"
+msgstr "Šarža"
 
 #. Label of the batch_confirmation_template (Link) field in DocType 'LMS
 #. Settings'
@@ -778,7 +778,7 @@ msgstr "Opis Serije"
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/templates/emails/batch_confirmation.html:26
 msgid "Batch Details"
-msgstr "Podrobnosti Serije"
+msgstr "Podrobnosti Šarže"
 
 #. Label of the batch_details_raw (HTML Editor) field in DocType 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json
@@ -903,7 +903,7 @@ msgstr ""
 #: frontend/src/pages/Billing.vue:8 frontend/src/pages/Billing.vue:411
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Billing Details"
-msgstr ""
+msgstr "Podrobnosti Fakture"
 
 #. Label of the billing_name (Data) field in DocType 'LMS Payment'
 #: frontend/src/components/Settings/Transactions/TransactionDetails.vue:33
@@ -937,7 +937,7 @@ msgstr ""
 #. Label of the branch (Data) field in DocType 'User'
 #: lms/fixtures/custom_field.json
 msgid "Branch"
-msgstr ""
+msgstr "Podružnica"
 
 #. Option for the 'User Category' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json lms/templates/signup-form.html:23
@@ -2191,7 +2191,7 @@ msgstr ""
 #: frontend/src/components/Settings/Transactions/TransactionDetails.vue:87
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Discount Amount"
-msgstr ""
+msgstr "Znesek Popusta"
 
 #: frontend/src/components/Settings/Coupons/CouponDetails.vue:46
 msgid "Discount Percentage"
@@ -5039,7 +5039,7 @@ msgstr ""
 #: lms/lms/doctype/lms_batch_enrollment/lms_batch_enrollment.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 msgid "Payment"
-msgstr ""
+msgstr "Plačilo"
 
 #. Name of a DocType
 #: lms/lms/doctype/payment_country/payment_country.json
