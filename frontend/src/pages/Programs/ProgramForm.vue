@@ -58,15 +58,15 @@
 						</Button>
 					</div>
 					<ListView
-						v-if="programCourses.data.length > 0"
+						v-if="program.program_courses.length > 0"
 						:columns="courseColumns"
-						:rows="programCourses.data"
+						:rows="program.program_courses"
 						:options="{
 							selectable: true,
 							resizeColumn: true,
 							showTooltip: false,
 						}"
-						rowKey="name"
+						:rowKey="programName === 'new' ? 'course' : 'name'"
 					>
 						<ListHeader
 							class="mb-2 grid items-center space-x-4 rounded bg-surface-gray-2 p-2"
@@ -75,8 +75,8 @@
 						</ListHeader>
 						<ListRows>
 							<Draggable
-								:list="programCourses.data"
-								item-key="name"
+								:list="program.program_courses"
+								:item-key="programName === 'new' ? 'course' : 'name'"
 								group="items"
 								@end="updateOrder"
 								class="cursor-move"
@@ -133,14 +133,14 @@
 						</div>
 					</div>
 					<ListView
-						v-if="programMembers.data.length > 0"
+						v-if="program.program_members.length > 0"
 						:columns="memberColumns"
-						:rows="programMembers.data"
+						:rows="program.program_members"
 						:options="{
 							selectable: true,
 							resizeColumn: true,
 						}"
-						rowKey="name"
+						:rowKey="programName === 'new' ? 'member' : 'name'"
 					>
 						<ListHeader
 							class="mb-2 grid items-center space-x-4 rounded bg-surface-gray-2 p-2"
@@ -148,7 +148,7 @@
 							<ListHeaderItem :item="item" v-for="item in memberColumns" />
 						</ListHeader>
 						<ListRows>
-							<ListRow :row="row" v-for="row in programMembers.data" />
+							<ListRow :row="row" v-for="row in program.program_members" />
 						</ListRows>
 						<ListSelectBanner>
 							<template #actions="{ unselectAll, selections }">
@@ -217,13 +217,12 @@
 			/>
 		</template>
 		<template #actions="{ close }">
-			<div class="flex justify-end space-x-2 group">
+			<div class="flex justify-end space-x-2">
 				<Button
 					v-if="programName != 'new'"
 					@click="deleteProgram(close)"
 					variant="outline"
 					theme="red"
-					class="invisible group-hover:visible"
 				>
 					<template #prefix>
 						<Trash2 class="size-4 stroke-1.5" />
@@ -252,7 +251,7 @@ import {
 	ListRow,
 	toast,
 } from 'frappe-ui'
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, getCurrentInstance } from 'vue'
 import { Plus, Trash2, TrendingUp } from 'lucide-vue-next'
 import { Programs, Program } from '@/types/programs'
 import { escapeHTML, openSettings } from '@/utils'
@@ -268,6 +267,9 @@ const course = ref<string>('')
 const member = ref<string>('')
 const showProgressDialog = ref(false)
 const dirty = ref(false)
+
+const app = getCurrentInstance()
+const { $dialog } = app.appContext.config.globalProperties
 
 const props = withDefaults(
 	defineProps<{
@@ -427,25 +429,22 @@ const addCourse = (close: () => void) => {
 		return
 	}
 
-	programCourses.insert.submit(
-		{
-			parent: props.programName,
-			parenttype: 'LMS Program',
-			parentfield: 'program_courses',
-			course: course.value,
-			idx: programCourses.data.length + 1,
-		},
-		{
-			onSuccess() {
-				updateCounts('course', 'add')
-				close()
-				toast.success(__('Course added to program successfully'))
-			},
-			onError(err: any) {
-				toast.warning(__(err.messages?.[0] || err))
-			},
-		}
+	const existingCourse = program.value.program_courses.find(
+		(c) => c.course === course.value
 	)
+	if (!existingCourse) {
+		program.value.program_courses.push({
+			course: course.value,
+			idx: program.value.program_courses.length + 1,
+		})
+		if (props.programName !== 'new') {
+			dirty.value = true
+		}
+		close()
+		toast.success(__('Course added to program successfully'))
+	} else {
+		toast.warning(__('Course already added to program'))
+	}
 }
 
 const addMember = (close: () => void) => {
@@ -454,24 +453,21 @@ const addMember = (close: () => void) => {
 		return
 	}
 
-	programMembers.insert.submit(
-		{
-			parent: props.programName,
-			parenttype: 'LMS Program',
-			parentfield: 'program_members',
-			member: member.value,
-		},
-		{
-			onSuccess() {
-				updateCounts('member', 'add')
-				close()
-				toast.success(__('Member added to program successfully'))
-			},
-			onError(err: any) {
-				toast.warning(__(err.messages?.[0] || err))
-			},
-		}
+	const existingMember = program.value.program_members.find(
+		(m) => m.member === member.value
 	)
+	if (!existingMember) {
+		program.value.program_members.push({
+			member: member.value,
+		})
+		if (props.programName !== 'new') {
+			dirty.value = true
+		}
+		close()
+		toast.success(__('Member added to program successfully'))
+	} else {
+		toast.warning(__('Member already added to program'))
+	}
 }
 
 const updateCounts = async (
@@ -509,57 +505,83 @@ const updateCounts = async (
 const updateOrder = async (e: DragEvent) => {
 	let sourceIdx = e.from.dataset.idx
 	let targetIdx = e.to.dataset.idx
-	let courses = programCourses.data
-	courses.splice(targetIdx, 0, courses.splice(sourceIdx, 1)[0])
 
-	for (const [index, course] of courses.entries()) {
-		programCourses.setValue.submit(
-			{
-				name: course.name,
-				idx: index + 1,
-			},
-			{
-				onError(err: any) {
-					toast.warning(__(err.messages?.[0] || err))
+	if (props.programName === 'new') {
+		let courses = program.value.program_courses
+		courses.splice(targetIdx, 0, courses.splice(sourceIdx, 1)[0])
+		courses.forEach((course, index) => {
+			course.idx = index + 1
+		})
+		dirty.value = true
+	} else {
+		let courses = programCourses.data
+		courses.splice(targetIdx, 0, courses.splice(sourceIdx, 1)[0])
+
+		for (const [index, course] of courses.entries()) {
+			programCourses.setValue.submit(
+				{
+					name: course.name,
+					idx: index + 1,
 				},
-			}
-		)
-		await wait(100)
+				{
+					onError(err: any) {
+						toast.warning(__(err.messages?.[0] || err))
+					},
+				}
+			)
+			await wait(100)
+		}
 	}
 }
 
 const wait = (ms: number) => new Promise((res) => setTimeout(res, ms))
 
-const remove = async (
+const remove = (
 	selections: string[],
 	unselectAll: () => void,
 	type: string
 ) => {
-	selections = Array.from(selections)
-	for (const selection of selections) {
-		if (type == 'courses') {
-			await programCourses.delete.submit(selection)
-			await updateCounts('course', 'remove')
-		} else {
-			await programMembers.delete.submit(selection)
-			await updateCounts('member', 'remove')
-		}
-		await programs.value.reload()
-		await wait(100)
+	const selectionsArray = Array.from(selections)
+	if (type === 'courses') {
+		program.value.program_courses = program.value.program_courses.filter(
+			(c) => !selectionsArray.includes(c.name || c.course)
+		)
+	} else {
+		program.value.program_members = program.value.program_members.filter(
+			(m) => !selectionsArray.includes(m.name || m.member)
+		)
 	}
+	dirty.value = true
 	unselectAll()
 }
 
 const deleteProgram = (close: () => void) => {
 	if (props.programName == 'new') return
-	programs.value?.delete.submit(props.programName, {
-		onSuccess() {
-			toast.success(__('Program deleted successfully'))
-			close()
-		},
-		onError(err: any) {
-			toast.warning(__(err.messages?.[0] || err))
-		},
+	$dialog({
+		title: __('Delete Program'),
+		message: __(
+			'Are you sure you want to delete this program? This action cannot be undone.'
+		),
+		actions: [
+			{
+				label: __('Delete'),
+				theme: 'red',
+				variant: 'solid',
+				onClick(closeDialog) {
+					programs.value?.delete.submit(props.programName, {
+						onSuccess() {
+							toast.success(__('Program deleted successfully'))
+							close()
+							closeDialog()
+						},
+						onError(err: any) {
+							toast.warning(__(err.messages?.[0] || err))
+							closeDialog()
+						},
+					})
+				},
+			},
+		],
 	})
 }
 
@@ -567,7 +589,7 @@ const courseColumns = computed(() => {
 	return [
 		{
 			label: 'Title',
-			key: 'course_title',
+			key: props.programName === 'new' ? 'course' : 'course_title',
 			width: 1,
 		},
 	]
