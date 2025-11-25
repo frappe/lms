@@ -243,6 +243,11 @@ const routes = [
 			),
 		props: true,
 	},
+	{
+		path: '/search',
+		name: 'Search',
+		component: () => import('@/pages/Search/Search.vue'),
+	},
 ]
 
 let router = createRouter({
