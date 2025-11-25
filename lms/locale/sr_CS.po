@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-11-14 16:04+0000\n"
-"PO-Revision-Date: 2025-11-18 12:34\n"
+"PO-Revision-Date: 2025-11-22 12:37\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Serbian (Latin)\n"
 "MIME-Version: 1.0\n"
@@ -440,7 +440,7 @@ msgstr "Primenjivo za"
 #. Label of the applicable_items (Table) field in DocType 'LMS Coupon'
 #: lms/lms/doctype/lms_coupon/lms_coupon.json
 msgid "Applicable Items"
-msgstr ""
+msgstr "Primenjive stavke"
 
 #: frontend/src/pages/JobApplications.vue:24
 msgid "Application"
@@ -627,7 +627,7 @@ msgstr "Dodeljeni zadaci"
 
 #: lms/lms/doctype/lms_coupon/lms_coupon.py:27
 msgid "At least one applicable item is required"
-msgstr ""
+msgstr "Neophodna je najmanje jedna primenjiva stavka"
 
 #: lms/lms/doctype/lms_question/lms_question.py:44
 msgid "At least one option must be correct for this question."
@@ -1585,7 +1585,7 @@ msgstr "Država"
 #. Label of the coupon (Link) field in DocType 'LMS Payment'
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Coupon"
-msgstr ""
+msgstr "Kupon"
 
 #. Label of the coupon_code (Data) field in DocType 'LMS Payment'
 #: frontend/src/components/Settings/Coupons/CouponDetails.vue:23
@@ -1597,19 +1597,19 @@ msgstr "Šifra kupona"
 
 #: frontend/src/components/Settings/Transactions/TransactionDetails.vue:72
 msgid "Coupon Details"
-msgstr ""
+msgstr "Detalji kupona"
 
 #: frontend/src/components/Settings/Coupons/CouponDetails.vue:132
 msgid "Coupon created successfully"
-msgstr ""
+msgstr "Kupon je uspešno kreiran"
 
 #: frontend/src/components/Settings/Coupons/CouponList.vue:154
 msgid "Coupon deleted successfully"
-msgstr ""
+msgstr "Kupon je uspešno obrisan"
 
 #: frontend/src/components/Settings/Coupons/CouponList.vue:141
 msgid "Coupon(s) deleted successfully"
-msgstr ""
+msgstr "Kupon(i) su uspešno obrisani"
 
 #. Label of the course (Link) field in DocType 'Batch Course'
 #. Label of the course (Link) field in DocType 'Cohort'
@@ -2090,7 +2090,7 @@ msgstr "Obriši ovo poglavlje?"
 
 #: frontend/src/components/Settings/Coupons/CouponList.vue:127
 msgid "Delete this coupon?"
-msgstr ""
+msgstr "Obriši ovaj kupon?"
 
 #: frontend/src/components/CourseOutline.vue:288
 msgid "Delete this lesson?"
@@ -2299,7 +2299,7 @@ msgstr "Uredi poglavlje"
 
 #: frontend/src/components/Settings/Coupons/CouponDetails.vue:9
 msgid "Edit Coupon"
-msgstr ""
+msgstr "Uredi kupon"
 
 #: frontend/src/components/Modals/EmailTemplateModal.vue:8
 msgid "Edit Email Template"
@@ -2524,7 +2524,7 @@ msgstr "Unesite ID klijenta i klijentsku tajnu u Google podešavanjima da biste 
 
 #: frontend/src/pages/Billing.vue:64
 msgid "Enter a Coupon Code"
-msgstr ""
+msgstr "Unesite šifru kupona"
 
 #: frontend/src/components/Assignment.vue:116
 msgid "Enter a URL"
@@ -2737,7 +2737,7 @@ msgstr "Datum isteka"
 
 #: lms/lms/doctype/lms_coupon/lms_coupon.py:23
 msgid "Expiry date cannot be in the past"
-msgstr ""
+msgstr "Datum isteka ne može biti u prošlosti"
 
 #. Label of the explanation_1 (Small Text) field in DocType 'LMS Question'
 #. Label of the explanation_3 (Small Text) field in DocType 'LMS Question'
@@ -2868,12 +2868,12 @@ msgstr "Fiksno vreme od 9,00 do 17,00"
 #. Option for the 'Discount Type' (Select) field in DocType 'LMS Coupon'
 #: lms/lms/doctype/lms_coupon/lms_coupon.json
 msgid "Fixed Amount"
-msgstr ""
+msgstr "Fiksni iznos"
 
 #. Label of the fixed_amount_discount (Int) field in DocType 'LMS Coupon'
 #: lms/lms/doctype/lms_coupon/lms_coupon.json
 msgid "Fixed Amount Discount"
-msgstr ""
+msgstr "Popust fiksnog iznosa"
 
 #. Option for the 'Time Preference' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -3628,12 +3628,12 @@ msgstr "LMS zahtev za sertifikatom"
 #. Name of a DocType
 #: lms/lms/doctype/lms_coupon/lms_coupon.json
 msgid "LMS Coupon"
-msgstr ""
+msgstr "LMS kupon"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_coupon_item/lms_coupon_item.json
 msgid "LMS Coupon Item"
-msgstr ""
+msgstr "LMS stavka kupona"
 
 #. Option for the 'Reference DocType' (Select) field in DocType 'LMS Coupon
 #. Item'
@@ -4549,7 +4549,7 @@ msgstr "Nova grupa"
 
 #: frontend/src/components/Settings/Coupons/CouponDetails.vue:9
 msgid "New Coupon"
-msgstr ""
+msgstr "Novi kupon"
 
 #: frontend/src/pages/CourseForm.vue:700 lms/www/lms.py:93
 msgid "New Course"
@@ -4648,11 +4648,11 @@ msgstr "Nema sertifikata"
 
 #: frontend/src/components/Settings/Coupons/CouponList.vue:82
 msgid "No coupons created yet."
-msgstr ""
+msgstr "Još uvek nema kreiranih kupona."
 
 #: frontend/src/components/Settings/Coupons/CouponList.vue:123
 msgid "No coupons selected for deletion"
-msgstr ""
+msgstr "Nijedan kupon nije izabran za brisanje"
 
 #: frontend/src/components/BatchCourses.vue:67
 msgid "No courses added"
@@ -5153,7 +5153,7 @@ msgstr "Procenat (npr. 70%)"
 #. Label of the percentage_discount (Int) field in DocType 'LMS Coupon'
 #: lms/lms/doctype/lms_coupon/lms_coupon.json
 msgid "Percentage Discount"
-msgstr ""
+msgstr "Procentualni popust"
 
 #: frontend/src/components/Modals/BatchStudentProgress.vue:46
 msgid "Percentage/Status"
@@ -5211,7 +5211,7 @@ msgstr "Molimo Vas da se uverite da su sva pitanja završena u roku od {0} minut
 
 #: frontend/src/pages/Billing.vue:313
 msgid "Please enter a coupon code"
-msgstr ""
+msgstr "Molimo Vas da unesete šifru kupona"
 
 #: frontend/src/components/Modals/LiveClassModal.vue:186
 msgid "Please enter a title."
@@ -5793,11 +5793,11 @@ msgstr "Crveno"
 #: frontend/src/components/Settings/Coupons/CouponList.vue:189
 #: lms/lms/doctype/lms_coupon/lms_coupon.json
 msgid "Redemption Count"
-msgstr ""
+msgstr "Broj iskorišćenja"
 
 #: frontend/src/components/Settings/Coupons/CouponDetails.vue:64
 msgid "Redemptions Count"
-msgstr ""
+msgstr "Broj iskorišćenja"
 
 #. Label of the reference_docname (Dynamic Link) field in DocType 'LMS Batch
 #. Timetable'
@@ -6806,7 +6806,7 @@ msgstr "Grupa u koju ste se upisali počinje sutra. Molimo Vas da budete spremni
 
 #: lms/lms/utils.py:1855
 msgid "The coupon code '{0}' is invalid."
-msgstr ""
+msgstr "Šifra kupona '{0}' nije važeća."
 
 #: lms/templates/emails/lms_course_interest.html:5
 msgid "The course {0} is now available on {1}."
@@ -6887,15 +6887,15 @@ msgstr "Ovo predavanje se završilo"
 
 #: lms/lms/utils.py:1884
 msgid "This coupon has expired."
-msgstr ""
+msgstr "Ovaj kupon je istekao."
 
 #: lms/lms/utils.py:1887
 msgid "This coupon has reached its maximum usage limit."
-msgstr ""
+msgstr "Ovaj kupon je dostigao maksimalno ograničenje upotrebe."
 
 #: lms/lms/utils.py:1896
 msgid "This coupon is not applicable to this {0}."
-msgstr ""
+msgstr "Ovaj kupon se ne može primeniti na ovaj {0}."
 
 #: frontend/src/components/CourseCardOverlay.vue:126
 msgid "This course has:"
@@ -6948,7 +6948,7 @@ msgstr "Ovaj video-snimak sadrži {0} {1}:"
 
 #: frontend/src/components/Settings/Coupons/CouponList.vue:128
 msgid "This will permanently delete the coupon and the code will no longer be valid."
-msgstr ""
+msgstr "Ovim trajno brišete kupon i šifra više neće biti važeća."
 
 #. Option for the 'Day' (Select) field in DocType 'Evaluator Schedule'
 #. Option for the 'Day' (Select) field in DocType 'LMS Certificate Request'
@@ -7288,11 +7288,11 @@ msgstr "Otpremanje {0}%"
 #: frontend/src/components/Settings/Coupons/CouponList.vue:182
 #: lms/lms/doctype/lms_coupon/lms_coupon.json
 msgid "Usage Limit"
-msgstr ""
+msgstr "Ograničenje upotrebe"
 
 #: lms/lms/doctype/lms_coupon/lms_coupon.py:31
 msgid "Usage limit cannot be negative"
-msgstr ""
+msgstr "Ograničenje upotrebe ne može biti negativno"
 
 #: frontend/src/components/Modals/EmailTemplateModal.vue:38
 msgid "Use HTML"

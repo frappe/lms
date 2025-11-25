@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-11-14 16:04+0000\n"
-"PO-Revision-Date: 2025-11-18 12:34\n"
+"PO-Revision-Date: 2025-11-22 12:37\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Croatian\n"
 "MIME-Version: 1.0\n"
@@ -877,7 +877,7 @@ msgstr "Vrijeme početka grupe ne može biti kasnije ili isto vremenu završetka
 
 #: lms/templates/emails/batch_start_reminder.html:10
 msgid "Batch:"
-msgstr "Šarža:"
+msgstr "Grupa:"
 
 #. Label of the batches (Check) field in DocType 'LMS Settings'
 #: frontend/src/pages/Batches.vue:305 frontend/src/pages/Batches.vue:312
