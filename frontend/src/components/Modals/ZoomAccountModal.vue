@@ -117,31 +117,26 @@ const props = defineProps({
 watch(
 	() => props.accountID,
 	(val) => {
-		if (val != 'new') {
-			zoomAccounts.value?.data.forEach((acc) => {
-				if (acc.name === val) {
-					account.name = acc.name
-					account.enabled = acc.enabled || false
-					account.member = acc.member
-					account.account_id = acc.account_id
-					account.client_id = acc.client_id
-					account.client_secret = acc.client_secret
-				}
-			})
+		if (val === 'new') {
+			account.name = ''
+			account.enabled = false
+			account.member = user?.data?.name || ''
+			account.account_id = ''
+			account.client_id = ''
+			account.client_secret = ''
+		} else if (val && val !== 'new') {
+			const acc = zoomAccounts.value?.data.find((acc) => acc.name === val)
+			if (acc) {
+				account.name = acc.name
+				account.enabled = acc.enabled || false
+				account.member = acc.member
+				account.account_id = acc.account_id
+				account.client_id = acc.client_id
+				account.client_secret = acc.client_secret
+			}
 		}
 	}
 )
-
-watch(show, (val) => {
-	if (!val) {
-		account.name = ''
-		account.enabled = false
-		account.member = user?.data?.name || ''
-		account.account_id = ''
-		account.client_id = ''
-		account.client_secret = ''
-	}
-})
 
 const saveAccount = (close: () => void) => {
 	if (props.accountID == 'new') {
