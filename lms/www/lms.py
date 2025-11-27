@@ -3,6 +3,7 @@ import re
 import frappe
 from bs4 import BeautifulSoup
 from frappe import _
+from frappe.utils.jinja_globals import is_rtl
 from frappe.utils.telemetry import capture
 
 no_cache = 1
@@ -20,6 +21,7 @@ def get_context():
 	context.meta = get_meta(app_path, title, favicon)
 	context.title = title
 	context.favicon = favicon
+	context.direction = "rtl" if is_rtl() else "ltr"
 
 	capture("active_site", "lms")
 	return context

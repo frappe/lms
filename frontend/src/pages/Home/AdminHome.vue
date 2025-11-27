@@ -10,7 +10,7 @@
 						name: 'Courses',
 					}"
 				>
-					<span class="flex items-center space-x-1 text-ink-gray-5 text-xs">
+					<span class="flex items-center space-s-1 text-ink-gray-5 text-xs">
 						<span>
 							{{ __('See all') }}
 						</span>

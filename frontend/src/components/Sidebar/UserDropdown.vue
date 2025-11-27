@@ -6,10 +6,10 @@
 					class="flex h-12 py-2 items-center rounded-md duration-300 ease-in-out"
 					:class="
 						isCollapsed
-							? 'px-0 w-auto'
+							? 'px-0 w-auto space-s-0'
 							: open
-							? 'bg-surface-white shadow-sm px-2 w-52'
-							: 'hover:bg-surface-gray-3 px-2 w-52'
+							? 'bg-surface-white shadow-sm px-2 w-52 space-s-2'
+							: 'hover:bg-surface-gray-3 px-2 w-52 space-s-2'
 					"
 				>
 					<img
@@ -22,8 +22,8 @@
 						class="flex flex-1 flex-col text-left duration-300 ease-in-out"
 						:class="
 							isCollapsed
-								? 'opacity-0 ml-0 w-0 overflow-hidden'
-								: 'opacity-100 ml-2 w-auto'
+								? 'opacity-0 w-0 overflow-hidden'
+								: 'opacity-100 w-auto'
 						"
 					>
 						<div class="text-base font-medium text-ink-gray-9 leading-none">
@@ -47,8 +47,8 @@
 						class="duration-300 ease-in-out"
 						:class="
 							isCollapsed
-								? 'opacity-0 ml-0 w-0 overflow-hidden'
-								: 'opacity-100 ml-2 w-auto'
+								? 'opacity-0 w-0 overflow-hidden'
+								: 'opacity-100 w-auto'
 						"
 					>
 						<ChevronDown class="h-4 w-4 text-ink-gray-7" />

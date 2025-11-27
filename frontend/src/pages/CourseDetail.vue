@@ -9,10 +9,10 @@
 			<div class="flex justify-between w-full space-x-5">
 				<div class="md:w-2/3">
 					<div class="text-3xl font-semibold text-ink-gray-9">
-						{{ course.data.title }}
+						{{ __(course.data.title) }}
 					</div>
 					<div class="my-3 leading-6 text-ink-gray-7">
-						{{ course.data.short_introduction }}
+						{{ __(course.data.short_introduction) }}
 					</div>
 					<div class="flex items-center">
 						<Tooltip
@@ -41,9 +41,9 @@
 						<span v-if="course.data.enrollment_count" class="mx-3"
 							>&middot;</span
 						>
-						<div class="flex items-center">
+						<div class="flex items-center space-s-1">
 							<span
-								class="h-6 mr-1"
+								class="h-6"
 								:class="{
 									'avatar-group overlap': course.data.instructors.length > 1,
 								}"
@@ -63,7 +63,7 @@
 							class="mr-2 text-ink-gray-9"
 							v-for="tag in course.data.tags.split(', ')"
 						>
-							{{ tag }}
+							{{ __(tag) }}
 						</Badge>
 					</div>
 					<div class="md:hidden my-4">
@@ -167,9 +167,9 @@ const isInstructor = () => {
 }
 
 const breadcrumbs = computed(() => {
-	let items = [{ label: 'Courses', route: { name: 'Courses' } }]
+	let items = [{ label: __('Courses'), route: { name: 'Courses' } }]
 	items.push({
-		label: course?.data?.title,
+		label: __(course?.data?.title),
 		route: { name: 'CourseDetail', params: { courseName: course?.data?.name } },
 	})
 	return items

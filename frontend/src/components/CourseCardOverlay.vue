@@ -123,45 +123,41 @@
 					class="font-medium text-ink-gray-9"
 					:class="{ 'mt-8': !readOnlyMode }"
 				>
-					{{ __('This course has:') }}
+					{{ __('This course has') }}:
 				</div>
-				<div class="flex items-center text-ink-gray-9">
+				<div class="flex items-center text-ink-gray-9 space-s-2">
 					<BookOpen class="h-4 w-4 stroke-1.5" />
-					<span class="ml-2">
-						{{ course.data.lessons }} {{ __('Lessons') }}
-					</span>
+					<span class=""> {{ course.data.lessons }} {{ __('Lessons') }} </span>
 				</div>
-				<div class="flex items-center text-ink-gray-9">
+				<div class="flex items-center text-ink-gray-9 space-s-2">
 					<Users class="h-4 w-4 stroke-1.5" />
-					<span class="ml-2">
+					<span class="">
 						{{ formatAmount(course.data.enrollments) }}
 						{{ __('Enrolled Students') }}
 					</span>
 				</div>
 				<div
 					v-if="parseInt(course.data.rating) > 0"
-					class="flex items-center text-ink-gray-9"
+					class="flex items-center text-ink-gray-9 space-s-2"
 				>
 					<Star class="size-4 stroke-1.5 fill-yellow-500 text-transparent" />
-					<span class="ml-2">
-						{{ course.data.rating }} {{ __('Rating') }}
-					</span>
+					<span class=""> {{ course.data.rating }} {{ __('Rating') }} </span>
 				</div>
 				<div
 					v-if="course.data.enable_certification"
-					class="flex items-center font-semibold text-ink-gray-9"
+					class="flex items-center font-semibold text-ink-gray-9 space-s-2"
 				>
 					<GraduationCap class="h-4 w-4 stroke-2" />
-					<span class="ml-2">
+					<span class="">
 						{{ __('Certificate of Completion') }}
 					</span>
 				</div>
 				<div
 					v-if="course.data.paid_certificate"
-					class="flex items-center font-semibold text-ink-gray-9"
+					class="flex items-center font-semibold text-ink-gray-9 space-s-2"
 				>
 					<GraduationCap class="h-4 w-4 stroke-2" />
-					<span class="ml-2">
+					<span class="">
 						{{ __('Paid Certificate after Evaluation') }}
 					</span>
 				</div>

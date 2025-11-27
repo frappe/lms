@@ -2,7 +2,7 @@
 	<div class="">
 		<div
 			v-if="title && (outline.data?.length || allowEdit)"
-			class="flex items-center justify-between space-x-2 mb-4 px-2"
+			class="flex items-center justify-between space-s-2 mb-4 px-2"
 			:class="{
 				'sticky top-0 z-10 bg-surface-white border-b px-3 py-2.5 sm:px-5':
 					allowEdit,
@@ -39,7 +39,7 @@
 						>
 							<DisclosureButton
 								ref=""
-								class="flex items-center w-full p-2 group"
+								class="flex items-center space-s-2 w-full p-2 group"
 							>
 								<ChevronRight
 									:class="{
@@ -51,12 +51,12 @@
 									class="h-4 w-4 text-ink-gray-9 stroke-1"
 								/>
 								<div
-									class="text-base text-left text-ink-gray-9 font-medium leading-5 ml-2"
+									class="text-base text-left text-ink-gray-9 font-medium leading-5"
 									@click="redirectToChapter(chapter)"
 								>
-									{{ chapter.title }}
+									{{ __(chapter.title) }}
 								</div>
-								<div class="flex ml-auto space-x-4">
+								<div class="flex ml-auto space-s-4">
 									<Tooltip :text="__('Edit Chapter')" placement="bottom">
 										<FilePenLine
 											v-if="allowEdit"
@@ -100,20 +100,24 @@
 													},
 												}"
 											>
-												<div class="flex items-center text-sm leading-5 group">
+												<div
+													class="flex items-center space-s-2 text-sm leading-5 group"
+												>
 													<MonitorPlay
 														v-if="lesson.icon === 'icon-youtube'"
-														class="h-4 w-4 stroke-1 mr-2"
+														class="h-4 w-4 stroke-1"
 													/>
 													<HelpCircle
 														v-else-if="lesson.icon === 'icon-quiz'"
-														class="h-4 w-4 stroke-1 mr-2"
+														class="h-4 w-4 stroke-1"
 													/>
 													<FileText
 														v-else-if="lesson.icon === 'icon-list'"
-														class="h-4 w-4 text-ink-gray-9 stroke-1 mr-2"
+														class="h-4 w-4 text-ink-gray-9 stroke-1"
 													/>
-													{{ lesson.title }}
+													<span>
+														{{ __(lesson.title) }}
+													</span>
 													<Trash2
 														v-if="allowEdit"
 														@click.prevent="
