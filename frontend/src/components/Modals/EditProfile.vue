@@ -222,8 +222,8 @@ watch(
 
 watch(
 	() => profile.language,
-	(newVal, oldVal) => {
-		if (newVal !== oldVal) {
+	() => {
+		if (profile.language !== props.profile.data.language) {
 			hasLanguageChanged.value = true
 		}
 	}

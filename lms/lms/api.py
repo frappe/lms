@@ -1678,7 +1678,18 @@ def get_profile_details(username):
 	details = frappe.db.get_value(
 		"User",
 		{"username": username},
-		["full_name", "name", "username", "user_image", "bio", "headline", "cover_image"],
+		[
+			"first_name",
+			"last_name",
+			"full_name",
+			"name",
+			"username",
+			"user_image",
+			"bio",
+			"headline",
+			"language",
+			"cover_image",
+		],
 		as_dict=True,
 	)
 
