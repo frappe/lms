@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-11-14 16:04+0000\n"
-"PO-Revision-Date: 2025-11-24 13:41\n"
+"PO-Revision-Date: 2025-11-26 13:56\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Slovenian\n"
 "MIME-Version: 1.0\n"
@@ -158,7 +158,7 @@ msgstr "Dodaj Poglavje"
 
 #: frontend/src/pages/Programs/ProgramForm.vue:176
 msgid "Add Course to Program"
-msgstr ""
+msgstr "Dodaj tečaj v program"
 
 #: frontend/src/components/Settings/Evaluators.vue:91
 msgid "Add Evaluator"
@@ -454,7 +454,7 @@ msgstr ""
 #: frontend/src/pages/JobApplications.vue:14
 #: frontend/src/pages/JobApplications.vue:25
 msgid "Applications"
-msgstr ""
+msgstr "Prijave"
 
 #: frontend/src/pages/JobApplications.vue:292
 msgid "Applied On"
@@ -515,7 +515,7 @@ msgstr ""
 #: frontend/src/components/Modals/BatchStudentProgress.vue:43
 #: lms/lms/doctype/lms_batch/lms_batch.json lms/templates/assessments.html:11
 msgid "Assessment"
-msgstr ""
+msgstr "Ocena"
 
 #. Label of the assessment_name (Dynamic Link) field in DocType 'LMS
 #. Assessment'
@@ -648,12 +648,12 @@ msgstr ""
 #. Label of the attendees (Int) field in DocType 'LMS Live Class'
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Attendees"
-msgstr ""
+msgstr "Udeleženci"
 
 #. Label of the attire (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
 msgid "Attire Preference"
-msgstr ""
+msgstr "Prednostna oblačila"
 
 #: frontend/src/pages/ProfileEvaluator.vue:146
 msgid "Authorize Google Calendar Access"
@@ -662,13 +662,13 @@ msgstr ""
 #. Option for the 'Event' (Select) field in DocType 'LMS Badge'
 #: lms/lms/doctype/lms_badge/lms_badge.json
 msgid "Auto Assign"
-msgstr ""
+msgstr "Samodejno Dodeli"
 
 #. Label of the auto_recording (Select) field in DocType 'LMS Live Class'
 #: frontend/src/components/Modals/LiveClassModal.vue:73
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Auto Recording"
-msgstr ""
+msgstr "Samodejno Snemanje"
 
 #: frontend/src/pages/ProfileEvaluator.vue:241
 msgid "Availability updated successfully"
@@ -702,18 +702,18 @@ msgstr ""
 #: frontend/src/components/Settings/Badges.vue:214
 #: lms/lms/doctype/lms_badge_assignment/lms_badge_assignment.json
 msgid "Badge"
-msgstr ""
+msgstr "Značka"
 
 #. Label of the badge_description (Small Text) field in DocType 'LMS Badge
 #. Assignment'
 #: lms/lms/doctype/lms_badge_assignment/lms_badge_assignment.json
 msgid "Badge Description"
-msgstr ""
+msgstr "Opis Značke"
 
 #. Label of the badge_image (Attach) field in DocType 'LMS Badge Assignment'
 #: lms/lms/doctype/lms_badge_assignment/lms_badge_assignment.json
 msgid "Badge Image"
-msgstr ""
+msgstr "Slika Značke"
 
 #: frontend/src/components/Settings/BadgeAssignmentForm.vue:131
 msgid "Badge assignment created successfully"
@@ -760,7 +760,7 @@ msgstr "Šarža"
 #. Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Batch Confirmation Template"
-msgstr ""
+msgstr "Predloga za potrditev Skupine"
 
 #. Name of a DocType
 #: lms/lms/doctype/batch_course/batch_course.json
@@ -783,20 +783,20 @@ msgstr "Podrobnosti Šarže"
 #. Label of the batch_details_raw (HTML Editor) field in DocType 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json
 msgid "Batch Details Raw"
-msgstr ""
+msgstr "Podrobnosti o Skupini"
 
 #: frontend/src/pages/BatchForm.vue:89
 msgid "Batch End Date"
-msgstr ""
+msgstr "Končni datum Skupine"
 
 #: frontend/src/components/Settings/BadgeForm.vue:204
 #: frontend/src/components/Settings/Badges.vue:202
 msgid "Batch Enrollment"
-msgstr ""
+msgstr "Skupni Vpis"
 
 #: frontend/src/components/Modals/EmailTemplateModal.vue:28
 msgid "Batch Enrollment Confirmation"
-msgstr ""
+msgstr "Potrditev Skupnega Vpisa"
 
 #. Name of a role
 #: lms/lms/doctype/course_evaluator/course_evaluator.json
@@ -811,12 +811,12 @@ msgstr ""
 #: lms/lms/doctype/lms_programming_exercise_submission/lms_programming_exercise_submission.json
 #: lms/lms/doctype/lms_zoom_settings/lms_zoom_settings.json
 msgid "Batch Evaluator"
-msgstr ""
+msgstr "Ocenjevalec Skupine"
 
 #. Label of the batch_name (Link) field in DocType 'LMS Certificate Evaluation'
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 msgid "Batch Name"
-msgstr ""
+msgstr "Ime Skupine"
 
 #. Label of the batch_old (Link) field in DocType 'Exercise Latest Submission'
 #. Label of the batch_old (Link) field in DocType 'Exercise Submission'
@@ -825,7 +825,7 @@ msgstr ""
 #: lms/lms/doctype/exercise_submission/exercise_submission.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 msgid "Batch Old"
-msgstr ""
+msgstr "Stara Skupina"
 
 #. Label of the section_break_7 (Section Break) field in DocType 'LMS Batch
 #. Old'
@@ -834,46 +834,46 @@ msgstr ""
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Batch Settings"
-msgstr ""
+msgstr "Nastavitve Skupine"
 
 #: frontend/src/pages/BatchForm.vue:82
 msgid "Batch Start Date"
-msgstr ""
+msgstr "Datum začetka Skupine"
 
 #: lms/templates/emails/batch_confirmation.html:11
 msgid "Batch Start Date:"
-msgstr ""
+msgstr "Datum začetka Skupine:"
 
 #: frontend/src/components/AdminBatchDashboard.vue:41
 msgid "Batch Summary"
-msgstr ""
+msgstr "Povzetek Skupine"
 
 #. Label of the batch_title (Data) field in DocType 'LMS Certificate'
 #. Label of the batch_title (Data) field in DocType 'LMS Certificate Request'
 #: lms/lms/doctype/lms_certificate/lms_certificate.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Batch Title"
-msgstr ""
+msgstr "Naslov Skupine"
 
 #: frontend/src/pages/BatchForm.vue:594
 msgid "Batch deleted successfully"
-msgstr ""
+msgstr "Skupina uspešno izbrisana"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:43
 msgid "Batch end date cannot be before the batch start date"
-msgstr ""
+msgstr "Končni datum Skupine ne more biti pred začetnim datumom skupine"
 
 #: lms/lms/api.py:211
 msgid "Batch has already started."
-msgstr ""
+msgstr "Skupina se je že začela."
 
 #: lms/lms/api.py:206
 msgid "Batch is sold out."
-msgstr ""
+msgstr "Skupina je razprodana."
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:48
 msgid "Batch start time cannot be greater than or equal to end time."
-msgstr ""
+msgstr "Začetni čas skupine ne sme biti večji ali enak končnemu času."
 
 #: lms/templates/emails/batch_start_reminder.html:10
 msgid "Batch:"
@@ -7401,7 +7401,7 @@ msgstr ""
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Violet"
-msgstr ""
+msgstr "Vijolična"
 
 #. Label of the visibility (Select) field in DocType 'LMS Batch Old'
 #: lms/lms/doctype/lms_batch_old/lms_batch_old.json

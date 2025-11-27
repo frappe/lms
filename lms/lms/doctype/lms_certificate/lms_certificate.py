@@ -19,7 +19,7 @@ class LMSCertificate(Document):
 		self.name = make_autoname("hash", self.doctype)
 
 	def after_insert(self):
-		if not frappe.flags.in_test:
+		if not frappe.in_test:
 			outgoing_email_account = frappe.get_cached_value(
 				"Email Account", {"default_outgoing": 1, "enable_outgoing": 1}, "name"
 			)

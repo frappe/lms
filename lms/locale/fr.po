@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-11-14 16:04+0000\n"
-"PO-Revision-Date: 2025-11-18 12:33\n"
+"PO-Revision-Date: 2025-11-25 13:39\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: French\n"
 "MIME-Version: 1.0\n"
@@ -310,7 +310,7 @@ msgstr ""
 #. Name of a role
 #: frontend/src/pages/Batches.vue:274 lms/lms/doctype/lms_badge/lms_badge.json
 msgid "All"
-msgstr ""
+msgstr "Tous"
 
 #: frontend/src/pages/Batches.vue:26
 msgid "All Batches"
@@ -1580,7 +1580,7 @@ msgstr ""
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/lms/doctype/payment_country/payment_country.json
 msgid "Country"
-msgstr ""
+msgstr "Pays"
 
 #. Label of the coupon (Link) field in DocType 'LMS Payment'
 #: lms/lms/doctype/lms_payment/lms_payment.json
@@ -8057,5 +8057,5 @@ msgstr ""
 #. Count format of shortcut in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "{} Published"
-msgstr "{} Publié"
+msgstr ""
 

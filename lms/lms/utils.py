@@ -13,7 +13,6 @@ from frappe.desk.notifications import extract_mentions
 from frappe.rate_limiter import rate_limit
 from frappe.utils import (
 	add_months,
-	ceil,
 	cint,
 	cstr,
 	flt,
@@ -25,6 +24,7 @@ from frappe.utils import (
 	getdate,
 	nowtime,
 	pretty_date,
+	rounded,
 )
 
 from lms.lms.md import find_macros, markdown_to_html
@@ -928,7 +928,7 @@ def check_multicurrency(amount, currency, country=None, amount_usd=None):
 	if apply_rounding and amount % 100 != 0:
 		amount = amount + 100 - amount % 100
 
-	return ceil(amount), currency
+	return rounded(amount), currency
 
 
 def apply_gst(amount, country=None):

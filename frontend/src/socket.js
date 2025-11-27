@@ -12,6 +12,5 @@ export function initSocket() {
 		withCredentials: true,
 		reconnectionAttempts: 5,
 	})
-
 	return socket
 }
