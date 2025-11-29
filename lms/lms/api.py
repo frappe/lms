@@ -1023,6 +1023,11 @@ def upsert_chapter(title, course, is_scorm_package, scorm_package, name=None):
 	values = frappe._dict({"title": title, "course": course, "is_scorm_package": is_scorm_package})
 
 	if is_scorm_package:
+		if isinstance(scorm_package, str):
+			try:
+				scorm_package = frappe.parse_json(scorm_package)
+			except Exception:
+				scorm_package = json.loads(scorm_package)
 		scorm_package = frappe._dict(scorm_package)
 		extract_path = extract_package(course, title, scorm_package)
 
