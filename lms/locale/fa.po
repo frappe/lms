@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-11-14 16:04+0000\n"
-"PO-Revision-Date: 2025-11-25 13:40\n"
+"PO-Revision-Date: 2025-11-29 14:38\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Persian\n"
 "MIME-Version: 1.0\n"
@@ -1878,7 +1878,7 @@ msgstr ""
 
 #: frontend/src/pages/Home/AdminHome.vue:84
 msgid "Create Course"
-msgstr ""
+msgstr "ایجاد دوره"
 
 #: frontend/src/components/Controls/Link.vue:38
 #: frontend/src/components/Controls/MultiSelect.vue:64
@@ -2790,7 +2790,7 @@ msgstr ""
 
 #: frontend/src/components/ContactUsEmail.vue:63
 msgid "Failed to send email"
-msgstr ""
+msgstr "ارسال ایمیل ناموفق بود"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:363
 msgid "Failed to submit. Please try again. {0}"
@@ -4509,7 +4509,7 @@ msgstr ""
 
 #: frontend/src/pages/Home/StudentHome.vue:8
 msgid "My Courses"
-msgstr ""
+msgstr "دوره‌های من"
 
 #: frontend/src/components/Notes/Notes.vue:3
 msgid "My Notes"
@@ -7292,7 +7292,7 @@ msgstr ""
 
 #: lms/lms/doctype/lms_coupon/lms_coupon.py:31
 msgid "Usage limit cannot be negative"
-msgstr ""
+msgstr "محدودیت استفاده نمی‌تواند منفی باشد"
 
 #: frontend/src/components/Modals/EmailTemplateModal.vue:38
 msgid "Use HTML"
@@ -7861,7 +7861,7 @@ msgstr "روزها"
 
 #: frontend/src/pages/CourseForm.vue:290
 msgid "e.g. IST, UTC, GMT..."
-msgstr ""
+msgstr "مثلاً IST، UTC، GMT..."
 
 #: frontend/src/pages/Home/Home.vue:101 frontend/src/pages/Home/Home.vue:124
 msgid "evaluation"
