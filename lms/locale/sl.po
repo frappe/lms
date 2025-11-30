@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-11-14 16:04+0000\n"
-"PO-Revision-Date: 2025-11-29 14:39\n"
+"PO-Revision-Date: 2025-11-30 14:45\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Slovenian\n"
 "MIME-Version: 1.0\n"
@@ -2579,7 +2579,7 @@ msgstr ""
 #. Label of a shortcut in the LMS Workspace
 #: frontend/src/components/Modals/Event.vue:404 lms/lms/workspace/lms/lms.json
 msgid "Evaluation"
-msgstr ""
+msgstr "Vrednotenje"
 
 #. Label of the section_break_6 (Section Break) field in DocType 'LMS
 #. Certificate Evaluation'
