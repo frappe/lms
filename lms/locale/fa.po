@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-11-14 16:04+0000\n"
-"PO-Revision-Date: 2025-11-29 14:38\n"
+"PO-Revision-Date: 2025-11-30 14:45\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Persian\n"
 "MIME-Version: 1.0\n"
@@ -1997,7 +1997,7 @@ msgstr ""
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Cyan"
-msgstr "فیروزه ای"
+msgstr "فیروزه‌ای"
 
 #. Label of the show_dashboard (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -6089,7 +6089,7 @@ msgstr ""
 #: frontend/src/components/Settings/Members.vue:25
 #: frontend/src/pages/Jobs.vue:41
 msgid "Search"
-msgstr "جستجو کردن"
+msgstr "جستجو"
 
 #: frontend/src/components/Modals/CourseProgressSummary.vue:17
 #: frontend/src/components/Modals/VideoStatistics.vue:20
@@ -7296,7 +7296,7 @@ msgstr "محدودیت استفاده نمی‌تواند منفی باشد"
 
 #: frontend/src/components/Modals/EmailTemplateModal.vue:38
 msgid "Use HTML"
-msgstr "از HTML استفاده کنید"
+msgstr ""
 
 #. Label of the user (Link) field in DocType 'LMS Job Application'
 #. Label of the email (Link) field in DocType 'Cohort Staff'
