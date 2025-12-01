@@ -27,7 +27,7 @@
 				>
 					<div
 						v-if="!sidebarStore.isSidebarCollapsed"
-						class="flex items-center text-sm text-ink-gray-5 my-1"
+						class="flex items-center space-s-2 text-sm text-ink-gray-5 my-1"
 					>
 						<span class="grid h-5 w-6 flex-shrink-0 place-items-center">
 							<ChevronRight
@@ -35,7 +35,7 @@
 								:class="{ 'rotate-90': !sidebarStore.isWebpagesCollapsed }"
 							/>
 						</span>
-						<span class="ml-2">
+						<span class="">
 							{{ __('More') }}
 						</span>
 					</div>
@@ -103,7 +103,7 @@
 					:class="
 						sidebarStore.isSidebarCollapsed
 							? 'flex-col space-y-3'
-							: 'flex-row space-x-3'
+							: 'flex-row space-s-3'
 					"
 				>
 					<Tooltip v-if="readOnlyMode && sidebarStore.isSidebarCollapsed">

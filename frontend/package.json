@@ -17,7 +17,7 @@
     "@editorjs/checklist": "^1.6.0",
     "@editorjs/code": "^2.9.0",
     "@editorjs/editorjs": "^2.29.0",
-    "@editorjs/embed": "^2.7.0",
+    "@editorjs/embed": "2.7.0",
     "@editorjs/header": "^2.8.1",
     "@editorjs/inline-code": "^1.5.0",
     "@editorjs/nested-list": "^1.4.2",
@@ -55,6 +55,7 @@
     "@vitejs/plugin-vue": "^5.0.3",
     "autoprefixer": "^10.4.2",
     "postcss": "^8.4.5",
+    "tailwindcss-rtl": "^0.9.0",
     "vite": "^5.0.11",
     "vite-plugin-pwa": "0.15.0"
   }

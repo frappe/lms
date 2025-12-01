@@ -9,7 +9,7 @@
 	>
 		<div
 			class="flex items-center w-full duration-300 ease-in-out group"
-			:class="isCollapsed ? 'p-1 relative' : 'px-2 py-1'"
+			:class="isCollapsed ? 'p-1 relative space-s-0' : 'space-s-2 px-2 py-1'"
 		>
 			<Tooltip :text="__(link.label)" placement="right">
 				<slot name="icon">
@@ -24,9 +24,7 @@
 			<span
 				class="flex-shrink-0 text-sm duration-300 ease-in-out"
 				:class="
-					isCollapsed
-						? 'ml-0 w-0 overflow-hidden opacity-0'
-						: 'ml-2 w-auto opacity-100'
+					isCollapsed ? 'w-0 overflow-hidden opacity-0' : 'w-auto opacity-100'
 				"
 			>
 				{{ __(link.label) }}
