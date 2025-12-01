@@ -5370,7 +5370,7 @@ msgid "Postal Code"
 msgstr "邮政编码"
 
 #: frontend/src/components/AppSidebar.vue:125
-msgid "Powered by Learning"
+msgid "Developed by Lawh"
 msgstr "技术支持：学习平台"
 
 #. Name of a DocType

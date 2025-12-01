@@ -5370,8 +5370,8 @@ msgid "Postal Code"
 msgstr "Poštanski broj"
 
 #: frontend/src/components/AppSidebar.vue:125
-msgid "Powered by Learning"
-msgstr "Powered by Learning"
+msgid "Developed by Lawh"
+msgstr "Developed by Lawh"
 
 #. Name of a DocType
 #: lms/lms/doctype/preferred_function/preferred_function.json

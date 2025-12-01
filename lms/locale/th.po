@@ -5373,7 +5373,7 @@ msgid "Postal Code"
 msgstr "รหัสไปรษณีย์"
 
 #: frontend/src/components/AppSidebar.vue:125
-msgid "Powered by Learning"
+msgid "Developed by Lawh"
 msgstr ""
 
 #. Name of a DocType
