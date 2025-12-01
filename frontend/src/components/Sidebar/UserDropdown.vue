@@ -171,12 +171,12 @@ const userDropdownOptions = computed(() => {
 					},
 				},
 				{
-					label: "Configuration",
+					label: 'Configuration',
 					icon: Wrench,
 					submenu: [
 						{
 							component: markRaw(Configuration),
-						}
+						},
 					],
 					condition: () => {
 						return userResource.data?.is_moderator
