@@ -18,12 +18,8 @@
 		<div class="max-w-4xl mx-auto pt-5 p-4">
 			<div class="mb-6">
 				<h1 class="text-xl font-semibold text-ink-gray-7 mb-4 md:mb-0">
-					{{ applications.data?.length || 0 }}
-					{{
-						applications.data?.length === 1
-							? __('Application')
-							: __('Applications')
-					}}
+					{{ applicationCount }}
+					{{ applicationCount === 1 ? __('Application') : __('Applications') }}
 				</h1>
 			</div>
 
@@ -159,6 +155,7 @@ import {
 	Avatar,
 	Button,
 	Breadcrumbs,
+	call,
 	Dialog,
 	Dropdown,
 	FeatherIcon,
@@ -176,7 +173,7 @@ import {
 	toast,
 } from 'frappe-ui'
 import { RefreshCw } from 'lucide-vue-next'
-import { inject, ref, computed, reactive } from 'vue'
+import { computed, inject, onMounted, ref, reactive } from 'vue'
 import { sessionStore } from '../stores/session'
 import EmptyState from '@/components/EmptyState.vue'
 
@@ -184,6 +181,7 @@ const dayjs = inject('$dayjs')
 const { brand } = sessionStore()
 const showEmailModal = ref(false)
 const selectedApplicant = ref(null)
+const applicationCount = ref(0)
 const emailForm = reactive({
 	subject: '',
 	message: '',
@@ -196,6 +194,19 @@ const props = defineProps({
 		required: true,
 	},
 })
+
+onMounted(() => {
+	getApplicationCount()
+})
+
+const getApplicationCount = () => {
+	call('frappe.client.get_count', {
+		doctype: 'LMS Job Application',
+		filters: { job: props.job },
+	}).then((count) => {
+		applicationCount.value = count
+	})
+}
 
 const applications = createListResource({
 	doctype: 'LMS Job Application',
@@ -262,7 +273,6 @@ const sendEmail = (close) => {
 }
 
 const downloadResume = (resumeUrl) => {
-	console.log(resumeUrl)
 	window.open(resumeUrl, '_blank')
 }
 
