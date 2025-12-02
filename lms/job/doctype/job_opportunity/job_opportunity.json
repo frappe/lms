@@ -14,7 +14,6 @@
   "type",
   "work_mode",
   "status",
-  "disabled",
   "section_break_6",
   "company_name",
   "company_website",
@@ -98,12 +97,6 @@
    "reqd": 1
   },
   {
-   "default": "0",
-   "fieldname": "disabled",
-   "fieldtype": "Check",
-   "label": "Disabled"
-  },
-  {
    "fieldname": "company_email_address",
    "fieldtype": "Data",
    "label": "Company Email Address",
@@ -137,8 +130,8 @@
   }
  ],
  "make_attachments_public": 1,
- "modified": "2025-09-24 15:32:49.030004",
- "modified_by": "Administrator",
+ "modified": "2025-12-02 16:58:49.903274",
+ "modified_by": "sayali@frappe.io",
  "module": "Job",
  "name": "Job Opportunity",
  "owner": "Administrator",
