@@ -85,6 +85,7 @@ import {
 	User,
 	Settings,
 	Sun,
+	Wrench,
 	Zap,
 } from 'lucide-vue-next'
 
@@ -170,7 +171,13 @@ const userDropdownOptions = computed(() => {
 					},
 				},
 				{
-					component: markRaw(Configuration),
+					label: 'Configuration',
+					icon: Wrench,
+					submenu: [
+						{
+							component: markRaw(Configuration),
+						},
+					],
 					condition: () => {
 						return userResource.data?.is_moderator
 					},

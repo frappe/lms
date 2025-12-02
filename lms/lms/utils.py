@@ -1197,7 +1197,6 @@ def get_categorized_courses(courses):
 
 
 @frappe.whitelist(allow_guest=True)
-@rate_limit(limit=200, seconds=60 * 60)
 def get_course_outline(course, progress=False):
 	"""Returns the course outline."""
 	outline = []

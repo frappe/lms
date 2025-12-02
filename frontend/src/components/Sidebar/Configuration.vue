@@ -1,44 +1,26 @@
 <template>
-	<Popover placement="right-start" class="flex w-full" trigger="hover">
-		<template #target="{ togglePopover }">
-			<button
-				:class="[
-					'group w-full flex h-7 items-center justify-between rounded px-2 text-base text-ink-gray-7 hover:bg-surface-gray-2',
-				]"
+	<div class="grid grid-cols-3 justify-between bg-surface-white">
+		<div key="name" class="py-1 px-2 hover:bg-surface-gray-2 rounded">
+			<router-link
+				:to="{
+					name: 'DataImportList',
+					query: {
+						step: 'list',
+					},
+				}"
 			>
-				<div class="flex gap-2">
-					<Wrench class="size-4 stroke-1.5 text-ink-gray-7" />
-					<span class="whitespace-nowrap">
-						{{ __('Configuration') }}
-					</span>
-				</div>
-				<ChevronRight class="h-4 w-4 stroke-1.5" />
-			</button>
-		</template>
-		<template #body-main>
-			<div class="text-base p-2">
-				<router-link
-					:to="{
-						name: 'DataImportList',
-						query: {
-							step: 'list',
-						},
-					}"
-				>
-					<div
-						class="flex items-center space-x-2 hover:bg-surface-gray-2 px-2 py-1 rounded-sm"
-					>
-						<ArrowDownToLine class="size-4 stroke-1.5 text-ink-gray-7" />
-						<div class="text-sm text-ink-gray-7">
-							{{ __('Data Import') }}
-						</div>
+				<div class="flex flex-col items-center space-y-1">
+					<ArrowDownToLine
+						class="size-9 text-ink-gray-7 p-2 bg-surface-gray-2 rounded-md"
+					/>
+					<div class="text-sm text-ink-gray-7">
+						{{ __('Import') }}
 					</div>
-				</router-link>
-			</div>
-		</template>
-	</Popover>
+				</div>
+			</router-link>
+		</div>
+	</div>
 </template>
-<script setup>
-import { Popover } from 'frappe-ui'
-import { ArrowDownToLine, ChevronRight, Wrench } from 'lucide-vue-next'
+<script setup lang="ts">
+import { ArrowDownToLine } from 'lucide-vue-next'
 </script>
