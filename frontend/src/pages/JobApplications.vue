@@ -17,7 +17,7 @@
 		</header>
 		<div class="max-w-4xl mx-auto pt-5 p-4">
 			<div class="mb-6">
-				<h1 class="text-lg font-semibold text-ink-gray-9 mb-2">
+				<h1 class="text-xl font-semibold text-ink-gray-7 mb-4 md:mb-0">
 					{{ applications.data?.length || 0 }}
 					{{
 						applications.data?.length === 1
@@ -27,76 +27,85 @@
 				</h1>
 			</div>
 
-			<ListView
-				v-if="applications.data?.length"
-				:columns="applicationColumns"
-				:rows="applicantRows"
-				row-key="name"
-				:options="{
-					showTooltip: false,
-					selectable: false,
-				}"
-			>
-				<ListHeader
-					class="mb-2 grid items-center space-x-4 rounded bg-surface-gray-2 p-2"
+			<div v-if="applications.data?.length">
+				<ListView
+					:columns="applicationColumns"
+					:rows="applicantRows"
+					row-key="name"
+					:options="{
+						showTooltip: false,
+						selectable: false,
+					}"
 				>
-					<ListHeaderItem
-						:item="item"
-						v-for="item in applicationColumns"
-						:key="item.key"
+					<ListHeader
+						class="mb-2 grid items-center space-x-4 rounded bg-surface-gray-2 p-2"
 					>
-						<template #prefix="{ item }">
-							<FeatherIcon
-								v-if="item.icon"
-								:name="item.icon?.toString()"
-								class="h-4 w-4"
-							/>
-						</template>
-					</ListHeaderItem>
-				</ListHeader>
-				<ListRows>
-					<ListRow
-						:row="row"
-						v-slot="{ column, item }"
-						v-for="row in applicantRows"
-						class="cursor-pointer"
-					>
-						<ListRowItem :item="item">
-							<div
-								v-if="column.key === 'full_name'"
-								class="flex items-center space-x-3"
-							>
-								<Avatar
-									size="sm"
-									:image="row['user_image']"
-									:label="row['full_name']"
+						<ListHeaderItem
+							:item="item"
+							v-for="item in applicationColumns"
+							:key="item.key"
+						>
+							<template #prefix="{ item }">
+								<FeatherIcon
+									v-if="item.icon"
+									:name="item.icon?.toString()"
+									class="h-4 w-4"
 								/>
+							</template>
+						</ListHeaderItem>
+					</ListHeader>
+					<ListRows>
+						<ListRow
+							:row="row"
+							v-slot="{ column, item }"
+							v-for="row in applicantRows"
+							class="cursor-pointer"
+						>
+							<ListRowItem :item="item">
+								<div
+									v-if="column.key === 'full_name'"
+									class="flex items-center space-x-3"
+								>
+									<Avatar
+										size="sm"
+										:image="row['user_image']"
+										:label="row['full_name']"
+									/>
 
-								<span>{{ item }}</span>
-							</div>
-							<div
-								v-else-if="column.key === 'actions'"
-								class="flex justify-center"
-							>
-								<Dropdown :options="getActionOptions(row)">
-									<Button variant="ghost">
-										<FeatherIcon name="more-horizontal" class="w-4 h-4" />
-									</Button>
-								</Dropdown>
-							</div>
-							<div
-								v-else-if="column.key === 'applied_on'"
-								class="text-sm text-ink-gray-6"
-							>
-								{{ item }}
-							</div>
-							<div v-else>
-								{{ item }}
-							</div>
-						</ListRowItem>
-					</ListRow>
-				</ListRows>
-			</ListView>
+									<span>{{ item }}</span>
+								</div>
+								<div
+									v-else-if="column.key === 'actions'"
+									class="flex justify-center"
+								>
+									<Dropdown :options="getActionOptions(row)">
+										<Button variant="ghost">
+											<FeatherIcon name="more-horizontal" class="w-4 h-4" />
+										</Button>
+									</Dropdown>
+								</div>
+								<div
+									v-else-if="column.key === 'applied_on'"
+									class="text-sm text-ink-gray-6"
+								>
+									{{ item }}
+								</div>
+								<div v-else>
+									{{ item }}
+								</div>
+							</ListRowItem>
+						</ListRow>
+					</ListRows>
+				</ListView>
+				<div class="flex justify-center mt-5">
+					<Button v-if="applications.hasNextPage" @click="applications.next()">
+						<template #prefix>
+							<RefreshCw class="size-4 stroke-1.5" />
+						</template>
+						{{ __('Load More') }}
+					</Button>
+				</div>
+			</div>
 			<EmptyState v-else-if="!applications.loading" type="Job Applications" />
 		</div>
 
@@ -166,7 +175,7 @@ import {
 	usePageMeta,
 	toast,
 } from 'frappe-ui'
-
+import { RefreshCw } from 'lucide-vue-next'
 import { inject, ref, computed, reactive } from 'vue'
 import { sessionStore } from '../stores/session'
 import EmptyState from '@/components/EmptyState.vue'

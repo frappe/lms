@@ -113,7 +113,7 @@
 				{{ __('Enroll Now') }}
 			</Button>
 			<router-link
-				v-if="isModerator"
+				v-if="canCreateBatch"
 				:to="{
 					name: 'BatchForm',
 					params: {
@@ -211,5 +211,9 @@ const isEvaluator = computed(() => {
 
 const canAccessBatch = computed(() => {
 	return isModerator.value || isStudent.value || isEvaluator.value
+})
+
+const canCreateBatch = computed(() => {
+	return isModerator.value || isEvaluator.value
 })
 </script>

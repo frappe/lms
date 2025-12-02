@@ -504,6 +504,17 @@ def can_create_courses(course, member=None):
 	return False
 
 
+def can_create_batches(member=None):
+	if not member:
+		member = frappe.session.user
+
+	if has_course_moderator_role(member):
+		return True
+	if has_course_evaluator_role(member):
+		return True
+	return False
+
+
 def has_course_moderator_role(member=None):
 	return frappe.db.get_value(
 		"Has Role",
@@ -1335,12 +1346,12 @@ def get_neighbour_lesson(course, chapter, lesson):
 
 
 @frappe.whitelist(allow_guest=True)
-@rate_limit(limit=50, seconds=60 * 60)
+@rate_limit(limit=500, seconds=60 * 60)
 def get_batch_details(batch):
 	batch_students = frappe.get_all("LMS Batch Enrollment", {"batch": batch}, pluck="member")
 	if (
 		not frappe.db.get_value("LMS Batch", batch, "published")
-		and has_student_role()
+		and not can_create_batches()
 		and frappe.session.user not in batch_students
 	):
 		return
