@@ -11,7 +11,7 @@ dependencies = [
     # core dependencies
     "websocket_client~=1.6.4",
     "markdown~=3.5.1",
-    "beautifulsoup4~=4.12.2",
+    "beautifulsoup4~=4.13.4",
     "lxml~=4.9.3",
     "cairocffi==1.5.1",
     "razorpay~=1.4.1",

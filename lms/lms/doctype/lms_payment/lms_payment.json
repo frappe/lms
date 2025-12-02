@@ -16,14 +16,18 @@
   "payment_received",
   "payment_for_certificate",
   "payment_details_section",
-  "currency",
+  "original_amount",
+  "discount_amount",
   "amount",
   "amount_with_gst",
   "column_break_yxpl",
-  "order_id",
-  "payment_id",
+  "currency",
+  "coupon",
+  "coupon_code",
   "billing_details_section",
   "address",
+  "payment_id",
+  "order_id",
   "column_break_monu",
   "gstin",
   "pan"
@@ -46,6 +50,19 @@
    "label": "Amount",
    "options": "currency",
    "reqd": 1
+  },
+  {
+   "fieldname": "coupon",
+   "fieldtype": "Link",
+   "label": "Coupon",
+   "options": "LMS Coupon"
+  },
+  {
+   "depends_on": "coupon",
+   "fieldname": "discount_amount",
+   "fieldtype": "Currency",
+   "label": "Discount Amount",
+   "options": "currency"
   },
   {
    "fieldname": "currency",
@@ -118,12 +135,6 @@
    "reqd": 1
   },
   {
-   "depends_on": "eval:doc.currency == \"INR\";",
-   "fieldname": "amount_with_gst",
-   "fieldtype": "Currency",
-   "label": "Amount with GST"
-  },
-  {
    "fieldname": "payment_for_document_type",
    "fieldtype": "Select",
    "label": "Payment for Document Type",
@@ -149,6 +160,27 @@
    "fieldtype": "Check",
    "in_standard_filter": 1,
    "label": "Payment for Certificate"
+  },
+  {
+   "depends_on": "coupon",
+   "fetch_from": "coupon.code",
+   "fieldname": "coupon_code",
+   "fieldtype": "Data",
+   "label": "Coupon Code",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.currency == \"INR\"",
+   "fieldname": "amount_with_gst",
+   "fieldtype": "Currency",
+   "label": "Amount with GST"
+  },
+  {
+   "depends_on": "coupon",
+   "fieldname": "original_amount",
+   "fieldtype": "Currency",
+   "label": "Original Amount",
+   "options": "currency"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -162,7 +194,7 @@
    "link_fieldname": "payment"
   }
  ],
- "modified": "2025-09-23 11:04:00.462274",
+ "modified": "2025-11-12 12:39:52.466297",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Payment",

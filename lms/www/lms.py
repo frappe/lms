@@ -31,6 +31,7 @@ def get_boot():
 			"frappe_version": frappe.__version__,
 			"read_only_mode": frappe.flags.read_only,
 			"csrf_token": frappe.sessions.get_csrf_token(),
+			"site_name": frappe.local.site,
 		}
 	)
 

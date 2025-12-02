@@ -366,6 +366,7 @@ import {
 	getMetaInfo,
 	updateMetaInfo,
 	validateFile,
+	escapeHTML,
 } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
 import CourseOutline from '@/components/CourseOutline.vue'
@@ -547,7 +548,16 @@ const imageResource = createResource({
 	},
 })
 
+const validateFields = () => {
+	Object.keys(course).forEach((key) => {
+		if (key != 'description' && typeof course[key] === 'string') {
+			course[key] = escapeHTML(course[key])
+		}
+	})
+}
+
 const submitCourse = () => {
+	validateFields()
 	if (courseResource.data) {
 		editCourse()
 	} else {

@@ -9,6 +9,7 @@ describe("Course Creation", () => {
 
 		// Create a course
 		cy.get("button").contains("Create").click();
+		cy.get("span").contains("New Course").click();
 		cy.wait(500);
 		cy.url().should("include", "/courses/new/edit");
 

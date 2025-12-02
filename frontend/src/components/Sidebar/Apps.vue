@@ -1,11 +1,10 @@
 <template>
-	<Popover placement="right-start" class="flex w-full">
+	<Popover placement="right-start" trigger="hover" class="flex w-full">
 		<template #target="{ togglePopover }">
 			<button
 				:class="[
 					'group w-full flex h-7 items-center justify-between rounded px-2 text-base text-ink-gray-7 hover:bg-surface-gray-2',
 				]"
-				@click.prevent="togglePopover()"
 			>
 				<div class="flex gap-2">
 					<LayoutGrid class="size-4 stroke-1.5" />

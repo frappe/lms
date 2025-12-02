@@ -147,6 +147,8 @@ const columns = computed(() => {
 		} else {
 			if (field.type == 'checkbox') {
 				field.value = props.data[field.name] ? true : false
+			} else {
+				field.value = props.data[field.name]
 			}
 			currentColumn.push(field)
 		}
