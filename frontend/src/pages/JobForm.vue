@@ -207,6 +207,11 @@ const jobDetail = createResource({
 		}
 	},
 	onSuccess(data) {
+		if (data.owner != user.data?.name && !user.data?.is_moderator) {
+			router.push({
+				name: 'Jobs',
+			})
+		}
 		Object.keys(data).forEach((key) => {
 			if (Object.hasOwn(job, key)) job[key] = data[key]
 		})
@@ -242,7 +247,11 @@ const job = reactive({
 })
 
 onMounted(() => {
-	if (!user.data) window.location.href = '/login'
+	if (!user.data) {
+		router.push({
+			name: 'Jobs',
+		})
+	}
 
 	if (props.jobName != 'new') jobDetail.reload()
 })
