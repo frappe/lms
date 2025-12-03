@@ -193,11 +193,12 @@
    "label": "Possible Answer 4"
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
  "make_attachments_public": 1,
- "modified": "2024-10-07 09:41:17.862774",
- "modified_by": "Administrator",
+ "modified": "2025-11-10 11:40:18.568547",
+ "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Question",
  "naming_rule": "Expression",
@@ -240,8 +241,10 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
- "title_field": "question"
+ "title_field": "question",
+ "track_changes": 1
 }

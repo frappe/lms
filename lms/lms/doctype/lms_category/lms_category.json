@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_import": 1,
  "allow_rename": 1,
  "autoname": "field:category",
  "creation": "2023-06-15 12:40:36.484165",
@@ -21,8 +22,8 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-03-19 12:12:23.723432",
- "modified_by": "Administrator",
+ "modified": "2025-11-08 19:28:28.468137",
+ "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Category",
  "naming_rule": "By fieldname",
@@ -73,6 +74,7 @@
    "share": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],

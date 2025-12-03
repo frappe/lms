@@ -113,7 +113,7 @@
 				{{ __('Enroll Now') }}
 			</Button>
 			<router-link
-				v-if="isModerator"
+				v-if="canEditBatch"
 				:to="{
 					name: 'BatchForm',
 					params: {
@@ -209,7 +209,19 @@ const isEvaluator = computed(() => {
 	return user.data?.is_evaluator
 })
 
+const isInstructor = computed(() => {
+	return (
+		props.batch.data?.instructors?.filter(
+			(instructor) => instructor.name === user.data?.name
+		).length > 0
+	)
+})
+
 const canAccessBatch = computed(() => {
 	return isModerator.value || isStudent.value || isEvaluator.value
+})
+
+const canEditBatch = computed(() => {
+	return isModerator.value || isInstructor.value
 })
 </script>

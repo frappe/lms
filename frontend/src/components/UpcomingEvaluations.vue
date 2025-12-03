@@ -14,7 +14,10 @@
 			</Button>
 		</div>
 		<div v-if="upcoming_evals.data?.length">
-			<div class="grid gap-4" :class="forHome ? 'grid-cols-2' : 'grid-cols-3'">
+			<div
+				class="grid gap-4"
+				:class="forHome ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-3'"
+			>
 				<div v-for="evl in upcoming_evals.data">
 					<div class="border text-ink-gray-7 rounded-md p-3">
 						<div class="flex justify-between mb-3">

@@ -105,6 +105,8 @@
 	</Dialog>
 </template>
 <script setup lang="ts">
+import { computed, ref, watch } from 'vue'
+import { escapeHTML } from '@/utils'
 import {
 	Button,
 	createListResource,
@@ -113,14 +115,13 @@ import {
 	TextEditor,
 	toast,
 } from 'frappe-ui'
-import { computed, ref, watch } from 'vue'
 import {
 	ProgrammingExercise,
 	ProgrammingExercises,
 	TestCase,
 } from '@/types/programming-exercise'
-import ChildTable from '@/components/Controls/ChildTable.vue'
 import { ClipboardList, Play, Trash2 } from 'lucide-vue-next'
+import ChildTable from '@/components/Controls/ChildTable.vue'
 
 const show = defineModel()
 const exercises = defineModel<ProgrammingExercises>('exercises')
@@ -194,7 +195,12 @@ const fetchTestCases = () => {
 	testCases.reload()
 }
 
+const validateTitle = () => {
+	exercise.value.title = escapeHTML(exercise.value.title.trim())
+}
+
 const saveExercise = (close: () => void) => {
+	validateTitle()
 	if (props.exerciseID == 'new') createNewExercise(close)
 	else updateExercise(close)
 }

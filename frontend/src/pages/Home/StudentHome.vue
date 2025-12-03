@@ -64,15 +64,18 @@
 			</div>
 		</div>
 
-		<div class="grid grid-cols-2 gap-5 mt-10">
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-5 mt-10">
 			<UpcomingEvaluations :forHome="true" />
 			<div v-if="myLiveClasses.data?.length">
 				<div class="font-semibold text-lg mb-3 text-ink-gray-9">
 					{{ __('Upcoming Live Classes') }}
 				</div>
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-					<div v-for="cls in myLiveClasses.data" class="border rounded-md p-2">
-						<div class="font-semibold text-ink-gray-9 text-lg mb-1">
+					<div
+						v-for="cls in myLiveClasses.data"
+						class="border rounded-md hover:border-outline-gray-3 p-2"
+					>
+						<div class="font-semibold text-ink-gray-9 text-lg leading-5 mb-1">
 							{{ cls.title }}
 						</div>
 						<div class="text-ink-gray-7 text-sm leading-5 mb-4">

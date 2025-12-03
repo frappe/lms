@@ -32,10 +32,13 @@
 					{{ __('{0} Open Jobs').format(jobCount) }}
 				</div>
 
-				<div
-					class="grid grid-cols-1 gap-2 md:grid-cols-4"
-					:class="user.data ? 'md:grid-cols-3' : 'md:grid-cols-2'"
-				>
+				<div class="flex items-center justify-between space-x-4">
+					<TabButtons
+						v-if="tabs.length > 1"
+						v-model="activeTab"
+						:buttons="tabs"
+						@change="updateJobs"
+					/>
 					<FormControl
 						type="text"
 						:placeholder="__('Search')"
@@ -55,13 +58,13 @@
 						doctype="Country"
 						v-model="country"
 						:placeholder="__('Country')"
-						class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40"
+						class="min-w-32 lg:min-w-0 lg:w-32 xl:w-32"
 					/>
 					<FormControl
 						v-model="jobType"
 						type="select"
 						:options="jobTypes"
-						class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40"
+						class="min-w-32 lg:min-w-0 lg:w-32 xl:w-32"
 						:placeholder="__('Type')"
 						@change="updateJobs"
 					/>
@@ -69,7 +72,7 @@
 						v-model="workMode"
 						type="select"
 						:options="workModes"
-						class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40"
+						class="min-w-32 lg:min-w-0 lg:w-32 xl:w-32"
 						:placeholder="__('Work Mode')"
 						@change="updateJobs"
 					/>
@@ -100,6 +103,7 @@ import {
 	call,
 	createResource,
 	FormControl,
+	TabButtons,
 	usePageMeta,
 } from 'frappe-ui'
 import { Plus, Search } from 'lucide-vue-next'
@@ -118,9 +122,38 @@ const country = ref(null)
 const filters = ref({})
 const orFilters = ref({})
 const jobCount = ref(0)
+const closedJobs = ref(0)
+const activeTab = ref('Open')
 const readOnlyMode = window.read_only_mode
 
 onMounted(() => {
+	getClosedJobCount()
+	setFiltersFromURL()
+	updateJobs()
+})
+
+const isModerator = computed(() => {
+	return user.data?.is_moderator
+})
+
+const getClosedJobCount = () => {
+	const filters = {
+		status: 'Closed',
+	}
+
+	if (!isModerator.value) {
+		filters.owner = user.data?.name
+	}
+
+	call('frappe.client.get_count', {
+		doctype: 'Job Opportunity',
+		filters: filters,
+	}).then((count) => {
+		closedJobs.value = count
+	})
+}
+
+const setFiltersFromURL = () => {
 	let queries = new URLSearchParams(location.search)
 	if (queries.has('type')) {
 		jobType.value = queries.get('type')
@@ -128,7 +161,22 @@ onMounted(() => {
 	if (queries.has('work_mode')) {
 		workMode.value = queries.get('work_mode')
 	}
-	updateJobs()
+}
+
+const tabs = computed(() => {
+	const tabsArray = [
+		{
+			label: __('Open'),
+		},
+	]
+
+	if (closedJobs.value) {
+		tabsArray.push({
+			label: __('Closed'),
+		})
+	}
+
+	return tabsArray
 })
 
 const jobs = createResource({
@@ -149,7 +197,6 @@ const updateJobs = () => {
 
 const updateFilters = () => {
 	filters.value.status = 'Open'
-	filters.value.disabled = 0
 
 	if (jobType.value) {
 		filters.value.type = jobType.value
@@ -178,7 +225,21 @@ const updateFilters = () => {
 	} else {
 		delete filters.value.country
 	}
+
+	if (activeTab.value === 'Closed') {
+		filters.value.status = 'Closed'
+		if (!isModerator.value) {
+			filters.value.owner = user.data?.name
+		}
+	} else {
+		filters.value.status = 'Open'
+		delete filters.value.owner
+	}
 }
+
+watch(activeTab, (val) => {
+	updateJobs()
+})
 
 watch(country, (val) => {
 	updateJobs()
@@ -190,7 +251,7 @@ watch(jobs, () => {
 
 const jobTypes = computed(() => {
 	return [
-		'',
+		{ label: '', value: '' },
 		{ label: __('Full Time'), value: 'Full Time' },
 		{ label: __('Part Time'), value: 'Part Time' },
 		{ label: __('Contract'), value: 'Contract' },
@@ -200,7 +261,7 @@ const jobTypes = computed(() => {
 
 const workModes = computed(() => {
 	return [
-		'',
+		{ label: '', value: '' },
 		{ label: 'On site', value: 'On-site' },
 		{ label: 'Hybrid', value: 'Hybrid' },
 		{ label: 'Remote', value: 'Remote' },

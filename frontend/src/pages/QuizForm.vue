@@ -231,6 +231,7 @@ import {
 import { sessionStore } from '../stores/session'
 import { ClipboardList, ListChecks, Plus, Trash2 } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
+import { escapeHTML } from '@/utils'
 import Question from '@/components/Modals/Question.vue'
 
 const { brand } = sessionStore()
@@ -294,7 +295,12 @@ const quizDetails = createDocumentResource({
 	},
 })
 
+const validateTitle = () => {
+	quizDetails.doc.title = escapeHTML(quizDetails.doc.title.trim())
+}
+
 const submitQuiz = () => {
+	validateTitle()
 	quizDetails.setValue.submit(
 		{
 			...quizDetails.doc,
