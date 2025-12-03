@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-11-28 16:04+0000\n"
-"PO-Revision-Date: 2025-12-01 15:58\n"
+"PO-Revision-Date: 2025-12-02 16:12\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Croatian\n"
 "MIME-Version: 1.0\n"
@@ -2107,7 +2107,7 @@ msgstr "Izbriši Tečaj"
 
 #: frontend/src/pages/Programs/ProgramForm.vue:561
 msgid "Delete Program"
-msgstr ""
+msgstr "Izbriši Program"
 
 #: frontend/src/components/CourseOutline.vue:354
 msgid "Delete this chapter?"
@@ -4368,7 +4368,7 @@ msgstr "Član je uspješno dodan u program"
 
 #: frontend/src/pages/Programs/ProgramForm.vue:469
 msgid "Member already added to program"
-msgstr ""
+msgstr "Član je već dodan u program"
 
 #: lms/lms/doctype/lms_batch_enrollment/lms_batch_enrollment.py:26
 msgid "Member already enrolled in this batch"
@@ -4376,7 +4376,7 @@ msgstr "Član je već upisan u ovu grupu"
 
 #: lms/lms/doctype/lms_program/lms_program.py:30
 msgid "Member {0} has already been added to this program."
-msgstr ""
+msgstr "Član {0} je već dodan u ovaj program."
 
 #. Group in LMS Batch Old's connections
 #: frontend/src/pages/Programs/ProgramForm.vue:110
