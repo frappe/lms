@@ -201,7 +201,7 @@ def get_lesson_icon(body, content):
 
 
 @frappe.whitelist(allow_guest=True)
-@rate_limit(limit=50, seconds=60 * 60)
+@rate_limit(limit=500, seconds=60 * 60)
 def get_tags(course):
 	tags = frappe.db.get_value("LMS Course", course, "tags")
 	return tags.split(",") if tags else []
@@ -246,7 +246,7 @@ def get_average_rating(course):
 
 
 @frappe.whitelist(allow_guest=True)
-@rate_limit(limit=50, seconds=60 * 60)
+@rate_limit(limit=500, seconds=60 * 60)
 def get_reviews(course):
 	reviews = frappe.get_all(
 		"LMS Course Review",
@@ -748,7 +748,7 @@ def has_lessons(course):
 
 
 @frappe.whitelist(allow_guest=True)
-@rate_limit(limit=50, seconds=60 * 60)
+@rate_limit(limit=500, seconds=60 * 60)
 def get_chart_data(
 	chart_name,
 	timespan="Select Date Range",
@@ -796,7 +796,7 @@ def get_chart_data(
 
 
 @frappe.whitelist(allow_guest=True)
-@rate_limit(limit=50, seconds=60 * 60)
+@rate_limit(limit=500, seconds=60 * 60)
 def get_course_completion_data():
 	all_membership = frappe.db.count("LMS Enrollment")
 	completed = frappe.db.count("LMS Enrollment", {"progress": ["like", "%100%"]})
@@ -972,7 +972,7 @@ def change_currency(amount, currency, country=None):
 
 
 @frappe.whitelist(allow_guest=True)
-@rate_limit(limit=50, seconds=60 * 60)
+@rate_limit(limit=500, seconds=60 * 60)
 def get_courses(filters=None, start=0):
 	"""Returns the list of courses."""
 
@@ -1113,7 +1113,7 @@ def get_course_fields():
 
 
 @frappe.whitelist(allow_guest=True)
-@rate_limit(limit=50, seconds=60 * 60)
+@rate_limit(limit=500, seconds=60 * 60)
 def get_course_details(course):
 	course_details = frappe.db.get_value(
 		"LMS Course",
@@ -1235,7 +1235,7 @@ def get_course_outline(course, progress=False):
 
 
 @frappe.whitelist(allow_guest=True)
-@rate_limit(limit=50, seconds=60 * 60)
+@rate_limit(limit=500, seconds=60 * 60)
 def get_lesson(course, chapter, lesson):
 	chapter_name = frappe.db.get_value("Chapter Reference", {"parent": course, "idx": chapter}, "chapter")
 	lesson_name = frappe.db.get_value("Lesson Reference", {"parent": chapter_name, "idx": lesson}, "lesson")
@@ -1467,7 +1467,7 @@ def get_question_details(question):
 
 
 @frappe.whitelist(allow_guest=True)
-@rate_limit(limit=50, seconds=60 * 60)
+@rate_limit(limit=500, seconds=60 * 60)
 def get_batch_courses(batch):
 	courses = []
 	course_list = frappe.get_all("Batch Course", {"parent": batch}, ["name", "course"])
@@ -2185,7 +2185,7 @@ def enroll_in_program(program):
 
 
 @frappe.whitelist(allow_guest=True)
-@rate_limit(limit=50, seconds=60 * 60)
+@rate_limit(limit=500, seconds=60 * 60)
 def get_batches(filters=None, start=0, order_by="start_date"):
 	if not filters:
 		filters = {}
@@ -2299,7 +2299,7 @@ def get_palette(full_name):
 
 
 @frappe.whitelist(allow_guest=True)
-@rate_limit(limit=50, seconds=60 * 60)
+@rate_limit(limit=500, seconds=60 * 60)
 def get_related_courses(course):
 	related_course_details = []
 	related_courses = frappe.get_all("Related Courses", {"parent": course}, order_by="idx", pluck="course")
