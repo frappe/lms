@@ -16,6 +16,7 @@ class LMSBatchEnrollment(Document):
 
 	def validate(self):
 		self.validate_duplicate_members()
+		self.validate_seat_availability()
 		self.validate_course_enrollment()
 
 	def validate_duplicate_members(self):
@@ -24,6 +25,12 @@ class LMSBatchEnrollment(Document):
 			{"batch": self.batch, "member": self.member, "name": ["!=", self.name]},
 		):
 			frappe.throw(_("Member already enrolled in this batch"))
+
+	def validate_seat_availability(self):
+		seat_count = frappe.db.get_value("LMS Batch", self.batch, "seat_count")
+		enrolled_count = frappe.db.count("LMS Batch Enrollment", {"batch": self.batch})
+		if seat_count and enrolled_count >= seat_count:
+			frappe.throw(_("There are no seats available in this batch."))
 
 	def validate_course_enrollment(self):
 		courses = frappe.get_all("Batch Course", filters={"parent": self.batch}, fields=["course"])
