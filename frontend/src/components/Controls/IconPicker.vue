@@ -20,7 +20,7 @@
 							class="w-4 h-4 text-ink-gray-7 stroke-1.5"
 							:is="icons.Folder"
 						/>
-						<span v-if="selectedIcon">
+						<span v-if="selectedIcon" class="text-ink-gray-7">
 							{{ selectedIcon }}
 						</span>
 						<span v-else class="text-ink-gray-5">
