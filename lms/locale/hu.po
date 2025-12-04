@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-11-28 16:04+0000\n"
-"PO-Revision-Date: 2025-12-01 15:58\n"
+"PO-Revision-Date: 2025-12-04 17:06\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Hungarian\n"
 "MIME-Version: 1.0\n"
@@ -661,7 +661,7 @@ msgstr ""
 
 #: frontend/src/pages/ProfileEvaluator.vue:146
 msgid "Authorize Google Calendar Access"
-msgstr ""
+msgstr "Google Naptár Hozzáférés Engedélyezése"
 
 #. Option for the 'Event' (Select) field in DocType 'LMS Badge'
 #: lms/lms/doctype/lms_badge/lms_badge.json
@@ -919,14 +919,14 @@ msgstr ""
 
 #: frontend/src/components/Modals/EditProfile.vue:81
 msgid "Bio"
-msgstr ""
+msgstr "Életrajz"
 
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #. Option for the 'Color' (Select) field in DocType 'LMS Lesson Note'
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 msgid "Blue"
-msgstr ""
+msgstr "Kék"
 
 #. Label of the body (Markdown Editor) field in DocType 'Course Lesson'
 #: lms/lms/doctype/course_lesson/course_lesson.json
@@ -1004,7 +1004,7 @@ msgstr "Kategória"
 
 #: frontend/src/components/Settings/Categories.vue:39
 msgid "Category Name"
-msgstr ""
+msgstr "Kategória Neve"
 
 #: frontend/src/components/Settings/Categories.vue:133
 msgid "Category added successfully"
@@ -1148,7 +1148,7 @@ msgstr ""
 
 #: frontend/src/components/Quiz.vue:229
 msgid "Check"
-msgstr ""
+msgstr "Jelölje be"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:16
 msgid "Check All Submissions"
@@ -1233,7 +1233,7 @@ msgstr "Kattints ide"
 #: lms/lms/doctype/lms_zoom_settings/lms_zoom_settings.json
 #: lms/lms/doctype/zoom_settings/zoom_settings.json
 msgid "Client ID"
-msgstr ""
+msgstr "Ügyfél Azonosító"
 
 #. Label of the client_secret (Password) field in DocType 'LMS Zoom Settings'
 #. Label of the client_secret (Password) field in DocType 'Zoom Settings'
@@ -1241,7 +1241,7 @@ msgstr ""
 #: lms/lms/doctype/lms_zoom_settings/lms_zoom_settings.json
 #: lms/lms/doctype/zoom_settings/zoom_settings.json
 msgid "Client Secret"
-msgstr ""
+msgstr "Ügyfél Jelszó"
 
 #: frontend/src/components/Settings/Categories.vue:27
 msgid "Close"
@@ -1270,7 +1270,7 @@ msgstr ""
 #: lms/lms/doctype/lms_exercise/lms_exercise.json
 #: lms/lms/doctype/lms_programming_exercise_submission/lms_programming_exercise_submission.json
 msgid "Code"
-msgstr ""
+msgstr "Kód"
 
 #. Name of a DocType
 #. Label of the cohort (Link) field in DocType 'Cohort Join Request'
@@ -1482,7 +1482,7 @@ msgstr ""
 
 #: frontend/src/components/Sidebar/Configuration.vue:12
 msgid "Configuration"
-msgstr ""
+msgstr "Beállítás"
 
 #: frontend/src/pages/BatchForm.vue:148
 msgid "Configurations"
@@ -2012,7 +2012,7 @@ msgstr ""
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Cyan"
-msgstr ""
+msgstr "Cián"
 
 #. Label of the show_dashboard (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -2241,7 +2241,7 @@ msgstr ""
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 msgid "Document"
-msgstr ""
+msgstr "Dokumentum"
 
 #: frontend/src/components/Settings/Coupons/CouponItems.vue:11
 msgid "Document Name"
