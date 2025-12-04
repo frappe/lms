@@ -2204,12 +2204,7 @@ def get_program_details(program_name):
 
 @frappe.whitelist()
 def enroll_in_program(program):
-	if frappe.session.user == "Guest":
-		frappe.throw(_("Please login to enroll in the program."))
-
-	published = frappe.db.get_value("LMS Program", program, "published")
-	if not published:
-		frappe.throw(_("You cannot enroll in an unpublished program."))
+	validate_program_enrollment(program)
 
 	if not frappe.db.exists("LMS Program Member", {"parent": program, "member": frappe.session.user}):
 		program_member = frappe.new_doc("LMS Program Member")
@@ -2222,6 +2217,15 @@ def enroll_in_program(program):
 			}
 		)
 		program_member.save(ignore_permissions=True)
+
+
+def validate_program_enrollment(program):
+	if frappe.session.user == "Guest":
+		frappe.throw(_("Please login to enroll in the program."))
+
+	published = frappe.db.get_value("LMS Program", program, "published")
+	if not published:
+		frappe.throw(_("You cannot enroll in an unpublished program."))
 
 
 @frappe.whitelist(allow_guest=True)

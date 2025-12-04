@@ -30,6 +30,7 @@ class TestLMSCourse(unittest.TestCase):
 			frappe.delete_doc("User", "tester@example.com")
 
 		if frappe.db.exists("LMS Course", "test-course"):
+			frappe.db.delete("Batch Course", {"course": "test-course"})
 			frappe.db.delete("Exercise Submission", {"course": "test-course"})
 			frappe.db.delete("Exercise Latest Submission", {"course": "test-course"})
 			frappe.db.delete("LMS Exercise", {"course": "test-course"})
