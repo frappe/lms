@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-11-28 16:04+0000\n"
-"PO-Revision-Date: 2025-12-02 16:12\n"
+"PO-Revision-Date: 2025-12-04 17:07\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Bosnian\n"
 "MIME-Version: 1.0\n"
@@ -1375,20 +1375,20 @@ msgstr "Zajednica"
 #: lms/job/doctype/lms_job_application/lms_job_application.json
 #: lms/lms/doctype/work_experience/work_experience.json
 msgid "Company"
-msgstr "Kompanija"
+msgstr "Poduzeće"
 
 #. Label of the section_break_6 (Section Break) field in DocType 'Job
 #. Opportunity'
 #: frontend/src/pages/JobForm.vue:63
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Company Details"
-msgstr "Detalji o Kompaniji"
+msgstr "Detalji o Poduzeću"
 
 #. Label of the company_email_address (Data) field in DocType 'Job Opportunity'
 #: frontend/src/pages/JobForm.vue:82
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Company Email Address"
-msgstr "Adresa e-pošte Kompanije"
+msgstr "Adresa e-pošte Poduzeća"
 
 #. Label of the company_logo (Attach Image) field in DocType 'Job Opportunity'
 #. Label of a field in the job-opportunity Web Form
@@ -1396,7 +1396,7 @@ msgstr "Adresa e-pošte Kompanije"
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Company Logo"
-msgstr "Logo Kompanije"
+msgstr "Logo Poduzeća"
 
 #. Label of the company_name (Data) field in DocType 'Job Opportunity'
 #. Label of a field in the job-opportunity Web Form
@@ -1404,12 +1404,12 @@ msgstr "Logo Kompanije"
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Company Name"
-msgstr "Naziv Kompanije"
+msgstr "Naziv Poduzeća"
 
 #. Label of the company_type (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
 msgid "Company Type"
-msgstr "Tip Kompanije"
+msgstr "Tip Poduzeća"
 
 #. Label of the company_website (Data) field in DocType 'Job Opportunity'
 #. Label of a field in the job-opportunity Web Form
@@ -1417,7 +1417,7 @@ msgstr "Tip Kompanije"
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Company Website"
-msgstr "Web stranica Kompanije"
+msgstr "Web stranica Poduzeća"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:69
 msgid "Compiler Message"
@@ -2258,7 +2258,7 @@ msgstr "Ne propusti priliku da unaprediš svoje veštine. Klikni ispod da završ
 #. Label of the dream_companies (Data) field in DocType 'User'
 #: lms/fixtures/custom_field.json
 msgid "Dream Companies"
-msgstr "San Snova Kompanije"
+msgstr "Poduzeće iz Snova"
 
 #: lms/lms/doctype/lms_question/lms_question.py:34
 msgid "Duplicate options found for this question."
