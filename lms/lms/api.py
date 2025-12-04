@@ -520,7 +520,7 @@ def get_sidebar_settings():
 		web_pages = frappe.get_all(
 			"LMS Sidebar Item",
 			{"parenttype": "LMS Settings", "parentfield": "sidebar_items"},
-			["web_page", "route", "title as label", "icon"],
+			["web_page", "route", "title as label", "icon", "name"],
 		)
 		for page in web_pages:
 			page.to = page.route
@@ -813,6 +813,7 @@ def save_certificate_details(
 def delete_documents(doctype, documents):
 	frappe.only_for("Moderator")
 	for doc in documents:
+		print(f"Deleting {doctype} {doc}")
 		frappe.delete_doc(doctype, doc)
 
 
@@ -1014,6 +1015,7 @@ def give_discussions_permission():
 						"write": 1,
 						"create": 1,
 						"delete": 1,
+						"if_owner": 0 if role == "Moderator" else 1,
 					}
 				).save(ignore_permissions=True)
 

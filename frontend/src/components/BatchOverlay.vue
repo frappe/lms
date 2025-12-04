@@ -198,7 +198,6 @@ const seats_left = computed(() => {
 })
 
 const isStudent = computed(() => {
-	console.log(props.batch.data?.students)
 	return props.batch.data?.students?.includes(user.data?.name)
 })
 
