@@ -813,7 +813,6 @@ def save_certificate_details(
 def delete_documents(doctype, documents):
 	frappe.only_for("Moderator")
 	for doc in documents:
-		print(f"Deleting {doctype} {doc}")
 		frappe.delete_doc(doctype, doc)
 
 
@@ -1453,11 +1452,11 @@ def get_meta_info(type, route):
 
 
 @frappe.whitelist()
-def update_meta_info(type, route, meta_tags):
-	parent_name = f"{type}/{route}"
-	if not isinstance(meta_tags, list):
-		frappe.throw(_("Meta tags should be a list."))
+def update_meta_info(meta_type, route, meta_tags):
+	validate_meta_data_permissions()
+	validate_meta_tags(meta_tags)
 
+	parent_name = f"{meta_type}/{route}"
 	for tag in meta_tags:
 		existing_tag = frappe.db.exists(
 			"Website Meta Tag",
@@ -1484,18 +1483,43 @@ def update_meta_info(type, route, meta_tags):
 
 			parent_exists = frappe.db.exists("Website Route Meta", parent_name)
 			if not parent_exists:
-				route_meta = frappe.new_doc("Website Route Meta")
-				route_meta.update(
-					{
-						"__newname": parent_name,
-					}
-				)
-				route_meta.append("meta_tags", tag_properties)
-				route_meta.insert()
+				create_meta(parent_name, tag_properties)
 			else:
-				new_tag = frappe.new_doc("Website Meta Tag")
-				new_tag.update(tag_properties)
-				new_tag.insert()
+				create_meta_tag(tag_properties)
+
+
+def validate_meta_tags(meta_tags):
+	if not isinstance(meta_tags, list):
+		frappe.throw(_("Meta tags should be a list."))
+
+
+def create_meta(parent_name, tag_properties):
+	route_meta = frappe.new_doc("Website Route Meta")
+	route_meta.update(
+		{
+			"__newname": parent_name,
+		}
+	)
+	route_meta.append("meta_tags", tag_properties)
+	route_meta.insert()
+
+
+def create_meta_tag(tag_properties):
+	new_tag = frappe.new_doc("Website Meta Tag")
+	new_tag.update(tag_properties)
+	new_tag.insert()
+
+
+def validate_meta_data_permissions(meta_type):
+	roles = frappe.get_roles()
+
+	if meta_type == "courses":
+		if not ("Course Creator" in roles or "Moderator" in roles):
+			frappe.throw(_("You do not have permission to update meta tags."))
+
+	elif meta_type == "batches":
+		if not ("Batch Evaluator" in roles or "Moderator" in roles):
+			frappe.throw(_("You do not have permission to update meta tags."))
 
 
 @frappe.whitelist()

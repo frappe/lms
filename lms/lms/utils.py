@@ -2206,6 +2206,11 @@ def get_program_details(program_name):
 def enroll_in_program(program):
 	if frappe.session.user == "Guest":
 		frappe.throw(_("Please login to enroll in the program."))
+
+	published = frappe.db.get_value("LMS Program", program, "published")
+	if not published:
+		frappe.throw(_("You cannot enroll in an unpublished program."))
+
 	if not frappe.db.exists("LMS Program Member", {"parent": program, "member": frappe.session.user}):
 		program_member = frappe.new_doc("LMS Program Member")
 		program_member.update(

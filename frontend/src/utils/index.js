@@ -675,7 +675,7 @@ export const getMetaInfo = (type, route, meta) => {
 
 export const updateMetaInfo = (type, route, meta) => {
 	call('lms.lms.api.update_meta_info', {
-		type: type,
+		meta_type: type,
 		route: route,
 		meta_tags: [
 			{ key: 'description', value: meta.description },

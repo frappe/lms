@@ -30,9 +30,7 @@ frappe.ui.form.on("LMS Badge", {
 
 			const user_fields = fields
 				.filter(
-					(df) =>
-						(df.fieldtype === "Link" && df.options === "User") ||
-						df.fieldtype === "Data"
+					(df) => df.fieldtype === "Link" && df.options === "User"
 				)
 				.map(map_for_options)
 				.concat([

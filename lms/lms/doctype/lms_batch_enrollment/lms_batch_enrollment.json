@@ -73,8 +73,8 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-02-11 10:39:57.259526",
- "modified_by": "Administrator",
+ "modified": "2025-12-04 12:53:38.246250",
+ "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Batch Enrollment",
  "owner": "Administrator",
@@ -105,16 +105,12 @@
   },
   {
    "create": 1,
-   "email": 1,
-   "export": 1,
    "if_owner": 1,
-   "print": 1,
    "read": 1,
-   "report": 1,
-   "role": "LMS Student",
-   "share": 1
+   "role": "LMS Student"
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "creation",
  "sort_order": "DESC",
  "states": [],
