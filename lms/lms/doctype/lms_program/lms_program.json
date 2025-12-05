@@ -92,7 +92,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-20 12:28:57.238902",
+ "modified": "2025-12-04 12:56:14.249363",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Program",
@@ -136,13 +136,8 @@
    "write": 1
   },
   {
-   "email": 1,
-   "export": 1,
-   "print": 1,
    "read": 1,
-   "report": 1,
-   "role": "LMS Student",
-   "share": 1
+   "role": "LMS Student"
   }
  ],
  "row_format": "Dynamic",

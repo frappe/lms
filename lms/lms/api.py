@@ -520,7 +520,7 @@ def get_sidebar_settings():
 		web_pages = frappe.get_all(
 			"LMS Sidebar Item",
 			{"parenttype": "LMS Settings", "parentfield": "sidebar_items"},
-			["web_page", "route", "title as label", "icon"],
+			["web_page", "route", "title as label", "icon", "name"],
 		)
 		for page in web_pages:
 			page.to = page.route
@@ -1014,6 +1014,7 @@ def give_discussions_permission():
 						"write": 1,
 						"create": 1,
 						"delete": 1,
+						"if_owner": 0 if role == "Moderator" else 1,
 					}
 				).save(ignore_permissions=True)
 
@@ -1303,7 +1304,24 @@ def get_notifications(filters):
 
 
 @frappe.whitelist(allow_guest=True)
-def get_lms_setting(field):
+def get_lms_setting(field=None):
+	if not field:
+		frappe.throw(_("Field name is required"))
+		frappe.log_error("Field name is missing when accessing LMS Settings {0} {1} {2}").format(
+			frappe.local.request_ip, frappe.get_request_header("Referer"), frappe.get_request_header("Origin")
+		)
+
+	allowed_fields = [
+		"allow_guest_access",
+		"prevent_skipping_videos",
+		"contact_us_email",
+		"contact_us_url",
+		"livecode_url",
+	]
+
+	if field not in allowed_fields:
+		frappe.throw(_("You are not allowed to access this field"))
+
 	return frappe.get_cached_value("LMS Settings", None, field)
 
 
@@ -1451,11 +1469,11 @@ def get_meta_info(type, route):
 
 
 @frappe.whitelist()
-def update_meta_info(type, route, meta_tags):
-	parent_name = f"{type}/{route}"
-	if not isinstance(meta_tags, list):
-		frappe.throw(_("Meta tags should be a list."))
+def update_meta_info(meta_type, route, meta_tags):
+	validate_meta_data_permissions()
+	validate_meta_tags(meta_tags)
 
+	parent_name = f"{meta_type}/{route}"
 	for tag in meta_tags:
 		existing_tag = frappe.db.exists(
 			"Website Meta Tag",
@@ -1482,18 +1500,43 @@ def update_meta_info(type, route, meta_tags):
 
 			parent_exists = frappe.db.exists("Website Route Meta", parent_name)
 			if not parent_exists:
-				route_meta = frappe.new_doc("Website Route Meta")
-				route_meta.update(
-					{
-						"__newname": parent_name,
-					}
-				)
-				route_meta.append("meta_tags", tag_properties)
-				route_meta.insert()
+				create_meta(parent_name, tag_properties)
 			else:
-				new_tag = frappe.new_doc("Website Meta Tag")
-				new_tag.update(tag_properties)
-				new_tag.insert()
+				create_meta_tag(tag_properties)
+
+
+def validate_meta_tags(meta_tags):
+	if not isinstance(meta_tags, list):
+		frappe.throw(_("Meta tags should be a list."))
+
+
+def create_meta(parent_name, tag_properties):
+	route_meta = frappe.new_doc("Website Route Meta")
+	route_meta.update(
+		{
+			"__newname": parent_name,
+		}
+	)
+	route_meta.append("meta_tags", tag_properties)
+	route_meta.insert()
+
+
+def create_meta_tag(tag_properties):
+	new_tag = frappe.new_doc("Website Meta Tag")
+	new_tag.update(tag_properties)
+	new_tag.insert()
+
+
+def validate_meta_data_permissions(meta_type):
+	roles = frappe.get_roles()
+
+	if meta_type == "courses":
+		if not ("Course Creator" in roles or "Moderator" in roles):
+			frappe.throw(_("You do not have permission to update meta tags."))
+
+	elif meta_type == "batches":
+		if not ("Batch Evaluator" in roles or "Moderator" in roles):
+			frappe.throw(_("You do not have permission to update meta tags."))
 
 
 @frappe.whitelist()

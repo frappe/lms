@@ -101,7 +101,10 @@ doc_events = {
 			"lms.lms.doctype.lms_badge.lms_badge.process_badges",
 		]
 	},
-	"Discussion Reply": {"after_insert": "lms.lms.utils.handle_notifications"},
+	"Discussion Reply": {
+		"after_insert": "lms.lms.utils.handle_notifications",
+		"validate": "lms.lms.utils.validate_discussion_reply",
+	},
 	"Notification Log": {"on_change": "lms.lms.utils.publish_notifications"},
 	"User": {
 		"validate": "lms.lms.user.validate_username_duplicates",

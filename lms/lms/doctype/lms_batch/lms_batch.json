@@ -379,7 +379,7 @@
    "link_fieldname": "batch_name"
   }
  ],
- "modified": "2025-05-26 15:30:55.083507",
+ "modified": "2025-12-04 12:54:11.190967",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Batch",
@@ -422,13 +422,8 @@
    "write": 1
   },
   {
-   "email": 1,
-   "export": 1,
-   "print": 1,
    "read": 1,
-   "report": 1,
-   "role": "LMS Student",
-   "share": 1
+   "role": "LMS Student"
   }
  ],
  "row_format": "Dynamic",
