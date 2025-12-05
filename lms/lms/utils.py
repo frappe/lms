@@ -492,7 +492,7 @@ def can_create_courses(course, member=None):
 	if frappe.session.user == "Guest":
 		return False
 
-	if has_course_moderator_role(member):
+	if has_moderator_role(member):
 		return True
 
 	if has_course_instructor_role(member) and member in instructors:
@@ -508,14 +508,14 @@ def can_create_batches(member=None):
 	if not member:
 		member = frappe.session.user
 
-	if has_course_moderator_role(member):
+	if has_moderator_role(member):
 		return True
-	if has_course_evaluator_role(member):
+	if has_evaluator_role(member):
 		return True
 	return False
 
 
-def has_course_moderator_role(member=None):
+def has_moderator_role(member=None):
 	return frappe.db.get_value(
 		"Has Role",
 		{"parent": member or frappe.session.user, "role": "Moderator"},
@@ -523,7 +523,7 @@ def has_course_moderator_role(member=None):
 	)
 
 
-def has_course_evaluator_role(member=None):
+def has_evaluator_role(member=None):
 	return frappe.db.get_value(
 		"Has Role",
 		{"parent": member or frappe.session.user, "role": "Batch Evaluator"},
@@ -823,7 +823,7 @@ def get_telemetry_boot_info():
 
 @frappe.whitelist()
 def is_onboarding_complete():
-	if not has_course_moderator_role():
+	if not has_moderator_role():
 		return {"is_onboarded": True}
 
 	course_created = frappe.db.a_row_exists("LMS Course")
@@ -1266,7 +1266,7 @@ def get_lesson(course, chapter, lesson):
 	if (
 		not lesson_details.include_in_preview
 		and not membership
-		and not has_course_moderator_role()
+		and not has_moderator_role()
 		and not is_instructor(course)
 	):
 		return {
@@ -1691,6 +1691,11 @@ def has_submitted_assessment(assessment, assessment_type, member=None):
 		docfield = "quiz"
 		fields = ["percentage"]
 		not_attempted = 0
+	elif assessment_type == "LMS Programming Exercise":
+		doctype = "LMS Programming Exercise Submission"
+		docfield = "exercise"
+		fields = ["status"]
+		not_attempted = "Not Attempted"
 
 	filters = {}
 	filters[docfield] = assessment
@@ -1954,9 +1959,9 @@ def get_lesson_creation_details(course, chapter, lesson):
 def get_roles(name):
 	frappe.only_for("Moderator")
 	return {
-		"moderator": has_course_moderator_role(name),
+		"moderator": has_moderator_role(name),
 		"course_creator": has_course_instructor_role(name),
-		"batch_evaluator": has_course_evaluator_role(name),
+		"batch_evaluator": has_evaluator_role(name),
 		"lms_student": has_student_role(name),
 	}
 
@@ -2058,29 +2063,59 @@ def enroll_in_course(course, payment_name):
 
 @frappe.whitelist()
 def enroll_in_batch(batch, payment_name=None):
-	if not frappe.db.exists("LMS Batch Enrollment", {"batch": batch, "member": frappe.session.user}):
-		batch_doc = frappe.db.get_value("LMS Batch", batch, ["name", "seat_count"], as_dict=True)
-		students = frappe.db.count("LMS Batch Enrollment", {"batch": batch})
-		if batch_doc.seat_count and students >= batch_doc.seat_count:
-			frappe.throw(_("The batch is full. Please contact the Administrator."))
+	if not frappe.db.exists("LMS Batch", batch):
+		frappe.throw(_("The specified batch does not exist."))
 
-		new_student = frappe.new_doc("LMS Batch Enrollment")
+	batch_doc = frappe.db.get_value(
+		"LMS Batch", batch, ["name", "seat_count", "allow_self_enrollment"], as_dict=True
+	)
+	payment_doc = get_payment_details(payment_name)
+	validate_enrollment_eligibility(batch_doc, payment_doc)
+	create_enrollment(batch, payment_doc)
+
+
+def get_payment_details(payment_name):
+	payment_doc = None
+	if payment_name:
+		payment_doc = frappe.db.get_value(
+			"LMS Payment", payment_name, ["name", "source", "payment_received"], as_dict=True
+		)
+	return payment_doc
+
+
+def validate_enrollment_eligibility(batch_doc, payment_doc=None):
+	if frappe.db.exists("LMS Batch Enrollment", {"batch": batch_doc.name, "member": frappe.session.user}):
+		frappe.throw(_("You are already enrolled in this batch."))
+
+	if batch_doc.paid_batch:
+		if not payment_doc or not payment_doc.payment_received:
+			frappe.throw(_("Payment is required to enroll in this batch."))
+
+	elif not batch_doc.allow_self_enrollment:
+		frappe.throw(_("Enrollment in this batch is restricted. Please contact the Administrator."))
+
+	students = frappe.db.count("LMS Batch Enrollment", {"batch": batch_doc.name})
+	if batch_doc.seat_count and students >= batch_doc.seat_count:
+		frappe.throw(_("There are no seats available in this batch."))
+
+
+def create_enrollment(batch, payment_doc=None):
+	new_student = frappe.new_doc("LMS Batch Enrollment")
+	new_student.update(
+		{
+			"member": frappe.session.user,
+			"batch": batch,
+		}
+	)
+
+	if payment_doc:
 		new_student.update(
 			{
-				"member": frappe.session.user,
-				"batch": batch,
+				"payment": payment_doc.name,
+				"source": payment_doc.source,
 			}
 		)
-
-		if payment_name:
-			payment = frappe.db.get_value("LMS Payment", payment_name, ["name", "source"], as_dict=True)
-			new_student.update(
-				{
-					"payment": payment.name,
-					"source": payment.source,
-				}
-			)
-		new_student.save()
+	new_student.save()
 
 
 def update_certificate_purchase(course, payment_name):
@@ -2169,8 +2204,8 @@ def get_program_details(program_name):
 
 @frappe.whitelist()
 def enroll_in_program(program):
-	if frappe.session.user == "Guest":
-		frappe.throw(_("Please login to enroll in the program."))
+	validate_program_enrollment(program)
+
 	if not frappe.db.exists("LMS Program Member", {"parent": program, "member": frappe.session.user}):
 		program_member = frappe.new_doc("LMS Program Member")
 		program_member.update(
@@ -2182,6 +2217,15 @@ def enroll_in_program(program):
 			}
 		)
 		program_member.save(ignore_permissions=True)
+
+
+def validate_program_enrollment(program):
+	if frappe.session.user == "Guest":
+		frappe.throw(_("Please login to enroll in the program."))
+
+	published = frappe.db.get_value("LMS Program", program, "published")
+	if not published:
+		frappe.throw(_("You cannot enroll in an unpublished program."))
 
 
 @frappe.whitelist(allow_guest=True)
@@ -2648,3 +2692,48 @@ def get_streak_info():
 		"current_streak": current_streak,
 		"longest_streak": longest_streak,
 	}
+
+
+def validate_discussion_reply(doc, method):
+	topic = frappe.db.get_value(
+		"Discussion Topic", doc.topic, ["reference_doctype", "reference_docname"], as_dict=True
+	)
+
+	if topic.reference_doctype == "Course Lesson":
+		validate_course_access(topic.reference_docname)
+
+	elif topic.reference_doctype == "LMS Batch":
+		validate_batch_access(topic.reference_docname)
+
+
+def validate_course_access(lesson):
+	if not frappe.db.exists("Course Lesson", lesson):
+		frappe.throw(_("The lesson does not exist."))
+
+	if has_moderator_role():
+		return
+
+	if has_course_instructor_role():
+		return
+
+	course = frappe.db.get_value("Course Lesson", lesson, "course")
+	enrollment_exists = frappe.db.exists("LMS Enrollment", {"member": frappe.session.user, "course": course})
+	if not enrollment_exists:
+		frappe.throw(_("You do not have access to this course."))
+
+
+def validate_batch_access(batch):
+	if not frappe.db.exists("LMS Batch", batch):
+		frappe.throw(_("The batch does not exist."))
+
+	if has_moderator_role():
+		return
+
+	if has_evaluator_role():
+		return
+
+	enrollment_exists = frappe.db.exists(
+		"LMS Batch Enrollment", {"member": frappe.session.user, "batch": batch}
+	)
+	if not enrollment_exists:
+		frappe.throw(_("You do not have access to this batch."))

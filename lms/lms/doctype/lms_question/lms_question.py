@@ -5,7 +5,7 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 
-from lms.lms.utils import has_course_instructor_role, has_course_moderator_role
+from lms.lms.utils import has_course_instructor_role, has_moderator_role
 
 
 class LMSQuestion(Document):
@@ -95,7 +95,7 @@ def get_correct_options(question):
 
 @frappe.whitelist()
 def get_question_details(question):
-	if not has_course_instructor_role() or not has_course_moderator_role():
+	if not has_course_instructor_role() or not has_moderator_role():
 		return
 
 	fields = ["question", "type", "name"]

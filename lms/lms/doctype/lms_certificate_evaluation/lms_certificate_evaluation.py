@@ -6,7 +6,7 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.model.mapper import get_mapped_doc
 
-from lms.lms.utils import has_course_moderator_role
+from lms.lms.utils import has_moderator_role
 
 
 class LMSCertificateEvaluation(Document):
@@ -19,7 +19,7 @@ class LMSCertificateEvaluation(Document):
 
 
 def has_website_permission(doc, ptype, user, verbose=False):
-	if has_course_moderator_role() or doc.member == frappe.session.user:
+	if has_moderator_role() or doc.member == frappe.session.user:
 		return True
 	return False
 

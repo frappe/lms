@@ -15,8 +15,18 @@ class LMSBatchEnrollment(Document):
 		self.add_member_to_live_class()
 
 	def validate(self):
+		self.validate_owner()
 		self.validate_duplicate_members()
+		self.validate_seat_availability()
 		self.validate_course_enrollment()
+
+	def validate_owner(self):
+		if self.owner == self.member:
+			return
+
+		roles = frappe.get_roles(self.owner)
+		if not ("Moderator" in roles or "Batch Evaluator" in roles):
+			frappe.throw(_("You must be a Moderator or Batch Evaluator to enroll users in a batch."))
 
 	def validate_duplicate_members(self):
 		if frappe.db.exists(
@@ -24,6 +34,12 @@ class LMSBatchEnrollment(Document):
 			{"batch": self.batch, "member": self.member, "name": ["!=", self.name]},
 		):
 			frappe.throw(_("Member already enrolled in this batch"))
+
+	def validate_seat_availability(self):
+		seat_count = frappe.db.get_value("LMS Batch", self.batch, "seat_count")
+		enrolled_count = frappe.db.count("LMS Batch Enrollment", {"batch": self.batch})
+		if seat_count and enrolled_count >= seat_count:
+			frappe.throw(_("There are no seats available in this batch."))
 
 	def validate_course_enrollment(self):
 		courses = frappe.get_all("Batch Course", filters={"parent": self.batch}, fields=["course"])

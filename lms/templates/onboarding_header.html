@@ -1,6 +1,6 @@
 {% set onboarding_status = is_onboarding_complete() %}
 
-{% if has_course_moderator_role() and not onboarding_status.is_onboarded %}
+{% if has_moderator_role() and not onboarding_status.is_onboarded %}
 <div class="onboarding-parent">
 	<div class="container">
 		<div class="onboarding-skip">{{ _("Skip") }}</div>

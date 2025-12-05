@@ -77,8 +77,7 @@ def update_program_progress(member):
 
 @frappe.whitelist()
 def create_membership(course, batch=None, member=None, member_type="Student", role="Member"):
-	if frappe.db.get_value("LMS Course", course, "disable_self_learning"):
-		return False
+	validate_course_enrollment_eligibility(course, member)
 
 	enrollment = frappe.new_doc("LMS Enrollment")
 	enrollment.update(
@@ -93,6 +92,42 @@ def create_membership(course, batch=None, member=None, member_type="Student", ro
 	)
 	enrollment.insert()
 	return enrollment
+
+
+def validate_course_enrollment_eligibility(course, member):
+	if not member:
+		member = frappe.session.user
+
+	course_details = frappe.db.get_value(
+		"LMS Course",
+		course,
+		["published", "disable_self_learning", "paid_course", "paid_certificate"],
+		as_dict=True,
+	)
+
+	if course_details.disable_self_learning:
+		frappe.throw(
+			_(
+				"You cannot enroll in this course as self-learning is disabled. Please contact the Administrator."
+			)
+		)
+
+	if not course_details.published:
+		frappe.throw(_("You cannot enroll in an unpublished course."))
+
+	if course_details.paid_course:
+		payment = frappe.db.exists(
+			"LMS Payment",
+			{
+				"reference_doctype": "LMS Course",
+				"reference_docname": course,
+				"member": member,
+				"payment_receipt": True,
+			},
+		)
+
+		if not payment:
+			frappe.throw(_("You need to complete the payment for this course before enrolling."))
 
 
 @frappe.whitelist()
