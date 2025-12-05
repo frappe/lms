@@ -1304,7 +1304,24 @@ def get_notifications(filters):
 
 
 @frappe.whitelist(allow_guest=True)
-def get_lms_setting(field):
+def get_lms_setting(field=None):
+	if not field:
+		frappe.throw(_("Field name is required"))
+		frappe.log_error("Field name is missing when accessing LMS Settings {0} {1} {2}").format(
+			frappe.local.request_ip, frappe.get_request_header("Referer"), frappe.get_request_header("Origin")
+		)
+
+	allowed_fields = [
+		"allow_guest_access",
+		"prevent_skipping_videos",
+		"contact_us_email",
+		"contact_us_url",
+		"livecode_url",
+	]
+
+	if field not in allowed_fields:
+		frappe.throw(_("You are not allowed to access this field"))
+
 	return frappe.get_cached_value("LMS Settings", None, field)
 
 
